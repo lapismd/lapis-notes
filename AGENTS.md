@@ -53,6 +53,18 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   story/demo layout — not as a component styling path.
 - Track swap progress in root `MIGRATION.md`.
 
+## Development Workflow
+
+- The worktree may contain user changes. Do not revert unrelated edits.
+- If the `jj` binary is available, use the `jj-jujutsu` skill and Jujutsu for
+  version-control inspection, diffs, and commits instead of Git.
+- After each verified change, run `jj commit` with a PR-quality message that
+  explains what changed, why it changed, and the validation that passed. Keep the
+  message descriptive enough for review context rather than using a terse label.
+  When `jj` is unavailable, use Git with the same message quality.
+- Keep changes scoped to the package or surface needed for the request. Do not
+  add broad refactors or metadata churn unless required to complete the task.
+
 ## Tooling
 
 - Use Turbo (`pnpm check`, `pnpm build`, `pnpm test`). Root `pnpm check` runs
@@ -63,7 +75,6 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - Interaction + a11y: `pnpm test:storybook` (axe must fail on violations via
   `parameters.a11y.test: "error"`). Visual Delta: `pnpm test:visual` /
   `pnpm test:visual:update` (Playwright **1.61.1** for Docker capture parity).
-- Prefer `jj` when available; otherwise git. Do not revert unrelated user edits.
 
 ## Verification
 
