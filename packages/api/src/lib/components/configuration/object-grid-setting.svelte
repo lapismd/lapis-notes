@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { Input } from "@lapis-notes/ui/input";
-  import { Switch } from "@lapis-notes/ui/switch";
-  import * as Table from "@lapis-notes/ui/table";
+  import { Input } from "@lapismd/design-core/shadcn/input";
+  import { Switch } from "@lapismd/design-core/shadcn/switch";
+  import * as Table from "@lapismd/design-core/shadcn/table";
   import type { ObjectType, SchemaType } from "../../configuration.svelte";
 
   let {

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
-  import * as DropdownMenu from "@lapis-notes/ui/dropdown-menu";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
 
   let status = $state("idle");
   let pinned = $state(false);

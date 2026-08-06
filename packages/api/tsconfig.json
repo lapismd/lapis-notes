@@ -34,7 +34,23 @@
       ],
       "@lapis-notes/ui/table-dnd/sensors": [
         "../ui/src/lib/components/ui/table-dnd/table-dnd-sensors.ts"
-      ]
+      ],
+      "@lapismd/design-core/shadcn/*": [
+        "../../../design-core/src/shared/shadcn/*/index.ts"
+      ],
+      "@lapismd/design-core/forms": [
+        "../../../design-core/src/shared/forms/index.ts"
+      ],
+      "@lapismd/design-core/forms/*": [
+        "../../../design-core/src/shared/forms/*"
+      ],
+      "@codemirror/view": ["./node_modules/@codemirror/view"],
+      "@codemirror/state": ["./node_modules/@codemirror/state"],
+      "@codemirror/language": ["./node_modules/@codemirror/language"],
+      "@codemirror/autocomplete": ["./node_modules/@codemirror/autocomplete"],
+      "@codemirror/commands": ["./node_modules/@codemirror/commands"],
+      "@codemirror/lint": ["./node_modules/@codemirror/lint"],
+      "@codemirror/search": ["./node_modules/@codemirror/search"]
     },
     "target": "ESNext",
     "useDefineForClassFields": true,
@@ -52,5 +68,9 @@
     "moduleDetection": "force"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
-  "exclude": ["src/**/__tests__/**"]
+  "exclude": [
+    "src/**/__tests__/**",
+    "src/lib/search-query/parser.js",
+    "src/lib/search-query/parser.terms.js"
+  ]
 }

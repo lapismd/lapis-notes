@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
-  import * as Popover from "@lapis-notes/ui/popover";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as Popover from "@lapismd/design-core/shadcn/popover";
 
   let status = $state("idle");
 </script>

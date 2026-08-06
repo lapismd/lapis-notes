@@ -7,6 +7,8 @@ import remarkGfm from "remark-gfm";
 import { mergeConfig } from "vite";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(rootDir, "..");
+const designCoreRoot = path.resolve(repoRoot, "../design-core");
 const uiLib = path.resolve(rootDir, "../packages/ui/src/lib");
 const uiComponents = path.join(uiLib, "components/ui");
 
@@ -110,6 +112,9 @@ const config: StorybookConfig = {
       },
 
       server: {
+        fs: {
+          allow: [repoRoot, designCoreRoot],
+        },
         watch: {
           ignored: ["**/storybook-static/**"],
         },

@@ -1,4 +1,4 @@
-import { type ButtonSize, type ButtonVariant } from "@lapis-notes/ui/button";
+import { type ButtonSize, type ButtonVariant } from "./design-core-button-types";
 import { type MountComponent } from "$lib/hooks/mountComponent.svelte";
 import type { App } from "./context.svelte";
 import type { Plugin } from "./plugin";

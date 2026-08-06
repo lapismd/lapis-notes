@@ -1,0 +1,12 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./DateSetting.stories";
+
+<Meta of={Stories} />
+
+# Date Setting
+
+API verification for api `date-setting`, which mounts `@lapismd/design-core/forms`
+`DatePicker` / `TimePicker`. The retired `@lapis-notes/ui/date-time-picker-dialog`
+compound is no longer used. See `spec/src/storybook-catalog.md`.
+
+<Canvas of={Stories.DateSetting} />

@@ -28,7 +28,7 @@
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
     "@lapis-notes/ui": "workspace:*",
-    "@lapismd/design-core": "link:../design-core",
+    "@lapismd/design-core": "file:../design-core",
     "@lapismd/storybook-addon-visual-delta": "^0.0.6",
     "@lucide/svelte": "^0.523.0",
     "@playwright/test": "1.61.1",

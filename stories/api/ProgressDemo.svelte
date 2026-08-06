@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
-  import { Progress } from "@lapis-notes/ui/progress";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import { Progress } from "@lapismd/design-core/shadcn/progress";
 
   let value = $state(40);
 </script>

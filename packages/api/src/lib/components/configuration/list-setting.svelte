@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
-  import { Input } from "@lapis-notes/ui/input";
-  import { Switch } from "@lapis-notes/ui/switch";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import { Input } from "@lapismd/design-core/shadcn/input";
+  import { Switch } from "@lapismd/design-core/shadcn/switch";
   import { Select } from "../select";
   import type { ObjectMapOption } from "./object-map-setting.svelte";
   import { buildSelectOptionsForValue } from "./object-array-utils";

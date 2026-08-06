@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Slider } from "@lapis-notes/ui/slider";
+  import { Slider } from "@lapismd/design-core/shadcn/slider";
 
   let value = $state([40]);
   const display = $derived(value[0] ?? 0);

@@ -3,8 +3,8 @@
   import ContextMenuContent from "./context-menu.svelte";
   import DropdownMenuContent from "./dropdown-menu.svelte";
   import PopoverMenu from "./popover-menu.svelte";
-  import * as Dropdown from "@lapis-notes/ui/dropdown-menu";
-  import * as ContextMenu from "@lapis-notes/ui/context-menu";
+  import * as Dropdown from "@lapismd/design-core/shadcn/dropdown-menu";
+  import * as ContextMenu from "@lapismd/design-core/shadcn/context-menu";
   import type { WithChildren } from "bits-ui";
 
   let {

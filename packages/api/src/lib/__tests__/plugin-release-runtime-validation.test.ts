@@ -1,19 +1,19 @@
-import telemetryManifestSpec from "../../../../plugins/plugin-telemetry/manifest.json";
 import { describe, expect, it } from "vitest";
 import {
   validatePluginReleaseRuntime,
   type PluginReleaseManifest,
 } from "../plugin-distribution";
 import type { PluginManifest } from "../plugin";
+import { createEsmWorkspaceRuntimeManifest } from "./lapis-runtime-manifest";
 
-const telemetryManifest = telemetryManifestSpec as PluginManifest;
+const esmWorkspaceManifest = createEsmWorkspaceRuntimeManifest();
 
 describe("plugin release runtime validation", () => {
-  it("accepts the Telemetry ESM-only runtime metadata", () => {
+  it("accepts structured ESM-only workspace runtime metadata", () => {
     const result = validatePluginReleaseRuntime({
-      releaseManifest: releaseManifestFor(telemetryManifest),
-      pluginManifest: telemetryManifest,
-      files: filesFor(telemetryManifest),
+      releaseManifest: releaseManifestFor(esmWorkspaceManifest),
+      pluginManifest: esmWorkspaceManifest,
+      files: filesFor(esmWorkspaceManifest),
       provenance: "official",
     });
 
@@ -21,11 +21,11 @@ describe("plugin release runtime validation", () => {
   });
 
   it("rejects official structured runtime entries whose files are missing", () => {
-    const files = filesFor(telemetryManifest);
+    const files = filesFor(esmWorkspaceManifest);
     files.delete("main.mjs");
     const result = validatePluginReleaseRuntime({
-      releaseManifest: releaseManifestFor(telemetryManifest),
-      pluginManifest: telemetryManifest,
+      releaseManifest: releaseManifestFor(esmWorkspaceManifest),
+      pluginManifest: esmWorkspaceManifest,
       files,
       provenance: "official",
     });
@@ -37,10 +37,10 @@ describe("plugin release runtime validation", () => {
 
   it("rejects official ESM externals that are not declared as shared dependencies", () => {
     const result = validatePluginReleaseRuntime({
-      releaseManifest: releaseManifestFor(telemetryManifest),
-      pluginManifest: telemetryManifest,
-      files: filesFor(telemetryManifest, {
-        "main.mjs": `import { z } from "zod"; export default class TelemetryPlugin {}`,
+      releaseManifest: releaseManifestFor(esmWorkspaceManifest),
+      pluginManifest: esmWorkspaceManifest,
+      files: filesFor(esmWorkspaceManifest, {
+        "main.mjs": `import { z } from "zod"; export default class FixturePlugin {}`,
       }),
       provenance: "official",
     });
@@ -64,7 +64,7 @@ describe("plugin release runtime validation", () => {
       releaseManifest: releaseManifestFor(manifest),
       pluginManifest: manifest,
       files: filesFor(manifest, {
-        "main.mjs": `import { Plugin } from "lapis"; export default class TelemetryPlugin extends Plugin {}`,
+        "main.mjs": `import { Plugin } from "lapis"; export default class FixturePlugin extends Plugin {}`,
       }),
       provenance: "official",
     });
@@ -129,13 +129,13 @@ describe("plugin release runtime validation", () => {
   });
 
   it("rejects official manifests whose structured runtime metadata is not signed", () => {
-    const releaseManifest = releaseManifestFor(telemetryManifest);
+    const releaseManifest = releaseManifestFor(esmWorkspaceManifest);
     delete releaseManifest.runtime;
 
     const result = validatePluginReleaseRuntime({
       releaseManifest,
-      pluginManifest: telemetryManifest,
-      files: filesFor(telemetryManifest),
+      pluginManifest: esmWorkspaceManifest,
+      files: filesFor(esmWorkspaceManifest),
       provenance: "official",
     });
 
@@ -145,16 +145,16 @@ describe("plugin release runtime validation", () => {
   });
 
   it("rejects official legacy CommonJS releases without structured runtime entries", () => {
-    const releaseManifest = releaseManifestFor(telemetryManifest);
+    const releaseManifest = releaseManifestFor(esmWorkspaceManifest);
     delete releaseManifest.runtime;
 
     const result = validatePluginReleaseRuntime({
       releaseManifest,
       pluginManifest: {
-        ...telemetryManifest,
+        ...esmWorkspaceManifest,
         lapis: undefined,
       },
-      files: filesFor(telemetryManifest),
+      files: filesFor(esmWorkspaceManifest),
       provenance: "official",
     });
 
@@ -337,7 +337,7 @@ function manifestWithRuntime(
   runtime: NonNullable<NonNullable<PluginManifest["lapis"]>["runtime"]>,
 ): PluginManifest {
   return {
-    ...telemetryManifest,
+    ...esmWorkspaceManifest,
     lapis: {
       manifestVersion: 1,
       runtime,
@@ -394,7 +394,7 @@ function filesFor(
 ): Map<string, Uint8Array> {
   const files: Record<string, string> = {
     "manifest.json": JSON.stringify(manifest),
-    "main.mjs": `import { Plugin } from "@lapis-notes/api"; import { mount } from "svelte"; import { clsx } from "clsx"; export default class TelemetryPlugin extends Plugin {}`,
+    "main.mjs": `import { Plugin } from "@lapis-notes/api"; import { mount } from "svelte"; import { clsx } from "clsx"; export default class FixturePlugin extends Plugin {}`,
     ...overrides,
   };
   return new Map(

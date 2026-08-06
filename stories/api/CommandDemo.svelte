@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Command from "@lapis-notes/ui/command";
+  import * as Command from "@lapismd/design-core/shadcn/command";
 
   let status = $state("none");
 </script>

@@ -19,7 +19,7 @@ Direct api imports (one story family each):
 - `button`, `input`, `textarea`, `switch`, `slider`, `progress`
 - `select`, `search`, `tooltip`, `popover`, `command`
 - `dropdown-menu`, `context-menu`, `drawer`
-- `modal`, `confirm-dialog`, `date-time-picker-dialog`
+- `modal`, `confirm-dialog`, `date-setting` (`@lapismd/design-core/forms` DatePicker/TimePicker)
 - `scroll-area`, `table`, `toggle-group`
 - `sidebar-custom`, `table-dnd`
 - `helpers` (`cn` / `fuzzySearch`) — interaction-only, `skip-visual`

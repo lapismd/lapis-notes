@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as ToggleGroup from "@lapis-notes/ui/toggle-group";
+  import * as ToggleGroup from "@lapismd/design-core/shadcn/toggle-group";
 
   let value = $state<string[]>([]);
   const label = $derived(value.length ? value.join(",") : "none");

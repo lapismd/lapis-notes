@@ -8,6 +8,11 @@ import path from "node:path";
 const packageDir = fileURLToPath(new URL(".", import.meta.url));
 const uiLib = fileURLToPath(new URL("../ui/src/lib", import.meta.url));
 const uiComponents = path.join(uiLib, "components/ui");
+const designCoreRoot = fileURLToPath(
+  new URL("../../../design-core", import.meta.url),
+);
+const designCoreShadcn = path.join(designCoreRoot, "src/shared/shadcn");
+const designCoreForms = path.join(designCoreRoot, "src/shared/forms");
 
 /** Expected plugin-manager and command-manager failure-path logs in Vitest. */
 const SUPPRESSED_VITEST_CONSOLE_PATTERNS = [
@@ -42,11 +47,17 @@ export default defineConfig(() => {
   const isVitest = process.env.VITEST === "true";
 
   return {
-    plugins: [svelte({ preprocess: vitePreprocess() }) as PluginOption],
+    plugins: [
+      ...(svelte({ preprocess: vitePreprocess() }) as PluginOption[]),
+    ],
     test: {
       environment: "jsdom",
       setupFiles: ["./test/vitest.setup.ts"],
-      exclude: ["**/node_modules/**", "**/dist/**", "**/.svelte-kit/**"],
+      exclude: [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/.svelte-kit/**",
+      ],
       onConsoleLog(log, type) {
         if (type === "stderr" && shouldSuppressVitestConsoleLog(log)) {
           return false;
@@ -55,8 +66,29 @@ export default defineConfig(() => {
     },
     resolve: {
       conditions: ["module", "browser", "development"],
+      // Keep host CodeMirror types authoritative when design-core is linked.
+      dedupe: [
+        "@codemirror/state",
+        "@codemirror/view",
+        "@codemirror/language",
+        "@codemirror/autocomplete",
+        "@codemirror/commands",
+        "@codemirror/lint",
+        "@codemirror/search",
+        "svelte",
+        "bits-ui",
+      ],
       alias: [
         ...(isVitest ? [pluginHostProviderValuesStubAlias] : []),
+        // UI package $lib paths used by kept compounds (precede api $lib).
+        {
+          find: /^\$lib\/components\/ui\/(.*)$/,
+          replacement: `${uiComponents}/$1`,
+        },
+        {
+          find: /^\$lib\/utils(?:\.js)?$/,
+          replacement: path.join(uiLib, "utils.ts"),
+        },
         {
           find: "$lib",
           replacement: path.join(packageDir, "src/lib"),
@@ -95,6 +127,18 @@ export default defineConfig(() => {
         {
           find: /^@lapis-notes\/ui$/,
           replacement: path.join(uiLib, "index.ts"),
+        },
+        {
+          find: /^@lapismd\/design-core\/shadcn\/(.+)$/,
+          replacement: `${designCoreShadcn}/$1/index.ts`,
+        },
+        {
+          find: /^@lapismd\/design-core\/forms$/,
+          replacement: path.join(designCoreForms, "index.ts"),
+        },
+        {
+          find: /^@lapismd\/design-core\/forms\/(.+)$/,
+          replacement: `${designCoreForms}/$1`,
         },
         {
           find: /^@lapis-notes\/api$/,

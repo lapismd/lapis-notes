@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Select from "@lapis-notes/ui/select";
+  import * as Select from "@lapismd/design-core/shadcn/select";
 
   const items = [
     { value: "notes", label: "Notes" },

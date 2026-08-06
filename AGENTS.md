@@ -26,7 +26,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 ## UI And Styling
 
 - Prefer `@lapismd/design-core` for overlapping shadcn primitives over time
-  (sibling package via `link:../design-core`).
+  (sibling package via `file:../design-core`).
 - Keep Lapis-specific compounds in `@lapis-notes/ui` until migrated; each
   retained custom family needs Storybook stories and docs.
 - Every UI family consumed by `@lapis-notes/api` has an `API/<Name>` verification

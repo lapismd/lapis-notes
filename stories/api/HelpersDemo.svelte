@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fuzzySearch } from "@lapis-notes/ui";
-  import { Input } from "@lapis-notes/ui/input";
+  import { Input } from "@lapismd/design-core/shadcn/input";
 
   const items = [
     { id: "notes", label: "Notes" },

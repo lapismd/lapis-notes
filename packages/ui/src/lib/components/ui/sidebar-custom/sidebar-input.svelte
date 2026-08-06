@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ComponentProps } from "svelte";
-  import { Input } from "$lib/components/ui/input/index.js";
+  import { Input } from "@lapismd/design-core/shadcn/input";
   import { cn } from "$lib/utils.js";
 
   let {

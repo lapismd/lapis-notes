@@ -1,7 +1,7 @@
 <script lang="ts">
   import { DragDropProvider } from "@dnd-kit/svelte";
   import GripVertical from "@lucide/svelte/icons/grip-vertical";
-  import * as Table from "@lapis-notes/ui/table";
+  import * as Table from "@lapismd/design-core/shadcn/table";
   import {
     TableDragGrip,
     tableRowDragType,

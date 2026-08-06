@@ -1,4 +1,4 @@
-import { SIDEBAR_WIDTH_ICON } from "$lib/components/ui/sidebar/constants";
+import { SIDEBAR_WIDTH_ICON } from "./constants.js";
 import { type SidebarState } from "./context.svelte";
 
 interface UseSidebarResizeProps {

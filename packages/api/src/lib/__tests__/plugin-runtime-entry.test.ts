@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import telemetryManifestSpec from "../../../../plugins/plugin-telemetry/manifest.json";
 import type { PluginManifest } from "../plugin";
 import { selectPluginRuntimeEntry } from "../plugin-runtime-entry";
+import { createEsmWorkspaceRuntimeManifest } from "./lapis-runtime-manifest";
 
 function createManifest(
   manifest: Partial<PluginManifest> & Pick<PluginManifest, "id">,
@@ -158,12 +158,12 @@ describe("selectPluginRuntimeEntry", () => {
     });
   });
 
-  it("selects the Telemetry ESM entry without a CommonJS fallback", () => {
-    const telemetryManifest = telemetryManifestSpec as PluginManifest;
+  it("selects a structured ESM workspace entry without a CommonJS fallback", () => {
+    const manifest = createEsmWorkspaceRuntimeManifest();
 
     expect(
       selectPluginRuntimeEntry({
-        manifest: telemetryManifest,
+        manifest,
         requestedHost: "workspace",
         supportsEsm: true,
         supportsNodeEsm: false,
@@ -178,7 +178,7 @@ describe("selectPluginRuntimeEntry", () => {
     });
     expect(
       selectPluginRuntimeEntry({
-        manifest: telemetryManifest,
+        manifest,
         requestedHost: "workspace",
         supportsEsm: false,
         supportsNodeEsm: false,

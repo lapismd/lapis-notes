@@ -34,3 +34,7 @@ protected package change.
 4. Add evidence (unit / story) as appropriate
 5. Run `pnpm spec:first` and package checks
 6. Commit the verified slice
+
+`AGENTS.md` must stay aligned with architecture requirements (including
+`@lapismd/design-core` as a sibling `file:` dependency) whenever onboarding
+guidance changes.

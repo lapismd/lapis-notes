@@ -30,7 +30,7 @@
 </script>
 
 <script lang="ts">
-  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+  import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
   import {
     cn,
     type WithElementRef,

@@ -2,15 +2,19 @@
     import Check from "@lucide/svelte/icons/check";
     import ChevronsUpDown from "@lucide/svelte/icons/chevrons-up-down";
     import { onMount, tick } from "svelte";
-    import * as Command  from "@lapis-notes/ui/command";
-    import * as Popover  from "@lapis-notes/ui/popover";
-    import { Button, type ButtonProps } from "@lapis-notes/ui/button";
+    import * as Command  from "@lapismd/design-core/shadcn/command";
+    import * as Popover  from "@lapismd/design-core/shadcn/popover";
+    import { Button, type ButtonProps } from "@lapismd/design-core/shadcn/button";
+    import { Command as CommandPrimitive } from "bits-ui";
     import { fuzzySearch } from "@lapis-notes/ui";
     import Icon from "./icon.svelte";
     import { cn } from "../../utils.js";
     import { getIconPacks } from "../../icons";
     import type { IconifyJSON } from "@iconify/types";
     import { createVirtualizer } from "../../hooks/createVirtualizer.svelte";
+
+    // design-core command index does not re-export GroupHeading.
+    const GroupHeading = CommandPrimitive.GroupHeading;
 
     type IconSearchEntry = {
       icon: string;
@@ -148,9 +152,9 @@
                   {#each virtualizer.getVirtualItems() as row (row.index)}
                     {@const item = mergedIcons[row.index]}
                     {#if typeof item === "string"}
-                      <Command.GroupHeading class="text-muted-foreground px-2 py-1.5 text-xs font-medium" style="position: absolute; z-index: 10000; top: 0; left: 0; width: 100%; height: {row.size}px; transform: translateY({row.start}px);">
+                      <GroupHeading class="text-muted-foreground px-2 py-1.5 text-xs font-medium" style="position: absolute; z-index: 10000; top: 0; left: 0; width: 100%; height: {row.size}px; transform: translateY({row.start}px);">
                         {item}
-                      </Command.GroupHeading>
+                      </GroupHeading>
                     {:else if item}
                       <Command.Item
                         style="position: absolute; top: 0; left: 0; width: 100%; height: {row.size}px; transform: translateY({row.start}px);"

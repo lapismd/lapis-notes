@@ -1,8 +1,8 @@
 <script lang="ts">
   import Trash2 from "@lucide/svelte/icons/trash-2";
-  import { Button } from "@lapis-notes/ui/button";
-  import { Input } from "@lapis-notes/ui/input";
-  import * as Table from "@lapis-notes/ui/table";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import { Input } from "@lapismd/design-core/shadcn/input";
+  import * as Table from "@lapismd/design-core/shadcn/table";
   import { Select } from "../select";
   import type { SchemaType } from "../../configuration.svelte";
   import type { ObjectMapOption } from "./object-map-setting.svelte";

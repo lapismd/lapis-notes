@@ -28,7 +28,8 @@ plugins, and plugin-host module generation.
 
 ## `@lapis-notes/ui` (pruned)
 
-Retained families include api imports and transitive needs such as `dialog`,
-`separator`, `skeleton`, `label`, `toggle`, and `sidebar`. Lapis-custom families
-(`modal`, `search`, `confirm-dialog`, `date-time-picker-dialog`,
-`sidebar-custom`, `table-dnd`) remain local until replaced.
+Overlapping shadcn families are consumed from `@lapismd/design-core/shadcn/*`.
+`@lapis-notes/ui` keeps Lapis compounds only: `modal`, `search`,
+`confirm-dialog`, `sidebar-custom`, and `table-dnd` (plus helpers). Date/time
+settings use design-core `forms` pickers via api `date-setting` (the old
+`date-time-picker-dialog` ui compound is retired).

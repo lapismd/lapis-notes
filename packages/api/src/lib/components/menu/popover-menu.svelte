@@ -1,6 +1,6 @@
 <script lang="ts">
-  import * as Popover from "@lapis-notes/ui/popover";
-  import * as Command from "@lapis-notes/ui/command";
+  import * as Popover from "@lapismd/design-core/shadcn/popover";
+  import * as Command from "@lapismd/design-core/shadcn/command";
   import { cn } from "../../utils";
   import Icon from "$lib/components/icon/icon.svelte";
   import DrawerMenu from "./drawer-menu.svelte";

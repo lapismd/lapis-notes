@@ -1,5 +1,5 @@
 import ConfirmDialog from "@lapis-notes/ui/confirm-dialog";
-import type { ButtonVariant } from "@lapis-notes/ui/button";
+import type { ButtonVariant } from "./design-core-button-types";
 import { mountComponent } from "$lib/hooks/mountComponent.svelte";
 import { dialogPortalPropsForDocument } from "./dialog-portal";
 

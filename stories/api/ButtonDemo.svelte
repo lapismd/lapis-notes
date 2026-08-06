@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
+  import { Button } from "@lapismd/design-core/shadcn/button";
 
   let clicks = $state(0);
 </script>

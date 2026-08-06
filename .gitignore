@@ -17,3 +17,4 @@ tests/visual/storybook.spec.ts-snapshots/**/*.diff.png
 .env
 .env.*
 !.env.example
+.deps/

@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { Button, type ButtonVariant } from "@lapis-notes/ui/button";
-  import * as Dialog from "@lapis-notes/ui/dialog";
+  import {
+    Button,
+    type ButtonVariant,
+  } from "@lapismd/design-core/shadcn/button";
+  import * as Dialog from "@lapismd/design-core/shadcn/dialog";
   import { Dialog as DialogPrimitive } from "bits-ui";
   import { cn } from "$lib/utils";
 

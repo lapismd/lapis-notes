@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Sheet from "$lib/components/ui/sheet/index.js";
+  import * as Sheet from "@lapismd/design-core/shadcn/sheet";
   import { cn, type WithElementRef } from "$lib/utils.js";
   import type { HTMLAttributes } from "svelte/elements";
   import { SIDEBAR_WIDTH_MOBILE } from "./constants.js";
@@ -42,9 +42,10 @@
       data-sidebar="sidebar"
       data-slot="sidebar"
       data-mobile="true"
-      class="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+      class="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0"
       style="--sidebar-width: {SIDEBAR_WIDTH_MOBILE};"
       {side}
+      showCloseButton={false}
     >
       <Sheet.Header class="sr-only">
         <Sheet.Title>Sidebar</Sheet.Title>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as DropdownMenu from "@lapis-notes/ui/dropdown-menu";
+  import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import { cn } from "../../utils";
   import Icon from "$lib/components/icon/icon.svelte";
   import DrawerMenu from "./drawer-menu.svelte";

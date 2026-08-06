@@ -1,10 +1,10 @@
-import { IsMobile } from "$lib/hooks/is-mobile.svelte.js";
+import { IsMobile } from "../../../hooks/is-mobile.svelte.js";
 import { getContext, setContext } from "svelte";
 import {
   SIDEBAR_KEYBOARD_SHORTCUT,
   SIDEBAR_WIDTH,
   SIDEBAR_WIDTH_ICON,
-} from "$lib/components/ui/sidebar-custom/constants.js";
+} from "./constants.js";
 
 type Getter<T> = () => T;
 

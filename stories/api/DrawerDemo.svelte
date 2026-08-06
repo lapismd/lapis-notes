@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
-  import * as Drawer from "@lapis-notes/ui/drawer";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as Drawer from "@lapismd/design-core/shadcn/drawer";
 
   let open = $state(false);
   let status = $state("idle");

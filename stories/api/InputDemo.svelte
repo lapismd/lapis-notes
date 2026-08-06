@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Input } from "@lapis-notes/ui/input";
+  import { Input } from "@lapismd/design-core/shadcn/input";
 
   let value = $state("");
 </script>

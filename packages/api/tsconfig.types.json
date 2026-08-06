@@ -1,0 +1,56 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "$lib": ["./src/lib"],
+      "$lib/*": ["./src/lib/*", "../ui/src/lib/*"],
+      "$lib/utils.js": ["../ui/src/lib/utils.ts"],
+      "@lapis-notes/api": ["./src/lib/index.ts"],
+      "@lapis-notes/api/*": [
+        "./src/lib/components/*/index.ts",
+        "./src/lib/*/index.ts",
+        "./src/lib/*",
+        "./src/*/index.ts",
+        "./src/*"
+      ],
+      "@lapis-notes/ui": ["../ui/src/lib/index.ts"],
+      "@lapis-notes/ui/*": [
+        "../ui/src/lib/components/ui/*/index.ts",
+        "../ui/src/lib/*/index.ts",
+        "../ui/src/lib/*",
+        "../ui/src/*/index.ts",
+        "../ui/src/*"
+      ],
+      "@lapis-notes/ui/theme.css": ["../ui/src/lib/theme.css"],
+      "@lapis-notes/ui/styles.css": ["../ui/src/lib/styles.css"],
+      "@lapis-notes/ui/codemirror-autocomplete.css": [
+        "../ui/src/lib/codemirror-autocomplete.css"
+      ],
+      "@lapis-notes/api/cache": ["./src/lib/cache.svelte.ts"],
+      "@lapis-notes/ui/table-dnd/utils": [
+        "../ui/src/lib/components/ui/table-dnd/table-dnd-utils.ts"
+      ],
+      "@lapis-notes/ui/table-dnd/sensors": [
+        "../ui/src/lib/components/ui/table-dnd/table-dnd-sensors.ts"
+      ],
+      "@lapismd/design-core/shadcn/*": [
+        "./src/types/design-core-shims/*.ts"
+      ],
+      "@lapismd/design-core/forms": [
+        "./src/types/design-core-shims/forms.ts"
+      ],
+      "@lapismd/design-core/forms/*": [
+        "./src/types/design-core-shims/forms.ts"
+      ],
+      "@codemirror/view": ["./node_modules/@codemirror/view"],
+      "@codemirror/state": ["./node_modules/@codemirror/state"],
+      "@codemirror/language": ["./node_modules/@codemirror/language"],
+      "@codemirror/autocomplete": ["./node_modules/@codemirror/autocomplete"],
+      "@codemirror/commands": ["./node_modules/@codemirror/commands"],
+      "@codemirror/lint": ["./node_modules/@codemirror/lint"],
+      "@codemirror/search": ["./node_modules/@codemirror/search"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.js"],
+  "exclude": ["src/**/__tests__/**", "src/types/design-core-shims/**"]
+}

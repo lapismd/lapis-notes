@@ -12,7 +12,9 @@
 
 ## Swap map (normative intent)
 
-Shared families such as button, input, dialog, select, tooltip, table, and
-menus are swap candidates. Families without a design-core counterpart
-(progress, slider, context-menu, drawer, and Lapis-custom compounds) stay in
-`@lapis-notes/ui` until a replacement is specified.
+Shared shadcn families (button, input, dialog, select, tooltip, table, menus,
+progress, slider, context-menu, drawer, …) MUST come from
+`@lapismd/design-core/shadcn/*`. Lapis-custom compounds (`modal`,
+`confirm-dialog`, `search`, `sidebar-custom`, `table-dnd`) stay in
+`@lapis-notes/ui` and compose design-core primitives. Date/time settings use
+`@lapismd/design-core/forms` (`DatePicker` / `TimePicker`).

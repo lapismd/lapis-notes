@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
+  import { Button } from "@lapismd/design-core/shadcn/button";
   import ConfirmDialog from "@lapis-notes/ui/confirm-dialog";
 
   let open = $state(false);

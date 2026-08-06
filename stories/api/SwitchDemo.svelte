@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Switch } from "@lapis-notes/ui/switch";
+  import { Switch } from "@lapismd/design-core/shadcn/switch";
 
   let checked = $state(false);
   const label = $derived(checked ? "on" : "off");

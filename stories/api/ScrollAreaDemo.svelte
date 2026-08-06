@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ScrollArea } from "@lapis-notes/ui/scroll-area";
+  import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
 
   const items = Array.from({ length: 40 }, (_, i) => `Item ${i + 1}`);
 </script>

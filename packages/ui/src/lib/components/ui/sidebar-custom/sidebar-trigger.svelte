@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button/index.js";
+  import { Button } from "@lapismd/design-core/shadcn/button";
   import { cn } from "$lib/utils.js";
   import { untrack, type ComponentProps } from "svelte";
   import { SidebarState, useSidebar } from "./context.svelte.js";

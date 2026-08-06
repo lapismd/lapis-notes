@@ -15,7 +15,7 @@ import * as ContextMenuStories from "../api/ContextMenu.stories";
 import * as DrawerStories from "../api/Drawer.stories";
 import * as ModalStories from "../api/Modal.stories";
 import * as ConfirmDialogStories from "../api/ConfirmDialog.stories";
-import * as DateTimePickerDialogStories from "../api/DateTimePickerDialog.stories";
+import * as DateSettingStories from "../api/DateSetting.stories";
 import * as ScrollAreaStories from "../api/ScrollArea.stories";
 import * as TableStories from "../api/Table.stories";
 import * as ToggleGroupStories from "../api/ToggleGroup.stories";
@@ -33,26 +33,26 @@ Canonical requirements live in `spec/src/storybook-catalog.md`. Catalog ids are 
 
 | Id | Surface |
 | --- | --- |
-| `api-button` | `@lapis-notes/ui/button` |
-| `api-input` | `@lapis-notes/ui/input` |
-| `api-textarea` | `@lapis-notes/ui/textarea` |
-| `api-switch` | `@lapis-notes/ui/switch` |
-| `api-slider` | `@lapis-notes/ui/slider` |
-| `api-progress` | `@lapis-notes/ui/progress` |
-| `api-select` | `@lapis-notes/ui/select` |
+| `api-button` | `@lapismd/design-core/shadcn/button` |
+| `api-input` | `@lapismd/design-core/shadcn/input` |
+| `api-textarea` | `@lapismd/design-core/shadcn/textarea` |
+| `api-switch` | `@lapismd/design-core/shadcn/switch` |
+| `api-slider` | `@lapismd/design-core/shadcn/slider` |
+| `api-progress` | `@lapismd/design-core/shadcn/progress` |
+| `api-select` | `@lapismd/design-core/shadcn/select` |
 | `api-search` | `@lapis-notes/ui/search` |
-| `api-tooltip` | `@lapis-notes/ui/tooltip` |
-| `api-popover` | `@lapis-notes/ui/popover` |
-| `api-command` | `@lapis-notes/ui/command` |
-| `api-dropdown-menu` | `@lapis-notes/ui/dropdown-menu` |
-| `api-context-menu` | `@lapis-notes/ui/context-menu` |
-| `api-drawer` | `@lapis-notes/ui/drawer` |
+| `api-tooltip` | `@lapismd/design-core/shadcn/tooltip` |
+| `api-popover` | `@lapismd/design-core/shadcn/popover` |
+| `api-command` | `@lapismd/design-core/shadcn/command` |
+| `api-dropdown-menu` | `@lapismd/design-core/shadcn/dropdown-menu` |
+| `api-context-menu` | `@lapismd/design-core/shadcn/context-menu` |
+| `api-drawer` | `@lapismd/design-core/shadcn/drawer` |
 | `api-modal` | `@lapis-notes/ui/modal` |
 | `api-confirm-dialog` | `@lapis-notes/ui/confirm-dialog` |
-| `api-date-time-picker-dialog` | `@lapis-notes/ui/date-time-picker-dialog` |
-| `api-scroll-area` | `@lapis-notes/ui/scroll-area` |
-| `api-table` | `@lapis-notes/ui/table` |
-| `api-toggle-group` | `@lapis-notes/ui/toggle-group` |
+| `api-date-setting` | `@lapismd/design-core/forms` (`DatePicker` / `TimePicker` via api `date-setting`) |
+| `api-scroll-area` | `@lapismd/design-core/shadcn/scroll-area` |
+| `api-table` | `@lapismd/design-core/shadcn/table` |
+| `api-toggle-group` | `@lapismd/design-core/shadcn/toggle-group` |
 | `api-sidebar-custom` | `@lapis-notes/ui/sidebar-custom` |
 | `api-table-dnd` | `@lapis-notes/ui/table-dnd` |
 | `api-helpers` | `@lapis-notes/ui` (`fuzzySearch`) |
@@ -121,9 +121,9 @@ Canonical requirements live in `spec/src/storybook-catalog.md`. Catalog ids are 
 
 <Canvas of={ConfirmDialogStories.ConfirmDialog} />
 
-## Date Time Picker Dialog
+## Date Setting
 
-<Canvas of={DateTimePickerDialogStories.DateTimePickerDialog} />
+<Canvas of={DateSettingStories.DateSetting} />
 
 ## Scroll Area
 

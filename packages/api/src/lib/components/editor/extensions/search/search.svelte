@@ -10,7 +10,7 @@
     replaceAll,
   } from "@codemirror/search";
   import { EditorView, runScopeHandlers } from "@codemirror/view";
-  import * as ToggleGroup from "@lapis-notes/ui/toggle-group";
+  import * as ToggleGroup from "@lapismd/design-core/shadcn/toggle-group";
   import CaseSensitive from "@lucide/svelte/icons/case-sensitive";
   import Regex from "@lucide/svelte/icons/regex";
   import WholeWord from "@lucide/svelte/icons/whole-word";
@@ -24,10 +24,10 @@
   import ReplaceAll from "@lucide/svelte/icons/replace-all";
 
   import X from "@lucide/svelte/icons/x";
-  import * as Tooltip from "@lapis-notes/ui/tooltip";
+  import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
 
-  import { Input } from "@lapis-notes/ui/input";
-  import { buttonVariants } from "@lapis-notes/ui/button";
+  import { Input } from "@lapismd/design-core/shadcn/input";
+  import { Button } from "@lapismd/design-core/shadcn/button";
   import { onMount, untrack } from "svelte";
   import { debounce } from "lodash-es";
 
@@ -167,15 +167,21 @@
     <div class="p-1">
       <Tooltip.Provider>
         <Tooltip.Root>
-          <Tooltip.Trigger
-            onclick={() => (isReplace = !isReplace)}
-            class={buttonVariants({ variant: "outline", size: "sm" })}
-          >
-            {#if isReplace}
-              <ChevronDown />
-            {:else}
-              <ChevronRight />
-            {/if}
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <Button
+                {...props}
+                variant="outline"
+                size="sm"
+                onclick={() => (isReplace = !isReplace)}
+              >
+                {#if isReplace}
+                  <ChevronDown />
+                {:else}
+                  <ChevronRight />
+                {/if}
+              </Button>
+            {/snippet}
           </Tooltip.Trigger>
           <Tooltip.Content>
             <p>Toggle Replace</p>
@@ -196,11 +202,17 @@
         />
         <Tooltip.Provider>
           <Tooltip.Root>
-            <Tooltip.Trigger
-              onclick={searchPrevious}
-              class={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              <ArrowUp />
+            <Tooltip.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  {...props}
+                  variant="outline"
+                  size="sm"
+                  onclick={searchPrevious}
+                >
+                  <ArrowUp />
+                </Button>
+              {/snippet}
             </Tooltip.Trigger>
             <Tooltip.Content>
               <p>Previous ⇧ F3</p>
@@ -209,11 +221,17 @@
         </Tooltip.Provider>
         <Tooltip.Provider>
           <Tooltip.Root>
-            <Tooltip.Trigger
-              onclick={searchNext}
-              class={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              <ArrowDown />
+            <Tooltip.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  {...props}
+                  variant="outline"
+                  size="sm"
+                  onclick={searchNext}
+                >
+                  <ArrowDown />
+                </Button>
+              {/snippet}
             </Tooltip.Trigger>
             <Tooltip.Content>
               <p>Next F3</p>
@@ -222,11 +240,17 @@
         </Tooltip.Provider>
         <Tooltip.Provider>
           <Tooltip.Root>
-            <Tooltip.Trigger
-              onclick={searchAll}
-              class={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              <TextSelect />
+            <Tooltip.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  {...props}
+                  variant="outline"
+                  size="sm"
+                  onclick={searchAll}
+                >
+                  <TextSelect />
+                </Button>
+              {/snippet}
             </Tooltip.Trigger>
             <Tooltip.Content>
               <p>Find all ⌥ Enter</p>
@@ -235,11 +259,17 @@
         </Tooltip.Provider>
         <Tooltip.Provider>
           <Tooltip.Root>
-            <Tooltip.Trigger
-              onclick={exitSearch}
-              class={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              <X />
+            <Tooltip.Trigger>
+              {#snippet child({ props })}
+                <Button
+                  {...props}
+                  variant="outline"
+                  size="sm"
+                  onclick={exitSearch}
+                >
+                  <X />
+                </Button>
+              {/snippet}
             </Tooltip.Trigger>
             <Tooltip.Content>
               <p>Exit search</p>
@@ -260,11 +290,17 @@
           />
           <Tooltip.Provider>
             <Tooltip.Root>
-              <Tooltip.Trigger
-                onclick={replaceMatch}
-                class={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <Replace />
+              <Tooltip.Trigger>
+                {#snippet child({ props })}
+                  <Button
+                    {...props}
+                    variant="outline"
+                    size="sm"
+                    onclick={replaceMatch}
+                  >
+                    <Replace />
+                  </Button>
+                {/snippet}
               </Tooltip.Trigger>
               <Tooltip.Content>
                 <p>Replace Enter</p>
@@ -273,11 +309,17 @@
           </Tooltip.Provider>
           <Tooltip.Provider>
             <Tooltip.Root>
-              <Tooltip.Trigger
-                onclick={replaceAllMatches}
-                class={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <ReplaceAll />
+              <Tooltip.Trigger>
+                {#snippet child({ props })}
+                  <Button
+                    {...props}
+                    variant="outline"
+                    size="sm"
+                    onclick={replaceAllMatches}
+                  >
+                    <ReplaceAll />
+                  </Button>
+                {/snippet}
               </Tooltip.Trigger>
               <Tooltip.Content>
                 <p>Replace all ⌘ ⌥ Enter</p>

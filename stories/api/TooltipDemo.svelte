@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { buttonVariants } from "@lapis-notes/ui/button";
-  import * as Tooltip from "@lapis-notes/ui/tooltip";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
 
   let status = $state("idle");
 </script>
@@ -8,11 +8,16 @@
 <div class="flex flex-col gap-4 p-4">
   <Tooltip.Provider>
     <Tooltip.Root>
-      <Tooltip.Trigger
-        class={buttonVariants({ variant: "outline" })}
-        onclick={() => (status = "triggered")}
-      >
-        Hint me
+      <Tooltip.Trigger>
+        {#snippet child({ props })}
+          <Button
+            {...props}
+            variant="outline"
+            onclick={() => (status = "triggered")}
+          >
+            Hint me
+          </Button>
+        {/snippet}
       </Tooltip.Trigger>
       <Tooltip.Content>
         <p>Helpful tip</p>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Input } from "@lapis-notes/ui/input";
+  import { Input } from "@lapismd/design-core/shadcn/input";
   import type { ObjectMapOption } from "./object-map-setting.svelte";
   import { filterComboboxOptions } from "./object-array-utils";
 

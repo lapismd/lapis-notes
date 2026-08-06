@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Textarea } from "@lapis-notes/ui/textarea";
+  import { Textarea } from "@lapismd/design-core/shadcn/textarea";
 
   let value = $state("");
 </script>

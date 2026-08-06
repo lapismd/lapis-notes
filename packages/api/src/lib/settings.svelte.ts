@@ -1,14 +1,11 @@
-import {
-  Button,
-  type ButtonSize,
-  type ButtonVariant,
-} from "@lapis-notes/ui/button";
-import { Input } from "@lapis-notes/ui/input";
-import { Textarea } from "@lapis-notes/ui/textarea";
-import { Slider } from "@lapis-notes/ui/slider";
-import { Progress } from "@lapis-notes/ui/progress";
+import { Button } from "@lapismd/design-core/shadcn/button";
+import type { ButtonSize, ButtonVariant } from "./design-core-button-types";
+import { Input } from "@lapismd/design-core/shadcn/input";
+import { Textarea } from "@lapismd/design-core/shadcn/textarea";
+import { Slider } from "@lapismd/design-core/shadcn/slider";
+import { Progress } from "@lapismd/design-core/shadcn/progress";
 import { Select } from "./components/select";
-import { Switch } from "@lapis-notes/ui/switch";
+import { Switch } from "@lapismd/design-core/shadcn/switch";
 
 import { createRawSnippet, tick } from "svelte";
 import {

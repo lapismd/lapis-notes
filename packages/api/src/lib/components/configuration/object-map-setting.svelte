@@ -3,8 +3,8 @@
 </script>
 
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
-  import * as Table from "@lapis-notes/ui/table";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as Table from "@lapismd/design-core/shadcn/table";
   import type { ObjectType, SchemaType } from "../../configuration.svelte";
   import type { ObjectMapOption } from "./object-map-types";
   import ObjectMapRow from "./object-map-row.svelte";

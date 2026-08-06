@@ -2,8 +2,8 @@
   import { createDraggable, createDroppable } from "@dnd-kit/svelte";
   import GripVertical from "@lucide/svelte/icons/grip-vertical";
   import { cn } from "@lapis-notes/ui";
-  import * as Table from "@lapis-notes/ui/table";
-  import { Button } from "@lapis-notes/ui/button";
+  import * as Table from "@lapismd/design-core/shadcn/table";
+  import { Button } from "@lapismd/design-core/shadcn/button";
   import {
     dropIndicatorClasses,
     isRowDragSource,

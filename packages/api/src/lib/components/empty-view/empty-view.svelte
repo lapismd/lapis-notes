@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useLocale } from "$lib/localization-manager.svelte";
-  import { Button } from "@lapis-notes/ui/button";
+  import { Button } from "@lapismd/design-core/shadcn/button";
   const { t } = useLocale('base/empty-view');
  
   let {

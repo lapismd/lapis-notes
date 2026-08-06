@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    import * as SelectPrimitive from "@lapis-notes/ui/select";
+    import * as SelectPrimitive from "@lapismd/design-core/shadcn/select";
     import { type SelectRootProps } from "bits-ui";
     const SelectRoot: any = SelectPrimitive.Root;
 

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { Button } from "@lapis-notes/ui/button";
-  import { DateTimePickerDialog } from "@lapis-notes/ui/date-time-picker-dialog";
+  import { DatePicker, TimePicker } from "@lapismd/design-core/forms";
 
   let {
     value = $bindable(""),
@@ -12,27 +11,61 @@
     onValueChange?: (value: string) => void;
   } = $props();
 
-  let open = $state(false);
+  /**
+   * Normalize stored settings strings for the pickers.
+   * Legacy `datetime-local` values look like `YYYY-MM-DDTHH:mm` (optional seconds).
+   */
+  function normalizeInbound(
+    raw: string | undefined,
+    fmt: "date" | "time",
+  ): string | undefined {
+    const trimmed = (raw ?? "").trim();
+    if (!trimmed) return undefined;
 
-  function emit(next: string): void {
-    value = next;
-    onValueChange?.(next);
+    if (trimmed.includes("T")) {
+      const [datePart, timePart = ""] = trimmed.split("T");
+      if (fmt === "date") {
+        return datePart || undefined;
+      }
+      const match = /^(\d{2}):(\d{2})/.exec(timePart);
+      return match ? `${match[1]}:${match[2]}` : timePart || undefined;
+    }
+
+    if (fmt === "date") {
+      // Accept bare `YYYY-MM-DD` (or longer ISO prefixes).
+      const match = /^(\d{4}-\d{2}-\d{2})/.exec(trimmed);
+      return match?.[1] ?? trimmed;
+    }
+
+    const match = /^(\d{2}):(\d{2})/.exec(trimmed);
+    return match ? `${match[1]}:${match[2]}` : trimmed;
   }
 
-  const label = $derived(
-    value.trim().length > 0 ? value : format === "time" ? "Pick time" : "Pick date",
-  );
+  function emit(next: string | undefined): void {
+    const out = next ?? "";
+    value = out;
+    onValueChange?.(out);
+  }
 </script>
 
-<Button variant="outline" size="sm" class="h-8" onclick={() => (open = true)}>
-  {label}
-</Button>
-
-<DateTimePickerDialog
-  bind:open
-  bind:value
-  title={format === "time" ? "Pick time" : "Pick date"}
-  description={format === "time" ? "Choose a time value." : "Choose a date value."}
-  onConfirm={(next) => emit(next ?? "")}
-  onClear={() => emit("")}
-/>
+{#if format === "time"}
+  <TimePicker
+    bind:value={
+      () => normalizeInbound(value, "time"),
+      (next) => emit(next)
+    }
+    clearable
+    ariaLabel="Choose time"
+    placeholder="Pick time"
+  />
+{:else}
+  <DatePicker
+    bind:value={
+      () => normalizeInbound(value, "date"),
+      (next) => emit(next)
+    }
+    clearable
+    ariaLabel="Choose date"
+    placeholder="Pick date"
+  />
+{/if}

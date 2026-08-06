@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as ContextMenu from "@lapis-notes/ui/context-menu";
+  import * as ContextMenu from "@lapismd/design-core/shadcn/context-menu";
 
   let status = $state("idle");
 </script>

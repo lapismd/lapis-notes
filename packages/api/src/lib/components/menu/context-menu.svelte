@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as ContextMenu from "@lapis-notes/ui/context-menu";
+  import * as ContextMenu from "@lapismd/design-core/shadcn/context-menu";
   import { cn } from "../../utils";
   import Icon from "$lib/components/icon/icon.svelte";
   import DrawerMenu from "./drawer-menu.svelte";

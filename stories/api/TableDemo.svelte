@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Switch } from "@lapis-notes/ui/switch";
-  import * as Table from "@lapis-notes/ui/table";
+  import { Switch } from "@lapismd/design-core/shadcn/switch";
+  import * as Table from "@lapismd/design-core/shadcn/table";
 
   let enabled = $state(true);
 </script>

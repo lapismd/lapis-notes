@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Drawer from "@lapis-notes/ui/drawer";
+  import * as Drawer from "@lapismd/design-core/shadcn/drawer";
   import Icon from "$lib/components/icon/icon.svelte";
   import {
     isMenuItem,

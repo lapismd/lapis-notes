@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createDraggable } from "@dnd-kit/svelte";
-  import { Button } from "@lapis-notes/ui/button";
+  import { Button } from "@lapismd/design-core/shadcn/button";
   import type { Snippet } from "svelte";
 
   let {

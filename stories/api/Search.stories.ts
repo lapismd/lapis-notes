@@ -17,11 +17,8 @@ export const Search: Story = {
     const input = canvas.getByLabelText("Search notes");
     await userEvent.type(input, "query");
     await expect(canvas.getByTestId("api-ui-status")).toHaveTextContent("value: query");
-    const clear = canvasElement.querySelector(
-      "button.size-4.rounded-full:not(.hidden)",
-    ) as HTMLButtonElement | null;
-    expect(clear).toBeTruthy();
-    await userEvent.click(clear!);
+    const clear = canvas.getByRole("button", { name: "Clear search" });
+    await userEvent.click(clear);
     await waitFor(() =>
       expect(canvas.getByTestId("api-ui-status")).toHaveTextContent("value:"),
     );

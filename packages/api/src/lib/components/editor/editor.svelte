@@ -4,7 +4,7 @@
   import { dirname } from "../../storage/path";
   import { WorkspaceLeaf } from "../../workspace.svelte";
   import { editorConfig } from "./editor";
-  import { ScrollArea } from "@lapis-notes/ui/scroll-area";
+  import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
 
   type Props = {
     leaf?: WorkspaceLeaf;

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { Input } from "@lapis-notes/ui/input";
+  import { Input } from "@lapismd/design-core/shadcn/input";
   import type { ComponentProps } from "svelte";
   import { cn } from "$lib/utils.js";
   import SearchIcon from "@lucide/svelte/icons/search";
   import X from "@lucide/svelte/icons/x";
-  import { Button } from "@lapis-notes/ui/button";
+  import { Button } from "@lapismd/design-core/shadcn/button";
 
   let {
     ref = $bindable(null),
@@ -33,24 +33,25 @@
   style={containerStyle}
 >
   <SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
-  <Input
-    class={cn(
-      "placeholder:text-muted-foreground flex h-full w-full rounded-md border-none bg-transparent py-0 pl-0 text-sm shadow-none outline-none focus-visible:ring-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-      inputClass,
-    )}
-    bind:ref
-    bind:value
-    {...restProps}
-  />
-  <Button
-    size="xs"
-    onclick={() => clear()}
-    variant="default"
-    class={cn(
-      "size-4 rounded-full bg-[color-mix(in_srgb,var(--interactive-accent)_60%,transparent)]",
-      { hidden: !isClearable },
-    )}
-  >
-    <X />
-  </Button>
+  <div class="flex h-full min-w-0 flex-1 items-center">
+    <Input
+      class={cn(
+        "h-full border-none bg-transparent py-0 pl-0 shadow-none focus-visible:ring-0",
+        inputClass,
+      )}
+      bind:ref
+      bind:value
+      {...restProps}
+    />
+  </div>
+  {#if isClearable}
+    <Button
+      size="icon-xs"
+      onclick={() => clear()}
+      variant="ghost"
+      aria-label="Clear search"
+    >
+      <X />
+    </Button>
+  {/if}
 </div>
