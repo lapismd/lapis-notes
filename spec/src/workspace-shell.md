@@ -30,3 +30,8 @@
 No design-core source changes are required for this slice. Its public workspace
 controller, legacy JSON bridge, imperative view registry, and default shell
 surface are the dependency boundary.
+
+The compatibility projection reuses split, tabs, group, window, and leaf
+objects by serialized id. Api-origin changes are committed under a bridge guard;
+controller-originated changes are projected asynchronously under persistence
+suppression and emit one legacy layout-change/save request after reconciliation.

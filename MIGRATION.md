@@ -29,8 +29,8 @@ intake or UI swap status changes.
 ### Workspace shell integration progress
 
 - [x] Canonical requirements and governance mapping
-- [ ] Api-owned design-core controller and compatibility projection
-- [ ] Host-only `@lapis-notes/api/workspace-host` export
+- [x] Api-owned design-core controller and compatibility projection
+- [x] Host-only `@lapis-notes/api/workspace-host` export
 - [ ] `@lapis-notes/workspace` package
 - [ ] Persisted desktop and mobile Storybook stories
 - [ ] Interaction, accessibility, build, and visual verification

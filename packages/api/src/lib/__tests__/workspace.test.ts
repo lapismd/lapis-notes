@@ -16,6 +16,7 @@ import {
   setWorkspacePopoutHost,
 } from "../workspace.svelte";
 import type { WorkspacePopoutHost } from "../workspace.svelte";
+import { getWorkspaceHostBinding } from "../workspace-host";
 
 vi.mock("../prompt-confirm", () => ({
   promptConfirm: vi.fn(async () => true),
@@ -1167,6 +1168,126 @@ describe("Workspace compatibility", () => {
     await workspace.loadLayout();
 
     expect(events).toEqual(["ready"]);
+  });
+
+  it("loads an alternate workspace file and hydrates the host controller", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const layout = workspace.toJson();
+    const leaf = (layout.main.children[0] as any).children[0];
+    leaf.id = "alternate-leaf";
+    layout.active = "alternate-leaf";
+    const workspaceFile = new TFile(
+      "/.obsidian/mobile.json",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const getFileByPath = vi
+      .spyOn(app.vault, "getFileByPath")
+      .mockImplementation((path) =>
+        path === "/.obsidian/mobile.json" ? workspaceFile : null,
+      );
+    vi.spyOn(app.vault, "read").mockResolvedValue(JSON.stringify(layout));
+
+    await workspace.loadLayout("mobile.json");
+
+    expect(getFileByPath).toHaveBeenCalledWith("/.obsidian/mobile.json");
+    expect(workspace.activeLeaf?.id).toBe("alternate-leaf");
+    expect(
+      JSON.stringify(getWorkspaceHostBinding(workspace).controller.getLayout()),
+    ).toContain("alternate-leaf");
+  });
+
+  it("exposes the api-owned design-core controller through the host binding", () => {
+    const { workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+
+    expect(binding.controller.getLayout()).toEqual(
+      expect.objectContaining({
+        main: expect.objectContaining({ type: "split" }),
+        left: expect.objectContaining({ type: "split" }),
+        right: expect.objectContaining({ type: "split" }),
+      }),
+    );
+
+    const leaf = workspace.getLeaf();
+    workspace.requestSaveLayout({ source: "api", operation: "host-sync" });
+
+    expect(JSON.stringify(binding.controller.getLayout())).toContain(leaf.id);
+  });
+
+  it("projects controller changes while preserving compatibility leaf identity", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+    const tabs = workspace.rootSplit.children[0] as WorkspaceTabs;
+    const originalLeaf = tabs.children[0] as WorkspaceLeaf;
+    const events: unknown[] = [];
+    workspace.on("layout-change", (event) => events.push(event));
+
+    const added = binding.controller.workspace.openLeaf(
+      "empty",
+      {},
+      { paneId: tabs.id, title: "Second", active: true },
+    );
+    expect(added).not.toBeNull();
+
+    await vi.waitFor(() => {
+      expect(workspace.getLeafById(added!.id)).toBeInstanceOf(WorkspaceLeaf);
+    });
+
+    expect(workspace.getLeafById(originalLeaf.id)).toBe(originalLeaf);
+    expect(workspace.activeLeaf?.id).toBe(added!.id);
+    expect(events).toContainEqual({ source: "api", operation: "tab-add" });
+  });
+
+  it("forwards cancelable controller drop events to compatibility listeners", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+    const tabs = workspace.rootSplit.children[0] as WorkspaceTabs;
+    const added = binding.controller.workspace.openLeaf(
+      "empty",
+      {},
+      { paneId: tabs.id, title: "Second", active: true },
+    );
+    expect(added).not.toBeNull();
+    await vi.waitFor(() => {
+      expect(workspace.getLeafById(added!.id)).not.toBeNull();
+    });
+
+    workspace.on("layout-will-drop", (event) => event.preventDefault());
+    const moved = binding.controller.workspace.moveLeaf(
+      added!.id,
+      tabs.id,
+      "center",
+      0,
+    );
+
+    expect(moved).toBe(false);
+    expect(
+      (binding.controller.getLayout().main.children[0] as any).children.map(
+        (child: { id: string }) => child.id,
+      ),
+    ).toEqual([tabs.children[0]!.id, added!.id]);
+  });
+
+  it("registers Lapis views as imperative design-core definitions", () => {
+    const { workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+
+    workspace.registerView(
+      "graph",
+      (leaf) => new MockItemView(leaf, "graph", "Graph"),
+    );
+
+    expect(binding.controller.renderer.registry.resolve("graph")).toMatchObject(
+      {
+        kind: "imperative",
+        type: "graph",
+        showHeader: true,
+      },
+    );
+
+    workspace.unregisterView("graph");
+    expect(binding.controller.renderer.registry.resolve("graph")).toBeUndefined();
   });
 
   it("moves tab children through cancelable workspace drop events", () => {

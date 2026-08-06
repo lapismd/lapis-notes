@@ -47,12 +47,12 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-005 | spec-governance | Implemented | ignored patterns in gate |
 | LN-GOV-006 | spec-governance | Implemented | fail-closed on VCS errors |
 | LN-GOV-007 | spec-governance | Implemented | `spec/book` gitignored |
-| LN-WS-001 | workspace-shell | In progress | api-owned `AppShellController` |
-| LN-WS-002 | workspace-shell | In progress | compatibility projection tests |
-| LN-WS-003 | workspace-shell | In progress | `@lapis-notes/api/workspace-host` |
-| LN-WS-004 | workspace-shell | In progress | api workspace load/save tests |
-| LN-WS-005 | workspace-shell | In progress | bidirectional controller adapter |
-| LN-WS-006 | workspace-shell | In progress | imperative view registration adapter |
+| LN-WS-001 | workspace-shell | Implemented | api-owned `AppShellController` |
+| LN-WS-002 | workspace-shell | Implemented | id-reusing projection + focused tests |
+| LN-WS-003 | workspace-shell | Implemented | `@lapis-notes/api/workspace-host` |
+| LN-WS-004 | workspace-shell | Implemented | api workspace load/save + alternate filename tests |
+| LN-WS-005 | workspace-shell | Implemented | guarded bidirectional controller adapter |
+| LN-WS-006 | workspace-shell | Implemented | imperative view registration adapter |
 | LN-WS-007 | workspace-shell | In progress | default design-core surface; no plugins |
 | LN-WS-008 | workspace-shell | In progress | `WorkspaceShell.svelte` public props |
 | LN-WS-009 | workspace-shell | In progress | persisted desktop/mobile stories |

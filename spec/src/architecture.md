@@ -32,6 +32,9 @@ tokens live in design-core `themes/lapis.css`; ui `theme.css` is alias-only.
 Storybook loads design-core `styles.css` + Lapis theme + ui aliases.
 The workspace package renders the api-owned design-core controller; it does not
 own a second layout model or persistence adapter.
+`@lapis-notes/api/workspace-host` is the explicit integration seam: root api
+exports retain their compatibility shape while workspace hosts can obtain the
+controller without reaching into api internals.
 
 ## Tooling policy
 

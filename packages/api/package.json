@@ -94,6 +94,12 @@
       "import": "./dist/language-service/index.js",
       "default": "./dist/language-service/index.js"
     },
+    "./workspace-host": {
+      "types": "./dist/workspace-host.d.ts",
+      "svelte": "./dist/workspace-host.js",
+      "import": "./dist/workspace-host.js",
+      "default": "./dist/workspace-host.js"
+    },
     "./*": {
       "types": "./dist/components/*/index.d.ts",
       "svelte": "./dist/components/*/index.js",

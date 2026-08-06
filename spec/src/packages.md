@@ -19,6 +19,8 @@ Purpose (condensed from the full Lapis Notes api package):
 - `App` as the root service container for workspace, vault, database, plugins,
   commands, settings, metadata, editor, notifications, and related services
 - Workspace data model (splits, tabs, leaves, sidebars, ribbons, layout)
+- Host-only design-core controller binding at `./workspace-host`; the root api
+  export remains the Lapis compatibility surface
 - Plugin runtime contracts and distribution primitives
 - Vault/storage abstractions: browser OPFS and File System Access adapters,
   plus the desktop-neutral folder bridge (`desktop-folder`)

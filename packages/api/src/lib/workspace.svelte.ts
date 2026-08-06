@@ -12,7 +12,7 @@ import {
 import type { Menu } from "./menu.svelte";
 import { TFile, type TAbstractFile } from "./storage/fs";
 import type { Editor, MarkdownFileInfo } from "./editor.svelte";
-import { tick } from "svelte";
+import { tick, untrack } from "svelte";
 import { toast } from "svelte-sonner";
 import {
   SidebarState,
@@ -20,7 +20,7 @@ import {
 } from "@lapis-notes/ui/sidebar-custom";
 import { uniqueId } from "./utils";
 import { normalizeWorkspaceJson } from "./workspace-layout-normalizer";
-import { debounce } from "lodash-es";
+import { debounce, isEqual } from "lodash-es";
 import { joinPath } from "./storage";
 import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
@@ -46,6 +46,14 @@ import {
   isAbortError,
   withPluginInstallProgress,
 } from "./plugin-install-progress";
+import {
+  AppShellController,
+  type WorkspaceDragEvent as DesignWorkspaceDragEvent,
+  type WorkspaceLayoutChangeEvent as DesignWorkspaceLayoutChangeEvent,
+  type WorkspaceLayoutDropEvent as DesignWorkspaceLayoutDropEvent,
+  type WorkspaceViewContext as DesignWorkspaceViewContext,
+} from "@lapismd/design-core/workspace/core";
+import { setWorkspaceHostBinding } from "./workspace-host-internal";
 
 /** @public */
 export type Constructor<T> = abstract new (...args: any[]) => T;
@@ -124,6 +132,77 @@ export abstract class WorkspaceParent<
 > extends WorkspaceItem<T> {
   constructor() {
     super();
+  }
+}
+
+let activeWorkspaceProjectionItems: Map<string, WorkspaceItem> | null = null;
+
+function collectWorkspaceProjectionItem(
+  item: WorkspaceItem,
+  items: Map<string, WorkspaceItem>,
+): void {
+  items.set(item.id, item);
+  if (item instanceof WorkspaceSplit) {
+    item.children.forEach((child) =>
+      collectWorkspaceProjectionItem(child, items),
+    );
+  } else if (item instanceof WorkspaceTabs) {
+    item.children.forEach((child) =>
+      collectWorkspaceProjectionItem(child, items),
+    );
+  } else if (item instanceof WorkspaceSidebarGroup) {
+    item.children.forEach((child) =>
+      collectWorkspaceProjectionItem(child, items),
+    );
+  } else if (item instanceof WorkspaceFloating) {
+    item.children.forEach((child) =>
+      collectWorkspaceProjectionItem(child, items),
+    );
+  }
+}
+
+function beginWorkspaceProjection(workspace: Workspace): void {
+  const items = new Map<string, WorkspaceItem>();
+  workspace.rootSplit.children.forEach((child) =>
+    collectWorkspaceProjectionItem(child, items),
+  );
+  workspace.leftSplit.children.forEach((child) =>
+    collectWorkspaceProjectionItem(child, items),
+  );
+  workspace.rightSplit.children.forEach((child) =>
+    collectWorkspaceProjectionItem(child, items),
+  );
+  workspace.floating.children.forEach((child) =>
+    collectWorkspaceProjectionItem(child, items),
+  );
+  activeWorkspaceProjectionItems = items;
+}
+
+function claimWorkspaceProjectionItem<T extends WorkspaceItem>(
+  id: string,
+  matches: (item: WorkspaceItem) => item is T,
+  create: () => T,
+): T {
+  const item = activeWorkspaceProjectionItems?.get(id);
+  if (item && matches(item)) {
+    activeWorkspaceProjectionItems?.delete(id);
+    item._root = undefined;
+    return item;
+  }
+  return create();
+}
+
+function finishWorkspaceProjection(): void {
+  const unclaimed = activeWorkspaceProjectionItems;
+  activeWorkspaceProjectionItems = null;
+  if (!unclaimed) return;
+  for (const item of unclaimed.values()) {
+    if (item instanceof WorkspaceLeaf) {
+      item.view.unload();
+      if (hasDestroyableEditor(item.view)) item.view.editor.destroy();
+    } else if (item instanceof WorkspaceWindow) {
+      item.closePopoutWindow();
+    }
   }
 }
 
@@ -220,11 +299,19 @@ export abstract class WorkspaceSplit<
     const sizes = layout.sizes || [];
     layout.children.forEach((child, i) => {
       if (child.type === "tabs") {
-        const tabs = new WorkspaceTabs({ leaves: [] });
+        const tabs = claimWorkspaceProjectionItem(
+          child.id,
+          (item): item is WorkspaceTabs => item instanceof WorkspaceTabs,
+          () => new WorkspaceTabs({ leaves: [] }),
+        );
         this.addChild(tabs);
         promises.push(tabs.loadJson(child));
       } else if (child.type === "split") {
-        const split = new WorkspaceView(child.direction);
+        const split = claimWorkspaceProjectionItem(
+          child.id,
+          (item): item is WorkspaceView => item instanceof WorkspaceView,
+          () => new WorkspaceView(child.direction),
+        );
         this.addChild(split);
         promises.push(split.loadJson(child));
       }
@@ -373,6 +460,7 @@ export class WorkspaceSidedock extends WorkspaceSplit<{
 
   constructor(options: Partial<SidebarStateProps> = {}) {
     super();
+    let initialized = false;
     this.sidebar = new SidebarState({
       id: this.id,
       ...options,
@@ -388,13 +476,14 @@ export class WorkspaceSidedock extends WorkspaceSplit<{
         this.sidebar.open,
         this.sidebar.width,
       );
-      app.workspace.requestSaveLayout();
+      if (initialized) app.workspace.requestSaveLayout();
+      initialized = true;
     });
   }
 
   loadJson(layout: WorkspaceSidedockJson) {
     return super.loadJson(layout).then(() => {
-      if (layout.width === "0") {
+      if (/^0(?:px|rem|em|%)?$/.test(layout.width.trim())) {
         this.open = false;
       } else {
         this.open = true;
@@ -603,7 +692,11 @@ export class WorkspaceFloating extends WorkspaceParent {
     const promises: Array<Promise<any>> = [];
     this.children.slice().forEach((child) => this.removeChild(child, true));
     layouts.forEach((layout) => {
-      const child = new WorkspaceWindow();
+      const child = claimWorkspaceProjectionItem(
+        layout.id,
+        (item): item is WorkspaceWindow => item instanceof WorkspaceWindow,
+        () => new WorkspaceWindow(),
+      );
       this.addChild(child);
       promises.push(
         child.loadWindowJson(layout).then(() => {
@@ -919,7 +1012,11 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
     const promises: Array<Promise<any>> = [];
     this.children.forEach((it) => this.removeChild(it, true));
     layout.children.forEach((config) => {
-      const leaf = new WorkspaceLeaf();
+      const leaf = claimWorkspaceProjectionItem(
+        config.id,
+        (item): item is WorkspaceLeaf => item instanceof WorkspaceLeaf,
+        () => new WorkspaceLeaf(),
+      );
       this.addChild(leaf);
       promises.push(leaf.loadJson(config));
     });
@@ -983,11 +1080,20 @@ export class WorkspaceTabs extends WorkspaceParent {
     this.children.forEach((it) => this.removeChild(it, true));
     layout.children.forEach((config) => {
       if (isSidebarGroupJson(config)) {
-        const group = new WorkspaceSidebarGroup();
+        const group = claimWorkspaceProjectionItem(
+          config.id,
+          (item): item is WorkspaceSidebarGroup =>
+            item instanceof WorkspaceSidebarGroup,
+          () => new WorkspaceSidebarGroup(),
+        );
         this.addChild(group);
         promises.push(group.loadJson(config));
       } else {
-        const leaf = new WorkspaceLeaf();
+        const leaf = claimWorkspaceProjectionItem(
+          config.id,
+          (item): item is WorkspaceLeaf => item instanceof WorkspaceLeaf,
+          () => new WorkspaceLeaf(),
+        );
         this.addChild(leaf);
         promises.push(leaf.loadJson(config));
       }
@@ -1251,6 +1357,63 @@ type WorkspaceJson = {
   active?: string;
 };
 
+function workspaceCssLengthToPixels(value: string): string {
+  const normalized = value.trim().toLowerCase();
+  if (/^0(?:px|rem|em|%)?$/.test(normalized)) return "0px";
+  const amount = Number.parseFloat(normalized);
+  if (!Number.isFinite(amount) || amount <= 0) return value;
+  if (normalized.endsWith("rem") || normalized.endsWith("em")) {
+    return `${amount * 16}px`;
+  }
+  return normalized.endsWith("px") ? normalized : `${amount}px`;
+}
+
+function workspaceJsonForDesignCore(layout: WorkspaceJson): WorkspaceJson {
+  return {
+    ...layout,
+    left: {
+      ...layout.left,
+      width: workspaceCssLengthToPixels(layout.left.width),
+    },
+    right: {
+      ...layout.right,
+      width: workspaceCssLengthToPixels(layout.right.width),
+    },
+  };
+}
+
+function designLayoutEventFromCompatibility(
+  event: WorkspaceLayoutChangeEvent,
+): DesignWorkspaceLayoutChangeEvent {
+  const source =
+    event.source === "drag-drop"
+      ? "drag-drop"
+      : event.source === "resize"
+        ? "resize"
+        : event.source === "layout-load"
+          ? "layout-restore"
+          : event.source === "popout"
+            ? "window-open"
+            : "layout-replace";
+  return { source, operation: event.operation };
+}
+
+function compatibilityLayoutEventFromDesign(
+  event: DesignWorkspaceLayoutChangeEvent,
+): WorkspaceLayoutChangeEvent {
+  const source =
+    event.source === "drag-drop"
+      ? "drag-drop"
+      : event.source === "resize"
+        ? "resize"
+        : event.source === "layout-restore"
+          ? "layout-load"
+          : event.source.startsWith("window-")
+            ? "popout"
+            : "api";
+  return { source, operation: event.operation ?? event.source };
+}
+
 export type WorkspaceLayoutChangeSource =
   | "api"
   | "drag-drop"
@@ -1450,6 +1613,10 @@ export class Workspace extends EventDispatcher<{
   layoutReady: boolean = $state(false);
   private layoutHandlers: Array<() => void> = [];
   private suspendedLayoutPersistence = 0;
+  #workspaceHostController: AppShellController | null = null;
+  #syncingWorkspaceHost = 0;
+  #workspaceHostProjection: Promise<void> = Promise.resolve();
+  readonly #workspaceHostViewDisposers = new Map<string, () => void>();
 
   public statusEl: HTMLElement = $state()!;
   public statusCompatEl: HTMLElement = $state()!;
@@ -1475,8 +1642,30 @@ export class Workspace extends EventDispatcher<{
     if (this.suspendedLayoutPersistence > 0) {
       return;
     }
+    untrack(() => this.commitCompatibilityLayoutToHost(event));
+    this.emitLayoutChangeAndScheduleSave(event);
+  }
+
+  private emitLayoutChangeAndScheduleSave(
+    event: WorkspaceLayoutChangeEvent,
+  ): void {
     this.trigger("layout-change", event);
     this.saveLayoutDebounced();
+  }
+
+  private commitCompatibilityLayoutToHost(
+    event: WorkspaceLayoutChangeEvent,
+  ): void {
+    if (!this.#workspaceHostController) return;
+    this.#syncingWorkspaceHost += 1;
+    try {
+      this.#workspaceHostController.workspace.changeLayout(
+        workspaceJsonForDesignCore(this.toJson()),
+        designLayoutEventFromCompatibility(event),
+      );
+    } finally {
+      this.#syncingWorkspaceHost -= 1;
+    }
   }
 
   private async withoutLayoutPersistence<T>(
@@ -1967,6 +2156,14 @@ export class Workspace extends EventDispatcher<{
 
     const previousMode = this.displayMode;
     this.displayMode = mode;
+    if (this.#workspaceHostController) {
+      this.#syncingWorkspaceHost += 1;
+      try {
+        this.#workspaceHostController.renderer.setDisplayMode(mode);
+      } finally {
+        this.#syncingWorkspaceHost -= 1;
+      }
+    }
     this.trigger("display-mode-change", {
       mode,
       previousMode,
@@ -2022,14 +2219,20 @@ export class Workspace extends EventDispatcher<{
     this.exitFocusMode();
     const normalized = normalizeWorkspaceJson(config);
     await this.activateLayoutPlugins(normalized);
-    await Promise.all([
-      this.rootSplit.loadJson(normalized.main),
-      this.leftSplit.loadJson(normalized.left),
-      this.rightSplit.loadJson(normalized.right),
-      this.floating.loadJson(normalized.floating),
-    ]);
+    beginWorkspaceProjection(this);
+    try {
+      await Promise.all([
+        this.rootSplit.loadJson(normalized.main),
+        this.leftSplit.loadJson(normalized.left),
+        this.rightSplit.loadJson(normalized.right),
+        this.floating.loadJson(normalized.floating),
+      ]);
+    } finally {
+      finishWorkspaceProjection();
+    }
 
     if (!normalized.active) {
+      if (!this.containsLeaf(this.activeLeaf)) this.activeLeaf = null;
       return;
     }
 
@@ -2059,6 +2262,7 @@ export class Workspace extends EventDispatcher<{
           promise = Promise.resolve();
         }
         return promise.then(() => {
+          this.commitCompatibilityLayoutToHost({ source: "layout-load" });
           this.layoutReady = true;
           this.layoutHandlers.forEach((it) => it());
           this.trigger("layout-ready");
@@ -2088,6 +2292,14 @@ export class Workspace extends EventDispatcher<{
   constructor(readonly app: App) {
     super();
     this.rootSplit.addChild(new WorkspaceTabs());
+    this.#workspaceHostController = new AppShellController({
+      layout: workspaceJsonForDesignCore(this.toJson()),
+      plugins: [],
+    });
+    setWorkspaceHostBinding(this, {
+      controller: this.#workspaceHostController,
+    });
+    this.installWorkspaceHostEventBridge(this.#workspaceHostController);
     $effect(() => {
       this.trigger("active-leaf-change", this.activeLeaf);
     });
@@ -2103,6 +2315,159 @@ export class Workspace extends EventDispatcher<{
         props: { width: this.rightSplit.sidebar.width },
       });
     });
+  }
+
+  private installWorkspaceHostEventBridge(
+    controller: AppShellController,
+  ): void {
+    controller.on("layout-change", (event) => {
+      if (this.#syncingWorkspaceHost > 0 || event.source === "display-mode") {
+        return;
+      }
+      this.enqueueWorkspaceHostProjection(controller.getLayout(), event);
+    });
+    controller.on("display-mode-change", (mode) => {
+      if (this.#syncingWorkspaceHost > 0 || this.displayMode === mode) return;
+      const previousMode = this.displayMode;
+      this.displayMode = mode;
+      this.trigger("display-mode-change", {
+        mode,
+        previousMode,
+        reason: "viewport",
+      });
+    });
+    controller.on("layout-will-show-overlay", (event) => {
+      this.forwardWorkspaceHostDropEvent("layout-will-show-overlay", event);
+    });
+    controller.on("layout-will-drop", (event) => {
+      this.forwardWorkspaceHostDropEvent("layout-will-drop", event);
+    });
+    controller.on("layout-did-drop", (event) => {
+      this.forwardWorkspaceHostDropEvent("layout-did-drop", event);
+    });
+    controller.on("layout-drag-start", (event) => {
+      this.forwardWorkspaceHostDragEvent("layout-drag-start", event);
+    });
+    controller.on("layout-drag-end", (event) => {
+      this.forwardWorkspaceHostDragEvent("layout-drag-end", event);
+    });
+  }
+
+  private enqueueWorkspaceHostProjection(
+    layout: unknown,
+    event: DesignWorkspaceLayoutChangeEvent,
+  ): void {
+    const projected = normalizeWorkspaceJson(layout);
+    const preserveSidebarWidth = (
+      side: SidebarSide,
+      current: WorkspaceSidedock,
+    ) => {
+      const value = projected[side].width.trim();
+      if (/^0(?:px|rem|em|%)?$/.test(value)) {
+        projected[side].width = "0";
+      } else if (!(event.source === "resize" && event.id === side)) {
+        projected[side].width = current.sidebar.width;
+      }
+    };
+    preserveSidebarWidth("left", this.leftSplit);
+    preserveSidebarWidth("right", this.rightSplit);
+
+    const run = this.#workspaceHostProjection.then(async () => {
+      await this.withoutLayoutPersistence(() =>
+        this.restoreLayoutJson(projected),
+      );
+      this.emitLayoutChangeAndScheduleSave(
+        compatibilityLayoutEventFromDesign(event),
+      );
+    });
+    this.#workspaceHostProjection = run.catch((error) => {
+      console.error("Unable to project design-core workspace layout", error);
+    });
+  }
+
+  private forwardWorkspaceHostDropEvent(
+    eventName:
+      | "layout-will-show-overlay"
+      | "layout-will-drop"
+      | "layout-did-drop",
+    event: DesignWorkspaceLayoutDropEvent,
+  ): void {
+    const item = this.getLeafById(event.tabId) ?? undefined;
+    const target =
+      this.getWorkspaceTabsById(event.targetPaneId) ??
+      item?.parent ??
+      this.rootSplit;
+    const compatibilityEvent = createWorkspaceLayoutDropEvent({
+      source: event.source,
+      operation: event.operation,
+      position: event.position,
+      target,
+      item,
+    });
+    this.trigger(eventName, compatibilityEvent);
+    if (compatibilityEvent.defaultPrevented) event.preventDefault();
+  }
+
+  private forwardWorkspaceHostDragEvent(
+    eventName: "layout-drag-start" | "layout-drag-end",
+    event: DesignWorkspaceDragEvent,
+  ): void {
+    const item = this.getLeafById(event.tabId) ?? undefined;
+    this.trigger(
+      eventName,
+      createWorkspaceLayoutDropEvent({
+        source: event.source,
+        operation: "tab-drag",
+        position: "center",
+        target: item?.parent ?? this.rootSplit,
+        item,
+      }),
+    );
+  }
+
+  private getWorkspaceTabsById(id: string): WorkspaceTabs | null {
+    const roots: WorkspaceSplit[] = [
+      this.rootSplit,
+      this.leftSplit,
+      this.rightSplit,
+      ...this.floating.children,
+    ];
+    for (const root of roots) {
+      const match = root.iterateAllTabs((tabs) =>
+        tabs.id === id ? tabs : undefined,
+      );
+      if (match) return match;
+    }
+    return null;
+  }
+
+  private registerWorkspaceHostView(type: string): void {
+    this.#workspaceHostViewDisposers.get(type)?.();
+    this.#workspaceHostViewDisposers.delete(type);
+    if (type === "empty" || !this.#workspaceHostController) return;
+
+    const dispose = this.#workspaceHostController.renderer.registry.register({
+      kind: "imperative",
+      type,
+      showHeader: true,
+      getChrome: (context: DesignWorkspaceViewContext) => {
+        const leaf = this.getLeafById(context.tab.id);
+        return {
+          title: leaf?.getDisplayText() ?? context.tab.title,
+        };
+      },
+      mount: (target, context) => {
+        const leaf = this.getLeafById(context.tab.id);
+        if (!leaf) return;
+        target.replaceChildren(leaf.containerEl);
+        return () => {
+          if (leaf.containerEl.parentElement === target) {
+            leaf.containerEl.remove();
+          }
+        };
+      },
+    });
+    this.#workspaceHostViewDisposers.set(type, dispose);
   }
 
   getMostRecentLeaf(): WorkspaceLeaf | null {
@@ -2210,6 +2575,7 @@ export class Workspace extends EventDispatcher<{
 
   registerView(type: string, viewCreator: ViewCreator): void {
     this.viewTypes.set(type, viewCreator);
+    this.registerWorkspaceHostView(type);
   }
 
   registerEditorView(contribution: EditorViewContribution): () => void {
@@ -2260,6 +2626,8 @@ export class Workspace extends EventDispatcher<{
   }
 
   unregisterView(type: string) {
+    this.#workspaceHostViewDisposers.get(type)?.();
+    this.#workspaceHostViewDisposers.delete(type);
     return this.viewTypes.delete(type);
   }
 
@@ -2582,7 +2950,7 @@ export class Workspace extends EventDispatcher<{
   getLeafById(id: string): WorkspaceLeaf | null {
     return (
       this.iterateAllLeaves((leaf) => {
-        return leaf.id === id && leaf;
+        return leaf.id === id ? leaf : undefined;
       }) || null
     );
   }
@@ -4179,6 +4547,16 @@ export class WorkspaceLeaf extends WorkspaceItem<{
 
   loadJson(layout: WorkspaceLeafJson) {
     this.id = layout.id;
+    if (
+      this.view.getViewType() === layout.state.type &&
+      isEqual(this.view.getState(), layout.state.state)
+    ) {
+      this.state = {
+        type: layout.state.type,
+        state: { ...layout.state.state },
+      };
+      return Promise.resolve();
+    }
     return this.setViewState(
       {
         type: layout.state.type,
