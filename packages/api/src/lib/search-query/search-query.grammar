@@ -1,0 +1,113 @@
+@top Query { Expression? }
+
+@skip { space }
+
+Expression { OrExpression }
+
+OrExpression {
+  AndExpression (OrKeyword AndExpression)*
+}
+
+AndExpression {
+  PrefixExpression+
+}
+
+PrefixExpression {
+  Negation? PrimaryExpression
+}
+
+PrimaryExpression {
+  Group |
+  FieldExpression |
+  PropertyExpression |
+  Regex |
+  Phrase |
+  NullKeyword |
+  Identifier |
+  Word
+}
+
+Group {
+  "(" Expression? ")"
+}
+
+FieldExpression {
+  FieldName ":" FieldValue
+}
+
+FieldName {
+  Identifier
+}
+
+FieldValue {
+  Group |
+  PropertyExpression |
+  Regex |
+  Phrase |
+  NullKeyword |
+  Identifier |
+  Word
+}
+
+PropertyExpression {
+  "[" PropertyName (":" PropertyValue)? "]"
+}
+
+PropertyName {
+  Identifier |
+  Phrase
+}
+
+PropertyValue {
+  Comparison |
+  Group |
+  Regex |
+  Phrase |
+  NullKeyword |
+  Identifier |
+  Word
+}
+
+Comparison {
+  ComparisonOperator ComparisonValue
+}
+
+ComparisonValue {
+  Phrase |
+  NullKeyword |
+  Identifier |
+  Word
+}
+
+@tokens {
+  space { @whitespace+ }
+
+  @precedence { OrKeyword, NullKeyword, Identifier, ComparisonOperator, Word }
+
+  OrKeyword { "OR" }
+  NullKeyword { "null" }
+  Negation { "-" }
+
+  Identifier { identifierChar+ ("-" identifierChar+)* }
+
+  ComparisonOperator { "<=" | ">=" | "<" | ">" }
+
+  Word { wordChar+ }
+
+  Phrase { '"' phraseChar* '"' }
+  Regex { "/" regexChar* "/" }
+
+  identifierChar { @asciiLetter | @digit | "_" }
+  wordChar {
+    @asciiLetter |
+    @digit |
+    "_" |
+    "." |
+    "#" |
+    "*" |
+    "?"
+  }
+  phraseChar { !["\\\n\r] | "\\" anyChar }
+  regexChar { ![/\\\n\r] | "\\" anyChar }
+  anyChar { @asciiLetter | @digit | @whitespace | ![] }
+}

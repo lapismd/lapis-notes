@@ -1,0 +1,31 @@
+# Lapis Notes (minimal)
+
+Minimal Lapis Notes monorepo: `@lapis-notes/api` + pruned `@lapis-notes/ui`,
+Turbo/pnpm, mira-inspired spec-first governance, and Storybook for custom UI.
+
+## Setup
+
+```bash
+pnpm install
+```
+
+Requires Node 22+, pnpm 10, and [mdBook](https://rust-lang.github.io/mdBook/)
+for `pnpm spec:build`. Sibling `@lapismd/design-core` is linked from
+`../design-core`.
+
+## Scripts
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` / `pnpm storybook` | Storybook on port **7010** |
+| `pnpm build` | Turbo build packages |
+| `pnpm check` | Turbo package checks |
+| `pnpm test` | Turbo tests |
+| `pnpm spec:first` | Spec-first gate |
+| `pnpm spec:check` | Build book + run gate |
+
+## Docs
+
+- Agent workflow: [`AGENTS.md`](./AGENTS.md)
+- Migration tracker: [`MIGRATION.md`](./MIGRATION.md)
+- Canonical requirements: [`spec/src/`](./spec/src/)

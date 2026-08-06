@@ -1,0 +1,219 @@
+{
+  "generatedAt": "2026-05-31T00:00:00.000Z",
+  "plugins": [
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["canvas", "visualization"],
+      "channel": "official",
+      "contributes": {
+        "editorViews": [
+          {
+            "filenamePatterns": ["*.canvas"],
+            "id": "lapis-canvas.editor",
+            "label": "Canvas"
+          }
+        ]
+      },
+      "description": "Infinite canvas view with JSON Canvas support.",
+      "detail": "plugins/lapis-canvas.json",
+      "id": "lapis-canvas",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "Canvas",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-canvas/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["editor", "documents"],
+      "channel": "official",
+      "contributes": {
+        "editorViews": [
+          {
+            "filenamePatterns": ["*.lapisdoc", "*.lapissheet"],
+            "id": "lapis-docs.document",
+            "label": "Lapis Document"
+          }
+        ]
+      },
+      "description": "Rich document and spreadsheet editing for Lapis.",
+      "detail": "plugins/lapis-docs.json",
+      "id": "lapis-docs",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "0.20.0",
+      "name": "Docs",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-docs/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["graph", "visualization"],
+      "channel": "official",
+      "contributes": {},
+      "description": "Graph and local graph views powered by the metadata cache.",
+      "detail": "plugins/lapis-graph.json",
+      "id": "lapis-graph",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "Graph",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-graph/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["markdown", "quality"],
+      "channel": "official",
+      "contributes": {},
+      "description": "Markdown linting diagnostics for Lapis notes.",
+      "detail": "plugins/lapis-markdown-lint.json",
+      "id": "lapis-markdown-lint",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "Markdown Lint",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-markdown-lint/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["notebook", "markdown"],
+      "channel": "official",
+      "contributes": {},
+      "description": "Reactive notebook support for markdown notes.",
+      "detail": "plugins/lapis-notebook.json",
+      "id": "lapis-notebook",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "Notebook",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/notebook/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["viewer", "documents"],
+      "channel": "official",
+      "contributes": {
+        "editorViews": [
+          {
+            "filenamePatterns": ["*.pdf"],
+            "id": "lapis-pdf.viewer",
+            "label": "PDF"
+          }
+        ]
+      },
+      "description": "PDF viewing for Lapis.",
+      "detail": "plugins/lapis-pdf.json",
+      "id": "lapis-pdf",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "PDF",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-pdf/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["presentation", "markdown"],
+      "channel": "official",
+      "contributes": {},
+      "description": "Presentation mode for markdown notes.",
+      "detail": "plugins/lapis-slides.json",
+      "id": "lapis-slides",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "Slides",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-slides/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
+      "categories": ["diagnostics", "developer-tools"],
+      "channel": "official",
+      "contributes": {},
+      "description": "Telemetry diagnostics view.",
+      "detail": "plugins/lapis-telemetry.json",
+      "id": "lapis-telemetry",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "Telemetry Diagnostics",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-telemetry/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    }
+  ],
+  "registries": {
+    "lapis-official": {
+      "name": "Lapis Official Plugins",
+      "trustTier": "official"
+    }
+  },
+  "schemaVersion": 1,
+  "signatures": [
+    {
+      "keyId": "lapis-registry-fixture-test",
+      "alg": "ed25519",
+      "sig": "jradWjCQPkFpPGyVbGfcgffY5R0YBjS+Pvu6bKyigDpveYKyP1hwLMIqCI8+sd33ECCy2g52B221CYrcEGdFBA=="
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+/**
+ * CodeMirror 6 autocomplete tooltips (`.cm-tooltip-autocomplete`, completion info).
+ * Consumes Tailwind @apply; import after `theme.css` / tailwind entrypoints that define tokens.
+ * Mirrors Command/Popover surface language (see `components/ui/command`).
+ */
+
+.cm-tooltip.cm-tooltip-autocomplete {
+  @apply bg-background ring-border max-w-md rounded-lg border-0 p-1 ring-1 dark:ring-inset;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul {
+  @apply font-sans text-[inherit];
+}
+
+.cm-tooltip.cm-completionInfo {
+  @apply aspect-[5/3] w-96 max-w-none overflow-hidden p-1 px-3 py-2 font-mono whitespace-pre-wrap text-[inherit];
+  word-break: break-word;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  @apply bg-background hover:bg-accent mb-1 flex flex-col rounded px-2 py-1;
+}
+
+.cm-editor
+  .cm-tooltip.cm-tooltip-autocomplete
+  > ul
+  > li.cm-autocomplete-heading {
+  @apply flex-row justify-between;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li.cm-autocomplete-display {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+
+  span.cm-completionLabel {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  span.cm-completionDetail {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  span.suggestion-flair {
+    grid-column: 2;
+    grid-row: 1/ 3;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    @apply text-muted-foreground;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.cm-tooltip.cm-tooltip-autocomplete
+  > ul
+  > li.cm-autocomplete-display
+  .cm-completionLabel {
+  @apply font-semibold;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  @apply bg-accent text-foreground;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li .cm-completionDetail {
+  @apply text-muted-foreground ml-0 not-italic;
+}
+
+.cm-completionMatchedText {
+  @apply no-underline;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete::after {
+  text-align: center;
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  @apply ring-border bg-background rounded-b-lg px-3 py-2 text-xs ring-1;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li:last-child {
+  margin-bottom: 60px;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[role="option"] {
+  padding: 6px 12px 6px 8px;
+  @apply flex flex-row items-center gap-1;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete
+  > ul
+  > li[role="option"]
+  > span.cm-completionLabel
+  > span.cm-completionMatchedText {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete
+  > ul
+  > li.cm-autocomplete-heading:last-child,
+.cm-tooltip.cm-tooltip-autocomplete
+  > ul
+  > li.cm-autocomplete-display:last-child {
+  margin-bottom: 35px;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete:has(li.cm-autocomplete-heading)::after {
+  content: "↵ to accept";
+}
+
+.cm-tooltip.cm-tooltip-autocomplete:has(li.cm-autocomplete-display)::after {
+  content: "↵ to accept";
+}
+
+.cm-tooltip.cm-tooltip-autocomplete:has(li.suggestion-item)::after {
+  display: none;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete:has(li.suggestion-item)
+  > ul
+  > li:last-child {
+  margin-bottom: 0px;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete:has(li.suggestion-item)
+  > ul
+  > li
+  > span.cm-completionLabel:empty {
+  display: none;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul {
+  max-height: 250px;
+}

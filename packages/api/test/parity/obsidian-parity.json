@@ -1,0 +1,1921 @@
+{
+  "statuses": ["implemented", "stubbed", "unsupported"],
+  "symbols": {
+    "AbstractInputSuggest": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "AbstractTextComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "App": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "BaseComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "BasesAllOptions": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "BasesConfigFile": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesConfigFileFilter": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "BasesConfigFileView": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesDropdownOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesEntry": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "BasesEntryGroup": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "BasesFileOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesFolderOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesFormulaOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesMultitextOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesOptionGroup": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesOptions": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "BasesProperty": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesPropertyId": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "BasesPropertyOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesPropertyType": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "BasesQueryResult": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "BasesSliderOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesSortConfig": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "BasesTextOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesToggleOption": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BasesView": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "BasesViewConfig": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "BasesViewFactory": {
+      "kind": "type",
+      "status": "stubbed"
+    },
+    "BasesViewRegistration": {
+      "kind": "interface",
+      "status": "stubbed"
+    },
+    "BlockCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BlockSubpathResult": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "BooleanValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ButtonComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "CacheItem": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "CachedMetadata": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "CapacitorAdapter": {
+      "kind": "class",
+      "status": "unsupported"
+    },
+    "CliData": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "CliFlag": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "CliFlags": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "CliHandler": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "CloseableComponent": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "ColorComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Command": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "Component": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Constructor": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "DataAdapter": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "DataWriteOptions": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "DateValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Debouncer": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "DropdownComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "DurationValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "EditableFileView": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "Editor": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "EditorChange": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorCommandName": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "EditorPosition": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorRange": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorRangeOrCaret": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorScrollInfo": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorSelection": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorSelectionOrCaret": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorSuggest": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "EditorSuggestContext": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorSuggestTriggerInfo": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EditorTransaction": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EmbedCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "EventRef": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "Events": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ExtraButtonComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "FileManager": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "FileStats": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FileSystemAdapter": {
+      "kind": "class",
+      "status": "unsupported"
+    },
+    "FileValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "FileView": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "FootnoteCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FootnoteRefCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FootnoteSubpathResult": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FormulaContext": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FrontMatterCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FrontMatterInfo": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FrontmatterLinkCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FuzzyMatch": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "FuzzySuggestModal": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "HSL": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "HTMLValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "HeadingCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "HeadingSubpathResult": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "HexString": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "Hotkey": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "HoverLinkSource": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "HoverParent": {
+      "kind": "interface",
+      "status": "stubbed"
+    },
+    "HoverPopover": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "ISuggestOwner": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "IconName": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "IconValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ImageValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Instruction": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "ItemView": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Keymap": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "KeymapContext": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "KeymapEventHandler": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "KeymapEventListener": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "KeymapInfo": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "LinkCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "LinkValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ListItemCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "ListValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ListedFiles": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "LivePreviewStateType": {
+      "kind": "interface",
+      "status": "stubbed"
+    },
+    "Loc": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "MarkdownEditView": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "MarkdownFileInfo": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "MarkdownPostProcessor": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "MarkdownPostProcessorContext": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "MarkdownPreviewEvents": {
+      "kind": "interface",
+      "status": "stubbed"
+    },
+    "MarkdownPreviewRenderer": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "MarkdownPreviewView": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "MarkdownRenderChild": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "MarkdownRenderer": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "MarkdownSectionInformation": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "MarkdownSubView": {
+      "kind": "interface",
+      "status": "stubbed"
+    },
+    "MarkdownView": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "MarkdownViewModeType": {
+      "kind": "type",
+      "status": "stubbed"
+    },
+    "Menu": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "MenuItem": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "MenuPositionDef": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "MenuSeparator": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "MetadataCache": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Modal": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Modifier": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "MomentFormatComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "NotNullValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Notice": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "NullValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "NumberValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ObjectValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ObsidianProtocolData": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "ObsidianProtocolHandler": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "OpenViewState": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "PaneType": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "Platform": {
+      "kind": "variable",
+      "status": "implemented"
+    },
+    "Plugin": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "PluginManifest": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "PluginSettingTab": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Point": {
+      "kind": "interface",
+      "status": "stubbed"
+    },
+    "PopoverState": {
+      "kind": "enum",
+      "status": "stubbed"
+    },
+    "PopoverSuggest": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Pos": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "PrimitiveValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ProgressBarComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "QueryController": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "RGB": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "Reference": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "ReferenceCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "ReferenceLinkCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "RegExpValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "RelativeDateValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "RenderContext": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "RequestUrlParam": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "RequestUrlResponse": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "RequestUrlResponsePromise": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "Scope": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SearchComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SearchMatchPart": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "SearchMatches": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "SearchResult": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "SearchResultContainer": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "SecretComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SecretStorage": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SectionCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "Setting": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SettingGroup": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SettingTab": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Side": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "SliderComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SplitDirection": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "Stat": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "StringValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "SubpathResult": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "SuggestModal": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TAbstractFile": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TFile": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TFolder": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TagCache": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "TagValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Tasks": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TextAreaComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TextComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TextFileView": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ToggleComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "TooltipOptions": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "TooltipPlacement": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "UrlValue": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "UserEvent": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "Value": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ValueComponent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "Vault": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "View": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "ViewCreator": {
+      "kind": "type",
+      "status": "implemented"
+    },
+    "ViewState": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "ViewStateResult": {
+      "kind": "interface",
+      "status": "implemented"
+    },
+    "Workspace": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceContainer": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceFloating": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "WorkspaceItem": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceLeaf": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceMobileDrawer": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "WorkspaceParent": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceRibbon": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceRoot": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceSidedock": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceSplit": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceTabs": {
+      "kind": "class",
+      "status": "implemented"
+    },
+    "WorkspaceWindow": {
+      "kind": "class",
+      "status": "stubbed"
+    },
+    "WorkspaceWindowInitData": {
+      "kind": "interface",
+      "status": "stubbed"
+    },
+    "addIcon": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "apiVersion": {
+      "kind": "variable",
+      "status": "implemented"
+    },
+    "arrayBufferToBase64": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "arrayBufferToHex": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "base64ToArrayBuffer": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "debounce": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "displayTooltip": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "editorEditorField": {
+      "kind": "variable",
+      "status": "implemented"
+    },
+    "editorInfoField": {
+      "kind": "variable",
+      "status": "implemented"
+    },
+    "editorLivePreviewField": {
+      "kind": "variable",
+      "status": "implemented"
+    },
+    "editorViewField": {
+      "kind": "variable",
+      "status": "implemented"
+    },
+    "finishRenderMath": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "getAllTags": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "getBlobArrayBuffer": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "getFrontMatterInfo": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "getIcon": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "getIconIds": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "getLanguage": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "getLinkpath": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "hexToArrayBuffer": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "htmlToMarkdown": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "iterateCacheRefs": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "iterateRefs": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "livePreviewState": {
+      "kind": "variable",
+      "status": "stubbed"
+    },
+    "loadMathJax": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "loadMermaid": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "loadPdfJs": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "loadPrism": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "moment": {
+      "kind": "variable",
+      "status": "stubbed"
+    },
+    "normalizePath": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "parseFrontMatterAliases": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "parseFrontMatterEntry": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "parseFrontMatterStringArray": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "parseFrontMatterTags": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "parseLinktext": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "parsePropertyId": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "parseYaml": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "prepareFuzzySearch": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "prepareSimpleSearch": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "removeIcon": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "renderMatches": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "renderMath": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "renderResults": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "request": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "requestUrl": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "requireApiVersion": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "resolveSubpath": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "sanitizeHTMLToDom": {
+      "kind": "function",
+      "status": "stubbed"
+    },
+    "setIcon": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "setTooltip": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "sortSearchResults": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "stringifyYaml": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "stripHeading": {
+      "kind": "function",
+      "status": "implemented"
+    },
+    "stripHeadingForLink": {
+      "kind": "function",
+      "status": "implemented"
+    }
+  },
+  "keyMembers": {
+    "App": {
+      "upstream": [
+        "fileManager",
+        "isDarkMode",
+        "keymap",
+        "lastEvent",
+        "loadLocalStorage",
+        "metadataCache",
+        "renderContext",
+        "saveLocalStorage",
+        "scope",
+        "secretStorage",
+        "vault",
+        "workspace"
+      ],
+      "local": [
+        "appDatabase",
+        "commands",
+        "configuration",
+        "editorExtensions",
+        "editorSuggest",
+        "editors",
+        "embedRegistry",
+        "fileManager",
+        "i18n",
+        "isDarkMode",
+        "keymap",
+        "lastEvent",
+        "loadLocalStorage",
+        "logger",
+        "mardownCodeBlockPostProcessor",
+        "mardownPostProcessor",
+        "metadataCache",
+        "metadataTypeManager",
+        "openFile",
+        "plugins",
+        "props",
+        "registerEditorExtension",
+        "registerEditorSuggest",
+        "registerMarkdownCodeBlockProcessor",
+        "registerMarkdownPostProcessor",
+        "renderContext",
+        "saveLocalStorage",
+        "scope",
+        "secretStorage",
+        "session",
+        "setting",
+        "settings",
+        "settingsOpen",
+        "unregisterEditorExtension",
+        "unregisterEditorSuggest",
+        "unregisterMarkdownCodeBlockProcessor",
+        "unregisterMarkdownPostProcessor",
+        "vault",
+        "version",
+        "workspace"
+      ],
+      "missing": []
+    },
+    "Vault": {
+      "upstream": [
+        "adapter",
+        "append",
+        "appendBinary",
+        "cachedRead",
+        "configDir",
+        "copy",
+        "create",
+        "createBinary",
+        "createFolder",
+        "delete",
+        "getAbstractFileByPath",
+        "getAllFolders",
+        "getAllLoadedFiles",
+        "getFileByPath",
+        "getFiles",
+        "getFolderByPath",
+        "getMarkdownFiles",
+        "getName",
+        "getResourcePath",
+        "getRoot",
+        "modify",
+        "modifyBinary",
+        "off",
+        "offref",
+        "on",
+        "process",
+        "read",
+        "readBinary",
+        "rename",
+        "trash",
+        "trigger",
+        "tryTrigger"
+      ],
+      "local": [
+        "adapter",
+        "append",
+        "appendBinary",
+        "cache",
+        "cachedRead",
+        "configDir",
+        "copy",
+        "create",
+        "createBinary",
+        "createFolder",
+        "delete",
+        "dispatch",
+        "emit",
+        "exists",
+        "getAbstractFileByPath",
+        "getAllFolders",
+        "getAllLoadedFiles",
+        "getFileByPath",
+        "getFiles",
+        "getFolderByPath",
+        "getMarkdownFiles",
+        "getName",
+        "getResourcePath",
+        "getResourceUrl",
+        "getRoot",
+        "list",
+        "load",
+        "loadPath",
+        "mkpath",
+        "modify",
+        "modifyBinary",
+        "off",
+        "offref",
+        "on",
+        "once",
+        "process",
+        "read",
+        "readBinary",
+        "reload",
+        "rename",
+        "stat",
+        "trash",
+        "trigger",
+        "tryTrigger"
+      ],
+      "missing": []
+    },
+    "DataAdapter": {
+      "upstream": [
+        "append",
+        "appendBinary",
+        "copy",
+        "exists",
+        "getName",
+        "getResourcePath",
+        "list",
+        "mkdir",
+        "process",
+        "read",
+        "readBinary",
+        "remove",
+        "rename",
+        "rmdir",
+        "stat",
+        "trashLocal",
+        "trashSystem",
+        "write",
+        "writeBinary"
+      ],
+      "local": [
+        "append",
+        "appendBinary",
+        "copy",
+        "exists",
+        "getName",
+        "getResourcePath",
+        "list",
+        "mkdir",
+        "process",
+        "read",
+        "readBinary",
+        "remove",
+        "rename",
+        "rmdir",
+        "stat",
+        "trashLocal",
+        "trashSystem",
+        "write",
+        "writeBinary"
+      ],
+      "missing": []
+    },
+    "TAbstractFile": {
+      "upstream": ["name", "parent", "path", "vault"],
+      "local": [
+        "baseName",
+        "basename",
+        "copy",
+        "extension",
+        "name",
+        "parent",
+        "path",
+        "toString",
+        "vault"
+      ],
+      "missing": []
+    },
+    "TFile": {
+      "upstream": [
+        "basename",
+        "extension",
+        "name",
+        "parent",
+        "path",
+        "stat",
+        "vault"
+      ],
+      "local": [
+        "baseName",
+        "basename",
+        "copy",
+        "extension",
+        "name",
+        "parent",
+        "path",
+        "stat",
+        "toString",
+        "vault"
+      ],
+      "missing": []
+    },
+    "TFolder": {
+      "upstream": ["children", "isRoot", "name", "parent", "path", "vault"],
+      "local": [
+        "baseName",
+        "basename",
+        "children",
+        "copy",
+        "extension",
+        "files",
+        "isRoot",
+        "iterateAll",
+        "name",
+        "parent",
+        "path",
+        "toString",
+        "vault"
+      ],
+      "missing": []
+    },
+    "Workspace": {
+      "upstream": [
+        "activeEditor",
+        "activeLeaf",
+        "changeLayout",
+        "containerEl",
+        "createLeafBySplit",
+        "createLeafInParent",
+        "detachLeavesOfType",
+        "duplicateLeaf",
+        "ensureSideLeaf",
+        "getActiveFile",
+        "getActiveViewOfType",
+        "getGroupLeaves",
+        "getLastOpenFiles",
+        "getLayout",
+        "getLeaf",
+        "getLeafById",
+        "getLeavesOfType",
+        "getLeftLeaf",
+        "getMostRecentLeaf",
+        "getRightLeaf",
+        "getUnpinnedLeaf",
+        "handleLinkContextMenu",
+        "iterateAllLeaves",
+        "iterateRootLeaves",
+        "layoutReady",
+        "leftRibbon",
+        "leftSplit",
+        "moveLeafToPopout",
+        "off",
+        "offref",
+        "on",
+        "onLayoutReady",
+        "openLinkText",
+        "openPopoutLeaf",
+        "requestSaveLayout",
+        "revealLeaf",
+        "rightRibbon",
+        "rightSplit",
+        "rootSplit",
+        "setActiveLeaf",
+        "splitActiveLeaf",
+        "trigger",
+        "tryTrigger",
+        "updateOptions"
+      ],
+      "local": [
+        "_activeLeaf",
+        "activeEditor",
+        "activeLeaf",
+        "app",
+        "changeLayout",
+        "containerEl",
+        "createLeafBySplit",
+        "createLeafInParent",
+        "detachLeavesOfType",
+        "determineViewType",
+        "dispatch",
+        "duplicateLeaf",
+        "emit",
+        "ensureSideLeaf",
+        "getActiveFile",
+        "getActiveViewOfType",
+        "getGroupLeaves",
+        "getLastOpenFiles",
+        "getLayout",
+        "getLeaf",
+        "getLeafById",
+        "getLeavesOfType",
+        "getLeftLeaf",
+        "getMostRecentLeaf",
+        "getRightLeaf",
+        "getUnpinnedLeaf",
+        "handleLinkContextMenu",
+        "iterateAllLeaves",
+        "iterateRootLeaves",
+        "layoutReady",
+        "leftRibbon",
+        "leftSplit",
+        "loadLayout",
+        "moveLeafToPopout",
+        "off",
+        "offref",
+        "on",
+        "onLayoutReady",
+        "once",
+        "openLinkText",
+        "openPopoutLeaf",
+        "registerExtensions",
+        "registerHoverLinkSource",
+        "registerView",
+        "requestSaveLayout",
+        "revealLeaf",
+        "rightRibbon",
+        "rightSplit",
+        "rootContainer",
+        "rootSplit",
+        "setActiveLeaf",
+        "splitActiveLeaf",
+        "statusEl",
+        "toJson",
+        "trigger",
+        "tryTrigger",
+        "unregisterExtensions",
+        "unregisterHoverLinkSource",
+        "unregisterView",
+        "updateOptions",
+        "viewCreator"
+      ],
+      "missing": []
+    },
+    "WorkspaceLeaf": {
+      "upstream": [
+        "detach",
+        "getContainer",
+        "getDisplayText",
+        "getEphemeralState",
+        "getIcon",
+        "getRoot",
+        "getViewState",
+        "hoverPopover",
+        "isDeferred",
+        "loadIfDeferred",
+        "off",
+        "offref",
+        "on",
+        "onResize",
+        "open",
+        "openFile",
+        "parent",
+        "setEphemeralState",
+        "setGroup",
+        "setGroupMember",
+        "setPinned",
+        "setViewState",
+        "togglePinned",
+        "trigger",
+        "tryTrigger",
+        "view"
+      ],
+      "local": [
+        "_root",
+        "app",
+        "close",
+        "containerEl",
+        "contentEl",
+        "currentState",
+        "detach",
+        "dispatch",
+        "emit",
+        "getContainer",
+        "getDisplayText",
+        "getEphemeralState",
+        "getIcon",
+        "getRoot",
+        "getViewState",
+        "group",
+        "history",
+        "hoverPopover",
+        "id",
+        "isDeferred",
+        "loadIfDeferred",
+        "loadJson",
+        "off",
+        "offref",
+        "on",
+        "onResize",
+        "once",
+        "open",
+        "openFile",
+        "parent",
+        "pinned",
+        "reload",
+        "setEphemeralState",
+        "setGroup",
+        "setGroupMember",
+        "setPinned",
+        "setViewState",
+        "state",
+        "toJson",
+        "togglePinned",
+        "trigger",
+        "tryTrigger",
+        "updateHistory",
+        "view"
+      ],
+      "missing": []
+    },
+    "Editor": {
+      "upstream": [
+        "blur",
+        "exec",
+        "focus",
+        "getCursor",
+        "getDoc",
+        "getLine",
+        "getRange",
+        "getScrollInfo",
+        "getSelection",
+        "getValue",
+        "hasFocus",
+        "lastLine",
+        "lineCount",
+        "listSelections",
+        "offsetToPos",
+        "posToOffset",
+        "processLines",
+        "redo",
+        "refresh",
+        "replaceRange",
+        "replaceSelection",
+        "scrollIntoView",
+        "scrollTo",
+        "setCursor",
+        "setLine",
+        "setSelection",
+        "setSelections",
+        "setValue",
+        "somethingSelected",
+        "transaction",
+        "undo",
+        "wordAt"
+      ],
+      "local": [
+        "blur",
+        "cm",
+        "data",
+        "dispatch",
+        "emit",
+        "exec",
+        "extensions",
+        "file",
+        "focus",
+        "getCursor",
+        "getDoc",
+        "getLine",
+        "getRange",
+        "getScrollInfo",
+        "getSelection",
+        "getValue",
+        "hasFocus",
+        "id",
+        "lastLine",
+        "lineCount",
+        "listSelections",
+        "off",
+        "offref",
+        "offsetToPos",
+        "on",
+        "onChange",
+        "once",
+        "posToOffset",
+        "processLines",
+        "redo",
+        "refresh",
+        "replaceContent",
+        "replaceRange",
+        "replaceSelection",
+        "save",
+        "scrollIntoView",
+        "scrollTo",
+        "setCursor",
+        "setLine",
+        "setSelection",
+        "setSelections",
+        "setValue",
+        "somethingSelected",
+        "trackChanges",
+        "transaction",
+        "trigger",
+        "tryTrigger",
+        "undo",
+        "updateExtensions",
+        "view",
+        "wordAt"
+      ],
+      "missing": []
+    },
+    "Plugin": {
+      "upstream": [
+        "addChild",
+        "addCommand",
+        "addRibbonIcon",
+        "addSettingTab",
+        "addStatusBarItem",
+        "app",
+        "load",
+        "loadData",
+        "manifest",
+        "onExternalSettingsChange",
+        "onUserEnable",
+        "onload",
+        "onunload",
+        "register",
+        "registerBasesView",
+        "registerCliHandler",
+        "registerDomEvent",
+        "registerEditorExtension",
+        "registerEditorSuggest",
+        "registerEvent",
+        "registerExtensions",
+        "registerHoverLinkSource",
+        "registerInterval",
+        "registerMarkdownCodeBlockProcessor",
+        "registerMarkdownPostProcessor",
+        "registerObsidianProtocolHandler",
+        "registerView",
+        "removeChild",
+        "removeCommand",
+        "saveData",
+        "unload"
+      ],
+      "local": [
+        "addChild",
+        "addCommand",
+        "addRibbonIcon",
+        "addSettingTab",
+        "addStatusBarItem",
+        "app",
+        "basePath",
+        "children",
+        "configureRuntime",
+        "containerEl",
+        "disable",
+        "dispatch",
+        "emit",
+        "enable",
+        "enabled",
+        "errorMessage",
+        "id",
+        "load",
+        "loadData",
+        "loaded",
+        "manifest",
+        "off",
+        "offref",
+        "on",
+        "onExternalSettingsChange",
+        "onUserEnable",
+        "once",
+        "onload",
+        "onunload",
+        "register",
+        "registerBasesView",
+        "registerCliHandler",
+        "registerDomEvent",
+        "registerEditorExtension",
+        "registerEditorSuggest",
+        "registerEvent",
+        "registerExtensions",
+        "registerHoverLinkSource",
+        "registerInterval",
+        "registerMarkdownCodeBlockProcessor",
+        "registerMarkdownPostProcessor",
+        "registerMetadataProcessor",
+        "registerObsidianProtocolHandler",
+        "registerShortcut",
+        "registerTypeWidget",
+        "registerView",
+        "removeChild",
+        "removeCommand",
+        "required",
+        "saveData",
+        "source",
+        "state",
+        "trigger",
+        "tryTrigger",
+        "unload"
+      ],
+      "missing": []
+    },
+    "Component": {
+      "upstream": [
+        "addChild",
+        "load",
+        "onload",
+        "onunload",
+        "register",
+        "registerDomEvent",
+        "registerEvent",
+        "registerInterval",
+        "removeChild",
+        "unload"
+      ],
+      "local": [
+        "addChild",
+        "children",
+        "containerEl",
+        "dispatch",
+        "emit",
+        "load",
+        "loaded",
+        "off",
+        "offref",
+        "on",
+        "once",
+        "onload",
+        "onunload",
+        "register",
+        "registerDomEvent",
+        "registerEvent",
+        "registerInterval",
+        "removeChild",
+        "trigger",
+        "tryTrigger",
+        "unload"
+      ],
+      "missing": []
+    },
+    "Menu": {
+      "upstream": [
+        "addChild",
+        "addItem",
+        "addSeparator",
+        "close",
+        "hide",
+        "load",
+        "onHide",
+        "onload",
+        "onunload",
+        "register",
+        "registerDomEvent",
+        "registerEvent",
+        "registerInterval",
+        "removeChild",
+        "setNoIcon",
+        "setUseNativeMenu",
+        "showAtMouseEvent",
+        "showAtPosition",
+        "unload"
+      ],
+      "local": [
+        "addGroups",
+        "addItem",
+        "addMenu",
+        "addSeparator",
+        "clear",
+        "close",
+        "component",
+        "dropdown",
+        "filter",
+        "filteredItems",
+        "forEvent",
+        "hide",
+        "items",
+        "noIcon",
+        "onHide",
+        "open",
+        "popover",
+        "search",
+        "section",
+        "setNoIcon",
+        "setSection",
+        "setTitle",
+        "setUseNativeMenu",
+        "showAtElement",
+        "showAtMouseEvent",
+        "showAtPosition",
+        "title",
+        "useNativeMenu"
+      ],
+      "missing": [
+        "addChild",
+        "load",
+        "onload",
+        "onunload",
+        "register",
+        "registerDomEvent",
+        "registerEvent",
+        "registerInterval",
+        "removeChild",
+        "unload"
+      ]
+    },
+    "Setting": {
+      "upstream": [
+        "addButton",
+        "addColorPicker",
+        "addComponent",
+        "addDropdown",
+        "addExtraButton",
+        "addMomentFormat",
+        "addProgressBar",
+        "addSearch",
+        "addSlider",
+        "addText",
+        "addTextArea",
+        "addToggle",
+        "clear",
+        "components",
+        "controlEl",
+        "descEl",
+        "infoEl",
+        "nameEl",
+        "setClass",
+        "setDesc",
+        "setDisabled",
+        "setHeading",
+        "setName",
+        "setTooltip",
+        "settingEl",
+        "then"
+      ],
+      "local": [
+        "addButton",
+        "addColorPicker",
+        "addComponent",
+        "addDropdown",
+        "addExtraButton",
+        "addIconPicker",
+        "addMomentFormat",
+        "addProgressBar",
+        "addSearch",
+        "addSlider",
+        "addText",
+        "addTextArea",
+        "addToggle",
+        "clear",
+        "components",
+        "containerEl",
+        "controlEl",
+        "descEl",
+        "infoEl",
+        "nameEl",
+        "setClass",
+        "setDesc",
+        "setDisabled",
+        "setHeading",
+        "setName",
+        "setTooltip",
+        "setVisibility",
+        "settingEl",
+        "then"
+      ],
+      "missing": []
+    },
+    "MetadataCache": {
+      "upstream": [
+        "fileToLinktext",
+        "getCache",
+        "getFileCache",
+        "getFirstLinkpathDest",
+        "off",
+        "offref",
+        "on",
+        "resolvedLinks",
+        "trigger",
+        "tryTrigger",
+        "unresolvedLinks"
+      ],
+      "local": [
+        "addProcessor",
+        "app",
+        "dispatch",
+        "emit",
+        "fileCache",
+        "fileToLinktext",
+        "getAllItems",
+        "getCache",
+        "getFileCache",
+        "getFirstLinkpathDest",
+        "legacyStorage",
+        "load",
+        "logger",
+        "metadataCache",
+        "off",
+        "offref",
+        "on",
+        "once",
+        "persistCache",
+        "processFileCache",
+        "processors",
+        "read",
+        "rebuild",
+        "removeProcessor",
+        "resolvedLinks",
+        "toJSON",
+        "trigger",
+        "tryTrigger",
+        "unresolvedLinks",
+        "writeFrontmatter"
+      ],
+      "missing": []
+    }
+  }
+}

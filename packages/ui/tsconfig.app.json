@@ -1,0 +1,46 @@
+{
+  "extends": "@tsconfig/svelte/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "5.0",
+    "paths": {
+      "$lib": ["./src/lib"],
+      "$lib/*": ["./src/lib/*"],
+      "$lib/utils.js": ["./src/lib/utils.ts"],
+      "@lapis-notes/ui": ["./src/lib/index.ts"],
+      "@lapis-notes/ui/*": [
+        "./src/lib/components/ui/*/index.ts",
+        "./src/lib/*/index.ts",
+        "./src/lib/*",
+        "./src/*/index.ts",
+        "./src/*"
+      ],
+      "@lapis-notes/ui/theme.css": ["./src/lib/theme.css"],
+      "@lapis-notes/ui/styles.css": ["./src/lib/styles.css"],
+      "@lapis-notes/ui/codemirror-autocomplete.css": [
+        "./src/lib/codemirror-autocomplete.css"
+      ],
+      "@lapis-notes/ui/table-dnd/utils": [
+        "./src/lib/components/ui/table-dnd/table-dnd-utils.ts"
+      ],
+      "@lapis-notes/ui/table-dnd/sensors": [
+        "./src/lib/components/ui/table-dnd/table-dnd-sensors.ts"
+      ]
+    },
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "resolveJsonModule": true,
+    /**
+     * Typecheck JS in `.svelte` and `.js` files by default.
+     * Disable checkJs if you'd like to use dynamic types in JS.
+     * Note that setting allowJs false does not prevent the use
+     * of JS in `.svelte` files.
+     */
+    "allowJs": true,
+    "checkJs": true,
+    "isolatedModules": false,
+    "moduleDetection": "force"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
+}

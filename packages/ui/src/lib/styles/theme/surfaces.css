@@ -1,0 +1,120 @@
+:root {
+  /* Shared surfaces */
+  --canvas-background: var(--background-primary);
+  --canvas-card-label-color: var(--text-faint);
+  --canvas-color-1: var(--color-red-rgb);
+  --canvas-color-2: var(--color-orange-rgb);
+  --canvas-color-3: var(--color-yellow-rgb);
+  --canvas-color-4: var(--color-green-rgb);
+  --canvas-color-5: var(--color-cyan-rgb);
+  --canvas-color-6: var(--color-purple-rgb);
+  --canvas-dot-pattern: var(--color-base-30);
+  --dropdown-background: var(--interactive-normal);
+  --dropdown-background-blend-mode: hard-light;
+  --dropdown-background-hover: var(--interactive-hover);
+  --dropdown-background-position: right 0.5em top 50%, 0 0;
+  --dropdown-background-size: 1em auto, 100%;
+  --dropdown-padding: 0 1.9em 0 0.8em;
+  --graph-controls-width: 240px;
+  --graph-controls-background: var(
+    --tab-container-background,
+    var(--menu-background, var(--background-primary))
+  );
+  --graph-controls-color: var(--graph-text, var(--text-normal));
+  --graph-controls-border-color: var(
+    --menu-border-color,
+    var(--background-modifier-border)
+  );
+  --graph-controls-border-width: var(--menu-border-width, 1px);
+  --graph-controls-radius: var(--menu-radius, var(--radius-xl));
+  --graph-controls-corner-shape: var(--menu-corner-shape, round);
+  --graph-controls-shadow: var(--menu-shadow, var(--shadow-s));
+  --graph-controls-button-background: var(
+    --menu-background,
+    var(--background-primary)
+  );
+  --graph-controls-button-background-hover: var(
+    --background-modifier-hover,
+    rgba(var(--mono-rgb-100), 0.075)
+  );
+  --graph-controls-button-border-color: var(
+    --background-modifier-border,
+    var(--color-base-30)
+  );
+  --graph-controls-button-color: var(--icon-color, var(--text-muted));
+  --graph-controls-button-color-hover: var(
+    --icon-color-focused,
+    var(--text-normal)
+  );
+  --graph-controls-section-border-color: var(
+    --background-modifier-border,
+    var(--color-base-30)
+  );
+  --graph-controls-input-background: var(
+    --background-primary,
+    var(--color-base-00)
+  );
+  --graph-controls-input-border-color: var(
+    --background-modifier-border,
+    var(--color-base-30)
+  );
+  --graph-controls-input-color: var(--graph-text, var(--text-normal));
+  --graph-controls-input-placeholder: var(--text-muted, var(--color-base-60));
+  --graph-controls-search-icon-color: var(
+    --search-icon-color,
+    var(--text-muted)
+  );
+  --graph-controls-pill-background: var(
+    --menu-background,
+    var(--background-primary)
+  );
+  --graph-controls-pill-border-color: var(
+    --menu-border-color,
+    var(--background-modifier-border)
+  );
+  --graph-controls-pill-color: var(--text-muted, var(--color-base-60));
+  --graph-text: var(--text-normal);
+  --graph-line: var(--color-base-35, var(--background-modifier-border-focus));
+  --graph-node: var(--text-muted);
+  --graph-node-unresolved: var(--text-faint);
+  --graph-node-focused: var(--text-accent);
+  --graph-node-tag: var(--color-green);
+  --graph-node-attachment: var(--color-yellow);
+  --menu-background: var(--background-primary, var(--color-base-00));
+  --menu-border-color: var(--background-modifier-border, var(--color-base-30));
+  --menu-border-width: var(--border-width, 1px);
+  --menu-radius: var(--radius-xl, 16px);
+  --menu-corner-shape: round;
+  --pdf-background: var(--background-primary);
+  --pdf-page-background: var(--background-primary);
+  --pdf-shadow: 0 0 0 1px var(--background-modifier-border);
+  --pdf-spread-shadow: 0 0 0 1px var(--background-modifier-border);
+  --pdf-sidebar-background: var(--background-primary);
+  --pdf-thumbnail-shadow: 0 0 0 1px var(--background-modifier-border);
+  --raised-background: var(--blur-background);
+  --surface-floating-background: color-mix(
+    in srgb,
+    var(--background-primary) 94%,
+    white 6%
+  );
+  --surface-floating-border: color-mix(
+    in srgb,
+    var(--background-modifier-border) 88%,
+    white 12%
+  );
+  --surface-overlay-background: color-mix(
+    in srgb,
+    var(--background-primary) 90%,
+    transparent
+  );
+  --surface-overlay-ring: color-mix(
+    in srgb,
+    var(--background-primary) 72%,
+    transparent
+  );
+  --surface-inline-input-background: color-mix(
+    in srgb,
+    var(--foreground) 6%,
+    transparent
+  );
+}

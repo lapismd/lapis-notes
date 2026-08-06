@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "$lib": ["./src/lib"],
+      "$lib/*": ["./src/lib/*"],
+      "$lib/utils.js": ["./src/lib/utils.ts"],
+      "@lapis-notes/ui": ["./src/lib/index.ts"],
+      "@lapis-notes/ui/*": [
+        "./src/lib/components/ui/*/index.ts",
+        "./src/lib/*/index.ts",
+        "./src/lib/*",
+        "./src/*/index.ts",
+        "./src/*"
+      ],
+      "@lapis-notes/ui/theme.css": ["./src/lib/theme.css"],
+      "@lapis-notes/ui/styles.css": ["./src/lib/styles.css"],
+      "@lapis-notes/ui/codemirror-autocomplete.css": [
+        "./src/lib/codemirror-autocomplete.css"
+      ]
+    },
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["vite.config.ts"]
+}

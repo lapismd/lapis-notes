@@ -1,0 +1,27 @@
+{
+  "passThresholdPercent": 0.064,
+  "diffThreshold": 0.063,
+  "diffIncludeAntiAliasing": false,
+  "delay": 0,
+  "deviceScaleFactor": 1,
+  "cropToViewport": false,
+  "placement": "right",
+  "opacity": 0.5,
+  "baselineLabelOffset": {
+    "x": 0,
+    "y": 0
+  },
+  "previewSplitZoomDefault": "fit",
+  "diffResultZoomDefault": "100%",
+  "browsers": ["chromium"],
+  "captureWorkspaceIgnore": [],
+  "workflow": {
+    "autoAcceptLiveStoryComparisons": true,
+    "visualTestFailureMode": "strict",
+    "reuseActualComparisons": true,
+    "vcs": {
+      "mode": "auto",
+      "commitMessageTemplate": "Visual Delta: {action} {scope}"
+    }
+  }
+}

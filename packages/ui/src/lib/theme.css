@@ -1,0 +1,9 @@
+@custom-variant dark (&:is(.dark *, .theme-dark *));
+
+@import "./styles/theme/light.css";
+@import "./styles/theme/dark.css";
+@import "./styles/theme/aliases.css";
+@import "./styles/theme/foundation.css";
+@import "./styles/theme/content.css";
+@import "./styles/theme/surfaces.css";
+@import "./styles/theme/tailwind.css";

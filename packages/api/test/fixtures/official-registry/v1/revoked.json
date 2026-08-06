@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-05-31T00:00:00.000Z",
+  "revoked": [],
+  "schemaVersion": 1,
+  "signatures": [
+    {
+      "keyId": "lapis-registry-fixture-test",
+      "alg": "ed25519",
+      "sig": "Xl4cSkuoBl6ToysH44MjLfKQesy1kDdyGLWA76IzwZZTZz0hZpiKqW8ch6AbdmDYmwscU9qUgHTB8dpQ8+skBA=="
+    }
+  ]
+}

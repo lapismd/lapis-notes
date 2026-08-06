@@ -1,0 +1,132 @@
+{
+  "name": "@lapis-notes/api",
+  "version": "0.0.1",
+  "description": "Lapis Notes API",
+  "type": "module",
+  "dependencies": {
+    "@dao-xyz/sqlite3-vec": "^0.0.19",
+    "@huggingface/transformers": "^4.2.0",
+    "@iconify-json/lucide": "^1.2.63",
+    "@iconify/types": "^2.0.0",
+    "@iconify/utils": "^2.3.0",
+    "@lezer/common": "^1.2.3",
+    "@lezer/lr": "^1.4.2",
+    "@lucide/svelte": "^0.523.0",
+    "@replit/codemirror-indentation-markers": "^6.5.3",
+    "@tanstack/svelte-virtual": "^3.13.12",
+    "@tanstack/virtual-core": "^3.13.12",
+    "@types/lodash-es": "^4.17.12",
+    "bits-ui": "2.18.1",
+    "clsx": "^2.1.1",
+    "eventemitter3": "^5.0.1",
+    "fflate": "^0.8.3",
+    "idb-keyval": "^6.2.2",
+    "lodash-es": "^4.17.21",
+    "lucide-static": "^0.503.0",
+    "lucide-svelte": "^0.487.0",
+    "luxon": "^3.7.1",
+    "minimatch": "^10.2.5",
+    "tailwind-merge": "^2.6.0",
+    "tailwind-variants": "^0.3.1",
+    "zod": "^3.25.76"
+  },
+  "scripts": {
+    "build": "pnpm run prepack",
+    "check": "pnpm check:svelte && pnpm check:types",
+    "check:svelte": "svelte-check --fail-on-warnings --output human",
+    "check:types": "tsc --noEmit",
+    "dev": "pnpm --dir ../.. storybook",
+    "storybook": "pnpm --dir ../.. storybook",
+    "test": "vitest run",
+    "test:run": "vitest run",
+    "generate:search-query-parser": "lezer-generator ./src/lib/search-query/search-query.grammar -o ./src/lib/search-query/parser.js",
+    "prepack": "svelte-package --tsconfig ./tsconfig.pack.json && publint",
+    "parity:generate": "node ./scripts/generate-obsidian-parity.mjs"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "peerDependencies": {
+    "@codemirror/autocomplete": "^6.18.6",
+    "@dnd-kit/dom": "^0.4.0",
+    "@dnd-kit/svelte": "^0.4.0",
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/language": "^6.11.1",
+    "@codemirror/lint": "^6.8.5",
+    "@codemirror/search": "^6.5.11",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.35.0",
+    "@lapis-notes/ui": "workspace:*",
+    "@lezer/highlight": "^1.2.1",
+    "i18next": "^25.3.0",
+    "svelte": "^5.0.0",
+    "svelte-sonner": "^1.0.5"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./cache": {
+      "types": "./dist/cache.svelte.d.ts",
+      "svelte": "./dist/cache.svelte.js",
+      "import": "./dist/cache.svelte.js",
+      "default": "./dist/cache.svelte.js"
+    },
+    "./metadata-value": {
+      "types": "./dist/metadata-value.d.ts",
+      "import": "./dist/metadata-value.js",
+      "default": "./dist/metadata-value.js"
+    },
+    "./language-service": {
+      "types": "./dist/language-service/index.d.ts",
+      "import": "./dist/language-service/index.js",
+      "default": "./dist/language-service/index.js"
+    },
+    "./*": {
+      "types": "./dist/components/*/index.d.ts",
+      "svelte": "./dist/components/*/index.js",
+      "import": "./dist/components/*/index.js",
+      "default": "./dist/components/*/index.js"
+    }
+  },
+  "devDependencies": {
+    "@codemirror/autocomplete": "^6.18.6",
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/language": "^6.11.3",
+    "@codemirror/lint": "^6.8.5",
+    "@codemirror/search": "^6.5.11",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.42.1",
+    "@dnd-kit/dom": "^0.4.0",
+    "@dnd-kit/svelte": "^0.4.0",
+    "@lezer/generator": "^1.7.3",
+    "@lezer/highlight": "^1.2.1",
+    "@sveltejs/package": "^2.5.0",
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@tsconfig/svelte": "^5.0.5",
+    "@types/luxon": "^3.7.1",
+    "autoprefixer": "^10.4.21",
+    "fake-indexeddb": "^6.2.5",
+    "i18next": "^25.3.0",
+    "jsdom": "^26.1.0",
+    "publint": "^0.3.12",
+    "svelte": "^5.38.2",
+    "svelte-check": "^4.3.1",
+    "svelte-sonner": "^1.0.5",
+    "tslib": "^2.8.1",
+    "typescript": "~5.8.3",
+    "vite": "^6.4.2",
+    "vitest": "^4.1.8"
+  },
+  "license": "Apache-2.0"
+}

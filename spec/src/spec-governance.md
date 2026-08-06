@@ -1,0 +1,36 @@
+# Specification Governance
+
+Specification changes precede or accompany protected implementation changes.
+The gate is package-aware: updating an unrelated chapter does not satisfy a
+protected package change.
+
+## Requirements
+
+| ID | Requirement |
+| --- | --- |
+| LN-GOV-001 | `spec/src` Markdown MUST be canonical, indexed once by `SUMMARY.md`, and buildable by mdBook. |
+| LN-GOV-002 | Requirement IDs MUST be unique and each ID MUST appear in the verification matrix. |
+| LN-GOV-003 | Protected implementation and configuration changes MUST update every mapped canonical chapter in the same logical change. |
+| LN-GOV-004 | The local gate MUST inspect the current VCS change (`jj` preferred, else git); CI MAY compare base and head revisions. |
+| LN-GOV-005 | Tests, generated output, and ordinary story files MUST NOT satisfy or spuriously trigger the specification-first gate. |
+| LN-GOV-006 | Governance tooling MUST fail closed when it cannot determine a trustworthy change set. |
+| LN-GOV-007 | Generated mdBook output under `spec/book/` MUST remain untracked. |
+
+## Change map
+
+| Protected area | Required chapter |
+| --- | --- |
+| `packages/api` source or manifest | `packages.md`, `architecture.md` |
+| `packages/ui` source or manifest | `packages.md`, `ui-and-styling.md` |
+| Storybook infrastructure and catalog metadata | `storybook-catalog.md` |
+| Root architecture / workspace / turbo manifests | `architecture.md`, `packages.md` |
+| Governance scripts, `AGENTS.md`, `spec/book.toml` | `spec-governance.md` |
+
+## Agent workflow
+
+1. Inspect VCS status
+2. Read mapped chapter + requirement IDs
+3. Update requirements and verification before or with implementation
+4. Add evidence (unit / story) as appropriate
+5. Run `pnpm spec:first` and package checks
+6. Commit the verified slice
