@@ -11,7 +11,7 @@ intake or UI swap status changes.
 | Spec + AGENTS + `spec:first` | Done | mira-mde-inspired, slimmed |
 | Storybook host (port 7010) | Done | `API/` verification stories + catalog |
 | API Storybook verification + Visual Delta | Done | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later) |
-| `@lapismd/design-core` sibling | Done | Root `file:../design-core`; api/ui `file:../../../design-core` |
+| `@lapismd/design-core` sibling | Done | Root `file:../design-core` + pnpm override; package manifests use portable `*` contracts |
 | Storybook a11y in Vitest | Done | `vitest.setup.ts` + `a11y.test: "error"`; filled action tokens AA-tuned |
 | Storybook style authority | Done | design-core styles + lapis theme; ui `theme.css` only (avoid dual Tailwind) |
 
@@ -21,19 +21,19 @@ intake or UI swap status changes.
 | --- | --- | --- |
 | `@lapis-notes/api` | Copied | Kernel from full lapis-notes; scripts slimmed |
 | `@lapis-notes/ui` | Pruned | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers |
-| `@lapis-notes/workspace` shell integration | In progress | Thin design-core host; api compatibility + persistence façade |
+| `@lapis-notes/workspace` shell integration | Done | Thin design-core host; api compatibility + persistence façade |
 | Web / desktop hosts | Not started | No runnable product host in this slice |
 | Plugins / notebook / language-service | Not started | Api plugin tests use synthetic manifests only (no plugin package deps) |
-| design-core workspace engine | In progress | Consume public `@lapismd/design-core/workspace`; no sibling source changes |
+| design-core workspace engine | Done | Consumes public `@lapismd/design-core/workspace`; no sibling source changes |
 
 ### Workspace shell integration progress
 
 - [x] Canonical requirements and governance mapping
 - [x] Api-owned design-core controller and compatibility projection
 - [x] Host-only `@lapis-notes/api/workspace-host` export
-- [ ] `@lapis-notes/workspace` package
-- [ ] Persisted desktop and mobile Storybook stories
-- [ ] Interaction, accessibility, build, and visual verification
+- [x] `@lapis-notes/workspace` package
+- [x] Persisted desktop and mobile Storybook stories
+- [x] Interaction, accessibility, build, and visual verification
 
 ## UI → design-core
 

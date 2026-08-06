@@ -35,3 +35,6 @@ The compatibility projection reuses split, tabs, group, window, and leaf
 objects by serialized id. Api-origin changes are committed under a bridge guard;
 controller-originated changes are projected asynchronously under persistence
 suppression and emit one legacy layout-change/save request after reconciliation.
+Persistence suppression remains active through the Svelte effect flush for each
+queued projection so compatibility-only sidebar effects cannot write an older
+layout back over a newer controller mutation.

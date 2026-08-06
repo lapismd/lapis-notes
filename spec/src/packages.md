@@ -39,6 +39,9 @@ The workspace package is a thin Svelte adapter over
 the host binding from `@lapis-notes/api/workspace-host`, and renders the default
 design-core app-shell surface. It contains no vault selector, router, plugin
 bootstrap, persistence implementation, or copied Lapis workspace renderer.
+Its package contract exports `WorkspaceShell` and its component CSS, and its
+mount test supplies a real initialized api `App` while asserting plugin loading
+remains consumer-owned.
 
 ## `@lapis-notes/ui` (pruned)
 

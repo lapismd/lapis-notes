@@ -1239,6 +1239,34 @@ describe("Workspace compatibility", () => {
     expect(events).toContainEqual({ source: "api", operation: "tab-add" });
   });
 
+  it("does not resurrect stale tabs during back-to-back host mutations", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+    const tabs = workspace.rootSplit.children[0] as WorkspaceTabs;
+    const originalLeaf = tabs.children[0] as WorkspaceLeaf;
+
+    const added = binding.controller.workspace.openLeaf(
+      "empty",
+      {},
+      { paneId: tabs.id, title: "Transient", active: true },
+    );
+    expect(added).not.toBeNull();
+    expect(binding.controller.workspace.closeLeaf(added!.id)).toBe(true);
+    binding.controller.renderer.setSidebarOpen("left", true);
+
+    await vi.waitFor(() => {
+      expect(workspace.getLeafById(added!.id)).toBeNull();
+      expect(workspace.getLeafById(originalLeaf.id)).toBe(originalLeaf);
+      expect(workspace.leftSplit.collapsed).toBe(false);
+    });
+
+    expect(
+      (binding.controller.getLayout().main.children[0] as any).children.map(
+        (child: { id: string }) => child.id,
+      ),
+    ).toEqual([originalLeaf.id]);
+  });
+
   it("forwards cancelable controller drop events to compatibility listeners", async () => {
     const { workspace } = createWorkspaceHarness();
     const binding = getWorkspaceHostBinding(workspace);

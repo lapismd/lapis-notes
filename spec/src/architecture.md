@@ -8,7 +8,7 @@
 | LN-ARCH-002 | Workspace packages MUST live under `packages/*` and expose `build`, `check`, and `test` scripts. |
 | LN-ARCH-003 | The browsable docs host MUST be Storybook on port 7010 (`pnpm dev`). |
 | LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added. |
-| LN-ARCH-005 | `@lapismd/design-core` MUST be consumed as a sibling `file:` dependency (`file:../design-core` at the repo root), not published/npm-vendored. |
+| LN-ARCH-005 | `@lapismd/design-core` MUST be consumed through the sibling checkout (`file:../design-core` at the repo root and pnpm override); publishable package manifests MUST use a portable dependency range. |
 | LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed. |
 | LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, and plugin loading remain consumer or api responsibilities. |
 
@@ -35,6 +35,9 @@ own a second layout model or persistence adapter.
 `@lapis-notes/api/workspace-host` is the explicit integration seam: root api
 exports retain their compatibility shape while workspace hosts can obtain the
 controller without reaching into api internals.
+Every workspace package exposes the common `build`, `check`, and `test`
+contract, so the shell participates in the same Turbo verification graph as
+the kernel and retained UI surface.
 
 ## Tooling policy
 

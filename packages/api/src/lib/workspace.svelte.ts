@@ -2373,9 +2373,13 @@ export class Workspace extends EventDispatcher<{
     preserveSidebarWidth("right", this.rightSplit);
 
     const run = this.#workspaceHostProjection.then(async () => {
-      await this.withoutLayoutPersistence(() =>
-        this.restoreLayoutJson(projected),
-      );
+      await this.withoutLayoutPersistence(async () => {
+        await this.restoreLayoutJson(projected);
+        // Sidedock compatibility effects flush after loadJson resolves. Keep
+        // persistence suppressed through that flush so an older queued
+        // projection cannot be committed back over a newer controller layout.
+        await tick();
+      });
       this.emitLayoutChangeAndScheduleSave(
         compatibilityLayoutEventFromDesign(event),
       );

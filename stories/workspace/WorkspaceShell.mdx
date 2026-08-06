@@ -1,0 +1,14 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./WorkspaceShell.stories";
+
+<Meta of={Stories} />
+
+# Workspace shell
+
+`@lapis-notes/workspace` mounts the API-owned design-core controller after the
+consumer has loaded the vault and restored Lapis workspace persistence. The
+stories use a real `App`, the built-in empty view, and no optional plugins.
+
+<Canvas of={Stories.PersistedDesktop} />
+
+<Canvas of={Stories.Mobile} />

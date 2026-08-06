@@ -170,10 +170,42 @@ export const apiUiCatalog = [
   },
 ];
 
+/** @type {CatalogEntry[]} */
+export const workspaceCatalog = [
+  {
+    id: "workspace-shell-persisted-desktop",
+    title: "Persisted Desktop",
+    spec: "spec/src/workspace-shell.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-shell--persisted-desktop",
+  },
+  {
+    id: "workspace-shell-mobile",
+    title: "Mobile",
+    spec: "spec/src/workspace-shell.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-shell--mobile",
+  },
+];
+
 export function catalogParameters(catalogId) {
   const entry = apiUiCatalog.find((item) => item.id === catalogId);
   if (!entry) {
     throw new Error(`Unknown catalog id: ${catalogId}`);
+  }
+  return {
+    lapis: {
+      catalogId: entry.id,
+      spec: entry.spec,
+      publicSurface: entry.publicSurface,
+    },
+  };
+}
+
+export function workspaceCatalogParameters(catalogId) {
+  const entry = workspaceCatalog.find((item) => item.id === catalogId);
+  if (!entry) {
+    throw new Error(`Unknown workspace catalog id: ${catalogId}`);
   }
   return {
     lapis: {

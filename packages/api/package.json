@@ -4,7 +4,7 @@
   "description": "Lapis Notes API",
   "type": "module",
   "dependencies": {
-    "@lapismd/design-core": "file:../../../design-core",
+    "@lapismd/design-core": "*",
     "@dao-xyz/sqlite3-vec": "^0.0.19",
     "@huggingface/transformers": "^4.2.0",
     "@iconify-json/lucide": "^1.2.63",

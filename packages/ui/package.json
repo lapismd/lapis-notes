@@ -94,7 +94,7 @@
   "dependencies": {
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
-    "@lapismd/design-core": "file:../../../design-core",
+    "@lapismd/design-core": "*",
     "fuse.js": "^7.3.0"
   }
 }

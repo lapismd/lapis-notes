@@ -1,8 +1,8 @@
 /**
  * Fail if Tailwind utility class strings appear in Lapis native-CSS surfaces.
  *
- * Scans kept UI compounds and API chrome. Storybook stories / demos may still
- * use host Tailwind for layout and are excluded.
+ * Scans kept UI compounds, API chrome, and the workspace shell. Storybook
+ * stories / demos may still use host Tailwind for layout and are excluded.
  *
  * Usage:
  *   pnpm check:no-tailwind
@@ -15,6 +15,7 @@ import { findTailwindUtilitiesInSource } from "./lib/no-tailwind-utilities.js";
 const DEFAULT_ROOTS = [
   "packages/ui/src/lib/components",
   "packages/api/src/lib/components",
+  "packages/workspace/src/lib",
 ] as const;
 
 const requested = process.argv.slice(2);

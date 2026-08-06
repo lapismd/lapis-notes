@@ -17,8 +17,8 @@
     "storybook": "storybook dev -p 7010 --no-open",
     "build-storybook": "node -e \"require('node:fs').mkdirSync('.visual-delta/cache',{recursive:true})\" && storybook build --stats-json .visual-delta/cache",
     "test:storybook": "vitest run --project storybook",
-    "test:visual": "visual-delta test --affected --baseline-path-mode nested-import",
-    "test:visual:update": "node ./scripts/update-api-visual-baselines.mjs",
+    "test:visual": "node ./scripts/test-visual.mjs",
+    "test:visual:update": "node ./scripts/update-visual-baselines.mjs",
     "spec:build": "mdbook build ./spec",
     "spec:check": "pnpm spec:build && pnpm spec:first",
     "spec:first": "node ./scripts/check-spec-first.mjs",
@@ -28,7 +28,9 @@
   "devDependencies": {
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
+    "@lapis-notes/api": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
+    "@lapis-notes/workspace": "workspace:*",
     "@lapismd/design-core": "file:../design-core",
     "@lapismd/storybook-addon-visual-delta": "^0.0.6",
     "@lucide/svelte": "^0.523.0",
@@ -59,6 +61,7 @@
   },
   "pnpm": {
     "overrides": {
+      "@lapismd/design-core": "file:../design-core",
       "adm-zip": ">=0.6.0",
       "aria-query": "5.3.2",
       "sharp": ">=0.35.0"

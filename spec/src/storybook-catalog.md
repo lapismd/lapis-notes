@@ -34,7 +34,12 @@ Direct api imports (one story family each):
 
 - Interaction + a11y tests: `pnpm test:storybook` (axe via addon-a11y; `a11y.test: "error"`)
 - No-Tailwind sources: `pnpm check:no-tailwind` (component trees; stories excluded)
-- Visual baselines: `pnpm build-storybook` then `pnpm test:visual:update` (generates under `tests/visual/storybook.spec.ts-snapshots/stories/api/`)
+- Visual baselines: `pnpm build-storybook` then `pnpm test:visual:update` (generates nested-import baselines under `tests/visual/storybook.spec.ts-snapshots/stories/`)
 - Visual regression: `pnpm test:visual`
 - Workspace shell stories use the same interaction, a11y, and nested-import
   Visual Delta workflow as API stories and remain `visual-pending` until review.
+- The visual helpers stage the sibling design-core checkout inside the Docker
+  context for both compare and update runs. They exclude documented nonvisual
+  stories, and the update helper accepts repeatable story-prefix filters; its
+  defaults select API and workspace stories without rewriting unrelated
+  baselines.
