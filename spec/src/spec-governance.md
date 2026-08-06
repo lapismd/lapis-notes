@@ -22,6 +22,7 @@ protected package change.
 | --- | --- |
 | `packages/api` source or manifest | `packages.md`, `architecture.md` |
 | `packages/ui` source or manifest | `packages.md`, `ui-and-styling.md` |
+| `packages/workspace` source or manifest | `packages.md`, `architecture.md`, `workspace-shell.md` |
 | Storybook infrastructure and catalog metadata | `storybook-catalog.md` |
 | Root architecture / workspace / turbo manifests | `architecture.md`, `packages.md` |
 | Governance scripts, `AGENTS.md`, `spec/book.toml` | `spec-governance.md` |

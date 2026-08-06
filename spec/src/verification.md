@@ -10,12 +10,14 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-004 | architecture | Implemented | no `check:source-resolution` scripts |
 | LN-ARCH-005 | architecture | Implemented | root dep `file:../design-core` |
 | LN-ARCH-006 | architecture | Implemented | root `check` runs `check:no-tailwind` |
+| LN-ARCH-007 | architecture | In progress | `packages/workspace`; workspace-shell requirements |
 | LN-PKG-001 | packages | Implemented | `packages/api` kernel copy |
 | LN-PKG-002 | packages | Implemented | api peer on `@lapis-notes/ui` |
 | LN-PKG-003 | packages | Implemented | pruned `packages/ui` |
 | LN-PKG-004 | packages | Implemented | hosts/plugins absent; tracked in `MIGRATION.md` |
 | LN-PKG-005 | packages | Implemented | package `exports` maps |
 | LN-PKG-006 | packages | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed |
+| LN-PKG-007 | packages | In progress | `packages/workspace` shell adapter |
 | LN-UI-001 | ui-and-styling | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui |
 | LN-UI-002 | ui-and-styling | Implemented | `API/` stories under `stories/api/` |
 | LN-UI-003 | ui-and-styling | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome |
@@ -35,6 +37,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-008 | storybook-catalog | Implemented | `.storybook/vitest.setup.ts` + `parameters.a11y.test: "error"` |
 | LN-CAT-009 | storybook-catalog | Implemented | preview: design-core styles + lapis + ui alias theme |
 | LN-CAT-010 | storybook-catalog | Implemented | stories excluded from no-tailwind scan |
+| LN-CAT-011 | storybook-catalog | In progress | `stories/workspace/*` |
+| LN-CAT-012 | storybook-catalog | In progress | workspace story plays + story adapter |
+| LN-CAT-013 | storybook-catalog | In progress | empty contribution registries; no plugin boot |
 | LN-GOV-001 | spec-governance | Implemented | `spec/` mdBook sources |
 | LN-GOV-002 | spec-governance | Implemented | this matrix |
 | LN-GOV-003 | spec-governance | Implemented | `scripts/check-spec-first.mjs` |
@@ -42,3 +47,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-005 | spec-governance | Implemented | ignored patterns in gate |
 | LN-GOV-006 | spec-governance | Implemented | fail-closed on VCS errors |
 | LN-GOV-007 | spec-governance | Implemented | `spec/book` gitignored |
+| LN-WS-001 | workspace-shell | In progress | api-owned `AppShellController` |
+| LN-WS-002 | workspace-shell | In progress | compatibility projection tests |
+| LN-WS-003 | workspace-shell | In progress | `@lapis-notes/api/workspace-host` |
+| LN-WS-004 | workspace-shell | In progress | api workspace load/save tests |
+| LN-WS-005 | workspace-shell | In progress | bidirectional controller adapter |
+| LN-WS-006 | workspace-shell | In progress | imperative view registration adapter |
+| LN-WS-007 | workspace-shell | In progress | default design-core surface; no plugins |
+| LN-WS-008 | workspace-shell | In progress | `WorkspaceShell.svelte` public props |
+| LN-WS-009 | workspace-shell | In progress | persisted desktop/mobile stories |
+| LN-WS-010 | workspace-shell | In progress | interaction/a11y/visual coverage |

@@ -7,9 +7,10 @@
 | LN-PKG-001 | `@lapis-notes/api` MUST remain the shared runtime kernel: app container, vault/storage contracts, workspace model, plugins, commands, settings, metadata, and editor abstractions. |
 | LN-PKG-002 | `@lapis-notes/api` MUST depend on `@lapis-notes/ui` as a peer for shared UI primitives used by kernel components. |
 | LN-PKG-003 | `@lapis-notes/ui` MUST export only the pruned surface required by api (plus documented transitive dependencies). |
-| LN-PKG-004 | Host apps, plugins, notebook, and language-service packages MUST NOT be added until their requirements are specified and tracked in `MIGRATION.md`. |
+| LN-PKG-004 | Host apps, plugins, notebook, and language-service packages MUST NOT be added until their requirements are specified and tracked in `MIGRATION.md`; the specified workspace integration package is not a host application. |
 | LN-PKG-005 | Package public exports MUST stay source of truth in each package `package.json` `exports` map. |
 | LN-PKG-006 | Vault profile storage kinds MUST be limited to `opfs`, `file-system-access`, and `desktop-folder`. LightningFS / legacy browser IndexedDB vault adapters and host-framework-specific kinds (for example former `tauri-folder`) MUST NOT be retained. |
+| LN-PKG-007 | `@lapis-notes/workspace` MUST expose the design-core shell around an application-supplied `App` without importing optional plugin packages or providing a production in-memory backend. |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -28,6 +29,14 @@ plugins, and plugin-host module generation.
 
 Brand palette and semantic tokens live in design-core `themes/lapis.css`.
 `@lapis-notes/ui/theme.css` is an Obsidian-compatibility alias layer only.
+
+## `@lapis-notes/workspace` (shell integration)
+
+The workspace package is a thin Svelte adapter over
+`@lapismd/design-core/workspace`. It receives an initialized api `App`, obtains
+the host binding from `@lapis-notes/api/workspace-host`, and renders the default
+design-core app-shell surface. It contains no vault selector, router, plugin
+bootstrap, persistence implementation, or copied Lapis workspace renderer.
 
 ## `@lapis-notes/ui` (pruned)
 

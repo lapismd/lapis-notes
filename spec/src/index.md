@@ -19,7 +19,9 @@ This repository currently contains:
 
 - `@lapis-notes/api` — shared runtime kernel
 - `@lapis-notes/ui` — pruned UI surface required by api
+- `@lapis-notes/workspace` — thin design-core workspace host
 - Storybook host and specification governance
 
-Host applications, plugins, and workspace chrome are tracked for later intake in
-root `MIGRATION.md` and must not be invented ahead of these chapters.
+Web and desktop hosts, bundled plugins, notebook, and language-service packages
+remain tracked for later intake in root `MIGRATION.md` and must not be invented
+ahead of their canonical requirements.

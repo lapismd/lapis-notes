@@ -21,9 +21,19 @@ intake or UI swap status changes.
 | --- | --- | --- |
 | `@lapis-notes/api` | Copied | Kernel from full lapis-notes; scripts slimmed |
 | `@lapis-notes/ui` | Pruned | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers |
-| Workspace / web / desktop hosts | Not started | Intake later; Vitest stubs workspace-generated CJS provider values |
+| `@lapis-notes/workspace` shell integration | In progress | Thin design-core host; api compatibility + persistence façade |
+| Web / desktop hosts | Not started | No runnable product host in this slice |
 | Plugins / notebook / language-service | Not started | Api plugin tests use synthetic manifests only (no plugin package deps) |
-| `app-shell` / design-core workspace | Not started | Prefer `@lapismd/design-core/workspace` |
+| design-core workspace engine | In progress | Consume public `@lapismd/design-core/workspace`; no sibling source changes |
+
+### Workspace shell integration progress
+
+- [x] Canonical requirements and governance mapping
+- [ ] Api-owned design-core controller and compatibility projection
+- [ ] Host-only `@lapis-notes/api/workspace-host` export
+- [ ] `@lapis-notes/workspace` package
+- [ ] Persisted desktop and mobile Storybook stories
+- [ ] Interaction, accessibility, build, and visual verification
 
 ## UI → design-core
 

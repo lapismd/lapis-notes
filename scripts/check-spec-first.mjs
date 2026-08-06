@@ -33,6 +33,15 @@ const RULES = [
     chapters: ["spec/src/packages.md", "spec/src/ui-and-styling.md"],
   },
   {
+    name: "Workspace package",
+    pattern: /^packages\/workspace\/(?:src\/|package\.json$)/,
+    chapters: [
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+      "spec/src/workspace-shell.md",
+    ],
+  },
+  {
     name: "Storybook catalog",
     pattern: /^(?:\.storybook\/|stories\/catalog\/)/,
     chapters: ["spec/src/storybook-catalog.md"],

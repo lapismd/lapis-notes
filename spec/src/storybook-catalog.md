@@ -14,6 +14,9 @@
 | LN-CAT-008 | Storybook accessibility checks MUST fail `pnpm test:storybook` on axe violations: `.storybook/vitest.setup.ts` registers `@storybook/addon-a11y/preview`, and preview sets `parameters.a11y.test: "error"`. |
 | LN-CAT-009 | Storybook MUST load design-core `styles.css` + Lapis theme as style authority, and MUST import `@lapis-notes/ui/theme.css` (Obsidian alias tokens only). Host `@tailwindcss/vite` MAY remain for story/demo layout only — not for component paint. |
 | LN-CAT-010 | Story / demo Svelte under `stories/` MAY use host Tailwind for layout; that usage MUST remain excluded from `pnpm check:no-tailwind`. |
+| LN-CAT-011 | `Workspace/Shell` MUST document the `@lapis-notes/workspace` integration with persisted desktop and mobile stories linked to `workspace-shell.md`. |
+| LN-CAT-012 | Workspace shell plays MUST boot a real api `App`, exercise meaningful controller-backed shell behavior, and verify the story adapter receives the expected workspace persistence update. |
+| LN-CAT-013 | Workspace shell stories MUST use design-core's default chrome and MUST NOT load Lapis or design-core optional plugins. |
 
 ## API verification families
 
@@ -33,3 +36,5 @@ Direct api imports (one story family each):
 - No-Tailwind sources: `pnpm check:no-tailwind` (component trees; stories excluded)
 - Visual baselines: `pnpm build-storybook` then `pnpm test:visual:update` (generates under `tests/visual/storybook.spec.ts-snapshots/stories/api/`)
 - Visual regression: `pnpm test:visual`
+- Workspace shell stories use the same interaction, a11y, and nested-import
+  Visual Delta workflow as API stories and remain `visual-pending` until review.

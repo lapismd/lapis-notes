@@ -10,6 +10,7 @@
 | LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added. |
 | LN-ARCH-005 | `@lapismd/design-core` MUST be consumed as a sibling `file:` dependency (`file:../design-core` at the repo root), not published/npm-vendored. |
 | LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed. |
+| LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, and plugin loading remain consumer or api responsibilities. |
 
 ## Package graph
 
@@ -17,9 +18,10 @@
 @lapis-notes/ui  (leaf UI)
        ↑ peer
 @lapis-notes/api (kernel)
-       ↑ (future hosts / plugins)
+       ↑
+@lapis-notes/workspace (thin Storybook-runnable shell host)
 
-@lapismd/design-core (sibling; shadcn/forms source of truth for overlapping UI)
+@lapismd/design-core (sibling; UI primitives + workspace layout engine)
 ```
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from
@@ -28,6 +30,8 @@ Overlapping shadcn and forms controls used by `@lapis-notes/api` import from
 compose design-core primitives with colocated CSS and `--ui-*` tokens. Brand
 tokens live in design-core `themes/lapis.css`; ui `theme.css` is alias-only.
 Storybook loads design-core `styles.css` + Lapis theme + ui aliases.
+The workspace package renders the api-owned design-core controller; it does not
+own a second layout model or persistence adapter.
 
 ## Tooling policy
 
