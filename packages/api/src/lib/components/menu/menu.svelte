@@ -6,6 +6,7 @@
   import * as Dropdown from "@lapismd/design-core/shadcn/dropdown-menu";
   import * as ContextMenu from "@lapismd/design-core/shadcn/context-menu";
   import type { WithChildren } from "bits-ui";
+  import "./menu.css";
 
   let {
     menu,

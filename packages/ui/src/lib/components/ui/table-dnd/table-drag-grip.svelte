@@ -2,6 +2,7 @@
   import { createDraggable } from "@dnd-kit/svelte";
   import { Button } from "@lapismd/design-core/shadcn/button";
   import type { Snippet } from "svelte";
+  import "./table-dnd.css";
 
   let {
     dragId,
@@ -46,6 +47,8 @@
   variant="ghost"
   size="xs"
   data-grab-handle=""
+  data-ui-component="table-dnd"
+  data-ui-part="grip"
   class={className}
   aria-label={ariaLabel}
   onclick={(event: MouseEvent) => {

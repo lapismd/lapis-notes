@@ -1,0 +1,12 @@
+[data-ui-component="table-dnd"] {
+  --ui-table-dnd-grip-opacity: 0.7;
+}
+
+[data-ui-component="table-dnd"][data-ui-part="grip"] {
+  opacity: var(--ui-table-dnd-grip-opacity);
+  cursor: grab;
+}
+
+[data-ui-component="table-dnd"][data-ui-part="grip"]:active {
+  cursor: grabbing;
+}

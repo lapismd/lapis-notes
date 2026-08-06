@@ -8,6 +8,7 @@
   import type { ObjectType, SchemaType } from "../../configuration.svelte";
   import type { ObjectMapOption } from "./object-map-types";
   import ObjectMapRow from "./object-map-row.svelte";
+  import "./configuration.css";
 
   let {
     schema,
@@ -107,13 +108,13 @@
   }
 </script>
 
-<div class="w-full space-y-2">
-  <Table.Root class="w-full text-sm">
+<div data-ui-component="configuration" data-ui-part="stack">
+  <Table.Root class="configuration-table">
     <Table.Header>
       <Table.Row>
-        <Table.Head class="w-[45%]">Pattern</Table.Head>
+        <Table.Head class="configuration-pattern-head">Pattern</Table.Head>
         <Table.Head>Editor</Table.Head>
-        <Table.Head class="w-16 text-right">Actions</Table.Head>
+        <Table.Head class="configuration-actions-head">Actions</Table.Head>
       </Table.Row>
     </Table.Header>
     <Table.Body>

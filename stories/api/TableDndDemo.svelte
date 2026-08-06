@@ -17,7 +17,7 @@
     <Table.Root>
       <Table.Header>
         <Table.Row>
-          <Table.Head class="w-10"></Table.Head>
+          <Table.Head class="w-10"><span class="sr-only">Reorder</span></Table.Head>
           <Table.Head>Name</Table.Head>
         </Table.Row>
       </Table.Header>

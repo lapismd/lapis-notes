@@ -37,24 +37,38 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - New or changed visual stories ship with tag `visual-pending` and nested-import
   PNG baselines under `tests/visual/storybook.spec.ts-snapshots/`. Do not flip
   tags to `visual-approved` without human review.
-- Target styling philosophy matches design-core: native CSS, public `--ui-*`
-  tokens, `data-ui-*` hosts, Lapis theme via `data-ui-theme="lapis"`. Do not
-  expand Tailwind-in-export surfaces.
+- **Brand / theme source of truth** is design-core
+  `themes/lapis.css` (`data-ui-theme="lapis"`). Local
+  `@lapis-notes/ui/theme.css` is **alias-only** (Obsidian-era names → design-core
+  semantics). Do not redefine `--primary` / `--destructive` / Tailwind `@theme`
+  in ui.
+- **Component paint** MUST be native CSS + public `--ui-<family>-*` tokens +
+  `data-ui-component` / `data-ui-part` hosts. **No Tailwind utility strings** in
+  retained `.svelte` sources under `packages/ui/src/lib/components` or
+  `packages/api/src/lib/components` (`cn("flex …")`, `class="gap-2"`,
+  `tailwind-variants`). `sr-only` is the only allowed utility class name.
+  Enforce with `pnpm check:no-tailwind` (wired into root `pnpm check`).
+- Storybook style authority is design-core (`styles.css` + Lapis theme) plus
+  thin `ui/theme.css`. Storybook may keep `@tailwindcss/vite` **only** for
+  story/demo layout — not as a component styling path.
 - Track swap progress in root `MIGRATION.md`.
 
 ## Tooling
 
-- Use Turbo (`pnpm check`, `pnpm build`, `pnpm test`). Do **not** reintroduce
-  multi-script first-party import-resolution gates from the full lapis-notes
-  repo. Fix resolution issues inline when adding packages.
+- Use Turbo (`pnpm check`, `pnpm build`, `pnpm test`). Root `pnpm check` runs
+  `check:no-tailwind` first. Do **not** reintroduce multi-script first-party
+  import-resolution gates from the full lapis-notes repo. Fix resolution issues
+  inline when adding packages.
 - Storybook is the browsable docs host (`pnpm dev` / port **7010**).
-- Interaction: `pnpm test:storybook`. Visual Delta: `pnpm test:visual` /
+- Interaction + a11y: `pnpm test:storybook` (axe must fail on violations via
+  `parameters.a11y.test: "error"`). Visual Delta: `pnpm test:visual` /
   `pnpm test:visual:update` (Playwright **1.61.1** for Docker capture parity).
 - Prefer `jj` when available; otherwise git. Do not revert unrelated user edits.
 
 ## Verification
 
 - Every workspace package exposes `check`, `build`, and `test`.
-- For cross-cutting work: `pnpm check`, focused package tests, and
-  `pnpm spec:check` when governance or protected surfaces change.
+- For cross-cutting work: `pnpm check` (includes no-Tailwind gate), focused
+  package tests, and `pnpm spec:check` when governance or protected surfaces
+  change.
 - For api-used UI changes: also `pnpm test:storybook` and Visual Delta as above.

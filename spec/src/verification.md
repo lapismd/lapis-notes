@@ -9,6 +9,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-003 | architecture | Implemented | root `storybook` script port 7010 |
 | LN-ARCH-004 | architecture | Implemented | no `check:source-resolution` scripts |
 | LN-ARCH-005 | architecture | Implemented | root dep `file:../design-core` |
+| LN-ARCH-006 | architecture | Implemented | root `check` runs `check:no-tailwind` |
 | LN-PKG-001 | packages | Implemented | `packages/api` kernel copy |
 | LN-PKG-002 | packages | Implemented | api peer on `@lapis-notes/ui` |
 | LN-PKG-003 | packages | Implemented | pruned `packages/ui` |
@@ -17,9 +18,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-006 | packages | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed |
 | LN-UI-001 | ui-and-styling | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui |
 | LN-UI-002 | ui-and-styling | Implemented | `API/` stories under `stories/api/` |
-| LN-UI-003 | ui-and-styling | In progress | philosophy documented; theme swap pending |
-| LN-UI-004 | ui-and-styling | Implemented | policy in AGENTS + this chapter |
+| LN-UI-003 | ui-and-styling | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome |
+| LN-UI-004 | ui-and-styling | Implemented | policy in AGENTS + this chapter; no-TW gate |
 | LN-UI-005 | ui-and-styling | In progress | Storybook loads design-core styles + lapis theme; production hosts still pending |
+| LN-UI-006 | ui-and-styling | Implemented | AA-safe `--primary` / `--destructive` in design-core lapis theme |
+| LN-UI-007 | ui-and-styling | Implemented | ui `theme.css` alias-only; brand in design-core `themes/lapis.css` |
+| LN-UI-008 | ui-and-styling | Implemented | compounds + api chrome on native CSS; stories excluded |
+| LN-UI-009 | ui-and-styling | Implemented | `pnpm check:no-tailwind` in root/package `check` |
 | LN-CAT-001 | storybook-catalog | Implemented | Storybook host |
 | LN-CAT-002 | storybook-catalog | Implemented | `stories/api/*` + plays; `pnpm test:storybook` |
 | LN-CAT-003 | storybook-catalog | Implemented | `stories/catalog/catalog.mjs` + `ApiUi.mdx` |
@@ -27,6 +32,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-005 | storybook-catalog | Implemented | noted in `MIGRATION.md` |
 | LN-CAT-006 | storybook-catalog | Implemented | Visual Delta baselines under `tests/visual/…`; tags `visual-pending` |
 | LN-CAT-007 | storybook-catalog | Implemented | `api-ui-status` + portal body assertions in plays |
+| LN-CAT-008 | storybook-catalog | Implemented | `.storybook/vitest.setup.ts` + `parameters.a11y.test: "error"` |
+| LN-CAT-009 | storybook-catalog | Implemented | preview: design-core styles + lapis + ui alias theme |
+| LN-CAT-010 | storybook-catalog | Implemented | stories excluded from no-tailwind scan |
 | LN-GOV-001 | spec-governance | Implemented | `spec/` mdBook sources |
 | LN-GOV-002 | spec-governance | Implemented | this matrix |
 | LN-GOV-003 | spec-governance | Implemented | `scripts/check-spec-first.mjs` |

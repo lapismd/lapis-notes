@@ -5,6 +5,7 @@
   import { Select } from "../select";
   import type { ObjectMapOption } from "./object-map-setting.svelte";
   import { buildSelectOptionsForValue } from "./object-array-utils";
+  import "./configuration.css";
 
   type ItemType = "string" | "number" | "integer" | "boolean";
 
@@ -52,9 +53,9 @@
   }
 </script>
 
-<div class="flex flex-col gap-2 w-full">
+<div data-ui-component="configuration" data-ui-part="list">
   {#each value as item, index (index)}
-    <div class="flex items-center gap-2">
+    <div data-ui-component="configuration" data-ui-part="list-row">
       {#if itemType === "boolean"}
         <Switch
           checked={Boolean(item)}
@@ -63,7 +64,7 @@
       {:else if itemType === "number" || itemType === "integer"}
         <Input
           type="number"
-          class="flex-1 border-none h-8"
+          class="configuration-control-grow"
           value={String(item ?? 0)}
           oninput={(event) => {
             const target = event.currentTarget as HTMLInputElement;
@@ -89,7 +90,7 @@
         />
         <Input
           type="text"
-          class="flex-1 border-none h-8"
+          class="configuration-control-grow"
           value={String(item ?? "")}
           oninput={(event) => {
             const target = event.currentTarget as HTMLInputElement;
@@ -99,7 +100,7 @@
       {:else}
         <Input
           type="text"
-          class="flex-1 border-none h-8"
+          class="configuration-control-grow"
           value={String(item ?? "")}
           oninput={(event) => {
             const target = event.currentTarget as HTMLInputElement;
@@ -110,7 +111,7 @@
       <Button
         variant="ghost"
         size="icon"
-        class="h-8 w-8 shrink-0"
+        class="configuration-icon-button"
         onclick={() => removeItem(index)}
         aria-label="Remove item"
       >
@@ -118,5 +119,10 @@
       </Button>
     </div>
   {/each}
-  <Button variant="ghost" size="sm" class="w-fit" onclick={addItem}>Add item</Button>
+  <Button
+    variant="ghost"
+    size="sm"
+    class="configuration-add-button"
+    onclick={addItem}>Add item</Button
+  >
 </div>

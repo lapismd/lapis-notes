@@ -1,0 +1,199 @@
+/* Editor layout chrome + search panel + lint tooltip (not CodeMirror internals) */
+
+[data-ui-component="editor"] {
+  --ui-editor-search-pad-x: 1rem;
+  --ui-editor-search-pad-y: 0.5rem;
+  --ui-editor-search-gap: 0.5rem;
+  --ui-editor-search-input-height: var(--input-height, var(--ui-control-height, 2rem));
+  --ui-editor-lint-min-width: 360px;
+  --ui-editor-lint-max-width: min(720px, calc(100vw - 48px));
+  --ui-editor-lint-radius: var(--radius, 0.375rem);
+  --ui-editor-lint-accent: var(--text-accent, var(--primary));
+}
+
+[data-ui-component="editor"][data-ui-part="scroll-area"],
+[data-ui-component="editor"] .cm-editor-scroll-area {
+  height: 100%;
+  width: 100%;
+}
+
+[data-ui-component="editor"][data-ui-part="scroll-content"],
+[data-ui-component="editor"] .cm-editor-scroll-area-content {
+  height: fit-content;
+  padding-block-start: 0;
+}
+
+[data-ui-component="editor"][data-ui-part="scroll-inner"],
+[data-ui-component="editor"] .cm-editor-scroll-area-inner,
+[data-ui-component="editor"] .cm-scroller,
+[data-ui-component="editor"] .cm-sizer,
+[data-ui-component="editor"] .cm-editor-content {
+  height: 100%;
+}
+
+[data-ui-component="editor"][data-ui-part="search-root"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: var(--ui-editor-search-pad-x);
+  padding-block: var(--ui-editor-search-pad-y);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+[data-ui-component="editor"][data-ui-part="search-toggle"] {
+  border: none;
+}
+
+[data-ui-component="editor"][data-ui-part="search-toggle"]:hover {
+  border: none;
+}
+
+[data-ui-component="editor"][data-ui-part="search-icon"],
+[data-ui-component="editor"] .editor-search-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+[data-ui-component="editor"][data-ui-part="search-row"] {
+  display: flex;
+  align-items: center;
+}
+
+[data-ui-component="editor"][data-ui-part="search-toggle-wrap"] {
+  padding: 0.25rem;
+}
+
+[data-ui-component="editor"][data-ui-part="search-fields"] {
+  width: 100%;
+}
+
+[data-ui-component="editor"][data-ui-part="search-field-row"] {
+  display: flex;
+  width: 100%;
+  gap: var(--ui-editor-search-gap);
+  margin-inline: auto;
+  padding-block: 0.5rem;
+}
+
+[data-ui-component="editor"][data-ui-part="search-input"],
+[data-ui-component="editor"] .editor-search-input {
+  height: var(--ui-editor-search-input-height);
+}
+
+[data-ui-component="editor"][data-ui-part="search-input"]:focus-visible,
+[data-ui-component="editor"] .editor-search-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring, var(--primary));
+}
+
+[data-ui-component="editor"][data-ui-part="lint-tooltip"] {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: var(--ui-editor-lint-min-width);
+  max-width: var(--ui-editor-lint-max-width);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-left-color: var(--warning, var(--primary));
+  border-radius: var(--ui-editor-lint-radius);
+  background: var(--secondary);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+[data-ui-component="editor"][data-ui-part="lint-message-band"] {
+  position: relative;
+  padding: 0.5rem 0.75rem;
+  background: var(--secondary);
+}
+
+[data-ui-component="editor"][data-ui-part="lint-message-band"][data-ui-copy] {
+  padding-inline-end: 2.5rem;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-message-row"] {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.375rem;
+  row-gap: 0.25rem;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-message-text"] {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-rule"] {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  color: var(--ui-editor-lint-accent);
+  text-underline-offset: 2px;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-rule"]:hover {
+  text-decoration: underline;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-copy"] {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  height: auto;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted-foreground);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-tooltip"]:hover
+  [data-ui-part="lint-copy"] {
+  opacity: 1;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-copy"]:hover {
+  color: var(--foreground);
+}
+
+[data-ui-component="editor"][data-ui-part="lint-copy-icon"] {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-source"] {
+  margin-block-start: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+[data-ui-component="editor"][data-ui-part="lint-footer"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  border-top: 1px solid var(--border);
+  padding-block: 0.375rem;
+  padding-inline: 1rem 0.75rem;
+  background: color-mix(in srgb, var(--secondary) 82%, var(--foreground) 8%);
+}
+
+[data-ui-component="editor"][data-ui-part="lint-action"] {
+  height: auto;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--foreground);
+  text-underline-offset: 2px;
+}
+
+[data-ui-component="editor"][data-ui-part="lint-action"]:hover {
+  color: var(--ui-editor-lint-accent);
+  text-decoration: underline;
+}

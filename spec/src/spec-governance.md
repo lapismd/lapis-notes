@@ -36,5 +36,7 @@ protected package change.
 6. Commit the verified slice
 
 `AGENTS.md` must stay aligned with architecture requirements (including
-`@lapismd/design-core` as a sibling `file:` dependency) whenever onboarding
-guidance changes.
+`@lapismd/design-core` as a sibling `file:` dependency, alias-only ui theme,
+and `pnpm check:no-tailwind`) whenever onboarding guidance changes. Tooling
+guidance for Storybook must note that `pnpm test:storybook` fails on axe
+violations (`parameters.a11y.test: "error"`).

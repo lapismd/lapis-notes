@@ -5,6 +5,7 @@
   import SearchIcon from "@lucide/svelte/icons/search";
   import X from "@lucide/svelte/icons/x";
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import "./search.css";
 
   let {
     ref = $bindable(null),
@@ -26,19 +27,15 @@
 </script>
 
 <div
-  class={cn(
-    "border-input flex h-[var(--input-height)] w-full items-center rounded-md border px-3 ring-[var(--background-modifier-border-focus)] transition-shadow focus-within:ring-2",
-    className,
-  )}
+  data-ui-component="search"
+  data-ui-part="root"
+  class={cn(className)}
   style={containerStyle}
 >
-  <SearchIcon class="mr-2 size-4 shrink-0 opacity-50" />
-  <div class="flex h-full min-w-0 flex-1 items-center">
+  <SearchIcon data-ui-component="search" data-ui-part="icon" />
+  <div data-ui-component="search" data-ui-part="field">
     <Input
-      class={cn(
-        "h-full border-none bg-transparent py-0 pl-0 shadow-none focus-visible:ring-0",
-        inputClass,
-      )}
+      class={cn(inputClass)}
       bind:ref
       bind:value
       {...restProps}

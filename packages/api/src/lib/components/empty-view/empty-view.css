@@ -1,0 +1,39 @@
+[data-ui-component="empty-view"] {
+  --ui-empty-view-max-width: 480px;
+  --ui-empty-view-max-height: 280px;
+  --ui-empty-view-margin: 1.25rem;
+  --ui-empty-view-title-size: 1.25rem;
+  --ui-empty-view-gap: 0.25rem;
+}
+
+[data-ui-component="empty-view"][data-ui-part="root"] {
+  position: absolute;
+  top: 0;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background: var(--background);
+}
+
+[data-ui-component="empty-view"][data-ui-part="panel"] {
+  margin: var(--ui-empty-view-margin);
+  max-height: var(--ui-empty-view-max-height);
+  max-width: var(--ui-empty-view-max-width);
+  text-align: center;
+}
+
+[data-ui-component="empty-view"][data-ui-part="title"] {
+  margin-block: var(--ui-empty-view-margin);
+  font-size: var(--ui-empty-view-title-size);
+  font-weight: 600;
+}
+
+[data-ui-component="empty-view"][data-ui-part="actions"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-empty-view-gap);
+}

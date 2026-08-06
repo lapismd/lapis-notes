@@ -12,6 +12,8 @@ intake or UI swap status changes.
 | Storybook host (port 7010) | Done | `API/` verification stories + catalog |
 | API Storybook verification + Visual Delta | Done | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later) |
 | `@lapismd/design-core` sibling | Done | Root `file:../design-core`; api/ui `file:../../../design-core` |
+| Storybook a11y in Vitest | Done | `vitest.setup.ts` + `a11y.test: "error"`; filled action tokens AA-tuned |
+| Storybook style authority | Done | design-core styles + lapis theme; ui `theme.css` only (avoid dual Tailwind) |
 
 ## Packages
 
@@ -66,11 +68,11 @@ primitives) until a deliberate Lapis compound lands in design-core.
 
 | Family | Why keep | Near-miss | Status |
 | --- | --- | --- | --- |
-| modal | Imperative DocumentFragment / plugin host API | `shadcn/dialog` | Kept; rewritten onto design-core dialog/sheet primitives |
-| confirm-dialog | `promptConfirm` → Promise\<boolean\> | registry `alert-dialog` (different API) | Kept; rewritten onto design-core |
-| search | Input + icon + clear compound | `filter/SearchFilterBar`, `input-group` | Kept; rewritten onto design-core input |
-| sidebar-custom | NestedProvider, resize, `SidebarState` | registry/design-core `sidebar` (stock) | Kept; rewritten onto design-core |
-| table-dnd | dnd-kit grips/sensors for settings arrays | forms `SortableArrayItem` | Kept; rewritten onto design-core |
+| modal | Imperative DocumentFragment / plugin host API | `shadcn/dialog` | Kept; colocated `modal.css` + `--ui-modal-*` (no TW) |
+| confirm-dialog | `promptConfirm` → Promise\<boolean\> | registry `alert-dialog` (different API) | Kept; colocated CSS + `--ui-confirm-dialog-*` |
+| search | Input + icon + clear compound | `filter/SearchFilterBar`, `input-group` | Kept; colocated `search.css` + `--ui-search-*` |
+| sidebar-custom | NestedProvider, resize, `SidebarState` | registry/design-core `sidebar` (stock) | Kept; `sidebar-custom.css` + `--ui-sidebar-custom-*` |
+| table-dnd | dnd-kit grips/sensors for settings arrays | forms `SortableArrayItem` | Kept; grip chrome via `--ui-table-dnd-*` |
 
 Also keep local: root `cn` / fuzzy helpers, `overlay-portal-context`.
 
@@ -107,8 +109,32 @@ All api-consumed families also have `API/` plays and `visual-pending` baselines
 
 | Item | Status | Notes |
 | --- | --- | --- |
-| Local `theme.css` / `styles.css` | Current | Still used by kept compounds / api hosts |
-| design-core `styles.css` + `themes/lapis.css` | Storybook host | Loaded in `.storybook/preview.ts` with `data-ui-theme="lapis"`; full production host cutover still pending |
+| Brand (`themes/lapis.css`) | Source of truth | design-core Lapis semantic + `--ui-workspace-*` |
+| Local `theme.css` | Alias-only | Obsidian-era → design-core map (below); no palette / `@theme` |
+| Local `styles.css` | Alias re-export | Imports `theme.css` only (no Tailwind) |
+| design-core styles in Storybook | Done | `.storybook/preview.ts`; production host cutover still pending |
+| `pnpm check:no-tailwind` | Done | Scans ui + api components; stories excluded |
+
+#### Obsidian / Lapis alias map (`ui/theme.css`)
+
+| Lapis / Obsidian-era | design-core target |
+| --- | --- |
+| `--text-normal` | `--foreground` |
+| `--text-muted` / `--text-faint` | `--muted-foreground` |
+| `--text-accent` | `--ring` / `--primary` |
+| `--interactive-accent*` | `--primary` / `--ring` / `--lapis-accent*` |
+| `--background-primary` / `-secondary` | `--background` / `--muted` |
+| `--background-modifier-border*` | `--border` / `--input` / `--ring` |
+| `--input-height` | `--ui-control-height` → `--ui-workspace-settings-control-height` |
+| `--color-base-*` ramp | Dropped from component paint |
+
+### Compound / api chrome conversion
+
+| Surface | Status |
+| --- | --- |
+| ui: modal, confirm-dialog, search, table-dnd | Done — colocated CSS + tokens |
+| ui: sidebar-custom | Done — native CSS family |
+| api: menu, configuration, editor layout, empty-view, icon-list | Done — colocated CSS; no TW utilities |
 
 ## Out of scope (do not copy yet)
 

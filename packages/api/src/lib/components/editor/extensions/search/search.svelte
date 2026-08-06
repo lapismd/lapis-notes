@@ -30,6 +30,7 @@
   import { Button } from "@lapismd/design-core/shadcn/button";
   import { onMount, untrack } from "svelte";
   import { debounce } from "lodash-es";
+  import "../../editor.css";
 
   let {
     view,
@@ -138,7 +139,7 @@
   });
 </script>
 
-<div class="bg-background text-foreground mx-4 flex flex-col items-center py-2">
+<div data-ui-component="editor" data-ui-part="search-root">
   <ToggleGroup.Root
     type="multiple"
     value={values}
@@ -148,23 +149,20 @@
     <ToggleGroup.Item
       value="case"
       aria-label="Case Sensitive"
-      class="!hover:border-none"
+      data-ui-component="editor"
+      data-ui-part="search-toggle"
     >
-      <CaseSensitive class="size-4" />
+      <CaseSensitive class="editor-search-icon" />
     </ToggleGroup.Item>
-    <ToggleGroup.Item value="word" aria-label="Match Whole Word" class="">
-      <WholeWord class="size-4" />
+    <ToggleGroup.Item value="word" aria-label="Match Whole Word">
+      <WholeWord class="editor-search-icon" />
     </ToggleGroup.Item>
-    <ToggleGroup.Item
-      value="regex"
-      aria-label="Use Regular Expression"
-      class=""
-    >
-      <Regex class="size-4" />
+    <ToggleGroup.Item value="regex" aria-label="Use Regular Expression">
+      <Regex class="editor-search-icon" />
     </ToggleGroup.Item>
   </ToggleGroup.Root>
-  <div class="flex items-center">
-    <div class="p-1">
+  <div data-ui-component="editor" data-ui-part="search-row">
+    <div data-ui-component="editor" data-ui-part="search-toggle-wrap">
       <Tooltip.Provider>
         <Tooltip.Root>
           <Tooltip.Trigger>
@@ -189,8 +187,8 @@
         </Tooltip.Root>
       </Tooltip.Provider>
     </div>
-    <div class="w-full">
-      <div class="mx-auto flex w-full gap-2 py-2">
+    <div data-ui-component="editor" data-ui-part="search-fields">
+      <div data-ui-component="editor" data-ui-part="search-field-row">
         <Input
           bind:ref={searchField}
           type="text"
@@ -198,7 +196,9 @@
           onkeyup={handleSearch}
           bind:value={searchValue}
           placeholder="Find"
-          class="search-input h-8 focus-visible:ring-2"
+          class="search-input editor-search-input"
+          data-ui-component="editor"
+          data-ui-part="search-input"
         />
         <Tooltip.Provider>
           <Tooltip.Root>
@@ -278,7 +278,7 @@
         </Tooltip.Provider>
       </div>
       {#if isReplace}
-        <div class="mx-auto flex w-full gap-2 py-2">
+        <div data-ui-component="editor" data-ui-part="search-field-row">
           <Input
             bind:ref={replaceField}
             type="text"
@@ -286,7 +286,9 @@
             onkeyup={handleSearch}
             bind:value={replaceValue}
             placeholder="Replace"
-            class="h-8 focus-visible:ring-2"
+            class="editor-search-input"
+            data-ui-component="editor"
+            data-ui-part="search-input"
           />
           <Tooltip.Provider>
             <Tooltip.Root>

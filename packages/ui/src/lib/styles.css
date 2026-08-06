@@ -1,14 +1,11 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+/**
+ * Alias-only entry for hosts that import `@lapis-notes/ui/styles.css`.
+ *
+ * Brand palette and semantic tokens come from design-core:
+ *   @import "@lapismd/design-core/styles.css";
+ *   @import "@lapismd/design-core/themes/lapis.css";
+ *
+ * Do not re-import Tailwind or redefine --primary / --destructive here.
+ * Storybook host Tailwind is for demo layout only — not component paint.
+ */
 @import "./theme.css";
-
-@source "./";
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
-  import { cn, type WithElementRef } from "$lib/utils.js";
+  import { type WithElementRef } from "$lib/utils.js";
   import { untrack } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
   import {
@@ -10,6 +10,7 @@
     SIDEBAR_WIDTH_ICON,
   } from "./constants.js";
   import { setSidebar, SidebarState } from "./context.svelte.js";
+  import "./sidebar-custom.css";
 
   let {
     ref = $bindable(null),
@@ -58,14 +59,13 @@
 
 <Tooltip.Provider delayDuration={0}>
   <div
+    {...restProps}
+    data-ui-component="sidebar-custom"
+    data-ui-part="sidebar-wrapper"
     data-slot="sidebar-wrapper"
     style="--sidebar-width: {sidebar.size}; --sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; {style}"
-    class={cn(
-      "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
-      className,
-    )}
+    class={className}
     bind:this={ref}
-    {...restProps}
   >
     {@render children?.()}
   </div>

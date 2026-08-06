@@ -59,7 +59,7 @@
 <Table.Cell
   bind:ref={cellRef}
   class={cn(
-    "object-array-table__grip w-10 align-middle",
+    "config-array-table__grip",
     dropIndicatorClasses(dragSource, dragOverIndex, rowIndex),
     isRowDragSource(dragSource, rowIndex) && "is-drag-source is-row-drag-source",
   )}
@@ -67,12 +67,12 @@
   <Button
     variant="ghost"
     size="icon"
-    class="h-8 w-8 shrink-0 cursor-grab"
+    class="configuration-grip-button"
     data-grab-handle=""
     data-testid="object-array-row-grip"
     aria-label="Drag row"
     {@attach rowDraggable.attachHandle}
   >
-    <GripVertical class="size-4 opacity-60" />
+    <GripVertical class="configuration-grip-icon" />
   </Button>
 </Table.Cell>

@@ -67,10 +67,10 @@
 </script>
 
 <Table.Row>
-  <Table.Cell class="align-middle">
+  <Table.Cell class="configuration-cell">
     <Input
       type="text"
-      class="h-8"
+      class="configuration-control"
       data-testid="object-map-pattern-input"
       bind:value={draftPattern}
       placeholder="*.md"
@@ -78,7 +78,7 @@
       onkeydown={handlePatternKeydown}
     />
   </Table.Cell>
-  <Table.Cell class="align-middle">
+  <Table.Cell class="configuration-cell">
     {#if isOptionsSourceComboboxField(valueSchema)}
       <OptionsComboboxSetting
         value={String(entryValue ?? "")}
@@ -112,7 +112,7 @@
     {:else if valueSchema.type === "number" || valueSchema.type === "integer"}
       <Input
         type="number"
-        class="h-8 border-none"
+        class="configuration-control"
         value={String(entryValue ?? 0)}
         oninput={(event) => {
           const target = event.currentTarget as HTMLInputElement;
@@ -123,7 +123,7 @@
     {:else}
       <Input
         type="text"
-        class="h-8 border-none"
+        class="configuration-control"
         value={String(entryValue ?? "")}
         oninput={(event) => {
           const target = event.currentTarget as HTMLInputElement;
@@ -132,16 +132,16 @@
       />
     {/if}
   </Table.Cell>
-  <Table.Cell class="text-right align-middle">
+  <Table.Cell class="configuration-cell-actions">
     <Button
       variant="ghost"
       size="icon"
-      class="h-8 w-8 shrink-0"
+      class="configuration-icon-button"
       data-testid="object-map-remove-button"
       aria-label="Remove association"
       onclick={onRemove}
     >
-      <Trash2 class="size-4" />
+      <Trash2 class="configuration-icon" />
     </Button>
   </Table.Cell>
 </Table.Row>

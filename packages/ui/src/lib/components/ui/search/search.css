@@ -1,0 +1,55 @@
+[data-ui-component="search"] {
+  --ui-search-height: var(--input-height, var(--ui-control-height, 30px));
+  --ui-search-radius: var(--input-radius, var(--ui-control-radius, 6px));
+  --ui-search-border: var(--input, var(--border));
+  --ui-search-ring: var(--ring, var(--background-modifier-border-focus, var(--primary)));
+  --ui-search-icon-opacity: 0.5;
+  --ui-search-icon-size: 1rem;
+  --ui-search-icon-gap: 0.5rem;
+  --ui-search-padding-inline: 0.75rem;
+}
+
+[data-ui-component="search"][data-ui-part="root"] {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--ui-search-height);
+  padding-inline: var(--ui-search-padding-inline);
+  border: 1px solid var(--ui-search-border);
+  border-radius: var(--ui-search-radius);
+  transition: box-shadow 150ms ease;
+}
+
+[data-ui-component="search"][data-ui-part="root"]:focus-within {
+  box-shadow: 0 0 0 2px var(--ui-search-ring);
+}
+
+[data-ui-component="search"][data-ui-part="icon"] {
+  flex-shrink: 0;
+  width: var(--ui-search-icon-size);
+  height: var(--ui-search-icon-size);
+  margin-inline-end: var(--ui-search-icon-gap);
+  opacity: var(--ui-search-icon-opacity);
+}
+
+[data-ui-component="search"][data-ui-part="field"] {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0%;
+  min-width: 0;
+  height: 100%;
+}
+
+[data-ui-component="search"][data-ui-part="field"] [data-ui-component="input"] {
+  height: 100%;
+  border: none;
+  background: transparent;
+  padding-block: 0;
+  padding-inline-start: 0;
+  box-shadow: none;
+}
+
+[data-ui-component="search"][data-ui-part="field"] [data-ui-component="input"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}

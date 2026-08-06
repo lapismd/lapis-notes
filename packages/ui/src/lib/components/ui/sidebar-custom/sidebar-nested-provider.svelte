@@ -9,6 +9,7 @@
     SIDEBAR_WIDTH_ICON,
   } from "./constants.js";
   import { setSidebar, SidebarState } from "./context.svelte.js";
+  import "./sidebar-custom.css";
 
   let {
     ref = $bindable(null),
@@ -20,6 +21,7 @@
     onOpenChange = () => {},
     controlledOpen = false,
     collapsedSize,
+    class: className,
     children,
     ...restProps
   }: WithElementRef<HTMLAttributes<HTMLDivElement>> & {
@@ -55,8 +57,13 @@
 </script>
 
 <div
-  style="--sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; {style}; --sidebar-width: {sidebar.width};"
+  bind:this={ref}
   {...restProps}
+  data-ui-component="sidebar-custom"
+  data-ui-part="sidebar-nested-wrapper"
+  data-slot="sidebar-nested-wrapper"
+  style="--sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; {style}; --sidebar-width: {sidebar.width};"
+  class={className}
 >
   {@render children?.()}
 </div>

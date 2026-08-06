@@ -26,10 +26,14 @@ Purpose (condensed from the full Lapis Notes api package):
 Out of scope for this minimal repo until specified: web/desktop hosts, bundled
 plugins, and plugin-host module generation.
 
+Brand palette and semantic tokens live in design-core `themes/lapis.css`.
+`@lapis-notes/ui/theme.css` is an Obsidian-compatibility alias layer only.
+
 ## `@lapis-notes/ui` (pruned)
 
 Overlapping shadcn families are consumed from `@lapismd/design-core/shadcn/*`.
 `@lapis-notes/ui` keeps Lapis compounds only: `modal`, `search`,
-`confirm-dialog`, `sidebar-custom`, and `table-dnd` (plus helpers). Date/time
-settings use design-core `forms` pickers via api `date-setting` (the old
-`date-time-picker-dialog` ui compound is retired).
+`confirm-dialog`, `sidebar-custom`, and `table-dnd` (plus helpers), each painted
+with colocated CSS and `--ui-*` tokens (no Tailwind utilities in sources).
+Date/time settings use design-core `forms` pickers via api `date-setting` (the
+old `date-time-picker-dialog` ui compound is retired).

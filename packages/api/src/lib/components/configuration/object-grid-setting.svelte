@@ -3,6 +3,7 @@
   import { Switch } from "@lapismd/design-core/shadcn/switch";
   import * as Table from "@lapismd/design-core/shadcn/table";
   import type { ObjectType, SchemaType } from "../../configuration.svelte";
+  import "./configuration.css";
 
   let {
     schema,
@@ -30,18 +31,20 @@
   }
 </script>
 
-<Table.Root class="w-full text-sm">
+<Table.Root class="configuration-table">
   <Table.Header>
     <Table.Row>
-      <Table.Head class="w-[40%]">Property</Table.Head>
+      <Table.Head class="configuration-property-head">Property</Table.Head>
       <Table.Head>Value</Table.Head>
     </Table.Row>
   </Table.Header>
   <Table.Body>
     {#each entries as [key, field] (key)}
       <Table.Row>
-        <Table.Cell class="font-medium align-middle">{cellLabel(key, field)}</Table.Cell>
-        <Table.Cell class="align-middle">
+        <Table.Cell class="configuration-cell-label"
+          >{cellLabel(key, field)}</Table.Cell
+        >
+        <Table.Cell class="configuration-cell">
           {#if field.type === "boolean"}
             <Switch
               checked={Boolean(value[key])}
@@ -50,7 +53,7 @@
           {:else if field.type === "number" || field.type === "integer"}
             <Input
               type="number"
-              class="border-none h-8"
+              class="configuration-control"
               value={String(value[key] ?? 0)}
               oninput={(event) => {
                 const target = event.currentTarget as HTMLInputElement;
@@ -61,7 +64,7 @@
           {:else}
             <Input
               type="text"
-              class="border-none h-8"
+              class="configuration-control"
               value={String(value[key] ?? "")}
               oninput={(event) => {
                 const target = event.currentTarget as HTMLInputElement;

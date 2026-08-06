@@ -5,6 +5,8 @@
   import { WorkspaceLeaf } from "../../workspace.svelte";
   import { editorConfig } from "./editor";
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
+  import { cn } from "../../utils";
+  import "./editor.css";
 
   type Props = {
     leaf?: WorkspaceLeaf;
@@ -83,11 +85,23 @@
   }
 </script>
 
-<ScrollArea class="cm-editor-scroll-area h-full w-full">
-  <div class={`cm-editor-scroll-area-content h-fit pt-0 ${className}`.trim()}>
-    <div class="cm-editor-scroll-area-inner h-full">
-      <div class="cm-scroller h-full">
-        <div class="cm-sizer h-full">
+<ScrollArea
+  class="cm-editor-scroll-area"
+  data-ui-component="editor"
+  data-ui-part="scroll-area"
+>
+  <div
+    class={cn("cm-editor-scroll-area-content", className)}
+    data-ui-component="editor"
+    data-ui-part="scroll-content"
+  >
+    <div
+      class="cm-editor-scroll-area-inner"
+      data-ui-component="editor"
+      data-ui-part="scroll-inner"
+    >
+      <div class="cm-scroller">
+        <div class="cm-sizer">
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           {#if shouldShowDesktopInlineTitle && file}
             <div
@@ -123,7 +137,7 @@
               {file?.name}
             </div>
           {/if}
-          <div use:codeMirror class="cm-editor-content h-full"></div>
+          <div use:codeMirror class="cm-editor-content"></div>
         </div>
       </div>
     </div>

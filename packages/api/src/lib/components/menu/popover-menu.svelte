@@ -10,6 +10,7 @@
     type Menu as AppMenu,
     type MenuItem,
   } from "../../menu.svelte";
+  import "./menu.css";
 
   let {
     menu,
@@ -42,10 +43,9 @@
         trapFocus={false}
         interactOutsideBehavior="defer-otherwise-close"
         customAnchor={anchor}
-        class={cn(
-          "bg-popover text-popover-foreground z-50 min-w-[8rem] rounded-md border p-1 focus:outline-none max-w-80",
-          className,
-        )}
+        data-ui-component="menu"
+        data-ui-part="popover-content"
+        class={cn(className)}
       >
         <Command.Root shouldFilter={false}>
           <Command.List>
@@ -83,7 +83,7 @@
     value={typeof item.title === "string" ? item.title : ""}
   >
     {#if item.icon}
-      <Icon class="mr-2 size-5" name={item.icon} />
+      <Icon class="menu-command-icon" name={item.icon} />
     {/if}
     {item.title}
   </Command.Item>

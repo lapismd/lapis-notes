@@ -12,6 +12,7 @@
     import { getIconPacks } from "../../icons";
     import type { IconifyJSON } from "@iconify/types";
     import { createVirtualizer } from "../../hooks/createVirtualizer.svelte";
+    import "./icon-list.css";
 
     // design-core command index does not re-export GroupHeading.
     const GroupHeading = CommandPrimitive.GroupHeading;
@@ -126,7 +127,9 @@
       {#snippet child({ props })}
         <Button
           variant="outline"
-          class="w-[200px] justify-between"
+          class="icon-list-trigger"
+          data-ui-component="icon-list"
+          data-ui-part="trigger"
           {...props}
           {...btnProps}
           {disabled}
@@ -138,27 +141,47 @@
           {:else}
             <span>{label}</span>
           {/if}
-          <ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
+          <ChevronsUpDown class="icon-list-trigger-chevron" />
         </Button>
       {/snippet}
     </Popover.Trigger>
-    <Popover.Content class="p-0" style="width: 250px">
+    <Popover.Content
+      class="icon-list-content"
+      data-ui-component="icon-list"
+      data-ui-part="content"
+      style="width: 250px"
+    >
       <Command.Root shouldFilter={false}>
         <Command.Input placeholder="Search icon..." bind:value={query} />
         <Command.List>
             <div bind:this={virtualListEl} style="max-height: 300px; overflow: auto">
-              <div class="relative pr-1" style="height: {virtualizer.getTotalSize()}px;">
-                <Command.Group class="text-foreground p-1 w-[350px] whitespace-nowrap">
+              <div
+                data-ui-component="icon-list"
+                data-ui-part="virtual-root"
+                style="height: {virtualizer.getTotalSize()}px;"
+              >
+                <Command.Group
+                  class="icon-list-group"
+                  data-ui-component="icon-list"
+                  data-ui-part="group"
+                >
                   {#each virtualizer.getVirtualItems() as row (row.index)}
                     {@const item = mergedIcons[row.index]}
                     {#if typeof item === "string"}
-                      <GroupHeading class="text-muted-foreground px-2 py-1.5 text-xs font-medium" style="position: absolute; z-index: 10000; top: 0; left: 0; width: 100%; height: {row.size}px; transform: translateY({row.start}px);">
+                      <GroupHeading
+                        class="icon-list-heading"
+                        data-ui-component="icon-list"
+                        data-ui-part="heading"
+                        style="position: absolute; z-index: 10000; top: 0; left: 0; width: 100%; height: {row.size}px; transform: translateY({row.start}px);"
+                      >
                         {item}
                       </GroupHeading>
                     {:else if item}
                       <Command.Item
                         style="position: absolute; top: 0; left: 0; width: 100%; height: {row.size}px; transform: translateY({row.start}px);"
-                        class="pr-1"
+                        class="icon-list-item"
+                        data-ui-component="icon-list"
+                        data-ui-part="item"
                         value={item.icon}
                         onSelect={() => {
                             value = item.icon;
@@ -169,11 +192,14 @@
                     >
                         <Check
                         class={cn(
-                            "mr-2 size-4",
-                            value !== item.icon && "text-transparent"
+                            "icon-list-check",
+                            value !== item.icon && "is-unchecked"
                         )}
+                        data-ui-component="icon-list"
+                        data-ui-part="check"
+                        data-ui-unchecked={value !== item.icon ? "" : undefined}
                         />
-                        <Icon name={item.icon} class="mr-2 size-4" />
+                        <Icon name={item.icon} class="icon-list-item-icon" />
                         {item.name}
                     </Command.Item> 
                     {/if}

@@ -2,6 +2,8 @@
   import { Dialog as DialogPrimitive } from "bits-ui";
   import * as Dialog from "@lapismd/design-core/shadcn/dialog";
   import { cn } from "$lib/utils";
+  import "./modal.css";
+
   let {
     open = $bindable(false),
     modalEl = $bindable(null),
@@ -53,10 +55,9 @@
   <Dialog.Content
     bind:ref={modalEl}
     {portalProps}
-    class={cn(
-      "max-h-[var(--dialog-max-height,85vh)] w-[var(--dialog-width,560px)] max-w-[var(--dialog-max-width,80vw)] overflow-auto",
-      className,
-    )}
+    dataUiComponent="modal"
+    dataUiPart="content"
+    class={cn(className)}
   >
     <Dialog.Header>
       <Dialog.Title>
@@ -64,7 +65,8 @@
       </Dialog.Title>
     </Dialog.Header>
     <div
-      class="modal-content"
+      data-ui-component="modal"
+      data-ui-part="body"
       bind:this={contentEl}
       use:renderContent={content}
     ></div>

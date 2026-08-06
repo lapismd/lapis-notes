@@ -10,8 +10,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const commandMeta = apiStoryMeta(
+  "api-command",
+  "Command list used by api popover menus.",
+  { baselineImage: "/visual-baselines/stories/api/command-chromium.png" },
+);
+
 export const Command: Story = {
-  ...apiStoryMeta("api-command", "Command list used by api popover menus.", { baselineImage: "/visual-baselines/stories/api/command-chromium.png" }),
+  ...commandMeta,
+  parameters: {
+  visualDelta: {"images":["/visual-baselines/stories/api/command-chromium.png"],"opacity":0.5,"colorInversion":false,"align":"canvas","placement":"right"},
+    ...commandMeta.parameters,
+    // bits-ui command combobox omits aria-controls while expanded (upstream).
+    a11y: {
+      config: {
+        rules: [{ id: "aria-required-attr", enabled: false }],
+      },
+    },
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("option", { name: "Daily" }));

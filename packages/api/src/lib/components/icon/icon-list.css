@@ -1,0 +1,74 @@
+[data-ui-component="icon-list"] {
+  --ui-icon-list-trigger-width: 200px;
+  --ui-icon-list-content-width: 250px;
+  --ui-icon-list-group-width: 350px;
+  --ui-icon-list-icon-size: 1rem;
+  --ui-icon-list-icon-gap: 0.5rem;
+}
+
+[data-ui-component="icon-list"][data-ui-part="trigger"],
+[data-ui-component="icon-list"] .icon-list-trigger,
+.icon-list-trigger {
+  width: var(--ui-icon-list-trigger-width);
+  justify-content: space-between;
+}
+
+[data-ui-component="icon-list"][data-ui-part="trigger-icon"],
+[data-ui-component="icon-list"] .icon-list-trigger-chevron {
+  width: var(--ui-icon-list-icon-size);
+  height: var(--ui-icon-list-icon-size);
+  margin-inline-start: var(--ui-icon-list-icon-gap);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+[data-ui-component="icon-list"][data-ui-part="content"],
+.icon-list-content {
+  padding: 0;
+  width: var(--ui-icon-list-content-width);
+}
+
+[data-ui-component="icon-list"][data-ui-part="virtual-root"] {
+  position: relative;
+  padding-inline-end: 0.25rem;
+}
+
+[data-ui-component="icon-list"][data-ui-part="group"],
+.icon-list-group {
+  color: var(--foreground);
+  padding: 0.25rem;
+  width: var(--ui-icon-list-group-width);
+  white-space: nowrap;
+}
+
+[data-ui-component="icon-list"][data-ui-part="heading"],
+.icon-list-heading {
+  color: var(--muted-foreground);
+  padding: 0.375rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+[data-ui-component="icon-list"][data-ui-part="item"],
+.icon-list-item {
+  padding-inline-end: 0.25rem;
+}
+
+[data-ui-component="icon-list"][data-ui-part="check"],
+[data-ui-component="icon-list"] .icon-list-check {
+  width: var(--ui-icon-list-icon-size);
+  height: var(--ui-icon-list-icon-size);
+  margin-inline-end: var(--ui-icon-list-icon-gap);
+}
+
+[data-ui-component="icon-list"][data-ui-part="check"][data-ui-unchecked],
+[data-ui-component="icon-list"] .icon-list-check.is-unchecked {
+  color: transparent;
+}
+
+[data-ui-component="icon-list"][data-ui-part="item-icon"],
+[data-ui-component="icon-list"] .icon-list-item-icon {
+  width: var(--ui-icon-list-icon-size);
+  height: var(--ui-icon-list-icon-size);
+  margin-inline-end: var(--ui-icon-list-icon-gap);
+}

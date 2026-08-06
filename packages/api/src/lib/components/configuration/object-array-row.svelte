@@ -86,7 +86,7 @@
 
 <Table.Row
   class={cn(
-    "object-array-table__row group",
+    "config-array-table__row",
     isRowDragSource(dragSource, index) && "is-row-drag-source",
   )}
 >
@@ -98,7 +98,7 @@
     />
   {/if}
   {#each columns as [key, field] (key)}
-    <Table.Cell class="align-middle">
+    <Table.Cell class="configuration-cell">
       {#if field.type === "boolean"}
         <Switch
           checked={Boolean(row[key])}
@@ -107,7 +107,7 @@
       {:else if field.type === "number" || field.type === "integer"}
         <Input
           type="number"
-          class="h-8 border-none"
+          class="configuration-control"
           value={String(row[key] ?? 0)}
           oninput={(event) => {
             const target = event.currentTarget as HTMLInputElement;
@@ -138,7 +138,7 @@
       {:else if field.type === "string"}
         <Input
           type={inputTypeForString(field)}
-          class="h-8 border-none"
+          class="configuration-control"
           data-testid={`object-array-cell-${key}`}
           bind:value={draftValues[key]}
           onblur={() => commitStringField(key)}
@@ -147,17 +147,17 @@
       {/if}
     </Table.Cell>
   {/each}
-  <Table.Cell class="text-right align-middle">
+  <Table.Cell class="configuration-cell-actions">
     <Button
       variant="ghost"
       size="icon"
-      class="h-8 w-8 shrink-0"
+      class="configuration-icon-button"
       data-testid="object-array-remove-button"
       aria-label="Remove row"
       disabled={removeDisabled}
       onclick={onRemove}
     >
-      <Trash2 class="size-4" />
+      <Trash2 class="configuration-icon" />
     </Button>
   </Table.Cell>
 </Table.Row>

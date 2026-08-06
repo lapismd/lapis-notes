@@ -25,6 +25,7 @@
     moveArrayItem,
     sortedObjectProperties,
   } from "./object-array-utils";
+  import "./configuration.css";
 
   let {
     schema,
@@ -149,22 +150,21 @@
   onDragEnd={handleDragEnd}
 >
   <div
-    class={cn(
-      "object-array-table w-full space-y-2",
-      dragSource && "is-table-chrome-dragging",
-    )}
+    class={cn("config-array-table", dragSource && "is-table-chrome-dragging")}
+    data-ui-component="configuration"
+    data-ui-part="stack"
     data-testid="object-array-setting"
   >
-    <Table.Root class="w-full text-sm">
+    <Table.Root class="configuration-table">
       <Table.Header>
         <Table.Row>
           {#if canReorderRows}
-            <Table.Head class="w-10"></Table.Head>
+            <Table.Head class="configuration-grip-head"></Table.Head>
           {/if}
           {#each columns as [key, field] (key)}
             <Table.Head>{columnLabel(key, field)}</Table.Head>
           {/each}
-          <Table.Head class="w-16 text-right">Actions</Table.Head>
+          <Table.Head class="configuration-actions-head">Actions</Table.Head>
         </Table.Row>
       </Table.Header>
       <Table.Body>

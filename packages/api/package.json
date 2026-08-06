@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "pnpm run prepack",
-    "check": "pnpm check:svelte && pnpm check:types",
+    "check": "pnpm --dir ../.. check:no-tailwind packages/api/src/lib/components && pnpm check:svelte && pnpm check:types",
     "check:svelte": "svelte-check --fail-on-warnings --output human",
     "check:types": "tsc --noEmit -p tsconfig.types.json",
     "dev": "pnpm --dir ../.. storybook",

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils.js";
+  import { type WithElementRef } from "$lib/utils.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -15,10 +15,12 @@
 
 <ul
   bind:this={ref}
+  {...restProps}
+  data-ui-component="sidebar-custom"
+  data-ui-part="sidebar-menu"
   data-slot="sidebar-menu"
   data-sidebar="menu"
-  class={cn("flex w-full min-w-0 flex-col gap-1", className)}
-  {...restProps}
+  class={className}
 >
   {@render children?.()}
 </ul>

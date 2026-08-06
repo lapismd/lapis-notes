@@ -8,7 +8,14 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   optimizeDeps: {
-    include: ["aria-query", "react", "react-dom", "react-dom/client"],
+    include: [
+      "aria-query",
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "@storybook/addon-a11y/preview",
+      "@storybook/svelte-vite",
+    ],
   },
   ssr: {
     noExternal: ["aria-query"],
@@ -21,13 +28,21 @@ export default defineConfig({
           storybookTest({ configDir: path.join(dirname, ".storybook") }),
         ],
         optimizeDeps: {
-          include: ["aria-query", "react", "react-dom", "react-dom/client"],
+          include: [
+            "aria-query",
+            "react",
+            "react-dom",
+            "react-dom/client",
+            "@storybook/addon-a11y/preview",
+            "@storybook/svelte-vite",
+          ],
         },
         ssr: {
           noExternal: ["aria-query"],
         },
         test: {
           name: "storybook",
+          setupFiles: ["./.storybook/vitest.setup.ts"],
           browser: {
             enabled: true,
             headless: true,

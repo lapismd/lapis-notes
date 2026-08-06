@@ -9,6 +9,7 @@
     type Menu as AppMenu,
     type MenuItem,
   } from "../../menu.svelte";
+  import "./menu.css";
 
   let {
     menu,
@@ -26,7 +27,7 @@
 {#if mobileMenu.matches}
   <DrawerMenu {menu} />
 {:else}
-  <ContextMenu.Content class={cn("", className)} customAnchor={anchor}>
+  <ContextMenu.Content class={cn(className)} customAnchor={anchor}>
     {@render ContextMenuContent({ menu })}
   </ContextMenu.Content>
 {/if}
@@ -42,12 +43,15 @@
         {:else}
           <ContextMenu.Sub>
             <ContextMenu.SubTrigger>
-              <div class="flex items-center">
-                <Icon class="mr-2 size-5" name="custom:blank" />
+              <div data-ui-component="menu" data-ui-part="item-row">
+                <Icon class="menu-item-icon" name="custom:blank" />
                 {item.title}
               </div>
             </ContextMenu.SubTrigger>
-            <ContextMenu.SubContent class={cn("w-48")}>
+            <ContextMenu.SubContent
+              data-ui-component="menu"
+              data-ui-part="sub-content"
+            >
               {@render ContextMenuContent({ menu: item })}
             </ContextMenu.SubContent>
           </ContextMenu.Sub>
@@ -64,9 +68,9 @@
       disabled={item.disabled}
       onclick={(evt: MouseEvent) => item.click(evt)}
     >
-      <div class="flex items-center">
+      <div data-ui-component="menu" data-ui-part="item-row">
         {#if item.icon}
-          <Icon class="mr-2 size-5" name={item.icon} />
+          <Icon class="menu-item-icon" name={item.icon} />
         {/if}
         {item.title}
       </div>
@@ -76,8 +80,8 @@
       disabled={item.disabled}
       onclick={(evt: MouseEvent) => item.click(evt)}
     >
-      <div class="flex items-center">
-        <Icon class="mr-2 size-5" name={item.icon || "custom:blank"} />
+      <div data-ui-component="menu" data-ui-part="item-row">
+        <Icon class="menu-item-icon" name={item.icon || "custom:blank"} />
         {item.title}
       </div>
     </ContextMenu.Item>

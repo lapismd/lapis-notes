@@ -2,6 +2,7 @@
   import { Input } from "@lapismd/design-core/shadcn/input";
   import type { ObjectMapOption } from "./object-map-setting.svelte";
   import { filterComboboxOptions } from "./object-array-utils";
+  import "./configuration.css";
 
   let {
     value = $bindable(""),
@@ -90,10 +91,10 @@
   }
 </script>
 
-<div class="relative w-full">
+<div data-ui-component="configuration" data-ui-part="combobox">
   <Input
     type="text"
-    class="h-8 border-none w-full"
+    class="configuration-combobox-input"
     {placeholder}
     value={draft}
     oninput={handleInput}
@@ -106,14 +107,16 @@
   />
   {#if open && visibleOptions.length > 0}
     <ul
-      class="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+      data-ui-component="configuration"
+      data-ui-part="combobox-list"
       role="listbox"
     >
       {#each visibleOptions as option (option.value)}
         <li role="presentation">
           <button
             type="button"
-            class="flex w-full rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+            data-ui-component="configuration"
+            data-ui-part="combobox-option"
             disabled={option.disabled}
             onclick={() => selectOption(option.value)}
           >

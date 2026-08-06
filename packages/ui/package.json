@@ -6,13 +6,13 @@
   "type": "module",
   "scripts": {
     "build": "pnpm run prepack",
-    "check": "pnpm check:svelte && pnpm check:types",
+    "check": "pnpm --dir ../.. check:no-tailwind packages/ui/src/lib/components && pnpm check:svelte && pnpm check:types",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
     "check:types": "tsc -p tsconfig.node.json --noEmit",
     "dev": "pnpm --dir ../.. storybook",
     "storybook": "pnpm --dir ../.. storybook",
     "test": "vitest run",
-    "prepack": "svelte-package --tsconfig ./tsconfig.pack.json && mkdir -p dist/styles && rm -rf dist/styles/theme && cp -R src/lib/styles/theme dist/styles/theme && cp src/lib/theme.css dist/theme.css && cp src/lib/styles.css dist/styles.css && cp src/lib/codemirror-autocomplete.css dist/codemirror-autocomplete.css && publint"
+    "prepack": "svelte-package --tsconfig ./tsconfig.pack.json && cp src/lib/theme.css dist/theme.css && cp src/lib/styles.css dist/styles.css && cp src/lib/codemirror-autocomplete.css dist/codemirror-autocomplete.css && publint"
   },
   "files": [
     "dist",

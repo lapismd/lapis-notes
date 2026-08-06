@@ -1,0 +1,13 @@
+[data-ui-component="confirm-dialog"] {
+  --ui-confirm-dialog-max-width: 28rem;
+  --ui-confirm-dialog-footer-gap: 0.5rem;
+}
+
+[data-ui-component="confirm-dialog"][data-ui-part="content"] {
+  max-width: var(--ui-confirm-dialog-max-width);
+}
+
+[data-ui-component="confirm-dialog"][data-ui-part="footer"] {
+  gap: var(--ui-confirm-dialog-footer-gap);
+  justify-content: flex-end;
+}

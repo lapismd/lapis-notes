@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Separator } from "@lapismd/design-core/shadcn/separator";
-  import { cn } from "$lib/utils.js";
   import type { ComponentProps } from "svelte";
 
   let {
@@ -12,8 +11,10 @@
 
 <Separator
   bind:ref
+  data-ui-component="sidebar-custom"
+  data-ui-part="sidebar-separator"
   data-slot="sidebar-separator"
   data-sidebar="separator"
-  class={cn("bg-sidebar-border", className)}
+  class={className}
   {...restProps}
 />

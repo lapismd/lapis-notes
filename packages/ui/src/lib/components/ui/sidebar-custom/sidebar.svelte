@@ -1,9 +1,10 @@
 <script lang="ts">
   import * as Sheet from "@lapismd/design-core/shadcn/sheet";
-  import { cn, type WithElementRef } from "$lib/utils.js";
+  import { type WithElementRef } from "$lib/utils.js";
   import type { HTMLAttributes } from "svelte/elements";
   import { SIDEBAR_WIDTH_MOBILE } from "./constants.js";
   import { useSidebar } from "./context.svelte.js";
+  import "./sidebar-custom.css";
 
   let {
     ref = $bindable(null),
@@ -24,12 +25,12 @@
 
 {#if collapsible === "none"}
   <div
-    class={cn(
-      "bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col",
-      className,
-    )}
-    bind:this={ref}
     {...restProps}
+    data-ui-component="sidebar-custom"
+    data-ui-part="sidebar"
+    data-slot="sidebar"
+    class={className}
+    bind:this={ref}
   >
     {@render children?.()}
   </div>
@@ -39,10 +40,13 @@
     {...restProps}
   >
     <Sheet.Content
+      bind:ref
       data-sidebar="sidebar"
+      data-ui-component="sidebar-custom"
+      data-ui-part="sidebar-content"
       data-slot="sidebar"
       data-mobile="true"
-      class="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0"
+      class={className}
       style="--sidebar-width: {SIDEBAR_WIDTH_MOBILE};"
       {side}
       showCloseButton={false}
@@ -51,7 +55,11 @@
         <Sheet.Title>Sidebar</Sheet.Title>
         <Sheet.Description>Displays the mobile sidebar.</Sheet.Description>
       </Sheet.Header>
-      <div class="flex h-full w-full flex-col">
+      <div
+        data-ui-component="sidebar-custom"
+        data-ui-part="sidebar-anon-1"
+        data-slot="sidebar-anon-1"
+      >
         {@render children?.()}
       </div>
     </Sheet.Content>
@@ -59,47 +67,33 @@
 {:else}
   <div
     bind:this={ref}
-    class="text-sidebar-foreground group peer hidden md:block"
     data-state={sidebar.state}
     data-collapsible={sidebar.state === "collapsed" ? collapsible : ""}
     data-variant={variant}
     data-side={side}
-    data-slot="sidebar"
     data-dragging={sidebar.isDraggingRail}
+    data-ui-component="sidebar-custom"
+    data-ui-part="sidebar"
+    data-slot="sidebar"
   >
     <!-- This is what handles the sidebar gap on desktop -->
     <div
+      data-ui-component="sidebar-custom"
+      data-ui-part="sidebar-gap"
       data-slot="sidebar-gap"
-      class={cn(
-        "relative w-(--sidebar-width) bg-transparent transition-[width] duration-0 ease-linear",
-        "group-data-[collapsible=offcanvas]:w-0",
-        "group-data-[side=right]:rotate-180",
-        "group-data-[dragging=true]_*:!duration-0 group-data-[dragging=true]:!duration-0",
-        variant === "floating" || variant === "inset"
-          ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-          : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
-      )}
     ></div>
     <div
-      data-slot="sidebar-container"
-      class={cn(
-        "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-0 ease-linear md:flex",
-        "group-data-[dragging=true]_*:!duration-0 group-data-[dragging=true]:!duration-0",
-        side === "left"
-          ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-          : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-        // Adjust the padding for floating and inset variants.
-        variant === "floating" || variant === "inset"
-          ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-          : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
-        className,
-      )}
       {...restProps}
+      data-ui-component="sidebar-custom"
+      data-ui-part="sidebar-container"
+      data-slot="sidebar-container"
+      class={className}
     >
       <div
         data-sidebar="sidebar"
+        data-ui-component="sidebar-custom"
+        data-ui-part="sidebar-inner"
         data-slot="sidebar-inner"
-        class="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border"
       >
         {@render children?.()}
       </div>

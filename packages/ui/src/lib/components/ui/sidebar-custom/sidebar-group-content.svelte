@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, type WithElementRef } from "$lib/utils.js";
+  import { type WithElementRef } from "$lib/utils.js";
   import type { HTMLAttributes } from "svelte/elements";
 
   let {
@@ -12,10 +12,12 @@
 
 <div
   bind:this={ref}
+  {...restProps}
+  data-ui-component="sidebar-custom"
+  data-ui-part="sidebar-group-content"
   data-slot="sidebar-group-content"
   data-sidebar="group-content"
-  class={cn("w-full text-sm", className)}
-  {...restProps}
+  class={className}
 >
   {@render children?.()}
 </div>

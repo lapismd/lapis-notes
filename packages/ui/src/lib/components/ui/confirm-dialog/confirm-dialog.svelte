@@ -6,6 +6,7 @@
   import * as Dialog from "@lapismd/design-core/shadcn/dialog";
   import { Dialog as DialogPrimitive } from "bits-ui";
   import { cn } from "$lib/utils";
+  import "./confirm-dialog.css";
 
   let {
     open = $bindable(false),
@@ -69,7 +70,12 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={handleOpenChange}>
-  <Dialog.Content class={cn("sm:max-w-md", className)} {portalProps}>
+  <Dialog.Content
+    class={cn(className)}
+    {portalProps}
+    dataUiComponent="confirm-dialog"
+    dataUiPart="content"
+  >
     <Dialog.Header>
       <Dialog.Title>{title}</Dialog.Title>
       {#if description}
@@ -77,7 +83,7 @@
       {/if}
     </Dialog.Header>
 
-    <Dialog.Footer class="gap-2 sm:justify-end">
+    <Dialog.Footer data-ui-component="confirm-dialog" data-ui-part="footer">
       <Button onclick={handleCancel} type="button" variant="outline">
         {cancelLabel}
       </Button>

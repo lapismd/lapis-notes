@@ -1,9 +1,75 @@
-@custom-variant dark (&:is(.dark *, .theme-dark *));
+/**
+ * Thin Obsidian/Lapis compatibility aliases → design-core semantic tokens.
+ *
+ * Brand palette lives in `@lapismd/design-core/themes/lapis.css`
+ * (`data-ui-theme="lapis"`). Do not redefine --primary / --destructive here.
+ */
+:root,
+[data-ui-theme="lapis"] {
+  --ui-control-height: var(--ui-workspace-settings-control-height, 30px);
+  --ui-control-radius: var(--ui-workspace-settings-control-radius, 6px);
 
-@import "./styles/theme/light.css";
-@import "./styles/theme/dark.css";
-@import "./styles/theme/aliases.css";
-@import "./styles/theme/foundation.css";
-@import "./styles/theme/content.css";
-@import "./styles/theme/surfaces.css";
-@import "./styles/theme/tailwind.css";
+  /* Text */
+  --text-normal: var(--foreground);
+  --text-muted: var(--muted-foreground);
+  --text-faint: var(--muted-foreground);
+  --text-on-accent: var(--primary-foreground);
+  --text-on-accent-inverted: var(--foreground);
+  --text-error: var(--destructive);
+  --text-warning: var(--warning, #ec7500);
+  --text-success: var(--success, #08b94e);
+  --text-accent: var(--ring, var(--primary));
+  --text-accent-hover: var(--primary);
+  --text-selection: var(--ui-workspace-selection, color-mix(in srgb, var(--ring) 20%, transparent));
+
+  /* Surfaces */
+  --background-primary: var(--background);
+  --background-primary-alt: var(--card);
+  --background-secondary: var(--muted);
+  --background-secondary-alt: var(--card);
+  --background-modifier-hover: color-mix(in srgb, var(--foreground) 6.7%, transparent);
+  --background-modifier-active-hover: color-mix(in srgb, var(--ring) 10%, transparent);
+  --background-modifier-border: var(--border);
+  --background-modifier-border-hover: var(--input);
+  --background-modifier-border-focus: var(--ring);
+  --background-modifier-error: var(--destructive);
+  --background-modifier-error-hover: var(--destructive);
+  --background-modifier-success: var(--success, #08b94e);
+  --background-modifier-form-field: var(--background);
+  --background-modifier-form-field-hover: var(--background);
+  --background-modifier-cover: color-mix(in srgb, var(--foreground) 12%, transparent);
+  --background-modifier-box-shadow: color-mix(in srgb, var(--foreground) 10%, transparent);
+
+  /* Interactive */
+  --interactive-accent-hsl: var(--lapis-accent-hsl, 258, 88%, 66%);
+  --interactive-accent: var(--ring, var(--primary));
+  --interactive-accent-hover: var(--lapis-accent-hover, var(--primary));
+  --interactive-accent-pressed: var(--primary);
+  --interactive-normal: var(--background);
+  --interactive-hover: var(--muted);
+
+  /* Controls */
+  --input-height: var(--ui-control-height);
+  --input-radius: var(--ui-control-radius);
+  --radius-s: var(--ui-workspace-radius-small, 4px);
+  --radius-m: var(--ui-workspace-radius-medium, 8px);
+  --radius-l: var(--ui-workspace-radius-large, 12px);
+  --divider-color: var(--border);
+  --divider-color-hover: var(--ring, var(--primary));
+  --divider-width: 1px;
+  --shadow-s: none;
+  --shadow-l: none;
+}
+
+.dark,
+.theme-dark,
+.dark [data-ui-theme="lapis"],
+[data-ui-theme="lapis"].dark {
+  --interactive-normal: var(--muted);
+  --interactive-hover: var(--accent);
+  --text-accent: var(--lapis-accent-hover, var(--ring));
+  --interactive-accent: var(--lapis-accent, var(--ring));
+  --interactive-accent-hover: var(--lapis-accent-hover, var(--primary));
+  --background-modifier-form-field: var(--card);
+  --background-modifier-cover: color-mix(in srgb, var(--background) 60%, transparent);
+}

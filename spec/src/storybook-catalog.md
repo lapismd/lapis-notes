@@ -11,6 +11,9 @@
 | LN-CAT-005 | Shared shadcn families destined for design-core SHOULD NOT duplicate full design-core Storybook coverage; document status in `MIGRATION.md`. |
 | LN-CAT-006 | Visual stories under `API/` MUST ship Visual Delta PNG baselines (`baselinePathMode: nested-import`) tagged `visual-pending` until human review promotes them to `visual-approved`. Stories tagged `skip-visual` are exempt. |
 | LN-CAT-007 | Interactive plays MUST assert outcomes via a demo status surface (`data-testid="api-ui-status"`) and use `storybook/test` helpers; portaled overlays MUST assert against `canvasElement.ownerDocument.body`. |
+| LN-CAT-008 | Storybook accessibility checks MUST fail `pnpm test:storybook` on axe violations: `.storybook/vitest.setup.ts` registers `@storybook/addon-a11y/preview`, and preview sets `parameters.a11y.test: "error"`. |
+| LN-CAT-009 | Storybook MUST load design-core `styles.css` + Lapis theme as style authority, and MUST import `@lapis-notes/ui/theme.css` (Obsidian alias tokens only). Host `@tailwindcss/vite` MAY remain for story/demo layout only — not for component paint. |
+| LN-CAT-010 | Story / demo Svelte under `stories/` MAY use host Tailwind for layout; that usage MUST remain excluded from `pnpm check:no-tailwind`. |
 
 ## API verification families
 
@@ -26,6 +29,7 @@ Direct api imports (one story family each):
 
 ## Tooling
 
-- Interaction tests: `pnpm test:storybook`
+- Interaction + a11y tests: `pnpm test:storybook` (axe via addon-a11y; `a11y.test: "error"`)
+- No-Tailwind sources: `pnpm check:no-tailwind` (component trees; stories excluded)
 - Visual baselines: `pnpm build-storybook` then `pnpm test:visual:update` (generates under `tests/visual/storybook.spec.ts-snapshots/stories/api/`)
 - Visual regression: `pnpm test:visual`

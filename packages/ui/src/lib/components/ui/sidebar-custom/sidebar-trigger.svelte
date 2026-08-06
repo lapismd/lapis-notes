@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Button } from "@lapismd/design-core/shadcn/button";
-  import { cn } from "$lib/utils.js";
   import { untrack, type ComponentProps } from "svelte";
   import { SidebarState, useSidebar } from "./context.svelte.js";
 
@@ -19,11 +18,14 @@
 </script>
 
 <Button
+  bind:ref
   data-sidebar="trigger"
+  data-ui-component="sidebar-custom"
+  data-ui-part="sidebar-trigger"
   data-slot="sidebar-trigger"
   variant="ghost"
   size="icon"
-  class={cn(`sidebar-toggle-button size-9 mod-${sidebar.props.id}`, className)}
+  class={`sidebar-toggle-button mod-${sidebar.props.id}${className ? ` ${className}` : ""}`}
   type="button"
   onclick={(e) => {
     onclick?.(e);
