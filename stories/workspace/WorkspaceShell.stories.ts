@@ -33,6 +33,20 @@ async function waitForShell(canvas: ReturnType<typeof within>) {
   );
 }
 
+async function expectStatusActionHover(button: HTMLButtonElement) {
+  const statusBar = button.closest<HTMLElement>(
+    '[data-ui-component="workspace-status-bar"]',
+  );
+  await expect(statusBar).not.toBeNull();
+  await userEvent.hover(button);
+  await waitFor(() => {
+    expect(getComputedStyle(button).backgroundColor).not.toBe(
+      getComputedStyle(statusBar!).backgroundColor,
+    );
+  });
+  await userEvent.unhover(button);
+}
+
 export const PersistedDesktop: Story = {
   ...workspaceStoryMeta(
     "workspace-shell-persisted-desktop",
@@ -120,6 +134,7 @@ export const NotificationCenter: Story = {
       '[data-status-bar-item-id="notifications:status"]',
     );
     await expect(notifications).not.toBeNull();
+    await expectStatusActionHover(notifications!);
     await userEvent.click(notifications!);
     await expect(
       canvas.getByRole("dialog", { name: "Notifications" }),
@@ -150,6 +165,7 @@ export const AboutLapisNotes: Story = {
       '[data-status-bar-item-id="app-shell:version"]',
     );
     await expect(version).not.toBeNull();
+    await expectStatusActionHover(version!);
     await userEvent.click(version!);
     await expect(
       canvas.getByRole("dialog", { name: "Lapis Notes" }),

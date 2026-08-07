@@ -59,7 +59,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-007   | workspace-shell   | Implemented | default design-core surface; no plugins                                                                          |
 | LN-WS-008   | workspace-shell   | Implemented | `WorkspaceShell.svelte` public props + real-App mount test                                                       |
 | LN-WS-009   | workspace-shell   | Implemented | persisted desktop/mobile stories                                                                                 |
-| LN-WS-010   | workspace-shell   | Implemented | interaction/a11y plays + `visual-pending` baselines                                                              |
+| LN-WS-010   | workspace-shell   | Implemented | interaction/a11y plays, panel-action hover assertions + `visual-pending` baselines                               |
 | LN-WS-011   | workspace-shell   | Implemented | api-owned Lapis application metadata, logo, and About surface                                                    |
 | LN-WS-012   | workspace-shell   | Implemented | design-core stacked-pane preferred-width regression test                                                         |
 | LN-WS-013   | workspace-shell   | Implemented | shared full-viewport Storybook layout and unconstrained mobile canvas                                            |
