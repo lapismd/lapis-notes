@@ -89,6 +89,24 @@ describe("WorkspaceShell", () => {
     expect(
       target.querySelector('[data-workspace-tab-id="empty-start"]'),
     ).not.toBeNull();
+    expect(
+      target.querySelector('[data-status-bar-item-id="notifications:status"]'),
+    ).not.toBeNull();
+    const version = target.querySelector<HTMLButtonElement>(
+      '[data-status-bar-item-id="app-shell:version"]',
+    );
+    expect(version?.textContent).toContain("v0.0.1-test");
+    version?.click();
+    await vi.waitFor(() => {
+      expect(
+        target.querySelector('[data-ui-component="workspace-about-dialog"]'),
+      ).not.toBeNull();
+      expect(
+        target.querySelector<HTMLImageElement>(
+          '[data-ui-component="workspace-about-dialog"] img[alt="Lapis Notes"]',
+        )?.src,
+      ).toContain("lapis-logo.svg");
+    });
     expect(loadPlugins).not.toHaveBeenCalled();
     target.remove();
   });

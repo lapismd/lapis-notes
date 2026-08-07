@@ -24,9 +24,9 @@ async function waitForShell(canvas: ReturnType<typeof within>) {
         "ready",
       );
       expect(
-        canvas.getByTestId("workspace-shell-frame").querySelector(
-          '[data-app-shell-ready="true"]',
-        ),
+        canvas
+          .getByTestId("workspace-shell-frame")
+          .querySelector('[data-app-shell-ready="true"]'),
       ).toBeInTheDocument();
     },
     { timeout: 3_000 },
@@ -42,6 +42,7 @@ export const PersistedDesktop: Story = {
   args: {
     displayMode: "desktop",
     workspaceLabel: "Lapis Notes",
+    scenario: "standard",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -99,6 +100,103 @@ export const PersistedDesktop: Story = {
   },
 };
 
+export const NotificationCenter: Story = {
+  ...workspaceStoryMeta(
+    "workspace-shell-notification-center",
+    "The minimal design-core notification plugin presents Lapis shell history without loading runtime plugins.",
+    "/visual-baselines/stories/workspace/notification-center-chromium.png",
+  ),
+  args: {
+    displayMode: "desktop",
+    workspaceLabel: "Lapis Notes",
+    scenario: "standard",
+    seedNotifications: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForShell(canvas);
+
+    const notifications = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-status-bar-item-id="notifications:status"]',
+    );
+    await expect(notifications).not.toBeNull();
+    await userEvent.click(notifications!);
+    await expect(
+      canvas.getByRole("dialog", { name: "Notifications" }),
+    ).toBeVisible();
+    await expect(canvas.getByText("Workspace restored")).toBeVisible();
+    await expect(
+      canvas.getByText("Your persisted Lapis layout is ready."),
+    ).toBeVisible();
+  },
+};
+
+export const AboutLapisNotes: Story = {
+  ...workspaceStoryMeta(
+    "workspace-shell-about-lapis-notes",
+    "The controller-owned version action opens design-core's About surface with Lapis application metadata and logo.",
+    "/visual-baselines/stories/workspace/about-lapis-notes-chromium.png",
+  ),
+  args: {
+    displayMode: "desktop",
+    workspaceLabel: "Lapis Notes",
+    scenario: "standard",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForShell(canvas);
+
+    const version = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-status-bar-item-id="app-shell:version"]',
+    );
+    await expect(version).not.toBeNull();
+    await userEvent.click(version!);
+    await expect(
+      canvas.getByRole("dialog", { name: "Lapis Notes" }),
+    ).toBeVisible();
+    await expect(canvas.getByText("Version 0.0.1-story")).toBeVisible();
+    await expect(
+      canvas.getByRole("img", { name: "Lapis Notes" }),
+    ).toHaveAttribute("src", expect.stringContaining("lapis-logo"));
+  },
+};
+
+export const StackedTabs: Story = {
+  ...workspaceStoryMeta(
+    "workspace-shell-stacked-tabs",
+    "Persisted empty views retain design-core's preferred stacked-pane width and horizontal selected-tab scrolling.",
+    "/visual-baselines/stories/workspace/stacked-tabs-chromium.png",
+  ),
+  args: {
+    displayMode: "desktop",
+    workspaceLabel: "Lapis Notes",
+    scenario: "stacked",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForShell(canvas);
+
+    const container = canvasElement.querySelector<HTMLElement>(
+      '.ui-workspace-stacked-tabs__container[data-ui-part="container"]',
+    );
+    const archive = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-workspace-tab-id="archive"][data-ui-part="stacked-tab-header"]',
+    );
+    await expect(container).not.toBeNull();
+    await expect(archive).not.toBeNull();
+    await expect(container!.scrollWidth).toBeGreaterThan(
+      container!.clientWidth,
+    );
+
+    await userEvent.click(archive!);
+    await waitFor(() => {
+      expect(container!.scrollLeft).toBeGreaterThan(0);
+      expect(archive).toHaveAttribute("aria-pressed", "true");
+      expect(persistedLayout(canvas).active).toBe("archive");
+    });
+  },
+};
+
 export const Mobile: Story = {
   ...workspaceStoryMeta(
     "workspace-shell-mobile",
@@ -108,6 +206,7 @@ export const Mobile: Story = {
   args: {
     displayMode: "mobile",
     workspaceLabel: "Lapis Notes",
+    scenario: "mobile",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -117,7 +216,7 @@ export const Mobile: Story = {
       canvas.getByRole("button", { name: "Create new tab" }),
     );
     await userEvent.click(
-      canvas.getByRole("button", { name: "Open tabs (2)" }),
+      canvas.getByRole("button", { name: "Open tabs (6)" }),
     );
     await expect(
       canvas.getByRole("region", { name: "Open workspace tabs" }),
@@ -126,21 +225,47 @@ export const Mobile: Story = {
       '[data-mobile-tab-open="start"]',
     );
     await expect(openStart).not.toBeNull();
+    await expect(
+      canvas.getByRole("button", { name: "Open Files" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Open Outline" }),
+    ).toBeVisible();
     await userEvent.click(openStart!);
     await userEvent.click(
-      canvas.getByRole("button", { name: "Open tabs (2)" }),
+      canvas.getByRole("button", { name: "Open tabs (6)" }),
     );
-    const closeAdded = canvasElement.querySelector<HTMLElement>(
-      '[data-mobile-tab-close]:not([data-mobile-tab-close="start"])',
+    const closeAdded = [
+      ...canvasElement.querySelectorAll<HTMLElement>("[data-mobile-tab-close]"),
+    ].find(
+      (element) =>
+        !["start", "notes", "reference", "files", "outline"].includes(
+          element.dataset.mobileTabClose ?? "",
+        ),
     );
     await expect(closeAdded).not.toBeNull();
     await userEvent.click(closeAdded!);
 
     await waitFor(
       () => {
+        expect(
+          canvas.getByTestId("workspace-layout-operation"),
+        ).toHaveTextContent("tab-close");
+        expect(
+          canvas.getByTestId("workspace-controller-operation"),
+        ).toHaveTextContent("tab-close");
+        const controller = JSON.parse(
+          canvas.getByTestId("workspace-controller-layout").textContent ?? "{}",
+        );
+        expect(controller.main.children[0].children).toHaveLength(3);
+        const compatibility = JSON.parse(
+          canvas.getByTestId("workspace-compatibility-layout").textContent ??
+            "{}",
+        );
+        expect(compatibility.main.children[0].children).toHaveLength(3);
         const layout = persistedLayout(canvas);
         const leaves = layout.main.children[0].children;
-        expect(leaves).toHaveLength(1);
+        expect(leaves).toHaveLength(3);
         expect(leaves[0].id).toBe("start");
         expect(layout.active).toBe("start");
         expect(

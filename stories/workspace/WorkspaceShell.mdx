@@ -7,8 +7,16 @@ import * as Stories from "./WorkspaceShell.stories";
 
 `@lapis-notes/workspace` mounts the API-owned design-core controller after the
 consumer has loaded the vault and restored Lapis workspace persistence. The
-stories use a real `App`, the built-in empty view, and no optional plugins.
+stories use a real `App` and the built-in empty view. The notification center
+is the sole static design-core shell plugin; Lapis and community plugins are
+not loaded.
 
 <Canvas of={Stories.PersistedDesktop} />
 
 <Canvas of={Stories.Mobile} />
+
+<Canvas of={Stories.NotificationCenter} />
+
+<Canvas of={Stories.AboutLapisNotes} />
+
+<Canvas of={Stories.StackedTabs} />

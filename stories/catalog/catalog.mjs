@@ -186,6 +186,27 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-shell--mobile",
   },
+  {
+    id: "workspace-shell-notification-center",
+    title: "Notification Center",
+    spec: "spec/src/workspace-shell.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-shell--notification-center",
+  },
+  {
+    id: "workspace-shell-about-lapis-notes",
+    title: "About Lapis Notes",
+    spec: "spec/src/workspace-shell.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-shell--about-lapis-notes",
+  },
+  {
+    id: "workspace-shell-stacked-tabs",
+    title: "Stacked Tabs",
+    spec: "spec/src/workspace-shell.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-shell--stacked-tabs",
+  },
 ];
 
 export function catalogParameters(catalogId) {
