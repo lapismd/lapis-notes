@@ -36,6 +36,8 @@ intake or UI swap status changes.
 - [x] Interaction, accessibility, build, and visual verification
 - [x] Full-viewport desktop/mobile parity, Lapis About/version chrome, and notifications presentation
 - [x] Empty-view stacked-tab overflow parity with design-core
+- [x] Floating-window controls use design-core panel-action hover tokens and consumer Storybook verification
+- [x] Top/stacked pane maximize toggles, compact reserved top-tab actions, and conforming floating-window maximize/minimize icons from design-core
 
 ## UI → design-core
 

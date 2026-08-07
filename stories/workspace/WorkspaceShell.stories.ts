@@ -47,6 +47,20 @@ async function expectStatusActionHover(button: HTMLButtonElement) {
   await userEvent.unhover(button);
 }
 
+async function expectFloatingActionHover(button: HTMLButtonElement) {
+  const header = button.closest<HTMLElement>(
+    '[data-ui-component="workspace-floating-window"] [data-ui-part="header"]',
+  );
+  await expect(header).not.toBeNull();
+  await userEvent.hover(button);
+  await waitFor(() => {
+    expect(getComputedStyle(button).backgroundColor).not.toBe(
+      getComputedStyle(header!).backgroundColor,
+    );
+  });
+  await userEvent.unhover(button);
+}
+
 export const PersistedDesktop: Story = {
   ...workspaceStoryMeta(
     "workspace-shell-persisted-desktop",
@@ -66,7 +80,49 @@ export const PersistedDesktop: Story = {
     const tabHeader = canvasElement.querySelector<HTMLElement>(
       ".ui-workspace-tabs__header",
     );
+    const shellRoot = canvasElement.querySelector<HTMLElement>(
+      "[data-app-shell-root]",
+    );
     await expect(tabHeader).not.toBeNull();
+    await expect(shellRoot).not.toBeNull();
+
+    const maximize = canvas.getByRole("button", {
+      name: "Maximize tab group",
+    });
+    const tabOptions = canvas.getByRole("button", {
+      name: "Tab overflow menu",
+    });
+    for (const action of [newTabButton, maximize, tabOptions]) {
+      await expect(action.getBoundingClientRect().width).toBe(32);
+    }
+    await expect(
+      newTabButton.getBoundingClientRect().right,
+    ).toBeLessThanOrEqual(maximize.getBoundingClientRect().left);
+    await expect(maximize.getBoundingClientRect().right).toBeLessThanOrEqual(
+      tabOptions.getBoundingClientRect().left,
+    );
+    const restingBackground = getComputedStyle(maximize).backgroundColor;
+    await expect(maximize).toHaveAttribute("aria-pressed", "false");
+    await userEvent.click(maximize);
+    await expect(shellRoot).toHaveAttribute(
+      "data-workspace-focus-mode",
+      "true",
+    );
+    const restore = canvas.getByRole("button", {
+      name: "Restore tab group",
+    });
+    await expect(restore).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      expect(getComputedStyle(restore).backgroundColor).not.toBe(
+        restingBackground,
+      );
+    });
+    await expect(
+      canvas.queryByRole("button", { name: "Exit focus mode" }),
+    ).toBeNull();
+    await userEvent.click(restore);
+    await expect(shellRoot).not.toHaveAttribute("data-workspace-focus-mode");
+
     await userEvent.hover(newTabButton);
     await waitFor(() => {
       expect(getComputedStyle(newTabButton).backgroundColor).not.toBe(
@@ -77,20 +133,34 @@ export const PersistedDesktop: Story = {
 
     await userEvent.click(newTabButton);
     await expect(
-      canvas.getByRole("tablist", { name: "Workspace tabs" }),
+      canvas.getByRole("toolbar", { name: "Workspace tabs" }),
     ).toBeInTheDocument();
-    const tabs = canvas.getAllByRole("tab", { name: /^New Tab/ });
+    const tabs = canvas.getAllByRole("button", { name: "New Tab" });
     await expect(tabs).toHaveLength(2);
 
-    const startTab = canvasElement.querySelector<HTMLElement>(
-      '[data-workspace-tab-id="start"] [role="tab"]',
+    const addedTabMenu = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-workspace-tab-id]:not([data-workspace-tab-id="start"]) [data-ui-part="tab-menu-trigger"]',
     );
+    await expect(addedTabMenu).not.toBeNull();
+    await userEvent.click(addedTabMenu!);
+    await userEvent.click(
+      within(canvasElement.ownerDocument.body).getByRole("menuitem", {
+        name: "Move to floating window",
+      }),
+    );
+
+    const collapseFloating = canvas.getByRole("button", {
+      name: "Collapse floating pane",
+    });
+    await expectFloatingActionHover(collapseFloating);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Redock floating pane" }),
+    );
+
     const addedTabClose = canvasElement.querySelector<HTMLElement>(
       '[data-workspace-tab-id]:not([data-workspace-tab-id="start"]) [data-ui-part="tab-close"]',
     );
-    await expect(startTab).not.toBeNull();
     await expect(addedTabClose).not.toBeNull();
-    await userEvent.click(startTab!);
     await userEvent.click(addedTabClose!);
     await userEvent.click(
       canvas.getByRole("button", { name: "Open left sidebar" }),
@@ -196,7 +266,7 @@ export const StackedTabs: Story = {
       '.ui-workspace-stacked-tabs__container[data-ui-part="container"]',
     );
     const archive = canvasElement.querySelector<HTMLButtonElement>(
-      '[data-workspace-tab-id="archive"][data-ui-part="stacked-tab-header"]',
+      '[data-workspace-tab-id="archive"] [data-workspace-stacked-tab-title-trigger]',
     );
     await expect(container).not.toBeNull();
     await expect(archive).not.toBeNull();
@@ -210,6 +280,31 @@ export const StackedTabs: Story = {
       expect(archive).toHaveAttribute("aria-pressed", "true");
       expect(persistedLayout(canvas).active).toBe("archive");
     });
+
+    const shellRoot = canvasElement.querySelector<HTMLElement>(
+      "[data-app-shell-root]",
+    );
+    await expect(shellRoot).not.toBeNull();
+    const maximize = canvas.getByRole("button", {
+      name: "Maximize tab group",
+    });
+    const restingBackground = getComputedStyle(maximize).backgroundColor;
+    await userEvent.click(maximize);
+    const restore = canvas.getByRole("button", {
+      name: "Restore tab group",
+    });
+    await expect(shellRoot).toHaveAttribute(
+      "data-workspace-focus-mode",
+      "true",
+    );
+    await expect(restore).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => {
+      expect(getComputedStyle(restore).backgroundColor).not.toBe(
+        restingBackground,
+      );
+    });
+    await userEvent.click(restore);
+    await expect(shellRoot).not.toHaveAttribute("data-workspace-focus-mode");
   },
 };
 

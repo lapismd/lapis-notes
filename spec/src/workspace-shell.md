@@ -13,10 +13,11 @@
 | LN-WS-007 | The shell MUST render design-core's default desktop and mobile chrome. It MUST NOT call the Lapis plugin loader or install Lapis/community plugins; the design-core notifications presentation is the only required static shell plugin.                                                                             |
 | LN-WS-008 | `WorkspaceShell` MUST accept `app`, optional `displayMode`, `workspaceLabel`, and `class`, and MUST mount `AppShell.Root` with `autoStart={false}` because application and layout boot remain consumer-owned.                                                                                                        |
 | LN-WS-009 | Storybook MUST provide persisted desktop and mobile shell stories backed by an actual api `App` and a story-only in-memory data adapter seeded at `/.obsidian/workspace.json`.                                                                                                                                       |
-| LN-WS-010 | New workspace stories MUST include interaction and accessibility assertions, including theme-sensitive hover contrast for shell actions on sidebar-coloured surfaces; they MUST carry `visual-pending` and ship nested-import Visual Delta baselines without rewriting existing API baselines.                       |
+| LN-WS-010 | New workspace stories MUST include interaction and accessibility assertions, including theme-sensitive hover contrast for shell actions on sidebar-coloured surfaces and floating-window headers; they MUST carry `visual-pending` and ship nested-import Visual Delta baselines without rewriting existing API baselines.                       |
 | LN-WS-011 | The api-owned controller MUST expose Lapis application metadata to design-core so the status version action and About dialog render the application name, runtime version, and Lapis logo. Host overrides MUST remain plain api properties rather than leaking design-core types into the root compatibility export. |
 | LN-WS-012 | Stacked workspace panes MUST use the public design-core stacked-pane width as their preferred width before container min/max clamping, so empty and content-rich views have the same horizontal overflow and selected-tab scrolling behavior.                                                                        |
 | LN-WS-013 | Workspace Storybook canvases MUST occupy the complete story viewport in desktop and mobile modes. Mobile mode MUST exercise the responsive shell across the available canvas rather than mounting an artificial fixed-width device card.                                                                             |
+| LN-WS-014 | Desktop top and stacked main-workspace panes MUST expose design-core's pane-level maximize toggle beside tab options. Its focused state MUST use primary paint and restore the pane when activated again; the retired focus-mode exit X MUST NOT be rendered. Top-tab add, maximize, and options actions MUST retain compact reserved hit areas before titles shrink or scroll. Floating size controls MUST use matching Lucide maximize/minimize glyphs. |
 
 ## Ownership and data flow
 
@@ -37,6 +38,10 @@ Design-core's public workspace controller, legacy JSON bridge, imperative view
 registry, and default shell surface are the dependency boundary. The shared
 stacked-tabs stylesheet owns the preferred-width behavior; consumers MUST NOT
 fork or override that layout logic locally.
+
+Focus-mode presentation is also design-core-owned. The consumer verifies the
+public maximize/restore control in both top and stacked stories but does not add
+local buttons, focus state, compact action geometry, or paint overrides.
 
 The compatibility projection reuses split, tabs, group, window, and leaf
 objects by serialized id. Api-origin changes are committed under a bridge guard;
