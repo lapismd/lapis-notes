@@ -47,7 +47,20 @@ export const PersistedDesktop: Story = {
     const canvas = within(canvasElement);
     await waitForShell(canvas);
 
-    await userEvent.click(canvas.getByRole("button", { name: "New tab" }));
+    const newTabButton = canvas.getByRole("button", { name: "New tab" });
+    const tabHeader = canvasElement.querySelector<HTMLElement>(
+      ".ui-workspace-tabs__header",
+    );
+    await expect(tabHeader).not.toBeNull();
+    await userEvent.hover(newTabButton);
+    await waitFor(() => {
+      expect(getComputedStyle(newTabButton).backgroundColor).not.toBe(
+        getComputedStyle(tabHeader!).backgroundColor,
+      );
+    });
+    await userEvent.unhover(newTabButton);
+
+    await userEvent.click(newTabButton);
     await expect(
       canvas.getByRole("tablist", { name: "Workspace tabs" }),
     ).toBeInTheDocument();

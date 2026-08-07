@@ -31,6 +31,8 @@ plugins, and plugin-host module generation.
 
 Brand palette and semantic tokens live in design-core `themes/lapis.css`.
 `@lapis-notes/ui/theme.css` is an Obsidian-compatibility alias layer only.
+Storybook theme controls and their manager dependencies remain root-only
+development tooling rather than package exports or runtime dependencies.
 
 ## `@lapis-notes/workspace` (shell integration)
 

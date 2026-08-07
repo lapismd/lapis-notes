@@ -43,4 +43,6 @@ the kernel and retained UI surface.
 
 Root scripts stay thin: `check:no-tailwind`, Turbo for package tasks,
 `spec:first` for governance, and Storybook for docs. Do not grow a parallel
-script forest for import path syncing.
+script forest for import path syncing. Storybook manager-only dependencies,
+including the shared theme toolbar icons, remain root development tooling and
+do not enter the runtime package graph.

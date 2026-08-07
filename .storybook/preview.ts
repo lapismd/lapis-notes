@@ -8,6 +8,19 @@ import "@lapis-notes/ui/theme.css";
 
 const preview: Preview = {
   tags: ["autodocs", "test"],
+  globalTypes: {
+    theme: {
+      description: "Brand theme",
+      toolbar: {
+        icon: "paintbrush",
+        items: [
+          { value: "lapis", title: "Obsidian" },
+          { value: "default", title: "Default" },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
   parameters: {
     layout: "padded",
     controls: { matchers: { color: /(background|color)$/i } },
@@ -17,6 +30,12 @@ const preview: Preview = {
     // Fail Vitest / Testing Module runs on axe violations (panel alone is not enough).
     a11y: {
       test: "error",
+      context: {
+        exclude: [".cm-gutters"],
+      },
+    },
+    backgrounds: {
+      disable: true,
     },
     // Brand theme is owned by data-ui-theme; keep Lapis CSS for kept compounds.
     themes: {

@@ -35,7 +35,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-006 | storybook-catalog | Implemented | Visual Delta baselines under `tests/visual/…`; tags `visual-pending` |
 | LN-CAT-007 | storybook-catalog | Implemented | `api-ui-status` + portal body assertions in plays |
 | LN-CAT-008 | storybook-catalog | Implemented | `.storybook/vitest.setup.ts` + `parameters.a11y.test: "error"` |
-| LN-CAT-009 | storybook-catalog | Implemented | preview: design-core styles + lapis + ui alias theme |
+| LN-CAT-009 | storybook-catalog | Implemented | preview/manager: Obsidian-default brand selector, light/dark toggle, design-core styles + lapis + ui alias theme |
 | LN-CAT-010 | storybook-catalog | Implemented | stories excluded from no-tailwind scan |
 | LN-CAT-011 | storybook-catalog | Implemented | `stories/workspace/*` + nested-import PNG baselines |
 | LN-CAT-012 | storybook-catalog | Implemented | workspace story plays + story-only memory adapter |
