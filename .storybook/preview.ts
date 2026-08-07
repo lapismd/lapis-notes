@@ -1,8 +1,9 @@
 import type { Preview } from "@storybook/svelte-vite";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
+import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-layout";
 // Brand + shadcn paint: design-core. ui/theme.css is Obsidian alias-only.
 // Host Tailwind (vite plugin) is for story/demo layout — not component paint.
-import "@lapismd/design-core/styles.css";
+import "@lapismd/design-core/storybook.css";
 import "@lapismd/design-core/themes/lapis.css";
 import "@lapis-notes/ui/theme.css";
 
@@ -22,7 +23,7 @@ const preview: Preview = {
     },
   },
   parameters: {
-    layout: "padded",
+    layout: "fullscreen",
     controls: { matchers: { color: /(background|color)$/i } },
     docs: {
       toc: true,
@@ -57,6 +58,7 @@ const preview: Preview = {
     }),
     (story, context) => {
       if (typeof document !== "undefined") {
+        syncCatalogStoryLayout(document, context);
         document.documentElement.classList.toggle(
           "dark",
           context.globals.colorMode === "dark",

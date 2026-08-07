@@ -126,6 +126,13 @@ const config: StorybookConfig = {
             ),
           },
           {
+            find: /^@lapismd\/design-core\/workspace\/plugins\/notifications$/,
+            replacement: path.join(
+              designCoreRoot,
+              "src/shared/workspace/plugins/notifications/index.ts",
+            ),
+          },
+          {
             find: "@lapis-notes/ui/theme.css",
             replacement: path.join(uiLib, "theme.css"),
           },
@@ -162,9 +169,7 @@ const config: StorybookConfig = {
         ],
       },
       optimizeDeps: {
-        exclude: [
-          "@storybook/svelte",
-        ],
+        exclude: ["@storybook/svelte"],
         include: [
           "aria-query",
           "react",

@@ -2,15 +2,16 @@
 
 ## Requirements
 
-| ID | Requirement |
-| --- | --- |
-| LN-PKG-001 | `@lapis-notes/api` MUST remain the shared runtime kernel: app container, vault/storage contracts, workspace model, plugins, commands, settings, metadata, and editor abstractions. |
-| LN-PKG-002 | `@lapis-notes/api` MUST depend on `@lapis-notes/ui` as a peer for shared UI primitives used by kernel components. |
-| LN-PKG-003 | `@lapis-notes/ui` MUST export only the pruned surface required by api (plus documented transitive dependencies). |
-| LN-PKG-004 | Host apps, plugins, notebook, and language-service packages MUST NOT be added until their requirements are specified and tracked in `MIGRATION.md`; the specified workspace integration package is not a host application. |
-| LN-PKG-005 | Package public exports MUST stay source of truth in each package `package.json` `exports` map. |
-| LN-PKG-006 | Vault profile storage kinds MUST be limited to `opfs`, `file-system-access`, and `desktop-folder`. LightningFS / legacy browser IndexedDB vault adapters and host-framework-specific kinds (for example former `tauri-folder`) MUST NOT be retained. |
-| LN-PKG-007 | `@lapis-notes/workspace` MUST expose the design-core shell around an application-supplied `App` without importing optional plugin packages or providing a production in-memory backend. |
+| ID         | Requirement                                                                                                                                                                                                                                                     |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LN-PKG-001 | `@lapis-notes/api` MUST remain the shared runtime kernel: app container, vault/storage contracts, workspace model, plugins, commands, settings, metadata, and editor abstractions.                                                                              |
+| LN-PKG-002 | `@lapis-notes/api` MUST depend on `@lapis-notes/ui` as a peer for shared UI primitives used by kernel components.                                                                                                                                               |
+| LN-PKG-003 | `@lapis-notes/ui` MUST export only the pruned surface required by api (plus documented transitive dependencies).                                                                                                                                                |
+| LN-PKG-004 | Host apps, plugins, notebook, and language-service packages MUST NOT be added until their requirements are specified and tracked in `MIGRATION.md`; the specified workspace integration package is not a host application.                                      |
+| LN-PKG-005 | Package public exports MUST stay source of truth in each package `package.json` `exports` map.                                                                                                                                                                  |
+| LN-PKG-006 | Vault profile storage kinds MUST be limited to `opfs`, `file-system-access`, and `desktop-folder`. LightningFS / legacy browser IndexedDB vault adapters and host-framework-specific kinds (for example former `tauri-folder`) MUST NOT be retained.            |
+| LN-PKG-007 | `@lapis-notes/workspace` MUST expose the design-core shell around an application-supplied `App` without providing a production in-memory backend or invoking the Lapis plugin loader.                                                                           |
+| LN-PKG-008 | `@lapis-notes/api` MUST configure the owned design-core controller with overridable plain Lapis application metadata and the notifications presentation as the minimal static shell plugin. This MUST remain separate from api plugin loading and distribution. |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -21,6 +22,8 @@ Purpose (condensed from the full Lapis Notes api package):
 - Workspace data model (splits, tabs, leaves, sidebars, ribbons, layout)
 - Host-only design-core controller binding at `./workspace-host`; the root api
   export remains the Lapis compatibility surface
+- Plain workspace-shell metadata overrides, with Lapis name/version/logo
+  defaults and the design-core notification presentation
 - Plugin runtime contracts and distribution primitives
 - Vault/storage abstractions: browser OPFS and File System Access adapters,
   plus the desktop-neutral folder bridge (`desktop-folder`)
@@ -39,8 +42,9 @@ development tooling rather than package exports or runtime dependencies.
 The workspace package is a thin Svelte adapter over
 `@lapismd/design-core/workspace`. It receives an initialized api `App`, obtains
 the host binding from `@lapis-notes/api/workspace-host`, and renders the default
-design-core app-shell surface. It contains no vault selector, router, plugin
-bootstrap, persistence implementation, or copied Lapis workspace renderer.
+design-core app-shell surface. It contains no vault selector, router, Lapis
+plugin bootstrap, persistence implementation, or copied Lapis workspace
+renderer.
 Its package contract exports `WorkspaceShell` and its component CSS, and its
 mount test supplies a real initialized api `App` while asserting plugin loading
 remains consumer-owned.

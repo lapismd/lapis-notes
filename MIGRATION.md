@@ -24,7 +24,7 @@ intake or UI swap status changes.
 | `@lapis-notes/workspace` shell integration | Done | Thin design-core host; api compatibility + persistence façade |
 | Web / desktop hosts | Not started | No runnable product host in this slice |
 | Plugins / notebook / language-service | Not started | Api plugin tests use synthetic manifests only (no plugin package deps) |
-| design-core workspace engine | Done | Consumes public `@lapismd/design-core/workspace`; no sibling source changes |
+| design-core workspace engine | Done | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source |
 
 ### Workspace shell integration progress
 
@@ -34,6 +34,8 @@ intake or UI swap status changes.
 - [x] `@lapis-notes/workspace` package
 - [x] Persisted desktop and mobile Storybook stories
 - [x] Interaction, accessibility, build, and visual verification
+- [x] Full-viewport desktop/mobile parity, Lapis About/version chrome, and notifications presentation
+- [x] Empty-view stacked-tab overflow parity with design-core
 
 ## UI → design-core
 
