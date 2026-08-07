@@ -1215,6 +1215,22 @@ describe("Workspace compatibility", () => {
     expect(JSON.stringify(binding.controller.getLayout())).toContain(leaf.id);
   });
 
+  it("configures the host controller with Lapis metadata and notification chrome", () => {
+    const { workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+
+    expect(controller.applicationInfo).toMatchObject({
+      name: "Lapis Notes",
+      version: "1.10.0",
+      logoUrl: expect.stringContaining("lapis-logo.svg"),
+    });
+    expect(controller.plugins.get("notifications")).toMatchObject({
+      id: "notifications",
+      enabled: true,
+      status: "disabled",
+    });
+  });
+
   it("projects controller changes while preserving compatibility leaf identity", async () => {
     const { workspace } = createWorkspaceHarness();
     const binding = getWorkspaceHostBinding(workspace);
@@ -1267,6 +1283,56 @@ describe("Workspace compatibility", () => {
     ).toEqual([originalLeaf.id]);
   });
 
+  it("persists the final projection after back-to-back host mutations", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+    const tabs = workspace.rootSplit.children[0] as WorkspaceTabs;
+    const originalLeaf = tabs.children[0] as WorkspaceLeaf;
+    const secondLeaf = new WorkspaceLeaf();
+    const thirdLeaf = new WorkspaceLeaf();
+    tabs.addChild(secondLeaf);
+    tabs.addChild(thirdLeaf);
+    workspace.requestSaveLayout({ source: "api", operation: "seed-tabs" });
+    const create = vi.spyOn(app.vault, "create");
+    await workspace.loadLayout();
+
+    const added = binding.controller.workspace.openLeaf(
+      "empty",
+      {},
+      { paneId: tabs.id, title: "Transient", active: true },
+    );
+    expect(added).not.toBeNull();
+    expect(binding.controller.workspace.setActiveLeaf(originalLeaf.id)).toBe(
+      true,
+    );
+    expect(binding.controller.workspace.closeLeaf(added!.id)).toBe(true);
+
+    await vi.waitFor(() => {
+      expect(workspace.getLeafById(added!.id)).toBeNull();
+      expect(workspace.activeLeaf).toBe(originalLeaf);
+    });
+    const otherCreate = vi.fn();
+    globalThis.app = {
+      ...app,
+      vault: { ...app.vault, create: otherCreate },
+    } as App;
+    await vi.waitFor(
+      () => {
+        expect(create).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 2_000 },
+    );
+
+    const persisted = JSON.parse(String(create.mock.calls[0]?.[1]));
+    expect(
+      persisted.main.children[0].children.map(
+        (child: { id: string }) => child.id,
+      ),
+    ).toEqual([originalLeaf.id, secondLeaf.id, thirdLeaf.id]);
+    expect(persisted.active).toBe(originalLeaf.id);
+    expect(otherCreate).not.toHaveBeenCalled();
+  });
+
   it("forwards cancelable controller drop events to compatibility listeners", async () => {
     const { workspace } = createWorkspaceHarness();
     const binding = getWorkspaceHostBinding(workspace);
@@ -1315,7 +1381,9 @@ describe("Workspace compatibility", () => {
     );
 
     workspace.unregisterView("graph");
-    expect(binding.controller.renderer.registry.resolve("graph")).toBeUndefined();
+    expect(
+      binding.controller.renderer.registry.resolve("graph"),
+    ).toBeUndefined();
   });
 
   it("moves tab children through cancelable workspace drop events", () => {

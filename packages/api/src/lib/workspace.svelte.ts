@@ -53,7 +53,13 @@ import {
   type WorkspaceLayoutDropEvent as DesignWorkspaceLayoutDropEvent,
   type WorkspaceViewContext as DesignWorkspaceViewContext,
 } from "@lapismd/design-core/workspace/core";
+import { notificationsPlugin } from "@lapismd/design-core/workspace/plugins/notifications";
 import { setWorkspaceHostBinding } from "./workspace-host-internal";
+
+const DEFAULT_LAPIS_LOGO_URL = new URL(
+  "./assets/lapis-logo.svg",
+  import.meta.url,
+).href;
 
 /** @public */
 export type Constructor<T> = abstract new (...args: any[]) => T;
@@ -135,7 +141,7 @@ export abstract class WorkspaceParent<
   }
 }
 
-let activeWorkspaceProjectionItems: Map<string, WorkspaceItem> | null = null;
+type WorkspaceProjectionItems = Map<string, WorkspaceItem>;
 
 function collectWorkspaceProjectionItem(
   item: WorkspaceItem,
@@ -161,7 +167,9 @@ function collectWorkspaceProjectionItem(
   }
 }
 
-function beginWorkspaceProjection(workspace: Workspace): void {
+function beginWorkspaceProjection(
+  workspace: Workspace,
+): WorkspaceProjectionItems {
   const items = new Map<string, WorkspaceItem>();
   workspace.rootSplit.children.forEach((child) =>
     collectWorkspaceProjectionItem(child, items),
@@ -175,28 +183,28 @@ function beginWorkspaceProjection(workspace: Workspace): void {
   workspace.floating.children.forEach((child) =>
     collectWorkspaceProjectionItem(child, items),
   );
-  activeWorkspaceProjectionItems = items;
+  return items;
 }
 
 function claimWorkspaceProjectionItem<T extends WorkspaceItem>(
+  projectionItems: WorkspaceProjectionItems | undefined,
   id: string,
   matches: (item: WorkspaceItem) => item is T,
   create: () => T,
 ): T {
-  const item = activeWorkspaceProjectionItems?.get(id);
+  const item = projectionItems?.get(id);
   if (item && matches(item)) {
-    activeWorkspaceProjectionItems?.delete(id);
+    projectionItems?.delete(id);
     item._root = undefined;
     return item;
   }
   return create();
 }
 
-function finishWorkspaceProjection(): void {
-  const unclaimed = activeWorkspaceProjectionItems;
-  activeWorkspaceProjectionItems = null;
-  if (!unclaimed) return;
-  for (const item of unclaimed.values()) {
+function finishWorkspaceProjection(
+  projectionItems: WorkspaceProjectionItems,
+): void {
+  for (const item of projectionItems.values()) {
     if (item instanceof WorkspaceLeaf) {
       item.view.unload();
       if (hasDestroyableEditor(item.view)) item.view.editor.destroy();
@@ -293,27 +301,32 @@ export abstract class WorkspaceSplit<
     this.type = type;
   }
 
-  loadJson(layout: WorkspaceSplitJson) {
+  loadJson(
+    layout: WorkspaceSplitJson,
+    projectionItems?: WorkspaceProjectionItems,
+  ) {
     const promises: Array<Promise<any>> = [];
-    this.children.forEach((it) => this.removeChild(it, true));
+    this.children.slice().forEach((it) => this.removeChild(it, true));
     const sizes = layout.sizes || [];
     layout.children.forEach((child, i) => {
       if (child.type === "tabs") {
         const tabs = claimWorkspaceProjectionItem(
+          projectionItems,
           child.id,
           (item): item is WorkspaceTabs => item instanceof WorkspaceTabs,
           () => new WorkspaceTabs({ leaves: [] }),
         );
         this.addChild(tabs);
-        promises.push(tabs.loadJson(child));
+        promises.push(tabs.loadJson(child, projectionItems));
       } else if (child.type === "split") {
         const split = claimWorkspaceProjectionItem(
+          projectionItems,
           child.id,
           (item): item is WorkspaceView => item instanceof WorkspaceView,
           () => new WorkspaceView(child.direction),
         );
         this.addChild(split);
-        promises.push(split.loadJson(child));
+        promises.push(split.loadJson(child, projectionItems));
       }
       this.sizes[i] = sizes[i] ?? 50;
     });
@@ -481,8 +494,11 @@ export class WorkspaceSidedock extends WorkspaceSplit<{
     });
   }
 
-  loadJson(layout: WorkspaceSidedockJson) {
-    return super.loadJson(layout).then(() => {
+  loadJson(
+    layout: WorkspaceSidedockJson,
+    projectionItems?: WorkspaceProjectionItems,
+  ) {
+    return super.loadJson(layout, projectionItems).then(() => {
       if (/^0(?:px|rem|em|%)?$/.test(layout.width.trim())) {
         this.open = false;
       } else {
@@ -604,15 +620,21 @@ export class WorkspaceWindow extends WorkspaceContainer {
     close?.();
   }
 
-  loadWindowJson(layout: WorkspaceWindowJson) {
+  loadWindowJson(
+    layout: WorkspaceWindowJson,
+    projectionItems?: WorkspaceProjectionItems,
+  ) {
     return super
-      .loadJson({
-        id: layout.id,
-        type: "split",
-        direction: layout.direction,
-        sizes: layout.sizes,
-        children: layout.children,
-      })
+      .loadJson(
+        {
+          id: layout.id,
+          type: "split",
+          direction: layout.direction,
+          sizes: layout.sizes,
+          children: layout.children,
+        },
+        projectionItems,
+      )
       .then(() => {
         this.id = layout.id;
         this.applyInitData({
@@ -688,18 +710,22 @@ export interface WorkspaceWindowInitData {
 export class WorkspaceFloating extends WorkspaceParent {
   children: WorkspaceWindow[] = $state([]);
 
-  loadJson(layouts: WorkspaceWindowJson[] = []) {
+  loadJson(
+    layouts: WorkspaceWindowJson[] = [],
+    projectionItems?: WorkspaceProjectionItems,
+  ) {
     const promises: Array<Promise<any>> = [];
     this.children.slice().forEach((child) => this.removeChild(child, true));
     layouts.forEach((layout) => {
       const child = claimWorkspaceProjectionItem(
+        projectionItems,
         layout.id,
         (item): item is WorkspaceWindow => item instanceof WorkspaceWindow,
         () => new WorkspaceWindow(),
       );
       this.addChild(child);
       promises.push(
-        child.loadWindowJson(layout).then(() => {
+        child.loadWindowJson(layout, projectionItems).then(() => {
           if (child.mode !== "popout") {
             return;
           }
@@ -1008,11 +1034,15 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
     );
   }
 
-  loadJson(layout: WorkspaceSidebarGroupJson) {
+  loadJson(
+    layout: WorkspaceSidebarGroupJson,
+    projectionItems?: WorkspaceProjectionItems,
+  ) {
     const promises: Array<Promise<any>> = [];
-    this.children.forEach((it) => this.removeChild(it, true));
+    this.children.slice().forEach((it) => this.removeChild(it, true));
     layout.children.forEach((config) => {
       const leaf = claimWorkspaceProjectionItem(
+        projectionItems,
         config.id,
         (item): item is WorkspaceLeaf => item instanceof WorkspaceLeaf,
         () => new WorkspaceLeaf(),
@@ -1075,21 +1105,26 @@ export class WorkspaceTabs extends WorkspaceParent {
     leaves.forEach((it) => this.addChild(it));
   }
 
-  loadJson(layout: WorkspaceTabsJson) {
+  loadJson(
+    layout: WorkspaceTabsJson,
+    projectionItems?: WorkspaceProjectionItems,
+  ) {
     const promises: Array<Promise<any>> = [];
-    this.children.forEach((it) => this.removeChild(it, true));
+    this.children.slice().forEach((it) => this.removeChild(it, true));
     layout.children.forEach((config) => {
       if (isSidebarGroupJson(config)) {
         const group = claimWorkspaceProjectionItem(
+          projectionItems,
           config.id,
           (item): item is WorkspaceSidebarGroup =>
             item instanceof WorkspaceSidebarGroup,
           () => new WorkspaceSidebarGroup(),
         );
         this.addChild(group);
-        promises.push(group.loadJson(config));
+        promises.push(group.loadJson(config, projectionItems));
       } else {
         const leaf = claimWorkspaceProjectionItem(
+          projectionItems,
           config.id,
           (item): item is WorkspaceLeaf => item instanceof WorkspaceLeaf,
           () => new WorkspaceLeaf(),
@@ -1260,7 +1295,7 @@ export class WorkspaceTabs extends WorkspaceParent {
   }
 
   closeAll() {
-    this.children.forEach((it) => this.removeChild(it, true));
+    this.children.slice().forEach((it) => this.removeChild(it, true));
     this.parent.removeChild(this);
   }
 }
@@ -1629,7 +1664,7 @@ export class Workspace extends EventDispatcher<{
       if (!this.layoutReady) {
         return;
       }
-      return app.vault.create(
+      return this.app.vault.create(
         "/.obsidian/workspace.json",
         JSON.stringify(this.toJson(), null, 2),
       );
@@ -2219,16 +2254,16 @@ export class Workspace extends EventDispatcher<{
     this.exitFocusMode();
     const normalized = normalizeWorkspaceJson(config);
     await this.activateLayoutPlugins(normalized);
-    beginWorkspaceProjection(this);
+    const projectionItems = beginWorkspaceProjection(this);
     try {
       await Promise.all([
-        this.rootSplit.loadJson(normalized.main),
-        this.leftSplit.loadJson(normalized.left),
-        this.rightSplit.loadJson(normalized.right),
-        this.floating.loadJson(normalized.floating),
+        this.rootSplit.loadJson(normalized.main, projectionItems),
+        this.leftSplit.loadJson(normalized.left, projectionItems),
+        this.rightSplit.loadJson(normalized.right, projectionItems),
+        this.floating.loadJson(normalized.floating, projectionItems),
       ]);
     } finally {
-      finishWorkspaceProjection();
+      finishWorkspaceProjection(projectionItems);
     }
 
     if (!normalized.active) {
@@ -2292,9 +2327,23 @@ export class Workspace extends EventDispatcher<{
   constructor(readonly app: App) {
     super();
     this.rootSplit.addChild(new WorkspaceTabs());
+    const shellOptions = this.app.props?.workspaceShell;
+    const application = shellOptions?.application;
     this.#workspaceHostController = new AppShellController({
       layout: workspaceJsonForDesignCore(this.toJson()),
-      plugins: [],
+      application: {
+        name: application?.name ?? "Lapis Notes",
+        version: this.app.version,
+        logoUrl:
+          application?.logoUrl === null
+            ? undefined
+            : (application?.logoUrl ?? DEFAULT_LAPIS_LOGO_URL),
+        buildTime: application?.buildTime,
+        commitHash: application?.commitHash,
+        copyright: application?.copyright,
+      },
+      plugins:
+        shellOptions?.notifications === false ? [] : [notificationsPlugin()],
     });
     setWorkspaceHostBinding(this, {
       controller: this.#workspaceHostController,

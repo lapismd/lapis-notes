@@ -25,6 +25,21 @@ import { WorkspaceTrustService } from "./workspace-trust";
 import { DefaultPluginDistributionManager, type DefaultPluginDistributionManagerOptions } from "./plugin-distribution";
 import type { PluginDependencyResolverFactory } from "./plugin-dependency-resolver";
 import type { PluginAssetServer } from "./plugin-asset-server";
+export interface AppWorkspaceShellApplicationProperties {
+    /** Application name shown by the shell's About surface. */
+    name?: string;
+    /** Optional application logo. Use `null` to fall back to the shell icon. */
+    logoUrl?: string | null;
+    buildTime?: string | null;
+    commitHash?: string;
+    copyright?: string;
+}
+/** Host-owned metadata and minimal static chrome for the workspace shell. */
+export interface AppWorkspaceShellProperties {
+    application?: AppWorkspaceShellApplicationProperties;
+    /** Enable design-core's notification center and status affordance. */
+    notifications?: boolean;
+}
 /**
  * Bootstrap dependencies required to construct an {@link App} instance.
  *
@@ -40,6 +55,7 @@ export type AppStateProperties = {
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
+    workspaceShell?: AppWorkspaceShellProperties;
     markdownRenderer: (markdown: string, el: HTMLElement, sourcePath: string, component: Component) => Promise<void>;
 };
 export type AppPluginDistributionOptions = Omit<DefaultPluginDistributionManagerOptions, "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager">;

@@ -66,6 +66,23 @@ import { resolveMetadataFieldValues } from "./configuration-option-source-provid
  *
  * @public
  */
+export interface AppWorkspaceShellApplicationProperties {
+  /** Application name shown by the shell's About surface. */
+  name?: string;
+  /** Optional application logo. Use `null` to fall back to the shell icon. */
+  logoUrl?: string | null;
+  buildTime?: string | null;
+  commitHash?: string;
+  copyright?: string;
+}
+
+/** Host-owned metadata and minimal static chrome for the workspace shell. */
+export interface AppWorkspaceShellProperties {
+  application?: AppWorkspaceShellApplicationProperties;
+  /** Enable design-core's notification center and status affordance. */
+  notifications?: boolean;
+}
+
 export type AppStateProperties = {
   version: string;
   configPath: string;
@@ -76,6 +93,7 @@ export type AppStateProperties = {
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
   pluginDistributionOptions?: AppPluginDistributionOptions;
+  workspaceShell?: AppWorkspaceShellProperties;
   markdownRenderer: (
     markdown: string,
     el: HTMLElement,
