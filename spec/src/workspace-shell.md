@@ -18,6 +18,8 @@
 | LN-WS-012 | Stacked workspace panes MUST use the public design-core stacked-pane width as their preferred width before container min/max clamping, so empty and content-rich views have the same horizontal overflow and selected-tab scrolling behavior.                                                                        |
 | LN-WS-013 | Workspace Storybook canvases MUST occupy the complete story viewport in desktop and mobile modes. Mobile mode MUST exercise the responsive shell across the available canvas rather than mounting an artificial fixed-width device card.                                                                             |
 | LN-WS-014 | Desktop top and stacked main-workspace panes MUST expose design-core's pane-level maximize toggle beside tab options. Its focused state MUST use primary paint and restore the pane when activated again; the retired focus-mode exit X MUST NOT be rendered. Top-tab add, maximize, and options actions MUST retain compact reserved hit areas before titles shrink or scroll. Floating size controls MUST use matching Lucide maximize/minimize glyphs. |
+| LN-WS-015 | The api façade MUST preserve design-core's V3 bottom-panel tabs, groups, open state, height, active leaf, events, and view lifecycle through a stable Lapis-native wrapper. It MUST expose bottom-leaf creation and panel open, size, toggle, and alignment controls while rejecting focus mode and split-edge operations for bottom-panel leaves. |
+| LN-WS-016 | Bottom-panel layout changes MUST round-trip through the existing api-owned 1000 ms workspace writer with no controller persistence adapter or feedback loop. Design-core's built-in settings MAY remain ephemeral while updating the rendered shell reactively.                                                                   |
 
 ## Ownership and data flow
 
@@ -25,7 +27,7 @@
 2. The api workspace owns one `AppShellController` and hydrates it from the
    normalized Lapis workspace JSON.
 3. `WorkspaceShell` renders that controller through design-core `AppShell`.
-4. Api calls commit compatibility JSON into the controller. Design-core UI
+4. Api calls commit compatibility JSON, including the bottom panel, into the controller. Design-core UI
    events project controller JSON into stable api wrappers and schedule the
    existing api persistence writer.
 5. Registered Lapis views mount through imperative design-core view hosts;
@@ -53,3 +55,8 @@ cannot survive and separate api `App` instances cannot interfere with one anothe
 Persistence suppression remains active through the Svelte effect flush for each
 queued projection so compatibility-only sidebar effects cannot write an older
 layout back over a newer controller mutation.
+
+The bottom panel is projected as one top-level tabs wrapper rather than a
+recursive split. Center tab and group moves are supported; split-edge and focus
+mode operations remain restricted to the main workspace. Built-in shell settings
+use design-core's controller directly and do not share the workspace JSON writer.

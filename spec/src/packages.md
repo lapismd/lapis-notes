@@ -12,6 +12,7 @@
 | LN-PKG-006 | Vault profile storage kinds MUST be limited to `opfs`, `file-system-access`, and `desktop-folder`. LightningFS / legacy browser IndexedDB vault adapters and host-framework-specific kinds (for example former `tauri-folder`) MUST NOT be retained.            |
 | LN-PKG-007 | `@lapis-notes/workspace` MUST expose the design-core shell around an application-supplied `App` without providing a production in-memory backend or invoking the Lapis plugin loader.                                                                           |
 | LN-PKG-008 | `@lapis-notes/api` MUST configure the owned design-core controller with overridable plain Lapis application metadata and the notifications presentation as the minimal static shell plugin. This MUST remain separate from api plugin loading and distribution. |
+| LN-PKG-009 | `@lapis-notes/api` MUST expose the design-core V3 bottom panel through Lapis-native workspace wrappers and controls without leaking design-core types through the root api export.                                                                                 |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -19,7 +20,8 @@ Purpose (condensed from the full Lapis Notes api package):
 
 - `App` as the root service container for workspace, vault, database, plugins,
   commands, settings, metadata, editor, notifications, and related services
-- Workspace data model (splits, tabs, leaves, sidebars, ribbons, layout)
+- Workspace data model (splits, tabs, leaves, sidebars, bottom panel, ribbons,
+  layout)
 - Host-only design-core controller binding at `./workspace-host`; the root api
   export remains the Lapis compatibility surface
 - Plain workspace-shell metadata overrides, with Lapis name/version/logo

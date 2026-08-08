@@ -12,6 +12,7 @@
 | LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed.                                                             |
 | LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, and plugin loading remain consumer or api responsibilities.                              |
 | LN-ARCH-008 | Storybook MUST consume design-core's shared catalog stylesheet and layout synchronizer so Workspace stories receive the same edge-to-edge viewport contract while ordinary component stories retain catalog padding. |
+| LN-ARCH-009 | The api compatibility projection MUST preserve every persisted design-core V3 workspace region, including the bottom panel, while keeping the api-owned workspace writer as the only layout persistence adapter.       |
 
 ## Package graph
 
@@ -35,6 +36,10 @@ aliases, and uses the shared layout synchronizer for full-viewport Workspace
 stories.
 The workspace package renders the api-owned design-core controller; it does not
 own a second layout model or persistence adapter.
+The api compatibility projection includes the design-core V3 bottom-panel tabs,
+open state, and height. Settings displayed by the shell remain controller-owned;
+Storybook may exercise their live behavior without creating a production
+settings persistence adapter.
 `@lapis-notes/api/workspace-host` is the explicit integration seam: root api
 exports retain their compatibility shape while workspace hosts can obtain the
 controller without reaching into api internals.
