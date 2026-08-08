@@ -173,6 +173,55 @@ export const apiUiCatalog = [
 /** @type {CatalogEntry[]} */
 export const workspaceCatalog = [
   {
+    id: "workspace-lapis-editor-demo-ready",
+    title: "Lapis Editor Demo Ready",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapis-notes/workspace + story-local core plugins",
+    storyId: "workspace-lapis-editor-demo--ready",
+  },
+  {
+    id: "workspace-lapis-editor-demo-same-file-split-sync",
+    title: "Lapis Editor Demo Same File Split Sync",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapis-notes/api source editors",
+    storyId: "workspace-lapis-editor-demo--same-file-split-sync",
+  },
+  {
+    id: "workspace-lapis-editor-demo-explorer-mutations",
+    title: "Lapis Editor Demo Explorer Mutations",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapismd/design-core/workspace/explorer",
+    storyId: "workspace-lapis-editor-demo--explorer-mutations",
+  },
+  {
+    id: "workspace-lapis-editor-demo-editor-settings",
+    title: "Lapis Editor Demo Editor Settings",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapismd/design-core/workspace/settings",
+    storyId: "workspace-lapis-editor-demo--editor-settings",
+  },
+  {
+    id: "workspace-lapis-editor-demo-loading-plugins",
+    title: "Lapis Editor Demo Loading Plugins",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapismd/design-core/workspace/startup",
+    storyId: "workspace-lapis-editor-demo--loading-plugins",
+  },
+  {
+    id: "workspace-lapis-editor-demo-startup-failure",
+    title: "Lapis Editor Demo Startup Failure",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapismd/design-core/workspace/startup",
+    storyId: "workspace-lapis-editor-demo--startup-failure",
+  },
+  {
+    id: "workspace-lapis-editor-demo-explorer-opening-vault",
+    title: "Lapis Editor Demo Explorer Opening Vault",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapismd/design-core/workspace/explorer",
+    storyId: "workspace-lapis-editor-demo--explorer-opening-vault",
+  },
+  {
     id: "workspace-shell-persisted-desktop",
     title: "Persisted Desktop",
     spec: "spec/src/workspace-shell.md",

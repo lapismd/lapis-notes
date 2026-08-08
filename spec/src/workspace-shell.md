@@ -22,6 +22,7 @@
 | LN-WS-016 | Bottom-panel layout changes MUST round-trip through the existing api-owned 1000 ms workspace writer. Design-core settings MUST persist separately through api configuration with atomic writes and no layout/configuration feedback loop.                                                                                          |
 | LN-WS-017 | Story-only Lapis imperative views MUST remain mounted through the API view bridge and visibly consume the live design-core `showInlineTitle` setting in their tab bodies, so shell settings demonstrate a view-supported inline title without adding production settings persistence. |
 | LN-WS-018 | API editor-view registrations MUST project into the design-core controller registry so shell Editor Associations options match API path resolution and plugin teardown.                                                                                                                                                |
+| LN-WS-019 | The editor demo consumer MUST render the shell only after vault, configuration, required plugins, and layout boot successfully; retry and story teardown MUST unload partial plugins and editors, stop the controller, and restore the previous global API app binding.                                                  |
 
 ## Ownership and data flow
 
@@ -67,3 +68,7 @@ batches. Successful API updates reconcile matching controller fields, while
 equality checks and unchanged-batch elision prevent a persistence feedback
 write. API editor-view updates replace the corresponding controller registry
 entry exactly, including filename-pattern removal and plugin disposal.
+Storybook's editor-demo consumer owns the real startup sequence. It does not
+mount the shell until the sequence completes, and retry follows the same
+deterministic teardown path as story disposal before rebuilding from the
+canonical seed.

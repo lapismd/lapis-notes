@@ -2,18 +2,21 @@
 
 ## Requirements
 
-| ID          | Requirement                                                                                                                                                                                                          |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| LN-ARCH-001 | The repository MUST be a pnpm workspace orchestrated by Turbo.                                                                                                                                                       |
-| LN-ARCH-002 | Workspace packages MUST live under `packages/*` and expose `build`, `check`, and `test` scripts.                                                                                                                     |
-| LN-ARCH-003 | The browsable docs host MUST be Storybook on port 7010 (`pnpm dev`).                                                                                                                                                 |
-| LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added.                                                                  |
-| LN-ARCH-005 | `@lapismd/design-core` MUST be consumed through the sibling checkout (`file:../design-core` at the repo root and pnpm override); publishable package manifests MUST use a portable dependency range.                 |
-| LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed.                                                             |
-| LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, and plugin loading remain consumer or api responsibilities.                              |
-| LN-ARCH-008 | Storybook MUST consume design-core's shared catalog stylesheet and layout synchronizer so Workspace stories receive the same edge-to-edge viewport contract while ordinary component stories retain catalog padding. |
-| LN-ARCH-009 | The api compatibility projection MUST preserve every persisted design-core V3 workspace region, including the bottom panel, while keeping the api-owned workspace writer as the only layout persistence adapter.       |
-| LN-ARCH-010 | The runnable editor demo MUST keep Lapis plugin/bootstrap policy in Storybook fixtures while reusable runtime contracts remain in api and generic startup presentation remains in design-core.                     |
+| ID          | Requirement                                                                                                                                                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LN-ARCH-001 | The repository MUST be a pnpm workspace orchestrated by Turbo.                                                                                                                                                               |
+| LN-ARCH-002 | Workspace packages MUST live under `packages/*` and expose `build`, `check`, and `test` scripts.                                                                                                                             |
+| LN-ARCH-003 | The browsable docs host MUST be Storybook on port 7010 (`pnpm dev`).                                                                                                                                                         |
+| LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added.                                                                          |
+| LN-ARCH-005 | `@lapismd/design-core` MUST be consumed through the sibling checkout (`file:../design-core` at the repo root and pnpm override); publishable package manifests MUST use a portable dependency range.                         |
+| LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed.                                                                     |
+| LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, and plugin loading remain consumer or api responsibilities.                                      |
+| LN-ARCH-008 | Storybook MUST consume design-core's shared catalog stylesheet and layout synchronizer so Workspace stories receive the same edge-to-edge viewport contract while ordinary component stories retain catalog padding.         |
+| LN-ARCH-009 | The api compatibility projection MUST preserve every persisted design-core V3 workspace region, including the bottom panel, while keeping the api-owned workspace writer as the only layout persistence adapter.             |
+| LN-ARCH-010 | The runnable editor demo MUST keep Lapis plugin/bootstrap policy in Storybook fixtures while reusable runtime contracts remain in api and generic startup presentation remains in design-core.                               |
+| LN-ARCH-011 | Storybook-local source plugins MAY declare CodeMirror language packages as root development dependencies; those dependencies MUST NOT move demo plugin policy into api or workspace.                                         |
+| LN-ARCH-012 | Storybook MUST resolve the design-core app-shell, core, empty, Explorer, startup, and notifications workspace entry points through the sibling source root so browser tests and staged visual builds use one implementation. |
+| LN-ARCH-013 | Storybook MUST resolve the API editor subpath from the same API source root as the root API alias so source-editor fixtures do not mix packaged and source editor implementations.                                           |
 
 ## Package graph
 
@@ -55,6 +58,9 @@ the workspace package only starts and renders the already-owned controller.
 Editor-view contributions follow the same boundary and are projected from the
 API registry into the controller registry without moving registration policy
 into the shell host.
+The editor demo's Markdown and JSON language packages are root-only Storybook
+development dependencies. The API continues to expose the generic editor
+extension registry and source view, not a bundled language policy.
 
 ## Tooling policy
 

@@ -121,6 +121,7 @@ export function markupEditor(...extensions: Extension[]): Extension {
     search(),
     codeFolding(),
     EditorView.editorAttributes.of({ class: "mod-cm6 cm-editor-source" }),
+    EditorView.contentAttributes.of({ "aria-label": "Source editor" }),
     EditorView.editable.of(true),
     keymap.of([
       ...closeBracketsKeymap,

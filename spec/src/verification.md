@@ -13,7 +13,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-007 | architecture      | Implemented | `packages/workspace`; workspace-shell requirements                                                               |
 | LN-ARCH-008 | architecture      | Implemented | design-core Storybook stylesheet and catalog-layout synchronizer                                                 |
 | LN-ARCH-009 | architecture      | Implemented | api V3 bottom-panel projection, alternate filenames, and single layout writer                                    |
-| LN-ARCH-010 | architecture      | Planned | `LAPIS_EDITOR_PLAN.md`; Storybook-local plugin boundary                                                          |
+| LN-ARCH-010 | architecture      | Implemented | Storybook-local editor and Explorer plugins; reusable API/design-core boundaries                                 |
+| LN-ARCH-011 | architecture      | Implemented | root-only CodeMirror Markdown and JSON development dependencies                                                  |
+| LN-ARCH-012 | architecture      | Implemented | Storybook aliases for design-core workspace source entry points                                                  |
+| LN-ARCH-013 | architecture      | Implemented | Storybook API editor subpath source alias                                                                         |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -22,8 +25,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-006  | packages          | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed                                     |
 | LN-PKG-007  | packages          | Implemented | `packages/workspace` shell adapter                                                                               |
 | LN-PKG-008  | packages          | Implemented | api-owned application metadata and notification presentation                                                     |
-| LN-PKG-009  | packages          | Implemented | `WorkspaceBottomPanel` and Lapis-native bottom controls                                                           |
-| LN-PKG-010  | packages          | Implemented | `MemoryVaultAdapter`; `SourceTextFileView`; focused API tests                                                     |
+| LN-PKG-009  | packages          | Implemented | `WorkspaceBottomPanel` and Lapis-native bottom controls                                                          |
+| LN-PKG-010  | packages          | Implemented | `MemoryVaultAdapter`; `SourceTextFileView`; focused API tests                                                    |
+| LN-PKG-011  | packages          | Implemented | root package manifest and lockfile language dependencies                                                         |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                              |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                          |
@@ -33,7 +37,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-UI-007   | ui-and-styling    | Implemented | ui `theme.css` alias-only; brand in design-core `themes/lapis.css`                                               |
 | LN-UI-008   | ui-and-styling    | Implemented | compounds + api chrome on native CSS; stories excluded                                                           |
 | LN-UI-009   | ui-and-styling    | Implemented | `pnpm check:no-tailwind` in root/package `check`                                                                 |
-| LN-UI-010   | ui-and-styling    | In progress | design-core startup surface; semantic source-editor classes                                                       |
+| LN-UI-010   | ui-and-styling    | Implemented | design-core `WorkspaceStartup`; semantic source-editor classes and demo CSS                                      |
 | LN-CAT-001  | storybook-catalog | Implemented | Storybook host                                                                                                   |
 | LN-CAT-002  | storybook-catalog | Implemented | `stories/api/*` + plays; `pnpm test:storybook`                                                                   |
 | LN-CAT-003  | storybook-catalog | Implemented | `stories/catalog/catalog.mjs` + `ApiUi.mdx`                                                                      |
@@ -48,8 +52,11 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-012  | storybook-catalog | Implemented | workspace story plays + story-only memory adapter                                                                |
 | LN-CAT-013  | storybook-catalog | Implemented | no Lapis/community plugin boot; minimal static notifications chrome                                              |
 | LN-CAT-014  | storybook-catalog | Implemented | full-viewport shell, mobile, notification, About, and stacked-tab stories                                        |
-| LN-CAT-015  | storybook-catalog | Implemented | focused `Workspace/Shell/Bottom Panel Settings` play and pending baseline                                         |
-| LN-CAT-016  | storybook-catalog | Planned | `Workspace/Lapis Editor Demo` scenarios                                                                           |
+| LN-CAT-015  | storybook-catalog | Implemented | focused `Workspace/Shell/Bottom Panel Settings` play and pending baseline                                        |
+| LN-CAT-016  | storybook-catalog | Implemented | seven `Workspace/Lapis Editor Demo` scenarios and canonical seed                                                 |
+| LN-CAT-017  | storybook-catalog | Implemented | catalog metadata, `visual-pending` tags, and seven nested-import baselines                                       |
+| LN-CAT-018  | storybook-catalog | Implemented | design-core workspace source aliases                                                                              |
+| LN-CAT-019  | storybook-catalog | Implemented | API editor source alias                                                                                            |
 | LN-GOV-001  | spec-governance   | Implemented | `spec/` mdBook sources                                                                                           |
 | LN-GOV-002  | spec-governance   | Implemented | this matrix                                                                                                      |
 | LN-GOV-003  | spec-governance   | Implemented | `scripts/check-spec-first.mjs`                                                                                   |
@@ -66,24 +73,25 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-007   | workspace-shell   | Implemented | default design-core surface; no plugins                                                                          |
 | LN-WS-008   | workspace-shell   | Implemented | `WorkspaceShell.svelte` public props + real-App mount test                                                       |
 | LN-WS-009   | workspace-shell   | Implemented | persisted desktop/mobile stories                                                                                 |
-| LN-WS-010   | workspace-shell   | Implemented | interaction/a11y plays, panel/floating action hover + `visual-pending` baselines                                      |
+| LN-WS-010   | workspace-shell   | Implemented | interaction/a11y plays, panel/floating action hover + `visual-pending` baselines                                 |
 | LN-WS-011   | workspace-shell   | Implemented | api-owned Lapis application metadata, logo, and About surface                                                    |
 | LN-WS-012   | workspace-shell   | Implemented | design-core stacked-pane preferred-width regression test                                                         |
 | LN-WS-013   | workspace-shell   | Implemented | shared full-viewport Storybook layout and unconstrained mobile canvas                                            |
 | LN-WS-014   | workspace-shell   | Implemented | top/stacked maximize plays, pressed state, reserved actions, and floating maximize/minimize icons                |
-| LN-WS-015   | workspace-shell   | Implemented | stable bottom wrapper, controls, traversal, projection, and focused api tests                                     |
-| LN-WS-016   | workspace-shell   | Implemented | api-owned debounce/alternate-file coverage plus ephemeral settings story                                          |
-| LN-WS-017   | workspace-shell   | Implemented | API-registered story views consume the live inline-title shell setting                                            |
-| LN-WS-018   | workspace-shell   | Implemented | exact API-to-design-core editor registry mirroring and disposal tests                                             |
-| LN-ED-001   | editor-demo       | Implemented | public `MemoryVaultAdapter`; binary, metadata, filesystem, collision tests                                        |
-| LN-ED-002   | editor-demo       | Implemented | public `SourceTextFileView`; lifecycle, data, extension, and search tests                                         |
-| LN-ED-003   | editor-demo       | Planned | Storybook-local source editor core plugin                                                                         |
-| LN-ED-004   | editor-demo       | Planned | source-only Markdown extension set                                                                                |
+| LN-WS-015   | workspace-shell   | Implemented | stable bottom wrapper, controls, traversal, projection, and focused api tests                                    |
+| LN-WS-016   | workspace-shell   | Implemented | api-owned debounce/alternate-file coverage plus ephemeral settings story                                         |
+| LN-WS-017   | workspace-shell   | Implemented | API-registered story views consume the live inline-title shell setting                                           |
+| LN-WS-018   | workspace-shell   | Implemented | exact API-to-design-core editor registry mirroring and disposal tests                                            |
+| LN-WS-019   | workspace-shell   | Implemented | startup-gated shell mount plus deterministic retry and disposal acceptance                                       |
+| LN-ED-001   | editor-demo       | Implemented | public `MemoryVaultAdapter`; binary, metadata, filesystem, collision tests                                       |
+| LN-ED-002   | editor-demo       | Implemented | public `SourceTextFileView`; lifecycle, data, extension, search, and Storybook axe coverage                      |
+| LN-ED-003   | editor-demo       | Implemented | required Storybook-local Markdown, text, and JSON source editor plugin                                           |
+| LN-ED-004   | editor-demo       | Implemented | source-only Markdown extension set and explicit exclusion boundary                                               |
 | LN-ED-005   | editor-demo       | Implemented | atomic batch/preservation tests and loop-free controller persistence                                             |
 | LN-ED-006   | editor-demo       | Implemented | live controller registry mirroring, pattern updates, and disposal                                                |
-| LN-ED-007   | editor-demo       | Planned | API-vault Explorer adapter                                                                                        |
-| LN-ED-008   | editor-demo       | Planned | functional empty-view actions                                                                                     |
-| LN-ED-009   | editor-demo       | Planned | real startup tasks and failure/retry                                                                              |
-| LN-ED-010   | editor-demo       | Planned | same-file CodeMirror synchronization acceptance                                                                  |
-| LN-ED-011   | editor-demo       | Planned | shared-seed Storybook scenarios                                                                                   |
-| LN-ED-012   | editor-demo       | Planned | native CSS/design-core styling                                                                                    |
+| LN-ED-007   | editor-demo       | Implemented | API-vault design-core Explorer adapter and mutation play                                                         |
+| LN-ED-008   | editor-demo       | Implemented | Create note, Go to file, and design-core Close landing actions                                                   |
+| LN-ED-009   | editor-demo       | Implemented | real startup tasks, required-plugin failure, teardown, and retry play                                            |
+| LN-ED-010   | editor-demo       | Implemented | same-file transaction sync, single debounce write, and independent-file play                                    |
+| LN-ED-011   | editor-demo       | Implemented | seven focused scenarios sourced from one deterministic seed                                                      |
+| LN-ED-012   | editor-demo       | Implemented | native CSS and design-core composition; no-Tailwind gate                                                        |

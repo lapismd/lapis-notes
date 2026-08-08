@@ -28,6 +28,8 @@
     "test": "turbo run test"
   },
   "devDependencies": {
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lang-markdown": "^6.3.4",
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
     "@lapis-notes/api": "workspace:*",

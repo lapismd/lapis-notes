@@ -100,6 +100,10 @@ const config: StorybookConfig = {
       resolve: {
         alias: [
           {
+            find: /^@lapis-notes\/api\/editor$/,
+            replacement: path.join(apiLib, "components/editor/index.ts"),
+          },
+          {
             find: /^@lapis-notes\/api\/workspace-host$/,
             replacement: path.join(apiLib, "workspace-host.ts"),
           },
@@ -123,6 +127,27 @@ const config: StorybookConfig = {
             replacement: path.join(
               designCoreRoot,
               "src/shared/workspace/core/index.ts",
+            ),
+          },
+          {
+            find: /^@lapismd\/design-core\/workspace\/empty$/,
+            replacement: path.join(
+              designCoreRoot,
+              "src/shared/workspace/empty/index.ts",
+            ),
+          },
+          {
+            find: /^@lapismd\/design-core\/workspace\/explorer$/,
+            replacement: path.join(
+              designCoreRoot,
+              "src/shared/workspace/explorer/index.ts",
+            ),
+          },
+          {
+            find: /^@lapismd\/design-core\/workspace\/startup$/,
+            replacement: path.join(
+              designCoreRoot,
+              "src/shared/workspace/startup/index.ts",
             ),
           },
           {

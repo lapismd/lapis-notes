@@ -18,8 +18,11 @@
 | LN-CAT-012 | Workspace shell plays MUST boot a real api `App`, exercise meaningful controller-backed shell behavior, and verify the story adapter receives the expected workspace persistence update.                                                                                                                                                                                                  |
 | LN-CAT-013 | Workspace shell stories MUST use design-core's shared full-viewport catalog layout, including an unconstrained mobile canvas, and MUST NOT load Lapis/community plugins. They MUST include the minimal design-core notifications chrome plus Lapis version/About metadata.                                                                                                                |
 | LN-CAT-014 | Workspace shell stories MUST cover the persisted desktop and mobile shells, the populated notification center, the Lapis About dialog, and stacked empty tabs whose scroll width and selected-tab movement match design-core.                                                                                                                                                             |
-| LN-CAT-015 | `Workspace/Shell` MUST include a focused bottom-panel/settings story that boots a real api `App`, persists panel geometry through the api writer, and proves design-core's built-in settings update shell alignment and ribbon presentation without loading plugins or adding settings persistence.                                                                                     |
-| LN-CAT-016 | `Workspace/Lapis Editor Demo` MUST boot a real api `App` and required Storybook-local core plugins over the public memory vault, use one canonical seed, and cover runnable, same-file sync, Explorer mutation, editor settings, startup, failure, and opening-vault states.                                                        |
+| LN-CAT-015 | `Workspace/Shell` MUST include a focused bottom-panel/settings story that boots a real api `App`, persists panel geometry through the api writer, and proves design-core's built-in settings update shell alignment and ribbon presentation without loading plugins or adding settings persistence.                                                                                       |
+| LN-CAT-016 | `Workspace/Lapis Editor Demo` MUST boot a real api `App` and required Storybook-local core plugins over the public memory vault, use one canonical seed, and cover runnable, same-file sync, Explorer mutation, editor settings, startup, failure, and opening-vault states.                                                                                                              |
+| LN-CAT-017 | Workspace catalog metadata MUST enumerate each editor-demo scenario, map it to this specification, and retain nested-import `visual-pending` coverage until human approval.                                                                                                                                                                                                               |
+| LN-CAT-018 | Storybook's Vite aliases MUST resolve each design-core workspace entry point used by the editor demo from the same sibling or staged source root, avoiding a mixed installed/source workspace runtime.                                                                                                                                                                                    |
+| LN-CAT-019 | Storybook's Vite aliases MUST resolve `@lapis-notes/api/editor` with the root API source so editor interactions and accessibility checks exercise the protected implementation under test.                                                                                                                                                                                                |
 
 ## API verification families
 
@@ -41,6 +44,10 @@ Direct api imports (one story family each):
 - Visual regression: `pnpm test:visual`
 - Workspace shell stories use the same interaction, a11y, and nested-import
   Visual Delta workflow as API stories and remain `visual-pending` until review.
+- Editor-demo catalog entries identify the Ready, SameFileSplitSync,
+  ExplorerMutations, EditorSettings, LoadingPlugins, StartupFailure, and
+  ExplorerOpeningVault stories individually so focused visual updates do not
+  rewrite existing shell baselines.
 - The bottom-panel/settings story keeps the Workspace settings page open in its
   final state so panel alignment and controller-backed settings are visible.
 - Shell story views remain API-registered imperative Lapis views; their

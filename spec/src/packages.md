@@ -12,8 +12,9 @@
 | LN-PKG-006 | Vault profile storage kinds MUST be limited to `opfs`, `file-system-access`, and `desktop-folder`. LightningFS / legacy browser IndexedDB vault adapters and host-framework-specific kinds (for example former `tauri-folder`) MUST NOT be retained.            |
 | LN-PKG-007 | `@lapis-notes/workspace` MUST expose the design-core shell around an application-supplied `App` without providing a production in-memory backend or invoking the Lapis plugin loader.                                                                           |
 | LN-PKG-008 | `@lapis-notes/api` MUST configure the owned design-core controller with overridable plain Lapis application metadata and the notifications presentation as the minimal static shell plugin. This MUST remain separate from api plugin loading and distribution. |
-| LN-PKG-009 | `@lapis-notes/api` MUST expose the design-core V3 bottom panel through Lapis-native workspace wrappers and controls without leaking design-core types through the root api export.                                                                                 |
-| LN-PKG-010 | `@lapis-notes/api` MUST expose the reusable volatile vault and concrete source-text view required by the editor demo; application-specific source-editor and Explorer registration policy MUST remain outside the kernel.                                               |
+| LN-PKG-009 | `@lapis-notes/api` MUST expose the design-core V3 bottom panel through Lapis-native workspace wrappers and controls without leaking design-core types through the root api export.                                                                              |
+| LN-PKG-010 | `@lapis-notes/api` MUST expose the reusable volatile vault and concrete source-text view required by the editor demo; application-specific source-editor and Explorer registration policy MUST remain outside the kernel.                                       |
+| LN-PKG-011 | CodeMirror Markdown and JSON language packages used by Storybook intake plugins MUST remain root development dependencies rather than runtime dependencies of api or workspace.                                                                                 |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -48,6 +49,9 @@ Brand palette and semantic tokens live in design-core `themes/lapis.css`.
 `@lapis-notes/ui/theme.css` is an Obsidian-compatibility alias layer only.
 Storybook theme controls and their manager dependencies remain root-only
 development tooling rather than package exports or runtime dependencies.
+The editor demo's CodeMirror Markdown and JSON language packages follow that
+same root-only rule; the source view and editor registry remain language-policy
+neutral package contracts.
 
 ## `@lapis-notes/workspace` (shell integration)
 

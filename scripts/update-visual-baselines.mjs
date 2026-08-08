@@ -8,8 +8,8 @@
  * portable `*` dependency declarations.
  *
  * Pass one or more `--story-prefix <prefix>` options to update a narrow family
- * without rewriting existing baselines. With no prefix, both `api-` and
- * `workspace-shell-` stories are selected.
+ * without rewriting existing baselines. With no prefix, the `api-`,
+ * `workspace-shell-`, and `workspace-lapis-editor-demo-` stories are selected.
  */
 import { spawnSync } from "node:child_process";
 import {
@@ -22,6 +22,7 @@ import {
 function requestedStoryPrefixes(args) {
   const prefixes = [];
   for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === "--") continue;
     if (args[index] !== "--story-prefix") {
       throw new Error(`Unknown option: ${args[index]}`);
     }
@@ -30,7 +31,7 @@ function requestedStoryPrefixes(args) {
     prefixes.push(prefix);
     index += 1;
   }
-  return prefixes.length > 0 ? prefixes : ["api-", "workspace-shell-"];
+  return prefixes.length > 0 ? prefixes : undefined;
 }
 
 const prefixes = requestedStoryPrefixes(process.argv.slice(2));

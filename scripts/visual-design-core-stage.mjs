@@ -8,7 +8,11 @@ export const repoRoot = path.resolve(
   "..",
 );
 
-const defaultStoryPrefixes = ["api-", "workspace-shell-"];
+const defaultStoryPrefixes = [
+  "api-",
+  "workspace-shell-",
+  "workspace-lapis-editor-demo-",
+];
 const nonvisualStoryIds = new Set([
   "api-confirm-dialog--cancel",
   "api-helpers--helpers",
