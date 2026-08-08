@@ -17,6 +17,7 @@
 | LN-PKG-011 | CodeMirror Markdown and JSON language packages used by Storybook intake plugins MUST remain root development dependencies rather than runtime dependencies of api or workspace.                                                                                 |
 | LN-PKG-012 | `@lapis-notes/api` MUST consume `@lapismd/mira` through the sibling checkout (`file:../mira-mde/packages/mira` at the repo root and pnpm override) for the shared source-editor CodeMirror shell; publishable package manifests MUST use a portable dependency range. |
 | LN-PKG-013 | `@lapis-notes/api` MUST paint the source-editor inline filename title with public `--ui-editor-inline-title-*` tokens and MUST contribute file-view breadcrumbs, leaf history, and header title rename (`titleEditable` / `onTitleCommit`) through the workspace-host `getChrome` projection. |
+| LN-PKG-014 | `@lapis-notes/api` `markupEditor` MUST accept a language id for `data-language` host attributes, default the editor face to Mira monospace with Markdown/text sans overrides, and mount the stock CodeMirror fold gutter for language-provided fold ranges when fold settings are enabled. |
 
 ## `@lapis-notes/api` (kernel slice)
 

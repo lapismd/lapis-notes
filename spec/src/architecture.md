@@ -19,6 +19,7 @@
 | LN-ARCH-012 | Storybook MUST resolve the design-core app-shell, core, empty, Explorer, startup, and notifications workspace entry points through the sibling source root so browser tests and staged visual builds use one implementation. |
 | LN-ARCH-013 | Storybook MUST resolve the API editor subpath from the same API source root as the root API alias so source-editor fixtures do not mix packaged and source editor implementations.                                           |
 | LN-ARCH-015 | File-view chrome (path breadcrumbs, leaf history, and optional header title rename) MUST project from the api workspace host `getChrome` bridge into design-core `WorkspaceViewHeader`; the source-editor inline title remains a separate in-document filename surface when enabled. |
+| LN-ARCH-016 | The api source-editor shell MUST label CodeMirror hosts with `data-language`, default editor typography to Mira monospace (sans only for Markdown/text), and expose the stock CodeMirror fold gutter for language-provided fold ranges through the Lapis editor configuration surface. |
 
 ## Package graph
 

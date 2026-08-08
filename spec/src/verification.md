@@ -19,6 +19,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-013 | architecture      | Implemented | Storybook API editor subpath source alias                                                                         |
 | LN-ARCH-014 | architecture      | Implemented | root dep `file:../mira-mde/packages/mira` and pnpm override                                                       |
 | LN-ARCH-015 | architecture      | Implemented | api `getChrome` breadcrumbs/history/title rename; editor inline title remains in-document                        |
+| LN-ARCH-016 | architecture      | Implemented | source editor data-language, mono default, md/text sans, stock language folds                                    |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -32,6 +33,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-011  | packages          | Implemented | root package manifest and lockfile language dependencies                                                         |
 | LN-PKG-012  | packages          | Implemented | api depends on sibling `@lapismd/mira` for source-editor shell                                                   |
 | LN-PKG-013  | packages          | Implemented | api inline-title tokens and file-view `getChrome` breadcrumb/history/title-rename projection                     |
+| LN-PKG-014  | packages          | Implemented | markupEditor language attr, mono/sans face policy, fold gutter                                                   |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                              |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                          |
@@ -44,6 +46,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-UI-010   | ui-and-styling    | Implemented | design-core `WorkspaceStartup`; semantic source-editor classes and demo CSS                                      |
 | LN-UI-011   | ui-and-styling    | Implemented | Mira Obsidian theme CSS and `data-mira-theme="obsidian"` on the source editor host                               |
 | LN-UI-012   | ui-and-styling    | Implemented | editor inline-title tokens and h1-scale filename paint                                                           |
+| LN-UI-013   | ui-and-styling    | Implemented | mono default / md-text sans via data-language; stock fold gutter kept visible                                    |
 | LN-CAT-001  | storybook-catalog | Implemented | Storybook host                                                                                                   |
 | LN-CAT-002  | storybook-catalog | Implemented | `stories/api/*` + plays; `pnpm test:storybook`                                                                   |
 | LN-CAT-003  | storybook-catalog | Implemented | `stories/catalog/catalog.mjs` + `ApiUi.mdx`                                                                      |
@@ -108,3 +111,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-015   | editor-demo       | Implemented | getChrome breadcrumbs/history plus Explorer reveal-path command                                                  |
 | LN-ED-016   | editor-demo       | Implemented | demo seed enables showInlineTitle and showTabTitleBar                                                            |
 | LN-ED-017   | editor-demo       | Implemented | tab title bar in-place rename through getChrome onTitleCommit                                                     |
+| LN-ED-018   | editor-demo       | Implemented | data-language hosts; mono default; md/text sans; stock language fold gutter                                      |

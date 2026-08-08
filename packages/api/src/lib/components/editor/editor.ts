@@ -1,7 +1,4 @@
-import {
-  codeFolding,
-  indentUnit,
-} from "@codemirror/language";
+import { foldGutter, indentUnit } from "@codemirror/language";
 import { Compartment, EditorState, type Extension } from "@codemirror/state";
 import {
   EditorView,
@@ -11,7 +8,6 @@ import {
 } from "@codemirror/view";
 import { indentMore, indentLess } from "@codemirror/commands";
 import { createBaseCodeMirrorExtensions } from "@lapismd/mira/codemirror";
-import { foldGutter } from "$lib/components/editor/extensions/fold-gutter";
 
 export class BlockLineMarker extends GutterMarker {
   constructor(
@@ -69,12 +65,21 @@ export class EditorConfig {
   }
 }
 
+export type MarkupEditorOptions = {
+  /** Stable language id written to the CM host as `data-language`. */
+  language?: string;
+};
+
 /**
  * Source-editor CodeMirror shell backed by Mira base extensions + Lapis live
  * configuration compartments. Language packs are passed in by the caller;
  * Markdown live-preview / rich Mira surfaces are not included.
  */
-export function markupEditor(...extensions: Extension[]): Extension {
+export function markupEditor(
+  options: MarkupEditorOptions = {},
+  ...extensions: Extension[]
+): Extension {
+  const language = options.language?.trim() || "text";
   return [
     ...extensions,
     ...createBaseCodeMirrorExtensions({
@@ -83,10 +88,10 @@ export function markupEditor(...extensions: Extension[]): Extension {
       lineWrapping: false,
       spellcheck: false,
     }),
-    foldGutter(),
     editorConfig.extension,
     EditorView.editorAttributes.of({
       class: "cm-editor-source markdown-editor-surface",
+      "data-language": language,
     }),
     EditorView.contentAttributes.of({ "aria-label": "Source editor" }),
   ];
@@ -126,8 +131,11 @@ editorConfig.register(
 editorConfig.register(
   "editor.display.foldIndent",
   (fold: boolean | undefined | null) => {
+    // Language packs (markdown/json/…) supply fold ranges via foldNodeProp /
+    // foldService. Mira base already registers codeFolding() + foldKeymap;
+    // this setting only mounts the stock fold gutter.
     fold = fold ?? true;
-    return fold ? codeFolding() : [];
+    return fold ? foldGutter() : [];
   },
 );
 

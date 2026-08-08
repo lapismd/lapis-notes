@@ -21,8 +21,9 @@ const EDITOR_SCHEMA = {
       default: true,
     },
     "editor.display.foldIndent": {
-      title: "Fold indent",
-      description: "Allow indented regions to be folded.",
+      title: "Code folding",
+      description:
+        "Show the fold gutter for language-defined fold ranges (headings, objects, etc.).",
       type: "boolean",
       default: true,
     },
@@ -76,21 +77,21 @@ const VIEW_DEFINITIONS = [
     label: "Markdown",
     extensions: ["md", "markdown"],
     patterns: [".md", ".markdown", "*.md", "*.markdown"],
-    createExtension: () => markupEditor(markdown()),
+    createExtension: () => markupEditor({ language: "markdown" }, markdown()),
   },
   {
     type: "text",
     label: "Text",
     extensions: ["txt", "text"],
     patterns: [".txt", ".text", "*.txt", "*.text"],
-    createExtension: () => markupEditor(),
+    createExtension: () => markupEditor({ language: "text" }),
   },
   {
     type: "json",
     label: "JSON",
     extensions: ["json", "data"],
     patterns: [".json", ".data", "*.json", "*.data"],
-    createExtension: () => markupEditor(json()),
+    createExtension: () => markupEditor({ language: "json" }, json()),
   },
 ] as const;
 

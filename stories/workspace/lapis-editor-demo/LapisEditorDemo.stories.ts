@@ -88,6 +88,17 @@ export const SameFileSplitSync: Story = {
     const editors = visibleEditorContents(canvasElement);
     await expect(editors).toHaveLength(2);
     await expect(editors[0]!.querySelector(".cm-heading")).not.toBeNull();
+    const markdownHosts = [
+      ...canvasElement.querySelectorAll<HTMLElement>(
+        '.cm-editor.cm-editor-source[data-language="markdown"]',
+      ),
+    ].filter((element) => element.getClientRects().length > 0);
+    await expect(markdownHosts.length).toBeGreaterThan(0);
+    await waitFor(() =>
+      expect(
+        markdownHosts[0]!.querySelector(".cm-foldGutter"),
+      ).not.toBeNull(),
+    );
 
     const inlineTitle = canvasElement.querySelector(
       ".cm-editor-inline-title",
@@ -146,6 +157,13 @@ export const SameFileSplitSync: Story = {
       expect(canvas.getByTestId("lapis-editor-active-view")).toHaveTextContent(
         "json",
       ),
+    );
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector(
+          '.cm-editor.cm-editor-source[data-language="json"]',
+        ),
+      ).not.toBeNull(),
     );
     const independentEditors = visibleEditorContents(canvasElement);
     const jsonEditor = independentEditors.find((editor) =>
