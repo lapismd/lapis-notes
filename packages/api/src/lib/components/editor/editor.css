@@ -22,28 +22,58 @@
   --ui-editor-lint-max-width: min(720px, calc(100vw - 48px));
   --ui-editor-lint-radius: var(--radius, 0.375rem);
   --ui-editor-lint-accent: var(--text-accent, var(--primary));
-  /* Filename title: public tokens + Obsidian-era aliases */
+  /* Note column: shared by inline title + source body (Mira/Lapis file margins). */
+  --ui-editor-file-margins-y: var(
+    --file-margins-y,
+    var(--mira-editor-padding, 2rem)
+  );
+  --ui-editor-file-margins-x: var(
+    --file-margins-x,
+    var(--mira-editor-padding, 2rem)
+  );
+  --ui-editor-file-line-width: var(--file-line-width, 700px);
+  /* Filename title: public tokens + Obsidian-era / heading aliases */
   --ui-editor-inline-title-color: var(
     --inline-title-color,
-    var(--foreground, inherit)
+    var(--h1-color, var(--mira-h1-color, var(--foreground, inherit)))
   );
   --ui-editor-inline-title-font: var(
     --inline-title-font,
-    var(--font-sans, inherit)
+    var(--h1-font, var(--mira-h1-font, var(--font-sans, inherit)))
   );
-  --ui-editor-inline-title-line-height: var(--inline-title-line-height, 1.2);
-  --ui-editor-inline-title-size: var(--inline-title-size, 1.802em);
-  --ui-editor-inline-title-style: var(--inline-title-style, normal);
-  --ui-editor-inline-title-variant: var(--inline-title-variant, normal);
-  --ui-editor-inline-title-weight: var(--inline-title-weight, 700);
+  --ui-editor-inline-title-line-height: var(
+    --inline-title-line-height,
+    var(--h1-line-height, var(--mira-h1-line-height, 1.2))
+  );
+  --ui-editor-inline-title-size: var(
+    --inline-title-size,
+    var(--h1-size, var(--mira-h1-size, 1.802em))
+  );
+  --ui-editor-inline-title-style: var(
+    --inline-title-style,
+    var(--h1-style, var(--mira-h1-style, normal))
+  );
+  --ui-editor-inline-title-variant: var(
+    --inline-title-variant,
+    var(--h1-variant, var(--mira-h1-variant, normal))
+  );
+  --ui-editor-inline-title-weight: var(
+    --inline-title-weight,
+    var(--h1-weight, var(--mira-h1-weight, 700))
+  );
   --ui-editor-inline-title-margin-bottom: var(
     --inline-title-margin-bottom,
     0.5em
   );
   --ui-editor-inline-title-letter-spacing: -0.015em;
-  --ui-editor-inline-title-mobile-pad-inline: 1rem;
 }
 
+/*
+ * Inline title is a sibling of the CM host inside `.cm-sizer` (same as full
+ * lapis) — not a CodeMirror WidgetType. The sizer owns readable-column
+ * padding so the filename and body share one note column; Mira's scroller
+ * padding is zeroed below to avoid a second, separate inset.
+ */
 [data-ui-component="editor"] .inline-title,
 [data-ui-component="editor"] .cm-editor-inline-title {
   color: var(--ui-editor-inline-title-color);
@@ -55,6 +85,7 @@
   letter-spacing: var(--ui-editor-inline-title-letter-spacing);
   line-height: var(--ui-editor-inline-title-line-height);
   margin-block-end: var(--ui-editor-inline-title-margin-bottom);
+  width: 100%;
   white-space: pre-wrap;
   border: none;
   outline: none;
@@ -63,7 +94,6 @@
 [data-ui-component="editor"]
   .cm-editor-inline-title[data-mobile-inline-title="true"] {
   text-align: center;
-  padding-inline: var(--ui-editor-inline-title-mobile-pad-inline);
 }
 
 [data-ui-component="editor"][data-ui-part="scroll-area"],
@@ -75,15 +105,51 @@
 [data-ui-component="editor"][data-ui-part="scroll-content"],
 [data-ui-component="editor"] .cm-editor-scroll-area-content {
   height: fit-content;
+  min-height: 100%;
   padding-block-start: 0;
 }
 
 [data-ui-component="editor"][data-ui-part="scroll-inner"],
 [data-ui-component="editor"] .cm-editor-scroll-area-inner,
-[data-ui-component="editor"] .cm-scroller,
-[data-ui-component="editor"] .cm-sizer,
-[data-ui-component="editor"] .cm-editor-content {
+[data-ui-component="editor"]
+  .cm-editor-scroll-area-inner
+  > .cm-scroller {
   height: 100%;
+}
+
+[data-ui-component="editor"] .cm-sizer {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-height: 100%;
+  height: auto;
+  padding-block: var(--ui-editor-file-margins-y);
+  padding-inline: max(
+    var(--ui-editor-file-margins-x),
+    calc((100% - var(--ui-editor-file-line-width)) / 2)
+  );
+}
+
+[data-ui-component="editor"] .cm-editor-content,
+[data-ui-component="editor"] .cm-editor-content > .cm-editor {
+  height: auto;
+  min-height: 0;
+  width: 100%;
+}
+
+/* Mira theme pads `& > .cm-scroller`; host column already owns those margins. */
+[data-ui-component="editor"]
+  .cm-editor-content
+  > .cm-editor
+  > .cm-scroller {
+  box-sizing: border-box;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding-block: 0;
+  padding-inline: 0;
 }
 
 [data-ui-component="editor"] .cm-editor-source {
