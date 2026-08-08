@@ -69,3 +69,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-014   | workspace-shell   | Implemented | top/stacked maximize plays, pressed state, reserved actions, and floating maximize/minimize icons                |
 | LN-WS-015   | workspace-shell   | Implemented | stable bottom wrapper, controls, traversal, projection, and focused api tests                                     |
 | LN-WS-016   | workspace-shell   | Implemented | api-owned debounce/alternate-file coverage plus ephemeral settings story                                          |
+| LN-WS-017   | workspace-shell   | Implemented | API-registered story views consume the live inline-title shell setting                                            |

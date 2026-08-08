@@ -305,6 +305,38 @@ export const StackedTabs: Story = {
     });
     await userEvent.click(restore);
     await expect(shellRoot).not.toHaveAttribute("data-workspace-focus-mode");
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Open left sidebar" }),
+    );
+    const leftSidebar = canvas.getByLabelText("Left sidebar");
+    await userEvent.click(
+      within(leftSidebar).getByRole("button", { name: "Open settings" }),
+    );
+    const dialog = canvas.getByRole("dialog", { name: "Settings" });
+    const dialogUi = within(dialog);
+    await userEvent.click(dialogUi.getByRole("button", { name: "Appearance" }));
+    const inlineTitle = canvasElement.querySelector<HTMLElement>(
+      '[data-ui-component="workspace-story-view"][data-ui-part="inline-title"]',
+    );
+    await expect(inlineTitle).not.toBeNull();
+    await expect(inlineTitle!).not.toBeVisible();
+    await userEvent.click(
+      dialogUi.getByRole("switch", { name: "Show inline title" }),
+    );
+    await expect(inlineTitle!).toBeVisible();
+    await userEvent.click(
+      dialogUi.getByRole("switch", { name: "Show inline title" }),
+    );
+    await expect(inlineTitle!).not.toBeVisible();
+    await userEvent.click(
+      dialogUi.getByRole("button", { name: "Close settings" }),
+    );
+    await userEvent.click(
+      within(leftSidebar).getAllByRole("button", {
+        name: "Close left sidebar",
+      })[0]!,
+    );
   },
 };
 

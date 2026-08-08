@@ -20,6 +20,7 @@
 | LN-WS-014 | Desktop top and stacked main-workspace panes MUST expose design-core's pane-level maximize toggle beside tab options. Its focused state MUST use primary paint and restore the pane when activated again; the retired focus-mode exit X MUST NOT be rendered. Top-tab add, maximize, and options actions MUST retain compact reserved hit areas before titles shrink or scroll. Floating size controls MUST use matching Lucide maximize/minimize glyphs. |
 | LN-WS-015 | The api façade MUST preserve design-core's V3 bottom-panel tabs, groups, open state, height, active leaf, events, and view lifecycle through a stable Lapis-native wrapper. It MUST expose bottom-leaf creation and panel open, size, toggle, and alignment controls while rejecting focus mode and split-edge operations for bottom-panel leaves. |
 | LN-WS-016 | Bottom-panel layout changes MUST round-trip through the existing api-owned 1000 ms workspace writer with no controller persistence adapter or feedback loop. Design-core's built-in settings MAY remain ephemeral while updating the rendered shell reactively.                                                                   |
+| LN-WS-017 | Story-only Lapis imperative views MUST remain mounted through the API view bridge and visibly consume the live design-core `showInlineTitle` setting in their tab bodies, so shell settings demonstrate a view-supported inline title without adding production settings persistence. |
 
 ## Ownership and data flow
 

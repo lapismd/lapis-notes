@@ -40,6 +40,7 @@ intake or UI swap status changes.
 - [x] Top/stacked pane maximize toggles, compact reserved top-tab actions, and conforming floating-window maximize/minimize icons from design-core
 - [x] Design-core V3 bottom panel preserved through the api compatibility façade and workspace writer
 - [x] Focused bottom-panel/settings Storybook scenario with live shell-setting verification
+- [x] API-registered story views visibly consume the live inline-title appearance setting
 
 ## UI → design-core
 

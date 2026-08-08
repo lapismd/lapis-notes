@@ -42,12 +42,18 @@
 
     onload() {
       const content = document.createElement("div");
+      const inlineTitle = document.createElement("h1");
       const heading = document.createElement("h2");
       const description = document.createElement("p");
       content.className = "workspace-shell-story-view";
+      inlineTitle.className = "workspace-shell-story-view__inline-title";
+      inlineTitle.dataset.uiComponent = "workspace-story-view";
+      inlineTitle.dataset.uiPart = "inline-title";
+      inlineTitle.textContent = this.title;
+      heading.className = "workspace-shell-story-view__preview-title";
       heading.textContent = this.title;
       description.textContent = `${this.title} workspace preview`;
-      content.append(heading, description);
+      content.append(inlineTitle, heading, description);
       this.containerEl.replaceChildren(content);
     }
 
@@ -225,6 +231,7 @@
   let lastLayoutOperation = $state("none");
   let persistedLayout = $state(initialJson);
   let writeCount = $state(0);
+  let showInlineTitle = $derived(controller.renderer.showInlineTitle);
 
   app.workspace.on("layout-change", (event) => {
     compatibilityLayout = JSON.stringify(app.workspace.getLayout());
@@ -273,7 +280,11 @@
   });
 </script>
 
-<div class="workspace-shell-story-frame" data-testid="workspace-shell-frame">
+<div
+  class="workspace-shell-story-frame"
+  data-testid="workspace-shell-frame"
+  data-workspace-inline-title={showInlineTitle ? "true" : "false"}
+>
   {#if ready}
     <WorkspaceShell {app} {displayMode} {workspaceLabel} />
   {:else}

@@ -30,6 +30,7 @@
 }
 
 .workspace-shell-story-view {
+  position: relative;
   display: grid;
   min-width: 0;
   height: 100%;
@@ -38,6 +39,27 @@
   padding: 1.5rem;
   color: var(--ui-workspace-text, var(--foreground));
   text-align: center;
+}
+
+.workspace-shell-story-view__inline-title {
+  position: absolute;
+  inset: 1.5rem 1.5rem auto;
+  display: none;
+  margin: 0;
+  color: var(--ui-workspace-text, var(--foreground));
+  font-size: 1.5rem;
+  line-height: 1.25;
+  text-align: start;
+}
+
+.workspace-shell-story-frame[data-workspace-inline-title="true"]
+  .workspace-shell-story-view__inline-title {
+  display: block;
+}
+
+.workspace-shell-story-frame[data-workspace-inline-title="true"]
+  .workspace-shell-story-view__preview-title {
+  display: none;
 }
 
 .workspace-shell-story-view h2,

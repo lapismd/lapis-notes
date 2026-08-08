@@ -42,6 +42,9 @@ Direct api imports (one story family each):
   Visual Delta workflow as API stories and remain `visual-pending` until review.
 - The bottom-panel/settings story keeps the Workspace settings page open in its
   final state so panel alignment and ephemeral controller settings are visible.
+- Shell story views remain API-registered imperative Lapis views; their
+  story-only body title responds to the live inline-title appearance setting so
+  settings are demonstrated through the same view-host bridge as consumers.
 - The visual helpers stage the sibling design-core checkout inside the Docker
   context for both compare and update runs. They exclude documented nonvisual
   stories, and the update helper accepts repeatable story-prefix filters; its
