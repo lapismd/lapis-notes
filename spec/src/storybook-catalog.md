@@ -19,6 +19,7 @@
 | LN-CAT-013 | Workspace shell stories MUST use design-core's shared full-viewport catalog layout, including an unconstrained mobile canvas, and MUST NOT load Lapis/community plugins. They MUST include the minimal design-core notifications chrome plus Lapis version/About metadata.                                                                                                                |
 | LN-CAT-014 | Workspace shell stories MUST cover the persisted desktop and mobile shells, the populated notification center, the Lapis About dialog, and stacked empty tabs whose scroll width and selected-tab movement match design-core.                                                                                                                                                             |
 | LN-CAT-015 | `Workspace/Shell` MUST include a focused bottom-panel/settings story that boots a real api `App`, persists panel geometry through the api writer, and proves design-core's built-in settings update shell alignment and ribbon presentation without loading plugins or adding settings persistence.                                                                                     |
+| LN-CAT-016 | `Workspace/Lapis Editor Demo` MUST boot a real api `App` and required Storybook-local core plugins over the public memory vault, use one canonical seed, and cover runnable, same-file sync, Explorer mutation, editor settings, startup, failure, and opening-vault states.                                                        |
 
 ## API verification families
 
@@ -41,7 +42,7 @@ Direct api imports (one story family each):
 - Workspace shell stories use the same interaction, a11y, and nested-import
   Visual Delta workflow as API stories and remain `visual-pending` until review.
 - The bottom-panel/settings story keeps the Workspace settings page open in its
-  final state so panel alignment and ephemeral controller settings are visible.
+  final state so panel alignment and controller-backed settings are visible.
 - Shell story views remain API-registered imperative Lapis views; their
   story-only body title responds to the live inline-title appearance setting so
   settings are demonstrated through the same view-host bridge as consumers.

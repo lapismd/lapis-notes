@@ -13,6 +13,7 @@
 | LN-UI-007 | Lapis brand tokens MUST live in design-core `themes/lapis.css`. `@lapis-notes/ui/theme.css` MUST be alias-only (Obsidian-era names → design-core semantics) and MUST NOT redefine `--primary` / `--destructive` or ship a parallel Tailwind `@theme` palette. |
 | LN-UI-008 | Retained `@lapis-notes/ui` compounds and `@lapis-notes/api` component chrome MUST NOT contain Tailwind utility class strings in `.svelte` sources (`cn("flex …")`, layout/paint utilities, `tailwind-variants`). Allowed exception: `sr-only` / `not-sr-only`. Storybook story/demo Svelte MAY use host Tailwind for layout only. |
 | LN-UI-009 | Root `pnpm check:no-tailwind` (and package `check` wiring) MUST fail when LN-UI-008 is violated under the component sources in `packages/ui`, `packages/api`, and `packages/workspace` (stories/examples excluded). |
+| LN-UI-010 | The generic workspace startup surface and source editor demo integrations MUST compose design-core components and use native CSS/public tokens/data hosts; touched legacy editor utility strings MUST be replaced with semantic component classes. |
 
 ## Swap map (normative intent)
 

@@ -24,6 +24,7 @@ intake or UI swap status changes.
 | `@lapis-notes/workspace` shell integration | Done | Thin design-core host; api compatibility + persistence façade |
 | Web / desktop hosts | Not started | No runnable product host in this slice |
 | Plugins / notebook / language-service | Not started | Api plugin tests use synthetic manifests only (no plugin package deps) |
+| Storybook editor/Explorer intake plugins | Planned | Runnable demo fixtures only; do not promote to production plugin packages until separately specified |
 | design-core workspace engine | Done | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source |
 
 ### Workspace shell integration progress

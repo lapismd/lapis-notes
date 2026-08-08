@@ -13,6 +13,7 @@
 | LN-PKG-007 | `@lapis-notes/workspace` MUST expose the design-core shell around an application-supplied `App` without providing a production in-memory backend or invoking the Lapis plugin loader.                                                                           |
 | LN-PKG-008 | `@lapis-notes/api` MUST configure the owned design-core controller with overridable plain Lapis application metadata and the notifications presentation as the minimal static shell plugin. This MUST remain separate from api plugin loading and distribution. |
 | LN-PKG-009 | `@lapis-notes/api` MUST expose the design-core V3 bottom panel through Lapis-native workspace wrappers and controls without leaking design-core types through the root api export.                                                                                 |
+| LN-PKG-010 | `@lapis-notes/api` MUST expose the reusable volatile vault and concrete source-text view required by the editor demo; application-specific source-editor and Explorer registration policy MUST remain outside the kernel.                                               |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -32,6 +33,8 @@ Purpose (condensed from the full Lapis Notes api package):
 - Vault/storage abstractions: browser OPFS and File System Access adapters,
   plus the desktop-neutral folder bridge (`desktop-folder`)
 - Shared editor, menu, settings, and configuration UI building blocks
+- Public deterministic in-memory vault storage and a policy-free source-text
+  view for tests, Storybook, and explicitly volatile consumers
 
 Out of scope for this minimal repo until specified: web/desktop hosts, bundled
 plugins, and plugin-host module generation.
