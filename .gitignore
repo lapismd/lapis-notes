@@ -7,6 +7,7 @@ spec/book
 coverage
 test-results
 playwright-report
+.cache/storybook/
 .visual-delta/artifacts/
 .visual-delta/cache/
 tests/visual/storybook.spec.ts-snapshots/**/*.json

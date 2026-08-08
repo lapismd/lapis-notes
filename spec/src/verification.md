@@ -6,7 +6,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | ----------- | ----------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- |
 | LN-ARCH-001 | architecture      | Implemented | `pnpm-workspace.yaml`, `turbo.json`                                                                              |
 | LN-ARCH-002 | architecture      | Implemented | package scripts on api/ui/workspace                                                                              |
-| LN-ARCH-003 | architecture      | Implemented | root `storybook` script port 7010                                                                                |
+| LN-ARCH-003 | architecture      | Implemented | root `storybook` / `storybook:stop` / `storybook:restart` supervisor lane on port 7010                           |
 | LN-ARCH-004 | architecture      | Implemented | no `check:source-resolution` scripts                                                                             |
 | LN-ARCH-005 | architecture      | Implemented | root dep `file:../design-core`                                                                                   |
 | LN-ARCH-006 | architecture      | Implemented | root `check` runs `check:no-tailwind`                                                                            |

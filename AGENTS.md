@@ -71,7 +71,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   `check:no-tailwind` first. Do **not** reintroduce multi-script first-party
   import-resolution gates from the full lapis-notes repo. Fix resolution issues
   inline when adding packages.
-- Storybook is the browsable docs host (`pnpm dev` / port **7010**).
+- Storybook is the browsable docs host (`pnpm dev` / port **7010**). Use
+  `pnpm storybook:stop` / `pnpm storybook:restart` for the same checkout-owned
+  supervisor lane as design-core (override with `STORYBOOK_PORT` or
+  `.env.storybook.local`).
 - Interaction + a11y: `pnpm test:storybook` (axe must fail on violations via
   `parameters.a11y.test: "error"`). Visual Delta: `pnpm test:visual` /
   `pnpm test:visual:update` (Playwright **1.61.1** for Docker capture parity).

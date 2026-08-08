@@ -17,7 +17,9 @@ for `pnpm spec:build`. Sibling `@lapismd/design-core` is linked from
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm dev` / `pnpm storybook` | Storybook on port **7010** |
+| `pnpm dev` / `pnpm storybook` | Storybook on port **7010** (one supervisor per checkout/port) |
+| `pnpm storybook:stop` | Stop this checkout's Storybook supervisor and listeners |
+| `pnpm storybook:restart` | Replace the owner and start a fresh Storybook |
 | `pnpm build` | Turbo build packages |
 | `pnpm check` | Turbo package checks |
 | `pnpm test` | Turbo tests |
