@@ -9,7 +9,7 @@ repository.
 | ID | Repository | Deliverable | Depends on | Status | Validation evidence | Jujutsu change |
 | --- | --- | --- | --- | --- | --- | --- |
 | LE-00 | lapis-notes | Plan, tracker, canonical specification, and migration boundary | - | Done | `pnpm spec:check` | `yposrwqs` |
-| LE-01 | design-core | Generic `WorkspaceStartup` component, docs, stories, and pending visual contract | LE-00 | Not started | Pending | Pending |
+| LE-01 | design-core | Generic `WorkspaceStartup` component, docs, stories, and pending visual contract | LE-00 | Done | `pnpm check:no-tailwind`; `pnpm check`; 474 unit and 519 Storybook tests; catalog build; visual audit; two inspected `visual-pending` candidates | `tvnvlmpp` |
 | LE-02 | lapis-notes | Public `MemoryVaultAdapter` and `SourceTextFileView` | LE-00 | Not started | Pending | Pending |
 | LE-03 | lapis-notes | Atomic configuration persistence and editor-registry controller bridges | LE-02 | Not started | Pending | Pending |
 | LE-04 | lapis-notes | Story-local required Markdown/Text/JSON source editor plugin and settings | LE-01, LE-03 | Not started | Pending | Pending |
