@@ -2,15 +2,15 @@
 /**
  * Regenerate API and workspace visual-pending baselines with Visual Delta.
  *
- * Docker stages only this repository, while design-core and mira are permanent
- * sibling dependencies. Capture temporarily copies those siblings into
- * `.deps/design-core` and `.deps/mira` and retargets the root
- * dependency/overrides. Package manifests keep their portable `*` dependency
- * declarations.
+ * Docker stages only this repository, while design-core and Mira packages are
+ * permanent sibling dependencies. Capture temporarily copies those siblings
+ * into `.deps/` and retargets the root dependency/overrides. Package manifests
+ * keep their portable `*` dependency declarations.
  *
  * Pass one or more `--story-prefix <prefix>` options to update a narrow family
  * without rewriting existing baselines. With no prefix, the `api-`,
  * `workspace-shell-`, and `workspace-lapis-editor-demo-` stories are selected.
+ * Markdown panel stories are `skip-visual` until Visual Delta capture is resumed.
  */
 import { spawnSync } from "node:child_process";
 import {

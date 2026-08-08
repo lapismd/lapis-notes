@@ -12,9 +12,10 @@ intake or UI swap status changes.
 | Storybook host (port 7010) | Done | `API/` verification stories + catalog |
 | API Storybook verification + Visual Delta | Done | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later) |
 | `@lapismd/design-core` sibling | Done | Root `file:../design-core` + pnpm override; package manifests use portable `*` contracts |
-| `@lapismd/mira` sibling | Done | Root `file:../mira-mde/packages/mira` + pnpm override; api source-editor shell + Obsidian theme (no live-preview/toolbars yet) |
+| `@lapismd/mira` sibling | Done | Root `file:../mira-mde/packages/mira` + pnpm override; local Storybook resolves Mira **source** when `.deps/mira` is absent (see below) |
 | Storybook a11y in Vitest | Done | `vitest.setup.ts` + `a11y.test: "error"`; filled action tokens AA-tuned |
 | Storybook style authority | Done | design-core styles + lapis theme; ui `theme.css` only (avoid dual Tailwind) |
+| Storybook Vite config layout | Done | `.storybook/vite-final.ts` holds aliases; slim `main.ts` avoids Storybook CJS-scan ReDoS hang on large configs |
 
 ## Packages
 
@@ -24,9 +25,29 @@ intake or UI swap status changes.
 | `@lapis-notes/ui` | Pruned | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers |
 | `@lapis-notes/workspace` shell integration | Done | Thin design-core host; api compatibility + persistence façade |
 | Web / desktop hosts | Not started | No runnable product host in this slice |
-| Plugins / notebook / language-service | Not started | Api plugin tests use synthetic manifests only (no plugin package deps) |
-| Storybook editor/Explorer intake plugins | Planned | Runnable demo fixtures only; do not promote to production plugin packages until separately specified |
+| `@lapis-notes/markdown` | Done (slice) | Authorized plugin; Mira document render + File Properties via Mira `FrontmatterEditor` / Lapis adapter (LN-MD-017/019); simplified side panels; living checklist in `packages/plugins/plugin-markdown/PARITY.md` |
+| Tags (workspace-origin) | Done (fixture) | Storybook-local `TagsDemoPlugin`; not folded into `@lapis-notes/markdown` |
+| Notebook / language-service / other plugins | Not started | Remain blocked by LN-PKG-004 except markdown carve-out |
+| Storybook editor/Explorer intake plugins | Planned | Source-editor + Explorer remain Storybook-local fixtures |
 | design-core workspace engine | Done | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source |
+
+### Markdown plugin intake progress
+
+Canonical requirements: `spec/src/markdown-plugin.md` (LN-MD-001–019).
+Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
+
+- [x] Package scaffold + workspace wiring (`@lapis-notes/markdown`)
+- [x] Mira-owned markdown document modes (`source` / `live-preview` / `preview`)
+- [x] Path A / Path B editor extension reload + host editor events preserved
+- [x] Markdown settings section (Mira features, mermaid, AI stub)
+- [x] Side panels: All Properties, File Properties, Outline, Backlinks, Outgoing Links, Media
+- [x] Shared `MarkdownSidebarPanel` recipe (LN-MD-018) + Tags Storybook fixture
+- [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
+- [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter (LN-MD-017/019)
+- [x] Focused `Workspace/Panels/Markdown/*` interaction stories (plays green; Visual Delta deferred)
+- [x] Local Storybook Mira **source** aliases + CodeMirror/Lezer dedupe (stale `file:` dist avoided; `.deps/mira` still wins for Docker visual capture)
+- [ ] Panel Visual Delta baselines (`skip-visual` until capture lane resumes)
+- [ ] Heavy type widgets (PillListEditor / NoteLink / suggestValues) and full metadata worker
 
 ### Workspace shell integration progress
 

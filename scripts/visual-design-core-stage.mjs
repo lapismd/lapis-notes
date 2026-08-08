@@ -40,6 +40,27 @@ const siblingDeps = [
     // Visual Delta drops path segments named `dist` when staging Docker input.
     rewriteDistToBuilt: true,
   },
+  {
+    name: "@lapismd/mira-editor",
+    source: path.resolve(repoRoot, "../mira-mde/packages/mira-editor"),
+    staged: path.join(repoRoot, ".deps/mira-editor"),
+    stagedSpecifier: "file:./.deps/mira-editor",
+    rewriteDistToBuilt: true,
+  },
+  {
+    name: "@lapismd/mira-plugin-ai",
+    source: path.resolve(repoRoot, "../mira-mde/packages/mira-plugin-ai"),
+    staged: path.join(repoRoot, ".deps/mira-plugin-ai"),
+    stagedSpecifier: "file:./.deps/mira-plugin-ai",
+    rewriteDistToBuilt: true,
+  },
+  {
+    name: "@lapismd/mira-plugin-mermaid",
+    source: path.resolve(repoRoot, "../mira-mde/packages/mira-plugin-mermaid"),
+    staged: path.join(repoRoot, ".deps/mira-plugin-mermaid"),
+    stagedSpecifier: "file:./.deps/mira-plugin-mermaid",
+    rewriteDistToBuilt: true,
+  },
 ];
 
 const rootPackage = path.join(repoRoot, "package.json");
@@ -104,24 +125,26 @@ function rewriteMiraDistToBuilt(stagedRoot) {
 
 function stageSibling(dep) {
   mkdirSync(path.dirname(dep.staged), { recursive: true });
+  const excludes = [
+    "node_modules",
+    ".git",
+    ".jj",
+    "storybook-static",
+    ".svelte-kit",
+    ".visual-delta",
+    ".ui-generator",
+  ];
+  // Docker visual capture resolves staged Mira packages via package exports
+  // (dist → built). Skip source trees so Vite does not re-transform monorepo
+  // sources or pull sibling tsconfig roots outside the capture context.
+  if (dep.rewriteDistToBuilt) {
+    excludes.push("src", "tests", "docs");
+  }
   assertSucceeded(
     spawnInRepo("rsync", [
       "-a",
       "--delete",
-      "--exclude",
-      "node_modules",
-      "--exclude",
-      ".git",
-      "--exclude",
-      ".jj",
-      "--exclude",
-      "storybook-static",
-      "--exclude",
-      ".svelte-kit",
-      "--exclude",
-      ".visual-delta",
-      "--exclude",
-      ".ui-generator",
+      ...excludes.flatMap((entry) => ["--exclude", entry]),
       `${dep.source}/`,
       `${dep.staged}/`,
     ]),

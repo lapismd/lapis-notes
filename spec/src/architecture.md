@@ -5,7 +5,8 @@
 | ID          | Requirement                                                                                                                                                                                                                  |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LN-ARCH-001 | The repository MUST be a pnpm workspace orchestrated by Turbo.                                                                                                                                                               |
-| LN-ARCH-002 | Workspace packages MUST live under `packages/*` and expose `build`, `check`, and `test` scripts.                                                                                                                             |
+| LN-ARCH-002 | Workspace packages MUST live under `packages/*` (and `packages/plugins/*` for the authorized markdown plugin) and expose `build`, `check`, and `test` scripts.                                                             |
+| LN-ARCH-017 | `@lapismd/mira-editor`, `@lapismd/mira-plugin-mermaid`, and `@lapismd/mira-plugin-ai` MUST be consumed through sibling `file:` checkouts + pnpm overrides for `@lapis-notes/markdown` document rendering. |
 | LN-ARCH-003 | The browsable docs host MUST be Storybook on port 7010 (`pnpm dev`).                                                                                                                                                         |
 | LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added.                                                                          |
 | LN-ARCH-005 | `@lapismd/design-core` MUST be consumed through the sibling checkout (`file:../design-core` at the repo root and pnpm override); publishable package manifests MUST use a portable dependency range.                         |
@@ -29,9 +30,10 @@
 @lapis-notes/api (kernel)
        ↑
 @lapis-notes/workspace (thin Storybook-runnable shell host)
+@lapis-notes/markdown (authorized plugin; Mira document render + side panels)
 
 @lapismd/design-core (sibling; UI primitives + workspace layout engine)
-@lapismd/mira (sibling; source-editor CodeMirror shell + Obsidian theme)
+@lapismd/mira (+ mira-editor / mira plugins; sibling checkout)
 ```
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from

@@ -20,10 +20,12 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-014 | architecture      | Implemented | root dep `file:../mira-mde/packages/mira` and pnpm override                                                       |
 | LN-ARCH-015 | architecture      | Implemented | api `getChrome` breadcrumbs/history/title rename; editor inline title remains in-document                        |
 | LN-ARCH-016 | architecture      | Implemented | source editor data-language, mono default, md/text sans, Mira language folds                                     |
+| LN-ARCH-017 | architecture      | Implemented | mira-editor / mira plugin sibling file: deps for markdown package                                                |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
-| LN-PKG-004  | packages          | Implemented | hosts/plugins absent; tracked in `MIGRATION.md`                                                                  |
+| LN-PKG-004  | packages          | Implemented | hosts/notebook/language-service absent; `@lapis-notes/markdown` authorized carve-out                             |
+| LN-PKG-015  | packages          | Implemented | `packages/plugins/plugin-markdown`; Mira + Plugin contracts                                                      |
 | LN-PKG-005  | packages          | Implemented | package `exports` maps                                                                                           |
 | LN-PKG-006  | packages          | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed                                     |
 | LN-PKG-007  | packages          | Implemented | `packages/workspace` shell adapter                                                                               |
@@ -66,6 +68,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-017  | storybook-catalog | Implemented | catalog metadata, `visual-pending` tags, and seven nested-import baselines                                       |
 | LN-CAT-018  | storybook-catalog | Implemented | design-core workspace source aliases                                                                              |
 | LN-CAT-019  | storybook-catalog | Implemented | API editor source alias                                                                                            |
+| LN-CAT-020  | storybook-catalog | Implemented | markdown + Mira aliases; Workspace/Panels/Markdown stories                                                         |
 | LN-GOV-001  | spec-governance   | Implemented | `spec/` mdBook sources                                                                                           |
 | LN-GOV-002  | spec-governance   | Implemented | this matrix                                                                                                      |
 | LN-GOV-003  | spec-governance   | Implemented | `scripts/check-spec-first.mjs`                                                                                   |
@@ -96,8 +99,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-021   | workspace-shell   | Implemented | design-core header path shrink/fade + in-place titleEditable rename                                              |
 | LN-ED-001   | editor-demo       | Implemented | public `MemoryVaultAdapter`; binary, metadata, filesystem, collision tests                                       |
 | LN-ED-002   | editor-demo       | Implemented | public `SourceTextFileView`; lifecycle, data, extension, search, and Storybook axe coverage                      |
-| LN-ED-003   | editor-demo       | Implemented | required Storybook-local Markdown, text, and JSON source editor plugin                                           |
-| LN-ED-004   | editor-demo       | Implemented | source-only Markdown extension set and explicit exclusion boundary                                               |
+| LN-ED-003   | editor-demo       | Implemented | source-editor owns text/JSON; markdown owned by `@lapis-notes/markdown`                                          |
+| LN-ED-004   | editor-demo       | Implemented | source-only without markdown plugin; Mira modes when `@lapis-notes/markdown` enabled                             |
 | LN-ED-005   | editor-demo       | Implemented | atomic batch/preservation tests and loop-free controller persistence                                             |
 | LN-ED-006   | editor-demo       | Implemented | live controller registry mirroring, pattern updates, and disposal                                                |
 | LN-ED-007   | editor-demo       | Implemented | API-vault design-core Explorer adapter and mutation play                                                         |
@@ -106,9 +109,30 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-010   | editor-demo       | Implemented | same-file transaction sync, single debounce write, and independent-file play                                    |
 | LN-ED-011   | editor-demo       | Implemented | seven focused scenarios sourced from one deterministic seed                                                      |
 | LN-ED-012   | editor-demo       | Implemented | native CSS and design-core composition; no-Tailwind gate                                                        |
-| LN-ED-013   | editor-demo       | Implemented | Mira base CodeMirror shell + Obsidian theme; Markdown remains source-only language highlighting                 |
+| LN-ED-013   | editor-demo       | Implemented | Mira base shell for source editor; rich Mira via markdown plugin                                                 |
 | LN-ED-014   | editor-demo       | Implemented | editable inline title CSS/tokens and rename through fileManager                                                  |
 | LN-ED-015   | editor-demo       | Implemented | getChrome breadcrumbs/history plus Explorer reveal-path command                                                  |
 | LN-ED-016   | editor-demo       | Implemented | demo seed enables showInlineTitle and showTabTitleBar                                                            |
 | LN-ED-017   | editor-demo       | Implemented | tab title bar in-place rename through getChrome onTitleCommit                                                     |
 | LN-ED-018   | editor-demo       | Implemented | data-language hosts; mono default; md/text sans; Mira language fold gutter                                       |
+| LN-ED-019   | editor-demo       | Implemented | core plugin order source → markdown → tags                                                                       |
+| LN-ED-020   | editor-demo       | Implemented | Workspace/Panels/Markdown stories + editor-demo integration                                                      |
+| LN-MD-001   | markdown-plugin   | Implemented | `@lapis-notes/markdown` package path                                                                             |
+| LN-MD-002   | markdown-plugin   | Implemented | existing Plugin registration APIs                                                                                |
+| LN-MD-003   | markdown-plugin   | Implemented | Plugin triad freeze                                                                                              |
+| LN-MD-004   | markdown-plugin   | Implemented | Mira document rendering                                                                                          |
+| LN-MD-005   | markdown-plugin   | Implemented | MarkdownView modes + View menu                                                                                   |
+| LN-MD-006   | markdown-plugin   | Implemented | Path A / Path B extension reload                                                                                 |
+| LN-MD-007   | markdown-plugin   | Implemented | editor/workspace events                                                                                          |
+| LN-MD-008   | markdown-plugin   | Implemented | side panels (All/File Properties aligned; PillListEditor deferred in PARITY)                                     |
+| LN-MD-009   | markdown-plugin   | Implemented | Markdown/Mira settings section                                                                                   |
+| LN-MD-010   | markdown-plugin   | Implemented | `PARITY.md`                                                                                                      |
+| LN-MD-011   | markdown-plugin   | Implemented | focused panel stories                                                                                            |
+| LN-MD-012   | markdown-plugin   | Implemented | demo registration order                                                                                          |
+| LN-MD-013   | markdown-plugin   | Implemented | MetadataProcessor write serializes FM object                                                                     |
+| LN-MD-014   | markdown-plugin   | Implemented | type widgets registered via Plugin.registerTypeWidget                                                            |
+| LN-MD-015   | markdown-plugin   | Implemented | Storybook boots watchMetadata / trackChanges + dispose                                                           |
+| LN-MD-016   | markdown-plugin   | Implemented | All Properties sort/search/icons/context via shell + sidebar-custom Menu                                         |
+| LN-MD-017   | markdown-plugin   | Implemented | File Properties editable via Mira controller + processFrontMatter adapter                                        |
+| LN-MD-019   | markdown-plugin   | Implemented | File Properties mounts Mira FrontmatterEditor with Lapis MetadataTypeManager adapter                             |
+| LN-MD-018   | markdown-plugin   | Implemented | MarkdownSidebarPanel recipe + Lucide short-name view icons (All Properties `archive`)                            |

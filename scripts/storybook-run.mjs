@@ -91,6 +91,7 @@ const restartWatchPaths = [
   path.join(visualDeltaPackageRoot, "src/preset.ts"),
   path.join(visualDeltaPackageRoot, "src/node"),
   path.join(root, ".storybook/main.ts"),
+  path.join(root, ".storybook/vite-final.ts"),
   path.join(root, ".storybook/manager.ts"),
 ];
 

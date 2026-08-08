@@ -6,8 +6,9 @@
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LN-ED-001 | `@lapis-notes/api` MUST export a complete non-persistent `MemoryVaultAdapter` for deterministic tests, Storybook demos, and consumers that explicitly choose volatile storage.                                |
 | LN-ED-002 | `@lapis-notes/api` MUST export a concrete source-text file view which mounts the existing accessibly named CodeMirror editor without defining Markdown rendering policy.                                      |
-| LN-ED-003 | The editor demo MUST register source views for Markdown (`md`, `markdown`), text (`txt`, `text`), and JSON (`json`, `data`) through the real API plugin, view, extension, and editor-view registries.         |
-| LN-ED-004 | Markdown in this slice MUST remain source-only; reading mode, live preview, rendered Markdown parity, embeds, metadata, and link semantics are excluded.                                                      |
+| LN-ED-003 | The editor demo MUST register source views for text (`txt`, `text`) and JSON (`json`, `data`) through the Storybook source-editor plugin; Markdown associations MUST be owned by `@lapis-notes/markdown` when that plugin is enabled. |
+| LN-ED-004 | While only the source-editor demo plugin is enabled, Markdown MUST remain source-only. When `@lapis-notes/markdown` is enabled it MUST own Markdown with Mira `source`, `live-preview`, and `preview` modes. |
+
 | LN-ED-005 | The API-owned design-core settings controller MUST load and save through API configuration atomically, preserve unrelated configuration, and avoid controller/configuration feedback loops.                   |
 | LN-ED-006 | API editor-view contributions MUST be mirrored into the API-owned design-core registry so editor-association settings use live registered views.                                                              |
 | LN-ED-007 | The demo MUST adapt design-core Explorer to the API vault for listing, active-file selection, create, open, rename, move, delete, and persisted auto-reveal while excluding hidden configuration/trash trees. |
@@ -16,7 +17,9 @@
 | LN-ED-010 | Two CodeMirror views for the same file MUST synchronize transactions immediately and persist one debounced target-file update; different files MUST remain independent.                                       |
 | LN-ED-011 | Storybook MUST provide one runnable demo plus focused source-editor, Explorer, settings, loading, failure, and opening-vault scenarios from one canonical in-memory seed.                                     |
 | LN-ED-012 | New or touched component paint MUST use design-core composition, native CSS, public `--ui-*` tokens, and semantic `data-ui-*` hosts without Tailwind utility strings.                                         |
-| LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme as the default editor appearance; Markdown language packs remain source-only syntax highlighting and MUST NOT enable Mira live-preview, toolbars, or rich Markdown surfaces in this slice. |
+| LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme; source-editor Markdown language packs remain source-only. Rich Mira surfaces MUST be provided only by `@lapis-notes/markdown` when that plugin is enabled. |
+| LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations), then Tags (`enabledByDefault: true`). |
+| LN-ED-020 | Storybook MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags, plus editor-demo integration coverage for Markdown modes and Markdown/Mira settings. |
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
 | LN-ED-017 | For file leaves, the tab title bar final segment MUST be renameable in place through `getChrome` `titleEditable` / `onTitleCommit` → `fileManager.renameFile`, without hiding breadcrumbs. |
@@ -27,9 +30,10 @@
 
 Reusable storage, source-view, configuration, and registry behavior belongs to
 `@lapis-notes/api`. Generic startup presentation belongs to design-core. The
-Lapis source-editor and Explorer plugins remain Storybook-local intake fixtures
-until a production host/plugin package is separately specified and recorded in
-`MIGRATION.md`. `@lapis-notes/workspace` remains the thin shell host.
+Lapis source-editor and Explorer plugins remain Storybook-local intake fixtures.
+`@lapis-notes/markdown` is the authorized plugin package (see
+`markdown-plugin.md`). Tags remain a Storybook-local or thin workspace-origin
+intake beside markdown. `@lapis-notes/workspace` remains the thin shell host.
 
 ## Demo lifecycle
 

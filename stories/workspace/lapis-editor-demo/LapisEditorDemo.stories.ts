@@ -52,9 +52,13 @@ export const Ready: Story = {
     ).toBeVisible();
     await expect(
       canvas.getByTestId("lapis-editor-registered-views"),
-    ).toHaveTextContent(
-      "JSON:.json,.data,*.json,*.data|Markdown:.md,.markdown,*.md,*.markdown|Text:.txt,.text,*.txt,*.text",
-    );
+    ).toHaveTextContent(/Markdown:.*\.md/);
+    await expect(
+      canvas.getByTestId("lapis-editor-registered-views"),
+    ).toHaveTextContent(/Text:.*\.txt/);
+    await expect(
+      canvas.getByTestId("lapis-editor-registered-views"),
+    ).toHaveTextContent(/JSON:.*\.json/);
 
     await userEvent.click(canvas.getByRole("button", { name: "Go to file" }));
     const palette = canvas.getByRole("dialog", { name: "Command Palette" });

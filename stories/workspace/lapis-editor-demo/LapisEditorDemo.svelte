@@ -19,7 +19,12 @@
     type LapisEditorDemoScenario,
   } from "./seed";
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
+  import { MarkdownPlugin } from "@lapis-notes/markdown";
+  import { TagsDemoPlugin } from "./tags-plugin";
+  import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
+  import "@lapismd/mira/themes/obsidian.css";
+  import "@lapismd/mira-editor/styles.css";
 
   let {
     scenario = "ready",
@@ -69,6 +74,7 @@
   let failure = $state<WorkspaceStartupFailure | null>(null);
   let attempt = $state(0);
   let disposed = false;
+  const stopMetadataByApp = new WeakMap<App, () => void>();
   let targetWriteCount = $state(0);
   let targetContents = $state("");
   let lastWritePath = $state("");
@@ -113,6 +119,16 @@
     });
     runtimeApp.plugins.registerCorePlugins([
       { plugin: SourceEditorDemoPlugin, required: true },
+      {
+        plugin: MarkdownPlugin,
+        required: false,
+        enabledByDefault: true,
+      },
+      {
+        plugin: TagsDemoPlugin,
+        required: false,
+        enabledByDefault: true,
+      },
       {
         plugin: createExplorerDemoPlugin({
           loading: selectedScenario === "explorer-opening-vault",
@@ -160,6 +176,8 @@
 
   async function disposeApp(current: App | null): Promise<void> {
     if (!current) return;
+    stopMetadataByApp.get(current)?.();
+    stopMetadataByApp.delete(current);
     for (const plugin of [...current.plugins.corePlugins].reverse()) {
       await plugin.disable().catch(() => undefined);
     }
@@ -216,7 +234,8 @@
       }
       await nextApp.plugins.loadPlugins({
         communityPlugins: "disabled",
-        optionalCorePlugins: "disabled",
+        // Enable optional core plugins (Markdown, Tags) via enabledByDefault.
+        optionalCorePlugins: "configured",
       });
       refreshDiagnostics(nextApp);
       const failedRequired = nextApp.plugins.corePluginEntries.filter(
@@ -234,6 +253,11 @@
       }
       if (disposed || app !== nextApp) return;
       setTask(activeTask, "complete");
+
+      stopMetadataByApp.get(nextApp)?.();
+      stopMetadataByApp.set(nextApp, watchMetadata(nextApp));
+      await nextApp.metadataCache.load();
+      if (disposed || app !== nextApp) return;
 
       activeTask = "layout";
       setTask(activeTask, "active");

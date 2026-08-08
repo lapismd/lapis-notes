@@ -263,6 +263,48 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-shell--bottom-panel-settings",
   },
+  {
+    id: "workspace-panels-all-properties",
+    title: "All Properties",
+    spec: "spec/src/markdown-plugin.md",
+    publicSurface: "@lapis-notes/markdown",
+    storyId: "workspace-panels-markdown--all-properties",
+  },
+  {
+    id: "workspace-panels-file-properties",
+    title: "File Properties",
+    spec: "spec/src/markdown-plugin.md",
+    publicSurface: "@lapis-notes/markdown",
+    storyId: "workspace-panels-markdown--file-properties",
+  },
+  {
+    id: "workspace-panels-outline",
+    title: "Outline",
+    spec: "spec/src/markdown-plugin.md",
+    publicSurface: "@lapis-notes/markdown",
+    storyId: "workspace-panels-markdown--outline",
+  },
+  {
+    id: "workspace-panels-backlinks",
+    title: "Backlinks",
+    spec: "spec/src/markdown-plugin.md",
+    publicSurface: "@lapis-notes/markdown",
+    storyId: "workspace-panels-markdown--backlinks",
+  },
+  {
+    id: "workspace-panels-outgoing-links",
+    title: "Outgoing Links",
+    spec: "spec/src/markdown-plugin.md",
+    publicSurface: "@lapis-notes/markdown",
+    storyId: "workspace-panels-markdown--outgoing-links",
+  },
+  {
+    id: "workspace-panels-tags",
+    title: "Tags",
+    spec: "spec/src/markdown-plugin.md",
+    publicSurface: "stories/workspace/lapis-editor-demo/tags-plugin",
+    storyId: "workspace-panels-markdown--tags",
+  },
 ];
 
 export function catalogParameters(catalogId) {

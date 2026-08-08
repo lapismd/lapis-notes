@@ -23,6 +23,7 @@
 | LN-CAT-017 | Workspace catalog metadata MUST enumerate each editor-demo scenario, map it to this specification, and retain nested-import `visual-pending` coverage until human approval.                                                                                                                                                                                                               |
 | LN-CAT-018 | Storybook's Vite aliases MUST resolve each design-core workspace entry point used by the editor demo from the same sibling or staged source root, avoiding a mixed installed/source workspace runtime.                                                                                                                                                                                    |
 | LN-CAT-019 | Storybook's Vite aliases MUST resolve `@lapis-notes/api/editor` with the root API source so editor interactions and accessibility checks exercise the protected implementation under test.                                                                                                                                                                                                |
+| LN-CAT-020 | Storybook MUST resolve `@lapis-notes/markdown` and sibling Mira editor/plugin packages from source (or `file:`) and provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags.                                                            |
 
 ## API verification families
 

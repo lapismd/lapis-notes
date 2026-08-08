@@ -1,0 +1,41 @@
+/* Ported from full-repo plugin-markdown surfaces.css (sidebar view paint). */
+
+.markdown-view,
+.markdown-media-view,
+.markdown-outline-view,
+.markdown-file-properties-view,
+.markdown-all-properties-view,
+.markdown-backlinks-view,
+.markdown-outgoing-links-view {
+  --markdown-surface-background: var(--background-primary, var(--background));
+  --markdown-surface-background-alt: var(--background-primary-alt, var(--card));
+  --markdown-sidebar-background: var(
+    --sidebar,
+    var(--background-secondary, var(--background-primary))
+  );
+  --markdown-surface-border: var(--background-modifier-border, var(--border));
+  --markdown-normal-color: var(--text-normal, var(--foreground));
+  --markdown-muted-color: var(--text-muted, var(--muted-foreground));
+
+  color: var(--markdown-normal-color);
+}
+
+.markdown-media-view,
+.markdown-outline-view,
+.markdown-file-properties-view,
+.markdown-all-properties-view,
+.markdown-backlinks-view,
+.markdown-outgoing-links-view {
+  --header-height: 40px;
+  height: 100%;
+  min-height: 0;
+  /* Shell paints surface (sidebar panel vs body background). */
+  background: transparent;
+  color: var(--markdown-normal-color);
+}
+
+.markdown-all-properties-view,
+.markdown-outline-view,
+.markdown-file-properties-view {
+  color: var(--markdown-normal-color);
+}

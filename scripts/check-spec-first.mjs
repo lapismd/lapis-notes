@@ -42,6 +42,15 @@ const RULES = [
     ],
   },
   {
+    name: "Markdown plugin package",
+    pattern: /^packages\/plugins\/plugin-markdown\/(?:src\/|package\.json$|PARITY\.md$)/,
+    chapters: [
+      "spec/src/markdown-plugin.md",
+      "spec/src/packages.md",
+      "spec/src/editor-demo.md",
+    ],
+  },
+  {
     name: "Storybook catalog",
     pattern: /^(?:\.storybook\/|stories\/catalog\/)/,
     chapters: ["spec/src/storybook-catalog.md"],

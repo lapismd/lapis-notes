@@ -1,5 +1,4 @@
 import { json } from "@codemirror/lang-json";
-import { markdown } from "@codemirror/lang-markdown";
 import {
   Plugin,
   SourceTextFileView,
@@ -68,17 +67,11 @@ const SOURCE_EDITOR_MANIFEST: PluginManifest = {
   author: "Lapis Notes",
   version: "0.0.1",
   minAppVersion: "0.0.1",
-  description: "Source-only Markdown, text, and JSON editing for the demo.",
+  description:
+    "Source-only text and JSON editing for the demo. Markdown is owned by @lapis-notes/markdown when enabled.",
 };
 
 const VIEW_DEFINITIONS = [
-  {
-    type: "markdown",
-    label: "Markdown",
-    extensions: ["md", "markdown"],
-    patterns: [".md", ".markdown", "*.md", "*.markdown"],
-    createExtension: () => markupEditor({ language: "markdown" }, markdown()),
-  },
   {
     type: "text",
     label: "Text",
