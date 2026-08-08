@@ -184,13 +184,32 @@
   );
 }
 
-/* Keep stock fold gutter visible (Mira preview CSS may set display: none). */
+/* Keep Mira fold gutter visible (preview CSS may set display: none). */
 [data-ui-component="editor"] .cm-editor .cm-gutter.cm-foldGutter {
   display: flex;
 }
 
 [data-ui-component="editor"] .cm-editor .cm-foldGutter .cm-gutterElement {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  pointer-events: auto;
+}
+
+[data-ui-component="editor"] .cm-editor .cm-gutterElement .collapse-icon {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+}
+
+[data-ui-component="editor"] .collapse-icon svg.svg-icon {
+  width: 10px;
+  height: 10px;
+  stroke-width: 4px;
+  color: var(--text-accent, var(--mira-accent, var(--primary)));
+  transition: transform 100ms ease-in-out;
 }
 
 [data-ui-component="editor"] .cm-editor .cm-foldPlaceholder {

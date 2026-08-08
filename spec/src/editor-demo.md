@@ -21,7 +21,7 @@
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
 | LN-ED-017 | For file leaves, the tab title bar final segment MUST be renameable in place through `getChrome` `titleEditable` / `onTitleCommit` → `fileManager.renameFile`, without hiding breadcrumbs. |
 | LN-ED-016 | The editor demo canonical seed MUST enable `appearence.interface.showInlineTitle` and `appearence.interface.showTabTitleBar` so focused scenarios exercise the inline title and tab title bar without requiring Settings navigation. |
-| LN-ED-018 | Source editors MUST expose `data-language` on the CodeMirror host, default the editor face to Mira monospace (`--mira-font-mono` / `--font-mono`), override to the sans face for Markdown and plain text only, and enable the stock CodeMirror fold gutter for language-provided fold ranges when fold settings are on (no custom indent-fold service). |
+| LN-ED-018 | Source editors MUST expose `data-language` on the CodeMirror host, default the editor face to Mira monospace (`--mira-font-mono` / `--font-mono`), override to the sans face for Markdown and plain text only, and enable the Mira-styled CodeMirror fold gutter for language-provided fold ranges when fold settings are on (no custom indent-fold service). |
 
 ## Ownership
 

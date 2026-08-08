@@ -16,7 +16,7 @@
 | LN-UI-010 | The generic workspace startup surface and source editor demo integrations MUST compose design-core components and use native CSS/public tokens/data hosts; touched legacy editor utility strings MUST be replaced with semantic component classes. |
 | LN-UI-011 | The source editor host MUST import `@lapismd/mira` Obsidian theme CSS, default to `data-mira-theme="obsidian"`, and paint syntax highlighting through Mira editor tokens on a `.markdown-editor-surface` (or equivalent Mira surface) without Tailwind utility strings. |
 | LN-UI-012 | The source editor inline title MUST use native CSS with public `--ui-editor-inline-title-*` tokens (and Obsidian-compatible `--inline-title-*` aliases) so the editable filename reads as an h1-scale title without Tailwind utility strings. |
-| LN-UI-013 | Source editor face paint MUST default to Mira monospace via public editor tokens, with a sans override selectable by CodeMirror host `data-language` for Markdown and plain text only; the stock CodeMirror fold gutter MUST remain visible with native CSS (no Tailwind utilities). |
+| LN-UI-013 | Source editor face paint MUST default to Mira monospace via public editor tokens, with a sans override selectable by CodeMirror host `data-language` for Markdown and plain text only; Mira-styled fold gutter markers MUST remain visible with native CSS (no Tailwind utilities). |
 
 ## Swap map (normative intent)
 

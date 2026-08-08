@@ -1,4 +1,4 @@
-import { foldGutter, indentUnit } from "@codemirror/language";
+import { indentUnit } from "@codemirror/language";
 import { Compartment, EditorState, type Extension } from "@codemirror/state";
 import {
   EditorView,
@@ -8,6 +8,7 @@ import {
 } from "@codemirror/view";
 import { indentMore, indentLess } from "@codemirror/commands";
 import { createBaseCodeMirrorExtensions } from "@lapismd/mira/codemirror";
+import { foldGutter } from "$lib/components/editor/extensions/fold-gutter";
 
 export class BlockLineMarker extends GutterMarker {
   constructor(
@@ -131,9 +132,8 @@ editorConfig.register(
 editorConfig.register(
   "editor.display.foldIndent",
   (fold: boolean | undefined | null) => {
-    // Language packs (markdown/json/…) supply fold ranges via foldNodeProp /
-    // foldService. Mira base already registers codeFolding() + foldKeymap;
-    // this setting only mounts the stock fold gutter.
+    // Language packs supply fold ranges; Mira base registers codeFolding() +
+    // foldKeymap. This mounts the Mira-styled fold gutter chevrons.
     fold = fold ?? true;
     return fold ? foldGutter() : [];
   },
