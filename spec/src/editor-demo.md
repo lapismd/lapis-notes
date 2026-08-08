@@ -34,3 +34,11 @@ app and creates a fresh app from the canonical seed.
 
 The in-memory adapter is deliberately volatile: data survives normal actions
 and controller restarts within one story instance but resets on remount.
+
+## Implementation status
+
+The API foundation is implemented: public volatile storage, the source-only
+text view, atomic configuration batches, controller configuration
+reconciliation, and exact editor-registry mirroring. Story-local plugin,
+Explorer, startup orchestration, and acceptance scenarios remain subsequent
+slices.

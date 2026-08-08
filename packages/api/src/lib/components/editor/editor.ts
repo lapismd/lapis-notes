@@ -55,7 +55,7 @@ export class BlockLineMarker extends GutterMarker {
 
   toDOM() {
     const div = createDiv();
-    div.className = "flex justify-between flex-col h-full cm-line-block";
+    div.className = "cm-line-block";
     div.createDiv({ cls: "" }).setText(this.from.toString());
     if (this.from !== this.to) {
       const mid = Math.floor((this.from + this.to) / 2);
@@ -120,7 +120,7 @@ export function markupEditor(...extensions: Extension[]): Extension {
     highlightSelectionMatches(),
     search(),
     codeFolding(),
-    EditorView.editorAttributes.of({ class: "mod-cm6 pb-[50svh]" }),
+    EditorView.editorAttributes.of({ class: "mod-cm6 cm-editor-source" }),
     EditorView.editable.of(true),
     keymap.of([
       ...closeBracketsKeymap,

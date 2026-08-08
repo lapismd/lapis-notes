@@ -4,7 +4,10 @@
   --ui-editor-search-pad-x: 1rem;
   --ui-editor-search-pad-y: 0.5rem;
   --ui-editor-search-gap: 0.5rem;
-  --ui-editor-search-input-height: var(--input-height, var(--ui-control-height, 2rem));
+  --ui-editor-search-input-height: var(
+    --input-height,
+    var(--ui-control-height, 2rem)
+  );
   --ui-editor-lint-min-width: 360px;
   --ui-editor-lint-max-width: min(720px, calc(100vw - 48px));
   --ui-editor-lint-radius: var(--radius, 0.375rem);
@@ -29,6 +32,17 @@
 [data-ui-component="editor"] .cm-sizer,
 [data-ui-component="editor"] .cm-editor-content {
   height: 100%;
+}
+
+[data-ui-component="editor"] .cm-editor-source {
+  padding-block-end: 50svh;
+}
+
+[data-ui-component="editor"] .cm-line-block {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 [data-ui-component="editor"][data-ui-part="search-root"] {

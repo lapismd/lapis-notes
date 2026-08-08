@@ -507,6 +507,10 @@ export declare class Workspace extends EventDispatcher<{
      */
     onLayoutReady(callback: () => any): void;
     constructor(app: App);
+    /** @internal Complete the configuration bridge after App construction. */
+    bindConfiguration(): void;
+    /** Dispose the API-owned shell controller and its compatibility bridges. */
+    disposeWorkspaceHost(): Promise<void>;
     getMostRecentLeaf(): WorkspaceLeaf | null;
     getVisibleHintTargets(): WorkspaceHintTarget[];
     changeLayout(workspace: WorkspaceJson | any): Promise<void>;

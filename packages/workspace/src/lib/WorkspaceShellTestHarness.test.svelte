@@ -1,7 +1,10 @@
 <script lang="ts">
   import { onMount, untrack } from "svelte";
-  import { App, MemoryAppDatabase } from "../../test/api-app";
-  import { StoryMemoryDataAdapter } from "../../../../stories/workspace/StoryMemoryDataAdapter";
+  import {
+    App,
+    MemoryAppDatabase,
+    MemoryVaultAdapter,
+  } from "../../test/api-app";
   import WorkspaceShell from "./WorkspaceShell.svelte";
 
   let {
@@ -12,7 +15,7 @@
     onAppReady?: (app: App) => void;
   } = $props();
 
-  const adapter = new StoryMemoryDataAdapter({
+  const adapter = new MemoryVaultAdapter({
     "/.obsidian/workspace.json": JSON.stringify(untrack(() => layout)),
   });
   const app = new App({

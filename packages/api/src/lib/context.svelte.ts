@@ -315,6 +315,7 @@ export class App {
       options.setId("community-plugins").setTitle("Community plugins"),
     );
     this.configuration = new Configuration(this, props.configPath);
+    this.workspace.bindConfiguration();
     this.vault = new Vault(adapter);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);

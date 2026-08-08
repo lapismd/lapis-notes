@@ -62,3 +62,8 @@ The bottom panel is projected as one top-level tabs wrapper rather than a
 recursive split. Center tab and group moves are supported; split-edge and focus
 mode operations remain restricted to the main workspace. Built-in shell settings
 use design-core's controller directly and do not share the workspace JSON writer.
+The controller's settings persistence delegates to atomic API configuration
+batches. Successful API updates reconcile matching controller fields, while
+equality checks and unchanged-batch elision prevent a persistence feedback
+write. API editor-view updates replace the corresponding controller registry
+entry exactly, including filename-pattern removal and plugin disposal.

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { isEqual } from "lodash-es";
 import { effect_root } from "svelte/internal/client";
 import type { App } from "../context.svelte";
+import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
 import { TFile } from "../storage/fs";
 import { TextFileView, View } from "../view.svelte";
@@ -1216,6 +1218,112 @@ describe("Workspace compatibility", () => {
     expect(JSON.stringify(binding.controller.getLayout())).toContain(leaf.id);
   });
 
+  it("mirrors editor contributions and extension patterns into design-core", () => {
+    const { workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const dispose = workspace.registerEditorView({
+      id: "source.markdown",
+      viewType: "markdown",
+      label: "Markdown source",
+      filenamePatterns: ["*.md"],
+      source: "manifest",
+    });
+
+    workspace.registerExtensions(["md", "markdown"], "markdown");
+    expect(controller.editorViews.get("source.markdown")).toEqual(
+      expect.objectContaining({
+        id: "source.markdown",
+        viewType: "markdown",
+        label: "Markdown source",
+        filenamePatterns: ["*.md", "*.markdown"],
+        source: "plugin",
+      }),
+    );
+
+    workspace.unregisterExtensions(["markdown"], "markdown");
+    expect(
+      controller.editorViews.get("source.markdown")?.filenamePatterns,
+    ).toEqual(["*.md"]);
+
+    dispose();
+    expect(controller.editorViews.get("source.markdown")).toBeUndefined();
+  });
+
+  it("persists controller settings through API configuration without feedback writes", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const events = new EventDispatcher<{
+      updated: [{ key: string; value: unknown; prev: unknown }];
+    }>();
+    const values: Record<string, unknown> = {
+      "editor.display.wrapLines": false,
+      "unrelated.key": "keep",
+    };
+    let physicalWrites = 0;
+    const updateConfigurationOptions = vi.fn(
+      async (changes: Readonly<Record<string, unknown>>) => {
+        const changed = Object.entries(changes).filter(
+          ([key, value]) => !isEqual(values[key], value),
+        );
+        if (!changed.length) return;
+        physicalWrites += 1;
+        for (const [key, value] of changed) {
+          const prev = values[key];
+          values[key] = value;
+          events.trigger("updated", { key, value, prev });
+        }
+      },
+    );
+    (app as any).configuration = {
+      getConfiguration: () => ({
+        entries: () => Object.entries(values),
+      }),
+      updateConfigurationOptions,
+      on: events.on.bind(events),
+      offref: events.offref.bind(events),
+    };
+    workspace.bindConfiguration();
+    controller.registerSettingsSection({
+      id: "editor",
+      title: "Editor",
+      fields: [
+        {
+          id: "editor.display.wrapLines",
+          type: "boolean",
+          title: "Wrap lines",
+          default: true,
+        },
+      ],
+    });
+
+    expect(controller.settings.get("editor.display.wrapLines")).toBe(false);
+    expect(controller.settings.update("editor.display.wrapLines", true)).toBe(
+      true,
+    );
+    await controller.settings.flushSave();
+    expect(physicalWrites).toBe(1);
+    expect(values).toEqual(
+      expect.objectContaining({
+        "editor.display.wrapLines": true,
+        "unrelated.key": "keep",
+      }),
+    );
+
+    const prev = values["editor.display.wrapLines"];
+    values["editor.display.wrapLines"] = false;
+    physicalWrites += 1;
+    events.trigger("updated", {
+      key: "editor.display.wrapLines",
+      value: false,
+      prev,
+    });
+    expect(controller.settings.get("editor.display.wrapLines")).toBe(false);
+
+    await controller.settings.flushSave();
+    expect(physicalWrites).toBe(2);
+    expect(updateConfigurationOptions).toHaveBeenCalledTimes(2);
+  });
+
   it("configures the host controller with Lapis metadata and notification chrome", () => {
     const { workspace } = createWorkspaceHarness();
     const controller = getWorkspaceHostBinding(workspace).controller;
@@ -1308,10 +1416,14 @@ describe("Workspace compatibility", () => {
     const { workspace } = createWorkspaceHarness();
     const controller = getWorkspaceHostBinding(workspace).controller;
     const originalPanel = workspace.bottomPanel;
-    const leaf = controller.workspace.openInBottomPanel("empty", {}, {
-      title: "Output",
-      active: true,
-    });
+    const leaf = controller.workspace.openInBottomPanel(
+      "empty",
+      {},
+      {
+        title: "Output",
+        active: true,
+      },
+    );
     expect(leaf).not.toBeNull();
 
     await vi.waitFor(() => {

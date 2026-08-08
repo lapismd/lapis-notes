@@ -49,6 +49,13 @@ Every workspace package exposes the common `build`, `check`, and `test`
 contract, so the shell participates in the same Turbo verification graph as
 the kernel and retained UI surface.
 
+The controller configuration adapter lives in api beside the compatibility
+workspace. It reads and atomically writes the flat API configuration store;
+the workspace package only starts and renders the already-owned controller.
+Editor-view contributions follow the same boundary and are projected from the
+API registry into the controller registry without moving registration policy
+into the shell host.
+
 ## Tooling policy
 
 Root scripts stay thin: `check:no-tailwind`, Turbo for package tasks,

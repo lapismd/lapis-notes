@@ -373,6 +373,86 @@ describe("Configuration", () => {
     );
   });
 
+  it("validates and persists configuration batches atomically", async () => {
+    const { app, adapter } = createConfigurationApp();
+    await app.vault.load();
+
+    const configuration = new Configuration(app, "/.obsidian/app.json");
+    registerManifestSchema(configuration.schema);
+    await configuration.load();
+    await configuration.updatePluginData("fixture-plugin", {
+      enabled: true,
+    });
+    await configuration.updateConfigurationOption("unrelated.key", "keep");
+
+    const modify = vi.spyOn(app.vault, "modify");
+    const updated = vi.fn();
+    configuration.on("updated", updated);
+
+    await configuration.updateConfigurationOptions({
+      "manifest-only.statusBar.mode": "full",
+      "manifest-only.statusBar.threshold": 8,
+    });
+
+    expect(modify).toHaveBeenCalledTimes(1);
+    expect(updated.mock.calls).toEqual([
+      [
+        {
+          key: "manifest-only.statusBar.mode",
+          value: "full",
+          prev: "compact",
+        },
+      ],
+      [
+        {
+          key: "manifest-only.statusBar.threshold",
+          value: 8,
+          prev: 5,
+        },
+      ],
+    ]);
+    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual(
+      expect.objectContaining({
+        "manifest-only.statusBar.mode": "full",
+        "manifest-only.statusBar.threshold": 8,
+        "unrelated.key": "keep",
+        pluginData: { "fixture-plugin": { enabled: true } },
+      }),
+    );
+
+    modify.mockClear();
+    updated.mockClear();
+    await configuration.updateConfigurationOptions({
+      "manifest-only.statusBar.mode": "full",
+      "manifest-only.statusBar.threshold": 8,
+    });
+    expect(modify).not.toHaveBeenCalled();
+    expect(updated).not.toHaveBeenCalled();
+
+    await expect(
+      configuration.updateConfigurationOptions({
+        "manifest-only.statusBar.mode": "compact",
+        "manifest-only.statusBar.threshold": 99,
+      }),
+    ).rejects.toThrow(/must be at most 10/);
+    expect(
+      configuration.getConfiguration().get("manifest-only.statusBar.mode"),
+    ).toBe("full");
+    expect(modify).not.toHaveBeenCalled();
+    expect(updated).not.toHaveBeenCalled();
+
+    modify.mockRejectedValueOnce(new Error("vault write failed"));
+    await expect(
+      configuration.updateConfigurationOptions({
+        "manifest-only.statusBar.mode": "compact",
+      }),
+    ).rejects.toThrow("vault write failed");
+    expect(
+      configuration.getConfiguration().get("manifest-only.statusBar.mode"),
+    ).toBe("full");
+    expect(updated).not.toHaveBeenCalled();
+  });
+
   it("stores opaque plugin data under app.json pluginData", async () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();

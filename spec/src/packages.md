@@ -36,6 +36,11 @@ Purpose (condensed from the full Lapis Notes api package):
 - Public deterministic in-memory vault storage and a policy-free source-text
   view for tests, Storybook, and explicitly volatile consumers
 
+`MemoryVaultAdapter` implements the complete data-adapter surface, explicit
+non-persistent capabilities, binary-safe copies, deterministic metadata, and a
+stable vault identity. `SourceTextFileView` mounts the existing `NoteEditor` and
+delegates language behavior to registered editor extensions.
+
 Out of scope for this minimal repo until specified: web/desktop hosts, bundled
 plugins, and plugin-host module generation.
 

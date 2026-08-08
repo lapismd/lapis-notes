@@ -3,13 +3,13 @@
   import {
     App,
     MemoryAppDatabase,
+    MemoryVaultAdapter,
     View,
     type WorkspaceLeaf,
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceRequestedDisplayMode } from "@lapismd/design-core/workspace/core";
-  import { StoryMemoryDataAdapter } from "./StoryMemoryDataAdapter";
   import "./workspace-shell-story.css";
 
   let {
@@ -117,14 +117,14 @@
         ? [leaf("start", "Start", "ghost")]
         : selectedScenario === "bottom-settings"
           ? [leaf("notes", "Notes", "notebook-tabs", "story-notes")]
-        : [
-            leaf("start", "Start", "ghost", "story-start"),
-            leaf("notes", "Notes", "notebook-tabs", "story-notes"),
-            leaf("reference", "Reference", "book-open", "story-reference"),
-            ...(selectedScenario === "stacked"
-              ? [leaf("archive", "Archive", "archive", "story-archive")]
-              : []),
-          ];
+          : [
+              leaf("start", "Start", "ghost", "story-start"),
+              leaf("notes", "Notes", "notebook-tabs", "story-notes"),
+              leaf("reference", "Reference", "book-open", "story-reference"),
+              ...(selectedScenario === "stacked"
+                ? [leaf("archive", "Archive", "archive", "story-archive")]
+                : []),
+            ];
     const mobile = selectedScenario === "mobile";
     const bottomSettings = selectedScenario === "bottom-settings";
     return {
@@ -142,13 +142,14 @@
         type: "split",
         direction: "vertical",
         sizes: mobile || bottomSettings ? [100] : [],
-        children: mobile || bottomSettings
-          ? [
-              tabs("left-tabs", [
-                leaf("files", "Files", "files", "story-files"),
-              ]),
-            ]
-          : [],
+        children:
+          mobile || bottomSettings
+            ? [
+                tabs("left-tabs", [
+                  leaf("files", "Files", "files", "story-files"),
+                ]),
+              ]
+            : [],
         width: mobile || bottomSettings ? "18rem" : "0px",
       },
       right: {
@@ -156,13 +157,14 @@
         type: "split",
         direction: "vertical",
         sizes: mobile || bottomSettings ? [100] : [],
-        children: mobile || bottomSettings
-          ? [
-              tabs("right-tabs", [
-                leaf("outline", "Outline", "list-tree", "story-outline"),
-              ]),
-            ]
-          : [],
+        children:
+          mobile || bottomSettings
+            ? [
+                tabs("right-tabs", [
+                  leaf("outline", "Outline", "list-tree", "story-outline"),
+                ]),
+              ]
+            : [],
         width: mobile || bottomSettings ? "18rem" : "0px",
       },
       bottom: {
@@ -170,18 +172,8 @@
           "bottom-panel",
           bottomSettings
             ? [
-                leaf(
-                  "terminal",
-                  "Terminal",
-                  "terminal",
-                  "story-terminal",
-                ),
-                leaf(
-                  "problems",
-                  "Problems",
-                  "circle-alert",
-                  "story-problems",
-                ),
+                leaf("terminal", "Terminal", "terminal", "story-terminal"),
+                leaf("problems", "Problems", "circle-alert", "story-problems"),
               ]
             : [],
         ),
@@ -197,7 +189,7 @@
 
   const workspacePath = ".obsidian/workspace.json";
   const initialJson = JSON.stringify(initialLayout, null, 2);
-  const adapter = new StoryMemoryDataAdapter({
+  const adapter = new MemoryVaultAdapter({
     [`/${workspacePath}`]: initialJson,
   });
   const app = new App({
@@ -294,7 +286,9 @@
   <div class="workspace-shell-story-observer" aria-live="polite">
     <span data-testid="workspace-shell-status">{bootStatus}</span>
     <span data-testid="workspace-write-count">{writeCount}</span>
-    <span data-testid="workspace-bottom-size">{app.workspace.bottomPanel.size}</span>
+    <span data-testid="workspace-bottom-size"
+      >{app.workspace.bottomPanel.size}</span
+    >
     <span data-testid="workspace-bottom-collapsed"
       >{app.workspace.bottomPanel.collapsed}</span
     >

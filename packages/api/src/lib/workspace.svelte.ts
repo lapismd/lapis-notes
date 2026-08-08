@@ -48,6 +48,7 @@ import {
 } from "./plugin-install-progress";
 import {
   AppShellController,
+  type EditorViewContribution as DesignEditorViewContribution,
   type WorkspaceDragEvent as DesignWorkspaceDragEvent,
   type WorkspaceLayoutChangeEvent as DesignWorkspaceLayoutChangeEvent,
   type WorkspaceLayoutDropEvent as DesignWorkspaceLayoutDropEvent,
@@ -85,6 +86,24 @@ const WORKSPACE_HINT_TARGET_SELECTOR = "[data-hint-target]";
 
 function normalizeHintText(value: string | null | undefined): string {
   return value?.replace(/\s+/gu, " ").trim() ?? "";
+}
+
+function toDesignEditorViewContribution(
+  contribution: RegisteredEditorViewContribution,
+): DesignEditorViewContribution {
+  return {
+    id: contribution.id,
+    viewType: contribution.viewType,
+    label: contribution.label,
+    description: contribution.description,
+    filenamePatterns: [...contribution.filenamePatterns],
+    priority: contribution.priority,
+    pluginId: contribution.pluginId,
+    source:
+      contribution.source === "manifest"
+        ? "plugin"
+        : (contribution.source ?? "compat"),
+  };
 }
 
 function isHintTargetDisabled(element: HTMLElement): boolean {
@@ -1529,8 +1548,8 @@ function designLayoutEventFromCompatibility(
           : event.source === "bottom-panel"
             ? "bottom-panel"
             : event.source === "popout"
-            ? "window-open"
-            : "layout-replace";
+              ? "window-open"
+              : "layout-replace";
   return { source, operation: event.operation };
 }
 
@@ -1547,8 +1566,8 @@ function compatibilityLayoutEventFromDesign(
           : event.source === "bottom-panel"
             ? "bottom-panel"
             : event.source.startsWith("window-")
-            ? "popout"
-            : "api";
+              ? "popout"
+              : "api";
   return { source, operation: event.operation ?? event.source };
 }
 
@@ -1766,6 +1785,8 @@ export class Workspace extends EventDispatcher<{
   #syncingWorkspaceHost = 0;
   #workspaceHostProjection: Promise<void> = Promise.resolve();
   readonly #workspaceHostViewDisposers = new Map<string, () => void>();
+  #configurationBridgeDisposer: (() => void) | null = null;
+  #editorViewBridgeDisposer: (() => void) | null = null;
   private workspaceLayoutFile = "workspace.json";
 
   public statusEl: HTMLElement = $state()!;
@@ -2475,11 +2496,31 @@ export class Workspace extends EventDispatcher<{
       },
       plugins:
         shellOptions?.notifications === false ? [] : [notificationsPlugin()],
+      persistence: {
+        configuration: {
+          load: async () => ({
+            version: 1,
+            values: Object.fromEntries(
+              this.app.configuration.getConfiguration().entries<unknown>(),
+            ),
+          }),
+          save: async (snapshot) => {
+            await this.app.configuration.updateConfigurationOptions(
+              snapshot.values,
+            );
+          },
+        },
+      },
     });
     setWorkspaceHostBinding(this, {
       controller: this.#workspaceHostController,
     });
     this.installWorkspaceHostEventBridge(this.#workspaceHostController);
+    const editorViewBridgeRef = this.editorViews.on("changed", ({ id }) => {
+      this.syncWorkspaceHostEditorView(id);
+    });
+    this.#editorViewBridgeDisposer = () =>
+      this.editorViews.offref(editorViewBridgeRef);
     $effect(() => {
       this.trigger("active-leaf-change", this.activeLeaf);
     });
@@ -2495,6 +2536,69 @@ export class Workspace extends EventDispatcher<{
         props: { width: this.rightSplit.sidebar.width },
       });
     });
+  }
+
+  /** @internal Complete the configuration bridge after App construction. */
+  bindConfiguration(): void {
+    this.#configurationBridgeDisposer?.();
+    const controller = this.#workspaceHostController;
+    if (!controller) return;
+
+    const syncAll = () => {
+      const snapshot = controller.settings.getSnapshot();
+      const apiValues = Object.fromEntries(
+        this.app.configuration.getConfiguration().entries<unknown>(),
+      );
+      const next = { ...snapshot.values };
+      for (const key of Object.keys(next)) {
+        if (Object.hasOwn(apiValues, key)) next[key] = apiValues[key];
+      }
+      if (!isEqual(next, snapshot.values)) {
+        controller.settings.changeSnapshot({ version: 1, values: next });
+      }
+    };
+
+    const configurationRef = this.app.configuration.on(
+      "updated",
+      ({ key, value }) => {
+        const snapshot = controller.settings.getSnapshot();
+        if (!Object.hasOwn(snapshot.values, key)) return;
+        const next = { ...snapshot.values };
+        if (value === undefined) delete next[key];
+        else next[key] = value;
+        if (!isEqual(next, snapshot.values)) {
+          controller.settings.changeSnapshot({ version: 1, values: next });
+        }
+      },
+    );
+    const schemaRef = controller.settings.on("schema-change", syncAll);
+    this.#configurationBridgeDisposer = () => {
+      this.app.configuration.offref(configurationRef);
+      controller.settings.offref(schemaRef);
+    };
+  }
+
+  /** Dispose the API-owned shell controller and its compatibility bridges. */
+  async disposeWorkspaceHost(): Promise<void> {
+    this.#configurationBridgeDisposer?.();
+    this.#configurationBridgeDisposer = null;
+    this.#editorViewBridgeDisposer?.();
+    this.#editorViewBridgeDisposer = null;
+    this.#workspaceHostViewDisposers.forEach((dispose) => dispose());
+    this.#workspaceHostViewDisposers.clear();
+    await this.#workspaceHostController?.dispose();
+  }
+
+  private syncWorkspaceHostEditorView(id: string): void {
+    const registry = this.#workspaceHostController?.editorViews;
+    if (!registry) return;
+    const contribution = this.editorViews.get(id);
+    if (!contribution) {
+      registry.unregister(id);
+      return;
+    }
+    registry.unregister(id);
+    registry.register(toDesignEditorViewContribution(contribution));
   }
 
   private installWorkspaceHostEventBridge(
@@ -4108,9 +4212,7 @@ export class Workspace extends EventDispatcher<{
   }
 
   /** Update the live design-core shell setting without writing workspace JSON. */
-  setBottomPanelAlignment(
-    alignment: WorkspaceBottomPanelAlignment,
-  ): boolean {
+  setBottomPanelAlignment(alignment: WorkspaceBottomPanelAlignment): boolean {
     return (
       this.#workspaceHostController?.workspace.setBottomPanelAlignment(
         alignment,

@@ -1,4 +1,5 @@
 export * from "./fs";
+export * from "./memory-vault-adapter";
 export * from "./blob-store";
 export * from "./app-database";
 export * from "./search-embedding-provider";

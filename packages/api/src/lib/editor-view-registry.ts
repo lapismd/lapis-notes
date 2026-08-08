@@ -87,13 +87,7 @@ export class EditorViewRegistry extends EventDispatcher<{
     this.emit("changed", { id: normalized.id, action: "registered" });
 
     return () => {
-      if (this.views.get(normalized.id) === normalized) {
-        this.views.delete(normalized.id);
-        this.emit("changed", {
-          id: normalized.id,
-          action: "unregistered",
-        });
-      }
+      this.unregister(normalized.id);
     };
   }
 

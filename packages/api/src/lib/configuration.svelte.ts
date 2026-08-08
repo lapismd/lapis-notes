@@ -1077,18 +1077,55 @@ export class Configuration extends EventDispatcher<{
   }
 
   async updateConfigurationOption(key: string, value: any) {
-    const validated = this.schema.validateConfigurationOption(key, value);
-    const prev = this.values[key];
-    this.values[key] = validated;
-    await this.persist({ ...this.values });
-    this.emit("updated", { key, value: validated, prev });
+    await this.updateConfigurationOptions({ [key]: value });
+  }
+
+  /**
+   * Validate and persist a set of flat configuration keys as one update.
+   *
+   * Validation and the vault write both complete before observable state or
+   * update events change, so consumers never see a partially applied batch.
+   *
+   * @public
+   */
+  async updateConfigurationOptions(
+    changes: Readonly<Record<string, any>>,
+  ): Promise<void> {
+    const validated = Object.entries(changes).map(([key, value]) => ({
+      key,
+      value: this.schema.validateConfigurationOption(key, value),
+    }));
+    const changed = validated
+      .map(({ key, value }) => ({
+        key,
+        value,
+        prev: this.values[key],
+      }))
+      .filter(({ value, prev }) => !isEqual(value, prev));
+
+    if (changed.length === 0) return;
+
+    const next = { ...this.values };
+    for (const { key, value } of changed) {
+      next[key] = cloneDeep(value);
+    }
+
+    await this.persist(next);
+    for (const { key, value, prev } of changed) {
+      this.emit("updated", {
+        key,
+        value: cloneDeep(value),
+        prev: cloneDeep(prev),
+      });
+    }
   }
 
   async removeConfigurationOption(key: string): Promise<void> {
     const value = this.values[key];
     if (value !== undefined) {
-      delete this.values[key];
-      await this.persist({ ...this.values });
+      const next = { ...this.values };
+      delete next[key];
+      await this.persist(next);
       this.emit("updated", { key, prev: value, value: undefined });
     }
   }

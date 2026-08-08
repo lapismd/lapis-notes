@@ -238,6 +238,15 @@ export declare class Configuration extends EventDispatcher<{
     }): Promise<void>;
     getConfiguration(section?: string): WorkspaceConfiguration;
     updateConfigurationOption(key: string, value: any): Promise<void>;
+    /**
+     * Validate and persist a set of flat configuration keys as one update.
+     *
+     * Validation and the vault write both complete before observable state or
+     * update events change, so consumers never see a partially applied batch.
+     *
+     * @public
+     */
+    updateConfigurationOptions(changes: Readonly<Record<string, any>>): Promise<void>;
     removeConfigurationOption(key: string): Promise<void>;
     private persist;
     private getPluginDataStore;
