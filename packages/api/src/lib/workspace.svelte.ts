@@ -2770,7 +2770,25 @@ export class Workspace extends EventDispatcher<{
         const view = leaf?.view;
         const file = view instanceof FileView ? view.file : null;
         return {
-          title: leaf?.getDisplayText() ?? context.tab.title,
+          title: file?.name ?? leaf?.getDisplayText() ?? context.tab.title,
+          titleEditable: file != null,
+          onTitleCommit: async (nextTitle) => {
+            const currentLeaf = this.getLeafById(context.tab.id);
+            const currentView = currentLeaf?.view;
+            const currentFile =
+              currentView instanceof FileView ? currentView.file : null;
+            if (!currentFile) return;
+            const trimmed = nextTitle.trim();
+            if (!trimmed || trimmed === currentFile.name) return;
+            const parent = dirname(currentFile.path);
+            const nextPath =
+              parent === "/" ? trimmed : joinPath(parent, trimmed);
+            await this.app.fileManager.renameFile(currentFile, nextPath);
+            const renamed = this.app.vault.getFileByPath(nextPath);
+            if (renamed && currentView instanceof FileView) {
+              await currentView.onRename(renamed);
+            }
+          },
           breadcrumbs: filePathBreadcrumbs(this.app, file?.path),
           canGoBack: leaf?.history.hasBackward ?? false,
           canGoForward: leaf?.history.hasForward ?? false,

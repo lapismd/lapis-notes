@@ -18,7 +18,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-012 | architecture      | Implemented | Storybook aliases for design-core workspace source entry points                                                  |
 | LN-ARCH-013 | architecture      | Implemented | Storybook API editor subpath source alias                                                                         |
 | LN-ARCH-014 | architecture      | Implemented | root dep `file:../mira-mde/packages/mira` and pnpm override                                                       |
-| LN-ARCH-015 | architecture      | Implemented | api `getChrome` breadcrumbs/history; inline title stays in api editor                                            |
+| LN-ARCH-015 | architecture      | Implemented | api `getChrome` breadcrumbs/history/title rename; editor inline title remains in-document                        |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -31,7 +31,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-010  | packages          | Implemented | `MemoryVaultAdapter`; `SourceTextFileView`; focused API tests                                                    |
 | LN-PKG-011  | packages          | Implemented | root package manifest and lockfile language dependencies                                                         |
 | LN-PKG-012  | packages          | Implemented | api depends on sibling `@lapismd/mira` for source-editor shell                                                   |
-| LN-PKG-013  | packages          | Implemented | api inline-title tokens and file-view `getChrome` breadcrumb/history projection                                  |
+| LN-PKG-013  | packages          | Implemented | api inline-title tokens and file-view `getChrome` breadcrumb/history/title-rename projection                     |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                              |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                          |
@@ -90,6 +90,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-018   | workspace-shell   | Implemented | exact API-to-design-core editor registry mirroring and disposal tests                                            |
 | LN-WS-019   | workspace-shell   | Implemented | startup-gated shell mount plus deterministic retry and disposal acceptance                                       |
 | LN-WS-020   | workspace-shell   | Implemented | API `getChrome` breadcrumbs and leaf history for file views                                                      |
+| LN-WS-021   | workspace-shell   | Implemented | design-core header path shrink/fade + in-place titleEditable rename                                              |
 | LN-ED-001   | editor-demo       | Implemented | public `MemoryVaultAdapter`; binary, metadata, filesystem, collision tests                                       |
 | LN-ED-002   | editor-demo       | Implemented | public `SourceTextFileView`; lifecycle, data, extension, search, and Storybook axe coverage                      |
 | LN-ED-003   | editor-demo       | Implemented | required Storybook-local Markdown, text, and JSON source editor plugin                                           |
@@ -106,3 +107,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-014   | editor-demo       | Implemented | editable inline title CSS/tokens and rename through fileManager                                                  |
 | LN-ED-015   | editor-demo       | Implemented | getChrome breadcrumbs/history plus Explorer reveal-path command                                                  |
 | LN-ED-016   | editor-demo       | Implemented | demo seed enables showInlineTitle and showTabTitleBar                                                            |
+| LN-ED-017   | editor-demo       | Implemented | tab title bar in-place rename through getChrome onTitleCommit                                                     |

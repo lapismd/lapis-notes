@@ -24,6 +24,7 @@
 | LN-WS-018 | API editor-view registrations MUST project into the design-core controller registry so shell Editor Associations options match API path resolution and plugin teardown.                                                                                                                                                |
 | LN-WS-019 | The editor demo consumer MUST render the shell only after vault, configuration, required plugins, and layout boot successfully; retry and story teardown MUST unload partial plugins and editors, stop the controller, and restore the previous global API app binding.                                                  |
 | LN-WS-020 | API imperative file-view chrome MUST project parent-path breadcrumbs and leaf back/forward history into design-core `WorkspaceViewHeader` via `getChrome`, while non-file views MAY omit breadcrumbs.                                                                                                                  |
+| LN-WS-021 | design-core `WorkspaceViewHeader` MUST shrink/clip parent-path breadcrumbs before the final title when space is tight (prefer showing path segments nearest the title), and MUST support in-place title rename through `titleEditable` / `onTitleCommit` without hiding breadcrumbs or changing header layout. |
 
 ## Ownership and data flow
 

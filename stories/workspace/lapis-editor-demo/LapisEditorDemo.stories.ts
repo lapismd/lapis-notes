@@ -253,6 +253,29 @@ export const EditorSettings: Story = {
       within(header as HTMLElement).getByRole("button", { name: "Notes" }),
     ).toBeVisible();
     await userEvent.click(
+      within(header as HTMLElement).getByRole("button", {
+        name: "Rename Welcome.md",
+      }),
+    );
+    const titleEditor = within(header as HTMLElement).getByRole("textbox", {
+      name: "Rename Welcome.md",
+    });
+    await expect(
+      within(header as HTMLElement).getByRole("button", { name: "Notes" }),
+    ).toBeVisible();
+    await userEvent.clear(titleEditor);
+    await userEvent.type(titleEditor, "Renamed.md{Enter}");
+    await waitFor(() => {
+      const paths = canvas.getByTestId("lapis-editor-vault-paths").textContent ?? "";
+      expect(paths.split("|")).toContain("Notes/Renamed.md");
+      expect(paths.split("|")).not.toContain("Notes/Welcome.md");
+    });
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector(".cm-editor-inline-title"),
+      ).toHaveTextContent("Renamed.md"),
+    );
+    await userEvent.click(
       canvas.getByRole("button", { name: "Open settings" }),
     );
     const dialog = canvas.getByRole("dialog", { name: "Settings" });

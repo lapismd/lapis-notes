@@ -19,6 +19,7 @@
 | LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme as the default editor appearance; Markdown language packs remain source-only syntax highlighting and MUST NOT enable Mira live-preview, toolbars, or rich Markdown surfaces in this slice. |
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
+| LN-ED-017 | For file leaves, the tab title bar final segment MUST be renameable in place through `getChrome` `titleEditable` / `onTitleCommit` → `fileManager.renameFile`, without hiding breadcrumbs. |
 | LN-ED-016 | The editor demo canonical seed MUST enable `appearence.interface.showInlineTitle` and `appearence.interface.showTabTitleBar` so focused scenarios exercise the inline title and tab title bar without requiring Settings navigation. |
 
 ## Ownership
@@ -47,6 +48,6 @@ configuration reconciliation, exact editor-registry mirroring, required
 source-editor and Explorer plugins, the staged startup runner, canonical seed,
 and focused acceptance scenarios. The source editor shell consumes Mira base
 CodeMirror extensions with Obsidian theme tokens. File leaves contribute tab
-title bar breadcrumbs and history through `getChrome`, and the demo seed enables
-inline title and tab title bar visibility. Visual baselines remain pending human
-review.
+title bar breadcrumbs, history, and in-place header rename through `getChrome`,
+and the demo seed enables inline title and tab title bar visibility. Visual
+baselines remain pending human review.
