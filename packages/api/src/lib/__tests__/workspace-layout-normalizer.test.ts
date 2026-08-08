@@ -53,6 +53,14 @@ function minimalValidLayout(): WorkspaceJson {
       children: [],
       width: "16rem",
     },
+    bottom: {
+      id: "bottom-panel",
+      type: "tabs",
+      stacked: false,
+      currentTab: 0,
+      children: [],
+      height: "0px",
+    },
   };
 }
 
@@ -67,6 +75,14 @@ describe("normalizeWorkspaceJson", () => {
     expect(result.main.type).toBe("split");
     expect(result.left.type).toBe("split");
     expect(result.right.type).toBe("split");
+    expect(result.bottom).toEqual({
+      id: "bottom-panel",
+      type: "tabs",
+      stacked: false,
+      currentTab: 0,
+      children: [],
+      height: "0px",
+    });
     expect(result.floating ?? []).toEqual([]);
   });
 
@@ -76,6 +92,7 @@ describe("normalizeWorkspaceJson", () => {
       expect(result.main.type).toBe("split");
       expect(result.left.type).toBe("split");
       expect(result.right.type).toBe("split");
+      expect(result.bottom.height).toBe("0px");
     }
   });
 
@@ -89,6 +106,83 @@ describe("normalizeWorkspaceJson", () => {
         .id,
     ).toBe("leaf-1");
     expect(result.left.width).toBe("16rem");
+    expect(result.bottom).toEqual(layout.bottom);
+  });
+
+  it("normalizes bottom tabs, groups, active leaves, and height", () => {
+    const result = normalizeWorkspaceJson({
+      ...minimalValidLayout(),
+      bottom: {
+        id: "bottom",
+        type: "tabs",
+        stacked: true,
+        currentTab: 1,
+        height: "18rem",
+        children: [
+          {
+            id: "bottom-leaf",
+            type: "leaf",
+            state: {
+              type: "terminal",
+              state: { cwd: "/vault" },
+              icon: "terminal",
+              title: "Terminal",
+            },
+          },
+          {
+            id: "bottom-group",
+            type: "sidebar-group",
+            name: "Output",
+            children: [
+              {
+                id: "output-leaf",
+                type: "leaf",
+                state: {
+                  type: "output",
+                  state: {},
+                  icon: "list",
+                  title: "Output",
+                },
+              },
+            ],
+          },
+        ],
+      },
+      active: "output-leaf",
+    });
+
+    expect(result.bottom).toMatchObject({
+      id: "bottom",
+      stacked: true,
+      currentTab: 1,
+      height: "18rem",
+    });
+    expect(result.bottom.children.map((child) => child.id)).toEqual([
+      "bottom-leaf",
+      "bottom-group",
+    ]);
+    expect(result.active).toBe("output-leaf");
+  });
+
+  it("repairs malformed bottom state without dropping a stable id", () => {
+    const result = normalizeWorkspaceJson({
+      ...minimalValidLayout(),
+      bottom: {
+        id: "persisted-bottom",
+        type: "split",
+        height: 320,
+        children: "invalid",
+      },
+    });
+
+    expect(result.bottom).toEqual({
+      id: "persisted-bottom",
+      type: "tabs",
+      stacked: false,
+      currentTab: 0,
+      children: [],
+      height: "0px",
+    });
   });
 
   it("repairs sizes arrays that are shorter than children count", () => {

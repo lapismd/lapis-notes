@@ -67,6 +67,8 @@ type WorkspaceSplitJson = {
 
 type WorkspaceSidedockJson = WorkspaceSplitJson & { width: string };
 
+type WorkspaceBottomPanelJson = WorkspaceTabsJson & { height: string };
+
 type WorkspaceWindowJson = {
   id: string;
   type: "floating";
@@ -86,6 +88,7 @@ export type WorkspaceJson = {
   main: WorkspaceSplitJson;
   left: WorkspaceSidedockJson;
   right: WorkspaceSidedockJson;
+  bottom: WorkspaceBottomPanelJson;
   floating?: WorkspaceWindowJson[];
   active?: string;
 };
@@ -299,6 +302,30 @@ function normalizeSidedock(raw: unknown): WorkspaceSidedockJson {
   };
 }
 
+function normalizeBottomPanel(raw: unknown): WorkspaceBottomPanelJson {
+  const input =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const tabs = normalizeTabs(raw) ?? {
+    id:
+      typeof input.id === "string" && input.id.length > 0
+        ? input.id
+        : "bottom-panel",
+    type: "tabs" as const,
+    stacked: false,
+    children: [],
+    currentTab: 0,
+  };
+
+  return {
+    ...tabs,
+    height:
+      typeof input.height === "string" &&
+      /^(?:\d+(?:\.\d+)?)(?:px|rem|em|%)?$/iu.test(input.height.trim())
+        ? input.height
+        : "0px",
+  };
+}
+
 function normalizeFloatingWindow(raw: unknown): WorkspaceWindowJson | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
@@ -375,6 +402,7 @@ export function normalizeWorkspaceJson(raw: unknown): WorkspaceJson {
     main: normalizeRootSplit(r.main),
     left: normalizeSidedock(r.left),
     right: normalizeSidedock(r.right),
+    bottom: normalizeBottomPanel(r.bottom),
     ...(floating.length > 0 ? { floating } : {}),
     ...(typeof r.active === "string" && r.active ? { active: r.active } : {}),
   };

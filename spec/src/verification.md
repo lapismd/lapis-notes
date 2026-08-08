@@ -12,7 +12,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-006 | architecture      | Implemented | root `check` runs `check:no-tailwind`                                                                            |
 | LN-ARCH-007 | architecture      | Implemented | `packages/workspace`; workspace-shell requirements                                                               |
 | LN-ARCH-008 | architecture      | Implemented | design-core Storybook stylesheet and catalog-layout synchronizer                                                 |
-| LN-ARCH-009 | architecture      | Planned     | api V3 bottom-panel projection and single layout writer                                                          |
+| LN-ARCH-009 | architecture      | Implemented | api V3 bottom-panel projection, alternate filenames, and single layout writer                                    |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -21,7 +21,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-006  | packages          | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed                                     |
 | LN-PKG-007  | packages          | Implemented | `packages/workspace` shell adapter                                                                               |
 | LN-PKG-008  | packages          | Implemented | api-owned application metadata and notification presentation                                                     |
-| LN-PKG-009  | packages          | Planned     | Lapis-native bottom-panel workspace façade                                                                       |
+| LN-PKG-009  | packages          | Implemented | `WorkspaceBottomPanel` and Lapis-native bottom controls                                                           |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                              |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                          |
@@ -67,5 +67,5 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-012   | workspace-shell   | Implemented | design-core stacked-pane preferred-width regression test                                                         |
 | LN-WS-013   | workspace-shell   | Implemented | shared full-viewport Storybook layout and unconstrained mobile canvas                                            |
 | LN-WS-014   | workspace-shell   | Implemented | top/stacked maximize plays, pressed state, reserved actions, and floating maximize/minimize icons                |
-| LN-WS-015   | workspace-shell   | Planned     | stable bottom-panel wrappers, controls, traversal, events, and lifecycle                                         |
-| LN-WS-016   | workspace-shell   | Planned     | api-owned bottom-panel persistence and live design-core settings                                                  |
+| LN-WS-015   | workspace-shell   | Implemented | stable bottom wrapper, controls, traversal, projection, and focused api tests                                     |
+| LN-WS-016   | workspace-shell   | In progress | api-owned debounce/alternate-file coverage; live settings story pending                                           |

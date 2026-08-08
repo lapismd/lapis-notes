@@ -37,7 +37,8 @@ stories.
 The workspace package renders the api-owned design-core controller; it does not
 own a second layout model or persistence adapter.
 The api compatibility projection includes the design-core V3 bottom-panel tabs,
-open state, and height. Settings displayed by the shell remain controller-owned;
+groups, open state, active leaf, and height, including saves to the currently
+loaded alternate workspace filename. Settings displayed by the shell remain controller-owned;
 Storybook may exercise their live behavior without creating a production
 settings persistence adapter.
 `@lapis-notes/api/workspace-host` is the explicit integration seam: root api

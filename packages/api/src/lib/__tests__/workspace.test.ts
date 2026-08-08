@@ -8,6 +8,7 @@ import {
   WORKSPACE_POPOUT_UNSUPPORTED_ERROR_MESSAGE,
   OnDemandPluginInstallView,
   Workspace,
+  WorkspaceBottomPanel,
   WorkspaceLeaf,
   WorkspaceSidebarGroup,
   WorkspaceTabs,
@@ -1253,6 +1254,157 @@ describe("Workspace compatibility", () => {
     expect(workspace.getLeafById(originalLeaf.id)).toBe(originalLeaf);
     expect(workspace.activeLeaf?.id).toBe(added!.id);
     expect(events).toContainEqual({ source: "api", operation: "tab-add" });
+  });
+
+  it("restores bottom-panel leaves without replacing stable wrappers", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    workspace.registerView(
+      "terminal",
+      (leaf) => new MockItemView(leaf, "terminal", "Terminal"),
+    );
+    const panel = workspace.bottomPanel;
+
+    await workspace.changeLayout({
+      ...workspace.toJson(),
+      bottom: {
+        id: "bottom-panel",
+        type: "tabs",
+        stacked: false,
+        currentTab: 0,
+        height: "320px",
+        children: [
+          {
+            id: "terminal-leaf",
+            type: "leaf",
+            state: {
+              type: "terminal",
+              state: { cwd: "/vault" },
+              icon: "terminal",
+              title: "Terminal",
+            },
+          },
+        ],
+      },
+      active: "terminal-leaf",
+    });
+
+    const leaf = workspace.getLeafById("terminal-leaf");
+    expect(workspace.bottomPanel).toBe(panel);
+    expect(panel).toBeInstanceOf(WorkspaceBottomPanel);
+    expect(panel.collapsed).toBe(false);
+    expect(panel.size).toBe(320);
+    expect(workspace.activeLeaf).toBe(leaf);
+    expect(workspace.getLeavesOfType("terminal")).toEqual([leaf]);
+    expect(workspace.getOpenLeafEntries()).toContainEqual(
+      expect.objectContaining({ leaf, region: "bottom", active: true }),
+    );
+    expect(
+      workspace.getOpenLeafEntries({ includeBottomPanel: false }),
+    ).not.toContainEqual(expect.objectContaining({ leaf }));
+    expect(app.plugins.activateForViewType).toHaveBeenCalledWith("terminal");
+  });
+
+  it("projects controller bottom-panel mutations and preserves leaf identity", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const originalPanel = workspace.bottomPanel;
+    const leaf = controller.workspace.openInBottomPanel("empty", {}, {
+      title: "Output",
+      active: true,
+    });
+    expect(leaf).not.toBeNull();
+
+    await vi.waitFor(() => {
+      expect(workspace.getLeafById(leaf!.id)).not.toBeNull();
+      expect(workspace.bottomPanel.collapsed).toBe(false);
+    });
+    const projectedLeaf = workspace.getLeafById(leaf!.id);
+
+    controller.workspace.setBottomPanelSize(360);
+    await vi.waitFor(() => {
+      expect(workspace.bottomPanel.size).toBe(360);
+    });
+
+    expect(workspace.bottomPanel).toBe(originalPanel);
+    expect(workspace.getLeafById(leaf!.id)).toBe(projectedLeaf);
+  });
+
+  it("controls the bottom panel through the compatibility API", () => {
+    const { workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const events: unknown[] = [];
+    workspace.on("layout-change", (event) => events.push(event));
+
+    const leaf = workspace.getBottomLeaf();
+    workspace.setBottomPanelSize(340);
+    workspace.setBottomPanelOpen(false);
+    workspace.toggleBottomPanel();
+
+    expect(leaf.parent).toBe(workspace.bottomPanel);
+    expect(workspace.bottomPanel.collapsed).toBe(false);
+    expect(workspace.bottomPanel.size).toBe(340);
+    expect(controller.getLayout().bottom).toMatchObject({
+      height: "340px",
+      children: [expect.objectContaining({ id: leaf.id })],
+    });
+    expect(events).toContainEqual({
+      source: "bottom-panel",
+      operation: "open-leaf",
+    });
+    expect(events).toContainEqual({
+      source: "bottom-panel",
+      operation: "resize",
+    });
+  });
+
+  it("keeps alignment story-local and rejects bottom split operations", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const leaf = workspace.getBottomLeaf();
+
+    expect(workspace.bottomPanelAlignment).toBe("center");
+    expect(workspace.setBottomPanelAlignment("justify")).toBe(true);
+    expect(workspace.bottomPanelAlignment).toBe("justify");
+    expect(workspace.enterFocusMode(leaf)).toBe(false);
+    expect(() => workspace.createLeafBySplit(leaf)).toThrow(
+      "Bottom panel does not support split panes",
+    );
+    await expect(workspace.duplicateLeaf(leaf, "split")).rejects.toThrow(
+      "Bottom panel does not support split panes",
+    );
+    await expect(
+      workspace.dropWorkspaceItemOnTabs(workspace.bottomPanel, {
+        position: "left",
+        item: workspace.getLeaf(),
+      }),
+    ).resolves.toBe(false);
+  });
+
+  it("debounces bottom layout writes and leaves settings out of workspace persistence", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    await workspace.loadLayout("mobile.json");
+    const create = vi.spyOn(app.vault, "create");
+
+    const leaf = workspace.getBottomLeaf();
+    workspace.setBottomPanelSize(300);
+    expect(workspace.setBottomPanelAlignment("right")).toBe(true);
+
+    await vi.waitFor(
+      () => {
+        expect(create).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 2_000 },
+    );
+
+    expect(create).toHaveBeenCalledWith(
+      "/.obsidian/mobile.json",
+      expect.any(String),
+    );
+    const persisted = JSON.parse(String(create.mock.calls[0]?.[1]));
+    expect(persisted.bottom).toMatchObject({
+      height: "300px",
+      children: [expect.objectContaining({ id: leaf.id })],
+    });
+    expect(persisted).not.toHaveProperty("bottomPanelAlignment");
   });
 
   it("does not resurrect stale tabs during back-to-back host mutations", async () => {

@@ -182,6 +182,9 @@ type WorkspaceTabsJson = {
     children: WorkspaceTabsChildJson[];
     currentTab: number;
 };
+type WorkspaceBottomPanelJson = WorkspaceTabsJson & {
+    height: string;
+};
 type WorkspaceTabsChildJson = WorkspaceLeafJson | WorkspaceSidebarGroupJson;
 type WorkspaceSidebarGroupJson = {
     id: string;
@@ -273,6 +276,28 @@ export declare class WorkspaceTabs extends WorkspaceParent {
     removeChild(index: number | WorkspaceTabsChild, softDelete?: boolean): WorkspaceTabsChild | undefined;
     closeAll(): void;
 }
+/** Stable compatibility wrapper for design-core's bottom workspace dock. */
+export declare class WorkspaceBottomPanel extends WorkspaceTabs {
+    readonly workspace: Workspace;
+    protected open: boolean;
+    protected height: string;
+    constructor(workspace: Workspace);
+    loadJson(layout: WorkspaceBottomPanelJson): Promise<void>;
+    toJson(): WorkspaceBottomPanelJson;
+    get size(): number;
+    get collapsed(): boolean;
+    expand(): void;
+    collapse(): void;
+    toggle(): void;
+    detach(): undefined;
+    removeChild(index: number | WorkspaceTabsChild, softDelete?: boolean): WorkspaceTabsChild | undefined;
+    closeAll(): void;
+    getRoot(): WorkspaceItem;
+    /** @internal */
+    _applyOpen(open: boolean): void;
+    /** @internal */
+    _applySize(size: number): void;
+}
 export type ViewCreator = (leaf: WorkspaceLeaf) => View;
 export type PaneType = "tab" | "split" | "window";
 export type SplitDirection = "vertical" | "horizontal";
@@ -299,14 +324,41 @@ type WorkspaceJson = {
     main: WorkspaceSplitJson;
     left: WorkspaceSidedockJson;
     right: WorkspaceSidedockJson;
+    bottom: WorkspaceBottomPanelJson;
     floating?: WorkspaceWindowJson[];
     active?: string;
 };
-export type WorkspaceLayoutChangeSource = "api" | "drag-drop" | "layout-load" | "resize" | "popout";
+export type WorkspaceLayoutChangeSource = "api" | "drag-drop" | "layout-load" | "resize" | "bottom-panel" | "popout";
 export interface WorkspaceLayoutChangeEvent {
     source: WorkspaceLayoutChangeSource;
     operation?: string;
 }
+export type WorkspaceOpenLeafRegion = "main" | "left" | "right" | "bottom" | "floating" | "popout";
+export interface WorkspaceOpenLeafEntry {
+    id: string;
+    leaf: WorkspaceLeaf;
+    title: string;
+    icon: string;
+    viewType: string;
+    filePath?: string;
+    region: WorkspaceOpenLeafRegion;
+    active: boolean;
+    selectedInParent: boolean;
+    parentTabsId?: string;
+    parentGroupId?: string;
+    parentGroupName?: string;
+    parentWindowId?: string;
+    parentWindowMode?: WorkspaceWindowMode;
+}
+export interface WorkspaceOpenLeafEntryOptions {
+    includeMain?: boolean;
+    includeLeftSidebar?: boolean;
+    includeRightSidebar?: boolean;
+    includeBottomPanel?: boolean;
+    includeFloating?: boolean;
+    includePopout?: boolean;
+}
+export type WorkspaceBottomPanelAlignment = "left" | "right" | "center" | "justify";
 export type WorkspaceLayoutDropPosition = "left" | "right" | "top" | "bottom" | "center";
 export type WorkspaceLayoutDropSource = "html5" | "pointer" | "api";
 export interface WorkspaceFocusModeState {
@@ -389,10 +441,12 @@ export declare class Workspace extends EventDispatcher<{
     focusedHostId: string;
     leftSplit: WorkspaceSidedock;
     rightSplit: WorkspaceSidedock;
+    bottomPanel: WorkspaceBottomPanel;
     floating: WorkspaceFloating;
     layoutReady: boolean;
     private layoutHandlers;
     private suspendedLayoutPersistence;
+    private workspaceLayoutFile;
     statusEl: HTMLElement;
     statusCompatEl: HTMLElement;
     leftRibbon: WorkspaceRibbon;
@@ -534,6 +588,7 @@ export declare class Workspace extends EventDispatcher<{
      * @public
      */
     iterateAllLeaves<T = any>(callback: (leaf: WorkspaceLeaf) => T): T | void;
+    getOpenLeafEntries(options?: WorkspaceOpenLeafEntryOptions): WorkspaceOpenLeafEntry[];
     /**
      * Remove all leaves of the given type.
      *
@@ -600,6 +655,12 @@ export declare class Workspace extends EventDispatcher<{
      * @public
      */
     getLeftLeaf(split: boolean): WorkspaceLeaf | null;
+    getBottomLeaf(): WorkspaceLeaf;
+    setBottomPanelOpen(open: boolean): void;
+    setBottomPanelSize(size: number): void;
+    toggleBottomPanel(): void;
+    get bottomPanelAlignment(): WorkspaceBottomPanelAlignment;
+    setBottomPanelAlignment(alignment: WorkspaceBottomPanelAlignment): boolean;
     duplicateLeaf(leaf: WorkspaceLeaf, leafType: PaneType | boolean, direction?: SplitDirection): Promise<WorkspaceLeaf>;
     /**
      * If newLeaf is false (or not set) then an existing leaf which can be

@@ -180,6 +180,9 @@ function beginWorkspaceProjection(
   workspace.rightSplit.children.forEach((child) =>
     collectWorkspaceProjectionItem(child, items),
   );
+  workspace.bottomPanel.children.forEach((child) =>
+    collectWorkspaceProjectionItem(child, items),
+  );
   workspace.floating.children.forEach((child) =>
     collectWorkspaceProjectionItem(child, items),
   );
@@ -842,6 +845,8 @@ type WorkspaceTabsJson = {
   currentTab: number;
 };
 
+type WorkspaceBottomPanelJson = WorkspaceTabsJson & { height: string };
+
 type WorkspaceTabsChildJson = WorkspaceLeafJson | WorkspaceSidebarGroupJson;
 
 type WorkspaceSidebarGroupJson = {
@@ -1300,6 +1305,95 @@ export class WorkspaceTabs extends WorkspaceParent {
   }
 }
 
+/**
+ * Stable compatibility wrapper for design-core's bottom workspace dock.
+ *
+ * The panel remains a single tabs surface. Its height encodes both the last
+ * expanded size and its persisted open state, matching the workspace JSON
+ * contract used by design-core.
+ *
+ * @public
+ */
+export class WorkspaceBottomPanel extends WorkspaceTabs {
+  declare parent: never;
+  protected open: boolean = $state(false);
+  protected height: string = $state("240px");
+
+  constructor(readonly workspace: Workspace) {
+    super({ leaves: [] });
+    this.id = "bottom-panel";
+  }
+
+  loadJson(
+    layout: WorkspaceBottomPanelJson,
+    projectionItems?: WorkspaceProjectionItems,
+  ) {
+    return super.loadJson(layout, projectionItems).then(() => {
+      const collapsed = /^0(?:px|rem|em|%)?$/.test(layout.height.trim());
+      this.open = !collapsed;
+      if (!collapsed) this.height = layout.height;
+    });
+  }
+
+  toJson(): WorkspaceBottomPanelJson {
+    return {
+      ...super.toJson(),
+      height: this.open ? this.height : "0px",
+    };
+  }
+
+  get size(): number {
+    const pixels = workspaceCssLengthToPixels(this.height);
+    const size = Number.parseFloat(pixels);
+    return Number.isFinite(size) ? size : 240;
+  }
+
+  get collapsed(): boolean {
+    return !this.open;
+  }
+
+  expand(): void {
+    this.workspace.setBottomPanelOpen(true);
+  }
+
+  collapse(): void {
+    this.workspace.setBottomPanelOpen(false);
+  }
+
+  toggle(): void {
+    this.workspace.toggleBottomPanel();
+  }
+
+  detach(): undefined {
+    return undefined;
+  }
+
+  removeChild(
+    index: number | WorkspaceTabsChild,
+    _softDelete: boolean = false,
+  ): WorkspaceTabsChild | undefined {
+    return super.removeChild(index, true);
+  }
+
+  closeAll(): void {
+    this.children.slice().forEach((child) => this.removeChild(child, true));
+  }
+
+  getRoot(): WorkspaceItem {
+    return this;
+  }
+
+  /** @internal */
+  _applyOpen(open: boolean): void {
+    this.open = open;
+  }
+
+  /** @internal */
+  _applySize(size: number): void {
+    this.height = `${size}px`;
+  }
+}
+
 export type ViewCreator = (leaf: WorkspaceLeaf) => View;
 
 export const ON_DEMAND_PLUGIN_INSTALL_VIEW_TYPE = "plugin-install-prompt";
@@ -1388,6 +1482,7 @@ type WorkspaceJson = {
   main: WorkspaceSplitJson;
   left: WorkspaceSidedockJson;
   right: WorkspaceSidedockJson;
+  bottom: WorkspaceBottomPanelJson;
   floating?: WorkspaceWindowJson[];
   active?: string;
 };
@@ -1414,6 +1509,10 @@ function workspaceJsonForDesignCore(layout: WorkspaceJson): WorkspaceJson {
       ...layout.right,
       width: workspaceCssLengthToPixels(layout.right.width),
     },
+    bottom: {
+      ...layout.bottom,
+      height: workspaceCssLengthToPixels(layout.bottom.height),
+    },
   };
 }
 
@@ -1427,7 +1526,9 @@ function designLayoutEventFromCompatibility(
         ? "resize"
         : event.source === "layout-load"
           ? "layout-restore"
-          : event.source === "popout"
+          : event.source === "bottom-panel"
+            ? "bottom-panel"
+            : event.source === "popout"
             ? "window-open"
             : "layout-replace";
   return { source, operation: event.operation };
@@ -1443,7 +1544,9 @@ function compatibilityLayoutEventFromDesign(
         ? "resize"
         : event.source === "layout-restore"
           ? "layout-load"
-          : event.source.startsWith("window-")
+          : event.source === "bottom-panel"
+            ? "bottom-panel"
+            : event.source.startsWith("window-")
             ? "popout"
             : "api";
   return { source, operation: event.operation ?? event.source };
@@ -1454,6 +1557,7 @@ export type WorkspaceLayoutChangeSource =
   | "drag-drop"
   | "layout-load"
   | "resize"
+  | "bottom-panel"
   | "popout";
 
 export interface WorkspaceLayoutChangeEvent {
@@ -1483,6 +1587,7 @@ export type WorkspaceOpenLeafRegion =
   | "main"
   | "left"
   | "right"
+  | "bottom"
   | "floating"
   | "popout";
 
@@ -1509,9 +1614,17 @@ export interface WorkspaceOpenLeafEntryOptions {
   includeMain?: boolean;
   includeLeftSidebar?: boolean;
   includeRightSidebar?: boolean;
+  includeBottomPanel?: boolean;
   includeFloating?: boolean;
   includePopout?: boolean;
 }
+
+/** @public */
+export type WorkspaceBottomPanelAlignment =
+  | "left"
+  | "right"
+  | "center"
+  | "justify";
 
 /** @public */
 export interface WorkspaceActivateLeafOptions {
@@ -1644,6 +1757,7 @@ export class Workspace extends EventDispatcher<{
     id: "right",
     collapsedSize: "0px",
   });
+  public bottomPanel: WorkspaceBottomPanel = new WorkspaceBottomPanel(this);
   public floating: WorkspaceFloating = new WorkspaceFloating();
   layoutReady: boolean = $state(false);
   private layoutHandlers: Array<() => void> = [];
@@ -1652,6 +1766,7 @@ export class Workspace extends EventDispatcher<{
   #syncingWorkspaceHost = 0;
   #workspaceHostProjection: Promise<void> = Promise.resolve();
   readonly #workspaceHostViewDisposers = new Map<string, () => void>();
+  private workspaceLayoutFile = "workspace.json";
 
   public statusEl: HTMLElement = $state()!;
   public statusCompatEl: HTMLElement = $state()!;
@@ -1665,7 +1780,7 @@ export class Workspace extends EventDispatcher<{
         return;
       }
       return this.app.vault.create(
-        "/.obsidian/workspace.json",
+        joinPath("/.obsidian", this.workspaceLayoutFile),
         JSON.stringify(this.toJson(), null, 2),
       );
     });
@@ -1816,6 +1931,9 @@ export class Workspace extends EventDispatcher<{
       target.selected = item;
       this.activeLeaf = item.getSelectedLeaf();
     }
+    if (target instanceof WorkspaceBottomPanel) {
+      target._applyOpen(true);
+    }
 
     this.requestSaveLayout({ source: "drag-drop", operation });
     this.dispatchLayoutDropEvent("layout-did-drop", eventOptions);
@@ -1835,6 +1953,13 @@ export class Workspace extends EventDispatcher<{
     const item = options.item;
     const file = options.file;
     if (!item && !file) {
+      return false;
+    }
+
+    if (
+      parent instanceof WorkspaceBottomPanel &&
+      options.position !== "center"
+    ) {
       return false;
     }
 
@@ -1883,6 +2008,9 @@ export class Workspace extends EventDispatcher<{
         targetTabs.addChild(movedLeaf);
         targetTabs.selected = movedLeaf;
         this.activeLeaf = movedLeaf;
+      }
+      if (targetTabs instanceof WorkspaceBottomPanel) {
+        targetTabs._applyOpen(true);
       }
 
       this.requestSaveLayout({ source: "drag-drop", operation });
@@ -2243,6 +2371,7 @@ export class Workspace extends EventDispatcher<{
       main: this.rootSplit.toJson(),
       left: this.leftSplit.toJson(),
       right: this.rightSplit.toJson(),
+      bottom: this.bottomPanel.toJson(),
       floating: this.floating.toJson(),
       active: this.activeLeaf?.id,
     };
@@ -2260,6 +2389,7 @@ export class Workspace extends EventDispatcher<{
         this.rootSplit.loadJson(normalized.main, projectionItems),
         this.leftSplit.loadJson(normalized.left, projectionItems),
         this.rightSplit.loadJson(normalized.right, projectionItems),
+        this.bottomPanel.loadJson(normalized.bottom, projectionItems),
         this.floating.loadJson(normalized.floating, projectionItems),
       ]);
     } finally {
@@ -2280,6 +2410,7 @@ export class Workspace extends EventDispatcher<{
   }
 
   loadLayout(file: string = "workspace.json") {
+    this.workspaceLayoutFile = file;
     return this.app.telemetry.measureAsync(
       "workspace.load_layout",
       async (span) => {
@@ -2479,6 +2610,7 @@ export class Workspace extends EventDispatcher<{
   }
 
   private getWorkspaceTabsById(id: string): WorkspaceTabs | null {
+    if (this.bottomPanel.id === id) return this.bottomPanel;
     const roots: WorkspaceSplit[] = [
       this.rootSplit,
       this.leftSplit,
@@ -2612,6 +2744,9 @@ export class Workspace extends EventDispatcher<{
           child instanceof WorkspaceSidebarGroup
         ) {
           parent.selected = child;
+        }
+        if (parent instanceof WorkspaceBottomPanel) {
+          parent._applyOpen(true);
         }
       } else if (parent instanceof WorkspaceSidedock) {
         parent.sidebar.setOpen(true);
@@ -2959,6 +3094,7 @@ export class Workspace extends EventDispatcher<{
     collectLayoutViewTypes(layout.main, viewTypes);
     collectLayoutViewTypes(layout.left, viewTypes);
     collectLayoutViewTypes(layout.right, viewTypes);
+    collectLayoutViewTypes(layout.bottom, viewTypes);
     for (const window of layout.floating ?? []) {
       collectLayoutViewTypes(window, viewTypes);
     }
@@ -3055,6 +3191,7 @@ export class Workspace extends EventDispatcher<{
       this.rootSplit,
       this.leftSplit,
       this.rightSplit,
+      this.bottomPanel,
       this.floating,
     ]) {
       const response = child.iterateAllLeaves(callback);
@@ -3071,6 +3208,7 @@ export class Workspace extends EventDispatcher<{
     const includeMain = options.includeMain ?? true;
     const includeLeftSidebar = options.includeLeftSidebar ?? true;
     const includeRightSidebar = options.includeRightSidebar ?? true;
+    const includeBottomPanel = options.includeBottomPanel ?? true;
     const includeFloating = options.includeFloating ?? true;
     const includePopout = options.includePopout ?? true;
     const entries: WorkspaceOpenLeafEntry[] = [];
@@ -3134,6 +3272,12 @@ export class Workspace extends EventDispatcher<{
       });
     }
 
+    if (includeBottomPanel) {
+      this.bottomPanel.iterateAllLeaves((leaf) => {
+        pushLeaf(leaf, "bottom");
+      });
+    }
+
     if (includeFloating || includePopout) {
       this.floating.children.forEach((window) => {
         const region =
@@ -3194,6 +3338,9 @@ export class Workspace extends EventDispatcher<{
       }
     } else {
       tabs.selected = leaf;
+    }
+    if (tabs instanceof WorkspaceBottomPanel) {
+      tabs._applyOpen(true);
     }
 
     const floatingWindow = this.floatingWindowForLeaf(leaf);
@@ -3281,6 +3428,9 @@ export class Workspace extends EventDispatcher<{
   ): WorkspaceLeaf {
     const sibling = new WorkspaceLeaf();
     const tab = this.tabsForLeaf(leaf);
+    if (tab instanceof WorkspaceBottomPanel) {
+      throw new Error("Bottom panel does not support split panes");
+    }
     const split = tab.parent;
     const index = split.children.findIndex((it) => it === tab);
     const newTab = new WorkspaceTabs({ leaves: [sibling] });
@@ -3908,11 +4058,79 @@ export class Workspace extends EventDispatcher<{
     return leaf;
   }
 
+  /** Create and activate a new leaf in the bottom panel. @public */
+  getBottomLeaf(): WorkspaceLeaf {
+    const leaf = new WorkspaceLeaf();
+    this.bottomPanel.addChild(leaf);
+    this.bottomPanel.selected = leaf;
+    this.bottomPanel._applyOpen(true);
+    this.activeLeaf = leaf;
+    this.focusRootHost();
+    this.requestSaveLayout({
+      source: "bottom-panel",
+      operation: "open-leaf",
+    });
+    return leaf;
+  }
+
+  /** Open or close the bottom panel without changing its last size. @public */
+  setBottomPanelOpen(open: boolean): void {
+    if (this.bottomPanel.collapsed === !open) return;
+    this.bottomPanel._applyOpen(open);
+    this.requestSaveLayout({
+      source: "bottom-panel",
+      operation: open ? "expand" : "collapse",
+    });
+  }
+
+  /** Resize the bottom panel using design-core's supported range. @public */
+  setBottomPanelSize(size: number): void {
+    if (!Number.isFinite(size)) return;
+    const nextSize = Math.min(640, Math.max(120, size));
+    if (this.bottomPanel.size === nextSize) return;
+    this.bottomPanel._applySize(nextSize);
+    this.requestSaveLayout({
+      source: "bottom-panel",
+      operation: "resize",
+    });
+  }
+
+  /** Toggle the bottom panel while retaining its last expanded size. @public */
+  toggleBottomPanel(): void {
+    this.setBottomPanelOpen(this.bottomPanel.collapsed);
+  }
+
+  /** Configured desktop span of the bottom panel. @public */
+  get bottomPanelAlignment(): WorkspaceBottomPanelAlignment {
+    return (
+      this.#workspaceHostController?.workspace.bottomPanelAlignment ?? "center"
+    );
+  }
+
+  /** Update the live design-core shell setting without writing workspace JSON. */
+  setBottomPanelAlignment(
+    alignment: WorkspaceBottomPanelAlignment,
+  ): boolean {
+    return (
+      this.#workspaceHostController?.workspace.setBottomPanelAlignment(
+        alignment,
+      ) ?? false
+    );
+  }
+
   duplicateLeaf(
     leaf: WorkspaceLeaf,
     leafType: PaneType | boolean,
     direction: SplitDirection = "vertical",
   ): Promise<WorkspaceLeaf> {
+    if (
+      leafType === "split" &&
+      this.tabsForLeaf(leaf) instanceof WorkspaceBottomPanel
+    ) {
+      return Promise.reject(
+        new Error("Bottom panel does not support split panes"),
+      );
+    }
     if (leafType === "window") {
       const popoutLeaf = this.openPopoutLeaf();
       return popoutLeaf.setViewState({ ...leaf.state }).then(() => {
@@ -4006,7 +4224,9 @@ export class Workspace extends EventDispatcher<{
 
     if (newLeaf === "split") {
       const activeTab =
-        (this.activeLeaf && this.tabsForLeaf(this.activeLeaf)) ??
+        (this.activeLeaf &&
+          this.containsRootLeaf(this.activeLeaf) &&
+          this.tabsForLeaf(this.activeLeaf)) ||
         this.findOrCreateTab(this.rootSplit);
       const leaf = new WorkspaceLeaf();
 

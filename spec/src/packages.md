@@ -22,6 +22,8 @@ Purpose (condensed from the full Lapis Notes api package):
   commands, settings, metadata, editor, notifications, and related services
 - Workspace data model (splits, tabs, leaves, sidebars, bottom panel, ribbons,
   layout)
+- Stable `WorkspaceBottomPanel` tabs wrapper plus bottom-leaf, open, size,
+  toggle, and live alignment controls; root api exports remain design-core-free
 - Host-only design-core controller binding at `./workspace-host`; the root api
   export remains the Lapis compatibility surface
 - Plain workspace-shell metadata overrides, with Lapis name/version/logo
