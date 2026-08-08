@@ -73,6 +73,9 @@ is specified.
    default source-editor CodeMirror shell and Obsidian theme. Keep Lapis
    vault/view/sync ownership; Markdown stays source-only language highlighting
    without Mira live-preview, toolbars, or rich Markdown surfaces.
+10. Restore product-like inline filename title paint and contribute file-path
+    breadcrumbs plus leaf history through API `getChrome` into the design-core
+    tab title bar; enable both appearance flags in the editor demo seed.
 
 ## Acceptance
 

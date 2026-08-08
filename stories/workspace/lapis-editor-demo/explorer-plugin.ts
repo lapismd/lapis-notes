@@ -120,8 +120,14 @@ function createExplorerController(app: App, loading: boolean) {
     },
     selection: {
       subscribe: (onActivePath) => {
+        // Dedupe so breadcrumb/folder revealPath is not immediately overwritten
+        // when focus moves within the same active file leaf.
+        let lastPath: string | null | undefined;
         const update = () => {
-          onActivePath(app.workspace.activeEditor?.file?.path ?? null);
+          const path = app.workspace.activeEditor?.file?.path ?? null;
+          if (path === lastPath) return;
+          lastPath = path;
+          onActivePath(path);
         };
         const ref = app.workspace.on("active-leaf-change", update);
         update();
@@ -209,6 +215,10 @@ class ExplorerDemoView extends View {
     return "Files";
   }
 
+  revealPath(path: string): void {
+    this.#controller.revealPath(path.replace(/^\/+/, ""));
+  }
+
   load(): void {
     this.unload();
     this.containerEl.replaceChildren();
@@ -230,6 +240,10 @@ class ExplorerDemoView extends View {
   protected onClose(): Promise<void> {
     return Promise.resolve();
   }
+}
+
+function isExplorerDemoView(view: unknown): view is ExplorerDemoView {
+  return view instanceof ExplorerDemoView;
 }
 
 class LandingDemoView extends View {
@@ -318,6 +332,18 @@ export function createExplorerDemoPlugin(options: { loading?: boolean } = {}) {
         },
       );
       this.registerView("lapis-landing", (leaf) => new LandingDemoView(leaf));
+
+      this.addCommand({
+        id: "reveal-path",
+        name: "Reveal path in file explorer",
+        callback: (path?: string) => {
+          if (typeof path !== "string" || path.length === 0) return;
+          this.app.workspace.iterateAllLeaves((leaf) => {
+            if (!isExplorerDemoView(leaf.view)) return;
+            leaf.view.revealPath(path);
+          });
+        },
+      });
 
       const { controller } = getWorkspaceHostBinding(this.app.workspace);
       this.register(

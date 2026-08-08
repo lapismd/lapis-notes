@@ -89,6 +89,36 @@ export const SameFileSplitSync: Story = {
     await expect(editors).toHaveLength(2);
     await expect(editors[0]!.querySelector(".cm-heading")).not.toBeNull();
 
+    const inlineTitle = canvasElement.querySelector(
+      ".cm-editor-inline-title",
+    ) as HTMLElement | null;
+    await expect(inlineTitle).not.toBeNull();
+    await expect(inlineTitle).toHaveTextContent("Welcome.md");
+    await expect(inlineTitle).toBeVisible();
+
+    const header = canvasElement.querySelector(
+      '[data-ui-component="workspace-view-header"]',
+    );
+    await expect(header).not.toBeNull();
+    const breadcrumbs = header!.querySelector(
+      '[data-ui-part="breadcrumbs"]',
+    ) as HTMLElement | null;
+    await expect(breadcrumbs).not.toBeNull();
+    await expect(
+      within(breadcrumbs!).getByRole("button", { name: "Notes" }),
+    ).toBeVisible();
+
+    const explorer = within(canvas.getByTestId("lapis-editor-explorer"));
+    await userEvent.click(
+      within(breadcrumbs!).getByRole("button", { name: "Notes" }),
+    );
+    await waitFor(() =>
+      expect(explorer.getByRole("button", { name: "Notes" })).toHaveAttribute(
+        "data-active",
+        "true",
+      ),
+    );
+
     editors[0]!.focus();
     await expect(editors[0]).toHaveFocus();
     await userEvent.keyboard("Synced from the left pane.");
@@ -108,7 +138,6 @@ export const SameFileSplitSync: Story = {
       { timeout: 2_000 },
     );
 
-    const explorer = within(canvas.getByTestId("lapis-editor-explorer"));
     await userEvent.click(explorer.getByRole("button", { name: "Projects" }));
     await userEvent.click(
       explorer.getByRole("button", { name: "settings.json" }),
@@ -211,6 +240,18 @@ export const EditorSettings: Story = {
     await waitFor(() =>
       expect(canvasElement.querySelector(".cm-lineNumbers")).not.toBeNull(),
     );
+    await waitFor(() => {
+      const title = canvasElement.querySelector(".cm-editor-inline-title");
+      expect(title).not.toBeNull();
+      expect(title).toHaveTextContent("Welcome.md");
+    });
+    const header = canvasElement.querySelector(
+      '[data-ui-component="workspace-view-header"]',
+    );
+    await expect(header).not.toBeNull();
+    await expect(
+      within(header as HTMLElement).getByRole("button", { name: "Notes" }),
+    ).toBeVisible();
     await userEvent.click(
       canvas.getByRole("button", { name: "Open settings" }),
     );

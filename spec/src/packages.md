@@ -16,6 +16,7 @@
 | LN-PKG-010 | `@lapis-notes/api` MUST expose the reusable volatile vault and concrete source-text view required by the editor demo; application-specific source-editor and Explorer registration policy MUST remain outside the kernel.                                       |
 | LN-PKG-011 | CodeMirror Markdown and JSON language packages used by Storybook intake plugins MUST remain root development dependencies rather than runtime dependencies of api or workspace.                                                                                 |
 | LN-PKG-012 | `@lapis-notes/api` MUST consume `@lapismd/mira` through the sibling checkout (`file:../mira-mde/packages/mira` at the repo root and pnpm override) for the shared source-editor CodeMirror shell; publishable package manifests MUST use a portable dependency range. |
+| LN-PKG-013 | `@lapis-notes/api` MUST paint the source-editor inline filename title with public `--ui-editor-inline-title-*` tokens and MUST contribute file-view breadcrumbs plus leaf history through the workspace-host `getChrome` projection. |
 
 ## `@lapis-notes/api` (kernel slice)
 

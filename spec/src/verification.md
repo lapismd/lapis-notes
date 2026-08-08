@@ -18,6 +18,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-012 | architecture      | Implemented | Storybook aliases for design-core workspace source entry points                                                  |
 | LN-ARCH-013 | architecture      | Implemented | Storybook API editor subpath source alias                                                                         |
 | LN-ARCH-014 | architecture      | Implemented | root dep `file:../mira-mde/packages/mira` and pnpm override                                                       |
+| LN-ARCH-015 | architecture      | Implemented | api `getChrome` breadcrumbs/history; inline title stays in api editor                                            |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -30,6 +31,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-010  | packages          | Implemented | `MemoryVaultAdapter`; `SourceTextFileView`; focused API tests                                                    |
 | LN-PKG-011  | packages          | Implemented | root package manifest and lockfile language dependencies                                                         |
 | LN-PKG-012  | packages          | Implemented | api depends on sibling `@lapismd/mira` for source-editor shell                                                   |
+| LN-PKG-013  | packages          | Implemented | api inline-title tokens and file-view `getChrome` breadcrumb/history projection                                  |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                              |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                          |
@@ -41,6 +43,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-UI-009   | ui-and-styling    | Implemented | `pnpm check:no-tailwind` in root/package `check`                                                                 |
 | LN-UI-010   | ui-and-styling    | Implemented | design-core `WorkspaceStartup`; semantic source-editor classes and demo CSS                                      |
 | LN-UI-011   | ui-and-styling    | Implemented | Mira Obsidian theme CSS and `data-mira-theme="obsidian"` on the source editor host                               |
+| LN-UI-012   | ui-and-styling    | Implemented | editor inline-title tokens and h1-scale filename paint                                                           |
 | LN-CAT-001  | storybook-catalog | Implemented | Storybook host                                                                                                   |
 | LN-CAT-002  | storybook-catalog | Implemented | `stories/api/*` + plays; `pnpm test:storybook`                                                                   |
 | LN-CAT-003  | storybook-catalog | Implemented | `stories/catalog/catalog.mjs` + `ApiUi.mdx`                                                                      |
@@ -86,6 +89,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-017   | workspace-shell   | Implemented | API-registered story views consume the live inline-title shell setting                                           |
 | LN-WS-018   | workspace-shell   | Implemented | exact API-to-design-core editor registry mirroring and disposal tests                                            |
 | LN-WS-019   | workspace-shell   | Implemented | startup-gated shell mount plus deterministic retry and disposal acceptance                                       |
+| LN-WS-020   | workspace-shell   | Implemented | API `getChrome` breadcrumbs and leaf history for file views                                                      |
 | LN-ED-001   | editor-demo       | Implemented | public `MemoryVaultAdapter`; binary, metadata, filesystem, collision tests                                       |
 | LN-ED-002   | editor-demo       | Implemented | public `SourceTextFileView`; lifecycle, data, extension, search, and Storybook axe coverage                      |
 | LN-ED-003   | editor-demo       | Implemented | required Storybook-local Markdown, text, and JSON source editor plugin                                           |
@@ -99,3 +103,6 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-011   | editor-demo       | Implemented | seven focused scenarios sourced from one deterministic seed                                                      |
 | LN-ED-012   | editor-demo       | Implemented | native CSS and design-core composition; no-Tailwind gate                                                        |
 | LN-ED-013   | editor-demo       | Implemented | Mira base CodeMirror shell + Obsidian theme; Markdown remains source-only language highlighting                 |
+| LN-ED-014   | editor-demo       | Implemented | editable inline title CSS/tokens and rename through fileManager                                                  |
+| LN-ED-015   | editor-demo       | Implemented | getChrome breadcrumbs/history plus Explorer reveal-path command                                                  |
+| LN-ED-016   | editor-demo       | Implemented | demo seed enables showInlineTitle and showTabTitleBar                                                            |

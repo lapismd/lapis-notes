@@ -21,7 +21,7 @@ import {
 import { uniqueId } from "./utils";
 import { normalizeWorkspaceJson } from "./workspace-layout-normalizer";
 import { debounce, isEqual } from "lodash-es";
-import { joinPath } from "./storage";
+import { dirname, joinPath } from "./storage";
 import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
 import type { App } from "./context.svelte";
@@ -49,9 +49,11 @@ import {
 import {
   AppShellController,
   type EditorViewContribution as DesignEditorViewContribution,
+  type WorkspaceBreadcrumb as DesignWorkspaceBreadcrumb,
   type WorkspaceDragEvent as DesignWorkspaceDragEvent,
   type WorkspaceLayoutChangeEvent as DesignWorkspaceLayoutChangeEvent,
   type WorkspaceLayoutDropEvent as DesignWorkspaceLayoutDropEvent,
+  type WorkspaceViewChrome as DesignWorkspaceViewChrome,
   type WorkspaceViewContext as DesignWorkspaceViewContext,
 } from "@lapismd/design-core/workspace/core";
 import { notificationsPlugin } from "@lapismd/design-core/workspace/plugins/notifications";
@@ -83,9 +85,33 @@ export interface WorkspaceHintTarget {
 }
 
 const WORKSPACE_HINT_TARGET_SELECTOR = "[data-hint-target]";
+const FILE_EXPLORER_REVEAL_PATH_COMMAND = "lapis-file-explorer:reveal-path";
 
 function normalizeHintText(value: string | null | undefined): string {
   return value?.replace(/\s+/gu, " ").trim() ?? "";
+}
+
+function filePathBreadcrumbs(
+  app: App,
+  filePath: string | undefined | null,
+): DesignWorkspaceBreadcrumb[] {
+  if (!filePath) return [];
+  const parts = dirname(filePath)
+    .split("/")
+    .filter((segment) => segment.length > 0);
+  return parts.map((label, index) => {
+    const path = parts.slice(0, index + 1).join("/");
+    return {
+      id: path,
+      label,
+      onSelect: () => {
+        void app.commands.executeCommand(
+          FILE_EXPLORER_REVEAL_PATH_COMMAND,
+          path,
+        );
+      },
+    };
+  });
 }
 
 function toDesignEditorViewContribution(
@@ -2739,10 +2765,21 @@ export class Workspace extends EventDispatcher<{
       kind: "imperative",
       type,
       showHeader: true,
-      getChrome: (context: DesignWorkspaceViewContext) => {
+      getChrome: (context: DesignWorkspaceViewContext): DesignWorkspaceViewChrome => {
         const leaf = this.getLeafById(context.tab.id);
+        const view = leaf?.view;
+        const file = view instanceof FileView ? view.file : null;
         return {
           title: leaf?.getDisplayText() ?? context.tab.title,
+          breadcrumbs: filePathBreadcrumbs(this.app, file?.path),
+          canGoBack: leaf?.history.hasBackward ?? false,
+          canGoForward: leaf?.history.hasForward ?? false,
+          onGoBack: () => {
+            void leaf?.history.back();
+          },
+          onGoForward: () => {
+            void leaf?.history.forward();
+          },
         };
       },
       mount: (target, context) => {

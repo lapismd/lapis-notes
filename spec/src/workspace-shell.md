@@ -23,6 +23,7 @@
 | LN-WS-017 | Story-only Lapis imperative views MUST remain mounted through the API view bridge and visibly consume the live design-core `showInlineTitle` setting in their tab bodies, so shell settings demonstrate a view-supported inline title without adding production settings persistence. |
 | LN-WS-018 | API editor-view registrations MUST project into the design-core controller registry so shell Editor Associations options match API path resolution and plugin teardown.                                                                                                                                                |
 | LN-WS-019 | The editor demo consumer MUST render the shell only after vault, configuration, required plugins, and layout boot successfully; retry and story teardown MUST unload partial plugins and editors, stop the controller, and restore the previous global API app binding.                                                  |
+| LN-WS-020 | API imperative file-view chrome MUST project parent-path breadcrumbs and leaf back/forward history into design-core `WorkspaceViewHeader` via `getChrome`, while non-file views MAY omit breadcrumbs.                                                                                                                  |
 
 ## Ownership and data flow
 

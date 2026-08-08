@@ -18,6 +18,7 @@
 | LN-ARCH-011 | Storybook-local source plugins MAY declare CodeMirror language packages as root development dependencies; those dependencies MUST NOT move demo plugin policy into api or workspace.                                         |
 | LN-ARCH-012 | Storybook MUST resolve the design-core app-shell, core, empty, Explorer, startup, and notifications workspace entry points through the sibling source root so browser tests and staged visual builds use one implementation. |
 | LN-ARCH-013 | Storybook MUST resolve the API editor subpath from the same API source root as the root API alias so source-editor fixtures do not mix packaged and source editor implementations.                                           |
+| LN-ARCH-015 | File-view chrome (path breadcrumbs, leaf history) MUST project from the api workspace host `getChrome` bridge into design-core `WorkspaceViewHeader`; editable filename paint MUST stay in the api source editor, not a second shell title widget. |
 
 ## Package graph
 

@@ -15,6 +15,8 @@ const APP_CONFIGURATION = {
   "editor.behaviour.spellCheck": true,
   "editor.behaviour.indentUsingTabs": true,
   "editor.behaviour.indentVisualWidth": 4,
+  "appearence.interface.showInlineTitle": true,
+  "appearence.interface.showTabTitleBar": true,
   "workspace.fileExplorer.autoRevealCurrentFile": true,
   pluginData: {
     "demo-preserved-data": {

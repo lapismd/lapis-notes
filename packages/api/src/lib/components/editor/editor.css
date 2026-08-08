@@ -22,6 +22,48 @@
   --ui-editor-lint-max-width: min(720px, calc(100vw - 48px));
   --ui-editor-lint-radius: var(--radius, 0.375rem);
   --ui-editor-lint-accent: var(--text-accent, var(--primary));
+  /* Filename title: public tokens + Obsidian-era aliases */
+  --ui-editor-inline-title-color: var(
+    --inline-title-color,
+    var(--foreground, inherit)
+  );
+  --ui-editor-inline-title-font: var(
+    --inline-title-font,
+    var(--font-sans, inherit)
+  );
+  --ui-editor-inline-title-line-height: var(--inline-title-line-height, 1.2);
+  --ui-editor-inline-title-size: var(--inline-title-size, 1.802em);
+  --ui-editor-inline-title-style: var(--inline-title-style, normal);
+  --ui-editor-inline-title-variant: var(--inline-title-variant, normal);
+  --ui-editor-inline-title-weight: var(--inline-title-weight, 700);
+  --ui-editor-inline-title-margin-bottom: var(
+    --inline-title-margin-bottom,
+    0.5em
+  );
+  --ui-editor-inline-title-letter-spacing: -0.015em;
+  --ui-editor-inline-title-mobile-pad-inline: 1rem;
+}
+
+[data-ui-component="editor"] .inline-title,
+[data-ui-component="editor"] .cm-editor-inline-title {
+  color: var(--ui-editor-inline-title-color);
+  font-family: var(--ui-editor-inline-title-font);
+  font-size: var(--ui-editor-inline-title-size);
+  font-style: var(--ui-editor-inline-title-style);
+  font-variant: var(--ui-editor-inline-title-variant);
+  font-weight: var(--ui-editor-inline-title-weight);
+  letter-spacing: var(--ui-editor-inline-title-letter-spacing);
+  line-height: var(--ui-editor-inline-title-line-height);
+  margin-block-end: var(--ui-editor-inline-title-margin-bottom);
+  white-space: pre-wrap;
+  border: none;
+  outline: none;
+}
+
+[data-ui-component="editor"]
+  .cm-editor-inline-title[data-mobile-inline-title="true"] {
+  text-align: center;
+  padding-inline: var(--ui-editor-inline-title-mobile-pad-inline);
 }
 
 [data-ui-component="editor"][data-ui-part="scroll-area"],

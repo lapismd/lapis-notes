@@ -17,6 +17,9 @@
 | LN-ED-011 | Storybook MUST provide one runnable demo plus focused source-editor, Explorer, settings, loading, failure, and opening-vault scenarios from one canonical in-memory seed.                                     |
 | LN-ED-012 | New or touched component paint MUST use design-core composition, native CSS, public `--ui-*` tokens, and semantic `data-ui-*` hosts without Tailwind utility strings.                                         |
 | LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme as the default editor appearance; Markdown language packs remain source-only syntax highlighting and MUST NOT enable Mira live-preview, toolbars, or rich Markdown surfaces in this slice. |
+| LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
+| LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
+| LN-ED-016 | The editor demo canonical seed MUST enable `appearence.interface.showInlineTitle` and `appearence.interface.showTabTitleBar` so focused scenarios exercise the inline title and tab title bar without requiring Settings navigation. |
 
 ## Ownership
 
@@ -43,5 +46,7 @@ storage, the source-only text view, atomic configuration batches, controller
 configuration reconciliation, exact editor-registry mirroring, required
 source-editor and Explorer plugins, the staged startup runner, canonical seed,
 and focused acceptance scenarios. The source editor shell consumes Mira base
-CodeMirror extensions with Obsidian theme tokens. Visual baselines remain
-pending human review.
+CodeMirror extensions with Obsidian theme tokens. File leaves contribute tab
+title bar breadcrumbs and history through `getChrome`, and the demo seed enables
+inline title and tab title bar visibility. Visual baselines remain pending human
+review.
