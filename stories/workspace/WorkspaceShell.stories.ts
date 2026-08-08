@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import WorkspaceShellDemo from "./WorkspaceShellDemo.svelte";
 import { workspaceStoryMeta } from "./_shared";
 
@@ -305,6 +305,142 @@ export const StackedTabs: Story = {
     });
     await userEvent.click(restore);
     await expect(shellRoot).not.toHaveAttribute("data-workspace-focus-mode");
+  },
+};
+
+export const BottomPanelSettings: Story = {
+  ...workspaceStoryMeta(
+    "workspace-shell-bottom-panel-settings",
+    "A real API App restores and persists the design-core bottom panel while the live built-in settings update shell geometry without becoming workspace state.",
+    "/visual-baselines/stories/workspace/bottom-panel-settings-chromium.png",
+  ),
+  args: {
+    displayMode: "desktop",
+    workspaceLabel: "Lapis Notes",
+    scenario: "bottom-settings",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForShell(canvas);
+
+    const desktopLayout = canvasElement.querySelector<HTMLElement>(
+      '[data-ui-component="app-shell-desktop-layout"]',
+    );
+    const leftSidebar = canvas.getByLabelText("Left sidebar");
+    const rightSidebar = canvas.getByLabelText("Right sidebar");
+    const bottomPanel = canvas.getByLabelText("Bottom panel");
+    await expect(desktopLayout).not.toBeNull();
+    await expect(canvas.getByRole("tab", { name: "Terminal" })).toBeVisible();
+    await expect(canvas.getByRole("tab", { name: "Problems" })).toBeVisible();
+    await expect(canvas.getByTestId("workspace-bottom-size")).toHaveTextContent(
+      "240",
+    );
+    await expect(
+      canvas.getByTestId("workspace-bottom-collapsed"),
+    ).toHaveTextContent("false");
+
+    const resizeRail = within(bottomPanel).getByRole("button", {
+      name: "Resize bottom panel",
+    });
+    await fireEvent.keyDown(resizeRail, { key: "ArrowUp" });
+
+    await waitFor(
+      () => {
+        expect(canvas.getByTestId("workspace-bottom-size")).toHaveTextContent(
+          "250",
+        );
+        const controller = JSON.parse(
+          canvas.getByTestId("workspace-controller-layout").textContent ?? "{}",
+        );
+        const compatibility = JSON.parse(
+          canvas.getByTestId("workspace-compatibility-layout").textContent ??
+            "{}",
+        );
+        const persisted = persistedLayout(canvas);
+        expect(controller.bottom.height).toBe("250px");
+        expect(compatibility.bottom.height).toBe("250px");
+        expect(persisted.bottom.height).toBe("250px");
+        expect(canvas.getByTestId("workspace-write-count")).toHaveTextContent(
+          "1",
+        );
+      },
+      { timeout: 3_000 },
+    );
+
+    const ribbon = canvas.getByLabelText("left ribbon");
+    const ribbonSettings = within(ribbon).getByRole("button", {
+      name: "Settings",
+    });
+    expect(
+      ribbonSettings.closest('[data-ui-part="bottom-actions"]'),
+    ).not.toBeNull();
+    await userEvent.click(ribbonSettings);
+    const dialog = canvas.getByRole("dialog", { name: "Settings" });
+    await expect(dialog).toBeVisible();
+    const dialogUi = within(dialog);
+    const alignment = dialogUi.getByRole("combobox", {
+      name: "Bottom panel alignment",
+    });
+    await userEvent.click(alignment);
+    await userEvent.click(
+      within(canvasElement.ownerDocument.body).getByRole("option", {
+        name: "Justify",
+      }),
+    );
+    await waitFor(() => {
+      expect(desktopLayout).toHaveAttribute(
+        "data-bottom-panel-alignment",
+        "justify",
+      );
+      const panelRect = bottomPanel.getBoundingClientRect();
+      expect(Math.abs(panelRect.left - leftSidebar.getBoundingClientRect().left)).toBeLessThan(1);
+      expect(Math.abs(panelRect.right - rightSidebar.getBoundingClientRect().right)).toBeLessThan(1);
+    });
+
+    const appearanceNavigation = dialogUi.getByRole("button", {
+      name: "Appearance",
+    });
+    await waitFor(() => {
+      expect(getComputedStyle(appearanceNavigation).pointerEvents).not.toBe(
+        "none",
+      );
+    });
+    await userEvent.click(appearanceNavigation);
+    const showRibbon = dialogUi.getByRole("switch", { name: "Show ribbon" });
+    await expect(showRibbon).toHaveAttribute("data-state", "checked");
+    await userEvent.click(showRibbon);
+    await waitFor(() => {
+      expect(
+        canvasElement.querySelector('[data-ui-component="workspace-ribbon"]'),
+      ).toBeNull();
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 1_100));
+    await expect(canvas.getByTestId("workspace-write-count")).toHaveTextContent(
+      "1",
+    );
+    await expect(persistedLayout(canvas).bottom.height).toBe("250px");
+
+    const workspaceNavigation = dialogUi.getByRole("button", {
+      name: "Workspace",
+    });
+    await waitFor(() => {
+      expect(getComputedStyle(workspaceNavigation).pointerEvents).not.toBe(
+        "none",
+      );
+    });
+    await userEvent.click(workspaceNavigation);
+    const settingsViewport = dialog.querySelector<HTMLElement>(
+      ".ui-workspace-settings__content-viewport",
+    );
+    await expect(settingsViewport).not.toBeNull();
+    settingsViewport!.scrollTop = 0;
+    const finalAlignment = dialogUi.getByRole("combobox", {
+      name: "Bottom panel alignment",
+    });
+    await expect(finalAlignment).toHaveTextContent("Justify");
+    await expect(finalAlignment).toBeVisible();
+    await expect(dialog).toBeVisible();
   },
 };
 

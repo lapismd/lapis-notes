@@ -207,6 +207,13 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-shell--stacked-tabs",
   },
+  {
+    id: "workspace-shell-bottom-panel-settings",
+    title: "Bottom Panel Settings",
+    spec: "spec/src/workspace-shell.md",
+    publicSurface: "@lapis-notes/workspace",
+    storyId: "workspace-shell--bottom-panel-settings",
+  },
 ];
 
 export function catalogParameters(catalogId) {

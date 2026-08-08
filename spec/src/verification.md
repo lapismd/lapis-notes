@@ -45,7 +45,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-012  | storybook-catalog | Implemented | workspace story plays + story-only memory adapter                                                                |
 | LN-CAT-013  | storybook-catalog | Implemented | no Lapis/community plugin boot; minimal static notifications chrome                                              |
 | LN-CAT-014  | storybook-catalog | Implemented | full-viewport shell, mobile, notification, About, and stacked-tab stories                                        |
-| LN-CAT-015  | storybook-catalog | Planned     | focused bottom-panel/settings shell story                                                                        |
+| LN-CAT-015  | storybook-catalog | Implemented | focused `Workspace/Shell/Bottom Panel Settings` play and pending baseline                                         |
 | LN-GOV-001  | spec-governance   | Implemented | `spec/` mdBook sources                                                                                           |
 | LN-GOV-002  | spec-governance   | Implemented | this matrix                                                                                                      |
 | LN-GOV-003  | spec-governance   | Implemented | `scripts/check-spec-first.mjs`                                                                                   |
@@ -68,4 +68,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-013   | workspace-shell   | Implemented | shared full-viewport Storybook layout and unconstrained mobile canvas                                            |
 | LN-WS-014   | workspace-shell   | Implemented | top/stacked maximize plays, pressed state, reserved actions, and floating maximize/minimize icons                |
 | LN-WS-015   | workspace-shell   | Implemented | stable bottom wrapper, controls, traversal, projection, and focused api tests                                     |
-| LN-WS-016   | workspace-shell   | In progress | api-owned debounce/alternate-file coverage; live settings story pending                                           |
+| LN-WS-016   | workspace-shell   | Implemented | api-owned debounce/alternate-file coverage plus ephemeral settings story                                          |

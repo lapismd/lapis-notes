@@ -20,7 +20,7 @@
   }: {
     displayMode?: WorkspaceRequestedDisplayMode;
     workspaceLabel?: string;
-    scenario?: "standard" | "mobile" | "stacked";
+    scenario?: "standard" | "mobile" | "stacked" | "bottom-settings";
     seedNotifications?: boolean;
   } = $props();
 
@@ -77,6 +77,8 @@
     archive: { title: "Archive", icon: "archive" },
     files: { title: "Files", icon: "files" },
     outline: { title: "Outline", icon: "list-tree" },
+    terminal: { title: "Terminal", icon: "terminal" },
+    problems: { title: "Problems", icon: "circle-alert" },
   } as const;
 
   function leaf(id: string, title: string, icon: string, type = "empty") {
@@ -102,11 +104,13 @@
   }
 
   function createInitialLayout(
-    selectedScenario: "standard" | "mobile" | "stacked",
+    selectedScenario: "standard" | "mobile" | "stacked" | "bottom-settings",
   ) {
     const mainChildren =
       selectedScenario === "standard"
         ? [leaf("start", "Start", "ghost")]
+        : selectedScenario === "bottom-settings"
+          ? [leaf("notes", "Notes", "notebook-tabs", "story-notes")]
         : [
             leaf("start", "Start", "ghost", "story-start"),
             leaf("notes", "Notes", "notebook-tabs", "story-notes"),
@@ -116,6 +120,7 @@
               : []),
           ];
     const mobile = selectedScenario === "mobile";
+    const bottomSettings = selectedScenario === "bottom-settings";
     return {
       main: {
         id: "main",
@@ -130,32 +135,54 @@
         id: "left",
         type: "split",
         direction: "vertical",
-        sizes: mobile ? [100] : [],
-        children: mobile
+        sizes: mobile || bottomSettings ? [100] : [],
+        children: mobile || bottomSettings
           ? [
               tabs("left-tabs", [
                 leaf("files", "Files", "files", "story-files"),
               ]),
             ]
           : [],
-        width: mobile ? "18rem" : "0px",
+        width: mobile || bottomSettings ? "18rem" : "0px",
       },
       right: {
         id: "right",
         type: "split",
         direction: "vertical",
-        sizes: mobile ? [100] : [],
-        children: mobile
+        sizes: mobile || bottomSettings ? [100] : [],
+        children: mobile || bottomSettings
           ? [
               tabs("right-tabs", [
                 leaf("outline", "Outline", "list-tree", "story-outline"),
               ]),
             ]
           : [],
-        width: mobile ? "18rem" : "0px",
+        width: mobile || bottomSettings ? "18rem" : "0px",
+      },
+      bottom: {
+        ...tabs(
+          "bottom-panel",
+          bottomSettings
+            ? [
+                leaf(
+                  "terminal",
+                  "Terminal",
+                  "terminal",
+                  "story-terminal",
+                ),
+                leaf(
+                  "problems",
+                  "Problems",
+                  "circle-alert",
+                  "story-problems",
+                ),
+              ]
+            : [],
+        ),
+        height: bottomSettings ? "240px" : "0px",
       },
       floating: [],
-      active: "start",
+      active: bottomSettings ? "notes" : "start",
     };
   }
 
@@ -256,6 +283,10 @@
   <div class="workspace-shell-story-observer" aria-live="polite">
     <span data-testid="workspace-shell-status">{bootStatus}</span>
     <span data-testid="workspace-write-count">{writeCount}</span>
+    <span data-testid="workspace-bottom-size">{app.workspace.bottomPanel.size}</span>
+    <span data-testid="workspace-bottom-collapsed"
+      >{app.workspace.bottomPanel.collapsed}</span
+    >
     <span data-testid="workspace-layout-operation">{lastLayoutOperation}</span>
     <span data-testid="workspace-controller-operation"
       >{lastControllerOperation}</span

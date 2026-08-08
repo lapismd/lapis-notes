@@ -38,8 +38,8 @@ intake or UI swap status changes.
 - [x] Empty-view stacked-tab overflow parity with design-core
 - [x] Floating-window controls use design-core panel-action hover tokens and consumer Storybook verification
 - [x] Top/stacked pane maximize toggles, compact reserved top-tab actions, and conforming floating-window maximize/minimize icons from design-core
-- [ ] Design-core V3 bottom panel preserved through the api compatibility façade and workspace writer
-- [ ] Focused bottom-panel/settings Storybook scenario with live shell-setting verification
+- [x] Design-core V3 bottom panel preserved through the api compatibility façade and workspace writer
+- [x] Focused bottom-panel/settings Storybook scenario with live shell-setting verification
 
 ## UI → design-core
 

@@ -40,6 +40,8 @@ Direct api imports (one story family each):
 - Visual regression: `pnpm test:visual`
 - Workspace shell stories use the same interaction, a11y, and nested-import
   Visual Delta workflow as API stories and remain `visual-pending` until review.
+- The bottom-panel/settings story keeps the Workspace settings page open in its
+  final state so panel alignment and ephemeral controller settings are visible.
 - The visual helpers stage the sibling design-core checkout inside the Docker
   context for both compare and update runs. They exclude documented nonvisual
   stories, and the update helper accepts repeatable story-prefix filters; its
