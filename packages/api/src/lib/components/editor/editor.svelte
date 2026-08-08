@@ -6,6 +6,7 @@
   import { editorConfig } from "./editor";
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
   import { cn } from "../../utils";
+  import "@lapismd/mira/themes/obsidian.css";
   import "./editor.css";
 
   type Props = {
@@ -89,11 +90,16 @@
   class="cm-editor-scroll-area"
   data-ui-component="editor"
   data-ui-part="scroll-area"
+  data-mira-theme="obsidian"
 >
   <div
-    class={cn("cm-editor-scroll-area-content", className)}
+    class={cn(
+      "cm-editor-scroll-area-content markdown-editor-surface",
+      className,
+    )}
     data-ui-component="editor"
     data-ui-part="scroll-content"
+    data-mira-theme="obsidian"
   >
     <div
       class="cm-editor-scroll-area-inner"

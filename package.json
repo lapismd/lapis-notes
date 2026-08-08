@@ -30,12 +30,18 @@
   "devDependencies": {
     "@codemirror/lang-json": "^6.0.2",
     "@codemirror/lang-markdown": "^6.3.4",
+    "@codemirror/lang-yaml": "^6.1.2",
+    "@codemirror/language-data": "^6.5.2",
+    "@codemirror/legacy-modes": "^6.5.3",
+    "@lezer/markdown": "^1.4.3",
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
+    "@fontsource/source-code-pro": "^5.2.7",
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/design-core": "file:../design-core",
+    "@lapismd/mira": "file:../mira-mde/packages/mira",
     "@lapismd/storybook-addon-visual-delta": "^0.0.6",
     "@lucide/svelte": "^0.523.0",
     "@playwright/test": "1.61.1",
@@ -67,6 +73,7 @@
   "pnpm": {
     "overrides": {
       "@lapismd/design-core": "file:../design-core",
+      "@lapismd/mira": "file:../mira-mde/packages/mira",
       "adm-zip": ">=0.6.0",
       "aria-query": "5.3.2",
       "sharp": ">=0.35.0"

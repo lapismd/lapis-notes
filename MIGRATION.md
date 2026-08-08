@@ -12,6 +12,7 @@ intake or UI swap status changes.
 | Storybook host (port 7010) | Done | `API/` verification stories + catalog |
 | API Storybook verification + Visual Delta | Done | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later) |
 | `@lapismd/design-core` sibling | Done | Root `file:../design-core` + pnpm override; package manifests use portable `*` contracts |
+| `@lapismd/mira` sibling | Done | Root `file:../mira-mde/packages/mira` + pnpm override; api source-editor shell + Obsidian theme (no live-preview/toolbars yet) |
 | Storybook a11y in Vitest | Done | `vitest.setup.ts` + `a11y.test: "error"`; filled action tokens AA-tuned |
 | Storybook style authority | Done | design-core styles + lapis theme; ui `theme.css` only (avoid dual Tailwind) |
 

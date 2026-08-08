@@ -15,6 +15,7 @@
 | LN-PKG-009 | `@lapis-notes/api` MUST expose the design-core V3 bottom panel through Lapis-native workspace wrappers and controls without leaking design-core types through the root api export.                                                                              |
 | LN-PKG-010 | `@lapis-notes/api` MUST expose the reusable volatile vault and concrete source-text view required by the editor demo; application-specific source-editor and Explorer registration policy MUST remain outside the kernel.                                       |
 | LN-PKG-011 | CodeMirror Markdown and JSON language packages used by Storybook intake plugins MUST remain root development dependencies rather than runtime dependencies of api or workspace.                                                                                 |
+| LN-PKG-012 | `@lapis-notes/api` MUST consume `@lapismd/mira` through the sibling checkout (`file:../mira-mde/packages/mira` at the repo root and pnpm override) for the shared source-editor CodeMirror shell; publishable package manifests MUST use a portable dependency range. |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -51,7 +52,10 @@ Storybook theme controls and their manager dependencies remain root-only
 development tooling rather than package exports or runtime dependencies.
 The editor demo's CodeMirror Markdown and JSON language packages follow that
 same root-only rule; the source view and editor registry remain language-policy
-neutral package contracts.
+neutral package contracts. The shared source-editor shell depends on sibling
+`@lapismd/mira` for base CodeMirror extensions and Obsidian theme CSS; Mira
+Markdown live-preview, toolbars, and rich widgets stay out of the kernel until
+separately specified.
 
 ## `@lapis-notes/workspace` (shell integration)
 

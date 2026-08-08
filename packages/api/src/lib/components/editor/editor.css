@@ -1,5 +1,15 @@
 /* Editor layout chrome + search panel + lint tooltip (not CodeMirror internals) */
 
+/*
+ * Obsidian theme intake keeps Mira palette, with light-mode syntax tokens
+ * nudged to WCAG AA (≥ 4.5:1) against the editor background for Storybook axe.
+ */
+[data-ui-component="editor"][data-mira-theme~="obsidian"] {
+  --mira-syntax-string: light-dark(#007a56, #53dfdd);
+  --mira-syntax-property: light-dark(#c22e75, #fa99cd);
+  --mira-syntax-number: light-dark(#8f4a00, #e9973f);
+}
+
 [data-ui-component="editor"] {
   --ui-editor-search-pad-x: 1rem;
   --ui-editor-search-pad-y: 0.5rem;

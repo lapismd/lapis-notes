@@ -17,6 +17,10 @@ const installedDesignCoreRoot = path.resolve(
 const designCoreRoot = existsSync(stagedDesignCoreRoot)
   ? installedDesignCoreRoot
   : path.resolve(repoRoot, "../design-core");
+const stagedMiraRoot = path.resolve(repoRoot, ".deps/mira");
+const miraPackageRoot = existsSync(stagedMiraRoot)
+  ? stagedMiraRoot
+  : path.resolve(repoRoot, "../mira-mde/packages/mira");
 const apiLib = path.resolve(rootDir, "../packages/api/src/lib");
 const uiLib = path.resolve(rootDir, "../packages/ui/src/lib");
 const workspaceLib = path.resolve(rootDir, "../packages/workspace/src/lib");
@@ -213,7 +217,7 @@ const config: StorybookConfig = {
 
       server: {
         fs: {
-          allow: [repoRoot, designCoreRoot],
+          allow: [repoRoot, designCoreRoot, miraPackageRoot],
         },
         watch: {
           ignored: ["**/storybook-static/**"],

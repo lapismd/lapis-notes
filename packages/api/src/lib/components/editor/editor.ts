@@ -1,45 +1,17 @@
 import {
   codeFolding,
-  syntaxHighlighting,
-  indentOnInput,
   indentUnit,
-  bracketMatching,
-  foldKeymap,
 } from "@codemirror/language";
 import { Compartment, EditorState, type Extension } from "@codemirror/state";
 import {
   EditorView,
-  drawSelection,
-  rectangularSelection,
   GutterMarker,
-  highlightActiveLine,
-  highlightSpecialChars,
-  dropCursor,
-  highlightActiveLineGutter,
   keymap,
   lineNumbers,
-  crosshairCursor,
-  lineNumberWidgetMarker,
 } from "@codemirror/view";
+import { indentMore, indentLess } from "@codemirror/commands";
+import { createBaseCodeMirrorExtensions } from "@lapismd/mira/codemirror";
 import { foldGutter } from "$lib/components/editor/extensions/fold-gutter";
-import { gutterLineStyleSyncExtension } from "$lib/components/editor/extensions/gutter-line-style-sync";
-import { search } from "$lib/components/editor/extensions/search";
-import {
-  defaultKeymap,
-  history,
-  historyKeymap,
-  indentMore,
-  indentLess,
-} from "@codemirror/commands";
-import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
-import { classHighlighter } from "$lib/components/editor/extensions/class-highlighter";
-import {
-  closeBrackets,
-  closeBracketsKeymap,
-  completionKeymap,
-} from "@codemirror/autocomplete";
-import { lintKeymap } from "$lib/components/editor/extensions/lint";
-import { lapisCodeMirrorAutocomplete } from "$lib/components/editor/extensions/autocomplete";
 
 export class BlockLineMarker extends GutterMarker {
   constructor(
@@ -97,41 +69,26 @@ export class EditorConfig {
   }
 }
 
+/**
+ * Source-editor CodeMirror shell backed by Mira base extensions + Lapis live
+ * configuration compartments. Language packs are passed in by the caller;
+ * Markdown live-preview / rich Mira surfaces are not included.
+ */
 export function markupEditor(...extensions: Extension[]): Extension {
   return [
     ...extensions,
-    editorConfig.extension,
-    gutterLineStyleSyncExtension(),
-    highlightActiveLineGutter(),
-    highlightSpecialChars(),
-    history(),
+    ...createBaseCodeMirrorExtensions({
+      // Lapis editorConfig compartments own these live toggles.
+      lineNumbers: false,
+      lineWrapping: false,
+      spellcheck: false,
+    }),
     foldGutter(),
-    drawSelection(),
-    dropCursor(),
-    EditorState.allowMultipleSelections.of(true),
-    indentOnInput(),
-    syntaxHighlighting(classHighlighter),
-    bracketMatching(),
-    closeBrackets(),
-    ...lapisCodeMirrorAutocomplete(),
-    rectangularSelection(),
-    crosshairCursor(),
-    highlightActiveLine(),
-    highlightSelectionMatches(),
-    search(),
-    codeFolding(),
-    EditorView.editorAttributes.of({ class: "mod-cm6 cm-editor-source" }),
+    editorConfig.extension,
+    EditorView.editorAttributes.of({
+      class: "cm-editor-source markdown-editor-surface",
+    }),
     EditorView.contentAttributes.of({ "aria-label": "Source editor" }),
-    EditorView.editable.of(true),
-    keymap.of([
-      ...closeBracketsKeymap,
-      ...defaultKeymap,
-      ...searchKeymap,
-      ...historyKeymap,
-      ...foldKeymap,
-      ...completionKeymap,
-      ...lintKeymap,
-    ]),
   ];
 }
 

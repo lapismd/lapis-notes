@@ -2,10 +2,11 @@
 /**
  * Regenerate API and workspace visual-pending baselines with Visual Delta.
  *
- * Docker stages only this repository, while design-core is a permanent sibling
- * dependency. Capture temporarily copies that sibling into `.deps/design-core`
- * and retargets the root dependency/override. Package manifests keep their
- * portable `*` dependency declarations.
+ * Docker stages only this repository, while design-core and mira are permanent
+ * sibling dependencies. Capture temporarily copies those siblings into
+ * `.deps/design-core` and `.deps/mira` and retargets the root
+ * dependency/overrides. Package manifests keep their portable `*` dependency
+ * declarations.
  *
  * Pass one or more `--story-prefix <prefix>` options to update a narrow family
  * without rewriting existing baselines. With no prefix, the `api-`,

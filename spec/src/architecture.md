@@ -9,6 +9,7 @@
 | LN-ARCH-003 | The browsable docs host MUST be Storybook on port 7010 (`pnpm dev`).                                                                                                                                                         |
 | LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added.                                                                          |
 | LN-ARCH-005 | `@lapismd/design-core` MUST be consumed through the sibling checkout (`file:../design-core` at the repo root and pnpm override); publishable package manifests MUST use a portable dependency range.                         |
+| LN-ARCH-014 | `@lapismd/mira` MUST be consumed through the sibling checkout (`file:../mira-mde/packages/mira` at the repo root and pnpm override) for the source-editor CodeMirror shell; publishable package manifests MUST use a portable dependency range. |
 | LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed.                                                                     |
 | LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, and plugin loading remain consumer or api responsibilities.                                      |
 | LN-ARCH-008 | Storybook MUST consume design-core's shared catalog stylesheet and layout synchronizer so Workspace stories receive the same edge-to-edge viewport contract while ordinary component stories retain catalog padding.         |
@@ -28,6 +29,7 @@
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 
 @lapismd/design-core (sibling; UI primitives + workspace layout engine)
+@lapismd/mira (sibling; source-editor CodeMirror shell + Obsidian theme)
 ```
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from

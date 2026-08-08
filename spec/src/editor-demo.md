@@ -16,6 +16,7 @@
 | LN-ED-010 | Two CodeMirror views for the same file MUST synchronize transactions immediately and persist one debounced target-file update; different files MUST remain independent.                                       |
 | LN-ED-011 | Storybook MUST provide one runnable demo plus focused source-editor, Explorer, settings, loading, failure, and opening-vault scenarios from one canonical in-memory seed.                                     |
 | LN-ED-012 | New or touched component paint MUST use design-core composition, native CSS, public `--ui-*` tokens, and semantic `data-ui-*` hosts without Tailwind utility strings.                                         |
+| LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme as the default editor appearance; Markdown language packs remain source-only syntax highlighting and MUST NOT enable Mira live-preview, toolbars, or rich Markdown surfaces in this slice. |
 
 ## Ownership
 
@@ -41,4 +42,6 @@ The API foundation and Storybook intake are implemented: public volatile
 storage, the source-only text view, atomic configuration batches, controller
 configuration reconciliation, exact editor-registry mirroring, required
 source-editor and Explorer plugins, the staged startup runner, canonical seed,
-and focused acceptance scenarios. Visual baselines remain pending human review.
+and focused acceptance scenarios. The source editor shell consumes Mira base
+CodeMirror extensions with Obsidian theme tokens. Visual baselines remain
+pending human review.

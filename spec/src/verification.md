@@ -17,6 +17,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-011 | architecture      | Implemented | root-only CodeMirror Markdown and JSON development dependencies                                                  |
 | LN-ARCH-012 | architecture      | Implemented | Storybook aliases for design-core workspace source entry points                                                  |
 | LN-ARCH-013 | architecture      | Implemented | Storybook API editor subpath source alias                                                                         |
+| LN-ARCH-014 | architecture      | Implemented | root dep `file:../mira-mde/packages/mira` and pnpm override                                                       |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -28,6 +29,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-009  | packages          | Implemented | `WorkspaceBottomPanel` and Lapis-native bottom controls                                                          |
 | LN-PKG-010  | packages          | Implemented | `MemoryVaultAdapter`; `SourceTextFileView`; focused API tests                                                    |
 | LN-PKG-011  | packages          | Implemented | root package manifest and lockfile language dependencies                                                         |
+| LN-PKG-012  | packages          | Implemented | api depends on sibling `@lapismd/mira` for source-editor shell                                                   |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                              |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                          |
@@ -38,6 +40,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-UI-008   | ui-and-styling    | Implemented | compounds + api chrome on native CSS; stories excluded                                                           |
 | LN-UI-009   | ui-and-styling    | Implemented | `pnpm check:no-tailwind` in root/package `check`                                                                 |
 | LN-UI-010   | ui-and-styling    | Implemented | design-core `WorkspaceStartup`; semantic source-editor classes and demo CSS                                      |
+| LN-UI-011   | ui-and-styling    | Implemented | Mira Obsidian theme CSS and `data-mira-theme="obsidian"` on the source editor host                               |
 | LN-CAT-001  | storybook-catalog | Implemented | Storybook host                                                                                                   |
 | LN-CAT-002  | storybook-catalog | Implemented | `stories/api/*` + plays; `pnpm test:storybook`                                                                   |
 | LN-CAT-003  | storybook-catalog | Implemented | `stories/catalog/catalog.mjs` + `ApiUi.mdx`                                                                      |
@@ -95,3 +98,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-010   | editor-demo       | Implemented | same-file transaction sync, single debounce write, and independent-file play                                    |
 | LN-ED-011   | editor-demo       | Implemented | seven focused scenarios sourced from one deterministic seed                                                      |
 | LN-ED-012   | editor-demo       | Implemented | native CSS and design-core composition; no-Tailwind gate                                                        |
+| LN-ED-013   | editor-demo       | Implemented | Mira base CodeMirror shell + Obsidian theme; Markdown remains source-only language highlighting                 |

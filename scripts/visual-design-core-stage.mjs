@@ -1,4 +1,11 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,8 +25,23 @@ const nonvisualStoryIds = new Set([
   "api-helpers--helpers",
 ]);
 
-const designCoreSource = path.resolve(repoRoot, "../design-core");
-const stagedDesignCore = path.join(repoRoot, ".deps/design-core");
+const siblingDeps = [
+  {
+    name: "@lapismd/design-core",
+    source: path.resolve(repoRoot, "../design-core"),
+    staged: path.join(repoRoot, ".deps/design-core"),
+    stagedSpecifier: "file:./.deps/design-core",
+  },
+  {
+    name: "@lapismd/mira",
+    source: path.resolve(repoRoot, "../mira-mde/packages/mira"),
+    staged: path.join(repoRoot, ".deps/mira"),
+    stagedSpecifier: "file:./.deps/mira",
+    // Visual Delta drops path segments named `dist` when staging Docker input.
+    rewriteDistToBuilt: true,
+  },
+];
+
 const rootPackage = path.join(repoRoot, "package.json");
 
 export function spawnInRepo(command, args, options = {}) {
@@ -49,15 +71,39 @@ function assertSucceeded(result, description) {
   }
 }
 
-function setDesignCoreSpecifier(specifier) {
+function setSiblingSpecifiers(getSpecifier) {
   const data = JSON.parse(readFileSync(rootPackage, "utf8"));
-  data.devDependencies["@lapismd/design-core"] = specifier;
-  data.pnpm.overrides["@lapismd/design-core"] = specifier;
+  for (const dep of siblingDeps) {
+    const specifier = getSpecifier(dep);
+    data.devDependencies[dep.name] = specifier;
+    data.pnpm.overrides[dep.name] = specifier;
+  }
   writeFileSync(rootPackage, `${JSON.stringify(data, null, 2)}\n`);
 }
 
-function stageDesignCore() {
-  mkdirSync(path.dirname(stagedDesignCore), { recursive: true });
+function rewriteMiraDistToBuilt(stagedRoot) {
+  const distDir = path.join(stagedRoot, "dist");
+  const builtDir = path.join(stagedRoot, "built");
+  if (!existsSync(distDir)) {
+    throw new Error(
+      `Staged @lapismd/mira is missing dist/; build mira before visual capture.`,
+    );
+  }
+  if (existsSync(builtDir)) {
+    rmSync(builtDir, { recursive: true, force: true });
+  }
+  renameSync(distDir, builtDir);
+
+  const packageJsonPath = path.join(stagedRoot, "package.json");
+  const rewritten = readFileSync(packageJsonPath, "utf8")
+    .replaceAll('"./dist/', '"./built/')
+    .replaceAll('"dist"', '"built"')
+    .replaceAll("/dist/", "/built/");
+  writeFileSync(packageJsonPath, rewritten);
+}
+
+function stageSibling(dep) {
+  mkdirSync(path.dirname(dep.staged), { recursive: true });
   assertSucceeded(
     spawnInRepo("rsync", [
       "-a",
@@ -76,17 +122,21 @@ function stageDesignCore() {
       ".visual-delta",
       "--exclude",
       ".ui-generator",
-      `${designCoreSource}/`,
-      `${stagedDesignCore}/`,
+      `${dep.source}/`,
+      `${dep.staged}/`,
     ]),
-    "Staging design-core",
+    `Staging ${dep.name}`,
   );
+
+  if (dep.rewriteDistToBuilt) {
+    rewriteMiraDistToBuilt(dep.staged);
+  }
 }
 
 /**
  * Visual Delta captures run in Docker with this repository as their build
- * context. Temporarily make the sibling design-core checkout part of that
- * context, then restore the permanent local dependency even when capture fails.
+ * context. Temporarily make sibling design-core and mira checkouts part of that
+ * context, then restore the permanent local dependencies even when capture fails.
  */
 export function withStagedDesignCore(capture) {
   const originalPackage = readFileSync(rootPackage, "utf8");
@@ -95,11 +145,20 @@ export function withStagedDesignCore(capture) {
   let restoreError;
 
   try {
-    stageDesignCore();
-    setDesignCoreSpecifier("file:./.deps/design-core");
+    for (const dep of siblingDeps) {
+      stageSibling(dep);
+    }
+    setSiblingSpecifiers((dep) => dep.stagedSpecifier);
+    // Drop stale lockfile entries that still point at sibling checkouts outside
+    // the Docker capture context (file:../mira-mde/..., file:../design-core).
     assertSucceeded(
-      spawnInRepo("pnpm", ["install", "--ignore-scripts"]),
-      "Installing staged design-core",
+      spawnInRepo("pnpm", [
+        "install",
+        "--ignore-scripts",
+        "--no-frozen-lockfile",
+        "--force",
+      ]),
+      "Installing staged sibling dependencies",
     );
     captureResult = capture();
   } catch (error) {
