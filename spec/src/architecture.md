@@ -21,6 +21,7 @@
 | LN-ARCH-013 | Storybook MUST resolve the API editor subpath from the same API source root as the root API alias so source-editor fixtures do not mix packaged and source editor implementations.                                           |
 | LN-ARCH-015 | File-view chrome (path breadcrumbs, leaf history, and optional header title rename) MUST project from the api workspace host `getChrome` bridge into design-core `WorkspaceViewHeader`; the source-editor inline title remains a separate in-document filename surface when enabled. |
 | LN-ARCH-016 | The api source-editor shell MUST label CodeMirror hosts with `data-language`, default editor typography to Mira monospace (sans only for Markdown/text), and expose the Mira-styled CodeMirror fold gutter for language-provided fold ranges through the Lapis editor configuration surface. |
+| LN-ARCH-018 | Root Storybook tooling MUST resolve `@lapismd/storybook-addon-visual-delta` through the sibling checkout at `link:../storybook-addon-visual-delta`; linked-source staging remains owned by Visual Delta and MUST NOT move the tool into a runtime package dependency. |
 
 ## Package graph
 
@@ -34,6 +35,7 @@
 
 @lapismd/design-core (sibling; UI primitives + workspace layout engine)
 @lapismd/mira (+ mira-editor / mira plugins; sibling checkout)
+@lapismd/storybook-addon-visual-delta (sibling; root-only Storybook tooling)
 ```
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from

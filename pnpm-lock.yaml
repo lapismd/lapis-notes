@@ -91,8 +91,8 @@ importers:
         specifier: link:../mira-mde/packages/mira-plugin-mermaid
         version: link:../mira-mde/packages/mira-plugin-mermaid
       '@lapismd/storybook-addon-visual-delta':
-        specifier: ^0.0.6
-        version: 0.0.6(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(react@19.2.8))(svelte@5.56.8)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0))
+        specifier: link:../storybook-addon-visual-delta
+        version: link:../storybook-addon-visual-delta
       '@lezer/common':
         specifier: ^1.5.2
         version: 1.5.2
@@ -1262,23 +1262,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@lapismd/storybook-addon-visual-delta@0.0.6':
-    resolution: {integrity: sha512-rK/eQ1ZBQlHtwgKOxvo4BjQ5bUfR4/11cfHB2Qez1yUAoy/IKdxK2/sttZvNBoRcO6gYHcv6SJ5B4rDzZYkJ2w==}
-    hasBin: true
-    peerDependencies:
-      playwright: '*'
-      react: '*'
-      storybook: '*'
-      svelte: ^5.0.0
-      vite: '*'
-    peerDependenciesMeta:
-      playwright:
-        optional: true
-      svelte:
-        optional: true
-      vite:
-        optional: true
 
   '@lezer/common@1.5.2':
     resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
@@ -2548,9 +2531,6 @@ packages:
     resolution: {integrity: sha512-Y22oTqIU4uuPgEemfz7NDJz6OeKf12Lsu+QC+s3BVpda64lTiMYCyGwg5ki4vFxkMwQdeZDl2adZoqUgdFuTgQ==}
     engines: {node: '>=18'}
 
-  html-to-image@1.11.13:
-    resolution: {integrity: sha512-cuOPoI7WApyhBElTTb9oqsawRvZ0rHhaHwghRLlTuffoD1B2aDemlCruLeZrUIIdvG7gs9xeELEPm6PhuASqrg==}
-
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
     engines: {node: '>= 14'}
@@ -2969,10 +2949,6 @@ packages:
   picomatch@4.0.5:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
-
-  pixelmatch@7.2.0:
-    resolution: {integrity: sha512-xhcb4yHu9sM/G7foGzoLtXYcC0zHEaOXXjRKhGup0fw78Nf2Tkiapv4EQyMzrbcmQPsllAI7DbFY2UT7PlI9Pg==}
-    hasBin: true
 
   pkg-types@1.3.1:
     resolution: {integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==}
@@ -4330,19 +4306,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lapismd/storybook-addon-visual-delta@0.0.6(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(react@19.2.8))(svelte@5.56.8)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0))':
-    dependencies:
-      '@storybook/icons': 2.1.0(react@19.2.8)
-      html-to-image: 1.11.13
-      pixelmatch: 7.2.0
-      pngjs: 7.0.0
-      react: 19.2.8
-      storybook: 10.5.7(@types/react@19.2.18)(react@19.2.8)
-    optionalDependencies:
-      playwright: 1.61.1
-      svelte: 5.56.8
-      vite: 7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0)
-
   '@lezer/common@1.5.2': {}
 
   '@lezer/cpp@1.1.6':
@@ -5547,8 +5510,6 @@ snapshots:
     dependencies:
       whatwg-encoding: 3.1.1
 
-  html-to-image@1.11.13: {}
-
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
@@ -6145,10 +6106,6 @@ snapshots:
   picocolors@1.1.1: {}
 
   picomatch@4.0.5: {}
-
-  pixelmatch@7.2.0:
-    dependencies:
-      pngjs: 7.0.0
 
   pkg-types@1.3.1:
     dependencies:

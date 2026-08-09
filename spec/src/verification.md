@@ -21,6 +21,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-015 | architecture      | Implemented | api `getChrome` breadcrumbs/history/title rename; editor inline title remains in-document                        |
 | LN-ARCH-016 | architecture      | Implemented | source editor data-language, mono default, md/text sans, Mira language folds                                     |
 | LN-ARCH-017 | architecture      | Implemented | mira-editor / Mira plugin sibling `link:` deps and built package exports                                         |
+| LN-ARCH-018 | architecture      | Implemented | root Visual Delta dependency resolves through the sibling checkout                                               |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -36,6 +37,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-012  | packages          | Implemented | api consumes linked sibling `@lapismd/mira` through built public exports                                         |
 | LN-PKG-013  | packages          | Implemented | api inline-title tokens and file-view `getChrome` breadcrumb/history/title-rename projection                     |
 | LN-PKG-014  | packages          | Implemented | markupEditor language attr, mono/sans face policy, Mira fold gutter                                              |
+| LN-PKG-016  | packages          | Implemented | Visual Delta remains a sibling-linked private root tool                                                           |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                              |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                          |
@@ -66,7 +68,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-015  | storybook-catalog | Implemented | focused `Workspace/Shell/Bottom Panel Settings` play and pending baseline                                        |
 | LN-CAT-016  | storybook-catalog | Implemented | seven `Workspace/Lapis Editor Demo` scenarios and canonical seed                                                 |
 | LN-CAT-017  | storybook-catalog | Implemented | catalog metadata, `visual-pending` tags, and seven nested-import baselines                                       |
-| LN-CAT-018  | storybook-catalog | Implemented | design-core workspace entry points resolve through linked/staged package exports                                  |
+| LN-CAT-018  | storybook-catalog | Implemented | design-core and Visual Delta resolve through linked/staged package exports                                        |
 | LN-CAT-019  | storybook-catalog | Implemented | API editor source alias                                                                                            |
 | LN-CAT-020  | storybook-catalog | Implemented | Lapis markdown source + linked Mira package exports; Workspace/Panels/Markdown stories                            |
 | LN-CAT-021  | storybook-catalog | Implemented | `stories/spec/*.mdx` raw chapter adapters; Specification-first Storybook ordering                                |

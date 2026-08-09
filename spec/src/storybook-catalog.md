@@ -21,7 +21,7 @@
 | LN-CAT-015 | `Workspace/Shell` MUST include a focused bottom-panel/settings story that boots a real api `App`, persists panel geometry through the api writer, and proves design-core's built-in settings update shell alignment and ribbon presentation without loading plugins or adding settings persistence.                                                                                       |
 | LN-CAT-016 | `Workspace/Lapis Editor Demo` MUST boot a real api `App` and required Storybook-local core plugins over the public memory vault, use one canonical seed, and cover runnable, same-file sync, Explorer mutation, editor settings, startup, failure, and opening-vault states.                                                                                                              |
 | LN-CAT-017 | Workspace catalog metadata MUST enumerate each editor-demo scenario, map it to this specification, and retain nested-import `visual-pending` coverage until human approval.                                                                                                                                                                                                               |
-| LN-CAT-018 | Storybook MUST resolve every design-core workspace entry point through the installed sibling link and the package's public exports. Docker visual capture MUST exercise the same exports from its ignored staged package, avoiding a mixed installed/source runtime without consumer-owned design-core source aliases. |
+| LN-CAT-018 | Storybook MUST resolve every design-core workspace entry point and `@lapismd/storybook-addon-visual-delta` through their installed sibling links and public exports. Docker visual capture MUST exercise those same linked packages from ignored staged copies, avoiding a mixed installed/source runtime without consumer-owned source aliases. |
 | LN-CAT-019 | Storybook's Vite aliases MUST resolve `@lapis-notes/api/editor` with the root API source so editor interactions and accessibility checks exercise the protected implementation under test.                                                                                                                                                                                                |
 | LN-CAT-020 | Storybook MUST resolve `@lapis-notes/markdown` from Lapis workspace source and resolve sibling Mira editor/plugin packages through installed links and built public exports, with no Mira source aliases. It MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags. |
 | LN-CAT-021 | Storybook MUST expose each non-summary chapter indexed by `spec/src/SUMMARY.md` as a first-positioned `Specification/*` documentation page in summary order. Each page MUST render its canonical `spec/src` Markdown through a metadata-only MDX adapter using a raw import and Storybook's `Markdown` block; normative prose MUST NOT be copied into Storybook-owned files. |
@@ -56,8 +56,8 @@ Direct api imports (one story family each):
 - Shell story views remain API-registered imperative Lapis views; their
   story-only body title responds to the live inline-title appearance setting so
   settings are demonstrated through the same view-host bridge as consumers.
-- The visual helpers stage the sibling design-core checkout inside the Docker
-  context for both compare and update runs. They exclude documented nonvisual
-  stories, and the update helper accepts repeatable story-prefix filters; its
-  defaults select API and workspace stories without rewriting unrelated
-  baselines.
+- The visual helpers stage the sibling design-core and Visual Delta checkouts
+  inside the Docker context for both compare and update runs. They exclude
+  documented nonvisual stories, and the update helper accepts repeatable
+  story-prefix filters; its defaults select API and workspace stories without
+  rewriting unrelated baselines.

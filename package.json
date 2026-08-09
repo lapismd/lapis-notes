@@ -56,7 +56,7 @@
     "@lapismd/mira-editor": "link:../mira-mde/packages/mira-editor",
     "@lapismd/mira-plugin-ai": "link:../mira-mde/packages/mira-plugin-ai",
     "@lapismd/mira-plugin-mermaid": "link:../mira-mde/packages/mira-plugin-mermaid",
-    "@lapismd/storybook-addon-visual-delta": "^0.0.6",
+    "@lapismd/storybook-addon-visual-delta": "link:../storybook-addon-visual-delta",
     "@lucide/svelte": "^0.523.0",
     "@playwright/test": "1.61.1",
     "@storybook/addon-a11y": "^10.5.7",
