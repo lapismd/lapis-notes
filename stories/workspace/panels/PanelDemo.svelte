@@ -60,6 +60,10 @@
     height: 100%;
     min-height: 36rem;
   }
+  :global(.panel-demo-docs-canvas) .panel-demo {
+    height: 22rem;
+    min-height: 22rem;
+  }
   .panel-demo__status {
     position: absolute;
     width: 1px;

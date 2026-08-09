@@ -11,6 +11,10 @@ const meta = {
   tags: ["visual-pending", "test"],
   parameters: {
     layout: "fullscreen",
+    docs: {
+      canvas: { className: "panel-demo-docs-canvas" },
+      story: { height: "22rem" },
+    },
   },
 } satisfies Meta<typeof PanelDemo>;
 
