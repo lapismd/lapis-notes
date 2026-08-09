@@ -53,6 +53,37 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   story/demo layout — not as a component styling path.
 - Track swap progress in root `MIGRATION.md`.
 
+## Workspace Panel Stories
+
+- Treat `stories/workspace/panels/AllProperties.stories.ts` as the reference
+  pattern when adding or expanding stories for movable workspace panels. Put a
+  panel's placement stories under one nested
+  `Workspace/Panels/<Family>/<Panel>` group instead of adding a flat run of
+  sibling stories to the family.
+- Unless the mapped spec explicitly narrows the coverage, demonstrate the real
+  panel in all six supported surfaces: Middle (Top Tabs), Stacked Tabs, Left
+  Sidebar, Right Sidebar, Bottom Panel, and Sidebar As a Group. The bottom-panel
+  scenario is a grouped panel and MUST use the real bottom-panel group chrome;
+  the sidebar-group scenario MUST likewise use the real sidebar group.
+- Use the smallest real persisted workspace shell for each placement. Mount
+  exactly one instance of the panel, omit a visible Markdown/document leaf when
+  it is not needed, and seed only the data required to exercise the panel. The
+  panel's appearance and behavior—not surrounding demo content—remain the
+  subject of the story.
+- Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
+  bespoke shell imitations. Keep placement differences in the workspace layout
+  state so the story exercises the same view registration, imperative mount,
+  grouping, and surface styling paths as the application.
+- Each play function waits for the demo's explicit ready state, asserts one
+  panel instance and the expected design-core host/surface, and exercises the
+  panel's defining interaction. Grouped stories also assert their real group
+  control or chrome. For document-independent panel stories, assert that no
+  unrelated Markdown view is mounted.
+- New placement stories carry a literal `visual-pending` tag and an independent
+  nested-import baseline path. Keep the Storybook catalog, mapped `spec/src/`
+  requirements and verification entries, and `MIGRATION.md` progress in sync;
+  do not approve or refresh visual baselines without human review.
+
 ## Development Workflow
 
 - The worktree may contain user changes. Do not revert unrelated edits.

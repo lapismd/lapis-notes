@@ -78,6 +78,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-005  | spec-governance   | Implemented | ignored patterns in gate                                                                                         |
 | LN-GOV-006  | spec-governance   | Implemented | fail-closed on VCS errors                                                                                        |
 | LN-GOV-007  | spec-governance   | Implemented | `spec/book` gitignored                                                                                           |
+| LN-GOV-008  | spec-governance   | Implemented | `AGENTS.md` Workspace Panel Stories workflow                                                                     |
 | LN-WS-001   | workspace-shell   | Implemented | api-owned `AppShellController`                                                                                   |
 | LN-WS-002   | workspace-shell   | Implemented | id-reusing projection + focused tests                                                                            |
 | LN-WS-003   | workspace-shell   | Implemented | `@lapis-notes/api/workspace-host`                                                                                |
