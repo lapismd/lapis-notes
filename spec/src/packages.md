@@ -50,6 +50,10 @@ delegates language behavior to registered editor extensions.
 Markdown views and intaken markdown side panels. Out of scope until specified:
 web/desktop hosts, other bundled plugins, notebook, language-service, and
 plugin-host module generation.
+Storybook exercises those registered panel views through the separate
+`@lapis-notes/workspace` shell adapter; movable-surface fixtures remain consumer
+verification and do not move workspace rendering ownership into the markdown
+package.
 
 Brand palette and semantic tokens live in design-core `themes/lapis.css`.
 `@lapis-notes/ui/theme.css` is an Obsidian-compatibility alias layer only.

@@ -17,7 +17,7 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 | File Properties (LN-MD-017/019) | Landed | Mira `FrontmatterEditor` + Lapis `FrontmatterController` / `FrontmatterPropertyManager` adapter over `MetadataTypeManager`; writes via `processFrontMatter` / `updateFrontmatterProperty` |
 | Side panels + Tags fixture | Landed | Shared `MarkdownSidebarPanel` (LN-MD-018); Tags remains Storybook-local |
 | Spec / Storybook verification | Landed | `pnpm spec:first`; panel CSF plays green; markdown package `check` + unit tests green |
-| Visual Delta for panels | Deferred | Panel stories `skip-visual` until Visual Delta resumes |
+| Visual Delta for panels | Partial | All Properties six-surface spike is `visual-pending`; remaining panel stories stay `skip-visual` until Visual Delta resumes |
 
 ## In scope / landing this slice
 
@@ -34,7 +34,7 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 | Backlinks / Outgoing Links | Done (simplified UI) | Metadata links; FileEmbed hover deferred |
 | Media view | Done (minimal) | Image file view registration |
 | Tags sidebar | Done | Storybook-local `TagsDemoPlugin` on `MarkdownSidebarPanel` |
-| Focused `Workspace/Panels/Markdown/*` stories | Done | Seeded CSF under `stories/workspace/panels` (`skip-visual` until Visual Delta resumes) |
+| Focused `Workspace/Panels/Markdown/*` stories | Done | Seeded CSF under `stories/workspace/panels`; a dedicated All Properties group covers all six movable surfaces in a minimal shell, including grouped chrome in the bottom panel, while remaining panels stay `skip-visual` |
 | Sidebar panel recipe (LN-MD-018) | Done | Sticky chrome + ui Search + panel-action hover + surface by leaf placement (`inSidebar`) |
 | Editor demo last-wins override | Done | source → markdown → tags; optionalCorePlugins configured |
 | MetadataProcessor write contract | Done | `write` serializes the frontmatter object (not `cache.frontmatter`) |
@@ -118,6 +118,6 @@ the contract for new panels.
 | Full-repo remark metadata worker UI depth | Lightweight extract remains |
 | Nest full `Sidebar.Root` inside workspace leaves | Prefer Lapis Explorer pattern: shell/panel NestedProvider + Content/Menu primitives (All Properties uses this); avoid remounting Root |
 | PillListEditor / property-name suggestions / NoteLink in File Properties | Keep Mira editor + simple Lapis type widgets until dedicated widget pass |
-| Panel Visual Delta baselines | Stories tagged `skip-visual` until capture lane resumes |
+| Panel Visual Delta baselines | All Properties six-surface spike is `visual-pending`; remaining panel stories stay `skip-visual` until capture lane resumes |
 
 Update this file when intake or Mira coverage changes.

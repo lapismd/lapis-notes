@@ -29,10 +29,7 @@ function panelStoryMeta(catalogId: string, description: string) {
   };
 }
 
-async function waitForPanelDemo(
-  canvasElement: HTMLElement,
-  testId: string,
-) {
+async function waitForPanelDemo(canvasElement: HTMLElement, testId: string) {
   const canvas = within(canvasElement);
   await waitFor(
     () => {
@@ -60,30 +57,6 @@ async function expectDualPanels(
   await expect(panels.length).toBeGreaterThanOrEqual(2);
   return panels.map((panel) => within(panel));
 }
-
-export const AllProperties: Story = {
-  ...panelStoryMeta(
-    "workspace-panels-all-properties",
-    "Compares All Properties in the main split (beside a Mira markdown leaf) vs the right sidebar. Left sidebar is collapsed.",
-  ),
-  args: { kind: "all-properties" },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await waitForPanelDemo(canvasElement, "all-properties-panel");
-    const [panel] = await expectDualPanels(canvas, "all-properties-panel");
-    await expect(
-      panel.getByRole("button", { name: "Sort properties" }),
-    ).toBeVisible();
-    await expect(
-      panel.getByRole("button", { name: "Search properties" }),
-    ).toBeVisible();
-    await waitFor(() => {
-      expect(panel.getByText("title")).toBeVisible();
-      expect(panel.getByText("tags")).toBeVisible();
-      expect(panel.getByText("status")).toBeVisible();
-    });
-  },
-};
 
 export const FileProperties: Story = {
   ...panelStoryMeta(

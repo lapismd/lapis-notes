@@ -20,6 +20,15 @@ export type PanelDemoKind =
   | "outgoing-links"
   | "tags";
 
+export type PanelDemoLayout =
+  | "comparison"
+  | "middle-top-tabs"
+  | "stacked-tabs"
+  | "left-sidebar"
+  | "right-sidebar"
+  | "bottom-panel"
+  | "sidebar-group";
+
 const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   "all-properties": "all-properties",
   "file-properties": "file:properties",
@@ -65,28 +74,238 @@ function leaf(
   };
 }
 
-function tabs(id: string, children: ReturnType<typeof leaf>[]) {
+type DemoLeaf = ReturnType<typeof leaf>;
+
+function sidebarGroup(
+  id: string,
+  name: string,
+  icon: string,
+  children: DemoLeaf[],
+) {
+  return {
+    id,
+    type: "sidebar-group",
+    name,
+    icon,
+    children,
+    collapsed: Object.fromEntries(children.map((child) => [child.id, false])),
+    panelSizes: Object.fromEntries(children.map((child) => [child.id, 100])),
+  };
+}
+
+type DemoTabItem = DemoLeaf | ReturnType<typeof sidebarGroup>;
+
+function tabs(
+  id: string,
+  children: DemoTabItem[],
+  options: { stacked?: boolean; currentTab?: number } = {},
+) {
   return {
     id,
     type: "tabs",
-    stacked: false,
-    currentTab: 0,
+    stacked: options.stacked ?? false,
+    currentTab: options.currentTab ?? 0,
     children,
   };
 }
 
+function split(
+  id: string,
+  direction: "horizontal" | "vertical",
+  children: ReturnType<typeof tabs>[],
+  options: { width?: string; sizes?: number[] } = {},
+) {
+  return {
+    id,
+    type: "split",
+    direction,
+    sizes:
+      options.sizes ??
+      children.map(() => 100 / Math.max(children.length, 1)),
+    children,
+    ...(options.width ? { width: options.width } : {}),
+  };
+}
+
+function emptyDock(id: string) {
+  return split(id, "vertical", [], { width: "0px" });
+}
+
+function emptyBottom() {
+  return {
+    ...tabs("bottom-panel", []),
+    height: "0px",
+  };
+}
+
+function minimalMain() {
+  return split("main", "horizontal", [
+    tabs("main-empty-tabs", [
+      leaf("main-empty", "Workspace", "file", "empty"),
+    ]),
+  ]);
+}
+
+function createPanelLayout(
+  kind: PanelDemoKind,
+  layout: PanelDemoLayout,
+): Record<string, unknown> {
+  const panelType = PANEL_VIEW_TYPE[kind];
+  const panelMeta = PANEL_LEAF_META[kind];
+  const panel = (id: string) =>
+    leaf(id, panelMeta.title, panelMeta.icon, panelType);
+
+  if (layout === "comparison") {
+    return {
+      main: split(
+        "main",
+        "horizontal",
+        [
+          tabs("main-editor-tabs", [
+            leaf("welcome", "Welcome", "file-text", "markdown", {
+              file: "Notes/Welcome.md",
+              mode: "live-preview",
+            }),
+          ]),
+          tabs("main-panel-tabs", [panel("panel-main")]),
+        ],
+        { sizes: [55, 45] },
+      ),
+      left: emptyDock("left"),
+      right: split(
+        "right",
+        "vertical",
+        [tabs("right-panel-tabs", [panel("panel-sidebar")])],
+        { width: "20rem" },
+      ),
+      bottom: emptyBottom(),
+      floating: [],
+      active: "welcome",
+    };
+  }
+
+  if (layout === "middle-top-tabs") {
+    return {
+      main: split("main", "horizontal", [
+        tabs("main-panel-tabs", [panel("panel-middle")]),
+      ]),
+      left: emptyDock("left"),
+      right: emptyDock("right"),
+      bottom: emptyBottom(),
+      floating: [],
+      active: "panel-middle",
+    };
+  }
+
+  if (layout === "stacked-tabs") {
+    return {
+      main: split("main", "horizontal", [
+        tabs(
+          "main-stacked-tabs",
+          [
+            leaf("stacked-workspace", "Workspace", "layout-template", "empty"),
+            panel("panel-stacked"),
+            leaf("stacked-reference", "Reference", "book-open", "empty"),
+          ],
+          { stacked: true, currentTab: 1 },
+        ),
+      ]),
+      left: emptyDock("left"),
+      right: emptyDock("right"),
+      bottom: emptyBottom(),
+      floating: [],
+      active: "panel-stacked",
+    };
+  }
+
+  if (layout === "left-sidebar") {
+    return {
+      main: minimalMain(),
+      left: split(
+        "left",
+        "vertical",
+        [tabs("left-panel-tabs", [panel("panel-left")])],
+        { width: "22rem" },
+      ),
+      right: emptyDock("right"),
+      bottom: emptyBottom(),
+      floating: [],
+      active: "panel-left",
+    };
+  }
+
+  if (layout === "right-sidebar") {
+    return {
+      main: minimalMain(),
+      left: emptyDock("left"),
+      right: split(
+        "right",
+        "vertical",
+        [tabs("right-panel-tabs", [panel("panel-right")])],
+        { width: "22rem" },
+      ),
+      bottom: emptyBottom(),
+      floating: [],
+      active: "panel-right",
+    };
+  }
+
+  if (layout === "bottom-panel") {
+    const groupedPanel = panel("panel-bottom");
+    return {
+      main: minimalMain(),
+      left: emptyDock("left"),
+      right: emptyDock("right"),
+      bottom: {
+        ...tabs("bottom-panel", [
+          sidebarGroup(
+            "all-properties-bottom-group",
+            "Properties",
+            "archive",
+            [groupedPanel],
+          ),
+        ]),
+        height: "22rem",
+      },
+      floating: [],
+      active: groupedPanel.id,
+    };
+  }
+
+  const groupedPanel = panel("panel-grouped");
+  return {
+    main: minimalMain(),
+    left: emptyDock("left"),
+    right: split(
+      "right",
+      "vertical",
+      [
+        tabs("right-panel-tabs", [
+          sidebarGroup(
+            "all-properties-group",
+            "Properties",
+            "archive",
+            [groupedPanel],
+          ),
+        ]),
+      ],
+      { width: "24rem" },
+    ),
+    bottom: emptyBottom(),
+    floating: [],
+    active: groupedPanel.id,
+  };
+}
+
 /**
- * Seed vault + layout:
- * - No left sidebar (width 0)
- * - Main horizontal split: Markdown (Mira) | panel leaf
- * - Right sidebar: same panel leaf for surface comparison
+ * Seed a metadata-rich vault plus one persisted workspace layout. The
+ * comparison layout remains for the existing panel stories; the All
+ * Properties spike selects one real movable surface at a time.
  */
 export function createPanelDemoSeed(
   kind: PanelDemoKind,
+  layout: PanelDemoLayout = "comparison",
 ): Record<string, string | ArrayBuffer> {
-  const panelType = PANEL_VIEW_TYPE[kind];
-  const panelMeta = PANEL_LEAF_META[kind];
-
   return {
     ".obsidian/app.json": JSON.stringify(PANEL_APP_CONFIGURATION, null, 2),
     ".obsidian/types.json": JSON.stringify(
@@ -103,61 +322,7 @@ export function createPanelDemoSeed(
       2,
     ),
     ".obsidian/workspace.json": JSON.stringify(
-      {
-        main: {
-          id: "main",
-          type: "split",
-          direction: "horizontal",
-          sizes: [55, 45],
-          children: [
-            tabs("main-editor-tabs", [
-              leaf("welcome", "Welcome", "file-text", "markdown", {
-                file: "Notes/Welcome.md",
-                mode: "live-preview",
-              }),
-            ]),
-            tabs("main-panel-tabs", [
-              leaf(
-                "panel-main",
-                panelMeta.title,
-                panelMeta.icon,
-                panelType,
-              ),
-            ]),
-          ],
-        },
-        left: {
-          id: "left",
-          type: "split",
-          direction: "vertical",
-          sizes: [100],
-          children: [],
-          width: "0px",
-        },
-        right: {
-          id: "right",
-          type: "split",
-          direction: "vertical",
-          sizes: [100],
-          children: [
-            tabs("right-panel-tabs", [
-              leaf(
-                "panel-sidebar",
-                panelMeta.title,
-                panelMeta.icon,
-                panelType,
-              ),
-            ]),
-          ],
-          width: "20rem",
-        },
-        bottom: {
-          ...tabs("bottom-panel", []),
-          height: "0px",
-        },
-        floating: [],
-        active: "welcome",
-      },
+      createPanelLayout(kind, layout),
       null,
       2,
     ),
@@ -259,21 +424,24 @@ function countPanelLeaves(app: App, panelType: string): number {
   return count;
 }
 
-export async function bootPanelDemo(kind: PanelDemoKind): Promise<{
+export async function bootPanelDemo(
+  kind: PanelDemoKind,
+  layout: PanelDemoLayout = "comparison",
+): Promise<{
   app: App;
   dispose: () => Promise<void>;
 }> {
   const previousApp = globalThis.app;
-  const adapter = new MemoryVaultAdapter(createPanelDemoSeed(kind), {
-    name: `Lapis Panel ${kind}`,
-    vaultId: `lapis-panel-${kind}`,
+  const adapter = new MemoryVaultAdapter(createPanelDemoSeed(kind, layout), {
+    name: `Lapis Panel ${kind} ${layout}`,
+    vaultId: `lapis-panel-${kind}-${layout}`,
     clock: 1_700_000_000_000,
   });
   const app = new App({
     version: "0.0.1-story",
     configPath: ".obsidian/app.json",
     adapter,
-    appDatabase: new MemoryAppDatabase(`lapis-panel-${kind}`),
+    appDatabase: new MemoryAppDatabase(`lapis-panel-${kind}-${layout}`),
     workspaceShell: {
       application: { name: "Lapis Notes" },
     },
@@ -281,7 +449,7 @@ export async function bootPanelDemo(kind: PanelDemoKind): Promise<{
   });
 
   // LN-MD-012 order: source → markdown → tags (panel host last).
-  app.plugins.registerCorePlugins([
+  const corePlugins = [
     { plugin: SourceEditorDemoPlugin, required: true },
     {
       plugin: MarkdownPlugin,
@@ -293,8 +461,11 @@ export async function bootPanelDemo(kind: PanelDemoKind): Promise<{
       required: false,
       enabledByDefault: true,
     },
-    { plugin: PanelHostPlugin, required: true },
-  ]);
+  ];
+  if (layout === "comparison") {
+    corePlugins.push({ plugin: PanelHostPlugin, required: true });
+  }
+  app.plugins.registerCorePlugins(corePlugins);
 
   globalThis.app = app;
   await app.vault.load();
@@ -307,17 +478,15 @@ export async function bootPanelDemo(kind: PanelDemoKind): Promise<{
   await app.metadataCache.load();
   await app.workspace.loadLayout();
 
-  app.workspace.leftSplit.collapse();
-  app.workspace.rightSplit.expand();
-
   const panelType = PANEL_VIEW_TYPE[kind];
   const markdownLeaf = findMarkdownLeaf(app);
   if (markdownLeaf) {
     app.workspace.setActiveLeaf(markdownLeaf, { focus: true });
   }
 
-  // Ensure both comparison surfaces have the panel view.
-  if (countPanelLeaves(app, panelType) < 2) {
+  // Retain the existing defensive repair only for the legacy comparison
+  // fixtures. Focused placement stories must hydrate their exact seeded shape.
+  if (layout === "comparison" && countPanelLeaves(app, panelType) < 2) {
     const right =
       app.workspace.getRightLeaf(false) ?? app.workspace.getLeaf(true);
     await right.setViewState({ type: panelType });
@@ -330,6 +499,14 @@ export async function bootPanelDemo(kind: PanelDemoKind): Promise<{
       );
       await mainPanel.setViewState({ type: panelType });
     }
+  }
+
+  const expectedPanelCount = layout === "comparison" ? 2 : 1;
+  const panelCount = countPanelLeaves(app, panelType);
+  if (panelCount !== expectedPanelCount) {
+    throw new Error(
+      `Expected ${expectedPanelCount} ${panelType} panel leaf/leaves for ${layout}, found ${panelCount}`,
+    );
   }
 
   if (markdownLeaf) {

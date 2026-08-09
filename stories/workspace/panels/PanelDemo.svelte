@@ -4,6 +4,7 @@
   import {
     bootPanelDemo,
     type PanelDemoKind,
+    type PanelDemoLayout,
   } from "./create-panel-demo";
   import type { App } from "@lapis-notes/api";
   import "../lapis-editor-demo/lapis-editor-demo.css";
@@ -12,8 +13,10 @@
 
   let {
     kind,
+    layout = "comparison",
   }: {
     kind: PanelDemoKind;
+    layout?: PanelDemoLayout;
   } = $props();
 
   let app = $state<App | null>(null);
@@ -22,7 +25,7 @@
 
   onMount(() => {
     let cancelled = false;
-    void bootPanelDemo(kind).then((runtime) => {
+    void bootPanelDemo(kind, layout).then((runtime) => {
       if (cancelled) {
         void runtime.dispose();
         return;
@@ -42,6 +45,7 @@
   class="panel-demo"
   data-testid="panel-demo"
   data-panel-kind={kind}
+  data-panel-layout={layout}
   data-status={status}
 >
   <div class="panel-demo__status" data-testid="panel-demo-status">{status}</div>

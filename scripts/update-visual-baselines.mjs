@@ -10,7 +10,8 @@
  * Pass one or more `--story-prefix <prefix>` options to update a narrow family
  * without rewriting existing baselines. With no prefix, the `api-`,
  * `workspace-shell-`, and `workspace-lapis-editor-demo-` stories are selected.
- * Markdown panel stories are `skip-visual` until Visual Delta capture is resumed.
+ * The All Properties layout family is selected only through an explicit prefix;
+ * remaining Markdown panel stories stay `skip-visual`.
  */
 import { spawnSync } from "node:child_process";
 import {

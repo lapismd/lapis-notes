@@ -18,6 +18,19 @@ export function resolvePanelTargetFile(app: App): TFile | null {
 
 /** True when the leaf lives in the left/right WorkspaceSidedock. */
 export function leafInSidebar(leaf: WorkspaceLeaf | null | undefined): boolean {
-  const parent = leaf?.parent as { inSideBar?: () => boolean } | undefined;
-  return Boolean(parent?.inSideBar?.());
+  let item = leaf?.parent as
+    | {
+        parent?: unknown;
+        inSideBar?: () => boolean;
+      }
+    | undefined;
+
+  while (item) {
+    if (item.inSideBar?.()) {
+      return true;
+    }
+    item = item.parent as typeof item;
+  }
+
+  return false;
 }
