@@ -61,8 +61,8 @@
     min-height: 36rem;
   }
   :global(.panel-demo-docs-canvas) .panel-demo {
-    height: 22rem;
-    min-height: 22rem;
+    height: 700px;
+    min-height: 700px;
   }
   .panel-demo__status {
     position: absolute;

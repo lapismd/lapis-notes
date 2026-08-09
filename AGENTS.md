@@ -81,9 +81,12 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   state so the story exercises the same view registration, imperative mount,
   grouping, and surface styling paths as the application.
 - Render app-backed panel stories in isolated Autodocs iframes
-  (`parameters.docs.story.inline: false`) with a compact explicit Docs height.
-  Inline Autodocs stories share `globalThis.app`, so simultaneous examples can
-  steal imperative views and no longer reflect their declared placements.
+  (`parameters.docs.story.inline: false`) at an explicit `700px` Docs height.
+  Scope the canvas with `panel-demo-docs-canvas` and remove Storybook's shell
+  padding with `.panel-demo-docs-canvas .docs-story .sb-story { padding: 0; }`
+  so the real shell reaches the preview edges. Inline Autodocs stories share
+  `globalThis.app`, so simultaneous examples can steal imperative views and no
+  longer reflect their declared placements.
 - Give every placement story its own explicit `parameters.docs.source` entry.
   Derive colocated example strings from the same workspace layout builder or
   canonical fixture used by the story, show public Lapis imports plus the real

@@ -4,6 +4,7 @@ import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import * as exampleSources from "./AllProperties.example-sources";
 import PanelDemo from "./PanelDemo.svelte";
 import type { PanelDemoLayout } from "./create-panel-demo";
+import "./AllProperties.docs.css";
 
 const meta = {
   title: "Workspace/Panels/Markdown/All Properties",
@@ -14,7 +15,7 @@ const meta = {
     layout: "fullscreen",
     docs: {
       canvas: { className: "panel-demo-docs-canvas" },
-      story: { height: "22rem", inline: false },
+      story: { height: "700px", inline: false },
     },
   },
 } satisfies Meta<typeof PanelDemo>;
@@ -48,10 +49,17 @@ const sourceMarker: Record<AllPropertiesLayout, string> = {
 
 type DocsSourceParameters = {
   docs?: {
+    canvas?: {
+      className?: string;
+    };
     source?: {
       code?: string;
       language?: string;
       type?: string;
+    };
+    story?: {
+      height?: string;
+      inline?: boolean;
     };
   };
 };
@@ -60,6 +68,12 @@ async function expectConsumerSource(
   parameters: DocsSourceParameters,
   layout: AllPropertiesLayout,
 ) {
+  await expect(parameters.docs?.canvas?.className).toBe(
+    "panel-demo-docs-canvas",
+  );
+  await expect(parameters.docs?.story?.height).toBe("700px");
+  await expect(parameters.docs?.story?.inline).toBe(false);
+
   const source = parameters.docs?.source;
   await expect(source?.language).toBe("ts");
   await expect(source?.type).toBe("code");
