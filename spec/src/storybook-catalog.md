@@ -24,6 +24,7 @@
 | LN-CAT-018 | Storybook MUST resolve every design-core workspace entry point through the installed sibling link and the package's public exports. Docker visual capture MUST exercise the same exports from its ignored staged package, avoiding a mixed installed/source runtime without consumer-owned design-core source aliases. |
 | LN-CAT-019 | Storybook's Vite aliases MUST resolve `@lapis-notes/api/editor` with the root API source so editor interactions and accessibility checks exercise the protected implementation under test.                                                                                                                                                                                                |
 | LN-CAT-020 | Storybook MUST resolve `@lapis-notes/markdown` from Lapis workspace source and resolve sibling Mira editor/plugin packages through installed links and built public exports, with no Mira source aliases. It MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags. |
+| LN-CAT-021 | Storybook MUST expose each non-summary chapter indexed by `spec/src/SUMMARY.md` as a first-positioned `Specification/*` documentation page in summary order. Each page MUST render its canonical `spec/src` Markdown through a metadata-only MDX adapter using a raw import and Storybook's `Markdown` block; normative prose MUST NOT be copied into Storybook-owned files. |
 
 ## API verification families
 

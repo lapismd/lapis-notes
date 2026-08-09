@@ -28,6 +28,26 @@ const preview: Preview = {
     docs: {
       toc: true,
     },
+    options: {
+      storySort: {
+        order: [
+          "Specification",
+          [
+            "Introduction",
+            "Architecture",
+            "Packages",
+            "Workspace Shell",
+            "Lapis Editor Demo",
+            "Markdown Plugin",
+            "UI and Styling",
+            "Storybook Catalog",
+            "Specification Governance",
+            "Verification",
+          ],
+          "*",
+        ],
+      },
+    },
     // Fail Vitest / Testing Module runs on axe violations (panel alone is not enough).
     a11y: {
       test: "error",
