@@ -6,9 +6,9 @@
   /**
    * Canonical workspace leaf chrome for markdown / Tags side panels (LN-MD-018).
    *
-   * Surface paint follows the nearest design-core `data-workspace-surface`
-   * host through CSS ancestry, so moving a leaf immediately adopts the
-   * destination surface without runtime workspace-parent inspection.
+   * Surface paint consumes design-core's resolved Workspace view tokens, so
+   * moving a leaf immediately adopts the destination surface without panel-
+   * owned placement selectors or runtime workspace-parent inspection.
    *
    * Why not nest shadcn `Sidebar.Root` / `Sidebar.Provider` here?
    * - Leaf views own the fill; Explorer fills the sidebar hole with panel tokens.
@@ -121,12 +121,12 @@
     --markdown-sidebar-count-width: 2rem;
 
     --markdown-sidebar-surface: var(
-      --ui-workspace-background,
-      var(--background)
+      --ui-workspace-view-background,
+      var(--ui-workspace-background, var(--background))
     );
     --markdown-sidebar-surface-foreground: var(
-      --ui-workspace-foreground,
-      var(--foreground)
+      --ui-workspace-view-foreground,
+      var(--ui-workspace-foreground, var(--foreground))
     );
 
     position: relative;
@@ -143,27 +143,6 @@
     font-family: var(--ui-workspace-explorer-font-family, inherit);
     font-size: var(--ui-workspace-explorer-font-size, 0.8125rem);
     border: none;
-  }
-
-  :global([data-workspace-surface="left-sidebar"]) .markdown-sidebar-panel,
-  :global([data-workspace-surface="right-sidebar"]) .markdown-sidebar-panel {
-    --markdown-sidebar-surface: var(--ui-workspace-panel, var(--sidebar));
-    --markdown-sidebar-surface-foreground: var(
-      --ui-workspace-panel-foreground,
-      var(--sidebar-foreground)
-    );
-  }
-
-  :global([data-ui-component="workspace-sidebar-group"])
-    .markdown-sidebar-panel {
-    --markdown-sidebar-surface: var(
-      --ui-workspace-background,
-      var(--background)
-    );
-    --markdown-sidebar-surface-foreground: var(
-      --ui-workspace-foreground,
-      var(--foreground)
-    );
   }
 
   .markdown-sidebar-panel :global(.markdown-sidebar-panel__scroll) {

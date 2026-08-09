@@ -35,7 +35,7 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 | Media view | Done (minimal) | Image file view registration |
 | Tags sidebar | Done | Storybook-local `TagsDemoPlugin` on `MarkdownSidebarPanel` |
 | Focused `Workspace/Panels/Markdown/*` stories | Done | Seeded CSF under `stories/workspace/panels`; All Properties Autodocs describes only the real `app` input while render-only fixtures select six movable surfaces, including grouped chrome in the bottom panel; remaining panels stay `skip-visual` |
-| Sidebar panel recipe (LN-MD-018) | Done | Sticky chrome + ui Search + panel-action hover + CSS ancestry over stable design-core surface hosts |
+| Sidebar panel recipe (LN-MD-018) | Done | Sticky chrome + ui Search + panel-action hover + design-core resolved Workspace view tokens |
 | Editor demo last-wins override | Done | source → markdown → tags; optionalCorePlugins configured |
 | MetadataProcessor write contract | Done | `write` serializes the frontmatter object (not `cache.frontmatter`) |
 | Type widget registration | Done | Lapis types registered in `onload` with icons + simple native editors |
@@ -61,19 +61,23 @@ has no interactive control.
 
 ### Surface placement
 
-Panels can move between every desktop surface. Design-core owns stable surface
-identity on the destination host, and the shell matches it through CSS ancestry:
+Panels can move between every desktop surface. Design-core's
+`WorkspaceViewHost` owns the resolved paint contract:
 
-| `data-workspace-surface` | Paint |
+| Workspace view placement | Resolved paint |
 | --- | --- |
 | Ungrouped top-level `left-sidebar` / `right-sidebar` panel | `--ui-workspace-panel` |
-| `body` / `bottom-panel` / `workspace-sidebar-group` / no surface ancestor | `--ui-workspace-background` |
+| `body` / `bottom-panel` / grouped / mobile / floating / standalone | `--ui-workspace-background` |
 
-- Do not inspect or cache `view.leaf.parent`, or pass placement props into
-  `MarkdownSidebarPanel`; a dragged leaf must adopt its destination CSS without
-  a component remount.
+- Consume `--ui-workspace-view-background` and
+  `--ui-workspace-view-foreground` for the panel root and sticky chrome.
+- Do not add surface ancestry selectors or grouped resets, inspect or cache
+  `view.leaf.parent`, or pass placement props into `MarkdownSidebarPanel`; a
+  dragged leaf must adopt its destination CSS without a component remount.
 - Keep view host CSS (`surfaces.css`) **transparent** so the shell owns paint.
 - Sticky chrome uses the same `--markdown-sidebar-surface` token as the root.
+- Exceptional panels may override the view tokens on their own root for genuine
+  component-specific paint, never to reconstruct workspace placement.
 - Do not hard-code sidebar grey on panels that may open in the main split.
 
 ### View icons

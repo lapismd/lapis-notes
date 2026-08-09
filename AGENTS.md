@@ -86,15 +86,15 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Properties tables must show only real component inputs; disable controls for
   injected object inputs such as `app`, and verify that `kind` / `layout` do not
   appear.
-- Style movable panel surfaces only through CSS ancestry against design-core's
-  stable `data-workspace-surface` hosts (`body`, `left-sidebar`,
-  `right-sidebar`, and `bottom-panel`). Keep the white workspace surface as the
-  default for body, bottom-panel, and grouped-sidebar placement; only an
-  ungrouped top-level panel under a left/right sidebar ancestor uses panel
-  paint. Use the stable `workspace-sidebar-group` component host to reset group
-  descendants. Never inspect or cache a leaf's runtime parent, or pass a
-  placement boolean into the panel, to decide paint; a drag must adopt the
-  destination host's styling without remounting the view.
+- Design-core's `WorkspaceViewHost` owns movable-panel surface paint through
+  `--ui-workspace-view-background` and `--ui-workspace-view-foreground`. Panel
+  roots and sticky chrome consume those resolved tokens: body, bottom-panel,
+  grouped, mobile, floating, and standalone views use the white workspace
+  surface; only ungrouped left/right sidebar views use panel paint. Keep Lapis
+  view containers transparent. Do not add `data-workspace-surface` ancestry
+  selectors, grouped resets, runtime leaf-parent inspection, cached placement,
+  or placement props to a panel. An exceptional panel may override the view
+  tokens on its own root only for component-specific paint.
 - Render app-backed panel stories in isolated Autodocs iframes
   (`parameters.docs.story.inline: false`) at an explicit `700px` Docs height.
   Scope the canvas with `panel-demo-docs-canvas` and remove Storybook's shell
@@ -108,12 +108,13 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   placement state, and assert distinguishing layout markers in the play. Never
   let Show Code fall back to `<PanelDemo …>` or another story-only harness.
 - Each play function waits for the demo's explicit ready state, asserts one
-  panel instance and the expected design-core `data-workspace-surface` host,
-  verifies the panel's computed paint matches the white default for body,
-  bottom, and grouped placement or the applicable ungrouped left/right sidebar
-  override, and exercises the panel's defining interaction. Grouped stories
-  also assert their real group control or chrome. For document-independent
-  panel stories, assert that no
+  panel instance, the expected design-core destination host, and its nested
+  `WorkspaceViewHost`. Verify that the view host resolves the white workspace
+  paint for body, bottom, and grouped placement or panel paint for an ungrouped
+  left/right sidebar, then assert the panel root and sticky chrome match that
+  host. Exercise the panel's defining interaction; grouped stories also assert
+  their real group control or chrome. For document-independent panel stories,
+  assert that no
   unrelated Markdown view is mounted.
 - New placement stories carry a literal `visual-pending` tag and an independent
   nested-import baseline path. Keep the Storybook catalog, mapped `spec/src/`

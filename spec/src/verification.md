@@ -25,7 +25,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
 | LN-PKG-004  | packages          | Implemented | hosts/notebook/language-service absent; `@lapis-notes/markdown` authorized carve-out                             |
-| LN-PKG-015  | packages          | Implemented | markdown package exports real AllProperties app-only component + Mira/Plugin and CSS-surface contracts           |
+| LN-PKG-015  | packages          | Implemented | markdown exports app-only AllProperties and consumes design-core resolved view-token contracts                   |
 | LN-PKG-005  | packages          | Implemented | package `exports` maps                                                                                           |
 | LN-PKG-006  | packages          | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed                                     |
 | LN-PKG-007  | packages          | Implemented | `packages/workspace` shell adapter                                                                               |
@@ -70,7 +70,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-019  | storybook-catalog | Implemented | API editor source alias                                                                                            |
 | LN-CAT-020  | storybook-catalog | Implemented | Lapis markdown source + linked Mira package exports; Workspace/Panels/Markdown stories                            |
 | LN-CAT-021  | storybook-catalog | Implemented | `stories/spec/*.mdx` raw chapter adapters; Specification-first Storybook ordering                                |
-| LN-CAT-022  | storybook-catalog | Implemented | real app-only component metadata + six layouts with surface/paint assertions, isolated Docs, consumer sources, and focused plays |
+| LN-CAT-022  | storybook-catalog | Implemented | app-only metadata + six layouts asserting destination/ViewHost/panel/chrome paint, isolated Docs, and consumer sources |
 | LN-GOV-001  | spec-governance   | Implemented | `spec/` mdBook sources                                                                                           |
 | LN-GOV-002  | spec-governance   | Implemented | this matrix                                                                                                      |
 | LN-GOV-003  | spec-governance   | Implemented | `scripts/check-spec-first.mjs`                                                                                   |
@@ -78,7 +78,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-005  | spec-governance   | Implemented | ignored patterns in gate                                                                                         |
 | LN-GOV-006  | spec-governance   | Implemented | fail-closed on VCS errors                                                                                        |
 | LN-GOV-007  | spec-governance   | Implemented | `spec/book` gitignored                                                                                           |
-| LN-GOV-008  | spec-governance   | Implemented | `AGENTS.md` panel workflow: real component metadata, stable CSS ancestry, isolated Docs, and consumer Show Code   |
+| LN-GOV-008  | spec-governance   | Implemented | `AGENTS.md` panel workflow: real metadata, design-core view tokens, isolated Docs, and consumer Show Code         |
 | LN-WS-001   | workspace-shell   | Implemented | api-owned `AppShellController`                                                                                   |
 | LN-WS-002   | workspace-shell   | Implemented | id-reusing projection + focused tests                                                                            |
 | LN-WS-003   | workspace-shell   | Implemented | `@lapis-notes/api/workspace-host`                                                                                |
@@ -119,7 +119,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-017   | editor-demo       | Implemented | tab title bar in-place rename through getChrome onTitleCommit                                                     |
 | LN-ED-018   | editor-demo       | Implemented | data-language hosts; mono default; md/text sans; Mira language fold gutter                                       |
 | LN-ED-019   | editor-demo       | Implemented | core plugin order source → markdown → tags                                                                       |
-| LN-ED-020   | editor-demo       | Implemented | Markdown stories + All Properties app-only metadata, six-surface CSS assertions, and editor-demo integration     |
+| LN-ED-020   | editor-demo       | Implemented | Markdown stories + All Properties app-only metadata, six-surface ViewHost paint assertions, and integration      |
 | LN-MD-001   | markdown-plugin   | Implemented | `@lapis-notes/markdown` package path                                                                             |
 | LN-MD-002   | markdown-plugin   | Implemented | existing Plugin registration APIs                                                                                |
 | LN-MD-003   | markdown-plugin   | Implemented | Plugin triad freeze                                                                                              |
@@ -139,4 +139,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-MD-017   | markdown-plugin   | Implemented | File Properties editable via Mira controller + processFrontMatter adapter                                        |
 | LN-MD-019   | markdown-plugin   | Implemented | File Properties mounts Mira FrontmatterEditor with Lapis MetadataTypeManager adapter                             |
 | LN-MD-020   | markdown-plugin   | Implemented | exported app-only AllProperties component + persisted six-surface stories without harness args or Markdown leaf  |
-| LN-MD-018   | markdown-plugin   | Implemented | MarkdownSidebarPanel CSS ancestry over stable design-core surface hosts + Lucide short-name view icons            |
+| LN-MD-018   | markdown-plugin   | Implemented | MarkdownSidebarPanel consumes design-core resolved view paint + Lucide short-name view icons                     |

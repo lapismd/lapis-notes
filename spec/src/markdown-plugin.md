@@ -21,7 +21,7 @@
 | LN-MD-015  | Storybook / demo host boots that load markdown MUST call `metadataTypeManager.trackChanges()` (or an equivalent `watchMetadata` helper) after plugins load and dispose the watcher on teardown.             |
 | LN-MD-016  | All Properties MUST provide sort menu, toggleable search, type icons from registered widgets, and property context actions (rename / change type / delete), using `@lapis-notes/ui/sidebar-custom` menu primitives (NestedProvider + Content/Menu/MenuButton) inside `MarkdownSidebarPanel` so default sidebar styling applies — without remounting `Sidebar.Root` in the leaf. |
 | LN-MD-017  | File Properties MUST edit active-file frontmatter through registered type widgets and `updateFrontmatterProperty` / `processFrontMatter` (not a parallel save path).                                      |
-| LN-MD-018  | Workspace markdown / Tags side panels MUST use shared `MarkdownSidebarPanel`: one `ScrollArea` with sticky in-viewport chrome (toolbar + optional `@lapis-notes/ui/search` with white control fill), panel-action hover tokens for toolbar icons (not ghost `--muted`), and shell layout tokens (`--markdown-sidebar-*`, `--header-height`). The default shell paint MUST be `--ui-workspace-background` (white in the light Lapis theme) for body, bottom-panel, and grouped-sidebar placement. Only an ungrouped top-level panel under design-core's stable `left-sidebar` or `right-sidebar` `data-workspace-surface` host may override that default with `--ui-workspace-panel`; the stable `workspace-sidebar-group` host resets its descendants to the default. Panels MUST NOT inspect or cache the runtime leaf parent to choose paint, so moving a leaf adopts its destination styling immediately. View `getIcon()` MUST return Lucide short names for `WorkspaceIcon` (All Properties: `archive`). Menu-style lists MAY wrap `sidebar-custom` NestedProvider without `Sidebar.Root`; simple lists use shell `__list` / `__row` helpers. |
+| LN-MD-018  | Workspace markdown / Tags side panels MUST use shared `MarkdownSidebarPanel`: one `ScrollArea` with sticky in-viewport chrome (toolbar + optional `@lapis-notes/ui/search` with white control fill), panel-action hover tokens for toolbar icons (not ghost `--muted`), and shell layout tokens (`--markdown-sidebar-*`, `--header-height`). Its root and sticky chrome MUST consume design-core's resolved `--ui-workspace-view-background` / `--ui-workspace-view-foreground` tokens. Design-core's `WorkspaceViewHost` is the placement-paint authority: body, bottom-panel, grouped-sidebar, mobile, floating, and standalone views use workspace paint (white in the light Lapis theme), while only ungrouped left/right sidebar views resolve to panel paint. Panels MUST remain placement-agnostic: no `data-workspace-surface` ancestry selectors, grouped resets, runtime leaf-parent inspection, cached placement, or placement props. An exceptional panel MAY override the view tokens on its own root for component-specific paint. View `getIcon()` MUST return Lucide short names for `WorkspaceIcon` (All Properties: `archive`). Menu-style lists MAY wrap `sidebar-custom` NestedProvider without `Sidebar.Root`; simple lists use shell `__list` / `__row` helpers. |
 | LN-MD-019  | File Properties MUST render Mira `FrontmatterEditor` driven by a Lapis `FrontmatterController` + `FrontmatterPropertyManager` adapter over `app.metadataTypeManager` (types, registered widgets, suggestions, rename/setType). The panel MUST NOT mount a parallel local property form as the editable authority. |
 | LN-MD-020  | The package MUST export the real `AllProperties` Svelte component with `app: App` as its only component input. The All Properties Storybook spike MUST declare that component as its Autodocs authority while rendering it through the persisted workspace shell in each supported movable-panel surface: middle top tabs, stacked tabs, left sidebar, right sidebar, a grouped bottom panel, and a sidebar group. Fixture-only panel kind and layout selection MUST remain fixed in story render functions or parameters and MUST NOT appear as component args, Controls, or Properties. Each scenario MUST contain exactly one All Properties view, omit a visible Markdown document leaf, retain seeded metadata, and verify the panel's sort/search controls. |
 
@@ -38,19 +38,15 @@ Canonical leaf chrome lives in `MarkdownSidebarPanel` (see
 `packages/plugins/plugin-markdown/PARITY.md`). Do not fork sticky
 search/toolbar geometry per view.
 
-Surface by placement is CSS-only (required):
-
-- Default (`body`, `bottom-panel`, `workspace-sidebar-group`, or no desktop
-  surface ancestor) →
-  `--ui-workspace-background`
-- Top-level `[data-workspace-surface="left-sidebar"]` panel →
-  `--ui-workspace-panel`
-- Top-level `[data-workspace-surface="right-sidebar"]` panel →
-  `--ui-workspace-panel`
-
-Keep surface identity on the design-core destination host and view-host
-backgrounds transparent. Do not inspect the workspace parent graph or pass a
-placement boolean into the panel; CSS ancestry must update paint after a move.
+Surface paint is CSS-only and owned by design-core. `WorkspaceViewHost` resolves
+`--ui-workspace-view-background` and `--ui-workspace-view-foreground` from the
+destination surface: direct left/right sidebar views receive panel paint, while
+body, bottom, grouped, mobile, floating, and standalone views receive workspace
+paint. `MarkdownSidebarPanel` consumes those tokens for both its root and sticky
+chrome. Keep Lapis view containers transparent, and do not add placement
+selectors, inspect the workspace parent graph, or pass a placement boolean into
+the panel. An exceptional panel may override the view tokens on its own root
+only when its component contract genuinely requires different paint.
 
 View icons: return Lucide short names from `getIcon()` (All Properties =
 `archive`). See PARITY.md icon table.

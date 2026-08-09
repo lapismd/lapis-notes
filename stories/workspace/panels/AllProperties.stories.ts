@@ -176,24 +176,42 @@ async function expectAllPropertiesPlacement(
     "data-workspace-surface",
     expectedSurface,
   );
+  const viewHost = panel.closest(
+    '[data-ui-component="workspace-view-host"]',
+  ) as HTMLElement | null;
+  if (!viewHost) {
+    throw new Error(`Missing WorkspaceViewHost for ${layout}`);
+  }
   const storyWindow = canvasElement.ownerDocument.defaultView;
   if (!storyWindow) {
     throw new Error("Missing Storybook preview window");
   }
-  const usesDefaultPaint =
-    expectedSurface === "bottom-panel" || layout === "sidebar-group";
-  const paintHost =
-    usesDefaultPaint
-      ? (canvasElement.querySelector(
-          '[data-workspace-surface="body"]',
-        ) as HTMLElement | null)
-      : surfaceHost;
+  const usesSidebarPaint =
+    layout === "left-sidebar" || layout === "right-sidebar";
+  const paintHost = usesSidebarPaint
+    ? surfaceHost
+    : (canvasElement.querySelector(
+        '[data-workspace-surface="body"]',
+      ) as HTMLElement | null);
   if (!paintHost) {
     throw new Error(`Missing expected paint host for ${layout}`);
   }
-  await expect(storyWindow.getComputedStyle(panel).backgroundColor).toBe(
+  const viewBackground = storyWindow.getComputedStyle(viewHost).backgroundColor;
+  await expect(viewBackground).toBe(
     storyWindow.getComputedStyle(paintHost).backgroundColor,
   );
+  await expect(storyWindow.getComputedStyle(panel).backgroundColor).toBe(
+    viewBackground,
+  );
+  const stickyChrome = panel.querySelector<HTMLElement>(
+    '[data-ui-part="chrome"]',
+  );
+  if (!stickyChrome) {
+    throw new Error(`Missing sticky panel chrome for ${layout}`);
+  }
+  await expect(
+    storyWindow.getComputedStyle(stickyChrome).backgroundColor,
+  ).toBe(viewBackground);
   if (layout === "left-sidebar" || layout === "right-sidebar") {
     await expect(host).toHaveAttribute(
       "data-workspace-sidebar-side",

@@ -42,7 +42,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Path A / Path B editor extension reload + host editor events preserved
 - [x] Markdown settings section (Mira features, mermaid, AI stub)
 - [x] Side panels: All Properties, File Properties, Outline, Backlinks, Outgoing Links, Media
-- [x] Shared `MarkdownSidebarPanel` recipe (LN-MD-018) + Tags Storybook fixture; movable paint follows stable design-core CSS hosts, with a white body/bottom/group default and sidebar paint only for ungrouped top-level side panels
+- [x] Shared `MarkdownSidebarPanel` recipe (LN-MD-018) + Tags Storybook fixture; design-core `WorkspaceViewHost` resolves public view paint tokens, with a white body/bottom/group default and sidebar paint only for ungrouped top-level side panels; Lapis contains no placement selectors
 - [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
 - [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter (LN-MD-017/019)
 - [x] Focused `Workspace/Panels/Markdown/*` interaction stories (plays green; Visual Delta deferred)
