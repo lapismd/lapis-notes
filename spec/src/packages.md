@@ -20,6 +20,7 @@
 | LN-PKG-013 | `@lapis-notes/api` MUST paint the source-editor inline filename title with public `--ui-editor-inline-title-*` tokens and MUST contribute file-view breadcrumbs, leaf history, and header title rename (`titleEditable` / `onTitleCommit`) through the workspace-host `getChrome` projection. |
 | LN-PKG-014 | `@lapis-notes/api` `markupEditor` MUST accept a language id for `data-language` host attributes, default the editor face to Mira monospace with Markdown/text sans overrides, and mount the Mira-styled CodeMirror fold gutter for language-provided fold ranges when fold settings are enabled. |
 | LN-PKG-016 | `@lapismd/storybook-addon-visual-delta` MUST remain a private root development dependency resolved from `link:../storybook-addon-visual-delta`; it MUST NOT enter api, ui, workspace, or plugin package manifests. |
+| LN-PKG-017 | `@lapis-notes/markdown` MUST publicly export app-only Svelte components for All Properties, File Properties, Outline, Backlinks, and Outgoing Links. The Storybook-local Tags component MUST NOT be presented as a package export, and `@lapis-notes/workspace` MUST remain shell-only. |
 
 ## `@lapis-notes/api` (kernel slice)
 

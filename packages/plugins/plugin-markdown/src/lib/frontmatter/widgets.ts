@@ -102,7 +102,7 @@ export const widgets: Array<TypeWidget> = [
     default: () => [],
     validate: isTextNumberArray,
     name: "Tags",
-    icon: "lucide-tags",
+    icon: "lucide-hash",
     type: "tags",
     render: renderCommaList,
   },

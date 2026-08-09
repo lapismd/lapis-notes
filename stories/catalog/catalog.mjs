@@ -170,6 +170,58 @@ export const apiUiCatalog = [
   },
 ];
 
+const markdownPanelPlacements = [
+  { suffix: "", story: "middle-top-tabs", title: "Middle (Top Tabs)" },
+  { suffix: "-stacked-tabs", story: "stacked-tabs", title: "Stacked Tabs" },
+  { suffix: "-left-sidebar", story: "left-sidebar", title: "Left Sidebar" },
+  { suffix: "-right-sidebar", story: "right-sidebar", title: "Right Sidebar" },
+  { suffix: "-bottom-panel", story: "bottom-panel", title: "Bottom Panel" },
+  {
+    suffix: "-sidebar-group",
+    story: "sidebar-group",
+    title: "Sidebar As a Group",
+  },
+];
+
+const markdownPanelFamilies = [
+  {
+    kind: "file-properties",
+    title: "File Properties",
+    publicSurface: "@lapis-notes/markdown",
+  },
+  {
+    kind: "outline",
+    title: "Outline",
+    publicSurface: "@lapis-notes/markdown",
+  },
+  {
+    kind: "backlinks",
+    title: "Backlinks",
+    publicSurface: "@lapis-notes/markdown",
+  },
+  {
+    kind: "outgoing-links",
+    title: "Outgoing Links",
+    publicSurface: "@lapis-notes/markdown",
+  },
+  {
+    kind: "tags",
+    title: "Tags",
+    publicSurface: "stories/workspace/lapis-editor-demo/tags/tags.svelte",
+  },
+];
+
+/** @type {CatalogEntry[]} */
+const markdownPanelCatalog = markdownPanelFamilies.flatMap((family) =>
+  markdownPanelPlacements.map((placement) => ({
+    id: `workspace-panels-${family.kind}${placement.suffix}`,
+    title: `${family.title}: ${placement.title}`,
+    spec: "spec/src/markdown-plugin.md",
+    publicSurface: family.publicSurface,
+    storyId: `workspace-panels-markdown-${family.kind}--${placement.story}`,
+  })),
+);
+
 /** @type {CatalogEntry[]} */
 export const workspaceCatalog = [
   {
@@ -305,41 +357,7 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/markdown",
     storyId: "workspace-panels-markdown-all-properties--sidebar-group",
   },
-  {
-    id: "workspace-panels-file-properties",
-    title: "File Properties",
-    spec: "spec/src/markdown-plugin.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown--file-properties",
-  },
-  {
-    id: "workspace-panels-outline",
-    title: "Outline",
-    spec: "spec/src/markdown-plugin.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown--outline",
-  },
-  {
-    id: "workspace-panels-backlinks",
-    title: "Backlinks",
-    spec: "spec/src/markdown-plugin.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown--backlinks",
-  },
-  {
-    id: "workspace-panels-outgoing-links",
-    title: "Outgoing Links",
-    spec: "spec/src/markdown-plugin.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown--outgoing-links",
-  },
-  {
-    id: "workspace-panels-tags",
-    title: "Tags",
-    spec: "spec/src/markdown-plugin.md",
-    publicSurface: "stories/workspace/lapis-editor-demo/tags-plugin",
-    storyId: "workspace-panels-markdown--tags",
-  },
+  ...markdownPanelCatalog,
 ];
 
 export function catalogParameters(catalogId) {

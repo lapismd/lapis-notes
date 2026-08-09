@@ -20,6 +20,7 @@
 | LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme through the linked package's built public exports, without a Storybook or Vite source alias. Source-editor Markdown language packs remain source-only. Rich Mira surfaces MUST be provided only by `@lapis-notes/markdown` when that plugin is enabled. |
 | LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations), then Tags (`enabledByDefault: true`). |
 | LN-ED-020 | Storybook MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags, plus editor-demo integration coverage for Markdown modes and Markdown/Mira settings. All Properties MUST additionally demonstrate the real panel without a visible Markdown leaf in middle top tabs, stacked tabs, both sidebars, a grouped bottom panel, and a sidebar group. Its Autodocs component contract MUST expose only the real `app: App` input, never the Storybook-only panel kind or layout selectors. These movable-panel fixtures MUST inherit design-core's resolved Workspace view paint, assert the stable destination host and `WorkspaceViewHost`, and remain free of panel-owned placement selectors or runtime leaf-parent inspection. |
+| LN-ED-021 | Every focused Markdown panel MUST use a nested `Workspace/Panels/Markdown/<Panel>` group with the same six movable surfaces as All Properties. Vault-wide panels omit the Markdown document; file-scoped panels retain exactly one minimal active Markdown leaf. The legacy dual-panel comparison fixture MUST NOT remain catalog authority. |
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
 | LN-ED-017 | For file leaves, the tab title bar final segment MUST be renameable in place through `getChrome` `titleEditable` / `onTitleCommit` → `fileManager.renameFile`, without hiding breadcrumbs. |
@@ -32,8 +33,9 @@ Reusable storage, source-view, configuration, and registry behavior belongs to
 `@lapis-notes/api`. Generic startup presentation belongs to design-core. The
 Lapis source-editor and Explorer plugins remain Storybook-local intake fixtures.
 `@lapis-notes/markdown` is the authorized plugin package (see
-`markdown-plugin.md`). Tags remain a Storybook-local or thin workspace-origin
-intake beside markdown. `@lapis-notes/workspace` remains the thin shell host.
+`markdown-plugin.md`). Tags remains a Storybook-local workspace-origin intake
+beside markdown. `@lapis-notes/workspace` remains the thin shell host and does
+not absorb the Tags plugin.
 
 ## Demo lifecycle
 

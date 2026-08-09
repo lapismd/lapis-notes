@@ -26,6 +26,7 @@
     showTitle = true,
     searchToggleable = false,
     searchOpen = $bindable(!searchToggleable),
+    scrollOrientation = "vertical",
     toolbar = undefined as Snippet | undefined,
     children,
   }: {
@@ -41,6 +42,8 @@
     /** When true, search is shown only while `searchOpen` is true. */
     searchToggleable?: boolean;
     searchOpen?: boolean;
+    /** Enable horizontal access for content with an intentional minimum width. */
+    scrollOrientation?: "vertical" | "both";
     toolbar?: Snippet;
     children: Snippet;
   } = $props();
@@ -59,7 +62,10 @@
   data-show-title={showTitle ? "true" : "false"}
   data-search-open={showSearch ? "true" : "false"}
 >
-  <ScrollArea class="markdown-sidebar-panel__scroll">
+  <ScrollArea
+    class="markdown-sidebar-panel__scroll"
+    orientation={scrollOrientation}
+  >
     {#if showChrome}
       <div class="markdown-sidebar-panel__chrome" data-ui-part="chrome">
         {#if toolbar}

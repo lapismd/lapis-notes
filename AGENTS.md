@@ -61,9 +61,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 ## Workspace Panel Stories
 
-- Treat `stories/workspace/panels/AllProperties.stories.ts` as the reference
-  pattern when adding or expanding stories for movable workspace panels. Put a
-  panel's placement stories under one nested
+- Treat the shared panel-story helpers plus
+  `stories/workspace/panels/AllProperties.stories.ts` as the reference pattern
+  when adding or expanding stories for movable workspace panels. Put a panel's
+  placement stories under one nested
   `Workspace/Panels/<Family>/<Panel>` group instead of adding a flat run of
   sibling stories to the family.
 - Unless the mapped spec explicitly narrows the coverage, demonstrate the real
@@ -76,6 +77,36 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   it is not needed, and seed only the data required to exercise the panel. The
   panel's appearance and behavior—not surrounding demo content—remain the
   subject of the story.
+- Panel roots and their content MUST fill the complete `WorkspaceViewHost`.
+  `Sidebar.NestedProvider` supplies context but its inherited Content width can
+  default to the legacy sidebar width, so menu panels must normalize the nested
+  wrapper, Content, Menu, items, and collapsibles to the available width. Omit
+  `MarkdownSidebarPanel` title/meta intro chrome unless it is genuine panel
+  content. Tree panels align each nested guide beneath the expanded chevron tip
+  and indent only at the start edge. Apply the panel's explicit disclosure
+  policy: Tags reserves the disclosure column so hashes align by depth, while
+  Outline leaves reserve no disclosure space. Keep any counts and the trailing
+  row edge aligned independently of that start-edge policy.
+- Apply the same baseline to non-tree panels. File Properties remains a Mira
+  `FrontmatterEditor`, adapted only through a full-width `markdown-widget-shell`
+  wrapper and inherited workspace/0.75rem panel type variables. Retain a 15rem
+  editor-content minimum with horizontal access, while relying on Mira's own
+  250px container breakpoint to stack property keys and values into complete
+  rows. Preserve Lapis type metadata but let Mira's native inline and pill-list
+  controls render text, tags, aliases, and multitext; do not reintroduce generic
+  textarea/comma inputs, competing input outlines, or resizable property
+  textareas. Preserve the native Mira/Lapis property-row border/ring/radius, but
+  derive the focused key/value fill from the resolved view foreground and
+  background so it contrasts on both sidebar and workspace surfaces. Tags use
+  the Lucide hash glyph. The wrapper stays transparent and supplies
+  surface-aware Lapis focus, tag-, and alias-pill tokens; focused cells and
+  alias pills must visibly contrast with both direct-sidebar and workspace
+  paint.
+  Never let a broad Mira surface override design-core's resolved panel paint.
+  Backlinks and Outgoing Links must normalize every `NestedProvider` descendant
+  to the available width, keep group and mention rows at 0.75rem, and align
+  section/file counts to one trailing edge. None of these panels render shell
+  title/path intro copy.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
   bespoke shell imitations. Keep placement differences in the workspace layout
   state so the story exercises the same view registration, imperative mount,
@@ -86,6 +117,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Properties tables must show only real component inputs; disable controls for
   injected object inputs such as `app`, and verify that `kind` / `layout` do not
   appear.
+- Storybook-local intake components such as Tags MUST still declare the real
+  fixture component and its genuine inputs. Their Docs source MUST use the
+  actual co-located fixture import and clearly describe that package-boundary
+  exception; never invent a public package export for documentation symmetry.
 - Design-core's `WorkspaceViewHost` owns movable-panel surface paint through
   `--ui-workspace-view-background` and `--ui-workspace-view-foreground`. Panel
   roots and sticky chrome consume those resolved tokens: body, bottom-panel,
@@ -119,7 +154,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - New placement stories carry a literal `visual-pending` tag and an independent
   nested-import baseline path. Keep the Storybook catalog, mapped `spec/src/`
   requirements and verification entries, and `MIGRATION.md` progress in sync;
-  do not approve or refresh visual baselines without human review.
+  do not approve or refresh visual baselines without human review. When the
+  user explicitly excludes visual testing from a slice, declare the future
+  independent paths and record capture as pending without generating or
+  updating PNGs.
 
 ## Development Workflow
 

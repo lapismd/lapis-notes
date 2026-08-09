@@ -1,36 +1,180 @@
 <script lang="ts">
-  import type { App } from "@lapis-notes/api";
+  import { Menu as UIMenu, useTextHighlight, type App } from "@lapis-notes/api";
+  import { fuzzyMatchScore } from "@lapis-notes/ui";
+  import * as Sidebar from "@lapis-notes/ui/sidebar-custom";
   import { MarkdownSidebarPanel } from "@lapis-notes/markdown";
+  import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as Collapsible from "@lapismd/design-core/shadcn/collapsible";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import ChevronsUpDown from "@lucide/svelte/icons/chevrons-up-down";
+  import FolderTree from "@lucide/svelte/icons/folder-tree";
+  import Search from "@lucide/svelte/icons/search";
+  import SortAsc from "@lucide/svelte/icons/sort-asc";
+  import Hash from "@lucide/svelte/icons/hash";
+  import { onMount } from "svelte";
+
+  type TagSortMode = "frequency:asc" | "frequency:desc" | "tag:asc" | "tag:desc";
+  type TagNode = { name: string; tag: string; count: number; children: TagNode[] };
 
   let { app }: { app: App } = $props();
 
-  let query = $state("");
+  const sorters: Record<TagSortMode, (left: TagNode, right: TagNode) => number> = {
+    "frequency:asc": (left, right) => left.count - right.count || left.name.localeCompare(right.name),
+    "frequency:desc": (left, right) => right.count - left.count || left.name.localeCompare(right.name),
+    "tag:asc": (left, right) => left.name.localeCompare(right.name),
+    "tag:desc": (left, right) => right.name.localeCompare(left.name),
+  };
 
-  const tags = $derived.by(() => {
-    const values: Record<string, number> = {};
-    for (const [, cache] of app.metadataCache.getAllItems().entries()) {
-      for (const tag of cache.tags ?? []) {
-        const name = tag.tag.startsWith("#") ? tag.tag : `#${tag.tag}`;
-        values[name] = (values[name] ?? 0) + 1;
-      }
-      const frontmatterTags = cache.frontmatter?.tags;
-      const list = Array.isArray(frontmatterTags)
-        ? frontmatterTags
-        : typeof frontmatterTags === "string"
-          ? [frontmatterTags]
+  let values = $state<Record<string, number>>({});
+  let taggedPaths = $state<Set<string>>(new Set());
+  let opened = $state<Set<string>>(new Set());
+  let query = $state("");
+  let searchOpen = $state(false);
+  let nested = $state(false);
+  let sortMode = $state<TagSortMode>("frequency:desc");
+
+  function hierarchy(tag: string): string[] {
+    const parts = tag
+      .replace(/^#/u, "")
+      .split("/")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    return parts.map((_, index) => parts.slice(0, index + 1).join("/"));
+  }
+
+  function reload() {
+    const nextValues: Record<string, number> = {};
+    const nextPaths = new Set<string>();
+    for (const [file, cache] of app.metadataCache.getAllItems()) {
+      const frontmatterValue = cache.frontmatter?.tags;
+      const frontmatterTags = Array.isArray(frontmatterValue)
+        ? frontmatterValue
+        : typeof frontmatterValue === "string"
+          ? frontmatterValue.split(/[\s,]+/u)
           : [];
-      for (const tag of list) {
-        const name = String(tag).startsWith("#")
-          ? String(tag)
-          : `#${String(tag)}`;
-        values[name] = (values[name] ?? 0) + 1;
+      const fileTags = new Set(
+        [
+          ...(cache.tags ?? []).map((tag) => tag.tag),
+          ...frontmatterTags.map((tag) => String(tag)),
+        ].flatMap((tag) => hierarchy(tag)),
+      );
+      if (fileTags.size) nextPaths.add(file.path);
+      for (const tag of fileTags) nextValues[tag] = (nextValues[tag] ?? 0) + 1;
+    }
+    values = nextValues;
+    taggedPaths = nextPaths;
+  }
+
+  function flatTags(): TagNode[] {
+    return Object.entries(values)
+      .map(([tag, count]) => ({
+        name: tag,
+        tag,
+        count,
+        score: fuzzyMatchScore(tag, query, []),
+        children: [] as TagNode[],
+      }))
+      .filter((tag) => tag.score > 0)
+      .sort((left, right) => sorters[sortMode](left, right))
+      .map(({ score: _score, ...tag }) => tag);
+  }
+
+  function tagTree(tags: TagNode[]): TagNode[] {
+    const nodes = new Map<string, TagNode>();
+    for (const tag of tags) {
+      const parts = tag.tag.split("/");
+      parts.forEach((part, index) => {
+        const path = parts.slice(0, index + 1).join("/");
+        const node = nodes.get(path) ?? {
+          name: part,
+          tag: path,
+          count: 0,
+          children: [],
+        };
+        if (path === tag.tag) node.count = tag.count;
+        nodes.set(path, node);
+      });
+    }
+    const roots: TagNode[] = [];
+    for (const [path, node] of nodes) {
+      const parts = path.split("/");
+      if (parts.length === 1) roots.push(node);
+      else {
+        const parent = nodes.get(parts.slice(0, -1).join("/"));
+        if (parent && !parent.children.some((child) => child.tag === path)) {
+          parent.children.push(node);
+        }
       }
     }
-    const q = query.trim().toLowerCase();
-    return Object.entries(values)
-      .map(([tag, count]) => ({ tag, count }))
-      .filter((entry) => !q || entry.tag.toLowerCase().includes(q))
-      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+    const sort = (items: TagNode[]): TagNode[] => {
+      items.sort(sorters[sortMode]);
+      items.forEach((item) => sort(item.children));
+      return items;
+    };
+    return sort(roots);
+  }
+
+  const tags = $derived(nested ? tagTree(flatTags()) : flatTags());
+
+  function expandable(nodes: TagNode[]): string[] {
+    return nodes.flatMap((node) =>
+      node.children.length ? [node.tag, ...expandable(node.children)] : [],
+    );
+  }
+
+  function setOpen(tag: string, value: boolean) {
+    const next = new Set(opened);
+    if (value) next.add(tag);
+    else next.delete(tag);
+    opened = next;
+  }
+
+  function toggleCollapse() {
+    if (!nested) return;
+    opened = opened.size ? new Set() : new Set(expandable(tags));
+  }
+
+  function toggleSearch() {
+    searchOpen = !searchOpen;
+    if (!searchOpen) query = "";
+  }
+
+  function createSortMenu(event: MouseEvent) {
+    new UIMenu()
+      .addItem((item) =>
+        item.setTitle("Tag name (A to Z)").setChecked(sortMode === "tag:asc").onClick(() => (sortMode = "tag:asc")),
+      )
+      .addItem((item) =>
+        item.setTitle("Tag name (Z to A)").setChecked(sortMode === "tag:desc").onClick(() => (sortMode = "tag:desc")),
+      )
+      .addSeparator()
+      .addItem((item) =>
+        item.setTitle("Frequency (high to low)").setChecked(sortMode === "frequency:desc").onClick(() => (sortMode = "frequency:desc")),
+      )
+      .addItem((item) =>
+        item.setTitle("Frequency (low to high)").setChecked(sortMode === "frequency:asc").onClick(() => (sortMode = "frequency:asc")),
+      )
+      .showAtMouseEvent(event);
+  }
+
+  $effect(() => {
+    if (!nested && opened.size) opened = new Set();
+  });
+
+  onMount(() => {
+    reload();
+    const changed = app.metadataCache.on("changed", (file, _data, cache) => {
+      if (taggedPaths.has(file.path) || (cache.tags?.length ?? 0) > 0) reload();
+    });
+    const deleted = app.metadataCache.on("deleted", (file) => {
+      if (taggedPaths.has(file.path)) reload();
+    });
+    const loaded = app.metadataCache.on("loaded", reload);
+    return () => {
+      app.metadataCache.offref(changed);
+      app.metadataCache.offref(deleted);
+      app.metadataCache.offref(loaded);
+    };
   });
 </script>
 
@@ -38,19 +182,225 @@
   title="Tags"
   testId="tags-panel"
   component="tags"
+  showTitle={false}
   searchPlaceholder="Search tags"
+  searchToggleable
+  bind:searchOpen
   bind:query
 >
-  <ul class="markdown-sidebar-panel__list">
-    {#each tags as entry (entry.tag)}
-      <li class="markdown-sidebar-panel__item">
-        <div class="markdown-sidebar-panel__row">
-          <span class="markdown-sidebar-panel__row-label">{entry.tag}</span>
-          <span class="markdown-sidebar-panel__row-meta">{entry.count}</span>
-        </div>
-      </li>
-    {:else}
-      <li class="markdown-sidebar-panel__empty">No tags in this vault yet.</li>
-    {/each}
-  </ul>
+  {#snippet toolbar()}
+    <Button variant="ghost" size="sm" aria-label="Change tag sort order" onclick={createSortMenu}>
+      <SortAsc />
+    </Button>
+    <Button
+      variant="ghost"
+      size="sm"
+      aria-label="Show nested tags"
+      aria-pressed={nested}
+      data-active={nested}
+      onclick={() => (nested = !nested)}
+    >
+      <FolderTree />
+    </Button>
+    <Button
+      variant="ghost"
+      size="sm"
+      aria-label={opened.size ? "Collapse all tags" : "Expand all tags"}
+      disabled={!nested}
+      onclick={toggleCollapse}
+    >
+      <ChevronsUpDown />
+    </Button>
+    <Button
+      variant="ghost"
+      size="sm"
+      aria-label="Search tags"
+      aria-pressed={searchOpen}
+      data-active={searchOpen}
+      onclick={toggleSearch}
+    >
+      <Search />
+    </Button>
+  {/snippet}
+
+  <Sidebar.NestedProvider
+    id="storybook-tags"
+    class="tags-panel__fill"
+  >
+    <Sidebar.Content class="tags-panel__menu-host">
+      <Sidebar.Menu class="tags-panel__menu">
+        {#each tags as tag (tag.tag)}
+          {@render TagTree({ tag })}
+        {:else}
+          <p class="markdown-sidebar-panel__empty">No tags in this vault yet.</p>
+        {/each}
+      </Sidebar.Menu>
+    </Sidebar.Content>
+  </Sidebar.NestedProvider>
 </MarkdownSidebarPanel>
+
+{#snippet TagTree({ tag, child = false }: { tag: TagNode; child?: boolean })}
+  {@const Item = child ? Sidebar.MenuSubItem : Sidebar.MenuItem}
+  <Item>
+    {#if tag.children.length}
+      <Collapsible.Root
+        open={opened.has(tag.tag)}
+        onOpenChange={(value) => setOpen(tag.tag, value)}
+      >
+        <Collapsible.Trigger class="tags-panel__row">
+          <ChevronRight data-open={opened.has(tag.tag)} />
+          <Hash class="tags-panel__hash-icon" aria-hidden="true" />
+          <span
+            class="tags-panel__label"
+            use:useTextHighlight={{
+              query,
+              value: tag.name,
+            }}
+          >
+            {tag.name}
+          </span>
+          <span class="tags-panel__count">{tag.count}</span>
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <Sidebar.MenuSub class="tags-panel__sub">
+            {#each tag.children as nestedTag (nestedTag.tag)}
+              {@render TagTree({ tag: nestedTag, child: true })}
+            {/each}
+          </Sidebar.MenuSub>
+        </Collapsible.Content>
+      </Collapsible.Root>
+    {:else}
+      <Sidebar.MenuButton class="tags-panel__row">
+        <span class="tags-panel__disclosure-spacer" aria-hidden="true"></span>
+        <Hash class="tags-panel__hash-icon" aria-hidden="true" />
+        <span
+          class="tags-panel__label"
+          use:useTextHighlight={{
+            query,
+            value: tag.name,
+          }}
+        >
+          {tag.name}
+        </span>
+        <span class="tags-panel__count">{tag.count}</span>
+      </Sidebar.MenuButton>
+    {/if}
+  </Item>
+{/snippet}
+
+<style>
+  :global(.tags-panel__fill),
+  :global(.tags-panel__menu),
+  :global(.tags-panel__fill [data-ui-part="sidebar-menu-item"]),
+  :global(.tags-panel__fill [data-ui-part="collapsible"]) {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+
+  :global(
+    .tags-panel__fill
+      [data-ui-component="sidebar-custom"][data-ui-part="sidebar-content"].tags-panel__menu-host
+  ) {
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  :global(
+    [data-ui-component="sidebar-custom"][data-ui-part="sidebar-menu-sub"].tags-panel__sub
+  ) {
+    box-sizing: border-box;
+    width: calc(100% - 1rem);
+    margin-inline: 0;
+    margin-inline-start: 1rem;
+    padding-inline: 1.25rem 0;
+    translate: none;
+  }
+
+  :global(.tags-panel__fill [data-ui-part].tags-panel__row) {
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: var(--ui-workspace-explorer-row-height, 1.75rem);
+    align-items: center;
+    gap: 0.25rem;
+    border: 2px solid transparent;
+    border-radius: var(--ui-workspace-radius-small, 0.25rem);
+    padding: 0.125rem
+      calc(
+        var(--markdown-sidebar-count-width) +
+          var(--markdown-sidebar-count-end-pad)
+      )
+      0.125rem 0.375rem;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  :global(.tags-panel__fill [data-ui-part].tags-panel__row:hover),
+  :global(.tags-panel__fill [data-ui-part].tags-panel__row:focus-visible) {
+    background: var(--ui-workspace-explorer-row-hover-background, var(--sidebar-accent));
+    outline: none;
+  }
+
+  :global(.tags-panel__fill [data-ui-part].tags-panel__row svg) {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+  }
+
+  .tags-panel__disclosure-spacer {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+  }
+
+  :global(
+    .tags-panel__fill
+      [data-ui-part].tags-panel__row
+      svg.tags-panel__hash-icon
+  ) {
+    color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
+  }
+
+  :global(.tags-panel__fill [data-ui-part].tags-panel__row svg) {
+    transition: transform 120ms ease;
+  }
+
+  :global(
+    .tags-panel__fill [data-ui-part].tags-panel__row svg[data-open="true"]
+  ) {
+    transform: rotate(90deg);
+  }
+
+  .tags-panel__label {
+    overflow: hidden;
+    min-width: 0;
+    flex: 1 1 auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tags-panel__count {
+    position: absolute;
+    top: 50%;
+    right: var(--markdown-sidebar-count-end-pad);
+    display: inline-flex;
+    width: var(--markdown-sidebar-count-width);
+    min-width: var(--markdown-sidebar-count-width);
+    align-items: center;
+    justify-content: flex-end;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+  }
+</style>

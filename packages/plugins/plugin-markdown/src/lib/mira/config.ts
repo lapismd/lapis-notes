@@ -58,6 +58,13 @@ export function createMarkdownConfigurationSchema() {
       default: "source",
       description: "Default editing mode for new Markdown tabs.",
     },
+    "outline.autoScrollToCurrentSection": {
+      title: "Auto-scroll Outline to current section",
+      type: "boolean",
+      default: false,
+      description:
+        "Keep the Outline panel aligned with the visible Markdown heading.",
+    },
     "markdown.mira.plugins.mermaid.enabled": {
       title: "Mermaid",
       type: "boolean",

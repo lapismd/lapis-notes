@@ -38,6 +38,12 @@ export function registerMarkdownSettings(plugin: Plugin): void {
       default: "source",
     },
     {
+      id: "outline.autoScrollToCurrentSection",
+      type: "boolean" as const,
+      title: "Auto-scroll Outline to current section",
+      default: false,
+    },
+    {
       id: "markdown.mira.plugins.mermaid.enabled",
       type: "boolean" as const,
       title: "Mermaid plugin",

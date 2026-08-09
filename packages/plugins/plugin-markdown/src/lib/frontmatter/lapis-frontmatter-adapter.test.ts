@@ -10,7 +10,11 @@ vi.mock("@lapismd/mira/preview/frontmatter", () => ({
       resolveType(pathString: string, key: string, _value: unknown) {
         const configured = types[pathString] ?? types[key];
         if (typeof configured === "string") return configured;
-        if (configured && typeof configured === "object" && "type" in configured) {
+        if (
+          configured &&
+          typeof configured === "object" &&
+          "type" in configured
+        ) {
           return configured.type;
         }
         return "text";
@@ -67,7 +71,15 @@ function createAppFixture(frontmatter: Record<string, unknown>) {
     tags: {
       type: "tags",
       name: "Tags",
-      icon: "lucide-tags",
+      icon: "lucide-hash",
+      default: () => [],
+      validate: () => true,
+      render: () => undefined,
+    },
+    aliases: {
+      type: "aliases",
+      name: "Aliases",
+      icon: "lucide-at-sign",
       default: () => [],
       validate: () => true,
       render: () => undefined,
@@ -130,11 +142,14 @@ describe("lapis frontmatter adapter", () => {
     vi.clearAllMocks();
   });
 
-  it("exposes Lapis widgets and setType through the Mira property manager", () => {
+  it("exposes Lapis definitions while preserving Mira native editors", () => {
     const { app } = createAppFixture({ title: "Demo" });
     const manager = createLapisFrontmatterPropertyManager(app);
 
     expect(manager.resolveWidget("tags")?.label).toBe("Tags");
+    expect(manager.resolveWidget("tags")?.icon).toBe("lucide-hash");
+    expect(manager.resolveWidget("tags")?.render).toBeUndefined();
+    expect(manager.resolveWidget("aliases")?.render).toBeUndefined();
     expect(manager.resolveType("count", "count", "2")).toBe("number");
 
     manager.setType("status", "text");
@@ -150,17 +165,13 @@ describe("lapis frontmatter adapter", () => {
       count: "3",
     });
 
-    await commitLapisFrontmatterRecord(
-      app,
-      { path: "note.md" } as any,
-      {
-        record: { title: "Updated", count: "4" },
-        yaml: "title: Updated\ncount: 4\n",
-        replacement: "---\ntitle: Updated\ncount: 4\n---\n",
-        from: null,
-        to: null,
-      },
-    );
+    await commitLapisFrontmatterRecord(app, { path: "note.md" } as any, {
+      record: { title: "Updated", count: "4" },
+      yaml: "title: Updated\ncount: 4\n",
+      replacement: "---\ntitle: Updated\ncount: 4\n---\n",
+      from: null,
+      to: null,
+    });
 
     expect(app.fileManager.processFrontMatter).toHaveBeenCalled();
     expect(getFrontmatter()).toEqual({

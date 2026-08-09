@@ -1,8 +1,10 @@
 import { View } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
-import LinkSidebar from "../link-sidebar/link-sidebar.svelte";
+import OutgoingLinks from "./outgoing-links.svelte";
 
 export const OutgoingLinksViewType = "file:outgoing-links";
+
+export { OutgoingLinks };
 
 export class OutgoingLinksView extends View {
   private component: unknown = null;
@@ -17,11 +19,10 @@ export class OutgoingLinksView extends View {
 
   onload(): void {
     this.containerEl.classList.add("markdown-outgoing-links-view");
-    this.component = mount(LinkSidebar, {
+    this.component = mount(OutgoingLinks, {
       target: this.containerEl,
       props: {
         app: this.app,
-        mode: "outgoing",
       },
     });
   }
@@ -38,7 +39,7 @@ export class OutgoingLinksView extends View {
   }
 
   getIcon(): string {
-    return "links";
+    return "external-link";
   }
 
   getDisplayText(): string {

@@ -173,6 +173,7 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         "react-dom/client",
         "@dnd-kit/svelte",
         "@dnd-kit/dom",
+        "@lucide/svelte/icons/hash",
       ],
     },
     ssr: {

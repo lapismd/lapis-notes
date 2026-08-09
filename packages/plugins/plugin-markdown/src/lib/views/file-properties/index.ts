@@ -4,6 +4,8 @@ import { mount, unmount } from "svelte";
 
 export const FilePropertiesViewType = "file:properties";
 
+export { FileProperties };
+
 export class FilePropertiesView extends View {
   private component: unknown = null;
 

@@ -9,15 +9,21 @@ import {
   AllPropertiesView,
   AllPropertiesViewType,
 } from "$lib/views/all-properties";
-import { BacklinksView, BacklinksViewType } from "$lib/views/backlinks";
 import {
+  Backlinks,
+  BacklinksView,
+  BacklinksViewType,
+} from "$lib/views/backlinks";
+import {
+  FileProperties,
   FilePropertiesView,
   FilePropertiesViewType,
 } from "$lib/views/file-properties";
 import { MarkdownView, MarkdownViewType } from "$lib/views/markdown";
 import { MediaView, MediaViewType } from "$lib/views/media";
-import { OutlineView, OutlineViewType } from "$lib/views/outline";
+import { Outline, OutlineView, OutlineViewType } from "$lib/views/outline";
 import {
+  OutgoingLinks,
   OutgoingLinksView,
   OutgoingLinksViewType,
 } from "$lib/views/outgoing-links";
@@ -44,14 +50,18 @@ export {
   AllProperties,
   AllPropertiesView,
   AllPropertiesViewType,
+  Backlinks,
   BacklinksView,
   BacklinksViewType,
+  FileProperties,
   FilePropertiesView,
   FilePropertiesViewType,
   MediaView,
   MediaViewType,
+  Outline,
   OutlineView,
   OutlineViewType,
+  OutgoingLinks,
   OutgoingLinksView,
   OutgoingLinksViewType,
 };

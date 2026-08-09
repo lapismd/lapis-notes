@@ -24,18 +24,6 @@ function adaptTypeWidget(widget: TypeWidget): FrontmatterTypeDefinition {
     icon: widget.icon,
     defaultValue: () => widget.default(),
     validate: (value) => widget.validate(value),
-    render: (element, context) => {
-      widget.render(element, {
-        type: {
-          name: context.property.pathString,
-          type: widget.type,
-        },
-        value: context.property.value,
-        onChange: (_type, value) => {
-          context.setValue(value);
-        },
-      });
-    },
   };
 }
 

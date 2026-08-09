@@ -7,44 +7,44 @@ Living checklist vs full-repo
 
 `@lapis-notes/markdown` is the sole authorized plugin package in this monorepo
 slice (LN-MD-001). Document render is Mira-owned; Lapis keeps Plugin/Editor/
-metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
+metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–024).
 
-| Layer | Status | Notes |
-| --- | --- | --- |
-| Package + registration | Landed | Workspace package; `Plugin` APIs only (no loader fork) |
-| Mira document modes | Landed | `source` / `live-preview` / `preview` + View menu + leaf state |
-| Mira local package resolve | Landed | Sibling `link:` packages resolve built public exports; rebuild Mira to refresh `dist`. Docker visual capture still uses ignored staged `.deps/*` |
-| File Properties (LN-MD-017/019) | Landed | Mira `FrontmatterEditor` + Lapis `FrontmatterController` / `FrontmatterPropertyManager` adapter over `MetadataTypeManager`; writes via `processFrontMatter` / `updateFrontmatterProperty` |
-| Side panels + Tags fixture | Landed | Shared `MarkdownSidebarPanel` (LN-MD-018); Tags remains Storybook-local |
-| Spec / Storybook verification | Landed | `pnpm spec:first`; panel CSF plays green; markdown package `check` + unit tests green |
-| Visual Delta for panels | Partial | All Properties six-surface spike is `visual-pending`; remaining panel stories stay `skip-visual` until Visual Delta resumes |
+| Layer                           | Status   | Notes                                                                                                                                                                                     |
+| ------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package + registration          | Landed   | Workspace package; `Plugin` APIs only (no loader fork)                                                                                                                                    |
+| Mira document modes             | Landed   | `source` / `live-preview` / `preview` + View menu + leaf state                                                                                                                            |
+| Mira local package resolve      | Landed   | Sibling `link:` packages resolve built public exports; rebuild Mira to refresh `dist`. Docker visual capture still uses ignored staged `.deps/*`                                          |
+| File Properties (LN-MD-017/019) | Landed   | Mira `FrontmatterEditor` + Lapis `FrontmatterController` / `FrontmatterPropertyManager` adapter over `MetadataTypeManager`; writes via `processFrontMatter` / `updateFrontmatterProperty` |
+| Side panels + Tags fixture      | Landed   | Shared `MarkdownSidebarPanel`; app-only public Markdown panels; complete observable Outline/link behavior; Tags remains Storybook-local                                                   |
+| Spec / Storybook verification   | Landed   | `pnpm spec:first`; panel CSF plays green; markdown package `check` + unit tests green                                                                                                     |
+| Visual Delta for panels         | Deferred | Placement stories declare `visual-pending` and independent future paths; no capture or PNG update in this slice                                                                           |
 
 ## In scope / landing this slice
 
-| Area | Status | Notes |
-| --- | --- | --- |
-| Plugin registration via existing `Plugin` APIs | Done | No framework fork |
-| MarkdownView modes source / live-preview / preview | Done | Leaf state + View menu |
-| Mira document render swap | Done | Rich CM via Mira; reading via MiraEditor preview |
-| Path A / Path B extension reload + editor events | Done | NoteEditor + registerEditorExtension + updateOptions |
-| Markdown settings (Mira features + mermaid/AI) | Done | schema + Markdown settings section |
-| All Properties | Done | Exported app-only Svelte component; `MarkdownSidebarPanel` shell + `sidebar-custom` NestedProvider/Menu rows; type icons align to search-icon offset |
-| File Properties | Done | Mira `FrontmatterEditor` + Lapis controller/manager adapter (LN-MD-017/019); local `FrontMatter` component is not panel authority; PillListEditor deferred |
-| Outline | Done (simplified UI) | Heading list + jump via shell `__list` / `__row` |
-| Backlinks / Outgoing Links | Done (simplified UI) | Metadata links; FileEmbed hover deferred |
-| Media view | Done (minimal) | Image file view registration |
-| Tags sidebar | Done | Storybook-local `TagsDemoPlugin` on `MarkdownSidebarPanel` |
-| Focused `Workspace/Panels/Markdown/*` stories | Done | Seeded CSF under `stories/workspace/panels`; All Properties Autodocs describes only the real `app` input while render-only fixtures select six movable surfaces, including grouped chrome in the bottom panel; remaining panels stay `skip-visual` |
-| Sidebar panel recipe (LN-MD-018) | Done | Sticky chrome + ui Search + panel-action hover + design-core resolved Workspace view tokens |
-| Editor demo last-wins override | Done | source → markdown → tags; optionalCorePlugins configured |
-| MetadataProcessor write contract | Done | `write` serializes the frontmatter object (not `cache.frontmatter`) |
-| Type widget registration | Done | Lapis types registered in `onload` with icons + simple native editors |
-| Frontmatter mutate helper | Done | `updateFrontmatterProperty` / `applyFrontmatterMutation` |
-| Lapis ↔ Mira frontmatter adapter | Done | `createLapisFrontmatterController` / `createLapisFrontmatterPropertyManager` / `syncLapisFrontmatterController` |
-| Host `trackChanges` wiring | Done | Storybook panel + editor-demo boots call `watchMetadata` and dispose |
-| Demo `types.json` seed | Done | Panel + editor vault seeds include `.obsidian/types.json` |
-| Linked Mira exports + CM/Lezer dedupe | Done | Storybook and markdown Vitest use package exports; no sibling Mira source aliases |
-| Storybook `main.ts` ReDoS workaround | Done | Heavy Vite config lives in `vite-final.ts` so Storybook’s CJS-scan regex does not hang startup |
+| Area                                               | Status         | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plugin registration via existing `Plugin` APIs     | Done           | No framework fork                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| MarkdownView modes source / live-preview / preview | Done           | Leaf state + View menu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Mira document render swap                          | Done           | Rich CM via Mira; reading via MiraEditor preview                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Path A / Path B extension reload + editor events   | Done           | NoteEditor + registerEditorExtension + updateOptions                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Markdown settings (Mira features + mermaid/AI)     | Done           | schema + Markdown settings section                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| All Properties                                     | Done           | Exported app-only Svelte component; `MarkdownSidebarPanel` shell + `sidebar-custom` NestedProvider/Menu rows; type icons align to search-icon offset                                                                                                                                                                                                                                                                                                                                                                 |
+| File Properties                                    | Done           | Full-width titleless Mira `FrontmatterEditor` + transparent `markdown-widget-shell` + Lapis controller/manager adapter (LN-MD-017/019); Mira native inline and pill-list editors render text, hash-icon tags, aliases, and multitext from Lapis type definitions at the workspace-family/0.75rem panel scale, retain a horizontally accessible 15rem content minimum, stack key/value rows below 250px, and preserve native row focus geometry plus view-token contrast fill and surface-contrasting tag/alias pills |
+| Outline                                            | Done           | Full-width titleless nested heading tree with chevron-aligned guides and intentionally unpadded leaves; search; collapse; navigation; selected section; live metadata refresh; persisted auto-follow                                                                                                                                                                                                                                                                                                                 |
+| Backlinks / Outgoing Links                         | Done           | Full-width titleless 0.75rem result surfaces with one trailing count edge; tested linked/unlinked mention model, grouping, search, sort, context, collapse, navigation, refresh, and private Mira hover previews                                                                                                                                                                                                                                                                                                     |
+| Media view                                         | Done (minimal) | Image file view registration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Tags sidebar                                       | Done           | Storybook-local app-only `TagsDemoPlugin` with Lucide hash entry icons, per-file hierarchy counts, sorting, search, nested disclosure, live refresh, full-width titleless content, shared panel typography, and one trailing count edge                                                                                                                                                                                                                                                                              |
+| Focused `Workspace/Panels/Markdown/*` stories      | Done           | Six focused placements per panel with real metadata, minimal file context where required, grouped chrome, explicit source, isolated Docs, and ViewHost paint assertions                                                                                                                                                                                                                                                                                                                                              |
+| Sidebar panel recipe (LN-MD-018)                   | Done           | Sticky chrome + ui Search + panel-action hover + design-core resolved Workspace view tokens                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Editor demo last-wins override                     | Done           | source → markdown → tags; optionalCorePlugins configured                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| MetadataProcessor write contract                   | Done           | `write` serializes the frontmatter object (not `cache.frontmatter`)                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Type widget registration                           | Done           | Lapis types registered in `onload` with icons + simple native editors                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Frontmatter mutate helper                          | Done           | `updateFrontmatterProperty` / `applyFrontmatterMutation`                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Lapis ↔ Mira frontmatter adapter                   | Done           | `createLapisFrontmatterController` / `createLapisFrontmatterPropertyManager` / `syncLapisFrontmatterController`                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Host `trackChanges` wiring                         | Done           | Storybook panel + editor-demo boots call `watchMetadata` and dispose                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Demo `types.json` seed                             | Done           | Panel + editor vault seeds include `.obsidian/types.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Linked Mira exports + CM/Lezer dedupe              | Done           | Storybook and markdown Vitest use package exports; no sibling Mira source aliases                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Storybook `main.ts` ReDoS workaround               | Done           | Heavy Vite config lives in `vite-final.ts` so Storybook’s CJS-scan regex does not hang startup                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ## Sidebar panel recipe
 
@@ -64,9 +64,9 @@ has no interactive control.
 Panels can move between every desktop surface. Design-core's
 `WorkspaceViewHost` owns the resolved paint contract:
 
-| Workspace view placement | Resolved paint |
-| --- | --- |
-| Ungrouped top-level `left-sidebar` / `right-sidebar` panel | `--ui-workspace-panel` |
+| Workspace view placement                                           | Resolved paint              |
+| ------------------------------------------------------------------ | --------------------------- |
+| Ungrouped top-level `left-sidebar` / `right-sidebar` panel         | `--ui-workspace-panel`      |
 | `body` / `bottom-panel` / grouped / mobile / floating / standalone | `--ui-workspace-background` |
 
 - Consume `--ui-workspace-view-background` and
@@ -85,14 +85,14 @@ Panels can move between every desktop surface. Design-core's
 `WorkspaceIcon` resolves Lucide **short names** against `@iconify-json/lucide`
 (e.g. `archive`, `info`, `list`). Prefer those from `View.getIcon()`.
 
-| View | Icon |
-| --- | --- |
-| All Properties | `archive` (Obsidian “file box” / drawer) |
-| File Properties | `info` |
-| Outline | `list` |
-| Backlinks | `link-2` |
-| Outgoing Links | `links` |
-| Tags | `tags` |
+| View            | Icon                                     |
+| --------------- | ---------------------------------------- |
+| All Properties  | `archive` (Obsidian “file box” / drawer) |
+| File Properties | `info`                                   |
+| Outline         | `list`                                   |
+| Backlinks       | `link-2`                                 |
+| Outgoing Links  | `external-link`                          |
+| Tags            | `tags`                                   |
 
 `lucide-foo` / `lucide:foo` are normalized by design-core, but short names are
 the contract for new panels.
@@ -105,6 +105,29 @@ the contract for new panels.
 - Layout tokens on the shell: `--markdown-sidebar-chrome-pad-x`, `--markdown-sidebar-search-row-pad-x`, `--markdown-sidebar-search-icon-inset`, `--markdown-sidebar-end-pad`, `--markdown-sidebar-count-end-pad`, `--header-height`.
 - Simple lists: `markdown-sidebar-panel__list` / `__row` / `__row-meta`.
 - Menu lists: `Sidebar.NestedProvider` (context only) + Content/Menu/MenuButton/MenuBadge inside shell children.
+- Normalize NestedProvider descendants to the available panel width; its
+  Content primitive otherwise retains the legacy sidebar width. Nested guides
+  align beneath expanded chevrons and indentation must not move the trailing
+  edge. Reserve the leaf disclosure column only when the panel contract calls
+  for it (Tags does; Outline does not).
+- Omit the shell's title/meta intro when the workspace leaf and toolbar already
+  identify the panel.
+- Keep specialist content honest to its public owner while adapting it to the
+  panel surface. File Properties continues to mount Mira `FrontmatterEditor`,
+  but its Lapis `markdown-widget-shell` wrapper supplies the workspace font
+  family, 0.75rem panel type variables, complete available width, non-resizable
+  textareas, a horizontally accessible 15rem content minimum, Mira's narrow
+  single-column property layout, native Mira/Lapis row focus geometry without a
+  competing input outline, a view-token-derived focused-cell fill, a hash Tags
+  type icon, and surface-aware tag- and alias-pill tokens.
+  Keep that wrapper transparent so design-core remains the view-paint authority;
+  do not fork the editor markup or apply the broad Mira surface background.
+  Pass registered Lapis type definitions without their generic DOM renderer so
+  Mira's native inline and pill-list controls own text, tags, aliases, and
+  multitext editing.
+- Link result panels normalize the NestedProvider wrapper and Content to the
+  available width, use 0.75rem group/mention rows, and align section and group
+  counts to the same trailing edge.
 - Set `getIcon()` to the Lucide short name for the view (see table above).
 
 ### Don't
@@ -119,21 +142,20 @@ the contract for new panels.
 
 ## Deferred
 
-| Area | Notes |
-| --- | --- |
-| List-callouts catalog + settings tab | Full-repo hybrid settings |
-| Metadata worker / heavy type widgets | Lightweight `extract-metadata` intaken; full remark/worker deferred; PillListEditor / suggestValues / NoteLink later |
-| Language-service hooks | Package not authorized yet |
-| Host wikilink/embed/file autocomplete parity | Needs host resolvers |
-| Full FileEmbed hover via retired local preview | Stub or Mira preview |
-| Mode-switch scroll/selection restore edge cases | Keep if cheap with intake |
-| Notebook frontmatter layout | Notebook package out of scope |
-| Reading-speed / readable-line-length host policy | May stay on editor schema |
-| Mira `split` mode | Not in Lapis MarkdownViewModeType |
-| Production AI `run` provider | Demo stub only |
-| Full-repo remark metadata worker UI depth | Lightweight extract remains |
-| Nest full `Sidebar.Root` inside workspace leaves | Prefer Lapis Explorer pattern: shell/panel NestedProvider + Content/Menu primitives (All Properties uses this); avoid remounting Root |
-| PillListEditor / property-name suggestions / NoteLink in File Properties | Keep Mira editor + simple Lapis type widgets until dedicated widget pass |
-| Panel Visual Delta baselines | All Properties six-surface spike is `visual-pending`; remaining panel stories stay `skip-visual` until capture lane resumes |
+| Area                                                              | Notes                                                                                                                                 |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| List-callouts catalog + settings tab                              | Full-repo hybrid settings                                                                                                             |
+| Metadata worker / heavy type widgets                              | Lightweight `extract-metadata` intaken; full remark/worker deferred; PillListEditor / suggestValues / NoteLink later                  |
+| Language-service hooks                                            | Package not authorized yet                                                                                                            |
+| Host wikilink/embed/file autocomplete parity                      | Needs host resolvers                                                                                                                  |
+| Mode-switch scroll/selection restore edge cases                   | Keep if cheap with intake                                                                                                             |
+| Notebook frontmatter layout                                       | Notebook package out of scope                                                                                                         |
+| Reading-speed / readable-line-length host policy                  | May stay on editor schema                                                                                                             |
+| Mira `split` mode                                                 | Not in Lapis MarkdownViewModeType                                                                                                     |
+| Production AI `run` provider                                      | Demo stub only                                                                                                                        |
+| Full-repo remark metadata worker UI depth                         | Lightweight extract remains                                                                                                           |
+| Nest full `Sidebar.Root` inside workspace leaves                  | Prefer Lapis Explorer pattern: shell/panel NestedProvider + Content/Menu primitives (All Properties uses this); avoid remounting Root |
+| Property-value suggestions / NoteLink behavior in File Properties | Keep the Mira native editors and Lapis adapter; richer cross-vault suggestions/link behavior remains a dedicated pass                 |
+| Panel Visual Delta baselines                                      | All placements are `visual-pending`; capture/review remains explicitly deferred                                                       |
 
 Update this file when intake or Mira coverage changes.

@@ -1,8 +1,10 @@
 import { View } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
-import LinkSidebar from "../link-sidebar/link-sidebar.svelte";
+import Backlinks from "./backlinks.svelte";
 
 export const BacklinksViewType = "file:backlinks";
+
+export { Backlinks };
 
 export class BacklinksView extends View {
   private component: unknown = null;
@@ -17,11 +19,10 @@ export class BacklinksView extends View {
 
   onload(): void {
     this.containerEl.classList.add("markdown-backlinks-view");
-    this.component = mount(LinkSidebar, {
+    this.component = mount(Backlinks, {
       target: this.containerEl,
       props: {
         app: this.app,
-        mode: "backlinks",
       },
     });
   }

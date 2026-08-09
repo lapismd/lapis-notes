@@ -13,7 +13,7 @@
 
   let {
     kind,
-    layout = "comparison",
+    layout = "middle-top-tabs",
   }: {
     kind: PanelDemoKind;
     layout?: PanelDemoLayout;

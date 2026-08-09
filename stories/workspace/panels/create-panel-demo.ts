@@ -3,8 +3,6 @@ import {
   FileView,
   MemoryAppDatabase,
   MemoryVaultAdapter,
-  Plugin,
-  type PluginManifest,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
 import { MarkdownPlugin, MarkdownView } from "@lapis-notes/markdown";
@@ -21,7 +19,6 @@ export type PanelDemoKind =
   | "tags";
 
 export type PanelDemoLayout =
-  | "comparison"
   | "middle-top-tabs"
   | "stacked-tabs"
   | "left-sidebar"
@@ -29,7 +26,16 @@ export type PanelDemoLayout =
   | "bottom-panel"
   | "sidebar-group";
 
-const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
+export const PANEL_DEMO_LAYOUTS: PanelDemoLayout[] = [
+  "middle-top-tabs",
+  "stacked-tabs",
+  "left-sidebar",
+  "right-sidebar",
+  "bottom-panel",
+  "sidebar-group",
+];
+
+export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   "all-properties": "all-properties",
   "file-properties": "file:properties",
   outline: "file:outline",
@@ -38,16 +44,46 @@ const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   tags: "tags",
 };
 
-const PANEL_LEAF_META: Record<
+export const PANEL_LEAF_META: Record<
   PanelDemoKind,
-  { title: string; icon: string }
+  { title: string; icon: string; group: string; requiresFile: boolean }
 > = {
-  "all-properties": { title: "All properties", icon: "archive" },
-  "file-properties": { title: "File properties", icon: "info" },
-  outline: { title: "Outline", icon: "list" },
-  backlinks: { title: "Backlinks", icon: "link-2" },
-  "outgoing-links": { title: "Outgoing links", icon: "links" },
-  tags: { title: "Tags", icon: "tags" },
+  "all-properties": {
+    title: "All properties",
+    icon: "archive",
+    group: "Properties",
+    requiresFile: false,
+  },
+  "file-properties": {
+    title: "File properties",
+    icon: "info",
+    group: "Properties",
+    requiresFile: true,
+  },
+  outline: {
+    title: "Outline",
+    icon: "list",
+    group: "Outline",
+    requiresFile: true,
+  },
+  backlinks: {
+    title: "Backlinks",
+    icon: "link-2",
+    group: "Links",
+    requiresFile: true,
+  },
+  "outgoing-links": {
+    title: "Outgoing links",
+    icon: "external-link",
+    group: "Links",
+    requiresFile: true,
+  },
+  tags: {
+    title: "Tags",
+    icon: "tags",
+    group: "Tags",
+    requiresFile: false,
+  },
 };
 
 const PANEL_APP_CONFIGURATION = {
@@ -56,6 +92,7 @@ const PANEL_APP_CONFIGURATION = {
   "editor.defaultEditingMode": "live-preview",
   "markdown.mira.plugins.mermaid.enabled": true,
   "markdown.mira.plugins.ai.enabled": false,
+  "outline.autoScrollToCurrentSection": false,
   "appearence.interface.showInlineTitle": true,
   "appearence.interface.showTabTitleBar": true,
 };
@@ -67,11 +104,7 @@ function leaf(
   type: string,
   state: Record<string, unknown> = {},
 ) {
-  return {
-    id,
-    type: "leaf",
-    state: { type, state, icon, title },
-  };
+  return { id, type: "leaf", state: { type, state, icon, title } };
 }
 
 type DemoLeaf = ReturnType<typeof leaf>;
@@ -132,18 +165,40 @@ function emptyDock(id: string) {
 }
 
 function emptyBottom() {
-  return {
-    ...tabs("bottom-panel", []),
-    height: "0px",
-  };
+  return { ...tabs("bottom-panel", []), height: "0px" };
 }
 
-function minimalMain() {
-  return split("main", "horizontal", [
-    tabs("main-empty-tabs", [
-      leaf("main-empty", "Workspace", "file", "empty"),
-    ]),
+function emptyWorkspaceTabs(id = "main-empty-tabs") {
+  return tabs(id, [leaf("main-empty", "Workspace", "file", "empty")]);
+}
+
+function markdownTabs(id = "main-document-tabs") {
+  return tabs(id, [
+    leaf("welcome", "Welcome", "file-text", "markdown", {
+      file: "Notes/Welcome.md",
+      mode: "live-preview",
+    }),
   ]);
+}
+
+function mainContext(requiresFile: boolean) {
+  return split("main", "horizontal", [
+    requiresFile ? markdownTabs() : emptyWorkspaceTabs(),
+  ]);
+}
+
+export function panelLayoutMarker(
+  kind: PanelDemoKind,
+  layout: PanelDemoLayout,
+): string {
+  if (layout === "stacked-tabs") return "main-stacked-tabs";
+  if (layout === "bottom-panel") return `${kind}-bottom-group`;
+  if (layout === "sidebar-group") return `${kind}-sidebar-group`;
+  return {
+    "middle-top-tabs": "panel-middle",
+    "left-sidebar": "panel-left",
+    "right-sidebar": "panel-right",
+  }[layout];
 }
 
 export function createPanelDemoLayout(
@@ -151,44 +206,20 @@ export function createPanelDemoLayout(
   layout: PanelDemoLayout,
 ): Record<string, unknown> {
   const panelType = PANEL_VIEW_TYPE[kind];
-  const panelMeta = PANEL_LEAF_META[kind];
-  const panel = (id: string) =>
-    leaf(id, panelMeta.title, panelMeta.icon, panelType);
+  const meta = PANEL_LEAF_META[kind];
+  const panel = (id: string) => leaf(id, meta.title, meta.icon, panelType);
+  const contextTabs = () =>
+    meta.requiresFile ? markdownTabs() : emptyWorkspaceTabs();
 
-  if (layout === "comparison") {
+  if (layout === "middle-top-tabs") {
+    const panelTabs = tabs("main-panel-tabs", [panel("panel-middle")]);
     return {
       main: split(
         "main",
         "horizontal",
-        [
-          tabs("main-editor-tabs", [
-            leaf("welcome", "Welcome", "file-text", "markdown", {
-              file: "Notes/Welcome.md",
-              mode: "live-preview",
-            }),
-          ]),
-          tabs("main-panel-tabs", [panel("panel-main")]),
-        ],
-        { sizes: [55, 45] },
+        meta.requiresFile ? [contextTabs(), panelTabs] : [panelTabs],
+        { sizes: meta.requiresFile ? [35, 65] : undefined },
       ),
-      left: emptyDock("left"),
-      right: split(
-        "right",
-        "vertical",
-        [tabs("right-panel-tabs", [panel("panel-sidebar")])],
-        { width: "20rem" },
-      ),
-      bottom: emptyBottom(),
-      floating: [],
-      active: "welcome",
-    };
-  }
-
-  if (layout === "middle-top-tabs") {
-    return {
-      main: split("main", "horizontal", [
-        tabs("main-panel-tabs", [panel("panel-middle")]),
-      ]),
       left: emptyDock("left"),
       right: emptyDock("right"),
       bottom: emptyBottom(),
@@ -198,18 +229,22 @@ export function createPanelDemoLayout(
   }
 
   if (layout === "stacked-tabs") {
+    const panelTabs = tabs(
+      "main-stacked-tabs",
+      [
+        leaf("stacked-workspace", "Workspace", "layout-template", "empty"),
+        panel("panel-stacked"),
+        leaf("stacked-reference", "Reference", "book-open", "empty"),
+      ],
+      { stacked: true, currentTab: 1 },
+    );
     return {
-      main: split("main", "horizontal", [
-        tabs(
-          "main-stacked-tabs",
-          [
-            leaf("stacked-workspace", "Workspace", "layout-template", "empty"),
-            panel("panel-stacked"),
-            leaf("stacked-reference", "Reference", "book-open", "empty"),
-          ],
-          { stacked: true, currentTab: 1 },
-        ),
-      ]),
+      main: split(
+        "main",
+        "horizontal",
+        meta.requiresFile ? [contextTabs(), panelTabs] : [panelTabs],
+        { sizes: meta.requiresFile ? [35, 65] : undefined },
+      ),
       left: emptyDock("left"),
       right: emptyDock("right"),
       bottom: emptyBottom(),
@@ -220,7 +255,7 @@ export function createPanelDemoLayout(
 
   if (layout === "left-sidebar") {
     return {
-      main: minimalMain(),
+      main: mainContext(meta.requiresFile),
       left: split(
         "left",
         "vertical",
@@ -236,7 +271,7 @@ export function createPanelDemoLayout(
 
   if (layout === "right-sidebar") {
     return {
-      main: minimalMain(),
+      main: mainContext(meta.requiresFile),
       left: emptyDock("left"),
       right: split(
         "right",
@@ -251,30 +286,28 @@ export function createPanelDemoLayout(
   }
 
   if (layout === "bottom-panel") {
-    const groupedPanel = panel("panel-bottom");
     return {
-      main: minimalMain(),
+      main: mainContext(meta.requiresFile),
       left: emptyDock("left"),
       right: emptyDock("right"),
       bottom: {
         ...tabs("bottom-panel", [
           sidebarGroup(
-            "all-properties-bottom-group",
-            "Properties",
-            "archive",
-            [groupedPanel],
+            `${kind}-bottom-group`,
+            meta.group,
+            meta.icon,
+            [panel("panel-bottom")],
           ),
         ]),
         height: "22rem",
       },
       floating: [],
-      active: groupedPanel.id,
+      active: "panel-bottom",
     };
   }
 
-  const groupedPanel = panel("panel-grouped");
   return {
-    main: minimalMain(),
+    main: mainContext(meta.requiresFile),
     left: emptyDock("left"),
     right: split(
       "right",
@@ -282,10 +315,10 @@ export function createPanelDemoLayout(
       [
         tabs("right-panel-tabs", [
           sidebarGroup(
-            "all-properties-group",
-            "Properties",
-            "archive",
-            [groupedPanel],
+            `${kind}-sidebar-group`,
+            meta.group,
+            meta.icon,
+            [panel("panel-grouped")],
           ),
         ]),
       ],
@@ -293,18 +326,13 @@ export function createPanelDemoLayout(
     ),
     bottom: emptyBottom(),
     floating: [],
-    active: groupedPanel.id,
+    active: "panel-grouped",
   };
 }
 
-/**
- * Seed a metadata-rich vault plus one persisted workspace layout. The
- * comparison layout remains for the existing panel stories; the All
- * Properties spike selects one real movable surface at a time.
- */
 export function createPanelDemoSeed(
   kind: PanelDemoKind,
-  layout: PanelDemoLayout = "comparison",
+  layout: PanelDemoLayout,
 ): Record<string, string | ArrayBuffer> {
   return {
     ".obsidian/app.json": JSON.stringify(PANEL_APP_CONFIGURATION, null, 2),
@@ -312,6 +340,7 @@ export function createPanelDemoSeed(
       {
         types: {
           title: "text",
+          aliases: "aliases",
           tags: "tags",
           status: "text",
           priority: "text",
@@ -329,20 +358,23 @@ export function createPanelDemoSeed(
     "Notes/Welcome.md": [
       "---",
       "title: Welcome",
-      "tags:",
-      "  - demo",
-      "  - markdown",
+      "aliases: [Lapis Home]",
+      "tags: [demo, markdown, project/alpha]",
       "status: ready",
       "priority: high",
       "---",
       "",
-      "# Welcome to Lapis Notes",
+      "# **Welcome** to Lapis Notes",
       "",
-      "This seed drives Markdown panel Storybook stories.",
+      "This seed drives focused Markdown panel stories and names Research plainly.",
       "",
       "## Links",
       "",
-      "See also [[Ideas]] and #project/alpha.",
+      "See [[Ideas]] and ![[Ideas]] while #project/alpha stays searchable.",
+      "",
+      "### Link details",
+      "",
+      "The nested heading proves disclosure and search behavior.",
       "",
       "## Checklist",
       "",
@@ -352,7 +384,7 @@ export function createPanelDemoSeed(
     ].join("\n"),
     "Notes/Ideas.markdown": [
       "---",
-      "tags: [ideas, demo]",
+      "tags: [ideas, demo, project/beta]",
       "area: research",
       "---",
       "",
@@ -364,52 +396,34 @@ export function createPanelDemoSeed(
       "",
       "## Next",
       "",
-      "Use Outline, Properties, Tags, and Backlinks panels.",
+      "Lapis Home also appears as an exact alias mention.",
+      "",
+    ].join("\n"),
+    "Notes/Research.md": [
+      "---",
+      "tags: [research, project/alpha]",
+      "---",
+      "",
+      "# Research",
+      "",
+      "Welcome appears here without a link for unlinked backlink coverage.",
+      "",
+      "## Sources",
+      "",
+      "Review the project notes.",
       "",
     ].join("\n"),
   };
 }
 
-class PanelHostPlugin extends Plugin {
-  constructor(app: App) {
-    super(app, {
-      id: "lapis-panel-host",
-      name: "Panel host",
-      author: "Lapis Notes",
-      version: "0.0.1",
-      minAppVersion: "0.0.1",
-      description:
-        "Keeps the seeded Markdown leaf active so file-scoped panels resolve.",
-    } satisfies PluginManifest);
-  }
-
-  async onload(): Promise<void> {
-    const markdownLeaf = findMarkdownLeaf(this.app);
-    if (markdownLeaf) {
-      this.app.workspace.setActiveLeaf(markdownLeaf, { focus: true });
-      return;
-    }
-    const leaf = this.app.workspace.getLeaf(true);
-    await leaf.setViewState({
-      type: "markdown",
-      state: { file: "Notes/Welcome.md", mode: "live-preview" },
-    });
-    this.app.workspace.setActiveLeaf(leaf, { focus: true });
-  }
-}
-
 function findMarkdownLeaf(app: App): WorkspaceLeaf | null {
   let found: WorkspaceLeaf | null = null;
   app.workspace.iterateRootLeaves((leaf) => {
-    if (!found && leaf.view instanceof MarkdownView && leaf.view.file) {
-      found = leaf;
-    }
+    if (!found && leaf.view instanceof MarkdownView && leaf.view.file) found = leaf;
   });
   if (found) return found;
   app.workspace.iterateRootLeaves((leaf) => {
-    if (!found && leaf.view instanceof FileView && leaf.view.file) {
-      found = leaf;
-    }
+    if (!found && leaf.view instanceof FileView && leaf.view.file) found = leaf;
   });
   return found;
 }
@@ -417,20 +431,15 @@ function findMarkdownLeaf(app: App): WorkspaceLeaf | null {
 function countPanelLeaves(app: App, panelType: string): number {
   let count = 0;
   app.workspace.iterateAllLeaves((leaf) => {
-    if (leaf.view?.getViewType?.() === panelType) {
-      count += 1;
-    }
+    if (leaf.view?.getViewType?.() === panelType) count += 1;
   });
   return count;
 }
 
 export async function bootPanelDemo(
   kind: PanelDemoKind,
-  layout: PanelDemoLayout = "comparison",
-): Promise<{
-  app: App;
-  dispose: () => Promise<void>;
-}> {
+  layout: PanelDemoLayout,
+): Promise<{ app: App; dispose: () => Promise<void> }> {
   const previousApp = globalThis.app;
   const adapter = new MemoryVaultAdapter(createPanelDemoSeed(kind, layout), {
     name: `Lapis Panel ${kind} ${layout}`,
@@ -442,30 +451,15 @@ export async function bootPanelDemo(
     configPath: ".obsidian/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase(`lapis-panel-${kind}-${layout}`),
-    workspaceShell: {
-      application: { name: "Lapis Notes" },
-    },
+    workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
 
-  // LN-MD-012 order: source → markdown → tags (panel host last).
-  const corePlugins = [
+  app.plugins.registerCorePlugins([
     { plugin: SourceEditorDemoPlugin, required: true },
-    {
-      plugin: MarkdownPlugin,
-      required: false,
-      enabledByDefault: true,
-    },
-    {
-      plugin: TagsDemoPlugin,
-      required: false,
-      enabledByDefault: true,
-    },
-  ];
-  if (layout === "comparison") {
-    corePlugins.push({ plugin: PanelHostPlugin, required: true });
-  }
-  app.plugins.registerCorePlugins(corePlugins);
+    { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
+    { plugin: TagsDemoPlugin, required: false, enabledByDefault: true },
+  ]);
 
   globalThis.app = app;
   await app.vault.load();
@@ -479,39 +473,18 @@ export async function bootPanelDemo(
   await app.workspace.loadLayout();
 
   const panelType = PANEL_VIEW_TYPE[kind];
-  const markdownLeaf = findMarkdownLeaf(app);
-  if (markdownLeaf) {
-    app.workspace.setActiveLeaf(markdownLeaf, { focus: true });
-  }
-
-  // Retain the existing defensive repair only for the legacy comparison
-  // fixtures. Focused placement stories must hydrate their exact seeded shape.
-  if (layout === "comparison" && countPanelLeaves(app, panelType) < 2) {
-    const right =
-      app.workspace.getRightLeaf(false) ?? app.workspace.getLeaf(true);
-    await right.setViewState({ type: panelType });
-    app.workspace.revealLeaf(right);
-
-    if (markdownLeaf && countPanelLeaves(app, panelType) < 2) {
-      const mainPanel = app.workspace.createLeafBySplit(
-        markdownLeaf,
-        "horizontal",
-      );
-      await mainPanel.setViewState({ type: panelType });
-    }
-  }
-
-  const expectedPanelCount = layout === "comparison" ? 2 : 1;
   const panelCount = countPanelLeaves(app, panelType);
-  if (panelCount !== expectedPanelCount) {
+  if (panelCount !== 1) {
     throw new Error(
-      `Expected ${expectedPanelCount} ${panelType} panel leaf/leaves for ${layout}, found ${panelCount}`,
+      `Expected one ${panelType} panel leaf for ${layout}, found ${panelCount}`,
     );
   }
 
-  if (markdownLeaf) {
-    app.workspace.setActiveLeaf(markdownLeaf, { focus: false });
+  const markdownLeaf = findMarkdownLeaf(app);
+  if (PANEL_LEAF_META[kind].requiresFile && !markdownLeaf) {
+    throw new Error(`Missing Markdown context leaf for ${kind} ${layout}`);
   }
+  if (markdownLeaf) app.workspace.setActiveLeaf(markdownLeaf, { focus: false });
 
   return {
     app,
@@ -521,9 +494,7 @@ export async function bootPanelDemo(
         await plugin.disable().catch(() => undefined);
       }
       await app.workspace.disposeWorkspaceHost();
-      if (globalThis.app === app) {
-        globalThis.app = previousApp;
-      }
+      if (globalThis.app === app) globalThis.app = previousApp;
     },
   };
 }
