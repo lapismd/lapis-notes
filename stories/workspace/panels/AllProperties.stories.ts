@@ -13,7 +13,7 @@ const meta = {
     layout: "fullscreen",
     docs: {
       canvas: { className: "panel-demo-docs-canvas" },
-      story: { height: "22rem" },
+      story: { height: "22rem", inline: false },
     },
   },
 } satisfies Meta<typeof PanelDemo>;

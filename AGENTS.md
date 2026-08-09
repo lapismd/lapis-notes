@@ -74,6 +74,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   bespoke shell imitations. Keep placement differences in the workspace layout
   state so the story exercises the same view registration, imperative mount,
   grouping, and surface styling paths as the application.
+- Render app-backed panel stories in isolated Autodocs iframes
+  (`parameters.docs.story.inline: false`) with a compact explicit Docs height.
+  Inline Autodocs stories share `globalThis.app`, so simultaneous examples can
+  steal imperative views and no longer reflect their declared placements.
 - Each play function waits for the demo's explicit ready state, asserts one
   panel instance and the expected design-core host/surface, and exercises the
   panel's defining interaction. Grouped stories also assert their real group

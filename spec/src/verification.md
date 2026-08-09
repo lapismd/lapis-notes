@@ -70,7 +70,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-019  | storybook-catalog | Implemented | API editor source alias                                                                                            |
 | LN-CAT-020  | storybook-catalog | Implemented | Lapis markdown source + linked Mira package exports; Workspace/Panels/Markdown stories                            |
 | LN-CAT-021  | storybook-catalog | Implemented | `stories/spec/*.mdx` raw chapter adapters; Specification-first Storybook ordering                                |
-| LN-CAT-022  | storybook-catalog | Implemented | grouped six-story All Properties catalog, compact Docs canvases, focused plays, and pending visual baselines    |
+| LN-CAT-022  | storybook-catalog | Implemented | grouped six-story All Properties catalog, isolated compact Docs canvases, focused plays, and pending baselines  |
 | LN-GOV-001  | spec-governance   | Implemented | `spec/` mdBook sources                                                                                           |
 | LN-GOV-002  | spec-governance   | Implemented | this matrix                                                                                                      |
 | LN-GOV-003  | spec-governance   | Implemented | `scripts/check-spec-first.mjs`                                                                                   |
@@ -78,7 +78,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-005  | spec-governance   | Implemented | ignored patterns in gate                                                                                         |
 | LN-GOV-006  | spec-governance   | Implemented | fail-closed on VCS errors                                                                                        |
 | LN-GOV-007  | spec-governance   | Implemented | `spec/book` gitignored                                                                                           |
-| LN-GOV-008  | spec-governance   | Implemented | `AGENTS.md` Workspace Panel Stories workflow                                                                     |
+| LN-GOV-008  | spec-governance   | Implemented | `AGENTS.md` Workspace Panel Stories workflow, including isolated app-backed Autodocs canvases                   |
 | LN-WS-001   | workspace-shell   | Implemented | api-owned `AppShellController`                                                                                   |
 | LN-WS-002   | workspace-shell   | Implemented | id-reusing projection + focused tests                                                                            |
 | LN-WS-003   | workspace-shell   | Implemented | `@lapis-notes/api/workspace-host`                                                                                |
