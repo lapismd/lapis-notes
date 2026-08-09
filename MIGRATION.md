@@ -46,7 +46,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
 - [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter (LN-MD-017/019)
 - [x] Focused `Workspace/Panels/Markdown/*` interaction stories (plays green; Visual Delta deferred)
-- [x] Grouped All Properties movable-surface spike: middle/top tabs, stacked tabs, left/right sidebars, grouped bottom panel, and sidebar group; each uses one real panel in the minimal shell with focused interaction coverage and an isolated 700px padding-free Docs preview
+- [x] Grouped All Properties movable-surface spike: real app-only component metadata with no kind/layout harness controls; middle/top tabs, stacked tabs, left/right sidebars, grouped bottom panel, and sidebar group each use one real panel in the minimal shell with focused interaction coverage and an isolated 700px padding-free Docs preview
 - [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only
 - [ ] Remaining panel Visual Delta baselines (`skip-visual` until capture lane resumes); the All Properties six-surface spike is `visual-pending`
 - [ ] Heavy type widgets (PillListEditor / NoteLink / suggestValues) and full metadata worker

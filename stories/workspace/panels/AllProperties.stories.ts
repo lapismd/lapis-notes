@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
+import type { App } from "@lapis-notes/api";
+import { AllProperties } from "@lapis-notes/markdown";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import * as exampleSources from "./AllProperties.example-sources";
@@ -8,21 +10,43 @@ import "./AllProperties.docs.css";
 
 const meta = {
   title: "Workspace/Panels/Markdown/All Properties",
-  component: PanelDemo,
+  component: AllProperties,
+  args: {
+    app: undefined as unknown as App,
+  },
+  argTypes: {
+    app: {
+      control: false,
+      description:
+        "Initialized Lapis App supplied by the registered All Properties view.",
+    },
+  },
   // CSF indexer requires a literal review tag for Visual Delta sidebar status.
   tags: ["visual-pending", "test"],
   parameters: {
     layout: "fullscreen",
     docs: {
       canvas: { className: "panel-demo-docs-canvas" },
+      description: {
+        component:
+          "All Properties receives the initialized Lapis App. Workspace placement belongs to the shell layout demonstrated by each story, not to the component API.",
+      },
       story: { height: "700px", inline: false },
     },
   },
-} satisfies Meta<typeof PanelDemo>;
+} satisfies Meta<typeof AllProperties>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 type AllPropertiesLayout = Exclude<PanelDemoLayout, "comparison">;
+type StoryRender = NonNullable<Story["render"]>;
+
+function renderPlacement(layout: AllPropertiesLayout): StoryRender {
+  return (() => ({
+    Component: PanelDemo,
+    props: { kind: "all-properties", layout },
+  })) as StoryRender;
+}
 
 function visualParameters(catalogId: string, baselineImage: string) {
   return {
@@ -88,7 +112,11 @@ async function expectConsumerSource(
 async function expectAllPropertiesPlacement(
   canvasElement: HTMLElement,
   layout: AllPropertiesLayout,
+  args: Record<string, unknown>,
 ) {
+  await expect(args).not.toHaveProperty("kind");
+  await expect(args).not.toHaveProperty("layout");
+
   const canvas = within(canvasElement);
   await waitFor(
     () => {
@@ -209,9 +237,9 @@ export const MiddleTopTabs: Story = {
     },
   },
   name: "Middle (Top Tabs)",
-  args: { kind: "all-properties", layout: "middle-top-tabs" },
-  play: async ({ canvasElement, parameters }) => {
-    await expectAllPropertiesPlacement(canvasElement, "middle-top-tabs");
+  render: renderPlacement("middle-top-tabs"),
+  play: async ({ args, canvasElement, parameters }) => {
+    await expectAllPropertiesPlacement(canvasElement, "middle-top-tabs", args);
     await expectConsumerSource(parameters, "middle-top-tabs");
   },
 };
@@ -235,9 +263,9 @@ export const StackedTabs: Story = {
     },
   },
   name: "Stacked Tabs",
-  args: { kind: "all-properties", layout: "stacked-tabs" },
-  play: async ({ canvasElement, parameters }) => {
-    await expectAllPropertiesPlacement(canvasElement, "stacked-tabs");
+  render: renderPlacement("stacked-tabs"),
+  play: async ({ args, canvasElement, parameters }) => {
+    await expectAllPropertiesPlacement(canvasElement, "stacked-tabs", args);
     await expectConsumerSource(parameters, "stacked-tabs");
   },
 };
@@ -260,9 +288,9 @@ export const LeftSidebar: Story = {
     },
   },
   name: "Left Sidebar",
-  args: { kind: "all-properties", layout: "left-sidebar" },
-  play: async ({ canvasElement, parameters }) => {
-    await expectAllPropertiesPlacement(canvasElement, "left-sidebar");
+  render: renderPlacement("left-sidebar"),
+  play: async ({ args, canvasElement, parameters }) => {
+    await expectAllPropertiesPlacement(canvasElement, "left-sidebar", args);
     await expectConsumerSource(parameters, "left-sidebar");
   },
 };
@@ -285,9 +313,9 @@ export const RightSidebar: Story = {
     },
   },
   name: "Right Sidebar",
-  args: { kind: "all-properties", layout: "right-sidebar" },
-  play: async ({ canvasElement, parameters }) => {
-    await expectAllPropertiesPlacement(canvasElement, "right-sidebar");
+  render: renderPlacement("right-sidebar"),
+  play: async ({ args, canvasElement, parameters }) => {
+    await expectAllPropertiesPlacement(canvasElement, "right-sidebar", args);
     await expectConsumerSource(parameters, "right-sidebar");
   },
 };
@@ -311,9 +339,9 @@ export const BottomPanel: Story = {
     },
   },
   name: "Bottom Panel",
-  args: { kind: "all-properties", layout: "bottom-panel" },
-  play: async ({ canvasElement, parameters }) => {
-    await expectAllPropertiesPlacement(canvasElement, "bottom-panel");
+  render: renderPlacement("bottom-panel"),
+  play: async ({ args, canvasElement, parameters }) => {
+    await expectAllPropertiesPlacement(canvasElement, "bottom-panel", args);
     await expectConsumerSource(parameters, "bottom-panel");
   },
 };
@@ -337,9 +365,9 @@ export const SidebarGroup: Story = {
     },
   },
   name: "Sidebar As a Group",
-  args: { kind: "all-properties", layout: "sidebar-group" },
-  play: async ({ canvasElement, parameters }) => {
-    await expectAllPropertiesPlacement(canvasElement, "sidebar-group");
+  render: renderPlacement("sidebar-group"),
+  play: async ({ args, canvasElement, parameters }) => {
+    await expectAllPropertiesPlacement(canvasElement, "sidebar-group", args);
     await expectConsumerSource(parameters, "sidebar-group");
   },
 };

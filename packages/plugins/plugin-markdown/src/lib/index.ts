@@ -5,6 +5,7 @@ import {
   type PluginManifest,
 } from "@lapis-notes/api";
 import {
+  AllProperties,
   AllPropertiesView,
   AllPropertiesViewType,
 } from "$lib/views/all-properties";
@@ -40,6 +41,7 @@ export {
   widgets,
 } from "$lib/frontmatter";
 export {
+  AllProperties,
   AllPropertiesView,
   AllPropertiesViewType,
   BacklinksView,

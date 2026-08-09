@@ -28,13 +28,13 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 | Mira document render swap | Done | Rich CM via Mira; reading via MiraEditor preview |
 | Path A / Path B extension reload + editor events | Done | NoteEditor + registerEditorExtension + updateOptions |
 | Markdown settings (Mira features + mermaid/AI) | Done | schema + Markdown settings section |
-| All Properties | Done | `MarkdownSidebarPanel` shell + `sidebar-custom` NestedProvider/Menu rows; type icons align to search-icon offset |
+| All Properties | Done | Exported app-only Svelte component; `MarkdownSidebarPanel` shell + `sidebar-custom` NestedProvider/Menu rows; type icons align to search-icon offset |
 | File Properties | Done | Mira `FrontmatterEditor` + Lapis controller/manager adapter (LN-MD-017/019); local `FrontMatter` component is not panel authority; PillListEditor deferred |
 | Outline | Done (simplified UI) | Heading list + jump via shell `__list` / `__row` |
 | Backlinks / Outgoing Links | Done (simplified UI) | Metadata links; FileEmbed hover deferred |
 | Media view | Done (minimal) | Image file view registration |
 | Tags sidebar | Done | Storybook-local `TagsDemoPlugin` on `MarkdownSidebarPanel` |
-| Focused `Workspace/Panels/Markdown/*` stories | Done | Seeded CSF under `stories/workspace/panels`; a dedicated All Properties group covers all six movable surfaces in a minimal shell, including grouped chrome in the bottom panel, while remaining panels stay `skip-visual` |
+| Focused `Workspace/Panels/Markdown/*` stories | Done | Seeded CSF under `stories/workspace/panels`; All Properties Autodocs describes only the real `app` input while render-only fixtures select six movable surfaces, including grouped chrome in the bottom panel; remaining panels stay `skip-visual` |
 | Sidebar panel recipe (LN-MD-018) | Done | Sticky chrome + ui Search + panel-action hover + CSS ancestry over stable design-core surface hosts |
 | Editor demo last-wins override | Done | source → markdown → tags; optionalCorePlugins configured |
 | MetadataProcessor write contract | Done | `write` serializes the frontmatter object (not `cache.frontmatter`) |
@@ -50,6 +50,14 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 
 Use this for every new workspace leaf panel (markdown + Tags). Authority: All
 Properties polish folded into `MarkdownSidebarPanel` (LN-MD-018).
+
+### Storybook component contract
+
+Declare the real exported panel component as the CSF `component`. If the story
+needs `PanelDemo` to boot a shell, choose kind/layout inside a story `render`
+function rather than exposing them as args. Autodocs Controls and Properties
+must contain only real component inputs; injected `app` remains documented but
+has no interactive control.
 
 ### Surface placement
 

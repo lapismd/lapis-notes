@@ -80,6 +80,12 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   bespoke shell imitations. Keep placement differences in the workspace layout
   state so the story exercises the same view registration, imperative mount,
   grouping, and surface styling paths as the application.
+- Autodocs MUST declare the real exported panel component, not `PanelDemo`, as
+  `meta.component`. Keep harness-only panel kind and layout selection fixed in
+  story `render` functions or parameters rather than args. The Controls and
+  Properties tables must show only real component inputs; disable controls for
+  injected object inputs such as `app`, and verify that `kind` / `layout` do not
+  appear.
 - Style movable panel surfaces only through CSS ancestry against design-core's
   stable `data-workspace-surface` hosts (`body`, `left-sidebar`,
   `right-sidebar`, and `bottom-panel`). Keep the white workspace surface as the
@@ -106,8 +112,8 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   verifies the panel's computed paint matches the white default for body,
   bottom, and grouped placement or the applicable ungrouped left/right sidebar
   override, and exercises the panel's defining interaction. Grouped stories
-  also assert their real group
-  control or chrome. For document-independent panel stories, assert that no
+  also assert their real group control or chrome. For document-independent
+  panel stories, assert that no
   unrelated Markdown view is mounted.
 - New placement stories carry a literal `visual-pending` tag and an independent
   nested-import baseline path. Keep the Storybook catalog, mapped `spec/src/`
