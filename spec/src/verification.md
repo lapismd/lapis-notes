@@ -8,19 +8,19 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-002 | architecture      | Implemented | package scripts on api/ui/workspace                                                                              |
 | LN-ARCH-003 | architecture      | Implemented | root `storybook` / `storybook:stop` / `storybook:restart` supervisor lane on port 7010                           |
 | LN-ARCH-004 | architecture      | Implemented | no `check:source-resolution` scripts                                                                             |
-| LN-ARCH-005 | architecture      | Implemented | root dep `file:../design-core`                                                                                   |
+| LN-ARCH-005 | architecture      | Implemented | root dep + override `link:../design-core`; package-export resolution                                             |
 | LN-ARCH-006 | architecture      | Implemented | root `check` runs `check:no-tailwind`                                                                            |
 | LN-ARCH-007 | architecture      | Implemented | `packages/workspace`; workspace-shell requirements                                                               |
 | LN-ARCH-008 | architecture      | Implemented | design-core Storybook stylesheet and catalog-layout synchronizer                                                 |
 | LN-ARCH-009 | architecture      | Implemented | api V3 bottom-panel projection, alternate filenames, and single layout writer                                    |
 | LN-ARCH-010 | architecture      | Implemented | Storybook-local editor and Explorer plugins; reusable API/design-core boundaries                                 |
-| LN-ARCH-011 | architecture      | Implemented | root-only CodeMirror Markdown and JSON development dependencies                                                  |
-| LN-ARCH-012 | architecture      | Implemented | Storybook aliases for design-core workspace source entry points                                                  |
+| LN-ARCH-011 | architecture      | Implemented | root CodeMirror language deps + host-authoritative CodeMirror/Lezer singleton peers                              |
+| LN-ARCH-012 | architecture      | Implemented | Storybook resolves linked/staged sibling package exports without external source aliases                         |
 | LN-ARCH-013 | architecture      | Implemented | Storybook API editor subpath source alias                                                                         |
-| LN-ARCH-014 | architecture      | Implemented | root dep `file:../mira-mde/packages/mira` and pnpm override                                                       |
+| LN-ARCH-014 | architecture      | Implemented | root dep + override `link:../mira-mde/packages/mira`; built package exports                                      |
 | LN-ARCH-015 | architecture      | Implemented | api `getChrome` breadcrumbs/history/title rename; editor inline title remains in-document                        |
 | LN-ARCH-016 | architecture      | Implemented | source editor data-language, mono default, md/text sans, Mira language folds                                     |
-| LN-ARCH-017 | architecture      | Implemented | mira-editor / mira plugin sibling file: deps for markdown package                                                |
+| LN-ARCH-017 | architecture      | Implemented | mira-editor / Mira plugin sibling `link:` deps and built package exports                                         |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                       |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                    |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                             |
@@ -33,7 +33,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-009  | packages          | Implemented | `WorkspaceBottomPanel` and Lapis-native bottom controls                                                          |
 | LN-PKG-010  | packages          | Implemented | `MemoryVaultAdapter`; `SourceTextFileView`; focused API tests                                                    |
 | LN-PKG-011  | packages          | Implemented | root package manifest and lockfile language dependencies                                                         |
-| LN-PKG-012  | packages          | Implemented | api depends on sibling `@lapismd/mira` for source-editor shell                                                   |
+| LN-PKG-012  | packages          | Implemented | api consumes linked sibling `@lapismd/mira` through built public exports                                         |
 | LN-PKG-013  | packages          | Implemented | api inline-title tokens and file-view `getChrome` breadcrumb/history/title-rename projection                     |
 | LN-PKG-014  | packages          | Implemented | markupEditor language attr, mono/sans face policy, Mira fold gutter                                              |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                      |
@@ -66,9 +66,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-015  | storybook-catalog | Implemented | focused `Workspace/Shell/Bottom Panel Settings` play and pending baseline                                        |
 | LN-CAT-016  | storybook-catalog | Implemented | seven `Workspace/Lapis Editor Demo` scenarios and canonical seed                                                 |
 | LN-CAT-017  | storybook-catalog | Implemented | catalog metadata, `visual-pending` tags, and seven nested-import baselines                                       |
-| LN-CAT-018  | storybook-catalog | Implemented | design-core workspace source aliases                                                                              |
+| LN-CAT-018  | storybook-catalog | Implemented | design-core workspace entry points resolve through linked/staged package exports                                  |
 | LN-CAT-019  | storybook-catalog | Implemented | API editor source alias                                                                                            |
-| LN-CAT-020  | storybook-catalog | Implemented | markdown + Mira aliases; Workspace/Panels/Markdown stories                                                         |
+| LN-CAT-020  | storybook-catalog | Implemented | Lapis markdown source + linked Mira package exports; Workspace/Panels/Markdown stories                            |
 | LN-GOV-001  | spec-governance   | Implemented | `spec/` mdBook sources                                                                                           |
 | LN-GOV-002  | spec-governance   | Implemented | this matrix                                                                                                      |
 | LN-GOV-003  | spec-governance   | Implemented | `scripts/check-spec-first.mjs`                                                                                   |

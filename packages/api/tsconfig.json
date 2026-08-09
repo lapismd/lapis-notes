@@ -35,15 +35,6 @@
       "@lapis-notes/ui/table-dnd/sensors": [
         "../ui/src/lib/components/ui/table-dnd/table-dnd-sensors.ts"
       ],
-      "@lapismd/design-core/shadcn/*": [
-        "../../../design-core/src/shared/shadcn/*/index.ts"
-      ],
-      "@lapismd/design-core/forms": [
-        "../../../design-core/src/shared/forms/index.ts"
-      ],
-      "@lapismd/design-core/forms/*": [
-        "../../../design-core/src/shared/forms/*"
-      ],
       "@codemirror/view": ["./node_modules/@codemirror/view"],
       "@codemirror/state": ["./node_modules/@codemirror/state"],
       "@codemirror/language": ["./node_modules/@codemirror/language"],

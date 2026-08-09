@@ -11,8 +11,9 @@ intake or UI swap status changes.
 | Spec + AGENTS + `spec:first` | Done | mira-mde-inspired, slimmed |
 | Storybook host (port 7010) | Done | `API/` verification stories + catalog |
 | API Storybook verification + Visual Delta | Done | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later) |
-| `@lapismd/design-core` sibling | Done | Root `file:../design-core` + pnpm override; package manifests use portable `*` contracts |
-| `@lapismd/mira` sibling | Done | Root `file:../mira-mde/packages/mira` + pnpm override; local Storybook resolves Mira **source** when `.deps/mira` is absent (see below) |
+| Sibling dependency normalization | Done | Five root `link:` dependencies + overrides; package exports are authoritative; CodeMirror/Lezer peers are host-owned; focused editor capture restored all links and removed `.deps/` (4 baseline matches, 3 current-sibling mismatches; no updates) |
+| `@lapismd/design-core` sibling | Done | Root `link:../design-core` + pnpm override; its package-declared source exports remain live; package manifests use portable `*` contracts |
+| `@lapismd/mira` siblings | Done | Root `link:../mira-mde/packages/*` deps + overrides; rebuild Mira to refresh its linked `dist` exports without reinstalling Lapis |
 | Storybook a11y in Vitest | Done | `vitest.setup.ts` + `a11y.test: "error"`; filled action tokens AA-tuned |
 | Storybook style authority | Done | design-core styles + lapis theme; ui `theme.css` only (avoid dual Tailwind) |
 | Storybook Vite config layout | Done | `.storybook/vite-final.ts` holds aliases; slim `main.ts` avoids Storybook CJS-scan ReDoS hang on large configs |
@@ -45,7 +46,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
 - [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter (LN-MD-017/019)
 - [x] Focused `Workspace/Panels/Markdown/*` interaction stories (plays green; Visual Delta deferred)
-- [x] Local Storybook Mira **source** aliases + CodeMirror/Lezer dedupe (stale `file:` dist avoided; `.deps/mira` still wins for Docker visual capture)
+- [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only
 - [ ] Panel Visual Delta baselines (`skip-visual` until capture lane resumes)
 - [ ] Heavy type widgets (PillListEditor / NoteLink / suggestValues) and full metadata worker
 

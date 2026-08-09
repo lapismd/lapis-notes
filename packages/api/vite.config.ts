@@ -8,11 +8,6 @@ import path from "node:path";
 const packageDir = fileURLToPath(new URL(".", import.meta.url));
 const uiLib = fileURLToPath(new URL("../ui/src/lib", import.meta.url));
 const uiComponents = path.join(uiLib, "components/ui");
-const designCoreRoot = fileURLToPath(
-  new URL("../../../design-core", import.meta.url),
-);
-const designCoreShadcn = path.join(designCoreRoot, "src/shared/shadcn");
-const designCoreForms = path.join(designCoreRoot, "src/shared/forms");
 
 /** Expected plugin-manager and command-manager failure-path logs in Vitest. */
 const SUPPRESSED_VITEST_CONSOLE_PATTERNS = [
@@ -127,18 +122,6 @@ export default defineConfig(() => {
         {
           find: /^@lapis-notes\/ui$/,
           replacement: path.join(uiLib, "index.ts"),
-        },
-        {
-          find: /^@lapismd\/design-core\/shadcn\/(.+)$/,
-          replacement: `${designCoreShadcn}/$1/index.ts`,
-        },
-        {
-          find: /^@lapismd\/design-core\/forms$/,
-          replacement: path.join(designCoreForms, "index.ts"),
-        },
-        {
-          find: /^@lapismd\/design-core\/forms\/(.+)$/,
-          replacement: `${designCoreForms}/$1`,
         },
         {
           find: /^@lapis-notes\/api$/,

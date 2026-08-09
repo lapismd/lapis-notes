@@ -38,8 +38,9 @@ protected package change.
 6. Commit the verified slice
 
 `AGENTS.md` must stay aligned with architecture requirements (including
-`@lapismd/design-core` as a sibling `file:` dependency, alias-only ui theme,
-and `pnpm check:no-tailwind`) whenever onboarding guidance changes. Development
+`@lapismd/design-core` and Mira packages as sibling `link:` dependencies,
+package-export resolution, alias-only ui theme, and `pnpm check:no-tailwind`)
+whenever onboarding guidance changes. Development
 workflow guidance SHOULD match mira-mde: if the `jj` binary is available, use
 the `jj-jujutsu` skill and Jujutsu for VCS inspection/diffs/commits instead of
 Git, and commit verified work with a PR-quality message. Tooling guidance for

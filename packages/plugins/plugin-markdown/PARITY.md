@@ -13,7 +13,7 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 | --- | --- | --- |
 | Package + registration | Landed | Workspace package; `Plugin` APIs only (no loader fork) |
 | Mira document modes | Landed | `source` / `live-preview` / `preview` + View menu + leaf state |
-| Mira local Storybook resolve | Landed | Sibling `../mira-mde` **source** aliases when `.deps/mira` is absent (HMR; avoids stale `file:` dist). Docker visual capture still uses staged `.deps/*` |
+| Mira local package resolve | Landed | Sibling `link:` packages resolve built public exports; rebuild Mira to refresh `dist`. Docker visual capture still uses ignored staged `.deps/*` |
 | File Properties (LN-MD-017/019) | Landed | Mira `FrontmatterEditor` + Lapis `FrontmatterController` / `FrontmatterPropertyManager` adapter over `MetadataTypeManager`; writes via `processFrontMatter` / `updateFrontmatterProperty` |
 | Side panels + Tags fixture | Landed | Shared `MarkdownSidebarPanel` (LN-MD-018); Tags remains Storybook-local |
 | Spec / Storybook verification | Landed | `pnpm spec:first`; panel CSF plays green; markdown package `check` + unit tests green |
@@ -43,7 +43,7 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 | Lapis ↔ Mira frontmatter adapter | Done | `createLapisFrontmatterController` / `createLapisFrontmatterPropertyManager` / `syncLapisFrontmatterController` |
 | Host `trackChanges` wiring | Done | Storybook panel + editor-demo boots call `watchMetadata` and dispose |
 | Demo `types.json` seed | Done | Panel + editor vault seeds include `.obsidian/types.json` |
-| Storybook Mira source aliases + CM/Lezer dedupe | Done | `.storybook/vite-final.ts`; markdown package Vitest aliases sibling Mira `src/` |
+| Linked Mira exports + CM/Lezer dedupe | Done | Storybook and markdown Vitest use package exports; no sibling Mira source aliases |
 | Storybook `main.ts` ReDoS workaround | Done | Heavy Vite config lives in `vite-final.ts` so Storybook’s CJS-scan regex does not hang startup |
 
 ## Sidebar panel recipe

@@ -173,7 +173,7 @@ export function withStagedDesignCore(capture) {
     }
     setSiblingSpecifiers((dep) => dep.stagedSpecifier);
     // Drop stale lockfile entries that still point at sibling checkouts outside
-    // the Docker capture context (file:../mira-mde/..., file:../design-core).
+    // the Docker capture context (link:../mira-mde/..., link:../design-core).
     assertSucceeded(
       spawnInRepo("pnpm", [
         "install",

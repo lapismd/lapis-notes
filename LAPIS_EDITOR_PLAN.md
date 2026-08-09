@@ -69,8 +69,10 @@ is specified.
    Loading plugins, Startup failure, and Explorer opening-vault stories. Keep
    existing shell stories unchanged and mark new visual stories
    `visual-pending`.
-9. Consume sibling `@lapismd/mira` (`file:../mira-mde/packages/mira`) for the
-   default source-editor CodeMirror shell and Obsidian theme. Keep Lapis
+9. Consume sibling `@lapismd/mira` for the default source-editor CodeMirror
+   shell and Obsidian theme. This originally landed through `file:`; the current
+   dependency policy supersedes that transport with a `link:` package reference
+   and public exports. Keep Lapis
    vault/view/sync ownership; Markdown stays source-only language highlighting
    without Mira live-preview, toolbars, or rich Markdown surfaces.
 10. Restore product-like inline filename title paint and contribute file-path
