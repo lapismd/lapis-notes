@@ -1,23 +1,17 @@
 <script lang="ts">
   import type { App } from "@lapis-notes/api";
-  import type { BacklinksView } from "../backlinks";
-  import type { OutgoingLinksView } from "../outgoing-links";
-  import { leafInSidebar, resolvePanelTargetFile } from "../panel-target-file";
+  import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
 
   type LinkSidebarMode = "backlinks" | "outgoing";
 
   let {
     app,
-    view,
     mode,
   }: {
     app: App;
-    view: BacklinksView | OutgoingLinksView;
     mode: LinkSidebarMode;
   } = $props();
-
-  const inSidebar = $derived(leafInSidebar(view.leaf));
 
   const activeFile = $derived.by(() => resolvePanelTargetFile(app));
 
@@ -66,7 +60,6 @@
   {title}
   {testId}
   {component}
-  {inSidebar}
   meta={activeFile?.path ?? "No active file"}
 >
   <ul class="markdown-sidebar-panel__list">

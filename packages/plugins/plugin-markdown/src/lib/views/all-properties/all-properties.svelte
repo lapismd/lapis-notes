@@ -13,19 +13,9 @@
   import { Button } from "@lapismd/design-core/shadcn/button";
   import * as Dialog from "@lapismd/design-core/shadcn/dialog";
   import { tick } from "svelte";
-  import type { AllPropertiesView } from ".";
-  import { leafInSidebar } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
 
-  let {
-    app,
-    view,
-  }: {
-    app: App;
-    view: AllPropertiesView;
-  } = $props();
-
-  const inSidebar = $derived(leafInSidebar(view.leaf));
+  let { app }: { app: App } = $props();
 
   const sorters: Record<
     string,
@@ -546,7 +536,6 @@
     title="All properties"
     testId="all-properties-panel"
     showTitle={false}
-    {inSidebar}
     searchPlaceholder="Search properties"
     searchToggleable={true}
     bind:searchOpen={searchState.open}

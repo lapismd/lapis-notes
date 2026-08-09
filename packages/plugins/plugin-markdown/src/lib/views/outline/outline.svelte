@@ -1,18 +1,9 @@
 <script lang="ts">
   import { FileView, type App } from "@lapis-notes/api";
-  import type { OutlineView } from ".";
-  import { leafInSidebar, resolvePanelTargetFile } from "../panel-target-file";
+  import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
 
-  let {
-    app,
-    view,
-  }: {
-    app: App;
-    view: OutlineView;
-  } = $props();
-
-  const inSidebar = $derived(leafInSidebar(view.leaf));
+  let { app }: { app: App } = $props();
 
   let query = $state("");
 
@@ -55,7 +46,6 @@
   title="Outline"
   testId="outline-panel"
   component="outline"
-  {inSidebar}
   searchPlaceholder="Search headings"
   bind:query
 >

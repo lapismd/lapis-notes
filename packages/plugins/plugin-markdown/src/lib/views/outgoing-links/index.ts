@@ -21,7 +21,6 @@ export class OutgoingLinksView extends View {
       target: this.containerEl,
       props: {
         app: this.app,
-        view: this,
         mode: "outgoing",
       },
     });

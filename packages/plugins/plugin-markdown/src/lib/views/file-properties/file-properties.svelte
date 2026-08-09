@@ -6,24 +6,16 @@
     type FrontmatterPropertyManager,
   } from "@lapismd/mira/preview";
   import { untrack } from "svelte";
-  import type { FilePropertiesView } from ".";
   import {
     createLapisFrontmatterController,
     createLapisFrontmatterPropertyManager,
     syncLapisFrontmatterController,
   } from "../../frontmatter/lapis-frontmatter-adapter";
-  import { leafInSidebar, resolvePanelTargetFile } from "../panel-target-file";
+  import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
 
-  let {
-    app,
-    view,
-  }: {
-    app: App;
-    view: FilePropertiesView;
-  } = $props();
+  let { app }: { app: App } = $props();
 
-  const inSidebar = $derived(leafInSidebar(view.leaf));
   const activeFile = $derived.by(() => resolvePanelTargetFile(app));
 
   const propertyManager: FrontmatterPropertyManager = untrack(() =>
@@ -51,7 +43,6 @@
   title="File properties"
   testId="file-properties-panel"
   component="file-properties"
-  {inSidebar}
   meta={activeFile ? activeFile.path : "No active file"}
 >
   {#if activeFile}

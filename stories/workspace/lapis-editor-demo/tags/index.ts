@@ -22,7 +22,6 @@ export class TagsView extends View {
       target: this.containerEl,
       props: {
         app: this.app,
-        view: this,
       },
     });
   }

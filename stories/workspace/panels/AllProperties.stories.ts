@@ -130,13 +130,41 @@ async function expectAllPropertiesPlacement(
   ) as HTMLElement | null;
   await expect(host).not.toBeNull();
 
-  const sidebarLayout =
-    layout === "left-sidebar" ||
-    layout === "right-sidebar" ||
-    layout === "sidebar-group";
-  await expect(panel).toHaveAttribute(
-    "data-surface",
-    sidebarLayout ? "sidebar" : "body",
+  const expectedSurface = {
+    "middle-top-tabs": "body",
+    "stacked-tabs": "body",
+    "left-sidebar": "left-sidebar",
+    "right-sidebar": "right-sidebar",
+    "bottom-panel": "bottom-panel",
+    "sidebar-group": "right-sidebar",
+  }[layout];
+  const surfaceHost = panel.closest(
+    "[data-workspace-surface]",
+  ) as HTMLElement | null;
+  if (!surfaceHost) {
+    throw new Error(`Missing workspace surface host for ${layout}`);
+  }
+  await expect(surfaceHost).toHaveAttribute(
+    "data-workspace-surface",
+    expectedSurface,
+  );
+  const storyWindow = canvasElement.ownerDocument.defaultView;
+  if (!storyWindow) {
+    throw new Error("Missing Storybook preview window");
+  }
+  const usesDefaultPaint =
+    expectedSurface === "bottom-panel" || layout === "sidebar-group";
+  const paintHost =
+    usesDefaultPaint
+      ? (canvasElement.querySelector(
+          '[data-workspace-surface="body"]',
+        ) as HTMLElement | null)
+      : surfaceHost;
+  if (!paintHost) {
+    throw new Error(`Missing expected paint host for ${layout}`);
+  }
+  await expect(storyWindow.getComputedStyle(panel).backgroundColor).toBe(
+    storyWindow.getComputedStyle(paintHost).backgroundColor,
   );
   if (layout === "left-sidebar" || layout === "right-sidebar") {
     await expect(host).toHaveAttribute(

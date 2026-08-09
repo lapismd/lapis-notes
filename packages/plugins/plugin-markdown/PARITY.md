@@ -35,7 +35,7 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 | Media view | Done (minimal) | Image file view registration |
 | Tags sidebar | Done | Storybook-local `TagsDemoPlugin` on `MarkdownSidebarPanel` |
 | Focused `Workspace/Panels/Markdown/*` stories | Done | Seeded CSF under `stories/workspace/panels`; a dedicated All Properties group covers all six movable surfaces in a minimal shell, including grouped chrome in the bottom panel, while remaining panels stay `skip-visual` |
-| Sidebar panel recipe (LN-MD-018) | Done | Sticky chrome + ui Search + panel-action hover + surface by leaf placement (`inSidebar`) |
+| Sidebar panel recipe (LN-MD-018) | Done | Sticky chrome + ui Search + panel-action hover + CSS ancestry over stable design-core surface hosts |
 | Editor demo last-wins override | Done | source → markdown → tags; optionalCorePlugins configured |
 | MetadataProcessor write contract | Done | `write` serializes the frontmatter object (not `cache.frontmatter`) |
 | Type widget registration | Done | Lapis types registered in `onload` with icons + simple native editors |
@@ -51,17 +51,19 @@ metadata write authority. Spec: `spec/src/markdown-plugin.md` (LN-MD-001–019).
 Use this for every new workspace leaf panel (markdown + Tags). Authority: All
 Properties polish folded into `MarkdownSidebarPanel` (LN-MD-018).
 
-### Surface (sidebar vs body)
+### Surface placement
 
-Panels can open in a side dock **or** as a main-body leaf. The shell must
-match the host region:
+Panels can move between every desktop surface. Design-core owns stable surface
+identity on the destination host, and the shell matches it through CSS ancestry:
 
-| Placement | Detect | Paint |
-| --- | --- | --- |
-| Left/right `WorkspaceSidedock` | `leafInSidebar(view.leaf)` / `leaf.parent.inSideBar()` → `inSidebar={true}` | `--ui-workspace-panel` (`data-surface="sidebar"`) |
-| Main workspace body | `inSidebar={false}` | `--ui-workspace-background` / body background (`data-surface="body"`) |
+| `data-workspace-surface` | Paint |
+| --- | --- |
+| Ungrouped top-level `left-sidebar` / `right-sidebar` panel | `--ui-workspace-panel` |
+| `body` / `bottom-panel` / `workspace-sidebar-group` / no surface ancestor | `--ui-workspace-background` |
 
-- Pass `{inSidebar}` into `MarkdownSidebarPanel` from every consumer.
+- Do not inspect or cache `view.leaf.parent`, or pass placement props into
+  `MarkdownSidebarPanel`; a dragged leaf must adopt its destination CSS without
+  a component remount.
 - Keep view host CSS (`surfaces.css`) **transparent** so the shell owns paint.
 - Sticky chrome uses the same `--markdown-sidebar-surface` token as the root.
 - Do not hard-code sidebar grey on panels that may open in the main split.
@@ -99,6 +101,8 @@ the contract for new panels.
 - Put chrome outside the ScrollArea or re-tune per-panel sticky/search padding.
 - Rely on design-core ghost Button hover (`--muted`) on sidebar surfaces.
 - Force `--ui-workspace-panel` / `--sidebar` when the leaf is in the main body.
+- Treat the bottom panel or sidebar group as a sidebar paint override; both keep
+  the white default.
 - Return unknown Lucide ids from `getIcon()` (WorkspaceIcon falls back to `file`).
 
 ## Deferred

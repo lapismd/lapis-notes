@@ -21,7 +21,6 @@ export class BacklinksView extends View {
       target: this.containerEl,
       props: {
         app: this.app,
-        view: this,
         mode: "backlinks",
       },
     });

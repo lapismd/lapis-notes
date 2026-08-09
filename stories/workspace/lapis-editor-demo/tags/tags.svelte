@@ -1,21 +1,8 @@
 <script lang="ts">
   import type { App } from "@lapis-notes/api";
   import { MarkdownSidebarPanel } from "@lapis-notes/markdown";
-  import type { TagsView } from "./index";
 
-  let {
-    app,
-    view,
-  }: {
-    app: App;
-    view: TagsView;
-  } = $props();
-
-  const inSidebar = $derived(
-    Boolean(
-      (view.leaf.parent as { inSideBar?: () => boolean } | undefined)?.inSideBar?.(),
-    ),
-  );
+  let { app }: { app: App } = $props();
 
   let query = $state("");
 
@@ -51,7 +38,6 @@
   title="Tags"
   testId="tags-panel"
   component="tags"
-  {inSidebar}
   searchPlaceholder="Search tags"
   bind:query
 >

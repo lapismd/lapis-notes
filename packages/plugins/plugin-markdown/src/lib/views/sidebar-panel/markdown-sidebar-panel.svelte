@@ -6,9 +6,9 @@
   /**
    * Canonical workspace leaf chrome for markdown / Tags side panels (LN-MD-018).
    *
-   * Surface: pass `inSidebar` from `leafInSidebar(view.leaf)`.
-   * - sidebar dock → `--ui-workspace-panel` (`data-surface="sidebar"`)
-   * - main body → `--ui-workspace-background` (`data-surface="body"`)
+   * Surface paint follows the nearest design-core `data-workspace-surface`
+   * host through CSS ancestry, so moving a leaf immediately adopts the
+   * destination surface without runtime workspace-parent inspection.
    *
    * Why not nest shadcn `Sidebar.Root` / `Sidebar.Provider` here?
    * - Leaf views own the fill; Explorer fills the sidebar hole with panel tokens.
@@ -20,8 +20,6 @@
     testId,
     component = "markdown-sidebar-panel",
     class: className = undefined as string | undefined,
-    /** Sidebar dock uses panel tokens; main body uses workspace background. */
-    inSidebar = true,
     meta = undefined as string | undefined,
     searchPlaceholder = undefined as string | undefined,
     query = $bindable(""),
@@ -35,7 +33,6 @@
     testId: string;
     component?: string;
     class?: string;
-    inSidebar?: boolean;
     meta?: string;
     searchPlaceholder?: string;
     query?: string;
@@ -61,7 +58,6 @@
   data-testid={testId}
   data-show-title={showTitle ? "true" : "false"}
   data-search-open={showSearch ? "true" : "false"}
-  data-surface={inSidebar ? "sidebar" : "body"}
 >
   <ScrollArea class="markdown-sidebar-panel__scroll">
     {#if showChrome}
@@ -124,10 +120,13 @@
     --markdown-sidebar-count-end-pad: 0.5rem;
     --markdown-sidebar-count-width: 2rem;
 
-    --markdown-sidebar-surface: var(--ui-workspace-panel, var(--sidebar));
+    --markdown-sidebar-surface: var(
+      --ui-workspace-background,
+      var(--background)
+    );
     --markdown-sidebar-surface-foreground: var(
-      --ui-workspace-panel-foreground,
-      var(--sidebar-foreground)
+      --ui-workspace-foreground,
+      var(--foreground)
     );
 
     position: relative;
@@ -146,7 +145,17 @@
     border: none;
   }
 
-  .markdown-sidebar-panel[data-surface="body"] {
+  :global([data-workspace-surface="left-sidebar"]) .markdown-sidebar-panel,
+  :global([data-workspace-surface="right-sidebar"]) .markdown-sidebar-panel {
+    --markdown-sidebar-surface: var(--ui-workspace-panel, var(--sidebar));
+    --markdown-sidebar-surface-foreground: var(
+      --ui-workspace-panel-foreground,
+      var(--sidebar-foreground)
+    );
+  }
+
+  :global([data-ui-component="workspace-sidebar-group"])
+    .markdown-sidebar-panel {
     --markdown-sidebar-surface: var(
       --ui-workspace-background,
       var(--background)
