@@ -15,7 +15,7 @@ protected package change.
 | LN-GOV-005 | Tests, generated output, and ordinary story files MUST NOT satisfy or spuriously trigger the specification-first gate. |
 | LN-GOV-006 | Governance tooling MUST fail closed when it cannot determine a trustworthy change set. |
 | LN-GOV-007 | Generated mdBook output under `spec/book/` MUST remain untracked. |
-| LN-GOV-008 | `AGENTS.md` MUST identify the All Properties placement stories as the reference workflow for movable panels: one nested panel group covering the six real workspace surfaces unless a mapped requirement narrows scope, with minimal persisted shells, real grouped chrome, one real panel instance, focused host/interaction assertions, isolated app-backed Autodocs canvases, and pending visual review. |
+| LN-GOV-008 | `AGENTS.md` MUST identify the All Properties placement stories as the reference workflow for movable panels: one nested panel group covering the six real workspace surfaces unless a mapped requirement narrows scope, with minimal persisted shells, real grouped chrome, one real panel instance, focused host/interaction assertions, isolated app-backed Autodocs canvases, explicit consumer-usable Show Code sources, and pending visual review. |
 
 ## Change map
 

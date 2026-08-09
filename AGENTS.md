@@ -51,6 +51,12 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - Storybook style authority is design-core (`styles.css` + Lapis theme) plus
   thin `ui/theme.css`. Storybook may keep `@tailwindcss/vite` **only** for
   story/demo layout — not as a component styling path.
+- Storybook **Show Code** MUST be copy-pasteable consumer usage through public
+  package imports, not auto-extracted story harnesses, fixtures, or args-only
+  wrappers. Colocate `*.example-sources.ts` when a story needs an explicit
+  snippet and set `parameters.docs.source` (`code`, `language`, and
+  `type: "code"`) on the meta or individual story. Verify the rendered Show Code
+  panel whenever adding or changing Docs stories.
 - Track swap progress in root `MIGRATION.md`.
 
 ## Workspace Panel Stories
@@ -78,6 +84,11 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   (`parameters.docs.story.inline: false`) with a compact explicit Docs height.
   Inline Autodocs stories share `globalThis.app`, so simultaneous examples can
   steal imperative views and no longer reflect their declared placements.
+- Give every placement story its own explicit `parameters.docs.source` entry.
+  Derive colocated example strings from the same workspace layout builder or
+  canonical fixture used by the story, show public Lapis imports plus the real
+  placement state, and assert distinguishing layout markers in the play. Never
+  let Show Code fall back to `<PanelDemo …>` or another story-only harness.
 - Each play function waits for the demo's explicit ready state, asserts one
   panel instance and the expected design-core host/surface, and exercises the
   panel's defining interaction. Grouped stories also assert their real group

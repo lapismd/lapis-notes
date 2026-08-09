@@ -146,7 +146,7 @@ function minimalMain() {
   ]);
 }
 
-function createPanelLayout(
+export function createPanelDemoLayout(
   kind: PanelDemoKind,
   layout: PanelDemoLayout,
 ): Record<string, unknown> {
@@ -322,7 +322,7 @@ export function createPanelDemoSeed(
       2,
     ),
     ".obsidian/workspace.json": JSON.stringify(
-      createPanelLayout(kind, layout),
+      createPanelDemoLayout(kind, layout),
       null,
       2,
     ),

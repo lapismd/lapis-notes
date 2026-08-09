@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
+import * as exampleSources from "./AllProperties.example-sources";
 import PanelDemo from "./PanelDemo.svelte";
 import type { PanelDemoLayout } from "./create-panel-demo";
 
@@ -22,17 +23,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type AllPropertiesLayout = Exclude<PanelDemoLayout, "comparison">;
 
-function storyParameters(
-  catalogId: string,
-  description: string,
-  baselineImage: string,
-) {
+function visualParameters(catalogId: string, baselineImage: string) {
   return {
     ...workspaceCatalogParameters(catalogId),
     layout: "fullscreen",
-    docs: {
-      description: { story: description },
-    },
     visualDelta: {
       images: [baselineImage],
       opacity: 0.5,
@@ -41,6 +35,40 @@ function storyParameters(
       placement: "right",
     },
   };
+}
+
+const sourceMarker: Record<AllPropertiesLayout, string> = {
+  "middle-top-tabs": '"panel-middle"',
+  "stacked-tabs": '"main-stacked-tabs"',
+  "left-sidebar": '"panel-left"',
+  "right-sidebar": '"panel-right"',
+  "bottom-panel": '"all-properties-bottom-group"',
+  "sidebar-group": '"all-properties-group"',
+};
+
+type DocsSourceParameters = {
+  docs?: {
+    source?: {
+      code?: string;
+      language?: string;
+      type?: string;
+    };
+  };
+};
+
+async function expectConsumerSource(
+  parameters: DocsSourceParameters,
+  layout: AllPropertiesLayout,
+) {
+  const source = parameters.docs?.source;
+  await expect(source?.language).toBe("ts");
+  await expect(source?.type).toBe("code");
+  await expect(source?.code).toContain(
+    'import { WorkspaceShell } from "@lapis-notes/workspace";',
+  );
+  await expect(source?.code).toContain("app.workspace.changeLayout(layout)");
+  await expect(source?.code).toContain(sourceMarker[layout]);
+  await expect(source?.code).not.toContain("PanelDemo");
 }
 
 async function expectAllPropertiesPlacement(
@@ -121,79 +149,155 @@ async function expectAllPropertiesPlacement(
 }
 
 export const MiddleTopTabs: Story = {
-  parameters: storyParameters(
-    "workspace-panels-all-properties",
-    "All Properties as the only middle workspace leaf with standard top-tab chrome.",
-    "/visual-baselines/stories/workspace/panels/middle-top-tabs-chromium.png",
-  ),
+  parameters: {
+    ...visualParameters(
+      "workspace-panels-all-properties",
+      "/visual-baselines/stories/workspace/panels/middle-top-tabs-chromium.png",
+    ),
+    docs: {
+      description: {
+        story:
+          "All Properties as the only middle workspace leaf with standard top-tab chrome.",
+      },
+      source: {
+        code: exampleSources.MiddleTopTabs,
+        language: "ts",
+        type: "code",
+      },
+    },
+  },
   name: "Middle (Top Tabs)",
   args: { kind: "all-properties", layout: "middle-top-tabs" },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, parameters }) => {
     await expectAllPropertiesPlacement(canvasElement, "middle-top-tabs");
+    await expectConsumerSource(parameters, "middle-top-tabs");
   },
 };
 
 export const StackedTabs: Story = {
-  parameters: storyParameters(
-    "workspace-panels-all-properties-stacked-tabs",
-    "All Properties selected inside the real stacked-tabs workspace presentation.",
-    "/visual-baselines/stories/workspace/panels/stacked-tabs-chromium.png",
-  ),
+  parameters: {
+    ...visualParameters(
+      "workspace-panels-all-properties-stacked-tabs",
+      "/visual-baselines/stories/workspace/panels/stacked-tabs-chromium.png",
+    ),
+    docs: {
+      description: {
+        story:
+          "All Properties selected inside the real stacked-tabs workspace presentation.",
+      },
+      source: {
+        code: exampleSources.StackedTabs,
+        language: "ts",
+        type: "code",
+      },
+    },
+  },
   name: "Stacked Tabs",
   args: { kind: "all-properties", layout: "stacked-tabs" },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, parameters }) => {
     await expectAllPropertiesPlacement(canvasElement, "stacked-tabs");
+    await expectConsumerSource(parameters, "stacked-tabs");
   },
 };
 
 export const LeftSidebar: Story = {
-  parameters: storyParameters(
-    "workspace-panels-all-properties-left-sidebar",
-    "All Properties as the only open item in the left sidebar.",
-    "/visual-baselines/stories/workspace/panels/left-sidebar-chromium.png",
-  ),
+  parameters: {
+    ...visualParameters(
+      "workspace-panels-all-properties-left-sidebar",
+      "/visual-baselines/stories/workspace/panels/left-sidebar-chromium.png",
+    ),
+    docs: {
+      description: {
+        story: "All Properties as the only open item in the left sidebar.",
+      },
+      source: {
+        code: exampleSources.LeftSidebar,
+        language: "ts",
+        type: "code",
+      },
+    },
+  },
   name: "Left Sidebar",
   args: { kind: "all-properties", layout: "left-sidebar" },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, parameters }) => {
     await expectAllPropertiesPlacement(canvasElement, "left-sidebar");
+    await expectConsumerSource(parameters, "left-sidebar");
   },
 };
 
 export const RightSidebar: Story = {
-  parameters: storyParameters(
-    "workspace-panels-all-properties-right-sidebar",
-    "All Properties as the only open item in the right sidebar.",
-    "/visual-baselines/stories/workspace/panels/right-sidebar-chromium.png",
-  ),
+  parameters: {
+    ...visualParameters(
+      "workspace-panels-all-properties-right-sidebar",
+      "/visual-baselines/stories/workspace/panels/right-sidebar-chromium.png",
+    ),
+    docs: {
+      description: {
+        story: "All Properties as the only open item in the right sidebar.",
+      },
+      source: {
+        code: exampleSources.RightSidebar,
+        language: "ts",
+        type: "code",
+      },
+    },
+  },
   name: "Right Sidebar",
   args: { kind: "all-properties", layout: "right-sidebar" },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, parameters }) => {
     await expectAllPropertiesPlacement(canvasElement, "right-sidebar");
+    await expectConsumerSource(parameters, "right-sidebar");
   },
 };
 
 export const BottomPanel: Story = {
-  parameters: storyParameters(
-    "workspace-panels-all-properties-bottom-panel",
-    "All Properties as a group in the real open bottom-panel dock beneath an empty workspace.",
-    "/visual-baselines/stories/workspace/panels/bottom-panel-chromium.png",
-  ),
+  parameters: {
+    ...visualParameters(
+      "workspace-panels-all-properties-bottom-panel",
+      "/visual-baselines/stories/workspace/panels/bottom-panel-chromium.png",
+    ),
+    docs: {
+      description: {
+        story:
+          "All Properties as a group in the real open bottom-panel dock beneath an empty workspace.",
+      },
+      source: {
+        code: exampleSources.BottomPanel,
+        language: "ts",
+        type: "code",
+      },
+    },
+  },
   name: "Bottom Panel",
   args: { kind: "all-properties", layout: "bottom-panel" },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, parameters }) => {
     await expectAllPropertiesPlacement(canvasElement, "bottom-panel");
+    await expectConsumerSource(parameters, "bottom-panel");
   },
 };
 
 export const SidebarGroup: Story = {
-  parameters: storyParameters(
-    "workspace-panels-all-properties-sidebar-group",
-    "All Properties expanded as the only panel in a grouped right-sidebar item.",
-    "/visual-baselines/stories/workspace/panels/sidebar-group-chromium.png",
-  ),
+  parameters: {
+    ...visualParameters(
+      "workspace-panels-all-properties-sidebar-group",
+      "/visual-baselines/stories/workspace/panels/sidebar-group-chromium.png",
+    ),
+    docs: {
+      description: {
+        story:
+          "All Properties expanded as the only panel in a grouped right-sidebar item.",
+      },
+      source: {
+        code: exampleSources.SidebarGroup,
+        language: "ts",
+        type: "code",
+      },
+    },
+  },
   name: "Sidebar As a Group",
   args: { kind: "all-properties", layout: "sidebar-group" },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, parameters }) => {
     await expectAllPropertiesPlacement(canvasElement, "sidebar-group");
+    await expectConsumerSource(parameters, "sidebar-group");
   },
 };
