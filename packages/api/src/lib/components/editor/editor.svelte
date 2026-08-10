@@ -88,8 +88,6 @@
 
 <ScrollArea
   class="cm-editor-scroll-area"
-  data-ui-component="editor"
-  data-ui-part="scroll-area"
   data-mira-theme="obsidian"
 >
   <div

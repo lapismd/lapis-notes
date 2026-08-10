@@ -101,9 +101,9 @@
   text-align: center;
 }
 
-[data-ui-component="editor"][data-ui-part="scroll-area"],
-[data-ui-component="editor"] .cm-editor-scroll-area {
+.cm-editor-scroll-area {
   height: 100%;
+  min-height: 0;
   width: 100%;
 }
 

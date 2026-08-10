@@ -7,6 +7,7 @@ import { panelExampleSources } from "./Panel.example-sources";
 import type { PanelDemoLayout } from "./create-panel-demo";
 import {
   expectLinkPanelAlignment,
+  expectMarkdownDocumentScroll,
   expectPanelPlacement,
   expectPanelSource,
   PANEL_DOCS_PARAMETERS,
@@ -76,6 +77,9 @@ function placementStory(
         expect(panel.getByRole("button", { name: /^Research/ })).toBeVisible();
       });
       await expectLinkPanelAlignment(canvasElement, "backlinks-panel");
+      if (layout === "middle-top-tabs" || layout === "stacked-tabs") {
+        await expectMarkdownDocumentScroll(canvasElement);
+      }
       if (layout === "middle-top-tabs") {
         const app = panelDemoApp(canvasElement);
         const file = app.vault.getFileByPath("Notes/Research.md");

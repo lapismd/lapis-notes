@@ -306,3 +306,75 @@ export async function expectLinkPanelAlignment(
 
   return alignment;
 }
+
+export async function expectMarkdownDocumentScroll(
+  canvasElement: HTMLElement,
+) {
+  const viewHost = canvasElement.querySelector<HTMLElement>(
+    '[data-ui-component="workspace-view-host"][data-workspace-view-type="markdown"]',
+  );
+  if (!viewHost) throw new Error("Missing Markdown WorkspaceViewHost");
+
+  const scrollRoot = viewHost.querySelector<HTMLElement>(
+    ".cm-editor-scroll-area",
+  );
+  const viewport = scrollRoot?.querySelector<HTMLElement>(
+    '[data-ui-component="scroll-area"][data-ui-part="scroll-area-viewport"]',
+  );
+  if (!scrollRoot || !viewport) {
+    throw new Error("Missing Markdown editor ScrollArea");
+  }
+
+  const app = panelDemoApp(canvasElement);
+  let documentEditor: {
+    getValue(): string;
+    setValue(value: string): void;
+  } | null = null;
+  app.workspace.iterateRootLeaves((leaf) => {
+    const view = leaf.view as {
+      file?: { path?: string };
+      editor?: typeof documentEditor;
+    };
+    if (!documentEditor && view.file?.path === "Notes/Welcome.md") {
+      documentEditor = view.editor ?? null;
+    }
+  });
+  if (!documentEditor) throw new Error("Missing seeded Welcome editor");
+
+  const originalContents = documentEditor.getValue();
+  const overflowFixture = Array.from(
+    { length: 80 },
+    (_, index) => `Scroll regression line ${index + 1}.`,
+  ).join("\n\n");
+  const storyHost = canvasElement.querySelector<HTMLElement>(
+    '[data-testid="panel-demo"]',
+  );
+  if (!storyHost) throw new Error("Missing panel demo story host");
+  const initialStoryHeight = storyHost.style.height;
+  const initialScrollTop = viewport.scrollTop;
+
+  try {
+    storyHost.style.height = "36rem";
+    documentEditor.setValue(`${originalContents}\n\n${overflowFixture}\n`);
+    await waitFor(() => {
+      expect(
+        Math.abs(
+          scrollRoot.getBoundingClientRect().height -
+            viewHost.getBoundingClientRect().height,
+        ),
+      ).toBeLessThan(1);
+      expect(viewport.scrollHeight).toBeGreaterThan(viewport.clientHeight);
+    });
+
+    const maximumScrollTop = viewport.scrollHeight - viewport.clientHeight;
+    const targetScrollTop = Math.min(initialScrollTop + 120, maximumScrollTop);
+    viewport.scrollTop = targetScrollTop;
+    await waitFor(() => {
+      expect(viewport.scrollTop).toBe(targetScrollTop);
+    });
+  } finally {
+    viewport.scrollTop = initialScrollTop;
+    documentEditor.setValue(originalContents);
+    storyHost.style.height = initialStoryHeight;
+  }
+}
