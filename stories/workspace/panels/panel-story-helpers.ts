@@ -1,5 +1,5 @@
 import type { App } from "@lapis-notes/api";
-import { expect, waitFor, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import {
   PANEL_LEAF_META,
@@ -409,4 +409,17 @@ export function expectLinkPreviewPlacement(
   expect(preview).toHaveAttribute("data-side", "right");
   expect(previewRect.left).toBeGreaterThanOrEqual(anchorRect.right - 1);
   expect(previewRect.right).toBeLessThanOrEqual(viewportWidth);
+}
+
+export async function expectLinkPreviewHoverHandoff(
+  trigger: HTMLElement,
+  preview: HTMLElement,
+) {
+  await userEvent.unhover(trigger);
+  await new Promise((resolve) => setTimeout(resolve, 180));
+  expect(preview).toBeVisible();
+
+  await userEvent.hover(preview);
+  await new Promise((resolve) => setTimeout(resolve, 340));
+  expect(preview).toBeVisible();
 }

@@ -5,6 +5,8 @@
   import type { Snippet } from "svelte";
   import { FileEmbed } from "$lib/components/embed";
 
+  const CLOSE_GRACE_MS = 300;
+
   let {
     app,
     file,
@@ -35,7 +37,7 @@
     closeTimer = setTimeout(() => {
       open = false;
       closeTimer = null;
-    }, 120);
+    }, CLOSE_GRACE_MS);
   }
 
   function show() {
@@ -76,6 +78,8 @@
       customAnchor={previewAnchor}
       onpointerenter={show}
       onpointerleave={scheduleClose}
+      onfocusin={show}
+      onfocusout={scheduleClose}
     >
       <ScrollArea.Root class="markdown-link-sidebar__preview-scroll">
         <FileEmbed {app} {file} {sourcePath} onopen={onclick} />

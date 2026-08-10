@@ -7,6 +7,7 @@ import { panelExampleSources } from "./Panel.example-sources";
 import type { PanelDemoLayout } from "./create-panel-demo";
 import {
   expectLinkPanelAlignment,
+  expectLinkPreviewHoverHandoff,
   expectLinkPreviewPlacement,
   expectMarkdownDocumentScroll,
   expectPanelPlacement,
@@ -143,6 +144,11 @@ function placementStory(
           expect(preview?.querySelector("[data-markdown-embed]")).toBeVisible();
           if (preview) expectLinkPreviewPlacement(previewTrigger, preview);
         });
+        const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
+          '[data-ui-component="popover"][data-ui-part="popover-content"]',
+        );
+        if (!preview) throw new Error("Missing Backlinks preview");
+        await expectLinkPreviewHoverHandoff(previewTrigger, preview);
         await userEvent.click(previewTrigger);
         await waitFor(() => {
           expect(
