@@ -44,7 +44,6 @@
   testId="file-properties-panel"
   component="file-properties"
   showTitle={false}
-  scrollOrientation="both"
 >
   {#if activeFile}
     <div class="markdown-widget-shell markdown-file-properties__editor">
@@ -64,7 +63,6 @@
 
 <style>
   .markdown-file-properties__editor {
-    --markdown-file-properties-min-width: 15rem;
     --font-interface: var(--ui-workspace-explorer-font-family, inherit);
     --text-sm: 0.75rem;
     --text-sm--line-height: 1rem;
@@ -112,7 +110,7 @@
 
     box-sizing: border-box;
     width: 100%;
-    min-width: var(--markdown-file-properties-min-width);
+    min-width: 0;
     color: inherit;
     font-family: var(--ui-workspace-explorer-font-family, inherit);
     font-size: 0.75rem;

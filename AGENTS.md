@@ -87,12 +87,18 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   policy: Tags reserves the disclosure column so hashes align by depth, while
   Outline leaves reserve no disclosure space. Keep any counts and the trailing
   row edge aligned independently of that start-edge policy.
+- Test responsive panel behavior by resizing the owning workspace split through
+  the real workspace controller, as the shell resize handle does.
+  Do not set a width on the panel component or its content merely to trigger a
+  breakpoint; that bypasses the tab layout and can leave Storybook previews in
+  a synthetic constrained state when an assertion fails.
 - Apply the same baseline to non-tree panels. File Properties remains a Mira
   `FrontmatterEditor`, adapted only through a full-width `markdown-widget-shell`
-  wrapper and inherited workspace/0.75rem panel type variables. Retain a 15rem
-  editor-content minimum with horizontal access, while relying on Mira's own
-  250px container breakpoint to stack property keys and values into complete
-  rows. Preserve Lapis type metadata but let Mira's native inline and pill-list
+  wrapper and inherited workspace/0.75rem panel type variables. The editor must
+  shrink with the panel and never introduce horizontal panel scrolling. Rely on
+  Mira's own 250px container breakpoint to stack property keys and values into
+  complete rows with the value aligned to the property label above it. Preserve
+  Lapis type metadata but let Mira's native inline and pill-list
   controls render text, tags, aliases, and multitext; do not reintroduce generic
   textarea/comma inputs, competing input outlines, or resizable property
   textareas. Preserve the native Mira/Lapis property-row border/ring/radius, but

@@ -1,4 +1,5 @@
 import type { App } from "@lapis-notes/api";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { FileProperties } from "@lapis-notes/markdown";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
@@ -54,6 +55,29 @@ function renderPlacement(layout: PanelDemoLayout): StoryRender {
   })) as StoryRender;
 }
 
+function resizePanelTab(
+  app: App,
+  layout: PanelDemoLayout,
+): (() => void) | null {
+  const renderer = getWorkspaceHostBinding(app.workspace).controller.renderer;
+  const snapshot = renderer.getLayout();
+
+  if (layout === "middle-top-tabs") {
+    if (snapshot.main.kind !== "split") {
+      throw new Error("Expected the panel story main split");
+    }
+    const originalSizes = [...snapshot.main.sizes];
+    if (!renderer.setSplitSizes(snapshot.main.id, [88, 12])) {
+      throw new Error("Could not resize the panel story main split");
+    }
+    return () => {
+      renderer.setSplitSizes(snapshot.main.id, originalSizes);
+    };
+  }
+
+  return null;
+}
+
 function placementStory(
   layout: PanelDemoLayout,
   source: string,
@@ -88,9 +112,7 @@ function placementStory(
       );
       expect(editor).not.toBeNull();
       expect(widgetShell).not.toBeNull();
-      expect(getComputedStyle(widgetShell as HTMLElement).minWidth).toBe(
-        "240px",
-      );
+      expect(getComputedStyle(widgetShell as HTMLElement).minWidth).toBe("0px");
       expect(getComputedStyle(widgetShell as HTMLElement).backgroundColor).toBe(
         "rgba(0, 0, 0, 0)",
       );
@@ -150,49 +172,78 @@ function placementStory(
       const tagsValue = tagsRow?.querySelector<HTMLElement>(
         ".metadata-property-value",
       );
+      const tagsKeyInput = tagsRow?.querySelector<HTMLElement>(
+        ".metadata-property-key-input",
+      );
+      const firstTagPill = tagsRow?.querySelector<HTMLElement>(
+        ".metadata-property-pill-chip",
+      );
       expect(propertyContainer).not.toBeNull();
       expect(tagsKey).not.toBeNull();
       expect(tagsValue).not.toBeNull();
-      const originalContainerWidth = propertyContainer?.style.width ?? "";
-      const originalPanelWidth = alignment.panelElement.style.width;
-      alignment.panelElement.style.width = "220px";
-      if (propertyContainer) propertyContainer.style.width = "240px";
-      await waitFor(() => {
-        const keyBounds = tagsKey?.getBoundingClientRect();
-        const valueBounds = tagsValue?.getBoundingClientRect();
-        const rowBounds = tagsRow?.getBoundingClientRect();
-        expect(getComputedStyle(tagsRow as HTMLElement).flexWrap).toBe("wrap");
-        expect(
-          Math.abs((keyBounds?.width ?? 0) - (rowBounds?.width ?? 0)),
-        ).toBeLessThan(1);
-        expect(
-          Math.abs((valueBounds?.width ?? 0) - (rowBounds?.width ?? 0)),
-        ).toBeLessThan(1);
-        expect(valueBounds?.top ?? 0).toBeGreaterThanOrEqual(
-          (keyBounds?.bottom ?? 0) - 1,
+      expect(tagsKeyInput).not.toBeNull();
+      expect(firstTagPill).not.toBeNull();
+      if ((propertyContainer?.getBoundingClientRect().width ?? 0) >= 250) {
+        expect(getComputedStyle(tagsRow as HTMLElement).flexWrap).toBe(
+          "nowrap",
         );
-        const scrollViewport =
-          alignment.panelElement.querySelector<HTMLElement>(
-            '.markdown-sidebar-panel__scroll [data-ui-part="scroll-area-viewport"]',
+      }
+
+      const restorePanelTab = resizePanelTab(
+        panelDemoApp(canvasElement),
+        layout,
+      );
+      if (restorePanelTab) {
+        try {
+          await waitFor(() => {
+            const keyBounds = tagsKey?.getBoundingClientRect();
+            const valueBounds = tagsValue?.getBoundingClientRect();
+            const rowBounds = tagsRow?.getBoundingClientRect();
+            const keyInputBounds = tagsKeyInput?.getBoundingClientRect();
+            const keyInputStyle = getComputedStyle(tagsKeyInput as HTMLElement);
+            const labelTextStart =
+              (keyInputBounds?.left ?? 0) +
+              Number.parseFloat(keyInputStyle.paddingInlineStart);
+            const valueStart = firstTagPill?.getBoundingClientRect().left ?? 0;
+            expect(
+              propertyContainer?.getBoundingClientRect().width ?? 0,
+            ).toBeLessThan(250);
+            expect(getComputedStyle(tagsRow as HTMLElement).flexWrap).toBe(
+              "wrap",
+            );
+            expect(
+              Math.abs((keyBounds?.width ?? 0) - (rowBounds?.width ?? 0)),
+            ).toBeLessThan(1);
+            expect(
+              Math.abs((valueBounds?.width ?? 0) - (rowBounds?.width ?? 0)),
+            ).toBeLessThan(1);
+            expect(valueBounds?.top ?? 0).toBeGreaterThanOrEqual(
+              (keyBounds?.bottom ?? 0) - 1,
+            );
+            expect(Math.abs(valueStart - labelTextStart)).toBeLessThan(1);
+            const scrollViewport =
+              alignment.panelElement.querySelector<HTMLElement>(
+                '.markdown-sidebar-panel__scroll [data-ui-part="scroll-area-viewport"]',
+              );
+            expect(scrollViewport).not.toBeNull();
+            expect(
+              (scrollViewport?.scrollWidth ?? 0) -
+                (scrollViewport?.clientWidth ?? 0),
+            ).toBeLessThanOrEqual(1);
+            expect(scrollViewport?.scrollLeft ?? 0).toBe(0);
+          });
+        } finally {
+          restorePanelTab();
+        }
+        await waitFor(() => {
+          expect(
+            propertyContainer?.getBoundingClientRect().width ?? 0,
+          ).toBeGreaterThanOrEqual(250);
+          expect(getComputedStyle(tagsRow as HTMLElement).flexWrap).toBe(
+            "nowrap",
           );
-        expect(scrollViewport).not.toBeNull();
-        expect(getComputedStyle(scrollViewport as HTMLElement).overflowX).toBe(
-          "scroll",
-        );
-        expect(scrollViewport?.scrollWidth ?? 0).toBeGreaterThan(
-          scrollViewport?.clientWidth ?? 0,
-        );
-        if (scrollViewport) scrollViewport.scrollLeft = 16;
-        expect(scrollViewport?.scrollLeft ?? 0).toBeGreaterThan(0);
-      });
-      if (propertyContainer)
-        propertyContainer.style.width = originalContainerWidth;
-      alignment.panelElement.style.width = originalPanelWidth;
-      const restoredScrollViewport =
-        alignment.panelElement.querySelector<HTMLElement>(
-          '.markdown-sidebar-panel__scroll [data-ui-part="scroll-area-viewport"]',
-        );
-      if (restoredScrollViewport) restoredScrollViewport.scrollLeft = 0;
+        });
+      }
 
       let status = panel.getByRole("textbox", { name: "status value" });
       if (layout === "middle-top-tabs") {
