@@ -7,6 +7,7 @@ import { panelExampleSources } from "./Panel.example-sources";
 import type { PanelDemoLayout } from "./create-panel-demo";
 import {
   expectLinkPanelAlignment,
+  expectLinkPreviewPlacement,
   expectMarkdownDocumentScroll,
   expectPanelPlacement,
   expectPanelSource,
@@ -125,7 +126,7 @@ function placementStory(
         await expect(previewTrigger).toHaveAttribute("aria-haspopup", "dialog");
         await userEvent.hover(previewTrigger);
         await waitFor(() => {
-          const preview = canvasElement.ownerDocument.querySelector(
+          const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
             '[data-ui-component="popover"][data-ui-part="popover-content"]',
           );
           expect(preview).toBeVisible();
@@ -140,6 +141,7 @@ function placementStory(
             preview?.querySelector(".mira-embed.internal-embed"),
           ).toBeVisible();
           expect(preview?.querySelector("[data-markdown-embed]")).toBeVisible();
+          if (preview) expectLinkPreviewPlacement(previewTrigger, preview);
         });
         await userEvent.click(previewTrigger);
         await waitFor(() => {

@@ -144,12 +144,21 @@
   width: 100%;
 }
 
-/* Mira theme pads `& > .cm-scroller`; host column already owns those margins. */
-[data-ui-component="editor"] .cm-editor-content > .cm-editor > .cm-scroller {
+/*
+ * Mira theme pads `& > .cm-scroller`; host column already owns those margins.
+ * Keep both axes non-scrolling so the outer design-core ScrollArea remains the
+ * sole vertical owner. `clip` is intentional: pairing `hidden` with a visible
+ * y-axis would make CSS compute overflow-y to `auto` and paint a second track.
+ */
+[data-ui-component="editor"][data-ui-part="scroll-content"]
+  .cm-editor-content
+  > .cm-editor
+  > .cm-scroller {
   box-sizing: border-box;
   height: auto;
   min-height: 0;
-  overflow: visible;
+  overflow-x: clip;
+  overflow-y: visible;
   padding-block: 0;
   padding-inline: 0;
 }

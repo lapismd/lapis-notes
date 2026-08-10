@@ -7,6 +7,8 @@ import { panelExampleSources } from "./Panel.example-sources";
 import type { PanelDemoLayout } from "./create-panel-demo";
 import {
   expectLinkPanelAlignment,
+  expectLinkPreviewPlacement,
+  expectMarkdownDocumentScroll,
   expectPanelPlacement,
   expectPanelSource,
   PANEL_DOCS_PARAMETERS,
@@ -78,6 +80,9 @@ function placementStory(
         expect(panel.getByRole("button", { name: /^Research/ })).toBeVisible();
       });
       await expectLinkPanelAlignment(canvasElement, "outgoing-links-panel");
+      if (layout === "middle-top-tabs" || layout === "stacked-tabs") {
+        await expectMarkdownDocumentScroll(canvasElement);
+      }
 
       const panelElement = canvasElement.querySelector<HTMLElement>(
         '[data-testid="outgoing-links-panel"]',
@@ -135,7 +140,7 @@ function placementStory(
         await expect(previewTrigger).toHaveAttribute("aria-haspopup", "dialog");
         await userEvent.hover(previewTrigger);
         await waitFor(() => {
-          const preview = canvasElement.ownerDocument.querySelector(
+          const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
             '[data-ui-component="popover"][data-ui-part="popover-content"]',
           );
           expect(preview).toBeVisible();
@@ -150,6 +155,7 @@ function placementStory(
             preview?.querySelector(".mira-embed.internal-embed"),
           ).toBeVisible();
           expect(preview?.querySelector("[data-markdown-embed]")).toBeVisible();
+          if (preview) expectLinkPreviewPlacement(previewTrigger, preview);
         });
         await userEvent.click(previewTrigger);
         await waitFor(() => {

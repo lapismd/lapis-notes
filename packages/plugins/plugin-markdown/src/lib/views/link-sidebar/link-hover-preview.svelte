@@ -22,6 +22,7 @@
   } = $props();
 
   let open = $state(false);
+  let previewAnchor: HTMLSpanElement | null = $state(null);
   let closeTimer: ReturnType<typeof setTimeout> | null = null;
 
   function cancelClose() {
@@ -57,13 +58,22 @@
     onblur={scheduleClose}
     {onclick}
   >
-    {@render children()}
+    <span
+      class="markdown-link-sidebar__preview-anchor"
+      data-link-preview-anchor
+      aria-hidden="true"
+      bind:this={previewAnchor}
+    ></span>
+    <span class="markdown-link-sidebar__preview-content">
+      {@render children()}
+    </span>
   </Popover.Trigger>
   {#if open}
     <Popover.Content
       class="markdown-link-sidebar__preview"
       side="right"
       align="start"
+      customAnchor={previewAnchor}
       onpointerenter={show}
       onpointerleave={scheduleClose}
     >
@@ -75,6 +85,20 @@
 </Popover.Root>
 
 <style>
+  .markdown-link-sidebar__preview-anchor {
+    width: 0;
+    height: 1rem;
+    flex: 0 0 0;
+    align-self: center;
+    pointer-events: none;
+  }
+
+  .markdown-link-sidebar__preview-content {
+    display: inline-flex;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   :global(
     [data-ui-component="popover"][data-ui-part="popover-content"].markdown-link-sidebar__preview
   ) {

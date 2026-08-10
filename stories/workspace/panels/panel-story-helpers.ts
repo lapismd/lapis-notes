@@ -324,6 +324,13 @@ export async function expectMarkdownDocumentScroll(
   if (!scrollRoot || !viewport) {
     throw new Error("Missing Markdown editor ScrollArea");
   }
+  const markdownView = viewHost.querySelector<HTMLElement>(".markdown-view");
+  const codeMirrorScroller = viewHost.querySelector<HTMLElement>(
+    ".cm-editor-content > .cm-editor > .cm-scroller",
+  );
+  if (!markdownView || !codeMirrorScroller) {
+    throw new Error("Missing full-height Markdown editor surface");
+  }
 
   const app = panelDemoApp(canvasElement);
   let documentEditor: {
@@ -357,12 +364,17 @@ export async function expectMarkdownDocumentScroll(
     storyHost.style.height = "36rem";
     documentEditor.setValue(`${originalContents}\n\n${overflowFixture}\n`);
     await waitFor(() => {
-      expect(
-        Math.abs(
-          scrollRoot.getBoundingClientRect().height -
-            viewHost.getBoundingClientRect().height,
-        ),
-      ).toBeLessThan(1);
+      const viewHostHeight = viewHost.getBoundingClientRect().height;
+      for (const surface of [markdownView, scrollRoot]) {
+        expect(
+          Math.abs(surface.getBoundingClientRect().height - viewHostHeight),
+        ).toBeLessThan(1);
+      }
+      expect(["auto", "scroll"]).toContain(
+        getComputedStyle(viewport).overflowY,
+      );
+      expect(getComputedStyle(codeMirrorScroller).overflowX).toBe("clip");
+      expect(getComputedStyle(codeMirrorScroller).overflowY).toBe("visible");
       expect(viewport.scrollHeight).toBeGreaterThan(viewport.clientHeight);
     });
 
@@ -377,4 +389,24 @@ export async function expectMarkdownDocumentScroll(
     documentEditor.setValue(originalContents);
     storyHost.style.height = initialStoryHeight;
   }
+}
+
+export function expectLinkPreviewPlacement(
+  trigger: HTMLElement,
+  preview: HTMLElement,
+) {
+  const anchor = trigger.querySelector<HTMLElement>(
+    "[data-link-preview-anchor]",
+  );
+  if (!anchor) throw new Error("Missing visible mention preview anchor");
+
+  const triggerRect = trigger.getBoundingClientRect();
+  const anchorRect = anchor.getBoundingClientRect();
+  const previewRect = preview.getBoundingClientRect();
+  const viewportWidth = preview.ownerDocument.documentElement.clientWidth;
+
+  expect(anchorRect.width).toBeLessThan(triggerRect.width);
+  expect(preview).toHaveAttribute("data-side", "right");
+  expect(previewRect.left).toBeGreaterThanOrEqual(anchorRect.right - 1);
+  expect(previewRect.right).toBeLessThanOrEqual(viewportWidth);
 }
