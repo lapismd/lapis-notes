@@ -99,9 +99,7 @@ export const SameFileSplitSync: Story = {
     ].filter((element) => element.getClientRects().length > 0);
     await expect(markdownHosts.length).toBeGreaterThan(0);
     await waitFor(() =>
-      expect(
-        markdownHosts[0]!.querySelector(".cm-foldGutter"),
-      ).not.toBeNull(),
+      expect(markdownHosts[0]!.querySelector(".cm-foldGutter")).not.toBeNull(),
     );
 
     const inlineTitle = canvasElement.querySelector(
@@ -183,6 +181,135 @@ export const SameFileSplitSync: Story = {
     await expect(jsonEditor!).toHaveTextContent("Independent JSON pane");
     await expect(markdownEditor!).not.toHaveTextContent(
       "Independent JSON pane",
+    );
+  },
+};
+
+export const MarkdownFrontmatter: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-markdown-frontmatter",
+    "Mira owns Markdown frontmatter disclosure, inline folding, source typography, and embedded-preview geometry inside the Lapis editor shell.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-frontmatter-chromium.png",
+  ),
+  tags: ["visual-pending"],
+  args: { scenario: "markdown-frontmatter" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+
+    const markdownEditor = await waitFor(
+      () => {
+        const editor = canvasElement.querySelector<HTMLElement>(
+          '.cm-editor[data-language="markdown"]',
+        );
+        expect(editor).not.toBeNull();
+        return editor!;
+      },
+      { timeout: 5_000 },
+    );
+    expect(markdownEditor).toHaveClass("mira-live-preview-mode");
+
+    const heading = await waitFor(
+      () => {
+        const element = canvasElement.querySelector<HTMLElement>(".cm-heading");
+        expect(element).not.toBeNull();
+        return element!;
+      },
+      { timeout: 5_000 },
+    );
+    await userEvent.click(heading);
+
+    const frontmatterWidget = await waitFor(
+      () => {
+        const widget = canvasElement.querySelector<HTMLElement>(
+          ".mira-rich-widget--frontmatter",
+        );
+        expect(widget).not.toBeNull();
+        return widget!;
+      },
+      { timeout: 5_000 },
+    );
+    const trigger = within(frontmatterWidget).getByRole("button", {
+      name: "Collapse properties",
+    });
+    const nestedSizer = frontmatterWidget.querySelector<HTMLElement>(
+      ".mira-markdown-preview > .cm-sizer",
+    );
+    const editorLine = [
+      ...canvasElement.querySelectorAll<HTMLElement>(".cm-line"),
+    ].find((line) => line.getClientRects().length > 0);
+    expect(nestedSizer).not.toBeNull();
+    expect(editorLine).not.toBeNull();
+    expect(getComputedStyle(nestedSizer!).paddingInlineStart).toBe("0px");
+    expect(
+      Math.abs(
+        frontmatterWidget.getBoundingClientRect().left -
+          editorLine!.getBoundingClientRect().left,
+      ),
+    ).toBeLessThan(1);
+
+    await userEvent.click(trigger);
+    await expect(
+      within(frontmatterWidget).getByRole("button", {
+        name: "Expand properties",
+      }),
+    ).toHaveAttribute("aria-expanded", "false");
+    await expect(
+      frontmatterWidget.querySelector(".md-frontmatter__content"),
+    ).toBeNull();
+
+    await userEvent.click(
+      within(frontmatterWidget).getByRole("button", {
+        name: "Expand properties",
+      }),
+    );
+    await expect(
+      within(frontmatterWidget).getByRole("button", {
+        name: "Collapse properties",
+      }),
+    ).toHaveAttribute("aria-expanded", "true");
+
+    const foldGutter =
+      markdownEditor?.querySelector<HTMLElement>(".cm-foldGutter");
+    expect(markdownEditor).not.toBeNull();
+    expect(foldGutter).not.toBeNull();
+    expect(getComputedStyle(foldGutter!).display).toBe("none");
+
+    await userEvent.click(
+      within(frontmatterWidget).getByRole("button", { name: "Edit source" }),
+    );
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector(".mira-rich-widget--frontmatter"),
+      ).toBeNull(),
+    );
+
+    const sourceLines = [
+      ...canvasElement.querySelectorAll<HTMLElement>(
+        ".cm-line.cm-hmd-frontmatter",
+      ),
+    ];
+    expect(sourceLines).toHaveLength(7);
+    expect(getComputedStyle(sourceLines[0]!).fontFamily).toContain(
+      "Source Code Pro",
+    );
+
+    const sourceFold = within(markdownEditor!).getAllByRole("button", {
+      name: "Collapse section",
+    })[0]!;
+    await userEvent.click(sourceFold);
+    const sourceExpand = within(markdownEditor!).getByRole("button", {
+      name: "Expand section",
+    });
+    await expect(sourceExpand).toHaveAttribute("data-folded", "true");
+    await userEvent.click(sourceExpand);
+    await userEvent.click(
+      canvasElement.querySelector<HTMLElement>(".cm-heading")!,
+    );
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector(".mira-rich-widget--frontmatter"),
+      ).not.toBeNull(),
     );
   },
 };
@@ -288,7 +415,8 @@ export const EditorSettings: Story = {
     await userEvent.clear(titleEditor);
     await userEvent.type(titleEditor, "Renamed.md{Enter}");
     await waitFor(() => {
-      const paths = canvas.getByTestId("lapis-editor-vault-paths").textContent ?? "";
+      const paths =
+        canvas.getByTestId("lapis-editor-vault-paths").textContent ?? "";
       expect(paths.split("|")).toContain("Notes/Renamed.md");
       expect(paths.split("|")).not.toContain("Notes/Welcome.md");
     });

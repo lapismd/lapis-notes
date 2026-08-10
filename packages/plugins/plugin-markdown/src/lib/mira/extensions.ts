@@ -1,7 +1,7 @@
 import type { Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import {
-  createMiraMarkdownLanguage,
+  createMarkdownCodeMirrorExtensions,
   createRichEditorExtensions,
 } from "@lapismd/mira/codemirror";
 import {
@@ -45,9 +45,9 @@ export function resolveMarkdownMiraExtensions(app: App, aiRun?: MiraAiRun) {
   const get = <T>(key: string, fallback?: T) =>
     configGet(app, key, fallback) as T;
   const features = readMiraFeatureFlags(get) as MiraFeatureFlags;
-  const mermaidEnabled = Boolean(
-    get("markdown.mira.plugins.mermaid.enabled", true),
-  ) && features.mermaid !== false;
+  const mermaidEnabled =
+    Boolean(get("markdown.mira.plugins.mermaid.enabled", true)) &&
+    features.mermaid !== false;
   const aiEnabled = Boolean(get("markdown.mira.plugins.ai.enabled", false));
 
   const featureFlags: MiraFeatureFlags = {
@@ -90,7 +90,7 @@ export function createMarkdownEditorExtensions(
 
   return markupEditor(
     { language: "markdown" },
-    createMiraMarkdownLanguage(),
+    ...createMarkdownCodeMirrorExtensions({ sourceMode: !livePreview }),
     ...createRichEditorExtensions({
       livePreview,
       sourcePath: options.sourcePath,

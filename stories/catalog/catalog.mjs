@@ -239,6 +239,13 @@ export const workspaceCatalog = [
     storyId: "workspace-lapis-editor-demo--same-file-split-sync",
   },
   {
+    id: "workspace-lapis-editor-demo-markdown-frontmatter",
+    title: "Lapis Editor Demo Markdown Frontmatter",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapis-notes/markdown + @lapismd/mira",
+    storyId: "workspace-lapis-editor-demo--markdown-frontmatter",
+  },
+  {
     id: "workspace-lapis-editor-demo-explorer-mutations",
     title: "Lapis Editor Demo Explorer Mutations",
     spec: "spec/src/editor-demo.md",

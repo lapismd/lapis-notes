@@ -116,13 +116,13 @@
 
 [data-ui-component="editor"][data-ui-part="scroll-inner"],
 [data-ui-component="editor"] .cm-editor-scroll-area-inner,
-[data-ui-component="editor"]
-  .cm-editor-scroll-area-inner
-  > .cm-scroller {
+[data-ui-component="editor"] .cm-editor-scroll-area-inner > .cm-scroller {
   height: 100%;
 }
 
-[data-ui-component="editor"] .cm-sizer {
+[data-ui-component="editor"][data-ui-part="scroll-inner"]
+  > .cm-scroller
+  > .cm-sizer {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -145,10 +145,7 @@
 }
 
 /* Mira theme pads `& > .cm-scroller`; host column already owns those margins. */
-[data-ui-component="editor"]
-  .cm-editor-content
-  > .cm-editor
-  > .cm-scroller {
+[data-ui-component="editor"] .cm-editor-content > .cm-editor > .cm-scroller {
   box-sizing: border-box;
   height: auto;
   min-height: 0;
@@ -184,9 +181,18 @@
   );
 }
 
-/* Keep Mira fold gutter visible (preview CSS may set display: none). */
-[data-ui-component="editor"] .cm-editor .cm-gutter.cm-foldGutter {
+/* Non-Markdown languages use the configured gutter; Mira Markdown owns its
+ * inline fold controls and suppresses the duplicate gutter presentation. */
+[data-ui-component="editor"]
+  .cm-editor:not([data-language="markdown"])
+  .cm-gutter.cm-foldGutter {
   display: flex;
+}
+
+[data-ui-component="editor"]
+  .cm-editor[data-language="markdown"]
+  .cm-gutter.cm-foldGutter {
+  display: none !important;
 }
 
 [data-ui-component="editor"] .cm-editor .cm-foldGutter .cm-gutterElement {

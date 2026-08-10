@@ -1,5 +1,6 @@
 export type LapisEditorDemoScenario =
   | "ready"
+  | "markdown-frontmatter"
   | "same-file-split"
   | "explorer-mutations"
   | "editor-settings"
@@ -74,7 +75,7 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
             ]),
           ],
         }
-      : scenario === "editor-settings"
+      : scenario === "editor-settings" || scenario === "markdown-frontmatter"
         ? {
             id: "main",
             type: "split",
@@ -84,6 +85,9 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
               tabs("main-tabs", [
                 leaf("welcome", "Welcome", "file-text", "markdown", {
                   file: "Notes/Welcome.md",
+                  ...(scenario === "markdown-frontmatter"
+                    ? { mode: "live-preview" }
+                    : {}),
                 }),
               ]),
             ],
@@ -130,7 +134,7 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
     active:
       scenario === "same-file-split"
         ? "welcome-left"
-        : scenario === "editor-settings"
+        : scenario === "editor-settings" || scenario === "markdown-frontmatter"
           ? "welcome"
           : "landing",
   };
