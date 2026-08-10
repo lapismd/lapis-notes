@@ -126,29 +126,37 @@ function placementStory(
         })[0]!;
         await expect(previewTrigger).toHaveAttribute("aria-haspopup", "dialog");
         await userEvent.hover(previewTrigger);
-        await waitFor(() => {
-          const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
-            '[data-ui-component="popover"][data-ui-part="popover-content"]',
-          );
-          expect(preview).toBeVisible();
-          expect(preview).toHaveTextContent("Research.md");
-          expect(preview?.getBoundingClientRect().width).toBeGreaterThanOrEqual(
-            400,
-          );
-          expect(
-            preview?.querySelector('[data-ui-component="file-embed"]'),
-          ).toBeVisible();
-          expect(
-            preview?.querySelector(".mira-embed.internal-embed"),
-          ).toBeVisible();
-          expect(preview?.querySelector("[data-markdown-embed]")).toBeVisible();
-          if (preview) expectLinkPreviewPlacement(previewTrigger, preview);
-        });
-        const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
-          '[data-ui-component="popover"][data-ui-part="popover-content"]',
+        await waitFor(
+          () => {
+            expect(
+              canvasElement.ownerDocument.querySelector<HTMLElement>(
+                '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+              ),
+            ).toBeVisible();
+          },
+          { timeout: 5_000 },
         );
+        const preview =
+          canvasElement.ownerDocument.querySelector<HTMLElement>(
+            '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+          );
         if (!preview) throw new Error("Missing Backlinks preview");
+        expect(preview).toHaveTextContent("Research.md");
+        expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+          400,
+        );
+        expect(
+          preview.querySelector('[data-ui-component="file-embed"]'),
+        ).toBeVisible();
+        expect(
+          preview.querySelector(".mira-embed.internal-embed"),
+        ).toBeVisible();
+        expect(preview.querySelector("[data-markdown-embed]")).toBeVisible();
+        await waitFor(() =>
+          expectLinkPreviewPlacement(previewTrigger, preview, false),
+        );
         await expectLinkPreviewHoverHandoff(previewTrigger, preview);
+        await userEvent.keyboard("{Escape}");
         await userEvent.click(previewTrigger);
         await waitFor(() => {
           expect(

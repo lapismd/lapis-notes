@@ -46,7 +46,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
 - [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter, no-overflow narrow single-column rows with label-aligned values, native focus geometry with view-token contrast fill, hash Tags icon, and surface-contrasting native pills (LN-MD-017/019)
 - [x] Markdown frontmatter integration → public Mira source decorations, Source Code Pro YAML source, Mira-only inline fold controls, working rendered disclosure, and unpadded content-aligned embedded preview (LN-MD-025)
-- [x] Mira-backed embed framework → app-bound `MiraFileAdapter`, public `FileEmbed` / `MarkdownEmbed` / `NoteLink` plus `./embed`, shared document and link-panel previews, vault-relative resolution, refresh/navigation, image and registered custom-embed lifecycle (LN-MD-026)
+- [x] Mira-backed embed framework → app-bound `MiraFileAdapter`, public `FileEmbed` / `MarkdownEmbed` / `NoteLink` plus `./embed`, shared document and Design Core Hover Card link-panel previews, vault-relative resolution, refresh/navigation, image and registered custom-embed lifecycle (LN-MD-026)
 - [x] Focused `Workspace/Panels/Markdown/<Panel>/*` interaction stories: six movable surfaces for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Storybook-local Tags; file-scoped stories keep one minimal active note and vault-wide stories stay document-free
 - [x] Real app-only component metadata with no kind/layout harness controls; real bottom/sidebar groups, stable ViewHost paint assertions, isolated 700px padding-free Docs previews, and explicit persisted-layout Show Code
 - [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only
@@ -80,29 +80,30 @@ forks.
 
 ### From design-core (swap — clear shadcn overlap)
 
-| Family        | design-core target                   | api usage         | Status             |
-| ------------- | ------------------------------------ | ----------------- | ------------------ |
-| button        | `@lapismd/design-core/shadcn/button` | direct            | Done (api imports) |
-| input         | `…/shadcn/input`                     | direct            | Done (api imports) |
-| textarea      | `…/shadcn/textarea`                  | direct            | Done (api imports) |
-| switch        | `…/shadcn/switch`                    | direct            | Done (api imports) |
-| table         | `…/shadcn/table`                     | direct            | Done (api imports) |
-| select        | `…/shadcn/select`                    | direct            | Done (api imports) |
-| command       | `…/shadcn/command`                   | direct            | Done (api imports) |
-| popover       | `…/shadcn/popover`                   | direct            | Done (api imports) |
-| dropdown-menu | `…/shadcn/dropdown-menu`             | direct            | Done (api imports) |
-| tooltip       | `…/shadcn/tooltip`                   | direct            | Done (api imports) |
-| scroll-area   | `…/shadcn/scroll-area`               | direct            | Done (api imports) |
-| toggle-group  | `…/shadcn/toggle-group`              | direct            | Done (api imports) |
-| toggle        | `…/shadcn/toggle`                    | transitive        | Done (api imports) |
-| dialog        | `…/shadcn/dialog`                    | transitive        | Done (api imports) |
-| sheet         | `…/shadcn/sheet`                     | type + transitive | Done (api imports) |
-| separator     | `…/shadcn/separator`                 | transitive        | Done (api imports) |
-| skeleton      | `…/shadcn/skeleton`                  | transitive        | Done (api imports) |
-| progress      | `…/shadcn/progress`                  | direct            | Done (api imports) |
-| slider        | `…/shadcn/slider`                    | direct            | Done (api imports) |
-| context-menu  | `…/shadcn/context-menu`              | direct            | Done (api imports) |
-| drawer        | `…/shadcn/drawer`                    | direct            | Done (api imports) |
+| Family        | design-core target                   | api usage         | Status                        |
+| ------------- | ------------------------------------ | ----------------- | ----------------------------- |
+| button        | `@lapismd/design-core/shadcn/button` | direct            | Done (api imports)            |
+| input         | `…/shadcn/input`                     | direct            | Done (api imports)            |
+| textarea      | `…/shadcn/textarea`                  | direct            | Done (api imports)            |
+| switch        | `…/shadcn/switch`                    | direct            | Done (api imports)            |
+| table         | `…/shadcn/table`                     | direct            | Done (api imports)            |
+| select        | `…/shadcn/select`                    | direct            | Done (api imports)            |
+| command       | `…/shadcn/command`                   | direct            | Done (api imports)            |
+| popover       | `…/shadcn/popover`                   | direct            | Done (api imports)            |
+| hover-card    | `…/shadcn/hover-card`                | direct            | Done (Markdown link previews) |
+| dropdown-menu | `…/shadcn/dropdown-menu`             | direct            | Done (api imports)            |
+| tooltip       | `…/shadcn/tooltip`                   | direct            | Done (api imports)            |
+| scroll-area   | `…/shadcn/scroll-area`               | direct            | Done (api imports)            |
+| toggle-group  | `…/shadcn/toggle-group`              | direct            | Done (api imports)            |
+| toggle        | `…/shadcn/toggle`                    | transitive        | Done (api imports)            |
+| dialog        | `…/shadcn/dialog`                    | transitive        | Done (api imports)            |
+| sheet         | `…/shadcn/sheet`                     | type + transitive | Done (api imports)            |
+| separator     | `…/shadcn/separator`                 | transitive        | Done (api imports)            |
+| skeleton      | `…/shadcn/skeleton`                  | transitive        | Done (api imports)            |
+| progress      | `…/shadcn/progress`                  | direct            | Done (api imports)            |
+| slider        | `…/shadcn/slider`                    | direct            | Done (api imports)            |
+| context-menu  | `…/shadcn/context-menu`              | direct            | Done (api imports)            |
+| drawer        | `…/shadcn/drawer`                    | direct            | Done (api imports)            |
 
 ### Keep in `@lapis-notes/ui` (not in shadcn-svelte registry)
 
@@ -118,7 +119,9 @@ primitives) until a deliberate Lapis compound lands in design-core.
 | sidebar-custom | NestedProvider, resize, `SidebarState`        | registry/design-core `sidebar` (stock)  | Kept; `sidebar-custom.css` + `--ui-sidebar-custom-*` |
 | table-dnd      | dnd-kit grips/sensors for settings arrays     | forms `SortableArrayItem`               | Kept; grip chrome via `--ui-table-dnd-*`             |
 
-Also keep local: root `cn` / fuzzy helpers, `overlay-portal-context`.
+Also keep local: root `cn` / fuzzy helpers. Trigger-overlay portal ownership is
+now centralized in Design Core; the retired Lapis `overlay-portal-context`
+export and API source alias MUST NOT be restored.
 
 **Retired:** `date-time-picker-dialog` — removed from `@lapis-notes/ui`. Date/time
 settings use api `date-setting` → `@lapismd/design-core/forms` `DatePicker` /

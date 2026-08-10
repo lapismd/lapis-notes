@@ -41,11 +41,6 @@
     "./codemirror-autocomplete.css": {
       "default": "./dist/codemirror-autocomplete.css"
     },
-    "./internal/overlay-portal-context": {
-      "types": "./src/lib/internal/overlay-portal-context.ts",
-      "import": "./src/lib/internal/overlay-portal-context.ts",
-      "default": "./src/lib/internal/overlay-portal-context.ts"
-    },
     "./table-dnd/utils": {
       "types": "./dist/components/ui/table-dnd/table-dnd-utils.d.ts",
       "import": "./dist/components/ui/table-dnd/table-dnd-utils.js",

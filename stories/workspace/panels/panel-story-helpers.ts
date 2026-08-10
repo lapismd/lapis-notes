@@ -394,27 +394,57 @@ export async function expectMarkdownDocumentScroll(
 export function expectLinkPreviewPlacement(
   trigger: HTMLElement,
   preview: HTMLElement,
+  requireEditorOverlap = true,
 ) {
-  const anchor = trigger.querySelector<HTMLElement>(
-    "[data-link-preview-anchor]",
-  );
-  if (!anchor) throw new Error("Missing visible mention preview anchor");
-
-  const triggerRect = trigger.getBoundingClientRect();
-  const anchorRect = anchor.getBoundingClientRect();
   const previewRect = preview.getBoundingClientRect();
+  const ownerDocument = trigger.ownerDocument;
   const viewportWidth = preview.ownerDocument.documentElement.clientWidth;
+  const viewportHeight = preview.ownerDocument.documentElement.clientHeight;
 
-  expect(anchorRect.width).toBeLessThan(triggerRect.width);
-  expect(preview).toHaveAttribute("data-side", "right");
-  expect(previewRect.left).toBeGreaterThanOrEqual(anchorRect.right - 1);
-  expect(previewRect.right).toBeLessThanOrEqual(viewportWidth);
+  expect(preview.ownerDocument).toBe(ownerDocument);
+  expect(ownerDocument.body.contains(preview)).toBe(true);
+  expect(preview.closest('[data-testid="panel-demo"]')).toBeNull();
+  expect(previewRect.left).toBeGreaterThanOrEqual(0);
+  expect(previewRect.top).toBeGreaterThanOrEqual(0);
+  expect(previewRect.right).toBeLessThanOrEqual(viewportWidth + 1);
+  expect(previewRect.bottom).toBeLessThanOrEqual(viewportHeight + 1);
+  expect(["top", "right", "bottom", "left"]).toContain(
+    preview.getAttribute("data-side"),
+  );
+
+  if (!requireEditorOverlap) return;
+
+  const editor = ownerDocument.querySelector<HTMLElement>(
+    '.markdown-view, [data-ui-component="markdown-mira-preview"], .markdown-view__editor',
+  );
+  const editorHost = editor?.closest<HTMLElement>(
+    '[data-ui-component="workspace-view-host"]',
+  );
+  if (!editorHost) throw new Error("Missing adjacent Markdown editor host");
+  const editorRect = editorHost.getBoundingClientRect();
+  const overlapLeft = Math.max(previewRect.left, editorRect.left);
+  const overlapRight = Math.min(previewRect.right, editorRect.right);
+  const overlapTop = Math.max(previewRect.top, editorRect.top);
+  const overlapBottom = Math.min(previewRect.bottom, editorRect.bottom);
+  expect(overlapRight - overlapLeft).toBeGreaterThan(8);
+  expect(overlapBottom - overlapTop).toBeGreaterThan(8);
+
+  const hit = ownerDocument.elementFromPoint(
+    overlapLeft + (overlapRight - overlapLeft) / 2,
+    overlapTop + (overlapBottom - overlapTop) / 2,
+  );
+  expect(
+    hit?.closest(
+      '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+    ),
+  ).toBe(preview);
 }
 
 export async function expectLinkPreviewHoverHandoff(
   trigger: HTMLElement,
   preview: HTMLElement,
 ) {
+  trigger.blur();
   await userEvent.unhover(trigger);
   await new Promise((resolve) => setTimeout(resolve, 180));
   expect(preview).toBeVisible();

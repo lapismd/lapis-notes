@@ -112,10 +112,6 @@ export default defineConfig(() => {
           ),
         },
         {
-          find: "@lapis-notes/ui/internal/overlay-portal-context",
-          replacement: path.join(uiLib, "internal/overlay-portal-context.ts"),
-        },
-        {
           find: /^@lapis-notes\/ui\/(.+)$/,
           replacement: `${uiComponents}/$1`,
         },

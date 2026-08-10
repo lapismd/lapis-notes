@@ -112,10 +112,17 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Backlinks and Outgoing Links must normalize every `NestedProvider` descendant
   to the available width, keep group and mention rows at 0.75rem, and align
   section/file counts to one trailing edge. Their hover/focus previews compose
-  the public app-bound `FileEmbed` from `@lapis-notes/markdown/embed`, which in
-  turn uses Mira's portable embed surfaces and the Lapis `MiraFileAdapter`;
-  never fork another full-document preview inside a panel. None of these panels
-  render shell title/path intro copy.
+  Design Core Hover Card plus the public app-bound `FileEmbed` from
+  `@lapis-notes/markdown/embed`, which in turn uses Mira's portable embed
+  surfaces and the Lapis `MiraFileAdapter`. The complete mention row is the
+  native Trigger child. Rely on Hover Card/Bits UI for owner-document portals,
+  700/300ms timing, safe pointer handoff, focus lifecycle, collision shift/flip,
+  and topmost overlay paint; do not add manual open state, timers, conditional
+  mounting, zero-width anchors, fixed sides, or panel-local portal detection.
+  Constrained acceptance resizes the real owning split, restores it in
+  `finally`, and asserts viewport containment plus `elementFromPoint` over the
+  adjacent editor. Never fork another full-document preview inside a panel.
+  None of these panels render shell title/path intro copy.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
   bespoke shell imitations. Keep placement differences in the workspace layout
   state so the story exercises the same view registration, imperative mount,
