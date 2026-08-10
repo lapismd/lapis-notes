@@ -75,7 +75,9 @@
 </Popover.Root>
 
 <style>
-  :global(.markdown-link-sidebar__preview) {
+  :global(
+    [data-ui-component="popover"][data-ui-part="popover-content"].markdown-link-sidebar__preview
+  ) {
     width: min(26rem, calc(100vw - 2rem));
     max-height: min(24rem, calc(100vh - 2rem));
     --ui-popover-gap: 0;

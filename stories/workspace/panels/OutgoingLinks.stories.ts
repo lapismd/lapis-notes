@@ -140,6 +140,9 @@ function placementStory(
           );
           expect(preview).toBeVisible();
           expect(preview).toHaveTextContent("Ideas.markdown");
+          expect(preview?.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+            400,
+          );
           expect(
             preview?.querySelector('[data-ui-component="file-embed"]'),
           ).toBeVisible();
