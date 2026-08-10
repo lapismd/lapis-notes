@@ -57,6 +57,81 @@ function renderPlacement(layout: PanelDemoLayout): StoryRender {
   })) as StoryRender;
 }
 
+async function expectDocumentLinkPreview(
+  canvasElement: HTMLElement,
+  panelElement: HTMLElement,
+): Promise<void> {
+  const ownerDocument = canvasElement.ownerDocument;
+  const trigger = canvasElement.querySelector<HTMLElement>(
+    '.markdown-view__editor [data-link-preview-trigger][data-link-preview-path="Ideas"]',
+  );
+  if (!trigger)
+    throw new Error("Missing Welcome.md Ideas link preview trigger");
+
+  await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  await userEvent.hover(trigger);
+  await waitFor(
+    () => {
+      expect(
+        ownerDocument.querySelector<HTMLElement>(
+          '[data-mira-link-preview-content][data-link-preview-path="Ideas"]',
+        ),
+      ).toBeVisible();
+    },
+    { timeout: 5_000 },
+  );
+
+  const preview = ownerDocument.querySelector<HTMLElement>(
+    '[data-mira-link-preview-content][data-link-preview-path="Ideas"]',
+  );
+  if (!preview) throw new Error("Missing Mira document link preview");
+  const viewport = ownerDocument.documentElement;
+
+  expect(ownerDocument.body.contains(preview)).toBe(true);
+  expect(
+    preview.closest('[data-ui-component="workspace-view-host"]'),
+  ).toBeNull();
+  expect(preview).toHaveTextContent("Ideas.markdown");
+  expect(preview.querySelector(".mira-link-preview__markdown")).toBeVisible();
+  expect(["top", "right", "bottom", "left"]).toContain(
+    preview.getAttribute("data-side"),
+  );
+
+  const panelHost = panelElement.closest<HTMLElement>(
+    '[data-ui-component="workspace-view-host"]',
+  );
+  if (!panelHost) throw new Error("Missing adjacent Outgoing Links view host");
+  await waitFor(
+    () => {
+      const previewRect = preview.getBoundingClientRect();
+      const panelRect = panelHost.getBoundingClientRect();
+      const overlapLeft = Math.max(previewRect.left, panelRect.left);
+      const overlapRight = Math.min(previewRect.right, panelRect.right);
+      const overlapTop = Math.max(previewRect.top, panelRect.top);
+      const overlapBottom = Math.min(previewRect.bottom, panelRect.bottom);
+
+      expect(previewRect.width).toBeGreaterThanOrEqual(400);
+      expect(previewRect.left).toBeGreaterThanOrEqual(0);
+      expect(previewRect.top).toBeGreaterThanOrEqual(0);
+      expect(previewRect.right).toBeLessThanOrEqual(viewport.clientWidth + 1);
+      expect(previewRect.bottom).toBeLessThanOrEqual(viewport.clientHeight + 1);
+      expect(overlapRight - overlapLeft).toBeGreaterThan(8);
+      expect(overlapBottom - overlapTop).toBeGreaterThan(8);
+      expect(
+        ownerDocument
+          .elementFromPoint(
+            overlapLeft + (overlapRight - overlapLeft) / 2,
+            overlapTop + Math.min((overlapBottom - overlapTop) / 2, 24),
+          )
+          ?.closest("[data-mira-link-preview-content]"),
+      ).toBe(preview);
+    },
+    { timeout: 3_000 },
+  );
+
+  await userEvent.keyboard("{Escape}");
+}
+
 function placementStory(
   layout: PanelDemoLayout,
   source: string,
@@ -97,6 +172,9 @@ function placementStory(
       ).not.toBeNull();
 
       if (layout === "middle-top-tabs") {
+        if (!panelElement) throw new Error("Missing Outgoing Links panel");
+        await expectDocumentLinkPreview(canvasElement, panelElement);
+
         const app = panelDemoApp(canvasElement);
         const file = app.vault.getFileByPath("Notes/Welcome.md");
         if (!file) throw new Error("Missing seeded Welcome note");
@@ -150,10 +228,9 @@ function placementStory(
           },
           { timeout: 5_000 },
         );
-        const preview =
-          canvasElement.ownerDocument.querySelector<HTMLElement>(
-            '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
-          );
+        const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
+          '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+        );
         if (!preview) throw new Error("Missing Outgoing Links preview");
         expect(preview).toHaveTextContent("Ideas.markdown");
         expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(

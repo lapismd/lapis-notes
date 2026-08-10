@@ -122,6 +122,12 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Constrained acceptance resizes the real owning split, restores it in
   `finally`, and asserts viewport containment plus `elementFromPoint` over the
   adjacent editor. Never fork another full-document preview inside a panel.
+  Ordinary internal links inside Mira reading/live-preview documents remain
+  Mira-owned: pass the Lapis `MiraFileAdapter`, then rely on Mira's portaled
+  Bits UI preview for timing, collision, appearance, and cross-pane paint. Do
+  not add a Lapis portal wrapper, source alias, or clipping override. The
+  middle-top-tabs Outgoing Links play is the linked-consumer regression for
+  that boundary.
   None of these panels render shell title/path intro copy.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
   bespoke shell imitations. Keep placement differences in the workspace layout
