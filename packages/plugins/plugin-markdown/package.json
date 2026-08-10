@@ -17,7 +17,9 @@
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -26,6 +28,12 @@
       "svelte": "./dist/index.js",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./embed": {
+      "types": "./dist/embed.d.ts",
+      "svelte": "./dist/embed.js",
+      "import": "./dist/embed.js",
+      "default": "./dist/embed.js"
     }
   },
   "dependencies": {

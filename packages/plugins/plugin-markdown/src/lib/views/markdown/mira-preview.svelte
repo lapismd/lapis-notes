@@ -3,6 +3,7 @@
   import type { MiraAiRun } from "@lapismd/mira-plugin-ai";
   import type { App } from "@lapis-notes/api";
   import { resolveMarkdownMiraExtensions } from "../../mira/extensions";
+  import { createLapisMiraFileAdapter } from "../../mira/file-adapter";
 
   let {
     app,
@@ -22,6 +23,7 @@
     void app.configuration.getConfiguration();
     return resolveMarkdownMiraExtensions(app, aiRun);
   });
+  const fileAdapter = $derived(createLapisMiraFileAdapter(app));
 </script>
 
 <div
@@ -33,6 +35,7 @@
     mode="preview"
     features={resolved.features}
     extensions={resolved.miraExtensions}
+    {fileAdapter}
     {sourcePath}
     onChange={(next) => onChange?.(next)}
   />

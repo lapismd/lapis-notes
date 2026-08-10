@@ -111,8 +111,11 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Never let a broad Mira surface override design-core's resolved panel paint.
   Backlinks and Outgoing Links must normalize every `NestedProvider` descendant
   to the available width, keep group and mention rows at 0.75rem, and align
-  section/file counts to one trailing edge. None of these panels render shell
-  title/path intro copy.
+  section/file counts to one trailing edge. Their hover/focus previews compose
+  the public app-bound `FileEmbed` from `@lapis-notes/markdown/embed`, which in
+  turn uses Mira's portable embed surfaces and the Lapis `MiraFileAdapter`;
+  never fork another full-document preview inside a panel. None of these panels
+  render shell title/path intro copy.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
   bespoke shell imitations. Keep placement differences in the workspace layout
   state so the story exercises the same view registration, imperative mount,

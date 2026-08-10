@@ -13,6 +13,7 @@ import type { App } from "@lapis-notes/api";
 import type { MiraExtension } from "@lapismd/mira/extensions";
 import { markupEditor as markupEditorRaw } from "@lapis-notes/api/editor";
 import { readMiraFeatureFlags } from "./config";
+import { createLapisMiraFileAdapter } from "./file-adapter";
 
 const markupEditor = markupEditorRaw as (
   options: { language?: string },
@@ -95,6 +96,7 @@ export function createMarkdownEditorExtensions(
       livePreview,
       sourcePath: options.sourcePath,
       extensions: miraExtensions,
+      fileAdapter: createLapisMiraFileAdapter(options.app),
       indentGuides,
     }),
     EditorView.editorAttributes.of({

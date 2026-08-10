@@ -20,21 +20,21 @@ intake or UI swap status changes.
 
 ## Packages
 
-| Package / area                              | Status         | Notes                                                                                                                                                                                                             |
-| ------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@lapis-notes/api`                          | Copied         | Kernel from full lapis-notes; scripts slimmed                                                                                                                                                                     |
-| `@lapis-notes/ui`                           | Pruned         | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers                                                                                                                           |
-| `@lapis-notes/workspace` shell integration  | Done           | Thin design-core host; api compatibility + persistence façade                                                                                                                                                     |
-| Web / desktop hosts                         | Not started    | No runnable product host in this slice                                                                                                                                                                            |
-| `@lapis-notes/markdown`                     | Done (slice)   | Authorized plugin; Mira document render + public app-only panels; File Properties keeps the Mira `FrontmatterEditor`; Outline and link panels match the observable full-repo behavior without the legacy renderer |
-| Tags (workspace-origin)                     | Done (fixture) | Storybook-local `TagsDemoPlugin` with full sort/search/hierarchy/live-refresh behavior; explicitly not folded into a package                                                                                      |
-| Notebook / language-service / other plugins | Not started    | Remain blocked by LN-PKG-004 except markdown carve-out                                                                                                                                                            |
-| Storybook editor/Explorer intake plugins    | Planned        | Source-editor + Explorer remain Storybook-local fixtures                                                                                                                                                          |
-| design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                         |
+| Package / area                              | Status         | Notes                                                                                                                                                                                                                                |
+| ------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@lapis-notes/api`                          | Copied         | Kernel from full lapis-notes; scripts slimmed                                                                                                                                                                                        |
+| `@lapis-notes/ui`                           | Pruned         | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers                                                                                                                                              |
+| `@lapis-notes/workspace` shell integration  | Done           | Thin design-core host; api compatibility + persistence façade                                                                                                                                                                        |
+| Web / desktop hosts                         | Not started    | No runnable product host in this slice                                                                                                                                                                                               |
+| `@lapis-notes/markdown`                     | Done (slice)   | Authorized plugin; Mira document render + public app-only panels and embed surfaces; File Properties keeps the Mira `FrontmatterEditor`; Outline and link panels match the observable full-repo behavior without the legacy renderer |
+| Tags (workspace-origin)                     | Done (fixture) | Storybook-local `TagsDemoPlugin` with full sort/search/hierarchy/live-refresh behavior; explicitly not folded into a package                                                                                                         |
+| Notebook / language-service / other plugins | Not started    | Remain blocked by LN-PKG-004 except markdown carve-out                                                                                                                                                                               |
+| Storybook editor/Explorer intake plugins    | Planned        | Source-editor + Explorer remain Storybook-local fixtures                                                                                                                                                                             |
+| design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
 
 ### Markdown plugin intake progress
 
-Canonical requirements: `spec/src/markdown-plugin.md` (LN-MD-001–024).
+Canonical requirements: `spec/src/markdown-plugin.md` (LN-MD-001–026).
 Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 
 - [x] Package scaffold + workspace wiring (`@lapis-notes/markdown`)
@@ -46,6 +46,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
 - [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter, no-overflow narrow single-column rows with label-aligned values, native focus geometry with view-token contrast fill, hash Tags icon, and surface-contrasting native pills (LN-MD-017/019)
 - [x] Markdown frontmatter integration → public Mira source decorations, Source Code Pro YAML source, Mira-only inline fold controls, working rendered disclosure, and unpadded content-aligned embedded preview (LN-MD-025)
+- [x] Mira-backed embed framework → app-bound `MiraFileAdapter`, public `FileEmbed` / `MarkdownEmbed` / `NoteLink` plus `./embed`, shared document and link-panel previews, vault-relative resolution, refresh/navigation, image and registered custom-embed lifecycle (LN-MD-026)
 - [x] Focused `Workspace/Panels/Markdown/<Panel>/*` interaction stories: six movable surfaces for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Storybook-local Tags; file-scoped stories keep one minimal active note and vault-wide stories stay document-free
 - [x] Real app-only component metadata with no kind/layout harness controls; real bottom/sidebar groups, stable ViewHost paint assertions, isolated 700px padding-free Docs previews, and explicit persisted-layout Show Code
 - [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only

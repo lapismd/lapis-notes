@@ -1,26 +1,27 @@
 <script lang="ts">
   import type { App, TFile } from "@lapis-notes/api";
   import * as Popover from "@lapismd/design-core/shadcn/popover";
-  import { onMount, type Snippet } from "svelte";
-  import MiraPreview from "../markdown/mira-preview.svelte";
+  import * as ScrollArea from "@lapismd/design-core/shadcn/scroll-area";
+  import type { Snippet } from "svelte";
+  import { FileEmbed } from "$lib/components/embed";
 
   let {
     app,
     file,
+    sourcePath = "",
     label,
     onclick,
     children,
   }: {
     app: App;
     file: TFile;
+    sourcePath?: string;
     label: string;
     onclick: (event: MouseEvent) => void;
     children: Snippet;
   } = $props();
 
   let open = $state(false);
-  let value = $state("");
-  let loadVersion = 0;
   let closeTimer: ReturnType<typeof setTimeout> | null = null;
 
   function cancelClose() {
@@ -42,21 +43,7 @@
   }
 
   $effect(() => {
-    const currentFile = file;
-    const version = ++loadVersion;
-    void app.vault.cachedRead(currentFile).then((next) => {
-      if (version === loadVersion) value = next;
-    });
-  });
-
-  onMount(() => {
-    const changed = app.metadataCache.on("changed", (changedFile, data) => {
-      if (changedFile.path === file.path) value = data;
-    });
-    return () => {
-      cancelClose();
-      app.metadataCache.offref(changed);
-    };
+    return () => cancelClose();
   });
 </script>
 
@@ -80,10 +67,9 @@
       onpointerenter={show}
       onpointerleave={scheduleClose}
     >
-      <strong class="markdown-link-sidebar__preview-title">{file.name}</strong>
-      <div class="markdown-link-sidebar__preview-body">
-        <MiraPreview {app} {value} sourcePath={file.path} />
-      </div>
+      <ScrollArea.Root class="markdown-link-sidebar__preview-scroll">
+        <FileEmbed {app} {file} {sourcePath} onopen={onclick} />
+      </ScrollArea.Root>
     </Popover.Content>
   {/if}
 </Popover.Root>
@@ -91,21 +77,14 @@
 <style>
   :global(.markdown-link-sidebar__preview) {
     width: min(26rem, calc(100vw - 2rem));
-    max-height: 24rem;
+    max-height: min(24rem, calc(100vh - 2rem));
+    --ui-popover-gap: 0;
     padding: 0.75rem;
   }
 
-  :global(.markdown-link-sidebar__preview-title) {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  :global(.markdown-link-sidebar__preview-body) {
-    height: 19rem;
+  :global(.markdown-link-sidebar__preview-scroll) {
+    width: 100%;
+    height: 21rem;
     min-height: 0;
-    overflow: auto;
-    border-inline-start: 2px solid var(--interactive-accent, var(--primary));
-    padding-inline-start: 0.75rem;
   }
 </style>

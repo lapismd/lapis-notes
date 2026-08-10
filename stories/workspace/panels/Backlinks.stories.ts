@@ -27,7 +27,8 @@ const meta = {
   argTypes: {
     app: {
       control: false,
-      description: "Initialized Lapis App supplied by the Markdown plugin view.",
+      description:
+        "Initialized Lapis App supplied by the Markdown plugin view.",
     },
   },
   tags: ["visual-pending", "test"],
@@ -48,7 +49,10 @@ type Story = StoryObj<typeof meta>;
 type StoryRender = NonNullable<Story["render"]>;
 
 function renderPlacement(layout: PanelDemoLayout): StoryRender {
-  return (() => ({ Component: PanelDemo, props: { kind, layout } })) as StoryRender;
+  return (() => ({
+    Component: PanelDemo,
+    props: { kind, layout },
+  })) as StoryRender;
 }
 
 function placementStory(
@@ -126,6 +130,13 @@ function placementStory(
           );
           expect(preview).toBeVisible();
           expect(preview).toHaveTextContent("Research.md");
+          expect(
+            preview?.querySelector('[data-ui-component="file-embed"]'),
+          ).toBeVisible();
+          expect(
+            preview?.querySelector(".mira-embed.internal-embed"),
+          ).toBeVisible();
+          expect(preview?.querySelector("[data-markdown-embed]")).toBeVisible();
         });
         await userEvent.click(previewTrigger);
         await waitFor(() => {

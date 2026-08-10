@@ -56,10 +56,7 @@
     mode === "backlinks" ? "backlinks-panel" : "outgoing-links-panel",
   );
 
-  function loadData(
-    file: TFile | null,
-    currentSortMode = sortMode,
-  ): void {
+  function loadData(file: TFile | null, currentSortMode = sortMode): void {
     if (!file) {
       data = emptyData;
       resultOpenState = {};
@@ -162,7 +159,11 @@
     return resultOpenState[groupKey(section, group)] ?? !collapseResults;
   }
 
-  function setGroupOpen(section: string, group: LinkSidebarGroup, open: boolean) {
+  function setGroupOpen(
+    section: string,
+    group: LinkSidebarGroup,
+    open: boolean,
+  ) {
     resultOpenState = { ...resultOpenState, [groupKey(section, group)]: open };
   }
 
@@ -298,7 +299,10 @@
         </p>
       {:else}
         {#each sections as section (section.key)}
-          <section class="markdown-link-sidebar__section" data-section={section.key}>
+          <section
+            class="markdown-link-sidebar__section"
+            data-section={section.key}
+          >
             <button
               type="button"
               class="markdown-link-sidebar__section-header"
@@ -333,8 +337,11 @@
                         <ChevronRight data-open={open} />
                         <span
                           class="markdown-link-sidebar__group-title"
-                          use:useTextHighlight={{ query, value: group.file.basename }}
-                        >{group.file.basename}</span>
+                          use:useTextHighlight={{
+                            query,
+                            value: group.file.basename,
+                          }}>{group.file.basename}</span
+                        >
                         <span class="markdown-link-sidebar__count">
                           {group.mentions.length}
                         </span>
@@ -347,10 +354,13 @@
                               <LinkHoverPreview
                                 {app}
                                 file={previewFile}
+                                sourcePath={activeFile.path}
                                 label={`Open ${group.file.basename}: ${mention.context}`}
                                 onclick={(event) => openMention(event, mention)}
                               >
-                                <span class="markdown-link-sidebar__mention-context">
+                                <span
+                                  class="markdown-link-sidebar__mention-context"
+                                >
                                   {showMoreContext
                                     ? mention.expandedContext
                                     : mention.context}

@@ -6,7 +6,8 @@
     "paths": {
       "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"],
-      "@lapis-notes/markdown": ["./src/lib/index.ts"]
+      "@lapis-notes/markdown": ["./src/lib/index.ts"],
+      "@lapis-notes/markdown/embed": ["./src/lib/embed.ts"]
     },
     "target": "ESNext",
     "useDefineForClassFields": true,

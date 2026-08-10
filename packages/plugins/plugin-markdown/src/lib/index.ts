@@ -39,6 +39,9 @@ import { widgets } from "$lib/frontmatter/widgets";
 import { registerMarkdownSettings } from "$lib/settings/register-markdown-settings";
 import "$lib/styles/surfaces.css";
 
+export { FileEmbed, MarkdownEmbed, NoteLink } from "$lib/components/embed";
+export { createLapisMiraFileAdapter } from "$lib/mira/file-adapter";
+
 export { MarkdownView, MarkdownViewType };
 export {
   applyFrontmatterMutation,
@@ -136,7 +139,15 @@ export class MarkdownPlugin extends Plugin {
     this.registerEditorView({
       id: MediaViewType,
       label: "Media",
-      filenamePatterns: ["*.jpg", "*.jpeg", "*.png", "*.svg", "*.bmp", "*.gif", "*.webp"],
+      filenamePatterns: [
+        "*.jpg",
+        "*.jpeg",
+        "*.png",
+        "*.svg",
+        "*.bmp",
+        "*.gif",
+        "*.webp",
+      ],
       priority: "default",
     });
     this.registerExtensions(

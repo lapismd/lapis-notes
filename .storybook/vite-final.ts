@@ -174,6 +174,7 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         "@dnd-kit/svelte",
         "@dnd-kit/dom",
         "@lucide/svelte/icons/hash",
+        "@lucide/svelte/icons/maximize-2",
       ],
     },
     ssr: {
