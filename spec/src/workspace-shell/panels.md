@@ -60,8 +60,9 @@ appear in Controls or Properties.
 App-backed Docs canvases render as isolated 700px iframes with Storybook shell
 padding removed. The same shared Docs story dimensions apply to full
 `Workspace/Shell` and `Workspace/Lapis Editor Demo` examples. Every placement
-supplies consumer-usable Show Code derived from its persisted layout, asserts
-the stable destination and nested `WorkspaceViewHost`, and exercises the
+follows the repo-wide Show Code source contract in LN-CAT-024 through
+LN-CAT-026. Its source derives from the persisted layout, while the story
+asserts the stable destination and nested `WorkspaceViewHost` and exercises the
 defining interaction. New placement stories retain literal `visual-pending`
 metadata and independent future paths; PNG baselines are not generated or
 approved without explicit review.
