@@ -123,6 +123,7 @@
   }
 
   function setOpen(tag: string, value: boolean) {
+    if (opened.has(tag) === value) return;
     const next = new Set(opened);
     if (value) next.add(tag);
     else next.delete(tag);

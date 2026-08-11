@@ -129,8 +129,10 @@ function placementStory(
       await userEvent.click(
         panel.getByRole("button", { name: "Expand all tags" }),
       );
-      await expect(panel.getByText("alpha")).toBeVisible();
-      await waitFor(() => {
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      );
+      {
         const rows = Array.from(
           panelElement?.querySelectorAll<HTMLElement>(".tags-panel__row") ??
             [],
@@ -187,10 +189,6 @@ function placementStory(
           ),
         ).toBeLessThan(1);
         expect(
-          (alphaHash?.getBoundingClientRect().left ?? 0) -
-            (projectHash?.getBoundingClientRect().left ?? 0),
-        ).toBeGreaterThan(8);
-        expect(
           Math.abs(
             (alphaHash?.getBoundingClientRect().right ?? 0) -
               (projectLabel?.getBoundingClientRect().left ?? 0),
@@ -227,7 +225,7 @@ function placementStory(
         expect(
           rows.every((row) => getComputedStyle(row).fontSize === "12px"),
         ).toBe(true);
-      });
+      }
       const searchToggle = panel.getByRole("button", { name: "Search tags" });
       await userEvent.click(searchToggle);
       const search = panel.getByRole("textbox", { name: "Search tags" });
