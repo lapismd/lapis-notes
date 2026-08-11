@@ -8,7 +8,7 @@ intake or UI swap status changes.
 | Area                                      | Status | Notes                                                                                                                                                                                                                                               |
 | ----------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | pnpm + Turbo scaffold                     | Done   | No multi-script import-resolution gates                                                                                                                                                                                                             |
-| Spec + AGENTS + `spec:first`              | Done   | mira-mde-inspired, slimmed                                                                                                                                                                                                                          |
+| Spec + AGENTS + `spec:first`              | Done   | one independently verifiable concern per requirement ID, with traceable splits and ID-scoped list fallback                                                                                                                                          |
 | Storybook host (port 7010)                | Done   | `API/` verification stories + catalog                                                                                                                                                                                                               |
 | API Storybook verification + Visual Delta | Done   | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later)                                                                                                                                                            |
 | Sibling dependency normalization          | Done   | Five root `link:` dependencies + overrides; package exports are authoritative; CodeMirror/Lezer peers are host-owned; focused editor capture restored all links and removed `.deps/` (4 baseline matches, 3 current-sibling mismatches; no updates) |
@@ -34,10 +34,10 @@ intake or UI swap status changes.
 
 ### Markdown plugin intake progress
 
-Canonical requirements: `spec/src/markdown-plugin.md` and its nested
-`spec/src/markdown-plugin/panels/` pages (LN-MD-001–031). Shared movable-panel
-presentation and Storybook guidance lives in `spec/src/workspace-shell/panels.md`.
-Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
+Canonical Markdown requirements span `spec/src/markdown-plugin.md`, its nested
+`spec/src/markdown-plugin/panels/` pages, and the shared movable-panel contract
+in `spec/src/workspace-shell/panels.md` (LN-MD-001 through LN-MD-035). Parity
+detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 
 - [x] Package scaffold + workspace wiring (`@lapis-notes/markdown`)
 - [x] Canonical panel documentation split into one page per panel beneath Markdown Plugin / Panels, with reusable surface and catalog guidance owned by Workspace Shell / Panels

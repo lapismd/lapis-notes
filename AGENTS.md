@@ -23,6 +23,25 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - Authority order: `spec/src` → package interfaces / implementation → Storybook
   catalog → READMEs / this file (workflow only).
 
+### Requirement authoring
+
+- Give each requirement ID one independently verifiable concern. Split clauses
+  into separate IDs when they can fail independently, need different evidence,
+  or are likely to evolve separately.
+- Keep requirement table cells concise and normative. Use `MUST` / `MUST NOT`
+  for required behavior and `MAY` for an intentional option or exception.
+- If one atomic concern still has three or more unordered acceptance details,
+  add an ID-scoped acceptance-details subsection with an introduced bullet
+  list. Do not use bullets to hide concerns that need separate IDs.
+- When splitting a requirement, retain the original ID for its primary concern
+  and allocate the next unused IDs for the extracted concerns. Preserve every
+  constraint, exception, and normative keyword; never reassign an existing ID
+  to unrelated behavior.
+- In the same change, add one `spec/src/verification.md` row per new ID and
+  update cross-references, `MIGRATION.md`, and mapped guidance. Run
+  `pnpm spec:check` and verify that requirement and verification IDs remain
+  one-to-one.
+
 ## UI And Styling
 
 - Prefer `@lapismd/design-core` for overlapping shadcn primitives over time
