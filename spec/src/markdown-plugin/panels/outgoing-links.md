@@ -7,6 +7,10 @@ notes.
 
 | ID | Requirement |
 | --- | --- |
-| LN-MD-031 | Outgoing Links MUST group linked and exact alias-aware unlinked references by target file, exclude frontmatter and existing link or embed ranges from unlinked detection, and support section and result collapse, search, filename and time sorting, compact and expanded context, and live workspace and metadata refresh. Selecting a resolved result MUST open the target note. Rows use the shared 0.75rem result scale, normalize nested sidebar widths, keep counts on one trailing edge, and provide accessible hover and focus previews through the shared Mira path rather than the retired local renderer. The view MUST use the valid Lucide `external-link` icon in every placement. |
+| LN-MD-031 | Outgoing Links MUST group linked and exact alias-aware unlinked references by target file while excluding frontmatter and existing link or embed ranges from unlinked detection. |
+| LN-MD-067 | Outgoing Links MUST support section and result collapse, search, filename and time sorting, compact and expanded context, and live workspace and metadata refresh. |
+| LN-MD-068 | Selecting a resolved Outgoing Links result MUST open the target note. |
+| LN-MD-069 | Outgoing Links rows MUST use the 0.75rem result scale, normalize nested sidebar widths, align counts to one trailing edge, and provide shared Mira hover and focus previews instead of the retired renderer. |
+| LN-MD-070 | Outgoing Links MUST use the valid Lucide `external-link` icon in every placement. |
 
 Preview behavior is defined by [Link Previews](./link-previews.md).

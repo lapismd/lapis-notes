@@ -121,7 +121,7 @@ const RULES = [
   {
     name: "Specification governance",
     pattern:
-      /^(?:scripts\/check-spec-first\.mjs|spec\/book\.toml|AGENTS\.md$)/,
+      /^(?:scripts\/check-spec-first\.mjs|scripts\/spec-validation\/|spec\/book\.toml|AGENTS\.md$)/,
     chapters: ["spec/src/spec-governance.md"],
   },
   {
@@ -167,9 +167,13 @@ export function classifySpecFirstChanges(inputChanges) {
   const unmappedProductionFiles = [];
 
   for (const change of changes) {
+    const isSpecificationValidator = /^scripts\/spec-validation\//.test(
+      change.path,
+    );
     if (
       CANONICAL_SPEC_PATTERN.test(change.path) ||
-      IGNORED_PATTERNS.some((pattern) => pattern.test(change.path))
+      (!isSpecificationValidator &&
+        IGNORED_PATTERNS.some((pattern) => pattern.test(change.path)))
     ) {
       continue;
     }

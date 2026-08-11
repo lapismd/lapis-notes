@@ -20,9 +20,12 @@
 | LN-ARCH-012 | Storybook MUST resolve design-core and Mira entry points through their installed sibling links and public package exports. Docker visual capture MAY temporarily install ignored staged package copies, but Lapis-owned Vite configuration MUST NOT bypass either package with external source aliases.                                                       |
 | LN-ARCH-013 | Storybook MUST resolve the API editor subpath from the same API source root as the root API alias so source-editor fixtures do not mix packaged and source editor implementations.                                                                                                                                                                            |
 | LN-ARCH-015 | File-view chrome (path breadcrumbs, leaf history, and optional header title rename) MUST project from the api workspace host `getChrome` bridge into design-core `WorkspaceViewHeader`; the source-editor inline title remains a separate in-document filename surface when enabled.                                                                          |
-| LN-ARCH-016 | The api source-editor shell MUST label CodeMirror hosts with `data-language`, default editor typography to Mira monospace (sans only for Markdown/text), and expose the configured CodeMirror fold gutter for language-provided fold ranges outside Markdown. Markdown MUST use Mira's inline fold controls without also painting the generic gutter. Its design-core ScrollArea root MUST fill and remain bounded by the owning workspace view so that viewport is the sole vertical scroll owner; the nested CodeMirror scroller MUST expand with content and MUST NOT paint a second vertical scrollbar. |
+| LN-ARCH-016 | The api source-editor shell MUST label CodeMirror hosts with `data-language` and default editor typography to Mira monospace, with sans overrides only for Markdown and text. |
 | LN-ARCH-018 | Root Storybook tooling MUST resolve `@lapismd/storybook-addon-visual-delta` through the sibling checkout at `link:../storybook-addon-visual-delta`; linked-source staging remains owned by Visual Delta and MUST NOT move the tool into a runtime package dependency.                                                                                         |
 | LN-ARCH-019 | Design Core MUST be the sole owner of trigger-based overlay portal resolution. Lapis consumers MUST compose its public Popover, Hover Card, Tooltip, Dropdown Menu, Context Menu, and Select exports, inherit their trigger-owner-document behavior, and MUST NOT publish a competing overlay portal context, package export, or Vite alias.                                                             |
+| LN-ARCH-020 | The api source-editor shell MUST expose the configured CodeMirror fold gutter for language-provided fold ranges outside Markdown. Markdown MUST use Mira's inline fold controls without also painting the generic gutter. |
+| LN-ARCH-021 | The source editor's design-core ScrollArea MUST remain bounded by its workspace view and own vertical document scrolling. Nested CodeMirror scrollers MUST expand with content and MUST NOT paint a second vertical scrollbar. |
+| LN-ARCH-022 | Root `pnpm check` MUST run specification validation before the no-Tailwind and Turbo package checks. Root `pnpm test` MUST run the specification-validator tests before Turbo package tests. |
 
 ## Package graph
 
@@ -73,8 +76,8 @@ extension registry and source view, not a bundled language policy.
 
 ## Tooling policy
 
-Root scripts stay thin: `check:no-tailwind`, Turbo for package tasks,
-`spec:first` for governance, and Storybook for docs. Do not grow a parallel
-script forest for import path syncing. Storybook manager-only dependencies,
+Root scripts stay thin: specification validation, `check:no-tailwind`, Turbo
+for package tasks, `spec:first` for change mapping, and Storybook for docs. Do
+not grow a parallel script forest for import path syncing. Storybook manager-only dependencies,
 including the shared theme toolbar icons, remain root development tooling and
 do not enter the runtime package graph.

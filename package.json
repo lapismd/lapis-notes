@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "check": "pnpm check:no-tailwind && turbo run check",
+    "check": "pnpm spec:validate && pnpm check:no-tailwind && turbo run check",
     "check:no-tailwind": "tsx scripts/check-no-tailwind-utilities.ts",
     "check:svelte": "turbo run check:svelte",
     "check:types": "turbo run check:types",
@@ -23,10 +23,12 @@
     "test:visual": "node ./scripts/test-visual.mjs",
     "test:visual:update": "node ./scripts/update-visual-baselines.mjs",
     "spec:build": "mdbook build ./spec",
-    "spec:check": "pnpm spec:build && pnpm spec:first",
+    "spec:check": "pnpm spec:validate && pnpm spec:test && pnpm spec:build && pnpm spec:first",
     "spec:first": "node ./scripts/check-spec-first.mjs",
+    "spec:test": "node --test ./scripts/check-spec-first.spec.mjs ./scripts/spec-validation/*.spec.mjs",
+    "spec:validate": "node ./scripts/spec-validation/index.mjs",
     "spec:serve": "mdbook serve ./spec --open",
-    "test": "turbo run test"
+    "test": "pnpm spec:test && turbo run test"
   },
   "devDependencies": {
     "@codemirror/autocomplete": "^6.18.6",

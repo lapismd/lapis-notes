@@ -30,9 +30,13 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   or are likely to evolve separately.
 - Keep requirement table cells concise and normative. Use `MUST` / `MUST NOT`
   for required behavior and `MAY` for an intentional option or exception.
+- Keep each requirement statement and ID-scoped acceptance bullet within 80
+  prose words and four sentences. `pnpm spec:validate` enforces those objective
+  limits after removing Markdown syntax.
 - If one atomic concern still has three or more unordered acceptance details,
-  add an ID-scoped acceptance-details subsection with an introduced bullet
-  list. Do not use bullets to hide concerns that need separate IDs.
+  add a unique `### <ID> acceptance details` subsection in the defining chapter,
+  introduce its unordered list, and include at least three bullets. Do not use
+  bullets to hide concerns that need separate IDs.
 - When splitting a requirement, retain the original ID for its primary concern
   and allocate the next unused IDs for the extracted concerns. Preserve every
   constraint, exception, and normative keyword; never reassign an existing ID
@@ -41,6 +45,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   update cross-references, `MIGRATION.md`, and mapped guidance. Run
   `pnpm spec:check` and verify that requirement and verification IDs remain
   one-to-one.
+- Treat validator diagnostics as repository contracts: every finding includes
+  an error code, governing specification rule, path and line, affected ID when
+  applicable, and an actionable message. Fix the source instead of suppressing
+  or grandfathering an oversized requirement.
 
 ## UI And Styling
 
@@ -251,7 +259,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 ## Tooling
 
 - Use Turbo (`pnpm check`, `pnpm build`, `pnpm test`). Root `pnpm check` runs
-  `check:no-tailwind` first. Do **not** reintroduce multi-script first-party
+  `spec:validate` before `check:no-tailwind`; root `pnpm test` runs `spec:test`
+  before package tests. `pnpm spec:check` runs both validator lanes before
+  mdBook and spec-first checks. Do **not** reintroduce multi-script first-party
   import-resolution gates from the full lapis-notes repo. Fix resolution issues
   inline when adding packages.
 - Storybook is the browsable docs host (`pnpm dev` / port **7010**). Use

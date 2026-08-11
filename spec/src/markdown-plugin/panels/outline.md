@@ -6,4 +6,7 @@ Outline follows the active note and presents its headings as a navigable tree.
 
 | ID | Requirement |
 | --- | --- |
-| LN-MD-022 | Outline MUST render cleaned headings as a nested, collapsible tree with toggleable search, expand and collapse all, heading navigation, metadata refresh, selected-section tracking, and persisted `outline.autoScrollToCurrentSection` configuration defaulting to `false`. A newly followed file starts expanded while choices remain stable for the current file. The panel MUST fill its `WorkspaceViewHost`, omit title and path introduction copy, inherit resolved view paint and workspace typography, and add no hash icon. Leaf headings MUST NOT reserve disclosure space. Each nested guide remains under its expanded chevron tip, a leaf child's label aligns with its immediate parent label, child levels remain visibly indented, and every row preserves the trailing edge. |
+| LN-MD-022 | Outline MUST render cleaned headings as a nested collapsible tree with toggleable search, expand and collapse all, heading navigation, metadata refresh, selected-section tracking, and persisted `outline.autoScrollToCurrentSection` configuration defaulting to `false`. |
+| LN-MD-042 | A newly followed Outline file MUST start expanded while expansion choices remain stable for the current file. |
+| LN-MD-043 | Outline MUST fill its `WorkspaceViewHost`, omit title and path introduction copy, inherit resolved view paint and workspace typography, and add no hash icon. |
+| LN-MD-044 | Outline leaf headings MUST NOT reserve disclosure space. Nested guides remain beneath expanded chevron tips, leaf-child labels align with their immediate parent labels, child levels remain visibly indented, and rows preserve their trailing edge. |

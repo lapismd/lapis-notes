@@ -19,19 +19,53 @@
 | LN-ED-012 | New or touched component paint MUST use design-core composition, native CSS, public `--ui-*` tokens, and semantic `data-ui-*` hosts without Tailwind utility strings. |
 | LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme through the linked package's built public exports, without a Storybook or Vite source alias. Source-editor Markdown language packs remain source-only. Rich Mira surfaces MUST be provided only by `@lapis-notes/markdown` when that plugin is enabled. |
 | LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations), then Tags (`enabledByDefault: true`). |
-| LN-ED-020 | Storybook MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags, plus editor-demo integration coverage for Markdown modes and Markdown/Mira settings. All Properties MUST additionally demonstrate the real panel without a visible Markdown leaf in middle top tabs, stacked tabs, both sidebars, a grouped bottom panel, and a sidebar group. Its Autodocs component contract MUST expose only the real `app: App` input, never the Storybook-only panel kind or layout selectors. These movable-panel fixtures MUST inherit design-core's resolved Workspace view paint, assert the stable destination host and `WorkspaceViewHost`, and remain free of panel-owned placement selectors or runtime leaf-parent inspection. Outline placement stories MUST seed multiple levels containing both leaf and expandable siblings, then assert its chevron-aligned guides, unpadded leaves, parent-aligned leaf-child labels, visible disclosure indentation, and shared trailing row edge. Tags placement stories MUST assert that each nested hash's trailing edge aligns with its parent tag-name column while disclosure glyphs, depth alignment, muted paint, and the shared count edge remain intact. |
-| LN-ED-021 | Every focused Markdown panel MUST use a nested `Workspace/Panels/Markdown/<Panel>` group with the same six movable surfaces as All Properties. Vault-wide panels omit the Markdown document; file-scoped panels retain exactly one minimal active Markdown leaf. A focused File Properties interaction MUST resize its owning workspace split through the real controller below Mira's 250px breakpoint, restore that layout in all outcomes, and assert full-row stacking, label-aligned values, and no horizontal viewport overflow. It MUST NOT constrain the component root or editor content directly. The legacy dual-panel comparison fixture MUST NOT remain catalog authority. |
+| LN-ED-020 | Storybook MUST provide focused panel stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags, plus editor-demo integration coverage for Markdown modes and Markdown/Mira settings. |
+| LN-ED-021 | Every focused Markdown panel MUST use a nested `Workspace/Panels/Markdown/<Panel>` group with the six movable surfaces defined by All Properties. Vault-wide panels omit the document; file-scoped panels retain one minimal active Markdown leaf. |
 | LN-ED-022 | The API editor's design-core `ScrollArea` root MUST fill and remain bounded by its owning `WorkspaceViewHost`, leaving its viewport as the sole vertical scroll owner when a source or Markdown document is taller than its pane. The nested CodeMirror scroller MUST expand with its content without painting another vertical scrollbar. Focused Storybook acceptance MUST prove full-height ownership, one usable long-document scroll range, and a changed scroll position in both top-tab and stacked-tab workspace placements. |
-| LN-ED-023 | Focused Backlinks and Outgoing Links acceptance MUST open the Design Core Hover Card and verify that it resolves to the panel-specific 26rem default width, contains the public app-bound `FileEmbed` and an embedded Markdown surface rather than duplicated private preview copy or a synthetic guided `internal-embed` wrapper. The complete mention row MUST be the native clickable/focusable trigger. Acceptance MUST resize the real owning split so the preview crosses a pane boundary, then prove owner-document body placement, viewport containment, collision adaptation without a fixed side, and topmost hit testing over the adjacent editor. It MUST move the pointer from the mention into the preview beyond the 300ms close delay and prove that the embedded content remains open and interactive. |
+| LN-ED-023 | Focused Backlinks and Outgoing Links acceptance MUST verify constrained Design Core Hover Card behavior through the real mention trigger. |
 | LN-ED-024 | Focused Outgoing Links middle-top-tabs acceptance MUST also hover the ordinary internal note link rendered inside `Welcome.md`. Mira's portable preview content MUST be mounted under the trigger document body, retain its 28rem viewport-capped size and embedded Markdown content, cross the workspace split without clipping, and remain the topmost hit target where it overlaps the adjacent Outgoing Links pane. |
-| LN-ED-025 | Focused Outgoing Links middle-top-tabs acceptance MUST edit and persist both the ordinary `Welcome.md` internal-link preview and a panel-result `FileEmbed` preview. Each card MUST remain portaled, viewport-contained, topmost, and interactive across the constrained workspace split before and after its rendered content switches to toolbar-free live-preview CodeMirror. Escape MUST flush the latest buffer before returning to preview and closing the card. While editing, hover departure and focus movement MUST leave the card pinned; an outside pointer interaction MUST use the same persistence-safe exit before closing. |
+| LN-ED-025 | Focused Outgoing Links middle-top-tabs acceptance MUST verify editable ordinary-link and panel-result previews through one persistence-safe scenario. |
 | LN-ED-026 | Focused Outgoing Links acceptance MUST verify the shared minimal note-preview presentation: resolved ordinary and panel cards omit visible filename/path chrome, rendered Markdown retains disclosure-safe all-round padding, and editing adds a two-pixel focus-ring border. The panel card MUST omit the outer embed guide and expose only an accessible open-note action in a sticky top-right row that remains clear of scrolled content. |
-| LN-ED-027 | Focused Outgoing Links middle-top-tabs acceptance MUST verify that ordinary Mira and panel `FileEmbed` live-edit surfaces both resolve an effective `obsidian` theme whose focus color matches design-core's Lapis workspace focus token. The nested frontmatter widget in each CodeMirror editor MUST retain zero inline padding so preview-only card inset does not move metadata away from the editor content column. The panel editor MUST be constrained by the preview viewport and expose real vertical overflow through its CodeMirror scroller, with no outer preview scrollbar. |
+| LN-ED-027 | Focused Outgoing Links middle-top-tabs acceptance MUST verify theme and scrolling parity across ordinary Mira and panel `FileEmbed` live-edit surfaces. |
+| LN-ED-028 | All Properties MUST demonstrate its real panel without a visible Markdown leaf in middle top tabs, stacked tabs, both sidebars, a grouped bottom panel, and a sidebar group. |
+| LN-ED-029 | All Properties Autodocs MUST expose only `app: App` and MUST NOT expose Storybook-only panel kind or layout inputs. |
+| LN-ED-030 | Movable-panel fixtures MUST inherit design-core's resolved workspace-view paint, assert their destination and `WorkspaceViewHost`, and remain free of panel-owned placement detection. |
+| LN-ED-031 | Outline placement acceptance MUST cover expandable and leaf siblings across multiple levels, chevron-aligned guides, unpadded leaves, parent-aligned leaf labels, visible indentation, and a shared trailing row edge. |
+| LN-ED-032 | Tags placement acceptance MUST cover parent-aligned child-hash trailing edges, disclosure glyphs, depth alignment, muted hash paint, and the shared count edge. |
+| LN-ED-033 | File Properties acceptance MUST resize the owning split below Mira's 250px breakpoint, restore it in all outcomes, and verify full-row stacking, label-aligned values, and no horizontal overflow. It MUST NOT constrain the component root or editor content directly. |
+| LN-ED-034 | The legacy dual-panel comparison fixture MUST NOT remain a Storybook authority. |
+
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
 | LN-ED-017 | For file leaves, the tab title bar final segment MUST be renameable in place through `getChrome` `titleEditable` / `onTitleCommit` → `fileManager.renameFile`, without hiding breadcrumbs. |
 | LN-ED-016 | The editor demo canonical seed MUST enable `appearence.interface.showInlineTitle` and `appearence.interface.showTabTitleBar` so focused scenarios exercise the inline title and tab title bar without requiring Settings navigation. |
 | LN-ED-018 | Source editors MUST expose `data-language` on the CodeMirror host, default the editor face to Mira monospace (`--mira-font-mono` / `--font-mono`), and override to the sans face for Markdown and plain text only. Non-Markdown languages use the configured CodeMirror fold gutter when fold settings are on; Markdown uses Mira's inline fold controls without the duplicate gutter. Focused Markdown acceptance MUST prove rendered frontmatter disclosure, source reveal, Source Code Pro YAML lines, and zero nested-preview note-column padding. |
+
+### LN-ED-023 acceptance details
+
+The constrained preview scenario verifies:
+
+- The card uses the panel-specific 26rem width and contains the public app-bound `FileEmbed` and embedded Markdown surface, not duplicated preview markup or a synthetic guided wrapper.
+- The complete mention row remains the native clickable and focusable trigger.
+- Resizing the owning split proves owner-document placement, viewport containment, collision adaptation, and topmost hit testing across the adjacent editor.
+- Pointer handoff into the preview beyond the 300ms close delay keeps its embedded content open and interactive.
+
+### LN-ED-025 acceptance details
+
+The editable-preview scenario verifies:
+
+- Both the ordinary `Welcome.md` internal-link preview and a panel-result `FileEmbed` preview can edit and persist content.
+- Each card remains portaled, viewport-contained, topmost, and interactive before and after entering toolbar-free live-preview CodeMirror.
+- Escape flushes the latest buffer before returning to preview and closing the card.
+- Hover departure and focus movement keep editing pinned, while outside pointer dismissal uses the persistence-safe exit.
+
+### LN-ED-027 acceptance details
+
+The live-edit parity scenario verifies:
+
+- Both preview families resolve an effective `obsidian` theme whose focus color matches design-core's Lapis workspace focus token.
+- Nested frontmatter widgets retain zero inline padding so preview-only inset does not move metadata away from the editor content column.
+- The panel editor exposes vertical overflow through CodeMirror inside the preview viewport without an outer preview scrollbar.
 
 ## Ownership
 

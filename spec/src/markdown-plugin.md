@@ -21,7 +21,10 @@ specified separately under [Panels](./markdown-plugin/panels/index.md).
 | LN-MD-013 | The Markdown `MetadataProcessor.write` contract MUST serialize the frontmatter map passed by `MetadataCache.writeFrontmatter`, not a nested `{ frontmatter }` wrapper. |
 | LN-MD-014 | When enabled, the Markdown plugin MUST register Lapis property type widgets (`unknown`, `text`, `number`, `checkbox`, `tags`, `aliases`, `multitext`, `date`, `datetime`, `array`, and `object`) through `Plugin.registerTypeWidget`. |
 | LN-MD-015 | Storybook and demo hosts that load Markdown MUST call `metadataTypeManager.trackChanges()` or an equivalent `watchMetadata` helper after plugins load and dispose the watcher on teardown. |
-| LN-MD-025 | The Markdown editor integration MUST compose Mira's public `createMarkdownCodeMirrorExtensions` source-decoration contract, not only its language parser. Markdown body text MAY retain the Lapis sans face, but revealed or source-mode frontmatter lines MUST resolve the Mira monospace token (Source Code Pro under the Obsidian theme). Mira's inline fold controls MUST be the only visible Markdown fold presentation, rendered frontmatter disclosure MUST collapse and expand its property content, and the API editor's outer note-column spacing MUST NOT add padding to the embedded frontmatter preview; the frontmatter surface and disclosure chevron MUST therefore share the Markdown content start. |
+| LN-MD-025 | The Markdown editor integration MUST compose Mira's public `createMarkdownCodeMirrorExtensions` source-decoration contract, not only its language parser. |
+| LN-MD-051 | Markdown body text MAY retain the Lapis sans face, but revealed and source-mode frontmatter lines MUST resolve Mira's monospace token, using Source Code Pro under the Obsidian theme. |
+| LN-MD-052 | Mira's inline fold controls MUST be the only visible Markdown fold presentation. Rendered frontmatter disclosure MUST collapse and expand its property content. |
+| LN-MD-053 | API editor note-column spacing MUST NOT inset an embedded frontmatter preview. Its surface and disclosure chevron MUST share the Markdown content start. |
 
 ## Ownership
 
