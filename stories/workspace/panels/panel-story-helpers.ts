@@ -1,6 +1,7 @@
 import type { App } from "@lapis-notes/api";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
+import { WORKSPACE_SHELL_DOCS_STORY } from "../docs-parameters";
 import {
   PANEL_LEAF_META,
   panelLayoutMarker,
@@ -46,7 +47,7 @@ export const PANEL_PLACEMENTS: Record<
 
 export const PANEL_DOCS_PARAMETERS = {
   canvas: { className: "panel-demo-docs-canvas" },
-  story: { height: "700px", inline: false },
+  story: WORKSPACE_SHELL_DOCS_STORY,
 };
 
 export function panelDemoApp(canvasElement: HTMLElement): App {

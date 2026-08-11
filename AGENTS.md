@@ -59,6 +59,18 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   panel whenever adding or changing Docs stories.
 - Track swap progress in root `MIGRATION.md`.
 
+## Workspace Shell Stories
+
+- Full-shell Autodocs for `Workspace/Shell`, `Workspace/Lapis Editor Demo`, and
+  movable panel shells use the shared `WORKSPACE_SHELL_DOCS_STORY` dimensions:
+  an isolated iframe (`inline: false`) at `700px` high. Prefer this contract for
+  any new story whose subject is the complete workspace shell unless a mapped
+  requirement explicitly needs a different viewport.
+- Give shell Docs canvases a scoped class and remove `.docs-story .sb-story`
+  padding so the application shell owns the complete documented viewport.
+  Keep standalone story canvases full-screen; the 700px rule applies to their
+  Autodocs embed rather than constraining the component or story root.
+
 ## Workspace Panel Stories
 
 - Treat `spec/src/workspace-shell/panels.md` as the canonical reusable panel

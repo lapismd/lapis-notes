@@ -2,6 +2,8 @@ import {
   visualPendingTags,
   workspaceCatalogParameters,
 } from "../catalog/catalog.mjs";
+import { WORKSPACE_SHELL_DOCS_STORY } from "./docs-parameters";
+import "./Workspace.docs.css";
 
 export function workspaceStoryMeta(
   catalogId: string,
@@ -14,7 +16,9 @@ export function workspaceStoryMeta(
       ...workspaceCatalogParameters(catalogId),
       layout: "fullscreen",
       docs: {
+        canvas: { className: "workspace-shell-docs-canvas" },
         description: { story: description },
+        story: WORKSPACE_SHELL_DOCS_STORY,
       },
       visualDelta: {
         images: [baselineImage],
