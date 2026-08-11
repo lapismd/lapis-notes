@@ -47,4 +47,10 @@
     min-height: 0;
     overflow: auto;
   }
+
+  .markdown-view__reading :global(.mira-editor) {
+    border: 0;
+    border-radius: 0;
+    min-height: 0;
+  }
 </style>

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import { startCompletion } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
-import type { Editor } from "@lapis-notes/api";
+import type { App, Editor } from "@lapis-notes/api";
 import LapisEditorDemo from "./LapisEditorDemo.svelte";
 import { workspaceStoryMeta } from "../_shared";
 
@@ -37,13 +37,26 @@ function visibleEditorContents(canvasElement: HTMLElement): HTMLElement[] {
 }
 
 function activeStoryEditor(): Editor {
-  const runtimeApp = (globalThis as typeof globalThis & { app?: unknown })
-    .app as
-    | { workspace?: { activeLeaf?: { view?: { editor?: Editor } } } }
-    | undefined;
-  const editor = runtimeApp?.workspace?.activeLeaf?.view?.editor;
+  const runtimeApp = activeStoryApp();
+  const editor = (
+    runtimeApp.workspace.activeLeaf?.view as { editor?: Editor } | undefined
+  )?.editor;
   if (!editor) throw new Error("The active story leaf has no Lapis editor");
   return editor;
+}
+
+function activeStoryApp(): App {
+  const runtimeApp = (globalThis as typeof globalThis & { app?: App }).app;
+  if (!runtimeApp) throw new Error("The editor story has no active Lapis app");
+  return runtimeApp;
+}
+
+async function persistedStoryConfiguration(): Promise<
+  Record<string, unknown>
+> {
+  return JSON.parse(
+    await activeStoryApp().vault.adapter.read(".obsidian/app.json"),
+  ) as Record<string, unknown>;
 }
 
 function moveStoryCursorToEnd(): void {
@@ -553,13 +566,90 @@ export const MarkdownAuthoring: Story = {
         within(viewHeader!).getByRole("button", { name: "More options" }),
       );
       const page = within(canvasElement.ownerDocument.body);
+      const paneMenu = page.getByRole("menu");
+      const paneMenuItems = within(paneMenu).getAllByRole("menuitem");
+      expect(
+        paneMenuItems.slice(0, 4).map((item) => item.textContent?.trim()),
+      ).toEqual([
+        "Reading view",
+        "Source mode",
+        "Show editor toolbar",
+        "Split right",
+      ]);
       await expect(
         page.getByRole("menuitem", { name: "Reading view" }),
       ).toBeVisible();
       await expect(
         page.getByRole("menuitem", { name: "Source mode" }),
       ).toBeVisible();
-      await userEvent.keyboard("{Escape}");
+      await userEvent.click(
+        page.getByRole("menuitem", { name: "Show editor toolbar" }),
+      );
+      await waitFor(() =>
+        expect(
+          activeStoryApp().configuration.getConfiguration().get(
+            "markdown.mira.editor.toolbar.enabled",
+          ),
+        ).toBe(true),
+      );
+      const editorToolbar = await waitFor(() =>
+        canvas.getByRole("toolbar", { name: "Markdown editor toolbar" }),
+      );
+      expect(
+        (await persistedStoryConfiguration())[
+          "markdown.mira.editor.toolbar.enabled"
+        ],
+      ).toBe(true);
+
+      const viewOptions = within(editorToolbar).getByRole("button", {
+        name: "View options",
+      });
+      await waitFor(() =>
+        expect(getComputedStyle(viewOptions).pointerEvents).not.toBe("none"),
+      );
+      await userEvent.click(viewOptions);
+      await userEvent.click(
+        page.getByRole("menuitem", { name: "Indentation guides" }),
+      );
+      await waitFor(() =>
+        expect(
+          activeStoryApp().configuration.getConfiguration().get(
+            "editor.display.showIndentationGuides",
+          ),
+        ).toBe(false),
+      );
+      await waitFor(() =>
+        expect(getComputedStyle(viewOptions).pointerEvents).not.toBe("none"),
+      );
+      await userEvent.click(viewOptions);
+      await userEvent.click(
+        page.getByRole("menuitem", { name: "Use tabs for indentation" }),
+      );
+      await waitFor(() =>
+        expect(
+          activeStoryApp().configuration.getConfiguration().get(
+            "editor.behaviour.indentUsingTabs",
+          ),
+        ).toBe(false),
+      );
+      await waitFor(() =>
+        expect(getComputedStyle(viewOptions).pointerEvents).not.toBe("none"),
+      );
+      await userEvent.click(viewOptions);
+      await userEvent.click(page.getByRole("menuitem", { name: "8 spaces" }));
+      await waitFor(() =>
+        expect(
+          activeStoryApp().configuration.getConfiguration().get(
+            "editor.behaviour.indentVisualWidth",
+          ),
+        ).toBe(8),
+      );
+      expect(await persistedStoryConfiguration()).toMatchObject({
+        "markdown.mira.editor.toolbar.enabled": true,
+        "editor.display.showIndentationGuides": false,
+        "editor.behaviour.indentUsingTabs": false,
+        "editor.behaviour.indentVisualWidth": 8,
+      });
       await waitFor(() =>
         expect(getComputedStyle(readAction).pointerEvents).not.toBe("none"),
       );
@@ -575,6 +665,12 @@ export const MarkdownAuthoring: Story = {
         "Current view: preview\nClick to edit\n⌘+Click to open to the right",
       );
       expect(editAction.querySelector(".lucide-pencil")).not.toBeNull();
+      const readingEditor = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="markdown-mira-preview"] .mira-editor',
+      );
+      expect(readingEditor).not.toBeNull();
+      expect(getComputedStyle(readingEditor!).borderTopWidth).toBe("0px");
+      expect(getComputedStyle(readingEditor!).borderRadius).toBe("0px");
 
       await userEvent.click(
         within(viewHeader!).getByRole("button", { name: "More options" }),
@@ -583,6 +679,9 @@ export const MarkdownAuthoring: Story = {
         page.getByRole("menuitem", { name: "Reading view" }),
       ).toBeVisible();
       expect(page.queryByRole("menuitem", { name: "Source mode" })).toBeNull();
+      expect(
+        page.queryByRole("menuitem", { name: "Show editor toolbar" }),
+      ).toBeNull();
       await userEvent.keyboard("{Escape}");
       await waitFor(() =>
         expect(getComputedStyle(editAction).pointerEvents).not.toBe("none"),

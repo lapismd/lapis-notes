@@ -7,6 +7,8 @@ import {
 import { mount, unmount } from "svelte";
 import MarkdownEditingSurface from "./markdown-editing-surface.svelte";
 import MiraPreview from "./mira-preview.svelte";
+import { MIRA_EDITOR_SETTING_KEYS } from "../../mira/config";
+import { readMarkdownMiraEditorSettings } from "../../mira/extensions";
 
 export const MarkdownViewType = "markdown";
 
@@ -203,6 +205,7 @@ export class MarkdownView extends RootMarkdownView {
   onPaneMenu(menu: Menu, source: "more-options" | "tab-header" | string): void {
     const view = this;
     const mode = this.getMode();
+    const editorSettings = readMarkdownMiraEditorSettings(this.app);
     if (!this.file) {
       return;
     }
@@ -231,6 +234,18 @@ export class MarkdownView extends RootMarkdownView {
             void view
               .setState({ ...view.getState(), mode: newMode })
               .then(() => this.app.workspace.requestSaveLayout());
+          });
+      });
+      menu.addItem((item) => {
+        item
+          .setSection("view")
+          .setTitle("Show editor toolbar")
+          .setChecked(editorSettings.toolbar)
+          .onClick(() => {
+            void this.app.configuration.updateConfigurationOption(
+              MIRA_EDITOR_SETTING_KEYS.toolbar,
+              !editorSettings.toolbar,
+            );
           });
       });
     }

@@ -27,7 +27,7 @@
 | LN-ARCH-021 | The source editor's design-core ScrollArea MUST remain bounded by its workspace view and own vertical document scrolling. Nested CodeMirror scrollers MUST expand with content and MUST NOT paint a second vertical scrollbar. |
 | LN-ARCH-022 | Root `pnpm check` MUST run specification validation before the no-Tailwind and Turbo package checks. Root `pnpm test` MUST run the specification-validator tests before Turbo package tests. |
 | LN-ARCH-023 | Root specification discovery MUST invoke the repository-local QMD binary through `scripts/spec-validation/`. It MUST NOT depend on a global executable or run during normal checks. |
-| LN-ARCH-024 | The API workspace-host bridge MUST translate compatibility view actions and pane-menu contributions into design-core view chrome. Plugin-specific controls remain compatibility-view policy; the workspace shell MUST NOT duplicate them. |
+| LN-ARCH-024 | The API workspace-host bridge MUST translate compatibility view actions and pane-menu contributions into design-core view chrome. Translated view-menu sections MUST precede generic pane actions; the workspace shell MUST NOT duplicate plugin controls. |
 
 ## Package graph
 
@@ -73,7 +73,8 @@ Editor-view contributions follow the same boundary and are projected from the
 API registry into the controller registry without moving registration policy
 into the shell host. Compatibility view actions and pane-menu contributions use
 that same projection, leaving design-core responsible for shared title-bar and
-menu presentation while plugins retain their control policy.
+menu presentation while plugins retain their control policy. The adapter keeps
+compatibility view sections ahead of generic split, move, and close actions.
 The editor demo's Markdown and JSON language packages are root-only Storybook
 development dependencies. The API continues to expose the generic editor
 extension registry and source view, not a bundled language policy.

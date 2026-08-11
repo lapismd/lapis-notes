@@ -54,7 +54,7 @@ import {
   type WorkspaceDragEvent as DesignWorkspaceDragEvent,
   type WorkspaceLayoutChangeEvent as DesignWorkspaceLayoutChangeEvent,
   type WorkspaceLayoutDropEvent as DesignWorkspaceLayoutDropEvent,
-  type WorkspaceMenu as DesignWorkspaceMenu,
+  WorkspaceMenu as DesignWorkspaceMenu,
   type WorkspaceViewChrome as DesignWorkspaceViewChrome,
   type WorkspaceViewContext as DesignWorkspaceViewContext,
 } from "@lapismd/design-core/workspace/core";
@@ -149,6 +149,14 @@ function appendPaneMenu(target: DesignWorkspaceMenu, source: Menu): void {
       target.addMenu(entry.title, (submenu) => appendPaneMenu(submenu, entry));
     }
   }
+}
+
+function prependPaneMenu(target: DesignWorkspaceMenu, source: Menu): void {
+  const translated = new DesignWorkspaceMenu();
+  appendPaneMenu(translated, source);
+  if (translated.entries.length === 0) return;
+  if (target.entries.length > 0) translated.addSeparator();
+  target.entries.unshift(...translated.entries);
 }
 
 function toDesignEditorViewContribution(
@@ -2852,7 +2860,7 @@ export class Workspace extends EventDispatcher<{
             if (!currentView) return;
             const paneMenu = new Menu();
             currentView.onPaneMenu(paneMenu, "more-options");
-            appendPaneMenu(menu, paneMenu);
+            prependPaneMenu(menu, paneMenu);
           },
         };
       },

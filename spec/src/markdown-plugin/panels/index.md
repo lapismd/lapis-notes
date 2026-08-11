@@ -31,3 +31,5 @@ authoring composition, settings, and editor-demo acceptance remain governed by
 the Markdown Plugin overview and Editor Demo chapters rather than being copied
 into individual panel contracts. Document title-bar actions and View-menu
 contributions likewise use the API workspace bridge and are not panel chrome.
+The document Reading surface removes Mira Editor's framework border; movable
+panel paint remains governed by the separate workspace panel contract.

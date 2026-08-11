@@ -1735,6 +1735,17 @@ describe("Workspace compatibility", () => {
     expect(chromeView!.actionCallback).toHaveBeenCalledTimes(1);
 
     const menu = binding.controller.renderer.createPaneMenu(leaf.id);
+    expect(
+      menu.entries.slice(0, 5).map((entry) =>
+        entry.kind === "separator" ? entry.kind : entry.title,
+      ),
+    ).toEqual([
+      "Reading view",
+      "separator",
+      "Plugin views",
+      "separator",
+      "Split right",
+    ]);
     const readingView = menu.entries.find(
       (entry) => entry.kind === "item" && entry.title === "Reading view",
     );

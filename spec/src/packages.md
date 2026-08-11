@@ -35,7 +35,7 @@
 | LN-PKG-029 | Link-panel previews MUST compose Design Core Hover Card, use a viewport-capped 26rem width, follow the trigger document, and remain open during pointer or focus handoff from the full mention row into interactive content. |
 | LN-PKG-030 | Ordinary document-link previews MUST remain owned by Mira's built package and receive only Lapis's `MiraFileAdapter`. The Markdown package MUST NOT add a consumer portal or clipping workaround. |
 | LN-PKG-031 | `@tobilu/qmd` 2.5.3 MUST remain a pinned root development dependency. Its native build approvals and TypeScript peer MUST remain root tooling and MUST NOT enter workspace package manifests. |
-| LN-PKG-032 | `@lapis-notes/api` MUST own the adapter from compatibility `ItemView.actions` and `View.onPaneMenu` contributions to design-core workspace chrome. `@lapis-notes/workspace` remains a rendering host and MUST NOT add plugin-specific actions. |
+| LN-PKG-032 | `@lapis-notes/api` MUST own the ordered adapter from compatibility `ItemView.actions` and `View.onPaneMenu` contributions to design-core workspace chrome. `@lapis-notes/workspace` remains a rendering host and MUST NOT add plugin-specific actions. |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -90,8 +90,9 @@ neutral package contracts. The shared source-editor shell depends on sibling
 `@lapismd/mira` for base CodeMirror extensions and Obsidian theme CSS. The
 Markdown plugin composes the public Mira authoring stack with that duplicate
 base layer disabled, imports the public Mira Editor stylesheet for its optional
-toolbar, and preserves the borderless Lapis editor surface. Consumers must not
-reconstruct the portable Mira feature stack from internal source modules.
+toolbar, and preserves borderless Lapis editing and Reading surfaces. Toolbar
+controls persist only through API configuration. Consumers must not reconstruct
+the portable Mira feature stack from internal source modules.
 
 ## `@lapis-notes/workspace` (shell integration)
 

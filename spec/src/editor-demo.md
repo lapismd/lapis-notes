@@ -39,6 +39,8 @@
 | LN-ED-037 | The Explorer root and toolbar MUST consume design-core's resolved workspace-view foreground and background tokens. Direct sidebars use panel paint; body, bottom, grouped, floating, mobile, and standalone placements use workspace paint without component-owned placement logic. |
 | LN-ED-038 | The API workspace bridge MUST project each compatibility view action into design-core `WorkspaceViewChrome`, preserving its stable identity, label, icon, disabled state, event, and callback. |
 | LN-ED-039 | The API workspace bridge MUST translate compatibility `onPaneMenu` contributions into the shared design-core pane menu, preserving sections, separators, nested menus, labels, icons, checked and disabled states, and callbacks. |
+| LN-ED-040 | The API workspace bridge MUST place translated compatibility pane-menu contributions before design-core's generic pane actions while preserving their internal section order. |
+| LN-ED-041 | Focused Markdown Authoring acceptance MUST prove borderless Reading paint, View-first menu order, toolbar toggling, and persisted toolbar-driven editor settings. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |

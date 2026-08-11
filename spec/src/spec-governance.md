@@ -122,4 +122,6 @@ Markdown authoring guidance must route editor composition through Mira's public
 base-free authoring contract. Any optional authoring surface must keep schema,
 Settings UI, runtime resolution, lifecycle cleanup, and focused demo evidence
 aligned; Storybook-only feature flags must not substitute for application
-configuration.
+configuration. Guidance must also keep document surfaces borderless, route
+view-menu settings through API configuration, and require persisted-file
+acceptance for toolbar-driven editor settings.

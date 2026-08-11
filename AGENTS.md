@@ -220,8 +220,13 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   CodeMirror view and clean them up on reconfiguration. Top-toolbar actions
   delegate to the existing Lapis `Editor`, configuration, image picker, and
   Markdown view-mode lifecycle; they must not create a second editor or
-  persistence path. Demonstrate new authoring capabilities in the real
-  in-memory editor demo, including a pointer test for drag behavior.
+  persistence path. Keep Mira's outer framework border and radius out of both
+  editing and Reading workspace surfaces. Pane menus put the Markdown View
+  section first: Reading, Source while editing, then the toolbar toggle. Route
+  that toggle and toolbar editor settings through Lapis configuration, and
+  prove persistence by reading the canonical configuration file in the real
+  in-memory editor demo. Demonstrate new authoring capabilities there,
+  including a pointer test for drag behavior.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
   bespoke shell imitations. Keep placement differences in the workspace layout
   state so the story exercises the same view registration, imperative mount,

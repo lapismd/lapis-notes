@@ -32,6 +32,10 @@ specified separately under [Panels](./markdown-plugin/panels/index.md).
 | LN-MD-075 | `markdown.mira.editor.doodleDividers.enabled` MUST default to `false`. When enabled, Lapis MUST add Mira's public Doodle Dividers extension and its styles without recreating divider parsing, drawing, commands, or controls. |
 | LN-MD-076 | While editing, Markdown MUST contribute a `book-open` title-bar action for Reading view; while reading, it MUST contribute a `pencil` action for editing. A plain click switches the current leaf, while Mod+click opens the target mode in a right split. |
 | LN-MD-077 | Markdown's pane menu MUST expose Reading view, expose Source mode outside Reading view, persist mode changes, and append every registered `markdownViewMenuItems` provider contribution. |
+| LN-MD-078 | The Mira Reading surface MUST fill its workspace view without the framework editor border or radius. Rendered Markdown retains its own content styling. |
+| LN-MD-079 | Markdown's pane menu MUST place its View section before provider contributions and generic workspace actions. Reading view is first, followed by Source mode while editing. |
+| LN-MD-080 | While editing, Markdown's View section MUST expose a checked `Show editor toolbar` item that toggles and persists `markdown.mira.editor.toolbar.enabled`. |
+| LN-MD-081 | Mira toolbar changes to indentation guides, indentation type, and indentation width MUST persist through Lapis configuration before their updated state is reported. |
 
 ## Ownership
 
