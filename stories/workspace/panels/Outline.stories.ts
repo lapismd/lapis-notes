@@ -117,13 +117,31 @@ function placementStory(
             ".markdown-outline__row",
           ) ?? [],
         );
+        const welcomeRow = panel.getByRole("button", {
+          name: "Welcome to Lapis Notes",
+        });
         const linksRow = panel.getByRole("button", { name: "Links" });
         const detailsRow = panel.getByRole("button", {
           name: "Link details",
         });
+        const basicLinksRow = panel.getByRole("button", {
+          name: "Basic links",
+        });
+        const richLinksRow = panel.getByRole("button", {
+          name: "Rich links",
+        });
+        const aliasesRow = panel.getByRole("button", {
+          name: "Aliases and labels",
+        });
+        const relatedNotesRow = panel.getByRole("button", {
+          name: "Related notes",
+        });
         const checklistRow = panel.getByRole("button", {
           name: "Checklist",
         });
+        const welcomeLabel = welcomeRow.querySelector<HTMLElement>(
+          ".markdown-outline__label",
+        );
         const linksChevron = linksRow.querySelector<SVGElement>(
           "svg.lucide-chevron-right",
         );
@@ -133,15 +151,32 @@ function placementStory(
         const detailsLabel = detailsRow.querySelector<HTMLElement>(
           ".markdown-outline__label",
         );
+        const basicLinksLabel = basicLinksRow.querySelector<HTMLElement>(
+          ".markdown-outline__label",
+        );
+        const richLinksLabel = richLinksRow.querySelector<HTMLElement>(
+          ".markdown-outline__label",
+        );
+        const aliasesLabel = aliasesRow.querySelector<HTMLElement>(
+          ".markdown-outline__label",
+        );
+        const relatedNotesLabel = relatedNotesRow.querySelector<HTMLElement>(
+          ".markdown-outline__label",
+        );
         const checklistLabel = checklistRow.querySelector<HTMLElement>(
           ".markdown-outline__label",
         );
         const detailsGuide =
           detailsRow.closest<HTMLElement>(".markdown-outline__sub");
         expect(rows.length).toBeGreaterThan(1);
+        expect(welcomeLabel).not.toBeNull();
         expect(linksChevron).not.toBeNull();
         expect(linksLabel).not.toBeNull();
         expect(detailsLabel).not.toBeNull();
+        expect(basicLinksLabel).not.toBeNull();
+        expect(richLinksLabel).not.toBeNull();
+        expect(aliasesLabel).not.toBeNull();
+        expect(relatedNotesLabel).not.toBeNull();
         expect(checklistLabel).not.toBeNull();
         expect(detailsGuide).not.toBeNull();
         expect(
@@ -156,9 +191,37 @@ function placementStory(
             (linksLabel?.getBoundingClientRect().left ?? 0),
         ).toBeGreaterThan(8);
         expect(
+          Math.abs(
+            (relatedNotesLabel?.getBoundingClientRect().left ?? 0) -
+              (linksLabel?.getBoundingClientRect().left ?? 0),
+          ),
+        ).toBeLessThan(1);
+        expect(
+          Math.abs(
+            (basicLinksLabel?.getBoundingClientRect().left ?? 0) -
+              (detailsLabel?.getBoundingClientRect().left ?? 0),
+          ),
+        ).toBeLessThan(1);
+        expect(
+          (richLinksLabel?.getBoundingClientRect().left ?? 0) -
+            (detailsLabel?.getBoundingClientRect().left ?? 0),
+        ).toBeGreaterThan(8);
+        expect(
+          Math.abs(
+            (aliasesLabel?.getBoundingClientRect().left ?? 0) -
+              (richLinksLabel?.getBoundingClientRect().left ?? 0),
+          ),
+        ).toBeLessThan(1);
+        expect(
           (linksLabel?.getBoundingClientRect().left ?? 0) -
             (checklistLabel?.getBoundingClientRect().left ?? 0),
         ).toBeGreaterThan(8);
+        expect(
+          Math.abs(
+            (checklistLabel?.getBoundingClientRect().left ?? 0) -
+              (welcomeLabel?.getBoundingClientRect().left ?? 0),
+          ),
+        ).toBeLessThan(1);
         expect(
           Math.max(...rows.map((row) => row.getBoundingClientRect().right)) -
             Math.min(...rows.map((row) => row.getBoundingClientRect().right)),
