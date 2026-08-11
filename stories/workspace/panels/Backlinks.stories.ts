@@ -136,10 +136,9 @@ function placementStory(
           },
           { timeout: 5_000 },
         );
-        const preview =
-          canvasElement.ownerDocument.querySelector<HTMLElement>(
-            '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
-          );
+        const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
+          '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+        );
         if (!preview) throw new Error("Missing Backlinks preview");
         expect(preview).toHaveTextContent("Research.md");
         expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
@@ -151,7 +150,9 @@ function placementStory(
         expect(
           preview.querySelector(".mira-embed.internal-embed"),
         ).toBeVisible();
-        expect(preview.querySelector("[data-markdown-embed]")).toBeVisible();
+        await waitFor(() => {
+          expect(preview.querySelector("[data-markdown-embed]")).toBeVisible();
+        });
         await waitFor(() =>
           expectLinkPreviewPlacement(previewTrigger, preview, false),
         );

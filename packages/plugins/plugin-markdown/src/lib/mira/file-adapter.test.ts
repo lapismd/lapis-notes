@@ -24,15 +24,14 @@ function createAppFixture() {
   const destroy = vi.fn();
   const renderEmbed = vi.fn(() => ({ destroy }));
   const openFile = vi.fn(async () => undefined);
+  const modify = vi.fn(async () => undefined);
   const app = {
     vault: {
       getFileByPath: (path: string) =>
         files.find((candidate) => candidate.path === path) ?? null,
-      getAllLoadedFiles: () => [
-        { path: "/", children: files },
-        ...files,
-      ],
+      getAllLoadedFiles: () => [{ path: "/", children: files }, ...files],
       cachedRead: vi.fn(async (candidate: TFile) => `# ${candidate.basename}`),
+      modify,
       on: vi.fn(() => ({})),
       offref: vi.fn(),
     },
@@ -50,7 +49,16 @@ function createAppFixture() {
     },
     openFile,
   } as unknown as App;
-  return { app, source, target, pdf, renderEmbed, destroy, openFile };
+  return {
+    app,
+    source,
+    target,
+    pdf,
+    renderEmbed,
+    destroy,
+    openFile,
+    modify,
+  };
 }
 
 describe("Lapis Mira file adapter", () => {
@@ -121,5 +129,31 @@ describe("Lapis Mira file adapter", () => {
     expect(typeof cleanup).toBe("function");
     if (typeof cleanup === "function") cleanup();
     expect(destroy).toHaveBeenCalledOnce();
+  });
+
+  it("writes only existing Markdown files through the Lapis vault", async () => {
+    const { app, target, pdf, modify } = createAppFixture();
+    const adapter = createLapisMiraFileAdapter(app);
+
+    await expect(
+      adapter.writeMarkdown?.(
+        { path: target.path, name: target.name, kind: "markdown" },
+        "# Updated",
+      ),
+    ).resolves.toBeUndefined();
+    expect(modify).toHaveBeenCalledWith(target, "# Updated");
+
+    await expect(
+      adapter.writeMarkdown?.(
+        { path: pdf.path, name: pdf.name, kind: "markdown" },
+        "not a PDF",
+      ),
+    ).rejects.toThrow("Cannot write non-Markdown file");
+    await expect(
+      adapter.writeMarkdown?.(
+        { path: "Missing.md", name: "Missing.md", kind: "markdown" },
+        "missing",
+      ),
+    ).rejects.toThrow("Markdown file not found");
   });
 });

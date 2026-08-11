@@ -2,12 +2,15 @@
   import type { App, TFile } from "@lapis-notes/api";
   import * as HoverCard from "@lapismd/design-core/shadcn/hover-card";
   import * as ScrollArea from "@lapismd/design-core/shadcn/scroll-area";
-  import type { Snippet } from "svelte";
+  import { onDestroy, untrack, type Snippet } from "svelte";
   import { FileEmbed } from "$lib/components/embed";
+  import { provideEditablePreviewClose } from "$lib/components/embed/editable-preview-close-context";
 
   let {
     app,
     file,
+    editingId,
+    oneditingchange,
     sourcePath = "",
     label,
     onclick,
@@ -15,15 +18,44 @@
   }: {
     app: App;
     file: TFile;
+    editingId: string;
+    oneditingchange?: (id: string, editing: boolean) => void;
     sourcePath?: string;
     label: string;
     onclick: (event: MouseEvent) => void;
     children: Snippet;
   } = $props();
 
+  let open = $state(false);
+  let editing = $state(false);
+
+  provideEditablePreviewClose(() => {
+    open = false;
+  });
+
+  function handleOpenChange(nextOpen: boolean): void {
+    if (!nextOpen && editing) {
+      open = true;
+      return;
+    }
+    open = nextOpen;
+  }
+
+  function getEditing(): boolean {
+    return editing;
+  }
+
+  function setEditing(nextEditing: boolean): void {
+    editing = nextEditing;
+    untrack(() => oneditingchange?.(editingId, nextEditing));
+  }
+
+  onDestroy(() => {
+    untrack(() => oneditingchange?.(editingId, false));
+  });
 </script>
 
-<HoverCard.Root>
+<HoverCard.Root {open} onOpenChange={handleOpenChange}>
   <HoverCard.Trigger>
     {#snippet child({ props })}
       <button
@@ -40,8 +72,18 @@
     {/snippet}
   </HoverCard.Trigger>
   <HoverCard.Content class="markdown-link-sidebar__preview">
-    <ScrollArea.Root class="markdown-link-sidebar__preview-scroll">
-      <FileEmbed {app} {file} {sourcePath} onopen={onclick} />
+    <ScrollArea.Root
+      class="markdown-link-sidebar__preview-scroll"
+      data-editing={editing ? "true" : "false"}
+    >
+      <FileEmbed
+        {app}
+        {file}
+        {sourcePath}
+        onopen={onclick}
+        editable
+        bind:editing={getEditing, setEditing}
+      />
     </ScrollArea.Root>
   </HoverCard.Content>
 </HoverCard.Root>
@@ -65,5 +107,19 @@
     width: 100%;
     height: 21rem;
     min-height: 0;
+  }
+
+  :global(
+    .markdown-link-sidebar__preview-scroll[data-editing="true"]
+      [data-ui-part="scroll-area-viewport"]
+  ) {
+    overflow: hidden !important;
+  }
+
+  :global(
+    .markdown-link-sidebar__preview-scroll[data-editing="true"]
+      [data-ui-part="scroll-area-scrollbar"]
+  ) {
+    display: none;
   }
 </style>

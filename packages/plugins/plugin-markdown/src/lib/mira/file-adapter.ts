@@ -24,7 +24,7 @@ function isMarkdown(file: TFile): boolean {
   return file.extension === "md" || file.extension === "markdown";
 }
 
-function toMiraFileRef(file: TFile): MiraFileRef {
+export function toMiraFileRef(file: TFile): MiraFileRef {
   return {
     path: file.path,
     name: file.name,
@@ -71,6 +71,17 @@ export function createLapisMiraFileAdapter(app: App): MiraFileAdapter {
       return resolved && isMarkdown(resolved)
         ? app.vault.cachedRead(resolved)
         : null;
+    },
+
+    async writeMarkdown(file, value) {
+      const resolved = fileFromRef(app, file);
+      if (!resolved) {
+        throw new Error(`Markdown file not found: ${file.path}`);
+      }
+      if (!isMarkdown(resolved)) {
+        throw new Error(`Cannot write non-Markdown file: ${file.path}`);
+      }
+      await app.vault.modify(resolved, value);
     },
 
     openFile(file) {
@@ -124,10 +135,7 @@ export function createLapisMiraFileAdapter(app: App): MiraFileAdapter {
     },
 
     listFiles() {
-      return app.vault
-        .getAllLoadedFiles()
-        .filter(isFile)
-        .map(toMiraFileRef);
+      return app.vault.getAllLoadedFiles().filter(isFile).map(toMiraFileRef);
     },
 
     getHeadings(file) {

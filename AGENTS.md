@@ -123,10 +123,15 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   `finally`, and asserts viewport containment plus `elementFromPoint` over the
   adjacent editor. Never fork another full-document preview inside a panel.
   Ordinary internal links inside Mira reading/live-preview documents remain
-  Mira-owned: pass the Lapis `MiraFileAdapter`, then rely on Mira's portaled
-  Bits UI preview for timing, collision, appearance, and cross-pane paint. Do
-  not add a Lapis portal wrapper, source alias, or clipping override. The
-  middle-top-tabs Outgoing Links play is the linked-consumer regression for
+  Mira-owned: pass the writable Lapis `MiraFileAdapter`, then rely on Mira's
+  portaled Bits UI preview for timing, collision, appearance, cross-pane paint,
+  click-to-edit CodeMirror, 500ms serialized autosave, and dirty-buffer
+  protection. Backlinks and Outgoing Links opt their public `FileEmbed` into
+  editing and bind its editing state so the Design Core Hover Card stays open;
+  direct document embeds remain read-only. Do not add a Lapis portal wrapper,
+  editor, save timer, source alias, or clipping override. The middle-top-tabs
+  Outgoing Links play is the linked-consumer regression for both ordinary and
+  panel-result editable previews and must verify persisted vault content after
   that boundary.
   None of these panels render shell title/path intro copy.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over

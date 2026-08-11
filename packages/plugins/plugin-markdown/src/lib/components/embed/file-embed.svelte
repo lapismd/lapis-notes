@@ -1,9 +1,16 @@
 <script lang="ts">
   import type { App, TFile } from "@lapis-notes/api";
-  import { FileEmbed as MiraFileEmbed } from "@lapismd/mira/preview";
+  import {
+    EditableMarkdownPreview,
+    FileEmbed as MiraFileEmbed,
+  } from "@lapismd/mira/preview";
   import { Button } from "@lapismd/design-core/shadcn/button";
   import Maximize from "@lucide/svelte/icons/maximize-2";
-  import { createLapisMiraFileAdapter } from "$lib/mira/file-adapter";
+  import {
+    createLapisMiraFileAdapter,
+    toMiraFileRef,
+  } from "$lib/mira/file-adapter";
+  import { useEditablePreviewClose } from "./editable-preview-close-context";
 
   let {
     app,
@@ -13,6 +20,8 @@
     sourcePath = "",
     sectionId,
     frontmatterOpen = false,
+    editable = false,
+    editing = $bindable(false),
     class: className = "",
     onopen,
   }: {
@@ -23,6 +32,8 @@
     sourcePath?: string;
     sectionId?: string;
     frontmatterOpen?: boolean;
+    editable?: boolean;
+    editing?: boolean;
     class?: string;
     onopen?: (event: MouseEvent) => void;
   } = $props();
@@ -33,6 +44,25 @@
     sectionId ? `${baseTarget}#${sectionId.replace(/^#/, "")}` : baseTarget,
   );
   const title = $derived(text || file?.name || baseTarget || "Embedded file");
+  const resolvedFile = $derived(
+    file ??
+      (baseTarget
+        ? app.metadataCache.getFirstLinkpathDest(baseTarget, sourcePath)
+        : app.vault.getFileByPath(sourcePath)),
+  );
+  const editableFile = $derived(
+    resolvedFile &&
+      (resolvedFile.extension === "md" || resolvedFile.extension === "markdown")
+      ? toMiraFileRef(resolvedFile)
+      : null,
+  );
+  const closeEditablePreview = useEditablePreviewClose();
+
+  $effect(() => {
+    if (!editable || !editableFile) {
+      editing = false;
+    }
+  });
 
   function openFile(event: MouseEvent): void {
     event.stopPropagation();
@@ -53,6 +83,7 @@
   class={`lapis-file-embed ${className}`.trim()}
   data-ui-component="file-embed"
   data-file-path={baseTarget}
+  data-editing={editing ? "true" : "false"}
 >
   <header class="lapis-file-embed__header">
     <strong class="lapis-file-embed__title">{title}</strong>
@@ -67,12 +98,22 @@
     </Button>
   </header>
   <div class="lapis-file-embed__content">
-    <MiraFileEmbed
-      id={target}
-      {sourcePath}
-      {fileAdapter}
-      {frontmatterOpen}
-    />
+    {#if editable && editableFile}
+      <figure class="mira-embed internal-embed" data-embed={target}>
+        <figcaption>{title}</figcaption>
+        <div class="mira-embed__content">
+          <EditableMarkdownPreview
+            file={editableFile}
+            {fileAdapter}
+            bind:editing
+            {frontmatterOpen}
+            onEscape={() => closeEditablePreview?.()}
+          />
+        </div>
+      </figure>
+    {:else}
+      <MiraFileEmbed id={target} {sourcePath} {fileAdapter} {frontmatterOpen} />
+    {/if}
   </div>
 </div>
 
@@ -106,7 +147,25 @@
   }
 
   .lapis-file-embed__content {
+    flex: 1 1 auto;
+    min-height: 0;
     min-width: 0;
+  }
+
+  .lapis-file-embed[data-editing="true"] {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .lapis-file-embed[data-editing="true"] .lapis-file-embed__content,
+  .lapis-file-embed[data-editing="true"]
+    .lapis-file-embed__content
+    :global(.mira-editable-markdown-preview),
+  .lapis-file-embed[data-editing="true"]
+    .lapis-file-embed__content
+    :global(.mira-editable-markdown-preview__editor-shell) {
+    height: 100%;
+    min-height: 0;
   }
 
   .lapis-file-embed__content :global(.mira-embed) {

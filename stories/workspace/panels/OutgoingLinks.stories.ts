@@ -1,4 +1,5 @@
 import type { App } from "@lapis-notes/api";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { OutgoingLinks } from "@lapis-notes/markdown";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
@@ -55,6 +56,55 @@ function renderPlacement(layout: PanelDemoLayout): StoryRender {
     Component: PanelDemo,
     props: { kind, layout },
   })) as StoryRender;
+}
+
+function resizeMainSplit(app: App, sizes: number[]): () => void {
+  const renderer = getWorkspaceHostBinding(app.workspace).controller.renderer;
+  const snapshot = renderer.getLayout();
+  if (snapshot.main.kind !== "split") {
+    throw new Error("Expected the Outgoing Links main split");
+  }
+  const originalSizes = [...snapshot.main.sizes];
+  if (!renderer.setSplitSizes(snapshot.main.id, sizes)) {
+    throw new Error("Could not constrain the Outgoing Links main split");
+  }
+  return () => {
+    renderer.setSplitSizes(snapshot.main.id, originalSizes);
+  };
+}
+
+async function replaceEditablePreview(
+  preview: HTMLElement,
+  value: string,
+): Promise<void> {
+  const renderedTarget = preview.querySelector<HTMLElement>(
+    ".mira-editable-markdown-preview__preview [data-offset]",
+  );
+  if (!renderedTarget) throw new Error("Missing editable rendered content");
+  await userEvent.click(renderedTarget);
+  await waitFor(() => {
+    expect(
+      preview.querySelector("[data-editable-markdown-editor]"),
+    ).toBeVisible();
+  });
+
+  const editor = preview.querySelector<HTMLElement>(".cm-content");
+  if (!editor) throw new Error("Missing editable preview CodeMirror content");
+  await userEvent.click(editor);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.keyboard("{Control>}a{/Control}");
+  await userEvent.paste(value);
+  expect(
+    preview.querySelector(
+      '[data-save-state="dirty"], [data-save-state="saving"]',
+    ),
+  ).toBeVisible();
+  await waitFor(
+    () => {
+      expect(preview.querySelector('[data-save-state="saved"]')).toBeVisible();
+    },
+    { timeout: 3_000 },
+  );
 }
 
 async function expectDocumentLinkPreview(
@@ -129,7 +179,35 @@ async function expectDocumentLinkPreview(
     { timeout: 3_000 },
   );
 
+  const app = panelDemoApp(canvasElement);
+  const ideasFile = app.vault.getFileByPath("Notes/Ideas.markdown");
+  if (!ideasFile) throw new Error("Missing seeded Ideas note");
+  const nextValue = "edited through the ordinary hover preview.";
+  await replaceEditablePreview(preview, nextValue);
+  await waitFor(async () => {
+    expect(await app.vault.read(ideasFile)).toBe(nextValue);
+  });
+  await waitFor(() => {
+    const previewRect = preview.getBoundingClientRect();
+    expect(previewRect.right).toBeLessThanOrEqual(viewport.clientWidth + 1);
+    expect(previewRect.bottom).toBeLessThanOrEqual(viewport.clientHeight + 1);
+    expect(
+      ownerDocument
+        .elementFromPoint(
+          previewRect.left + Math.min(previewRect.width / 2, 24),
+          previewRect.top + Math.min(previewRect.height / 2, 24),
+        )
+        ?.closest("[data-mira-link-preview-content]"),
+    ).toBe(preview);
+  });
   await userEvent.keyboard("{Escape}");
+  await waitFor(() => {
+    expect(
+      ownerDocument.querySelector(
+        '[data-mira-link-preview-content][data-link-preview-path="Ideas"]',
+      ),
+    ).not.toBeInTheDocument();
+  });
 }
 
 function placementStory(
@@ -173,9 +251,14 @@ function placementStory(
 
       if (layout === "middle-top-tabs") {
         if (!panelElement) throw new Error("Missing Outgoing Links panel");
-        await expectDocumentLinkPreview(canvasElement, panelElement);
-
         const app = panelDemoApp(canvasElement);
+        const restoreDocumentSplit = resizeMainSplit(app, [25, 75]);
+        try {
+          await expectDocumentLinkPreview(canvasElement, panelElement);
+        } finally {
+          restoreDocumentSplit();
+        }
+
         const file = app.vault.getFileByPath("Notes/Welcome.md");
         if (!file) throw new Error("Missing seeded Welcome note");
         const current = await app.vault.read(file);
@@ -213,51 +296,102 @@ function placementStory(
       await userEvent.type(search, "ideas");
       await expect(panel.getByRole("button", { name: /^Ideas/ })).toBeVisible();
       if (layout === "middle-top-tabs") {
-        const previewTrigger = panel.getAllByRole("button", {
+        const app = panelDemoApp(canvasElement);
+        const welcomeFile = app.vault.getFileByPath("Notes/Welcome.md");
+        if (!welcomeFile) throw new Error("Missing seeded Welcome note");
+        const navigationTrigger = panel.getAllByRole("button", {
           name: /^Open Ideas:/,
         })[0]!;
-        await expect(previewTrigger).toHaveAttribute("aria-haspopup", "dialog");
-        await userEvent.hover(previewTrigger);
+        await userEvent.click(navigationTrigger);
         await waitFor(
           () => {
             expect(
-              canvasElement.ownerDocument.querySelector<HTMLElement>(
-                '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
-              ),
-            ).toBeVisible();
+              (
+                app.workspace.activeLeaf?.view as {
+                  file?: { path?: string };
+                }
+              ).file?.path,
+            ).toBe("Notes/Ideas.markdown");
           },
           { timeout: 5_000 },
         );
-        const preview = canvasElement.ownerDocument.querySelector<HTMLElement>(
-          '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
-        );
-        if (!preview) throw new Error("Missing Outgoing Links preview");
-        expect(preview).toHaveTextContent("Ideas.markdown");
-        expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
-          400,
-        );
-        expect(
-          preview.querySelector('[data-ui-component="file-embed"]'),
-        ).toBeVisible();
-        expect(
-          preview.querySelector(".mira-embed.internal-embed"),
-        ).toBeVisible();
-        expect(preview.querySelector("[data-markdown-embed]")).toBeVisible();
-        await waitFor(() =>
-          expectLinkPreviewPlacement(previewTrigger, preview, false),
-        );
-        await expectLinkPreviewHoverHandoff(previewTrigger, preview);
-        await userEvent.keyboard("{Escape}");
-        await userEvent.click(previewTrigger);
+        const navigationLeaf = app.workspace.activeLeaf;
+        if (!navigationLeaf) throw new Error("Missing navigation leaf");
+        await navigationLeaf.openFile(welcomeFile);
+        app.workspace.setActiveLeaf(navigationLeaf, { focus: true });
         await waitFor(() => {
           expect(
-            (
-              panelDemoApp(canvasElement).workspace.activeLeaf?.view as {
-                file?: { path?: string };
-              }
-            ).file?.path,
-          ).toBe("Notes/Ideas.markdown");
+            panel.getAllByRole("button", { name: /^Open Ideas:/ })[0],
+          ).toBeVisible();
         });
+
+        const restorePanelSplit = resizeMainSplit(app, [75, 25]);
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const previewTrigger = panel.getAllByRole("button", {
+          name: /^Open Ideas:/,
+        })[0]!;
+        try {
+          await expect(previewTrigger).toHaveAttribute(
+            "aria-haspopup",
+            "dialog",
+          );
+          await userEvent.hover(previewTrigger);
+          await waitFor(
+            () => {
+              expect(
+                canvasElement.ownerDocument.querySelector<HTMLElement>(
+                  '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+                ),
+              ).toBeVisible();
+            },
+            { timeout: 5_000 },
+          );
+          const preview =
+            canvasElement.ownerDocument.querySelector<HTMLElement>(
+              '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+            );
+          if (!preview) throw new Error("Missing Outgoing Links preview");
+          expect(preview).toHaveTextContent("Ideas.markdown");
+          expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+            400,
+          );
+          expect(
+            preview.querySelector('[data-ui-component="file-embed"]'),
+          ).toBeVisible();
+          expect(
+            preview.querySelector(".mira-embed.internal-embed"),
+          ).toBeVisible();
+          await waitFor(() => {
+            expect(
+              preview.querySelector("[data-markdown-embed]"),
+            ).toBeVisible();
+          });
+          await waitFor(() =>
+            expectLinkPreviewPlacement(previewTrigger, preview),
+          );
+          await expectLinkPreviewHoverHandoff(previewTrigger, preview);
+
+          const ideasFile = app.vault.getFileByPath("Notes/Ideas.markdown");
+          if (!ideasFile) throw new Error("Missing seeded Ideas note");
+          const nextValue = "edited through the panel FileEmbed preview.";
+          await replaceEditablePreview(preview, nextValue);
+          await waitFor(async () => {
+            expect(await app.vault.read(ideasFile)).toBe(nextValue);
+          });
+          await waitFor(() =>
+            expectLinkPreviewPlacement(previewTrigger, preview),
+          );
+          await userEvent.keyboard("{Escape}");
+          await waitFor(() => {
+            expect(
+              canvasElement.ownerDocument.querySelector(
+                '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
+              ),
+            ).not.toBeInTheDocument();
+          });
+        } finally {
+          restorePanelSplit();
+        }
         await userEvent.click(
           panel.getByRole("button", { name: "Change sort order" }),
         );

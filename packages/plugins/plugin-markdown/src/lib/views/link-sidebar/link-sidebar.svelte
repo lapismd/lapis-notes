@@ -36,6 +36,9 @@
   let data = $state<LinkSidebarData>(emptyData);
   let activeFile = $state<TFile | null>(null);
   let loading = $state(false);
+  let editingPreviews = $state<Record<string, boolean>>({});
+  let refreshPending = false;
+  let requestRefresh: (() => void) | null = null;
   let loadVersion = 0;
   let searchOpen = $state(false);
   let query = $state("");
@@ -86,10 +89,19 @@
   }
 
   onMount(() => {
-    const refresh = () => {
+    const refreshNow = () => {
       activeFile = resolvePanelTargetFile(app);
       loadData(activeFile);
     };
+    const refresh = () => {
+      if (Object.values(editingPreviews).some(Boolean)) {
+        refreshPending = true;
+        return;
+      }
+      refreshPending = false;
+      refreshNow();
+    };
+    requestRefresh = refresh;
     const metadataChanged = app.metadataCache.on("changed", refresh);
     const metadataDeleted = app.metadataCache.on("deleted", refresh);
     const metadataLoaded = app.metadataCache.on("loaded", refresh);
@@ -104,8 +116,21 @@
       app.workspace.offref(activeLeafChanged);
       app.workspace.offref(layoutChanged);
       app.workspace.offref(editorUpdated);
+      requestRefresh = null;
     };
   });
+
+  function setPreviewEditing(id: string, editing: boolean): void {
+    if (editingPreviews[id] === editing) return;
+    const next = { ...editingPreviews };
+    if (editing) next[id] = true;
+    else delete next[id];
+    editingPreviews = next;
+
+    if (!Object.values(next).some(Boolean) && refreshPending) {
+      requestRefresh?.();
+    }
+  }
 
   function totalMentions(groups: LinkSidebarGroup[]) {
     return groups.reduce((total, group) => total + group.mentions.length, 0);
@@ -354,6 +379,8 @@
                               <LinkHoverPreview
                                 {app}
                                 file={previewFile}
+                                editingId={mention.id}
+                                oneditingchange={setPreviewEditing}
                                 sourcePath={activeFile.path}
                                 label={`Open ${group.file.basename}: ${mention.context}`}
                                 onclick={(event) => openMention(event, mention)}
