@@ -26,6 +26,7 @@
 | LN-ARCH-020 | The api source-editor shell MUST expose the configured CodeMirror fold gutter for language-provided fold ranges outside Markdown. Markdown MUST use Mira's inline fold controls without also painting the generic gutter. |
 | LN-ARCH-021 | The source editor's design-core ScrollArea MUST remain bounded by its workspace view and own vertical document scrolling. Nested CodeMirror scrollers MUST expand with content and MUST NOT paint a second vertical scrollbar. |
 | LN-ARCH-022 | Root `pnpm check` MUST run specification validation before the no-Tailwind and Turbo package checks. Root `pnpm test` MUST run the specification-validator tests before Turbo package tests. |
+| LN-ARCH-023 | Root specification discovery MUST invoke the repository-local QMD binary through `scripts/spec-validation/`. It MUST NOT depend on a global executable or run during normal checks. |
 
 ## Package graph
 
@@ -79,6 +80,7 @@ extension registry and source view, not a bundled language policy.
 Root scripts stay thin: specification validation, `check:no-tailwind`, Turbo
 for package tasks, `spec:first` for change mapping, and Storybook for docs. Do
 not grow a parallel script forest for import path syncing. Specification scripts
-and their tests stay together under `scripts/spec-validation/`. Storybook manager-only dependencies,
+and their tests stay together under `scripts/spec-validation/`. QMD discovery
+uses that same root-only tooling boundary. Storybook manager-only dependencies,
 including the shared theme toolbar icons, remain root development tooling and
 do not enter the runtime package graph.

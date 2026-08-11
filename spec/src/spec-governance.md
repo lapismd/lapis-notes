@@ -27,6 +27,9 @@ protected package change.
 | LN-GOV-017 | Specification validation MUST check canonical files, mdBook configuration, chapter indexing, local links, requirement structure, defined references, verification traceability, allowed statuses, evidence, and untracked generated output. |
 | LN-GOV-018 | Specification validation MUST exit `1` for findings and `2` for internal, parser, or version-control failures. A successful run MUST report validator, chapter, and requirement counts. |
 | LN-GOV-019 | `spec:check` MUST run specification validation and validator tests before mdBook and spec-first checks. Root `check` and `test` MUST include the corresponding validator lanes. |
+| LN-GOV-020 | The tracked QMD configuration MUST index `spec/src/**/*.md` as the `lapis-spec` collection and MUST keep its generated database state untracked. |
+| LN-GOV-021 | Specification searches MUST refresh the local collection before querying. Semantic search MUST update embeddings before vector retrieval, while normal checks and CI MUST NOT refresh or require the discovery index. |
+| LN-GOV-022 | Agent guidance MUST prefer the repository wrapper for requirement discovery, require returned canonical sources to be read, and retain `rg` as the fallback when QMD or semantic models are unavailable. |
 
 ## Requirement structure
 
@@ -66,6 +69,21 @@ The shared Panels contract demonstrates this structure: `LN-MD-018` owns the
 panel frame, while `LN-MD-032` through `LN-MD-035` own layout, paint, placement,
 and list integration.
 
+## Specification discovery
+
+The QMD index is a disposable discovery cache over every tracked Markdown file
+under `spec/src`. It helps agents locate likely chapters, requirement IDs, and
+verification evidence; returned source files remain authoritative.
+
+- `pnpm spec:search -- "<query or LN-ID>"` refreshes and runs lexical search.
+- `pnpm spec:search -- --semantic "<concept>"` also refreshes embeddings before
+  vector search.
+- `pnpm spec:index` explicitly prewarms the lexical index; add `--semantic` to
+  precompute embeddings.
+
+Normal specification checks do not build this local index. Use `rg` when QMD is
+not installed or when an embedding model is unavailable.
+
 ## Change map
 
 | Protected area                                                      | Required chapter                                       |
@@ -78,7 +96,7 @@ and list integration.
 | Individual Markdown panel source                                    | Its owning `markdown-plugin/panels/<panel>.md` page |
 | Storybook infrastructure and catalog metadata                       | `storybook-catalog.md`                                 |
 | Root architecture / workspace / turbo manifests                     | `architecture.md`, `packages.md`                       |
-| Governance scripts, `AGENTS.md`, `spec/book.toml`                   | `spec-governance.md`                                   |
+| Governance scripts, QMD config/ignore rules, `AGENTS.md`, `spec/book.toml` | `spec-governance.md`                            |
 
 ## Agent workflow
 

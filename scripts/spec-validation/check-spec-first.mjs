@@ -120,7 +120,8 @@ const RULES = [
   },
   {
     name: "Specification governance",
-    pattern: /^(?:scripts\/spec-validation\/|spec\/book\.toml|AGENTS\.md$)/,
+    pattern:
+      /^(?:scripts\/spec-validation\/|\.qmd\/index\.ya?ml$|\.gitignore$|spec\/book\.toml|AGENTS\.md$)/,
     chapters: ["spec/src/spec-governance.md"],
   },
   {

@@ -34,6 +34,7 @@
 | LN-PKG-028 | Lapis embed wrappers MUST bind Mira's portable rendering contract to an explicit `app: App` without copying Mira's renderer or requiring consumer-owned source aliases. |
 | LN-PKG-029 | Link-panel previews MUST compose Design Core Hover Card, use a viewport-capped 26rem width, follow the trigger document, and remain open during pointer or focus handoff from the full mention row into interactive content. |
 | LN-PKG-030 | Ordinary document-link previews MUST remain owned by Mira's built package and receive only Lapis's `MiraFileAdapter`. The Markdown package MUST NOT add a consumer portal or clipping workaround. |
+| LN-PKG-031 | `@tobilu/qmd` 2.5.3 MUST remain a pinned root development dependency. Its native build approvals and TypeScript peer MUST remain root tooling and MUST NOT enter workspace package manifests. |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -79,6 +80,7 @@ Storybook theme controls and their manager dependencies remain root-only
 development tooling rather than package exports or runtime dependencies.
 Specification scripts and their tests remain root tooling under
 `scripts/spec-validation/`; they do not belong to a runtime package.
+The QMD CLI and its local native dependencies follow that root-only rule.
 The editor demo's CodeMirror Markdown and JSON language packages follow that
 same root-only rule; the source view and editor registry remain language-policy
 neutral package contracts. The shared source-editor shell depends on sibling

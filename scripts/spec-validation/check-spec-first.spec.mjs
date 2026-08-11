@@ -3,10 +3,13 @@ import test from "node:test";
 
 import { classifySpecFirstChanges } from "./check-spec-first.mjs";
 
-test("validator source and test files require specification governance", () => {
+test("spec tooling and discovery configuration require governance", () => {
   for (const file of [
     "scripts/spec-validation/index.mjs",
     "scripts/spec-validation/index.spec.mjs",
+    "scripts/spec-validation/spec-search.mjs",
+    ".qmd/index.yml",
+    ".gitignore",
   ]) {
     const result = classifySpecFirstChanges([file]);
     assert.equal(result.ok, false);

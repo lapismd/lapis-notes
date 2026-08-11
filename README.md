@@ -31,6 +31,9 @@ the linked package output without reinstalling Lapis.
 | `pnpm test` | Turbo tests |
 | `pnpm spec:first` | Spec-first gate |
 | `pnpm spec:check` | Build book + run gate |
+| `pnpm spec:search -- "<query or LN-ID>"` | Refresh and search the canonical specification |
+| `pnpm spec:search -- --semantic "<concept>"` | Refresh embeddings and run semantic specification search |
+| `pnpm spec:index [-- --semantic]` | Prewarm the local specification index |
 
 ## Docs
 

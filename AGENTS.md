@@ -23,6 +23,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - Keep specification scripts and their tests together under
   `scripts/spec-validation/`; add new validation lanes to its explicit
   orchestrator instead of creating root-level spec scripts.
+- Prefer `pnpm spec:search -- "<topic or LN-ID>"` before broad manual scans of
+  the specification. Open and verify the returned `spec/src` files because the
+  QMD index is only a discovery cache. Use `--semantic` for conceptual queries;
+  fall back to `rg` when QMD or its embedding model is unavailable.
 - Authority order: `spec/src` → package interfaces / implementation → Storybook
   catalog → READMEs / this file (workflow only).
 
