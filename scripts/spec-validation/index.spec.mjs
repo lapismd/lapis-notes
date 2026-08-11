@@ -13,7 +13,7 @@ test("accepts a complete specification and reports counts", () => {
   withFixture({}, (result) => {
     assert.equal(result.ok, true);
     assert.deepEqual(result.stats, {
-      validators: 4,
+      validators: 5,
       chapters: 2,
       requirements: 1,
     });

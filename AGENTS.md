@@ -91,6 +91,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   snippet and set `parameters.docs.source` (`code`, `language`, and
   `type: "code"`) on the meta or individual story. Verify the rendered Show Code
   panel whenever adding or changing Docs stories.
+  `pnpm spec:validate` enforces this configuration for Autodocs stories that
+  use local demo, harness, or fixture boundaries; `!autodocs` acceptance stories
+  are intentionally exempt.
 - Multi-scenario Storybook families with an authored MDX Docs page MUST give
   every scenario a non-empty `parameters.docs.description.story`. Give each
   scenario its own heading and render `<Description of={Stories.<Story>} />`

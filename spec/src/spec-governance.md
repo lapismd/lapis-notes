@@ -30,6 +30,7 @@ protected package change.
 | LN-GOV-020 | The tracked QMD configuration MUST index `spec/src/**/*.md` as the `lapis-spec` collection and MUST keep its generated database state untracked. |
 | LN-GOV-021 | Specification searches MUST refresh the local collection before querying. Semantic search MUST update embeddings before vector retrieval, while normal checks and CI MUST NOT refresh or require the discovery index. |
 | LN-GOV-022 | Agent guidance MUST prefer the repository wrapper for requirement discovery, require returned canonical sources to be read, and retain `rg` as the fallback when QMD or semantic models are unavailable. |
+| LN-GOV-023 | Specification validation MUST inspect Autodocs stories that use local demo, harness, or fixture render boundaries. They MUST resolve explicit `docs.source` code, language, and type fields, and MUST NOT expose story-only component names or `args` as consumer usage. |
 
 ## Requirement structure
 

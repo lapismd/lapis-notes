@@ -56,6 +56,11 @@ Show Code documents consumer integration, not Storybook implementation:
 - For an intentional Storybook-local component, show its real co-located import
   and state why no public package import exists.
 
+`pnpm spec:validate` statically checks Autodocs stories that render through
+local demo, harness, or fixture boundaries. Those stories must resolve an
+explicit source object with code, language, and fixed `type: "code"` fields;
+acceptance-only stories tagged `!autodocs` are outside this documentation gate.
+
 ## API verification families
 
 Direct api imports (one story family each):

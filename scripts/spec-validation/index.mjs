@@ -14,12 +14,19 @@ import {
   toPosix,
 } from "./lib/spec-model.mjs";
 import * as specificationGovernance from "./spec-governance.mjs";
+import * as storybookCatalog from "./storybook-catalog.mjs";
 import * as summary from "./SUMMARY.mjs";
 import * as verification from "./verification.mjs";
 
 const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_REPO_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..");
-export const VALIDATORS = [summary, specificationGovernance, verification, book];
+export const VALIDATORS = [
+  summary,
+  specificationGovernance,
+  verification,
+  book,
+  storybookCatalog,
+];
 
 function runTrackedFileCommand(command, args, repoRoot) {
   const result = spawnSync(command, args, {
