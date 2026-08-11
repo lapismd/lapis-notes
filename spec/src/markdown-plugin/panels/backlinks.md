@@ -1,0 +1,11 @@
+# Backlinks
+
+Backlinks groups references to the active file by their source note.
+
+## Requirements
+
+| ID | Requirement |
+| --- | --- |
+| LN-MD-023 | Backlinks MUST group linked and exact alias-aware unlinked mentions by source file, excluding frontmatter and existing link or embed ranges from unlinked detection. It MUST expose linked and unlinked section collapse, result collapse, search, filename and time sorting, compact and expanded context, and live workspace and metadata refresh. Selecting a mention MUST open its source and position the editor at that mention. Rows use the shared 0.75rem result scale, normalize nested sidebar widths, keep counts on one trailing edge, and provide accessible hover and focus previews through the shared Mira path. |
+
+Preview behavior is defined by [Link Previews](./link-previews.md).

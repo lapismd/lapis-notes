@@ -46,8 +46,71 @@ const RULES = [
     pattern: /^packages\/plugins\/plugin-markdown\/(?:src\/|package\.json$|PARITY\.md$)/,
     chapters: [
       "spec/src/markdown-plugin.md",
+      "spec/src/markdown-plugin/panels/index.md",
       "spec/src/packages.md",
       "spec/src/editor-demo.md",
+    ],
+  },
+  {
+    name: "Markdown panel shell",
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/sidebar-panel\//,
+    chapters: ["spec/src/workspace-shell/panels.md"],
+  },
+  {
+    name: "All Properties panel",
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/all-properties\//,
+    chapters: [
+      "spec/src/markdown-plugin/panels/all-properties.md",
+      "spec/src/workspace-shell/panels.md",
+    ],
+  },
+  {
+    name: "File Properties panel",
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/src\/lib\/(?:views\/file-properties\/|frontmatter\/)/,
+    chapters: [
+      "spec/src/markdown-plugin/panels/file-properties.md",
+      "spec/src/workspace-shell/panels.md",
+    ],
+  },
+  {
+    name: "Outline panel",
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/outline\//,
+    chapters: [
+      "spec/src/markdown-plugin/panels/outline.md",
+      "spec/src/workspace-shell/panels.md",
+    ],
+  },
+  {
+    name: "Backlinks panel",
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/backlinks\//,
+    chapters: [
+      "spec/src/markdown-plugin/panels/backlinks.md",
+      "spec/src/markdown-plugin/panels/link-previews.md",
+      "spec/src/workspace-shell/panels.md",
+    ],
+  },
+  {
+    name: "Outgoing Links panel",
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/outgoing-links\//,
+    chapters: [
+      "spec/src/markdown-plugin/panels/outgoing-links.md",
+      "spec/src/markdown-plugin/panels/link-previews.md",
+      "spec/src/workspace-shell/panels.md",
+    ],
+  },
+  {
+    name: "Markdown link previews",
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/src\/lib\/(?:views\/link-sidebar\/|components\/embed\/|mira\/file-adapter\.|embed\.ts$)/,
+    chapters: [
+      "spec/src/markdown-plugin/panels/link-previews.md",
+      "spec/src/workspace-shell/panels.md",
     ],
   },
   {

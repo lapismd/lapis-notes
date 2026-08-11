@@ -34,10 +34,13 @@ intake or UI swap status changes.
 
 ### Markdown plugin intake progress
 
-Canonical requirements: `spec/src/markdown-plugin.md` (LN-MD-001–029).
+Canonical requirements: `spec/src/markdown-plugin.md` and its nested
+`spec/src/markdown-plugin/panels/` pages (LN-MD-001–031). Shared movable-panel
+presentation and Storybook guidance lives in `spec/src/workspace-shell/panels.md`.
 Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 
 - [x] Package scaffold + workspace wiring (`@lapis-notes/markdown`)
+- [x] Canonical panel documentation split into one page per panel beneath Markdown Plugin / Panels, with reusable surface and catalog guidance owned by Workspace Shell / Panels
 - [x] Mira-owned markdown document modes (`source` / `live-preview` / `preview`)
 - [x] Path A / Path B editor extension reload + host editor events preserved
 - [x] Markdown settings section (Mira features, mermaid, AI stub)

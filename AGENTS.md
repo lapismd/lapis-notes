@@ -61,6 +61,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 ## Workspace Panel Stories
 
+- Treat `spec/src/workspace-shell/panels.md` as the canonical reusable panel
+  contract. Concrete Markdown behavior belongs to the owning page under
+  `spec/src/markdown-plugin/panels/`; the checklist below explains how to apply
+  those requirements while editing stories and components.
 - Treat the shared panel-story helpers plus
   `stories/workspace/panels/AllProperties.stories.ts` as the reference pattern
   when adding or expanding stories for movable workspace panels. Put a panel's

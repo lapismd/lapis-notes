@@ -24,7 +24,9 @@ protected package change.
 | `packages/api` source or manifest                                   | `packages.md`, `architecture.md`                       |
 | `packages/ui` source or manifest                                    | `packages.md`, `ui-and-styling.md`                     |
 | `packages/workspace` source or manifest                             | `packages.md`, `architecture.md`, `workspace-shell.md` |
-| `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md` | `markdown-plugin.md`, `packages.md`, `editor-demo.md`  |
+| `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md` | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |
+| Shared Markdown panel shell source                                  | `workspace-shell/panels.md` |
+| Individual Markdown panel source                                    | Its owning `markdown-plugin/panels/<panel>.md` page |
 | Storybook infrastructure and catalog metadata                       | `storybook-catalog.md`                                 |
 | Root architecture / workspace / turbo manifests                     | `architecture.md`, `packages.md`                       |
 | Governance scripts, `AGENTS.md`, `spec/book.toml`                   | `spec-governance.md`                                   |
