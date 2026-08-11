@@ -117,3 +117,9 @@ the `jj-jujutsu` skill and Jujutsu for VCS inspection/diffs/commits instead of
 Git, and commit verified work with a PR-quality message. Tooling guidance for
 Storybook must note that `pnpm test:storybook` fails on axe violations
 (`parameters.a11y.test: "error"`).
+
+Markdown authoring guidance must route editor composition through Mira's public
+base-free authoring contract. Any optional authoring surface must keep schema,
+Settings UI, runtime resolution, lifecycle cleanup, and focused demo evidence
+aligned; Storybook-only feature flags must not substitute for application
+configuration.

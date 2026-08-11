@@ -25,3 +25,8 @@ page.
 
 All production panels import through `@lapis-notes/markdown`. Tags documents its
 real co-located fixture import and does not invent a package export.
+
+This chapter owns reusable movable-panel conventions only. Markdown editor
+authoring composition, settings, and editor-demo acceptance remain governed by
+the Markdown Plugin overview and Editor Demo chapters rather than being copied
+into individual panel contracts.

@@ -34,6 +34,7 @@
 | LN-ED-032 | Tags placement acceptance MUST cover parent-aligned child-hash trailing edges, disclosure glyphs, depth alignment, muted hash paint, and the shared count edge. |
 | LN-ED-033 | File Properties acceptance MUST resize the owning split below Mira's 250px breakpoint, restore it in all outcomes, and verify full-row stacking, label-aligned values, and no horizontal overflow. It MUST NOT constrain the component root or editor content directly. |
 | LN-ED-034 | The legacy dual-panel comparison fixture MUST NOT remain a Storybook authority. |
+| LN-ED-035 | The editor demo MUST include a focused Markdown Authoring story using the real in-memory app. Acceptance MUST cover selection formatting, slash insertion, block handles and pointer reordering, Live Preview heading controls, table editing, completion, smart paste, image attachment, truthful toolbar defaults, and opt-in Doodle Dividers. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |

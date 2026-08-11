@@ -25,6 +25,11 @@ specified separately under [Panels](./markdown-plugin/panels/index.md).
 | LN-MD-051 | Markdown body text MAY retain the Lapis sans face, but revealed and source-mode frontmatter lines MUST resolve Mira's monospace token, using Source Code Pro under the Obsidian theme. |
 | LN-MD-052 | Mira's inline fold controls MUST be the only visible Markdown fold presentation. Rendered frontmatter disclosure MUST collapse and expand its property content. |
 | LN-MD-053 | API editor note-column spacing MUST NOT inset an embedded frontmatter preview. Its surface and disclosure chevron MUST share the Markdown content start. |
+| LN-MD-071 | Lapis Markdown editing MUST compose `createMiraCodeMirrorExtensions` with `includeBaseExtensions: false` inside the API editor shell. The composed stack MUST retain Mira slash commands, command keymaps, parsing, tables, image handling, authoring helpers, rich editing, block controls, and extension contributions. |
+| LN-MD-072 | Markdown Mira settings MUST derive schema properties, Settings fields, labels, and defaults from one typed descriptor list. Runtime resolution MUST use those declared defaults, and the superseded `markdown.mira.features.toolbar` value MUST remain unregistered and unread. |
+| LN-MD-073 | Selection tools, standard block handles with drag and keyboard movement, block context actions, slash commands, Live Preview heading controls, tables, images, completions, smart paste, and input handlers MUST default on. The contextual block-type toolbar and AI MUST default off. |
+| LN-MD-074 | `markdown.mira.editor.toolbar.enabled` MUST default to `false` and control a public Mira toolbar above the API `NoteEditor` only in Source and Live Preview. Its actions MUST delegate to the existing Lapis `Editor`, configuration, image picker, and mode lifecycle. The Lapis editing surface MUST remain borderless. |
+| LN-MD-075 | `markdown.mira.editor.doodleDividers.enabled` MUST default to `false`. When enabled, Lapis MUST add Mira's public Doodle Dividers extension and its styles without recreating divider parsing, drawing, commands, or controls. |
 
 ## Ownership
 

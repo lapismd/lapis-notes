@@ -38,6 +38,7 @@ import {
 import { widgets } from "$lib/frontmatter/widgets";
 import { registerMarkdownSettings } from "$lib/settings/register-markdown-settings";
 import "$lib/styles/surfaces.css";
+import "@lapismd/mira-editor/styles.css";
 
 export { FileEmbed, MarkdownEmbed, NoteLink } from "$lib/components/embed";
 export { createLapisMiraFileAdapter } from "$lib/mira/file-adapter";

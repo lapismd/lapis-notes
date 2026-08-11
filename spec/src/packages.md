@@ -84,9 +84,11 @@ The QMD CLI and its local native dependencies follow that root-only rule.
 The editor demo's CodeMirror Markdown and JSON language packages follow that
 same root-only rule; the source view and editor registry remain language-policy
 neutral package contracts. The shared source-editor shell depends on sibling
-`@lapismd/mira` for base CodeMirror extensions and Obsidian theme CSS; Mira
-Markdown live-preview, toolbars, and rich widgets stay out of the kernel until
-separately specified.
+`@lapismd/mira` for base CodeMirror extensions and Obsidian theme CSS. The
+Markdown plugin composes the public Mira authoring stack with that duplicate
+base layer disabled, imports the public Mira Editor stylesheet for its optional
+toolbar, and preserves the borderless Lapis editor surface. Consumers must not
+reconstruct the portable Mira feature stack from internal source modules.
 
 ## `@lapis-notes/workspace` (shell integration)
 

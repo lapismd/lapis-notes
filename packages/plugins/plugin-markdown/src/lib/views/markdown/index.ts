@@ -4,8 +4,8 @@ import {
   type ViewStateResult,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
-import NoteEditor from "@lapis-notes/api/editor";
 import { mount, unmount } from "svelte";
+import MarkdownEditingSurface from "./markdown-editing-surface.svelte";
 import MiraPreview from "./mira-preview.svelte";
 
 export const MarkdownViewType = "markdown";
@@ -137,17 +137,18 @@ export class MarkdownView extends RootMarkdownView {
       );
     });
 
-    this.component = mount(NoteEditor, {
+    this.component = mount(MarkdownEditingSurface, {
       target: this.containerEl,
       props: {
+        app: this.app,
         leaf: this.leaf,
         editor: this.editor,
-        class: [
-          "markdown-view__editor",
-          mode === "source"
-            ? "markdown-view__editor--source markdown-source-mode"
-            : "markdown-view__editor--live-preview markdown-live-preview-mode",
-        ].join(" "),
+        mode,
+        onModeChange: (nextMode) => {
+          void this.setState({ ...this.getState(), mode: nextMode }).then(() =>
+            this.app.workspace.requestSaveLayout(),
+          );
+        },
       },
     });
   }

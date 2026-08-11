@@ -1,6 +1,7 @@
 export type LapisEditorDemoScenario =
   | "ready"
   | "markdown-frontmatter"
+  | "markdown-authoring"
   | "same-file-split"
   | "explorer-mutations"
   | "editor-settings"
@@ -20,6 +21,16 @@ const APP_CONFIGURATION = {
   "editor.defaultEditingMode": "live-preview",
   "markdown.mira.plugins.mermaid.enabled": true,
   "markdown.mira.plugins.ai.enabled": false,
+  "markdown.mira.editor.toolbar.enabled": false,
+  "markdown.mira.editor.selectionToolbar.enabled": true,
+  "markdown.mira.editor.blockToolbar.enabled": false,
+  "markdown.mira.editor.doodleDividers.enabled": false,
+  "markdown.mira.features.slash-commands": true,
+  "markdown.mira.features.block-controls": true,
+  "markdown.mira.features.headings": true,
+  "markdown.mira.features.formatting": true,
+  "markdown.mira.features.tables": true,
+  "markdown.mira.features.images": true,
   "appearence.interface.showInlineTitle": true,
   "appearence.interface.showTabTitleBar": true,
   "workspace.fileExplorer.autoRevealCurrentFile": true,
@@ -75,7 +86,9 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
             ]),
           ],
         }
-      : scenario === "editor-settings" || scenario === "markdown-frontmatter"
+      : scenario === "editor-settings" ||
+          scenario === "markdown-frontmatter" ||
+          scenario === "markdown-authoring"
         ? {
             id: "main",
             type: "split",
@@ -85,9 +98,7 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
               tabs("main-tabs", [
                 leaf("welcome", "Welcome", "file-text", "markdown", {
                   file: "Notes/Welcome.md",
-                  ...(scenario === "markdown-frontmatter"
-                    ? { mode: "live-preview" }
-                    : {}),
+                  mode: "live-preview",
                 }),
               ]),
             ],
@@ -134,7 +145,9 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
     active:
       scenario === "same-file-split"
         ? "welcome-left"
-        : scenario === "editor-settings" || scenario === "markdown-frontmatter"
+        : scenario === "editor-settings" ||
+            scenario === "markdown-frontmatter" ||
+            scenario === "markdown-authoring"
           ? "welcome"
           : "landing",
   };
@@ -172,6 +185,15 @@ export function createLapisEditorDemoSeed(
       "",
       "# Welcome to Lapis Notes",
       "",
+      "| Feature | State |",
+      "| --- | --- |",
+      "| Tables | Editable |",
+      "| Images | Pasteable |",
+      "",
+      "First draggable block.",
+      "",
+      "Second draggable block.",
+      "",
       "This Storybook demo uses the real workspace, editor, and vault APIs.",
       "",
       "See also [[Ideas]] and #project/alpha.",
@@ -179,6 +201,15 @@ export function createLapisEditorDemoSeed(
       "- Edit this note in Mira live preview",
       "- Open another file from Explorer",
       "- Change Markdown / Mira settings without reloading",
+      "",
+      "## Portable authoring",
+      "",
+      "### Nested authoring details",
+      "",
+      "Select this authoring text and use the contextual toolbar.",
+      "",
+      "<!-- mira-divider:v1:00000008 -->",
+      "---",
       "",
       "```mermaid",
       "flowchart LR",

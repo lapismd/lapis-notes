@@ -202,6 +202,26 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   minimal chrome, sticky action, padding, edit border, hover/focus pinning, and
   outside-click dismissal after that boundary.
   None of these panels render shell title/path intro copy.
+- Compose Markdown editing through Mira's public
+  `createMiraCodeMirrorExtensions({ includeBaseExtensions: false })` boundary
+  inside the existing API `markupEditor` shell. Do not reconstruct a partial
+  stack from parser or rich-editor internals: slash commands, command keymaps,
+  tables, image handling, completions, smart paste, input handlers, block
+  controls, and extension contributions travel together. The API shell remains
+  the sole owner of base CodeMirror setup and live editor compartments.
+- Every optional Markdown authoring surface must have one typed setting
+  descriptor that supplies its configuration-schema property, Settings field,
+  label, default, and runtime fallback. A feature flag is not a substitute for
+  a visible surface setting. Keep the top toolbar edit-only and off by default;
+  keep the selection toolbar and standard block handles on, the contextual
+  block-type toolbar off, Doodle Dividers off, Mermaid on, and AI off. Never
+  read the superseded `markdown.mira.features.toolbar` key.
+- Mount Mira extension styles and lifecycle callbacks with the owning Lapis
+  CodeMirror view and clean them up on reconfiguration. Top-toolbar actions
+  delegate to the existing Lapis `Editor`, configuration, image picker, and
+  Markdown view-mode lifecycle; they must not create a second editor or
+  persistence path. Demonstrate new authoring capabilities in the real
+  in-memory editor demo, including a pointer test for drag behavior.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
   bespoke shell imitations. Keep placement differences in the workspace layout
   state so the story exercises the same view registration, imperative mount,

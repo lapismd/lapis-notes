@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
+import { startCompletion } from "@codemirror/autocomplete";
+import { insertImageFiles } from "@lapismd/mira/core";
+import type { Editor } from "@lapis-notes/api";
 import LapisEditorDemo from "./LapisEditorDemo.svelte";
 import { workspaceStoryMeta } from "../_shared";
 
@@ -31,6 +34,34 @@ function visibleEditorContents(canvasElement: HTMLElement): HTMLElement[] {
   return [...canvasElement.querySelectorAll<HTMLElement>(".cm-content")].filter(
     (element) => element.getClientRects().length > 0,
   );
+}
+
+function activeStoryEditor(): Editor {
+  const runtimeApp = (globalThis as typeof globalThis & { app?: unknown })
+    .app as
+    | { workspace?: { activeLeaf?: { view?: { editor?: Editor } } } }
+    | undefined;
+  const editor = runtimeApp?.workspace?.activeLeaf?.view?.editor;
+  if (!editor) throw new Error("The active story leaf has no Lapis editor");
+  return editor;
+}
+
+function moveStoryCursorToEnd(): void {
+  const editor = activeStoryEditor();
+  const line = editor.lastLine();
+  editor.setCursor({ line, ch: editor.getLine(line).length });
+  editor.focus();
+}
+
+function selectStoryText(text: string): void {
+  const editor = activeStoryEditor();
+  const from = editor.getValue().indexOf(text);
+  if (from < 0) throw new Error(`Story editor text not found: ${text}`);
+  editor.setSelection(
+    editor.offsetToPos(from),
+    editor.offsetToPos(from + text.length),
+  );
+  editor.focus();
 }
 
 export const Ready: Story = {
@@ -314,6 +345,165 @@ export const MarkdownFrontmatter: Story = {
   },
 };
 
+export const MarkdownAuthoring: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-markdown-authoring",
+    "The real Lapis Markdown view composes Mira's complete portable authoring stack without duplicating the API editor's base CodeMirror layer.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-authoring-chromium.png",
+  ),
+  tags: ["visual-pending"],
+  args: { scenario: "markdown-authoring" },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+
+    const markdownEditor = await waitFor(
+      () => {
+        const editor = canvasElement.querySelector<HTMLElement>(
+          '.cm-editor[data-language="markdown"]',
+        );
+        expect(editor).not.toBeNull();
+        return editor!;
+      },
+      { timeout: 5_000 },
+    );
+    const editorContent = markdownEditor.querySelector<HTMLElement>(
+      ":scope > .cm-scroller > .cm-content",
+    );
+    expect(editorContent).not.toBeNull();
+
+    await step("compose complete portable authoring defaults", async () => {
+      const editingSurface = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="markdown-editing-surface"]',
+      );
+      expect(editingSurface).not.toBeNull();
+      expect(getComputedStyle(editingSurface!).borderTopWidth).toBe("0px");
+      expect(getComputedStyle(editingSurface!).borderRadius).toBe("0px");
+      await waitFor(() =>
+        expect(
+          canvasElement.querySelectorAll(".mira-block-handle").length,
+        ).toBeGreaterThan(2),
+      );
+      expect(
+        canvasElement.querySelector(".mira-block-toolbar-trigger"),
+      ).toBeNull();
+      expect(canvasElement.querySelector(".mira-editor__toolbar")).toBeNull();
+      expect(canvasElement.querySelector(".cm-table-widget")).not.toBeNull();
+      const foldGutter = markdownEditor.querySelector<HTMLElement>(
+        ".cm-foldGutter",
+      );
+      expect(foldGutter).not.toBeNull();
+      expect(getComputedStyle(foldGutter!).display).toBe("none");
+      expect(
+        within(markdownEditor).getAllByRole("button", {
+          name: "Collapse section",
+        }).length,
+      ).toBeGreaterThan(0);
+    });
+
+    await step("edit a Mira table cell", async () => {
+      await userEvent.click(
+        within(markdownEditor).getAllByRole("button", {
+          name: "Edit table cell",
+        })[0]!,
+      );
+      const inlineCell = await waitFor(() => {
+        const cell = markdownEditor.querySelector<HTMLElement>(
+          ".cm-editor.mod-inline .cm-content",
+        );
+        expect(cell).not.toBeNull();
+        return cell!;
+      });
+      await userEvent.type(inlineCell, "!");
+      await expect(inlineCell).toHaveTextContent("!");
+    });
+
+    await step("complete a vault note", async () => {
+      moveStoryCursorToEnd();
+      const editor = activeStoryEditor();
+      editor.replaceSelection("\n[[Ide", "input");
+      expect(startCompletion(editor.view)).toBe(true);
+      const autocomplete = await waitFor(() => {
+        const tooltip = markdownEditor.ownerDocument.querySelector<HTMLElement>(
+          ".cm-tooltip-autocomplete",
+        );
+        expect(tooltip).not.toBeNull();
+        return tooltip!;
+      });
+      await expect(autocomplete).toHaveTextContent("Ideas");
+      const option = [
+        ...autocomplete.querySelectorAll<HTMLElement>('[role="option"]'),
+      ].find((candidate) => candidate.textContent?.includes("Ideas"));
+      expect(option).not.toBeUndefined();
+      await userEvent.click(option!);
+      await expect(editorContent!).toHaveTextContent("Ideas");
+    });
+
+    await step("insert a default slash command", async () => {
+      moveStoryCursorToEnd();
+      await userEvent.keyboard("{Enter}/");
+      const slashMenu = await waitFor(() => {
+        const menu = canvasElement.querySelector<HTMLElement>(
+          ".mira-slash-menu",
+        );
+        expect(menu).not.toBeNull();
+        return menu!;
+      });
+      await userEvent.click(
+        within(slashMenu).getByRole("option", { name: /Heading 2/ }),
+      );
+      await userEvent.keyboard("Inserted by slash");
+      await expect(editorContent!).toHaveTextContent("Inserted by slash");
+    });
+
+    await step("accept a pasted image attachment", async () => {
+      moveStoryCursorToEnd();
+      const editor = activeStoryEditor();
+      editor.replaceSelection("\n", "input");
+      await insertImageFiles(
+        editor.view as unknown as Parameters<typeof insertImageFiles>[0],
+        [
+          new File([new Uint8Array([137, 80, 78, 71])], "pixel.png", {
+            type: "image/png",
+          }),
+        ],
+        {
+          imageSyntax: "inline",
+          imageUpload: async (file) => `attachments/${file.name}`,
+        },
+      );
+      expect(editor.getValue()).toContain("![pixel](attachments/pixel.png)");
+    });
+
+    await step("format a real selection and smart-paste a URL", async () => {
+      selectStoryText("Select this authoring text");
+      const selectionToolbar = await waitFor(() =>
+        canvas.getByRole("toolbar", { name: "Text formatting" }),
+      );
+      await userEvent.click(
+        within(selectionToolbar).getByRole("button", { name: "Bold" }),
+      );
+      expect(activeStoryEditor().getValue()).toContain(
+        "**Select this authoring text**",
+      );
+
+      selectStoryText("Inserted by slash");
+      const transfer = new DataTransfer();
+      transfer.setData("text/plain", "https://lapis.md/authoring");
+      const paste = new ClipboardEvent("paste", {
+        bubbles: true,
+        cancelable: true,
+        clipboardData: transfer,
+      });
+      activeStoryEditor().view.contentDOM.dispatchEvent(paste);
+      expect(paste.defaultPrevented).toBe(true);
+      expect(activeStoryEditor().getValue()).toContain(
+        "[Inserted by slash](https://lapis.md/authoring)",
+      );
+    });
+  },
+};
+
 export const ExplorerMutations: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-explorer-mutations",
@@ -446,6 +636,44 @@ export const EditorSettings: Story = {
       { target: { value: "6" } },
     );
     await expect(within(dialog).getByText("6")).toBeVisible();
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Markdown" }),
+    );
+    const topToolbar = within(dialog).getByRole("switch", {
+      name: "Show editor toolbar",
+    });
+    const selectionToolbar = within(dialog).getByRole("switch", {
+      name: "Show selection toolbar",
+    });
+    const blockToolbar = within(dialog).getByRole("switch", {
+      name: "Show block type toolbar",
+    });
+    const doodleDividers = within(dialog).getByRole("switch", {
+      name: "Doodle Dividers",
+    });
+    await expect(topToolbar).toHaveAttribute("data-state", "unchecked");
+    await expect(selectionToolbar).toHaveAttribute("data-state", "checked");
+    await expect(blockToolbar).toHaveAttribute("data-state", "unchecked");
+    await expect(doodleDividers).toHaveAttribute("data-state", "unchecked");
+
+    await userEvent.click(topToolbar);
+    await waitFor(() =>
+      expect(canvasElement.querySelector(".mira-editor__toolbar")).not.toBeNull(),
+    );
+    await userEvent.click(doodleDividers);
+    const editor = activeStoryEditor();
+    const dividerEnd = editor
+      .getValue()
+      .indexOf("---", editor.getValue().indexOf("<!-- mira-divider:"));
+    expect(dividerEnd).toBeGreaterThan(0);
+    editor.setCursor(editor.offsetToPos(dividerEnd + 4));
+    editor.focus();
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector("svg.mira-doodle-divider"),
+      ).not.toBeNull(),
+    );
 
     await userEvent.click(
       within(dialog).getByRole("button", { name: "Workspace" }),
