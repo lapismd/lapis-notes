@@ -62,7 +62,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 
 ### Workspace shell integration progress
 
-- [x] Full-shell `Workspace/Shell`, `Workspace/Lapis Editor Demo`, and panel Autodocs share an isolated 700px padding-free application viewport
+- [x] Full-shell `Workspace/Shell`, `Workspace/Lapis Editor Demo`, and panel Autodocs share an isolated 700px padding-free application viewport; authored shell pages render every canonical story description
 - [x] Canonical requirements and governance mapping
 - [x] Api-owned design-core controller and compatibility projection
 - [x] Host-only `@lapis-notes/api/workspace-host` export

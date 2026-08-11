@@ -1,4 +1,4 @@
-import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import { Meta, Canvas, Description } from "@storybook/addon-docs/blocks";
 import * as Stories from "./LapisEditorDemo.stories";
 
 <Meta of={Stories} />
@@ -9,18 +9,50 @@ This additive demo boots a real API `App` over the public in-memory vault,
 loads required story-local core plugins, restores the design-core workspace,
 and edits Markdown, text, and JSON files in source mode.
 
+## Ready
+
+<Description of={Stories.Ready} />
+
 <Canvas of={Stories.Ready} />
+
+## Same-file split synchronization
+
+<Description of={Stories.SameFileSplitSync} />
 
 <Canvas of={Stories.SameFileSplitSync} />
 
+## Markdown frontmatter
+
+<Description of={Stories.MarkdownFrontmatter} />
+
 <Canvas of={Stories.MarkdownFrontmatter} />
+
+## Explorer mutations
+
+<Description of={Stories.ExplorerMutations} />
 
 <Canvas of={Stories.ExplorerMutations} />
 
+## Editor settings
+
+<Description of={Stories.EditorSettings} />
+
 <Canvas of={Stories.EditorSettings} />
+
+## Loading plugins
+
+<Description of={Stories.LoadingPlugins} />
 
 <Canvas of={Stories.LoadingPlugins} />
 
+## Startup failure
+
+<Description of={Stories.StartupFailure} />
+
 <Canvas of={Stories.StartupFailure} />
+
+## Explorer opening vault
+
+<Description of={Stories.ExplorerOpeningVault} />
 
 <Canvas of={Stories.ExplorerOpeningVault} />

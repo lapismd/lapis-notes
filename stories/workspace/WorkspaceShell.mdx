@@ -1,4 +1,4 @@
-import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import { Meta, Canvas, Description } from "@storybook/addon-docs/blocks";
 import * as Stories from "./WorkspaceShell.stories";
 
 <Meta of={Stories} />
@@ -11,14 +11,38 @@ stories use a real `App` and the built-in empty view. The notification center
 is the sole static design-core shell plugin; Lapis and community plugins are
 not loaded.
 
+## Persisted desktop
+
+<Description of={Stories.PersistedDesktop} />
+
 <Canvas of={Stories.PersistedDesktop} />
+
+## Mobile
+
+<Description of={Stories.Mobile} />
 
 <Canvas of={Stories.Mobile} />
 
+## Notification center
+
+<Description of={Stories.NotificationCenter} />
+
 <Canvas of={Stories.NotificationCenter} />
+
+## About Lapis Notes
+
+<Description of={Stories.AboutLapisNotes} />
 
 <Canvas of={Stories.AboutLapisNotes} />
 
+## Stacked tabs
+
+<Description of={Stories.StackedTabs} />
+
 <Canvas of={Stories.StackedTabs} />
+
+## Bottom panel settings
+
+<Description of={Stories.BottomPanelSettings} />
 
 <Canvas of={Stories.BottomPanelSettings} />

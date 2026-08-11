@@ -57,6 +57,11 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   snippet and set `parameters.docs.source` (`code`, `language`, and
   `type: "code"`) on the meta or individual story. Verify the rendered Show Code
   panel whenever adding or changing Docs stories.
+- Multi-scenario Storybook families with an authored MDX Docs page MUST give
+  every scenario a non-empty `parameters.docs.description.story`. Give each
+  scenario its own heading and render `<Description of={Stories.<Story>} />`
+  immediately before its Canvas, so the Docs page binds the canonical story
+  metadata instead of copying prose that can drift.
 - Track swap progress in root `MIGRATION.md`.
 
 ## Workspace Shell Stories
@@ -70,7 +75,6 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   padding so the application shell owns the complete documented viewport.
   Keep standalone story canvases full-screen; the 700px rule applies to their
   Autodocs embed rather than constraining the component or story root.
-
 ## Workspace Panel Stories
 
 - Treat `spec/src/workspace-shell/panels.md` as the canonical reusable panel
