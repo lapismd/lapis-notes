@@ -6,5 +6,5 @@
 </script>
 
 <div class="lapis-editor-demo-landing" data-testid="lapis-editor-landing">
-  <WorkspaceEmpty {actions} />
+  <WorkspaceEmpty {actions} surface="page" />
 </div>

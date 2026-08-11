@@ -35,6 +35,8 @@
 | LN-ED-033 | File Properties acceptance MUST resize the owning split below Mira's 250px breakpoint, restore it in all outcomes, and verify full-row stacking, label-aligned values, and no horizontal overflow. It MUST NOT constrain the component root or editor content directly. |
 | LN-ED-034 | The legacy dual-panel comparison fixture MUST NOT remain a Storybook authority. |
 | LN-ED-035 | The editor demo MUST include a focused Markdown Authoring story using the real in-memory app. Acceptance MUST cover selection formatting, slash insertion, block handles and pointer reordering, Live Preview heading controls, table editing, completion, smart paste, image attachment, truthful toolbar defaults, and opt-in Doodle Dividers. |
+| LN-ED-036 | The editor demo landing view MUST identify `WorkspaceEmpty` as page content so its paint matches the owning body view and remains white in the default theme. |
+| LN-ED-037 | The Explorer root and toolbar MUST consume design-core's resolved workspace-view foreground and background tokens. Direct sidebars use panel paint; body, bottom, grouped, floating, mobile, and standalone placements use workspace paint without component-owned placement logic. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
@@ -100,6 +102,8 @@ CodeMirror extensions with Obsidian theme tokens. File leaves contribute tab
 title bar breadcrumbs, history, and in-place header rename through `getChrome`,
 and the demo seed enables inline title and tab title bar visibility. Visual
 baselines remain pending human review. Design-core resolves Workspace view paint
-from the destination surface; Markdown and Storybook-local Tags panels consume
-the resulting public view tokens so a moved view adopts its new paint without a
-component remount or panel-owned placement logic.
+from the destination surface; Markdown, Storybook-local Tags, and Explorer
+consume the resulting public view tokens so a moved view adopts its new paint
+without a component remount or component-owned placement logic. The landing
+view identifies its empty state as page content and therefore matches the white
+body view in the default theme.

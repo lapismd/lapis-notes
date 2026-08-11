@@ -81,6 +81,39 @@ export const Ready: Story = {
     await expect(
       canvas.getByRole("button", { name: "Create new note" }),
     ).toBeVisible();
+    const landing = canvas.getByTestId("lapis-editor-landing");
+    const empty = landing.querySelector<HTMLElement>(
+      '[data-ui-component="workspace-empty"]',
+    );
+    const landingHost = landing.closest<HTMLElement>(
+      '[data-ui-component="workspace-view-host"]',
+    );
+    await expect(empty).not.toBeNull();
+    await expect(empty).toHaveAttribute("data-workspace-surface", "page");
+    await expect(landingHost).not.toBeNull();
+    await expect(getComputedStyle(empty!).backgroundColor).toBe(
+      getComputedStyle(landingHost!).backgroundColor,
+    );
+
+    const explorerFixture = canvas.getByTestId("lapis-editor-explorer");
+    const explorer = explorerFixture.querySelector<HTMLElement>(
+      '[data-ui-component="workspace-explorer"]',
+    );
+    const explorerToolbar = explorer?.querySelector<HTMLElement>(
+      '[data-ui-part="toolbar"]',
+    );
+    const explorerHost = explorer?.closest<HTMLElement>(
+      '[data-ui-component="workspace-view-host"]',
+    );
+    await expect(explorer).not.toBeNull();
+    await expect(explorerToolbar).not.toBeNull();
+    await expect(explorerHost).not.toBeNull();
+    await expect(getComputedStyle(explorer!).backgroundColor).toBe(
+      getComputedStyle(explorerHost!).backgroundColor,
+    );
+    await expect(getComputedStyle(explorerToolbar!).backgroundColor).toBe(
+      getComputedStyle(explorerHost!).backgroundColor,
+    );
     await expect(
       canvas.getByTestId("lapis-editor-registered-views"),
     ).toHaveTextContent(/Markdown:.*\.md/);
