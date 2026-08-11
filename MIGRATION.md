@@ -45,7 +45,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Path A / Path B editor extension reload + host editor events preserved
 - [x] Markdown settings section (Mira features, mermaid, AI stub)
 - [x] Side panels: All Properties, File Properties, Outline, Backlinks, Outgoing Links, Media; Outline and link panels carry the full observable interaction/data slice
-- [x] Shared `MarkdownSidebarPanel` recipe (LN-MD-018) + Tags Storybook fixture; all movable panels are full-width/titleless with workspace-family 0.75rem list/result controls, and design-core `WorkspaceViewHost` resolves public view paint tokens with a white body/bottom/group default and sidebar paint only for ungrouped top-level side panels; Lapis contains no placement selectors
+- [x] Shared `MarkdownSidebarPanel` recipe (LN-MD-018, LN-MD-032 through LN-MD-035) + Tags Storybook fixture; all movable panels are full-width/titleless with workspace-family 0.75rem list/result controls, and design-core `WorkspaceViewHost` resolves public view paint tokens with a white body/bottom/group default and sidebar paint only for ungrouped top-level side panels; Lapis contains no placement selectors
 - [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
 - [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter, no-overflow narrow single-column rows with label-aligned values, native focus geometry with view-token contrast fill, hash Tags icon, and surface-contrasting native pills (LN-MD-017/019)
 - [x] Markdown frontmatter integration → public Mira source decorations, Source Code Pro YAML source, Mira-only inline fold controls, working rendered disclosure, and unpadded content-aligned embedded preview (LN-MD-025)
