@@ -140,15 +140,19 @@ function placementStory(
           '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
         );
         if (!preview) throw new Error("Missing Backlinks preview");
-        expect(preview).toHaveTextContent("Research.md");
         expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
           400,
         );
+        const fileEmbed = preview.querySelector<HTMLElement>(
+          '[data-ui-component="file-embed"]',
+        );
+        expect(fileEmbed).toBeVisible();
+        expect(fileEmbed?.querySelector(".lapis-file-embed__title")).toBeNull();
         expect(
-          preview.querySelector('[data-ui-component="file-embed"]'),
-        ).toBeVisible();
+          fileEmbed?.querySelector(".mira-embed.internal-embed"),
+        ).toBeNull();
         expect(
-          preview.querySelector(".mira-embed.internal-embed"),
+          within(preview).getByRole("button", { name: "Open Research.md" }),
         ).toBeVisible();
         await waitFor(() => {
           expect(preview.querySelector("[data-markdown-embed]")).toBeVisible();

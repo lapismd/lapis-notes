@@ -127,12 +127,21 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   portaled Bits UI preview for timing, collision, appearance, cross-pane paint,
   click-to-edit CodeMirror, 500ms serialized autosave, and dirty-buffer
   protection. Backlinks and Outgoing Links opt their public `FileEmbed` into
-  editing and bind its editing state so the Design Core Hover Card stays open;
-  direct document embeds remain read-only. Do not add a Lapis portal wrapper,
-  editor, save timer, source alias, or clipping override. The middle-top-tabs
-  Outgoing Links play is the linked-consumer regression for both ordinary and
-  panel-result editable previews and must verify persisted vault content after
-  that boundary.
+  editing and bind its editing state so the Design Core Hover Card stays open.
+  Resolved note cards are content-only: omit filename/path chrome, inset
+  rendered Markdown enough to preserve disclosure controls, and paint a 2px
+  focus-ring border only while editing. In editable `FileEmbed` cards, omit the
+  generic Mira embed guide and retain only a sticky top-right open-note action
+  whose normal-flow row keeps content clear beneath it. Set blur return off,
+  reject hover/focus close requests while editing, and route an outside pointer
+  interaction through the public persistence-safe `exit()` before closing;
+  Escape remains the keyboard dismissal and a failed save stays open. Direct
+  document embeds remain read-only. Do not add a Lapis portal wrapper, editor,
+  save timer, source alias, or clipping override. The middle-top-tabs Outgoing
+  Links play is the linked-consumer regression for both ordinary and
+  panel-result editable previews and must verify persisted vault content,
+  minimal chrome, sticky action, padding, edit border, hover/focus pinning, and
+  outside-click dismissal after that boundary.
   None of these panels render shell title/path intro copy.
 - Prefer the shared `PanelDemo.svelte` / `create-panel-demo.ts` harness over
   bespoke shell imitations. Keep placement differences in the workspace layout

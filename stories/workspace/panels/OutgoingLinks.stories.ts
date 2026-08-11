@@ -141,8 +141,20 @@ async function expectDocumentLinkPreview(
   expect(
     preview.closest('[data-ui-component="workspace-view-host"]'),
   ).toBeNull();
-  expect(preview).toHaveTextContent("Ideas.markdown");
+  expect(preview.querySelector(".mira-link-preview__title")).toBeNull();
+  expect(preview.querySelector(".mira-link-preview__path")).toBeNull();
   expect(preview.querySelector(".mira-link-preview__markdown")).toBeVisible();
+  const renderedMarkdown = preview.querySelector<HTMLElement>(
+    ".mira-link-preview__markdown",
+  );
+  if (!renderedMarkdown) throw new Error("Missing rendered Mira preview");
+  const renderedPadding = getComputedStyle(renderedMarkdown);
+  expect(parseFloat(renderedPadding.paddingBlockStart)).toBeGreaterThanOrEqual(
+    16,
+  );
+  expect(parseFloat(renderedPadding.paddingInlineStart)).toBeGreaterThanOrEqual(
+    32,
+  );
   expect(["top", "right", "bottom", "left"]).toContain(
     preview.getAttribute("data-side"),
   );
@@ -188,6 +200,7 @@ async function expectDocumentLinkPreview(
     expect(await app.vault.read(ideasFile)).toBe(nextValue);
   });
   await waitFor(() => {
+    expect(getComputedStyle(preview).borderTopWidth).toBe("2px");
     const previewRect = preview.getBoundingClientRect();
     expect(previewRect.right).toBeLessThanOrEqual(viewport.clientWidth + 1);
     expect(previewRect.bottom).toBeLessThanOrEqual(viewport.clientHeight + 1);
@@ -200,7 +213,17 @@ async function expectDocumentLinkPreview(
         ?.closest("[data-mira-link-preview-content]"),
     ).toBe(preview);
   });
-  await userEvent.keyboard("{Escape}");
+
+  await userEvent.hover(panelElement);
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  expect(preview).toBeVisible();
+  expect(preview.querySelector('[data-editing="true"]')).toBeVisible();
+  panelElement.querySelector<HTMLElement>("button")?.focus();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(preview).toBeVisible();
+  expect(preview.querySelector('[data-editing="true"]')).toBeVisible();
+
+  await userEvent.click(ownerDocument.body);
   await waitFor(() => {
     expect(
       ownerDocument.querySelector(
@@ -351,21 +374,47 @@ function placementStory(
               '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
             );
           if (!preview) throw new Error("Missing Outgoing Links preview");
-          expect(preview).toHaveTextContent("Ideas.markdown");
           expect(preview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
             400,
           );
+          const fileEmbed = preview.querySelector<HTMLElement>(
+            '[data-ui-component="file-embed"]',
+          );
+          expect(fileEmbed).toBeVisible();
           expect(
-            preview.querySelector('[data-ui-component="file-embed"]'),
-          ).toBeVisible();
+            fileEmbed?.querySelector(".lapis-file-embed__title"),
+          ).toBeNull();
           expect(
-            preview.querySelector(".mira-embed.internal-embed"),
-          ).toBeVisible();
+            fileEmbed?.querySelector(".mira-embed.internal-embed"),
+          ).toBeNull();
+          const openButton = within(preview).getByRole("button", {
+            name: "Open Ideas.markdown",
+          });
+          expect(openButton).toBeVisible();
+          const previewHeader = openButton.closest<HTMLElement>(
+            ".lapis-file-embed__header",
+          );
+          if (!previewHeader) throw new Error("Missing sticky preview header");
+          expect(getComputedStyle(previewHeader).position).toBe("sticky");
+          expect(getComputedStyle(previewHeader).top).toBe("0px");
           await waitFor(() => {
             expect(
               preview.querySelector("[data-markdown-embed]"),
             ).toBeVisible();
           });
+          const embeddedMarkdown = preview.querySelector<HTMLElement>(
+            "[data-markdown-embed]",
+          );
+          if (!embeddedMarkdown) {
+            throw new Error("Missing padded panel Markdown preview");
+          }
+          const embeddedPadding = getComputedStyle(embeddedMarkdown);
+          expect(
+            parseFloat(embeddedPadding.paddingBlockStart),
+          ).toBeGreaterThanOrEqual(16);
+          expect(
+            parseFloat(embeddedPadding.paddingInlineStart),
+          ).toBeGreaterThanOrEqual(32);
           await waitFor(() =>
             expectLinkPreviewPlacement(previewTrigger, preview),
           );
@@ -378,10 +427,21 @@ function placementStory(
           await waitFor(async () => {
             expect(await app.vault.read(ideasFile)).toBe(nextValue);
           });
+          expect(getComputedStyle(preview).borderTopWidth).toBe("2px");
           await waitFor(() =>
             expectLinkPreviewPlacement(previewTrigger, preview),
           );
-          await userEvent.keyboard("{Escape}");
+
+          await userEvent.hover(panelElement);
+          await new Promise((resolve) => setTimeout(resolve, 350));
+          expect(preview).toBeVisible();
+          expect(preview.querySelector('[data-editing="true"]')).toBeVisible();
+          searchToggle.focus();
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          expect(preview).toBeVisible();
+          expect(preview.querySelector('[data-editing="true"]')).toBeVisible();
+
+          await userEvent.click(searchToggle);
           await waitFor(() => {
             expect(
               canvasElement.ownerDocument.querySelector(

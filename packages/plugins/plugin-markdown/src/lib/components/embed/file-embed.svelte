@@ -21,6 +21,7 @@
     sectionId,
     frontmatterOpen = false,
     editable = false,
+    returnToPreviewOnBlur = true,
     editing = $bindable(false),
     class: className = "",
     onopen,
@@ -33,6 +34,7 @@
     sectionId?: string;
     frontmatterOpen?: boolean;
     editable?: boolean;
+    returnToPreviewOnBlur?: boolean;
     editing?: boolean;
     class?: string;
     onopen?: (event: MouseEvent) => void;
@@ -57,6 +59,7 @@
       : null,
   );
   const closeEditablePreview = useEditablePreviewClose();
+  let editablePreview: { exit: () => Promise<boolean> } | null = $state(null);
 
   $effect(() => {
     if (!editable || !editableFile) {
@@ -77,16 +80,23 @@
         : app.vault.getFileByPath(sourcePath));
     if (resolved) void app.openFile(resolved);
   }
+
+  export async function exit(): Promise<boolean> {
+    return (await editablePreview?.exit()) ?? true;
+  }
 </script>
 
 <div
   class={`lapis-file-embed ${className}`.trim()}
   data-ui-component="file-embed"
   data-file-path={baseTarget}
+  data-editable={editable ? "true" : "false"}
   data-editing={editing ? "true" : "false"}
 >
   <header class="lapis-file-embed__header">
-    <strong class="lapis-file-embed__title">{title}</strong>
+    {#if !editable}
+      <strong class="lapis-file-embed__title">{title}</strong>
+    {/if}
     <Button
       variant="ghost"
       size="icon-sm"
@@ -94,23 +104,20 @@
       onpointerdown={(event) => event.stopPropagation()}
       onclick={openFile}
     >
-      <Maximize />
+      <Maximize data-icon />
     </Button>
   </header>
   <div class="lapis-file-embed__content">
     {#if editable && editableFile}
-      <figure class="mira-embed internal-embed" data-embed={target}>
-        <figcaption>{title}</figcaption>
-        <div class="mira-embed__content">
-          <EditableMarkdownPreview
-            file={editableFile}
-            {fileAdapter}
-            bind:editing
-            {frontmatterOpen}
-            onEscape={() => closeEditablePreview?.()}
-          />
-        </div>
-      </figure>
+      <EditableMarkdownPreview
+        bind:this={editablePreview}
+        file={editableFile}
+        {fileAdapter}
+        bind:editing
+        {frontmatterOpen}
+        {returnToPreviewOnBlur}
+        onEscape={() => closeEditablePreview?.()}
+      />
     {:else}
       <MiraFileEmbed id={target} {sourcePath} {fileAdapter} {frontmatterOpen} />
     {/if}
@@ -152,6 +159,30 @@
     min-width: 0;
   }
 
+  .lapis-file-embed[data-editable="true"] {
+    gap: 0;
+  }
+
+  .lapis-file-embed[data-editable="true"] .lapis-file-embed__header {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    padding-block-end: 0.5rem;
+    background: var(
+      --ui-hover-card-background,
+      var(--popover, var(--background-primary))
+    );
+  }
+
+  .lapis-file-embed[data-editable="true"]
+    .lapis-file-embed__content
+    :global(.mira-markdown-preview) {
+    box-sizing: border-box;
+    padding: 1rem 2rem;
+  }
+
   .lapis-file-embed[data-editing="true"] {
     height: 100%;
     min-height: 0;
@@ -168,7 +199,9 @@
     min-height: 0;
   }
 
-  .lapis-file-embed__content :global(.mira-embed) {
+  .lapis-file-embed[data-editable="false"]
+    .lapis-file-embed__content
+    :global(.mira-embed) {
     margin-block: 0;
   }
 

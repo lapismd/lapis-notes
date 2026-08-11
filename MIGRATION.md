@@ -34,7 +34,7 @@ intake or UI swap status changes.
 
 ### Markdown plugin intake progress
 
-Canonical requirements: `spec/src/markdown-plugin.md` (LN-MD-001–028).
+Canonical requirements: `spec/src/markdown-plugin.md` (LN-MD-001–029).
 Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 
 - [x] Package scaffold + workspace wiring (`@lapis-notes/markdown`)
@@ -49,6 +49,7 @@ Parity detail: `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Mira-backed embed framework → app-bound `MiraFileAdapter`, public `FileEmbed` / `MarkdownEmbed` / `NoteLink` plus `./embed`, shared document and Design Core Hover Card link-panel previews, vault-relative resolution, refresh/navigation, image and registered custom-embed lifecycle (LN-MD-026)
 - [x] Ordinary Mira internal-link previews → linked source-owned Bits UI `LinkPreview`, owner-document portal, collision-aware viewport geometry, active appearance, and topmost cross-pane paint without a Lapis wrapper (LN-MD-027)
 - [x] Editable note hover previews → Lapis vault-backed `writeMarkdown`, automatic ordinary-link editing, opted-in Backlinks/Outgoing `FileEmbed` editing, 500ms serialized autosave, dirty-error retention, and read-only direct embeds (LN-MD-028)
+- [x] Minimal editable preview cards → no resolved filename/path chrome or panel embed guide, disclosure-safe all-round padding, sticky top-right open action, two-pixel editing border, hover/focus pinning, and persistence-safe outside-click dismissal (LN-MD-029)
 - [x] Focused `Workspace/Panels/Markdown/<Panel>/*` interaction stories: six movable surfaces for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Storybook-local Tags; file-scoped stories keep one minimal active note and vault-wide stories stay document-free
 - [x] Real app-only component metadata with no kind/layout harness controls; real bottom/sidebar groups, stable ViewHost paint assertions, isolated 700px padding-free Docs previews, and explicit persisted-layout Show Code
 - [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only

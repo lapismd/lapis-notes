@@ -9,22 +9,24 @@ for (const scenario of [
     storyId:
       "workspace-panels-markdown-link-preview-acceptance--outgoing-links",
     triggerName: /^Open Ideas:/,
-    embedText: "Ideas.markdown",
+    openName: "Open Ideas.markdown",
   },
   {
     name: "Backlinks",
     storyId: "workspace-panels-markdown-link-preview-acceptance--backlinks",
     triggerName: /^Open Research:/,
-    embedText: "Research.md",
+    openName: "Open Research.md",
   },
 ] as const) {
   test(`${scenario.name} preview crosses a constrained editor and remains interactive`, async ({
     page,
   }) => {
     await page.goto(storyUrl(scenario.storyId));
-    const trigger = page.getByRole("button", {
-      name: scenario.triggerName,
-    }).first();
+    const trigger = page
+      .getByRole("button", {
+        name: scenario.triggerName,
+      })
+      .first();
     try {
       await expect(trigger).toBeVisible({ timeout: 30_000 });
     } catch {
@@ -56,10 +58,20 @@ for (const scenario of [
       '[data-ui-component="hover-card"][data-ui-part="hover-card-content"]',
     );
     await expect(preview).toBeVisible();
-    await expect(preview).toContainText(scenario.embedText);
     await expect(
       preview.locator('[data-ui-component="file-embed"]'),
     ).toBeVisible();
+    await expect(preview.locator(".lapis-file-embed__title")).toHaveCount(0);
+    await expect(preview.locator(".mira-embed.internal-embed")).toHaveCount(0);
+    const openButton = preview.getByRole("button", { name: scenario.openName });
+    await expect(openButton).toBeVisible();
+    await expect(preview.locator(".lapis-file-embed__header")).toHaveCSS(
+      "position",
+      "sticky",
+    );
+    const renderedMarkdown = preview.locator("[data-markdown-embed]");
+    await expect(renderedMarkdown).toBeVisible();
+    await expect(renderedMarkdown).toHaveCSS("padding-left", "32px");
 
     const geometry = await preview.evaluate((element) => {
       const previewRect = element.getBoundingClientRect();
