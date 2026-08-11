@@ -422,9 +422,8 @@ export const MarkdownAuthoring: Story = {
       ).toBeNull();
       expect(canvasElement.querySelector(".mira-editor__toolbar")).toBeNull();
       expect(canvasElement.querySelector(".cm-table-widget")).not.toBeNull();
-      const foldGutter = markdownEditor.querySelector<HTMLElement>(
-        ".cm-foldGutter",
-      );
+      const foldGutter =
+        markdownEditor.querySelector<HTMLElement>(".cm-foldGutter");
       expect(foldGutter).not.toBeNull();
       expect(getComputedStyle(foldGutter!).display).toBe("none");
       expect(
@@ -476,9 +475,8 @@ export const MarkdownAuthoring: Story = {
       moveStoryCursorToEnd();
       await userEvent.keyboard("{Enter}/");
       const slashMenu = await waitFor(() => {
-        const menu = canvasElement.querySelector<HTMLElement>(
-          ".mira-slash-menu",
-        );
+        const menu =
+          canvasElement.querySelector<HTMLElement>(".mira-slash-menu");
         expect(menu).not.toBeNull();
         return menu!;
       });
@@ -532,6 +530,69 @@ export const MarkdownAuthoring: Story = {
       expect(paste.defaultPrevented).toBe(true);
       expect(activeStoryEditor().getValue()).toContain(
         "[Inserted by slash](https://lapis.md/authoring)",
+      );
+    });
+
+    await step("switch modes from the title bar and View menu", async () => {
+      const readAction = await waitFor(() =>
+        canvas.getByRole("button", {
+          name: /^Current view: editing\nClick to read/,
+        }),
+      );
+      await expect(readAction).toHaveAttribute(
+        "title",
+        "Current view: editing\nClick to read\n⌘+Click to open to the right",
+      );
+      expect(readAction.querySelector(".lucide-book-open")).not.toBeNull();
+      const viewHeader = readAction.closest<HTMLElement>(
+        '[data-ui-component="workspace-view-header"]',
+      );
+      expect(viewHeader).not.toBeNull();
+
+      await userEvent.click(
+        within(viewHeader!).getByRole("button", { name: "More options" }),
+      );
+      const page = within(canvasElement.ownerDocument.body);
+      await expect(
+        page.getByRole("menuitem", { name: "Reading view" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("menuitem", { name: "Source mode" }),
+      ).toBeVisible();
+      await userEvent.keyboard("{Escape}");
+      await waitFor(() =>
+        expect(getComputedStyle(readAction).pointerEvents).not.toBe("none"),
+      );
+
+      await userEvent.click(readAction);
+      const editAction = await waitFor(() =>
+        canvas.getByRole("button", {
+          name: /^Current view: preview\nClick to edit/,
+        }),
+      );
+      await expect(editAction).toHaveAttribute(
+        "title",
+        "Current view: preview\nClick to edit\n⌘+Click to open to the right",
+      );
+      expect(editAction.querySelector(".lucide-pencil")).not.toBeNull();
+
+      await userEvent.click(
+        within(viewHeader!).getByRole("button", { name: "More options" }),
+      );
+      await expect(
+        page.getByRole("menuitem", { name: "Reading view" }),
+      ).toBeVisible();
+      expect(page.queryByRole("menuitem", { name: "Source mode" })).toBeNull();
+      await userEvent.keyboard("{Escape}");
+      await waitFor(() =>
+        expect(getComputedStyle(editAction).pointerEvents).not.toBe("none"),
+      );
+
+      await userEvent.click(editAction);
+      await waitFor(() =>
+        expect(
+          canvasElement.querySelector('.cm-editor[data-language="markdown"]'),
+        ).not.toBeNull(),
       );
     });
   },
@@ -692,7 +753,9 @@ export const EditorSettings: Story = {
 
     await userEvent.click(topToolbar);
     await waitFor(() =>
-      expect(canvasElement.querySelector(".mira-editor__toolbar")).not.toBeNull(),
+      expect(
+        canvasElement.querySelector(".mira-editor__toolbar"),
+      ).not.toBeNull(),
     );
     await userEvent.click(doodleDividers);
     const editor = activeStoryEditor();

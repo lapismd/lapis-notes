@@ -4,12 +4,13 @@ import { EventDispatcher, type DefaultEventMap, type EventMap } from "./events";
 import {
   EmptyView,
   FileView,
+  ItemView,
   TextFileView,
   View,
   type ViewState,
   type ViewStateResult,
 } from "./view.svelte";
-import type { Menu } from "./menu.svelte";
+import { Menu, isMenuItem } from "./menu.svelte";
 import { TFile, type TAbstractFile } from "./storage/fs";
 import type { Editor, MarkdownFileInfo } from "./editor.svelte";
 import { tick, untrack } from "svelte";
@@ -53,6 +54,7 @@ import {
   type WorkspaceDragEvent as DesignWorkspaceDragEvent,
   type WorkspaceLayoutChangeEvent as DesignWorkspaceLayoutChangeEvent,
   type WorkspaceLayoutDropEvent as DesignWorkspaceLayoutDropEvent,
+  type WorkspaceMenu as DesignWorkspaceMenu,
   type WorkspaceViewChrome as DesignWorkspaceViewChrome,
   type WorkspaceViewContext as DesignWorkspaceViewContext,
 } from "@lapismd/design-core/workspace/core";
@@ -112,6 +114,41 @@ function filePathBreadcrumbs(
       },
     };
   });
+}
+
+function menuItemTitle(title: string | DocumentFragment): string {
+  return typeof title === "string" ? title : (title.textContent ?? "");
+}
+
+function appendPaneMenu(target: DesignWorkspaceMenu, source: Menu): void {
+  for (const entries of Object.values(source.renderedItems)) {
+    if (entries.length === 0) continue;
+    if (target.entries.length > 0) target.addSeparator();
+
+    for (const entry of entries) {
+      if (entry === "separator") {
+        target.addSeparator();
+        continue;
+      }
+
+      if (isMenuItem(entry)) {
+        target.addItem((item) => {
+          item
+            .setTitle(menuItemTitle(entry.title))
+            .setDisabled(entry.disabled)
+            .setSection(entry.section)
+            .onClick((event) =>
+              entry.click(event as MouseEvent | KeyboardEvent),
+            );
+          if (entry.icon) item.setIcon(entry.icon);
+          if (entry.checked !== null) item.setChecked(entry.checked);
+        });
+        continue;
+      }
+
+      target.addMenu(entry.title, (submenu) => appendPaneMenu(submenu, entry));
+    }
+  }
 }
 
 function toDesignEditorViewContribution(
@@ -2765,10 +2802,13 @@ export class Workspace extends EventDispatcher<{
       kind: "imperative",
       type,
       showHeader: true,
-      getChrome: (context: DesignWorkspaceViewContext): DesignWorkspaceViewChrome => {
+      getChrome: (
+        context: DesignWorkspaceViewContext,
+      ): DesignWorkspaceViewChrome => {
         const leaf = this.getLeafById(context.tab.id);
         const view = leaf?.view;
         const file = view instanceof FileView ? view.file : null;
+        const actions = view instanceof ItemView ? view.actions : [];
         return {
           title: file?.name ?? leaf?.getDisplayText() ?? context.tab.title,
           titleEditable: file != null,
@@ -2797,6 +2837,22 @@ export class Workspace extends EventDispatcher<{
           },
           onGoForward: () => {
             void leaf?.history.forward();
+          },
+          actions: actions.map((action, index) => ({
+            id: `view-action:${index}:${action.icon}`,
+            label: action.title,
+            icon: action.icon,
+            disabled: action.disabled,
+            onSelect: async (event) => {
+              await action.callback(event as MouseEvent);
+            },
+          })),
+          buildPaneMenu: (menu) => {
+            const currentView = this.getLeafById(context.tab.id)?.view;
+            if (!currentView) return;
+            const paneMenu = new Menu();
+            currentView.onPaneMenu(paneMenu, "more-options");
+            appendPaneMenu(menu, paneMenu);
           },
         };
       },

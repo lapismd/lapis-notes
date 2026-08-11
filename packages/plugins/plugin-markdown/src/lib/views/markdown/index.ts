@@ -70,7 +70,9 @@ export class MarkdownView extends RootMarkdownView {
     });
   }
 
-  async onLoadFile(file: Parameters<RootMarkdownView["onLoadFile"]>[0]): Promise<void> {
+  async onLoadFile(
+    file: Parameters<RootMarkdownView["onLoadFile"]>[0],
+  ): Promise<void> {
     this.pendingEditorExtensionRefresh = false;
     await super.onLoadFile(file);
   }
@@ -95,6 +97,29 @@ export class MarkdownView extends RootMarkdownView {
     this.load();
   }
 
+  private switchModeFromAction(
+    targetMode: MarkdownViewModeType,
+    event: MouseEvent,
+  ): void {
+    if (event.metaKey || event.ctrlKey) {
+      const leaf = this.app.workspace.getLeaf("split", "horizontal");
+      void leaf
+        .setViewState({
+          ...this.leaf.state,
+          state: {
+            ...(this.leaf.state.state ?? {}),
+            mode: targetMode,
+          },
+        })
+        .then(() => this.app.workspace.requestSaveLayout());
+      return;
+    }
+
+    void this.setState({ ...this.getState(), mode: targetMode }).then(() =>
+      this.app.workspace.requestSaveLayout(),
+    );
+  }
+
   load(): void {
     if (!this.containerEl) return;
     this.containerEl.classList.add("markdown-view");
@@ -104,11 +129,11 @@ export class MarkdownView extends RootMarkdownView {
     this.actions = [];
 
     if (mode === "preview") {
-      this.addAction("pencil", "Current view: preview\nClick to edit", () => {
-        void this.setState({ ...this.getState(), mode: "live-preview" }).then(
-          () => this.app.workspace.requestSaveLayout(),
-        );
-      });
+      this.addAction(
+        "pencil",
+        "Current view: preview\nClick to edit\n⌘+Click to open to the right",
+        (event) => this.switchModeFromAction("live-preview", event),
+      );
       this.component = mount(MiraPreview, {
         target: this.containerEl,
         props: {
@@ -131,11 +156,11 @@ export class MarkdownView extends RootMarkdownView {
       this.pendingEditorExtensionRefresh = false;
     }
 
-    this.addAction("book-open", "Current view: editing\nClick to read", () => {
-      void this.setState({ ...this.getState(), mode: "preview" }).then(() =>
-        this.app.workspace.requestSaveLayout(),
-      );
-    });
+    this.addAction(
+      "book-open",
+      "Current view: editing\nClick to read\n⌘+Click to open to the right",
+      (event) => this.switchModeFromAction("preview", event),
+    );
 
     this.component = mount(MarkdownEditingSurface, {
       target: this.containerEl,

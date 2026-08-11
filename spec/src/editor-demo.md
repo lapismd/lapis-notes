@@ -37,6 +37,8 @@
 | LN-ED-035 | The editor demo MUST include a focused Markdown Authoring story using the real in-memory app. Acceptance MUST cover selection formatting, slash insertion, block handles and pointer reordering, Live Preview heading controls, table editing, completion, smart paste, image attachment, truthful toolbar defaults, and opt-in Doodle Dividers. |
 | LN-ED-036 | The editor demo landing view MUST identify `WorkspaceEmpty` as page content so its paint matches the owning body view and remains white in the default theme. |
 | LN-ED-037 | The Explorer root and toolbar MUST consume design-core's resolved workspace-view foreground and background tokens. Direct sidebars use panel paint; body, bottom, grouped, floating, mobile, and standalone placements use workspace paint without component-owned placement logic. |
+| LN-ED-038 | The API workspace bridge MUST project each compatibility view action into design-core `WorkspaceViewChrome`, preserving its stable identity, label, icon, disabled state, event, and callback. |
+| LN-ED-039 | The API workspace bridge MUST translate compatibility `onPaneMenu` contributions into the shared design-core pane menu, preserving sections, separators, nested menus, labels, icons, checked and disabled states, and callbacks. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
@@ -106,4 +108,6 @@ from the destination surface; Markdown, Storybook-local Tags, and Explorer
 consume the resulting public view tokens so a moved view adopts its new paint
 without a component remount or component-owned placement logic. The landing
 view identifies its empty state as page content and therefore matches the white
-body view in the default theme.
+body view in the default theme. Compatibility view actions and pane-menu
+contributions flow through `WorkspaceViewChrome`, so Markdown mode controls use
+the same title-bar and menu surfaces as other design-core views.

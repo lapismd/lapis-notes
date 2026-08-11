@@ -5,7 +5,7 @@ import type { App } from "../context.svelte";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
 import { TFile } from "../storage/fs";
-import { TextFileView, View } from "../view.svelte";
+import { ItemView, TextFileView, View } from "../view.svelte";
 import {
   WORKSPACE_POPOUT_UNSUPPORTED_ERROR_MESSAGE,
   OnDemandPluginInstallView,
@@ -20,6 +20,7 @@ import {
 } from "../workspace.svelte";
 import type { WorkspacePopoutHost } from "../workspace.svelte";
 import { getWorkspaceHostBinding } from "../workspace-host";
+import { Menu } from "../menu.svelte";
 
 vi.mock("../prompt-confirm", () => ({
   promptConfirm: vi.fn(async () => true),
@@ -151,7 +152,16 @@ vi.mock("../view.svelte", () => {
     }
   }
 
-  class FileView extends View {
+  class ItemView extends View {
+    actions: Array<{
+      icon: string;
+      title: string;
+      callback: (event: MouseEvent) => unknown;
+      disabled?: boolean;
+    }> = [];
+  }
+
+  class FileView extends ItemView {
     file: any = null;
 
     onLoadFile(file: any): Promise<void> {
@@ -196,6 +206,7 @@ vi.mock("../view.svelte", () => {
     Component,
     EmptyView,
     FileView,
+    ItemView,
     TextFileView,
     View,
   };
@@ -426,7 +437,7 @@ class MockTextFileView extends TextFileView {
   }
 }
 
-class MockItemView extends View {
+class MockItemView extends ItemView {
   constructor(
     leaf?: WorkspaceLeaf,
     private readonly viewType = "graph",
@@ -456,6 +467,39 @@ class MockItemView extends View {
 
   protected onClose(): Promise<void> {
     return Promise.resolve();
+  }
+}
+
+class MockChromeView extends MockItemView {
+  readonly actionCallback = vi.fn();
+  readonly readingViewCallback = vi.fn();
+  readonly providerCallback = vi.fn();
+  actions = [
+    {
+      icon: "book-open",
+      title: "Current view: editing\nClick to read",
+      disabled: false,
+      callback: this.actionCallback,
+    },
+  ];
+
+  onPaneMenu(menu: Menu, source: string): void {
+    menu.addItem((item) =>
+      item
+        .setSection("view")
+        .setTitle("Reading view")
+        .setIcon("book-open")
+        .setChecked(true)
+        .onClick(this.readingViewCallback),
+    );
+    menu.addMenu((providerMenu) => {
+      providerMenu.setSection("provider").setTitle("Plugin views");
+      providerMenu.addItem((item) =>
+        item
+          .setTitle(`Provider action (${source})`)
+          .onClick(this.providerCallback),
+      );
+    });
   }
 }
 
@@ -1648,6 +1692,76 @@ describe("Workspace compatibility", () => {
     expect(
       binding.controller.renderer.registry.resolve("graph"),
     ).toBeUndefined();
+  });
+
+  it("projects view actions and pane-menu contributions into design-core chrome", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+    let chromeView: MockChromeView | null = null;
+    workspace.registerView("chrome", (leaf) => {
+      chromeView = new MockChromeView(leaf, "chrome", "Chrome");
+      return chromeView;
+    });
+
+    const leaf = workspace.getLeaf();
+    await leaf.setViewState({ type: "chrome", state: {} });
+    const definition = binding.controller.renderer.registry.resolve("chrome");
+    expect(definition?.kind).toBe("imperative");
+    const chrome = definition?.getChrome?.({
+      tab: {
+        id: leaf.id,
+        kind: "tab",
+        title: "Chrome",
+        view: { type: "chrome", state: {} },
+      },
+      hostId: "root",
+      paneId: leaf.parent.id,
+      active: true,
+      showInlineTitle: true,
+      activate: () => true,
+      close: () => true,
+      setState: () => true,
+    });
+
+    expect(chrome?.actions).toMatchObject([
+      {
+        id: "view-action:0:book-open",
+        label: "Current view: editing\nClick to read",
+        icon: "book-open",
+        disabled: false,
+      },
+    ]);
+    await chrome?.actions?.[0]?.onSelect();
+    expect(chromeView!.actionCallback).toHaveBeenCalledTimes(1);
+
+    const menu = binding.controller.renderer.createPaneMenu(leaf.id);
+    const readingView = menu.entries.find(
+      (entry) => entry.kind === "item" && entry.title === "Reading view",
+    );
+    expect(readingView).toMatchObject({
+      kind: "item",
+      icon: "book-open",
+      checked: true,
+      disabled: false,
+      section: "view",
+    });
+    if (readingView?.kind === "item") await readingView.callback?.();
+    expect(chromeView!.readingViewCallback).toHaveBeenCalledTimes(1);
+
+    const providerMenu = menu.entries.find(
+      (entry) => entry.kind === "submenu" && entry.title === "Plugin views",
+    );
+    expect(providerMenu?.kind).toBe("submenu");
+    if (providerMenu?.kind === "submenu") {
+      const providerAction = providerMenu.menu.entries.find(
+        (entry) =>
+          entry.kind === "item" &&
+          entry.title === "Provider action (more-options)",
+      );
+      expect(providerAction?.kind).toBe("item");
+      if (providerAction?.kind === "item") await providerAction.callback?.();
+    }
+    expect(chromeView!.providerCallback).toHaveBeenCalledTimes(1);
   });
 
   it("moves tab children through cancelable workspace drop events", () => {

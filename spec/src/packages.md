@@ -35,6 +35,7 @@
 | LN-PKG-029 | Link-panel previews MUST compose Design Core Hover Card, use a viewport-capped 26rem width, follow the trigger document, and remain open during pointer or focus handoff from the full mention row into interactive content. |
 | LN-PKG-030 | Ordinary document-link previews MUST remain owned by Mira's built package and receive only Lapis's `MiraFileAdapter`. The Markdown package MUST NOT add a consumer portal or clipping workaround. |
 | LN-PKG-031 | `@tobilu/qmd` 2.5.3 MUST remain a pinned root development dependency. Its native build approvals and TypeScript peer MUST remain root tooling and MUST NOT enter workspace package manifests. |
+| LN-PKG-032 | `@lapis-notes/api` MUST own the adapter from compatibility `ItemView.actions` and `View.onPaneMenu` contributions to design-core workspace chrome. `@lapis-notes/workspace` remains a rendering host and MUST NOT add plugin-specific actions. |
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -48,6 +49,8 @@ Purpose (condensed from the full Lapis Notes api package):
   toggle, and live alignment controls; root api exports remain design-core-free
 - Host-only design-core controller binding at `./workspace-host`; the root api
   export remains the Lapis compatibility surface
+- Compatibility view-action and pane-menu projection into design-core chrome,
+  preserving plugin contributions without moving their policy into the shell
 - Plain workspace-shell metadata overrides, with Lapis name/version/logo
   defaults and the design-core notification presentation
 - Plugin runtime contracts and distribution primitives
