@@ -84,9 +84,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   `MarkdownSidebarPanel` title/meta intro chrome unless it is genuine panel
   content. Tree panels align each nested guide beneath the expanded chevron tip
   and indent only at the start edge. Apply the panel's explicit disclosure
-  policy: Tags reserves the disclosure column so hashes align by depth, while
-  Outline leaves reserve no disclosure space and a leaf child's text starts on
-  its immediate parent label column. Keep any counts and the trailing row edge
+  policy: Tags reserves the disclosure column so hashes align by depth and each
+  child hash starts on its immediate parent tag-name column, while Outline
+  leaves reserve no disclosure space and a leaf child's text starts on its
+  immediate parent label column. Keep any counts and the trailing row edge
   aligned independently of that start-edge policy.
 - Test responsive panel behavior by resizing the owning workspace split through
   the real workspace controller, as the shell resize handle does.

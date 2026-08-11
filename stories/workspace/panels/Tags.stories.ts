@@ -147,6 +147,9 @@ function placementStory(
         );
         const projectHash =
           projectRow.querySelector<SVGElement>("svg.lucide-hash");
+        const projectLabel = projectRow.querySelector<HTMLElement>(
+          ".tags-panel__label",
+        );
         const alphaHash = alphaRow.querySelector<SVGElement>("svg.lucide-hash");
         const alphaGuide = alphaRow.closest<HTMLElement>(".tags-panel__sub");
         const hashPositionsByDepth = new Map<number, number[]>();
@@ -173,6 +176,7 @@ function placementStory(
         expect(counts.length).toBeGreaterThan(1);
         expect(projectChevron).not.toBeNull();
         expect(projectHash).not.toBeNull();
+        expect(projectLabel).not.toBeNull();
         expect(alphaHash).not.toBeNull();
         expect(alphaGuide).not.toBeNull();
         expect(
@@ -186,6 +190,12 @@ function placementStory(
           (alphaHash?.getBoundingClientRect().left ?? 0) -
             (projectHash?.getBoundingClientRect().left ?? 0),
         ).toBeGreaterThan(8);
+        expect(
+          Math.abs(
+            (alphaHash?.getBoundingClientRect().left ?? 0) -
+              (projectLabel?.getBoundingClientRect().left ?? 0),
+          ),
+        ).toBeLessThan(1);
         expect(
           [...hashPositionsByDepth.values()].every(
             (positions) => Math.max(...positions) - Math.min(...positions) < 1,

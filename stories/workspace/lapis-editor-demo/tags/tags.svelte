@@ -315,7 +315,7 @@
     width: calc(100% - 1rem);
     margin-inline: 0;
     margin-inline-start: 1rem;
-    padding-inline: 1.25rem 0;
+    padding-inline: calc(0.25rem - 1px) 0;
     translate: none;
   }
 
