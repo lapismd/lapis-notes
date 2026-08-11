@@ -1,13 +1,15 @@
 <script lang="ts">
-  import type { ComponentProps } from "svelte";
-  import { Input } from "@lapismd/design-core/shadcn/input";
+  import {
+    Input,
+    type InputProps,
+  } from "@lapismd/design-core/shadcn/input";
 
   let {
     ref = $bindable(null),
     value = $bindable(""),
     class: className,
     ...restProps
-  }: ComponentProps<typeof Input> = $props();
+  }: InputProps = $props();
 </script>
 
 <Input

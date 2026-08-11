@@ -1,12 +1,14 @@
 <script lang="ts">
-  import { Separator } from "@lapismd/design-core/shadcn/separator";
-  import type { ComponentProps } from "svelte";
+  import {
+    Separator,
+    type SeparatorProps,
+  } from "@lapismd/design-core/shadcn/separator";
 
   let {
     ref = $bindable(null),
     class: className,
     ...restProps
-  }: ComponentProps<typeof Separator> = $props();
+  }: SeparatorProps = $props();
 </script>
 
 <Separator

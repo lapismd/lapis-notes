@@ -120,7 +120,7 @@ primitives) until a deliberate Lapis compound lands in design-core.
 | modal          | Imperative DocumentFragment / plugin host API | `shadcn/dialog`                         | Kept; colocated `modal.css` + `--ui-modal-*` (no TW) |
 | confirm-dialog | `promptConfirm` → Promise\<boolean\>          | registry `alert-dialog` (different API) | Kept; colocated CSS + `--ui-confirm-dialog-*`        |
 | search         | Input + icon + clear compound                 | `filter/SearchFilterBar`, `input-group` | Kept; colocated `search.css` + `--ui-search-*`       |
-| sidebar-custom | NestedProvider, resize, `SidebarState`        | registry/design-core `sidebar` (stock)  | Kept; `sidebar-custom.css` + `--ui-sidebar-custom-*` |
+| sidebar-custom | NestedProvider, resize, `SidebarState`        | registry/design-core `sidebar` (stock)  | Kept; native CSS/tokens + portable wrapper props      |
 | table-dnd      | dnd-kit grips/sensors for settings arrays     | forms `SortableArrayItem`               | Kept; grip chrome via `--ui-table-dnd-*`             |
 
 Also keep local: root `cn` / fuzzy helpers. Trigger-overlay portal ownership is
