@@ -88,6 +88,31 @@ async function replaceEditablePreview(
     ).toBeVisible();
   });
 
+  const editorSurface = preview.querySelector<HTMLElement>(
+    "[data-editable-markdown-editor]",
+  );
+  if (!editorSurface) throw new Error("Missing editable preview surface");
+  expect(
+    editorSurface.closest<HTMLElement>("[data-mira-theme]")?.dataset.miraTheme,
+  ).toContain("obsidian");
+
+  await waitFor(() => {
+    const frontmatterWidget = editorSurface.querySelector<HTMLElement>(
+      ".mira-rich-widget--frontmatter .mira-markdown-preview",
+    );
+    expect(frontmatterWidget).toBeVisible();
+    expect(getComputedStyle(frontmatterWidget!).paddingInlineStart).toBe("0px");
+  });
+
+  const colorProbe = editorSurface.ownerDocument.createElement("span");
+  editorSurface.append(colorProbe);
+  colorProbe.style.color = "var(--mira-focus-ring)";
+  const miraFocusColor = getComputedStyle(colorProbe).color;
+  colorProbe.style.color = "var(--ui-workspace-focus-ring)";
+  const lapisFocusColor = getComputedStyle(colorProbe).color;
+  colorProbe.remove();
+  expect(miraFocusColor).toBe(lapisFocusColor);
+
   const editor = preview.querySelector<HTMLElement>(".cm-content");
   if (!editor) throw new Error("Missing editable preview CodeMirror content");
   await userEvent.click(editor);
@@ -194,7 +219,15 @@ async function expectDocumentLinkPreview(
   const app = panelDemoApp(canvasElement);
   const ideasFile = app.vault.getFileByPath("Notes/Ideas.markdown");
   if (!ideasFile) throw new Error("Missing seeded Ideas note");
-  const nextValue = "edited through the ordinary hover preview.";
+  const nextValue = `---
+title: Ideas
+aliases:
+  - Brainstorm
+---
+
+# Ideas
+
+Edited through the ordinary hover preview.`;
   await replaceEditablePreview(preview, nextValue);
   await waitFor(async () => {
     expect(await app.vault.read(ideasFile)).toBe(nextValue);
@@ -422,12 +455,48 @@ function placementStory(
 
           const ideasFile = app.vault.getFileByPath("Notes/Ideas.markdown");
           if (!ideasFile) throw new Error("Missing seeded Ideas note");
-          const nextValue = "edited through the panel FileEmbed preview.";
+          const nextValue = `---
+title: Ideas
+aliases:
+  - Brainstorm
+---
+
+# Ideas
+
+Edited through the panel FileEmbed preview.
+
+## Working notes
+
+- Capture the first follow-up.
+- Capture the second follow-up.
+- Capture the third follow-up.
+- Capture the fourth follow-up.
+- Capture the fifth follow-up.
+- Capture the sixth follow-up.`;
           await replaceEditablePreview(preview, nextValue);
           await waitFor(async () => {
             expect(await app.vault.read(ideasFile)).toBe(nextValue);
           });
           expect(getComputedStyle(preview).borderTopWidth).toBe("2px");
+          const previewViewport = preview.querySelector<HTMLElement>(
+            '[data-ui-part="scroll-area-viewport"]',
+          );
+          const editorScroller = preview.querySelector<HTMLElement>(
+            ".mira-editable-markdown-preview__editor .cm-scroller",
+          );
+          if (!previewViewport || !editorScroller) {
+            throw new Error("Missing editable preview scroll surfaces");
+          }
+          expect(getComputedStyle(previewViewport).overflowY).toBe("hidden");
+          expect(getComputedStyle(editorScroller).overflowY).toBe("auto");
+          expect(editorScroller.scrollHeight).toBeGreaterThan(
+            editorScroller.clientHeight,
+          );
+          editorScroller.scrollTop = Math.min(
+            40,
+            editorScroller.scrollHeight - editorScroller.clientHeight,
+          );
+          expect(editorScroller.scrollTop).toBeGreaterThan(0);
           await waitFor(() =>
             expectLinkPreviewPlacement(previewTrigger, preview),
           );

@@ -154,6 +154,15 @@
 
   :global(
     .markdown-link-sidebar__preview-scroll[data-editing="true"]
+      [data-ui-part="scroll-area-viewport"]
+      > div
+  ) {
+    height: 100%;
+    min-height: 0;
+  }
+
+  :global(
+    .markdown-link-sidebar__preview-scroll[data-editing="true"]
       [data-ui-part="scroll-area-scrollbar"]
   ) {
     display: none;

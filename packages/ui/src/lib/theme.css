@@ -61,6 +61,20 @@
   --shadow-l: none;
 }
 
+/*
+ * Mira's Obsidian-compatible surfaces keep their portable palette when used
+ * alone. Inside Lapis, align interaction paint with design-core's semantic
+ * brand tokens so portaled and consumer-composed previews resolve identically.
+ */
+[data-ui-theme="lapis"] [data-mira-theme~="obsidian"],
+[data-ui-theme="lapis"][data-mira-theme~="obsidian"] {
+  --mira-accent: var(--ui-workspace-focus-ring);
+  --mira-accent-foreground: var(--ui-workspace-accent-foreground);
+  --mira-accent-soft: var(--ui-workspace-selection);
+  --mira-focus-ring: var(--ui-workspace-focus-ring);
+  --mira-selection: var(--ui-workspace-selection);
+}
+
 .dark,
 .theme-dark,
 .dark [data-ui-theme="lapis"],

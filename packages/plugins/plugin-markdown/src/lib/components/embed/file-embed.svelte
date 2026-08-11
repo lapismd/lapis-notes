@@ -92,6 +92,7 @@
   data-file-path={baseTarget}
   data-editable={editable ? "true" : "false"}
   data-editing={editing ? "true" : "false"}
+  data-mira-theme="obsidian"
 >
   <header class="lapis-file-embed__header">
     {#if !editable}
@@ -178,7 +179,7 @@
 
   .lapis-file-embed[data-editable="true"]
     .lapis-file-embed__content
-    :global(.mira-markdown-preview) {
+    :global(.mira-editable-markdown-preview__preview > .mira-markdown-preview) {
     box-sizing: border-box;
     padding: 1rem 2rem;
   }
