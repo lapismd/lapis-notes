@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
-export const DEFAULT_REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
+export const DEFAULT_REPO_ROOT = path.resolve(SCRIPT_DIR, "../..");
 const CANONICAL_SPEC_PATTERN = /^spec\/src\/(?!SUMMARY\.md$).+\.md$/;
 
 const IGNORED_PATTERNS = [
@@ -120,8 +120,7 @@ const RULES = [
   },
   {
     name: "Specification governance",
-    pattern:
-      /^(?:scripts\/check-spec-first\.mjs|scripts\/spec-validation\/|spec\/book\.toml|AGENTS\.md$)/,
+    pattern: /^(?:scripts\/spec-validation\/|spec\/book\.toml|AGENTS\.md$)/,
     chapters: ["spec/src/spec-governance.md"],
   },
   {

@@ -24,8 +24,8 @@
     "test:visual:update": "node ./scripts/update-visual-baselines.mjs",
     "spec:build": "mdbook build ./spec",
     "spec:check": "pnpm spec:validate && pnpm spec:test && pnpm spec:build && pnpm spec:first",
-    "spec:first": "node ./scripts/check-spec-first.mjs",
-    "spec:test": "node --test ./scripts/check-spec-first.spec.mjs ./scripts/spec-validation/*.spec.mjs",
+    "spec:first": "node ./scripts/spec-validation/check-spec-first.mjs",
+    "spec:test": "node --test ./scripts/spec-validation/*.spec.mjs",
     "spec:validate": "node ./scripts/spec-validation/index.mjs",
     "spec:serve": "mdbook serve ./spec --open",
     "test": "pnpm spec:test && turbo run test"

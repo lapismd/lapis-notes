@@ -77,6 +77,8 @@ Brand palette and semantic tokens live in design-core `themes/lapis.css`.
 `@lapis-notes/ui/theme.css` is an Obsidian-compatibility alias layer only.
 Storybook theme controls and their manager dependencies remain root-only
 development tooling rather than package exports or runtime dependencies.
+Specification scripts and their tests remain root tooling under
+`scripts/spec-validation/`; they do not belong to a runtime package.
 The editor demo's CodeMirror Markdown and JSON language packages follow that
 same root-only rule; the source view and editor registry remain language-policy
 neutral package contracts. The shared source-editor shell depends on sibling

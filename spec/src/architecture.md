@@ -78,6 +78,7 @@ extension registry and source view, not a bundled language policy.
 
 Root scripts stay thin: specification validation, `check:no-tailwind`, Turbo
 for package tasks, `spec:first` for change mapping, and Storybook for docs. Do
-not grow a parallel script forest for import path syncing. Storybook manager-only dependencies,
+not grow a parallel script forest for import path syncing. Specification scripts
+and their tests stay together under `scripts/spec-validation/`. Storybook manager-only dependencies,
 including the shared theme toolbar icons, remain root development tooling and
 do not enter the runtime package graph.

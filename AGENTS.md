@@ -20,6 +20,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   protected implementation changes.
 - Run `pnpm spec:first` after changing protected paths. The gate fails closed on
   unmapped `packages/*/src` changes.
+- Keep specification scripts and their tests together under
+  `scripts/spec-validation/`; add new validation lanes to its explicit
+  orchestrator instead of creating root-level spec scripts.
 - Authority order: `spec/src` → package interfaces / implementation → Storybook
   catalog → READMEs / this file (workflow only).
 
