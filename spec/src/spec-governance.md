@@ -31,6 +31,7 @@ protected package change.
 | LN-GOV-021 | Specification searches MUST refresh the local collection before querying. Semantic search MUST update embeddings before vector retrieval, while normal checks and CI MUST NOT refresh or require the discovery index. |
 | LN-GOV-022 | Agent guidance MUST prefer the repository wrapper for requirement discovery, require returned canonical sources to be read, and retain `rg` as the fallback when QMD or semantic models are unavailable. |
 | LN-GOV-023 | Specification validation MUST inspect Autodocs stories that use local demo, harness, or fixture render boundaries. They MUST resolve explicit `docs.source` code, language, and type fields, and MUST NOT expose story-only component names or `args` as consumer usage. |
+| LN-GOV-024 | Agent guidance MUST require Markdown feature-presentation changes to preserve canonical child descriptors, flat configuration keys, and real-app persistence acceptance. It MUST direct agents to design-core's Boolean toggle-table contract instead of a stored object-grid collection. |
 
 ## Requirement structure
 

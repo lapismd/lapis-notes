@@ -112,6 +112,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   padding so the application shell owns the complete documented viewport.
   Keep standalone story canvases full-screen; the 700px rule applies to their
   Autodocs embed rather than constraining the component or story root.
+
 ## Workspace Panel Stories
 
 - Treat `spec/src/workspace-shell/panels.md` as the canonical reusable panel
@@ -216,6 +217,13 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   keep the selection toolbar and standard block handles on, the contextual
   block-type toolbar off, Doodle Dividers off, Mermaid on, and AI off. Never
   read the superseded `markdown.mira.features.toolbar` key.
+- Keep the 20 Mira capability descriptors together in the design-core Boolean
+  `toggle-table` group. Each descriptor owns its proper-case label, concise
+  description, existing dotted key, default, and runtime gate; the group owns
+  presentation only and must never enter the flat configuration schema or
+  persisted configuration. Do not use the collection-oriented `object-grid`
+  control for independent feature flags. Prove presentation changes through
+  the real Editor Settings story and its `.obsidian/app.json` persistence path.
 - Mount Mira extension styles and lifecycle callbacks with the owning Lapis
   CodeMirror view and clean them up on reconfiguration. Top-toolbar actions
   delegate to the existing Lapis `Editor`, configuration, image picker, and

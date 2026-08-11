@@ -833,6 +833,12 @@ export const EditorSettings: Story = {
     await userEvent.click(
       within(dialog).getByRole("button", { name: "Markdown" }),
     );
+    await expect(
+      within(dialog).getByRole("heading", { name: "Markdown" }),
+    ).toBeVisible();
+    await expect(
+      within(dialog).getByRole("heading", { name: "Features" }),
+    ).toBeVisible();
     const topToolbar = within(dialog).getByRole("switch", {
       name: "Show editor toolbar",
     });
@@ -849,6 +855,25 @@ export const EditorSettings: Story = {
     await expect(selectionToolbar).toHaveAttribute("data-state", "checked");
     await expect(blockToolbar).toHaveAttribute("data-state", "unchecked");
     await expect(doodleDividers).toHaveAttribute("data-state", "unchecked");
+
+    const slashCommands = within(dialog).getByRole("switch", {
+      name: "Slash commands",
+    });
+    await expect(slashCommands).toHaveAttribute("data-state", "checked");
+    await userEvent.click(slashCommands);
+    await waitFor(async () => {
+      const persisted = await persistedStoryConfiguration();
+      expect(persisted["markdown.mira.features.slash-commands"]).toBe(false);
+      expect("markdown.mira.features" in persisted).toBe(false);
+    });
+    await userEvent.click(slashCommands);
+    await waitFor(async () =>
+      expect(
+        (await persistedStoryConfiguration())[
+          "markdown.mira.features.slash-commands"
+        ],
+      ).toBe(true),
+    );
 
     await userEvent.click(topToolbar);
     await waitFor(() =>

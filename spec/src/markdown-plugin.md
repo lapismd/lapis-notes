@@ -36,6 +36,8 @@ specified separately under [Panels](./markdown-plugin/panels/index.md).
 | LN-MD-079 | Markdown's pane menu MUST place its View section before provider contributions and generic workspace actions. Reading view is first, followed by Source mode while editing. |
 | LN-MD-080 | While editing, Markdown's View section MUST expose a checked `Show editor toolbar` item that toggles and persists `markdown.mira.editor.toolbar.enabled`. |
 | LN-MD-081 | Mira toolbar changes to indentation guides, indentation type, and indentation width MUST persist through Lapis configuration before their updated state is reported. |
+| LN-MD-082 | The 20 Mira capability flags MUST appear in one top-level Settings group with ID `markdown.mira.features` and `toggle-table` presentation. Every Boolean row MUST use an explicit proper-case label and a concise capability description. The Mermaid row MUST state that authoring also requires the Mermaid plugin setting. |
+| LN-MD-083 | Grouped feature presentation MUST preserve every existing dotted feature key, default, and runtime gate. The configuration schema MUST remain flat and MUST NOT register or persist a `markdown.mira.features` group object. |
 
 ## Ownership
 

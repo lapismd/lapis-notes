@@ -1,4 +1,14 @@
 import { MiraFeature, type MiraFeatureName } from "@lapismd/mira-editor";
+import type {
+  WorkspaceSettingsSection,
+  WorkspaceToggleTableSettingGroup,
+} from "@lapismd/design-core/workspace";
+
+type PublicWorkspaceSettingField = NonNullable<
+  WorkspaceSettingsSection["fields"]
+>[number];
+type PublicWorkspaceBooleanSetting =
+  WorkspaceToggleTableSettingGroup["fields"][number];
 
 export const MARKDOWN_SCHEMA_ID = "markdown";
 
@@ -9,7 +19,7 @@ export const MIRA_EDITOR_SETTING_KEYS = {
   doodleDividers: "markdown.mira.editor.doodleDividers.enabled",
 } as const;
 
-export const MIRA_FEATURE_KEYS: MiraFeatureName[] = [
+export const MIRA_FEATURE_KEYS = [
   MiraFeature.ModeSwitch,
   MiraFeature.Formatting,
   MiraFeature.Headings,
@@ -30,7 +40,100 @@ export const MIRA_FEATURE_KEYS: MiraFeatureName[] = [
   MiraFeature.SourceMode,
   MiraFeature.LivePreviewMode,
   MiraFeature.PreviewMode,
-];
+] as const satisfies readonly MiraFeatureName[];
+
+type MarkdownMiraFeature = (typeof MIRA_FEATURE_KEYS)[number];
+
+type MarkdownMiraFeatureMetadata = {
+  title: string;
+  description: string;
+};
+
+export const MIRA_FEATURE_METADATA = {
+  [MiraFeature.ModeSwitch]: {
+    title: "Mode switch",
+    description: "Show Mira's mode switch when a mode selector is available.",
+  },
+  [MiraFeature.Formatting]: {
+    title: "Formatting",
+    description:
+      "Enable bold, italic, strikethrough, and inline-code authoring actions.",
+  },
+  [MiraFeature.Headings]: {
+    title: "Headings",
+    description: "Enable heading actions and heading authoring commands.",
+  },
+  [MiraFeature.Lists]: {
+    title: "Lists",
+    description: "Enable list, task, quote, and callout authoring actions.",
+  },
+  [MiraFeature.Links]: {
+    title: "Links",
+    description: "Enable link authoring actions and commands.",
+  },
+  [MiraFeature.Tables]: {
+    title: "Tables",
+    description: "Enable pipe-table authoring actions and commands.",
+  },
+  [MiraFeature.GridTables]: {
+    title: "Grid tables",
+    description: "Enable grid-table authoring actions and commands.",
+  },
+  [MiraFeature.Mermaid]: {
+    title: "Mermaid",
+    description:
+      "Enable Mermaid authoring when the Mermaid plugin setting is also enabled.",
+  },
+  [MiraFeature.Code]: {
+    title: "Code",
+    description: "Enable inline-code and fenced-code authoring actions.",
+  },
+  [MiraFeature.Math]: {
+    title: "Math",
+    description: "Enable inline and block-math authoring actions.",
+  },
+  [MiraFeature.Frontmatter]: {
+    title: "Frontmatter",
+    description: "Enable Mira's rendered frontmatter controls.",
+  },
+  [MiraFeature.Images]: {
+    title: "Images",
+    description: "Enable image insertion and image block actions.",
+  },
+  [MiraFeature.Embeds]: {
+    title: "Embeds",
+    description: "Enable Mira's embedded-content capability.",
+  },
+  [MiraFeature.Wikilinks]: {
+    title: "Wiki links",
+    description: "Enable Mira's wiki-link capability.",
+  },
+  [MiraFeature.Tags]: {
+    title: "Tags",
+    description: "Enable Mira's tag capability.",
+  },
+  [MiraFeature.SlashCommands]: {
+    title: "Slash commands",
+    description: "Enable the slash menu and registered slash commands.",
+  },
+  [MiraFeature.BlockControls]: {
+    title: "Block controls",
+    description:
+      "Enable block handles, movement controls, and context actions.",
+  },
+  [MiraFeature.SourceMode]: {
+    title: "Source mode",
+    description: "Make Source mode available to Mira mode controls.",
+  },
+  [MiraFeature.LivePreviewMode]: {
+    title: "Live Preview mode",
+    description: "Make Live Preview mode available to Mira mode controls.",
+  },
+  [MiraFeature.PreviewMode]: {
+    title: "Reading mode",
+    description: "Make Reading mode available to Mira mode controls.",
+  },
+} as const satisfies Record<MarkdownMiraFeature, MarkdownMiraFeatureMetadata>;
 
 export function miraFeatureConfigKey(feature: MiraFeatureName): string {
   return `markdown.mira.features.${feature}`;
@@ -70,7 +173,7 @@ const FEATURE_SETTING_DESCRIPTORS: MarkdownBooleanSettingDescriptor[] =
   MIRA_FEATURE_KEYS.map((feature) => ({
     id: miraFeatureConfigKey(feature),
     type: "boolean",
-    title: `Feature: ${feature}`,
+    ...MIRA_FEATURE_METADATA[feature],
     default: true,
   }));
 
@@ -163,7 +266,8 @@ export const MARKDOWN_SETTING_DESCRIPTORS: readonly MarkdownSettingDescriptor[] 
       id: MIRA_EDITOR_SETTING_KEYS.doodleDividers,
       type: "boolean",
       title: "Doodle Dividers",
-      description: "Render and edit seeded horizontal rules as doodle dividers.",
+      description:
+        "Render and edit seeded horizontal rules as doodle dividers.",
       default: false,
     },
     ...FEATURE_SETTING_DESCRIPTORS,
@@ -207,8 +311,13 @@ export function readMiraFeatureFlags(
   return flags;
 }
 
-export function createMarkdownSettingsFields() {
-  return MARKDOWN_SETTING_DESCRIPTORS.map((descriptor) => {
+export function createMarkdownSettingsFields(): PublicWorkspaceSettingField[] {
+  const featureIds = new Set(
+    FEATURE_SETTING_DESCRIPTORS.map((descriptor) => descriptor.id),
+  );
+  const fields = MARKDOWN_SETTING_DESCRIPTORS.filter(
+    (descriptor) => !featureIds.has(descriptor.id),
+  ).map((descriptor): PublicWorkspaceSettingField => {
     if (descriptor.type === "enum") {
       return {
         ...descriptor,
@@ -217,6 +326,20 @@ export function createMarkdownSettingsFields() {
     }
     return { ...descriptor };
   });
+
+  const featureFields: PublicWorkspaceBooleanSetting[] =
+    FEATURE_SETTING_DESCRIPTORS.map((descriptor) => ({ ...descriptor }));
+  fields.push({
+    id: "markdown.mira.features",
+    type: "group",
+    presentation: "toggle-table",
+    title: "Features",
+    description:
+      "Choose which Mira capabilities are available in Markdown editing and preview surfaces.",
+    fields: featureFields,
+  });
+
+  return fields;
 }
 
 export function createMarkdownConfigurationSchema() {

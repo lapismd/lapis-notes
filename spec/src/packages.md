@@ -36,6 +36,7 @@
 | LN-PKG-030 | Ordinary document-link previews MUST remain owned by Mira's built package and receive only Lapis's `MiraFileAdapter`. The Markdown package MUST NOT add a consumer portal or clipping workaround. |
 | LN-PKG-031 | `@tobilu/qmd` 2.5.3 MUST remain a pinned root development dependency. Its native build approvals and TypeScript peer MUST remain root tooling and MUST NOT enter workspace package manifests. |
 | LN-PKG-032 | `@lapis-notes/api` MUST own the ordered adapter from compatibility `ItemView.actions` and `View.onPaneMenu` contributions to design-core workspace chrome. `@lapis-notes/workspace` remains a rendering host and MUST NOT add plugin-specific actions. |
+| LN-PKG-033 | `@lapis-notes/markdown` MUST render grouped Boolean Settings through design-core's public `WorkspaceSettingGroup` toggle-table contract. It MUST NOT introduce a package-local settings table or stored group value. |
 
 ## `@lapis-notes/api` (kernel slice)
 

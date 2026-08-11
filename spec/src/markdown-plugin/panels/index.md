@@ -1,5 +1,9 @@
 # Markdown Panels
 
+Markdown configuration and editor feature settings remain governed by the
+[Markdown Plugin overview](../../markdown-plugin.md). They do not change the
+movable-panel contracts in this chapter.
+
 The Markdown plugin registers file- and vault-scoped views into the movable
 [Workspace Shell panel contract](../../workspace-shell/panels.md). This page
 defines the shared package boundary; each concrete panel has its own behavior

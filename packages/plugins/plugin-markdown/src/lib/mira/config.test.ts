@@ -5,6 +5,9 @@ import {
   createMarkdownSettingsFields,
   MARKDOWN_SETTING_DESCRIPTORS,
   MIRA_EDITOR_SETTING_KEYS,
+  MIRA_FEATURE_KEYS,
+  MIRA_FEATURE_METADATA,
+  miraFeatureConfigKey,
   readMiraFeatureFlags,
 } from "./config";
 
@@ -13,21 +16,63 @@ describe("Markdown setting descriptors", () => {
     const schema = createMarkdownConfigurationSchema();
     const fields = createMarkdownSettingsFields();
     const ids = MARKDOWN_SETTING_DESCRIPTORS.map((descriptor) => descriptor.id);
+    const featureIds = MIRA_FEATURE_KEYS.map(miraFeatureConfigKey);
+    const ordinaryIds = ids.filter((id) => !featureIds.includes(id));
+    const featureGroup = fields.find(
+      (field) => field.id === "markdown.mira.features",
+    );
 
     expect(new Set(ids).size).toBe(ids.length);
     expect(Object.keys(schema.properties)).toEqual(ids);
-    expect(fields.map((field) => field.id)).toEqual(ids);
+    expect(fields.map((field) => field.id)).toEqual([
+      ...ordinaryIds,
+      "markdown.mira.features",
+    ]);
+    expect(schema.properties).not.toHaveProperty("markdown.mira.features");
+    expect(featureGroup).toMatchObject({
+      type: "group",
+      presentation: "toggle-table",
+      title: "Features",
+      description:
+        "Choose which Mira capabilities are available in Markdown editing and preview surfaces.",
+    });
+    expect(featureGroup?.type).toBe("group");
+    if (featureGroup?.type !== "group") {
+      throw new Error("Expected the Markdown feature settings group");
+    }
+    expect(featureGroup.fields.map((field) => field.id)).toEqual(featureIds);
 
     for (const descriptor of MARKDOWN_SETTING_DESCRIPTORS) {
       expect(schema.properties[descriptor.id]).toMatchObject({
         title: descriptor.title,
         default: descriptor.default,
       });
-      expect(fields.find((field) => field.id === descriptor.id)).toMatchObject({
+      const field = featureIds.includes(descriptor.id)
+        ? featureGroup.fields.find(
+            (candidate) => candidate.id === descriptor.id,
+          )
+        : fields.find((candidate) => candidate.id === descriptor.id);
+      expect(field).toMatchObject({
         title: descriptor.title,
         default: descriptor.default,
       });
     }
+  });
+
+  it("declares explicit labels and descriptions for every Mira feature", () => {
+    expect(Object.keys(MIRA_FEATURE_METADATA)).toHaveLength(20);
+    expect(new Set(MIRA_FEATURE_KEYS).size).toBe(20);
+
+    for (const feature of MIRA_FEATURE_KEYS) {
+      const metadata = MIRA_FEATURE_METADATA[feature];
+      expect(metadata.title).toMatch(/^[A-Z]/);
+      expect(metadata.title).not.toMatch(/^Feature:/);
+      expect(metadata.description.trim()).not.toBe("");
+    }
+
+    expect(MIRA_FEATURE_METADATA[MiraFeature.Mermaid].description).toContain(
+      "Mermaid plugin setting",
+    );
   });
 
   it("declares truthful authoring defaults", () => {
