@@ -192,7 +192,7 @@ function placementStory(
         ).toBeGreaterThan(8);
         expect(
           Math.abs(
-            (alphaHash?.getBoundingClientRect().left ?? 0) -
+            (alphaHash?.getBoundingClientRect().right ?? 0) -
               (projectLabel?.getBoundingClientRect().left ?? 0),
           ),
         ).toBeLessThan(1);

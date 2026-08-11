@@ -345,6 +345,15 @@
     cursor: pointer;
   }
 
+  :global(
+    .tags-panel__fill
+      .tags-panel__sub
+      [data-ui-part].tags-panel__row
+      > :not(.tags-panel__count)
+  ) {
+    translate: -1rem 0;
+  }
+
   :global(.tags-panel__fill [data-ui-part].tags-panel__row:hover),
   :global(.tags-panel__fill [data-ui-part].tags-panel__row:focus-visible) {
     background: var(--ui-workspace-explorer-row-hover-background, var(--sidebar-accent));
