@@ -34,7 +34,7 @@ Markdownlint provider are implemented.
 | LN-WS-044 | Activating `View Problem` MUST render a compact inline problem beneath the diagnostic line. The surface MUST expose a warning pointer and accent, a distinct header and body, source and rule metadata, and an accessible close control. |
 | LN-WS-045 | `View Problem` MUST hand off from its hover card to the inline problem without retaining stale hover state. After the inline problem closes, hovering a diagnostic MUST show its card again. |
 | LN-WS-046 | The owning Problems leaf MUST show the live total as a shared workspace badge with visible non-hover paint. The persisted title MUST remain `Problems`, and the panel toolbar MUST NOT duplicate the total. |
-| LN-WS-047 | Problems severity toggles MUST be compact checkbox items in an untitled filter menu triggered by an inline `list-filter` action inside the search field. The menu MUST retain semantic severity icon colours and show `Errors`, `Warnings`, `Infos`, and `Hints` with readable counts without clipping. |
+| LN-WS-047 | Problems severity toggles MUST be compact checkbox items in an untitled filter menu triggered by an inline `list-filter` action inside the search field. The menu MUST retain semantic severity icon colours and show `Errors`, `Warnings`, `Infos`, and `Hints` with unclipped totals in one aligned count column. |
 | LN-WS-048 | The Problems panel toolbar MUST omit duplicate Problems title text because the owning leaf supplies the label. It MUST align the search, filter, presentation, and collapse controls at the toolbar's right edge. |
 
 ## Ownership

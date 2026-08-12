@@ -332,6 +332,13 @@ export const MarkdownProblems: Story = {
       name: "Filter problem severities",
     });
     expect(severityFilter.querySelector(".lucide-list-filter")).toBeVisible();
+    const filterInput = problemsCanvas.getByRole("textbox", {
+      name: "Filter problems",
+    });
+    expect(
+      filterInput.getBoundingClientRect().height -
+        severityFilter.getBoundingClientRect().height,
+    ).toBeGreaterThanOrEqual(6);
     await userEvent.click(severityFilter);
     const overlayCanvas = within(canvasElement.ownerDocument.body);
     let warningsFilter = await overlayCanvas.findByRole("menuitemcheckbox", {
@@ -342,6 +349,37 @@ export const MarkdownProblems: Story = {
         name: /^Infos: \d+$/,
       }),
     ).toBeVisible();
+    const severityItems = [
+      overlayCanvas.getByRole("menuitemcheckbox", { name: /^Errors: \d+$/ }),
+      warningsFilter,
+      overlayCanvas.getByRole("menuitemcheckbox", { name: /^Infos: \d+$/ }),
+      overlayCanvas.getByRole("menuitemcheckbox", { name: /^Hints: \d+$/ }),
+    ];
+    const severityMenu = warningsFilter.closest<HTMLElement>('[role="menu"]');
+    expect(severityMenu).not.toBeNull();
+    const severityMenuWidth = severityMenu!.getBoundingClientRect().width;
+    expect(severityMenuWidth).toBeGreaterThanOrEqual(224);
+    expect(severityMenuWidth).toBeLessThan(288);
+    const severityIconColors = new Set<string>();
+    const countRightEdges = new Set<number>();
+    for (const item of severityItems) {
+      const iconHost = item.querySelector<HTMLElement>(
+        '[data-ui-component="workspace-icon"]',
+      );
+      const iconGraphic =
+        iconHost?.tagName.toLowerCase() === "svg"
+          ? iconHost
+          : iconHost?.querySelector<SVGElement>("svg");
+      expect(iconGraphic).not.toBeNull();
+      severityIconColors.add(getComputedStyle(iconGraphic!).color);
+      const count = item.querySelector<HTMLElement>(
+        ".ui-workspace-problems__filter-menu-count",
+      );
+      expect(count).not.toBeNull();
+      countRightEdges.add(Math.round(count!.getBoundingClientRect().right));
+    }
+    expect(severityIconColors.size).toBe(4);
+    expect(countRightEdges.size).toBe(1);
     expect(warningsFilter).toHaveAttribute("data-state", "checked");
     await userEvent.click(warningsFilter);
     await waitFor(() => {
