@@ -55,6 +55,7 @@ export * from "./notifications";
 export * from "./status-bar.svelte";
 export * from "./app-url";
 export * from "./language-service";
+export * from "./diagnostics";
 export * from "./metadata.svelte";
 export * from "./metadata-value";
 export * from "./embed-registry";

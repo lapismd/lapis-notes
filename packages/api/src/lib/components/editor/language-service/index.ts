@@ -1,7 +1,12 @@
 import type { Completion, CompletionContext } from "@codemirror/autocomplete";
 import type { Action } from "@codemirror/lint";
 import { Facet, type Extension, type Text } from "@codemirror/state";
-import { hoverTooltip, type EditorView } from "@codemirror/view";
+import {
+  hoverTooltip,
+  ViewPlugin,
+  type EditorView,
+  type ViewUpdate,
+} from "@codemirror/view";
 import {
   editorViewField,
   fromPosition,
@@ -71,6 +76,7 @@ export function languageServiceExtensions(
 
   if (wantsDiagnostics) {
     extensions.push(
+      openDocumentTrackingExtension(options),
       ...lapisCodeMirrorLint({
         source: async (view: EditorView) =>
           collectLanguageServiceDiagnostics(view, options),
@@ -88,6 +94,36 @@ export function languageServiceExtensions(
     extensions.push(languageServiceHover(options));
   }
   return extensions;
+}
+
+function openDocumentTrackingExtension(
+  options: Pick<LanguageServiceEditorOptions, "languageId">,
+): Extension {
+  return ViewPlugin.define((view) => {
+    let uri: string | null = null;
+    let release: (() => void) | null = null;
+    const sync = (nextView: EditorView) => {
+      const nextUri = resolveDocumentContext(nextView, options.languageId)
+        ?.document.uri;
+      if (nextUri === uri) return;
+      release?.();
+      uri = nextUri ?? null;
+      release = uri
+        ? (nextView.state
+            .field(editorViewField, false)
+            ?.app.languageServices.retainDocument(uri) ?? null)
+        : null;
+    };
+    sync(view);
+    return {
+      update(update: ViewUpdate) {
+        if (update.docChanged) sync(update.view);
+      },
+      destroy() {
+        release?.();
+      },
+    };
+  });
 }
 
 async function collectLanguageServiceDiagnostics(

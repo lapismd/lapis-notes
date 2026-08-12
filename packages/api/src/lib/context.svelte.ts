@@ -49,7 +49,11 @@ import {
 } from "./localization-manager.svelte";
 import { NotificationManager } from "./notifications";
 import { NoopTelemetryService, type TelemetryService } from "./telemetry";
-import { LanguageServiceManager } from "./language-service";
+import {
+  LanguageServiceManager,
+  type LanguageServiceCodeAction,
+  type VirtualDocument,
+} from "./language-service";
 import { ContextKeyService } from "./context-keys.svelte";
 import { StatusBarManager } from "./status-bar.svelte";
 import { AppUrlService } from "./app-url";
@@ -332,6 +336,17 @@ export class App {
         props.createCommunityPluginDependencyResolver,
       pluginAssetServer: props.pluginAssetServer,
     });
+    const languageServiceDiagnostics =
+      this.workspace.diagnostics.createCollection("lapis:language-service", {
+        label: "Language service",
+        buildItemMenu: (menu, entry) =>
+          this.languageServices.buildDiagnosticItemMenu(menu, entry),
+      });
+    this.languageServices.bindDiagnostics({
+      collection: languageServiceDiagnostics,
+      applyCodeAction: (document, action) =>
+        this.applyLanguageServiceCodeAction(document, action),
+    });
     this.pluginDistribution = new DefaultPluginDistributionManager({
       ...props.pluginDistributionOptions,
       adapter,
@@ -364,6 +379,51 @@ export class App {
       metadataFieldValuesSource.invalidate();
     });
     this.initializeContextKeys();
+  }
+
+  private async applyLanguageServiceCodeAction(
+    document: VirtualDocument,
+    action: LanguageServiceCodeAction,
+  ): Promise<void> {
+    const path = document.uri.startsWith("vault:///")
+      ? decodeURI(document.uri.slice("vault:///".length))
+      : null;
+    const file = path ? this.vault.getFileByPath(path) : null;
+    if (!file || !action.edit || typeof action.edit !== "object") return;
+    const changes = (action.edit as { changes?: unknown }).changes;
+    if (!Array.isArray(changes)) return;
+    const source = await this.vault.read(file);
+    const edits = changes
+      .map((change) => {
+        if (!change || typeof change !== "object") return null;
+        const record = change as Record<string, unknown>;
+        const from = typeof record.from === "number" ? record.from : null;
+        const to = typeof record.to === "number" ? record.to : from;
+        const insert =
+          typeof record.insert === "string"
+            ? record.insert
+            : typeof record.text === "string"
+              ? record.text
+              : null;
+        if (from === null || to === null || insert === null) return null;
+        return { from, to, insert };
+      })
+      .filter(
+        (edit): edit is { from: number; to: number; insert: string } =>
+          edit !== null,
+      )
+      .sort((left, right) => right.from - left.from);
+    if (!edits.length) return;
+    let value = source;
+    for (const edit of edits) {
+      value = `${value.slice(0, edit.from)}${edit.insert}${value.slice(edit.to)}`;
+    }
+    await this.vault.modify(file, value);
+    await this.languageServices.diagnostics({
+      ...document,
+      version: document.version + 1,
+      text: value,
+    });
   }
 
   private initializeContextKeys(): void {

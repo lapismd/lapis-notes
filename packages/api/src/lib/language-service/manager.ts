@@ -11,6 +11,21 @@ import type {
   LanguageServiceRequestContext,
   VirtualDocument,
 } from "./types";
+import type {
+  DiagnosticCollection,
+  DiagnosticResource,
+  WorkspaceDiagnosticEntry,
+  WorkspaceDiagnostic,
+} from "../diagnostics";
+import type { Menu } from "../menu.svelte";
+
+export interface LanguageServiceDiagnosticsBinding {
+  collection: DiagnosticCollection;
+  applyCodeAction: (
+    document: VirtualDocument,
+    action: LanguageServiceCodeAction,
+  ) => Promise<void> | void;
+}
 
 export class LanguageServiceManager {
   private readonly providers = new Map<string, LanguageServiceProvider>();
@@ -22,6 +37,12 @@ export class LanguageServiceManager {
   private readonly onBeforeResolve?: (
     languageId: string,
   ) => Promise<void> | void;
+  private diagnosticsBinding: LanguageServiceDiagnosticsBinding | null = null;
+  private readonly openDocuments = new Map<string, number>();
+  private readonly cachedCodeActions = new Map<
+    string,
+    readonly LanguageServiceCodeAction[]
+  >();
 
   constructor(
     options: {
@@ -42,9 +63,59 @@ export class LanguageServiceManager {
     return () => {
       if (this.providers.get(provider.metadata.id) === provider) {
         this.providers.delete(provider.metadata.id);
+        this.clearPublishedDiagnostics();
         void provider.dispose?.();
       }
     };
+  }
+
+  bindDiagnostics(binding: LanguageServiceDiagnosticsBinding): () => void {
+    this.diagnosticsBinding = binding;
+    return () => {
+      if (this.diagnosticsBinding !== binding) return;
+      this.clearPublishedDiagnostics();
+      this.diagnosticsBinding = null;
+    };
+  }
+
+  retainDocument(uri: string): () => void {
+    this.openDocuments.set(uri, (this.openDocuments.get(uri) ?? 0) + 1);
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      const next = (this.openDocuments.get(uri) ?? 1) - 1;
+      if (next > 0) {
+        this.openDocuments.set(uri, next);
+        return;
+      }
+      this.openDocuments.delete(uri);
+      this.documents.delete(uri);
+      this.deleteCachedCodeActions(uri);
+      this.diagnosticsBinding?.collection.delete(resourceForUri(uri));
+    };
+  }
+
+  buildDiagnosticItemMenu(menu: Menu, entry: WorkspaceDiagnosticEntry): void {
+    const uri = entry.resource?.uri;
+    if (!uri || !this.diagnosticsBinding) return;
+    const actions = this.cachedCodeActions.get(
+      diagnosticCacheKey(uri, entry.diagnostic),
+    );
+    if (!actions?.length) return;
+    const document = this.documents.get(uri);
+    if (!document) return;
+    for (const action of actions) {
+      menu.addItem((item) =>
+        item
+          .setTitle(action.title)
+          .setIcon("wand-sparkles")
+          .setSection("fix")
+          .onClick(() =>
+            this.diagnosticsBinding?.applyCodeAction(document, action),
+          ),
+      );
+    }
   }
 
   registerGlobalDeclaration(
@@ -86,6 +157,7 @@ export class LanguageServiceManager {
     await this.onBeforeResolve?.(document.languageId);
     const sorted = this.matchingProviders(document.languageId, "diagnostics");
     if (!sorted.length) {
+      this.publishDiagnostics(document, []);
       return [];
     }
     const topPriority = sorted[0].metadata.priority ?? 0;
@@ -103,7 +175,10 @@ export class LanguageServiceManager {
         }),
       ),
     );
-    return results.flatMap((diagnostics) => diagnostics ?? []);
+    const diagnostics = results.flatMap((diagnostics) => diagnostics ?? []);
+    this.publishDiagnostics(document, diagnostics);
+    void this.cacheCodeActions(document, diagnostics);
+    return diagnostics;
   }
 
   async completions(
@@ -240,4 +315,87 @@ export class LanguageServiceManager {
   ): LanguageServiceProvider[] {
     return this.matchingProviders(languageId, capability);
   }
+
+  private publishDiagnostics(
+    document: VirtualDocument,
+    diagnostics: readonly LanguageServiceDiagnostic[],
+  ): void {
+    if (!this.diagnosticsBinding || !this.openDocuments.has(document.uri)) {
+      return;
+    }
+    this.diagnosticsBinding.collection.set(
+      resourceForUri(document.uri),
+      diagnostics.map(toWorkspaceDiagnostic),
+    );
+  }
+
+  private async cacheCodeActions(
+    document: VirtualDocument,
+    diagnostics: readonly LanguageServiceDiagnostic[],
+  ): Promise<void> {
+    this.deleteCachedCodeActions(document.uri);
+    await Promise.all(
+      diagnostics.map(async (diagnostic) => {
+        const actions = await this.codeActions(document, diagnostic.range);
+        if (!this.openDocuments.has(document.uri)) return;
+        this.cachedCodeActions.set(
+          diagnosticCacheKey(document.uri, diagnostic),
+          actions,
+        );
+      }),
+    );
+  }
+
+  private deleteCachedCodeActions(uri: string): void {
+    const prefix = `${uri}\u0000`;
+    for (const key of this.cachedCodeActions.keys()) {
+      if (key.startsWith(prefix)) this.cachedCodeActions.delete(key);
+    }
+  }
+
+  private clearPublishedDiagnostics(): void {
+    this.cachedCodeActions.clear();
+    this.diagnosticsBinding?.collection.clear();
+  }
+}
+
+function resourceForUri(uri: string): DiagnosticResource {
+  const rawPath = uri.startsWith("vault:///")
+    ? uri.slice("vault:///".length)
+    : uri;
+  let detail = rawPath;
+  try {
+    detail = decodeURI(rawPath);
+  } catch {
+    // Preserve an opaque URI when it is not URI encoded.
+  }
+  return {
+    uri,
+    label: detail.split("/").at(-1) || detail,
+    detail,
+    icon: "file-text",
+  };
+}
+
+function toWorkspaceDiagnostic(
+  diagnostic: LanguageServiceDiagnostic,
+): WorkspaceDiagnostic {
+  return {
+    message: diagnostic.message,
+    severity: diagnostic.severity,
+    range: diagnostic.range,
+    source: diagnostic.source,
+    code: diagnostic.code,
+  };
+}
+
+function diagnosticCacheKey(
+  uri: string,
+  diagnostic: Pick<WorkspaceDiagnostic, "message" | "range" | "code">,
+): string {
+  return `${uri}\u0000${diagnostic.message}\u0000${String(
+    typeof diagnostic.code === "object"
+      ? diagnostic.code.value
+      : (diagnostic.code ?? ""),
+  )}\u0000${JSON.stringify(diagnostic.range ?? null)}`;
 }

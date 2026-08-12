@@ -40,6 +40,9 @@
 | LN-PKG-034 | `@lapis-notes/language-service` MUST live at `packages/language-service` as an internal provider-neutral Markdown client and worker package. It MUST expose build, check, and test scripts without owning workspace presentation or vault navigation. |
 | LN-PKG-035 | `@lapis-notes/markdown-lint` MUST live at `packages/plugins/plugin-markdown-lint` as an enabled-by-default core plugin. It MUST depend on the API and internal language-service contracts without importing Design Core presentation. |
 
+The API package delegates reusable diagnostic state and presentation to Design
+Core while exporting only Lapis-owned structural types and lifecycle helpers.
+
 ## `@lapis-notes/api` (kernel slice)
 
 Purpose (condensed from the full Lapis Notes api package):

@@ -37,6 +37,10 @@ import type {
 import type { PluginProvenance } from "./plugin-distribution/types";
 import { Component } from "./view.svelte";
 import type { ViewCreator } from "./workspace.svelte";
+import type {
+  DiagnosticCollection,
+  DiagnosticCollectionOptions,
+} from "./diagnostics";
 
 function isPromiseLike<T>(value: T | Promise<T>): value is Promise<T> {
   return typeof (value as Promise<T>)?.then === "function";
@@ -777,6 +781,19 @@ export abstract class Plugin extends Component {
       pluginId: this.manifest.id,
     });
     this.register(disposer);
+  }
+
+  /** Create an owner-scoped diagnostic collection disposed with this plugin. */
+  createDiagnosticCollection(
+    id: string,
+    options: DiagnosticCollectionOptions = {},
+  ): DiagnosticCollection {
+    const collection = this.app.workspace.diagnostics.createCollection(
+      `plugin:${this.manifest.id}:${id}`,
+      options,
+    );
+    this.register(() => collection.dispose());
+    return collection;
   }
 
   onUserEnable(): Promise<void> | void {}

@@ -173,9 +173,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-029   | workspace-shell-panels-problems | In progress | host navigation adapter plus built-in and collection-owned row actions |
 | LN-WS-030   | workspace-shell-panels-problems | In progress | Problems presentation plugin seeding, movement preservation, and command reopening |
 | LN-WS-031   | workspace-shell-panels-problems | In progress | internal App Shell failure collection and recovery coverage |
-| LN-WS-032   | workspace-shell-panels-problems | In progress | Lapis workspace diagnostics façade and plugin-owned disposal |
-| LN-WS-033   | workspace-shell-panels-problems | In progress | open-document language-service publication, action cache, and reference counting |
-| LN-WS-034   | workspace-shell-panels-problems | In progress | Lapis problem navigation and cached code-action menus |
+| LN-WS-032   | workspace-shell-panels-problems | Implemented | `DiagnosticsManager` exposes the design-core manager through `app.workspace.diagnostics`; `Plugin.createDiagnosticCollection()` prefixes ownership and registers disposal |
+| LN-WS-033   | workspace-shell-panels-problems | Implemented | `LanguageServiceManager` reference-counts editor documents, publishes only retained URIs, caches actions, and clears final-close and provider-unload state |
+| LN-WS-034   | workspace-shell-panels-problems | Implemented | workspace navigation resolves opaque `vault:///` resources, reveals ranges, and language-service collection menus apply cached edits through `Vault.modify` before refreshing diagnostics |
 | LN-WS-035   | workspace-shell-panels-problems | In progress | Markdown diagnostics-only CodeMirror language-service composition |
 | LN-WS-036   | workspace-shell-panels-problems | In progress | Markdownlint native/worker provider, settings, fixes, and ignore actions |
 | LN-WS-037   | workspace-shell-panels-problems | In progress | Editor Demo lint gutter and Problems interaction acceptance |

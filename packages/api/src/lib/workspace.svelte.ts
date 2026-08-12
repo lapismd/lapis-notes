@@ -59,7 +59,15 @@ import {
   type WorkspaceViewContext as DesignWorkspaceViewContext,
 } from "@lapismd/design-core/workspace/core";
 import { notificationsPlugin } from "@lapismd/design-core/workspace/plugins/notifications";
+import {
+  problemsPlugin,
+  type WorkspaceDiagnosticLocation,
+} from "@lapismd/design-core/workspace/problems";
 import { setWorkspaceHostBinding } from "./workspace-host-internal";
+import {
+  DiagnosticsManager,
+  pathFromDiagnosticResource,
+} from "./diagnostics";
 
 const DEFAULT_LAPIS_LOGO_URL = new URL(
   "./assets/lapis-logo.svg",
@@ -120,7 +128,10 @@ function menuItemTitle(title: string | DocumentFragment): string {
   return typeof title === "string" ? title : (title.textContent ?? "");
 }
 
-function appendPaneMenu(target: DesignWorkspaceMenu, source: Menu): void {
+export function appendLapisMenuToWorkspaceMenu(
+  target: DesignWorkspaceMenu,
+  source: Menu,
+): void {
   for (const entries of Object.values(source.renderedItems)) {
     if (entries.length === 0) continue;
     if (target.entries.length > 0) target.addSeparator();
@@ -146,14 +157,16 @@ function appendPaneMenu(target: DesignWorkspaceMenu, source: Menu): void {
         continue;
       }
 
-      target.addMenu(entry.title, (submenu) => appendPaneMenu(submenu, entry));
+      target.addMenu(entry.title, (submenu) =>
+        appendLapisMenuToWorkspaceMenu(submenu, entry),
+      );
     }
   }
 }
 
 function prependPaneMenu(target: DesignWorkspaceMenu, source: Menu): void {
   const translated = new DesignWorkspaceMenu();
-  appendPaneMenu(translated, source);
+  appendLapisMenuToWorkspaceMenu(translated, source);
   if (translated.entries.length === 0) return;
   if (target.entries.length > 0) translated.addSeparator();
   target.entries.unshift(...translated.entries);
@@ -1853,6 +1866,7 @@ export class Workspace extends EventDispatcher<{
   private layoutHandlers: Array<() => void> = [];
   private suspendedLayoutPersistence = 0;
   #workspaceHostController: AppShellController | null = null;
+  readonly diagnostics: DiagnosticsManager;
   #syncingWorkspaceHost = 0;
   #workspaceHostProjection: Promise<void> = Promise.resolve();
   readonly #workspaceHostViewDisposers = new Map<string, () => void>();
@@ -2565,8 +2579,21 @@ export class Workspace extends EventDispatcher<{
         commitHash: application?.commitHash,
         copyright: application?.copyright,
       },
-      plugins:
-        shellOptions?.notifications === false ? [] : [notificationsPlugin()],
+      plugins: [
+        ...(shellOptions?.notifications === false
+          ? []
+          : [notificationsPlugin()]),
+        problemsPlugin({
+          navigation: {
+            open: (location) => this.openDiagnosticLocation(location),
+          },
+          clipboard: {
+            writeText: async (_label, value) => {
+              await globalThis.navigator?.clipboard?.writeText(value);
+            },
+          },
+        }),
+      ],
       persistence: {
         configuration: {
           load: async () => ({
@@ -2586,6 +2613,11 @@ export class Workspace extends EventDispatcher<{
     setWorkspaceHostBinding(this, {
       controller: this.#workspaceHostController,
     });
+    this.diagnostics = new DiagnosticsManager(
+      this.#workspaceHostController.diagnostics,
+      () => new Menu(),
+      appendLapisMenuToWorkspaceMenu,
+    );
     this.installWorkspaceHostEventBridge(this.#workspaceHostController);
     const editorViewBridgeRef = this.editorViews.on("changed", ({ id }) => {
       this.syncWorkspaceHostEditorView(id);
@@ -2607,6 +2639,29 @@ export class Workspace extends EventDispatcher<{
         props: { width: this.rightSplit.sidebar.width },
       });
     });
+  }
+
+  private async openDiagnosticLocation(
+    location: WorkspaceDiagnosticLocation,
+  ): Promise<void> {
+    const path = pathFromDiagnosticResource(location.resource);
+    if (!path) return;
+    const file = this.app.vault.getFileByPath(path);
+    if (!file) return;
+    await this.openLinkText(file.path, "");
+    const editor = this.activeEditor?.editor;
+    if (!location.range || !editor) return;
+    editor.setSelection(
+      {
+        line: location.range.start.line,
+        ch: location.range.start.character,
+      },
+      {
+        line: location.range.end.line,
+        ch: location.range.end.character,
+      },
+    );
+    editor.focus();
   }
 
   /** @internal Complete the configuration bridge after App construction. */

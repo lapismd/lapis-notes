@@ -4,6 +4,10 @@ The Problems view is a reusable workspace panel. Design Core owns the generic
 diagnostic model, collection lifecycle, and presentation; Lapis adapts vault,
 language-service, navigation, and plugin behavior at its public API boundary.
 
+The Lapis façade, plugin-owned disposal, open-document bridge, cached actions,
+and navigation adapter are implemented. Markdown composition and the default
+Markdownlint provider remain the dependent integration slice.
+
 ## Requirements
 
 | ID | Requirement |
