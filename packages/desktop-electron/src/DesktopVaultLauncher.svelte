@@ -29,6 +29,10 @@
   import * as Input from "@lapismd/design-core/shadcn/input";
   import { onMount } from "svelte";
   import lapisLogo from "../build/icon.png";
+  import {
+    getVaultProfileLocation,
+    getVaultProfileRootPath,
+  } from "./desktop-vault-profiles";
 
   export type LauncherStatus = "loading" | "landing" | "opening" | "error";
 
@@ -109,19 +113,6 @@
   onMount(() => {
     void refresh();
   });
-
-  function getVaultProfileRootPath(profile: VaultProfile): string | null {
-    const handle = profile.handle as
-      | { rootPath?: unknown }
-      | string
-      | undefined;
-    if (typeof handle === "string") return handle;
-    return typeof handle?.rootPath === "string" ? handle.rootPath : null;
-  }
-
-  function getVaultProfileLocation(profile: VaultProfile): string {
-    return getVaultProfileRootPath(profile) ?? "Desktop vault";
-  }
 
   function resolveAppearance(
     mode: BootstrapAppearanceMode,

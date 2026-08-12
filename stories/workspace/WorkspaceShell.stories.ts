@@ -165,7 +165,27 @@ export const PersistedDesktop: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: "Open left sidebar" }),
     );
-    await expect(canvas.getByLabelText("Left sidebar")).toBeInTheDocument();
+    const leftSidebar = canvas.getByLabelText("Left sidebar");
+    await expect(leftSidebar).toBeInTheDocument();
+
+    const workspaceTrigger = within(leftSidebar).getByRole("button", {
+      name: "Current workspace: Lapis Notes",
+    });
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(workspaceTrigger);
+    await expect(page.getByText("Recent vaults")).toBeVisible();
+    await expect(
+      page.getByRole("menuitem", { name: /Lapis Notes/ }),
+    ).toHaveAttribute("data-disabled");
+    await userEvent.click(
+      page.getByRole("menuitem", { name: "Manage Vaults" }),
+    );
+    await expect(
+      canvas.getByTestId("workspace-navigation-status"),
+    ).toHaveTextContent("Manage Vaults selected");
+    await waitFor(() =>
+      expect(getComputedStyle(workspaceTrigger).pointerEvents).toBe("auto"),
+    );
 
     await waitFor(
       () => {

@@ -8,7 +8,7 @@ intake or UI swap status changes.
 | Area                                      | Status | Notes                                                                                                                                                                                                                                               |
 | ----------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | pnpm + Turbo scaffold                     | Done   | No multi-script import-resolution gates                                                                                                                                                                                                             |
-| Spec governance + validation              | Done   | 344 one-concern requirements; modular validation covers canonical Markdown, verification, mdBook output, and Storybook consumer source; local QMD discovery remains a disposable untracked cache                                               |
+| Spec governance + validation              | Done   | 346 one-concern requirements; modular validation covers canonical Markdown, verification, mdBook output, and Storybook consumer source; local QMD discovery remains a disposable untracked cache                                               |
 | Storybook host (port 7010)                | Done   | `API/` verification stories + catalog                                                                                                                                                                                                               |
 | Storybook consumer Show Code              | In progress | Panels use layout-derived examples; API and workspace demos expose explicit implementation/consumer source instead of demo invocation; Date Setting still needs a public-boundary example                                                     |
 | API Storybook verification + Visual Delta | Done   | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later)                                                                                                                                                            |
@@ -58,6 +58,7 @@ legacy commit `8ec68e18`.
 - [x] Load the production Design Core stylesheet pipeline and Lapis aliases in Electron
 - [x] Match the `PersistedDesktop` captured empty-shell geometry: left open, right and bottom closed
 - [x] Route native “Open Vault…” through the launcher after orderly session teardown
+- [x] Restore the legacy footer vault switcher with recent selection and “Manage Vaults” launcher return
 - [ ] Full Storybook suite: 74/78 pass; four existing `LapisEditorDemo` interaction failures remain outside the desktop intake
 - [ ] `PersistedDesktop` Visual Delta comparison: blocked because Docker Desktop cannot start; no baseline was updated
 

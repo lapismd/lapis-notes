@@ -109,6 +109,7 @@
       if (prepared || activeApp || sessionComponent) {
         await disposeActiveSession(true);
       }
+      await clearCurrentVaultProfile();
       status = "landing";
     });
   }
@@ -240,6 +241,8 @@
       {bridge}
       onReady={handleSessionReady}
       onFailure={handleSessionFailure}
+      onOpenRecent={openRecentVault}
+      onManageVaults={showLauncher}
     />
   {:else}
     <DesktopVaultLauncher

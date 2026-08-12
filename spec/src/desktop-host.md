@@ -29,6 +29,7 @@ are intentionally omitted.
 | LN-DESK-018 | The renderer MUST load Design Core's production styles, Lapis theme, and Lapis UI aliases through the Electron Vite pipeline. It MUST NOT rely on Storybook to supply workspace or launcher paint. |
 | LN-DESK-019 | A native vault without `.obsidian/workspace.json` MUST show one empty `New Tab`, the left dock open at `22rem`, and the right and bottom docks closed. It MUST NOT seed a layout file, fixture view, or plugin. |
 | LN-DESK-020 | Native “Open Vault…” requests from a ready workspace MUST persist and dispose the active session before showing the launcher. Selecting another vault MUST create a replacement session without retaining old watches or database handles. |
+| LN-DESK-021 | The ready desktop shell MUST expose the legacy footer vault switcher with up to eight recent native vaults, the current vault disabled, folder descriptions, and a “Manage Vaults” action. Recent selection MUST use orderly session replacement; management MUST dispose the session, clear only the current-profile pointer, retain saved records, and show the branded launcher. |
 
 ## Boot flow
 

@@ -5,14 +5,17 @@
     MemoryAppDatabase,
     MemoryVaultAdapter,
   } from "../../test/api-app";
+  import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import WorkspaceShell from "./WorkspaceShell.svelte";
 
   let {
     layout,
     onAppReady,
+    workspaceNavigation,
   }: {
     layout: Record<string, unknown>;
     onAppReady?: (app: App) => void;
+    workspaceNavigation?: WorkspaceNavigation;
   } = $props();
 
   const adapter = new MemoryVaultAdapter({
@@ -39,5 +42,5 @@
 </script>
 
 {#if ready}
-  <WorkspaceShell {app} displayMode="desktop" />
+  <WorkspaceShell {app} displayMode="desktop" {workspaceNavigation} />
 {/if}

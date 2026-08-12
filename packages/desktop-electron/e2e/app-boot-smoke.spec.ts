@@ -207,6 +207,10 @@ test("a missing remembered folder clears only the current pointer", async () => 
   });
   try {
     await expect(pageHeading(app.page)).toBeVisible();
+    await expect(app.page.locator("main")).toHaveAttribute(
+      "data-desktop-host-state",
+      "landing",
+    );
     const stored = JSON.parse(
       fs.readFileSync(
         path.join(state.userDataDir, "vault-bootstrap-kv.json"),
@@ -221,7 +225,7 @@ test("a missing remembered folder clears only the current pointer", async () => 
   }
 });
 
-test("Open Vault switches sessions and leaves no old-vault writes", async () => {
+test("workspace vault controls switch sessions and return to the launcher", async () => {
   const state = await createDesktopTestState();
   const app = await launchDesktopApp({
     userDataDir: state.userDataDir,
@@ -235,13 +239,12 @@ test("Open Vault switches sessions and leaves no old-vault writes", async () => 
       `desktop-folder:${state.vaultB}`,
     );
     expect(
-      await app.page.evaluate(
-        () =>
-          (
-            globalThis as typeof globalThis & {
-              app: { vault: { getName(): string } };
-            }
-          ).app.vault.getName(),
+      await app.page.evaluate(() =>
+        (
+          globalThis as typeof globalThis & {
+            app: { vault: { getName(): string } };
+          }
+        ).app.vault.getName(),
       ),
     ).toBe("vault-b");
     await app.page.evaluate(async () => {
@@ -255,6 +258,47 @@ test("Open Vault switches sessions and leaves no old-vault writes", async () => 
     });
     expect(fs.existsSync(path.join(state.vaultB, "switched.md"))).toBe(true);
     expect(fs.existsSync(path.join(state.vaultA, "switched.md"))).toBe(false);
+
+    const vaultSwitcher = app.page.getByRole("button", {
+      name: "Current workspace: vault-b",
+    });
+    await vaultSwitcher.click();
+    await expect(
+      app.page.getByRole("menuitem", { name: /vault-b/u }),
+    ).toHaveAttribute("data-disabled");
+    await app.page.getByRole("menuitem", { name: /vault-a/u }).click();
+    await expect(app.page.locator("[data-vault-id]")).toHaveAttribute(
+      "data-vault-id",
+      `desktop-folder:${state.vaultA}`,
+    );
+    await app.page.evaluate(async () => {
+      await (
+        globalThis as typeof globalThis & {
+          app: {
+            vault: { create(path: string, content: string): Promise<unknown> };
+          };
+        }
+      ).app.vault.create("returned.md", "returned session");
+    });
+    expect(fs.existsSync(path.join(state.vaultA, "returned.md"))).toBe(true);
+    expect(fs.existsSync(path.join(state.vaultB, "returned.md"))).toBe(false);
+
+    await app.page
+      .getByRole("button", { name: "Current workspace: vault-a" })
+      .click();
+    await app.page.getByRole("menuitem", { name: "Manage Vaults" }).click();
+    await expect(
+      app.page.locator("[data-desktop-vault-launcher]"),
+    ).toBeVisible();
+    const stored = JSON.parse(
+      fs.readFileSync(
+        path.join(state.userDataDir, "vault-bootstrap-kv.json"),
+        "utf8",
+      ),
+    ) as Record<string, unknown>;
+    expect(stored["profile:current"]).toBeUndefined();
+    expect(stored[`profile:desktop-folder:${state.vaultA}`]).toBeDefined();
+    expect(stored[`profile:desktop-folder:${state.vaultB}`]).toBeDefined();
   } finally {
     await app.close();
     await state.cleanup();

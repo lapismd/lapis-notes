@@ -86,6 +86,12 @@ describe("WorkspaceShell", () => {
         target,
         props: {
           layout: initialLayout,
+          workspaceNavigation: {
+            currentLabel: "Test vault",
+            items: [],
+            onSelect: vi.fn(),
+            onManage: vi.fn(),
+          },
           onAppReady: (readyApp) => {
             app = readyApp;
             loadPlugins = vi.spyOn(app.plugins, "loadPlugins");
@@ -104,6 +110,9 @@ describe("WorkspaceShell", () => {
 
     expect(
       target.querySelector('[data-ui-component="lapis-workspace-shell"]'),
+    ).not.toBeNull();
+    expect(
+      target.querySelector('[aria-label="Current workspace: Test vault"]'),
     ).not.toBeNull();
     expect(
       target.querySelector('[data-workspace-tab-id="empty-start"]'),

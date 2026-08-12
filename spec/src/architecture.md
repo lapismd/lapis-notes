@@ -31,7 +31,7 @@
 | LN-ARCH-025 | Design Core MUST own reusable diagnostics state and Problems presentation. Lapis API MUST adapt that contract to plugins, vault navigation, and language services; provider packages MUST remain independent of Design Core and workspace layout. |
 | LN-ARCH-026 | The API editor MUST consume diagnostic glyphs and semantic colours from Design Core's public workspace contract. It MUST keep CodeMirror-specific marker mounting, tooltip geometry, and pointer lifecycle inside the editor boundary. An open diagnostic card MUST retain its origin and placement throughout pointer handoff. |
 | LN-ARCH-027 | The API editor MUST own CodeMirror inline-problem structure and styling. It MUST consume public workspace semantic tokens without moving editor-specific widgets into Design Core or application-global styles. |
-| LN-ARCH-028 | The Electron desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault selection, session boot, and IPC belong to the host; workspace rendering and persisted layout compatibility remain in their owning packages. |
+| LN-ARCH-028 | The Electron desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault discovery and selection, session boot, and IPC belong to the host; the workspace package MAY forward generic navigation presentation while rendering and persisted layout compatibility remain in their owning packages. |
 | LN-ARCH-029 | Electron main, preload, and renderer code MUST communicate through the typed desktop-neutral bridge. The renderer MUST NOT receive Node integration or raw Electron IPC access. |
 | LN-ARCH-030 | Production application hosts MUST load Design Core's public runtime stylesheet and theme entries directly. Storybook-only host configuration MUST NOT be required for reusable workspace components to render correctly. |
 
@@ -85,6 +85,9 @@ shutdown is acknowledged before window destruction so the API-owned session
 can persist and dispose without moving ownership into main or workspace.
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
+The ready-shell vault menu follows the same boundary: Design Core presents the
+generic menu, the workspace package forwards its contract, and the desktop
+consumer supplies profiles plus serialized switch and management callbacks.
 Generated renderer and main outputs are Turbo cache outputs and remain
 untracked; checked-in build resources are limited to icons and entitlements.
 The production renderer imports Design Core's public stylesheet and Lapis theme

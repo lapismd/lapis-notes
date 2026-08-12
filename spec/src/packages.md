@@ -45,6 +45,7 @@
 | LN-PKG-039 | `@lapis-notes/desktop-electron` MUST be a private package at `packages/desktop-electron`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for the Electron Markdown sidecar. The desktop package MUST consume that export instead of copying the runtime or importing package source paths. |
 | LN-PKG-041 | `@lapis-notes/desktop-electron` MUST consume launcher primitives from public Design Core exports and Lapis helpers from public package exports. It MUST keep launcher policy and native session switching inside the desktop package. |
+| LN-PKG-042 | `@lapis-notes/workspace` MAY forward Design Core's generic workspace-navigation contract to its shell surface, but profile discovery, vault labels, selection, management, persistence, and lifecycle policy MUST remain consumer-owned. |
 
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.
@@ -140,9 +141,10 @@ vault IDs in a URL path segment and the parser retains legacy-host support.
 The workspace package is a thin Svelte adapter over
 `@lapismd/design-core/workspace`. It receives an initialized api `App`, obtains
 the host binding from `@lapis-notes/api/workspace-host`, and renders the default
-design-core app-shell surface. It contains no vault selector, router, Lapis
-plugin bootstrap, persistence implementation, or copied Lapis workspace
-renderer.
+design-core app-shell surface. It may forward Design Core's generic
+workspace-navigation presentation contract, but contains no vault discovery or
+selection policy, router, Lapis plugin bootstrap, persistence implementation,
+or copied Lapis workspace renderer.
 Its package contract exports `WorkspaceShell` and its component CSS, and its
 mount test supplies a real initialized api `App` while asserting plugin loading
 remains consumer-owned.

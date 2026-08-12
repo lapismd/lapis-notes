@@ -9,6 +9,7 @@
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { WorkspaceShell } from "@lapis-notes/workspace";
+  import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import type { WorkspaceRequestedDisplayMode } from "@lapismd/design-core/workspace/core";
   import { PROBLEMS_VIEW_TYPE } from "@lapismd/design-core/workspace/problems";
   import "./workspace-shell-story.css";
@@ -24,6 +25,24 @@
     scenario?: "standard" | "mobile" | "stacked" | "bottom-settings";
     seedNotifications?: boolean;
   } = $props();
+  let workspaceNavigationStatus = $state("No workspace action selected");
+  let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => ({
+    currentLabel: workspaceLabel,
+    menuLabel: "Recent vaults",
+    items: [
+      {
+        id: "lapis-notes",
+        label: workspaceLabel,
+        description: "/Users/demo/Lapis Notes",
+        disabled: true,
+      },
+    ],
+    manageLabel: "Manage Vaults",
+    onSelect: () => {},
+    onManage: () => {
+      workspaceNavigationStatus = "Manage Vaults selected";
+    },
+  }));
 
   class StoryWorkspaceView extends View {
     type: string;
@@ -279,7 +298,12 @@
   data-workspace-inline-title={showInlineTitle ? "true" : "false"}
 >
   {#if ready}
-    <WorkspaceShell {app} {displayMode} {workspaceLabel} />
+    <WorkspaceShell
+      {app}
+      {displayMode}
+      {workspaceLabel}
+      {workspaceNavigation}
+    />
   {:else}
     <div class="workspace-shell-story-boot">Loading workspace…</div>
   {/if}
@@ -294,6 +318,9 @@
       >{app.workspace.bottomPanel.collapsed}</span
     >
     <span data-testid="workspace-layout-operation">{lastLayoutOperation}</span>
+    <span data-testid="workspace-navigation-status"
+      >{workspaceNavigationStatus}</span
+    >
     <span data-testid="workspace-controller-operation"
       >{lastControllerOperation}</span
     >

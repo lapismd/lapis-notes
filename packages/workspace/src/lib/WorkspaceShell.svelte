@@ -1,11 +1,13 @@
 <script lang="ts" module>
   import type { App } from "@lapis-notes/api";
+  import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import type { WorkspaceRequestedDisplayMode } from "@lapismd/design-core/workspace/core";
 
   export interface WorkspaceShellProps {
     app: App;
     displayMode?: WorkspaceRequestedDisplayMode;
     workspaceLabel?: string;
+    workspaceNavigation?: WorkspaceNavigation;
     class?: string;
   }
 </script>
@@ -20,6 +22,7 @@
     app,
     displayMode,
     workspaceLabel = "Lapis Notes",
+    workspaceNavigation,
     class: className = "",
   }: WorkspaceShellProps = $props();
 
@@ -43,6 +46,6 @@
     disposeOnDestroy={false}
     theme="inherit"
   >
-    <AppShell.Surface {displayMode} {workspaceLabel} />
+    <AppShell.Surface {displayMode} {workspaceLabel} {workspaceNavigation} />
   </AppShell.Root>
 </div>
