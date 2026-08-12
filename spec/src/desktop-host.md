@@ -13,8 +13,8 @@ are intentionally omitted.
 | LN-DESK-002 | Electron main MUST own application lifecycle, the single-instance lock, native menus, app-URL delivery, window chrome, protocol handlers, native notifications, and shutdown of main-owned services. |
 | LN-DESK-003 | The preload MUST use context isolation and expose only the typed `NativeDesktopBridge` operations plus bounded host events and shell metrics. Renderer Node integration and raw `ipcRenderer` exposure are forbidden. |
 | LN-DESK-004 | The renderer MUST register the preload bridge before creating a vault session. It MUST mount the existing `WorkspaceShell` with an API `App` and MUST NOT copy the workspace renderer. |
-| LN-DESK-005 | Startup MUST reopen a valid current `desktop-folder` profile from Electron main storage. If it is unavailable, startup MUST clear only the current-profile pointer, retain the saved record, and return to the folder picker. |
-| LN-DESK-006 | Cancelling the native folder picker MUST leave a recoverable landing state. Selecting a folder MUST create an `electron-desktop` session, open its app database, load the vault, restore `.obsidian/workspace.json`, and render the desktop shell. |
+| LN-DESK-005 | Startup MUST reopen a valid current `desktop-folder` profile from Electron main storage. If it is unavailable, startup MUST clear only the current-profile pointer, retain the saved record, and return to the branded launcher. |
+| LN-DESK-006 | Cancelling a native folder picker MUST leave the branded launcher recoverable. Selecting a folder MUST create an `electron-desktop` session, open its app database, load the vault, restore `.obsidian/workspace.json`, and render the desktop shell. |
 | LN-DESK-007 | The partial host MUST NOT seed files, register core or community plugins, hydrate metadata, or import Storybook Editor, Explorer, or Tags fixtures. Missing layouts MUST use the API default empty workspace. |
 | LN-DESK-008 | The bridge MUST advertise resource, database, search, language-service, plugin-sidecar, plugin-assets, file-watch, notifications, and file-system-actions capabilities as available. Notebook and model capabilities MUST remain unavailable. |
 | LN-DESK-009 | Native IPC MUST validate sender ownership, payload bounds, and vault-root containment. Resource and plugin protocols MUST reject traversal, unregistered contexts, unsupported asset types, and metadata hash or size mismatches. |
@@ -25,6 +25,10 @@ are intentionally omitted.
 | LN-DESK-014 | New windows MUST be limited to the workspace `about:blank` popout path. External HTTP or HTTPS links MUST open through the system browser instead of receiving an Electron renderer window. |
 | LN-DESK-015 | Local distribution MUST produce macOS DMG and ZIP plus Linux AppImage and tar artifacts with stable hyphenated names. Signing and notarization hooks MUST skip safely without credentials, and release publication MUST remain out of scope. |
 | LN-DESK-016 | Automated acceptance MUST cover first selection, cancellation, saved-vault reopening, missing-vault fallback, workspace persistence, vault switching, app URLs, retained IPC services, retained sidecars, and packaged application startup. |
+| LN-DESK-017 | First launch MUST show the branded native-vault launcher derived from legacy commit `8ec68e18` without opening a picker automatically. It MUST offer create, open, recent-project management, search, and appearance settings while omitting the demo-workspace action. |
+| LN-DESK-018 | The renderer MUST load Design Core's production styles, Lapis theme, and Lapis UI aliases through the Electron Vite pipeline. It MUST NOT rely on Storybook to supply workspace or launcher paint. |
+| LN-DESK-019 | A native vault without `.obsidian/workspace.json` MUST show one empty `New Tab`, the left dock open at `22rem`, and the right and bottom docks closed. It MUST NOT seed a layout file, fixture view, or plugin. |
+| LN-DESK-020 | Native “Open Vault…” requests from a ready workspace MUST persist and dispose the active session before showing the launcher. Selecting another vault MUST create a replacement session without retaining old watches or database handles. |
 
 ## Boot flow
 
@@ -41,6 +45,10 @@ The ready renderer corresponds to the behavior demonstrated by
 `Workspace/Shell / PersistedDesktop`, but its adapter is a selected native
 folder. Sidecars remain available for later plugin activation even though the
 partial host does not load plugins during startup.
+
+The desktop launcher retains the reference Lapis logo, create/open hierarchy,
+recent-project search and actions, and persisted appearance selector. Demo
+workspace seeding and browser-only storage choices remain outside this host.
 
 ## Distribution boundary
 

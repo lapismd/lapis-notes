@@ -44,6 +44,7 @@
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-039 | `@lapis-notes/desktop-electron` MUST be a private package at `packages/desktop-electron`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for the Electron Markdown sidecar. The desktop package MUST consume that export instead of copying the runtime or importing package source paths. |
+| LN-PKG-041 | `@lapis-notes/desktop-electron` MUST consume launcher primitives from public Design Core exports and Lapis helpers from public package exports. It MUST keep launcher policy and native session switching inside the desktop package. |
 
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.
