@@ -3,6 +3,9 @@
 Outgoing Links groups references made by the active file and opens their target
 notes.
 
+The persisted canonical view type is `outgoing-link`; `file:outgoing-links`
+remains a load-only alias under `LN-MD-085`.
+
 ## Requirements
 
 | ID | Requirement |

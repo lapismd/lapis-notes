@@ -5,6 +5,10 @@ surfaces and geometry; individual plugins own only their content and behavior.
 Markdown panel pages therefore build on this contract instead of repeating
 placement or Storybook rules.
 
+Plugin view aliases are a load-time API compatibility concern. Once a legacy or
+previously unavailable view resolves, workspace serialization uses the opened
+view's canonical `getViewType()` without moving registry policy into the shell.
+
 ## Requirements
 
 | ID | Requirement |

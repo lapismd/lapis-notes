@@ -2,6 +2,9 @@
 
 Outline follows the active note and presents its headings as a navigable tree.
 
+The persisted canonical view type is `outline`; `file:outline` remains a
+load-only alias under `LN-MD-085`.
+
 ## Requirements
 
 | ID | Requirement |

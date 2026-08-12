@@ -13,9 +13,10 @@ page.
 
 | ID | Requirement |
 | --- | --- |
-| LN-MD-008 | The plugin MUST register All Properties, File Properties, Outline, Backlinks, and Outgoing Links using the same view types and commands as full-repo `plugin-markdown`. |
-| LN-MD-011 | Storybook MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags. Tags remains workspace-origin intake rather than part of the Markdown package. |
+| LN-MD-008 | The plugin MUST register All Properties, File Properties, Outline, Backlinks, and Outgoing Links with the Obsidian-compatible canonical view types `all-properties`, `file-properties`, `outline`, `backlink`, and `outgoing-link`. |
+| LN-MD-011 | Storybook MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags. Tags is registered and exported by the Markdown package. |
 | LN-MD-021 | The package MUST export app-only `FileProperties`, `Outline`, `Backlinks`, and `OutgoingLinks` Svelte components. Backlinks and Outgoing Links MUST fix their mode in those public wrappers; their shared mode selector remains private. |
+| LN-MD-085 | Markdown panel registration MUST retain the former `file:properties`, `file:outline`, `file:backlinks`, and `file:outgoing-links` view types as load-only aliases. Restored aliases MUST resolve to views whose `getViewType()` returns the canonical Obsidian-compatible ID. |
 
 ## Panel pages
 
@@ -24,11 +25,10 @@ page.
 - [Outline](./outline.md)
 - [Backlinks](./backlinks.md)
 - [Outgoing Links](./outgoing-links.md)
-- [Tags](./tags.md), the documented Storybook-local exception
+- [Tags](./tags.md)
 - [Link Previews](./link-previews.md), shared by Backlinks and Outgoing Links
 
-All production panels import through `@lapis-notes/markdown`. Tags documents its
-real co-located fixture import and does not invent a package export.
+All production panels import through `@lapis-notes/markdown`.
 
 This chapter owns reusable movable-panel conventions only. Markdown editor
 authoring composition, settings, and editor-demo acceptance remain governed by

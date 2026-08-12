@@ -15,7 +15,7 @@ are intentionally omitted.
 | LN-DESK-004 | The renderer MUST register the preload bridge before creating a vault session. It MUST mount the existing `WorkspaceShell` with an API `App` and MUST NOT copy the workspace renderer. |
 | LN-DESK-005 | Startup MUST reopen a valid current `desktop-folder` profile from Electron main storage. If it is unavailable, startup MUST clear only the current-profile pointer, retain the saved record, and return to the branded launcher. |
 | LN-DESK-006 | Cancelling a native folder picker MUST leave the branded launcher recoverable. Selecting a folder MUST create an `electron-desktop` session, open its app database, load the vault, restore `.obsidian/workspace.json`, and render the desktop shell. |
-| LN-DESK-007 | The partial host MUST NOT seed files, register core or community plugins, hydrate metadata, or import Storybook Editor, Explorer, or Tags fixtures. Missing layouts MUST use the API default empty workspace. |
+| LN-DESK-007 | The partial host MUST NOT seed files, load community plugins, or import the Storybook-only source-editor fixture. Missing layouts MUST use the API default empty workspace. |
 | LN-DESK-008 | The bridge MUST advertise resource, database, search, language-service, plugin-sidecar, plugin-assets, file-watch, notifications, and file-system-actions capabilities as available. Notebook and model capabilities MUST remain unavailable. |
 | LN-DESK-009 | Native IPC MUST validate sender ownership, payload bounds, and vault-root containment. Resource and plugin protocols MUST reject traversal, unregistered contexts, unsupported asset types, and metadata hash or size mismatches. |
 | LN-DESK-010 | The native language-service sidecar MUST expose the current Markdown protocol only: capability probing, document updates, diagnostics, and code actions. It MUST enforce bounded payloads, timeouts, restart, and shutdown behavior. |
@@ -33,7 +33,10 @@ are intentionally omitted.
 | LN-DESK-022 | The launcher and transient native-vault loading state MUST center their content within the Electron viewport when it fits, while an oversized launcher MUST remain scrollable from its top edge. |
 | LN-DESK-023 | Launcher Settings MUST use a compact centered dialog. “View all” MUST use an upper-viewport searchable command palette containing recent projects rather than a drawer or bottom sheet. Both MUST retain the shared full-viewport modal scrim. |
 | LN-DESK-024 | The renderer MUST map typed Electron platform metadata to root CSS classes. macOS traffic-light clearance MUST derive from those classes and desktop CSS rather than renderer-injected geometry styles. |
-| LN-DESK-025 | The development renderer MUST serve assets imported by the linked Design Core package, including its variable fonts. Its Vite filesystem allowlist MUST retain the Lapis workspace root and add only resolved linked-package roots rather than using source aliases or a broad parent-directory grant. |
+| LN-DESK-025 | The development renderer MUST serve assets imported by linked Design Core and Mira packages, including their fonts. Its Vite filesystem allowlist MUST retain the Lapis workspace root and add only resolved linked-package or linked-workspace roots rather than using source aliases or a broad parent-directory grant. |
+| LN-DESK-026 | On macOS, an expanded left-sidebar tab bar MUST reserve a larger host-CSS traffic-light inset than the already-correct collapsed main-tab control. Both values MUST derive from the typed platform root class rather than inline geometry. |
+| LN-DESK-027 | Before restoring a vault layout, the desktop host MUST register and load every core plugin implementation shipped by this checkout: Markdown (including its Tags view), Markdownlint, and File Explorer. It MUST load configuration and metadata for those plugins while keeping community plugins disabled. |
+| LN-DESK-028 | When a persisted `empty` leaf carries `state.__missingViewType`, layout restoration MUST retry that requested type after core plugins load. A now-available view MUST be restored and subsequently persist its canonical type; a still-unavailable Search, Bookmarks, or other view MUST remain an explicit placeholder. |
 
 ## Boot flow
 
@@ -48,8 +51,9 @@ Electron main
 
 The ready renderer corresponds to the behavior demonstrated by
 `Workspace/Shell / PersistedDesktop`, but its adapter is a selected native
-folder. Sidecars remain available for later plugin activation even though the
-partial host does not load plugins during startup.
+folder. The desktop consumer loads the checkout's reusable core plugins before
+layout restoration; retained sidecars remain available to those plugins and to
+later community-plugin work.
 
 The desktop launcher retains the reference Lapis logo, create/open hierarchy,
 recent-project search and actions, and persisted appearance selector. Its
@@ -88,8 +92,12 @@ values together with the rendered shell geometry and typography. The preload's
 typed platform metadata selects namespaced root classes; desktop CSS uses the
 macOS class to clear native traffic lights without an inline geometry value.
 The development Vite server resolves Design Core's installed link to its real
-package root so that stylesheet dependencies remain inside the explicit
-filesystem boundary without bypassing public package exports.
+package root and Mira's installed link to its workspace root so stylesheet and
+font dependencies remain inside the explicit filesystem boundary without
+bypassing public package exports.
+The Electron renderer deduplicates the same CodeMirror and Lezer singleton
+peers as Storybook so Markdown views receive one extension identity across the
+linked Mira packages.
 
 The renderer-close handshake gives the desktop host time to persist layout and
 database state and dispose workspace, watch, and sidecar resources before main

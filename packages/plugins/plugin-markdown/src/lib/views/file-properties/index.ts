@@ -2,7 +2,8 @@ import { View } from "@lapis-notes/api";
 import FileProperties from "./file-properties.svelte";
 import { mount, unmount } from "svelte";
 
-export const FilePropertiesViewType = "file:properties";
+export const FilePropertiesViewType = "file-properties";
+export const FilePropertiesLegacyViewTypes = ["file:properties"] as const;
 
 export { FileProperties };
 

@@ -14,7 +14,7 @@
     type WorkspaceStartupFailure,
     type WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
-  import { createExplorerDemoPlugin } from "./explorer-plugin";
+  import { createFileExplorerPlugin } from "@lapis-notes/file-explorer";
   import {
     createLapisEditorDemoSeed,
     type LapisEditorDemoScenario,
@@ -22,7 +22,6 @@
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-  import { TagsDemoPlugin } from "./tags-plugin";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
   import "@lapismd/mira/themes/obsidian.css";
@@ -142,12 +141,7 @@
         enabledByDefault: true,
       },
       {
-        plugin: TagsDemoPlugin,
-        required: false,
-        enabledByDefault: true,
-      },
-      {
-        plugin: createExplorerDemoPlugin({
+        plugin: createFileExplorerPlugin({
           loading: selectedScenario === "explorer-opening-vault",
         }),
         required: true,

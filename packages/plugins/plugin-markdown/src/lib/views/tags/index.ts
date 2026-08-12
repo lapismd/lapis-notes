@@ -2,7 +2,8 @@ import { View } from "@lapis-notes/api";
 import TagsComponent from "./tags.svelte";
 import { mount, unmount } from "svelte";
 
-export const TagsViewType = "tags";
+export const TagsViewType = "tag";
+export const TagsLegacyViewTypes = ["tags"] as const;
 
 export { TagsComponent as Root, TagsComponent as Tags };
 

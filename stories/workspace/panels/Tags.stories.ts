@@ -1,7 +1,7 @@
 import type { App } from "@lapis-notes/api";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import Tags from "../lapis-editor-demo/tags/tags.svelte";
+import { Tags } from "@lapis-notes/markdown";
 import PanelDemo from "./PanelDemo.svelte";
 import { panelExampleSources } from "./Panel.example-sources";
 import type { PanelDemoLayout } from "./create-panel-demo";
@@ -25,7 +25,7 @@ const meta = {
   argTypes: {
     app: {
       control: false,
-      description: "Initialized Lapis App supplied by the story-local Tags view.",
+      description: "Initialized Lapis App supplied by the Markdown Tags view.",
     },
   },
   tags: ["visual-pending", "test"],

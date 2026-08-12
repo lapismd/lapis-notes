@@ -212,7 +212,7 @@ const markdownPanelFamilies = [
     kind: "tags",
     title: "Tags",
     spec: "spec/src/markdown-plugin/panels/tags.md",
-    publicSurface: "stories/workspace/lapis-editor-demo/tags/tags.svelte",
+    publicSurface: "@lapis-notes/markdown",
   },
 ];
 

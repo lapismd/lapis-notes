@@ -9,6 +9,7 @@ import {
   joinPath,
   type App,
   type PluginManifest,
+  type PluginConstructor,
   type TAbstractFile,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
@@ -20,7 +21,7 @@ import {
 import type { WorkspaceAction } from "@lapismd/design-core/workspace/core";
 import { mount, unmount } from "svelte";
 import LapisExplorerView from "./LapisExplorerView.svelte";
-import LapisLandingView from "./LapisLandingView.svelte";
+import LapisLanding from "./LapisLandingView.svelte";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
@@ -28,7 +29,7 @@ const EXPLORER_MANIFEST: PluginManifest = {
   author: "Lapis Notes",
   version: "0.0.1",
   minAppVersion: "0.0.1",
-  description: "Storybook intake plugin for the design-core Explorer.",
+  description: "Lapis file explorer backed by the API vault.",
 };
 
 const EXPLORER_SCHEMA = {
@@ -110,12 +111,14 @@ function createExplorerController(app: App, loading: boolean) {
           .filter((file) => file.path !== "/" && visiblePath(file.path))
           .map(toExplorerNode),
       subscribe: (onChange) => {
-        const refs = [
-          app.vault.on("create", onChange),
-          app.vault.on("delete", onChange),
-          app.vault.on("rename", onChange),
-        ];
-        return () => refs.forEach((ref) => app.vault.offref(ref));
+        const created = app.vault.on("create", onChange);
+        const deleted = app.vault.on("delete", onChange);
+        const renamed = app.vault.on("rename", onChange);
+        return () => {
+          app.vault.offref(created);
+          app.vault.offref(deleted);
+          app.vault.offref(renamed);
+        };
       },
     },
     selection: {
@@ -197,7 +200,7 @@ function createExplorerController(app: App, loading: boolean) {
   });
 }
 
-class ExplorerDemoView extends View {
+export class FileExplorerView extends View {
   readonly #controller: ExplorerController;
   #component: ReturnType<typeof mount> | null = null;
 
@@ -242,11 +245,11 @@ class ExplorerDemoView extends View {
   }
 }
 
-function isExplorerDemoView(view: unknown): view is ExplorerDemoView {
-  return view instanceof ExplorerDemoView;
+function isFileExplorerView(view: unknown): view is FileExplorerView {
+  return view instanceof FileExplorerView;
 }
 
-class LandingDemoView extends View {
+export class LapisLandingView extends View {
   #component: ReturnType<typeof mount> | null = null;
 
   getViewType(): string {
@@ -290,7 +293,7 @@ class LandingDemoView extends View {
         },
       },
     ];
-    this.#component = mount(LapisLandingView, {
+    this.#component = mount(LapisLanding, {
       target: this.containerEl,
       props: { actions },
     });
@@ -310,8 +313,10 @@ class LandingDemoView extends View {
   }
 }
 
-export function createExplorerDemoPlugin(options: { loading?: boolean } = {}) {
-  return class ExplorerDemoPlugin extends Plugin {
+export function createFileExplorerPlugin(
+  options: { loading?: boolean } = {},
+): PluginConstructor {
+  return class FileExplorerPlugin extends Plugin {
     constructor(app: App) {
       super(app, EXPLORER_MANIFEST);
     }
@@ -324,14 +329,14 @@ export function createExplorerDemoPlugin(options: { loading?: boolean } = {}) {
 
       this.registerSidebarView(
         "file-explorer",
-        (leaf) => new ExplorerDemoView(leaf, options.loading ?? false),
+        (leaf) => new FileExplorerView(leaf, options.loading ?? false),
         {
           side: "left",
           title: "Files",
           icon: "folder-closed",
         },
       );
-      this.registerView("lapis-landing", (leaf) => new LandingDemoView(leaf));
+      this.registerView("lapis-landing", (leaf) => new LapisLandingView(leaf));
 
       this.addCommand({
         id: "reveal-path",
@@ -339,7 +344,7 @@ export function createExplorerDemoPlugin(options: { loading?: boolean } = {}) {
         callback: (path?: string) => {
           if (typeof path !== "string" || path.length === 0) return;
           this.app.workspace.iterateAllLeaves((leaf) => {
-            if (!isExplorerDemoView(leaf.view)) return;
+            if (!isFileExplorerView(leaf.view)) return;
             leaf.view.revealPath(path);
           });
         },
@@ -378,3 +383,6 @@ export function createExplorerDemoPlugin(options: { loading?: boolean } = {}) {
     }
   };
 }
+
+export const FileExplorerPlugin: PluginConstructor = createFileExplorerPlugin();
+export const FileExplorerViewType = "file-explorer";

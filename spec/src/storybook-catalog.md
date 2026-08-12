@@ -40,7 +40,7 @@
 | LN-CAT-034 | The retired flat dual-panel comparison stories MUST NOT remain in the Storybook catalog. |
 | LN-CAT-035 | Movable-panel stories MUST retain literal `visual-pending` tags and independent nested-import baseline paths until human review. Baseline capture MAY remain deferred when visual testing is explicitly excluded. |
 | LN-CAT-036 | Bottom Panel and Sidebar As A Group stories MUST use the real grouped-panel and sidebar-group chrome. |
-| LN-CAT-037 | Production Markdown panel Autodocs MUST use their public app-only components. Tags MUST use its real Storybook-local app-only component and document that boundary through `LN-CAT-026`. |
+| LN-CAT-037 | Production Markdown panel Autodocs, including Tags, MUST use their public `@lapis-notes/markdown` app-only components. |
 
 ## Show Code source contract
 

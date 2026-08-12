@@ -42,6 +42,15 @@ const RULES = [
     ],
   },
   {
+    name: "File Explorer package",
+    pattern: /^packages\/file-explorer\//,
+    chapters: [
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+      "spec/src/editor-demo.md",
+    ],
+  },
+  {
     name: "Desktop Electron package",
     pattern: /^packages\/desktop-electron\//,
     chapters: [

@@ -3,6 +3,9 @@
 File Properties edits the active Markdown file's frontmatter through Mira while
 retaining Lapis metadata types and mutation ownership.
 
+The persisted canonical view type is `file-properties`; `file:properties`
+remains a load-only alias under `LN-MD-085`.
+
 ## Requirements
 
 | ID | Requirement |

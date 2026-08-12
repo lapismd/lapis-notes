@@ -2,7 +2,7 @@
   import { Menu as UIMenu, useTextHighlight, type App } from "@lapis-notes/api";
   import { fuzzyMatchScore } from "@lapis-notes/ui";
   import * as Sidebar from "@lapis-notes/ui/sidebar-custom";
-  import { MarkdownSidebarPanel } from "@lapis-notes/markdown";
+  import MarkdownSidebarPanel from "$lib/views/sidebar-panel/markdown-sidebar-panel.svelte";
   import { Button } from "@lapismd/design-core/shadcn/button";
   import * as Collapsible from "@lapismd/design-core/shadcn/collapsible";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
@@ -225,7 +225,7 @@
   {/snippet}
 
   <Sidebar.NestedProvider
-    id="storybook-tags"
+    id="lapis-tags"
     class="tags-panel__fill"
   >
     <Sidebar.Content class="tags-panel__menu-host">

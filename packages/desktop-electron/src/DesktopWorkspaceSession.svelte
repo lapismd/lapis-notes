@@ -6,6 +6,9 @@
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
+  import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
+  import { MarkdownPlugin } from "@lapis-notes/markdown";
+  import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import { onMount, untrack } from "svelte";
@@ -41,7 +44,7 @@
     () =>
       new App({
         version: appInfo.version,
-        configPath: ".obsidian",
+        configPath: ".obsidian/app.json",
         session,
         pluginAssetServer: createElectronPluginAssetServer({ adapter, bridge }),
         workspaceShell: { application: appInfo, notifications: true },
@@ -52,6 +55,7 @@
   let ready = $state(false);
   let disposed = false;
   let unregisterLanguageService: (() => void) | null = null;
+  let stopMetadataTracking: (() => void) | null = null;
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
     const desktopProfiles = recentVaults.filter(
@@ -105,8 +109,20 @@
           app,
           (command, payload) => bridge.invoke(command, payload),
         );
+      app.plugins.registerCorePlugins([
+        { plugin: MarkdownPlugin, required: true },
+        { plugin: MarkdownLintPlugin, required: true },
+        { plugin: FileExplorerPlugin, required: true },
+      ]);
       await app.vault.load();
       await app.vault.mkpath(".obsidian");
+      await app.configuration.load();
+      await app.plugins.loadPlugins({
+        communityPlugins: "disabled",
+        optionalCorePlugins: "configured",
+      });
+      stopMetadataTracking = app.metadataTypeManager.trackChanges();
+      await app.metadataCache.load();
       await app.workspace.loadLayout();
       ready = true;
       onReady(app);
@@ -135,7 +151,13 @@
       );
     }
 
+    stopMetadataTracking?.();
+    stopMetadataTracking = null;
+    for (const plugin of [...app.plugins.corePlugins].reverse()) {
+      await plugin.disable().catch(() => undefined);
+    }
     unregisterLanguageService?.();
+    unregisterLanguageService = null;
     bridge.closeAllWatches?.();
     await bridge
       .invoke("desktop_plugin_host_shutdown", { contextId: profile.id })

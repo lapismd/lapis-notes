@@ -11,6 +11,69 @@ import {
   waitForDesktopWorkspace,
 } from "./helpers";
 
+function restoredPluginLayout() {
+  const leaf = (
+    id: string,
+    type: string,
+    state: Record<string, unknown> = {},
+  ) => ({ id, type: "leaf", state: { type, state } });
+  const missing = (id: string, type: string) =>
+    leaf(id, "empty", { __missingViewType: type });
+  const tabs = (id: string, children: ReturnType<typeof leaf>[]) => ({
+    id,
+    type: "tabs",
+    currentTab: 0,
+    children,
+  });
+  const split = (
+    id: string,
+    children: ReturnType<typeof tabs>[],
+    width?: string,
+  ) => ({
+    id,
+    type: "split",
+    direction: id === "main" ? "horizontal" : "vertical",
+    children,
+    ...(width ? { width } : {}),
+  });
+
+  return {
+    main: split("main", [
+      tabs("main-tabs", [
+        leaf("welcome", "markdown", { file: "Welcome.md", mode: "source" }),
+      ]),
+    ]),
+    left: split(
+      "left",
+      [
+        tabs("left-tabs", [
+          missing("files", "file-explorer"),
+          missing("search", "search"),
+          missing("bookmarks", "bookmarks"),
+        ]),
+      ],
+      "22rem",
+    ),
+    right: split(
+      "right",
+      [
+        tabs("right-tabs", [
+          missing("backlinks", "backlink"),
+          missing("outgoing", "outgoing-link"),
+          missing("tags", "tag"),
+          missing("outline", "outline"),
+          missing("file-properties", "file-properties"),
+          missing("all-properties", "all-properties"),
+        ]),
+      ],
+      "22rem",
+    ),
+    bottom: { ...tabs("bottom", []), height: "0px" },
+    floating: [],
+    active: "welcome",
+  };
+}
+
 test("first-launch cancellation remains on a recoverable native-folder landing state", async () => {
   const state = await createDesktopTestState();
   const app = await launchDesktopApp({
@@ -74,11 +137,19 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
           app?: { plugins: { plugins: Map<string, unknown> } };
         }
       ).app?.plugins.plugins.size,
+      pluginIds: Array.from(
+        (
+          globalThis as typeof globalThis & {
+            app?: { plugins: { plugins: Map<string, unknown> } };
+          }
+        ).app?.plugins.plugins.keys() ?? [],
+      ).sort(),
     }));
     expect(runtime).toEqual({
       runtime: "electron-desktop",
       vault: "vault-a",
-      pluginCount: 0,
+      pluginCount: 3,
+      pluginIds: ["lapis-file-explorer", "lapis-markdown-lint", "markdown"],
     });
     const loadedFontFaces = await app.page.evaluate(async () => {
       const [sans, mono] = await Promise.all([
@@ -139,6 +210,9 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
         leftTabBarPadding: leftTabBar
           ? Number.parseFloat(getComputedStyle(leftTabBar).paddingInlineStart)
           : null,
+        expandedSidebarInset: getComputedStyle(
+          document.documentElement,
+        ).getPropertyValue("--lapis-desktop-window-controls-sidebar-left"),
       };
     });
     expect(shell).toMatchObject({
@@ -157,12 +231,88 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
     expect(shell.inlineSafeArea).toBe("");
     if (process.platform === "darwin") {
       expect(shell.rootClasses).toContain("lapis-desktop--macos");
-      expect(shell.leftTabBarPadding).toBeGreaterThanOrEqual(24);
+      expect(shell.expandedSidebarInset.trim()).toBe("80px");
+      expect(shell.leftTabBarPadding).toBeGreaterThanOrEqual(39);
     } else {
       expect(shell.rootClasses).not.toContain("lapis-desktop--macos");
     }
     expect(app.rendererErrors).toEqual([]);
     expect(await getMainProcessUnhandledErrors(app.electronApp)).toEqual([]);
+  } finally {
+    await app.close();
+    await state.cleanup();
+  }
+});
+
+test("restores every available plugin view from persisted missing-view placeholders", async () => {
+  const state = await createDesktopTestState();
+  const configDir = path.join(state.vaultA, ".obsidian");
+  fs.mkdirSync(configDir, { recursive: true });
+  fs.writeFileSync(path.join(state.vaultA, "Welcome.md"), "# Welcome\n\n#desktop\n");
+  fs.writeFileSync(
+    path.join(configDir, "workspace.json"),
+    JSON.stringify(restoredPluginLayout(), null, 2),
+  );
+
+  const app = await launchDesktopApp({
+    userDataDir: state.userDataDir,
+    vaultPath: state.vaultA,
+  });
+  try {
+    await waitForDesktopWorkspace(app.page, app.rendererErrors);
+    await expect(app.page.locator('[data-testid="lapis-editor-explorer"]')).toBeVisible();
+    await expect(
+      app.page
+        .locator('[data-testid="lapis-editor-explorer"]')
+        .getByText("Welcome.md", { exact: true }),
+    ).toBeVisible();
+
+    const restored = await app.page.evaluate(() => {
+      const workspace = (
+        globalThis as typeof globalThis & {
+          app: {
+            workspace: {
+              getLeavesOfType(type: string): unknown[];
+              toJson(): unknown;
+            };
+          };
+        }
+      ).app.workspace;
+      const types = [
+        "markdown",
+        "file-explorer",
+        "backlink",
+        "outgoing-link",
+        "tag",
+        "outline",
+        "file-properties",
+        "all-properties",
+      ];
+      return {
+        counts: Object.fromEntries(
+          types.map((type) => [type, workspace.getLeavesOfType(type).length]),
+        ),
+        layout: workspace.toJson(),
+      };
+    });
+
+    expect(restored.counts).toEqual({
+      markdown: 1,
+      "file-explorer": 1,
+      backlink: 1,
+      "outgoing-link": 1,
+      tag: 1,
+      outline: 1,
+      "file-properties": 1,
+      "all-properties": 1,
+    });
+    expect(JSON.stringify(restored.layout)).toContain(
+      '"__missingViewType":"search"',
+    );
+    expect(JSON.stringify(restored.layout)).toContain(
+      '"__missingViewType":"bookmarks"',
+    );
+    expect(app.rendererErrors).toEqual([]);
   } finally {
     await app.close();
     await state.cleanup();

@@ -1,6 +1,8 @@
 :root {
   --lapis-desktop-window-controls-left: 0px;
   --lapis-desktop-window-controls-after-ribbon: 0px;
+  --lapis-desktop-window-controls-sidebar-left: 0px;
+  --lapis-desktop-window-controls-sidebar-after-ribbon: 0px;
 
   color-scheme: light dark;
   font-family: var(--ui-workspace-font-sans, ui-sans-serif, system-ui, sans-serif);
@@ -9,10 +11,18 @@
 
 :root.lapis-desktop--macos {
   --lapis-desktop-window-controls-left: 65px;
+  --lapis-desktop-window-controls-sidebar-left: 80px;
   --lapis-desktop-window-controls-after-ribbon: max(
     0px,
     calc(
       var(--lapis-desktop-window-controls-left) -
+        var(--ui-workspace-ribbon-width, 3rem)
+    )
+  );
+  --lapis-desktop-window-controls-sidebar-after-ribbon: max(
+    0px,
+    calc(
+      var(--lapis-desktop-window-controls-sidebar-left) -
         var(--ui-workspace-ribbon-width, 3rem)
     )
   );
@@ -113,7 +123,7 @@ body {
   > [data-ui-part="sidebar-tab-bar"] {
   padding-inline-start: calc(
     var(--ui-workspace-sidebar-tab-header-inline-padding, 0.5rem) +
-      var(--lapis-desktop-window-controls-after-ribbon)
+      var(--lapis-desktop-window-controls-sidebar-after-ribbon)
   );
 }
 
@@ -123,7 +133,7 @@ body {
   > [data-ui-part="sidebar-tab-bar"] {
   padding-inline-start: calc(
     var(--ui-workspace-sidebar-tab-header-inline-padding, 0.5rem) +
-      var(--lapis-desktop-window-controls-left)
+      var(--lapis-desktop-window-controls-sidebar-left)
   );
 }
 

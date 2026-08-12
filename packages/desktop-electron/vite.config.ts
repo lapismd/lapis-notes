@@ -6,12 +6,33 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, searchForWorkspaceRoot } from "vite";
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
+const lapisWorkspaceRoot = searchForWorkspaceRoot(packageRoot);
 const linkedDesignCoreRoot = realpathSync(
   path.join(packageRoot, "node_modules", "@lapismd", "design-core"),
 );
+const linkedMiraWorkspaceRoot = searchForWorkspaceRoot(
+  realpathSync(
+    path.join(lapisWorkspaceRoot, "node_modules", "@lapismd", "mira"),
+  ),
+);
 const rendererFileSystemAllow = [
-  searchForWorkspaceRoot(packageRoot),
+  lapisWorkspaceRoot,
   linkedDesignCoreRoot,
+  linkedMiraWorkspaceRoot,
+];
+const rendererSingletonPackages = [
+  "@codemirror/state",
+  "@codemirror/view",
+  "@codemirror/language",
+  "@codemirror/commands",
+  "@codemirror/autocomplete",
+  "@codemirror/search",
+  "@codemirror/lint",
+  "@lezer/common",
+  "@lezer/highlight",
+  "@lezer/markdown",
+  "@lezer/lr",
+  "svelte",
 ];
 
 const crossOriginIsolationHeaders = {
@@ -39,7 +60,7 @@ export default defineConfig(({ command }) => ({
   },
   worker: { format: "es" },
   resolve: {
-    dedupe: ["svelte"],
+    dedupe: rendererSingletonPackages,
   },
   build: {
     target: "es2022",

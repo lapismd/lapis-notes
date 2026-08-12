@@ -18,7 +18,7 @@
 | LN-ED-011 | Storybook MUST provide one runnable demo plus focused source-editor, Explorer, settings, loading, failure, and opening-vault scenarios from one canonical in-memory seed. Every full-shell Autodocs story in this family MUST use the shared LN-WS-013 isolated 700px padding-free shell viewport, and the authored MDX MUST identify every scenario and render its canonical story description before its canvas. |
 | LN-ED-012 | New or touched component paint MUST use design-core composition, native CSS, public `--ui-*` tokens, and semantic `data-ui-*` hosts without Tailwind utility strings. |
 | LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme through the linked package's built public exports, without a Storybook or Vite source alias. Source-editor Markdown language packs remain source-only. Rich Mira surfaces MUST be provided only by `@lapis-notes/markdown` when that plugin is enabled. |
-| LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations), then Tags (`enabledByDefault: true`). |
+| LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations and Tags), Markdownlint, and File Explorer. Reusable File Explorer MUST come from `@lapis-notes/file-explorer`. |
 | LN-ED-020 | Storybook MUST provide focused panel stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags, plus editor-demo integration coverage for Markdown modes and Markdown/Mira settings. |
 | LN-ED-021 | Every focused Markdown panel MUST use a nested `Workspace/Panels/Markdown/<Panel>` group with the six movable surfaces defined by All Properties. Vault-wide panels omit the document; file-scoped panels retain one minimal active Markdown leaf. |
 | LN-ED-022 | The API editor's design-core `ScrollArea` root MUST fill and remain bounded by its owning `WorkspaceViewHost`, leaving its viewport as the sole vertical scroll owner when a source or Markdown document is taller than its pane. The nested CodeMirror scroller MUST expand with its content without painting another vertical scrollbar. Focused Storybook acceptance MUST prove full-height ownership, one usable long-document scroll range, and a changed scroll position in both top-tab and stacked-tab workspace placements. |
@@ -43,6 +43,7 @@
 | LN-ED-041 | Focused Markdown Authoring acceptance MUST prove borderless Reading paint, View-first menu order, toolbar toggling, and persisted toolbar-driven editor settings. |
 | LN-ED-042 | The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.obsidian/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. |
 | LN-ED-043 | The runnable editor demo MUST register Markdownlint after Markdown and open the generic Problems view in the bottom dock for focused acceptance. Only currently open Markdown notes MUST contribute provider diagnostics. |
+| LN-ED-044 | Storybook and production desktop hosts MUST consume the same `@lapis-notes/file-explorer` implementation, and Tags MUST come from `@lapis-notes/markdown`. Storybook MAY parameterize Explorer loading state, but MUST NOT retain duplicate plugin or view implementations. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
@@ -80,10 +81,11 @@ The live-edit parity scenario verifies:
 
 Reusable storage, source-view, configuration, and registry behavior belongs to
 `@lapis-notes/api`. Generic startup presentation belongs to design-core. The
-Lapis source-editor and Explorer plugins remain Storybook-local intake fixtures.
+Lapis source-editor remains a Storybook-local intake fixture. File Explorer is
+owned by `@lapis-notes/file-explorer`.
 `@lapis-notes/markdown` owns document behavior and the enabled
-`@lapis-notes/markdown-lint` plugin contributes diagnostics only. Tags remains
-a Storybook-local workspace-origin intake beside Markdown. Shared panel
+`@lapis-notes/markdown-lint` plugin contributes diagnostics only. Markdown owns
+the Tags view. Shared panel
 presentation is specified under `workspace-shell/panels.md`. The Markdown
 Problems scenario also verifies that Design Core renders the live
 diagnostic total in the owning leaf badge without changing its stored title or
@@ -111,7 +113,7 @@ CodeMirror extensions with Obsidian theme tokens. File leaves contribute tab
 title bar breadcrumbs, history, and in-place header rename through `getChrome`,
 and the demo seed enables inline title and tab title bar visibility. Visual
 baselines remain pending human review. Design-core resolves Workspace view paint
-from the destination surface; Markdown, Storybook-local Tags, and Explorer
+from the destination surface; Markdown-owned Tags and the reusable Explorer
 consume the resulting public view tokens so a moved view adopts its new paint
 without a component remount or component-owned placement logic. The landing
 view identifies its empty state as page content and therefore matches the white

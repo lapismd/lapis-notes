@@ -5,9 +5,17 @@ import {
   MemoryVaultAdapter,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
-import { MarkdownPlugin, MarkdownView } from "@lapis-notes/markdown";
+import {
+  AllPropertiesViewType,
+  BacklinksViewType,
+  FilePropertiesViewType,
+  MarkdownPlugin,
+  MarkdownView,
+  OutlineViewType,
+  OutgoingLinksViewType,
+  TagsViewType,
+} from "@lapis-notes/markdown";
 import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-import { TagsDemoPlugin } from "../lapis-editor-demo/tags-plugin";
 import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../watch-metadata";
 
@@ -37,12 +45,12 @@ export const PANEL_DEMO_LAYOUTS: PanelDemoLayout[] = [
 ];
 
 export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
-  "all-properties": "all-properties",
-  "file-properties": "file:properties",
-  outline: "file:outline",
-  backlinks: "file:backlinks",
-  "outgoing-links": "file:outgoing-links",
-  tags: "tags",
+  "all-properties": AllPropertiesViewType,
+  "file-properties": FilePropertiesViewType,
+  outline: OutlineViewType,
+  backlinks: BacklinksViewType,
+  "outgoing-links": OutgoingLinksViewType,
+  tags: TagsViewType,
 };
 
 export const PANEL_LEAF_META: Record<
@@ -503,7 +511,6 @@ export async function bootPanelDemo(
     { plugin: SourceEditorDemoPlugin, required: true },
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
-    { plugin: TagsDemoPlugin, required: false, enabledByDefault: true },
   ]);
 
   globalThis.app = app;

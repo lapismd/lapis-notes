@@ -11,22 +11,36 @@ import {
 } from "$lib/views/all-properties";
 import {
   Backlinks,
+  BacklinksLegacyViewTypes,
   BacklinksView,
   BacklinksViewType,
 } from "$lib/views/backlinks";
 import {
   FileProperties,
+  FilePropertiesLegacyViewTypes,
   FilePropertiesView,
   FilePropertiesViewType,
 } from "$lib/views/file-properties";
 import { MarkdownView, MarkdownViewType } from "$lib/views/markdown";
 import { MediaView, MediaViewType } from "$lib/views/media";
-import { Outline, OutlineView, OutlineViewType } from "$lib/views/outline";
+import {
+  Outline,
+  OutlineLegacyViewTypes,
+  OutlineView,
+  OutlineViewType,
+} from "$lib/views/outline";
 import {
   OutgoingLinks,
+  OutgoingLinksLegacyViewTypes,
   OutgoingLinksView,
   OutgoingLinksViewType,
 } from "$lib/views/outgoing-links";
+import {
+  Tags,
+  TagsLegacyViewTypes,
+  TagsView,
+  TagsViewType,
+} from "$lib/views/tags";
 import {
   createDemoAiRun,
   createMarkdownEditorExtensions,
@@ -55,19 +69,27 @@ export {
   AllPropertiesView,
   AllPropertiesViewType,
   Backlinks,
+  BacklinksLegacyViewTypes,
   BacklinksView,
   BacklinksViewType,
   FileProperties,
+  FilePropertiesLegacyViewTypes,
   FilePropertiesView,
   FilePropertiesViewType,
   MediaView,
   MediaViewType,
   Outline,
+  OutlineLegacyViewTypes,
   OutlineView,
   OutlineViewType,
   OutgoingLinks,
+  OutgoingLinksLegacyViewTypes,
   OutgoingLinksView,
   OutgoingLinksViewType,
+  Tags,
+  TagsLegacyViewTypes,
+  TagsView,
+  TagsViewType,
 };
 export { default as MarkdownSidebarPanel } from "$lib/views/sidebar-panel/markdown-sidebar-panel.svelte";
 
@@ -167,6 +189,9 @@ export class MarkdownPlugin extends Plugin {
     });
 
     this.registerView(OutlineViewType, (leaf) => new OutlineView(leaf));
+    for (const viewType of OutlineLegacyViewTypes) {
+      this.registerView(viewType, (leaf) => new OutlineView(leaf));
+    }
     this.addCommand({
       id: "show-outline",
       name: "Show outline",
@@ -177,6 +202,9 @@ export class MarkdownPlugin extends Plugin {
       FilePropertiesViewType,
       (leaf) => new FilePropertiesView(leaf),
     );
+    for (const viewType of FilePropertiesLegacyViewTypes) {
+      this.registerView(viewType, (leaf) => new FilePropertiesView(leaf));
+    }
     this.addCommand({
       id: "show-file-properties",
       name: "Show file properties",
@@ -188,6 +216,9 @@ export class MarkdownPlugin extends Plugin {
       (leaf) => new BacklinksView(leaf),
       { side: "right", group: "Links", groupTitle: "Links" },
     );
+    for (const viewType of BacklinksLegacyViewTypes) {
+      this.registerView(viewType, (leaf) => new BacklinksView(leaf));
+    }
     this.addCommand({
       id: "show-backlinks",
       name: "Show backlinks",
@@ -199,6 +230,9 @@ export class MarkdownPlugin extends Plugin {
       (leaf) => new OutgoingLinksView(leaf),
       { side: "right", group: "Links", groupTitle: "Links" },
     );
+    for (const viewType of OutgoingLinksLegacyViewTypes) {
+      this.registerView(viewType, (leaf) => new OutgoingLinksView(leaf));
+    }
     this.addCommand({
       id: "show-outgoing-links",
       name: "Show outgoing links",
@@ -208,6 +242,20 @@ export class MarkdownPlugin extends Plugin {
       id: "show-links-sidebar",
       name: "Show links",
       callback: () => revealOrOpen(BacklinksViewType),
+    });
+
+    this.registerSidebarView(TagsViewType, (leaf) => new TagsView(leaf), {
+      side: "right",
+      title: "Tags",
+      icon: "tags",
+    });
+    for (const viewType of TagsLegacyViewTypes) {
+      this.registerView(viewType, (leaf) => new TagsView(leaf));
+    }
+    this.addCommand({
+      id: "show-tags",
+      name: "Show tags",
+      callback: () => revealOrOpen(TagsViewType),
     });
 
     // MetadataCache.writeFrontmatter passes the frontmatter object itself.

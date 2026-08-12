@@ -344,6 +344,7 @@ function createWorkspaceHarness(
     },
     plugins,
     notifications: {
+      notify: vi.fn((options: { id: string }) => ({ id: options.id })),
       withProgress: vi.fn(
         async (
           _options: unknown,
@@ -1116,6 +1117,58 @@ describe("Workspace compatibility", () => {
     await leaf.setViewState({ type: "graph", state: {} }, { history: true });
 
     expect(requestSaveLayout).toHaveBeenCalled();
+  });
+
+  it("recovers a persisted missing-view placeholder after its view becomes available", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const leaf = workspace.getLeaf(true);
+
+    class CanonicalBacklinksView extends MockItemView {
+      getViewType(): string {
+        return "backlink";
+      }
+    }
+
+    app.plugins.activateForViewType.mockImplementation(async (viewType) => {
+      if (viewType === "backlink") {
+        workspace.registerView(
+          "backlink",
+          (currentLeaf) => new CanonicalBacklinksView(currentLeaf),
+        );
+      }
+      return true;
+    });
+
+    await leaf.setViewState({
+      type: "empty",
+      state: {
+        __missingViewType: "backlink",
+        pinnedFile: "Notes/Welcome.md",
+      },
+    });
+
+    expect(app.plugins.activateForViewType).toHaveBeenCalledWith("backlink");
+    expect(leaf.view.getViewType()).toBe("backlink");
+    expect(leaf.getViewState()).toEqual({
+      type: "backlink",
+      state: { pinnedFile: "Notes/Welcome.md" },
+    });
+  });
+
+  it("retains an unavailable missing-view placeholder", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const leaf = workspace.getLeaf(true);
+
+    await leaf.setViewState({
+      type: "empty",
+      state: { __missingViewType: "bookmarks" },
+    });
+
+    expect(app.plugins.activateForViewType).toHaveBeenCalledWith("bookmarks");
+    expect(leaf.getViewState()).toEqual({
+      type: "empty",
+      state: { __missingViewType: "bookmarks" },
+    });
   });
 
   it("honors explicit file-backed view state instead of falling back to the file default", async () => {

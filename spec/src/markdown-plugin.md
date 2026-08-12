@@ -4,6 +4,10 @@ The Markdown plugin owns Markdown document behavior and its integration with the
 Lapis plugin, editor, metadata, and workspace APIs. Movable panel behavior is
 specified separately under [Panels](./markdown-plugin/panels/index.md).
 
+The production plugin also owns the Tags panel. Its persisted panel IDs follow
+the canonical Obsidian-compatible names governed by `LN-MD-085` and
+`LN-MD-086`, while former Lapis IDs remain load-only compatibility aliases.
+
 ## Requirements
 
 | ID | Requirement |

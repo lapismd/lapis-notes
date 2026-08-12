@@ -245,10 +245,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Properties tables must show only real component inputs; disable controls for
   injected object inputs such as `app`, and verify that `kind` / `layout` do not
   appear.
-- Storybook-local intake components such as Tags MUST still declare the real
-  fixture component and its genuine inputs. Their Docs source MUST use the
-  actual co-located fixture import and clearly describe that package-boundary
-  exception; never invent a public package export for documentation symmetry.
+- Production panel components such as Tags MUST declare their real package
+  component and genuine inputs. Their Docs source MUST use the public
+  `@lapis-notes/markdown` export; never retain or document a duplicate
+  Storybook-local implementation for convenience.
 - Design-core's `WorkspaceViewHost` owns movable-panel surface paint through
   `--ui-workspace-view-background` and `--ui-workspace-view-foreground`. Panel
   roots and sticky chrome consume those resolved tokens: body, bottom-panel,

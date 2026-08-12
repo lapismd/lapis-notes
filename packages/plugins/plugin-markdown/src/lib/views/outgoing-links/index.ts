@@ -2,7 +2,8 @@ import { View } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
 import OutgoingLinks from "./outgoing-links.svelte";
 
-export const OutgoingLinksViewType = "file:outgoing-links";
+export const OutgoingLinksViewType = "outgoing-link";
+export const OutgoingLinksLegacyViewTypes = ["file:outgoing-links"] as const;
 
 export { OutgoingLinks };
 

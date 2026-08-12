@@ -111,13 +111,7 @@ export async function expectPanelSource(
   );
   await expect(source).toContain("app.workspace.changeLayout(layout)");
   await expect(source).toContain(`"${panelLayoutMarker(kind, layout)}"`);
-  if (kind === "tags") {
-    await expect(source).toContain(
-      'import Tags from "../lapis-editor-demo/tags/tags.svelte";',
-    );
-  } else {
-    await expect(source).toContain('from "@lapis-notes/markdown";');
-  }
+  await expect(source).toContain('from "@lapis-notes/markdown";');
   await expect(source).not.toContain("PanelDemo");
   await expect(source).not.toContain("args.");
 }

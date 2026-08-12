@@ -2,6 +2,9 @@
 
 Backlinks groups references to the active file by their source note.
 
+The persisted canonical view type is `backlink`; `file:backlinks` remains a
+load-only alias under `LN-MD-085`.
+
 ## Requirements
 
 | ID | Requirement |

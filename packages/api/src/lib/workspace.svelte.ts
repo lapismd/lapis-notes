@@ -4990,7 +4990,13 @@ export class WorkspaceLeaf extends WorkspaceItem<{
       async (span) => {
         span.setAttribute("leaf.id", this.id);
         span.setAttribute("view.type", viewState.type);
-        const requestedViewType = viewState.type;
+        const persistedMissingViewType =
+          viewState.type === "empty" &&
+          typeof viewState.state?.["__missingViewType"] === "string" &&
+          viewState.state["__missingViewType"].length > 0
+            ? viewState.state["__missingViewType"]
+            : null;
+        const requestedViewType = persistedMissingViewType ?? viewState.type;
         const filePath = viewState.state?.["file"]?.toString();
         const file = filePath ? app.vault.getFileByPath(filePath) : null;
 
@@ -5016,13 +5022,20 @@ export class WorkspaceLeaf extends WorkspaceItem<{
           }
         }
 
-        await this.app.plugins.activateForViewType(viewState.type);
-        let viewCreator = this.app.workspace.viewCreator(viewState.type);
-        const isMissingViewType = !viewCreator;
+        await this.app.plugins.activateForViewType(requestedViewType);
+        let viewCreator = this.app.workspace.viewCreator(requestedViewType);
         let resolvedViewState = viewState;
 
-        if (!viewCreator) {
-          new Notice(`Unknown view type: ${viewState.type}`);
+        if (viewCreator && persistedMissingViewType) {
+          const restoredState = { ...(viewState.state ?? {}) };
+          delete restoredState["__missingViewType"];
+          resolvedViewState = {
+            ...viewState,
+            type: requestedViewType,
+            state: restoredState,
+          };
+        } else if (!viewCreator) {
+          new Notice(`Unknown view type: ${requestedViewType}`);
           resolvedViewState = {
             ...viewState,
             type: "empty",

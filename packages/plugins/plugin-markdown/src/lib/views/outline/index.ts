@@ -2,7 +2,8 @@ import { View } from "@lapis-notes/api";
 import OutlineComponent from "./outline.svelte";
 import { mount, unmount } from "svelte";
 
-export const OutlineViewType = "file:outline";
+export const OutlineViewType = "outline";
+export const OutlineLegacyViewTypes = ["file:outline"] as const;
 
 export { OutlineComponent as Root, OutlineComponent as Outline };
 

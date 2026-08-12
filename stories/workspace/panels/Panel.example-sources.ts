@@ -9,6 +9,7 @@ const publicComponents: Partial<Record<PanelDemoKind, string>> = {
   outline: "Outline",
   backlinks: "Backlinks",
   "outgoing-links": "OutgoingLinks",
+  tags: "Tags",
 };
 
 function indent(value: string, spaces: number): string {
@@ -27,14 +28,8 @@ export function panelExampleSource(
     JSON.stringify(createPanelDemoLayout(kind, layout), null, 2),
     2,
   );
-  const panelImport =
-    kind === "tags"
-      ? '  import Tags from "../lapis-editor-demo/tags/tags.svelte";\n'
-      : `  import { ${publicComponents[kind] ?? "AllProperties"} } from "@lapis-notes/markdown";\n`;
-  const registrationNote =
-    kind === "tags"
-      ? "  // The story-local TagsDemoPlugin registers this component as the tags view.\n  void Tags;"
-      : `  // The enabled Markdown plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
+  const panelImport = `  import { ${publicComponents[kind] ?? "AllProperties"} } from "@lapis-notes/markdown";\n`;
+  const registrationNote = `  // The enabled Markdown plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
 
   return `<script lang="ts">
   import { onMount } from "svelte";

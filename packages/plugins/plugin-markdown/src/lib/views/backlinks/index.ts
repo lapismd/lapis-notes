@@ -2,7 +2,8 @@ import { View } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
 import Backlinks from "./backlinks.svelte";
 
-export const BacklinksViewType = "file:backlinks";
+export const BacklinksViewType = "backlink";
+export const BacklinksLegacyViewTypes = ["file:backlinks"] as const;
 
 export { Backlinks };
 
