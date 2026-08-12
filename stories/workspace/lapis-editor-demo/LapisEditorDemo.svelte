@@ -5,6 +5,7 @@
     MemoryAppDatabase,
     MemoryVaultAdapter,
     Plugin,
+    type Editor,
     type PluginManifest,
   } from "@lapis-notes/api";
   import { WorkspaceShell } from "@lapis-notes/workspace";
@@ -192,6 +193,14 @@
 
   async function disposeApp(current: App | null): Promise<void> {
     if (!current) return;
+    const destroyedEditors = new Set<Editor>();
+    current.workspace.iterateAllLeaves((leaf) => {
+      leaf.view.unload();
+      const editor = (leaf.view as { editor?: Editor }).editor;
+      if (!editor || destroyedEditors.has(editor)) return;
+      destroyedEditors.add(editor);
+      editor.destroy();
+    });
     stopMetadataByApp.get(current)?.();
     stopMetadataByApp.delete(current);
     for (const plugin of [...current.plugins.corePlugins].reverse()) {

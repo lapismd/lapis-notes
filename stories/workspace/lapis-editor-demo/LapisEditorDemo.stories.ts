@@ -175,6 +175,17 @@ export const MarkdownProblems: Story = {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
     const runtimeApp = activeStoryApp(canvasElement);
+    const storyDocument = canvasElement.ownerDocument;
+
+    const blockToolbarPortal = await waitFor(() => {
+      const portals = storyDocument.querySelectorAll<HTMLElement>(
+        ".mira-block-toolbar-portal",
+      );
+      expect(portals).toHaveLength(1);
+      return portals[0]!;
+    });
+    expect(getComputedStyle(blockToolbarPortal).position).toBe("fixed");
+    expect(blockToolbarPortal.getBoundingClientRect().height).toBe(0);
 
     await waitFor(
       () => {
