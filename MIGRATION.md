@@ -69,7 +69,7 @@ detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 
 ### Workspace shell integration progress
 
-- [x] Generic Problems integration → design-core diagnostics façade, plugin-owned collections, open-document language-service bridge, diagnostics-only Markdown composition, Markdownlint provider, navigation/actions, and runnable editor acceptance (LN-WS-025 through LN-WS-037)
+- [x] Generic Problems integration → design-core diagnostics façade, plugin-owned collections, open-document language-service bridge, diagnostics-only Markdown composition, Markdownlint provider, navigation/actions, aligned severity gutter glyphs, compact interactive hover cards, and runnable editor acceptance (LN-WS-025 through LN-WS-040)
 - [x] Full-shell `Workspace/Shell`, `Workspace/Lapis Editor Demo`, and panel Autodocs share an isolated 700px padding-free application viewport; authored shell pages render every canonical story description
 - [x] Canonical requirements and governance mapping
 - [x] Api-owned design-core controller and compatibility projection

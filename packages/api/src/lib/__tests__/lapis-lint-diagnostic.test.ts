@@ -1,6 +1,44 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { workspaceLintMarkerMask } from "../components/editor/extensions/lint/lapis-code-mirror-lint";
 import { markdownlintRuleUrl } from "../components/editor/extensions/lint/lapis-lint-diagnostic-helpers";
+import { pointerWithinLintTooltipHandoff } from "../components/editor/extensions/lint/lapis-lint-hover-tooltip";
 import { mountLintMessageDom } from "../components/editor/extensions/lint/mount-lint-tooltip";
+
+describe("lint gutter markers", () => {
+  it("uses the Problems panel severity glyphs", () => {
+    expect(workspaceLintMarkerMask("error")).toContain("lucide-circle-x");
+    expect(workspaceLintMarkerMask("warning")).toContain(
+      "lucide-triangle-alert",
+    );
+    expect(workspaceLintMarkerMask("info")).toContain("lucide-info");
+    expect(workspaceLintMarkerMask("hint")).toContain("lucide-lightbulb");
+  });
+});
+
+describe("lint tooltip pointer handoff", () => {
+  const trigger = { left: 100, right: 180, top: 100, bottom: 120 };
+  const tooltipAbove = { left: 80, right: 300, top: 20, bottom: 90 };
+  const tooltipBelow = { left: 80, right: 300, top: 130, bottom: 210 };
+
+  it("covers the gap between a diagnostic and a tooltip on either side", () => {
+    expect(
+      pointerWithinLintTooltipHandoff({ x: 140, y: 95 }, trigger, tooltipAbove),
+    ).toBe(true);
+    expect(
+      pointerWithinLintTooltipHandoff(
+        { x: 140, y: 125 },
+        trigger,
+        tooltipBelow,
+      ),
+    ).toBe(true);
+  });
+
+  it("does not keep the tooltip open outside the handoff corridor", () => {
+    expect(
+      pointerWithinLintTooltipHandoff({ x: 20, y: 95 }, trigger, tooltipAbove),
+    ).toBe(false);
+  });
+});
 
 describe("markdownlintRuleUrl", () => {
   it("maps MD-prefixed rule codes to markdownlint doc paths", () => {
@@ -77,13 +115,16 @@ describe("mountLintMessageDom", () => {
 
     const copy = root.querySelector('[data-testid="lapis-lint-copy"]');
     expect(copy).not.toBeNull();
+    const messageRow = root.querySelector('[data-ui-part="lint-message-row"]');
+    expect(copy?.parentElement).toBe(messageRow);
     expect(
-      copy?.closest('[data-testid="lapis-lint-message-band"]'),
-    ).not.toBeNull();
+      root.querySelector('[data-testid="lapis-lint-message-text"]')
+        ?.parentElement,
+    ).toBe(messageRow);
 
     expect(
       root.querySelector('[data-testid="lapis-lint-source"]')?.textContent,
-    ).toBe("markdownlint");
+    ).toBe("markdownlint(MD041)");
 
     const footer = root.querySelector('[data-testid="lapis-lint-footer"]');
     expect(footer).not.toBeNull();

@@ -18,11 +18,22 @@ export interface LapisLintTooltipPayload {
 }
 
 const tooltipPayloads = new WeakMap<Diagnostic, LapisLintTooltipPayload>();
+const tooltipPayloadKey = Symbol.for(
+  "@lapis-notes/api/lapis-lint-tooltip-payload",
+);
+
+type DiagnosticWithTooltipPayload = Diagnostic & {
+  [tooltipPayloadKey]?: LapisLintTooltipPayload;
+};
 
 export function getLapisLintTooltipPayload(
   diagnostic: Diagnostic,
 ): LapisLintTooltipPayload | null {
-  return tooltipPayloads.get(diagnostic) ?? null;
+  return (
+    tooltipPayloads.get(diagnostic) ??
+    (diagnostic as DiagnosticWithTooltipPayload)[tooltipPayloadKey] ??
+    null
+  );
 }
 
 /**
@@ -64,10 +75,15 @@ export function mapToLapisLintDiagnostic(
     actions: [],
   };
 
-  tooltipPayloads.set(diagnostic, {
+  const payload = {
     meta,
     includeCopy,
     actions: tooltipActions,
+  } satisfies LapisLintTooltipPayload;
+  tooltipPayloads.set(diagnostic, payload);
+  Object.defineProperty(diagnostic, tooltipPayloadKey, {
+    value: payload,
+    enumerable: false,
   });
 
   return diagnostic;

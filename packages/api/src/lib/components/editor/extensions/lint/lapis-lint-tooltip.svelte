@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import { WorkspaceIcon } from "@lapismd/design-core/workspace/icon";
   import "../../editor.css";
 
   export type LintTooltipAction = {
@@ -26,6 +27,7 @@
   }: Props = $props();
 
   const showRuleLink = $derived(ruleId != null && ruleUrl != null);
+  const showAttribution = $derived(sourceLabel != null || ruleId != null);
 
   function copyMessage(event: MouseEvent) {
     event.preventDefault();
@@ -51,58 +53,44 @@
         data-ui-part="lint-message-text"
         data-testid="lapis-lint-message-text">{message}</span
       >
-      {#if showRuleLink}
-        <a
+      {#if showAttribution}
+        <span
           data-ui-component="editor"
-          data-ui-part="lint-rule"
-          data-testid="lapis-lint-rule"
-          href={ruleUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onclick={(event) => event.stopPropagation()}
+          data-ui-part="lint-source"
+          data-testid="lapis-lint-source"
         >
-          {ruleId}
-        </a>
+          {sourceLabel ??
+            ""}{#if ruleId != null}{#if sourceLabel}({/if}{#if showRuleLink}<a
+                data-ui-component="editor"
+                data-ui-part="lint-rule"
+                data-testid="lapis-lint-rule"
+                href={ruleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onclick={(event) => event.stopPropagation()}>{ruleId}</a
+              >{:else}<span
+                data-ui-component="editor"
+                data-ui-part="lint-rule-code"
+                data-testid="lapis-lint-rule">{ruleId}</span
+              >{/if}{#if sourceLabel}){/if}{/if}
+        </span>
+      {/if}
+
+      {#if includeCopy}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          data-ui-component="editor"
+          data-ui-part="lint-copy"
+          data-testid="lapis-lint-copy"
+          aria-label="Copy diagnostic message"
+          onclick={copyMessage}
+        >
+          <WorkspaceIcon name="copy" />
+        </Button>
       {/if}
     </div>
-
-    {#if includeCopy}
-      <Button
-        type="button"
-        variant="link"
-        size="xs"
-        data-ui-component="editor"
-        data-ui-part="lint-copy"
-        data-testid="lapis-lint-copy"
-        aria-label="Copy diagnostic message"
-        onclick={copyMessage}
-      >
-        <svg
-          aria-hidden="true"
-          data-ui-component="editor"
-          data-ui-part="lint-copy-icon"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <rect x="6" y="6" width="7" height="7" rx="1.5"></rect>
-          <path d="M3 10V4.5A1.5 1.5 0 0 1 4.5 3H10"></path>
-        </svg>
-      </Button>
-    {/if}
-
-    {#if sourceLabel}
-      <div
-        data-ui-component="editor"
-        data-ui-part="lint-source"
-        data-testid="lapis-lint-source"
-      >
-        {sourceLabel}
-      </div>
-    {/if}
   </div>
 
   {#if actions.length > 0}

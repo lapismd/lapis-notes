@@ -193,6 +193,22 @@ export const MarkdownProblems: Story = {
       { timeout: 8_000 },
     );
 
+    const lintMarker = await waitFor(() => {
+      const marker = canvasElement.querySelector<HTMLElement>(
+        ".cm-lint-marker-warning",
+      );
+      expect(marker).not.toBeNull();
+      return marker!;
+    });
+    const markerStyle = getComputedStyle(lintMarker);
+    expect(markerStyle.maskImage || markerStyle.webkitMaskImage).not.toBe(
+      "none",
+    );
+    const gutterElement = lintMarker.closest<HTMLElement>(".cm-gutterElement");
+    expect(gutterElement).not.toBeNull();
+    expect(getComputedStyle(gutterElement!).display).toContain("flex");
+    expect(getComputedStyle(gutterElement!).justifyContent).toBe("center");
+
     await getWorkspaceHostBinding(runtimeApp.workspace).controller.commands.execute(
       "app-shell:show-problems",
     );

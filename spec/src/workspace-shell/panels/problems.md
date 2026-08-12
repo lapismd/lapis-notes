@@ -25,6 +25,9 @@ Markdownlint provider are implemented.
 | LN-WS-035 | The Markdown editor MUST compose language-service diagnostics in Source and Live Preview with completion and hover disabled. Mira MUST continue to own completion and hover behavior while the CodeMirror lint gutter and Problems panel consume the same result. |
 | LN-WS-036 | The enabled Markdownlint core plugin MUST prefer the probed native Markdown language-service capability and fall back to its worker. It MUST preserve `markdown-lint.disabledRules`, fixes, and ignore actions through the existing provider contract. |
 | LN-WS-037 | Storybook acceptance MUST prove an invalid open Markdown note appears in the lint gutter and bottom Problems panel, filters and navigates correctly, applies a fix, and clears. New Problems stories MUST retain literal `visual-pending` metadata without creating a baseline. |
+| LN-WS-038 | CodeMirror lint gutter markers MUST use the same severity glyphs and semantic colours as the Problems panel. Each marker MUST remain centered within its gutter element alongside Mira-owned gutter controls. |
+| LN-WS-039 | A diagnostic hover card MUST keep its message, source, and code on one compact row. Its copy action MUST remain at the row's right edge without increasing the row height. |
+| LN-WS-040 | A diagnostic hover card MUST remain open while the pointer crosses from its marked source or gutter marker into the card. The card MUST remain interactive and close only after the pointer leaves both surfaces and their handoff corridor. |
 
 ## Ownership
 

@@ -13,11 +13,31 @@ type FoundDiagnostic = {
   from: number;
   to: number;
   payload: LapisLintTooltipPayload;
+  anchor?: RectLike;
 };
 
 const TOOLTIP_GAP_PX = 6;
 const TOOLTIP_VIEWPORT_MARGIN_PX = 12;
 const TOOLTIP_HIDE_DELAY_MS = 350;
+const TOOLTIP_HANDOFF_MARGIN_PX = 10;
+
+type RectLike = Pick<DOMRect, "left" | "right" | "top" | "bottom">;
+type PointLike = { x: number; y: number };
+
+export function pointerWithinLintTooltipHandoff(
+  point: PointLike,
+  trigger: RectLike,
+  tooltip: RectLike,
+  margin = TOOLTIP_HANDOFF_MARGIN_PX,
+): boolean {
+  const left = Math.min(trigger.left, tooltip.left) - margin;
+  const right = Math.max(trigger.right, tooltip.right) + margin;
+  const top = Math.min(trigger.top, tooltip.top) - margin;
+  const bottom = Math.max(trigger.bottom, tooltip.bottom) + margin;
+  return (
+    point.x >= left && point.x <= right && point.y >= top && point.y <= bottom
+  );
+}
 
 export function lapisLintHoverTooltip(): Extension[] {
   return [lapisLintTooltipPlugin];
@@ -38,10 +58,15 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       const found =
         lintMarkerFromEvent(event) != null
           ? findDiagnosticNearPointer(this.view, event)
-          : findDiagnosticFromContentPointer(this.view, event);
+          : (findDiagnosticFromLintRange(this.view, event) ??
+            findDiagnosticFromContentPointer(this.view, event));
 
       if (!found) {
-        this.scheduleHideTooltip();
+        if (this.isPointerInHandoff(event)) {
+          this.restartScheduledHide();
+        } else {
+          this.scheduleHideTooltip();
+        }
         return;
       }
       this.showTooltip(found);
@@ -64,17 +89,25 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       if (eventTargetIsInsideLapisTooltip(event.relatedTarget)) {
         return;
       }
-      this.scheduleHideTooltip();
+      if (this.isPointerInHandoff(event)) {
+        this.restartScheduledHide();
+      } else {
+        this.scheduleHideTooltip();
+      }
     };
 
     private readonly handleDocumentMouseMove = (event: MouseEvent) => {
       if (
         eventTargetIsInsideLapisTooltip(event.target) ||
-        (event.target instanceof Node && this.view.dom.contains(event.target))
+        eventTargetIsInside(this.view.dom, event.target)
       ) {
         return;
       }
-      this.scheduleHideTooltip();
+      if (this.isPointerInHandoff(event)) {
+        this.restartScheduledHide();
+      } else {
+        this.scheduleHideTooltip();
+      }
     };
 
     private readonly handleTooltipMouseEnter = () => {
@@ -95,6 +128,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
 
     constructor(readonly view: EditorView) {
       view.dom.addEventListener("mousemove", this.handleMouseMove);
+      view.dom.addEventListener("mouseover", this.handleMouseMove);
       view.dom.addEventListener("click", this.handleClick);
       view.dom.addEventListener("mouseleave", this.handleMouseLeave);
       this.viewDocument.addEventListener(
@@ -118,6 +152,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
 
     destroy() {
       this.view.dom.removeEventListener("mousemove", this.handleMouseMove);
+      this.view.dom.removeEventListener("mouseover", this.handleMouseMove);
       this.view.dom.removeEventListener("click", this.handleClick);
       this.view.dom.removeEventListener("mouseleave", this.handleMouseLeave);
       this.viewDocument.removeEventListener(
@@ -162,6 +197,11 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       }, TOOLTIP_HIDE_DELAY_MS);
     }
 
+    private restartScheduledHide(): void {
+      this.cancelScheduledHide();
+      this.scheduleHideTooltip();
+    }
+
     private cancelScheduledHide(): void {
       if (!this.hideTimer) {
         return;
@@ -185,12 +225,52 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       this.activeDiagnostic = null;
     }
 
+    private isPointerInHandoff(event: MouseEvent): boolean {
+      const tooltip = this.tooltip;
+      const diagnostic = this.activeDiagnostic;
+      if (!tooltip || !diagnostic) {
+        return false;
+      }
+      const trigger = this.diagnosticRect(diagnostic);
+      if (!trigger) {
+        return false;
+      }
+      return pointerWithinLintTooltipHandoff(
+        { x: event.clientX, y: event.clientY },
+        trigger,
+        tooltip.getBoundingClientRect(),
+      );
+    }
+
+    private diagnosticRect(found: FoundDiagnostic): RectLike | null {
+      const start = this.view.coordsAtPos(found.from);
+      const end = this.view.coordsAtPos(Math.max(found.from, found.to));
+      if (!start || !end) {
+        return found.anchor ?? null;
+      }
+      return {
+        left: Math.min(start.left, end.left, found.anchor?.left ?? Infinity),
+        right: Math.max(
+          start.right,
+          end.right,
+          start.left + 1,
+          found.anchor?.right ?? -Infinity,
+        ),
+        top: Math.min(start.top, end.top, found.anchor?.top ?? Infinity),
+        bottom: Math.max(
+          start.bottom,
+          end.bottom,
+          found.anchor?.bottom ?? -Infinity,
+        ),
+      };
+    }
+
     private positionTooltip(found: FoundDiagnostic): void {
       const tooltip = this.tooltip;
       if (!tooltip) {
         return;
       }
-      const coords = this.view.coordsAtPos(found.from);
+      const coords = this.view.coordsAtPos(found.from) ?? found.anchor;
       if (!coords) {
         this.hideTooltip();
         return;
@@ -277,13 +357,31 @@ function actionsForCurrentRange(actions: Action[]): Action[] {
 }
 
 function lintMarkerFromEvent(event: MouseEvent): Element | null {
-  const target = event.target;
-  return target instanceof Element ? target.closest(".cm-lint-marker") : null;
+  return closestEventTarget(event.target, ".cm-lint-marker");
 }
 
 function eventTargetIsInsideLapisTooltip(target: EventTarget | null): boolean {
-  return (
-    target instanceof Element && Boolean(target.closest(".cm-lapis-tooltip"))
+  return Boolean(closestEventTarget(target, ".cm-lapis-tooltip"));
+}
+
+function closestEventTarget(
+  target: EventTarget | null,
+  selector: string,
+): Element | null {
+  if (!target || typeof (target as Element).closest !== "function") {
+    return null;
+  }
+  return (target as Element).closest(selector);
+}
+
+function eventTargetIsInside(
+  container: HTMLElement,
+  target: EventTarget | null,
+): boolean {
+  return Boolean(
+    target &&
+      typeof (target as Node).nodeType === "number" &&
+      container.contains(target as Node),
   );
 }
 
@@ -296,6 +394,25 @@ function findDiagnosticFromContentPointer(
     y: event.clientY,
   });
   return hit ? findDiagnosticAt(view, hit.pos, hit.assoc) : null;
+}
+
+function findDiagnosticFromLintRange(
+  view: EditorView,
+  event: MouseEvent,
+): FoundDiagnostic | null {
+  const range = closestEventTarget(event.target, ".cm-lintRange");
+  if (!range) {
+    return null;
+  }
+  try {
+    const from = view.posAtDOM(range, 0);
+    const to = view.posAtDOM(range, range.childNodes.length);
+    const found =
+      findDiagnosticAt(view, from, 1) ?? findDiagnosticAt(view, to, -1);
+    return found ? { ...found, anchor: range.getBoundingClientRect() } : null;
+  } catch {
+    return null;
+  }
 }
 
 function findDiagnosticNearPointer(
@@ -321,7 +438,13 @@ function findDiagnosticNearPointer(
     if (!payload) {
       return;
     }
-    found = { diagnostic, from, to, payload };
+    found = {
+      diagnostic,
+      from,
+      to,
+      payload,
+      anchor: lintMarkerFromEvent(event)?.getBoundingClientRect(),
+    };
   });
 
   return found;
