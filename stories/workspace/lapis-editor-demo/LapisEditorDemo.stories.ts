@@ -4,6 +4,7 @@ import { startCompletion } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
 import type { App, Editor } from "@lapis-notes/api";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
+import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
 import LapisEditorDemo from "./LapisEditorDemo.svelte";
 import { workspaceStoryMeta } from "../_shared";
 
@@ -259,6 +260,33 @@ export const MarkdownProblems: Story = {
       return panel!;
     });
     const problemsCanvas = within(problems);
+    const problemsLeafLabel = await waitFor(() => {
+      const label = canvas.getByLabelText("Problems, 2 problems");
+      expect(label.closest('[role="tab"]')).not.toBeNull();
+      return label;
+    });
+    const problemsLeafBadge = problemsLeafLabel.querySelector<HTMLElement>(
+      "[data-workspace-view-badge]",
+    );
+    expect(problemsLeafBadge).not.toBeNull();
+    expect(problemsLeafBadge).toHaveTextContent("2");
+    expect(getComputedStyle(problemsLeafBadge!).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
+    );
+    expect(
+      problems.querySelector(".ui-workspace-problems__title-count"),
+    ).not.toBeInTheDocument();
+    const workspaceController = getWorkspaceHostBinding(
+      runtimeApp.workspace,
+    ).controller;
+    const problemsTabId = problemsLeafLabel.dataset.workspaceViewLabel;
+    expect(problemsTabId).toBeTruthy();
+    expect(
+      findWorkspaceTab(
+        workspaceController.renderer.layout,
+        problemsTabId!,
+      )?.tab.title,
+    ).toBe("Problems");
     await userEvent.click(
       problemsCanvas.getByRole("button", { name: "View as Table" }),
     );
@@ -335,6 +363,7 @@ export const MarkdownProblems: Story = {
             (entry) => entry.diagnostic.code === "MD018",
           ),
         ).toBe(false);
+        expect(canvas.getByLabelText("Problems, 1 problem")).toBeVisible();
       },
       { timeout: 5_000 },
     );
@@ -377,6 +406,7 @@ export const MarkdownProblems: Story = {
             name: /No space after hash on atx style heading/i,
           }),
         ).toBeVisible();
+        expect(canvas.getByLabelText("Problems, 2 problems")).toBeVisible();
       },
       { timeout: 8_000 },
     );

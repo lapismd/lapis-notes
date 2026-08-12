@@ -33,12 +33,13 @@ Markdownlint provider are implemented.
 | LN-WS-043 | Problems table overflow MUST use the shared shadcn Scroll Area for both axes. The table MUST NOT introduce a separate native panel scrollbar when moved into a constrained workspace surface. |
 | LN-WS-044 | Activating `View Problem` MUST render a compact inline problem beneath the diagnostic line. The surface MUST expose a warning pointer and accent, a distinct header and body, source and rule metadata, and an accessible close control. |
 | LN-WS-045 | `View Problem` MUST hand off from its hover card to the inline problem without retaining stale hover state. After the inline problem closes, hovering a diagnostic MUST show its card again. |
+| LN-WS-046 | The owning Problems leaf MUST show the live total as a shared workspace badge with visible non-hover paint. The persisted title MUST remain `Problems`, and the panel toolbar MUST NOT duplicate the total. |
 
 ## Ownership
 
 - Design Core owns diagnostics data structures, owner isolation, generic
   sorting/filtering, copy actions, tree/table presentation state, shared scroll
-  behavior, and movable Problems presentation.
+  behavior, movable Problems presentation, and ephemeral leaf badge rendering.
 - Lapis API owns the compatibility façade, plugin lifecycle mapping, opaque URI
   resolution, vault navigation, editor ownership, and language-service bridge.
 - Language-service packages own provider-neutral client and worker utilities.

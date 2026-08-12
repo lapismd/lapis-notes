@@ -363,7 +363,17 @@ export const BottomPanelSettings: Story = {
     const bottomPanel = canvas.getByLabelText("Bottom panel");
     await expect(desktopLayout).not.toBeNull();
     await expect(canvas.getByRole("tab", { name: "Terminal" })).toBeVisible();
-    await expect(canvas.getByRole("tab", { name: "Problems" })).toBeVisible();
+    const problemsTab = canvas.getByRole("tab", {
+      name: "Problems, 0 problems",
+    });
+    await expect(problemsTab).toBeVisible();
+    const problemsBadge = problemsTab.querySelector<HTMLElement>(
+      "[data-workspace-view-badge]",
+    );
+    await expect(problemsBadge).not.toBeNull();
+    await expect(getComputedStyle(problemsBadge!).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
+    );
     await expect(canvas.getByTestId("workspace-bottom-size")).toHaveTextContent(
       "240",
     );

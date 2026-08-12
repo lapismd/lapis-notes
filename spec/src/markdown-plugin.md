@@ -48,6 +48,9 @@ The Lapis package owns the app-bound `MiraFileAdapter`; portable rendering and
 editor behavior remain Mira-owned. The diagnostics extension reference-counts
 open editor views and reuses the manager's cached code actions; it does not
 replace Mira completion or hover behavior.
+The generic Problems leaf renders its live total through Design Core's
+ephemeral view badge; Markdown and Markdownlint contribute diagnostics but do
+not construct or persist that presentation.
 
 Panel registration, package exports, and per-panel behavior are documented in
 the [Markdown panel specification](./markdown-plugin/panels/index.md). Shared

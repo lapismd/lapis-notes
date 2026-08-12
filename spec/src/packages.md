@@ -45,6 +45,8 @@
 
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.
+Live Problems totals therefore use Design Core's structured, ephemeral view
+badge and never enter Lapis layout state or package-owned panel markup.
 Its narrow editor core and language-service subpaths let Markdown compose the
 source shell and diagnostics without importing the editor component barrel or
 its unrelated UI runtime.

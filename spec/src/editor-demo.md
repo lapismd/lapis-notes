@@ -84,7 +84,10 @@ Lapis source-editor and Explorer plugins remain Storybook-local intake fixtures.
 `@lapis-notes/markdown` owns document behavior and the enabled
 `@lapis-notes/markdown-lint` plugin contributes diagnostics only. Tags remains
 a Storybook-local workspace-origin intake beside Markdown. Shared panel
-presentation is specified under `workspace-shell/panels.md`;
+presentation is specified under `workspace-shell/panels.md`. The Markdown
+Problems scenario also verifies that Design Core renders the live
+diagnostic total in the owning leaf badge without changing its stored title or
+duplicating the total inside the panel.
 `@lapis-notes/workspace` remains the thin shell host.
 
 ## Demo lifecycle

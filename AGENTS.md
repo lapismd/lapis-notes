@@ -298,6 +298,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   shared shadcn Scroll Area. Consumers may choose an initial view mode but must
   not fork the columns, add a native panel scrollbar, or persist presentation
   state in workspace layout.
+- Ephemeral Problems totals belong in Design Core's structured workspace view
+  badge. Keep the persisted leaf title stable, render the badge through the
+  shared leaf label on every surface, and do not duplicate the total inside the
+  Problems toolbar or interpolate it into a stored title.
 - Diagnostic hover cards MUST pin their originating diagnostic and placement
   while the pointer crosses the safe handoff corridor into interactive card
   controls. Do not retarget or reposition an open card from incidental editor
