@@ -276,6 +276,14 @@ export const MarkdownProblems: Story = {
     expect(
       problems.querySelector(".ui-workspace-problems__title-count"),
     ).not.toBeInTheDocument();
+    expect(
+      problemsCanvas.queryByRole("heading", { name: "Problems" }),
+    ).not.toBeInTheDocument();
+    const problemsToolbar = problems.querySelector<HTMLElement>(
+      '[data-ui-part="toolbar"]',
+    );
+    expect(problemsToolbar).not.toBeNull();
+    expect(getComputedStyle(problemsToolbar!).justifyContent).toBe("flex-end");
     const workspaceController = getWorkspaceHostBinding(
       runtimeApp.workspace,
     ).controller;
@@ -320,9 +328,21 @@ export const MarkdownProblems: Story = {
     });
     await expect(problem).toHaveTextContent("markdownlint(MD018)");
 
-    const warningsFilter = problemsCanvas.getByRole("button", {
+    const severityFilter = problemsCanvas.getByRole("button", {
+      name: "Filter problem severities",
+    });
+    expect(severityFilter.querySelector(".lucide-list-filter")).toBeVisible();
+    await userEvent.click(severityFilter);
+    const overlayCanvas = within(canvasElement.ownerDocument.body);
+    let warningsFilter = await overlayCanvas.findByRole("menuitemcheckbox", {
       name: /^Warnings: [1-9]\d*$/,
     });
+    expect(
+      overlayCanvas.getByRole("menuitemcheckbox", {
+        name: /^Infos: \d+$/,
+      }),
+    ).toBeVisible();
+    expect(warningsFilter).toHaveAttribute("data-state", "checked");
     await userEvent.click(warningsFilter);
     await waitFor(() => {
       expect(
@@ -331,7 +351,22 @@ export const MarkdownProblems: Story = {
         }),
       ).not.toBeInTheDocument();
     });
+    await waitFor(() =>
+      expect(canvasElement.ownerDocument.body.style.pointerEvents).not.toBe(
+        "none",
+      ),
+    );
+    await userEvent.click(severityFilter);
+    warningsFilter = await overlayCanvas.findByRole("menuitemcheckbox", {
+      name: /^Warnings: [1-9]\d*$/,
+    });
+    expect(warningsFilter).toHaveAttribute("data-state", "unchecked");
     await userEvent.click(warningsFilter);
+    await waitFor(() =>
+      expect(canvasElement.ownerDocument.body.style.pointerEvents).not.toBe(
+        "none",
+      ),
+    );
     problem = await problemsCanvas.findByRole("button", {
       name: /No space after hash on atx style heading/i,
     });
