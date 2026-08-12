@@ -42,6 +42,20 @@ const RULES = [
     ],
   },
   {
+    name: "Desktop Electron package",
+    pattern: /^packages\/desktop-electron\//,
+    chapters: [
+      "spec/src/desktop-host.md",
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+    ],
+  },
+  {
+    name: "Desktop Markdown language runtime",
+    pattern: /^packages\/language-service\/(?:src\/markdownlint\/|package\.json$)/,
+    chapters: ["spec/src/desktop-host.md"],
+  },
+  {
     name: "Markdown plugin package",
     pattern: /^packages\/plugins\/plugin-markdown\/(?:src\/|package\.json$|PARITY\.md$)/,
     chapters: [

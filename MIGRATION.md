@@ -8,7 +8,7 @@ intake or UI swap status changes.
 | Area                                      | Status | Notes                                                                                                                                                                                                                                               |
 | ----------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | pnpm + Turbo scaffold                     | Done   | No multi-script import-resolution gates                                                                                                                                                                                                             |
-| Spec governance + validation              | Done   | 302 one-concern requirements; modular validation covers canonical Markdown, verification, mdBook output, and Storybook consumer source; local QMD discovery remains a disposable untracked cache                                               |
+| Spec governance + validation              | Done   | 338 one-concern requirements; modular validation covers canonical Markdown, verification, mdBook output, and Storybook consumer source; local QMD discovery remains a disposable untracked cache                                               |
 | Storybook host (port 7010)                | Done   | `API/` verification stories + catalog                                                                                                                                                                                                               |
 | Storybook consumer Show Code              | In progress | Panels use layout-derived examples; API and workspace demos expose explicit implementation/consumer source instead of demo invocation; Date Setting still needs a public-boundary example                                                     |
 | API Storybook verification + Visual Delta | Done   | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later)                                                                                                                                                            |
@@ -26,7 +26,8 @@ intake or UI swap status changes.
 | `@lapis-notes/api`                          | Copied         | Kernel from full lapis-notes; scripts slimmed                                                                                                                                                                                        |
 | `@lapis-notes/ui`                           | Pruned         | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers                                                                                                                                              |
 | `@lapis-notes/workspace` shell integration  | Done           | Thin design-core host; api compatibility + persistence façade                                                                                                                                                                        |
-| Web / desktop hosts                         | Not started    | No runnable product host in this slice                                                                                                                                                                                               |
+| Web host                                    | Not started    | No runnable web product host in this slice                                                                                                                                                                                           |
+| `@lapis-notes/desktop-electron`             | In progress    | Source-first partial native-folder host intake from legacy commit `8ec68e18`; empty workspace shell only                                                                                                                            |
 | `@lapis-notes/markdown`                     | Done (slice)   | Authorized plugin; Mira document render + public app-only panels and embed surfaces; File Properties keeps the Mira `FrontmatterEditor`; Outline and link panels match the observable full-repo behavior without the legacy renderer |
 | Tags (workspace-origin)                     | Done (fixture) | Storybook-local `TagsDemoPlugin` with full sort/search/hierarchy/live-refresh behavior; explicitly not folded into a package                                                                                                         |
 | `@lapis-notes/language-service`              | Done           | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                         |
@@ -34,6 +35,25 @@ intake or UI swap status changes.
 | Notebook / other plugins                     | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
 | Storybook editor/Explorer intake plugins    | Done (fixtures) | Source-editor + Explorer remain Storybook-local fixtures; landing empty-state paint follows its body ViewHost and Explorer follows resolved view-surface tokens in every placement                                                   |
 | design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
+
+### Electron desktop host intake progress
+
+Source: `/Users/stevejuma/code/lapis-notes/packages/desktop-electron` at
+legacy commit `8ec68e18`.
+
+- [x] Canonical desktop-host requirements, package authorization, verification mapping, and source provenance
+- [ ] Private `@lapis-notes/desktop-electron` package scaffold at version `2026.31.5`
+- [ ] Electron lifecycle, context-isolated preload, native menus, app URLs, window chrome, and bounded IPC
+- [ ] Native folder/profile bootstrap, filesystem/resource access, database/search, watches, notifications, and file actions
+- [ ] Markdown-only native language-service sidecar
+- [ ] Community-plugin sidecar, capability broker, and verified plugin asset protocol
+- [ ] Empty native-vault `WorkspaceShell` boot, persisted layout, reopen, fallback, switching, and teardown
+- [ ] macOS/Linux local packaging, icons, entitlements, signing/notarization hooks, and packaged smoke
+- [ ] Focused package, Electron, Storybook, visual, aggregate, and distribution validation
+
+Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
+demo-vault seeding, bundled-plugin startup/build steps, the legacy full app
+bootstrap, Windows targets, and remote release publication.
 
 ### Markdown plugin intake progress
 

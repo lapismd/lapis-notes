@@ -20,8 +20,9 @@ This repository currently contains:
 - `@lapis-notes/api` — shared runtime kernel
 - `@lapis-notes/ui` — pruned UI surface required by api
 - `@lapis-notes/workspace` — thin design-core workspace host
+- `@lapis-notes/desktop-electron` — partial native-folder Electron host
 - Storybook host and specification governance
 
-Web and desktop hosts, bundled plugins, notebook, and language-service packages
-remain tracked for later intake in root `MIGRATION.md` and must not be invented
-ahead of their canonical requirements.
+The web host, notebook, and unlisted bundled plugins remain tracked for later
+intake in root `MIGRATION.md` and must not be invented ahead of their canonical
+requirements.

@@ -55,3 +55,23 @@ test("diagnostic providers require the Problems and package contracts", () => {
     "spec/src/workspace-shell/panels/problems.md",
   ]);
 });
+
+test("desktop host changes require desktop, package, and architecture contracts", () => {
+  const desktop = classifySpecFirstChanges([
+    "packages/desktop-electron/src/main.ts",
+  ]);
+  assert.deepEqual(desktop.missingChapters, [
+    "spec/src/architecture.md",
+    "spec/src/desktop-host.md",
+    "spec/src/packages.md",
+  ]);
+
+  const nativeMarkdown = classifySpecFirstChanges([
+    "packages/language-service/src/markdownlint/runtime.ts",
+  ]);
+  assert.deepEqual(nativeMarkdown.missingChapters, [
+    "spec/src/desktop-host.md",
+    "spec/src/packages.md",
+    "spec/src/workspace-shell/panels/problems.md",
+  ]);
+});

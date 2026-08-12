@@ -31,6 +31,8 @@
 | LN-ARCH-025 | Design Core MUST own reusable diagnostics state and Problems presentation. Lapis API MUST adapt that contract to plugins, vault navigation, and language services; provider packages MUST remain independent of Design Core and workspace layout. |
 | LN-ARCH-026 | The API editor MUST consume diagnostic glyphs and semantic colours from Design Core's public workspace contract. It MUST keep CodeMirror-specific marker mounting, tooltip geometry, and pointer lifecycle inside the editor boundary. An open diagnostic card MUST retain its origin and placement throughout pointer handoff. |
 | LN-ARCH-027 | The API editor MUST own CodeMirror inline-problem structure and styling. It MUST consume public workspace semantic tokens without moving editor-specific widgets into Design Core or application-global styles. |
+| LN-ARCH-028 | The Electron desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault selection, session boot, and IPC belong to the host; workspace rendering and persisted layout compatibility remain in their owning packages. |
+| LN-ARCH-029 | Electron main, preload, and renderer code MUST communicate through the typed desktop-neutral bridge. The renderer MUST NOT receive Node integration or raw Electron IPC access. |
 
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.
@@ -46,6 +48,7 @@ vault or editor types to Design Core.
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)
 @lapis-notes/language-service (internal provider-neutral client + worker)
 @lapis-notes/markdown-lint (authorized core diagnostic provider)
+@lapis-notes/desktop-electron (native consumer host)
 
 @lapismd/design-core (sibling; UI primitives + workspace layout engine)
 @lapismd/mira (+ mira-editor / mira plugins; sibling checkout)

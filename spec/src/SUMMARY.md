@@ -4,6 +4,7 @@
 
 - [Architecture](./architecture.md)
 - [Packages](./packages.md)
+- [Desktop Host](./desktop-host.md)
 - [Workspace Shell](./workspace-shell.md)
   - [Panels](./workspace-shell/panels.md)
     - [Problems](./workspace-shell/panels/problems.md)
