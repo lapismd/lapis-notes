@@ -287,6 +287,24 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   independent paths and record capture as pending without generating or
   updating PNGs.
 
+### Problems and diagnostic contributions
+
+- Reusable diagnostic data, collection lifecycle, filtering, grouping, and the
+  movable Problems presentation belong to
+  `@lapismd/design-core/workspace/problems`. Lapis code adapts that public
+  contract and must not fork the panel or place vault/editor types in Design
+  Core.
+- Lapis and community plugins create diagnostics through
+  `Plugin.createDiagnosticCollection()`. Keep diagnostics serializable and put
+  navigation, mutation, and quick-fix callbacks in the workspace adapter or
+  collection `buildItemMenu` hook, never on diagnostic objects.
+- Language-service diagnostics cover open documents only. Reuse the shared
+  request and code-action cache for the editor gutter and Problems panel; do not
+  add a vault scan or let Markdownlint own workspace presentation.
+- Read `spec/src/workspace-shell/panels/problems.md` before changing the API
+  diagnostics bridge, language-service packages, Markdownlint, or Problems
+  acceptance.
+
 ## Development Workflow
 
 - The worktree may contain user changes. Do not revert unrelated edits.

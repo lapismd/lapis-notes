@@ -6,6 +6,7 @@
 - [Packages](./packages.md)
 - [Workspace Shell](./workspace-shell.md)
   - [Panels](./workspace-shell/panels.md)
+    - [Problems](./workspace-shell/panels/problems.md)
 - [Lapis Editor Demo](./editor-demo.md)
 - [Markdown Plugin](./markdown-plugin.md)
   - [Panels](./markdown-plugin/panels/index.md)

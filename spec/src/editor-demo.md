@@ -42,6 +42,7 @@
 | LN-ED-040 | The API workspace bridge MUST place translated compatibility pane-menu contributions before design-core's generic pane actions while preserving their internal section order. |
 | LN-ED-041 | Focused Markdown Authoring acceptance MUST prove borderless Reading paint, View-first menu order, toolbar toggling, and persisted toolbar-driven editor settings. |
 | LN-ED-042 | The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.obsidian/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. |
+| LN-ED-043 | The runnable editor demo MUST register Markdownlint after Markdown and open the generic Problems view in the bottom dock for focused acceptance. Only currently open Markdown notes MUST contribute provider diagnostics. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |

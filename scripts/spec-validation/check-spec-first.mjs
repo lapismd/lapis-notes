@@ -52,6 +52,29 @@ const RULES = [
     ],
   },
   {
+    name: "API diagnostics bridge",
+    pattern:
+      /^packages\/api\/src\/lib\/(?:diagnostics\/|language-service\/|components\/editor\/language-service\/|workspace\.ts$|plugin\.ts$)/,
+    chapters: ["spec/src/workspace-shell/panels/problems.md"],
+  },
+  {
+    name: "Language service package",
+    pattern: /^packages\/language-service\//,
+    chapters: [
+      "spec/src/workspace-shell/panels/problems.md",
+      "spec/src/packages.md",
+    ],
+  },
+  {
+    name: "Markdownlint plugin package",
+    pattern: /^packages\/plugins\/plugin-markdown-lint\//,
+    chapters: [
+      "spec/src/workspace-shell/panels/problems.md",
+      "spec/src/packages.md",
+      "spec/src/editor-demo.md",
+    ],
+  },
+  {
     name: "Markdown panel shell",
     pattern:
       /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/sidebar-panel\//,

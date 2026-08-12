@@ -8,7 +8,7 @@ specified separately under [Panels](./markdown-plugin/panels/index.md).
 
 | ID | Requirement |
 | --- | --- |
-| LN-MD-001 | The repo MAY ship `@lapis-notes/markdown` at `packages/plugins/plugin-markdown` as the sole authorized plugin package until hosts, notebook, and language-service packages are separately specified. |
+| LN-MD-001 | The repo MAY ship `@lapis-notes/markdown` at `packages/plugins/plugin-markdown`. Markdownlint is separately authorized by the Problems and Packages specifications; other plugins still require mapped requirements. |
 | LN-MD-002 | `@lapis-notes/markdown` MUST register through the existing API `Plugin` surface: `registerView`, `registerEditorView`, `registerExtensions`, `registerEditorExtension`, commands, and settings schema. |
 | LN-MD-003 | The Plugin triad (`plugin.ts`, `plugin-manager.ts`, and `lapis-extension.ts`) MUST remain authoritative. Markdown MUST NOT introduce parallel loader, override-stack, or settings-framework APIs. |
 | LN-MD-004 | Markdown document rendering MUST be provided by linked Mira packages through their built public exports, without consumer-owned source aliases. The full-repo local `richEditor` and `MarkdownPreview` stacks MUST NOT be retained. |
@@ -38,6 +38,7 @@ specified separately under [Panels](./markdown-plugin/panels/index.md).
 | LN-MD-081 | Mira toolbar changes to indentation guides, indentation type, and indentation width MUST persist through Lapis configuration before their updated state is reported. |
 | LN-MD-082 | The 20 Mira capability flags MUST appear in one top-level Settings group with ID `markdown.mira.features` and `toggle-table` presentation. Every Boolean row MUST use an explicit proper-case label and a concise capability description. The Mermaid row MUST state that authoring also requires the Mermaid plugin setting. |
 | LN-MD-083 | Grouped feature presentation MUST preserve every existing dotted feature key, default, and runtime gate. The configuration schema MUST remain flat and MUST NOT register or persist a `markdown.mira.features` group object. |
+| LN-MD-084 | Markdown Source and Live Preview editors MUST compose the API language-service diagnostic extension with completion and hover disabled. Reading mode MUST remain outside the CodeMirror diagnostic lifecycle. |
 
 ## Ownership
 
