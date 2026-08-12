@@ -27,7 +27,7 @@ intake or UI swap status changes.
 | `@lapis-notes/ui`                           | Pruned         | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers                                                                                                                                              |
 | `@lapis-notes/workspace` shell integration  | Done           | Thin design-core host; api compatibility + persistence façade                                                                                                                                                                        |
 | Web host                                    | Not started    | No runnable web product host in this slice                                                                                                                                                                                           |
-| `@lapis-notes/desktop-electron`             | In progress    | Source-first partial native-folder host intake from legacy commit `8ec68e18`; empty workspace shell only                                                                                                                            |
+| `@lapis-notes/desktop-electron`             | Done (partial host) | Source-first native-folder host from legacy commit `8ec68e18`; empty workspace shell, retained native services/sidecars, and local distribution only |
 | `@lapis-notes/markdown`                     | Done (slice)   | Authorized plugin; Mira document render + public app-only panels and embed surfaces; File Properties keeps the Mira `FrontmatterEditor`; Outline and link panels match the observable full-repo behavior without the legacy renderer |
 | Tags (workspace-origin)                     | Done (fixture) | Storybook-local `TagsDemoPlugin` with full sort/search/hierarchy/live-refresh behavior; explicitly not folded into a package                                                                                                         |
 | `@lapis-notes/language-service`              | Done           | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                         |
@@ -42,14 +42,20 @@ Source: `/Users/stevejuma/code/lapis-notes/packages/desktop-electron` at
 legacy commit `8ec68e18`.
 
 - [x] Canonical desktop-host requirements, package authorization, verification mapping, and source provenance
-- [ ] Private `@lapis-notes/desktop-electron` package scaffold at version `2026.31.5`
-- [ ] Electron lifecycle, context-isolated preload, native menus, app URLs, window chrome, and bounded IPC
-- [ ] Native folder/profile bootstrap, filesystem/resource access, database/search, watches, notifications, and file actions
-- [ ] Markdown-only native language-service sidecar
-- [ ] Community-plugin sidecar, capability broker, and verified plugin asset protocol
-- [ ] Empty native-vault `WorkspaceShell` boot, persisted layout, reopen, fallback, switching, and teardown
-- [ ] macOS/Linux local packaging, icons, entitlements, signing/notarization hooks, and packaged smoke
-- [ ] Focused package, Electron, Storybook, visual, aggregate, and distribution validation
+- [x] Private `@lapis-notes/desktop-electron` package scaffold at version `2026.31.5`
+- [x] Electron lifecycle, context-isolated preload, native menus, app URLs, window chrome, and bounded IPC
+- [x] Native folder/profile bootstrap, filesystem/resource access, database/search, watches, notifications, and file actions
+- [x] Markdown-only native language-service sidecar
+- [x] Community-plugin sidecar, capability broker, and verified plugin asset protocol
+- [x] Empty native-vault `WorkspaceShell` boot, persisted layout, reopen, fallback, switching, and teardown
+- [x] macOS arm64/x64 local packaging, icons, entitlements, credential-safe signing/notarization hooks, and packaged smoke
+- [x] Local-only macOS artifact manifest with sizes, SHA-256 checksums, and blockmap metadata
+- [ ] Linux x64 AppImage/tar production and smoke on a Linux builder
+- [x] Focused package, Electron, and macOS distribution validation
+- [x] Root specification, check, test, and build validation
+- [x] Focused `Workspace/Shell / PersistedDesktop` Storybook interaction and accessibility validation
+- [ ] Full Storybook suite: 74/78 pass; four existing `LapisEditorDemo` interaction failures remain outside the desktop intake
+- [ ] `PersistedDesktop` Visual Delta comparison: blocked because Docker Desktop cannot start; no baseline was updated
 
 Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
 demo-vault seeding, bundled-plugin startup/build steps, the legacy full app

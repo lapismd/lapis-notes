@@ -60,3 +60,11 @@ the provider owned. Navigation focuses an existing file leaf before opening a
 new one so diagnostic ownership is not churned. The browser fallback installs
 only the entity-decoder contract needed when Markdownlint's parser selects its
 DOM export inside a Web Worker.
+
+The Electron consumer uses the same provider-neutral diagnostics and actions
+through `@lapis-notes/language-service/markdownlint/runtime`. Its child process
+accepts Markdown documents only, exposes capability probing, update,
+diagnostics, and code actions, and uses bounded request timeouts plus restart
+and shutdown handling. The desktop host does not register the Markdownlint
+plugin during partial-shell startup; the native provider remains available for
+later plugin activation.

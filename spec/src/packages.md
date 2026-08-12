@@ -113,6 +113,19 @@ toolbar, and preserves borderless Lapis editing and Reading surfaces. Toolbar
 controls persist only through API configuration. Consumers must not reconstruct
 the portable Mira feature stack from internal source modules.
 
+The private desktop package consumes API, workspace, Design Core, the internal
+language service, and Markdownlint only while building its bundled renderer and
+Markdown child. Its packaged runtime dependency is limited to `chokidar`;
+Electron main otherwise uses Electron and Node built-ins. The API manifest
+declares `dist/enhance.js` and its source counterpart as side effects so a
+production consumer cannot tree-shake the compatibility DOM initialization
+required before constructing `App`.
+
+`@lapis-notes/language-service/markdownlint/runtime` is the Node-compatible
+boundary for desktop diagnostics and code actions. Plugin asset URLs continue
+to use public API helpers; their versioned Electron form stores path-bearing
+vault IDs in a URL path segment and the parser retains legacy-host support.
+
 ## `@lapis-notes/workspace` (shell integration)
 
 The workspace package is a thin Svelte adapter over

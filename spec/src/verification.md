@@ -60,8 +60,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-036  | packages          | Implemented | API editor lint integration keeps compact interactive hover cards stable through control handoff and centers public design-core diagnostic icons |
 | LN-PKG-037  | packages          | Implemented | API editor stylesheet paints the inline problem widget with native CSS and public workspace tokens |
 | LN-PKG-038  | packages          | Implemented | View Problem dismisses and clears its originating hover card before pointer acceptance closes the inline surface and reopens a later hover |
-| LN-PKG-039  | packages          | In progress | private `@lapis-notes/desktop-electron` package contract and legacy version identity |
-| LN-PKG-040  | packages          | In progress | internal Markdown runtime export for the native language-service sidecar |
+| LN-PKG-039  | packages          | Implemented | private desktop package at version `2026.31.5`; package check, unit test, production build, Electron acceptance, and packaged smoke pass |
+| LN-PKG-040  | packages          | Implemented | public `./markdownlint/runtime` export; language-service tests/build plus Electron diagnostics and code-action acceptance pass |
 | LN-UI-016   | ui-and-styling    | Implemented | sidebar-custom Input and Separator wrappers consume design-core's public named prop contracts                                                                                                                                                                                               |
 | LN-PKG-005  | packages          | Implemented | package `exports` maps                                                                                                                                                                                                                                                                      |
 | LN-PKG-006  | packages          | Implemented | `VaultStorageKind` in `vault-state.ts`; LightningFS / `tauri-folder` removed                                                                                                                                                                                                                |
@@ -74,22 +74,22 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-013  | packages          | Implemented | api inline-title tokens and file-view `getChrome` breadcrumb/history/title-rename projection                                                                                                                                                                                                |
 | LN-PKG-014  | packages          | Implemented | markupEditor language attribute and mono/Markdown-text font policy                                                                                                                                                                                                                            |
 | LN-PKG-016  | packages          | Implemented | Visual Delta remains a sibling-linked private root tool                                                                                                                                                                                                                                     |
-| LN-DESK-001 | desktop-host      | In progress | legacy identity, application id, protocols, and version retained by package metadata |
-| LN-DESK-002 | desktop-host      | In progress | Electron main lifecycle, menus, URLs, chrome, protocols, notifications, and service shutdown |
-| LN-DESK-003 | desktop-host      | In progress | context-isolated typed preload without renderer Node or raw IPC exposure |
-| LN-DESK-004 | desktop-host      | In progress | renderer bridge registration and existing WorkspaceShell composition |
-| LN-DESK-005 | desktop-host      | In progress | persisted desktop-folder profile reopen and missing-folder fallback |
-| LN-DESK-006 | desktop-host      | In progress | recoverable picker plus native session, database, vault, layout, and shell boot |
-| LN-DESK-007 | desktop-host      | In progress | empty workspace host excludes seeds, plugin boot, metadata hydration, and Storybook fixtures |
-| LN-DESK-008 | desktop-host      | In progress | exact available and unavailable capability registry |
-| LN-DESK-009 | desktop-host      | In progress | sender, payload, root, resource, and plugin-asset validation |
-| LN-DESK-010 | desktop-host      | In progress | bounded Markdown-only language-service sidecar with recovery lifecycle |
-| LN-DESK-011 | desktop-host      | In progress | brokered community-plugin sidecar and narrow hosted module allowlist |
-| LN-DESK-012 | desktop-host      | In progress | public API plugin-asset contracts and verified scoped protocol registration |
-| LN-DESK-013 | desktop-host      | In progress | complete workspace, listener, watch, sidecar, and session teardown |
-| LN-DESK-014 | desktop-host      | In progress | workspace popout allowlist and system-browser external link routing |
-| LN-DESK-015 | desktop-host      | In progress | local macOS/Linux distribution targets with safe credential handling |
-| LN-DESK-016 | desktop-host      | In progress | unit, Electron, sidecar, persistence, URL, and packaged startup acceptance |
+| LN-DESK-001 | desktop-host      | Implemented | package metadata, macOS bundle metadata, and generated artifact names retain identity, protocols, and version |
+| LN-DESK-002 | desktop-host      | Implemented | `src-electron/main.ts`; production Electron acceptance covers lifecycle, menus, real second-instance app-URL delivery, switching, relaunch, and main-owned shutdown |
+| LN-DESK-003 | desktop-host      | Implemented | context-isolated preload command allowlist; BrowserWindow disables renderer Node and exposes no raw IPC |
+| LN-DESK-004 | desktop-host      | Implemented | renderer registers `NativeDesktopBridge` and production acceptance locates the existing `WorkspaceShell` |
+| LN-DESK-005 | desktop-host      | Implemented | relaunch and missing-remembered-folder Electron scenarios pass with pointer-only clearing |
+| LN-DESK-006 | desktop-host      | Implemented | picker cancellation, selection, native database, vault, layout, and empty-shell scenarios pass |
+| LN-DESK-007 | desktop-host      | Implemented | empty-vault and packaged smoke assert zero registered plugins and no demo bootstrap |
+| LN-DESK-008 | desktop-host      | Implemented | `desktop-contracts.test.ts` asserts the exact available and unavailable registry |
+| LN-DESK-009 | desktop-host      | Implemented | unit containment checks and Electron filesystem/resource/plugin-asset rejection scenarios pass |
+| LN-DESK-010 | desktop-host      | Implemented | Electron Markdown probe, update, diagnostics, actions, invalid-request recovery, and bundled child pass |
+| LN-DESK-011 | desktop-host      | Implemented | prepare/evaluate/activate/deactivate/shutdown, brokered access, restart, and import rejection scenarios pass |
+| LN-DESK-012 | desktop-host      | Implemented | API URL round-trip tests and Electron registered/traversal/size/hash asset scenarios pass |
+| LN-DESK-013 | desktop-host      | Implemented | switching test and acknowledged renderer-close persistence prove ordered teardown without the timeout fallback |
+| LN-DESK-014 | desktop-host      | Implemented | main window-open handler allowlists only `about:blank` and routes external HTTP(S) through Electron shell |
+| LN-DESK-015 | desktop-host      | In progress | arm64/x64 macOS DMG/ZIP, blockmaps, and checksum manifest built locally; Linux x64 targets are configured but await a Linux builder; credential skip passes |
+| LN-DESK-016 | desktop-host      | Implemented | 8 unit tests, 13 production Electron scenarios, package checks/build, and unpacked packaged-app smoke pass |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                                                                                                                                                                                                 |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                                                                                                                                                                                                         |
 | LN-UI-003   | ui-and-styling    | Implemented | colocated CSS + `--ui-*` on kept compounds + api chrome                                                                                                                                                                                                                                     |

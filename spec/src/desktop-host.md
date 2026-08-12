@@ -49,3 +49,26 @@ entitlements, artifact naming, and local macOS/Linux commands. GitHub release
 publication, update upload, Homebrew automation, Windows targets, the notebook
 DuckDB sidecar, demo-vault seeding, and the legacy full application bootstrap
 are intentionally excluded.
+
+## Implementation evidence
+
+The retained host lives in `packages/desktop-electron`. Its focused Vitest
+contract suite covers the exact capability registry, IPC allowlist, and native
+path containment. The production Electron suite covers picker cancellation,
+empty-shell startup, saved-profile reopening, missing-folder fallback, layout
+persistence, session switching, database/search persistence, Markdown service
+recovery, plugin sidecar lifecycle, plugin asset validation, and real
+second-instance app-URL delivery to the ready API app.
+
+The renderer-close handshake gives the desktop host time to persist layout and
+database state and dispose workspace, watch, and sidecar resources before main
+closes the window. A five-second main-process fallback prevents an unresponsive
+renderer from blocking application exit.
+
+`pnpm --filter @lapis-notes/desktop-electron package:dir` creates the unpacked
+application, and `test:packaged` launches that output with an isolated user-data
+directory and native vault. The macOS distribution command produces arm64 and
+x64 DMG and ZIP artifacts plus blockmaps. Each platform distribution writes a
+local-only JSON manifest containing artifact sizes, SHA-256 checksums, and
+blockmap metadata. Linux AppImage and tar production is defined by `dist:linux`
+and must be executed on a Linux x64 builder.

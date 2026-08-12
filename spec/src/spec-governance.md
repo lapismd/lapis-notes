@@ -135,3 +135,10 @@ Problems guidance must keep live totals in Design Core's structured workspace
 view badge, preserve the stored leaf title, and prohibit a duplicate count in
 the panel toolbar. Acceptance must cover the idle badge paint and a real
 diagnostic-count transition.
+
+Desktop build output follows the same generated-artifact rule as Storybook and
+the specification book. `packages/desktop-electron/dist-electron/` and
+`packages/desktop-electron/release/` stay ignored, while package source,
+acceptance tests, icons, and entitlements remain reviewable inputs. The change
+map requires desktop implementation slices to update the desktop, package, and
+architecture chapters; language-runtime changes additionally update Problems.

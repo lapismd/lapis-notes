@@ -77,6 +77,14 @@ Every workspace package exposes the common `build`, `check`, and `test`
 contract, so the shell participates in the same Turbo verification graph as
 the kernel and retained UI surface.
 
+The desktop renderer bundles its workspace consumers, while Electron main
+retains only native lifecycle and service dependencies. Main communicates with
+the context-isolated preload through an explicit command allowlist. Renderer
+shutdown is acknowledged before window destruction so the API-owned session
+can persist and dispose without moving ownership into main or workspace.
+Generated renderer and main outputs are Turbo cache outputs and remain
+untracked; checked-in build resources are limited to icons and entitlements.
+
 The controller configuration adapter lives in api beside the compatibility
 workspace. It reads and atomically writes the flat API configuration store;
 the workspace package only starts and renders the already-owned controller.
