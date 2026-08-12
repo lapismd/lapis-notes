@@ -49,6 +49,7 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
   const app = await launchDesktopApp({
     userDataDir: state.userDataDir,
     vaultPath: state.vaultA,
+    captureLoadingGeometry: true,
   });
   try {
     await resetMainProcessUnhandledErrors(app.electronApp);
@@ -98,6 +99,17 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
         '[aria-label="New tab"]',
       );
       const root = document.querySelector<HTMLElement>("[data-app-shell-root]");
+      const leftTabBar = document.querySelector<HTMLElement>(
+        '[data-workspace-sidebar-side="left"] > [data-ui-part="sidebar-tab-bar"]',
+      );
+      const loadingGeometry = (
+        globalThis as typeof globalThis & {
+          __LAPIS_TEST_LOADING_GEOMETRY__?: {
+            centerDeltaX: number;
+            centerDeltaY: number;
+          };
+        }
+      ).__LAPIS_TEST_LOADING_GEOMETRY__;
       return {
         leftCollapsed: app.workspace.leftSplit.collapsed,
         leftWidth: app.workspace.leftSplit.sidebar.width,
@@ -107,6 +119,14 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
         newTabWidth: newTab?.getBoundingClientRect().width,
         rootDisplay: root ? getComputedStyle(root).display : null,
         bodyFont: getComputedStyle(document.body).fontFamily,
+        loadingGeometry,
+        rootClasses: Array.from(document.documentElement.classList),
+        inlineSafeArea: document.documentElement.style.getPropertyValue(
+          "--workspace-safe-area-left",
+        ),
+        leftTabBarPadding: leftTabBar
+          ? Number.parseFloat(getComputedStyle(leftTabBar).paddingInlineStart)
+          : null,
       };
     });
     expect(shell).toMatchObject({
@@ -119,6 +139,16 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
       rootDisplay: "flex",
     });
     expect(shell.bodyFont).toMatch(/DM Sans/iu);
+    expect(shell.loadingGeometry?.centerDeltaX).toBeLessThanOrEqual(1);
+    expect(shell.loadingGeometry?.centerDeltaY).toBeLessThanOrEqual(1);
+    expect(shell.rootClasses).toContain("lapis-desktop");
+    expect(shell.inlineSafeArea).toBe("");
+    if (process.platform === "darwin") {
+      expect(shell.rootClasses).toContain("lapis-desktop--macos");
+      expect(shell.leftTabBarPadding).toBeGreaterThanOrEqual(24);
+    } else {
+      expect(shell.rootClasses).not.toContain("lapis-desktop--macos");
+    }
     expect(app.rendererErrors).toEqual([]);
     expect(await getMainProcessUnhandledErrors(app.electronApp)).toEqual([]);
   } finally {
@@ -299,6 +329,84 @@ test("workspace vault controls switch sessions and return to the launcher", asyn
     expect(stored["profile:current"]).toBeUndefined();
     expect(stored[`profile:desktop-folder:${state.vaultA}`]).toBeDefined();
     expect(stored[`profile:desktop-folder:${state.vaultB}`]).toBeDefined();
+
+    const viewport = await app.page.evaluate(() => ({
+      width: innerWidth,
+      height: innerHeight,
+    }));
+    const launcherContent = app.page.locator(
+      "[data-desktop-vault-launcher-content]",
+    );
+    const launcherBox = await launcherContent.boundingBox();
+    expect(launcherBox).not.toBeNull();
+    expect(
+      Math.abs(launcherBox!.y + launcherBox!.height / 2 - viewport.height / 2),
+    ).toBeLessThanOrEqual(1);
+    await app.page
+      .getByRole("button", { name: "Settings", exact: true })
+      .click();
+    const settingsDialog = app.page.getByRole("dialog", {
+      name: "Desktop Settings",
+    });
+    await expect(settingsDialog).toBeVisible();
+    const settingsOverlay = app.page.locator(
+      '[data-ui-component="dialog"][data-ui-part="dialog-overlay"]',
+    );
+    await expect(settingsOverlay).toBeVisible();
+    await expect(settingsOverlay).toHaveCSS(
+      "background-color",
+      "rgba(0, 0, 0, 0.5)",
+    );
+    const settingsBox = await settingsDialog.boundingBox();
+    expect(settingsBox).not.toBeNull();
+    expect(settingsBox!.width).toBeLessThanOrEqual(448);
+    expect(
+      Math.abs(settingsBox!.x + settingsBox!.width / 2 - viewport.width / 2),
+    ).toBeLessThanOrEqual(1);
+    expect(
+      Math.abs(settingsBox!.y + settingsBox!.height / 2 - viewport.height / 2),
+    ).toBeLessThanOrEqual(1);
+    await settingsDialog.getByRole("button", { name: "Close" }).click();
+
+    const viewAll = app.page.getByRole("button", { name: "View all" });
+    await expect(viewAll).toBeVisible();
+    await viewAll.click();
+    const recentProjects = app.page.locator(
+      '[data-ui-component="command"][data-ui-part="command-content"]',
+    );
+    await expect(recentProjects).toBeVisible();
+    await expect(
+      recentProjects.getByText("vault-a", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      recentProjects.getByText("vault-b", { exact: true }),
+    ).toBeVisible();
+    await expect(recentProjects).toHaveCSS("position", "fixed");
+    const commandOverlay = app.page.locator(
+      '[data-ui-component="dialog"][data-ui-part="dialog-overlay"]',
+    );
+    await expect(commandOverlay).toBeVisible();
+    await expect(commandOverlay).toHaveCSS(
+      "background-color",
+      "rgba(0, 0, 0, 0.5)",
+    );
+    const paletteBox = await recentProjects.boundingBox();
+    expect(paletteBox).not.toBeNull();
+    expect(paletteBox!.width).toBeLessThanOrEqual(544);
+    expect(paletteBox!.y).toBeLessThan(viewport.height / 3);
+    expect(paletteBox!.y + paletteBox!.height).toBeLessThan(
+      viewport.height - 48,
+    );
+    await app.page.keyboard.press("Escape");
+    await expect(recentProjects).not.toBeVisible();
+
+    await viewAll.click();
+    await recentProjects.getByText("vault-a", { exact: true }).click();
+    await expect(app.page.locator("[data-vault-id]")).toHaveAttribute(
+      "data-vault-id",
+      `desktop-folder:${state.vaultA}`,
+    );
+    expect(app.rendererErrors).toEqual([]);
   } finally {
     await app.close();
     await state.cleanup();

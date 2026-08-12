@@ -11,7 +11,7 @@ are intentionally omitted.
 | --- | --- |
 | LN-DESK-001 | The private `@lapis-notes/desktop-electron` package MUST retain the legacy Lapis Notes product identity, application ID, `lapis` and `lapis-notes` protocols, and version `2026.31.5`. |
 | LN-DESK-002 | Electron main MUST own application lifecycle, the single-instance lock, native menus, app-URL delivery, window chrome, protocol handlers, native notifications, and shutdown of main-owned services. |
-| LN-DESK-003 | The preload MUST use context isolation and expose only the typed `NativeDesktopBridge` operations plus bounded host events and shell metrics. Renderer Node integration and raw `ipcRenderer` exposure are forbidden. |
+| LN-DESK-003 | The preload MUST use context isolation and expose only the typed `NativeDesktopBridge` operations, platform metadata, and bounded host events. Renderer Node integration and raw `ipcRenderer` exposure are forbidden. |
 | LN-DESK-004 | The renderer MUST register the preload bridge before creating a vault session. It MUST mount the existing `WorkspaceShell` with an API `App` and MUST NOT copy the workspace renderer. |
 | LN-DESK-005 | Startup MUST reopen a valid current `desktop-folder` profile from Electron main storage. If it is unavailable, startup MUST clear only the current-profile pointer, retain the saved record, and return to the branded launcher. |
 | LN-DESK-006 | Cancelling a native folder picker MUST leave the branded launcher recoverable. Selecting a folder MUST create an `electron-desktop` session, open its app database, load the vault, restore `.obsidian/workspace.json`, and render the desktop shell. |
@@ -29,7 +29,10 @@ are intentionally omitted.
 | LN-DESK-018 | The renderer MUST load Design Core's production styles, Lapis theme, and Lapis UI aliases through the Electron Vite pipeline. It MUST NOT rely on Storybook to supply workspace or launcher paint. |
 | LN-DESK-019 | A native vault without `.obsidian/workspace.json` MUST show one empty `New Tab`, the left dock open at `22rem`, and the right and bottom docks closed. It MUST NOT seed a layout file, fixture view, or plugin. |
 | LN-DESK-020 | Native “Open Vault…” requests from a ready workspace MUST persist and dispose the active session before showing the launcher. Selecting another vault MUST create a replacement session without retaining old watches or database handles. |
-| LN-DESK-021 | The ready desktop shell MUST expose the legacy footer vault switcher with up to eight recent native vaults, the current vault disabled, folder descriptions, and a “Manage Vaults” action. Recent selection MUST use orderly session replacement; management MUST dispose the session, clear only the current-profile pointer, retain saved records, and show the branded launcher. |
+| LN-DESK-021 | The ready desktop shell MUST expose the legacy footer vault switcher with up to eight recent native vaults, the current vault disabled, folder descriptions, and a “Manage Vaults” action. Recent selection MUST use orderly session replacement and structured-cloneable profile records; management MUST dispose the session, clear only the current-profile pointer, retain saved records, and show the branded launcher. |
+| LN-DESK-022 | The launcher and transient native-vault loading state MUST center their content within the Electron viewport when it fits, while an oversized launcher MUST remain scrollable from its top edge. |
+| LN-DESK-023 | Launcher Settings MUST use a compact centered dialog. “View all” MUST use an upper-viewport searchable command palette containing recent projects rather than a drawer or bottom sheet. Both MUST retain the shared full-viewport modal scrim. |
+| LN-DESK-024 | The renderer MUST map typed Electron platform metadata to root CSS classes. macOS traffic-light clearance MUST derive from those classes and desktop CSS rather than renderer-injected geometry styles. |
 
 ## Boot flow
 
@@ -48,8 +51,10 @@ folder. Sidecars remain available for later plugin activation even though the
 partial host does not load plugins during startup.
 
 The desktop launcher retains the reference Lapis logo, create/open hierarchy,
-recent-project search and actions, and persisted appearance selector. Demo
-workspace seeding and browser-only storage choices remain outside this host.
+recent-project search and actions, and persisted appearance selector. Its
+loading and overlay geometry use scoped desktop classes, while Settings and the
+command palette retain Design Core's shared modal scrim. Demo workspace seeding
+and browser-only storage choices remain outside this host.
 
 ## Distribution boundary
 
@@ -78,7 +83,9 @@ The renderer imports the same public Design Core and Lapis style entries as the
 Storybook host. API layout normalization supplies the captured desktop defaults
 for a missing workspace file: one empty tab, a `22rem` open left dock, and
 closed right and bottom docks. Electron acceptance verifies those controller
-values together with the rendered shell geometry and typography.
+values together with the rendered shell geometry and typography. The preload's
+typed platform metadata selects namespaced root classes; desktop CSS uses the
+macOS class to clear native traffic lights without an inline geometry value.
 
 The renderer-close handshake gives the desktop host time to persist layout and
 database state and dispose workspace, watch, and sidecar resources before main

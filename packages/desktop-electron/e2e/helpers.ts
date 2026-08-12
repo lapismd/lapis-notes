@@ -55,6 +55,7 @@ export async function launchDesktopApp(options: {
   userDataDir: string;
   vaultPath?: string;
   pickerCancel?: boolean;
+  captureLoadingGeometry?: boolean;
 }): Promise<{
   electronApp: ElectronApplication;
   page: Page;
@@ -75,6 +76,9 @@ export async function launchDesktopApp(options: {
   }
   if (options.pickerCancel) {
     overrides.LAPIS_DESKTOP_TEST_PICKER_CANCEL = "1";
+  }
+  if (options.captureLoadingGeometry) {
+    overrides.LAPIS_DESKTOP_TEST_LOADING_DELAY_MS = "150";
   }
   if (usesDesktopDevRenderer()) {
     overrides.NODE_ENV = "development";
@@ -100,6 +104,31 @@ export async function launchDesktopApp(options: {
   await page.waitForLoadState("domcontentloaded", {
     timeout: usesDesktopDevRenderer() ? 120_000 : 30_000,
   });
+  if (options.captureLoadingGeometry) {
+    await page.evaluate(() => {
+      const testWindow = globalThis as typeof globalThis & {
+        __LAPIS_TEST_LOADING_GEOMETRY__?: {
+          centerDeltaX: number;
+          centerDeltaY: number;
+        };
+      };
+      const capture = () => {
+        const content = document.querySelector<HTMLElement>(
+          ".desktop-host__loading-content",
+        );
+        if (!content) return;
+        const rect = content.getBoundingClientRect();
+        testWindow.__LAPIS_TEST_LOADING_GEOMETRY__ = {
+          centerDeltaX: Math.abs(rect.left + rect.width / 2 - innerWidth / 2),
+          centerDeltaY: Math.abs(rect.top + rect.height / 2 - innerHeight / 2),
+        };
+        observer.disconnect();
+      };
+      const observer = new MutationObserver(capture);
+      observer.observe(document.body, { childList: true, subtree: true });
+      capture();
+    });
+  }
   if (options.vaultPath) {
     const openVault = page.getByRole("button", { name: /^Open Vault/u });
     await openVault.waitFor({ state: "visible", timeout: 60_000 });

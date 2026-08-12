@@ -17,12 +17,6 @@ import {
 // Expose the native desktop bridge to the renderer process.
 // The renderer reads `window.__LAPIS_NATIVE_DESKTOP__` in `src/main.ts` and
 // registers it with `setNativeDesktopBridge()` before mounting the desktop host.
-// Shell metrics are passed via BrowserWindow additionalArguments and surfaced
-// here alongside the bridge so the renderer can tune macOS header spacing.
-
-type ElectronShellMetrics = {
-  workspaceSafeAreaLeft?: number;
-};
 
 const watchListeners = new Map<
   string,
@@ -90,23 +84,6 @@ function createWatchId(): string {
   return `watch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function getShellMetrics(): ElectronShellMetrics {
-  const prefix = "--lapis-shell-metrics=";
-  const encoded = process.argv.find((argument) => argument.startsWith(prefix));
-  if (!encoded) {
-    return {};
-  }
-
-  try {
-    const parsed = JSON.parse(
-      decodeURIComponent(encoded.slice(prefix.length)),
-    ) as ElectronShellMetrics;
-    return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
 function getPlatformOs(): NativeDesktopPlatformInfo["os"] {
   switch (process.platform) {
     case "darwin":
@@ -130,7 +107,6 @@ function getPlatformInfo(): NativeDesktopPlatformInfo {
 }
 
 const bridge: NativeDesktopBridge & {
-  shellMetrics: ElectronShellMetrics;
   onOpenVaultPicker(listener: () => void): () => void;
   onOpenAboutDialog(listener: () => void): () => void;
   onBeforeClose(listener: () => void): () => void;
@@ -138,7 +114,6 @@ const bridge: NativeDesktopBridge & {
   runtime: "electron-desktop",
   platform: getPlatformInfo(),
   capabilities: createDesktopCapabilityRegistry(),
-  shellMetrics: getShellMetrics(),
 
   invoke<T>(command: string, payload?: Record<string, unknown>): Promise<T> {
     if (!DESKTOP_INVOKE_COMMANDS.has(command)) {

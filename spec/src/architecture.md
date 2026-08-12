@@ -34,6 +34,7 @@
 | LN-ARCH-028 | The Electron desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault discovery and selection, session boot, and IPC belong to the host; the workspace package MAY forward generic navigation presentation while rendering and persisted layout compatibility remain in their owning packages. |
 | LN-ARCH-029 | Electron main, preload, and renderer code MUST communicate through the typed desktop-neutral bridge. The renderer MUST NOT receive Node integration or raw Electron IPC access. |
 | LN-ARCH-030 | Production application hosts MUST load Design Core's public runtime stylesheet and theme entries directly. Storybook-only host configuration MUST NOT be required for reusable workspace components to render correctly. |
+| LN-ARCH-031 | Native application hosts MUST map typed platform metadata to host-owned root CSS state. Reusable workspace components MUST expose semantic styling hosts without detecting Electron or hard-coding native window-control geometry. |
 
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.
@@ -94,7 +95,8 @@ The production renderer imports Design Core's public stylesheet and Lapis theme
 plus the Lapis UI alias sheet before mounting either the launcher or workspace.
 Its Vite pipeline compiles the desktop launcher's utility classes; reusable
 workspace paint remains supplied by the public Design Core stylesheet rather
-than Storybook-only configuration.
+than Storybook-only configuration. Electron-specific window-control clearance
+is applied by host CSS against Design Core's semantic shell attributes.
 
 The controller configuration adapter lives in api beside the compatibility
 workspace. It reads and atomically writes the flat API configuration store;

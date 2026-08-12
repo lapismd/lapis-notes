@@ -1681,7 +1681,18 @@ function registerIpcHandlers(): void {
     assertOwnedIpcSender,
   );
 
-  ipcMain.handle("desktop_app_info_get", async () => getDesktopAppInfo());
+  ipcMain.handle("desktop_app_info_get", async () => {
+    const testDelay = Number.parseInt(
+      process.env["LAPIS_DESKTOP_TEST_LOADING_DELAY_MS"] ?? "",
+      10,
+    );
+    if (Number.isSafeInteger(testDelay) && testDelay > 0) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.min(testDelay, 1_000)),
+      );
+    }
+    return getDesktopAppInfo();
+  });
 
   ipcMain.handle("desktop_renderer_close_ready", async (event) => {
     const win = getEventWindow(event);
@@ -2788,32 +2799,6 @@ function applyAboutPanelOptions(): void {
 
 const DEV_PORT = 1421;
 const DEV_SERVER_URL_ENV = "LAPIS_DESKTOP_DEV_SERVER_URL";
-const ELECTRON_MACOS_SHELL_METRICS = {
-  // Native traffic lights are 12px circles with 6px gaps. With the standard
-  // inset cluster this yields about 62px of occupied leading space before the
-  // top tabs should start, which is smaller than the legacy desktop overlay fallback.
-  workspaceSafeAreaLeft: 62,
-};
-
-function getShellMetrics() {
-  if (process.platform !== "darwin") {
-    return {};
-  }
-
-  return ELECTRON_MACOS_SHELL_METRICS;
-}
-
-function getPreloadArguments(): string[] {
-  const shellMetrics = getShellMetrics();
-  if (!Object.keys(shellMetrics).length) {
-    return [];
-  }
-
-  return [
-    `--lapis-shell-metrics=${encodeURIComponent(JSON.stringify(shellMetrics))}`,
-  ];
-}
-
 function isDev(): boolean {
   return !app.isPackaged;
 }
@@ -2911,7 +2896,6 @@ function getAppWindowChromeOptions(): BrowserWindowConstructorOptions {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      additionalArguments: getPreloadArguments(),
     },
   };
 }

@@ -82,7 +82,10 @@
   const settingsOptionClass =
     "workspace-shell__vault-chooser-settings-option h-auto w-full min-w-0 items-start justify-start whitespace-normal rounded-xl px-4 py-3 text-left transition-colors";
 
-  let recentVaults = $state<VaultProfile[]>([]);
+  // Profiles cross the context-isolated IPC boundary when reopened or edited.
+  // Keep them as plain records rather than wrapping nested handles in Svelte
+  // proxies, which Electron cannot structured-clone.
+  let recentVaults = $state.raw<VaultProfile[]>([]);
   let recentVaultQuery = $state("");
   let recentVaultDialogOpen = $state(false);
   let settingsOpen = $state(false);
@@ -90,7 +93,7 @@
   let activeActionId = $state<string | null>(null);
   let renameDialogOpen = $state(false);
   let renameDialogName = $state("");
-  let renameTarget = $state<VaultProfile | null>(null);
+  let renameTarget = $state.raw<VaultProfile | null>(null);
   let actionError = $state("");
   let actionMessage = $state("");
 
@@ -274,11 +277,14 @@
 </script>
 
 <section
-  class="workspace-shell__vault-chooser min-h-full overflow-auto bg-background px-6 py-8 text-foreground sm:px-10 lg:px-14"
+  class="workspace-shell__vault-chooser flex h-full min-h-full overflow-auto bg-background px-4 py-10 text-foreground sm:px-6"
   data-desktop-vault-launcher
   aria-busy={busy}
 >
-  <div class="mx-auto flex min-h-full w-full max-w-6xl flex-col justify-center gap-8">
+  <div
+    class="mx-auto my-auto grid w-full max-w-5xl min-w-0 gap-6"
+    data-desktop-vault-launcher-content
+  >
     <div class="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
       <div class="flex min-w-0 items-center gap-4">
         <img

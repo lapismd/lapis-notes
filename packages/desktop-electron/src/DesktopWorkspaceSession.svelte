@@ -157,10 +157,16 @@
       {workspaceNavigation}
     />
   {:else}
-    <div class="desktop-host__landing" aria-live="polite">
-      <div class="desktop-host__mark" aria-hidden="true">L</div>
-      <h1>Lapis Notes</h1>
-      <p>Opening vault…</p>
+    <div
+      class="desktop-host__loading"
+      data-desktop-vault-loading
+      aria-live="polite"
+    >
+      <div class="desktop-host__loading-content">
+        <div class="desktop-host__mark" aria-hidden="true">L</div>
+        <h1>Lapis Notes</h1>
+        <p>Opening vault…</p>
+      </div>
     </div>
   {/if}
 </section>

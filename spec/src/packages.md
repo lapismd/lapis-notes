@@ -129,7 +129,8 @@ workspace package or copy a private UI implementation.
 The renderer consumes Design Core's public `styles.css` and Lapis theme export
 instead of reconstructing workspace CSS. The desktop-only Vite Tailwind pass is
 limited to compiling the intaken launcher composition and does not move native
-selection or session policy into a shared package.
+selection or session policy into a shared package. Scoped desktop CSS owns
+launcher overlay geometry and class-selected native window-control clearance.
 
 `@lapis-notes/language-service/markdownlint/runtime` is the Node-compatible
 boundary for desktop diagnostics and code actions. Plugin asset URLs continue

@@ -16,7 +16,6 @@ import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import "./desktop-host.css";
 
 export type ElectronDesktopBridge = NativeDesktopBridge & {
-  shellMetrics?: { workspaceSafeAreaLeft?: number };
   onOpenAboutDialog?(listener: () => void): () => void;
   onBeforeClose?(listener: () => void): () => void;
   closeAllWatches?(): void;
@@ -28,15 +27,16 @@ declare global {
   }
 }
 
-function applyShellMetrics(metrics?: {
-  workspaceSafeAreaLeft?: number;
-}): void {
-  if (typeof metrics?.workspaceSafeAreaLeft === "number") {
-    document.documentElement.style.setProperty(
-      "--workspace-safe-area-left",
-      `${metrics.workspaceSafeAreaLeft}px`,
-    );
-  }
+function applyDesktopPlatformClasses(
+  platform: NativeDesktopBridge["platform"],
+): void {
+  const root = document.documentElement;
+  const desktopRuntime = platform?.runtime === "electron-desktop";
+  root.classList.toggle("lapis-desktop", desktopRuntime);
+  root.classList.toggle(
+    "lapis-desktop--macos",
+    desktopRuntime && platform?.os === "macos",
+  );
 }
 
 function resolveAppearance(mode: BootstrapAppearanceMode): "dark" | "light" {
@@ -89,7 +89,7 @@ const bridge: ElectronDesktopBridge = {
   },
 };
 
-applyShellMetrics(preloadBridge.shellMetrics);
+applyDesktopPlatformClasses(preloadBridge.platform);
 setNativeDesktopBridge(bridge);
 await migrateVaultBootstrapStoreFromIndexedDb();
 setDefaultVaultStateStore(new ElectronMainVaultBootstrapKeyValueStore());
