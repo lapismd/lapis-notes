@@ -577,12 +577,18 @@ export class WorkspaceSidedock extends WorkspaceSplit<{
   protected open: boolean = $state(true);
   sidebar!: SidebarState;
 
-  constructor(options: Partial<SidebarStateProps> = {}) {
+  constructor(
+    options: Partial<Omit<SidebarStateProps, "open" | "setOpen">> & {
+      initialOpen?: boolean;
+    } = {},
+  ) {
     super();
+    const { initialOpen = true, ...sidebarOptions } = options;
+    this.open = initialOpen;
     let initialized = false;
     this.sidebar = new SidebarState({
       id: this.id,
-      ...options,
+      ...sidebarOptions,
       open: () => this.open,
       setOpen: (value) => {
         this.open = value;
@@ -1859,6 +1865,7 @@ export class Workspace extends EventDispatcher<{
   public rightSplit: WorkspaceSidedock = new WorkspaceSidedock({
     id: "right",
     collapsedSize: "0px",
+    initialOpen: false,
   });
   public bottomPanel: WorkspaceBottomPanel = new WorkspaceBottomPanel(this);
   public floating: WorkspaceFloating = new WorkspaceFloating();

@@ -1878,6 +1878,17 @@ function registerIpcHandlers(): void {
   });
 
   ipcMain.handle("desktop_create_vault_folder", async (event) => {
+    if (process.env["LAPIS_DESKTOP_TEST_PICKER_CANCEL"] === "1") {
+      return null;
+    }
+    const testVaultPath = getConfiguredTestVaultPath();
+    if (testVaultPath) {
+      return {
+        path: testVaultPath,
+        name: path.basename(testVaultPath),
+      };
+    }
+
     const sourceWindow = getEventWindow(event);
     const result = sourceWindow
       ? await dialog.showOpenDialog(sourceWindow, {

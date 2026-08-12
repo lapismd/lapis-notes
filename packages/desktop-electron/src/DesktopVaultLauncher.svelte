@@ -199,13 +199,19 @@
   }
 
   async function moveRecentVault(profile: VaultProfile): Promise<void> {
-    await runAction(
-      profile,
-      async () => {
-        await moveNativeDesktopVaultProfile(profile);
-      },
-      "Vault moved",
-    );
+    activeActionId = profile.id;
+    actionError = "";
+    actionMessage = "";
+    try {
+      const moved = await moveNativeDesktopVaultProfile(profile);
+      if (!moved) return;
+      await refresh();
+      actionMessage = "Vault moved";
+    } catch (error) {
+      actionError = formatError(error);
+    } finally {
+      activeActionId = null;
+    }
   }
 
   async function revealRecentVault(profile: VaultProfile): Promise<void> {

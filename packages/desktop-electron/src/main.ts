@@ -8,7 +8,9 @@ import {
   type NativeDesktopBridge,
   type NativeWatchSubscription,
 } from "@lapis-notes/api";
+import "@lapismd/design-core/styles.css";
 import "@lapismd/design-core/themes/lapis.css";
+import "@lapis-notes/ui/theme.css";
 import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import "./desktop-host.css";

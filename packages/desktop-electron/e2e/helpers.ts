@@ -100,6 +100,11 @@ export async function launchDesktopApp(options: {
   await page.waitForLoadState("domcontentloaded", {
     timeout: usesDesktopDevRenderer() ? 120_000 : 30_000,
   });
+  if (options.vaultPath) {
+    const openVault = page.getByRole("button", { name: /^Open Vault/u });
+    await openVault.waitFor({ state: "visible", timeout: 60_000 });
+    await openVault.click();
+  }
   return {
     electronApp,
     page,
@@ -232,6 +237,7 @@ export async function getMainProcessUnhandledErrors(
 
 export async function switchTestVault(
   electronApp: ElectronApplication,
+  page: Page,
   vaultPath: string,
 ): Promise<void> {
   await electronApp.evaluate(
@@ -249,4 +255,7 @@ export async function switchTestVault(
     },
     vaultPath,
   );
+  const launcher = page.locator("[data-desktop-vault-launcher]");
+  await launcher.waitFor({ state: "visible", timeout: 60_000 });
+  await page.getByRole("button", { name: /^Open Vault/u }).click();
 }

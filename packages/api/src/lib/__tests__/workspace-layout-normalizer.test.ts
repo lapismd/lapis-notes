@@ -75,6 +75,8 @@ describe("normalizeWorkspaceJson", () => {
     expect(result.main.type).toBe("split");
     expect(result.left.type).toBe("split");
     expect(result.right.type).toBe("split");
+    expect(result.left.width).toBe("22rem");
+    expect(result.right.width).toBe("0px");
     expect(result.bottom).toEqual({
       id: "bottom-panel",
       type: "tabs",
@@ -640,7 +642,7 @@ describe("normalizeWorkspaceJson", () => {
     expect(result.left.width).toBe("22rem");
   });
 
-  it("falls back to 16rem for sidedock width when missing", () => {
+  it("falls back to the canonical open-left and closed-right dock widths", () => {
     const result = normalizeWorkspaceJson({
       ...minimalValidLayout(),
       left: {
@@ -652,7 +654,19 @@ describe("normalizeWorkspaceJson", () => {
         // no width
       },
     });
-    expect(result.left.width).toBe("16rem");
+    expect(result.left.width).toBe("22rem");
+    expect(
+      normalizeWorkspaceJson({
+        ...minimalValidLayout(),
+        right: {
+          id: "right",
+          type: "split",
+          direction: "vertical",
+          sizes: [],
+          children: [],
+        },
+      }).right.width,
+    ).toBe("0px");
   });
 
   it("omits the active field when missing or empty", () => {

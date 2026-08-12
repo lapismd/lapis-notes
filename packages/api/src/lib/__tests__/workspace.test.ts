@@ -1217,6 +1217,25 @@ describe("Workspace compatibility", () => {
     expect(events).toEqual(["ready"]);
   });
 
+  it("uses the captured desktop shell geometry before a layout is persisted", async () => {
+    const { workspace } = createWorkspaceHarness();
+
+    await workspace.loadLayout();
+
+    const layout = workspace.toJson();
+    const mainTabs = layout.main.children[0] as {
+      children: Array<{ state: { type: string; title: string } }>;
+    };
+    expect(mainTabs.children).toHaveLength(1);
+    expect(mainTabs.children[0]?.state).toMatchObject({
+      type: "empty",
+    });
+    expect(workspace.activeLeaf?.getViewState().type ?? "empty").toBe("empty");
+    expect(layout.left.width).toBe("22rem");
+    expect(layout.right.width).toBe("0");
+    expect(layout.bottom.height).toBe("0px");
+  });
+
   it("loads an alternate workspace file and hydrates the host controller", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const layout = workspace.toJson();

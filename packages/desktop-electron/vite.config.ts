@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 
@@ -10,7 +11,7 @@ export default defineConfig(({ command }) => ({
   base: command === "build" ? "./" : "/",
   clearScreen: false,
   envPrefix: ["VITE_", "ELECTRON_"],
-  plugins: [svelte()],
+  plugins: [tailwindcss(), svelte()],
   server: {
     port: 1421,
     strictPort: true,

@@ -282,11 +282,14 @@ function normalizeRootSplit(raw: unknown): WorkspaceSplitJson {
   };
 }
 
-function normalizeSidedock(raw: unknown): WorkspaceSidedockJson {
+function normalizeSidedock(
+  raw: unknown,
+  defaultWidth: string,
+): WorkspaceSidedockJson {
   const width =
     raw && typeof raw === "object" && typeof (raw as any).width === "string"
       ? (raw as any).width
-      : "16rem";
+      : defaultWidth;
 
   const result = normalizeSplitInner(raw) as WorkspaceSidedockJson | null;
   if (result) return { ...result, width };
@@ -400,8 +403,8 @@ export function normalizeWorkspaceJson(raw: unknown): WorkspaceJson {
 
   return {
     main: normalizeRootSplit(r.main),
-    left: normalizeSidedock(r.left),
-    right: normalizeSidedock(r.right),
+    left: normalizeSidedock(r.left, "22rem"),
+    right: normalizeSidedock(r.right, "0px"),
     bottom: normalizeBottomPanel(r.bottom),
     ...(floating.length > 0 ? { floating } : {}),
     ...(typeof r.active === "string" && r.active ? { active: r.active } : {}),

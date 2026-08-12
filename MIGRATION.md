@@ -54,10 +54,10 @@ legacy commit `8ec68e18`.
 - [x] Focused package, Electron, and macOS distribution validation
 - [x] Root specification, check, test, and build validation
 - [x] Focused `Workspace/Shell / PersistedDesktop` Storybook interaction and accessibility validation
-- [ ] Replace the temporary handwritten landing page with the branded `8ec68e18` native launcher while keeping demo seeding pruned
-- [ ] Load the production Design Core stylesheet pipeline and Lapis aliases in Electron
-- [ ] Match the `PersistedDesktop` captured empty-shell geometry: left open, right and bottom closed
-- [ ] Route native “Open Vault…” through the launcher after orderly session teardown
+- [x] Replace the temporary handwritten landing page with the branded `8ec68e18` native launcher while keeping demo seeding pruned
+- [x] Load the production Design Core stylesheet pipeline and Lapis aliases in Electron
+- [x] Match the `PersistedDesktop` captured empty-shell geometry: left open, right and bottom closed
+- [x] Route native “Open Vault…” through the launcher after orderly session teardown
 - [ ] Full Storybook suite: 74/78 pass; four existing `LapisEditorDemo` interaction failures remain outside the desktop intake
 - [ ] `PersistedDesktop` Visual Delta comparison: blocked because Docker Desktop cannot start; no baseline was updated
 

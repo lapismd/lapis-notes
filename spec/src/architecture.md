@@ -87,6 +87,11 @@ The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
 Generated renderer and main outputs are Turbo cache outputs and remain
 untracked; checked-in build resources are limited to icons and entitlements.
+The production renderer imports Design Core's public stylesheet and Lapis theme
+plus the Lapis UI alias sheet before mounting either the launcher or workspace.
+Its Vite pipeline compiles the desktop launcher's utility classes; reusable
+workspace paint remains supplied by the public Design Core stylesheet rather
+than Storybook-only configuration.
 
 The controller configuration adapter lives in api beside the compatibility
 workspace. It reads and atomically writes the flat API configuration store;

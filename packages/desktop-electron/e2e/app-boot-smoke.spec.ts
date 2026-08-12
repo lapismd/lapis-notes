@@ -19,10 +19,21 @@ test("first-launch cancellation remains on a recoverable native-folder landing s
   });
   try {
     await expect(pageHeading(app.page)).toBeVisible();
-    const open = app.page.getByRole("button", { name: "Open Vault…" });
+    await expect(app.page.locator("[data-desktop-vault-launcher]")).toBeVisible();
+    await expect(
+      app.page.getByRole("button", { name: "Create New Vault" }),
+    ).toBeVisible();
+    await expect(
+      app.page.getByRole("button", { name: /Open Demo Workspace/iu }),
+    ).toHaveCount(0);
+    await app.page.waitForTimeout(500);
+    const open = app.page.getByRole("button", { name: /^Open Vault/u });
     await expect(open).toBeVisible();
     await open.click();
     await expect(open).toBeVisible();
+    const create = app.page.getByRole("button", { name: /^Create New Vault/u });
+    await create.click();
+    await expect(create).toBeVisible();
     await expect(app.page.locator("main")).toHaveAttribute(
       "data-desktop-host-state",
       "landing",
@@ -42,7 +53,7 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
   try {
     await resetMainProcessUnhandledErrors(app.electronApp);
     await waitForDesktopWorkspace(app.page, app.rendererErrors);
-    await expect(app.page.locator("[data-native-runtime]" )).toHaveAttribute(
+    await expect(app.page.locator("[data-native-runtime]")).toHaveAttribute(
       "data-native-runtime",
       "electron-desktop",
     );
@@ -68,6 +79,46 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
       vault: "vault-a",
       pluginCount: 0,
     });
+    const shell = await app.page.evaluate(() => {
+      const app = (
+        globalThis as typeof globalThis & {
+          app: {
+            workspace: {
+              leftSplit: { collapsed: boolean; sidebar: { width: string } };
+              rightSplit: { collapsed: boolean };
+              bottomPanel: { collapsed: boolean };
+              toJson(): {
+                main: { children: Array<{ children: unknown[] }> };
+              };
+            };
+          };
+        }
+      ).app;
+      const newTab = document.querySelector<HTMLButtonElement>(
+        '[aria-label="New tab"]',
+      );
+      const root = document.querySelector<HTMLElement>("[data-app-shell-root]");
+      return {
+        leftCollapsed: app.workspace.leftSplit.collapsed,
+        leftWidth: app.workspace.leftSplit.sidebar.width,
+        rightCollapsed: app.workspace.rightSplit.collapsed,
+        bottomCollapsed: app.workspace.bottomPanel.collapsed,
+        mainLeafCount: app.workspace.toJson().main.children[0]?.children.length,
+        newTabWidth: newTab?.getBoundingClientRect().width,
+        rootDisplay: root ? getComputedStyle(root).display : null,
+        bodyFont: getComputedStyle(document.body).fontFamily,
+      };
+    });
+    expect(shell).toMatchObject({
+      leftCollapsed: false,
+      leftWidth: "22rem",
+      rightCollapsed: true,
+      bottomCollapsed: true,
+      mainLeafCount: 1,
+      newTabWidth: 32,
+      rootDisplay: "flex",
+    });
+    expect(shell.bodyFont).toMatch(/DM Sans/iu);
     expect(app.rendererErrors).toEqual([]);
     expect(await getMainProcessUnhandledErrors(app.electronApp)).toEqual([]);
   } finally {
@@ -178,7 +229,7 @@ test("Open Vault switches sessions and leaves no old-vault writes", async () => 
   });
   try {
     await waitForDesktopWorkspace(app.page);
-    await switchTestVault(app.electronApp, state.vaultB);
+    await switchTestVault(app.electronApp, app.page, state.vaultB);
     await expect(app.page.locator("[data-vault-id]")).toHaveAttribute(
       "data-vault-id",
       `desktop-folder:${state.vaultB}`,
@@ -271,5 +322,5 @@ test("a second-instance app URL reaches the ready workspace host", async () => {
 });
 
 function pageHeading(page: Page) {
-  return page.getByRole("heading", { name: "Lapis Notes" });
+  return page.getByRole("heading", { name: /^(?:Create|Open) a vault$/u });
 }

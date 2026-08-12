@@ -52,6 +52,9 @@ try {
   const executablePath = resolveExecutable();
   application = await electron.launch({ executablePath, env });
   const page = await application.firstWindow();
+  const openVault = page.getByRole("button", { name: /^Open Vault/u });
+  await openVault.waitFor({ state: "visible", timeout: 60_000 });
+  await openVault.click();
   await page.locator('[data-native-runtime="electron-desktop"]').waitFor({
     state: "visible",
     timeout: 60_000,

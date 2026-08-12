@@ -26,62 +26,16 @@ body {
   background: var(--ui-workspace-background, #fff);
 }
 
-.desktop-host__landing {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  min-height: 100%;
-  padding: 2rem;
-  text-align: center;
-  background:
-    radial-gradient(circle at 50% 36%, color-mix(in srgb, var(--ui-workspace-accent) 12%, transparent), transparent 34%),
-    var(--ui-workspace-background);
+.workspace-shell__vault-chooser-action[data-ui-component="button"],
+.workspace-shell__vault-chooser-settings-option[data-ui-component="button"] {
+  height: auto;
 }
 
-.desktop-host__landing > * {
-  max-width: 32rem;
-}
-
-.desktop-host__landing h1 {
-  margin: 1rem 0 0.5rem;
-  font-size: 1.75rem;
-}
-
-.desktop-host__landing p {
-  margin: 0 0 1.25rem;
-  color: var(--ui-workspace-muted-foreground, #5c5c5c);
-}
-
-.desktop-host__mark {
-  display: grid;
-  width: 4rem;
-  height: 4rem;
-  place-items: center;
-  border-radius: 1rem;
-  color: var(--ui-workspace-accent-foreground, #fff);
-  background: var(--ui-workspace-accent, #5b21b6);
-  font-size: 2rem;
-  font-weight: 700;
-  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--ui-workspace-accent) 24%, transparent);
-}
-
-.desktop-host__landing button {
-  min-height: 2.5rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--ui-workspace-accent, #5b21b6);
-  border-radius: var(--ui-workspace-radius-medium, 0.5rem);
-  color: var(--ui-workspace-accent-foreground, #fff);
-  background: var(--ui-workspace-accent, #5b21b6);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.desktop-host__landing button:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--ui-workspace-focus-ring) 40%, transparent);
-  outline-offset: 2px;
-}
-
-.desktop-host__error {
-  color: var(--ui-workspace-destructive, #c41e34) !important;
+.workspace-shell__vault-chooser-outline-control:is(
+    [data-slot="button"],
+    button
+  ):hover:not(:disabled):not([aria-disabled="true"]),
+.workspace-shell__vault-chooser-recent-open:hover:not(:disabled) {
+  color: var(--foreground);
+  background-color: var(--background-modifier-active-hover);
 }

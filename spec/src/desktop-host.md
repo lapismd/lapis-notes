@@ -73,6 +73,12 @@ launcher. It consumes public API profile operations, Lapis fuzzy search, and
 public Design Core primitives; `DesktopVaultHost.svelte` remains responsible
 for orderly session replacement and hands selected profiles to that launcher.
 
+The renderer imports the same public Design Core and Lapis style entries as the
+Storybook host. API layout normalization supplies the captured desktop defaults
+for a missing workspace file: one empty tab, a `22rem` open left dock, and
+closed right and bottom docks. Electron acceptance verifies those controller
+values together with the rendered shell geometry and typography.
+
 The renderer-close handshake gives the desktop host time to persist layout and
 database state and dispose workspace, watch, and sidecar resources before main
 closes the window. A five-second main-process fallback prevents an unresponsive

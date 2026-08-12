@@ -125,6 +125,10 @@ required before constructing `App`.
 Its launcher imports shadcn presentation from Design Core and profile/search
 helpers from public Lapis exports. It does not add launcher policy to the
 workspace package or copy a private UI implementation.
+The renderer consumes Design Core's public `styles.css` and Lapis theme export
+instead of reconstructing workspace CSS. The desktop-only Vite Tailwind pass is
+limited to compiling the intaken launcher composition and does not move native
+selection or session policy into a shared package.
 
 `@lapis-notes/language-service/markdownlint/runtime` is the Node-compatible
 boundary for desktop diagnostics and code actions. Plugin asset URLs continue
