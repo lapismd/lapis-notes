@@ -303,10 +303,20 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   controls. Do not retarget or reposition an open card from incidental editor
   mouse movement; cover the line-11 path to the far-right copy control in the
   real workspace pointer test.
+- Keep the `View Problem` expansion inside the API editor styling boundary. Its
+  pointer, warning accent, header/body separation, metadata, and close control
+  use native editor CSS plus public workspace tokens; do not rely on an app-level
+  Tailwind stylesheet to make the inline widget legible. `View Problem` must
+  dismiss and clear its originating hover card before the inline surface opens;
+  closing that surface must leave later diagnostic hovers operational. Cover
+  the complete open/close/re-hover lifecycle in the real workspace pointer test.
 - Lapis and community plugins create diagnostics through
   `Plugin.createDiagnosticCollection()`. Keep diagnostics serializable and put
   navigation, mutation, and quick-fix callbacks in the workspace adapter or
   collection `buildItemMenu` hook, never on diagnostic objects.
+- A Problems quick fix for an open resource must update the CodeMirror document
+  and vault before refreshing diagnostics. Story acceptance must finish with
+  the gutter and Problems collection reporting the same issues.
 - Language-service diagnostics cover open documents only. Reuse the shared
   request and code-action cache for the editor gutter and Problems panel; do not
   add a vault scan or let Markdownlint own workspace presentation.

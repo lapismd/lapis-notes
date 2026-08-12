@@ -6,6 +6,7 @@ import {
   getLapisLintTooltipPayload,
   type LapisLintTooltipPayload,
 } from "./lapis-lint-diagnostic";
+import { showInlineProblem } from "./lapis-lint-inline-widget";
 import { mountLintMessageDom } from "./mount-lint-tooltip";
 
 type FoundDiagnostic = {
@@ -149,6 +150,13 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
     }
 
     update(update: ViewUpdate) {
+      if (
+        update.transactions.some((transaction) =>
+          transaction.effects.some((effect) => effect.is(showInlineProblem)),
+        )
+      ) {
+        this.hideTooltip();
+      }
       if (!this.tooltip || !this.activeDiagnostic) {
         return;
       }
@@ -181,7 +189,9 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
 
       this.hideTooltip();
       this.activeDiagnostic = found;
-      this.tooltip = mountLintTooltipForDiagnostic(this.view, found);
+      this.tooltip = mountLintTooltipForDiagnostic(this.view, found, () =>
+        this.hideTooltip(),
+      );
       this.tooltip.addEventListener("mouseenter", this.handleTooltipMouseEnter);
       this.tooltip.addEventListener("mouseleave", this.handleTooltipMouseLeave);
       this.tooltip.style.position = "fixed";
@@ -345,6 +355,7 @@ function findDiagnosticAt(
 function mountLintTooltipForDiagnostic(
   view: EditorView,
   found: FoundDiagnostic,
+  onAction: () => void,
 ): HTMLElement {
   const dom = mountLintMessageDom(
     found.diagnostic.message,
@@ -355,6 +366,7 @@ function mountLintTooltipForDiagnostic(
       from: found.from,
       to: found.to,
       actions: actionsForCurrentRange(found.payload.actions),
+      onAction,
     },
   );
   dom.classList.add("cm-lapis-tooltip");

@@ -64,6 +64,7 @@ import {
 } from "./plugin-distribution";
 import { ConfigurationOptionSourceRegistry } from "./configuration-option-source-registry";
 import { resolveMetadataFieldValues } from "./configuration-option-source-providers";
+import type { Editor } from "./editor.svelte";
 
 /**
  * Bootstrap dependencies required to construct an {@link App} instance.
@@ -392,7 +393,6 @@ export class App {
     if (!file || !action.edit || typeof action.edit !== "object") return;
     const changes = (action.edit as { changes?: unknown }).changes;
     if (!Array.isArray(changes)) return;
-    const source = await this.vault.read(file);
     const edits = changes
       .map((change) => {
         if (!change || typeof change !== "object") return null;
@@ -414,10 +414,29 @@ export class App {
       )
       .sort((left, right) => right.from - left.from);
     if (!edits.length) return;
-    let value = source;
+    let value = document.text;
     for (const edit of edits) {
       value = `${value.slice(0, edit.from)}${edit.insert}${value.slice(edit.to)}`;
     }
+
+    const openEditor = this.workspace.iterateAllLeaves((leaf) => {
+      const view = leaf.view as
+        | { editor?: Editor; file?: { path?: string } | null }
+        | undefined;
+      return view?.editor && view.file?.path === file.path
+        ? view.editor
+        : undefined;
+    });
+    openEditor?.view.dispatch({
+      changes: [...edits]
+        .sort((left, right) => left.from - right.from)
+        .map((edit) => ({
+          from: edit.from,
+          to: edit.to,
+          insert: edit.insert,
+        })),
+      userEvent: "input.complete",
+    });
     await this.vault.modify(file, value);
     await this.languageServices.diagnostics({
       ...document,

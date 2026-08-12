@@ -79,6 +79,7 @@ describe("mountLintMessageDom", () => {
 
   it("builds tooltip DOM with message band, rule link, copy control, and footer actions", () => {
     const apply = vi.fn();
+    const onAction = vi.fn();
     const root = mountTooltip(
       "First line in file should be a top-level heading",
       {
@@ -93,6 +94,7 @@ describe("mountLintMessageDom", () => {
         from: 0,
         to: 1,
         actions: [{ name: "View Problem", apply }],
+        onAction,
       },
     );
 
@@ -131,6 +133,11 @@ describe("mountLintMessageDom", () => {
     expect(
       footer?.querySelector('[data-testid="lapis-lint-action"]')?.textContent,
     ).toBe("View Problem");
+    footer
+      ?.querySelector<HTMLButtonElement>('[data-testid="lapis-lint-action"]')
+      ?.click();
+    expect(apply).toHaveBeenCalledOnce();
+    expect(onAction).toHaveBeenCalledOnce();
   });
 
   it("can omit the copy control", () => {

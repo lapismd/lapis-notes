@@ -22,6 +22,26 @@
   --ui-editor-lint-max-width: min(720px, calc(100vw - 48px));
   --ui-editor-lint-radius: var(--radius, 0.375rem);
   --ui-editor-lint-accent: var(--text-accent, var(--primary));
+  --ui-editor-inline-problem-accent: var(
+    --ui-workspace-diagnostic-warning,
+    var(--warning, #d97706)
+  );
+  --ui-editor-inline-problem-background: var(
+    --ui-workspace-view-background,
+    var(--background, #fff)
+  );
+  --ui-editor-inline-problem-foreground: var(
+    --ui-workspace-view-foreground,
+    var(--foreground, #111827)
+  );
+  --ui-editor-inline-problem-muted-foreground: var(
+    --ui-workspace-muted-foreground,
+    var(--muted-foreground, #64748b)
+  );
+  --ui-editor-inline-problem-border: var(
+    --ui-workspace-border,
+    var(--border, #e5e7eb)
+  );
   --ui-editor-font-mono: var(
     --font-mono,
     var(--mira-font-mono, ui-monospace, monospace)
@@ -394,4 +414,124 @@
 [data-ui-component="editor"][data-ui-part="lint-action"]:hover {
   color: var(--ui-editor-lint-accent);
   text-decoration: underline;
+}
+
+/* Inline diagnostic expansion created by the lint tooltip's View Problem action. */
+[data-ui-component="editor"][data-ui-part="inline-problem"] {
+  position: relative;
+  box-sizing: border-box;
+  width: min(720px, var(--lapis-inline-problem-max-width, calc(100vw - 96px)));
+  border-left: 2px solid var(--ui-editor-inline-problem-accent);
+  color: var(--ui-editor-inline-problem-foreground);
+  background: var(--ui-editor-inline-problem-background);
+  font-family: var(--ui-editor-font-sans);
+  font-size: 0.875rem;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-pointer"] {
+  position: absolute;
+  top: -5px;
+  left: calc(var(--lapis-inline-problem-pointer-left, 0px) + 0.75rem);
+  width: 0;
+  height: 0;
+  border-inline: 5px solid transparent;
+  border-bottom: 5px solid var(--ui-editor-inline-problem-accent);
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-header"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.25rem 0.75rem;
+  background: color-mix(
+    in srgb,
+    var(--ui-editor-inline-problem-accent) 12%,
+    var(--ui-editor-inline-problem-background)
+  );
+}
+
+:is(.dark, .theme-dark, [data-ui-theme="lapis"].dark)
+  [data-ui-component="editor"][data-ui-part="inline-problem-header"] {
+  background: color-mix(
+    in srgb,
+    var(--ui-editor-inline-problem-accent) 18%,
+    var(--ui-editor-inline-problem-background)
+  );
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-title"] {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 500;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-icon"] {
+  color: var(--ui-editor-inline-problem-accent);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-label"] {
+  color: var(--ui-editor-inline-problem-foreground);
+  font-size: 0.875rem;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-close"] {
+  padding: 0.125rem 0.25rem;
+  border: 0;
+  border-radius: 0.25rem;
+  color: var(--ui-editor-inline-problem-muted-foreground);
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-close"]:hover {
+  color: var(--ui-editor-inline-problem-foreground);
+  background: color-mix(
+    in srgb,
+    var(--ui-editor-inline-problem-accent) 12%,
+    transparent
+  );
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-close"]:focus-visible {
+  outline: 2px solid var(--ui-workspace-focus-ring, var(--ring, currentColor));
+  outline-offset: 1px;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-body"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid
+    color-mix(
+      in srgb,
+      var(--ui-editor-inline-problem-accent) 25%,
+      var(--ui-editor-inline-problem-border)
+    );
+  background: var(--ui-editor-inline-problem-background);
+  font-family: var(--ui-editor-font-mono);
+  font-size: 0.875rem;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-message"] {
+  color: var(--ui-editor-inline-problem-foreground);
+  white-space: pre-wrap;
+}
+
+[data-ui-component="editor"][data-ui-part="inline-problem-source"] {
+  flex-shrink: 0;
+  color: var(--ui-editor-inline-problem-muted-foreground);
+  font-family: var(--ui-editor-font-mono);
+  font-size: 0.75rem;
 }

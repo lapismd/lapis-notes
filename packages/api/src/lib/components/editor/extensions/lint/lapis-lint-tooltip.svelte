@@ -34,6 +34,11 @@
     event.stopPropagation();
     void navigator.clipboard?.writeText(message);
   }
+
+  function containPointerDown(event: PointerEvent | MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 </script>
 
 <div
@@ -67,6 +72,8 @@
                 href={ruleUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onpointerdown={containPointerDown}
+                onmousedown={containPointerDown}
                 onclick={(event) => event.stopPropagation()}>{ruleId}</a
               >{:else}<span
                 data-ui-component="editor"
@@ -85,6 +92,8 @@
           data-ui-part="lint-copy"
           data-testid="lapis-lint-copy"
           aria-label="Copy diagnostic message"
+          onpointerdown={containPointerDown}
+          onmousedown={containPointerDown}
           onclick={copyMessage}
         >
           <WorkspaceIcon name="copy" />
@@ -108,6 +117,8 @@
           data-ui-part="lint-action"
           data-testid="lapis-lint-action"
           aria-label={action.name}
+          onpointerdown={containPointerDown}
+          onmousedown={containPointerDown}
           onclick={action.onClick}
         >
           {action.name}

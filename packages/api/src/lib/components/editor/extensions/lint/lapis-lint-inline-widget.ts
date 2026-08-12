@@ -36,6 +36,8 @@ class InlineProblemWidget extends WidgetType {
     const doc = view.dom.ownerDocument;
     const root = doc.createElement("div");
     root.className = "lapis-inline-problem";
+    root.dataset.uiComponent = "editor";
+    root.dataset.uiPart = "inline-problem";
     root.style.setProperty(
       "--lapis-inline-problem-pointer-left",
       `${this.spec.pointerLeftPx}px`,
@@ -47,35 +49,78 @@ class InlineProblemWidget extends WidgetType {
 
     const pointer = doc.createElement("div");
     pointer.className = "lapis-inline-problem__pointer";
+    pointer.dataset.uiComponent = "editor";
+    pointer.dataset.uiPart = "inline-problem-pointer";
     pointer.setAttribute("aria-hidden", "true");
 
     // Header row
     const header = doc.createElement("div");
     header.className = "lapis-inline-problem__header";
+    header.dataset.uiComponent = "editor";
+    header.dataset.uiPart = "inline-problem-header";
 
     const title = doc.createElement("span");
     title.className = "lapis-inline-problem__title";
+    title.dataset.uiComponent = "editor";
+    title.dataset.uiPart = "inline-problem-title";
 
     const icon = doc.createElement("span");
     icon.className = "lapis-inline-problem__icon";
+    icon.dataset.uiComponent = "editor";
+    icon.dataset.uiPart = "inline-problem-icon";
     icon.setAttribute("aria-hidden", "true");
     icon.textContent = "⚠";
 
     const labelEl = doc.createElement("span");
     labelEl.className = "lapis-inline-problem__label";
+    labelEl.dataset.uiComponent = "editor";
+    labelEl.dataset.uiPart = "inline-problem-label";
     labelEl.textContent = "Problem";
 
     title.append(icon, labelEl);
 
     const closeBtn = doc.createElement("button");
     closeBtn.className = "lapis-inline-problem__close";
+    closeBtn.dataset.uiComponent = "editor";
+    closeBtn.dataset.uiPart = "inline-problem-close";
     closeBtn.setAttribute("type", "button");
     closeBtn.setAttribute("aria-label", "Close problem widget");
     closeBtn.textContent = "×";
-    closeBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    const consume = (event: Event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    const closeInlineProblem = () => {
       view.dispatch({ effects: showInlineProblem.of(null) });
+    };
+    const dismiss = (event: Event) => {
+      consume(event);
+      closeInlineProblem();
+    };
+    const dismissFromMouseUp = (event: MouseEvent) => {
+      consume(event);
+      const suppressClickThrough = (clickEvent: MouseEvent) => {
+        clickEvent.preventDefault();
+        clickEvent.stopImmediatePropagation();
+      };
+      doc.addEventListener("click", suppressClickThrough, {
+        capture: true,
+        once: true,
+      });
+      doc.defaultView?.setTimeout(() => {
+        doc.removeEventListener("click", suppressClickThrough, true);
+      });
+      closeInlineProblem();
+    };
+    closeBtn.addEventListener("pointerdown", consume);
+    closeBtn.addEventListener("pointerup", consume);
+    closeBtn.addEventListener("mousedown", consume);
+    closeBtn.addEventListener("mouseup", dismissFromMouseUp);
+    closeBtn.addEventListener("click", dismiss);
+    closeBtn.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        dismiss(event);
+      }
     });
 
     header.append(title, closeBtn);
@@ -83,15 +128,21 @@ class InlineProblemWidget extends WidgetType {
     // Body row
     const body = doc.createElement("div");
     body.className = "lapis-inline-problem__body";
+    body.dataset.uiComponent = "editor";
+    body.dataset.uiPart = "inline-problem-body";
 
     const msgSpan = doc.createElement("span");
     msgSpan.className = "lapis-inline-problem__message";
+    msgSpan.dataset.uiComponent = "editor";
+    msgSpan.dataset.uiPart = "inline-problem-message";
     msgSpan.textContent = this.spec.message;
     body.append(msgSpan);
 
     if (this.spec.sourceLabel != null || this.spec.ruleId != null) {
       const sourceTag = doc.createElement("span");
       sourceTag.className = "lapis-inline-problem__source";
+      sourceTag.dataset.uiComponent = "editor";
+      sourceTag.dataset.uiPart = "inline-problem-source";
       const src = this.spec.sourceLabel ?? "";
       const ruleParens =
         this.spec.ruleId != null ? `(${this.spec.ruleId})` : "";
@@ -104,7 +155,7 @@ class InlineProblemWidget extends WidgetType {
   }
 
   ignoreEvent(): boolean {
-    return false;
+    return true;
   }
 }
 
@@ -159,7 +210,11 @@ export function toggleInlineProblem(
   from: number,
   spec: Omit<
     InlineProblemSpec,
-    "lineStart" | "lineEnd" | "column" | "pointerLeftPx" | "maxWidthPx"
+    | "lineStart"
+    | "lineEnd"
+    | "column"
+    | "pointerLeftPx"
+    | "maxWidthPx"
   >,
 ): void {
   const line = view.state.doc.lineAt(from);

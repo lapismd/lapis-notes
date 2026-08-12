@@ -14,6 +14,11 @@ test("diagnostic hover card keeps an interactive pointer handoff", async ({
     await page.reload();
     await expect(status).toHaveText("ready", { timeout: 60_000 });
   }
+  await expect(page.locator("#storybook-root")).toHaveAttribute(
+    "data-markdown-problems-acceptance-ready",
+    "true",
+    { timeout: 30_000 },
+  );
 
   const marker = page.locator(".cm-lint-marker-warning").first();
   await expect(marker).toBeVisible();
@@ -115,4 +120,101 @@ test("diagnostic hover card keeps an interactive pointer handoff", async ({
 
   await page.mouse.move(4, 4);
   await expect(tooltip).toBeHidden({ timeout: 1_500 });
+
+  const remainingRange = page
+    .locator(".cm-line")
+    .filter({ hasText: "Welcome to Lapis Notes" })
+    .locator(".cm-lintRange-warning:visible")
+    .first();
+  await expect(remainingRange).toBeVisible();
+  await remainingRange.hover();
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip.getByTestId("lapis-lint-message-text")).toContainText(
+    "Multiple top-level headings",
+  );
+  await tooltip.getByRole("button", { name: "View Problem" }).click();
+  await expect(tooltip).toBeHidden();
+
+  const inlineProblem = page.locator(
+    '[data-ui-component="editor"][data-ui-part="inline-problem"]',
+  );
+  await expect(inlineProblem).toBeVisible();
+  await expect(
+    inlineProblem.locator('[data-ui-part="inline-problem-message"]'),
+  ).toContainText("Multiple top-level headings");
+  await expect(
+    inlineProblem.locator('[data-ui-part="inline-problem-source"]'),
+  ).toHaveText("markdownlint(MD025)");
+  const inlineProblemChrome = await inlineProblem.evaluate((element) => {
+    const header = element.querySelector<HTMLElement>(
+      '[data-ui-part="inline-problem-header"]',
+    );
+    const body = element.querySelector<HTMLElement>(
+      '[data-ui-part="inline-problem-body"]',
+    );
+    const pointer = element.querySelector<HTMLElement>(
+      '[data-ui-part="inline-problem-pointer"]',
+    );
+    if (!header || !body || !pointer) {
+      throw new Error("Missing inline problem chrome");
+    }
+    const rootStyle = getComputedStyle(element);
+    const headerStyle = getComputedStyle(header);
+    const bodyStyle = getComputedStyle(body);
+    const pointerStyle = getComputedStyle(pointer);
+    return {
+      borderLeftStyle: rootStyle.borderLeftStyle,
+      borderLeftWidth: rootStyle.borderLeftWidth,
+      headerDisplay: headerStyle.display,
+      headerBackground: headerStyle.backgroundColor,
+      bodyDisplay: bodyStyle.display,
+      bodyBorderTopWidth: bodyStyle.borderTopWidth,
+      bodyPaddingLeft: bodyStyle.paddingLeft,
+      pointerPosition: pointerStyle.position,
+      pointerBorderBottomWidth: pointerStyle.borderBottomWidth,
+      pointerBorderBottomColor: pointerStyle.borderBottomColor,
+    };
+  });
+  expect(inlineProblemChrome).toMatchObject({
+    borderLeftStyle: "solid",
+    borderLeftWidth: "2px",
+    headerDisplay: "flex",
+    bodyDisplay: "flex",
+    bodyBorderTopWidth: "1px",
+    bodyPaddingLeft: "12px",
+    pointerPosition: "absolute",
+    pointerBorderBottomWidth: "5px",
+  });
+  expect(inlineProblemChrome.headerBackground).not.toBe("rgba(0, 0, 0, 0)");
+  expect(inlineProblemChrome.pointerBorderBottomColor).not.toBe(
+    "rgba(0, 0, 0, 0)",
+  );
+
+  const closeProblem = inlineProblem.getByRole("button", {
+    name: "Close problem widget",
+  });
+  await expect(closeProblem).toBeVisible();
+  const closeBox = await closeProblem.boundingBox();
+  expect(closeBox).not.toBeNull();
+  if (!closeBox) return;
+  const closeHitTarget = await page.evaluate(
+    ({ x, y }) =>
+      document
+        .elementFromPoint(x, y)
+        ?.closest('[data-ui-part="inline-problem-close"]') != null,
+    {
+      x: closeBox.x + closeBox.width / 2,
+      y: closeBox.y + closeBox.height / 2,
+    },
+  );
+  expect(closeHitTarget).toBe(true);
+  await closeProblem.click();
+  await expect(inlineProblem).toBeHidden();
+
+  await expect(remainingRange).toBeVisible();
+  await remainingRange.hover();
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip.getByTestId("lapis-lint-message-text")).toContainText(
+    "Multiple top-level headings",
+  );
 });

@@ -37,6 +37,17 @@ function visibleEditorContents(canvasElement: HTMLElement): HTMLElement[] {
   );
 }
 
+function editorLineContaining(
+  canvasElement: HTMLElement,
+  text: string,
+): HTMLElement | null {
+  return (
+    [...canvasElement.querySelectorAll<HTMLElement>(".cm-line")].find(
+      (line) => line.textContent?.includes(text),
+    ) ?? null
+  );
+}
+
 function activeStoryEditor(canvasElement: HTMLElement): Editor {
   const runtimeApp = activeStoryApp(canvasElement);
   const editor = (
@@ -172,10 +183,13 @@ export const MarkdownProblems: Story = {
   tags: ["visual-pending"],
   args: { scenario: "markdown-problems" },
   play: async ({ canvasElement }) => {
+    delete canvasElement.dataset.markdownProblemsAcceptanceReady;
     const canvas = within(canvasElement);
     await waitForReady(canvas);
     const runtimeApp = activeStoryApp(canvasElement);
     const storyDocument = canvasElement.ownerDocument;
+    const editor = activeStoryEditor(canvasElement);
+    const invalidFixture = editor.getValue();
 
     const blockToolbarPortal = await waitFor(() => {
       const portals = storyDocument.querySelectorAll<HTMLElement>(
@@ -189,7 +203,22 @@ export const MarkdownProblems: Story = {
 
     await waitFor(
       () => {
-        expect(runtimeApp.workspace.diagnostics.snapshot().entries).toEqual(
+        expect(
+          runtimeApp.workspace.diagnostics
+            .snapshot()
+            .entries.map((entry) => entry.diagnostic.code)
+            .sort(),
+        ).toEqual(["MD018", "MD025"]);
+        expect(
+          canvasElement.querySelectorAll(".cm-lint-marker-warning"),
+        ).toHaveLength(2);
+        expect(
+          editorLineContaining(canvasElement, "missing heading space")
+            ?.querySelector(".cm-lintRange-warning"),
+        ).not.toBeNull();
+        expect(
+          runtimeApp.workspace.diagnostics.snapshot().entries,
+        ).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               diagnostic: expect.objectContaining({
@@ -199,7 +228,6 @@ export const MarkdownProblems: Story = {
             }),
           ]),
         );
-        expect(canvasElement.querySelector(".cm-lintRange")).not.toBeNull();
       },
       { timeout: 8_000 },
     );
@@ -310,9 +338,57 @@ export const MarkdownProblems: Story = {
       },
       { timeout: 5_000 },
     );
+    await waitFor(() => {
+      expect(editor.getValue()).toContain("## missing heading space");
+      expect(
+        editorLineContaining(canvasElement, "missing heading space")
+          ?.querySelector(".cm-lintRange-warning"),
+      ).toBeNull();
+    });
     await expect(
       runtimeApp.vault.adapter.read("Notes/Welcome.md"),
     ).resolves.toContain("## missing heading space");
+
+    editor.view.dispatch({
+      changes: {
+        from: 0,
+        to: editor.view.state.doc.length,
+        insert: invalidFixture,
+      },
+      userEvent: "input.story-restore",
+    });
+    await waitFor(
+      () => {
+        expect(
+          runtimeApp.workspace.diagnostics
+            .snapshot()
+            .entries.map((entry) => entry.diagnostic.code)
+            .sort(),
+        ).toEqual(["MD018", "MD025"]);
+        expect(
+          canvasElement.querySelectorAll(".cm-lint-marker-warning"),
+        ).toHaveLength(2);
+        expect(
+          editorLineContaining(canvasElement, "missing heading space")
+            ?.querySelector(".cm-lintRange-warning"),
+        ).not.toBeNull();
+        expect(
+          problemsCanvas.getByRole("button", {
+            name: /No space after hash on atx style heading/i,
+          }),
+        ).toBeVisible();
+      },
+      { timeout: 8_000 },
+    );
+    await waitFor(
+      async () => {
+        await expect(
+          runtimeApp.vault.adapter.read("Notes/Welcome.md"),
+        ).resolves.toContain("##missing heading space");
+      },
+      { timeout: 3_000 },
+    );
+    canvasElement.dataset.markdownProblemsAcceptanceReady = "true";
   },
 };
 

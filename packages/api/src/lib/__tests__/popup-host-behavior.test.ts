@@ -131,6 +131,25 @@ describe("popup host behavior", () => {
     );
     expect(widget).not.toBeNull();
     expect(widget?.ownerDocument).toBe(popupDocument);
+    expect(widget?.dataset.uiComponent).toBe("editor");
+    expect(widget?.dataset.uiPart).toBe("inline-problem");
+    expect(
+      widget?.querySelector<HTMLElement>(
+        '[data-ui-part="inline-problem-header"]',
+      ),
+    ).not.toBeNull();
+    expect(
+      widget?.querySelector<HTMLButtonElement>(
+        '[data-ui-part="inline-problem-close"]',
+      )?.ariaLabel,
+    ).toBe("Close problem widget");
+    widget
+      ?.querySelector<HTMLButtonElement>('[data-ui-part="inline-problem-close"]')
+      ?.click();
+    expect(view.state.field(inlineProblemExtension)).toBeNull();
+    expect(
+      popupDocument.querySelector('[data-ui-part="inline-problem"]'),
+    ).toBeNull();
 
     view.destroy();
     iframe.remove();

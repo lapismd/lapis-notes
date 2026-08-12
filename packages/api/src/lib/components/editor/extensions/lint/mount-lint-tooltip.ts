@@ -9,6 +9,7 @@ export interface MountLintMessageDomOptions {
   from?: number;
   to?: number;
   actions?: Action[];
+  onAction?: () => void;
 }
 
 function observeUnmountWhenDetached(
@@ -47,7 +48,7 @@ export function mountLintMessageDom(
   includeCopy = true,
   options: MountLintMessageDomOptions = {},
 ): HTMLElement {
-  const { view, from, to, actions = [] } = options;
+  const { view, from, to, actions = [], onAction } = options;
   const targetDocument = view?.dom?.ownerDocument ?? document;
   const root = targetDocument.createElement("div");
 
@@ -62,7 +63,11 @@ export function mountLintMessageDom(
           onClick: (event: MouseEvent) => {
             event.preventDefault();
             event.stopPropagation();
-            action.apply(view, from, to);
+            try {
+              action.apply(view, from, to);
+            } finally {
+              onAction?.();
+            }
           },
         }))
       : [];

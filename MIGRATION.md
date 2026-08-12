@@ -69,7 +69,7 @@ detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 
 ### Workspace shell integration progress
 
-- [x] Generic Problems integration → design-core diagnostics façade, plugin-owned collections, open-document language-service bridge, diagnostics-only Markdown composition, Markdownlint provider, navigation/actions, aligned severity gutter glyphs, compact hover cards with stable origin handoff, transient tree/table presentation with shadcn two-axis scrolling, and runnable editor acceptance (LN-WS-025 through LN-WS-043)
+- [x] Generic Problems integration → design-core diagnostics façade, plugin-owned collections, open-document language-service bridge, diagnostics-only Markdown composition, Markdownlint provider, navigation/actions with open-editor/vault parity, aligned severity gutter glyphs, compact hover cards with stable origin handoff, styled inline problem expansion with clean hover recovery, transient tree/table presentation with shadcn two-axis scrolling, and runnable editor acceptance (LN-WS-025 through LN-WS-045)
 - [x] Editor-demo runtime teardown synchronously unloads and destroys retained editors before asynchronous plugin/controller disposal, preventing HMR from accumulating Mira portal hosts (LN-WS-019, LN-ED-009)
 - [x] Full-shell `Workspace/Shell`, `Workspace/Lapis Editor Demo`, and panel Autodocs share an isolated 700px padding-free application viewport; authored shell pages render every canonical story description
 - [x] Canonical requirements and governance mapping
