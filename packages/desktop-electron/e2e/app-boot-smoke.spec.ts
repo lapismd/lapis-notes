@@ -80,6 +80,18 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
       vault: "vault-a",
       pluginCount: 0,
     });
+    const loadedFontFaces = await app.page.evaluate(async () => {
+      const [sans, mono] = await Promise.all([
+        document.fonts.load('400 16px "DM Sans Variable"', "Lapis Notes"),
+        document.fonts.load(
+          '400 16px "Source Code Pro Variable"',
+          "const value = 1;",
+        ),
+      ]);
+      return { sans: sans.length, mono: mono.length };
+    });
+    expect(loadedFontFaces.sans).toBeGreaterThan(0);
+    expect(loadedFontFaces.mono).toBeGreaterThan(0);
     const shell = await app.page.evaluate(() => {
       const app = (
         globalThis as typeof globalThis & {

@@ -1,6 +1,18 @@
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
-import { defineConfig } from "vite";
+import { realpathSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig, searchForWorkspaceRoot } from "vite";
+
+const packageRoot = path.dirname(fileURLToPath(import.meta.url));
+const linkedDesignCoreRoot = realpathSync(
+  path.join(packageRoot, "node_modules", "@lapismd", "design-core"),
+);
+const rendererFileSystemAllow = [
+  searchForWorkspaceRoot(packageRoot),
+  linkedDesignCoreRoot,
+];
 
 const crossOriginIsolationHeaders = {
   "Cross-Origin-Embedder-Policy": "require-corp",
@@ -16,6 +28,9 @@ export default defineConfig(({ command }) => ({
     port: 1421,
     strictPort: true,
     headers: crossOriginIsolationHeaders,
+    fs: {
+      allow: rendererFileSystemAllow,
+    },
   },
   preview: {
     port: 1421,

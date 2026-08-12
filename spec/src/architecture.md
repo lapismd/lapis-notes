@@ -96,7 +96,10 @@ plus the Lapis UI alias sheet before mounting either the launcher or workspace.
 Its Vite pipeline compiles the desktop launcher's utility classes; reusable
 workspace paint remains supplied by the public Design Core stylesheet rather
 than Storybook-only configuration. Electron-specific window-control clearance
-is applied by host CSS against Design Core's semantic shell attributes.
+is applied by host CSS against Design Core's semantic shell attributes. The
+development server permits the resolved Design Core package root for imported
+assets while retaining package-export resolution and the default Lapis
+workspace boundary.
 
 The controller configuration adapter lives in api beside the compatibility
 workspace. It reads and atomically writes the flat API configuration store;

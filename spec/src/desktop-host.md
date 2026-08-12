@@ -33,6 +33,7 @@ are intentionally omitted.
 | LN-DESK-022 | The launcher and transient native-vault loading state MUST center their content within the Electron viewport when it fits, while an oversized launcher MUST remain scrollable from its top edge. |
 | LN-DESK-023 | Launcher Settings MUST use a compact centered dialog. “View all” MUST use an upper-viewport searchable command palette containing recent projects rather than a drawer or bottom sheet. Both MUST retain the shared full-viewport modal scrim. |
 | LN-DESK-024 | The renderer MUST map typed Electron platform metadata to root CSS classes. macOS traffic-light clearance MUST derive from those classes and desktop CSS rather than renderer-injected geometry styles. |
+| LN-DESK-025 | The development renderer MUST serve assets imported by the linked Design Core package, including its variable fonts. Its Vite filesystem allowlist MUST retain the Lapis workspace root and add only resolved linked-package roots rather than using source aliases or a broad parent-directory grant. |
 
 ## Boot flow
 
@@ -86,6 +87,9 @@ closed right and bottom docks. Electron acceptance verifies those controller
 values together with the rendered shell geometry and typography. The preload's
 typed platform metadata selects namespaced root classes; desktop CSS uses the
 macOS class to clear native traffic lights without an inline geometry value.
+The development Vite server resolves Design Core's installed link to its real
+package root so that stylesheet dependencies remain inside the explicit
+filesystem boundary without bypassing public package exports.
 
 The renderer-close handshake gives the desktop host time to persist layout and
 database state and dispose workspace, watch, and sidecar resources before main
