@@ -101,6 +101,21 @@
       "import": "./dist/language-service/index.js",
       "default": "./dist/language-service/index.js"
     },
+    "./language-service/worker": {
+      "types": "./dist/language-service/worker-provider.d.ts",
+      "import": "./dist/language-service/worker-provider.js",
+      "default": "./dist/language-service/worker-provider.js"
+    },
+    "./editor/language-service": {
+      "types": "./dist/components/editor/language-service/index.d.ts",
+      "import": "./dist/components/editor/language-service/index.js",
+      "default": "./dist/components/editor/language-service/index.js"
+    },
+    "./editor/core": {
+      "types": "./dist/components/editor/editor.d.ts",
+      "import": "./dist/components/editor/editor.js",
+      "default": "./dist/components/editor/editor.js"
+    },
     "./workspace-host": {
       "types": "./dist/workspace-host.d.ts",
       "svelte": "./dist/workspace-host.js",

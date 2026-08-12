@@ -6,6 +6,7 @@ import {
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
 import { MarkdownPlugin, MarkdownView } from "@lapis-notes/markdown";
+import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
 import { TagsDemoPlugin } from "../lapis-editor-demo/tags-plugin";
 import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../watch-metadata";
@@ -501,6 +502,7 @@ export async function bootPanelDemo(
   app.plugins.registerCorePlugins([
     { plugin: SourceEditorDemoPlugin, required: true },
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
+    { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
     { plugin: TagsDemoPlugin, required: false, enabledByDefault: true },
   ]);
 

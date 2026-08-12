@@ -3,6 +3,7 @@ import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import { startCompletion } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
 import type { App, Editor } from "@lapis-notes/api";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import LapisEditorDemo from "./LapisEditorDemo.svelte";
 import { workspaceStoryMeta } from "../_shared";
 
@@ -36,8 +37,8 @@ function visibleEditorContents(canvasElement: HTMLElement): HTMLElement[] {
   );
 }
 
-function activeStoryEditor(): Editor {
-  const runtimeApp = activeStoryApp();
+function activeStoryEditor(canvasElement: HTMLElement): Editor {
+  const runtimeApp = activeStoryApp(canvasElement);
   const editor = (
     runtimeApp.workspace.activeLeaf?.view as { editor?: Editor } | undefined
   )?.editor;
@@ -45,29 +46,35 @@ function activeStoryEditor(): Editor {
   return editor;
 }
 
-function activeStoryApp(): App {
-  const runtimeApp = (globalThis as typeof globalThis & { app?: App }).app;
+function activeStoryApp(canvasElement: HTMLElement): App {
+  const runtimeApp = canvasElement.querySelector<
+    HTMLElement & { __lapisApp?: App }
+  >('[data-testid="lapis-editor-demo"]')?.__lapisApp;
   if (!runtimeApp) throw new Error("The editor story has no active Lapis app");
   return runtimeApp;
 }
 
-async function persistedStoryConfiguration(): Promise<
+async function persistedStoryConfiguration(
+  canvasElement: HTMLElement,
+): Promise<
   Record<string, unknown>
 > {
   return JSON.parse(
-    await activeStoryApp().vault.adapter.read(".obsidian/app.json"),
+    await activeStoryApp(canvasElement).vault.adapter.read(
+      ".obsidian/app.json",
+    ),
   ) as Record<string, unknown>;
 }
 
-function moveStoryCursorToEnd(): void {
-  const editor = activeStoryEditor();
+function moveStoryCursorToEnd(canvasElement: HTMLElement): void {
+  const editor = activeStoryEditor(canvasElement);
   const line = editor.lastLine();
   editor.setCursor({ line, ch: editor.getLine(line).length });
   editor.focus();
 }
 
-function selectStoryText(text: string): void {
-  const editor = activeStoryEditor();
+function selectStoryText(canvasElement: HTMLElement, text: string): void {
+  const editor = activeStoryEditor(canvasElement);
   const from = editor.getValue().indexOf(text);
   if (from < 0) throw new Error(`Story editor text not found: ${text}`);
   editor.setSelection(
@@ -153,6 +160,104 @@ export const Ready: Story = {
     await expect(
       canvas.getByRole("heading", { name: "No file is open" }),
     ).toBeVisible();
+  },
+};
+
+export const MarkdownProblems: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-markdown-problems",
+    "An invalid open Markdown note shares one Markdownlint result between the editor gutter and the movable Problems panel, including navigation and quick fixes.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-problems-chromium.png",
+  ),
+  tags: ["visual-pending"],
+  args: { scenario: "markdown-problems" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    const runtimeApp = activeStoryApp(canvasElement);
+
+    await waitFor(
+      () => {
+        expect(runtimeApp.workspace.diagnostics.snapshot().entries).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              diagnostic: expect.objectContaining({
+                source: "markdownlint",
+                code: "MD018",
+              }),
+            }),
+          ]),
+        );
+        expect(canvasElement.querySelector(".cm-lintRange")).not.toBeNull();
+      },
+      { timeout: 8_000 },
+    );
+
+    await getWorkspaceHostBinding(runtimeApp.workspace).controller.commands.execute(
+      "app-shell:show-problems",
+    );
+    const problems = await waitFor(() => {
+      const panel = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="workspace-problems"]',
+      );
+      expect(panel).not.toBeNull();
+      return panel!;
+    });
+    const problemsCanvas = within(problems);
+    let problem = problemsCanvas.getByRole("button", {
+      name: /No space after hash on atx style heading/i,
+    });
+    await expect(problem).toHaveTextContent("markdownlint(MD018)");
+
+    const warningsFilter = problemsCanvas.getByRole("button", {
+      name: /^Warnings: [1-9]\d*$/,
+    });
+    await userEvent.click(warningsFilter);
+    await waitFor(() => {
+      expect(
+        problemsCanvas.queryByRole("button", {
+          name: /No space after hash on atx style heading/i,
+        }),
+      ).not.toBeInTheDocument();
+    });
+    await userEvent.click(warningsFilter);
+    problem = await problemsCanvas.findByRole("button", {
+      name: /No space after hash on atx style heading/i,
+    });
+
+    await userEvent.click(problem);
+    await expect(activeStoryEditor(canvasElement).getCursor("from")).toMatchObject({
+      line: 10,
+    });
+
+    const navigatedProblem = await waitFor(
+      () =>
+        problemsCanvas.getByRole("button", {
+          name: /No space after hash on atx style heading/i,
+        }),
+      { timeout: 5_000 },
+    );
+    await userEvent.pointer({ keys: "[MouseRight]", target: navigatedProblem });
+    const documentCanvas = within(canvasElement.ownerDocument.body);
+    await documentCanvas.findByRole("menuitem", { name: "Copy Message" });
+    const fix = await documentCanvas.findByRole("menuitem", {
+      name: "Fix markdownlint MD018",
+    });
+    await userEvent.click(fix);
+
+    await waitFor(
+      () => {
+        expect(
+          runtimeApp.workspace.diagnostics.snapshot().entries.some(
+            (entry) => entry.diagnostic.code === "MD018",
+          ),
+        ).toBe(false);
+      },
+      { timeout: 5_000 },
+    );
+    await expect(
+      runtimeApp.vault.adapter.read("Notes/Welcome.md"),
+    ).resolves.toContain("## missing heading space");
   },
 };
 
@@ -464,8 +569,8 @@ export const MarkdownAuthoring: Story = {
     });
 
     await step("complete a vault note", async () => {
-      moveStoryCursorToEnd();
-      const editor = activeStoryEditor();
+      moveStoryCursorToEnd(canvasElement);
+      const editor = activeStoryEditor(canvasElement);
       editor.replaceSelection("\n[[Ide", "input");
       expect(startCompletion(editor.view)).toBe(true);
       const autocomplete = await waitFor(() => {
@@ -485,7 +590,7 @@ export const MarkdownAuthoring: Story = {
     });
 
     await step("insert a default slash command", async () => {
-      moveStoryCursorToEnd();
+      moveStoryCursorToEnd(canvasElement);
       await userEvent.keyboard("{Enter}/");
       const slashMenu = await waitFor(() => {
         const menu =
@@ -501,8 +606,8 @@ export const MarkdownAuthoring: Story = {
     });
 
     await step("accept a pasted image attachment", async () => {
-      moveStoryCursorToEnd();
-      const editor = activeStoryEditor();
+      moveStoryCursorToEnd(canvasElement);
+      const editor = activeStoryEditor(canvasElement);
       editor.replaceSelection("\n", "input");
       await insertImageFiles(
         editor.view as unknown as Parameters<typeof insertImageFiles>[0],
@@ -520,18 +625,18 @@ export const MarkdownAuthoring: Story = {
     });
 
     await step("format a real selection and smart-paste a URL", async () => {
-      selectStoryText("Select this authoring text");
+      selectStoryText(canvasElement, "Select this authoring text");
       const selectionToolbar = await waitFor(() =>
         canvas.getByRole("toolbar", { name: "Text formatting" }),
       );
       await userEvent.click(
         within(selectionToolbar).getByRole("button", { name: "Bold" }),
       );
-      expect(activeStoryEditor().getValue()).toContain(
+      expect(activeStoryEditor(canvasElement).getValue()).toContain(
         "**Select this authoring text**",
       );
 
-      selectStoryText("Inserted by slash");
+      selectStoryText(canvasElement, "Inserted by slash");
       const transfer = new DataTransfer();
       transfer.setData("text/plain", "https://lapis.md/authoring");
       const paste = new ClipboardEvent("paste", {
@@ -539,9 +644,9 @@ export const MarkdownAuthoring: Story = {
         cancelable: true,
         clipboardData: transfer,
       });
-      activeStoryEditor().view.contentDOM.dispatchEvent(paste);
+      activeStoryEditor(canvasElement).view.contentDOM.dispatchEvent(paste);
       expect(paste.defaultPrevented).toBe(true);
-      expect(activeStoryEditor().getValue()).toContain(
+      expect(activeStoryEditor(canvasElement).getValue()).toContain(
         "[Inserted by slash](https://lapis.md/authoring)",
       );
     });
@@ -587,7 +692,7 @@ export const MarkdownAuthoring: Story = {
       );
       await waitFor(() =>
         expect(
-          activeStoryApp().configuration.getConfiguration().get(
+          activeStoryApp(canvasElement).configuration.getConfiguration().get(
             "markdown.mira.editor.toolbar.enabled",
           ),
         ).toBe(true),
@@ -596,7 +701,7 @@ export const MarkdownAuthoring: Story = {
         canvas.getByRole("toolbar", { name: "Markdown editor toolbar" }),
       );
       expect(
-        (await persistedStoryConfiguration())[
+        (await persistedStoryConfiguration(canvasElement))[
           "markdown.mira.editor.toolbar.enabled"
         ],
       ).toBe(true);
@@ -613,7 +718,7 @@ export const MarkdownAuthoring: Story = {
       );
       await waitFor(() =>
         expect(
-          activeStoryApp().configuration.getConfiguration().get(
+          activeStoryApp(canvasElement).configuration.getConfiguration().get(
             "editor.display.showIndentationGuides",
           ),
         ).toBe(false),
@@ -627,7 +732,7 @@ export const MarkdownAuthoring: Story = {
       );
       await waitFor(() =>
         expect(
-          activeStoryApp().configuration.getConfiguration().get(
+          activeStoryApp(canvasElement).configuration.getConfiguration().get(
             "editor.behaviour.indentUsingTabs",
           ),
         ).toBe(false),
@@ -639,12 +744,12 @@ export const MarkdownAuthoring: Story = {
       await userEvent.click(page.getByRole("menuitem", { name: "8 spaces" }));
       await waitFor(() =>
         expect(
-          activeStoryApp().configuration.getConfiguration().get(
+          activeStoryApp(canvasElement).configuration.getConfiguration().get(
             "editor.behaviour.indentVisualWidth",
           ),
         ).toBe(8),
       );
-      expect(await persistedStoryConfiguration()).toMatchObject({
+      expect(await persistedStoryConfiguration(canvasElement)).toMatchObject({
         "markdown.mira.editor.toolbar.enabled": true,
         "editor.display.showIndentationGuides": false,
         "editor.behaviour.indentUsingTabs": false,
@@ -862,14 +967,14 @@ export const EditorSettings: Story = {
     await expect(slashCommands).toHaveAttribute("data-state", "checked");
     await userEvent.click(slashCommands);
     await waitFor(async () => {
-      const persisted = await persistedStoryConfiguration();
+      const persisted = await persistedStoryConfiguration(canvasElement);
       expect(persisted["markdown.mira.features.slash-commands"]).toBe(false);
       expect("markdown.mira.features" in persisted).toBe(false);
     });
     await userEvent.click(slashCommands);
     await waitFor(async () =>
       expect(
-        (await persistedStoryConfiguration())[
+        (await persistedStoryConfiguration(canvasElement))[
           "markdown.mira.features.slash-commands"
         ],
       ).toBe(true),
@@ -882,7 +987,7 @@ export const EditorSettings: Story = {
       ).not.toBeNull(),
     );
     await userEvent.click(doodleDividers);
-    const editor = activeStoryEditor();
+    const editor = activeStoryEditor(canvasElement);
     const dividerEnd = editor
       .getValue()
       .indexOf("---", editor.getValue().indexOf("<!-- mira-divider:"));

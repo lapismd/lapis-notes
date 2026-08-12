@@ -1,0 +1,62 @@
+{
+  "id": "lapis-markdown-lint",
+  "name": "Markdown Lint",
+  "version": "2026.6.7",
+  "minAppVersion": "1.7.7",
+  "description": "Markdown diagnostics provider",
+  "author": "Lapis Notes",
+  "authorUrl": "https://app.lapis.md",
+  "isDesktopOnly": false,
+  "lapis": {
+    "manifestVersion": 1,
+    "source": "official",
+    "locked": false,
+    "enabledByDefault": true,
+    "runtime": {
+      "entries": {
+        "workspace": {
+          "path": "main.mjs",
+          "format": "esm",
+          "sharedDependencies": [
+            "@lapis-notes/api",
+            "@lapis-notes/api/language-service",
+            "svelte",
+            "clsx"
+          ],
+          "requiresReloadOnUpdate": false
+        }
+      }
+    },
+    "contributes": {
+      "configuration": [
+        {
+          "id": "markdown-lint",
+          "title": "Markdown Lint",
+          "properties": {
+            "disabledRules": {
+              "type": "array",
+              "title": "Disabled rules",
+              "description": "Markdownlint rule IDs to suppress for this vault.",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            }
+          }
+        }
+      ],
+      "services": [
+        {
+          "id": "markdown-lint",
+          "service": "language-service",
+          "languages": ["markdown"],
+          "priority": 100,
+          "capabilities": {
+            "diagnostics": true,
+            "codeActions": true
+          }
+        }
+      ]
+    }
+  }
+}

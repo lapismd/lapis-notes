@@ -10,6 +10,7 @@
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceRequestedDisplayMode } from "@lapismd/design-core/workspace/core";
+  import { PROBLEMS_VIEW_TYPE } from "@lapismd/design-core/workspace/problems";
   import "./workspace-shell-story.css";
 
   let {
@@ -173,7 +174,7 @@
           bottomSettings
             ? [
                 leaf("terminal", "Terminal", "terminal", "story-terminal"),
-                leaf("problems", "Problems", "circle-alert", "story-problems"),
+                leaf("problems", "Problems", "circle-alert", PROBLEMS_VIEW_TYPE),
               ]
             : [],
         ),

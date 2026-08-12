@@ -67,6 +67,11 @@ export interface LanguageServiceEditorOptions {
   hover?: boolean;
 }
 
+const trackedOpenDocuments = new WeakMap<
+  EditorView,
+  { uri: string; release: () => void }
+>();
+
 export function languageServiceExtensions(
   options: LanguageServiceEditorOptions = {},
 ): Extension[] {
@@ -100,27 +105,23 @@ function openDocumentTrackingExtension(
   options: Pick<LanguageServiceEditorOptions, "languageId">,
 ): Extension {
   return ViewPlugin.define((view) => {
-    let uri: string | null = null;
-    let release: (() => void) | null = null;
     const sync = (nextView: EditorView) => {
-      const nextUri = resolveDocumentContext(nextView, options.languageId)
-        ?.document.uri;
-      if (nextUri === uri) return;
-      release?.();
-      uri = nextUri ?? null;
-      release = uri
-        ? (nextView.state
-            .field(editorViewField, false)
-            ?.app.languageServices.retainDocument(uri) ?? null)
-        : null;
+      const resolved = resolveDocumentContext(nextView, options.languageId);
+      if (!resolved) return;
+      retainOpenDocument(
+        nextView,
+        resolved.document.uri,
+        resolved.info.app.languageServices,
+      );
     };
     sync(view);
     return {
       update(update: ViewUpdate) {
-        if (update.docChanged) sync(update.view);
+        sync(update.view);
       },
       destroy() {
-        release?.();
+        trackedOpenDocuments.get(view)?.release();
+        trackedOpenDocuments.delete(view);
       },
     };
   });
@@ -158,6 +159,11 @@ async function collectLanguageServiceDiagnostics(
   if (!context) {
     return [];
   }
+  retainOpenDocument(
+    view,
+    context.document.uri,
+    context.info.app.languageServices,
+  );
 
   const diagnostics = await context.info.app.languageServices.diagnostics(
     context.document,
@@ -178,10 +184,11 @@ async function collectLanguageServiceDiagnostics(
       );
       const from = positionToOffset(view.state.doc, displayRange.start);
       const to = positionToOffset(view.state.doc, displayRange.end);
-      const codeActions = await context.info.app.languageServices.codeActions(
-        context.document,
-        mappedRange,
-      );
+      const codeActions =
+        context.info.app.languageServices.cachedCodeActionsFor(
+          context.document.uri,
+          diagnostic,
+        );
 
       return mapToLapisLintDiagnostic(
         {
@@ -211,6 +218,20 @@ async function collectLanguageServiceDiagnostics(
     (diagnostic): diagnostic is NonNullable<typeof diagnostic> =>
       Boolean(diagnostic),
   );
+}
+
+function retainOpenDocument(
+  view: EditorView,
+  uri: string,
+  manager: { retainDocument(uri: string): () => void },
+): void {
+  const current = trackedOpenDocuments.get(view);
+  if (current?.uri === uri) return;
+  current?.release();
+  trackedOpenDocuments.set(view, {
+    uri,
+    release: manager.retainDocument(uri),
+  });
 }
 
 export async function refreshLanguageServiceDiagnostics(
@@ -261,7 +282,7 @@ function languageServiceSeverityToLint(
 }
 
 function codeActionsToLintActions(
-  codeActions: LanguageServiceCodeAction[],
+  codeActions: readonly LanguageServiceCodeAction[],
   view: EditorView,
 ): Action[] {
   return codeActions

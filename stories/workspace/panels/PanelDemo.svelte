@@ -21,27 +21,36 @@
 
   let app = $state<App | null>(null);
   let status = $state("booting");
-  let dispose: (() => Promise<void>) | null = null;
+  let root = $state<HTMLDivElement>();
+
+  $effect(() => {
+    if (!root || !app) return;
+    const ownedRoot = root as HTMLDivElement & { __lapisApp?: App };
+    ownedRoot.__lapisApp = app;
+    return () => {
+      if (ownedRoot.__lapisApp === app) delete ownedRoot.__lapisApp;
+    };
+  });
 
   onMount(() => {
     let cancelled = false;
-    void bootPanelDemo(kind, layout).then((runtime) => {
+    const runtimePromise = bootPanelDemo(kind, layout);
+    void runtimePromise.then((runtime) => {
       if (cancelled) {
-        void runtime.dispose();
         return;
       }
       app = runtime.app;
-      dispose = runtime.dispose;
       status = "ready";
     });
     return () => {
       cancelled = true;
-      void dispose?.();
+      void runtimePromise.then((runtime) => runtime.dispose());
     };
   });
 </script>
 
 <div
+  bind:this={root}
   class="panel-demo"
   data-testid="panel-demo"
   data-panel-kind={kind}

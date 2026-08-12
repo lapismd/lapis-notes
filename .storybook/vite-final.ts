@@ -105,6 +105,21 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
       dedupe: [...linkedSingletonPackages, "svelte"],
       alias: [
         {
+          find: /^@lapis-notes\/api\/language-service\/worker$/,
+          replacement: path.join(apiLib, "language-service/worker-provider.ts"),
+        },
+        {
+          find: /^@lapis-notes\/api\/editor\/language-service$/,
+          replacement: path.join(
+            apiLib,
+            "components/editor/language-service/index.ts",
+          ),
+        },
+        {
+          find: /^@lapis-notes\/api\/editor\/core$/,
+          replacement: path.join(apiLib, "components/editor/editor.ts"),
+        },
+        {
           find: /^@lapis-notes\/api\/editor$/,
           replacement: path.join(apiLib, "components/editor/index.ts"),
         },

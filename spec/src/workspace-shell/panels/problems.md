@@ -5,8 +5,8 @@ diagnostic model, collection lifecycle, and presentation; Lapis adapts vault,
 language-service, navigation, and plugin behavior at its public API boundary.
 
 The Lapis façade, plugin-owned disposal, open-document bridge, cached actions,
-and navigation adapter are implemented. Markdown composition and the default
-Markdownlint provider remain the dependent integration slice.
+navigation adapter, diagnostics-only Markdown composition, and default
+Markdownlint provider are implemented.
 
 ## Requirements
 
@@ -44,4 +44,7 @@ Diagnostics are not workspace layout state. Closing the Problems view does not
 clear collections, and new diagnostics do not open it. Closing the final editor
 for a Markdown resource clears its language-service entry; reopening the file
 requests a fresh result. Disabling or unloading a provider clears results that
-the provider owned.
+the provider owned. Navigation focuses an existing file leaf before opening a
+new one so diagnostic ownership is not churned. The browser fallback installs
+only the entity-decoder contract needed when Markdownlint's parser selects its
+DOM export inside a Web Worker.

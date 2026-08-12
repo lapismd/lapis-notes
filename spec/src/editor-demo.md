@@ -81,11 +81,11 @@ The live-edit parity scenario verifies:
 Reusable storage, source-view, configuration, and registry behavior belongs to
 `@lapis-notes/api`. Generic startup presentation belongs to design-core. The
 Lapis source-editor and Explorer plugins remain Storybook-local intake fixtures.
-`@lapis-notes/markdown` is the authorized plugin package (see
-`markdown-plugin.md` and its nested panel pages). Tags remains a Storybook-local
-workspace-origin intake beside markdown. Shared panel presentation is specified
-under `workspace-shell/panels.md`; `@lapis-notes/workspace` remains the thin
-shell host and does not absorb the Tags plugin.
+`@lapis-notes/markdown` owns document behavior and the enabled
+`@lapis-notes/markdown-lint` plugin contributes diagnostics only. Tags remains
+a Storybook-local workspace-origin intake beside Markdown. Shared panel
+presentation is specified under `workspace-shell/panels.md`;
+`@lapis-notes/workspace` remains the thin shell host.
 
 ## Demo lifecycle
 

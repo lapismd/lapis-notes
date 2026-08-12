@@ -73,9 +73,13 @@ export class LanguageServiceManager {
     this.diagnosticsBinding = binding;
     return () => {
       if (this.diagnosticsBinding !== binding) return;
-      this.clearPublishedDiagnostics();
-      this.diagnosticsBinding = null;
+      this.unbindDiagnostics();
     };
+  }
+
+  unbindDiagnostics(): void {
+    this.clearPublishedDiagnostics();
+    this.diagnosticsBinding = null;
   }
 
   retainDocument(uri: string): () => void {
@@ -92,7 +96,10 @@ export class LanguageServiceManager {
       this.openDocuments.delete(uri);
       this.documents.delete(uri);
       this.deleteCachedCodeActions(uri);
-      this.diagnosticsBinding?.collection.delete(resourceForUri(uri));
+      const collection = this.diagnosticsBinding?.collection;
+      if (collection && !collection.disposed) {
+        collection.delete(resourceForUri(uri));
+      }
     };
   }
 
@@ -136,7 +143,13 @@ export class LanguageServiceManager {
       if (!provider.metadata.languages.includes(document.languageId)) {
         continue;
       }
-      void provider.updateDocument?.({ document });
+      void Promise.resolve(provider.updateDocument?.({ document })).catch((error) => {
+        if (this.providers.get(provider.metadata.id) !== provider) return;
+        console.warn("Language document update failed", {
+          provider: provider.metadata.id,
+          error,
+        });
+      });
     }
   }
 
@@ -167,6 +180,7 @@ export class LanguageServiceManager {
     const results = await Promise.all(
       tier.map((provider) =>
         provider.provideDiagnostics?.(this.context(document)).catch((error) => {
+          if (this.providers.get(provider.metadata.id) !== provider) return [];
           console.warn("Language diagnostics provider failed", {
             provider: provider.metadata.id,
             error,
@@ -176,8 +190,8 @@ export class LanguageServiceManager {
       ),
     );
     const diagnostics = results.flatMap((diagnostics) => diagnostics ?? []);
+    await this.cacheCodeActions(document, diagnostics);
     this.publishDiagnostics(document, diagnostics);
-    void this.cacheCodeActions(document, diagnostics);
     return diagnostics;
   }
 
@@ -286,6 +300,13 @@ export class LanguageServiceManager {
     return results.flatMap((actions) => actions ?? []);
   }
 
+  cachedCodeActionsFor(
+    uri: string,
+    diagnostic: LanguageServiceDiagnostic,
+  ): readonly LanguageServiceCodeAction[] {
+    return this.cachedCodeActions.get(diagnosticCacheKey(uri, diagnostic)) ?? [];
+  }
+
   private context(document: VirtualDocument): LanguageServiceRequestContext {
     return {
       document,
@@ -320,7 +341,11 @@ export class LanguageServiceManager {
     document: VirtualDocument,
     diagnostics: readonly LanguageServiceDiagnostic[],
   ): void {
-    if (!this.diagnosticsBinding || !this.openDocuments.has(document.uri)) {
+    if (
+      !this.diagnosticsBinding ||
+      this.diagnosticsBinding.collection.disposed ||
+      !this.openDocuments.has(document.uri)
+    ) {
       return;
     }
     this.diagnosticsBinding.collection.set(
@@ -355,7 +380,8 @@ export class LanguageServiceManager {
 
   private clearPublishedDiagnostics(): void {
     this.cachedCodeActions.clear();
-    this.diagnosticsBinding?.collection.clear();
+    const collection = this.diagnosticsBinding?.collection;
+    if (collection && !collection.disposed) collection.clear();
   }
 }
 

@@ -253,9 +253,11 @@ function placementStory(
       await expect(
         panel.getByRole("button", { name: "Link details" }),
       ).toBeVisible();
-      await expect(
-        panel.queryByRole("button", { name: "Checklist" }),
-      ).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          panel.queryByRole("button", { name: "Checklist" }),
+        ).not.toBeInTheDocument();
+      });
       await userEvent.click(
         panel.getByRole("button", { name: "Auto-scroll to current section" }),
       );

@@ -20,6 +20,7 @@
   } from "./seed";
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
+  import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { TagsDemoPlugin } from "./tags-plugin";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
@@ -81,6 +82,16 @@
   let registeredViews = $state("");
   let vaultPaths = $state("");
   let activeViewType = $state("");
+  let root = $state<HTMLDivElement>();
+
+  $effect(() => {
+    if (!root || !app) return;
+    const ownedRoot = root as HTMLDivElement & { __lapisApp?: App };
+    ownedRoot.__lapisApp = app;
+    return () => {
+      if (ownedRoot.__lapisApp === app) delete ownedRoot.__lapisApp;
+    };
+  });
 
   function refreshDiagnostics(runtimeApp: App) {
     if (app !== runtimeApp) return;
@@ -122,6 +133,11 @@
       {
         plugin: MarkdownPlugin,
         required: false,
+        enabledByDefault: true,
+      },
+      {
+        plugin: MarkdownLintPlugin,
+        required: true,
         enabledByDefault: true,
       },
       {
@@ -301,6 +317,7 @@
 </script>
 
 <div
+  bind:this={root}
   class="lapis-editor-demo"
   data-ui-component="lapis-editor-demo"
   data-testid="lapis-editor-demo"

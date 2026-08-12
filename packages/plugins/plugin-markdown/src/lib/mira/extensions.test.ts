@@ -21,6 +21,10 @@ vi.hoisted(() => {
   };
 });
 
+vi.mock("@lapis-notes/api/editor/language-service", () => ({
+  languageServiceExtensions: () => [],
+}));
+
 function createApp(values: Record<string, unknown> = {}): App {
   return {
     configuration: {

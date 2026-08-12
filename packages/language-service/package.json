@@ -1,0 +1,36 @@
+{
+  "name": "@lapis-notes/language-service",
+  "private": true,
+  "version": "0.0.0",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "pnpm check:types",
+    "check:types": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./markdown": {
+      "types": "./dist/markdown.d.ts",
+      "import": "./src/markdown.ts",
+      "default": "./src/markdown.ts"
+    }
+  },
+  "dependencies": {
+    "@lapis-notes/api": "workspace:*",
+    "character-entities": "^2.0.2",
+    "markdownlint": "^0.40.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "~5.9.3",
+    "vite": "^6.4.2",
+    "vitest": "^4.1.8"
+  }
+}

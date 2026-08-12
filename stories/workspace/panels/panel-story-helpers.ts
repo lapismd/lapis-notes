@@ -51,11 +51,11 @@ export const PANEL_DOCS_PARAMETERS = {
 };
 
 export function panelDemoApp(canvasElement: HTMLElement): App {
-  const storyWindow = canvasElement.ownerDocument.defaultView as
-    | (Window & typeof globalThis & { app?: App })
-    | null;
-  if (!storyWindow?.app) throw new Error("Missing initialized panel demo App");
-  return storyWindow.app;
+  const root = canvasElement.querySelector<HTMLElement & { __lapisApp?: App }>(
+    '[data-testid="panel-demo"]',
+  );
+  if (!root?.__lapisApp) throw new Error("Missing initialized panel demo App");
+  return root.__lapisApp;
 }
 
 export function placementParameters(
@@ -139,6 +139,9 @@ export async function expectPanelPlacement(
       expect(canvas.getByTestId("panel-demo-status")).toHaveTextContent(
         "ready",
       );
+      expect(
+        canvasElement.querySelector('[data-app-shell-ready="true"]'),
+      ).not.toBeNull();
       expect(canvas.getAllByTestId(testId)).toHaveLength(1);
       const markdown =
         canvasElement.querySelector(".markdown-view") ||
@@ -151,6 +154,15 @@ export async function expectPanelPlacement(
     },
     { timeout: 12_000 },
   );
+
+  await new Promise<void>((resolve) => {
+    const storyWindow = canvasElement.ownerDocument.defaultView;
+    if (storyWindow) storyWindow.setTimeout(resolve, 150);
+    else resolve();
+  });
+  await waitFor(() => {
+    expect(canvas.getAllByTestId(testId)).toHaveLength(1);
+  });
 
   const panel = canvas.getByTestId(testId);
   const expectedHost = {
@@ -274,6 +286,19 @@ export async function expectLinkPanelAlignment(
   canvasElement: HTMLElement,
   testId: string,
 ) {
+  await waitFor(() => {
+    const current = canvasElement.querySelector<HTMLElement>(
+      `[data-testid="${testId}"]`,
+    );
+    expect(
+      current?.querySelectorAll(
+        ".markdown-link-sidebar__group-button, .markdown-link-sidebar__mention",
+      ).length,
+    ).toBeGreaterThan(1);
+    expect(
+      current?.querySelectorAll(".markdown-link-sidebar__count").length,
+    ).toBeGreaterThan(1);
+  });
   const alignment = await expectPanelAlignment(canvasElement, testId);
   const content = alignment.panelElement.querySelector<HTMLElement>(
     ".markdown-link-sidebar__content",
@@ -297,9 +322,9 @@ export async function expectLinkPanelAlignment(
   );
   await expect(rows.length).toBeGreaterThan(1);
   await expect(counts.length).toBeGreaterThan(1);
-  await expect(
-    rows.every((row) => getComputedStyle(row).fontSize === "12px"),
-  ).toBe(true);
+  await expect([
+    ...new Set(rows.map((row) => getComputedStyle(row).fontSize)),
+  ]).toEqual(["12px"]);
   await expect(
     Math.max(...counts.map((count) => count.getBoundingClientRect().right)) -
       Math.min(...counts.map((count) => count.getBoundingClientRect().right)),

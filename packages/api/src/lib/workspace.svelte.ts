@@ -2648,7 +2648,16 @@ export class Workspace extends EventDispatcher<{
     if (!path) return;
     const file = this.app.vault.getFileByPath(path);
     if (!file) return;
-    await this.openLinkText(file.path, "");
+    const existingLeaf = this.iterateAllLeaves((leaf) =>
+      leaf.view instanceof FileView && leaf.view.file?.path === file.path
+        ? leaf
+        : undefined,
+    );
+    if (existingLeaf) {
+      this.setActiveLeaf(existingLeaf);
+    } else {
+      await this.openLinkText(file.path, "");
+    }
     const editor = this.activeEditor?.editor;
     if (!location.range || !editor) return;
     editor.setSelection(
@@ -2706,6 +2715,7 @@ export class Workspace extends EventDispatcher<{
 
   /** Dispose the API-owned shell controller and its compatibility bridges. */
   async disposeWorkspaceHost(): Promise<void> {
+    this.app.languageServices.unbindDiagnostics();
     this.#configurationBridgeDisposer?.();
     this.#configurationBridgeDisposer = null;
     this.#editorViewBridgeDisposer?.();

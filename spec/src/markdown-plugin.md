@@ -45,7 +45,9 @@ specified separately under [Panels](./markdown-plugin/panels/index.md).
 Reusable Plugin and Editor contracts remain in `@lapis-notes/api`. Markdown
 document policy lives in `@lapis-notes/markdown` and is implemented by Mira.
 The Lapis package owns the app-bound `MiraFileAdapter`; portable rendering and
-editor behavior remain Mira-owned.
+editor behavior remain Mira-owned. The diagnostics extension reference-counts
+open editor views and reuses the manager's cached code actions; it does not
+replace Mira completion or hover behavior.
 
 Panel registration, package exports, and per-panel behavior are documented in
 the [Markdown panel specification](./markdown-plugin/panels/index.md). Shared

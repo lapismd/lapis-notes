@@ -132,6 +132,57 @@ describe("LanguageServiceManager diagnostics bridge", () => {
     unregister();
     expect(collection.values.size).toBe(0);
   });
+
+  it("does not publish an in-flight result after the diagnostics bridge is unbound", async () => {
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    manager.retainDocument(document.uri);
+
+    let resolveDiagnostics!: (
+      diagnostics: Awaited<
+        ReturnType<NonNullable<LanguageServiceProvider["provideDiagnostics"]>>
+      >,
+    ) => void;
+    const pendingDiagnostics = new Promise<
+      Awaited<
+        ReturnType<NonNullable<LanguageServiceProvider["provideDiagnostics"]>>
+      >
+    >((resolve) => {
+      resolveDiagnostics = resolve;
+    });
+    manager.registerProvider({
+      ...provider(),
+      provideDiagnostics: () => pendingDiagnostics,
+    });
+
+    const request = manager.diagnostics(document);
+    manager.unbindDiagnostics();
+    resolveDiagnostics([]);
+
+    await expect(request).resolves.toEqual([]);
+    expect(collection.values.size).toBe(0);
+  });
+
+  it("handles rejected fire-and-forget document updates", async () => {
+    const manager = new LanguageServiceManager();
+    const error = new Error("provider stopped");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    manager.registerProvider({
+      ...provider(),
+      updateDocument: () => Promise.reject(error),
+    });
+
+    manager.updateDocument(document);
+
+    await vi.waitFor(() => {
+      expect(warn).toHaveBeenCalledWith("Language document update failed", {
+        provider: "markdownlint",
+        error,
+      });
+    });
+    warn.mockRestore();
+  });
 });
 
 function provider(): LanguageServiceProvider {

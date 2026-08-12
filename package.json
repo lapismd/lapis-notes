@@ -54,6 +54,7 @@
     "@fontsource/source-code-pro": "^5.2.7",
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
+    "@lapis-notes/markdown-lint": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/design-core": "link:../design-core",

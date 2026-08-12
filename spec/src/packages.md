@@ -42,6 +42,11 @@
 
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.
+Its narrow editor core and language-service subpaths let Markdown compose the
+source shell and diagnostics without importing the editor component barrel or
+its unrelated UI runtime.
+The worker client uses a narrow API subpath so provider workers never load the
+application manager or presentation modules.
 
 ## `@lapis-notes/api` (kernel slice)
 
@@ -71,10 +76,11 @@ non-persistent capabilities, binary-safe copies, deterministic metadata, and a
 stable vault identity. `SourceTextFileView` mounts the existing `NoteEditor` and
 delegates language behavior to registered editor extensions.
 
-`@lapis-notes/markdown` is the authorized plugin package for Mira-backed
-Markdown views and intaken markdown side panels. Out of scope until specified:
-web/desktop hosts, other bundled plugins, notebook, language-service, and
-plugin-host module generation.
+`@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
+side panels. `@lapis-notes/markdown-lint` and the internal
+`@lapis-notes/language-service` package are the focused diagnostics exceptions.
+Out of scope until specified: web/desktop hosts, other bundled plugins,
+notebook, and plugin-host module generation.
 Storybook exercises those registered panel views through the separate
 `@lapis-notes/workspace` shell adapter; movable-surface fixtures remain consumer
 verification and do not move workspace rendering ownership into the markdown

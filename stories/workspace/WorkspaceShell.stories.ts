@@ -495,7 +495,7 @@ export const Mobile: Story = {
       canvas.getByRole("button", { name: "Create new tab" }),
     );
     await userEvent.click(
-      canvas.getByRole("button", { name: "Open tabs (6)" }),
+      canvas.getByRole("button", { name: "Open tabs (7)" }),
     );
     await expect(
       canvas.getByRole("region", { name: "Open workspace tabs" }),
@@ -512,7 +512,7 @@ export const Mobile: Story = {
     ).toBeVisible();
     await userEvent.click(openStart!);
     await userEvent.click(
-      canvas.getByRole("button", { name: "Open tabs (6)" }),
+      canvas.getByRole("button", { name: "Open tabs (7)" }),
     );
     const closeAdded = [
       ...canvasElement.querySelectorAll<HTMLElement>("[data-mobile-tab-close]"),

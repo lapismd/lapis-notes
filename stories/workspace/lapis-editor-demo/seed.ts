@@ -2,6 +2,7 @@ export type LapisEditorDemoScenario =
   | "ready"
   | "markdown-frontmatter"
   | "markdown-authoring"
+  | "markdown-problems"
   | "same-file-split"
   | "explorer-mutations"
   | "editor-settings"
@@ -88,7 +89,8 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
         }
       : scenario === "editor-settings" ||
           scenario === "markdown-frontmatter" ||
-          scenario === "markdown-authoring"
+          scenario === "markdown-authoring" ||
+          scenario === "markdown-problems"
         ? {
             id: "main",
             type: "split",
@@ -147,7 +149,8 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
         ? "welcome-left"
         : scenario === "editor-settings" ||
             scenario === "markdown-frontmatter" ||
-            scenario === "markdown-authoring"
+            scenario === "markdown-authoring" ||
+            scenario === "markdown-problems"
           ? "welcome"
           : "landing",
   };
@@ -184,6 +187,9 @@ export function createLapisEditorDemoSeed(
       "---",
       "",
       "# Welcome to Lapis Notes",
+      ...(scenario === "markdown-problems"
+        ? ["", "##missing heading space"]
+        : []),
       "",
       "| Feature | State |",
       "| --- | --- |",
