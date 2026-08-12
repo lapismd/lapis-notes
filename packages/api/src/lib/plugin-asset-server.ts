@@ -6,6 +6,7 @@ import { sha256Hex } from "./plugin-distribution/hashes";
 export const WEB_PLUGIN_ASSET_ROUTE_PREFIX = "/__lapis/plugins";
 export const WEB_PLUGIN_ASSET_CACHE_NAME = "lapis-plugin-assets-v1";
 export const ELECTRON_PLUGIN_ASSET_SCHEME = "lapis-plugin";
+const ELECTRON_PLUGIN_ASSET_HOST = "asset-v1";
 
 export type PluginAssetServerErrorCode =
   | "asset-server-unavailable"
@@ -126,7 +127,7 @@ export function createElectronPluginAssetUrl(
   parts: PluginAssetUrlParts,
 ): string {
   const path = normalizePluginAssetRelativePath(parts.path);
-  return `${ELECTRON_PLUGIN_ASSET_SCHEME}://${encodePathSegment(
+  return `${ELECTRON_PLUGIN_ASSET_SCHEME}://${ELECTRON_PLUGIN_ASSET_HOST}/${encodePathSegment(
     parts.vaultId,
   )}/${encodePathSegment(parts.pluginId)}/${encodePathSegment(
     parts.version,
@@ -146,7 +147,8 @@ export function parseElectronPluginAssetUrl(
   }
 
   const parts = url.pathname.split("/").filter(Boolean);
-  if (!url.hostname || parts.length < 4) {
+  const usesPathVaultId = url.hostname === ELECTRON_PLUGIN_ASSET_HOST;
+  if (!url.hostname || parts.length < (usesPathVaultId ? 5 : 4)) {
     throw new PluginAssetServerError(
       "invalid-url",
       `Invalid Electron plugin asset URL: ${value}`,
@@ -154,9 +156,10 @@ export function parseElectronPluginAssetUrl(
     );
   }
 
-  const [pluginId, version, sha256, ...assetPathParts] = parts;
+  const [pathVaultId, pluginId, version, sha256, ...assetPathParts] =
+    usesPathVaultId ? parts : [url.hostname, ...parts];
   return normalizePluginAssetUrlParts({
-    vaultId: decodePathSegment(url.hostname),
+    vaultId: decodePathSegment(pathVaultId),
     pluginId: decodePathSegment(pluginId),
     version: decodePathSegment(version),
     sha256: decodePathSegment(sha256),

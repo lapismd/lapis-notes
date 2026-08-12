@@ -20,6 +20,16 @@
       "types": "./dist/markdown.d.ts",
       "import": "./src/markdown.ts",
       "default": "./src/markdown.ts"
+    },
+    "./markdownlint/runtime": {
+      "types": "./dist/markdownlint/runtime.d.ts",
+      "import": "./src/markdownlint/runtime.ts",
+      "default": "./src/markdownlint/runtime.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "markdownlint/runtime": ["dist/markdownlint/runtime.d.ts"]
     }
   },
   "dependencies": {

@@ -47,7 +47,7 @@ describe("plugin asset server helpers", () => {
     });
 
     expect(url).toBe(
-      `lapis-plugin://desktop-vault/plugin-a/2.0.0/${sha256}/main.mjs`,
+      `lapis-plugin://asset-v1/desktop-vault/plugin-a/2.0.0/${sha256}/main.mjs`,
     );
     expect(parseElectronPluginAssetUrl(url)).toEqual({
       vaultId: "desktop-vault",
@@ -56,6 +56,22 @@ describe("plugin asset server helpers", () => {
       sha256,
       path: "main.mjs",
     });
+  });
+
+  it("round-trips native folder vault IDs through Electron asset URLs", () => {
+    const sha256 = "c".repeat(64);
+    const parts = {
+      vaultId: "desktop-folder:/Users/example/Lapis Notes",
+      pluginId: "plugin-a",
+      version: "1.0.0",
+      sha256,
+      path: "chunks/main.mjs",
+    };
+
+    const url = createElectronPluginAssetUrl(parts);
+
+    expect(() => new URL(url)).not.toThrow();
+    expect(parseElectronPluginAssetUrl(url)).toEqual(parts);
   });
 
   it("rejects traversal in asset paths", () => {
