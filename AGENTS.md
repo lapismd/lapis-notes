@@ -294,6 +294,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   `@lapismd/design-core/workspace/problems`. Lapis code adapts that public
   contract and must not fork the panel or place vault/editor types in Design
   Core.
+- Design Core owns the transient Problems tree/table state and the table's
+  shared shadcn Scroll Area. Consumers may choose an initial view mode but must
+  not fork the columns, add a native panel scrollbar, or persist presentation
+  state in workspace layout.
 - Lapis and community plugins create diagnostics through
   `Plugin.createDiagnosticCollection()`. Keep diagnostics serializable and put
   navigation, mutation, and quick-fix callbacks in the workspace adapter or

@@ -166,7 +166,7 @@ export const Ready: Story = {
 export const MarkdownProblems: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-markdown-problems",
-    "An invalid open Markdown note shares one Markdownlint result between the editor gutter and the movable Problems panel, including navigation and quick fixes.",
+    "An invalid open Markdown note shares one Markdownlint result between the editor gutter and the movable Problems panel, including tree/table presentation, navigation, and quick fixes.",
     "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-problems-chromium.png",
   ),
   tags: ["visual-pending"],
@@ -220,6 +220,34 @@ export const MarkdownProblems: Story = {
       return panel!;
     });
     const problemsCanvas = within(problems);
+    await userEvent.click(
+      problemsCanvas.getByRole("button", { name: "View as Table" }),
+    );
+    const table = problemsCanvas.getByRole("table", {
+      name: "Problems table",
+    });
+    const tableCanvas = within(table);
+    await expect(
+      tableCanvas.getByRole("columnheader", { name: "Code" }),
+    ).toBeVisible();
+    await expect(
+      tableCanvas.getByRole("columnheader", { name: "Message" }),
+    ).toBeVisible();
+    await expect(
+      tableCanvas.getByRole("columnheader", { name: "File" }),
+    ).toBeVisible();
+    await expect(
+      tableCanvas.getByRole("columnheader", { name: "Source" }),
+    ).toBeVisible();
+    await expect(tableCanvas.getAllByText("MD018").length).toBeGreaterThan(0);
+    await expect(
+      problems.querySelector(
+        '[data-ui-component="scroll-area"][data-ui-part="scroll-area"][data-view-mode="table"]',
+      ),
+    ).not.toBeNull();
+    await userEvent.click(
+      problemsCanvas.getByRole("button", { name: "View as Tree" }),
+    );
     let problem = problemsCanvas.getByRole("button", {
       name: /No space after hash on atx style heading/i,
     });

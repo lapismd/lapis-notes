@@ -28,11 +28,15 @@ Markdownlint provider are implemented.
 | LN-WS-038 | CodeMirror lint gutter markers MUST use the same severity glyphs and semantic colours as the Problems panel. Each marker MUST remain centered within its gutter element alongside Mira-owned gutter controls. |
 | LN-WS-039 | A diagnostic hover card MUST keep its message, source, and code on one compact row. Its copy action MUST remain at the row's right edge without increasing the row height. |
 | LN-WS-040 | A diagnostic hover card MUST remain open while the pointer crosses from its marked source or gutter marker into the card. The card MUST remain interactive and close only after the pointer leaves both surfaces and their handoff corridor. |
+| LN-WS-041 | The Problems panel MUST default to its grouped tree and provide an upper-right action that switches between tree and table presentations. A host MAY select table as the initial mode, but the choice MUST remain transient and MUST NOT mutate workspace layout. |
+| LN-WS-042 | The Problems table MUST expose Code, Message, File, and Source columns. It MUST retain the tree presentation's severity filters, search, navigation, related information, tags, and context actions. |
+| LN-WS-043 | Problems table overflow MUST use the shared shadcn Scroll Area for both axes. The table MUST NOT introduce a separate native panel scrollbar when moved into a constrained workspace surface. |
 
 ## Ownership
 
 - Design Core owns diagnostics data structures, owner isolation, generic
-  sorting/filtering, copy actions, and movable Problems presentation.
+  sorting/filtering, copy actions, tree/table presentation state, shared scroll
+  behavior, and movable Problems presentation.
 - Lapis API owns the compatibility façade, plugin lifecycle mapping, opaque URI
   resolution, vault navigation, editor ownership, and language-service bridge.
 - Language-service packages own provider-neutral client and worker utilities.
