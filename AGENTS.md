@@ -298,6 +298,11 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   shared shadcn Scroll Area. Consumers may choose an initial view mode but must
   not fork the columns, add a native panel scrollbar, or persist presentation
   state in workspace layout.
+- Diagnostic hover cards MUST pin their originating diagnostic and placement
+  while the pointer crosses the safe handoff corridor into interactive card
+  controls. Do not retarget or reposition an open card from incidental editor
+  mouse movement; cover the line-11 path to the far-right copy control in the
+  real workspace pointer test.
 - Lapis and community plugins create diagnostics through
   `Plugin.createDiagnosticCollection()`. Keep diagnostics serializable and put
   navigation, mutation, and quick-fix callbacks in the workspace adapter or

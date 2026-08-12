@@ -61,12 +61,16 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
           : (findDiagnosticFromLintRange(this.view, event) ??
             findDiagnosticFromContentPointer(this.view, event));
 
+      if (found && this.isActiveDiagnostic(found)) {
+        this.cancelScheduledHide();
+        return;
+      }
+      if (this.isPointerInHandoff(event)) {
+        this.cancelScheduledHide();
+        return;
+      }
       if (!found) {
-        if (this.isPointerInHandoff(event)) {
-          this.restartScheduledHide();
-        } else {
-          this.scheduleHideTooltip();
-        }
+        this.scheduleHideTooltip();
         return;
       }
       this.showTooltip(found);
@@ -90,7 +94,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
         return;
       }
       if (this.isPointerInHandoff(event)) {
-        this.restartScheduledHide();
+        this.cancelScheduledHide();
       } else {
         this.scheduleHideTooltip();
       }
@@ -104,7 +108,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
         return;
       }
       if (this.isPointerInHandoff(event)) {
-        this.restartScheduledHide();
+        this.cancelScheduledHide();
       } else {
         this.scheduleHideTooltip();
       }
@@ -114,8 +118,15 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       this.cancelScheduledHide();
     };
 
-    private readonly handleTooltipMouseLeave = () => {
-      this.scheduleHideTooltip();
+    private readonly handleTooltipMouseLeave = (event: MouseEvent) => {
+      if (
+        eventTargetIsInside(this.view.dom, event.relatedTarget) ||
+        this.isPointerInHandoff(event)
+      ) {
+        this.cancelScheduledHide();
+      } else {
+        this.scheduleHideTooltip();
+      }
     };
 
     private get viewDocument(): Document {
@@ -164,13 +175,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
 
     private showTooltip(found: FoundDiagnostic): void {
       this.cancelScheduledHide();
-      if (
-        this.activeDiagnostic &&
-        this.activeDiagnostic.diagnostic === found.diagnostic &&
-        this.activeDiagnostic.from === found.from &&
-        this.activeDiagnostic.to === found.to
-      ) {
-        this.positionTooltip(found);
+      if (this.isActiveDiagnostic(found)) {
         return;
       }
 
@@ -197,11 +202,6 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       }, TOOLTIP_HIDE_DELAY_MS);
     }
 
-    private restartScheduledHide(): void {
-      this.cancelScheduledHide();
-      this.scheduleHideTooltip();
-    }
-
     private cancelScheduledHide(): void {
       if (!this.hideTimer) {
         return;
@@ -223,6 +223,15 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       this.tooltip?.remove();
       this.tooltip = null;
       this.activeDiagnostic = null;
+    }
+
+    private isActiveDiagnostic(found: FoundDiagnostic): boolean {
+      return Boolean(
+        this.activeDiagnostic &&
+          this.activeDiagnostic.diagnostic === found.diagnostic &&
+          this.activeDiagnostic.from === found.from &&
+          this.activeDiagnostic.to === found.to,
+      );
     }
 
     private isPointerInHandoff(event: MouseEvent): boolean {

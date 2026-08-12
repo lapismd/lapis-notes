@@ -39,7 +39,7 @@
 | LN-PKG-033 | `@lapis-notes/markdown` MUST render grouped Boolean Settings through design-core's public `WorkspaceSettingGroup` toggle-table contract. It MUST NOT introduce a package-local settings table or stored group value. |
 | LN-PKG-034 | `@lapis-notes/language-service` MUST live at `packages/language-service` as an internal provider-neutral Markdown client and worker package. It MUST expose build, check, and test scripts without owning workspace presentation or vault navigation. |
 | LN-PKG-035 | `@lapis-notes/markdown-lint` MUST live at `packages/plugins/plugin-markdown-lint` as an enabled-by-default core plugin. It MUST depend on the API and internal language-service contracts without importing Design Core presentation. |
-| LN-PKG-036 | `@lapis-notes/api` MUST provide compact, interactive CodeMirror diagnostic hover cards and centered severity gutter markers. The implementation MUST consume public Design Core icons without importing Problems presentation internals. |
+| LN-PKG-036 | `@lapis-notes/api` MUST provide compact, interactive CodeMirror diagnostic hover cards and centered severity gutter markers. The card MUST remain stable while the pointer enters its controls. The implementation MUST consume public Design Core icons without importing Problems presentation internals. |
 
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.

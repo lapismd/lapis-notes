@@ -32,7 +32,11 @@ test("diagnostic hover card keeps an interactive pointer handoff", async ({
   expect(markerChrome.display).toContain("flex");
   expect(markerChrome.justifyContent).toBe("center");
 
-  const range = page.locator(".cm-lintRange-warning:visible").first();
+  const range = page
+    .locator(".cm-line")
+    .filter({ hasText: "missing heading space" })
+    .locator(".cm-lintRange-warning:visible")
+    .last();
   await expect(range).toBeVisible();
   await range.hover();
 
@@ -66,34 +70,48 @@ test("diagnostic hover card keeps an interactive pointer handoff", async ({
   expect(compactRow.messageFontSize).toBe("13px");
   expect(compactRow.copyRight).toBeGreaterThan(compactRow.sourceRight);
 
+  await expect(tooltip.getByTestId("lapis-lint-message-text")).toContainText(
+    "No space after hash",
+  );
+
   const rangeBox = await range.boundingBox();
   const tooltipBox = await tooltip.boundingBox();
+  const copy = tooltip.getByRole("button", {
+    name: "Copy diagnostic message",
+  });
+  const copyBox = await copy.boundingBox();
   expect(rangeBox).not.toBeNull();
   expect(tooltipBox).not.toBeNull();
-  if (!rangeBox || !tooltipBox) return;
+  expect(copyBox).not.toBeNull();
+  if (!rangeBox || !tooltipBox || !copyBox) return;
 
   const start = {
     x: rangeBox.x + rangeBox.width / 2,
     y: rangeBox.y + rangeBox.height / 2,
   };
   const target = {
-    x: tooltipBox.x + Math.min(tooltipBox.width / 2, 120),
-    y: tooltipBox.y + tooltipBox.height / 2,
+    x: copyBox.x + copyBox.width / 2,
+    y: copyBox.y + copyBox.height / 2,
   };
-  for (const progress of [0.25, 0.5, 0.75]) {
+  for (const progress of [0.2, 0.4, 0.6, 0.8, 1]) {
     await page.mouse.move(
       start.x + (target.x - start.x) * progress,
       start.y + (target.y - start.y) * progress,
     );
     await page.waitForTimeout(220);
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip.getByTestId("lapis-lint-message-text")).toContainText(
+      "No space after hash",
+    );
+    const currentBox = await tooltip.boundingBox();
+    expect(currentBox).not.toBeNull();
+    expect(Math.abs(currentBox!.x - tooltipBox.x)).toBeLessThan(1);
+    expect(Math.abs(currentBox!.y - tooltipBox.y)).toBeLessThan(1);
   }
 
-  await tooltip.hover();
   await page.waitForTimeout(450);
   await expect(tooltip).toBeVisible();
-  await expect(
-    tooltip.getByRole("button", { name: "Copy diagnostic message" }),
-  ).toBeVisible();
+  await expect(copy).toBeVisible();
 
   await page.mouse.move(4, 4);
   await expect(tooltip).toBeHidden({ timeout: 1_500 });
