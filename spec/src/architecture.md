@@ -83,6 +83,8 @@ retains only native lifecycle and service dependencies. Main communicates with
 the context-isolated preload through an explicit command allowlist. Renderer
 shutdown is acknowledged before window destruction so the API-owned session
 can persist and dispose without moving ownership into main or workspace.
+The branded vault launcher is a renderer-side desktop consumer: it chooses a
+native profile, then delegates storage and workspace lifecycle to API sessions.
 Generated renderer and main outputs are Turbo cache outputs and remain
 untracked; checked-in build resources are limited to icons and entitlements.
 

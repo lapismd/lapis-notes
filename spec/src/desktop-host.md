@@ -68,6 +68,11 @@ persistence, session switching, database/search persistence, Markdown service
 recovery, plugin sidecar lifecycle, plugin asset validation, and real
 second-instance app-URL delivery to the ready API app.
 
+`DesktopVaultLauncher.svelte` is the desktop-only adaptation of the reference
+launcher. It consumes public API profile operations, Lapis fuzzy search, and
+public Design Core primitives; `DesktopVaultHost.svelte` remains responsible
+for orderly session replacement and hands selected profiles to that launcher.
+
 The renderer-close handshake gives the desktop host time to persist layout and
 database state and dispose workspace, watch, and sidecar resources before main
 closes the window. A five-second main-process fallback prevents an unresponsive

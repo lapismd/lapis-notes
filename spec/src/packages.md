@@ -122,6 +122,10 @@ declares `dist/enhance.js` and its source counterpart as side effects so a
 production consumer cannot tree-shake the compatibility DOM initialization
 required before constructing `App`.
 
+Its launcher imports shadcn presentation from Design Core and profile/search
+helpers from public Lapis exports. It does not add launcher policy to the
+workspace package or copy a private UI implementation.
+
 `@lapis-notes/language-service/markdownlint/runtime` is the Node-compatible
 boundary for desktop diagnostics and code actions. Plugin asset URLs continue
 to use public API helpers; their versioned Electron form stores path-bearing

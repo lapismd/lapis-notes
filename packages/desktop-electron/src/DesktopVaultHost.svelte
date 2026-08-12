@@ -2,14 +2,19 @@
   import {
     NativeDesktopVaultAdapter,
     clearCurrentVaultProfile,
+    createNativeDesktopVault,
     createVaultSession,
     getCurrentVaultProfile,
     pickNativeDesktopVault,
+    saveVaultProfile,
     type App,
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
   import { onMount, tick } from "svelte";
+  import DesktopVaultLauncher, {
+    type LauncherStatus,
+  } from "./DesktopVaultLauncher.svelte";
   import DesktopWorkspaceSession from "./DesktopWorkspaceSession.svelte";
   import type { ElectronDesktopBridge } from "./main";
 
@@ -43,7 +48,7 @@
 
   onMount(() => {
     const disposeOpenVault = bridge.onOpenVaultPicker?.(() => {
-      void chooseVault();
+      void showLauncher();
     });
     const disposeOpenAbout = bridge.onOpenAboutDialog?.(() => {
       if (activeApp) {
@@ -67,7 +72,7 @@
       });
     });
 
-    void restoreOrPickVault();
+    void restoreVault();
     return () => {
       disposeOpenVault?.();
       disposeOpenAbout?.();
@@ -82,7 +87,7 @@
     return switchQueue;
   }
 
-  async function restoreOrPickVault(): Promise<void> {
+  async function restoreVault(): Promise<void> {
     const profile = await getCurrentVaultProfile();
     if (profile?.kind === "desktop-folder") {
       try {
@@ -96,24 +101,68 @@
       await clearCurrentVaultProfile();
     }
     status = "landing";
-    await chooseVault();
+  }
+
+  function showLauncher(): Promise<void> {
+    return serialize(async () => {
+      errorMessage = "";
+      if (prepared || activeApp || sessionComponent) {
+        await disposeActiveSession(true);
+      }
+      status = "landing";
+    });
   }
 
   function chooseVault(): Promise<void> {
     return serialize(async () => {
-      const previousStatus = status;
       status = "opening";
       errorMessage = "";
       try {
         const selection = await pickNativeDesktopVault();
         if (!selection) {
-          status = activeApp ? previousStatus : "landing";
+          status = "landing";
           return;
         }
         await openVault(selection.adapter, selection.profile);
       } catch (error) {
         errorMessage = error instanceof Error ? error.message : String(error);
-        status = activeApp ? "ready" : "error";
+        status = "error";
+      }
+    });
+  }
+
+  function createVault(): Promise<void> {
+    return serialize(async () => {
+      status = "opening";
+      errorMessage = "";
+      try {
+        const selection = await createNativeDesktopVault();
+        if (!selection) {
+          status = "landing";
+          return;
+        }
+        await openVault(selection.adapter, selection.profile);
+      } catch (error) {
+        errorMessage = error instanceof Error ? error.message : String(error);
+        status = "error";
+      }
+    });
+  }
+
+  function openRecentVault(profile: VaultProfile): Promise<void> {
+    return serialize(async () => {
+      status = "opening";
+      errorMessage = "";
+      try {
+        const activatedProfile = { ...profile, updatedAt: Date.now() };
+        await saveVaultProfile(activatedProfile);
+        const adapter =
+          await NativeDesktopVaultAdapter.fromProfile(activatedProfile);
+        await openVault(adapter, activatedProfile);
+      } catch (error) {
+        await clearCurrentVaultProfile();
+        errorMessage = error instanceof Error ? error.message : String(error);
+        status = "error";
       }
     });
   }
@@ -122,6 +171,7 @@
     adapter: NativeDesktopVaultAdapter,
     profile: VaultProfile,
   ): Promise<void> {
+    status = "opening";
     await disposeActiveSession(true);
     const session = await createVaultSession(adapter, {
       runtime: "electron-desktop",
@@ -150,7 +200,7 @@
         await app.urls.dispatch(url);
       }
     } catch (error) {
-      if (!prepared) await session.close();
+      await disposeActiveSession(false);
       throw error;
     } finally {
       resolvePrepared = null;
@@ -168,7 +218,13 @@
 
   async function disposeActiveSession(persistLayout: boolean): Promise<void> {
     const current = sessionComponent;
-    if (current) await current.dispose(persistLayout);
+    const pendingSession = prepared?.session;
+    if (current) {
+      await current.dispose(persistLayout);
+    } else if (pendingSession) {
+      await pendingSession.close();
+    }
+    bridge.closeAllWatches?.();
     sessionComponent = null;
     prepared = null;
     activeApp = null;
@@ -186,22 +242,12 @@
       onFailure={handleSessionFailure}
     />
   {:else}
-    <section class="desktop-host__landing" aria-live="polite">
-      <div class="desktop-host__mark" aria-hidden="true">L</div>
-      <h1>Lapis Notes</h1>
-      {#if status === "loading"}
-        <p>Restoring your vault…</p>
-      {:else if status === "opening"}
-        <p>Opening vault…</p>
-      {:else}
-        <p>Choose a folder to use as your Lapis Notes vault.</p>
-        {#if errorMessage}
-          <p class="desktop-host__error" role="alert">{errorMessage}</p>
-        {/if}
-        <button type="button" onclick={() => void chooseVault()}>
-          Open Vault…
-        </button>
-      {/if}
-    </section>
+    <DesktopVaultLauncher
+      status={status as LauncherStatus}
+      {errorMessage}
+      onCreate={createVault}
+      onOpen={chooseVault}
+      onOpenRecent={openRecentVault}
+    />
   {/if}
 </main>

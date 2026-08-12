@@ -389,18 +389,27 @@ importers:
       '@lapis-notes/language-service':
         specifier: workspace:*
         version: link:../language-service
+      '@lapis-notes/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@lapis-notes/workspace':
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/design-core':
         specifier: link:../../../design-core
         version: link:../../../design-core
+      '@lucide/svelte':
+        specifier: ^0.523.0
+        version: 0.523.0(svelte@5.56.8)
       '@playwright/test':
         specifier: 1.61.1
         version: 1.61.1
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.4
         version: 6.2.4(svelte@5.56.8)(vite@7.3.6(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0))
+      '@tailwindcss/vite':
+        specifier: ^4.1.12
+        version: 4.3.3(vite@7.3.6(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0))
       '@tsconfig/svelte':
         specifier: ^5.0.5
         version: 5.0.8
@@ -428,6 +437,9 @@ importers:
       svelte-check:
         specifier: ^4.3.1
         version: 4.7.4(picomatch@4.0.5)(svelte@5.56.8)(typescript@5.9.3)
+      tailwindcss:
+        specifier: ^4.1.12
+        version: 4.3.3
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
@@ -7374,6 +7386,13 @@ snapshots:
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
       vite: 6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0)
+
+  '@tailwindcss/vite@4.3.3(vite@7.3.6(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0))':
+    dependencies:
+      '@tailwindcss/node': 4.3.3
+      '@tailwindcss/oxide': 4.3.3
+      tailwindcss: 4.3.3
+      vite: 7.3.6(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0)
 
   '@tailwindcss/vite@4.3.3(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.9)(yaml@2.9.0))':
     dependencies:
