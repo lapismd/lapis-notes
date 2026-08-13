@@ -43,9 +43,9 @@
 | LN-ARCH-037 | The API editor host MUST be the sole owner of readable-column geometry after composing Mira. It MUST neutralize inherited outer-sizer width and margin constraints before applying file margins, so widening a workspace pane or closing sidebars cannot reduce the Markdown content width. |
 | LN-ARCH-038 | CV compilation and generated-artifact export MUST remain plugin-owned, while compiled Markdown presentation composes Mira's public read-only surfaces. The plugin MUST keep vault persistence behind its host adapter and MUST NOT create another Markdown rendering stack. |
 
-The CV plugin also owns which form-area actions are contextual. Their overflow
-presentation composes Design Core Scroll Area rather than introducing a
-plugin-local scroll primitive.
+The CV plugin owns the placement of document actions in its main toolbar and
+which form-area actions are contextual. Form-area overflow composes Design Core
+Scroll Area rather than introducing a plugin-local scroll primitive.
 
 Preview zoom likewise remains CV-plugin presentation. It treats the preview
 pane's usable width as 100% and scales generated page and text surfaces from

@@ -37,9 +37,10 @@ slice.
 | LN-CV-026 | Typst SVG and PNG success stories MUST require real worker page output. Worker failure MUST be tested as the documented HTML fallback and MUST NOT satisfy a successful Typst story. |
 | LN-CV-027 | Production CV styling MUST use public Design Core tokens and stable component selectors. Storybook host selectors and private CodeMirror classes MUST remain in catalog-owned styling or be omitted. |
 | LN-CV-028 | The Markdown artifact MUST render compiled Markdown through Mira's public preview surface with the Lapis theme. It MUST NOT use a plain text or package-local Markdown renderer. |
-| LN-CV-029 | The form-area header MUST show one book-or-pencil action when Markdown is selected. In the CV form area it MUST precede the RenderCV theme control. It MUST switch between Preview and read-only Source, default to Preview, preserve the compiled value, and keep its focus indicator inside the header. Both surfaces MUST fill their zoomed document width and remain free of outer inset, nested toolbar, border, radius, or shadow chrome in either mode. |
+| LN-CV-029 | The Markdown artifact MUST default to Preview and offer one focus-safe book-or-pencil action that switches between Preview and read-only Source without changing the compiled value. Both surfaces MUST fill their zoomed document width and remain free of outer inset, nested toolbar, border, radius, or shadow chrome in either mode. |
 | LN-CV-030 | PDF export MUST offer Download to device and Save to vault. Both actions MUST use the current browser-worker PDF bytes. Vault export MUST save beside the source CV under the generated artifact filename and replace that file on later exports. Failures MUST remain visible and accessible. |
 | LN-CV-031 | The form-area header MUST use Design Core Scroll Area for horizontal overflow. Its tab list and contextual actions MUST share one scroll track so constrained workspace panes keep every control reachable without making the leaf scroll. |
+| LN-CV-032 | When Markdown is selected, the main toolbar MUST place the book-or-pencil action and form expand-or-collapse action immediately before the YAML switch. Both actions MUST use the outlined icon-button treatment of the PDF export action. |
 
 ### LN-CV-012 acceptance details
 
@@ -88,7 +89,7 @@ The form-area theme shortcut verifies:
 Constrained form-area navigation verifies:
 
 - One horizontal Design Core Scroll Area MUST contain the tab list and active contextual actions.
-- The CV theme shortcut and Markdown mode action MUST remain within that shared scroll track when applicable.
+- The CV theme shortcut MUST remain within that shared scroll track when applicable.
 - Resizing the owning workspace pane MUST make overflow controls reachable without scrolling the workspace leaf.
 
 ### LN-CV-017 acceptance details

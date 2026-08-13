@@ -135,6 +135,19 @@
   gap: 0.75rem;
 }
 
+.complete-cv-sticky-controls
+  > .ui-form-toolbar
+  [data-ui-part="form-toolbar-collapse"] {
+  display: none;
+}
+
+.complete-cv-toolbar-document-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .complete-cv-yaml-toggle {
   display: flex;
   flex: none;

@@ -191,6 +191,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-025  | spec-governance   | Implemented | `AGENTS.md` routes Problems through the shared contract and requires stable hover handoff plus styled inline-problem acceptance |
 | LN-GOV-026  | spec-governance   | Implemented | spec-first mapping and focused tests cover API storage, the web package, and the CV plugin |
 | LN-GOV-027  | spec-governance   | Implemented | package-local CV Storybook sources and configuration require the Storybook Catalog chapter |
+| LN-GOV-028  | spec-governance   | Implemented | agent guidance separates grouped CV main-toolbar document actions from form-area contextual scrolling |
 | LN-WS-001   | workspace-shell   | Implemented | api-owned `AppShellController`                                                                                                                                                                                                                                                              |
 | LN-WS-002   | workspace-shell   | Implemented | id-reusing projection + focused tests                                                                                                                                                                                                                                                       |
 | LN-WS-003   | workspace-shell   | Implemented | `@lapis-notes/api/workspace-host`                                                                                                                                                                                                                                                           |
@@ -375,7 +376,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-046 | packages | Implemented | private web package `2026.6.3` exposes standard root development, build, preview, and E2E scripts |
 | LN-PKG-047 | packages | Implemented | pinned Turso native/WASM production dependencies; source and package audits contain no SQLite app-database implementation or fallback |
 | LN-PKG-048 | packages | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
-| LN-PKG-049 | packages | Implemented | `@lapis-notes/cv` at `packages/plugins/plugin-cv`; package `check`, `test`, and `build` pass |
+| LN-PKG-049 | packages | Implemented | `@lapis-notes/cv` owns preview, export, and main-toolbar composition through public Design Core controls |
 | LN-PKG-050 | packages | Implemented | CV package exposes interaction and static Storybook builds; package declarations are portable |
 | LN-PKG-051 | packages | Implemented | CV package consumes linked Mira through public exports and styles only public layout variables plus its passed artifact class |
 | LN-DESK-030 | desktop-host | Implemented | desktop `registerCorePlugins` loads optional CV before layout restoration |
@@ -383,7 +384,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-040 | storybook-catalog | Implemented | `Workspace/Plugins/CV` FileView story boots a real App over `sample.cv.yml` |
 | LN-CAT-041 | storybook-catalog | Implemented | CV package static catalog uses Lapis theme and scoped isolated 700px shell Docs canvases |
 | LN-CAT-042 | storybook-catalog | Implemented | CV package and repository stories expose explicit reproducible consumer source |
-| LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies full-width, borderless Lapis-themed Mira Preview and Source after each mode mounts |
+| LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies toolbar action order and outlined treatment plus full-width borderless Preview and Source |
 | LN-CAT-044 | storybook-catalog | Implemented | CV preview stories assert pane-relative cross-mode scaling; the App-backed story proves 100% fit, 85% shrink, and PDF persistence |
 | LN-CAT-045 | storybook-catalog | Implemented | CV package plays resize the owning surface, exercise the shared form-header Scroll Area, and verify the CV-only theme shortcut |
 | LN-CV-001 | cv-plugin | Implemented | CV package authorized; Applications and Tasks excluded from this slice |
@@ -414,9 +415,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CV-026 | cv-plugin | Implemented | Typst success plays require worker page images; fallback is covered separately |
 | LN-CV-027 | cv-plugin | Implemented | production CV CSS uses public tokens and stable component selectors only |
 | LN-CV-028 | cv-plugin | Implemented | compiled CV Markdown renders through Mira's public preview surface with the Lapis theme |
-| LN-CV-029 | cv-plugin | Implemented | CV form header exposes a focus-safe Preview-first book/pencil action plus full-width, inset-free, borderless Mira Preview and read-only Source surfaces |
+| LN-CV-029 | cv-plugin | Implemented | CV exposes a focus-safe Preview-first book/pencil action plus full-width, inset-free, borderless Mira Preview and read-only Source surfaces |
 | LN-CV-030 | cv-plugin | Implemented | the worker PDF artifact supports browser download and create-or-replace vault export beside the open CV |
 | LN-CV-031 | cv-plugin | Implemented | the form-area tab list and contextual actions share a horizontal Design Core Scroll Area |
+| LN-CV-032 | cv-plugin | Implemented | the main toolbar groups outlined Markdown mode and form disclosure actions immediately before YAML |
 | LN-ARCH-038 | architecture | Implemented | CV compilation and artifact export remain plugin-owned; the FileView adapts vault persistence while Mira owns Markdown presentation |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |

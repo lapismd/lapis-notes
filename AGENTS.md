@@ -109,12 +109,14 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   debounced vault writes, and flush the latest value on file/view teardown.
   Render compiled CV Markdown through Mira's public Preview and read-only Source
   surfaces under the Lapis theme; do not fall back to `<pre>`, a package-local
-  renderer, or an editable generated artifact. Keep the CV-owned book/pencil
-  mode action in the form-area header and keep nested Mira toolbar/frame chrome
-  out of the artifact. Compose the form-area tabs and their contextual actions
-  in one horizontal Design Core Scroll Area so constrained workspace panes keep
-  every control reachable. Show the header theme shortcut only for the CV form
-  area; the Design form remains the non-contextual theme-setting surface.
+  renderer, or an editable generated artifact. Group the CV-owned book/pencil
+  and form disclosure actions in the main toolbar immediately before YAML,
+  using the same outlined icon treatment as PDF export. Keep nested Mira
+  toolbar/frame chrome out of the artifact. Compose the form-area tabs and their
+  contextual actions in one horizontal Design Core Scroll Area so constrained
+  workspace panes keep every control reachable. Show the header theme shortcut
+  only for the CV form area; the Design form remains the non-contextual
+  theme-setting surface.
   CV production CSS may target public Design Core tokens and stable
   `data-ui-component` hosts, never Storybook roots or private `.cm-*` classes.
 - Track swap progress in root `MIGRATION.md`.

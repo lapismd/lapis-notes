@@ -345,24 +345,48 @@
       name: /^Current view: preview\nClick to view source$/,
     });
     expect(modeToggle.querySelector(".lucide-pencil")).not.toBeNull();
+    const collapseToggle = canvas.getByTestId("cv-collapse-toggle");
+    const yamlToggle = canvas.getByTestId("cv-yaml-toggle");
+    const documentActions = canvas.getByTestId("cv-toolbar-document-actions");
+    const toolbar = canvas.getByTestId("form-toolbar");
+    const exportButton = canvas.getByRole("button", { name: "Export PDF" });
     const themeControl = canvas.getByTestId("cv-theme-controls");
     const formAreaScroll = canvas.getByTestId("cv-form-area-scroll");
-    expect(formAreaScroll.contains(modeToggle)).toBe(true);
+    expect(formAreaScroll.contains(modeToggle)).toBe(false);
     expect(formAreaScroll.contains(themeControl)).toBe(true);
+    expect(toolbar.contains(documentActions)).toBe(true);
+    expect(documentActions.contains(modeToggle)).toBe(true);
+    expect(documentActions.contains(collapseToggle)).toBe(true);
+    expect(toolbar.contains(yamlToggle)).toBe(true);
     expect(
-      modeToggle.compareDocumentPosition(themeControl) & Node.DOCUMENT_POSITION_FOLLOWING,
+      modeToggle.compareDocumentPosition(collapseToggle) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
-      modeToggle.closest(".complete-cv-tabs__header"),
-    ).toBe(themeControl.closest(".complete-cv-tabs__header"));
-    const modeHeader = modeToggle.closest<HTMLElement>(".complete-cv-tabs__header");
-    expect(modeHeader).toBeTruthy();
+      collapseToggle.compareDocumentPosition(yamlToggle) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(modeToggle.getAttribute("data-variant")).toBe("outline");
+    expect(modeToggle.getAttribute("data-size")).toBe("icon-sm");
+    expect(collapseToggle.getAttribute("data-variant")).toBe(
+      exportButton.getAttribute("data-variant"),
+    );
+    expect(collapseToggle.getAttribute("data-size")).toBe(
+      exportButton.getAttribute("data-size"),
+    );
     modeToggle.focus();
     expect(document.activeElement).toBe(modeToggle);
     const modeRect = modeToggle.getBoundingClientRect();
-    const modeHeaderRect = modeHeader!.getBoundingClientRect();
-    expect(modeRect.top - modeHeaderRect.top).toBeGreaterThanOrEqual(3);
-    expect(modeHeaderRect.bottom - modeRect.bottom).toBeGreaterThanOrEqual(3);
+    const toolbarRect = toolbar.getBoundingClientRect();
+    expect(modeRect.top - toolbarRect.top).toBeGreaterThanOrEqual(3);
+    expect(toolbarRect.bottom - modeRect.bottom).toBeGreaterThanOrEqual(3);
+    expect(collapseToggle.getAttribute("aria-label")).toBe("Collapse all CV groups");
+    await userEvent.click(collapseToggle);
+    await waitFor(() => {
+      expect(collapseToggle.getAttribute("aria-label")).toBe("Expand all CV groups");
+    });
+    await userEvent.click(collapseToggle);
+    await waitFor(() => {
+      expect(collapseToggle.getAttribute("aria-label")).toBe("Collapse all CV groups");
+    });
     expect(
       getComputedStyle(artifact).borderTopWidth,
     ).toBe("0px");

@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onDestroy, tick, untrack } from "svelte";
   import BookOpenIcon from "@lucide/svelte/icons/book-open";
+  import ChevronsDownUpIcon from "@lucide/svelte/icons/chevrons-down-up";
+  import ChevronsUpDownIcon from "@lucide/svelte/icons/chevrons-up-down";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import { FormToolbar, StructuredForm, YamlEditor } from "@lapismd/design-core/forms";
   import { createFormController, type FormController } from "@lapismd/design-core/forms/core";
@@ -139,6 +141,12 @@
     }[activeTab] as FormController<Record<string, unknown>>,
   );
   const collapsedAll = $derived(activeController.allDisclosuresCollapsed());
+  const activeTabLabel = $derived(
+    tabs.find((tab) => tab.value === activeTab)?.label ?? activeTab,
+  );
+  const collapseToggleLabel = $derived(
+    `${collapsedAll ? "Expand" : "Collapse"} all ${activeTabLabel} groups`,
+  );
 
   const compiled = $derived.by(() => {
     if (parseError) return null;
@@ -404,8 +412,8 @@
             <div class="complete-cv-sticky-controls">
               <FormToolbar
                 {collapsedAll}
-                collapseLabel={`Collapse all ${tabs.find((tab) => tab.value === activeTab)?.label ?? activeTab} groups`}
-                expandLabel={`Expand all ${tabs.find((tab) => tab.value === activeTab)?.label ?? activeTab} groups`}
+                collapseLabel={`Collapse all ${activeTabLabel} groups`}
+                expandLabel={`Expand all ${activeTabLabel} groups`}
                 onToggleCollapse={() =>
                   collapsedAll ? activeController.expandAll() : activeController.collapseAll()}
               >
@@ -413,6 +421,51 @@
                   <span class="complete-cv-toolbar-title">{source.cv.name ?? "CV"}</span>
                 {/snippet}
                 {#snippet actions()}
+                  <div
+                    class="complete-cv-toolbar-document-actions"
+                    data-testid="cv-toolbar-document-actions"
+                  >
+                    {#if previewMode === "rendercv-md"}
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        class="complete-cv-markdown-mode"
+                        aria-label={markdownMode === "preview"
+                          ? "Current view: preview\nClick to view source"
+                          : "Current view: source\nClick to preview"}
+                        title={markdownMode === "preview"
+                          ? "Current view: preview\nClick to view source"
+                          : "Current view: source\nClick to preview"}
+                        data-testid="cv-markdown-mode-toggle"
+                        onclick={() =>
+                          (markdownMode = markdownMode === "preview" ? "source" : "preview")}
+                      >
+                        {#if markdownMode === "preview"}
+                          <PencilIcon />
+                        {:else}
+                          <BookOpenIcon />
+                        {/if}
+                      </Button>
+                    {/if}
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      class="complete-cv-collapse-toggle"
+                      aria-label={collapseToggleLabel}
+                      title={collapseToggleLabel}
+                      data-testid="cv-collapse-toggle"
+                      onclick={() =>
+                        collapsedAll
+                          ? activeController.expandAll()
+                          : activeController.collapseAll()}
+                    >
+                      {#if collapsedAll}
+                        <ChevronsUpDownIcon aria-hidden="true" />
+                      {:else}
+                        <ChevronsDownUpIcon aria-hidden="true" />
+                      {/if}
+                    </Button>
+                  </div>
                   <div class="complete-cv-yaml-toggle" data-testid="cv-yaml-toggle">
                     <Switch id="cv-yaml-mode" bind:checked={yamlMode} aria-label="YAML" />
                     <label for="cv-yaml-mode">YAML</label>
@@ -444,28 +497,6 @@
                           <Tabs.Trigger value={tab.value}>{tab.label}</Tabs.Trigger>
                         {/each}
                       </Tabs.List>
-                      {#if previewMode === "rendercv-md"}
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          class="complete-cv-markdown-mode"
-                          aria-label={markdownMode === "preview"
-                            ? "Current view: preview\nClick to view source"
-                            : "Current view: source\nClick to preview"}
-                          title={markdownMode === "preview"
-                            ? "Current view: preview\nClick to view source"
-                            : "Current view: source\nClick to preview"}
-                          data-testid="cv-markdown-mode-toggle"
-                          onclick={() =>
-                            (markdownMode = markdownMode === "preview" ? "source" : "preview")}
-                        >
-                          {#if markdownMode === "preview"}
-                            <PencilIcon />
-                          {:else}
-                            <BookOpenIcon />
-                          {/if}
-                        </Button>
-                      {/if}
                       {#if activeTab === "cv"}
                         <CvThemeControls
                           theme={source.design?.theme ?? "moderncv"}
