@@ -40,6 +40,7 @@
 .search-panel__query-row > .cv-search-filter-bar {
   min-width: 0;
   flex: 1 1 auto;
+  padding: 0;
 }
 
 .search-panel__filters {

@@ -17,7 +17,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-007 | Markdown Tags MUST open Search with a `tag:` query. All Properties MUST open Search with an escaped bracket-property query while remaining recoverable when Search is disabled. |
 | LN-SRCH-008 | Storybook MUST demonstrate the real Search plugin in all six governed panel placements over an indexed in-memory vault and MUST verify query, facet, highlight, and navigation behavior. |
 | LN-SRCH-009 | Electron MUST load Search before metadata and layout restoration so a persisted `search` leaf restores as available and uses the native app database search boundary. |
-| LN-SRCH-010 | Search panel styling MUST use native CSS and public Design Core or workspace tokens. It MUST fill the owning `WorkspaceViewHost` without placement-specific selectors or Tailwind utilities. |
+| LN-SRCH-010 | Search panel styling MUST use native CSS and public Design Core or workspace tokens. It MUST fill the owning `WorkspaceViewHost` without placement-specific selectors or Tailwind utilities. Its nested `SearchFilterBar` MUST NOT add a second inset inside the padded panel chrome. |
 | LN-SRCH-011 | The Search view MUST expose persisted Design Core toggles for Match case, Collapse results, Show more context, and Explain search terms inside `SearchFilterBar`'s single expandable filter area. It MUST NOT render an independent settings trigger. |
 | LN-SRCH-012 | Collapse results MUST set the default disclosure state of every file group while preserving later per-file disclosure changes until the result set changes. |
 | LN-SRCH-013 | Show more context MUST request longer result snippets. Explain search terms MUST show or hide a plain-language summary of the active query. |

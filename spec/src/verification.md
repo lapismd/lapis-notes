@@ -386,7 +386,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-007 | search-plugin | Implemented | Markdown Tags and All Properties registered-command handoffs |
 | LN-SRCH-008 | search-plugin | Implemented | all six governed Search placement stories pass interaction and accessibility checks |
 | LN-SRCH-009 | search-plugin | Implemented | Electron loads Search before metadata/layout and restores a native persisted query result |
-| LN-SRCH-010 | search-plugin | Implemented | no-Tailwind gate and view-token native CSS over the full host geometry |
+| LN-SRCH-010 | search-plugin | Implemented | no-Tailwind gate, view-token host geometry, and single panel-chrome inset |
 | LN-SRCH-011 | search-plugin | Implemented | focused middle-panel story exercises all five persisted Design Core Switch controls through the single Search Filter Bar disclosure |
 | LN-SRCH-012 | search-plugin | Implemented | Storybook verifies collapsed defaults, reset on toggle, per-file persistence, and result-identity reset |
 | LN-SRCH-013 | search-plugin | Implemented | snippet-policy unit coverage plus rendered query-explanation and context-toggle acceptance |
