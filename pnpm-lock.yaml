@@ -66,9 +66,6 @@ importers:
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:packages/api
-      '@lapis-notes/cv':
-        specifier: workspace:*
-        version: link:packages/plugins/plugin-cv
       '@lapis-notes/file-explorer':
         specifier: workspace:*
         version: link:packages/file-explorer
@@ -78,6 +75,9 @@ importers:
       '@lapis-notes/markdown-lint':
         specifier: workspace:*
         version: link:packages/plugins/plugin-markdown-lint
+      '@lapis-notes/roles':
+        specifier: workspace:*
+        version: link:packages/plugins/plugin-roles
       '@lapis-notes/search':
         specifier: workspace:*
         version: link:packages/plugins/plugin-search
@@ -165,6 +165,9 @@ importers:
       aria-query:
         specifier: 5.3.2
         version: 5.3.2
+      character-entities:
+        specifier: 2.0.2
+        version: 2.0.2
       playwright:
         specifier: 1.61.1
         version: 1.61.1
@@ -404,9 +407,6 @@ importers:
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api
-      '@lapis-notes/cv':
-        specifier: workspace:*
-        version: link:../plugins/plugin-cv
       '@lapis-notes/file-explorer':
         specifier: workspace:*
         version: link:../file-explorer
@@ -419,6 +419,9 @@ importers:
       '@lapis-notes/markdown-lint':
         specifier: workspace:*
         version: link:../plugins/plugin-markdown-lint
+      '@lapis-notes/roles':
+        specifier: workspace:*
+        version: link:../plugins/plugin-roles
       '@lapis-notes/search':
         specifier: workspace:*
         version: link:../plugins/plugin-search
@@ -545,7 +548,102 @@ importers:
         specifier: ^4.1.8
         version: 4.1.10(@types/node@22.20.1)(@vitest/browser-playwright@4.1.10)(jsdom@26.1.0)(vite@6.4.3(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
 
-  packages/plugins/plugin-cv:
+  packages/plugins/plugin-markdown:
+    dependencies:
+      '@codemirror/lang-markdown':
+        specifier: ^6.3.3
+        version: 6.5.2
+      '@codemirror/language':
+        specifier: ^6.11.1
+        version: 6.12.4
+      '@codemirror/state':
+        specifier: ^6.4.1
+        version: 6.7.1
+      '@codemirror/view':
+        specifier: ^6.35.0
+        version: 6.43.8
+      '@lapis-notes/api':
+        specifier: workspace:*
+        version: link:../../api
+      '@lapis-notes/ui':
+        specifier: workspace:*
+        version: link:../../ui
+      '@lapismd/design-core':
+        specifier: link:../../../../design-core
+        version: link:../../../../design-core
+      '@lapismd/mira':
+        specifier: link:../../../../mira-mde/packages/mira
+        version: link:../../../../mira-mde/packages/mira
+      '@lapismd/mira-editor':
+        specifier: link:../../../../mira-mde/packages/mira-editor
+        version: link:../../../../mira-mde/packages/mira-editor
+      '@lapismd/mira-plugin-ai':
+        specifier: link:../../../../mira-mde/packages/mira-plugin-ai
+        version: link:../../../../mira-mde/packages/mira-plugin-ai
+      '@lapismd/mira-plugin-mermaid':
+        specifier: link:../../../../mira-mde/packages/mira-plugin-mermaid
+        version: link:../../../../mira-mde/packages/mira-plugin-mermaid
+      '@lucide/svelte':
+        specifier: ^0.523.0
+        version: 0.523.0(svelte@5.56.8)
+    devDependencies:
+      '@sveltejs/package':
+        specifier: ^2.5.0
+        version: 2.5.8(svelte@5.56.8)(typescript@5.8.3)
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^5.1.1
+        version: 5.1.1(svelte@5.56.8)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
+      '@tsconfig/svelte':
+        specifier: ^5.0.5
+        version: 5.0.8
+      publint:
+        specifier: ^0.3.12
+        version: 0.3.23
+      svelte:
+        specifier: ^5.38.2
+        version: 5.56.8
+      svelte-check:
+        specifier: ^4.3.1
+        version: 4.7.4(picomatch@4.0.5)(svelte@5.56.8)(typescript@5.8.3)
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^6.4.2
+        version: 6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0)
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@26.1.0)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
+
+  packages/plugins/plugin-markdown-lint:
+    dependencies:
+      '@lapis-notes/api':
+        specifier: workspace:*
+        version: link:../../api
+      '@lapis-notes/language-service':
+        specifier: workspace:*
+        version: link:../../language-service
+    devDependencies:
+      '@sveltejs/package':
+        specifier: ^2.5.0
+        version: 2.5.8(svelte@5.56.8)(typescript@5.9.3)
+      svelte:
+        specifier: ^5.38.2
+        version: 5.56.8
+      svelte-check:
+        specifier: ^4.3.1
+        version: 4.7.4(picomatch@4.0.5)(svelte@5.56.8)(typescript@5.9.3)
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.4.2
+        version: 6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0)
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@26.1.0)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
+
+  packages/plugins/plugin-roles:
     dependencies:
       '@codemirror/language':
         specifier: ^6.11.1
@@ -650,101 +748,6 @@ importers:
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
-      vite:
-        specifier: ^6.4.2
-        version: 6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0)
-      vitest:
-        specifier: ^4.1.8
-        version: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@26.1.0)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
-
-  packages/plugins/plugin-markdown:
-    dependencies:
-      '@codemirror/lang-markdown':
-        specifier: ^6.3.3
-        version: 6.5.2
-      '@codemirror/language':
-        specifier: ^6.11.1
-        version: 6.12.4
-      '@codemirror/state':
-        specifier: ^6.4.1
-        version: 6.7.1
-      '@codemirror/view':
-        specifier: ^6.35.0
-        version: 6.43.8
-      '@lapis-notes/api':
-        specifier: workspace:*
-        version: link:../../api
-      '@lapis-notes/ui':
-        specifier: workspace:*
-        version: link:../../ui
-      '@lapismd/design-core':
-        specifier: link:../../../../design-core
-        version: link:../../../../design-core
-      '@lapismd/mira':
-        specifier: link:../../../../mira-mde/packages/mira
-        version: link:../../../../mira-mde/packages/mira
-      '@lapismd/mira-editor':
-        specifier: link:../../../../mira-mde/packages/mira-editor
-        version: link:../../../../mira-mde/packages/mira-editor
-      '@lapismd/mira-plugin-ai':
-        specifier: link:../../../../mira-mde/packages/mira-plugin-ai
-        version: link:../../../../mira-mde/packages/mira-plugin-ai
-      '@lapismd/mira-plugin-mermaid':
-        specifier: link:../../../../mira-mde/packages/mira-plugin-mermaid
-        version: link:../../../../mira-mde/packages/mira-plugin-mermaid
-      '@lucide/svelte':
-        specifier: ^0.523.0
-        version: 0.523.0(svelte@5.56.8)
-    devDependencies:
-      '@sveltejs/package':
-        specifier: ^2.5.0
-        version: 2.5.8(svelte@5.56.8)(typescript@5.8.3)
-      '@sveltejs/vite-plugin-svelte':
-        specifier: ^5.1.1
-        version: 5.1.1(svelte@5.56.8)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
-      '@tsconfig/svelte':
-        specifier: ^5.0.5
-        version: 5.0.8
-      publint:
-        specifier: ^0.3.12
-        version: 0.3.23
-      svelte:
-        specifier: ^5.38.2
-        version: 5.56.8
-      svelte-check:
-        specifier: ^4.3.1
-        version: 4.7.4(picomatch@4.0.5)(svelte@5.56.8)(typescript@5.8.3)
-      typescript:
-        specifier: ~5.8.3
-        version: 5.8.3
-      vite:
-        specifier: ^6.4.2
-        version: 6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0)
-      vitest:
-        specifier: ^4.1.8
-        version: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@26.1.0)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
-
-  packages/plugins/plugin-markdown-lint:
-    dependencies:
-      '@lapis-notes/api':
-        specifier: workspace:*
-        version: link:../../api
-      '@lapis-notes/language-service':
-        specifier: workspace:*
-        version: link:../../language-service
-    devDependencies:
-      '@sveltejs/package':
-        specifier: ^2.5.0
-        version: 2.5.8(svelte@5.56.8)(typescript@5.9.3)
-      svelte:
-        specifier: ^5.38.2
-        version: 5.56.8
-      svelte-check:
-        specifier: ^4.3.1
-        version: 4.7.4(picomatch@4.0.5)(svelte@5.56.8)(typescript@5.9.3)
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
       vite:
         specifier: ^6.4.2
         version: 6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0)
@@ -888,9 +891,6 @@ importers:
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api
-      '@lapis-notes/cv':
-        specifier: workspace:*
-        version: link:../plugins/plugin-cv
       '@lapis-notes/file-explorer':
         specifier: workspace:*
         version: link:../file-explorer
@@ -900,6 +900,9 @@ importers:
       '@lapis-notes/markdown-lint':
         specifier: workspace:*
         version: link:../plugins/plugin-markdown-lint
+      '@lapis-notes/roles':
+        specifier: workspace:*
+        version: link:../plugins/plugin-roles
       '@lapis-notes/search':
         specifier: workspace:*
         version: link:../plugins/plugin-search

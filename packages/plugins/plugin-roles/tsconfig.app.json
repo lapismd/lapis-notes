@@ -6,7 +6,7 @@
     "paths": {
       "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"],
-      "@lapis-notes/cv": ["./src/lib/index.ts"]
+      "@lapis-notes/roles": ["./src/lib/index.ts"]
     },
     "target": "ESNext",
     "useDefineForClassFields": true,

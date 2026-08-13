@@ -1,13 +1,13 @@
 {
-  "name": "@lapis-notes/cv",
+  "name": "@lapis-notes/roles",
   "private": true,
   "version": "0.0.1",
-  "description": "Lapis Notes CV YAML views and browser preview",
+  "description": "Lapis Notes vault-native roles and retained CV views",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "scripts": {
     "build": "pnpm run prepack",
-    "check": "pnpm --dir ../../.. check:no-tailwind packages/plugins/plugin-cv/src && pnpm check:svelte && pnpm check:types",
+    "check": "pnpm --dir ../../.. check:no-tailwind packages/plugins/plugin-roles/src && pnpm check:svelte && pnpm check:types",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
     "check:types": "tsc -p tsconfig.node.json --noEmit",
     "test": "vitest run --project unit --passWithNoTests",
