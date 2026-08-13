@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { BrowserCoordinatedAppDatabase } from "../storage/browser-coordinated-app-database";
-import { BrowserSqliteCoordinator } from "../storage/browser-sqlite-coordination";
+import { BrowserAppDatabaseCoordinator } from "../storage/browser-app-database-coordination";
 
 class FakeBroadcastChannel {
   static channels = new Map<string, Set<FakeBroadcastChannel>>();
@@ -55,12 +55,12 @@ afterEach(() => {
   FakeBroadcastChannel.reset();
 });
 
-describe("BrowserSqliteCoordinator", () => {
+describe("BrowserAppDatabaseCoordinator", () => {
   it("delegates app-database requests to the owner tab", async () => {
     vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
 
-    const ownerCoordinator = new BrowserSqliteCoordinator("vault-under-test");
-    const proxyCoordinator = new BrowserSqliteCoordinator("vault-under-test");
+    const ownerCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const proxyCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
 
     const ownerDatabase = new BrowserCoordinatedAppDatabase(
       "vault-under-test",
@@ -114,8 +114,8 @@ describe("BrowserSqliteCoordinator", () => {
   it("delegates file history requests to the owner tab", async () => {
     vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
 
-    const ownerCoordinator = new BrowserSqliteCoordinator("vault-under-test");
-    const proxyCoordinator = new BrowserSqliteCoordinator("vault-under-test");
+    const ownerCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const proxyCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
 
     const ownerDatabase = new BrowserCoordinatedAppDatabase(
       "vault-under-test",
@@ -171,7 +171,7 @@ describe("BrowserSqliteCoordinator", () => {
     vi.useFakeTimers();
     vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
 
-    const proxyCoordinator = new BrowserSqliteCoordinator("vault-under-test");
+    const proxyCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
     const proxyDatabase = new BrowserCoordinatedAppDatabase(
       "vault-under-test",
       proxyCoordinator,
@@ -243,11 +243,11 @@ describe("BrowserSqliteCoordinator", () => {
       },
     });
 
-    const primary = new BrowserSqliteCoordinator("vault-under-test");
+    const primary = new BrowserAppDatabaseCoordinator("vault-under-test");
     expect(await primary.tryAcquireOwnership()).toBe(true);
     primary.startHeartbeat();
 
-    const secondary = new BrowserSqliteCoordinator("vault-under-test");
+    const secondary = new BrowserAppDatabaseCoordinator("vault-under-test");
     const abortController = new AbortController();
     const waitForOwnership = secondary.waitForOwnership({
       signal: abortController.signal,
@@ -284,10 +284,10 @@ describe("BrowserSqliteCoordinator", () => {
       },
     });
 
-    const primary = new BrowserSqliteCoordinator("vault-under-test");
+    const primary = new BrowserAppDatabaseCoordinator("vault-under-test");
     expect(await primary.tryAcquireOwnership()).toBe(true);
 
-    const secondary = new BrowserSqliteCoordinator("vault-under-test");
+    const secondary = new BrowserAppDatabaseCoordinator("vault-under-test");
     const waitForTakeover = secondary.waitForOwnership();
 
     setTimeout(() => {
@@ -296,7 +296,7 @@ describe("BrowserSqliteCoordinator", () => {
 
     await expect(waitForTakeover).resolves.toBe(true);
     expect(request).toHaveBeenCalledWith(
-      "lapis-notes-sqlite-opfs-owner:vault-under-test",
+      "lapis-notes-app-database-owner:vault-under-test",
       { mode: "exclusive", ifAvailable: true },
       expect.any(Function),
     );

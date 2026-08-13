@@ -6,11 +6,6 @@ import {
   parseSearchQueryAst,
 } from "../search-query";
 import {
-  getDefaultVaultStateStore,
-  ScopedVaultStore,
-  type KeyValueStore,
-} from "./vault-state";
-import {
   cosineSimilarity,
   createSearchEmbeddingProvider,
   type SearchEmbeddingRuntimeStatus,
@@ -131,10 +126,49 @@ export function supportsSearchQueryEnhancementRuntime(
 }
 
 export type AppDatabaseKind =
-  | "sqlite-wasm"
-  | "sqlite-native"
-  | "indexeddb-fallback"
+  | "turso-wasm"
+  | "turso-native"
   | "memory";
+
+export type AppDatabaseStorageMode = "local" | "synced" | "remote";
+export type AppDatabaseTransport =
+  | "native"
+  | "wasm-worker"
+  | "broadcast-proxy"
+  | "memory";
+export type AppDatabaseRole =
+  | "direct"
+  | "owner"
+  | "proxy"
+  | "blocked"
+  | "test";
+
+export interface AppDatabaseCapabilities {
+  nativeFullTextSearch: boolean;
+  vectorSearch: boolean;
+  approximateNearestNeighbors: boolean;
+  localEmbeddings: boolean;
+  crossTabCoordination: boolean;
+  sync: boolean;
+}
+
+export interface AppDatabaseDescriptor {
+  providerId: string;
+  engine: "turso" | "memory";
+  transport: AppDatabaseTransport;
+  role: AppDatabaseRole;
+  storageMode: AppDatabaseStorageMode;
+  capabilities: AppDatabaseCapabilities;
+}
+
+export const EMPTY_APP_DATABASE_CAPABILITIES: AppDatabaseCapabilities = {
+  nativeFullTextSearch: false,
+  vectorSearch: false,
+  approximateNearestNeighbors: false,
+  localEmbeddings: false,
+  crossTabCoordination: false,
+  sync: false,
+};
 
 export interface MetadataCacheSnapshot {
   fileCache: Record<string, { mtime: number; size: number; hash: string }>;
@@ -869,6 +903,7 @@ export interface AppDatabaseNotificationRecord {
 export interface AppDatabase {
   readonly kind: AppDatabaseKind;
   readonly vaultId: string;
+  readonly descriptor: AppDatabaseDescriptor;
   open(): Promise<void>;
   migrate(): Promise<void>;
   close(): Promise<void>;
@@ -918,6 +953,18 @@ export interface AppDatabase {
   ): Promise<AppDatabaseSearchResult[]>;
 }
 
+export interface AppDatabaseOpenContext {
+  vaultId: string;
+  runtime: RuntimeTarget;
+  role?: AppDatabaseRole;
+}
+
+export interface AppDatabaseProvider {
+  readonly id: string;
+  canOpen(context: AppDatabaseOpenContext): boolean | Promise<boolean>;
+  open(context: AppDatabaseOpenContext): Promise<AppDatabase>;
+}
+
 const NOTIFICATIONS_META_KEY = "notifications.records";
 
 export type AppDatabaseState = {
@@ -935,124 +982,6 @@ export type AppDatabaseState = {
 };
 
 export const APP_DATABASE_SCHEMA_VERSION = 3;
-
-export const SQLITE_APP_DATABASE_SCHEMA = `
-CREATE TABLE IF NOT EXISTS schema_meta (
-  key TEXT PRIMARY KEY,
-  value TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS files (
-  path TEXT PRIMARY KEY,
-  normalized_path TEXT NOT NULL,
-  extension TEXT NOT NULL,
-  mtime INTEGER NOT NULL,
-  size INTEGER NOT NULL,
-  hash TEXT NOT NULL,
-  indexed INTEGER NOT NULL DEFAULT 0,
-  deleted INTEGER NOT NULL DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS metadata (
-  path TEXT PRIMARY KEY REFERENCES files(path) ON DELETE CASCADE,
-  hash TEXT NOT NULL,
-  parser_version TEXT NOT NULL,
-  data_json TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS links (
-  source_path TEXT NOT NULL,
-  target_text TEXT NOT NULL,
-  resolved_target_path TEXT,
-  type TEXT NOT NULL,
-  position_json TEXT,
-  count INTEGER NOT NULL DEFAULT 1
-);
-
-CREATE INDEX IF NOT EXISTS links_source_idx ON links(source_path);
-CREATE INDEX IF NOT EXISTS links_resolved_target_idx ON links(resolved_target_path);
-
-CREATE TABLE IF NOT EXISTS tags (
-  path TEXT NOT NULL,
-  tag TEXT NOT NULL,
-  parts_json TEXT NOT NULL,
-  hierarchy_json TEXT NOT NULL,
-  position_json TEXT
-);
-
-CREATE INDEX IF NOT EXISTS tags_path_idx ON tags(path);
-CREATE INDEX IF NOT EXISTS tags_tag_idx ON tags(tag);
-
-CREATE TABLE IF NOT EXISTS properties (
-  path TEXT NOT NULL,
-  name TEXT NOT NULL,
-  inferred_type TEXT NOT NULL,
-  declared_type TEXT,
-  value_json TEXT NOT NULL,
-  PRIMARY KEY(path, name)
-);
-
-CREATE INDEX IF NOT EXISTS properties_name_idx ON properties(name);
-
-CREATE TABLE IF NOT EXISTS history_files (
-  file_id TEXT PRIMARY KEY,
-  current_path TEXT NOT NULL UNIQUE,
-  deleted INTEGER NOT NULL DEFAULT 0
-);
-
-CREATE INDEX IF NOT EXISTS history_files_current_path_idx ON history_files(current_path);
-
-CREATE TABLE IF NOT EXISTS history_revisions (
-  revision_id TEXT PRIMARY KEY,
-  file_id TEXT NOT NULL REFERENCES history_files(file_id) ON DELETE CASCADE,
-  ordinal INTEGER NOT NULL,
-  current_path TEXT NOT NULL,
-  captured_path TEXT NOT NULL,
-  event_type TEXT NOT NULL,
-  created_at INTEGER NOT NULL,
-  source_mtime INTEGER,
-  source_size INTEGER,
-  content_hash TEXT NOT NULL,
-  content TEXT NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS history_revisions_file_idx ON history_revisions(file_id, ordinal);
-
-CREATE TABLE IF NOT EXISTS search_docs (
-  path TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  extension TEXT NOT NULL,
-  checksum TEXT NOT NULL,
-  content TEXT NOT NULL,
-  tags_json TEXT NOT NULL,
-  tag_parts_json TEXT NOT NULL,
-  tag_hierarchy_json TEXT NOT NULL,
-  metadata_text TEXT NOT NULL DEFAULT ''
-);
-
-CREATE TABLE IF NOT EXISTS search_chunks (
-  path TEXT NOT NULL REFERENCES search_docs(path) ON DELETE CASCADE,
-  chunk_id TEXT NOT NULL,
-  ordinal INTEGER NOT NULL,
-  start_offset INTEGER NOT NULL,
-  end_offset INTEGER NOT NULL,
-  heading TEXT,
-  kind TEXT NOT NULL DEFAULT 'fallback',
-  text TEXT NOT NULL,
-  embedding_json TEXT,
-  PRIMARY KEY(path, chunk_id)
-);
-
-CREATE INDEX IF NOT EXISTS search_chunks_path_idx ON search_chunks(path, ordinal);
-
-CREATE VIRTUAL TABLE IF NOT EXISTS search_fts USING fts5(
-  path UNINDEXED,
-  name,
-  content,
-  tags,
-  metadata_text
-);
-`;
 
 function clone<T>(value: T): T {
   if (value === undefined || value === null) return value;
@@ -1906,6 +1835,19 @@ export function buildSearchResult(
 
 export class MemoryAppDatabase implements AppDatabase {
   readonly kind: AppDatabaseKind = "memory";
+  get descriptor(): AppDatabaseDescriptor {
+    return {
+      providerId: "memory-test",
+      engine: "memory",
+      transport: "memory",
+      role: "test",
+      storageMode: "local",
+      capabilities: {
+        ...EMPTY_APP_DATABASE_CAPABILITIES,
+        localEmbeddings: true,
+      },
+    };
+  }
   protected meta: Record<string, unknown> = {};
   protected metadataSnapshot: MetadataCacheSnapshot | null = null;
   protected searchEmbeddingProviderConfig: SearchEmbeddingProviderConfig | null =
@@ -2377,12 +2319,23 @@ export class MemoryAppDatabase implements AppDatabase {
     query: string,
     options: AppDatabaseSearchOptions = {},
   ): Promise<AppDatabaseSearchResult[]> {
+    return this.searchDocumentsForPaths(query, options);
+  }
+
+  protected async searchDocumentsForPaths(
+    query: string,
+    options: AppDatabaseSearchOptions = {},
+    candidatePaths?: Iterable<string>,
+  ): Promise<AppDatabaseSearchResult[]> {
     const propertyNames = searchPropertyNames(query);
-    const sourceDocuments = [...this.searchDocs.values()].filter((document) =>
-      hasSearchPropertyNames(
-        this.properties.get(document.path) ?? [],
-        propertyNames,
-      ),
+    const allowedPaths = candidatePaths ? new Set(candidatePaths) : null;
+    const sourceDocuments = [...this.searchDocs.values()].filter(
+      (document) =>
+        (!allowedPaths || allowedPaths.has(document.path)) &&
+        hasSearchPropertyNames(
+          this.properties.get(document.path) ?? [],
+          propertyNames,
+        ),
     );
     const limit = options.limit ?? 100;
     const requestedMode = options.mode ?? "auto";
@@ -2854,102 +2807,4 @@ export class MemoryAppDatabase implements AppDatabase {
 
     return filtered;
   }
-}
-
-export class IndexedDbAppDatabase extends MemoryAppDatabase {
-  override readonly kind: AppDatabaseKind = "indexeddb-fallback";
-  private readonly storage: ScopedVaultStore;
-  private opened = false;
-
-  constructor(
-    vaultId: string,
-    store: KeyValueStore = getDefaultVaultStateStore(),
-  ) {
-    super(vaultId);
-    this.storage = new ScopedVaultStore(vaultId, "app-database", store);
-  }
-
-  override async open(): Promise<void> {
-    if (this.opened) return;
-    const state = await this.storage.get<AppDatabaseState | string>("state");
-    if (typeof state === "string") {
-      this.fromState(JSON.parse(state) as AppDatabaseState);
-    } else if (state) {
-      this.fromState(state);
-    }
-    this.opened = true;
-    await this.migrate();
-  }
-
-  override async close(): Promise<void> {
-    await this.persist();
-  }
-
-  override async migrate(): Promise<void> {
-    await super.migrate();
-    await this.persist();
-  }
-
-  override async setMeta(key: string, value: unknown): Promise<void> {
-    await super.setMeta(key, value);
-    await this.persist();
-  }
-
-  override async configureSearchEmbeddingProvider(
-    provider: SearchEmbeddingProviderConfig | null,
-  ): Promise<void> {
-    await super.configureSearchEmbeddingProvider(provider);
-    await this.persist();
-  }
-
-  override async saveMetadataSnapshot(
-    snapshot: MetadataCacheSnapshot,
-  ): Promise<void> {
-    await super.saveMetadataSnapshot(snapshot);
-    await this.persist();
-  }
-
-  override async upsertIndexedFile(
-    record: AppDatabaseIndexedFile,
-  ): Promise<void> {
-    await super.upsertIndexedFile(record);
-    await this.persist();
-  }
-
-  override async deleteIndexedFile(path: string): Promise<void> {
-    await super.deleteIndexedFile(path);
-    await this.persist();
-  }
-
-  override async renameIndexedFile(
-    oldPath: string,
-    newPath: string,
-  ): Promise<void> {
-    await super.renameIndexedFile(oldPath, newPath);
-    await this.persist();
-  }
-
-  override async upsertSearchDocument(
-    document: SearchDocumentRecord,
-  ): Promise<void> {
-    await super.upsertSearchDocument(document);
-    await this.persist();
-  }
-
-  override async deleteSearchDocument(path: string): Promise<void> {
-    await super.deleteSearchDocument(path);
-    await this.persist();
-  }
-
-  private async persist(): Promise<void> {
-    if (!this.opened) return;
-    await this.storage.set("state", this.toState());
-  }
-}
-
-export function createDefaultAppDatabase(vaultId: string): AppDatabase {
-  if (typeof indexedDB === "undefined") {
-    return new MemoryAppDatabase(vaultId);
-  }
-  return new IndexedDbAppDatabase(vaultId);
 }

@@ -371,7 +371,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-044 | packages | Implemented | `packages/plugins/plugin-search` reusable package intake; package checks, eight tests, and build pass |
 | LN-PKG-045 | packages | Planned | provider-neutral API exports and explicit test injection |
 | LN-PKG-046 | packages | Planned | private web package with standard scripts |
-| LN-PKG-047 | packages | Planned | active Turso dependencies and legacy-only SQLite boundary |
+| LN-PKG-047 | packages | Planned | Turso-only production dependencies and absence of SQLite database implementations |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
@@ -406,10 +406,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DB-006 | app-database | Planned | Turso vectors with no active sqlite-vec path |
 | LN-DB-007 | app-database | Planned | local embedding generation and model invalidation |
 | LN-DB-008 | app-database | Planned | shared hybrid result contract and fusion |
-| LN-DB-009 | app-database | Planned | one-time transactional legacy import and rollback retention |
+| LN-DB-009 | app-database | Planned | no legacy SQLite open, import, deletion, dependency, or query path |
 | LN-DB-010 | app-database | Planned | bounded allowlisted Electron database IPC |
 | LN-DB-011 | app-database | Planned | browser owner, heartbeat, RPC, and promotion behavior |
-| LN-DB-012 | app-database | Planned | explicit blocked and degraded runtime states |
+| LN-DB-012 | app-database | Planned | explicit blocked state without a non-Turso production fallback |
 | LN-DB-013 | app-database | Planned | local authority and future-only sync injection |
 | LN-WEB-001 | web-host | Planned | legacy PWA identity and host metadata |
 | LN-WEB-002 | web-host | Planned | browser-owned launcher, lifecycle, and plugin boot |

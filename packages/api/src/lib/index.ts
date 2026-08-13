@@ -31,7 +31,6 @@ export * from "./storage/memory-vault-adapter";
 export * from "./storage/blob-store";
 export * from "./storage/app-database";
 export * from "./storage/search-embedding-provider";
-export * from "./storage/sqlite-wasm-app-database";
 export * from "./storage/keyval";
 export * from "./storage/path";
 export * from "./storage/vault-state";

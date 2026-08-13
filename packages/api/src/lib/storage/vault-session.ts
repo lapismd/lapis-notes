@@ -1,27 +1,39 @@
-import type { AppDatabase, RuntimeTarget } from "./app-database";
-import { createDefaultAppDatabase } from "./app-database";
+import {
+  EMPTY_APP_DATABASE_CAPABILITIES,
+  MemoryAppDatabase,
+  type AppDatabase,
+  type AppDatabaseCapabilities,
+  type AppDatabaseDescriptor,
+  type AppDatabaseProvider,
+  type RuntimeTarget,
+} from "./app-database";
 import { BrowserCoordinatedAppDatabase } from "./browser-coordinated-app-database";
-import { BrowserSqliteCoordinator } from "./browser-sqlite-coordination";
+import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
 import type { VaultAdapter, VaultIdentityAdapter } from "./fs";
 import {
-  NativeDesktopAppDatabase,
-  hasNativeDesktopBridge,
-} from "./desktop-native";
+  TursoWasmAppDatabaseProvider,
+  canUseTursoWasmDatabase,
+} from "./turso-app-database";
 import { getAdapterVaultId, type VaultProfile } from "./vault-state";
 
 export type VaultSessionAppDatabaseStatus = "ready" | "blocked";
 
+/** @deprecated Read providerId, role, transport, and capabilities instead. */
 export type VaultSessionAppDatabaseMode =
-  | "sqlite-owner"
-  | "sqlite-native"
-  | "sqlite-proxy"
-  | "sqlite-blocked"
-  | "indexeddb-fallback"
-  | "memory-fallback";
+  | "turso-owner"
+  | "turso-native"
+  | "turso-proxy"
+  | "turso-blocked"
+  | "memory-test";
 
 export interface VaultSessionAppDatabaseState {
   status: VaultSessionAppDatabaseStatus;
+  /** @deprecated Compatibility summary derived from the provider descriptor. */
   mode: VaultSessionAppDatabaseMode;
+  providerId: string;
+  role: AppDatabaseDescriptor["role"];
+  transport: AppDatabaseDescriptor["transport"];
+  capabilities: AppDatabaseCapabilities;
   lockSupported: boolean;
   message?: string;
   ownerId?: string;
@@ -40,27 +52,62 @@ export interface VaultSession {
   close: () => Promise<void>;
 }
 
-function canUseBrowserOpfsDatabase(runtime: RuntimeTarget): boolean {
-  return (
-    runtime === "web-pwa" &&
-    typeof navigator !== "undefined" &&
-    typeof navigator.storage?.getDirectory === "function" &&
-    typeof SharedArrayBuffer !== "undefined" &&
-    typeof Atomics !== "undefined" &&
-    globalThis.crossOriginIsolated === true
-  );
+function compatibilityMode(
+  descriptor: AppDatabaseDescriptor,
+): VaultSessionAppDatabaseMode {
+  if (descriptor.engine === "memory") return "memory-test";
+  if (descriptor.role === "owner") return "turso-owner";
+  if (descriptor.role === "proxy") return "turso-proxy";
+  if (descriptor.transport === "native") return "turso-native";
+  return "turso-owner";
 }
 
-function fallbackMode(database: AppDatabase): VaultSessionAppDatabaseMode {
-  if (database.kind === "sqlite-native") {
-    return "sqlite-native";
-  }
-  return database.kind === "memory" ? "memory-fallback" : "indexeddb-fallback";
+function readyState(
+  database: AppDatabase,
+  lockSupported: boolean,
+  details: Partial<VaultSessionAppDatabaseState> = {},
+): VaultSessionAppDatabaseState {
+  const descriptor = database.descriptor;
+  return {
+    status: "ready",
+    mode: compatibilityMode(descriptor),
+    providerId: descriptor.providerId,
+    role: descriptor.role,
+    transport: descriptor.transport,
+    capabilities: descriptor.capabilities,
+    lockSupported,
+    ...details,
+  };
+}
+
+function blockedState(
+  message: string,
+  lockSupported: boolean,
+  details: Pick<
+    Partial<VaultSessionAppDatabaseState>,
+    "ownerId" | "heartbeatAt"
+  > = {},
+): VaultSessionAppDatabaseState {
+  return {
+    status: "blocked",
+    mode: "turso-blocked",
+    providerId: "turso-wasm-local",
+    role: "blocked",
+    transport: "wasm-worker",
+    capabilities: {
+      ...EMPTY_APP_DATABASE_CAPABILITIES,
+      localEmbeddings: true,
+      crossTabCoordination: lockSupported,
+    },
+    lockSupported,
+    message,
+    ...details,
+  };
 }
 
 function holdBrowserAppDatabaseOwnership(
   database: AppDatabase,
-  coordinator: BrowserSqliteCoordinator,
+  coordinator: BrowserAppDatabaseCoordinator,
 ): AppDatabase {
   const close = database.close.bind(database);
   let released = false;
@@ -69,9 +116,7 @@ function holdBrowserAppDatabaseOwnership(
     try {
       await close();
     } finally {
-      if (released) {
-        return;
-      }
+      if (released) return;
       released = true;
       coordinator.close();
     }
@@ -83,158 +128,164 @@ function holdBrowserAppDatabaseOwnership(
 interface AppDatabaseResolution {
   appDatabase?: AppDatabase;
   state: VaultSessionAppDatabaseState;
-  coordinator?: BrowserSqliteCoordinator;
-}
-
-function fallbackState(
-  database: AppDatabase,
-  lockSupported: boolean,
-): VaultSessionAppDatabaseState {
-  return {
-    status: "ready",
-    mode: fallbackMode(database),
-    lockSupported,
-  };
+  coordinator?: BrowserAppDatabaseCoordinator;
+  provider?: AppDatabaseProvider;
 }
 
 async function openOwnedBrowserAppDatabase(
   vaultId: string,
-  coordinator: BrowserSqliteCoordinator,
+  coordinator: BrowserAppDatabaseCoordinator,
+  provider: AppDatabaseProvider,
 ): Promise<AppDatabaseResolution> {
   const database = new BrowserCoordinatedAppDatabase(
     vaultId,
     coordinator,
     true,
+    provider,
   );
+  await database.open();
   return {
     appDatabase: holdBrowserAppDatabaseOwnership(database, coordinator),
-    state: {
-      status: "ready",
-      mode: "sqlite-owner",
-      lockSupported: true,
+    state: readyState(database, true, {
+      mode: "turso-owner",
+      role: "owner",
       ownerId: coordinator.ownerId,
       heartbeatAt: Date.now(),
-    },
+    }),
     coordinator,
+    provider,
+  };
+}
+
+async function createBrowserAppDatabase(
+  vaultId: string,
+  provider: AppDatabaseProvider,
+): Promise<AppDatabaseResolution> {
+  const lockSupported = BrowserAppDatabaseCoordinator.hasLockApi();
+  if (!canUseTursoWasmDatabase()) {
+    return {
+      state: blockedState(
+        "Turso requires OPFS and cross-origin isolation in this browser.",
+        lockSupported,
+      ),
+      provider,
+    };
+  }
+  if (!lockSupported) {
+    return {
+      state: blockedState(
+        "Turso requires the Web Locks API to protect this vault database.",
+        false,
+      ),
+      provider,
+    };
+  }
+
+  const coordinator = new BrowserAppDatabaseCoordinator(vaultId);
+  const acquired = await coordinator.tryAcquireOwnership();
+  if (acquired) {
+    return openOwnedBrowserAppDatabase(vaultId, coordinator, provider);
+  }
+  if (typeof BroadcastChannel === "undefined") {
+    return {
+      state: blockedState("App database already open in another tab.", true, {
+        ownerId: coordinator.observedOwnerId ?? undefined,
+        heartbeatAt: coordinator.observedHeartbeatAt ?? undefined,
+      }),
+      coordinator,
+      provider,
+    };
+  }
+
+  const database = new BrowserCoordinatedAppDatabase(
+    vaultId,
+    coordinator,
+    false,
+    provider,
+  );
+  await database.open();
+  return {
+    appDatabase: database,
+    state: readyState(database, true, {
+      mode: "turso-proxy",
+      role: "proxy",
+      message: "App database requests are being delegated to another tab.",
+      ownerId: coordinator.observedOwnerId ?? undefined,
+      heartbeatAt: coordinator.observedHeartbeatAt ?? undefined,
+    }),
+    coordinator,
+    provider,
   };
 }
 
 async function createPreferredAppDatabase(
   vaultId: string,
   runtime: RuntimeTarget,
+  provider?: AppDatabaseProvider,
 ): Promise<AppDatabaseResolution> {
-  if (runtime === "electron-desktop" && hasNativeDesktopBridge()) {
-    return {
-      appDatabase: new NativeDesktopAppDatabase(vaultId),
-      state: {
-        status: "ready",
-        mode: "sqlite-native",
-        lockSupported: false,
-      },
-    };
+  if (runtime === "test") {
+    const database = provider
+      ? await provider.open({ vaultId, runtime, role: "test" })
+      : new MemoryAppDatabase(vaultId);
+    if (!provider) await database.open();
+    return { appDatabase: database, state: readyState(database, false) };
   }
-
-  if (!canUseBrowserOpfsDatabase(runtime)) {
-    const fallbackDatabase = createDefaultAppDatabase(vaultId);
-    return {
-      appDatabase: fallbackDatabase,
-      state: fallbackState(
-        fallbackDatabase,
-        BrowserSqliteCoordinator.hasLockApi(),
-      ),
-    };
-  }
-
-  if (!BrowserSqliteCoordinator.hasLockApi()) {
-    console.warn(
-      "Web Locks API unavailable; falling back to the IndexedDB app database",
-    );
-    const fallbackDatabase = createDefaultAppDatabase(vaultId);
-    return {
-      appDatabase: fallbackDatabase,
-      state: fallbackState(fallbackDatabase, false),
-    };
-  }
-
-  const coordinator = new BrowserSqliteCoordinator(vaultId);
-  const acquired = await coordinator.tryAcquireOwnership();
-  if (!acquired) {
-    if (typeof BroadcastChannel === "undefined") {
-      return {
-        state: {
-          status: "blocked",
-          mode: "sqlite-blocked",
-          lockSupported: true,
-          message: "App database already open in another tab.",
-          ownerId: coordinator.observedOwnerId ?? undefined,
-          heartbeatAt: coordinator.observedHeartbeatAt ?? undefined,
-        },
-        coordinator,
-      };
-    }
-
-    const database = new BrowserCoordinatedAppDatabase(
+  if (runtime === "web-pwa") {
+    return createBrowserAppDatabase(
       vaultId,
-      coordinator,
-      false,
+      provider ?? new TursoWasmAppDatabaseProvider(),
     );
-    return {
-      appDatabase: database,
-      state: {
-        status: "ready",
-        mode: "sqlite-proxy",
-        lockSupported: true,
-        message: "App database requests are being delegated to another tab.",
-        ownerId: coordinator.observedOwnerId ?? undefined,
-        heartbeatAt: coordinator.observedHeartbeatAt ?? undefined,
-      },
-      coordinator,
-    };
   }
-
-  return openOwnedBrowserAppDatabase(vaultId, coordinator);
+  if (provider) {
+    const database = await provider.open({
+      vaultId,
+      runtime,
+      role: "direct",
+    });
+    return { appDatabase: database, state: readyState(database, false) };
+  }
+  return {
+    state: blockedState("The Electron Turso database provider is unavailable.", false),
+  };
 }
 
 function createVaultSessionFactory(
   vaultAdapter: VaultAdapter,
-  options: {
-    runtime: RuntimeTarget;
-    profile?: VaultProfile;
-    appDatabase: AppDatabase;
-  },
+  runtime: RuntimeTarget,
+  profile: VaultProfile | undefined,
   vaultId: string,
 ) {
-  const runtime = options.runtime;
-
   const createFromResolution = (
     resolution: AppDatabaseResolution,
   ): VaultSession => ({
     runtime,
-    profile: options.profile,
+    profile,
     vaultAdapter,
     appDatabase: resolution.appDatabase,
     appDatabaseState: resolution.state,
     awaitAppDatabase:
-      resolution.state.status === "blocked" && resolution.coordinator
+      resolution.state.status === "blocked" &&
+      resolution.coordinator &&
+      resolution.provider
         ? async (awaitOptions = {}) => {
             const acquired =
               await resolution.coordinator!.waitForOwnership(awaitOptions);
             if (!acquired) {
               return createFromResolution({
+                ...resolution,
                 state: {
                   ...resolution.state,
                   ownerId: resolution.coordinator?.observedOwnerId ?? undefined,
                   heartbeatAt:
                     resolution.coordinator?.observedHeartbeatAt ?? undefined,
                 },
-                coordinator: resolution.coordinator,
               });
             }
-
             return createFromResolution(
               await openOwnedBrowserAppDatabase(
                 vaultId,
                 resolution.coordinator!,
+                resolution.provider!,
               ),
             );
           }
@@ -254,17 +305,15 @@ export async function createVaultSession(
     runtime: RuntimeTarget;
     profile: VaultProfile;
     appDatabase: AppDatabase;
+    appDatabaseProvider: AppDatabaseProvider;
   }> = {},
 ): Promise<VaultSession> {
   const vaultId = getAdapterVaultId(vaultAdapter);
   const runtime = options.runtime ?? "web-pwa";
   const createFromResolution = createVaultSessionFactory(
     vaultAdapter,
-    {
-      runtime,
-      profile: options.profile,
-      appDatabase: options.appDatabase ?? createDefaultAppDatabase(vaultId),
-    },
+    runtime,
+    options.profile,
     vaultId,
   );
 
@@ -272,16 +321,16 @@ export async function createVaultSession(
     await options.appDatabase.open();
     return createFromResolution({
       appDatabase: options.appDatabase,
-      state: {
-        status: "ready",
-        mode: fallbackMode(options.appDatabase),
-        lockSupported: BrowserSqliteCoordinator.hasLockApi(),
-      },
+      state: readyState(options.appDatabase, false),
     });
   }
 
   return createFromResolution(
-    await createPreferredAppDatabase(vaultId, runtime),
+    await createPreferredAppDatabase(
+      vaultId,
+      runtime,
+      options.appDatabaseProvider,
+    ),
   );
 }
 

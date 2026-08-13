@@ -3,7 +3,7 @@ const HEARTBEAT_STALE_AFTER_MS = HEARTBEAT_INTERVAL_MS * 3;
 const RETRY_JITTER_MIN_MS = 150;
 const RETRY_JITTER_MAX_MS = 650;
 
-export interface BrowserSqliteHeartbeat {
+export interface BrowserAppDatabaseHeartbeat {
   type: "db-owner-heartbeat";
   vaultId: string;
   ownerId: string;
@@ -59,7 +59,7 @@ function retryDelayMs(): number {
   );
 }
 
-export class BrowserSqliteCoordinator {
+export class BrowserAppDatabaseCoordinator {
   readonly tabId = createTabId();
   readonly ownerId = this.tabId;
   readonly lockName: string;
@@ -73,7 +73,7 @@ export class BrowserSqliteCoordinator {
   private lastOwnerId: string | null = null;
 
   constructor(readonly vaultId: string) {
-    this.lockName = `lapis-notes-sqlite-opfs-owner:${vaultId}`;
+    this.lockName = `lapis-notes-app-database-owner:${vaultId}`;
     this.channelName = `lapis-notes-db-coordination:${vaultId}`;
     this.rpcChannelName = `lapis-notes-db-rpc:${vaultId}`;
   }
@@ -98,7 +98,7 @@ export class BrowserSqliteCoordinator {
   }
 
   async tryAcquireOwnership(): Promise<boolean> {
-    if (!BrowserSqliteCoordinator.hasLockApi()) {
+    if (!BrowserAppDatabaseCoordinator.hasLockApi()) {
       return false;
     }
 
@@ -233,7 +233,7 @@ export class BrowserSqliteCoordinator {
 
     this.heartbeatChannel = new BroadcastChannel(this.channelName);
     this.heartbeatChannel.addEventListener("message", (event) => {
-      const heartbeat = event.data as BrowserSqliteHeartbeat | undefined;
+      const heartbeat = event.data as BrowserAppDatabaseHeartbeat | undefined;
       if (
         !heartbeat ||
         heartbeat.type !== "db-owner-heartbeat" ||
@@ -260,7 +260,7 @@ export class BrowserSqliteCoordinator {
       return;
     }
 
-    const heartbeat: BrowserSqliteHeartbeat = {
+    const heartbeat: BrowserAppDatabaseHeartbeat = {
       type: "db-owner-heartbeat",
       vaultId: this.vaultId,
       ownerId: this.ownerId,
@@ -273,6 +273,6 @@ export class BrowserSqliteCoordinator {
   }
 }
 
-export function isBrowserSqliteAbort(error: unknown): boolean {
+export function isBrowserAppDatabaseAbort(error: unknown): boolean {
   return isAbortError(error);
 }

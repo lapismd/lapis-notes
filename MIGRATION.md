@@ -42,10 +42,10 @@ intake or UI swap status changes.
 - [ ] Provider-neutral descriptor, capability, factory, and vault-session contracts
 - [ ] Turso native and WASM drivers with normalized generated-state persistence
 - [ ] Turso full-text, vector, hybrid, and local embedding execution
-- [ ] Transactional legacy SQLite import with retained rollback source
+- [ ] Remove legacy SQLite, sqlite-vec, and IndexedDB app-database implementations and dependencies
 - [ ] Pure typed Electron database proxy and bounded main-process RPC
 - [ ] Generic Web Locks and BroadcastChannel owner/proxy coordination
-- [ ] Remove sqlite-vec from every active query path
+- [ ] Block unsupported production runtimes instead of opening a non-Turso database
 
 ### Electron desktop host intake progress
 

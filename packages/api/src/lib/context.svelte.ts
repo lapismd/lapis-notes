@@ -1,7 +1,6 @@
 import { getContext, setContext } from "svelte";
 import { Workspace } from "./workspace.svelte";
 import {
-  createDefaultAppDatabase,
   getAdapterVaultId,
   TFile,
   Vault,
@@ -288,10 +287,13 @@ export class App {
     }
     this.session = props.session;
     this.safeMode = props.safeMode ?? createDefaultAppSafeModeState();
-    this.appDatabase =
-      props.session?.appDatabase ??
-      props.appDatabase ??
-      createDefaultAppDatabase(getAdapterVaultId(adapter));
+    const appDatabase = props.session?.appDatabase ?? props.appDatabase;
+    if (!appDatabase) {
+      throw new Error(
+        `App requires an app database for vault ${getAdapterVaultId(adapter)}`,
+      );
+    }
+    this.appDatabase = appDatabase;
     this.workspace = new Workspace(this);
     const editorViewsSource = this.configurationOptionSources.register(
       "workspace.editorViews",

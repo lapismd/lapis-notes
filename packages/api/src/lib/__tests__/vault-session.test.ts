@@ -1,40 +1,52 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createDefaultAppDatabase } from "../storage/app-database";
-import { setNativeDesktopBridge } from "../storage/desktop-native";
+import {
+  EMPTY_APP_DATABASE_CAPABILITIES,
+  MemoryAppDatabase,
+  type AppDatabaseProvider,
+} from "../storage/app-database";
 import { createVaultSession } from "../storage/vault-session";
+
+const adapter = {
+  getName: () => "Mock vault",
+  getVaultId: () => "vault-under-test",
+} as any;
+
+const provider: AppDatabaseProvider = {
+  id: "test-turso-provider",
+  canOpen: () => true,
+  async open(context) {
+    const database = new MemoryAppDatabase(context.vaultId);
+    await database.open();
+    return database;
+  },
+};
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  setNativeDesktopBridge(null);
 });
 
 describe("createVaultSession", () => {
-  it("skips the sqlite OPFS path when the host is not cross-origin isolated", async () => {
+  it("blocks rather than falling back when cross-origin isolation is absent", async () => {
     vi.stubGlobal("navigator", {
-      storage: {
-        getDirectory: vi.fn(),
-      },
+      storage: { getDirectory: vi.fn() },
     });
     vi.stubGlobal("crossOriginIsolated", false);
 
-    const session = await createVaultSession(
-      {
-        getName: () => "Mock vault",
-        getVaultId: () => "vault-under-test",
-      } as any,
-      { runtime: "web-pwa" },
-    );
+    const session = await createVaultSession(adapter, { runtime: "web-pwa" });
 
-    if (!session.appDatabase) {
-      throw new Error("Expected the fallback app database to be available");
-    }
-    expect(session.appDatabase.kind).toBe(
-      createDefaultAppDatabase("vault-under-test").kind,
-    );
+    expect(session.appDatabase).toBeUndefined();
+    expect(session.appDatabaseState).toMatchObject({
+      status: "blocked",
+      mode: "turso-blocked",
+      providerId: "turso-wasm-local",
+      role: "blocked",
+      transport: "wasm-worker",
+      message: expect.stringContaining("cross-origin isolation"),
+    });
   });
 
-  it("proxies sqlite app database calls when another tab already owns the lock", async () => {
+  it("creates a Turso proxy when another tab owns the database lock", async () => {
     const request = vi.fn(async (_name, _options, callback) => callback(null));
     vi.stubGlobal(
       "BroadcastChannel",
@@ -44,91 +56,80 @@ describe("createVaultSession", () => {
         postMessage() {}
       },
     );
-
     vi.stubGlobal("navigator", {
-      storage: {
-        getDirectory: vi.fn(),
-      },
-      locks: {
-        request,
-      },
+      storage: { getDirectory: vi.fn() },
+      locks: { request },
     });
     vi.stubGlobal("crossOriginIsolated", true);
 
-    const session = await createVaultSession(
-      {
-        getName: () => "Mock vault",
-        getVaultId: () => "vault-under-test",
-      } as any,
-      { runtime: "web-pwa" },
-    );
+    const session = await createVaultSession(adapter, {
+      runtime: "web-pwa",
+      appDatabaseProvider: provider,
+    });
 
     expect(request).toHaveBeenCalledWith(
-      "lapis-notes-sqlite-opfs-owner:vault-under-test",
+      "lapis-notes-app-database-owner:vault-under-test",
       { mode: "exclusive", ifAvailable: true },
       expect.any(Function),
     );
-    expect(session.appDatabase).toBeDefined();
     expect(session.appDatabaseState).toMatchObject({
       status: "ready",
-      mode: "sqlite-proxy",
+      mode: "turso-proxy",
+      providerId: "test-turso-provider",
+      role: "proxy",
+      transport: "broadcast-proxy",
       lockSupported: true,
     });
   });
 
-  it("falls back when Web Locks are unavailable", async () => {
+  it("blocks rather than using another database when Web Locks are absent", async () => {
     vi.stubGlobal("navigator", {
-      storage: {
-        getDirectory: vi.fn(),
-      },
+      storage: { getDirectory: vi.fn() },
     });
     vi.stubGlobal("crossOriginIsolated", true);
 
-    const session = await createVaultSession(
-      {
-        getName: () => "Mock vault",
-        getVaultId: () => "vault-under-test",
-      } as any,
-      { runtime: "web-pwa" },
-    );
+    const session = await createVaultSession(adapter, { runtime: "web-pwa" });
 
+    expect(session.appDatabase).toBeUndefined();
     expect(session.appDatabaseState).toMatchObject({
-      status: "ready",
+      status: "blocked",
+      mode: "turso-blocked",
       lockSupported: false,
+      capabilities: {
+        ...EMPTY_APP_DATABASE_CAPABILITIES,
+        localEmbeddings: true,
+        crossTabCoordination: false,
+      },
+      message: expect.stringContaining("Web Locks API"),
     });
-    expect(session.appDatabase?.kind).toBe(
-      createDefaultAppDatabase("vault-under-test").kind,
-    );
   });
 
-  it("uses the native sqlite app database on the desktop runtime", async () => {
-    setNativeDesktopBridge({
+  it("accepts an explicit provider without changing the AppDatabase contract", async () => {
+    const session = await createVaultSession(adapter, {
       runtime: "electron-desktop",
-      invoke: async (command, payload = {}) => {
-        if (command === "desktop_db_load_state") {
-          return null as never;
-        }
-        if (command === "desktop_db_save_state") {
-          return undefined as never;
-        }
-        throw new Error(`Unexpected command: ${command}`);
-      },
-      toFileUrl: (path) => `file://${path}`,
+      appDatabaseProvider: provider,
     });
 
-    const session = await createVaultSession(
-      {
-        getName: () => "Desktop vault",
-        getVaultId: () => "vault-under-test",
-      } as any,
-      { runtime: "electron-desktop" },
-    );
-
+    expect(session.appDatabase?.kind).toBe("memory");
     expect(session.appDatabaseState).toMatchObject({
       status: "ready",
-      mode: "sqlite-native",
-      lockSupported: false,
+      mode: "memory-test",
+      providerId: "memory-test",
+      role: "test",
+      transport: "memory",
     });
-    expect(session.appDatabase?.kind).toBe("sqlite-native");
+    await session.close();
+  });
+
+  it("keeps memory available only through explicit test injection", async () => {
+    const database = new MemoryAppDatabase("vault-under-test");
+    const session = await createVaultSession(adapter, {
+      runtime: "test",
+      appDatabase: database,
+    });
+
+    expect(session.appDatabase).toBe(database);
+    expect(session.appDatabaseState.mode).toBe("memory-test");
+    await session.close();
   });
 });

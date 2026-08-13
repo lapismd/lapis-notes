@@ -1,11 +1,12 @@
-import { createDefaultAppDatabase } from "./app-database";
 import type {
   AppDatabase,
+  AppDatabaseDescriptor,
   AppDatabaseFileHistory,
   AppDatabaseIndexedFile,
   AppDatabaseIndexedMetadataQuery,
   AppDatabaseIndexedMetadataRow,
   AppDatabaseKind,
+  AppDatabaseProvider,
   AppDatabaseNotificationRecord,
   AppDatabaseSearchIndexStats,
   AppDatabaseNotebookState,
@@ -18,8 +19,8 @@ import type {
   SearchEmbeddingProviderConfig,
   SearchEmbeddingRuntimeStatus,
 } from "./app-database";
-import { SqliteWasmAppDatabase } from "./sqlite-wasm-app-database";
-import { BrowserSqliteCoordinator } from "./browser-sqlite-coordination";
+import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
+import { TursoWasmAppDatabaseProvider } from "./turso-app-database";
 
 type AppDatabaseMethod =
   | "open"
@@ -84,15 +85,7 @@ type AppDatabaseMessage =
 const REQUEST_TIMEOUT_MS = 15_000;
 const LOCAL_RECOVERY_POLL_MS = 100;
 
-export type BrowserCoordinatedAppDatabaseMode = "sqlite-owner" | "sqlite-proxy";
-
-function isSqliteWorkerDisabledForBrowserRuntime(): boolean {
-  return (
-    typeof globalThis !== "undefined" &&
-    (globalThis as { __LAPIS_DISABLE_DB_WORKER__?: unknown })
-      .__LAPIS_DISABLE_DB_WORKER__ === true
-  );
-}
+export type BrowserCoordinatedAppDatabaseMode = "turso-owner" | "turso-proxy";
 
 function isRequestMessage(
   message: unknown,
@@ -126,7 +119,26 @@ function createRequestId(): string {
 
 export class BrowserCoordinatedAppDatabase implements AppDatabase {
   get kind(): AppDatabaseKind {
-    return this.localDatabase?.kind ?? "sqlite-wasm";
+    return this.localDatabase?.kind ?? "turso-wasm";
+  }
+
+  get descriptor(): AppDatabaseDescriptor {
+    if (this.localDatabase) return this.localDatabase.descriptor;
+    return {
+      providerId: this.provider.id,
+      engine: "turso",
+      transport: "broadcast-proxy",
+      role: "proxy",
+      storageMode: "local",
+      capabilities: {
+        nativeFullTextSearch: true,
+        vectorSearch: true,
+        approximateNearestNeighbors: false,
+        localEmbeddings: true,
+        crossTabCoordination: true,
+        sync: false,
+      },
+    };
   }
 
   private localDatabase: AppDatabase | null = null;
@@ -150,14 +162,15 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
 
   constructor(
     readonly vaultId: string,
-    private readonly coordinator: BrowserSqliteCoordinator,
+    private readonly coordinator: BrowserAppDatabaseCoordinator,
     private startsOwned: boolean,
+    private readonly provider: AppDatabaseProvider = new TursoWasmAppDatabaseProvider(),
   ) {}
 
   get coordinationMode(): BrowserCoordinatedAppDatabaseMode {
     return this.startsOwned || this.localDatabase
-      ? "sqlite-owner"
-      : "sqlite-proxy";
+      ? "turso-owner"
+      : "turso-proxy";
   }
 
   onCoordinationModeChange(
@@ -610,21 +623,11 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
   }
 
   private async openLocalDatabase(): Promise<AppDatabase> {
-    try {
-      const database = new SqliteWasmAppDatabase(this.vaultId, {
-        useWorker: !isSqliteWorkerDisabledForBrowserRuntime(),
-      });
-      await database.open();
-      return database;
-    } catch (error) {
-      console.warn(
-        "Falling back to IndexedDB app database after SQLite WASM startup failed",
-        error,
-      );
-      const fallbackDatabase = createDefaultAppDatabase(this.vaultId);
-      await fallbackDatabase.open();
-      return fallbackDatabase;
-    }
+    return this.provider.open({
+      vaultId: this.vaultId,
+      runtime: "web-pwa",
+      role: "owner",
+    });
   }
 
   private notifyCoordinationModeChange(): void {

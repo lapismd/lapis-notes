@@ -37,7 +37,7 @@
 | LN-ARCH-031 | Native application hosts MUST map typed platform metadata to host-owned root CSS state. Reusable workspace components MUST expose semantic styling hosts without detecting Electron or hard-coding native window-control geometry. |
 | LN-ARCH-032 | Application hosts MAY register the reusable `@lapis-notes/file-explorer` contribution, but plugin enablement order, configuration and metadata boot, community-plugin policy, and teardown MUST remain host-owned. `@lapis-notes/workspace` MUST remain shell-only. |
 | LN-ARCH-033 | `@lapis-notes/search` MUST keep indexing and query execution behind API contracts while consuming Design Core filter presentation through its public export. Markdown panels MAY invoke Search only through commands. |
-| LN-ARCH-034 | App-database selection MUST use an API-owned provider contract. Search and workspace consumers MUST depend on `AppDatabase` capabilities instead of Turso, transport, or process-specific implementations. |
+| LN-ARCH-034 | App-database selection MUST use an API-owned provider contract. Production hosts MUST register Turso providers without retaining SQLite compatibility or non-Turso fallback paths, while Search and workspace consumers MUST depend only on generic `AppDatabase` capabilities. |
 | LN-ARCH-035 | `@lapis-notes/web` MUST own browser vault selection, session boot, PWA lifecycle, and plugin loading while consuming `@lapis-notes/api` and `@lapis-notes/workspace`. |
 | LN-ARCH-036 | Browser database coordination MUST elect one local owner per vault and delegate typed operations from proxy tabs. Coordination MUST NOT be presented as cloud sync. |
 
