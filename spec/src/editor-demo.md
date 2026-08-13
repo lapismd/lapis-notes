@@ -46,7 +46,7 @@
 | LN-ED-044 | Storybook and production desktop hosts MUST consume the same `@lapis-notes/file-explorer` implementation, and Tags MUST come from `@lapis-notes/markdown`. Storybook MAY parameterize Explorer loading state, but MUST NOT retain duplicate plugin or view implementations. |
 | LN-ED-045 | Search panel stories MUST boot the reusable Search plugin against the shared panel demo vault and database, rather than a static result fixture or a Storybook-only query implementation. |
 | LN-ED-046 | The Ready editor story MUST open `Ideas.markdown`, close the last visible sidebar through real shell controls, and verify that the workspace pane expands while the readable editor body stabilizes at 700px instead of shrinking. The story MUST restore the sidebar and close the note after acceptance. |
-| LN-ED-047 | Explorer file activation MUST distinguish single-click reuse, double-click reuse-or-create, and Command-click forced creation while keeping Design Core gesture intent separate from the Lapis workspace adapter. |
+| LN-ED-047 | Explorer file activation MUST consume Design Core's current, reveal-or-new-tab, and new-tab intents to distinguish single-click reuse, double-click reuse-or-create, and Command-click forced creation in the Lapis workspace adapter. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |

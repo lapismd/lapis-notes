@@ -1,0 +1,32 @@
+import {
+  findOpenFileLeaf,
+  type App,
+  type TFile,
+  type WorkspaceLeaf,
+} from "@lapis-notes/api";
+import type { ExplorerOpenDisposition } from "@lapismd/design-core/workspace/explorer";
+
+export async function openExplorerFile(
+  app: App,
+  file: TFile,
+  disposition: ExplorerOpenDisposition,
+): Promise<void> {
+  if (disposition === "current") {
+    await app.openFile(file);
+    return;
+  }
+
+  if (disposition === "reveal-or-new-tab") {
+    const existingLeaf = findOpenFileLeaf<WorkspaceLeaf>(app.workspace, file);
+    if (existingLeaf) {
+      app.workspace.activeLeaf = existingLeaf;
+      await app.workspace.revealLeaf(existingLeaf);
+      return;
+    }
+  }
+
+  const leaf = app.workspace.getLeaf("tab");
+  app.workspace.activeLeaf = leaf;
+  await leaf.openFile(file);
+  await app.workspace.revealLeaf(leaf);
+}

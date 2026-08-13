@@ -22,6 +22,7 @@ import type { WorkspaceAction } from "@lapismd/design-core/workspace/core";
 import { mount, unmount } from "svelte";
 import LapisExplorerView from "./LapisExplorerView.svelte";
 import LapisLanding from "./LapisLandingView.svelte";
+import { openExplorerFile } from "./open-explorer-file";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
@@ -153,14 +154,11 @@ function createExplorerController(app: App, loading: boolean) {
         withNotice(async () => {
           const file = app.vault.getFileByPath(path);
           if (!file) throw new Error(`Unable to find file: ${path}`);
-          if (options?.disposition === "new-tab") {
-            const leaf = app.workspace.getLeaf("tab");
-            app.workspace.activeLeaf = leaf;
-            await leaf.openFile(file);
-            await app.workspace.revealLeaf(leaf);
-            return;
-          }
-          await app.openFile(file);
+          await openExplorerFile(
+            app,
+            file,
+            options?.disposition ?? "current",
+          );
         }),
       createFile: (parent) =>
         withNotice(async () => {

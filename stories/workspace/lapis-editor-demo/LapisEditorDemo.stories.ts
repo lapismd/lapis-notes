@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import { startCompletion } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
-import type { App, Editor } from "@lapis-notes/api";
+import { leafFilePath, type App, type Editor } from "@lapis-notes/api";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
 import LapisEditorDemo from "./LapisEditorDemo.svelte";
@@ -64,6 +64,14 @@ function activeStoryApp(canvasElement: HTMLElement): App {
   >('[data-testid="lapis-editor-demo"]')?.__lapisApp;
   if (!runtimeApp) throw new Error("The editor story has no active Lapis app");
   return runtimeApp;
+}
+
+function countRootLeaves(app: App): number {
+  let count = 0;
+  app.workspace.iterateRootLeaves(() => {
+    count += 1;
+  });
+  return count;
 }
 
 async function persistedStoryConfiguration(
@@ -200,33 +208,85 @@ export const Ready: Story = {
       );
     }
     const runtimeApp = activeStoryApp(canvasElement);
-    let rootLeavesBefore = 0;
-    runtimeApp.workspace.iterateRootLeaves(() => {
-      rootLeavesBefore += 1;
-    });
-    await fireEvent.click(ideasFile, { ctrlKey: true });
+    const rootLeavesBefore = countRootLeaves(runtimeApp);
+
+    await userEvent.click(ideasFile);
     await waitFor(() => {
-      let rootLeavesAfter = 0;
-      runtimeApp.workspace.iterateRootLeaves(() => {
-        rootLeavesAfter += 1;
-      });
-      expect(rootLeavesAfter).toBe(rootLeavesBefore + 1);
+      expect(countRootLeaves(runtimeApp)).toBe(rootLeavesBefore);
       expect(runtimeApp.workspace.activeEditor?.file?.path).toBe(
         "Notes/Ideas.markdown",
       );
     });
-    const modifierOpenedLeaf = runtimeApp.workspace.activeLeaf;
-    expect(modifierOpenedLeaf).not.toBeNull();
+    const singleOpenedLeaf = runtimeApp.workspace.activeLeaf;
+    expect(singleOpenedLeaf).not.toBeNull();
+
+    const welcomeFile = runtimeApp.vault.getFileByPath("Notes/Welcome.md");
+    expect(welcomeFile).not.toBeNull();
+    const alternateLeaf = runtimeApp.workspace.getLeaf("tab");
+    runtimeApp.workspace.activeLeaf = alternateLeaf;
+    await alternateLeaf.openFile(welcomeFile!);
+    await runtimeApp.workspace.revealLeaf(alternateLeaf);
+    const leavesWithAlternate = countRootLeaves(runtimeApp);
+
+    await userEvent.click(ideasFile);
+    await waitFor(() => {
+      expect(runtimeApp.workspace.activeLeaf).toBe(singleOpenedLeaf);
+      expect(countRootLeaves(runtimeApp)).toBe(leavesWithAlternate);
+      expect(leafFilePath(alternateLeaf)).toBe("Notes/Welcome.md");
+    });
+
+    singleOpenedLeaf!.detach();
+    runtimeApp.workspace.activeLeaf = alternateLeaf;
+    await runtimeApp.workspace.revealLeaf(alternateLeaf);
+    const leavesBeforeDoubleClick = countRootLeaves(runtimeApp);
+
+    await fireEvent.dblClick(ideasFile);
+    await waitFor(() => {
+      expect(countRootLeaves(runtimeApp)).toBe(leavesBeforeDoubleClick + 1);
+      expect(runtimeApp.workspace.activeEditor?.file?.path).toBe(
+        "Notes/Ideas.markdown",
+      );
+      expect(leafFilePath(alternateLeaf)).toBe("Notes/Welcome.md");
+    });
+    const doubleOpenedLeaf = runtimeApp.workspace.activeLeaf;
+    expect(doubleOpenedLeaf).not.toBeNull();
+
     await waitFor(() => {
       expect(
         findWorkspaceTab(
           getWorkspaceHostBinding(runtimeApp.workspace).controller.renderer
             .layout,
-          modifierOpenedLeaf!.id,
+          doubleOpenedLeaf!.id,
         )?.tab.title,
       ).toBe("Ideas.markdown");
     });
-    modifierOpenedLeaf!.detach();
+
+    runtimeApp.workspace.activeLeaf = alternateLeaf;
+    await runtimeApp.workspace.revealLeaf(alternateLeaf);
+    const leavesBeforeDoubleReuse = countRootLeaves(runtimeApp);
+    await fireEvent.dblClick(ideasFile);
+    await waitFor(() => {
+      expect(runtimeApp.workspace.activeLeaf).toBe(doubleOpenedLeaf);
+      expect(countRootLeaves(runtimeApp)).toBe(leavesBeforeDoubleReuse);
+    });
+
+    runtimeApp.workspace.activeLeaf = alternateLeaf;
+    await runtimeApp.workspace.revealLeaf(alternateLeaf);
+    const leavesBeforeCommandClick = countRootLeaves(runtimeApp);
+    await fireEvent.click(ideasFile, { metaKey: true });
+    await waitFor(() => {
+      expect(countRootLeaves(runtimeApp)).toBe(leavesBeforeCommandClick + 1);
+      expect(runtimeApp.workspace.activeEditor?.file?.path).toBe(
+        "Notes/Ideas.markdown",
+      );
+      expect(runtimeApp.workspace.activeLeaf).not.toBe(doubleOpenedLeaf);
+    });
+    const commandOpenedLeaf = runtimeApp.workspace.activeLeaf;
+    expect(commandOpenedLeaf).not.toBeNull();
+
+    commandOpenedLeaf!.detach();
+    doubleOpenedLeaf!.detach();
+    alternateLeaf.detach();
     await waitFor(() =>
       expect(
         canvas.getByRole("heading", { name: "No file is open" }),

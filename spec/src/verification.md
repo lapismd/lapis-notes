@@ -13,7 +13,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-007 | architecture      | Implemented | `packages/workspace`; workspace-shell requirements                                                                                                                                                                                                                                          |
 | LN-ARCH-008 | architecture      | Implemented | design-core Storybook stylesheet and catalog-layout synchronizer                                                                                                                                                                                                                            |
 | LN-ARCH-009 | architecture      | Implemented | api V3 bottom-panel projection, alternate filenames, and single layout writer                                                                                                                                                                                                               |
-| LN-ARCH-010 | architecture      | Implemented | Storybook-local editor policy; reusable API, File Explorer, and Design Core activation boundaries                                                                                                                                                                                           |
+| LN-ARCH-010 | architecture      | Implemented | Storybook-local editor policy; reusable API and File Explorer; Design Core owns three activation intents that Lapis maps to leaves                                                                                                                                                           |
 | LN-ARCH-011 | architecture      | Implemented | root CodeMirror language deps + host-authoritative CodeMirror/Lezer singleton peers                                                                                                                                                                                                         |
 | LN-ARCH-012 | architecture      | Implemented | Storybook resolves linked/staged sibling package exports without external source aliases                                                                                                                                                                                                    |
 | LN-ARCH-013 | architecture      | Implemented | Storybook API editor, core, and language-service subpath aliases share the root API source and CodeMirror state-field identity |
@@ -68,7 +68,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-037  | packages          | Implemented | API editor stylesheet paints the inline problem widget with native CSS and public workspace tokens |
 | LN-PKG-038  | packages          | Implemented | View Problem dismisses and clears its originating hover card before pointer acceptance closes the inline surface and reopens a later hover |
 | LN-PKG-039  | packages          | Implemented | private desktop package at version `2026.31.5`; package check, unit test, production build, Electron acceptance, and packaged smoke pass |
-| LN-PKG-043  | packages          | Implemented | reusable `packages/file-explorer` plugin maps Design Core activation disposition to API workspace leaves without owning host boot policy |
+| LN-PKG-043  | packages          | Implemented | reusable `packages/file-explorer` maps current, reveal-or-create, and forced-new-tab Design Core intents to API workspace leaves |
 | LN-PKG-040  | packages          | Implemented | public `./markdownlint/runtime` export; language-service tests/build plus Electron diagnostics and code-action acceptance pass |
 | LN-PKG-041  | packages          | Implemented | desktop launcher imports public Design Core primitives and Lapis helpers while native bootstrap and switching remain package-local |
 | LN-PKG-042  | packages          | Implemented | `WorkspaceShell` forwards only the generic Design Core navigation contract; desktop owns vault profiles and actions |
@@ -417,7 +417,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
-| LN-ED-047 | editor-demo | Partial | Single-click reuse and forced modifier-open paths exist; distinct double-click intent and focused three-mode acceptance remain pending |
+| LN-ED-047 | editor-demo | Implemented | Ready story proves single-click reuse/current replacement, double-click reuse-or-create, and Command-click forced creation |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
 | LN-MD-087 | markdown-panel-tags | Implemented | Tags row opens Search through its registered command in focused Storybook acceptance |
 | LN-MD-088 | markdown-panel-all-properties | Implemented | property rows open escaped Search queries in focused Storybook acceptance |
