@@ -44,6 +44,10 @@
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.
 
+Within that boundary, `LN-SRCH-023` keeps result-row geometry and native CSS in
+the Search package while Design Core supplies reusable badges, tree primitives,
+surface tokens, and workspace placement.
+
 ## Package graph
 
 ```text

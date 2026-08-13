@@ -185,8 +185,7 @@
 
 .search-panel__tree-item {
   min-width: 0;
-  border-bottom: 1px solid var(--search-panel-border);
-  padding-block: 0.125rem 0.375rem;
+  padding: 0;
 }
 
 .search-panel__result {
@@ -225,14 +224,15 @@
 .search-panel__file {
   position: relative;
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto auto minmax(0, 1fr);
   align-items: start;
   gap: 0.375rem;
-  padding: 0.5rem 0.375rem;
+  padding: 0.5rem 2.125rem 0.5rem 0.375rem;
 }
 
 .search-panel__file--leaf {
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding-right: 0.375rem;
 }
 
 .search-panel__disclosure,
@@ -274,6 +274,17 @@
   font-size: 0.6875rem;
 }
 
+.search-panel__file-meta,
+.search-panel__match-meta {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  padding-top: 0.125rem;
+}
+
 .search-panel__mode-badge,
 .search-panel__count-badge,
 .search-panel__match-key {
@@ -284,11 +295,22 @@
   line-height: 1rem;
 }
 
-.search-panel__count-badge {
-  position: static;
-  align-self: center;
+.search-panel
+  [data-ui-part="sidebar-menu-badge"].search-panel__count-badge {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+  display: grid;
+  width: 1.25rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  place-items: center;
+  transform: none;
   border: 1px solid var(--search-panel-border);
   border-radius: 999px;
+  color: var(--ui-workspace-foreground, currentColor);
+  background: var(--ui-workspace-background, var(--background, #fff));
 }
 
 .search-panel__match-list {
@@ -299,14 +321,20 @@
 }
 
 .search-panel__match {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.125rem;
   border-radius: 0;
   padding: 0.5rem 0.625rem;
   font-size: 0.75rem;
   line-height: 1.25rem;
+}
+
+.search-panel__match-text {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .search-panel__match-list li + li .search-panel__match {
@@ -342,14 +370,4 @@
   color: var(--search-panel-muted);
   font-size: 0.8125rem;
   text-align: center;
-}
-
-@media (max-width: 30rem) {
-  .search-panel__file {
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
-  }
-
-  .search-panel__file .search-panel__mode-badge {
-    display: none;
-  }
 }

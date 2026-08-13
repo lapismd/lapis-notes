@@ -640,10 +640,12 @@
                         {/if}
                       </strong>
                       <small>{result.file.path}</small>
+                      <span class="search-panel__file-meta">
+                        <Badge variant="outline" class="search-panel__mode-badge">
+                          {result.hit.retrievalMode}
+                        </Badge>
+                      </span>
                     </span>
-                    <Badge variant="outline" class="search-panel__mode-badge">
-                      {result.hit.retrievalMode}
-                    </Badge>
                     <Sidebar.MenuBadge class="search-panel__count-badge">
                       {result.matches.length}
                     </Sidebar.MenuBadge>
@@ -660,10 +662,14 @@
                             aria-selected="false"
                             onclick={() => openResult(result, match.pos)}
                           >
-                            <HighlightedText text={match.text} ranges={match.ranges} />
-                            <Badge variant="outline" class="search-panel__match-key">
-                              {match.key}
-                            </Badge>
+                            <span class="search-panel__match-text">
+                              <HighlightedText text={match.text} ranges={match.ranges} />
+                            </span>
+                            <span class="search-panel__match-meta">
+                              <Badge variant="outline" class="search-panel__match-key">
+                                {match.key}
+                              </Badge>
+                            </span>
                           </button>
                         </Sidebar.MenuSubItem>
                       {/each}
@@ -683,10 +689,12 @@
                   <span class="search-panel__file-label">
                     <strong>{result.file.name}</strong>
                     <small>{result.file.path}</small>
+                    <span class="search-panel__file-meta">
+                      <Badge variant="outline" class="search-panel__mode-badge">
+                        {result.hit.retrievalMode}
+                      </Badge>
+                    </span>
                   </span>
-                  <Badge variant="outline" class="search-panel__mode-badge">
-                    {result.hit.retrievalMode}
-                  </Badge>
                 </button>
               {/if}
             </Sidebar.MenuItem>

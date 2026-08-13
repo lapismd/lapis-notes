@@ -91,6 +91,31 @@ function placementStory(
           .some((item) => item.getAttribute("aria-level") === "2"),
       ).toBe(true);
       expect(within(tree).getAllByText("lexical").length).toBeGreaterThan(0);
+      const resultRow = fileTreeItem!;
+      const resultLabel = resultRow.querySelector<HTMLElement>(
+        ".search-panel__file-label",
+      );
+      const countBadge = resultRow.querySelector<HTMLElement>(
+        ".search-panel__count-badge",
+      );
+      const modeBadge = resultRow.querySelector<HTMLElement>(
+        ".search-panel__mode-badge",
+      );
+      expect(resultLabel).not.toBeNull();
+      expect(countBadge).not.toBeNull();
+      expect(modeBadge).not.toBeNull();
+      const resultRect = resultRow.getBoundingClientRect();
+      const labelRect = resultLabel!.getBoundingClientRect();
+      const countRect = countBadge!.getBoundingClientRect();
+      const modeRect = modeBadge!.getBoundingClientRect();
+      expect(Math.abs(countRect.width - countRect.height)).toBeLessThan(1);
+      expect(countRect.top).toBeLessThan(labelRect.top + 2);
+      expect(resultRect.right - countRect.right).toBeGreaterThanOrEqual(0);
+      expect(getComputedStyle(countBadge!).backgroundColor).not.toBe(
+        "rgba(0, 0, 0, 0)",
+      );
+      expect(Math.abs(modeRect.left - labelRect.left)).toBeLessThan(1);
+      expect(modeRect.top).toBeGreaterThan(labelRect.top);
       const editor = canvasElement.querySelector<HTMLElement>(
         '[data-testid="search-panel"] .cm-editor',
       );
@@ -102,6 +127,19 @@ function placementStory(
         canvasElement.querySelectorAll('[data-testid="search-panel"] mark').length,
       ).toBeGreaterThan(0);
       expect(within(tree).getAllByText("content").length).toBeGreaterThan(0);
+      const firstMatch = within(tree)
+        .getAllByRole("treeitem")
+        .find((item) => item.getAttribute("aria-level") === "2")!;
+      const matchText = firstMatch.querySelector<HTMLElement>(
+        ".search-panel__match-text",
+      )!;
+      const matchKey = firstMatch.querySelector<HTMLElement>(
+        ".search-panel__match-key",
+      )!;
+      const matchTextRect = matchText.getBoundingClientRect();
+      const matchKeyRect = matchKey.getBoundingClientRect();
+      expect(Math.abs(matchKeyRect.left - matchTextRect.left)).toBeLessThan(1);
+      expect(matchKeyRect.top).toBeGreaterThanOrEqual(matchTextRect.bottom);
 
       await userEvent.click(
         panel.getByRole("button", { name: "Expand filter options" }),
