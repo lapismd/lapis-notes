@@ -54,6 +54,8 @@ that boundary without resizing the workspace split.
 The generated CV Markdown surface remains a CV-owned composition of Mira's
 public layout contract. It may replace Mira's note-oriented readable column
 with a full-width artifact surface without changing Mira's defaults for notes.
+Its public wrapper selector must keep that contract stable when linked Mira
+styles load later than the CV component styles.
 
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.

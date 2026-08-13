@@ -54,7 +54,7 @@
     flex: 1 1 auto;
   }
 
-  :global(.cv-markdown-artifact__surface) {
+  .cv-markdown-artifact__body :global(.mira.cv-markdown-artifact__surface) {
     --file-line-width: 100%;
     --file-margins-x: 1rem;
     --mira-preview-padding: 1rem;

@@ -366,9 +366,11 @@
     expect(
       getComputedStyle(artifact).borderTopWidth,
     ).toBe("0px");
-    expect(
-      getComputedStyle(mira!).borderTopWidth,
-    ).toBe("0px");
+    const previewSurfaceStyle = getComputedStyle(mira!);
+    expect(previewSurfaceStyle.borderTopWidth).toBe("0px");
+    expect(previewSurfaceStyle.borderRightWidth).toBe("0px");
+    expect(previewSurfaceStyle.borderBottomWidth).toBe("0px");
+    expect(previewSurfaceStyle.borderLeftWidth).toBe("0px");
     expect(
       getComputedStyle(mira!).borderRadius,
     ).toBe("0px");
@@ -432,6 +434,11 @@
     await waitFor(() => {
       expect(artifact.getAttribute("data-markdown-mode")).toBe("source");
       expect(mira?.getAttribute("data-mode")).toBe("source");
+      const sourceSurfaceStyle = getComputedStyle(mira!);
+      expect(sourceSurfaceStyle.borderTopWidth).toBe("0px");
+      expect(sourceSurfaceStyle.borderRightWidth).toBe("0px");
+      expect(sourceSurfaceStyle.borderBottomWidth).toBe("0px");
+      expect(sourceSurfaceStyle.borderLeftWidth).toBe("0px");
       expect(markdownDocument.style.width).toBe("85%");
       expect(markdownDocument.getBoundingClientRect().width).toBeCloseTo(
         markdownFittedWidth * 0.85,
