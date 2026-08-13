@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	clampZoom,
+	ZOOM_STEP,
 	normalizePreviewMode,
 	previewModeLabel,
 	previewWidthStyle,
@@ -19,12 +20,14 @@ describe("cv preview options", () => {
 		expect(previewModeLabel("rendercv-html", "svg")).toBe("HTML");
 	});
 
-	it("clamps zoom and sizes the 820px document by width", () => {
-		expect(clampZoom(0.1)).toBe(0.5);
+	it("clamps zoom and scales the document relative to the preview pane", () => {
+		expect(clampZoom(0.1)).toBe(0.25);
 		expect(clampZoom(3)).toBe(2.5);
-		expect(clampZoom(0.9)).toBe(0.9);
-		expect(previewWidthStyle(1)).toBe("width: 820px; max-width: none;");
-		expect(previewWidthStyle(0.9)).toBe("width: 738px; max-width: none;");
-		expect(previewWidthStyle(1.1)).toBe("width: 902px; max-width: none;");
+		expect(clampZoom(0.85)).toBe(0.85);
+		expect(ZOOM_STEP).toBe(0.15);
+		expect(previewWidthStyle(1)).toBe("width: 100%; max-width: none;");
+		expect(previewWidthStyle(0.85)).toBe("width: 85%; max-width: none;");
+		expect(previewWidthStyle(1.15)).toBe("width: 115%; max-width: none;");
+		expect(previewWidthStyle(1.27)).toBe("width: 127%; max-width: none;");
 	});
 });

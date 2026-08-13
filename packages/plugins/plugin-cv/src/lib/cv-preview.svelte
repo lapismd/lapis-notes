@@ -3,7 +3,6 @@
   import dmSansNormalFontUrl from "@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url";
   import { withHtmlPreviewFonts } from "$lib/cv/compiler/html-preview";
   import {
-    previewPageStackWide,
     previewWidthStyle,
     type CvPreviewMode,
   } from "$lib/cv/cv-options";
@@ -38,7 +37,6 @@
     artifacts.filter((artifact) => artifact.preview && artifact.extension === previewFormat),
   );
   const documentStyle = $derived(previewWidthStyle(zoom));
-  const stackWide = $derived(previewPageStackWide(zoom));
   const htmlSrcdoc = $derived(
     withHtmlPreviewFonts(html, {
       normal: dmSansNormalFontUrl,
@@ -94,11 +92,7 @@
 
   {#if mode === "rendercv"}
     {#if pageUrls.length}
-      <div
-        class="cv-preview__pages"
-        data-testid="cv-preview-pages"
-        data-zoom-wide={stackWide ? "" : undefined}
-      >
+      <div class="cv-preview__pages" data-testid="cv-preview-pages">
         {#each pageUrls as page (page.id)}
           <img
             class="cv-preview__page"
@@ -173,9 +167,11 @@
 
   .cv-preview__markdown-frame {
     display: flex;
+    box-sizing: border-box;
+    min-width: 0;
     min-height: 100%;
     flex: 1 0 auto;
-    align-self: center;
+    align-self: safe center;
   }
 
   .cv-preview__error {
@@ -194,6 +190,8 @@
   }
 
   .cv-preview__html-frame {
+    box-sizing: border-box;
+    min-width: 0;
     margin-inline: auto;
   }
 
@@ -211,12 +209,8 @@
     min-width: 100%;
     width: 100%;
     flex-direction: column;
-    align-items: center;
+    align-items: safe center;
     gap: 1.5rem;
-  }
-
-  .cv-preview__pages[data-zoom-wide] {
-    width: max-content;
   }
 
   .cv-preview__page {
@@ -228,7 +222,9 @@
   }
 
   .cv-preview__text {
+    box-sizing: border-box;
     margin: 0 auto;
+    min-width: 0;
     min-height: 100%;
     padding: 1.5rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

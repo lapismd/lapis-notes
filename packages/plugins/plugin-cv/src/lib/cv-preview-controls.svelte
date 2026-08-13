@@ -10,6 +10,7 @@
     clampZoom,
     previewModeLabel,
     previewOptions,
+    ZOOM_STEP,
     type CvPreviewMode,
     type CvPreviewOption,
   } from "$lib/cv/cv-options";
@@ -80,7 +81,7 @@
       variant="ghost"
       size="icon-sm"
       aria-label="Zoom out"
-      onclick={() => setZoom(zoom - 0.1)}
+      onclick={() => setZoom(zoom - ZOOM_STEP)}
     >
       <MinusIcon />
     </Button>
@@ -97,7 +98,7 @@
       variant="ghost"
       size="icon-sm"
       aria-label="Zoom in"
-      onclick={() => setZoom(zoom + 0.1)}
+      onclick={() => setZoom(zoom + ZOOM_STEP)}
     >
       <PlusIcon />
     </Button>

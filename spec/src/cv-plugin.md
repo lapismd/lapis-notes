@@ -23,7 +23,7 @@ slice.
 | LN-CV-012 | The package Storybook MUST include one App-backed workspace story that registers File Explorer, Search, and optional CV, restores explorer, search, and a `*.cv.yml` leaf, and asserts those three view types. |
 | LN-CV-013 | The CV workspace MUST fill the leaf view host. AppShell main inset, radius, shadow, and border MUST be zeroed through documented `--ui-shell-main-*` tokens so the view is white edge to edge. |
 | LN-CV-014 | The preview toolbar MUST offer Typst SVG, Typst PNG, Typst source, Markdown, and HTML. Typst SVG and PNG MUST come from the browser WASM worker. HTML, Markdown, and Typst source MUST come from compile output. A selected Typst page mode MUST NOT silently swap to HTML while a render is in flight. |
-| LN-CV-015 | Preview zoom MUST stay between 50% and 250%. Typst pages, HTML, Markdown Preview and Source, and Typst source MUST share the same 820px width scale. Width MUST remain continuous across 100%, preserve the viewport anchor, and leave the pane split unchanged. |
+| LN-CV-015 | Preview zoom MUST stay between 25% and 250%. Typst pages, HTML, Markdown Preview and Source, and Typst source MUST share the same pane-relative width scale. Width MUST remain continuous across 100%, preserve the viewport anchor, and leave the pane split unchanged. |
 | LN-CV-016 | The CV form area MUST show previous, current, and next RenderCV theme controls. Design, Locale, and Settings MUST hide that shortcut. Those controls MUST write `design.theme`, while the Design tab theme field remains available. |
 | LN-CV-017 | The CV workspace MUST fill leftover height under the toolbar and form-area tabs. The leaf MUST NOT scroll as a whole. Form, YAML, and preview MUST each own an independent scrollport. |
 | LN-CV-018 | The main toolbar MUST include a YAML switch that shows the YAML editor in the editor pane. Form and YAML MUST NOT appear as peer workspace tabs. Edit and Preview tabs MUST appear only when the form and preview columns stack into one row. |
@@ -69,9 +69,9 @@ The preview mode dropdown verifies:
 
 Preview zoom verifies:
 
-- Minus, percent reset, and plus MUST move zoom in 10% steps between 50% and 250%.
+- Minus, percent reset, and plus MUST move zoom in 15% steps between 25% and 250%.
 - Every artifact mode MUST expose the same document width at the same zoom.
-- At 90%, 100%, and 110%, width MUST be 738px, 820px, and 902px without a responsive-width jump.
+- At 85%, 100%, and 115%, the document MUST use 85%, 100%, and 115% of the available preview width.
 - Ctrl or Cmd plus wheel on the preview scroller MUST change zoom.
 - Button and wheel changes MUST preserve the visible document anchor while the pane still fills its split.
 

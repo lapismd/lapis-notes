@@ -8,9 +8,9 @@ export type CvPreviewOption = {
 	previewFormat?: TypstPreviewFormat;
 };
 
-export const MIN_ZOOM = 0.5;
+export const MIN_ZOOM = 0.25;
 export const MAX_ZOOM = 2.5;
-export const PREVIEW_BASE_WIDTH = 820;
+export const ZOOM_STEP = 0.15;
 
 export const previewOptions: CvPreviewOption[] = [
 	{ value: 'rendercv', label: 'Typst SVG', previewFormat: 'svg' },
@@ -53,9 +53,6 @@ export function clampZoom(next: number): number {
 }
 
 export function previewWidthStyle(zoom: number): string {
-	return `width: ${Math.round(PREVIEW_BASE_WIDTH * zoom)}px; max-width: none;`;
-}
-
-export function previewPageStackWide(zoom: number): boolean {
-	return zoom > 1;
+	const fittedPercent = Number((zoom * 100).toFixed(2));
+	return `width: ${fittedPercent}%; max-width: none;`;
 }

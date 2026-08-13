@@ -47,6 +47,10 @@ The CV plugin also owns which form-area actions are contextual. Their overflow
 presentation composes Design Core Scroll Area rather than introducing a
 plugin-local scroll primitive.
 
+Preview zoom likewise remains CV-plugin presentation. It treats the preview
+pane's usable width as 100% and scales generated page and text surfaces from
+that boundary without resizing the workspace split.
+
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.
 

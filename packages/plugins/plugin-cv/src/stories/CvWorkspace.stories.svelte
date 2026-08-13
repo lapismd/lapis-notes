@@ -149,13 +149,17 @@
     expect(zoomBorder).toBeGreaterThan(0);
 
     const documentEl = canvas.getByTestId("cv-preview-document");
+    const previewRoot = canvas.getByTestId("cv-preview");
     const pane = canvas.getByTestId("cv-preview-pane");
     const paneWidthBefore = pane.getBoundingClientRect().width;
+    const fittedWidth = previewRoot.getBoundingClientRect().width;
+    expect(documentEl.getBoundingClientRect().width).toBeCloseTo(fittedWidth, 0);
     await userEvent.click(canvas.getByRole("button", { name: "Zoom out" }));
     await waitFor(() => {
-      expect(documentEl.style.width).toBe("738px");
+      expect(documentEl.style.width).toBe("85%");
+      expect(documentEl.getBoundingClientRect().width).toBeLessThan(fittedWidth);
     });
-    expect(Math.round(documentEl.getBoundingClientRect().width)).toBe(738);
+    expect(documentEl.getBoundingClientRect().width).toBeCloseTo(fittedWidth * 0.85, 0);
     expect(pane.getBoundingClientRect().width).toBeCloseTo(paneWidthBefore, 0);
     previewScroller.scrollLeft = Math.min(
       120,
@@ -166,7 +170,8 @@
       previewScroller.scrollWidth;
     await userEvent.click(canvas.getByRole("button", { name: "Zoom in" }));
     await waitFor(() => {
-      expect(documentEl.style.width).toBe("820px");
+      expect(documentEl.style.width).toBe("100%");
+      expect(documentEl.getBoundingClientRect().width).toBeCloseTo(fittedWidth, 0);
     });
     const anchorAfter =
       (previewScroller.scrollLeft + previewScroller.clientWidth / 2) /
@@ -384,10 +389,20 @@
     ).toBeTruthy();
 
     const markdownDocument = canvas.getByTestId("cv-preview-document");
-    expect(markdownDocument.style.width).toBe("820px");
+    const markdownPreviewRoot = canvas.getByTestId("cv-preview");
+    const markdownFittedWidth = markdownPreviewRoot.getBoundingClientRect().width;
+    expect(markdownDocument.style.width).toBe("100%");
+    expect(markdownDocument.getBoundingClientRect().width).toBeCloseTo(
+      markdownFittedWidth,
+      0,
+    );
     await userEvent.click(canvas.getByRole("button", { name: "Zoom out" }));
     await waitFor(() => {
-      expect(markdownDocument.style.width).toBe("738px");
+      expect(markdownDocument.style.width).toBe("85%");
+      expect(markdownDocument.getBoundingClientRect().width).toBeCloseTo(
+        markdownFittedWidth * 0.85,
+        0,
+      );
     });
 
     await userEvent.click(modeToggle);
@@ -399,7 +414,11 @@
     await waitFor(() => {
       expect(artifact.getAttribute("data-markdown-mode")).toBe("source");
       expect(mira?.getAttribute("data-mode")).toBe("source");
-      expect(markdownDocument.style.width).toBe("738px");
+      expect(markdownDocument.style.width).toBe("85%");
+      expect(markdownDocument.getBoundingClientRect().width).toBeCloseTo(
+        markdownFittedWidth * 0.85,
+        0,
+      );
     });
     expect(previewToggle.querySelector(".lucide-book-open")).not.toBeNull();
     const source = markdown.getByRole("textbox", { name: "Markdown editor" });

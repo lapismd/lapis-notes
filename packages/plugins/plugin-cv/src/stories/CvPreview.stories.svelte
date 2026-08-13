@@ -43,10 +43,10 @@
 
 <Story
   name="Typst Page Zoom"
-  args={{ mode: "rendercv", zoom: 1.1, artifacts: [svgArtifact] }}
+  args={{ mode: "rendercv", zoom: 1.15, artifacts: [svgArtifact] }}
   play={async ({ canvasElement }) => {
     const document = within(canvasElement).getByTestId("cv-preview-document");
-    expect(document.style.width).toBe("902px");
+    expect(document.style.width).toBe("115%");
   }}
 />
 
@@ -54,30 +54,30 @@
   name="HTML Zoom"
   args={{
     mode: "rendercv-html",
-    zoom: 0.9,
+    zoom: 0.85,
     html: "<!doctype html><html><body><h1>CV</h1></body></html>",
   }}
   play={async ({ canvasElement }) => {
     const document = within(canvasElement).getByTestId("cv-preview-document");
-    expect(document.style.width).toBe("738px");
+    expect(document.style.width).toBe("85%");
   }}
 />
 
 <Story
   name="Markdown Zoom"
-  args={{ mode: "rendercv-md", zoom: 1.1, markdown: "# CV" }}
+  args={{ mode: "rendercv-md", zoom: 1.15, markdown: "# CV" }}
   play={async ({ canvasElement }) => {
     const document = within(canvasElement).getByTestId("cv-preview-document");
-    expect(document.style.width).toBe("902px");
+    expect(document.style.width).toBe("115%");
     expect(within(document).getByRole("heading", { name: "CV" })).toBeTruthy();
   }}
 />
 
 <Story
   name="Typst Source Zoom"
-  args={{ mode: "rendercv-typ", zoom: 0.9, typst: "#set page(width: 820pt)" }}
+  args={{ mode: "rendercv-typ", zoom: 0.85, typst: "#set page(width: 820pt)" }}
   play={async ({ canvasElement }) => {
     const document = within(canvasElement).getByTestId("preview-text");
-    expect(document.style.width).toBe("738px");
+    expect(document.style.width).toBe("85%");
   }}
 />

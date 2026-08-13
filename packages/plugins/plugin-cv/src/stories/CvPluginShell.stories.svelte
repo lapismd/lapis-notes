@@ -140,6 +140,29 @@
       },
       { timeout: 30_000 },
     );
+    const svgDocument = await waitFor(
+      () => {
+        const document = shell.querySelector<HTMLImageElement>(
+          '[data-testid="cv-preview-document"][data-preview-format="svg"]',
+        );
+        expect(document).toBeTruthy();
+        return document!;
+      },
+      { timeout: 30_000 },
+    );
+    const previewRoot = canvas.getByTestId("cv-preview");
+    const fittedWidth = previewRoot.getBoundingClientRect().width;
+    expect(svgDocument.getBoundingClientRect().width).toBeCloseTo(fittedWidth, 0);
+    await userEvent.click(canvas.getByRole("button", { name: "Zoom out" }));
+    await waitFor(() => {
+      expect(svgDocument.style.width).toBe("85%");
+      expect(svgDocument.getBoundingClientRect().width).toBeCloseTo(fittedWidth * 0.85, 0);
+    });
+    expect(shell.scrollLeft).toBe(0);
+    await userEvent.click(canvas.getByRole("button", { name: "Reset zoom" }));
+    await waitFor(() => {
+      expect(svgDocument.getBoundingClientRect().width).toBeCloseTo(fittedWidth, 0);
+    });
     await userEvent.click(exportButton);
     const menu = within(canvasElement.ownerDocument.body);
     expect(menu.getByRole("menuitem", { name: "Download PDF" })).toBeTruthy();

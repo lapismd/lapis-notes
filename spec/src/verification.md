@@ -384,7 +384,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-041 | storybook-catalog | Implemented | CV package static catalog uses Lapis theme and scoped isolated 700px shell Docs canvases |
 | LN-CAT-042 | storybook-catalog | Implemented | CV package and repository stories expose explicit reproducible consumer source |
 | LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies Lapis-themed Mira Preview and read-only Source modes |
-| LN-CAT-044 | storybook-catalog | Implemented | CV preview stories assert shared cross-mode width scaling; the App-backed story persists worker PDF bytes into its memory vault |
+| LN-CAT-044 | storybook-catalog | Implemented | CV preview stories assert pane-relative cross-mode scaling; the App-backed story proves 100% fit, 85% shrink, and PDF persistence |
 | LN-CAT-045 | storybook-catalog | Implemented | CV package plays resize the owning surface, exercise the shared form-header Scroll Area, and verify the CV-only theme shortcut |
 | LN-CV-001 | cv-plugin | Implemented | CV package authorized; Applications and Tasks excluded from this slice |
 | LN-CV-002 | cv-plugin | Implemented | `CvPlugin.onload` registers view, editor view, and compound extensions |
@@ -400,7 +400,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CV-012 | cv-plugin | Implemented | 7020 App-backed story registers File Explorer, Search, and CV over a sample.cv.yml leaf |
 | LN-CV-013 | cv-plugin | Implemented | CV shell zeros AppShell main inset, radius, shadow, and border; HTML/Typst preview is flush |
 | LN-CV-014 | cv-plugin | Implemented | preview dropdown modes; Typst SVG/PNG from WASM; HTML/Markdown/Typst source from compile |
-| LN-CV-015 | cv-plugin | Implemented | every preview mode shares continuous 820px width scaling with viewport-anchor and split-size preservation |
+| LN-CV-015 | cv-plugin | Implemented | every preview mode shares continuous pane-relative scaling with viewport-anchor and split-size preservation |
 | LN-CV-016 | cv-plugin | Implemented | RenderCV theme prev/next + menu appear only for the CV form area and remain bound to design.theme |
 | LN-CV-017 | cv-plugin | Implemented | workspace fills leftover height; form, YAML, and preview scroll independently |
 | LN-CV-018 | cv-plugin | Implemented | YAML toolbar switch; Edit/Preview tabs only when columns stack |
