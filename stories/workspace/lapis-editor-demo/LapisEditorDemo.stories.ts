@@ -172,6 +172,70 @@ export const Ready: Story = {
     await expect(
       canvas.getByRole("heading", { name: "No file is open" }),
     ).toBeVisible();
+
+    const ideasFile = canvas.getByText("Ideas.markdown", { exact: true });
+    if (!ideasFile.getClientRects().length) {
+      await userEvent.click(
+        canvas.getByRole("button", { name: "Notes", exact: true }),
+      );
+    }
+    await userEvent.click(ideasFile);
+
+    const editorBody = await waitFor(() => {
+      const body = canvasElement.querySelector<HTMLElement>(
+        ".cm-editor-content",
+      );
+      expect(body).not.toBeNull();
+      expect(body!.getClientRects().length).toBeGreaterThan(0);
+      return body!;
+    });
+    const editorHost = editorBody.closest<HTMLElement>(
+      '[data-ui-component="editor"]',
+    );
+    const outerSizer = editorBody.parentElement;
+    expect(editorHost).not.toBeNull();
+    expect(outerSizer).toHaveClass("cm-sizer");
+    await expect(
+      canvas.getByRole("button", { name: "Open right sidebar" }),
+    ).toBeVisible();
+
+    const paneWidthBefore = editorHost!.getBoundingClientRect().width;
+    const bodyWidthBefore = editorBody.getBoundingClientRect().width;
+
+    try {
+      await userEvent.click(
+        canvas.getByRole("button", { name: "Close left sidebar" }),
+      );
+
+      await waitFor(() => {
+        expect(editorHost!.getBoundingClientRect().width).toBeGreaterThan(
+          paneWidthBefore + 100,
+        );
+        expect(editorBody.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+          bodyWidthBefore,
+        );
+      });
+
+      expect(getComputedStyle(outerSizer!).maxWidth).toBe("none");
+      expect(getComputedStyle(outerSizer!).marginInlineStart).toBe("0px");
+      expect(
+        Math.abs(editorBody.getBoundingClientRect().width - 700),
+      ).toBeLessThan(2);
+    } finally {
+      const openLeftSidebar = canvas.queryByRole("button", {
+        name: "Open left sidebar",
+      });
+      if (openLeftSidebar) await userEvent.click(openLeftSidebar);
+
+      const closeIdeas = canvas.queryByRole("button", {
+        name: "Close Ideas.markdown",
+      });
+      if (closeIdeas) await userEvent.click(closeIdeas);
+    }
+
+    await expect(
+      canvas.getByRole("heading", { name: "No file is open" }),
+    ).toBeVisible();
   },
 };
 

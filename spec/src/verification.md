@@ -39,6 +39,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-034 | architecture | Implemented | API-owned provider selection, Turso-only production hosts, descriptors, and capability-driven Search |
 | LN-ARCH-035 | architecture | Implemented | `@lapis-notes/web` owns launcher, profiles, PWA lifecycle, plugin boot, and session disposal |
 | LN-ARCH-036 | architecture | Implemented | Web Locks owner election, bounded BroadcastChannel database RPC, `DB Proxy` marker, and promotion acceptance |
+| LN-ARCH-037 | architecture | Implemented | API editor host neutralizes inherited sizer constraints before applying its stable readable-column geometry |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                                                                                                                                                                                                  |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                                                                                                                                                                                               |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                                                                                                                                                                                                        |
@@ -372,8 +373,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-045 | packages | Implemented | provider-neutral descriptors, capabilities, providers, session integration, and explicit test injection |
 | LN-PKG-046 | packages | Implemented | private web package `2026.6.3` exposes standard root development, build, preview, and E2E scripts |
 | LN-PKG-047 | packages | Implemented | pinned Turso native/WASM production dependencies; source and package audits contain no SQLite app-database implementation or fallback |
+| LN-PKG-048 | packages | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
+| LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
 | LN-MD-087 | markdown-panel-tags | Implemented | Tags row opens Search through its registered command in focused Storybook acceptance |
 | LN-MD-088 | markdown-panel-all-properties | Implemented | property rows open escaped Search queries in focused Storybook acceptance |

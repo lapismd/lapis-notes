@@ -148,8 +148,10 @@
   flex-direction: column;
   align-items: stretch;
   width: 100%;
+  max-width: none;
   min-height: 100%;
   height: auto;
+  margin-inline: 0;
   padding-block: var(--ui-editor-file-margins-y);
   padding-inline: max(
     var(--ui-editor-file-margins-x),
