@@ -22,7 +22,6 @@
     "clsx": "^2.1.1",
     "eventemitter3": "^5.0.1",
     "fflate": "^0.8.3",
-    "idb-keyval": "^6.2.2",
     "lodash-es": "^4.17.21",
     "lucide-static": "^0.503.0",
     "lucide-svelte": "^0.487.0",
@@ -133,6 +132,15 @@
       "types": "./dist/app-database-host.d.ts",
       "import": "./dist/app-database-host.js",
       "default": "./dist/app-database-host.js"
+    },
+    "./plugin-assets": {
+      "types": "./dist/plugin-assets.d.ts",
+      "import": "./dist/plugin-assets.js",
+      "default": "./dist/plugin-assets.js"
+    },
+    "./search-embedding-worker": {
+      "import": "./dist/storage/search-embedding-worker.js",
+      "default": "./dist/storage/search-embedding-worker.js"
     },
     "./*": {
       "types": "./dist/components/*/index.d.ts",

@@ -26,25 +26,25 @@ intake or UI swap status changes.
 | `@lapis-notes/api`                          | Copied         | Kernel from full lapis-notes; scripts slimmed                                                                                                                                                                                        |
 | `@lapis-notes/ui`                           | Pruned         | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers                                                                                                                                              |
 | `@lapis-notes/workspace` shell integration  | Done           | Thin design-core host; api compatibility + persistence façade                                                                                                                                                                        |
-| `@lapis-notes/web`                         | In progress    | Legacy `8ec68e18` PWA intake authorized; browser-owned vault/session boot and cross-tab Turso coordination are tracked below                                                                                                            |
+| `@lapis-notes/web`                         | Done           | Legacy `8ec68e18` PWA intake; browser-owned vault/session boot and cross-tab Turso coordination pass focused browser acceptance                                                                                                          |
 | `@lapis-notes/desktop-electron`             | Done (partial host) | Source-first native-folder host from legacy commit `8ec68e18`; current core plugins, retained native services/sidecars, and local distribution only |
 | `@lapis-notes/markdown`                     | Done (slice)   | Authorized plugin; Mira document render + public app-only panels including Tags; Obsidian-compatible panel IDs retain load aliases for prior Lapis layouts |
 | `@lapis-notes/language-service`              | Done           | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                         |
 | `@lapis-notes/markdown-lint`                 | Done           | Enabled core plugin selects the probed native service or worker fallback and preserves configured rules, fixes, and ignores                                                                                                           |
 | Notebook / unlisted plugins                  | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
 | `@lapis-notes/file-explorer`                | Done (slice) | Reusable File Explorer plugin shared by Storybook and Electron; source-editor remains a Storybook-local fixture                                                   |
-| `@lapis-notes/search`                       | In progress | Base plugin is shared by Storybook and Electron; grouped-tree, settings, and semantic parity remain in progress |
+| `@lapis-notes/search`                       | Done | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts |
 | design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
 
-### App database migration progress
+### App database replacement progress
 
-- [x] Canonical provider, Turso, migration, capability, and cross-tab requirements
+- [x] Canonical provider, Turso, capability, and cross-tab requirements
 - [x] Provider-neutral descriptor, capability, factory, and vault-session contracts
 - [x] Turso native and WASM drivers with normalized generated-state persistence
 - [x] Turso full-text, vector, hybrid, and local embedding execution
 - [x] Remove legacy SQLite, sqlite-vec, and IndexedDB app-database implementations and dependencies
 - [x] Pure typed Electron database proxy and bounded main-process RPC
-- [ ] Generic Web Locks and BroadcastChannel owner/proxy coordination
+- [x] Generic Web Locks and BroadcastChannel owner/proxy coordination
 - [x] Block unsupported production runtimes instead of opening a non-Turso database
 
 ### Electron desktop host intake progress
@@ -95,6 +95,8 @@ legacy commit `8ec68e18`.
 - [x] Collapsible file/match result tree with highlighted ranges, sorting, bounded recent searches, and workspace navigation
 - [x] Persisted Match case, Collapse results, Show more context, Explain search terms, and structured-semantic toggles inside the single Search Filter Bar disclosure
 - [x] Retrieval-mode facet, result badges, copy, semantic provider settings, status, and rebuild
+- [x] Disabled-by-default Transformers.js activation with real model download/cache smoke and Electron-main CPU adaptation
+- [x] Owner/proxy semantic configuration, rebuild, status, vector query, promotion, and reload acceptance
 - [x] Compact Design Core command-picker facets for file type and retrieval mode
 - [x] Six governed Storybook placements over the indexed in-memory vault
 - [x] Tags and All Properties command-only query handoffs
@@ -107,12 +109,12 @@ Source: `/Users/stevejuma/code/lapis-notes/packages/web` at legacy commit
 `8ec68e18`.
 
 - [x] Canonical web-host requirements, package authorization, and provenance
-- [ ] Private `@lapis-notes/web` package at version `2026.6.3`
-- [ ] Branded OPFS and File System Access vault launcher and session host
-- [ ] Current core plugin boot before metadata and layout restoration
-- [ ] PWA manifest, icons, prompt updates, isolation, and verified asset cache
-- [ ] Real owner/proxy database status, delegation, and promotion
-- [ ] Two-tab Playwright acceptance and root web scripts
+- [x] Private `@lapis-notes/web` package at version `2026.6.3`
+- [x] Branded OPFS and File System Access vault launcher and session host
+- [x] Current core plugin boot before metadata and layout restoration
+- [x] PWA manifest, icons, prompt updates, isolation, and verified asset cache
+- [x] Real owner/proxy database status, delegation, and promotion
+- [x] Two-tab Playwright acceptance and root web scripts
 
 ### Markdown plugin intake progress
 

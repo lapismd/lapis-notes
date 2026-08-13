@@ -93,8 +93,9 @@ delegates language behavior to registered editor extensions.
 `@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
 side panels. `@lapis-notes/markdown-lint` and the internal
 `@lapis-notes/language-service` package are the focused diagnostics exceptions.
-Out of scope until specified: web/desktop hosts, other bundled plugins,
-notebook, and plugin-host module generation.
+Other bundled plugins, notebook, and plugin-host module generation remain out
+of scope until separately specified. Desktop and web hosts are authorized by
+their canonical host chapters.
 Storybook exercises those registered panel views through the separate
 `@lapis-notes/workspace` shell adapter; movable-surface fixtures remain consumer
 verification and do not move workspace rendering ownership into the markdown
@@ -129,6 +130,12 @@ pinned Turso WASM driver declared by API. The API manifest
 declares `dist/enhance.js` and its source counterpart as side effects so a
 production consumer cannot tree-shake the compatibility DOM initialization
 required before constructing `App`.
+
+The private web package consumes the public API, current core plugins,
+workspace, and Design Core presentation. It owns browser vault selection,
+Workbox, window-controls overlay state, and web-session lifecycle; its
+production database dependency remains the pinned API-owned Turso WASM
+provider rather than a package-local persistence implementation.
 
 Its launcher imports shadcn presentation from Design Core and profile/search
 helpers from public Lapis exports. It does not add launcher policy to the

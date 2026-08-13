@@ -1,0 +1,125 @@
+:root {
+  color-scheme: light dark;
+  font-family: var(--ui-workspace-font-sans, ui-sans-serif, system-ui, sans-serif);
+  background: var(--ui-workspace-background, #fff);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app,
+.web-host,
+.web-host__workspace {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  color: var(--ui-workspace-foreground, #222);
+  background: var(--ui-workspace-background, #fff);
+}
+
+.web-vault-launcher {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: max(2.5rem, var(--workspace-safe-area-top, 0px)) 1.5rem 2.5rem;
+}
+
+.web-vault-launcher__content {
+  display: grid;
+  width: 100%;
+  max-width: 64rem;
+  min-width: 0;
+  margin: auto;
+  gap: 1.5rem;
+}
+
+.web-vault-launcher__action[data-ui-component="button"] {
+  height: auto;
+  min-height: 4.5rem;
+  justify-content: flex-start;
+  white-space: normal;
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+.web-vault-launcher__recent {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 0;
+  border-radius: 0.625rem;
+  color: inherit;
+  background: transparent;
+}
+
+.web-vault-launcher__recent:hover:not(:disabled) {
+  background: var(--background-modifier-active-hover);
+}
+
+.web-vault-launcher__settings[data-ui-component="dialog"][data-ui-part="dialog-content"] {
+  top: 50%;
+  left: 50%;
+  width: min(28rem, calc(100% - 2rem));
+  max-width: 28rem;
+  translate: -50% -50%;
+}
+
+.web-vault-launcher__command[data-ui-component="command"][data-ui-part="command-content"] {
+  top: 20vh;
+  left: 50%;
+  width: min(34rem, calc(100% - 2rem));
+  max-width: 34rem;
+  max-height: calc(80vh - 1rem);
+  overflow: hidden;
+  translate: -50% 0;
+}
+
+.web-host__loading {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  place-items: center;
+  text-align: center;
+}
+
+.web-host__loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.web-host__loading-content img {
+  width: 3rem;
+  height: 3rem;
+}
+
+.web-host__loading-content h1,
+.web-host__loading-content p {
+  margin: 0;
+}
+
+.web-host__loading-content h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.web-host__loading-content p {
+  color: var(--ui-workspace-muted-foreground, #666);
+  font-size: 0.875rem;
+}

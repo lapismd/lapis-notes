@@ -410,15 +410,22 @@ export class TursoAppDatabase extends MemoryAppDatabase {
   }
 
   override async close(): Promise<void> {
-    if (!this.connection) return;
-    if (this.indexingBatchDirty) {
-      this.indexingBatchDirty = false;
-      await this.persist();
+    if (!this.connection) {
+      await super.close();
+      return;
     }
-    const connection = this.connection;
-    this.connection = null;
-    this.opened = false;
-    await connection.close();
+    try {
+      if (this.indexingBatchDirty) {
+        this.indexingBatchDirty = false;
+        await this.persist();
+      }
+      const connection = this.connection;
+      this.connection = null;
+      this.opened = false;
+      await connection.close();
+    } finally {
+      await super.close();
+    }
   }
 
   override async beginSearchIndexingBatch(): Promise<void> {

@@ -96,6 +96,10 @@ Electron main owns native Turso handles behind a fixed API database RPC
 catalogue; the renderer receives descriptors and results, never SQL or storage
 paths. Intel macOS composes the API-owned WASM provider in the renderer behind
 the same session boundary.
+The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
+OPFS in exactly one Web Locks owner per vault; other tabs retain the generic
+database contract through bounded BroadcastChannel RPC and may promote when
+the owner disappears. Neither role is cloud synchronization.
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
 The ready-shell vault menu follows the same boundary: Design Core presents the

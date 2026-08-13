@@ -10,12 +10,14 @@
   "scripts": {
     "build": "turbo run build",
     "build:desktop": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/desktop-electron build",
+    "build:web": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/web build",
     "check": "pnpm spec:validate && pnpm check:no-tailwind && turbo run check",
     "check:no-tailwind": "tsx scripts/check-no-tailwind-utilities.ts",
     "check:svelte": "turbo run check:svelte",
     "check:types": "turbo run check:types",
     "dev": "pnpm storybook",
     "dev:desktop": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/desktop-electron dev",
+    "dev:web": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/web dev",
     "storybook": "WATCHPACK_POLLING=250 node scripts/with-storybook-env.mjs node scripts/storybook-run.mjs --no-open",
     "storybook:stop": "node scripts/with-storybook-env.mjs bash scripts/storybook-stop.sh",
     "storybook:restart": "node scripts/with-storybook-env.mjs bash scripts/storybook-restart.sh",
@@ -35,7 +37,9 @@
     "test": "pnpm spec:test && turbo run test",
     "package:desktop": "pnpm --filter @lapis-notes/desktop-electron package:dir",
     "dist:desktop:mac": "pnpm --filter @lapis-notes/desktop-electron dist:mac",
-    "dist:desktop:linux": "pnpm --filter @lapis-notes/desktop-electron dist:linux"
+    "dist:desktop:linux": "pnpm --filter @lapis-notes/desktop-electron dist:linux",
+    "preview:web": "pnpm --filter @lapis-notes/web preview",
+    "test:web:e2e": "pnpm --filter @lapis-notes/web test:e2e"
   },
   "devDependencies": {
     "@codemirror/autocomplete": "^6.18.6",

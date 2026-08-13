@@ -48,12 +48,48 @@ describe("createVaultSession", () => {
 
   it("creates a Turso proxy when another tab owns the database lock", async () => {
     const request = vi.fn(async (_name, _options, callback) => callback(null));
+    const ownerDescriptor = {
+      providerId: provider.id,
+      engine: "turso",
+      transport: "wasm-opfs-worker",
+      role: "owner",
+      storageMode: "local",
+      capabilities: {
+        nativeFullTextSearch: false,
+        vectorSearch: true,
+        approximateNearestNeighbors: false,
+        localEmbeddings: true,
+        crossTabCoordination: true,
+        sync: false,
+      },
+    };
     vi.stubGlobal(
       "BroadcastChannel",
       class {
-        addEventListener() {}
+        private listener?: (event: MessageEvent) => void;
+
+        addEventListener(_type: "message", listener: (event: MessageEvent) => void) {
+          this.listener = listener;
+        }
         close() {}
-        postMessage() {}
+        postMessage(message: any) {
+          if (message?.type !== "db-request" || message.method !== "describe") {
+            return;
+          }
+          queueMicrotask(() => {
+            this.listener?.({
+              data: {
+                type: "db-response",
+                vaultId: message.vaultId,
+                responderId: "owner-tab",
+                requesterId: message.requesterId,
+                requestId: message.requestId,
+                success: true,
+                result: ownerDescriptor,
+              },
+            } as MessageEvent);
+          });
+        }
       },
     );
     vi.stubGlobal("navigator", {

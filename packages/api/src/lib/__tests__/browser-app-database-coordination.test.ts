@@ -76,7 +76,7 @@ describe("BrowserAppDatabaseCoordinator", () => {
             name: "note",
             extension: "md",
             checksum: "abc",
-            content: "hello sqlite",
+            content: "hello turso",
             tags: [],
             tagParts: [],
             tagHierarchy: [],
@@ -97,7 +97,7 @@ describe("BrowserAppDatabaseCoordinator", () => {
     proxyDatabase.opened = true;
 
     await expect(
-      proxyDatabase.searchDocuments("sqlite"),
+      proxyDatabase.searchDocuments("turso"),
     ).resolves.toMatchObject([
       {
         document: {
@@ -106,7 +106,7 @@ describe("BrowserAppDatabaseCoordinator", () => {
       },
     ]);
     expect(ownerDatabase.localDatabase.searchDocuments).toHaveBeenCalledWith(
-      "sqlite",
+      "turso",
       undefined,
     );
   });
@@ -198,7 +198,7 @@ describe("BrowserAppDatabaseCoordinator", () => {
       },
     ]);
 
-    const pendingSearch = proxyDatabase.searchDocuments("sqlite");
+    const pendingSearch = proxyDatabase.searchDocuments("turso");
 
     setTimeout(() => {
       proxyDatabase.localDatabase = {
@@ -217,7 +217,91 @@ describe("BrowserAppDatabaseCoordinator", () => {
         },
       },
     ]);
-    expect(searchDocuments).toHaveBeenCalledWith("sqlite", undefined);
+    expect(searchDocuments).toHaveBeenCalledWith("turso", undefined);
+  });
+
+  it("reports the owning Turso database capabilities through the proxy", async () => {
+    vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
+
+    const ownerCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const proxyCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const ownerDescriptor = {
+      providerId: "turso-wasm",
+      engine: "turso",
+      transport: "wasm-opfs-worker",
+      role: "owner",
+      storageMode: "local",
+      capabilities: {
+        nativeFullTextSearch: false,
+        vectorSearch: true,
+        approximateNearestNeighbors: false,
+        localEmbeddings: true,
+        crossTabCoordination: true,
+        sync: false,
+      },
+    };
+
+    const ownerDatabase = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      ownerCoordinator,
+      true,
+    ) as any;
+    ownerDatabase.ensureRpcChannel();
+    ownerDatabase.localDatabase = { descriptor: ownerDescriptor };
+    ownerDatabase.servingRequests = true;
+
+    const proxyDatabase = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      proxyCoordinator,
+      false,
+    ) as any;
+    proxyDatabase.ensureRpcChannel();
+    proxyDatabase.opened = true;
+    proxyDatabase.remoteDescriptor = await proxyDatabase.invokeRemote(
+      "describe",
+      [],
+    );
+
+    expect(proxyDatabase.descriptor).toMatchObject({
+      providerId: "turso-wasm",
+      engine: "turso",
+      transport: "broadcast-proxy",
+      role: "proxy",
+      capabilities: {
+        nativeFullTextSearch: false,
+        vectorSearch: true,
+        crossTabCoordination: true,
+      },
+    });
+  });
+
+  it("ignores cross-tab requests outside the fixed database allowlist", async () => {
+    vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
+
+    const ownerCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const ownerDatabase = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      ownerCoordinator,
+      true,
+    ) as any;
+    const close = vi.fn();
+    ownerDatabase.ensureRpcChannel();
+    ownerDatabase.localDatabase = { close };
+    ownerDatabase.servingRequests = true;
+
+    const attacker = new FakeBroadcastChannel(ownerCoordinator.rpcChannelName);
+    attacker.postMessage({
+      type: "db-request",
+      vaultId: "vault-under-test",
+      requesterId: "untrusted-tab",
+      requestId: "request-1",
+      method: "close",
+      args: [],
+    });
+    await Promise.resolve();
+
+    expect(close).not.toHaveBeenCalled();
+    attacker.close();
   });
 
   it("observes owner heartbeats over BroadcastChannel", async () => {

@@ -1088,47 +1088,6 @@ export async function pickFileSystemAccessVault(
   return FileSystemAccessAdapter.fromHandle(handle, options);
 }
 
-function safeOpfsName(value: string): string {
-  return value.replace(/[^a-zA-Z0-9._-]/g, "-");
-}
-
-async function removeOpfsEntry(path: string): Promise<void> {
-  const segments = path.split("/").filter(Boolean);
-  if (!segments.length) {
-    return;
-  }
-
-  const storage = globalThis.navigator?.storage as
-    | { getDirectory?: () => Promise<BrowserFileSystemDirectoryHandle> }
-    | undefined;
-  if (!storage?.getDirectory) {
-    return;
-  }
-
-  let directory = await storage.getDirectory();
-  for (const segment of segments.slice(0, -1)) {
-    try {
-      directory = await directory.getDirectoryHandle(segment);
-    } catch (error) {
-      if (isNotFound(error)) {
-        return;
-      }
-      throw error;
-    }
-  }
-
-  try {
-    await directory.removeEntry(segments[segments.length - 1], {
-      recursive: true,
-    });
-  } catch (error) {
-    if (isNotFound(error)) {
-      return;
-    }
-    throw error;
-  }
-}
-
 async function deleteOpfsVaultDirectory(vaultId: string): Promise<void> {
   const storage = globalThis.navigator?.storage as
     | { getDirectory?: () => Promise<BrowserFileSystemDirectoryHandle> }
@@ -1149,17 +1108,12 @@ async function deleteOpfsVaultDirectory(vaultId: string): Promise<void> {
   }
 }
 
-async function deleteOpfsAppDatabaseArtifacts(vaultId: string): Promise<void> {
-  await removeOpfsEntry(`.lapis-notes-appdb-${safeOpfsName(vaultId)}`);
-}
-
 export async function deleteBrowserLocalVault(
   profile: Pick<VaultProfile, "id" | "kind">,
   options: { stateStore?: KeyValueStore } = {},
 ): Promise<void> {
   if (profile.kind === "opfs") {
     await deleteOpfsVaultDirectory(profile.id);
-    await deleteOpfsAppDatabaseArtifacts(profile.id);
   } else {
     throw new Error(`Cannot delete browser-local vault kind: ${profile.kind}`);
   }
@@ -1174,7 +1128,6 @@ export async function deleteOrphanOpfsVault(
   options: { stateStore?: KeyValueStore } = {},
 ): Promise<void> {
   await deleteOpfsVaultDirectory(vaultId);
-  await deleteOpfsAppDatabaseArtifacts(vaultId);
   await clearVaultScopedState(
     vaultId,
     options.stateStore ?? getDefaultVaultStateStore(),

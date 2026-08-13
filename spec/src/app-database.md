@@ -44,3 +44,10 @@ fixed `AppDatabase` method catalogue. Intel macOS selects the same provider
 contract over the self-contained Turso WASM bundle and OPFS instead of opening
 a compatibility database. Session disposal drains metadata-cache work and
 cancels delayed writes before closing the owning Turso handle.
+
+The browser coordinator opens that WASM provider only in the elected owner.
+Proxy tabs obtain the owner's probed descriptor and delegate through a bounded
+method catalogue that excludes lifecycle and raw-storage operations. Requests
+validate vault, owner, method, argument count, identifiers, and payload size;
+responses validate the expected responder. A promoted proxy replays pending
+work against its newly opened Turso handle rather than selecting a fallback.

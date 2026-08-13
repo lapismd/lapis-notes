@@ -1889,7 +1889,10 @@ export class MemoryAppDatabase implements AppDatabase {
     this.meta["schema.version"] = APP_DATABASE_SCHEMA_VERSION;
   }
 
-  async close(): Promise<void> {}
+  async close(): Promise<void> {
+    await this.searchEmbeddingProvider?.dispose?.();
+    this.searchEmbeddingProvider = null;
+  }
 
   async beginSearchIndexingBatch(): Promise<void> {}
 
@@ -1899,18 +1902,19 @@ export class MemoryAppDatabase implements AppDatabase {
     provider: SearchEmbeddingProviderConfig | null,
   ): Promise<void> {
     const previousProvider = clone(this.searchEmbeddingProviderConfig);
-    this.searchEmbeddingProviderConfig = clone(provider);
-    this.searchEmbeddingProvider = createSearchEmbeddingProvider(
-      clone(provider),
-    );
+    const nextProvider = clone(provider);
 
     const providerChanged =
-      JSON.stringify(previousProvider) !==
-      JSON.stringify(this.searchEmbeddingProviderConfig);
+      JSON.stringify(previousProvider) !== JSON.stringify(nextProvider);
 
     if (!providerChanged) {
       return;
     }
+
+    const previousRuntime = this.searchEmbeddingProvider;
+    this.searchEmbeddingProviderConfig = nextProvider;
+    this.searchEmbeddingProvider = createSearchEmbeddingProvider(nextProvider);
+    await previousRuntime?.dispose?.();
 
     if (this.searchDocs.size === 0) {
       return;

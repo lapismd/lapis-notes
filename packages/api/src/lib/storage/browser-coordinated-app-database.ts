@@ -23,9 +23,7 @@ import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordinati
 import { TursoWasmAppDatabaseProvider } from "./turso-app-database";
 
 type AppDatabaseMethod =
-  | "open"
   | "migrate"
-  | "close"
   | "beginSearchIndexingBatch"
   | "endSearchIndexingBatch"
   | "configureSearchEmbeddingProvider"
@@ -57,13 +55,15 @@ type AppDatabaseMethod =
   | "rebuildSearchIndex"
   | "searchDocuments";
 
+type AppDatabaseRpcMethod = AppDatabaseMethod | "describe";
+
 type AppDatabaseRequestMessage = {
   type: "db-request";
   vaultId: string;
   ownerId?: string;
   requesterId: string;
   requestId: string;
-  method: AppDatabaseMethod;
+  method: AppDatabaseRpcMethod;
   args: unknown[];
 };
 
@@ -84,8 +84,65 @@ type AppDatabaseMessage =
 
 const REQUEST_TIMEOUT_MS = 15_000;
 const LOCAL_RECOVERY_POLL_MS = 100;
+const MAX_RPC_ARGUMENTS = 4;
+const MAX_RPC_MESSAGE_BYTES = 32 * 1024 * 1024;
+const MAX_RPC_IDENTIFIER_LENGTH = 512;
+const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
+  "describe",
+  "migrate",
+  "beginSearchIndexingBatch",
+  "endSearchIndexingBatch",
+  "configureSearchEmbeddingProvider",
+  "getSearchEmbeddingProvider",
+  "getSearchEmbeddingRuntimeStatus",
+  "getSearchIndexStats",
+  "getMeta",
+  "setMeta",
+  "getNotebookState",
+  "setNotebookState",
+  "deleteNotebookState",
+  "loadMetadataSnapshot",
+  "saveMetadataSnapshot",
+  "getFileHistory",
+  "storeFileHistoryRevision",
+  "listNotifications",
+  "upsertNotification",
+  "markNotificationRead",
+  "clearNotification",
+  "clearAllNotifications",
+  "upsertIndexedFile",
+  "deleteIndexedFile",
+  "renameIndexedFile",
+  "queryIndexedMetadata",
+  "upsertSearchDocument",
+  "deleteSearchDocument",
+  "getSearchDocument",
+  "listSearchDocuments",
+  "rebuildSearchIndex",
+  "searchDocuments",
+]);
 
 export type BrowserCoordinatedAppDatabaseMode = "turso-owner" | "turso-proxy";
+
+function isBoundedIdentifier(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length > 0 &&
+    value.length <= MAX_RPC_IDENTIFIER_LENGTH
+  );
+}
+
+function isBoundedRpcMessage(message: unknown): boolean {
+  try {
+    const serialized = JSON.stringify(message);
+    return (
+      typeof serialized === "string" &&
+      new TextEncoder().encode(serialized).byteLength <= MAX_RPC_MESSAGE_BYTES
+    );
+  } catch {
+    return false;
+  }
+}
 
 function isRequestMessage(
   message: unknown,
@@ -93,7 +150,19 @@ function isRequestMessage(
   return (
     typeof message === "object" &&
     message !== null &&
-    (message as AppDatabaseRequestMessage).type === "db-request"
+    (message as AppDatabaseRequestMessage).type === "db-request" &&
+    isBoundedIdentifier((message as AppDatabaseRequestMessage).vaultId) &&
+    isBoundedIdentifier((message as AppDatabaseRequestMessage).requesterId) &&
+    isBoundedIdentifier((message as AppDatabaseRequestMessage).requestId) &&
+    ((message as AppDatabaseRequestMessage).ownerId === undefined ||
+      isBoundedIdentifier((message as AppDatabaseRequestMessage).ownerId)) &&
+    typeof (message as AppDatabaseRequestMessage).method === "string" &&
+    APP_DATABASE_RPC_METHODS.has(
+      (message as AppDatabaseRequestMessage).method,
+    ) &&
+    Array.isArray((message as AppDatabaseRequestMessage).args) &&
+    (message as AppDatabaseRequestMessage).args.length <= MAX_RPC_ARGUMENTS &&
+    isBoundedRpcMessage(message)
   );
 }
 
@@ -103,7 +172,13 @@ function isResponseMessage(
   return (
     typeof message === "object" &&
     message !== null &&
-    (message as AppDatabaseResponseMessage).type === "db-response"
+    (message as AppDatabaseResponseMessage).type === "db-response" &&
+    isBoundedIdentifier((message as AppDatabaseResponseMessage).vaultId) &&
+    isBoundedIdentifier((message as AppDatabaseResponseMessage).responderId) &&
+    isBoundedIdentifier((message as AppDatabaseResponseMessage).requesterId) &&
+    isBoundedIdentifier((message as AppDatabaseResponseMessage).requestId) &&
+    typeof (message as AppDatabaseResponseMessage).success === "boolean" &&
+    isBoundedRpcMessage(message)
   );
 }
 
@@ -124,6 +199,17 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
 
   get descriptor(): AppDatabaseDescriptor {
     if (this.localDatabase) return this.localDatabase.descriptor;
+    if (this.remoteDescriptor) {
+      return {
+        ...this.remoteDescriptor,
+        transport: "broadcast-proxy",
+        role: "proxy",
+        capabilities: {
+          ...this.remoteDescriptor.capabilities,
+          crossTabCoordination: true,
+        },
+      };
+    }
     return {
       providerId: this.provider.id,
       engine: "turso",
@@ -131,8 +217,8 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
       role: "proxy",
       storageMode: "local",
       capabilities: {
-        nativeFullTextSearch: true,
-        vectorSearch: true,
+        nativeFullTextSearch: false,
+        vectorSearch: false,
         approximateNearestNeighbors: false,
         localEmbeddings: true,
         crossTabCoordination: true,
@@ -142,6 +228,7 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
   }
 
   private localDatabase: AppDatabase | null = null;
+  private remoteDescriptor: AppDatabaseDescriptor | null = null;
   private rpcChannel: BroadcastChannel | null = null;
   private pendingRequests = new Map<
     string,
@@ -149,6 +236,7 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
       resolve: (value: any) => void;
       reject: (error: Error) => void;
       timeoutId: ReturnType<typeof setTimeout>;
+      expectedResponderId?: string;
     }
   >();
   private opened = false;
@@ -196,6 +284,10 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
     }
 
     this.startOwnershipMonitor();
+    this.remoteDescriptor = await this.invokeRemote<AppDatabaseDescriptor>(
+      "describe",
+      [],
+    );
   }
 
   async migrate(): Promise<void> {
@@ -423,6 +515,12 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
         if (!pending) {
           return;
         }
+        if (
+          pending.expectedResponderId &&
+          message.responderId !== pending.expectedResponderId
+        ) {
+          return;
+        }
         clearTimeout(pending.timeoutId);
         this.pendingRequests.delete(message.requestId);
         if (message.success) {
@@ -452,7 +550,7 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
   }
 
   private async invokeRemote<T>(
-    method: AppDatabaseMethod,
+    method: AppDatabaseRpcMethod,
     args: unknown[],
   ): Promise<T> {
     if (!this.rpcChannel) {
@@ -511,9 +609,14 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
 
         recovering = true;
         try {
-          const result = await (
-            this.localDatabase[method] as (...params: unknown[]) => Promise<T>
-          )(...args);
+          const result =
+            method === "describe"
+              ? (this.localDatabase.descriptor as T)
+              : await (
+                  this.localDatabase[method] as (
+                    ...params: unknown[]
+                  ) => Promise<T>
+                )(...args);
           settleResolve(result);
         } catch (error) {
           settleReject(
@@ -532,6 +635,7 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
         resolve: (value) => settleResolve(value as T),
         reject: settleReject,
         timeoutId,
+        expectedResponderId: message.ownerId,
       });
       this.rpcChannel!.postMessage(message);
       void tryRecoverLocally();
@@ -544,11 +648,14 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
     let response: AppDatabaseResponseMessage;
 
     try {
-      const result = await (
-        this.localDatabase![message.method] as (
-          ...args: unknown[]
-        ) => Promise<unknown>
-      )(...message.args);
+      const result =
+        message.method === "describe"
+          ? this.localDatabase!.descriptor
+          : await (
+              this.localDatabase![message.method] as (
+                ...args: unknown[]
+              ) => Promise<unknown>
+            )(...message.args);
       response = {
         type: "db-response",
         vaultId: this.vaultId,
@@ -567,6 +674,18 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
         requestId: message.requestId,
         success: false,
         error: error instanceof Error ? error.message : String(error),
+      };
+    }
+
+    if (!isBoundedRpcMessage(response)) {
+      response = {
+        type: "db-response",
+        vaultId: this.vaultId,
+        responderId: this.coordinator.ownerId,
+        requesterId: message.requesterId,
+        requestId: message.requestId,
+        success: false,
+        error: "App database response exceeded the cross-tab payload limit",
       };
     }
 

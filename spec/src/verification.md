@@ -36,9 +36,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-030 | architecture      | Implemented | Electron imports public Design Core/Lapis styles; production Electron acceptance asserts flex shell geometry, DM Sans, and 32px tab controls |
 | LN-ARCH-031 | architecture                    | Implemented | Electron maps typed platform metadata to namespaced root classes while desktop CSS targets public shell attributes |
 | LN-ARCH-032 | architecture                    | Implemented | File Explorer is reusable while desktop and Storybook retain plugin boot, configuration, metadata, and teardown ownership |
-| LN-ARCH-034 | architecture | Planned | provider-neutral database selection and consumer capability boundary |
-| LN-ARCH-035 | architecture | Planned | browser host owns vault, PWA, plugin, and session policy |
-| LN-ARCH-036 | architecture | Planned | one-owner browser database delegation and non-cloud status acceptance |
+| LN-ARCH-034 | architecture | Implemented | API-owned provider selection, Turso-only production hosts, descriptors, and capability-driven Search |
+| LN-ARCH-035 | architecture | Implemented | `@lapis-notes/web` owns launcher, profiles, PWA lifecycle, plugin boot, and session disposal |
+| LN-ARCH-036 | architecture | Implemented | Web Locks owner election, bounded BroadcastChannel database RPC, `DB Proxy` marker, and promotion acceptance |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                                                                                                                                                                                                  |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                                                                                                                                                                                               |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                                                                                                                                                                                                        |
@@ -370,7 +370,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-033 | architecture | Implemented | Search keeps API execution, Design Core presentation, and command-only Markdown integration separate |
 | LN-PKG-044 | packages | Implemented | `packages/plugins/plugin-search` reusable package intake; package checks, eight tests, and build pass |
 | LN-PKG-045 | packages | Implemented | provider-neutral descriptors, capabilities, providers, session integration, and explicit test injection |
-| LN-PKG-046 | packages | Planned | private web package with standard scripts |
+| LN-PKG-046 | packages | Implemented | private web package `2026.6.3` exposes standard root development, build, preview, and E2E scripts |
 | LN-PKG-047 | packages | Implemented | pinned Turso native/WASM production dependencies; source and package audits contain no SQLite app-database implementation or fallback |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
@@ -391,17 +391,17 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-012 | search-plugin | Implemented | Storybook verifies collapsed defaults, reset on toggle, per-file persistence, and result-identity reset |
 | LN-SRCH-013 | search-plugin | Implemented | snippet-policy unit coverage plus rendered query-explanation and context-toggle acceptance |
 | LN-SRCH-014 | search-plugin | Implemented | retrieval facet selection and applied lexical badges pass focused Storybook acceptance |
-| LN-SRCH-015 | search-plugin | Planned | disabled-by-default local Transformers.js activation and cache behavior |
+| LN-SRCH-015 | search-plugin | Implemented | provider tests plus isolated Node and browser smokes verify real `Xenova/all-MiniLM-L6-v2` inference, lazy worker download, offline cache reuse, disposal, and Electron-main CPU adaptation |
 | LN-SRCH-016 | search-plugin | Implemented | public settings tab covers provider, model, permissions, local path, chunking, bounds, status, and rebuild |
 | LN-SRCH-017 | search-plugin | Implemented | manager status unit and Search panel semantic status presentation remain database-provider neutral |
 | LN-SRCH-018 | search-plugin | Implemented | retrieval-policy unit keeps structured queries lexical until explicit semantic opt-in |
 | LN-SRCH-019 | search-plugin | Implemented | focused Storybook acceptance covers copy, legacy sort, badges, match keys, and bounded recents |
-| LN-SRCH-020 | search-plugin | Planned | proxy-tab indexing, semantic status, and query delegation |
+| LN-SRCH-020 | search-plugin | Implemented | two-tab Playwright acceptance delegates provider configuration, embedding rebuild, runtime status, vector query, lexical Search, takeover, and reload |
 | LN-SRCH-021 | search-plugin | Implemented | package manifest and public-export audit contain no LLM enhancement or embedded-query surface |
 | LN-SRCH-022 | search-plugin | Implemented | Search panel composes compact Design Core command pickers for file-type and retrieval facets; governed Storybook acceptance persists both selections |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
-| LN-DB-003 | app-database | In progress | native Electron selection and reusable WASM/OPFS provider are implemented; browser-host and Intel Electron acceptance remain pending |
+| LN-DB-003 | app-database | Implemented | native Electron and Turso WASM/OPFS provider selection pass desktop and browser acceptance |
 | LN-DB-004 | app-database | Implemented | Turso schema and persistence cover normalized generated state plus the compatibility state snapshot |
 | LN-DB-005 | app-database | Implemented | experimental Turso index method, Tantivy FTS candidate retrieval, and accurately reported table-evaluation degradation |
 | LN-DB-006 | app-database | Implemented | Turso float vectors and exact cosine retrieval pass provider-core tests without sqlite-vec |
@@ -409,16 +409,16 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DB-008 | app-database | Implemented | API-owned evaluation and reciprocal-rank fusion preserve structured and hybrid result contracts |
 | LN-DB-009 | app-database | Implemented | runtime and dependency audits contain no legacy SQLite open, importer, deletion, or app-database fallback |
 | LN-DB-010 | app-database | Implemented | pure renderer RPC client and sender/vault-owned Electron allowlist expose no SQL or database paths |
-| LN-DB-011 | app-database | Planned | browser owner, heartbeat, RPC, and promotion behavior |
-| LN-DB-012 | app-database | In progress | native and WASM providers reject unsupported environments; browser-host presentation remains pending |
-| LN-DB-013 | app-database | Planned | local authority and future-only sync injection |
-| LN-WEB-001 | web-host | Planned | legacy PWA identity and host metadata |
-| LN-WEB-002 | web-host | Planned | browser-owned launcher, lifecycle, and plugin boot |
-| LN-WEB-003 | web-host | Planned | OPFS and File System Access launcher behavior |
-| LN-WEB-004 | web-host | Planned | current core plugins and shared shell boot |
-| LN-WEB-005 | web-host | Planned | prohibited legacy browser, demo, notebook, and community paths |
-| LN-WEB-006 | web-host | Planned | isolation headers and WASM production assets |
-| LN-WEB-007 | web-host | Planned | owner/proxy delegation and DB Proxy status |
-| LN-WEB-008 | web-host | Planned | promotion and complete session disposal |
-| LN-WEB-009 | web-host | Planned | prompt updates and verified asset cache |
-| LN-WEB-010 | web-host | Planned | root scripts and two-tab acceptance |
+| LN-DB-011 | app-database | Implemented | Web Locks heartbeat tests and two-tab delegated Search/promotion acceptance |
+| LN-DB-012 | app-database | Implemented | unsupported capability paths block explicitly; owner and proxy expose probed Turso descriptors |
+| LN-DB-013 | app-database | Implemented | local-only provider registration contains no credentials, remote database, sync, or note upload |
+| LN-WEB-001 | web-host | Implemented | package `2026.6.3`, manifest, generated legacy icons, update prompt, WCO, and `web+lapis` handler |
+| LN-WEB-002 | web-host | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement |
+| LN-WEB-003 | web-host | Implemented | OPFS creation/restoration, File System Access opening, and cancellation recovery acceptance |
+| LN-WEB-004 | web-host | Implemented | Markdown, Markdownlint, File Explorer, and Search load before shared shell restoration |
+| LN-WEB-005 | web-host | Implemented | package contains no LightningFS, demo, notebook, or community-plugin activation path |
+| LN-WEB-006 | web-host | Implemented | development/preview isolation headers and production WASM asset build |
+| LN-WEB-007 | web-host | Implemented | typed bounded delegation exposes visible owner/proxy status and exact remote capabilities |
+| LN-WEB-008 | web-host | Implemented | takeover acceptance plus metadata, workspace, plugin, worker, channel, lock, and request disposal |
+| LN-WEB-009 | web-host | Implemented | prompt-based Workbox update and hash-verified cache-only plugin assets pass browser/unit coverage |
+| LN-WEB-010 | web-host | Implemented | root web scripts and three-scenario Playwright acceptance lane |

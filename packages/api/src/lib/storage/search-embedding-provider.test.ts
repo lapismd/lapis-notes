@@ -1,7 +1,8 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SearchDocumentRecord } from "./app-database";
 import {
   createSearchEmbeddingProvider,
+  setBrowserSearchEmbeddingWorkerFactory,
   setSearchEmbeddingProviderRuntimeLoaderForTests,
 } from "./search-embedding-provider";
 
@@ -28,6 +29,8 @@ const document: SearchDocumentRecord = {
 
 afterEach(() => {
   setSearchEmbeddingProviderRuntimeLoaderForTests(null);
+  setBrowserSearchEmbeddingWorkerFactory(null);
+  vi.unstubAllGlobals();
   delete (
     globalThis as {
       __LAPIS_NATIVE_DESKTOP__?: unknown;
@@ -36,6 +39,73 @@ afterEach(() => {
 });
 
 describe("search embedding provider", () => {
+  it("runs browser Transformers work in a lazy disposable worker", async () => {
+    const workers: Array<{ terminated: boolean }> = [];
+    class FakeWorker {
+      terminated = false;
+      private listeners = new Map<string, Set<(event: any) => void>>();
+
+      constructor() {
+        workers.push(this);
+      }
+
+      addEventListener(type: string, listener: (event: any) => void) {
+        const listeners = this.listeners.get(type) ?? new Set();
+        listeners.add(listener);
+        this.listeners.set(type, listeners);
+      }
+
+      postMessage(message: any) {
+        queueMicrotask(() => {
+          const result =
+            message.method === "ready"
+              ? true
+              : message.method === "embedQuery"
+                ? [0.5, 0.25]
+                : [];
+          for (const listener of this.listeners.get("message") ?? []) {
+            listener({
+              data: {
+                type: "search-embedding-response",
+                requestId: message.requestId,
+                success: true,
+                result,
+                status: {
+                  providerKind: "transformers-js",
+                  phase: "ready",
+                  modelId: message.config.modelId,
+                  updatedAt: Date.now(),
+                },
+              },
+            });
+          }
+        });
+      }
+
+      terminate() {
+        this.terminated = true;
+      }
+    }
+    setBrowserSearchEmbeddingWorkerFactory(
+      () => new FakeWorker() as unknown as Worker,
+    );
+
+    const provider = createSearchEmbeddingProvider({
+      kind: "transformers-js",
+      modelId: "Xenova/all-MiniLM-L6-v2",
+    });
+
+    expect(workers).toHaveLength(0);
+    await expect(provider?.ready()).resolves.toBe(true);
+    await expect(provider?.embedQuery("semantic search")).resolves.toEqual([
+      0.5, 0.25,
+    ]);
+    expect(workers).toHaveLength(1);
+    expect(provider?.getRuntimeStatus().phase).toBe("ready");
+    await provider?.dispose?.();
+    expect(workers[0]?.terminated).toBe(true);
+  });
+
   it("creates a transformers provider that configures browser runtime loading", async () => {
     let progressCallback:
       | ((event: { progress?: number; file?: string; status?: string }) => void)
@@ -186,6 +256,7 @@ describe("search embedding provider", () => {
         _model: string,
         options?: Record<string, unknown>,
       ) => {
+        expect(options).toMatchObject({ device: "cpu" });
         progressCallback =
           options?.progress_callback as typeof progressCallback;
         progressCallback?.({

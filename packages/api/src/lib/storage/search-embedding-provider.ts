@@ -58,7 +58,24 @@ export interface SearchEmbeddingProvider {
   ): Promise<SearchEmbeddingChunkVector[]>;
   embedQuery(query: string): Promise<number[] | null>;
   getRuntimeStatus(): SearchEmbeddingRuntimeStatus;
+  dispose?(): Promise<void> | void;
 }
+
+type SearchEmbeddingWorkerMethod = "ready" | "embedDocument" | "embedQuery";
+
+type SearchEmbeddingWorkerResponse =
+  | {
+      type: "search-embedding-status";
+      status: SearchEmbeddingRuntimeStatus;
+    }
+  | {
+      type: "search-embedding-response";
+      requestId: string;
+      success: boolean;
+      result?: unknown;
+      error?: string;
+      status?: SearchEmbeddingRuntimeStatus;
+    };
 
 type TransformersFeatureExtractionResult = {
   tolist(): unknown;
@@ -178,6 +195,12 @@ function trimModelPath(path?: string): string | undefined {
 }
 
 function getNativeDesktopRuntime(): NativeDesktopRuntime | null {
+  const globalRuntime = globalThis as {
+    process?: { versions?: { electron?: unknown } };
+    __LAPIS_NATIVE_DESKTOP__?: {
+      runtime?: unknown;
+    };
+  };
   const runtime = (
     globalThis as {
       __LAPIS_NATIVE_DESKTOP__?: {
@@ -186,7 +209,10 @@ function getNativeDesktopRuntime(): NativeDesktopRuntime | null {
     }
   ).__LAPIS_NATIVE_DESKTOP__?.runtime;
 
-  return runtime === "electron-desktop" ? runtime : null;
+  return runtime === "electron-desktop" ||
+    typeof globalRuntime.process?.versions?.electron === "string"
+    ? "electron-desktop"
+    : null;
 }
 
 function normalizeEmbeddingRows(value: unknown): number[][] {
@@ -272,6 +298,158 @@ class TokenHashSearchEmbeddingProvider implements SearchEmbeddingProvider {
 
   getRuntimeStatus(): SearchEmbeddingRuntimeStatus {
     return cloneRuntimeStatus(this.runtimeStatus);
+  }
+}
+
+const EMBEDDING_WORKER_TIMEOUT_MS = 5 * 60_000;
+let browserSearchEmbeddingWorkerFactory: (() => Worker) | null = null;
+
+function canUseBrowserEmbeddingWorker(): boolean {
+  return (
+    getNativeDesktopRuntime() === null &&
+    typeof window !== "undefined" &&
+    browserSearchEmbeddingWorkerFactory !== null
+  );
+}
+
+export function setBrowserSearchEmbeddingWorkerFactory(
+  factory: (() => Worker) | null,
+): void {
+  browserSearchEmbeddingWorkerFactory = factory;
+}
+
+function createEmbeddingWorkerRequestId(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+  return `embedding-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+class BrowserWorkerSearchEmbeddingProvider
+  implements SearchEmbeddingProvider
+{
+  readonly config: TransformersJsSearchEmbeddingProviderConfig;
+  private worker: Worker | null = null;
+  private runtimeStatus: SearchEmbeddingRuntimeStatus;
+  private pending = new Map<
+    string,
+    {
+      resolve(value: unknown): void;
+      reject(error: Error): void;
+      timeoutId: ReturnType<typeof setTimeout>;
+    }
+  >();
+
+  constructor(config: TransformersJsSearchEmbeddingProviderConfig) {
+    this.config = { ...config };
+    this.runtimeStatus = {
+      providerKind: "transformers-js",
+      phase: "downloading",
+      modelId: config.modelId,
+      message: "Waiting to initialize embedding worker",
+      progress: 0,
+      updatedAt: Date.now(),
+    };
+  }
+
+  ready(): Promise<boolean> {
+    return this.invoke<boolean>("ready");
+  }
+
+  embedDocument(
+    document: SearchDocumentRecord,
+  ): Promise<SearchEmbeddingChunkVector[]> {
+    return this.invoke<SearchEmbeddingChunkVector[]>("embedDocument", document);
+  }
+
+  embedQuery(query: string): Promise<number[] | null> {
+    return this.invoke<number[] | null>("embedQuery", query);
+  }
+
+  getRuntimeStatus(): SearchEmbeddingRuntimeStatus {
+    return cloneRuntimeStatus(this.runtimeStatus);
+  }
+
+  dispose(): void {
+    this.worker?.terminate();
+    this.worker = null;
+    for (const request of this.pending.values()) {
+      clearTimeout(request.timeoutId);
+      request.reject(new Error("Embedding worker disposed"));
+    }
+    this.pending.clear();
+  }
+
+  private invoke<T>(
+    method: SearchEmbeddingWorkerMethod,
+    argument?: unknown,
+  ): Promise<T> {
+    const worker = this.ensureWorker();
+    const requestId = createEmbeddingWorkerRequestId();
+    return new Promise<T>((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        this.pending.delete(requestId);
+        reject(new Error(`Embedding worker request timed out: ${method}`));
+      }, EMBEDDING_WORKER_TIMEOUT_MS);
+      this.pending.set(requestId, {
+        resolve: (value) => resolve(value as T),
+        reject,
+        timeoutId,
+      });
+      worker.postMessage({
+        type: "search-embedding-request",
+        requestId,
+        method,
+        config: this.config,
+        argument,
+      });
+    });
+  }
+
+  private ensureWorker(): Worker {
+    if (this.worker) return this.worker;
+    if (!browserSearchEmbeddingWorkerFactory) {
+      throw new Error("Embedding worker factory is unavailable");
+    }
+    const worker = browserSearchEmbeddingWorkerFactory();
+    worker.addEventListener("message", (event: MessageEvent<unknown>) => {
+      const message = event.data as SearchEmbeddingWorkerResponse | undefined;
+      if (message?.type === "search-embedding-status") {
+        this.runtimeStatus = cloneRuntimeStatus(message.status);
+        return;
+      }
+      if (message?.type !== "search-embedding-response") return;
+      const request = this.pending.get(message.requestId);
+      if (!request) return;
+      if (message.status) {
+        this.runtimeStatus = cloneRuntimeStatus(message.status);
+      }
+      clearTimeout(request.timeoutId);
+      this.pending.delete(message.requestId);
+      if (message.success) request.resolve(message.result);
+      else request.reject(new Error(message.error ?? "Embedding worker failed"));
+    });
+    worker.addEventListener("error", (event) => {
+      const error = new Error(event.message || "Embedding worker crashed");
+      this.runtimeStatus = {
+        ...this.runtimeStatus,
+        phase: "error",
+        message: error.message,
+        updatedAt: Date.now(),
+      };
+      for (const request of this.pending.values()) {
+        clearTimeout(request.timeoutId);
+        request.reject(error);
+      }
+      this.pending.clear();
+      worker.terminate();
+      if (this.worker === worker) this.worker = null;
+    });
+    this.worker = worker;
+    return worker;
   }
 }
 
@@ -420,7 +598,12 @@ class TransformersJsSearchEmbeddingProvider implements SearchEmbeddingProvider {
       {
         revision: this.config.revision,
         dtype: this.config.dtype,
-        device: this.config.device,
+        // The public setting names the portable browser backend. Transformers.js
+        // exposes the equivalent Electron-main execution provider as `cpu`.
+        device:
+          this.nativeDesktopRuntime && this.config.device === "wasm"
+            ? "cpu"
+            : this.config.device,
         progress_callback: (event: TransformersProgressEvent) => {
           this.sawDownloadProgress = true;
           this.updateRuntimeStatus({
@@ -490,7 +673,9 @@ export function createSearchEmbeddingProvider(
     case "token-hash":
       return new TokenHashSearchEmbeddingProvider(config);
     case "transformers-js":
-      return new TransformersJsSearchEmbeddingProvider(config);
+      return canUseBrowserEmbeddingWorker()
+        ? new BrowserWorkerSearchEmbeddingProvider(config)
+        : new TransformersJsSearchEmbeddingProvider(config);
     default:
       return null;
   }
