@@ -115,6 +115,10 @@ not installed or when an embedding model is unavailable.
 
 ## Agent workflow
 
+Package-specific guidance may restate an interaction rule only when its
+canonical requirement remains authoritative. The CV form-header guidance maps
+to `LN-CV-016` and `LN-CV-031` for contextual controls and constrained scrolling.
+
 1. Inspect VCS status
 2. Read mapped chapter + requirement IDs
 3. Update requirements and verification before or with implementation

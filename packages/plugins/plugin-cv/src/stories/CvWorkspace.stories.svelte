@@ -188,7 +188,11 @@
       expect(canvasElement.ownerDocument.querySelector("[data-cv-preview-menu]")).toBeNull();
     });
 
-    expect(canvas.getByTestId("cv-theme-controls")).toBeTruthy();
+    const formAreaScroll = canvas.getByTestId("cv-form-area-scroll");
+    const formAreaViewport = scrollViewport(formAreaScroll);
+    const themeControls = canvas.getByTestId("cv-theme-controls");
+    expect(formAreaScroll.contains(themeControls)).toBe(true);
+    expect(getComputedStyle(formAreaViewport).overflowX).toMatch(/auto|scroll/);
     expect(canvas.getByRole("button", { name: "Select RenderCV theme" }).textContent).toContain(
       "ModernCV",
     );
@@ -205,6 +209,23 @@
         getComputedStyle(canvas.getByRole("button", { name: "Next RenderCV theme" }))
           .pointerEvents,
       ).not.toBe("none");
+    });
+
+    shell.style.width = "18rem";
+    await waitFor(() => {
+      expect(formAreaViewport.scrollWidth).toBeGreaterThan(formAreaViewport.clientWidth);
+    });
+    formAreaViewport.scrollTo({ left: formAreaViewport.scrollWidth });
+    await waitFor(() => {
+      expect(formAreaViewport.scrollLeft).toBeGreaterThan(0);
+    });
+    expect(shell.scrollLeft).toBe(0);
+    shell.style.width = "";
+    await waitFor(() => {
+      expect(formAreaViewport.scrollLeft).toBeGreaterThanOrEqual(0);
+      expect(getComputedStyle(canvas.getByTestId("cv-mobile-workspace-tabs")).display).toBe(
+        "none",
+      );
     });
 
     expect(canvas.queryByRole("tab", { name: "Form" })).toBeNull();
@@ -245,6 +266,7 @@
     const designYaml = await waitFor(() => canvas.getByTestId("yaml-design"));
     await waitFor(() => {
       expect(designYaml.textContent).toContain("theme: opal");
+      expect(canvas.queryByTestId("cv-theme-controls")).toBeNull();
     });
 
     shell.style.width = "36rem";
@@ -267,6 +289,9 @@
       expect(getComputedStyle(mobileTabs).display).toBe("none");
     });
     await userEvent.click(canvas.getByRole("tab", { name: "CV" }));
+    await waitFor(() => {
+      expect(canvas.getByTestId("cv-theme-controls")).toBeTruthy();
+    });
     const yamlSwitch = canvas.getByRole("switch", { name: "YAML" });
     if (yamlSwitch.getAttribute("aria-checked") === "true") {
       await userEvent.click(yamlSwitch, {
@@ -316,6 +341,9 @@
     });
     expect(modeToggle.querySelector(".lucide-pencil")).not.toBeNull();
     const themeControl = canvas.getByTestId("cv-theme-controls");
+    const formAreaScroll = canvas.getByTestId("cv-form-area-scroll");
+    expect(formAreaScroll.contains(modeToggle)).toBe(true);
+    expect(formAreaScroll.contains(themeControl)).toBe(true);
     expect(
       modeToggle.compareDocumentPosition(themeControl) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();

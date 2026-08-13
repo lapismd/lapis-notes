@@ -224,28 +224,49 @@
 }
 
 .complete-cv-tabs__header {
-  display: flex;
   flex: none;
   min-width: 0;
-  align-items: center;
   min-height: calc(var(--complete-cv-tabs-height) + 0.5rem);
-  height: auto;
-  gap: 0.75rem;
-  padding: 0 1rem;
+  height: calc(var(--complete-cv-tabs-height) + 0.5rem);
+  overflow: hidden;
   border-bottom: 1px solid var(--border);
   background: var(--background);
 }
 
-.complete-cv-shell .complete-cv-tabs__header > [data-ui-part="tabs-list"] {
-  flex: 1;
+.complete-cv-tabs__scroll {
+  width: 100%;
+  height: 100%;
   min-width: 0;
+}
+
+.complete-cv-tabs__scroll
+  > [data-ui-component="scroll-area"][data-ui-part="scroll-area-viewport"] {
+  min-width: 0;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+
+.complete-cv-tabs__scroll-content {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  padding-inline: 1rem;
+}
+
+.complete-cv-shell
+  .complete-cv-tabs__scroll-content
+  > [data-ui-part="tabs-list"] {
+  flex: none;
   width: fit-content;
   height: var(--complete-cv-tabs-height);
   min-height: var(--complete-cv-tabs-height);
   max-height: var(--complete-cv-tabs-height);
   align-self: flex-end;
   justify-content: flex-start;
-  overflow-x: auto;
+  overflow: visible;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -253,7 +274,7 @@
 }
 
 .complete-cv-shell
-  .complete-cv-tabs__header
+  .complete-cv-tabs__scroll-content
   > [data-ui-part="tabs-list"]
   [data-ui-part="tabs-trigger"] {
   height: var(--complete-cv-tabs-height);
@@ -270,7 +291,7 @@
 }
 
 .complete-cv-shell
-  .complete-cv-tabs__header
+  .complete-cv-tabs__scroll-content
   > [data-ui-part="tabs-list"]
   [data-ui-part="tabs-trigger"][data-state="active"] {
   color: var(--foreground);
@@ -279,14 +300,14 @@
 
 @supports (color: color-mix(in lab, red, red)) {
   .complete-cv-shell
-    .complete-cv-tabs__header
+    .complete-cv-tabs__scroll-content
     > [data-ui-part="tabs-list"]
     [data-ui-part="tabs-trigger"] {
     color: var(--muted-foreground, var(--foreground));
   }
 
   .complete-cv-shell
-    .complete-cv-tabs__header
+    .complete-cv-tabs__scroll-content
     > [data-ui-part="tabs-list"]
     [data-ui-part="tabs-trigger"][data-state="active"] {
     color: var(--foreground);
@@ -529,7 +550,7 @@
     padding-inline: 0.75rem;
   }
 
-  .complete-cv-tabs__header {
+  .complete-cv-tabs__scroll-content {
     padding-inline: 0.25rem;
   }
 

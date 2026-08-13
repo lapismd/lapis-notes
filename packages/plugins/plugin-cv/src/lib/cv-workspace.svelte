@@ -432,38 +432,49 @@
 
               <Tabs.Root bind:value={activeTab} class="complete-cv-tabs">
                 <div class="complete-cv-tabs__header">
-                  <Tabs.List variant="line" aria-label="CV form areas">
-                    {#each tabs as tab (tab.value)}
-                      <Tabs.Trigger value={tab.value}>{tab.label}</Tabs.Trigger>
-                    {/each}
-                  </Tabs.List>
-                  {#if previewMode === "rendercv-md"}
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      class="complete-cv-markdown-mode"
-                      aria-label={markdownMode === "preview"
-                        ? "Current view: preview\nClick to view source"
-                        : "Current view: source\nClick to preview"}
-                      title={markdownMode === "preview"
-                        ? "Current view: preview\nClick to view source"
-                        : "Current view: source\nClick to preview"}
-                      data-testid="cv-markdown-mode-toggle"
-                      onclick={() =>
-                        (markdownMode = markdownMode === "preview" ? "source" : "preview")}
-                    >
-                      {#if markdownMode === "preview"}
-                        <PencilIcon />
-                      {:else}
-                        <BookOpenIcon />
+                  <ScrollArea.Root
+                    class="complete-cv-tabs__scroll"
+                    orientation="horizontal"
+                    aria-label="CV form area navigation"
+                    data-testid="cv-form-area-scroll"
+                  >
+                    <div class="complete-cv-tabs__scroll-content">
+                      <Tabs.List variant="line" aria-label="CV form areas">
+                        {#each tabs as tab (tab.value)}
+                          <Tabs.Trigger value={tab.value}>{tab.label}</Tabs.Trigger>
+                        {/each}
+                      </Tabs.List>
+                      {#if previewMode === "rendercv-md"}
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="complete-cv-markdown-mode"
+                          aria-label={markdownMode === "preview"
+                            ? "Current view: preview\nClick to view source"
+                            : "Current view: source\nClick to preview"}
+                          title={markdownMode === "preview"
+                            ? "Current view: preview\nClick to view source"
+                            : "Current view: source\nClick to preview"}
+                          data-testid="cv-markdown-mode-toggle"
+                          onclick={() =>
+                            (markdownMode = markdownMode === "preview" ? "source" : "preview")}
+                        >
+                          {#if markdownMode === "preview"}
+                            <PencilIcon />
+                          {:else}
+                            <BookOpenIcon />
+                          {/if}
+                        </Button>
                       {/if}
-                    </Button>
-                  {/if}
-                  <CvThemeControls
-                    theme={source.design?.theme ?? "moderncv"}
-                    onSetTheme={setTheme}
-                    onShiftTheme={shiftTheme}
-                  />
+                      {#if activeTab === "cv"}
+                        <CvThemeControls
+                          theme={source.design?.theme ?? "moderncv"}
+                          onSetTheme={setTheme}
+                          onShiftTheme={shiftTheme}
+                        />
+                      {/if}
+                    </div>
+                  </ScrollArea.Root>
                 </div>
 
                 <div class="complete-cv-workspace-tabs">

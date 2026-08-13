@@ -88,6 +88,17 @@
     expect(shell.scrollHeight).toBeLessThanOrEqual(shell.clientHeight + 1);
     expect(shell.scrollTop).toBe(0);
 
+    const formAreaScroll = canvas.getByTestId("cv-form-area-scroll");
+    expect(formAreaScroll.contains(canvas.getByTestId("cv-theme-controls"))).toBe(true);
+    await userEvent.click(canvas.getByRole("tab", { name: "Design" }));
+    await waitFor(() => {
+      expect(canvas.queryByTestId("cv-theme-controls")).toBeNull();
+    });
+    await userEvent.click(canvas.getByRole("tab", { name: "CV" }));
+    await waitFor(() => {
+      expect(formAreaScroll.contains(canvas.getByTestId("cv-theme-controls"))).toBe(true);
+    });
+
     const formRoot = await waitFor(() => canvas.getByTestId("structured-cv"));
     const formScroller =
       formRoot.querySelector<HTMLElement>("[data-ui-part='scroll-area-viewport']") ??
