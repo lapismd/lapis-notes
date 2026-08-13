@@ -9,6 +9,7 @@
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { CvPlugin } from "@lapis-notes/cv";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -115,6 +116,7 @@
         { plugin: MarkdownLintPlugin, required: true },
         { plugin: FileExplorerPlugin, required: true },
         { plugin: SearchPlugin, required: true },
+        { plugin: CvPlugin, required: false, enabledByDefault: true },
       ]);
       await app.vault.load();
       await app.vault.mkpath(".obsidian");

@@ -22,9 +22,10 @@ This repository currently contains:
 - `@lapis-notes/workspace` — thin design-core workspace host
 - `@lapis-notes/desktop-electron` — partial native-folder Electron host
 - `@lapis-notes/web` — local-first browser/PWA consumer host
+- `@lapis-notes/cv` — authorized CV YAML file views and browser preview
 - Storybook host and specification governance
 
-The notebook and unlisted bundled plugins remain tracked for later intake in
-root `MIGRATION.md` and must not be invented ahead of their canonical
+The notebook and remaining unlisted bundled plugins remain tracked for later
+intake in root `MIGRATION.md` and must not be invented ahead of their canonical
 requirements. The authorized web host remains a consumer of API and workspace
 contracts rather than moving browser policy into reusable packages.

@@ -34,10 +34,11 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-020 | The tracked QMD configuration MUST index `spec/src/**/*.md` as the `lapis-spec` collection and MUST keep its generated database state untracked. |
 | LN-GOV-021 | Specification searches MUST refresh the local collection before querying. Semantic search MUST update embeddings before vector retrieval, while normal checks and CI MUST NOT refresh or require the discovery index. |
 | LN-GOV-022 | Agent guidance MUST prefer the repository wrapper for requirement discovery, require returned canonical sources to be read, and retain `rg` as the fallback when QMD or semantic models are unavailable. |
-| LN-GOV-023 | Specification validation MUST inspect Autodocs stories that use local demo, harness, or fixture render boundaries. They MUST resolve explicit `docs.source` code, language, and type fields, and MUST NOT expose story-only component names or `args` as consumer usage. |
+| LN-GOV-023 | Specification validation MUST inspect repository and authorized package-local Autodocs stories that use demo, harness, or fixture render boundaries. They MUST resolve explicit `docs.source` code, language, and type fields without exposing story-only names or `args` as consumer usage. |
 | LN-GOV-024 | Agent guidance MUST require Markdown feature-presentation changes to preserve canonical child descriptors, flat configuration keys, and real-app persistence acceptance. It MUST direct agents to design-core's Boolean toggle-table contract instead of a stored object-grid collection. |
 | LN-GOV-025 | Agent guidance MUST route reusable diagnostic and Problems-view work to the Workspace Shell Problems specification. It MUST preserve Design Core ownership of panel presentation, require stable hover handoff and styled inline-problem acceptance, and make Lapis adapters and providers read that contract before package-specific chapters. |
-| LN-GOV-026 | The spec-first map MUST route API storage to the App Database chapter and web package changes to Web Host, Packages, and Architecture. |
+| LN-GOV-026 | The spec-first map MUST route API storage to the App Database chapter, web package changes to Web Host, Packages, and Architecture, and CV plugin changes to CV Plugin, Packages, and Architecture. |
+| LN-GOV-027 | The spec-first map MUST additionally route package-local CV Storybook sources and configuration to the Storybook Catalog chapter. |
 
 ## Requirement structure
 

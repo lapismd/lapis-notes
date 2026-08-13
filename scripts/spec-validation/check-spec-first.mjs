@@ -121,6 +121,21 @@ const RULES = [
     ],
   },
   {
+    name: "CV plugin Storybook",
+    pattern:
+      /^packages\/plugins\/plugin-cv\/(?:\.storybook\/|src\/stories\/)/,
+    chapters: ["spec/src/storybook-catalog.md"],
+  },
+  {
+    name: "CV plugin package",
+    pattern: /^packages\/plugins\/plugin-cv\//,
+    chapters: [
+      "spec/src/cv-plugin.md",
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+    ],
+  },
+  {
     name: "Markdown panel shell",
     pattern:
       /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/sidebar-panel\//,
@@ -239,9 +254,14 @@ export function classifySpecFirstChanges(inputChanges) {
     const isSpecificationValidator = /^scripts\/spec-validation\//.test(
       change.path,
     );
+    const isGovernedCvStory =
+      /^packages\/plugins\/plugin-cv\/(?:\.storybook\/|src\/stories\/)/.test(
+        change.path,
+      );
     if (
       CANONICAL_SPEC_PATTERN.test(change.path) ||
       (!isSpecificationValidator &&
+        !isGovernedCvStory &&
         IGNORED_PATTERNS.some((pattern) => pattern.test(change.path)))
     ) {
       continue;

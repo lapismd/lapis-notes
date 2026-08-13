@@ -6,7 +6,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | ----------- | ----------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LN-ARCH-001 | architecture      | Implemented | `pnpm-workspace.yaml`, `turbo.json`                                                                                                                                                                                                                                                         |
 | LN-ARCH-002 | architecture      | Implemented | package scripts on api/ui/workspace                                                                                                                                                                                                                                                         |
-| LN-ARCH-003 | architecture      | Implemented | root `storybook` / `storybook:stop` / `storybook:restart` supervisor lane on port 7010                                                                                                                                                                                                      |
+| LN-ARCH-003 | architecture      | Implemented | root Storybook supervisor lane on port 7010; CV plugin Storybook on 7020                                                                                                                                                                                                      |
 | LN-ARCH-004 | architecture      | Implemented | no `check:source-resolution` scripts                                                                                                                                                                                                                                                        |
 | LN-ARCH-005 | architecture      | Implemented | root dep + override `link:../design-core`; package-export resolution                                                                                                                                                                                                                        |
 | LN-ARCH-006 | architecture      | Implemented | root `check` runs `check:no-tailwind`                                                                                                                                                                                                                                                       |
@@ -43,7 +43,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                                                                                                                                                                                                  |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                                                                                                                                                                                               |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                                                                                                                                                                                                        |
-| LN-PKG-004  | packages          | In progress | Electron and web hosts plus current core plugins are authorized; notebook and unlisted plugins remain gated |
+| LN-PKG-004  | packages          | In progress | Electron and web hosts plus Markdown, Markdownlint, File Explorer, Search, and CV are authorized; notebook and remaining unlisted plugins remain gated |
 | LN-PKG-015  | packages          | Implemented | Markdown package location, API/Mira dependencies, and preserved Plugin configuration/event contracts                                                                                                                                                                                         |
 | LN-PKG-017  | packages          | Implemented | app-only Markdown panel exports include Tags while preserving governed Outline and Tags tree geometry                                                                                                                          |
 | LN-PKG-018  | packages          | Implemented | root and narrow public exports for Mira-backed FileEmbed, MarkdownEmbed, and NoteLink                                                                                                                                                                                                         |
@@ -127,7 +127,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-UI-013   | ui-and-styling    | Implemented | mono default / md-text sans via data-language; non-Markdown gutter retained; Markdown duplicate gutter hidden; outer sizer scope excludes embedded previews                                                                                                                                 |
 | LN-UI-014   | ui-and-styling    | Implemented | Design Core owns owner-document portal resolution and Hover Card layering; Lapis local overlay context/export/alias retired                                                                                                                                                                 |
 | LN-UI-015   | ui-and-styling    | Implemented | alias-only Lapis theme maps Mira Obsidian interaction variables to design-core workspace semantics                                                                                                                                                                                          |
-| LN-CAT-001  | storybook-catalog | Implemented | Storybook host                                                                                                                                                                                                                                                                              |
+| LN-CAT-001  | storybook-catalog | In progress | repository catalog remains port 7010; authorized plugin Storybooks MAY use a dedicated port                                                                                                                                                                                                                                                                              |
 | LN-CAT-002  | storybook-catalog | Implemented | `stories/api/*` + plays; `pnpm test:storybook`                                                                                                                                                                                                                                              |
 | LN-CAT-003  | storybook-catalog | Implemented | `stories/catalog/catalog.mjs` + `ApiUi.mdx`                                                                                                                                                                                                                                                 |
 | LN-CAT-004  | storybook-catalog | Implemented | docs link to spec chapters                                                                                                                                                                                                                                                                  |
@@ -189,7 +189,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-023  | spec-governance   | Implemented | Storybook catalog validator requires explicit consumer source for Autodocs stories rendered through local demo, harness, or fixture boundaries                                                                                                                                                  |
 | LN-GOV-024  | spec-governance   | Implemented | agent guidance preserves canonical feature descriptors, flat keys, and real-app persistence when using the design-core toggle-table contract |
 | LN-GOV-025  | spec-governance   | Implemented | `AGENTS.md` routes Problems through the shared contract and requires stable hover handoff plus styled inline-problem acceptance |
-| LN-GOV-026  | spec-governance   | Implemented | spec-first mapping and focused tests cover API storage and the web package |
+| LN-GOV-026  | spec-governance   | Implemented | spec-first mapping and focused tests cover API storage, the web package, and the CV plugin |
+| LN-GOV-027  | spec-governance   | Implemented | package-local CV Storybook sources and configuration require the Storybook Catalog chapter |
 | LN-WS-001   | workspace-shell   | Implemented | api-owned `AppShellController`                                                                                                                                                                                                                                                              |
 | LN-WS-002   | workspace-shell   | Implemented | id-reusing projection + focused tests                                                                                                                                                                                                                                                       |
 | LN-WS-003   | workspace-shell   | Implemented | `@lapis-notes/api/workspace-host`                                                                                                                                                                                                                                                           |
@@ -374,6 +375,40 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-046 | packages | Implemented | private web package `2026.6.3` exposes standard root development, build, preview, and E2E scripts |
 | LN-PKG-047 | packages | Implemented | pinned Turso native/WASM production dependencies; source and package audits contain no SQLite app-database implementation or fallback |
 | LN-PKG-048 | packages | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
+| LN-PKG-049 | packages | Implemented | `@lapis-notes/cv` at `packages/plugins/plugin-cv`; package `check`, `test`, and `build` pass |
+| LN-PKG-050 | packages | Implemented | CV package exposes interaction and static Storybook builds; package declarations are portable |
+| LN-DESK-030 | desktop-host | Implemented | desktop `registerCorePlugins` loads optional CV before layout restoration |
+| LN-CAT-039 | storybook-catalog | Implemented | CV plugin Storybook on port 7020 with form, preview, and App-backed workspace stories |
+| LN-CAT-040 | storybook-catalog | Implemented | `Workspace/Plugins/CV` FileView story boots a real App over `sample.cv.yml` |
+| LN-CAT-041 | storybook-catalog | Implemented | CV package static catalog uses Lapis theme and scoped isolated 700px shell Docs canvases |
+| LN-CAT-042 | storybook-catalog | Implemented | CV package and repository stories expose explicit reproducible consumer source |
+| LN-CV-001 | cv-plugin | Implemented | CV package authorized; Applications and Tasks excluded from this slice |
+| LN-CV-002 | cv-plugin | Implemented | `CvPlugin.onload` registers view, editor view, and compound extensions |
+| LN-CV-003 | cv-plugin | Implemented | exclusive `*.cv.yml` / `*.cv.yaml` association for view type `cv` |
+| LN-CV-004 | cv-plugin | Implemented | `isCvPath` rejects generic `.yml` / `.yaml` |
+| LN-CV-005 | cv-plugin | Implemented | `CvView` extends `TextFileView`; no server or AI path |
+| LN-CV-006 | cv-plugin | Implemented | `CvWorkspace` parses every loaded document through canonical `parseCvYaml` normalization |
+| LN-CV-007 | cv-plugin | Implemented | browser WASM Typst worker with HTML compiled preview fallback |
+| LN-CV-008 | cv-plugin | Implemented | plugin-owned form configs compose public Design Core `StructuredForm` |
+| LN-CV-009 | cv-plugin | Implemented | plugin does not write Search documents or import Search internals |
+| LN-CV-010 | cv-plugin | Implemented | web, Electron, and Storybook register optional core CV before layout restoration |
+| LN-CV-011 | cv-plugin | Implemented | package Storybook on 7020 does not replace the 7010 catalog |
+| LN-CV-012 | cv-plugin | Implemented | 7020 App-backed story registers File Explorer, Search, and CV over a sample.cv.yml leaf |
+| LN-CV-013 | cv-plugin | Implemented | CV shell zeros AppShell main inset, radius, shadow, and border; HTML/Typst preview is flush |
+| LN-CV-014 | cv-plugin | Implemented | preview dropdown modes; Typst SVG/PNG from WASM; HTML/Markdown/Typst source from compile |
+| LN-CV-015 | cv-plugin | Implemented | zoom 50–250% scales the 820px preview document; pane stays full size |
+| LN-CV-016 | cv-plugin | Implemented | RenderCV theme prev/next + menu on the form-area tab bar, bound to design.theme |
+| LN-CV-017 | cv-plugin | Implemented | workspace fills leftover height; form, YAML, and preview scroll independently |
+| LN-CV-018 | cv-plugin | Implemented | YAML toolbar switch; Edit/Preview tabs only when columns stack |
+| LN-CV-019 | cv-plugin | Implemented | small-viewport toolbar scrolls horizontally without visible scrollbars |
+| LN-CV-020 | cv-plugin | Implemented | 7020 `test:storybook` fails on axe violations via addon-a11y preview annotations |
+| LN-CV-021 | cv-plugin | Implemented | toolbar title, YAML label, preview mode, and form-area tabs render at 0.875rem |
+| LN-CV-022 | cv-plugin | Implemented | structured edits preserve normalized evidence and supported unedited fields |
+| LN-CV-023 | cv-plugin | Implemented | invalid full-document YAML remains editable, unsaved, and recoverable |
+| LN-CV-024 | cv-plugin | Implemented | extra-detail form and model use canonical text and list content types |
+| LN-CV-025 | cv-plugin | Implemented | save coordinator tests cover debounce, serialization, lifecycle flush, and retained failures |
+| LN-CV-026 | cv-plugin | Implemented | Typst success plays require worker page images; fallback is covered separately |
+| LN-CV-027 | cv-plugin | Implemented | production CV CSS uses public tokens and stable component selectors only |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
@@ -427,7 +462,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-001 | web-host | Implemented | package `2026.6.3`, manifest, generated legacy icons, update prompt, WCO, and `web+lapis` handler |
 | LN-WEB-002 | web-host | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement |
 | LN-WEB-003 | web-host | Implemented | OPFS creation/restoration, File System Access opening, and cancellation recovery acceptance |
-| LN-WEB-004 | web-host | Implemented | Markdown, Markdownlint, File Explorer, and Search load before shared shell restoration |
+| LN-WEB-004 | web-host | Implemented | Markdown, Markdownlint, File Explorer, Search, and CV load before shared shell restoration |
 | LN-WEB-005 | web-host | Implemented | package contains no LightningFS, demo, notebook, or community-plugin activation path |
 | LN-WEB-006 | web-host | Implemented | development/preview isolation headers and production WASM asset build |
 | LN-WEB-007 | web-host | Implemented | typed bounded delegation exposes visible owner/proxy status and exact remote capabilities |

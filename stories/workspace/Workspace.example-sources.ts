@@ -28,5 +28,8 @@ export function workspaceExampleSource(catalogId: string): string {
   if (catalogId.startsWith("workspace-lapis-editor-demo-")) {
     return lapisEditorSource;
   }
+  if (catalogId === "workspace-plugins-cv-file-view") {
+    return lapisEditorSource;
+  }
   throw new Error(`Missing workspace example source for ${catalogId}`);
 }

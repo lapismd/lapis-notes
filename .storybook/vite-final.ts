@@ -23,6 +23,8 @@ const markdownSrc = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src",
 );
+const cvLib = path.resolve(rootDir, "../packages/plugins/plugin-cv/src/lib");
+const cvSrc = path.resolve(rootDir, "../packages/plugins/plugin-cv/src");
 
 const uiComponents = path.join(uiLib, "components/ui");
 const linkedSiblingPackages = [
@@ -79,7 +81,10 @@ function packageLibAlias(): Plugin {
           : cleanImporter.startsWith(markdownLib) ||
               cleanImporter.startsWith(markdownSrc)
             ? markdownLib
-            : uiLib;
+            : cleanImporter.startsWith(cvLib) ||
+                cleanImporter.startsWith(cvSrc)
+              ? cvLib
+              : uiLib;
       return this.resolve(path.join(owner, suffix), importer, {
         skipSelf: true,
       });
@@ -144,6 +149,13 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
           replacement: path.join(markdownLib, "index.ts"),
         },
         {
+          find: /^@lapis-notes\/cv$/,
+          replacement: path.join(
+            repoRoot,
+            "packages/plugins/plugin-cv/src/lib/index.ts",
+          ),
+        },
+        {
           find: "@lapis-notes/ui/theme.css",
           replacement: path.join(uiLib, "theme.css"),
         },
@@ -188,6 +200,11 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         "react-dom/client",
         "@dnd-kit/svelte",
         "@dnd-kit/dom",
+        "@myriaddreamin/typst.ts",
+        "@myriaddreamin/typst.ts/compiler",
+        "@myriaddreamin/typst.ts/fs/index",
+        "@myriaddreamin/typst.ts/fs/package",
+        "@myriaddreamin/typst.ts/options.init",
         "@lucide/svelte/icons/hash",
         "@lucide/svelte/icons/maximize-2",
       ],
@@ -200,6 +217,10 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
     },
 
     server: {
+      headers: {
+        "Cross-Origin-Embedder-Policy": "require-corp",
+        "Cross-Origin-Opener-Policy": "same-origin",
+      },
       fs: {
         allow: [
           repoRoot,

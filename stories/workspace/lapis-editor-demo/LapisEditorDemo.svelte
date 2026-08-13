@@ -22,6 +22,7 @@
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { CvPlugin } from "@lapis-notes/cv";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
   import "@lapismd/mira/themes/obsidian.css";
@@ -138,6 +139,11 @@
       {
         plugin: MarkdownLintPlugin,
         required: true,
+        enabledByDefault: true,
+      },
+      {
+        plugin: CvPlugin,
+        required: false,
         enabledByDefault: true,
       },
       {

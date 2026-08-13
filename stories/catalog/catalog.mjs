@@ -390,6 +390,13 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/markdown",
     storyId: "workspace-panels-markdown-all-properties--sidebar-group",
   },
+  {
+    id: "workspace-plugins-cv-file-view",
+    title: "CV FileView",
+    spec: "spec/src/cv-plugin.md",
+    publicSurface: "@lapis-notes/cv",
+    storyId: "workspace-plugins-cv--file-view",
+  },
   ...markdownPanelCatalog,
 ];
 

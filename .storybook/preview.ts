@@ -54,6 +54,8 @@ const preview: Preview = {
                 "Link Previews",
               ],
             ],
+            "Search Plugin",
+            "CV Plugin",
             "UI and Styling",
             "Storybook Catalog",
             "Specification Governance",

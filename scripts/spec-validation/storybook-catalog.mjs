@@ -6,7 +6,7 @@ import { diagnostic, relativePath } from "./lib/spec-model.mjs";
 
 export const name = "storybook-catalog";
 
-const STORY_FILE_PATTERN = /\.stories\.[cm]?[jt]sx?$/;
+const STORY_FILE_PATTERN = /\.stories\.(?:[cm]?[jt]sx?|svelte)$/;
 const EXAMPLE_SOURCE_FILE_PATTERN = /\.example-sources\.[cm]?[jt]sx?$/;
 const STORY_ONLY_BOUNDARY_PATTERN = /(?:demo|harness|fixture)$/i;
 const FORBIDDEN_SOURCE_PATTERN = /\b(?:PanelDemo|[A-Z][A-Za-z0-9]*(?:Demo|Harness|Fixture))\b|\bargs\s*\./;
@@ -38,6 +38,61 @@ function exampleSourceFiles(directory) {
       return [absolutePath];
     })
     .sort((left, right) => left.localeCompare(right));
+}
+
+function packageStoryDirectories(directory) {
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => {
+      const absolutePath = path.join(directory, entry.name);
+      if (entry.name === "stories" && path.basename(directory) === "src") {
+        return [absolutePath];
+      }
+      return packageStoryDirectories(absolutePath);
+    })
+    .sort((left, right) => left.localeCompare(right));
+}
+
+function catalogStoryDirectories(repoRoot) {
+  return [
+    path.join(repoRoot, "stories"),
+    ...packageStoryDirectories(path.join(repoRoot, "packages")),
+  ];
+}
+
+function parseStorySource(absolutePath, source) {
+  if (!absolutePath.endsWith(".svelte")) {
+    return {
+      sourceFile: ts.createSourceFile(
+        absolutePath,
+        source,
+        ts.ScriptTarget.Latest,
+        true,
+      ),
+      lineOffset: 0,
+    };
+  }
+
+  const moduleScript =
+    /<script\b[^>]*(?:\bmodule\b|\bcontext=["']module["'])[^>]*>([\s\S]*?)<\/script>/.exec(
+      source,
+    );
+  const script = moduleScript?.[1] ?? "";
+  const scriptStart = moduleScript
+    ? source.slice(0, moduleScript.index + moduleScript[0].indexOf(script)).split(/\r?\n/)
+        .length - 1
+    : 0;
+  return {
+    sourceFile: ts.createSourceFile(
+      absolutePath,
+      script,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    ),
+    lineOffset: scriptStart,
+  };
 }
 
 function propertyName(node) {
@@ -198,13 +253,21 @@ function isAutodocsDisabled(sourceFile) {
   return disabled;
 }
 
-function lineOf(sourceFile, node) {
+function lineOf(sourceFile, node, lineOffset = 0) {
   return (
-    sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1
+    sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line +
+    lineOffset +
+    1
   );
 }
 
-function validateSourceObjects(objects, sourceFile, file, findings) {
+function validateSourceObjects(
+  objects,
+  sourceFile,
+  file,
+  findings,
+  lineOffset = 0,
+) {
   for (const sourceObject of objects) {
     const fields = sourceFields(sourceObject);
     if (!fields.complete) {
@@ -213,7 +276,7 @@ function validateSourceObjects(objects, sourceFile, file, findings) {
           code: "SPEC-STORY-SOURCE-FIELDS",
           rule: "LN-CAT-025",
           file,
-          line: lineOf(sourceFile, sourceObject),
+          line: lineOf(sourceFile, sourceObject, lineOffset),
           message: 'docs.source must define code, language, and type: "code"',
         }),
       );
@@ -226,7 +289,7 @@ function validateSourceObjects(objects, sourceFile, file, findings) {
           code: "SPEC-STORY-SOURCE-BOUNDARY",
           rule: "LN-CAT-024",
           file,
-          line: lineOf(sourceFile, fields.code),
+          line: lineOf(sourceFile, fields.code, lineOffset),
           message:
             "Show Code must not expose a story-only demo, harness, fixture, or args expression",
         }),
@@ -293,18 +356,17 @@ export function validate(context) {
   const findings = [];
   const helperCache = new Map();
   const validatedHelpers = new Set();
-  const storiesRoot = path.join(context.model.repoRoot, "stories");
+  const storyDirectories = catalogStoryDirectories(context.model.repoRoot);
 
-  findings.push(...validateExampleSources(storiesRoot, context.model.repoRoot));
-
-  for (const absolutePath of storyFiles(storiesRoot)) {
-    const source = readFileSync(absolutePath, "utf8");
-    const sourceFile = ts.createSourceFile(
-      absolutePath,
-      source,
-      ts.ScriptTarget.Latest,
-      true,
+  for (const directory of storyDirectories) {
+    findings.push(
+      ...validateExampleSources(directory, context.model.repoRoot),
     );
+  }
+
+  for (const absolutePath of storyDirectories.flatMap(storyFiles)) {
+    const source = readFileSync(absolutePath, "utf8");
+    const { sourceFile, lineOffset } = parseStorySource(absolutePath, source);
     const { imports, storyOnly } = importModel(sourceFile, absolutePath);
     if (!storyOnly.length || isAutodocsDisabled(sourceFile)) continue;
 
@@ -327,7 +389,13 @@ export function validate(context) {
       },
     );
 
-    validateSourceObjects(localSources, sourceFile, relative, findings);
+    validateSourceObjects(
+      localSources,
+      sourceFile,
+      relative,
+      findings,
+      lineOffset,
+    );
     if (localSources.length || importedSources.length) continue;
 
     findings.push(
@@ -335,7 +403,7 @@ export function validate(context) {
         code: "SPEC-STORY-SOURCE-MISSING",
         rule: "LN-GOV-023",
         file: relative,
-        line: lineOf(sourceFile, storyOnly[0]),
+        line: lineOf(sourceFile, storyOnly[0], lineOffset),
         message:
           "Autodocs story uses a local demo, harness, or fixture without explicit consumer source",
       }),

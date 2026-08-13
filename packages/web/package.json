@@ -21,6 +21,7 @@
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
     "@lapis-notes/markdown-lint": "workspace:*",
+    "@lapis-notes/cv": "workspace:*",
     "@lapis-notes/search": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",

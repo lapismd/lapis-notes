@@ -8,7 +8,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
   Electron host, internal language service, and authorized File Explorer,
-  Markdown, Markdownlint, and Search plugins.
+  Markdown, Markdownlint, Search, and CV plugins.
 - Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
   in `MIGRATION.md` — do not invent them ahead of the spec.
 
@@ -99,6 +99,16 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   scenario its own heading and render `<Description of={Stories.<Story>} />`
   immediately before its Canvas, so the Docs page binds the canonical story
   metadata instead of copying prose that can drift.
+- Package-local Storybook stories are governed by the same Show Code contract
+  as root stories. App-backed examples must show the public App, vault seed,
+  plugin loading, and layout restoration needed to reproduce the documented
+  state; a package demo component is never the consumer API.
+- CV document editing must enter through the canonical `parseCvYaml`
+  normalization boundary and preserve supported fields outside the edited
+  fragment. Keep invalid full-file YAML editable without saving it, serialize
+  debounced vault writes, and flush the latest value on file/view teardown.
+  CV production CSS may target public Design Core tokens and stable
+  `data-ui-component` hosts, never Storybook roots or private `.cm-*` classes.
 - Track swap progress in root `MIGRATION.md`.
 
 ## Workspace Shell Stories

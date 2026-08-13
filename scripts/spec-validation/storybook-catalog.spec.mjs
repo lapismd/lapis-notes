@@ -173,3 +173,56 @@ export const Default = { tags };
     (findings) => assert.deepEqual(findings, []),
   );
 });
+
+test("reports package-local Svelte Autodocs without consumer source", () => {
+  withStories(
+    {
+      "packages/plugins/example/src/stories/Example.stories.svelte": `
+<script lang="ts" module>
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import ExampleDemo from "./ExampleDemo.svelte";
+  const { Story } = defineMeta({ title: "Example", component: ExampleDemo });
+</script>
+<Story name="Default" />
+`,
+    },
+    (findings) => {
+      assert.deepEqual(
+        findings.map((finding) => finding.code),
+        ["SPEC-STORY-SOURCE-MISSING"],
+      );
+      assert.equal(
+        findings[0].file,
+        "packages/plugins/example/src/stories/Example.stories.svelte",
+      );
+      assert.equal(findings[0].line, 4);
+    },
+  );
+});
+
+test("accepts package-local Svelte Autodocs with explicit source", () => {
+  withStories(
+    {
+      "packages/plugins/example/src/stories/Example.stories.svelte": `
+<script lang="ts" module>
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import ExampleDemo from "./ExampleDemo.svelte";
+  import { source } from "./Example.example-sources";
+  const { Story } = defineMeta({
+    title: "Example",
+    component: ExampleDemo,
+    parameters: { docs: { source: {
+      code: source,
+      language: "svelte",
+      type: "code",
+    } } },
+  });
+</script>
+<Story name="Default" />
+`,
+      "packages/plugins/example/src/stories/Example.example-sources.ts":
+        'export const source = \'<Example />\';\n',
+    },
+    (findings) => assert.deepEqual(findings, []),
+  );
+});

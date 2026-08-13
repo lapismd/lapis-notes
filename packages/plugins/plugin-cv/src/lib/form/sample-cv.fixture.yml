@@ -1,0 +1,211 @@
+# yaml-language-server: $schema=./cv.schema.json
+cv:
+  name: John Doe
+  headline: CTO & Co-Founder at Nexus AI | PhD in Computer Science
+  location: San Francisco, CA
+  email: john.doe@email.com
+  phone: ""
+  website: https://rendercv.com/
+  social_networks:
+    - network: LinkedIn
+      username: rendercv
+    - network: GitHub
+      username: rendercv
+  target_roles:
+    - CTO
+    - AI Research Leader
+    - Machine Learning Infrastructure Lead
+  sections:
+    - id: welcome-to-rendercv
+      title: Welcome to RenderCV
+      entry_type: TextEntry
+      entries:
+        - RenderCV reads a CV written in a YAML file, and generates a PDF with professional typography.
+        - Each section title is arbitrary.
+        - You can choose any of the 9 entry types for each section.
+        - Markdown syntax is supported everywhere. This is **bold**, *italic*, and [link](https://example.com).
+    - id: education
+      title: Education
+      entry_type: EducationEntry
+      entries:
+        - institution: Princeton University
+          degree: PhD
+          area: Computer Science
+          location: Princeton, NJ
+          start_date: 2018-09
+          end_date: 2023-05
+          highlights:
+            - Dissertation on efficient routing and compression methods for large language models.
+            - Published research on neural architecture search, sparse transformers, and scalable inference
+              systems.
+        - institution: Bogazici University
+          degree: BS
+          area: Computer Engineering
+          location: Istanbul, Turkiye
+          start_date: 2013-09
+          end_date: 2017-06
+          highlights:
+            - Graduated summa cum laude with a senior thesis on distributed reinforcement learning.
+            - Founded the university machine learning reading group and organized weekly research seminars.
+    - id: experience
+      title: Experience
+      entry_type: ExperienceEntry
+      entries:
+        - company: Nexus AI
+          position: CTO & Co-Founder
+          location: San Francisco, CA
+          start_date: 2023-06
+          end_date: present
+          highlights:
+            - Built the first production inference platform for multimodal foundation models serving
+              enterprise search, document review, and internal automation workflows.
+            - Led a 28-person engineering and research organization across model serving, data pipelines,
+              developer experience, reliability, and customer integrations.
+            - Designed a Kubernetes and Ray-based serving stack with dynamic batching, GPU scheduling, staged
+              rollouts, and continuous evaluation gates.
+            - Partnered with product and go-to-market teams to translate research prototypes into auditable
+              customer-facing systems.
+        - company: NVIDIA Research
+          position: Research Scientist
+          location: Santa Clara, CA
+          start_date: 2022-06
+          end_date: 2023-05
+          highlights:
+            - Developed GPU-aware pruning and quantization techniques for transformer inference workloads.
+            - Collaborated with compiler, systems, and applied research teams to benchmark kernels across
+              production deployment targets.
+            - Published work on sparse mixture-of-experts routing and mentored interns on efficient attention
+              implementations.
+        - company: Google DeepMind
+          position: Research Intern
+          location: London, UK
+          start_date: 2021-05
+          end_date: 2021-12
+          highlights:
+            - Investigated multi-agent reinforcement learning environments with emergent communication
+              protocols.
+            - Built experiment pipelines for distributed training, hyperparameter sweeps, and reproducible
+              model evaluation.
+            - Presented research findings to senior scientists and open-sourced internal visualization
+              utilities.
+        - company: Apple ML Research
+          position: Machine Learning Intern
+          location: Cupertino, CA
+          start_date: 2020-06
+          end_date: 2020-09
+          highlights:
+            - Optimized on-device model compression workflows for privacy-preserving personalization features.
+            - Prototyped quantization-aware training experiments and evaluated accuracy, latency, and memory
+              tradeoffs.
+            - Documented benchmarking methodology adopted by adjacent teams working on mobile inference.
+        - company: Microsoft Research
+          position: Research Assistant
+          location: Redmond, WA
+          start_date: 2017-07
+          end_date: 2018-08
+          highlights:
+            - Built tooling for neural architecture search experiments across heterogeneous compute clusters.
+            - Implemented experiment tracking, dataset versioning, and reproducible training recipes.
+            - Co-authored technical reports that informed follow-on work in efficient model selection.
+    - id: projects
+      title: Projects
+      entry_type: NormalEntry
+      entries:
+        - name: "[FlashInfer](https://github.com/)"
+          date: "2024"
+          location: Open source
+          summary:
+            A high-throughput inference playground for experimenting with sparse routing and custom attention
+            kernels.
+          highlights:
+            - Implemented benchmarks for latency, throughput, memory use, and quality regression tracking.
+            - Added examples for serving, profiling, and comparing quantized model variants.
+        - name: "[NeuralPrune](https://github.com/)"
+          date: "2022"
+          location: Research project
+          summary:
+            A differentiable pruning toolkit for compressing transformer architectures while preserving
+            downstream task quality.
+          highlights:
+            - Designed pruning schedules, evaluation dashboards, and reproducible experiment templates.
+            - Used in graduate seminars as a compact reference implementation for compression research.
+    - id: publications
+      title: Publications
+      entry_type: PublicationEntry
+      entries:
+        - title: "Sparse Mixture-of-Experts at Scale: Efficient Routing for Trillion-Parameter Models"
+          authors:
+            - John Doe
+            - Avery Chen
+            - Mina Patel
+          journal: NeurIPS
+          date: "2024"
+          url: https://example.com/sparse-moe
+          summary: Introduced routing constraints and load-balancing objectives for stable large-scale expert models.
+        - title: Neural Architecture Search via Differentiable Pruning
+          authors:
+            - John Doe
+            - Sam Rivera
+          journal: ICML
+          date: "2023"
+          url: https://example.com/neural-prune
+          summary: Presented a unified pruning and search method for latency-constrained transformer deployments.
+        - title: Multi-Agent Reinforcement Learning with Emergent Communication
+          authors:
+            - John Doe
+            - Lina Morgan
+            - Priya Shah
+          journal: ICLR
+          date: "2022"
+          url: https://example.com/emergent-communication
+          summary:
+            Studied coordination strategies and interpretable communication protocols in competitive
+            environments.
+        - title: On-Device Model Compression via Learned Quantization
+          authors:
+            - John Doe
+            - Noah Kim
+          journal: MLSys
+          date: "2021"
+          url: https://example.com/learned-quantization
+          summary: Evaluated accuracy-preserving compression methods for mobile inference pipelines.
+    - id: selected-honors
+      title: Selected Honors
+      entry_type: BulletEntry
+      entries:
+        - bullet: MIT Technology Review 35 Under 35 Innovators (2024)
+        - bullet: Forbes 30 Under 30 in Enterprise Technology (2024)
+        - bullet: ACM Doctoral Dissertation Award Honorable Mention (2023)
+        - bullet: Google PhD Fellowship in Machine Learning (2020 - 2023)
+        - bullet: Fulbright Scholarship for Graduate Studies (2018)
+    - id: skills
+      title: Skills
+      entry_type: OneLineEntry
+      entries:
+        - label: Languages
+          details: Python, C++, CUDA, Rust, Julia
+        - label: ML Frameworks
+          details: PyTorch, JAX, TensorFlow, Triton, ONNX
+        - label: Infrastructure
+          details: Kubernetes, Ray, distributed training, AWS, GCP
+        - label: Research Areas
+          details: Neural architecture search, model compression, efficient inference, multi-agent RL
+    - id: patents
+      title: Patents
+      entry_type: NumberedEntry
+      entries:
+        - number: Adaptive Quantization for Neural Network Inference on Edge Devices (US Patent 11,234,567)
+        - number: Dynamic Sparsity Patterns for Efficient Transformer Attention (US Patent 11,345,678)
+        - number: Hardware-Aware Neural Architecture Search Method (US Patent 11,456,789)
+    - id: invited-talks
+      title: Invited Talks
+      entry_type: ReversedNumberedEntry
+      entries:
+        - reversed_number: Scaling Laws for Efficient Inference - Stanford HAI Symposium (2024)
+        - reversed_number: Building AI Infrastructure for the Next Decade - TechCrunch Disrupt (2024)
+        - reversed_number: "From Research to Production: Lessons in ML Systems - NeurIPS Workshop (2023)"
+        - reversed_number: "Efficient Deep Learning: A Practitioner's Perspective - Google Tech Talk (2022)"
+locale:
+  language: english
+design:
+  theme: moderncv
