@@ -195,6 +195,15 @@ async function main() {
 
   const handleTscLine = (line) => {
     if (/Found 0 errors?\. Watching for file changes\./u.test(line)) {
+      const mainBundle = spawnSync(
+        process.execPath,
+        [path.join(pkg, "scripts/bundle-main.mjs")],
+        { cwd: pkg, stdio: "inherit", env: process.env },
+      );
+      if (mainBundle.status !== 0) {
+        console.error("[electron-dev] main process bundle failed");
+        return;
+      }
       const bundle = spawnSync(
         process.execPath,
         [path.join(pkg, "scripts/bundle-language-sidecar.mjs")],

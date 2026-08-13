@@ -4,13 +4,9 @@ export const DESKTOP_INVOKE_COMMANDS = new Set([
   "desktop_app_info_get",
   "desktop_app_url_take_pending",
   "desktop_create_vault_folder",
-  "desktop_db_delete_search_document",
-  "desktop_db_load_state",
-  "desktop_db_replace_search_documents",
-  "desktop_db_save_state",
-  "desktop_db_search_documents",
-  "desktop_db_search_vector_documents",
-  "desktop_db_upsert_search_document",
+  "desktop_db_call",
+  "desktop_db_close",
+  "desktop_db_open",
   "desktop_fs_copy",
   "desktop_fs_exists",
   "desktop_fs_get_resource_url",
@@ -56,6 +52,12 @@ export const DESKTOP_INVOKE_COMMANDS = new Set([
 ]);
 
 export function createDesktopCapabilityRegistry(): NativeDesktopCapabilityRegistry {
+  const nativeTurso =
+    (process.platform === "darwin" && process.arch === "arm64") ||
+    (process.platform === "linux" && ["x64", "arm64"].includes(process.arch));
+  const databaseProvider = nativeTurso
+    ? "electron-turso-native"
+    : "electron-turso-wasm-opfs";
   return {
     resource: {
       id: "resource",
@@ -66,16 +68,20 @@ export function createDesktopCapabilityRegistry(): NativeDesktopCapabilityRegist
     database: {
       id: "database",
       status: "available",
-      provider: "node-sqlite-state",
-      details: { storage: "userData/vault-state/*.sqlite3" },
+      provider: databaseProvider,
+      details: {
+        engine: "turso",
+        transport: nativeTurso ? "native" : "wasm-worker",
+        storage: nativeTurso ? "userData/turso/*.turso" : "renderer-opfs",
+      },
     },
     search: {
       id: "search",
       status: "available",
-      provider: "node-sqlite-fts-lexical",
+      provider: "turso-fts-vector",
       details: {
-        modes: "plain-lexical,vector-candidate-fallback",
-        vector: "runtime-detected-sqlite-vec",
+        modes: "lexical,vector,hybrid",
+        vector: "turso-vector-distance",
       },
     },
     notebook: {

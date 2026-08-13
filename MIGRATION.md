@@ -39,13 +39,13 @@ intake or UI swap status changes.
 ### App database migration progress
 
 - [x] Canonical provider, Turso, migration, capability, and cross-tab requirements
-- [ ] Provider-neutral descriptor, capability, factory, and vault-session contracts
-- [ ] Turso native and WASM drivers with normalized generated-state persistence
-- [ ] Turso full-text, vector, hybrid, and local embedding execution
-- [ ] Remove legacy SQLite, sqlite-vec, and IndexedDB app-database implementations and dependencies
-- [ ] Pure typed Electron database proxy and bounded main-process RPC
+- [x] Provider-neutral descriptor, capability, factory, and vault-session contracts
+- [x] Turso native and WASM drivers with normalized generated-state persistence
+- [x] Turso full-text, vector, hybrid, and local embedding execution
+- [x] Remove legacy SQLite, sqlite-vec, and IndexedDB app-database implementations and dependencies
+- [x] Pure typed Electron database proxy and bounded main-process RPC
 - [ ] Generic Web Locks and BroadcastChannel owner/proxy coordination
-- [ ] Block unsupported production runtimes instead of opening a non-Turso database
+- [x] Block unsupported production runtimes instead of opening a non-Turso database
 
 ### Electron desktop host intake progress
 
@@ -75,6 +75,8 @@ legacy commit `8ec68e18`.
 - [x] Load Markdown (including Tags), Markdownlint, and File Explorer before layout restoration; recover previously unavailable view placeholders when their implementation now exists
 - [x] Load Search before layout restoration; restore canonical `search` leaves and execute queries through the native app database
 - [x] Preserve a larger macOS traffic-light inset for the expanded left sidebar without changing the collapsed control geometry
+- [x] Replace renderer database mirrors with window/vault-owned native Turso handles behind a bounded typed RPC allowlist
+- [x] Serve packaged renderer assets from isolated `lapis-app://app/` with COOP/COEP and retain Turso WASM assets for Intel macOS
 - [ ] Full Storybook suite: 80/84 pass; three existing `LapisEditorDemo` interaction failures (`Same File Split Sync`, `Markdown Authoring`, and `Editor Settings`) remain outside this intake, while `Markdown Problems` passes alone but remains flaky in the concurrent full run
 - [ ] `PersistedDesktop` Visual Delta comparison: blocked because Docker Desktop cannot start; no baseline was updated
 

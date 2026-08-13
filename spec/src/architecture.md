@@ -92,6 +92,10 @@ retains only native lifecycle and service dependencies. Main communicates with
 the context-isolated preload through an explicit command allowlist. Renderer
 shutdown is acknowledged before window destruction so the API-owned session
 can persist and dispose without moving ownership into main or workspace.
+Electron main owns native Turso handles behind a fixed API database RPC
+catalogue; the renderer receives descriptors and results, never SQL or storage
+paths. Intel macOS composes the API-owned WASM provider in the renderer behind
+the same session boundary.
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
 The ready-shell vault menu follows the same boundary: Design Core presents the

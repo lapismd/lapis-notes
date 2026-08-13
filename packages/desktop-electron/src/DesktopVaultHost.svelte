@@ -1,6 +1,8 @@
 <script lang="ts">
   import {
     NativeDesktopVaultAdapter,
+    NativeDesktopTursoAppDatabaseProvider,
+    TursoWasmAppDatabaseProvider,
     clearCurrentVaultProfile,
     createNativeDesktopVault,
     createVaultSession,
@@ -177,9 +179,12 @@
     const session = await createVaultSession(adapter, {
       runtime: "electron-desktop",
       profile,
+      appDatabaseProvider:
+        bridge.platform?.os === "macos" && bridge.platform.arch === "x64"
+          ? new TursoWasmAppDatabaseProvider()
+          : new NativeDesktopTursoAppDatabaseProvider(),
     });
     try {
-      await session.appDatabase?.open();
       const appInfo = await bridge
         .invoke<DesktopAppInfo>("desktop_app_info_get")
         .catch(() => ({

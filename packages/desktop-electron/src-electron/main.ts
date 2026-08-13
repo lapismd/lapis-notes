@@ -1,9 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import { createHash } from "node:crypto";
-import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
-import { DatabaseSync } from "node:sqlite";
 import {
   app,
   BrowserWindow,
@@ -23,11 +21,22 @@ import type {
   WebContents,
 } from "electron";
 import chokidar from "chokidar";
-import type { SearchDocumentRecord } from "@lapis-notes/api";
+import {
+  DESKTOP_APP_DATABASE_RPC_METHODS,
+  TursoAppDatabase,
+  type AppDatabase,
+  type AppDatabaseDescriptor,
+  type DesktopAppDatabaseRpcMethod,
+  type TursoConnection,
+} from "@lapis-notes/api/app-database";
 import { LanguageServiceSidecarManager } from "./language-service-sidecar";
 import { ensureLanguageServiceIpc } from "./language-service-desktop-ipc";
 import { ElectronPluginCapabilityBroker } from "./plugin-capability-broker";
 import { PluginSidecarManager } from "./plugin-sidecar";
+import {
+  getAppRendererContentType,
+  resolveAppRendererFilePath,
+} from "./app-renderer-protocol";
 import {
   makeFsError,
   normalizeRootPath,
@@ -38,30 +47,8 @@ import {
 
 const VAULT_RESOURCE_SCHEME = "lapis-vault-resource";
 const PLUGIN_ASSET_SCHEME = "lapis-plugin";
+const APP_RENDERER_SCHEME = "lapis-app";
 const APP_URL_SCHEMES = ["lapis", "lapis-notes"] as const;
-const SEARCH_VECTOR_TABLE = "search_vec_chunks";
-const SEARCH_VECTOR_DIMENSIONS_KEY = "search.vector.dimensions";
-const SQLITE_VEC_ENTRY_POINTS = [
-  "sqlite3_extension_init",
-  "sqlite3_sqlitevec_init",
-  "sqlite3_vec_init",
-];
-
-type NativeVectorCapability =
-  | { status: "unknown" }
-  | { status: "available"; extensionPath: string; version: string }
-  | { status: "unavailable"; reason: string; extensionPath?: string };
-
-type NativeVectorSearchResult =
-  | {
-      available: true;
-      candidates: Array<{
-        path: string;
-        score: number;
-        matchedChunkIds: string[];
-      }>;
-    }
-  | { available: false; reason: string };
 
 type DesktopNotificationPayload = {
   id?: unknown;
@@ -87,8 +74,6 @@ type RegisteredPluginAssetContext = {
   files: Map<string, PluginAssetFileMetadata>;
 };
 
-let nativeVectorCapability: NativeVectorCapability = { status: "unknown" };
-const nodeRequire = createRequire(path.join(process.cwd(), "package.json"));
 const languageServiceSidecarManager = new LanguageServiceSidecarManager();
 const pluginSidecars = new Map<string, PluginSidecarManager>();
 const pluginCapabilityBroker = new ElectronPluginCapabilityBroker();
@@ -99,6 +84,7 @@ const activeWatchesByWindowId = new Map<
   Map<string, ActiveDesktopWatch>
 >();
 const shownNativeNotificationIdsByWindowId = new Map<number, Set<string>>();
+const appDatabasesByWindowId = new Map<number, Map<string, AppDatabase>>();
 const pluginAssetContexts = new Map<string, RegisteredPluginAssetContext>();
 const appHostWindowIds = new Set<number>();
 const trackedWindowIds = new Set<number>();
@@ -131,6 +117,11 @@ function assertOwnedIpcSender(event: IpcMainInvokeEvent): void {
   }
 }
 
+function getOwnedWindowId(event: IpcMainInvokeEvent): number {
+  assertOwnedIpcSender(event);
+  return BrowserWindow.fromWebContents(event.sender)!.id;
+}
+
 type OwnedIpcHandler = (
   event: IpcMainInvokeEvent,
   ...args: any[]
@@ -155,6 +146,16 @@ const ipcMain = {
 };
 
 protocol.registerSchemesAsPrivileged([
+  {
+    scheme: APP_RENDERER_SCHEME,
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+      stream: true,
+    },
+  },
   {
     scheme: VAULT_RESOURCE_SCHEME,
     privileges: {
@@ -337,24 +338,135 @@ function getConfiguredTestVaultPath(): string | null {
   return candidate;
 }
 
-// ─── Generated-state persistence ─────────────────────────────────────────────
+// ─── Turso generated-state persistence ───────────────────────────────────────
 
-function getStateDir(): string {
-  return path.join(app.getPath("userData"), "vault-state");
+const desktopDatabaseRpcMethods = new Set<DesktopAppDatabaseRpcMethod>(
+  DESKTOP_APP_DATABASE_RPC_METHODS,
+);
+
+function getTursoStateDir(): string {
+  return path.join(app.getPath("userData"), "turso");
 }
 
-function legacyStateFilePath(vaultId: string): string {
+function tursoDatabasePath(vaultId: string): string {
   const safe = Buffer.from(vaultId).toString("base64url");
-  return path.join(getStateDir(), `${safe}.json`);
+  return path.join(getTursoStateDir(), `${safe}.turso`);
 }
 
-function stateDatabasePath(vaultId: string): string {
-  const safe = Buffer.from(vaultId).toString("base64url");
-  return path.join(getStateDir(), `${safe}.sqlite3`);
+function assertDesktopVaultId(value: unknown): asserts value is string {
+  if (
+    typeof value !== "string" ||
+    !value.startsWith("desktop-folder:") ||
+    value.length > 16_384
+  ) {
+    throw makeFsError("EINVAL", "desktop_db.vaultId");
+  }
 }
 
-function stateDatabaseExists(vaultId: string): boolean {
-  return fs.existsSync(stateDatabasePath(vaultId));
+function supportsNativeTurso(): boolean {
+  return (
+    (process.platform === "darwin" && process.arch === "arm64") ||
+    (process.platform === "linux" && ["x64", "arm64"].includes(process.arch))
+  );
+}
+
+async function createNativeTursoConnection(
+  vaultId: string,
+): Promise<TursoConnection> {
+  if (!supportsNativeTurso()) {
+    throw new Error(`Native Turso is unavailable on ${process.platform}/${process.arch}`);
+  }
+  fs.mkdirSync(getTursoStateDir(), { recursive: true });
+  const { connect } = await import("@tursodatabase/database");
+  return (await connect(tursoDatabasePath(vaultId), {
+    experimental: ["index_method"],
+  })) as unknown as TursoConnection;
+}
+
+function getOrCreateWindowDatabaseMap(windowId: number): Map<string, AppDatabase> {
+  let databases = appDatabasesByWindowId.get(windowId);
+  if (!databases) {
+    databases = new Map();
+    appDatabasesByWindowId.set(windowId, databases);
+  }
+  return databases;
+}
+
+async function openAppDatabaseForWindow(
+  windowId: number,
+  vaultId: string,
+): Promise<AppDatabaseDescriptor> {
+  assertDesktopVaultId(vaultId);
+  const databases = getOrCreateWindowDatabaseMap(windowId);
+  const existing = databases.get(vaultId);
+  if (existing) return existing.descriptor;
+
+  const database = new TursoAppDatabase(vaultId, {
+    kind: "turso-native",
+    providerId: "electron-turso-native",
+    transport: "native",
+    role: "direct",
+    connectionFactory: () => createNativeTursoConnection(vaultId),
+  });
+  await database.open();
+  databases.set(vaultId, database);
+  return database.descriptor;
+}
+
+function requireAppDatabaseForWindow(
+  windowId: number,
+  vaultId: string,
+): AppDatabase {
+  assertDesktopVaultId(vaultId);
+  const database = appDatabasesByWindowId.get(windowId)?.get(vaultId);
+  if (!database) throw new Error("No open Turso database for this renderer and vault");
+  return database;
+}
+
+async function callAppDatabaseForWindow(
+  windowId: number,
+  vaultId: string,
+  method: unknown,
+  args: unknown,
+): Promise<unknown> {
+  if (
+    typeof method !== "string" ||
+    !desktopDatabaseRpcMethods.has(method as DesktopAppDatabaseRpcMethod) ||
+    !Array.isArray(args) ||
+    args.length > 4
+  ) {
+    throw makeFsError("EINVAL", "desktop_db.call");
+  }
+  const database = requireAppDatabaseForWindow(windowId, vaultId);
+  const operation = database[method as DesktopAppDatabaseRpcMethod] as unknown as (
+    ...values: unknown[]
+  ) => Promise<unknown>;
+  return operation.apply(database, args);
+}
+
+async function closeAppDatabaseForWindow(
+  windowId: number,
+  vaultId: string,
+): Promise<void> {
+  assertDesktopVaultId(vaultId);
+  const databases = appDatabasesByWindowId.get(windowId);
+  const database = databases?.get(vaultId);
+  if (!database) return;
+  databases!.delete(vaultId);
+  if (!databases!.size) appDatabasesByWindowId.delete(windowId);
+  await database.close();
+}
+
+async function closeAllAppDatabasesForWindow(windowId: number): Promise<void> {
+  const databases = appDatabasesByWindowId.get(windowId);
+  appDatabasesByWindowId.delete(windowId);
+  if (!databases) return;
+  await Promise.all([...databases.values()].map((database) => database.close()));
+}
+
+async function closeAllAppDatabases(): Promise<void> {
+  const windowIds = [...appDatabasesByWindowId.keys()];
+  await Promise.all(windowIds.map(closeAllAppDatabasesForWindow));
 }
 
 function buildDesktopVaultId(rootPath: string): string {
@@ -366,10 +478,7 @@ function movePathSync(sourcePath: string, targetPath: string): void {
   try {
     fs.renameSync(sourcePath, targetPath);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "EXDEV") {
-      throw error;
-    }
-
+    if ((error as NodeJS.ErrnoException).code !== "EXDEV") throw error;
     const stat = fs.statSync(sourcePath);
     if (stat.isDirectory()) {
       fs.cpSync(sourcePath, targetPath, {
@@ -380,661 +489,20 @@ function movePathSync(sourcePath: string, targetPath: string): void {
       fs.rmSync(sourcePath, { recursive: true, force: false });
       return;
     }
-
     fs.copyFileSync(sourcePath, targetPath, fs.constants.COPYFILE_EXCL);
     fs.rmSync(sourcePath, { force: false });
   }
 }
 
-function migrateVaultStateFiles(oldVaultId: string, newVaultId: string): void {
-  if (!oldVaultId || !newVaultId || oldVaultId === newVaultId) {
-    return;
+function moveTursoDatabase(oldVaultId: string, newVaultId: string): void {
+  if (oldVaultId === newVaultId) return;
+  const sourcePath = tursoDatabasePath(oldVaultId);
+  if (!fs.existsSync(sourcePath)) return;
+  const targetPath = tursoDatabasePath(newVaultId);
+  if (fs.existsSync(targetPath)) {
+    throw new Error("Generated Turso state already exists for the destination vault");
   }
-
-  const moves: Array<{ sourcePath: string; targetPath: string }> = [];
-  const databaseSourcePath = stateDatabasePath(oldVaultId);
-  if (fs.existsSync(databaseSourcePath)) {
-    moves.push({
-      sourcePath: databaseSourcePath,
-      targetPath: stateDatabasePath(newVaultId),
-    });
-  }
-
-  const legacySourcePath = legacyStateFilePath(oldVaultId);
-  if (fs.existsSync(legacySourcePath)) {
-    moves.push({
-      sourcePath: legacySourcePath,
-      targetPath: legacyStateFilePath(newVaultId),
-    });
-  }
-
-  const moved: Array<{ sourcePath: string; targetPath: string }> = [];
-  try {
-    for (const entry of moves) {
-      if (fs.existsSync(entry.targetPath)) {
-        throw new Error(
-          `Generated state already exists for destination vault: ${entry.targetPath}`,
-        );
-      }
-      movePathSync(entry.sourcePath, entry.targetPath);
-      moved.push(entry);
-    }
-  } catch (error) {
-    for (const entry of moved.reverse()) {
-      if (fs.existsSync(entry.targetPath) && !fs.existsSync(entry.sourcePath)) {
-        movePathSync(entry.targetPath, entry.sourcePath);
-      }
-    }
-    throw error;
-  }
-}
-
-function platformExtensionToken(): string {
-  if (process.platform === "linux") {
-    return `linux-${process.arch}`;
-  }
-  return `${process.platform}-${process.arch}`;
-}
-
-function nativeExtensionFileExtension(): string {
-  if (process.platform === "darwin") {
-    return "dylib";
-  }
-  if (process.platform === "win32") {
-    return "dll";
-  }
-  return "so";
-}
-
-function resolveSqliteVecPackageRoot(): string | null {
-  try {
-    return path.dirname(
-      nodeRequire.resolve("@dao-xyz/sqlite3-vec/package.json"),
-    );
-  } catch {
-    return null;
-  }
-}
-
-function resolveCompatibleVecExtensionPath(): string | null {
-  const packageRoot = resolveSqliteVecPackageRoot();
-  if (!packageRoot) {
-    nativeVectorCapability = {
-      status: "unavailable",
-      reason: "sqlite-vec package is not installed",
-    };
-    return null;
-  }
-
-  const nativeDir = path.join(packageRoot, "dist", "native");
-  const extension = nativeExtensionFileExtension();
-  const token = platformExtensionToken().toLowerCase();
-  const extensionPath = fs.existsSync(nativeDir)
-    ? fs
-        .readdirSync(nativeDir)
-        .find(
-          (entry) =>
-            entry.toLowerCase().includes(token) &&
-            entry.toLowerCase().endsWith(`.${extension}`),
-        )
-    : null;
-
-  if (!extensionPath) {
-    nativeVectorCapability = {
-      status: "unavailable",
-      reason: `sqlite-vec native extension does not match ${process.platform}/${process.arch}`,
-    };
-    return null;
-  }
-
-  return path.join(nativeDir, extensionPath);
-}
-
-function ensureNativeVec(database: DatabaseSync): boolean {
-  if (nativeVectorCapability.status === "unavailable") {
-    return false;
-  }
-
-  const extensionPath =
-    nativeVectorCapability.status === "available"
-      ? nativeVectorCapability.extensionPath
-      : resolveCompatibleVecExtensionPath();
-  if (!extensionPath) {
-    return false;
-  }
-
-  try {
-    database.enableLoadExtension(true);
-    let lastError: unknown;
-    const loadExtension = database.loadExtension as unknown as (
-      path: string,
-      entryPoint?: string,
-    ) => void;
-    for (const entryPoint of SQLITE_VEC_ENTRY_POINTS) {
-      try {
-        loadExtension(extensionPath, entryPoint);
-        lastError = null;
-        break;
-      } catch (error) {
-        lastError = error;
-      }
-    }
-    if (lastError) {
-      loadExtension(extensionPath);
-    }
-    database.enableLoadExtension(false);
-
-    const row = database.prepare(`SELECT vec_version() AS version`).get() as
-      | { version?: string }
-      | undefined;
-    if (!row?.version) {
-      throw new Error("sqlite-vec loaded without vec_version()");
-    }
-
-    nativeVectorCapability = {
-      status: "available",
-      extensionPath,
-      version: row.version,
-    };
-    return true;
-  } catch (error) {
-    try {
-      database.enableLoadExtension(false);
-    } catch {
-      // Ignore cleanup errors after a failed extension load.
-    }
-    nativeVectorCapability = {
-      status: "unavailable",
-      reason: error instanceof Error ? error.message : "sqlite-vec load failed",
-      extensionPath,
-    };
-    return false;
-  }
-}
-
-function parseJson<T>(value: unknown): T | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return null;
-  }
-}
-
-function getStateJson<T>(database: DatabaseSync, key: string): T | null {
-  const row = database
-    .prepare(`SELECT value FROM app_state WHERE key = ?`)
-    .get(key) as { value?: string } | undefined;
-  return parseJson<T>(row?.value);
-}
-
-function setStateJson(
-  database: DatabaseSync,
-  key: string,
-  value: unknown,
-): void {
-  database
-    .prepare(
-      `INSERT INTO app_state (key, value, updated_at)
-       VALUES (?, ?, ?)
-       ON CONFLICT(key) DO UPDATE SET
-        value = excluded.value,
-        updated_at = excluded.updated_at`,
-    )
-    .run(key, json(value), Date.now());
-}
-
-function openStateDatabase(vaultId: string): DatabaseSync {
-  fs.mkdirSync(getStateDir(), { recursive: true });
-  const database = new DatabaseSync(stateDatabasePath(vaultId), {
-    allowExtension: true,
-  });
-  ensureNativeVec(database);
-  database.exec(`
-    PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS app_state (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL,
-      updated_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS search_docs (
-      path TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      extension TEXT NOT NULL,
-      checksum TEXT NOT NULL,
-      content TEXT NOT NULL,
-      tags_json TEXT NOT NULL,
-      tag_parts_json TEXT NOT NULL,
-      tag_hierarchy_json TEXT NOT NULL,
-      metadata_text TEXT NOT NULL DEFAULT ''
-    );
-
-    CREATE TABLE IF NOT EXISTS search_chunks (
-      path TEXT NOT NULL,
-      chunk_id TEXT NOT NULL,
-      ordinal INTEGER NOT NULL,
-      start_offset INTEGER NOT NULL,
-      end_offset INTEGER NOT NULL,
-      heading TEXT,
-      kind TEXT NOT NULL DEFAULT 'fallback',
-      text TEXT NOT NULL,
-      embedding_json TEXT,
-      PRIMARY KEY(path, chunk_id)
-    );
-
-    CREATE INDEX IF NOT EXISTS search_chunks_path_idx ON search_chunks(path, ordinal);
-
-    CREATE VIRTUAL TABLE IF NOT EXISTS search_fts USING fts5(
-      path UNINDEXED,
-      name,
-      content,
-      tags,
-      metadata_text
-    );
-  `);
-  return database;
-}
-
-function json(value: unknown): string {
-  return JSON.stringify(value ?? null);
-}
-
-function normalizeSearchTerms(terms: string[]): string[] {
-  return [
-    ...new Set(
-      terms
-        .flatMap(
-          (term) =>
-            term
-              .normalize("NFKC")
-              .toLowerCase()
-              .match(/[\p{L}\p{N}]+/gu) ?? [],
-        )
-        .map((term) => term.trim().toLowerCase())
-        .filter((term) => term.length > 0),
-    ),
-  ];
-}
-
-function toFtsPrefixQuery(terms: string[]): string {
-  return normalizeSearchTerms(terms)
-    .map((term) => `"${term.replace(/"/gu, '""')}"*`)
-    .join(" AND ");
-}
-
-function escapeLike(value: string): string {
-  return value.replace(/[\\%_]/gu, (match) => `\\${match}`);
-}
-
-function readyVectorChunks(document: SearchDocumentRecord) {
-  return (document.chunks ?? []).filter((chunk) => {
-    const embedding = chunk.embedding;
-    return Boolean(
-      embedding?.status === "ready" &&
-        embedding.vector?.length &&
-        Number.isInteger(embedding.dimensions ?? embedding.vector.length),
-    );
-  });
-}
-
-function resetSearchVectorIndex(database: DatabaseSync): void {
-  if (!ensureNativeVec(database)) {
-    return;
-  }
-  database.exec(`DROP TABLE IF EXISTS ${SEARCH_VECTOR_TABLE}`);
-  setStateJson(database, SEARCH_VECTOR_DIMENSIONS_KEY, null);
-}
-
-function ensureSearchVectorTable(
-  database: DatabaseSync,
-  dimensions: number,
-): boolean {
-  if (!Number.isInteger(dimensions) || dimensions <= 0) {
-    return false;
-  }
-  if (!ensureNativeVec(database)) {
-    return false;
-  }
-
-  const existingDimensions = getStateJson<number>(
-    database,
-    SEARCH_VECTOR_DIMENSIONS_KEY,
-  );
-  if (existingDimensions === dimensions) {
-    return true;
-  }
-
-  try {
-    database.exec(`DROP TABLE IF EXISTS ${SEARCH_VECTOR_TABLE}`);
-    database.exec(
-      `CREATE VIRTUAL TABLE IF NOT EXISTS ${SEARCH_VECTOR_TABLE} USING vec0(
-        embedding float[${dimensions}] distance_metric=cosine,
-        path text,
-        chunk_id text
-      )`,
-    );
-    setStateJson(database, SEARCH_VECTOR_DIMENSIONS_KEY, dimensions);
-    return true;
-  } catch {
-    setStateJson(database, SEARCH_VECTOR_DIMENSIONS_KEY, null);
-    return false;
-  }
-}
-
-function deleteSearchVectorEntriesForPath(
-  database: DatabaseSync,
-  documentPath: string,
-): void {
-  if (!ensureNativeVec(database)) {
-    return;
-  }
-
-  try {
-    database
-      .prepare(`DELETE FROM ${SEARCH_VECTOR_TABLE} WHERE path = ?`)
-      .run(documentPath);
-  } catch {
-    // The vec table may not exist yet or may be unavailable on this host.
-  }
-}
-
-function upsertSearchVectorEntries(
-  database: DatabaseSync,
-  document: SearchDocumentRecord,
-): void {
-  const chunks = readyVectorChunks(document);
-  if (!chunks.length) {
-    deleteSearchVectorEntriesForPath(database, document.path);
-    return;
-  }
-
-  const firstEmbedding = chunks[0]?.embedding;
-  const dimensions =
-    firstEmbedding?.dimensions ?? firstEmbedding?.vector?.length;
-  if (!dimensions || !ensureSearchVectorTable(database, dimensions)) {
-    return;
-  }
-
-  deleteSearchVectorEntriesForPath(database, document.path);
-  const insert = database.prepare(
-    `INSERT INTO ${SEARCH_VECTOR_TABLE} (embedding, path, chunk_id)
-     VALUES (?, ?, ?)`,
-  );
-  for (const chunk of chunks) {
-    const vector = chunk.embedding?.vector ?? [];
-    if (vector.length !== dimensions) {
-      continue;
-    }
-    insert.run(
-      Buffer.from(new Float32Array(vector).buffer),
-      document.path,
-      chunk.id,
-    );
-  }
-}
-
-function searchVectorDocuments(
-  vaultId: string,
-  queryVector: number[],
-  limit: number,
-): NativeVectorSearchResult {
-  const database = openStateDatabase(vaultId);
-  try {
-    if (!ensureNativeVec(database)) {
-      return {
-        available: false,
-        reason:
-          nativeVectorCapability.status === "unavailable"
-            ? nativeVectorCapability.reason
-            : "sqlite-vec unavailable",
-      };
-    }
-
-    const dimensions = getStateJson<number>(
-      database,
-      SEARCH_VECTOR_DIMENSIONS_KEY,
-    );
-    if (!dimensions || queryVector.length !== dimensions) {
-      return { available: false, reason: "vector dimension mismatch" };
-    }
-
-    const rows = database
-      .prepare(
-        `SELECT path, chunk_id, distance
-         FROM ${SEARCH_VECTOR_TABLE}
-         WHERE embedding MATCH ?
-           AND k = ?
-         ORDER BY distance
-         LIMIT ?`,
-      )
-      .all(
-        Buffer.from(new Float32Array(queryVector).buffer),
-        limit,
-        limit,
-      ) as Array<{ path: string; chunk_id: string; distance: number }>;
-
-    const candidates = new Map<
-      string,
-      { path: string; score: number; matchedChunkIds: string[] }
-    >();
-    for (const row of rows) {
-      const score = Math.max(0, 1 - Number(row.distance ?? 0));
-      const existing = candidates.get(row.path);
-      if (!existing || score > existing.score) {
-        candidates.set(row.path, {
-          path: row.path,
-          score,
-          matchedChunkIds: [row.chunk_id],
-        });
-        continue;
-      }
-      if (!existing.matchedChunkIds.includes(row.chunk_id)) {
-        existing.matchedChunkIds.push(row.chunk_id);
-      }
-    }
-
-    return { available: true, candidates: [...candidates.values()] };
-  } catch (error) {
-    return {
-      available: false,
-      reason: error instanceof Error ? error.message : "vector search failed",
-    };
-  } finally {
-    database.close();
-  }
-}
-
-function persistSearchDocument(
-  database: DatabaseSync,
-  document: SearchDocumentRecord,
-): void {
-  database
-    .prepare(
-      `INSERT INTO search_docs
-        (path, name, extension, checksum, content, tags_json, tag_parts_json, tag_hierarchy_json, metadata_text)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-       ON CONFLICT(path) DO UPDATE SET
-        name = excluded.name,
-        extension = excluded.extension,
-        checksum = excluded.checksum,
-        content = excluded.content,
-        tags_json = excluded.tags_json,
-        tag_parts_json = excluded.tag_parts_json,
-        tag_hierarchy_json = excluded.tag_hierarchy_json,
-        metadata_text = excluded.metadata_text`,
-    )
-    .run(
-      document.path,
-      document.name,
-      document.extension,
-      document.checksum,
-      document.content,
-      json(document.tags),
-      json(document.tagParts),
-      json(document.tagHierarchy),
-      document.metadataText ?? "",
-    );
-
-  database
-    .prepare(`DELETE FROM search_chunks WHERE path = ?`)
-    .run(document.path);
-  const insertChunk = database.prepare(
-    `INSERT INTO search_chunks
-      (path, chunk_id, ordinal, start_offset, end_offset, heading, kind, text, embedding_json)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  );
-  for (const [ordinal, chunk] of (document.chunks ?? []).entries()) {
-    insertChunk.run(
-      document.path,
-      chunk.id,
-      ordinal,
-      chunk.startOffset,
-      chunk.endOffset,
-      chunk.heading ?? null,
-      chunk.kind ?? "fallback",
-      chunk.text,
-      json(chunk.embedding ?? null),
-    );
-  }
-
-  database.prepare(`DELETE FROM search_fts WHERE path = ?`).run(document.path);
-  database
-    .prepare(
-      `INSERT INTO search_fts (path, name, content, tags, metadata_text)
-       VALUES (?, ?, ?, ?, ?)`,
-    )
-    .run(
-      document.path,
-      document.name,
-      document.content,
-      document.tags.join(" "),
-      document.metadataText ?? "",
-    );
-  upsertSearchVectorEntries(database, document);
-}
-
-function replaceSearchDocuments(
-  vaultId: string,
-  documents: SearchDocumentRecord[],
-): void {
-  const database = openStateDatabase(vaultId);
-  try {
-    database.exec("BEGIN");
-    database.exec("DELETE FROM search_chunks");
-    database.exec("DELETE FROM search_docs");
-    database.exec("DELETE FROM search_fts");
-    resetSearchVectorIndex(database);
-    for (const document of documents) {
-      persistSearchDocument(database, document);
-    }
-    database.exec("COMMIT");
-  } catch (error) {
-    database.exec("ROLLBACK");
-    throw error;
-  } finally {
-    database.close();
-  }
-}
-
-function upsertSearchDocument(
-  vaultId: string,
-  document: SearchDocumentRecord,
-): void {
-  const database = openStateDatabase(vaultId);
-  try {
-    persistSearchDocument(database, document);
-  } finally {
-    database.close();
-  }
-}
-
-function deleteSearchDocument(vaultId: string, documentPath: string): void {
-  const database = openStateDatabase(vaultId);
-  try {
-    database
-      .prepare(`DELETE FROM search_chunks WHERE path = ?`)
-      .run(documentPath);
-    database
-      .prepare(`DELETE FROM search_docs WHERE path = ?`)
-      .run(documentPath);
-    database.prepare(`DELETE FROM search_fts WHERE path = ?`).run(documentPath);
-    deleteSearchVectorEntriesForPath(database, documentPath);
-  } finally {
-    database.close();
-  }
-}
-
-function searchDocuments(
-  vaultId: string,
-  terms: string[],
-  limit: number,
-): Array<{ path: string; rank: number }> {
-  const normalizedTerms = normalizeSearchTerms(terms);
-  if (!normalizedTerms.length) {
-    return [];
-  }
-
-  const database = openStateDatabase(vaultId);
-  try {
-    const candidates = new Map<string, number>();
-    const ftsQuery = toFtsPrefixQuery(normalizedTerms);
-    if (ftsQuery) {
-      try {
-        const rows = database
-          .prepare(
-            `WITH fts_candidates AS (
-               SELECT path, bm25(search_fts) AS rank
-               FROM search_fts
-               WHERE search_fts MATCH ?
-             )
-             SELECT path, rank
-             FROM fts_candidates
-             ORDER BY rank, path
-             LIMIT ?`,
-          )
-          .all(ftsQuery, limit) as Array<{ path: string; rank: number }>;
-        for (const row of rows) {
-          candidates.set(row.path, Number(row.rank ?? 0));
-        }
-      } catch {
-        candidates.clear();
-      }
-    }
-
-    const clauses = normalizedTerms.map(
-      () => `(lower(path) LIKE ? ESCAPE '\\'
-        OR lower(name) LIKE ? ESCAPE '\\'
-        OR lower(content) LIKE ? ESCAPE '\\'
-        OR lower(tags_json) LIKE ? ESCAPE '\\'
-        OR lower(metadata_text) LIKE ? ESCAPE '\\')`,
-    );
-    const values = normalizedTerms.flatMap((term) => {
-      const like = `%${escapeLike(term)}%`;
-      return [like, like, like, like, like];
-    });
-    const rows = database
-      .prepare(
-        `SELECT path
-         FROM search_docs
-         WHERE ${clauses.join(" AND ")}
-        ORDER BY lower(path)
-         LIMIT ?`,
-      )
-      .all(...values, limit) as Array<{ path: string }>;
-    for (const [index, row] of rows.entries()) {
-      candidates.set(row.path, candidates.get(row.path) ?? index + 1);
-    }
-
-    return [...candidates.entries()]
-      .sort((left, right) => left[1] - right[1])
-      .slice(0, limit)
-      .map(([path, rank]) => ({ path, rank }));
-  } finally {
-    database.close();
-  }
+  movePathSync(sourcePath, targetPath);
 }
 
 function normalizePluginSidecarContextId(contextId: unknown): string {
@@ -1110,46 +578,6 @@ async function shutdownPluginSidecars(): Promise<void> {
     pluginCapabilityBroker.deleteContext(key.split("::", 1)[0] ?? key);
   }
   await Promise.all(entries.map(([, sidecar]) => sidecar.shutdown()));
-}
-
-function saveStateJson(vaultId: string, stateJson: string): void {
-  const database = openStateDatabase(vaultId);
-  try {
-    database
-      .prepare(
-        `INSERT INTO app_state (key, value, updated_at)
-         VALUES (?, ?, ?)
-         ON CONFLICT(key) DO UPDATE SET
-          value = excluded.value,
-          updated_at = excluded.updated_at`,
-      )
-      .run("state", stateJson, Date.now());
-  } finally {
-    database.close();
-  }
-}
-
-function loadStateJson(vaultId: string): string | null {
-  if (stateDatabaseExists(vaultId)) {
-    const database = openStateDatabase(vaultId);
-    try {
-      const row = database
-        .prepare(`SELECT value FROM app_state WHERE key = ?`)
-        .get("state") as { value?: string } | undefined;
-      if (typeof row?.value === "string") {
-        return row.value;
-      }
-    } finally {
-      database.close();
-    }
-  }
-
-  const legacyPath = legacyStateFilePath(vaultId);
-  if (!fs.existsSync(legacyPath)) {
-    return null;
-  }
-
-  return fs.readFileSync(legacyPath, "utf-8");
 }
 
 type DesktopWatchEvent =
@@ -1282,6 +710,53 @@ function registerVaultResourceProtocol(): void {
       const status = code === "ENOENT" || code === "EISDIR" ? 404 : 400;
       return new Response(code ?? "Invalid vault resource", { status });
     }
+  });
+}
+
+function registerAppRendererProtocol(): void {
+  protocol.handle(APP_RENDERER_SCHEME, async (request) => {
+    if (!app.isPackaged && useDevServerRenderer()) {
+      return new Response("Not found", { status: 404 });
+    }
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      return new Response("Method not allowed", { status: 405 });
+    }
+
+    const url = new URL(request.url);
+    if (url.hostname !== "app") {
+      return new Response("Not found", { status: 404 });
+    }
+
+    let filePath: string;
+    try {
+      filePath = resolveAppRendererFilePath(
+        path.resolve(__dirname, "../dist"),
+        url.pathname,
+      );
+    } catch {
+      return new Response("Invalid path", { status: 400 });
+    }
+
+    let body: Buffer;
+    try {
+      const stat = await fs.promises.stat(filePath);
+      if (!stat.isFile()) return new Response("Not found", { status: 404 });
+      body = await fs.promises.readFile(filePath);
+    } catch {
+      return new Response("Not found", { status: 404 });
+    }
+
+    return new Response(request.method === "HEAD" ? null : body, {
+      status: 200,
+      headers: {
+        "Content-Type":
+          getAppRendererContentType(filePath),
+        "Cross-Origin-Embedder-Policy": "require-corp",
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Resource-Policy": "same-origin",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   });
 }
 
@@ -1991,7 +1466,7 @@ function registerIpcHandlers(): void {
       const nextVaultId = buildDesktopVaultId(nextPath);
       movePathSync(sourcePath, nextPath);
       try {
-        migrateVaultStateFiles(oldVaultId, nextVaultId);
+        moveTursoDatabase(oldVaultId, nextVaultId);
       } catch (error) {
         try {
           movePathSync(nextPath, sourcePath);
@@ -2461,85 +1936,28 @@ function registerIpcHandlers(): void {
     },
   );
 
-  // App database: load state
   ipcMain.handle(
-    "desktop_db_load_state",
-    async (_e, { vaultId }: { vaultId: string }) => {
-      return loadStateJson(vaultId);
-    },
+    "desktop_db_open",
+    async (event, { vaultId }: { vaultId: string }) =>
+      openAppDatabaseForWindow(getOwnedWindowId(event), vaultId),
   );
 
-  // App database: save state
   ipcMain.handle(
-    "desktop_db_save_state",
+    "desktop_db_call",
     async (
-      _e,
-      { vaultId, stateJson }: { vaultId: string; stateJson: string },
-    ) => {
-      saveStateJson(vaultId, stateJson);
-    },
-  );
-
-  // App database: replace native search documents
-  ipcMain.handle(
-    "desktop_db_replace_search_documents",
-    async (
-      _e,
+      event,
       {
         vaultId,
-        documents,
-      }: { vaultId: string; documents: SearchDocumentRecord[] },
-    ) => {
-      replaceSearchDocuments(vaultId, documents);
-    },
+        method,
+        args,
+      }: { vaultId: string; method: unknown; args: unknown[] },
+    ) => callAppDatabaseForWindow(getOwnedWindowId(event), vaultId, method, args),
   );
 
-  // App database: upsert native search document
   ipcMain.handle(
-    "desktop_db_upsert_search_document",
-    async (
-      _e,
-      {
-        vaultId,
-        document,
-      }: { vaultId: string; document: SearchDocumentRecord },
-    ) => {
-      upsertSearchDocument(vaultId, document);
-    },
-  );
-
-  // App database: delete native search document
-  ipcMain.handle(
-    "desktop_db_delete_search_document",
-    async (_e, { vaultId, path }: { vaultId: string; path: string }) => {
-      deleteSearchDocument(vaultId, path);
-    },
-  );
-
-  // App database: native lexical search candidates
-  ipcMain.handle(
-    "desktop_db_search_documents",
-    async (
-      _e,
-      {
-        vaultId,
-        terms,
-        limit,
-      }: { vaultId: string; terms: string[]; limit: number },
-    ) => searchDocuments(vaultId, terms, limit),
-  );
-
-  // App database: native vector search candidates
-  ipcMain.handle(
-    "desktop_db_search_vector_documents",
-    async (
-      _e,
-      {
-        vaultId,
-        queryVector,
-        limit,
-      }: { vaultId: string; queryVector: number[]; limit: number },
-    ) => searchVectorDocuments(vaultId, queryVector, limit),
+    "desktop_db_close",
+    async (event, { vaultId }: { vaultId: string }) =>
+      closeAppDatabaseForWindow(getOwnedWindowId(event), vaultId),
   );
 
   ipcMain.handle("desktop_plugin_assets_register", async (event, payload) =>
@@ -2837,7 +2255,7 @@ function getRendererUrl(): string {
     }
     return url.toString();
   }
-  return path.join(__dirname, "../dist/index.html");
+  return `${APP_RENDERER_SCHEME}://app/`;
 }
 
 function resolveFirstExistingPath(candidates: string[]): string | null {
@@ -2952,11 +2370,14 @@ async function stopAllWatchesForWindow(windowId: number): Promise<void> {
   );
 }
 
-function cleanupWindowState(windowId: number): Promise<void> {
+async function cleanupWindowState(windowId: number): Promise<void> {
   shownNativeNotificationIdsByWindowId.delete(windowId);
   cleanupPluginAssetContextsForWindow(windowId);
   requeuePendingAppUrls(windowId);
-  return stopAllWatchesForWindow(windowId);
+  await Promise.all([
+    stopAllWatchesForWindow(windowId),
+    closeAllAppDatabasesForWindow(windowId),
+  ]);
 }
 
 function trackAppWindow(win: BrowserWindow): void {
@@ -3041,13 +2462,11 @@ function createWindow(): BrowserWindow {
   Menu.setApplicationMenu(buildMenu());
 
   const rendererUrl = getRendererUrl();
+  void win.loadURL(rendererUrl);
   if (useDevServerRenderer()) {
-    void win.loadURL(rendererUrl);
     if (shouldOpenDevTools()) {
       // win.webContents.openDevTools({ mode: "detach" });
     }
-  } else {
-    void win.loadFile(rendererUrl);
   }
 
   return win;
@@ -3059,6 +2478,7 @@ app.whenReady().then(() => {
   applyAboutPanelOptions();
   applyDesktopAppIcon();
   nativeTheme.on("updated", applyDesktopAppIcon);
+  registerAppRendererProtocol();
   registerVaultResourceProtocol();
   registerPluginAssetProtocol();
   app.on("browser-window-created", (_event, win) => {
@@ -3081,6 +2501,7 @@ app.on("window-all-closed", () => {
 
 app.on("before-quit", () => {
   appQuitRequested = true;
+  void closeAllAppDatabases();
   void shutdownPluginSidecars();
   void languageServiceSidecarManager.shutdown();
 });

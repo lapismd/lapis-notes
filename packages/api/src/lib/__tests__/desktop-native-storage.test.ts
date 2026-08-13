@@ -2,6 +2,7 @@ import { afterEach, expect, it } from "vitest";
 
 import {
   MemoryKeyValueStore,
+  NativeDesktopTursoAppDatabaseProvider,
   createNativeDesktopVault,
   getCurrentVaultProfile,
   getVaultProfile,
@@ -122,4 +123,69 @@ it("removes stored native desktop vault profiles", async () => {
     undefined,
   );
   await expect(getCurrentVaultProfile(store)).resolves.toBe(undefined);
+});
+
+it("routes app-database operations through the bounded native Turso RPC", async () => {
+  const calls: Array<{ command: string; payload?: Record<string, unknown> }> = [];
+  setNativeDesktopBridge({
+    runtime: "electron-desktop",
+    platform: { runtime: "electron-desktop", os: "macos", arch: "arm64" },
+    capabilities: {
+      database: { id: "database", status: "available" },
+    },
+    toFileUrl: (path: string) => `file://${path}`,
+    async invoke<T>(command: string, payload?: Record<string, unknown>) {
+      calls.push({ command, payload });
+      if (command === "desktop_db_open") {
+        return {
+          providerId: "electron-turso-native",
+          engine: "turso",
+          transport: "native",
+          role: "direct",
+          storageMode: "local",
+          capabilities: {
+            nativeFullTextSearch: true,
+            vectorSearch: true,
+            approximateNearestNeighbors: false,
+            localEmbeddings: true,
+            crossTabCoordination: false,
+            sync: false,
+          },
+        } as T;
+      }
+      return undefined as T;
+    },
+  });
+
+  const database = await new NativeDesktopTursoAppDatabaseProvider().open({
+    vaultId: "desktop-folder:/vault",
+    runtime: "electron-desktop",
+  });
+  await database.setMeta("theme", "dark");
+  await database.close();
+
+  expect(database.descriptor).toMatchObject({
+    providerId: "electron-turso-native",
+    engine: "turso",
+    transport: "native",
+    capabilities: { nativeFullTextSearch: true, vectorSearch: true },
+  });
+  expect(calls).toEqual([
+    {
+      command: "desktop_db_open",
+      payload: { vaultId: "desktop-folder:/vault" },
+    },
+    {
+      command: "desktop_db_call",
+      payload: {
+        vaultId: "desktop-folder:/vault",
+        method: "setMeta",
+        args: ["theme", "dark"],
+      },
+    },
+    {
+      command: "desktop_db_close",
+      payload: { vaultId: "desktop-folder:/vault" },
+    },
+  ]);
 });

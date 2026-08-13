@@ -385,6 +385,12 @@ importers:
 
   packages/desktop-electron:
     dependencies:
+      '@huggingface/transformers':
+        specifier: ^4.2.0
+        version: 4.2.0(@types/node@22.20.1)
+      '@tursodatabase/database':
+        specifier: 0.7.2
+        version: 0.7.2
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
@@ -6556,6 +6562,16 @@ snapshots:
 
   '@huggingface/tokenizers@0.1.3': {}
 
+  '@huggingface/transformers@4.2.0(@types/node@22.20.1)':
+    dependencies:
+      '@huggingface/jinja': 0.5.9
+      '@huggingface/tokenizers': 0.1.3
+      onnxruntime-node: 1.24.3
+      onnxruntime-web: 1.26.0-dev.20260416-b7804b056c
+      sharp: 0.35.3(@types/node@22.20.1)
+    transitivePeerDependencies:
+      - '@types/node'
+
   '@huggingface/transformers@4.2.0(@types/node@26.1.2)':
     dependencies:
       '@huggingface/jinja': 0.5.9
@@ -10462,6 +10478,39 @@ snapshots:
       - supports-color
 
   setprototypeof@1.2.0: {}
+
+  sharp@0.35.3(@types/node@22.20.1):
+    dependencies:
+      '@img/colour': 1.1.0
+      detect-libc: 2.1.2
+      semver: 7.8.5
+    optionalDependencies:
+      '@img/sharp-darwin-arm64': 0.35.3
+      '@img/sharp-darwin-x64': 0.35.3
+      '@img/sharp-freebsd-wasm32': 0.35.3
+      '@img/sharp-libvips-darwin-arm64': 1.3.2
+      '@img/sharp-libvips-darwin-x64': 1.3.2
+      '@img/sharp-libvips-linux-arm': 1.3.2
+      '@img/sharp-libvips-linux-arm64': 1.3.2
+      '@img/sharp-libvips-linux-ppc64': 1.3.2
+      '@img/sharp-libvips-linux-riscv64': 1.3.2
+      '@img/sharp-libvips-linux-s390x': 1.3.2
+      '@img/sharp-libvips-linux-x64': 1.3.2
+      '@img/sharp-libvips-linuxmusl-arm64': 1.3.2
+      '@img/sharp-libvips-linuxmusl-x64': 1.3.2
+      '@img/sharp-linux-arm': 0.35.3
+      '@img/sharp-linux-arm64': 0.35.3
+      '@img/sharp-linux-ppc64': 0.35.3
+      '@img/sharp-linux-riscv64': 0.35.3
+      '@img/sharp-linux-s390x': 0.35.3
+      '@img/sharp-linux-x64': 0.35.3
+      '@img/sharp-linuxmusl-arm64': 0.35.3
+      '@img/sharp-linuxmusl-x64': 0.35.3
+      '@img/sharp-webcontainers-wasm32': 0.35.3
+      '@img/sharp-win32-arm64': 0.35.3
+      '@img/sharp-win32-ia32': 0.35.3
+      '@img/sharp-win32-x64': 0.35.3
+      '@types/node': 22.20.1
 
   sharp@0.35.3(@types/node@26.1.2):
     dependencies:

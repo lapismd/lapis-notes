@@ -87,34 +87,31 @@ test("native adapter CRUD, watch, and resource URLs stay vault-contained", async
   }
 });
 
-test("native database and lexical search survive a full relaunch", async () => {
+test("native Turso database and lexical search survive a full relaunch", async () => {
   const state = await createDesktopTestState();
+  fs.writeFileSync(
+    path.join(state.vaultA, "persistent.md"),
+    "persistent electron search token",
+  );
   const first = await launchDesktopApp({
     userDataDir: state.userDataDir,
     vaultPath: state.vaultA,
   });
-  let vaultId = "";
   try {
     await waitForDesktopWorkspace(first.page);
-    vaultId = await first.page.locator("[data-vault-id]").getAttribute("data-vault-id") ?? "";
-    const inserted = await first.page.evaluate(async (id) => {
+    const inserted = await first.page.evaluate(async () => {
       const desktop = globalThis as typeof globalThis & {
         app: {
           appDatabase: {
+            descriptor: { providerId: string; engine: string; transport: string };
             upsertSearchDocument(document: Record<string, unknown>): Promise<void>;
+            searchDocuments(
+              query: string,
+              options?: { mode?: string },
+            ): Promise<Array<{ document: { path: string } }>>;
           };
-        };
-        __LAPIS_NATIVE_DESKTOP__: {
-          invoke<T>(command: string, payload?: Record<string, unknown>): Promise<T>;
         };
       };
-      const bridge = (
-        globalThis as typeof globalThis & {
-          __LAPIS_NATIVE_DESKTOP__: {
-            invoke<T>(command: string, payload?: Record<string, unknown>): Promise<T>;
-          };
-        }
-      ).__LAPIS_NATIVE_DESKTOP__;
       await desktop.app.appDatabase.upsertSearchDocument({
         path: "persistent.md",
         name: "persistent",
@@ -126,12 +123,23 @@ test("native database and lexical search survive a full relaunch", async () => {
         tagHierarchy: [],
         metadataText: "",
       });
-      return bridge.invoke<Array<{ path: string }>>(
-        "desktop_db_search_documents",
-        { vaultId: id, terms: ["electron"], limit: 10 },
-      );
-    }, vaultId);
-    expect(inserted).toEqual([expect.objectContaining({ path: "persistent.md" })]);
+      return {
+        descriptor: desktop.app.appDatabase.descriptor,
+        results: await desktop.app.appDatabase.searchDocuments("electron", {
+          mode: "lexical",
+        }),
+      };
+    });
+    expect(inserted.descriptor).toMatchObject({
+      providerId: "electron-turso-native",
+      engine: "turso",
+      transport: "native",
+    });
+    expect(inserted.results).toEqual([
+      expect.objectContaining({
+        document: expect.objectContaining({ path: "persistent.md" }),
+      }),
+    ]);
   } finally {
     await first.close();
   }
@@ -143,21 +151,27 @@ test("native database and lexical search survive a full relaunch", async () => {
   const second = await launchDesktopApp({ userDataDir: state.userDataDir });
   try {
     await waitForDesktopWorkspace(second.page);
-    const restored = await second.page.evaluate(async (id) => {
-      const bridge = (
+    const restored = await second.page.evaluate(async () => {
+      const database = (
         globalThis as typeof globalThis & {
-          __LAPIS_NATIVE_DESKTOP__: {
-            invoke<T>(command: string, payload?: Record<string, unknown>): Promise<T>;
+          app: {
+            appDatabase: {
+              searchDocuments(
+                query: string,
+                options?: { mode?: string },
+              ): Promise<Array<{ document: { path: string } }>>;
+            };
           };
         }
-      ).__LAPIS_NATIVE_DESKTOP__;
-      return bridge.invoke<Array<{ path: string }>>(
-        "desktop_db_search_documents",
-        { vaultId: id, terms: ["electron"], limit: 10 },
-      );
-    }, vaultId);
-    expect(restored).toEqual([expect.objectContaining({ path: "persistent.md" })]);
-    expect(fs.existsSync(path.join(state.userDataDir, "vault-state"))).toBe(true);
+      ).app.appDatabase;
+      return database.searchDocuments("electron", { mode: "lexical" });
+    });
+    expect(restored).toEqual([
+      expect.objectContaining({
+        document: expect.objectContaining({ path: "persistent.md" }),
+      }),
+    ]);
+    expect(fs.existsSync(path.join(state.userDataDir, "turso"))).toBe(true);
   } finally {
     await second.close();
     await state.cleanup();

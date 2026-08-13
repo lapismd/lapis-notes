@@ -10,7 +10,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build && tsc -p tsconfig.main.json && node scripts/bundle-language-sidecar.mjs && node scripts/prepare-dist-electron.mjs",
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build && tsc -p tsconfig.main.json && node scripts/bundle-main.mjs && node scripts/bundle-language-sidecar.mjs && node scripts/prepare-dist-electron.mjs",
     "preview": "vite preview",
     "check": "pnpm check:svelte && pnpm check:types && pnpm check:e2e",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
@@ -26,6 +26,8 @@
     "dist:linux": "pnpm build && pnpm run build:icons && CI=1 ELECTRON_BUILDER_DISABLE_UPDATE_CHECK=true node ./scripts/run-electron-builder.mjs --linux --x64 --config ./electron-builder.config.cjs --publish never && node ./scripts/write-artifact-metadata.mjs linux"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "@tursodatabase/database": "0.7.2",
     "chokidar": "^4.0.3"
   },
   "devDependencies": {

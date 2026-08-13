@@ -57,6 +57,11 @@
   ],
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "app-database": ["dist/app-database-host.d.ts"]
+    }
+  },
   "peerDependencies": {
     "@codemirror/autocomplete": "^6.18.6",
     "@dnd-kit/dom": "^0.4.0",
@@ -123,6 +128,11 @@
       "svelte": "./dist/workspace-host.js",
       "import": "./dist/workspace-host.js",
       "default": "./dist/workspace-host.js"
+    },
+    "./app-database": {
+      "types": "./dist/app-database-host.d.ts",
+      "import": "./dist/app-database-host.js",
+      "default": "./dist/app-database-host.js"
     },
     "./*": {
       "types": "./dist/components/*/index.d.ts",

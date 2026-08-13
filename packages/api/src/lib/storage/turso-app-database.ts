@@ -633,7 +633,17 @@ export function canUseTursoWasmDatabase(): boolean {
 export async function createTursoWasmConnection(
   path: string,
 ): Promise<TursoConnection> {
-  const { connect } = await import("@tursodatabase/database-wasm/vite");
+  // The public bundle export embeds the WASM worker, which also works from
+  // non-HTTP application schemes. Version 0.7.2 does not publish declarations
+  // for this export, so keep the untyped module at this narrow driver edge.
+  const { connect } = (await import(
+    "@tursodatabase/database-wasm/bundle" as string
+  )) as {
+    connect(
+      databasePath: string,
+      options?: { experimental?: string[] },
+    ): Promise<TursoConnection>;
+  };
   return (await connect(path, {
     experimental: ["index_method"],
   })) as TursoConnection;

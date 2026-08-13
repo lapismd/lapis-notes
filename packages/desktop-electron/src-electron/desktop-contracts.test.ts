@@ -5,6 +5,10 @@ import {
   createDesktopCapabilityRegistry,
 } from "./desktop-capabilities";
 import { normalizeVaultPath, resolveAbsolutePath } from "./native-paths";
+import {
+  getAppRendererContentType,
+  resolveAppRendererFilePath,
+} from "./app-renderer-protocol";
 
 describe("desktop capability contract", () => {
   it("advertises exactly the retained partial-host capabilities", () => {
@@ -38,11 +42,28 @@ describe("desktop capability contract", () => {
   });
 
   it("does not expose demo, notebook, model, or raw transport commands", () => {
+    const registry = createDesktopCapabilityRegistry();
     expect([...DESKTOP_INVOKE_COMMANDS]).not.toContain("desktop_open_demo_vault");
     expect([...DESKTOP_INVOKE_COMMANDS].some((id) => id.includes("notebook"))).toBe(false);
     expect([...DESKTOP_INVOKE_COMMANDS].some((id) => id.includes("model"))).toBe(false);
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_pick_vault_folder");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_plugin_host_shutdown");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_db_open");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_db_call");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_db_close");
+    expect(
+      [...DESKTOP_INVOKE_COMMANDS].some((id) =>
+        /(?:load_state|save_state|search_vector_documents)/u.test(id),
+      ),
+    ).toBe(false);
+    expect(registry.database).toMatchObject({
+      status: "available",
+      details: { engine: "turso" },
+    });
+    expect(registry.search).toMatchObject({
+      status: "available",
+      provider: "turso-fts-vector",
+    });
   });
 });
 
@@ -70,4 +91,27 @@ describe("native vault path containment", () => {
       /EINVAL/u,
     );
   });
+});
+
+describe("packaged renderer protocol containment", () => {
+  const root = path.resolve("/tmp/lapis-renderer");
+
+  it("maps the app root and assets beneath the packaged renderer", () => {
+    expect(resolveAppRendererFilePath(root, "/")).toBe(
+      path.join(root, "index.html"),
+    );
+    expect(resolveAppRendererFilePath(root, "/assets/app.js")).toBe(
+      path.join(root, "assets", "app.js"),
+    );
+    expect(getAppRendererContentType("font.woff2")).toBe("font/woff2");
+  });
+
+  it.each(["/../secret", "/%2e%2e/secret", "/assets/%2e%2e/%2e%2e/secret"])(
+    "rejects renderer traversal %s",
+    (candidate) => {
+      expect(() => resolveAppRendererFilePath(root, candidate)).toThrow(
+        /outside/u,
+      );
+    },
+  );
 });

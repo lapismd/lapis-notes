@@ -8,6 +8,10 @@ module.exports = {
     buildResources: "build",
   },
   files: ["dist/**/*", "dist-electron/**/*", "package.json"],
+  asarUnpack: [
+    "node_modules/@tursodatabase/database*/**/*",
+    "node_modules/@huggingface/transformers/**/*",
+  ],
   extraMetadata: {
     main: "dist-electron/main.js",
   },

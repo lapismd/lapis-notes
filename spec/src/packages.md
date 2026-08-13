@@ -122,8 +122,10 @@ the portable Mira feature stack from internal source modules.
 
 The private desktop package consumes API, workspace, Design Core, the internal
 language service, and Markdownlint only while building its bundled renderer and
-Markdown child. Its packaged runtime dependency is limited to `chokidar`;
-Electron main otherwise uses Electron and Node built-ins. The API manifest
+Markdown child. Its packaged runtime dependencies are limited to `chokidar`,
+the pinned native Turso driver, and the local Transformers runtime. Electron
+main otherwise uses Electron and Node built-ins; Intel macOS consumes the
+pinned Turso WASM driver declared by API. The API manifest
 declares `dist/enhance.js` and its source counterpart as side effects so a
 production consumer cannot tree-shake the compatibility DOM initialization
 required before constructing `App`.

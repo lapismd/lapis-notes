@@ -10,6 +10,7 @@ export * from "./vault-state";
 export * from "./electron-vault-bootstrap-kv";
 export * from "./vault-session";
 export * from "./desktop-native";
+export * from "./desktop-app-database";
 export * from "./browser";
 export * from "./browser-coordinated-app-database";
 export * from "./vault.svelte";

@@ -287,6 +287,9 @@ export declare class MetadataCache extends EventDispatcher<{
     getAllItems(): Map<TFile, CachedMetadata>;
     scheduleSnapshotSave(): void;
     flushSnapshotSave(): Promise<void>;
+    dispose(options?: {
+        persist?: boolean;
+    }): Promise<void>;
     saveSnapshotNow(options?: {
         forceBackup?: boolean;
     }): Promise<void>;

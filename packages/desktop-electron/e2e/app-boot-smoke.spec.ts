@@ -10,6 +10,7 @@ import {
   switchTestVault,
   waitForDesktopWorkspace,
 } from "./helpers";
+import { usesDesktopDevRenderer } from "./smoke-mode";
 
 function restoredPluginLayout() {
   const leaf = (
@@ -123,6 +124,14 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
     await expect(app.page.locator("[data-native-runtime]")).toHaveAttribute(
       "data-native-runtime",
       "electron-desktop",
+    );
+    const rendererSecurity = await app.page.evaluate(() => ({
+      protocol: location.protocol,
+      crossOriginIsolated: globalThis.crossOriginIsolated,
+    }));
+    expect(rendererSecurity.crossOriginIsolated).toBe(true);
+    expect(rendererSecurity.protocol).toBe(
+      usesDesktopDevRenderer() ? "http:" : "lapis-app:",
     );
     await expect(app.page.getByRole("tab", { name: "Search" })).toBeVisible();
     const runtime = await app.page.evaluate(() => ({
@@ -331,7 +340,9 @@ test("restores every available plugin view from persisted missing-view placehold
       searchPanel.getByRole("searchbox", { name: "Search vault" }),
     ).toHaveText("Welcome");
     await expect(
-      searchPanel.getByRole("button", { name: "Open Welcome.md" }),
+      searchPanel
+        .getByRole("tree", { name: "Search results" })
+        .getByRole("treeitem", { name: /Welcome\.md, \d+ matches?/u }),
     ).toBeVisible();
     expect(app.rendererErrors).toEqual([]);
   } finally {

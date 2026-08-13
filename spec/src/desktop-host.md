@@ -80,6 +80,11 @@ persistence, session switching, database/search persistence, Markdown service
 recovery, plugin sidecar lifecycle, plugin asset validation, and real
 second-instance app-URL delivery to the ready API app.
 
+Packaged renderer assets are served from the contained
+`lapis-app://app/` scheme with cross-origin isolation headers. Main owns native
+Turso handles by renderer and vault and exposes only bounded database methods;
+the Intel package loads Turso WASM from the same isolated renderer scheme.
+
 `DesktopVaultLauncher.svelte` is the desktop-only adaptation of the reference
 launcher. It consumes public API profile operations, Lapis fuzzy search, and
 public Design Core primitives; `DesktopVaultHost.svelte` remains responsible

@@ -165,6 +165,7 @@
 
     stopMetadataTracking?.();
     stopMetadataTracking = null;
+    await app.metadataCache.dispose();
     for (const plugin of [...app.plugins.corePlugins].reverse()) {
       await plugin.disable().catch(() => undefined);
     }

@@ -369,9 +369,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-MD-086   | markdown-panel-tags | Implemented | Markdown registers canonical `tag` and retains `tags` as a load-only alias |
 | LN-ARCH-033 | architecture | Implemented | Search keeps API execution, Design Core presentation, and command-only Markdown integration separate |
 | LN-PKG-044 | packages | Implemented | `packages/plugins/plugin-search` reusable package intake; package checks, eight tests, and build pass |
-| LN-PKG-045 | packages | Planned | provider-neutral API exports and explicit test injection |
+| LN-PKG-045 | packages | Implemented | provider-neutral descriptors, capabilities, providers, session integration, and explicit test injection |
 | LN-PKG-046 | packages | Planned | private web package with standard scripts |
-| LN-PKG-047 | packages | Planned | Turso-only production dependencies and absence of SQLite database implementations |
+| LN-PKG-047 | packages | Implemented | pinned Turso native/WASM production dependencies; source and package audits contain no SQLite app-database implementation or fallback |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
@@ -398,18 +398,18 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-019 | search-plugin | Implemented | focused Storybook acceptance covers copy, legacy sort, badges, match keys, and bounded recents |
 | LN-SRCH-020 | search-plugin | Planned | proxy-tab indexing, semantic status, and query delegation |
 | LN-SRCH-021 | search-plugin | Implemented | package manifest and public-export audit contain no LLM enhancement or embedded-query surface |
-| LN-DB-001 | app-database | Planned | stable operations and optional provider injection |
-| LN-DB-002 | app-database | Planned | provider descriptor and capability reporting |
-| LN-DB-003 | app-database | Planned | Turso native and WASM default provider selection |
-| LN-DB-004 | app-database | Planned | normalized generated-state persistence |
-| LN-DB-005 | app-database | Planned | Turso full-text retrieval and reported degradation |
-| LN-DB-006 | app-database | Planned | Turso vectors with no active sqlite-vec path |
-| LN-DB-007 | app-database | Planned | local embedding generation and model invalidation |
-| LN-DB-008 | app-database | Planned | shared hybrid result contract and fusion |
-| LN-DB-009 | app-database | Planned | no legacy SQLite open, import, deletion, dependency, or query path |
-| LN-DB-010 | app-database | Planned | bounded allowlisted Electron database IPC |
+| LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
+| LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
+| LN-DB-003 | app-database | In progress | native Electron selection and reusable WASM/OPFS provider are implemented; browser-host and Intel Electron acceptance remain pending |
+| LN-DB-004 | app-database | Implemented | Turso schema and persistence cover normalized generated state plus the compatibility state snapshot |
+| LN-DB-005 | app-database | Implemented | experimental Turso index method, Tantivy FTS candidate retrieval, and accurately reported table-evaluation degradation |
+| LN-DB-006 | app-database | Implemented | Turso float vectors and exact cosine retrieval pass provider-core tests without sqlite-vec |
+| LN-DB-007 | app-database | Implemented | lazy provider-neutral local embeddings and model/dimension invalidation pass deterministic coverage |
+| LN-DB-008 | app-database | Implemented | API-owned evaluation and reciprocal-rank fusion preserve structured and hybrid result contracts |
+| LN-DB-009 | app-database | Implemented | runtime and dependency audits contain no legacy SQLite open, importer, deletion, or app-database fallback |
+| LN-DB-010 | app-database | Implemented | pure renderer RPC client and sender/vault-owned Electron allowlist expose no SQL or database paths |
 | LN-DB-011 | app-database | Planned | browser owner, heartbeat, RPC, and promotion behavior |
-| LN-DB-012 | app-database | Planned | explicit blocked state without a non-Turso production fallback |
+| LN-DB-012 | app-database | In progress | native and WASM providers reject unsupported environments; browser-host presentation remains pending |
 | LN-DB-013 | app-database | Planned | local authority and future-only sync injection |
 | LN-WEB-001 | web-host | Planned | legacy PWA identity and host metadata |
 | LN-WEB-002 | web-host | Planned | browser-owned launcher, lifecycle, and plugin boot |

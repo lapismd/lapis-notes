@@ -37,3 +37,10 @@ AppDatabaseProvider
 The provider persists generated state outside the user-visible vault. Memory is
 an explicitly injected test and Storybook double; production sessions do not
 select it and never select SQLite or IndexedDB app-database implementations.
+
+The Electron implementation opens one Turso handle per renderer and vault in
+main on supported native targets. Its renderer client can invoke only the
+fixed `AppDatabase` method catalogue. Intel macOS selects the same provider
+contract over the self-contained Turso WASM bundle and OPFS instead of opening
+a compatibility database. Session disposal drains metadata-cache work and
+cancels delayed writes before closing the owning Turso handle.

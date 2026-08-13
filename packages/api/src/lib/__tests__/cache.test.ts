@@ -29,6 +29,7 @@ function pos(start: number, end: number = start + 1): Pos {
 
 afterEach(() => {
   setDefaultVaultStateStore(null);
+  vi.useRealTimers();
 });
 
 function createMetadataCache(paths: string[]): MetadataCache {
@@ -56,6 +57,7 @@ function createMetadataCache(paths: string[]): MetadataCache {
           /\.(md|markdown)$/i.test(file.path),
         ),
       on: vi.fn(),
+      off: vi.fn(),
     },
   } as any);
 }
@@ -330,6 +332,36 @@ describe("MetadataCache.load", () => {
     expect(loaded).toHaveBeenCalledTimes(1);
 
     vi.unstubAllGlobals();
+  });
+});
+
+describe("MetadataCache lifecycle", () => {
+  it("cancels a pending snapshot when disposed without persistence", async () => {
+    vi.useFakeTimers();
+    const cache = createMetadataCache([]);
+    const saveMetadataSnapshot = vi.mocked(
+      cache.app.appDatabase.saveMetadataSnapshot,
+    );
+
+    cache.scheduleSnapshotSave();
+    await cache.dispose({ persist: false });
+    await vi.runAllTimersAsync();
+
+    expect(saveMetadataSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("persists exactly once while disposing a pending snapshot", async () => {
+    vi.useFakeTimers();
+    const cache = createMetadataCache([]);
+    const saveMetadataSnapshot = vi.mocked(
+      cache.app.appDatabase.saveMetadataSnapshot,
+    );
+
+    cache.scheduleSnapshotSave();
+    await cache.dispose();
+    await vi.runAllTimersAsync();
+
+    expect(saveMetadataSnapshot).toHaveBeenCalledTimes(1);
   });
 });
 

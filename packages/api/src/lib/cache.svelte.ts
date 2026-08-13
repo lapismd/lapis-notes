@@ -593,6 +593,17 @@ export class MetadataCache extends EventDispatcher<{
   readonly logger = logging.getLogger("cache");
   readonly legacyStorage: ScopedVaultStore;
   private lastPortableBackupWrite = 0;
+  private disposed = false;
+  private disposePromise: Promise<void> | null = null;
+  private readonly pendingOperations = new Set<Promise<unknown>>();
+  private readonly handleVaultChange = (
+    event: string,
+    file: TAbstractFile,
+  ): void => this.handleChange(event, file);
+  private readonly handleVaultRename = (
+    file: TAbstractFile,
+    oldPath: string,
+  ): void => this.handleRename(file, oldPath);
   private readonly saveSnapshotDebounced = debounce(
     () => void this.saveSnapshotNow(),
     500,
@@ -604,8 +615,8 @@ export class MetadataCache extends EventDispatcher<{
       getAdapterVaultId(app.vault.adapter),
       "metadata-cache",
     );
-    app.vault.on("all", this.handleChange.bind(this));
-    app.vault.on("rename", this.handleRename.bind(this));
+    app.vault.on("all", this.handleVaultChange);
+    app.vault.on("rename", this.handleVaultRename);
   }
 
   get metadataCache() {
@@ -637,12 +648,28 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   scheduleSnapshotSave(): void {
+    if (this.disposed) return;
     this.saveSnapshotDebounced();
   }
 
   async flushSnapshotSave(): Promise<void> {
-    this.saveSnapshotDebounced.flush();
+    this.saveSnapshotDebounced.cancel();
     await this.saveSnapshotNow({ forceBackup: true });
+  }
+
+  async dispose(options: { persist?: boolean } = {}): Promise<void> {
+    if (this.disposePromise) return this.disposePromise;
+    this.disposed = true;
+    this.app.vault.off("all", this.handleVaultChange);
+    this.app.vault.off("rename", this.handleVaultRename);
+    this.saveSnapshotDebounced.cancel();
+    this.disposePromise = (async () => {
+      await Promise.allSettled([...this.pendingOperations]);
+      if (options.persist !== false) {
+        await this.saveSnapshotNow({ forceBackup: true });
+      }
+    })();
+    return this.disposePromise;
   }
 
   async saveSnapshotNow(
@@ -1096,15 +1123,16 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   private handleChange(event: string, file: TAbstractFile) {
+    if (this.disposed) return;
     if (!(file instanceof TFile)) return;
     switch (event) {
       case "create":
       case "modify":
-        void this.processFile(file).then((changed) => {
-          if (changed) {
-            this.scheduleSnapshotSave();
-          }
-        });
+        this.trackOperation(
+          this.processFile(file).then((changed) => {
+            if (changed) this.scheduleSnapshotSave();
+          }),
+        );
         break;
       case "delete":
         const existing = this.fileCache[file.path];
@@ -1114,7 +1142,9 @@ export class MetadataCache extends EventDispatcher<{
           delete this.resolvedLinks[file.path];
           delete this.unresolvedLinks[file.path];
           delete this.metadataCache[existing.hash];
-          this.app.appDatabase.deleteIndexedFile(file.path);
+          this.trackOperation(
+            this.app.appDatabase.deleteIndexedFile(file.path),
+          );
           this.scheduleSnapshotSave();
         }
         break;
@@ -1122,6 +1152,7 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   private handleRename(file: TAbstractFile, oldPath: string) {
+    if (this.disposed) return;
     if (!(file instanceof TFile)) return;
     const existing = this.fileCache[oldPath];
     if (!existing) return;
@@ -1139,8 +1170,21 @@ export class MetadataCache extends EventDispatcher<{
       this.unresolvedLinks[file.path] = this.unresolvedLinks[oldPath];
       delete this.unresolvedLinks[oldPath];
     }
-    this.app.appDatabase.renameIndexedFile(oldPath, file.path);
+    this.trackOperation(
+      this.app.appDatabase.renameIndexedFile(oldPath, file.path),
+    );
     this.scheduleSnapshotSave();
+  }
+
+  private trackOperation(operation: Promise<unknown>): void {
+    this.pendingOperations.add(operation);
+    void operation
+      .catch((error) => {
+        this.logger.warn("Metadata cache background operation failed", error);
+      })
+      .finally(() => {
+        this.pendingOperations.delete(operation);
+      });
   }
 
   private async processFile(file: TFile | null): Promise<boolean> {
