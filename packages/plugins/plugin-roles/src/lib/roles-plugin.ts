@@ -36,7 +36,7 @@ export class RolesPlugin extends Plugin {
   private presentation: RolesPresentationState = {
     mode: "applications",
     query: "",
-    collapsedColumnIds: [],
+    collapsedColumnIds: ["screening", "interview", "offer", "rejected"],
     columnWidths: {},
   };
 
@@ -52,7 +52,10 @@ export class RolesPlugin extends Plugin {
     this.presentation = {
       ...this.presentation,
       ...(saved?.presentation ?? {}),
-      collapsedColumnIds: [...(saved?.presentation?.collapsedColumnIds ?? [])],
+      collapsedColumnIds: [
+        ...(saved?.presentation?.collapsedColumnIds ??
+          this.presentation.collapsedColumnIds),
+      ],
       columnWidths: { ...(saved?.presentation?.columnWidths ?? {}) },
     };
     await this.rolesManager.start();

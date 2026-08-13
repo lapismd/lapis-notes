@@ -1,17 +1,13 @@
 <script lang="ts">
-  import * as ColumnCanvas from "@lapismd/design-core/shadcn/column-canvas";
-  import { Badge } from "@lapismd/design-core/shadcn/badge";
+  import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
+  import Grid2X2Icon from "@lucide/svelte/icons/grid-2x2";
+  import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
+  import PinIcon from "@lucide/svelte/icons/pin";
   import type { ColumnCanvasLayoutV1 } from "@lapismd/design-core/shadcn/column-canvas";
+  import LegacyApplicationCard from "./legacy-application-card.svelte";
   import type { RoleRecord, RoleStatus } from "./roles/types";
 
-  let {
-    roles = [],
-    selectedRoleId,
-    layout = null,
-    onSelect,
-    onMove,
-    onLayoutChange,
-  }: {
+  let { roles = [], selectedRoleId, layout = null, onSelect, onMove, onLayoutChange }: {
     roles?: readonly RoleRecord[];
     selectedRoleId?: string;
     layout?: ColumnCanvasLayoutV1 | null;
@@ -20,153 +16,87 @@
     onLayoutChange?: (layout: ColumnCanvasLayoutV1) => void;
   } = $props();
 
-  const columns: Array<{ id: RoleStatus; title: string; description: string }> = [
-    { id: "saved", title: "Saved", description: "Roles to consider" },
-    { id: "applied", title: "Applied", description: "Applications submitted" },
-    { id: "screening", title: "Screening", description: "Initial conversations" },
-    { id: "interview", title: "Interview", description: "Interview process" },
-    { id: "offer", title: "Offer", description: "Offers received" },
-    { id: "rejected", title: "Rejected", description: "Closed opportunities" },
+  const columns: Array<{ id: RoleStatus; title: string; color: string }> = [
+    { id:"saved", title:"Saved", color:"#2563eb" }, { id:"applied", title:"Applied", color:"#0891b2" },
+    { id:"screening", title:"Screening", color:"#ca8a04" }, { id:"interview", title:"Interview", color:"#059669" },
+    { id:"offer", title:"Offer", color:"#db2777" }, { id:"rejected", title:"Rejected", color:"#6b7280" },
   ];
-  const controller = ColumnCanvas.createColumnCanvasController({
-    columns: Object.fromEntries(
-      columns.map((column) => [
-        column.id,
-        {
-          defaultWidth: 288,
-          minWidth: 240,
-          maxWidth: 440,
-          collapsible: true,
-          resizable: true,
-        },
-      ]),
-    ) as Record<RoleStatus, ColumnCanvas.ColumnCanvasColumnConfig>,
-    persistence: {
-      load: async () => layout,
-      save: async (next) => onLayoutChange?.(next),
-    },
-  });
+  let expanded = $state<RoleStatus[]>(["saved", "applied"]);
   let draggedRoleId = $state<string | null>(null);
+  let pinsOpen = $state(false);
 
-  function rolesFor(status: RoleStatus) {
-    return roles
-      .filter((role) => role.status === status)
-      .sort((left, right) => left.sortOrder - right.sortOrder);
-  }
+  function rolesFor(status: RoleStatus) { return roles.filter((role) => role.status === status).sort((a,b) => a.sortOrder-b.sortOrder); }
+  function move(role: RoleRecord, status: RoleStatus) { const target = rolesFor(status).filter((item) => item.id !== role.id); onMove?.(role,status,(target.at(-1)?.sortOrder ?? 0)+1000); }
+  $effect(() => {
+    const next = columns
+      .filter((column) => !(layout?.columns[column.id]?.collapsed ?? !["saved", "applied"].includes(column.id)))
+      .map((column) => column.id);
+    if (next.length && next.join("|") !== expanded.join("|")) expanded = next;
+  });
 
-  function move(role: RoleRecord, status: RoleStatus) {
-    const targetRoles = rolesFor(status).filter((candidate) => candidate.id !== role.id);
-    const sortOrder = (targetRoles.at(-1)?.sortOrder ?? 0) + 1000;
-    onMove?.(role, status, sortOrder);
+  function updateExpanded(next: RoleStatus[]) {
+    expanded = next;
+    onLayoutChange?.({ version:1, columns:Object.fromEntries(columns.map((column) => [column.id,{ collapsed:!next.includes(column.id), ...(layout?.columns[column.id]?.width ? {width:layout.columns[column.id]!.width}: {}) }])) });
   }
-
-  function keyboardMove(event: KeyboardEvent, role: RoleRecord) {
-    if (!event.altKey || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
-    event.preventDefault();
-    const current = columns.findIndex((column) => column.id === role.status);
-    const offset = event.key === "ArrowLeft" ? -1 : 1;
-    const target = columns[current + offset];
-    if (target) move(role, target.id);
+  function toggle(status: RoleStatus) {
+    if (expanded.includes(status)) {
+      if (expanded.length === 1) return;
+      updateExpanded(expanded.filter((item) => item !== status));
+    } else updateExpanded([...expanded,status]);
   }
+  const pinnedRoles = $derived(roles.filter((role) => role.pinned));
 </script>
 
-<section class="roles-board" data-ui-component="roles-applications" aria-label="Applications board">
-  <ColumnCanvas.Root controller={controller} displayMode="fixed" aria-label="Application status columns">
-    {#each columns as column (column.id)}
-      <ColumnCanvas.Column id={column.id} title={column.title} count={rolesFor(column.id).length}>
-        <ColumnCanvas.Body>
-          <div
-            class="roles-board__drop-zone"
-            data-status={column.id}
-            role="group"
-            aria-label={`${column.title} applications`}
-            ondragover={(event) => event.preventDefault()}
-            ondrop={(event) => {
-              event.preventDefault();
-              const role = roles.find((candidate) => candidate.id === draggedRoleId);
-              if (role) move(role, column.id);
-              draggedRoleId = null;
-            }}
-          >
-            <p class="roles-board__description">{column.description}</p>
-            {#each rolesFor(column.id) as role (role.id)}
-              <ColumnCanvas.Item
-                selected={selectedRoleId === role.id}
-                draggable="true"
-                aria-label={`${role.title} at ${role.company}`}
-                onclick={() => onSelect?.(role)}
-                onkeydown={(event) => keyboardMove(event, role)}
-                ondragstart={(event) => {
-                  draggedRoleId = role.id;
-                  event.dataTransfer?.setData("text/plain", role.id);
-                }}
-                ondragend={() => (draggedRoleId = null)}
-              >
-                <span class="roles-board__card-title">{role.title}</span>
-                <span class="roles-board__company">{role.company}</span>
-                <span class="roles-board__meta">
-                  {#if role.location}<span>{role.location}</span>{/if}
-                  {#if role.followUpAt}<Badge variant="outline">Follow up {role.followUpAt}</Badge>{/if}
-                </span>
-              </ColumnCanvas.Item>
-            {/each}
-          </div>
-        </ColumnCanvas.Body>
-      </ColumnCanvas.Column>
+<div class="application-board-scroll" data-ui-component="roles-applications" role="region" aria-label="Applications board">
+  <div class="application-board-columns">
+    {#each columns as column, columnIndex (column.id)}
+      {@const items = rolesFor(column.id)}
+      <section class="application-kanban-column" class:is-expanded={expanded.includes(column.id)} class:is-collapsed={!expanded.includes(column.id)} style={`--column-color:${column.color};--card-count:${Math.min(items.length,15)}`} aria-label={column.title}
+        ondragover={(event) => { if (draggedRoleId) event.preventDefault(); }}
+        ondrop={(event) => { event.preventDefault(); const role=roles.find((item)=>item.id===(event.dataTransfer?.getData("text/plain")||draggedRoleId)); if(role) move(role,column.id); draggedRoleId=null; }}>
+        <div class="column-shell">
+          {#if expanded.includes(column.id)}
+            <header class="column-header">
+              <button class="column-icon-button" type="button" aria-label={`Column options for ${column.title}`}><MoreHorizontalIcon /></button>
+              <button class="column-pill" type="button" aria-label={`Collapse ${column.title}`} aria-expanded="true" onclick={() => toggle(column.id)}><span class="column-count">{items.length}</span><h2>{column.title}</h2><ChevronDownIcon /></button>
+              <button class="column-icon-button" type="button" aria-label={`Maximize ${column.title} column`} onclick={() => updateExpanded([column.id])}><Grid2X2Icon /></button>
+            </header>
+            <div class="column-cards"><div class="column-card-stack">
+              {#each items as role, applicationIndex (role.id)}
+                <LegacyApplicationCard {role} columnColor={column.color} displayNumber={columnIndex*100+applicationIndex+1} selected={selectedRoleId===role.id} canMoveLeft={columnIndex>0} canMoveRight={columnIndex<columns.length-1}
+                  onMoveLeft={() => move(role,columns[columnIndex-1]!.id)} onMoveRight={() => move(role,columns[columnIndex+1]!.id)} onSelect={() => onSelect?.(role)} onOpen={() => onSelect?.(role)} onDragStart={() => draggedRoleId=role.id} onDragEnd={() => draggedRoleId=null} />
+              {:else}<div class="column-empty">No applications</div>{/each}
+            </div></div>
+          {:else}
+            <button class="collapsed-column-button" type="button" aria-label={`Expand ${column.title}, ${items.length} applications`} aria-expanded="false" onclick={() => toggle(column.id)}><span class="collapsed-progress" aria-hidden="true"></span><span class="collapsed-count" aria-hidden="true">{items.length}</span><span class="collapsed-title" aria-hidden="true">{column.title}</span></button>
+          {/if}
+        </div>
+      </section>
     {/each}
-  </ColumnCanvas.Root>
-</section>
+  </div>
+</div>
+
+{#if pinnedRoles.length}
+  <section class:opens={pinsOpen} class="pins-corner" aria-label="Pinned applications">
+    <button type="button" class="pins-stack-toggle" aria-label={`${pinsOpen?"Close":"Open"} pins stack, ${pinnedRoles.length} pinned items`} onclick={() => pinsOpen=!pinsOpen}>
+      {#each pinnedRoles as role,index (role.id)}<span class="pin-card" aria-hidden="true" style={`--pin-index:${index};--card-color:${columns.find((column)=>column.id===role.status)?.color}`}><span class="pin-board"><PinIcon /> No. {index+1} - {role.company}</span><strong>{role.title}</strong><span>{role.updatedAt}</span></span>{/each}
+    </button>
+  </section>
+{/if}
 
 <style>
-  .roles-board {
-    display: flex;
-    min-width: 0;
-    min-height: 0;
-    flex: 1 1 auto;
-    overflow: hidden;
-  }
-
-  .roles-board :global([data-ui-component="column-canvas"][data-ui-part="root"]) {
-    width: 100%;
-    height: 100%;
-  }
-
-  .roles-board__drop-zone {
-    display: flex;
-    min-height: 100%;
-    flex-direction: column;
-    gap: 0.625rem;
-    padding: 0.75rem;
-  }
-
-  .roles-board__description {
-    margin: 0 0 0.25rem;
-    color: var(--muted-foreground);
-    font-size: 0.75rem;
-  }
-
-  .roles-board :global([data-ui-part="column-item"]) {
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.3rem;
-    text-align: left;
-  }
-
-  .roles-board__card-title {
-    font-weight: 600;
-  }
-
-  .roles-board__company,
-  .roles-board__meta {
-    color: var(--muted-foreground);
-    font-size: 0.75rem;
-  }
-
-  .roles-board__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
+  .application-board-scroll { min-height:0; flex:1; overflow:auto hidden; scroll-snap-type:x proximity; }
+  .application-board-columns { display:flex; min-width:max-content; height:100%; align-items:stretch; gap:.5rem; padding:.75rem 1rem 1.25rem; }
+  .application-kanban-column { --column-width-collapsed:2.5rem; --column-width-expanded:min(86vw,28rem); flex-shrink:0; height:100%; scroll-snap-align:center; transition:width 300ms cubic-bezier(.2,.9,.25,1); }
+  .application-kanban-column.is-expanded{width:var(--column-width-expanded)} .application-kanban-column.is-collapsed{width:var(--column-width-collapsed)}
+  .column-shell { --column-wash:color-mix(in srgb,var(--column-color) 6%,var(--kanban-card)); height:100%; border-radius:1.35rem; overflow:hidden; }
+  .column-header{position:relative;z-index:5;display:grid;grid-template-columns:2.5rem minmax(0,1fr) 2.5rem;align-items:center;gap:.5rem;padding:.65rem 1rem .5rem}
+  .column-icon-button{display:grid;width:2.5rem;height:2.5rem;place-items:center;border:0;border-radius:999px;background:transparent;color:var(--column-color);cursor:pointer;opacity:.72}.column-icon-button:hover{background:color-mix(in srgb,var(--column-color) 12%,var(--kanban-card))}
+  .column-icon-button :global(svg),.column-pill :global(svg){width:1rem;height:1rem}
+  .column-pill{display:inline-flex;min-width:0;height:2.5rem;align-items:center;justify-content:center;gap:.45rem;overflow:hidden;border:0;border-radius:999px;color:var(--column-color);background:linear-gradient(90deg,color-mix(in srgb,var(--column-color) 18%,var(--kanban-card)),var(--kanban-card) 74%),var(--column-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--column-color) 16%,transparent),0 1px 2px var(--kanban-shadow);cursor:pointer;padding:0 .75rem;text-transform:uppercase}
+  .column-pill h2{min-width:0;overflow:hidden;font-size:.75rem;font-weight:950;line-height:1;text-overflow:ellipsis;white-space:nowrap}.column-count,.collapsed-count{z-index:1;display:inline-grid;min-width:1.9rem;height:1.9rem;place-items:center;border-radius:999px;background:var(--column-color);color:white;font-size:.72rem;font-weight:950;line-height:1}
+  .column-cards{position:relative;z-index:1;min-height:0;height:calc(100% - 3.65rem);overflow:auto}.column-card-stack{display:flex;flex-direction:column;gap:1rem;padding:.9rem 1.2rem .75rem .55rem}.column-empty{display:block;width:min(100%,26rem);margin:.5rem auto;border:2px dashed color-mix(in srgb,var(--kanban-border) 78%,transparent);border-radius:.4rem;color:var(--kanban-muted);font-size:1.1875rem;padding:1.15rem 1.55rem;rotate:-3deg;text-align:center}
+  .collapsed-column-button{--progress-height:min(calc(var(--column-width-collapsed) + var(--card-count)*1.35rem),50dvh);position:relative;display:flex;height:100%;width:100%;align-items:center;flex-direction:column;gap:.7rem;overflow:hidden;border:0;border-radius:999px;color:var(--column-color);background:linear-gradient(180deg,color-mix(in srgb,var(--column-color) 18%,var(--kanban-card)),var(--kanban-card) 72%),var(--column-wash);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--column-color) 16%,transparent),0 1px 2px var(--kanban-shadow);cursor:pointer;padding:0}.collapsed-progress{position:absolute;inset:0 0 auto;height:var(--progress-height);border-radius:inherit;background:linear-gradient(180deg,var(--column-color),color-mix(in srgb,var(--column-color) 28%,var(--kanban-card)));opacity:.2}.collapsed-count{width:2.5rem;height:2.5rem}.collapsed-title{z-index:1;max-height:48dvh;padding-block:.25rem;font-size:.7rem;font-weight:950;text-transform:uppercase;white-space:nowrap;writing-mode:vertical-rl}
+  .pins-corner{position:absolute;bottom:.4rem;left:.4rem;z-index:20;width:min(22rem,calc(100vw - 1rem));pointer-events:none}.pins-stack-toggle{position:relative;display:block;width:100%;min-height:5.25rem;border:0;background:transparent;color:var(--kanban-card-foreground);cursor:pointer;padding:0;pointer-events:auto;text-align:left}.pin-card{--pin-offset:calc(var(--pin-index)*-.45rem);display:grid;width:100%;translate:0 var(--pin-offset);gap:.25rem;border:1px solid color-mix(in srgb,var(--card-color) 16%,var(--kanban-border));border-radius:.3rem;background:color-mix(in srgb,var(--kanban-card) 92%,transparent);box-shadow:0 10px 28px var(--kanban-shadow);padding:.55rem .75rem}.pin-card:not(:first-child){margin-top:-3.6rem}.opens .pin-card{margin-top:.4rem;translate:0 0}.pin-card strong{overflow:hidden;font-size:.95rem;font-weight:950;text-overflow:ellipsis;white-space:nowrap}.pin-card>span:last-child{overflow:hidden;color:var(--kanban-muted);font-size:.78rem;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.pin-board{display:inline-flex;width:fit-content;align-items:center;gap:.3rem;border-radius:.14rem;background:var(--card-color);color:white;font-size:.68rem;font-weight:950;padding:.22rem .45rem;text-transform:uppercase}.pin-board :global(svg){width:.75rem;height:.75rem}
+  @media(min-width:768px){.application-kanban-column.is-expanded{width:28rem}}
 </style>
