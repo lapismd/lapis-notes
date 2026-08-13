@@ -70,7 +70,9 @@ status API and keeps the movable panel free of a persistent status tag. Content
 matches expand from their indexed file offsets, while public Search tokens own
 highlight paint and consumers remain free of result-row overrides. The panel
 keeps expanded slices stable across recent-query persistence and resets them
-only when search inputs change or the index explicitly refreshes.
+only when search inputs change or the index explicitly refreshes. Expanded
+result bodies use the workspace background in every placement, and navigation
+does not replace a Search leaf that has been moved into the body.
 
 ## `@lapis-notes/api` (kernel slice)
 

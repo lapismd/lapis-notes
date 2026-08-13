@@ -406,6 +406,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-027 | search-plugin | Implemented | context-window units and all six Search placements verify independent before/after growth, source bounds, debounce-window stability, highlight stability, and navigation |
 | LN-SRCH-028 | search-plugin | Implemented | all six Search placements override and resolve the public yellow highlight background and foreground tokens |
 | LN-SRCH-029 | search-plugin | Implemented | all six Search placements verify transparent unbordered counts with sans-serif faint text |
+| LN-SRCH-030 | search-plugin | Implemented | middle-top-tabs Search acceptance navigates to a result in a sibling tab, retains the Search leaf, and restores it as the selected final story state |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
 | LN-DB-003 | app-database | Implemented | native Electron and Turso WASM/OPFS provider selection pass desktop and browser acceptance |

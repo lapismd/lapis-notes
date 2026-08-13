@@ -58,6 +58,7 @@
     resolveSearchSnippetLength,
   } from "./search-settings";
   import { formatSearchViewSortLabel, sortSearchResults } from "./search-sort";
+  import { SearchViewType } from "./search-view-type";
 
   type SearchPanelPlugin = {
     searchManager: SearchManager;
@@ -421,12 +422,13 @@
   }
 
   function mainLeaf(): WorkspaceLeaf {
-    return (
-      app.workspace.rootSplit.iterateAllTabs((tabs) => {
-        const child = tabs.children[tabs.selectedIndex] ?? tabs.children[0];
-        return child instanceof WorkspaceLeaf ? child : child?.getSelectedLeaf();
-      }) ?? app.workspace.getLeaf("tab")
-    );
+    const selected = app.workspace.rootSplit.iterateAllTabs((tabs) => {
+      const child = tabs.children[tabs.selectedIndex] ?? tabs.children[0];
+      return child instanceof WorkspaceLeaf ? child : child?.getSelectedLeaf();
+    });
+    return selected?.view.getViewType() === SearchViewType
+      ? app.workspace.getLeaf("tab")
+      : (selected ?? app.workspace.getLeaf("tab"));
   }
 
   async function openResult(

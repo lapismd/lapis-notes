@@ -1,8 +1,9 @@
 import { View, type WorkspaceLeaf } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
 import SearchPanel from "./search-panel.svelte";
+import { SearchViewType } from "./search-view-type";
 
-export const SearchViewType = "search";
+export { SearchViewType } from "./search-view-type";
 
 export class SearchView extends View {
   private component: Record<string, unknown> | null = null;

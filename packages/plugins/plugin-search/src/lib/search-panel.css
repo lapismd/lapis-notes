@@ -165,7 +165,7 @@
   min-width: 0;
   padding: 0;
   color: inherit;
-  background: transparent;
+  background: var(--ui-workspace-view-background, transparent);
 }
 
 .search-panel__tree-inset {
@@ -350,8 +350,8 @@
   border: 1px solid var(--search-panel-border);
   border-radius: var(--ui-workspace-radius-small, 0.25rem);
   background: var(
-    --ui-workspace-view-secondary-background,
-    var(--ui-workspace-secondary, var(--secondary))
+    --ui-workspace-background,
+    var(--background, #fff)
   );
   overflow: hidden;
 }
@@ -367,8 +367,8 @@
   translate: none;
   border: 0;
   background: var(
-    --ui-workspace-view-secondary-background,
-    var(--ui-workspace-secondary, var(--secondary))
+    --ui-workspace-background,
+    var(--background, #fff)
   );
 }
 

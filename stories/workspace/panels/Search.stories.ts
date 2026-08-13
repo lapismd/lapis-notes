@@ -8,6 +8,7 @@ import type { PanelDemoLayout } from "./create-panel-demo";
 import {
   expectPanelPlacement,
   expectPanelSource,
+  panelDemoApp,
   PANEL_DOCS_PARAMETERS,
   PANEL_PLACEMENTS,
   placementParameters,
@@ -195,14 +196,18 @@ function placementStory(
         searchPanel,
         "--ui-workspace-view-secondary-background",
       );
+      const workspaceSurface = resolveTokenColor(
+        searchPanel,
+        "--ui-workspace-background",
+      );
       expect(getComputedStyle(searchPanel).backgroundColor).toBe(
         primarySurface,
       );
       expect(getComputedStyle(matchList).backgroundColor).toBe(
-        secondarySurface,
+        workspaceSurface,
       );
       expect(getComputedStyle(matchListBody).backgroundColor).toBe(
-        secondarySurface,
+        workspaceSurface,
       );
       expect(secondarySurface).not.toBe(primarySurface);
       expect(getComputedStyle(modeBadge!).backgroundColor).toBe(
@@ -469,6 +474,9 @@ function placementStory(
           expect(panel.getByText("Notes/Welcome.md")).toBeVisible(),
         );
         const currentTree = panel.getByRole("tree", { name: "Search results" });
+        const app = panelDemoApp(canvasElement);
+        const searchLeaf = app.workspace.getLeavesOfType("search")[0];
+        expect(searchLeaf).toBeDefined();
         const currentFileTreeItem = within(currentTree)
           .getAllByRole("treeitem")
           .find((item) => item.getAttribute("aria-level") === "1")!;
@@ -486,6 +494,14 @@ function placementStory(
               '.markdown-view, [data-ui-component="markdown-mira-preview"]',
             ),
           ).not.toBeNull();
+        });
+        expect(app.workspace.getLeavesOfType("search")).toContain(searchLeaf);
+        expect(searchLeaf!.view.getViewType()).toBe("search");
+        app.workspace.setActiveLeaf(searchLeaf!, { focus: false });
+        app.workspace.revealLeaf(searchLeaf!);
+        await waitFor(() => {
+          expect(within(canvasElement).getByTestId("search-panel")).toBeVisible();
+          expect(app.workspace.activeLeaf).toBe(searchLeaf);
         });
       }
       await expectPanelSource(parameters, kind, layout);

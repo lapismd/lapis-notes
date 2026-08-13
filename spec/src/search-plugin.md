@@ -30,13 +30,14 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-020 | Proxy browser tabs MUST execute indexing, semantic configuration, status, and queries through the owning app-database session. |
 | LN-SRCH-021 | Local-LLM query expansion, reranking, and embedded Markdown query blocks MUST remain excluded from this intake. |
 | LN-SRCH-022 | Search panel facets MUST use Design Core `FilterCommandPicker` controls beneath the query, keeping file type and retrieval mode compact while preserving their existing settings. |
-| LN-SRCH-023 | Search result groups MUST keep inset parent rows, place an unbordered transparent match count at top-right, and keep retrieval and match-field badges in bottom-left metadata rows. Expanded children MUST span the parent width without tree indentation and use a bordered workspace surface distinct from direct-sidebar paint. |
+| LN-SRCH-023 | Search result groups MUST keep inset parent rows, place an unbordered transparent match count at top-right, and keep retrieval and match-field badges in bottom-left metadata rows. Expanded children MUST span the parent width without tree indentation and use the bordered workspace background in every placement. |
 | LN-SRCH-024 | Search result-copy and sort controls MUST retain visible hover and focus paint on every workspace surface. |
 | LN-SRCH-025 | Search retrieval and match-field badges MUST remain visually distinct while their containing result row is hovered. |
 | LN-SRCH-026 | The movable Search panel MUST NOT render a persistent semantic-status tag. |
 | LN-SRCH-027 | Content-match rows MUST provide top-right before and bottom-right after controls while more source context exists. Each activation MUST reveal additional complete lines, grow the row, preserve the original highlight and navigation target, and stop at the file boundary. Expanded context MUST remain stable until search inputs change or the index explicitly refreshes. |
 | LN-SRCH-028 | Search match highlighting MUST use configurable public `--ui-search-highlight-background` and `--ui-search-highlight-foreground` tokens with a yellow-background Lapis default. |
 | LN-SRCH-029 | Search result counts MUST use the workspace sans-serif face and a faint foreground without a border or background fill. |
+| LN-SRCH-030 | Result activation MUST preserve a Search view hosted in the body by opening the target in a separate body tab. Sidebar-hosted Search MAY continue to reuse the selected body leaf. |
 
 ## Runtime flow
 
