@@ -377,11 +377,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-048 | packages | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
 | LN-PKG-049 | packages | Implemented | `@lapis-notes/cv` at `packages/plugins/plugin-cv`; package `check`, `test`, and `build` pass |
 | LN-PKG-050 | packages | Implemented | CV package exposes interaction and static Storybook builds; package declarations are portable |
+| LN-PKG-051 | packages | Implemented | CV package consumes linked Mira through public package exports and a portable manifest range |
 | LN-DESK-030 | desktop-host | Implemented | desktop `registerCorePlugins` loads optional CV before layout restoration |
 | LN-CAT-039 | storybook-catalog | Implemented | CV plugin Storybook on port 7020 with form, preview, and App-backed workspace stories |
 | LN-CAT-040 | storybook-catalog | Implemented | `Workspace/Plugins/CV` FileView story boots a real App over `sample.cv.yml` |
 | LN-CAT-041 | storybook-catalog | Implemented | CV package static catalog uses Lapis theme and scoped isolated 700px shell Docs canvases |
 | LN-CAT-042 | storybook-catalog | Implemented | CV package and repository stories expose explicit reproducible consumer source |
+| LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies Lapis-themed Mira Preview and read-only Source modes |
 | LN-CV-001 | cv-plugin | Implemented | CV package authorized; Applications and Tasks excluded from this slice |
 | LN-CV-002 | cv-plugin | Implemented | `CvPlugin.onload` registers view, editor view, and compound extensions |
 | LN-CV-003 | cv-plugin | Implemented | exclusive `*.cv.yml` / `*.cv.yaml` association for view type `cv` |
@@ -409,6 +411,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CV-025 | cv-plugin | Implemented | save coordinator tests cover debounce, serialization, lifecycle flush, and retained failures |
 | LN-CV-026 | cv-plugin | Implemented | Typst success plays require worker page images; fallback is covered separately |
 | LN-CV-027 | cv-plugin | Implemented | production CV CSS uses public tokens and stable component selectors only |
+| LN-CV-028 | cv-plugin | Implemented | compiled CV Markdown renders through Mira's public preview surface with the Lapis theme |
+| LN-CV-029 | cv-plugin | Implemented | CV form header exposes a focus-safe Preview-first book/pencil action, read-only source, and borderless Mira surface |
+| LN-ARCH-038 | architecture | Implemented | CV compilation remains plugin-owned while Mira owns read-only Markdown presentation |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |

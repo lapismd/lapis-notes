@@ -1,8 +1,11 @@
 <script lang="ts">
   import { onDestroy, untrack } from "svelte";
+  import BookOpenIcon from "@lucide/svelte/icons/book-open";
+  import PencilIcon from "@lucide/svelte/icons/pencil";
   import { FormToolbar, StructuredForm, YamlEditor } from "@lapismd/design-core/forms";
   import { createFormController, type FormController } from "@lapismd/design-core/forms/core";
   import * as Alert from "@lapismd/design-core/shadcn/alert";
+  import { Button } from "@lapismd/design-core/shadcn/button";
   import * as Resizable from "@lapismd/design-core/shadcn/resizable";
   import * as ScrollArea from "@lapismd/design-core/shadcn/scroll-area";
   import { Switch } from "@lapismd/design-core/shadcn/switch";
@@ -86,6 +89,7 @@
   let previewFormat = $state<TypstPreviewFormat>(
     untrack(() => normalizePreviewFormat(initialPreviewMode, initialPreviewFormat)),
   );
+  let markdownMode = $state<"source" | "preview">("preview");
   let zoom = $state(1);
   let yamlFragments = $state<Record<CvStoryTab, string>>({
     cv: "",
@@ -359,6 +363,28 @@
                       <Tabs.Trigger value={tab.value}>{tab.label}</Tabs.Trigger>
                     {/each}
                   </Tabs.List>
+                  {#if previewMode === "rendercv-md"}
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      class="complete-cv-markdown-mode"
+                      aria-label={markdownMode === "preview"
+                        ? "Current view: preview\nClick to view source"
+                        : "Current view: source\nClick to preview"}
+                      title={markdownMode === "preview"
+                        ? "Current view: preview\nClick to view source"
+                        : "Current view: source\nClick to preview"}
+                      data-testid="cv-markdown-mode-toggle"
+                      onclick={() =>
+                        (markdownMode = markdownMode === "preview" ? "source" : "preview")}
+                    >
+                      {#if markdownMode === "preview"}
+                        <PencilIcon />
+                      {:else}
+                        <BookOpenIcon />
+                      {/if}
+                    </Button>
+                  {/if}
                   <CvThemeControls
                     theme={source.design?.theme ?? "moderncv"}
                     onSetTheme={setTheme}
@@ -500,6 +526,7 @@
                             {artifacts}
                             error={previewError}
                             mode={previewMode}
+                            {markdownMode}
                             {previewFormat}
                             {zoom}
                             pending={previewPending}

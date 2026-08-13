@@ -46,6 +46,7 @@
 | LN-CAT-040 | The repository catalog MUST include one isolated workspace FileView story that boots a real App, registers the CV plugin, opens a `*.cv.yml` fixture, and asserts view type `cv`. |
 | LN-CAT-041 | The CV package catalog MUST compile statically, load the Lapis theme, and keep full-shell Docs canvases isolated at 700px without globally disabling Autodocs scrolling. |
 | LN-CAT-042 | CV package and repository stories MUST provide explicit consumer-usable Show Code when their render path uses a local demo, harness, or fixture. App-backed examples MUST show App creation, vault data, plugin loading, and layout restoration. |
+| LN-CAT-043 | The CV package catalog MUST verify that the Markdown artifact starts in Mira Preview with the Lapis theme and switches to a read-only Mira Source mode through its focus-safe book-or-pencil header action. |
 
 ## Show Code source contract
 

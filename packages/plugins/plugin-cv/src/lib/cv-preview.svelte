@@ -8,6 +8,7 @@
     type CvPreviewMode,
   } from "$lib/cv/cv-options";
   import { artifactObjectUrl, type TypstPreviewFormat, type WorkerArtifact } from "$lib/cv/web-artifacts";
+  import CvMarkdownArtifact from "./cv-markdown-artifact.svelte";
 
   let {
     html = "",
@@ -19,6 +20,7 @@
     previewFormat = "svg",
     zoom = 1,
     pending = false,
+    markdownMode = "preview",
   }: {
     html?: string;
     typst?: string;
@@ -29,6 +31,7 @@
     previewFormat?: TypstPreviewFormat;
     zoom?: number;
     pending?: boolean;
+    markdownMode?: "source" | "preview";
   } = $props();
 
   const pageArtifacts = $derived(
@@ -45,7 +48,7 @@
   const showHtmlFallback = $derived(
     mode === "rendercv" && Boolean(error) && !pending && pageArtifacts.length === 0,
   );
-  const previewText = $derived(mode === "rendercv-typ" ? typst : markdown);
+  const previewText = $derived(typst);
 
   let pageUrls = $state<Array<{ id: string; src: string; alt: string; format: string }>>([]);
 
@@ -79,7 +82,12 @@
   });
 </script>
 
-<section class="cv-preview" data-ui-component="cv-preview" data-testid="cv-preview">
+<section
+  class="cv-preview"
+  data-ui-component="cv-preview"
+  data-testid="cv-preview"
+  data-preview-mode={mode}
+>
   {#if error}
     <p class="cv-preview__error" role="alert" data-testid="cv-preview-error">{error}</p>
   {/if}
@@ -131,6 +139,8 @@
         data-testid="cv-preview-html"
       ></iframe>
     </div>
+  {:else if mode === "rendercv-md"}
+    <CvMarkdownArtifact value={markdown} mode={markdownMode} />
   {:else}
     <pre
       class="cv-preview__text"
@@ -148,6 +158,11 @@
     flex-direction: column;
     background: var(--ui-workspace-view-background, var(--background));
     color: var(--ui-workspace-view-foreground, var(--foreground));
+  }
+
+  .cv-preview[data-preview-mode="rendercv-md"] {
+    height: 100%;
+    min-height: 22.5rem;
   }
 
   .cv-preview__error {

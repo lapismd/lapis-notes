@@ -41,6 +41,7 @@
 | LN-ARCH-035 | `@lapis-notes/web` MUST own browser vault selection, session boot, PWA lifecycle, and plugin loading while consuming `@lapis-notes/api` and `@lapis-notes/workspace`. |
 | LN-ARCH-036 | Browser database coordination MUST elect one local owner per vault and delegate typed operations from proxy tabs. Coordination MUST NOT be presented as cloud sync. |
 | LN-ARCH-037 | The API editor host MUST be the sole owner of readable-column geometry after composing Mira. It MUST neutralize inherited outer-sizer width and margin constraints before applying file margins, so widening a workspace pane or closing sidebars cannot reduce the Markdown content width. |
+| LN-ARCH-038 | CV compilation MUST remain plugin-owned, while compiled Markdown presentation MUST compose Mira's public read-only surfaces. The CV plugin MUST own only its artifact-mode selection and MUST NOT create another Markdown rendering stack. |
 
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.

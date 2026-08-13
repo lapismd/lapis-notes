@@ -266,6 +266,104 @@
 />
 
 <Story
+  name="Markdown Artifact"
+  tags={["visual-pending"]}
+  parameters={{
+    docs: {
+      description: {
+        story: "Inspect compiled CV Markdown through Lapis-themed Mira Preview and read-only Source modes.",
+      },
+    },
+  }}
+  args={{
+    yamlText: sampleCvYaml,
+    filePath: "sample.cv.yml",
+    initialPreviewMode: "rendercv-md",
+  }}
+  play={async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => {
+      expect(canvas.getByRole("button", { name: "Select preview type" }).textContent).toContain(
+        "Markdown",
+      );
+    });
+
+    const artifact = canvas.getByTestId("cv-markdown-artifact");
+    const markdown = within(artifact);
+    const mira = artifact.querySelector<HTMLElement>("[data-mira-theme='obsidian']");
+    expect(mira).toBeTruthy();
+    expect(mira?.getAttribute("data-mode")).toBe("preview");
+    expect(mira?.getAttribute("data-readonly")).toBe("true");
+    expect(markdown.queryByRole("toolbar")).toBeNull();
+    const modeToggle = canvas.getByRole("button", {
+      name: /^Current view: preview\nClick to view source$/,
+    });
+    expect(modeToggle.querySelector(".lucide-pencil")).not.toBeNull();
+    const themeControl = canvas.getByTestId("cv-theme-controls");
+    expect(
+      modeToggle.compareDocumentPosition(themeControl) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      modeToggle.closest(".complete-cv-tabs__header"),
+    ).toBe(themeControl.closest(".complete-cv-tabs__header"));
+    const modeHeader = modeToggle.closest<HTMLElement>(".complete-cv-tabs__header");
+    expect(modeHeader).toBeTruthy();
+    modeToggle.focus();
+    expect(document.activeElement).toBe(modeToggle);
+    const modeRect = modeToggle.getBoundingClientRect();
+    const modeHeaderRect = modeHeader!.getBoundingClientRect();
+    expect(modeRect.top - modeHeaderRect.top).toBeGreaterThanOrEqual(3);
+    expect(modeHeaderRect.bottom - modeRect.bottom).toBeGreaterThanOrEqual(3);
+    expect(
+      getComputedStyle(artifact).borderTopWidth,
+    ).toBe("0px");
+    expect(
+      getComputedStyle(mira!).borderTopWidth,
+    ).toBe("0px");
+    expect(
+      getComputedStyle(mira!).borderRadius,
+    ).toBe("0px");
+    expect(
+      canvas.queryByRole("group", { name: "CV Markdown mode" }),
+    ).toBeNull();
+    expect(
+      modeToggle.getAttribute("title"),
+    ).toBe("Current view: preview\nClick to view source");
+    expect(
+      modeToggle.getAttribute("data-testid"),
+    ).toBe("cv-markdown-mode-toggle");
+    expect(
+      artifact.getAttribute("data-markdown-mode"),
+    ).toBe("preview");
+    expect(
+      markdown.getByRole("heading", { name: "Welcome to RenderCV" }),
+    ).toBeTruthy();
+
+    await userEvent.click(modeToggle);
+    const previewToggle = await waitFor(() =>
+      canvas.getByRole("button", {
+        name: /^Current view: source\nClick to preview$/,
+      }),
+    );
+    await waitFor(() => {
+      expect(artifact.getAttribute("data-markdown-mode")).toBe("source");
+      expect(mira?.getAttribute("data-mode")).toBe("source");
+    });
+    expect(previewToggle.querySelector(".lucide-book-open")).not.toBeNull();
+    const source = markdown.getByRole("textbox", { name: "Markdown editor" });
+    expect(source.getAttribute("contenteditable")).toBe("false");
+    expect(source.textContent).toContain("# Welcome to RenderCV");
+
+    await userEvent.click(previewToggle);
+    await waitFor(() => {
+      expect(artifact.getAttribute("data-markdown-mode")).toBe("preview");
+      expect(mira?.getAttribute("data-mode")).toBe("preview");
+      expect(markdown.getByRole("heading", { name: "Welcome to RenderCV" })).toBeTruthy();
+    });
+  }}
+/>
+
+<Story
   name="Typst Preview"
   parameters={{
     docs: {

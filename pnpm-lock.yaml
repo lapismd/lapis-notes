@@ -565,6 +565,9 @@ importers:
       '@lapismd/design-core':
         specifier: link:../../../../design-core
         version: link:../../../../design-core
+      '@lapismd/mira':
+        specifier: link:../../../../mira-mde/packages/mira
+        version: link:../../../../mira-mde/packages/mira
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.8)

@@ -44,6 +44,7 @@
     "@fontsource-variable/dm-sans": "^5.2.8",
     "@lapis-notes/api": "workspace:*",
     "@lapismd/design-core": "*",
+    "@lapismd/mira": "*",
     "@lucide/svelte": "^0.523.0",
     "@myriaddreamin/typst-ts-renderer": "0.7.0",
     "@myriaddreamin/typst-ts-web-compiler": "0.7.0",

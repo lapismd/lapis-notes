@@ -29,6 +29,7 @@
 | LN-PKG-048 | `@lapis-notes/api` `markupEditor` MUST retain a 700px readable content column when its workspace pane is wide enough. Narrow panes MAY use the configured file margins, but closing either sidebar MUST NOT shrink the editor body. |
 | LN-PKG-049 | `@lapis-notes/cv` MUST live at `packages/plugins/plugin-cv`, depend on `@lapis-notes/api` and `@lapismd/design-core`, and expose `build`, `check`, and `test`. It MUST NOT depend on CV Studio packages. |
 | LN-PKG-050 | `@lapis-notes/cv` MUST expose Storybook interaction and static-build scripts. Its package build MUST emit portable declarations without linked sibling implementation paths. |
+| LN-PKG-051 | `@lapis-notes/cv` MUST consume Markdown rendering and read-only source presentation from the public `@lapismd/mira` package with a portable dependency range. It MUST NOT import Mira source paths or copy its renderer. |
 | LN-PKG-018 | `@lapis-notes/markdown` MUST expose its reusable Mira-backed `FileEmbed`, `MarkdownEmbed`, and `NoteLink` surfaces through the root package and the narrow `@lapis-notes/markdown/embed` export. |
 | LN-PKG-019 | The public Lapis `FileEmbed` wrapper MUST add optional `editable` and bindable `editing` inputs while defaulting to its existing read-only behavior. Editable full-note rendering MUST compose Mira's public `EditableMarkdownPreview`; direct `MarkdownEmbed`, `NoteLink`, and ordinary `FileEmbed` consumers MUST remain source-compatible. The package adapter owns only Lapis vault resolution and persistence, while Mira owns activation, CodeMirror, autosave serialization, dirty-buffer protection, and preview/editor mode changes.                                                                                                                                                                                                                                                                                                                                                                                          |
 | LN-PKG-020 | Editable `FileEmbed` MUST expose an imperative `exit()` that delegates to Mira's persistence-safe editable-preview exit contract and accept an additive `returnToPreviewOnBlur` input. Link-panel consumers MUST disable blur exit and use the imperative operation for outside-click dismissal; default and read-only consumers MUST remain source-compatible.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -111,7 +112,9 @@ delegates language behavior to registered editor extensions.
 `@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
 side panels. `@lapis-notes/markdown-lint` and the internal
 `@lapis-notes/language-service` package are the focused diagnostics exceptions.
-`@lapis-notes/cv` owns CV YAML file views and browser preview. Other bundled
+`@lapis-notes/cv` owns CV YAML file views and browser preview. Its compiled
+Markdown artifact composes Mira's public read-only source and preview surfaces
+under the Lapis theme. Other bundled
 plugins, notebook, and plugin-host module generation remain out of scope until
 separately specified. Desktop and web hosts are authorized by their canonical
 host chapters.

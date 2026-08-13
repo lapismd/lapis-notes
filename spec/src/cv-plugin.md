@@ -36,6 +36,8 @@ slice.
 | LN-CV-025 | Structured and YAML edits MUST debounce vault writes for 1,200ms, serialize concurrent writes, and flush the latest value before file changes or view closure. A failed write MUST retain the dirty value and expose an accessible error. |
 | LN-CV-026 | Typst SVG and PNG success stories MUST require real worker page output. Worker failure MUST be tested as the documented HTML fallback and MUST NOT satisfy a successful Typst story. |
 | LN-CV-027 | Production CV styling MUST use public Design Core tokens and stable component selectors. Storybook host selectors and private CodeMirror classes MUST remain in catalog-owned styling or be omitted. |
+| LN-CV-028 | The Markdown artifact MUST render compiled Markdown through Mira's public preview surface with the Lapis theme. It MUST NOT use a plain text or package-local Markdown renderer. |
+| LN-CV-029 | The form-area header MUST show one book-or-pencil action before the RenderCV theme control when Markdown is selected. It MUST switch between Preview and read-only Source, default to Preview, preserve the compiled value, keep its focus indicator inside the header, and avoid nested Markdown toolbar or frame chrome. |
 
 ### LN-CV-012 acceptance details
 
@@ -123,6 +125,8 @@ Toolbar and tab type verifies:
 Reusable Plugin and `TextFileView` contracts remain in `@lapis-notes/api`.
 Public form orchestrators remain in `@lapismd/design-core/forms`. The CV
 package owns filename association, YAML parse/normalize/compile, the `cv`
-workspace view, and browser WASM preview assets. Search retains indexing
+workspace view, browser WASM preview assets, and the CV-specific read-only
+Markdown mode selector. Mira owns Markdown rendering and CodeMirror source
+presentation. Search retains indexing
 policy. Applications and tasks stay unspecified. The package Storybook may
 boot File Explorer and Search beside CV to verify host enablement.

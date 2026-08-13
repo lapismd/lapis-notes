@@ -212,6 +212,8 @@ const config: StorybookConfig = {
           "@lucide/svelte/icons/folder-closed",
           "@lucide/svelte/icons/file",
           "@lucide/svelte/icons/search",
+          "@lucide/svelte/icons/book-open",
+          "@lucide/svelte/icons/pencil",
         ],
       },
       server: {

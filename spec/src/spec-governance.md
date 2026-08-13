@@ -140,6 +140,12 @@ configuration. Guidance must also keep document surfaces borderless, route
 view-menu settings through API configuration, and require persisted-file
 acceptance for toolbar-driven editor settings.
 
+CV guidance must keep compilation and artifact selection in the CV package
+while routing compiled Markdown presentation through Mira's public read-only
+Preview and Source surfaces. It must prohibit package-local Markdown renderers
+and editable generated artifacts, and must keep CV-specific mode chrome outside
+the nested Mira surface.
+
 Problems guidance must keep live totals in Design Core's structured workspace
 view badge, preserve the stored leaf title, and prohibit a duplicate count in
 the panel toolbar. Acceptance must cover the idle badge paint and a real
