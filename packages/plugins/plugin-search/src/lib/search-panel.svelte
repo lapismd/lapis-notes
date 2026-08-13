@@ -27,7 +27,9 @@
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
   import * as Sidebar from "@lapismd/design-core/shadcn/sidebar";
   import { Switch } from "@lapismd/design-core/shadcn/switch";
+  import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import ChevronsUpDown from "@lucide/svelte/icons/chevrons-up-down";
   import Copy from "@lucide/svelte/icons/copy";
   import FileText from "@lucide/svelte/icons/file-text";
@@ -35,6 +37,12 @@
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import { onMount, untrack } from "svelte";
   import HighlightedText from "./highlighted-text.svelte";
+  import {
+    expandSearchMatchContext,
+    sliceSearchMatchContext,
+    type SearchMatchContextDirection,
+    type SearchMatchContextWindow,
+  } from "./search-match-context";
   import type {
     SearchManager,
     SearchQueryHit,
@@ -60,10 +68,12 @@
 
   type SearchRange = { start: number; end: number };
   type SearchMatch = {
+    id: string;
     key: string;
     text: string;
     ranges: SearchRange[];
     pos?: EditorPosition;
+    context?: SearchMatchContextWindow & { sourceLength: number };
   };
   type SearchResult = {
     file: TFile;
@@ -106,6 +116,7 @@
   let results = $state<SearchResult[]>([]);
   let resultCount = $state(0);
   let resultOpenState = $state<Record<string, boolean>>({});
+  let contextLoading = $state<Record<string, boolean>>({});
   let resultIdentity = "";
   let searching = $state(false);
   let indexing = $state(false);
@@ -254,7 +265,8 @@
       title: title ? { text: title.text, ranges: title.ranges } : null,
       matches: hit.snippets
         .filter((snippet) => snippet.field !== "name")
-        .map((snippet) => ({
+        .map((snippet, index) => ({
+          id: `${snippet.field}:${snippet.offset}:${index}`,
           key: snippet.field === "tags" ? "tag" : snippet.field,
           text: snippet.text,
           ranges: snippet.ranges,
@@ -264,6 +276,15 @@
                   hit.document.content,
                   snippet.offset + snippet.ranges[0]!.start,
                 ),
+                context: {
+                  start: snippet.offset,
+                  end: snippet.offset + snippet.text.length,
+                  ranges: snippet.ranges.map((range) => ({
+                    start: snippet.offset + range.start,
+                    end: snippet.offset + range.end,
+                  })),
+                  sourceLength: hit.document.content.length,
+                },
               }
             : {}),
         })),
@@ -400,6 +421,64 @@
     app.workspace.activeLeaf = leaf;
     app.workspace.revealLeaf(leaf);
     if (pos && leaf.view instanceof TextFileView) leaf.view.editor.setCursor(pos);
+  }
+
+  async function expandMatchContext(
+    result: SearchResult,
+    match: SearchMatch,
+    direction: SearchMatchContextDirection,
+  ): Promise<void> {
+    if (!match.context) return;
+    const loadingKey = `${result.file.path}\u0000${match.id}`;
+    if (contextLoading[loadingKey]) return;
+    contextLoading = { ...contextLoading, [loadingKey]: true };
+    try {
+      const indexedSource = result.hit.document.content;
+      let source = indexedSource;
+      try {
+        const currentSource = await app.vault.cachedRead(result.file);
+        const expectedSlice = indexedSource.slice(
+          match.context.start,
+          match.context.end,
+        );
+        if (
+          currentSource.slice(match.context.start, match.context.end) ===
+          expectedSlice
+        ) {
+          source = currentSource;
+        }
+      } catch {
+        // The indexed source remains a valid fallback for the visible result.
+      }
+
+      const expanded = expandSearchMatchContext(
+        source,
+        match.context,
+        direction,
+      );
+      const sliced = sliceSearchMatchContext(source, expanded);
+      results = results.map((currentResult) =>
+        currentResult.hit !== result.hit
+          ? currentResult
+          : {
+              ...currentResult,
+              matches: currentResult.matches.map((currentMatch) =>
+                currentMatch.id === match.id
+                  ? {
+                      ...currentMatch,
+                      ...sliced,
+                      context: {
+                        ...expanded,
+                        sourceLength: source.length,
+                      },
+                    }
+                  : currentMatch,
+              ),
+            },
+      );
+    } finally {
+      contextLoading = { ...contextLoading, [loadingKey]: false };
+    }
   }
 
   onMount(() => {
@@ -629,23 +708,66 @@
                     <Sidebar.MenuSub role="group">
                       {#each result.matches as match, index (`${result.file.path}:${index}`)}
                         <Sidebar.MenuSubItem role="none">
-                          <button
-                            type="button"
-                            class="search-panel__match"
+                          {@const loadingKey = `${result.file.path}\u0000${match.id}`}
+                          <div
+                            class="search-panel__match-shell"
                             role="treeitem"
+                            tabindex="0"
                             aria-level="2"
                             aria-selected="false"
+                            data-context-before={Boolean(match.context?.start)}
+                            data-context-after={Boolean(
+                              match.context &&
+                                match.context.end < match.context.sourceLength,
+                            )}
                             onclick={() => openResult(result, match.pos)}
+                            onkeydown={(event) => {
+                              if (event.key !== "Enter" && event.key !== " ") return;
+                              event.preventDefault();
+                              void openResult(result, match.pos);
+                            }}
                           >
-                            <span class="search-panel__match-text">
-                              <HighlightedText text={match.text} ranges={match.ranges} />
-                            </span>
-                            <span class="search-panel__match-meta">
-                              <Badge variant="outline" class="search-panel__match-key">
-                                {match.key}
-                              </Badge>
-                            </span>
-                          </button>
+                            {#if match.context?.start}
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                class="search-panel__context-control search-panel__context-control--before"
+                                aria-label="Show more context before this match"
+                                disabled={contextLoading[loadingKey]}
+                                onclick={(event) => {
+                                  event.stopPropagation();
+                                  void expandMatchContext(result, match, "before");
+                                }}
+                              >
+                                <ChevronUp aria-hidden="true" />
+                              </Button>
+                            {/if}
+                            <div class="search-panel__match">
+                              <span class="search-panel__match-text">
+                                <HighlightedText text={match.text} ranges={match.ranges} />
+                              </span>
+                              <span class="search-panel__match-meta">
+                                <Badge variant="outline" class="search-panel__match-key">
+                                  {match.key}
+                                </Badge>
+                              </span>
+                            </div>
+                            {#if match.context && match.context.end < match.context.sourceLength}
+                              <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                class="search-panel__context-control search-panel__context-control--after"
+                                aria-label="Show more context after this match"
+                                disabled={contextLoading[loadingKey]}
+                                onclick={(event) => {
+                                  event.stopPropagation();
+                                  void expandMatchContext(result, match, "after");
+                                }}
+                              >
+                                <ChevronDown aria-hidden="true" />
+                              </Button>
+                            {/if}
+                          </div>
                         </Sidebar.MenuSubItem>
                       {/each}
                     </Sidebar.MenuSub>

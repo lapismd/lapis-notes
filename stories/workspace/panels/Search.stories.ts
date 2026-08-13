@@ -48,8 +48,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type StoryRender = NonNullable<Story["render"]>;
 
+function resolveTokenColor(element: HTMLElement, token: string): string {
+  const probe = document.createElement("span");
+  probe.style.cssText = `position:absolute;background:var(${token})`;
+  element.append(probe);
+  const color = getComputedStyle(probe).backgroundColor;
+  probe.remove();
+  return color;
+}
+
 function renderPlacement(layout: PanelDemoLayout): StoryRender {
-  return (() => ({ Component: PanelDemo, props: { kind, layout } })) as StoryRender;
+  return (() => ({
+    Component: PanelDemo,
+    props: { kind, layout },
+  })) as StoryRender;
 }
 
 function placementStory(
@@ -92,6 +104,9 @@ function placementStory(
       ).toBe(true);
       expect(within(tree).getAllByText("lexical").length).toBeGreaterThan(0);
       const resultRow = fileTreeItem!;
+      const searchPanel = canvasElement.querySelector<HTMLElement>(
+        '[data-testid="search-panel"]',
+      )!;
       const resultsBody = canvasElement.querySelector<HTMLElement>(
         '[data-testid="search-panel"] .search-panel__tree-inset',
       )!;
@@ -121,6 +136,12 @@ function placementStory(
         "rgba(0, 0, 0, 0)",
       );
       expect(getComputedStyle(countBadge!).borderTopWidth).toBe("0px");
+      expect(getComputedStyle(countBadge!).fontFamily).toBe(
+        getComputedStyle(searchPanel).fontFamily,
+      );
+      expect(getComputedStyle(countBadge!).color).not.toBe(
+        getComputedStyle(searchPanel).color,
+      );
       await userEvent.hover(resultRow);
       await waitFor(() =>
         expect(getComputedStyle(modeBadge!).backgroundColor).not.toBe(
@@ -138,7 +159,8 @@ function placementStory(
         editor?.querySelectorAll(".cm-content .cm-line > span").length,
       ).toBeGreaterThan(0);
       expect(
-        canvasElement.querySelectorAll('[data-testid="search-panel"] mark').length,
+        canvasElement.querySelectorAll('[data-testid="search-panel"] mark')
+          .length,
       ).toBeGreaterThan(0);
       expect(within(tree).getAllByText("content").length).toBeGreaterThan(0);
       const firstMatch = within(tree)
@@ -146,6 +168,9 @@ function placementStory(
         .find((item) => item.getAttribute("aria-level") === "2")!;
       const matchList = firstMatch.closest<HTMLElement>(
         ".search-panel__match-list",
+      )!;
+      const matchListBody = matchList.querySelector<HTMLElement>(
+        '[data-ui-part="sidebar-menu-sub"]',
       )!;
       const matchText = firstMatch.querySelector<HTMLElement>(
         ".search-panel__match-text",
@@ -162,9 +187,28 @@ function placementStory(
       expect(firstMatchRect.left - matchListRect.left).toBeLessThan(2);
       expect(matchListRect.right - firstMatchRect.right).toBeLessThan(2);
       expect(getComputedStyle(matchList).borderTopWidth).not.toBe("0px");
-      expect(getComputedStyle(matchList).backgroundColor).not.toBe(
-        getComputedStyle(resultRow).backgroundColor,
+      const primarySurface = resolveTokenColor(
+        searchPanel,
+        "--ui-workspace-view-background",
       );
+      const secondarySurface = resolveTokenColor(
+        searchPanel,
+        "--ui-workspace-view-secondary-background",
+      );
+      expect(getComputedStyle(searchPanel).backgroundColor).toBe(
+        primarySurface,
+      );
+      expect(getComputedStyle(matchList).backgroundColor).toBe(
+        secondarySurface,
+      );
+      expect(getComputedStyle(matchListBody).backgroundColor).toBe(
+        secondarySurface,
+      );
+      expect(secondarySurface).not.toBe(primarySurface);
+      expect(getComputedStyle(modeBadge!).backgroundColor).toBe(
+        secondarySurface,
+      );
+      expect(getComputedStyle(matchKey).backgroundColor).toBe(primarySurface);
       expect(Math.abs(matchKeyRect.left - matchTextRect.left)).toBeLessThan(1);
       expect(matchKeyRect.top).toBeGreaterThanOrEqual(matchTextRect.bottom);
       await userEvent.hover(firstMatch);
@@ -174,6 +218,80 @@ function placementStory(
         ),
       );
       await userEvent.unhover(firstMatch);
+
+      const contentMatch = within(tree)
+        .getAllByRole("treeitem")
+        .find(
+          (item) =>
+            item.getAttribute("aria-level") === "2" &&
+            item
+              .querySelector(".search-panel__match-key")
+              ?.textContent?.trim() === "content",
+        )!;
+      expect(contentMatch).toBeDefined();
+      const contentShell = contentMatch.closest<HTMLElement>(
+        ".search-panel__match-shell",
+      )!;
+      const contextBefore = within(contentShell).getByRole("button", {
+        name: "Show more context before this match",
+      });
+      const contextAfter = within(contentShell).getByRole("button", {
+        name: "Show more context after this match",
+      });
+      const contentShellRect = contentShell.getBoundingClientRect();
+      const beforeRect = contextBefore.getBoundingClientRect();
+      const afterRect = contextAfter.getBoundingClientRect();
+      expect(contentShellRect.right - beforeRect.right).toBeGreaterThanOrEqual(
+        0,
+      );
+      expect(beforeRect.top - contentShellRect.top).toBeGreaterThanOrEqual(0);
+      expect(contentShellRect.right - afterRect.right).toBeGreaterThanOrEqual(
+        0,
+      );
+      expect(contentShellRect.bottom - afterRect.bottom).toBeGreaterThanOrEqual(
+        0,
+      );
+
+      const initialContextText = contentMatch.textContent?.length ?? 0;
+      const initialContextHeight = contentShell.getBoundingClientRect().height;
+      await userEvent.click(contextBefore);
+      await waitFor(() => {
+        expect(contentMatch.textContent?.length ?? 0).toBeGreaterThan(
+          initialContextText,
+        );
+        expect(contentShell.getBoundingClientRect().height).toBeGreaterThan(
+          initialContextHeight,
+        );
+      });
+      const beforeExpandedLength = contentMatch.textContent?.length ?? 0;
+      await userEvent.click(
+        within(contentShell).getByRole("button", {
+          name: "Show more context after this match",
+        }),
+      );
+      await waitFor(() =>
+        expect(contentMatch.textContent?.length ?? 0).toBeGreaterThan(
+          beforeExpandedLength,
+        ),
+      );
+      const highlightedMatch = contentMatch.querySelector<HTMLElement>("mark")!;
+      expect(highlightedMatch).not.toBeNull();
+      searchPanel.style.setProperty(
+        "--ui-search-highlight-background",
+        "rgb(255 217 102)",
+      );
+      searchPanel.style.setProperty(
+        "--ui-search-highlight-foreground",
+        "rgb(62 48 0)",
+      );
+      await waitFor(() => {
+        expect(getComputedStyle(highlightedMatch).backgroundColor).toBe(
+          "rgb(255, 217, 102)",
+        );
+        expect(getComputedStyle(highlightedMatch).color).toBe("rgb(62, 48, 0)");
+      });
+      searchPanel.style.removeProperty("--ui-search-highlight-background");
+      searchPanel.style.removeProperty("--ui-search-highlight-foreground");
 
       const resultCopyButton = panel.getByRole("button", {
         name: "Copy search results",
@@ -229,7 +347,10 @@ function placementStory(
           name: "Collapse results",
         });
         await userEvent.click(collapseResults);
-        await expect(collapseResults).toHaveAttribute("data-state", "unchecked");
+        await expect(collapseResults).toHaveAttribute(
+          "data-state",
+          "unchecked",
+        );
         await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "true");
         await userEvent.click(fileTreeItem!);
         await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "false");
@@ -250,7 +371,10 @@ function placementStory(
         await userEvent.click(semanticStructured);
         await expect(matchCase).toHaveAttribute("data-state", "checked");
         await expect(showMoreContext).toHaveAttribute("data-state", "checked");
-        await expect(semanticStructured).toHaveAttribute("data-state", "checked");
+        await expect(semanticStructured).toHaveAttribute(
+          "data-state",
+          "checked",
+        );
         await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "false");
         await userEvent.click(explainTerms);
         await expect(panel.getByText(/Matching filenames/)).toBeVisible();
