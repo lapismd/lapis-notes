@@ -47,9 +47,9 @@ surfaces without adding a server, database, AI, or task subsystem.
 | LN-ROLE-004 | Structured mutations MUST preserve unknown frontmatter fields semantically and leave the Markdown body unchanged. Writes MUST serialize per path and re-read the current document before patching. |
 | LN-ROLE-005 | A plugin-owned manager MUST scan exact `role.md` files and react to vault create, modify, delete, and rename events. It MUST expose immutable valid-role snapshots plus document diagnostics. |
 | LN-ROLE-006 | New roles MUST use `Roles/<unique-slug>/role.md`. Slug collisions MUST receive deterministic numeric suffixes without replacing an existing document. |
-| LN-ROLE-007 | Applications MUST project the statuses `saved`, `applied`, `screening`, `interview`, `offer`, and `rejected`. Status, ordering, filters, selection, and column presentation MUST remain usable by pointer and keyboard. |
-| LN-ROLE-008 | Role details MUST compose public Design Core forms and public Mira Markdown surfaces. They MUST edit structured fields, description, prep stages, comments, reactions, and linked CV paths through the role document. |
-| LN-ROLE-009 | The package MUST NOT import or implement Tasks, task-derived actions, AI, Carta, CV Studio UI, application servers, or application databases. Unknown task metadata MAY survive semantic round trips but MUST remain unowned. |
+| LN-ROLE-007 | Applications MUST project the statuses `saved`, `applied`, `screening`, `interview`, `offer`, and `rejected` through the legacy CV Applications ticket-board component structure and native CSS. Status, ordering, filters, selection, collapse, resize, drag/drop, and card movement MUST retain the legacy pointer and keyboard behavior after adapting persistence to the vault manager. |
+| LN-ROLE-008 | Role details MUST retain the legacy CV Applications detail-sheet, hero, lower-tab, Role, Comments, and Stages component structure and native CSS. They MUST edit structured fields, description, prep stages, comments, reactions, and linked CV paths through the role document. Public Design Core controls MAY replace equivalent leaf controls, and Mira MUST own Markdown source and preview, without changing the surrounding legacy geometry. |
+| LN-ROLE-009 | The package MUST NOT depend on or import Tasks, task-derived actions, AI, Carta, CV Studio packages, application servers, or application databases. Ported Applications presentation MUST remove those branches while retaining the source component and styling contract. Unknown task metadata MAY survive semantic round trips but MUST remain unowned. |
 | LN-ROLE-010 | Activity MUST derive chronological events from role timestamps and mutations, group them by local day, and render explicit gaps between non-adjacent dates. |
 | LN-ROLE-011 | Actions MUST project `overdue`, `today`, `upcoming`, `waiting`, and `done` from follow-up, waiting, and recently-contacted role state. Done contact activity MUST use a seven-day window. |
 | LN-ROLE-012 | Action controls MUST support snooze, reschedule, waiting, contact completion, and application status transitions by patching the owning role document. They MUST NOT create or mutate tasks. |
@@ -59,6 +59,7 @@ surfaces without adding a server, database, AI, or task subsystem.
 | LN-ROLE-016 | Desktop and web hosts MUST register optional Roles before metadata and layout restoration. They MUST restore persisted `role`, `roles`, and retained `cv` leaves without forcing Roles into a default layout. |
 | LN-ROLE-017 | Package Storybook MUST cover Role File, Applications, Activity, Actions, retained CV, and one real App-backed Roles shell. New or changed visual stories MUST remain `visual-pending`. |
 | LN-ROLE-018 | Root Storybook MUST include `Workspace/Plugins/Roles` acceptance for exact `role.md` association, aggregate opening, persisted mutation, and linked CV navigation. Only newly added Roles stories MAY receive new baselines in this slice. |
+| LN-ROLE-019 | The plugin-owned Applications, Activity, Actions, and role-detail page content MUST have pixel parity with the corresponding `/Users/stevejuma/code/cv` component family at the governed 1280 by 900 light-theme reference viewport. The port MUST preserve the legacy DOM grouping, class semantics, typography, spacing, borders, colors, column geometry, ticket/action cards, activity gaps, detail hero, and lower panels. Lapis retains ownership of the surrounding workspace shell and theme activation. |
 
 ### LN-CV-012 acceptance details
 
@@ -164,7 +165,8 @@ PDF export verifies:
 Reusable Plugin and `TextFileView` contracts remain in `@lapis-notes/api`.
 Public form orchestrators remain in `@lapismd/design-core/forms`. Roles owns
 role paths, vault persistence, application projections, filename associations,
-CV parse/normalize/compile, and the `role`, `roles`, and `cv` views. Mira owns
-Markdown rendering and CodeMirror source presentation. Search retains indexing
-policy. Tasks and AI remain outside the package. Package Storybook may boot
-File Explorer and Search beside Roles to verify host enablement.
+CV parse/normalize/compile, the ported legacy Applications presentation, and
+the `role`, `roles`, and `cv` views. Mira owns Markdown rendering and CodeMirror
+source presentation. Search retains indexing policy. Tasks and AI remain
+outside the package. Package Storybook may boot File Explorer and Search beside
+Roles to verify host enablement.

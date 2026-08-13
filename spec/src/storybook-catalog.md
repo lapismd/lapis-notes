@@ -52,6 +52,7 @@
 | LN-CAT-046 | The Roles package catalog MUST document Role File, Applications, Activity, Actions, retained CV, and Plugin Shell through public consumer source with accessibility failures treated as test failures. |
 | LN-CAT-047 | `Workspace/Plugins/Roles` MUST verify exact role-file association, aggregate opening, persisted role mutation, and linked CV navigation in a real App-backed shell. |
 | LN-CAT-048 | New root Roles stories MUST retain `visual-pending` and independent nested-import baselines. Existing baseline files MUST NOT be replaced or deleted by the Roles intake. |
+| LN-CAT-049 | Roles package stories MUST exercise the ported legacy Applications, Activity, Actions, and role-detail component states at a 1280 by 900 light-theme reference viewport. They MUST remain `visual-pending`; baseline creation MAY be deferred when the user excludes visual baseline work. |
 
 ## Show Code source contract
 

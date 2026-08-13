@@ -379,6 +379,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-049 | packages | Implemented | Roles package check, 33 unit tests, build, and publint pass with Design Core limited to public controls |
 | LN-PKG-050 | packages | Implemented | package interaction tests and static Storybook build pass; generated declarations pass publint |
 | LN-PKG-051 | packages | Implemented | source audit and package build consume Mira only through public package exports |
+| LN-PKG-052 | packages | In progress | legacy Applications components and native CSS port pending; source-package dependency audit follows implementation |
 | LN-DESK-030 | desktop-host | Implemented | repository check verifies optional Roles registration before desktop layout restoration |
 | LN-CAT-039 | storybook-catalog | Implemented | port-7020 Roles catalog retains CV stories and passes 17 package interactions plus static build |
 | LN-CAT-040 | storybook-catalog | Implemented | `Workspace/Plugins/CV` FileView story boots a real App over `sample.cv.yml` |
@@ -390,6 +391,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-046 | storybook-catalog | Implemented | six public-source Roles families pass 17 package Storybook interactions and accessibility enforcement |
 | LN-CAT-047 | storybook-catalog | Implemented | focused real-App root Roles and retained-CV acceptance passes 2 of 2 stories |
 | LN-CAT-048 | storybook-catalog | In progress | new Roles stories retain `visual-pending` and an isolated nested-import path; baseline capture was deferred at user request |
+| LN-CAT-049 | storybook-catalog | In progress | ported legacy Roles page stories and fixed-profile browser comparison pending; baseline creation remains deferred by user request |
 | LN-CV-001 | roles-plugin | Implemented | package manifest and source audit retain CV while excluding Tasks, AI, Carta, server, and database dependencies |
 | LN-CV-002 | roles-plugin | Implemented | `RolesPlugin.onload` registers the retained `cv` view and compound extensions |
 | LN-CV-003 | roles-plugin | Implemented | exclusive `*.cv.yml` / `*.cv.yaml` association for view type `cv` |
@@ -428,9 +430,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ROLE-004 | roles-plugin | Implemented | round-trip and serialized-patch tests preserve unknown fields and the Markdown body |
 | LN-ROLE-005 | roles-plugin | Implemented | manager tests cover scanning plus vault create, modify, delete, and rename events with immutable snapshots |
 | LN-ROLE-006 | roles-plugin | Implemented | manager creation tests verify `Roles/<slug>/role.md` and deterministic numeric suffixes |
-| LN-ROLE-007 | roles-plugin | Implemented | Applications board covers six statuses, drag/drop, keyboard movement, ordering, and plugin-data presentation state |
-| LN-ROLE-008 | roles-plugin | Implemented | Role workspace and stories cover structured fields, Mira body modes, prep, comments, reactions, and CV paths |
-| LN-ROLE-009 | roles-plugin | Implemented | manifest and source audit contain no Tasks, AI, Carta, CV Studio UI, server, or database dependency |
+| LN-ROLE-007 | roles-plugin | In progress | legacy ticket-board component, native CSS, and interaction port pending over the completed six-status vault projection |
+| LN-ROLE-008 | roles-plugin | In progress | legacy detail hero and Role, Comments, and Stages lower-panel port pending over completed document mutations |
+| LN-ROLE-009 | roles-plugin | In progress | task and AI branches remain excluded while the presentation-only component port is adapted without source-package dependencies |
 | LN-ROLE-010 | roles-plugin | Implemented | activity unit and Storybook coverage verify chronology, local-day grouping, and explicit gaps |
 | LN-ROLE-011 | roles-plugin | Implemented | action unit and Storybook coverage verify five task-free columns and seven-day done retention |
 | LN-ROLE-012 | roles-plugin | Implemented | projection tests and workspace handlers cover snooze, reschedule, wait, contact, and status transitions |
@@ -440,7 +442,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ROLE-016 | roles-plugin | Implemented | desktop/web check and production build verify pre-restoration registration without default placement |
 | LN-ROLE-017 | roles-plugin | Implemented | six governed package families retain pending tags and pass 17 accessibility-enforced Storybook interactions |
 | LN-ROLE-018 | roles-plugin | Implemented | root real-App acceptance passes association, aggregate opening, persistence, and CV navigation; no existing baseline was mutated |
+| LN-ROLE-019 | roles-plugin | In progress | 1280 by 900 legacy reference captures complete; plugin component/CSS port and compare-only browser review pending |
 | LN-ARCH-038 | architecture | Implemented | CV compilation, artifact export, and post-YAML toolbar composition remain plugin-owned; Design Core owns form disclosure and Mira owns Markdown presentation |
+| LN-ARCH-039 | architecture | In progress | Roles page presentation is being returned to the legacy component family while Lapis keeps shell and adapters |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
