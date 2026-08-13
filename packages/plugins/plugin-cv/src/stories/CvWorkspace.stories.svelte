@@ -379,13 +379,28 @@
     expect(modeRect.top - toolbarRect.top).toBeGreaterThanOrEqual(3);
     expect(toolbarRect.bottom - modeRect.bottom).toBeGreaterThanOrEqual(3);
     expect(collapseToggle.getAttribute("aria-label")).toBe("Collapse all CV groups");
+    const structuredCv = canvas.getByTestId("structured-cv");
+    const cvSections = structuredCv.querySelectorAll<HTMLElement>(
+      "[data-ui-part='configured-array-section']",
+    );
+    const openSectionBodies = () =>
+      structuredCv.querySelectorAll<HTMLElement>(
+        ".ui-configured-array__section-body",
+      );
+    expect(cvSections.length).toBeGreaterThan(0);
+    expect(openSectionBodies().length).toBeGreaterThan(0);
     await userEvent.click(collapseToggle);
     await waitFor(() => {
       expect(collapseToggle.getAttribute("aria-label")).toBe("Expand all CV groups");
+      expect(openSectionBodies()).toHaveLength(0);
     });
+    expect(structuredCv).toBeVisible();
+    expect(cvSections[0]).toBeVisible();
+    expect(structuredCv.textContent?.trim().length).toBeGreaterThan(0);
     await userEvent.click(collapseToggle);
     await waitFor(() => {
       expect(collapseToggle.getAttribute("aria-label")).toBe("Collapse all CV groups");
+      expect(openSectionBodies().length).toBeGreaterThan(0);
     });
     expect(
       getComputedStyle(artifact).borderTopWidth,
