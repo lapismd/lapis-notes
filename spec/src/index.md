@@ -22,7 +22,7 @@ This repository currently contains:
 - `@lapis-notes/workspace` — thin design-core workspace host
 - `@lapis-notes/desktop-electron` — partial native-folder Electron host
 - `@lapis-notes/web` — local-first browser/PWA consumer host
-- `@lapis-notes/cv` — authorized CV YAML file views and browser preview
+- `@lapis-notes/roles` — vault-native role workflows plus retained CV views
 - Storybook host and specification governance
 
 The notebook and remaining unlisted bundled plugins remain tracked for later

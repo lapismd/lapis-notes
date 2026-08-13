@@ -94,27 +94,27 @@ test("database and web changes require their canonical host chapters", () => {
   ]);
 });
 
-test("CV plugin changes require cv, package, and architecture contracts", () => {
+test("Roles plugin changes require roles, package, and architecture contracts", () => {
   const result = classifySpecFirstChanges([
-    "packages/plugins/plugin-cv/src/lib/index.ts",
+    "packages/plugins/plugin-roles/src/lib/index.ts",
   ]);
   assert.deepEqual(result.missingChapters, [
     "spec/src/architecture.md",
-    "spec/src/cv-plugin.md",
     "spec/src/packages.md",
+    "spec/src/roles-plugin.md",
   ]);
 });
 
-test("CV package stories additionally require the Storybook catalog", () => {
+test("Roles package stories additionally require the Storybook catalog", () => {
   for (const file of [
-    "packages/plugins/plugin-cv/.storybook/main.ts",
-    "packages/plugins/plugin-cv/src/stories/CvWorkspace.stories.svelte",
+    "packages/plugins/plugin-roles/.storybook/main.ts",
+    "packages/plugins/plugin-roles/src/stories/CvWorkspace.stories.svelte",
   ]) {
     const result = classifySpecFirstChanges([file]);
     assert.deepEqual(result.missingChapters, [
       "spec/src/architecture.md",
-      "spec/src/cv-plugin.md",
       "spec/src/packages.md",
+      "spec/src/roles-plugin.md",
       "spec/src/storybook-catalog.md",
     ]);
   }

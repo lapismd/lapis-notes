@@ -38,7 +38,7 @@ are intentionally omitted.
 | LN-DESK-027 | Before restoring a vault layout, the desktop host MUST register and load every core plugin implementation shipped by this checkout: Markdown (including its Tags view), Markdownlint, and File Explorer. It MUST load configuration and metadata for those plugins while keeping community plugins disabled. |
 | LN-DESK-028 | When a persisted `empty` leaf carries `state.__missingViewType`, layout restoration MUST retry that requested type after core plugins load. A now-available view MUST be restored and subsequently persist its canonical type; a still-unavailable Search, Bookmarks, or other view MUST remain an explicit placeholder. |
 | LN-DESK-029 | The desktop host MUST register and load `@lapis-notes/search` before metadata and layout restoration. A vault without persisted layout MUST include Search in its default left tabs. Persisted Search leaves MUST use the session's native app database without a renderer-only search backend. |
-| LN-DESK-030 | The desktop host MUST register and load `@lapis-notes/cv` as an optional core plugin enabled by default before metadata and layout restoration so a persisted `cv` leaf restores as available. |
+| LN-DESK-030 | The desktop host MUST register and load `@lapis-notes/roles` as an optional core plugin enabled by default before metadata and layout restoration so persisted `role`, `roles`, and `cv` leaves restore as available. |
 
 ## Boot flow
 

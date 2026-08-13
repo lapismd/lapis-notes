@@ -121,16 +121,16 @@ const RULES = [
     ],
   },
   {
-    name: "CV plugin Storybook",
+    name: "Roles plugin Storybook",
     pattern:
-      /^packages\/plugins\/plugin-cv\/(?:\.storybook\/|src\/stories\/)/,
+      /^packages\/plugins\/plugin-roles\/(?:\.storybook\/|src\/stories\/)/,
     chapters: ["spec/src/storybook-catalog.md"],
   },
   {
-    name: "CV plugin package",
-    pattern: /^packages\/plugins\/plugin-cv\//,
+    name: "Roles plugin package",
+    pattern: /^packages\/plugins\/plugin-roles\//,
     chapters: [
-      "spec/src/cv-plugin.md",
+      "spec/src/roles-plugin.md",
       "spec/src/packages.md",
       "spec/src/architecture.md",
     ],
@@ -254,14 +254,14 @@ export function classifySpecFirstChanges(inputChanges) {
     const isSpecificationValidator = /^scripts\/spec-validation\//.test(
       change.path,
     );
-    const isGovernedCvStory =
-      /^packages\/plugins\/plugin-cv\/(?:\.storybook\/|src\/stories\/)/.test(
+    const isGovernedRolesStory =
+      /^packages\/plugins\/plugin-roles\/(?:\.storybook\/|src\/stories\/)/.test(
         change.path,
       );
     if (
       CANONICAL_SPEC_PATTERN.test(change.path) ||
       (!isSpecificationValidator &&
-        !isGovernedCvStory &&
+        !isGovernedRolesStory &&
         IGNORED_PATTERNS.some((pattern) => pattern.test(change.path)))
     ) {
       continue;

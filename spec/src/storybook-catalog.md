@@ -42,13 +42,16 @@
 | LN-CAT-036 | Bottom Panel and Sidebar As A Group stories MUST use the real grouped-panel and sidebar-group chrome. |
 | LN-CAT-037 | Production Markdown panel Autodocs, including Tags, MUST use their public `@lapis-notes/markdown` app-only components. |
 | LN-CAT-038 | The Search panel catalog MUST expose consumer-usable source importing `@lapis-notes/search`, retain independent pending visual paths for six placements, and exercise its real indexed App. |
-| LN-CAT-039 | `@lapis-notes/cv` MUST host package-local Storybook on port 7020 for CV form, compiler, preview, and one App-backed workspace story using design-core styles and the Lapis theme. |
+| LN-CAT-039 | `@lapis-notes/roles` MUST host package-local Storybook on port 7020 for Roles, retained CV, and one App-backed workspace story using design-core styles and the Lapis theme. |
 | LN-CAT-040 | The repository catalog MUST include one isolated workspace FileView story that boots a real App, registers the CV plugin, opens a `*.cv.yml` fixture, and asserts view type `cv`. |
 | LN-CAT-041 | The CV package catalog MUST compile statically, load the Lapis theme, and keep full-shell Docs canvases isolated at 700px without globally disabling Autodocs scrolling. |
 | LN-CAT-042 | CV package and repository stories MUST provide explicit consumer-usable Show Code when their render path uses a local demo, harness, or fixture. App-backed examples MUST show App creation, vault data, plugin loading, and layout restoration. |
 | LN-CAT-043 | The CV package catalog MUST verify the Lapis-themed Markdown Preview and read-only Source surfaces. It MUST verify that the main toolbar groups the outlined mode and disclosure actions immediately after YAML, and that both mounted surfaces fill the zoomed document width without outer inset or Mira frame chrome. The CV collapse action MUST retain visible section headers while hiding their bodies. |
 | LN-CAT-044 | The CV package catalog MUST verify continuous, pane-relative zoom sizing across Typst page, HTML, Markdown, and Typst source surfaces. Its App-backed story MUST prove 100% fills the preview and a zoom decrement shrinks it before saving the worker PDF into the in-memory vault. |
 | LN-CAT-045 | The CV package catalog MUST resize the owning workspace surface and verify that form-area tabs and contextual actions remain reachable through their shared horizontal Scroll Area. It MUST verify that the header theme shortcut appears only for the CV form area. |
+| LN-CAT-046 | The Roles package catalog MUST document Role File, Applications, Activity, Actions, retained CV, and Plugin Shell through public consumer source with accessibility failures treated as test failures. |
+| LN-CAT-047 | `Workspace/Plugins/Roles` MUST verify exact role-file association, aggregate opening, persisted role mutation, and linked CV navigation in a real App-backed shell. |
+| LN-CAT-048 | New root Roles stories MUST retain `visual-pending` and independent nested-import baselines. Existing baseline files MUST NOT be replaced or deleted by the Roles intake. |
 
 ## Show Code source contract
 
