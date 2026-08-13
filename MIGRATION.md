@@ -8,7 +8,7 @@ intake or UI swap status changes.
 | Area                                      | Status | Notes                                                                                                                                                                                                                                               |
 | ----------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | pnpm + Turbo scaffold                     | Done   | No multi-script import-resolution gates                                                                                                                                                                                                             |
-| Spec governance + validation              | Done   | 376 one-concern requirements; modular validation covers canonical Markdown, verification, mdBook output, and Storybook consumer source; local QMD discovery remains a disposable untracked cache                                               |
+| Spec governance + validation              | Done   | Modular validation covers canonical Markdown, verification, mdBook output, Storybook consumer source, database ownership, and web-host intake; local QMD discovery remains disposable                                                        |
 | Storybook host (port 7010)                | Done   | `API/` verification stories + catalog                                                                                                                                                                                                               |
 | Storybook consumer Show Code              | In progress | Panels use layout-derived examples; API and workspace demos expose explicit implementation/consumer source instead of demo invocation; Date Setting still needs a public-boundary example                                                     |
 | API Storybook verification + Visual Delta | Done   | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later)                                                                                                                                                            |
@@ -26,15 +26,26 @@ intake or UI swap status changes.
 | `@lapis-notes/api`                          | Copied         | Kernel from full lapis-notes; scripts slimmed                                                                                                                                                                                        |
 | `@lapis-notes/ui`                           | Pruned         | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers                                                                                                                                              |
 | `@lapis-notes/workspace` shell integration  | Done           | Thin design-core host; api compatibility + persistence façade                                                                                                                                                                        |
-| Web host                                    | Not started    | No runnable web product host in this slice                                                                                                                                                                                           |
+| `@lapis-notes/web`                         | In progress    | Legacy `8ec68e18` PWA intake authorized; browser-owned vault/session boot and cross-tab Turso coordination are tracked below                                                                                                            |
 | `@lapis-notes/desktop-electron`             | Done (partial host) | Source-first native-folder host from legacy commit `8ec68e18`; current core plugins, retained native services/sidecars, and local distribution only |
 | `@lapis-notes/markdown`                     | Done (slice)   | Authorized plugin; Mira document render + public app-only panels including Tags; Obsidian-compatible panel IDs retain load aliases for prior Lapis layouts |
 | `@lapis-notes/language-service`              | Done           | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                         |
 | `@lapis-notes/markdown-lint`                 | Done           | Enabled core plugin selects the probed native service or worker fallback and preserves configured rules, fixes, and ignores                                                                                                           |
 | Notebook / unlisted plugins                  | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
 | `@lapis-notes/file-explorer`                | Done (slice) | Reusable File Explorer plugin shared by Storybook and Electron; source-editor remains a Storybook-local fixture                                                   |
-| `@lapis-notes/search`                       | Done (slice) | Legacy `8ec68e18` indexing/view policy ported over API database/query contracts and Design Core SearchFilterBar; shared by Storybook and Electron |
+| `@lapis-notes/search`                       | In progress | Base plugin is shared by Storybook and Electron; grouped-tree, settings, and semantic parity remain in progress |
 | design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
+
+### App database migration progress
+
+- [x] Canonical provider, Turso, migration, capability, and cross-tab requirements
+- [ ] Provider-neutral descriptor, capability, factory, and vault-session contracts
+- [ ] Turso native and WASM drivers with normalized generated-state persistence
+- [ ] Turso full-text, vector, hybrid, and local embedding execution
+- [ ] Transactional legacy SQLite import with retained rollback source
+- [ ] Pure typed Electron database proxy and bounded main-process RPC
+- [ ] Generic Web Locks and BroadcastChannel owner/proxy coordination
+- [ ] Remove sqlite-vec from every active query path
 
 ### Electron desktop host intake progress
 
@@ -79,11 +90,26 @@ legacy commit `8ec68e18`.
 - [x] Reusable `@lapis-notes/search` package with canonical `search` view and commands
 - [x] API `AppDatabase` indexing for Markdown/Canvas, stale pruning, and reactive refresh
 - [x] Design Core `SearchFilterBar` with the API CodeMirror query language, diagnostics, completions, help, and facets
-- [x] Highlighted grouped results, sorting, bounded recent searches, match case, and workspace navigation
+- [ ] Collapsible file/match result tree with highlighted ranges, sorting, bounded recent searches, and workspace navigation
+- [ ] Inline persisted Match case, Collapse results, Show more context, and Explain search terms toggles
+- [ ] Retrieval-mode facet, result badges, copy, semantic provider settings, status, and rebuild
 - [x] Six governed Storybook placements over the indexed in-memory vault
 - [x] Tags and All Properties command-only query handoffs
 - [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance
 - [ ] Search panel Visual Delta capture/review; stories remain `visual-pending` and no baseline is updated in this slice
+
+### Web host intake progress
+
+Source: `/Users/stevejuma/code/lapis-notes/packages/web` at legacy commit
+`8ec68e18`.
+
+- [x] Canonical web-host requirements, package authorization, and provenance
+- [ ] Private `@lapis-notes/web` package at version `2026.6.3`
+- [ ] Branded OPFS and File System Access vault launcher and session host
+- [ ] Current core plugin boot before metadata and layout restoration
+- [ ] PWA manifest, icons, prompt updates, isolation, and verified asset cache
+- [ ] Real owner/proxy database status, delegation, and promotion
+- [ ] Two-tab Playwright acceptance and root web scripts
 
 ### Markdown plugin intake progress
 

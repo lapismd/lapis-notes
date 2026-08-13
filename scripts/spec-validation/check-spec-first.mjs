@@ -28,6 +28,11 @@ const RULES = [
     chapters: ["spec/src/packages.md", "spec/src/architecture.md"],
   },
   {
+    name: "API app database",
+    pattern: /^packages\/api\/src\/lib\/storage\//,
+    chapters: ["spec/src/app-database.md"],
+  },
+  {
     name: "UI package",
     pattern: /^packages\/ui\/(?:src\/|package\.json$)/,
     chapters: ["spec/src/packages.md", "spec/src/ui-and-styling.md"],
@@ -55,6 +60,15 @@ const RULES = [
     pattern: /^packages\/desktop-electron\//,
     chapters: [
       "spec/src/desktop-host.md",
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+    ],
+  },
+  {
+    name: "Web package",
+    pattern: /^packages\/web\//,
+    chapters: [
+      "spec/src/web-host.md",
       "spec/src/packages.md",
       "spec/src/architecture.md",
     ],

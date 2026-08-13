@@ -5,7 +5,12 @@ import {
 } from "./lib/spec-model.mjs";
 
 export const name = "verification";
-const ALLOWED_STATUSES = new Set(["Implemented", "In progress", "Partial"]);
+const ALLOWED_STATUSES = new Set([
+  "Planned",
+  "Implemented",
+  "In progress",
+  "Partial",
+]);
 
 function parseVerification(file) {
   const rows = [];

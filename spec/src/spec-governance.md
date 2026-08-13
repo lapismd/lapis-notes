@@ -37,6 +37,7 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-023 | Specification validation MUST inspect Autodocs stories that use local demo, harness, or fixture render boundaries. They MUST resolve explicit `docs.source` code, language, and type fields, and MUST NOT expose story-only component names or `args` as consumer usage. |
 | LN-GOV-024 | Agent guidance MUST require Markdown feature-presentation changes to preserve canonical child descriptors, flat configuration keys, and real-app persistence acceptance. It MUST direct agents to design-core's Boolean toggle-table contract instead of a stored object-grid collection. |
 | LN-GOV-025 | Agent guidance MUST route reusable diagnostic and Problems-view work to the Workspace Shell Problems specification. It MUST preserve Design Core ownership of panel presentation, require stable hover handoff and styled inline-problem acceptance, and make Lapis adapters and providers read that contract before package-specific chapters. |
+| LN-GOV-026 | The spec-first map MUST route API storage to the App Database chapter and web package changes to Web Host, Packages, and Architecture. |
 
 ## Requirement structure
 
@@ -99,6 +100,8 @@ not installed or when an embedding model is unavailable.
 | `packages/ui` source or manifest                                    | `packages.md`, `ui-and-styling.md`                     |
 | `packages/workspace` source or manifest                             | `packages.md`, `architecture.md`, `workspace-shell.md` |
 | `packages/desktop-electron` package                                 | `desktop-host.md`, `packages.md`, `architecture.md`    |
+| `packages/api/src/lib/storage`                                     | `app-database.md`, `packages.md`, `architecture.md`    |
+| `packages/web`                                                     | `web-host.md`, `packages.md`, `architecture.md`        |
 | `packages/plugins/plugin-search` package                            | `search-plugin.md`, `packages.md`, `architecture.md`   |
 | Native Markdown runtime source or language-service manifest         | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md` |
 | `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md` | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |

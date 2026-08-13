@@ -36,10 +36,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-030 | architecture      | Implemented | Electron imports public Design Core/Lapis styles; production Electron acceptance asserts flex shell geometry, DM Sans, and 32px tab controls |
 | LN-ARCH-031 | architecture                    | Implemented | Electron maps typed platform metadata to namespaced root classes while desktop CSS targets public shell attributes |
 | LN-ARCH-032 | architecture                    | Implemented | File Explorer is reusable while desktop and Storybook retain plugin boot, configuration, metadata, and teardown ownership |
+| LN-ARCH-034 | architecture | Planned | provider-neutral database selection and consumer capability boundary |
+| LN-ARCH-035 | architecture | Planned | browser host owns vault, PWA, plugin, and session policy |
+| LN-ARCH-036 | architecture | Planned | one-owner browser database delegation and non-cloud status acceptance |
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                                                                                                                                                                                                  |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                                                                                                                                                                                               |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                                                                                                                                                                                                        |
-| LN-PKG-004  | packages          | Implemented | Electron host authorized; web, notebook, and unlisted plugin intake remains gated                                                                                                                                                                                                        |
+| LN-PKG-004  | packages          | In progress | Electron and web hosts plus current core plugins are authorized; notebook and unlisted plugins remain gated |
 | LN-PKG-015  | packages          | Implemented | Markdown package location, API/Mira dependencies, and preserved Plugin configuration/event contracts                                                                                                                                                                                         |
 | LN-PKG-017  | packages          | Implemented | app-only Markdown panel exports include Tags while preserving governed Outline and Tags tree geometry                                                                                                                          |
 | LN-PKG-018  | packages          | Implemented | root and narrow public exports for Mira-backed FileEmbed, MarkdownEmbed, and NoteLink                                                                                                                                                                                                         |
@@ -185,6 +188,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-023  | spec-governance   | Implemented | Storybook catalog validator requires explicit consumer source for Autodocs stories rendered through local demo, harness, or fixture boundaries                                                                                                                                                  |
 | LN-GOV-024  | spec-governance   | Implemented | agent guidance preserves canonical feature descriptors, flat keys, and real-app persistence when using the design-core toggle-table contract |
 | LN-GOV-025  | spec-governance   | Implemented | `AGENTS.md` routes Problems through the shared contract and requires stable hover handoff plus styled inline-problem acceptance |
+| LN-GOV-026  | spec-governance   | Implemented | spec-first mapping and focused tests cover API storage and the web package |
 | LN-WS-001   | workspace-shell   | Implemented | api-owned `AppShellController`                                                                                                                                                                                                                                                              |
 | LN-WS-002   | workspace-shell   | Implemented | id-reusing projection + focused tests                                                                                                                                                                                                                                                       |
 | LN-WS-003   | workspace-shell   | Implemented | `@lapis-notes/api/workspace-host`                                                                                                                                                                                                                                                           |
@@ -365,6 +369,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-MD-086   | markdown-panel-tags | Implemented | Markdown registers canonical `tag` and retains `tags` as a load-only alias |
 | LN-ARCH-033 | architecture | Implemented | Search keeps API execution, Design Core presentation, and command-only Markdown integration separate |
 | LN-PKG-044 | packages | Implemented | `packages/plugins/plugin-search` reusable package intake; package checks, eight tests, and build pass |
+| LN-PKG-045 | packages | Planned | provider-neutral API exports and explicit test injection |
+| LN-PKG-046 | packages | Planned | private web package with standard scripts |
+| LN-PKG-047 | packages | Planned | active Turso dependencies and legacy-only SQLite boundary |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
@@ -374,9 +381,43 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-002 | search-plugin | Implemented | canonical Search view plus open, selected-text, refresh, and rebuild commands |
 | LN-SRCH-003 | search-plugin | Implemented | AppDatabase indexing, refresh, pruning, reactive tracking, and manager tests |
 | LN-SRCH-004 | search-plugin | Implemented | Design Core SearchFilterBar with API CodeMirror query language, diagnostics, completion, help, and facets |
-| LN-SRCH-005 | search-plugin | Implemented | grouped highlighted results, totals, sorting, and workspace navigation acceptance |
+| LN-SRCH-005 | search-plugin | Planned | accessible file/match tree, highlighted ranges, totals, sorting, and workspace navigation acceptance |
 | LN-SRCH-006 | search-plugin | Implemented | settings merge, bounded recents, listeners, pending-query disposal, and unit coverage |
 | LN-SRCH-007 | search-plugin | Implemented | Markdown Tags and All Properties registered-command handoffs |
 | LN-SRCH-008 | search-plugin | Implemented | all six governed Search placement stories pass interaction and accessibility checks |
 | LN-SRCH-009 | search-plugin | Implemented | Electron loads Search before metadata/layout and restores a native persisted query result |
 | LN-SRCH-010 | search-plugin | Implemented | no-Tailwind gate and view-token native CSS over the full host geometry |
+| LN-SRCH-011 | search-plugin | Planned | inline Design Core Switch settings and focused Storybook interaction acceptance |
+| LN-SRCH-012 | search-plugin | Planned | default and per-file disclosure state exercised through the real result tree |
+| LN-SRCH-013 | search-plugin | Planned | manager request and rendered query-explanation acceptance for feature toggles |
+| LN-SRCH-014 | search-plugin | Planned | selectable retrieval modes and applied-mode labels |
+| LN-SRCH-015 | search-plugin | Planned | disabled-by-default local Transformers.js activation and cache behavior |
+| LN-SRCH-016 | search-plugin | Planned | complete semantic and query settings tab |
+| LN-SRCH-017 | search-plugin | Planned | provider-neutral semantic status and progress presentation |
+| LN-SRCH-018 | search-plugin | Planned | structured-query semantic opt-in and shared evaluator correctness |
+| LN-SRCH-019 | search-plugin | Planned | copy, sort, badges, match keys, and recent-query presentation |
+| LN-SRCH-020 | search-plugin | Planned | proxy-tab indexing, semantic status, and query delegation |
+| LN-SRCH-021 | search-plugin | Planned | excluded legacy LLM and embedded-query surfaces remain absent |
+| LN-DB-001 | app-database | Planned | stable operations and optional provider injection |
+| LN-DB-002 | app-database | Planned | provider descriptor and capability reporting |
+| LN-DB-003 | app-database | Planned | Turso native and WASM default provider selection |
+| LN-DB-004 | app-database | Planned | normalized generated-state persistence |
+| LN-DB-005 | app-database | Planned | Turso full-text retrieval and reported degradation |
+| LN-DB-006 | app-database | Planned | Turso vectors with no active sqlite-vec path |
+| LN-DB-007 | app-database | Planned | local embedding generation and model invalidation |
+| LN-DB-008 | app-database | Planned | shared hybrid result contract and fusion |
+| LN-DB-009 | app-database | Planned | one-time transactional legacy import and rollback retention |
+| LN-DB-010 | app-database | Planned | bounded allowlisted Electron database IPC |
+| LN-DB-011 | app-database | Planned | browser owner, heartbeat, RPC, and promotion behavior |
+| LN-DB-012 | app-database | Planned | explicit blocked and degraded runtime states |
+| LN-DB-013 | app-database | Planned | local authority and future-only sync injection |
+| LN-WEB-001 | web-host | Planned | legacy PWA identity and host metadata |
+| LN-WEB-002 | web-host | Planned | browser-owned launcher, lifecycle, and plugin boot |
+| LN-WEB-003 | web-host | Planned | OPFS and File System Access launcher behavior |
+| LN-WEB-004 | web-host | Planned | current core plugins and shared shell boot |
+| LN-WEB-005 | web-host | Planned | prohibited legacy browser, demo, notebook, and community paths |
+| LN-WEB-006 | web-host | Planned | isolation headers and WASM production assets |
+| LN-WEB-007 | web-host | Planned | owner/proxy delegation and DB Proxy status |
+| LN-WEB-008 | web-host | Planned | promotion and complete session disposal |
+| LN-WEB-009 | web-host | Planned | prompt updates and verified asset cache |
+| LN-WEB-010 | web-host | Planned | root scripts and two-tab acceptance |

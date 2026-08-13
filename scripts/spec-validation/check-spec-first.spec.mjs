@@ -75,3 +75,21 @@ test("desktop host changes require desktop, package, and architecture contracts"
     "spec/src/workspace-shell/panels/problems.md",
   ]);
 });
+
+test("database and web changes require their canonical host chapters", () => {
+  const database = classifySpecFirstChanges([
+    "packages/api/src/lib/storage/app-database.ts",
+  ]);
+  assert.deepEqual(database.missingChapters, [
+    "spec/src/app-database.md",
+    "spec/src/architecture.md",
+    "spec/src/packages.md",
+  ]);
+
+  const web = classifySpecFirstChanges(["packages/web/src/main.ts"]);
+  assert.deepEqual(web.missingChapters, [
+    "spec/src/architecture.md",
+    "spec/src/packages.md",
+    "spec/src/web-host.md",
+  ]);
+});

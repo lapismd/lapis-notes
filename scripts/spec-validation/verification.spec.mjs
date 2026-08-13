@@ -35,12 +35,23 @@ test("reports missing, duplicate, and orphan verification rows", () => {
 test("reports invalid status and missing evidence", () => {
   withFixture(
     {
-      "spec/src/verification.md": `${HEADER}| LN-TEST-001 |  | Planned |  |\n`,
+      "spec/src/verification.md": `${HEADER}| LN-TEST-001 |  | Unknown |  |\n`,
     },
     (result) => {
       const codes = findingCodes(result);
       assert(codes.has("SPEC-VERIFY-STATUS"));
       assert(codes.has("SPEC-VERIFY-EVIDENCE"));
+    },
+  );
+});
+
+test("accepts planned requirements with concrete intended evidence", () => {
+  withFixture(
+    {
+      "spec/src/verification.md": `${HEADER}| LN-TEST-001 | system | Planned | focused acceptance pending |\n`,
+    },
+    (result) => {
+      assert.equal(findingCodes(result).has("SPEC-VERIFY-STATUS"), false);
     },
   );
 });
