@@ -240,6 +240,17 @@ function placementStory(
             "Tag name (A to Z)",
           ),
         );
+        const alphaTag = panel.getByRole("button", { name: "alpha 2" });
+        await waitFor(() => {
+          expect(getComputedStyle(alphaTag).pointerEvents).not.toBe("none");
+        });
+        await userEvent.click(alphaTag);
+        await waitFor(() => {
+          const searchPanel = within(canvasElement).getByTestId("search-panel");
+          expect(
+            within(searchPanel).getByRole("searchbox", { name: "Search vault" }),
+          ).toHaveTextContent("tag:#project/alpha");
+        });
       }
       await expectPanelSource(parameters, kind, layout);
     },

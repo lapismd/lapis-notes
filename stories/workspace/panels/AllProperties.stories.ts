@@ -1,7 +1,7 @@
 import type { App } from "@lapis-notes/api";
 import { AllProperties } from "@lapis-notes/markdown";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect, userEvent } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import PanelDemo from "./PanelDemo.svelte";
 import { panelExampleSources } from "./Panel.example-sources";
 import type { PanelDemoLayout } from "./create-panel-demo";
@@ -82,6 +82,15 @@ function placementStory(
       await expect(
         panel.queryByRole("textbox", { name: "Search properties" }),
       ).not.toBeInTheDocument();
+      if (layout === "middle-top-tabs") {
+        await userEvent.click(panel.getByRole("button", { name: "status" }));
+        await waitFor(() => {
+          const searchPanel = within(canvasElement).getByTestId("search-panel");
+          expect(
+            within(searchPanel).getByRole("searchbox", { name: "Search vault" }),
+          ).toHaveTextContent('["status"]');
+        });
+      }
       await expectPanelSource(parameters, kind, layout);
     },
   };

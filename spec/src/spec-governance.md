@@ -99,6 +99,7 @@ not installed or when an embedding model is unavailable.
 | `packages/ui` source or manifest                                    | `packages.md`, `ui-and-styling.md`                     |
 | `packages/workspace` source or manifest                             | `packages.md`, `architecture.md`, `workspace-shell.md` |
 | `packages/desktop-electron` package                                 | `desktop-host.md`, `packages.md`, `architecture.md`    |
+| `packages/plugins/plugin-search` package                            | `search-plugin.md`, `packages.md`, `architecture.md`   |
 | Native Markdown runtime source or language-service manifest         | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md` |
 | `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md` | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |
 | Shared Markdown panel shell source                                  | `workspace-shell/panels.md` |

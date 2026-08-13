@@ -60,3 +60,7 @@ Panel registration, package exports, and per-panel behavior are documented in
 the [Markdown panel specification](./markdown-plugin/panels/index.md). Shared
 workspace presentation and Storybook rules live under
 [Workspace Shell / Panels](./workspace-shell/panels.md).
+
+Tags and All Properties remain Markdown-owned metadata views. Their vault-wide
+navigation delegates through the registered Search command described by the
+[Search Plugin](./search-plugin.md); Markdown does not import Search internals.

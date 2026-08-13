@@ -13,3 +13,4 @@ is not exported from `@lapis-notes/workspace`.
 | LN-MD-049 | Tags branch guides MUST sit beneath expanded chevron tips. Each child hash ends at its immediate parent tag-name column, child labels remain visibly indented, and counts share one trailing edge. |
 | LN-MD-050 | Tags MUST fill its `WorkspaceViewHost`, omit title and introduction copy, inherit resolved view paint and workspace typography, and use the 0.75rem row scale. |
 | LN-MD-086 | The Markdown plugin MUST register the Obsidian-compatible canonical Tags view type `tag` and retain `tags` as a load-only alias whose view persists the canonical type. |
+| LN-MD-087 | Selecting a Tags row MUST invoke `search:open-search-left-sidebar` with an escaped `tag:` query. It MUST remain non-fatal when Search is unavailable. |

@@ -5,12 +5,12 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 ## Project Shape
 
-- This is a pnpm + Turbo monorepo for a **minimal** Lapis Notes slice.
-- Current packages: `@lapis-notes/api` (runtime kernel) and `@lapis-notes/ui`
-  (pruned design-system surface consumed by api).
-- Host apps, plugins, workspace shell, and notebook packages are **not** in this
-  repo yet. Track intake in `MIGRATION.md` — do not invent them ahead of the
-  spec.
+- This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
+- Current packages include the API/runtime kernel, retained UI, workspace shell,
+  Electron host, internal language service, and authorized File Explorer,
+  Markdown, Markdownlint, and Search plugins.
+- Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
+  in `MIGRATION.md` — do not invent them ahead of the spec.
 
 ## Spec First
 
@@ -249,6 +249,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   component and genuine inputs. Their Docs source MUST use the public
   `@lapis-notes/markdown` export; never retain or document a duplicate
   Storybook-local implementation for convenience.
+- Search stories MUST use the public `@lapis-notes/search` component and the
+  real API database/query contracts. Markdown panels hand queries to Search by
+  registered command only; do not import Search package internals into
+  Markdown.
 - Design-core's `WorkspaceViewHost` owns movable-panel surface paint through
   `--ui-workspace-view-background` and `--ui-workspace-view-foreground`. Panel
   roots and sticky chrome consume those resolved tokens: body, bottom-panel,

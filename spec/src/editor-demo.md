@@ -44,6 +44,7 @@
 | LN-ED-042 | The real Editor Settings story MUST show separate Markdown and Features sections, toggle a representative feature, and verify its existing dotted key in `.obsidian/app.json`. It MUST verify that no `markdown.mira.features` group object is persisted. |
 | LN-ED-043 | The runnable editor demo MUST register Markdownlint after Markdown and open the generic Problems view in the bottom dock for focused acceptance. Only currently open Markdown notes MUST contribute provider diagnostics. |
 | LN-ED-044 | Storybook and production desktop hosts MUST consume the same `@lapis-notes/file-explorer` implementation, and Tags MUST come from `@lapis-notes/markdown`. Storybook MAY parameterize Explorer loading state, but MUST NOT retain duplicate plugin or view implementations. |
+| LN-ED-045 | Search panel stories MUST boot the reusable Search plugin against the shared panel demo vault and database, rather than a static result fixture or a Storybook-only query implementation. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |

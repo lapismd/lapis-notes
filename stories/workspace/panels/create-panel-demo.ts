@@ -16,6 +16,7 @@ import {
   TagsViewType,
 } from "@lapis-notes/markdown";
 import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+import { SearchPlugin, SearchViewType } from "@lapis-notes/search";
 import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../watch-metadata";
 
@@ -25,6 +26,7 @@ export type PanelDemoKind =
   | "outline"
   | "backlinks"
   | "outgoing-links"
+  | "search"
   | "tags";
 
 export type PanelDemoLayout =
@@ -50,6 +52,7 @@ export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   outline: OutlineViewType,
   backlinks: BacklinksViewType,
   "outgoing-links": OutgoingLinksViewType,
+  search: SearchViewType,
   tags: TagsViewType,
 };
 
@@ -86,6 +89,12 @@ export const PANEL_LEAF_META: Record<
     icon: "external-link",
     group: "Links",
     requiresFile: true,
+  },
+  search: {
+    title: "Search",
+    icon: "search",
+    group: "Search",
+    requiresFile: false,
   },
   tags: {
     title: "Tags",
@@ -511,6 +520,7 @@ export async function bootPanelDemo(
     { plugin: SourceEditorDemoPlugin, required: true },
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+    { plugin: SearchPlugin, required: true },
   ]);
 
   globalThis.app = app;
@@ -522,6 +532,10 @@ export async function bootPanelDemo(
   });
   const stopWatchingMetadata = watchMetadata(app);
   await app.metadataCache.load();
+  const searchPlugin = app.plugins.plugins.get("search");
+  if (searchPlugin instanceof SearchPlugin) {
+    await searchPlugin.refreshIndex("storybook-panel-demo");
+  }
   await app.workspace.loadLayout();
 
   const panelType = PANEL_VIEW_TYPE[kind];

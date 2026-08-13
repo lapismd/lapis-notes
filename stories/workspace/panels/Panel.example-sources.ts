@@ -10,6 +10,7 @@ const publicComponents: Partial<Record<PanelDemoKind, string>> = {
   backlinks: "Backlinks",
   "outgoing-links": "OutgoingLinks",
   tags: "Tags",
+  search: "SearchPanel",
 };
 
 function indent(value: string, spaces: number): string {
@@ -28,8 +29,9 @@ export function panelExampleSource(
     JSON.stringify(createPanelDemoLayout(kind, layout), null, 2),
     2,
   );
-  const panelImport = `  import { ${publicComponents[kind] ?? "AllProperties"} } from "@lapis-notes/markdown";\n`;
-  const registrationNote = `  // The enabled Markdown plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
+  const packageName = kind === "search" ? "@lapis-notes/search" : "@lapis-notes/markdown";
+  const panelImport = `  import { ${publicComponents[kind] ?? "AllProperties"} } from "${packageName}";\n`;
+  const registrationNote = `  // The enabled ${kind === "search" ? "Search" : "Markdown"} plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
 
   return `<script lang="ts">
   import { onMount } from "svelte";

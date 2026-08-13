@@ -41,6 +41,7 @@
 | LN-CAT-035 | Movable-panel stories MUST retain literal `visual-pending` tags and independent nested-import baseline paths until human review. Baseline capture MAY remain deferred when visual testing is explicitly excluded. |
 | LN-CAT-036 | Bottom Panel and Sidebar As A Group stories MUST use the real grouped-panel and sidebar-group chrome. |
 | LN-CAT-037 | Production Markdown panel Autodocs, including Tags, MUST use their public `@lapis-notes/markdown` app-only components. |
+| LN-CAT-038 | The Search panel catalog MUST expose consumer-usable source importing `@lapis-notes/search`, retain independent pending visual paths for six placements, and exercise its real indexed App. |
 
 ## Show Code source contract
 

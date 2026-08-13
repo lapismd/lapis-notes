@@ -37,6 +37,8 @@ view's canonical `getViewType()` without moving registry policy into the shell.
   fill the available width and must not introduce horizontal panel scrolling.
 - Sticky controls stay inside the panel's single scroll viewport. Surrounding
   shell headers and group chrome remain outside the panel implementation.
+- Cross-panel navigation uses registered app commands or workspace APIs. A
+  panel does not import another panel plugin's implementation to change views.
 - Responsive acceptance resizes the owning workspace split through the real
   controller and restores it in all outcomes. A story must not constrain the
   panel component directly to manufacture a breakpoint.

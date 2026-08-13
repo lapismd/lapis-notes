@@ -111,7 +111,11 @@ export async function expectPanelSource(
   );
   await expect(source).toContain("app.workspace.changeLayout(layout)");
   await expect(source).toContain(`"${panelLayoutMarker(kind, layout)}"`);
-  await expect(source).toContain('from "@lapis-notes/markdown";');
+  await expect(source).toContain(
+    kind === "search"
+      ? 'from "@lapis-notes/search";'
+      : 'from "@lapis-notes/markdown";',
+  );
   await expect(source).not.toContain("PanelDemo");
   await expect(source).not.toContain("args.");
 }

@@ -8,7 +8,7 @@ intake or UI swap status changes.
 | Area                                      | Status | Notes                                                                                                                                                                                                                                               |
 | ----------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | pnpm + Turbo scaffold                     | Done   | No multi-script import-resolution gates                                                                                                                                                                                                             |
-| Spec governance + validation              | Done   | 359 one-concern requirements; modular validation covers canonical Markdown, verification, mdBook output, and Storybook consumer source; local QMD discovery remains a disposable untracked cache                                               |
+| Spec governance + validation              | Done   | 376 one-concern requirements; modular validation covers canonical Markdown, verification, mdBook output, and Storybook consumer source; local QMD discovery remains a disposable untracked cache                                               |
 | Storybook host (port 7010)                | Done   | `API/` verification stories + catalog                                                                                                                                                                                                               |
 | Storybook consumer Show Code              | In progress | Panels use layout-derived examples; API and workspace demos expose explicit implementation/consumer source instead of demo invocation; Date Setting still needs a public-boundary example                                                     |
 | API Storybook verification + Visual Delta | Done   | Plays green; `visual-pending` PNG baselines generated (review → `visual-approved` later)                                                                                                                                                            |
@@ -31,8 +31,9 @@ intake or UI swap status changes.
 | `@lapis-notes/markdown`                     | Done (slice)   | Authorized plugin; Mira document render + public app-only panels including Tags; Obsidian-compatible panel IDs retain load aliases for prior Lapis layouts |
 | `@lapis-notes/language-service`              | Done           | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                         |
 | `@lapis-notes/markdown-lint`                 | Done           | Enabled core plugin selects the probed native service or worker fallback and preserves configured rules, fixes, and ignores                                                                                                           |
-| Notebook / other plugins                     | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
+| Notebook / unlisted plugins                  | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
 | `@lapis-notes/file-explorer`                | Done (slice) | Reusable File Explorer plugin shared by Storybook and Electron; source-editor remains a Storybook-local fixture                                                   |
+| `@lapis-notes/search`                       | Done (slice) | Legacy `8ec68e18` indexing/view policy ported over API database/query contracts and Design Core SearchFilterBar; shared by Storybook and Electron |
 | design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
 
 ### Electron desktop host intake progress
@@ -61,13 +62,28 @@ legacy commit `8ec68e18`.
 - [x] Center native loading, restore compact launcher overlays, and reserve macOS traffic-light space through desktop CSS classes
 - [x] Serve variable-font assets from the resolved linked Design Core package during desktop development
 - [x] Load Markdown (including Tags), Markdownlint, and File Explorer before layout restoration; recover previously unavailable view placeholders when their implementation now exists
+- [x] Load Search before layout restoration; restore canonical `search` leaves and execute queries through the native app database
 - [x] Preserve a larger macOS traffic-light inset for the expanded left sidebar without changing the collapsed control geometry
-- [ ] Full Storybook suite: 75/78 pass; three existing `LapisEditorDemo` interaction failures (`Same File Split Sync`, `Markdown Authoring`, and `Editor Settings`) remain outside the desktop intake
+- [ ] Full Storybook suite: 80/84 pass; three existing `LapisEditorDemo` interaction failures (`Same File Split Sync`, `Markdown Authoring`, and `Editor Settings`) remain outside this intake, while `Markdown Problems` passes alone but remains flaky in the concurrent full run
 - [ ] `PersistedDesktop` Visual Delta comparison: blocked because Docker Desktop cannot start; no baseline was updated
 
 Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
 demo-vault seeding, bundled-plugin startup/build steps, the legacy full app
 bootstrap, Windows targets, and remote release publication.
+
+### Search plugin intake progress
+
+Source: `/Users/stevejuma/code/lapis-notes/packages/plugins/plugin-search` at
+legacy commit `8ec68e18`.
+
+- [x] Reusable `@lapis-notes/search` package with canonical `search` view and commands
+- [x] API `AppDatabase` indexing for Markdown/Canvas, stale pruning, and reactive refresh
+- [x] Design Core `SearchFilterBar` with the API CodeMirror query language, diagnostics, completions, help, and facets
+- [x] Highlighted grouped results, sorting, bounded recent searches, match case, and workspace navigation
+- [x] Six governed Storybook placements over the indexed in-memory vault
+- [x] Tags and All Properties command-only query handoffs
+- [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance
+- [ ] Search panel Visual Delta capture/review; stories remain `visual-pending` and no baseline is updated in this slice
 
 ### Markdown plugin intake progress
 

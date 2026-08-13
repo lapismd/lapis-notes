@@ -214,6 +214,13 @@ const markdownPanelFamilies = [
     spec: "spec/src/markdown-plugin/panels/tags.md",
     publicSurface: "@lapis-notes/markdown",
   },
+  {
+    kind: "search",
+    title: "Search",
+    spec: "spec/src/search-plugin.md",
+    publicSurface: "@lapis-notes/search",
+    storyPrefix: "workspace-panels-search-search",
+  },
 ];
 
 /** @type {CatalogEntry[]} */
@@ -223,7 +230,7 @@ const markdownPanelCatalog = markdownPanelFamilies.flatMap((family) =>
     title: `${family.title}: ${placement.title}`,
     spec: family.spec,
     publicSurface: family.publicSurface,
-    storyId: `workspace-panels-markdown-${family.kind}--${placement.story}`,
+    storyId: `${family.storyPrefix ?? `workspace-panels-markdown-${family.kind}`}--${placement.story}`,
   })),
 );
 

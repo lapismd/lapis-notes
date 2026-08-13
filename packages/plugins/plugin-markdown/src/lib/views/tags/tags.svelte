@@ -158,6 +158,24 @@
       .showAtMouseEvent(event);
   }
 
+  function openTagSearch(tag: string): void {
+    void app.commands
+      .executeCommand("search:open-search-left-sidebar", `tag:#${tag}`)
+      .catch(() => undefined);
+  }
+
+  function handleExpandableTagClick(event: MouseEvent, tag: string): void {
+    const target = event.target;
+    if (
+      target instanceof Element &&
+      target.closest("svg.lucide-chevron-right")
+    ) {
+      return;
+    }
+    event.preventDefault();
+    openTagSearch(tag);
+  }
+
   $effect(() => {
     if (!nested && opened.size) opened = new Set();
   });
@@ -248,7 +266,10 @@
         open={opened.has(tag.tag)}
         onOpenChange={(value) => setOpen(tag.tag, value)}
       >
-        <Collapsible.Trigger class="tags-panel__row">
+        <Collapsible.Trigger
+          class="tags-panel__row"
+          onclick={(event) => handleExpandableTagClick(event, tag.tag)}
+        >
           <ChevronRight data-open={opened.has(tag.tag)} />
           <Hash class="tags-panel__hash-icon" aria-hidden="true" />
           <span
@@ -271,7 +292,10 @@
         </Collapsible.Content>
       </Collapsible.Root>
     {:else}
-      <Sidebar.MenuButton class="tags-panel__row">
+      <Sidebar.MenuButton
+        class="tags-panel__row"
+        onclick={() => openTagSearch(tag.tag)}
+      >
         <span class="tags-panel__disclosure-spacer" aria-hidden="true"></span>
         <Hash class="tags-panel__hash-icon" aria-hidden="true" />
         <span

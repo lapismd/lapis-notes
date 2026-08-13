@@ -98,6 +98,15 @@ const RULES = [
     ],
   },
   {
+    name: "Search plugin package",
+    pattern: /^packages\/plugins\/plugin-search\//,
+    chapters: [
+      "spec/src/search-plugin.md",
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+    ],
+  },
+  {
     name: "Markdown panel shell",
     pattern:
       /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/sidebar-panel\//,

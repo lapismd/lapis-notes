@@ -363,3 +363,20 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-MD-084   | markdown-plugin   | Implemented | Source and Live Preview compose diagnostics-only language-service extensions with shared cached actions |
 | LN-MD-085   | markdown-plugin-panels | Implemented | canonical Obsidian-compatible Markdown panel IDs retain prior Lapis view types as load-only aliases |
 | LN-MD-086   | markdown-panel-tags | Implemented | Markdown registers canonical `tag` and retains `tags` as a load-only alias |
+| LN-ARCH-033 | architecture | Implemented | Search keeps API execution, Design Core presentation, and command-only Markdown integration separate |
+| LN-PKG-044 | packages | Implemented | `packages/plugins/plugin-search` reusable package intake; package checks, eight tests, and build pass |
+| LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
+| LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
+| LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
+| LN-MD-087 | markdown-panel-tags | Implemented | Tags row opens Search through its registered command in focused Storybook acceptance |
+| LN-MD-088 | markdown-panel-all-properties | Implemented | property rows open escaped Search queries in focused Storybook acceptance |
+| LN-SRCH-001 | search-plugin | Implemented | legacy `8ec68e18` provenance and pruned package intake |
+| LN-SRCH-002 | search-plugin | Implemented | canonical Search view plus open, selected-text, refresh, and rebuild commands |
+| LN-SRCH-003 | search-plugin | Implemented | AppDatabase indexing, refresh, pruning, reactive tracking, and manager tests |
+| LN-SRCH-004 | search-plugin | Implemented | Design Core SearchFilterBar with API CodeMirror query language, diagnostics, completion, help, and facets |
+| LN-SRCH-005 | search-plugin | Implemented | grouped highlighted results, totals, sorting, and workspace navigation acceptance |
+| LN-SRCH-006 | search-plugin | Implemented | settings merge, bounded recents, listeners, pending-query disposal, and unit coverage |
+| LN-SRCH-007 | search-plugin | Implemented | Markdown Tags and All Properties registered-command handoffs |
+| LN-SRCH-008 | search-plugin | Implemented | all six governed Search placement stories pass interaction and accessibility checks |
+| LN-SRCH-009 | search-plugin | Implemented | Electron loads Search before metadata/layout and restores a native persisted query result |
+| LN-SRCH-010 | search-plugin | Implemented | no-Tailwind gate and view-token native CSS over the full host geometry |

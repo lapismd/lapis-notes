@@ -41,3 +41,7 @@ The reusable Problems view is specified under Workspace Shell / Panels rather
 than as a Markdown panel because non-Markdown providers and non-Lapis hosts may
 publish the same generic diagnostic model. Its live leaf badge is likewise
 Design Core chrome rather than Markdown panel content.
+
+Tags and All Properties may hand a query to the separately registered Search
+plugin. That command boundary preserves Markdown ownership of metadata panels
+without giving them Search indexing, query execution, or layout policy.

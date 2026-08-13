@@ -296,14 +296,12 @@
     queryName = property.name,
   ) {
     if (renameState?.property === property.name) return;
-    try {
-      void app.commands.executeCommand(
+    void app.commands
+      .executeCommand(
         "search:open-search-left-sidebar",
         quotedPropertyQuery(queryName),
-      );
-    } catch {
-      // Search sidebar is not registered in this slice.
-    }
+      )
+      .catch(() => undefined);
   }
 
   function searchNameForRow(row: PropertyRow) {

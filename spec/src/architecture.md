@@ -36,6 +36,7 @@
 | LN-ARCH-030 | Production application hosts MUST load Design Core's public runtime stylesheet and theme entries directly. Storybook-only host configuration MUST NOT be required for reusable workspace components to render correctly. |
 | LN-ARCH-031 | Native application hosts MUST map typed platform metadata to host-owned root CSS state. Reusable workspace components MUST expose semantic styling hosts without detecting Electron or hard-coding native window-control geometry. |
 | LN-ARCH-032 | Application hosts MAY register the reusable `@lapis-notes/file-explorer` contribution, but plugin enablement order, configuration and metadata boot, community-plugin policy, and teardown MUST remain host-owned. `@lapis-notes/workspace` MUST remain shell-only. |
+| LN-ARCH-033 | `@lapis-notes/search` MUST keep indexing and query execution behind API contracts while consuming Design Core filter presentation through its public export. Markdown panels MAY invoke Search only through commands. |
 
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.
@@ -49,6 +50,7 @@ vault or editor types to Design Core.
        ↑
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
+@lapis-notes/search (vault indexing + Search workspace contribution)
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)
 @lapis-notes/language-service (internal provider-neutral client + worker)
 @lapis-notes/markdown-lint (authorized core diagnostic provider)

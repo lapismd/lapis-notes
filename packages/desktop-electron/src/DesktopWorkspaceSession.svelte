@@ -9,6 +9,7 @@
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import { onMount, untrack } from "svelte";
@@ -113,9 +114,13 @@
         { plugin: MarkdownPlugin, required: true },
         { plugin: MarkdownLintPlugin, required: true },
         { plugin: FileExplorerPlugin, required: true },
+        { plugin: SearchPlugin, required: true },
       ]);
       await app.vault.load();
       await app.vault.mkpath(".obsidian");
+      const hasPersistedLayout = await adapter.exists(
+        ".obsidian/workspace.json",
+      );
       await app.configuration.load();
       await app.plugins.loadPlugins({
         communityPlugins: "disabled",
@@ -124,6 +129,13 @@
       stopMetadataTracking = app.metadataTypeManager.trackChanges();
       await app.metadataCache.load();
       await app.workspace.loadLayout();
+      if (
+        !hasPersistedLayout &&
+        app.workspace.getLeavesOfType("search").length === 0
+      ) {
+        const searchLeaf = app.workspace.ensureSideLeaf("search");
+        await searchLeaf.setViewState({ type: "search", state: {} });
+      }
       ready = true;
       onReady(app);
     } catch (error) {

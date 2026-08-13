@@ -17,8 +17,11 @@ function restoredPluginLayout() {
     type: string,
     state: Record<string, unknown> = {},
   ) => ({ id, type: "leaf", state: { type, state } });
-  const missing = (id: string, type: string) =>
-    leaf(id, "empty", { __missingViewType: type });
+  const missing = (
+    id: string,
+    type: string,
+    state: Record<string, unknown> = {},
+  ) => leaf(id, "empty", { __missingViewType: type, ...state });
   const tabs = (id: string, children: ReturnType<typeof leaf>[]) => ({
     id,
     type: "tabs",
@@ -48,7 +51,7 @@ function restoredPluginLayout() {
       [
         tabs("left-tabs", [
           missing("files", "file-explorer"),
-          missing("search", "search"),
+          missing("search", "search", { query: "Welcome" }),
           missing("bookmarks", "bookmarks"),
         ]),
       ],
@@ -121,6 +124,7 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
       "data-native-runtime",
       "electron-desktop",
     );
+    await expect(app.page.getByRole("tab", { name: "Search" })).toBeVisible();
     const runtime = await app.page.evaluate(() => ({
       runtime: (
         globalThis as typeof globalThis & {
@@ -148,8 +152,13 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
     expect(runtime).toEqual({
       runtime: "electron-desktop",
       vault: "vault-a",
-      pluginCount: 3,
-      pluginIds: ["lapis-file-explorer", "lapis-markdown-lint", "markdown"],
+      pluginCount: 4,
+      pluginIds: [
+        "lapis-file-explorer",
+        "lapis-markdown-lint",
+        "markdown",
+        "search",
+      ],
     });
     const loadedFontFaces = await app.page.evaluate(async () => {
       const [sans, mono] = await Promise.all([
@@ -281,6 +290,7 @@ test("restores every available plugin view from persisted missing-view placehold
       const types = [
         "markdown",
         "file-explorer",
+        "search",
         "backlink",
         "outgoing-link",
         "tag",
@@ -299,6 +309,7 @@ test("restores every available plugin view from persisted missing-view placehold
     expect(restored.counts).toEqual({
       markdown: 1,
       "file-explorer": 1,
+      search: 1,
       backlink: 1,
       "outgoing-link": 1,
       tag: 1,
@@ -306,12 +317,22 @@ test("restores every available plugin view from persisted missing-view placehold
       "file-properties": 1,
       "all-properties": 1,
     });
-    expect(JSON.stringify(restored.layout)).toContain(
+    expect(JSON.stringify(restored.layout)).not.toContain(
       '"__missingViewType":"search"',
     );
     expect(JSON.stringify(restored.layout)).toContain(
       '"__missingViewType":"bookmarks"',
     );
+
+    await app.page.getByRole("tab", { name: "Search" }).click();
+    const searchPanel = app.page.locator('[data-testid="search-panel"]');
+    await expect(searchPanel).toBeVisible();
+    await expect(
+      searchPanel.getByRole("searchbox", { name: "Search vault" }),
+    ).toHaveText("Welcome");
+    await expect(
+      searchPanel.getByRole("button", { name: "Open Welcome.md" }),
+    ).toBeVisible();
     expect(app.rendererErrors).toEqual([]);
   } finally {
     await app.close();
