@@ -13,15 +13,26 @@
     type CvPreviewMode,
     type CvPreviewOption,
   } from "$lib/cv/cv-options";
+  import CvDownloadControls from "./cv-download-controls.svelte";
 
   let {
     previewMode = $bindable("rendercv"),
     previewFormat = $bindable("svg"),
-    zoom = $bindable(1),
+    zoom = 1,
+    pdfAvailable = false,
+    canSaveToVault = false,
+    onZoomChange = () => {},
+    onDownloadPdf = () => {},
+    onSavePdfToVault = () => {},
   }: {
     previewMode?: CvPreviewMode;
     previewFormat?: TypstPreviewFormat;
     zoom?: number;
+    pdfAvailable?: boolean;
+    canSaveToVault?: boolean;
+    onZoomChange?: (zoom: number) => void;
+    onDownloadPdf?: () => void | Promise<void>;
+    onSavePdfToVault?: () => void | Promise<void>;
   } = $props();
 
   const label = $derived(previewModeLabel(previewMode, previewFormat));
@@ -32,7 +43,7 @@
   }
 
   function setZoom(next: number) {
-    zoom = clampZoom(next);
+    onZoomChange(clampZoom(next));
   }
 </script>
 
@@ -91,6 +102,13 @@
       <PlusIcon />
     </Button>
   </ButtonGroup.Root>
+
+  <CvDownloadControls
+    available={pdfAvailable}
+    {canSaveToVault}
+    onDownload={onDownloadPdf}
+    onSaveToVault={onSavePdfToVault}
+  />
 </div>
 
 <style>

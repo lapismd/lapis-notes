@@ -47,6 +47,7 @@
 | LN-CAT-041 | The CV package catalog MUST compile statically, load the Lapis theme, and keep full-shell Docs canvases isolated at 700px without globally disabling Autodocs scrolling. |
 | LN-CAT-042 | CV package and repository stories MUST provide explicit consumer-usable Show Code when their render path uses a local demo, harness, or fixture. App-backed examples MUST show App creation, vault data, plugin loading, and layout restoration. |
 | LN-CAT-043 | The CV package catalog MUST verify that the Markdown artifact starts in Mira Preview with the Lapis theme and switches to a read-only Mira Source mode through its focus-safe book-or-pencil header action. |
+| LN-CAT-044 | The CV package catalog MUST verify continuous zoom sizing across Typst page, HTML, Markdown, and Typst source surfaces. Its App-backed story MUST save the current worker PDF into the in-memory vault without starting a system download. |
 
 ## Show Code source contract
 

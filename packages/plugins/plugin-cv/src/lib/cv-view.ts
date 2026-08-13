@@ -5,6 +5,10 @@ import {
 } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
 import { CV_VIEW_TYPE, isCvPath } from "./cv/cv-path";
+import {
+  savePdfArtifactToVault,
+} from "./cv/cv-artifact-actions";
+import type { WorkerArtifact } from "./cv/web-artifacts";
 import { CvSaveCoordinator } from "./cv-save-coordinator";
 import CvWorkspace from "./cv-workspace.svelte";
 
@@ -81,6 +85,11 @@ export class CvView extends TextFileView {
     return this.saves.queue({ file: this.file.copy(), value: next });
   }
 
+  private async savePdfToVault(artifact: WorkerArtifact): Promise<string> {
+    if (!this.file) throw new Error("Open a CV file before saving its PDF.");
+    return savePdfArtifactToVault(this.app.vault, this.file.path, artifact);
+  }
+
   private unmountWorkspace(): void {
     if (!this.component) return;
     unmount(this.component as Parameters<typeof unmount>[0]);
@@ -111,6 +120,8 @@ export class CvView extends TextFileView {
         filePath: this.file?.path ?? "",
         embedded: true,
         onYamlChange: (next: string) => this.persistYaml(next),
+        onSavePdfToVault: (artifact: WorkerArtifact) =>
+          this.savePdfToVault(artifact),
       },
     }) as Record<string, unknown>;
   }

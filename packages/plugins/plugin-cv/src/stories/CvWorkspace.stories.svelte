@@ -157,6 +157,22 @@
     });
     expect(Math.round(documentEl.getBoundingClientRect().width)).toBe(738);
     expect(pane.getBoundingClientRect().width).toBeCloseTo(paneWidthBefore, 0);
+    previewScroller.scrollLeft = Math.min(
+      120,
+      Math.max(0, previewScroller.scrollWidth - previewScroller.clientWidth),
+    );
+    const anchorBefore =
+      (previewScroller.scrollLeft + previewScroller.clientWidth / 2) /
+      previewScroller.scrollWidth;
+    await userEvent.click(canvas.getByRole("button", { name: "Zoom in" }));
+    await waitFor(() => {
+      expect(documentEl.style.width).toBe("820px");
+    });
+    const anchorAfter =
+      (previewScroller.scrollLeft + previewScroller.clientWidth / 2) /
+      previewScroller.scrollWidth;
+    expect(anchorAfter).toBeCloseTo(anchorBefore, 1);
+    expect(pane.getBoundingClientRect().width).toBeCloseTo(paneWidthBefore, 0);
 
     const menu = await openPreviewModes(canvas, canvasElement);
     for (const name of previewModeNames) {
@@ -339,6 +355,13 @@
       markdown.getByRole("heading", { name: "Welcome to RenderCV" }),
     ).toBeTruthy();
 
+    const markdownDocument = canvas.getByTestId("cv-preview-document");
+    expect(markdownDocument.style.width).toBe("820px");
+    await userEvent.click(canvas.getByRole("button", { name: "Zoom out" }));
+    await waitFor(() => {
+      expect(markdownDocument.style.width).toBe("738px");
+    });
+
     await userEvent.click(modeToggle);
     const previewToggle = await waitFor(() =>
       canvas.getByRole("button", {
@@ -348,6 +371,7 @@
     await waitFor(() => {
       expect(artifact.getAttribute("data-markdown-mode")).toBe("source");
       expect(mira?.getAttribute("data-mode")).toBe("source");
+      expect(markdownDocument.style.width).toBe("738px");
     });
     expect(previewToggle.querySelector(".lucide-book-open")).not.toBeNull();
     const source = markdown.getByRole("textbox", { name: "Markdown editor" });

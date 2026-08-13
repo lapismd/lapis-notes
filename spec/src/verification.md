@@ -384,6 +384,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-041 | storybook-catalog | Implemented | CV package static catalog uses Lapis theme and scoped isolated 700px shell Docs canvases |
 | LN-CAT-042 | storybook-catalog | Implemented | CV package and repository stories expose explicit reproducible consumer source |
 | LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies Lapis-themed Mira Preview and read-only Source modes |
+| LN-CAT-044 | storybook-catalog | Implemented | CV preview stories assert shared cross-mode width scaling; the App-backed story persists worker PDF bytes into its memory vault |
 | LN-CV-001 | cv-plugin | Implemented | CV package authorized; Applications and Tasks excluded from this slice |
 | LN-CV-002 | cv-plugin | Implemented | `CvPlugin.onload` registers view, editor view, and compound extensions |
 | LN-CV-003 | cv-plugin | Implemented | exclusive `*.cv.yml` / `*.cv.yaml` association for view type `cv` |
@@ -398,7 +399,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CV-012 | cv-plugin | Implemented | 7020 App-backed story registers File Explorer, Search, and CV over a sample.cv.yml leaf |
 | LN-CV-013 | cv-plugin | Implemented | CV shell zeros AppShell main inset, radius, shadow, and border; HTML/Typst preview is flush |
 | LN-CV-014 | cv-plugin | Implemented | preview dropdown modes; Typst SVG/PNG from WASM; HTML/Markdown/Typst source from compile |
-| LN-CV-015 | cv-plugin | Implemented | zoom 50–250% scales the 820px preview document; pane stays full size |
+| LN-CV-015 | cv-plugin | Implemented | every preview mode shares continuous 820px width scaling with viewport-anchor and split-size preservation |
 | LN-CV-016 | cv-plugin | Implemented | RenderCV theme prev/next + menu on the form-area tab bar, bound to design.theme |
 | LN-CV-017 | cv-plugin | Implemented | workspace fills leftover height; form, YAML, and preview scroll independently |
 | LN-CV-018 | cv-plugin | Implemented | YAML toolbar switch; Edit/Preview tabs only when columns stack |
@@ -413,7 +414,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CV-027 | cv-plugin | Implemented | production CV CSS uses public tokens and stable component selectors only |
 | LN-CV-028 | cv-plugin | Implemented | compiled CV Markdown renders through Mira's public preview surface with the Lapis theme |
 | LN-CV-029 | cv-plugin | Implemented | CV form header exposes a focus-safe Preview-first book/pencil action, read-only source, and borderless Mira surface |
-| LN-ARCH-038 | architecture | Implemented | CV compilation remains plugin-owned while Mira owns read-only Markdown presentation |
+| LN-CV-030 | cv-plugin | Implemented | the worker PDF artifact supports browser download and create-or-replace vault export beside the open CV |
+| LN-ARCH-038 | architecture | Implemented | CV compilation and artifact export remain plugin-owned; the FileView adapts vault persistence while Mira owns Markdown presentation |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, untrack } from "svelte";
+  import { onDestroy, tick, untrack } from "svelte";
   import BookOpenIcon from "@lucide/svelte/icons/book-open";
   import PencilIcon from "@lucide/svelte/icons/pencil";
   import { FormToolbar, StructuredForm, YamlEditor } from "@lapismd/design-core/forms";
@@ -22,6 +22,7 @@
   } from "$lib/cv/cv-options";
   import { renderWebArtifacts, disposeWebRenderWorkers } from "$lib/cv/wasm-render-client";
   import type { TypstPreviewFormat, WorkerArtifact } from "$lib/cv/web-artifacts";
+  import { downloadWorkerArtifact } from "$lib/cv/cv-artifact-actions";
   import { parseCvYaml, stringifyCvSource } from "$lib/cv/parse";
   import {
     applyYamlEdit,
@@ -55,6 +56,8 @@
     initialPreviewMode = "rendercv",
     initialPreviewFormat,
     onYamlChange,
+    onDownloadPdf,
+    onSavePdfToVault,
   }: {
     yamlText?: string;
     filePath?: string;
@@ -63,6 +66,8 @@
     initialPreviewMode?: CvPreviewModeInput;
     initialPreviewFormat?: TypstPreviewFormat;
     onYamlChange?: (next: string) => void | Promise<void>;
+    onDownloadPdf?: (artifact: WorkerArtifact) => void | Promise<void>;
+    onSavePdfToVault?: (artifact: WorkerArtifact) => string | void | Promise<string | void>;
   } = $props();
 
   const tabs: Array<{ value: CvStoryTab; label: string }> = [
@@ -107,6 +112,9 @@
   let artifacts = $state<WorkerArtifact[]>([]);
   let previewError = $state<string | null>(null);
   let previewPending = $state(false);
+  let exportError = $state<string | null>(null);
+  let exportStatus = $state<string | null>(null);
+  let previewViewport: HTMLElement | null = null;
   let renderVersion = 0;
 
   const cvController = createFormController<CvFragment>({
@@ -154,6 +162,9 @@
   );
   const compiledError = $derived(
     compiled && "error" in compiled ? compiled.error : null,
+  );
+  const pdfArtifact = $derived(
+    artifacts.find((artifact) => artifact.extension === "pdf"),
   );
 
   function yamlFor(next: CompleteCvSource): Record<CvStoryTab, string> {
@@ -253,17 +264,72 @@
   function previewScroll(node: HTMLElement) {
     const viewport =
       node.closest<HTMLElement>("[data-ui-part='scroll-area-viewport']") ?? node;
+    previewViewport = viewport;
     function onWheel(event: WheelEvent) {
       if (!event.ctrlKey && !event.metaKey) return;
       event.preventDefault();
-      zoom = clampZoom(zoom * Math.exp(-event.deltaY * 0.002));
+      setZoom(zoom * Math.exp(-event.deltaY * 0.002));
     }
     viewport.addEventListener("wheel", onWheel, { passive: false });
     return {
       destroy() {
         viewport.removeEventListener("wheel", onWheel);
+        if (previewViewport === viewport) previewViewport = null;
       },
     };
+  }
+
+  function setZoom(next: number): void {
+    const normalized = clampZoom(next);
+    if (normalized === zoom) return;
+    const viewport = previewViewport;
+    const horizontalAnchor = viewport
+      ? (viewport.scrollLeft + viewport.clientWidth / 2) /
+        Math.max(viewport.scrollWidth, viewport.clientWidth, 1)
+      : 0.5;
+    const verticalAnchor = viewport
+      ? (viewport.scrollTop + viewport.clientHeight / 2) /
+        Math.max(viewport.scrollHeight, viewport.clientHeight, 1)
+      : 0.5;
+    zoom = normalized;
+    if (!viewport) return;
+    void tick().then(() => {
+      if (previewViewport !== viewport) return;
+      viewport.scrollLeft = Math.max(
+        0,
+        horizontalAnchor * viewport.scrollWidth - viewport.clientWidth / 2,
+      );
+      viewport.scrollTop = Math.max(
+        0,
+        verticalAnchor * viewport.scrollHeight - viewport.clientHeight / 2,
+      );
+    });
+  }
+
+  async function downloadPdf(): Promise<void> {
+    if (!pdfArtifact) return;
+    exportError = null;
+    exportStatus = null;
+    try {
+      await (onDownloadPdf ?? downloadWorkerArtifact)(pdfArtifact);
+      exportStatus = `Downloading ${pdfArtifact.filename}`;
+    } catch (error) {
+      exportError = error instanceof Error ? error.message : String(error);
+    }
+  }
+
+  async function savePdfToVault(): Promise<void> {
+    if (!pdfArtifact || !onSavePdfToVault) return;
+    exportError = null;
+    exportStatus = null;
+    try {
+      const path = await onSavePdfToVault(pdfArtifact);
+      exportStatus = path
+        ? `Saved PDF to ${path}`
+        : `Saved ${pdfArtifact.filename} to the vault`;
+    } catch (error) {
+      exportError = error instanceof Error ? error.message : String(error);
+    }
   }
 
   $effect.pre(() => {
@@ -276,11 +342,10 @@
   });
 
   $effect(() => {
-    const mode = previewMode;
     const format = previewFormat;
     const yamlError = parseError;
     const compileError = compiledError;
-    if (mode !== "rendercv" || yamlError) {
+    if (yamlError) {
       artifacts = [];
       previewError = compileError;
       previewPending = false;
@@ -352,7 +417,16 @@
                     <Switch id="cv-yaml-mode" bind:checked={yamlMode} aria-label="YAML" />
                     <label for="cv-yaml-mode">YAML</label>
                   </div>
-                  <CvPreviewControls bind:previewMode bind:previewFormat bind:zoom />
+                  <CvPreviewControls
+                    bind:previewMode
+                    bind:previewFormat
+                    {zoom}
+                    pdfAvailable={Boolean(pdfArtifact)}
+                    canSaveToVault={Boolean(onSavePdfToVault)}
+                    onZoomChange={setZoom}
+                    onDownloadPdf={downloadPdf}
+                    onSavePdfToVault={savePdfToVault}
+                  />
                 {/snippet}
               </FormToolbar>
 
@@ -524,12 +598,12 @@
                             typst={compiledTypst}
                             markdown={compiledMarkdown}
                             {artifacts}
-                            error={previewError}
+                            error={previewMode === "rendercv" ? previewError : compiledError}
                             mode={previewMode}
                             {markdownMode}
                             {previewFormat}
                             {zoom}
-                            pending={previewPending}
+                            pending={previewMode === "rendercv" && previewPending}
                           />
                         </div>
                       </ScrollArea.Root>
@@ -585,6 +659,21 @@
       </Alert.Root>
     </div>
   {/if}
+
+  {#if exportError}
+    <div class="cv-workspace__save-error">
+      <Alert.Root variant="destructive" role="alert" data-testid="cv-export-error">
+        <Alert.Title>PDF export failed</Alert.Title>
+        <Alert.Description>{exportError}</Alert.Description>
+      </Alert.Root>
+    </div>
+  {/if}
+
+  {#if exportStatus}
+    <p class="cv-workspace__export-status" role="status" data-testid="cv-export-status">
+      {exportStatus}
+    </p>
+  {/if}
 </div>
 
 <style>
@@ -628,5 +717,17 @@
     right: 0.75rem;
     bottom: 0.75rem;
     max-width: min(30rem, calc(100% - 1.5rem));
+  }
+
+  .cv-workspace__export-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 </style>

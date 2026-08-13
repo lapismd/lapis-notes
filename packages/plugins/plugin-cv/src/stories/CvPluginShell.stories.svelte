@@ -121,5 +121,26 @@
     });
     expect(search.queryByText("sample.cv.yml")).toBeNull();
     expect(search.queryByText(/sample\.cv\.yml/)).toBeNull();
+
+    const exportButton = canvas.getByRole("button", { name: "Export PDF" });
+    await waitFor(
+      () => {
+        expect(exportButton).not.toBeDisabled();
+      },
+      { timeout: 30_000 },
+    );
+    await userEvent.click(exportButton);
+    const menu = within(canvasElement.ownerDocument.body);
+    expect(menu.getByRole("menuitem", { name: "Download PDF" })).toBeTruthy();
+    await userEvent.click(menu.getByRole("menuitem", { name: "Save PDF to vault" }));
+    const pdf = await waitFor(() => {
+      const file = app.vault.getFiles().find((candidate) => candidate.extension === "pdf");
+      expect(file).toBeTruthy();
+      return file!;
+    });
+    expect(pdf.parent?.path ?? "").toBe("");
+    expect(pdf.name).toMatch(/_typst\.pdf$/);
+    expect(new Uint8Array(await app.vault.readBinary(pdf)).byteLength).toBeGreaterThan(0);
+    expect(canvas.getByRole("status")).toHaveTextContent(`Saved PDF to ${pdf.path}`);
   }}
 />

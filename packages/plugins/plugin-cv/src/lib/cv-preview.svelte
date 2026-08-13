@@ -140,7 +140,13 @@
       ></iframe>
     </div>
   {:else if mode === "rendercv-md"}
-    <CvMarkdownArtifact value={markdown} mode={markdownMode} />
+    <div
+      class="cv-preview__markdown-frame"
+      style={documentStyle}
+      data-testid="cv-preview-document"
+    >
+      <CvMarkdownArtifact value={markdown} mode={markdownMode} />
+    </div>
   {:else}
     <pre
       class="cv-preview__text"
@@ -163,6 +169,13 @@
   .cv-preview[data-preview-mode="rendercv-md"] {
     height: 100%;
     min-height: 22.5rem;
+  }
+
+  .cv-preview__markdown-frame {
+    display: flex;
+    min-height: 100%;
+    flex: 1 0 auto;
+    align-self: center;
   }
 
   .cv-preview__error {

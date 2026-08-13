@@ -23,7 +23,8 @@ describe("cv preview options", () => {
 		expect(clampZoom(0.1)).toBe(0.5);
 		expect(clampZoom(3)).toBe(2.5);
 		expect(clampZoom(0.9)).toBe(0.9);
-		expect(previewWidthStyle(1)).toBe("width: min(820px, 100%);");
+		expect(previewWidthStyle(1)).toBe("width: 820px; max-width: none;");
 		expect(previewWidthStyle(0.9)).toBe("width: 738px; max-width: none;");
+		expect(previewWidthStyle(1.1)).toBe("width: 902px; max-width: none;");
 	});
 });

@@ -181,6 +181,10 @@
   min-width: 13rem;
 }
 
+.cv-download-controls__menu {
+  min-width: 12rem;
+}
+
 .cv-theme-controls__current {
   min-width: 5rem;
   max-width: 9rem;

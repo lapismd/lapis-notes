@@ -53,9 +53,6 @@ export function clampZoom(next: number): number {
 }
 
 export function previewWidthStyle(zoom: number): string {
-	if (Math.abs(zoom - 1) < 0.01) {
-		return `width: min(${PREVIEW_BASE_WIDTH}px, 100%);`;
-	}
 	return `width: ${Math.round(PREVIEW_BASE_WIDTH * zoom)}px; max-width: none;`;
 }
 
