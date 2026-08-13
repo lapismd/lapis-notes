@@ -11,7 +11,7 @@
 
 | LN-ED-005 | The API-owned design-core settings controller MUST load and save through API configuration atomically, preserve unrelated configuration, and avoid controller/configuration feedback loops. |
 | LN-ED-006 | API editor-view contributions MUST be mirrored into the API-owned design-core registry so editor-association settings use live registered views. |
-| LN-ED-007 | The demo MUST adapt Design Core Explorer to the API vault for listing, active-file selection, create, open, rename, move, delete, and persisted auto-reveal while excluding hidden configuration/trash trees. Modifier activation MUST open a file in a new root tab without replacing the current leaf. |
+| LN-ED-007 | The demo MUST adapt Design Core Explorer to the API vault for listing, active-file selection, create, open, rename, move, delete, and persisted auto-reveal while excluding hidden configuration/trash trees. |
 | LN-ED-008 | The empty landing view MUST expose functional Create note and Go to file actions; Close MUST use the design-core leaf action. Recent-file tracking is excluded. |
 | LN-ED-009 | Startup MUST report real vault, configuration, required-plugin, and layout tasks and present required-plugin failure. Retry and story teardown MUST synchronously destroy retained editors before asynchronous runtime disposal so HMR cannot retain editor-owned portals. |
 | LN-ED-010 | Two CodeMirror views for the same file MUST synchronize transactions immediately and persist one debounced target-file update; different files MUST remain independent. |
@@ -46,12 +46,21 @@
 | LN-ED-044 | Storybook and production desktop hosts MUST consume the same `@lapis-notes/file-explorer` implementation, and Tags MUST come from `@lapis-notes/markdown`. Storybook MAY parameterize Explorer loading state, but MUST NOT retain duplicate plugin or view implementations. |
 | LN-ED-045 | Search panel stories MUST boot the reusable Search plugin against the shared panel demo vault and database, rather than a static result fixture or a Storybook-only query implementation. |
 | LN-ED-046 | The Ready editor story MUST open `Ideas.markdown`, close the last visible sidebar through real shell controls, and verify that the workspace pane expands while the readable editor body stabilizes at 700px instead of shrinking. The story MUST restore the sidebar and close the note after acceptance. |
+| LN-ED-047 | Explorer file activation MUST distinguish single-click reuse, double-click reuse-or-create, and Command-click forced creation while keeping Design Core gesture intent separate from the Lapis workspace adapter. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
 | LN-ED-017 | For file leaves, the tab title bar final segment MUST be renameable in place through `getChrome` `titleEditable` / `onTitleCommit` → `fileManager.renameFile`, without hiding breadcrumbs. |
 | LN-ED-016 | The editor demo canonical seed MUST enable `appearence.interface.showInlineTitle` and `appearence.interface.showTabTitleBar` so focused scenarios exercise the inline title and tab title bar without requiring Settings navigation. |
 | LN-ED-018 | Source editors MUST expose `data-language` on the CodeMirror host, default the editor face to Mira monospace (`--mira-font-mono` / `--font-mono`), and override to the sans face for Markdown and plain text only. Non-Markdown languages use the configured CodeMirror fold gutter when fold settings are on; Markdown uses Mira's inline fold controls without the duplicate gutter. Focused Markdown acceptance MUST prove rendered frontmatter disclosure, source reveal, Source Code Pro YAML lines, and zero nested-preview note-column padding. |
+
+### LN-ED-047 acceptance details
+
+Focused Explorer acceptance verifies:
+
+- Single-clicking a file MUST reveal and activate the first existing tab showing that file; when none exists, it MUST open the file in the current tab instead of creating another tab.
+- Double-clicking a file MUST reveal and activate the first existing tab showing that file; when none exists, it MUST create and reveal a new tab without replacing the current tab.
+- Command-clicking a file MUST always create and reveal a new tab without checking whether another tab already shows that file.
 
 ### LN-ED-023 acceptance details
 
