@@ -101,6 +101,7 @@ legacy commit `8ec68e18`.
 - [x] Legacy-aligned inset result geometry with transparent top-right counts, bottom-left metadata, and unindented bordered child surfaces
 - [x] Surface-aware Search summary controls and metadata badges, with the redundant panel semantic-status tag removed
 - [x] Stable incremental before/after match context, primary and contrasting secondary Search result surfaces, public yellow highlight tokens, faint sans-serif counts, and body-hosted Search preservation during result navigation
+- [x] Compact regular-weight Search result filenames with full path and retrieval metadata inside expanded bodies
 - [x] Six governed Storybook placements over the indexed in-memory vault
 - [x] Tags and All Properties command-only query handoffs
 - [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance

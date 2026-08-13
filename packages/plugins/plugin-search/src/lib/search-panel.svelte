@@ -705,25 +705,24 @@
                       <FileText class="search-panel__file-icon" aria-hidden="true" />
                     {/if}
                     <span class="search-panel__file-label">
-                      <strong>
-                        {#if result.title}
-                          <HighlightedText text={result.title.text} ranges={result.title.ranges} />
-                        {:else}
-                          {result.file.name}
-                        {/if}
-                      </strong>
-                      <small>{result.file.path}</small>
-                      <span class="search-panel__file-meta">
-                        <Badge variant="outline" class="search-panel__mode-badge">
-                          {result.hit.retrievalMode}
-                        </Badge>
-                      </span>
+                      <HighlightedText
+                        text={result.file.basename}
+                        ranges={result.title?.ranges ?? []}
+                      />
                     </span>
                     <Sidebar.MenuBadge class="search-panel__count-badge">
                       {result.matches.length}
                     </Sidebar.MenuBadge>
                   </Collapsible.Trigger>
                   <Collapsible.Content class="search-panel__match-list">
+                    <div class="search-panel__match-header">
+                      <span class="search-panel__match-path" title={result.file.path}>
+                        {result.file.path}
+                      </span>
+                      <Badge variant="outline" class="search-panel__mode-badge">
+                        {result.hit.retrievalMode}
+                      </Badge>
+                    </div>
                     <Sidebar.MenuSub role="group">
                       {#each result.matches as match, index (`${result.file.path}:${index}`)}
                         <Sidebar.MenuSubItem role="none">
@@ -803,13 +802,10 @@
                 >
                   <FileText class="search-panel__file-icon" aria-hidden="true" />
                   <span class="search-panel__file-label">
-                    <strong>{result.file.name}</strong>
-                    <small>{result.file.path}</small>
-                    <span class="search-panel__file-meta">
-                      <Badge variant="outline" class="search-panel__mode-badge">
-                        {result.hit.retrievalMode}
-                      </Badge>
-                    </span>
+                    <HighlightedText
+                      text={result.file.basename}
+                      ranges={result.title?.ranges ?? []}
+                    />
                   </span>
                 </button>
               {/if}

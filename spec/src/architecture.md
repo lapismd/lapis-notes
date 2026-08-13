@@ -48,7 +48,8 @@ Within that boundary, `LN-SRCH-023` keeps inset result-row and unindented child
 surface geometry, primary and contrasting secondary view paint, summary
 controls, and hover-stable metadata in the Search package while Design Core
 supplies reusable badges, tree primitives, surface tokens, and workspace
-placement. Incremental match context reads the Lapis vault through the Search
+placement. Compact parent rows expose only extension-free filenames, while the
+expanded body owns path and retrieval metadata. Incremental match context reads the Lapis vault through the Search
 component and does not expand the database or Design Core contracts.
 Recent-query persistence does not
 schedule replacement queries, so expanded context remains component state until

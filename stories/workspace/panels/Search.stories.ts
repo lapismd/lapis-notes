@@ -87,7 +87,11 @@ function placementStory(
       await userEvent.type(searchbox, "Welcome");
 
       await waitFor(() => {
-        expect(panel.getByText("Notes/Welcome.md")).toBeVisible();
+        expect(
+          panel.getByRole("treeitem", {
+            name: /Notes\/Welcome\.md, \d+ matches/,
+          }),
+        ).toBeVisible();
         expect(panel.getByText(/result/)).toBeVisible();
       });
       const tree = panel.getByRole("tree", { name: "Search results" });
@@ -105,6 +109,28 @@ function placementStory(
       ).toBe(true);
       expect(within(tree).getAllByText("lexical").length).toBeGreaterThan(0);
       const resultRow = fileTreeItem!;
+      const resultPath = resultRow
+        .getAttribute("aria-label")!
+        .replace(/, \d+ matches$/, "");
+      const resultFilename = resultPath
+        .split("/")
+        .at(-1)!
+        .replace(/\.[^.]+$/, "");
+      const resultGroup = resultRow.closest<HTMLElement>(
+        ".search-panel__result",
+      )!;
+      const matchList = resultGroup.querySelector<HTMLElement>(
+        ".search-panel__match-list",
+      )!;
+      const matchHeader = matchList.querySelector<HTMLElement>(
+        ".search-panel__match-header",
+      )!;
+      const matchPath = matchHeader.querySelector<HTMLElement>(
+        ".search-panel__match-path",
+      )!;
+      const modeBadge = matchHeader.querySelector<HTMLElement>(
+        ".search-panel__mode-badge",
+      )!;
       const searchPanel = canvasElement.querySelector<HTMLElement>(
         '[data-testid="search-panel"]',
       )!;
@@ -120,17 +146,18 @@ function placementStory(
       const countBadge = resultRow.querySelector<HTMLElement>(
         ".search-panel__count-badge",
       );
-      const modeBadge = resultRow.querySelector<HTMLElement>(
-        ".search-panel__mode-badge",
-      );
       expect(resultLabel).not.toBeNull();
       expect(countBadge).not.toBeNull();
       expect(modeBadge).not.toBeNull();
+      expect(resultRow.querySelector(".search-panel__mode-badge")).toBeNull();
+      expect(resultRow.querySelector(".search-panel__match-path")).toBeNull();
+      expect(resultLabel!.textContent?.trim()).toBe(resultFilename);
+      expect(getComputedStyle(resultLabel!).fontWeight).toBe("400");
+      expect(matchPath.textContent?.trim()).toBe(resultPath);
       const resultsRect = resultsBody.getBoundingClientRect();
       const resultRect = resultRow.getBoundingClientRect();
       const labelRect = resultLabel!.getBoundingClientRect();
       const countRect = countBadge!.getBoundingClientRect();
-      const modeRect = modeBadge!.getBoundingClientRect();
       expect(resultRect.left - resultsRect.left).toBeGreaterThanOrEqual(5);
       expect(resultsRect.right - resultRect.right).toBeGreaterThanOrEqual(5);
       expect(Math.abs(countRect.width - countRect.height)).toBeLessThan(1);
@@ -146,15 +173,6 @@ function placementStory(
       expect(getComputedStyle(countBadge!).color).not.toBe(
         getComputedStyle(searchPanel).color,
       );
-      await userEvent.hover(resultRow);
-      await waitFor(() =>
-        expect(getComputedStyle(modeBadge!).backgroundColor).not.toBe(
-          getComputedStyle(resultRow).backgroundColor,
-        ),
-      );
-      await userEvent.unhover(resultRow);
-      expect(Math.abs(modeRect.left - labelRect.left)).toBeLessThan(1);
-      expect(modeRect.top).toBeGreaterThan(labelRect.top);
       const editor = canvasElement.querySelector<HTMLElement>(
         '[data-testid="search-panel"] .cm-editor',
       );
@@ -170,9 +188,6 @@ function placementStory(
       const firstMatch = within(tree)
         .getAllByRole("treeitem")
         .find((item) => item.getAttribute("aria-level") === "2")!;
-      const matchList = firstMatch.closest<HTMLElement>(
-        ".search-panel__match-list",
-      )!;
       const matchListBody = matchList.querySelector<HTMLElement>(
         '[data-ui-part="sidebar-menu-sub"]',
       )!;
@@ -190,6 +205,9 @@ function placementStory(
       expect(Math.abs(matchListRect.right - resultRect.right)).toBeLessThan(1);
       expect(firstMatchRect.left - matchListRect.left).toBeLessThan(2);
       expect(matchListRect.right - firstMatchRect.right).toBeLessThan(2);
+      expect(matchHeader.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        firstMatchRect.top,
+      );
       expect(getComputedStyle(matchList).borderTopWidth).not.toBe("0px");
       const primarySurface = resolveTokenColor(
         searchPanel,
@@ -213,7 +231,10 @@ function placementStory(
       );
       expect(secondarySurface).not.toBe(primarySurface);
       expect(getComputedStyle(modeBadge!).backgroundColor).toBe(
-        secondarySurface,
+        primarySurface,
+      );
+      expect(getComputedStyle(modeBadge!).backgroundColor).not.toBe(
+        getComputedStyle(matchList).backgroundColor,
       );
       expect(getComputedStyle(matchKey).backgroundColor).toBe(primarySurface);
       expect(Math.abs(matchKeyRect.left - matchTextRect.left)).toBeLessThan(1);
@@ -473,7 +494,11 @@ function placementStory(
         ).toBeVisible();
         await userEvent.click(panel.getByRole("button", { name: "Welcome" }));
         await waitFor(() =>
-          expect(panel.getByText("Notes/Welcome.md")).toBeVisible(),
+          expect(
+            panel.getByRole("treeitem", {
+              name: /Notes\/Welcome\.md, \d+ matches/,
+            }),
+          ).toBeVisible(),
         );
         const currentTree = panel.getByRole("tree", { name: "Search results" });
         const app = panelDemoApp(canvasElement);

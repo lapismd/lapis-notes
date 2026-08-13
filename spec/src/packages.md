@@ -73,7 +73,9 @@ keeps expanded slices stable across recent-query persistence and resets them
 only when search inputs change or the index explicitly refreshes. The results
 surface uses the resolved view background and expanded result bodies use its
 contrasting secondary background in every placement. Navigation does not
-replace a Search leaf that has been moved into the body.
+replace a Search leaf that has been moved into the body. Result parents retain
+only a regular extension-free filename; expanded-body headers own the full path
+and applied retrieval mode.
 
 ## `@lapis-notes/api` (kernel slice)
 
