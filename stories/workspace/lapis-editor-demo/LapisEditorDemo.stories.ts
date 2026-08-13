@@ -146,6 +146,26 @@ export const Ready: Story = {
     await expect(getComputedStyle(explorerToolbar!).backgroundColor).toBe(
       getComputedStyle(explorerHost!).backgroundColor,
     );
+    expect(
+      explorer!.querySelector(".ui-workspace-explorer__group-label"),
+    ).toBeNull();
+    await expect(
+      within(explorer!).getByRole("list", { name: "Files" }),
+    ).toBeVisible();
+    const autoReveal = within(explorer!).getByRole("button", {
+      name: "Auto-reveal current file",
+    });
+    await expect(autoReveal).toHaveAttribute("aria-pressed", "true");
+    const autoRevealIcon = autoReveal.querySelector<HTMLElement>(
+      '[data-ui-component="workspace-icon"]',
+    );
+    expect(autoRevealIcon).not.toBeNull();
+    const accentProbe = document.createElement("span");
+    accentProbe.style.color = "var(--ui-workspace-accent)";
+    explorer!.append(accentProbe);
+    const expectedAccent = getComputedStyle(accentProbe).color;
+    accentProbe.remove();
+    expect(getComputedStyle(autoRevealIcon!).color).toBe(expectedAccent);
     await expect(
       canvas.getByTestId("lapis-editor-registered-views"),
     ).toHaveTextContent(/Markdown:.*\.md/);
@@ -179,6 +199,40 @@ export const Ready: Story = {
         canvas.getByRole("button", { name: "Notes", exact: true }),
       );
     }
+    const runtimeApp = activeStoryApp(canvasElement);
+    let rootLeavesBefore = 0;
+    runtimeApp.workspace.iterateRootLeaves(() => {
+      rootLeavesBefore += 1;
+    });
+    await fireEvent.click(ideasFile, { ctrlKey: true });
+    await waitFor(() => {
+      let rootLeavesAfter = 0;
+      runtimeApp.workspace.iterateRootLeaves(() => {
+        rootLeavesAfter += 1;
+      });
+      expect(rootLeavesAfter).toBe(rootLeavesBefore + 1);
+      expect(runtimeApp.workspace.activeEditor?.file?.path).toBe(
+        "Notes/Ideas.markdown",
+      );
+    });
+    const modifierOpenedLeaf = runtimeApp.workspace.activeLeaf;
+    expect(modifierOpenedLeaf).not.toBeNull();
+    await waitFor(() => {
+      expect(
+        findWorkspaceTab(
+          getWorkspaceHostBinding(runtimeApp.workspace).controller.renderer
+            .layout,
+          modifierOpenedLeaf!.id,
+        )?.tab.title,
+      ).toBe("Ideas.markdown");
+    });
+    modifierOpenedLeaf!.detach();
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("heading", { name: "No file is open" }),
+      ).toBeVisible(),
+    );
+
     await userEvent.click(ideasFile);
 
     const editorBody = await waitFor(() => {

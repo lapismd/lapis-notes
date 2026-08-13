@@ -149,10 +149,17 @@ function createExplorerController(app: App, loading: boolean) {
         ),
     },
     actions: {
-      openFile: (path) =>
+      openFile: (path, options) =>
         withNotice(async () => {
           const file = app.vault.getFileByPath(path);
           if (!file) throw new Error(`Unable to find file: ${path}`);
+          if (options?.disposition === "new-tab") {
+            const leaf = app.workspace.getLeaf("tab");
+            app.workspace.activeLeaf = leaf;
+            await leaf.openFile(file);
+            await app.workspace.revealLeaf(leaf);
+            return;
+          }
           await app.openFile(file);
         }),
       createFile: (parent) =>
