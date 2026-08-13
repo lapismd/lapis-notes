@@ -111,6 +111,9 @@ function placementStory(
       const resultsBody = canvasElement.querySelector<HTMLElement>(
         '[data-testid="search-panel"] .search-panel__tree-inset',
       )!;
+      const resultsSurface = canvasElement.querySelector<HTMLElement>(
+        '[data-testid="search-panel"] .search-panel__results',
+      )!;
       const resultLabel = resultRow.querySelector<HTMLElement>(
         ".search-panel__file-label",
       );
@@ -201,6 +204,9 @@ function placementStory(
         "--ui-workspace-background",
       );
       expect(getComputedStyle(searchPanel).backgroundColor).toBe(
+        primarySurface,
+      );
+      expect(getComputedStyle(resultsSurface).backgroundColor).toBe(
         primarySurface,
       );
       expect(getComputedStyle(matchList).backgroundColor).toBe(

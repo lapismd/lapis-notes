@@ -159,7 +159,8 @@
   flex: 1 1 auto;
 }
 
-.search-panel [data-ui-part="content"].search-panel__results {
+.search-panel
+  [data-ui-component="sidebar"][data-ui-part="sidebar-content"].search-panel__results {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
