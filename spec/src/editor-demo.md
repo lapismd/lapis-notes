@@ -47,6 +47,8 @@
 | LN-ED-045 | Search panel stories MUST boot the reusable Search plugin against the shared panel demo vault and database, rather than a static result fixture or a Storybook-only query implementation. |
 | LN-ED-046 | The Ready editor story MUST open `Ideas.markdown`, close the last visible sidebar through real shell controls, and verify that the workspace pane expands while the readable editor body stabilizes at 700px instead of shrinking. The story MUST restore the sidebar and close the note after acceptance. |
 | LN-ED-047 | Explorer file activation MUST consume Design Core's current, reveal-or-new-tab, and new-tab intents to distinguish single-click reuse, double-click reuse-or-create, and Command-click forced creation in the Lapis workspace adapter. |
+| LN-ED-048 | The Editor settings schema MUST expose persisted `editor.alwaysFocusNewTabs` as a Boolean defaulting to `false`, and `WorkspaceShell` MUST map it reactively to Design Core's user-created-tab activation policy without changing explicit opens. |
+| LN-ED-049 | Every rendered Editor setting MUST reuse its canonical schema title, default, constraints, and concise description so the configuration contract and Settings UI cannot drift. |
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |

@@ -1,5 +1,6 @@
 import { mount, unmount } from "svelte";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import type { App } from "../../test/api-app";
 import WorkspaceShellTestHarness from "./WorkspaceShellTestHarness.test.svelte";
 
@@ -148,6 +149,40 @@ describe("WorkspaceShell", () => {
       ).not.toBeNull();
     });
     expect(loadPlugins).not.toHaveBeenCalled();
+    target.remove();
+  });
+
+  it("maps the persisted new-tab focus preference into the renderer policy", async () => {
+    const target = document.createElement("div");
+    document.body.append(target);
+    let app!: App;
+    mounted.push(
+      mount(WorkspaceShellTestHarness, {
+        target,
+        props: {
+          layout: initialLayout,
+          onAppReady: (readyApp) => {
+            app = readyApp;
+          },
+        },
+      }),
+    );
+
+    await vi.waitFor(() => {
+      expect(
+        target
+          .querySelector('[data-ui-component="app-shell"]')
+          ?.getAttribute("data-app-shell-ready"),
+      ).toBe("true");
+    });
+    const renderer = getWorkspaceHostBinding(app.workspace).controller.renderer;
+    expect(renderer.activateNewTabs).toBe(false);
+
+    await app.configuration
+      .getConfiguration()
+      .update("editor.alwaysFocusNewTabs", true);
+    await vi.waitFor(() => expect(renderer.activateNewTabs).toBe(true));
+
     target.remove();
   });
 });

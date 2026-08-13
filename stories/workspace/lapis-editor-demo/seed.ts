@@ -11,6 +11,7 @@ export type LapisEditorDemoScenario =
   | "explorer-opening-vault";
 
 const APP_CONFIGURATION = {
+  "editor.alwaysFocusNewTabs": false,
   "editor.display.showLineNumbers": true,
   "editor.display.foldIndent": true,
   "editor.display.wrapLines": true,

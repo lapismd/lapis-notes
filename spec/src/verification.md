@@ -418,6 +418,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
 | LN-ED-047 | editor-demo | Implemented | Ready story proves single-click reuse/current replacement, double-click reuse-or-create, and Command-click forced creation |
+| LN-ED-048 | editor-demo | Implemented | WorkspaceShell unit and Editor Settings acceptance verify the false default, live renderer mapping, and persisted toggle |
+| LN-ED-049 | editor-demo | Implemented | one canonical descriptor list supplies the Editor schema and rendered fields; Storybook verifies every description |
+| LN-WS-049 | workspace-shell | Implemented | WorkspaceShell unit verifies the false default and reactive Design Core renderer-policy mapping |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
 | LN-MD-087 | markdown-panel-tags | Implemented | Tags row opens Search through its registered command in focused Storybook acceptance |
 | LN-MD-088 | markdown-panel-all-properties | Implemented | property rows open escaped Search queries in focused Storybook acceptance |

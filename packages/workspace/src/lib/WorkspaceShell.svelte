@@ -27,6 +27,11 @@
   }: WorkspaceShellProps = $props();
 
   const { controller } = untrack(() => getWorkspaceHostBinding(app.workspace));
+  let activateNewTabs = $derived(
+    app.configuration
+      .getConfiguration()
+      .get("editor.alwaysFocusNewTabs", false),
+  );
 
   onMount(() => {
     // AppShell.Root does not own startup. By the time this shell is mounted,
@@ -43,6 +48,7 @@
   <AppShell.Root
     {controller}
     autoStart={false}
+    {activateNewTabs}
     disposeOnDestroy={false}
     theme="inherit"
   >

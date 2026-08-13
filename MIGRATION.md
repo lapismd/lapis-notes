@@ -18,6 +18,7 @@ intake or UI swap status changes.
 | Storybook a11y in Vitest                  | Done   | `vitest.setup.ts` + `a11y.test: "error"`; filled action tokens AA-tuned                                                                                                                                                                             |
 | Storybook style authority                 | Done   | design-core styles + lapis theme; ui `theme.css` only (avoid dual Tailwind)                                                                                                                                                                         |
 | Storybook Vite config layout              | Done   | `.storybook/vite-final.ts` holds aliases; slim `main.ts` avoids Storybook CJS-scan ReDoS hang on large configs                                                                                                                                      |
+| Editor settings parity                    | Done   | Legacy `editor.alwaysFocusNewTabs` defaults off and drives Design Core's created-tab policy; canonical descriptors keep every Editor field description aligned with its schema                                                                      |
 
 ## Packages
 

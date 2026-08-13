@@ -1335,6 +1335,36 @@ export const EditorSettings: Story = {
     const lineNumbers = within(dialog).getByRole("switch", {
       name: "Show line numbers",
     });
+    const focusNewTabs = within(dialog).getByRole("switch", {
+      name: "Always focus new tabs",
+    });
+    await expect(focusNewTabs).toHaveAttribute("data-state", "unchecked");
+    for (const description of [
+      "Switch to newly created tabs immediately. Turn this off to create them in the background.",
+      "Show line numbers in the editor gutter.",
+      "Show the fold gutter for language-defined ranges such as headings and objects.",
+      "Wrap long source lines to the editor width.",
+      "Show vertical guides for indented source.",
+      "Use the browser spellchecker in source editors.",
+      "Turn this off to insert spaces when indenting.",
+      "Number of columns used by a tab or space indent.",
+    ]) {
+      await expect(within(dialog).getByText(description)).toBeVisible();
+    }
+    const renderer = getWorkspaceHostBinding(activeStoryApp(canvasElement))
+      .controller.renderer;
+    expect(renderer.activateNewTabs).toBe(false);
+    await userEvent.click(focusNewTabs);
+    await waitFor(() => expect(renderer.activateNewTabs).toBe(true));
+    await waitFor(async () =>
+      expect(
+        (await persistedStoryConfiguration(canvasElement))[
+          "editor.alwaysFocusNewTabs"
+        ],
+      ).toBe(true),
+    );
+    await userEvent.click(focusNewTabs);
+    await waitFor(() => expect(renderer.activateNewTabs).toBe(false));
     await expect(lineNumbers).toHaveAttribute("data-state", "checked");
     await userEvent.click(lineNumbers);
     await expect(lineNumbers).toHaveAttribute("data-state", "unchecked");

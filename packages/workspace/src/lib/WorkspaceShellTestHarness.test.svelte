@@ -23,7 +23,7 @@
   });
   const app = new App({
     version: "0.0.1-test",
-    configPath: ".obsidian",
+    configPath: ".obsidian/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase("workspace-shell-test"),
     markdownRenderer: async () => {},

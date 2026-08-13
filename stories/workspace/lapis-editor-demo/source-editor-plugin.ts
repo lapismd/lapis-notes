@@ -7,58 +7,81 @@ import {
 } from "@lapis-notes/api";
 import { markupEditor } from "@lapis-notes/api/editor";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
+import type { WorkspaceSettingField } from "@lapismd/design-core/workspace/settings";
+
+const SOURCE_EDITOR_SETTING_FIELDS = [
+  {
+    id: "editor.alwaysFocusNewTabs",
+    type: "boolean",
+    title: "Always focus new tabs",
+    description:
+      "Switch to newly created tabs immediately. Turn this off to create them in the background.",
+    default: false,
+  },
+  {
+    id: "editor.display.showLineNumbers",
+    type: "boolean",
+    title: "Show line numbers",
+    description: "Show line numbers in the editor gutter.",
+    default: true,
+  },
+  {
+    id: "editor.display.foldIndent",
+    type: "boolean",
+    title: "Code folding",
+    description:
+      "Show the fold gutter for language-defined ranges such as headings and objects.",
+    default: true,
+  },
+  {
+    id: "editor.display.wrapLines",
+    type: "boolean",
+    title: "Wrap lines",
+    description: "Wrap long source lines to the editor width.",
+    default: true,
+  },
+  {
+    id: "editor.display.showIndentationGuides",
+    type: "boolean",
+    title: "Show indentation guides",
+    description: "Show vertical guides for indented source.",
+    default: true,
+  },
+  {
+    id: "editor.behaviour.spellCheck",
+    type: "boolean",
+    title: "Spellcheck",
+    description: "Use the browser spellchecker in source editors.",
+    default: true,
+  },
+  {
+    id: "editor.behaviour.indentUsingTabs",
+    type: "boolean",
+    title: "Indent using tabs",
+    description: "Turn this off to insert spaces when indenting.",
+    default: true,
+  },
+  {
+    id: "editor.behaviour.indentVisualWidth",
+    type: "integer",
+    title: "Indent width",
+    description: "Number of columns used by a tab or space indent.",
+    minimum: 2,
+    maximum: 8,
+    default: 4,
+  },
+] satisfies readonly WorkspaceSettingField[];
 
 const EDITOR_SCHEMA = {
   id: "editor",
   title: "Editor",
   type: "object",
-  properties: {
-    "editor.display.showLineNumbers": {
-      title: "Show line numbers",
-      description: "Show line numbers in the editor gutter.",
-      type: "boolean",
-      default: true,
-    },
-    "editor.display.foldIndent": {
-      title: "Code folding",
-      description:
-        "Show the fold gutter for language-defined fold ranges (headings, objects, etc.).",
-      type: "boolean",
-      default: true,
-    },
-    "editor.display.wrapLines": {
-      title: "Wrap lines",
-      description: "Wrap long source lines to the editor width.",
-      type: "boolean",
-      default: true,
-    },
-    "editor.display.showIndentationGuides": {
-      title: "Show indentation guides",
-      description: "Show vertical guides for indented source.",
-      type: "boolean",
-      default: true,
-    },
-    "editor.behaviour.spellCheck": {
-      title: "Spellcheck",
-      description: "Use the browser spellchecker in source editors.",
-      type: "boolean",
-      default: true,
-    },
-    "editor.behaviour.indentUsingTabs": {
-      title: "Indent using tabs",
-      description: "Turn this off to insert spaces when indenting.",
-      type: "boolean",
-      default: true,
-    },
-    "editor.behaviour.indentVisualWidth": {
-      title: "Indent width",
-      description: "Number of columns used by a tab or space indent.",
-      type: "integer",
-      minimum: 2,
-      maximum: 8,
-      default: 4,
-    },
-  },
+  properties: Object.fromEntries(
+    SOURCE_EDITOR_SETTING_FIELDS.map(({ id, ...definition }) => [
+      id,
+      definition,
+    ]),
+  ),
 } as const;
 
 const SOURCE_EDITOR_MANIFEST: PluginManifest = {
@@ -110,52 +133,7 @@ export class SourceEditorDemoPlugin extends Plugin {
         order: 20,
         navigationGroupId: "core-plugins",
         sourcePluginId: this.id,
-        fields: [
-          {
-            id: "editor.display.showLineNumbers",
-            type: "boolean",
-            title: "Show line numbers",
-            default: true,
-          },
-          {
-            id: "editor.display.foldIndent",
-            type: "boolean",
-            title: "Fold indent",
-            default: true,
-          },
-          {
-            id: "editor.display.wrapLines",
-            type: "boolean",
-            title: "Wrap lines",
-            default: true,
-          },
-          {
-            id: "editor.display.showIndentationGuides",
-            type: "boolean",
-            title: "Show indentation guides",
-            default: true,
-          },
-          {
-            id: "editor.behaviour.spellCheck",
-            type: "boolean",
-            title: "Spellcheck",
-            default: true,
-          },
-          {
-            id: "editor.behaviour.indentUsingTabs",
-            type: "boolean",
-            title: "Indent using tabs",
-            default: true,
-          },
-          {
-            id: "editor.behaviour.indentVisualWidth",
-            type: "integer",
-            title: "Indent width",
-            minimum: 2,
-            maximum: 8,
-            default: 4,
-          },
-        ],
+        fields: SOURCE_EDITOR_SETTING_FIELDS.map((field) => ({ ...field })),
       }),
     );
 

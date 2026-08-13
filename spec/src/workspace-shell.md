@@ -32,6 +32,7 @@ persistence, and application-host responsibilities.
 | LN-WS-022 | Mobile Workspace stories MUST exercise the responsive shell across the available canvas rather than mounting an artificial fixed-width device card. |
 | LN-WS-023 | Full-shell Autodocs for `Workspace/Shell` and `Workspace/Lapis Editor Demo` MUST share the isolated 700px story height used by movable panels and remove Storybook shell padding. |
 | LN-WS-024 | Authored shell MDX MUST identify every scenario and render its canonical Storybook description immediately before the corresponding canvas. |
+| LN-WS-049 | `WorkspaceShell` MUST map persisted `editor.alwaysFocusNewTabs` into Design Core's user-created-tab activation policy, defaulting to background creation while leaving explicit application opens unchanged. |
 
 ## Ownership and data flow
 
