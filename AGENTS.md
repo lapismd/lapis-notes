@@ -110,7 +110,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Render compiled CV Markdown through Mira's public Preview and read-only Source
   surfaces under the Lapis theme; do not fall back to `<pre>`, a package-local
   renderer, or an editable generated artifact. Group the CV-owned book/pencil
-  and form disclosure actions in the main toolbar immediately before YAML,
+  and form disclosure actions in the main toolbar immediately after YAML,
   using the same outlined icon treatment as PDF export. Keep nested Mira
   toolbar/frame chrome out of the artifact. Compose the form-area tabs and their
   contextual actions in one horizontal Design Core Scroll Area so constrained

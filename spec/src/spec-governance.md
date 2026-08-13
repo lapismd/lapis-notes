@@ -39,7 +39,7 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-025 | Agent guidance MUST route reusable diagnostic and Problems-view work to the Workspace Shell Problems specification. It MUST preserve Design Core ownership of panel presentation, require stable hover handoff and styled inline-problem acceptance, and make Lapis adapters and providers read that contract before package-specific chapters. |
 | LN-GOV-026 | The spec-first map MUST route API storage to the App Database chapter, web package changes to Web Host, Packages, and Architecture, and CV plugin changes to CV Plugin, Packages, and Architecture. |
 | LN-GOV-027 | The spec-first map MUST additionally route package-local CV Storybook sources and configuration to the Storybook Catalog chapter. |
-| LN-GOV-028 | Agent guidance MUST keep CV Markdown mode and form disclosure actions grouped in the main toolbar before YAML with the shared outlined icon treatment. Form-area scrolling guidance MUST remain limited to tabs and contextual form actions. |
+| LN-GOV-028 | Agent guidance MUST keep CV Markdown mode and form disclosure actions grouped in the main toolbar immediately after YAML with the shared outlined icon treatment. Form-area scrolling guidance MUST remain limited to tabs and contextual form actions. |
 
 ## Requirement structure
 
@@ -150,7 +150,7 @@ CV guidance must keep compilation and artifact selection in the CV package
 while routing compiled Markdown presentation through Mira's public read-only
 Preview and Source surfaces. It must prohibit package-local Markdown renderers
 and editable generated artifacts, keep mode chrome outside the nested Mira
-surface, and group mode and disclosure actions in the main toolbar before YAML.
+surface, and group mode and disclosure actions in the main toolbar immediately after YAML.
 
 Problems guidance must keep live totals in Design Core's structured workspace
 view badge, preserve the stored leaf title, and prohibit a duplicate count in

@@ -40,7 +40,7 @@ slice.
 | LN-CV-029 | The Markdown artifact MUST default to Preview and offer one focus-safe book-or-pencil action that switches between Preview and read-only Source without changing the compiled value. Both surfaces MUST fill their zoomed document width and remain free of outer inset, nested toolbar, border, radius, or shadow chrome in either mode. |
 | LN-CV-030 | PDF export MUST offer Download to device and Save to vault. Both actions MUST use the current browser-worker PDF bytes. Vault export MUST save beside the source CV under the generated artifact filename and replace that file on later exports. Failures MUST remain visible and accessible. |
 | LN-CV-031 | The form-area header MUST use Design Core Scroll Area for horizontal overflow. Its tab list and contextual actions MUST share one scroll track so constrained workspace panes keep every control reachable without making the leaf scroll. |
-| LN-CV-032 | When Markdown is selected, the main toolbar MUST place the book-or-pencil action and form expand-or-collapse action immediately before the YAML switch. Both actions MUST use the outlined icon-button treatment of the PDF export action. On the CV tab, collapse MUST hide visible section bodies while retaining hidden-header wrappers and the section headers needed to expand them. |
+| LN-CV-032 | The main toolbar MUST place the book-or-pencil action and form expand-or-collapse action immediately after the YAML switch. The book-or-pencil action appears when Markdown is selected. Both actions MUST use the outlined icon-button treatment of PDF export. On the CV tab, collapse MUST hide visible section bodies while retaining hidden-header wrappers and the section headers needed to expand them. |
 
 ### LN-CV-012 acceptance details
 

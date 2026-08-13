@@ -362,7 +362,7 @@
       modeToggle.compareDocumentPosition(collapseToggle) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
-      collapseToggle.compareDocumentPosition(yamlToggle) & Node.DOCUMENT_POSITION_FOLLOWING,
+      yamlToggle.compareDocumentPosition(modeToggle) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(modeToggle.getAttribute("data-variant")).toBe("outline");
     expect(modeToggle.getAttribute("data-size")).toBe("icon-sm");

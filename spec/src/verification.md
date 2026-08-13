@@ -376,7 +376,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-046 | packages | Implemented | private web package `2026.6.3` exposes standard root development, build, preview, and E2E scripts |
 | LN-PKG-047 | packages | Implemented | pinned Turso native/WASM production dependencies; source and package audits contain no SQLite app-database implementation or fallback |
 | LN-PKG-048 | packages | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
-| LN-PKG-049 | packages | Implemented | `@lapis-notes/cv` owns preview, export, and main-toolbar composition while Design Core owns form disclosure |
+| LN-PKG-049 | packages | Implemented | `@lapis-notes/cv` owns preview, export, and post-YAML document-action composition while Design Core owns form disclosure |
 | LN-PKG-050 | packages | Implemented | CV package exposes interaction and static Storybook builds; package declarations are portable |
 | LN-PKG-051 | packages | Implemented | CV package consumes linked Mira through public exports and styles only public layout variables plus its passed artifact class |
 | LN-DESK-030 | desktop-host | Implemented | desktop `registerCorePlugins` loads optional CV before layout restoration |
@@ -418,8 +418,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CV-029 | cv-plugin | Implemented | CV exposes a focus-safe Preview-first book/pencil action plus full-width, inset-free, borderless Mira Preview and read-only Source surfaces |
 | LN-CV-030 | cv-plugin | Implemented | the worker PDF artifact supports browser download and create-or-replace vault export beside the open CV |
 | LN-CV-031 | cv-plugin | Implemented | the form-area tab list and contextual actions share a horizontal Design Core Scroll Area |
-| LN-CV-032 | cv-plugin | Implemented | the main toolbar groups outlined Markdown mode and disclosure actions before YAML; CV collapse retains visible section headers |
-| LN-ARCH-038 | architecture | Implemented | CV compilation, artifact export, and toolbar composition remain plugin-owned; Design Core owns form disclosure and Mira owns Markdown presentation |
+| LN-CV-032 | cv-plugin | Implemented | the main toolbar groups outlined Markdown mode and disclosure actions immediately after YAML; CV collapse retains visible section headers |
+| LN-ARCH-038 | architecture | Implemented | CV compilation, artifact export, and post-YAML toolbar composition remain plugin-owned; Design Core owns form disclosure and Mira owns Markdown presentation |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |

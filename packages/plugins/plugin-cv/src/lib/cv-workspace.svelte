@@ -421,6 +421,10 @@
                   <span class="complete-cv-toolbar-title">{source.cv.name ?? "CV"}</span>
                 {/snippet}
                 {#snippet actions()}
+                  <div class="complete-cv-yaml-toggle" data-testid="cv-yaml-toggle">
+                    <Switch id="cv-yaml-mode" bind:checked={yamlMode} aria-label="YAML" />
+                    <label for="cv-yaml-mode">YAML</label>
+                  </div>
                   <div
                     class="complete-cv-toolbar-document-actions"
                     data-testid="cv-toolbar-document-actions"
@@ -465,10 +469,6 @@
                         <ChevronsDownUpIcon aria-hidden="true" />
                       {/if}
                     </Button>
-                  </div>
-                  <div class="complete-cv-yaml-toggle" data-testid="cv-yaml-toggle">
-                    <Switch id="cv-yaml-mode" bind:checked={yamlMode} aria-label="YAML" />
-                    <label for="cv-yaml-mode">YAML</label>
                   </div>
                   <CvPreviewControls
                     bind:previewMode
