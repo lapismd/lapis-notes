@@ -49,7 +49,9 @@ surface geometry, surface-aware summary controls, and hover-stable metadata in
 the Search package while Design Core supplies reusable badges, tree primitives,
 surface tokens, and workspace placement. Incremental match context reads the
 Lapis vault through the Search component and does not expand the database or
-Design Core contracts.
+Design Core contracts. Recent-query persistence does not schedule replacement
+queries, so expanded context remains component state until query-driving inputs
+change or the index explicitly refreshes.
 
 ## Package graph
 

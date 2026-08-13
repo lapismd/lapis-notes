@@ -131,9 +131,18 @@
   const structuredQuery = $derived(
     Boolean(
       query.trim() &&
-        parsedQuery.diagnostics.length === 0 &&
+      parsedQuery.diagnostics.length === 0 &&
         !canCollectSearchQueryTerms(parsedQuery),
     ),
+  );
+  const searchRequestKey = $derived(
+    JSON.stringify([
+      query,
+      settings.view.matchCase,
+      settings.view.showMoreContext,
+      settings.view.semanticSearchInStructuredQueries,
+      settings.view.retrievalMode,
+    ]),
   );
   const explanation = $derived.by(() => {
     if (!query.trim() || !settings.view.explainSearchTerms) return null;
@@ -312,6 +321,14 @@
       term,
       ...settings.view.recentSearches.filter((item) => item !== term),
     ].slice(0, 10);
+    if (
+      recentSearches.length === settings.view.recentSearches.length &&
+      recentSearches.every(
+        (item, index) => item === settings.view.recentSearches[index],
+      )
+    ) {
+      return;
+    }
     await patchSettings({ view: { recentSearches } });
   }
 
@@ -359,13 +376,13 @@
   }
 
   $effect(() => {
+    const requestKey = searchRequestKey;
     const term = query;
-    settings.view.matchCase;
-    settings.view.showMoreContext;
-    settings.view.semanticSearchInStructuredQueries;
-    settings.view.retrievalMode;
     const revision = ++searchRevision;
-    const timer = window.setTimeout(() => void executeSearch(term, revision), 250);
+    const timer = window.setTimeout(() => {
+      if (requestKey !== searchRequestKey) return;
+      void executeSearch(term, revision);
+    }, 250);
     return () => window.clearTimeout(timer);
   });
 

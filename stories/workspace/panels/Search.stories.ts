@@ -263,18 +263,68 @@ function placementStory(
           initialContextHeight,
         );
       });
-      const beforeExpandedLength = contentMatch.textContent?.length ?? 0;
+      const beforeExpandedText = contentMatch.textContent ?? "";
+      const beforeExpandedHeight = contentShell.getBoundingClientRect().height;
+      await new Promise((resolve) => window.setTimeout(resolve, 400));
+      const stableBeforeMatch = within(tree)
+        .getAllByRole("treeitem")
+        .find(
+          (item) =>
+            item.getAttribute("aria-level") === "2" &&
+            item
+              .querySelector(".search-panel__match-key")
+              ?.textContent?.trim() === "content",
+        )!;
+      expect(stableBeforeMatch.textContent).toBe(beforeExpandedText);
+      expect(
+        stableBeforeMatch
+          .closest<HTMLElement>(".search-panel__match-shell")!
+          .getBoundingClientRect().height,
+      ).toBe(beforeExpandedHeight);
+      await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "true");
+      const beforeExpandedLength = stableBeforeMatch.textContent?.length ?? 0;
       await userEvent.click(
-        within(contentShell).getByRole("button", {
+        within(stableBeforeMatch).getByRole("button", {
           name: "Show more context after this match",
         }),
       );
-      await waitFor(() =>
-        expect(contentMatch.textContent?.length ?? 0).toBeGreaterThan(
+      await waitFor(() => {
+        const expandedMatch = within(tree)
+          .getAllByRole("treeitem")
+          .find(
+            (item) =>
+              item.getAttribute("aria-level") === "2" &&
+              item
+                .querySelector(".search-panel__match-key")
+                ?.textContent?.trim() === "content",
+          )!;
+        expect(expandedMatch.textContent?.length ?? 0).toBeGreaterThan(
           beforeExpandedLength,
-        ),
-      );
-      const highlightedMatch = contentMatch.querySelector<HTMLElement>("mark")!;
+        );
+      });
+      const afterExpandedMatch = within(tree)
+        .getAllByRole("treeitem")
+        .find(
+          (item) =>
+            item.getAttribute("aria-level") === "2" &&
+            item
+              .querySelector(".search-panel__match-key")
+              ?.textContent?.trim() === "content",
+        )!;
+      const afterExpandedText = afterExpandedMatch.textContent ?? "";
+      await new Promise((resolve) => window.setTimeout(resolve, 400));
+      const stableAfterMatch = within(tree)
+        .getAllByRole("treeitem")
+        .find(
+          (item) =>
+            item.getAttribute("aria-level") === "2" &&
+            item
+              .querySelector(".search-panel__match-key")
+              ?.textContent?.trim() === "content",
+        )!;
+      expect(stableAfterMatch.textContent).toBe(afterExpandedText);
+      await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "true");
+      const highlightedMatch = stableAfterMatch.querySelector<HTMLElement>("mark")!;
       expect(highlightedMatch).not.toBeNull();
       searchPanel.style.setProperty(
         "--ui-search-highlight-background",

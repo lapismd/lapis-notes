@@ -68,7 +68,9 @@ reposition counts, metadata badges, or child result surfaces with
 placement-specific CSS. The package exposes semantic runtime state through its
 status API and keeps the movable panel free of a persistent status tag. Content
 matches expand from their indexed file offsets, while public Search tokens own
-highlight paint and consumers remain free of result-row overrides.
+highlight paint and consumers remain free of result-row overrides. The panel
+keeps expanded slices stable across recent-query persistence and resets them
+only when search inputs change or the index explicitly refreshes.
 
 ## `@lapis-notes/api` (kernel slice)
 

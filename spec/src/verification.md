@@ -403,7 +403,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-024 | search-plugin | Implemented | all six Search placements verify shared summary-control state paint on result-copy and sort controls |
 | LN-SRCH-025 | search-plugin | Implemented | all six Search placements verify retrieval and match-field badge contrast against result-row paint |
 | LN-SRCH-026 | search-plugin | Implemented | all six Search placements exclude the superseded semantic-status tag |
-| LN-SRCH-027 | search-plugin | Implemented | context-window units and all six Search placements verify independent before/after growth, source bounds, highlight stability, and navigation |
+| LN-SRCH-027 | search-plugin | Implemented | context-window units and all six Search placements verify independent before/after growth, source bounds, debounce-window stability, highlight stability, and navigation |
 | LN-SRCH-028 | search-plugin | Implemented | all six Search placements override and resolve the public yellow highlight background and foreground tokens |
 | LN-SRCH-029 | search-plugin | Implemented | all six Search placements verify transparent unbordered counts with sans-serif faint text |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
