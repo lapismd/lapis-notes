@@ -98,7 +98,7 @@ legacy commit `8ec68e18`.
 - [x] Disabled-by-default Transformers.js activation with real model download/cache smoke and Electron-main CPU adaptation
 - [x] Owner/proxy semantic configuration, rebuild, status, vector query, promotion, and reload acceptance
 - [x] Compact Design Core command-picker facets for file type and retrieval mode
-- [x] Legacy-aligned result geometry with contrasting circular counts and bottom-left retrieval/match metadata
+- [x] Legacy-aligned inset result geometry with circular counts, bottom-left metadata, and unindented bordered child surfaces
 - [x] Six governed Storybook placements over the indexed in-memory vault
 - [x] Tags and All Properties command-only query handoffs
 - [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance

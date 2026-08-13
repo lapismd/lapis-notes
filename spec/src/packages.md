@@ -64,7 +64,8 @@ application manager or presentation modules.
 
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not
-reposition counts or metadata badges with placement-specific CSS.
+reposition counts, metadata badges, or child result surfaces with
+placement-specific CSS.
 
 ## `@lapis-notes/api` (kernel slice)
 

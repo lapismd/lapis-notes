@@ -607,7 +607,8 @@
       {:else if !searching && !diagnostic && filteredResults.length === 0}
         <p class="search-panel__empty">No matches found.</p>
       {:else}
-        <Sidebar.Menu role="tree" aria-label="Search results" class="search-panel__tree">
+        <div class="search-panel__tree-inset">
+          <Sidebar.Menu role="tree" aria-label="Search results" class="search-panel__tree">
           {#each filteredResults as result (result.file.path)}
             {@const open = resultOpenState[result.file.path] ?? !settings.view.collapseResults}
             <Sidebar.MenuItem role="none" class="search-panel__tree-item">
@@ -699,7 +700,8 @@
               {/if}
             </Sidebar.MenuItem>
           {/each}
-        </Sidebar.Menu>
+          </Sidebar.Menu>
+        </div>
       {/if}
     </Sidebar.Content>
   </ScrollArea>

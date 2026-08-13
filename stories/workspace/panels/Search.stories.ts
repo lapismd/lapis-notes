@@ -92,6 +92,9 @@ function placementStory(
       ).toBe(true);
       expect(within(tree).getAllByText("lexical").length).toBeGreaterThan(0);
       const resultRow = fileTreeItem!;
+      const resultsBody = canvasElement.querySelector<HTMLElement>(
+        '[data-testid="search-panel"] .search-panel__tree-inset',
+      )!;
       const resultLabel = resultRow.querySelector<HTMLElement>(
         ".search-panel__file-label",
       );
@@ -104,10 +107,13 @@ function placementStory(
       expect(resultLabel).not.toBeNull();
       expect(countBadge).not.toBeNull();
       expect(modeBadge).not.toBeNull();
+      const resultsRect = resultsBody.getBoundingClientRect();
       const resultRect = resultRow.getBoundingClientRect();
       const labelRect = resultLabel!.getBoundingClientRect();
       const countRect = countBadge!.getBoundingClientRect();
       const modeRect = modeBadge!.getBoundingClientRect();
+      expect(resultRect.left - resultsRect.left).toBeGreaterThanOrEqual(5);
+      expect(resultsRect.right - resultRect.right).toBeGreaterThanOrEqual(5);
       expect(Math.abs(countRect.width - countRect.height)).toBeLessThan(1);
       expect(countRect.top).toBeLessThan(labelRect.top + 2);
       expect(resultRect.right - countRect.right).toBeGreaterThanOrEqual(0);
@@ -130,6 +136,9 @@ function placementStory(
       const firstMatch = within(tree)
         .getAllByRole("treeitem")
         .find((item) => item.getAttribute("aria-level") === "2")!;
+      const matchList = firstMatch.closest<HTMLElement>(
+        ".search-panel__match-list",
+      )!;
       const matchText = firstMatch.querySelector<HTMLElement>(
         ".search-panel__match-text",
       )!;
@@ -138,6 +147,16 @@ function placementStory(
       )!;
       const matchTextRect = matchText.getBoundingClientRect();
       const matchKeyRect = matchKey.getBoundingClientRect();
+      const matchListRect = matchList.getBoundingClientRect();
+      const firstMatchRect = firstMatch.getBoundingClientRect();
+      expect(Math.abs(matchListRect.left - resultRect.left)).toBeLessThan(1);
+      expect(Math.abs(matchListRect.right - resultRect.right)).toBeLessThan(1);
+      expect(firstMatchRect.left - matchListRect.left).toBeLessThan(2);
+      expect(matchListRect.right - firstMatchRect.right).toBeLessThan(2);
+      expect(getComputedStyle(matchList).borderTopWidth).not.toBe("0px");
+      expect(getComputedStyle(matchList).backgroundColor).not.toBe(
+        getComputedStyle(resultRow).backgroundColor,
+      );
       expect(Math.abs(matchKeyRect.left - matchTextRect.left)).toBeLessThan(1);
       expect(matchKeyRect.top).toBeGreaterThanOrEqual(matchTextRect.bottom);
 

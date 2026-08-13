@@ -399,7 +399,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-020 | search-plugin | Implemented | two-tab Playwright acceptance delegates provider configuration, embedding rebuild, runtime status, vector query, lexical Search, takeover, and reload |
 | LN-SRCH-021 | search-plugin | Implemented | package manifest and public-export audit contain no LLM enhancement or embedded-query surface |
 | LN-SRCH-022 | search-plugin | Implemented | Search panel composes compact Design Core command pickers for file-type and retrieval facets; governed Storybook acceptance persists both selections |
-| LN-SRCH-023 | search-plugin | Implemented | all six Search placements verify circular contrasting top-right counts and bottom-left retrieval/match metadata |
+| LN-SRCH-023 | search-plugin | Implemented | all six Search placements verify inset parents, circular counts, bottom-left metadata, and full-width bordered child surfaces |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
 | LN-DB-003 | app-database | Implemented | native Electron and Turso WASM/OPFS provider selection pass desktop and browser acceptance |

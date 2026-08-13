@@ -30,7 +30,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-020 | Proxy browser tabs MUST execute indexing, semantic configuration, status, and queries through the owning app-database session. |
 | LN-SRCH-021 | Local-LLM query expansion, reranking, and embedded Markdown query blocks MUST remain excluded from this intake. |
 | LN-SRCH-022 | Search panel facets MUST use Design Core `FilterCommandPicker` controls beneath the query, keeping file type and retrieval mode compact while preserving their existing settings. |
-| LN-SRCH-023 | Search result groups MUST place a circular, contrasting match-count badge at the file row's top-right. Retrieval-mode and match-field badges MUST remain in bottom-left metadata rows beneath their corresponding labels. |
+| LN-SRCH-023 | Search result groups MUST keep inset parent rows, place a circular contrasting match count at top-right, and keep retrieval and match-field badges in bottom-left metadata rows. Expanded children MUST span the parent width without tree indentation and use a bordered workspace surface distinct from direct-sidebar paint. |
 
 ## Runtime flow
 
