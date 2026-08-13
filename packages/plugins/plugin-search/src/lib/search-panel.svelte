@@ -16,6 +16,10 @@
     SearchFilterBar,
     type SearchFilterSyntax,
   } from "@lapismd/design-core/filter";
+  import {
+    FilterCommandPicker,
+    type FilterCommandOption,
+  } from "@lapismd/design-core/forms/filter-command-picker";
   import { Badge } from "@lapismd/design-core/shadcn/badge";
   import { Button } from "@lapismd/design-core/shadcn/button";
   import * as Collapsible from "@lapismd/design-core/shadcn/collapsible";
@@ -29,7 +33,6 @@
   import FileText from "@lucide/svelte/icons/file-text";
   import Hash from "@lucide/svelte/icons/hash";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
-  import Settings2 from "@lucide/svelte/icons/settings-2";
   import { onMount, untrack } from "svelte";
   import HighlightedText from "./highlighted-text.svelte";
   import type {
@@ -70,6 +73,19 @@
     hit: SearchQueryHit;
   };
 
+  const RESULT_FACET_OPTIONS = [
+    { value: "all", label: "All" },
+    { value: "markdown", label: "Markdown" },
+    { value: "canvas", label: "Canvas" },
+  ] satisfies FilterCommandOption[];
+
+  const RETRIEVAL_MODE_OPTIONS = [
+    { value: "auto", label: "Auto" },
+    { value: "lexical", label: "Lexical" },
+    { value: "vector", label: "Vector" },
+    { value: "hybrid", label: "Hybrid" },
+  ] satisfies FilterCommandOption[];
+
   let {
     app,
     initialQuery = "",
@@ -95,7 +111,6 @@
   let runtimeStatus = $state<SearchRuntimeStatus | null>(null);
   let searching = $state(false);
   let indexing = $state(false);
-  let settingsOpen = $state(false);
   let filtersExpanded = $state(false);
   let metadataRevision = $state(0);
   let searchRevision = 0;
@@ -459,50 +474,73 @@
         {/snippet}
         {#snippet filters()}
           <div class="search-panel__filters">
-            <div class="search-panel__facet-group" aria-label="File type">
-              <span>File type</span>
-              {#each [["all", "All"], ["markdown", "Markdown"], ["canvas", "Canvas"]] as facet (facet[0])}
-                <Button
-                  variant="outline"
+            <FilterCommandPicker
+              label="File type"
+              ariaLabel="Filter by file type"
+              options={RESULT_FACET_OPTIONS}
+              value={settings.view.resultFacet}
+              onChange={(value) =>
+                patchSettings({
+                  view: { resultFacet: value as SearchResultFacet },
+                })}
+            />
+            <FilterCommandPicker
+              label="Retrieval"
+              ariaLabel="Filter by retrieval mode"
+              options={RETRIEVAL_MODE_OPTIONS}
+              value={settings.view.retrievalMode}
+              onChange={(value) =>
+                patchSettings({
+                  view: { retrievalMode: value as SearchRetrievalMode },
+                })}
+            />
+            <section
+              class="search-panel__settings"
+              aria-label="Search view settings"
+            >
+              <label>
+                <span>Match case</span>
+                <Switch
                   size="sm"
-                  aria-pressed={settings.view.resultFacet === facet[0]}
-                  data-active={settings.view.resultFacet === facet[0]}
-                  onclick={() =>
-                    void patchSettings({
-                      view: { resultFacet: facet[0] as SearchResultFacet },
-                    })}
-                >{facet[1]}</Button>
-              {/each}
-            </div>
-            <div class="search-panel__facet-group" aria-label="Retrieval mode">
-              <span>Retrieval</span>
-              {#each [["auto", "Auto"], ["lexical", "Lexical"], ["vector", "Vector"], ["hybrid", "Hybrid"]] as mode (mode[0])}
-                <Button
-                  variant="outline"
+                  bind:checked={() => settings.view.matchCase, (checked) => void patchSettings({ view: { matchCase: checked } })}
+                />
+              </label>
+              <label>
+                <span>Collapse results</span>
+                <Switch
                   size="sm"
-                  aria-pressed={settings.view.retrievalMode === mode[0]}
-                  data-active={settings.view.retrievalMode === mode[0]}
-                  onclick={() =>
-                    void patchSettings({
-                      view: { retrievalMode: mode[0] as SearchRetrievalMode },
-                    })}
-                >{mode[1]}</Button>
-              {/each}
-            </div>
+                  bind:checked={() => settings.view.collapseResults, (checked) => void patchSettings({ view: { collapseResults: checked } })}
+                />
+              </label>
+              <label>
+                <span>Show more context</span>
+                <Switch
+                  size="sm"
+                  bind:checked={() => settings.view.showMoreContext, (checked) => void patchSettings({ view: { showMoreContext: checked } })}
+                />
+              </label>
+              <label>
+                <span>Explain search terms</span>
+                <Switch
+                  size="sm"
+                  bind:checked={() => settings.view.explainSearchTerms, (checked) => void patchSettings({ view: { explainSearchTerms: checked } })}
+                />
+              </label>
+              <label class="search-panel__structured-semantic">
+                <span>
+                  <strong>Semantic search in structured queries</strong>
+                  <small>Allow semantic candidates alongside filters, OR, and negation.</small>
+                </span>
+                <Switch
+                  size="sm"
+                  aria-label="Semantic search in structured queries"
+                  bind:checked={() => settings.view.semanticSearchInStructuredQueries, (checked) => void patchSettings({ view: { semanticSearchInStructuredQueries: checked } })}
+                />
+              </label>
+            </section>
           </div>
         {/snippet}
       </SearchFilterBar>
-      <Button
-        variant="outline"
-        size="icon-sm"
-        class="search-panel__settings-toggle"
-        aria-label="Toggle search view settings"
-        aria-expanded={settingsOpen}
-        data-active={settingsOpen}
-        onclick={() => (settingsOpen = !settingsOpen)}
-      >
-        <Settings2 aria-hidden="true" />
-      </Button>
     </div>
 
     <div class="search-panel__summary">
@@ -551,49 +589,6 @@
       <p class="search-panel__explanation">{explanation}</p>
     {/if}
 
-    {#if settingsOpen}
-      <section class="search-panel__settings" aria-label="Search view settings">
-        <label>
-          <span>Match case</span>
-          <Switch
-            size="sm"
-            bind:checked={() => settings.view.matchCase, (checked) => void patchSettings({ view: { matchCase: checked } })}
-          />
-        </label>
-        <label>
-          <span>Collapse results</span>
-          <Switch
-            size="sm"
-            bind:checked={() => settings.view.collapseResults, (checked) => void patchSettings({ view: { collapseResults: checked } })}
-          />
-        </label>
-        <label>
-          <span>Show more context</span>
-          <Switch
-            size="sm"
-            bind:checked={() => settings.view.showMoreContext, (checked) => void patchSettings({ view: { showMoreContext: checked } })}
-          />
-        </label>
-        <label>
-          <span>Explain search terms</span>
-          <Switch
-            size="sm"
-            bind:checked={() => settings.view.explainSearchTerms, (checked) => void patchSettings({ view: { explainSearchTerms: checked } })}
-          />
-        </label>
-        <label class="search-panel__structured-semantic">
-          <span>
-            <strong>Semantic search in structured queries</strong>
-            <small>Allow semantic candidates alongside filters, OR, and negation.</small>
-          </span>
-          <Switch
-            size="sm"
-            aria-label="Semantic search in structured queries"
-            bind:checked={() => settings.view.semanticSearchInStructuredQueries, (checked) => void patchSettings({ view: { semanticSearchInStructuredQueries: checked } })}
-          />
-        </label>
-      </section>
-    {/if}
   </div>
 
   <ScrollArea class="search-panel__scroll-area">

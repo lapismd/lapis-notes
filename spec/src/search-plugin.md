@@ -18,7 +18,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-008 | Storybook MUST demonstrate the real Search plugin in all six governed panel placements over an indexed in-memory vault and MUST verify query, facet, highlight, and navigation behavior. |
 | LN-SRCH-009 | Electron MUST load Search before metadata and layout restoration so a persisted `search` leaf restores as available and uses the native app database search boundary. |
 | LN-SRCH-010 | Search panel styling MUST use native CSS and public Design Core or workspace tokens. It MUST fill the owning `WorkspaceViewHost` without placement-specific selectors or Tailwind utilities. |
-| LN-SRCH-011 | The Search view MUST expose persisted Design Core toggles for Match case, Collapse results, Show more context, and Explain search terms in an inline settings panel. |
+| LN-SRCH-011 | The Search view MUST expose persisted Design Core toggles for Match case, Collapse results, Show more context, and Explain search terms inside `SearchFilterBar`'s single expandable filter area. It MUST NOT render an independent settings trigger. |
 | LN-SRCH-012 | Collapse results MUST set the default disclosure state of every file group while preserving later per-file disclosure changes until the result set changes. |
 | LN-SRCH-013 | Show more context MUST request longer result snippets. Explain search terms MUST show or hide a plain-language summary of the active query. |
 | LN-SRCH-014 | Search MUST expose `auto`, `lexical`, `vector`, and `hybrid` retrieval modes and label results with the mode actually applied by `AppDatabase`. |
@@ -29,6 +29,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-019 | The Search summary MUST expose result copy, legacy sorting, retrieval badges, match keys, and selectable bounded recent queries. |
 | LN-SRCH-020 | Proxy browser tabs MUST execute indexing, semantic configuration, status, and queries through the owning app-database session. |
 | LN-SRCH-021 | Local-LLM query expansion, reranking, and embedded Markdown query blocks MUST remain excluded from this intake. |
+| LN-SRCH-022 | Search panel facets MUST use Design Core `FilterCommandPicker` controls beneath the query, keeping file type and retrieval mode compact while preserving their existing settings. |
 
 ## Runtime flow
 

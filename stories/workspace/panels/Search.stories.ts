@@ -106,10 +106,18 @@ function placementStory(
       await userEvent.click(
         panel.getByRole("button", { name: "Expand filter options" }),
       );
-      const markdownFacet = panel.getByRole("button", { name: "Markdown" });
-      await expect(markdownFacet).toBeVisible();
-      await userEvent.click(markdownFacet);
-      await expect(markdownFacet).toHaveAttribute("aria-pressed", "true");
+      const fileTypePicker = panel.getByRole("button", {
+        name: "Filter by file type",
+      });
+      await expect(fileTypePicker).toBeVisible();
+      await userEvent.click(fileTypePicker);
+      await userEvent.click(
+        within(canvasElement.ownerDocument.body).getByRole("option", {
+          name: "Markdown",
+        }),
+      );
+      await expect(fileTypePicker).toHaveTextContent("Markdown");
+      await expect(fileTypePicker).toHaveAttribute("data-active", "true");
       await expect(panel.getByText("Vault search syntax")).toBeVisible();
 
       if (layout === "middle-top-tabs") {
@@ -118,9 +126,6 @@ function placementStory(
           configurable: true,
           value: writeText,
         });
-        await userEvent.click(
-          panel.getByRole("button", { name: "Toggle search view settings" }),
-        );
         const settings = panel.getByRole("region", {
           name: "Search view settings",
         });
@@ -155,9 +160,17 @@ function placementStory(
         await expect(panel.getByText(/Matching filenames/)).toBeVisible();
         await expect(panel.getByText("Semantic disabled")).toBeVisible();
 
-        const lexicalMode = panel.getByRole("button", { name: "Lexical" });
-        await userEvent.click(lexicalMode);
-        await expect(lexicalMode).toHaveAttribute("aria-pressed", "true");
+        const retrievalPicker = panel.getByRole("button", {
+          name: "Filter by retrieval mode",
+        });
+        await userEvent.click(retrievalPicker);
+        await userEvent.click(
+          within(canvasElement.ownerDocument.body).getByRole("option", {
+            name: "Lexical",
+          }),
+        );
+        await expect(retrievalPicker).toHaveTextContent("Lexical");
+        await expect(retrievalPicker).toHaveAttribute("data-active", "true");
 
         await userEvent.click(
           panel.getByRole("button", { name: /Filename \(A to Z\)/ }),

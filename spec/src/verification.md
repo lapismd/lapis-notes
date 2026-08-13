@@ -387,7 +387,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-008 | search-plugin | Implemented | all six governed Search placement stories pass interaction and accessibility checks |
 | LN-SRCH-009 | search-plugin | Implemented | Electron loads Search before metadata/layout and restores a native persisted query result |
 | LN-SRCH-010 | search-plugin | Implemented | no-Tailwind gate and view-token native CSS over the full host geometry |
-| LN-SRCH-011 | search-plugin | Implemented | focused middle-panel story exercises all five persisted Design Core Switch controls |
+| LN-SRCH-011 | search-plugin | Implemented | focused middle-panel story exercises all five persisted Design Core Switch controls through the single Search Filter Bar disclosure |
 | LN-SRCH-012 | search-plugin | Implemented | Storybook verifies collapsed defaults, reset on toggle, per-file persistence, and result-identity reset |
 | LN-SRCH-013 | search-plugin | Implemented | snippet-policy unit coverage plus rendered query-explanation and context-toggle acceptance |
 | LN-SRCH-014 | search-plugin | Implemented | retrieval facet selection and applied lexical badges pass focused Storybook acceptance |
@@ -398,6 +398,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-019 | search-plugin | Implemented | focused Storybook acceptance covers copy, legacy sort, badges, match keys, and bounded recents |
 | LN-SRCH-020 | search-plugin | Planned | proxy-tab indexing, semantic status, and query delegation |
 | LN-SRCH-021 | search-plugin | Implemented | package manifest and public-export audit contain no LLM enhancement or embedded-query surface |
+| LN-SRCH-022 | search-plugin | Implemented | Search panel composes compact Design Core command pickers for file-type and retrieval facets; governed Storybook acceptance persists both selections |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
 | LN-DB-003 | app-database | In progress | native Electron selection and reusable WASM/OPFS provider are implemented; browser-host and Intel Electron acceptance remain pending |

@@ -93,8 +93,9 @@ legacy commit `8ec68e18`.
 - [x] API `AppDatabase` indexing for Markdown/Canvas, stale pruning, and reactive refresh
 - [x] Design Core `SearchFilterBar` with the API CodeMirror query language, diagnostics, completions, help, and facets
 - [x] Collapsible file/match result tree with highlighted ranges, sorting, bounded recent searches, and workspace navigation
-- [x] Inline persisted Match case, Collapse results, Show more context, Explain search terms, and structured-semantic toggles
+- [x] Persisted Match case, Collapse results, Show more context, Explain search terms, and structured-semantic toggles inside the single Search Filter Bar disclosure
 - [x] Retrieval-mode facet, result badges, copy, semantic provider settings, status, and rebuild
+- [x] Compact Design Core command-picker facets for file type and retrieval mode
 - [x] Six governed Storybook placements over the indexed in-memory vault
 - [x] Tags and All Properties command-only query handoffs
 - [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance
