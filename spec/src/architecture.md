@@ -45,11 +45,12 @@ The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.
 
 Within that boundary, `LN-SRCH-023` keeps inset result-row and unindented child
-surface geometry, resolved view paint, surface-aware summary controls, and
-hover-stable metadata in the Search package while Design Core supplies reusable
-badges, tree primitives, surface tokens, and workspace placement. Incremental
-match context reads the Lapis vault through the Search component and does not
-expand the database or Design Core contracts. Recent-query persistence does not
+surface geometry, primary and contrasting secondary view paint, summary
+controls, and hover-stable metadata in the Search package while Design Core
+supplies reusable badges, tree primitives, surface tokens, and workspace
+placement. Incremental match context reads the Lapis vault through the Search
+component and does not expand the database or Design Core contracts.
+Recent-query persistence does not
 schedule replacement queries, so expanded context remains component state until
 query-driving inputs change or the index explicitly refreshes. Result navigation
 reuses an existing document leaf when available, but preserves a body-hosted

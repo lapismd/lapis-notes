@@ -71,9 +71,9 @@ matches expand from their indexed file offsets, while public Search tokens own
 highlight paint and consumers remain free of result-row overrides. The panel
 keeps expanded slices stable across recent-query persistence and resets them
 only when search inputs change or the index explicitly refreshes. The results
-surface and expanded result bodies use the resolved view background in every
-placement, and navigation does not replace a Search leaf that has been moved
-into the body.
+surface uses the resolved view background and expanded result bodies use its
+contrasting secondary background in every placement. Navigation does not
+replace a Search leaf that has been moved into the body.
 
 ## `@lapis-notes/api` (kernel slice)
 

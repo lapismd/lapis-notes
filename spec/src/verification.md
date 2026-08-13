@@ -399,7 +399,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-020 | search-plugin | Implemented | two-tab Playwright acceptance delegates provider configuration, embedding rebuild, runtime status, vector query, lexical Search, takeover, and reload |
 | LN-SRCH-021 | search-plugin | Implemented | package manifest and public-export audit contain no LLM enhancement or embedded-query surface |
 | LN-SRCH-022 | search-plugin | Implemented | Search panel composes compact Design Core command pickers for file-type and retrieval facets; governed Storybook acceptance persists both selections |
-| LN-SRCH-023 | search-plugin | Implemented | all six Search placements verify inset parents, transparent top-right counts, bottom-left metadata, full-width bordered children, and resolved result-surface paint |
+| LN-SRCH-023 | search-plugin | Implemented | all six Search placements verify inset parents, transparent top-right counts, bottom-left metadata, primary result-surface paint, and contrasting full-width bordered children |
 | LN-SRCH-024 | search-plugin | Implemented | all six Search placements verify shared summary-control state paint on result-copy and sort controls |
 | LN-SRCH-025 | search-plugin | Implemented | all six Search placements verify retrieval and match-field badge contrast against result-row paint |
 | LN-SRCH-026 | search-plugin | Implemented | all six Search placements exclude the superseded semantic-status tag |

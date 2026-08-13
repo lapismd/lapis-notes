@@ -199,10 +199,6 @@ function placementStory(
         searchPanel,
         "--ui-workspace-view-secondary-background",
       );
-      const workspaceSurface = resolveTokenColor(
-        searchPanel,
-        "--ui-workspace-background",
-      );
       expect(getComputedStyle(searchPanel).backgroundColor).toBe(
         primarySurface,
       );
@@ -210,10 +206,10 @@ function placementStory(
         primarySurface,
       );
       expect(getComputedStyle(matchList).backgroundColor).toBe(
-        workspaceSurface,
+        secondarySurface,
       );
       expect(getComputedStyle(matchListBody).backgroundColor).toBe(
-        workspaceSurface,
+        secondarySurface,
       );
       expect(secondarySurface).not.toBe(primarySurface);
       expect(getComputedStyle(modeBadge!).backgroundColor).toBe(
