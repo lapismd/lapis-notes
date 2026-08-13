@@ -377,13 +377,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-048 | packages | Implemented | API markup editor retains a 700px readable body when workspace sidebars close |
 | LN-PKG-049 | packages | Implemented | `@lapis-notes/cv` at `packages/plugins/plugin-cv`; package `check`, `test`, and `build` pass |
 | LN-PKG-050 | packages | Implemented | CV package exposes interaction and static Storybook builds; package declarations are portable |
-| LN-PKG-051 | packages | Implemented | CV package consumes linked Mira through public package exports and a portable manifest range |
+| LN-PKG-051 | packages | Implemented | CV package consumes linked Mira through public exports and configures only public layout variables for its full-width artifact surface |
 | LN-DESK-030 | desktop-host | Implemented | desktop `registerCorePlugins` loads optional CV before layout restoration |
 | LN-CAT-039 | storybook-catalog | Implemented | CV plugin Storybook on port 7020 with form, preview, and App-backed workspace stories |
 | LN-CAT-040 | storybook-catalog | Implemented | `Workspace/Plugins/CV` FileView story boots a real App over `sample.cv.yml` |
 | LN-CAT-041 | storybook-catalog | Implemented | CV package static catalog uses Lapis theme and scoped isolated 700px shell Docs canvases |
 | LN-CAT-042 | storybook-catalog | Implemented | CV package and repository stories expose explicit reproducible consumer source |
-| LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies Lapis-themed Mira Preview and read-only Source modes |
+| LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies full-width, borderless Lapis-themed Mira Preview and read-only Source modes |
 | LN-CAT-044 | storybook-catalog | Implemented | CV preview stories assert pane-relative cross-mode scaling; the App-backed story proves 100% fit, 85% shrink, and PDF persistence |
 | LN-CAT-045 | storybook-catalog | Implemented | CV package plays resize the owning surface, exercise the shared form-header Scroll Area, and verify the CV-only theme shortcut |
 | LN-CV-001 | cv-plugin | Implemented | CV package authorized; Applications and Tasks excluded from this slice |
@@ -414,7 +414,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CV-026 | cv-plugin | Implemented | Typst success plays require worker page images; fallback is covered separately |
 | LN-CV-027 | cv-plugin | Implemented | production CV CSS uses public tokens and stable component selectors only |
 | LN-CV-028 | cv-plugin | Implemented | compiled CV Markdown renders through Mira's public preview surface with the Lapis theme |
-| LN-CV-029 | cv-plugin | Implemented | CV form header exposes a focus-safe Preview-first book/pencil action, read-only source, and borderless Mira surface |
+| LN-CV-029 | cv-plugin | Implemented | CV form header exposes a focus-safe Preview-first book/pencil action plus full-width, inset-free, borderless Mira Preview and read-only Source surfaces |
 | LN-CV-030 | cv-plugin | Implemented | the worker PDF artifact supports browser download and create-or-replace vault export beside the open CV |
 | LN-CV-031 | cv-plugin | Implemented | the form-area tab list and contextual actions share a horizontal Design Core Scroll Area |
 | LN-ARCH-038 | architecture | Implemented | CV compilation and artifact export remain plugin-owned; the FileView adapts vault persistence while Mira owns Markdown presentation |

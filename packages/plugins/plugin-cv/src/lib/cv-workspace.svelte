@@ -603,6 +603,7 @@
                           use:previewScroll
                           class="complete-cv-preview-scroll"
                           data-testid="preview-scroll"
+                          data-preview-mode={previewMode}
                         >
                           <CvPreview
                             html={compiledHtml}

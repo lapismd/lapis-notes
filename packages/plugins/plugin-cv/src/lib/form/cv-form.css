@@ -455,6 +455,10 @@
   padding: 1rem;
 }
 
+.complete-cv-preview-scroll[data-preview-mode="rendercv-md"] {
+  padding: 0;
+}
+
 .complete-cv-preview-pane [data-ui-component="cv-preview"] {
   min-height: 100%;
 }

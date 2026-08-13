@@ -51,6 +51,10 @@ Preview zoom likewise remains CV-plugin presentation. It treats the preview
 pane's usable width as 100% and scales generated page and text surfaces from
 that boundary without resizing the workspace split.
 
+The generated CV Markdown surface remains a CV-owned composition of Mira's
+public layout contract. It may replace Mira's note-oriented readable column
+with a full-width artifact surface without changing Mira's defaults for notes.
+
 The Lapis façade and navigation bridge preserve this boundary without exposing
 vault or editor types to Design Core.
 

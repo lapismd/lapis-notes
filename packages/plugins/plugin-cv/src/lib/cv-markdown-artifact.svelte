@@ -55,8 +55,16 @@
   }
 
   :global(.cv-markdown-artifact__surface) {
+    --file-line-width: 100%;
+    --file-margins-x: 1rem;
+    --mira-preview-padding: 1rem;
+    --mira-preview-bottom-padding: 1rem;
+
+    width: 100%;
+    min-width: 0;
     min-height: 0;
     border: 0;
     border-radius: 0;
+    box-shadow: none;
   }
 </style>

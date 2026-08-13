@@ -372,6 +372,24 @@
     expect(
       getComputedStyle(mira!).borderRadius,
     ).toBe("0px");
+    expect(getComputedStyle(mira!).boxShadow).toBe("none");
+    expect(
+      getComputedStyle(mira!).getPropertyValue("--file-line-width").trim(),
+    ).toBe("100%");
+    expect(
+      getComputedStyle(mira!).getPropertyValue("--file-margins-x").trim(),
+    ).toBe("1rem");
+    expect(
+      getComputedStyle(mira!).getPropertyValue("--mira-preview-padding").trim(),
+    ).toBe("1rem");
+    expect(mira!.getBoundingClientRect().width).toBeCloseTo(
+      artifact.getBoundingClientRect().width,
+      0,
+    );
+    const previewScroll = canvas.getByTestId("preview-scroll");
+    expect(previewScroll.getAttribute("data-preview-mode")).toBe("rendercv-md");
+    expect(getComputedStyle(previewScroll).paddingInlineStart).toBe("0px");
+    expect(getComputedStyle(previewScroll).paddingInlineEnd).toBe("0px");
     expect(
       canvas.queryByRole("group", { name: "CV Markdown mode" }),
     ).toBeNull();
