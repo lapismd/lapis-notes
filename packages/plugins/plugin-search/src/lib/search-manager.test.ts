@@ -90,7 +90,9 @@ describe("SearchManager", () => {
       view: { ...DEFAULT_SEARCH_SETTINGS.view, matchCase: true },
     }));
 
-    await expect(manager.query({ term: "tag:#project" })).resolves.toEqual({
+    await expect(
+      manager.query({ term: "tag:#project", mode: "lexical" }),
+    ).resolves.toEqual({
       count: 0,
       hits: [],
     });
@@ -98,8 +100,45 @@ describe("SearchManager", () => {
       snippetLength: 90,
       limit: 25,
       caseSensitive: true,
-      mode: "auto",
+      mode: "lexical",
       includeDiagnostics: true,
+    });
+  });
+
+  it("reports provider-neutral semantic and refresh status", async () => {
+    const app = {
+      appDatabase: {
+        kind: "turso",
+        getSearchEmbeddingProvider: vi.fn(async () => ({
+          kind: "transformers-js",
+          modelId: "Xenova/all-MiniLM-L6-v2",
+          allowRemoteModels: false,
+        })),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => ({
+          phase: "ready",
+          modelId: "Xenova/all-MiniLM-L6-v2",
+          dimensions: 384,
+          error: null,
+        })),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: 2,
+          chunkCount: 3,
+          readyChunkCount: 2,
+          pendingChunkCount: 1,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+
+    await expect(new SearchManager(app).getStatus()).resolves.toMatchObject({
+      backendKind: "turso",
+      provider: { kind: "transformers-js" },
+      runtime: { phase: "ready", dimensions: 384 },
+      documentCount: 2,
+      readyChunkCount: 2,
+      pendingChunkCount: 1,
+      isRefreshing: false,
     });
   });
 });

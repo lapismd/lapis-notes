@@ -9,13 +9,16 @@ export { SearchPlugin } from "./search-plugin";
 export {
   DEFAULT_SEARCH_SETTINGS,
   SEARCH_VIEW_SORT_OPTIONS,
+  SEARCH_EMBEDDING_MODEL_OPTIONS,
   mergeSearchSettings,
   patchSearchSettings,
+  resolveSearchEmbeddingProviderConfig,
 } from "./search-settings";
 export type {
   SearchPluginSettings,
   SearchPluginSettingsPatch,
   SearchResultFacet,
+  SearchRetrievalMode,
   SearchViewSortMode,
 } from "./search-settings";
 export { SearchView, SearchViewType } from "./search-view";

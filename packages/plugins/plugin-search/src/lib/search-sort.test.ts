@@ -37,6 +37,15 @@ describe("search result sorting", () => {
     ).toEqual(["a/Note 2.md", "z/Note 10.md", "b/Note 2.md"]);
   });
 
+  it("retains legacy created-time sort modes", () => {
+    expect(
+      sortSearchResults(results, "created-desc").map((entry) => entry.file.path),
+    ).toEqual(["b/Note 2.md", "z/Note 10.md", "a/Note 2.md"]);
+    expect(formatSearchViewSortLabel("created-asc")).toBe(
+      "Created (old to new)",
+    );
+  });
+
   it("uses the public option labels", () => {
     expect(formatSearchViewSortLabel("modified-desc")).toBe(
       "Modified (new to old)",

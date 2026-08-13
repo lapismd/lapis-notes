@@ -3,6 +3,8 @@ import {
   type AppDatabaseSearchDiagnostics,
   type AppDatabaseSearchScoreBreakdown,
   type AppDatabaseSearchSnippet,
+  type SearchEmbeddingProviderConfig,
+  type SearchEmbeddingRuntimeStatus,
   type CachedMetadata,
   type SearchDocumentRecord,
   type SearchDocumentSourceMetadata,
@@ -97,6 +99,7 @@ export interface SearchQueryParams {
   term: string;
   snippetLength?: number;
   caseSensitive?: boolean;
+  mode?: "auto" | "lexical" | "vector" | "hybrid";
 }
 
 export interface SearchQueryHit {
@@ -106,7 +109,24 @@ export interface SearchQueryHit {
   snippets: AppDatabaseSearchSnippet[];
   retrievalMode: "lexical" | "vector" | "hybrid";
   scoreBreakdown: AppDatabaseSearchScoreBreakdown;
+  matchedChunkIds: string[];
   diagnostics?: AppDatabaseSearchDiagnostics;
+}
+
+export interface SearchRuntimeStatus {
+  backendKind: string;
+  provider: SearchEmbeddingProviderConfig | null;
+  runtime: SearchEmbeddingRuntimeStatus | null;
+  documentCount: number;
+  chunkCount: number;
+  readyChunkCount: number;
+  pendingChunkCount: number;
+  errorChunkCount: number;
+  lastError: string | null;
+  isRefreshing: boolean;
+  refreshReason: string | null;
+  refreshProgress: { processed: number; total: number };
+  refreshedAt: number | null;
 }
 
 export interface SearchQueryResult {
@@ -115,7 +135,14 @@ export interface SearchQueryResult {
 }
 
 export class SearchManager {
-  private refreshPromise: Promise<void> | null = null;
+  private refreshPromise: Promise<SearchRuntimeStatus> | null = null;
+  private refreshState = {
+    active: false,
+    processed: 0,
+    total: 0,
+    reason: null as string | null,
+    refreshedAt: null as number | null,
+  };
   private readonly queuedChanges = new Map<
     string,
     { file: TFile; content: string; cache: CachedMetadata }
@@ -160,7 +187,7 @@ export class SearchManager {
       snippetLength: params.snippetLength ?? settings.query.snippetLength,
       limit: settings.query.resultLimit,
       caseSensitive: params.caseSensitive ?? settings.view.matchCase,
-      mode: "auto",
+      mode: params.mode ?? settings.view.retrievalMode,
       includeDiagnostics: true,
     });
     return {
@@ -175,6 +202,7 @@ export class SearchManager {
         })),
         retrievalMode: result.retrievalMode,
         scoreBreakdown: { ...result.scoreBreakdown },
+        matchedChunkIds: [...result.matchedChunkIds],
         diagnostics: result.diagnostics
           ? { ...result.diagnostics }
           : undefined,
@@ -182,7 +210,28 @@ export class SearchManager {
     };
   }
 
-  refreshFromVault(reason = "manual-refresh"): Promise<void> {
+  async getStatus(): Promise<SearchRuntimeStatus> {
+    const [provider, runtime, stats] = await Promise.all([
+      this.app.appDatabase.getSearchEmbeddingProvider(),
+      this.app.appDatabase.getSearchEmbeddingRuntimeStatus(),
+      this.app.appDatabase.getSearchIndexStats(),
+    ]);
+    return {
+      backendKind: this.app.appDatabase.kind,
+      provider,
+      runtime,
+      ...stats,
+      isRefreshing: this.refreshState.active,
+      refreshReason: this.refreshState.reason,
+      refreshProgress: {
+        processed: this.refreshState.processed,
+        total: this.refreshState.total,
+      },
+      refreshedAt: this.refreshState.refreshedAt,
+    };
+  }
+
+  refreshFromVault(reason = "manual-refresh"): Promise<SearchRuntimeStatus> {
     if (this.refreshPromise) return this.refreshPromise;
     this.refreshPromise = this.runRefresh(reason).finally(() => {
       this.refreshPromise = null;
@@ -249,8 +298,8 @@ export class SearchManager {
     }
   }
 
-  private async runRefresh(reason: string): Promise<void> {
-    await this.app.notifications.withProgress(
+  private async runRefresh(reason: string): Promise<SearchRuntimeStatus> {
+    return this.app.notifications.withProgress(
       {
         title: "Refreshing search index",
         source: "Search",
@@ -264,22 +313,48 @@ export class SearchManager {
           (document) => !paths.has(document.path),
         );
         const total = stale.length + files.length;
-        let current = 0;
-        for (const document of stale) {
-          progress.report({ current, total, message: document.path });
-          await this.app.appDatabase.deleteSearchDocument(document.path);
-          current += 1;
-        }
-        for (const file of files) {
-          progress.report({ current, total, message: file.path });
-          await this.processFile(file);
-          current += 1;
-        }
-        progress.report({
-          current: total,
+        this.refreshState = {
+          active: true,
+          processed: 0,
           total,
-          message: reason === "startup" ? "Search ready" : "Search refreshed",
-        });
+          reason,
+          refreshedAt: this.refreshState.refreshedAt,
+        };
+        await this.app.appDatabase.beginSearchIndexingBatch();
+        try {
+          for (const document of stale) {
+            progress.throwIfCancellationRequested();
+            progress.report({
+              current: this.refreshState.processed,
+              total,
+              message: document.path,
+            });
+            await this.app.appDatabase.deleteSearchDocument(document.path);
+            this.refreshState.processed += 1;
+          }
+          for (const file of files) {
+            progress.throwIfCancellationRequested();
+            progress.report({
+              current: this.refreshState.processed,
+              total,
+              message: file.path,
+            });
+            await this.processFile(file);
+            this.refreshState.processed += 1;
+          }
+          this.refreshState.refreshedAt = Date.now();
+          progress.report({
+            current: total,
+            total,
+            message:
+              reason === "startup" ? "Search ready" : "Search refreshed",
+          });
+        } finally {
+          await this.app.appDatabase.endSearchIndexingBatch();
+          this.refreshState.active = false;
+          this.refreshState.reason = null;
+        }
+        return this.getStatus();
       },
     );
   }

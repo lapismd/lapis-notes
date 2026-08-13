@@ -1,7 +1,7 @@
 import type { App } from "@lapis-notes/api";
 import { SearchPanel } from "@lapis-notes/search";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect, userEvent, waitFor } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import PanelDemo from "./PanelDemo.svelte";
 import { panelExampleSources } from "./Panel.example-sources";
 import type { PanelDemoLayout } from "./create-panel-demo";
@@ -77,6 +77,20 @@ function placementStory(
         expect(panel.getByText("Notes/Welcome.md")).toBeVisible();
         expect(panel.getByText(/result/)).toBeVisible();
       });
+      const tree = panel.getByRole("tree", { name: "Search results" });
+      const fileTreeItem = within(tree)
+        .getAllByRole("treeitem")
+        .find((item) => item.getAttribute("aria-level") === "1");
+      expect(fileTreeItem).toBeDefined();
+      await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "false");
+      await userEvent.click(fileTreeItem!);
+      await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "true");
+      expect(
+        within(tree)
+          .getAllByRole("treeitem")
+          .some((item) => item.getAttribute("aria-level") === "2"),
+      ).toBe(true);
+      expect(within(tree).getAllByText("lexical").length).toBeGreaterThan(0);
       const editor = canvasElement.querySelector<HTMLElement>(
         '[data-testid="search-panel"] .cm-editor',
       );
@@ -87,6 +101,7 @@ function placementStory(
       expect(
         canvasElement.querySelectorAll('[data-testid="search-panel"] mark').length,
       ).toBeGreaterThan(0);
+      expect(within(tree).getAllByText("content").length).toBeGreaterThan(0);
 
       await userEvent.click(
         panel.getByRole("button", { name: "Expand filter options" }),
@@ -98,12 +113,91 @@ function placementStory(
       await expect(panel.getByText("Vault search syntax")).toBeVisible();
 
       if (layout === "middle-top-tabs") {
-        await userEvent.selectOptions(
-          panel.getByRole("combobox", { name: "Sort search results" }),
-          "modified-desc",
+        const writeText = fn(async () => undefined);
+        Object.defineProperty(navigator.clipboard, "writeText", {
+          configurable: true,
+          value: writeText,
+        });
+        await userEvent.click(
+          panel.getByRole("button", { name: "Toggle search view settings" }),
+        );
+        const settings = panel.getByRole("region", {
+          name: "Search view settings",
+        });
+        const collapseResults = within(settings).getByRole("switch", {
+          name: "Collapse results",
+        });
+        await userEvent.click(collapseResults);
+        await expect(collapseResults).toHaveAttribute("data-state", "unchecked");
+        await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "true");
+        await userEvent.click(fileTreeItem!);
+        await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "false");
+        const explainTerms = within(settings).getByRole("switch", {
+          name: "Explain search terms",
+        });
+        const matchCase = within(settings).getByRole("switch", {
+          name: "Match case",
+        });
+        const showMoreContext = within(settings).getByRole("switch", {
+          name: "Show more context",
+        });
+        const semanticStructured = within(settings).getByRole("switch", {
+          name: /^Semantic search in structured queries/,
+        });
+        await userEvent.click(matchCase);
+        await userEvent.click(showMoreContext);
+        await userEvent.click(semanticStructured);
+        await expect(matchCase).toHaveAttribute("data-state", "checked");
+        await expect(showMoreContext).toHaveAttribute("data-state", "checked");
+        await expect(semanticStructured).toHaveAttribute("data-state", "checked");
+        await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "false");
+        await userEvent.click(explainTerms);
+        await expect(panel.getByText(/Matching filenames/)).toBeVisible();
+        await expect(panel.getByText("Semantic disabled")).toBeVisible();
+
+        const lexicalMode = panel.getByRole("button", { name: "Lexical" });
+        await userEvent.click(lexicalMode);
+        await expect(lexicalMode).toHaveAttribute("aria-pressed", "true");
+
+        await userEvent.click(
+          panel.getByRole("button", { name: /Filename \(A to Z\)/ }),
         );
         await userEvent.click(
-          panel.getByRole("button", { name: "Open Notes/Welcome.md" }),
+          within(document.body).getByRole("button", {
+            name: "Modified (new to old)",
+          }),
+        );
+        await expect(
+          panel.getByRole("button", { name: /Modified \(new to old\)/ }),
+        ).toBeVisible();
+
+        await userEvent.click(
+          panel.getByRole("button", { name: "Copy search results" }),
+        );
+        await expect(writeText).toHaveBeenCalledWith(
+          expect.stringContaining("Notes/Welcome.md"),
+        );
+        await userEvent.click(
+          panel.getByRole("button", { name: "Clear search" }),
+        );
+        await expect(
+          panel.getByRole("heading", { name: "Recent searches" }),
+        ).toBeVisible();
+        await userEvent.click(panel.getByRole("button", { name: "Welcome" }));
+        await waitFor(() =>
+          expect(panel.getByText("Notes/Welcome.md")).toBeVisible(),
+        );
+        const currentTree = panel.getByRole("tree", { name: "Search results" });
+        const currentFileTreeItem = within(currentTree)
+          .getAllByRole("treeitem")
+          .find((item) => item.getAttribute("aria-level") === "1")!;
+        if (currentFileTreeItem.getAttribute("aria-expanded") !== "true") {
+          await userEvent.click(currentFileTreeItem);
+        }
+        await userEvent.click(
+          within(currentTree)
+            .getAllByRole("treeitem")
+            .find((item) => item.getAttribute("aria-level") === "2")!,
         );
         await waitFor(() => {
           expect(

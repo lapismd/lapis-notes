@@ -1903,7 +1903,6 @@ export class MemoryAppDatabase implements AppDatabase {
     this.searchEmbeddingProvider = createSearchEmbeddingProvider(
       clone(provider),
     );
-    this.warmSearchEmbeddingProvider();
 
     const providerChanged =
       JSON.stringify(previousProvider) !==
@@ -2445,16 +2444,6 @@ export class MemoryAppDatabase implements AppDatabase {
     } catch {
       return null;
     }
-  }
-
-  protected warmSearchEmbeddingProvider(): void {
-    if (!this.searchEmbeddingProvider) {
-      return;
-    }
-
-    void this.searchEmbeddingProvider.ready().catch(() => {
-      // Query and indexing paths surface the concrete error state.
-    });
   }
 
   protected rebindSearchDocumentForProvider(

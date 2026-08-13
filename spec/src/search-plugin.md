@@ -22,7 +22,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-012 | Collapse results MUST set the default disclosure state of every file group while preserving later per-file disclosure changes until the result set changes. |
 | LN-SRCH-013 | Show more context MUST request longer result snippets. Explain search terms MUST show or hide a plain-language summary of the active query. |
 | LN-SRCH-014 | Search MUST expose `auto`, `lexical`, `vector`, and `hybrid` retrieval modes and label results with the mode actually applied by `AppDatabase`. |
-| LN-SRCH-015 | Semantic search MUST default to disabled. Selecting Transformers.js MUST lazily load and cache the configured model without sending vault contents to a remote service. |
+| LN-SRCH-015 | Semantic search MUST default to disabled. Selecting Transformers.js MUST NOT initialize or download the configured model before the first semantic indexing or query operation, and vault contents MUST remain local. |
 | LN-SRCH-016 | Search settings MUST configure the embedding provider, model, remote-model permission, local path, chunking, result bounds, semantic status visibility, and explicit rebuild. |
 | LN-SRCH-017 | Search MUST expose semantic provider, model, indexing progress, error, and readiness state without importing a concrete database implementation. |
 | LN-SRCH-018 | Structured queries MUST remain lexical unless the persisted semantic-structured-query toggle is enabled. Shared API evaluation MUST preserve filters, negation, comparisons, and case behavior. |

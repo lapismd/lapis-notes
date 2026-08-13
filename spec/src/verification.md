@@ -381,23 +381,23 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-002 | search-plugin | Implemented | canonical Search view plus open, selected-text, refresh, and rebuild commands |
 | LN-SRCH-003 | search-plugin | Implemented | AppDatabase indexing, refresh, pruning, reactive tracking, and manager tests |
 | LN-SRCH-004 | search-plugin | Implemented | Design Core SearchFilterBar with API CodeMirror query language, diagnostics, completion, help, and facets |
-| LN-SRCH-005 | search-plugin | Planned | accessible file/match tree, highlighted ranges, totals, sorting, and workspace navigation acceptance |
+| LN-SRCH-005 | search-plugin | Implemented | six real-panel stories verify nested ARIA tree items, highlights, totals, sorting, and source navigation |
 | LN-SRCH-006 | search-plugin | Implemented | settings merge, bounded recents, listeners, pending-query disposal, and unit coverage |
 | LN-SRCH-007 | search-plugin | Implemented | Markdown Tags and All Properties registered-command handoffs |
 | LN-SRCH-008 | search-plugin | Implemented | all six governed Search placement stories pass interaction and accessibility checks |
 | LN-SRCH-009 | search-plugin | Implemented | Electron loads Search before metadata/layout and restores a native persisted query result |
 | LN-SRCH-010 | search-plugin | Implemented | no-Tailwind gate and view-token native CSS over the full host geometry |
-| LN-SRCH-011 | search-plugin | Planned | inline Design Core Switch settings and focused Storybook interaction acceptance |
-| LN-SRCH-012 | search-plugin | Planned | default and per-file disclosure state exercised through the real result tree |
-| LN-SRCH-013 | search-plugin | Planned | manager request and rendered query-explanation acceptance for feature toggles |
-| LN-SRCH-014 | search-plugin | Planned | selectable retrieval modes and applied-mode labels |
+| LN-SRCH-011 | search-plugin | Implemented | focused middle-panel story exercises all five persisted Design Core Switch controls |
+| LN-SRCH-012 | search-plugin | Implemented | Storybook verifies collapsed defaults, reset on toggle, per-file persistence, and result-identity reset |
+| LN-SRCH-013 | search-plugin | Implemented | snippet-policy unit coverage plus rendered query-explanation and context-toggle acceptance |
+| LN-SRCH-014 | search-plugin | Implemented | retrieval facet selection and applied lexical badges pass focused Storybook acceptance |
 | LN-SRCH-015 | search-plugin | Planned | disabled-by-default local Transformers.js activation and cache behavior |
-| LN-SRCH-016 | search-plugin | Planned | complete semantic and query settings tab |
-| LN-SRCH-017 | search-plugin | Planned | provider-neutral semantic status and progress presentation |
-| LN-SRCH-018 | search-plugin | Planned | structured-query semantic opt-in and shared evaluator correctness |
-| LN-SRCH-019 | search-plugin | Planned | copy, sort, badges, match keys, and recent-query presentation |
+| LN-SRCH-016 | search-plugin | Implemented | public settings tab covers provider, model, permissions, local path, chunking, bounds, status, and rebuild |
+| LN-SRCH-017 | search-plugin | Implemented | manager status unit and Search panel semantic status presentation remain database-provider neutral |
+| LN-SRCH-018 | search-plugin | Implemented | retrieval-policy unit keeps structured queries lexical until explicit semantic opt-in |
+| LN-SRCH-019 | search-plugin | Implemented | focused Storybook acceptance covers copy, legacy sort, badges, match keys, and bounded recents |
 | LN-SRCH-020 | search-plugin | Planned | proxy-tab indexing, semantic status, and query delegation |
-| LN-SRCH-021 | search-plugin | Planned | excluded legacy LLM and embedded-query surfaces remain absent |
+| LN-SRCH-021 | search-plugin | Implemented | package manifest and public-export audit contain no LLM enhancement or embedded-query surface |
 | LN-DB-001 | app-database | Planned | stable operations and optional provider injection |
 | LN-DB-002 | app-database | Planned | provider descriptor and capability reporting |
 | LN-DB-003 | app-database | Planned | Turso native and WASM default provider selection |

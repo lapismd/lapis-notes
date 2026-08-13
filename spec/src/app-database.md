@@ -14,7 +14,7 @@ workspace shell.
 | LN-DB-004 | Turso storage MUST persist metadata snapshots, indexed files, links, tags, properties, notifications, history, search documents, chunks, embedding state, and application metadata. |
 | LN-DB-005 | Lexical retrieval MUST use Turso full-text search when available. Unsupported optimizations MAY degrade to Turso table evaluation while reporting the degraded capability. |
 | LN-DB-006 | Semantic retrieval MUST store float vectors in Turso and use Turso vector distance or indexes. Active query paths MUST NOT load sqlite-vec. |
-| LN-DB-007 | Document and query embeddings MUST be generated locally through the provider-neutral embedding contract. Changing model identity or dimensions MUST invalidate and rebuild affected vectors. |
+| LN-DB-007 | Document and query embeddings MUST be generated locally through the provider-neutral embedding contract. Configuration MUST remain lazy until the first semantic index or query, and changing model identity or dimensions MUST invalidate affected vectors. |
 | LN-DB-008 | Hybrid retrieval MUST combine lexical and vector candidates through the shared API result contract and reciprocal-rank fusion. Structured-query correctness MUST remain API-owned. |
 | LN-DB-009 | Legacy SQLite files MUST NOT be opened, imported, migrated, or deleted. Removing backward compatibility MUST also remove their runtime dependencies and query paths. |
 | LN-DB-010 | Electron database IPC MUST expose bounded allowlisted operations, validate renderer and vault ownership, and never expose raw SQL or filesystem paths. |

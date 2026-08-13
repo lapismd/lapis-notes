@@ -1,8 +1,11 @@
 <script lang="ts">
   import "./search-panel.css";
   import {
+    canCollectSearchQueryTerms,
+    collectSearchQueryTerms,
     parseSearchQueryAst,
     searchQueryLanguageSupport,
+    Notice,
     type App,
     type EditorPosition,
     type TFile,
@@ -13,30 +16,44 @@
     SearchFilterBar,
     type SearchFilterSyntax,
   } from "@lapismd/design-core/filter";
+  import { Badge } from "@lapismd/design-core/shadcn/badge";
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as Collapsible from "@lapismd/design-core/shadcn/collapsible";
+  import * as Popover from "@lapismd/design-core/shadcn/popover";
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
+  import * as Sidebar from "@lapismd/design-core/shadcn/sidebar";
+  import { Switch } from "@lapismd/design-core/shadcn/switch";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
+  import ChevronsUpDown from "@lucide/svelte/icons/chevrons-up-down";
+  import Copy from "@lucide/svelte/icons/copy";
   import FileText from "@lucide/svelte/icons/file-text";
   import Hash from "@lucide/svelte/icons/hash";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
+  import Settings2 from "@lucide/svelte/icons/settings-2";
   import { onMount, untrack } from "svelte";
   import HighlightedText from "./highlighted-text.svelte";
   import type {
     SearchManager,
     SearchQueryHit,
+    SearchRuntimeStatus,
   } from "./search-manager";
   import {
     SEARCH_VIEW_SORT_OPTIONS,
     type SearchPluginSettings,
     type SearchPluginSettingsPatch,
     type SearchResultFacet,
+    type SearchRetrievalMode,
+    resolveSearchRetrievalModeForQuery,
+    resolveSearchSnippetLength,
   } from "./search-settings";
-  import { sortSearchResults } from "./search-sort";
+  import { formatSearchViewSortLabel, sortSearchResults } from "./search-sort";
 
   type SearchPanelPlugin = {
     searchManager: SearchManager;
     getSettings(): SearchPluginSettings;
+    getSearchStatus(): Promise<SearchRuntimeStatus>;
     updateSettings(patch: SearchPluginSettingsPatch): Promise<void>;
-    refreshIndex(reason?: string): Promise<void>;
+    refreshIndex(reason?: string): Promise<SearchRuntimeStatus>;
   };
 
   type SearchRange = { start: number; end: number };
@@ -72,17 +89,44 @@
   let query = $state("");
   let settings = $state(untrack(() => plugin.getSettings()));
   let results = $state<SearchResult[]>([]);
+  let resultCount = $state(0);
+  let resultOpenState = $state<Record<string, boolean>>({});
+  let resultIdentity = "";
+  let runtimeStatus = $state<SearchRuntimeStatus | null>(null);
   let searching = $state(false);
   let indexing = $state(false);
+  let settingsOpen = $state(false);
   let filtersExpanded = $state(false);
   let metadataRevision = $state(0);
   let searchRevision = 0;
 
-  const diagnostic = $derived.by(() => {
-    if (!query.trim()) return null;
-    return parseSearchQueryAst(query).diagnostics[0]?.message ?? null;
+  const parsedQuery = $derived(parseSearchQueryAst(query));
+  const diagnostic = $derived(
+    query.trim() ? (parsedQuery.diagnostics[0]?.message ?? null) : null,
+  );
+  const structuredQuery = $derived(
+    Boolean(
+      query.trim() &&
+        parsedQuery.diagnostics.length === 0 &&
+        !canCollectSearchQueryTerms(parsedQuery),
+    ),
+  );
+  const explanation = $derived.by(() => {
+    if (!query.trim() || !settings.view.explainSearchTerms) return null;
+    const terms = (
+      canCollectSearchQueryTerms(parsedQuery)
+        ? collectSearchQueryTerms(parsedQuery)
+        : query
+            .trim()
+            .split(/\s+/u)
+            .filter(Boolean)
+    )
+      .slice(0, 8)
+      .join(", ");
+    return terms
+      ? `Matching filenames, paths, tags, metadata, and content for: ${terms}.`
+      : "Matching filenames, paths, tags, metadata, and content.";
   });
-
   const filteredResults = $derived.by(() => {
     const facet = settings.view.resultFacet;
     const matching = results.filter((result) => {
@@ -92,11 +136,22 @@
     });
     return sortSearchResults(matching, settings.view.sortMode);
   });
+  const semanticStatusLabel = $derived.by(() => {
+    if (!runtimeStatus?.provider) return "Semantic disabled";
+    if (runtimeStatus.isRefreshing) {
+      return `Indexing ${runtimeStatus.refreshProgress.processed}/${runtimeStatus.refreshProgress.total}`;
+    }
+    if (runtimeStatus.runtime?.phase === "downloading") return "Downloading model";
+    if (runtimeStatus.runtime?.phase === "error") return "Semantic error";
+    return `${runtimeStatus.readyChunkCount}/${runtimeStatus.chunkCount} embedded`;
+  });
 
   const filterSyntax = $derived.by<SearchFilterSyntax>(() => {
     metadataRevision;
     const files = app.vault.getFiles();
-    const paths = [...new Set(files.map((file) => file.parent?.path).filter(Boolean))]
+    const paths = [
+      ...new Set(files.map((file) => file.parent?.path).filter(Boolean)),
+    ]
       .sort()
       .slice(0, 100) as string[];
     const names = files.map((file) => file.name).sort().slice(0, 100);
@@ -111,7 +166,9 @@
           : [];
       for (const tag of values) {
         const normalized = String(tag).trim();
-        if (normalized) tags.add(normalized.startsWith("#") ? normalized : `#${normalized}`);
+        if (normalized) {
+          tags.add(normalized.startsWith("#") ? normalized : `#${normalized}`);
+        }
       }
     }
     return {
@@ -119,8 +176,18 @@
       description:
         "Combine text with file, path, tag, content, line, section, and bracket-property filters.",
       fields: [
-        { name: "file", description: "File name", operators: [":"], values: names },
-        { name: "path", description: "Folder or path", operators: [":"], values: paths },
+        {
+          name: "file",
+          description: "File name",
+          operators: [":"],
+          values: names,
+        },
+        {
+          name: "path",
+          description: "Folder or path",
+          operators: [":"],
+          values: paths,
+        },
         {
           name: "tag",
           description: "Markdown or frontmatter tag",
@@ -129,11 +196,18 @@
         },
         { name: "content", description: "Note content", operators: [":"] },
         { name: "line", description: "Terms on one line", operators: [":"] },
-        { name: "section", description: "Terms in one section", operators: [":"] },
+        {
+          name: "section",
+          description: "Terms in one section",
+          operators: [":"],
+        },
       ],
       examples: [
         { query: "tag:#project", description: "Notes with a project tag" },
-        { query: 'path:"Notes" OR file:Welcome', description: "Path or file filters" },
+        {
+          query: 'path:"Notes" OR file:Welcome',
+          description: "Path or file filters",
+        },
         { query: '["status"]:ready', description: "Exact frontmatter property" },
       ],
       notes: ["Use OR for alternatives and -term to exclude a term."],
@@ -144,12 +218,27 @@
     query = next;
   }
 
+  function retrievalModeForQuery(): SearchRetrievalMode {
+    return resolveSearchRetrievalModeForQuery(
+      settings.view.retrievalMode,
+      structuredQuery,
+      settings.view.semanticSearchInStructuredQueries,
+    );
+  }
+
+  function snippetLength(): number {
+    return resolveSearchSnippetLength(
+      settings.query.snippetLength,
+      settings.view.showMoreContext,
+    );
+  }
+
   function offsetPosition(content: string, offset: number): EditorPosition {
     const before = content.slice(0, Math.max(0, offset));
     const lines = before.split("\n");
     return {
       line: lines.length - 1,
-      ch: lines.length ? (lines[lines.length - 1]?.length ?? 0) : 0,
+      ch: lines.at(-1)?.length ?? 0,
     };
   }
 
@@ -179,6 +268,19 @@
     };
   }
 
+  function refreshOpenState(items: SearchResult[], identity: string): void {
+    if (identity === resultIdentity) return;
+    resultIdentity = identity;
+    const defaultOpen = !settings.view.collapseResults;
+    resultOpenState = Object.fromEntries(
+      items.map((item) => [item.file.path, defaultOpen]),
+    );
+  }
+
+  function setResultOpen(path: string, open: boolean): void {
+    resultOpenState = { ...resultOpenState, [path]: open };
+  }
+
   async function rememberSearch(value: string): Promise<void> {
     const term = value.trim();
     if (!term) return;
@@ -192,12 +294,25 @@
   async function patchSettings(patch: SearchPluginSettingsPatch): Promise<void> {
     await plugin.updateSettings(patch);
     settings = plugin.getSettings();
+    if (patch.view?.collapseResults !== undefined) {
+      const defaultOpen = !settings.view.collapseResults;
+      resultOpenState = Object.fromEntries(
+        results.map((result) => [result.file.path, defaultOpen]),
+      );
+    }
+    await refreshRuntimeStatus();
+  }
+
+  async function refreshRuntimeStatus(): Promise<void> {
+    runtimeStatus = await plugin.getSearchStatus().catch(() => null);
   }
 
   async function executeSearch(term: string, revision: number): Promise<void> {
     if (!term.trim() || diagnostic) {
       results = [];
+      resultCount = 0;
       searching = false;
+      refreshOpenState([], term.trim());
       return;
     }
     searching = true;
@@ -205,12 +320,20 @@
       const response = await plugin.searchManager.query({
         term,
         caseSensitive: settings.view.matchCase,
-        snippetLength: settings.query.snippetLength,
+        snippetLength: snippetLength(),
+        mode: retrievalModeForQuery(),
       });
       if (revision !== searchRevision) return;
-      results = response.hits
+      const nextResults = response.hits
         .map(resultFromHit)
         .filter((result): result is SearchResult => result !== null);
+      results = nextResults;
+      resultCount = response.count;
+      const identity = `${term}\u0000${nextResults
+        .map((result) => `${result.file.path}:${result.matches.length}`)
+        .join("\u0000")}`;
+      refreshOpenState(nextResults, identity);
+      runtimeStatus = await plugin.getSearchStatus().catch(() => null);
       void rememberSearch(term);
     } finally {
       if (revision === searchRevision) searching = false;
@@ -220,27 +343,50 @@
   $effect(() => {
     const term = query;
     settings.view.matchCase;
+    settings.view.showMoreContext;
+    settings.view.semanticSearchInStructuredQueries;
+    settings.view.retrievalMode;
     const revision = ++searchRevision;
-    const timer = window.setTimeout(() => {
-      void executeSearch(term, revision);
-    }, 250);
+    const timer = window.setTimeout(() => void executeSearch(term, revision), 250);
     return () => window.clearTimeout(timer);
   });
 
   async function refreshIndex(): Promise<void> {
     if (indexing) return;
     indexing = true;
+    const refresh = plugin.refreshIndex("search-panel");
+    const statusPoll = window.setInterval(() => void refreshRuntimeStatus(), 100);
     try {
-      await plugin.refreshIndex("search-panel");
+      runtimeStatus = await refresh;
       const revision = ++searchRevision;
       await executeSearch(query, revision);
     } finally {
+      window.clearInterval(statusPoll);
       indexing = false;
+      await refreshRuntimeStatus();
     }
   }
 
-  function setFacet(facet: SearchResultFacet): void {
-    void patchSettings({ view: { resultFacet: facet } });
+  async function copySearchResults(): Promise<void> {
+    const lines = filteredResults.flatMap((result) => [
+      result.file.path,
+      ...result.matches.map((match) => `  ${match.key}: ${match.text}`),
+    ]);
+    const text = lines.join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      new Notice("Search results copied");
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.append(textarea);
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      new Notice(copied ? "Search results copied" : "Unable to copy search results");
+    }
   }
 
   function mainLeaf(): WorkspaceLeaf {
@@ -252,7 +398,10 @@
     );
   }
 
-  async function openResult(result: SearchResult, pos?: EditorPosition): Promise<void> {
+  async function openResult(
+    result: SearchResult,
+    pos?: EditorPosition,
+  ): Promise<void> {
     const leaf = mainLeaf();
     await leaf.openFile(result.file);
     app.workspace.activeLeaf = leaf;
@@ -262,6 +411,7 @@
 
   onMount(() => {
     query = initialQuery;
+    void refreshRuntimeStatus();
     const changed = app.metadataCache.on("changed", () => (metadataRevision += 1));
     const deleted = app.metadataCache.on("deleted", () => (metadataRevision += 1));
     const loaded = app.metadataCache.on("loaded", () => (metadataRevision += 1));
@@ -274,140 +424,280 @@
   });
 </script>
 
-<div class="search-panel" data-testid="search-panel" data-ui-component="search-panel">
+<div
+  class="search-panel"
+  data-testid="search-panel"
+  data-ui-component="search-panel"
+>
   <div class="search-panel__chrome" data-ui-part="chrome">
-    <SearchFilterBar
-      value={query}
-      inputMode="filter-query"
-      {filterSyntax}
-      editorExtensions={[searchQueryLanguageSupport()]}
-      error={diagnostic}
-      showFilterToggle
-      bind:filtersExpanded
-      ariaLabel="Search vault"
-      placeholder="Search all files…"
-      onValueChange={(value) => (query = value)}
-      onClearSearch={() => {
-        query = "";
-      }}
-    >
-      {#snippet actions()}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Refresh search index"
-          disabled={indexing}
-          onclick={refreshIndex}
-        >
-          <RefreshCw aria-hidden="true" />
-        </Button>
-      {/snippet}
-      {#snippet filters()}
-        <div class="search-panel__facets" aria-label="Search result facets">
-          {#each [
-            ["all", "All"],
-            ["markdown", "Markdown"],
-            ["canvas", "Canvas"],
-          ] as facet (facet[0])}
-            <Button
-              variant="outline"
-              size="sm"
-              aria-pressed={settings.view.resultFacet === facet[0]}
-              data-active={settings.view.resultFacet === facet[0]}
-              onclick={() => setFacet(facet[0] as SearchResultFacet)}
-            >{facet[1]}</Button>
-          {/each}
-          <label class="search-panel__match-case">
-            <input
-              type="checkbox"
-              checked={settings.view.matchCase}
-              onchange={(event) =>
-                void patchSettings({
-                  view: {
-                    matchCase: (event.currentTarget as HTMLInputElement).checked,
-                  },
-                })}
-            />
-            Match case
-          </label>
-        </div>
-      {/snippet}
-    </SearchFilterBar>
+    <div class="search-panel__query-row">
+      <SearchFilterBar
+        value={query}
+        inputMode="filter-query"
+        {filterSyntax}
+        editorExtensions={[searchQueryLanguageSupport()]}
+        error={diagnostic}
+        showFilterToggle
+        bind:filtersExpanded
+        ariaLabel="Search vault"
+        placeholder="Search all files…"
+        onValueChange={(value) => (query = value)}
+        onClearSearch={() => {
+          query = "";
+        }}
+      >
+        {#snippet actions()}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Refresh search index"
+            disabled={indexing}
+            onclick={refreshIndex}
+          >
+            <RefreshCw aria-hidden="true" />
+          </Button>
+        {/snippet}
+        {#snippet filters()}
+          <div class="search-panel__filters">
+            <div class="search-panel__facet-group" aria-label="File type">
+              <span>File type</span>
+              {#each [["all", "All"], ["markdown", "Markdown"], ["canvas", "Canvas"]] as facet (facet[0])}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-pressed={settings.view.resultFacet === facet[0]}
+                  data-active={settings.view.resultFacet === facet[0]}
+                  onclick={() =>
+                    void patchSettings({
+                      view: { resultFacet: facet[0] as SearchResultFacet },
+                    })}
+                >{facet[1]}</Button>
+              {/each}
+            </div>
+            <div class="search-panel__facet-group" aria-label="Retrieval mode">
+              <span>Retrieval</span>
+              {#each [["auto", "Auto"], ["lexical", "Lexical"], ["vector", "Vector"], ["hybrid", "Hybrid"]] as mode (mode[0])}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-pressed={settings.view.retrievalMode === mode[0]}
+                  data-active={settings.view.retrievalMode === mode[0]}
+                  onclick={() =>
+                    void patchSettings({
+                      view: { retrievalMode: mode[0] as SearchRetrievalMode },
+                    })}
+                >{mode[1]}</Button>
+              {/each}
+            </div>
+          </div>
+        {/snippet}
+      </SearchFilterBar>
+      <Button
+        variant="outline"
+        size="icon-sm"
+        class="search-panel__settings-toggle"
+        aria-label="Toggle search view settings"
+        aria-expanded={settingsOpen}
+        data-active={settingsOpen}
+        onclick={() => (settingsOpen = !settingsOpen)}
+      >
+        <Settings2 aria-hidden="true" />
+      </Button>
+    </div>
 
     <div class="search-panel__summary">
-      <output aria-live="polite">
-        {searching ? "Searching…" : `${filteredResults.length} result${filteredResults.length === 1 ? "" : "s"}`}
-      </output>
-      <label>
-        <span class="search-panel__sr-only">Sort search results</span>
-        <select
-          aria-label="Sort search results"
-          value={settings.view.sortMode}
-          onchange={(event) =>
-            void patchSettings({
-              view: {
-                sortMode: (event.currentTarget as HTMLSelectElement)
-                  .value as SearchPluginSettings["view"]["sortMode"],
-              },
-            })}
-        >
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-label="Copy search results"
+        disabled={!filteredResults.length}
+        onclick={copySearchResults}
+      >
+        <Copy aria-hidden="true" />
+        {searching ? "Searching…" : `${resultCount} result${resultCount === 1 ? "" : "s"}`}
+      </Button>
+      <Popover.Root>
+        <Popover.Trigger>
+          {#snippet child({ props })}
+            <Button {...props} variant="ghost" size="sm" class="search-panel__sort">
+              <span>{formatSearchViewSortLabel(settings.view.sortMode)}</span>
+              <ChevronsUpDown aria-hidden="true" />
+            </Button>
+          {/snippet}
+        </Popover.Trigger>
+        <Popover.Content align="end" class="search-panel__sort-popover">
           {#each SEARCH_VIEW_SORT_OPTIONS as option (option.value)}
-            <option value={option.value}>{option.label}</option>
+            <Button
+              variant={option.value === settings.view.sortMode ? "secondary" : "ghost"}
+              class="search-panel__sort-option"
+              onclick={() =>
+                void patchSettings({ view: { sortMode: option.value } })}
+            >{option.label}</Button>
           {/each}
-        </select>
-      </label>
+        </Popover.Content>
+      </Popover.Root>
     </div>
+
+    {#if settings.semanticStatus.visible}
+      <div class="search-panel__semantic-status" aria-live="polite">
+        <Badge variant="outline">{semanticStatusLabel}</Badge>
+        {#if runtimeStatus?.provider?.modelId}
+          <span>{runtimeStatus.provider.modelId}</span>
+        {/if}
+      </div>
+    {/if}
+
+    {#if explanation}
+      <p class="search-panel__explanation">{explanation}</p>
+    {/if}
+
+    {#if settingsOpen}
+      <section class="search-panel__settings" aria-label="Search view settings">
+        <label>
+          <span>Match case</span>
+          <Switch
+            size="sm"
+            bind:checked={() => settings.view.matchCase, (checked) => void patchSettings({ view: { matchCase: checked } })}
+          />
+        </label>
+        <label>
+          <span>Collapse results</span>
+          <Switch
+            size="sm"
+            bind:checked={() => settings.view.collapseResults, (checked) => void patchSettings({ view: { collapseResults: checked } })}
+          />
+        </label>
+        <label>
+          <span>Show more context</span>
+          <Switch
+            size="sm"
+            bind:checked={() => settings.view.showMoreContext, (checked) => void patchSettings({ view: { showMoreContext: checked } })}
+          />
+        </label>
+        <label>
+          <span>Explain search terms</span>
+          <Switch
+            size="sm"
+            bind:checked={() => settings.view.explainSearchTerms, (checked) => void patchSettings({ view: { explainSearchTerms: checked } })}
+          />
+        </label>
+        <label class="search-panel__structured-semantic">
+          <span>
+            <strong>Semantic search in structured queries</strong>
+            <small>Allow semantic candidates alongside filters, OR, and negation.</small>
+          </span>
+          <Switch
+            size="sm"
+            aria-label="Semantic search in structured queries"
+            bind:checked={() => settings.view.semanticSearchInStructuredQueries, (checked) => void patchSettings({ view: { semanticSearchInStructuredQueries: checked } })}
+          />
+        </label>
+      </section>
+    {/if}
   </div>
 
   <ScrollArea class="search-panel__scroll-area">
-    <div class="search-panel__results" data-ui-part="content">
-      {#if !query.trim() && settings.view.recentSearches.length}
-        <section class="search-panel__recent" aria-labelledby="recent-searches-title">
-          <h2 id="recent-searches-title">Recent searches</h2>
-          {#each settings.view.recentSearches as recent (recent)}
-            <button type="button" onclick={() => (query = recent)}>{recent}</button>
-          {/each}
-        </section>
-      {:else if query.trim() && !searching && !diagnostic && filteredResults.length === 0}
-        <p class="search-panel__empty">No results found.</p>
-      {:else}
-        {#each filteredResults as result (result.file.path)}
-          <section class="search-panel__result" data-search-result={result.file.path}>
-            <button
-              type="button"
-              class="search-panel__file"
-              aria-label={`Open ${result.file.path}`}
-              onclick={() => openResult(result)}
-            >
-              {#if result.file.extension === "canvas"}
-                <Hash aria-hidden="true" />
-              {:else}
-                <FileText aria-hidden="true" />
-              {/if}
-              <span>
-                <strong>
-                  {#if result.title}
-                    <HighlightedText text={result.title.text} ranges={result.title.ranges} />
-                  {:else}
-                    {result.file.name}
-                  {/if}
-                </strong>
-                <small>{result.file.path}</small>
-              </span>
-            </button>
-            {#each result.matches as match, index (`${result.file.path}:${index}`)}
-              <button
-                type="button"
-                class="search-panel__match"
-                onclick={() => openResult(result, match.pos)}
-              >
-                <span>{match.key}</span>
-                <HighlightedText text={match.text} ranges={match.ranges} />
-              </button>
+    <Sidebar.Content class="search-panel__results" data-ui-part="content">
+      {#if !query.trim()}
+        {#if settings.view.recentSearches.length}
+          <section class="search-panel__recent" aria-labelledby="recent-searches-title">
+            <h2 id="recent-searches-title">Recent searches</h2>
+            {#each settings.view.recentSearches as recent (recent)}
+              <button type="button" onclick={() => (query = recent)}>{recent}</button>
             {/each}
           </section>
-        {/each}
+        {:else}
+          <p class="search-panel__empty">Type to search.</p>
+        {/if}
+      {:else if !searching && !diagnostic && filteredResults.length === 0}
+        <p class="search-panel__empty">No matches found.</p>
+      {:else}
+        <Sidebar.Menu role="tree" aria-label="Search results" class="search-panel__tree">
+          {#each filteredResults as result (result.file.path)}
+            {@const open = resultOpenState[result.file.path] ?? !settings.view.collapseResults}
+            <Sidebar.MenuItem role="none" class="search-panel__tree-item">
+              {#if result.matches.length}
+                <Collapsible.Root
+                  {open}
+                  onOpenChange={(next) => setResultOpen(result.file.path, next)}
+                  class="search-panel__result"
+                >
+                  <Collapsible.Trigger
+                    class="search-panel__file"
+                    role="treeitem"
+                    aria-level={1}
+                    aria-selected="false"
+                    aria-expanded={open}
+                    aria-label={`${result.file.path}, ${result.matches.length} matches`}
+                  >
+                    <ChevronRight class="search-panel__disclosure" aria-hidden="true" />
+                    {#if result.file.extension === "canvas"}
+                      <Hash class="search-panel__file-icon" aria-hidden="true" />
+                    {:else}
+                      <FileText class="search-panel__file-icon" aria-hidden="true" />
+                    {/if}
+                    <span class="search-panel__file-label">
+                      <strong>
+                        {#if result.title}
+                          <HighlightedText text={result.title.text} ranges={result.title.ranges} />
+                        {:else}
+                          {result.file.name}
+                        {/if}
+                      </strong>
+                      <small>{result.file.path}</small>
+                    </span>
+                    <Badge variant="outline" class="search-panel__mode-badge">
+                      {result.hit.retrievalMode}
+                    </Badge>
+                    <Sidebar.MenuBadge class="search-panel__count-badge">
+                      {result.matches.length}
+                    </Sidebar.MenuBadge>
+                  </Collapsible.Trigger>
+                  <Collapsible.Content class="search-panel__match-list">
+                    <Sidebar.MenuSub role="group">
+                      {#each result.matches as match, index (`${result.file.path}:${index}`)}
+                        <Sidebar.MenuSubItem role="none">
+                          <button
+                            type="button"
+                            class="search-panel__match"
+                            role="treeitem"
+                            aria-level="2"
+                            aria-selected="false"
+                            onclick={() => openResult(result, match.pos)}
+                          >
+                            <HighlightedText text={match.text} ranges={match.ranges} />
+                            <Badge variant="outline" class="search-panel__match-key">
+                              {match.key}
+                            </Badge>
+                          </button>
+                        </Sidebar.MenuSubItem>
+                      {/each}
+                    </Sidebar.MenuSub>
+                  </Collapsible.Content>
+                </Collapsible.Root>
+              {:else}
+                <button
+                  type="button"
+                  class="search-panel__file search-panel__file--leaf"
+                  role="treeitem"
+                  aria-level="1"
+                  aria-selected="false"
+                  onclick={() => openResult(result)}
+                >
+                  <FileText class="search-panel__file-icon" aria-hidden="true" />
+                  <span class="search-panel__file-label">
+                    <strong>{result.file.name}</strong>
+                    <small>{result.file.path}</small>
+                  </span>
+                  <Badge variant="outline" class="search-panel__mode-badge">
+                    {result.hit.retrievalMode}
+                  </Badge>
+                </button>
+              {/if}
+            </Sidebar.MenuItem>
+          {/each}
+        </Sidebar.Menu>
       {/if}
-    </div>
+    </Sidebar.Content>
   </ScrollArea>
 </div>

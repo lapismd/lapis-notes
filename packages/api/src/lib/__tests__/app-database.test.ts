@@ -1123,7 +1123,7 @@ describe("AppDatabase", () => {
     });
   });
 
-  it("reconfigures embeddings without blocking on model warmup", async () => {
+  it("configures embeddings lazily without warming the model", async () => {
     const db = new MemoryAppDatabase("vault-a");
     await db.open();
     await db.configureSearchEmbeddingProvider(TOKEN_HASH_PROVIDER);
@@ -1146,11 +1146,12 @@ describe("AppDatabase", () => {
       ],
     });
 
+    const pipeline = vi.fn(async () => new Promise(() => {}));
     setSearchEmbeddingProviderRuntimeLoaderForTests(
       async () =>
         ({
           env: {},
-          pipeline: async () => new Promise(() => {}),
+          pipeline,
         }) as never,
     );
 
@@ -1166,6 +1167,7 @@ describe("AppDatabase", () => {
     ]);
 
     expect(result).toBe("configured");
+    expect(pipeline).not.toHaveBeenCalled();
     await expect(db.getSearchDocument("note.md")).resolves.toMatchObject({
       chunks: [
         {

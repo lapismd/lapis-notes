@@ -41,6 +41,16 @@ export function sortSearchResults<T extends { file: SortableFile }>(
           left.file.stat.mtime - right.file.stat.mtime ||
           compareText(left.file.path, right.file.path)
         );
+      case "created-desc":
+        return (
+          right.file.stat.ctime - left.file.stat.ctime ||
+          compareText(left.file.path, right.file.path)
+        );
+      case "created-asc":
+        return (
+          left.file.stat.ctime - right.file.stat.ctime ||
+          compareText(left.file.path, right.file.path)
+        );
       case "filename-asc":
       default:
         return (

@@ -90,9 +90,9 @@ legacy commit `8ec68e18`.
 - [x] Reusable `@lapis-notes/search` package with canonical `search` view and commands
 - [x] API `AppDatabase` indexing for Markdown/Canvas, stale pruning, and reactive refresh
 - [x] Design Core `SearchFilterBar` with the API CodeMirror query language, diagnostics, completions, help, and facets
-- [ ] Collapsible file/match result tree with highlighted ranges, sorting, bounded recent searches, and workspace navigation
-- [ ] Inline persisted Match case, Collapse results, Show more context, and Explain search terms toggles
-- [ ] Retrieval-mode facet, result badges, copy, semantic provider settings, status, and rebuild
+- [x] Collapsible file/match result tree with highlighted ranges, sorting, bounded recent searches, and workspace navigation
+- [x] Inline persisted Match case, Collapse results, Show more context, Explain search terms, and structured-semantic toggles
+- [x] Retrieval-mode facet, result badges, copy, semantic provider settings, status, and rebuild
 - [x] Six governed Storybook placements over the indexed in-memory vault
 - [x] Tags and All Properties command-only query handoffs
 - [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance
