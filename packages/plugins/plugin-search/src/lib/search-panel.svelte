@@ -54,7 +54,6 @@
   type SearchPanelPlugin = {
     searchManager: SearchManager;
     getSettings(): SearchPluginSettings;
-    getSearchStatus(): Promise<SearchRuntimeStatus>;
     updateSettings(patch: SearchPluginSettingsPatch): Promise<void>;
     refreshIndex(reason?: string): Promise<SearchRuntimeStatus>;
   };
@@ -108,7 +107,6 @@
   let resultCount = $state(0);
   let resultOpenState = $state<Record<string, boolean>>({});
   let resultIdentity = "";
-  let runtimeStatus = $state<SearchRuntimeStatus | null>(null);
   let searching = $state(false);
   let indexing = $state(false);
   let filtersExpanded = $state(false);
@@ -151,16 +149,6 @@
     });
     return sortSearchResults(matching, settings.view.sortMode);
   });
-  const semanticStatusLabel = $derived.by(() => {
-    if (!runtimeStatus?.provider) return "Semantic disabled";
-    if (runtimeStatus.isRefreshing) {
-      return `Indexing ${runtimeStatus.refreshProgress.processed}/${runtimeStatus.refreshProgress.total}`;
-    }
-    if (runtimeStatus.runtime?.phase === "downloading") return "Downloading model";
-    if (runtimeStatus.runtime?.phase === "error") return "Semantic error";
-    return `${runtimeStatus.readyChunkCount}/${runtimeStatus.chunkCount} embedded`;
-  });
-
   const filterSyntax = $derived.by<SearchFilterSyntax>(() => {
     metadataRevision;
     const files = app.vault.getFiles();
@@ -315,11 +303,6 @@
         results.map((result) => [result.file.path, defaultOpen]),
       );
     }
-    await refreshRuntimeStatus();
-  }
-
-  async function refreshRuntimeStatus(): Promise<void> {
-    runtimeStatus = await plugin.getSearchStatus().catch(() => null);
   }
 
   async function executeSearch(term: string, revision: number): Promise<void> {
@@ -348,7 +331,6 @@
         .map((result) => `${result.file.path}:${result.matches.length}`)
         .join("\u0000")}`;
       refreshOpenState(nextResults, identity);
-      runtimeStatus = await plugin.getSearchStatus().catch(() => null);
       void rememberSearch(term);
     } finally {
       if (revision === searchRevision) searching = false;
@@ -369,16 +351,12 @@
   async function refreshIndex(): Promise<void> {
     if (indexing) return;
     indexing = true;
-    const refresh = plugin.refreshIndex("search-panel");
-    const statusPoll = window.setInterval(() => void refreshRuntimeStatus(), 100);
     try {
-      runtimeStatus = await refresh;
+      await plugin.refreshIndex("search-panel");
       const revision = ++searchRevision;
       await executeSearch(query, revision);
     } finally {
-      window.clearInterval(statusPoll);
       indexing = false;
-      await refreshRuntimeStatus();
     }
   }
 
@@ -426,7 +404,6 @@
 
   onMount(() => {
     query = initialQuery;
-    void refreshRuntimeStatus();
     const changed = app.metadataCache.on("changed", () => (metadataRevision += 1));
     const deleted = app.metadataCache.on("deleted", () => (metadataRevision += 1));
     const loaded = app.metadataCache.on("loaded", () => (metadataRevision += 1));
@@ -547,6 +524,7 @@
       <Button
         variant="ghost"
         size="sm"
+        class="search-panel__summary-control"
         aria-label="Copy search results"
         disabled={!filteredResults.length}
         onclick={copySearchResults}
@@ -557,7 +535,12 @@
       <Popover.Root>
         <Popover.Trigger>
           {#snippet child({ props })}
-            <Button {...props} variant="ghost" size="sm" class="search-panel__sort">
+            <Button
+              {...props}
+              variant="ghost"
+              size="sm"
+              class="search-panel__summary-control search-panel__sort"
+            >
               <span>{formatSearchViewSortLabel(settings.view.sortMode)}</span>
               <ChevronsUpDown aria-hidden="true" />
             </Button>
@@ -575,15 +558,6 @@
         </Popover.Content>
       </Popover.Root>
     </div>
-
-    {#if settings.semanticStatus.visible}
-      <div class="search-panel__semantic-status" aria-live="polite">
-        <Badge variant="outline">{semanticStatusLabel}</Badge>
-        {#if runtimeStatus?.provider?.modelId}
-          <span>{runtimeStatus.provider.modelId}</span>
-        {/if}
-      </div>
-    {/if}
 
     {#if explanation}
       <p class="search-panel__explanation">{explanation}</p>

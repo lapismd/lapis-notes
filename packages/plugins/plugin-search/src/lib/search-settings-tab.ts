@@ -125,15 +125,6 @@ export class SearchSettingsTab extends PluginSettingTab {
         button.onClick(() => void this.rebuild());
       });
 
-    new Setting(this.containerEl)
-      .setName("Show semantic status")
-      .setDesc("Show provider, model, and embedding progress in Search panels.")
-      .addToggle((toggle) => {
-        toggle.setValue(settings.semanticStatus.visible).onChange((visible) => {
-          void this.update({ semanticStatus: { visible } });
-        });
-      });
-
     this.addSlider(
       "Chunk target size",
       "Approximate character target for each indexed chunk.",

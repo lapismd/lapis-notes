@@ -65,7 +65,8 @@ application manager or presentation modules.
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not
 reposition counts, metadata badges, or child result surfaces with
-placement-specific CSS.
+placement-specific CSS. The package exposes semantic runtime state through its
+status API and keeps the movable panel free of a persistent status tag.
 
 ## `@lapis-notes/api` (kernel slice)
 

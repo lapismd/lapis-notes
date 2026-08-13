@@ -23,14 +23,17 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-013 | Show more context MUST request longer result snippets. Explain search terms MUST show or hide a plain-language summary of the active query. |
 | LN-SRCH-014 | Search MUST expose `auto`, `lexical`, `vector`, and `hybrid` retrieval modes and label results with the mode actually applied by `AppDatabase`. |
 | LN-SRCH-015 | Semantic search MUST default to disabled. Selecting Transformers.js MUST NOT initialize or download the configured model before the first semantic indexing or query operation, and vault contents MUST remain local. |
-| LN-SRCH-016 | Search settings MUST configure the embedding provider, model, remote-model permission, local path, chunking, result bounds, semantic status visibility, and explicit rebuild. |
-| LN-SRCH-017 | Search MUST expose semantic provider, model, indexing progress, error, and readiness state without importing a concrete database implementation. |
+| LN-SRCH-016 | Search settings MUST configure the embedding provider, model, remote-model permission, local path, chunking, result bounds, and explicit rebuild. |
+| LN-SRCH-017 | Search MUST expose semantic provider, model, indexing progress, error, and readiness through its database-neutral status API. |
 | LN-SRCH-018 | Structured queries MUST remain lexical unless the persisted semantic-structured-query toggle is enabled. Shared API evaluation MUST preserve filters, negation, comparisons, and case behavior. |
 | LN-SRCH-019 | The Search summary MUST expose result copy, legacy sorting, retrieval badges, match keys, and selectable bounded recent queries. |
 | LN-SRCH-020 | Proxy browser tabs MUST execute indexing, semantic configuration, status, and queries through the owning app-database session. |
 | LN-SRCH-021 | Local-LLM query expansion, reranking, and embedded Markdown query blocks MUST remain excluded from this intake. |
 | LN-SRCH-022 | Search panel facets MUST use Design Core `FilterCommandPicker` controls beneath the query, keeping file type and retrieval mode compact while preserving their existing settings. |
-| LN-SRCH-023 | Search result groups MUST keep inset parent rows, place a circular contrasting match count at top-right, and keep retrieval and match-field badges in bottom-left metadata rows. Expanded children MUST span the parent width without tree indentation and use a bordered workspace surface distinct from direct-sidebar paint. |
+| LN-SRCH-023 | Search result groups MUST keep inset parent rows, place an unbordered transparent match count at top-right, and keep retrieval and match-field badges in bottom-left metadata rows. Expanded children MUST span the parent width without tree indentation and use a bordered workspace surface distinct from direct-sidebar paint. |
+| LN-SRCH-024 | Search result-copy and sort controls MUST retain visible hover and focus paint on every workspace surface. |
+| LN-SRCH-025 | Search retrieval and match-field badges MUST remain visually distinct while their containing result row is hovered. |
+| LN-SRCH-026 | The movable Search panel MUST NOT render a persistent semantic-status tag. |
 
 ## Runtime flow
 

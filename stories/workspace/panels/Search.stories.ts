@@ -117,9 +117,17 @@ function placementStory(
       expect(Math.abs(countRect.width - countRect.height)).toBeLessThan(1);
       expect(countRect.top).toBeLessThan(labelRect.top + 2);
       expect(resultRect.right - countRect.right).toBeGreaterThanOrEqual(0);
-      expect(getComputedStyle(countBadge!).backgroundColor).not.toBe(
+      expect(getComputedStyle(countBadge!).backgroundColor).toBe(
         "rgba(0, 0, 0, 0)",
       );
+      expect(getComputedStyle(countBadge!).borderTopWidth).toBe("0px");
+      await userEvent.hover(resultRow);
+      await waitFor(() =>
+        expect(getComputedStyle(modeBadge!).backgroundColor).not.toBe(
+          getComputedStyle(resultRow).backgroundColor,
+        ),
+      );
+      await userEvent.unhover(resultRow);
       expect(Math.abs(modeRect.left - labelRect.left)).toBeLessThan(1);
       expect(modeRect.top).toBeGreaterThan(labelRect.top);
       const editor = canvasElement.querySelector<HTMLElement>(
@@ -159,6 +167,37 @@ function placementStory(
       );
       expect(Math.abs(matchKeyRect.left - matchTextRect.left)).toBeLessThan(1);
       expect(matchKeyRect.top).toBeGreaterThanOrEqual(matchTextRect.bottom);
+      await userEvent.hover(firstMatch);
+      await waitFor(() =>
+        expect(getComputedStyle(matchKey).backgroundColor).not.toBe(
+          getComputedStyle(firstMatch).backgroundColor,
+        ),
+      );
+      await userEvent.unhover(firstMatch);
+
+      const resultCopyButton = panel.getByRole("button", {
+        name: "Copy search results",
+      });
+      const sortButton = panel.getByRole("button", {
+        name: /Filename \(A to Z\)/,
+      });
+      await expect(resultCopyButton).toHaveClass(
+        "search-panel__summary-control",
+      );
+      await expect(sortButton).toHaveClass("search-panel__summary-control");
+      const restingSortBackground =
+        getComputedStyle(sortButton).backgroundColor;
+      await userEvent.click(sortButton);
+      await expect(sortButton).toHaveAttribute("aria-expanded", "true");
+      await waitFor(() =>
+        expect(getComputedStyle(sortButton).backgroundColor).not.toBe(
+          restingSortBackground,
+        ),
+      );
+      await userEvent.keyboard("{Escape}");
+      expect(
+        canvasElement.querySelector(".search-panel__semantic-status"),
+      ).toBeNull();
 
       await userEvent.click(
         panel.getByRole("button", { name: "Expand filter options" }),
@@ -215,8 +254,6 @@ function placementStory(
         await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "false");
         await userEvent.click(explainTerms);
         await expect(panel.getByText(/Matching filenames/)).toBeVisible();
-        await expect(panel.getByText("Semantic disabled")).toBeVisible();
-
         const retrievalPicker = panel.getByRole("button", {
           name: "Filter by retrieval mode",
         });

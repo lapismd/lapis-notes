@@ -50,9 +50,6 @@ export interface SearchPluginSettings {
     allowRemoteModels: boolean;
     localModelPath: string;
   };
-  semanticStatus: {
-    visible: boolean;
-  };
   view: {
     sortMode: SearchViewSortMode;
     collapseResults: boolean;
@@ -70,7 +67,6 @@ export type SearchPluginSettingsPatch = {
   chunking?: Partial<SearchPluginSettings["chunking"]>;
   query?: Partial<SearchPluginSettings["query"]>;
   embeddings?: Partial<SearchPluginSettings["embeddings"]>;
-  semanticStatus?: Partial<SearchPluginSettings["semanticStatus"]>;
   view?: Partial<SearchPluginSettings["view"]>;
 };
 
@@ -101,9 +97,6 @@ export const DEFAULT_SEARCH_SETTINGS: SearchPluginSettings = {
     modelId: "Xenova/all-MiniLM-L6-v2",
     allowRemoteModels: true,
     localModelPath: "",
-  },
-  semanticStatus: {
-    visible: true,
   },
   view: {
     sortMode: "filename-asc",
@@ -157,10 +150,6 @@ export function mergeSearchSettings(
       ...DEFAULT_SEARCH_SETTINGS.embeddings,
       ...stored?.embeddings,
     },
-    semanticStatus: {
-      ...DEFAULT_SEARCH_SETTINGS.semanticStatus,
-      ...stored?.semanticStatus,
-    },
     view: {
       ...DEFAULT_SEARCH_SETTINGS.view,
       ...stored?.view,
@@ -177,7 +166,6 @@ export function patchSearchSettings(
     chunking: { ...current.chunking, ...patch.chunking },
     query: { ...current.query, ...patch.query },
     embeddings: { ...current.embeddings, ...patch.embeddings },
-    semanticStatus: { ...current.semanticStatus, ...patch.semanticStatus },
     view: { ...current.view, ...patch.view },
   });
 }

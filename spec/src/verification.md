@@ -392,14 +392,17 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-013 | search-plugin | Implemented | snippet-policy unit coverage plus rendered query-explanation and context-toggle acceptance |
 | LN-SRCH-014 | search-plugin | Implemented | retrieval facet selection and applied lexical badges pass focused Storybook acceptance |
 | LN-SRCH-015 | search-plugin | Implemented | provider tests plus isolated Node and browser smokes verify real `Xenova/all-MiniLM-L6-v2` inference, lazy worker download, offline cache reuse, disposal, and Electron-main CPU adaptation |
-| LN-SRCH-016 | search-plugin | Implemented | public settings tab covers provider, model, permissions, local path, chunking, bounds, status, and rebuild |
-| LN-SRCH-017 | search-plugin | Implemented | manager status unit and Search panel semantic status presentation remain database-provider neutral |
+| LN-SRCH-016 | search-plugin | Implemented | public settings tab covers provider, model, permissions, local path, chunking, bounds, and rebuild |
+| LN-SRCH-017 | search-plugin | Implemented | manager status unit remains database-provider neutral |
 | LN-SRCH-018 | search-plugin | Implemented | retrieval-policy unit keeps structured queries lexical until explicit semantic opt-in |
 | LN-SRCH-019 | search-plugin | Implemented | focused Storybook acceptance covers copy, legacy sort, badges, match keys, and bounded recents |
 | LN-SRCH-020 | search-plugin | Implemented | two-tab Playwright acceptance delegates provider configuration, embedding rebuild, runtime status, vector query, lexical Search, takeover, and reload |
 | LN-SRCH-021 | search-plugin | Implemented | package manifest and public-export audit contain no LLM enhancement or embedded-query surface |
 | LN-SRCH-022 | search-plugin | Implemented | Search panel composes compact Design Core command pickers for file-type and retrieval facets; governed Storybook acceptance persists both selections |
-| LN-SRCH-023 | search-plugin | Implemented | all six Search placements verify inset parents, circular counts, bottom-left metadata, and full-width bordered child surfaces |
+| LN-SRCH-023 | search-plugin | Implemented | all six Search placements verify inset parents, transparent top-right counts, bottom-left metadata, and full-width bordered child surfaces |
+| LN-SRCH-024 | search-plugin | Implemented | all six Search placements verify shared summary-control state paint on result-copy and sort controls |
+| LN-SRCH-025 | search-plugin | Implemented | all six Search placements verify retrieval and match-field badge contrast against result-row paint |
+| LN-SRCH-026 | search-plugin | Implemented | all six Search placements exclude the superseded semantic-status tag |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
 | LN-DB-003 | app-database | Implemented | native Electron and Turso WASM/OPFS provider selection pass desktop and browser acceptance |

@@ -41,7 +41,6 @@ export class SearchPlugin extends Plugin {
       chunking: { ...this.settings.chunking },
       query: { ...this.settings.query },
       embeddings: { ...this.settings.embeddings },
-      semanticStatus: { ...this.settings.semanticStatus },
       view: {
         ...this.settings.view,
         recentSearches: [...this.settings.view.recentSearches],
