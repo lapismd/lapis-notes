@@ -39,6 +39,10 @@ The provider persists generated state outside the user-visible vault. Memory is
 an explicitly injected test and Storybook double; production sessions do not
 select it and never select SQLite or IndexedDB app-database implementations.
 
+Vault filename and path glob discovery does not read or populate the app
+database. It evaluates the API-owned in-memory vault tree; indexed metadata and
+property evaluation remain separate database-backed contracts.
+
 The Electron implementation opens one Turso handle per renderer and vault in
 main on supported native targets. Its renderer client can invoke only the
 fixed `AppDatabase` method catalogue. Intel macOS selects the same provider

@@ -430,6 +430,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-059 | packages | Implemented | public API editor barrel exports the embedded component, extension helpers, source fallback, and explicit scroll-owner contract |
 | LN-PKG-060 | packages | Implemented | API declarations expose serialized Markdown return targets without an external-plugin Markdown implementation dependency |
 | LN-PKG-061 | packages | Implemented | WorkspaceLeaf tests preserve the initiating state and clear the shared file-view root before restoring a plain view |
+| LN-PKG-062 | packages | Implemented | Vault tests cover exact indexed lookup, filename and path globs, case behavior, invalid patterns, deterministic ordering, and create/copy/rename/delete/trash/reload lifecycle updates |
 | LN-PLUG-015 | plugin-model | Implemented | API unit and external Roles Storybook tests verify Back restores one non-empty Role view root |
 | LN-WS-049 | workspace-shell | Implemented | WorkspaceShell unit verifies the false default and reactive Design Core renderer-policy mapping |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |

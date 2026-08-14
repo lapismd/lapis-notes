@@ -1,5 +1,11 @@
 import { EventDispatcher } from "$lib/events";
 import {
+  hasEditorAssociationGlobMagic,
+  matchesEditorAssociationGlob,
+  normalizeEditorAssociationGlob,
+  validateEditorAssociationGlob,
+} from "$lib/glob";
+import {
   FileCache,
   TFile,
   TFolder,
@@ -27,6 +33,10 @@ function Err(name: string) {
 
 export const ENOTDIR = Err("ENOTDIR");
 
+export interface VaultGlobOptions {
+  caseSensitive?: boolean;
+}
+
 /**
  * High-level file-system facade for the active vault.
  *
@@ -44,6 +54,7 @@ export class Vault extends EventDispatcher<{
   all: [event: string, file: TAbstractFile, context: Record<string, unknown>];
 }> {
   private files: Record<string, TAbstractFile> = {};
+  private filesByName = new Map<string, Set<string>>();
   public configDir: string = ".obsidian";
   readonly cache = new FileCache(1024);
 
@@ -80,7 +91,10 @@ export class Vault extends EventDispatcher<{
     if (this.#loaded) {
       return this.#loaded;
     }
-    this.#loaded = this.loadPath().then(() => this.trigger("load"));
+    this.#loaded = this.loadPath().then(() => {
+      this.rebuildFileNameIndex();
+      this.trigger("load");
+    });
     return this.#loaded;
   }
 
@@ -88,9 +102,30 @@ export class Vault extends EventDispatcher<{
     const files = {};
     return this.loadPath("/", files).then(() => {
       this.files = files;
+      this.rebuildFileNameIndex();
       this.trigger("load");
       return this.getRoot();
     });
+  }
+
+  private addToFileNameIndex(file: TFile): void {
+    const paths = this.filesByName.get(file.name) ?? new Set<string>();
+    paths.add(file.path);
+    this.filesByName.set(file.name, paths);
+  }
+
+  private removeFromFileNameIndex(file: TFile): void {
+    const paths = this.filesByName.get(file.name);
+    if (!paths) return;
+    paths.delete(file.path);
+    if (paths.size === 0) this.filesByName.delete(file.name);
+  }
+
+  private rebuildFileNameIndex(): void {
+    this.filesByName.clear();
+    for (const file of Object.values(this.files)) {
+      if (file instanceof TFile) this.addToFileNameIndex(file);
+    }
   }
 
   loadPath(
@@ -168,6 +203,7 @@ export class Vault extends EventDispatcher<{
         let parent = this.files[dirname(path)] as TFolder;
         const file = new TFile(path, stat, parent, this);
         this.files[path] = file;
+        this.addToFileNameIndex(file);
         this.cache.put(path, data);
         parent.children.push(file);
         this.dispatch("create", file);
@@ -201,6 +237,7 @@ export class Vault extends EventDispatcher<{
         let parent = this.files[dirname(path)] as TFolder;
         const file = new TFile(path, stat, parent, this);
         this.files[path] = file;
+        this.addToFileNameIndex(file);
         parent.children.push(file);
         this.dispatch("create", file);
         this.dispatch("all", "create", file, {});
@@ -293,7 +330,11 @@ export class Vault extends EventDispatcher<{
         .filter(
           (path) => path === file.path || path.startsWith(`${file.path}/`),
         )
-        .forEach((path) => delete this.files[path]);
+        .forEach((path) => {
+          const removed = this.files[path];
+          if (removed instanceof TFile) this.removeFromFileNameIndex(removed);
+          delete this.files[path];
+        });
       if (parent) {
         const childIndex = parent.children.findIndex(
           (it) => it.path === file.path,
@@ -387,6 +428,7 @@ export class Vault extends EventDispatcher<{
 
     return this.adapter.rename(file.path, newPath).then(async () => {
       this.files = await this.loadPath("/", {});
+      this.rebuildFileNameIndex();
       let newFile = this.getAbstractFileByPath(newPath);
       if (newFile) {
         this.cache.rename(file.path, newFile.path);
@@ -638,6 +680,58 @@ export class Vault extends EventDispatcher<{
    */
   getFiles(): TFile[] {
     return Object.values(this.files).filter((it) => it instanceof TFile);
+  }
+
+  /**
+   * Get all files matching a shared editor-association glob.
+   *
+   * Filename-only patterns match files in every folder. Patterns containing a
+   * slash match normalized vault-relative paths. Invalid patterns return no
+   * files.
+   *
+   * @public
+   */
+  getFilesByGlob(
+    pattern: string,
+    options: VaultGlobOptions = {},
+  ): TFile[] {
+    const normalizedPattern = normalizeEditorAssociationGlob(pattern);
+    if (!validateEditorAssociationGlob(normalizedPattern).valid) return [];
+
+    const paths = new Set<string>();
+    if (!normalizedPattern.includes("/")) {
+      if (
+        options.caseSensitive === true &&
+        !hasEditorAssociationGlobMagic(normalizedPattern)
+      ) {
+        for (const path of this.filesByName.get(normalizedPattern) ?? []) {
+          paths.add(path);
+        }
+      } else {
+        for (const [name, matchingPaths] of this.filesByName) {
+          if (!matchesEditorAssociationGlob(normalizedPattern, name, options)) {
+            continue;
+          }
+          for (const path of matchingPaths) paths.add(path);
+        }
+      }
+    } else {
+      for (const file of Object.values(this.files)) {
+        if (
+          file instanceof TFile &&
+          matchesEditorAssociationGlob(normalizedPattern, file.path, options)
+        ) {
+          paths.add(file.path);
+        }
+      }
+    }
+
+    return [...paths]
+      .map((path) => this.getFileByPath(path))
+      .filter((file): file is TFile => Boolean(file))
+      .sort((left, right) =>
+        left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+      );
   }
 
   getMarkdownFiles(): TFile[] {

@@ -59,6 +59,10 @@ controller, focus, and persisted layout remain synchronized. Setting
 `activeLeaf` and calling `revealLeaf` alone does not represent user-visible tab
 activation.
 
+Vault glob discovery remains an API-owned in-memory file-tree concern. It may
+maintain filename indexes for enumeration, but it does not move arbitrary
+metadata or property queries out of Bases and the app-database boundary.
+
 The CV plugin owns the placement of document actions in its main toolbar and
 which form-area actions are contextual. Form-area overflow composes Design Core
 Scroll Area rather than introducing a plugin-local scroll primitive.

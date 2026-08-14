@@ -34,6 +34,7 @@ export * from "./storage/turso-app-database";
 export * from "./storage/search-embedding-provider";
 export * from "./storage/keyval";
 export * from "./storage/path";
+export { Vault, ENOTDIR, type VaultGlobOptions } from "./storage/vault.svelte";
 export * from "./storage/vault-state";
 export * from "./storage/electron-vault-bootstrap-kv";
 export * from "./storage/vault-session";

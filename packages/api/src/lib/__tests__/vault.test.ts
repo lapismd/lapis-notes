@@ -117,7 +117,11 @@ class MemoryAdapter implements DataAdapter {
 
   async rmdir(path: string): Promise<void> {
     path = this.path(path);
-    this.folders.delete(path);
+    for (const folder of [...this.folders]) {
+      if (folder === path || folder.startsWith(`${path}/`)) {
+        this.folders.delete(folder);
+      }
+    }
     for (const file of [...this.files.keys()]) {
       if (file.startsWith(`${path}/`)) this.files.delete(file);
     }
@@ -134,8 +138,18 @@ class MemoryAdapter implements DataAdapter {
       this.files.set(newPath, this.files.get(path)!);
       this.files.delete(path);
     } else if (this.folders.has(path)) {
-      this.folders.add(newPath);
-      this.folders.delete(path);
+      for (const folder of [...this.folders]) {
+        if (folder === path || folder.startsWith(`${path}/`)) {
+          this.folders.delete(folder);
+          this.folders.add(`${newPath}${folder.slice(path.length)}`);
+        }
+      }
+      for (const [file, data] of [...this.files]) {
+        if (file.startsWith(`${path}/`)) {
+          this.files.delete(file);
+          this.files.set(`${newPath}${file.slice(path.length)}`, data);
+        }
+      }
     }
   }
 
@@ -152,7 +166,8 @@ class MemoryAdapter implements DataAdapter {
   }
 
   async trashLocal(path: string): Promise<void> {
-    await this.rename(path, `/.trash/${path}`);
+    await this.mkdir(".trash");
+    await this.rename(path, `.trash/${path}`);
   }
 }
 
@@ -183,5 +198,113 @@ describe("Vault compatibility", () => {
 
     await vault.delete(copied);
     expect(vault.getFileByPath("copy.md")).toBeNull();
+  });
+
+  it("queries current files with the shared glob dialect", async () => {
+    const vault = new Vault(new MemoryAdapter());
+    await vault.load();
+    await vault.mkpath("Roles/atlas");
+    await vault.mkpath("Roles/nova");
+    await vault.mkpath("CVs/archive");
+    await vault.create("role.md", "root");
+    await vault.create("Roles/atlas/role.md", "atlas");
+    await vault.create("Roles/nova/Role.md", "nova");
+    await vault.create("CVs/atlas.cv.yml", "atlas cv");
+    await vault.create("CVs/archive/nova.cv.yaml", "nova cv");
+    await vault.create("CVs/archive/.hidden.cv.yml", "hidden cv");
+
+    expect(
+      vault
+        .getFilesByGlob("role.md", { caseSensitive: true })
+        .map((file) => file.path),
+    ).toEqual(["Roles/atlas/role.md", "role.md"]);
+    expect(
+      vault
+        .getFilesByGlob("**/role.md", { caseSensitive: false })
+        .map((file) => file.path),
+    ).toEqual(["Roles/atlas/role.md", "Roles/nova/Role.md", "role.md"]);
+    expect(
+      vault
+        .getFilesByGlob("**/*.cv.{yml,yaml}", { caseSensitive: false })
+        .map((file) => file.path),
+    ).toEqual([
+      "CVs/archive/.hidden.cv.yml",
+      "CVs/archive/nova.cv.yaml",
+      "CVs/atlas.cv.yml",
+    ]);
+    expect(
+      vault.getFilesByGlob("Roles/?tlas/[r]ole.md").map((file) => file.path),
+    ).toEqual(["Roles/atlas/role.md"]);
+    expect(
+      vault
+        .getFilesByGlob("Roles\\\\**\\\\role.md", { caseSensitive: true })
+        .map((file) => file.path),
+    ).toEqual(["Roles/atlas/role.md"]);
+    expect(vault.getFilesByGlob("")).toEqual([]);
+    expect(vault.getFilesByGlob("[z-a]")).toEqual([]);
+  });
+
+  it("keeps glob results synchronized with vault lifecycle changes", async () => {
+    const adapter = new MemoryAdapter();
+    await adapter.mkdir("Roles");
+    await adapter.mkdir("Roles/a");
+    await adapter.write("Roles/a/role.md", "source");
+    const vault = new Vault(adapter);
+    await vault.load();
+    await vault.mkpath("Roles/b");
+    const source = vault.getFileByPath("Roles/a/role.md");
+    expect(source).not.toBeNull();
+    expect(vault.getFilesByGlob("**/role.md")).toHaveLength(1);
+
+    await vault.copy(source!, "Roles/b/role.md");
+    expect(
+      vault.getFilesByGlob("**/role.md").map((file) => file.path),
+    ).toEqual(["Roles/a/role.md", "Roles/b/role.md"]);
+
+    await vault.rename(source!, "Roles/a/archive.md");
+    expect(
+      vault.getFilesByGlob("**/role.md").map((file) => file.path),
+    ).toEqual(["Roles/b/role.md"]);
+
+    const archived = vault.getFileByPath("Roles/a/archive.md");
+    expect(archived).not.toBeNull();
+    await vault.rename(archived!, "Roles/a/role.md");
+    expect(
+      vault.getFilesByGlob("**/role.md").map((file) => file.path),
+    ).toEqual(["Roles/a/role.md", "Roles/b/role.md"]);
+
+    const folder = vault.getFolderByPath("Roles/b");
+    expect(folder).not.toBeNull();
+    await vault.delete(folder!);
+    expect(vault.getFilesByGlob("**/role.md")).toHaveLength(1);
+
+    const binary = await vault.createBinary(
+      "asset.bin",
+      new Uint8Array([1, 2, 3]).buffer,
+    );
+    expect(vault.getFilesByGlob("*.bin").map((file) => file.path)).toEqual([
+      "asset.bin",
+    ]);
+    await vault.delete(binary);
+    expect(vault.getFilesByGlob("*.bin")).toEqual([]);
+
+    const remaining = vault.getFileByPath("Roles/a/role.md");
+    expect(remaining).not.toBeNull();
+    await vault.delete(remaining!);
+    expect(vault.getFilesByGlob("**/role.md")).toEqual([]);
+
+    const restored = await vault.create("role.md", "restored");
+    await vault.trash(restored, false);
+    expect(
+      vault.getFilesByGlob("**/role.md").map((file) => file.path),
+    ).toEqual([".trash/role.md"]);
+    expect(
+      vault.getFilesByGlob(".trash/**/role.md").map((file) => file.path),
+    ).toEqual([".trash/role.md"]);
+
+    await vault.reload();
+    expect(
+      vault.getFilesByGlob(".trash/**/role.md").map((file) => file.path),
+    ).toEqual([".trash/role.md"]);
   });
 });

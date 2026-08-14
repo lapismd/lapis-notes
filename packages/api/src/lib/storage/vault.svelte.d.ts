@@ -12,6 +12,9 @@ export declare const ENOTDIR: {
     prepareStackTrace(err: Error, stackTraces: NodeJS.CallSite[]): any;
     stackTraceLimit: number;
 };
+export interface VaultGlobOptions {
+    caseSensitive?: boolean;
+}
 /**
  * High-level file-system facade for the active vault.
  *
@@ -31,6 +34,7 @@ export declare class Vault extends EventDispatcher<{
     #private;
     readonly adapter: DataAdapter;
     private files;
+    private filesByName;
     configDir: string;
     readonly cache: FileCache;
     constructor(adapter: DataAdapter);
@@ -41,6 +45,9 @@ export declare class Vault extends EventDispatcher<{
     list(path?: string): Promise<import("./fs").ListedFiles>;
     load(): Promise<void>;
     reload(): Promise<TFolder>;
+    private addToFileNameIndex;
+    private removeFromFileNameIndex;
+    private rebuildFileNameIndex;
     loadPath(basePath?: string, sourceFiles?: Record<string, TAbstractFile>): Promise<Record<string, TAbstractFile>>;
     /**
      * Create a new plaintext file inside the vault.
@@ -200,6 +207,16 @@ export declare class Vault extends EventDispatcher<{
      * @public
      */
     getFiles(): TFile[];
+    /**
+     * Get all files matching a shared editor-association glob.
+     *
+     * Filename-only patterns match files in every folder. Patterns containing a
+     * slash match normalized vault-relative paths. Invalid patterns return no
+     * files.
+     *
+     * @public
+     */
+    getFilesByGlob(pattern: string, options?: VaultGlobOptions): TFile[];
     getMarkdownFiles(): TFile[];
     static recurseChildren(root: TFolder, cb: (file: TAbstractFile) => any): void;
 }
