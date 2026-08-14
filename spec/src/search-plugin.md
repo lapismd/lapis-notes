@@ -39,6 +39,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-029 | Search result counts MUST use the workspace sans-serif face and a faint foreground without a border or background fill. |
 | LN-SRCH-030 | Result activation MUST preserve a Search view hosted in the body by opening the target in a separate body tab. Sidebar-hosted Search MAY continue to reuse the selected body leaf. |
 | LN-SRCH-031 | Search result parent rows MUST show only a regular-weight filename without its extension. Expanded result bodies MUST begin with a metadata header containing the full vault path and applied retrieval-mode badge. |
+| LN-SRCH-032 | The Recent searches section MUST retain the standard Search results inset so its heading, rows, and interactive paint remain clear of every panel edge. |
 
 ## Runtime flow
 

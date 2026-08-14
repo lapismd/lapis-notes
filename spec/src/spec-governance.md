@@ -40,6 +40,7 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-026 | The spec-first map MUST route API storage to App Database, web changes to Web Host, Packages, and Architecture, and Roles package changes to Roles Plugin, Packages, and Architecture. |
 | LN-GOV-027 | The spec-first map MUST additionally route package-local Roles Storybook sources and configuration to the Storybook Catalog chapter. |
 | LN-GOV-028 | Agent guidance MUST keep CV Markdown mode and form disclosure actions grouped in the main toolbar immediately after YAML with the shared outlined icon treatment. Form-area scrolling guidance MUST remain limited to tabs and contextual form actions. |
+| LN-GOV-029 | Agent guidance MUST require canonical movable-panel registrations to declare their opening commands together, while file-backed editor views use editor associations and compatibility aliases reuse canonical commands. |
 
 ## Requirement structure
 

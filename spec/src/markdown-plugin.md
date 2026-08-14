@@ -60,6 +60,8 @@ Panel registration, package exports, and per-panel behavior are documented in
 the [Markdown panel specification](./markdown-plugin/panels/index.md). Shared
 workspace presentation and Storybook rules live under
 [Workspace Shell / Panels](./workspace-shell/panels.md).
+The panel registry is also the command-discovery authority required by
+`LN-MD-089`; document views continue to open through their file associations.
 
 Tags and All Properties remain Markdown-owned metadata views. Their vault-wide
 navigation delegates through the registered Search command described by the

@@ -104,6 +104,7 @@ legacy commit `8ec68e18`.
 - [x] Surface-aware Search summary controls and metadata badges, with the redundant panel semantic-status tag removed
 - [x] Stable incremental before/after match context, primary and contrasting secondary Search result surfaces, public yellow highlight tokens, faint sans-serif counts, and body-hosted Search preservation during result navigation
 - [x] Compact regular-weight Search result filenames with full path and retrieval metadata inside expanded bodies
+- [x] Recent searches use the standard result inset so labels and interactive row paint remain clear of panel edges
 - [x] Six governed Storybook placements over the indexed in-memory vault
 - [x] Tags and All Properties command-only query handoffs
 - [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance
@@ -135,6 +136,7 @@ detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Path A / Path B editor extension reload + host editor events preserved
 - [x] Markdown settings section (Mira features, mermaid, AI stub)
 - [x] Side panels: All Properties, File Properties, Outline, Backlinks, Outgoing Links, Media; Outline and link panels carry the full observable interaction/data slice
+- [x] Declarative panel-command registry covers All Properties, Outline, File Properties, Backlinks, Outgoing Links, and Tags; commands reveal moved leaves or create the canonical right-side view, while file-backed views retain editor associations and aliases reuse canonical commands
 - [x] Shared `MarkdownSidebarPanel` recipe (LN-MD-018, LN-MD-032 through LN-MD-035) + Markdown-owned Tags view; all movable panels are full-width/titleless with workspace-family 0.75rem list/result controls, and design-core `WorkspaceViewHost` resolves public view paint tokens with a white body/bottom/group default and sidebar paint only for ungrouped top-level side panels; Lapis contains no placement selectors
 - [x] Metadata write contract + type widgets + `trackChanges` / `types.json` demo seeds
 - [x] File Properties → Mira `FrontmatterEditor` + Lapis `MetadataTypeManager` adapter, no-overflow narrow single-column rows with label-aligned values, native focus geometry with view-token contrast fill, hash Tags icon, and surface-contrasting native pills (LN-MD-017/019)

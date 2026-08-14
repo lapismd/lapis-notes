@@ -46,6 +46,11 @@ import {
   createMarkdownEditorExtensions,
 } from "$lib/mira/extensions";
 import {
+  MARKDOWN_PANEL_VIEW_COMMANDS,
+  revealOrOpenMarkdownPanel,
+  type MarkdownPanelViewType,
+} from "$lib/view-commands";
+import {
   extractMetadata,
   writeFrontmatter,
 } from "$lib/metadata/extract-metadata";
@@ -102,19 +107,6 @@ const MANIFEST: PluginManifest = {
   description:
     "Mira-powered Markdown editing with source, live preview, and reading modes.",
 };
-
-function revealOrOpen(viewType: string) {
-  const leaves = app.workspace.getLeavesOfType(viewType);
-  if (leaves.length) {
-    leaves.forEach((leaf) => app.workspace.revealLeaf(leaf));
-    return;
-  }
-  const leaf = app.workspace.getRightLeaf(false);
-  if (!leaf) return;
-  void leaf.setViewState({ type: viewType }).then(() => {
-    app.workspace.revealLeaf(leaf);
-  });
-}
 
 export class MarkdownPlugin extends Plugin {
   private readonly aiRun = createDemoAiRun();
@@ -178,84 +170,45 @@ export class MarkdownPlugin extends Plugin {
       MediaViewType,
     );
 
-    this.registerView(
-      AllPropertiesViewType,
-      (leaf) => new AllPropertiesView(leaf),
-    );
-    this.addCommand({
-      id: "show-all-properties",
-      name: "Show all properties",
-      callback: () => revealOrOpen(AllPropertiesViewType),
-    });
+    const panelViewCreators = {
+      [AllPropertiesViewType]: (leaf) => new AllPropertiesView(leaf),
+      [OutlineViewType]: (leaf) => new OutlineView(leaf),
+      [FilePropertiesViewType]: (leaf) => new FilePropertiesView(leaf),
+      [BacklinksViewType]: (leaf) => new BacklinksView(leaf),
+      [OutgoingLinksViewType]: (leaf) => new OutgoingLinksView(leaf),
+      [TagsViewType]: (leaf) => new TagsView(leaf),
+    } satisfies Record<
+      MarkdownPanelViewType,
+      Parameters<Plugin["registerView"]>[1]
+    >;
 
-    this.registerView(OutlineViewType, (leaf) => new OutlineView(leaf));
-    for (const viewType of OutlineLegacyViewTypes) {
-      this.registerView(viewType, (leaf) => new OutlineView(leaf));
-    }
-    this.addCommand({
-      id: "show-outline",
-      name: "Show outline",
-      callback: () => revealOrOpen(OutlineViewType),
-    });
+    for (const registration of MARKDOWN_PANEL_VIEW_COMMANDS) {
+      const viewCreator = panelViewCreators[registration.viewType];
+      if ("sidebar" in registration) {
+        this.registerSidebarView(
+          registration.viewType,
+          viewCreator,
+          registration.sidebar,
+        );
+      } else {
+        this.registerView(registration.viewType, viewCreator);
+      }
 
-    this.registerView(
-      FilePropertiesViewType,
-      (leaf) => new FilePropertiesView(leaf),
-    );
-    for (const viewType of FilePropertiesLegacyViewTypes) {
-      this.registerView(viewType, (leaf) => new FilePropertiesView(leaf));
-    }
-    this.addCommand({
-      id: "show-file-properties",
-      name: "Show file properties",
-      callback: () => revealOrOpen(FilePropertiesViewType),
-    });
+      for (const legacyViewType of registration.legacyViewTypes) {
+        this.registerView(legacyViewType, viewCreator);
+      }
 
-    this.registerSidebarView(
-      BacklinksViewType,
-      (leaf) => new BacklinksView(leaf),
-      { side: "right", group: "Links", groupTitle: "Links" },
-    );
-    for (const viewType of BacklinksLegacyViewTypes) {
-      this.registerView(viewType, (leaf) => new BacklinksView(leaf));
+      this.addCommand({
+        ...registration.command,
+        callback: () =>
+          revealOrOpenMarkdownPanel(this.app, registration.viewType),
+      });
     }
-    this.addCommand({
-      id: "show-backlinks",
-      name: "Show backlinks",
-      callback: () => revealOrOpen(BacklinksViewType),
-    });
 
-    this.registerSidebarView(
-      OutgoingLinksViewType,
-      (leaf) => new OutgoingLinksView(leaf),
-      { side: "right", group: "Links", groupTitle: "Links" },
-    );
-    for (const viewType of OutgoingLinksLegacyViewTypes) {
-      this.registerView(viewType, (leaf) => new OutgoingLinksView(leaf));
-    }
-    this.addCommand({
-      id: "show-outgoing-links",
-      name: "Show outgoing links",
-      callback: () => revealOrOpen(OutgoingLinksViewType),
-    });
     this.addCommand({
       id: "show-links-sidebar",
       name: "Show links",
-      callback: () => revealOrOpen(BacklinksViewType),
-    });
-
-    this.registerSidebarView(TagsViewType, (leaf) => new TagsView(leaf), {
-      side: "right",
-      title: "Tags",
-      icon: "tags",
-    });
-    for (const viewType of TagsLegacyViewTypes) {
-      this.registerView(viewType, (leaf) => new TagsView(leaf));
-    }
-    this.addCommand({
-      id: "show-tags",
-      name: "Show tags",
-      callback: () => revealOrOpen(TagsViewType),
+      callback: () => revealOrOpenMarkdownPanel(this.app, BacklinksViewType),
     });
 
     // MetadataCache.writeFrontmatter passes the frontmatter object itself.

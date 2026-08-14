@@ -64,6 +64,9 @@ badge and never enter Lapis layout state or package-owned panel markup.
 Its narrow editor core and language-service subpaths let Markdown compose the
 source shell and diagnostics without importing the editor component barrel or
 its unrelated UI runtime.
+The Markdown package keeps canonical movable-panel registration, compatibility
+aliases, default placement, and opening-command metadata in one package-owned
+registry. This coordination is internal and does not add a package export.
 The worker client uses a narrow API subpath so provider workers never load the
 application manager or presentation modules.
 

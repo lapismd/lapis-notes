@@ -18,6 +18,9 @@ view's canonical `getViewType()` without moving registry policy into the shell.
 | LN-MD-033 | Panel roots and sticky chrome MUST consume design-core's resolved `--ui-workspace-view-background` and `--ui-workspace-view-foreground` tokens. `WorkspaceViewHost` MUST remain the placement-paint authority: body, bottom panel, grouped sidebar, mobile, floating, and standalone views use workspace paint, while only ungrouped left and right sidebar views use panel paint. |
 | LN-MD-034 | Panels MUST remain placement-agnostic and MUST NOT inspect workspace ancestry, reset grouped paint, inspect leaf parents at runtime, cache placement, or accept placement props. An exceptional panel MAY override the public view tokens on its own root for component-specific paint. |
 | LN-MD-035 | View `getIcon()` MUST return a Lucide short name for `WorkspaceIcon`; All Properties uses `archive`. Menu-style lists MAY wrap `sidebar-custom` `NestedProvider` without `Sidebar.Root`, but the wrapper, Content, Menu, items, and collapsibles MUST remove the legacy fixed sidebar width. Simple lists use the shell `__list` and `__row` helpers. |
+| LN-WS-050 | Every canonical movable panel view MUST be associated with a discoverable application command that opens that view. |
+| LN-WS-051 | A panel-opening command MUST reveal existing leaves wherever the panel was moved. When none exists, it MUST create and reveal the canonical view in its documented default surface. |
+| LN-WS-052 | Load-only compatibility view aliases MUST reuse their canonical panel command and MUST NOT add duplicate user-facing commands. |
 
 ## Surface ownership
 
@@ -39,6 +42,10 @@ view's canonical `getViewType()` without moving registry policy into the shell.
   shell headers and group chrome remain outside the panel implementation.
 - Cross-panel navigation uses registered app commands or workspace APIs. A
   panel does not import another panel plugin's implementation to change views.
+- Register a canonical panel view and its opening command through one
+  auditable declaration. The command reveals a moved instance before creating
+  the canonical view in its default surface; load-only aliases share that
+  command.
 - Responsive acceptance resizes the owning workspace split through the real
   controller and restores it in all outcomes. A story must not constrain the
   panel component directly to manufacture a breakpoint.

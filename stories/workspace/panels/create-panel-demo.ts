@@ -16,7 +16,7 @@ import {
   TagsViewType,
 } from "@lapis-notes/markdown";
 import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-import { CvPlugin } from "@lapis-notes/cv";
+import { RolesPlugin } from "@lapis-notes/roles";
 import { SearchPlugin, SearchViewType } from "@lapis-notes/search";
 import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../watch-metadata";
@@ -522,7 +522,7 @@ export async function bootPanelDemo(
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
     { plugin: SearchPlugin, required: true },
-    { plugin: CvPlugin, required: false, enabledByDefault: true },
+    { plugin: RolesPlugin, required: false, enabledByDefault: true },
   ]);
 
   globalThis.app = app;

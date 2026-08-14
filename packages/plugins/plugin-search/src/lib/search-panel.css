@@ -459,6 +459,13 @@
   );
 }
 
+.search-panel__recent {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.375rem 0.5rem 0.75rem;
+}
+
 .search-panel__recent h2 {
   margin: 0 0 0.375rem;
   padding-inline: 0.375rem;

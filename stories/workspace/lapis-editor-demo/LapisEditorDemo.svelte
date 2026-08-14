@@ -22,7 +22,7 @@
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-  import { CvPlugin } from "@lapis-notes/cv";
+  import { RolesPlugin } from "@lapis-notes/roles";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
   import "@lapismd/mira/themes/obsidian.css";
@@ -142,7 +142,7 @@
         enabledByDefault: true,
       },
       {
-        plugin: CvPlugin,
+        plugin: RolesPlugin,
         required: false,
         enabledByDefault: true,
       },

@@ -17,6 +17,7 @@ page.
 | LN-MD-011 | Storybook MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags. Tags is registered and exported by the Markdown package. |
 | LN-MD-021 | The package MUST export app-only `FileProperties`, `Outline`, `Backlinks`, and `OutgoingLinks` Svelte components. Backlinks and Outgoing Links MUST fix their mode in those public wrappers; their shared mode selector remains private. |
 | LN-MD-085 | Markdown panel registration MUST retain the former `file:properties`, `file:outline`, `file:backlinks`, and `file:outgoing-links` view types as load-only aliases. Restored aliases MUST resolve to views whose `getViewType()` returns the canonical Obsidian-compatible ID. |
+| LN-MD-089 | Markdown MUST declare All Properties, Outline, File Properties, Backlinks, Outgoing Links, and Tags in one panel registry that pairs every canonical view with unique opening-command metadata. |
 
 ## Panel pages
 
@@ -45,3 +46,8 @@ Design Core chrome rather than Markdown panel content.
 Tags and All Properties may hand a query to the separately registered Search
 plugin. That command boundary preserves Markdown ownership of metadata panels
 without giving them Search indexing, query execution, or layout policy.
+
+The Markdown and Media document views remain file-backed editor registrations.
+They open through editor associations rather than panel-opening commands.
+Former panel view IDs are compatibility aliases and resolve through the
+canonical command described by `LN-WS-052`.

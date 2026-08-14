@@ -455,6 +455,11 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
 | LN-MD-087 | markdown-panel-tags | Implemented | Tags row opens Search through its registered command in focused Storybook acceptance |
 | LN-MD-088 | markdown-panel-all-properties | Implemented | property rows open escaped Search queries in focused Storybook acceptance |
+| LN-WS-050 | workspace-shell-panels | Implemented | canonical movable-panel command association is required by the shared panel contract and Markdown registry test |
+| LN-WS-051 | workspace-shell-panels | Implemented | focused helper tests verify moved leaves are revealed and an absent panel is created in its default right surface |
+| LN-WS-052 | workspace-shell-panels | Implemented | Markdown registry coverage verifies every legacy alias remains attached to its canonical command registration |
+| LN-MD-089 | markdown-plugin-panels | Implemented | package unit coverage audits all six canonical Markdown panels and their unique command metadata |
+| LN-GOV-029 | spec-governance | Implemented | AGENTS guidance distinguishes canonical panel commands, file-backed editor associations, and load-only aliases |
 | LN-SRCH-001 | search-plugin | Implemented | legacy `8ec68e18` provenance and pruned package intake |
 | LN-SRCH-002 | search-plugin | Implemented | canonical Search view plus open, selected-text, refresh, and rebuild commands |
 | LN-SRCH-003 | search-plugin | Implemented | AppDatabase indexing, refresh, pruning, reactive tracking, and manager tests |
@@ -486,6 +491,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-029 | search-plugin | Implemented | all six Search placements verify transparent unbordered counts with sans-serif faint text |
 | LN-SRCH-030 | search-plugin | Implemented | middle-top-tabs Search acceptance navigates to a result in a sibling tab, retains the Search leaf, and restores it as the selected final story state |
 | LN-SRCH-031 | search-plugin | Implemented | all six Search placements verify regular extension-free parent labels and expanded-body path/retrieval metadata headers |
+| LN-SRCH-032 | search-plugin | Implemented | package CSS applies the standard results inset to the Recent searches heading and rows |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
 | LN-DB-003 | app-database | Implemented | native Electron and Turso WASM/OPFS provider selection pass desktop and browser acceptance |

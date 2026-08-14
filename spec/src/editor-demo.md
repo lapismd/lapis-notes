@@ -50,6 +50,10 @@
 | LN-ED-048 | The Editor settings schema MUST expose persisted `editor.alwaysFocusNewTabs` as a Boolean defaulting to `false`, and `WorkspaceShell` MUST map it reactively to Design Core's user-created-tab activation policy without changing explicit opens. |
 | LN-ED-049 | Every rendered Editor setting MUST reuse its canonical schema title, default, constraints, and concise description so the configuration contract and Settings UI cannot drift. |
 
+The real demo loads the production Markdown plugin, so panel commands come
+from the same declarative registry as production. Story fixtures MUST NOT add
+parallel commands to compensate for a missing plugin registration.
+
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |
 | LN-ED-017 | For file leaves, the tab title bar final segment MUST be renameable in place through `getChrome` `titleEditable` / `onTitleCommit` → `fileManager.renameFile`, without hiding breadcrumbs. |
