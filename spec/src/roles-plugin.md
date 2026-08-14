@@ -14,6 +14,9 @@ host registration, managed settings, layout recovery, and real-App acceptance.
 | LN-ROLE-016 | Desktop and web MUST restore persisted `role`, `roles`, and `cv` leaves when Roles is enabled without forcing Roles into a default layout. Disabled plugin leaves MUST remain persisted missing-view placeholders and recover after re-enable. |
 | LN-ROLE-017 | The real-App Roles shell MUST open a persisted `role.md` from File Explorer while its tab is already open, select that existing leaf and rendered tab, show the role surface, restore the CV leaf, and finish with Search collapsed. |
 | LN-ROLE-018 | Root Storybook MUST cover exact `role.md` association, aggregate opening, linked CV navigation, visible plugin groups, and disable/re-enable cycles for every optional static plugin. Roles-owned leaves MUST recover through placeholders, and acceptance MUST consume built public exports. |
+| LN-ROLE-019 | The real-App Roles shell MUST restore aggregate `roles` plus dedicated `roles-activity` and `roles-actions` main-area leaves. Aggregate navigation MUST remain internal, dedicated commands MUST reuse their leaves, and all three view types MUST survive disable/re-enable placeholder recovery. |
+| LN-ROLE-020 | The real-App Roles shell MUST expose the Roles Applications ribbon action, live due-action status item, and settings persistence through public Lapis shell surfaces. Ribbon and status activation MUST reveal their existing aggregate or dedicated leaves, and disabling Roles MUST remove both contributions. |
+| LN-ROLE-021 | Search acceptance MUST verify valid role semantic content plus `tag:leadership`, `["status"]:interview`, and `["company"]:"Atlas AI"`; it MUST retain CV semantic and `["technologies"]:Kubernetes` coverage while ordinary unmatched YAML remains absent. |
 
 ### LN-CV-012 acceptance details
 

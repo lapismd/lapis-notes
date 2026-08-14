@@ -95,7 +95,7 @@ describe("search query parser", () => {
   });
 
   it("parses bracketed properties and comparisons", () => {
-    const tree = parseSearchQuery("[aliases:null] [duration:<5]");
+    const tree = parseSearchQuery('["aliases"]:null ["duration"]:<5');
 
     expect(tree.toString()).toContain("PropertyExpression(");
     expect(tree.toString()).toContain("NullKeyword");
@@ -103,7 +103,7 @@ describe("search query parser", () => {
   });
 
   it("lowers properties and comparisons into an AST", () => {
-    const ast = parseSearchQueryAst("[aliases:null] [duration:<5]");
+    const ast = parseSearchQueryAst('["aliases"]:null ["duration"]:<5');
 
     expect(ast).toMatchObject({
       diagnostics: [],
@@ -134,6 +134,19 @@ describe("search query parser", () => {
           },
         ],
       },
+    });
+  });
+
+  it("retains legacy property values inside brackets", () => {
+    const ast = parseSearchQueryAst("[aliases:null] [duration:<5]");
+
+    expect(ast.diagnostics).toEqual([]);
+    expect(ast.expression).toMatchObject({
+      type: "and",
+      clauses: [
+        { type: "property", name: "aliases" },
+        { type: "property", name: "duration" },
+      ],
     });
   });
 
@@ -182,7 +195,7 @@ describe("search query parser", () => {
     expect(collectSearchQueryPropertyNames("[notebook] today")).toEqual([
       "notebook",
     ]);
-    expect(collectSearchQueryPropertyNames("[duration:<5]")).toEqual([]);
+    expect(collectSearchQueryPropertyNames('["duration"]:<5')).toEqual([]);
   });
 
   it("falls back to legacy term splitting for unsupported structured queries", () => {

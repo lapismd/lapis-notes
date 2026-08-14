@@ -65,10 +65,7 @@ import {
   type WorkspaceDiagnosticLocation,
 } from "@lapismd/design-core/workspace/problems";
 import { setWorkspaceHostBinding } from "./workspace-host-internal";
-import {
-  DiagnosticsManager,
-  pathFromDiagnosticResource,
-} from "./diagnostics";
+import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
 
 const DEFAULT_LAPIS_LOGO_URL = new URL(
   "./assets/lapis-logo.svg",
@@ -1563,8 +1560,12 @@ export class WorkspaceRibbon {
   ribbonSettingsEl: HTMLElement = $state(null)!;
   ribbonItemsEl: HTMLUListElement = $state(null)!;
   private _items: Record<string, WorkspaceRibbonItem> = $state({});
+  private readonly hostDisposers = new Map<string, () => void>();
 
-  constructor(readonly workspace: Workspace) {}
+  constructor(
+    readonly workspace: Workspace,
+    readonly side: "left" | "right" = "left",
+  ) {}
 
   get items() {
     return Object.values(this._items);
@@ -1573,6 +1574,12 @@ export class WorkspaceRibbon {
   addItem(item: WorkspaceRibbonItem): () => void {
     if (!this._items[item.id]) {
       this._items[item.id] = item;
+      if (!item.hidden) {
+        this.hostDisposers.set(
+          item.id,
+          this.workspace.projectCompatibilityRibbonItem(item, this.side),
+        );
+      }
     } else {
       new Notice(`Ribbon item: ${item.id} already exists`);
     }
@@ -1582,6 +1589,8 @@ export class WorkspaceRibbon {
   }
 
   removeItem(id: string) {
+    this.hostDisposers.get(id)?.();
+    this.hostDisposers.delete(id);
     if (this._items[id]) {
       delete this._items[id];
     }
@@ -1881,12 +1890,13 @@ export class Workspace extends EventDispatcher<{
   #configurationBridgeDisposer: (() => void) | null = null;
   #editorViewBridgeDisposer: (() => void) | null = null;
   #pluginSettingsBridgeDisposer: (() => void) | null = null;
+  #statusBarBridgeDisposer: (() => void) | null = null;
   private workspaceLayoutFile = "workspace.json";
 
   public statusEl: HTMLElement = $state()!;
   public statusCompatEl: HTMLElement = $state()!;
-  public leftRibbon: WorkspaceRibbon = new WorkspaceRibbon(this);
-  public rightRibbon: WorkspaceRibbon = new WorkspaceRibbon(this);
+  public leftRibbon: WorkspaceRibbon = new WorkspaceRibbon(this, "left");
+  public rightRibbon: WorkspaceRibbon = new WorkspaceRibbon(this, "right");
   public containerEl: HTMLElement = $state(createDiv("workspace"));
 
   private saveLayoutDebounced = debounce(() => {
@@ -1931,6 +1941,22 @@ export class Workspace extends EventDispatcher<{
     } finally {
       this.#syncingWorkspaceHost -= 1;
     }
+  }
+
+  projectCompatibilityRibbonItem(
+    item: WorkspaceRibbonItem,
+    side: "left" | "right",
+  ): () => void {
+    const registry = this.#workspaceHostController?.ribbon;
+    if (!registry) return () => {};
+    return registry.addItem({
+      id: item.id,
+      side,
+      section: "top",
+      label: item.title,
+      icon: item.icon,
+      onSelect: (event) => item.callback(event as MouseEvent),
+    });
   }
 
   private async withoutLayoutPersistence<T>(
@@ -2622,6 +2648,7 @@ export class Workspace extends EventDispatcher<{
     setWorkspaceHostBinding(this, {
       controller: this.#workspaceHostController,
     });
+    this.installStatusBarBridge(this.#workspaceHostController);
     this.diagnostics = new DiagnosticsManager(
       this.#workspaceHostController.diagnostics,
       () => new Menu(),
@@ -2772,11 +2799,67 @@ export class Workspace extends EventDispatcher<{
     this.#configurationBridgeDisposer = null;
     this.#pluginSettingsBridgeDisposer?.();
     this.#pluginSettingsBridgeDisposer = null;
+    this.#statusBarBridgeDisposer?.();
+    this.#statusBarBridgeDisposer = null;
     this.#editorViewBridgeDisposer?.();
     this.#editorViewBridgeDisposer = null;
     this.#workspaceHostViewDisposers.forEach((dispose) => dispose());
     this.#workspaceHostViewDisposers.clear();
     await this.#workspaceHostController?.dispose();
+  }
+
+  private installStatusBarBridge(controller: AppShellController): void {
+    const projectedIds = new Set<string>();
+    const sync = () => {
+      for (const id of projectedIds) controller.status.removeItem(id);
+      projectedIds.clear();
+      for (const item of this.app.statusBar.getVisibleItems(
+        "left",
+        this.app.contextKeys,
+      )) {
+        projectedIds.add(item.id);
+        controller.status.addItem({
+          id: item.id,
+          align: "left",
+          priority: item.priority,
+          label: item.text,
+          segments: item.text ? [item.text] : undefined,
+          tooltip: item.tooltip,
+          icon: item.icon,
+          busy: item.spin,
+          onSelect: item.command
+            ? () => void this.app.commands.executeCommand(item.command!)
+            : undefined,
+        });
+      }
+      for (const item of this.app.statusBar.getVisibleItems(
+        "right",
+        this.app.contextKeys,
+      )) {
+        projectedIds.add(item.id);
+        controller.status.addItem({
+          id: item.id,
+          align: "right",
+          priority: item.priority,
+          label: item.text,
+          segments: item.text ? [item.text] : undefined,
+          tooltip: item.tooltip,
+          icon: item.icon,
+          busy: item.spin,
+          onSelect: item.command
+            ? () => void this.app.commands.executeCommand(item.command!)
+            : undefined,
+        });
+      }
+    };
+    const unsubscribeStatus = this.app.statusBar.subscribe(sync);
+    const contextRef = this.app.contextKeys.on("change", sync);
+    this.#statusBarBridgeDisposer = () => {
+      unsubscribeStatus();
+      this.app.contextKeys.offref(contextRef);
+      for (const id of projectedIds) controller.status.removeItem(id);
+      projectedIds.clear();
+    };
   }
 
   private syncWorkspaceHostEditorView(id: string): void {

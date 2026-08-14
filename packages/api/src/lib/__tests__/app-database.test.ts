@@ -159,8 +159,6 @@ describe("AppDatabase", () => {
     ]);
   });
 
-
-
   it("stores deduplicated file history with rename delete and restore semantics", async () => {
     const db = new MemoryAppDatabase("vault-a");
     await db.open();
@@ -254,7 +252,6 @@ describe("AppDatabase", () => {
       ],
     });
   });
-
 
   it("returns chunk-aware snippets and search diagnostics", async () => {
     const db = new MemoryAppDatabase("vault-a");
@@ -556,6 +553,18 @@ describe("AppDatabase", () => {
       metadataText: "{}",
     });
 
+    await db.upsertSearchDocument({
+      path: "CVs/sample.cv.yml",
+      name: "sample.cv.yml",
+      extension: "yml",
+      checksum: "cv-1",
+      content: "Structured CV content",
+      tags: ["cv"],
+      tagParts: ["cv"],
+      tagHierarchy: ["cv"],
+      metadataText: JSON.stringify({ technologies: ["Kubernetes", "Ray"] }),
+    });
+
     await expect(
       db.searchDocuments("file:Daily tag:#work"),
     ).resolves.toMatchObject([{ document: { path: "Projects/Daily.md" } }]);
@@ -581,6 +590,9 @@ describe("AppDatabase", () => {
       db.searchDocuments('["note.status":ready]'),
     ).resolves.toMatchObject([{ document: { path: "Projects/Daily.md" } }]);
     await expect(
+      db.searchDocuments('["note.status"]:ready'),
+    ).resolves.toMatchObject([{ document: { path: "Projects/Daily.md" } }]);
+    await expect(
       db.searchDocuments('["project.name":Atlas]'),
     ).resolves.toMatchObject([{ document: { path: "Projects/Daily.md" } }]);
     await expect(
@@ -595,6 +607,9 @@ describe("AppDatabase", () => {
     await expect(
       db.searchDocuments('["notebook.version":"1.2.3"]'),
     ).resolves.toMatchObject([{ document: { path: "Projects/Daily.md" } }]);
+    await expect(
+      db.searchDocuments('["technologies"]:Kubernetes'),
+    ).resolves.toMatchObject([{ document: { path: "CVs/sample.cv.yml" } }]);
   });
 
   it("queries indexed metadata rows with filters sort and limit", async () => {
@@ -765,7 +780,6 @@ describe("AppDatabase", () => {
     ]);
   });
 
-
   it("executes scoped line block section and task operators", async () => {
     const db = new MemoryAppDatabase("vault-a");
     await db.open();
@@ -837,7 +851,6 @@ describe("AppDatabase", () => {
       0,
     );
   });
-
 
   it("derives search chunks and tags from source metadata during upsert", async () => {
     const db = new MemoryAppDatabase("vault-a");
@@ -1195,17 +1208,4 @@ describe("AppDatabase", () => {
     await db.deleteIndexedFile("renamed.md");
     expect(await db.getNotebookState("renamed.md")).toBeUndefined();
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
 });

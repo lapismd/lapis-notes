@@ -21,6 +21,8 @@ import {
 import type { WorkspacePopoutHost } from "../workspace.svelte";
 import { getWorkspaceHostBinding } from "../workspace-host";
 import { Menu } from "../menu.svelte";
+import { ContextKeyService } from "../context-keys.svelte";
+import { StatusBarManager } from "../status-bar.svelte";
 
 vi.mock("../prompt-confirm", () => ({
   promptConfirm: vi.fn(async () => true),
@@ -343,6 +345,9 @@ function createWorkspaceHarness(
       }),
     },
     plugins,
+    contextKeys: new ContextKeyService(),
+    statusBar: new StatusBarManager(),
+    commands: { executeCommand: vi.fn(async () => undefined) },
     notifications: {
       notify: vi.fn((options: { id: string }) => ({ id: options.id })),
       withProgress: vi.fn(
@@ -605,7 +610,8 @@ describe("Workspace compatibility", () => {
     });
 
     workspace.bindPlugins();
-    const registry = getWorkspaceHostBinding(workspace).controller.managedPlugins;
+    const registry =
+      getWorkspaceHostBinding(workspace).controller.managedPlugins;
 
     expect(registry.states).toEqual(
       expect.arrayContaining([
@@ -626,7 +632,9 @@ describe("Workspace compatibility", () => {
     expect(disablePlugin).toHaveBeenCalledWith("roles");
     coreEntries[1].enabled = false;
     pluginEvents.emit("plugin-disabled", {});
-    expect(registry.states.find((entry) => entry.key === "lapis:roles")).toMatchObject({
+    expect(
+      registry.states.find((entry) => entry.key === "lapis:roles"),
+    ).toMatchObject({
       enabled: false,
       status: "disabled",
     });
@@ -1878,9 +1886,11 @@ describe("Workspace compatibility", () => {
 
     const menu = binding.controller.renderer.createPaneMenu(leaf.id);
     expect(
-      menu.entries.slice(0, 5).map((entry) =>
-        entry.kind === "separator" ? entry.kind : entry.title,
-      ),
+      menu.entries
+        .slice(0, 5)
+        .map((entry) =>
+          entry.kind === "separator" ? entry.kind : entry.title,
+        ),
     ).toEqual([
       "Reading view",
       "separator",
@@ -3369,6 +3379,73 @@ describe("Workspace compatibility", () => {
     expect(activatedPopoutLeaf).toBe(true);
     expect(popoutWindow.focus).not.toHaveBeenCalled();
     expect(workspace.focusedHostId).toBe("root");
+  });
+
+  it("projects compatibility ribbon and reactive status items into the shell controller", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const ribbonCallback = vi.fn();
+    const removeRibbon = workspace.leftRibbon.addItem({
+      id: "roles:Open Applications",
+      icon: "briefcase-business",
+      title: "Open Applications",
+      hidden: false,
+      callback: ribbonCallback,
+    });
+
+    const ribbon = controller.ribbon.items.find(
+      (item) => item.id === "roles:Open Applications",
+    );
+    expect(ribbon).toMatchObject({
+      side: "left",
+      label: "Open Applications",
+      icon: "briefcase-business",
+    });
+    await ribbon?.onSelect(new MouseEvent("click"));
+    expect(ribbonCallback).toHaveBeenCalledOnce();
+
+    const removeStatus = app.statusBar.registerItem({
+      id: "roles:actions-attention",
+      text: "1",
+      icon: "bell",
+      tooltip: "Open Role Actions (1 due)",
+      command: "roles:open-actions",
+      alignment: "right",
+      priority: 80,
+    });
+    expect(
+      controller.status.items.find(
+        (item) => item.id === "roles:actions-attention",
+      ),
+    ).toMatchObject({
+      align: "right",
+      label: "1",
+      segments: ["1"],
+      icon: "bell",
+    });
+
+    app.statusBar.upsertItem({ id: "roles:actions-attention", text: "2" });
+    const updated = controller.status.items.find(
+      (item) => item.id === "roles:actions-attention",
+    );
+    expect(updated?.segments).toEqual(["2"]);
+    await updated?.onSelect?.();
+    expect(app.commands.executeCommand).toHaveBeenCalledWith(
+      "roles:open-actions",
+    );
+
+    removeStatus();
+    removeRibbon();
+    expect(
+      controller.status.items.some(
+        (item) => item.id === "roles:actions-attention",
+      ),
+    ).toBe(false);
+    expect(
+      controller.ribbon.items.some(
+        (item) => item.id === "roles:Open Applications",
+      ),
+    ).toBe(false);
   });
 
   it("closes a leaf and selects a sensible fallback", () => {

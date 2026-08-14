@@ -43,6 +43,8 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-033 | The API MUST expose a lifecycle-managed search-document provider registry. Providers MUST match files and extract normalized content, optional metadata, and tags without writing generated search state. |
 | LN-SRCH-034 | Search MUST register Markdown and Canvas as built-in providers and MUST select one provider deterministically by priority. Equal-priority matches MUST fail that file without stopping other files from indexing. |
 | LN-SRCH-035 | Provider registration and removal MUST refresh the index. Removing or disabling a provider MUST prune its documents, while provider extraction failures MUST leave the remaining index usable. |
+| LN-SRCH-036 | Property values MUST use the canonical `["name"]:value` spelling while legacy `[name:value]` queries remain readable. |
+| LN-SRCH-037 | Provider metadata MUST support property filters even when the vault metadata parser does not index that file extension. |
 
 ## Runtime flow
 

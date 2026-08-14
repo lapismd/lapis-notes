@@ -397,6 +397,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-040 | architecture | Implemented | API distribution metadata and Design Core managed-plugin bridge retain Lapis lifecycle ownership |
 | LN-ARCH-041 | architecture | Implemented | API, UI, Workspace, Design Core, and Mira package manifests form a portable semver dependency closure with local matching-version links |
 | LN-ARCH-043 | architecture | Implemented | API provider registry, Search index ownership, and external Roles CV projection tests |
+| LN-ARCH-044 | architecture | Implemented | API workspace bridge tests cover reactive status projection, ribbon callbacks, and disposal |
+| LN-ARCH-045 | architecture | Implemented | search evaluator tests keep provider metadata queryable without writing the vault metadata index |
 | LN-PKG-053 | packages | Implemented | versioned peer and dev contracts, package builds, publint, Workspace tarball audit, and standalone Roles compile smoke |
 | LN-GOV-030 | spec-governance | Implemented | spec-first classifier tests require the Plugin Model chapter for API plugin lifecycle changes |
 | LN-PLUG-001 | plugin-model | Implemented | bundled plugin package and registration audit |
@@ -412,6 +414,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PLUG-011 | plugin-model | Implemented | Roles runtime ID, command, view, path, and plugin-data compatibility audit |
 | LN-PLUG-012 | plugin-model | Implemented | plugin-manager static contribution list deduplication regression test |
 | LN-PLUG-013 | plugin-model | Implemented | Plugin lifecycle unit namespaces and disposes search-document providers |
+| LN-PLUG-014 | plugin-model | Implemented | Roles real-App story covers ribbon and status removal, restoration, navigation, and dedicated-leaf reuse |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
@@ -462,6 +465,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-033 | search-plugin | Implemented | API registry and Plugin lifecycle unit coverage |
 | LN-SRCH-034 | search-plugin | Implemented | built-in provider and deterministic collision manager tests |
 | LN-SRCH-035 | search-plugin | Implemented | provider-change refresh, disable pruning, and per-file failure coverage |
+| LN-SRCH-036 | search-plugin | Implemented | API parser and database tests cover canonical external-colon properties plus legacy in-bracket compatibility |
+| LN-SRCH-037 | search-plugin | Implemented | API database and Roles real-App tests query CV provider metadata for a YAML extension absent from vault metadata indexing |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
 | LN-DB-003 | app-database | Implemented | native Electron and Turso WASM/OPFS provider selection pass desktop and browser acceptance |
@@ -475,6 +480,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DB-011 | app-database | Implemented | Web Locks heartbeat tests and two-tab delegated Search/promotion acceptance |
 | LN-DB-012 | app-database | Implemented | unsupported capability paths block explicitly; owner and proxy expose probed Turso descriptors |
 | LN-DB-013 | app-database | Implemented | local-only provider registration contains no credentials, remote database, sync, or note upload |
+| LN-DB-014 | app-database | Implemented | memory and Turso-shared evaluation tests query provider metadata without vault property rows |
 | LN-WEB-001 | web-host | Implemented | package `2026.6.3`, manifest, generated legacy icons, update prompt, WCO, and `web+lapis` handler |
 | LN-WEB-002 | web-host | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement |
 | LN-WEB-003 | web-host | Implemented | OPFS creation/restoration, File System Access opening, and cancellation recovery acceptance |
@@ -489,13 +495,20 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-054 | packages | Implemented | Bases check and no-Tailwind audits, 14-file / 142-test legacy baseline, 17-file / 148-test current suite, build, publint, export, and dependency audits |
 | LN-PKG-055 | packages | Implemented | API declarations and standalone Roles checks consume the public provider contract without Search imports |
 | LN-PKG-056 | packages | Implemented | public Workspace metadata, package build, publint, tarball audit, and external Roles versioned local link |
+| LN-PKG-057 | packages | Implemented | API status registry and workspace-host tests cover visible item projection and compatibility ribbon actions |
+| LN-PKG-058 | packages | Implemented | API database tests derive search-only property records from normalized document metadata |
 | LN-WS-053 | workspace-shell | Implemented | standalone Roles workspace story consumes the packed public WorkspaceShell export |
+| LN-WS-054 | workspace-shell | Implemented | API tests and the real-App Roles shell cover live compatibility ribbon/status projection, updates, commands, and teardown |
 | LN-DESK-031 | desktop-host | In progress | desktop registration ordering, exported styles, community exclusion, checks, tests, and production build pass; persisted Bases smoke remains |
 | LN-WEB-011 | web-host | In progress | web registration ordering, exported styles, community exclusion, checks, tests, and PWA build pass; browser fixture acceptance remains |
 | LN-CAT-049 | storybook-catalog | In progress | focused Bases view and workflow interaction stories plus serial pointer persistence coverage |
 | LN-CAT-050 | storybook-catalog | In progress | real-App file view, Markdown embed, and disable/restore interaction stories |
 | LN-CAT-051 | storybook-catalog | In progress | shared fixture, public Show Code, Autodocs authority, 700px app docs, and pending nested baselines |
 | LN-CAT-052 | storybook-catalog | Implemented | focused Roles shell finds CV semantic content after lifecycle recovery and excludes ordinary YAML |
+| LN-CAT-053 | storybook-catalog | Implemented | real-App Roles shell covers aggregate and dedicated navigation, ribbon, status, settings, three-view recovery, and final collapsed Search |
+| LN-ROLE-019 | roles-plugin | Implemented | real-App shell restores and reuses aggregate, Activity, and Actions leaves through lifecycle recovery |
+| LN-ROLE-020 | roles-plugin | Implemented | real-App shell exercises live ribbon, status count navigation, settings persistence, and disable teardown |
+| LN-ROLE-021 | roles-plugin | Implemented | Search acceptance covers role semantic, tag and metadata fields plus retained CV semantic/technology fields and ordinary YAML exclusion |
 | LN-GOV-031 | spec-governance | Implemented | spec-first classifier and unit coverage map Bases source and story paths to canonical chapters |
 | LN-BASE-001 | bases-plugin | In progress | source revision, package manifest, and optional bundled default-enabled registration pass in three hosts; disable/re-enable acceptance remains |
 | LN-BASE-002 | bases-plugin | In progress | association, source/preview, persistence, and reopen package plus real-App tests |

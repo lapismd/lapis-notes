@@ -34,6 +34,7 @@ persistence, and application-host responsibilities.
 | LN-WS-024 | Authored shell MDX MUST identify every scenario and render its canonical Storybook description immediately before the corresponding canvas. |
 | LN-WS-049 | `WorkspaceShell` MUST map persisted `editor.alwaysFocusNewTabs` into Design Core's user-created-tab activation policy, defaulting to background creation while leaving explicit application opens unchanged. |
 | LN-WS-053 | The `@lapis-notes/workspace` package MUST publish `WorkspaceShell` as a versioned shell adapter so separately versioned plugin catalogs can render an initialized public `App` without copying the AppShell composition. |
+| LN-WS-054 | API compatibility ribbon registrations and reactive status-bar descriptors MUST project into the API-owned Design Core shell registries. Projection MUST preserve identifiers, icons, labels, alignment, priority, commands, updates, and plugin teardown without introducing a second plugin-facing registration contract. |
 
 ## Ownership and data flow
 

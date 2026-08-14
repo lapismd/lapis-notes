@@ -125,10 +125,7 @@ export function supportsSearchQueryEnhancementRuntime(
   return runtimeTarget === "electron-desktop";
 }
 
-export type AppDatabaseKind =
-  | "turso-wasm"
-  | "turso-native"
-  | "memory";
+export type AppDatabaseKind = "turso-wasm" | "turso-native" | "memory";
 
 export type AppDatabaseStorageMode = "local" | "synced" | "remote";
 export type AppDatabaseTransport =
@@ -136,12 +133,7 @@ export type AppDatabaseTransport =
   | "wasm-worker"
   | "broadcast-proxy"
   | "memory";
-export type AppDatabaseRole =
-  | "direct"
-  | "owner"
-  | "proxy"
-  | "blocked"
-  | "test";
+export type AppDatabaseRole = "direct" | "owner" | "proxy" | "blocked" | "test";
 
 export interface AppDatabaseCapabilities {
   nativeFullTextSearch: boolean;
@@ -1199,6 +1191,38 @@ export function hasSearchPropertyNames(
       availableNames.has(rootSearchPropertyName(normalizedName))
     );
   });
+}
+
+function searchDocumentProperties(
+  document: SearchDocumentRecord,
+  indexedProperties: AppDatabasePropertyRecord[],
+): AppDatabasePropertyRecord[] {
+  if (!document.metadataText) return indexedProperties;
+  try {
+    const metadata = JSON.parse(document.metadataText) as unknown;
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+      return indexedProperties;
+    }
+    const properties = new Map(
+      indexedProperties.map((property) => [
+        property.name.toLowerCase(),
+        property,
+      ]),
+    );
+    for (const [name, value] of Object.entries(
+      metadata as Record<string, unknown>,
+    )) {
+      properties.set(name.toLowerCase(), {
+        path: document.path,
+        name,
+        inferredType: Array.isArray(value) ? "array" : typeof value,
+        value,
+      });
+    }
+    return [...properties.values()];
+  } catch {
+    return indexedProperties;
+  }
 }
 
 function searchTextTerms(query: string): string[] {
@@ -2332,14 +2356,18 @@ export class MemoryAppDatabase implements AppDatabase {
   ): Promise<AppDatabaseSearchResult[]> {
     const propertyNames = searchPropertyNames(query);
     const allowedPaths = candidatePaths ? new Set(candidatePaths) : null;
-    const sourceDocuments = [...this.searchDocs.values()].filter(
-      (document) =>
-        (!allowedPaths || allowedPaths.has(document.path)) &&
-        hasSearchPropertyNames(
+    const sourceDocuments = [...this.searchDocs.values()]
+      .filter((document) => !allowedPaths || allowedPaths.has(document.path))
+      .map((document) => ({
+        document,
+        properties: searchDocumentProperties(
+          document,
           this.properties.get(document.path) ?? [],
-          propertyNames,
         ),
-    );
+      }))
+      .filter(({ properties }) =>
+        hasSearchPropertyNames(properties, propertyNames),
+      );
     const limit = options.limit ?? 100;
     const requestedMode = options.mode ?? "auto";
     const queryVector =
@@ -2347,7 +2375,7 @@ export class MemoryAppDatabase implements AppDatabase {
         ? null
         : await this.safeEmbedQuery(query);
     const vectorScores = new Map(
-      sourceDocuments.map((document) => [
+      sourceDocuments.map(({ document }) => [
         document.path,
         queryVector
           ? scoreVectorDocument(document, queryVector)
@@ -2355,14 +2383,9 @@ export class MemoryAppDatabase implements AppDatabase {
       ]),
     );
     const lexicalScores = new Map(
-      sourceDocuments.map((document) => [
+      sourceDocuments.map(({ document, properties }) => [
         document.path,
-        scoreSearchDocument(
-          document,
-          query,
-          this.properties.get(document.path) ?? [],
-          options,
-        ),
+        scoreSearchDocument(document, query, properties, options),
       ]),
     );
     const vectorCandidateCount = [...vectorScores.values()].filter(
@@ -2387,7 +2410,7 @@ export class MemoryAppDatabase implements AppDatabase {
     );
     const candidateCount = sourceDocuments.length;
     const results = sourceDocuments
-      .map((document) =>
+      .map(({ document }) =>
         buildSearchResult(document, query, options, {
           backendKind: this.kind,
           appliedMode,

@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import type { App } from "@lapis-notes/api";
+  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
   import { defineMeta } from "@storybook/addon-svelte-csf";
@@ -44,7 +45,7 @@
   parameters={{
     docs: {
       description: {
-        story: "Boot a real App with File Explorer, Search in a collapsed right sidebar, aggregate Roles, role.md, and the retained CV FileView restored from persisted layout.",
+        story: "Boot a real App with File Explorer, Search in a collapsed right sidebar, aggregate and dedicated Roles views, role.md, and the retained CV FileView restored from persisted layout.",
       },
     },
   }}
@@ -71,6 +72,123 @@
     expect(app.plugins.isPluginEnabled("roles")).toBe(true);
     expect(app.plugins.isPluginEnabled("lapis-file-explorer")).toBe(true);
     expect(app.plugins.isPluginEnabled("search")).toBe(true);
+
+    const rolesPlugin = app.plugins.plugins.get("roles");
+    expect(rolesPlugin).toBeInstanceOf(RolesPlugin);
+    if (!(rolesPlugin instanceof RolesPlugin)) {
+      throw new Error("The Roles plugin did not load its public runtime");
+    }
+    expect(app.workspace.getLeavesOfType("roles")).toHaveLength(1);
+    expect(app.workspace.getLeavesOfType("roles-activity")).toHaveLength(1);
+    expect(app.workspace.getLeavesOfType("roles-actions")).toHaveLength(1);
+
+    const aggregateLeaf = app.workspace.getLeavesOfType("roles")[0]!;
+    const aggregateTab = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-workspace-tab-id="roles"] [data-workspace-tab-title-trigger]',
+    );
+    expect(aggregateTab).not.toBeNull();
+    await userEvent.click(aggregateTab!);
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf).toBe(aggregateLeaf);
+      expect(
+        canvasElement.querySelector('[data-ui-component="roles-applications"]'),
+      ).toBeVisible();
+    });
+
+    const applicationsSurface = canvasElement.querySelector<HTMLElement>(
+      ".applications-board-surface",
+    );
+    const applicationsSearchRow = applicationsSurface?.querySelector<HTMLElement>(
+      ".applications-search-row",
+    );
+    const applicationsBoard = applicationsSurface?.querySelector<HTMLElement>(
+      '[data-ui-component="roles-applications"]',
+    );
+    expect(applicationsSurface).not.toBeNull();
+    expect(applicationsSearchRow).not.toBeNull();
+    expect(applicationsBoard).not.toBeNull();
+    expect(getComputedStyle(applicationsSurface!).flexDirection).toBe("column");
+    expect(
+      Array.from(applicationsSurface!.children).indexOf(applicationsSearchRow!),
+    ).toBeLessThan(
+      Array.from(applicationsSurface!.children).indexOf(applicationsBoard!),
+    );
+
+    await userEvent.click(canvas.getByRole("button", { name: "Show activity" }));
+    await waitFor(() => {
+      expect(rolesPlugin.getPresentation().mode).toBe("activity");
+      expect(
+        canvasElement.querySelector('[data-ui-component="role-activity"]'),
+      ).toBeVisible();
+      expect(app.workspace.activeLeaf).toBe(aggregateLeaf);
+    });
+    await userEvent.click(
+      canvas.getByRole("button", { name: /Show actions/ }),
+    );
+    await waitFor(() => {
+      expect(rolesPlugin.getPresentation().mode).toBe("actions");
+      expect(
+        canvasElement.querySelector('[data-ui-component="role-actions"]'),
+      ).toBeVisible();
+      expect(app.workspace.activeLeaf).toBe(aggregateLeaf);
+    });
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Show applications" }),
+    );
+    await waitFor(() => expect(rolesPlugin.getPresentation().mode).toBe("applications"));
+
+    const activityLeaf = app.workspace.getLeavesOfType("roles-activity")[0]!;
+    await app.commands.executeCommand("roles:open-activity");
+    await waitFor(() => expect(app.workspace.activeLeaf).toBe(activityLeaf));
+    await app.commands.executeCommand("roles:open-activity");
+    await waitFor(() => {
+      expect(app.workspace.getLeavesOfType("roles-activity")).toEqual([activityLeaf]);
+      expect(app.workspace.activeLeaf).toBe(activityLeaf);
+    });
+
+    const actionsLeaf = app.workspace.getLeavesOfType("roles-actions")[0]!;
+    await app.commands.executeCommand("roles:open-actions");
+    await waitFor(() => expect(app.workspace.activeLeaf).toBe(actionsLeaf));
+    await app.commands.executeCommand("roles:open-actions");
+    await waitFor(() => {
+      expect(app.workspace.getLeavesOfType("roles-actions")).toEqual([actionsLeaf]);
+      expect(app.workspace.activeLeaf).toBe(actionsLeaf);
+    });
+
+    const applicationsRibbon = canvas.getByRole("button", {
+      name: "Open Applications",
+    });
+    const getApplicationsRibbon = () =>
+      canvasElement.querySelector<HTMLButtonElement>(
+        '[data-hint-target-id="ribbon:roles:Open Applications"]',
+      );
+    await userEvent.click(applicationsRibbon);
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf).toBe(aggregateLeaf);
+      expect(rolesPlugin.getPresentation().mode).toBe("applications");
+    });
+
+    const getActionsStatus = () =>
+      canvasElement.querySelector<HTMLButtonElement>(
+        '[data-status-bar-item-id="roles:actions-attention"]',
+      );
+    const actionsStatus = await waitFor(() => {
+      const item = getActionsStatus();
+      expect(item).not.toBeNull();
+      return item!;
+    });
+    await userEvent.click(actionsStatus);
+    await waitFor(() => expect(app.workspace.activeLeaf).toBe(actionsLeaf));
+
+    await rolesPlugin.updateSettings({
+      newRolesFolder: "Opportunities",
+      showActionCountInStatusBar: false,
+    });
+    await waitFor(() => expect(getActionsStatus()).toBeNull());
+    expect(rolesPlugin.getSettings().newRolesFolder).toBe("Opportunities");
+    await rolesPlugin.updateSettings({ showActionCountInStatusBar: true });
+    await waitFor(() => expect(getActionsStatus()).not.toBeNull());
+
     await userEvent.click(canvas.getByRole("button", { name: "Open settings" }));
     const settingsDialog = canvas.getByRole("dialog", { name: "Settings" });
     const settings = within(settingsDialog);
@@ -117,14 +235,38 @@
         type: "empty",
         state: { __missingViewType: "cv" },
       });
+      expect(app.workspace.getLeafById("roles")?.getViewState()).toMatchObject({
+        type: "empty",
+        state: { __missingViewType: "roles" },
+      });
+      expect(app.workspace.getLeafById("roles-activity")?.getViewState()).toMatchObject({
+        type: "empty",
+        state: { __missingViewType: "roles-activity" },
+      });
+      expect(app.workspace.getLeafById("roles-actions")?.getViewState()).toMatchObject({
+        type: "empty",
+        state: { __missingViewType: "roles-actions" },
+      });
+      expect(getApplicationsRibbon()).toBeNull();
+      expect(getActionsStatus()).toBeNull();
     });
     await waitFor(() => expect(getRolesToggle()).not.toBeDisabled());
     await userEvent.click(getRolesToggle());
     await waitFor(() => {
       expect(app.plugins.isPluginEnabled("roles")).toBe(true);
+      expect(app.workspace.getLeavesOfType("roles")).toHaveLength(1);
+      expect(app.workspace.getLeavesOfType("roles-activity")).toHaveLength(1);
+      expect(app.workspace.getLeavesOfType("roles-actions")).toHaveLength(1);
       expect(app.workspace.getLeavesOfType("role")).toHaveLength(1);
       expect(app.workspace.getLeavesOfType("cv")).toHaveLength(1);
+      expect(getApplicationsRibbon()).not.toBeNull();
+      expect(getActionsStatus()).not.toBeNull();
     });
+    const restoredRolesPlugin = app.plugins.plugins.get("roles");
+    expect(restoredRolesPlugin).toBeInstanceOf(RolesPlugin);
+    expect((restoredRolesPlugin as RolesPlugin).getSettings().newRolesFolder).toBe(
+      "Opportunities",
+    );
 
     const getNotificationsToggle = () =>
       settings.getByRole("switch", { name: "Enable Notifications" });
@@ -133,6 +275,14 @@
     await userEvent.click(getNotificationsToggle());
     await expect(getNotificationsToggle()).toBeChecked();
     await userEvent.click(settings.getByRole("button", { name: "Close settings" }));
+    const initialCvTab = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-workspace-tab-id="sample-cv"] [data-workspace-tab-title-trigger]',
+    );
+    expect(initialCvTab).not.toBeNull();
+    await userEvent.click(initialCvTab!);
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf?.view.getViewType()).toBe("cv");
+    });
     expect(app.workspace.rightSplit.collapsed).toBe(true);
     expect(canvas.queryByLabelText("Right sidebar")).toBeNull();
     const openRightSidebar = canvas.getByRole("button", {
@@ -240,8 +390,22 @@
 
     const search = within(canvas.getByTestId("search-panel"));
     const searchbox = search.getByRole("searchbox", { name: "Search vault" });
-    await userEvent.click(searchbox);
-    await userEvent.type(searchbox, "roles-plugin-shell");
+    await waitFor(
+      async () => {
+        const indexedCv = await app.appDatabase.getSearchDocument("sample.cv.yml");
+        expect(JSON.parse(indexedCv?.metadataText ?? "{}")).toMatchObject({
+          technologies: expect.arrayContaining(["Kubernetes"]),
+        });
+      },
+      { timeout: 8_000 },
+    );
+    const searchFor = async (query: string) => {
+      await userEvent.clear(searchbox);
+      await userEvent.click(searchbox);
+      await userEvent.paste(query);
+    };
+
+    await searchFor("roles-plugin-shell");
     await waitFor(() => {
       expect(
         search.getByRole("treeitem", {
@@ -249,8 +413,7 @@
         }),
       ).toBeTruthy();
     });
-    await userEvent.clear(searchbox);
-    await userEvent.type(searchbox, "Nexus AI");
+    await searchFor("Nexus AI");
     await waitFor(() => {
       expect(
         search.getByRole("treeitem", {
@@ -259,8 +422,48 @@
       ).toBeTruthy();
     });
 
-    await userEvent.clear(searchbox);
-    await userEvent.type(searchbox, "ordinary-yaml-search-marker");
+    await searchFor("ambiguous platform migrations");
+    await waitFor(() => {
+      expect(
+        search.getByRole("treeitem", {
+          name: /Roles\/atlas-ai-infra\/role\.md/i,
+        }),
+      ).toBeTruthy();
+    });
+    await searchFor("tag:leadership");
+    await waitFor(() => {
+      expect(
+        search.getByRole("treeitem", {
+          name: /Roles\/northstar-tools\/role\.md/i,
+        }),
+      ).toBeTruthy();
+    });
+    await searchFor('["status"]:interview');
+    await waitFor(() => {
+      expect(
+        search.getByRole("treeitem", {
+          name: /Roles\/harbour-payments\/role\.md/i,
+        }),
+      ).toBeTruthy();
+    });
+    await searchFor('["company"]:"Atlas AI"');
+    await waitFor(() => {
+      expect(
+        search.getByRole("treeitem", {
+          name: /Roles\/atlas-ai-infra\/role\.md/i,
+        }),
+      ).toBeTruthy();
+    });
+    await searchFor('["technologies"]:Kubernetes');
+    await waitFor(() => {
+      expect(
+        search.getByRole("treeitem", {
+          name: /sample\.cv\.yml/i,
+        }),
+      ).toBeTruthy();
+    });
+
+    await searchFor("ordinary-yaml-search-marker");
     await waitFor(() => {
       expect(search.getByText("No matches found.")).toBeTruthy();
     });

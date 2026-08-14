@@ -1,8 +1,4 @@
-import {
-  App,
-  MemoryAppDatabase,
-  MemoryVaultAdapter,
-} from "@lapis-notes/api";
+import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
 import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
@@ -46,12 +42,12 @@ function leaf(
   };
 }
 
-function tabs(id: string, children: ReturnType<typeof leaf>[]) {
+function tabs(id: string, children: ReturnType<typeof leaf>[], currentTab = 0) {
   return {
     id,
     type: "tabs",
     stacked: false,
-    currentTab: id === "main-tabs" ? 2 : 0,
+    currentTab,
     children,
   };
 }
@@ -64,15 +60,32 @@ function workspaceLayout() {
       direction: "vertical",
       sizes: [100],
       children: [
-        tabs("main-tabs", [
-          leaf("roles", "Roles", "briefcase-business", "roles"),
-          leaf("atlas-role", "Engineering Manager", "briefcase-business", "role", {
-            file: "Roles/atlas-ai-infra/role.md",
-          }),
-          leaf("sample-cv", "sample", "file-text", "cv", {
-            file: "sample.cv.yml",
-          }),
-        ]),
+        tabs(
+          "main-tabs",
+          [
+            leaf("roles", "Roles", "briefcase-business", "roles"),
+            leaf(
+              "roles-activity",
+              "Role Activity",
+              "activity",
+              "roles-activity",
+            ),
+            leaf("roles-actions", "Role Actions", "bell", "roles-actions"),
+            leaf(
+              "atlas-role",
+              "Engineering Manager",
+              "briefcase-business",
+              "role",
+              {
+                file: "Roles/atlas-ai-infra/role.md",
+              },
+            ),
+            leaf("sample-cv", "sample", "file-text", "cv", {
+              file: "sample.cv.yml",
+            }),
+          ],
+          4,
+        ),
       ],
     },
     left: {
@@ -93,9 +106,7 @@ function workspaceLayout() {
       direction: "vertical",
       sizes: [100],
       children: [
-        tabs("right-tabs", [
-          leaf("search", "Search", "search", "search"),
-        ]),
+        tabs("right-tabs", [leaf("search", "Search", "search", "search")]),
       ],
       width: "0px",
     },

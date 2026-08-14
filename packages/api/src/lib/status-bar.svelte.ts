@@ -21,12 +21,14 @@ interface RegisteredStatusBarItem extends StatusBarItemDescriptor {
 
 export class StatusBarManager {
   #sequence = 0;
+  readonly #listeners = new Set<() => void>();
   readonly items: Record<string, RegisteredStatusBarItem> = $state({});
 
   registerItem(item: StatusBarItemDescriptor): () => void {
     this.upsertItem(item);
     return () => {
       delete this.items[item.id];
+      this.notify();
     };
   }
 
@@ -39,10 +41,24 @@ export class StatusBarManager {
       ...item,
       sequence: existing?.sequence ?? this.#sequence++,
     };
+    this.notify();
   }
 
   unregisterItem(id: string): void {
-    delete this.items[id];
+    if (this.items[id]) {
+      delete this.items[id];
+      this.notify();
+    }
+  }
+
+  subscribe(listener: () => void): () => void {
+    this.#listeners.add(listener);
+    listener();
+    return () => this.#listeners.delete(listener);
+  }
+
+  private notify(): void {
+    for (const listener of this.#listeners) listener();
   }
 
   getVisibleItems(

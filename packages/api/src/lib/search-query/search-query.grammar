@@ -50,7 +50,9 @@ FieldValue {
 }
 
 PropertyExpression {
-  "[" PropertyName (":" PropertyValue)? "]"
+  "[" PropertyName "]" |
+  "[" PropertyName "]" ":" PropertyValue |
+  "[" PropertyName ":" PropertyValue "]"
 }
 
 PropertyName {

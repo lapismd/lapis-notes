@@ -1,8 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ContextKeyService } from "../context-keys.svelte";
 import { StatusBarManager } from "../status-bar.svelte";
 
 describe("status bar manager", () => {
+  it("notifies shell adapters when descriptors are added, updated, or removed", () => {
+    const statusBar = new StatusBarManager();
+    const listener = vi.fn();
+    const unsubscribe = statusBar.subscribe(listener);
+
+    statusBar.registerItem({ id: "demo:item", text: "1" });
+    statusBar.upsertItem({ id: "demo:item", text: "2" });
+    statusBar.unregisterItem("demo:item");
+
+    expect(listener).toHaveBeenCalledTimes(4);
+    unsubscribe();
+    statusBar.registerItem({ id: "demo:later", text: "3" });
+    expect(listener).toHaveBeenCalledTimes(4);
+  });
   it("orders visible items by alignment, priority, and registration order", () => {
     const contextKeys = new ContextKeyService({
       "plugin.enabled.demo": true,

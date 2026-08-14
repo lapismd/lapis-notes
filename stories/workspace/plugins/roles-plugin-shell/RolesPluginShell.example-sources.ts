@@ -12,6 +12,15 @@ export const RolesPluginShellExample = `<script lang="ts">
     type: "cv", title: "sample", icon: "file-text",
     state: { file: "sample.cv.yml" },
   } };
+  const rolesLeaf = { id: "roles", type: "leaf", state: {
+    type: "roles", title: "Roles", icon: "briefcase-business", state: {},
+  } };
+  const activityLeaf = { id: "roles-activity", type: "leaf", state: {
+    type: "roles-activity", title: "Role Activity", icon: "activity", state: {},
+  } };
+  const actionsLeaf = { id: "roles-actions", type: "leaf", state: {
+    type: "roles-actions", title: "Role Actions", icon: "bell", state: {},
+  } };
   const filesLeaf = { id: "files", type: "leaf", state: {
     type: "file-explorer", title: "Files", icon: "folder-closed", state: {},
   } };
@@ -21,7 +30,7 @@ export const RolesPluginShellExample = `<script lang="ts">
   const layout = {
     main: { id: "main", type: "split", direction: "vertical", sizes: [100],
       children: [{ id: "main-tabs", type: "tabs", stacked: false,
-        currentTab: 0, children: [cvLeaf] }],
+        currentTab: 3, children: [rolesLeaf, activityLeaf, actionsLeaf, cvLeaf] }],
     },
     left: { id: "left", type: "split", direction: "vertical", sizes: [100],
       children: [{ id: "left-tabs", type: "tabs", stacked: false,
