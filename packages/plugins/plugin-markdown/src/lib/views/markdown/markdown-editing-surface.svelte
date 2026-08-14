@@ -187,10 +187,19 @@
   }
 
   .markdown-editing-surface__editor {
-    flex: 1 1 auto;
+    display: flex;
+    flex: 1 1 0;
     min-height: 0;
+    min-width: 0;
     overflow: hidden;
     width: 100%;
+  }
+
+  .markdown-editing-surface__editor
+    :global([data-ui-component="embedded-editor-surface"]) {
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
   }
 
   .markdown-editing-surface__editor :global(.cm-editor-scroll-area) {

@@ -127,6 +127,18 @@
   width: 100%;
 }
 
+.cm-editor-scroll-area--ancestor {
+  height: auto;
+  overflow: visible;
+}
+
+.cm-editor-scroll-area--ancestor .cm-editor-scroll-area-content,
+.cm-editor-scroll-area--ancestor .cm-editor-scroll-area-inner,
+.cm-editor-scroll-area--ancestor .cm-editor-scroll-area-inner > .cm-scroller {
+  height: auto;
+  min-height: 0;
+}
+
 [data-ui-component="editor"][data-ui-part="scroll-content"],
 [data-ui-component="editor"] .cm-editor-scroll-area-content {
   height: fit-content;

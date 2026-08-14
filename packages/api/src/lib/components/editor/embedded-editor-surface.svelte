@@ -14,6 +14,7 @@
     mode = "source",
     sourcePath = "",
     fallbackLanguage = viewType,
+    scrollOwner = "self",
     class: className = "",
     onChange,
   }: {
@@ -25,6 +26,7 @@
     mode?: string;
     sourcePath?: string;
     fallbackLanguage?: string;
+    scrollOwner?: "self" | "ancestor";
     class?: string;
     onChange?: (value: string) => void | Promise<void>;
   } = $props();
@@ -89,8 +91,9 @@
   data-ui-part="root"
   data-editor-view-type={viewType}
   data-editor-mode={mode}
+  data-editor-scroll-owner={scrollOwner}
 >
-  <NoteEditor {leaf} {editor} />
+  <NoteEditor {leaf} {editor} {scrollOwner} />
 </div>
 
 <style>

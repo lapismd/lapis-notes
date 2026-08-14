@@ -13,9 +13,14 @@
     leaf?: WorkspaceLeaf;
     editor: EditorApi;
     class?: string;
+    scrollOwner?: "self" | "ancestor";
   };
 
-  let { editor, class: className = "" }: Props = $props();
+  let {
+    editor,
+    class: className = "",
+    scrollOwner = "self",
+  }: Props = $props();
   let file = $derived(editor.file);
   let isMobileWorkspace = $derived(app.workspace.displayMode === "mobile");
   let showInlineTitle = $derived(
@@ -86,10 +91,7 @@
   }
 </script>
 
-<ScrollArea
-  class="cm-editor-scroll-area"
-  data-mira-theme="obsidian"
->
+{#snippet editorContent()}
   <div
     class={cn(
       "cm-editor-scroll-area-content markdown-editor-surface",
@@ -146,4 +148,19 @@
       </div>
     </div>
   </div>
-</ScrollArea>
+{/snippet}
+
+{#if scrollOwner === "self"}
+  <ScrollArea class="cm-editor-scroll-area" data-mira-theme="obsidian">
+    {@render editorContent()}
+  </ScrollArea>
+{:else}
+  <div
+    class="cm-editor-scroll-area cm-editor-scroll-area--ancestor"
+    data-ui-component="editor"
+    data-ui-part="scroll-owner-ancestor"
+    data-mira-theme="obsidian"
+  >
+    {@render editorContent()}
+  </div>
+{/if}
