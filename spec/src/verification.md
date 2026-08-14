@@ -481,7 +481,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-009 | web-host | Implemented | prompt-based Workbox update and hash-verified cache-only plugin assets pass browser/unit coverage |
 | LN-WEB-010 | web-host | Implemented | root web scripts and three-scenario Playwright acceptance lane |
 | LN-ARCH-042 | architecture | In progress | Bases package ownership audit and package, host, and Storybook dependency boundaries |
-| LN-PKG-054 | packages | In progress | Bases package check, 14 legacy test files, build, publint, export, and dependency audits |
+| LN-PKG-054 | packages | Implemented | Bases check and no-Tailwind audits, 14-file / 142-test legacy baseline, 17-file / 148-test current suite, build, publint, export, and dependency audits |
 | LN-DESK-031 | desktop-host | In progress | desktop registration audit and persisted Bases leaf smoke before metadata and layout restoration |
 | LN-WEB-011 | web-host | In progress | web registration audit and browser Bases create, query, edit, and reload acceptance |
 | LN-CAT-049 | storybook-catalog | In progress | focused Bases view and workflow interaction stories plus serial pointer persistence coverage |
@@ -490,13 +490,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-GOV-031 | spec-governance | Implemented | spec-first classifier and unit coverage map Bases source and story paths to canonical chapters |
 | LN-BASE-001 | bases-plugin | In progress | source revision record, package manifest, managed-plugin registration, and lifecycle acceptance |
 | LN-BASE-002 | bases-plugin | In progress | association, source/preview, persistence, and reopen package plus real-App tests |
-| LN-BASE-003 | bases-plugin | In progress | document-core normalization, unknown-view, serialized-write, and unload-flush tests |
-| LN-BASE-004 | bases-plugin | In progress | AppDatabase pushdown, PEaQL evaluation, metadata invalidation, and metadata-cache fallback tests |
+| LN-BASE-003 | bases-plugin | Implemented | document-core normalization and unknown-view preservation plus serialized-write ordering and unload-flush tests |
+| LN-BASE-004 | bases-plugin | Implemented | AppDatabase pushdown, PEaQL final evaluation, metadata invalidation, and metadata-cache fallback tests |
 | LN-BASE-005 | bases-plugin | In progress | table, cards, list, map-unavailable, unknown, and custom-registration story assertions |
 | LN-BASE-006 | bases-plugin | In progress | query-controls and schema/view-settings stories plus CSV and new-file unit coverage |
 | LN-BASE-007 | bases-plugin | In progress | editable-cell story verifies typed frontmatter writes, immutable fields, and navigation |
-| LN-BASE-008 | bases-plugin | In progress | read-only file/fence embed, invalid-YAML, cleanup, and image URL revocation tests |
-| LN-BASE-009 | bases-plugin | In progress | publint, declaration inspection, package export tests, and public-surface Autodocs |
-| LN-BASE-010 | bases-plugin | In progress | no-Tailwind and global-App source audits plus Design Core composition stories |
+| LN-BASE-008 | bases-plugin | In progress | read-only registrations, invalid fenced-YAML, teardown cleanup, and early/late image URL revocation pass; real-App embed stories remain |
+| LN-BASE-009 | bases-plugin | In progress | publint, declarations, package entry/style export tests pass; public-surface Autodocs remains |
+| LN-BASE-010 | bases-plugin | In progress | no-Tailwind, no-global-App, Design Core import, semantic marker, native CSS, and token source audits pass; composition stories remain |
 | LN-BASE-011 | bases-plugin | In progress | focused and real-App story plays, accessibility, static build, and pending visual comparisons |
 | LN-BASE-012 | bases-plugin | Implemented | canonical parity-gap section and root migration checklist exclude Tasks and full-parity claims |

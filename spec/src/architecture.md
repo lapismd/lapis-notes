@@ -93,6 +93,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
 @lapis-notes/search (vault indexing + Search workspace contribution)
+@lapis-notes/bases (query + document + bundled Bases presentation)
 @lapis-notes/lapis-plugin-cv-roles (first-party external plugin; role workflows + retained CV views)
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)
 @lapis-notes/language-service (internal provider-neutral client + worker)
@@ -108,6 +109,9 @@ Search leaf by opening its target in a sibling tab.
 The external Roles repository owns its domain specification and plugin-only
 catalog. Lapis consumes its built public exports and owns real-App integration
 with File Explorer, Search, managed settings, and persisted layout recovery.
+Bases remains Lapis-owned: its explicit App input supplies vault, database,
+metadata, navigation, and registry contracts while the package owns document
+normalization, query evaluation, rendering, editing, and resource cleanup.
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from
 `@lapismd/design-core`. `@lapis-notes/ui` retains only Lapis compounds

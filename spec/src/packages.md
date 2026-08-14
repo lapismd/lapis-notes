@@ -118,6 +118,10 @@ delegates language behavior to registered editor extensions.
 `@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
 side panels. `@lapis-notes/markdown-lint` and the internal
 `@lapis-notes/language-service` package are the focused diagnostics exceptions.
+`@lapis-notes/bases` owns its parser, query controller, layouts, editors,
+private TanStack adapter, and native stylesheet. It consumes API contracts and
+public Design Core primitives directly, exports its stylesheet explicitly, and
+does not reintroduce a dependency on the pruned Lapis UI package.
 The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview. Its compiled
 Markdown artifact composes Mira's public read-only source and preview surfaces
 under the Lapis theme. Other bundled

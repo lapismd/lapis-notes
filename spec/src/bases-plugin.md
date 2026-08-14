@@ -25,6 +25,11 @@ managed-plugin lifecycle remain `BasesPlugin` responsibilities. Built-in view
 registrations combine with App registrations unless an explicit mapping
 overrides a matching type.
 
+The port keeps query and TanStack-to-Svelte adapters private. Package evidence
+retains the legacy 14-file / 142-test baseline and adds regressions for explicit
+App flow, ordered and flushed writes, URL revocation, invalid read-only YAML,
+and the published entrypoint without expanding the public surface.
+
 ## Presentation and workflow components
 
 The table surface owns virtual rows, sortable and draggable columns, inline

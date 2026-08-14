@@ -36,7 +36,7 @@ intake or UI swap status changes.
 | Notebook / remaining unlisted plugins        | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
 | `@lapis-notes/file-explorer`                | Done           | Reusable File Explorer plugin shared by Storybook and Electron; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture |
 | `@lapis-notes/search`                       | Done | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts |
-| `@lapis-notes/bases`                        | In progress | Bundled, default-enabled Bases intake from legacy revision `8ec68e18`; canonical specification and package scaffold are established before runtime and host wiring |
+| `@lapis-notes/bases`                        | In progress | Legacy revision `8ec68e18` runtime and native presentation are ported with 17 test files / 148 passing tests; bundled host and Storybook acceptance remain |
 | design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
 
 ### App database replacement progress
@@ -118,10 +118,10 @@ legacy revision `8ec68e18`.
 
 - [x] Canonical `LN-BASE-001` through `LN-BASE-012`, host/catalog requirements, verification mappings, and spec-first routing
 - [x] Buildable `@lapis-notes/bases` package scaffold with explicit root and stylesheet exports
-- [ ] Port 14 legacy test files and retain the 142-test behavioral baseline
-- [ ] Replace pruned UI imports with public Design Core primitives and Bases-owned compounds
-- [ ] Replace Tailwind utility markup with semantic native CSS and `--ui-bases-*` tokens
-- [ ] Inject `App` through the surface/controller hierarchy; serialize writes and flush on teardown
+- [x] Port 14 legacy test files and retain the 142-test behavioral baseline (17 files / 148 tests with current regressions)
+- [x] Replace pruned UI imports with public Design Core primitives and Bases-owned compounds
+- [x] Replace Tailwind utility markup with semantic native CSS and `--ui-bases-*` tokens
+- [x] Inject `App` through the surface/controller hierarchy; serialize writes and flush on teardown
 - [ ] Register optional bundled Bases in Electron, web, and root Storybook before metadata/layout restoration
 - [ ] Verify persisted missing-view recovery without changing plugin data or `.base` content
 - [ ] Add focused public view/workflow stories and real-App file, embed, and disable/restore stories
