@@ -92,7 +92,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
 @lapis-notes/search (vault indexing + Search workspace contribution)
-@lapis-notes/roles (authorized plugin; role workflows + retained CV views; package Storybook may boot Explorer and Search)
+@lapis-notes/lapis-plugin-cv-roles (first-party external plugin; role workflows + retained CV views)
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)
 @lapis-notes/language-service (internal provider-neutral client + worker)
 @lapis-notes/markdown-lint (authorized core diagnostic provider)
@@ -103,6 +103,10 @@ Search leaf by opening its target in a sibling tab.
 @lapismd/mira (+ mira-editor / mira plugins; sibling checkout)
 @lapismd/storybook-addon-visual-delta (sibling; root-only Storybook tooling)
 ```
+
+The external Roles repository owns its domain specification and plugin-only
+catalog. Lapis consumes its built public exports and owns real-App integration
+with File Explorer, Search, managed settings, and persisted layout recovery.
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from
 `@lapismd/design-core`. `@lapis-notes/ui` retains only Lapis compounds

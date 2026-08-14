@@ -1,5 +1,5 @@
 import type { App } from "@lapis-notes/api";
-import { parseCvYaml } from "@lapis-notes/roles";
+import { parseCvYaml } from "@lapis-notes/lapis-plugin-cv-roles";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceStoryMeta } from "../_shared";

@@ -22,7 +22,7 @@
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-  import { RolesPlugin } from "@lapis-notes/roles";
+  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
   import "@lapismd/mira/themes/obsidian.css";
@@ -138,19 +138,21 @@
       },
       {
         plugin: MarkdownLintPlugin,
-        required: true,
+        required: false,
         enabledByDefault: true,
       },
       {
         plugin: RolesPlugin,
         required: false,
         enabledByDefault: true,
+        distribution: "first-party-external",
       },
       {
         plugin: createFileExplorerPlugin({
           loading: selectedScenario === "explorer-opening-vault",
         }),
-        required: true,
+        required: false,
+        enabledByDefault: true,
       },
       ...(selectedScenario === "startup-failure"
         ? [

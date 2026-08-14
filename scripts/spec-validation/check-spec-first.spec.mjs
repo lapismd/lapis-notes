@@ -111,26 +111,13 @@ test("API plugin lifecycle changes require the plugin model", () => {
   }
 });
 
-test("Roles plugin changes require roles, package, and architecture contracts", () => {
-  const result = classifySpecFirstChanges([
-    "packages/plugins/plugin-roles/src/lib/index.ts",
-  ]);
-  assert.deepEqual(result.missingChapters, [
-    "spec/src/architecture.md",
-    "spec/src/packages.md",
-    "spec/src/roles-plugin.md",
-  ]);
-});
-
-test("Roles package stories additionally require the Storybook catalog", () => {
+test("Roles consumer stories require host and catalog contracts", () => {
   for (const file of [
-    "packages/plugins/plugin-roles/.storybook/main.ts",
-    "packages/plugins/plugin-roles/src/stories/CvWorkspace.stories.svelte",
+    "stories/workspace/plugins/roles-plugin-shell/RolesPluginShell.stories.svelte",
+    "stories/workspace/plugins/RolesWorkspace.stories.ts",
   ]) {
     const result = classifySpecFirstChanges([file]);
     assert.deepEqual(result.missingChapters, [
-      "spec/src/architecture.md",
-      "spec/src/packages.md",
       "spec/src/roles-plugin.md",
       "spec/src/storybook-catalog.md",
     ]);

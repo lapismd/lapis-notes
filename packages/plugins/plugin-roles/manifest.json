@@ -1,8 +1,0 @@
-{
-  "id": "cv",
-  "name": "CV",
-  "version": "0.0.1",
-  "minAppVersion": "0.0.1",
-  "description": "CV YAML file views and browser-generated preview.",
-  "author": "Lapis Notes"
-}

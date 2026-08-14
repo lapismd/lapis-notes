@@ -3547,6 +3547,63 @@ describe("PluginManager", () => {
     expect(communityConfig).not.toContain("first-party-plugin");
   });
 
+  it("lists a static plugin with manifest contributions only once", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+
+    class ContributingCorePlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "contributing-core",
+          name: "Contributing Core",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "Core plugin with indexed contributions",
+          author: "test",
+          lapis: {
+            manifestVersion: 1,
+            source: "official",
+            locked: false,
+            enabledByDefault: true,
+            contributes: {
+              configuration: [
+                {
+                  id: "contributing-core",
+                  title: "Contributing Core",
+                  properties: {
+                    enabled: {
+                      type: "boolean",
+                      default: true,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        });
+      }
+      onload() {}
+    }
+
+    app.plugins.registerCorePlugins([ContributingCorePlugin]);
+    await app.plugins.loadPlugins();
+
+    expect(
+      app.plugins.corePluginEntries.filter(
+        (entry) => entry.manifest.id === "contributing-core",
+      ),
+    ).toHaveLength(1);
+    expect(
+      app.plugins.corePluginEntries.find(
+        (entry) => entry.manifest.id === "contributing-core",
+      ),
+    ).toMatchObject({
+      source: "core",
+      provenance: "bundled",
+      distribution: "bundled",
+    });
+  });
+
   it("preserves plugin-owned leaves as missing views and restores them on enable", async () => {
     const { app } = createTestApp();
     await app.vault.load();

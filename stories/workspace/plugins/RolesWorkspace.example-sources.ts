@@ -1,6 +1,6 @@
 export const RolesWorkspaceExample = `<script lang="ts">
   import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
-  import { RolesPlugin } from "@lapis-notes/roles";
+  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import roleSource from "./role.md?raw";
   import cvSource from "./engineering-lead.cv.yml?raw";
@@ -34,7 +34,7 @@ export const RolesWorkspaceExample = `<script lang="ts">
     markdownRenderer: async () => {},
   });
   app.plugins.registerCorePlugins([
-    { plugin: RolesPlugin, required: false, enabledByDefault: true },
+    { plugin: RolesPlugin, required: false, enabledByDefault: true, distribution: "first-party-external" },
   ]);
 </script>
 

@@ -129,13 +129,15 @@ const RULES = [
     ],
   },
   {
-    name: "Roles plugin Storybook",
-    pattern:
-      /^packages\/plugins\/plugin-roles\/(?:\.storybook\/|src\/stories\/)/,
-    chapters: ["spec/src/storybook-catalog.md"],
+    name: "Roles consumer acceptance",
+    pattern: /^stories\/workspace\/plugins\/(?:roles-plugin-shell\/|RolesWorkspace|CvFileView|create-roles-workspace-demo|create-cv-file-view-demo)/,
+    chapters: [
+      "spec/src/roles-plugin.md",
+      "spec/src/storybook-catalog.md",
+    ],
   },
   {
-    name: "Roles plugin package",
+    name: "Retired in-tree Roles package",
     pattern: /^packages\/plugins\/plugin-roles\//,
     chapters: [
       "spec/src/roles-plugin.md",
@@ -262,6 +264,9 @@ export function classifySpecFirstChanges(inputChanges) {
       change.path,
     );
     const isGovernedRolesStory =
+      /^stories\/workspace\/plugins\/(?:roles-plugin-shell\/|RolesWorkspace|CvFileView|create-roles-workspace-demo|create-cv-file-view-demo)/.test(
+        change.path,
+      ) ||
       /^packages\/plugins\/plugin-roles\/(?:\.storybook\/|src\/stories\/)/.test(
         change.path,
       );

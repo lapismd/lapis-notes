@@ -3,11 +3,12 @@ import {
   MemoryAppDatabase,
   MemoryVaultAdapter,
 } from "@lapis-notes/api";
-import { RolesPlugin } from "@lapis-notes/roles";
+import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
+import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
 import { SearchPlugin } from "@lapis-notes/search";
-import sampleCvYaml from "../lib/form/sample-cv.fixture.yml?raw";
+import sampleCvYaml from "../../../fixtures/roles-sample-cv.yml?raw";
 import { roleFixtures, roleFixtureSource } from "./roles-fixtures";
 
 const APP_CONFIGURATION = {
@@ -134,10 +135,16 @@ export async function bootRolesPluginShellDemo(): Promise<{
   });
 
   app.plugins.registerCorePlugins([
-    { plugin: MarkdownPlugin, required: true },
-    { plugin: FileExplorerPlugin, required: true },
-    { plugin: SearchPlugin, required: true },
-    { plugin: RolesPlugin, required: false, enabledByDefault: true },
+    { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
+    { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+    { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
+    { plugin: SearchPlugin, required: false, enabledByDefault: true },
+    {
+      plugin: RolesPlugin,
+      required: false,
+      enabledByDefault: true,
+      distribution: "first-party-external",
+    },
   ]);
 
   globalThis.app = app;

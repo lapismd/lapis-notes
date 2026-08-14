@@ -3,10 +3,10 @@ import {
   MemoryAppDatabase,
   MemoryVaultAdapter,
 } from "@lapis-notes/api";
-import { RolesPlugin } from "@lapis-notes/roles";
+import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
 import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-import sampleCvYaml from "../../../packages/plugins/plugin-roles/src/lib/form/sample-cv.fixture.yml?raw";
+import sampleCvYaml from "../../fixtures/roles-sample-cv.yml?raw";
 import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../watch-metadata";
 
@@ -119,7 +119,12 @@ export async function bootCvFileViewDemo(): Promise<{
     { plugin: SourceEditorDemoPlugin, required: true },
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
-    { plugin: RolesPlugin, required: false, enabledByDefault: true },
+    {
+      plugin: RolesPlugin,
+      required: false,
+      enabledByDefault: true,
+      distribution: "first-party-external",
+    },
   ]);
 
   globalThis.app = app;

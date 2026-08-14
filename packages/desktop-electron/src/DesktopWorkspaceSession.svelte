@@ -9,7 +9,7 @@
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-  import { RolesPlugin } from "@lapis-notes/roles";
+  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -112,11 +112,16 @@
           (command, payload) => bridge.invoke(command, payload),
         );
       app.plugins.registerCorePlugins([
-        { plugin: MarkdownPlugin, required: true },
-        { plugin: MarkdownLintPlugin, required: true },
-        { plugin: FileExplorerPlugin, required: true },
-        { plugin: SearchPlugin, required: true },
-        { plugin: RolesPlugin, required: false, enabledByDefault: true },
+        { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
+        { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+        { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
+        { plugin: SearchPlugin, required: false, enabledByDefault: true },
+        {
+          plugin: RolesPlugin,
+          required: false,
+          enabledByDefault: true,
+          distribution: "first-party-external",
+        },
       ]);
       await app.vault.load();
       await app.vault.mkpath(".obsidian");
@@ -132,6 +137,7 @@
       await app.metadataCache.load();
       await app.workspace.loadLayout();
       if (
+        app.plugins.isPluginEnabled("search") &&
         !hasPersistedLayout &&
         app.workspace.getLeavesOfType("search").length === 0
       ) {

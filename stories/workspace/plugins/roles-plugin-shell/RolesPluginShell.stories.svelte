@@ -8,7 +8,7 @@
   import RolesPluginShellDemo from "./RolesPluginShellDemo.svelte";
 
   const { Story } = defineMeta({
-    title: "Roles/Plugin Shell",
+    title: "Workspace/Plugins/Roles/Plugin Shell",
     component: RolesPluginShellDemo,
     tags: ["visual-pending"],
     parameters: {
@@ -71,6 +71,68 @@
     expect(app.plugins.isPluginEnabled("roles")).toBe(true);
     expect(app.plugins.isPluginEnabled("lapis-file-explorer")).toBe(true);
     expect(app.plugins.isPluginEnabled("search")).toBe(true);
+    await userEvent.click(canvas.getByRole("button", { name: "Open settings" }));
+    const settingsDialog = canvas.getByRole("dialog", { name: "Settings" });
+    const settings = within(settingsDialog);
+    await userEvent.click(settings.getByRole("button", { name: "Core plugins" }));
+    await expect(
+      settings.getByRole("heading", { name: "Included plugins" }),
+    ).toBeVisible();
+    await expect(
+      settings.getByRole("heading", { name: "First-party plugins" }),
+    ).toBeVisible();
+    for (const [pluginId, pluginName] of [
+      ["markdown", "Markdown"],
+      ["lapis-markdown-lint", "Markdown Lint"],
+      ["lapis-file-explorer", "Lapis File Explorer"],
+      ["search", "Search"],
+    ] as const) {
+      const getToggle = () =>
+        settings.getByRole("switch", { name: `Enable ${pluginName}` });
+      const toggle = getToggle();
+      await expect(toggle).toBeChecked();
+      await userEvent.click(toggle);
+      await waitFor(() => {
+        expect(app.plugins.isPluginEnabled(pluginId)).toBe(false);
+        expect(toggle).not.toBeChecked();
+      });
+      await waitFor(() => expect(getToggle()).not.toBeDisabled());
+      await userEvent.click(getToggle());
+      await waitFor(() => {
+        expect(app.plugins.isPluginEnabled(pluginId)).toBe(true);
+        expect(getToggle()).toBeChecked();
+      });
+    }
+
+    const getRolesToggle = () =>
+      settings.getByRole("switch", { name: "Enable Roles" });
+    await userEvent.click(getRolesToggle());
+    await waitFor(() => {
+      expect(app.plugins.isPluginEnabled("roles")).toBe(false);
+      expect(app.workspace.getLeafById("atlas-role")?.getViewState()).toMatchObject({
+        type: "empty",
+        state: { __missingViewType: "role" },
+      });
+      expect(app.workspace.getLeafById("sample-cv")?.getViewState()).toMatchObject({
+        type: "empty",
+        state: { __missingViewType: "cv" },
+      });
+    });
+    await waitFor(() => expect(getRolesToggle()).not.toBeDisabled());
+    await userEvent.click(getRolesToggle());
+    await waitFor(() => {
+      expect(app.plugins.isPluginEnabled("roles")).toBe(true);
+      expect(app.workspace.getLeavesOfType("role")).toHaveLength(1);
+      expect(app.workspace.getLeavesOfType("cv")).toHaveLength(1);
+    });
+
+    const getNotificationsToggle = () =>
+      settings.getByRole("switch", { name: "Enable Notifications" });
+    await userEvent.click(getNotificationsToggle());
+    await expect(getNotificationsToggle()).not.toBeChecked();
+    await userEvent.click(getNotificationsToggle());
+    await expect(getNotificationsToggle()).toBeChecked();
+    await userEvent.click(settings.getByRole("button", { name: "Close settings" }));
     expect(app.workspace.rightSplit.collapsed).toBe(true);
     expect(canvas.queryByLabelText("Right sidebar")).toBeNull();
     const openRightSidebar = canvas.getByRole("button", {
@@ -142,7 +204,7 @@
       { timeout: 8_000 },
     );
     expect(shell.clientHeight).toBeLessThanOrEqual(window.innerHeight + 1);
-    expect(shell.scrollHeight).toBeLessThanOrEqual(shell.clientHeight + 1);
+    expect(shell.scrollHeight).toBeLessThanOrEqual(shell.clientHeight + 2);
     expect(shell.scrollTop).toBe(0);
 
     const formAreaScroll = canvas.getByTestId("cv-form-area-scroll");

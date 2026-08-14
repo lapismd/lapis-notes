@@ -1,7 +1,7 @@
 export const CvFileViewExample = `<script lang="ts">
   import { onMount } from "svelte";
   import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
-  import { RolesPlugin } from "@lapis-notes/roles";
+  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import sampleCv from "./sample.cv.yml?raw";
 
@@ -37,7 +37,7 @@ export const CvFileViewExample = `<script lang="ts">
     markdownRenderer: async () => {},
   });
   app.plugins.registerCorePlugins([
-    { plugin: RolesPlugin, required: false, enabledByDefault: true },
+    { plugin: RolesPlugin, required: false, enabledByDefault: true, distribution: "first-party-external" },
   ]);
 
   let ready = $state(false);

@@ -37,8 +37,8 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-023 | Specification validation MUST inspect repository and authorized package-local Autodocs stories that use demo, harness, or fixture render boundaries. They MUST resolve explicit `docs.source` code, language, and type fields without exposing story-only names or `args` as consumer usage. |
 | LN-GOV-024 | Agent guidance MUST require Markdown feature-presentation changes to preserve canonical child descriptors, flat configuration keys, and real-app persistence acceptance. It MUST direct agents to design-core's Boolean toggle-table contract instead of a stored object-grid collection. |
 | LN-GOV-025 | Agent guidance MUST route reusable diagnostic and Problems-view work to the Workspace Shell Problems specification. It MUST preserve Design Core ownership of panel presentation, require stable hover handoff and styled inline-problem acceptance, and make Lapis adapters and providers read that contract before package-specific chapters. |
-| LN-GOV-026 | The spec-first map MUST route API storage to App Database, web changes to Web Host, Packages, and Architecture, and Roles package changes to Roles Plugin, Packages, and Architecture. |
-| LN-GOV-027 | The spec-first map MUST additionally route package-local Roles Storybook sources and configuration to the Storybook Catalog chapter. |
+| LN-GOV-026 | The spec-first map MUST route API storage to App Database and web changes to Web Host, Packages, and Architecture. Lapis Roles consumer stories MUST route to Roles Host Integration and Storybook Catalog. |
+| LN-GOV-027 | Roles package implementation and plugin-only Storybook changes MUST be governed by the sibling repository's standalone specification rather than Lapis source paths. |
 | LN-GOV-028 | Agent guidance MUST keep CV Markdown mode and form disclosure actions grouped in the main toolbar immediately after YAML with the shared outlined icon treatment. Form-area scrolling guidance MUST remain limited to tabs and contextual form actions. |
 | LN-GOV-029 | Agent guidance MUST require canonical movable-panel registrations to declare their opening commands together, while file-backed editor views use editor associations and compatibility aliases reuse canonical commands. |
 | LN-GOV-030 | The spec-first map MUST route API plugin lifecycle sources to Plugin Model, Packages, and Architecture. It MUST route the external Roles repository through its standalone specification after cutover. |
@@ -120,9 +120,9 @@ not installed or when an embedding model is unavailable.
 ## Agent workflow
 
 Package-specific guidance may restate an interaction rule only when its
-canonical requirement remains authoritative. CV guidance maps main-toolbar
-document actions to `LN-CV-032` and form-area contextual controls and scrolling
-to `LN-CV-016` and `LN-CV-031`.
+canonical requirement remains authoritative. CV domain and package-catalog
+guidance now resolves to the sibling Roles repository's standalone specification;
+this repository retains only host integration and consumer acceptance contracts.
 
 1. Inspect VCS status
 2. Read mapped chapter + requirement IDs

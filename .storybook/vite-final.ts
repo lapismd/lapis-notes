@@ -23,17 +23,9 @@ const markdownSrc = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src",
 );
-const rolesLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-roles/src/lib",
-);
-const rolesSrc = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-roles/src",
-);
-
 const uiComponents = path.join(uiLib, "components/ui");
 const linkedSiblingPackages = [
+  "@lapis-notes/lapis-plugin-cv-roles",
   "@lapismd/design-core",
   "@lapismd/mira",
   "@lapismd/mira-editor",
@@ -87,10 +79,7 @@ function packageLibAlias(): Plugin {
           : cleanImporter.startsWith(markdownLib) ||
               cleanImporter.startsWith(markdownSrc)
             ? markdownLib
-            : cleanImporter.startsWith(rolesLib) ||
-                cleanImporter.startsWith(rolesSrc)
-              ? rolesLib
-              : uiLib;
+            : uiLib;
       return this.resolve(path.join(owner, suffix), importer, {
         skipSelf: true,
       });
@@ -157,13 +146,6 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         {
           find: /^@lapis-notes\/markdown$/,
           replacement: path.join(markdownLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/roles$/,
-          replacement: path.join(
-            repoRoot,
-            "packages/plugins/plugin-roles/src/lib/index.ts",
-          ),
         },
         {
           find: "@lapis-notes/ui/theme.css",

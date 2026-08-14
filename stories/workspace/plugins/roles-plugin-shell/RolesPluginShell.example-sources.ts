@@ -1,8 +1,9 @@
 export const RolesPluginShellExample = `<script lang="ts">
   import { onMount } from "svelte";
   import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
-  import { RolesPlugin } from "@lapis-notes/roles";
+  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
+  import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import sampleCv from "./sample.cv.yml?raw";
@@ -48,9 +49,10 @@ export const RolesPluginShellExample = `<script lang="ts">
     markdownRenderer: async () => {},
   });
   app.plugins.registerCorePlugins([
-    { plugin: FileExplorerPlugin, required: true },
-    { plugin: SearchPlugin, required: true },
-    { plugin: RolesPlugin, required: false, enabledByDefault: true },
+    { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
+    { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+    { plugin: SearchPlugin, required: false, enabledByDefault: true },
+    { plugin: RolesPlugin, required: false, enabledByDefault: true, distribution: "first-party-external" },
   ]);
 
   let ready = $state(false);

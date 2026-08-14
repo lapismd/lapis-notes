@@ -839,8 +839,10 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     const runtimeSystemPlugins = [...this.plugins.values()].filter(
       (plugin) => plugin.source === "system",
     );
-    const seenSystemPluginIds = new Set(
-      runtimeSystemPlugins.map((plugin) => plugin.manifest.id),
+    const runtimePluginIds = new Set(
+      [...runtimePlugins, ...runtimeSystemPlugins].map(
+        (plugin) => plugin.manifest.id,
+      ),
     );
     const systemExtensions = [
       ...runtimeSystemPlugins.map((plugin) => ({
@@ -853,7 +855,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         errorMessage: plugin.errorMessage,
       })),
       ...this.systemExtensions
-        .filter((extension) => !seenSystemPluginIds.has(extension.pluginId))
+        .filter((extension) => !runtimePluginIds.has(extension.pluginId))
         .map((extension) => {
           const diagnostics = this.#communityPluginDiagnostics.get(
             extension.pluginId,

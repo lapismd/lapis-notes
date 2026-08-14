@@ -111,7 +111,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-024 | desktop-host                    | Implemented | Electron acceptance verifies root platform classes, absent inline geometry, and macOS leading shell clearance |
 | LN-DESK-025 | desktop-host                    | Implemented | local development-renderer smoke loads linked Design Core and Mira font assets without Vite filesystem denials |
 | LN-DESK-026 | desktop-host                    | Implemented | macOS Electron acceptance distinguishes the 80px expanded-sidebar inset from collapsed main-tab clearance |
-| LN-DESK-027 | desktop-host                    | Implemented | desktop startup registers Markdown with Tags, Markdownlint, and File Explorer before configuration, metadata, and layout restoration |
+| LN-DESK-027 | desktop-host                    | Implemented | desktop startup registers four optional bundled plugins and loads their configured enabled set before metadata and layout restoration |
 | LN-DESK-028 | desktop-host                    | Implemented | API workspace tests and Electron layout acceptance recover available missing-view placeholders while preserving unavailable ones |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                                                                                                                                                                                                 |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                                                                                                                                                                                                         |
@@ -382,68 +382,16 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-051 | packages | Implemented | source audit and package build consume Mira only through public package exports |
 | LN-PKG-052 | packages | Implemented | plugin-owned legacy board, timeline, action, ticket, and detail CSS/component structures; source audit finds no legacy path or `@cvstudio` dependency |
 | LN-DESK-030 | desktop-host | Implemented | repository check verifies optional Roles registration before desktop layout restoration |
-| LN-CAT-039 | storybook-catalog | Implemented | port-7020 Roles catalog retains CV stories and passes 17 package interactions plus static build |
+| LN-CAT-039 | storybook-catalog | Implemented | root real-App external Roles shell consumes built package exports with optional Explorer and Search |
 | LN-CAT-040 | storybook-catalog | Implemented | `Workspace/Plugins/CV` FileView story boots a real App over `sample.cv.yml` |
-| LN-CAT-041 | storybook-catalog | Implemented | CV package static catalog uses Lapis theme and scoped isolated 700px shell Docs canvases |
-| LN-CAT-042 | storybook-catalog | Implemented | CV package and repository stories expose explicit reproducible consumer source |
-| LN-CAT-043 | storybook-catalog | Implemented | CV Markdown story verifies toolbar action order, disclosure-safe CV collapse, outlined treatment, and full-width borderless Preview and Source |
-| LN-CAT-044 | storybook-catalog | Implemented | CV preview stories assert pane-relative cross-mode scaling; the App-backed story proves 100% fit, 85% shrink, and PDF persistence |
-| LN-CAT-045 | storybook-catalog | Implemented | CV package plays resize the owning surface, exercise the shared form-header Scroll Area, and verify the CV-only theme shortcut |
-| LN-CAT-046 | storybook-catalog | Implemented | six public-source Roles families pass 17 package Storybook interactions and accessibility enforcement |
+| LN-CAT-042 | storybook-catalog | Implemented | root CV and Roles stories expose reproducible public-package consumer source |
 | LN-CAT-047 | storybook-catalog | Implemented | focused real-App root Roles and retained-CV acceptance passes 2 of 2 stories |
 | LN-CAT-048 | storybook-catalog | In progress | new Roles stories retain `visual-pending` and an isolated nested-import path; baseline capture was deferred at user request |
-| LN-CAT-049 | storybook-catalog | Implemented | seven-role package shell and four page families pass 17 interactions; fixed 1280 by 900 light-theme browser review completed with baselines deferred by user request |
-| LN-CV-001 | roles-plugin | Implemented | package manifest and source audit retain CV while excluding Tasks, AI, Carta, server, and database dependencies |
-| LN-CV-002 | roles-plugin | Implemented | `RolesPlugin.onload` registers the retained `cv` view and compound extensions |
-| LN-CV-003 | roles-plugin | Implemented | exclusive `*.cv.yml` / `*.cv.yaml` association for view type `cv` |
-| LN-CV-004 | roles-plugin | Implemented | `isCvPath` rejects generic `.yml` / `.yaml` |
-| LN-CV-005 | roles-plugin | Implemented | `CvView` extends `TextFileView`; no server or AI path |
-| LN-CV-006 | roles-plugin | Implemented | `CvWorkspace` parses every loaded document through canonical `parseCvYaml` normalization |
-| LN-CV-007 | roles-plugin | Implemented | browser WASM Typst worker with HTML compiled preview fallback |
-| LN-CV-008 | roles-plugin | Implemented | plugin-owned form configs compose public Design Core `StructuredForm` |
-| LN-CV-009 | roles-plugin | Implemented | plugin does not write Search documents or import Search internals |
-| LN-CV-010 | roles-plugin | Implemented | web, Electron, and Storybook register optional core Roles before layout restoration |
-| LN-CV-011 | roles-plugin | Implemented | package Storybook on 7020 does not replace the 7010 catalog |
-| LN-CV-012 | roles-plugin | Implemented | 7020 App-backed story registers File Explorer, Search, and Roles over a sample.cv.yml leaf |
-| LN-CV-013 | roles-plugin | Implemented | CV shell zeros AppShell main inset, radius, shadow, and border; HTML/Typst preview is flush |
-| LN-CV-014 | roles-plugin | Implemented | preview dropdown modes; Typst SVG/PNG from WASM; HTML/Markdown/Typst source from compile |
-| LN-CV-015 | roles-plugin | Implemented | every preview mode shares continuous pane-relative scaling with viewport-anchor and split-size preservation |
-| LN-CV-016 | roles-plugin | Implemented | RenderCV theme prev/next + menu appear only for the CV form area and remain bound to design.theme |
-| LN-CV-017 | roles-plugin | Implemented | workspace fills leftover height; form, YAML, and preview scroll independently |
-| LN-CV-018 | roles-plugin | Implemented | YAML toolbar switch; Edit/Preview tabs only when columns stack |
-| LN-CV-019 | roles-plugin | Implemented | small-viewport toolbar scrolls horizontally without visible scrollbars |
-| LN-CV-020 | roles-plugin | Implemented | 7020 `test:storybook` fails on axe violations via addon-a11y preview annotations |
-| LN-CV-021 | roles-plugin | Implemented | toolbar title, YAML label, preview mode, and form-area tabs render at 0.875rem |
-| LN-CV-022 | roles-plugin | Implemented | structured edits preserve normalized evidence and supported unedited fields |
-| LN-CV-023 | roles-plugin | Implemented | invalid full-document YAML remains editable, unsaved, and recoverable |
-| LN-CV-024 | roles-plugin | Implemented | extra-detail form and model use canonical text and list content types |
-| LN-CV-025 | roles-plugin | Implemented | save coordinator tests cover debounce, serialization, lifecycle flush, and retained failures |
-| LN-CV-026 | roles-plugin | Implemented | Typst success plays require worker page images; fallback is covered separately |
-| LN-CV-027 | roles-plugin | Implemented | production CV CSS uses public tokens and stable component selectors only |
-| LN-CV-028 | roles-plugin | Implemented | compiled CV Markdown renders through Mira's public preview surface with the Lapis theme |
-| LN-CV-029 | roles-plugin | Implemented | CV exposes a focus-safe Preview-first book/pencil action plus full-width, inset-free, borderless Mira Preview and read-only Source surfaces |
-| LN-CV-030 | roles-plugin | Implemented | the worker PDF artifact supports browser download and create-or-replace vault export beside the open CV |
-| LN-CV-031 | roles-plugin | Implemented | the form-area tab list and contextual actions share a horizontal Design Core Scroll Area |
-| LN-CV-032 | roles-plugin | Implemented | the main toolbar groups outlined Markdown mode and disclosure actions immediately after YAML; CV collapse retains visible section headers |
-| LN-ROLE-001 | roles-plugin | Implemented | plugin and root acceptance register `roles`, exact-basename `role`, retained `cv`, and `roles:open` |
-| LN-ROLE-002 | roles-plugin | Implemented | parser tests verify canonical frontmatter, untouched Markdown body, timestamps, ordering, and empty collections |
-| LN-ROLE-003 | roles-plugin | Implemented | parser and manager tests cover malformed YAML, required fields, status, duplicate IDs, diagnostics, and raw recovery |
-| LN-ROLE-004 | roles-plugin | Implemented | round-trip and serialized-patch tests preserve unknown fields and the Markdown body |
-| LN-ROLE-005 | roles-plugin | Implemented | manager tests cover scanning plus vault create, modify, delete, and rename events with immutable snapshots |
-| LN-ROLE-006 | roles-plugin | Implemented | manager creation tests verify `Roles/<slug>/role.md` and deterministic numeric suffixes |
-| LN-ROLE-007 | roles-plugin | Implemented | legacy six-status ticket board, pinned stack, collapse/maximize, drag/drop, and keyboard movement are adapted to vault mutations and persisted layout |
-| LN-ROLE-008 | roles-plugin | Implemented | legacy detail-perma hero, status rail, stamp, metadata, lower tabs, Role, Comments, and Stages wrap role.md mutations and Mira Markdown |
-| LN-ROLE-009 | roles-plugin | Implemented | source and manifest audit finds no Tasks, task action, AI, Carta, CV Studio, server, database, or legacy-path dependency |
-| LN-ROLE-010 | roles-plugin | Implemented | activity unit and Storybook coverage verify chronology, local-day grouping, and explicit gaps |
-| LN-ROLE-011 | roles-plugin | Implemented | action unit and Storybook coverage verify five task-free columns and seven-day done retention |
-| LN-ROLE-012 | roles-plugin | Implemented | projection tests and workspace handlers cover snooze, reschedule, wait, contact, and status transitions |
-| LN-ROLE-013 | roles-plugin | Implemented | manager and root stories verify vault-relative CV paths, non-overwrite tailoring, and retained CV navigation |
-| LN-ROLE-014 | roles-plugin | Implemented | public index exports Roles surfaces, role/action snapshots, parser/stringifier, and retained CV APIs; package checks pass |
-| LN-ROLE-015 | roles-plugin | Implemented | plugin-data persistence owns presentation state; source audit confirms Roles never writes Search internals |
-| LN-ROLE-016 | roles-plugin | Implemented | desktop/web check and production build verify pre-restoration registration without default placement |
-| LN-ROLE-017 | roles-plugin | Implemented | six governed package families retain pending tags and pass 17 accessibility-enforced Storybook interactions |
-| LN-ROLE-018 | roles-plugin | Implemented | root real-App acceptance passes association, aggregate opening, persistence, and CV navigation; no existing baseline was mutated |
-| LN-ROLE-019 | roles-plugin | Implemented | 1280 by 900 light-theme browser review covers legacy and hosted Applications, Activity, Actions, and role detail; Lapis shell remains outside parity scope |
+| LN-CV-010 | roles-plugin | Implemented | web, Electron, and real-App stories register optional first-party external Roles before layout restoration |
+| LN-CV-012 | roles-plugin | Implemented | root App-backed story consumes built external Roles with optional File Explorer and Search |
+| LN-ROLE-016 | roles-plugin | Implemented | desktop/web checks plus plugin-manager recovery tests cover persisted missing leaves without default placement |
+| LN-ROLE-017 | roles-plugin | Implemented | real-App shell reuses and selects an existing role tab, restores CV, and finishes with Search collapsed |
+| LN-ROLE-018 | roles-plugin | Implemented | root real-App acceptance covers association, persistence, linked CV, grouped settings, and lifecycle recovery |
 | LN-ARCH-038 | architecture | Implemented | CV compilation, artifact export, and post-YAML toolbar composition remain plugin-owned; Design Core owns form disclosure and Mira owns Markdown presentation |
 | LN-ARCH-039 | architecture | Implemented | ported legacy page presentation remains plugin-owned while Lapis owns the leaf shell, vault adapter, navigation, and Mira boundary |
 | LN-ARCH-040 | architecture | Implemented | API distribution metadata and Design Core managed-plugin bridge retain Lapis lifecycle ownership |
@@ -461,6 +409,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PLUG-009 | plugin-model | Implemented | desktop and web default-layout guards for disabled Search and Explorer |
 | LN-PLUG-010 | plugin-model | Implemented | existing community plugin configuration and distribution suites |
 | LN-PLUG-011 | plugin-model | Implemented | Roles runtime ID, command, view, path, and plugin-data compatibility audit |
+| LN-PLUG-012 | plugin-model | Implemented | plugin-manager static contribution list deduplication regression test |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
@@ -524,7 +473,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-001 | web-host | Implemented | package `2026.6.3`, manifest, generated legacy icons, update prompt, WCO, and `web+lapis` handler |
 | LN-WEB-002 | web-host | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement |
 | LN-WEB-003 | web-host | Implemented | OPFS creation/restoration, File System Access opening, and cancellation recovery acceptance |
-| LN-WEB-004 | web-host | Implemented | Markdown, Markdownlint, File Explorer, Search, and Roles load before shared shell restoration |
+| LN-WEB-004 | web-host | Implemented | web startup registers optional bundled plugins plus external Roles and loads their configured enabled set before restoration |
 | LN-WEB-005 | web-host | Implemented | package contains no LightningFS, demo, notebook, or community-plugin activation path |
 | LN-WEB-006 | web-host | Implemented | development/preview isolation headers and production WASM asset build |
 | LN-WEB-007 | web-host | Implemented | typed bounded delegation exposes visible owner/proxy status and exact remote capabilities |
