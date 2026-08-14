@@ -42,7 +42,7 @@
   parameters={{
     docs: {
       description: {
-        story: "Boot a real App with File Explorer, Search, aggregate Roles, role.md, and the retained CV FileView restored from persisted layout.",
+        story: "Boot a real App with File Explorer, Search in a collapsed right sidebar, aggregate Roles, role.md, and the retained CV FileView restored from persisted layout.",
       },
     },
   }}
@@ -69,16 +69,30 @@
     expect(app.plugins.isPluginEnabled("roles")).toBe(true);
     expect(app.plugins.isPluginEnabled("lapis-file-explorer")).toBe(true);
     expect(app.plugins.isPluginEnabled("search")).toBe(true);
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
+    expect(canvas.queryByLabelText("Right sidebar")).toBeNull();
+    const openRightSidebar = canvas.getByRole("button", {
+      name: "Open right sidebar",
+    });
 
     const explorer = within(canvas.getByTestId("lapis-editor-explorer"));
     expect(explorer.getByRole("button", { name: "sample.cv.yml" })).toBeTruthy();
     await userEvent.click(explorer.getByRole("button", { name: "Roles" }));
     await userEvent.click(explorer.getByRole("button", { name: "atlas-ai-infra" }));
-    expect(explorer.getByRole("button", { name: "role.md" })).toBeTruthy();
-    expect(canvas.getByTestId("search-panel")).toBeTruthy();
+    await waitFor(() => {
+      expect(explorer.getByRole("button", { name: "role.md" })).toBeTruthy();
+    });
     expect(app.workspace.getLeavesOfType("roles")).toHaveLength(1);
     expect(app.workspace.getLeavesOfType("role")).toHaveLength(1);
     expect(app.workspace.activeLeaf?.view.getViewType()).toBe("cv");
+
+    await userEvent.click(openRightSidebar);
+    await waitFor(() => {
+      expect(app.workspace.rightSplit.collapsed).toBe(false);
+      expect(canvas.getByLabelText("Right sidebar")).toBeTruthy();
+      expect(canvas.getByTestId("search-panel")).toBeTruthy();
+    });
+
     const shell = canvas.getByTestId("cv-workspace");
     expect(getComputedStyle(shell).overflow).toBe("hidden");
     await waitFor(
@@ -182,5 +196,23 @@
     expect(pdf.name).toMatch(/_typst\.pdf$/);
     expect(new Uint8Array(await app.vault.readBinary(pdf)).byteLength).toBeGreaterThan(0);
     expect(canvas.getByRole("status")).toHaveTextContent(`Saved PDF to ${pdf.path}`);
+
+    const closeRightSidebar = canvas.getByRole("button", {
+      name: "Close right sidebar",
+    });
+    await waitFor(() => {
+      expect(getComputedStyle(closeRightSidebar).pointerEvents).not.toBe("none");
+      expect(getComputedStyle(canvasElement.ownerDocument.body).pointerEvents).not.toBe(
+        "none",
+      );
+    });
+    await userEvent.click(closeRightSidebar);
+    await waitFor(() => {
+      expect(app.workspace.rightSplit.collapsed).toBe(true);
+      expect(canvas.queryByLabelText("Right sidebar")).toBeNull();
+      expect(
+        canvas.getByRole("button", { name: "Open right sidebar" }),
+      ).toBeTruthy();
+    });
   }}
 />

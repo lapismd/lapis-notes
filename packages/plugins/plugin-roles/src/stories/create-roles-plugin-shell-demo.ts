@@ -91,7 +91,7 @@ function workspaceLayout() {
           leaf("search", "Search", "search", "search"),
         ]),
       ],
-      width: "20rem",
+      width: "0px",
     },
     bottom: {
       ...tabs("bottom-panel", []),

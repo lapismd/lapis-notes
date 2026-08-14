@@ -28,7 +28,7 @@ export const RolesPluginShellExample = `<script lang="ts">
     },
     right: { id: "right", type: "split", direction: "vertical", sizes: [100],
       children: [{ id: "right-tabs", type: "tabs", stacked: false,
-        currentTab: 0, children: [searchLeaf] }], width: "20rem",
+        currentTab: 0, children: [searchLeaf] }], width: "0px",
     },
     bottom: { id: "bottom", type: "tabs", currentTab: 0, children: [], height: "0px" },
     floating: [],
