@@ -4957,13 +4957,17 @@ export class WorkspaceLeaf extends WorkspaceItem<{
   }
 
   private snapshotHistoryBeforeNavigation(result?: ViewStateResult): void {
-    if (result?.history === false || this.history.history.length === 0) {
+    if (result?.history === false) {
       return;
     }
 
     const currentState = this.captureCurrentViewState();
     this.state = currentState;
-    this.history.replaceState(cloneViewState(currentState));
+    if (this.history.history.length === 0) {
+      this.history.pushState(cloneViewState(currentState));
+    } else {
+      this.history.replaceState(cloneViewState(currentState));
+    }
   }
 
   private pushHistoryAfterNavigation(result?: ViewStateResult): void {

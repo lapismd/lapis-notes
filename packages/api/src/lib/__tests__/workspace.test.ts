@@ -1314,7 +1314,7 @@ describe("Workspace compatibility", () => {
       },
     );
 
-    await leaf.setViewState({ type: "graph", state: {} }, { history: true });
+    await leaf.setViewState({ type: "graph", state: {} }, { history: false });
     expect(leaf.view.getViewType()).toBe("graph");
     expect(graphLoadCount).toBe(1);
 
