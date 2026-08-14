@@ -51,6 +51,7 @@
 | LN-ARCH-045 | Generated search-document metadata MUST remain search-scoped while participating in API-owned property query evaluation. |
 | LN-ARCH-046 | Reusable editor presentation MUST enter through the API editor package while language plugins retain rich extension and toolbar policy. Its public embedded editor MUST support self-owned or ancestor-owned vertical scrolling without a second scroll host. External plugins MUST NOT import bundled-plugin implementation files or create a competing CodeMirror persistence path. |
 | LN-ARCH-047 | Domain file previews MAY delegate whole-file editing to the registered Markdown leaf through public serialized view state. Markdown MUST retain editor, settings, keybinding, and persistence ownership while the domain plugin owns only the return target and its structured preview. Linked external-plugin catalogs MUST deduplicate the API peer runtime so compatibility view identity and chrome projection remain valid. |
+| LN-ARCH-048 | File-opening navigation MUST capture the initiating leaf state before constructing a target view that may eagerly attach itself. Back MUST therefore restore the initiating view rather than an incomplete target-view state. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

@@ -4956,12 +4956,17 @@ export class WorkspaceLeaf extends WorkspaceItem<{
     return captureLeafViewState(this);
   }
 
-  private snapshotHistoryBeforeNavigation(result?: ViewStateResult): void {
+  private snapshotHistoryBeforeNavigation(
+    result?: ViewStateResult,
+    capturedState?: ViewState,
+  ): void {
     if (result?.history === false) {
       return;
     }
 
-    const currentState = this.captureCurrentViewState();
+    const currentState = capturedState
+      ? cloneViewState(capturedState)
+      : this.captureCurrentViewState();
     this.state = currentState;
     if (this.history.history.length === 0) {
       this.history.pushState(cloneViewState(currentState));
@@ -5047,6 +5052,8 @@ export class WorkspaceLeaf extends WorkspaceItem<{
       state,
     }: { view?: View; result?: ViewStateResult; state?: ViewState } = {},
   ): Promise<void> {
+    const historyStateBeforeNavigation =
+      result?.history === false ? undefined : this.captureCurrentViewState();
     return this.app.telemetry
       .measureAsync(
         "workspace.leaf.prepare_open_file",
@@ -5086,7 +5093,10 @@ export class WorkspaceLeaf extends WorkspaceItem<{
             span.setAttribute("view.type", view?.getViewType?.() ?? "unknown");
             if (view instanceof FileView) {
               if (result?.history !== false) {
-                this.snapshotHistoryBeforeNavigation(result);
+                this.snapshotHistoryBeforeNavigation(
+                  result,
+                  historyStateBeforeNavigation,
+                );
               }
               this.ensureContentEl();
 

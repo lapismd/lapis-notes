@@ -1005,7 +1005,12 @@ describe("Workspace compatibility", () => {
 
     mainTabs.removeChild(selectedMainLeaf, true);
     workspace.activeLeaf = sidebarLeaf;
-    workspace.registerView("markdown", () => new MockTextFileView());
+    workspace.registerView("markdown", (currentLeaf) => {
+      const view = new MockTextFileView();
+      view.leaf = currentLeaf;
+      currentLeaf.view = view;
+      return view;
+    });
     workspace.registerExtensions(["md"], "markdown");
     vi.spyOn(app.vault, "getFileByPath").mockImplementation((path) =>
       path === "Notes/Target.md" ? target : null,
@@ -1321,6 +1326,10 @@ describe("Workspace compatibility", () => {
     await leaf.openFile(file, { result: { history: true } });
     expect(leaf.view.getViewType()).toBe("mock-text");
     expect((leaf.view as MockTextFileView).file).toBe(file);
+    expect(leaf.history.stack.map((state) => state.type)).toEqual([
+      "graph",
+      "mock-text",
+    ]);
 
     await leaf.openFile(file, { result: { history: true } });
     expect(leaf.history.stack.map((state) => state.type)).toEqual([
