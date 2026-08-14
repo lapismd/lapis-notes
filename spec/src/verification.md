@@ -395,9 +395,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-038 | architecture | Implemented | CV compilation, artifact export, and post-YAML toolbar composition remain plugin-owned; Design Core owns form disclosure and Mira owns Markdown presentation |
 | LN-ARCH-039 | architecture | Implemented | ported legacy page presentation remains plugin-owned while Lapis owns the leaf shell, vault adapter, navigation, and Mira boundary |
 | LN-ARCH-040 | architecture | Implemented | API distribution metadata and Design Core managed-plugin bridge retain Lapis lifecycle ownership |
-| LN-ARCH-041 | architecture | Implemented | API, UI, Design Core, and Mira package manifests form a portable semver dependency closure with local matching-version links |
+| LN-ARCH-041 | architecture | Implemented | API, UI, Workspace, Design Core, and Mira package manifests form a portable semver dependency closure with local matching-version links |
 | LN-ARCH-043 | architecture | Implemented | API provider registry, Search index ownership, and external Roles CV projection tests |
-| LN-PKG-053 | packages | Implemented | versioned peer contracts, package builds, publint, tarball audit, and standalone Roles compile smoke |
+| LN-PKG-053 | packages | Implemented | versioned peer and dev contracts, package builds, publint, Workspace tarball audit, and standalone Roles compile smoke |
 | LN-GOV-030 | spec-governance | Implemented | spec-first classifier tests require the Plugin Model chapter for API plugin lifecycle changes |
 | LN-PLUG-001 | plugin-model | Implemented | bundled plugin package and registration audit |
 | LN-PLUG-002 | plugin-model | Implemented | standalone Roles package naming, distribution, and official provenance coverage |
@@ -488,6 +488,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-042 | architecture | In progress | package and host dependency boundaries pass without consumer copies; governed Storybook surface coverage remains |
 | LN-PKG-054 | packages | Implemented | Bases check and no-Tailwind audits, 14-file / 142-test legacy baseline, 17-file / 148-test current suite, build, publint, export, and dependency audits |
 | LN-PKG-055 | packages | Implemented | API declarations and standalone Roles checks consume the public provider contract without Search imports |
+| LN-PKG-056 | packages | Implemented | public Workspace metadata, package build, publint, tarball audit, and external Roles versioned local link |
+| LN-WS-053 | workspace-shell | Implemented | standalone Roles workspace story consumes the packed public WorkspaceShell export |
 | LN-DESK-031 | desktop-host | In progress | desktop registration ordering, exported styles, community exclusion, checks, tests, and production build pass; persisted Bases smoke remains |
 | LN-WEB-011 | web-host | In progress | web registration ordering, exported styles, community exclusion, checks, tests, and PWA build pass; browser fixture acceptance remains |
 | LN-CAT-049 | storybook-catalog | In progress | focused Bases view and workflow interaction stories plus serial pointer persistence coverage |

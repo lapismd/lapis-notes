@@ -44,7 +44,7 @@
 | LN-ARCH-038 | CV compilation, generated-artifact export, and form-toolbar composition MUST remain plugin-owned, including document-action order after YAML. Compiled Markdown presentation composes Mira's public read-only surfaces. The plugin MUST keep vault persistence behind its host adapter and MUST NOT create another Markdown rendering stack. Shared form disclosure behavior MUST remain owned by Design Core. |
 | LN-ARCH-039 | Roles MUST own the ported legacy Applications page presentation and adapt only domain, vault, navigation, and Markdown/editor boundaries to Lapis APIs. Design Core remains the source of shared controls and Lapis remains the source of the outer workspace shell; neither boundary may recompose the ticket board, activity timeline, actions board, or `detail-perma` role sheet into a visually different page. |
 | LN-ARCH-040 | Lapis MUST classify statically shipped plugins by distribution while retaining one API core lifecycle. Design Core MUST own only the managed-plugin settings source and grouped presentation; Lapis MUST own registration, persistence, failures, and workspace recovery policy. |
-| LN-ARCH-041 | External-plugin dependency closure MUST cross repository boundaries through published package exports and portable semver manifests. Colocated workspaces MAY resolve matching sibling versions locally, but consumer manifests and packed artifacts MUST NOT encode machine-specific paths. |
+| LN-ARCH-041 | External-plugin dependency closure, including the public workspace shell used by plugin catalogs, MUST cross repository boundaries through published package exports and portable semver manifests. Colocated workspaces MAY resolve matching sibling versions locally, but consumer manifests and packed artifacts MUST NOT encode machine-specific paths. |
 | LN-ARCH-042 | Bases MUST own its query controller, document model, rendering helpers, view layouts, editing workflows, and semantic CSS. API owns App, database, metadata, plugin, editor, and Markdown processor contracts; Design Core owns shared primitives; hosts own boot and persistence ordering. |
 | LN-ARCH-043 | The API MUST own the public search-document contribution registry, Search MUST own provider selection and generated index state, and domain plugins MUST own parsing and semantic projection for their file formats. |
 
@@ -124,8 +124,10 @@ tokens live in design-core `themes/lapis.css`; ui `theme.css` is alias-only.
 Storybook loads design-core's shared catalog stylesheet + Lapis theme + ui
 aliases, and uses the shared layout synchronizer for full-viewport Workspace
 stories.
-The workspace package renders the api-owned design-core controller; it does not
-own a second layout model or persistence adapter.
+The public workspace package renders the api-owned design-core controller; it
+does not own a second layout model or persistence adapter. External plugin
+catalogs consume its versioned export rather than reconstructing that shell or
+linking to workspace source.
 The api compatibility projection includes the design-core V3 bottom-panel tabs,
 groups, open state, active leaf, and height, including saves to the currently
 loaded alternate workspace filename. Settings displayed by the shell remain

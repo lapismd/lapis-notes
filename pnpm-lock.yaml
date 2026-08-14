@@ -1445,7 +1445,7 @@ importers:
   packages/workspace:
     dependencies:
       '@lapis-notes/api':
-        specifier: workspace:*
+        specifier: ^0.0.1
         version: link:../api
       '@lapismd/design-core':
         specifier: link:../../../design-core

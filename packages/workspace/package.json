@@ -1,9 +1,16 @@
 {
   "name": "@lapis-notes/workspace",
-  "private": true,
   "version": "0.0.1",
   "description": "Lapis Notes workspace shell backed by design-core",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lapismd/lapis-notes.git",
+    "directory": "packages/workspace"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "scripts": {
     "build": "pnpm run prepack",
@@ -32,8 +39,8 @@
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "workspace:*",
-    "@lapismd/design-core": "*"
+    "@lapis-notes/api": "^0.0.1",
+    "@lapismd/design-core": "^0.1.0"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
