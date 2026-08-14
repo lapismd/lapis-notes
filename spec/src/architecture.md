@@ -50,6 +50,7 @@
 | LN-ARCH-044 | The API workspace host MUST project compatibility ribbon and status contributions into Design Core registries while plugins retain command and lifecycle ownership. |
 | LN-ARCH-045 | Generated search-document metadata MUST remain search-scoped while participating in API-owned property query evaluation. |
 | LN-ARCH-046 | Reusable editor presentation MUST enter through the API editor package while language plugins retain rich extension and toolbar policy. External plugins MUST NOT import bundled-plugin implementation files or create a competing CodeMirror persistence path. |
+| LN-ARCH-047 | Domain file previews MAY delegate whole-file editing to the registered Markdown leaf through public serialized view state. Markdown MUST retain editor, settings, keybinding, and persistence ownership while the domain plugin owns only the return target and its structured preview. Linked external-plugin catalogs MUST deduplicate the API peer runtime so compatibility view identity and chrome projection remain valid. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

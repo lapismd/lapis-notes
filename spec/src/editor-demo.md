@@ -51,6 +51,7 @@
 | LN-ED-049 | Every rendered Editor setting MUST reuse its canonical schema title, default, constraints, and concise description so the configuration contract and Settings UI cannot drift. |
 | LN-ED-050 | `@lapis-notes/api/editor` MUST export a reusable embedded editor surface that composes registered view-type extensions, preserves the supplied editor and leaf lifecycle, and falls back to the API source shell when no rich provider is active. |
 | LN-ED-051 | API `Editor` instances MUST support host-owned persistence, expose a flushable pending-change lifecycle, and keep file identity separate from whether the editor writes directly to the vault. |
+| LN-ED-052 | The public Markdown view state MUST support a generic serialized return target so a domain file preview can delegate whole-file editing to the registered Markdown leaf without importing Markdown implementation internals. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add

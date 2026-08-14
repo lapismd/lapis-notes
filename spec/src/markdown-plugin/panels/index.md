@@ -18,6 +18,7 @@ page.
 | LN-MD-021 | The package MUST export app-only `FileProperties`, `Outline`, `Backlinks`, and `OutgoingLinks` Svelte components. Backlinks and Outgoing Links MUST fix their mode in those public wrappers; their shared mode selector remains private. |
 | LN-MD-085 | Markdown panel registration MUST retain the former `file:properties`, `file:outline`, `file:backlinks`, and `file:outgoing-links` view types as load-only aliases. Restored aliases MUST resolve to views whose `getViewType()` returns the canonical Obsidian-compatible ID. |
 | LN-MD-089 | Markdown MUST declare All Properties, Outline, File Properties, Backlinks, Outgoing Links, and Tags in one panel registry that pairs every canonical view with unique opening-command metadata. |
+| LN-MD-092 | A serialized Markdown return target MUST replace only the editing title action. Reading and Source controls plus registered Markdown view-menu provider contributions MUST remain available in the pane menu, and the delegated document MUST NOT become a movable Markdown panel. |
 
 ## Panel pages
 

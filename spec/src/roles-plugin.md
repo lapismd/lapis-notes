@@ -17,6 +17,7 @@ host registration, managed settings, layout recovery, and real-App acceptance.
 | LN-ROLE-019 | The real-App Roles shell MUST restore aggregate `roles` plus dedicated `roles-activity` and `roles-actions` main-area leaves. Aggregate navigation MUST remain internal, dedicated commands MUST reuse their leaves, and all three view types MUST survive disable/re-enable placeholder recovery. |
 | LN-ROLE-020 | The real-App Roles shell MUST expose the Roles Applications ribbon action, live due-action status item, and settings persistence through public Lapis shell surfaces. Ribbon and status activation MUST reveal their existing aggregate or dedicated leaves, and disabling Roles MUST remove both contributions. |
 | LN-ROLE-021 | Search acceptance MUST verify valid role semantic content plus `tag:leadership`, `["status"]:interview`, and `["company"]:"Atlas AI"`; it MUST retain CV semantic and `["technologies"]:Kubernetes` coverage while ordinary unmatched YAML remains absent. |
+| LN-ROLE-022 | The real-App Roles shell MUST prove that the Role pencil delegates the existing file leaf to bundled Markdown Live Preview with rich Mira extensions, that Markdown's return target restores structured Role preview in the same leaf, and that the embedded Description editor resolves the same registered Markdown stack. |
 
 ### LN-CV-012 acceptance details
 

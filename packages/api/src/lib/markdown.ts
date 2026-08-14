@@ -125,6 +125,34 @@ export interface MarkdownPreviewEvents extends Component {}
 
 export type MarkdownViewModeType = "source" | "preview" | "live-preview";
 
+/**
+ * A file-backed view that Markdown editing can return to without owning that
+ * view's rendering policy.
+ *
+ * @public
+ */
+export interface MarkdownViewReturnTarget {
+  /** Registered workspace view type to restore. @public */
+  type: string;
+  /** Human-readable destination used by the Markdown title action. @public */
+  label: string;
+  /** Optional icon for the return action. Defaults to `book-open`. @public */
+  icon?: string;
+  /** State supplied to the restored view. The current file is preserved. @public */
+  state?: Record<string, unknown>;
+}
+
+/**
+ * Public serialized state accepted by the bundled Markdown view.
+ *
+ * @public
+ */
+export interface MarkdownViewState {
+  file?: string | null;
+  mode?: MarkdownViewModeType;
+  returnTarget?: MarkdownViewReturnTarget;
+}
+
 export interface LivePreviewStateType {
   editor: Editor;
 }

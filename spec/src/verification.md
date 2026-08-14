@@ -423,8 +423,11 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-049 | editor-demo | Implemented | one canonical descriptor list supplies the Editor schema and rendered fields; Storybook verifies every description |
 | LN-ED-050 | editor-demo | Implemented | API unit and package checks cover registered extension composition and the source-shell fallback |
 | LN-ED-051 | editor-demo | Implemented | API editor tests cover external persistence, pending-change flush, and unchanged file identity |
+| LN-ED-052 | editor-demo | Implemented | API declarations expose a generic Markdown return target consumed through serialized leaf state |
 | LN-ARCH-046 | architecture | Implemented | API embedded surface owns reusable presentation while Markdown retains extension and toolbar policy |
+| LN-ARCH-047 | architecture | Implemented | public Markdown state delegates whole-file editing while consumer acceptance retains domain preview ownership |
 | LN-PKG-059 | packages | Implemented | public API editor barrel exports the embedded component and extension helpers with a source fallback |
+| LN-PKG-060 | packages | Implemented | API declarations expose serialized Markdown return targets without an external-plugin Markdown implementation dependency |
 | LN-WS-049 | workspace-shell | Implemented | WorkspaceShell unit verifies the false default and reactive Design Core renderer-policy mapping |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
 | LN-MD-087 | markdown-panel-tags | Implemented | Tags row opens Search through its registered command in focused Storybook acceptance |
@@ -434,6 +437,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-052 | workspace-shell-panels | Implemented | Markdown registry coverage verifies every legacy alias remains attached to its canonical command registration |
 | LN-MD-089 | markdown-plugin-panels | Implemented | package unit coverage audits all six canonical Markdown panels and their unique command metadata |
 | LN-MD-090 | markdown-plugin | Implemented | Markdown editing mounts the public API embedded surface while retaining its toolbar and mode lifecycle |
+| LN-MD-091 | markdown-plugin | Implemented | Markdown unit and consumer acceptance cover normalized return targets and same-leaf restoration |
+| LN-MD-092 | markdown-plugin-panels | Implemented | Markdown return targets leave pane-menu Reading, Source, and provider contributions on the existing document view boundary |
 | LN-GOV-029 | spec-governance | Implemented | AGENTS guidance distinguishes canonical panel commands, file-backed editor associations, and load-only aliases |
 | LN-SRCH-001 | search-plugin | Implemented | legacy `8ec68e18` provenance and pruned package intake |
 | LN-SRCH-002 | search-plugin | Implemented | canonical Search view plus open, selected-text, refresh, and rebuild commands |
@@ -511,9 +516,11 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-051 | storybook-catalog | In progress | shared fixture, public Show Code, Autodocs authority, 700px app docs, and pending nested baselines |
 | LN-CAT-052 | storybook-catalog | Implemented | focused Roles shell finds CV semantic content after lifecycle recovery and excludes ordinary YAML |
 | LN-CAT-053 | storybook-catalog | Implemented | real-App Roles shell covers aggregate and dedicated navigation, ribbon, status, settings, three-view recovery, and final collapsed Search |
+| LN-CAT-054 | storybook-catalog | Implemented | focused real-App Roles acceptance covers delegated rich Markdown source, same-leaf return, and embedded Description extensions |
 | LN-ROLE-019 | roles-plugin | Implemented | real-App shell restores and reuses aggregate, Activity, and Actions leaves through lifecycle recovery |
 | LN-ROLE-020 | roles-plugin | Implemented | real-App shell exercises live ribbon, status count navigation, settings persistence, and disable teardown |
 | LN-ROLE-021 | roles-plugin | Implemented | Search acceptance covers role semantic, tag and metadata fields plus retained CV semantic/technology fields and ordinary YAML exclusion |
+| LN-ROLE-022 | roles-plugin | Implemented | real-App acceptance asserts the persisted Role leaf switches to bundled Markdown Live Preview and returns without losing file identity |
 | LN-GOV-031 | spec-governance | Implemented | spec-first classifier and unit coverage map Bases source and story paths to canonical chapters |
 | LN-BASE-001 | bases-plugin | In progress | source revision, package manifest, and optional bundled default-enabled registration pass in three hosts; disable/re-enable acceptance remains |
 | LN-BASE-002 | bases-plugin | In progress | association, source/preview, persistence, and reopen package plus real-App tests |

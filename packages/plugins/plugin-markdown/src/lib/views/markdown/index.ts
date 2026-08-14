@@ -1,6 +1,8 @@
 import {
   Menu,
   MarkdownView as RootMarkdownView,
+  type MarkdownViewReturnTarget,
+  type MarkdownViewState,
   type ViewStateResult,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
@@ -14,11 +16,41 @@ export const MarkdownViewType = "markdown";
 
 export type MarkdownViewModeType = "source" | "preview" | "live-preview";
 
-type MarkdownViewState = {
-  file: string | null;
-  mode: MarkdownViewModeType;
-  source?: boolean;
-};
+type LegacyMarkdownViewState = MarkdownViewState & { source?: boolean };
+
+export function markdownViewReturnTarget(
+  state: Record<string, unknown>,
+): MarkdownViewReturnTarget | null {
+  const candidate = state["returnTarget"];
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+    return null;
+  }
+  const target = candidate as Record<string, unknown>;
+  if (
+    typeof target["type"] !== "string" ||
+    target["type"].trim().length === 0 ||
+    typeof target["label"] !== "string" ||
+    target["label"].trim().length === 0
+  ) {
+    return null;
+  }
+  const icon =
+    typeof target["icon"] === "string" && target["icon"].trim().length > 0
+      ? target["icon"]
+      : undefined;
+  const targetState =
+    target["state"] &&
+    typeof target["state"] === "object" &&
+    !Array.isArray(target["state"])
+      ? { ...(target["state"] as Record<string, unknown>) }
+      : undefined;
+  return {
+    type: target["type"].trim(),
+    label: target["label"].trim(),
+    ...(icon ? { icon } : {}),
+    ...(targetState ? { state: targetState } : {}),
+  };
+}
 
 export class MarkdownView extends RootMarkdownView {
   private component: unknown = null;
@@ -59,7 +91,7 @@ export class MarkdownView extends RootMarkdownView {
     state: Record<string, unknown>,
     result?: ViewStateResult,
   ): Promise<void> {
-    const previous = { ...this.getState() } as MarkdownViewState;
+    const previous = { ...this.getState() } as LegacyMarkdownViewState;
     const nextMode =
       (state["mode"] as MarkdownViewModeType | undefined) ?? previous.mode;
     if (nextMode !== previous.mode) {
@@ -122,10 +154,35 @@ export class MarkdownView extends RootMarkdownView {
     );
   }
 
+  private switchToReturnTarget(
+    target: MarkdownViewReturnTarget,
+    event: MouseEvent,
+  ): void {
+    const leaf =
+      event.metaKey || event.ctrlKey
+        ? this.app.workspace.getLeaf("split", "horizontal")
+        : this.leaf;
+    const file = this.file?.path;
+    void leaf
+      .setViewState(
+        {
+          type: target.type,
+          active: true,
+          state: {
+            ...(target.state ?? {}),
+            ...(file ? { file } : {}),
+          },
+        },
+        { history: true },
+      )
+      .then(() => this.app.workspace.requestSaveLayout());
+  }
+
   load(): void {
     if (!this.containerEl) return;
     this.containerEl.classList.add("markdown-view");
     const mode = this.getMode();
+    const returnTarget = markdownViewReturnTarget(this.getState());
     this.unload();
     this.containerEl.empty();
     this.actions = [];
@@ -158,11 +215,19 @@ export class MarkdownView extends RootMarkdownView {
       this.pendingEditorExtensionRefresh = false;
     }
 
-    this.addAction(
-      "book-open",
-      "Current view: editing\nClick to read\n⌘+Click to open to the right",
-      (event) => this.switchModeFromAction("preview", event),
-    );
+    if (returnTarget) {
+      this.addAction(
+        returnTarget.icon ?? "book-open",
+        `Current view: editing\nClick to open ${returnTarget.label}\n⌘+Click to open to the right`,
+        (event) => this.switchToReturnTarget(returnTarget, event),
+      );
+    } else {
+      this.addAction(
+        "book-open",
+        "Current view: editing\nClick to read\n⌘+Click to open to the right",
+        (event) => this.switchModeFromAction("preview", event),
+      );
+    }
 
     this.component = mount(MarkdownEditingSurface, {
       target: this.containerEl,

@@ -8,6 +8,7 @@ import sampleCvYaml from "../../../fixtures/roles-sample-cv.yml?raw";
 import { roleFixtures, roleFixtureSource } from "./roles-fixtures";
 
 const APP_CONFIGURATION = {
+  "appearence.interface.showTabTitleBar": true,
   "editor.display.showLineNumbers": true,
   "editor.defaultViewForNewTabs": "editing",
   "workspace.fileExplorer.autoRevealCurrentFile": true,
@@ -167,6 +168,10 @@ export async function bootRolesPluginShellDemo(): Promise<{
   globalThis.app = app;
   await app.vault.load();
   await app.configuration.load();
+  await app.configuration.updateConfigurationOption(
+    "appearence.interface.showTabTitleBar",
+    true,
+  );
   await app.plugins.loadPlugins({
     communityPlugins: "disabled",
     optionalCorePlugins: "configured",

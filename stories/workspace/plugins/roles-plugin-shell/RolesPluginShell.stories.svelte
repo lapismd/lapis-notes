@@ -1,6 +1,7 @@
 <script lang="ts" module>
-  import type { App } from "@lapis-notes/api";
+  import { ItemView, type App } from "@lapis-notes/api";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
+  import { MarkdownView } from "@lapis-notes/markdown";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
   import { defineMeta } from "@storybook/addon-svelte-csf";
@@ -81,8 +82,10 @@
     expect(app.workspace.getLeavesOfType("roles")).toHaveLength(1);
     expect(app.workspace.getLeavesOfType("roles-activity")).toHaveLength(1);
     expect(app.workspace.getLeavesOfType("roles-actions")).toHaveLength(1);
+    expect(app.workspace.getLeavesOfType("role")).toHaveLength(1);
 
     const aggregateLeaf = app.workspace.getLeavesOfType("roles")[0]!;
+    const roleLeaf = app.workspace.getLeavesOfType("role")[0]!;
     const aggregateTab = canvasElement.querySelector<HTMLButtonElement>(
       '[data-workspace-tab-id="roles"] [data-workspace-tab-title-trigger]',
     );
@@ -113,6 +116,84 @@
     ).toBeLessThan(
       Array.from(applicationsSurface!.children).indexOf(applicationsBoard!),
     );
+
+    const roleTab = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-workspace-tab-id="atlas-role"] [data-workspace-tab-title-trigger]',
+    );
+    expect(roleTab).not.toBeNull();
+    await userEvent.click(roleTab!);
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf).toBe(roleLeaf);
+      expect(roleLeaf.view.getViewType()).toBe("role");
+      expect(
+        canvasElement.querySelector('[data-ui-component="role-workspace"]'),
+      ).toBeVisible();
+    });
+    expect(canvas.queryByRole("tab", { name: "Source" })).toBeNull();
+    expect(roleLeaf.view).toBeInstanceOf(ItemView);
+    expect((roleLeaf.view as ItemView).actions).toHaveLength(1);
+    const roleEditAction = await waitFor(
+      () =>
+        canvas.getByRole("button", {
+          name: /Current view: role preview.*Click to edit/s,
+        }),
+      { timeout: 5_000 },
+    );
+    await userEvent.click(roleEditAction);
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf).toBe(roleLeaf);
+      expect(roleLeaf.view.getViewType()).toBe("markdown");
+      expect(roleLeaf.view.getState()).toMatchObject({
+        file: "Roles/atlas-ai-infra/role.md",
+        mode: "live-preview",
+      });
+      expect(
+        roleLeaf.view.containerEl.querySelector(
+          '[data-ui-component="markdown-editing-surface"]',
+        ),
+      ).toBeVisible();
+      const embeddedSurface = roleLeaf.view.containerEl.querySelector(
+        '[data-ui-component="embedded-editor-surface"][data-editor-mode="live-preview"]',
+      );
+      expect(embeddedSurface).toBeVisible();
+      expect(embeddedSurface?.innerHTML).toContain("cm-editor-scroll-area");
+      expect(embeddedSurface?.innerHTML).toContain("mira-live-preview-mode");
+      expect(embeddedSurface?.querySelector(".cm-heading")).not.toBeNull();
+    }, { timeout: 5_000 });
+    expect(roleLeaf.view).toBeInstanceOf(MarkdownView);
+    await userEvent.click(
+      canvas.getByRole("button", {
+        name: /Current view: editing.*Click to open role preview/s,
+      }),
+    );
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf).toBe(roleLeaf);
+      expect(roleLeaf.view.getViewType()).toBe("role");
+      expect(
+        canvasElement.querySelector('[data-ui-component="role-workspace"]'),
+      ).toBeVisible();
+    });
+    await userEvent.click(canvas.getByRole("tab", { name: "Description" }));
+    await waitFor(() => {
+      expect(
+        canvasElement.querySelector(
+          '[data-ui-component="embedded-editor-surface"][data-editor-mode="live-preview"] .cm-editor.mira-live-preview-mode',
+        ),
+      ).toBeVisible();
+      expect(
+        canvasElement.querySelector(
+          '[data-ui-component="embedded-editor-surface"][data-editor-mode="live-preview"] .cm-heading',
+        ),
+      ).not.toBeNull();
+    });
+
+    await userEvent.click(aggregateTab!);
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf).toBe(aggregateLeaf);
+      expect(
+        canvasElement.querySelector('[data-ui-component="roles-applications"]'),
+      ).toBeVisible();
+    });
 
     await userEvent.click(canvas.getByRole("button", { name: "Show activity" }));
     await waitFor(() => {
@@ -300,7 +381,6 @@
     expect(app.workspace.getLeavesOfType("role")).toHaveLength(1);
     expect(app.workspace.activeLeaf?.view.getViewType()).toBe("cv");
 
-    const roleLeaf = app.workspace.getLeavesOfType("role")[0]!;
     await userEvent.click(explorer.getByRole("button", { name: "role.md" }));
     await waitFor(() => {
       expect(app.workspace.activeLeaf).toBe(roleLeaf);
@@ -324,7 +404,6 @@
         canvasElement.querySelector('[data-ui-component="role-workspace"]'),
       ).toBeVisible();
     });
-
     const cvTab = canvasElement.querySelector<HTMLButtonElement>(
       '[data-workspace-tab-id="sample-cv"] [data-workspace-tab-title-trigger]',
     );

@@ -44,6 +44,7 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-083 | Grouped feature presentation MUST preserve every existing dotted feature key, default, and runtime gate. The configuration schema MUST remain flat and MUST NOT register or persist a `markdown.mira.features` group object. |
 | LN-MD-084 | Markdown Source and Live Preview editors MUST compose the API language-service diagnostic extension with completion and hover disabled. Reading mode MUST remain outside the CodeMirror diagnostic lifecycle. |
 | LN-MD-090 | Markdown's full editing surface MUST compose the public API embedded editor surface so file views and plugin-owned embedded editors resolve the same registered Markdown extension stack, configuration refresh, scrolling, and source fallback lifecycle. |
+| LN-MD-091 | A Markdown file leaf MAY receive a serialized return target containing a registered view type, label, icon, and state. While editing, the title action MUST restore that view in the same leaf, preserve the current file, support Mod+click in a right split, and leave Markdown Reading and Source controls available in the pane menu. |
 
 ## Ownership
 

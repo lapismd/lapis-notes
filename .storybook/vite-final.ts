@@ -39,11 +39,14 @@ const linkedSiblingPackages = [
 
 /** Keep host peer identities authoritative across linked sibling packages. */
 const linkedSingletonPackages = [
+  "@lapis-notes/api",
   "@codemirror/state",
   "@codemirror/view",
   "@codemirror/language",
   "@codemirror/commands",
   "@codemirror/autocomplete",
+  "@codemirror/lang-markdown",
+  "@codemirror/lang-yaml",
   "@codemirror/search",
   "@codemirror/lint",
   "@lezer/common",

@@ -52,6 +52,7 @@
 | LN-CAT-051 | Bases stories MUST share one canonical seeded vault fixture, use `BasesViewSurface` as focused Autodocs authority, hide harness state from Controls, and provide explicit public-package Show Code. App stories MUST use isolated 700px iframes; every story remains `visual-pending` with an independent nested-import baseline until review. |
 | LN-CAT-052 | The real-App Roles shell MUST find a CV-only semantic phrase through Search after a Roles disable/re-enable cycle and MUST prove that an ordinary YAML marker remains absent. |
 | LN-CAT-053 | The real-App Roles shell MUST exercise aggregate mode switching, dedicated Activity and Actions commands with tab reuse, Applications ribbon activation, due-action status navigation, Roles settings persistence, and missing-view recovery for all three Roles workspace view types. The story MUST finish with Search collapsed. |
+| LN-CAT-054 | The real-App Roles shell MUST exercise the Role-to-Markdown same-leaf transition and return action, assert Mira Live Preview and rich frontmatter output, and verify the Description editor uses the registered Markdown provider rather than the API fallback. |
 
 ## Show Code source contract
 
