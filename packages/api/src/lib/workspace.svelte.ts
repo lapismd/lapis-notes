@@ -4975,7 +4975,11 @@ export class WorkspaceLeaf extends WorkspaceItem<{
       return;
     }
 
-    this.history.pushState(cloneViewState(this.state));
+    const nextState = cloneViewState(this.state);
+    if (isEqual(this.history.history.state, nextState)) {
+      return;
+    }
+    this.history.pushState(nextState);
   }
 
   get view(): View {

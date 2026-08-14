@@ -1322,6 +1322,12 @@ describe("Workspace compatibility", () => {
     expect(leaf.view.getViewType()).toBe("mock-text");
     expect((leaf.view as MockTextFileView).file).toBe(file);
 
+    await leaf.openFile(file, { result: { history: true } });
+    expect(leaf.history.stack.map((state) => state.type)).toEqual([
+      "graph",
+      "mock-text",
+    ]);
+
     await leaf.history.back();
     expect(leaf.view.getViewType()).toBe("graph");
     expect(graphLoadCount).toBe(2);
