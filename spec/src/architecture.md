@@ -45,6 +45,7 @@
 | LN-ARCH-039 | Roles MUST own the ported legacy Applications page presentation and adapt only domain, vault, navigation, and Markdown/editor boundaries to Lapis APIs. Design Core remains the source of shared controls and Lapis remains the source of the outer workspace shell; neither boundary may recompose the ticket board, activity timeline, actions board, or `detail-perma` role sheet into a visually different page. |
 | LN-ARCH-040 | Lapis MUST classify statically shipped plugins by distribution while retaining one API core lifecycle. Design Core MUST own only the managed-plugin settings source and grouped presentation; Lapis MUST own registration, persistence, failures, and workspace recovery policy. |
 | LN-ARCH-041 | External-plugin dependency closure MUST cross repository boundaries through published package exports and portable semver manifests. Colocated workspaces MAY resolve matching sibling versions locally, but consumer manifests and packed artifacts MUST NOT encode machine-specific paths. |
+| LN-ARCH-042 | Bases MUST own its query controller, document model, rendering helpers, view layouts, editing workflows, and semantic CSS. API owns App, database, metadata, plugin, editor, and Markdown processor contracts; Design Core owns shared primitives; hosts own boot and persistence ordering. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

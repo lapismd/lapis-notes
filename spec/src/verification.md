@@ -43,7 +43,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-001  | packages          | Implemented | `packages/api` kernel copy                                                                                                                                                                                                                                                                  |
 | LN-PKG-002  | packages          | Implemented | api peer on `@lapis-notes/ui`                                                                                                                                                                                                                                                               |
 | LN-PKG-003  | packages          | Implemented | pruned `packages/ui`                                                                                                                                                                                                                                                                        |
-| LN-PKG-004  | packages          | In progress | Electron and web hosts plus Markdown, Markdownlint, File Explorer, Search, and Roles are authorized; notebook and remaining unlisted plugins remain gated |
+| LN-PKG-004  | packages          | In progress | Electron and web hosts plus Markdown, Markdownlint, File Explorer, Search, Bases, and Roles are authorized; notebook and remaining unlisted plugins remain gated |
 | LN-PKG-015  | packages          | Implemented | Markdown package location, API/Mira dependencies, and preserved Plugin configuration/event contracts                                                                                                                                                                                         |
 | LN-PKG-017  | packages          | Implemented | app-only Markdown panel exports include Tags while preserving governed Outline and Tags tree geometry                                                                                                                          |
 | LN-PKG-018  | packages          | Implemented | root and narrow public exports for Mira-backed FileEmbed, MarkdownEmbed, and NoteLink                                                                                                                                                                                                         |
@@ -111,7 +111,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-024 | desktop-host                    | Implemented | Electron acceptance verifies root platform classes, absent inline geometry, and macOS leading shell clearance |
 | LN-DESK-025 | desktop-host                    | Implemented | local development-renderer smoke loads linked Design Core and Mira font assets without Vite filesystem denials |
 | LN-DESK-026 | desktop-host                    | Implemented | macOS Electron acceptance distinguishes the 80px expanded-sidebar inset from collapsed main-tab clearance |
-| LN-DESK-027 | desktop-host                    | Implemented | desktop startup registers four optional bundled plugins and loads their configured enabled set before metadata and layout restoration |
+| LN-DESK-027 | desktop-host                    | In progress | desktop startup audit will register five optional bundled plugins and load their configured enabled set before metadata and layout restoration |
 | LN-DESK-028 | desktop-host                    | Implemented | API workspace tests and Electron layout acceptance recover available missing-view placeholders while preserving unavailable ones |
 | LN-UI-001   | ui-and-styling    | Implemented | api + stories on `@lapismd/design-core/shadcn/*`; kept compounds only in ui                                                                                                                                                                                                                 |
 | LN-UI-002   | ui-and-styling    | Implemented | `API/` stories under `stories/api/`                                                                                                                                                                                                                                                         |
@@ -403,7 +403,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PLUG-003 | plugin-model | Implemented | core-manager persistence tests distinguish static and installed plugins |
 | LN-PLUG-004 | plugin-model | Implemented | API registration and list-entry type and default coverage |
 | LN-PLUG-005 | plugin-model | Implemented | plugin-manager legacy array and object configuration tests |
-| LN-PLUG-006 | plugin-model | Implemented | desktop, web, Storybook, and Design Core settings acceptance |
+| LN-PLUG-006 | plugin-model | In progress | desktop, web, Storybook, and Design Core managed settings acceptance including Bases |
 | LN-PLUG-007 | plugin-model | Implemented | plugin-manager owned-leaf placeholder and recovery tests |
 | LN-PLUG-008 | plugin-model | Implemented | managed-plugin adapter unit and grouped settings Storybook coverage |
 | LN-PLUG-009 | plugin-model | Implemented | desktop and web default-layout guards for disabled Search and Explorer |
@@ -473,10 +473,30 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-001 | web-host | Implemented | package `2026.6.3`, manifest, generated legacy icons, update prompt, WCO, and `web+lapis` handler |
 | LN-WEB-002 | web-host | Implemented | web-owned launcher, profile restoration, plugin boot, and orderly session replacement |
 | LN-WEB-003 | web-host | Implemented | OPFS creation/restoration, File System Access opening, and cancellation recovery acceptance |
-| LN-WEB-004 | web-host | Implemented | web startup registers optional bundled plugins plus external Roles and loads their configured enabled set before restoration |
+| LN-WEB-004 | web-host | In progress | web startup audit will register Bases with the optional bundled plugins plus external Roles before restoration |
 | LN-WEB-005 | web-host | Implemented | package contains no LightningFS, demo, notebook, or community-plugin activation path |
 | LN-WEB-006 | web-host | Implemented | development/preview isolation headers and production WASM asset build |
 | LN-WEB-007 | web-host | Implemented | typed bounded delegation exposes visible owner/proxy status and exact remote capabilities |
 | LN-WEB-008 | web-host | Implemented | takeover acceptance plus metadata, workspace, plugin, worker, channel, lock, and request disposal |
 | LN-WEB-009 | web-host | Implemented | prompt-based Workbox update and hash-verified cache-only plugin assets pass browser/unit coverage |
 | LN-WEB-010 | web-host | Implemented | root web scripts and three-scenario Playwright acceptance lane |
+| LN-ARCH-042 | architecture | In progress | Bases package ownership audit and package, host, and Storybook dependency boundaries |
+| LN-PKG-054 | packages | In progress | Bases package check, 14 legacy test files, build, publint, export, and dependency audits |
+| LN-DESK-031 | desktop-host | In progress | desktop registration audit and persisted Bases leaf smoke before metadata and layout restoration |
+| LN-WEB-011 | web-host | In progress | web registration audit and browser Bases create, query, edit, and reload acceptance |
+| LN-CAT-049 | storybook-catalog | In progress | focused Bases view and workflow interaction stories plus serial pointer persistence coverage |
+| LN-CAT-050 | storybook-catalog | In progress | real-App file view, Markdown embed, and disable/restore interaction stories |
+| LN-CAT-051 | storybook-catalog | In progress | shared fixture, public Show Code, Autodocs authority, 700px app docs, and pending nested baselines |
+| LN-GOV-031 | spec-governance | Implemented | spec-first classifier and unit coverage map Bases source and story paths to canonical chapters |
+| LN-BASE-001 | bases-plugin | In progress | source revision record, package manifest, managed-plugin registration, and lifecycle acceptance |
+| LN-BASE-002 | bases-plugin | In progress | association, source/preview, persistence, and reopen package plus real-App tests |
+| LN-BASE-003 | bases-plugin | In progress | document-core normalization, unknown-view, serialized-write, and unload-flush tests |
+| LN-BASE-004 | bases-plugin | In progress | AppDatabase pushdown, PEaQL evaluation, metadata invalidation, and metadata-cache fallback tests |
+| LN-BASE-005 | bases-plugin | In progress | table, cards, list, map-unavailable, unknown, and custom-registration story assertions |
+| LN-BASE-006 | bases-plugin | In progress | query-controls and schema/view-settings stories plus CSV and new-file unit coverage |
+| LN-BASE-007 | bases-plugin | In progress | editable-cell story verifies typed frontmatter writes, immutable fields, and navigation |
+| LN-BASE-008 | bases-plugin | In progress | read-only file/fence embed, invalid-YAML, cleanup, and image URL revocation tests |
+| LN-BASE-009 | bases-plugin | In progress | publint, declaration inspection, package export tests, and public-surface Autodocs |
+| LN-BASE-010 | bases-plugin | In progress | no-Tailwind and global-App source audits plus Design Core composition stories |
+| LN-BASE-011 | bases-plugin | In progress | focused and real-App story plays, accessibility, static build, and pending visual comparisons |
+| LN-BASE-012 | bases-plugin | Implemented | canonical parity-gap section and root migration checklist exclude Tasks and full-parity claims |

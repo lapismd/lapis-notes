@@ -123,3 +123,25 @@ test("Roles consumer stories require host and catalog contracts", () => {
     ]);
   }
 });
+
+test("Bases implementation and stories require their canonical contracts", () => {
+  const packageChange = classifySpecFirstChanges([
+    "packages/plugins/plugin-bases/src/lib/bases-plugin.ts",
+  ]);
+  assert.deepEqual(packageChange.missingChapters, [
+    "spec/src/architecture.md",
+    "spec/src/bases-plugin.md",
+    "spec/src/packages.md",
+  ]);
+
+  for (const file of [
+    "stories/plugins/bases/BasesViews.stories.ts",
+    "stories/workspace/plugins/bases/BasesFileView.stories.ts",
+  ]) {
+    const storyChange = classifySpecFirstChanges([file]);
+    assert.deepEqual(storyChange.missingChapters, [
+      "spec/src/bases-plugin.md",
+      "spec/src/storybook-catalog.md",
+    ]);
+  }
+});

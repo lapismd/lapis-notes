@@ -36,6 +36,7 @@ intake or UI swap status changes.
 | Notebook / remaining unlisted plugins        | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
 | `@lapis-notes/file-explorer`                | Done           | Reusable File Explorer plugin shared by Storybook and Electron; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture |
 | `@lapis-notes/search`                       | Done | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts |
+| `@lapis-notes/bases`                        | In progress | Bundled, default-enabled Bases intake from legacy revision `8ec68e18`; canonical specification and package scaffold are established before runtime and host wiring |
 | design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
 
 ### App database replacement progress
@@ -109,6 +110,30 @@ legacy commit `8ec68e18`.
 - [x] Tags and All Properties command-only query handoffs
 - [x] Electron registration before metadata/layout load plus native persisted-view/result acceptance
 - [ ] Search panel Visual Delta capture/review; stories remain `visual-pending` and no baseline is updated in this slice
+
+### Bases plugin intake progress
+
+Source: `/Users/stevejuma/code/lapis-notes/packages/plugins/plugin-bases` at
+legacy revision `8ec68e18`.
+
+- [x] Canonical `LN-BASE-001` through `LN-BASE-012`, host/catalog requirements, verification mappings, and spec-first routing
+- [x] Buildable `@lapis-notes/bases` package scaffold with explicit root and stylesheet exports
+- [ ] Port 14 legacy test files and retain the 142-test behavioral baseline
+- [ ] Replace pruned UI imports with public Design Core primitives and Bases-owned compounds
+- [ ] Replace Tailwind utility markup with semantic native CSS and `--ui-bases-*` tokens
+- [ ] Inject `App` through the surface/controller hierarchy; serialize writes and flush on teardown
+- [ ] Register optional bundled Bases in Electron, web, and root Storybook before metadata/layout restoration
+- [ ] Verify persisted missing-view recovery without changing plugin data or `.base` content
+- [ ] Add focused public view/workflow stories and real-App file, embed, and disable/restore stories
+- [ ] Run package, Storybook, pointer, Electron, web, visual, specification, root check/test/build acceptance
+
+Pending parity gaps intentionally retained by this port: a real map capability;
+complete Obsidian value wrappers and method-style formula semantics; `this`
+binding and richer file/link behavior; deeper grouped and summary semantics;
+the duplicated compatibility/runtime model and stub formula evaluation; and
+name-level parity reporting that does not prove behavior. Tasks-owned layouts,
+notebook integration, community installation, and broader Obsidian parity are
+outside this intake.
 
 ### Web host intake progress
 

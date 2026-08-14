@@ -42,6 +42,7 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-028 | Agent guidance MUST keep CV Markdown mode and form disclosure actions grouped in the main toolbar immediately after YAML with the shared outlined icon treatment. Form-area scrolling guidance MUST remain limited to tabs and contextual form actions. |
 | LN-GOV-029 | Agent guidance MUST require canonical movable-panel registrations to declare their opening commands together, while file-backed editor views use editor associations and compatibility aliases reuse canonical commands. |
 | LN-GOV-030 | The spec-first map MUST route API plugin lifecycle sources to Plugin Model, Packages, and Architecture. It MUST route the external Roles repository through its standalone specification after cutover. |
+| LN-GOV-031 | The spec-first map MUST route Bases package sources to Bases Plugin, Packages, and Architecture. Focused and real-App Bases stories MUST route to Bases Plugin and Storybook Catalog instead of receiving the ordinary story exemption. |
 
 ## Requirement structure
 
@@ -110,6 +111,8 @@ not installed or when an embedding model is unavailable.
 | `packages/plugins/plugin-search` package                            | `search-plugin.md`, `packages.md`, `architecture.md`   |
 | Native Markdown runtime source or language-service manifest         | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md` |
 | `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md` | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |
+| `packages/plugins/plugin-bases` source or manifest                       | `bases-plugin.md`, `packages.md`, `architecture.md` |
+| Focused or real-App Bases Storybook stories                             | `bases-plugin.md`, `storybook-catalog.md` |
 | Shared Markdown panel shell source                                  | `workspace-shell/panels.md` |
 | Individual Markdown panel source                                    | Its owning `markdown-plugin/panels/<panel>.md` page |
 | Reusable Problems UI, diagnostic adapters, or diagnostic providers  | `workspace-shell/panels/problems.md` |

@@ -1,0 +1,4 @@
+[data-ui-component="bases-view"] {
+  --ui-bases-background: var(--ui-workspace-view-background, var(--background));
+  --ui-bases-foreground: var(--ui-workspace-view-foreground, var(--foreground));
+}

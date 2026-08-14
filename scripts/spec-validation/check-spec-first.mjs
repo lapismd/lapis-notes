@@ -129,6 +129,24 @@ const RULES = [
     ],
   },
   {
+    name: "Bases plugin package",
+    pattern: /^packages\/plugins\/plugin-bases\//,
+    chapters: [
+      "spec/src/bases-plugin.md",
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+    ],
+  },
+  {
+    name: "Bases catalog acceptance",
+    pattern:
+      /^stories\/(?:plugins\/bases\/|workspace\/plugins\/(?:bases\/|Bases))/,
+    chapters: [
+      "spec/src/bases-plugin.md",
+      "spec/src/storybook-catalog.md",
+    ],
+  },
+  {
     name: "Roles consumer acceptance",
     pattern: /^stories\/workspace\/plugins\/(?:roles-plugin-shell\/|RolesWorkspace|CvFileView|create-roles-workspace-demo|create-cv-file-view-demo)/,
     chapters: [
@@ -270,10 +288,15 @@ export function classifySpecFirstChanges(inputChanges) {
       /^packages\/plugins\/plugin-roles\/(?:\.storybook\/|src\/stories\/)/.test(
         change.path,
       );
+    const isGovernedBasesStory =
+      /^stories\/(?:plugins\/bases\/|workspace\/plugins\/(?:bases\/|Bases))/.test(
+        change.path,
+      );
     if (
       CANONICAL_SPEC_PATTERN.test(change.path) ||
       (!isSpecificationValidator &&
         !isGovernedRolesStory &&
+        !isGovernedBasesStory &&
         IGNORED_PATTERNS.some((pattern) => pattern.test(change.path)))
     ) {
       continue;

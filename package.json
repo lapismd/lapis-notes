@@ -62,6 +62,7 @@
     "@dnd-kit/svelte": "^0.4.0",
     "@fontsource/source-code-pro": "^5.2.7",
     "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/bases": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
     "@lapis-notes/markdown-lint": "workspace:*",

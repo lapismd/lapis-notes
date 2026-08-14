@@ -1,0 +1,8 @@
+{
+  "id": "bases",
+  "name": "Bases",
+  "version": "0.0.1",
+  "minAppVersion": "0.0.1",
+  "description": "Create queryable table, card, and list views over vault metadata.",
+  "author": "Lapis Notes"
+}

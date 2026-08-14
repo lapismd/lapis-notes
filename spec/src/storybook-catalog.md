@@ -47,6 +47,9 @@
 | LN-CAT-042 | Lapis CV and Roles integration stories MUST provide explicit consumer-usable Show Code when their render path uses a local demo, harness, or fixture. App-backed examples MUST show App creation, vault data, plugin loading, and layout restoration. |
 | LN-CAT-047 | `Workspace/Plugins/Roles` MUST verify exact role-file association, aggregate opening, persisted role mutation, and linked CV navigation in a real App-backed shell. |
 | LN-CAT-048 | New root Roles stories MUST retain `visual-pending` and independent nested-import baselines. Existing baseline files MUST NOT be replaced or deleted by the Roles intake. |
+| LN-CAT-049 | `Plugins/Bases/Views` MUST cover table, vault-image cards, collapsible grouped list, map-unavailable, and unknown-view layouts. `Plugins/Bases/Workflows` MUST cover query controls, schema/view settings including every custom option kind, and persisted typed metadata editing. |
+| LN-CAT-050 | `Workspace/Plugins/Bases` MUST boot a real App for file-view, Markdown-embed, and disable/restore stories. It MUST verify associations, source/preview switching, persistence, reopen, read-only embeds, invalid YAML, cleanup, managed settings, and missing-view recovery. |
+| LN-CAT-051 | Bases stories MUST share one canonical seeded vault fixture, use `BasesViewSurface` as focused Autodocs authority, hide harness state from Controls, and provide explicit public-package Show Code. App stories MUST use isolated 700px iframes; every story remains `visual-pending` with an independent nested-import baseline until review. |
 
 ## Show Code source contract
 

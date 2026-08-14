@@ -22,6 +22,7 @@
     - [Tags](./markdown-plugin/panels/tags.md)
     - [Link Previews](./markdown-plugin/panels/link-previews.md)
 - [Search Plugin](./search-plugin.md)
+- [Bases Plugin](./bases-plugin.md)
 - [Roles Plugin](./roles-plugin.md)
 - [UI and Styling](./ui-and-styling.md)
 - [Storybook Catalog](./storybook-catalog.md)
