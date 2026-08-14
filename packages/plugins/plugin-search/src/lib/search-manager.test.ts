@@ -1,5 +1,15 @@
-import type { App, CachedMetadata, TFile } from "@lapis-notes/api";
+import {
+  type App,
+  type CachedMetadata,
+  type SearchDocumentProvider,
+  SearchDocumentProviderRegistry,
+  type TFile,
+} from "@lapis-notes/api";
 import { describe, expect, it, vi } from "vitest";
+import {
+  CANVAS_SEARCH_DOCUMENT_PROVIDER,
+  MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+} from "./built-in-search-document-providers";
 import { SearchManager } from "./search-manager";
 import { DEFAULT_SEARCH_SETTINGS } from "./search-settings";
 
@@ -14,11 +24,28 @@ function file(path: string, extension = "md"): TFile {
   } as TFile;
 }
 
+function providers(
+  ...entries: Array<{
+    id: string;
+    provider: Omit<SearchDocumentProvider, "id">;
+  }>
+): SearchDocumentProviderRegistry {
+  const registry = new SearchDocumentProviderRegistry();
+  for (const { id, provider } of entries) {
+    registry.register({ ...provider, id });
+  }
+  return registry;
+}
+
 describe("SearchManager", () => {
   it("indexes Markdown with metadata through the API database contract", async () => {
     const upsertSearchDocument = vi.fn(async () => undefined);
     const app = {
       appDatabase: { upsertSearchDocument },
+      searchDocumentProviders: providers({
+        id: "search:markdown",
+        provider: MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+      }),
     } as unknown as App;
     const manager = new SearchManager(app);
     const cache: CachedMetadata = {
@@ -59,6 +86,10 @@ describe("SearchManager", () => {
     const deleteSearchDocument = vi.fn(async () => undefined);
     const app = {
       appDatabase: { upsertSearchDocument, deleteSearchDocument },
+      searchDocumentProviders: providers({
+        id: "search:canvas",
+        provider: CANVAS_SEARCH_DOCUMENT_PROVIDER,
+      }),
     } as unknown as App;
     const manager = new SearchManager(app);
     const canvas = file("Boards/Plan.canvas", "canvas");
@@ -77,6 +108,112 @@ describe("SearchManager", () => {
       expect.objectContaining({ content: "text\nLaunch plan\ndepends on" }),
     );
     expect(deleteSearchDocument).toHaveBeenCalledWith("Boards/Plan.canvas");
+  });
+
+  it("indexes domain-provided semantic content, metadata, and tags", async () => {
+    const upsertSearchDocument = vi.fn(async () => undefined);
+    const app = {
+      appDatabase: { upsertSearchDocument },
+      searchDocumentProviders: providers({
+        id: "roles:cv",
+        provider: {
+          matches: (candidate) => candidate.path.endsWith(".cv.yml"),
+          extract: () => ({
+            content: "Ada Lovelace\nAnalytical engine",
+            metadata: { name: "Ada Lovelace", kind: "cv" },
+            tags: ["cv", "#engineering"],
+          }),
+        },
+      }),
+    } as unknown as App;
+
+    await new SearchManager(app).processChange(
+      file("CVs/Ada.cv.yml", "yml"),
+      "cv: {}",
+      {},
+    );
+
+    expect(upsertSearchDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: "CVs/Ada.cv.yml",
+        content: "Ada Lovelace\nAnalytical engine",
+        sourceMetadata: expect.objectContaining({
+          frontmatter: { name: "Ada Lovelace", kind: "cv" },
+          rawTags: ["cv", "#engineering"],
+        }),
+      }),
+    );
+  });
+
+  it("isolates provider failures and prunes documents after removal", async () => {
+    const cv = file("CVs/Ada.cv.yml", "yml");
+    const broken = file("CVs/Broken.cv.yml", "yml");
+    const ordinaryYaml = file("Config/settings.yml", "yml");
+    const documents = new Map<string, unknown>([
+      [broken.path, { path: broken.path }],
+    ]);
+    const registry = new SearchDocumentProviderRegistry();
+    const registration = registry.register({
+      id: "roles:cv",
+      matches: (candidate) => candidate.path.endsWith(".cv.yml"),
+      extract: ({ file: candidate }) => {
+        if (candidate.path === broken.path) throw new Error("Invalid CV");
+        return { content: "Ada Lovelace" };
+      },
+    });
+    const deleteSearchDocument = vi.fn(async (path: string) => {
+      documents.delete(path);
+    });
+    const app = {
+      searchDocumentProviders: registry,
+      vault: {
+        getFiles: () => [cv, broken, ordinaryYaml],
+        cachedRead: vi.fn(async () => "cv: {}"),
+      },
+      metadataCache: { getFileCache: () => ({}) },
+      notifications: {
+        withProgress: async (_options: unknown, run: (progress: unknown) => unknown) =>
+          run({
+            throwIfCancellationRequested() {},
+            report() {},
+          }),
+      },
+      logger: { warn: vi.fn() },
+      appDatabase: {
+        kind: "memory",
+        listSearchDocuments: vi.fn(async () => [...documents.values()]),
+        upsertSearchDocument: vi.fn(async (document: { path: string }) => {
+          documents.set(document.path, document);
+        }),
+        deleteSearchDocument,
+        beginSearchIndexingBatch: vi.fn(async () => undefined),
+        endSearchIndexingBatch: vi.fn(async () => undefined),
+        getSearchEmbeddingProvider: vi.fn(async () => null),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: documents.size,
+          chunkCount: 0,
+          readyChunkCount: 0,
+          pendingChunkCount: 0,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+    const manager = new SearchManager(app);
+
+    await manager.refreshFromVault("provider-test");
+
+    expect(documents.has(cv.path)).toBe(true);
+    expect(documents.has(broken.path)).toBe(false);
+    expect(documents.has(ordinaryYaml.path)).toBe(false);
+    expect(app.logger.warn).toHaveBeenCalledOnce();
+
+    registration.dispose();
+    await manager.refreshFromVault("provider-removed");
+
+    expect(documents.has(cv.path)).toBe(false);
+    expect(deleteSearchDocument).toHaveBeenCalledWith(cv.path);
   });
 
   it("passes bounded query settings to the API database", async () => {

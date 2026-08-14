@@ -249,8 +249,22 @@
         }),
       ).toBeTruthy();
     });
-    expect(search.queryByText("sample.cv.yml")).toBeNull();
-    expect(search.queryByText(/sample\.cv\.yml/)).toBeNull();
+    await userEvent.clear(searchbox);
+    await userEvent.type(searchbox, "Nexus AI");
+    await waitFor(() => {
+      expect(
+        search.getByRole("treeitem", {
+          name: /sample\.cv\.yml/i,
+        }),
+      ).toBeTruthy();
+    });
+
+    await userEvent.clear(searchbox);
+    await userEvent.type(searchbox, "ordinary-yaml-search-marker");
+    await waitFor(() => {
+      expect(search.getByText("No matches found.")).toBeTruthy();
+    });
+    expect(search.queryByText(/settings\.yml/i)).toBeNull();
 
     const exportButton = canvas.getByRole("button", { name: "Export PDF" });
     await waitFor(

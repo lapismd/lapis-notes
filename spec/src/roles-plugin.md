@@ -23,7 +23,8 @@ The App-backed consumer scenario verifies:
 - File Explorer and Search MUST come from their public packages and remain optional core plugins.
 - Markdown and Markdown Lint MUST remain optional bundled registrations so their lifecycle is exercised with Explorer and Search.
 - Roles MUST resolve from the sibling package's built public export with first-party external distribution metadata.
-- The story MUST NOT treat CV YAML as a Search document.
+- The external Roles provider MUST make `*.cv.yml` and `*.cv.yaml` semantic content searchable.
+- Ordinary YAML files that do not match the CV filename contract MUST remain absent from Search.
 
 ### LN-ROLE-017 acceptance details
 

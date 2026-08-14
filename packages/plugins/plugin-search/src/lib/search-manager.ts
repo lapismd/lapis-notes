@@ -7,6 +7,7 @@ import {
   type SearchEmbeddingRuntimeStatus,
   type CachedMetadata,
   type SearchDocumentRecord,
+  type SearchDocumentSource,
   type SearchDocumentSourceMetadata,
   type TFile,
   debounce,
@@ -17,12 +18,7 @@ import {
   type SearchPluginSettings,
 } from "./search-settings";
 
-const SEARCHABLE_EXTENSIONS = new Set(["md", "markdown", "canvas"]);
 const REACTIVE_INDEX_DELAY_MS = 75;
-
-function isSearchableFile(file: TFile): boolean {
-  return SEARCHABLE_EXTENSIONS.has(file.extension.toLowerCase());
-}
 
 function isFileLike(value: unknown): value is TFile {
   return (
@@ -33,48 +29,16 @@ function isFileLike(value: unknown): value is TFile {
   );
 }
 
-function canvasText(content: string): string {
-  try {
-    const canvas = JSON.parse(content) as {
-      nodes?: Array<{
-        type?: string;
-        text?: string;
-        label?: string;
-        file?: string;
-        url?: string;
-      }>;
-      edges?: Array<{ label?: string }>;
-    };
-    return [
-      ...(canvas.nodes ?? []).flatMap((node) => [
-        node.type,
-        node.text,
-        node.label,
-        node.file,
-        node.url,
-      ]),
-      ...(canvas.edges ?? []).map((edge) => edge.label),
-    ]
-      .filter((part): part is string => Boolean(part?.trim()))
-      .join("\n");
-  } catch {
-    return content;
-  }
-}
-
-function searchableContent(file: TFile, content: string): string {
-  return file.extension.toLowerCase() === "canvas"
-    ? canvasText(content)
-    : content;
-}
-
 function sourceMetadata(
   cache: CachedMetadata,
   settings: SearchPluginSettings["chunking"],
+  source: SearchDocumentSource,
 ): SearchDocumentSourceMetadata {
   return {
-    rawTags: (cache.tags ?? []).map((tag) => tag.tag),
-    frontmatter: cache.frontmatter ?? {},
+    rawTags: source.tags
+      ? [...source.tags]
+      : (cache.tags ?? []).map((tag) => tag.tag),
+    frontmatter: source.metadata ?? cache.frontmatter ?? {},
     frontmatterEndOffset: cache.frontmatterPosition?.end.offset ?? 0,
     headings: (cache.headings ?? []).map((heading) => ({
       heading: heading.heading,
@@ -136,6 +100,7 @@ export interface SearchQueryResult {
 
 export class SearchManager {
   private refreshPromise: Promise<SearchRuntimeStatus> | null = null;
+  private queuedRefreshReason: string | null = null;
   private refreshState = {
     active: false,
     processed: 0,
@@ -163,22 +128,52 @@ export class SearchManager {
     content: string,
     cache: CachedMetadata,
   ): Promise<void> {
-    const normalizedContent = searchableContent(file, content);
+    const provider = this.app.searchDocumentProviders.resolve(file);
+    if (!provider) {
+      await this.processDelete(file);
+      return;
+    }
+    const source = await provider.extract({
+      app: this.app,
+      file,
+      content,
+      metadata: cache,
+    });
+    if (!source) {
+      await this.processDelete(file);
+      return;
+    }
+    if (typeof source.content !== "string") {
+      throw new Error(
+        `Search document provider ${provider.id} returned invalid content for ${file.path}`,
+      );
+    }
+    const checksumSource = JSON.stringify({
+      content: source.content,
+      metadata: source.metadata ?? null,
+      tags: source.tags ?? [],
+    });
     await this.app.appDatabase.upsertSearchDocument({
       path: file.path,
       name: file.baseName,
       extension: file.extension.toLowerCase(),
-      checksum: md5(normalizedContent),
-      content: normalizedContent,
+      checksum: md5(checksumSource),
+      content: source.content,
       tags: [],
       tagParts: [],
       tagHierarchy: [],
-      sourceMetadata: sourceMetadata(cache, this.getSettings().chunking),
+      sourceMetadata: sourceMetadata(
+        cache,
+        this.getSettings().chunking,
+        source,
+      ),
     });
   }
 
-  async processDelete(file: TFile): Promise<void> {
-    await this.app.appDatabase.deleteSearchDocument(file.path);
+  async processDelete(file: TFile | string): Promise<void> {
+    await this.app.appDatabase.deleteSearchDocument(
+      typeof file === "string" ? file : file.path,
+    );
   }
 
   async query(params: SearchQueryParams): Promise<SearchQueryResult> {
@@ -232,11 +227,21 @@ export class SearchManager {
   }
 
   refreshFromVault(reason = "manual-refresh"): Promise<SearchRuntimeStatus> {
-    if (this.refreshPromise) return this.refreshPromise;
-    this.refreshPromise = this.runRefresh(reason).finally(() => {
+    this.queuedRefreshReason = reason;
+    this.refreshPromise ??= this.runRefreshQueue().finally(() => {
       this.refreshPromise = null;
     });
     return this.refreshPromise;
+  }
+
+  private async runRefreshQueue(): Promise<SearchRuntimeStatus> {
+    let status: SearchRuntimeStatus | null = null;
+    while (this.queuedRefreshReason) {
+      const reason = this.queuedRefreshReason;
+      this.queuedRefreshReason = null;
+      status = await this.runRefresh(reason);
+    }
+    return status ?? this.getStatus();
   }
 
   trackChanges(): () => void {
@@ -253,20 +258,24 @@ export class SearchManager {
       this.queuedDeletes.set(file.path, file);
       this.flushQueuedChanges();
     });
-    const canvasChanged = this.app.vault.on("modify", (file) => {
-      if (isFileLike(file) && file.extension.toLowerCase() === "canvas") {
-        void this.processFile(file);
+    const vaultChanged = this.app.vault.on("modify", (file) => {
+      if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
+        void this.processFileSafely(file);
       }
     });
-    const canvasCreated = this.app.vault.on("create", (file) => {
-      if (isFileLike(file) && file.extension.toLowerCase() === "canvas") {
-        void this.processFile(file);
+    const vaultCreated = this.app.vault.on("create", (file) => {
+      if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
+        void this.processFileSafely(file);
       }
     });
-    const canvasDeleted = this.app.vault.on("delete", (file) => {
-      if (isFileLike(file) && file.extension.toLowerCase() === "canvas") {
+    const vaultDeleted = this.app.vault.on("delete", (file) => {
+      if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
         void this.processDelete(file);
       }
+    });
+    const vaultRenamed = this.app.vault.on("rename", (file, oldPath) => {
+      void this.processDelete(oldPath);
+      if (isFileLike(file)) void this.processFileSafely(file);
     });
 
     return () => {
@@ -275,16 +284,54 @@ export class SearchManager {
       this.queuedDeletes.clear();
       this.app.metadataCache.offref(changed);
       this.app.metadataCache.offref(deleted);
-      this.app.vault.offref(canvasChanged);
-      this.app.vault.offref(canvasCreated);
-      this.app.vault.offref(canvasDeleted);
+      this.app.vault.offref(vaultChanged);
+      this.app.vault.offref(vaultCreated);
+      this.app.vault.offref(vaultDeleted);
+      this.app.vault.offref(vaultRenamed);
     };
   }
 
   private async processFile(file: TFile): Promise<void> {
+    if (!this.app.searchDocumentProviders.resolve(file)) {
+      await this.processDelete(file);
+      return;
+    }
     const content = await this.app.vault.cachedRead(file);
     const cache = this.app.metadataCache.getFileCache(file) ?? {};
     await this.processChange(file, content, cache);
+  }
+
+  private usesMetadataPipeline(file: TFile): boolean {
+    return Boolean(
+      this.app.metadataCache.processors.get(file.extension.toLowerCase())?.size,
+    );
+  }
+
+  private isProviderCandidate(file: TFile): boolean {
+    try {
+      return Boolean(this.app.searchDocumentProviders.resolve(file));
+    } catch {
+      return true;
+    }
+  }
+
+  private async processFileSafely(file: TFile): Promise<void> {
+    try {
+      await this.processFile(file);
+    } catch (error) {
+      await this.handleProviderFailure(file, error);
+    }
+  }
+
+  private async handleProviderFailure(
+    file: TFile,
+    error: unknown,
+  ): Promise<void> {
+    this.app.logger.warn(
+      `Search provider failed for ${file.path}`,
+      error instanceof Error ? error : new Error(String(error)),
+    );
+    await this.processDelete(file);
   }
 
   private async processQueuedChanges(): Promise<void> {
@@ -294,7 +341,11 @@ export class SearchManager {
     this.queuedChanges.clear();
     for (const file of deleted) await this.processDelete(file);
     for (const item of changed) {
-      await this.processChange(item.file, item.content, item.cache);
+      try {
+        await this.processChange(item.file, item.content, item.cache);
+      } catch (error) {
+        await this.handleProviderFailure(item.file, error);
+      }
     }
   }
 
@@ -307,7 +358,9 @@ export class SearchManager {
         persistOnError: true,
       },
       async (progress) => {
-        const files = this.app.vault.getFiles().filter(isSearchableFile);
+        const files = this.app.vault
+          .getFiles()
+          .filter((file) => this.isProviderCandidate(file));
         const paths = new Set(files.map((file) => file.path));
         const stale = (await this.app.appDatabase.listSearchDocuments()).filter(
           (document) => !paths.has(document.path),
@@ -339,7 +392,7 @@ export class SearchManager {
               total,
               message: file.path,
             });
-            await this.processFile(file);
+            await this.processFileSafely(file);
             this.refreshState.processed += 1;
           }
           this.refreshState.refreshedAt = Date.now();

@@ -24,7 +24,12 @@ tags:
 
 # Plugin shell note
 
-Search should find this Markdown file and must not index sample.cv.yml.
+Search should find this Markdown file and the Roles provider should index the CV.
+`;
+
+const ORDINARY_YAML = `
+kind: settings
+marker: ordinary-yaml-search-marker
 `;
 
 function leaf(
@@ -108,6 +113,7 @@ export function createRolesPluginShellSeed(): Record<string, string> {
     ".obsidian/app.json": JSON.stringify(APP_CONFIGURATION, null, 2),
     ".obsidian/workspace.json": JSON.stringify(workspaceLayout(), null, 2),
     "sample.cv.yml": sampleCvYaml,
+    "Config/settings.yml": ORDINARY_YAML,
     ...Object.fromEntries(
       roleFixtures.map((role) => [role.sourcePath, roleFixtureSource(role)]),
     ),

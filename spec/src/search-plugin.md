@@ -10,7 +10,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | --- | --- |
 | LN-SRCH-001 | Search MUST be ported from `/Users/stevejuma/code/lapis-notes/packages/plugins/plugin-search` at commit `8ec68e18` without copying API database or query-parser implementations. |
 | LN-SRCH-002 | The plugin MUST register the canonical `search` view and commands for opening Search, searching selected text, rebuilding generated state, and refreshing the vault index. |
-| LN-SRCH-003 | Search indexing MUST write through `AppDatabase`, refresh searchable Markdown and Canvas files after metadata loads, prune stale documents, and track later vault or metadata changes. |
+| LN-SRCH-003 | Search indexing MUST write through `AppDatabase`, refresh files accepted by registered search-document providers after metadata loads, prune stale documents, and track later vault, metadata, or provider changes. |
 | LN-SRCH-004 | The Search view MUST compose Design Core `SearchFilterBar` in CodeMirror mode with the API search-query language, query diagnostics, field/value completion, and expandable facets. |
 | LN-SRCH-005 | Search results MUST render a file-grouped tree whose collapsible file items own child match items. The tree MUST highlight explicit ranges, expose totals and sorting, and open a selected file or source position through the API workspace. |
 | LN-SRCH-006 | Search MUST retain bounded recent queries, match-case state, result-limit and snippet-length settings, and MUST dispose indexing listeners and pending searches when disabled. |
@@ -40,6 +40,9 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-030 | Result activation MUST preserve a Search view hosted in the body by opening the target in a separate body tab. Sidebar-hosted Search MAY continue to reuse the selected body leaf. |
 | LN-SRCH-031 | Search result parent rows MUST show only a regular-weight filename without its extension. Expanded result bodies MUST begin with a metadata header containing the full vault path and applied retrieval-mode badge. |
 | LN-SRCH-032 | The Recent searches section MUST retain the standard Search results inset so its heading, rows, and interactive paint remain clear of every panel edge. |
+| LN-SRCH-033 | The API MUST expose a lifecycle-managed search-document provider registry. Providers MUST match files and extract normalized content, optional metadata, and tags without writing generated search state. |
+| LN-SRCH-034 | Search MUST register Markdown and Canvas as built-in providers and MUST select one provider deterministically by priority. Equal-priority matches MUST fail that file without stopping other files from indexing. |
+| LN-SRCH-035 | Provider registration and removal MUST refresh the index. Removing or disabling a provider MUST prune its documents, while provider extraction failures MUST leave the remaining index usable. |
 
 ## Runtime flow
 
@@ -53,7 +56,9 @@ Design Core SearchFilterBar → API search-query grammar → Search results
 API workspace file navigation
 ```
 
-The plugin owns indexing policy, local embedding configuration, and presentation
-state. It does not own Turso drivers, workspace layout, vault selection, or
-Markdown metadata parsing. Tags and Properties depend only on the registered
-Search command, not on Search package internals.
+The plugin owns provider selection, indexing policy, local embedding
+configuration, and presentation state. It does not own Turso drivers,
+workspace layout, vault selection, Markdown metadata parsing, or domain file
+parsers. Domain plugins contribute normalized documents through the public API
+registry without importing Search internals. Tags and Properties depend only
+on the registered Search command, not on Search package internals.

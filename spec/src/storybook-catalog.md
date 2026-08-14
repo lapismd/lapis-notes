@@ -50,6 +50,7 @@
 | LN-CAT-049 | `Plugins/Bases/Views` MUST cover table, vault-image cards, collapsible grouped list, map-unavailable, and unknown-view layouts. `Plugins/Bases/Workflows` MUST cover query controls, schema/view settings including every custom option kind, and persisted typed metadata editing. |
 | LN-CAT-050 | `Workspace/Plugins/Bases` MUST boot a real App for file-view, Markdown-embed, and disable/restore stories. It MUST verify associations, source/preview switching, persistence, reopen, read-only embeds, invalid YAML, cleanup, managed settings, and missing-view recovery. |
 | LN-CAT-051 | Bases stories MUST share one canonical seeded vault fixture, use `BasesViewSurface` as focused Autodocs authority, hide harness state from Controls, and provide explicit public-package Show Code. App stories MUST use isolated 700px iframes; every story remains `visual-pending` with an independent nested-import baseline until review. |
+| LN-CAT-052 | The real-App Roles shell MUST find a CV-only semantic phrase through Search after a Roles disable/re-enable cycle and MUST prove that an ordinary YAML marker remains absent. |
 
 ## Show Code source contract
 

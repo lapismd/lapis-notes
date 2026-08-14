@@ -72,4 +72,6 @@ later plugin activation.
 Plugin view ownership retained for disable and re-enable recovery remains
 separate from diagnostic collection ownership. Both use the API `Plugin`
 registration lifecycle, and neither permits one plugin to dispose another
-plugin's contributions.
+plugin's contributions. Search-document providers use the same plugin-owned
+cleanup mechanism but remain separate from diagnostic collections and Problems
+presentation.

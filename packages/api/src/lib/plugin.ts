@@ -1,4 +1,8 @@
 import type { MetadataProcessor } from "./cache.svelte";
+import type {
+  SearchDocumentProvider,
+  SearchDocumentProviderRegistration,
+} from "./search-document-provider";
 import type { Command, KeymapEventHandler } from "./command.svelte";
 import type { ContextKeyValue, ScopedContextKey } from "./context-keys.svelte";
 import type { App, ExtType } from "./context.svelte";
@@ -973,6 +977,27 @@ export abstract class Plugin extends Component {
     this.register(() => {
       this.app.metadataCache.removeProcessor(ext, processor);
     });
+  }
+
+  /**
+   * Contribute normalized searchable content without writing generated state.
+   * The local id is namespaced by this plugin's runtime id.
+   */
+  registerSearchDocumentProvider(
+    localId: string,
+    provider: Omit<SearchDocumentProvider, "id">,
+  ): SearchDocumentProviderRegistration {
+    const normalizedLocalId = localId.trim();
+    if (!normalizedLocalId) {
+      throw new Error("Search document provider local id must not be empty.");
+    }
+    const id = `${this.id}:${normalizedLocalId}`;
+    const registration = this.app.searchDocumentProviders.register({
+      ...provider,
+      id,
+    });
+    this.register(() => registration.dispose());
+    return registration;
   }
 
   /**

@@ -5,6 +5,7 @@ import type { App } from "../context.svelte";
 import { ContextKeyService } from "../context-keys.svelte";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
+import { SearchDocumentProviderRegistry } from "../search-document-provider";
 import { MemoryAppDatabase, Vault } from "../storage";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
@@ -46,6 +47,7 @@ function createPluginApp() {
     },
     workspace,
     configurationOptionSources: new ConfigurationOptionSourceRegistry(),
+    searchDocumentProviders: new SearchDocumentProviderRegistry(),
   } as unknown as App;
 
   const configuration = new Configuration(app, "/.obsidian/app.json");
@@ -75,6 +77,31 @@ beforeEach(() => {
 });
 
 describe("Plugin data persistence", () => {
+  it("owns search-document provider registration for its lifecycle", () => {
+    const { app } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "fixture",
+      name: "Fixture",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.load();
+
+    const registration = plugin.registerSearchDocumentProvider("document", {
+      matches: (file) => file.extension === "fixture",
+      extract: ({ content }) => ({ content }),
+    });
+
+    expect(registration.id).toBe("fixture:document");
+    expect(app.searchDocumentProviders.getAll()).toHaveLength(1);
+
+    plugin.unload();
+
+    expect(app.searchDocumentProviders.getAll()).toHaveLength(0);
+  });
+
   it("registers editor-view metadata with plugin-owned cleanup", () => {
     const { app } = createPluginApp();
     const plugin = new TestPlugin(app, {

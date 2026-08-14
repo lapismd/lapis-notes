@@ -25,6 +25,7 @@ import { WorkspaceTrustService } from "./workspace-trust";
 import { DefaultPluginDistributionManager, type DefaultPluginDistributionManagerOptions } from "./plugin-distribution";
 import type { PluginDependencyResolverFactory } from "./plugin-dependency-resolver";
 import type { PluginAssetServer } from "./plugin-asset-server";
+import { SearchDocumentProviderRegistry } from "./search-document-provider";
 export interface AppWorkspaceShellApplicationProperties {
     /** Application name shown by the shell's About surface. */
     name?: string;
@@ -171,6 +172,7 @@ export declare class App {
     settingsTabId: string | null;
     metadataCache: MetadataCache;
     embedRegistry: EmbedRegistry;
+    readonly searchDocumentProviders: SearchDocumentProviderRegistry;
     lastEvent: UserEvent | null;
     renderContext: RenderContext;
     secretStorage: SecretStorage;

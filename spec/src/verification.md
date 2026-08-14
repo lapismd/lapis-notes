@@ -388,7 +388,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-047 | storybook-catalog | Implemented | focused real-App root Roles and retained-CV acceptance passes 2 of 2 stories |
 | LN-CAT-048 | storybook-catalog | In progress | new Roles stories retain `visual-pending` and an isolated nested-import path; baseline capture was deferred at user request |
 | LN-CV-010 | roles-plugin | Implemented | web, Electron, and real-App stories register optional first-party external Roles before layout restoration |
-| LN-CV-012 | roles-plugin | Implemented | root App-backed story consumes built external Roles with optional File Explorer and Search |
+| LN-CV-012 | roles-plugin | Implemented | root App-backed story finds CV-only semantic content while excluding ordinary YAML |
 | LN-ROLE-016 | roles-plugin | Implemented | desktop/web checks plus plugin-manager recovery tests cover persisted missing leaves without default placement |
 | LN-ROLE-017 | roles-plugin | Implemented | real-App shell reuses and selects an existing role tab, restores CV, and finishes with Search collapsed |
 | LN-ROLE-018 | roles-plugin | Implemented | root real-App acceptance covers association, persistence, linked CV, grouped settings, and lifecycle recovery |
@@ -396,6 +396,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-039 | architecture | Implemented | ported legacy page presentation remains plugin-owned while Lapis owns the leaf shell, vault adapter, navigation, and Mira boundary |
 | LN-ARCH-040 | architecture | Implemented | API distribution metadata and Design Core managed-plugin bridge retain Lapis lifecycle ownership |
 | LN-ARCH-041 | architecture | Implemented | API, UI, Design Core, and Mira package manifests form a portable semver dependency closure with local matching-version links |
+| LN-ARCH-043 | architecture | Implemented | API provider registry, Search index ownership, and external Roles CV projection tests |
 | LN-PKG-053 | packages | Implemented | versioned peer contracts, package builds, publint, tarball audit, and standalone Roles compile smoke |
 | LN-GOV-030 | spec-governance | Implemented | spec-first classifier tests require the Plugin Model chapter for API plugin lifecycle changes |
 | LN-PLUG-001 | plugin-model | Implemented | bundled plugin package and registration audit |
@@ -410,6 +411,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PLUG-010 | plugin-model | Implemented | existing community plugin configuration and distribution suites |
 | LN-PLUG-011 | plugin-model | Implemented | Roles runtime ID, command, view, path, and plugin-data compatibility audit |
 | LN-PLUG-012 | plugin-model | Implemented | plugin-manager static contribution list deduplication regression test |
+| LN-PLUG-013 | plugin-model | Implemented | Plugin lifecycle unit namespaces and disposes search-document providers |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |
@@ -457,6 +459,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-SRCH-030 | search-plugin | Implemented | middle-top-tabs Search acceptance navigates to a result in a sibling tab, retains the Search leaf, and restores it as the selected final story state |
 | LN-SRCH-031 | search-plugin | Implemented | all six Search placements verify regular extension-free parent labels and expanded-body path/retrieval metadata headers |
 | LN-SRCH-032 | search-plugin | Implemented | package CSS applies the standard results inset to the Recent searches heading and rows |
+| LN-SRCH-033 | search-plugin | Implemented | API registry and Plugin lifecycle unit coverage |
+| LN-SRCH-034 | search-plugin | Implemented | built-in provider and deterministic collision manager tests |
+| LN-SRCH-035 | search-plugin | Implemented | provider-change refresh, disable pruning, and per-file failure coverage |
 | LN-DB-001 | app-database | Implemented | existing operations, optional provider injection, and explicit database injection pass API coverage |
 | LN-DB-002 | app-database | Implemented | descriptors report provider, engine, transport, role, storage mode, and probed query capabilities |
 | LN-DB-003 | app-database | Implemented | native Electron and Turso WASM/OPFS provider selection pass desktop and browser acceptance |
@@ -482,11 +487,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-010 | web-host | Implemented | root web scripts and three-scenario Playwright acceptance lane |
 | LN-ARCH-042 | architecture | In progress | package and host dependency boundaries pass without consumer copies; governed Storybook surface coverage remains |
 | LN-PKG-054 | packages | Implemented | Bases check and no-Tailwind audits, 14-file / 142-test legacy baseline, 17-file / 148-test current suite, build, publint, export, and dependency audits |
+| LN-PKG-055 | packages | Implemented | API declarations and standalone Roles checks consume the public provider contract without Search imports |
 | LN-DESK-031 | desktop-host | In progress | desktop registration ordering, exported styles, community exclusion, checks, tests, and production build pass; persisted Bases smoke remains |
 | LN-WEB-011 | web-host | In progress | web registration ordering, exported styles, community exclusion, checks, tests, and PWA build pass; browser fixture acceptance remains |
 | LN-CAT-049 | storybook-catalog | In progress | focused Bases view and workflow interaction stories plus serial pointer persistence coverage |
 | LN-CAT-050 | storybook-catalog | In progress | real-App file view, Markdown embed, and disable/restore interaction stories |
 | LN-CAT-051 | storybook-catalog | In progress | shared fixture, public Show Code, Autodocs authority, 700px app docs, and pending nested baselines |
+| LN-CAT-052 | storybook-catalog | Implemented | focused Roles shell finds CV semantic content after lifecycle recovery and excludes ordinary YAML |
 | LN-GOV-031 | spec-governance | Implemented | spec-first classifier and unit coverage map Bases source and story paths to canonical chapters |
 | LN-BASE-001 | bases-plugin | In progress | source revision, package manifest, and optional bundled default-enabled registration pass in three hosts; disable/re-enable acceptance remains |
 | LN-BASE-002 | bases-plugin | In progress | association, source/preview, persistence, and reopen package plus real-App tests |

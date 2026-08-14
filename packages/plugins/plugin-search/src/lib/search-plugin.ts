@@ -7,6 +7,10 @@ import {
 } from "@lapis-notes/api";
 import { SearchManager, type SearchRuntimeStatus } from "./search-manager";
 import {
+  CANVAS_SEARCH_DOCUMENT_PROVIDER,
+  MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+} from "./built-in-search-document-providers";
+import {
   mergeSearchSettings,
   patchSearchSettings,
   resolveSearchEmbeddingProviderConfig,
@@ -71,6 +75,21 @@ export class SearchPlugin extends Plugin {
     await this.app.appDatabase.configureSearchEmbeddingProvider(
       resolveSearchEmbeddingProviderConfig(this.settings),
     );
+    this.registerEvent(
+      this.app.searchDocumentProviders.on("changed", ({ reason }) => {
+        if (this.state !== "enabled") return;
+        void this.refreshIndex(`provider-${reason}`).catch((error) => {
+          new Notice(
+            `Search provider refresh failed: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        });
+      }),
+    );
+    this.registerSearchDocumentProvider(
+      "markdown",
+      MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+    );
+    this.registerSearchDocumentProvider("canvas", CANVAS_SEARCH_DOCUMENT_PROVIDER);
     this.addSettingTab(new SearchSettingsTab(this.app, this));
     this.register(this.searchManager.trackChanges());
     this.registerSidebarView(
