@@ -538,3 +538,6 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-010 | bases-plugin | Implemented | no-Tailwind, no-global-App, Design Core import, semantic marker, native CSS, token audits, and focused composition stories pass |
 | LN-BASE-011 | bases-plugin | In progress | focused view and real editor-shell plays plus axe pass; workflows, remaining real-App scenarios, and visual comparisons remain |
 | LN-BASE-012 | bases-plugin | Implemented | canonical parity-gap section and root migration checklist exclude Tasks and full-parity claims |
+| LN-BASE-013 | bases-plugin | Implemented | clean-legacy and current browser measurements plus the governed Table play assert 30px rows, 6px toolbar gaps, shadow-free outline controls, and 16px header actions |
+| LN-BASE-014 | bases-plugin | Implemented | plugin and registration-inventory unit tests assert the exact legacy view, associations, embeds, fenced blocks, actions, and five built-in view items without invented commands |
+| LN-BASE-015 | bases-plugin | Implemented | the real editor-shell play and browser acceptance switch `Projects.base` to source, assert `data-language="yaml"` with highlighted tokens, and restore preview |
