@@ -1,5 +1,7 @@
 <script lang="ts" module>
   import type { App } from "@lapis-notes/api";
+  import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
+  import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
   import { defineMeta } from "@storybook/addon-svelte-csf";
   import { expect, userEvent, waitFor, within } from "storybook/test";
   import { RolesPluginShellExample } from "./RolesPluginShell.example-sources";
@@ -85,6 +87,41 @@
     expect(app.workspace.getLeavesOfType("roles")).toHaveLength(1);
     expect(app.workspace.getLeavesOfType("role")).toHaveLength(1);
     expect(app.workspace.activeLeaf?.view.getViewType()).toBe("cv");
+
+    const roleLeaf = app.workspace.getLeavesOfType("role")[0]!;
+    await userEvent.click(explorer.getByRole("button", { name: "role.md" }));
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf).toBe(roleLeaf);
+      expect(
+        findWorkspaceTab(
+          getWorkspaceHostBinding(app.workspace).controller.renderer.layout,
+          roleLeaf.id,
+        )?.pane.activeItemId,
+      ).toBe(roleLeaf.id);
+      expect(
+        canvasElement.querySelector(
+          `[data-workspace-tab-id="${roleLeaf.id}"]`,
+        ),
+      ).toHaveAttribute("data-active", "true");
+      expect(
+        canvasElement.querySelector(
+          `[data-workspace-tab-id="${roleLeaf.id}"] [data-workspace-tab-title-trigger]`,
+        ),
+      ).toHaveAttribute("aria-pressed", "true");
+      expect(
+        canvasElement.querySelector('[data-ui-component="role-workspace"]'),
+      ).toBeVisible();
+    });
+
+    const cvTab = canvasElement.querySelector<HTMLButtonElement>(
+      '[data-workspace-tab-id="sample-cv"] [data-workspace-tab-title-trigger]',
+    );
+    expect(cvTab).not.toBeNull();
+    await userEvent.click(cvTab!);
+    await waitFor(() => {
+      expect(app.workspace.activeLeaf?.view.getViewType()).toBe("cv");
+      expect(canvas.getByTestId("cv-workspace")).toBeVisible();
+    });
 
     await userEvent.click(openRightSidebar);
     await waitFor(() => {

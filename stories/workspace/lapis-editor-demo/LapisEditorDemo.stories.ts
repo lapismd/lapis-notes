@@ -74,6 +74,25 @@ function countRootLeaves(app: App): number {
   return count;
 }
 
+function expectRenderedWorkspaceTabActive(
+  canvasElement: HTMLElement,
+  app: App,
+  leafId: string,
+): void {
+  const controller = getWorkspaceHostBinding(app.workspace).controller;
+  expect(
+    findWorkspaceTab(controller.renderer.layout, leafId)?.pane.activeItemId,
+  ).toBe(leafId);
+  const renderedTab = canvasElement.querySelector<HTMLElement>(
+    `[data-workspace-tab-id="${leafId}"]`,
+  );
+  expect(renderedTab).not.toBeNull();
+  expect(renderedTab).toHaveAttribute("data-active", "true");
+  expect(
+    renderedTab!.querySelector("[data-workspace-tab-title-trigger]"),
+  ).toHaveAttribute("aria-pressed", "true");
+}
+
 async function persistedStoryConfiguration(
   canvasElement: HTMLElement,
 ): Promise<
@@ -233,6 +252,11 @@ export const Ready: Story = {
       expect(runtimeApp.workspace.activeLeaf).toBe(singleOpenedLeaf);
       expect(countRootLeaves(runtimeApp)).toBe(leavesWithAlternate);
       expect(leafFilePath(alternateLeaf)).toBe("Notes/Welcome.md");
+      expectRenderedWorkspaceTabActive(
+        canvasElement,
+        runtimeApp,
+        singleOpenedLeaf!.id,
+      );
     });
 
     singleOpenedLeaf!.detach();
@@ -268,6 +292,11 @@ export const Ready: Story = {
     await waitFor(() => {
       expect(runtimeApp.workspace.activeLeaf).toBe(doubleOpenedLeaf);
       expect(countRootLeaves(runtimeApp)).toBe(leavesBeforeDoubleReuse);
+      expectRenderedWorkspaceTabActive(
+        canvasElement,
+        runtimeApp,
+        doubleOpenedLeaf!.id,
+      );
     });
 
     runtimeApp.workspace.activeLeaf = alternateLeaf;

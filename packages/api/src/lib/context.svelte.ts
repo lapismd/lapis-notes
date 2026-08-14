@@ -524,8 +524,9 @@ export class App {
         if (existingLeaf) {
           span.setAttribute("workspace.file_already_open", true);
           await applyOpenViewStateToLeaf(existingLeaf, openState);
-          this.workspace.activeLeaf = existingLeaf;
-          await this.workspace.revealLeaf(existingLeaf);
+          this.workspace.activateLeaf(existingLeaf, {
+            operation: "open-existing-file",
+          });
           return;
         }
 

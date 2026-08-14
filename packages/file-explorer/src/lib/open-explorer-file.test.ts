@@ -25,6 +25,7 @@ function createApp(options: {
   const newLeaf = options.newLeaf ?? createLeaf();
   const workspace = {
     activeLeaf: null as WorkspaceLeaf | null,
+    activateLeaf: vi.fn(() => true),
     getLeaf: vi.fn(() => newLeaf),
     revealLeaf: vi.fn().mockResolvedValue(undefined),
   };
@@ -51,7 +52,7 @@ describe("openExplorerFile", () => {
     expect(workspace.getLeaf).not.toHaveBeenCalled();
   });
 
-  it("reveals an existing file leaf for a double-click request", async () => {
+  it("activates an existing file leaf for a double-click request", async () => {
     const file = createFile();
     const existingLeaf = createLeaf(file);
     const { app, workspace } = createApp();
@@ -60,8 +61,10 @@ describe("openExplorerFile", () => {
     await openExplorerFile(app, file, "reveal-or-new-tab");
 
     expect(findOpenFileLeaf).toHaveBeenCalledWith(app.workspace, file);
-    expect(workspace.activeLeaf).toBe(existingLeaf);
-    expect(workspace.revealLeaf).toHaveBeenCalledWith(existingLeaf);
+    expect(workspace.activateLeaf).toHaveBeenCalledWith(existingLeaf, {
+      operation: "open-explorer-existing-file",
+    });
+    expect(workspace.revealLeaf).not.toHaveBeenCalled();
     expect(workspace.getLeaf).not.toHaveBeenCalled();
   });
 

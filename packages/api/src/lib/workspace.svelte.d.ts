@@ -359,6 +359,12 @@ export interface WorkspaceOpenLeafEntryOptions {
     includePopout?: boolean;
 }
 export type WorkspaceBottomPanelAlignment = "left" | "right" | "center" | "justify";
+export interface WorkspaceActivateLeafOptions {
+    focusRootHost?: boolean;
+    saveLayout?: boolean;
+    source?: WorkspaceLayoutChangeSource;
+    operation?: string;
+}
 export type WorkspaceLayoutDropPosition = "left" | "right" | "top" | "bottom" | "center";
 export type WorkspaceLayoutDropSource = "html5" | "pointer" | "api";
 export interface WorkspaceFocusModeState {
@@ -600,6 +606,8 @@ export declare class Workspace extends EventDispatcher<{
      */
     detachLeavesOfType(viewType: string): void;
     getLeavesOfType(viewType: string): WorkspaceLeaf[];
+    /** @public */
+    activateLeaf(leaf: WorkspaceLeaf | null, options?: WorkspaceActivateLeafOptions): boolean;
     createLeafInParent(parent: WorkspaceSplit, index: number): WorkspaceLeaf;
     createLeafBySplit(leaf: WorkspaceLeaf, direction?: SplitDirection, before?: boolean): WorkspaceLeaf;
     splitActiveLeaf(direction?: SplitDirection): WorkspaceLeaf;

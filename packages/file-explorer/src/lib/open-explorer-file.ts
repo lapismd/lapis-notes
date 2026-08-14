@@ -19,8 +19,9 @@ export async function openExplorerFile(
   if (disposition === "reveal-or-new-tab") {
     const existingLeaf = findOpenFileLeaf<WorkspaceLeaf>(app.workspace, file);
     if (existingLeaf) {
-      app.workspace.activeLeaf = existingLeaf;
-      await app.workspace.revealLeaf(existingLeaf);
+      app.workspace.activateLeaf(existingLeaf, {
+        operation: "open-explorer-existing-file",
+      });
       return;
     }
   }
