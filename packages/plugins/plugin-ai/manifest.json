@@ -1,0 +1,8 @@
+{
+  "id": "ai",
+  "name": "AI",
+  "version": "0.0.1",
+  "minAppVersion": "0.0.1",
+  "description": "Provider-agnostic agent chat with ACP and optional native runtimes.",
+  "author": "Lapis Notes"
+}

@@ -261,6 +261,20 @@ const basesViewsCatalog = [
 export const workspaceCatalog = [
   ...basesViewsCatalog,
   {
+    id: "plugins-ai-chat-send",
+    title: "AI Chat: Send And Complete",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--send-and-complete",
+  },
+  {
+    id: "plugins-ai-chat-approval",
+    title: "AI Chat: Pending Approval",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--pending-approval",
+  },
+  {
     id: "plugins-bases-editor-shell",
     title: "Bases Editor Shell",
     spec: "spec/src/bases-plugin.md",

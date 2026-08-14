@@ -34,6 +34,16 @@ import { ensureLanguageServiceIpc } from "./language-service-desktop-ipc";
 import { ElectronPluginCapabilityBroker } from "./plugin-capability-broker";
 import { PluginSidecarManager } from "./plugin-sidecar";
 import {
+  cancelAcpSession,
+  closeAcpSession,
+  killAgentProcess,
+  promptAcpSession,
+  respondAcpSession,
+  spawnAgentProcess,
+  startAcpSession,
+  writeAgentProcess,
+} from "./agent-runtime-host";
+import {
   getAppRendererContentType,
   resolveAppRendererFilePath,
 } from "./app-renderer-protocol";
@@ -1962,6 +1972,56 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle("desktop_plugin_assets_register", async (event, payload) =>
     registerPluginAssetContext(event, payload),
+  );
+
+  ipcMain.handle("desktop_agent_process_spawn", async (event, payload) =>
+    spawnAgentProcess(event.sender, payload ?? {}),
+  );
+  ipcMain.handle(
+    "desktop_agent_process_write",
+    async (_event, payload: { processId?: string; data?: string }) => {
+      writeAgentProcess(String(payload?.processId ?? ""), String(payload?.data ?? ""));
+    },
+  );
+  ipcMain.handle(
+    "desktop_agent_process_kill",
+    async (_event, payload: { processId?: string }) => {
+      killAgentProcess(String(payload?.processId ?? ""));
+    },
+  );
+  ipcMain.handle("desktop_agent_acp_start", async (event, payload) =>
+    startAcpSession(event.sender, payload ?? {}),
+  );
+  ipcMain.handle(
+    "desktop_agent_acp_prompt",
+    async (event, payload: { sessionId?: string; text?: string }) =>
+      promptAcpSession(
+        event.sender,
+        String(payload?.sessionId ?? ""),
+        String(payload?.text ?? ""),
+      ),
+  );
+  ipcMain.handle(
+    "desktop_agent_acp_cancel",
+    async (_event, payload: { sessionId?: string }) =>
+      cancelAcpSession(String(payload?.sessionId ?? "")),
+  );
+  ipcMain.handle(
+    "desktop_agent_acp_close",
+    async (_event, payload: { sessionId?: string }) =>
+      closeAcpSession(String(payload?.sessionId ?? "")),
+  );
+  ipcMain.handle(
+    "desktop_agent_acp_respond",
+    async (
+      _event,
+      payload: { sessionId?: string; requestId?: string; decision?: string },
+    ) =>
+      respondAcpSession(
+        String(payload?.sessionId ?? ""),
+        String(payload?.requestId ?? ""),
+        String(payload?.decision ?? ""),
+      ),
   );
 
   // Community plugins: Electron sidecar host lifecycle and capability broker.

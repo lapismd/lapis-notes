@@ -29,6 +29,7 @@ describe("desktop capability contract", () => {
         "file-watch",
         "notifications",
         "file-system-actions",
+        "agent-runtime",
       ].sort(),
     );
     expect(registry.notebook).toMatchObject({ status: "unavailable" });

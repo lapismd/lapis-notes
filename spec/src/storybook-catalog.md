@@ -53,6 +53,7 @@
 | LN-CAT-052 | The real-App Roles shell MUST find a CV-only semantic phrase through Search after a Roles disable/re-enable cycle and MUST prove that an ordinary YAML marker remains absent. |
 | LN-CAT-053 | The real-App Roles shell MUST exercise aggregate mode switching, dedicated Activity and Actions commands with tab reuse, Applications ribbon activation, due-action status navigation, Roles settings persistence, and missing-view recovery for all three Roles workspace view types. The story MUST finish with Search collapsed. |
 | LN-CAT-054 | The real-App Roles shell MUST exercise the Role-to-Markdown same-leaf transition and return action, assert Mira Live Preview and rich frontmatter output, and verify the Description editor uses the registered Markdown provider rather than the API fallback. |
+| LN-CAT-055 | `Plugins/AI/Chat` MUST demonstrate the public `@lapis-notes/ai` chat panel with Fake runtime, including send/complete and a pending-approval `respondToApproval` path, explicit Show Code, and `visual-pending` nested-import baselines. |
 
 ## Show Code source contract
 

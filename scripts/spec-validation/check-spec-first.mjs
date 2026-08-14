@@ -29,8 +29,13 @@ const RULES = [
   },
   {
     name: "API app database",
-    pattern: /^packages\/api\/src\/lib\/storage\//,
+    pattern: /^packages\/api\/src\/lib\/storage\/(?!desktop-native\.ts).+/,
     chapters: ["spec/src/app-database.md"],
+  },
+  {
+    name: "API desktop native bridge",
+    pattern: /^packages\/api\/src\/lib\/storage\/desktop-native\.ts$/,
+    chapters: ["spec/src/desktop-host.md", "spec/src/packages.md"],
   },
   {
     name: "API plugin lifecycle",
@@ -145,6 +150,20 @@ const RULES = [
       "spec/src/bases-plugin.md",
       "spec/src/storybook-catalog.md",
     ],
+  },
+  {
+    name: "AI plugin package",
+    pattern: /^packages\/plugins\/plugin-ai\//,
+    chapters: [
+      "spec/src/ai-plugin.md",
+      "spec/src/packages.md",
+      "spec/src/architecture.md",
+    ],
+  },
+  {
+    name: "AI catalog acceptance",
+    pattern: /^stories\/plugins\/ai\//,
+    chapters: ["spec/src/ai-plugin.md", "spec/src/storybook-catalog.md"],
   },
   {
     name: "Roles consumer acceptance",
@@ -292,11 +311,13 @@ export function classifySpecFirstChanges(inputChanges) {
       /^stories\/(?:plugins\/bases\/|workspace\/plugins\/(?:bases\/|Bases))/.test(
         change.path,
       );
+    const isGovernedAiStory = /^stories\/plugins\/ai\//.test(change.path);
     if (
       CANONICAL_SPEC_PATTERN.test(change.path) ||
       (!isSpecificationValidator &&
         !isGovernedRolesStory &&
         !isGovernedBasesStory &&
+        !isGovernedAiStory &&
         IGNORED_PATTERNS.some((pattern) => pattern.test(change.path)))
     ) {
       continue;

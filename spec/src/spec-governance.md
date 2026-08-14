@@ -43,6 +43,8 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-029 | Agent guidance MUST require canonical movable-panel registrations to declare their opening commands together, while file-backed editor views use editor associations and compatibility aliases reuse canonical commands. |
 | LN-GOV-030 | The spec-first map MUST route API plugin lifecycle sources to Plugin Model, Packages, and Architecture. It MUST route the external Roles repository through its standalone specification after cutover. |
 | LN-GOV-031 | The spec-first map MUST route Bases package sources to Bases Plugin, Packages, and Architecture. Focused and real-App Bases stories MUST route to Bases Plugin and Storybook Catalog instead of receiving the ordinary story exemption. |
+| LN-GOV-032 | The spec-first map MUST route AI package sources to AI Plugin, Packages, and Architecture. Focused AI stories MUST route to AI Plugin and Storybook Catalog instead of receiving the ordinary story exemption. |
+| LN-GOV-033 | The spec-first map MUST route `packages/api/src/lib/storage/desktop-native.ts` to Desktop Host and Packages. It MUST NOT treat that file as an App Database change. |
 
 ## Requirement structure
 
@@ -106,7 +108,10 @@ not installed or when an embedding model is unavailable.
 | `packages/ui` source or manifest                                    | `packages.md`, `ui-and-styling.md`                     |
 | `packages/workspace` source or manifest                             | `packages.md`, `architecture.md`, `workspace-shell.md` |
 | `packages/desktop-electron` package                                 | `desktop-host.md`, `packages.md`, `architecture.md`    |
-| `packages/api/src/lib/storage`                                     | `app-database.md`, `packages.md`, `architecture.md`    |
+| `packages/api/src/lib/storage` except `desktop-native.ts`          | `app-database.md`, `packages.md`, `architecture.md`    |
+| `packages/api/src/lib/storage/desktop-native.ts`                   | `desktop-host.md`, `packages.md`, `architecture.md`    |
+| `packages/plugins/plugin-ai` source or manifest                    | `ai-plugin.md`, `packages.md`, `architecture.md`       |
+| Focused AI Storybook stories                                       | `ai-plugin.md`, `storybook-catalog.md`                 |
 | `packages/web`                                                     | `web-host.md`, `packages.md`, `architecture.md`        |
 | `packages/plugins/plugin-search` package                            | `search-plugin.md`, `packages.md`, `architecture.md`   |
 | Native Markdown runtime source or language-service manifest         | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md` |

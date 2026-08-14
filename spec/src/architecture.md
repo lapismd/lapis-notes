@@ -193,6 +193,9 @@ compatibility view sections ahead of generic split, move, and close actions.
 The editor demo's Markdown and JSON language packages are root-only Storybook
 development dependencies. The API continues to expose the generic editor
 extension registry and source view, not a bundled language policy.
+`@lapis-notes/ai` is an authorized bundled plugin. The desktop native bridge
+advertises an `agent-runtime` capability for process-backed ACP and Codex
+sessions while the reserved `model` capability stays unavailable.
 
 ## Tooling policy
 

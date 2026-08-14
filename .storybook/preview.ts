@@ -6,6 +6,7 @@ import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-l
 import "@lapismd/design-core/storybook.css";
 import "@lapismd/design-core/themes/lapis.css";
 import "@lapis-notes/bases/styles.css";
+import "@lapis-notes/ai/styles.css";
 import "@lapis-notes/ui/theme.css";
 
 const preview: Preview = {

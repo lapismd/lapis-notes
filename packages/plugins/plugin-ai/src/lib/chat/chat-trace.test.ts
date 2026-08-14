@@ -1,0 +1,37 @@
+import { describe, expect, it } from "vitest";
+import { DEFAULT_APPROVAL_OPTIONS } from "../core/types";
+import { applyAgentEventToChatItems, markApprovalResponse } from "./chat-trace";
+
+describe("chat trace", () => {
+  it("appends text, tools, and approval items", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "text",
+      text: "Hello",
+    });
+    items = applyAgentEventToChatItems(items, { type: "text", text: " world" });
+    items = applyAgentEventToChatItems(items, {
+      type: "tool.start",
+      id: "t1",
+      name: "read",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "permission.request",
+      request: {
+        id: "p1",
+        kind: "execute",
+        title: "Allow?",
+        options: DEFAULT_APPROVAL_OPTIONS,
+      },
+    });
+    expect(items[0]).toMatchObject({
+      type: "message",
+      role: "assistant",
+      text: "Hello world",
+    });
+    expect(items[1]).toMatchObject({ type: "tool", toolId: "t1" });
+    expect(markApprovalResponse(items, "p1", "deny-once")[2]).toMatchObject({
+      type: "approval",
+      status: "rejected",
+    });
+  });
+});

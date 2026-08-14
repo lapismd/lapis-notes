@@ -1,0 +1,107 @@
+import { describe, expect, it } from "vitest";
+import {
+  mapAcpPermissionRequest,
+  mapAcpRuntimeEvent,
+  mapApprovalOptionToAcpDecision,
+} from "./acp-event-mapper";
+
+describe("ACP event mapper", () => {
+  it("maps text, thinking, tools, completion, and errors", () => {
+    expect(mapAcpRuntimeEvent({ type: "text_delta", text: "hi" })).toEqual({
+      type: "text",
+      text: "hi",
+    });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "text_delta",
+        text: "think",
+        stream: "thought",
+      }),
+    ).toEqual({ type: "thinking", text: "think", kind: "reasoning" });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "tool_call",
+        toolCallId: "t1",
+        title: "read",
+        rawInput: { path: "a" },
+      }),
+    ).toEqual({
+      type: "tool.start",
+      id: "t1",
+      name: "read",
+      input: { path: "a" },
+    });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "tool_call",
+        toolCallId: "t1",
+        title: "read",
+        status: "completed",
+        rawOutput: "ok",
+      }),
+    ).toEqual({
+      type: "tool.end",
+      id: "t1",
+      name: "read",
+      output: "ok",
+      error: undefined,
+    });
+    expect(mapAcpRuntimeEvent({ type: "done", stopReason: "end" })).toEqual({
+      type: "completed",
+      result: { stopReason: "end" },
+    });
+    expect(mapAcpRuntimeEvent({ type: "error", message: "nope" })).toEqual({
+      type: "error",
+      error: expect.objectContaining({ message: "nope" }),
+    });
+  });
+
+  it("maps onPermissionRequest payloads to ApprovalRequest", () => {
+    const request = mapAcpPermissionRequest({
+      requestId: "p1",
+      kind: "execute",
+      title: "Allow npm install?",
+      toolName: "bash",
+      input: { command: "npm install" },
+      options: [{ optionId: "allow-once", kind: "allow_once", name: "Allow" }],
+    });
+    expect(request).toMatchObject({
+      id: "p1",
+      kind: "execute",
+      title: "Allow npm install?",
+      tool: { name: "bash", input: { command: "npm install" } },
+    });
+    expect(request.options[0]).toMatchObject({
+      id: "allow-once",
+      kind: "allow-once",
+    });
+    expect(mapApprovalOptionToAcpDecision("allow-always")).toEqual({
+      outcome: "allow_always",
+    });
+    expect(mapApprovalOptionToAcpDecision("deny-once")).toEqual({
+      outcome: "reject_once",
+    });
+  });
+
+  it("unwraps acpx onPermissionRequest payloads", () => {
+    const request = mapAcpPermissionRequest({
+      sessionId: "s1",
+      inferredKind: "execute",
+      raw: {
+        toolCall: {
+          toolCallId: "tc-1",
+          title: "npm install",
+          kind: "execute",
+          rawInput: { command: "npm install" },
+        },
+        options: [{ optionId: "allow-once", kind: "allow_once", name: "Allow" }],
+      },
+    });
+    expect(request).toMatchObject({
+      id: "tc-1",
+      kind: "execute",
+      title: "npm install",
+      tool: { name: "npm install", input: { command: "npm install" } },
+    });
+  });
+});

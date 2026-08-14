@@ -23,6 +23,7 @@ This repository currently contains:
 - `@lapis-notes/desktop-electron` — partial native-folder Electron host
 - `@lapis-notes/web` — local-first browser/PWA consumer host
 - `@lapis-notes/bases` — bundled metadata-query views and Markdown embeds
+- `@lapis-notes/ai` — bundled provider-agnostic agent runtime and chat panel
 - `@lapis-notes/lapis-plugin-cv-roles` — vault-native role workflows plus retained CV views
 - Storybook host and specification governance
 

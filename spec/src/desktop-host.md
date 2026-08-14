@@ -16,7 +16,7 @@ are intentionally omitted.
 | LN-DESK-005 | Startup MUST reopen a valid current `desktop-folder` profile from Electron main storage. If it is unavailable, startup MUST clear only the current-profile pointer, retain the saved record, and return to the branded launcher. |
 | LN-DESK-006 | Cancelling a native folder picker MUST leave the branded launcher recoverable. Selecting a folder MUST create an `electron-desktop` session, open its app database, load the vault, restore `.obsidian/workspace.json`, and render the desktop shell. |
 | LN-DESK-007 | The partial host MUST NOT seed files, load community plugins, or import the Storybook-only source-editor fixture. Missing layouts MUST use the API default empty workspace. |
-| LN-DESK-008 | The bridge MUST advertise resource, database, search, language-service, plugin-sidecar, plugin-assets, file-watch, notifications, and file-system-actions capabilities as available. Notebook and model capabilities MUST remain unavailable. |
+| LN-DESK-008 | The bridge MUST advertise resource, database, search, language-service, plugin-sidecar, plugin-assets, file-watch, notifications, file-system-actions, and agent-runtime capabilities as available. Notebook and model capabilities MUST remain unavailable. |
 | LN-DESK-009 | Native IPC MUST validate sender ownership, payload bounds, and vault-root containment. Resource and plugin protocols MUST reject traversal, unregistered contexts, unsupported asset types, and metadata hash or size mismatches. |
 | LN-DESK-010 | The native language-service sidecar MUST expose the current Markdown protocol only: capability probing, document updates, diagnostics, and code actions. It MUST enforce bounded payloads, timeouts, restart, and shutdown behavior. |
 | LN-DESK-011 | The community-plugin sidecar MUST retain prepare, evaluate, activate, deactivate, and shutdown lifecycles with the current brokered capabilities. Hosted CommonJS imports MUST be limited to `lapis` and `@lapis-notes/api`. |
@@ -40,6 +40,7 @@ are intentionally omitted.
 | LN-DESK-029 | The desktop host MUST register and load `@lapis-notes/search` before metadata and layout restoration. A vault without persisted layout MUST include Search in its default left tabs. Persisted Search leaves MUST use the session's native app database without a renderer-only search backend. |
 | LN-DESK-030 | The desktop host MUST register and load `@lapis-notes/lapis-plugin-cv-roles` as an optional core plugin enabled by default before metadata and layout restoration so persisted `role`, `roles`, and `cv` leaves restore with the plugin-owned legacy page presentation available. |
 | LN-DESK-031 | The desktop host MUST register and load `@lapis-notes/bases` after Search and before external Roles, metadata, and layout restoration. It MUST use package-exported styles, restore persisted Bases placeholders after re-enabling, and MUST NOT create a default Bases leaf. |
+| LN-DESK-032 | The desktop host MUST register and load `@lapis-notes/ai` after Bases and before external Roles, metadata, and layout restoration. It MUST advertise `agent-runtime` for process-backed ACP and Codex sessions and MUST NOT create a default AI leaf. |
 
 ## Boot flow
 

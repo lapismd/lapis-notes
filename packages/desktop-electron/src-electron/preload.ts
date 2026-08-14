@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type {
   ChangeEvent,
+  NativeAgentProcessMessage,
+  NativeAgentRuntimeEvent,
   NativeDesktopCapabilityRegistry,
   NativeDesktopBridge,
   NativeDesktopNotificationPayload,
@@ -40,6 +42,22 @@ ipcRenderer.on(
 );
 
 const appUrlListeners = new Set<(url: string) => void>();
+const agentProcessListeners = new Set<(event: NativeAgentProcessMessage) => void>();
+const agentRuntimeListeners = new Set<(event: NativeAgentRuntimeEvent) => void>();
+
+ipcRenderer.on(
+  "desktop_agent_process_message",
+  (_event, payload: NativeAgentProcessMessage) => {
+    for (const listener of agentProcessListeners) listener(payload);
+  },
+);
+
+ipcRenderer.on(
+  "desktop_agent_runtime_event",
+  (_event, payload: NativeAgentRuntimeEvent) => {
+    for (const listener of agentRuntimeListeners) listener(payload);
+  },
+);
 
 ipcRenderer.on("desktop_menu_open_vault_picker", () => {
   for (const listener of openVaultPickerListeners) {
@@ -200,6 +218,24 @@ const bridge: NativeDesktopBridge & {
     void flushPendingAppUrls();
     return () => {
       appUrlListeners.delete(listener);
+    };
+  },
+
+  onAgentProcessMessage(
+    listener: (event: NativeAgentProcessMessage) => void,
+  ): () => void {
+    agentProcessListeners.add(listener);
+    return () => {
+      agentProcessListeners.delete(listener);
+    };
+  },
+
+  onAgentRuntimeEvent(
+    listener: (event: NativeAgentRuntimeEvent) => void,
+  ): () => void {
+    agentRuntimeListeners.add(listener);
+    return () => {
+      agentRuntimeListeners.delete(listener);
     };
   },
 };

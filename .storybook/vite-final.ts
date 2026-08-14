@@ -19,6 +19,7 @@ const basesLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-bases/src/lib",
 );
+const aiLib = path.resolve(rootDir, "../packages/plugins/plugin-ai/src/lib");
 const markdownLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src/lib",
@@ -157,6 +158,14 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         {
           find: /^@lapis-notes\/bases$/,
           replacement: path.join(basesLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/ai\/styles\.css$/,
+          replacement: path.join(aiLib, "styles.css"),
+        },
+        {
+          find: /^@lapis-notes\/ai$/,
+          replacement: path.join(aiLib, "index.ts"),
         },
         {
           find: /^@lapis-notes\/markdown$/,

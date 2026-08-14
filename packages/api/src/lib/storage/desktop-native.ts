@@ -63,7 +63,22 @@ export type NativeDesktopCapabilityId =
   | "plugin-assets"
   | "file-watch"
   | "notifications"
-  | "file-system-actions";
+  | "file-system-actions"
+  | "agent-runtime";
+
+export type NativeAgentProcessMessage = {
+  processId: string;
+  type: "stdout" | "stderr" | "exit";
+  data?: string;
+  exitCode?: number;
+};
+
+export type NativeAgentRuntimeEvent = {
+  sessionId: string;
+  type: "event" | "permission" | "closed";
+  event?: Record<string, unknown>;
+  request?: Record<string, unknown>;
+};
 
 export type NativeDesktopCapabilityStatus = "available" | "unavailable";
 
@@ -93,6 +108,12 @@ export interface NativeDesktopBridge {
   startDragging?(): Promise<void>;
   onOpenVaultPicker?(listener: () => void): () => void;
   onAppUrlOpen?(listener: (url: string) => void): () => void;
+  onAgentProcessMessage?(
+    listener: (event: NativeAgentProcessMessage) => void,
+  ): () => void;
+  onAgentRuntimeEvent?(
+    listener: (event: NativeAgentRuntimeEvent) => void,
+  ): () => void;
   watch?(
     rootPath: string,
     normalizedPath: string,

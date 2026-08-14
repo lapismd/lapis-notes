@@ -40,6 +40,14 @@ export const DESKTOP_INVOKE_COMMANDS = new Set([
   "desktop_plugin_host_prepare",
   "desktop_plugin_host_shutdown",
   "desktop_reveal_vault_folder",
+  "desktop_agent_process_spawn",
+  "desktop_agent_process_write",
+  "desktop_agent_process_kill",
+  "desktop_agent_acp_start",
+  "desktop_agent_acp_prompt",
+  "desktop_agent_acp_cancel",
+  "desktop_agent_acp_close",
+  "desktop_agent_acp_respond",
   "desktop_renderer_close_ready",
   "desktop_vault_bootstrap_kv_del",
   "desktop_vault_bootstrap_kv_get_many",
@@ -145,6 +153,16 @@ export function createDesktopCapabilityRegistry(): NativeDesktopCapabilityRegist
       status: "available",
       provider: "electron-shell",
       details: { actions: "resolve-path,open-path,reveal-path" },
+    },
+    "agent-runtime": {
+      id: "agent-runtime",
+      status: "available",
+      provider: "electron-agent-runtime",
+      details: {
+        protocol: "desktop_agent_*",
+        acp: "acpx/runtime",
+        process: "stdio",
+      },
     },
   };
 }

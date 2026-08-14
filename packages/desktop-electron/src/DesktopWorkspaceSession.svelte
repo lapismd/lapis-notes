@@ -6,6 +6,8 @@
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
+  import { AiPlugin } from "@lapis-notes/ai";
+  import "@lapis-notes/ai/styles.css";
   import { BasesPlugin } from "@lapis-notes/bases";
   import "@lapis-notes/bases/styles.css";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
@@ -120,6 +122,12 @@
         { plugin: SearchPlugin, required: false, enabledByDefault: true },
         {
           plugin: BasesPlugin,
+          required: false,
+          enabledByDefault: true,
+          distribution: "bundled",
+        },
+        {
+          plugin: AiPlugin,
           required: false,
           enabledByDefault: true,
           distribution: "bundled",

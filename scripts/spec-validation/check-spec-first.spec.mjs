@@ -84,6 +84,16 @@ test("database and web changes require their canonical host chapters", () => {
     "spec/src/packages.md",
   ]);
 
+  const desktopNative = classifySpecFirstChanges([
+    "packages/api/src/lib/storage/desktop-native.ts",
+  ]);
+  assert.deepEqual(desktopNative.missingChapters, [
+    "spec/src/architecture.md",
+    "spec/src/desktop-host.md",
+    "spec/src/packages.md",
+  ]);
+  assert.ok(!desktopNative.missingChapters.includes("spec/src/app-database.md"));
+
   const web = classifySpecFirstChanges(["packages/web/src/main.ts"]);
   assert.deepEqual(web.missingChapters, [
     "spec/src/architecture.md",
@@ -122,6 +132,25 @@ test("Roles consumer stories require host and catalog contracts", () => {
       "spec/src/storybook-catalog.md",
     ]);
   }
+});
+
+test("AI implementation and stories require their canonical contracts", () => {
+  const packageChange = classifySpecFirstChanges([
+    "packages/plugins/plugin-ai/src/lib/ai-plugin.ts",
+  ]);
+  assert.deepEqual(packageChange.missingChapters, [
+    "spec/src/ai-plugin.md",
+    "spec/src/architecture.md",
+    "spec/src/packages.md",
+  ]);
+
+  const storyChange = classifySpecFirstChanges([
+    "stories/plugins/ai/AiChat.stories.ts",
+  ]);
+  assert.deepEqual(storyChange.missingChapters, [
+    "spec/src/ai-plugin.md",
+    "spec/src/storybook-catalog.md",
+  ]);
 });
 
 test("Bases implementation and stories require their canonical contracts", () => {

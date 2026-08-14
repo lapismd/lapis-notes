@@ -28,10 +28,12 @@
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
     "@tursodatabase/database": "0.7.2",
+    "acpx": "^0.8.0",
     "chokidar": "^4.0.3"
   },
   "devDependencies": {
     "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/ai": "workspace:*",
     "@lapis-notes/bases": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/language-service": "workspace:*",
