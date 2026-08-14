@@ -4,6 +4,8 @@ import {
   Plugin,
   type PluginManifest,
 } from "@lapis-notes/api";
+import { markupEditor } from "@lapis-notes/api/editor/core";
+import { yaml } from "@codemirror/lang-yaml";
 import { mount, unmount } from "svelte";
 import BasesComponent from "./bases-view/view.svelte";
 import {
@@ -21,9 +23,11 @@ const BASES_MANIFEST: PluginManifest = {
   id: "bases",
   name: "Bases",
   version: "0.0.1",
-  minAppVersion: "0.0.1",
-  description: "Create queryable table, card, and list views over vault metadata.",
-  author: "Lapis Notes",
+  minAppVersion: "1.7.7",
+  description: "Bases",
+  author: "Lapis Notes Bases",
+  authorUrl: "https://app.lapis.md",
+  isDesktopOnly: false,
 };
 
 export class BasesPlugin extends Plugin {
@@ -40,6 +44,10 @@ export class BasesPlugin extends Plugin {
       priority: "default",
     });
     this.registerExtensions(["bases", "base"], BasesViewType);
+    this.registerEditorExtension(
+      () => [markupEditor({ language: "yaml" }), yaml()],
+      BasesViewType,
+    );
     this.registerReadOnlyEmbedRenderer("base");
     this.registerReadOnlyEmbedRenderer("bases");
     this.registerReadOnlyCodeBlockRenderer("base");

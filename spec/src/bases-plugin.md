@@ -16,6 +16,9 @@
 | LN-BASE-010 | Production presentation MUST compose public Design Core primitives with Bases-owned semantic classes, `data-ui-component` or `data-ui-part` markers, native CSS, and `--ui-bases-*` tokens. Runtime code MUST receive `App` explicitly and MUST NOT read a global application singleton. |
 | LN-BASE-011 | Governed Storybook coverage MUST exercise public table, cards, grouped-list, map-unavailable, unknown-view, workflow, schema/settings, editable-cell, a real editor shell with File Explorer and visible indexed Search, real file-view, Markdown-embed, and disable/restore scenarios. Every scenario MUST include interaction assertions and remain `visual-pending` until human review. |
 | LN-BASE-012 | The port MUST document real-map, Obsidian wrapper/formula, `this` binding, richer file/link, grouped-summary, duplicated runtime-model, stub-formula, and name-only parity gaps. It MUST NOT add Tasks-owned views or claim full Obsidian behavior. |
+| LN-BASE-013 | Table, cards, and list presentation MUST retain the legacy geometry and control density at the Bases boundary while using current Design Core theme tokens and accessible contrast. Table row-height choices, header controls, toolbar spacing, borders, and shadows MUST have focused regression evidence against the clean legacy reference. |
+| LN-BASE-014 | The bundled plugin MUST register the complete legacy surface: the `bases` view, `.base` and `.bases` editor association, extension aliases, read-only embeds and fenced blocks, preview/source toolbar actions, and Table, Unknown, Cards, List, and Map view items. It MUST NOT invent palette, ribbon, status, or settings commands absent from the legacy plugin. |
+| LN-BASE-015 | Bases source mode MUST register and apply a CodeMirror YAML language pack through the `bases` editor view. The source editor host MUST expose `data-language="yaml"`, highlight YAML syntax for both `.base` and `.bases`, and restore the same extensions after mode changes without changing the file-view association. |
 
 ## Public surface
 
@@ -44,6 +47,10 @@ not displayed in the card field order.
 List owns collapsible groups. Map and unknown surfaces are explicit bounded
 fallbacks. Header and settings compounds own query controls, schema visibility,
 formulas, summaries, limits, view management, new-file, and CSV workflows.
+The Bases stylesheet keeps legacy density local to these surfaces; current
+Design Core remains the authority for theme colors and typography. Source mode
+uses a Bases-owned YAML editor registration rather than treating `yaml` as a
+file view or relying on an unregistered extension alias.
 
 ## Intentional parity gaps
 

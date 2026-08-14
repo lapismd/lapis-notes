@@ -23,6 +23,10 @@ import { ListView } from "./list-view";
 import { MapView } from "./map-view";
 import { normalizeBasesDocument } from "./document-core";
 import { SerializedWriteQueue } from "../serialized-write-queue";
+import {
+  BUILT_IN_BASES_VIEW_ITEMS,
+  type BuiltInBasesViewId,
+} from "./view-registration-inventory";
 
 export * from "./models";
 
@@ -81,38 +85,40 @@ export const dumpDocument = serializeBasesDocument;
 export function registerBuiltInBasesViews(
   views: Map<string, BasesViewRegistration>,
 ): void {
-  views.set("table", {
-    name: "Table",
-    icon: "lucide-table",
-    factory: (controller, containerEl) =>
-      new TableView(controller, containerEl),
-    options: TableView.getViewOptions,
-  });
-  views.set("unknown", {
-    name: "Unknown",
-    icon: "lucide-file",
-    factory: (controller, containerEl) =>
-      new UnknownView(controller, containerEl),
-    options: UnknownView.getViewOptions,
-  });
-  views.set("cards", {
-    name: "Cards",
-    icon: "lucide-layout-grid",
-    factory: (controller, containerEl) => new CardView(controller, containerEl),
-    options: CardView.getViewOptions,
-  });
-  views.set("list", {
-    name: "List",
-    icon: "lucide-list",
-    factory: (controller, containerEl) => new ListView(controller, containerEl),
-    options: ListView.getViewOptions,
-  });
-  views.set("map", {
-    name: "Map",
-    icon: "lucide-map",
-    factory: (controller, containerEl) => new MapView(controller, containerEl),
-    options: MapView.getViewOptions,
-  });
+  const implementations: Record<
+    BuiltInBasesViewId,
+    Pick<BasesViewRegistration, "factory" | "options">
+  > = {
+    table: {
+      factory: (controller, containerEl) =>
+        new TableView(controller, containerEl),
+      options: TableView.getViewOptions,
+    },
+    unknown: {
+      factory: (controller, containerEl) =>
+        new UnknownView(controller, containerEl),
+      options: UnknownView.getViewOptions,
+    },
+    cards: {
+      factory: (controller, containerEl) =>
+        new CardView(controller, containerEl),
+      options: CardView.getViewOptions,
+    },
+    list: {
+      factory: (controller, containerEl) =>
+        new ListView(controller, containerEl),
+      options: ListView.getViewOptions,
+    },
+    map: {
+      factory: (controller, containerEl) =>
+        new MapView(controller, containerEl),
+      options: MapView.getViewOptions,
+    },
+  };
+
+  for (const item of BUILT_IN_BASES_VIEW_ITEMS) {
+    views.set(item.id, { ...item, ...implementations[item.id] });
+  }
 }
 
 export function createBasesViewRegistrations(
@@ -276,7 +282,12 @@ export class BasesView extends MarkdownView {
         });
       } else {
         this.containerEl.removeClass("mod-loader");
-        this.editor.updateExtensions(this.app.editorExtensions("yaml"));
+        this.editor.updateExtensions(
+          this.app.editorExtensions(BasesViewType, {
+            file: this.file?.path,
+            mode: "source",
+          }),
+        );
         this.addAction(
           "book-open",
           `${t("Current view: editing")}\n${t("Click to read")}\n${t("⌘+Click to open to the right")}`,

@@ -95,6 +95,27 @@ export const ExplorerSearchAndBase: Story = {
     });
     expect(app.workspace.activeLeaf).toBe(basesLeaf);
 
+    await basesLeaf?.view.setState({
+      ...basesLeaf.view.getState(),
+      mode: "source",
+    });
+    await waitFor(
+      () => {
+        const yamlEditor = canvasElement.querySelector<HTMLElement>(
+          '.cm-editor[data-language="yaml"]',
+        );
+        expect(yamlEditor).toBeVisible();
+        expect(
+          yamlEditor?.querySelector(".cm-definition, .cm-string"),
+        ).toBeTruthy();
+      },
+      { timeout: 8_000 },
+    );
+    await basesLeaf?.view.setState({
+      ...basesLeaf.view.getState(),
+      mode: "preview",
+    });
+
     const explorer = canvasElement.querySelector<HTMLElement>(
       '[data-ui-component="workspace-explorer"]',
     );

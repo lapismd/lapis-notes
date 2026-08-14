@@ -59,6 +59,13 @@ vi.mock("@lapis-notes/api", async () => {
       );
     }
 
+    registerEditorExtension(extension: unknown, viewType: string): void {
+      this.app.registerEditorExtension?.(extension, viewType);
+      this.register(() =>
+        this.app.unregisterEditorExtension?.(extension, viewType),
+      );
+    }
+
     registerMarkdownCodeBlockProcessor(
       language: string,
       handler: unknown,
@@ -76,6 +83,14 @@ vi.mock("@lapis-notes/api", async () => {
     Plugin: MockPlugin,
   };
 });
+
+vi.mock("@lapis-notes/api/editor/core", () => ({
+  markupEditor: vi.fn(() => Symbol("yaml-editor")),
+}));
+
+vi.mock("@codemirror/lang-yaml", () => ({
+  yaml: vi.fn(() => Symbol("yaml-language")),
+}));
 
 vi.mock("./bases-view", () => ({
   BasesView: class {},
@@ -116,6 +131,8 @@ function createMockApp() {
     registerEditorView: vi.fn(),
     registerExtensions: vi.fn(),
     unregisterExtensions: vi.fn(),
+    registerEditorExtension: vi.fn(),
+    unregisterEditorExtension: vi.fn(),
     registerMarkdownCodeBlockProcessor: vi.fn(
       (language: string, handler: unknown) => {
         markdownProcessors[language] ||= [];
@@ -136,18 +153,37 @@ function createMockApp() {
 }
 
 describe("BasesPlugin", () => {
-  it("registers bases embeds and fenced code block processors", async () => {
+  it("registers the complete legacy surface plus YAML source editing", async () => {
     const app = createMockApp();
     const plugin = new BasesPlugin(app);
 
     await plugin.onload();
 
+    expect(plugin.manifest).toMatchObject({
+      id: "bases",
+      name: "Bases",
+      minAppVersion: "1.7.7",
+      description: "Bases",
+      author: "Lapis Notes Bases",
+      authorUrl: "https://app.lapis.md",
+      isDesktopOnly: false,
+    });
     expect(app.registerView).toHaveBeenCalledWith(
       "bases",
       expect.any(Function),
     );
+    expect(app.registerEditorView).toHaveBeenCalledWith({
+      id: "bases",
+      label: "Bases",
+      filenamePatterns: ["*.bases", "*.base"],
+      priority: "default",
+    });
     expect(app.registerExtensions).toHaveBeenCalledWith(
       ["bases", "base"],
+      "bases",
+    );
+    expect(app.registerEditorExtension).toHaveBeenCalledWith(
+      expect.any(Function),
       "bases",
     );
     expect(app.embedRegistry.get("base")).toBeTypeOf("function");
@@ -167,6 +203,10 @@ describe("BasesPlugin", () => {
     expect(app.embedRegistry.get("bases")).toBeNull();
     expect(app.markdownProcessors.base ?? []).toHaveLength(0);
     expect(app.markdownProcessors.bases ?? []).toHaveLength(0);
+    expect(app.unregisterEditorExtension).toHaveBeenCalledWith(
+      expect.any(Function),
+      "bases",
+    );
   });
 
   it("renders invalid fenced Bases YAML as a read-only error", async () => {

@@ -746,7 +746,7 @@
       class="bases-table-container relative bases-style-min-w-full-a1e7a8 bases-style-pb-100px-03c580"
       style={styleObjectToString({
         ...columnSizeVars,
-        "--ui-bases-table-row-height": rowHeight,
+        "--ui-bases-table-row-height": `${rowHeight}px`,
         width: tableWidth,
         height: virtualTotalSize + 2 * rowHeight,
       })}

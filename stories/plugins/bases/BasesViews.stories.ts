@@ -124,6 +124,20 @@ export const Table: Story = {
       expect(canvas.getByText("Aurora.md")).toBeVisible();
       expect(canvas.getByDisplayValue("Maya Chen")).toBeVisible();
       expect(canvas.getByDisplayValue("94")).toBeVisible();
+      const row = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="bases-table-view"] [data-ui-part="row"]',
+      );
+      expect(row).toHaveStyle({ height: "30px" });
+      const searchButton = canvas.getByRole("button", { name: "Search" });
+      expect(getComputedStyle(searchButton).gap).toBe("6px");
+      expect(getComputedStyle(searchButton).boxShadow).toBe("none");
+      const sortProject = canvas.getByRole("button", {
+        name: "Sort Project",
+      });
+      expect(getComputedStyle(sortProject).height).toBe("16px");
+      expect(
+        getComputedStyle(sortProject.querySelector("svg")!).width,
+      ).toBe("16px");
     });
   },
 };

@@ -65,6 +65,23 @@
   color: var(--ui-bases-accent);
 }
 
+/* Preserve the legacy Bases control density while allowing Design Core to own
+ * the underlying component implementation and theme colors. */
+.bases-view__toolbar [data-ui-component="button"][data-size="sm"] {
+  gap: 0.375rem;
+  padding-inline: 0.75rem;
+}
+
+.bases-view__toolbar
+  [data-ui-component="button"][data-size="sm"]:has(svg) {
+  padding-inline: 0.625rem;
+}
+
+.bases-view__toolbar
+  [data-ui-component="button"][data-variant="outline"] {
+  box-shadow: none;
+}
+
 .bases-view__search-icon,
 .bases-view__search-summary,
 .bases-view__empty,
@@ -157,6 +174,24 @@
   z-index: var(--layer-cover);
   height: fit-content;
   min-height: var(--ui-bases-table-row-height);
+}
+
+.bases-table__header-cell [data-ui-component="button"] {
+  border-width: 0;
+  box-shadow: none;
+}
+
+.bases-table__header-cell
+  [data-ui-component="button"][data-size="xs"] {
+  width: 1rem;
+  height: 1rem;
+}
+
+.bases-table__header-cell
+  [data-ui-component="button"][data-size="xs"]
+  svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .bases-card-grid {
