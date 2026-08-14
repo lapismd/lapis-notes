@@ -19,6 +19,17 @@ import { SQLDialect } from "@codemirror/lang-sql";
 import type { QueryController } from "./bases.svelte";
 import { deriveFileMetadata } from "./file-fields-core";
 
+function defineStructureName<T extends typeof Structure>(
+  structure: T,
+  name: string,
+): T {
+  Object.defineProperty(structure, "name", {
+    configurable: true,
+    value: name,
+  });
+  return structure;
+}
+
 export class TFileExt extends TFile {
   readonly tags: string[] = [];
   readonly links: string[] = [];
@@ -29,7 +40,6 @@ export class TFileExt extends TFile {
 }
 
 export class VaultFile extends Structure {
-  public static name = "TFile";
   public static columns = typedTupleToColumns(
     {
       name: String,
@@ -83,6 +93,8 @@ export class VaultFile extends Structure {
     ],
   );
 }
+
+defineStructureName(VaultFile, "TFile");
 
 export class BasesTable extends Table {
   public context!: Context;
@@ -150,11 +162,13 @@ export class BasesTable extends Table {
       map.set(name, column);
       this.columns.set(name, column);
     }
-    const PropStructure = class extends Structure {
-      public static name = "note";
-      public static type: "default" | "join" = "default";
-      public static columns = map;
-    };
+    const PropStructure = defineStructureName(
+      class extends Structure {
+        public static type: "default" | "join" = "default";
+        public static columns = map;
+      },
+      "note",
+    );
     this.columns.set(
       "note",
       new AttributeGetter("note", PropStructure, (context: VaultRecord) => {

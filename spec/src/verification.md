@@ -504,8 +504,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-008 | web-host | Implemented | takeover acceptance plus metadata, workspace, plugin, worker, channel, lock, and request disposal |
 | LN-WEB-009 | web-host | Implemented | prompt-based Workbox update and hash-verified cache-only plugin assets pass browser/unit coverage |
 | LN-WEB-010 | web-host | Implemented | root web scripts and three-scenario Playwright acceptance lane |
-| LN-ARCH-042 | architecture | In progress | package and host dependency boundaries pass without consumer copies; governed Storybook surface coverage remains |
-| LN-PKG-054 | packages | Implemented | Bases check and no-Tailwind audits, 14-file / 142-test legacy baseline, 17-file / 148-test current suite, build, publint, export, and dependency audits |
+| LN-ARCH-042 | architecture | In progress | package and host dependency boundaries plus source-linked public-entry import pass; governed Storybook surface coverage remains |
+| LN-PKG-054 | packages | Implemented | Bases check and no-Tailwind audits, public source-entry import smoke, browser-linked Storybook import, build, publint, export, and dependency audits |
 | LN-PKG-055 | packages | Implemented | API declarations and standalone Roles checks consume the public provider contract without Search imports |
 | LN-PKG-056 | packages | Implemented | public Workspace metadata, package build, publint, tarball audit, and external Roles versioned local link |
 | LN-PKG-057 | packages | Implemented | API status registry and workspace-host tests cover visible item projection and compatibility ribbon actions |
@@ -533,7 +533,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-006 | bases-plugin | In progress | query-controls and schema/view-settings stories plus CSV and new-file unit coverage |
 | LN-BASE-007 | bases-plugin | In progress | editable-cell story verifies typed frontmatter writes, immutable fields, and navigation |
 | LN-BASE-008 | bases-plugin | In progress | read-only registrations, invalid fenced-YAML, teardown cleanup, and early/late image URL revocation pass; real-App embed stories remain |
-| LN-BASE-009 | bases-plugin | In progress | publint, declarations, package entry/style export tests pass; public-surface Autodocs remains |
+| LN-BASE-009 | bases-plugin | In progress | source-linked runtime import, publint, declarations, and package entry/style export tests pass; public-surface Autodocs remains |
 | LN-BASE-010 | bases-plugin | In progress | no-Tailwind, no-global-App, Design Core import, semantic marker, native CSS, and token source audits pass; composition stories remain |
 | LN-BASE-011 | bases-plugin | In progress | focused and real-App story plays, accessibility, static build, and pending visual comparisons |
 | LN-BASE-012 | bases-plugin | Implemented | canonical parity-gap section and root migration checklist exclude Tasks and full-parity claims |

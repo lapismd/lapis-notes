@@ -1,8 +1,26 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 describe("@lapis-notes/bases public exports", () => {
+  it("imports the real public source entrypoint", async () => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    const publicApi = await import("./index");
+
+    expect(publicApi.BasesPlugin).toBeTypeOf("function");
+    expect(publicApi.BasesViewSurface).toBeTruthy();
+    expect(publicApi.BasesViewType).toBe("bases");
+    expect(publicApi.parseBasesDocument).toBeTypeOf("function");
+    expect(publicApi.serializeBasesDocument).toBeTypeOf("function");
+  }, 60_000);
+
   it("publishes the plugin entrypoint and explicit stylesheet", () => {
     const manifest = JSON.parse(
       readFileSync(path.resolve(process.cwd(), "package.json"), "utf8"),
