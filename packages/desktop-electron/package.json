@@ -36,7 +36,7 @@
     "@lapis-notes/language-service": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
     "@lapis-notes/markdown-lint": "workspace:*",
-    "@lapis-notes/cv": "workspace:*",
+    "@lapis-notes/roles": "workspace:*",
     "@lapis-notes/search": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",

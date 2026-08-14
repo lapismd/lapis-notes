@@ -23,8 +23,14 @@ const markdownSrc = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src",
 );
-const cvLib = path.resolve(rootDir, "../packages/plugins/plugin-cv/src/lib");
-const cvSrc = path.resolve(rootDir, "../packages/plugins/plugin-cv/src");
+const rolesLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-roles/src/lib",
+);
+const rolesSrc = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-roles/src",
+);
 
 const uiComponents = path.join(uiLib, "components/ui");
 const linkedSiblingPackages = [
@@ -81,9 +87,9 @@ function packageLibAlias(): Plugin {
           : cleanImporter.startsWith(markdownLib) ||
               cleanImporter.startsWith(markdownSrc)
             ? markdownLib
-            : cleanImporter.startsWith(cvLib) ||
-                cleanImporter.startsWith(cvSrc)
-              ? cvLib
+            : cleanImporter.startsWith(rolesLib) ||
+                cleanImporter.startsWith(rolesSrc)
+              ? rolesLib
               : uiLib;
       return this.resolve(path.join(owner, suffix), importer, {
         skipSelf: true,
@@ -109,6 +115,10 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
     resolve: {
       dedupe: [...linkedSingletonPackages, "svelte"],
       alias: [
+        {
+          find: /^@tursodatabase\/database-wasm\/bundle$/,
+          replacement: path.join(rootDir, "turso-wasm-stub.ts"),
+        },
         {
           find: /^@lapis-notes\/api\/language-service\/worker$/,
           replacement: path.join(apiLib, "language-service/worker-provider.ts"),
@@ -149,10 +159,10 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
           replacement: path.join(markdownLib, "index.ts"),
         },
         {
-          find: /^@lapis-notes\/cv$/,
+          find: /^@lapis-notes\/roles$/,
           replacement: path.join(
             repoRoot,
-            "packages/plugins/plugin-cv/src/lib/index.ts",
+            "packages/plugins/plugin-roles/src/lib/index.ts",
           ),
         },
         {
@@ -198,6 +208,7 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         "react",
         "react-dom",
         "react-dom/client",
+        "character-entities",
         "@dnd-kit/svelte",
         "@dnd-kit/dom",
         "@myriaddreamin/typst.ts",

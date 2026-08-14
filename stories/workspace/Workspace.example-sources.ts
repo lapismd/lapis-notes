@@ -31,5 +31,8 @@ export function workspaceExampleSource(catalogId: string): string {
   if (catalogId === "workspace-plugins-cv-file-view") {
     return lapisEditorSource;
   }
+  if (catalogId === "workspace-plugins-roles-applications") {
+    return lapisEditorSource;
+  }
   throw new Error(`Missing workspace example source for ${catalogId}`);
 }

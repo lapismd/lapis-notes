@@ -393,9 +393,16 @@ export const workspaceCatalog = [
   {
     id: "workspace-plugins-cv-file-view",
     title: "CV FileView",
-    spec: "spec/src/cv-plugin.md",
-    publicSurface: "@lapis-notes/cv",
+    spec: "spec/src/roles-plugin.md",
+    publicSurface: "@lapis-notes/roles",
     storyId: "workspace-plugins-cv--file-view",
+  },
+  {
+    id: "workspace-plugins-roles-applications",
+    title: "Roles Applications",
+    spec: "spec/src/roles-plugin.md",
+    publicSurface: "@lapis-notes/roles",
+    storyId: "workspace-plugins-roles--applications",
   },
   ...markdownPanelCatalog,
 ];

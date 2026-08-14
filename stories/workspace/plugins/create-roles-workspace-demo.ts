@@ -3,25 +3,42 @@ import {
   MemoryAppDatabase,
   MemoryVaultAdapter,
 } from "@lapis-notes/api";
-import { RolesPlugin } from "@lapis-notes/roles";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
 import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+import { RolesPlugin } from "@lapis-notes/roles";
 import sampleCvYaml from "../../../packages/plugins/plugin-roles/src/lib/form/sample-cv.fixture.yml?raw";
 import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../watch-metadata";
 
-const APP_CONFIGURATION = {
-  "editor.display.showLineNumbers": true,
-  "editor.defaultViewForNewTabs": "editing",
-};
+const ROLE_SOURCE = `---
+schemaVersion: 1
+id: atlas-platform
+company: Atlas AI
+title: Engineering Manager, Infrastructure
+status: saved
+sortOrder: 1000
+location: London · Hybrid
+tags: [leadership, platform]
+contacts: [Alex Morgan]
+pinned: false
+createdAt: 2026-08-01T09:00:00.000Z
+updatedAt: 2026-08-12T14:30:00.000Z
+appliedAt:
+followUpAt: 2026-08-14
+cvFile: CVs/engineering-lead.cv.yml
+tailoredCvFile:
+reactions: []
+prep:
+  version: 3
+  schemaVersion: 1
+  updatedAt: 2026-08-12T14:30:00.000Z
+  stages: []
+  comments:
+    items: []
+---
+# Role description
 
-const CV_WITH_EVIDENCE = `${sampleCvYaml.trimEnd()}
-evidence:
-  stories: []
-  technologies: [Svelte]
-  skills: [Delivery]
-  answer_method_defaults:
-    style: concise
+Lead the infrastructure group and scale the developer platform.
 `;
 
 function leaf(
@@ -57,8 +74,16 @@ function workspaceLayout() {
       sizes: [100],
       children: [
         tabs("main-tabs", [
-          leaf("sample-cv", "sample", "file-text", "cv", {
-            file: "sample.cv.yml",
+          leaf("roles", "Roles", "briefcase-business", "roles"),
+          leaf(
+            "atlas-role",
+            "Engineering Manager, Infrastructure",
+            "briefcase-business",
+            "role",
+            { file: "Roles/atlas-platform/role.md" },
+          ),
+          leaf("linked-cv", "engineering-lead", "file-text", "cv", {
+            file: "CVs/engineering-lead.cv.yml",
           }),
         ]),
       ],
@@ -84,33 +109,41 @@ function workspaceLayout() {
       height: "0px",
     },
     floating: [],
-    active: "sample-cv",
+    active: "roles",
   };
 }
 
-export function createCvFileViewSeed(): Record<string, string> {
+export function createRolesWorkspaceSeed(): Record<string, string> {
   return {
-    ".obsidian/app.json": JSON.stringify(APP_CONFIGURATION, null, 2),
+    ".obsidian/app.json": JSON.stringify(
+      {
+        "editor.display.showLineNumbers": true,
+        "editor.defaultViewForNewTabs": "editing",
+      },
+      null,
+      2,
+    ),
     ".obsidian/workspace.json": JSON.stringify(workspaceLayout(), null, 2),
-    "sample.cv.yml": CV_WITH_EVIDENCE,
+    "Roles/atlas-platform/role.md": ROLE_SOURCE,
+    "CVs/engineering-lead.cv.yml": sampleCvYaml,
   };
 }
 
-export async function bootCvFileViewDemo(): Promise<{
+export async function bootRolesWorkspaceDemo(): Promise<{
   app: App;
   dispose: () => Promise<void>;
 }> {
   const previousApp = globalThis.app;
-  const adapter = new MemoryVaultAdapter(createCvFileViewSeed(), {
-    name: "Lapis CV FileView",
-    vaultId: "lapis-cv-file-view",
+  const adapter = new MemoryVaultAdapter(createRolesWorkspaceSeed(), {
+    name: "Lapis Roles Workspace",
+    vaultId: "lapis-roles-workspace",
     clock: 1_700_000_000_000,
   });
   const app = new App({
     version: "0.0.1-story",
     configPath: ".obsidian/app.json",
     adapter,
-    appDatabase: new MemoryAppDatabase("lapis-cv-file-view"),
+    appDatabase: new MemoryAppDatabase("lapis-roles-workspace"),
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
