@@ -5,6 +5,7 @@ import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-l
 // Host Tailwind (vite plugin) is for story/demo layout — not component paint.
 import "@lapismd/design-core/storybook.css";
 import "@lapismd/design-core/themes/lapis.css";
+import "@lapis-notes/bases/styles.css";
 import "@lapis-notes/ui/theme.css";
 
 const preview: Preview = {

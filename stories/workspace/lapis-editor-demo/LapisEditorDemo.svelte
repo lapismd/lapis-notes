@@ -8,6 +8,8 @@
     type Editor,
     type PluginManifest,
   } from "@lapis-notes/api";
+  import { BasesPlugin } from "@lapis-notes/bases";
+  import "@lapis-notes/bases/styles.css";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import {
     WorkspaceStartup,
@@ -22,6 +24,7 @@
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { SearchPlugin } from "@lapis-notes/search";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
@@ -140,6 +143,17 @@
         plugin: MarkdownLintPlugin,
         required: false,
         enabledByDefault: true,
+      },
+      {
+        plugin: SearchPlugin,
+        required: false,
+        enabledByDefault: true,
+      },
+      {
+        plugin: BasesPlugin,
+        required: false,
+        enabledByDefault: true,
+        distribution: "bundled",
       },
       {
         plugin: RolesPlugin,

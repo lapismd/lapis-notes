@@ -122,7 +122,7 @@ legacy revision `8ec68e18`.
 - [x] Replace pruned UI imports with public Design Core primitives and Bases-owned compounds
 - [x] Replace Tailwind utility markup with semantic native CSS and `--ui-bases-*` tokens
 - [x] Inject `App` through the surface/controller hierarchy; serialize writes and flush on teardown
-- [ ] Register optional bundled Bases in Electron, web, and root Storybook before metadata/layout restoration
+- [x] Register optional bundled Bases in Electron, web, and root Storybook before metadata/layout restoration
 - [ ] Verify persisted missing-view recovery without changing plugin data or `.base` content
 - [ ] Add focused public view/workflow stories and real-App file, embed, and disable/restore stories
 - [ ] Run package, Storybook, pointer, Electron, web, visual, specification, root check/test/build acceptance

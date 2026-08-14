@@ -21,6 +21,11 @@ The web host is a browser/PWA consumer ported from
 
 ## Implemented host boundary
 
+The web session imports Bases and its exported stylesheet from the package and
+registers it after Search and before external Roles. The host audit fixes the
+load, metadata, and layout ordering while the production PWA build verifies the
+workspace dependency closure; browser behavior remains separate acceptance.
+
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
 File System Access profiles. It constructs the API session, loads Markdown,
 Markdownlint, File Explorer, Search, and Roles, and then mounts the same

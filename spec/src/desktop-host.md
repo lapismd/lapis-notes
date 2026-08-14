@@ -43,6 +43,11 @@ are intentionally omitted.
 
 ## Boot flow
 
+The renderer imports Bases and its exported stylesheet from the package, then
+registers it after Search and before external Roles. A source-order audit and
+the production renderer build verify plugin loading precedes metadata and
+layout restoration; Bases is not added to the default leaf policy.
+
 ```text
 Electron main
   -> context-isolated preload

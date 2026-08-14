@@ -112,6 +112,8 @@ with File Explorer, Search, managed settings, and persisted layout recovery.
 Bases remains Lapis-owned: its explicit App input supplies vault, database,
 metadata, navigation, and registry contracts while the package owns document
 normalization, query evaluation, rendering, editing, and resource cleanup.
+Electron, web, and the root real-App catalog consume its package exports and
+share the Search, Bases, external-Roles boot order without a consumer copy.
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from
 `@lapismd/design-core`. `@lapis-notes/ui` retains only Lapis compounds

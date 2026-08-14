@@ -908,6 +908,9 @@ importers:
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api
+      '@lapis-notes/bases':
+        specifier: workspace:*
+        version: link:../plugins/plugin-bases
       '@lapis-notes/file-explorer':
         specifier: workspace:*
         version: link:../file-explorer
@@ -1368,6 +1371,9 @@ importers:
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../api
+      '@lapis-notes/bases':
+        specifier: workspace:*
+        version: link:../plugins/plugin-bases
       '@lapis-notes/file-explorer':
         specifier: workspace:*
         version: link:../file-explorer

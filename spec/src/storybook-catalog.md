@@ -53,6 +53,11 @@
 
 ## Show Code source contract
 
+The root real-App editor host registers Search, Bases, and external Roles in
+production order and loads the package stylesheet through a source-resolved
+Storybook alias. Focused Bases stories remain responsible for the governed
+public-surface and workflow scenarios rather than copying package source.
+
 Show Code documents consumer integration, not Storybook implementation:
 
 - Import a public component from its package boundary.

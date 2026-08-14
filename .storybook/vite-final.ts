@@ -15,6 +15,10 @@ const repoRoot = path.resolve(rootDir, "..");
 const apiLib = path.resolve(rootDir, "../packages/api/src/lib");
 const uiLib = path.resolve(rootDir, "../packages/ui/src/lib");
 const workspaceLib = path.resolve(rootDir, "../packages/workspace/src/lib");
+const basesLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-bases/src/lib",
+);
 const markdownLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src/lib",
@@ -142,6 +146,14 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         {
           find: /^@lapis-notes\/workspace$/,
           replacement: path.join(workspaceLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/bases\/styles\.css$/,
+          replacement: path.join(basesLib, "styles.css"),
+        },
+        {
+          find: /^@lapis-notes\/bases$/,
+          replacement: path.join(basesLib, "index.ts"),
         },
         {
           find: /^@lapis-notes\/markdown$/,

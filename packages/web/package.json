@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/bases": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
     "@lapis-notes/markdown-lint": "workspace:*",

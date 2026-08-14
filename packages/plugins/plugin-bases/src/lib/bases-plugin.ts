@@ -4,7 +4,6 @@ import {
   Plugin,
   type PluginManifest,
 } from "@lapis-notes/api";
-import manifestSpec from "../../manifest.json";
 import { mount, unmount } from "svelte";
 import BasesComponent from "./bases-view/view.svelte";
 import {
@@ -18,8 +17,17 @@ type BasesRenderHandle = {
   destroy: () => void;
 };
 
+const BASES_MANIFEST: PluginManifest = {
+  id: "bases",
+  name: "Bases",
+  version: "0.0.1",
+  minAppVersion: "0.0.1",
+  description: "Create queryable table, card, and list views over vault metadata.",
+  author: "Lapis Notes",
+};
+
 export class BasesPlugin extends Plugin {
-  constructor(app: App, manifest: PluginManifest = manifestSpec) {
+  constructor(app: App, manifest: PluginManifest = BASES_MANIFEST) {
     super(app, manifest);
   }
 

@@ -8,6 +8,8 @@
     type VaultSession,
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
+  import { BasesPlugin } from "@lapis-notes/bases";
+  import "@lapis-notes/bases/styles.css";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
@@ -133,6 +135,12 @@
         { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
         { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
         { plugin: SearchPlugin, required: false, enabledByDefault: true },
+        {
+          plugin: BasesPlugin,
+          required: false,
+          enabledByDefault: true,
+          distribution: "bundled",
+        },
         {
           plugin: RolesPlugin,
           required: false,
