@@ -1,8 +1,16 @@
 {
   "name": "@lapis-notes/ui",
-  "private": true,
   "version": "0.0.1",
+  "description": "Public UI primitives required by Lapis Notes API consumers",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lapismd/lapis-notes.git",
+    "directory": "packages/ui"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "scripts": {
     "build": "pnpm run prepack",
@@ -60,7 +68,7 @@
   },
   "peerDependencies": {
     "svelte": "^5.0.0",
-    "@lapismd/design-core": "*"
+    "@lapismd/design-core": "^0.1.0"
   },
   "devDependencies": {
     "@internationalized/date": "^3.8.2",
@@ -89,7 +97,7 @@
   "dependencies": {
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
-    "@lapismd/design-core": "*",
+    "@lapismd/design-core": "^0.1.0",
     "fuse.js": "^7.3.0"
   }
 }

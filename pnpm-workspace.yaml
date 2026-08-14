@@ -1,6 +1,11 @@
 packages:
   - "packages/*"
   - "packages/plugins/*"
+  - "../design-core"
+  - "../design-core/packages/*"
+  - "../mira-mde/packages/mira"
+
+linkWorkspacePackages: true
 
 onlyBuiltDependencies:
   - better-sqlite3
