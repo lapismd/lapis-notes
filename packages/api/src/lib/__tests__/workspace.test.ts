@@ -1187,6 +1187,45 @@ describe("Workspace compatibility", () => {
     expect(leaf.contentEl.children).toHaveLength(1);
   });
 
+  it("removes stale item-view content before loading a plain view", async () => {
+    createWorkspaceHarness();
+    const leaf = new WorkspaceLeaf();
+    leaf.contentEl.style.height = "100%";
+    leaf.contentEl.createDiv();
+
+    class MockPlainView extends View {
+      onload(): void {
+        this.leaf.containerEl.createDiv();
+      }
+
+      getViewType(): string {
+        return "plain";
+      }
+
+      getDisplayText(): string {
+        return "Plain";
+      }
+
+      protected onOpen(): Promise<void> {
+        return Promise.resolve();
+      }
+
+      protected onClose(): Promise<void> {
+        return Promise.resolve();
+      }
+    }
+
+    const plainView = new MockPlainView(leaf);
+    await leaf.open(
+      plainView,
+      { history: false },
+      { type: "plain", state: {} },
+    );
+
+    expect(leaf.containerEl.children).toHaveLength(1);
+    expect(Array.from(leaf.containerEl.children)).not.toContain(leaf.contentEl);
+  });
+
   it("requests a workspace save when opening a non-file view", async () => {
     const { workspace } = createWorkspaceHarness();
     const requestSaveLayout = vi.spyOn(workspace, "requestSaveLayout");

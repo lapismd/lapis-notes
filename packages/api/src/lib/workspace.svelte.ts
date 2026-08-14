@@ -5024,7 +5024,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
     } else if (filePath) {
       new Notice(`Unable to load file: ${filePath}`);
     }
-    this.ensureContentEl();
+    this.prepareContainerForView(view);
     if (result?.history !== false) {
       this.snapshotHistoryBeforeNavigation(result);
     }
@@ -5042,6 +5042,14 @@ export class WorkspaceLeaf extends WorkspaceItem<{
     }
     this.containerEl.empty();
     this.containerEl.appendChild(this.contentEl);
+  }
+
+  private prepareContainerForView(view: View): void {
+    if (view instanceof ItemView) {
+      this.ensureContentEl();
+      return;
+    }
+    this.containerEl.empty();
   }
 
   openFile(
