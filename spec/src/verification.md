@@ -514,9 +514,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-054 | workspace-shell | Implemented | API tests and the real-App Roles shell cover live compatibility ribbon/status projection, updates, commands, and teardown |
 | LN-DESK-031 | desktop-host | In progress | desktop registration ordering, exported styles, community exclusion, checks, tests, and production build pass; persisted Bases smoke remains |
 | LN-WEB-011 | web-host | In progress | web registration ordering, exported styles, community exclusion, checks, tests, and PWA build pass; browser fixture acceptance remains |
-| LN-CAT-049 | storybook-catalog | In progress | focused Bases view and workflow interaction stories plus serial pointer persistence coverage |
-| LN-CAT-050 | storybook-catalog | In progress | real-App file view, Markdown embed, and disable/restore interaction stories |
-| LN-CAT-051 | storybook-catalog | In progress | shared fixture, public Show Code, Autodocs authority, 700px app docs, and pending nested baselines |
+| LN-CAT-049 | storybook-catalog | In progress | focused table, vault-image cards, grouped-list, map-unavailable, and unknown-view interactions pass; workflows and pointer persistence remain |
+| LN-CAT-050 | storybook-catalog | In progress | real-App editor shell covers File Explorer, visible indexed Search, and an opened canonical Bases file; remaining file view, Markdown embed, and lifecycle stories pending |
+| LN-CAT-051 | storybook-catalog | In progress | focused views share one seeded vault, public Show Code, BasesViewSurface Autodocs authority, isolated 700px docs, and pending nested baselines; workspace stories remain |
 | LN-CAT-052 | storybook-catalog | Implemented | focused Roles shell finds CV semantic content after lifecycle recovery and excludes ordinary YAML |
 | LN-CAT-053 | storybook-catalog | Implemented | real-App Roles shell covers aggregate and dedicated navigation, ribbon, status, settings, three-view recovery, and final collapsed Search |
 | LN-CAT-054 | storybook-catalog | Implemented | focused real-App Roles acceptance covers delegated rich Markdown source, same-leaf return, and embedded Description extensions |
@@ -529,11 +529,11 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-002 | bases-plugin | In progress | association, source/preview, persistence, and reopen package plus real-App tests |
 | LN-BASE-003 | bases-plugin | Implemented | document-core normalization and unknown-view preservation plus serialized-write ordering and unload-flush tests |
 | LN-BASE-004 | bases-plugin | Implemented | AppDatabase pushdown, PEaQL final evaluation, metadata invalidation, and metadata-cache fallback tests |
-| LN-BASE-005 | bases-plugin | In progress | table, cards, list, map-unavailable, unknown, and custom-registration story assertions |
+| LN-BASE-005 | bases-plugin | In progress | table, cards, grouped list, map-unavailable, and unknown story assertions pass; custom registration remains |
 | LN-BASE-006 | bases-plugin | In progress | query-controls and schema/view-settings stories plus CSV and new-file unit coverage |
 | LN-BASE-007 | bases-plugin | In progress | editable-cell story verifies typed frontmatter writes, immutable fields, and navigation |
 | LN-BASE-008 | bases-plugin | In progress | read-only registrations, invalid fenced-YAML, teardown cleanup, and early/late image URL revocation pass; real-App embed stories remain |
-| LN-BASE-009 | bases-plugin | In progress | source-linked runtime import, publint, declarations, and package entry/style export tests pass; public-surface Autodocs remains |
-| LN-BASE-010 | bases-plugin | In progress | no-Tailwind, no-global-App, Design Core import, semantic marker, native CSS, and token source audits pass; composition stories remain |
-| LN-BASE-011 | bases-plugin | In progress | focused and real-App story plays, accessibility, static build, and pending visual comparisons |
+| LN-BASE-009 | bases-plugin | Implemented | source-linked runtime import, publint, declarations, package entry/style exports, and public BasesViewSurface Autodocs pass |
+| LN-BASE-010 | bases-plugin | Implemented | no-Tailwind, no-global-App, Design Core import, semantic marker, native CSS, token audits, and focused composition stories pass |
+| LN-BASE-011 | bases-plugin | In progress | focused view and real editor-shell plays plus axe pass; workflows, remaining real-App scenarios, and visual comparisons remain |
 | LN-BASE-012 | bases-plugin | Implemented | canonical parity-gap section and root migration checklist exclude Tasks and full-parity claims |

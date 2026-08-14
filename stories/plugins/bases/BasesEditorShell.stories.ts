@@ -1,0 +1,136 @@
+import type { App } from "@lapis-notes/api";
+import { BasesViewType } from "@lapis-notes/bases";
+import type { Meta, StoryObj } from "@storybook/svelte-vite";
+import { expect, waitFor, within } from "storybook/test";
+import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
+import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
+import { basesEditorShellExampleSource } from "./BasesEditorShell.example-sources";
+import BasesEditorShellDemo from "./BasesEditorShellDemo.svelte";
+
+const meta = {
+  title: "Plugins/Bases/Editor Shell",
+  component: BasesEditorShellDemo,
+  tags: ["visual-pending", "test"],
+  parameters: {
+    ...workspaceCatalogParameters("plugins-bases-editor-shell"),
+    layout: "fullscreen",
+    docs: {
+      canvas: { className: "workspace-shell-docs-canvas" },
+      description: {
+        component:
+          "A real Lapis App restores File Explorer, Search, and a Bases file into the desktop editor shell over the canonical project seed.",
+      },
+      source: {
+        code: basesEditorShellExampleSource,
+        language: "svelte",
+        type: "code",
+      },
+      story: WORKSPACE_SHELL_DOCS_STORY,
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/bases/editor-shell-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+} satisfies Meta<typeof BasesEditorShellDemo>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+function demoApp(canvasElement: HTMLElement): App {
+  const root = canvasElement.querySelector<HTMLElement & { __lapisApp?: App }>(
+    '[data-testid="bases-editor-shell-demo"]',
+  );
+  if (!root?.__lapisApp) {
+    throw new Error("The Bases editor shell story has no active Lapis app");
+  }
+  return root.__lapisApp;
+}
+
+export const ExplorerSearchAndBase: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The canonical sample vault is shown as a real editor composition: Explorer at left, the score-sorted Projects base in the center, and an indexed Search panel at right.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    canvasElement.style.height = `${window.innerHeight}px`;
+    canvasElement.style.maxHeight = `${window.innerHeight}px`;
+    canvasElement.style.overflow = "hidden";
+
+    await waitFor(
+      () => {
+        expect(
+          canvas.getByTestId("bases-editor-shell-status"),
+        ).toHaveTextContent("ready");
+        expect(
+          canvas
+            .getByTestId("bases-editor-shell-demo")
+            .querySelector('[data-app-shell-ready="true"]'),
+        ).toBeTruthy();
+      },
+      { timeout: 8_000 },
+    );
+
+    const app = demoApp(canvasElement);
+    expect(app.plugins.isPluginEnabled("bases")).toBe(true);
+    expect(app.plugins.isPluginEnabled("lapis-file-explorer")).toBe(true);
+    expect(app.plugins.isPluginEnabled("search")).toBe(true);
+
+    const basesLeaf = app.workspace.getLeavesOfType(BasesViewType)[0];
+    expect(basesLeaf).toBeDefined();
+    expect(basesLeaf?.view.getViewType()).toBe(BasesViewType);
+    expect(basesLeaf?.view.getState()).toMatchObject({
+      file: "Bases/Projects.base",
+      mode: "preview",
+    });
+    expect(app.workspace.activeLeaf).toBe(basesLeaf);
+
+    const explorer = canvasElement.querySelector<HTMLElement>(
+      '[data-ui-component="workspace-explorer"]',
+    );
+    expect(explorer).toBeVisible();
+    expect(
+      within(explorer!).getByRole("list", { name: "Files" }),
+    ).toBeVisible();
+
+    const searchPanel = canvasElement.querySelector<HTMLElement>(
+      '[data-ui-component="search-panel"]',
+    );
+    expect(searchPanel).toBeVisible();
+    expect(
+      within(searchPanel!).getByRole("searchbox", { name: "Search vault" }),
+    ).toHaveTextContent("Aurora");
+
+    await waitFor(
+      () => {
+        expect(
+          canvasElement.querySelector('[data-ui-component="bases-table-view"]'),
+        ).toBeVisible();
+        expect(
+          within(searchPanel!).getByRole("tree", { name: "Search results" }),
+        ).toBeVisible();
+        expect(
+          within(searchPanel!).getByRole("treeitem", {
+            name: /Projects\/Aurora\.md, .* matches/,
+          }),
+        ).toBeVisible();
+        expect(
+          canvasElement.querySelectorAll(
+            '[data-ui-component="bases-table-view"] [data-ui-part="row"]',
+          ),
+        ).toHaveLength(3);
+      },
+      { timeout: 8_000 },
+    );
+  },
+};

@@ -99,6 +99,7 @@
       <Button
         variant="ghost"
         data-grab-handle=""
+        aria-label={`Sort ${label}`}
         class="bases-style-px-0-5a270a bases-style-hover-bg-transparent-de520d bases-style-focus-visible-border-transparent-917fe2 bases-style-focus-visible-bg-transparent-23dcc5 bases-style-focus-visible-shadow-none-1697ce bases-style-focus-visible-ring-0-464a99 bases-style-focus-visible-ring-transparent-4358b1 bases-style-focus-visible-ring-offset-0-63ff32"
         size="xs"
         onclick={header.column.getToggleSortingHandler()}
@@ -115,6 +116,7 @@
         {@attach sortable.attachHandle}
         variant="ghost"
         data-grab-handle=""
+        aria-label={`Reorder ${label} column`}
         class="bases-style-px-0-5a270a bases-style-hover-bg-transparent-de520d bases-style-focus-visible-border-transparent-917fe2 bases-style-focus-visible-bg-transparent-23dcc5 bases-style-focus-visible-shadow-none-1697ce bases-style-focus-visible-ring-0-464a99 bases-style-focus-visible-ring-transparent-4358b1 bases-style-focus-visible-ring-offset-0-63ff32"
         size="xs"
       >
@@ -122,6 +124,7 @@
       </Button>
       <div
         role="button"
+        aria-label={`Resize ${label} column`}
         tabindex="-1"
         ondblclick={() => header.column.resetSize()}
         onmousedown={header.getResizeHandler()}

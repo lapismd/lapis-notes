@@ -24,10 +24,12 @@ describe("collectMetadataDependencies", () => {
         { property: "note.due", direction: "ASC" },
       ],
       groupByProperty: "file.folder",
+      imageProperty: "note.cover",
       formulas: {},
     });
 
     expect([...dependencies.properties].sort()).toEqual([
+      "cover",
       "due",
       "owner",
       "priority",

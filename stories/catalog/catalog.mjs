@@ -235,7 +235,39 @@ const markdownPanelCatalog = markdownPanelFamilies.flatMap((family) =>
 );
 
 /** @type {CatalogEntry[]} */
+const basesViewsCatalog = [
+  ["table", "Table"],
+  ["cards", "Cards"],
+  ["grouped-list", "Grouped List"],
+  ["map", "Map Unavailable"],
+  ["unknown", "Unknown View"],
+].map(([scenario, title]) => ({
+  id: `plugins-bases-views-${scenario}`,
+  title: `Bases Views: ${title}`,
+  spec: "spec/src/bases-plugin.md",
+  publicSurface: "@lapis-notes/bases",
+  storyId: `plugins-bases-views--${
+    scenario === "grouped-list"
+      ? "grouped-list"
+      : scenario === "map"
+        ? "map-unavailable"
+        : scenario === "unknown"
+          ? "unknown-view"
+          : scenario
+  }`,
+}));
+
+/** @type {CatalogEntry[]} */
 export const workspaceCatalog = [
+  ...basesViewsCatalog,
+  {
+    id: "plugins-bases-editor-shell",
+    title: "Bases Editor Shell",
+    spec: "spec/src/bases-plugin.md",
+    publicSurface:
+      "@lapis-notes/bases + @lapis-notes/file-explorer + @lapis-notes/search + @lapis-notes/workspace",
+    storyId: "plugins-bases-editor-shell--explorer-search-and-base",
+  },
   {
     id: "workspace-lapis-editor-demo-ready",
     title: "Lapis Editor Demo Ready",

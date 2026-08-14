@@ -108,12 +108,17 @@
     }
     return value;
   }
+
+  const editorLabel = $derived(
+    name.startsWith("note.") ? name.slice("note.".length) : name,
+  );
 </script>
 
 <div class="bases-style-group-64292b bases-style-h-full-668b21 bases-style-w-full-6da6a3">
   {#if type === "file"}
     <Autocomplete
       placeholder="—"
+      aria-label={editorLabel}
       rootClass="w-full h-full"
       bind:value
       options={fileOptions()}
@@ -122,6 +127,7 @@
   {:else if type === "folder"}
     <Autocomplete
       placeholder="—"
+      aria-label={editorLabel}
       rootClass="w-full h-full"
       bind:value
       options={folderOptions()}
@@ -133,6 +139,7 @@
     <input
       type="datetime-local"
       placeholder="—"
+      aria-label={editorLabel}
       value={toDateTime(value)}
       onblur={(evt) => onDateChange(evt)}
       onchange={(evt) => onDateChange(evt)}
@@ -144,6 +151,7 @@
     <input
       type="date"
       placeholder="—"
+      aria-label={editorLabel}
       value={toDate(value)}
       onblur={(evt) => onDateChange(evt)}
       onchange={(evt) => onDateChange(evt)}
@@ -155,6 +163,7 @@
     <input
       type="number"
       placeholder="—"
+      aria-label={editorLabel}
       {value}
       onblur={(evt) => onChange(evt)}
       class={cn(
@@ -167,6 +176,7 @@
       <input
         type="checkbox"
         placeholder="—"
+        aria-label={editorLabel}
         data-indeterminate={value === null ||
           value === undefined ||
           value === ""}
@@ -181,6 +191,7 @@
   {:else if type === "multitext" || type === "tags"}
     <InputTags
       placeholder="—"
+      aria-label={editorLabel}
       bind:values={value}
       onChange={(values) => onValueChange?.(name, values)}
       class="bases-style-whitespace-nowrap-e82ae8 bases-style-focus-within-h-fit-9fd2b3"
@@ -190,6 +201,7 @@
     <Autocomplete
       onSelect={(value) => onValueChange?.(name, value)}
       placeholder=""
+      aria-label={editorLabel}
       class={cn(
         "bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-bg-transparent-7f19cd bases-style-hover-bg-transparent-de520d bases-style-data-slot-command-input-wrapper-svg-hidden-a990ff",
         className,

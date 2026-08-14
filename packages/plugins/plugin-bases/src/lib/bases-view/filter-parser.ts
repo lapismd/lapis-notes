@@ -282,6 +282,9 @@ export function generateQuery(
     ...new Set([
       ...view.order,
       ...(view.groupBy?.property ? [view.groupBy.property] : []),
+      ...(typeof view.image === "string" && view.image.length > 0
+        ? [view.image]
+        : []),
     ]),
   ];
   query += columns

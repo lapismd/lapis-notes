@@ -20,7 +20,12 @@
   --ui-bases-normal-color: var(--text-normal, var(--foreground));
   --ui-bases-muted-color: var(--text-muted, var(--muted-foreground));
   --ui-bases-on-accent-color: var(--text-on-accent);
-  --ui-bases-accent: var(--interactive-accent);
+  --ui-bases-accent: color-mix(
+    in srgb,
+    var(--ui-workspace-accent, var(--interactive-accent)) 64%,
+    var(--ui-workspace-foreground, var(--foreground))
+  );
+  --ui-bases-link-color: var(--ui-bases-accent);
   --ui-bases-accent-background: color-mix(
     in srgb,
     var(--ui-bases-accent) 14%,
@@ -38,6 +43,10 @@
 .bases-view {
   background: var(--ui-bases-surface-background);
   color: var(--ui-bases-normal-color);
+}
+
+.bases-view .bases-style-text-var-text-accent-69c994 {
+  color: var(--ui-bases-link-color);
 }
 
 .bases-view__toolbar,

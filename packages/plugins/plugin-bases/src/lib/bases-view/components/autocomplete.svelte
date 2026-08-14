@@ -42,6 +42,7 @@
 
   let inputEl: HTMLInputElement = $state(null)!;
   let isOpen: boolean = $state(false);
+  const listboxId = `bases-autocomplete-${crypto.randomUUID()}`;
 
   let virtualListEl: HTMLDivElement | null = $state(null);
   let virtualizer = createVirtualizer({
@@ -75,6 +76,7 @@
             {...props}
             {...commandInputAttrs}
             {placeholder}
+            aria-controls={listboxId}
             class="bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-rounded-none-0c5e91 bases-style-border-none-4a5f0e bases-style-bg-transparent-7f19cd bases-style-py-0-68ecb3 bases-style-pl-1-6ad214 bases-style-outline-none-df37b1"
           />
         {/snippet}
@@ -88,7 +90,7 @@
         inputEl?.focus();
       }}
     >
-      <Command.List class="bases-style-p-1-eb6a3c">
+      <Command.List id={listboxId} class="bases-style-p-1-eb6a3c">
         <div
           bind:this={virtualListEl}
           style="max-height: 300px; overflow: auto"

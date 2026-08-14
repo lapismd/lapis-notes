@@ -132,6 +132,8 @@ side panels. `@lapis-notes/markdown-lint` and the internal
 private TanStack adapter, and native stylesheet. It consumes API contracts and
 public Design Core primitives directly, exports its stylesheet explicitly, and
 does not reintroduce a dependency on the pruned Lapis UI package.
+The package also owns the accessible names and token mappings used by its table,
+cards, and grouped-list presentation.
 Electron, web, and root Storybook declare the workspace package directly; the
 catalog source alias resolves that same owning package during development.
 The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview. Its compiled

@@ -118,6 +118,8 @@ with File Explorer, Search, managed settings, and persisted layout recovery.
 Bases remains Lapis-owned: its explicit App input supplies vault, database,
 metadata, navigation, and registry contracts while the package owns document
 normalization, query evaluation, rendering, editing, and resource cleanup.
+Its focused catalog boots the public plugin boundary and keeps editor labels,
+table-control names, and accessible accent paint in the owning package.
 Electron, web, and the root real-App catalog consume its package exports and
 share the Search, Bases, external-Roles boot order without a consumer copy.
 

@@ -41,4 +41,23 @@ describe("generateQuery", () => {
     expect(query).toContain("file.name as {file.name}");
     expect(query).toContain("file.folder as {file.folder}");
   });
+
+  it("projects a card image property even when it is hidden from the card order", () => {
+    const query = generateQuery(
+      {
+        type: "cards",
+        name: "Cards",
+        order: ["file.name"],
+        image: "note.cover",
+        sort: [],
+        filter: { and: [] },
+        limit: 0,
+      },
+      {},
+      { and: [] },
+    );
+
+    expect(query).toContain("file.name as {file.name}");
+    expect(query).toContain("note.cover as {note.cover}");
+  });
 });

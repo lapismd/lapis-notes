@@ -23,6 +23,7 @@ type MetadataDependencyInput = {
   order: BasesPropertyId[];
   sort: SortColumn[];
   groupByProperty?: BasesPropertyId | null;
+  imageProperty?: BasesPropertyId | null;
   formulas: Record<string, string>;
 };
 
@@ -183,6 +184,7 @@ export function collectMetadataDependencies(
     trackPropertyDependency(dependencies, sort.property);
   }
   trackPropertyDependency(dependencies, input.groupByProperty ?? null);
+  trackPropertyDependency(dependencies, input.imageProperty ?? null);
   if (Object.keys(input.formulas).length > 0) {
     dependencies.custom = true;
   }

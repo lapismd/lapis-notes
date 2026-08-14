@@ -14,7 +14,7 @@
 | LN-BASE-008 | Markdown integration MUST render `.base` file embeds and `base` or `bases` fenced YAML blocks through a read-only Bases surface. Invalid YAML MUST render a bounded error state, and teardown MUST revoke created image URLs and dispose query resources. |
 | LN-BASE-009 | The package MUST export default and named `BasesPlugin`, `BasesViewType`, `BasesViewSurface`, `parseBasesDocument`, `serializeBasesDocument`, and consumer document/view types. Its source and built entrypoints MUST import without changing static query-type metadata. `BasesViewSurface` MUST accept `app`, `document`, optional `onChange`, `readOnly`, `showHeader`, and optional `BasesViewRegistration` mappings. |
 | LN-BASE-010 | Production presentation MUST compose public Design Core primitives with Bases-owned semantic classes, `data-ui-component` or `data-ui-part` markers, native CSS, and `--ui-bases-*` tokens. Runtime code MUST receive `App` explicitly and MUST NOT read a global application singleton. |
-| LN-BASE-011 | Governed Storybook coverage MUST exercise public table, cards, grouped-list, map-unavailable, unknown-view, workflow, schema/settings, editable-cell, real file-view, Markdown-embed, and disable/restore scenarios. Every scenario MUST include interaction assertions and remain `visual-pending` until human review. |
+| LN-BASE-011 | Governed Storybook coverage MUST exercise public table, cards, grouped-list, map-unavailable, unknown-view, workflow, schema/settings, editable-cell, a real editor shell with File Explorer and visible indexed Search, real file-view, Markdown-embed, and disable/restore scenarios. Every scenario MUST include interaction assertions and remain `visual-pending` until human review. |
 | LN-BASE-012 | The port MUST document real-map, Obsidian wrapper/formula, `this` binding, richer file/link, grouped-summary, duplicated runtime-model, stub-formula, and name-only parity gaps. It MUST NOT add Tasks-owned views or claim full Obsidian behavior. |
 
 ## Public surface
@@ -24,6 +24,8 @@
 managed-plugin lifecycle remain `BasesPlugin` responsibilities. Built-in view
 registrations combine with App registrations unless an explicit mapping
 overrides a matching type.
+Focused view stories boot the optional bundled plugin against the canonical
+Projects seed before mounting this public surface.
 
 The port keeps query and TanStack-to-Svelte adapters private. Package evidence
 retains the legacy 14-file / 142-test baseline and adds regressions for explicit
@@ -37,6 +39,8 @@ before metadata and persisted layout restoration.
 
 The table surface owns virtual rows, sortable and draggable columns, inline
 metadata editing, and summaries. Cards own cover resolution and URL cleanup.
+Card queries project the configured image property even when that property is
+not displayed in the card field order.
 List owns collapsible groups. Map and unknown surfaces are explicit bounded
 fallbacks. Header and settings compounds own query controls, schema visibility,
 formulas, summaries, limits, view management, new-file, and CSV workflows.

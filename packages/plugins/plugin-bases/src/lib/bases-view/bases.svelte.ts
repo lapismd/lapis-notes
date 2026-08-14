@@ -735,6 +735,10 @@ export class QueryController extends Component {
       order: (this.selectedView?.order ?? []) as BasesPropertyId[],
       sort: this.selectedView?.sort ?? [],
       groupByProperty: this.selectedView?.groupBy?.property ?? null,
+      imageProperty:
+        typeof this.selectedView?.image === "string"
+          ? (this.selectedView.image as BasesPropertyId)
+          : null,
       formulas: this.formulas,
     });
   });
