@@ -43,6 +43,7 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-082 | The 20 Mira capability flags MUST appear in one top-level Settings group with ID `markdown.mira.features` and `toggle-table` presentation. Every Boolean row MUST use an explicit proper-case label and a concise capability description. The Mermaid row MUST state that authoring also requires the Mermaid plugin setting. |
 | LN-MD-083 | Grouped feature presentation MUST preserve every existing dotted feature key, default, and runtime gate. The configuration schema MUST remain flat and MUST NOT register or persist a `markdown.mira.features` group object. |
 | LN-MD-084 | Markdown Source and Live Preview editors MUST compose the API language-service diagnostic extension with completion and hover disabled. Reading mode MUST remain outside the CodeMirror diagnostic lifecycle. |
+| LN-MD-090 | Markdown's full editing surface MUST compose the public API embedded editor surface so file views and plugin-owned embedded editors resolve the same registered Markdown extension stack, configuration refresh, scrolling, and source fallback lifecycle. |
 
 ## Ownership
 

@@ -421,6 +421,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ED-047 | editor-demo | Implemented | Ready story proves single-click reuse/current replacement, double-click reuse-or-create, and Command-click forced creation |
 | LN-ED-048 | editor-demo | Implemented | WorkspaceShell unit and Editor Settings acceptance verify the false default, live renderer mapping, and persisted toggle |
 | LN-ED-049 | editor-demo | Implemented | one canonical descriptor list supplies the Editor schema and rendered fields; Storybook verifies every description |
+| LN-ED-050 | editor-demo | Implemented | API unit and package checks cover registered extension composition and the source-shell fallback |
+| LN-ED-051 | editor-demo | Implemented | API editor tests cover external persistence, pending-change flush, and unchanged file identity |
+| LN-ARCH-046 | architecture | Implemented | API embedded surface owns reusable presentation while Markdown retains extension and toolbar policy |
+| LN-PKG-059 | packages | Implemented | public API editor barrel exports the embedded component and extension helpers with a source fallback |
 | LN-WS-049 | workspace-shell | Implemented | WorkspaceShell unit verifies the false default and reactive Design Core renderer-policy mapping |
 | LN-CAT-038 | storybook-catalog | Implemented | six Search placement stories and public consumer source; focused plays pass |
 | LN-MD-087 | markdown-panel-tags | Implemented | Tags row opens Search through its registered command in focused Storybook acceptance |
@@ -429,6 +433,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-051 | workspace-shell-panels | Implemented | focused helper tests verify moved leaves are revealed and an absent panel is created in its default right surface |
 | LN-WS-052 | workspace-shell-panels | Implemented | Markdown registry coverage verifies every legacy alias remains attached to its canonical command registration |
 | LN-MD-089 | markdown-plugin-panels | Implemented | package unit coverage audits all six canonical Markdown panels and their unique command metadata |
+| LN-MD-090 | markdown-plugin | Implemented | Markdown editing mounts the public API embedded surface while retaining its toolbar and mode lifecycle |
 | LN-GOV-029 | spec-governance | Implemented | AGENTS guidance distinguishes canonical panel commands, file-backed editor associations, and load-only aliases |
 | LN-SRCH-001 | search-plugin | Implemented | legacy `8ec68e18` provenance and pruned package intake |
 | LN-SRCH-002 | search-plugin | Implemented | canonical Search view plus open, selected-text, refresh, and rebuild commands |

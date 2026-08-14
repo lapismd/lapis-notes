@@ -41,6 +41,8 @@ export interface EditorTransaction {
     selections?: EditorRangeOrCaret[];
     selection?: EditorRangeOrCaret;
 }
+/** Controls whether an editor persists its own debounced document changes. */
+export type EditorPersistence = "vault" | "external";
 export interface MarkdownFileInfo {
     /** @public */
     app: App;
@@ -64,12 +66,20 @@ export declare class Editor extends EventDispatcher<{
     extensions: Extension[];
     view: EditorView;
     file: TFile | null;
+    persistence: EditorPersistence;
     readonly id: `${string}-${string}-${string}-${string}-${string}`;
     private destroyed;
+    private readonly pendingChange;
     constructor(data?: string, extensions?: Extension[]);
     readonly save: import("lodash-es").DebouncedFunc<() => Promise<void>>;
     get cm(): EditorView;
     onChange(data: string): void;
+    /** Queue the latest editor contents for persistence/change notification. */
+    queueChange(data: string): void;
+    /** Flush the latest queued change before a view or embedded surface closes. */
+    flushChanges(): Promise<void>;
+    /** Cancel a queued change when the owning document is intentionally reset. */
+    cancelPendingChanges(): void;
     getValue(): string;
     refresh(): void;
     destroy(): void;

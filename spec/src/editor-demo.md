@@ -49,6 +49,8 @@
 | LN-ED-047 | Explorer file activation MUST consume Design Core's current, reveal-or-new-tab, and new-tab intents to distinguish single-click reuse, double-click reuse-or-create, and Command-click forced creation in the Lapis workspace adapter. |
 | LN-ED-048 | The Editor settings schema MUST expose persisted `editor.alwaysFocusNewTabs` as a Boolean defaulting to `false`, and `WorkspaceShell` MUST map it reactively to Design Core's user-created-tab activation policy without changing explicit opens. |
 | LN-ED-049 | Every rendered Editor setting MUST reuse its canonical schema title, default, constraints, and concise description so the configuration contract and Settings UI cannot drift. |
+| LN-ED-050 | `@lapis-notes/api/editor` MUST export a reusable embedded editor surface that composes registered view-type extensions, preserves the supplied editor and leaf lifecycle, and falls back to the API source shell when no rich provider is active. |
+| LN-ED-051 | API `Editor` instances MUST support host-owned persistence, expose a flushable pending-change lifecycle, and keep file identity separate from whether the editor writes directly to the vault. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add

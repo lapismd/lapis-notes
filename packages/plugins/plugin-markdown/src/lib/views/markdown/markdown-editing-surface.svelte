@@ -13,7 +13,7 @@
     Editor,
     WorkspaceLeaf,
   } from "@lapis-notes/api";
-  import NoteEditor from "@lapis-notes/api/editor";
+  import { EmbeddedEditorSurface } from "@lapis-notes/api/editor";
   import {
     readMarkdownMiraEditorSettings,
     resolveMarkdownMiraExtensions,
@@ -154,9 +154,14 @@
   {/if}
 
   <div class="markdown-editing-surface__editor">
-    <NoteEditor
+    <EmbeddedEditorSurface
+      {app}
       {leaf}
       {editor}
+      viewType="markdown"
+      fallbackLanguage="markdown"
+      sourcePath={editor.file?.path ?? ""}
+      {mode}
       class={[
         "markdown-view__editor",
         mode === "source"

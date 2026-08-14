@@ -49,6 +49,7 @@
 | LN-ARCH-043 | The API MUST own the public search-document contribution registry, Search MUST own provider selection and generated index state, and domain plugins MUST own parsing and semantic projection for their file formats. |
 | LN-ARCH-044 | The API workspace host MUST project compatibility ribbon and status contributions into Design Core registries while plugins retain command and lifecycle ownership. |
 | LN-ARCH-045 | Generated search-document metadata MUST remain search-scoped while participating in API-owned property query evaluation. |
+| LN-ARCH-046 | Reusable editor presentation MUST enter through the API editor package while language plugins retain rich extension and toolbar policy. External plugins MUST NOT import bundled-plugin implementation files or create a competing CodeMirror persistence path. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

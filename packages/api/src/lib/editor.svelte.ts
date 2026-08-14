@@ -67,6 +67,9 @@ export interface EditorTransaction {
   selections?: EditorRangeOrCaret[];
   selection?: EditorRangeOrCaret;
 }
+
+/** Controls whether an editor persists its own debounced document changes. */
+export type EditorPersistence = "vault" | "external";
 export interface MarkdownFileInfo {
   /** @public */
   app: App;
@@ -126,18 +129,6 @@ export function createEditorState(
   extensions: Extension[] = [],
   selection?: CodeMirrorSelection,
 ) {
-  const onChange = debounce((v: ViewUpdate) => {
-    const content = v.state.doc.toString();
-    if (editor.file && editor.data !== content) {
-      app.vault.modify(editor.file, content).then(() => {
-        editor.data = content;
-        editor.onChange(content);
-      });
-    } else if (editor.data !== content) {
-      editor.data = content;
-      editor.onChange(content);
-    }
-  }, 500);
   return EditorState.create({
     doc,
     selection,
@@ -154,7 +145,7 @@ export function createEditorState(
           v.docChanged &&
           !v.transactions.some((it) => it.annotation(syncAnnotation))
         ) {
-          onChange(v);
+          editor.queueChange(v.state.doc.toString());
         }
       }),
       ...extensions,
@@ -195,8 +186,19 @@ export class Editor extends EventDispatcher<{
 }> {
   view: EditorView;
   file: TFile | null = $state(null);
+  persistence: EditorPersistence = "vault";
   readonly id = crypto.randomUUID();
   private destroyed = false;
+  private readonly pendingChange = debounce(async (content: string) => {
+    if (this.data === content) {
+      return;
+    }
+    if (this.file && this.persistence === "vault") {
+      await app.vault.modify(this.file, content);
+    }
+    this.data = content;
+    this.onChange(content);
+  }, 500);
 
   constructor(
     public data: string = "",
@@ -221,6 +223,21 @@ export class Editor extends EventDispatcher<{
     this.trigger("change", data);
   }
 
+  /** Queue the latest editor contents for persistence/change notification. */
+  queueChange(data: string): void {
+    this.pendingChange(data);
+  }
+
+  /** Flush the latest queued change before a view or embedded surface closes. */
+  flushChanges(): Promise<void> {
+    return Promise.resolve(this.pendingChange.flush()).then(() => undefined);
+  }
+
+  /** Cancel a queued change when the owning document is intentionally reset. */
+  cancelPendingChanges(): void {
+    this.pendingChange.cancel();
+  }
+
   getValue() {
     return this.view.state.doc.toString();
   }
@@ -235,6 +252,7 @@ export class Editor extends EventDispatcher<{
     }
 
     this.destroyed = true;
+    this.pendingChange.cancel();
     this.save.cancel();
     this.view.destroy();
   }

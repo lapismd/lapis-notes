@@ -49,5 +49,8 @@ without giving them Search indexing, query execution, or layout policy.
 
 The Markdown and Media document views remain file-backed editor registrations.
 They open through editor associations rather than panel-opening commands.
+Markdown document editing composes the public API embedded editor host; this
+does not make the editor a movable panel or move Markdown extension policy into
+the panel package boundary.
 Former panel view IDs are compatibility aliases and resolve through the
 canonical command described by `LN-WS-052`.

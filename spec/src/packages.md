@@ -37,6 +37,7 @@
 | LN-PKG-056 | `@lapis-notes/workspace` MUST be a public, pack-tested package with portable semver dependencies. Colocated first-party plugin repositories MAY resolve its matching version through pnpm workspace links while retaining registry-compatible manifests. |
 | LN-PKG-057 | `@lapis-notes/api` MUST expose reactive status-item changes and project visible items plus compatibility ribbon actions into the active public workspace shell. |
 | LN-PKG-058 | `@lapis-notes/api` search evaluation MUST derive queryable property records from normalized search-document metadata without mutating the vault metadata index. |
+| LN-PKG-059 | `@lapis-notes/api/editor` MUST export the embedded editor component and extension-resolution helpers used by separately versioned plugins. The export MUST remain usable when the bundled Markdown plugin is disabled. |
 | LN-PKG-018 | `@lapis-notes/markdown` MUST expose its reusable Mira-backed `FileEmbed`, `MarkdownEmbed`, and `NoteLink` surfaces through the root package and the narrow `@lapis-notes/markdown/embed` export. |
 | LN-PKG-019 | The public Lapis `FileEmbed` wrapper MUST add optional `editable` and bindable `editing` inputs while defaulting to its existing read-only behavior. Editable full-note rendering MUST compose Mira's public `EditableMarkdownPreview`; direct `MarkdownEmbed`, `NoteLink`, and ordinary `FileEmbed` consumers MUST remain source-compatible. The package adapter owns only Lapis vault resolution and persistence, while Mira owns activation, CodeMirror, autosave serialization, dirty-buffer protection, and preview/editor mode changes.                                                                                                                                                                                                                                                                                                                                                                                          |
 | LN-PKG-020 | Editable `FileEmbed` MUST expose an imperative `exit()` that delegates to Mira's persistence-safe editable-preview exit contract and accept an additive `returnToPreviewOnBlur` input. Link-panel consumers MUST disable blur exit and use the imperative operation for outside-click dismissal; default and read-only consumers MUST remain source-compatible.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -117,7 +118,10 @@ Purpose (condensed from the full Lapis Notes api package):
 `MemoryVaultAdapter` implements the complete data-adapter surface, explicit
 non-persistent capabilities, binary-safe copies, deterministic metadata, and a
 stable vault identity. `SourceTextFileView` mounts the existing `NoteEditor` and
-delegates language behavior to registered editor extensions.
+delegates language behavior to registered editor extensions. The same public
+editor subpath exposes an embedded surface for document and fragment hosts;
+registered language extensions remain authoritative and the API source shell
+is the fallback when a rich provider is absent.
 
 `@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
 side panels. `@lapis-notes/markdown-lint` and the internal
