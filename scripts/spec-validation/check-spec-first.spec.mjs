@@ -13,9 +13,7 @@ test("spec tooling and discovery configuration require governance", () => {
   ]) {
     const result = classifySpecFirstChanges([file]);
     assert.equal(result.ok, false);
-    assert.deepEqual(result.missingChapters, [
-      "spec/src/spec-governance.md",
-    ]);
+    assert.deepEqual(result.missingChapters, ["spec/src/spec-governance.md"]);
   }
 });
 
@@ -92,6 +90,25 @@ test("database and web changes require their canonical host chapters", () => {
     "spec/src/packages.md",
     "spec/src/web-host.md",
   ]);
+});
+
+test("API plugin lifecycle changes require the plugin model", () => {
+  for (const file of [
+    "packages/api/src/lib/plugin.ts",
+    "packages/api/src/lib/plugin-manager.ts",
+    "packages/api/src/lib/workspace.svelte.ts",
+    "packages/api/src/lib/context.svelte.ts",
+  ]) {
+    const result = classifySpecFirstChanges([file]);
+    assert.deepEqual(result.missingChapters, [
+      "spec/src/architecture.md",
+      "spec/src/packages.md",
+      "spec/src/plugin-model.md",
+      ...(file.endsWith("/plugin.ts")
+        ? ["spec/src/workspace-shell/panels/problems.md"]
+        : []),
+    ]);
+  }
 });
 
 test("Roles plugin changes require roles, package, and architecture contracts", () => {

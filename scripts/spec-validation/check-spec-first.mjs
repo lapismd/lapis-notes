@@ -33,6 +33,12 @@ const RULES = [
     chapters: ["spec/src/app-database.md"],
   },
   {
+    name: "API plugin lifecycle",
+    pattern:
+      /^packages\/api\/src\/lib\/(?:plugin(?:-manager)?\.ts|workspace\.svelte\.ts|context\.svelte\.ts)$/,
+    chapters: ["spec/src/plugin-model.md"],
+  },
+  {
     name: "UI package",
     pattern: /^packages\/ui\/(?:src\/|package\.json$)/,
     chapters: ["spec/src/packages.md", "spec/src/ui-and-styling.md"],
@@ -75,12 +81,14 @@ const RULES = [
   },
   {
     name: "Desktop Markdown language runtime",
-    pattern: /^packages\/language-service\/(?:src\/markdownlint\/|package\.json$)/,
+    pattern:
+      /^packages\/language-service\/(?:src\/markdownlint\/|package\.json$)/,
     chapters: ["spec/src/desktop-host.md"],
   },
   {
     name: "Markdown plugin package",
-    pattern: /^packages\/plugins\/plugin-markdown\/(?:src\/|package\.json$|PARITY\.md$)/,
+    pattern:
+      /^packages\/plugins\/plugin-markdown\/(?:src\/|package\.json$|PARITY\.md$)/,
     chapters: [
       "spec/src/markdown-plugin.md",
       "spec/src/markdown-plugin/panels/index.md",
@@ -161,8 +169,7 @@ const RULES = [
   },
   {
     name: "Outline panel",
-    pattern:
-      /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/outline\//,
+    pattern: /^packages\/plugins\/plugin-markdown\/src\/lib\/views\/outline\//,
     chapters: [
       "spec/src/markdown-plugin/panels/outline.md",
       "spec/src/workspace-shell/panels.md",

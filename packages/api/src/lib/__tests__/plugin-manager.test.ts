@@ -288,11 +288,19 @@ function createTestApp(
       async clearDiagnostics() {},
     },
     workspace: {
+      leaves: [] as Array<{
+        view: { getViewType(): string };
+      }>,
+      viewCreators: new Map<string, unknown>(),
       on: workspaceEvents.on.bind(workspaceEvents),
       offref: workspaceEvents.offref.bind(workspaceEvents),
       editorViews: new Map<string, unknown>(),
-      registerView() {},
-      unregisterView() {},
+      registerView(type: string, creator: unknown) {
+        this.viewCreators.set(type, creator);
+      },
+      unregisterView(type: string) {
+        this.viewCreators.delete(type);
+      },
       registerEditorView(contribution: { id: string }) {
         this.editorViews.set(contribution.id, contribution);
         return () => {
@@ -305,8 +313,13 @@ function createTestApp(
       onLayoutReady(callback: () => void) {
         callback();
       },
-      getLeavesOfType() {
-        return [];
+      getLeavesOfType(type: string) {
+        return this.leaves.filter(
+          (leaf) => leaf.view.getViewType() === type,
+        );
+      },
+      iterateAllLeaves(callback: (leaf: unknown) => unknown) {
+        for (const leaf of this.leaves) callback(leaf);
       },
       revealLeaf() {},
       getLeaf() {
@@ -3456,6 +3469,160 @@ describe("PluginManager", () => {
       disabled: [],
       enabled: ["optional-core"],
     });
+  });
+
+  it("classifies statically linked first-party plugins without using community persistence", async () => {
+    const { app, adapter } = createTestApp();
+    await app.vault.load();
+
+    class BundledPlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "bundled-plugin",
+          name: "Bundled Plugin",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+      onload() {}
+    }
+
+    class FirstPartyPlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "first-party-plugin",
+          name: "First-party Plugin",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+      onload() {}
+    }
+
+    app.plugins.registerCorePlugins([
+      BundledPlugin,
+      {
+        plugin: FirstPartyPlugin,
+        distribution: "first-party-external",
+      },
+    ]);
+    await app.plugins.loadPlugins();
+
+    expect(app.plugins.corePluginEntries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          manifest: expect.objectContaining({ id: "bundled-plugin" }),
+          source: "core",
+          provenance: "bundled",
+          distribution: "bundled",
+        }),
+        expect.objectContaining({
+          manifest: expect.objectContaining({ id: "first-party-plugin" }),
+          source: "core",
+          provenance: "official",
+          distribution: "first-party-external",
+        }),
+      ]),
+    );
+
+    await expect(
+      app.plugins.disablePlugin("first-party-plugin"),
+    ).resolves.toBe(true);
+    await (
+      app.plugins as unknown as {
+        saveCorePluginState: { flush?: () => Promise<void> | void };
+      }
+    ).saveCorePluginState.flush?.();
+
+    expect(
+      JSON.parse(await adapter.read("/.obsidian/core-plugins.json")),
+    ).toEqual(["first-party-plugin"]);
+    const communityConfig = JSON.parse(
+      await adapter.read("/.obsidian/community-plugins.json"),
+    );
+    expect(communityConfig).not.toContain("first-party-plugin");
+  });
+
+  it("preserves plugin-owned leaves as missing views and restores them on enable", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+
+    class ViewPlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "view-plugin",
+          name: "View Plugin",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+      onload() {
+        this.registerView("owned-view", () => ({}) as never);
+      }
+    }
+
+    app.plugins.registerCorePlugins([ViewPlugin]);
+    await app.plugins.loadPlugins();
+
+    let state = {
+      type: "owned-view",
+      state: { selected: "role-1" } as Record<string, unknown>,
+      pinned: true,
+    };
+    const leaf = {
+      view: { getViewType: () => state.type },
+      captureCurrentViewState: () => structuredClone(state),
+      getViewState: () => structuredClone(state),
+      async setViewState(next: typeof state) {
+        const missing = next.state["__missingViewType"];
+        const creators = (
+          app.workspace as unknown as {
+            viewCreators: Map<string, unknown>;
+          }
+        ).viewCreators;
+        if (
+          next.type === "empty" &&
+          typeof missing === "string" &&
+          creators.has(missing)
+        ) {
+          const restored = { ...next.state };
+          delete restored["__missingViewType"];
+          state = { ...next, type: missing, state: restored };
+          return;
+        }
+        state = structuredClone(next);
+      },
+    };
+    (
+      app.workspace as unknown as { leaves: Array<typeof leaf>; activeLeaf: unknown }
+    ).leaves.push(leaf);
+    (app.workspace as unknown as { activeLeaf: unknown }).activeLeaf = leaf;
+
+    await expect(app.plugins.disablePlugin("view-plugin")).resolves.toBe(true);
+    expect(state).toEqual({
+      type: "empty",
+      state: { selected: "role-1", __missingViewType: "owned-view" },
+      pinned: true,
+    });
+    expect((app.workspace as unknown as { activeLeaf: unknown }).activeLeaf).toBe(
+      leaf,
+    );
+
+    await expect(app.plugins.enablePlugin("view-plugin")).resolves.toBe(true);
+    expect(state).toEqual({
+      type: "owned-view",
+      state: { selected: "role-1" },
+      pinned: true,
+    });
+    expect((app.workspace as unknown as { activeLeaf: unknown }).activeLeaf).toBe(
+      leaf,
+    );
   });
 
   it("copies legacy plugin data aliases without overwriting target data", async () => {

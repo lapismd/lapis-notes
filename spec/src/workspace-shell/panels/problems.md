@@ -68,3 +68,8 @@ diagnostics, and code actions, and uses bounded request timeouts plus restart
 and shutdown handling. The desktop host does not register the Markdownlint
 plugin during partial-shell startup; the native provider remains available for
 later plugin activation.
+
+Plugin view ownership retained for disable and re-enable recovery remains
+separate from diagnostic collection ownership. Both use the API `Plugin`
+registration lifecycle, and neither permits one plugin to dispose another
+plugin's contributions.

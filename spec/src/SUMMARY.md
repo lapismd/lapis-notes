@@ -4,6 +4,7 @@
 
 - [Architecture](./architecture.md)
 - [Packages](./packages.md)
+- [Plugin Model](./plugin-model.md)
 - [App Database](./app-database.md)
 - [Desktop Host](./desktop-host.md)
 - [Web Host](./web-host.md)

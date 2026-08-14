@@ -445,6 +445,20 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ROLE-019 | roles-plugin | Implemented | 1280 by 900 light-theme browser review covers legacy and hosted Applications, Activity, Actions, and role detail; Lapis shell remains outside parity scope |
 | LN-ARCH-038 | architecture | Implemented | CV compilation, artifact export, and post-YAML toolbar composition remain plugin-owned; Design Core owns form disclosure and Mira owns Markdown presentation |
 | LN-ARCH-039 | architecture | Implemented | ported legacy page presentation remains plugin-owned while Lapis owns the leaf shell, vault adapter, navigation, and Mira boundary |
+| LN-ARCH-040 | architecture | Implemented | API distribution metadata and Design Core managed-plugin bridge retain Lapis lifecycle ownership |
+| LN-PKG-053 | packages | Implemented | versioned peer contracts, package builds, publint, tarball audit, and standalone Roles compile smoke |
+| LN-GOV-030 | spec-governance | Implemented | spec-first classifier tests require the Plugin Model chapter for API plugin lifecycle changes |
+| LN-PLUG-001 | plugin-model | Implemented | bundled plugin package and registration audit |
+| LN-PLUG-002 | plugin-model | Implemented | standalone Roles package naming, distribution, and official provenance coverage |
+| LN-PLUG-003 | plugin-model | Implemented | core-manager persistence tests distinguish static and installed plugins |
+| LN-PLUG-004 | plugin-model | Implemented | API registration and list-entry type and default coverage |
+| LN-PLUG-005 | plugin-model | Implemented | plugin-manager legacy array and object configuration tests |
+| LN-PLUG-006 | plugin-model | Implemented | desktop, web, Storybook, and Design Core settings acceptance |
+| LN-PLUG-007 | plugin-model | Implemented | plugin-manager owned-leaf placeholder and recovery tests |
+| LN-PLUG-008 | plugin-model | Implemented | managed-plugin adapter unit and grouped settings Storybook coverage |
+| LN-PLUG-009 | plugin-model | Implemented | desktop and web default-layout guards for disabled Search and Explorer |
+| LN-PLUG-010 | plugin-model | Implemented | existing community plugin configuration and distribution suites |
+| LN-PLUG-011 | plugin-model | Implemented | Roles runtime ID, command, view, path, and plugin-data compatibility audit |
 | LN-DESK-029 | desktop-host | Implemented | default Search tab plus native persisted-view/result desktop smoke pass |
 | LN-ED-045 | editor-demo | Implemented | real Search plugin panel demo boot and index refresh |
 | LN-ED-046 | editor-demo | Implemented | Ready story closes the final sidebar, verifies stable 700px editor width, and restores the shell state |

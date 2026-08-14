@@ -223,6 +223,7 @@ export abstract class Plugin extends Component {
   #provenance: PluginProvenance = "community";
   #required: boolean = false;
   #hostMode: string = "renderer";
+  readonly #registeredViewTypes = new Set<string>();
   #requestedCapabilities: HostedPluginCapability[] = [];
   #grantedCapabilities: HostedPluginCapability[] = [];
 
@@ -320,6 +321,11 @@ export abstract class Plugin extends Component {
 
   get required(): boolean {
     return this.#required;
+  }
+
+  /** View types owned by this plugin across enable and disable cycles. */
+  get registeredViewTypes(): ReadonlySet<string> {
+    return this.#registeredViewTypes;
   }
 
   get state(): PluginRuntimeState {
@@ -677,6 +683,7 @@ export abstract class Plugin extends Component {
   }
 
   registerView(type: string, viewCreator: ViewCreator): void {
+    this.#registeredViewTypes.add(type);
     const instrumentedViewCreator: ViewCreator = (leaf) =>
       this.measureTelemetry("plugin.view.create", () => viewCreator(leaf), {
         attributes: { "view.type": type },

@@ -562,6 +562,76 @@ beforeEach(() => {
 });
 
 describe("Workspace compatibility", () => {
+  it("projects API plugin lifecycle state into the managed settings registry", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const pluginEvents = new EventDispatcher<{
+      "plugins-loaded": [];
+      "plugin-enabled": [plugin: unknown];
+      "plugin-disabled": [plugin: unknown];
+      "plugin-error": [id: string, message: string, error?: unknown];
+    }>();
+    const disablePlugin = vi.fn(async () => true);
+    const enablePlugin = vi.fn(async () => true);
+    const coreEntries = [
+      {
+        manifest: {
+          id: "markdown",
+          name: "Markdown",
+          description: "Markdown editing",
+        },
+        enabled: true,
+        required: false,
+        distribution: "bundled" as const,
+        errorMessage: null,
+      },
+      {
+        manifest: {
+          id: "roles",
+          name: "CV Roles",
+          description: "Role tracking and CV workflows",
+        },
+        enabled: true,
+        required: false,
+        distribution: "first-party-external" as const,
+        errorMessage: null,
+      },
+    ];
+    Object.assign(app.plugins, {
+      corePluginEntries: coreEntries,
+      disablePlugin,
+      enablePlugin,
+      on: pluginEvents.on.bind(pluginEvents),
+      offref: pluginEvents.offref.bind(pluginEvents),
+    });
+
+    workspace.bindPlugins();
+    const registry = getWorkspaceHostBinding(workspace).controller.managedPlugins;
+
+    expect(registry.states).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "lapis:markdown",
+          distribution: "bundled",
+          status: "enabled",
+        }),
+        expect.objectContaining({
+          key: "lapis:roles",
+          distribution: "first-party-external",
+          status: "enabled",
+        }),
+      ]),
+    );
+
+    await expect(registry.disable("lapis:roles")).resolves.toBe(true);
+    expect(disablePlugin).toHaveBeenCalledWith("roles");
+    coreEntries[1].enabled = false;
+    pluginEvents.emit("plugin-disabled", {});
+    expect(registry.states.find((entry) => entry.key === "lapis:roles")).toMatchObject({
+      enabled: false,
+      status: "disabled",
+    });
+  });
+
   it("splits side leaves by inserting a nested horizontal view", () => {
     const { workspace } = createWorkspaceHarness();
     const originalLeaf = workspace.getRightLeaf(false);

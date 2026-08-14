@@ -41,6 +41,7 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-027 | The spec-first map MUST additionally route package-local Roles Storybook sources and configuration to the Storybook Catalog chapter. |
 | LN-GOV-028 | Agent guidance MUST keep CV Markdown mode and form disclosure actions grouped in the main toolbar immediately after YAML with the shared outlined icon treatment. Form-area scrolling guidance MUST remain limited to tabs and contextual form actions. |
 | LN-GOV-029 | Agent guidance MUST require canonical movable-panel registrations to declare their opening commands together, while file-backed editor views use editor associations and compatibility aliases reuse canonical commands. |
+| LN-GOV-030 | The spec-first map MUST route API plugin lifecycle sources to Plugin Model, Packages, and Architecture. It MUST route the external Roles repository through its standalone specification after cutover. |
 
 ## Requirement structure
 
@@ -100,6 +101,7 @@ not installed or when an embedding model is unavailable.
 | Protected area                                                      | Required chapter                                       |
 | ------------------------------------------------------------------- | ------------------------------------------------------ |
 | `packages/api` source or manifest                                   | `packages.md`, `architecture.md`                       |
+| API plugin lifecycle and workspace managed-plugin bridge            | `plugin-model.md`, `packages.md`, `architecture.md`    |
 | `packages/ui` source or manifest                                    | `packages.md`, `ui-and-styling.md`                     |
 | `packages/workspace` source or manifest                             | `packages.md`, `architecture.md`, `workspace-shell.md` |
 | `packages/desktop-electron` package                                 | `desktop-host.md`, `packages.md`, `architecture.md`    |

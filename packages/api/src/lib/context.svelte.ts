@@ -339,6 +339,7 @@ export class App {
         props.createCommunityPluginDependencyResolver,
       pluginAssetServer: props.pluginAssetServer,
     });
+    this.workspace.bindPlugins();
     const languageServiceDiagnostics =
       this.workspace.diagnostics.createCollection("lapis:language-service", {
         label: "Language service",

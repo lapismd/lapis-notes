@@ -66,6 +66,8 @@ import type { PluginProvenance } from "./plugin-distribution/types";
 import { dirname, getAdapterVaultId, joinPath, normalizePath } from "./storage";
 import { debounce } from "lodash-es";
 import { EventDispatcher } from "./events";
+import type { ViewState } from "./view.svelte";
+import type { WorkspaceLeaf } from "./workspace.svelte";
 
 function formatPluginError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -124,8 +126,11 @@ export interface CorePluginRegistration {
   plugin: PluginConstructor;
   required?: boolean;
   enabledByDefault?: boolean;
+  distribution?: CorePluginDistribution;
   styles?: CorePluginStyles;
 }
+
+export type CorePluginDistribution = "bundled" | "first-party-external";
 
 export type CorePluginStyles = string | (() => string | Promise<string>);
 
@@ -238,6 +243,7 @@ export interface CorePluginListEntry {
   required: boolean;
   source: PluginSource;
   provenance: PluginProvenance;
+  distribution: CorePluginDistribution;
   errorMessage: string | null;
 }
 
@@ -724,6 +730,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
   #enabledCorePlugins: Set<string> = new Set();
   #defaultDisabledCorePlugins: Set<string> = new Set();
   #corePluginStyles: Map<string, CorePluginStyles> = new Map();
+  #corePluginDistribution: Map<string, CorePluginDistribution> = new Map();
   #installedPluginProvenance: Map<string, PluginProvenance> = new Map();
   #installedPluginStateStore: InstalledPluginStateStore;
   #basesViewRegistrations: Map<string, BasesViewRegistrationEntry> = new Map();
@@ -821,6 +828,11 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       required: plugin.required,
       source: plugin.source,
       provenance: plugin.provenance,
+      distribution:
+        this.#corePluginDistribution.get(plugin.manifest.id) ??
+        (plugin.source === "official"
+          ? "first-party-external"
+          : "bundled"),
       errorMessage: plugin.errorMessage,
     }));
 
@@ -837,6 +849,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         required: plugin.required,
         source: plugin.source,
         provenance: plugin.provenance,
+        distribution: "bundled" as const,
         errorMessage: plugin.errorMessage,
       })),
       ...this.systemExtensions
@@ -860,6 +873,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
             required: extension.locked,
             source: "system" as const,
             provenance: "bundled" as const,
+            distribution: "bundled" as const,
             errorMessage:
               diagnostics?.state === "failed"
                 ? diagnostics.lastFailureMessage
@@ -953,12 +967,14 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         plugin: PluginType,
         required = false,
         enabledByDefault = true,
+        distribution = "bundled",
         styles,
       } = typeof registration === "function"
         ? {
             plugin: registration,
             required: false,
             enabledByDefault: true,
+            distribution: "bundled" as const,
             styles: undefined,
           }
         : registration;
@@ -973,9 +989,17 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         }
         const registeredPlugin = this.registerPlugin(plugin, {
           source: "core",
+          provenance:
+            distribution === "first-party-external"
+              ? "official"
+              : "bundled",
           required,
           basePath: pluginPath,
         });
+        this.#corePluginDistribution.set(
+          registeredPlugin.manifest.id,
+          distribution,
+        );
         this.registerCorePluginManifestContributions(
           registeredPlugin,
           pluginPath,
@@ -2035,6 +2059,7 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         span.setAttribute("plugin.required", plugin.required);
         try {
           await plugin.enable();
+          await this.restorePluginOwnedLeaves(plugin);
           const indexedExtension = this.#lapisExtensionIndex.get(pluginId);
           if (
             indexedExtension?.classification === "hybrid" &&
@@ -2145,7 +2170,9 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         span.setAttribute("plugin.id", pluginId);
         span.setAttribute("plugin.source", plugin.source);
         try {
+          const ownedLeaves = this.capturePluginOwnedLeaves(plugin);
           await plugin.disable();
+          await this.replacePluginOwnedLeaves(ownedLeaves);
           if (this.#manifestContributionDisposers.has(pluginId)) {
             this.disposeInstalledManifestContributions(pluginId);
           }
@@ -2220,6 +2247,61 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     }
 
     return this.enablePlugin(pluginId);
+  }
+
+  private capturePluginOwnedLeaves(
+    plugin: Plugin,
+  ): Array<{ leaf: WorkspaceLeaf; state: ViewState }> {
+    const leaves = new Set<WorkspaceLeaf>();
+    for (const viewType of plugin.registeredViewTypes) {
+      for (const leaf of this.app.workspace.getLeavesOfType(viewType)) {
+        leaves.add(leaf);
+      }
+    }
+    return [...leaves].map((leaf) => ({
+      leaf,
+      state: leaf.captureCurrentViewState(),
+    }));
+  }
+
+  private async replacePluginOwnedLeaves(
+    entries: Array<{ leaf: WorkspaceLeaf; state: ViewState }>,
+  ): Promise<void> {
+    await Promise.all(
+      entries.map(({ leaf, state }) =>
+        leaf.setViewState(
+          {
+            ...state,
+            type: "empty",
+            state: {
+              ...(state.state ?? {}),
+              __missingViewType: state.type,
+            },
+          },
+          { history: false, activatePlugins: false },
+        ),
+      ),
+    );
+  }
+
+  private async restorePluginOwnedLeaves(plugin: Plugin): Promise<void> {
+    const leaves: WorkspaceLeaf[] = [];
+    this.app.workspace.iterateAllLeaves((leaf) => {
+      const state = leaf.getViewState();
+      const missingViewType = state.state?.["__missingViewType"];
+      if (
+        state.type === "empty" &&
+        typeof missingViewType === "string" &&
+        plugin.registeredViewTypes.has(missingViewType)
+      ) {
+        leaves.push(leaf);
+      }
+    });
+    await Promise.all(
+      leaves.map((leaf) =>
+        leaf.setViewState(leaf.getViewState(), { history: false }),
+      ),
+    );
   }
 
   private isVersionCompatible(minVersion: string) {

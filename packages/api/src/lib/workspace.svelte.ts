@@ -57,6 +57,7 @@ import {
   WorkspaceMenu as DesignWorkspaceMenu,
   type WorkspaceViewChrome as DesignWorkspaceViewChrome,
   type WorkspaceViewContext as DesignWorkspaceViewContext,
+  type ManagedPluginSettingsSource,
 } from "@lapismd/design-core/workspace/core";
 import { notificationsPlugin } from "@lapismd/design-core/workspace/plugins/notifications";
 import {
@@ -1879,6 +1880,7 @@ export class Workspace extends EventDispatcher<{
   readonly #workspaceHostViewDisposers = new Map<string, () => void>();
   #configurationBridgeDisposer: (() => void) | null = null;
   #editorViewBridgeDisposer: (() => void) | null = null;
+  #pluginSettingsBridgeDisposer: (() => void) | null = null;
   private workspaceLayoutFile = "workspace.json";
 
   public statusEl: HTMLElement = $state()!;
@@ -2720,11 +2722,56 @@ export class Workspace extends EventDispatcher<{
     };
   }
 
+  /** @internal Connect the API plugin lifecycle to Design Core presentation. */
+  bindPlugins(): void {
+    this.#pluginSettingsBridgeDisposer?.();
+    const controller = this.#workspaceHostController;
+    if (!controller) return;
+
+    const manager = this.app.plugins;
+    const source: ManagedPluginSettingsSource = {
+      id: "lapis",
+      getEntries: () =>
+        manager.corePluginEntries.map((entry) => ({
+          id: entry.manifest.id,
+          name: entry.manifest.name,
+          description: entry.manifest.description,
+          required: entry.required,
+          enabled: entry.enabled,
+          status: entry.errorMessage
+            ? "failed"
+            : entry.enabled
+              ? "enabled"
+              : "disabled",
+          distribution: entry.distribution,
+          error: entry.errorMessage ?? undefined,
+        })),
+      enable: (id) => manager.enablePlugin(id),
+      disable: (id) => manager.disablePlugin(id),
+      subscribe: (listener) => {
+        const loaded = manager.on("plugins-loaded", listener);
+        const enabled = manager.on("plugin-enabled", listener);
+        const disabled = manager.on("plugin-disabled", listener);
+        const error = manager.on("plugin-error", listener);
+        return () => {
+          manager.offref(loaded);
+          manager.offref(enabled);
+          manager.offref(disabled);
+          manager.offref(error);
+        };
+      },
+    };
+    this.#pluginSettingsBridgeDisposer =
+      controller.managedPlugins.registerSource(source);
+  }
+
   /** Dispose the API-owned shell controller and its compatibility bridges. */
   async disposeWorkspaceHost(): Promise<void> {
     this.app.languageServices.unbindDiagnostics();
     this.#configurationBridgeDisposer?.();
     this.#configurationBridgeDisposer = null;
+    this.#pluginSettingsBridgeDisposer?.();
+    this.#pluginSettingsBridgeDisposer = null;
     this.#editorViewBridgeDisposer?.();
     this.#editorViewBridgeDisposer = null;
     this.#workspaceHostViewDisposers.forEach((dispose) => dispose());
@@ -5022,7 +5069,9 @@ export class WorkspaceLeaf extends WorkspaceItem<{
           }
         }
 
-        await this.app.plugins.activateForViewType(requestedViewType);
+        if (eState?.activatePlugins !== false) {
+          await this.app.plugins.activateForViewType(requestedViewType);
+        }
         let viewCreator = this.app.workspace.viewCreator(requestedViewType);
         let resolvedViewState = viewState;
 
