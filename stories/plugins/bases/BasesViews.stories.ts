@@ -247,7 +247,10 @@ export const EditableCells: Story = {
 
     const owner = canvas.getAllByRole("combobox", { name: "owner" })[0]!;
     const body = within(canvasElement.ownerDocument.body);
-    await userEvent.click(owner);
+    dueInput!.focus();
+    // Exercise the bubbled input-target click without relying on the browser's
+    // native focus step; the owning cell must still establish edit mode.
+    owner.click();
     await waitFor(() => {
       expect(owner).toHaveFocus();
       expect(owner).toHaveAttribute("aria-expanded", "true");

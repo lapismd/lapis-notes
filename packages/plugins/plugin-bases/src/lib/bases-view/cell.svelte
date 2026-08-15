@@ -41,9 +41,11 @@
   );
 
   function focusElement(evt: Event) {
-    const target = evt.target as HTMLElement;
-    if (!target) return;
-    target.querySelector("input")?.focus();
+    const target = evt.target;
+    if (!(target instanceof HTMLElement) || target.closest("button")) return;
+    const cell = evt.currentTarget;
+    if (!(cell instanceof HTMLElement)) return;
+    cell.querySelector("input")?.focus();
   }
 
   function metadataTypeFromDisplayType(displayType: string): MetadataType {

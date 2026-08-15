@@ -144,6 +144,8 @@ row grows to keep all cell boundaries aligned. Checkbox cells retain the
 full-cell layout wrapper while rendering a centered 1rem control.
 The outer editable cell alone paints its inset focus boundary; inner input and
 autocomplete wrappers retain only their control surface paint.
+Cell-level focus delegation resolves from the semantic cell root rather than
+the clicked descendant so cell chrome and visible input text enter edit mode.
 Single-line editors use the compact row content height at the cell start while
 wrapped tag and multivalue editors expand downward from the same origin.
 `@lapis-notes/ai` owns the provider-agnostic agent runtime, registry, Fake and
