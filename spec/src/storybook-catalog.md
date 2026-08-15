@@ -55,6 +55,8 @@
 | LN-CAT-054 | The real-App Roles shell MUST exercise the Role-to-Markdown same-leaf transition and return action, assert Mira Live Preview and rich frontmatter output, and verify the Description editor uses the registered Markdown provider rather than the API fallback. |
 | LN-CAT-055 | `Plugins/AI/Chat` MUST demonstrate the public `@lapis-notes/ai` chat panel with Fake runtime, including send/complete and a pending-approval `respondToApproval` path, explicit Show Code, and `visual-pending` nested-import baselines. |
 | LN-CAT-056 | `Plugins/Bases/Workflows` MUST cover query controls, schema and view settings, and persisted typed metadata editing. |
+| LN-CAT-057 | The focused Bases Editable Cells story MUST hit-test the AND/OR and operator Select portals above the enclosing filter panel and MUST prove the first Add Filter activation increments the visible predicate count. |
+| LN-CAT-058 | The focused Bases Editable Cells story MUST hit-test the filter panel above each intersecting sticky table header before exercising nested filter menus. |
 
 ## Show Code source contract
 

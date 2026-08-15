@@ -554,10 +554,16 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-023 | bases-plugin | Implemented | focused editable-cell story and browser geometry assert inline-start right-collapsed and down-expanded indicators on both filter disclosure triggers |
 | LN-BASE-024 | bases-plugin | Implemented | focused editable-cell story and browser acceptance assert centered filter values, visible group labels, nested Select overlay anchoring, and syntax-colored advanced expressions |
 | LN-BASE-025 | bases-plugin | Implemented | focused editable-cell story and browser styles assert no outer bottom or inline-end container and scrollbar-track borders while the final row and internal tracks retain separators |
+| LN-BASE-026 | bases-plugin | Implemented | focused editable-cell story asserts the first Add Filter activation grows the visible predicate list from one row to two |
+| LN-BASE-027 | bases-plugin | Implemented | focused editable-cell story hit-tests the opaque filter panel above intersecting sticky table headers |
+| LN-ARCH-050 | architecture | Implemented | focused editable-cell story hit-tests both nested Design Core Select portals above the enclosing filter panel without a Bases stacking override |
+| LN-PKG-065 | packages | Implemented | Bases package checks, build, and focused story preserve first-click row growth and shared portal layering |
 | LN-DESK-032 | desktop-host | In progress | desktop registers AI after Bases and before Roles; agent-runtime capability and process host IPC |
 | LN-WEB-012 | web-host | In progress | web registers AI after Bases; live runtimes remain unavailable |
 | LN-CAT-055 | storybook-catalog | In progress | Plugins/AI/Chat Fake send/complete and approval stories with public Show Code |
 | LN-CAT-056 | storybook-catalog | In progress | workflow stories cover query controls and persisted typed metadata; schema and view settings remain |
+| LN-CAT-057 | storybook-catalog | Implemented | focused Editable Cells story hit-tests both nested Select portals above the filter panel and verifies first-click row growth |
+| LN-CAT-058 | storybook-catalog | Implemented | focused Editable Cells story verifies filter-panel coverage before nested menu interactions |
 | LN-AI-001 | ai-plugin | In progress | package location, runtime ID `ai`, bundled default-enabled registration |
 | LN-AI-002 | ai-plugin | In progress | public exports expose AgentRuntime; vendor SDKs stay in adapters |
 | LN-AI-003 | ai-plugin | In progress | Fake and ACP sessions block on respondToApproval |

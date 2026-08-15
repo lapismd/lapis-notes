@@ -456,6 +456,24 @@ export const EditableCells: Story = {
         const rect = element.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0;
       });
+    const expectFilterMenuAbovePanel = (content: HTMLElement) => {
+      const contentRect = content.getBoundingClientRect();
+      const panelRect = filterPopover!.getBoundingClientRect();
+      const overlapTop = Math.max(contentRect.top, panelRect.top);
+      const overlapBottom = Math.min(contentRect.bottom, panelRect.bottom);
+      expect(overlapBottom - overlapTop).toBeGreaterThan(8);
+
+      const hitTarget = canvasElement.ownerDocument.elementFromPoint(
+        contentRect.left + 8,
+        overlapTop + 4,
+      );
+      expect(content.contains(hitTarget)).toBe(true);
+      expect(
+        Number.parseInt(getComputedStyle(content).zIndex, 10),
+      ).toBeGreaterThanOrEqual(
+        Number.parseInt(getComputedStyle(filterPopover!).zIndex, 10),
+      );
+    };
     expect(filterPopover!.getBoundingClientRect().width).toBeCloseTo(
       canvasElement.ownerDocument.defaultView!.innerWidth * 0.45,
       0,
@@ -476,6 +494,27 @@ export const EditableCells: Story = {
     expect(filterPopover!.getBoundingClientRect().right).toBeLessThanOrEqual(
       canvasElement.ownerDocument.defaultView!.innerWidth,
     );
+    const filterPanelRect = filterPopover!.getBoundingClientRect();
+    const intersectingHeader = [
+      ...canvasElement.querySelectorAll<HTMLElement>(
+        ".bases-table__header-cell",
+      ),
+    ].find((header) => {
+      const rect = header.getBoundingClientRect();
+      return (
+        rect.right > filterPanelRect.left &&
+        rect.left < filterPanelRect.right &&
+        rect.bottom > filterPanelRect.top &&
+        rect.top < filterPanelRect.bottom
+      );
+    });
+    expect(intersectingHeader).toBeVisible();
+    const intersectingHeaderRect = intersectingHeader!.getBoundingClientRect();
+    const panelHitTarget = canvasElement.ownerDocument.elementFromPoint(
+      Math.max(filterPanelRect.left, intersectingHeaderRect.left) + 4,
+      Math.max(filterPanelRect.top, intersectingHeaderRect.top) + 4,
+    );
+    expect(filterPopover!.contains(panelHitTarget)).toBe(true);
     for (const trigger of [allViewsTrigger, thisViewTrigger]) {
       expect(trigger).toHaveAttribute("data-indicator-position", "start");
       expect(trigger).toHaveAttribute("data-indicator-variant", "disclosure");
@@ -539,7 +578,7 @@ export const EditableCells: Story = {
     expect(
       Math.abs(groupTypeContentRect.left - groupTypeTriggerRect.left),
     ).toBeLessThan(2);
-    expect(getComputedStyle(groupTypeContent).zIndex).toBe("60");
+    expectFilterMenuAbovePanel(groupTypeContent);
     await userEvent.click(
       body.getByRole("option", { name: "Any of the following are true" }),
     );
@@ -579,8 +618,20 @@ export const EditableCells: Story = {
     expect(
       Math.abs(operatorContentRect.left - operatorTriggerRect.left),
     ).toBeLessThan(2);
-    expect(getComputedStyle(operatorContent).zIndex).toBe("60");
+    expectFilterMenuAbovePanel(operatorContent);
     await userEvent.click(body.getByRole("option", { name: "links to" }));
+
+    const visibleFilterRowCount = () =>
+      [...filterPopover!.querySelectorAll<HTMLElement>(".filter-row")].filter(
+        (row) => row.getBoundingClientRect().height > 0,
+      ).length;
+    const filterRowCountBeforeAdd = visibleFilterRowCount();
+    await userEvent.click(
+      body.getByRole("button", { name: "Add Filter", exact: true }),
+    );
+    await waitFor(() =>
+      expect(visibleFilterRowCount()).toBe(filterRowCountBeforeAdd + 1),
+    );
 
     const advancedToggle = visibleFilterElement<HTMLButtonElement>(
       'button[data-tooltip="Simple filter"]',

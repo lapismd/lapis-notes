@@ -224,15 +224,16 @@
           {filterValue?.label || filter.op}
         </Select.Trigger>
         <Select.Content
-          class="bases-filter-select-content"
           align="start"
           data-bases-filter-control="operator-content"
         >
-          {#each filterTypes as filterType (filterType.value)}
-            <Select.Item value={filterType.value} label={filterType.label}
-              >{filterType.label}</Select.Item
-            >
-          {/each}
+          <Select.Group>
+            {#each filterTypes as filterType (filterType.value)}
+              <Select.Item value={filterType.value} label={filterType.label}
+                >{filterType.label}</Select.Item
+              >
+            {/each}
+          </Select.Group>
         </Select.Content>
       </Select.Root>
       <FilterEditor

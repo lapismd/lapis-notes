@@ -48,7 +48,7 @@
   );
 
   function addFilter() {
-    if (!filterValues.length && empty) {
+    if (!filterValues.length) {
       filterValues.push(empty);
       empty = "";
     }
@@ -79,15 +79,16 @@
         {triggerContent}
       </Select.Trigger>
       <Select.Content
-        class="bases-filter-select-content"
         align="start"
         data-bases-filter-control="group-type-content"
       >
-        {#each filterTypes as filterType (filterType.value)}
-          <Select.Item value={filterType.value} label={filterType.label}
-            >{filterType.label}</Select.Item
-          >
-        {/each}
+        <Select.Group>
+          {#each filterTypes as filterType (filterType.value)}
+            <Select.Item value={filterType.value} label={filterType.label}
+              >{filterType.label}</Select.Item
+            >
+          {/each}
+        </Select.Group>
       </Select.Content>
     </Select.Root>
     {#if deleteFilterGroup}

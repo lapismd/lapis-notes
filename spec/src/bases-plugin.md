@@ -29,6 +29,8 @@
 | LN-BASE-023 | All-views and this-view filter disclosure triggers MUST place their indicators at the inline start through the public Design Core Accordion contract. Indicators MUST point right when collapsed and down when expanded. Disclosure semantics and keyboard behavior MUST remain unchanged. |
 | LN-BASE-024 | Filter-builder value editors MUST vertically align with their segmented row. Group and operator selects MUST retain a visible selected label and paint their option content above the parent filter popover at the trigger anchor. Advanced filter expressions MUST apply syntax-token colors to parsed CodeMirror spans. |
 | LN-BASE-025 | The table MUST omit an outer bottom and inline-end container frame while retaining its internal row and column grid. The last row MUST retain its bottom separator. Scrollbar tracks MUST meet the container edge without reintroducing the outer frame. |
+| LN-BASE-026 | An initial blank filter row MUST count as the first predicate. The first Add Filter activation MUST preserve that predicate and append a second visible row rather than replacing the placeholder with an indistinguishable placeholder. |
+| LN-BASE-027 | The sticky table header MUST remain above scrolling table rows but below portaled filter panels. Opening Filter MUST produce an opaque hit-tested panel over every intersecting header cell, while its nested Select portals remain above the panel. |
 
 ## Public surface
 

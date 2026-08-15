@@ -816,7 +816,7 @@
         style={`--ui-bases-table-row-height: ${rowHeight}px; width: ${tableWidth}px; height: ${virtualTotalSize + 2 * rowHeight}px;`}
       >
         <div
-          class="bases-table__head bases-thead sticky bases-style-top-0-216740 bases-style-z-100-db5a36 bases-style-h-9-e7a768"
+          class="bases-table__head bases-thead sticky bases-style-top-0-216740 bases-style-h-9-e7a768"
           data-ui-part="header"
         >
           <div
