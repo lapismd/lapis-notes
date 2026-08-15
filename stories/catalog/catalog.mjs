@@ -283,6 +283,27 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--file-mentions",
   },
   {
+    id: "plugins-ai-chat-trace",
+    title: "AI Chat: Agent Trace",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--agent-trace",
+  },
+  {
+    id: "plugins-ai-chat-scroll",
+    title: "AI Chat: Scroll Recovery",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--scroll-recovery",
+  },
+  {
+    id: "plugins-ai-workspace",
+    title: "AI Workspace: Right Sidebar And Settings",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai + @lapis-notes/workspace",
+    storyId: "plugins-ai-workspace--right-sidebar-and-settings",
+  },
+  {
     id: "plugins-bases-editor-shell",
     title: "Bases Editor Shell",
     spec: "spec/src/bases-plugin.md",

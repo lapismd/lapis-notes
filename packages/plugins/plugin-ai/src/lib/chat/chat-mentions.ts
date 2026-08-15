@@ -36,6 +36,35 @@ export function extractMentionPaths(input: string): string[] {
   return paths;
 }
 
+export function mergeAttachmentPaths(
+  ...lists: Array<Iterable<string> | undefined>
+): string[] {
+  const seen = new Set<string>();
+  const paths: string[] = [];
+  for (const list of lists) {
+    if (!list) continue;
+    for (const raw of list) {
+      const path = normalizeMentionPath(raw);
+      if (!path || seen.has(path)) continue;
+      seen.add(path);
+      paths.push(path);
+    }
+  }
+  return paths;
+}
+
+export function mentionTokensFromText(text: string): Array<{
+  value: string;
+  label: string;
+  variant: "secondary";
+}> {
+  return extractMentionPaths(text).map((path) => ({
+    value: formatFileMention(path),
+    label: path,
+    variant: "secondary",
+  }));
+}
+
 export function searchVaultFiles(
   files: Iterable<VaultFileRef>,
   query: string,

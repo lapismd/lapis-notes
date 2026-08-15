@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   extractMentionPaths,
   formatFileMention,
+  mentionTokensFromText,
+  mergeAttachmentPaths,
   searchVaultFiles,
 } from "./chat-mentions";
 
@@ -30,4 +32,24 @@ describe("vault file mentions", () => {
       extractMentionPaths('See @Notes/alpha.md and @"Notes/beta file.md"'),
     ).toEqual(["Notes/alpha.md", "Notes/beta file.md"]);
   });
+
+  it("merges mention and drawer paths without duplicates", () => {
+    expect(
+      mergeAttachmentPaths(
+        extractMentionPaths("See @Notes/alpha.md"),
+        ["Notes/alpha.md", "Notes/beta.md"],
+      ),
+    ).toEqual(["Notes/alpha.md", "Notes/beta.md"]);
+  });
+
+  it("builds tokenized mention chips from prompt text", () => {
+    expect(mentionTokensFromText("See @Notes/alpha.md")).toEqual([
+      {
+        value: "@Notes/alpha.md",
+        label: "Notes/alpha.md",
+        variant: "secondary",
+      },
+    ]);
+  });
 });
+

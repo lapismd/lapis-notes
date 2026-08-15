@@ -5,7 +5,7 @@ import type {
   ToolContribution,
 } from "../core/types";
 import type { AgentSessionStore, StoredAgentSession } from "../sessions/session-store";
-import { extractMentionPaths } from "./chat-mentions";
+import { extractMentionPaths, mergeAttachmentPaths } from "./chat-mentions";
 import {
   applyStoredSessionResumePolicy,
   chatSessionId,
@@ -88,10 +88,14 @@ export class AiChatController {
         type: "message",
         role: "user",
         text,
+        createdAt: new Date().toISOString(),
       },
     ];
     await this.#persist();
-    const attachments = extractMentionPaths(text);
+    const attachments = mergeAttachmentPaths(
+      extractMentionPaths(text),
+      readAttachmentPaths(request.metadata?.attachments),
+    );
     try {
       if (!this.session) {
         this.session = await this.runtime.start({
@@ -167,4 +171,9 @@ export class AiChatController {
     });
     await this.#persistQueue;
   }
+}
+
+function readAttachmentPaths(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
 }

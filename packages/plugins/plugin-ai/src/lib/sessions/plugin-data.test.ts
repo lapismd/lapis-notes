@@ -4,7 +4,12 @@ import { parseAiPluginData } from "./plugin-data";
 describe("AI plugin data", () => {
   it("reads legacy settings-only payloads", () => {
     expect(parseAiPluginData({ defaultRuntime: "fake", acpAgent: "codex" })).toEqual({
-      settings: { defaultRuntime: "fake", acpAgent: "codex" },
+      settings: {
+        defaultRuntime: "fake",
+        acpAgent: "codex",
+        defaultModel: "gpt-5.6-sol",
+        thinking: "medium",
+      },
       sessions: [],
     });
   });

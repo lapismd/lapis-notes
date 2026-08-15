@@ -9,11 +9,32 @@ import {
   type ApprovalRequest,
 } from "../../core/types";
 
+export type FakeAgentTrace = "echo" | "rich";
+
 export type FakeAgentRuntimeOptions = {
   id?: string;
   requireApproval?: boolean;
   resumeSupported?: boolean;
+  trace?: FakeAgentTrace;
 };
+
+export const FAKE_RICH_THINKING =
+  "I will read the mentioned note, then summarize it.";
+
+export const FAKE_RICH_TOOL = {
+  id: "tool-vault-read",
+  name: "vault.read",
+  output: "heading: Notes",
+} as const;
+
+export const FAKE_RICH_ASSISTANT_TEXT = [
+  "## Summary",
+  "",
+  "I read **Notes/alpha.md** and found a `TODO`.",
+  "",
+  "- One heading",
+  "- A note",
+].join("\n");
 
 export class FakeAgentSession implements AgentSession {
   readonly id: string;
@@ -26,10 +47,16 @@ export class FakeAgentSession implements AgentSession {
     { resolve(optionId: string): void; reject(error: Error): void }
   >();
   readonly #requireApproval: boolean;
+  readonly #trace: FakeAgentTrace;
 
-  constructor(id: string, requireApproval: boolean) {
+  constructor(
+    id: string,
+    requireApproval: boolean,
+    trace: FakeAgentTrace = "echo",
+  ) {
     this.id = id;
     this.#requireApproval = requireApproval;
+    this.#trace = trace;
   }
 
   events(): AsyncIterable<AgentEvent> {
@@ -39,7 +66,27 @@ export class FakeAgentSession implements AgentSession {
   async send(input: string): Promise<void> {
     if (this.closed) throw new Error("Fake session is closed.");
     this.prompts.push(input);
-    this.#events.push({ type: "text", text: input });
+    if (this.#trace === "rich") {
+      this.#events.push({
+        type: "thinking",
+        text: FAKE_RICH_THINKING,
+        kind: "reasoning",
+      });
+      this.#events.push({
+        type: "tool.start",
+        id: FAKE_RICH_TOOL.id,
+        name: FAKE_RICH_TOOL.name,
+      });
+      this.#events.push({
+        type: "tool.end",
+        id: FAKE_RICH_TOOL.id,
+        name: FAKE_RICH_TOOL.name,
+        output: FAKE_RICH_TOOL.output,
+      });
+      this.#events.push({ type: "text", text: FAKE_RICH_ASSISTANT_TEXT });
+    } else {
+      this.#events.push({ type: "text", text: input });
+    }
     if (this.#requireApproval) {
       const request = createFakeApprovalRequest(`approval-${this.prompts.length}`);
       this.#events.push({ type: "permission.request", request });
@@ -85,13 +132,16 @@ export class FakeAgentSession implements AgentSession {
 export class FakeAgentRuntime implements AgentRuntime {
   readonly id: string;
   readonly sessions: FakeAgentSession[] = [];
+  lastRequest: AgentRequest | null = null;
   readonly #requireApproval: boolean;
   readonly #resumeSupported: boolean;
+  readonly #trace: FakeAgentTrace;
 
   constructor(options: FakeAgentRuntimeOptions = {}) {
     this.id = options.id ?? "fake";
     this.#requireApproval = options.requireApproval ?? false;
     this.#resumeSupported = options.resumeSupported ?? true;
+    this.#trace = options.trace ?? "echo";
   }
 
   capabilities(): AgentCapabilities {
@@ -118,10 +168,12 @@ export class FakeAgentRuntime implements AgentRuntime {
     return true;
   }
 
-  async start(_request: AgentRequest): Promise<AgentSession> {
+  async start(request: AgentRequest): Promise<AgentSession> {
+    this.lastRequest = request;
     const session = new FakeAgentSession(
       `fake-${this.sessions.length + 1}`,
-      this.#requireApproval || Boolean(_request.requireApprovals),
+      this.#requireApproval || Boolean(request.requireApprovals),
+      this.#trace,
     );
     this.sessions.push(session);
     return session;

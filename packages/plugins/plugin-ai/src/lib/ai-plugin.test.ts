@@ -9,6 +9,8 @@ describe("AiPlugin contracts", () => {
     expect(mergeAiSettings(null)).toEqual({
       defaultRuntime: "auto",
       acpAgent: "codex",
+      defaultModel: "gpt-5.6-sol",
+      thinking: "medium",
     });
     expect(new FakeAgentRuntime().id).toBe("fake");
   });

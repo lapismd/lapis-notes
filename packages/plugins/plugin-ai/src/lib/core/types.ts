@@ -3,6 +3,8 @@ export type ModelRef = {
   model: string;
 };
 
+export type AiThinkingLevel = "off" | "low" | "medium" | "high";
+
 export type ToolContribution = {
   name: string;
   command: string;
@@ -16,6 +18,7 @@ export type AgentRequest = {
   prompt: string;
   workspace?: string;
   model?: ModelRef;
+  thinking?: AiThinkingLevel;
   metadata?: Record<string, unknown>;
   tools?: ToolContribution[];
   restricted?: boolean;

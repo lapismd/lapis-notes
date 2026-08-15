@@ -8,13 +8,20 @@ export type AiChatApprovalStatus =
   | "cancelled";
 
 export type AiChatItem =
-  | { id: string; type: "message"; role: "user" | "assistant"; text: string }
+  | {
+      id: string;
+      type: "message";
+      role: "user" | "assistant";
+      text: string;
+      createdAt?: string;
+    }
   | {
       id: string;
       type: "thinking";
       text: string;
       kind?: "reasoning" | "summary" | "plan";
       state: "streaming" | "done";
+      createdAt?: string;
     }
   | {
       id: string;
@@ -24,6 +31,7 @@ export type AiChatItem =
       server?: string;
       state: "running" | "completed" | "error";
       output?: string;
+      createdAt?: string;
     }
   | {
       id: string;
@@ -31,9 +39,10 @@ export type AiChatItem =
       request: ApprovalRequest;
       status: AiChatApprovalStatus;
       responseOptionId?: string;
+      createdAt?: string;
     }
-  | { id: string; type: "status"; text: string }
-  | { id: string; type: "error"; text: string };
+  | { id: string; type: "status"; text: string; createdAt?: string }
+  | { id: string; type: "error"; text: string; createdAt?: string };
 
 export function createChatItemId(prefix: string, index: number): string {
   return `${prefix}-${index}`;

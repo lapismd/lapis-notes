@@ -6,6 +6,9 @@ import {
   aiChatApprovalExampleSource,
   aiChatExampleSource,
   aiChatMentionsExampleSource,
+  aiChatScrollExampleSource,
+  aiChatTraceExampleSource,
+  createAiChatScrollSeedItems,
 } from "./AiChat.example-sources";
 import AiChatDemo from "./AiChatDemo.svelte";
 
@@ -55,7 +58,20 @@ export const SendAndComplete: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = await canvas.findByRole("combobox");
+    const panel = await canvas.findByTestId("ai-chat-panel");
+    const dock = panel.querySelector(
+      '[data-ui-part="composer-dock"]',
+    ) as HTMLElement | null;
+    const shell = panel.querySelector(
+      '[data-ui-part="scroll-shell"]',
+    ) as HTMLElement | null;
+    expect(dock).not.toBeNull();
+    expect(shell).not.toBeNull();
+    expect(getComputedStyle(dock!).position).toBe("relative");
+    expect(shell!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      dock!.getBoundingClientRect().top + 2,
+    );
+    const input = await canvas.findByRole("combobox", { name: "Message" });
     await userEvent.type(input, "Summarize this note");
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
@@ -96,7 +112,7 @@ export const PendingApproval: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = await canvas.findByRole("combobox");
+    const input = await canvas.findByRole("combobox", { name: "Message" });
     await userEvent.type(input, "Apply the change");
     await userEvent.keyboard("{Enter}");
     const allow = await canvas.findByRole("button", { name: "Allow once" });
@@ -137,15 +153,198 @@ export const FileMentions: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = await canvas.findByRole("combobox");
+    const input = await canvas.findByRole("combobox", { name: "Message" });
     await userEvent.type(input, "@alp");
     const option = await canvas.findByText("alpha");
+    const menu = option.closest("[data-ui-part='trigger-menu']");
+    expect(menu).toBeTruthy();
+    const inputBox = input.getBoundingClientRect();
+    const menuBox = (menu as HTMLElement).getBoundingClientRect();
+    const gap =
+      menuBox.top >= inputBox.bottom - 2
+        ? menuBox.top - inputBox.bottom
+        : inputBox.top - menuBox.bottom;
+    expect(gap).toBeGreaterThanOrEqual(-4);
+    expect(gap).toBeLessThan(32);
     await userEvent.click(option);
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
+      const userMessage = canvas.getByRole("article", {
+        name: "Message from user",
+      });
       expect(
-        canvas.getByRole("article", { name: "Message from user" }),
-      ).toHaveTextContent("@Notes/alpha.md");
+        userMessage.querySelector(
+          '[data-ui-component="ai-chat-tokenized-text"]',
+        ),
+      ).not.toBeNull();
+      expect(userMessage).toHaveTextContent("Notes/alpha.md");
+    });
+  },
+};
+
+export const AgentTrace: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { requireApproval: false, trace: "rich" },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-trace"),
+    docs: {
+      description: {
+        story:
+          "FakeAgentRuntime rich trace streams thinking, a vault tool call, Markdown assistant text, a date divider, timestamps, Composer Drawer attachments, and an Effort/Model brain popover.",
+      },
+      source: {
+        code: aiChatTraceExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: ["/visual-baselines/stories/plugins/ai/chat-trace-chromium.png"],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Effort and model" }),
+    );
+    await expect(body.getByLabelText("Effort")).toBeVisible();
+    await expect(body.getByLabelText("Model")).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await userEvent.click(canvas.getByRole("button", { name: "Attach file" }));
+    await userEvent.click(await body.findByText("alpha"));
+    await expect(
+      canvas.getByRole("button", { name: "Remove alpha" }),
+    ).toBeVisible();
+    expect(
+      canvasElement.querySelector(
+        '[data-ui-component="ai-chat-composer-drawer"]',
+      ),
+    ).not.toBeNull();
+    const input = await canvas.findByRole("combobox", { name: "Message" });
+    await userEvent.type(input, "Summarize this note");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(
+        canvasElement.querySelector(
+          '[data-ui-component="ai-chat-system-message"][data-variant="divider"]',
+        ),
+      ).toHaveTextContent("Today");
+      expect(
+        canvasElement.querySelector('[data-ui-component="ai-chat-reasoning"]'),
+      ).not.toBeNull();
+      expect(
+        canvas.getByText("I will read the mentioned note, then summarize it."),
+      ).toBeVisible();
+      expect(canvas.getByText("vault.read")).toBeVisible();
+      expect(
+        canvas.getByRole("article", { name: "Message from assistant" }),
+      ).toHaveTextContent("Summary");
+      expect(
+        canvas.getByRole("article", { name: "Message from assistant" }),
+      ).toHaveTextContent("TODO");
+      expect(
+        canvasElement.querySelector(
+          '[data-ui-component="ai-chat-message-metadata"] [data-ui-part="timestamp"]',
+        ),
+      ).not.toBeNull();
+    });
+    const panel = canvas.getByTestId("ai-chat-panel");
+    const dock = panel.querySelector(
+      '[data-ui-part="composer-dock"]',
+    ) as HTMLElement | null;
+    const assistant = canvas.getByRole("article", {
+      name: "Message from assistant",
+    });
+    const bubble = assistant.querySelector(
+      '[data-ui-component="ai-chat-message-bubble"]',
+    ) as HTMLElement | null;
+    expect(dock).not.toBeNull();
+    expect(bubble).not.toBeNull();
+    expect(assistant.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      dock!.getBoundingClientRect().top + 2,
+    );
+    const bubbleStyles = getComputedStyle(bubble!);
+    expect(bubbleStyles.fontFamily).toMatch(/DM Sans/i);
+    expect(bubbleStyles.fontSize).toBe("14px");
+    expect(bubbleStyles.lineHeight).toBe("22px");
+    const heading = bubble!.querySelector("h2");
+    expect(heading).not.toBeNull();
+    expect(getComputedStyle(heading!).fontSize).toBe(bubbleStyles.fontSize);
+    expect(getComputedStyle(heading!).fontFamily).toBe(bubbleStyles.fontFamily);
+  },
+};
+
+export const ScrollRecovery: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: {
+      requireApproval: false,
+      seedItems: createAiChatScrollSeedItems(),
+    },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-scroll"),
+    docs: {
+      description: {
+        story:
+          "A seeded Fake session overflows the transcript. Scrolling away reveals Layout scroll-to-latest, which returns to the newest message.",
+      },
+      source: {
+        code: aiChatScrollExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: ["/visual-baselines/stories/plugins/ai/chat-scroll-chromium.png"],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByText("Latest seeded message");
+    const viewport = canvasElement.querySelector(
+      '[data-ui-part="scroll-area-viewport"]',
+    ) as HTMLElement | null;
+    expect(viewport).not.toBeNull();
+    await waitFor(() => {
+      expect(viewport!.scrollHeight).toBeGreaterThan(viewport!.clientHeight);
+    });
+    await waitFor(() => {
+      viewport!.dispatchEvent(
+        new WheelEvent("wheel", { deltaY: -120, bubbles: true }),
+      );
+      viewport!.scrollTop = 0;
+      viewport!.dispatchEvent(new Event("scroll"));
+      expect(viewport!.scrollTop).toBe(0);
+      expect(
+        canvasElement.querySelector(
+          '[data-ui-component="ai-chat-layout-scroll-button"][data-visible="true"]',
+        ),
+      ).not.toBeNull();
+    });
+    const scrollButton = canvasElement.querySelector(
+      '[data-ui-component="ai-chat-layout-scroll-button"][data-visible="true"] button',
+    ) as HTMLButtonElement | null;
+    expect(scrollButton).not.toBeNull();
+    expect(scrollButton).toHaveAttribute("aria-label", "Scroll to latest");
+    scrollButton!.click();
+    await waitFor(() => {
+      const latest = canvas.getByText("Latest seeded message");
+      const viewBox = viewport!.getBoundingClientRect();
+      const latestBox = latest.getBoundingClientRect();
+      expect(latestBox.bottom).toBeLessThanOrEqual(viewBox.bottom + 16);
+      expect(latestBox.top).toBeGreaterThanOrEqual(viewBox.top - 16);
     });
   },
 };

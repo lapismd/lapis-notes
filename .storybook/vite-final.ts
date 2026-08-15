@@ -224,6 +224,9 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         "@myriaddreamin/typst.ts/options.init",
         "@lucide/svelte/icons/hash",
         "@lucide/svelte/icons/maximize-2",
+        "@lucide/svelte/icons/brain",
+        "@lucide/svelte/icons/paperclip",
+        "@lucide/svelte/icons/x",
       ],
     },
     ssr: {

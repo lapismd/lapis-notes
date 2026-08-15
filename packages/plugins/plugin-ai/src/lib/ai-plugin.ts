@@ -21,6 +21,7 @@ import { CodexNativeRuntime } from "./runtimes/codex/codex-runtime";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
 import { parseAiPluginData, type AiPluginData } from "./sessions/plugin-data";
 import { createPersistedSessionStore } from "./sessions/session-store";
+import { registerAiSettings } from "./settings/register-ai-settings";
 import { AiSettingsTab } from "./settings/ai-settings-tab";
 import {
   DEFAULT_AI_SETTINGS,
@@ -47,7 +48,10 @@ export class AiPlugin extends Plugin {
   readonly registry: AgentRuntimeRegistry;
   readonly models: CodexModelProvider;
   readonly tools = createToolContributionRegistry();
-  readonly fakeRuntime = new FakeAgentRuntime({ requireApproval: true });
+  readonly fakeRuntime = new FakeAgentRuntime({
+    requireApproval: false,
+    trace: "rich",
+  });
   readonly sessionStore = createPersistedSessionStore({
     read: async () => this.data.sessions,
     write: async (sessions) => {
@@ -129,6 +133,7 @@ export class AiPlugin extends Plugin {
   async onload(): Promise<void> {
     this.data = parseAiPluginData(await this.loadData());
     this.addSettingTab(new AiSettingsTab(this.app, this));
+    registerAiSettings(this);
     this.registerSidebarView(
       AiViewType,
       (leaf) => new AiView(leaf, this),

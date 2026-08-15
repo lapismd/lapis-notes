@@ -1,8 +1,9 @@
 import { View, type WorkspaceLeaf } from "@lapis-notes/api";
 import type { ComposerSearchSource } from "@lapismd/design-core/ai/chat";
 import { mount, unmount } from "svelte";
-import type { AgentRequest, AgentRuntime, ToolContribution } from "../core/types";
+import type { AgentRequest, AgentRuntime, ModelRef, ToolContribution } from "../core/types";
 import type { AgentSessionStore } from "../sessions/session-store";
+import type { AiPluginSettings } from "../settings/ai-settings";
 import AiChatPanel from "./ai-chat-panel.svelte";
 import { AiViewType } from "./ai-view-type";
 
@@ -14,6 +15,9 @@ export type AiViewHost = {
   tools: { list(): ToolContribution[] };
   sessionStore: AgentSessionStore;
   searchVaultFiles: ComposerSearchSource;
+  getSettings(): AiPluginSettings;
+  updateSettings(patch: Partial<AiPluginSettings>): Promise<void>;
+  models: { listModels(): Promise<ModelRef[]> };
   workspace?: string;
 };
 
@@ -59,7 +63,16 @@ export class AiView extends View {
 
   private async mountPanel(): Promise<void> {
     const tools = this.host.tools.list();
-    const runtime = await this.host.selectRuntime({ prompt: "", tools });
+    const settings = this.host.getSettings();
+    const [runtime, models] = await Promise.all([
+      this.host.selectRuntime({
+        prompt: "",
+        tools,
+        model: { provider: "codex", model: settings.defaultModel },
+        thinking: settings.thinking,
+      }),
+      this.host.models.listModels().catch(() => []),
+    ]);
     if (this.disposed || this.component) return;
     this.component = mount(AiChatPanel, {
       target: this.containerEl,
@@ -70,6 +83,9 @@ export class AiView extends View {
         workspace: this.host.workspace,
         sessionStore: this.host.sessionStore,
         fileSearch: this.host.searchVaultFiles,
+        models,
+        settings,
+        onSettingsChange: (patch) => this.host.updateSettings(patch),
       },
     }) as Record<string, unknown>;
   }

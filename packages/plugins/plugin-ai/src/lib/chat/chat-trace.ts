@@ -7,8 +7,10 @@ import {
 export function applyAgentEventToChatItems(
   items: AiChatItem[],
   event: AgentEvent,
+  now = () => new Date().toISOString(),
 ): AiChatItem[] {
   const next = [...items];
+  const createdAt = now();
   switch (event.type) {
     case "text": {
       const last = next.at(-1);
@@ -21,6 +23,7 @@ export function applyAgentEventToChatItems(
         type: "message",
         role: "assistant",
         text: event.text,
+        createdAt,
       });
       return next;
     }
@@ -40,6 +43,7 @@ export function applyAgentEventToChatItems(
         text: event.text,
         kind: event.kind,
         state: "streaming",
+        createdAt,
       });
       return next;
     }
@@ -51,6 +55,7 @@ export function applyAgentEventToChatItems(
         name: event.name,
         server: event.server,
         state: "running",
+        createdAt,
       });
       return next;
     }
@@ -90,6 +95,7 @@ export function applyAgentEventToChatItems(
         type: "approval",
         request: event.request,
         status: "pending",
+        createdAt,
       });
       return next;
     }
@@ -98,6 +104,7 @@ export function applyAgentEventToChatItems(
         id: createChatItemId("status", next.length + 1),
         type: "status",
         text: event.status,
+        createdAt,
       });
       return next;
     }
@@ -106,6 +113,7 @@ export function applyAgentEventToChatItems(
         id: createChatItemId("error", next.length + 1),
         type: "error",
         text: event.error.message,
+        createdAt,
       });
       return next;
     }

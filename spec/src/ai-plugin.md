@@ -28,6 +28,17 @@ execution APIs.
 | LN-AI-017 | Session persistence MUST write `StoredAgentSession` records to plugin-data JSON, including outstanding approval ids and an interrupt flag. The panel MUST restore plugin-owned chat items. It MUST call runtime resume only when `capabilities.resume` is true and MUST NOT reconstruct private agent state. |
 | LN-AI-018 | The chat composer MUST offer `@` file mentions from a vault-scoped search of vault files. Selecting a mention MUST insert a path token. Search MUST NOT read or suggest paths outside the active vault. |
 | LN-AI-019 | A Codex `ModelProvider` MUST request `model/list` through the desktop `agent-runtime` process host and return `ModelRef` values. It MUST stay off `AgentRuntime`. When that capability is unavailable it MUST return an empty catalog and unauthenticated status without renderer process spawn. |
+| LN-AI-020 | A Fake rich trace MUST emit thinking, a tool start and end, and assistant text that includes Markdown. Storybook MUST demonstrate those items on the public chat panel without a live subscription. |
+| LN-AI-021 | Chat messages MUST show a timestamp through Design Core `MessageMetadata`. Items MUST store an ISO `createdAt`. Restored sessions MUST keep those timestamps. |
+| LN-AI-022 | The composer MUST expose model and thinking controls. Model options MUST come from `ModelProvider` when the catalog is available. The selected model and thinking level MUST be sent on `AgentRequest`. |
+| LN-AI-023 | The AI settings tab MUST expose default runtime, ACP agent, default model, and thinking level, and MUST persist them in plugin-data JSON. |
+| LN-AI-024 | The chat panel MUST insert Design Core `SystemMessage` date dividers when item `createdAt` values cross a local calendar day. Labels MUST be Today, Yesterday, or a locale date. |
+| LN-AI-025 | The composer MUST keep `@` vault mentions as inline path tokens and MUST show explicit vault attachments in a Composer Drawer. Submit MUST merge and dedupe both path lists into `metadata.attachments`. |
+| LN-AI-026 | MessageList MUST receive `latestMessageId` plus busy and empty flags. When the transcript is scrolled away from the latest item, Layout MUST show its scroll-to-latest control and return to that item when activated. |
+| LN-AI-027 | The chat panel root MUST override the public workspace view paint tokens to body background and foreground. The composer MUST dock to the panel bottom with padding that clears the workspace status bar height. |
+| LN-AI-028 | The composer MUST present Effort and Model in an icon-only brain popover. Those fields MUST NOT remain as always-visible footer selects. |
+| LN-AI-029 | The chat panel MUST place the transcript and composer in separate in-flow rows. The message list MUST grow to fill remaining panel height. The composer MUST stay at the panel bottom when the transcript is empty and MUST NOT overlay messages. |
+| LN-AI-030 | The chat panel, its portaled composer surfaces, and the AI settings tab MUST use the workspace sans family. Message bubbles MUST keep Design Core font-size and line-height. Markdown inside bubbles MUST inherit that type. |
 
 ## Runtime flow
 

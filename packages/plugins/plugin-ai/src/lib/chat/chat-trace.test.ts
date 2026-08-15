@@ -27,6 +27,7 @@ describe("chat trace", () => {
       type: "message",
       role: "assistant",
       text: "Hello world",
+      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
     });
     expect(items[1]).toMatchObject({ type: "tool", toolId: "t1" });
     expect(markApprovalResponse(items, "p1", "deny-once")[2]).toMatchObject({

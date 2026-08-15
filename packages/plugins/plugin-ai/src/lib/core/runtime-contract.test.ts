@@ -89,6 +89,26 @@ describe("agent runtime contract", () => {
     await expect(runtime.resume?.(first.id)).rejects.toThrow(/Unknown fake session/);
   });
 
+  it("streams a rich Fake turn with thinking, a tool, and Markdown", async () => {
+    const runtime = new FakeAgentRuntime({ trace: "rich" });
+    const { events } = await collectUntilComplete(runtime, "Summarize");
+    expect(events.map((event) => event.type)).toEqual([
+      "thinking",
+      "tool.start",
+      "tool.end",
+      "text",
+      "completed",
+    ]);
+    expect(events[0]).toMatchObject({
+      type: "thinking",
+      text: "I will read the mentioned note, then summarize it.",
+    });
+    expect(events[3]).toMatchObject({
+      type: "text",
+      text: expect.stringContaining("## Summary"),
+    });
+  });
+
   it("rejects unsupported policy-amendment requests on Fake", async () => {
     const runtime = new FakeAgentRuntime();
     expect(

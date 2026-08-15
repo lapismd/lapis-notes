@@ -18,6 +18,7 @@ export type {
   AgentRequest,
   AgentRuntime,
   AgentSession,
+  AiThinkingLevel,
   ApprovalCapabilities,
   ApprovalOption,
   ApprovalRequest,
@@ -49,7 +50,25 @@ export {
 } from "./runtimes/acp/acp-event-mapper";
 export type { AcpPermissionDecision } from "./runtimes/acp/acp-event-mapper";
 export { CodexNativeRuntime } from "./runtimes/codex/codex-runtime";
-export { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
+export {
+  FAKE_RICH_ASSISTANT_TEXT,
+  FAKE_RICH_THINKING,
+  FAKE_RICH_TOOL,
+  FakeAgentRuntime,
+} from "./runtimes/fake/fake-runtime";
+export type { FakeAgentTrace } from "./runtimes/fake/fake-runtime";
+export {
+  DEFAULT_AI_SETTINGS,
+  mergeAiSettings,
+} from "./settings/ai-settings";
+export type { AiPluginSettings } from "./settings/ai-settings";
+export { renderChatMarkdown } from "./chat/chat-markdown";
+export {
+  formatChatDateLabel,
+  formatChatTimestamp,
+  groupChatItemsByDate,
+} from "./chat/chat-time";
+export type { ChatTimelineEntry } from "./chat/chat-time";
 export {
   createMemorySessionStore,
   createPersistedSessionStore,
@@ -66,6 +85,8 @@ export type { AiPluginData } from "./sessions/plugin-data";
 export {
   extractMentionPaths,
   formatFileMention,
+  mentionTokensFromText,
+  mergeAttachmentPaths,
   searchVaultFiles,
 } from "./chat/chat-mentions";
 export type { VaultFileRef } from "./chat/chat-mentions";
