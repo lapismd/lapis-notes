@@ -8,6 +8,7 @@ import BasesViewsDemo from "./BasesViewsDemo.svelte";
 import { basesViewsExampleSource } from "./BasesViews.example-sources";
 import type { BasesViewScenario } from "./bases-views-fixture";
 import {
+  expectBasesCellContentTopAligned,
   expectBasesColumnsAligned,
   expectBasesRowCellsAligned,
   expectOpaqueBackground,
@@ -208,6 +209,7 @@ export const EditableCells: Story = {
       expect(chipLineCount(tags)).toBeGreaterThan(1);
       expect(chipLineCount(collaborators)).toBeGreaterThan(1);
       expectBasesRowCellsAligned(table);
+      expectBasesCellContentTopAligned(table);
     });
 
     const dueInput = canvasElement.querySelector<HTMLElement>(
@@ -262,6 +264,14 @@ export const EditableCells: Story = {
     expect(
       await body.findByRole("option", { name: "Priya Shah" }),
     ).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Search" }));
+    await waitFor(() => {
+      expect(
+        body.queryByRole("option", { name: "Priya Shah" }),
+      ).not.toBeInTheDocument();
+      expect(owner).toHaveAttribute("aria-expanded", "false");
+    });
+    await userEvent.click(owner);
     await userEvent.keyboard("{ArrowDown}{Enter}");
     await waitFor(() => expect(owner).toHaveValue("Priya Shah"));
 

@@ -127,6 +127,8 @@ table-control names, wrapped multivalue row geometry, and accessible accent
 paint in the owning package.
 The outer table cell alone owns its inset active boundary so nested Design Core
 editors cannot duplicate or clip focused geometry.
+Design Core autocomplete owns outside-focus dismissal without trigger-focus
+restoration; Bases owns top-aligned table-cell composition around that control.
 Electron, web, and the root real-App catalog consume its package exports and
 share the Search, Bases, external-Roles boot order without a consumer copy.
 

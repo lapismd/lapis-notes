@@ -108,6 +108,49 @@ export function expectBasesRowCellsAligned(
   }
 }
 
+export function expectBasesCellContentTopAligned(
+  table: HTMLElement,
+  tolerance = 2,
+) {
+  const row = table.querySelector<HTMLElement>(
+    '.bases-table__row[data-ui-part="row"]',
+  );
+  expect(row).toBeTruthy();
+
+  const cells = row!.querySelectorAll<HTMLElement>(
+    ".bases-table__cell[data-column-id]",
+  );
+  expect(cells.length).toBeGreaterThan(0);
+
+  for (const cell of cells) {
+    const root = cell.querySelector<HTMLElement>(
+      '[data-ui-component="bases-cell"]',
+    );
+    const content =
+      cell.querySelector<HTMLElement>(
+        '.bases-cell-editor__checkbox-wrap, [data-ui-component="chip-autocomplete"] .chip-autocomplete-box, .bases-cell-editor__control, .bases-autocomplete input',
+      ) ??
+      root?.querySelector<HTMLElement>(
+        ':scope > a, :scope > div:not([data-ui-component="bases-cell-editor"])',
+      );
+    if (!root || !content) continue;
+
+    const rootRect = root.getBoundingClientRect();
+    const contentRect = content.getBoundingClientRect();
+    expect(
+      Math.abs(rootRect.top - contentRect.top),
+      `Cell ${cell.dataset.columnId} content is not top aligned`,
+    ).toBeLessThanOrEqual(tolerance);
+  }
+
+  const singleLineControls = row.querySelectorAll<HTMLElement>(
+    ".bases-cell-editor__checkbox-wrap, .bases-cell-editor__control, .bases-autocomplete input",
+  );
+  for (const control of singleLineControls) {
+    expect(control.getBoundingClientRect().height).toBeLessThanOrEqual(24);
+  }
+}
+
 export function expectOpaqueBackground(element: HTMLElement) {
   const background = getComputedStyle(element).backgroundColor;
   const canvas = document.createElement("canvas");

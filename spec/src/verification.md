@@ -516,7 +516,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-054 | workspace-shell | Implemented | API tests and the real-App Roles shell cover live compatibility ribbon/status projection, updates, commands, and teardown |
 | LN-DESK-031 | desktop-host | In progress | desktop registration ordering, exported styles, community exclusion, checks, tests, and production build pass; persisted Bases smoke remains |
 | LN-WEB-011 | web-host | In progress | web registration ordering, exported styles, community exclusion, checks, tests, and PWA build pass; browser fixture acceptance remains |
-| LN-CAT-049 | storybook-catalog | In progress | focused table, editable-cell autocomplete and continuous active boundary, wrapped tag and multivalue rows, pointer resize persistence, vault-image cards, grouped-list, map-unavailable, and unknown-view interactions pass; workflows remain |
+| LN-CAT-049 | storybook-catalog | In progress | focused table, blur-dismissed autocomplete, continuous active boundary, top-aligned wrapped rows, pointer resize persistence, vault-image cards, grouped-list, map-unavailable, and unknown-view interactions pass; workflows remain |
 | LN-CAT-050 | storybook-catalog | In progress | real-App editor shell covers File Explorer, visible indexed Search, and an opened canonical Bases file; remaining file view, Markdown embed, and lifecycle stories pending |
 | LN-CAT-051 | storybook-catalog | In progress | focused views share one seeded vault, public Show Code, BasesViewSurface Autodocs authority, isolated 700px docs, and pending nested baselines; workspace stories remain |
 | LN-CAT-052 | storybook-catalog | Implemented | focused Roles shell finds CV semantic content after lifecycle recovery and excludes ordinary YAML |
@@ -545,6 +545,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-014 | bases-plugin | Implemented | plugin and registration-inventory unit tests assert the exact legacy view, associations, embeds, fenced blocks, actions, and five built-in view items without invented commands |
 | LN-BASE-015 | bases-plugin | Implemented | the real editor-shell play and browser acceptance switch `Projects.base` to source, assert `data-language="yaml"` with highlighted tokens, and restore preview |
 | LN-BASE-016 | bases-plugin | Implemented | focused editable-cell Storybook and browser acceptance assert one outer-cell-owned inset boundary plus unchanged shared row geometry |
+| LN-BASE-017 | bases-plugin | Implemented | Design Core and linked Bases Storybook acceptance move focus outside and assert the suggestion portal closes without trigger restoration |
+| LN-BASE-018 | bases-plugin | Implemented | focused Storybook and browser geometry assert compact controls and wrapped values share the row-start vertical origin |
 | LN-DESK-032 | desktop-host | In progress | desktop registers AI after Bases and before Roles; agent-runtime capability and process host IPC |
 | LN-WEB-012 | web-host | In progress | web registers AI after Bases; live runtimes remain unavailable |
 | LN-CAT-055 | storybook-catalog | In progress | Plugins/AI/Chat Fake send/complete and approval stories with public Show Code |
