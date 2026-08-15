@@ -75,7 +75,7 @@ export function createBasesEditorShellLayout() {
           }),
         ]),
       ],
-      width: "22rem",
+      width: "0px",
     },
     bottom: {
       ...tabs("bottom-panel", []),

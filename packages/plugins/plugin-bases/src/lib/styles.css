@@ -96,6 +96,34 @@
   color: var(--ui-bases-normal-color);
 }
 
+.filter-group .filter-row {
+  align-items: flex-start;
+}
+
+.filter-group .filter-row__label {
+  padding-top: 0.5rem;
+}
+
+.filter-group .filter-row__field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.filter-group .filter-row__controls {
+  width: 100%;
+}
+
+.filter-group .filter-row__controls[data-invalid="true"] {
+  border-color: var(--ui-bases-error-color);
+}
+
+.filter-group .filter-row__error {
+  margin: 0.25rem 0.25rem 0;
+  color: var(--ui-bases-error-color);
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
 .filter-group
   [data-ui-component="bases-query-editor"]
   .cm-editor.cm-focused {
@@ -2138,3 +2166,4 @@
 .bases-style-ring-ring-3e1868 {
   --tw-ring-color: var(--ring);
 }
+

@@ -6,7 +6,7 @@
     type Completion,
     type CompletionResult,
   } from "@codemirror/autocomplete";
-  import { EditorState } from "@codemirror/state";
+  import { Compartment, EditorState } from "@codemirror/state";
   import {
     EditorView,
     ViewUpdate,
@@ -35,6 +35,9 @@
     class: className,
     placeholder,
     controller,
+    invalid = false,
+    describedBy,
+    ariaLabel = "Filter formula",
     ...rest
   }: HTMLAttributes<HTMLDivElement> & {
     content: string;
@@ -42,6 +45,9 @@
     onDocChange?: (value: string) => void;
     placeholder?: string;
     controller: QueryController;
+    invalid?: boolean;
+    describedBy?: string;
+    ariaLabel?: string;
   } = $props();
 
   let editorView!: EditorView;
@@ -97,10 +103,29 @@
     return null;
   }
 
-  function codeMirror(el: HTMLElement, content: string) {
+  type EditorInput = {
+    content: string;
+    invalid: boolean;
+    describedBy?: string;
+    ariaLabel: string;
+  };
+
+  function editorContentAttributes(input: EditorInput) {
+    return {
+      "aria-label": input.ariaLabel,
+      "aria-invalid": String(input.invalid),
+      ...(input.describedBy
+        ? { "aria-describedby": input.describedBy }
+        : {}),
+    };
+  }
+
+  function codeMirror(el: HTMLElement, input: EditorInput) {
+    const contentAttributes = new Compartment();
+    let previousContent = input.content;
     editorView = new EditorView({
       state: EditorState.create({
-        doc: content,
+        doc: input.content,
         extensions: [
           sql({
             dialect: dialect,
@@ -154,9 +179,13 @@
           ]),
           placeholder ? placeHolder(placeholder) : [],
           EditorView.editorAttributes.of({ class: "mod-inline" }),
+          contentAttributes.of(
+            EditorView.contentAttributes.of(editorContentAttributes(input)),
+          ),
           EditorView.updateListener.of((v: ViewUpdate) => {
             if (v.docChanged) {
-              reportChanges(v.state.doc.toString());
+              const next = v.state.doc.toString();
+              reportChanges(next);
             }
           }),
         ],
@@ -164,16 +193,29 @@
       parent: el,
     });
     return {
-      update: (content: string) => {
+      update: (next: EditorInput) => {
         const current = editorView.state.doc.toString();
-        if (current === content) {
-          return;
+        if (next.content !== previousContent && current !== next.content) {
+          editorView.dispatch({
+            changes: [
+              {
+                from: 0,
+                to: editorView.state.doc.length,
+                insert: next.content,
+              },
+            ],
+          });
         }
+        previousContent = next.content;
         editorView.dispatch({
-          changes: [
-            { from: 0, to: editorView.state.doc.length, insert: content },
-          ],
+          effects: contentAttributes.reconfigure(
+            EditorView.contentAttributes.of(editorContentAttributes(next)),
+          ),
         });
+      },
+      destroy: () => {
+        reportChanges.cancel();
+        editorView.destroy();
       },
     };
   }
@@ -181,7 +223,8 @@
 
 <div
   {...rest}
-  use:codeMirror={content}
+  use:codeMirror={{ content, invalid, describedBy, ariaLabel }}
   data-ui-component="bases-query-editor"
+  data-invalid={invalid}
   class={cn("bases-style-h-full-668b21", className)}
 ></div>

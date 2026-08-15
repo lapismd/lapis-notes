@@ -23,7 +23,7 @@ const meta = {
       canvas: { className: "workspace-shell-docs-canvas" },
       description: {
         component:
-          "A real Lapis App restores File Explorer, Search, and a Bases file into the desktop editor shell over the canonical project seed.",
+          "A real Lapis App restores File Explorer, collapsed indexed Search, and a Bases file into the desktop editor shell over the canonical project seed.",
       },
       source: {
         code: basesEditorShellExampleSource,
@@ -62,7 +62,7 @@ export const ExplorerSearchAndBase: Story = {
     docs: {
       description: {
         story:
-          "The canonical sample vault is shown as a real editor composition: Explorer at left, the score-sorted Projects base in the center, and an indexed Search panel at right.",
+          "The canonical sample vault is shown as a real editor composition: Explorer at left, the score-sorted Projects base in the center, and indexed Search retained in a right sidebar that starts and finishes collapsed.",
       },
     },
   },
@@ -99,6 +99,12 @@ export const ExplorerSearchAndBase: Story = {
       mode: "preview",
     });
     expect(app.workspace.activeLeaf).toBe(basesLeaf);
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
+    expect(canvas.queryByLabelText("Right sidebar")).toBeNull();
+    const openRightSidebar = canvas.getByRole("button", {
+      name: "Open right sidebar",
+    });
+    expect(openRightSidebar).toBeVisible();
 
     await basesLeaf?.view.setState({
       ...basesLeaf.view.getState(),
@@ -129,12 +135,17 @@ export const ExplorerSearchAndBase: Story = {
       within(explorer!).getByRole("list", { name: "Files" }),
     ).toBeVisible();
 
-    const searchPanel = canvasElement.querySelector<HTMLElement>(
-      '[data-ui-component="search-panel"]',
-    );
-    expect(searchPanel).toBeVisible();
+    await userEvent.click(openRightSidebar);
+    const searchPanel = await waitFor(() => {
+      expect(app.workspace.rightSplit.collapsed).toBe(false);
+      const panel = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="search-panel"]',
+      );
+      expect(panel).toBeVisible();
+      return panel!;
+    });
     expect(
-      within(searchPanel!).getByRole("searchbox", { name: "Search vault" }),
+      within(searchPanel).getByRole("searchbox", { name: "Search vault" }),
     ).toHaveTextContent("Aurora");
 
     await waitFor(
@@ -143,10 +154,10 @@ export const ExplorerSearchAndBase: Story = {
           canvasElement.querySelector('[data-ui-component="bases-table-view"]'),
         ).toBeVisible();
         expect(
-          within(searchPanel!).getByRole("tree", { name: "Search results" }),
+          within(searchPanel).getByRole("tree", { name: "Search results" }),
         ).toBeVisible();
         expect(
-          within(searchPanel!).getByRole("treeitem", {
+          within(searchPanel).getByRole("treeitem", {
             name: /Projects\/Aurora\.md, .* matches/,
           }),
         ).toBeVisible();
@@ -206,5 +217,16 @@ export const ExplorerSearchAndBase: Story = {
     await fireEvent.keyDown(queryContent!, { key: "Escape", code: "Escape" });
     await waitFor(() => expect(completionTooltip).not.toBeInTheDocument());
     await userEvent.click(canvas.getByRole("button", { name: "Filter" }));
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Close right sidebar" }),
+    );
+    await waitFor(() => {
+      expect(app.workspace.rightSplit.collapsed).toBe(true);
+      expect(canvas.queryByLabelText("Right sidebar")).toBeNull();
+      expect(
+        canvas.getByRole("button", { name: "Open right sidebar" }),
+      ).toBeVisible();
+    });
   },
 };

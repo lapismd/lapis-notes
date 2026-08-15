@@ -1,3 +1,7 @@
+<script module lang="ts">
+  let filterErrorSequence = 0;
+</script>
+
 <script lang="ts">
   import type { Table } from "@tanstack/table-core";
   import * as Popover from "@lapismd/design-core/shadcn/popover";
@@ -14,10 +18,14 @@
 
   import { Button } from "@lapismd/design-core/shadcn/button";
   import type { FilterLine } from "../..";
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import FilterEditor from "./filter-editor.svelte";
   import { cn } from "@lapis-notes/api";
-  import { parsePredicate, toSQL } from "../../filter-parser";
+  import {
+    resolveFilterDraft,
+    toSQL,
+    validateFilterPredicate,
+  } from "../../filter-parser";
   import { Notice } from "@lapis-notes/api";
   import QueryEditor from "../query-editor.svelte";
   import type { BasesPropertyId, QueryController } from "../../bases.svelte";
@@ -39,6 +47,9 @@
     op: "",
     value: "",
   });
+  const filterErrorId = `bases-filter-error-${++filterErrorSequence}`;
+  let customDraft = $state("");
+  let customError = $state<string | null>(null);
 
   let column = $derived(
     filter.column
@@ -80,18 +91,54 @@
     );
   }
 
+  function syncCustomDraft(source: string, error: string | null = null) {
+    if (untrack(() => customDraft) !== source) {
+      customDraft = source;
+    }
+    customError = error;
+  }
+
+  function updateCustomDraft(source: string) {
+    customDraft = source;
+    const result = resolveFilterDraft(filter.custom ?? "", source);
+    customError = result.error;
+    if (result.valid) {
+      filter.custom = result.applied;
+    }
+  }
+
   $effect(() => {
     if (isFilterLine(value)) {
       if (!equalFilterLines(filter, value)) {
         filter = { ...value };
       }
+      if (typeof value.custom === "string") {
+        syncCustomDraft(value.custom);
+      }
       return;
     }
 
-    const predicate = parsePredicate(value);
+    if (typeof filter.custom === "string" && filter.custom === value) {
+      syncCustomDraft(value);
+      return;
+    }
+
+    const validation = validateFilterPredicate(value);
+    if (!validation.valid) {
+      filter = { ...filter, custom: value };
+      syncCustomDraft(value, validation.error);
+      return;
+    }
+
+    const predicate = validation.predicate;
     if (isFilterLine(predicate)) {
       if (!equalFilterLines(filter, predicate)) {
         filter = predicate;
+      }
+      if (typeof predicate.custom === "string") {
+        syncCustomDraft(predicate.custom);
+      } else {
+        syncCustomDraft(value);
       }
     } else {
       filter.op = filterTypes[0].value;
@@ -115,10 +162,16 @@
 
   function toggleSimple() {
     if (simple) {
-      filter.custom = toSQL(filter);
+      const source = toSQL(filter);
+      filter.custom = source;
+      syncCustomDraft(source);
     } else {
-      const qs = filter.custom ?? "";
-      const predicate = parsePredicate(qs);
+      const validation = validateFilterPredicate(customDraft);
+      customError = validation.error;
+      if (!validation.valid) {
+        return;
+      }
+      const predicate = validation.predicate;
       if (isFilterLine(predicate) && !predicate.custom) {
         filter.column = predicate.column;
         filter.op = predicate.op;
@@ -136,7 +189,7 @@
     const nextValue = isValid
       ? simple
         ? { ...filter, custom: null }
-        : toSQL(filter)
+        : (filter.custom ?? "")
       : "";
 
     if (typeof nextValue === "string") {
@@ -154,16 +207,16 @@
 </script>
 
 <div class="filter-row bases-style-flex-60fbb7 bases-style-items-center-3960ff bases-style-gap-0-63a285">
-  <span class="bases-style-min-w-4-5rem-00331a bases-style-pr-1-eda955 bases-style-text-right-308fc0">{label}</span>
-  <div
-    class={cn(
-      "bases-style-bg-background-e6f9e3 bases-style-flex-60fbb7 bases-style-min-h-9-968a1e grow bases-style-items-center-3960ff bases-style-rounded-md-421ac2 bases-style-border-2-65935d",
-      {
-        //  "bases-style-min-h-9-968a1e": !simple,
-        //  "bases-style-h-9-e7a768": simple
-      },
-    )}
+  <span class="filter-row__label bases-style-min-w-4-5rem-00331a bases-style-pr-1-eda955 bases-style-text-right-308fc0"
+    >{label}</span
   >
+  <div class="filter-row__field">
+    <div
+      class={cn(
+        "filter-row__controls bases-style-bg-background-e6f9e3 bases-style-flex-60fbb7 bases-style-min-h-9-968a1e bases-style-items-center-3960ff bases-style-rounded-md-421ac2 bases-style-border-2-65935d",
+      )}
+      data-invalid={customError !== null}
+    >
     {#if simple}
       <Popover.Root bind:open={columnsIsOpen}>
         <Popover.Trigger>
@@ -254,8 +307,11 @@
     {:else}
       <QueryEditor
         {controller}
-        onBlur={(value) => (filter.custom = value)}
-        bind:content={filter.custom!}
+        onBlur={updateCustomDraft}
+        onDocChange={updateCustomDraft}
+        bind:content={customDraft}
+        invalid={customError !== null}
+        describedBy={customError ? filterErrorId : undefined}
         class="bases-style-bg-background-e6f9e3 bases-style-h-full-668b21 grow bases-style-rounded-l-md-9b2e91 bases-style-border-none-4a5f0e bases-style-pl-1-6ad214 bases-style-outline-none-df37b1"
       />
       <Button
@@ -279,6 +335,17 @@
       >
         <Trash />
       </Button>
+    {/if}
+    </div>
+    {#if customError}
+      <p
+        id={filterErrorId}
+        class="filter-row__error"
+        data-ui-part="filter-error"
+        role="alert"
+      >
+        {customError}
+      </p>
     {/if}
   </div>
 </div>

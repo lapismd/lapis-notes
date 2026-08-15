@@ -59,6 +59,46 @@ export function parsePredicate(query: string) {
   }
 }
 
+export const INVALID_FILTER_FORMULA_MESSAGE =
+  "Invalid filter formula. Check the expression syntax.";
+
+export type FilterPredicateValidation =
+  | { valid: true; predicate: unknown; error: null }
+  | { valid: false; predicate: null; error: string };
+
+export function validateFilterPredicate(
+  query: string,
+): FilterPredicateValidation {
+  if (!query.trim()) {
+    return { valid: true, predicate: null, error: null };
+  }
+
+  try {
+    const predicate = parsePredicate(query);
+    if (predicate) {
+      return { valid: true, predicate, error: null };
+    }
+  } catch {
+    // The editor keeps the draft available for correction and reports one
+    // stable, user-facing message instead of leaking parser internals.
+  }
+
+  return {
+    valid: false,
+    predicate: null,
+    error: INVALID_FILTER_FORMULA_MESSAGE,
+  };
+}
+
+export function resolveFilterDraft(applied: string, draft: string) {
+  const validation = validateFilterPredicate(draft);
+  return {
+    applied: validation.valid ? draft : applied,
+    error: validation.error,
+    valid: validation.valid,
+  };
+}
+
 export function normalizeFilter(filter: Filters) {
   const values: Array<any> = filterGroupValues(filter).slice();
   values.forEach((value, i) => {

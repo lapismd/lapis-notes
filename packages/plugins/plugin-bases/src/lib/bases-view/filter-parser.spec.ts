@@ -2,7 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
-import { parsePredicate, toSQL } from "./filter-parser";
+import {
+  INVALID_FILTER_FORMULA_MESSAGE,
+  parsePredicate,
+  resolveFilterDraft,
+  toSQL,
+  validateFilterPredicate,
+} from "./filter-parser";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const modelsPath = path.join(currentDir, "models.ts");
@@ -367,5 +373,40 @@ describe("supported bases filter query types", () => {
     expect(Object.keys(supportedQueryTypeExamples).sort()).toEqual(
       [...supportedFilterQueryTypes].sort(),
     );
+  });
+});
+
+describe("advanced filter validation", () => {
+  test("accepts empty and complete expressions", () => {
+    expect(validateFilterPredicate("")).toMatchObject({
+      valid: true,
+      error: null,
+    });
+    expect(validateFilterPredicate('file.hasLink("Aurora.md")')).toMatchObject({
+      valid: true,
+      error: null,
+    });
+  });
+
+  test("returns a stable user-facing error for an incomplete expression", () => {
+    expect(validateFilterPredicate("file.hasLink(")).toEqual({
+      valid: false,
+      predicate: null,
+      error: INVALID_FILTER_FORMULA_MESSAGE,
+    });
+  });
+
+  test("preserves the applied expression until an invalid draft is corrected", () => {
+    const applied = 'file.hasLink("")';
+    expect(resolveFilterDraft(applied, "file.hasLink(")).toEqual({
+      applied,
+      error: INVALID_FILTER_FORMULA_MESSAGE,
+      valid: false,
+    });
+    expect(resolveFilterDraft(applied, 'file.hasLink("") ')).toEqual({
+      applied: 'file.hasLink("") ',
+      error: null,
+      valid: true,
+    });
   });
 });
