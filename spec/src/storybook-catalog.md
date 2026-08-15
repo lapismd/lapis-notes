@@ -47,7 +47,7 @@
 | LN-CAT-042 | Lapis CV and Roles integration stories MUST provide explicit consumer-usable Show Code when their render path uses a local demo, harness, or fixture. App-backed examples MUST show App creation, vault data, plugin loading, and layout restoration. |
 | LN-CAT-047 | `Workspace/Plugins/Roles` MUST verify exact role-file association, aggregate opening, persisted role mutation, and linked CV navigation in a real App-backed shell. |
 | LN-CAT-048 | New root Roles stories MUST retain `visual-pending` and independent nested-import baselines. Existing baseline files MUST NOT be replaced or deleted by the Roles intake. |
-| LN-CAT-049 | `Plugins/Bases/Views` MUST cover table, editable cells with normal autocomplete and live resize alignment, vault-image cards, collapsible grouped list, map-unavailable, and unknown-view layouts. `Plugins/Bases/Workflows` MUST cover query controls, schema/view settings including every custom option kind, and persisted typed metadata editing. |
+| LN-CAT-049 | `Plugins/Bases/Views` MUST cover table, editable cells with normal autocomplete, centered 1rem checkboxes, and live resize alignment, vault-image cards, collapsible grouped list, map-unavailable, and unknown-view layouts. `Plugins/Bases/Workflows` MUST cover query controls, schema/view settings including every custom option kind, and persisted typed metadata editing. |
 | LN-CAT-050 | `Plugins/Bases/Editor Shell` MUST boot a real App with File Explorer, visible indexed Search, and an opened Bases file over the canonical seed. `Workspace/Plugins/Bases` MUST cover the remaining file-view, Markdown-embed, and disable/restore scenarios, verifying associations, source/preview switching, persistence, reopen, read-only embeds, invalid YAML, cleanup, managed settings, and missing-view recovery. |
 | LN-CAT-051 | Bases stories MUST share one canonical seeded vault fixture, use `BasesViewSurface` as focused Autodocs authority, hide harness state from Controls, and provide explicit public-package Show Code. App stories MUST use isolated 700px iframes; every story remains `visual-pending` with an independent nested-import baseline until review. |
 | LN-CAT-052 | The real-App Roles shell MUST find a CV-only semantic phrase through Search after a Roles disable/re-enable cycle and MUST prove that an ordinary YAML marker remains absent. |
@@ -64,7 +64,8 @@ public-surface and workflow scenarios rather than copying package source.
 The focused Bases view family boots that optional bundled plugin and shares one
 Projects seed across table, editable-cell, cards, grouped list, map fallback,
 and unknown-view scenarios. Its editable table verifies opaque controls,
-metadata suggestions, and one aligned width model through live resizing.
+centered 1rem checkboxes, metadata suggestions, and one aligned width model
+through live resizing.
 
 Show Code documents consumer integration, not Storybook implementation:
 

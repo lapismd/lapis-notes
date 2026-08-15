@@ -137,7 +137,9 @@ does not reintroduce a dependency on the pruned Lapis UI package.
 The package also owns the accessible names, metadata-key adaptation, ordered
 column tracks, and token mappings used by its table, cards, and grouped-list
 presentation. Inline cells compose Design Core's public input and autocomplete
-forms without exposing those private adapters through the package API.
+forms without exposing those private adapters through the package API. Checkbox
+cells retain the full-cell layout wrapper while rendering a centered 1rem
+control.
 `@lapis-notes/ai` owns the provider-agnostic agent runtime, registry, Fake and
 ACP adapters, optional native Codex adapter, session store, and movable chat
 panel. Domain plugins register tools; acpx and Codex types stay inside adapters.

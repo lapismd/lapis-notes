@@ -195,6 +195,16 @@ export const EditableCells: Story = {
       (control): control is HTMLElement => control instanceof HTMLElement,
     );
     controls.forEach(expectOpaqueBackground);
+    const featured = canvas.getAllByRole("checkbox", {
+      name: "featured",
+    })[0]!;
+    const featuredRect = featured.getBoundingClientRect();
+    expect(featuredRect.width).toBeCloseTo(16, 1);
+    expect(featuredRect.height).toBeCloseTo(16, 1);
+    expect(
+      getComputedStyle(featured.closest(".bases-cell-editor__checkbox-wrap")!)
+        .justifyContent,
+    ).toBe("center");
     const firstRow = table.querySelector<HTMLElement>(
       '.bases-table__row[data-ui-part="row"]',
     )!;

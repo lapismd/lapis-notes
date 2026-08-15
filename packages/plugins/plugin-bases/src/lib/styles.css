@@ -115,6 +115,7 @@
 .bases-table {
   --ui-bases-table-column-border-width: 1px;
   --ui-bases-table-row-border-width: 1px;
+  --ui-bases-table-checkbox-size: 1rem;
   --table-border-color: var(--ui-bases-surface-border);
   --ui-bases-table-cell-radius-active: 2px;
   --ui-bases-table-cell-shadow-active: 0 0 0 2px var(--ui-bases-accent);
@@ -194,6 +195,7 @@
   width: 100%;
   height: 100%;
   align-items: center;
+  justify-content: center;
 }
 
 .bases-table .bases-cell-editor__control,
@@ -280,7 +282,13 @@
   box-shadow: none;
 }
 
-.bases-cell-editor__checkbox {
+.bases-table .bases-cell-editor__checkbox {
+  flex: 0 0 var(--ui-bases-table-checkbox-size);
+  width: var(--ui-bases-table-checkbox-size);
+  height: var(--ui-bases-table-checkbox-size);
+  min-width: var(--ui-bases-table-checkbox-size);
+  min-height: var(--ui-bases-table-checkbox-size);
+  margin: 0;
   outline: 0;
 }
 
