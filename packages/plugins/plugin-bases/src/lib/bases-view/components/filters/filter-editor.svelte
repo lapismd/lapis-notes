@@ -37,7 +37,7 @@
 </script>
 
 <div
-  class="bases-style-min-h-inherit-05c993 bases-style-flex-column-a2a9e2 bases-style-bg-background-e6f9e3 bases-style-hover-bg-accent-0557b8 bases-style-focus-within-bg-accent-2d7ab0 bases-style-focus-within-text-accent-foreground-b70724 bases-style-flex-60fbb7 bases-style-h-auto-b8f0a0 grow bases-style-items-center-3960ff bases-style-self-stretch-18069a"
+  class="bases-filter-editor bases-style-min-h-inherit-05c993 bases-style-bg-background-e6f9e3 bases-style-hover-bg-accent-0557b8 bases-style-focus-within-bg-accent-2d7ab0 bases-style-focus-within-text-accent-foreground-b70724 bases-style-flex-60fbb7 bases-style-h-auto-b8f0a0 grow bases-style-items-center-3960ff bases-style-self-stretch-18069a"
 >
   {#if type === "file"}
     <Autocomplete bind:value options={fileOptions()} />

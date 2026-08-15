@@ -22,7 +22,10 @@
   --ui-bases-table-cell-background-active: var(--ui-bases-surface-background-alt);
   --ui-bases-normal-color: var(--text-normal, var(--foreground));
   --ui-bases-muted-color: var(--text-muted, var(--muted-foreground));
-  --ui-bases-on-accent-color: var(--text-on-accent);
+  --ui-bases-on-accent-color: var(
+    --text-on-accent,
+    var(--primary-foreground, #ffffff)
+  );
   --ui-bases-accent: color-mix(
     in srgb,
     var(--ui-workspace-accent, var(--interactive-accent)) 64%,
@@ -41,6 +44,102 @@
     transparent
   );
   --ui-bases-shadow: var(--shadow-s, 0 1px 2px rgb(0 0 0 / 0.08));
+}
+
+.bases-filter-popover[data-ui-component="popover"][data-ui-part="popover-content"] {
+  --ui-bases-filter-popover-width: 45svw;
+  --ui-bases-filter-popover-background: var(
+    --background-primary,
+    var(--background)
+  );
+  --ui-popover-width: var(--ui-bases-filter-popover-width);
+  --ui-popover-background: var(--ui-bases-filter-popover-background);
+  --ui-popover-padding: 0.5rem;
+  width: var(--ui-bases-filter-popover-width);
+  max-width: calc(100svw - 1rem);
+}
+
+.bases-filter-select-content[data-ui-component="select"][data-ui-part="select-content"] {
+  z-index: var(--ui-bases-filter-select-z-index, 60);
+}
+
+.filter-group .bases-filter-editor > .bases-autocomplete,
+.filter-group
+  .bases-filter-editor
+  > .bases-autocomplete
+  [data-ui-component="autocomplete-input"] {
+  align-self: stretch;
+  height: auto;
+  min-height: 100%;
+}
+
+.filter-group
+  .bases-filter-editor
+  > .bases-autocomplete
+  [data-ui-component="autocomplete-input"] {
+  display: flex;
+  align-items: center;
+}
+
+.filter-group
+  .bases-filter-editor
+  > .bases-autocomplete
+  [data-ui-component="autocomplete-input"]
+  input {
+  height: 100%;
+  padding: 0 0.25rem;
+  line-height: normal;
+}
+
+.filter-group .cm-editor {
+  color: var(--ui-bases-normal-color);
+}
+
+.filter-group .cm-comment,
+.filter-group .cm-meta {
+  color: var(--ui-code-syntax-comment, var(--code-comment, #64748b));
+}
+
+.filter-group .cm-keyword {
+  color: var(--ui-code-syntax-keyword, var(--code-keyword, #5b21b6));
+}
+
+.filter-group .cm-string,
+.filter-group .cm-string-2 {
+  color: var(--ui-code-syntax-string, var(--code-string, #92400e));
+}
+
+.filter-group .cm-number,
+.filter-group .cm-bool,
+.filter-group .cm-literal {
+  color: var(--ui-code-syntax-number, var(--code-value, #c2410c));
+}
+
+.filter-group .cm-property,
+.filter-group .cm-attribute {
+  color: var(--ui-code-syntax-property, var(--code-property, #1d4ed8));
+}
+
+.filter-group .cm-type,
+.filter-group .cm-class,
+.filter-group .cm-namespace {
+  color: var(--ui-code-syntax-type, var(--code-function, #6b21a8));
+}
+
+.filter-group .cm-operator {
+  color: var(--ui-code-syntax-operator, var(--code-operator, #0e7490));
+}
+
+.filter-group .cm-punctuation,
+.filter-group .cm-bracket {
+  color: var(--ui-code-syntax-punctuation, var(--ui-bases-muted-color));
+}
+
+[data-ui-part="bases-option-indicator"][data-selected="true"] > svg {
+  color: var(
+    --ui-bases-on-accent-color,
+    var(--text-on-accent, var(--primary-foreground, #ffffff))
+  );
 }
 
 .bases-view {
@@ -170,6 +269,7 @@
   bottom: 0;
   left: 0;
   height: var(--ui-bases-table-scrollbar-size);
+  border-top-width: 0;
   border-top-color: var(--ui-bases-surface-border);
 }
 
@@ -179,10 +279,13 @@
   right: 0;
   bottom: var(--ui-bases-table-scrollbar-size);
   width: var(--ui-bases-table-scrollbar-size);
+  border-left-width: 0;
   border-left-color: var(--ui-bases-surface-border);
 }
 
 .bases-table-container {
+  border-inline-end: 0;
+  border-bottom: 0;
   background: var(--ui-bases-surface-background);
 }
 
@@ -220,7 +323,13 @@
 .bases-tbody {
   position: relative;
   width: 100%;
-  box-shadow: 0 var(--ui-bases-table-row-border-width) 0 var(--table-border-color);
+}
+
+.bases-table__row[data-last-row="true"] {
+  box-shadow:
+    0 calc(var(--ui-bases-table-row-border-width) * -1) 0
+      var(--table-border-color),
+    0 var(--ui-bases-table-row-border-width) 0 var(--table-border-color);
 }
 
 .bases-td {
@@ -371,6 +480,12 @@
   min-height: var(--ui-bases-table-checkbox-size);
   margin: 0;
   outline: 0;
+}
+
+.bases-table .bases-cell-editor__checkbox:checked,
+.filter-group .metadata-input-checkbox:checked {
+  accent-color: var(--interactive-accent, var(--primary));
+  color: var(--ui-bases-on-accent-color);
 }
 
 .bases-table__header-cell [data-ui-component="button"] {

@@ -75,8 +75,14 @@
 <div class={cn("filter-group", className)}>
   <div class="filter-group-header bases-style-flex-60fbb7 bases-style-items-center-3960ff bases-style-justify-between-8ef226">
     <Select.Root type="single" bind:value={getFilterType, setFilterType}>
-      <Select.Trigger class="">{triggerContent}</Select.Trigger>
-      <Select.Content>
+      <Select.Trigger data-bases-filter-control="group-type-trigger">
+        {triggerContent}
+      </Select.Trigger>
+      <Select.Content
+        class="bases-filter-select-content"
+        align="start"
+        data-bases-filter-control="group-type-content"
+      >
         {#each filterTypes as filterType (filterType.value)}
           <Select.Item value={filterType.value} label={filterType.label}
             >{filterType.label}</Select.Item

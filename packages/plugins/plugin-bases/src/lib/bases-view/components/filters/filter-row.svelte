@@ -218,12 +218,16 @@
       <Select.Root type="single" bind:value={filter.op}>
         <Select.Trigger
           size="sm"
+          data-bases-filter-control="operator-trigger"
           class="bases-style-bg-background-e6f9e3 bases-style-min-h-inherit-05c993 bases-style-h-auto-b8f0a0 bases-style-self-stretch-18069a bases-style-rounded-none-0c5e91 bases-style-border-none-4a5f0e bases-style-shadow-none-ad47d1 bases-style-outline-none-df37b1"
         >
           {filterValue?.label || filter.op}
-          <ArrowUpDown />
         </Select.Trigger>
-        <Select.Content>
+        <Select.Content
+          class="bases-filter-select-content"
+          align="start"
+          data-bases-filter-control="operator-content"
+        >
           {#each filterTypes as filterType (filterType.value)}
             <Select.Item value={filterType.value} label={filterType.label}
               >{filterType.label}</Select.Item

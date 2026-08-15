@@ -66,7 +66,7 @@
   {style}
   data-column-id={header.id}
   class={cn(
-    "bases-td group/header bases-style-z-1000-9e4878 bases-style-justify-between-8ef226 bases-style-overflow-hidden-2cd02d bases-style-border-r-5ceb63 bases-style-px-0-5a270a bases-style-text-nowrap-621d3b bases-style-overflow-ellipsis-5b2ef5 bases-style-transition-colors-ceb69a",
+    "bases-td group/header bases-style-z-1000-9e4878 bases-style-justify-between-8ef226 bases-style-overflow-hidden-2cd02d bases-style-px-0-5a270a bases-style-text-nowrap-621d3b bases-style-overflow-ellipsis-5b2ef5 bases-style-transition-colors-ceb69a",
     isActive ? "bases-style-bg-accent-interactive-30-0c9f68" : "bases-style-hover-bg-border-2e3f11",
   )}
   onfocusin={() => {

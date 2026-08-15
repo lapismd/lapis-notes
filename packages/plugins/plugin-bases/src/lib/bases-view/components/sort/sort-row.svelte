@@ -133,6 +133,8 @@
                   }}
                 >
                   <div
+                    data-ui-part="bases-option-indicator"
+                    data-selected={sort.property === column.id}
                     class={cn(
                       "bases-style-mr-2-d2347e bases-style-flex-60fbb7 bases-style-size-4-f7b5fa bases-style-items-center-3960ff bases-style-justify-center-86843c bases-style-rounded-sm-36d446 border bases-style-border-var-interactive-accent-f46c93",
                       sort.property === column.id

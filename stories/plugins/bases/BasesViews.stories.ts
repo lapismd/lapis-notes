@@ -227,6 +227,31 @@ export const EditableCells: Story = {
 
     const tableViewport = expectBasesScrollArea(table);
     expectBasesColumnsAligned(table);
+    const tableContainer = table.querySelector<HTMLElement>(
+      ".bases-table-container",
+    );
+    const tableBody = table.querySelector<HTMLElement>(".bases-tbody");
+    const lastDataRow = table.querySelector<HTMLElement>(
+      '.bases-table__row[data-last-row="true"]',
+    );
+    const horizontalScrollbar = table.querySelector<HTMLElement>(
+      '[data-ui-part="scroll-area-scrollbar"][data-orientation="horizontal"]',
+    );
+    const verticalScrollbar = table.querySelector<HTMLElement>(
+      '[data-ui-part="scroll-area-scrollbar"][data-orientation="vertical"]',
+    );
+    expect(getComputedStyle(tableContainer!).borderBottomWidth).toBe("0px");
+    expect(getComputedStyle(tableContainer!).borderRightWidth).toBe("0px");
+    expect(getComputedStyle(tableBody!).boxShadow).toBe("none");
+    expect(lastDataRow).toBeVisible();
+    expect(getComputedStyle(lastDataRow!).boxShadow).toMatch(/0px 1px 0px/);
+    expect(getComputedStyle(horizontalScrollbar!).borderTopWidth).toBe("0px");
+    expect(getComputedStyle(verticalScrollbar!).borderLeftWidth).toBe("0px");
+    for (const headerCell of table.querySelectorAll<HTMLElement>(
+      ".bases-table__header-cell > .bases-td",
+    )) {
+      expect(getComputedStyle(headerCell).borderRightWidth).toBe("0px");
+    }
 
     const tags = canvas.getAllByRole("group", { name: "tags" })[0]!;
     const collaborators = canvas.getAllByRole("group", {
@@ -388,6 +413,193 @@ export const EditableCells: Story = {
       expectBasesColumnsAligned(table);
       expectBasesRowCellsAligned(table);
     });
+
+    await userEvent.click(canvas.getByRole("button", { name: "Properties" }));
+    const projectOption = await body.findByRole("option", {
+      name: "Project",
+      exact: true,
+    });
+    const selectedMarker = projectOption.querySelector<HTMLElement>(
+      '[data-ui-part="bases-option-indicator"]',
+    );
+    const selectedMarkerIcon = selectedMarker?.querySelector<SVGElement>("svg");
+    expect(selectedMarker).toHaveAttribute("data-selected", "true");
+    const onAccentColor = getComputedStyle(selectedMarkerIcon!).color;
+    expect(onAccentColor).not.toBe(getComputedStyle(projectOption).color);
+    expect(getComputedStyle(featured).accentColor).not.toBe("auto");
+    expect(getComputedStyle(featured).color).toBe(onAccentColor);
+    const uncheckedFeatured = canvas.getAllByRole("checkbox", {
+      name: "featured",
+    })[2]!;
+    expect(getComputedStyle(uncheckedFeatured).backgroundColor).toBe(
+      getComputedStyle(
+        table.querySelector<HTMLElement>(".bases-table-container")!,
+      ).backgroundColor,
+    );
+    await userEvent.click(canvas.getByRole("button", { name: "Properties" }));
+
+    await userEvent.click(canvas.getByRole("button", { name: "Filter" }));
+    const allViewsTrigger = await body.findByRole("button", {
+      name: "All views",
+      exact: true,
+    });
+    const thisViewTrigger = await body.findByRole("button", {
+      name: "This view",
+      exact: true,
+    });
+    const filterPopover = thisViewTrigger.closest<HTMLElement>(
+      '[data-ui-part="popover-content"]',
+    );
+    expect(filterPopover).toBeVisible();
+    const visibleFilterElement = <T extends Element>(selector: string) =>
+      [...filterPopover!.querySelectorAll<T>(selector)].find((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      });
+    expect(filterPopover!.getBoundingClientRect().width).toBeCloseTo(
+      canvasElement.ownerDocument.defaultView!.innerWidth * 0.45,
+      0,
+    );
+    const filterPopoverStyle = getComputedStyle(filterPopover!);
+    const colorProbe = canvasElement.ownerDocument.createElement("canvas");
+    colorProbe.width = 1;
+    colorProbe.height = 1;
+    const colorContext = colorProbe.getContext("2d")!;
+    colorContext.fillStyle = filterPopoverStyle.backgroundColor;
+    colorContext.fillRect(0, 0, 1, 1);
+    expect([...colorContext.getImageData(0, 0, 1, 1).data]).toEqual([
+      255, 255, 255, 255,
+    ]);
+    expect(filterPopover!.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+      0,
+    );
+    expect(filterPopover!.getBoundingClientRect().right).toBeLessThanOrEqual(
+      canvasElement.ownerDocument.defaultView!.innerWidth,
+    );
+    for (const trigger of [allViewsTrigger, thisViewTrigger]) {
+      expect(trigger).toHaveAttribute("data-indicator-position", "start");
+      expect(trigger).toHaveAttribute("data-indicator-variant", "disclosure");
+      const visibleIndicator = [
+        ...trigger.querySelectorAll<SVGElement>(
+          '[data-slot="accordion-trigger-icon"]',
+        ),
+      ].find((icon) => getComputedStyle(icon).display !== "none");
+      const label = trigger.querySelector<HTMLElement>("span");
+      expect(visibleIndicator).toBeVisible();
+      expect(visibleIndicator!.getBoundingClientRect().right).toBeLessThan(
+        label!.getBoundingClientRect().left,
+      );
+      expect(visibleIndicator).toHaveAttribute(
+        "data-indicator-glyph",
+        trigger.getAttribute("aria-expanded") === "true"
+          ? "chevron-down"
+          : "chevron-right",
+      );
+    }
+    const filterRowControl =
+      visibleFilterElement<HTMLElement>(".filter-row > div");
+    await waitFor(() => {
+      expect(filterRowControl!.getBoundingClientRect().width).toBeGreaterThan(
+        300,
+      );
+    });
+
+    const filterValueInput = visibleFilterElement<HTMLInputElement>(
+      '.bases-filter-editor [data-ui-component="autocomplete-input"] input',
+    );
+    expect(filterValueInput).toBeVisible();
+    const filterValueRect = filterValueInput!.getBoundingClientRect();
+    const filterRowRect = filterRowControl!.getBoundingClientRect();
+    expect(
+      Math.abs(
+        filterValueRect.top +
+          filterValueRect.height / 2 -
+          (filterRowRect.top + filterRowRect.height / 2),
+      ),
+    ).toBeLessThan(1);
+
+    const groupTypeTrigger = visibleFilterElement<HTMLButtonElement>(
+      '[data-bases-filter-control="group-type-trigger"]',
+    );
+    expect(groupTypeTrigger).toHaveTextContent("All of the following are true");
+    await userEvent.click(groupTypeTrigger!);
+    const groupTypeContent = await waitFor(() => {
+      const content =
+        canvasElement.ownerDocument.body.querySelector<HTMLElement>(
+          '[data-bases-filter-control="group-type-content"][data-state="open"]',
+        );
+      expect(content).toBeVisible();
+      return content!;
+    });
+    const groupTypeTriggerRect = groupTypeTrigger!.getBoundingClientRect();
+    const groupTypeContentRect = groupTypeContent.getBoundingClientRect();
+    expect(groupTypeContentRect.top).toBeGreaterThanOrEqual(
+      groupTypeTriggerRect.bottom - 1,
+    );
+    expect(
+      Math.abs(groupTypeContentRect.left - groupTypeTriggerRect.left),
+    ).toBeLessThan(2);
+    expect(getComputedStyle(groupTypeContent).zIndex).toBe("60");
+    await userEvent.click(
+      body.getByRole("option", { name: "Any of the following are true" }),
+    );
+    await waitFor(() =>
+      expect(groupTypeTrigger).toHaveTextContent(
+        "Any of the following are true",
+      ),
+    );
+    await userEvent.click(groupTypeTrigger!);
+    await userEvent.click(
+      body.getByRole("option", { name: "All of the following are true" }),
+    );
+    await waitFor(() =>
+      expect(groupTypeTrigger).toHaveTextContent(
+        "All of the following are true",
+      ),
+    );
+
+    const operatorTrigger = visibleFilterElement<HTMLButtonElement>(
+      '[data-bases-filter-control="operator-trigger"]',
+    );
+    expect(operatorTrigger).toHaveTextContent("links to");
+    await userEvent.click(operatorTrigger!);
+    const operatorContent = await waitFor(() => {
+      const content =
+        canvasElement.ownerDocument.body.querySelector<HTMLElement>(
+          '[data-bases-filter-control="operator-content"][data-state="open"]',
+        );
+      expect(content).toBeVisible();
+      return content!;
+    });
+    const operatorTriggerRect = operatorTrigger!.getBoundingClientRect();
+    const operatorContentRect = operatorContent.getBoundingClientRect();
+    expect(operatorContentRect.top).toBeGreaterThanOrEqual(
+      operatorTriggerRect.bottom - 1,
+    );
+    expect(
+      Math.abs(operatorContentRect.left - operatorTriggerRect.left),
+    ).toBeLessThan(2);
+    expect(getComputedStyle(operatorContent).zIndex).toBe("60");
+    await userEvent.click(body.getByRole("option", { name: "links to" }));
+
+    const advancedToggle = visibleFilterElement<HTMLButtonElement>(
+      'button[data-tooltip="Simple filter"]',
+    );
+    await userEvent.click(advancedToggle!);
+    await waitFor(() => {
+      const queryContent = visibleFilterElement<HTMLElement>(
+        ".filter-group .cm-content",
+      );
+      const stringToken = queryContent?.querySelector<HTMLElement>(
+        ".cm-string, .cm-string-2",
+      );
+      expect(queryContent).toHaveTextContent('file.hasLink("")');
+      expect(stringToken).toBeVisible();
+      expect(getComputedStyle(stringToken!).color).not.toBe(
+        getComputedStyle(queryContent!).color,
+      );
+    });
+    await userEvent.click(canvas.getByRole("button", { name: "Filter" }));
   },
 };
 

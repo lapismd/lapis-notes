@@ -53,12 +53,16 @@
     {/snippet}
   </Popover.Trigger>
   <Popover.Content
-    class={cn("bases-style-bg-sidebar-d3aed6 bases-style-mr-2-d2347e bases-style-w-45svw-442948 bases-style-p-2-7660b4", className)}
+    class={cn("bases-filter-popover bases-style-mr-2-d2347e", className)}
     align="start"
   >
     <Accordion.Root type="single" value={defaultOpenSection}>
       <Accordion.Item value="all-views">
-        <Accordion.Trigger class="bases-style-py-1-660d2e bases-style-font-bold-69450e hover:no-underline">
+        <Accordion.Trigger
+          indicatorPosition="start"
+          indicatorVariant="disclosure"
+          class="bases-style-py-1-660d2e bases-style-font-bold-69450e hover:no-underline"
+        >
           <span>
             All views
             <Badge
@@ -77,7 +81,11 @@
         </Accordion.Content>
       </Accordion.Item>
       <Accordion.Item value="this-view">
-        <Accordion.Trigger class="bases-style-py-1-660d2e bases-style-font-bold-69450e hover:no-underline">
+        <Accordion.Trigger
+          indicatorPosition="start"
+          indicatorVariant="disclosure"
+          class="bases-style-py-1-660d2e bases-style-font-bold-69450e hover:no-underline"
+        >
           <span>
             This view
             <Badge

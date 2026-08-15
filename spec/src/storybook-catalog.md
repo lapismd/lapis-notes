@@ -47,13 +47,14 @@
 | LN-CAT-042 | Lapis CV and Roles integration stories MUST provide explicit consumer-usable Show Code when their render path uses a local demo, harness, or fixture. App-backed examples MUST show App creation, vault data, plugin loading, and layout restoration. |
 | LN-CAT-047 | `Workspace/Plugins/Roles` MUST verify exact role-file association, aggregate opening, persisted role mutation, and linked CV navigation in a real App-backed shell. |
 | LN-CAT-048 | New root Roles stories MUST retain `visual-pending` and independent nested-import baselines. Existing baseline files MUST NOT be replaced or deleted by the Roles intake. |
-| LN-CAT-049 | `Plugins/Bases/Views` MUST cover table, editable cells with text- and chrome-targeted edit mode, blur-dismissed autocomplete, and a continuous active boundary, centered 1rem checkboxes, top-aligned wrapped tag and multivalue rows, a full-height styled shadcn Scroll Area fixed to the page's bottom edge, and live resize and scroll alignment, vault-image cards, collapsible grouped list, map-unavailable, and unknown-view layouts. `Plugins/Bases/Workflows` MUST cover query controls, schema/view settings including every custom option kind, and persisted typed metadata editing. |
+| LN-CAT-049 | `Plugins/Bases/Views` MUST cover table, editable cells with text- and chrome-targeted edit mode, blur-dismissed autocomplete, a continuous active boundary, centered 1rem checkboxes, white on-accent glyphs, wrapped rows, a full-height shadcn Scroll Area without bottom or inline-end container frames but with a final-row separator, anchored filter selects, aligned value editors, highlighted expressions, filter width and leading right/down disclosure indicators, live resize and scroll alignment, cards, grouped list, map-unavailable, and unknown layouts. |
 | LN-CAT-050 | `Plugins/Bases/Editor Shell` MUST boot a real App with File Explorer, visible indexed Search, and an opened Bases file over the canonical seed. `Workspace/Plugins/Bases` MUST cover the remaining file-view, Markdown-embed, and disable/restore scenarios, verifying associations, source/preview switching, persistence, reopen, read-only embeds, invalid YAML, cleanup, managed settings, and missing-view recovery. |
 | LN-CAT-051 | Bases stories MUST share one canonical seeded vault fixture, use `BasesViewSurface` as focused Autodocs authority, hide harness state from Controls, and provide explicit public-package Show Code. App stories MUST use isolated 700px iframes; every story remains `visual-pending` with an independent nested-import baseline until review. |
 | LN-CAT-052 | The real-App Roles shell MUST find a CV-only semantic phrase through Search after a Roles disable/re-enable cycle and MUST prove that an ordinary YAML marker remains absent. |
 | LN-CAT-053 | The real-App Roles shell MUST exercise aggregate mode switching, dedicated Activity and Actions commands with tab reuse, Applications ribbon activation, due-action status navigation, Roles settings persistence, and missing-view recovery for all three Roles workspace view types. The story MUST finish with Search collapsed. |
 | LN-CAT-054 | The real-App Roles shell MUST exercise the Role-to-Markdown same-leaf transition and return action, assert Mira Live Preview and rich frontmatter output, and verify the Description editor uses the registered Markdown provider rather than the API fallback. |
 | LN-CAT-055 | `Plugins/AI/Chat` MUST demonstrate the public `@lapis-notes/ai` chat panel with Fake runtime, including send/complete and a pending-approval `respondToApproval` path, explicit Show Code, and `visual-pending` nested-import baselines. |
+| LN-CAT-056 | `Plugins/Bases/Workflows` MUST cover query controls, schema and view settings, and persisted typed metadata editing. |
 
 ## Show Code source contract
 
@@ -64,9 +65,10 @@ public-surface and workflow scenarios rather than copying package source.
 The focused Bases view family boots that optional bundled plugin and shares one
 Projects seed across table, editable-cell, cards, grouped list, map fallback,
 and unknown-view scenarios. Its editable table verifies opaque controls,
-centered 1rem checkboxes, wrapped tag and multivalue rows, metadata suggestions,
-a full-height bottom-edge shadcn Scroll Area, and aligned row and column
-geometry through live resizing and scrolling.
+centered 1rem checkboxes, white on-accent glyphs, wrapped tag and multivalue rows,
+metadata suggestions, a full-height bottom-edge shadcn Scroll Area, legacy
+filter-popover geometry, start-position disclosure indicators, and aligned row
+and column geometry through live resizing and scrolling.
 
 Show Code documents consumer integration, not Storybook implementation:
 

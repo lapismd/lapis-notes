@@ -549,9 +549,15 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-018 | bases-plugin | Implemented | focused Storybook and browser geometry assert compact controls and wrapped values share the row-start vertical origin |
 | LN-BASE-019 | bases-plugin | Implemented | focused Storybook targets cell chrome and value text, asserting both keep a selected editable input and expose replacement suggestions |
 | LN-BASE-020 | bases-plugin | Implemented | focused table stories and browser geometry assert the public Design Core Scroll Area fills the available page height, owns overflow, keeps its styled horizontal scrollbar at the bottom edge, and exposes the viewport that drives both virtualizers |
+| LN-BASE-021 | bases-plugin | Implemented | focused editable-cell story and browser styles assert white selected-marker and checked-boolean glyphs on the Bases accent plus opaque unchecked surfaces |
+| LN-BASE-022 | bases-plugin | Implemented | focused editable-cell story and browser geometry assert the 45svw bounded filter popover and opaque workspace filter surface |
+| LN-BASE-023 | bases-plugin | Implemented | focused editable-cell story and browser geometry assert inline-start right-collapsed and down-expanded indicators on both filter disclosure triggers |
+| LN-BASE-024 | bases-plugin | Implemented | focused editable-cell story and browser acceptance assert centered filter values, visible group labels, nested Select overlay anchoring, and syntax-colored advanced expressions |
+| LN-BASE-025 | bases-plugin | Implemented | focused editable-cell story and browser styles assert no outer bottom or inline-end container and scrollbar-track borders while the final row and internal tracks retain separators |
 | LN-DESK-032 | desktop-host | In progress | desktop registers AI after Bases and before Roles; agent-runtime capability and process host IPC |
 | LN-WEB-012 | web-host | In progress | web registers AI after Bases; live runtimes remain unavailable |
 | LN-CAT-055 | storybook-catalog | In progress | Plugins/AI/Chat Fake send/complete and approval stories with public Show Code |
+| LN-CAT-056 | storybook-catalog | In progress | workflow stories cover query controls and persisted typed metadata; schema and view settings remain |
 | LN-AI-001 | ai-plugin | In progress | package location, runtime ID `ai`, bundled default-enabled registration |
 | LN-AI-002 | ai-plugin | In progress | public exports expose AgentRuntime; vendor SDKs stay in adapters |
 | LN-AI-003 | ai-plugin | In progress | Fake and ACP sessions block on respondToApproval |
