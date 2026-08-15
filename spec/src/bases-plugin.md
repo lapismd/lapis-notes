@@ -22,6 +22,7 @@
 | LN-BASE-016 | A focused editable table cell MUST paint one continuous inset active boundary at all four corners. The boundary MUST be owned by the outer cell, MUST NOT be duplicated by nested editor wrappers, and MUST NOT alter the row's shared height or column geometry. |
 | LN-BASE-017 | An autocomplete suggestion popover MUST close when focus leaves its field or an outside interaction dismisses it. Dismissal MUST NOT restore focus to the trigger and reopen the list. |
 | LN-BASE-018 | Every cell in a wrapped variable-height row MUST align its primary content to the row start. Text, number, date, checkbox, file, folder, tag, and multivalue cells MUST share that vertical origin while checkboxes remain horizontally centered. |
+| LN-BASE-019 | An open Bases autocomplete suggestion popover MUST imply an active editing input. Opening a field with an existing value MUST focus and select that value, initially expose alternative suggestions, and allow pointer or keyboard replacement without an extra activation click. |
 
 ## Public surface
 

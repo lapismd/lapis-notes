@@ -547,6 +547,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-016 | bases-plugin | Implemented | focused editable-cell Storybook and browser acceptance assert one outer-cell-owned inset boundary plus unchanged shared row geometry |
 | LN-BASE-017 | bases-plugin | Implemented | Design Core and linked Bases Storybook acceptance move focus outside and assert the suggestion portal closes without trigger restoration |
 | LN-BASE-018 | bases-plugin | Implemented | focused Storybook and browser geometry assert compact controls and wrapped values share the row-start vertical origin |
+| LN-BASE-019 | bases-plugin | Implemented | Design Core and linked Bases Storybook acceptance assert open existing-value popovers keep a selected editable input and expose replacement suggestions |
 | LN-DESK-032 | desktop-host | In progress | desktop registers AI after Bases and before Roles; agent-runtime capability and process host IPC |
 | LN-WEB-012 | web-host | In progress | web registers AI after Bases; live runtimes remain unavailable |
 | LN-CAT-055 | storybook-catalog | In progress | Plugins/AI/Chat Fake send/complete and approval stories with public Show Code |

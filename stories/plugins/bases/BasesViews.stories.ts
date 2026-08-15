@@ -246,9 +246,17 @@ export const EditableCells: Story = {
     await userEvent.unhover(firstRow);
 
     const owner = canvas.getAllByRole("combobox", { name: "owner" })[0]!;
+    const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(owner);
-    await userEvent.clear(owner);
-    await userEvent.type(owner, "Pri");
+    await waitFor(() => {
+      expect(owner).toHaveFocus();
+      expect(owner).toHaveAttribute("aria-expanded", "true");
+      expect(owner.selectionStart).toBe(0);
+      expect(owner.selectionEnd).toBe("Maya Chen".length);
+    });
+    for (const suggestion of ["Maya Chen", "Priya Shah", "Leo Martins"]) {
+      expect(body.getByRole("option", { name: suggestion })).toBeVisible();
+    }
     const ownerCell = owner.closest<HTMLElement>(".bases-table__cell");
     const ownerCellInner = owner.closest<HTMLElement>(
       ".bases-table__cell-inner",
@@ -260,10 +268,6 @@ export const EditableCells: Story = {
     );
     expect(getComputedStyle(ownerCellInner!).boxShadow).toBe("none");
     expectBasesRowCellsAligned(table);
-    const body = within(canvasElement.ownerDocument.body);
-    expect(
-      await body.findByRole("option", { name: "Priya Shah" }),
-    ).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "Search" }));
     await waitFor(() => {
       expect(
@@ -272,7 +276,7 @@ export const EditableCells: Story = {
       expect(owner).toHaveAttribute("aria-expanded", "false");
     });
     await userEvent.click(owner);
-    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await userEvent.click(body.getByRole("option", { name: "Priya Shah" }));
     await waitFor(() => expect(owner).toHaveValue("Priya Shah"));
 
     const app = demoApp(canvasElement);
@@ -285,8 +289,13 @@ export const EditableCells: Story = {
     const ownerAfterUpdate = canvas.getAllByRole("combobox", {
       name: "owner",
     })[0]!;
-    await userEvent.clear(ownerAfterUpdate);
-    await userEvent.type(ownerAfterUpdate, "Maya Chen{Enter}");
+    await userEvent.click(ownerAfterUpdate);
+    await waitFor(() => {
+      expect(ownerAfterUpdate).toHaveAttribute("aria-expanded", "true");
+      expect(ownerAfterUpdate.selectionStart).toBe(0);
+      expect(ownerAfterUpdate.selectionEnd).toBe("Priya Shah".length);
+    });
+    await userEvent.keyboard("Maya Chen{Enter}");
     await waitFor(async () => {
       expect(await app.vault.read(aurora!)).toContain("owner: Maya Chen");
     });
