@@ -1,6 +1,8 @@
 import { View, type WorkspaceLeaf } from "@lapis-notes/api";
+import type { ComposerSearchSource } from "@lapismd/design-core/ai/chat";
 import { mount, unmount } from "svelte";
 import type { AgentRequest, AgentRuntime, ToolContribution } from "../core/types";
+import type { AgentSessionStore } from "../sessions/session-store";
 import AiChatPanel from "./ai-chat-panel.svelte";
 import { AiViewType } from "./ai-view-type";
 
@@ -10,6 +12,9 @@ export type AiViewHost = {
   selectRuntime(request: AgentRequest): Promise<AgentRuntime>;
   liveRuntimeUnavailableReason(): string | null;
   tools: { list(): ToolContribution[] };
+  sessionStore: AgentSessionStore;
+  searchVaultFiles: ComposerSearchSource;
+  workspace?: string;
 };
 
 export class AiView extends View {
@@ -62,6 +67,9 @@ export class AiView extends View {
         runtime,
         unavailableReason: this.host.liveRuntimeUnavailableReason(),
         tools,
+        workspace: this.host.workspace,
+        sessionStore: this.host.sessionStore,
+        fileSearch: this.host.searchVaultFiles,
       },
     }) as Record<string, unknown>;
   }

@@ -564,6 +564,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-056 | storybook-catalog | In progress | workflow stories cover query controls and persisted typed metadata; schema and view settings remain |
 | LN-CAT-057 | storybook-catalog | Implemented | focused Editable Cells story hit-tests both nested Select portals above the filter panel and verifies first-click row growth |
 | LN-CAT-058 | storybook-catalog | Implemented | focused Editable Cells story verifies filter-panel coverage before nested menu interactions |
+| LN-CAT-059 | storybook-catalog | In progress | Plugins/AI/Chat Fake vault-scoped `@` mention story with public Show Code |
 | LN-AI-001 | ai-plugin | In progress | package location, runtime ID `ai`, bundled default-enabled registration |
 | LN-AI-002 | ai-plugin | In progress | public exports expose AgentRuntime; vendor SDKs stay in adapters |
 | LN-AI-003 | ai-plugin | In progress | Fake and ACP sessions block on respondToApproval |
@@ -580,6 +581,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-014 | ai-plugin | In progress | Storybook Fake send/complete and pending-approval plays |
 | LN-AI-015 | ai-plugin | In progress | normalized AgentEvent coverage including tool ids |
 | LN-AI-016 | ai-plugin | In progress | native CSS and `--ui-ai-*` tokens; no Tailwind utilities |
+| LN-AI-017 | ai-plugin | In progress | plugin-data session store restores chat items; resume only when capabilities.resume; pending approvals interrupt without private state |
+| LN-AI-018 | ai-plugin | In progress | vault-scoped `@` mention search and composer trigger unit plus Fake story coverage |
+| LN-AI-019 | ai-plugin | In progress | Codex ModelProvider lists models through the process host and stays empty when unavailable |
 | LN-ARCH-049 | architecture | Implemented | root workspace membership contains only Lapis-owned package directories; sibling resolution uses explicit links and root overrides |
 | LN-PKG-064 | packages | Implemented | private root links, portable package ranges, and `pnpm-workspace.yaml` overrides preserve the repository boundary |
 | LN-GOV-034 | spec-governance | Implemented | `AGENTS.md` records the local-link, portable-manifest, rebuild, and no-external-workspace policy |

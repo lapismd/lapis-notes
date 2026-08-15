@@ -86,6 +86,7 @@ describe("agent runtime contract", () => {
     const resumed = await runtime.resume?.(first.id);
     expect(resumed?.id).toBe(first.id);
     await first.close();
+    await expect(runtime.resume?.(first.id)).rejects.toThrow(/Unknown fake session/);
   });
 
   it("rejects unsupported policy-amendment requests on Fake", async () => {

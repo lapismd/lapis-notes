@@ -5,6 +5,7 @@ import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import {
   aiChatApprovalExampleSource,
   aiChatExampleSource,
+  aiChatMentionsExampleSource,
 } from "./AiChat.example-sources";
 import AiChatDemo from "./AiChatDemo.svelte";
 
@@ -102,6 +103,49 @@ export const PendingApproval: Story = {
     await userEvent.click(allow);
     await waitFor(() => {
       expect(canvas.getByText(/Approval approved/i)).toBeInTheDocument();
+    });
+  },
+};
+
+export const FileMentions: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { requireApproval: false },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-mentions"),
+    docs: {
+      description: {
+        story:
+          "Typing @ searches vault-scoped files and inserts a path mention through the public composer trigger.",
+      },
+      source: {
+        code: aiChatMentionsExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-mentions-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByRole("combobox");
+    await userEvent.type(input, "@alp");
+    const option = await canvas.findByText("alpha");
+    await userEvent.click(option);
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(
+        canvas.getByRole("article", { name: "Message from user" }),
+      ).toHaveTextContent("@Notes/alpha.md");
     });
   },
 };

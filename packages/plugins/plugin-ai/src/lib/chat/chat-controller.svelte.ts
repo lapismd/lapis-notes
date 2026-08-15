@@ -4,11 +4,19 @@ import type {
   AgentSession,
   ToolContribution,
 } from "../core/types";
+import type { AgentSessionStore, StoredAgentSession } from "../sessions/session-store";
+import { extractMentionPaths } from "./chat-mentions";
+import {
+  applyStoredSessionResumePolicy,
+  chatSessionId,
+  loadStoredChatSession,
+  snapshotStoredChatSession,
+} from "./chat-session";
+import type { AiChatItem } from "./chat-items";
 import {
   applyAgentEventToChatItems,
   markApprovalResponse,
 } from "./chat-trace";
-import type { AiChatItem } from "./chat-items";
 
 export class AiChatController {
   items = $state.raw<AiChatItem[]>([]);
@@ -18,15 +26,51 @@ export class AiChatController {
   readonly runtime: AgentRuntime;
   readonly unavailableReason: string | null;
   readonly tools: ToolContribution[];
+  readonly store?: AgentSessionStore;
+  readonly sessionId: string;
+  readonly workspace?: string;
+  #createdAt?: string;
+  #persistQueue: Promise<void> = Promise.resolve();
 
   constructor(
     runtime: AgentRuntime,
     unavailableReason: string | null = null,
     tools: ToolContribution[] = [],
+    options: {
+      store?: AgentSessionStore;
+      sessionId?: string;
+      workspace?: string;
+    } = {},
   ) {
     this.runtime = runtime;
     this.unavailableReason = unavailableReason;
     this.tools = tools;
+    this.store = options.store;
+    this.workspace = options.workspace;
+    this.sessionId = options.sessionId ?? chatSessionId(options.workspace);
+  }
+
+  async restore(): Promise<void> {
+    const stored = await loadStoredChatSession(this.store, this.sessionId);
+    if (!stored) return;
+    this.#createdAt = stored.createdAt;
+    let resumed = false;
+    if (this.runtime.capabilities().resume && this.runtime.resume) {
+      try {
+        this.session = await this.runtime.resume(stored.runtimeSessionId);
+        void this.#consume(this.session);
+        resumed = true;
+      } catch {
+        this.session = null;
+      }
+    }
+    const restored = applyStoredSessionResumePolicy({
+      stored,
+      runtime: this.runtime,
+      resumed,
+    });
+    this.items = restored.items;
+    await this.#persist(restored.interrupted);
   }
 
   async submit(
@@ -46,34 +90,46 @@ export class AiChatController {
         text,
       },
     ];
+    await this.#persist();
+    const attachments = extractMentionPaths(text);
     try {
       if (!this.session) {
         this.session = await this.runtime.start({
           ...request,
           prompt: "",
           tools: request.tools ?? this.tools,
+          metadata: {
+            ...request.metadata,
+            ...(attachments.length > 0 ? { attachments } : {}),
+          },
         });
         void this.#consume(this.session);
       }
       await this.session.send(text);
+      await this.#persist();
     } catch (error) {
       this.error = error instanceof Error ? error.message : String(error);
       this.busy = false;
+      await this.#persist();
     }
   }
 
   async respondToApproval(requestId: string, optionId: string): Promise<void> {
     if (!this.session) return;
     this.items = markApprovalResponse(this.items, requestId, optionId);
+    await this.#persist();
     await this.session.respondToApproval(requestId, optionId);
+    await this.#persist();
   }
 
   async cancel(): Promise<void> {
     await this.session?.cancel?.();
     this.busy = false;
+    await this.#persist(true);
   }
 
   async close(): Promise<void> {
+    await this.#persist();
     await this.session?.close();
     this.session = null;
     this.busy = false;
@@ -86,9 +142,29 @@ export class AiChatController {
         if (event.type === "completed" || event.type === "error") {
           this.busy = false;
         }
+        await this.#persist();
       }
     } finally {
       this.busy = false;
+      await this.#persist();
     }
+  }
+
+  async #persist(interrupted = false): Promise<void> {
+    if (!this.store) return;
+    this.#persistQueue = this.#persistQueue.then(async () => {
+      const snapshot: StoredAgentSession = snapshotStoredChatSession({
+        id: this.sessionId,
+        runtime: this.runtime.id,
+        runtimeSessionId: this.session?.id ?? this.sessionId,
+        workspace: this.workspace,
+        items: this.items,
+        createdAt: this.#createdAt,
+        interrupted,
+      });
+      this.#createdAt = snapshot.createdAt;
+      await this.store?.save(snapshot);
+    });
+    await this.#persistQueue;
   }
 }

@@ -25,6 +25,9 @@ execution APIs.
 | LN-AI-014 | Storybook MUST demonstrate the public AI chat panel with Fake runtime, including send/complete and a pending-approval `respondToApproval` path, using public `@lapis-notes/ai` Show Code. |
 | LN-AI-015 | Normalized `AgentEvent` values MUST cover text, thinking, tool start/end, permission-request notification, status, completed, and error. Tool events MUST include `id` and MAY include `server`. |
 | LN-AI-016 | Production presentation MUST use native CSS, public Design Core or `--ui-ai-*` tokens, and `data-ui-component` hosts. It MUST NOT use Tailwind utility strings. |
+| LN-AI-017 | Session persistence MUST write `StoredAgentSession` records to plugin-data JSON, including outstanding approval ids and an interrupt flag. The panel MUST restore plugin-owned chat items. It MUST call runtime resume only when `capabilities.resume` is true and MUST NOT reconstruct private agent state. |
+| LN-AI-018 | The chat composer MUST offer `@` file mentions from a vault-scoped search of vault files. Selecting a mention MUST insert a path token. Search MUST NOT read or suggest paths outside the active vault. |
+| LN-AI-019 | A Codex `ModelProvider` MUST request `model/list` through the desktop `agent-runtime` process host and return `ModelRef` values. It MUST stay off `AgentRuntime`. When that capability is unavailable it MUST return an empty catalog and unauthenticated status without renderer process spawn. |
 
 ## Runtime flow
 

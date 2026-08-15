@@ -150,8 +150,9 @@ the clicked descendant so cell chrome and visible input text enter edit mode.
 Single-line editors use the compact row content height at the cell start while
 wrapped tag and multivalue editors expand downward from the same origin.
 `@lapis-notes/ai` owns the provider-agnostic agent runtime, registry, Fake and
-ACP adapters, optional native Codex adapter, session store, and movable chat
-panel. Domain plugins register tools; acpx and Codex types stay inside adapters.
+ACP adapters, optional native Codex adapter, plugin-data session persistence,
+vault-scoped file mentions, Codex model catalog, and movable chat panel.
+Domain plugins register tools; acpx and Codex types stay inside adapters.
 Electron, web, and root Storybook declare the workspace package directly; the
 catalog source alias resolves that same owning package during development.
 The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview. Its compiled

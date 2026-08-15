@@ -133,9 +133,7 @@ export class FakeAgentRuntime implements AgentRuntime {
     }
     const existing = this.sessions.find((session) => session.id === sessionId);
     if (existing && !existing.closed) return existing;
-    const session = new FakeAgentSession(sessionId, this.#requireApproval);
-    this.sessions.push(session);
-    return session;
+    throw new Error(`Unknown fake session: ${sessionId}`);
   }
 }
 

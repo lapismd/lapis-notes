@@ -4,10 +4,13 @@ import {
   type App,
   type PluginManifest,
 } from "@lapis-notes/api";
+import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
+import { formatFileMention, searchVaultFiles } from "./chat/chat-mentions";
 import type { AgentRequest, AgentRuntime } from "./core/types";
 import { createAgentProcessHost } from "./host/desktop-process-host";
 import type { AgentProcessHost } from "./host/process-host";
+import { CodexModelProvider } from "./providers/codex-model-provider";
 import {
   createAgentRuntimeRegistry,
   type AgentRuntimeRegistry,
@@ -16,6 +19,8 @@ import { DesktopAcpRuntimeBackend } from "./runtimes/acp/desktop-acp-backend";
 import { AcpAgentRuntime } from "./runtimes/acp/acp-runtime";
 import { CodexNativeRuntime } from "./runtimes/codex/codex-runtime";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
+import { parseAiPluginData, type AiPluginData } from "./sessions/plugin-data";
+import { createPersistedSessionStore } from "./sessions/session-store";
 import { AiSettingsTab } from "./settings/ai-settings-tab";
 import {
   DEFAULT_AI_SETTINGS,
@@ -34,15 +39,27 @@ const AI_MANIFEST: PluginManifest = {
 };
 
 export class AiPlugin extends Plugin {
-  private settings: AiPluginSettings = DEFAULT_AI_SETTINGS;
+  private data: AiPluginData = {
+    settings: DEFAULT_AI_SETTINGS,
+    sessions: [],
+  };
   readonly processHost: AgentProcessHost;
   readonly registry: AgentRuntimeRegistry;
+  readonly models: CodexModelProvider;
   readonly tools = createToolContributionRegistry();
   readonly fakeRuntime = new FakeAgentRuntime({ requireApproval: true });
+  readonly sessionStore = createPersistedSessionStore({
+    read: async () => this.data.sessions,
+    write: async (sessions) => {
+      this.data = { ...this.data, sessions };
+      await this.saveData(this.data);
+    },
+  });
 
   constructor(app: App, pluginManifest: PluginManifest = AI_MANIFEST) {
     super(app, pluginManifest);
     this.processHost = createAgentProcessHost();
+    this.models = new CodexModelProvider(this.processHost);
     this.registry = createAgentRuntimeRegistry([
       this.fakeRuntime,
       new AcpAgentRuntime(new DesktopAcpRuntimeBackend()),
@@ -51,12 +68,15 @@ export class AiPlugin extends Plugin {
   }
 
   getSettings(): AiPluginSettings {
-    return { ...this.settings };
+    return { ...this.data.settings };
   }
 
   async updateSettings(patch: Partial<AiPluginSettings>): Promise<void> {
-    this.settings = mergeAiSettings({ ...this.settings, ...patch });
-    await this.saveData(this.settings);
+    this.data = {
+      ...this.data,
+      settings: mergeAiSettings({ ...this.data.settings, ...patch }),
+    };
+    await this.saveData(this.data);
   }
 
   liveRuntimeUnavailableReason(): string | null {
@@ -64,10 +84,32 @@ export class AiPlugin extends Plugin {
     return "Live agent runtimes are available only on the desktop host.";
   }
 
+  get workspace(): string | undefined {
+    return this.app.vault.getName() || undefined;
+  }
+
+  searchVaultFiles = async (
+    query: string,
+    signal: AbortSignal,
+  ): Promise<ComposerTriggerItem[]> => {
+    if (signal.aborted) return [];
+    const files = this.app.vault.getFiles().map((file) => ({
+      path: file.path,
+      name: file.basename,
+    }));
+    return searchVaultFiles(files, query).map((file) => ({
+      id: file.path,
+      label: file.name,
+      value: formatFileMention(file.path),
+      description: file.path,
+    }));
+  };
+
   async selectRuntime(request: AgentRequest): Promise<AgentRuntime> {
-    if (this.settings.defaultRuntime === "fake") return this.fakeRuntime;
-    if (this.settings.defaultRuntime !== "auto") {
-      const pinned = this.registry.get(this.settings.defaultRuntime);
+    const settings = this.data.settings;
+    if (settings.defaultRuntime === "fake") return this.fakeRuntime;
+    if (settings.defaultRuntime !== "auto") {
+      const pinned = this.registry.get(settings.defaultRuntime);
       if (pinned && (await pinned.supports(request))) return pinned;
     }
     try {
@@ -75,7 +117,7 @@ export class AiPlugin extends Plugin {
         ...request,
         metadata: {
           ...request.metadata,
-          acpAgent: this.settings.acpAgent,
+          acpAgent: settings.acpAgent,
         },
         tools: [...(request.tools ?? []), ...this.tools.list()],
       });
@@ -85,7 +127,7 @@ export class AiPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
-    this.settings = mergeAiSettings(await this.loadData());
+    this.data = parseAiPluginData(await this.loadData());
     this.addSettingTab(new AiSettingsTab(this.app, this));
     this.registerSidebarView(
       AiViewType,

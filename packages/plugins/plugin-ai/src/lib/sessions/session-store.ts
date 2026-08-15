@@ -1,5 +1,5 @@
-import type { ModelRef } from "../core/types";
 import type { AiChatItem } from "../chat/chat-items";
+import type { ModelRef } from "../core/types";
 
 export type StoredAgentSession = {
   id: string;
@@ -24,25 +24,63 @@ export interface AgentSessionStore {
 export function createMemorySessionStore(
   initial: StoredAgentSession[] = [],
 ): AgentSessionStore {
-  const sessions = new Map(initial.map((session) => [session.id, session]));
+  const sessions = new Map(initial.map((session) => [session.id, cloneSession(session)]));
   return {
     async list() {
-      return [...sessions.values()].sort((left, right) =>
-        right.updatedAt.localeCompare(left.updatedAt),
-      );
+      return [...sessions.values()]
+        .map(cloneSession)
+        .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
     },
     async get(id) {
-      return sessions.get(id);
+      const session = sessions.get(id);
+      return session ? cloneSession(session) : undefined;
     },
     async save(session) {
-      sessions.set(session.id, {
-        ...session,
-        items: [...session.items],
-        updatedAt: session.updatedAt,
-      });
+      sessions.set(session.id, cloneSession(session));
     },
     async remove(id) {
       sessions.delete(id);
+    },
+  };
+}
+
+export function createPersistedSessionStore(options: {
+  read(): Promise<StoredAgentSession[]>;
+  write(sessions: StoredAgentSession[]): Promise<void>;
+}): AgentSessionStore {
+  const memory = createMemorySessionStore();
+  let loaded = false;
+
+  async function ensureLoaded(): Promise<void> {
+    if (loaded) return;
+    for (const session of await options.read()) {
+      await memory.save(session);
+    }
+    loaded = true;
+  }
+
+  async function persist(): Promise<void> {
+    await options.write(await memory.list());
+  }
+
+  return {
+    async list() {
+      await ensureLoaded();
+      return memory.list();
+    },
+    async get(id) {
+      await ensureLoaded();
+      return memory.get(id);
+    },
+    async save(session) {
+      await ensureLoaded();
+      await memory.save(session);
+      await persist();
+    },
+    async remove(id) {
+      await ensureLoaded();
+      await memory.remove(id);
+      await persist();
     },
   };
 }
@@ -54,6 +92,8 @@ export function createStoredAgentSession(input: {
   workspace?: string;
   model?: ModelRef;
   items?: AiChatItem[];
+  pendingApprovalId?: string;
+  interrupted?: boolean;
 }): StoredAgentSession {
   const now = new Date().toISOString();
   return {
@@ -64,6 +104,33 @@ export function createStoredAgentSession(input: {
     model: input.model,
     createdAt: now,
     updatedAt: now,
-    items: input.items ?? [],
+    interrupted: input.interrupted,
+    pendingApprovalId: input.pendingApprovalId,
+    items: input.items ? [...input.items] : [],
+  };
+}
+
+export function pendingApprovalIdFromItems(
+  items: AiChatItem[],
+): string | undefined {
+  const pending = items.find(
+    (item): item is Extract<AiChatItem, { type: "approval" }> =>
+      item.type === "approval" && item.status === "pending",
+  );
+  return pending?.request.id;
+}
+
+export function interruptPendingApprovals(items: AiChatItem[]): AiChatItem[] {
+  return items.map((item) =>
+    item.type === "approval" && item.status === "pending"
+      ? { ...item, status: "cancelled" }
+      : item,
+  );
+}
+
+function cloneSession(session: StoredAgentSession): StoredAgentSession {
+  return {
+    ...session,
+    items: [...session.items],
   };
 }

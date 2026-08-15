@@ -23,5 +23,8 @@ describe("@lapis-notes/ai public exports", () => {
     expect(source).toContain("AcpAgentRuntime");
     expect(source).toContain("CodexNativeRuntime");
     expect(source).toContain("createAgentRuntimeRegistry");
+    expect(source).toContain("CodexModelProvider");
+    expect(source).toContain("createPersistedSessionStore");
+    expect(source).toContain("searchVaultFiles");
   });
 });

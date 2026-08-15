@@ -211,7 +211,9 @@ development dependencies. The API continues to expose the generic editor
 extension registry and source view, not a bundled language policy.
 `@lapis-notes/ai` is an authorized bundled plugin. The desktop native bridge
 advertises an `agent-runtime` capability for process-backed ACP and Codex
-sessions while the reserved `model` capability stays unavailable.
+sessions while the reserved `model` capability stays unavailable. Chat sessions
+persist through plugin data, and Codex model listing uses that same process
+host rather than a renderer spawn.
 
 ## Tooling policy
 

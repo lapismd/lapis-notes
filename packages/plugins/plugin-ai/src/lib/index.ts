@@ -32,6 +32,8 @@ export type {
   AgentProcessMessage,
 } from "./host/process-host";
 export { StaticModelProvider } from "./providers/model-provider";
+export { CodexModelProvider } from "./providers/codex-model-provider";
+export { normalizeCodexModelList } from "./providers/codex-model-catalog";
 export type { ModelProvider, ProviderAuthStatus } from "./providers/model-provider";
 export {
   AgentRuntimeNotFoundError,
@@ -50,11 +52,22 @@ export { CodexNativeRuntime } from "./runtimes/codex/codex-runtime";
 export { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
 export {
   createMemorySessionStore,
+  createPersistedSessionStore,
   createStoredAgentSession,
+  interruptPendingApprovals,
+  pendingApprovalIdFromItems,
 } from "./sessions/session-store";
 export type {
   AgentSessionStore,
   StoredAgentSession,
 } from "./sessions/session-store";
+export { parseAiPluginData } from "./sessions/plugin-data";
+export type { AiPluginData } from "./sessions/plugin-data";
+export {
+  extractMentionPaths,
+  formatFileMention,
+  searchVaultFiles,
+} from "./chat/chat-mentions";
+export type { VaultFileRef } from "./chat/chat-mentions";
 export { createToolContributionRegistry } from "./tools/tool-registry";
 export type { ToolContributionRegistry } from "./tools/tool-registry";

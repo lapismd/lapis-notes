@@ -276,6 +276,13 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--pending-approval",
   },
   {
+    id: "plugins-ai-chat-mentions",
+    title: "AI Chat: File Mentions",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--file-mentions",
+  },
+  {
     id: "plugins-bases-editor-shell",
     title: "Bases Editor Shell",
     spec: "spec/src/bases-plugin.md",

@@ -1,7 +1,13 @@
 <script lang="ts">
   import * as Chat from "@lapismd/design-core/ai/chat";
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import type {
+    ComposerSearchSource,
+    ComposerTrigger,
+  } from "@lapismd/design-core/ai/chat";
   import type { AgentRuntime, ToolContribution } from "../core/types";
+  import type { AgentSessionStore } from "../sessions/session-store";
+  import { formatFileMention } from "./chat-mentions";
   import AiApprovalCard from "./ai-approval-card.svelte";
   import { AiChatController } from "./chat-controller.svelte";
 
@@ -10,17 +16,43 @@
     unavailableReason = null,
     workspace,
     tools = [],
+    sessionStore,
+    sessionId,
+    fileSearch,
   }: {
     runtime: AgentRuntime;
     unavailableReason?: string | null;
     workspace?: string;
     tools?: ToolContribution[];
+    sessionStore?: AgentSessionStore;
+    sessionId?: string;
+    fileSearch?: ComposerSearchSource;
   } = $props();
 
   const controller = $derived(
-    new AiChatController(runtime, unavailableReason, tools),
+    new AiChatController(runtime, unavailableReason, tools, {
+      store: sessionStore,
+      sessionId,
+      workspace,
+    }),
   );
   let draft = $state("");
+  const mentionTriggers = $derived.by<ComposerTrigger[]>(() => {
+    if (!fileSearch) return [];
+    return [
+      {
+        character: "@",
+        menuLabel: "Files",
+        emptySearchResultsText: "No vault files",
+        searchSource: fileSearch,
+        onSelect: (item) => ({
+          value: item.value ?? formatFileMention(item.id),
+          label: item.label,
+          variant: "secondary",
+        }),
+      },
+    ];
+  });
 
   async function submit(prompt: string): Promise<void> {
     await controller.submit(prompt, { workspace, tools });
@@ -28,6 +60,7 @@
 
   $effect(() => {
     const current = controller;
+    void current.restore();
     return () => {
       void current.close();
     };
@@ -48,9 +81,10 @@
     {#snippet composer()}
       <Chat.Composer
         bind:value={draft}
-        placeholder="Ask the agent…"
+        placeholder="Ask the agent… Use @ to attach a vault file"
         disabled={controller.busy}
         isStopShown={controller.busy}
+        triggers={mentionTriggers}
         onSubmit={(value) => void submit(value)}
         onStop={() => {
           void controller.cancel();
