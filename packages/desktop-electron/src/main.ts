@@ -11,6 +11,7 @@ import {
 import "@lapismd/design-core/styles.css";
 import "@lapismd/design-core/themes/lapis.css";
 import "@lapis-notes/ui/theme.css";
+import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import "./desktop-host.css";

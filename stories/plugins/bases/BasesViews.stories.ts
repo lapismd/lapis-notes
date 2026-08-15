@@ -1,7 +1,7 @@
 import type { App } from "@lapis-notes/api";
 import { BasesViewSurface, type BasesDocument } from "@lapis-notes/bases";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
 import BasesViewsDemo from "./BasesViewsDemo.svelte";
@@ -10,6 +10,7 @@ import type { BasesViewScenario } from "./bases-views-fixture";
 import {
   expectBasesCellContentTopAligned,
   expectBasesColumnsAligned,
+  expectBasesQueryEditorChrome,
   expectBasesRowCellsAligned,
   expectBasesTableFillsSurface,
   expectOpaqueBackground,
@@ -475,9 +476,7 @@ export const EditableCells: Story = {
     );
     expect(filterPopover).toBeVisible();
     expect(
-      Math.abs(
-        filterPopover!.getBoundingClientRect().width - sortPopoverWidth,
-      ),
+      Math.abs(filterPopover!.getBoundingClientRect().width - sortPopoverWidth),
     ).toBeLessThan(1);
     const visibleFilterElement = <T extends Element>(selector: string) =>
       [...filterPopover!.querySelectorAll<T>(selector)].find((element) => {
@@ -665,10 +664,15 @@ export const EditableCells: Story = {
       'button[data-tooltip="Simple filter"]',
     );
     await userEvent.click(advancedToggle!);
-    await waitFor(() => {
-      const queryContent = visibleFilterElement<HTMLElement>(
-        ".filter-group .cm-content",
+    const queryEditor = await waitFor(() => {
+      const editor = visibleFilterElement<HTMLElement>(
+        '[data-ui-component="bases-query-editor"]',
       );
+      expect(editor).toBeVisible();
+      return editor!;
+    });
+    const queryContent = queryEditor.querySelector<HTMLElement>(".cm-content");
+    await waitFor(() => {
       const stringToken = queryContent?.querySelector<HTMLElement>(
         ".cm-string, .cm-string-2",
       );
@@ -678,6 +682,23 @@ export const EditableCells: Story = {
         getComputedStyle(queryContent!).color,
       );
     });
+    await userEvent.click(queryContent!);
+    await fireEvent.keyDown(queryContent!, {
+      key: " ",
+      code: "Space",
+      ctrlKey: true,
+    });
+    const completionTooltip = await waitFor(() => {
+      const tooltip =
+        canvasElement.ownerDocument.body.querySelector<HTMLElement>(
+          ".cm-tooltip.cm-tooltip-autocomplete",
+        );
+      expect(tooltip).toBeVisible();
+      return tooltip!;
+    });
+    expectBasesQueryEditorChrome(queryEditor, completionTooltip);
+    await fireEvent.keyDown(queryContent!, { key: "Escape", code: "Escape" });
+    await waitFor(() => expect(completionTooltip).not.toBeInTheDocument());
     await userEvent.click(canvas.getByRole("button", { name: "Filter" }));
   },
 };

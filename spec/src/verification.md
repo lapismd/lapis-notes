@@ -557,10 +557,16 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-026 | bases-plugin | Implemented | focused editable-cell story asserts the first Add Filter activation grows the visible predicate list from one row to two |
 | LN-BASE-027 | bases-plugin | Implemented | focused editable-cell story hit-tests the opaque filter panel above intersecting sticky table headers |
 | LN-BASE-028 | bases-plugin | Implemented | focused editable-cell story compares Sort and Filter outer popover widths and verifies Sort content fills the shared panel |
+| LN-BASE-029 | bases-plugin | Implemented | focused Storybook and live host styles assert shared completion-popover chrome and no default dotted query-editor outline |
 | LN-ARCH-050 | architecture | Implemented | focused editable-cell story hit-tests both nested Design Core Select portals above the enclosing filter panel without a Bases stacking override |
 | LN-ARCH-051 | architecture | Implemented | source contract plus focused story assert one semantic query-popover width across Sort and Filter |
+| LN-ARCH-052 | architecture | Implemented | API keeps shared autocomplete; hosts load the public UI completion-popover stylesheet; Bases has no UI package dependency |
 | LN-PKG-065 | packages | Implemented | Bases package checks, build, and focused story preserve first-click row growth and shared portal layering |
 | LN-PKG-066 | packages | Implemented | Bases package build and publint retain the private shared query-popover sizing rule |
+| LN-PKG-067 | packages | Implemented | UI, Bases, web, and desktop checks plus production builds verify native completion popover paint and host imports without a Bases UI dependency |
+| LN-UI-018 | ui-and-styling | Implemented | public native autocomplete CSS maps CodeMirror tooltips to Design Core popover and command semantics without Tailwind directives |
+| LN-DESK-033 | desktop-host | Implemented | Electron imports the shared completion stylesheet after theme paint and its production renderer build passes |
+| LN-WEB-013 | web-host | Implemented | web imports the shared completion stylesheet after theme paint and its production PWA build passes |
 | LN-DESK-032 | desktop-host | In progress | desktop registers AI after Bases and before Roles; agent-runtime capability and process host IPC |
 | LN-WEB-012 | web-host | In progress | web registers AI after Bases; live runtimes remain unavailable |
 | LN-CAT-055 | storybook-catalog | In progress | Plugins/AI/Chat Fake send/complete and approval stories with public Show Code |
@@ -569,6 +575,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-058 | storybook-catalog | Implemented | focused Editable Cells story verifies filter-panel coverage before nested menu interactions |
 | LN-CAT-059 | storybook-catalog | In progress | Plugins/AI/Chat Fake vault-scoped `@` mention story with public Show Code |
 | LN-CAT-060 | storybook-catalog | Implemented | focused Editable Cells story asserts Sort and Filter computed outer widths match in one viewport |
+| LN-CAT-063 | storybook-catalog | Implemented | Editable Cells and Editor Shell plays open advanced query completions and assert focus plus Lapis popover chrome |
 | LN-AI-001 | ai-plugin | In progress | package location, runtime ID `ai`, bundled default-enabled registration |
 | LN-AI-002 | ai-plugin | In progress | public exports expose AgentRuntime; vendor SDKs stay in adapters |
 | LN-AI-003 | ai-plugin | In progress | Fake and ACP sessions block on respondToApproval |

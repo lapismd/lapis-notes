@@ -59,6 +59,7 @@
 | LN-CAT-057 | The focused Bases Editable Cells story MUST hit-test the AND/OR and operator Select portals above the enclosing filter panel and MUST prove the first Add Filter activation increments the visible predicate count. |
 | LN-CAT-058 | The focused Bases Editable Cells story MUST hit-test the filter panel above each intersecting sticky table header before exercising nested filter menus. |
 | LN-CAT-060 | The focused Bases Editable Cells story MUST open Sort and Filter in the same viewport and assert their computed outer widths match within sub-pixel tolerance. |
+| LN-CAT-063 | The focused Bases Editable Cells and real editor-shell stories MUST enter advanced-filter edit mode, open CodeMirror completions, and assert the inline editor has no default outline while the completion surface has opaque, rounded, shadowed Lapis popover chrome. |
 
 ## Show Code source contract
 

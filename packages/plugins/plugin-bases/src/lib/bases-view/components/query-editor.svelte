@@ -179,4 +179,9 @@
   }
 </script>
 
-<div {...rest} use:codeMirror={content} class={cn("bases-style-h-full-668b21", className)}></div>
+<div
+  {...rest}
+  use:codeMirror={content}
+  data-ui-component="bases-query-editor"
+  class={cn("bases-style-h-full-668b21", className)}
+></div>

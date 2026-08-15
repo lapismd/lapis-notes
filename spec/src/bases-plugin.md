@@ -32,6 +32,7 @@
 | LN-BASE-026 | An initial blank filter row MUST count as the first predicate. The first Add Filter activation MUST preserve that predicate and append a second visible row rather than replacing the placeholder with an indistinguishable placeholder. |
 | LN-BASE-027 | The sticky table header MUST remain above scrolling table rows but below portaled filter panels. Opening Filter MUST produce an opaque hit-tested panel over every intersecting header cell, while its nested Select portals remain above the panel. |
 | LN-BASE-028 | The Sort and Filter outer popovers MUST resolve the same 45svw width and the same viewport maximum. Sort's internal Scroll Area MUST fill that shared width rather than retaining the former 25svw constraint. |
+| LN-BASE-029 | Advanced filter expressions MUST use the shared Lapis CodeMirror completion popover chrome in Storybook and production hosts. Focusing the inline query editor MUST NOT paint CodeMirror's default dotted outline; the surrounding segmented filter row remains the visible focus boundary. |
 
 ## Public surface
 

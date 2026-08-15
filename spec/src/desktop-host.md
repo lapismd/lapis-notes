@@ -41,6 +41,7 @@ are intentionally omitted.
 | LN-DESK-030 | The desktop host MUST register and load `@lapis-notes/lapis-plugin-cv-roles` as an optional core plugin enabled by default before metadata and layout restoration so persisted `role`, `roles`, and `cv` leaves restore with the plugin-owned legacy page presentation available. |
 | LN-DESK-031 | The desktop host MUST register and load `@lapis-notes/bases` after Search and before external Roles, metadata, and layout restoration. It MUST use package-exported styles, restore persisted Bases placeholders after re-enabling, and MUST NOT create a default Bases leaf. |
 | LN-DESK-032 | The desktop host MUST register and load `@lapis-notes/ai` after Bases and before external Roles, metadata, and layout restoration. It MUST advertise `agent-runtime` for process-backed ACP and Codex sessions and MUST NOT create a default AI leaf. |
+| LN-DESK-033 | The Electron renderer MUST load the public Lapis CodeMirror autocomplete stylesheet after Design Core and Lapis theme paint so shared completion extensions render production popover chrome without Storybook-owned CSS. |
 
 ## Boot flow
 

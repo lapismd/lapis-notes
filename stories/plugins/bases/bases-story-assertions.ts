@@ -191,3 +191,26 @@ export function expectOpaqueBackground(element: HTMLElement) {
   context!.fillRect(0, 0, 1, 1);
   expect(context!.getImageData(0, 0, 1, 1).data[3]).toBe(255);
 }
+
+export function expectBasesQueryEditorChrome(
+  queryEditor: HTMLElement,
+  completionTooltip: HTMLElement,
+) {
+  const editor = queryEditor.querySelector<HTMLElement>(".cm-editor");
+  const selectedCompletion = completionTooltip.querySelector<HTMLElement>(
+    '[aria-selected="true"]',
+  );
+
+  expect(editor).toHaveClass("cm-focused");
+  expect(getComputedStyle(editor!).outlineStyle).toBe("none");
+  expectOpaqueBackground(completionTooltip);
+
+  const tooltipStyle = getComputedStyle(completionTooltip);
+  expect(Number.parseFloat(tooltipStyle.borderRadius)).toBeGreaterThan(0);
+  expect(tooltipStyle.boxShadow).not.toBe("none");
+  expect(tooltipStyle.padding).toBe("4px");
+  expect(selectedCompletion).toBeVisible();
+  expect(getComputedStyle(selectedCompletion!).backgroundColor).not.toBe(
+    tooltipStyle.backgroundColor,
+  );
+}

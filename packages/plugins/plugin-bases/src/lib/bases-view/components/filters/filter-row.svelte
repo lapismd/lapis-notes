@@ -244,6 +244,7 @@
       <Button
         onclick={() => toggleSimple()}
         data-tooltip="Simple filter"
+        aria-label="Use custom filter"
         variant="ghost"
         size="sm"
         class="bases-style-bg-background-e6f9e3 bases-style-min-h-inherit-05c993 bases-style-h-auto-b8f0a0 bases-style-self-stretch-18069a  bases-style-rounded-none-0c5e91 bases-style-border-none-4a5f0e bases-style-shadow-none-ad47d1 bases-style-outline-none-df37b1"
@@ -260,6 +261,7 @@
       <Button
         onclick={() => toggleSimple()}
         data-tooltip="Simple filter"
+        aria-label="Use simple filter"
         variant="ghost"
         size="sm"
         class="bases-style-min-h-inherit-05c993 bases-style-bg-background-e6f9e3 bases-style-h-auto-b8f0a0 bases-style-self-stretch-18069a bases-style-rounded-none-0c5e91 bases-style-border-none-4a5f0e bases-style-shadow-none-ad47d1 bases-style-outline-none-df37b1"
@@ -271,6 +273,7 @@
       <Button
         variant="ghost"
         size="sm"
+        aria-label="Delete filter"
         class="bases-style-bg-background-e6f9e3 bases-style-min-h-inherit-05c993 bases-style-h-auto-b8f0a0 bases-style-self-stretch-18069a bases-style-rounded-none-0c5e91 bases-style-rounded-r-md-d4eb07 bases-style-border-none-4a5f0e bases-style-shadow-none-ad47d1 bases-style-outline-none-df37b1"
         onclick={() => deleteFilter()}
       >

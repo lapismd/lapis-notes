@@ -7,6 +7,7 @@ import SearchEmbeddingWorker from "@lapis-notes/api/search-embedding-worker?work
 import "@lapismd/design-core/styles.css";
 import "@lapismd/design-core/themes/lapis.css";
 import "@lapis-notes/ui/theme.css";
+import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
 import { observeHostThemeColor } from "./host-theme-color";
 import { initializeWebHostDocument } from "./pwa-host-document";

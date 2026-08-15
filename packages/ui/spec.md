@@ -19,6 +19,10 @@ sources MUST pass `pnpm check:no-tailwind`.
 palette lives in design-core `themes/lapis.css`. `styles.css` re-exports
 `theme.css` without Tailwind.
 
+`codemirror-autocomplete.css` is a native-CSS public surface that maps shared
+CodeMirror completion tooltips onto Design Core Popover and Command semantics.
+Application hosts load it after the shared theme.
+
 ## Validation
 
 `pnpm check` (includes no-Tailwind gate), `svelte-check`, Storybook

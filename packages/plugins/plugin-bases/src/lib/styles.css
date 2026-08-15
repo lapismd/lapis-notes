@@ -96,6 +96,12 @@
   color: var(--ui-bases-normal-color);
 }
 
+.filter-group
+  [data-ui-component="bases-query-editor"]
+  .cm-editor.cm-focused {
+  outline: none;
+}
+
 .filter-group .cm-comment,
 .filter-group .cm-meta {
   color: var(--ui-code-syntax-comment, var(--code-comment, #64748b));
