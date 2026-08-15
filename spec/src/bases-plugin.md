@@ -23,6 +23,7 @@
 | LN-BASE-017 | An autocomplete suggestion popover MUST close when focus leaves its field or an outside interaction dismisses it. Dismissal MUST NOT restore focus to the trigger and reopen the list. |
 | LN-BASE-018 | Every cell in a wrapped variable-height row MUST align its primary content to the row start. Text, number, date, checkbox, file, folder, tag, and multivalue cells MUST share that vertical origin while checkboxes remain horizontally centered. |
 | LN-BASE-019 | An open Bases autocomplete suggestion popover MUST imply an active editing input. Opening a field with an existing value MUST focus and select that value, initially expose alternative suggestions, and allow pointer or keyboard replacement without an extra activation click. Clicks targeting the cell surface or rendered value text MUST establish the same editing state. |
+| LN-BASE-020 | The table viewport MUST fill the available vertical Bases surface and compose Design Core's public shadcn Scroll Area for horizontal and vertical overflow. Its styled horizontal scrollbar MUST remain visible at the bottom edge of that full-height container, and the Scroll Area viewport MUST remain the single scroll element that drives row and column virtualization. |
 
 ## Public surface
 

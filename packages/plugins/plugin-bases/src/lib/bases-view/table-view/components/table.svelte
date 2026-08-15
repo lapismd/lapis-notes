@@ -35,6 +35,7 @@
   } from "../../summary-core";
   import SortHeader from "./sort-header.svelte";
   import { resolveVirtualTotalSize } from "./table-virtualizer-core";
+  import * as ScrollArea from "@lapismd/design-core/shadcn/scroll-area";
   import { onDestroy, onMount, untrack } from "svelte";
   import TablePlaceholder from "./table-placeholder.svelte";
   import { useResizeObserver } from "../../hooks/useResizeObserver.svelte";
@@ -500,7 +501,7 @@
   let showStickySearch = $derived(
     !!activeSearchQuery && !view.controller.searchPanelOpen,
   );
-  let tableContainerRef: HTMLDivElement | null = $state(null);
+  let tableContainerRef: HTMLElement | null = $state(null);
   let scrollTop = $state(0);
   let headers = $derived(view.config.getOrder());
   let headerMap = $derived.by(() => {
@@ -641,6 +642,22 @@
   });
 
   $effect(() => {
+    const viewport = tableContainerRef;
+    if (!viewport) {
+      return;
+    }
+
+    containerSize.ref = viewport;
+    const updateScrollTop = () => {
+      scrollTop = viewport.scrollTop;
+    };
+    updateScrollTop();
+    viewport.addEventListener("scroll", updateScrollTop, { passive: true });
+
+    return () => viewport.removeEventListener("scroll", updateScrollTop);
+  });
+
+  $effect(() => {
     columnTracks;
     columnSizingInfo;
     containerSize.size.width;
@@ -771,27 +788,23 @@
 
 <DragDropProvider onDragEnd={handleDragEnd}>
   <div
-    class="bases-table__scroller bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-flex-grow-95a3df bases-style-overflow-auto-73fc3f bases-style-pb-16-db15dd"
+    class="bases-table-view bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-flex-grow-95a3df"
     data-layout="table"
     data-ui-component="bases-table-view"
-    data-ui-part="viewport"
-    onscroll={() => {
-      scrollTop = tableContainerRef?.scrollTop ?? 0;
-    }}
-    bind:this={
-      () => tableContainerRef,
-      (value) => {
-        tableContainerRef = value;
-        containerSize.ref = value;
-      }
-    }
-    bind:this={tableContainerRef}
+    data-ui-part="scroll-area-shell"
   >
-    <div
-      class="bases-table-container relative bases-style-min-w-full-a1e7a8 bases-style-pb-100px-03c580"
-      style={`--ui-bases-table-row-height: ${rowHeight}px; width: ${tableWidth}px; height: ${virtualTotalSize + 2 * rowHeight}px;`}
+    <ScrollArea.Root
+      class="bases-table__scroll-area"
+      orientation="both"
+      type="always"
+      bind:viewportRef={tableContainerRef}
+      scrollbarXClasses="bases-table__scrollbar bases-table__scrollbar--horizontal"
+      scrollbarYClasses="bases-table__scrollbar bases-table__scrollbar--vertical"
     >
-      <div class="bases-table bases-style-text-sm-fc7473">
+      <div
+        class="bases-table-container bases-table relative bases-style-min-w-full-a1e7a8 bases-style-pb-100px-03c580 bases-style-text-sm-fc7473"
+        style={`--ui-bases-table-row-height: ${rowHeight}px; width: ${tableWidth}px; height: ${virtualTotalSize + 2 * rowHeight}px;`}
+      >
         <div
           class="bases-table__head bases-thead sticky bases-style-top-0-216740 bases-style-z-100-db5a36 bases-style-h-9-e7a768"
           data-ui-part="header"
@@ -968,6 +981,6 @@
           </div>
         {/if}
       </div>
-    </div>
+    </ScrollArea.Root>
   </div>
 </DragDropProvider>

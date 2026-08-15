@@ -548,6 +548,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-017 | bases-plugin | Implemented | Design Core and linked Bases Storybook acceptance move focus outside and assert the suggestion portal closes without trigger restoration |
 | LN-BASE-018 | bases-plugin | Implemented | focused Storybook and browser geometry assert compact controls and wrapped values share the row-start vertical origin |
 | LN-BASE-019 | bases-plugin | Implemented | focused Storybook targets cell chrome and value text, asserting both keep a selected editable input and expose replacement suggestions |
+| LN-BASE-020 | bases-plugin | Implemented | focused table stories and browser geometry assert the public Design Core Scroll Area fills the available page height, owns overflow, keeps its styled horizontal scrollbar at the bottom edge, and exposes the viewport that drives both virtualizers |
 | LN-DESK-032 | desktop-host | In progress | desktop registers AI after Bases and before Roles; agent-runtime capability and process host IPC |
 | LN-WEB-012 | web-host | In progress | web registers AI after Bases; live runtimes remain unavailable |
 | LN-CAT-055 | storybook-catalog | In progress | Plugins/AI/Chat Fake send/complete and approval stories with public Show Code |

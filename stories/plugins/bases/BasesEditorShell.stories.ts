@@ -6,7 +6,10 @@ import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
 import { basesEditorShellExampleSource } from "./BasesEditorShell.example-sources";
 import BasesEditorShellDemo from "./BasesEditorShellDemo.svelte";
-import { expectBasesColumnsAligned } from "./bases-story-assertions";
+import {
+  expectBasesColumnsAligned,
+  expectBasesTableFillsSurface,
+} from "./bases-story-assertions";
 
 const meta = {
   title: "Plugins/Bases/Editor Shell",
@@ -159,6 +162,7 @@ export const ExplorerSearchAndBase: Story = {
       '[data-ui-component="bases-table-view"]',
     );
     expect(table).toBeVisible();
+    expectBasesTableFillsSurface(table!);
     expectBasesColumnsAligned(table!);
   },
 };

@@ -132,6 +132,10 @@ Design Core autocomplete owns outside-focus dismissal without trigger-focus
 restoration; Bases owns top-aligned table-cell composition around that control.
 Bases resolves delegated editor activation from the semantic cell root for both
 cell-chrome and nested-value clicks while preserving genuine nested buttons.
+The table fills the remaining Bases surface, composes Design Core's public
+shadcn Scroll Area, and binds both virtualizers to its exposed viewport; Bases
+owns only table-specific scrollbar tokens and full-height bottom-edge placement
+around that shared primitive.
 Electron, web, and the root real-App catalog consume its package exports and
 share the Search, Bases, external-Roles boot order without a consumer copy.
 

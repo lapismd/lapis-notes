@@ -68,6 +68,34 @@ export function expectBasesColumnsAligned(
   }
 }
 
+export function expectBasesTableFillsSurface(
+  table: HTMLElement,
+  tolerance = 0.75,
+) {
+  const surface = table.closest<HTMLElement>(
+    '[data-ui-component="bases-view"][data-ui-part="root"]',
+  );
+  const root = table.querySelector<HTMLElement>(
+    '[data-ui-component="scroll-area"][data-ui-part="scroll-area"]',
+  );
+  const viewport = root?.querySelector<HTMLElement>(
+    '[data-ui-part="scroll-area-viewport"]',
+  );
+
+  expect(surface).toBeVisible();
+  expect(root).toBeVisible();
+  expect(viewport).toBeVisible();
+
+  const surfaceRect = surface!.getBoundingClientRect();
+  const rootRect = root!.getBoundingClientRect();
+  expect(Math.abs(rootRect.bottom - surfaceRect.bottom)).toBeLessThanOrEqual(
+    tolerance,
+  );
+  expect(getComputedStyle(viewport!).scrollbarWidth).toBe("none");
+
+  return { root: root!, viewport: viewport! };
+}
+
 export function expectBasesRowCellsAligned(
   table: HTMLElement,
   tolerance = 0.75,

@@ -1060,7 +1060,7 @@ export abstract class BasesView extends Component {
   ): void {
     this.unmountViewComponent();
     containerEl.replaceChildren();
-    const target = containerEl.createDiv("w-full h-full");
+    const target = containerEl.createDiv("bases-view__renderer");
     this.mountedViewContainer = target;
     this.mountedView = mount(component, {
       props,

@@ -48,6 +48,23 @@
   color: var(--ui-bases-normal-color);
 }
 
+.bases-view[data-ui-part="root"] {
+  height: auto;
+  min-height: 100%;
+  align-self: stretch;
+}
+
+.bases-view__renderer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 0;
+}
+
+.bases-view__content {
+  position: relative;
+}
+
 .bases-view .bases-style-text-var-text-accent-69c994 {
   color: var(--ui-bases-link-color);
 }
@@ -123,6 +140,46 @@
   --ui-bases-table-cell-radius-active: 2px;
   --ui-bases-table-cell-shadow-active: 0 0 0 2px var(--ui-bases-accent);
   color: var(--ui-bases-normal-color);
+}
+
+.bases-table-view {
+  --ui-bases-table-scrollbar-size: 0.625rem;
+  --ui-bases-table-scrollbar-track: var(--ui-bases-surface-background-alt);
+  --ui-bases-table-scrollbar-thumb: var(--ui-bases-muted-color);
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.bases-table__scroll-area {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ui-bases-surface-background);
+  --ui-scroll-area-foreground: var(--ui-bases-table-scrollbar-thumb);
+}
+
+.bases-table__scroll-area > [data-ui-part="scroll-area-scrollbar"] {
+  position: absolute;
+  background: var(--ui-bases-table-scrollbar-track);
+}
+
+.bases-table__scroll-area
+  > [data-ui-part="scroll-area-scrollbar"][data-orientation="horizontal"] {
+  right: var(--ui-bases-table-scrollbar-size);
+  bottom: 0;
+  left: 0;
+  height: var(--ui-bases-table-scrollbar-size);
+  border-top-color: var(--ui-bases-surface-border);
+}
+
+.bases-table__scroll-area
+  > [data-ui-part="scroll-area-scrollbar"][data-orientation="vertical"] {
+  top: 0;
+  right: 0;
+  bottom: var(--ui-bases-table-scrollbar-size);
+  width: var(--ui-bases-table-scrollbar-size);
+  border-left-color: var(--ui-bases-surface-border);
 }
 
 .bases-table-container {

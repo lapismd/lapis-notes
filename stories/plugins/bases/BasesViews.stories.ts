@@ -11,6 +11,7 @@ import {
   expectBasesCellContentTopAligned,
   expectBasesColumnsAligned,
   expectBasesRowCellsAligned,
+  expectBasesTableFillsSurface,
   expectOpaqueBackground,
 } from "./bases-story-assertions";
 
@@ -139,6 +140,31 @@ function chipLineCount(control: HTMLElement) {
   ).size;
 }
 
+function expectBasesScrollArea(table: HTMLElement) {
+  const { root, viewport } = expectBasesTableFillsSurface(table);
+  const scrollbar = root?.querySelector<HTMLElement>(
+    '[data-ui-part="scroll-area-scrollbar"][data-orientation="horizontal"]',
+  );
+  const thumb = scrollbar?.querySelector<HTMLElement>(
+    '[data-ui-part="scroll-area-thumb"]',
+  );
+
+  expect(scrollbar).toBeVisible();
+  expect(thumb).toBeVisible();
+  expect(viewport.scrollWidth).toBeGreaterThan(viewport.clientWidth);
+  expect(getComputedStyle(scrollbar!).backgroundColor).not.toBe(
+    "rgba(0, 0, 0, 0)",
+  );
+  expect(getComputedStyle(thumb!).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+
+  const rootRect = root.getBoundingClientRect();
+  const scrollbarRect = scrollbar!.getBoundingClientRect();
+  expect(Math.abs(scrollbarRect.bottom - rootRect.bottom)).toBeLessThan(1);
+  expect(scrollbarRect.left).toBeCloseTo(rootRect.left, 1);
+
+  return viewport;
+}
+
 export const Table: Story = {
   parameters: storyParameters(
     "table",
@@ -168,6 +194,11 @@ export const Table: Story = {
       expect(getComputedStyle(sortProject.querySelector("svg")!).width).toBe(
         "16px",
       );
+      expectBasesTableFillsSurface(
+        canvasElement.querySelector<HTMLElement>(
+          '[data-ui-component="bases-table-view"]',
+        )!,
+      );
     });
   },
 };
@@ -194,6 +225,7 @@ export const EditableCells: Story = {
       return element!;
     });
 
+    const tableViewport = expectBasesScrollArea(table);
     expectBasesColumnsAligned(table);
 
     const tags = canvas.getAllByRole("group", { name: "tags" })[0]!;
@@ -344,14 +376,14 @@ export const EditableCells: Story = {
       widthBefore + 40,
     );
 
-    table.scrollLeft = 240;
-    table.dispatchEvent(new Event("scroll"));
+    tableViewport.scrollLeft = 240;
+    tableViewport.dispatchEvent(new Event("scroll"));
     await waitFor(() => {
       expectBasesColumnsAligned(table);
       expectBasesRowCellsAligned(table);
     });
-    table.scrollLeft = 0;
-    table.dispatchEvent(new Event("scroll"));
+    tableViewport.scrollLeft = 0;
+    tableViewport.dispatchEvent(new Event("scroll"));
     await waitFor(() => {
       expectBasesColumnsAligned(table);
       expectBasesRowCellsAligned(table);
