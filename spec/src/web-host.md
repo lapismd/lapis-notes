@@ -21,6 +21,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-012 | The web host MUST load AI after Bases and before external Roles, metadata, and layout restoration. Live runtimes MUST be available only when both a runtime URL and token are configured. Otherwise the chat MUST stay usable through Fake or an unavailable state. |
 | LN-WEB-014 | The web session MUST register an agent-runtime WebSocket bridge before constructing `AiPlugin` only when URL and token are both set. It MUST NOT overwrite an existing desktop bridge. |
 | LN-WEB-013 | The web renderer MUST load the public Lapis CodeMirror autocomplete stylesheet after Design Core and Lapis theme paint so shared completion extensions render the same production popover chrome as desktop and Storybook. |
+| LN-WEB-015 | Each web session MUST own its compatibility App lease. PWA commands and status bindings MUST use the explicit session App, unbind before replacement, and MUST NOT poll or execute through `globalThis.app`. |
 
 ## Implemented host boundary
 

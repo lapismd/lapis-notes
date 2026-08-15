@@ -3,6 +3,25 @@
 Living checklist for the minimal Lapis Notes monorepo. Update this file when
 intake or UI swap status changes.
 
+## Application ownership intake review (2026-08-15)
+
+- [x] Review the latest Lapis API, Workspace, Electron, web/PWA, Bases, AI,
+  root Storybook, and external CV Roles histories before implementation.
+- [x] Base the isolated implementation workspace on `7d198070`, retaining the
+  latest AI intake, Bases cell-editor geometry, embedded Markdown editor,
+  workspace-history, and external Roles integration changes.
+- [x] Compare the completed Bases workspace through `1cdd41be`. Do not merge
+  its older app trees; carry its verified repository-local Turbo boundary
+  forward as a focused current-tree change.
+- [x] Inventory ambient App access in core views, editors, command scopes,
+  hosts, PWA integration, Storybook harnesses, and CV Roles public surfaces.
+- [ ] Publish a compatibility bridge while making explicit or owned App state
+  authoritative throughout first-party runtime code.
+- [ ] Migrate Electron, web/PWA, Bases, AI, root Storybook, and the external CV
+  Roles runtime/catalog; retain compatibility only for legacy consumers.
+- [ ] Run focused and broad non-visual acceptance. Visual baselines remain
+  unchanged by explicit user request.
+
 ## Bootstrap
 
 | Area                                      | Status | Notes                                                                                                                                                                                                                                               |

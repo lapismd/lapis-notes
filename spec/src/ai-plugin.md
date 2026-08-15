@@ -55,6 +55,7 @@ execution APIs.
 | LN-AI-044 | After handshake, the host MUST use the existing `desktop_agent_acp_*` commands and `agent-runtime-event` frames. The plugin MUST NOT grow a second protocol. |
 | LN-AI-045 | Storybook MUST NOT start `lapis-ai-host`. Live attach MAY use a configured URL and token after the user starts the CLI. Default stories MUST stay Fake. |
 | LN-AI-046 | `Plugins/AI/Live Host` MUST be the only live ACP Storybook lane. It MUST use the attached host when URL and token are set. It MUST NOT run a Fake send/complete play. When attach is missing, it MUST show setup copy and MUST NOT start an ACP session. |
+| LN-AI-047 | AI views, controllers, and runtime selection MUST use the App owned by their plugin or workspace leaf. First-party AI runtime code MUST NOT read an ambient application singleton. |
 
 ### LN-AI-046 acceptance details
 

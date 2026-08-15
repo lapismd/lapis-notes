@@ -52,6 +52,7 @@
 | LN-ED-050 | `@lapis-notes/api/editor` MUST export a reusable embedded editor surface that composes registered view-type extensions, preserves the supplied editor and leaf lifecycle, and falls back to the API source shell when no rich provider is active. |
 | LN-ED-051 | API `Editor` instances MUST support host-owned persistence, expose a flushable pending-change lifecycle, and keep file identity separate from whether the editor writes directly to the vault. |
 | LN-ED-052 | The public Markdown view state MUST support a generic serialized return target so a domain file preview can delegate whole-file editing to the registered Markdown leaf without importing Markdown implementation internals. |
+| LN-ED-053 | API editors and command scopes MUST retain their owning App for persistence, workspace events, extensions, telemetry, and hotkey dispatch. An explicit or inherited owner MUST win when the compatibility alias references another App. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add

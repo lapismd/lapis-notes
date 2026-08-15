@@ -67,6 +67,7 @@
 | LN-CAT-066 | Storybook Vite MUST resolve `@lapis-notes/ai/runtimes` to the plugin source adapter entry. |
 | LN-CAT-067 | Default `Plugins/AI` stories MUST stay Fake. Storybook MUST NOT start `lapis-ai-host`. Preview MAY register a live bridge from configured URL and token. |
 | LN-CAT-068 | `Plugins/AI/Live Host` MUST be the manual live lane, tagged `skip-visual`, with no visual baseline. Its play MUST cover missing-attach setup and MUST NOT send a live prompt. |
+| LN-CAT-069 | App-backed stories MUST install disposable compatibility leases while their canvases use the App they own. Multi-App acceptance MUST prove Workspace, Bases, AI, and external Roles do not follow another story's compatibility alias. |
 
 ## Show Code source contract
 
@@ -137,5 +138,4 @@ Direct api imports (one story family each):
   documented nonvisual stories, and the update helper accepts repeatable
   story-prefix filters; its defaults select API and workspace stories without
   rewriting unrelated baselines.
-
 

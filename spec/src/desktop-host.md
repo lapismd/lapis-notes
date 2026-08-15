@@ -45,6 +45,7 @@ are intentionally omitted.
 | LN-DESK-034 | The desktop ACP host MUST accept model and thinking on `desktop_agent_acp_start` and MUST pass them to acpx `ensureSession` session options. The renderer MUST NOT import acpx. |
 | LN-DESK-035 | The desktop ACP host MUST accept a first-class `agent` on `desktop_agent_acp_start`, default to `codex`, and MUST pass that name to acpx `ensureSession`. The renderer MUST NOT import acpx. |
 | LN-DESK-036 | Electron agent-runtime IPC MUST call `@lapis-notes/ai-host` for ACP sessions and process spawn. It MUST NOT keep a second acpx import path. |
+| LN-DESK-037 | Each desktop vault session MUST install one compatibility App lease before plugin loading and release it only after plugin, workspace, metadata, language-service, and vault-session teardown. |
 
 ## Boot flow
 
