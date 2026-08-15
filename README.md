@@ -21,19 +21,19 @@ the linked package output without reinstalling Lapis.
 
 ## Scripts
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` / `pnpm storybook` | Storybook on port **7010** (one supervisor per checkout/port) |
-| `pnpm storybook:stop` | Stop this checkout's Storybook supervisor and listeners |
-| `pnpm storybook:restart` | Replace the owner and start a fresh Storybook |
-| `pnpm build` | Turbo build packages |
-| `pnpm check` | Turbo package checks |
-| `pnpm test` | Turbo tests |
-| `pnpm spec:first` | Spec-first gate |
-| `pnpm spec:check` | Build book + run gate |
-| `pnpm spec:search -- "<query or LN-ID>"` | Refresh and search the canonical specification |
-| `pnpm spec:search -- --semantic "<concept>"` | Refresh embeddings and run semantic specification search |
-| `pnpm spec:index [-- --semantic]` | Prewarm the local specification index |
+| Command                                      | Purpose                                                       |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| `pnpm dev` / `pnpm storybook`                | Storybook on port **7010** (one supervisor per checkout/port) |
+| `pnpm storybook:stop`                        | Stop this checkout's Storybook supervisor and listeners       |
+| `pnpm storybook:restart`                     | Replace the owner and start a fresh Storybook                 |
+| `pnpm build`                                 | Turbo build packages                                          |
+| `pnpm check`                                 | Turbo package checks                                          |
+| `pnpm test`                                  | Turbo tests                                                   |
+| `pnpm spec:first`                            | Spec-first gate                                               |
+| `pnpm spec:check`                            | Validate specification, build book, and run gate              |
+| `pnpm spec:search -- "<query or LN-ID>"`     | Refresh and search the canonical specification                |
+| `pnpm spec:search -- --semantic "<concept>"` | Refresh embeddings and run semantic specification search      |
+| `pnpm spec:index [-- --semantic]`            | Prewarm the local specification index                         |
 
 ## Docs
 

@@ -25,8 +25,8 @@
 | LN-ARCH-019 | Design Core MUST be the sole owner of trigger-based overlay portal resolution. Lapis consumers MUST compose its public Popover, Hover Card, Tooltip, Dropdown Menu, Context Menu, and Select exports, inherit their trigger-owner-document behavior, and MUST NOT publish a competing overlay portal context, package export, or Vite alias.                                                             |
 | LN-ARCH-020 | The api source-editor shell MUST expose the configured CodeMirror fold gutter for language-provided fold ranges outside Markdown. Markdown MUST use Mira's inline fold controls without also painting the generic gutter. |
 | LN-ARCH-021 | The source editor's design-core ScrollArea MUST remain bounded by its workspace view and own vertical document scrolling. Nested CodeMirror scrollers MUST expand with content and MUST NOT paint a second vertical scrollbar. |
-| LN-ARCH-022 | Root `pnpm check` MUST run specification validation before the no-Tailwind and Turbo package checks. Root `pnpm test` MUST run the specification-validator tests before Turbo package tests. |
-| LN-ARCH-023 | Root specification discovery MUST invoke the repository-local QMD binary through `scripts/spec-validation/`. It MUST NOT depend on a global executable or run during normal checks. |
+| LN-ARCH-022 | Root `pnpm check` MUST run shared configured specification validation before the no-Tailwind and Turbo package checks. Root `pnpm test` MUST run Lapis package tests without copying the shared validator's own regression suite. |
+| LN-ARCH-023 | Root specification discovery MUST invoke the repository-local QMD binary through `@lapismd/spec-validator`. It MUST NOT depend on a global executable or run during normal checks. |
 | LN-ARCH-024 | The API workspace-host bridge MUST translate compatibility view actions and pane-menu contributions into design-core view chrome. Translated view-menu sections MUST precede generic pane actions; the workspace shell MUST NOT duplicate plugin controls. |
 | LN-ARCH-025 | Design Core MUST own reusable diagnostics state and Problems presentation. Lapis API MUST adapt that contract to plugins, vault navigation, and language services; provider packages MUST remain independent of Design Core and workspace layout. |
 | LN-ARCH-026 | The API editor MUST consume diagnostic glyphs and semantic colours from Design Core's public workspace contract. It MUST keep CodeMirror-specific marker mounting, tooltip geometry, and pointer lifecycle inside the editor boundary. An open diagnostic card MUST retain its origin and placement throughout pointer handoff. |
@@ -199,10 +199,11 @@ sessions while the reserved `model` capability stays unavailable.
 
 ## Tooling policy
 
-Root scripts stay thin: specification validation, `check:no-tailwind`, Turbo
-for package tasks, `spec:first` for change mapping, and Storybook for docs. Do
-not grow a parallel script forest for import path syncing. Specification scripts
-and their tests stay together under `scripts/spec-validation/`. QMD discovery
+Root scripts stay thin: configured shared specification validation,
+`check:no-tailwind`, Turbo for package tasks, `spec:first` for change mapping,
+and Storybook for docs. Do not grow a parallel script forest for import path
+syncing. Lapis policy stays in `spec-validator.config.mjs`, while reusable
+validators and their tests stay in `@lapismd/spec-validator`. QMD discovery
 uses that same root-only tooling boundary. Storybook manager-only dependencies,
 including the shared theme toolbar icons, remain root development tooling and
 do not enter the runtime package graph.

@@ -24,13 +24,13 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-010 | Each requirement ID MUST describe one independently verifiable concern. Clauses that can fail independently, need different evidence, or evolve separately MUST use separate IDs. |
 | LN-GOV-011 | One concern MAY retain several acceptance details under one ID. If it has three or more unordered details, the specification MUST use an introduced, ID-scoped bullet list instead of a dense sentence; bullets MUST NOT combine independently verifiable concerns. |
 | LN-GOV-012 | A requirement split MUST preserve the original contract's scope, constraints, exceptions, and normative meaning. The original ID MUST remain with its primary concern; new concerns MUST use unused IDs, and the same change MUST update verification rows, cross-references, progress records, and agent guidance. |
-| LN-GOV-013 | Specification scripts, including the spec-first gate, MUST live under `scripts/spec-validation/`. Validation MUST use an explicit orchestrator over small validators named for the canonical surface they validate; shared parsing MAY live in an internal library. |
+| LN-GOV-013 | Repository-owned `spec-validator.config.mjs` MUST map Lapis IDs, paths, document dialects, and spec-first policy onto reusable validators supplied by `@lapismd/spec-validator`; Lapis-specific validation MAY remain a configured local plugin or check lane. |
 | LN-GOV-014 | Every validation finding MUST include a stable error code, governing requirement ID, path, line, optional subject ID, and actionable message. Findings MUST be sorted deterministically. |
 | LN-GOV-015 | A requirement-table statement and each ID-scoped acceptance bullet MUST contain no more than 80 prose words and four sentences after Markdown syntax is removed. |
 | LN-GOV-016 | An ID-scoped acceptance section MUST use a `### <ID> acceptance details` heading in the defining chapter, appear once, introduce an unordered list, and contain at least three bullets. |
 | LN-GOV-017 | Specification validation MUST check canonical files, mdBook configuration, chapter indexing, local links, requirement structure, defined references, verification traceability, allowed statuses, evidence, and untracked generated output. |
 | LN-GOV-018 | Specification validation MUST exit `1` for findings and `2` for internal, parser, or version-control failures. A successful run MUST report validator, chapter, and requirement counts. |
-| LN-GOV-019 | `spec:check` MUST run specification validation and validator tests before mdBook and spec-first checks. Root `check` and `test` MUST include the corresponding validator lanes. |
+| LN-GOV-019 | `spec:check` MUST run configured validation before mdBook and spec-first checks. Root `check` MUST validate the specification before package checks, while reusable validator regression tests MUST remain owned by `@lapismd/spec-validator` rather than copied into Lapis. |
 | LN-GOV-020 | The tracked QMD configuration MUST index `spec/src/**/*.md` as the `lapis-spec` collection and MUST keep its generated database state untracked. |
 | LN-GOV-021 | Specification searches MUST refresh the local collection before querying. Semantic search MUST update embeddings before vector retrieval, while normal checks and CI MUST NOT refresh or require the discovery index. |
 | LN-GOV-022 | Agent guidance MUST prefer the repository wrapper for requirement discovery, require returned canonical sources to be read, and retain `rg` as the fallback when QMD or semantic models are unavailable. |
@@ -75,8 +75,9 @@ The focused scenario verifies:
 - Third acceptance detail
 ```
 
-`pnpm spec:validate` reports each objective failure with its validator code,
-governing specification rule, source location, and affected requirement ID.
+`pnpm spec:validate` loads `spec-validator.config.mjs` and reports each objective
+failure with its validator code, governing Lapis requirement, source location,
+and affected requirement ID.
 Atomicity remains an author and reviewer decision; the validator does not infer
 whether two concise clauses can fail independently.
 

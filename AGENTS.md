@@ -20,9 +20,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   protected implementation changes.
 - Run `pnpm spec:first` after changing protected paths. The gate fails closed on
   unmapped `packages/*/src` changes.
-- Keep specification scripts and their tests together under
-  `scripts/spec-validation/`; add new validation lanes to its explicit
-  orchestrator instead of creating root-level spec scripts.
+- Keep repository policy in `spec-validator.config.mjs`. Prefer configurable
+  validators from `@lapismd/spec-validator`; add a local plugin or structured
+  check lane only for genuinely Lapis-specific validation.
 - Prefer `pnpm spec:search -- "<topic or LN-ID>"` before broad manual scans of
   the specification. Open and verify the returned `spec/src` files because the
   QMD index is only a discovery cache. Use `--semantic` for conceptual queries;
@@ -374,9 +374,10 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 ## Tooling
 
 - Use Turbo (`pnpm check`, `pnpm build`, `pnpm test`). Root `pnpm check` runs
-  `spec:validate` before `check:no-tailwind`; root `pnpm test` runs `spec:test`
-  before package tests. `pnpm spec:check` runs both validator lanes before
-  mdBook and spec-first checks. Do **not** reintroduce multi-script first-party
+  `spec:validate` before `check:no-tailwind`; root `pnpm test` runs package
+  tests. `pnpm spec:check` runs configured validation before mdBook and
+  spec-first checks. Reusable validator regression tests stay in the shared
+  package. Do **not** reintroduce multi-script first-party
   import-resolution gates from the full lapis-notes repo. Fix resolution issues
   inline when adding packages.
 - Storybook is the browsable docs host (`pnpm dev` / port **7010**). Use
