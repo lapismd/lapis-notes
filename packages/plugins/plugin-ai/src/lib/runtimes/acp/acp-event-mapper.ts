@@ -131,7 +131,6 @@ export function mapAcpPermissionRequest(
         }
       : undefined,
     options: options.length > 0 ? options : DEFAULT_APPROVAL_OPTIONS,
-    metadata: { ...request },
   };
 }
 

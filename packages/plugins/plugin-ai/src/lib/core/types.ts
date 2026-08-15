@@ -17,6 +17,7 @@ export type ToolContribution = {
 export type AgentRequest = {
   prompt: string;
   workspace?: string;
+  agent?: string;
   model?: ModelRef;
   thinking?: AiThinkingLevel;
   metadata?: Record<string, unknown>;

@@ -1,15 +1,20 @@
 import type { AiThinkingLevel } from "../core/types";
+import {
+  DEFAULT_ACP_AGENT,
+  normalizeAcpAgent,
+  type AcpAgentId,
+} from "./acp-agents";
 
 export type AiPluginSettings = {
   defaultRuntime: "auto" | "acp" | "codex-native" | "fake";
-  acpAgent: string;
+  acpAgent: AcpAgentId;
   defaultModel: string;
   thinking: AiThinkingLevel;
 };
 
 export const DEFAULT_AI_SETTINGS: AiPluginSettings = {
   defaultRuntime: "auto",
-  acpAgent: "codex",
+  acpAgent: DEFAULT_ACP_AGENT,
   defaultModel: "gpt-5.6-sol",
   thinking: "medium",
 };
@@ -27,7 +32,7 @@ export function mergeAiSettings(
   const thinking = value?.thinking;
   return {
     defaultRuntime: value?.defaultRuntime ?? DEFAULT_AI_SETTINGS.defaultRuntime,
-    acpAgent: value?.acpAgent?.trim() || DEFAULT_AI_SETTINGS.acpAgent,
+    acpAgent: normalizeAcpAgent(value?.acpAgent),
     defaultModel:
       value?.defaultModel?.trim() || DEFAULT_AI_SETTINGS.defaultModel,
     thinking: thinking && THINKING_LEVELS.has(thinking)

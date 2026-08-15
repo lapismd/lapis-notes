@@ -28,7 +28,7 @@
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
     "@tursodatabase/database": "0.7.2",
-    "acpx": "^0.8.0",
+    "@lapis-notes/ai-host": "workspace:*",
     "chokidar": "^4.0.3"
   },
   "devDependencies": {

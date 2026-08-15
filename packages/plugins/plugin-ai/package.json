@@ -28,7 +28,13 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./runtimes": {
+      "types": "./dist/runtime-adapters.d.ts",
+      "svelte": "./dist/runtime-adapters.js",
+      "import": "./dist/runtime-adapters.js",
+      "default": "./dist/runtime-adapters.js"
+    }
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
@@ -37,9 +43,6 @@
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
-  },
-  "optionalDependencies": {
-    "acpx": "^0.8.0"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.5.0",

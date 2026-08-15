@@ -72,7 +72,9 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
       "desktop_agent_acp_start",
       {
         workspace: request.workspace,
+        agent: request.agent,
         model: request.model,
+        thinking: request.thinking,
         metadata: request.metadata,
         tools: request.tools,
         resumeSessionId,

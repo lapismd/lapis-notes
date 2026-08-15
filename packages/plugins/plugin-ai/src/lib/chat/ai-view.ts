@@ -6,11 +6,11 @@ import type { AgentSessionStore } from "../sessions/session-store";
 import type { AiPluginSettings } from "../settings/ai-settings";
 import AiChatPanel from "./ai-chat-panel.svelte";
 import { AiViewType } from "./ai-view-type";
-
 export { AiViewType } from "./ai-view-type";
 
 export type AiViewHost = {
   selectRuntime(request: AgentRequest): Promise<AgentRuntime>;
+  fallbackRuntime(): AgentRuntime;
   liveRuntimeUnavailableReason(): string | null;
   tools: { list(): ToolContribution[] };
   sessionStore: AgentSessionStore;
@@ -64,21 +64,28 @@ export class AiView extends View {
   private async mountPanel(): Promise<void> {
     const tools = this.host.tools.list();
     const settings = this.host.getSettings();
-    const [runtime, models] = await Promise.all([
-      this.host.selectRuntime({
+    const models: ModelRef[] = [];
+    let runtime: AgentRuntime;
+    let unavailableReason = this.host.liveRuntimeUnavailableReason();
+    try {
+      runtime = await this.host.selectRuntime({
         prompt: "",
         tools,
-        model: { provider: "codex", model: settings.defaultModel },
+        agent: settings.acpAgent,
+        model: { provider: settings.acpAgent, model: settings.defaultModel },
         thinking: settings.thinking,
-      }),
-      this.host.models.listModels().catch(() => []),
-    ]);
+      });
+    } catch (error) {
+      runtime = this.host.fallbackRuntime();
+      unavailableReason =
+        error instanceof Error ? error.message : String(error);
+    }
     if (this.disposed || this.component) return;
     this.component = mount(AiChatPanel, {
       target: this.containerEl,
       props: {
         runtime,
-        unavailableReason: this.host.liveRuntimeUnavailableReason(),
+        unavailableReason,
         tools,
         workspace: this.host.workspace,
         sessionStore: this.host.sessionStore,

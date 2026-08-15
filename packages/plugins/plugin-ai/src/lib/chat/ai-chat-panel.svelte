@@ -19,6 +19,7 @@
     ToolContribution,
   } from "../core/types";
   import type { AgentSessionStore } from "../sessions/session-store";
+  import { catalogModelsForAgent } from "../settings/acp-agents";
   import {
     DEFAULT_AI_SETTINGS,
     type AiPluginSettings,
@@ -52,7 +53,7 @@
     sessionId?: string;
     fileSearch?: ComposerSearchSource;
     models?: ModelRef[];
-    settings?: Pick<AiPluginSettings, "defaultModel" | "thinking">;
+    settings?: Pick<AiPluginSettings, "acpAgent" | "defaultModel" | "thinking">;
     onSettingsChange?: (patch: Partial<AiPluginSettings>) => void | Promise<void>;
   } = $props();
 
@@ -70,6 +71,9 @@
   let drawerCollapsed = $state(false);
   let attachOpen = $state(false);
   let attachItems = $state<ComposerTriggerItem[]>([]);
+  const selectedAgent = $derived(
+    settings?.acpAgent ?? DEFAULT_AI_SETTINGS.acpAgent,
+  );
   const selectedModel = $derived(
     localModel ?? settings?.defaultModel ?? DEFAULT_AI_SETTINGS.defaultModel,
   );
@@ -77,7 +81,9 @@
     localThinking ?? settings?.thinking ?? DEFAULT_AI_SETTINGS.thinking,
   );
   const modelOptions = $derived.by(() => {
-    const ids = models.map((model) => model.model);
+    const ids = catalogModelsForAgent(selectedAgent, models).map(
+      (model) => model.model,
+    );
     if (selectedModel && !ids.includes(selectedModel)) {
       return [selectedModel, ...ids];
     }
@@ -104,14 +110,20 @@
   const isEmpty = $derived(controller.items.length === 0);
 
   async function submit(prompt: string): Promise<void> {
-    const selected = models.find((model) => model.model === selectedModel);
+    const selected = catalogModelsForAgent(selectedAgent, models).find(
+      (model) => model.model === selectedModel,
+    );
     const extra = attachments.map((file) => file.path);
     attachments = [];
     drawerCollapsed = false;
     await controller.submit(prompt, {
       workspace,
       tools,
-      model: { provider: selected?.provider ?? "codex", model: selectedModel },
+      agent: selectedAgent,
+      model: {
+        provider: selected?.provider ?? selectedAgent,
+        model: selectedModel,
+      },
       thinking: selectedThinking,
       metadata: extra.length > 0 ? { attachments: extra } : undefined,
     });

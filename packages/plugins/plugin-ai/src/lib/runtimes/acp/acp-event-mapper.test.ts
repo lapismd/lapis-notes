@@ -81,6 +81,7 @@ describe("ACP event mapper", () => {
     expect(mapApprovalOptionToAcpDecision("deny-once")).toEqual({
       outcome: "reject_once",
     });
+    expect(request.metadata).toBeUndefined();
   });
 
   it("unwraps acpx onPermissionRequest payloads", () => {
@@ -103,5 +104,6 @@ describe("ACP event mapper", () => {
       title: "npm install",
       tool: { name: "npm install", input: { command: "npm install" } },
     });
+    expect(request.metadata).toBeUndefined();
   });
 });

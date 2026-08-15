@@ -8,16 +8,15 @@ import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
 import { formatFileMention, searchVaultFiles } from "./chat/chat-mentions";
 import type { AgentRequest, AgentRuntime } from "./core/types";
+import { createHostAgentRuntimes } from "./host/create-host-runtimes";
 import { createAgentProcessHost } from "./host/desktop-process-host";
 import type { AgentProcessHost } from "./host/process-host";
 import { CodexModelProvider } from "./providers/codex-model-provider";
+import { selectAgentRuntime } from "./registry/select-runtime";
 import {
   createAgentRuntimeRegistry,
   type AgentRuntimeRegistry,
 } from "./registry/runtime-registry";
-import { DesktopAcpRuntimeBackend } from "./runtimes/acp/desktop-acp-backend";
-import { AcpAgentRuntime } from "./runtimes/acp/acp-runtime";
-import { CodexNativeRuntime } from "./runtimes/codex/codex-runtime";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
 import { parseAiPluginData, type AiPluginData } from "./sessions/plugin-data";
 import { createPersistedSessionStore } from "./sessions/session-store";
@@ -66,8 +65,7 @@ export class AiPlugin extends Plugin {
     this.models = new CodexModelProvider(this.processHost);
     this.registry = createAgentRuntimeRegistry([
       this.fakeRuntime,
-      new AcpAgentRuntime(new DesktopAcpRuntimeBackend()),
-      new CodexNativeRuntime(this.processHost),
+      ...createHostAgentRuntimes(),
     ]);
   }
 
@@ -109,25 +107,20 @@ export class AiPlugin extends Plugin {
     }));
   };
 
+  fallbackRuntime(): AgentRuntime {
+    return this.fakeRuntime;
+  }
+
   async selectRuntime(request: AgentRequest): Promise<AgentRuntime> {
-    const settings = this.data.settings;
-    if (settings.defaultRuntime === "fake") return this.fakeRuntime;
-    if (settings.defaultRuntime !== "auto") {
-      const pinned = this.registry.get(settings.defaultRuntime);
-      if (pinned && (await pinned.supports(request))) return pinned;
-    }
-    try {
-      return await this.registry.select({
+    return selectAgentRuntime({
+      registry: this.registry,
+      settings: this.data.settings,
+      fake: this.fakeRuntime,
+      request: {
         ...request,
-        metadata: {
-          ...request.metadata,
-          acpAgent: settings.acpAgent,
-        },
         tools: [...(request.tools ?? []), ...this.tools.list()],
-      });
-    } catch {
-      return this.fakeRuntime;
-    }
+      },
+    });
   }
 
   async onload(): Promise<void> {

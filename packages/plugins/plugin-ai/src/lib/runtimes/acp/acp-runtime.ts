@@ -127,7 +127,7 @@ export class AcpAgentRuntime implements AgentRuntime {
       sessions: true,
       resume: typeof this.#backend.resume === "function",
       cancel: true,
-      steer: true,
+      steer: false,
       modelSelection: true,
       nativeTools: true,
       mcpTools: true,

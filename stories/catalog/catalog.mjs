@@ -304,6 +304,14 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-workspace--right-sidebar-and-settings",
   },
   {
+    id: "plugins-ai-live-host",
+    title: "AI Live Host: Manual Attach",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai + @lapis-notes/workspace",
+    storyId: "plugins-ai-live-host--manual-attach",
+    skipVisual: true,
+  },
+  {
     id: "plugins-bases-editor-shell",
     title: "Bases Editor Shell",
     spec: "spec/src/bases-plugin.md",

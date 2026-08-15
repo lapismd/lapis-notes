@@ -106,7 +106,7 @@ export function createStoredAgentSession(input: {
     updatedAt: now,
     interrupted: input.interrupted,
     pendingApprovalId: input.pendingApprovalId,
-    items: input.items ? [...input.items] : [],
+    items: input.items ? input.items.map(sanitizeChatItem) : [],
   };
 }
 
@@ -131,6 +131,12 @@ export function interruptPendingApprovals(items: AiChatItem[]): AiChatItem[] {
 function cloneSession(session: StoredAgentSession): StoredAgentSession {
   return {
     ...session,
-    items: [...session.items],
+    items: session.items.map(sanitizeChatItem),
   };
+}
+
+function sanitizeChatItem(item: AiChatItem): AiChatItem {
+  if (item.type !== "approval") return { ...item };
+  const { metadata: _vendor, ...request } = item.request;
+  return { ...item, request };
 }

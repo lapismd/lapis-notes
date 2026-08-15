@@ -109,6 +109,14 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
     ...plugins,
   ];
   return mergeConfig(viteConfig, {
+    define: {
+      "import.meta.env.LAPIS_AGENT_RUNTIME_URL": JSON.stringify(
+        process.env.LAPIS_AGENT_RUNTIME_URL ?? "",
+      ),
+      "import.meta.env.LAPIS_AGENT_RUNTIME_TOKEN": JSON.stringify(
+        process.env.LAPIS_AGENT_RUNTIME_TOKEN ?? "",
+      ),
+    },
     resolve: {
       dedupe: [...linkedSingletonPackages, "svelte"],
       alias: [
@@ -160,8 +168,19 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
           replacement: path.join(basesLib, "index.ts"),
         },
         {
+          find: /^@lapis-notes\/ai-host\/client$/,
+          replacement: path.join(
+            repoRoot,
+            "packages/ai-host/src/client.ts",
+          ),
+        },
+        {
           find: /^@lapis-notes\/ai\/styles\.css$/,
           replacement: path.join(aiLib, "styles.css"),
+        },
+        {
+          find: /^@lapis-notes\/ai\/runtimes$/,
+          replacement: path.join(aiLib, "runtime-adapters.ts"),
         },
         {
           find: /^@lapis-notes\/ai$/,
@@ -208,7 +227,11 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
       ],
     },
     optimizeDeps: {
-      exclude: ["@storybook/svelte"],
+      exclude: [
+        "@storybook/svelte",
+        "@lapis-notes/ai-host",
+        "@lapis-notes/ai-host/client",
+      ],
       include: [
         "aria-query",
         "react",
@@ -227,6 +250,8 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         "@lucide/svelte/icons/brain",
         "@lucide/svelte/icons/paperclip",
         "@lucide/svelte/icons/x",
+        "markdownlint",
+        "markdownlint/sync",
       ],
     },
     ssr: {

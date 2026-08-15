@@ -1,7 +1,13 @@
 import { PluginSettingTab, Setting, type App } from "@lapis-notes/api";
 import type { AiPlugin } from "../ai-plugin";
 import type { AiThinkingLevel } from "../core/types";
+import { ACP_AGENT_IDS, type AcpAgentId } from "./acp-agents";
 import type { AiPluginSettings } from "./ai-settings";
+
+const ACP_AGENT_LABELS: Record<AcpAgentId, string> = {
+  codex: "Codex",
+  cursor: "Cursor",
+};
 
 const THINKING_OPTIONS: Array<{ id: AiThinkingLevel; label: string }> = [
   { id: "off", label: "Off" },
@@ -41,10 +47,15 @@ export class AiSettingsTab extends PluginSettingTab {
 
     new Setting(this.containerEl)
       .setName("ACP agent")
-      .setDesc("Built-in acpx agent name used when ACP is selected.")
-      .addText((text) => {
-        text.setValue(settings.acpAgent).onChange((value) => {
-          void this.aiPlugin.updateSettings({ acpAgent: value });
+      .setDesc("Built-in ACP agent used when ACP is selected.")
+      .addDropdown((dropdown) => {
+        for (const id of ACP_AGENT_IDS) {
+          dropdown.addOption(id, ACP_AGENT_LABELS[id]);
+        }
+        dropdown.setValue(settings.acpAgent).onChange((value) => {
+          void this.aiPlugin.updateSettings({
+            acpAgent: value as AcpAgentId,
+          });
         });
       });
 

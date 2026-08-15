@@ -94,4 +94,17 @@ describe("Codex model catalog", () => {
       authenticated: false,
     });
   });
+
+  it("fails closed when the process host never returns a catalog process", async () => {
+    const hung: AgentProcessHost = {
+      available: true,
+      spawn() {
+        return new Promise(() => undefined);
+      },
+    };
+    await expect(
+      listCodexModelsFromHost(hung, { timeoutMs: 20 }),
+    ).rejects.toThrow("Codex model catalog spawn timed out");
+  });
 });
+

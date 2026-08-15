@@ -22,6 +22,26 @@ function stringValue(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  message: string,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
 export function normalizeCodexModelList(result: unknown): ModelRef[] {
   const data = asRecord(result).data;
   if (!Array.isArray(data)) return [];
@@ -42,13 +62,17 @@ export async function listCodexModelsFromHost(
   options: { cwd?: string; timeoutMs?: number } = {},
 ): Promise<ModelRef[]> {
   if (!host.available) return [];
-  const process = await host.spawn({
-    command: "codex",
-    args: ["app-server", "--stdio"],
-    cwd: options.cwd,
-  });
-  const rpc = new CodexCatalogRpc(process);
   const timeoutMs = options.timeoutMs ?? 10_000;
+  const process = await withTimeout(
+    host.spawn({
+      command: "codex",
+      args: ["app-server", "--stdio"],
+      cwd: options.cwd,
+    }),
+    timeoutMs,
+    "Codex model catalog spawn timed out",
+  );
+  const rpc = new CodexCatalogRpc(process);
   const timeout = setTimeout(() => {
     void process.kill();
   }, timeoutMs);

@@ -20,6 +20,7 @@
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import { onMount, untrack } from "svelte";
+  import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
 
   let {
@@ -132,6 +133,7 @@
 
   async function initialize(): Promise<void> {
     try {
+      registerWebAgentRuntimeBridge();
       app.plugins.registerCorePlugins([
         { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
         { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },

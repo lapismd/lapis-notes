@@ -25,13 +25,6 @@ export type {
   ModelRef,
   ToolContribution,
 } from "./core/types";
-export { createAgentProcessHost } from "./host/desktop-process-host";
-export { UnavailableAgentProcessHost } from "./host/process-host";
-export type {
-  AgentProcessHandle,
-  AgentProcessHost,
-  AgentProcessMessage,
-} from "./host/process-host";
 export { StaticModelProvider } from "./providers/model-provider";
 export { CodexModelProvider } from "./providers/codex-model-provider";
 export { normalizeCodexModelList } from "./providers/codex-model-catalog";
@@ -41,15 +34,6 @@ export {
   createAgentRuntimeRegistry,
 } from "./registry/runtime-registry";
 export type { AgentRuntimeRegistry } from "./registry/runtime-registry";
-export { AcpAgentRuntime } from "./runtimes/acp/acp-runtime";
-export type { AcpRuntimeBackend } from "./runtimes/acp/acp-runtime";
-export {
-  mapAcpPermissionRequest,
-  mapAcpRuntimeEvent,
-  mapApprovalOptionToAcpDecision,
-} from "./runtimes/acp/acp-event-mapper";
-export type { AcpPermissionDecision } from "./runtimes/acp/acp-event-mapper";
-export { CodexNativeRuntime } from "./runtimes/codex/codex-runtime";
 export {
   FAKE_RICH_ASSISTANT_TEXT,
   FAKE_RICH_THINKING,
@@ -57,6 +41,12 @@ export {
   FakeAgentRuntime,
 } from "./runtimes/fake/fake-runtime";
 export type { FakeAgentTrace } from "./runtimes/fake/fake-runtime";
+export {
+  ACP_AGENT_IDS,
+  DEFAULT_ACP_AGENT,
+  normalizeAcpAgent,
+} from "./settings/acp-agents";
+export type { AcpAgentId } from "./settings/acp-agents";
 export {
   DEFAULT_AI_SETTINGS,
   mergeAiSettings,

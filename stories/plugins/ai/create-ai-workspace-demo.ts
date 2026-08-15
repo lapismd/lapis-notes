@@ -8,15 +8,28 @@ export const AI_WORKSPACE_CONFIGURATION = {
   "appearence.interface.showTabTitleBar": true,
 };
 
-export const AI_WORKSPACE_PLUGIN_DATA = {
-  settings: {
-    defaultRuntime: "fake",
-    acpAgent: "codex",
-    defaultModel: "gpt-5.6-sol",
-    thinking: "medium",
-  },
-  sessions: [],
+export type AiWorkspaceDemoOptions = {
+  defaultRuntime?: "fake" | "acp";
+  vaultId?: string;
 };
+
+export { isLiveAgentAttachConfigured } from "./live-agent-attach";
+
+export function createAiWorkspacePluginData(
+  defaultRuntime: "fake" | "acp" = "fake",
+) {
+  return {
+    settings: {
+      defaultRuntime,
+      acpAgent: "codex",
+      defaultModel: "gpt-5.6-sol",
+      thinking: "medium",
+    },
+    sessions: [],
+  };
+}
+
+export const AI_WORKSPACE_PLUGIN_DATA = createAiWorkspacePluginData("fake");
 
 function leaf(
   id: string,
@@ -81,7 +94,9 @@ export function createAiWorkspaceLayout() {
   };
 }
 
-export function createAiWorkspaceSeed(): Record<string, string> {
+export function createAiWorkspaceSeed(
+  pluginData = AI_WORKSPACE_PLUGIN_DATA,
+): Record<string, string> {
   return {
     ".obsidian/app.json": JSON.stringify(AI_WORKSPACE_CONFIGURATION, null, 2),
     ".obsidian/workspace.json": JSON.stringify(
@@ -89,22 +104,29 @@ export function createAiWorkspaceSeed(): Record<string, string> {
       null,
       2,
     ),
-    ".obsidian/ai.json": JSON.stringify(AI_WORKSPACE_PLUGIN_DATA, null, 2),
+    ".obsidian/ai.json": JSON.stringify(pluginData, null, 2),
     "Notes/Welcome.md": "# Welcome\n\nAsk the AI chat in the right sidebar.\n",
     "Notes/alpha.md": "# Alpha\n\nTODO: summarize this note.\n",
   };
 }
 
-export async function bootAiWorkspaceDemo(): Promise<{
+export async function bootAiWorkspaceDemo(
+  options: AiWorkspaceDemoOptions = {},
+): Promise<{
   app: App;
   dispose: () => Promise<void>;
 }> {
+  const defaultRuntime = options.defaultRuntime ?? "fake";
+  const vaultId = options.vaultId ?? "lapis-ai-workspace";
   const previousApp = globalThis.app;
-  const adapter = new MemoryVaultAdapter(createAiWorkspaceSeed(), {
-    name: "Lapis AI Workspace",
-    vaultId: "lapis-ai-workspace",
-    clock: 1_700_000_000_000,
-  });
+  const adapter = new MemoryVaultAdapter(
+    createAiWorkspaceSeed(createAiWorkspacePluginData(defaultRuntime)),
+    {
+      name: "Lapis AI Workspace",
+      vaultId,
+      clock: 1_700_000_000_000,
+    },
+  );
   const app = new App({
     version: "0.0.1-story",
     configPath: ".obsidian/app.json",

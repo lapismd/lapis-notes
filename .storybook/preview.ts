@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/svelte-vite";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
+import { maybeRegisterAgentRuntimeBridge } from "@lapis-notes/ai-host/client";
 import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-layout";
 // Brand + shadcn paint: design-core. ui/theme.css is Obsidian alias-only.
 // Host Tailwind (vite plugin) is for story/demo layout — not component paint.
@@ -9,6 +10,21 @@ import "@lapis-notes/bases/styles.css";
 import "@lapis-notes/ai/styles.css";
 import "@lapis-notes/ui/theme.css";
 import "@lapis-notes/ui/codemirror-autocomplete.css";
+
+// Live ACP is opt-in. Start `pnpm ai-host serve` yourself, then set
+// LAPIS_AGENT_RUNTIME_URL and LAPIS_AGENT_RUNTIME_TOKEN in
+// `.env.storybook.local` and reload. Storybook never starts the host.
+// Register through the desktop-bridge global so preview does not import the
+// API barrel (that hung the iframe on every story).
+maybeRegisterAgentRuntimeBridge({
+  hasBridge: () =>
+    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown })
+      .__LAPIS_NATIVE_DESKTOP__ != null,
+  register: (bridge) => {
+    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown }).__LAPIS_NATIVE_DESKTOP__ =
+      bridge;
+  },
+});
 
 const preview: Preview = {
   tags: ["autodocs", "test"],

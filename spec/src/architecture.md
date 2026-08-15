@@ -214,7 +214,11 @@ development dependencies. The API continues to expose the generic editor
 extension registry and source view, not a bundled language policy.
 `@lapis-notes/ai` is an authorized bundled plugin. The desktop native bridge
 advertises an `agent-runtime` capability for process-backed ACP and Codex
-sessions while the reserved `model` capability stays unavailable. Chat sessions
+sessions while the reserved `model` capability stays unavailable. The plugin
+obtains live runtimes from that host factory and keeps adapters off the root
+export. Cursor uses the same ACP runtime as Codex through the selected agent
+name. Process execution lives in `@lapis-notes/ai-host`, used in-process by
+Electron and as `lapis-ai-host serve` for WebSocket clients. Chat sessions
 persist through plugin data, and Codex model listing uses that same process
 host rather than a renderer spawn.
 

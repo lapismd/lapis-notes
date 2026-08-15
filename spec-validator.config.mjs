@@ -198,6 +198,16 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
+          pattern: "^packages/ai-host/",
+          chapters: [
+            "spec/src/ai-plugin.md",
+            "spec/src/packages.md",
+            "spec/src/architecture.md",
+            "spec/src/desktop-host.md",
+            "spec/src/web-host.md",
+          ],
+        },
+        {
           pattern: "^packages/plugins/plugin-ai/",
           chapters: [
             "spec/src/ai-plugin.md",

@@ -1,6 +1,7 @@
 import type { Plugin } from "@lapis-notes/api";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import type { AiPlugin } from "../ai-plugin";
+import { ACP_AGENT_IDS, normalizeAcpAgent } from "./acp-agents";
 import { DEFAULT_AI_SETTINGS, type AiPluginSettings } from "./ai-settings";
 
 const FIELD_IDS = {
@@ -42,10 +43,14 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
         },
         {
           id: FIELD_IDS.acpAgent,
-          type: "string",
+          type: "enum",
           title: "ACP agent",
-          description: "Built-in acpx agent name used when ACP is selected.",
+          description: "Built-in ACP agent used when ACP is selected.",
           default: DEFAULT_AI_SETTINGS.acpAgent,
+          options: ACP_AGENT_IDS.map((value) => ({
+            value,
+            label: value === "cursor" ? "Cursor" : "Codex",
+          })),
         },
         {
           id: FIELD_IDS.defaultModel,
@@ -84,7 +89,7 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
       defaultRuntime: values[FIELD_IDS.defaultRuntime] as
         | AiPluginSettings["defaultRuntime"]
         | undefined,
-      acpAgent: String(values[FIELD_IDS.acpAgent] ?? ""),
+      acpAgent: normalizeAcpAgent(values[FIELD_IDS.acpAgent]),
       defaultModel: String(values[FIELD_IDS.defaultModel] ?? ""),
       thinking: values[FIELD_IDS.thinking] as AiPluginSettings["thinking"],
     });

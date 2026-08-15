@@ -53,4 +53,39 @@ describe("session store", () => {
       text: "hi",
     });
   });
+
+  it("strips vendor approval metadata when cloning sessions", async () => {
+    const store = createMemorySessionStore();
+    await store.save(
+      createStoredAgentSession({
+        id: "s1",
+        runtime: "acp",
+        runtimeSessionId: "acp-1",
+        items: [
+          {
+            id: "a1",
+            type: "approval",
+            status: "pending",
+            request: {
+              id: "p1",
+              kind: "execute",
+              title: "Allow?",
+              options: [],
+              metadata: { raw: { toolCall: { toolCallId: "tc-1" } } },
+            },
+          },
+        ],
+      }),
+    );
+    const stored = await store.get("s1");
+    expect(stored?.items[0]).toMatchObject({
+      type: "approval",
+      request: { id: "p1", title: "Allow?" },
+    });
+    expect(
+      stored?.items[0] &&
+        stored.items[0].type === "approval" &&
+        stored.items[0].request.metadata,
+    ).toBeUndefined();
+  });
 });

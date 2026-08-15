@@ -31,4 +31,13 @@ describe("AI plugin data", () => {
     expect(parsed.settings.defaultRuntime).toBe("acp");
     expect(parsed.sessions[0]?.items[0]).toMatchObject({ text: "hi" });
   });
+
+  it("keeps Cursor and falls unknown ACP agents back to Codex", () => {
+    expect(parseAiPluginData({ acpAgent: "cursor" }).settings.acpAgent).toBe(
+      "cursor",
+    );
+    expect(parseAiPluginData({ acpAgent: "claude" }).settings.acpAgent).toBe(
+      "codex",
+    );
+  });
 });

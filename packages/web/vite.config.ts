@@ -41,6 +41,7 @@ const rendererSingletonPackages = [
 ];
 
 export default defineConfig({
+  envPrefix: ["VITE_", "LAPIS_"],
   define: {
     "import.meta.env.VITE_APP_COMMIT_HASH": JSON.stringify(
       process.env.LAPIS_BUILD_COMMIT ?? "local",

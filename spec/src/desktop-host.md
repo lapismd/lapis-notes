@@ -42,6 +42,9 @@ are intentionally omitted.
 | LN-DESK-031 | The desktop host MUST register and load `@lapis-notes/bases` after Search and before external Roles, metadata, and layout restoration. It MUST use package-exported styles, restore persisted Bases placeholders after re-enabling, and MUST NOT create a default Bases leaf. |
 | LN-DESK-032 | The desktop host MUST register and load `@lapis-notes/ai` after Bases and before external Roles, metadata, and layout restoration. It MUST advertise `agent-runtime` for process-backed ACP and Codex sessions and MUST NOT create a default AI leaf. |
 | LN-DESK-033 | The Electron renderer MUST load the public Lapis CodeMirror autocomplete stylesheet after Design Core and Lapis theme paint so shared completion extensions render production popover chrome without Storybook-owned CSS. |
+| LN-DESK-034 | The desktop ACP host MUST accept model and thinking on `desktop_agent_acp_start` and MUST pass them to acpx `ensureSession` session options. The renderer MUST NOT import acpx. |
+| LN-DESK-035 | The desktop ACP host MUST accept a first-class `agent` on `desktop_agent_acp_start`, default to `codex`, and MUST pass that name to acpx `ensureSession`. The renderer MUST NOT import acpx. |
+| LN-DESK-036 | Electron agent-runtime IPC MUST call `@lapis-notes/ai-host` for ACP sessions and process spawn. It MUST NOT keep a second acpx import path. |
 
 ## Boot flow
 

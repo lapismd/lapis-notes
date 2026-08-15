@@ -18,7 +18,8 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-009 | The PWA service worker MUST retain prompt-based updates and verified plugin-asset caching without precaching downloaded embedding models. |
 | LN-WEB-010 | Root scripts MUST expose web development, build, preview, and two-tab acceptance lanes through the workspace package. |
 | LN-WEB-011 | The web host MUST load Bases after Search and before external Roles, metadata, and layout restoration. Browser acceptance MUST create and reopen a Bases fixture, query rows, edit frontmatter, and preserve the configured view without adding Bases to community-plugin configuration. |
-| LN-WEB-012 | The web host MUST load AI after Bases and before external Roles, metadata, and layout restoration. Live process-backed runtimes MUST remain unavailable; the chat panel MUST stay usable through Fake or an explicit unavailable state. |
+| LN-WEB-012 | The web host MUST load AI after Bases and before external Roles, metadata, and layout restoration. Live runtimes MUST be available only when both a runtime URL and token are configured. Otherwise the chat MUST stay usable through Fake or an unavailable state. |
+| LN-WEB-014 | The web session MUST register an agent-runtime WebSocket bridge before constructing `AiPlugin` only when URL and token are both set. It MUST NOT overwrite an existing desktop bridge. |
 | LN-WEB-013 | The web renderer MUST load the public Lapis CodeMirror autocomplete stylesheet after Design Core and Lapis theme paint so shared completion extensions render the same production popover chrome as desktop and Storybook. |
 
 ## Implemented host boundary
