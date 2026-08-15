@@ -21,10 +21,17 @@
 
   $effect(() => {
     if (!root || !app) return;
-    const ownedRoot = root as HTMLDivElement & { __lapisApp?: App };
+    const ownedRoot = root as HTMLDivElement & {
+      __lapisApp?: App;
+      __basesDocument?: BasesDocument;
+    };
     ownedRoot.__lapisApp = app;
+    if (document) ownedRoot.__basesDocument = document;
     return () => {
       if (ownedRoot.__lapisApp === app) delete ownedRoot.__lapisApp;
+      if (ownedRoot.__basesDocument === document) {
+        delete ownedRoot.__basesDocument;
+      }
     };
   });
 

@@ -1,6 +1,7 @@
 import {
   BASES_SAMPLE_ARTWORK,
   BASES_SAMPLE_NOTES,
+  BASES_SAMPLE_TYPES,
   createBasesViewsDocument,
   type BasesViewScenario,
 } from "./bases-views-fixture";
@@ -25,6 +26,7 @@ export function basesViewsExampleSource(scenario: BasesViewScenario): string {
 
   const adapter = new ExampleVaultAdapter({
     ".obsidian/app.json": "{}",
+    ".obsidian/types.json": JSON.stringify(${JSON.stringify(BASES_SAMPLE_TYPES)}),
     ...${notes},
     ...${artwork},
   });

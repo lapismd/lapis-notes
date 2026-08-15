@@ -9,12 +9,10 @@
     type Header,
     type VisibilityState,
   } from "@tanstack/table-core";
-  import * as Table from "@lapismd/design-core/shadcn/table";
   import TableHeader from "./table-header.svelte";
   import { DragDropProvider } from "@dnd-kit/svelte";
   import type { DragEndEvent } from "@dnd-kit/dom";
   import { arrayMove } from "@dnd-kit/helpers";
-  import { styleObjectToString } from "./dnd-style";
   import { createVirtualizer, type MetadataType } from "@lapis-notes/api";
   import Cell from "../../cell.svelte";
   import {
@@ -41,6 +39,7 @@
   import { onMount } from "svelte";
   import TablePlaceholder from "./table-placeholder.svelte";
   import { useResizeObserver } from "../../hooks/useResizeObserver.svelte";
+  import { resolveTableColumnTracks } from "./table-column-tracks";
 
   type DataTableProps = {
     view: BasesView;
@@ -187,6 +186,7 @@
     return sizes;
   });
 
+  let containerSize = useResizeObserver();
   let resolvedWidths: Record<string, number> = $derived.by(() => {
     const order = view.config.getOrder();
     const sizes = Object.fromEntries(
@@ -404,19 +404,6 @@
     }
   }
 
-  let columnSizeVars = $derived.by(() => {
-    const headers = table.getFlatHeaders();
-    const colSizes: { [key: string]: number } = {};
-    for (const header of headers) {
-      if (!view.config.getOrder().includes(header.id as BasesPropertyId))
-        continue;
-      colSizes[`--header-${CSS.escape(header.id)}-size`] = header.getSize();
-      colSizes[`--col-${CSS.escape(header.column.id)}-size`] =
-        header.column.getSize();
-    }
-    return colSizes;
-  });
-
   const rowHeights: Record<string, number> = {
     short: 30,
     medium: 60,
@@ -547,6 +534,23 @@
         return acc;
       }, {});
   });
+  let columnTracks = $derived.by(() => {
+    columnSizing;
+    resolvedWidths;
+    const order = view.config.getOrder();
+    return resolveTableColumnTracks(order, (id) => {
+      return (
+        headerMap[id]?.column.getSize() ??
+        resolvedWidths[id] ??
+        DEFAULT_COLUMN_WIDTH
+      );
+    });
+  });
+  let columnTrackMap = $derived.by(() => {
+    return Object.fromEntries(
+      columnTracks.tracks.map((track) => [track.id, track]),
+    );
+  });
   let stickyGroup = $derived.by(() => {
     if (!groupBy?.property || !groupSections.length) {
       return null;
@@ -606,14 +610,8 @@
     },
     getScrollElement: () => tableContainerRef,
     estimateSize: (i) => {
-      const id = view.config.getOrder()[i];
-      return resolvedWidths[id] ?? DEFAULT_COLUMN_WIDTH;
+      return columnTracks.tracks[i]?.width ?? DEFAULT_COLUMN_WIDTH;
     },
-    measureElement:
-      typeof window !== "undefined" &&
-      navigator.userAgent.indexOf("Firefox") === -1
-        ? (element) => element?.getBoundingClientRect().height
-        : undefined,
     overscan: 3,
   });
 
@@ -637,7 +635,7 @@
   });
 
   $effect(() => {
-    resolvedWidths;
+    columnTracks;
     columnSizingInfo;
     containerSize.size.width;
     view.config.getOrder();
@@ -712,15 +710,8 @@
     });
   });
 
-  let containerSize = useResizeObserver();
   let tableWidth = $derived.by(() => {
-    const order = view.config.getOrder();
-    const contentWidth = order.reduce(
-      (sum, id) => sum + (resolvedWidths[id] ?? DEFAULT_COLUMN_WIDTH),
-      0,
-    );
-
-    return Math.max(containerSize.size.width, contentWidth);
+    return Math.max(containerSize.size.width, columnTracks.totalWidth);
   });
 </script>
 
@@ -744,12 +735,7 @@
   >
     <div
       class="bases-table-container relative bases-style-min-w-full-a1e7a8 bases-style-pb-100px-03c580"
-      style={styleObjectToString({
-        ...columnSizeVars,
-        "--ui-bases-table-row-height": `${rowHeight}px`,
-        width: tableWidth,
-        height: virtualTotalSize + 2 * rowHeight,
-      })}
+      style={`--ui-bases-table-row-height: ${rowHeight}px; width: ${tableWidth}px; height: ${virtualTotalSize + 2 * rowHeight}px;`}
     >
       <div class="bases-table bases-style-text-sm-fc7473">
         <div
@@ -761,17 +747,19 @@
             style={`width: ${tableWidth}px;`}
           >
             {#each columnVirtualizer.getVirtualItems() as virtualColumn (virtualColumn.key)}
-              {@const id = headers[virtualColumn.index]}
-              {#if id}
+              {@const track = columnTracks.tracks[virtualColumn.index]}
+              {#if track}
                 <div
                   data-index={virtualColumn.index}
+                  data-column-id={track.id}
                   class="bases-table__header-cell absolute bases-style-top-0-216740 bases-style-left-0-c78fac"
-                  style={`inset-inline-start: ${virtualColumn.start}px; width: var(--col-${CSS.escape(id)}-size)`}
+                  style={`inset-inline-start: ${track.startCss}; width: ${track.widthCss}`}
                 >
                   <TableHeader
-                    header={headerMap[id]}
-                    icon={getIcon(id)}
-                    text={view.config.getDisplayName(id)}
+                    header={headerMap[track.id]}
+                    icon={getIcon(track.id as BasesPropertyId)}
+                    text={view.config.getDisplayName(track.id as BasesPropertyId)}
+                    width={track.width}
                   />
                 </div>
               {/if}
@@ -873,9 +861,11 @@
                   data-ui-part="row"
                 >
                   {#each headers as id, idx (`${id}_${virtualRow.key}_${idx}`)}
+                    {@const track = columnTrackMap[id]}
                     <div
+                      data-column-id={id}
                       class="bases-table__cell bases-td bases-style-flex-none-81e443 bases-style-overflow-hidden-2cd02d bases-style-text-nowrap-621d3b bases-style-overflow-ellipsis-5b2ef5 bases-style-whitespace-nowrap-e82ae8"
-                      style={`flex: 0 0 auto; width: var(--col-${CSS.escape(id)}-size); height: var(--ui-bases-table-row-height)`}
+                      style={`flex: 0 0 auto; width: ${track?.widthCss ?? "0px"}; height: var(--ui-bases-table-row-height)`}
                     >
                       <div
                         class="bases-table__cell-inner bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-px-2-d5eab2 bases-style-py-1-660d2e"
@@ -887,7 +877,6 @@
                           readOnly={view.controller.readOnly}
                           type={types[id]?.type}
                           value={row.getValue(id as BasesPropertyId)}
-                          style={`width: var(--col-${CSS.escape(id)}-size)`}
                           class="bases-style-z-1-0bcb04 bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-min-w-full-a1e7a8 bases-style-overflow-hidden-2cd02d bases-style-text-nowrap-621d3b bases-style-overflow-ellipsis-5b2ef5"
                         />
                       </div>
@@ -908,9 +897,11 @@
             >
               {#each headers as id, idx (`${id}_summary_${idx}`)}
                 {@const summary = summaryMap[id]}
+                {@const track = columnTrackMap[id]}
                 <div
+                  data-column-id={id}
                   class="bases-table__summary-cell bases-td bases-style-min-h-11-0e5b24 bases-style-flex-none-81e443 bases-style-items-center-3960ff bases-style-overflow-hidden-2cd02d bases-style-border-r-5ceb63 bases-style-px-2-d5eab2 bases-style-py-1-660d2e bases-style-text-xs-359090 bases-style-last-border-r-0-bb5b5f"
-                  style={`flex: 0 0 auto; width: var(--col-${CSS.escape(id)}-size)`}
+                  style={`flex: 0 0 auto; width: ${track?.widthCss ?? "0px"}`}
                 >
                   {#if summary}
                     <div class="bases-style-min-w-0-7e0b7c">

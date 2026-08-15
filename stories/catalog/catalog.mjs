@@ -237,6 +237,7 @@ const markdownPanelCatalog = markdownPanelFamilies.flatMap((family) =>
 /** @type {CatalogEntry[]} */
 const basesViewsCatalog = [
   ["table", "Table"],
+  ["editable-cells", "Editable Cells"],
   ["cards", "Cards"],
   ["grouped-list", "Grouped List"],
   ["map", "Map Unavailable"],

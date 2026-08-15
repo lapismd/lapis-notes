@@ -7,6 +7,10 @@ import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
 import BasesViewsDemo from "./BasesViewsDemo.svelte";
 import { basesViewsExampleSource } from "./BasesViews.example-sources";
 import type { BasesViewScenario } from "./bases-views-fixture";
+import {
+  expectBasesColumnsAligned,
+  expectOpaqueBackground,
+} from "./bases-story-assertions";
 
 const meta = {
   title: "Plugins/Bases/Views",
@@ -82,6 +86,16 @@ function demoApp(canvasElement: HTMLElement): App {
   return root.__lapisApp;
 }
 
+function demoDocument(canvasElement: HTMLElement): BasesDocument {
+  const root = canvasElement.querySelector<
+    HTMLElement & { __basesDocument?: BasesDocument }
+  >('[data-testid="bases-views-demo"]');
+  if (!root?.__basesDocument) {
+    throw new Error("The Bases views story has no active document");
+  }
+  return root.__basesDocument;
+}
+
 async function waitForView(
   canvasElement: HTMLElement,
   scenario: BasesViewScenario,
@@ -139,6 +153,125 @@ export const Table: Story = {
         getComputedStyle(sortProject.querySelector("svg")!).width,
       ).toBe("16px");
     });
+  },
+};
+
+export const EditableCells: Story = {
+  parameters: storyParameters(
+    "editable-cells",
+    "A wide table exercises normal inline autocomplete, scalar, checkbox, tag, file, and folder cell presentation over real metadata.",
+  ),
+  render: renderScenario("editable-cells"),
+  play: async ({ canvasElement }) => {
+    const canvas = await waitForView(canvasElement, "editable-cells", "table");
+    const table = await waitFor(() => {
+      const element = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="bases-table-view"]',
+      );
+      expect(element).toBeVisible();
+      expect(
+        element?.querySelector('.bases-table__row[data-ui-part="row"]'),
+      ).toBeVisible();
+      expect(
+        element?.querySelectorAll('[data-ui-part="command-search-icon"]'),
+      ).toHaveLength(0);
+      return element!;
+    });
+
+    expectBasesColumnsAligned(table);
+
+    const dueInput = canvasElement.querySelector<HTMLElement>(
+      'input[type="date"][aria-label="due"]',
+    );
+    expect(dueInput).toBeTruthy();
+
+    const controls = [
+      canvas.getAllByRole("combobox", { name: "owner" })[0],
+      canvas.getAllByRole("spinbutton", { name: "score" })[0],
+      dueInput,
+      canvas.getAllByRole("checkbox", { name: "featured" })[0],
+      canvas.getAllByRole("combobox", { name: "tags" })[0],
+    ].filter(
+      (control): control is HTMLElement => control instanceof HTMLElement,
+    );
+    controls.forEach(expectOpaqueBackground);
+    const firstRow = table.querySelector<HTMLElement>(
+      '.bases-table__row[data-ui-part="row"]',
+    )!;
+    await userEvent.hover(firstRow);
+    controls.forEach(expectOpaqueBackground);
+    await userEvent.unhover(firstRow);
+
+    const owner = canvas.getAllByRole("combobox", { name: "owner" })[0]!;
+    await userEvent.click(owner);
+    await userEvent.clear(owner);
+    await userEvent.type(owner, "Pri");
+    const body = within(canvasElement.ownerDocument.body);
+    expect(
+      await body.findByRole("option", { name: "Priya Shah" }),
+    ).toBeVisible();
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await waitFor(() => expect(owner).toHaveValue("Priya Shah"));
+
+    const app = demoApp(canvasElement);
+    const aurora = app.vault.getFileByPath("Projects/Aurora.md");
+    expect(aurora).toBeTruthy();
+    await waitFor(async () => {
+      expect(await app.vault.read(aurora!)).toContain("owner: Priya Shah");
+    });
+
+    const ownerAfterUpdate = canvas.getAllByRole("combobox", {
+      name: "owner",
+    })[0]!;
+    await userEvent.clear(ownerAfterUpdate);
+    await userEvent.type(ownerAfterUpdate, "Maya Chen{Enter}");
+    await waitFor(async () => {
+      expect(await app.vault.read(aurora!)).toContain("owner: Maya Chen");
+    });
+
+    const ownerHeader = table.querySelector<HTMLElement>(
+      '.bases-table__header-cell[data-column-id="note.owner"]',
+    );
+    expect(ownerHeader).toBeVisible();
+    const widthBefore = ownerHeader!.getBoundingClientRect().width;
+    const resizeOwner = canvas.getByRole("button", {
+      name: "Resize Owner column",
+    });
+    const handleRect = resizeOwner.getBoundingClientRect();
+    const pointerY = handleRect.top + handleRect.height / 2;
+    const pointerX = handleRect.right - 1;
+
+    await userEvent.pointer({
+      target: resizeOwner,
+      coords: { clientX: pointerX, clientY: pointerY },
+      keys: "[MouseLeft>]",
+    });
+    await userEvent.pointer({
+      target: resizeOwner,
+      coords: { clientX: pointerX + 48, clientY: pointerY },
+    });
+    await waitFor(() => {
+      expectBasesColumnsAligned(table);
+      expect(ownerHeader!.getBoundingClientRect().width).toBeGreaterThan(
+        widthBefore + 40,
+      );
+    });
+    await userEvent.pointer({ keys: "[/MouseLeft]" });
+    expectBasesColumnsAligned(table);
+
+    const activeView = demoDocument(canvasElement).views.find(
+      (view) => view.name === "Editable fields",
+    );
+    expect(activeView?.columnSize?.["note.owner"]).toBeGreaterThan(
+      widthBefore + 40,
+    );
+
+    table.scrollLeft = 240;
+    table.dispatchEvent(new Event("scroll"));
+    await waitFor(() => expectBasesColumnsAligned(table));
+    table.scrollLeft = 0;
+    table.dispatchEvent(new Event("scroll"));
+    await waitFor(() => expectBasesColumnsAligned(table));
   },
 };
 

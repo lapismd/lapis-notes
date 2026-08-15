@@ -17,6 +17,9 @@
     var(--ring)
   );
   --ui-bases-surface-hover: var(--background-modifier-hover, var(--muted));
+  --ui-bases-table-cell-background: var(--ui-bases-surface-background);
+  --ui-bases-table-cell-background-hover: var(--ui-bases-surface-hover);
+  --ui-bases-table-cell-background-active: var(--ui-bases-surface-background-alt);
   --ui-bases-normal-color: var(--text-normal, var(--foreground));
   --ui-bases-muted-color: var(--text-muted, var(--muted-foreground));
   --ui-bases-on-accent-color: var(--text-on-accent);
@@ -174,6 +177,111 @@
   z-index: var(--layer-cover);
   height: fit-content;
   min-height: var(--ui-bases-table-row-height);
+}
+
+.bases-cell-editor,
+.bases-autocomplete,
+.bases-autocomplete [data-ui-component="autocomplete-input"] {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+}
+
+.bases-cell-editor__empty,
+.bases-cell-editor__checkbox-wrap {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+.bases-table .bases-cell-editor__control,
+.bases-table .bases-cell-editor__checkbox,
+.bases-table .bases-cell-editor [data-ui-component="autocomplete-input"] input,
+.bases-table
+  .bases-cell-editor
+  [data-ui-component="chip-autocomplete"]
+  .chip-autocomplete-box {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--ui-bases-table-cell-background);
+  color: var(--ui-bases-normal-color);
+  box-shadow: none;
+  font: inherit;
+  outline: 0;
+}
+
+.bases-table .bases-cell-editor__control,
+.bases-table .bases-cell-editor [data-ui-component="autocomplete-input"] input {
+  padding: 0 0.25rem;
+}
+
+.bases-table .bases-cell-editor [data-ui-component="chip-autocomplete"] {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  color: var(--ui-bases-normal-color);
+  font-size: inherit;
+  font-weight: inherit;
+  text-transform: none;
+}
+
+.bases-table
+  .bases-cell-editor
+  [data-ui-component="chip-autocomplete"]
+  .chip-autocomplete-box {
+  overflow: hidden;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  padding: 0 0.25rem;
+}
+
+.bases-table
+  .bases-cell-editor
+  [data-ui-component="chip-autocomplete"]
+  .chip-input {
+  min-width: 2rem;
+}
+
+.bases-table__row:hover .bases-cell-editor__control,
+.bases-table__row:hover .bases-cell-editor__checkbox,
+.bases-table__row:hover
+  .bases-cell-editor
+  [data-ui-component="autocomplete-input"]
+  input,
+.bases-table__row:hover
+  .bases-cell-editor
+  [data-ui-component="chip-autocomplete"]
+  .chip-autocomplete-box {
+  background-color: var(--ui-bases-table-cell-background);
+  background-image: linear-gradient(
+    var(--ui-bases-table-cell-background-hover),
+    var(--ui-bases-table-cell-background-hover)
+  );
+}
+
+.bases-table__cell-inner:focus-within .bases-cell-editor__control,
+.bases-table__cell-inner:focus-within .bases-cell-editor__checkbox,
+.bases-table__cell-inner:focus-within
+  .bases-cell-editor
+  [data-ui-component="autocomplete-input"]
+  input,
+.bases-table__cell-inner:focus-within
+  .bases-cell-editor
+  [data-ui-component="chip-autocomplete"]
+  .chip-autocomplete-box {
+  background: var(--ui-bases-table-cell-background-active);
+  box-shadow: none;
+}
+
+.bases-cell-editor__checkbox {
+  outline: 0;
 }
 
 .bases-table__header-cell [data-ui-component="button"] {

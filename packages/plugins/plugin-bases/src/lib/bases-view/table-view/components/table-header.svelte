@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Header } from "@tanstack/table-core";
-  import * as Table from "@lapismd/design-core/shadcn/table";
   import { createSortable } from "@dnd-kit/svelte/sortable";
   import GripVertical from "@lucide/svelte/icons/grip-vertical";
   import { Button } from "@lapismd/design-core/shadcn/button";
@@ -15,7 +14,13 @@
     header,
     icon = "lucide-info",
     text,
-  }: { header: Header<any, unknown>; icon?: string; text?: string } = $props();
+    width = header.getSize(),
+  }: {
+    header: Header<any, unknown>;
+    icon?: string;
+    text?: string;
+    width?: number;
+  } = $props();
   let label = $derived(
     text ?? header.column.columnDef.meta?.displayName?.toString() ?? header.id,
   );
@@ -44,12 +49,13 @@
     styleObjectToString({
       opacity: sortable.isDragging ? 0.8 : 1,
       position: "relative",
-      transition: "width transform 0.2s ease-in-out",
+      transition: "transform 0.2s ease-in-out",
       "--ui-bases-table-cell-radius-active": 0,
       "--ui-bases-table-cell-shadow-active":
         "calc(var(--ui-bases-table-column-border-width) * -1) 0 0 var(--table-border-color)",
       whiteSpace: "nowrap",
-      width: `var(--col-${CSS.escape(header?.id)}-size)`,
+      flex: `0 0 ${width}px`,
+      width: `${width}px`,
       "z-index": sortable.isDragging ? 1 : 0,
     }),
   );
@@ -58,6 +64,7 @@
 <div
   {@attach sortable.attach}
   {style}
+  data-column-id={header.id}
   class={cn(
     "bases-td group/header bases-style-z-1000-9e4878 bases-style-justify-between-8ef226 bases-style-overflow-hidden-2cd02d bases-style-border-r-5ceb63 bases-style-px-0-5a270a bases-style-text-nowrap-621d3b bases-style-overflow-ellipsis-5b2ef5 bases-style-transition-colors-ceb69a",
     isActive ? "bases-style-bg-accent-interactive-30-0c9f68" : "bases-style-hover-bg-border-2e3f11",

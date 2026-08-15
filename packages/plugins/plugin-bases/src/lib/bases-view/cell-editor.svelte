@@ -1,8 +1,13 @@
 <script lang="ts">
   import { cn, type App } from "@lapis-notes/api";
   import Autocomplete from "./components/autocomplete.svelte";
-  import InputTags from "./components/input-tags.svelte";
+  import ChipAutocomplete from "@lapismd/design-core/forms/ChipAutocomplete.svelte";
+  import { Input } from "@lapismd/design-core/shadcn/input";
   import { DateTime } from "luxon";
+  import {
+    collectMetadataSuggestions,
+    metadataPropertyKey,
+  } from "./cell-editor-options";
 
   let {
     app,
@@ -54,37 +59,27 @@
     }
   }
 
-  function metadataOptions(key: string) {
-    const tags = new Set<string>();
-    app.metadataTypeManager.getValues(key).map((f) => {
-      if (Array.isArray(f)) {
-        f.filter(Boolean).forEach((it) => tags.add(it));
-      } else if (f) {
-        tags.add(f.toString());
-      }
-    });
-    return [...tags].map((f) => {
-      return { label: f, value: f };
-    });
+  function metadataSuggestions(key: string, splitDelimited = false) {
+    return collectMetadataSuggestions(
+      app.metadataTypeManager.getValues(metadataPropertyKey(key)),
+      splitDelimited,
+    );
   }
 
-  function multilineOptions(key: string) {
-    const tags = new Set<string>();
-    app.metadataTypeManager.getValues(key).map((f) => {
-      if (Array.isArray(f)) {
-        f.filter((it) => it).forEach((it) => tags.add(it));
-      } else if (f) {
-        const values = f
-          .toString()
-          .split(/[,;]+/u)
-          .map((v) => v.trim())
-          .filter(Boolean);
-        values.forEach((tag) => tags.add(tag));
-      }
-    });
-    return [...tags].map((f) => {
-      return { label: f, value: f };
-    });
+  function metadataOptions(key: string) {
+    return metadataSuggestions(key).map((suggestion) => ({
+      label: suggestion,
+      value: suggestion,
+    }));
+  }
+
+  function currentTagValues() {
+    return collectMetadataSuggestions([value], true);
+  }
+
+  function onTagsChange(values: string[]) {
+    value = values;
+    onValueChange?.(name, values);
   }
 
   function toDateTime(value: unknown) {
@@ -114,65 +109,65 @@
   );
 </script>
 
-<div class="bases-style-group-64292b bases-style-h-full-668b21 bases-style-w-full-6da6a3">
+<div
+  class="bases-cell-editor"
+  data-ui-component="bases-cell-editor"
+  data-ui-part="root"
+>
   {#if type === "file"}
     <Autocomplete
       placeholder="—"
       aria-label={editorLabel}
-      rootClass="w-full h-full"
       bind:value
       options={fileOptions()}
       class={className}
+      onSelect={(selectedValue) => onValueChange?.(name, selectedValue)}
     />
   {:else if type === "folder"}
     <Autocomplete
       placeholder="—"
       aria-label={editorLabel}
-      rootClass="w-full h-full"
       bind:value
       options={folderOptions()}
       class={className}
+      onSelect={(selectedValue) => onValueChange?.(name, selectedValue)}
     />
   {:else if type === "none"}
-    <span class="grow"></span>
+    <span class="bases-cell-editor__empty"></span>
   {:else if type === "datetime"}
-    <input
+    <Input
       type="datetime-local"
       placeholder="—"
       aria-label={editorLabel}
       value={toDateTime(value)}
       onblur={(evt) => onDateChange(evt)}
       onchange={(evt) => onDateChange(evt)}
-      class={cn("bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-border-none-4a5f0e bases-style-outline-none-df37b1", {
-        "invisible group-hover:visible": !value,
-      })}
+      class={cn("bases-cell-editor__control", className)}
+      data-ui-part="control"
     />
   {:else if type === "date"}
-    <input
+    <Input
       type="date"
       placeholder="—"
       aria-label={editorLabel}
       value={toDate(value)}
       onblur={(evt) => onDateChange(evt)}
       onchange={(evt) => onDateChange(evt)}
-      class={cn("bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-border-none-4a5f0e bases-style-outline-none-df37b1", className, {
-        "invisible group-hover:visible": !value,
-      })}
+      class={cn("bases-cell-editor__control", className)}
+      data-ui-part="control"
     />
   {:else if type === "number"}
-    <input
+    <Input
       type="number"
       placeholder="—"
       aria-label={editorLabel}
       {value}
       onblur={(evt) => onChange(evt)}
-      class={cn(
-        "bases-style-hover-bg-accent-0557b8 bases-style-focus-within-bg-accent-2d7ab0 bases-style-focus-within-text-accent-foreground-b70724 bases-style-dark-bg-input-30-afcf46 bases-style-dark-focus-within-bg-input-50-4a2c4b bases-style-h-full-668b21 grow bases-style-border-none-4a5f0e bases-style-pl-1-6ad214 bases-style-outline-none-df37b1",
-        className,
-      )}
+      class={cn("bases-cell-editor__control", className)}
+      data-ui-part="control"
     />
   {:else if type === "checkbox"}
-    <span class="grow">
+    <span class="bases-cell-editor__checkbox-wrap">
       <input
         type="checkbox"
         placeholder="—"
@@ -182,30 +177,27 @@
           value === ""}
         bind:checked={value}
         onblur={(evt) => onChange(evt)}
-        class={cn(
-          "metadata-input-checkbox bases-style-flex-60fbb7 bases-style-items-center-3960ff bases-style-outline-none-df37b1",
-          className,
-        )}
+        class={cn("metadata-input-checkbox bases-cell-editor__checkbox", className)}
+        data-ui-part="checkbox"
       />
     </span>
   {:else if type === "multitext" || type === "tags"}
-    <InputTags
+    <ChipAutocomplete
       placeholder="—"
-      aria-label={editorLabel}
-      bind:values={value}
-      onChange={(values) => onValueChange?.(name, values)}
-      class="bases-style-whitespace-nowrap-e82ae8 bases-style-focus-within-h-fit-9fd2b3"
-      options={multilineOptions(name)}
+      label={editorLabel}
+      showLabel={false}
+      embedded
+      uppercase={false}
+      value={currentTagValues()}
+      suggestions={metadataSuggestions(name, true)}
+      onChange={onTagsChange}
     />
   {:else}
     <Autocomplete
       onSelect={(value) => onValueChange?.(name, value)}
       placeholder=""
       aria-label={editorLabel}
-      class={cn(
-        "bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-bg-transparent-7f19cd bases-style-hover-bg-transparent-de520d bases-style-data-slot-command-input-wrapper-svg-hidden-a990ff",
-        className,
-      )}
+      class={cn("bases-cell-editor__control", className)}
       bind:value
       options={metadataOptions(name)}
     />

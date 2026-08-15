@@ -1,7 +1,7 @@
 <script lang="ts">
   import Autocomplete from "../autocomplete.svelte";
   import FilterProperties from "./filter-properties.svelte";
-  import InputTags from "../input-tags.svelte";
+  import ChipAutocomplete from "@lapismd/design-core/forms/ChipAutocomplete.svelte";
   import type { QueryController } from "../../bases.svelte";
 
   let {
@@ -29,6 +29,10 @@
 
   function onChange(event: FocusEvent) {
     value = (event.target as HTMLInputElement).value;
+  }
+
+  function onTagsChange(values: string[]) {
+    value = values;
   }
 </script>
 
@@ -78,7 +82,14 @@
       />
     </span>
   {:else if type === "multitext"}
-    <InputTags bind:values={value} class="grow" />
+    <ChipAutocomplete
+      value={Array.isArray(value) ? value : []}
+      label="Values"
+      showLabel={false}
+      embedded
+      uppercase={false}
+      onChange={onTagsChange}
+    />
   {:else}
     <input
       type="text"

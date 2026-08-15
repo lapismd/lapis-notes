@@ -516,7 +516,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-054 | workspace-shell | Implemented | API tests and the real-App Roles shell cover live compatibility ribbon/status projection, updates, commands, and teardown |
 | LN-DESK-031 | desktop-host | In progress | desktop registration ordering, exported styles, community exclusion, checks, tests, and production build pass; persisted Bases smoke remains |
 | LN-WEB-011 | web-host | In progress | web registration ordering, exported styles, community exclusion, checks, tests, and PWA build pass; browser fixture acceptance remains |
-| LN-CAT-049 | storybook-catalog | In progress | focused table, vault-image cards, grouped-list, map-unavailable, and unknown-view interactions pass; workflows and pointer persistence remain |
+| LN-CAT-049 | storybook-catalog | In progress | focused table, editable-cell autocomplete, pointer resize persistence, vault-image cards, grouped-list, map-unavailable, and unknown-view interactions pass; workflows remain |
 | LN-CAT-050 | storybook-catalog | In progress | real-App editor shell covers File Explorer, visible indexed Search, and an opened canonical Bases file; remaining file view, Markdown embed, and lifecycle stories pending |
 | LN-CAT-051 | storybook-catalog | In progress | focused views share one seeded vault, public Show Code, BasesViewSurface Autodocs authority, isolated 700px docs, and pending nested baselines; workspace stories remain |
 | LN-CAT-052 | storybook-catalog | Implemented | focused Roles shell finds CV semantic content after lifecycle recovery and excludes ordinary YAML |
@@ -535,13 +535,13 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BASE-004 | bases-plugin | Implemented | AppDatabase pushdown, PEaQL final evaluation, metadata invalidation, and metadata-cache fallback tests |
 | LN-BASE-005 | bases-plugin | In progress | table, cards, grouped list, map-unavailable, and unknown story assertions pass; custom registration remains |
 | LN-BASE-006 | bases-plugin | In progress | query-controls and schema/view-settings stories plus CSV and new-file unit coverage |
-| LN-BASE-007 | bases-plugin | In progress | editable-cell story verifies typed frontmatter writes, immutable fields, and navigation |
+| LN-BASE-007 | bases-plugin | Implemented | typed frontmatter writes, metadata-key normalization, normal autocomplete keyboard selection, opaque cell surfaces, immutable fields, and navigation pass unit and focused Storybook coverage |
 | LN-BASE-008 | bases-plugin | In progress | read-only registrations, invalid fenced-YAML, teardown cleanup, and early/late image URL revocation pass; real-App embed stories remain |
 | LN-BASE-009 | bases-plugin | Implemented | source-linked runtime import, publint, declarations, package entry/style exports, and public BasesViewSurface Autodocs pass |
 | LN-BASE-010 | bases-plugin | Implemented | no-Tailwind, no-global-App, Design Core import, semantic marker, native CSS, token audits, and focused composition stories pass |
 | LN-BASE-011 | bases-plugin | In progress | focused view and real editor-shell plays plus axe pass; workflows, remaining real-App scenarios, and visual comparisons remain |
 | LN-BASE-012 | bases-plugin | Implemented | canonical parity-gap section and root migration checklist exclude Tasks and full-parity claims |
-| LN-BASE-013 | bases-plugin | Implemented | clean-legacy and current browser measurements plus the governed Table play assert 30px rows, 6px toolbar gaps, shadow-free outline controls, and 16px header actions |
+| LN-BASE-013 | bases-plugin | Implemented | reference and current browser measurements plus pixel-track unit coverage and focused view and editor-shell interactions assert shared geometry through live resize, persistence, and horizontal scroll |
 | LN-BASE-014 | bases-plugin | Implemented | plugin and registration-inventory unit tests assert the exact legacy view, associations, embeds, fenced blocks, actions, and five built-in view items without invented commands |
 | LN-BASE-015 | bases-plugin | Implemented | the real editor-shell play and browser acceptance switch `Projects.base` to source, assert `data-language="yaml"` with highlighted tokens, and restore preview |
 | LN-DESK-032 | desktop-host | In progress | desktop registers AI after Bases and before Roles; agent-runtime capability and process host IPC |
