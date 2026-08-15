@@ -247,6 +247,17 @@ export const EditableCells: Story = {
     await userEvent.click(owner);
     await userEvent.clear(owner);
     await userEvent.type(owner, "Pri");
+    const ownerCell = owner.closest<HTMLElement>(".bases-table__cell");
+    const ownerCellInner = owner.closest<HTMLElement>(
+      ".bases-table__cell-inner",
+    );
+    expect(ownerCell).toBeTruthy();
+    expect(ownerCellInner).toBeTruthy();
+    expect(getComputedStyle(ownerCell!, "::after").boxShadow).toContain(
+      "inset",
+    );
+    expect(getComputedStyle(ownerCellInner!).boxShadow).toBe("none");
+    expectBasesRowCellsAligned(table);
     const body = within(canvasElement.ownerDocument.body);
     expect(
       await body.findByRole("option", { name: "Priya Shah" }),

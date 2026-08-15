@@ -125,6 +125,8 @@ normalization, query evaluation, rendering, editing, and resource cleanup.
 Its focused catalog boots the public plugin boundary and keeps editor labels,
 table-control names, wrapped multivalue row geometry, and accessible accent
 paint in the owning package.
+The outer table cell alone owns its inset active boundary so nested Design Core
+editors cannot duplicate or clip focused geometry.
 Electron, web, and the root real-App catalog consume its package exports and
 share the Search, Bases, external-Roles boot order without a consumer copy.
 

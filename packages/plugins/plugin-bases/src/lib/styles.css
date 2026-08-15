@@ -170,14 +170,21 @@
   flex: 1 0 auto;
 }
 
-.bases-table__cell-inner:focus-within,
-.bases-td:focus-within {
+.bases-table__cell:focus-within {
+  position: relative;
   background: var(--ui-bases-surface-background-alt);
   border-radius: var(--ui-bases-table-cell-radius-active);
-  box-shadow: var(--ui-bases-table-cell-shadow-active);
   z-index: var(--layer-cover);
-  height: fit-content;
-  min-height: var(--ui-bases-table-row-height);
+}
+
+.bases-table__cell:focus-within::after {
+  position: absolute;
+  z-index: 1;
+  border-radius: var(--ui-bases-table-cell-radius-active);
+  box-shadow: inset var(--ui-bases-table-cell-shadow-active);
+  content: "";
+  inset: 0;
+  pointer-events: none;
 }
 
 .bases-cell-editor,

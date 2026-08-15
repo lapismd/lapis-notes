@@ -19,6 +19,7 @@
 | LN-BASE-013 | Table, cards, and list presentation MUST retain the reference geometry and control density at the Bases boundary while using current Design Core theme tokens and accessible contrast. Editable table checkboxes MUST be centered 1rem squares. Table headers, rows, and summaries MUST share one ordered width model and remain aligned before, during, and after column resizing and horizontal scrolling. Wrapped variable-height rows MUST preserve shared cell boundaries and measured virtual and sticky-group offsets. |
 | LN-BASE-014 | The bundled plugin MUST register the complete legacy surface: the `bases` view, `.base` and `.bases` editor association, extension aliases, read-only embeds and fenced blocks, preview/source toolbar actions, and Table, Unknown, Cards, List, and Map view items. It MUST NOT invent palette, ribbon, status, or settings commands absent from the legacy plugin. |
 | LN-BASE-015 | Bases source mode MUST register and apply a CodeMirror YAML language pack through the `bases` editor view. The source editor host MUST expose `data-language="yaml"`, highlight YAML syntax for both `.base` and `.bases`, and restore the same extensions after mode changes without changing the file-view association. |
+| LN-BASE-016 | A focused editable table cell MUST paint one continuous inset active boundary at all four corners. The boundary MUST be owned by the outer cell, MUST NOT be duplicated by nested editor wrappers, and MUST NOT alter the row's shared height or column geometry. |
 
 ## Public surface
 
