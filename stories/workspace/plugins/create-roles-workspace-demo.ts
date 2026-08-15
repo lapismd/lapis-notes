@@ -1,5 +1,6 @@
 import {
   App,
+  installApplicationCompatibility,
   MemoryAppDatabase,
   MemoryVaultAdapter,
 } from "@lapis-notes/api";
@@ -133,7 +134,6 @@ export async function bootRolesWorkspaceDemo(): Promise<{
   app: App;
   dispose: () => Promise<void>;
 }> {
-  const previousApp = globalThis.app;
   const adapter = new MemoryVaultAdapter(createRolesWorkspaceSeed(), {
     name: "Lapis Roles Workspace",
     vaultId: "lapis-roles-workspace",
@@ -147,6 +147,8 @@ export async function bootRolesWorkspaceDemo(): Promise<{
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
     { plugin: SourceEditorDemoPlugin, required: true },
@@ -160,7 +162,6 @@ export async function bootRolesWorkspaceDemo(): Promise<{
     },
   ]);
 
-  globalThis.app = app;
   await app.vault.load();
   await app.configuration.load();
   await app.plugins.loadPlugins({
@@ -179,7 +180,7 @@ export async function bootRolesWorkspaceDemo(): Promise<{
         await plugin.disable().catch(() => undefined);
       }
       await app.workspace.disposeWorkspaceHost();
-      if (globalThis.app === app) globalThis.app = previousApp;
+      disposeApplicationCompatibility();
     },
   };
 }

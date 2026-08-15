@@ -1,5 +1,6 @@
 import {
   App,
+  installApplicationCompatibility,
   MemoryAppDatabase,
   MemoryVaultAdapter,
 } from "@lapis-notes/api";
@@ -100,7 +101,6 @@ export async function bootCvFileViewDemo(): Promise<{
   app: App;
   dispose: () => Promise<void>;
 }> {
-  const previousApp = globalThis.app;
   const adapter = new MemoryVaultAdapter(createCvFileViewSeed(), {
     name: "Lapis CV FileView",
     vaultId: "lapis-cv-file-view",
@@ -114,6 +114,8 @@ export async function bootCvFileViewDemo(): Promise<{
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
     { plugin: SourceEditorDemoPlugin, required: true },
@@ -127,7 +129,6 @@ export async function bootCvFileViewDemo(): Promise<{
     },
   ]);
 
-  globalThis.app = app;
   await app.vault.load();
   await app.configuration.load();
   await app.plugins.loadPlugins({
@@ -146,7 +147,7 @@ export async function bootCvFileViewDemo(): Promise<{
         await plugin.disable().catch(() => undefined);
       }
       await app.workspace.disposeWorkspaceHost();
-      if (globalThis.app === app) globalThis.app = previousApp;
+      disposeApplicationCompatibility();
     },
   };
 }

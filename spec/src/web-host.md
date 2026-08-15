@@ -29,6 +29,10 @@ The web session imports Bases and its exported stylesheet from the package and
 registers it after Search and before external Roles. The host audit fixes the
 load, metadata, and layout ordering while the production PWA build verifies the
 workspace dependency closure; browser behavior remains separate acceptance.
+The web session binds PWA commands and status to its explicit App and provides
+that App to the shell. Its compatibility lease is installed before plugin load
+and released after the owned session closes, so vault replacement cannot leave
+PWA actions attached to the previous compatibility alias.
 
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
 File System Access profiles. It constructs the API session, loads Markdown,

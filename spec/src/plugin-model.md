@@ -37,3 +37,6 @@ The core configuration continues to accept the legacy array and the object
 form. Missing-view placeholders retain the original view type and serialized
 state so restart and later enablement use the existing workspace recovery path.
 Plugin configuration and data remain keyed by runtime plugin ID.
+Plugin instances retain their constructor-supplied App. Managed disable and
+restore therefore operate on the owning workspace even while a compatibility
+lease exposes a different App for an older consumer.

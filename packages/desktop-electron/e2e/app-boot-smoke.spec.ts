@@ -78,6 +78,42 @@ function restoredPluginLayout() {
   };
 }
 
+function restoredBasesLayout() {
+  const layout = restoredPluginLayout();
+  Object.assign(layout.main.children[0]!.children[0]!, {
+    id: "projects-base",
+    state: {
+      type: "bases",
+      state: { file: "Bases/Projects.base", mode: "preview" },
+    },
+  });
+  layout.active = "projects-base";
+  return layout;
+}
+
+const desktopBasesDocument = JSON.stringify({
+  filters: { and: [] },
+  properties: {
+    "file.name": { displayName: "Project" },
+    "note.owner": { displayName: "Owner" },
+    "note.score": { displayName: "Score" },
+  },
+  formulas: {},
+  summaries: {},
+  activeView: "Projects",
+  views: [
+    {
+      type: "table",
+      name: "Projects",
+      order: ["file.name", "note.owner", "note.score"],
+      sort: [{ property: "note.score", direction: "DESC" }],
+      filter: { and: [] },
+      limit: 0,
+      columnSize: {},
+    },
+  ],
+});
+
 test("first-launch cancellation remains on a recoverable native-folder landing state", async () => {
   const state = await createDesktopTestState();
   const app = await launchDesktopApp({
@@ -347,6 +383,76 @@ test("restores every available plugin view from persisted missing-view placehold
     expect(app.rendererErrors).toEqual([]);
   } finally {
     await app.close();
+    await state.cleanup();
+  }
+});
+
+test("restores bundled Bases and persists an edited metadata cell", async () => {
+  const state = await createDesktopTestState();
+  const configDir = path.join(state.vaultA, ".obsidian");
+  const projectsDir = path.join(state.vaultA, "Projects");
+  const basesDir = path.join(state.vaultA, "Bases");
+  fs.mkdirSync(configDir, { recursive: true });
+  fs.mkdirSync(projectsDir, { recursive: true });
+  fs.mkdirSync(basesDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(projectsDir, "Aurora.md"),
+    "---\nstatus: Active\nowner: Maya Chen\nscore: 94\n---\n# Aurora\n",
+  );
+  fs.writeFileSync(
+    path.join(projectsDir, "Harbor.md"),
+    "---\nstatus: Planning\nowner: Leo Martins\nscore: 82\n---\n# Harbor\n",
+  );
+  fs.writeFileSync(path.join(basesDir, "Projects.base"), desktopBasesDocument);
+  fs.writeFileSync(
+    path.join(configDir, "types.json"),
+    JSON.stringify({ types: { status: "text", owner: "text", score: "number" } }),
+  );
+  fs.writeFileSync(
+    path.join(configDir, "workspace.json"),
+    JSON.stringify(restoredBasesLayout(), null, 2),
+  );
+
+  const first = await launchDesktopApp({
+    userDataDir: state.userDataDir,
+    vaultPath: state.vaultA,
+  });
+  try {
+    await waitForDesktopWorkspace(first.page, first.rendererErrors);
+    const table = first.page.locator('[data-ui-component="bases-table-view"]');
+    await expect(table).toBeVisible();
+    await expect(table.locator('[data-ui-part="row"]')).toHaveCount(2);
+    await expect(table.getByText("Aurora.md")).toBeVisible();
+
+    const owner = table.getByRole("combobox", { name: "owner" }).first();
+    await owner.fill("Priya Shah");
+    await owner.press("Enter");
+    await expect
+      .poll(() => fs.readFileSync(path.join(projectsDir, "Aurora.md"), "utf8"))
+      .toContain("owner: Priya Shah");
+    expect(fs.readFileSync(path.join(basesDir, "Projects.base"), "utf8")).toBe(
+      desktopBasesDocument,
+    );
+    expect(first.rendererErrors).toEqual([]);
+  } finally {
+    await first.close();
+  }
+
+  const second = await launchDesktopApp({ userDataDir: state.userDataDir });
+  try {
+    await waitForDesktopWorkspace(second.page, second.rendererErrors);
+    await expect(
+      second.page.locator('[data-ui-component="bases-table-view"]'),
+    ).toBeVisible();
+    await expect(
+      second.page.getByRole("combobox", { name: "owner" }).first(),
+    ).toHaveValue("Priya Shah");
+    expect(fs.readFileSync(path.join(basesDir, "Projects.base"), "utf8")).toBe(
+      desktopBasesDocument,
+    );
+    expect(second.rendererErrors).toEqual([]);
+  } finally {
+    await second.close();
     await state.cleanup();
   }
 });

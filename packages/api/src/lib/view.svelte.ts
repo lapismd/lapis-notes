@@ -293,7 +293,7 @@ export abstract class View extends Component {
   }
 
   get app(): App {
-    return globalThis.app;
+    return this.leaf.app;
   }
 
   /** @public */
@@ -348,6 +348,7 @@ export class EmptyView extends View {
       this.component = mount(EmptyViewComponent, {
         target: this.containerEl,
         props: {
+          app: this.app,
           onClose: () => this.leaf.close(),
         },
       });
@@ -453,11 +454,11 @@ export abstract class TextFileView extends FileView {
 
   constructor(leaf?: WorkspaceLeaf) {
     super(leaf);
-    this.editor = new Editor(this.data);
+    this.editor = new Editor(this.data, [], leaf?.application);
   }
 
   get adapter(): DataAdapter {
-    return globalThis.app.vault.adapter;
+    return this.app.vault.adapter;
   }
 
   abstract getViewData(): string;

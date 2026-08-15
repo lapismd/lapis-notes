@@ -29,6 +29,8 @@ view's canonical `getViewType()` without moving registry policy into the shell.
 - A panel root fills the host and stays transparent to that resolved paint.
   Panel code must not inspect workspace ancestry, cache placement, introduce a
   placement prop, or add surface-specific selectors.
+- A panel view receives App from its owning workspace leaf and passes it to
+  app-only content; ambient compatibility state is not a panel data source.
 - An exceptional panel may override the public view tokens on its own root only
   when its component contract genuinely requires different paint.
 - Panel icons use Lucide short names through `WorkspaceIcon`. Content-specific

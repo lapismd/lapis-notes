@@ -64,10 +64,10 @@
 | LN-CAT-063 | The focused Bases Editable Cells and real editor-shell stories MUST enter advanced-filter edit mode, open CodeMirror completions, and assert the inline editor has no default outline while the completion surface has opaque, rounded, shadowed Lapis popover chrome.                                                                                                                                                                                                                                                                                                      |
 | LN-CAT-064 | The real Bases editor-shell story MUST retain Search while starting and finishing with the right sidebar collapsed. Its interaction MUST open the sidebar between those assertions and verify the indexed query and result before restoring the collapsed final state.                                                                                                                                                                                                                                                                                                      |
 | LN-CAT-065 | `Plugins/AI/Chat` MUST demonstrate Layout scroll-to-latest after the transcript is scrolled away from the newest item, using a seeded Fake session, public Show Code, and a `visual-pending` nested-import baseline.                                                                                                                                                                                                                                                                                                                                                        |
-| LN-CAT-066 | Storybook Vite MUST resolve `@lapis-notes/ai/runtimes` to the plugin source adapter entry. |
-| LN-CAT-067 | Default `Plugins/AI` stories MUST stay Fake. Storybook MUST NOT start `lapis-ai-host`. Preview MAY register a live bridge from configured URL and token. |
-| LN-CAT-068 | `Plugins/AI/Live Host` MUST be the manual live lane, tagged `skip-visual`, with no visual baseline. Its play MUST cover missing-attach setup and MUST NOT send a live prompt. |
-| LN-CAT-069 | App-backed stories MUST install disposable compatibility leases while their canvases use the App they own. Multi-App acceptance MUST prove Workspace, Bases, AI, and external Roles do not follow another story's compatibility alias. |
+| LN-CAT-066 | Storybook Vite MUST resolve `@lapis-notes/ai/runtimes` to the plugin source adapter entry.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| LN-CAT-067 | Default `Plugins/AI` stories MUST stay Fake. Storybook MUST NOT start `lapis-ai-host`. Preview MAY register a live bridge from configured URL and token.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| LN-CAT-068 | `Plugins/AI/Live Host` MUST be the manual live lane, tagged `skip-visual`, with no visual baseline. Its play MUST cover missing-attach setup and MUST NOT send a live prompt.                                                                                                                                                                                                                                                                                                                                                                                               |
+| LN-CAT-069 | App-backed stories MUST install disposable compatibility leases while their canvases use the App they own. Multi-App acceptance MUST prove Workspace, Bases, AI, and external Roles do not follow another story's compatibility alias.                                                                                                                                                                                                                                                                                                                                      |
 
 ## Show Code source contract
 
@@ -82,6 +82,11 @@ centered 1rem checkboxes, white on-accent glyphs, wrapped tag and multivalue row
 metadata suggestions, a full-height bottom-edge shadcn Scroll Area, legacy
 filter-popover geometry, start-position disclosure indicators, and aligned row
 and column geometry through live resizing and scrolling.
+The workflow family exercises query, filter, sort, grouping, limit, schema,
+formula, summary, visibility, view-management, layout, typed-editing, new-file,
+CSV, and every public custom-option contract. The real-App family exercises
+the file association in source and preview, read-only Markdown embeds, invalid
+YAML cleanup, and managed disable/restore without mutating the Bases document.
 
 Show Code documents consumer integration, not Storybook implementation:
 
@@ -138,4 +143,3 @@ Direct api imports (one story family each):
   documented nonvisual stories, and the update helper accepts repeatable
   story-prefix filters; its defaults select API and workspace stories without
   rewriting unrelated baselines.
-

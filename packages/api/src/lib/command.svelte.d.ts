@@ -309,8 +309,9 @@ export declare class Keymap {
 export declare class Scope {
     private keyBindings;
     private isMacOS;
+    private readonly application;
     /** @public */
-    constructor(parent?: Scope);
+    constructor(parent?: Scope, application?: App);
     get keys(): MapIterator<string>;
     /**
      * Add a keymap event handler to this scope.

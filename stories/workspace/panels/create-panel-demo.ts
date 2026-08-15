@@ -1,6 +1,7 @@
 import {
   App,
   FileView,
+  installApplicationCompatibility,
   MemoryAppDatabase,
   MemoryVaultAdapter,
   type WorkspaceLeaf,
@@ -502,7 +503,6 @@ export async function bootPanelDemo(
   kind: PanelDemoKind,
   layout: PanelDemoLayout,
 ): Promise<{ app: App; dispose: () => Promise<void> }> {
-  const previousApp = globalThis.app;
   const adapter = new MemoryVaultAdapter(createPanelDemoSeed(kind, layout), {
     name: `Lapis Panel ${kind} ${layout}`,
     vaultId: `lapis-panel-${kind}-${layout}`,
@@ -516,6 +516,8 @@ export async function bootPanelDemo(
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
     { plugin: SourceEditorDemoPlugin, required: true },
@@ -530,7 +532,6 @@ export async function bootPanelDemo(
     },
   ]);
 
-  globalThis.app = app;
   await app.vault.load();
   await app.configuration.load();
   await app.plugins.loadPlugins({
@@ -567,7 +568,7 @@ export async function bootPanelDemo(
         await plugin.disable().catch(() => undefined);
       }
       await app.workspace.disposeWorkspaceHost();
-      if (globalThis.app === app) globalThis.app = previousApp;
+      disposeApplicationCompatibility();
     },
   };
 }

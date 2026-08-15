@@ -1,4 +1,9 @@
-import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
+import {
+  App,
+  installApplicationCompatibility,
+  MemoryAppDatabase,
+  MemoryVaultAdapter,
+} from "@lapis-notes/api";
 import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
@@ -137,7 +142,6 @@ export async function bootRolesPluginShellDemo(): Promise<{
   app: App;
   dispose: () => Promise<void>;
 }> {
-  const previousApp = globalThis.app;
   const adapter = new MemoryVaultAdapter(createRolesPluginShellSeed(), {
     name: "Lapis Roles Plugin Shell",
     vaultId: "lapis-roles-plugin-shell",
@@ -151,6 +155,8 @@ export async function bootRolesPluginShellDemo(): Promise<{
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
@@ -165,7 +171,6 @@ export async function bootRolesPluginShellDemo(): Promise<{
     },
   ]);
 
-  globalThis.app = app;
   await app.vault.load();
   await app.configuration.load();
   await app.configuration.updateConfigurationOption(
@@ -192,7 +197,7 @@ export async function bootRolesPluginShellDemo(): Promise<{
         await plugin.disable().catch(() => undefined);
       }
       await app.workspace.disposeWorkspaceHost();
-      if (globalThis.app === app) globalThis.app = previousApp;
+      disposeApplicationCompatibility();
     },
   };
 }

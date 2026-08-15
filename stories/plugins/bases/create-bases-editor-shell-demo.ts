@@ -1,4 +1,9 @@
-import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
+import {
+  App,
+  installApplicationCompatibility,
+  MemoryAppDatabase,
+  MemoryVaultAdapter,
+} from "@lapis-notes/api";
 import { BasesPlugin } from "@lapis-notes/bases";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
@@ -109,7 +114,6 @@ export async function bootBasesEditorShellDemo(): Promise<{
   app: App;
   dispose: () => Promise<void>;
 }> {
-  const previousApp = globalThis.app;
   const adapter = new MemoryVaultAdapter(createBasesEditorShellSeed(), {
     name: "Lapis Bases Editor Shell",
     vaultId: "lapis-bases-editor-shell",
@@ -123,6 +127,8 @@ export async function bootBasesEditorShellDemo(): Promise<{
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
     {
@@ -151,7 +157,6 @@ export async function bootBasesEditorShellDemo(): Promise<{
     },
   ]);
 
-  globalThis.app = app;
   await app.vault.load();
   await app.configuration.load();
   await app.plugins.loadPlugins({
@@ -175,7 +180,7 @@ export async function bootBasesEditorShellDemo(): Promise<{
         await plugin.disable().catch(() => undefined);
       }
       await app.workspace.disposeWorkspaceHost();
-      if (globalThis.app === app) globalThis.app = previousApp;
+      disposeApplicationCompatibility();
     },
   };
 }

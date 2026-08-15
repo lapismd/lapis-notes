@@ -6,7 +6,7 @@ import {
 
 export const aiWorkspaceExampleSource = `<script lang="ts">
   import { onMount } from "svelte";
-  import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
+  import { App, installApplicationCompatibility, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
   import { AiPlugin } from "@lapis-notes/ai";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { WorkspaceShell } from "@lapis-notes/workspace";
@@ -35,8 +35,8 @@ export const aiWorkspaceExampleSource = `<script lang="ts">
   ]);
   onMount(() => {
     let stopTrackingMetadata = () => {};
+    const releaseApplicationCompatibility = installApplicationCompatibility(app);
     void (async () => {
-      globalThis.app = app;
       await app.vault.load();
       await app.configuration.load();
       await app.plugins.loadPlugins({ communityPlugins: "disabled", optionalCorePlugins: "configured" });
@@ -45,7 +45,10 @@ export const aiWorkspaceExampleSource = `<script lang="ts">
       await app.workspace.loadLayout();
       ready = true;
     })();
-    return () => stopTrackingMetadata();
+    return () => {
+      stopTrackingMetadata();
+      releaseApplicationCompatibility();
+    };
   });
 </script>
 

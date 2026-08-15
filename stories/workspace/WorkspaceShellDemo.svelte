@@ -2,8 +2,10 @@
   import { onMount, untrack } from "svelte";
   import {
     App,
+    installApplicationCompatibility,
     MemoryAppDatabase,
     MemoryVaultAdapter,
+    provideApplicationState,
     View,
     type WorkspaceLeaf,
   } from "@lapis-notes/api";
@@ -221,6 +223,9 @@
     ),
     markdownRenderer: async () => {},
   });
+  provideApplicationState(app);
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
 
   if (initialScenario !== "standard") {
     for (const [id, definition] of Object.entries(storyViewDefinitions)) {
@@ -232,8 +237,6 @@
       );
     }
   }
-
-  globalThis.app = app;
 
   let ready = $state(false);
   let bootStatus = $state("booting");
@@ -288,6 +291,7 @@
     })();
     return () => {
       disposed = true;
+      disposeApplicationCompatibility();
     };
   });
 </script>

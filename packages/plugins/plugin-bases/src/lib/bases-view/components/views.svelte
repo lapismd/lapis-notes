@@ -3,7 +3,6 @@
   import * as Command from "@lapismd/design-core/shadcn/command";
   import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
 
-  import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import Ellipsis from "@lucide/svelte/icons/ellipsis";
   import Plus from "@lucide/svelte/icons/plus";
@@ -33,13 +32,6 @@
 
   let selected: BasesViewBase | null = $state(null);
   let open: boolean = $state(false);
-
-  function editView(evt: MouseEvent, view: BasesViewBase) {
-    selected = view;
-    evt.preventDefault();
-    evt.stopImmediatePropagation();
-    evt.stopPropagation();
-  }
 
   function addView(evt: MouseEvent) {
     views.push({
@@ -112,6 +104,7 @@
               <DropdownMenu.Trigger>
                 {#snippet child({ props }: { props: Record<string, unknown> })}
                   <Button {...props} size="sm" variant="ghost"
+                    aria-label={`View actions for ${selected!.name}`}
                     ><Ellipsis /></Button
                   >
                 {/snippet}
@@ -130,18 +123,19 @@
           <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e">
             <Input
               id="column_name"
+              aria-label="View name"
               onblur={(evt) => changeDisplayName(evt)}
               value={selected.name}
               class={cn("bases-style-col-span-2-40efc0 bases-style-h-8-ed8a5d")}
             />
           </div>
-          <ViewSettings {controller} view={selected} />
+          <ViewSettings {controller} bind:view={selected} />
         </div>
       </Command.Root>
     {:else}
       <Command.Root>
-        <Command.Input placeholder="Find or create" />
-        <Command.List class="bases-style-p-1-eb6a3c">
+        <Command.Input placeholder="Find or create" aria-controls="bases-view-selector-list" />
+        <Command.List id="bases-view-selector-list" class="bases-style-p-1-eb6a3c">
           <Command.Empty>No views found.</Command.Empty>
           {#each views as view}
             <Command.Item
@@ -155,14 +149,6 @@
             >
               <Icon name={viewIcon(view)} />
               <span>{view.name}</span>
-              <Command.Shortcut>
-                <button
-                  class="bases-style-hover-bg-border-2e3f11 bases-style-rounded-sm-36d446 bases-style-p-1-eb6a3c"
-                  onclick={(evt) => editView(evt, view)}
-                >
-                  <ChevronRight />
-                </button>
-              </Command.Shortcut>
             </Command.Item>
           {/each}
         </Command.List>
@@ -170,6 +156,14 @@
     {/if}
     {#if !selected}
       <div class="bases-style-flex-60fbb7 bases-style-w-full-6da6a3 bases-style-flex-col-8dddea bases-style-gap-1-44ee8b bases-style-border-t-b950dd bases-style-p-1-eb6a3c">
+        <Button
+          size="sm"
+          onclick={() => (selected = value)}
+          class="bases-style-w-full-6da6a3 bases-style-justify-start-4b5cc1"
+          variant="ghost"
+        >
+          <Ellipsis /> Edit current view
+        </Button>
         <Button
           size="sm"
           onclick={(evt) => addView(evt)}

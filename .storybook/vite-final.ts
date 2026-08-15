@@ -1,6 +1,6 @@
 import { svelte, vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -62,6 +62,17 @@ const linkedSiblingRoots = linkedSiblingPackages.map((packageName) =>
 const linkedSiblingWorkspaceRoots = [
   ...new Set(linkedSiblingRoots.map(searchForWorkspaceRoot)),
 ];
+const linkedAssetPackages = [
+  "@fontsource-variable/dm-sans",
+  "@fontsource-variable/source-code-pro",
+  "@fontsource/source-code-pro",
+] as const;
+const linkedAssetRoots = linkedSiblingRoots.flatMap((root) =>
+  linkedAssetPackages.flatMap((packageName) => {
+    const candidate = path.join(root, "node_modules", packageName);
+    return existsSync(candidate) ? [realpathSync(candidate)] : [];
+  }),
+);
 
 function packageLibAlias(): Plugin {
   return {
@@ -271,6 +282,7 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
           repoRoot,
           ...linkedSiblingRoots,
           ...linkedSiblingWorkspaceRoots,
+          ...linkedAssetRoots,
         ],
       },
       watch: {

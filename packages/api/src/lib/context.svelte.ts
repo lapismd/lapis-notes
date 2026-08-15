@@ -1,4 +1,3 @@
-import { getContext, setContext } from "svelte";
 import { Workspace } from "./workspace.svelte";
 import {
   getAdapterVaultId,
@@ -65,6 +64,24 @@ import { ConfigurationOptionSourceRegistry } from "./configuration-option-source
 import { resolveMetadataFieldValues } from "./configuration-option-source-providers";
 import type { Editor } from "./editor.svelte";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import {
+  installApplicationCompatibility,
+  resolveApplication,
+} from "./application-compatibility";
+import {
+  provideApplicationState,
+  useApplicationState,
+} from "./application-state.svelte";
+
+export {
+  getApplicationCompatibility,
+  installApplicationCompatibility,
+  resolveApplication,
+} from "./application-compatibility";
+export {
+  provideApplicationState,
+  useApplicationState,
+} from "./application-state.svelte";
 
 /**
  * Bootstrap dependencies required to construct an {@link App} instance.
@@ -228,7 +245,7 @@ export class App {
   readonly session?: VaultSession;
   readonly safeMode: AppSafeModeState;
   plugins: PluginManager = $state()!;
-  scope: Scope = $state(new Scope());
+  scope: Scope = $state(new Scope(undefined, this));
   keymap: Keymap = $state(new Keymap(this.scope));
   readonly settings: AppSettings = $state(new AppSettings());
   readonly editors: Map<string, Set<ExtType>> = new Map();
@@ -605,7 +622,9 @@ export class App {
     extension: ExtType,
     viewType: string = "markdown",
   ): void {
-    viewType = this.workspace.determineViewType(viewType) ?? "markdown";
+    viewType = this.editors.has(viewType)
+      ? viewType
+      : (this.workspace.determineViewType(viewType) ?? "markdown");
     this.editors.get(viewType)?.delete(extension);
   }
 
@@ -736,18 +755,12 @@ export class App {
 
 export type AppState = App;
 
-declare global {
-  var app: App;
-}
-
-const SYMBOL_KEY = Symbol("app-state");
+let legacyApplicationLease: (() => void) | null = null;
 
 export function setApplicationState(props: AppStateProperties): AppState {
-  const app = new App(props);
-  globalThis.app = app;
-  return setContext(SYMBOL_KEY, app);
-}
-
-export function useApplicationState(): AppState {
-  return getContext(SYMBOL_KEY);
+  const application = new App(props);
+  provideApplicationState(application);
+  legacyApplicationLease?.();
+  legacyApplicationLease = installApplicationCompatibility(application);
+  return application;
 }

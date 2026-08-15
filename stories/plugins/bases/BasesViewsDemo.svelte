@@ -8,6 +8,7 @@
   import { bootBasesViewsDemo } from "./create-bases-views-demo";
   import {
     createBasesViewsDocument,
+    createBasesStoryRegistrations,
     type BasesViewScenario,
   } from "./bases-views-fixture";
 
@@ -18,6 +19,7 @@
   let status = $state("booting");
   let error = $state("");
   let root = $state<HTMLDivElement>();
+  const registrations = createBasesStoryRegistrations();
 
   $effect(() => {
     if (!root || !app) return;
@@ -73,7 +75,7 @@
   {#if error}
     <div role="alert">{error}</div>
   {:else if app && document}
-    <BasesViewSurface {app} {document} />
+    <BasesViewSurface {app} {document} {registrations} />
   {/if}
 </div>
 

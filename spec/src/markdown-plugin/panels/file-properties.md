@@ -20,4 +20,6 @@ remains a load-only alias under `LN-MD-085`.
 | LN-MD-041 | The active property MUST retain Mira/Lapis row-owned border, ring, and radius. Focused keys and values use a view-token-derived contrast fill, inline editors add no competing outline, and property textareas remain non-resizable. |
 
 Responsive stories resize the owning workspace split as required by LN-ED-021;
-they do not set a synthetic width on the component.
+they do not set a synthetic width on the component. The frontmatter controller
+and property manager use the panel view's App, so metadata writes and type
+lookups cannot follow another host's compatibility alias.

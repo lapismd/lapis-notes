@@ -9,7 +9,7 @@ import {
 
 export const basesEditorShellExampleSource = `<script lang="ts">
   import { onMount } from "svelte";
-  import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
+  import { App, installApplicationCompatibility, MemoryAppDatabase, MemoryVaultAdapter, provideApplicationState } from "@lapis-notes/api";
   import { BasesPlugin } from "@lapis-notes/bases";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
@@ -22,6 +22,8 @@ export const basesEditorShellExampleSource = `<script lang="ts">
     "Bases/Projects.base": ${JSON.stringify(JSON.stringify(createBasesViewsDocument("table"), null, 2))},
     ...${JSON.stringify(BASES_SAMPLE_NOTES, null, 2)},
   });
+  provideApplicationState(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const app = new App({
     version: "1.0.0",
     configPath: ".obsidian/app.json",
@@ -41,7 +43,6 @@ export const basesEditorShellExampleSource = `<script lang="ts">
   onMount(() => {
     let stopTrackingMetadata = () => {};
     void (async () => {
-      globalThis.app = app;
       await app.vault.load();
       await app.configuration.load();
       await app.plugins.loadPlugins({ communityPlugins: "disabled", optionalCorePlugins: "configured" });
@@ -52,7 +53,10 @@ export const basesEditorShellExampleSource = `<script lang="ts">
       await app.workspace.loadLayout();
       ready = true;
     })();
-    return () => stopTrackingMetadata();
+    return () => {
+      stopTrackingMetadata();
+      disposeApplicationCompatibility();
+    };
   });
 </script>
 

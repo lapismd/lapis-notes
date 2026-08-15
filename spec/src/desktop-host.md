@@ -53,6 +53,9 @@ The renderer imports Bases and its exported stylesheet from the package, then
 registers it after Search and before external Roles. A source-order audit and
 the production renderer build verify plugin loading precedes metadata and
 layout restoration; Bases is not added to the default leaf policy.
+Each mounted desktop session provides its App to the shell and installs one
+compatibility lease for legacy consumers. Teardown releases that lease only
+after the session-owned workspace, plugins, metadata, and services close.
 
 ```text
 Electron main

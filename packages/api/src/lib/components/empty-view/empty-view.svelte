@@ -1,12 +1,15 @@
 <script lang="ts">
   import { useLocale } from "$lib/localization-manager.svelte";
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import type { App } from "$lib/context.svelte";
   import "./empty-view.css";
   const { t } = useLocale('base/empty-view');
  
   let {
+    app,
     onClose,
   }: {
+    app: App;
     onClose: (evt: MouseEvent) => void;
   } = $props();
 </script>

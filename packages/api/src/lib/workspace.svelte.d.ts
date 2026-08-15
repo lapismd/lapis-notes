@@ -28,8 +28,17 @@ export interface WorkspaceHintTarget {
 }
 export declare abstract class WorkspaceItem<T extends EventMap<T> = EventMap<any>> extends EventDispatcher<T> {
     parent: WorkspaceParent;
+    #private;
     id: string;
     constructor();
+    /** Bind a root workspace item to its owning workspace. */
+    bindWorkspace(workspace: Workspace): this;
+    /** The workspace that owns this item, when it has been attached. */
+    get workspace(): Workspace | undefined;
+    /** The application that owns this item, when it has been attached. */
+    get application(): App | undefined;
+    /** Resolve the owning application before using the compatibility alias. */
+    get app(): App;
     _root: WorkspaceItem | undefined;
     getRoot(): WorkspaceItem;
 }
@@ -278,10 +287,10 @@ export declare class WorkspaceTabs extends WorkspaceParent {
 }
 /** Stable compatibility wrapper for design-core's bottom workspace dock. */
 export declare class WorkspaceBottomPanel extends WorkspaceTabs {
-    readonly workspace: Workspace;
+    readonly ownerWorkspace: Workspace;
     protected open: boolean;
     protected height: string;
-    constructor(workspace: Workspace);
+    constructor(ownerWorkspace: Workspace);
     loadJson(layout: WorkspaceBottomPanelJson): Promise<void>;
     toJson(): WorkspaceBottomPanelJson;
     get size(): number;
@@ -741,7 +750,6 @@ export declare class WorkspaceLeaf extends WorkspaceItem<{
     private pushHistoryAfterNavigation;
     get view(): View;
     set view(view: View);
-    get app(): App;
     open(view: View, result?: ViewStateResult, state?: ViewState): Promise<View>;
     private ensureContentEl;
     openFile(file: TFile, { view, result, state, }?: {

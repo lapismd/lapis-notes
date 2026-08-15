@@ -9,6 +9,8 @@ import {
 import { indentMore, indentLess } from "@codemirror/commands";
 import { createBaseCodeMirrorExtensions } from "@lapismd/mira/codemirror";
 import { foldGutter } from "$lib/components/editor/extensions/fold-gutter";
+import type { App } from "$lib/context.svelte";
+import { resolveApplication } from "$lib/application-compatibility";
 
 export class BlockLineMarker extends GutterMarker {
   constructor(
@@ -38,10 +40,16 @@ export class BlockLineMarker extends GutterMarker {
 export class EditorConfig {
   readonly configs: Record<
     string,
-    { config: Compartment; controller: (value: any) => Extension | null }
+    {
+      config: Compartment;
+      controller: (value: any, app: App) => Extension | null;
+    }
   > = {};
 
-  register<T>(key: string, controller: (value: T) => Extension | null) {
+  register<T>(
+    key: string,
+    controller: (value: T, app: App) => Extension | null,
+  ) {
     const compartment = new Compartment();
     this.configs[key] = { config: compartment, controller };
   }
@@ -50,18 +58,20 @@ export class EditorConfig {
     return !!this.configs[key];
   }
 
-  get extension(): Extension {
+  extension(application?: App): Extension {
+    const app = resolveApplication(application);
     const config = app.configuration.getConfiguration();
     return Object.entries(this.configs).map(([key, props]) =>
-      props.config.of(props.controller(config.get(key)) || []),
+      props.config.of(props.controller(config.get(key), app) || []),
     );
   }
 
-  update<T>(view: EditorView, key: string, value?: T) {
+  update<T>(view: EditorView, key: string, value?: T, application?: App) {
     if (!this.has(key)) return;
+    const app = resolveApplication(application);
     const props = this.configs[key];
     const configValue = value ?? app.configuration.getConfiguration().get(key);
-    const newValue = props.controller(configValue) || [];
+    const newValue = props.controller(configValue, app) || [];
     view.dispatch({ effects: props.config.reconfigure(newValue) });
   }
 }
@@ -69,6 +79,8 @@ export class EditorConfig {
 export type MarkupEditorOptions = {
   /** Stable language id written to the CM host as `data-language`. */
   language?: string;
+  /** Application that owns the editor configuration. */
+  app?: App;
 };
 
 /**
@@ -89,7 +101,7 @@ export function markupEditor(
       lineWrapping: false,
       spellcheck: false,
     }),
-    editorConfig.extension,
+    editorConfig.extension(options.app),
     EditorView.editorAttributes.of({
       class: "cm-editor-source markdown-editor-surface",
       "data-language": language,
@@ -165,7 +177,7 @@ editorConfig.register(
 
 editorConfig.register(
   "editor.behaviour.indentUsingTabs",
-  (useTabs: boolean | undefined | null) => {
+  (useTabs: boolean | undefined | null, app) => {
     const config = app.configuration.getConfiguration();
     const width = normalizeIndentWidth(
       config.get("editor.behaviour.indentVisualWidth"),

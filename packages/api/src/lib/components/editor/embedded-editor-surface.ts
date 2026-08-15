@@ -33,6 +33,7 @@ export function resolveEmbeddedEditorExtensions(
   return [
     markupEditor({
       language: options.fallbackLanguage ?? options.viewType,
+      app,
     }),
   ];
 }

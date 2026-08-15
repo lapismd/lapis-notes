@@ -73,11 +73,11 @@
       }
     />
     <Limit
+      bind:view={controller.selectedView}
       class={cn({
         "bases-view__toolbar-button--active":
           controller.selectedView.limit && controller.selectedView.limit > 0,
       })}
-      view={controller.selectedView}
       count={controller.count}
       onCopyCsv={copyCsv}
       onExportCsv={exportCsv}

@@ -1,6 +1,6 @@
 export const aiLiveHostExampleSource = `<script lang="ts">
   import { onMount } from "svelte";
-  import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
+  import { App, installApplicationCompatibility, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
   import { AiPlugin } from "@lapis-notes/ai";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { WorkspaceShell } from "@lapis-notes/workspace";
@@ -39,8 +39,8 @@ export const aiLiveHostExampleSource = `<script lang="ts">
   ]);
   onMount(() => {
     if (!attached) return;
+    const releaseApplicationCompatibility = installApplicationCompatibility(app);
     void (async () => {
-      globalThis.app = app;
       await app.vault.load();
       await app.configuration.load();
       await app.plugins.loadPlugins({
@@ -51,6 +51,7 @@ export const aiLiveHostExampleSource = `<script lang="ts">
       await app.workspace.loadLayout();
       ready = true;
     })();
+    return () => releaseApplicationCompatibility();
   });
 </script>
 

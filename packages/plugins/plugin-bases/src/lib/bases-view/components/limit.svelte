@@ -11,7 +11,7 @@
   import ShowAll from "@lucide/svelte/icons/rotate-ccw";
   let {
     count,
-    view,
+    view = $bindable(),
     onCopyCsv,
     onExportCsv,
     table,

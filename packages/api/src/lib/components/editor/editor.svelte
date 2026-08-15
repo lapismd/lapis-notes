@@ -1,15 +1,18 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, untrack } from "svelte";
   import { type Editor as EditorApi } from "../../editor.svelte";
   import { dirname } from "../../storage/path";
   import { WorkspaceLeaf } from "../../workspace.svelte";
   import { editorConfig } from "./editor";
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
   import { cn } from "../../utils";
+  import type { App } from "../../context.svelte";
+  import { useApplicationState } from "../../application-state.svelte";
   import "@lapismd/mira/themes/obsidian.css";
   import "./editor.css";
 
   type Props = {
+    app?: App;
     leaf?: WorkspaceLeaf;
     editor: EditorApi;
     class?: string;
@@ -17,10 +20,17 @@
   };
 
   let {
+    app: providedApplication,
+    leaf,
     editor,
     class: className = "",
     scrollOwner = "self",
   }: Props = $props();
+  const ownership = untrack(() => ({ providedApplication, leaf, editor }));
+  const app = useApplicationState(
+    ownership.providedApplication ?? ownership.leaf?.application,
+  );
+  ownership.editor.bindApplication(app);
   let file = $derived(editor.file);
   let isMobileWorkspace = $derived(app.workspace.displayMode === "mobile");
   let showInlineTitle = $derived(
@@ -63,7 +73,7 @@
   };
 
   function editorConfigUpdated({ key, value }: { key: string; value: any }) {
-    editorConfig.update(editor.view, key, value);
+    editorConfig.update(editor.view, key, value, app);
   }
 
   onMount(() => {

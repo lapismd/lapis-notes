@@ -32,9 +32,11 @@ vi.mock("$lib/view.svelte", () => ({
     };
     file: { baseName: string } | null = null;
     leaf: unknown;
+    app: unknown;
 
-    constructor(leaf: { containerEl: HTMLElement }) {
+    constructor(leaf: { app?: unknown; containerEl: HTMLElement }) {
       this.leaf = leaf;
+      this.app = leaf.app ?? { id: "test-app" };
       this.containerEl = leaf.containerEl;
     }
   },
@@ -90,6 +92,7 @@ describe("SourceTextFileView", () => {
     expect(mocks.mountComponent).toHaveBeenCalledWith(NoteEditor, {
       target: containerEl,
       props: {
+        app: view.app,
         leaf: view.leaf,
         editor: view.editor,
       },

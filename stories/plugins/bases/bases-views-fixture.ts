@@ -1,8 +1,18 @@
-import type { BasesDocument } from "@lapis-notes/bases";
+import {
+  BasesView,
+  type BasesAllOptions,
+  type QueryController,
+} from "@lapis-notes/api";
+import type {
+  BasesDocument,
+  BasesViewRegistration,
+} from "@lapis-notes/bases";
 
 export type BasesViewScenario =
   | "table"
   | "editable-cells"
+  | "query-controls"
+  | "schema-settings"
   | "cards"
   | "grouped-list"
   | "map"
@@ -87,6 +97,14 @@ export const BASES_SAMPLE_TYPES = {
 
 const views: BasesDocument["views"] = [
   {
+    type: "story-options",
+    name: "Story options",
+    order: ["file.name", "note.status"],
+    sort: [],
+    filter: { and: [] },
+    limit: 0,
+  },
+  {
     type: "table",
     name: "Portfolio table",
     layout: "table",
@@ -163,6 +181,8 @@ const views: BasesDocument["views"] = [
 const activeViewNames: Record<BasesViewScenario, string> = {
   table: "Portfolio table",
   "editable-cells": "Editable fields",
+  "query-controls": "Portfolio table",
+  "schema-settings": "Story options",
   cards: "Project cards",
   "grouped-list": "Projects by status",
   map: "Project map",
@@ -207,3 +227,102 @@ export function createBasesViewsSeed(): Record<string, string | ArrayBuffer> {
 }
 
 export const BASES_SAMPLE_NOTES = projectNotes;
+
+class StoryOptionsView extends BasesView {
+  type = "story-options";
+
+  constructor(controller: QueryController, containerEl: HTMLElement) {
+    super(controller);
+    const message = document.createElement("p");
+    message.dataset.uiPart = "custom-view-message";
+    message.textContent = "Custom view options are ready to configure.";
+    containerEl.replaceChildren(message);
+  }
+
+  onDataUpdated(): void {}
+}
+
+const storyOptions: BasesAllOptions[] = [
+  {
+    type: "group",
+    displayName: "Presentation",
+    items: [
+      {
+        key: "heading",
+        type: "text",
+        displayName: "Heading",
+        default: "Portfolio",
+      },
+      {
+        key: "compact",
+        type: "toggle",
+        displayName: "Compact",
+        default: false,
+      },
+    ],
+  },
+  {
+    key: "labels",
+    type: "multitext",
+    displayName: "Labels",
+    default: ["alpha", "beta"],
+  },
+  {
+    key: "density",
+    type: "slider",
+    displayName: "Density",
+    default: 2,
+    min: 1,
+    max: 5,
+    step: 1,
+  },
+  {
+    key: "tone",
+    type: "dropdown",
+    displayName: "Tone",
+    default: "calm",
+    options: { calm: "Calm", vivid: "Vivid" },
+  },
+  {
+    key: "templateFile",
+    type: "file",
+    displayName: "Template file",
+    placeholder: "Templates/project.md",
+  },
+  {
+    key: "sourceFolder",
+    type: "folder",
+    displayName: "Source folder",
+    placeholder: "Projects",
+  },
+  {
+    key: "labelFormula",
+    type: "formula",
+    displayName: "Label formula",
+    placeholder: "file.name + note.status",
+  },
+  {
+    key: "primaryProperty",
+    type: "property",
+    displayName: "Primary property",
+    default: "note.status",
+  },
+];
+
+export function createBasesStoryRegistrations(): ReadonlyMap<
+  string,
+  BasesViewRegistration
+> {
+  return new Map([
+    [
+      "story-options",
+      {
+        name: "Story Options",
+        icon: "settings-2",
+        factory: (controller, containerEl) =>
+          new StoryOptionsView(controller as QueryController, containerEl),
+        options: () => structuredClone(storyOptions),
+      },
+    ],
+  ]);
+}

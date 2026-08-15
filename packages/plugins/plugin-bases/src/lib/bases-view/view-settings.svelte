@@ -2,6 +2,7 @@
   import { Icon } from "@lapis-notes/api/icon";
   import { Label } from "@lapismd/design-core/shadcn/label";
   import { Input } from "@lapismd/design-core/shadcn/input";
+  import { Textarea } from "@lapismd/design-core/shadcn/textarea";
   import * as Select from "@lapismd/design-core/shadcn/select";
   import { Slider } from "@lapismd/design-core/shadcn/slider";
   import { Switch } from "@lapismd/design-core/shadcn/switch";
@@ -12,13 +13,17 @@
   import X from "@lucide/svelte/icons/x";
   import CheckIcon from "@lucide/svelte/icons/check";
   import { cn } from "@lapis-notes/api";
-  import type { BasesPropertyId } from "@lapis-notes/api";
+  import type {
+    BasesAllOptions,
+    BasesOptions,
+    BasesPropertyId,
+  } from "@lapis-notes/api";
   import type { QueryController } from "./bases.svelte";
   import type { BasesViewBase } from "./models";
 
   let {
     controller,
-    view,
+    view = $bindable(),
   }: { controller: QueryController; view: BasesViewBase } = $props();
   let layoutOptions = $derived.by(() => {
     return [...controller.views.entries()].map(([key, view]) => {
@@ -28,6 +33,26 @@
   let options = $derived(
     controller.views.get(view.type)?.options?.(controller.view.config) || [],
   );
+  type OptionEntry =
+    | { kind: "group"; key: string; displayName: string }
+    | { kind: "option"; key: string; option: BasesOptions };
+  function flattenOptions(
+    items: BasesAllOptions[],
+    path = "options",
+  ): OptionEntry[] {
+    return items.flatMap((item, index) => {
+      const key = `${path}-${index}`;
+      if (item.type !== "group") {
+        return [{ kind: "option", key, option: item } satisfies OptionEntry];
+      }
+      if (item.shouldHide?.()) return [];
+      return [
+        { kind: "group", key, displayName: item.displayName } satisfies OptionEntry,
+        ...flattenOptions(item.items, key),
+      ];
+    });
+  }
+  let optionEntries = $derived.by(() => flattenOptions(options));
   const selectedLayout = $derived(
     layoutOptions.find((f) => f.value === view.type) ?? layoutOptions[0],
   );
@@ -70,7 +95,13 @@
       </Select.Content>
     </Select.Root>
   </div>
-  {#each options as option}
+  {#each optionEntries as entry (entry.key)}
+    {#if entry.kind === "group"}
+      <h3 class="bases-view-settings__group" data-ui-part="option-group">
+        {entry.displayName}
+      </h3>
+    {:else}
+      {@const option = entry.option}
     {#if option.type === "dropdown"}
       {@const selectOptions = dropDownOptions(option.options)}
       {@const selectedOption =
@@ -79,7 +110,7 @@
             it.value ===
             (controller.view.config.get(option.key) ?? option.default),
         ) ?? selectOptions[0]}
-      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e">
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e" data-ui-part="view-option" data-option-type="dropdown">
         <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50"
           >{option.displayName}</Label
         >
@@ -112,7 +143,7 @@
         </Select.Root>
       </div>
     {:else if option.type === "slider"}
-      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-py-2-03b4dd">
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-py-2-03b4dd" data-ui-part="view-option" data-option-type="slider">
         <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50"
           >{option.displayName}</Label
         >
@@ -135,7 +166,7 @@
         />
       </div>
     {:else if option.type === "text"}
-      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e">
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e" data-ui-part="view-option" data-option-type="text">
         <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50"
           >{option.displayName}</Label
         >
@@ -154,8 +185,25 @@
           placeholder={option.placeholder}
         />
       </div>
+    {:else if option.type === "multitext"}
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e" data-ui-part="view-option" data-option-type="multitext">
+        <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50">{option.displayName}</Label>
+        <Input
+          id={option.key}
+          value={((controller.view.config.get(option.key) ?? option.default ?? []) as string[]).join(", ")}
+          onblur={(event) => {
+            controller.view.config.set(
+              option.key,
+              event.currentTarget.value
+                .split(",")
+                .map((value) => value.trim())
+                .filter(Boolean),
+            );
+          }}
+        />
+      </div>
     {:else if option.type === "toggle"}
-      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e">
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e" data-ui-part="view-option" data-option-type="toggle">
         <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50"
           >{option.displayName}</Label
         >
@@ -173,8 +221,32 @@
           id={option.key}
         />
       </div>
+    {:else if option.type === "file" || option.type === "folder"}
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e" data-ui-part="view-option" data-option-type={option.type}>
+        <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50">{option.displayName}</Label>
+        <Input
+          id={option.key}
+          placeholder={option.placeholder}
+          bind:value={
+            () => (controller.view.config.get(option.key) ?? option.default ?? "") as string,
+            (value) => controller.view.config.set(option.key, value)
+          }
+        />
+      </div>
+    {:else if option.type === "formula"}
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e" data-ui-part="view-option" data-option-type="formula">
+        <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50">{option.displayName}</Label>
+        <Textarea
+          id={option.key}
+          placeholder={option.placeholder}
+          bind:value={
+            () => (controller.view.config.get(option.key) ?? option.default ?? "") as string,
+            (value) => controller.view.config.set(option.key, value)
+          }
+        />
+      </div>
     {:else if option.type === "property"}
-      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e">
+      <div class="bases-style-grid-f3c543 bases-style-grid-cols-1-d7c833 bases-style-items-center-3960ff bases-style-gap-2-77a2a2 bases-style-px-2-d5eab2 bases-style-pt-1-6b7d6e" data-ui-part="view-option" data-option-type="property">
         <Label for={option.key} class="bases-style-text-sm-fc7473 bases-style-opacity-50-0b8c50"
           >{option.displayName}</Label
         >
@@ -261,5 +333,18 @@
         </Popover.Root>
       </div>
     {/if}
+    {/if}
   {/each}
 </div>
+
+<style>
+  .bases-view-settings__group {
+    margin: 0.75rem 0 0.25rem;
+    padding: 0 0.5rem;
+    color: var(--ui-workspace-muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

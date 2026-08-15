@@ -23,6 +23,8 @@ export * from "./source-text-file-view";
 export * from "./workspace.svelte";
 export * from "$lib/hooks";
 export * from "./context.svelte";
+export * from "./application-compatibility";
+export * from "./application-state.svelte";
 export * from "./workspace-trust";
 export * from "./context-keys.svelte";
 export * from "$lib/icons/index";

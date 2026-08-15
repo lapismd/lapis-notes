@@ -39,7 +39,8 @@ persistence, and application-host responsibilities.
 
 ## Ownership and data flow
 
-1. The consumer creates and boots the api `App`, vault, and workspace.
+1. The consumer creates and boots the api `App`, vault, and workspace, then
+   provides that App to the shell's descendant context.
 2. The api workspace owns one `AppShellController` and hydrates it from the
    normalized Lapis workspace JSON.
 3. `WorkspaceShell` renders that controller through design-core `AppShell`.
@@ -51,6 +52,9 @@ persistence, and application-host responsibilities.
 6. The api configures built-in application/version metadata and the minimal
    design-core notifications presentation without invoking the Lapis plugin
    loader.
+
+Views and leaves derive App from their owning workspace. Compatibility state is
+never consulted when that ownership chain or the shell context is available.
 
 Design-core's public workspace controller, legacy JSON bridge, imperative view
 registry, and default shell surface are the dependency boundary. The shared

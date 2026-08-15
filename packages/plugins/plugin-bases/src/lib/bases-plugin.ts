@@ -45,7 +45,7 @@ export class BasesPlugin extends Plugin {
     });
     this.registerExtensions(["bases", "base"], BasesViewType);
     this.registerEditorExtension(
-      () => [markupEditor({ language: "yaml" }), yaml()],
+      () => [markupEditor({ language: "yaml", app: this.app }), yaml()],
       BasesViewType,
     );
     this.registerReadOnlyEmbedRenderer("base");

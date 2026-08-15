@@ -1,4 +1,9 @@
-import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
+import {
+  App,
+  installApplicationCompatibility,
+  MemoryAppDatabase,
+  MemoryVaultAdapter,
+} from "@lapis-notes/api";
 import { AiPlugin } from "@lapis-notes/ai";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
 import { SourceEditorDemoPlugin } from "../../workspace/lapis-editor-demo/source-editor-plugin";
@@ -118,7 +123,6 @@ export async function bootAiWorkspaceDemo(
 }> {
   const defaultRuntime = options.defaultRuntime ?? "fake";
   const vaultId = options.vaultId ?? "lapis-ai-workspace";
-  const previousApp = globalThis.app;
   const adapter = new MemoryVaultAdapter(
     createAiWorkspaceSeed(createAiWorkspacePluginData(defaultRuntime)),
     {
@@ -152,7 +156,7 @@ export async function bootAiWorkspaceDemo(
     },
   ]);
 
-  globalThis.app = app;
+  const releaseApplicationCompatibility = installApplicationCompatibility(app);
   await app.vault.load();
   await app.configuration.load();
   await app.plugins.loadPlugins({
@@ -171,7 +175,7 @@ export async function bootAiWorkspaceDemo(
         await plugin.disable().catch(() => undefined);
       }
       await app.workspace.disposeWorkspaceHost();
-      if (globalThis.app === app) globalThis.app = previousApp;
+      releaseApplicationCompatibility();
     },
   };
 }

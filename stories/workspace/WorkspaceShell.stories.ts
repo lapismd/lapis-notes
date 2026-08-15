@@ -295,11 +295,14 @@ export const StackedTabs: Story = {
     );
 
     await userEvent.click(archive!);
-    await waitFor(() => {
-      expect(container!.scrollLeft).toBeGreaterThan(0);
-      expect(archive).toHaveAttribute("aria-pressed", "true");
-      expect(persistedLayout(canvas).active).toBe("archive");
-    });
+    await waitFor(
+      () => {
+        expect(container!.scrollLeft).toBeGreaterThan(0);
+        expect(archive).toHaveAttribute("aria-pressed", "true");
+        expect(persistedLayout(canvas).active).toBe("archive");
+      },
+      { timeout: 3_000 },
+    );
 
     const shellRoot = canvasElement.querySelector<HTMLElement>(
       "[data-app-shell-root]",

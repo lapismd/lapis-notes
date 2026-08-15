@@ -65,6 +65,11 @@ controller, focus, and persisted layout remain synchronized. Setting
 `activeLeaf` and calling `revealLeaf` alone does not represent user-visible tab
 activation.
 
+Current first-party hosts install a disposable application compatibility lease,
+but workspace, editor, plugin, and story code resolve the App from explicit
+ownership or Svelte context. The compatibility alias therefore serves legacy
+consumers without selecting the owner for newly constructed runtime objects.
+
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary
 metadata or property queries out of Bases and the app-database boundary.

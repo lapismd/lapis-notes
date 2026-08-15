@@ -2,8 +2,10 @@
   import { onMount, untrack } from "svelte";
   import {
     App,
+    installApplicationCompatibility,
     MemoryAppDatabase,
     MemoryVaultAdapter,
+    provideApplicationState,
   } from "../../test/api-app";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import WorkspaceShell from "./WorkspaceShell.svelte";
@@ -28,7 +30,9 @@
     appDatabase: new MemoryAppDatabase("workspace-shell-test"),
     markdownRenderer: async () => {},
   });
-  globalThis.app = app;
+  provideApplicationState(app);
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
   let ready = $state(false);
 
   onMount(() => {
@@ -38,6 +42,7 @@
       onAppReady?.(app);
       ready = true;
     })();
+    return disposeApplicationCompatibility;
   });
 </script>
 

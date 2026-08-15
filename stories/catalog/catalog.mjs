@@ -259,8 +259,22 @@ const basesViewsCatalog = [
 }));
 
 /** @type {CatalogEntry[]} */
+const basesWorkflowsCatalog = [
+  ["query-controls", "Query Controls"],
+  ["schema-settings", "Schema and View Settings"],
+  ["editable-cells", "Editable Cells"],
+].map(([scenario, title]) => ({
+  id: `plugins-bases-workflows-${scenario}`,
+  title: `Bases Workflows: ${title}`,
+  spec: "spec/src/bases-plugin.md",
+  publicSurface: "@lapis-notes/bases",
+  storyId: `plugins-bases-workflows--${scenario}`,
+}));
+
+/** @type {CatalogEntry[]} */
 export const workspaceCatalog = [
   ...basesViewsCatalog,
+  ...basesWorkflowsCatalog,
   {
     id: "plugins-ai-chat-send",
     title: "AI Chat: Send And Complete",
@@ -318,6 +332,20 @@ export const workspaceCatalog = [
     publicSurface:
       "@lapis-notes/bases + @lapis-notes/file-explorer + @lapis-notes/search + @lapis-notes/workspace",
     storyId: "plugins-bases-editor-shell--explorer-search-and-base",
+  },
+  {
+    id: "workspace-plugins-bases-markdown-embeds",
+    title: "Bases Markdown Embeds",
+    spec: "spec/src/bases-plugin.md",
+    publicSurface: "@lapis-notes/bases + @lapis-notes/api",
+    storyId: "workspace-plugins-bases--markdown-embeds",
+  },
+  {
+    id: "workspace-plugins-bases-disable-restore",
+    title: "Bases Disable and Restore",
+    spec: "spec/src/bases-plugin.md",
+    publicSurface: "@lapis-notes/bases + @lapis-notes/workspace",
+    storyId: "workspace-plugins-bases--disable-and-restore",
   },
   {
     id: "workspace-lapis-editor-demo-ready",

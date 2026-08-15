@@ -1,7 +1,9 @@
 <script lang="ts">
   import {
     App,
+    installApplicationCompatibility,
     listVaultProfiles,
+    provideApplicationState,
     type BrowserCoordinatedAppDatabase,
     type VaultAdapter,
     type VaultProfile,
@@ -22,6 +24,7 @@
   import { onMount, untrack } from "svelte";
   import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
+  import { setPwaRuntimeApplication } from "./pwa";
 
   let {
     adapter,
@@ -59,7 +62,10 @@
         markdownRenderer: async () => {},
       }),
   );
-  globalThis.app = app;
+  provideApplicationState(app);
+  const disposeApplicationCompatibility =
+    installApplicationCompatibility(app);
+  const disposePwaRuntimeApplication = setPwaRuntimeApplication(app);
   let ready = $state(false);
   let disposed = false;
   let stopMetadataTracking: (() => void) | null = null;
@@ -194,31 +200,35 @@
   export async function dispose(persistLayout: boolean): Promise<void> {
     if (disposed) return;
     disposed = true;
-    const serializedLayout =
-      persistLayout && app.workspace.layoutReady
-        ? JSON.stringify(app.workspace.getLayout(), null, 2)
-        : null;
-    ready = false;
-    await app.workspace.disposeWorkspaceHost();
-    if (serializedLayout) {
-      await session.vaultAdapter.mkdir(".obsidian", { recursive: true });
-      await session.vaultAdapter.write(
-        ".obsidian/workspace.json",
-        serializedLayout,
-      );
+    try {
+      const serializedLayout =
+        persistLayout && app.workspace.layoutReady
+          ? JSON.stringify(app.workspace.getLayout(), null, 2)
+          : null;
+      ready = false;
+      await app.workspace.disposeWorkspaceHost();
+      if (serializedLayout) {
+        await session.vaultAdapter.mkdir(".obsidian", { recursive: true });
+        await session.vaultAdapter.write(
+          ".obsidian/workspace.json",
+          serializedLayout,
+        );
+      }
+      stopMetadataTracking?.();
+      stopMetadataTracking = null;
+      await app.metadataCache.dispose();
+      for (const plugin of [...app.plugins.corePlugins].reverse()) {
+        await plugin.disable().catch(() => undefined);
+      }
+      disposeCoordinationListener?.();
+      disposeDatabaseStatus?.();
+      disposeCoordinationListener = null;
+      disposeDatabaseStatus = null;
+      await session.close();
+    } finally {
+      disposePwaRuntimeApplication();
+      disposeApplicationCompatibility();
     }
-    stopMetadataTracking?.();
-    stopMetadataTracking = null;
-    await app.metadataCache.dispose();
-    for (const plugin of [...app.plugins.corePlugins].reverse()) {
-      await plugin.disable().catch(() => undefined);
-    }
-    disposeCoordinationListener?.();
-    disposeDatabaseStatus?.();
-    disposeCoordinationListener = null;
-    disposeDatabaseStatus = null;
-    await session.close();
-    if (globalThis.app === app) delete (globalThis as { app?: App }).app;
   }
 </script>
 

@@ -69,8 +69,13 @@ export declare class Editor extends EventDispatcher<{
     persistence: EditorPersistence;
     readonly id: `${string}-${string}-${string}-${string}-${string}`;
     private destroyed;
+    private application;
     private readonly pendingChange;
-    constructor(data?: string, extensions?: Extension[]);
+    constructor(data?: string, extensions?: Extension[], application?: App);
+    /** Bind this editor to the application that owns its view. */
+    bindApplication(application: App): this;
+    /** The owning application, with the global alias retained as fallback. */
+    get app(): App;
     readonly save: import("lodash-es").DebouncedFunc<() => Promise<void>>;
     get cm(): EditorView;
     onChange(data: string): void;

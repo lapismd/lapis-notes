@@ -1,4 +1,5 @@
 import type { App } from "./context.svelte";
+import { resolveApplication } from "./application-compatibility";
 import type { Editor, MarkdownFileInfo } from "./editor.svelte";
 import { Component, FileView, TextFileView } from "./view.svelte";
 import type { Menu } from "./menu.svelte";
@@ -177,11 +178,11 @@ export class MarkdownPreviewRenderer {
     sortOrder?: number,
   ): void {
     postProcessor.sortOrder = sortOrder ?? postProcessor.sortOrder ?? 0;
-    (globalThis as any).app?.registerMarkdownPostProcessor(postProcessor);
+    resolveApplication().registerMarkdownPostProcessor(postProcessor);
   }
 
   static unregisterPostProcessor(postProcessor: MarkdownPostProcessor): void {
-    (globalThis as any).app?.unregisterMarkdownPostProcessor(postProcessor);
+    resolveApplication().unregisterMarkdownPostProcessor(postProcessor);
   }
 
   static createCodeBlockPostProcessor(
@@ -203,11 +204,15 @@ export abstract class MarkdownRenderer
   extends MarkdownRenderChild
   implements MarkdownPreviewEvents, HoverParent
 {
-  app: App = (globalThis as any).app;
+  app: App;
   hoverPopover: HoverPopover | null = null;
 
-  constructor(containerEl: HTMLElement = createFallbackElement()) {
+  constructor(
+    containerEl: HTMLElement = createFallbackElement(),
+    application?: App,
+  ) {
     super(containerEl);
+    this.app = resolveApplication(application);
   }
 
   abstract get file(): TFile | null;
@@ -258,7 +263,7 @@ export class MarkdownPreviewView
   private scroll = 0;
 
   constructor(readonly view?: MarkdownView) {
-    super(view?.containerEl ?? createFallbackElement());
+    super(view?.containerEl ?? createFallbackElement(), view?.app);
   }
 
   get file(): TFile | null {

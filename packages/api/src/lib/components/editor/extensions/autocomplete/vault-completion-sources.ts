@@ -1,4 +1,6 @@
 import type { TFile } from "$lib/storage/fs";
+import type { App } from "$lib/context.svelte";
+import { resolveApplication } from "$lib/application-compatibility";
 
 const IMAGE_EMBED_EXTENSIONS = new Set([
   "png",
@@ -44,6 +46,8 @@ export function isImageEmbedLinkPath(linkPath: string): boolean {
 }
 
 export interface VaultFilesPathMatchOptions {
+  /** Application that owns the vault. */
+  app?: App;
   filter?: VaultFilePredicate;
   /** Max matches (default 150). */
   limit?: number;
@@ -59,7 +63,8 @@ export function vaultFilesMatchingPathSubstring(
 ): TFile[] {
   const limit = options.limit ?? 150;
   const filter = options.filter;
-  return app.vault
+  const application = resolveApplication(options.app);
+  return application.vault
     .getFiles()
     .filter((file) => {
       if (filter && !filter(file)) return false;

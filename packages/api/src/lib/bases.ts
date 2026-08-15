@@ -1,6 +1,7 @@
 import { DateTime, Duration } from "luxon";
 import { mount, unmount } from "svelte";
 import type { App, RenderContext } from "./context.svelte";
+import { resolveApplication } from "./application-compatibility";
 import { Component } from "./view.svelte";
 import type { TFile, TFolder } from "./storage/fs";
 
@@ -471,8 +472,11 @@ export class BasesQueryResult {
 }
 
 export class QueryController extends Component {
-  constructor(readonly app: App = globalThis.app) {
+  readonly app: App;
+
+  constructor(application?: App) {
     super();
+    this.app = resolveApplication(application);
   }
 }
 

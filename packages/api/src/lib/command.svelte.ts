@@ -2,6 +2,7 @@ import type { App } from "./context.svelte";
 import type { Editor } from "./editor.svelte";
 import { EventDispatcher } from "./events";
 import type { TFile } from "./storage/fs";
+import { resolveApplication } from "./application-compatibility";
 
 /**
  * Mod = Cmd on MacOS and Ctrl on other OS Ctrl = Ctrl key for every OS Meta =
@@ -873,9 +874,11 @@ export class Keymap {
 export class Scope {
   private keyBindings: Map<string, KeyBinding[]> = new Map();
   private isMacOS: boolean = false;
+  private readonly application?: App;
 
   /** @public */
-  constructor(parent?: Scope) {
+  constructor(parent?: Scope, application?: App) {
+    this.application = application ?? parent?.application;
     if (parent) {
       for (const [key, value] of parent.keyBindings.entries()) {
         const handlers = value.map((h) => ({ ...h, scope: this }));
@@ -973,14 +976,20 @@ export class Scope {
       }
     }
 
-    const commands = app.commands.commandsFor(hotkey);
+    const application = resolveApplication(this.application);
+    const commands = application.commands.commandsFor(hotkey);
     for (const command of commands) {
-      if (!app.commands.isCommandAvailable(command.id)) {
+      if (!application.commands.isCommandAvailable(command.id)) {
         continue;
       }
-      void app.commands.executeCommand(command.id).catch((error: unknown) => {
-        console.warn(`Unable to execute command hotkey: ${command.id}`, error);
-      });
+      void application.commands
+        .executeCommand(command.id)
+        .catch((error: unknown) => {
+          console.warn(
+            `Unable to execute command hotkey: ${command.id}`,
+            error,
+          );
+        });
       event.preventDefault();
       event.stopPropagation();
       return true;

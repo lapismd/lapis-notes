@@ -1,9 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   MarkdownPreviewRenderer,
+  MarkdownRenderer,
   type MarkdownPostProcessor,
   type MarkdownPostProcessorContext,
 } from "../markdown";
+import type { App } from "../context.svelte";
+
+class TestMarkdownRenderer extends MarkdownRenderer {
+  get file() {
+    return null;
+  }
+}
 
 describe("MarkdownPreviewRenderer compatibility", () => {
   const previousApp = (globalThis as any).app;
@@ -29,6 +37,15 @@ describe("MarkdownPreviewRenderer compatibility", () => {
     expect(processor.sortOrder).toBe(42);
     expect(registerMarkdownPostProcessor).toHaveBeenCalledWith(processor);
     expect(unregisterMarkdownPostProcessor).toHaveBeenCalledWith(processor);
+  });
+
+  it("prefers an explicit owner over the compatibility application", () => {
+    const owner = { id: "markdown-owner" } as unknown as App;
+    (globalThis as any).app = { id: "compatibility-only" };
+
+    expect(
+      new TestMarkdownRenderer(document.createElement("div"), owner).app,
+    ).toBe(owner);
   });
 
   it("creates code block processors that strip fences", () => {

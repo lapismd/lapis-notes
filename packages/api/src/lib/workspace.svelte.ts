@@ -66,6 +66,10 @@ import {
 } from "@lapismd/design-core/workspace/problems";
 import { setWorkspaceHostBinding } from "./workspace-host-internal";
 import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
+import {
+  getApplicationCompatibility,
+  resolveApplication,
+} from "./application-compatibility";
 
 const DEFAULT_LAPIS_LOGO_URL = new URL(
   "./assets/lapis-logo.svg",
@@ -213,11 +217,34 @@ export abstract class WorkspaceItem<
   T extends EventMap<T> = EventMap<any>,
 > extends EventDispatcher<T> {
   public parent!: WorkspaceParent;
+  #workspace: Workspace | null = null;
 
   id: string = uniqueId();
 
   constructor() {
     super();
+  }
+
+  /** Bind a root workspace item to its owning workspace. */
+  bindWorkspace(workspace: Workspace): this {
+    this.#workspace = workspace;
+    this._root = undefined;
+    return this;
+  }
+
+  /** The workspace that owns this item, when it has been attached. */
+  get workspace(): Workspace | undefined {
+    return this.#workspace ?? this.parent?.workspace;
+  }
+
+  /** The application that owns this item, when it has been attached. */
+  get application(): App | undefined {
+    return this.workspace?.app;
+  }
+
+  /** Resolve the owning application before using the compatibility alias. */
+  get app(): App {
+    return resolveApplication(this.application);
   }
 
   _root: WorkspaceItem | undefined = undefined;
@@ -599,7 +626,7 @@ export class WorkspaceSidedock extends WorkspaceSplit<{
         this.sidebar.open,
         this.sidebar.width,
       );
-      if (initialized) app.workspace.requestSaveLayout();
+      if (initialized) this.app.workspace.requestSaveLayout();
       initialized = true;
     });
   }
@@ -801,7 +828,9 @@ export class WorkspaceWindow extends WorkspaceContainer {
 
 function hasDestroyableEditor(
   view: View,
-): view is View & { editor: { destroy: () => void } } {
+): view is View & {
+  editor: { bindApplication?: (app: App) => unknown; destroy: () => void };
+} {
   const candidate = view as View & { editor?: { destroy?: unknown } };
   return typeof candidate.editor?.destroy === "function";
 }
@@ -852,8 +881,8 @@ export class WorkspaceFloating extends WorkspaceParent {
           }
 
           child.attachPopoutHandle(handle, () => {
-            if (app.workspace.floating.children.includes(child)) {
-              app.workspace.closeFloatingWindow(child, {
+            if (this.app.workspace.floating.children.includes(child)) {
+              this.app.workspace.closeFloatingWindow(child, {
                 closeHost: false,
                 operation: "close-popout-window",
               });
@@ -905,13 +934,13 @@ export class WorkspaceFloating extends WorkspaceParent {
     const child = this.children[index];
     if (child) {
       this.children.splice(index, 1);
-      if (!softDelete && app.workspace.activeLeaf) {
-        const activeLeaf = app.workspace.activeLeaf;
+      if (!softDelete && this.app.workspace.activeLeaf) {
+        const activeLeaf = this.app.workspace.activeLeaf;
         const stillContained = child.iterateAllLeaves(
           (leaf) => leaf === activeLeaf || undefined,
         );
         if (stillContained) {
-          app.workspace.activeLeaf = app.workspace.activeRootLeaf;
+          this.app.workspace.activeLeaf = this.app.workspace.activeRootLeaf;
         }
       }
     }
@@ -1073,8 +1102,8 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
     if (!this.children.length && !softDelete) {
       this.parent.removeChild(this);
     }
-    if (app.workspace.activeLeaf === child) {
-      app.workspace.activeLeaf = this.getSelectedLeaf();
+    if (this.app.workspace.activeLeaf === child) {
+      this.app.workspace.activeLeaf = this.getSelectedLeaf();
     }
     return child;
   }
@@ -1106,7 +1135,7 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
       ids.delete(id);
     }
     this.hiddenLeafIds = [...ids];
-    app.workspace.requestSaveLayout();
+    this.app.workspace.requestSaveLayout();
   }
 
   isLeafCollapsed(leaf: WorkspaceLeaf | string): boolean {
@@ -1117,7 +1146,7 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
   setLeafCollapsed(leaf: WorkspaceLeaf | string, collapsed: boolean): void {
     const id = typeof leaf === "string" ? leaf : leaf.id;
     this.collapsed = { ...this.collapsed, [id]: collapsed };
-    app.workspace.requestSaveLayout();
+    this.app.workspace.requestSaveLayout();
   }
 
   getLeafPanelSize(leaf: WorkspaceLeaf | string): number | undefined {
@@ -1134,7 +1163,7 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
       }
     });
     this.panelSizes = next;
-    app.workspace.requestSaveLayout();
+    this.app.workspace.requestSaveLayout();
   }
 
   private serializedPanelSizes(): Record<string, number> {
@@ -1366,10 +1395,10 @@ export class WorkspaceTabs extends WorkspaceParent {
     const child = this.children[index];
     if (child) {
       if (child instanceof WorkspaceLeaf) {
-        app.workspace.clearFocusModeForLeaf(child);
+        this.app.workspace.clearFocusModeForLeaf(child);
       } else {
         child.iterateAllLeaves((leaf) => {
-          app.workspace.clearFocusModeForLeaf(leaf);
+          this.app.workspace.clearFocusModeForLeaf(leaf);
         });
       }
       this.children.splice(index, 1);
@@ -1381,23 +1410,23 @@ export class WorkspaceTabs extends WorkspaceParent {
       }
       if (
         child instanceof WorkspaceLeaf &&
-        app.workspace.activeLeaf === child
+        this.app.workspace.activeLeaf === child
       ) {
-        app.workspace.activeLeaf = this.selectedLeaf;
+        this.app.workspace.activeLeaf = this.selectedLeaf;
       } else if (
         child instanceof WorkspaceSidebarGroup &&
-        child.children.includes(app.workspace.activeLeaf!)
+        child.children.includes(this.app.workspace.activeLeaf!)
       ) {
-        app.workspace.activeLeaf = this.selectedLeaf;
+        this.app.workspace.activeLeaf = this.selectedLeaf;
       }
     }
 
     if (!this.children.length) {
       if (
         child instanceof WorkspaceLeaf &&
-        app.workspace.activeLeaf === child
+        this.app.workspace.activeLeaf === child
       ) {
-        app.workspace.activeLeaf = null;
+        this.app.workspace.activeLeaf = null;
       }
       if (!softDelete) {
         this.parent.removeChild(this);
@@ -1426,7 +1455,7 @@ export class WorkspaceBottomPanel extends WorkspaceTabs {
   protected open: boolean = $state(false);
   protected height: string = $state("240px");
 
-  constructor(readonly workspace: Workspace) {
+  constructor(readonly ownerWorkspace: Workspace) {
     super({ leaves: [] });
     this.id = "bottom-panel";
   }
@@ -1460,15 +1489,15 @@ export class WorkspaceBottomPanel extends WorkspaceTabs {
   }
 
   expand(): void {
-    this.workspace.setBottomPanelOpen(true);
+    this.ownerWorkspace.setBottomPanelOpen(true);
   }
 
   collapse(): void {
-    this.workspace.setBottomPanelOpen(false);
+    this.ownerWorkspace.setBottomPanelOpen(false);
   }
 
   toggle(): void {
-    this.workspace.toggleBottomPanel();
+    this.ownerWorkspace.toggleBottomPanel();
   }
 
   detach(): undefined {
@@ -2544,7 +2573,7 @@ export class Workspace extends EventDispatcher<{
 
     this.iterateAllLeaves((leaf) => {
       if (leaf.id === normalized.active) {
-        app.workspace.activeLeaf = leaf;
+        this.app.workspace.activeLeaf = leaf;
         return false;
       }
     });
@@ -2556,13 +2585,13 @@ export class Workspace extends EventDispatcher<{
       "workspace.load_layout",
       async (span) => {
         span.setAttribute("workspace.layout_file", file);
-        const workspaceFile = app.vault.getFileByPath(
+        const workspaceFile = this.app.vault.getFileByPath(
           joinPath("/.obsidian", file),
         );
         this.layoutReady = false;
         let promise!: Promise<void>;
         if (workspaceFile) {
-          promise = app.vault.read(workspaceFile).then((contents) => {
+          promise = this.app.vault.read(workspaceFile).then((contents) => {
             return this.restoreLayoutJson(JSON.parse(contents));
           });
         } else {
@@ -2598,6 +2627,12 @@ export class Workspace extends EventDispatcher<{
 
   constructor(readonly app: App) {
     super();
+    this.rootContainer.bindWorkspace(this);
+    this.rootSplit.bindWorkspace(this);
+    this.leftSplit.bindWorkspace(this);
+    this.rightSplit.bindWorkspace(this);
+    this.bottomPanel.bindWorkspace(this);
+    this.floating.bindWorkspace(this);
     this.rootSplit.addChild(new WorkspaceTabs());
     const shellOptions = this.app.props?.workspaceShell;
     const application = shellOptions?.application;
@@ -4060,7 +4095,7 @@ export class Workspace extends EventDispatcher<{
     const linkpath = linktext.split(/[|#]/, 1)[0];
     const candidates = [linkpath, `${linkpath}.md`, `${linkpath}.markdown`];
     const file = candidates
-      .map((path) => app.vault.getFileByPath(path))
+      .map((path) => this.app.vault.getFileByPath(path))
       .find((file): file is TFile => file instanceof TFile);
     if (!file) {
       new Notice(`Unable to find file: ${linktext}`);
@@ -4557,7 +4592,7 @@ export class Workspace extends EventDispatcher<{
     if (leafType === "window") {
       const popoutLeaf = this.openPopoutLeaf();
       return popoutLeaf.setViewState({ ...leaf.state }).then(() => {
-        app.workspace.activeLeaf = popoutLeaf;
+        this.app.workspace.activeLeaf = popoutLeaf;
         return popoutLeaf;
       });
     }
@@ -4588,7 +4623,7 @@ export class Workspace extends EventDispatcher<{
             }
           }
       }
-      app.workspace.activeLeaf = duplicateLeaf;
+      this.app.workspace.activeLeaf = duplicateLeaf;
       return duplicateLeaf;
     });
   }
@@ -4685,10 +4720,13 @@ export class OnDemandPluginInstallView extends FileView {
   constructor(
     leaf: WorkspaceLeaf,
     private readonly plugin: PluginCatalogEntry,
-    private readonly application: App = globalThis.app,
+    application?: App,
   ) {
     super(leaf);
+    this.application = resolveApplication(application ?? leaf.application);
   }
+
+  private readonly application: App;
 
   getViewType(): string {
     return ON_DEMAND_PLUGIN_INSTALL_VIEW_TYPE;
@@ -4923,10 +4961,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
       view.leaf = this;
       this.view = view;
     } else {
-      const viewCreator =
-        this.app?.workspace?.viewCreator("empty") ||
-        ((leaf: WorkspaceLeaf) => new EmptyView(leaf));
-      this.view = viewCreator(this);
+      this.view = new EmptyView(this);
     }
     this.containerEl = createDiv("h-full");
     this.contentEl = this.containerEl.createDiv();
@@ -4939,7 +4974,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
     this.pinned = !!nextState.pinned;
 
     const filePath = historyFilePathForViewState(nextState);
-    const file = filePath ? app.vault.getFileByPath(filePath) : null;
+    const file = filePath ? this.app.vault.getFileByPath(filePath) : null;
     if (file instanceof TFile) {
       this.ensureContentEl();
       return this.openFile(file, {
@@ -5003,11 +5038,11 @@ export class WorkspaceLeaf extends WorkspaceItem<{
         previousView.editor.destroy();
       }
     }
+    view.leaf = this;
+    if (hasDestroyableEditor(view) && this.application) {
+      view.editor.bindApplication?.(this.application);
+    }
     this._view = view;
-  }
-
-  get app() {
-    return globalThis.app;
   }
 
   open(
@@ -5017,12 +5052,12 @@ export class WorkspaceLeaf extends WorkspaceItem<{
   ): Promise<View> {
     view.leaf = this;
     const filePath = (state || this.state)?.state?.["file"]?.toString();
-    const file = filePath ? app.vault.getFileByPath(filePath) : null;
+    const file = filePath ? this.app.vault.getFileByPath(filePath) : null;
     this.view = view;
     if (file instanceof TFile) {
       return this.openFile(file, { view, result, state }).then(() => view);
     } else if (filePath) {
-      new Notice(`Unable to load file: ${filePath}`);
+      new Notice(`Unable to load file: ${filePath}`, undefined, this.app);
     }
     this.prepareContainerForView(view);
     if (result?.history !== false) {
@@ -5154,7 +5189,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
             : null;
         const requestedViewType = persistedMissingViewType ?? viewState.type;
         const filePath = viewState.state?.["file"]?.toString();
-        const file = filePath ? app.vault.getFileByPath(filePath) : null;
+        const file = filePath ? this.app.vault.getFileByPath(filePath) : null;
 
         if (
           requestedViewType === ON_DEMAND_PLUGIN_INSTALL_VIEW_TYPE &&
@@ -5193,7 +5228,11 @@ export class WorkspaceLeaf extends WorkspaceItem<{
             state: restoredState,
           };
         } else if (!viewCreator) {
-          new Notice(`Unknown view type: ${requestedViewType}`);
+          new Notice(
+            `Unknown view type: ${requestedViewType}`,
+            undefined,
+            this.app,
+          );
           resolvedViewState = {
             ...viewState,
             type: "empty",
@@ -5327,10 +5366,13 @@ export class Notice {
   containerEl: HTMLElement = this.noticeEl;
   messageEl: HTMLElement = this.noticeEl.createDiv();
 
-  constructor(message: string, duration?: number) {
+  private readonly application?: App;
+
+  constructor(message: string, duration?: number, application?: App) {
+    this.application = application ?? getApplicationCompatibility();
     this.messageEl.setText(message);
-    if (globalThis.app?.notifications) {
-      const record = globalThis.app.notifications.notify({
+    if (this.application?.notifications) {
+      const record = this.application.notifications.notify({
         message,
         id: createNoticeId(),
       });
@@ -5343,8 +5385,8 @@ export class Notice {
   setMessage(message: string) {
     this.messageEl.setText(message);
     const id = this.id;
-    if (globalThis.app?.notifications) {
-      globalThis.app.notifications.notify({
+    if (this.application?.notifications) {
+      this.application.notifications.notify({
         message,
         id: String(id),
       });

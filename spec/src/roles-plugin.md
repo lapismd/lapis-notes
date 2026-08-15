@@ -45,4 +45,7 @@ The external repository owns role documents, CV compilation, Applications,
 Activity, Actions, plugin-owned presentation, package Storybook, and the
 governed 1280 by 900 visual state. Lapis owns static registration, core-plugin
 settings policy, persisted layout recovery, consumer fixtures, and real-App
-integration stories. Community installation remains outside this migration.
+integration stories. External CV Roles accepts the constructor App throughout
+its public runtime and uses compatibility only as a fallback for older Lapis
+hosts; its standalone catalog installs and disposes the same bounded lease.
+Community installation remains outside this migration.

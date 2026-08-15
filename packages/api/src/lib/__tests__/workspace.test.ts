@@ -132,6 +132,10 @@ vi.mock("../view.svelte", () => {
       this.leaf = leaf;
     }
 
+    get app(): App | undefined {
+      return this.leaf?.app;
+    }
+
     getViewType(): string {
       return "view";
     }
@@ -186,6 +190,10 @@ vi.mock("../view.svelte", () => {
 
   class TextFileView extends FileView {
     editor = {
+      app: undefined as App | undefined,
+      bindApplication(app: App) {
+        this.app = app;
+      },
       updateExtensions() {},
       getState() {
         return {};
@@ -567,6 +575,18 @@ beforeEach(() => {
 });
 
 describe("Workspace compatibility", () => {
+  it("keeps leaves, views, and editors bound to their owning application", () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const leaf = workspace.getLeaf();
+    const view = new MockTextFileView(leaf);
+    leaf.view = view;
+    globalThis.app = { id: "conflicting-app" } as never;
+
+    expect(leaf.app).toBe(app);
+    expect(view.app).toBe(app);
+    expect(view.editor.app).toBe(app);
+  });
+
   it("projects API plugin lifecycle state into the managed settings registry", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const pluginEvents = new EventDispatcher<{

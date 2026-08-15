@@ -100,14 +100,15 @@ const VIEW_DEFINITIONS = [
     label: "Text",
     extensions: ["txt", "text"],
     patterns: [".txt", ".text", "*.txt", "*.text"],
-    createExtension: () => markupEditor({ language: "text" }),
+    createExtension: (app: App) => markupEditor({ language: "text", app }),
   },
   {
     type: "json",
     label: "JSON",
     extensions: ["json", "data"],
     patterns: [".json", ".data", "*.json", "*.data"],
-    createExtension: () => markupEditor({ language: "json" }, json()),
+    createExtension: (app: App) =>
+      markupEditor({ language: "json", app }, json()),
   },
 ] as const;
 
@@ -153,7 +154,7 @@ export class SourceEditorDemoPlugin extends Plugin {
       });
       this.registerExtensions([...definition.extensions], definition.type);
       this.registerEditorExtension(
-        definition.createExtension(),
+        definition.createExtension(this.app),
         definition.type,
       );
     }

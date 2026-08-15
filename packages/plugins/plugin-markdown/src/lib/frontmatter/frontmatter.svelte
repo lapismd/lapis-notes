@@ -2,6 +2,7 @@
   import {
     Menu,
     Notice,
+    type App,
     type FrontMatterCache,
     type MetadataTypeDef,
     type TypeWidget,
@@ -14,9 +15,11 @@
   } from "./frontmatter-property";
 
   let {
+    app,
     frontmatter,
     onChange,
   }: {
+    app: App;
     frontmatter?: FrontMatterCache | null;
     onChange: (type: MetadataTypeDef, value: any, event?: Event) => void;
   } = $props();

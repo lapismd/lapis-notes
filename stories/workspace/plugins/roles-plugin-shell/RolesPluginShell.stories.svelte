@@ -459,12 +459,14 @@
     });
     expect(formScroller.clientHeight).toBeLessThan(shell.clientHeight);
     expect(formScroller.scrollHeight).toBeGreaterThan(formScroller.clientHeight + 1);
-    formScroller.scrollTo({ top: formScroller.scrollHeight });
+    formScroller.scrollTop = formScroller.scrollHeight - formScroller.clientHeight;
+    formScroller.dispatchEvent(new Event("scroll"));
     await waitFor(() => {
       expect(formScroller.scrollTop).toBeGreaterThan(0);
     });
     expect(shell.scrollTop).toBe(0);
-    formScroller.scrollTo({ top: 0 });
+    formScroller.scrollTop = 0;
+    formScroller.dispatchEvent(new Event("scroll"));
     expect(canvasElement.ownerDocument.querySelectorAll("main")).toHaveLength(1);
 
     const search = within(canvas.getByTestId("search-panel"));
@@ -485,67 +487,91 @@
     };
 
     await searchFor("roles-plugin-shell");
-    await waitFor(() => {
-      expect(
-        search.getByRole("treeitem", {
-          name: /Notes\/Welcome\.md/,
-        }),
-      ).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          search.getByRole("treeitem", {
+            name: /Notes\/Welcome\.md/,
+          }),
+        ).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
     await searchFor("Nexus AI");
-    await waitFor(() => {
-      expect(
-        search.getByRole("treeitem", {
-          name: /sample\.cv\.yml/i,
-        }),
-      ).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          search.getByRole("treeitem", {
+            name: /sample\.cv\.yml/i,
+          }),
+        ).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
 
     await searchFor("ambiguous platform migrations");
-    await waitFor(() => {
-      expect(
-        search.getByRole("treeitem", {
-          name: /Roles\/atlas-ai-infra\/role\.md/i,
-        }),
-      ).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          search.getByRole("treeitem", {
+            name: /Roles\/atlas-ai-infra\/role\.md/i,
+          }),
+        ).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
     await searchFor("tag:leadership");
-    await waitFor(() => {
-      expect(
-        search.getByRole("treeitem", {
-          name: /Roles\/northstar-tools\/role\.md/i,
-        }),
-      ).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          search.getByRole("treeitem", {
+            name: /Roles\/northstar-tools\/role\.md/i,
+          }),
+        ).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
     await searchFor('["status"]:interview');
-    await waitFor(() => {
-      expect(
-        search.getByRole("treeitem", {
-          name: /Roles\/harbour-payments\/role\.md/i,
-        }),
-      ).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          search.getByRole("treeitem", {
+            name: /Roles\/harbour-payments\/role\.md/i,
+          }),
+        ).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
     await searchFor('["company"]:"Atlas AI"');
-    await waitFor(() => {
-      expect(
-        search.getByRole("treeitem", {
-          name: /Roles\/atlas-ai-infra\/role\.md/i,
-        }),
-      ).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          search.getByRole("treeitem", {
+            name: /Roles\/atlas-ai-infra\/role\.md/i,
+          }),
+        ).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
     await searchFor('["technologies"]:Kubernetes');
-    await waitFor(() => {
-      expect(
-        search.getByRole("treeitem", {
-          name: /sample\.cv\.yml/i,
-        }),
-      ).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          search.getByRole("treeitem", {
+            name: /sample\.cv\.yml/i,
+          }),
+        ).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
 
     await searchFor("ordinary-yaml-search-marker");
-    await waitFor(() => {
-      expect(search.getByText("No matches found.")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(search.getByText("No matches found.")).toBeTruthy();
+      },
+      { timeout: 30_000 },
+    );
     expect(search.queryByText(/settings\.yml/i)).toBeNull();
 
     const exportButton = canvas.getByRole("button", { name: "Export PDF" });

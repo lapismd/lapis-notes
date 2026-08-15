@@ -231,4 +231,5 @@ declare global {
     var app: App;
 }
 export declare function setApplicationState(props: AppStateProperties): AppState;
-export declare function useApplicationState(): AppState;
+export { getApplicationCompatibility, installApplicationCompatibility, resolveApplication } from "./application-compatibility";
+export { provideApplicationState, useApplicationState } from "./application-state.svelte";

@@ -30,7 +30,8 @@ page.
 - [Tags](./tags.md)
 - [Link Previews](./link-previews.md), shared by Backlinks and Outgoing Links
 
-All production panels import through `@lapis-notes/markdown`.
+All production panels import through `@lapis-notes/markdown` and receive App
+state from their owning registered view rather than ambient host state.
 
 This chapter owns reusable movable-panel conventions only. Markdown editor
 authoring composition, settings, and editor-demo acceptance remain governed by

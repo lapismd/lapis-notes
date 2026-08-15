@@ -61,7 +61,11 @@ export const Applications: Story = {
     expect(app.workspace.activeLeaf?.view.getViewType()).toBe("roles");
     expect(app.workspace.getLeavesOfType("roles")).toHaveLength(1);
 
-    const roleCard = canvas.getByRole("button", {
+    const saved = canvas.queryByRole("button", {
+      name: /Expand Saved, 1 applications/,
+    });
+    if (saved) await userEvent.click(saved);
+    const roleCard = await canvas.findByRole("button", {
       name: /Open application .*Engineering Manager, Infrastructure at Atlas AI/,
     });
     expect(roleCard).toBeTruthy();
@@ -82,7 +86,10 @@ export const Applications: Story = {
       ).toBeTruthy();
     });
 
-    await userEvent.selectOptions(canvas.getByLabelText("Status"), "applied");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Application status" }),
+    );
+    await userEvent.click(canvas.getByRole("option", { name: "Applied" }));
     await waitFor(async () => {
       const document = parseRoleDocument(
         roleFile!.path,

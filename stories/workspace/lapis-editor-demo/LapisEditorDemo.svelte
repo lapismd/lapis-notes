@@ -2,6 +2,7 @@
   import { onMount, untrack } from "svelte";
   import {
     App,
+    installApplicationCompatibility,
     MemoryAppDatabase,
     MemoryVaultAdapter,
     Plugin,
@@ -70,7 +71,6 @@
   }
 
   const selectedScenario = untrack(() => scenario);
-  const previousApp = globalThis.app;
   let app = $state<App | null>(null);
   let adapter = $state<MemoryVaultAdapter | null>(null);
   let ready = $state(false);
@@ -80,6 +80,7 @@
   let attempt = $state(0);
   let disposed = false;
   const stopMetadataByApp = new WeakMap<App, () => void>();
+  const compatibilityByApp = new WeakMap<App, () => void>();
   let targetWriteCount = $state(0);
   let targetContents = $state("");
   let lastWritePath = $state("");
@@ -223,9 +224,8 @@
       await plugin.disable().catch(() => undefined);
     }
     await current.workspace.disposeWorkspaceHost();
-    if (globalThis.app === current) {
-      globalThis.app = previousApp;
-    }
+    compatibilityByApp.get(current)?.();
+    compatibilityByApp.delete(current);
   }
 
   async function boot(): Promise<void> {
@@ -251,7 +251,10 @@
     const nextAdapter = runtime.adapter;
     app = nextApp;
     adapter = nextAdapter;
-    globalThis.app = nextApp;
+    compatibilityByApp.set(
+      nextApp,
+      installApplicationCompatibility(nextApp),
+    );
     refreshDiagnostics(nextApp);
 
     let activeTask = "vault";

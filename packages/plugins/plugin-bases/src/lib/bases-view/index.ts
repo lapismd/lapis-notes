@@ -307,6 +307,7 @@ export class BasesView extends MarkdownView {
         this.component = mount(NoteEditor, {
           target: this.containerEl,
           props: {
+            app: this.app,
             leaf: this.leaf,
             editor: this.editor,
           },

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { AiViewType } from "./chat/ai-view-type";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
@@ -13,5 +14,12 @@ describe("AiPlugin contracts", () => {
       thinking: "medium",
     });
     expect(new FakeAgentRuntime().id).toBe("fake");
+  });
+
+  it("threads the constructor owner into the Plugin base without ambient access", () => {
+    const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
+
+    expect(source).toMatch(/constructor\(app: App,[\s\S]*?super\(app, pluginManifest\)/u);
+    expect(source).not.toContain("globalThis.app");
   });
 });

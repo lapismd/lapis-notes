@@ -5,9 +5,11 @@ import { get } from "svelte/store";
 import { registerSW } from "virtual:pwa-register";
 import PwaUpdatePrompt from "./PwaUpdatePrompt.svelte";
 import { createPwaHostStateController } from "./pwa-host-state";
+import { getApplicationCompatibility } from "@lapis-notes/api";
 
 type RuntimeApp = {
   commands: {
+    executeCommand(id: string): Promise<unknown>;
     getCommand(id: string): unknown;
     registerCommand(command: {
       id: string;
@@ -47,9 +49,20 @@ let deferredPrompt: BeforeInstallPromptEvent | null = null;
 let applyServiceWorkerUpdate: ((reloadPage?: boolean) => Promise<void>) | null =
   null;
 let cleanup: (() => void) | null = null;
+let providedRuntimeApp: RuntimeApp | null = null;
+
+export function setPwaRuntimeApplication(app: RuntimeApp): () => void {
+  providedRuntimeApp = app;
+  syncDocumentAndStatus();
+  return () => {
+    if (providedRuntimeApp === app) providedRuntimeApp = null;
+  };
+}
 
 function runtimeApp(): RuntimeApp | null {
-  const candidate = globalThis.app as Partial<RuntimeApp> | undefined;
+  const candidate =
+    providedRuntimeApp ??
+    (getApplicationCompatibility() as Partial<RuntimeApp> | undefined);
   return candidate?.commands && candidate.statusBar
     ? (candidate as RuntimeApp)
     : null;
@@ -174,7 +187,7 @@ export function registerWebPwa(): () => void {
       stateStore: hostState,
       onLater: () => hostState.dismissUpdatePrompt(),
       onInstallNow: () =>
-        void globalThis.app?.commands.executeCommand(APPLY_UPDATE_COMMAND_ID),
+        void runtimeApp()?.commands.executeCommand(APPLY_UPDATE_COMMAND_ID),
     },
   });
   const unsubscribe = hostState.subscribe(syncDocumentAndStatus);

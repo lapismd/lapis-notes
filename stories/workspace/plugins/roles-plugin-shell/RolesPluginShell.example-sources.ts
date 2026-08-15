@@ -1,6 +1,6 @@
 export const RolesPluginShellExample = `<script lang="ts">
   import { onMount } from "svelte";
-  import { App, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
+  import { App, installApplicationCompatibility, MemoryAppDatabase, MemoryVaultAdapter, provideApplicationState } from "@lapis-notes/api";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
@@ -50,6 +50,8 @@ export const RolesPluginShellExample = `<script lang="ts">
     ".obsidian/workspace.json": JSON.stringify(layout),
     "sample.cv.yml": sampleCv,
   });
+  provideApplicationState(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const app = new App({
     adapter,
     appDatabase: new MemoryAppDatabase("cv-example"),
@@ -67,7 +69,6 @@ export const RolesPluginShellExample = `<script lang="ts">
   let ready = $state(false);
   onMount(() => {
     void (async () => {
-      globalThis.app = app;
       await app.vault.load();
       await app.configuration.load();
       await app.plugins.loadPlugins({
@@ -77,6 +78,7 @@ export const RolesPluginShellExample = `<script lang="ts">
       await app.workspace.loadLayout();
       ready = true;
     })();
+    return disposeApplicationCompatibility;
   });
 </script>
 

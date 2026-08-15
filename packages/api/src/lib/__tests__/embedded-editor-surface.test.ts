@@ -55,7 +55,10 @@ describe("embedded editor surface extensions", () => {
 
     applyEmbeddedEditorExtensions(app, editor, options);
 
-    expect(mocks.markupEditor).toHaveBeenCalledWith({ language: "markdown" });
+    expect(mocks.markupEditor).toHaveBeenCalledWith({
+      language: "markdown",
+      app,
+    });
     expect(editor.updateExtensions).toHaveBeenCalledWith([{ fallback: true }]);
   });
 });

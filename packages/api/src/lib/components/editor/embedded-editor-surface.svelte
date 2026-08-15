@@ -31,9 +31,12 @@
     onChange?: (value: string) => void | Promise<void>;
   } = $props();
 
-  const initial = untrack(() => ({ providedEditor, value }));
+  const initial = untrack(() => ({ app, providedEditor, value }));
   const ownsEditor = initial.providedEditor === undefined;
-  const editor = initial.providedEditor ?? new EditorController(initial.value);
+  const editor =
+    initial.providedEditor ??
+    new EditorController(initial.value, [], initial.app);
+  editor.bindApplication(initial.app);
 
   function refreshExtensions(): void {
     applyEmbeddedEditorExtensions(app, editor, {
@@ -93,7 +96,7 @@
   data-editor-mode={mode}
   data-editor-scroll-owner={scrollOwner}
 >
-  <NoteEditor {leaf} {editor} {scrollOwner} />
+  <NoteEditor {app} {leaf} {editor} {scrollOwner} />
 </div>
 
 <style>

@@ -197,6 +197,27 @@ describe("scope key matching", () => {
     expect(callback).toHaveBeenCalledWith(false);
     expect(event.defaultPrevented).toBe(true);
   });
+
+  it("uses its explicit application instead of a conflicting global alias", () => {
+    const explicitCallback = vi.fn();
+    const explicitManager = createCommandManager();
+    explicitManager.registerCommand({
+      id: "test:explicit-owner",
+      name: "Explicit owner",
+      hotkeys: [{ modifiers: ["Meta"], key: "e" }],
+      callback: explicitCallback,
+    });
+    const fallbackManager = createCommandManager();
+    globalThis.app = { commands: fallbackManager } as never;
+
+    const event = createKeyboardEvent("e", { metaKey: true });
+    const scope = new Scope(undefined, {
+      commands: explicitManager,
+    } as never);
+
+    expect(scope.handleEvent(event)).toBe(true);
+    expect(explicitCallback).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("command hotkey overrides", () => {

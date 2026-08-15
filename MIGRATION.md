@@ -15,11 +15,11 @@ intake or UI swap status changes.
   forward as a focused current-tree change.
 - [x] Inventory ambient App access in core views, editors, command scopes,
   hosts, PWA integration, Storybook harnesses, and CV Roles public surfaces.
-- [ ] Publish a compatibility bridge while making explicit or owned App state
+- [x] Publish a compatibility bridge while making explicit or owned App state
   authoritative throughout first-party runtime code.
-- [ ] Migrate Electron, web/PWA, Bases, AI, root Storybook, and the external CV
+- [x] Migrate Electron, web/PWA, Bases, AI, root Storybook, and the external CV
   Roles runtime/catalog; retain compatibility only for legacy consumers.
-- [ ] Run focused and broad non-visual acceptance. Visual baselines remain
+- [x] Run focused and broad non-visual acceptance. Visual baselines remain
   unchanged by explicit user request.
 
 ## Bootstrap
@@ -57,7 +57,7 @@ intake or UI swap status changes.
 | Notebook / remaining unlisted plugins        | Not started    | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                              |
 | `@lapis-notes/file-explorer`                | Done           | Reusable File Explorer plugin shared by Storybook and Electron; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture |
 | `@lapis-notes/search`                       | Done | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts |
-| `@lapis-notes/bases`                        | In progress | Legacy revision `8ec68e18` runtime and native presentation are ported with 17 test files / 148 passing tests; bundled host and Storybook acceptance remain |
+| `@lapis-notes/bases`                        | Done | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 158 tests, focused Storybook and pointer coverage, Electron and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request. |
 | design-core workspace engine                | Done           | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                            |
 
 ### App database replacement progress
@@ -101,7 +101,7 @@ legacy commit `8ec68e18`.
 - [x] Preserve a larger macOS traffic-light inset for the expanded left sidebar without changing the collapsed control geometry
 - [x] Replace renderer database mirrors with window/vault-owned native Turso handles behind a bounded typed RPC allowlist
 - [x] Serve packaged renderer assets from isolated `lapis-app://app/` with COOP/COEP and retain Turso WASM assets for Intel macOS
-- [ ] Full Storybook suite: 80/84 pass; three existing `LapisEditorDemo` interaction failures (`Same File Split Sync`, `Markdown Authoring`, and `Editor Settings`) remain outside this intake, while `Markdown Problems` passes alone but remains flaky in the concurrent full run
+- [ ] Full Storybook suite: 95/101 pass; all Bases, CV Roles, and application-ownership scenarios pass. Five existing `LapisEditorDemo` concurrency failures (`Markdown Problems`, `Same File Split Sync`, `Markdown Authoring`, `Explorer Mutations`, and `Editor Settings`) plus the existing Outgoing Links `Middle Top Tabs` geometry failure remain outside this intake.
 - [ ] `PersistedDesktop` Visual Delta comparison: blocked because Docker Desktop cannot start; no baseline was updated
 
 Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
@@ -140,14 +140,14 @@ legacy revision `8ec68e18`.
 
 - [x] Canonical `LN-BASE-001` through `LN-BASE-012`, host/catalog requirements, verification mappings, and spec-first routing
 - [x] Buildable `@lapis-notes/bases` package scaffold with explicit root and stylesheet exports
-- [x] Port 14 legacy test files and retain the 142-test behavioral baseline (17 files / 148 tests with current regressions)
+- [x] Port 14 legacy test files and retain the 142-test behavioral baseline (20 files / 158 tests with current regressions)
 - [x] Replace pruned UI imports with public Design Core primitives and Bases-owned compounds
 - [x] Replace Tailwind utility markup with semantic native CSS and `--ui-bases-*` tokens
 - [x] Inject `App` through the surface/controller hierarchy; serialize writes and flush on teardown
 - [x] Register optional bundled Bases in Electron, web, and root Storybook before metadata/layout restoration
-- [ ] Verify persisted missing-view recovery without changing plugin data or `.base` content
-- [ ] Add focused public view/workflow stories and real-App file, embed, and disable/restore stories
-- [ ] Run package, Storybook, pointer, Electron, web, visual, specification, root check/test/build acceptance
+- [x] Verify persisted missing-view recovery without changing plugin data or `.base` content
+- [x] Add focused public view/workflow stories and real-App file, embed, and disable/restore stories
+- [x] Run package, focused Storybook, pointer, Electron, web, specification, and root check/test/build acceptance; keep visual capture and approval deferred by request
 
 Pending parity gaps intentionally retained by this port: a real map capability;
 complete Obsidian value wrappers and method-style formula semantics; `this`

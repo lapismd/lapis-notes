@@ -17,6 +17,15 @@ export type {
   AppSafeModeState,
   AppStateProperties,
 } from "./context.svelte";
+export {
+  getApplicationCompatibility,
+  installApplicationCompatibility,
+  resolveApplication,
+} from "./application-compatibility";
+export {
+  provideApplicationState,
+  useApplicationState,
+} from "./application-state.svelte";
 
 export { Plugin, resolvePluginDataPath } from "./plugin";
 export type {

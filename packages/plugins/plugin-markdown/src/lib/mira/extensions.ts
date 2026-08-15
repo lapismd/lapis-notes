@@ -24,7 +24,7 @@ import {
 } from "@lapismd/mira-editor";
 import { aiExtension, type MiraAiRun } from "@lapismd/mira-plugin-ai";
 import type { App } from "@lapis-notes/api";
-import { markupEditor as markupEditorRaw } from "@lapis-notes/api/editor/core";
+import { markupEditor } from "@lapis-notes/api/editor/core";
 import { languageServiceExtensions } from "@lapis-notes/api/editor/language-service";
 import {
   MIRA_EDITOR_SETTING_KEYS,
@@ -32,11 +32,6 @@ import {
   readMiraFeatureFlags,
 } from "./config";
 import { createLapisMiraFileAdapter } from "./file-adapter";
-
-const markupEditor = markupEditorRaw as (
-  options: { language?: string },
-  ...extensions: Extension[]
-) => Extension;
 
 export type MiraMarkdownExtensionOptions = {
   app: App;
@@ -288,7 +283,7 @@ export function createMarkdownEditorExtensions(
   );
 
   return markupEditor(
-    { language: "markdown" },
+    { language: "markdown", app: options.app },
     ...createMiraCodeMirrorExtensions(codeMirrorOptions),
     ...languageServiceExtensions({
       languageId: "markdown",

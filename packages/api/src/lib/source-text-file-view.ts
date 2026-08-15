@@ -63,6 +63,7 @@ export class SourceTextFileView extends TextFileView {
     this.#component = mountComponent(NoteEditor, {
       target: this.containerEl,
       props: {
+        app: this.app,
         leaf: this.leaf,
         editor: this.editor,
       },

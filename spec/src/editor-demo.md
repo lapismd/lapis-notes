@@ -57,6 +57,10 @@
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add
 parallel commands to compensate for a missing plugin registration.
+Editor, embedded-editor, Scope, command, autocomplete, and persistence paths
+receive their App from the owning view or explicit constructor state. Focused
+multi-App evidence keeps a conflicting compatibility alias installed while the
+owner still receives events, extensions, telemetry, hotkeys, and writes.
 
 | LN-ED-014 | The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`. |
 | LN-ED-015 | For file leaves, the API view bridge `getChrome` MUST contribute parent-path breadcrumbs and leaf history into the design-core tab title bar; breadcrumb selection MUST reveal the path in Explorer. |

@@ -14,6 +14,7 @@ import type { TFile } from "./storage/fs";
 import { EventDispatcher } from "./events";
 import type { App } from "./context.svelte";
 import debounce from "lodash-es/debounce";
+import { resolveApplication } from "./application-compatibility";
 
 export type EditorPosition = { line: number; ch: number };
 export interface EditorRange {
@@ -83,7 +84,12 @@ export interface MarkdownFileInfo {
 export const editorViewField: StateField<MarkdownFileInfo> =
   StateField.define<MarkdownFileInfo>({
     create() {
-      return { app: app, file: null };
+      return {
+        get app() {
+          return resolveApplication();
+        },
+        file: null,
+      };
     },
     update(state) {
       return state;
@@ -134,7 +140,9 @@ export function createEditorState(
     selection,
     extensions: [
       editorViewField.init(() => ({
-        app: app,
+        get app() {
+          return editor.app;
+        },
         editor,
         get file() {
           return editor.file;
@@ -174,7 +182,7 @@ export function createEditor(
         }
       }
       if (specs.length || selectionChanged) {
-        app.workspace.dispatch("editor-updated", editor, specs);
+        editor.app.workspace.dispatch("editor-updated", editor, specs);
       }
     },
     state: createEditorState(editor, doc, extensions),
@@ -189,12 +197,13 @@ export class Editor extends EventDispatcher<{
   persistence: EditorPersistence = "vault";
   readonly id = crypto.randomUUID();
   private destroyed = false;
+  private application?: App;
   private readonly pendingChange = debounce(async (content: string) => {
     if (this.data === content) {
       return;
     }
     if (this.file && this.persistence === "vault") {
-      await app.vault.modify(this.file, content);
+      await this.app.vault.modify(this.file, content);
     }
     this.data = content;
     this.onChange(content);
@@ -203,14 +212,27 @@ export class Editor extends EventDispatcher<{
   constructor(
     public data: string = "",
     public extensions: Extension[] = [],
+    application?: App,
   ) {
     super();
+    this.application = application;
     this.view = createEditor(this, data, extensions);
+  }
+
+  /** Bind this editor to the application that owns its view. */
+  bindApplication(application: App): this {
+    this.application = application;
+    return this;
+  }
+
+  /** The owning application, with the global alias retained as fallback. */
+  get app(): App {
+    return resolveApplication(this.application);
   }
 
   readonly save = debounce(() => {
     if (this.file) {
-      return app.vault.modify(this.file, this.getValue());
+      return this.app.vault.modify(this.file, this.getValue());
     }
     return Promise.resolve();
   }, 500);
@@ -258,7 +280,7 @@ export class Editor extends EventDispatcher<{
   }
 
   trackChanges(callback?: (data: string, editor: Editor) => void) {
-    const editorUpdated = app.workspace.on(
+    const editorUpdated = this.app.workspace.on(
       "editor-updated",
       (editor: Editor, transactions: readonly TransactionSpec[]) => {
         if (editor.id !== this.id && editor.file?.path === this.file?.path) {
@@ -271,12 +293,12 @@ export class Editor extends EventDispatcher<{
       },
     );
 
-    const fileChanged = app.workspace.on(
+    const fileChanged = this.app.workspace.on(
       "file-change",
       (file: TFile, event: string) => {
         if (file.path === this.file?.path) {
           if (event !== "delete" && file) {
-            app.vault.read(file).then((contents) => {
+            this.app.vault.read(file).then((contents) => {
               if (this.getValue() !== contents) {
                 this.replaceContent(contents);
                 this.onChange(this.getValue());
@@ -289,8 +311,8 @@ export class Editor extends EventDispatcher<{
     );
 
     return () => {
-      app.workspace.offref(editorUpdated);
-      app.workspace.offref(fileChanged);
+      this.app.workspace.offref(editorUpdated);
+      this.app.workspace.offref(fileChanged);
     };
   }
 
@@ -298,13 +320,13 @@ export class Editor extends EventDispatcher<{
     extensions: Extension[],
     context?: Record<string, any>,
   ): this {
-    return app.telemetry.measure(
+    return this.app.telemetry.measure(
       "editor.update_extensions",
       (span) => {
         const ext = this.file?.extension;
         let editorExtensions: Extension[] = extensions.flat();
         if (!extensions.length && ext) {
-          editorExtensions = app.editorExtensions(ext, context);
+          editorExtensions = this.app.editorExtensions(ext, context);
         }
         span.setAttribute("editor.extension_count", editorExtensions.length);
         span.setAttribute("file.extension", ext ?? "");
@@ -325,7 +347,7 @@ export class Editor extends EventDispatcher<{
   }
 
   setValue(content: string) {
-    app.telemetry.measure(
+    this.app.telemetry.measure(
       "editor.set_value",
       (span) => {
         span.setAttribute("editor.content_length", content.length);
