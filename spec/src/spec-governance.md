@@ -45,6 +45,7 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-031 | The spec-first map MUST route Bases package sources to Bases Plugin, Packages, and Architecture. Focused and real-App Bases stories MUST route to Bases Plugin and Storybook Catalog instead of receiving the ordinary story exemption. |
 | LN-GOV-032 | The spec-first map MUST route AI package sources to AI Plugin, Packages, and Architecture. Focused AI stories MUST route to AI Plugin and Storybook Catalog instead of receiving the ordinary story exemption. |
 | LN-GOV-033 | The spec-first map MUST route `packages/api/src/lib/storage/desktop-native.ts` to Desktop Host and Packages. It MUST NOT treat that file as an App Database change. |
+| LN-GOV-034 | `AGENTS.md` MUST require explicit `link:` dependencies or `link:`-valued root overrides for colocated LapisMD siblings, prohibit external workspace membership and vendoring, preserve portable publishable manifests, and require built-export providers to be rebuilt before consumer validation. |
 
 ## Requirement structure
 
@@ -141,8 +142,9 @@ this repository retains only host integration and consumer acceptance contracts.
 6. Commit the verified slice
 
 `AGENTS.md` must stay aligned with architecture requirements (including
-`@lapismd/design-core` and Mira packages as sibling `link:` dependencies,
-package-export resolution, alias-only ui theme, and `pnpm check:no-tailwind`)
+colocated siblings as explicit `link:` dependencies or `link:`-valued root
+overrides rather than workspace members, package-export resolution, alias-only ui theme, and
+`pnpm check:no-tailwind`)
 whenever onboarding guidance changes. Development
 workflow guidance SHOULD match mira-mde: if the `jj` binary is available, use
 the `jj-jujutsu` skill and Jujutsu for VCS inspection/diffs/commits instead of

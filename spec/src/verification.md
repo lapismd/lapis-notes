@@ -567,3 +567,6 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-014 | ai-plugin | In progress | Storybook Fake send/complete and pending-approval plays |
 | LN-AI-015 | ai-plugin | In progress | normalized AgentEvent coverage including tool ids |
 | LN-AI-016 | ai-plugin | In progress | native CSS and `--ui-ai-*` tokens; no Tailwind utilities |
+| LN-ARCH-049 | architecture | Implemented | root workspace membership contains only Lapis-owned package directories; sibling resolution uses explicit links and root overrides |
+| LN-PKG-064 | packages | Implemented | private root links, portable package ranges, and `pnpm-workspace.yaml` overrides preserve the repository boundary |
+| LN-GOV-034 | spec-governance | Implemented | `AGENTS.md` records the local-link, portable-manifest, rebuild, and no-external-workspace policy |

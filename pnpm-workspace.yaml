@@ -1,11 +1,18 @@
 packages:
   - "packages/*"
   - "packages/plugins/*"
-  - "../design-core"
-  - "../design-core/packages/*"
-  - "../mira-mde/packages/mira"
 
 linkWorkspacePackages: true
+
+overrides:
+  "@lapismd/design-core": "link:../design-core"
+  "@lapismd/mira": "link:../mira-mde/packages/mira"
+  "@lapismd/mira-editor": "link:../mira-mde/packages/mira-editor"
+  "@lapismd/mira-plugin-ai": "link:../mira-mde/packages/mira-plugin-ai"
+  "@lapismd/mira-plugin-mermaid": "link:../mira-mde/packages/mira-plugin-mermaid"
+  adm-zip: ">=0.6.0"
+  aria-query: "5.3.2"
+  sharp: ">=0.35.0"
 
 onlyBuiltDependencies:
   - better-sqlite3
