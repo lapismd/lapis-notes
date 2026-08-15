@@ -414,6 +414,29 @@ export const EditableCells: Story = {
       expectBasesRowCellsAligned(table);
     });
 
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Sort", exact: true }),
+    );
+    const sortPopover = await waitFor(() => {
+      const content =
+        canvasElement.ownerDocument.body.querySelector<HTMLElement>(
+          '[data-bases-popover="sort"][data-state="open"]',
+        );
+      expect(content).toBeVisible();
+      return content!;
+    });
+    const sortPopoverWidth = sortPopover.getBoundingClientRect().width;
+    const sortScrollArea = sortPopover.querySelector<HTMLElement>(
+      '[data-ui-component="scroll-area"]',
+    );
+    expect(sortScrollArea).toBeVisible();
+    expect(sortScrollArea!.getBoundingClientRect().width).toBeGreaterThan(
+      sortPopoverWidth - 20,
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Sort", exact: true }),
+    );
+
     await userEvent.click(canvas.getByRole("button", { name: "Properties" }));
     const projectOption = await body.findByRole("option", {
       name: "Project",
@@ -451,6 +474,11 @@ export const EditableCells: Story = {
       '[data-ui-part="popover-content"]',
     );
     expect(filterPopover).toBeVisible();
+    expect(
+      Math.abs(
+        filterPopover!.getBoundingClientRect().width - sortPopoverWidth,
+      ),
+    ).toBeLessThan(1);
     const visibleFilterElement = <T extends Element>(selector: string) =>
       [...filterPopover!.querySelectorAll<T>(selector)].find((element) => {
         const rect = element.getBoundingClientRect();

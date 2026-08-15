@@ -31,6 +31,7 @@
 | LN-BASE-025 | The table MUST omit an outer bottom and inline-end container frame while retaining its internal row and column grid. The last row MUST retain its bottom separator. Scrollbar tracks MUST meet the container edge without reintroducing the outer frame. |
 | LN-BASE-026 | An initial blank filter row MUST count as the first predicate. The first Add Filter activation MUST preserve that predicate and append a second visible row rather than replacing the placeholder with an indistinguishable placeholder. |
 | LN-BASE-027 | The sticky table header MUST remain above scrolling table rows but below portaled filter panels. Opening Filter MUST produce an opaque hit-tested panel over every intersecting header cell, while its nested Select portals remain above the panel. |
+| LN-BASE-028 | The Sort and Filter outer popovers MUST resolve the same 45svw width and the same viewport maximum. Sort's internal Scroll Area MUST fill that shared width rather than retaining the former 25svw constraint. |
 
 ## Public surface
 

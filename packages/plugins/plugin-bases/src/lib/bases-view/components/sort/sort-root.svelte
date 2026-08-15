@@ -112,7 +112,8 @@
     {/snippet}
   </Popover.Trigger>
   <Popover.Content
-    class="bases-style-bg-sidebar-d3aed6 bases-style-mr-2-d2347e bases-style-max-h-70svh-d6926c bases-style-w-25svw-e5ecb7 bases-style-min-w-300px-f53d5e bases-style-overflow-y-auto-92bf82 bases-style-p-2-7660b4"
+    class="bases-query-popover bases-sort-popover bases-style-bg-sidebar-d3aed6 bases-style-mr-2-d2347e bases-style-max-h-70svh-d6926c bases-style-overflow-y-auto-92bf82 bases-style-p-2-7660b4"
+    data-bases-popover="sort"
     align="start"
   >
     <div class="bases-style-mb-2-a77ed4 bases-style-grid-f3c543 bases-style-gap-2-77a2a2">
@@ -214,7 +215,7 @@
     <DragDropProvider onDragEnd={handleDragEnd}>
       <ScrollArea
         orientation="both"
-        class="bases-style-h-full-668b21 bases-style-max-w-25svw-328285 bases-style-min-w-300px-f53d5e bases-style-data-scroll-area-viewport-max-h-55svh-15dd46"
+        class="bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-data-scroll-area-viewport-max-h-55svh-15dd46"
       >
         {#if !orderBy.length}
           <SortRow {controller} bind:sort={empty} deleteSort={() => {}} />

@@ -53,7 +53,11 @@
     {/snippet}
   </Popover.Trigger>
   <Popover.Content
-    class={cn("bases-filter-popover bases-style-mr-2-d2347e", className)}
+    class={cn(
+      "bases-query-popover bases-filter-popover bases-style-mr-2-d2347e",
+      className,
+    )}
+    data-bases-popover="filter"
     align="start"
   >
     <Accordion.Root type="single" value={defaultOpenSection}>

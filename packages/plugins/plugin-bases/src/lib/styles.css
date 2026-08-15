@@ -47,17 +47,21 @@
   --ui-bases-shadow: var(--shadow-s, 0 1px 2px rgb(0 0 0 / 0.08));
 }
 
-.bases-filter-popover[data-ui-component="popover"][data-ui-part="popover-content"] {
+.bases-query-popover[data-ui-component="popover"][data-ui-part="popover-content"] {
   --ui-bases-filter-popover-width: 45svw;
+  --ui-bases-query-popover-width: var(--ui-bases-filter-popover-width);
+  --ui-popover-width: var(--ui-bases-query-popover-width);
+  width: var(--ui-bases-query-popover-width);
+  max-width: calc(100svw - 1rem);
+}
+
+.bases-filter-popover[data-ui-component="popover"][data-ui-part="popover-content"] {
   --ui-bases-filter-popover-background: var(
     --background-primary,
     var(--background)
   );
-  --ui-popover-width: var(--ui-bases-filter-popover-width);
   --ui-popover-background: var(--ui-bases-filter-popover-background);
   --ui-popover-padding: 0.5rem;
-  width: var(--ui-bases-filter-popover-width);
-  max-width: calc(100svw - 1rem);
 }
 
 .filter-group .bases-filter-editor > .bases-autocomplete,

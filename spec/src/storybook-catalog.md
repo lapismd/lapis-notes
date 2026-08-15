@@ -58,6 +58,7 @@
 | LN-CAT-056 | `Plugins/Bases/Workflows` MUST cover query controls, schema and view settings, and persisted typed metadata editing. |
 | LN-CAT-057 | The focused Bases Editable Cells story MUST hit-test the AND/OR and operator Select portals above the enclosing filter panel and MUST prove the first Add Filter activation increments the visible predicate count. |
 | LN-CAT-058 | The focused Bases Editable Cells story MUST hit-test the filter panel above each intersecting sticky table header before exercising nested filter menus. |
+| LN-CAT-060 | The focused Bases Editable Cells story MUST open Sort and Filter in the same viewport and assert their computed outer widths match within sub-pixel tolerance. |
 
 ## Show Code source contract
 
