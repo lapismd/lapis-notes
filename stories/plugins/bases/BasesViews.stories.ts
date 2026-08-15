@@ -9,6 +9,7 @@ import { basesViewsExampleSource } from "./BasesViews.example-sources";
 import type { BasesViewScenario } from "./bases-views-fixture";
 import {
   expectBasesColumnsAligned,
+  expectBasesRowCellsAligned,
   expectOpaqueBackground,
 } from "./bases-story-assertions";
 
@@ -123,6 +124,20 @@ async function waitForView(
   return canvas;
 }
 
+function firstRowHeight(table: HTMLElement) {
+  return table
+    .querySelector<HTMLElement>('.bases-table__row[data-ui-part="row"]')!
+    .getBoundingClientRect().height;
+}
+
+function chipLineCount(control: HTMLElement) {
+  return new Set(
+    [...control.querySelectorAll<HTMLElement>(".chip")].map((chip) =>
+      Math.round(chip.getBoundingClientRect().top),
+    ),
+  ).size;
+}
+
 export const Table: Story = {
   parameters: storyParameters(
     "table",
@@ -149,9 +164,9 @@ export const Table: Story = {
         name: "Sort Project",
       });
       expect(getComputedStyle(sortProject).height).toBe("16px");
-      expect(
-        getComputedStyle(sortProject.querySelector("svg")!).width,
-      ).toBe("16px");
+      expect(getComputedStyle(sortProject.querySelector("svg")!).width).toBe(
+        "16px",
+      );
     });
   },
 };
@@ -180,6 +195,21 @@ export const EditableCells: Story = {
 
     expectBasesColumnsAligned(table);
 
+    const tags = canvas.getAllByRole("group", { name: "tags" })[0]!;
+    const collaborators = canvas.getAllByRole("group", {
+      name: "collaborators",
+    })[0]!;
+    for (const control of [tags, collaborators]) {
+      expect(getComputedStyle(control).flexWrap).toBe("wrap");
+      expect(getComputedStyle(control).overflow).toBe("visible");
+    }
+    await waitFor(() => {
+      expect(firstRowHeight(table)).toBeGreaterThan(40);
+      expect(chipLineCount(tags)).toBeGreaterThan(1);
+      expect(chipLineCount(collaborators)).toBeGreaterThan(1);
+      expectBasesRowCellsAligned(table);
+    });
+
     const dueInput = canvasElement.querySelector<HTMLElement>(
       'input[type="date"][aria-label="due"]',
     );
@@ -191,6 +221,7 @@ export const EditableCells: Story = {
       dueInput,
       canvas.getAllByRole("checkbox", { name: "featured" })[0],
       canvas.getAllByRole("combobox", { name: "tags" })[0],
+      canvas.getAllByRole("combobox", { name: "collaborators" })[0],
     ].filter(
       (control): control is HTMLElement => control instanceof HTMLElement,
     );
@@ -262,12 +293,16 @@ export const EditableCells: Story = {
     });
     await waitFor(() => {
       expectBasesColumnsAligned(table);
+      expectBasesRowCellsAligned(table);
       expect(ownerHeader!.getBoundingClientRect().width).toBeGreaterThan(
         widthBefore + 40,
       );
     });
     await userEvent.pointer({ keys: "[/MouseLeft]" });
-    expectBasesColumnsAligned(table);
+    await waitFor(() => {
+      expectBasesColumnsAligned(table);
+      expectBasesRowCellsAligned(table);
+    });
 
     const activeView = demoDocument(canvasElement).views.find(
       (view) => view.name === "Editable fields",
@@ -278,10 +313,16 @@ export const EditableCells: Story = {
 
     table.scrollLeft = 240;
     table.dispatchEvent(new Event("scroll"));
-    await waitFor(() => expectBasesColumnsAligned(table));
+    await waitFor(() => {
+      expectBasesColumnsAligned(table);
+      expectBasesRowCellsAligned(table);
+    });
     table.scrollLeft = 0;
     table.dispatchEvent(new Event("scroll"));
-    await waitFor(() => expectBasesColumnsAligned(table));
+    await waitFor(() => {
+      expectBasesColumnsAligned(table);
+      expectBasesRowCellsAligned(table);
+    });
   },
 };
 

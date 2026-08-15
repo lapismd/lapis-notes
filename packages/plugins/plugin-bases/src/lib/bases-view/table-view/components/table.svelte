@@ -25,7 +25,6 @@
     createSvelteTable,
     renderComponent,
   } from "../../data-table-adapter";
-  import { cn } from "@lapis-notes/api";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import type { SortColumn } from "../../models";
@@ -36,7 +35,7 @@
   } from "../../summary-core";
   import SortHeader from "./sort-header.svelte";
   import { resolveVirtualTotalSize } from "./table-virtualizer-core";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount, untrack } from "svelte";
   import TablePlaceholder from "./table-placeholder.svelte";
   import { useResizeObserver } from "../../hooks/useResizeObserver.svelte";
   import { resolveTableColumnTracks } from "./table-column-tracks";
@@ -497,28 +496,6 @@
 
     return items;
   });
-  let groupSections = $derived.by(() => {
-    const sections: GroupSection[] = [];
-    let start = 0;
-
-    for (const item of displayItems) {
-      if (item.kind === "group") {
-        sections.push({
-          key: item.key,
-          label: item.label,
-          value: item.value,
-          collapsed: item.collapsed,
-          start,
-        });
-        start += GROUP_HEADER_HEIGHT;
-        continue;
-      }
-
-      start += rowHeight;
-    }
-
-    return sections;
-  });
   let activeSearchQuery = $derived(view.controller.searchQuery.trim());
   let showStickySearch = $derived(
     !!activeSearchQuery && !view.controller.searchPanelOpen,
@@ -551,6 +528,56 @@
       columnTracks.tracks.map((track) => [track.id, track]),
     );
   });
+  let displayItemCount = $derived(displayItems.length);
+  let displayItemMeasurementKey = $derived(
+    displayItems.map((item) => item.key).join("\u0000"),
+  );
+  let measuredItemSizes: Record<string, number> = $state({});
+  let virtualItemEls: Array<HTMLDivElement | null> = $state([]);
+  let rowVirtualizer = createVirtualizer({
+    count: untrack(() => displayItemCount),
+    getScrollElement: () => tableContainerRef,
+    estimateSize: (index) =>
+      untrack(() => {
+        const item = displayItems[index];
+        return item
+          ? (measuredItemSizes[item.key] ??
+              (item.kind === "group" ? GROUP_HEADER_HEIGHT : rowHeight))
+          : rowHeight;
+      }),
+    overscan: 5,
+  });
+
+  $effect(() => {
+    if (rowVirtualizer.options.count !== displayItemCount) {
+      rowVirtualizer.setOptions({ count: displayItemCount });
+    }
+  });
+
+  let groupSections = $derived.by(() => {
+    rowVirtualizer.getTotalSize();
+    const sections: GroupSection[] = [];
+    let estimatedStart = 0;
+
+    for (const [index, item] of displayItems.entries()) {
+      const measurement = rowVirtualizer.measurementsCache[index];
+      if (item.kind === "group") {
+        sections.push({
+          key: item.key,
+          label: item.label,
+          value: item.value,
+          collapsed: item.collapsed,
+          start: measurement?.start ?? estimatedStart,
+        });
+      }
+
+      estimatedStart +=
+        measurement?.size ??
+        (item.kind === "group" ? GROUP_HEADER_HEIGHT : rowHeight);
+    }
+
+    return sections;
+  });
   let stickyGroup = $derived.by(() => {
     if (!groupBy?.property || !groupSections.length) {
       return null;
@@ -580,27 +607,6 @@
       offset,
       visible: scrollTop > active.start,
     };
-  });
-
-  let virtualItemEls: Array<HTMLDivElement | null> = $state([]);
-  let rowVirtualizer = createVirtualizer({
-    get count() {
-      return displayItems.length;
-    },
-    getScrollElement: () => tableContainerRef,
-    estimateSize: (index) => {
-      const item = displayItems[index];
-      return item?.kind === "group" ? GROUP_HEADER_HEIGHT : rowHeight;
-    },
-    measureElement:
-      typeof window !== "undefined" &&
-      navigator.userAgent.indexOf("Firefox") === -1
-        ? (element) => element?.getBoundingClientRect().height
-        : undefined,
-    overscan: 5,
-  });
-  $effect(() => {
-    rowVirtualizer.setOptions({ count: displayItems.length });
   });
 
   let columnVirtualizer = createVirtualizer({
@@ -642,11 +648,63 @@
     columnVirtualizer.measure();
   });
 
+  let measuredDisplayItemKey = "";
+  let measuredRowHeight = 0;
+  let measurementFrame = 0;
+
   $effect(() => {
-    const _ = [displayItems, rowHeight];
-    virtualItemEls.length = displayItems.length;
+    if (
+      measuredDisplayItemKey === displayItemMeasurementKey &&
+      measuredRowHeight === rowHeight
+    ) {
+      return;
+    }
+
+    measuredDisplayItemKey = displayItemMeasurementKey;
+    const rowHeightChanged = measuredRowHeight !== rowHeight;
+    measuredRowHeight = rowHeight;
+    if (rowHeightChanged) {
+      measuredItemSizes = {};
+    }
+    virtualItemEls.length = displayItemCount;
     rowVirtualizer.measure();
   });
+
+  $effect(() => {
+    const _ = [
+      displayItems,
+      columnTracks,
+      columnSizingInfo.isResizingColumn,
+      rowHeight,
+    ];
+    const renderedElements = virtualItemEls.slice();
+    cancelAnimationFrame(measurementFrame);
+    measurementFrame = requestAnimationFrame(() => {
+      const nextSizes = { ...measuredItemSizes };
+      let sizesChanged = false;
+
+      renderedElements.forEach((element, index) => {
+        if (element?.isConnected) {
+          const item = displayItems[index];
+          const height = element.getBoundingClientRect().height;
+          if (item && Math.abs((nextSizes[item.key] ?? 0) - height) > 0.25) {
+            nextSizes[item.key] = height;
+            sizesChanged = true;
+          }
+          rowVirtualizer.resizeItem(
+            index,
+            height,
+          );
+        }
+      });
+
+      if (sizesChanged) {
+        measuredItemSizes = nextSizes;
+      }
+    });
+  });
+
+  onDestroy(() => cancelAnimationFrame(measurementFrame));
 
   type RenderedVirtualRow = ReturnType<
     typeof rowVirtualizer.getVirtualItems
@@ -697,10 +755,6 @@
     }
 
     previousDisplayItemCount = count;
-  });
-
-  $effect(() => {
-    virtualItemEls.forEach((el) => rowVirtualizer.measureElement(el));
   });
 
   let show = $state(false);
@@ -853,11 +907,8 @@
                       virtualItemEls[virtualRow.index] = value;
                     }
                   }
-                  class={cn(
-                    "bases-table__row bases-tr absolute bases-style-top-0-216740 bases-style-left-0-c78fac bases-style-flex-60fbb7 bases-style-h-var-bases-table-row-height-c8d78a bases-style-min-w-full-a1e7a8 bases-style-flex-row-a6e886 bases-style-transition-colors-ceb69a",
-                    virtualRow.index === 0 && "bases-style-border-t-b950dd",
-                  )}
-                  style={`width: ${tableWidth}px; top: ${virtualRow.start}px;`}
+                  class="bases-table__row bases-tr absolute bases-style-top-0-216740 bases-style-left-0-c78fac bases-style-flex-60fbb7 bases-style-min-w-full-a1e7a8 bases-style-flex-row-a6e886 bases-style-transition-colors-ceb69a"
+                  style={`width: ${tableWidth}px; top: ${virtualRow.start}px; min-height: var(--ui-bases-table-row-height);`}
                   data-ui-part="row"
                 >
                   {#each headers as id, idx (`${id}_${virtualRow.key}_${idx}`)}
@@ -865,7 +916,7 @@
                     <div
                       data-column-id={id}
                       class="bases-table__cell bases-td bases-style-flex-none-81e443 bases-style-overflow-hidden-2cd02d bases-style-text-nowrap-621d3b bases-style-overflow-ellipsis-5b2ef5 bases-style-whitespace-nowrap-e82ae8"
-                      style={`flex: 0 0 auto; width: ${track?.widthCss ?? "0px"}; height: var(--ui-bases-table-row-height)`}
+                      style={`flex: 0 0 auto; width: ${track?.widthCss ?? "0px"}; min-height: var(--ui-bases-table-row-height)`}
                     >
                       <div
                         class="bases-table__cell-inner bases-style-h-full-668b21 bases-style-w-full-6da6a3 bases-style-px-2-d5eab2 bases-style-py-1-660d2e"

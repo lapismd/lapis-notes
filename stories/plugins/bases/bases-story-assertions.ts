@@ -68,6 +68,46 @@ export function expectBasesColumnsAligned(
   }
 }
 
+export function expectBasesRowCellsAligned(
+  table: HTMLElement,
+  tolerance = 0.75,
+) {
+  const rows = table.querySelectorAll<HTMLElement>(
+    '.bases-table__row[data-ui-part="row"]',
+  );
+  expect(rows.length).toBeGreaterThan(0);
+
+  for (const [rowIndex, row] of [...rows].entries()) {
+    const cells = row.querySelectorAll<HTMLElement>(
+      ".bases-table__cell[data-column-id]",
+    );
+    expect(cells.length, `Missing cells in row ${rowIndex}`).toBeGreaterThan(0);
+    const expected = cells[0]!.getBoundingClientRect();
+
+    for (const cell of [...cells].slice(1)) {
+      const actual = cell.getBoundingClientRect();
+      expect(Math.abs(expected.top - actual.top)).toBeLessThanOrEqual(
+        tolerance,
+      );
+      expect(Math.abs(expected.bottom - actual.bottom)).toBeLessThanOrEqual(
+        tolerance,
+      );
+      expect(Math.abs(expected.height - actual.height)).toBeLessThanOrEqual(
+        tolerance,
+      );
+    }
+  }
+
+  for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
+    const previous = rows[rowIndex - 1]!.getBoundingClientRect();
+    const current = rows[rowIndex]!.getBoundingClientRect();
+    expect(
+      Math.abs(previous.bottom - current.top),
+      `Rows ${rowIndex - 1} and ${rowIndex} overlap or leave a gap`,
+    ).toBeLessThanOrEqual(tolerance);
+  }
+}
+
 export function expectOpaqueBackground(element: HTMLElement) {
   const background = getComputedStyle(element).backgroundColor;
   const canvas = document.createElement("canvas");

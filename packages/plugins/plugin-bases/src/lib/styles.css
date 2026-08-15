@@ -226,7 +226,7 @@
 
 .bases-table .bases-cell-editor [data-ui-component="chip-autocomplete"] {
   width: 100%;
-  height: 100%;
+  height: auto;
   padding: 0;
   color: var(--ui-bases-normal-color);
   font-size: inherit;
@@ -234,12 +234,20 @@
   text-transform: none;
 }
 
+.bases-table .bases-cell-editor[data-type="tags"],
+.bases-table .bases-cell-editor[data-type="multitext"] {
+  height: auto;
+}
+
 .bases-table
   .bases-cell-editor
   [data-ui-component="chip-autocomplete"]
   .chip-autocomplete-box {
-  overflow: hidden;
-  flex-wrap: nowrap;
+  height: auto;
+  min-height: calc(var(--ui-bases-table-row-height) - 0.5rem);
+  align-content: center;
+  overflow: visible;
+  flex-wrap: wrap;
   gap: 0.25rem;
   padding: 0 0.25rem;
 }

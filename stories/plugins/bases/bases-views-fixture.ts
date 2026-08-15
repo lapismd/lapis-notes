@@ -19,6 +19,12 @@ cover: "[[Assets/aurora.svg]]"
 tags:
   - product
   - launch
+  - research
+  - design-system
+collaborators:
+  - Maya Chen
+  - Priya Shah
+  - Leo Martins
 ---
 # Aurora
 
@@ -33,6 +39,9 @@ featured: false
 cover: "[[Assets/harbor.svg]]"
 tags:
   - platform
+collaborators:
+  - Leo Martins
+  - Maya Chen
 ---
 # Harbor
 
@@ -48,6 +57,9 @@ cover: "[[Assets/juniper.svg]]"
 tags:
   - mobile
   - research
+collaborators:
+  - Priya Shah
+  - Maya Chen
 ---
 # Juniper
 
@@ -69,6 +81,7 @@ export const BASES_SAMPLE_TYPES = {
     due: "date",
     featured: "checkbox",
     tags: "tags",
+    collaborators: "multitext",
   },
 };
 
@@ -109,11 +122,15 @@ const views: BasesDocument["views"] = [
       "note.due",
       "note.featured",
       "note.tags",
+      "note.collaborators",
     ],
     sort: [{ property: "note.score", direction: "DESC" }],
     filter: { and: [] },
     limit: 0,
-    columnSize: {},
+    columnSize: {
+      "note.tags": 176,
+      "note.collaborators": 176,
+    },
     imageAspectRatio: 1,
   },
   {
@@ -165,6 +182,7 @@ export function createBasesViewsDocument(
       "note.due": { displayName: "Due" },
       "note.featured": { displayName: "Featured" },
       "note.tags": { displayName: "Tags" },
+      "note.collaborators": { displayName: "Collaborators" },
       "note.cover": { displayName: "Cover" },
     },
     formulas: {},

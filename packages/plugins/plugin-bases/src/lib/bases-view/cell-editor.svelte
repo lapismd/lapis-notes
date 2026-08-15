@@ -113,6 +113,7 @@
   class="bases-cell-editor"
   data-ui-component="bases-cell-editor"
   data-ui-part="root"
+  data-type={type}
 >
   {#if type === "file"}
     <Autocomplete
