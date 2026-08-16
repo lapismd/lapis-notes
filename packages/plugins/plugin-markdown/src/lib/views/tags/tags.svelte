@@ -160,7 +160,7 @@
 
   function openTagSearch(tag: string): void {
     void app.commands
-      .executeCommand("search:open-search-left-sidebar", `tag:#${tag}`)
+      .executeCommand("search:open-search", `tag:#${tag}`)
       .catch(() => undefined);
   }
 

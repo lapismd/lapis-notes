@@ -24,11 +24,24 @@ function createPluginApp() {
   }> & {
     editorViews: Map<string, unknown>;
     registerEditorView: (contribution: { id: string }) => () => void;
+    registerView: ReturnType<typeof vi.fn>;
+    unregisterView: ReturnType<typeof vi.fn>;
+    registerSidebarView: ReturnType<typeof vi.fn>;
+    unregisterSidebarView: ReturnType<typeof vi.fn>;
   };
   workspace.editorViews = new Map<string, unknown>();
   workspace.registerEditorView = (contribution) => {
     workspace.editorViews.set(contribution.id, contribution);
     return () => workspace.editorViews.delete(contribution.id);
+  };
+  workspace.registerView = vi.fn();
+  workspace.unregisterView = vi.fn();
+  workspace.registerSidebarView = vi.fn();
+  workspace.unregisterSidebarView = vi.fn();
+
+  const commands = {
+    registerCommand: vi.fn(),
+    unregisterCommand: vi.fn(),
   };
 
   const app = {
@@ -46,6 +59,7 @@ function createPluginApp() {
       ) => callback({ setAttribute() {} }),
     },
     workspace,
+    commands,
     configurationOptionSources: new ConfigurationOptionSourceRegistry(),
     searchDocumentProviders: new SearchDocumentProviderRegistry(),
   } as unknown as App;
@@ -77,6 +91,82 @@ beforeEach(() => {
 });
 
 describe("Plugin data persistence", () => {
+  it("registers and disposes a ViewAccess command with the plugin prefix", () => {
+    const { app } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "fixture",
+      name: "Fixture",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.load();
+
+    plugin.registerSidebarView(
+      "fixture-view",
+      () => ({}) as never,
+      { side: "left" },
+      {
+        kind: "command",
+        command: {
+          id: "open-fixture",
+          name: "Open Fixture",
+          callback: () => {},
+        },
+      },
+    );
+
+    expect(app.workspace.registerView).toHaveBeenCalledWith(
+      "fixture-view",
+      expect.any(Function),
+    );
+    expect(app.workspace.registerSidebarView).toHaveBeenCalledWith(
+      "fixture-view",
+      { side: "left" },
+    );
+    expect(app.commands.registerCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "fixture:open-fixture",
+        name: "Fixture: Open Fixture",
+      }),
+    );
+
+    plugin.unload();
+
+    expect(app.commands.unregisterCommand).toHaveBeenCalledWith(
+      "fixture:open-fixture",
+    );
+    expect(app.workspace.unregisterSidebarView).toHaveBeenCalledWith(
+      "fixture-view",
+    );
+    expect(app.workspace.unregisterView).toHaveBeenCalledWith("fixture-view");
+  });
+
+  it("keeps file, internal, and alias registrations out of the palette", () => {
+    const { app } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "fixture",
+      name: "Fixture",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.load();
+
+    plugin.registerView("file", () => ({}) as never, { kind: "file" });
+    plugin.registerView("landing", () => ({}) as never, {
+      kind: "internal",
+    });
+    plugin.registerView("legacy", () => ({}) as never, {
+      kind: "alias",
+      canonicalViewType: "file",
+    });
+
+    expect(app.commands.registerCommand).not.toHaveBeenCalled();
+  });
+
   it("owns search-document provider registration for its lifecycle", () => {
     const { app } = createPluginApp();
     const plugin = new TestPlugin(app, {

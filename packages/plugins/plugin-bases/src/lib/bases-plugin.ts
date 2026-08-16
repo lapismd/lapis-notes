@@ -36,7 +36,9 @@ export class BasesPlugin extends Plugin {
   }
 
   async onload() {
-    this.registerView(BasesViewType, (leaf) => new BasesView(leaf));
+    this.registerView(BasesViewType, (leaf) => new BasesView(leaf), {
+      kind: "file",
+    });
     this.registerEditorView({
       id: BasesViewType,
       label: "Bases",

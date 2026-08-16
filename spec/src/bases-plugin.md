@@ -67,6 +67,8 @@ The Bases stylesheet keeps legacy density local to these surfaces; current
 Design Core remains the authority for theme colors and typography. Source mode
 uses a Bases-owned YAML editor registration rather than treating `yaml` as a
 file view or relying on an unregistered extension alias.
+The Bases leaf declares `ViewAccess.file`: `.bases` and `.base` associations
+remain its explicit file-backed opening path rather than a palette panel.
 
 ## Intentional parity gaps
 

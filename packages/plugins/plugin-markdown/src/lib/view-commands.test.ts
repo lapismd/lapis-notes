@@ -42,12 +42,24 @@ describe("Markdown panel view commands", () => {
     const commandIds = MARKDOWN_PANEL_VIEW_COMMANDS.map(
       ({ command }) => command.id,
     );
-    expect(new Set(commandIds).size).toBe(commandIds.length);
+    expect(commandIds).toEqual([
+      "open-all-properties",
+      "open-outline",
+      "open-file-properties",
+      "open-backlinks",
+      "open-outgoing-links",
+      "open-tags",
+    ]);
     expect(
-      MARKDOWN_PANEL_VIEW_COMMANDS.every(
-        ({ command }) => command.id.length > 0 && command.name.length > 0,
-      ),
-    ).toBe(true);
+      MARKDOWN_PANEL_VIEW_COMMANDS.map(({ command }) => command.name),
+    ).toEqual([
+      "Open All Properties",
+      "Open Outline",
+      "Open File Properties",
+      "Open Backlinks",
+      "Open Outgoing Links",
+      "Open Tags",
+    ]);
   });
 
   it("keeps compatibility aliases on their canonical command registrations", () => {
@@ -68,34 +80,42 @@ describe("Markdown panel view commands", () => {
     });
   });
 
-  it("reveals existing panel leaves without creating another one", async () => {
+  it("activates and reveals an existing panel leaf without creating another one", async () => {
     const first = {} as WorkspaceLeaf;
-    const second = {} as WorkspaceLeaf;
     const revealLeaf = vi.fn();
-    const getRightLeaf = vi.fn();
+    const ensureSideLeaf = vi.fn();
+    const activateLeaf = vi.fn();
     const app = {
       workspace: {
-        getLeavesOfType: vi.fn(() => [first, second]),
-        getRightLeaf,
+        getLeavesOfType: vi.fn(() => [first]),
+        ensureSideLeaf,
+        activateLeaf,
         revealLeaf,
       },
     } as unknown as App;
 
     await revealOrOpenMarkdownPanel(app, OutlineViewType);
 
-    expect(revealLeaf).toHaveBeenNthCalledWith(1, first);
-    expect(revealLeaf).toHaveBeenNthCalledWith(2, second);
-    expect(getRightLeaf).not.toHaveBeenCalled();
+    expect(ensureSideLeaf).not.toHaveBeenCalled();
+    expect(activateLeaf).toHaveBeenCalledWith(first, {
+      focusRootHost: false,
+      source: "api",
+      operation: `open-${OutlineViewType}`,
+    });
+    expect(revealLeaf).toHaveBeenCalledWith(first);
   });
 
-  it("creates the canonical panel in the right leaf when absent", async () => {
+  it("creates, activates, and reveals the canonical panel when absent", async () => {
     const setViewState = vi.fn().mockResolvedValue(undefined);
     const leaf = { setViewState } as unknown as WorkspaceLeaf;
     const revealLeaf = vi.fn();
+    const activateLeaf = vi.fn();
+    const ensureSideLeaf = vi.fn(() => leaf);
     const app = {
       workspace: {
         getLeavesOfType: vi.fn(() => []),
-        getRightLeaf: vi.fn(() => leaf),
+        ensureSideLeaf,
+        activateLeaf,
         revealLeaf,
       },
     } as unknown as App;
@@ -103,21 +123,12 @@ describe("Markdown panel view commands", () => {
     await revealOrOpenMarkdownPanel(app, BacklinksViewType);
 
     expect(setViewState).toHaveBeenCalledWith({ type: BacklinksViewType });
+    expect(ensureSideLeaf).toHaveBeenCalledWith(BacklinksViewType, "right");
+    expect(activateLeaf).toHaveBeenCalledWith(leaf, {
+      focusRootHost: false,
+      source: "api",
+      operation: `open-${BacklinksViewType}`,
+    });
     expect(revealLeaf).toHaveBeenCalledWith(leaf);
-  });
-
-  it("does nothing when the default right leaf is unavailable", async () => {
-    const revealLeaf = vi.fn();
-    const app = {
-      workspace: {
-        getLeavesOfType: vi.fn(() => []),
-        getRightLeaf: vi.fn(() => null),
-        revealLeaf,
-      },
-    } as unknown as App;
-
-    await revealOrOpenMarkdownPanel(app, TagsViewType);
-
-    expect(revealLeaf).not.toHaveBeenCalled();
   });
 });

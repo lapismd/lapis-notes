@@ -45,6 +45,17 @@ describe("AiPlugin contracts", () => {
     expect(plugin).toContain("revealConversationHistory");
   });
 
+  it("registers concise command-backed chat and history openers", () => {
+    const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
+
+    expect(source).toContain('id: "open-chat"');
+    expect(source).toContain('name: "Open Chat"');
+    expect(source).toContain('id: "open-history"');
+    expect(source).toContain('name: "Open History"');
+    expect(source).not.toContain("show-ai-conversation-history");
+    expect(source).not.toContain('id: "open-ai-chat"');
+  });
+
   it("preserves history while opening exact conversations in reusable main tabs", () => {
     const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
 
@@ -52,6 +63,7 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain('getLeaf("tab")');
     expect(source).toContain("findMainConversationLeaf(location)");
     expect(source).toContain("iterateRootLeaves");
+    expect(source).toContain('operation: "open-ai-chat"');
     expect(source).not.toContain(
       "getLeavesOfType(AiHistoryViewType)[0] ??\n      this.app.workspace.getLeavesOfType(AiViewType)[0]",
     );

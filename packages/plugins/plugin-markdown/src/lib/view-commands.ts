@@ -30,8 +30,8 @@ export type MarkdownPanelViewCommandRegistration = {
   viewType: string;
   legacyViewTypes: readonly string[];
   command: {
-    id: string;
-    name: string;
+    id: `open-${string}`;
+    name: `Open ${string}`;
   };
   sidebar?: MarkdownPanelSidebarRegistration;
 };
@@ -41,32 +41,32 @@ export const MARKDOWN_PANEL_VIEW_COMMANDS = [
     viewType: AllPropertiesViewType,
     legacyViewTypes: [],
     command: {
-      id: "show-all-properties",
-      name: "Show all properties",
+      id: "open-all-properties",
+      name: "Open All Properties",
     },
   },
   {
     viewType: OutlineViewType,
     legacyViewTypes: OutlineLegacyViewTypes,
     command: {
-      id: "show-outline",
-      name: "Show outline",
+      id: "open-outline",
+      name: "Open Outline",
     },
   },
   {
     viewType: FilePropertiesViewType,
     legacyViewTypes: FilePropertiesLegacyViewTypes,
     command: {
-      id: "show-file-properties",
-      name: "Show file properties",
+      id: "open-file-properties",
+      name: "Open File Properties",
     },
   },
   {
     viewType: BacklinksViewType,
     legacyViewTypes: BacklinksLegacyViewTypes,
     command: {
-      id: "show-backlinks",
-      name: "Show backlinks",
+      id: "open-backlinks",
+      name: "Open Backlinks",
     },
     sidebar: {
       side: "right",
@@ -78,8 +78,8 @@ export const MARKDOWN_PANEL_VIEW_COMMANDS = [
     viewType: OutgoingLinksViewType,
     legacyViewTypes: OutgoingLinksLegacyViewTypes,
     command: {
-      id: "show-outgoing-links",
-      name: "Show outgoing links",
+      id: "open-outgoing-links",
+      name: "Open Outgoing Links",
     },
     sidebar: {
       side: "right",
@@ -91,8 +91,8 @@ export const MARKDOWN_PANEL_VIEW_COMMANDS = [
     viewType: TagsViewType,
     legacyViewTypes: TagsLegacyViewTypes,
     command: {
-      id: "show-tags",
-      name: "Show tags",
+      id: "open-tags",
+      name: "Open Tags",
     },
     sidebar: {
       side: "right",
@@ -109,17 +109,13 @@ export async function revealOrOpenMarkdownPanel(
   app: App,
   viewType: MarkdownPanelViewType,
 ): Promise<void> {
-  const leaves = app.workspace.getLeavesOfType(viewType);
-  if (leaves.length > 0) {
-    for (const leaf of leaves) {
-      app.workspace.revealLeaf(leaf);
-    }
-    return;
-  }
-
-  const leaf = app.workspace.getRightLeaf(false);
-  if (!leaf) return;
-
-  await leaf.setViewState({ type: viewType });
-  app.workspace.revealLeaf(leaf);
+  const existing = app.workspace.getLeavesOfType(viewType)[0];
+  const target = existing ?? app.workspace.ensureSideLeaf(viewType, "right");
+  if (!existing) await target.setViewState({ type: viewType });
+  app.workspace.activateLeaf(target, {
+    focusRootHost: false,
+    source: "api",
+    operation: `open-${viewType}`,
+  });
+  await app.workspace.revealLeaf(target);
 }

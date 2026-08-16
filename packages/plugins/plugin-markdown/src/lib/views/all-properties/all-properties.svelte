@@ -298,7 +298,7 @@
     if (renameState?.property === property.name) return;
     void app.commands
       .executeCommand(
-        "search:open-search-left-sidebar",
+        "search:open-search",
         quotedPropertyQuery(queryName),
       )
       .catch(() => undefined);

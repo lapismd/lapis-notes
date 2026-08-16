@@ -335,6 +335,13 @@ export class AiPlugin extends Plugin {
       icon: "sparkles",
       group: "AI",
       groupTitle: "AI",
+    }, {
+      kind: "command",
+      command: {
+        id: "open-chat",
+        name: "Open Chat",
+        callback: () => void this.openAiChat(),
+      },
     });
     this.registerSidebarView(
       AiHistoryViewType,
@@ -346,17 +353,15 @@ export class AiPlugin extends Plugin {
         group: "AI",
         groupTitle: "AI",
       },
+      {
+        kind: "command",
+        command: {
+          id: "open-history",
+          name: "Open History",
+          callback: () => void this.revealConversationHistory(),
+        },
+      },
     );
-    this.addCommand({
-      id: "show-ai-conversation-history",
-      name: "Show AI conversation history",
-      callback: () => void this.revealConversationHistory(),
-    });
-    this.addCommand({
-      id: "open-ai-chat",
-      name: "Open AI chat",
-      callback: () => void this.openAiChat(),
-    });
   }
 
   private async openAiChat(): Promise<void> {
@@ -389,6 +394,11 @@ export class AiPlugin extends Plugin {
     const target =
       existing ?? this.app.workspace.ensureSideLeaf(AiViewType, "right");
     if (!existing) await target.setViewState({ type: AiViewType, state });
+    this.app.workspace.activateLeaf(target, {
+      focusRootHost: false,
+      source: "api",
+      operation: "open-ai-chat",
+    });
     await this.app.workspace.revealLeaf(target);
   }
 

@@ -172,13 +172,13 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   placement stories under one nested
   `Workspace/Panels/<Family>/<Panel>` group instead of adding a flat run of
   sibling stories to the family.
-- Register every canonical movable panel view together with a discoverable
-  application command. That command must reveal an existing instance wherever
-  it was moved, or create and reveal the canonical view in its documented
-  default surface. Keep the association declarative and covered by an audit
-  test so adding a panel without command metadata fails. File-backed editor
-  views open through editor associations; load-only compatibility aliases reuse
-  the canonical command and never add duplicate palette entries.
+- Classify every first-party plugin view registration with `ViewAccess`.
+  Canonical movable panels use `command`, whose concise opener must activate
+  and reveal an existing instance wherever it was moved or create, activate,
+  and reveal the documented default surface. Keep the association declarative
+  and covered by the repository audit. File-backed editor views use `file`,
+  host-only views use `internal`, and load-only compatibility aliases use
+  `alias`; those exceptions never add duplicate palette entries.
 - Unless the mapped spec explicitly narrows the coverage, demonstrate the real
   panel in all six supported surfaces: Middle (Top Tabs), Stacked Tabs, Left
   Sidebar, Right Sidebar, Bottom Panel, and Sidebar As a Group. The bottom-panel

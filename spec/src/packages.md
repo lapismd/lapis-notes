@@ -81,6 +81,7 @@
 | LN-PKG-075 | Root real-agent smoke scripts MUST remain thin supervisors over `@lapis-notes/ai-host`, Storybook, Electron, and Turbo. Seed creation and reset confinement MUST remain deterministic and testable without starting an agent, while the manual checklist stays with `@lapis-notes/ai`. |
 | LN-PKG-076 | `@lapis-notes/api/desktop-native` MUST expose the native bridge and capability contract without evaluating the Svelte component barrel. Node-side AI runtime adapters and real-host diagnostics MUST consume that narrow entry. |
 | LN-PKG-077 | `@lapis-notes/ai` MUST own asynchronous chat preparation and conversation-location tab reuse. `@lapis-notes/api` MUST remain limited to generic main-tab creation, sidebar-leaf registration, activation, and reveal contracts; workspace packages MUST NOT acquire AI-specific navigation policy. |
+| LN-PKG-078 | `@lapis-notes/api` MUST own the generic `ViewAccess` registration contract, plugin-name command prefixing, and live command-palette projection. First-party plugins MUST own their view classifications and activation callbacks, while the repository-local validator MUST own first-party-only enforcement. |
 
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.

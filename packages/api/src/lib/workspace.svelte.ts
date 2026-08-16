@@ -57,6 +57,7 @@ import {
   WorkspaceMenu as DesignWorkspaceMenu,
   type WorkspaceViewChrome as DesignWorkspaceViewChrome,
   type WorkspaceViewContext as DesignWorkspaceViewContext,
+  type AppShellCommand,
   type ManagedPluginSettingsSource,
 } from "@lapismd/design-core/workspace/core";
 import { notificationsPlugin } from "@lapismd/design-core/workspace/plugins/notifications";
@@ -1921,6 +1922,7 @@ export class Workspace extends EventDispatcher<{
   #editorViewBridgeDisposer: (() => void) | null = null;
   #pluginSettingsBridgeDisposer: (() => void) | null = null;
   #statusBarBridgeDisposer: (() => void) | null = null;
+  #commandBridgeDisposer: (() => void) | null = null;
   private workspaceLayoutFile = "workspace.json";
 
   public statusEl: HTMLElement = $state()!;
@@ -2684,6 +2686,7 @@ export class Workspace extends EventDispatcher<{
     setWorkspaceHostBinding(this, {
       controller: this.#workspaceHostController,
     });
+    this.installCommandBridge(this.#workspaceHostController);
     this.installStatusBarBridge(this.#workspaceHostController);
     this.diagnostics = new DiagnosticsManager(
       this.#workspaceHostController.diagnostics,
@@ -2841,11 +2844,57 @@ export class Workspace extends EventDispatcher<{
     this.#pluginSettingsBridgeDisposer = null;
     this.#statusBarBridgeDisposer?.();
     this.#statusBarBridgeDisposer = null;
+    this.#commandBridgeDisposer?.();
+    this.#commandBridgeDisposer = null;
     this.#editorViewBridgeDisposer?.();
     this.#editorViewBridgeDisposer = null;
     this.#workspaceHostViewDisposers.forEach((dispose) => dispose());
     this.#workspaceHostViewDisposers.clear();
     await this.#workspaceHostController?.dispose();
+  }
+
+  private installCommandBridge(controller: AppShellController): void {
+    const disposers = new Map<string, () => void>();
+    const sync = (command: import("./command.svelte").Command) => {
+      disposers.get(command.id)?.();
+      const projected: AppShellCommand = {
+        id: command.id,
+        title: command.name,
+        category: command.category,
+        icon: command.icon,
+        sourcePlugin: command.sourcePlugin,
+        hotkeys: this.app.commands.getEffectiveHotkeys(command.id),
+        when: () => this.app.commands.isCommandAvailable(command.id),
+        callback: () => this.app.commands.executeCommand(command.id),
+      };
+      disposers.set(command.id, controller.commands.register(projected));
+    };
+    const remove = (command: import("./command.svelte").Command) => {
+      disposers.get(command.id)?.();
+      disposers.delete(command.id);
+    };
+    for (const command of Object.values(this.app.commands.commands)) {
+      sync(command);
+    }
+    const registered = this.app.commands.on("register", sync);
+    const unregistered = this.app.commands.on("unregister", remove);
+    const hotkeysUpdated = this.app.commands.on("hotkeys-updated", (event) => {
+      if (event.commandId) {
+        const command = this.app.commands.getCommand(event.commandId);
+        if (command) sync(command);
+        return;
+      }
+      for (const command of Object.values(this.app.commands.commands)) {
+        sync(command);
+      }
+    });
+    this.#commandBridgeDisposer = () => {
+      this.app.commands.offref(registered);
+      this.app.commands.offref(unregistered);
+      this.app.commands.offref(hotkeysUpdated);
+      disposers.forEach((dispose) => dispose());
+      disposers.clear();
+    };
   }
 
   private installStatusBarBridge(controller: AppShellController): void {

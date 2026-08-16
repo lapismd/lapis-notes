@@ -27,7 +27,7 @@ import { isVisibleExplorerPath } from "./vault-path-visibility";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
-  name: "Lapis File Explorer",
+  name: "Explorer",
   author: "Lapis Notes",
   version: "0.0.1",
   minAppVersion: "0.0.1",
@@ -327,15 +327,27 @@ export function createFileExplorerPlugin(
       });
 
       this.registerSidebarView(
-        "file-explorer",
+        FileExplorerViewType,
         (leaf) => new FileExplorerView(leaf, options.loading ?? false),
         {
           side: "left",
           title: "Files",
           icon: "folder-closed",
         },
+        {
+          kind: "command",
+          command: {
+            id: "open-explorer",
+            name: "Open Explorer",
+            callback: () => void this.openExplorer(),
+          },
+        },
       );
-      this.registerView("lapis-landing", (leaf) => new LapisLandingView(leaf));
+      this.registerView(
+        "lapis-landing",
+        (leaf) => new LapisLandingView(leaf),
+        { kind: "internal" },
+      );
 
       this.addCommand({
         id: "reveal-path",
@@ -379,6 +391,21 @@ export function createFileExplorerPlugin(
       );
 
       await this.app.configuration.materializeSchemaDefaults();
+    }
+
+    private async openExplorer(): Promise<void> {
+      const existing = this.app.workspace.getLeavesOfType(FileExplorerViewType)[0];
+      const target =
+        existing ?? this.app.workspace.ensureSideLeaf(FileExplorerViewType, "left");
+      if (!existing) {
+        await target.setViewState({ type: FileExplorerViewType, state: {} });
+      }
+      this.app.workspace.activateLeaf(target, {
+        focusRootHost: false,
+        source: "api",
+        operation: "open-explorer",
+      });
+      await this.app.workspace.revealLeaf(target);
     }
   };
 }

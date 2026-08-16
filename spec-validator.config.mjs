@@ -36,6 +36,9 @@ export default defineConfig(tableRequirements(), {
     "SPEC-STORY-SOURCE-FIELDS": "LN-CAT-025",
     "SPEC-STORY-SOURCE-BOUNDARY": "LN-CAT-024",
     "SPEC-STORY-SOURCE-MISSING": "LN-GOV-023",
+    "VIEW-COMMAND-ACCESS-MISSING": "LN-PLUG-016",
+    "VIEW-COMMAND-ACCESS-INVALID": "LN-PLUG-016",
+    "VIEW-COMMAND-OPEN-SHAPE": "LN-PLUG-017",
   },
   validators: {
     summary: true,
@@ -121,6 +124,11 @@ export default defineConfig(tableRequirements(), {
             "spec/src/architecture.md",
             "spec/src/editor-demo.md",
           ],
+        },
+        {
+          pattern:
+            "^packages/(?:file-explorer|plugins/plugin-[^/]+)/(?:src/|package\\.json$)",
+          chapters: ["spec/src/plugin-model.md"],
         },
         {
           pattern: "^packages/desktop-electron/",
@@ -305,5 +313,15 @@ export default defineConfig(tableRequirements(), {
       ],
       protected: ["^(?:packages/[^/]+/src/|\\.storybook/|stories/catalog/)"],
     },
+  },
+  plugins: ["scripts/spec-validation/view-command-audit.mjs"],
+  check: {
+    lanes: [
+      {
+        name: "view-command-audit",
+        command: "node",
+        args: ["--test", "scripts/spec-validation/view-command-audit.test.mjs"],
+      },
+    ],
   },
 });

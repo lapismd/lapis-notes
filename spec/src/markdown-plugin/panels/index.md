@@ -58,3 +58,6 @@ bounded flex area, leaving the embedded Design Core Scroll Area as the one
 vertical owner for a long document.
 Former panel view IDs are compatibility aliases and resolve through the
 canonical command described by `LN-WS-052`.
+The canonical registry uses one `Open …` command per panel and reuses an
+existing leaf before creating, activating, and revealing the documented
+right-sidebar default.

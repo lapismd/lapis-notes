@@ -62,6 +62,7 @@
 | LN-ARCH-056 | AI History MUST remain an AI-owned, placement-neutral Explorer-style tree composed from public shared primitives. Host replay and native agent state MUST remain bounded, non-canonical, and safe to lose without automatically repeating a side-effecting turn. |
 | LN-ARCH-057 | Real-agent diagnostics MUST use explicit developer-invoked supervisors around the production host boundaries. Storybook MUST remain passive, an attached loopback token MUST exist only in the supervised child environment, and Electron MUST use one seeded folder as both portable vault source and native agent workspace. |
 | LN-ARCH-058 | AI chat view construction MUST remain synchronous and presentation-first while conversation, catalog, and runtime preparation continue behind the mounted surface. Conversation history MUST use generic workspace leaf activation to preserve its sidebar view and route location-keyed conversations into reusable main-area tabs. |
+| LN-ARCH-059 | API MUST compose generic view access metadata into the existing plugin command lifecycle and project active API commands into the Design Core palette; first-party plugins retain placement, reuse, activation, and reveal policy for their own views. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

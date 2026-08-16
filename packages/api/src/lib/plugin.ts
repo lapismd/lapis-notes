@@ -46,6 +46,37 @@ import type {
   DiagnosticCollectionOptions,
 } from "./diagnostics";
 
+/**
+ * A concise, plugin-owned palette command that opens a registered view.
+ *
+ * @public
+ */
+export type ViewOpenCommand = Omit<
+  Command,
+  "id" | "name" | "sourcePlugin" | "title" | "callback"
+> & {
+  /** @public */
+  id: `open-${string}`;
+  /** @public */
+  name: `Open ${string}`;
+  /** @public */
+  callback: NonNullable<Command["callback"]>;
+};
+
+/**
+ * Declares how a registered view is reached.
+ *
+ * First-party source must classify every registration. The optional parameter
+ * preserves the established third-party plugin API.
+ *
+ * @public
+ */
+export type ViewAccess =
+  | { kind: "command"; command: ViewOpenCommand }
+  | { kind: "file" }
+  | { kind: "internal" }
+  | { kind: "alias"; canonicalViewType: string };
+
 function isPromiseLike<T>(value: T | Promise<T>): value is Promise<T> {
   return typeof (value as Promise<T>)?.then === "function";
 }
@@ -686,7 +717,11 @@ export abstract class Plugin extends Component {
     this.register(() => handler.scope.unregister(handler));
   }
 
-  registerView(type: string, viewCreator: ViewCreator): void {
+  registerView(
+    type: string,
+    viewCreator: ViewCreator,
+    access?: ViewAccess,
+  ): void {
     this.#registeredViewTypes.add(type);
     const instrumentedViewCreator: ViewCreator = (leaf) =>
       this.measureTelemetry("plugin.view.create", () => viewCreator(leaf), {
@@ -697,6 +732,9 @@ export abstract class Plugin extends Component {
     this.register(() => {
       this.app.workspace.unregisterView(type);
     });
+    if (access?.kind === "command") {
+      this.addCommand(access.command);
+    }
   }
 
   registerSidebarView(
@@ -711,8 +749,9 @@ export abstract class Plugin extends Component {
       icon?: string;
       hidden?: boolean;
     } = {},
+    access?: ViewAccess,
   ): void {
-    this.registerView(type, viewCreator);
+    this.registerView(type, viewCreator, access);
     this.app.workspace.registerSidebarView(type, options);
     this.register(() => {
       this.app.workspace.unregisterSidebarView(type);

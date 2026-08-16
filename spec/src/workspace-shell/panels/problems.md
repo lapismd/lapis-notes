@@ -75,3 +75,6 @@ registration lifecycle, and neither permits one plugin to dispose another
 plugin's contributions. Search-document providers use the same plugin-owned
 cleanup mechanism but remain separate from diagnostic collections and Problems
 presentation.
+The generic Plugin API also carries explicit `ViewAccess` classification for
+first-party view registrations; the Problems command remains governed by its
+own required-panel lifecycle above.

@@ -118,7 +118,9 @@ export class MarkdownPlugin extends Plugin {
   async onload(): Promise<void> {
     registerMarkdownSettings(this);
 
-    this.registerView(MarkdownViewType, (leaf) => new MarkdownView(leaf));
+    this.registerView(MarkdownViewType, (leaf) => new MarkdownView(leaf), {
+      kind: "file",
+    });
     this.registerEditorView({
       id: MarkdownViewType,
       viewType: MarkdownViewType,
@@ -150,7 +152,9 @@ export class MarkdownPlugin extends Plugin {
       });
     }, MarkdownViewType);
 
-    this.registerView(MediaViewType, (leaf) => new MediaView(leaf));
+    this.registerView(MediaViewType, (leaf) => new MediaView(leaf), {
+      kind: "file",
+    });
     this.registerEditorView({
       id: MediaViewType,
       label: "Media",
@@ -189,27 +193,33 @@ export class MarkdownPlugin extends Plugin {
           registration.viewType,
           viewCreator,
           registration.sidebar,
+          {
+            kind: "command",
+            command: {
+              ...registration.command,
+              callback: () =>
+                revealOrOpenMarkdownPanel(this.app, registration.viewType),
+            },
+          },
         );
       } else {
-        this.registerView(registration.viewType, viewCreator);
+        this.registerView(registration.viewType, viewCreator, {
+          kind: "command",
+          command: {
+            ...registration.command,
+            callback: () =>
+              revealOrOpenMarkdownPanel(this.app, registration.viewType),
+          },
+        });
       }
 
       for (const legacyViewType of registration.legacyViewTypes) {
-        this.registerView(legacyViewType, viewCreator);
+        this.registerView(legacyViewType, viewCreator, {
+          kind: "alias",
+          canonicalViewType: registration.viewType,
+        });
       }
-
-      this.addCommand({
-        ...registration.command,
-        callback: () =>
-          revealOrOpenMarkdownPanel(this.app, registration.viewType),
-      });
     }
-
-    this.addCommand({
-      id: "show-links-sidebar",
-      name: "Show links",
-      callback: () => revealOrOpenMarkdownPanel(this.app, BacklinksViewType),
-    });
 
     // MetadataCache.writeFrontmatter passes the frontmatter object itself.
     const metadataProcessor = {

@@ -96,6 +96,14 @@ export class SearchPlugin extends Plugin {
       SearchViewType,
       (leaf) => new SearchView(leaf),
       { side: "left", title: "Search", icon: "search" },
+      {
+        kind: "command",
+        command: {
+          id: "open-search",
+          name: "Open Search",
+          callback: (query?: string) => void this.openSearchInLeftSidebar(query),
+        },
+      },
     );
 
     this.registerEvent(
@@ -107,11 +115,6 @@ export class SearchPlugin extends Plugin {
       void this.startupRefresh();
     });
 
-    this.addCommand({
-      id: "search-all-files",
-      name: "Search all files",
-      callback: () => void this.openSearchInLeftSidebar(),
-    });
     this.addCommand({
       id: "rebuild-semantic-search",
       name: "Rebuild semantic search embeddings",
@@ -131,11 +134,6 @@ export class SearchPlugin extends Plugin {
           view instanceof TextFileView ? view.editor.getSelection().trim() : "";
         void this.openSearchInLeftSidebar(query);
       },
-    });
-    this.addCommand({
-      id: "open-search-left-sidebar",
-      name: "Open search in left sidebar",
-      callback: (query?: string) => void this.openSearchInLeftSidebar(query),
     });
     this.addCommand({
       id: "rebuild-search-index",
@@ -172,15 +170,14 @@ export class SearchPlugin extends Plugin {
 
   private async openSearchInLeftSidebar(query = ""): Promise<void> {
     const existing = this.app.workspace.getLeavesOfType(SearchViewType)[0];
-    if (existing) {
-      await existing.setViewState({ type: SearchViewType, state: { query } });
-      this.app.workspace.revealLeaf(existing);
-      return;
-    }
-
-    const leaf = this.app.workspace.getLeftLeaf(false);
-    if (!leaf) return;
-    await leaf.setViewState({ type: SearchViewType, state: { query } });
-    this.app.workspace.revealLeaf(leaf);
+    const target =
+      existing ?? this.app.workspace.ensureSideLeaf(SearchViewType, "left");
+    await target.setViewState({ type: SearchViewType, state: { query } });
+    this.app.workspace.activateLeaf(target, {
+      focusRootHost: false,
+      source: "api",
+      operation: "open-search",
+    });
+    await this.app.workspace.revealLeaf(target);
   }
 }

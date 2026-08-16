@@ -23,6 +23,7 @@ import { getWorkspaceHostBinding } from "../workspace-host";
 import { Menu } from "../menu.svelte";
 import { ContextKeyService } from "../context-keys.svelte";
 import { StatusBarManager } from "../status-bar.svelte";
+import type { Command } from "../command.svelte";
 
 vi.mock("../prompt-confirm", () => ({
   promptConfirm: vi.fn(async () => true),
@@ -321,6 +322,40 @@ function createWorkspaceHarness(
     activateForViewType: vi.fn(async (_viewType: string) => false),
     findLanguageIdsForPath: vi.fn(() => [] as string[]),
   };
+  const registeredCommands: Record<string, Command> = {};
+  const commands = Object.assign(
+    new EventDispatcher<{
+      register: [command: Command];
+      unregister: [command: Command];
+      "hotkeys-updated": [event: { commandId?: string }];
+    }>(),
+    {
+      commands: registeredCommands,
+      executeCommand: vi.fn(async (id: string) => {
+        return registeredCommands[id]?.callback?.();
+      }),
+      registerCommand(command: Command) {
+        registeredCommands[command.id] = command;
+        this.trigger("register", command);
+      },
+      unregisterCommand(id: string) {
+        const command = registeredCommands[id];
+        if (!command) return false;
+        delete registeredCommands[id];
+        this.trigger("unregister", command);
+        return true;
+      },
+      getCommand(id: string) {
+        return registeredCommands[id];
+      },
+      getEffectiveHotkeys(id: string) {
+        return registeredCommands[id]?.hotkeys ?? [];
+      },
+      isCommandAvailable(id: string) {
+        return Boolean(registeredCommands[id]?.callback);
+      },
+    },
+  );
   const app = {
     version: "1.10.0",
     telemetry: {
@@ -355,7 +390,7 @@ function createWorkspaceHarness(
     plugins,
     contextKeys: new ContextKeyService(),
     statusBar: new StatusBarManager(),
-    commands: { executeCommand: vi.fn(async () => undefined) },
+    commands,
     notifications: {
       notify: vi.fn((options: { id: string }) => ({ id: options.id })),
       withProgress: vi.fn(
@@ -1505,6 +1540,31 @@ describe("Workspace compatibility", () => {
     workspace.requestSaveLayout({ source: "api", operation: "host-sync" });
 
     expect(JSON.stringify(binding.controller.getLayout())).toContain(leaf.id);
+  });
+
+  it("projects live API commands into the host command palette", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const callback = vi.fn();
+
+    app.commands.registerCommand({
+      id: "fixture:open",
+      name: "Fixture: Open Fixture",
+      sourcePlugin: "fixture",
+      callback,
+    });
+
+    const projected = controller.commands.getCommand("fixture:open");
+    expect(projected).toMatchObject({
+      id: "fixture:open",
+      title: "Fixture: Open Fixture",
+      sourcePlugin: "fixture",
+    });
+    await projected?.callback({} as never);
+    expect(callback).toHaveBeenCalledOnce();
+
+    app.commands.unregisterCommand("fixture:open");
+    expect(controller.commands.getCommand("fixture:open")).toBeNull();
   });
 
   it("mirrors editor contributions and extension patterns into design-core", () => {
