@@ -116,11 +116,11 @@
     font-size: 0.875em;
   }
 
-  :global(#storybook-root:has(.ai-workspace-demo)) {
+  :global(body.sb-main-fullscreen:has(#storybook-root .ai-workspace-demo) #storybook-root) {
     box-sizing: border-box;
     width: 100%;
-    height: 100%;
-    max-height: 100%;
+    height: 100vh;
+    max-height: 100vh;
     min-height: 0;
     overflow: hidden;
     padding: 0 !important;
@@ -140,7 +140,7 @@
     overflow: hidden;
   }
 
-  .ai-workspace-demo > :global(.ui-minimal-app-shell) {
+  .ai-workspace-demo > :global([data-ui-component="lapis-workspace-shell"]) {
     flex: 1 1 0;
     height: 100%;
     min-height: 0;

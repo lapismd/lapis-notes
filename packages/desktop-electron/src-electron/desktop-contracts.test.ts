@@ -42,11 +42,16 @@ describe("desktop capability contract", () => {
     );
   });
 
-  it("does not expose demo, notebook, model, or raw transport commands", () => {
+  it("keeps model discovery scoped to the agent runtime capability", () => {
     const registry = createDesktopCapabilityRegistry();
-    expect([...DESKTOP_INVOKE_COMMANDS]).not.toContain("desktop_open_demo_vault");
-    expect([...DESKTOP_INVOKE_COMMANDS].some((id) => id.includes("notebook"))).toBe(false);
-    expect([...DESKTOP_INVOKE_COMMANDS].some((id) => id.includes("model"))).toBe(false);
+    expect([...DESKTOP_INVOKE_COMMANDS]).not.toContain(
+      "desktop_open_demo_vault",
+    );
+    expect(
+      [...DESKTOP_INVOKE_COMMANDS].some((id) => id.includes("notebook")),
+    ).toBe(false);
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_acp_models");
+    expect(registry.model).toMatchObject({ status: "unavailable" });
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_pick_vault_folder");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_plugin_host_shutdown");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_db_open");

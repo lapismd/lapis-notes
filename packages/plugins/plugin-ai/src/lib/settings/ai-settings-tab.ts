@@ -1,4 +1,9 @@
-import { PluginSettingTab, Setting, type App } from "@lapis-notes/api";
+import {
+  PluginSettingTab,
+  Setting,
+  type App,
+  type DropdownComponent,
+} from "@lapis-notes/api";
 import type { AiPlugin } from "../ai-plugin";
 import type { AiThinkingLevel } from "../core/types";
 import { ACP_AGENT_IDS, type AcpAgentId } from "./acp-agents";
@@ -30,7 +35,9 @@ export class AiSettingsTab extends PluginSettingTab {
 
     new Setting(this.containerEl)
       .setName("Default runtime")
-      .setDesc("Capability-based selection stays automatic unless you pin a runtime.")
+      .setDesc(
+        "Capability-based selection stays automatic unless you pin a runtime.",
+      )
       .addDropdown((dropdown) => {
         dropdown
           .addOption("auto", "Automatic")
@@ -53,20 +60,28 @@ export class AiSettingsTab extends PluginSettingTab {
           dropdown.addOption(id, ACP_AGENT_LABELS[id]);
         }
         dropdown.setValue(settings.acpAgent).onChange((value) => {
-          void this.aiPlugin.updateSettings({
-            acpAgent: value as AcpAgentId,
-          });
+          void this.aiPlugin
+            .updateSettings({ acpAgent: value as AcpAgentId })
+            .then(() => this.display());
         });
       });
 
-    new Setting(this.containerEl)
+    const modelSetting = new Setting(this.containerEl)
       .setName("Default model")
-      .setDesc("Model id sent on the next agent request. Live catalogs fill the composer list.")
-      .addText((text) => {
-        text.setValue(settings.defaultModel).onChange((value) => {
-          void this.aiPlugin.updateSettings({ defaultModel: value });
-        });
-      });
+      .setDesc("Models reported by the selected agent provider.");
+    modelSetting.addDropdown((dropdown) => {
+      dropdown
+        .setItems([
+          {
+            value: settings.defaultModel || "__loading__",
+            label: settings.defaultModel || "Loading models…",
+            disabled: !settings.defaultModel,
+          },
+        ])
+        .setValue(settings.defaultModel || "__loading__")
+        .setDisabled(true);
+      void this.loadModels(dropdown, settings, modelSetting);
+    });
 
     new Setting(this.containerEl)
       .setName("Thinking")
@@ -81,5 +96,51 @@ export class AiSettingsTab extends PluginSettingTab {
           });
         });
       });
+  }
+
+  private async loadModels(
+    dropdown: DropdownComponent,
+    settings: AiPluginSettings,
+    setting: Setting,
+  ): Promise<void> {
+    try {
+      const models = await this.aiPlugin.models.listModels(settings.acpAgent);
+      if (models.length === 0) {
+        setting.setDesc(
+          `The ${settings.acpAgent} provider returned no model catalog; keeping the saved selection.`,
+        );
+        dropdown.setDisabled(false);
+        return;
+      }
+      const selected = models.some(
+        (model) => model.model === settings.defaultModel,
+      )
+        ? settings.defaultModel
+        : (models.find((model) => model.isDefault) ?? models[0])!.model;
+      dropdown
+        .setItems(
+          models.map((model) => ({
+            value: model.model,
+            label: model.displayName ?? model.model,
+          })),
+        )
+        .setValue(selected)
+        .setDisabled(false)
+        .onChange((value: string | string[]) => {
+          void this.aiPlugin.updateSettings({ defaultModel: String(value) });
+        });
+      if (selected !== settings.defaultModel) {
+        await this.aiPlugin.updateSettings({ defaultModel: selected });
+      }
+    } catch (error) {
+      setting.setDesc(
+        `Model catalog unavailable; keeping the saved selection. ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      dropdown.setDisabled(false).onChange((value) => {
+        void this.aiPlugin.updateSettings({ defaultModel: String(value) });
+      });
+    }
   }
 }

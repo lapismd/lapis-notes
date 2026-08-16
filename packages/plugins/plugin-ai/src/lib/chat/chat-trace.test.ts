@@ -13,6 +13,7 @@ describe("chat trace", () => {
       type: "tool.start",
       id: "t1",
       name: "read",
+      input: { path: "Notes/alpha.md" },
     });
     items = applyAgentEventToChatItems(items, {
       type: "permission.request",
@@ -29,10 +30,29 @@ describe("chat trace", () => {
       text: "Hello world",
       createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
     });
-    expect(items[1]).toMatchObject({ type: "tool", toolId: "t1" });
+    expect(items[1]).toMatchObject({
+      type: "tool",
+      toolId: "t1",
+      input: '{"path":"Notes/alpha.md"}',
+    });
     expect(markApprovalResponse(items, "p1", "deny-once")[2]).toMatchObject({
       type: "approval",
       status: "rejected",
     });
+  });
+
+  it("settles visible thinking when a turn fails", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "thinking",
+      text: "Checking",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "error",
+      error: new Error("failed"),
+    });
+    expect(items).toMatchObject([
+      { type: "thinking", state: "done" },
+      { type: "error", text: "failed" },
+    ]);
   });
 });

@@ -15,11 +15,7 @@ export class CodexModelProvider implements ModelProvider {
 
   async listModels(): Promise<ModelRef[]> {
     if (!this.#host.available) return [];
-    try {
-      return await listCodexModelsFromHost(this.#host, { cwd: this.#cwd });
-    } catch {
-      return [];
-    }
+    return listCodexModelsFromHost(this.#host, { cwd: this.#cwd });
   }
 
   async authStatus(): Promise<ProviderAuthStatus> {
@@ -27,10 +23,20 @@ export class CodexModelProvider implements ModelProvider {
       return {
         authenticated: false,
         label: "Codex",
-        detail: "Live model listing requires the desktop agent-runtime capability.",
+        detail:
+          "Live model listing requires the desktop agent-runtime capability.",
       };
     }
-    const models = await this.listModels();
+    let models: ModelRef[];
+    try {
+      models = await this.listModels();
+    } catch (error) {
+      return {
+        authenticated: false,
+        label: "Codex",
+        detail: error instanceof Error ? error.message : String(error),
+      };
+    }
     return models.length > 0
       ? { authenticated: true, label: "Codex" }
       : {

@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { FakeAgentRuntime } from "../runtimes/fake/fake-runtime";
+import type {
+  AgentCapabilities,
+  AgentRuntime,
+  AgentSession,
+} from "../core/types";
 import { createMemorySessionStore } from "../sessions/session-store";
 import { AiChatController } from "./chat-controller.svelte";
 
@@ -70,6 +75,66 @@ describe("AiChatController", () => {
       "Notes/alpha.md",
       "Notes/beta.md",
     ]);
+    await controller.close();
+  });
+
+  it("does not resume a legacy Codex chat after switching to Cursor", async () => {
+    const store = createMemorySessionStore([
+      {
+        id: "ai:default",
+        runtime: "fake",
+        runtimeSessionId: "fake-legacy",
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+        items: [
+          { id: "m1", type: "message", role: "assistant", text: "Codex chat" },
+        ],
+      },
+    ]);
+    const controller = new AiChatController(new FakeAgentRuntime(), null, [], {
+      store,
+      request: { agent: "cursor" },
+    });
+    await controller.restore();
+    expect(controller.items).toEqual([]);
+    expect(controller.sessionId).toBe("ai:default:fake:cursor");
+    await controller.close();
+  });
+
+  it("renders stream failures and starts a fresh session on retry", async () => {
+    let starts = 0;
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const runtime: AgentRuntime = {
+      id: "failing",
+      capabilities: (): AgentCapabilities => capabilities,
+      async supports() {
+        return true;
+      },
+      async start(): Promise<AgentSession> {
+        starts += 1;
+        return {
+          id: `failing-${starts}`,
+          async *events() {
+            await Promise.resolve();
+            throw new Error("provider stream failed");
+          },
+          async send() {},
+          async respondToApproval() {},
+          async close() {},
+        };
+      },
+    };
+    const controller = new AiChatController(runtime);
+    await controller.submit("first");
+    await vi.waitFor(() => {
+      expect(controller.items.at(-1)).toMatchObject({
+        type: "error",
+        text: "provider stream failed",
+      });
+      expect(controller.busy).toBe(false);
+    });
+    await controller.submit("retry");
+    await vi.waitFor(() => expect(starts).toBe(2));
     await controller.close();
   });
 });

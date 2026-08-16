@@ -1,4 +1,4 @@
-import type { AgentRuntime } from "../core/types";
+import type { AgentRuntime, AiThinkingLevel, ModelRef } from "../core/types";
 import {
   interruptPendingApprovals,
   pendingApprovalIdFromItems,
@@ -7,8 +7,13 @@ import {
 } from "../sessions/session-store";
 import type { AiChatItem } from "./chat-items";
 
-export function chatSessionId(workspace?: string): string {
-  return `ai:${workspace?.trim() || "default"}`;
+export function chatSessionId(
+  workspace?: string,
+  runtime?: string,
+  agent?: string,
+): string {
+  const base = `ai:${workspace?.trim() || "default"}`;
+  return runtime && agent ? `${base}:${runtime}:${agent}` : base;
 }
 
 export async function loadStoredChatSession(
@@ -54,6 +59,9 @@ export function snapshotStoredChatSession(input: {
   runtime: string;
   runtimeSessionId: string;
   workspace?: string;
+  agent?: string;
+  model?: ModelRef;
+  thinking?: AiThinkingLevel;
   items: AiChatItem[];
   createdAt?: string;
   interrupted?: boolean;
@@ -64,6 +72,9 @@ export function snapshotStoredChatSession(input: {
     runtime: input.runtime,
     runtimeSessionId: input.runtimeSessionId,
     workspace: input.workspace,
+    agent: input.agent,
+    model: input.model,
+    thinking: input.thinking,
     createdAt: input.createdAt ?? now,
     updatedAt: now,
     interrupted: input.interrupted,

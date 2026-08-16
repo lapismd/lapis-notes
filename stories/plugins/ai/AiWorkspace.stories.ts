@@ -95,10 +95,6 @@ export const RightSidebarAndSettings: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    canvasElement.style.height = `${window.innerHeight}px`;
-    canvasElement.style.maxHeight = `${window.innerHeight}px`;
-    canvasElement.style.overflow = "hidden";
-
     await waitFor(
       () => {
         expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
@@ -110,11 +106,20 @@ export const RightSidebarAndSettings: Story = {
 
     const app = demoApp(canvasElement);
     expect(app.workspace.leftSplit.collapsed).toBe(true);
+    expect(app.workspace.bottomPanel.collapsed).toBe(true);
     await expect(
       canvas.getByRole("button", { name: "Open left sidebar" }),
     ).toBeVisible();
 
     const panel = await canvas.findByTestId("ai-chat-panel");
+    const demo = canvas.getByTestId("ai-workspace-demo");
+    const workspaceShell = demo.querySelector(
+      '[data-ui-component="lapis-workspace-shell"]',
+    ) as HTMLElement | null;
+    expect(workspaceShell).not.toBeNull();
+    expect(
+      workspaceShell!.getBoundingClientRect().bottom,
+    ).toBeGreaterThanOrEqual(demo.getBoundingClientRect().bottom - 2);
     const sidebar = panel.closest(
       '[data-ui-component="workspace-sidebar"]',
     ) as HTMLElement | null;
@@ -127,9 +132,9 @@ export const RightSidebarAndSettings: Story = {
       .getPropertyValue("--ui-workspace-view-background")
       .trim();
     const bodyPaint = panelStyles.getPropertyValue("--background").trim();
-    expect(
-      viewPaint === "var(--background)" || viewPaint === bodyPaint,
-    ).toBe(true);
+    expect(viewPaint === "var(--background)" || viewPaint === bodyPaint).toBe(
+      true,
+    );
     const dock = panel.querySelector(
       '[data-ui-part="composer-dock"]',
     ) as HTMLElement | null;
@@ -140,9 +145,7 @@ export const RightSidebarAndSettings: Story = {
     );
     expect(getComputedStyle(panel).fontFamily).toMatch(/DM Sans/i);
     assertStackedComposer(panel);
-    expect(
-      panel.querySelector('[data-ui-part="empty-state"]'),
-    ).not.toBeNull();
+    expect(panel.querySelector('[data-ui-part="empty-state"]')).not.toBeNull();
     expect(
       within(panel).getByRole("combobox", { name: "Message" }),
     ).toBeVisible();
@@ -150,8 +153,16 @@ export const RightSidebarAndSettings: Story = {
     await userEvent.click(
       within(panel).getByRole("button", { name: "Effort and model" }),
     );
-    await expect(body.getByLabelText("Effort")).toBeVisible();
-    await expect(body.getByLabelText("Model")).toBeVisible();
+    const modelMenu = body.getByTestId("ai-chat-model");
+    await expect(modelMenu).toBeVisible();
+    await userEvent.hover(modelMenu);
+    await expect(
+      await body.findByRole("menuitemradio", { name: "gpt-5.6-sol" }),
+    ).toHaveAttribute("data-state", "checked");
+    await userEvent.hover(body.getByTestId("ai-chat-thinking"));
+    await expect(
+      await body.findByRole("menuitemradio", { name: "Medium" }),
+    ).toHaveAttribute("data-state", "checked");
     await userEvent.keyboard("{Escape}");
 
     const input = within(panel).getByRole("combobox", { name: "Message" });
@@ -203,14 +214,39 @@ export const RightSidebarAndSettings: Story = {
       getComputedStyle(dialog).fontFamily,
     );
 
-    const modelField = within(dialog).getByDisplayValue("gpt-5.6-sol");
-    await userEvent.clear(modelField);
-    await userEvent.type(modelField, "gpt-5.4-medium");
+    const modelField = within(dialog).getByRole("combobox", {
+      name: "Default model",
+    });
+    await expect(modelField).toBeVisible();
+    expect(
+      within(dialog).queryByRole("textbox", { name: "Default model" }),
+    ).toBeNull();
+
+    const agentField = within(dialog).getByRole("combobox", {
+      name: "ACP agent",
+    });
+    await userEvent.click(agentField);
+    await userEvent.click(await body.findByRole("option", { name: "Cursor" }));
     await waitFor(async () => {
-      const raw = await demoApp(canvasElement).vault.adapter.read(
-        ".obsidian/ai.json",
-      );
-      expect(raw).toContain("gpt-5.4-medium");
+      const raw =
+        await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
+      expect(JSON.parse(raw).settings.acpAgent).toBe("cursor");
+    });
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Close settings" }),
+    );
+
+    const cursorPanel = await canvas.findByTestId("ai-chat-panel");
+    const cursorInput = within(cursorPanel).getByRole("combobox", {
+      name: "Message",
+    });
+    await userEvent.type(cursorInput, "Continue with Cursor");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(async () => {
+      const raw =
+        await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
+      const sessions = JSON.parse(raw).sessions as Array<{ agent?: string }>;
+      expect(sessions.some((session) => session.agent === "cursor")).toBe(true);
     });
   },
 };

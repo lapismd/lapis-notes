@@ -5,23 +5,23 @@ The web host is a browser/PWA consumer ported from
 
 ## Requirements
 
-| ID | Requirement |
-| --- | --- |
-| LN-WEB-001 | Private `@lapis-notes/web` version `2026.6.3` MUST retain the legacy PWA identity, manifest, icons, update prompt, window-controls overlay, and `web+lapis` protocol handler. |
-| LN-WEB-002 | The web host MUST own its launcher, profile selection, session lifecycle, PWA registration, and plugin boot while `@lapis-notes/workspace` remains shell-only. |
-| LN-WEB-003 | The launcher MUST create OPFS vaults, open File System Access folders, restore valid saved profiles, and remain recoverable after cancellation or denied permission. |
-| LN-WEB-004 | The web session MUST register File Explorer, Markdown, Markdown Lint, Search, Bases, and AI as optional bundled plugins plus enabled-by-default external Roles. It MUST load only their configured enabled set before metadata and layout restoration, then mount the shared `WorkspaceShell`. |
-| LN-WEB-005 | LightningFS, demo vault seeding, notebooks, community-plugin activation, and the legacy full-app bootstrap MUST NOT be retained. |
-| LN-WEB-006 | Development, preview, and production responses MUST provide cross-origin isolation required by the database and embedding workers. Production assets MUST include required WASM files. |
-| LN-WEB-007 | One tab MUST own each vault database while secondary tabs delegate through typed RPC and expose a `DB Proxy` status marker. |
-| LN-WEB-008 | Owner shutdown or stale heartbeats MUST allow one proxy to promote without losing committed metadata or search state. Session disposal MUST release workers, locks, channels, and pending requests. |
-| LN-WEB-009 | The PWA service worker MUST retain prompt-based updates and verified plugin-asset caching without precaching downloaded embedding models. |
-| LN-WEB-010 | Root scripts MUST expose web development, build, preview, and two-tab acceptance lanes through the workspace package. |
-| LN-WEB-011 | The web host MUST load Bases after Search and before external Roles, metadata, and layout restoration. Browser acceptance MUST create and reopen a Bases fixture, query rows, edit frontmatter, and preserve the configured view without adding Bases to community-plugin configuration. |
-| LN-WEB-012 | The web host MUST load AI after Bases and before external Roles, metadata, and layout restoration. Live runtimes MUST be available only when both a runtime URL and token are configured. Otherwise the chat MUST stay usable through Fake or an unavailable state. |
-| LN-WEB-014 | The web session MUST register an agent-runtime WebSocket bridge before constructing `AiPlugin` only when URL and token are both set. It MUST NOT overwrite an existing desktop bridge. |
-| LN-WEB-013 | The web renderer MUST load the public Lapis CodeMirror autocomplete stylesheet after Design Core and Lapis theme paint so shared completion extensions render the same production popover chrome as desktop and Storybook. |
-| LN-WEB-015 | Each web session MUST own its compatibility App lease. PWA commands and status bindings MUST use the explicit session App, unbind before replacement, and MUST NOT poll or execute through `globalThis.app`. |
+| ID         | Requirement                                                                                                                                                                                                                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| LN-WEB-001 | Private `@lapis-notes/web` version `2026.6.3` MUST retain the legacy PWA identity, manifest, icons, update prompt, window-controls overlay, and `web+lapis` protocol handler.                                                                                                                                      |
+| LN-WEB-002 | The web host MUST own its launcher, profile selection, session lifecycle, PWA registration, and plugin boot while `@lapis-notes/workspace` remains shell-only.                                                                                                                                                     |
+| LN-WEB-003 | The launcher MUST create OPFS vaults, open File System Access folders, restore valid saved profiles, and remain recoverable after cancellation or denied permission.                                                                                                                                               |
+| LN-WEB-004 | The web session MUST register File Explorer, Markdown, Markdown Lint, Search, Bases, and AI as optional bundled plugins plus enabled-by-default external Roles. It MUST load only their configured enabled set before metadata and layout restoration, then mount the shared `WorkspaceShell`.                     |
+| LN-WEB-005 | LightningFS, demo vault seeding, notebooks, community-plugin activation, and the legacy full-app bootstrap MUST NOT be retained.                                                                                                                                                                                   |
+| LN-WEB-006 | Development, preview, and production responses MUST provide cross-origin isolation required by the database and embedding workers. Production assets MUST include required WASM files.                                                                                                                             |
+| LN-WEB-007 | One tab MUST own each vault database while secondary tabs delegate through typed RPC and expose a `DB Proxy` status marker.                                                                                                                                                                                        |
+| LN-WEB-008 | Owner shutdown or stale heartbeats MUST allow one proxy to promote without losing committed metadata or search state. Session disposal MUST release workers, locks, channels, and pending requests.                                                                                                                |
+| LN-WEB-009 | The PWA service worker MUST retain prompt-based updates and verified plugin-asset caching without precaching downloaded embedding models.                                                                                                                                                                          |
+| LN-WEB-010 | Root scripts MUST expose web development, build, preview, and two-tab acceptance lanes through the workspace package.                                                                                                                                                                                              |
+| LN-WEB-011 | The web host MUST load Bases after Search and before external Roles, metadata, and layout restoration. Browser acceptance MUST create and reopen a Bases fixture, query rows, edit frontmatter, and preserve the configured view without adding Bases to community-plugin configuration.                           |
+| LN-WEB-012 | The web host MUST load AI after Bases and before external Roles, metadata, and layout restoration. Live runtimes MUST be available only when both a runtime URL and token are configured. Otherwise the chat MUST stay usable through Fake or an unavailable state.                                                |
+| LN-WEB-014 | The web session MUST register an agent-runtime WebSocket bridge before constructing `AiPlugin` only when URL and token are both set. It MUST NOT overwrite an existing desktop bridge. The bridge MUST expose agent-scoped model discovery and forward connection closure to pending commands and active sessions. |
+| LN-WEB-013 | The web renderer MUST load the public Lapis CodeMirror autocomplete stylesheet after Design Core and Lapis theme paint so shared completion extensions render the same production popover chrome as desktop and Storybook.                                                                                         |
+| LN-WEB-015 | Each web session MUST own its compatibility App lease. PWA commands and status bindings MUST use the explicit session App, unbind before replacement, and MUST NOT poll or execute through `globalThis.app`.                                                                                                       |
 
 ## Implemented host boundary
 
@@ -33,6 +33,11 @@ The web session binds PWA commands and status to its explicit App and provides
 that App to the shell. Its compatibility lease is installed before plugin load
 and released after the owned session closes, so vault replacement cannot leave
 PWA actions attached to the previous compatibility alias.
+
+When live AI attach is configured, the shared bridge supplies provider model
+catalogs and runtime events over the authenticated host connection. Closing
+that connection rejects pending commands and terminates active chats with a
+visible error; the web host does not maintain a second provider protocol.
 
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
 File System Access profiles. It constructs the API session, loads Markdown,

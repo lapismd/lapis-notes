@@ -13,6 +13,9 @@ describe("session store", () => {
       runtime: "fake",
       runtimeSessionId: "fake-1",
       workspace: "/vault",
+      agent: "cursor",
+      model: { provider: "cursor", model: "composer-2.5" },
+      thinking: "high",
       items: [{ id: "m1", type: "message", role: "user", text: "hi" }],
     });
     await store.save(session);
@@ -20,6 +23,9 @@ describe("session store", () => {
       runtime: "fake",
       runtimeSessionId: "fake-1",
       workspace: "/vault",
+      agent: "cursor",
+      model: { provider: "cursor", model: "composer-2.5" },
+      thinking: "high",
     });
     expect((await store.list())[0]?.items[0]).toMatchObject({ text: "hi" });
     await store.remove("s1");

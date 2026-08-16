@@ -2,6 +2,7 @@ import type { WebContents } from "electron";
 import {
   createAgentRuntimeExecutor,
   type AcpPermissionDecision,
+  type AcpModelCatalog,
   type AcpStartPayload,
   type AgentHostSink,
   type SpawnPayload,
@@ -40,6 +41,13 @@ export async function startAcpSession(
   payload: AcpStartPayload,
 ): Promise<{ sessionId: string }> {
   return executor.startAcpSession(sinkFor(sender), payload);
+}
+
+export async function listAcpModels(
+  sender: WebContents,
+  payload: Pick<AcpStartPayload, "workspace" | "agent">,
+): Promise<AcpModelCatalog> {
+  return executor.listAcpModels(sinkFor(sender), payload);
 }
 
 export async function promptAcpSession(

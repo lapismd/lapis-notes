@@ -1,7 +1,12 @@
 import { View, type WorkspaceLeaf } from "@lapis-notes/api";
 import type { ComposerSearchSource } from "@lapismd/design-core/ai/chat";
 import { mount, unmount } from "svelte";
-import type { AgentRequest, AgentRuntime, ModelRef, ToolContribution } from "../core/types";
+import type {
+  AgentRequest,
+  AgentRuntime,
+  ModelRef,
+  ToolContribution,
+} from "../core/types";
 import type { AgentSessionStore } from "../sessions/session-store";
 import type { AiPluginSettings } from "../settings/ai-settings";
 import AiChatPanel from "./ai-chat-panel.svelte";
@@ -17,13 +22,18 @@ export type AiViewHost = {
   searchVaultFiles: ComposerSearchSource;
   getSettings(): AiPluginSettings;
   updateSettings(patch: Partial<AiPluginSettings>): Promise<void>;
-  models: { listModels(): Promise<ModelRef[]> };
+  subscribeSettings?(
+    listener: (patch: Partial<AiPluginSettings>) => void,
+  ): () => void;
+  models: { listModels(provider: string): Promise<ModelRef[]> };
   workspace?: string;
 };
 
 export class AiView extends View {
   private component: Record<string, unknown> | null = null;
   private disposed = false;
+  private mountGeneration = 0;
+  private unsubscribeSettings: (() => void) | undefined;
   private readonly host: AiViewHost;
 
   constructor(leaf: WorkspaceLeaf, host: AiViewHost) {
@@ -52,19 +62,52 @@ export class AiView extends View {
   }
 
   onload(): void {
-    void this.mountPanel();
+    this.disposed = false;
+    this.unsubscribeSettings = this.host.subscribeSettings?.((patch) => {
+      if (patch.acpAgent !== undefined || patch.defaultRuntime !== undefined) {
+        void this.remountPanel();
+      }
+    });
+    this.mountGeneration += 1;
+    void this.mountPanel(this.mountGeneration);
   }
 
   onunload(): void {
     this.disposed = true;
+    this.mountGeneration += 1;
+    this.unsubscribeSettings?.();
+    this.unsubscribeSettings = undefined;
     if (this.component) void unmount(this.component);
     this.component = null;
   }
 
-  private async mountPanel(): Promise<void> {
+  private async remountPanel(): Promise<void> {
+    this.mountGeneration += 1;
+    const generation = this.mountGeneration;
+    if (this.component) await unmount(this.component);
+    this.component = null;
+    if (!this.disposed) await this.mountPanel(generation);
+  }
+
+  private async mountPanel(generation: number): Promise<void> {
     const tools = this.host.tools.list();
-    const settings = this.host.getSettings();
-    const models: ModelRef[] = [];
+    let settings = this.host.getSettings();
+    let models: ModelRef[] = [];
+    let modelCatalogError: string | null = null;
+    try {
+      models = await this.host.models.listModels(settings.acpAgent);
+      if (
+        models.length > 0 &&
+        !models.some((model) => model.model === settings.defaultModel)
+      ) {
+        const model = (models.find((entry) => entry.isDefault) ?? models[0])!;
+        await this.host.updateSettings({ defaultModel: model.model });
+        settings = this.host.getSettings();
+      }
+    } catch (error) {
+      modelCatalogError =
+        error instanceof Error ? error.message : String(error);
+    }
     let runtime: AgentRuntime;
     let unavailableReason = this.host.liveRuntimeUnavailableReason();
     try {
@@ -80,7 +123,13 @@ export class AiView extends View {
       unavailableReason =
         error instanceof Error ? error.message : String(error);
     }
-    if (this.disposed || this.component) return;
+    if (
+      this.disposed ||
+      this.component ||
+      generation !== this.mountGeneration
+    ) {
+      return;
+    }
     this.component = mount(AiChatPanel, {
       target: this.containerEl,
       props: {
@@ -91,6 +140,7 @@ export class AiView extends View {
         sessionStore: this.host.sessionStore,
         fileSearch: this.host.searchVaultFiles,
         models,
+        modelCatalogError,
         settings,
         onSettingsChange: (patch) => this.host.updateSettings(patch),
       },

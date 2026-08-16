@@ -52,7 +52,33 @@ export function normalizeCodexModelList(result: unknown): ModelRef[] {
     const model = stringValue(record.model) ?? stringValue(record.id);
     if (!model || seen.has(model)) continue;
     seen.add(model);
-    models.push({ provider: "codex", model });
+    const supportedThinking = Array.isArray(record.supportedReasoningEfforts)
+      ? record.supportedReasoningEfforts
+          .map((option) => {
+            const effort = stringValue(asRecord(option).reasoningEffort);
+            if (effort === "none") return "off";
+            if (effort === "low" || effort === "medium" || effort === "high") {
+              return effort;
+            }
+            return undefined;
+          })
+          .filter(
+            (value): value is "off" | "low" | "medium" | "high" =>
+              value !== undefined,
+          )
+      : undefined;
+    const displayName = stringValue(record.displayName);
+    const description = stringValue(record.description);
+    models.push({
+      provider: "codex",
+      model,
+      ...(displayName ? { displayName } : {}),
+      ...(description ? { description } : {}),
+      ...(record.isDefault === true ? { isDefault: true } : {}),
+      ...(supportedThinking && supportedThinking.length > 0
+        ? { supportedThinking: [...new Set(supportedThinking)] }
+        : {}),
+    });
   }
   return models;
 }
@@ -73,37 +99,39 @@ export async function listCodexModelsFromHost(
     "Codex model catalog spawn timed out",
   );
   const rpc = new CodexCatalogRpc(process);
-  const timeout = setTimeout(() => {
-    void process.kill();
-  }, timeoutMs);
   try {
-    await rpc.request("initialize", {
-      clientInfo: {
-        name: "lapis_ai_model_catalog",
-        title: "Lapis AI Model Catalog",
-        version: "0.0.1",
-      },
-      capabilities: {},
-    });
-    await rpc.notify("initialized", {});
-    const models: ModelRef[] = [];
-    let cursor: string | null = null;
-    const seenCursors = new Set<string>();
-    do {
-      const result = await rpc.request("model/list", {
-        limit: 100,
-        includeHidden: false,
-        ...(cursor ? { cursor } : {}),
-      });
-      models.push(...normalizeCodexModelList(result));
-      const nextCursor = stringValue(asRecord(result).nextCursor) ?? null;
-      if (!nextCursor || seenCursors.has(nextCursor)) break;
-      seenCursors.add(nextCursor);
-      cursor = nextCursor;
-    } while (cursor);
-    return models;
+    return await withTimeout(
+      (async () => {
+        await rpc.request("initialize", {
+          clientInfo: {
+            name: "lapis_ai_model_catalog",
+            title: "Lapis AI Model Catalog",
+            version: "0.0.1",
+          },
+          capabilities: {},
+        });
+        await rpc.notify("initialized", {});
+        const models: ModelRef[] = [];
+        let cursor: string | null = null;
+        const seenCursors = new Set<string>();
+        do {
+          const result = await rpc.request("model/list", {
+            limit: 100,
+            includeHidden: false,
+            ...(cursor ? { cursor } : {}),
+          });
+          models.push(...normalizeCodexModelList(result));
+          const nextCursor = stringValue(asRecord(result).nextCursor) ?? null;
+          if (!nextCursor || seenCursors.has(nextCursor)) break;
+          seenCursors.add(nextCursor);
+          cursor = nextCursor;
+        } while (cursor);
+        return models;
+      })(),
+      timeoutMs,
+      "Codex model catalog request timed out",
+    );
   } finally {
-    clearTimeout(timeout);
     await rpc.close();
   }
 }
@@ -121,12 +149,20 @@ class CodexCatalogRpc {
     this.#consume = this.#pump();
   }
 
-  async request(method: string, params: Record<string, unknown>): Promise<unknown> {
+  async request(
+    method: string,
+    params: Record<string, unknown>,
+  ): Promise<unknown> {
     const id = this.#id++;
     const result = new Promise((resolve, reject) => {
       this.#pending.set(id, { resolve, reject });
     });
-    await this.process.write(`${JSON.stringify({ id, method, params })}\n`);
+    try {
+      await this.process.write(`${JSON.stringify({ id, method, params })}\n`);
+    } catch (error) {
+      this.#pending.delete(id);
+      throw error;
+    }
     return result;
   }
 

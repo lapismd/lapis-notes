@@ -192,7 +192,7 @@ export const AgentTrace: Story = {
     docs: {
       description: {
         story:
-          "FakeAgentRuntime rich trace streams thinking, a vault tool call, Markdown assistant text, a date divider, timestamps, Composer Drawer attachments, and an Effort/Model brain popover.",
+          "FakeAgentRuntime rich trace streams thinking, a vault tool call with input/output, Markdown assistant text, a date divider, timestamps, Composer Drawer attachments, and checked Model/Thinking submenus.",
       },
       source: {
         code: aiChatTraceExampleSource,
@@ -214,8 +214,16 @@ export const AgentTrace: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: "Effort and model" }),
     );
-    await expect(body.getByLabelText("Effort")).toBeVisible();
-    await expect(body.getByLabelText("Model")).toBeVisible();
+    const modelMenu = body.getByTestId("ai-chat-model");
+    await expect(modelMenu).toBeVisible();
+    await userEvent.hover(modelMenu);
+    await expect(
+      await body.findByRole("menuitemradio", { name: "gpt-5.6-sol" }),
+    ).toHaveAttribute("data-state", "checked");
+    await userEvent.hover(body.getByTestId("ai-chat-thinking"));
+    await expect(
+      await body.findByRole("menuitemradio", { name: "Medium" }),
+    ).toHaveAttribute("data-state", "checked");
     await userEvent.keyboard("{Escape}");
     await userEvent.click(canvas.getByRole("button", { name: "Attach file" }));
     await userEvent.click(await body.findByText("alpha"));
@@ -255,6 +263,11 @@ export const AgentTrace: Story = {
         ),
       ).not.toBeNull();
     });
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Show details for vault.read" }),
+    );
+    await expect(canvas.getByText('{"path":"Notes/alpha.md"}')).toBeVisible();
+    await expect(canvas.getByText("heading: Notes")).toBeVisible();
     const panel = canvas.getByTestId("ai-chat-panel");
     const dock = panel.querySelector(
       '[data-ui-part="composer-dock"]',

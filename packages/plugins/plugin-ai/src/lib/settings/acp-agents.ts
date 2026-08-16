@@ -16,6 +16,5 @@ export function catalogModelsForAgent<T extends { provider?: string }>(
   agent: AcpAgentId,
   models: T[],
 ): T[] {
-  if (agent !== "codex") return [];
-  return models.filter((model) => model.provider === "codex" || !model.provider);
+  return models.filter((model) => model.provider === agent || !model.provider);
 }

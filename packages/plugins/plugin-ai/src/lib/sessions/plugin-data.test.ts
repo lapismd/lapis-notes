@@ -3,10 +3,13 @@ import { parseAiPluginData } from "./plugin-data";
 
 describe("AI plugin data", () => {
   it("reads legacy settings-only payloads", () => {
-    expect(parseAiPluginData({ defaultRuntime: "fake", acpAgent: "codex" })).toEqual({
+    expect(
+      parseAiPluginData({ defaultRuntime: "fake", acpAgent: "codex" }),
+    ).toEqual({
       settings: {
         defaultRuntime: "fake",
         acpAgent: "codex",
+        defaultModels: { codex: "gpt-5.6-sol", cursor: "" },
         defaultModel: "gpt-5.6-sol",
         thinking: "medium",
       },
@@ -39,5 +42,18 @@ describe("AI plugin data", () => {
     expect(parseAiPluginData({ acpAgent: "claude" }).settings.acpAgent).toBe(
       "codex",
     );
+  });
+
+  it("migrates legacy models and preserves independent provider choices", () => {
+    expect(
+      parseAiPluginData({ defaultModel: "gpt-legacy" }).settings.defaultModels,
+    ).toEqual({ codex: "gpt-legacy", cursor: "" });
+    const cursor = parseAiPluginData({
+      acpAgent: "cursor",
+      defaultModel: "ignored-active-alias",
+      defaultModels: { codex: "gpt-codex", cursor: "composer-2" },
+    }).settings;
+    expect(cursor.defaultModel).toBe("composer-2");
+    expect(cursor.defaultModels.codex).toBe("gpt-codex");
   });
 });

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_APPROVAL_OPTIONS } from "../core/types";
 import { FakeAgentRuntime } from "../runtimes/fake/fake-runtime";
 import { createStoredAgentSession } from "../sessions/session-store";
-import { applyStoredSessionResumePolicy } from "./chat-session";
+import { applyStoredSessionResumePolicy, chatSessionId } from "./chat-session";
 
 const pendingItems = [
   {
@@ -19,6 +19,10 @@ const pendingItems = [
 ];
 
 describe("stored chat session resume policy", () => {
+  it("isolates provider sessions within one workspace", () => {
+    expect(chatSessionId("vault", "acp", "codex")).toBe("ai:vault:acp:codex");
+    expect(chatSessionId("vault", "acp", "cursor")).toBe("ai:vault:acp:cursor");
+  });
   it("keeps pending approvals only when the runtime actually resumed", () => {
     const stored = createStoredAgentSession({
       id: "ai:default",

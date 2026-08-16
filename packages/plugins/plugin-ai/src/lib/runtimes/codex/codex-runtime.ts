@@ -6,31 +6,86 @@ import {
   type AgentRequest,
   type AgentRuntime,
   type AgentSession,
+  type AiThinkingLevel,
+  type ToolContribution,
 } from "../../core/types";
-import type { AgentProcessHandle, AgentProcessHost } from "../../host/process-host";
+import type {
+  AgentProcessHandle,
+  AgentProcessHost,
+} from "../../host/process-host";
 import {
+  approvalReplyForServerRequest,
   approvalRequestFromServerRequest,
-  approvalResponseForOption,
   mapCodexNotification,
   type AppServerMessage,
 } from "./app-server-protocol";
 
+type PendingRequest = {
+  resolve(value: unknown): void;
+  reject(error: Error): void;
+};
+
+type CodexThreadResponse = {
+  thread?: { id?: string; sessionId?: string };
+};
+
+type CodexTurnResponse = {
+  turn?: { id?: string };
+};
+
 export class CodexNativeSession implements AgentSession {
-  readonly id: string;
   readonly #process: AgentProcessHandle;
+  readonly #request: Omit<AgentRequest, "prompt">;
   readonly #events = new AsyncEventQueue<AgentEvent>();
-  readonly #pending = new Map<
-    string,
-    { resolve(): void; reject(error: Error): void }
-  >();
+  readonly #pending = new Map<string | number, PendingRequest>();
+  readonly #pendingServerRequests = new Map<string, AppServerMessage>();
   #buffer = "";
   #rpcId = 1;
+  #threadId: string | null = null;
+  #activeTurnId: string | null = null;
+  #closed = false;
   #consume: Promise<void>;
 
-  constructor(id: string, process: AgentProcessHandle) {
-    this.id = id;
+  constructor(
+    process: AgentProcessHandle,
+    request: Omit<AgentRequest, "prompt">,
+  ) {
     this.#process = process;
+    this.#request = request;
     this.#consume = this.#pump();
+  }
+
+  get id(): string {
+    return this.#threadId ?? `codex-${this.#process.id}`;
+  }
+
+  async initialize(resumeThreadId?: string): Promise<void> {
+    await this.#requestRpc("initialize", {
+      clientInfo: {
+        name: "lapis_notes_ai",
+        title: "Lapis Notes AI",
+        version: "0.0.1",
+      },
+      capabilities: { experimentalApi: true },
+    });
+    await this.#notify("initialized", {});
+    const workspace = this.#request.workspace;
+    const common = {
+      model: this.#request.model?.model ?? null,
+      cwd: workspace ?? null,
+      runtimeWorkspaceRoots: workspace ? [workspace] : null,
+      approvalPolicy: this.#request.restricted ? "never" : "on-request",
+      sandbox: "read-only",
+    };
+    const response = (await this.#requestRpc(
+      resumeThreadId ? "thread/resume" : "thread/start",
+      resumeThreadId
+        ? { threadId: resumeThreadId, ...common }
+        : { ...common, ephemeral: false },
+    )) as CodexThreadResponse;
+    const threadId = response.thread?.id ?? resumeThreadId;
+    if (!threadId) throw new Error("Codex did not return a thread id.");
+    this.#threadId = threadId;
   }
 
   events(): AsyncIterable<AgentEvent> {
@@ -38,28 +93,55 @@ export class CodexNativeSession implements AgentSession {
   }
 
   async send(input: string): Promise<void> {
-    await this.#request("turn/start", { prompt: input });
+    if (!this.#threadId) throw new Error("Codex session has not initialized.");
+    const response = (await this.#requestRpc("turn/start", {
+      threadId: this.#threadId,
+      input: [{ type: "text", text: input, text_elements: [] }],
+      ...(this.#request.workspace
+        ? {
+            cwd: this.#request.workspace,
+            runtimeWorkspaceRoots: [this.#request.workspace],
+          }
+        : {}),
+      approvalPolicy: this.#request.restricted ? "never" : "on-request",
+      sandboxPolicy: { type: "readOnly", networkAccess: false },
+      ...(this.#request.model?.model
+        ? { model: this.#request.model.model }
+        : {}),
+      ...(thinkingEffort(this.#request.thinking)
+        ? { effort: thinkingEffort(this.#request.thinking) }
+        : {}),
+    })) as CodexTurnResponse;
+    this.#activeTurnId = response.turn?.id ?? this.#activeTurnId;
   }
 
   async respondToApproval(requestId: string, optionId: string): Promise<void> {
-    await this.#request("turn/respond", {
-      requestId,
-      ...approvalResponseForOption(optionId),
-    });
-    this.#pending.get(requestId)?.resolve();
-    this.#pending.delete(requestId);
+    const pending = this.#pendingServerRequests.get(requestId);
+    if (!pending)
+      throw new Error(`Unknown Codex approval request: ${requestId}`);
+    this.#pendingServerRequests.delete(requestId);
+    const reply = approvalReplyForServerRequest(pending, optionId);
+    await this.#write({ id: pending.id, ...reply });
   }
 
   async cancel(): Promise<void> {
-    await this.#request("turn/interrupt", {});
+    if (!this.#threadId) return;
+    try {
+      await this.#requestRpc("turn/interrupt", {
+        threadId: this.#threadId,
+        turnId: this.#activeTurnId ?? undefined,
+      });
+    } catch {
+      // Cancellation is intentionally idempotent for the UI.
+    }
     this.#events.push({ type: "status", status: "cancelled" });
   }
 
   async close(): Promise<void> {
-    for (const [id, pending] of this.#pending) {
-      this.#pending.delete(id);
-      pending.reject(new Error("Session closed."));
-    }
+    if (this.#closed) return;
+    this.#closed = true;
+    this.#rejectAll(new Error("Codex session closed."));
+    this.#pendingServerRequests.clear();
     await this.#process.kill();
     await this.#consume;
     this.#events.close();
@@ -68,20 +150,31 @@ export class CodexNativeSession implements AgentSession {
   async #pump(): Promise<void> {
     try {
       for await (const message of this.#process.messages()) {
-        if (message.type !== "stdout") continue;
+        if (message.type === "stderr") continue;
+        if (message.type === "exit") {
+          if (!this.#closed) {
+            const error = new Error(
+              `Codex app-server exited with code ${message.exitCode}.`,
+            );
+            this.#events.push({ type: "error", error });
+            this.#rejectAll(error);
+          }
+          break;
+        }
         this.#buffer += message.data;
         const lines = this.#buffer.split("\n");
         this.#buffer = lines.pop() ?? "";
         for (const line of lines) {
-          if (!line.trim()) continue;
-          this.#handleLine(line);
+          if (line.trim()) this.#handleLine(line);
         }
       }
     } catch (error) {
-      this.#events.push({
-        type: "error",
-        error: error instanceof Error ? error : new Error(String(error)),
-      });
+      const normalized =
+        error instanceof Error ? error : new Error(String(error));
+      this.#events.push({ type: "error", error: normalized });
+      this.#rejectAll(normalized);
+    } finally {
+      if (!this.#closed) this.#events.close();
     }
   }
 
@@ -90,24 +183,89 @@ export class CodexNativeSession implements AgentSession {
     try {
       parsed = JSON.parse(line) as AppServerMessage;
     } catch {
+      this.#events.push({
+        type: "error",
+        error: new Error("Codex app-server returned invalid JSONL."),
+      });
       return;
     }
-    if (parsed.method === "turn/requestApproval") {
-      const request = approvalRequestFromServerRequest(
-        (parsed.params ?? {}) as Record<string, unknown>,
-      );
-      this.#events.push({ type: "permission.request", request });
+    if (parsed.id !== undefined && !parsed.method) {
+      const pending = this.#pending.get(parsed.id);
+      if (!pending) return;
+      this.#pending.delete(parsed.id);
+      if (parsed.error) {
+        const error = parsed.error as { message?: unknown };
+        pending.reject(
+          new Error(String(error.message ?? "Codex request failed")),
+        );
+      } else {
+        pending.resolve(parsed.result);
+      }
+      return;
+    }
+    const approval = approvalRequestFromServerRequest(parsed);
+    if (approval && parsed.id !== undefined) {
+      this.#pendingServerRequests.set(approval.id, parsed);
+      this.#events.push({ type: "permission.request", request: approval });
       return;
     }
     const event = mapCodexNotification(parsed);
-    if (event) this.#events.push(event);
+    if (!event) return;
+    if (event.type === "completed" || event.type === "error") {
+      this.#activeTurnId = null;
+    }
+    this.#events.push(event);
   }
 
-  async #request(method: string, params: Record<string, unknown>): Promise<void> {
+  async #requestRpc(
+    method: string,
+    params: Record<string, unknown>,
+  ): Promise<unknown> {
     const id = this.#rpcId++;
-    await this.#process.write(
-      `${JSON.stringify({ id, method, params })}\n`,
-    );
+    const result = new Promise<unknown>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.#pending.delete(id);
+        reject(new Error(`Codex ${method} request timed out.`));
+      }, 15_000);
+      this.#pending.set(id, {
+        resolve(value) {
+          clearTimeout(timer);
+          resolve(value);
+        },
+        reject(error) {
+          clearTimeout(timer);
+          reject(error);
+        },
+      });
+    });
+    try {
+      await this.#write({ id, method, params });
+    } catch (error) {
+      const normalized =
+        error instanceof Error ? error : new Error(String(error));
+      this.#pending.get(id)?.reject(normalized);
+      this.#pending.delete(id);
+      return result;
+    }
+    return result;
+  }
+
+  async #notify(
+    method: string,
+    params: Record<string, unknown>,
+  ): Promise<void> {
+    await this.#write({ method, params });
+  }
+
+  async #write(message: AppServerMessage): Promise<void> {
+    await this.#process.write(`${JSON.stringify(message)}\n`);
+  }
+
+  #rejectAll(error: Error): void {
+    for (const [id, pending] of this.#pending) {
+      this.#pending.delete(id);
+      pending.reject(error);
+    }
   }
 }
 
@@ -122,7 +280,7 @@ export class CodexNativeRuntime implements AgentRuntime {
   capabilities(): AgentCapabilities {
     return {
       sessions: true,
-      resume: false,
+      resume: true,
       cancel: true,
       steer: false,
       modelSelection: true,
@@ -133,20 +291,63 @@ export class CodexNativeRuntime implements AgentRuntime {
   }
 
   async supports(request: AgentRequest): Promise<boolean> {
-    if (!this.#host.available) return false;
-    return Boolean(request.requirePolicyAmendments);
+    return this.#host.available && request.agent !== "cursor";
   }
 
   async start(request: AgentRequest): Promise<AgentSession> {
+    return this.#open(request);
+  }
+
+  async resume(
+    sessionId: string,
+    request: Omit<AgentRequest, "prompt"> = {},
+  ): Promise<AgentSession> {
+    return this.#open({ ...request, prompt: "" }, sessionId);
+  }
+
+  async #open(
+    request: AgentRequest,
+    resumeThreadId?: string,
+  ): Promise<AgentSession> {
     const process = await this.#host.spawn({
       command: "codex",
-      args: ["app-server", "--stdio"],
+      args: codexArgsFor(request.tools),
       cwd: request.workspace,
     });
-    const session = new CodexNativeSession(
-      `codex-${process.id}`,
-      process,
-    );
-    return session;
+    const session = new CodexNativeSession(process, request);
+    try {
+      await session.initialize(resumeThreadId);
+      return session;
+    } catch (error) {
+      await session.close();
+      throw error;
+    }
   }
+}
+
+function thinkingEffort(
+  thinking: AiThinkingLevel | undefined,
+): "none" | "low" | "medium" | "high" | undefined {
+  return thinking === "off" ? "none" : thinking;
+}
+
+function codexArgsFor(tools: ToolContribution[] | undefined): string[] {
+  const args = ["app-server", "--stdio"];
+  for (const tool of tools ?? []) {
+    const prefix = `mcp_servers.${tool.name}`;
+    args.push("-c", `${prefix}.command=${JSON.stringify(tool.command)}`);
+    if (tool.args) {
+      args.push("-c", `${prefix}.args=${JSON.stringify(tool.args)}`);
+    }
+    if (tool.cwd) {
+      args.push("-c", `${prefix}.cwd=${JSON.stringify(tool.cwd)}`);
+    }
+    if (tool.enabledTools) {
+      args.push(
+        "-c",
+        `${prefix}.enabled_tools=${JSON.stringify(tool.enabledTools)}`,
+      );
+    }
+  }
+  return args;
 }

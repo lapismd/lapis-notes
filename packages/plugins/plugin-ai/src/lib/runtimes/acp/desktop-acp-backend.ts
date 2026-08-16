@@ -4,10 +4,7 @@ import {
 } from "@lapis-notes/api";
 import { AsyncEventQueue } from "../../core/event-queue";
 import type { AgentRequest } from "../../core/types";
-import type {
-  AcpBackendSession,
-  AcpRuntimeBackend,
-} from "./acp-runtime";
+import type { AcpBackendSession, AcpRuntimeBackend } from "./acp-runtime";
 import type {
   AcpPermissionDecision,
   AcpPermissionRequestLike,
@@ -25,7 +22,11 @@ type AcpIpcEvent =
       type: "permission";
       request: AcpPermissionRequestLike;
     }
-  | { sessionId: string; type: "closed" };
+  | {
+      sessionId: string;
+      type: "closed";
+      event?: { type?: string; message?: string };
+    };
 
 type AgentRuntimeBridge = {
   invoke<T>(command: string, payload?: Record<string, unknown>): Promise<T>;
@@ -48,13 +49,13 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
 
   async resume(input: {
     sessionId: string;
-    request?: AgentRequest;
+    request?: Omit<AgentRequest, "prompt">;
     onPermissionRequest(
       request: AcpPermissionRequestLike,
     ): Promise<AcpPermissionDecision>;
   }): Promise<AcpBackendSession> {
     return this.#open(
-      { ...input.request, prompt: input.request?.prompt ?? "" },
+      { ...input.request, prompt: "" },
       input.onPermissionRequest,
       input.sessionId,
     );
@@ -96,6 +97,12 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
           }),
         );
         return;
+      }
+      if (event.event?.type === "error") {
+        events.push({
+          type: "error",
+          message: event.event.message ?? "Agent-runtime connection closed",
+        });
       }
       events.close();
     });

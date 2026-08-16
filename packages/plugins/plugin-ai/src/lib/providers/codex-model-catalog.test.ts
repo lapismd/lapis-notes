@@ -41,7 +41,12 @@ class CatalogProcessHandle implements AgentProcessHandle {
         }
       : {
           data: [
-            { id: "sol-id", model: "gpt-5.6-sol", displayName: "Sol", isDefault: true },
+            {
+              id: "sol-id",
+              model: "gpt-5.6-sol",
+              displayName: "Sol",
+              isDefault: true,
+            },
             { id: "terra-id", model: "gpt-5.6-terra", displayName: "Terra" },
           ],
           nextCursor: "page-2",
@@ -83,12 +88,21 @@ describe("Codex model catalog", () => {
   });
 
   it("lists models through the process host and stays empty when unavailable", async () => {
-    await expect(listCodexModelsFromHost(new CatalogProcessHost())).resolves.toEqual([
-      { provider: "codex", model: "gpt-5.6-sol" },
-      { provider: "codex", model: "gpt-5.6-terra" },
-      { provider: "codex", model: "gpt-5.6-luna" },
+    await expect(
+      listCodexModelsFromHost(new CatalogProcessHost()),
+    ).resolves.toEqual([
+      {
+        provider: "codex",
+        model: "gpt-5.6-sol",
+        displayName: "Sol",
+        isDefault: true,
+      },
+      { provider: "codex", model: "gpt-5.6-terra", displayName: "Terra" },
+      { provider: "codex", model: "gpt-5.6-luna", displayName: "Luna" },
     ]);
-    const unavailable = new CodexModelProvider(new UnavailableAgentProcessHost());
+    const unavailable = new CodexModelProvider(
+      new UnavailableAgentProcessHost(),
+    );
     expect(await unavailable.listModels()).toEqual([]);
     expect(await unavailable.authStatus()).toMatchObject({
       authenticated: false,
@@ -106,5 +120,37 @@ describe("Codex model catalog", () => {
       listCodexModelsFromHost(hung, { timeoutMs: 20 }),
     ).rejects.toThrow("Codex model catalog spawn timed out");
   });
+
+  it("times out when a spawned catalog process stops answering", async () => {
+    const process = new MemorySilentProcess();
+    await expect(
+      listCodexModelsFromHost(
+        {
+          available: true,
+          async spawn() {
+            return process;
+          },
+        },
+        { timeoutMs: 20 },
+      ),
+    ).rejects.toThrow("Codex model catalog request timed out");
+    expect(process.killed).toBe(true);
+  });
 });
 
+class MemorySilentProcess implements AgentProcessHandle {
+  readonly id = "silent";
+  readonly #messages = new AsyncEventQueue<AgentProcessMessage>();
+  killed = false;
+
+  messages(): AsyncIterable<AgentProcessMessage> {
+    return this.#messages;
+  }
+
+  async write(): Promise<void> {}
+
+  async kill(): Promise<void> {
+    this.killed = true;
+    this.#messages.close();
+  }
+}

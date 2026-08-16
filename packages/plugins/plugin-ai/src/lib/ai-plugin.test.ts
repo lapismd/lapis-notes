@@ -10,6 +10,7 @@ describe("AiPlugin contracts", () => {
     expect(mergeAiSettings(null)).toEqual({
       defaultRuntime: "auto",
       acpAgent: "codex",
+      defaultModels: { codex: "gpt-5.6-sol", cursor: "" },
       defaultModel: "gpt-5.6-sol",
       thinking: "medium",
     });
@@ -19,7 +20,9 @@ describe("AiPlugin contracts", () => {
   it("threads the constructor owner into the Plugin base without ambient access", () => {
     const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
 
-    expect(source).toMatch(/constructor\(app: App,[\s\S]*?super\(app, pluginManifest\)/u);
+    expect(source).toMatch(
+      /constructor\(app: App,[\s\S]*?super\(app, pluginManifest\)/u,
+    );
     expect(source).not.toContain("globalThis.app");
   });
 });

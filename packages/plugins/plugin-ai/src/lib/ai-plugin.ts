@@ -12,6 +12,8 @@ import { createHostAgentRuntimes } from "./host/create-host-runtimes";
 import { createAgentProcessHost } from "./host/desktop-process-host";
 import type { AgentProcessHost } from "./host/process-host";
 import { CodexModelProvider } from "./providers/codex-model-provider";
+import { AcpModelProvider } from "./providers/acp-model-provider";
+import { ModelProviderRegistry } from "./providers/model-provider";
 import { selectAgentRuntime } from "./registry/select-runtime";
 import {
   createAgentRuntimeRegistry,
@@ -34,7 +36,8 @@ const AI_MANIFEST: PluginManifest = {
   name: "AI",
   version: "0.0.1",
   minAppVersion: "0.0.1",
-  description: "Provider-agnostic agent chat with ACP and optional native runtimes.",
+  description:
+    "Provider-agnostic agent chat with ACP and optional native runtimes.",
   author: "Lapis Notes",
 };
 
@@ -45,8 +48,11 @@ export class AiPlugin extends Plugin {
   };
   readonly processHost: AgentProcessHost;
   readonly registry: AgentRuntimeRegistry;
-  readonly models: CodexModelProvider;
+  readonly models: ModelProviderRegistry;
   readonly tools = createToolContributionRegistry();
+  readonly #settingsListeners = new Set<
+    (patch: Partial<AiPluginSettings>) => void
+  >();
   readonly fakeRuntime = new FakeAgentRuntime({
     requireApproval: false,
     trace: "rich",
@@ -62,7 +68,10 @@ export class AiPlugin extends Plugin {
   constructor(app: App, pluginManifest: PluginManifest = AI_MANIFEST) {
     super(app, pluginManifest);
     this.processHost = createAgentProcessHost();
-    this.models = new CodexModelProvider(this.processHost);
+    this.models = new ModelProviderRegistry([
+      new CodexModelProvider(this.processHost),
+      new AcpModelProvider("cursor"),
+    ]);
     this.registry = createAgentRuntimeRegistry([
       this.fakeRuntime,
       ...createHostAgentRuntimes(),
@@ -70,15 +79,39 @@ export class AiPlugin extends Plugin {
   }
 
   getSettings(): AiPluginSettings {
-    return { ...this.data.settings };
+    return {
+      ...this.data.settings,
+      defaultModels: { ...this.data.settings.defaultModels },
+    };
   }
 
   async updateSettings(patch: Partial<AiPluginSettings>): Promise<void> {
+    const acpAgent = patch.acpAgent ?? this.data.settings.acpAgent;
+    const defaultModels = {
+      ...this.data.settings.defaultModels,
+      ...patch.defaultModels,
+    };
+    if (patch.defaultModel !== undefined) {
+      defaultModels[acpAgent] = patch.defaultModel.trim();
+    }
     this.data = {
       ...this.data,
-      settings: mergeAiSettings({ ...this.data.settings, ...patch }),
+      settings: mergeAiSettings({
+        ...this.data.settings,
+        ...patch,
+        acpAgent,
+        defaultModels,
+      }),
     };
     await this.saveData(this.data);
+    for (const listener of this.#settingsListeners) listener(patch);
+  }
+
+  subscribeSettings(
+    listener: (patch: Partial<AiPluginSettings>) => void,
+  ): () => void {
+    this.#settingsListeners.add(listener);
+    return () => this.#settingsListeners.delete(listener);
   }
 
   liveRuntimeUnavailableReason(): string | null {
@@ -127,11 +160,11 @@ export class AiPlugin extends Plugin {
     this.data = parseAiPluginData(await this.loadData());
     this.addSettingTab(new AiSettingsTab(this.app, this));
     registerAiSettings(this);
-    this.registerSidebarView(
-      AiViewType,
-      (leaf) => new AiView(leaf, this),
-      { side: "right", title: "AI", icon: "sparkles" },
-    );
+    this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
+      side: "right",
+      title: "AI",
+      icon: "sparkles",
+    });
     this.addCommand({
       id: "open-ai-chat",
       name: "Open AI chat",

@@ -3,6 +3,7 @@
   import { Reasoning } from "@lapismd/design-core/ai/experimental";
   import { Button } from "@lapismd/design-core/shadcn/button";
   import * as Command from "@lapismd/design-core/shadcn/command";
+  import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import * as Popover from "@lapismd/design-core/shadcn/popover";
   import type {
     ComposerSearchSource,
@@ -42,6 +43,7 @@
     sessionId,
     fileSearch,
     models = [],
+    modelCatalogError = null,
     settings,
     onSettingsChange,
   }: {
@@ -53,6 +55,7 @@
     sessionId?: string;
     fileSearch?: ComposerSearchSource;
     models?: ModelRef[];
+    modelCatalogError?: string | null;
     settings?: Pick<AiPluginSettings, "acpAgent" | "defaultModel" | "thinking">;
     onSettingsChange?: (patch: Partial<AiPluginSettings>) => void | Promise<void>;
   } = $props();
@@ -62,6 +65,16 @@
       store: sessionStore,
       sessionId,
       workspace,
+      request: {
+        agent: settings?.acpAgent,
+        model: settings?.defaultModel
+          ? {
+              provider: settings.acpAgent,
+              model: settings.defaultModel,
+            }
+          : undefined,
+        thinking: settings?.thinking,
+      },
     }),
   );
   let draft = $state("");
@@ -80,14 +93,18 @@
   const selectedThinking = $derived(
     localThinking ?? settings?.thinking ?? DEFAULT_AI_SETTINGS.thinking,
   );
-  const modelOptions = $derived.by(() => {
-    const ids = catalogModelsForAgent(selectedAgent, models).map(
-      (model) => model.model,
-    );
-    if (selectedModel && !ids.includes(selectedModel)) {
-      return [selectedModel, ...ids];
+  const modelOptions = $derived.by<ModelRef[]>(() => {
+    const available = catalogModelsForAgent(selectedAgent, models);
+    if (
+      selectedModel &&
+      !available.some((model) => model.model === selectedModel)
+    ) {
+      return [
+        { provider: selectedAgent, model: selectedModel },
+        ...available,
+      ];
     }
-    return ids.length > 0 ? ids : [selectedModel];
+    return available;
   });
   const mentionTriggers = $derived.by<ComposerTrigger[]>(() => {
     if (!fileSearch) return [];
@@ -120,10 +137,12 @@
       workspace,
       tools,
       agent: selectedAgent,
-      model: {
-        provider: selected?.provider ?? selectedAgent,
-        model: selectedModel,
-      },
+      model: selectedModel
+        ? {
+            provider: selected?.provider ?? selectedAgent,
+            model: selectedModel,
+          }
+        : undefined,
       thinking: selectedThinking,
       metadata: extra.length > 0 ? { attachments: extra } : undefined,
     });
@@ -179,6 +198,20 @@
     };
   });
 </script>
+
+{#snippet toolDetail(call: { data?: unknown })}
+  {@const detail = call.data as { input?: string; output?: string } | undefined}
+  <div class="ai-chat-panel__tool-detail">
+    {#if detail?.input}
+      <strong>Command / input</strong>
+      <pre>{detail.input}</pre>
+    {/if}
+    {#if detail?.output}
+      <strong>Output</strong>
+      <pre>{detail.output}</pre>
+    {/if}
+  </div>
+{/snippet}
 
 <div
   class="ai-chat-panel"
@@ -272,8 +305,8 @@
           {/if}
         {/snippet}
         {#snippet footerActions()}
-          <Popover.Root>
-            <Popover.Trigger>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
               {#snippet child({ props }: { props: Record<string, unknown> })}
                 <Button
                   {...props}
@@ -285,42 +318,51 @@
                   <BrainIcon aria-hidden="true" />
                 </Button>
               {/snippet}
-            </Popover.Trigger>
-            <Popover.Content
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
               data-ui-part="effort-popover"
-              side="top"
               align="start"
             >
-              <label class="ai-chat-panel__control">
-                <span>Effort</span>
-                <select
-                  aria-label="Effort"
-                  data-testid="ai-chat-thinking"
-                  value={selectedThinking}
-                  onchange={(event) =>
-                    changeThinking(event.currentTarget.value)}
-                >
-                  <option value="off">Off</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </label>
-              <label class="ai-chat-panel__control">
-                <span>Model</span>
-                <select
-                  aria-label="Model"
-                  data-testid="ai-chat-model"
-                  value={selectedModel}
-                  onchange={(event) => changeModel(event.currentTarget.value)}
-                >
-                  {#each modelOptions as option (option)}
-                    <option value={option}>{option}</option>
-                  {/each}
-                </select>
-              </label>
-            </Popover.Content>
-          </Popover.Root>
+              <DropdownMenu.Sub>
+                <DropdownMenu.SubTrigger data-testid="ai-chat-model">
+                  Model
+                </DropdownMenu.SubTrigger>
+                <DropdownMenu.SubContent>
+                  {#if modelOptions.length > 0}
+                    <DropdownMenu.RadioGroup value={selectedModel}>
+                      {#each modelOptions as option (option.model)}
+                        <DropdownMenu.RadioItem
+                          value={option.model}
+                          onclick={() => changeModel(option.model)}
+                        >
+                          {option.displayName ?? option.model}
+                        </DropdownMenu.RadioItem>
+                      {/each}
+                    </DropdownMenu.RadioGroup>
+                  {:else}
+                    <DropdownMenu.Item disabled>No models available</DropdownMenu.Item>
+                  {/if}
+                </DropdownMenu.SubContent>
+              </DropdownMenu.Sub>
+              <DropdownMenu.Sub>
+                <DropdownMenu.SubTrigger data-testid="ai-chat-thinking">
+                  Thinking
+                </DropdownMenu.SubTrigger>
+                <DropdownMenu.SubContent>
+                  <DropdownMenu.RadioGroup value={selectedThinking}>
+                    <DropdownMenu.RadioItem value="off" onclick={() => changeThinking("off")}>Off</DropdownMenu.RadioItem>
+                    <DropdownMenu.RadioItem value="low" onclick={() => changeThinking("low")}>Low</DropdownMenu.RadioItem>
+                    <DropdownMenu.RadioItem value="medium" onclick={() => changeThinking("medium")}>Medium</DropdownMenu.RadioItem>
+                    <DropdownMenu.RadioItem value="high" onclick={() => changeThinking("high")}>High</DropdownMenu.RadioItem>
+                  </DropdownMenu.RadioGroup>
+                </DropdownMenu.SubContent>
+              </DropdownMenu.Sub>
+              {#if modelCatalogError}
+                <DropdownMenu.Separator />
+                <DropdownMenu.Label>{modelCatalogError}</DropdownMenu.Label>
+              {/if}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         {/snippet}
       </Chat.Composer>
     {/snippet}
@@ -377,7 +419,13 @@
                       : "running",
                 errorMessage:
                   entry.item.state === "error" ? entry.item.output : undefined,
-                data: entry.item.output,
+                target: entry.item.server,
+                data: {
+                  input: entry.item.input,
+                  output: entry.item.output,
+                },
+                detail:
+                  entry.item.input || entry.item.output ? toolDetail : undefined,
               },
             ]}
           />

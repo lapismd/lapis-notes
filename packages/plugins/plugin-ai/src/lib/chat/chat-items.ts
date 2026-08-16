@@ -30,6 +30,7 @@ export type AiChatItem =
       name: string;
       server?: string;
       state: "running" | "completed" | "error";
+      input?: string;
       output?: string;
       createdAt?: string;
     }

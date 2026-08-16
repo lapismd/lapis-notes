@@ -1,7 +1,11 @@
 import type { Plugin } from "@lapis-notes/api";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import type { AiPlugin } from "../ai-plugin";
-import { ACP_AGENT_IDS, normalizeAcpAgent } from "./acp-agents";
+import {
+  ACP_AGENT_IDS,
+  normalizeAcpAgent,
+  type AcpAgentId,
+} from "./acp-agents";
 import { DEFAULT_AI_SETTINGS, type AiPluginSettings } from "./ai-settings";
 
 const FIELD_IDS = {
@@ -16,66 +20,125 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   if (!binding) return;
   const controller = binding.controller;
   const settings = plugin.getSettings();
+  const modelSourceId = (provider: AcpAgentId) => `ai.models.${provider}`;
+  for (const provider of ACP_AGENT_IDS) {
+    const dispose = controller.configuration.optionSources.register({
+      id: modelSourceId(provider),
+      load: async () => {
+        const current = plugin.getSettings();
+        const saved = current.defaultModels[provider];
+        try {
+          const models = await plugin.models.listModels(provider);
+          if (models.length === 0) {
+            return saved
+              ? [
+                  {
+                    value: saved,
+                    label: saved,
+                    description:
+                      "Saved model; the provider returned no catalog.",
+                  },
+                ]
+              : [];
+          }
+          const selected = models.some((model) => model.model === saved)
+            ? saved
+            : (models.find((model) => model.isDefault) ?? models[0])?.model;
+          if (selected && selected !== saved) {
+            await plugin.updateSettings({
+              defaultModels: { ...current.defaultModels, [provider]: selected },
+            });
+            if (plugin.getSettings().acpAgent === provider) {
+              controller.settings.update(FIELD_IDS.defaultModel, selected);
+            }
+          }
+          return models.map((model) => ({
+            value: model.model,
+            label: model.displayName ?? model.model,
+            description: model.description,
+          }));
+        } catch (error) {
+          return saved
+            ? [
+                {
+                  value: saved,
+                  label: saved,
+                  description: `Saved model; catalog unavailable: ${
+                    error instanceof Error ? error.message : String(error)
+                  }`,
+                },
+              ]
+            : [];
+        }
+      },
+    });
+    plugin.register(dispose);
+  }
 
-  plugin.register(
-    controller.registerSettingsSection({
-      id: "ai",
-      title: "AI",
-      description: "Agent runtime, model, and thinking defaults.",
-      icon: "sparkles",
-      order: 35,
-      navigationGroupId: "core-plugins",
-      sourcePluginId: plugin.id,
-      fields: [
-        {
-          id: FIELD_IDS.defaultRuntime,
-          type: "enum",
-          title: "Default runtime",
-          description:
-            "Capability-based selection stays automatic unless you pin a runtime.",
-          default: DEFAULT_AI_SETTINGS.defaultRuntime,
-          options: [
-            { value: "auto", label: "Automatic" },
-            { value: "acp", label: "ACP" },
-            { value: "codex-native", label: "Codex native" },
-            { value: "fake", label: "Fake (tests)" },
-          ],
-        },
-        {
-          id: FIELD_IDS.acpAgent,
-          type: "enum",
-          title: "ACP agent",
-          description: "Built-in ACP agent used when ACP is selected.",
-          default: DEFAULT_AI_SETTINGS.acpAgent,
-          options: ACP_AGENT_IDS.map((value) => ({
-            value,
-            label: value === "cursor" ? "Cursor" : "Codex",
-          })),
-        },
-        {
-          id: FIELD_IDS.defaultModel,
-          type: "string",
-          title: "Default model",
-          description:
-            "Model id sent on the next agent request. Live catalogs fill the composer list.",
-          default: DEFAULT_AI_SETTINGS.defaultModel,
-        },
-        {
-          id: FIELD_IDS.thinking,
-          type: "enum",
-          title: "Thinking",
-          description: "How much model reasoning to request on each turn.",
-          default: DEFAULT_AI_SETTINGS.thinking,
-          options: [
-            { value: "off", label: "Off" },
-            { value: "low", label: "Low" },
-            { value: "medium", label: "Medium" },
-            { value: "high", label: "High" },
-          ],
-        },
-      ],
-    }),
+  const createSection = (current: AiPluginSettings) => ({
+    id: "ai",
+    title: "AI",
+    description: "Agent runtime, model, and thinking defaults.",
+    icon: "sparkles",
+    order: 35,
+    navigationGroupId: "core-plugins",
+    sourcePluginId: plugin.id,
+    fields: [
+      {
+        id: FIELD_IDS.defaultRuntime,
+        type: "enum" as const,
+        title: "Default runtime",
+        description:
+          "Capability-based selection stays automatic unless you pin a runtime.",
+        default: DEFAULT_AI_SETTINGS.defaultRuntime,
+        options: [
+          { value: "auto", label: "Automatic" },
+          { value: "acp", label: "ACP" },
+          { value: "codex-native", label: "Codex native" },
+          { value: "fake", label: "Fake (tests)" },
+        ],
+      },
+      {
+        id: FIELD_IDS.acpAgent,
+        type: "enum" as const,
+        title: "ACP agent",
+        description: "Built-in ACP agent used when ACP is selected.",
+        default: DEFAULT_AI_SETTINGS.acpAgent,
+        options: ACP_AGENT_IDS.map((value) => ({
+          value,
+          label: value === "cursor" ? "Cursor" : "Codex",
+        })),
+      },
+      {
+        id: FIELD_IDS.defaultModel,
+        type: "string" as const,
+        title: "Default model",
+        description:
+          "Model reported by the selected agent provider and sent on the next request.",
+        default: current.defaultModel,
+        optionsSource: modelSourceId(current.acpAgent),
+        allowUnknownOptions: false,
+      },
+      {
+        id: FIELD_IDS.thinking,
+        type: "enum" as const,
+        title: "Thinking",
+        description: "How much model reasoning to request on each turn.",
+        default: DEFAULT_AI_SETTINGS.thinking,
+        options: [
+          { value: "off", label: "Off" },
+          { value: "low", label: "Low" },
+          { value: "medium", label: "Medium" },
+          { value: "high", label: "High" },
+        ],
+      },
+    ],
+  });
+
+  let disposeSection = controller.registerSettingsSection(
+    createSection(settings),
   );
+  plugin.register(() => disposeSection());
 
   controller.settings.update(FIELD_IDS.defaultRuntime, settings.defaultRuntime);
   controller.settings.update(FIELD_IDS.acpAgent, settings.acpAgent);
@@ -85,14 +148,39 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   const changeRef = controller.settings.on("change", (event) => {
     if (!event.id || !event.id.startsWith("ai.")) return;
     const values = controller.settings.getSnapshot().values;
-    void plugin.updateSettings({
-      defaultRuntime: values[FIELD_IDS.defaultRuntime] as
-        | AiPluginSettings["defaultRuntime"]
-        | undefined,
-      acpAgent: normalizeAcpAgent(values[FIELD_IDS.acpAgent]),
-      defaultModel: String(values[FIELD_IDS.defaultModel] ?? ""),
-      thinking: values[FIELD_IDS.thinking] as AiPluginSettings["thinking"],
-    });
+    if (event.id === FIELD_IDS.acpAgent) {
+      void (async () => {
+        await plugin.updateSettings({
+          acpAgent: normalizeAcpAgent(values[FIELD_IDS.acpAgent]),
+        });
+        const next = plugin.getSettings();
+        disposeSection();
+        disposeSection = controller.registerSettingsSection(
+          createSection(next),
+        );
+        controller.settings.update(FIELD_IDS.defaultModel, next.defaultModel);
+      })();
+      return;
+    }
+    if (event.id === FIELD_IDS.defaultModel) {
+      void plugin.updateSettings({
+        defaultModel: String(values[FIELD_IDS.defaultModel] ?? ""),
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.defaultRuntime) {
+      void plugin.updateSettings({
+        defaultRuntime: values[FIELD_IDS.defaultRuntime] as
+          | AiPluginSettings["defaultRuntime"]
+          | undefined,
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.thinking) {
+      void plugin.updateSettings({
+        thinking: values[FIELD_IDS.thinking] as AiPluginSettings["thinking"],
+      });
+    }
   });
   plugin.register(() => controller.settings.offref(changeRef));
 }

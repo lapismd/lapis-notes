@@ -23,54 +23,156 @@ function stringValue(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-export function mapCodexNotification(message: AppServerMessage): AgentEvent | null {
+function streamedText(value: unknown): string {
+  if (typeof value === "string") return value;
+  const record = asRecord(value);
+  for (const key of ["text", "delta", "content", "message", "value"]) {
+    const candidate = record[key];
+    if (typeof candidate === "string") return candidate;
+  }
+  return "";
+}
+
+function isToolItem(item: Record<string, unknown>): boolean {
+  return [
+    "mcpToolCall",
+    "dynamicToolCall",
+    "commandExecution",
+    "fileChange",
+  ].includes(String(item.type ?? ""));
+}
+
+function toolName(item: Record<string, unknown>): string {
+  if (item.type === "commandExecution") return "command";
+  if (item.type === "fileChange") return "file change";
+  return String(item.tool ?? item.command ?? item.type ?? "tool");
+}
+
+function toolInput(item: Record<string, unknown>): unknown {
+  return item.command ?? item.arguments ?? item.input ?? item.changes;
+}
+
+export function mapCodexNotification(
+  message: AppServerMessage,
+): AgentEvent | null {
   const params = asRecord(message.params);
   const item = asRecord(params.item);
   const method = message.method ?? "";
 
-  if (method === "item/agentMessage/delta" || method === "turn/agentMessage/delta") {
-    const text = stringValue(params.delta) ?? stringValue(params.text) ?? "";
+  if (
+    method === "item/agentMessage/delta" ||
+    method === "turn/agentMessage/delta"
+  ) {
+    const text = streamedText(params.delta ?? params.text);
     return text ? { type: "text", text } : null;
   }
-  if (method === "item/reasoning/delta" || method === "turn/reasoning/delta") {
-    const text = stringValue(params.delta) ?? stringValue(params.text) ?? "";
+  if (
+    method === "item/reasoning/textDelta" ||
+    method === "item/reasoning/delta" ||
+    method === "turn/reasoning/delta"
+  ) {
+    const text = streamedText(params.delta ?? params.text);
     return text ? { type: "thinking", text, kind: "reasoning" } : null;
   }
-  if (method === "item/toolCall/started" || item.type === "mcpToolCall") {
-    if (stringValue(item.status) === "completed") {
-      return {
-        type: "tool.end",
-        id: String(item.id ?? params.itemId ?? "codex-tool"),
-        name: String(item.tool ?? item.command ?? "tool"),
-        output: item.result ?? item.output,
-      };
-    }
+  if (method === "item/reasoning/summaryTextDelta") {
+    const text = streamedText(params.delta ?? params.text);
+    return text ? { type: "thinking", text, kind: "summary" } : null;
+  }
+  if (method === "item/plan/delta") {
+    const text = streamedText(params.delta ?? params.text);
+    return text ? { type: "thinking", text, kind: "plan" } : null;
+  }
+  if (method === "item/started" || method === "item/toolCall/started") {
+    if (!isToolItem(item) && method !== "item/toolCall/started") return null;
     return {
       type: "tool.start",
       id: String(item.id ?? params.itemId ?? "codex-tool"),
-      name: String(item.tool ?? item.command ?? "tool"),
-      input: item.arguments ?? item.input,
+      name: toolName(item),
+      server: stringValue(item.server),
+      input: toolInput(item),
     };
   }
+  if (method === "item/completed") {
+    if (isToolItem(item)) {
+      return {
+        type: "tool.end",
+        id: String(item.id ?? params.itemId ?? "codex-tool"),
+        name: toolName(item),
+        server: stringValue(item.server),
+        output:
+          item.result ??
+          item.aggregatedOutput ??
+          item.contentItems ??
+          item.output,
+        error: item.error,
+      };
+    }
+    return null;
+  }
   if (method === "turn/completed") {
+    const turn = asRecord(params.turn);
+    if (turn.status === "failed") {
+      const error = asRecord(turn.error);
+      return {
+        type: "error",
+        error: new Error(stringValue(error.message) ?? "Codex turn failed"),
+      };
+    }
     return { type: "completed", result: params };
+  }
+  if (
+    method === "warning" ||
+    method === "guardianWarning" ||
+    method === "configWarning" ||
+    method === "deprecationNotice"
+  ) {
+    return {
+      type: "status",
+      status: String(params.message ?? params.warning ?? "Codex warning"),
+    };
   }
   if (method === "error" || message.error) {
     const record = asRecord(message.error);
+    const paramsError = asRecord(params.error);
     return {
       type: "error",
-      error: new Error(stringValue(record.message) ?? "Codex app-server error"),
+      error: new Error(
+        stringValue(record.message) ??
+          stringValue(params.message) ??
+          stringValue(paramsError.message) ??
+          "Codex app-server error",
+      ),
     };
   }
   return null;
 }
 
 export function approvalRequestFromServerRequest(
-  request: Record<string, unknown>,
-): ApprovalRequest {
-  const kind = mapCodexApprovalKind(stringValue(request.kind) ?? stringValue(request.type));
+  message: AppServerMessage,
+): ApprovalRequest | null {
+  if (message.id === undefined || !message.method) return null;
+  const request = asRecord(message.params);
+  const method = message.method;
+  if (
+    ![
+      "item/commandExecution/requestApproval",
+      "item/fileChange/requestApproval",
+      "item/permissions/requestApproval",
+      "applyPatchApproval",
+      "execCommandApproval",
+    ].includes(method)
+  ) {
+    return null;
+  }
+  const kind = mapCodexApprovalKind(
+    method.includes("command") || method === "execCommandApproval"
+      ? "command"
+      : method.includes("file") || method === "applyPatchApproval"
+        ? "file_change"
+        : "permissions",
+  );
   return {
-    id: String(request.id ?? request.requestId ?? "codex-approval"),
+    id: String(message.id),
     kind,
     title:
       stringValue(request.reason) ??
@@ -80,18 +182,51 @@ export function approvalRequestFromServerRequest(
       ? { name: "command", input: request.command }
       : undefined,
     options: DEFAULT_APPROVAL_OPTIONS,
-    metadata: request,
   };
 }
 
-export function approvalResponseForOption(optionId: string): Record<string, unknown> {
-  if (optionId === "allow-always") {
-    return { decision: "approve", scope: "session" };
-  }
+export function approvalResponseForOption(
+  optionId: string,
+): Record<string, unknown> {
+  if (optionId === "allow-always") return { decision: "acceptForSession" };
   if (optionId === "deny-once" || optionId === "deny-always") {
-    return { decision: "reject", scope: optionId === "deny-always" ? "session" : "turn" };
+    return { decision: "decline" };
   }
-  return { decision: "approve", scope: "turn" };
+  return { decision: "accept" };
+}
+
+export function approvalReplyForServerRequest(
+  message: AppServerMessage,
+  optionId: string,
+): {
+  result?: Record<string, unknown>;
+  error?: { code: number; message: string };
+} {
+  if (message.method === "item/permissions/requestApproval") {
+    if (optionId.startsWith("deny")) {
+      return {
+        error: { code: -32000, message: "Permission request declined" },
+      };
+    }
+    const params = asRecord(message.params);
+    return {
+      result: {
+        permissions: params.permissions ?? {},
+        scope: optionId === "allow-always" ? "session" : "turn",
+      },
+    };
+  }
+  if (
+    message.method === "applyPatchApproval" ||
+    message.method === "execCommandApproval"
+  ) {
+    return {
+      result: {
+        decision: optionId.startsWith("deny") ? "denied" : "approved",
+      },
+    };
+  }
+  return { result: approvalResponseForOption(optionId) };
 }
 
 function mapCodexApprovalKind(kind: string | undefined): ApprovalKind {

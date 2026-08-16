@@ -1,8 +1,5 @@
 import type { AgentEvent } from "../core/types";
-import {
-  createChatItemId,
-  type AiChatItem,
-} from "./chat-items";
+import { createChatItemId, type AiChatItem } from "./chat-items";
 
 export function applyAgentEventToChatItems(
   items: AiChatItem[],
@@ -55,6 +52,7 @@ export function applyAgentEventToChatItems(
         name: event.name,
         server: event.server,
         state: "running",
+        input: stringifyUnknown(event.input),
         createdAt,
       });
       return next;
@@ -109,13 +107,18 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "error": {
-      next.push({
+      const settled = next.map((item) =>
+        item.type === "thinking" && item.state === "streaming"
+          ? { ...item, state: "done" as const }
+          : item,
+      );
+      settled.push({
         id: createChatItemId("error", next.length + 1),
         type: "error",
         text: event.error.message,
         createdAt,
       });
-      return next;
+      return settled;
     }
     case "completed": {
       return next.map((item) =>

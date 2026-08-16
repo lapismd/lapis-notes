@@ -12,6 +12,23 @@ export interface ModelProvider {
   authStatus(): Promise<ProviderAuthStatus>;
 }
 
+export interface AgentModelCatalog {
+  listModels(provider: string): Promise<ModelRef[]>;
+}
+
+export class ModelProviderRegistry implements AgentModelCatalog {
+  readonly #providers = new Map<string, ModelProvider>();
+
+  constructor(providers: ModelProvider[] = []) {
+    for (const provider of providers)
+      this.#providers.set(provider.id, provider);
+  }
+
+  async listModels(provider: string): Promise<ModelRef[]> {
+    return (await this.#providers.get(provider)?.listModels()) ?? [];
+  }
+}
+
 export class StaticModelProvider implements ModelProvider {
   readonly id: string;
   readonly #models: ModelRef[];

@@ -24,6 +24,7 @@ export const FAKE_RICH_THINKING =
 export const FAKE_RICH_TOOL = {
   id: "tool-vault-read",
   name: "vault.read",
+  input: { path: "Notes/alpha.md" },
   output: "heading: Notes",
 } as const;
 
@@ -76,6 +77,7 @@ export class FakeAgentSession implements AgentSession {
         type: "tool.start",
         id: FAKE_RICH_TOOL.id,
         name: FAKE_RICH_TOOL.name,
+        input: FAKE_RICH_TOOL.input,
       });
       this.#events.push({
         type: "tool.end",
@@ -88,7 +90,9 @@ export class FakeAgentSession implements AgentSession {
       this.#events.push({ type: "text", text: input });
     }
     if (this.#requireApproval) {
-      const request = createFakeApprovalRequest(`approval-${this.prompts.length}`);
+      const request = createFakeApprovalRequest(
+        `approval-${this.prompts.length}`,
+      );
       this.#events.push({ type: "permission.request", request });
       const optionId = await new Promise<string>((resolve, reject) => {
         this.#pending.set(request.id, { resolve, reject });

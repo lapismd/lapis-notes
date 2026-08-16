@@ -1,6 +1,10 @@
 export type ModelRef = {
   provider: string;
   model: string;
+  displayName?: string;
+  description?: string;
+  isDefault?: boolean;
+  supportedThinking?: AiThinkingLevel[];
 };
 
 export type AiThinkingLevel = "off" | "low" | "medium" | "high";
@@ -117,7 +121,10 @@ export interface AgentRuntime {
   capabilities(): AgentCapabilities;
   supports(request: AgentRequest): Promise<boolean>;
   start(request: AgentRequest): Promise<AgentSession>;
-  resume?(sessionId: string): Promise<AgentSession>;
+  resume?(
+    sessionId: string,
+    request?: Omit<AgentRequest, "prompt">,
+  ): Promise<AgentSession>;
 }
 
 export const DEFAULT_APPROVAL_OPTIONS: ApprovalOption[] = [

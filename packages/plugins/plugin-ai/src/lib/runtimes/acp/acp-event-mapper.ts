@@ -16,6 +16,7 @@ export type AcpRuntimeEventLike = {
   kind?: string;
   rawInput?: unknown;
   rawOutput?: unknown;
+  content?: unknown[];
   message?: string;
   stopReason?: string;
 };
@@ -50,7 +51,9 @@ export type AcpPermissionDecision = {
     | "cancel";
 };
 
-export function mapAcpRuntimeEvent(event: AcpRuntimeEventLike): AgentEvent | null {
+export function mapAcpRuntimeEvent(
+  event: AcpRuntimeEventLike,
+): AgentEvent | null {
   if (event.type === "text_delta") {
     if (event.stream === "thought") {
       return { type: "thinking", text: event.text ?? "", kind: "reasoning" };
@@ -68,8 +71,11 @@ export function mapAcpRuntimeEvent(event: AcpRuntimeEventLike): AgentEvent | nul
         type: "tool.end",
         id,
         name,
-        output: event.rawOutput,
-        error: event.status === "failed" ? event.rawOutput : undefined,
+        output: event.rawOutput ?? event.content ?? event.text,
+        error:
+          event.status === "failed"
+            ? (event.rawOutput ?? event.content ?? event.text)
+            : undefined,
       };
     }
     return {
@@ -183,7 +189,12 @@ function mapApprovalOptions(
 
 function mapApprovalKind(kind: string | undefined): ApprovalKind {
   if (kind === "read" || kind === "search") return "read";
-  if (kind === "write" || kind === "edit" || kind === "delete" || kind === "move") {
+  if (
+    kind === "write" ||
+    kind === "edit" ||
+    kind === "delete" ||
+    kind === "move"
+  ) {
     return "write";
   }
   if (kind === "execute") return "execute";

@@ -34,7 +34,7 @@ export type AcpRuntimeBackend = {
   }): Promise<AcpBackendSession>;
   resume?(input: {
     sessionId: string;
-    request?: AgentRequest;
+    request?: Omit<AgentRequest, "prompt">;
     onPermissionRequest(
       request: AcpPermissionRequestLike,
     ): Promise<AcpPermissionDecision>;
@@ -93,7 +93,8 @@ export class AcpAgentSession implements AgentSession {
     this.#events.push({ type: "permission.request", request: mapped });
     return new Promise<AcpPermissionDecision>((resolve, reject) => {
       this.#pending.set(mapped.id, {
-        resolve: (optionId) => resolve(mapApprovalOptionToAcpDecision(optionId)),
+        resolve: (optionId) =>
+          resolve(mapApprovalOptionToAcpDecision(optionId)),
         reject,
       });
     });
@@ -155,13 +156,17 @@ export class AcpAgentRuntime implements AgentRuntime {
     return session;
   }
 
-  async resume(sessionId: string): Promise<AgentSession> {
+  async resume(
+    sessionId: string,
+    request?: Omit<AgentRequest, "prompt">,
+  ): Promise<AgentSession> {
     if (!this.#backend.resume) {
       throw new Error("ACP backend does not support resume.");
     }
     let session: AcpAgentSession | undefined;
     const backend = await this.#backend.resume({
       sessionId,
+      request,
       onPermissionRequest: (permission) => {
         if (!session) {
           throw new Error("ACP session is not ready for approvals.");

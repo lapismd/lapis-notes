@@ -37,6 +37,7 @@ import {
   cancelAcpSession,
   closeAcpSession,
   killAgentProcess,
+  listAcpModels,
   promptAcpSession,
   respondAcpSession,
   spawnAgentProcess,
@@ -1991,6 +1992,9 @@ function registerIpcHandlers(): void {
   );
   ipcMain.handle("desktop_agent_acp_start", async (event, payload) =>
     startAcpSession(event.sender, payload ?? {}),
+  );
+  ipcMain.handle("desktop_agent_acp_models", async (event, payload) =>
+    listAcpModels(event.sender, payload ?? {}),
   );
   ipcMain.handle(
     "desktop_agent_acp_prompt",

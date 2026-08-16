@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  catalogModelsForAgent,
-  normalizeAcpAgent,
-} from "./acp-agents";
+import { catalogModelsForAgent, normalizeAcpAgent } from "./acp-agents";
 
 describe("ACP agents", () => {
   it("keeps known agents and falls unknown values back to codex", () => {
@@ -12,7 +9,7 @@ describe("ACP agents", () => {
     expect(normalizeAcpAgent("")).toBe("codex");
   });
 
-  it("hides the Codex catalog when Cursor is selected", () => {
+  it("filters the shared catalog to the selected provider", () => {
     const models = [
       { provider: "codex", model: "gpt-5.6-sol" },
       { provider: "cursor", model: "composer-2.5" },
@@ -20,6 +17,8 @@ describe("ACP agents", () => {
     expect(catalogModelsForAgent("codex", models)).toEqual([
       { provider: "codex", model: "gpt-5.6-sol" },
     ]);
-    expect(catalogModelsForAgent("cursor", models)).toEqual([]);
+    expect(catalogModelsForAgent("cursor", models)).toEqual([
+      { provider: "cursor", model: "composer-2.5" },
+    ]);
   });
 });

@@ -4,7 +4,10 @@ import type {
   AgentSession,
   ToolContribution,
 } from "../core/types";
-import type { AgentSessionStore, StoredAgentSession } from "../sessions/session-store";
+import type {
+  AgentSessionStore,
+  StoredAgentSession,
+} from "../sessions/session-store";
 import { extractMentionPaths, mergeAttachmentPaths } from "./chat-mentions";
 import {
   applyStoredSessionResumePolicy,
@@ -13,10 +16,7 @@ import {
   snapshotStoredChatSession,
 } from "./chat-session";
 import type { AiChatItem } from "./chat-items";
-import {
-  applyAgentEventToChatItems,
-  markApprovalResponse,
-} from "./chat-trace";
+import { applyAgentEventToChatItems, markApprovalResponse } from "./chat-trace";
 
 export class AiChatController {
   items = $state.raw<AiChatItem[]>([]);
@@ -29,6 +29,8 @@ export class AiChatController {
   readonly store?: AgentSessionStore;
   readonly sessionId: string;
   readonly workspace?: string;
+  readonly request: Omit<AgentRequest, "prompt">;
+  #sessionRequest: Omit<AgentRequest, "prompt">;
   #createdAt?: string;
   #persistQueue: Promise<void> = Promise.resolve();
 
@@ -40,6 +42,7 @@ export class AiChatController {
       store?: AgentSessionStore;
       sessionId?: string;
       workspace?: string;
+      request?: Omit<AgentRequest, "prompt">;
     } = {},
   ) {
     this.runtime = runtime;
@@ -47,17 +50,49 @@ export class AiChatController {
     this.tools = tools;
     this.store = options.store;
     this.workspace = options.workspace;
-    this.sessionId = options.sessionId ?? chatSessionId(options.workspace);
+    this.request = options.request ?? {};
+    this.#sessionRequest = this.request;
+    this.sessionId =
+      options.sessionId ??
+      chatSessionId(
+        options.workspace,
+        runtime.id,
+        this.request.agent ?? "default",
+      );
   }
 
   async restore(): Promise<void> {
-    const stored = await loadStoredChatSession(this.store, this.sessionId);
+    let stored = await loadStoredChatSession(this.store, this.sessionId);
+    if (!stored) {
+      const legacy = await loadStoredChatSession(
+        this.store,
+        chatSessionId(this.workspace),
+      );
+      if (
+        legacy &&
+        legacy.runtime === this.runtime.id &&
+        (legacy.agent === this.request.agent ||
+          (!legacy.agent && this.request.agent === "codex"))
+      ) {
+        stored = legacy;
+      }
+    }
     if (!stored) return;
     this.#createdAt = stored.createdAt;
+    this.#sessionRequest = {
+      ...this.request,
+      agent: stored.agent ?? this.request.agent,
+      model: stored.model ?? this.request.model,
+      thinking: stored.thinking ?? this.request.thinking,
+      workspace: stored.workspace ?? this.workspace,
+    };
     let resumed = false;
     if (this.runtime.capabilities().resume && this.runtime.resume) {
       try {
-        this.session = await this.runtime.resume(stored.runtimeSessionId);
+        this.session = await this.runtime.resume(
+          stored.runtimeSessionId,
+          this.#sessionRequest,
+        );
         void this.#consume(this.session);
         resumed = true;
       } catch {
@@ -96,24 +131,37 @@ export class AiChatController {
       extractMentionPaths(text),
       readAttachmentPaths(request.metadata?.attachments),
     );
+    const effectiveRequest: Omit<AgentRequest, "prompt"> = {
+      ...this.request,
+      ...request,
+      metadata: {
+        ...this.request.metadata,
+        ...request.metadata,
+        ...(attachments.length > 0 ? { attachments } : {}),
+      },
+    };
     try {
       if (!this.session) {
+        this.#sessionRequest = effectiveRequest;
         this.session = await this.runtime.start({
-          ...request,
+          ...effectiveRequest,
           prompt: "",
-          tools: request.tools ?? this.tools,
-          metadata: {
-            ...request.metadata,
-            ...(attachments.length > 0 ? { attachments } : {}),
-          },
+          tools: effectiveRequest.tools ?? this.tools,
         });
         void this.#consume(this.session);
       }
       await this.session.send(text);
       await this.#persist();
     } catch (error) {
+      const failedSession = this.session;
       this.error = error instanceof Error ? error.message : String(error);
+      this.items = applyAgentEventToChatItems(this.items, {
+        type: "error",
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
+      this.session = null;
       this.busy = false;
+      await failedSession?.close().catch(() => undefined);
       await this.#persist();
     }
   }
@@ -145,9 +193,27 @@ export class AiChatController {
         this.items = applyAgentEventToChatItems(this.items, event);
         if (event.type === "completed" || event.type === "error") {
           this.busy = false;
+          if (event.type === "error" && this.session === session) {
+            this.error = event.error.message;
+            this.session = null;
+          }
         }
         await this.#persist();
+        if (event.type === "error") {
+          await session.close().catch(() => undefined);
+          break;
+        }
       }
+    } catch (error) {
+      const normalized =
+        error instanceof Error ? error : new Error(String(error));
+      this.error = normalized.message;
+      this.items = applyAgentEventToChatItems(this.items, {
+        type: "error",
+        error: normalized,
+      });
+      if (this.session === session) this.session = null;
+      await session.close().catch(() => undefined);
     } finally {
       this.busy = false;
       await this.#persist();
@@ -162,6 +228,9 @@ export class AiChatController {
         runtime: this.runtime.id,
         runtimeSessionId: this.session?.id ?? this.sessionId,
         workspace: this.workspace,
+        agent: this.#sessionRequest.agent,
+        model: this.#sessionRequest.model,
+        thinking: this.#sessionRequest.thinking,
         items: this.items,
         createdAt: this.#createdAt,
         interrupted,

@@ -44,6 +44,7 @@ export const DESKTOP_INVOKE_COMMANDS = new Set([
   "desktop_agent_process_write",
   "desktop_agent_process_kill",
   "desktop_agent_acp_start",
+  "desktop_agent_acp_models",
   "desktop_agent_acp_prompt",
   "desktop_agent_acp_cancel",
   "desktop_agent_acp_close",

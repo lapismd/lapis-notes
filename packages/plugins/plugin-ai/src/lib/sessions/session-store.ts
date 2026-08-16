@@ -1,12 +1,14 @@
 import type { AiChatItem } from "../chat/chat-items";
-import type { ModelRef } from "../core/types";
+import type { AiThinkingLevel, ModelRef } from "../core/types";
 
 export type StoredAgentSession = {
   id: string;
   runtime: string;
   runtimeSessionId: string;
   workspace?: string;
+  agent?: string;
   model?: ModelRef;
+  thinking?: AiThinkingLevel;
   createdAt: string;
   updatedAt: string;
   interrupted?: boolean;
@@ -24,7 +26,9 @@ export interface AgentSessionStore {
 export function createMemorySessionStore(
   initial: StoredAgentSession[] = [],
 ): AgentSessionStore {
-  const sessions = new Map(initial.map((session) => [session.id, cloneSession(session)]));
+  const sessions = new Map(
+    initial.map((session) => [session.id, cloneSession(session)]),
+  );
   return {
     async list() {
       return [...sessions.values()]
@@ -90,7 +94,9 @@ export function createStoredAgentSession(input: {
   runtime: string;
   runtimeSessionId: string;
   workspace?: string;
+  agent?: string;
   model?: ModelRef;
+  thinking?: AiThinkingLevel;
   items?: AiChatItem[];
   pendingApprovalId?: string;
   interrupted?: boolean;
@@ -101,7 +107,9 @@ export function createStoredAgentSession(input: {
     runtime: input.runtime,
     runtimeSessionId: input.runtimeSessionId,
     workspace: input.workspace,
+    agent: input.agent,
     model: input.model,
+    thinking: input.thinking,
     createdAt: now,
     updatedAt: now,
     interrupted: input.interrupted,

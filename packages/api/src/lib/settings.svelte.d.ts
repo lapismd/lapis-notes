@@ -176,6 +176,11 @@ export declare class DropdownComponent extends ValueComponent<string | string[]>
     constructor(containerEl: HTMLElement);
     addOption(value: string, label: string): this;
     addOptions(options: Record<string, string>): this;
+    setItems(items: Array<{
+        label: string;
+        value: string;
+        disabled?: boolean;
+    }>): this;
     get selectEl(): HTMLElement;
     get disabled(): boolean;
     /** @public */
