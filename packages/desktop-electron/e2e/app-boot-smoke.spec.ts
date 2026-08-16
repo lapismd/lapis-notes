@@ -674,10 +674,15 @@ test("workspace vault controls switch sessions and return to the launcher", asyn
     const viewAll = app.page.getByRole("button", { name: "View all" });
     await expect(viewAll).toBeVisible();
     await viewAll.click();
-    const recentProjects = app.page.locator(
-      '[data-ui-component="command"][data-ui-part="command-content"]',
-    );
+    const recentProjects = app.page.getByRole("dialog", {
+      name: "Recent Projects",
+    });
     await expect(recentProjects).toBeVisible();
+    await expect(
+      recentProjects.locator(
+        '[data-ui-component="command-view"][data-ui-part="root"]',
+      ),
+    ).toBeVisible();
     await expect(
       recentProjects.getByText("vault-a", { exact: true }),
     ).toBeVisible();

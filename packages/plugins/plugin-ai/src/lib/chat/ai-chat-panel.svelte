@@ -2,7 +2,7 @@
   import * as Chat from "@lapismd/design-core/ai/chat";
   import { Reasoning } from "@lapismd/design-core/ai/experimental";
   import { Button } from "@lapismd/design-core/shadcn/button";
-  import * as Command from "@lapismd/design-core/shadcn/command";
+  import * as CommandView from "@lapismd/design-core/shadcn/command-view";
   import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import * as Popover from "@lapismd/design-core/shadcn/popover";
   import { Spinner } from "@lapismd/design-core/shadcn/spinner";
@@ -51,6 +51,7 @@
     runtime,
     selectRuntime,
     unavailableReason = null,
+    initializing = false,
     workspace,
     tools = [],
     sessionStore,
@@ -70,6 +71,7 @@
     runtime: AgentRuntime;
     selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
     unavailableReason?: string | null;
+    initializing?: boolean;
     workspace?: string;
     tools?: ToolContribution[];
     sessionStore?: AgentSessionStore;
@@ -217,6 +219,7 @@
   });
 
   async function submit(prompt: string): Promise<void> {
+    if (initializing) return;
     const selected = catalogModelsForAgent(selectedAgent, models).find(
       (model) => model.model === selectedModel,
     );
@@ -319,7 +322,7 @@
 
   $effect(() => {
     const current = controller;
-    void current.restore();
+    if (!initializing) void current.restore();
     return () => {
       void current.close();
     };
@@ -360,10 +363,11 @@
   class="ai-chat-panel"
   data-ui-component="ai-chat-panel"
   data-testid="ai-chat-panel"
+  data-initializing={initializing}
 >
   <Chat.Layout density="compact" {isEmpty} aria-label="AI chat">
     {#snippet composer()}
-      {#if controller.busy}
+      {#if initializing || controller.busy}
         <div
           class="ai-chat-panel__working"
           data-testid="ai-chat-working"
@@ -372,13 +376,13 @@
           aria-atomic="true"
         >
           <Spinner />
-          <span>Agent is working…</span>
+          <span>{initializing ? "Preparing AI…" : "Agent is working…"}</span>
         </div>
       {/if}
       <Chat.Composer
         bind:value={draft}
         placeholder="Ask anything…"
-        disabled={controller.busy}
+        disabled={initializing || controller.busy}
         interactiveDrawerWhenDisabled={Boolean(pendingInteraction)}
         isStopShown={controller.busy}
         status={composerStatus}
@@ -466,6 +470,7 @@
                     variant="ghost"
                     aria-label="Attach file"
                     data-testid="ai-chat-attach"
+                    disabled={initializing}
                   >
                     <PaperclipIcon aria-hidden="true" />
                   </Button>
@@ -476,20 +481,20 @@
                 side="top"
                 align="start"
               >
-                <Command.Root>
-                  <Command.Input placeholder="Search vault files" />
-                  <Command.List>
-                    <Command.Empty>No vault files</Command.Empty>
+                <CommandView.Root>
+                  <CommandView.Input placeholder="Search vault files" />
+                  <CommandView.List aria-label="Vault files">
+                    <CommandView.Empty>No vault files</CommandView.Empty>
                     {#each attachItems as item (item.id)}
-                      <Command.Item
+                      <CommandView.Item
                         value={`${item.label} ${item.id}`}
                         onSelect={() => addAttachment(item)}
                       >
-                        {item.label}
-                      </Command.Item>
+                        <CommandView.ItemLabel>{item.label}</CommandView.ItemLabel>
+                      </CommandView.Item>
                     {/each}
-                  </Command.List>
-                </Command.Root>
+                  </CommandView.List>
+                </CommandView.Root>
               </Popover.Content>
             </Popover.Root>
           {/if}
@@ -520,6 +525,7 @@
                   variant="ghost"
                   aria-label="Effort and model"
                   data-testid="ai-chat-effort"
+                  disabled={initializing}
                 >
                   <BrainIcon aria-hidden="true" />
                 </Button>
@@ -726,7 +732,7 @@
                       size="icon-xs"
                       variant="ghost"
                       aria-label="Retry message"
-                      disabled={controller.busy || !retryPrompt}
+                      disabled={initializing || controller.busy || !retryPrompt}
                       onclick={() => retryPrompt && void submit(retryPrompt)}
                     >
                       <RedoIcon aria-hidden="true" />

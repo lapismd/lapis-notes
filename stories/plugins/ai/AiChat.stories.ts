@@ -379,6 +379,12 @@ export const AgentTrace: Story = {
     ).toHaveAttribute("data-state", "checked");
     await userEvent.keyboard("{Escape}");
     await userEvent.click(canvas.getByRole("button", { name: "Attach file" }));
+    const attachSearch = await body.findByPlaceholderText("Search vault files");
+    expect(
+      attachSearch.closest(
+        '[data-ui-component="command-view"][data-ui-part="root"]',
+      ),
+    ).not.toBeNull();
     await userEvent.click(await body.findByText("alpha"));
     await expect(
       canvas.getByRole("button", { name: "Remove alpha" }),

@@ -91,6 +91,9 @@ execution APIs.
 | LN-AI-080 | AI History MUST remain placement-neutral across middle tabs, stacked tabs, left and right sidebars, bottom panels, and sidebar groups. Storybook MUST exercise those placements through the real workspace panel contract rather than component-only wrappers or position-specific CSS. |
 | LN-AI-081 | A native desktop conversation MUST use the native vault adapter's absolute root as the agent workspace. Memory and browser vaults MUST omit a synthetic workspace so the attached host applies its confined workspace root; a vault display name MUST NOT be used as `cwd`. |
 | LN-AI-082 | Real-agent smoke lanes MUST remain explicit developer commands, preserve an ignored seeded workspace and portable conversations by default, and support intentional confined reset. They MUST cover Codex ACP, Cursor ACP, and Codex Native without adding a paid-agent dependency to automated tests. |
+| LN-AI-083 | The chat paperclip attach picker MUST compose `@lapismd/design-core/shadcn/command-view` inside the existing Popover. It MUST NOT use native Command for that searchable file list. |
+| LN-AI-084 | An AI chat view MUST mount its complete chat layout synchronously before conversation, model-catalog, or runtime preparation completes. The composer MUST remain disabled and expose a non-error preparing status until preparation settles. |
+| LN-AI-085 | Selecting or creating a conversation from AI History MUST open it in a main-area AI tab, reveal an existing main-area tab with the same `(scopeDir, conversationId)`, and MUST NOT replace the history leaf. The composer History action MUST reveal an existing history leaf or create its canonical sidebar leaf without replacing chat. |
 
 ### LN-AI-046 acceptance details
 
@@ -121,4 +124,5 @@ adapter through the selected built-in agent name. Native Codex remains an
 optional richer adapter for policy amendments only. There is no Cursor-native
 runtime. The standalone `lapis-ai-host` CLI owns process execution. Web and
 Storybook default stories stay Fake. The dedicated Live Host story
-attaches only when URL and token are configured.
+attaches only when URL and token are configured. The paperclip attach picker
+keeps its Popover host and composes Command View for the vault-file list.

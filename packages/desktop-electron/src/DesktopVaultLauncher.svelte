@@ -23,7 +23,7 @@
   import { fuzzySearch } from "@lapis-notes/ui";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import * as Card from "@lapismd/design-core/shadcn/card";
-  import * as Command from "@lapismd/design-core/shadcn/command";
+  import * as CommandView from "@lapismd/design-core/shadcn/command-view";
   import * as Dialog from "@lapismd/design-core/shadcn/dialog";
   import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import * as Input from "@lapismd/design-core/shadcn/input";
@@ -482,34 +482,47 @@
   </Dialog.Content>
 </Dialog.Root>
 
-<Command.Dialog
-  bind:open={recentVaultDialogOpen}
-  bind:value={recentVaultQuery}
-  shouldFilter={false}
-  title="Recent Projects"
-  description="Search and open a recent vault"
-  class="workspace-shell__vault-chooser-command"
->
-  <Command.Input placeholder="Search recent vaults..." />
-  <Command.List>
-    <Command.Empty>No matching recent vaults</Command.Empty>
-    <Command.Group>
-      {#each filteredRecentVaults as entry (entry.profile.id)}
-        <Command.Item
-          value={`${entry.name} ${entry.location}`}
-          onSelect={() => void invoke(() => onOpenRecent(entry.profile))}
-          class="workspace-shell__vault-chooser-command-item"
-        >
-          <Search class="size-4" />
-          <span class="flex min-w-0 flex-1 flex-col gap-1">
-            <span class="truncate font-medium">{entry.name}</span>
-            <span class="truncate text-xs opacity-80">{entry.location}</span>
-          </span>
-        </Command.Item>
-      {/each}
-    </Command.Group>
-  </Command.List>
-</Command.Dialog>
+<Dialog.Root bind:open={recentVaultDialogOpen}>
+  <Dialog.Content
+    class="workspace-shell__vault-chooser-command"
+    showCloseButton={false}
+  >
+    <Dialog.Header class="sr-only">
+      <Dialog.Title>Recent Projects</Dialog.Title>
+      <Dialog.Description>Search and open a recent vault</Dialog.Description>
+    </Dialog.Header>
+    <CommandView.Root shouldFilter={false}>
+      <CommandView.Input
+        bind:value={recentVaultQuery}
+        placeholder="Search recent vaults..."
+        aria-label="Search recent vaults"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <CommandView.List aria-label="Recent projects">
+        <CommandView.Empty>No matching recent vaults</CommandView.Empty>
+        {#if filteredRecentVaults.length > 0}
+          <CommandView.Group>
+            {#each filteredRecentVaults as entry (entry.profile.id)}
+              <CommandView.Item
+                value={`${entry.name} ${entry.location}`}
+                onSelect={() => void invoke(() => onOpenRecent(entry.profile))}
+              >
+                <CommandView.ItemIcon>
+                  <Search />
+                </CommandView.ItemIcon>
+                <CommandView.ItemLabel>{entry.name}</CommandView.ItemLabel>
+                <CommandView.ItemDescription>
+                  {entry.location}
+                </CommandView.ItemDescription>
+              </CommandView.Item>
+            {/each}
+          </CommandView.Group>
+        {/if}
+      </CommandView.List>
+    </CommandView.Root>
+  </Dialog.Content>
+</Dialog.Root>
 
 <Dialog.Root bind:open={renameDialogOpen}>
   <Dialog.Content class="sm:max-w-[28rem]">

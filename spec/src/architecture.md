@@ -194,6 +194,8 @@ database contract through bounded BroadcastChannel RPC and may promote when
 the owner disappears. Neither role is cloud synchronization.
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
+Desktop and web “View all” palettes keep host-owned Dialog chrome and compose
+Command View for the searchable recent-vault list.
 The ready-shell vault menu follows the same boundary: Design Core presents the
 generic menu, the workspace package forwards its contract, and the desktop
 consumer supplies profiles plus serialized switch and management callbacks.

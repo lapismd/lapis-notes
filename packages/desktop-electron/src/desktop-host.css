@@ -107,7 +107,7 @@ body {
   translate: -50% -50%;
 }
 
-.workspace-shell__vault-chooser-command[data-ui-component="command"][data-ui-part="command-content"] {
+.workspace-shell__vault-chooser-command[data-ui-component="dialog"][data-ui-part="dialog-content"] {
   top: 20vh;
   left: 50%;
   width: min(34rem, calc(100% - 2rem));
@@ -115,6 +115,9 @@ body {
   max-height: calc(80vh - 1rem);
   overflow: hidden;
   translate: -50% 0;
+  gap: 0;
+  padding: 0;
+  --ui-command-view-list-max-height: min(20rem, calc(80vh - 6rem));
 }
 
 :root.lapis-desktop--macos

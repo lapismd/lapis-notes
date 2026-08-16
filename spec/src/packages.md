@@ -226,8 +226,9 @@ production database dependency remains the pinned API-owned Turso WASM
 provider rather than a package-local persistence implementation.
 
 Its launcher imports shadcn presentation from Design Core and profile/search
-helpers from public Lapis exports. It does not add launcher policy to the
-workspace package or copy a private UI implementation.
+helpers from public Lapis exports. Desktop and web “View all” palettes compose
+Command View for the searchable recent-vault list. It does not add launcher
+policy to the workspace package or copy a private UI implementation.
 The renderer consumes Design Core's public `styles.css` and Lapis theme export
 instead of reconstructing workspace CSS. The desktop-only Vite Tailwind pass is
 limited to compiling the intaken launcher composition and does not move native
