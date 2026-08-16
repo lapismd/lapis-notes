@@ -22,6 +22,23 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - When a sibling exports built output, rebuild it before validating this
   repository as a consumer.
 
+## Application ownership
+
+- First-party runtime and Storybook code must receive `App` explicitly, derive
+  it from an owning `Workspace` or leaf, or read it from Svelte context.
+- Do not read or assign `globalThis.app` outside
+  `packages/api/src/lib/application-compatibility.ts`, dedicated compatibility
+  fallback tests, or packaged compatibility smoke acceptance. Constructing an
+  `App` must not mutate global state.
+- A host that supports legacy plugins installs a disposable compatibility
+  lease before plugin loading and releases it only after owned plugin,
+  workspace, metadata, service, and vault teardown.
+- Run `pnpm check:app-ownership` when App ownership changes. The audit is wired
+  into both `pnpm check` and `pnpm spec:check`.
+- Separately versioned first-party plugins must keep their own source audit and
+  use the public API compatibility lease only at a host boundary; plugin
+  runtime and stories continue to use their explicitly owned App.
+
 ## Spec First
 
 - Canonical requirements live under `spec/src/`. Implementation must not run
