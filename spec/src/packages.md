@@ -156,8 +156,9 @@ is the fallback when a rich provider is absent.
 `@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
 side panels. `@lapis-notes/markdown-lint` and the internal
 `@lapis-notes/language-service` package are the focused diagnostics exceptions.
-`@lapis-notes/history` owns vault file-revision capture, the History panel, and
-the compare tab while persisting only through `AppDatabase`.
+`@lapis-notes/history` owns vault file-revision capture, the History panel, the
+compare tab, and the Design Core History settings section while persisting
+revisions only through `AppDatabase`.
 `@lapis-notes/bases` owns its parser, query controller, layouts, editors,
 private TanStack adapter, and native stylesheet. It consumes API contracts and
 public Design Core primitives directly, exports its stylesheet explicitly, and

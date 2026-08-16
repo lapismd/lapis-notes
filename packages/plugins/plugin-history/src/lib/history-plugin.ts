@@ -18,6 +18,7 @@ import {
   type HistoryPluginSettingsPatch,
 } from "./history-settings";
 import { HistorySettingsTab } from "./history-settings-tab";
+import { registerHistorySettings } from "./register-history-settings";
 import { isHistoryTrackedFile } from "./history-tracking";
 import { HistoryCompareView } from "./history-compare-view";
 import { HistoryView } from "./history-view";
@@ -163,6 +164,7 @@ export class HistoryPlugin extends Plugin {
   async onload(): Promise<void> {
     this.settings = mergeHistorySettings(await this.loadData());
     this.addSettingTab(new HistorySettingsTab(this.app, this));
+    registerHistorySettings(this);
 
     this.registerSidebarView(
       HistoryViewType,

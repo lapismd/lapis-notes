@@ -36,6 +36,9 @@ plugin-local paint.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects
 conflicting names, and unload disposes the exact registration.
+This callback registry is separate from AI's external
+`McpServerContribution` registry; plugins cannot claim the reserved
+`lapis-tools` MCP server name through that process-backed integration surface.
 
 ## Distribution and provenance
 
@@ -50,6 +53,9 @@ The core configuration continues to accept the legacy array and the object
 form. Missing-view placeholders retain the original view type and serialized
 state so restart and later enablement use the existing workspace recovery path.
 Plugin configuration and data remain keyed by runtime plugin ID.
+Bundled plugins that own user-facing configuration register Design Core
+settings sections under `core-plugins` in addition to any legacy
+`PluginSettingTab` compatibility surface.
 Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.

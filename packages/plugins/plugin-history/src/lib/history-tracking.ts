@@ -57,6 +57,15 @@ export function isHistoryTrackedFile(
     return false;
   }
 
+  if (
+    settings.includeGlobs.length > 0 &&
+    !settings.includeGlobs.some((pattern) =>
+      matchesEditorAssociationGlob(pattern, path),
+    )
+  ) {
+    return false;
+  }
+
   if (settings.trackedExtensions.length === 0) {
     return true;
   }

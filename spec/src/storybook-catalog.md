@@ -131,7 +131,8 @@ History, and the six Markdown command views. History compare stories assert
 `History` plus parent-path header breadcrumbs and that History opens or reveals
 the History panel. `Plugins/History/Shell` provides Desktop and Mobile full-app
 stories with Explorer on the left, a multi-section Welcome compare in the
-main area, and Search retained on the collapsed right. Every mapped story renders the
+main area, and Search retained on the collapsed right. The Desktop play
+opens Settings and proves the History exclude/include configuration. Every mapped story renders the
 same registered view once in Middle Top Tabs, Stacked Tabs, both sidebars, a
 real bottom-panel group, and a real sidebar group; new or changed captures stay
 `visual-pending` until reviewed.

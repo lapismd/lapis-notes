@@ -130,7 +130,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
 @lapis-notes/search (vault indexing + Search workspace contribution)
-@lapis-notes/history (vault file-revision capture + History workspace contribution)
+@lapis-notes/history (vault file-revision capture + History workspace contribution + settings)
 @lapis-notes/bases (query + document + bundled Bases presentation)
 @lapis-notes/lapis-plugin-cv-roles (first-party external plugin; role workflows + retained CV views)
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)

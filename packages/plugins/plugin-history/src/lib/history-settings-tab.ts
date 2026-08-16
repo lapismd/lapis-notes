@@ -68,6 +68,22 @@ export class HistorySettingsTab extends PluginSettingTab {
       });
 
     new Setting(this.containerEl)
+      .setName("Include globs")
+      .setDesc(
+        "Optional path allowlist. Leave empty to snapshot remaining paths after excludes.",
+      )
+      .addText((text) => {
+        text
+          .setPlaceholder("Notes/**, Projects/**")
+          .setValue(settings.includeGlobs.join(", "))
+          .onChange((value) => {
+            void this.update({
+              includeGlobs: value.split(","),
+            });
+          });
+      });
+
+    new Setting(this.containerEl)
       .setName("Tracked extensions")
       .setDesc(
         "Optional allowlist. Leave empty to snapshot remaining UTF-8 text under the size cap.",

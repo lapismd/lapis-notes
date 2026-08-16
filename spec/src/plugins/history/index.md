@@ -11,7 +11,7 @@ history.
 | --- | --- |
 | LN-HIST-001 | The repo MUST ship `@lapis-notes/history` at `packages/plugins/plugin-history` as an enabled-by-default core plugin. It MUST NOT reuse AI conversation-history view types or commands. |
 | LN-HIST-002 | History MUST capture vault create, modify, rename, delete, and restore events into `AppDatabase` file-history tables only. It MUST NOT write snapshots into the vault, `.obsidian/`, or `.lapis/`. |
-| LN-HIST-003 | Tracking MUST skip internal `.lapis` paths, glob excludes, binaries, oversized files, and read failures. Defaults MUST be 256 KiB, 50 revisions, a 10s modify merge window, and the documented exclude globs. An empty extension allowlist MUST track remaining UTF-8 text. |
+| LN-HIST-003 | Tracking MUST skip internal `.lapis` paths, glob excludes, binaries, oversized files, and read failures. Defaults MUST be 256 KiB, 50 revisions, a 10s modify merge window, and the documented exclude globs. Empty include-glob and extension allowlists MUST track remaining UTF-8 text. |
 | LN-HIST-004 | The plugin MUST register the `history` view through `ViewAccess.command` with `open-file-history` / `Open file history`. The opener MUST reveal an existing instance wherever it was moved or create, activate, and reveal the default right sidebar. |
 | LN-HIST-005 | The plugin MUST register `history-compare` through `ViewAccess.internal` and reuse one main-area tab. Previous or selected-pair compares MUST use Design Core FileDiff. Live-file compare MUST use one-way MergeEditor. Restore and apply MUST write through the vault API, record a restore revision, and suppress the next matching-hash modify. |
 | LN-HIST-006 | Storybook MUST demonstrate the real History panel in all six governed placements and a compare story covering FileDiff, MergeEditor, select-for-compare, restore, and History-leaf preservation. Docs source MUST use public `@lapis-notes/history` imports. New visuals MUST stay `visual-pending`. |
@@ -19,6 +19,7 @@ history.
 | LN-HIST-008 | The timeline context menu MUST offer Select for compare and Compare with selected. The anchored revision MUST show a compare icon until cleared or the focused file changes. Compare with selected MUST stay disabled until a different revision is anchored and MUST open FileDiff of that pair. |
 | LN-HIST-009 | The history-compare header MUST show a leading History breadcrumb plus parent-path segments of the compared file. The header title MUST be the filename and MUST NOT be editable. Selecting History MUST open or reveal the History panel for that file. |
 | LN-HIST-010 | Storybook MUST provide `Plugins/History/Shell` Desktop and Mobile stories that boot a real App with Explorer on the left, a multi-section Welcome note plus its stored-pair compare in the main area, and History plus Search retained on the collapsed right. Docs source MUST use public `@lapis-notes/history` imports. New visuals MUST stay `visual-pending`. |
+| LN-HIST-011 | History MUST register a Design Core settings section titled History under core-plugins. The section MUST expose exclude globs, include globs, tracked extensions, retention, size cap, merge window, and debounce. Values MUST persist through plugin data and apply to capture. |
 
 ### LN-HIST-003 acceptance details
 
@@ -26,6 +27,7 @@ Tracking policy verifies:
 
 - Default caps are 256 KiB, 50 revisions per file, a 10s modify merge window, and a short create/modify debounce.
 - Default exclude globs are `.obsidian/**`, `.lapis/**`, `**/.git/**`, and `**/.jj/**`.
+- An empty include-glob list accepts remaining paths after excludes.
 - An empty tracked-extension allowlist accepts remaining UTF-8 text; a small binary deny list is skipped.
 - A modify inside the merge window replaces the latest same-path modify instead of appending.
 
@@ -40,6 +42,21 @@ Compare and restore verify:
 - Compare chrome keeps only its bottom border, places File Change Stats on the trailing edge of the revision row, and flushes embedded FileDiff and MergeEditor top, start, and end borders and radius.
 - Wrap text is a pressed toggle that sets Design Core `wrap` and wraps long compare lines.
 - Embedded FileDiff and MergeEditor MUST fill the compare body through Design Core ScrollArea so unwrapped horizontal scrollbars sit just above the workspace footer.
+
+### LN-HIST-011 acceptance details
+
+Settings registration verifies:
+
+- `onload` registers a Design Core section titled History in the
+  `core-plugins` navigation group, not only a legacy `PluginSettingTab`.
+- Exclude globs, include globs, and tracked extensions are editable string
+  lists. Defaults keep the documented excludes and empty include/extension
+  allowlists.
+- Retention, size cap, merge window, and debounce remain editable capture
+  caps. Changing a field persists through plugin `saveData` and updates
+  tracking.
+- `Plugins/History/Shell` Desktop opens Settings, selects History, and
+  proves exclude/include lists plus persisted plugin data.
 
 ## Runtime flow
 
@@ -78,4 +95,5 @@ MergeEditor fill the compare body through Design Core ScrollArea so
 unwrapped horizontal scrollbars sit just above the workspace footer.
 Unified and split FileDiff share one toolbar toggle whose icon follows
 the current view. Wrap text is a pressed toggle that wraps long FileDiff
-and MergeEditor lines.
+and MergeEditor lines. The plugin registers a Design Core History settings
+section for exclude/include globs, tracked extensions, and capture caps.

@@ -23,6 +23,14 @@ export type {
   HistoryPluginSettings,
   HistoryPluginSettingsPatch,
 } from "./history-settings";
+export {
+  HISTORY_SETTING_IDS,
+  HISTORY_SETTINGS_SECTION_ID,
+  createHistorySettingsSection,
+  historyFieldValuesToPatch,
+  historySettingsToFieldValues,
+  registerHistorySettings,
+} from "./register-history-settings";
 export { HistoryCompareView } from "./history-compare-view";
 export { HistoryView } from "./history-view";
 export {

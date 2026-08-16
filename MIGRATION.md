@@ -119,9 +119,10 @@ bootstrap, Windows targets, and remote release publication.
 Source: `/Users/stevejuma/code/lapis-notes/packages/plugins/plugin-history`
 adapted for the current App, Design Core diff surfaces, and VS Code-like caps.
 
-- [x] Canonical `LN-HIST-001` through `LN-HIST-010`, host/catalog requirements, verification mappings, and spec-first routing
+- [x] Canonical `LN-HIST-001` through `LN-HIST-011`, host/catalog requirements, verification mappings, and spec-first routing
 - [x] Reusable `@lapis-notes/history` package with `history` command view and internal `history-compare`
 - [x] Vault-event capture with 256 KiB / 50-revision caps, 10s merge window, and glob excludes including `.jj`
+- [x] Design Core History settings section for exclude/include globs, tracked extensions, and capture caps
 - [x] Design Core FileDiff for previous and selected-pair compares; MergeEditor one-way for the live file
 - [x] Select for compare / Compare with selected timeline actions
 - [x] Electron, web, and Storybook host registration enabled by default

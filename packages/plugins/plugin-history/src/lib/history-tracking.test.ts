@@ -47,4 +47,22 @@ describe("history tracking", () => {
     expect(isHistoryTrackedFile(file("note.md"), settings)).toBe(true);
     expect(isHistoryTrackedFile(file("data.json"), settings)).toBe(false);
   });
+
+  it("honors an optional include-glob allowlist after excludes", () => {
+    const settings = {
+      ...DEFAULT_HISTORY_SETTINGS,
+      includeGlobs: ["Notes/**"],
+    };
+
+    expect(isHistoryTrackedFile(file("Notes/Welcome.md"), settings)).toBe(true);
+    expect(isHistoryTrackedFile(file("Projects/plan.md"), settings)).toBe(
+      false,
+    );
+    expect(
+      isHistoryTrackedFile(file(".obsidian/app.json"), {
+        ...settings,
+        includeGlobs: [".obsidian/**"],
+      }),
+    ).toBe(false);
+  });
 });

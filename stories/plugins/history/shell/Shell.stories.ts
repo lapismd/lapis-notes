@@ -1,5 +1,11 @@
 import type { App } from "@lapis-notes/api";
-import { HistoryCompareViewType, HistoryViewType } from "@lapis-notes/history";
+import {
+  DEFAULT_HISTORY_SETTINGS,
+  HISTORY_SETTING_IDS,
+  HistoryCompareViewType,
+  HistoryPlugin,
+  HistoryViewType,
+} from "@lapis-notes/history";
 import {
   HISTORY_SHELL_PATH,
   HISTORY_SHELL_SECTIONS,
@@ -61,7 +67,7 @@ export const Desktop: Story = {
     docs: {
       description: {
         story:
-          "Explorer stays visible on the left, the first-to-latest Welcome compare shows section-level diffs, and History plus indexed Search start and finish collapsed on the right.",
+          "Explorer stays visible on the left, the first-to-latest Welcome compare shows section-level diffs, and History plus indexed Search start and finish collapsed on the right. Opening Settings shows History exclude and include configuration.",
       },
     },
   },
@@ -160,6 +166,64 @@ export const Desktop: Story = {
         canvas.getByRole("button", { name: "Open right sidebar" }),
       ).toBeVisible();
     });
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Open settings" }),
+    );
+    const dialog = canvas.getByRole("dialog", { name: "Settings" });
+    await userEvent.click(
+      await within(dialog).findByRole("button", { name: "History" }),
+    );
+    await expect(
+      within(dialog).getByRole("heading", { name: "History" }),
+    ).toBeVisible();
+    await expect(within(dialog).getByText("Exclude globs")).toBeVisible();
+    await expect(within(dialog).getByText("Include globs")).toBeVisible();
+    await expect(within(dialog).getByText("Included extensions")).toBeVisible();
+    await expect(
+      within(dialog).getByRole("slider", { name: "Revisions per file" }),
+    ).toHaveValue(String(DEFAULT_HISTORY_SETTINGS.retentionCount));
+
+    const excludeField = dialog.querySelector(
+      `[data-setting-id="${HISTORY_SETTING_IDS.excludeGlobs}"]`,
+    );
+    expect(excludeField).not.toBeNull();
+    await expect(
+      within(excludeField as HTMLElement).getByRole("textbox", {
+        name: "Exclude globs item 1",
+      }),
+    ).toHaveValue(DEFAULT_HISTORY_SETTINGS.excludeGlobs[0]);
+
+    const includeField = dialog.querySelector(
+      `[data-setting-id="${HISTORY_SETTING_IDS.includeGlobs}"]`,
+    );
+    expect(includeField).not.toBeNull();
+    await userEvent.click(
+      within(includeField as HTMLElement).getByRole("button", {
+        name: "Add item",
+      }),
+    );
+    await userEvent.type(
+      within(includeField as HTMLElement).getByRole("textbox", {
+        name: "Include globs item 1",
+      }),
+      "Notes/**",
+    );
+    await waitFor(() => {
+      const history = app.plugins.plugins.get("history");
+      expect(history).toBeInstanceOf(HistoryPlugin);
+      expect((history as HistoryPlugin).getSettings().includeGlobs).toEqual([
+        "Notes/**",
+      ]);
+      expect(app.configuration.getPluginData("history")).toMatchObject({
+        includeGlobs: ["Notes/**"],
+      });
+    });
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Close settings" }),
+    );
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
   },
 };
 

@@ -4,6 +4,7 @@ export interface HistoryPluginSettings {
   mergeWindowMs: number;
   maxFileSizeBytes: number;
   excludeGlobs: string[];
+  includeGlobs: string[];
   trackedExtensions: string[];
 }
 
@@ -22,6 +23,7 @@ export const DEFAULT_HISTORY_SETTINGS: HistoryPluginSettings = {
   mergeWindowMs: 10_000,
   maxFileSizeBytes: 256 * 1024,
   excludeGlobs: [...DEFAULT_HISTORY_EXCLUDE_GLOBS],
+  includeGlobs: [],
   trackedExtensions: [],
 };
 
@@ -76,6 +78,7 @@ export function mergeHistorySettings(
       normalizeStringList(stored?.excludeGlobs).length > 0
         ? normalizeStringList(stored?.excludeGlobs)
         : [...DEFAULT_HISTORY_SETTINGS.excludeGlobs],
+    includeGlobs: normalizeStringList(stored?.includeGlobs),
     trackedExtensions: normalizeExtensions(stored?.trackedExtensions),
   };
 }
