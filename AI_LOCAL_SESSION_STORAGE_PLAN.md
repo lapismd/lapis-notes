@@ -39,7 +39,7 @@ work is explicitly archived.
 | AI-LOCAL-007 | Sequenced agent-runtime protocol v2, replay buffer, reconnect and deduplication      | AI-LOCAL-003                             | Done        | AI host 28 tests; reconnect/permission replay; host-restart gap; AI provenance checks              | `qvvrsuyq`     |
 | AI-LOCAL-008 | Storybook scenarios and persistent Live Host vault data                              | AI-LOCAL-004, AI-LOCAL-005, AI-LOCAL-006 | Done        | AI 114 tests; 11 combined Storybook tests; six placements/axe; static Storybook build; spec gate   | `ynmkuytm`     |
 | AI-LOCAL-009 | Seeded real-host smoke launchers and manual Codex/Cursor/native checklist            | AI-LOCAL-007, AI-LOCAL-008               | Done        | Harness 3; Storybook/Electron supervisors; real Codex ACP 7 models, Cursor ACP 35, native 7 with response/tools/write; native approval; cached prerequisite 72 ms | `wpvqwrys`     |
-| AI-LOCAL-010 | Focused, consumer, Storybook, E2E, spec, check, and Turbo build gates                | AI-LOCAL-002–009                         | Not started | Pending                                                                                            | Pending        |
+| AI-LOCAL-010 | Focused, consumer, Storybook, E2E, spec, check, and Turbo build gates                | AI-LOCAL-002–009                         | Done        | AI Storybook 13; static build; web E2E 4; desktop smoke 8; Turbo build 13 (12 cached); package preflight 12/12 cached in 31 ms | `qylurlyz`     |
 
 ## Acceptance checklist
 
@@ -54,6 +54,20 @@ work is explicitly archived.
 
 ## Completion notes
 
-Update each row with exact commands/results and its Jujutsu change after the
-slice is committed. Leave this file at the root until a separate archival
-change moves any remaining operational notes into the canonical specification.
+The owned AI acceptance lanes are green: 116 AI package tests, 13 focused AI
+Storybook tests, the static Storybook build, four web E2E tests, eight desktop
+Electron smoke tests, the specification gates, the Turbo-backed root build,
+and unsigned local desktop packaging. The package command reused all 12
+eligible prerequisite tasks from cache in 31 ms before Electron Builder ran;
+code signing and notarization were skipped because this development machine did
+not supply a valid distribution identity or notarization credentials.
+
+Two inherited failures remain outside this implementation's ownership. The
+full Storybook test run passed all owned AI stories but has two pre-existing
+`LapisEditorDemo` expectation failures (command search role and fold-state
+timing). Root `pnpm check` reaches and passes the AI lanes, then fails on the
+linked Design Core `command-view.svelte` component-binding type contract. No
+consumer workaround or unrelated source change was made for either failure.
+
+Leave this file at the root until a separate archival change moves any
+remaining operational notes into the canonical specification.
