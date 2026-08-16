@@ -4,10 +4,12 @@ import {
   MemoryAppDatabase,
   MemoryVaultAdapter,
 } from "@lapis-notes/api";
-import { AiPlugin } from "@lapis-notes/ai";
+import { AiPlugin, AiViewType } from "@lapis-notes/ai";
+import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
-import { SourceEditorDemoPlugin } from "../../workspace/lapis-editor-demo/source-editor-plugin";
-import { watchMetadata } from "../../workspace/watch-metadata";
+import { SearchPlugin } from "@lapis-notes/search";
+import { SourceEditorDemoPlugin } from "../../../workspace/lapis-editor-demo/source-editor-plugin";
+import { watchMetadata } from "../../../workspace/watch-metadata";
 
 export const AI_WORKSPACE_CONFIGURATION = {
   "appearence.interface.showTabTitleBar": true,
@@ -32,7 +34,7 @@ export const LOCAL_CONVERSATION_ID = "123e4567-e89b-42d3-a456-426614174000";
 const ARCHIVED_CONVERSATION_ID = "223e4567-e89b-42d3-a456-426614174001";
 const RECOVERY_CONVERSATION_ID = "323e4567-e89b-42d3-a456-426614174002";
 
-export { isLiveAgentAttachConfigured } from "./live-agent-attach";
+export { isLiveAgentAttachConfigured } from "../live-agent-attach";
 
 export function createAiWorkspacePluginData(
   defaultRuntime: "fake" | "acp" = "fake",
@@ -96,26 +98,32 @@ export function createAiWorkspaceLayout(initialLocation?: {
   return {
     main: split("main", "horizontal", [
       tabs("main-tabs", [
-        leaf("welcome", "Welcome", "file-text", "markdown", {
-          file: "Notes/Welcome.md",
-          mode: "source",
-        }),
+        leaf("ai-chat", "AI", "sparkles", "ai", initialLocation),
       ]),
     ]),
-    left: split("left", "vertical", [], { width: "0px" }),
+    left: split(
+      "left",
+      "vertical",
+      [
+        tabs("left-panel-tabs", [
+          leaf("file-explorer", "Files", "folder-closed", "file-explorer"),
+        ]),
+      ],
+      { width: "17rem" },
+    ),
     right: split(
       "right",
       "vertical",
       [
         tabs("right-panel-tabs", [
-          leaf("ai-chat", "AI", "sparkles", "ai", initialLocation),
+          leaf("search", "Search", "search", "search", { query: "TODO" }),
         ]),
       ],
-      { width: "22rem" },
+      { width: "0px" },
     ),
     bottom: { ...tabs("bottom-panel", []), height: "0px" },
     floating: [],
-    active: "welcome",
+    active: "ai-chat",
   };
 }
 
@@ -137,7 +145,7 @@ export function createAiWorkspaceSeed(
       2,
     ),
     ".obsidian/ai.json": JSON.stringify(pluginData, null, 2),
-    "Notes/Welcome.md": "# Welcome\n\nAsk the AI chat in the right sidebar.\n",
+    "Notes/Welcome.md": "# Welcome\n\nAsk the AI chat in the workspace.\n",
     "Notes/alpha.md": "# Alpha\n\nTODO: summarize this note.\n",
     ...(scenario === "default" ? {} : createConversationScenarioSeed(scenario)),
   };
@@ -213,6 +221,18 @@ export async function bootAiWorkspaceDemo(
       distribution: "bundled",
     },
     {
+      plugin: FileExplorerPlugin,
+      required: false,
+      enabledByDefault: true,
+      distribution: "bundled",
+    },
+    {
+      plugin: SearchPlugin,
+      required: false,
+      enabledByDefault: true,
+      distribution: "bundled",
+    },
+    {
       plugin: AiPlugin,
       required: false,
       enabledByDefault: true,
@@ -257,7 +277,23 @@ export async function bootAiWorkspaceDemo(
     persistPortableFiles();
   });
   await app.metadataCache.load();
+  const searchPlugin = app.plugins.plugins.get("search");
+  if (searchPlugin instanceof SearchPlugin) {
+    await searchPlugin.refreshIndex("ai-shell");
+  }
   await app.workspace.loadLayout();
+  if (scenario === "local-conversations") {
+    const activeNote = app.vault.getFileByPath("Notes/Welcome.md");
+    const aiLeaf = app.workspace.getLeavesOfType(AiViewType)[0];
+    if (activeNote && aiLeaf) {
+      const noteLeaf = app.workspace.getLeaf("tab");
+      await noteLeaf.openFile(activeNote);
+      app.workspace.activateLeaf(noteLeaf, { saveLayout: false });
+      app.workspace.getActiveFile();
+      app.workspace.activateLeaf(aiLeaf, { saveLayout: false });
+      noteLeaf.close();
+    }
+  }
 
   return {
     app,

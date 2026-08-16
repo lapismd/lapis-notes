@@ -64,13 +64,47 @@
 </div>
 
 <style>
+  :global(
+      body.sb-main-fullscreen:has(#storybook-root .panel-demo) #storybook-root
+    ) {
+    box-sizing: border-box;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 !important;
+  }
+
+  :global(html:has(#storybook-root .panel-demo)),
+  :global(body:has(#storybook-root .panel-demo)) {
+    overflow: hidden;
+  }
+
   .panel-demo {
     position: relative;
+    display: flex;
+    width: 100%;
     height: 100%;
-    min-height: 36rem;
+    max-width: 100%;
+    max-height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
   }
+
+  .panel-demo > :global([data-ui-component="lapis-workspace-shell"]) {
+    flex: 1 1 0;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+  }
+
   :global(.panel-demo-docs-canvas) .panel-demo {
     height: 700px;
+    max-height: 700px;
     min-height: 700px;
   }
   .panel-demo__status {

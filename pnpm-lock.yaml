@@ -78,9 +78,6 @@ importers:
       '@lapis-notes/file-explorer':
         specifier: workspace:*
         version: link:packages/file-explorer
-      '@lapis-notes/lapis-plugin-cv-roles':
-        specifier: link:../lapis-plugin-cv-roles
-        version: link:../lapis-plugin-cv-roles
       '@lapis-notes/markdown':
         specifier: workspace:*
         version: link:packages/plugins/plugin-markdown

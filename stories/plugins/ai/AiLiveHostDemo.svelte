@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import type { App } from "@lapis-notes/api";
   import { WorkspaceShell } from "@lapis-notes/workspace";
-  import { bootAiWorkspaceDemo } from "./create-ai-workspace-demo";
+  import { bootAiWorkspaceDemo } from "./shell/create-shell-demo";
   import { isLiveAgentAttachConfigured } from "./live-agent-attach";
   import "@lapis-notes/ai/styles.css";
 

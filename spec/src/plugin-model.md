@@ -50,3 +50,6 @@ lease exposes a different App for an older consumer.
 The Storybook command-panel registry maps each `ViewAccess.command` identifier
 back to its source declaration and canonical panel story. This is verification
 metadata only and does not become a runtime plugin registration surface.
+Command-backed openers reuse an exact compatible leaf when one exists. A
+conversation opener may claim an unbound main-area AI leaf before creating a
+new tab, and it never replaces the dedicated history leaf.

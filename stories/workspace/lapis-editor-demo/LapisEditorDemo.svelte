@@ -26,7 +26,6 @@
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SearchPlugin } from "@lapis-notes/search";
-  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
   import "@lapismd/mira/themes/obsidian.css";
@@ -155,12 +154,6 @@
         required: false,
         enabledByDefault: true,
         distribution: "bundled",
-      },
-      {
-        plugin: RolesPlugin,
-        required: false,
-        enabledByDefault: true,
-        distribution: "first-party-external",
       },
       {
         plugin: createFileExplorerPlugin({

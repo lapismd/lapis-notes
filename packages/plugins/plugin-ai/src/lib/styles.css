@@ -3,7 +3,7 @@
   --ui-workspace-view-foreground: var(--foreground);
   --ui-ai-request-gap: 0.5rem;
   --ui-ai-chat-bottom-clearance: calc(
-    var(--ui-workspace-status-height, 1.5rem) + 0.25rem
+    var(--ui-workspace-status-height, 1.5rem) + 0.75rem
   );
   --ui-ai-chat-scroll-button-bottom: calc(
     4.75rem + var(--ui-ai-chat-bottom-clearance)

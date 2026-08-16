@@ -3,24 +3,23 @@ import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { BasesViewType } from "@lapis-notes/bases";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, waitFor, within } from "storybook/test";
-import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
-import { WORKSPACE_SHELL_DOCS_STORY } from "../docs-parameters";
-import { basesEditorShellExampleSource } from "../../plugins/bases/BasesEditorShell.example-sources";
-import BasesEditorShellDemo from "../../plugins/bases/BasesEditorShellDemo.svelte";
-import BasesMarkdownEmbedsDemo from "../../plugins/bases/BasesMarkdownEmbedsDemo.svelte";
+import { workspaceCatalogParameters } from "../../../catalog/catalog.mjs";
+import { WORKSPACE_SHELL_DOCS_STORY } from "../../../workspace/docs-parameters";
+import { basesEditorShellExampleSource } from "./Shell.example-sources";
+import BasesEditorShellDemo from "./ShellDemo.svelte";
 
 const meta = {
-  title: "Workspace/Plugins/Bases",
+  title: "Plugins/Bases/Shell/Lifecycle",
   component: BasesEditorShellDemo,
   tags: ["visual-pending", "test"],
   parameters: {
-    ...workspaceCatalogParameters("workspace-plugins-bases-markdown-embeds"),
+    ...workspaceCatalogParameters("plugins-bases-shell-file-view"),
     layout: "fullscreen",
     docs: {
       canvas: { className: "workspace-shell-docs-canvas" },
       description: {
         component:
-          "Real-App Bases workflows cover read-only Markdown embeds and managed disable/restore behavior over the canonical project vault.",
+          "Real-App Bases shell lifecycle coverage uses the same Explorer-left and collapsed-Search-right composition as the desktop and mobile shell stories.",
       },
       source: {
         code: basesEditorShellExampleSource,
@@ -47,7 +46,7 @@ function demoApp(canvasElement: HTMLElement): App {
 
 export const FileView: Story = {
   parameters: {
-    ...workspaceCatalogParameters("workspace-plugins-bases-file-view"),
+    ...workspaceCatalogParameters("plugins-bases-shell-file-view"),
     docs: {
       description: {
         story:
@@ -56,7 +55,7 @@ export const FileView: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/workspace/plugins/bases/file-view-chromium.png",
+        "/visual-baselines/stories/plugins/bases/shell/file-view-chromium.png",
       ],
     },
   },
@@ -108,63 +107,9 @@ export const FileView: Story = {
   },
 };
 
-export const MarkdownEmbeds: Story = {
-  parameters: {
-    ...workspaceCatalogParameters("workspace-plugins-bases-markdown-embeds"),
-    docs: {
-      description: {
-        story:
-          "A real App renders a .base file embed, a fenced Bases block, and invalid YAML through the plugin registries with read-only teardown.",
-      },
-    },
-    visualDelta: {
-      images: [
-        "/visual-baselines/stories/workspace/plugins/bases/markdown-embeds-chromium.png",
-      ],
-    },
-  },
-  render: (() => ({ Component: BasesMarkdownEmbedsDemo })) as NonNullable<
-    Story["render"]
-  >,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await waitFor(
-      () => {
-        expect(canvas.getByTestId("bases-embeds-status")).toHaveTextContent(
-          "ready",
-        );
-        expect(
-          canvas
-            .getByTestId("bases-file-embed")
-            .querySelector(
-              '[data-ui-component="bases-view"][data-read-only="true"]',
-            ),
-        ).toBeVisible();
-        expect(
-          canvas
-            .getByTestId("bases-fenced-embed")
-            .querySelector(
-              '[data-ui-component="bases-view"][data-read-only="true"]',
-            ),
-        ).toBeVisible();
-        expect(canvas.getByText(/Unable to render this base:/)).toBeVisible();
-      },
-      { timeout: 8_000 },
-    );
-
-    const root = canvas.getByTestId("bases-embeds-demo") as HTMLElement & {
-      __cleanupBasesEmbeds?: () => void;
-    };
-    root.__cleanupBasesEmbeds?.();
-    expect(canvas.getByTestId("bases-file-embed")).toBeEmptyDOMElement();
-    expect(canvas.getByTestId("bases-fenced-embed")).toBeEmptyDOMElement();
-    expect(canvas.getByTestId("bases-invalid-embed")).toBeEmptyDOMElement();
-  },
-};
-
 export const DisableAndRestore: Story = {
   parameters: {
-    ...workspaceCatalogParameters("workspace-plugins-bases-disable-restore"),
+    ...workspaceCatalogParameters("plugins-bases-shell-disable-restore"),
     docs: {
       description: {
         story:
@@ -173,7 +118,7 @@ export const DisableAndRestore: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/workspace/plugins/bases/disable-and-restore-chromium.png",
+        "/visual-baselines/stories/plugins/bases/shell/disable-and-restore-chromium.png",
       ],
     },
   },

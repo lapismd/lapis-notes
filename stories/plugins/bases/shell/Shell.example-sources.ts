@@ -1,11 +1,11 @@
 import {
   BASES_SAMPLE_NOTES,
   createBasesViewsDocument,
-} from "./bases-views-fixture";
+} from "../bases-views-fixture";
 import {
   BASES_EDITOR_SHELL_CONFIGURATION,
   createBasesEditorShellLayout,
-} from "./create-bases-editor-shell-demo";
+} from "./create-shell-demo";
 
 export const basesEditorShellExampleSource = `<script lang="ts">
   import { onMount } from "svelte";
@@ -22,8 +22,6 @@ export const basesEditorShellExampleSource = `<script lang="ts">
     "Bases/Projects.base": ${JSON.stringify(JSON.stringify(createBasesViewsDocument("table"), null, 2))},
     ...${JSON.stringify(BASES_SAMPLE_NOTES, null, 2)},
   });
-  provideApplicationState(app);
-  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const app = new App({
     version: "1.0.0",
     configPath: ".obsidian/app.json",
@@ -32,6 +30,8 @@ export const basesEditorShellExampleSource = `<script lang="ts">
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
+  provideApplicationState(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   let ready = $state(false);
 
   app.plugins.registerCorePlugins([

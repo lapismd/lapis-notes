@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { auditPluginPanels } from "./storybook-structure-audit.mjs";
+import {
+  auditPluginPanels,
+  auditStorybookStructure,
+} from "./storybook-structure-audit.mjs";
 
 const family = {
   kind: "fixture",
@@ -93,5 +96,161 @@ test("rejects duplicate command and story mappings", () => {
   assert.deepEqual(
     findings.map((entry) => entry.code),
     ["STORYBOOK-PANEL-MAPPING-DUPLICATE", "STORYBOOK-PANEL-MAPPING-DUPLICATE"],
+  );
+});
+
+const shellStory = (plugin) => `
+export default { title: "Plugins/${plugin}/Shell", tags: ["visual-pending"] };
+export const Desktop = {};
+export const Mobile = {};
+`;
+const shellDemo = `
+body.sb-main-fullscreen { height: 100vh; overflow: hidden; padding: 0 !important; }
+.workspace-shell-demo > [data-ui-component="lapis-workspace-shell"] { height: 100%; }
+.workspace-shell-docs-canvas { height: 700px; }
+`;
+const shellRuntime = `
+FileExplorerPlugin; SearchPlugin;
+const left = { width: "17rem" };
+const right = { width: "0px" };
+`;
+const panelDemo = `
+body.sb-main-fullscreen { width: 100vw; height: 100vh; overflow: hidden; padding: 0 !important; }
+.panel-demo-docs-canvas { height: 700px; }
+`;
+const panelHelper = `
+viewport.clientWidth; viewport.clientHeight;
+getComputedStyle(storyRoot).padding;
+getComputedStyle(storyRoot).overflow;
+`;
+const workspaceDemo = `
+{ plugin: MarkdownPlugin, required: false, enabledByDefault: true }
+{ plugin: MarkdownLintPlugin, required: false, enabledByDefault: true }
+{ plugin: FileExplorerPlugin, required: false, enabledByDefault: true }
+{ plugin: SearchPlugin, required: false, enabledByDefault: true }
+{ plugin: HistoryPlugin, required: false, enabledByDefault: true }
+{ plugin: BasesPlugin, required: false, enabledByDefault: true }
+{ plugin: AiPlugin, required: false, enabledByDefault: true }
+defaultRuntime: "fake"
+`;
+const workspaceStory = `
+export const PersistedDesktop = { args: { loadBundledPlugins: true } };
+export const Mobile = { args: { loadBundledPlugins: true } };
+`;
+
+function validStructureFiles() {
+  return new Map([
+    ["stories/plugins/_shared/panels/PanelDemo.svelte", panelDemo],
+    ["stories/plugins/_shared/panels/panel-story-helpers.ts", panelHelper],
+    ["stories/plugins/ai/shell/Shell.stories.ts", shellStory("AI")],
+    ["stories/plugins/ai/shell/ShellDemo.svelte", shellDemo],
+    ["stories/plugins/ai/shell/create-shell-demo.ts", shellRuntime],
+    ["stories/plugins/bases/shell/Shell.stories.ts", shellStory("Bases")],
+    ["stories/plugins/bases/shell/ShellDemo.svelte", shellDemo],
+    ["stories/plugins/bases/shell/create-shell-demo.ts", shellRuntime],
+    ["stories/workspace/WorkspaceShellDemo.svelte", workspaceDemo],
+    ["stories/workspace/WorkspaceShell.stories.ts", workspaceStory],
+    [
+      ".storybook/preview.ts",
+      'const parameters = { options: { storySort: { order: ["Specification", []] } } };',
+    ],
+  ]);
+}
+
+function auditStructure(files, trackedFiles = [...files.keys()]) {
+  return auditStorybookStructure({
+    trackedFiles,
+    families: [],
+    placements: [],
+    readOptional(file) {
+      return files.get(file) ?? null;
+    },
+  });
+}
+
+test("accepts canonical full-canvas panels, plugin shells, and persisted inventory", () => {
+  assert.deepEqual(auditStructure(validStructureFiles()), []);
+});
+
+test("rejects legacy workspace plugin paths and external Roles catalog coupling", () => {
+  const files = validStructureFiles();
+  files.set(
+    "stories/workspace/plugins/Roles.stories.ts",
+    'import "@lapis-notes/lapis-plugin-cv-roles"; export default { title: "Workspace/Plugins/Roles" };',
+  );
+  const codes = auditStructure(files).map((entry) => entry.code);
+  assert.ok(codes.includes("STORYBOOK-TAXONOMY-LEGACY"));
+  assert.ok(codes.includes("STORYBOOK-EXTERNAL-PLUGIN"));
+});
+
+test("rejects incomplete plugin shell variants, composition, visual status, and geometry", () => {
+  const files = validStructureFiles();
+  files.set(
+    "stories/plugins/ai/shell/Shell.stories.ts",
+    'export default { title: "Plugins/AI/Workspace" }; export const Desktop = {};',
+  );
+  files.set("stories/plugins/ai/shell/ShellDemo.svelte", "<main />");
+  files.set("stories/plugins/ai/shell/create-shell-demo.ts", "AiPlugin;");
+  const codes = auditStructure(files).map((entry) => entry.code);
+  for (const code of [
+    "STORYBOOK-SHELL-TITLE",
+    "STORYBOOK-SHELL-VARIANT-MISSING",
+    "STORYBOOK-SHELL-VISUAL-STATUS",
+    "STORYBOOK-SHELL-COMPOSITION",
+    "STORYBOOK-SHELL-GEOMETRY",
+  ]) {
+    assert.ok(codes.includes(code));
+  }
+});
+
+test("rejects a missing canonical shell source", () => {
+  const files = validStructureFiles();
+  files.delete("stories/plugins/bases/shell/ShellDemo.svelte");
+  assert.ok(
+    auditStructure(files).some(
+      (entry) => entry.code === "STORYBOOK-SHELL-SOURCE-MISSING",
+    ),
+  );
+});
+
+test("rejects preview and Docs panel geometry regressions", () => {
+  const files = validStructureFiles();
+  files.set(
+    "stories/plugins/_shared/panels/PanelDemo.svelte",
+    ".panel-demo { min-height: 36rem; }",
+  );
+  assert.ok(
+    auditStructure(files).some(
+      (entry) => entry.code === "STORYBOOK-PANEL-GEOMETRY",
+    ),
+  );
+});
+
+test("rejects an incomplete persisted Workspace plugin inventory", () => {
+  const files = validStructureFiles();
+  files.set(
+    "stories/workspace/WorkspaceShellDemo.svelte",
+    workspaceDemo.replace(
+      "{ plugin: AiPlugin, required: false, enabledByDefault: true }",
+      "",
+    ),
+  );
+  assert.ok(
+    auditStructure(files).some(
+      (entry) => entry.code === "STORYBOOK-WORKSPACE-INVENTORY",
+    ),
+  );
+});
+
+test("requires Specification to be the first Storybook menu item", () => {
+  const files = validStructureFiles();
+  files.set(
+    ".storybook/preview.ts",
+    'const parameters = { options: { storySort: { order: ["Plugins", "Specification"] } } };',
+  );
+  assert.ok(
+    auditStructure(files).some(
+      (entry) => entry.code === "STORYBOOK-SPECIFICATION-ORDER",
+    ),
   );
 });

@@ -6,7 +6,7 @@
     type MarkdownPostProcessorContext,
     type MarkdownRenderChild,
   } from "@lapis-notes/api";
-  import { bootBasesEditorShellDemo } from "./create-bases-editor-shell-demo";
+  import { bootBasesEditorShellDemo } from "./shell/create-shell-demo";
 
   let status = $state("booting");
   let error = $state("");

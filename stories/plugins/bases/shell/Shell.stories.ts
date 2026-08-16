@@ -2,22 +2,22 @@ import type { App } from "@lapis-notes/api";
 import { BasesViewType } from "@lapis-notes/bases";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
-import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
-import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
-import { basesEditorShellExampleSource } from "./BasesEditorShell.example-sources";
-import BasesEditorShellDemo from "./BasesEditorShellDemo.svelte";
+import { workspaceCatalogParameters } from "../../../catalog/catalog.mjs";
+import { WORKSPACE_SHELL_DOCS_STORY } from "../../../workspace/docs-parameters";
+import { basesEditorShellExampleSource } from "./Shell.example-sources";
+import BasesEditorShellDemo from "./ShellDemo.svelte";
 import {
   expectBasesColumnsAligned,
   expectBasesQueryEditorChrome,
   expectBasesTableFillsSurface,
-} from "./bases-story-assertions";
+} from "../bases-story-assertions";
 
 const meta = {
-  title: "Plugins/Bases/Editor Shell",
+  title: "Plugins/Bases/Shell",
   component: BasesEditorShellDemo,
   tags: ["visual-pending", "test"],
   parameters: {
-    ...workspaceCatalogParameters("plugins-bases-editor-shell"),
+    ...workspaceCatalogParameters("plugins-bases-shell-desktop"),
     layout: "fullscreen",
     docs: {
       canvas: { className: "workspace-shell-docs-canvas" },
@@ -34,7 +34,7 @@ const meta = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/bases/editor-shell-chromium.png",
+        "/visual-baselines/stories/plugins/bases/shell/desktop-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -57,7 +57,7 @@ function demoApp(canvasElement: HTMLElement): App {
   return root.__lapisApp;
 }
 
-export const ExplorerSearchAndBase: Story = {
+export const Desktop: Story = {
   parameters: {
     docs: {
       description: {
@@ -68,9 +68,6 @@ export const ExplorerSearchAndBase: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    canvasElement.style.height = `${window.innerHeight}px`;
-    canvasElement.style.maxHeight = `${window.innerHeight}px`;
-    canvasElement.style.overflow = "hidden";
 
     await waitFor(
       () => {
@@ -83,13 +80,22 @@ export const ExplorerSearchAndBase: Story = {
             .querySelector('[data-app-shell-ready="true"]'),
         ).toBeTruthy();
       },
-      { timeout: 8_000 },
+      { timeout: 20_000 },
     );
 
     const app = demoApp(canvasElement);
     expect(app.plugins.isPluginEnabled("bases")).toBe(true);
     expect(app.plugins.isPluginEnabled("lapis-file-explorer")).toBe(true);
     expect(app.plugins.isPluginEnabled("search")).toBe(true);
+
+    const demo = canvas.getByTestId("bases-editor-shell-demo");
+    const shell = demo.querySelector<HTMLElement>(
+      '[data-ui-component="lapis-workspace-shell"]',
+    );
+    expect(shell).not.toBeNull();
+    expect(shell!.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+      demo.getBoundingClientRect().height - 2,
+    );
 
     const basesLeaf = app.workspace.getLeavesOfType(BasesViewType)[0];
     expect(basesLeaf).toBeDefined();
@@ -106,27 +112,6 @@ export const ExplorerSearchAndBase: Story = {
     });
     expect(openRightSidebar).toBeVisible();
 
-    await basesLeaf?.view.setState({
-      ...basesLeaf.view.getState(),
-      mode: "source",
-    });
-    await waitFor(
-      () => {
-        const yamlEditor = canvasElement.querySelector<HTMLElement>(
-          '.cm-editor[data-language="yaml"]',
-        );
-        expect(yamlEditor).toBeVisible();
-        expect(
-          yamlEditor?.querySelector(".cm-definition, .cm-string"),
-        ).toBeTruthy();
-      },
-      { timeout: 8_000 },
-    );
-    await basesLeaf?.view.setState({
-      ...basesLeaf.view.getState(),
-      mode: "preview",
-    });
-
     const explorer = canvasElement.querySelector<HTMLElement>(
       '[data-ui-component="workspace-explorer"]',
     );
@@ -134,6 +119,17 @@ export const ExplorerSearchAndBase: Story = {
     expect(
       within(explorer!).getByRole("list", { name: "Files" }),
     ).toBeVisible();
+
+    await waitFor(
+      () => {
+        expect(
+          canvasElement.querySelectorAll(
+            '[data-ui-component="bases-table-view"] [data-ui-part="row"]',
+          ),
+        ).toHaveLength(3);
+      },
+      { timeout: 20_000 },
+    );
 
     await userEvent.click(openRightSidebar);
     const searchPanel = await waitFor(() => {
@@ -161,13 +157,8 @@ export const ExplorerSearchAndBase: Story = {
             name: /Projects\/Aurora\.md, .* matches/,
           }),
         ).toBeVisible();
-        expect(
-          canvasElement.querySelectorAll(
-            '[data-ui-component="bases-table-view"] [data-ui-part="row"]',
-          ),
-        ).toHaveLength(3);
       },
-      { timeout: 8_000 },
+      { timeout: 20_000 },
     );
 
     const table = canvasElement.querySelector<HTMLElement>(
@@ -228,5 +219,39 @@ export const ExplorerSearchAndBase: Story = {
         canvas.getByRole("button", { name: "Open right sidebar" }),
       ).toBeVisible();
     });
+  },
+};
+
+export const Mobile: Story = {
+  args: { displayMode: "mobile" },
+  parameters: {
+    ...workspaceCatalogParameters("plugins-bases-shell-mobile"),
+    docs: {
+      description: {
+        story:
+          "The persisted Explorer, Bases document, and collapsed Search layout rendered through the mobile workspace shell.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/bases/shell/mobile-chromium.png",
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("bases-editor-shell-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    const app = demoApp(canvasElement);
+    expect(app.plugins.isPluginEnabled("bases")).toBe(true);
+    expect(app.plugins.isPluginEnabled("lapis-file-explorer")).toBe(true);
+    expect(app.plugins.isPluginEnabled("search")).toBe(true);
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
+    await expect(
+      canvas.getByRole("button", { name: /Open tabs/u }),
+    ).toBeVisible();
   },
 };

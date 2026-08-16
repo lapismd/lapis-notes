@@ -33,6 +33,21 @@ async function waitForShell(canvas: ReturnType<typeof within>) {
   );
 }
 
+function expectBundledPlugins(canvas: ReturnType<typeof within>) {
+  expect(
+    JSON.parse(
+      canvas.getByTestId("workspace-bundled-plugins").textContent ?? "[]",
+    ),
+  ).toEqual([
+    { id: "markdown", enabled: true },
+    { id: "lapis-markdown-lint", enabled: true },
+    { id: "lapis-file-explorer", enabled: true },
+    { id: "search", enabled: true },
+    { id: "bases", enabled: true },
+    { id: "ai", enabled: true },
+  ]);
+}
+
 async function expectStatusActionHover(button: HTMLButtonElement) {
   const statusBar = button.closest<HTMLElement>(
     '[data-ui-component="workspace-status-bar"]',
@@ -71,10 +86,12 @@ export const PersistedDesktop: Story = {
     displayMode: "desktop",
     workspaceLabel: "Lapis Notes",
     scenario: "standard",
+    loadBundledPlugins: true,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForShell(canvas);
+    expectBundledPlugins(canvas);
 
     const newTabButton = canvas.getByRole("button", { name: "New tab" });
     const tabHeader = canvasElement.querySelector<HTMLElement>(
@@ -458,8 +475,12 @@ export const BottomPanelSettings: Story = {
         "justify",
       );
       const panelRect = bottomPanel.getBoundingClientRect();
-      expect(Math.abs(panelRect.left - leftSidebar.getBoundingClientRect().left)).toBeLessThan(1);
-      expect(Math.abs(panelRect.right - rightSidebar.getBoundingClientRect().right)).toBeLessThan(1);
+      expect(
+        Math.abs(panelRect.left - leftSidebar.getBoundingClientRect().left),
+      ).toBeLessThan(1);
+      expect(
+        Math.abs(panelRect.right - rightSidebar.getBoundingClientRect().right),
+      ).toBeLessThan(1);
     });
 
     const appearanceNavigation = dialogUi.getByRole("button", {
@@ -519,10 +540,12 @@ export const Mobile: Story = {
     displayMode: "mobile",
     workspaceLabel: "Lapis Notes",
     scenario: "mobile",
+    loadBundledPlugins: true,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForShell(canvas);
+    expectBundledPlugins(canvas);
 
     await userEvent.click(
       canvas.getByRole("button", { name: "Create new tab" }),

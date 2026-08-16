@@ -10,10 +10,17 @@
     type WorkspaceLeaf,
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
+  import { AiPlugin } from "@lapis-notes/ai";
+  import { BasesPlugin } from "@lapis-notes/bases";
+  import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
+  import { MarkdownPlugin } from "@lapis-notes/markdown";
+  import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import type { WorkspaceRequestedDisplayMode } from "@lapismd/design-core/workspace/core";
   import { PROBLEMS_VIEW_TYPE } from "@lapismd/design-core/workspace/problems";
+  import { watchMetadata } from "./watch-metadata";
   import "./workspace-shell-story.css";
 
   let {
@@ -21,11 +28,13 @@
     workspaceLabel = "Lapis Notes",
     scenario = "standard",
     seedNotifications = false,
+    loadBundledPlugins = false,
   }: {
     displayMode?: WorkspaceRequestedDisplayMode;
     workspaceLabel?: string;
     scenario?: "standard" | "mobile" | "stacked" | "bottom-settings";
     seedNotifications?: boolean;
+    loadBundledPlugins?: boolean;
   } = $props();
   let workspaceNavigationStatus = $state("No workspace action selected");
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => ({
@@ -213,10 +222,12 @@
   const initialJson = JSON.stringify(initialLayout, null, 2);
   const adapter = new MemoryVaultAdapter({
     [`/${workspacePath}`]: initialJson,
+    ".obsidian/app.json": "{}",
+    "Notes/Welcome.md": "# Welcome\n\nBundled plugin shell acceptance.\n",
   });
   const app = new App({
     version: "0.0.1-story",
-    configPath: ".obsidian",
+    configPath: ".obsidian/app.json",
     adapter,
     appDatabase: new MemoryAppDatabase(
       `workspace-story-${untrack(() => displayMode)}-${untrack(() => scenario)}`,
@@ -226,6 +237,25 @@
   provideApplicationState(app);
   const disposeApplicationCompatibility =
     installApplicationCompatibility(app);
+  const shouldLoadBundledPlugins = untrack(() => loadBundledPlugins);
+  const bundledPluginIds = [
+    "markdown",
+    "lapis-markdown-lint",
+    "lapis-file-explorer",
+    "search",
+    "bases",
+    "ai",
+  ] as const;
+  if (shouldLoadBundledPlugins) {
+    app.plugins.registerCorePlugins([
+      { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
+      { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+      { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
+      { plugin: SearchPlugin, required: false, enabledByDefault: true },
+      { plugin: BasesPlugin, required: false, enabledByDefault: true },
+      { plugin: AiPlugin, required: false, enabledByDefault: true },
+    ]);
+  }
 
   if (initialScenario !== "standard") {
     for (const [id, definition] of Object.entries(storyViewDefinitions)) {
@@ -246,6 +276,7 @@
   let lastLayoutOperation = $state("none");
   let persistedLayout = $state(initialJson);
   let writeCount = $state(0);
+  let bundledPluginState = $state("[]");
   let showInlineTitle = $derived(controller.renderer.showInlineTitle);
 
   app.workspace.on("layout-change", (event) => {
@@ -267,8 +298,28 @@
 
   onMount(() => {
     let disposed = false;
+    let stopWatchingMetadata = () => {};
     void (async () => {
       await app.vault.load();
+      await app.configuration.load();
+      if (shouldLoadBundledPlugins) {
+        await app.plugins.loadPlugins({
+          communityPlugins: "disabled",
+          optionalCorePlugins: "configured",
+        });
+        const aiPlugin = app.plugins.plugins.get("ai");
+        if (aiPlugin instanceof AiPlugin) {
+          await aiPlugin.updateSettings({ defaultRuntime: "fake" });
+        }
+        stopWatchingMetadata = watchMetadata(app);
+        await app.metadataCache.load();
+        bundledPluginState = JSON.stringify(
+          bundledPluginIds.map((id) => ({
+            id,
+            enabled: app.plugins.isPluginEnabled(id),
+          })),
+        );
+      }
       await app.workspace.loadLayout();
       await controller.start();
       if (untrack(() => seedNotifications)) {
@@ -291,7 +342,14 @@
     })();
     return () => {
       disposed = true;
-      disposeApplicationCompatibility();
+      stopWatchingMetadata();
+      void (async () => {
+        for (const plugin of [...app.plugins.corePlugins].reverse()) {
+          await plugin.disable().catch(() => undefined);
+        }
+        await app.workspace.disposeWorkspaceHost();
+        disposeApplicationCompatibility();
+      })();
     };
   });
 </script>
@@ -315,6 +373,9 @@
   <div class="workspace-shell-story-observer" aria-live="polite">
     <span data-testid="workspace-shell-status">{bootStatus}</span>
     <span data-testid="workspace-write-count">{writeCount}</span>
+    <output data-testid="workspace-bundled-plugins"
+      >{bundledPluginState}</output
+    >
     <span data-testid="workspace-bottom-size"
       >{app.workspace.bottomPanel.size}</span
     >

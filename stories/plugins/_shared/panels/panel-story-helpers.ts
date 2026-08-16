@@ -177,6 +177,29 @@ export async function expectPanelPlacement(
     expect(canvas.getAllByTestId(testId)).toHaveLength(1);
   });
 
+  const demo = canvas.getByTestId("panel-demo");
+  const storyRoot =
+    (demo.closest("#storybook-root") as HTMLElement | null) ?? canvasElement;
+  const viewport = canvasElement.ownerDocument.documentElement;
+  const demoBox = demo.getBoundingClientRect();
+  const rootBox = storyRoot.getBoundingClientRect();
+  await expect(Math.abs(demoBox.width - rootBox.width)).toBeLessThan(1);
+  await expect(Math.abs(demoBox.height - rootBox.height)).toBeLessThan(1);
+  if (storyRoot.id === "storybook-root") {
+    await expect(Math.abs(rootBox.width - viewport.clientWidth)).toBeLessThan(
+      1,
+    );
+    await expect(Math.abs(rootBox.height - viewport.clientHeight)).toBeLessThan(
+      1,
+    );
+    await expect(getComputedStyle(storyRoot).padding).toBe("0px");
+    await expect(getComputedStyle(storyRoot).overflow).toBe("hidden");
+    await expect(
+      getComputedStyle(canvasElement.ownerDocument.body).overflow,
+    ).toBe("hidden");
+  }
+  await expect(getComputedStyle(demo).overflow).toBe("hidden");
+
   const panel = canvas.getByTestId(testId);
   const expectedHost = {
     "middle-top-tabs": "workspace-tabs",

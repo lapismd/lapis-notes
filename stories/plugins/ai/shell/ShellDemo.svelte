@@ -5,14 +5,21 @@
   import {
     bootAiWorkspaceDemo,
     type AiWorkspaceScenario,
-  } from "./create-ai-workspace-demo";
+  } from "./create-shell-demo";
+  import type { WorkspaceRequestedDisplayMode } from "@lapismd/design-core/workspace/core";
   import "@lapis-notes/ai/styles.css";
 
   let app = $state<App | null>(null);
   let status = $state("booting");
   let error = $state("");
   let root = $state<HTMLDivElement>();
-  let { scenario = "default" }: { scenario?: AiWorkspaceScenario } = $props();
+  let {
+    scenario = "default",
+    displayMode = "desktop",
+  }: {
+    scenario?: AiWorkspaceScenario;
+    displayMode?: WorkspaceRequestedDisplayMode;
+  } = $props();
 
   $effect(() => {
     if (!root || !app) return;
@@ -73,7 +80,7 @@
   {#if error}
     <div role="alert">{error}</div>
   {:else if app}
-    <WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />
+    <WorkspaceShell {app} {displayMode} workspaceLabel="Lapis Notes" />
   {/if}
 </div>
 
@@ -83,14 +90,16 @@
         #storybook-root
     ) {
     box-sizing: border-box;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
+    max-width: 100vw;
     max-height: 100vh;
     min-height: 0;
     overflow: hidden;
     padding: 0 !important;
   }
 
+  :global(html:has(#storybook-root .ai-workspace-demo)),
   :global(body:has(#storybook-root .ai-workspace-demo)) {
     overflow: hidden;
   }
@@ -99,9 +108,10 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    width: 100%;
     height: 100%;
     max-height: 100%;
-    min-height: 36rem;
+    min-height: 100vh;
     overflow: hidden;
   }
 
@@ -114,6 +124,7 @@
 
   :global(.workspace-shell-docs-canvas) .ai-workspace-demo {
     height: 700px;
+    max-height: 700px;
     min-height: 700px;
   }
 

@@ -2,24 +2,24 @@ import type { App, WorkspaceLeaf } from "@lapis-notes/api";
 import { AiHistoryViewType, AiViewType } from "@lapis-notes/ai";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
-import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
-import { aiWorkspaceExampleSource } from "./AiWorkspace.example-sources";
-import AiWorkspaceDemo from "./AiWorkspaceDemo.svelte";
-import { LOCAL_CONVERSATION_ID } from "./create-ai-workspace-demo";
+import { workspaceCatalogParameters } from "../../../catalog/catalog.mjs";
+import { WORKSPACE_SHELL_DOCS_STORY } from "../../../workspace/docs-parameters";
+import { aiWorkspaceExampleSource } from "./Shell.example-sources";
+import AiWorkspaceDemo from "./ShellDemo.svelte";
+import { LOCAL_CONVERSATION_ID } from "./create-shell-demo";
 
 const meta = {
-  title: "Plugins/AI/Workspace",
+  title: "Plugins/AI/Shell",
   component: AiWorkspaceDemo,
   tags: ["visual-pending", "test"],
   parameters: {
-    ...workspaceCatalogParameters("plugins-ai-workspace"),
+    ...workspaceCatalogParameters("plugins-ai-shell-desktop"),
     layout: "fullscreen",
     docs: {
       canvas: { className: "workspace-shell-docs-canvas" },
       description: {
         component:
-          "A real Lapis App restores the AI chat view in the right sidebar and exposes the AI settings tab through the public settings dialog.",
+          "A real Lapis App restores Explorer on the left, AI Chat in the main workspace, and retained Search in the collapsed right sidebar.",
       },
       source: {
         code: aiWorkspaceExampleSource,
@@ -30,7 +30,7 @@ const meta = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/workspace-right-sidebar-chromium.png",
+        "/visual-baselines/stories/plugins/ai/shell/desktop-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -132,12 +132,12 @@ function assertNoMessageOverlap(panel: HTMLElement): void {
   expect(getComputedStyle(viewport!).overflowY).toMatch(/auto|scroll/);
 }
 
-export const RightSidebarAndSettings: Story = {
+export const Desktop: Story = {
   parameters: {
     docs: {
       description: {
         story:
-          "The AI chat view is the only right-sidebar panel. The left sidebar starts collapsed. An empty transcript still pins the composer to the panel bottom. Opening Settings shows the AI tab with runtime, ACP agent, default model, and thinking controls.",
+          "Explorer remains visible on the left, AI Chat fills the main workspace, and retained Search starts and finishes collapsed on the right. Opening Settings shows the AI runtime controls.",
       },
     },
   },
@@ -153,10 +153,15 @@ export const RightSidebarAndSettings: Story = {
     );
 
     const app = demoApp(canvasElement);
-    expect(app.workspace.leftSplit.collapsed).toBe(true);
+    expect(app.workspace.leftSplit.collapsed).toBe(false);
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
     expect(app.workspace.bottomPanel.collapsed).toBe(true);
+    await expect(canvas.getByLabelText("Left sidebar")).toBeVisible();
     await expect(
-      canvas.getByRole("button", { name: "Open left sidebar" }),
+      canvas.getByRole("button", { name: "Open right sidebar" }),
+    ).toBeVisible();
+    await expect(
+      canvasElement.querySelector('[data-ui-component="workspace-explorer"]'),
     ).toBeVisible();
 
     const panel = await canvas.findByTestId("ai-chat-panel");
@@ -168,13 +173,12 @@ export const RightSidebarAndSettings: Story = {
     expect(
       workspaceShell!.getBoundingClientRect().bottom,
     ).toBeGreaterThanOrEqual(demo.getBoundingClientRect().bottom - 2);
-    const sidebar = panel.closest(
-      '[data-ui-component="workspace-sidebar"]',
+    const mainTabs = panel.closest(
+      '[data-ui-component="workspace-tabs"]',
     ) as HTMLElement | null;
-    expect(sidebar).not.toBeNull();
-    expect(sidebar).toHaveAttribute("data-workspace-sidebar-side", "right");
+    expect(mainTabs).not.toBeNull();
     const surface = panel.closest("[data-workspace-surface]");
-    expect(surface).toHaveAttribute("data-workspace-surface", "right-sidebar");
+    expect(surface).toHaveAttribute("data-workspace-surface", "body");
     const panelStyles = getComputedStyle(panel);
     const viewPaint = panelStyles
       .getPropertyValue("--ui-workspace-view-background")
@@ -183,18 +187,11 @@ export const RightSidebarAndSettings: Story = {
     expect(viewPaint === "var(--background)" || viewPaint === bodyPaint).toBe(
       true,
     );
-    const dock = panel.querySelector(
-      '[data-ui-part="composer-dock"]',
-    ) as HTMLElement | null;
     const composerBody = panel.querySelector(
       '[data-ui-component="ai-chat-composer"] [data-ui-part="body"]',
     ) as HTMLElement | null;
     const status = canvas.getByLabelText("Workspace status");
-    expect(dock).not.toBeNull();
     expect(composerBody).not.toBeNull();
-    expect(dock!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
-      status.getBoundingClientRect().top + 8,
-    );
     expect(composerBody!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
       status.getBoundingClientRect().top - 8,
     );
@@ -250,9 +247,6 @@ export const RightSidebarAndSettings: Story = {
     }
 
     await userEvent.click(
-      canvas.getByRole("button", { name: "Open left sidebar" }),
-    );
-    await userEvent.click(
       await canvas.findByRole("button", { name: "Open settings" }),
     );
     const dialog = canvas.getByRole("dialog", { name: "Settings" });
@@ -287,12 +281,52 @@ export const RightSidebarAndSettings: Story = {
         await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
       expect(JSON.parse(raw).settings.acpAgent).toBe("cursor");
     });
-    await userEvent.click(
-      within(dialog).getByRole("button", { name: "Close settings" }),
-    );
+    const closeSettings = within(dialog).getByRole("button", {
+      name: "Close settings",
+    });
+    await waitFor(() => {
+      expect(getComputedStyle(closeSettings).pointerEvents).not.toBe("none");
+    });
+    await userEvent.click(closeSettings);
     const raw =
       await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
     expect(JSON.parse(raw)).not.toHaveProperty("sessions");
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
+  },
+};
+
+export const Mobile: Story = {
+  args: { displayMode: "mobile" },
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-shell-mobile"),
+    docs: {
+      description: {
+        story:
+          "The same persisted Explorer, AI Chat, and collapsed Search layout renders through the mobile workspace shell.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/shell/mobile-chromium.png",
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    const app = demoApp(canvasElement);
+    expect(app.plugins.isPluginEnabled("ai")).toBe(true);
+    expect(app.plugins.isPluginEnabled("lapis-file-explorer")).toBe(true);
+    expect(app.plugins.isPluginEnabled("search")).toBe(true);
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
+    await expect(canvas.getByTestId("ai-chat-panel")).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: /Open tabs/u }),
+    ).toBeVisible();
   },
 };
 
@@ -371,10 +405,12 @@ export const LocalConversations: Story = {
       sidebarChatLeaf,
     );
     expect(sidebarChatLeaf?.view.getViewType()).toBe(AiViewType);
-    await expect(within(history).getByText("Notes")).toBeVisible();
-    await expect(
-      within(history).getByText("Summarize project notes"),
-    ).toBeVisible();
+    await waitFor(() => {
+      expect(within(history).getByText("Notes")).toBeVisible();
+      expect(
+        within(history).getByText("Summarize project notes"),
+      ).toBeVisible();
+    });
     expect(within(history).queryByText("Archived planning chat")).toBeNull();
 
     await userEvent.click(
@@ -471,6 +507,11 @@ export const LocalConversations: Story = {
     const conversationButton = within(rootHistory).getByRole("button", {
       name: "Summarize project notes",
     });
+    await waitFor(() => {
+      expect(getComputedStyle(conversationButton).pointerEvents).not.toBe(
+        "none",
+      );
+    });
     await userEvent.click(conversationButton);
     let restoredLeaf: WorkspaceLeaf | undefined;
     await waitFor(() => {
@@ -495,6 +536,11 @@ export const LocalConversations: Story = {
         name: "Context window usage",
       }),
     ).toBeVisible();
+    await waitFor(() => {
+      expect(getComputedStyle(conversationButton).pointerEvents).not.toBe(
+        "none",
+      );
+    });
     await userEvent.click(conversationButton);
     await waitFor(() => {
       expect(mainAiLeaves(app)).toHaveLength(2);
@@ -513,6 +559,12 @@ export const LocalConversations: Story = {
         "Notes/.lapis/agents/sessions/123e4567-e89b-42d3-a456-426614174000/transcript.jsonl",
       ),
     ).resolves.toContain("Summarize the project");
+    if (!app.workspace.rightSplit.collapsed) {
+      await userEvent.click(
+        canvas.getByRole("button", { name: "Close right sidebar" }),
+      );
+    }
+    expect(app.workspace.rightSplit.collapsed).toBe(true);
   },
 };
 
@@ -536,18 +588,22 @@ export const AgentSwitching: Story = {
     const panel = await canvas.findByTestId("ai-chat-panel");
     expect(panel.getBoundingClientRect().height).toBeGreaterThan(500);
     await expect(
-      within(panel).getByText("Codex ACP · gpt-5.6-sol"),
+      await within(panel).findByText(
+        "Codex ACP · gpt-5.6-sol",
+        {},
+        { timeout: 8_000 },
+      ),
     ).toBeVisible();
     await expect(
-      within(panel).getByText("Cursor ACP · composer-2.5"),
+      await within(panel).findByText("Cursor ACP · composer-2.5"),
     ).toBeVisible();
     await expect(
-      within(panel).getByText(
+      await within(panel).findByText(
         "Cursor continued in the same local conversation.",
       ),
     ).toBeVisible();
     expect(
-      within(panel).getAllByRole("button", { name: "Copy response" }),
+      await within(panel).findAllByRole("button", { name: "Copy response" }),
     ).toHaveLength(2);
     await expect(
       within(panel).getByRole("progressbar", {
@@ -577,12 +633,14 @@ export const Recovery: Story = {
     const panel = await canvas.findByTestId("ai-chat-panel");
     expect(panel.getBoundingClientRect().height).toBeGreaterThan(500);
     await expect(
-      within(panel).getByText(
+      await within(panel).findByText(
         "The durable response remains available offline.",
+        {},
+        { timeout: 8_000 },
       ),
     ).toBeVisible();
     await expect(
-      within(panel).getByText(
+      await within(panel).findByText(
         "Agent host restarted before the turn completed.",
       ),
     ).toBeVisible();
@@ -590,7 +648,9 @@ export const Recovery: Story = {
       within(panel).getByRole("button", { name: "Retry message" }),
     ).toBeEnabled();
     await expect(
-      within(panel).getByText(/Could not resume the previous agent session/u),
+      await within(panel).findByText(
+        /Could not resume the previous agent session/u,
+      ),
     ).toBeVisible();
   },
 };

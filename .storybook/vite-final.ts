@@ -30,7 +30,6 @@ const markdownSrc = path.resolve(
 );
 const uiComponents = path.join(uiLib, "components/ui");
 const linkedSiblingPackages = [
-  "@lapis-notes/lapis-plugin-cv-roles",
   "@lapismd/design-core",
   "@lapismd/mira",
   "@lapismd/mira-editor",
@@ -107,7 +106,9 @@ function packageLibAlias(): Plugin {
   };
 }
 
-export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig> {
+export async function viteFinal(
+  viteConfig: InlineConfig,
+): Promise<InlineConfig> {
   const plugins = viteConfig.plugins ?? [];
   viteConfig.plugins = [
     packageLibAlias(),
@@ -181,10 +182,7 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         },
         {
           find: /^@lapis-notes\/ai-host\/client$/,
-          replacement: path.join(
-            repoRoot,
-            "packages/ai-host/src/client.ts",
-          ),
+          replacement: path.join(repoRoot, "packages/ai-host/src/client.ts"),
         },
         {
           find: /^@lapis-notes\/ai\/styles\.css$/,
@@ -216,10 +214,7 @@ export async function viteFinal(viteConfig: InlineConfig): Promise<InlineConfig>
         },
         {
           find: "@lapis-notes/ui/table-dnd/utils",
-          replacement: path.join(
-            uiComponents,
-            "table-dnd/table-dnd-utils.ts",
-          ),
+          replacement: path.join(uiComponents, "table-dnd/table-dnd-utils.ts"),
         },
         {
           find: "@lapis-notes/ui/table-dnd/sensors",

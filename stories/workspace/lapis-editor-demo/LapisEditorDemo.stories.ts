@@ -205,7 +205,7 @@ export const Ready: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Go to file" }));
     const palette = canvas.getByRole("dialog", { name: "Command Palette" });
     await expect(palette).toBeVisible();
-    const search = within(palette).getByRole("textbox", {
+    const search = within(palette).getByRole("combobox", {
       name: "Search commands",
     });
     await userEvent.type(search, "settings.json");

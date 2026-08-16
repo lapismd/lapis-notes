@@ -8,8 +8,8 @@ import { BasesPlugin } from "@lapis-notes/bases";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
 import { SearchPlugin } from "@lapis-notes/search";
-import { watchMetadata } from "../../workspace/watch-metadata";
-import { createBasesViewsSeed } from "./bases-views-fixture";
+import { watchMetadata } from "../../../workspace/watch-metadata";
+import { createBasesViewsSeed } from "../bases-views-fixture";
 
 export const BASES_EDITOR_SHELL_CONFIGURATION = {
   "appearence.interface.showTabTitleBar": true,
@@ -127,8 +127,7 @@ export async function bootBasesEditorShellDemo(): Promise<{
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
-  const disposeApplicationCompatibility =
-    installApplicationCompatibility(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
     {

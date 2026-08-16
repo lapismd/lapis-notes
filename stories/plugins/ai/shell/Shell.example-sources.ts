@@ -2,13 +2,15 @@ import {
   AI_WORKSPACE_CONFIGURATION,
   AI_WORKSPACE_PLUGIN_DATA,
   createAiWorkspaceLayout,
-} from "./create-ai-workspace-demo";
+} from "./create-shell-demo";
 
 export const aiWorkspaceExampleSource = `<script lang="ts">
   import { onMount } from "svelte";
   import { App, installApplicationCompatibility, MemoryAppDatabase, MemoryVaultAdapter } from "@lapis-notes/api";
   import { AiPlugin } from "@lapis-notes/ai";
+  import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
+  import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import "@lapis-notes/ai/styles.css";
 
@@ -16,7 +18,7 @@ export const aiWorkspaceExampleSource = `<script lang="ts">
     ".obsidian/app.json": ${JSON.stringify(JSON.stringify(AI_WORKSPACE_CONFIGURATION))},
     ".obsidian/workspace.json": ${JSON.stringify(JSON.stringify(createAiWorkspaceLayout()))},
     ".obsidian/ai.json": ${JSON.stringify(JSON.stringify(AI_WORKSPACE_PLUGIN_DATA))},
-    "Notes/Welcome.md": "# Welcome\\n\\nAsk the AI chat in the right sidebar.\\n",
+    "Notes/Welcome.md": "# Welcome\\n\\nAsk the AI chat in the workspace.\\n",
     "Notes/alpha.md": "# Alpha\\n\\nTODO: summarize this note.\\n",
   });
   const app = new App({
@@ -31,6 +33,8 @@ export const aiWorkspaceExampleSource = `<script lang="ts">
 
   app.plugins.registerCorePlugins([
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true, distribution: "bundled" },
+    { plugin: FileExplorerPlugin, required: false, enabledByDefault: true, distribution: "bundled" },
+    { plugin: SearchPlugin, required: false, enabledByDefault: true, distribution: "bundled" },
     { plugin: AiPlugin, required: false, enabledByDefault: true, distribution: "bundled" },
   ]);
   onMount(() => {

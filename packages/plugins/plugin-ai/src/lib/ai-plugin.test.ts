@@ -62,6 +62,7 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain('ensureSideLeaf(AiHistoryViewType, "right")');
     expect(source).toContain('getLeaf("tab")');
     expect(source).toContain("findMainConversationLeaf(location)");
+    expect(source).toContain("findUnboundMainAiLeaf()");
     expect(source).toContain("iterateRootLeaves");
     expect(source).toContain('operation: "open-ai-chat"');
     expect(source).not.toContain(

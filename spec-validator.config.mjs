@@ -46,6 +46,17 @@ export default defineConfig(tableRequirements(), {
     "STORYBOOK-PANEL-TITLE": "LN-CAT-074",
     "STORYBOOK-PANEL-PLACEMENT-MISSING": "LN-CAT-075",
     "STORYBOOK-PANEL-VISUAL-STATUS": "LN-CAT-075",
+    "STORYBOOK-PANEL-GEOMETRY": "LN-CAT-075",
+    "STORYBOOK-TAXONOMY-LEGACY": "LN-CAT-074",
+    "STORYBOOK-EXTERNAL-PLUGIN": "LN-CAT-078",
+    "STORYBOOK-SHELL-SOURCE-MISSING": "LN-CAT-076",
+    "STORYBOOK-SHELL-TITLE": "LN-CAT-076",
+    "STORYBOOK-SHELL-VARIANT-MISSING": "LN-CAT-076",
+    "STORYBOOK-SHELL-VISUAL-STATUS": "LN-CAT-076",
+    "STORYBOOK-SHELL-COMPOSITION": "LN-CAT-076",
+    "STORYBOOK-SHELL-GEOMETRY": "LN-CAT-076",
+    "STORYBOOK-WORKSPACE-INVENTORY": "LN-CAT-077",
+    "STORYBOOK-SPECIFICATION-ORDER": "LN-CAT-074",
   },
   validators: {
     summary: true,
@@ -217,8 +228,7 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
-          pattern:
-            "^stories/(?:plugins/bases/|workspace/plugins/(?:bases/|Bases))",
+          pattern: "^stories/plugins/bases/",
           chapters: [
             "spec/src/plugins/bases/index.md",
             "spec/src/storybook-catalog.md",
@@ -248,11 +258,6 @@ export default defineConfig(tableRequirements(), {
             "spec/src/plugins/ai/index.md",
             "spec/src/storybook-catalog.md",
           ],
-        },
-        {
-          pattern:
-            "^stories/workspace/plugins/(?:roles-plugin-shell/|RolesWorkspace|CvFileView|create-roles-workspace-demo|create-cv-file-view-demo)",
-          chapters: ["spec/src/storybook-catalog.md"],
         },
         {
           pattern: "^packages/plugins/plugin-roles/",

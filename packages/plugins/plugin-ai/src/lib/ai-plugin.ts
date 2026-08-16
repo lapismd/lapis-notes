@@ -377,7 +377,10 @@ export class AiPlugin extends Plugin {
       : {};
     if (location) {
       const existing = this.findMainConversationLeaf(location);
-      const target = existing ?? this.app.workspace.getLeaf("tab");
+      const target =
+        existing ??
+        this.findUnboundMainAiLeaf() ??
+        this.app.workspace.getLeaf("tab");
       if (!existing) {
         await target.setViewState({ type: AiViewType, state });
       }
@@ -433,6 +436,20 @@ export class AiPlugin extends Plugin {
         !match &&
         leaf.view.getViewType() === AiViewType &&
         sameConversationLocation(conversationLocationFromLeaf(leaf), location)
+      ) {
+        match = leaf;
+      }
+    });
+    return match;
+  }
+
+  private findUnboundMainAiLeaf(): WorkspaceLeaf | null {
+    let match: WorkspaceLeaf | null = null;
+    this.app.workspace.iterateRootLeaves((leaf) => {
+      if (
+        !match &&
+        leaf.view.getViewType() === AiViewType &&
+        conversationLocationFromLeaf(leaf) === null
       ) {
         match = leaf;
       }
