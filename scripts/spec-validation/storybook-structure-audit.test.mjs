@@ -174,6 +174,9 @@ function validStructureFiles() {
     ["stories/plugins/bases/shell/Shell.stories.ts", shellStory("Bases")],
     ["stories/plugins/bases/shell/ShellDemo.svelte", shellDemo],
     ["stories/plugins/bases/shell/create-shell-demo.ts", shellRuntime],
+    ["stories/plugins/history/shell/Shell.stories.ts", shellStory("History")],
+    ["stories/plugins/history/shell/ShellDemo.svelte", shellDemo],
+    ["stories/plugins/history/shell/create-shell-demo.ts", shellRuntime],
     ["stories/workspace/WorkspaceShellDemo.svelte", workspaceDemo],
     ["stories/workspace/WorkspaceShell.stories.ts", workspaceStory],
     [

@@ -15,6 +15,7 @@
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -243,6 +244,7 @@
     "lapis-markdown-lint",
     "lapis-file-explorer",
     "search",
+    "history",
     "bases",
     "ai",
   ] as const;
@@ -252,6 +254,7 @@
       { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
       { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
       { plugin: SearchPlugin, required: false, enabledByDefault: true },
+      { plugin: HistoryPlugin, required: false, enabledByDefault: true },
       { plugin: BasesPlugin, required: false, enabledByDefault: true },
       { plugin: AiPlugin, required: false, enabledByDefault: true },
     ]);

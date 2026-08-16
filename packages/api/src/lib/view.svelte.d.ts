@@ -111,6 +111,17 @@ export interface ViewState {
     group?: WorkspaceLeaf;
 }
 /**
+ * Header breadcrumb contributed by a view. Keep the leaf filename in the
+ * header title rather than this list.
+ *
+ * @public
+ */
+export interface ViewBreadcrumb {
+    id: string;
+    label: string;
+    onSelect?: () => void;
+}
+/**
  * Base class for anything that can be mounted inside a workspace leaf.
  *
  * @public
@@ -133,6 +144,8 @@ export declare abstract class View extends Component {
     setState(state: Record<string, unknown>, result?: ViewStateResult): Promise<void>;
     getIcon(): string;
     abstract getDisplayText(): string;
+    getBreadcrumbFilePath(): string | null;
+    getBreadcrumbs(): ViewBreadcrumb[];
     onPaneMenu(menu: Menu, source: "more-options" | "tab-header" | string): void;
 }
 export declare class EmptyView extends View {
@@ -175,6 +188,7 @@ export declare abstract class ItemView extends View {
 export declare abstract class FileView extends ItemView {
     file: TFile | null;
     constructor(leaf?: WorkspaceLeaf);
+    getBreadcrumbFilePath(): string | null;
     abstract onLoadFile(file: TFile): Promise<void>;
     abstract onUnloadFile(file: TFile): Promise<void>;
     abstract onRename(file: TFile): Promise<void>;

@@ -20,6 +20,10 @@ const basesLib = path.resolve(
   "../packages/plugins/plugin-bases/src/lib",
 );
 const aiLib = path.resolve(rootDir, "../packages/plugins/plugin-ai/src/lib");
+const historyLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-history/src/lib",
+);
 const markdownLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src/lib",
@@ -201,6 +205,10 @@ export async function viteFinal(
           replacement: path.join(markdownLib, "index.ts"),
         },
         {
+          find: /^@lapis-notes\/history$/,
+          replacement: path.join(historyLib, "index.ts"),
+        },
+        {
           find: "@lapis-notes/ui/theme.css",
           replacement: path.join(uiLib, "theme.css"),
         },
@@ -257,6 +265,14 @@ export async function viteFinal(
         "@lucide/svelte/icons/brain",
         "@lucide/svelte/icons/paperclip",
         "@lucide/svelte/icons/x",
+        "@lucide/svelte/icons/git-compare",
+        "@lucide/svelte/icons/git-compare-arrows",
+        "@lucide/svelte/icons/git-commit-vertical",
+        "@lucide/svelte/icons/archive-restore",
+        "@lucide/svelte/icons/check",
+        "@lucide/svelte/icons/columns-2",
+        "@lucide/svelte/icons/rows-2",
+        "@lucide/svelte/icons/wrap-text",
         "markdownlint",
         "markdownlint/sync",
       ],

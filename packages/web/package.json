@@ -25,6 +25,7 @@
     "@lapis-notes/markdown": "workspace:*",
     "@lapis-notes/markdown-lint": "workspace:*",
     "@lapis-notes/lapis-plugin-cv-roles": "link:../../../lapis-plugin-cv-roles",
+    "@lapis-notes/history": "workspace:*",
     "@lapis-notes/search": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",

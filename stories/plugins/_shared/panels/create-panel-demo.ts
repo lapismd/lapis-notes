@@ -2,10 +2,13 @@ import {
   App,
   FileView,
   installApplicationCompatibility,
+  md5,
   MemoryAppDatabase,
   MemoryVaultAdapter,
+  TFile,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
+import { HistoryPlugin, HistoryViewType } from "@lapis-notes/history";
 import { AiHistoryViewType, AiPlugin, AiViewType } from "@lapis-notes/ai";
 import {
   FileExplorerPlugin,
@@ -36,6 +39,7 @@ export type PanelDemoKind =
   | "backlinks"
   | "outgoing-links"
   | "search"
+  | "history"
   | "tags";
 
 export type PanelDemoLayout =
@@ -65,6 +69,7 @@ export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   backlinks: BacklinksViewType,
   "outgoing-links": OutgoingLinksViewType,
   search: SearchViewType,
+  history: HistoryViewType,
   tags: TagsViewType,
 };
 
@@ -125,6 +130,12 @@ export const PANEL_LEAF_META: Record<
     icon: "search",
     group: "Search",
     requiresFile: false,
+  },
+  history: {
+    title: "History",
+    icon: "history",
+    group: "History",
+    requiresFile: true,
   },
   tags: {
     title: "Tags",
@@ -371,6 +382,9 @@ export function createPanelDemoLayout(
   };
 }
 
+const HISTORY_WRAP_LINE =
+  "History compare wrap probe: " + "word ".repeat(40).trim();
+
 export function createPanelDemoSeed(
   kind: PanelDemoKind,
   layout: PanelDemoLayout,
@@ -465,6 +479,7 @@ export function createPanelDemoSeed(
       "This seed drives focused Markdown panel stories and names Research plainly.",
       "",
       ...welcomeSections,
+      ...(kind === "history" ? ["", HISTORY_WRAP_LINE, ""] : []),
     ].join("\n"),
     "Notes/Ideas.markdown": [
       "---",
@@ -498,7 +513,39 @@ export function createPanelDemoSeed(
       "",
     ].join("\n"),
     ...(kind === "ai-history" ? createAiHistorySeed() : {}),
+    ...(kind === "history" ? createHistorySeed() : {}),
   };
+}
+
+function createHistorySeed(): Record<string, string> {
+  return {
+    ".lapis/ignored.md": "Internal conversation that History must skip.\n",
+    ".jj/config": "jj-metadata-should-not-be-snapshotted\n",
+  };
+}
+
+async function seedHistoryRevisions(app: App): Promise<void> {
+  const path = "Notes/Welcome.md";
+  const file = app.vault.getFileByPath(path);
+  const current =
+    file instanceof TFile ? await app.vault.cachedRead(file) : "# Welcome\n";
+  const older = `${current}\n\nOlder tracked snapshot.\n${HISTORY_WRAP_LINE}\n`;
+  await app.appDatabase.storeFileHistoryRevision({
+    path,
+    eventType: "baseline",
+    createdAt: 1_700_000_000_000,
+    contentHash: md5(older),
+    content: older,
+    maxRevisions: 50,
+  });
+  await app.appDatabase.storeFileHistoryRevision({
+    path,
+    eventType: "modify",
+    createdAt: 1_700_000_100_000,
+    contentHash: md5(current),
+    content: current,
+    maxRevisions: 50,
+  });
 }
 
 function createAiHistorySeed(): Record<string, string> {
@@ -616,6 +663,7 @@ export async function bootPanelDemo(
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
     { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
     { plugin: SearchPlugin, required: false, enabledByDefault: true },
+    { plugin: HistoryPlugin, required: false, enabledByDefault: true },
     {
       plugin: AiPlugin,
       required: false,
@@ -635,6 +683,9 @@ export async function bootPanelDemo(
   const searchPlugin = app.plugins.plugins.get("search");
   if (searchPlugin instanceof SearchPlugin) {
     await searchPlugin.refreshIndex("storybook-panel-demo");
+  }
+  if (kind === "history") {
+    await seedHistoryRevisions(app);
   }
   const aiPlugin = app.plugins.plugins.get("ai");
   if (aiPlugin instanceof AiPlugin) {

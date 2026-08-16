@@ -287,6 +287,41 @@ describe("AppDatabase", () => {
     });
   });
 
+  it("replaces the latest file history revision when requested", async () => {
+    const db = new MemoryAppDatabase("vault-replace");
+    await db.open();
+
+    await db.storeFileHistoryRevision({
+      path: "note.md",
+      eventType: "modify",
+      createdAt: 1,
+      contentHash: "hash-a",
+      content: "alpha",
+      maxRevisions: 10,
+    });
+    const replaced = await db.storeFileHistoryRevision({
+      path: "note.md",
+      eventType: "modify",
+      createdAt: 2,
+      contentHash: "hash-b",
+      content: "beta",
+      maxRevisions: 10,
+      replaceLatest: true,
+    });
+
+    expect(replaced.stored).toBe(true);
+    await expect(db.getFileHistory("note.md")).resolves.toMatchObject({
+      revisions: [
+        {
+          eventType: "modify",
+          contentHash: "hash-b",
+          content: "beta",
+          createdAt: 2,
+        },
+      ],
+    });
+  });
+
   it("returns chunk-aware snippets and search diagnostics", async () => {
     const db = new MemoryAppDatabase("vault-a");
     await exerciseDatabase(db);

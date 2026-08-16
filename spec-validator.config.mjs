@@ -221,6 +221,21 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
+          pattern: "^packages/plugins/plugin-history/",
+          chapters: [
+            "spec/src/plugins/history/index.md",
+            "spec/src/packages.md",
+            "spec/src/architecture.md",
+          ],
+        },
+        {
+          pattern: "^stories/plugins/history/",
+          chapters: [
+            "spec/src/plugins/history/index.md",
+            "spec/src/storybook-catalog.md",
+          ],
+        },
+        {
           pattern: "^packages/plugins/plugin-bases/",
           chapters: [
             "spec/src/plugins/bases/index.md",

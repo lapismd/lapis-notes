@@ -36,6 +36,10 @@ AppDatabaseProvider
      └─ browser proxy → BroadcastChannel RPC → owner
 ```
 
+`storeFileHistoryRevision` MAY replace the latest same-path revision when the
+caller sets `replaceLatest`. History uses that option for the modify merge
+window so rapid edits do not append a new snapshot.
+
 The provider persists generated state outside the user-visible vault. Memory is
 an explicitly injected test and Storybook double; production sessions do not
 select it and never select SQLite or IndexedDB app-database implementations.

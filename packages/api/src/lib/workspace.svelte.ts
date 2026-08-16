@@ -22,7 +22,7 @@ import {
 import { uniqueId } from "./utils";
 import { normalizeWorkspaceJson } from "./workspace-layout-normalizer";
 import { debounce, isEqual } from "lodash-es";
-import { dirname, joinPath } from "./storage";
+import { basename, dirname, joinPath } from "./storage";
 import { HistoryManager } from "./history.svelte";
 import type { TransactionSpec } from "@codemirror/state";
 import type { App } from "./context.svelte";
@@ -3108,8 +3108,15 @@ export class Workspace extends EventDispatcher<{
         const view = leaf?.view;
         const file = view instanceof FileView ? view.file : null;
         const actions = view instanceof ItemView ? view.actions : [];
+        const breadcrumbPath =
+          view?.getBreadcrumbFilePath() ?? file?.path ?? null;
+        const contributedBreadcrumbs = view?.getBreadcrumbs() ?? [];
         return {
-          title: file?.name ?? leaf?.getDisplayText() ?? context.tab.title,
+          title:
+            file?.name ??
+            (breadcrumbPath ? basename(breadcrumbPath) : undefined) ??
+            leaf?.getDisplayText() ??
+            context.tab.title,
           titleEditable: file != null,
           onTitleCommit: async (nextTitle) => {
             const currentLeaf = this.getLeafById(context.tab.id);
@@ -3128,7 +3135,10 @@ export class Workspace extends EventDispatcher<{
               await currentView.onRename(renamed);
             }
           },
-          breadcrumbs: filePathBreadcrumbs(this.app, file?.path),
+          breadcrumbs: [
+            ...contributedBreadcrumbs,
+            ...filePathBreadcrumbs(this.app, breadcrumbPath),
+          ],
           canGoBack: leaf?.history.hasBackward ?? false,
           canGoForward: leaf?.history.hasForward ?? false,
           onGoBack: () => {

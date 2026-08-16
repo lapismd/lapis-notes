@@ -168,6 +168,19 @@ export const pluginPanelFamilies = [
     storyFile: "stories/plugins/search/panels/Search.stories.ts",
     storyPrefix: "plugins-search-panels-search",
   },
+  {
+    kind: "history",
+    plugin: "History",
+    panel: "History",
+    title: "History",
+    spec: "spec/src/plugins/history/index.md",
+    publicSurface: "@lapis-notes/history",
+    sourceFile: "packages/plugins/plugin-history/src/lib/history-plugin.ts",
+    commandId: "history:open-file-history",
+    commandToken: 'id: "open-file-history"',
+    storyFile: "stories/plugins/history/panels/History.stories.ts",
+    storyPrefix: "plugins-history-panels-history",
+  },
 ];
 
 export const pluginPanelCatalog = pluginPanelFamilies.flatMap((family) =>

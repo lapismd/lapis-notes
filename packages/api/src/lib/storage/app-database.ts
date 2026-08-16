@@ -872,6 +872,7 @@ export interface AppDatabaseStoreFileHistoryRevisionInput {
   contentHash?: string;
   content?: string;
   maxRevisions?: number;
+  replaceLatest?: boolean;
 }
 
 export interface AppDatabaseStoreFileHistoryRevisionResult {
@@ -2065,26 +2066,44 @@ export class MemoryAppDatabase implements AppDatabase {
     this.historyFiles.set(nextFile.fileId, nextFile);
     this.historyFileIdsByPath.set(nextFile.currentPath, nextFile.fileId);
 
-    const revision: AppDatabaseFileHistoryRevision = {
-      revisionId: createAppDatabaseStableId("history-revision"),
-      fileId: nextFile.fileId,
-      currentPath: nextFile.currentPath,
-      capturedPath:
-        input.eventType === "rename" && input.previousPath
-          ? input.previousPath
-          : input.path,
-      eventType: input.eventType,
-      createdAt: input.createdAt,
-      sourceMtime: input.sourceMtime,
-      sourceSize: input.sourceSize,
-      contentHash,
-      content,
-    };
     const previousRevisions = this.historyRevisions.get(nextFile.fileId) ?? [];
+    const revision: AppDatabaseFileHistoryRevision =
+      input.replaceLatest && latestRevision
+        ? {
+            ...latestRevision,
+            currentPath: nextFile.currentPath,
+            capturedPath:
+              input.eventType === "rename" && input.previousPath
+                ? input.previousPath
+                : input.path,
+            eventType: input.eventType,
+            createdAt: input.createdAt,
+            sourceMtime: input.sourceMtime,
+            sourceSize: input.sourceSize,
+            contentHash,
+            content,
+          }
+        : {
+            revisionId: createAppDatabaseStableId("history-revision"),
+            fileId: nextFile.fileId,
+            currentPath: nextFile.currentPath,
+            capturedPath:
+              input.eventType === "rename" && input.previousPath
+                ? input.previousPath
+                : input.path,
+            eventType: input.eventType,
+            createdAt: input.createdAt,
+            sourceMtime: input.sourceMtime,
+            sourceSize: input.sourceSize,
+            contentHash,
+            content,
+          };
     const maxRevisions = input.maxRevisions ?? Number.POSITIVE_INFINITY;
-    const nextRevisions = [...previousRevisions, revision].slice(
-      -Math.max(1, maxRevisions),
-    );
+    const nextRevisions = (
+      input.replaceLatest && latestRevision
+        ? [...previousRevisions.slice(0, -1), revision]
+        : [...previousRevisions, revision]
+    ).slice(-Math.max(1, maxRevisions));
     this.historyRevisions.set(nextFile.fileId, nextRevisions);
 
     return {

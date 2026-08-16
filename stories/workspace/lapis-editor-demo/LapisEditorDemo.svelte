@@ -25,6 +25,7 @@
   import { SourceEditorDemoPlugin } from "./source-editor-plugin";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
@@ -159,6 +160,11 @@
         plugin: createFileExplorerPlugin({
           loading: selectedScenario === "explorer-opening-vault",
         }),
+        required: false,
+        enabledByDefault: true,
+      },
+      {
+        plugin: HistoryPlugin,
         required: false,
         enabledByDefault: true,
       },

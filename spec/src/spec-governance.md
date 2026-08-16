@@ -51,6 +51,9 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-037 | The repository MUST run a local view-command audit that parses first-party TypeScript and Svelte scripts, rejects unclassified view registrations, maps its diagnostics to the Plugin Model access and opener requirements, and routes first-party plugin and Explorer source changes to that chapter.                                                                                                                                                                                                                                                                                   |
 | LN-GOV-038 | The repository MUST run a local Storybook structure audit that maps command views to canonical panel stories and rejects stale mappings, missing placements, non-fullscreen panel geometry, legacy plugin paths, external Roles/CV catalog coupling, incomplete or scrolling shells, incomplete persisted Workspace plugin inventory, incomplete AI state coverage, and a non-first Specification menu.                                                                                                                                                                         |
 
+The Storybook structure audit treats AI, Bases, and History as required
+plugin Shell families.
+
 ## Requirement structure
 
 Requirements stay readable when their IDs match the boundaries used by
@@ -121,6 +124,7 @@ not installed or when an embedding model is unavailable.
 | Focused AI Storybook stories                                               | `ai-plugin.md`, `storybook-catalog.md`                                                   |
 | `packages/web`                                                             | `web-host.md`, `packages.md`, `architecture.md`                                          |
 | `packages/plugins/plugin-search` package                                   | `search-plugin.md`, `packages.md`, `architecture.md`                                     |
+| `packages/plugins/plugin-history` package                                  | `history-plugin.md`, `packages.md`, `architecture.md`                                    |
 | Native Markdown runtime source or language-service manifest                | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md`                   |
 | `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md`        | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |
 | `packages/plugins/plugin-bases` source or manifest                         | `bases-plugin.md`, `packages.md`, `architecture.md`                                      |

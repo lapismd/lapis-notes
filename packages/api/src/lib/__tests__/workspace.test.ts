@@ -149,6 +149,18 @@ vi.mock("../view.svelte", () => {
       return this.icon;
     }
 
+    getBreadcrumbFilePath(): string | null {
+      return null;
+    }
+
+    getBreadcrumbs(): Array<{
+      id: string;
+      label: string;
+      onSelect?: () => void;
+    }> {
+      return [];
+    }
+
     getState(): Record<string, unknown> {
       return this.#state;
     }
@@ -170,6 +182,10 @@ vi.mock("../view.svelte", () => {
 
   class FileView extends ItemView {
     file: any = null;
+
+    getBreadcrumbFilePath(): string | null {
+      return this.file?.path ?? null;
+    }
 
     onLoadFile(file: any): Promise<void> {
       this.file = file;
@@ -2080,6 +2096,109 @@ describe("Workspace compatibility", () => {
       if (providerAction?.kind === "item") await providerAction.callback?.();
     }
     expect(chromeView!.providerCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("projects contributed breadcrumbs and a breadcrumb file path into chrome", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+    const onSelectHistory = vi.fn();
+
+    class BreadcrumbView extends View {
+      getViewType(): string {
+        return "history-compare";
+      }
+
+      getDisplayText(): string {
+        return "History: Notes/Welcome.md";
+      }
+
+      getBreadcrumbFilePath(): string | null {
+        return "Notes/Welcome.md";
+      }
+
+      getBreadcrumbs() {
+        return [
+          {
+            id: "history",
+            label: "History",
+            onSelect: onSelectHistory,
+          },
+        ];
+      }
+    }
+
+    workspace.registerView(
+      "history-compare",
+      (leaf) => new BreadcrumbView(leaf),
+    );
+    const leaf = workspace.getLeaf();
+    await leaf.setViewState({ type: "history-compare", state: {} });
+    const chrome = binding.controller.renderer.registry
+      .resolve("history-compare")
+      ?.getChrome?.({
+        tab: {
+          id: leaf.id,
+          kind: "tab",
+          title: "History compare",
+          view: { type: "history-compare", state: {} },
+        },
+        hostId: "root",
+        paneId: leaf.parent.id,
+        active: true,
+        showInlineTitle: true,
+        activate: () => true,
+        close: () => true,
+        setState: () => true,
+      });
+
+    expect(chrome?.title).toBe("Welcome.md");
+    expect(chrome?.titleEditable).toBe(false);
+    expect(chrome?.breadcrumbs?.map((crumb) => crumb.label)).toEqual([
+      "History",
+      "Notes",
+    ]);
+    chrome?.breadcrumbs?.[0]?.onSelect?.();
+    expect(onSelectHistory).toHaveBeenCalledTimes(1);
+    chrome?.breadcrumbs?.[1]?.onSelect?.();
+    expect(app.commands.executeCommand).toHaveBeenCalledWith(
+      "lapis-file-explorer:reveal-path",
+      "Notes",
+    );
+  });
+
+  it("keeps file-view chrome breadcrumbs and an editable title", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const binding = getWorkspaceHostBinding(workspace);
+    workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+    const leaf = workspace.getLeaf();
+    await leaf.setViewState({ type: "markdown", state: {} });
+    const file = new TFile(
+      "Notes/Welcome.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    await (leaf.view as MockTextFileView).onLoadFile(file);
+    const chrome = binding.controller.renderer.registry
+      .resolve("markdown")
+      ?.getChrome?.({
+        tab: {
+          id: leaf.id,
+          kind: "tab",
+          title: "Welcome.md",
+          view: { type: "markdown", state: {} },
+        },
+        hostId: "root",
+        paneId: leaf.parent.id,
+        active: true,
+        showInlineTitle: true,
+        activate: () => true,
+        close: () => true,
+        setState: () => true,
+      });
+
+    expect(chrome?.title).toBe("Welcome.md");
+    expect(chrome?.titleEditable).toBe(true);
+    expect(chrome?.breadcrumbs?.map((crumb) => crumb.label)).toEqual(["Notes"]);
   });
 
   it("moves tab children through cancelable workspace drop events", () => {

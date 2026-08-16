@@ -14,6 +14,7 @@ const publicComponents: Partial<Record<PanelDemoKind, string>> = {
   "outgoing-links": "OutgoingLinks",
   tags: "Tags",
   search: "SearchPanel",
+  history: "HistoryPanel",
 };
 
 function indent(value: string, spaces: number): string {
@@ -35,22 +36,26 @@ export function panelExampleSource(
   const packageName =
     kind === "search"
       ? "@lapis-notes/search"
-      : kind === "explorer"
-        ? "@lapis-notes/file-explorer"
-        : kind === "ai-history"
-          ? "@lapis-notes/ai"
-          : kind === "ai-chat"
+      : kind === "history"
+        ? "@lapis-notes/history"
+        : kind === "explorer"
+          ? "@lapis-notes/file-explorer"
+          : kind === "ai-history"
             ? "@lapis-notes/ai"
-            : "@lapis-notes/markdown";
+            : kind === "ai-chat"
+              ? "@lapis-notes/ai"
+              : "@lapis-notes/markdown";
   const panelImport = `  import { ${publicComponents[kind] ?? "AllProperties"} } from "${packageName}";\n`;
   const pluginName =
     kind === "search"
       ? "Search"
-      : kind === "explorer"
-        ? "Explorer"
-        : kind === "ai-history" || kind === "ai-chat"
-          ? "AI"
-          : "Markdown";
+      : kind === "history"
+        ? "History"
+        : kind === "explorer"
+          ? "Explorer"
+          : kind === "ai-history" || kind === "ai-chat"
+            ? "AI"
+            : "Markdown";
   const registrationNote = `  // The enabled ${pluginName} plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
 
   return `<script lang="ts">

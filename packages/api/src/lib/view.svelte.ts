@@ -270,6 +270,18 @@ export interface ViewState {
 }
 
 /**
+ * Header breadcrumb contributed by a view. Keep the leaf filename in the
+ * header title rather than this list.
+ *
+ * @public
+ */
+export interface ViewBreadcrumb {
+  id: string;
+  label: string;
+  onSelect?: () => void;
+}
+
+/**
  * Base class for anything that can be mounted inside a workspace leaf.
  *
  * @public
@@ -320,6 +332,25 @@ export abstract class View extends Component {
   }
 
   abstract getDisplayText(): string;
+
+  /**
+   * Vault path used for parent-path header breadcrumbs. File views return
+   * the open file; other views MAY return a related path or null.
+   *
+   * @public
+   */
+  getBreadcrumbFilePath(): string | null {
+    return null;
+  }
+
+  /**
+   * Prefix breadcrumbs rendered before parent-path segments.
+   *
+   * @public
+   */
+  getBreadcrumbs(): ViewBreadcrumb[] {
+    return [];
+  }
 
   onPaneMenu(
     menu: Menu,
@@ -432,6 +463,10 @@ export abstract class FileView extends ItemView {
 
   constructor(leaf?: WorkspaceLeaf) {
     super(leaf);
+  }
+
+  getBreadcrumbFilePath(): string | null {
+    return this.file?.path ?? null;
   }
 
   abstract onLoadFile(file: TFile): Promise<void>;

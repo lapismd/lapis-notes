@@ -29,6 +29,12 @@ const pluginShells = [
     demoFile: "stories/plugins/bases/shell/ShellDemo.svelte",
     runtimeFile: "stories/plugins/bases/shell/create-shell-demo.ts",
   },
+  {
+    plugin: "History",
+    storyFile: "stories/plugins/history/shell/Shell.stories.ts",
+    demoFile: "stories/plugins/history/shell/ShellDemo.svelte",
+    runtimeFile: "stories/plugins/history/shell/create-shell-demo.ts",
+  },
 ];
 
 /**

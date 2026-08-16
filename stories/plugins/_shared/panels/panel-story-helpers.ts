@@ -70,6 +70,7 @@ export function placementParameters(
     "ai-history": "ai/panels/history",
     explorer: "explorer/panels/explorer",
     search: "search/panels/search",
+    history: "history/panels/history",
     "all-properties": "markdown/panels/all-properties",
     "file-properties": "markdown/panels/file-properties",
     outline: "markdown/panels/outline",
@@ -123,13 +124,15 @@ export async function expectPanelSource(
   await expect(source).toContain(
     kind === "search"
       ? 'from "@lapis-notes/search";'
-      : kind === "explorer"
-        ? 'from "@lapis-notes/file-explorer";'
-        : kind === "ai-history"
-          ? 'from "@lapis-notes/ai";'
-          : kind === "ai-chat"
+      : kind === "history"
+        ? 'from "@lapis-notes/history";'
+        : kind === "explorer"
+          ? 'from "@lapis-notes/file-explorer";'
+          : kind === "ai-history"
             ? 'from "@lapis-notes/ai";'
-            : 'from "@lapis-notes/markdown";',
+            : kind === "ai-chat"
+              ? 'from "@lapis-notes/ai";'
+              : 'from "@lapis-notes/markdown";',
   );
   await expect(source).not.toContain("PanelDemo");
   await expect(source).not.toContain("args.");

@@ -362,6 +362,50 @@ export const workspaceCatalog = [
     storyId: "plugins-bases-embeds--markdown",
   },
   {
+    id: "plugins-history-shell-desktop",
+    title: "History Shell: Desktop",
+    spec: "spec/src/plugins/history/index.md",
+    publicSurface:
+      "@lapis-notes/history + @lapis-notes/file-explorer + @lapis-notes/search + @lapis-notes/workspace",
+    storyId: "plugins-history-shell--desktop",
+  },
+  {
+    id: "plugins-history-shell-mobile",
+    title: "History Shell: Mobile",
+    spec: "spec/src/plugins/history/index.md",
+    publicSurface:
+      "@lapis-notes/history + @lapis-notes/file-explorer + @lapis-notes/search + @lapis-notes/workspace",
+    storyId: "plugins-history-shell--mobile",
+  },
+  {
+    id: "plugin-history-compare-current",
+    title: "History Compare: Current",
+    spec: "spec/src/plugins/history/index.md",
+    publicSurface: "@lapis-notes/history",
+    storyId: "plugins-history-compare--compare-current",
+  },
+  {
+    id: "plugin-history-compare-previous",
+    title: "History Compare: Previous",
+    spec: "spec/src/plugins/history/index.md",
+    publicSurface: "@lapis-notes/history",
+    storyId: "plugins-history-compare--compare-previous",
+  },
+  {
+    id: "plugin-history-compare-selected",
+    title: "History Compare: Selected",
+    spec: "spec/src/plugins/history/index.md",
+    publicSurface: "@lapis-notes/history",
+    storyId: "plugins-history-compare--compare-selected",
+  },
+  {
+    id: "plugin-history-compare-restore",
+    title: "History Compare: Restore",
+    spec: "spec/src/plugins/history/index.md",
+    publicSurface: "@lapis-notes/history",
+    storyId: "plugins-history-compare--restore-revision",
+  },
+  {
     id: "plugins-bases-shell-disable-restore",
     title: "Bases Shell: Disable and Restore",
     spec: "spec/src/plugins/bases/index.md",

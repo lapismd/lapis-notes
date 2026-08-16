@@ -62,6 +62,7 @@ intake or UI swap status changes.
 | Notebook / remaining unlisted plugins      | Not started         | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                                                                                                                      |
 | `@lapis-notes/file-explorer`               | Done                | Reusable File Explorer plugin shared by Storybook and Electron; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture                                                                                     |
 | `@lapis-notes/search`                      | Done                | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts                                                                                                                                                                                                  |
+| `@lapis-notes/history`                     | In progress         | Enabled-by-default file-history plugin captures vault revisions through AppDatabase, exposes a movable History panel, and compares through Design Core FileDiff / MergeEditor. Visual baselines remain `visual-pending`.                                                                                                    |
 | `@lapis-notes/bases`                       | Done                | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 161 tests, focused Storybook and pointer coverage, Electron and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                          |
 | design-core workspace engine               | Done                | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                                                                                                                    |
 
@@ -112,6 +113,20 @@ legacy commit `8ec68e18`.
 Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
 demo-vault seeding, bundled-plugin startup/build steps, the legacy full app
 bootstrap, Windows targets, and remote release publication.
+
+### History plugin intake progress
+
+Source: `/Users/stevejuma/code/lapis-notes/packages/plugins/plugin-history`
+adapted for the current App, Design Core diff surfaces, and VS Code-like caps.
+
+- [x] Canonical `LN-HIST-001` through `LN-HIST-010`, host/catalog requirements, verification mappings, and spec-first routing
+- [x] Reusable `@lapis-notes/history` package with `history` command view and internal `history-compare`
+- [x] Vault-event capture with 256 KiB / 50-revision caps, 10s merge window, and glob excludes including `.jj`
+- [x] Design Core FileDiff for previous and selected-pair compares; MergeEditor one-way for the live file
+- [x] Select for compare / Compare with selected timeline actions
+- [x] Electron, web, and Storybook host registration enabled by default
+- [x] Six governed Storybook placements, compare story, and History Shell Desktop/Mobile
+- [ ] History panel Visual Delta capture/review; stories remain `visual-pending` and no baseline is updated in this slice
 
 ### Search plugin intake progress
 
