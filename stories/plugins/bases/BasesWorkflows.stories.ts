@@ -132,8 +132,20 @@ export const QueryControls: Story = {
 
     await userEvent.click(canvas.getByRole("button", { name: "Sort" }));
     await userEvent.click(canvas.getByRole("button", { name: /Filter/ }));
-    await userEvent.click(body.getByRole("button", { name: "Add Filter" }));
-    await waitFor(() => expect(view.filter).toMatchObject({ and: [""] }));
+    const addFilter = body.getByRole("button", {
+      name: "Add Filter",
+      exact: true,
+    });
+    const filterGroup = addFilter.closest<HTMLElement>(".filter-group")!;
+    const visibleFilterRowCount = () =>
+      [...filterGroup.querySelectorAll<HTMLElement>(".filter-row")].filter(
+        (row) => row.getBoundingClientRect().height > 0,
+      ).length;
+    const filterRowCountBeforeAdd = visibleFilterRowCount();
+    await userEvent.click(addFilter);
+    await waitFor(() =>
+      expect(visibleFilterRowCount()).toBe(filterRowCountBeforeAdd + 1),
+    );
 
     await userEvent.click(canvas.getByRole("button", { name: /2 results/ }));
     expect(body.getByRole("button", { name: "Copy to clipboard" })).toBeVisible();

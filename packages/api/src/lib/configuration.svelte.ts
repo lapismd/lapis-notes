@@ -945,6 +945,7 @@ export class Configuration extends EventDispatcher<{
   "plugin-data-updated": [event: PluginDataUpdateEvent];
 }> {
   private values: Record<string, any> = $state({});
+  private loaded = false;
   readonly schema: ConfigurationSchema = new ConfigurationSchema();
 
   constructor(
@@ -1026,6 +1027,7 @@ export class Configuration extends EventDispatcher<{
   ): Promise<void> {
     const previousValues = cloneDeep(this.values);
     this.values = await this.readValuesFromDisk();
+    this.loaded = true;
     await this.materializeSchemaDefaults();
 
     if (options.emitPluginDataEvents !== false) {
@@ -1215,6 +1217,10 @@ export class Configuration extends EventDispatcher<{
   }
 
   async materializeSchemaDefaults(): Promise<void> {
+    if (!this.loaded) {
+      return;
+    }
+
     const next = { ...this.values };
     let changed = false;
 

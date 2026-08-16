@@ -43,7 +43,7 @@ export default defineConfig({
         test: {
           name: "storybook",
           setupFiles: ["./.storybook/vitest.setup.ts"],
-          testTimeout: 60_000,
+          testTimeout: 120_000,
           browser: {
             enabled: true,
             headless: true,

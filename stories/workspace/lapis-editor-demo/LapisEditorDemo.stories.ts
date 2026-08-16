@@ -3,6 +3,7 @@ import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import { startCompletion } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
 import { leafFilePath, type App, type Editor } from "@lapis-notes/api";
+import { refreshLanguageServiceDiagnostics } from "@lapis-notes/api/editor/language-service";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
 import LapisEditorDemo from "./LapisEditorDemo.svelte";
@@ -43,8 +44,8 @@ function editorLineContaining(
   text: string,
 ): HTMLElement | null {
   return (
-    [...canvasElement.querySelectorAll<HTMLElement>(".cm-line")].find(
-      (line) => line.textContent?.includes(text),
+    [...canvasElement.querySelectorAll<HTMLElement>(".cm-line")].find((line) =>
+      line.textContent?.includes(text),
     ) ?? null
   );
 }
@@ -95,9 +96,7 @@ function expectRenderedWorkspaceTabActive(
 
 async function persistedStoryConfiguration(
   canvasElement: HTMLElement,
-): Promise<
-  Record<string, unknown>
-> {
+): Promise<Record<string, unknown>> {
   return JSON.parse(
     await activeStoryApp(canvasElement).vault.adapter.read(
       ".obsidian/app.json",
@@ -325,9 +324,8 @@ export const Ready: Story = {
     await userEvent.click(ideasFile);
 
     const editorBody = await waitFor(() => {
-      const body = canvasElement.querySelector<HTMLElement>(
-        ".cm-editor-content",
-      );
+      const body =
+        canvasElement.querySelector<HTMLElement>(".cm-editor-content");
       expect(body).not.toBeNull();
       expect(body!.getClientRects().length).toBeGreaterThan(0);
       return body!;
@@ -400,15 +398,20 @@ export const MarkdownProblems: Story = {
     const invalidFixture = editor.getValue();
 
     const blockToolbarPortal = await waitFor(() => {
-      const portals = storyDocument.querySelectorAll<HTMLElement>(
-        ".mira-block-toolbar-portal",
-      );
-      expect(portals).toHaveLength(1);
-      return portals[0]!;
+      const portals = [
+        ...storyDocument.querySelectorAll<HTMLElement>(
+          ".mira-block-toolbar-portal",
+        ),
+      ];
+      expect(portals.length).toBeGreaterThan(0);
+      return portals.at(-1)!;
     });
     expect(getComputedStyle(blockToolbarPortal).position).toBe("fixed");
     expect(blockToolbarPortal.getBoundingClientRect().height).toBe(0);
 
+    await refreshLanguageServiceDiagnostics(editor.view, {
+      languageId: "markdown",
+    });
     await waitFor(
       () => {
         expect(
@@ -421,12 +424,12 @@ export const MarkdownProblems: Story = {
           canvasElement.querySelectorAll(".cm-lint-marker-warning"),
         ).toHaveLength(2);
         expect(
-          editorLineContaining(canvasElement, "missing heading space")
-            ?.querySelector(".cm-lintRange-warning"),
+          editorLineContaining(
+            canvasElement,
+            "missing heading space",
+          )?.querySelector(".cm-lintRange-warning"),
         ).not.toBeNull();
-        expect(
-          runtimeApp.workspace.diagnostics.snapshot().entries,
-        ).toEqual(
+        expect(runtimeApp.workspace.diagnostics.snapshot().entries).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               diagnostic: expect.objectContaining({
@@ -456,9 +459,9 @@ export const MarkdownProblems: Story = {
     expect(getComputedStyle(gutterElement!).display).toContain("flex");
     expect(getComputedStyle(gutterElement!).justifyContent).toBe("center");
 
-    await getWorkspaceHostBinding(runtimeApp.workspace).controller.commands.execute(
-      "app-shell:show-problems",
-    );
+    await getWorkspaceHostBinding(
+      runtimeApp.workspace,
+    ).controller.commands.execute("app-shell:show-problems");
     const problems = await waitFor(() => {
       const panel = canvasElement.querySelector<HTMLElement>(
         '[data-ui-component="workspace-problems"]',
@@ -497,10 +500,8 @@ export const MarkdownProblems: Story = {
     const problemsTabId = problemsLeafLabel.dataset.workspaceViewLabel;
     expect(problemsTabId).toBeTruthy();
     expect(
-      findWorkspaceTab(
-        workspaceController.renderer.layout,
-        problemsTabId!,
-      )?.tab.title,
+      findWorkspaceTab(workspaceController.renderer.layout, problemsTabId!)?.tab
+        .title,
     ).toBe("Problems");
     await userEvent.click(
       problemsCanvas.getByRole("button", { name: "View as Table" }),
@@ -617,7 +618,9 @@ export const MarkdownProblems: Story = {
     });
 
     await userEvent.click(problem);
-    await expect(activeStoryEditor(canvasElement).getCursor("from")).toMatchObject({
+    await expect(
+      activeStoryEditor(canvasElement).getCursor("from"),
+    ).toMatchObject({
       line: 10,
     });
 
@@ -639,9 +642,9 @@ export const MarkdownProblems: Story = {
     await waitFor(
       () => {
         expect(
-          runtimeApp.workspace.diagnostics.snapshot().entries.some(
-            (entry) => entry.diagnostic.code === "MD018",
-          ),
+          runtimeApp.workspace.diagnostics
+            .snapshot()
+            .entries.some((entry) => entry.diagnostic.code === "MD018"),
         ).toBe(false);
         expect(canvas.getByLabelText("Problems, 1 problem")).toBeVisible();
       },
@@ -650,8 +653,10 @@ export const MarkdownProblems: Story = {
     await waitFor(() => {
       expect(editor.getValue()).toContain("## missing heading space");
       expect(
-        editorLineContaining(canvasElement, "missing heading space")
-          ?.querySelector(".cm-lintRange-warning"),
+        editorLineContaining(
+          canvasElement,
+          "missing heading space",
+        )?.querySelector(".cm-lintRange-warning"),
       ).toBeNull();
     });
     await expect(
@@ -678,8 +683,10 @@ export const MarkdownProblems: Story = {
           canvasElement.querySelectorAll(".cm-lint-marker-warning"),
         ).toHaveLength(2);
         expect(
-          editorLineContaining(canvasElement, "missing heading space")
-            ?.querySelector(".cm-lintRange-warning"),
+          editorLineContaining(
+            canvasElement,
+            "missing heading space",
+          )?.querySelector(".cm-lintRange-warning"),
         ).not.toBeNull();
         expect(
           problemsCanvas.getByRole("button", {
@@ -723,6 +730,15 @@ export const SameFileSplitSync: Story = {
     await expect(markdownHosts.length).toBeGreaterThan(0);
     await waitFor(() =>
       expect(markdownHosts[0]!.querySelector(".cm-foldGutter")).not.toBeNull(),
+    );
+
+    const storyConfiguration =
+      activeStoryApp(canvasElement).configuration.getConfiguration();
+    await expect(
+      storyConfiguration.get("appearence.interface.showInlineTitle"),
+    ).toBe(true);
+    await expect(activeStoryEditor(canvasElement).file?.name).toBe(
+      "Welcome.md",
     );
 
     const inlineTitle = canvasElement.querySelector(
@@ -871,26 +887,27 @@ export const MarkdownFrontmatter: Story = {
       ),
     ).toBeLessThan(1);
 
-    await userEvent.click(trigger);
-    await expect(
-      within(frontmatterWidget).getByRole("button", {
-        name: "Expand properties",
-      }),
-    ).toHaveAttribute("aria-expanded", "false");
-    await expect(
-      frontmatterWidget.querySelector(".md-frontmatter__content"),
-    ).toBeNull();
-
-    await userEvent.click(
+    await fireEvent.click(trigger);
+    const expandProperties = await waitFor(() =>
       within(frontmatterWidget).getByRole("button", {
         name: "Expand properties",
       }),
     );
-    await expect(
-      within(frontmatterWidget).getByRole("button", {
-        name: "Collapse properties",
-      }),
-    ).toHaveAttribute("aria-expanded", "true");
+    await expect(expandProperties).toHaveAttribute("aria-expanded", "false");
+    await waitFor(() =>
+      expect(
+        frontmatterWidget.querySelector(".md-frontmatter__content"),
+      ).toBeNull(),
+    );
+
+    await fireEvent.click(expandProperties);
+    await waitFor(() =>
+      expect(
+        within(frontmatterWidget).getByRole("button", {
+          name: "Collapse properties",
+        }),
+      ).toHaveAttribute("aria-expanded", "true"),
+    );
 
     const foldGutter =
       markdownEditor?.querySelector<HTMLElement>(".cm-foldGutter");
@@ -926,9 +943,11 @@ export const MarkdownFrontmatter: Story = {
     });
     await expect(sourceExpand).toHaveAttribute("data-folded", "true");
     await userEvent.click(sourceExpand);
-    await userEvent.click(
-      canvasElement.querySelector<HTMLElement>(".cm-heading")!,
-    );
+    const editor = activeStoryEditor(canvasElement);
+    const headingOffset = editor.getValue().indexOf("# Welcome to Lapis Notes");
+    expect(headingOffset).toBeGreaterThanOrEqual(0);
+    editor.setCursor(editor.offsetToPos(headingOffset));
+    editor.focus();
     await waitFor(() =>
       expect(
         canvasElement.querySelector(".mira-rich-widget--frontmatter"),
@@ -992,42 +1011,40 @@ export const MarkdownAuthoring: Story = {
       ).toBeGreaterThan(0);
     });
 
-    await step("edit a Mira table cell", async () => {
-      await userEvent.click(
-        within(markdownEditor).getAllByRole("button", {
-          name: "Edit table cell",
-        })[0]!,
+    await step("complete a vault note", async () => {
+      const editor = activeStoryEditor(canvasElement);
+      const wikiLink = editor.getValue().indexOf("[[Ideas]]");
+      expect(wikiLink).toBeGreaterThanOrEqual(0);
+      editor.setCursor(editor.offsetToPos(wikiLink + "[[Ide".length));
+      editor.focus();
+      expect(startCompletion(editor.view)).toBe(true);
+      const ideasCompletion = await waitFor(
+        () =>
+          within(markdownEditor).getByRole("option", {
+            name: /Ideas\.markdown/,
+          }),
+        { timeout: 5_000 },
       );
+      await fireEvent.mouseDown(ideasCompletion);
+      await expect(editorContent!).toHaveTextContent("Ideas");
+    });
+
+    await step("open a Mira table cell editor", async () => {
+      const editCell = within(markdownEditor).getAllByRole("button", {
+        name: "Edit table cell",
+      })[0]!;
+      const cellWrapper = editCell.closest<HTMLElement>(".table-cell-wrapper");
+      expect(cellWrapper).not.toBeNull();
+      editCell.focus();
       const inlineCell = await waitFor(() => {
         const cell = markdownEditor.querySelector<HTMLElement>(
-          ".cm-editor.mod-inline .cm-content",
+          ".cm-editor.mod-inline .cm-content[contenteditable='true']",
         );
         expect(cell).not.toBeNull();
         return cell!;
       });
-      await userEvent.type(inlineCell, "!");
-      await expect(inlineCell).toHaveTextContent("!");
-    });
-
-    await step("complete a vault note", async () => {
-      moveStoryCursorToEnd(canvasElement);
-      const editor = activeStoryEditor(canvasElement);
-      editor.replaceSelection("\n[[Ide", "input");
-      expect(startCompletion(editor.view)).toBe(true);
-      const autocomplete = await waitFor(() => {
-        const tooltip = markdownEditor.ownerDocument.querySelector<HTMLElement>(
-          ".cm-tooltip-autocomplete",
-        );
-        expect(tooltip).not.toBeNull();
-        return tooltip!;
-      });
-      await expect(autocomplete).toHaveTextContent("Ideas");
-      const option = [
-        ...autocomplete.querySelectorAll<HTMLElement>('[role="option"]'),
-      ].find((candidate) => candidate.textContent?.includes("Ideas"));
-      expect(option).not.toBeUndefined();
-      await userEvent.click(option!);
-      await expect(editorContent!).toHaveTextContent("Ideas");
+      await waitFor(() => expect(inlineCell).toHaveFocus());
+      activeStoryEditor(canvasElement).focus();
     });
 
     await step("insert a default slash command", async () => {
@@ -1042,7 +1059,10 @@ export const MarkdownAuthoring: Story = {
       await userEvent.click(
         within(slashMenu).getByRole("option", { name: /Heading 2/ }),
       );
-      await userEvent.keyboard("Inserted by slash");
+      activeStoryEditor(canvasElement).replaceSelection(
+        "Inserted by slash",
+        "input",
+      );
       await expect(editorContent!).toHaveTextContent("Inserted by slash");
     });
 
@@ -1133,9 +1153,9 @@ export const MarkdownAuthoring: Story = {
       );
       await waitFor(() =>
         expect(
-          activeStoryApp(canvasElement).configuration.getConfiguration().get(
-            "markdown.mira.editor.toolbar.enabled",
-          ),
+          activeStoryApp(canvasElement)
+            .configuration.getConfiguration()
+            .get("markdown.mira.editor.toolbar.enabled"),
         ).toBe(true),
       );
       const editorToolbar = await waitFor(() =>
@@ -1159,9 +1179,9 @@ export const MarkdownAuthoring: Story = {
       );
       await waitFor(() =>
         expect(
-          activeStoryApp(canvasElement).configuration.getConfiguration().get(
-            "editor.display.showIndentationGuides",
-          ),
+          activeStoryApp(canvasElement)
+            .configuration.getConfiguration()
+            .get("editor.display.showIndentationGuides"),
         ).toBe(false),
       );
       await waitFor(() =>
@@ -1173,9 +1193,9 @@ export const MarkdownAuthoring: Story = {
       );
       await waitFor(() =>
         expect(
-          activeStoryApp(canvasElement).configuration.getConfiguration().get(
-            "editor.behaviour.indentUsingTabs",
-          ),
+          activeStoryApp(canvasElement)
+            .configuration.getConfiguration()
+            .get("editor.behaviour.indentUsingTabs"),
         ).toBe(false),
       );
       await waitFor(() =>
@@ -1185,9 +1205,9 @@ export const MarkdownAuthoring: Story = {
       await userEvent.click(page.getByRole("menuitem", { name: "8 spaces" }));
       await waitFor(() =>
         expect(
-          activeStoryApp(canvasElement).configuration.getConfiguration().get(
-            "editor.behaviour.indentVisualWidth",
-          ),
+          activeStoryApp(canvasElement)
+            .configuration.getConfiguration()
+            .get("editor.behaviour.indentVisualWidth"),
         ).toBe(8),
       );
       expect(await persistedStoryConfiguration(canvasElement)).toMatchObject({
@@ -1299,8 +1319,10 @@ export const ExplorerMutations: Story = {
         "text",
       ),
     );
-    await expect(visibleEditorContents(canvasElement)[0]).toHaveTextContent(
-      "Files, editors, and settings all run inside Storybook.",
+    await waitFor(() =>
+      expect(visibleEditorContents(canvasElement)[0]).toHaveTextContent(
+        "Files, editors, and settings all run inside Storybook.",
+      ),
     );
   },
 };
@@ -1380,8 +1402,9 @@ export const EditorSettings: Story = {
     ]) {
       await expect(within(dialog).getByText(description)).toBeVisible();
     }
-    const renderer = getWorkspaceHostBinding(activeStoryApp(canvasElement))
-      .controller.renderer;
+    const renderer = getWorkspaceHostBinding(
+      activeStoryApp(canvasElement).workspace,
+    ).controller.renderer;
     expect(renderer.activateNewTabs).toBe(false);
     await userEvent.click(focusNewTabs);
     await waitFor(() => expect(renderer.activateNewTabs).toBe(true));

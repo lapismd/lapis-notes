@@ -14,7 +14,7 @@ const meta = {
   component: BasesEditorShellDemo,
   tags: ["visual-pending", "test"],
   parameters: {
-    ...workspaceCatalogParameters("workspace-plugins-bases"),
+    ...workspaceCatalogParameters("workspace-plugins-bases-markdown-embeds"),
     layout: "fullscreen",
     docs: {
       canvas: { className: "workspace-shell-docs-canvas" },
@@ -44,6 +44,69 @@ function demoApp(canvasElement: HTMLElement): App {
   }
   return root.__lapisApp;
 }
+
+export const FileView: Story = {
+  parameters: {
+    ...workspaceCatalogParameters("workspace-plugins-bases-file-view"),
+    docs: {
+      description: {
+        story:
+          "A .base file restores through the real editor association, switches between source and preview, persists its view state, and reopens without changing the document.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/workspace/plugins/bases/file-view-chromium.png",
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    delete canvasElement.dataset.basesFileViewAcceptanceReady;
+    const canvas = within(canvasElement);
+    await waitFor(
+      () =>
+        expect(
+          canvas.getByTestId("bases-editor-shell-status"),
+        ).toHaveTextContent("ready"),
+      { timeout: 8_000 },
+    );
+    const app = demoApp(canvasElement);
+    const leaf = app.workspace.getLeavesOfType(BasesViewType)[0]!;
+    const file = app.vault.getFileByPath("Bases/Projects.base")!;
+    const contentBefore = await app.vault.read(file);
+
+    expect(leaf.getViewState()).toMatchObject({
+      type: BasesViewType,
+      state: { file: file.path, mode: "preview" },
+    });
+    await leaf.view.setState({ ...leaf.view.getState(), mode: "source" });
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('.cm-editor[data-language="yaml"]'),
+      ).toBeVisible(),
+    );
+    await leaf.view.setState({ ...leaf.view.getState(), mode: "preview" });
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('[data-ui-component="bases-table-view"]'),
+      ).toBeVisible(),
+    );
+
+    await leaf.setViewState({ type: "empty", state: {} });
+    await leaf.openFile(file);
+    await waitFor(() => {
+      expect(leaf.getViewState()).toMatchObject({
+        type: BasesViewType,
+        state: { file: file.path },
+      });
+      expect(
+        canvasElement.querySelector('[data-ui-component="bases-table-view"]'),
+      ).toBeVisible();
+    });
+    expect(await app.vault.read(file)).toBe(contentBefore);
+    canvasElement.dataset.basesFileViewAcceptanceReady = "true";
+  },
+};
 
 export const MarkdownEmbeds: Story = {
   parameters: {

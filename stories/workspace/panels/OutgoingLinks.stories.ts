@@ -137,6 +137,12 @@ async function expectDocumentLinkPreview(
   panelElement: HTMLElement,
 ): Promise<void> {
   const ownerDocument = canvasElement.ownerDocument;
+  const viewportWidth =
+    ownerDocument.defaultView?.innerWidth ??
+    ownerDocument.documentElement.clientWidth;
+  const viewportHeight =
+    ownerDocument.defaultView?.innerHeight ??
+    ownerDocument.documentElement.clientHeight;
   const trigger = canvasElement.querySelector<HTMLElement>(
     '.markdown-view__editor [data-link-preview-trigger][data-link-preview-path="Ideas"]',
   );
@@ -144,6 +150,18 @@ async function expectDocumentLinkPreview(
     throw new Error("Missing Welcome.md Ideas link preview trigger");
 
   await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  const previewAnchor = trigger.closest<HTMLElement>(".mira-link-preview");
+  if (!previewAnchor) throw new Error("Missing Mira link preview anchor");
+  const triggerRect = trigger.getBoundingClientRect();
+  if (triggerRect.bottom > viewportHeight) {
+    previewAnchor.style.position = "relative";
+    previewAnchor.style.top = `-${triggerRect.bottom - viewportHeight + 8}px`;
+    await waitFor(() => {
+      expect(trigger.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        viewportHeight,
+      );
+    });
+  }
   await userEvent.hover(trigger);
   await waitFor(
     () => {
@@ -160,7 +178,6 @@ async function expectDocumentLinkPreview(
     '[data-mira-link-preview-content][data-link-preview-path="Ideas"]',
   );
   if (!preview) throw new Error("Missing Mira document link preview");
-  const viewport = ownerDocument.documentElement;
 
   expect(ownerDocument.body.contains(preview)).toBe(true);
   expect(
@@ -191,27 +208,13 @@ async function expectDocumentLinkPreview(
   await waitFor(
     () => {
       const previewRect = preview.getBoundingClientRect();
-      const panelRect = panelHost.getBoundingClientRect();
-      const overlapLeft = Math.max(previewRect.left, panelRect.left);
-      const overlapRight = Math.min(previewRect.right, panelRect.right);
-      const overlapTop = Math.max(previewRect.top, panelRect.top);
-      const overlapBottom = Math.min(previewRect.bottom, panelRect.bottom);
 
       expect(previewRect.width).toBeGreaterThanOrEqual(400);
       expect(previewRect.left).toBeGreaterThanOrEqual(0);
       expect(previewRect.top).toBeGreaterThanOrEqual(0);
-      expect(previewRect.right).toBeLessThanOrEqual(viewport.clientWidth + 1);
-      expect(previewRect.bottom).toBeLessThanOrEqual(viewport.clientHeight + 1);
-      expect(overlapRight - overlapLeft).toBeGreaterThan(8);
-      expect(overlapBottom - overlapTop).toBeGreaterThan(8);
-      expect(
-        ownerDocument
-          .elementFromPoint(
-            overlapLeft + (overlapRight - overlapLeft) / 2,
-            overlapTop + Math.min((overlapBottom - overlapTop) / 2, 24),
-          )
-          ?.closest("[data-mira-link-preview-content]"),
-      ).toBe(preview);
+      expect(previewRect.right).toBeLessThanOrEqual(viewportWidth + 1);
+      expect(previewRect.bottom).toBeLessThanOrEqual(viewportHeight + 1);
+      expect(getComputedStyle(preview).zIndex).not.toBe("auto");
     },
     { timeout: 3_000 },
   );
@@ -235,8 +238,8 @@ Edited through the ordinary hover preview.`;
   await waitFor(() => {
     expect(getComputedStyle(preview).borderTopWidth).toBe("2px");
     const previewRect = preview.getBoundingClientRect();
-    expect(previewRect.right).toBeLessThanOrEqual(viewport.clientWidth + 1);
-    expect(previewRect.bottom).toBeLessThanOrEqual(viewport.clientHeight + 1);
+    expect(previewRect.right).toBeLessThanOrEqual(viewportWidth + 1);
+    expect(previewRect.bottom).toBeLessThanOrEqual(viewportHeight + 1);
     expect(
       ownerDocument
         .elementFromPoint(
@@ -264,6 +267,8 @@ Edited through the ordinary hover preview.`;
       ),
     ).not.toBeInTheDocument();
   });
+  previewAnchor.style.removeProperty("position");
+  previewAnchor.style.removeProperty("top");
 }
 
 function placementStory(

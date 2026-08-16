@@ -14,6 +14,7 @@
 
 <script lang="ts">
   import { onMount, untrack } from "svelte";
+  import { provideApplicationState } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { AppShell } from "@lapismd/design-core/workspace/app-shell";
   import "./workspace-shell.css";
@@ -26,6 +27,7 @@
     class: className = "",
   }: WorkspaceShellProps = $props();
 
+  provideApplicationState(untrack(() => app));
   const { controller } = untrack(() => getWorkspaceHostBinding(app.workspace));
   let activateNewTabs = $derived(
     app.configuration

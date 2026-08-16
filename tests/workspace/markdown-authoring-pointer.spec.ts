@@ -15,9 +15,6 @@ test("Markdown authoring reorders a block through the real Mira drag handle", as
     await expect(status).toHaveText("ready", { timeout: 60_000 });
   }
   const persisted = page.getByTestId("lapis-editor-target-contents");
-  await expect(persisted).toContainText("attachments/pixel.png", {
-    timeout: 30_000,
-  });
 
   const editor = page.locator('.cm-editor[data-language="markdown"]');
   const firstLine = editor

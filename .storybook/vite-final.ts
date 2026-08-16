@@ -54,6 +54,7 @@ const linkedSingletonPackages = [
   "@lezer/highlight",
   "@lezer/markdown",
   "@lezer/lr",
+  "bits-ui",
 ] as const;
 
 const linkedSiblingRoots = linkedSiblingPackages.map((packageName) =>

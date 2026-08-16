@@ -292,6 +292,38 @@ describe("ConfigurationSchema", () => {
 });
 
 describe("Configuration", () => {
+  it("defers schema defaults until initial load and preserves persisted settings", async () => {
+    const { app, adapter } = createConfigurationApp();
+    await app.vault.load();
+    await app.vault.mkpath("/.obsidian");
+    await app.vault.create(
+      "/.obsidian/app.json",
+      JSON.stringify({
+        "appearence.interface.showInlineTitle": true,
+        "editor.defaultEditingMode": "live-preview",
+      }),
+    );
+
+    const configuration = new Configuration(app, "/.obsidian/app.json");
+    registerManifestSchema(configuration.schema);
+
+    await configuration.materializeSchemaDefaults();
+    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toEqual({
+      "appearence.interface.showInlineTitle": true,
+      "editor.defaultEditingMode": "live-preview",
+    });
+
+    await configuration.load();
+
+    expect(JSON.parse(await adapter.read("/.obsidian/app.json"))).toMatchObject({
+      "appearence.interface.showInlineTitle": true,
+      "editor.defaultEditingMode": "live-preview",
+      "manifest-only.statusBar.mode": "compact",
+      "manifest-only.statusBar.palette": ["blue"],
+      "manifest-only.statusBar.threshold": 5,
+    });
+  });
+
   it("materializes schema defaults on first load and persists them", async () => {
     const { app, adapter } = createConfigurationApp();
     await app.vault.load();

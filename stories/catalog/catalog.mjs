@@ -334,6 +334,13 @@ export const workspaceCatalog = [
     storyId: "plugins-bases-editor-shell--explorer-search-and-base",
   },
   {
+    id: "workspace-plugins-bases-file-view",
+    title: "Bases File View",
+    spec: "spec/src/bases-plugin.md",
+    publicSurface: "@lapis-notes/bases + @lapis-notes/workspace",
+    storyId: "workspace-plugins-bases--file-view",
+  },
+  {
     id: "workspace-plugins-bases-markdown-embeds",
     title: "Bases Markdown Embeds",
     spec: "spec/src/bases-plugin.md",

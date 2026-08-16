@@ -4964,6 +4964,9 @@ export class WorkspaceLeaf extends WorkspaceItem<{
       this.view = new EmptyView(this);
     }
     this.containerEl = createDiv("h-full");
+    // Imperative views own this compatibility root, so its sizing cannot rely
+    // on a host-wide utility stylesheet being present.
+    this.containerEl.style.height = "100%";
     this.contentEl = this.containerEl.createDiv();
     this.history = new HistoryManager<ViewState>(this.updateHistory.bind(this));
   }

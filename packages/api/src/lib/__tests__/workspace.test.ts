@@ -1189,6 +1189,7 @@ describe("Workspace compatibility", () => {
     createWorkspaceHarness();
     const leaf = new WorkspaceLeaf();
 
+    expect(leaf.containerEl.style.height).toBe("100%");
     leaf.containerEl.empty();
     expect(Array.from(leaf.containerEl.children).includes(leaf.contentEl)).toBe(
       false,

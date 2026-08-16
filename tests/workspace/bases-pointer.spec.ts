@@ -102,6 +102,9 @@ test("sort clauses and table columns persist after real pointer drags", async ({
     await page.reload();
     await expect(status).toHaveText("ready", { timeout: 60_000 });
   }
+  await expect(
+    page.locator('[data-bases-file-view-acceptance-ready="true"]'),
+  ).toBeAttached({ timeout: 60_000 });
   const table = page.locator('[data-ui-component="bases-table-view"]');
   await expect(table).toBeVisible();
 

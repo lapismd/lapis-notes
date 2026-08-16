@@ -55,6 +55,10 @@ export default async function globalSetup(): Promise<void> {
       "main process compile",
     );
     runPackageCommand(
+      ["node", "scripts/bundle-main.mjs"],
+      "main process bundle",
+    );
+    runPackageCommand(
       ["node", "scripts/bundle-language-sidecar.mjs"],
       "language sidecar bundle",
     );

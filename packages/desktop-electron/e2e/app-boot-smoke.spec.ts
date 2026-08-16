@@ -197,11 +197,14 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
     expect(runtime).toEqual({
       runtime: "electron-desktop",
       vault: "vault-a",
-      pluginCount: 4,
+      pluginCount: 7,
       pluginIds: [
+        "ai",
+        "bases",
         "lapis-file-explorer",
         "lapis-markdown-lint",
         "markdown",
+        "roles",
         "search",
       ],
     });

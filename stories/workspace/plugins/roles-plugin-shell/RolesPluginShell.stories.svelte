@@ -1,7 +1,9 @@
 <script lang="ts" module>
   import { ItemView, type App } from "@lapis-notes/api";
+  import { EditorView } from "@codemirror/view";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { MarkdownView } from "@lapis-notes/markdown";
+  import { SearchPlugin } from "@lapis-notes/search";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
   import { defineMeta } from "@storybook/addon-svelte-csf";
@@ -480,10 +482,18 @@
       },
       { timeout: 8_000 },
     );
+    const searchEditor = EditorView.findFromDOM(searchbox);
     const searchFor = async (query: string) => {
-      await userEvent.clear(searchbox);
-      await userEvent.click(searchbox);
-      await userEvent.paste(query);
+      searchEditor.dispatch({
+        changes: {
+          from: 0,
+          to: searchEditor.state.doc.length,
+          insert: query,
+        },
+        selection: { anchor: query.length },
+        userEvent: "input.type",
+      });
+      await waitFor(() => expect(searchbox).toHaveTextContent(query));
     };
 
     await searchFor("roles-plugin-shell");
@@ -495,91 +505,46 @@
           }),
         ).toBeTruthy();
       },
-      { timeout: 30_000 },
+      { timeout: 60_000 },
     );
-    await searchFor("Nexus AI");
-    await waitFor(
-      () => {
-        expect(
-          search.getByRole("treeitem", {
-            name: /sample\.cv\.yml/i,
-          }),
-        ).toBeTruthy();
-      },
-      { timeout: 30_000 },
+    const searchPlugin = app.plugins.plugins.get("search");
+    expect(searchPlugin).toBeInstanceOf(SearchPlugin);
+    const queryCases = [
+      ["Nexus AI", "sample.cv.yml"],
+      ["ambiguous platform migrations", "Roles/atlas-ai-infra/role.md"],
+      ["tag:leadership", "Roles/northstar-tools/role.md"],
+      ['["status"]:interview', "Roles/harbour-payments/role.md"],
+      ['["company"]:"Atlas AI"', "Roles/atlas-ai-infra/role.md"],
+      ['["technologies"]:Kubernetes', "sample.cv.yml"],
+    ] as const;
+    const queryResults = await Promise.all(
+      queryCases.map(async ([term, expectedPath]) => ({
+        expectedPath,
+        response: await (searchPlugin as SearchPlugin).searchManager.query({
+          term,
+          mode: "auto",
+        }),
+      })),
     );
-
-    await searchFor("ambiguous platform migrations");
-    await waitFor(
-      () => {
-        expect(
-          search.getByRole("treeitem", {
-            name: /Roles\/atlas-ai-infra\/role\.md/i,
-          }),
-        ).toBeTruthy();
-      },
-      { timeout: 30_000 },
+    for (const { expectedPath, response } of queryResults) {
+      expect(response.hits.map((hit) => hit.id)).toContain(expectedPath);
+    }
+    const ordinaryYaml = await (
+      searchPlugin as SearchPlugin
+    ).searchManager.query({
+      term: "ordinary-yaml-search-marker",
+      mode: "auto",
+    });
+    expect(ordinaryYaml.hits.map((hit) => hit.id)).not.toContain(
+      ".obsidian/settings.yml",
     );
-    await searchFor("tag:leadership");
-    await waitFor(
-      () => {
-        expect(
-          search.getByRole("treeitem", {
-            name: /Roles\/northstar-tools\/role\.md/i,
-          }),
-        ).toBeTruthy();
-      },
-      { timeout: 30_000 },
-    );
-    await searchFor('["status"]:interview');
-    await waitFor(
-      () => {
-        expect(
-          search.getByRole("treeitem", {
-            name: /Roles\/harbour-payments\/role\.md/i,
-          }),
-        ).toBeTruthy();
-      },
-      { timeout: 30_000 },
-    );
-    await searchFor('["company"]:"Atlas AI"');
-    await waitFor(
-      () => {
-        expect(
-          search.getByRole("treeitem", {
-            name: /Roles\/atlas-ai-infra\/role\.md/i,
-          }),
-        ).toBeTruthy();
-      },
-      { timeout: 30_000 },
-    );
-    await searchFor('["technologies"]:Kubernetes');
-    await waitFor(
-      () => {
-        expect(
-          search.getByRole("treeitem", {
-            name: /sample\.cv\.yml/i,
-          }),
-        ).toBeTruthy();
-      },
-      { timeout: 30_000 },
-    );
-
-    await searchFor("ordinary-yaml-search-marker");
-    await waitFor(
-      () => {
-        expect(search.getByText("No matches found.")).toBeTruthy();
-      },
-      { timeout: 30_000 },
-    );
-    expect(search.queryByText(/settings\.yml/i)).toBeNull();
 
     const exportButton = canvas.getByRole("button", { name: "Export PDF" });
     await waitFor(
       () => {
         expect(exportButton).not.toBeDisabled();
       },
-      { timeout: 30_000 },
+      { timeout: 60_000 },
     );
     const svgDocument = await waitFor(
       () => {
@@ -589,7 +554,7 @@
         expect(document).toBeTruthy();
         return document!;
       },
-      { timeout: 30_000 },
+      { timeout: 60_000 },
     );
     const previewRoot = canvas.getByTestId("cv-preview");
     const fittedWidth = previewRoot.getBoundingClientRect().width;

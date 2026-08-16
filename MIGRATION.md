@@ -21,9 +21,11 @@ intake or UI swap status changes.
       Roles runtime/catalog; retain compatibility only for legacy consumers.
 - [x] Add fail-closed ambient-App source audits to root check and spec-check,
       plus tracked repository and shared sibling guidance.
-- [ ] Re-run focused and broad non-visual acceptance after integration into the
-      original repositories. Visual baselines remain unchanged by explicit user
-      request.
+- [x] Re-run focused and broad non-visual acceptance after integration into the
+      original repositories: Lapis package/root gates, 43 Storybook files / 107
+      scenarios, five real pointer tests, four web E2E cases, eight Electron
+      smokes, Mira 59 files / 334 tests, and CV Roles package/Storybook/static
+      lanes pass. Visual baselines remain unchanged by explicit user request.
 
 ## Bootstrap
 
@@ -60,7 +62,7 @@ intake or UI swap status changes.
 | Notebook / remaining unlisted plugins      | Not started         | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                                                                                                                      |
 | `@lapis-notes/file-explorer`               | Done                | Reusable File Explorer plugin shared by Storybook and Electron; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture                                                                                     |
 | `@lapis-notes/search`                      | Done                | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts                                                                                                                                                                                                  |
-| `@lapis-notes/bases`                       | Done                | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 158 tests, focused Storybook and pointer coverage, Electron and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                          |
+| `@lapis-notes/bases`                       | Done                | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 161 tests, focused Storybook and pointer coverage, Electron and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                          |
 | design-core workspace engine               | Done                | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                                                                                                                    |
 
 ### App database replacement progress
@@ -104,7 +106,7 @@ legacy commit `8ec68e18`.
 - [x] Preserve a larger macOS traffic-light inset for the expanded left sidebar without changing the collapsed control geometry
 - [x] Replace renderer database mirrors with window/vault-owned native Turso handles behind a bounded typed RPC allowlist
 - [x] Serve packaged renderer assets from isolated `lapis-app://app/` with COOP/COEP and retain Turso WASM assets for Intel macOS
-- [ ] Full Storybook suite: 95/101 pass; all Bases, CV Roles, and application-ownership scenarios pass. Five existing `LapisEditorDemo` concurrency failures (`Markdown Problems`, `Same File Split Sync`, `Markdown Authoring`, `Explorer Mutations`, and `Editor Settings`) plus the existing Outgoing Links `Middle Top Tabs` geometry failure remain outside this intake.
+- [x] Full Storybook suite: 43 files / 107 interaction and accessibility scenarios pass, including Bases, CV Roles, application ownership, Markdown authoring/problems/frontmatter, and Outgoing Links geometry.
 - [ ] `PersistedDesktop` Visual Delta comparison: blocked because Docker Desktop cannot start; no baseline was updated
 
 Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
@@ -143,7 +145,7 @@ legacy revision `8ec68e18`.
 
 - [x] Canonical `LN-BASE-001` through `LN-BASE-012`, host/catalog requirements, verification mappings, and spec-first routing
 - [x] Buildable `@lapis-notes/bases` package scaffold with explicit root and stylesheet exports
-- [x] Port 14 legacy test files and retain the 142-test behavioral baseline (20 files / 158 tests with current regressions)
+- [x] Port 14 legacy test files and retain the 142-test behavioral baseline (20 files / 161 tests with current regressions)
 - [x] Replace pruned UI imports with public Design Core primitives and Bases-owned compounds
 - [x] Replace Tailwind utility markup with semantic native CSS and `--ui-bases-*` tokens
 - [x] Inject `App` through the surface/controller hierarchy; serialize writes and flush on teardown
