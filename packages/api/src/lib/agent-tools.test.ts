@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { AppToolRegistry, type AppTool } from "./agent-tools";
+import {
+  AppToolRegistry,
+  createAppToolExecutionScope,
+  type AppTool,
+} from "./agent-tools";
 
 const owner = {
   pluginId: "fixture",
@@ -66,5 +70,41 @@ describe("AppToolRegistry", () => {
     expect(registry.resolve("notes_read", first.id)).toBeUndefined();
     expect(registry.resolve("notes_read", second.id)).toBeDefined();
     expect(changes).toEqual(["registered", "unregistered", "registered"]);
+  });
+});
+
+describe("createAppToolExecutionScope", () => {
+  it("contains only portable paths in the fixed directory", () => {
+    const scope = createAppToolExecutionScope("Projects/Alpha");
+
+    expect(scope.directory).toBe("Projects/Alpha");
+    expect(scope.contains("Projects/Alpha/note.md")).toBe(true);
+    expect(scope.resolve("Projects/Alpha/note.md")).toBe(
+      "Projects/Alpha/note.md",
+    );
+    expect(scope.contains("Projects/Alphabets/note.md")).toBe(false);
+    expect(scope.contains("Projects/Other/note.md")).toBe(false);
+  });
+
+  it("rejects absolute, traversal, backslash, and scope-escape paths", () => {
+    const scope = createAppToolExecutionScope("Projects");
+
+    for (const path of [
+      "/Projects/note.md",
+      "C:/Projects/note.md",
+      "Projects/../secret.md",
+      "Projects\\note.md",
+      "Elsewhere/note.md",
+    ]) {
+      expect(scope.contains(path)).toBe(false);
+      expect(() => scope.resolve(path)).toThrow();
+    }
+  });
+
+  it("treats an empty directory as the vault root", () => {
+    const scope = createAppToolExecutionScope("");
+
+    expect(scope.contains("Notes/readme.md")).toBe(true);
+    expect(scope.resolve("Notes/readme.md")).toBe("Notes/readme.md");
   });
 });

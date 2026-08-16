@@ -106,6 +106,8 @@ application manager or presentation modules.
 The API agent-tool surface exports only schemas, results, trusted execution
 context, owner metadata, and lifecycle registration. It does not import or
 re-export MCP, ACP, acpx, or vendor runtime types.
+Its execution-scope helper validates vault-relative portable paths and exposes
+only fixed-directory containment and resolution to portable tool callbacks.
 The AI package keeps external MCP server processes in a distinct, deterministic
 `McpServerContribution` registry that rejects duplicate names and the reserved
 `lapis-tools` bridge identity.

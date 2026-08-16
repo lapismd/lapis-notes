@@ -34,6 +34,56 @@ export interface AppToolExecutionScope {
   resolve(path: string): string;
 }
 
+function assertPortableVaultPath(path: string, label: string): string {
+  if (path.includes("\\") || path.startsWith("/") || /^[a-z]:/iu.test(path)) {
+    throw new Error(`${label} must be a vault-relative portable path.`);
+  }
+  const segments = path.split("/");
+  if (segments.some((segment) => segment === "." || segment === "..")) {
+    throw new Error(`${label} must not contain traversal segments.`);
+  }
+  if (segments.some((segment) => segment.length === 0) && path.length > 0) {
+    throw new Error(`${label} must not contain empty path segments.`);
+  }
+  return path;
+}
+
+/** Construct an immutable execution scope from trusted conversation state. */
+export function createAppToolExecutionScope(
+  directory: string,
+): AppToolExecutionScope {
+  const trustedDirectory = assertPortableVaultPath(
+    directory,
+    "App tool scope directory",
+  );
+  return Object.freeze({
+    directory: trustedDirectory,
+    contains(path: string): boolean {
+      try {
+        const candidate = assertPortableVaultPath(path, "App tool path");
+        return (
+          trustedDirectory === "" ||
+          candidate === trustedDirectory ||
+          candidate.startsWith(`${trustedDirectory}/`)
+        );
+      } catch {
+        return false;
+      }
+    },
+    resolve(path: string): string {
+      const candidate = assertPortableVaultPath(path, "App tool path");
+      if (
+        trustedDirectory !== "" &&
+        candidate !== trustedDirectory &&
+        !candidate.startsWith(`${trustedDirectory}/`)
+      ) {
+        throw new Error(`App tool path escapes scope: ${path}`);
+      }
+      return candidate;
+    },
+  });
+}
+
 export interface AppToolExecutionContext {
   conversationId: string;
   agentBindingId: string;
