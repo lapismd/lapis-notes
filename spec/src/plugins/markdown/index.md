@@ -45,6 +45,8 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-084 | Markdown Source and Live Preview editors MUST compose the API language-service diagnostic extension with completion and hover disabled. Reading mode MUST remain outside the CodeMirror diagnostic lifecycle. |
 | LN-MD-090 | Markdown's full editing surface MUST compose the public API embedded editor surface so file views and plugin-owned embedded editors resolve the same registered Markdown extension stack, configuration refresh, scrolling, and source fallback lifecycle. In a file leaf, its flex wrapper MUST constrain that surface so its Design Core Scroll Area owns the one usable vertical document scroll range. |
 | LN-MD-091 | A Markdown file leaf MAY receive a serialized return target containing a registered view type, label, icon, and state. While editing, the title action MUST restore that view in the same leaf, preserve the current file, support Mod+click in a right split, and leave Markdown Reading and Source controls available in the pane menu. |
+| LN-MD-093 | Markdown MUST register `notes_read` and `notes_list` through the application tool registry. Both MUST accept only normalized Markdown paths inside the trusted conversation scope, reject application-private directories, and return deterministically ordered bounded results. |
+| LN-MD-094 | Markdown MUST register `notes_patch` as a write-effect application tool. It MUST preview the target and text replacement for approval, then use atomic vault processing to replace exactly one current match; invalid scope, conflicts, cancellation, and denial MUST leave the file unchanged. |
 
 ## Ownership
 

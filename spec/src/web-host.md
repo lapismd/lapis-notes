@@ -26,6 +26,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-017 | The standalone bridge MUST reconnect and resubscribe active sessions from their last accepted sequence before admitting live frames. Duplicate or older frames MUST be discarded. A replay gap or unknown host session MUST become a retryable interrupted turn and MUST NOT automatically resend input that may have caused side effects. |
 | LN-WEB-018 | The web launcher “View all” action MUST open an upper-viewport searchable palette of recent vaults rather than a drawer or bottom sheet. It MUST retain Design Core’s shared full-viewport modal scrim. |
 | LN-WEB-019 | The web launcher “View all” palette MUST compose `@lapismd/design-core/shadcn/command-view` for its inner search and result list. |
+| LN-WEB-020 | An authenticated protocol-v3 web bridge MUST proxy application-tool calls, responses, and cancellation through its existing agent-runtime connection while the browser App executes the tool. Disconnect MUST revoke bridge authorization and cancel pending calls without retaining note contents in host replay. |
 
 ## Implemented host boundary
 

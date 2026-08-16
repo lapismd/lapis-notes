@@ -728,3 +728,23 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-078  | storybook-catalog               | Implemented | Lapis Storybook Roles/CV stories, fixtures, aliases, and imports are removed; transferred acceptance is verified in the external Roles repository                                                                                                          |
 | LN-CAT-079  | storybook-catalog               | Implemented | 13 focused AI Chat Storybook tests preserve independent permission requested/accepted, question asked/answered, tool running/success/failure, socket validation, failed response Retry, and rich response states; the 12-fixture structure audit enforces public source, interaction coverage, and pending visual paths |
 | LN-CAT-080  | storybook-catalog               | Implemented | exact source mirror validation and post-build index acceptance cover every SUMMARY chapter                                                                                                                                                               |
+| LN-AI-086   | ai-plugin                       | Planned | API registry and AI snapshot tests will cover trust, owner opt-in, deterministic ordering, and new-binding refresh |
+| LN-AI-087   | ai-plugin                       | Planned | tool-host tests will cover schema validation, trusted scope, active registration, cancellation, and bounded results |
+| LN-AI-088   | ai-plugin                       | Planned | approval broker and chat interaction tests will cover allow once, binding grants, denial, and every expiry boundary |
+| LN-AI-089   | ai-plugin                       | Planned | settings migration, persistence, and snapshot tests will cover the master switch and per-community-plugin opt-ins |
+| LN-AI-090   | ai-plugin                       | Planned | transcript tests will cover app-tool provenance, runtime duplicate suppression, redaction, and bounded detail |
+| LN-AI-091   | ai-plugin                       | Planned | type, registry, host, and source-audit tests will separate external MCP servers from portable application tools |
+| LN-AI-092   | ai-plugin                       | Planned | ACP, native Codex, and agent-switch integration tests will assert one frozen logical tool set per binding |
+| LN-AI-093   | ai-plugin                       | Planned | Search and Markdown tool tests will cover scoped read/list/search and conflict-safe approved patching |
+| LN-AI-094   | ai-plugin                       | Planned | authenticated remote-host tests will cover call/result/cancel, disconnect revocation, and bridge recreation |
+| LN-ARCH-060 | architecture                    | Planned | dependency audit will reject MCP, ACP, acpx, and vendor runtime imports outside AI Host and runtime adapters |
+| LN-PLUG-019 | plugin-model                    | Planned | API plugin tests will cover owner attribution, validation, duplicate rejection, and lifecycle disposal |
+| LN-DB-016   | app-database                    | Planned | memory, Turso, native proxy, and browser coordination tests will cover pre-limit path-prefix filtering |
+| LN-SRCH-039 | search-plugin                   | Planned | Search tool tests will cover Markdown-only scoped queries, limits, snippets, and portable paths |
+| LN-MD-093   | markdown-plugin                 | Planned | Markdown tool tests will cover scoped bounded reads and deterministic listings with private-directory exclusion |
+| LN-MD-094   | markdown-plugin                 | Planned | atomic patch tests will cover approval previews, one-match writes, conflict, denial, and cancellation |
+| LN-DESK-046 | desktop-host                    | Planned | protocol contract tests will cover v3 bridge messages, authorization identity, cancellation, and v2 fallback |
+| LN-DESK-047 | desktop-host                    | Planned | real shim and packaged Electron tests will cover stdio, loopback token auth, reserved naming, and unpacked resolution |
+| LN-WEB-020  | web-host                        | Planned | standalone host tests will cover browser-owned execution, disconnect cancellation, and note-content exclusion |
+| LN-PKG-080  | packages                        | Planned | package dependency checks and integration tests will verify the API, domain, AI, AI Host, and Electron ownership split |
+| LN-CAT-081  | storybook-catalog               | Planned | focused Storybook interaction, axe, and visual-pending lanes will cover the governed app-tool states |

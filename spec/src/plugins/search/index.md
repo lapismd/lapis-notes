@@ -46,6 +46,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-036 | Property values MUST use the canonical `["name"]:value` spelling while legacy `[name:value]` queries remain readable. |
 | LN-SRCH-037 | Provider metadata MUST support property filters even when the vault metadata parser does not index that file extension. |
 | LN-SRCH-038 | Search Manager MUST stamp indexed documents with the selected source-provider id, pass optional provider allowlists to `AppDatabase`, and prune only documents owned by its registered providers so independent disposable projections remain intact. |
+| LN-SRCH-039 | Search MUST register `notes_search` through the application tool registry. It MUST query only Markdown documents inside the trusted conversation path prefix, apply the requested limit before returning, and expose bounded snippets with portable vault-relative paths. |
 
 ## Runtime flow
 
