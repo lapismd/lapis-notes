@@ -105,6 +105,11 @@ The Live Host story verifies:
 
 ## Runtime flow
 
+The initial fallback controller is presentation-only: it does not restore or
+resume a conversation until preparation settles. History navigation compares
+both scope and conversation UUID and searches only main-area AI leaves before
+creating a tab; the dedicated history leaf remains mounted in its sidebar.
+
 ```text
 command or chat panel
         ↓

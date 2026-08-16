@@ -44,4 +44,16 @@ describe("AiPlugin contracts", () => {
     expect(plugin).toContain("AiHistoryViewType");
     expect(plugin).toContain("revealConversationHistory");
   });
+
+  it("preserves history while opening exact conversations in reusable main tabs", () => {
+    const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
+
+    expect(source).toContain('ensureSideLeaf(AiHistoryViewType, "right")');
+    expect(source).toContain('getLeaf("tab")');
+    expect(source).toContain("findMainConversationLeaf(location)");
+    expect(source).toContain("iterateRootLeaves");
+    expect(source).not.toContain(
+      "getLeavesOfType(AiHistoryViewType)[0] ??\n      this.app.workspace.getLeavesOfType(AiViewType)[0]",
+    );
+  });
 });

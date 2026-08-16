@@ -25,7 +25,20 @@
 
   onMount(() => {
     let cancelled = false;
-    const runtimePromise = bootAiWorkspaceDemo({ scenario });
+    let releaseModelCatalog: (() => void) | undefined;
+    const modelCatalogGate =
+      scenario === "initializing"
+        ? new Promise<void>((resolve) => {
+            releaseModelCatalog = resolve;
+          })
+        : undefined;
+    const ownedRoot = root as HTMLDivElement & {
+      __releaseAiInitialization?: () => void;
+    };
+    if (releaseModelCatalog) {
+      ownedRoot.__releaseAiInitialization = releaseModelCatalog;
+    }
+    const runtimePromise = bootAiWorkspaceDemo({ scenario, modelCatalogGate });
     void runtimePromise
       .then((runtime) => {
         if (cancelled) return;
@@ -39,6 +52,8 @@
       });
     return () => {
       cancelled = true;
+      releaseModelCatalog?.();
+      delete ownedRoot.__releaseAiInitialization;
       void runtimePromise
         .then((runtime) => runtime.dispose())
         .catch(() => undefined);

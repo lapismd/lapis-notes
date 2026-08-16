@@ -18,15 +18,17 @@ export type AiWorkspaceDemoOptions = {
   vaultId?: string;
   persistVaultData?: boolean;
   scenario?: AiWorkspaceScenario;
+  modelCatalogGate?: Promise<void>;
 };
 
 export type AiWorkspaceScenario =
   | "default"
+  | "initializing"
   | "local-conversations"
   | "agent-switching"
   | "recovery";
 
-const LOCAL_CONVERSATION_ID = "123e4567-e89b-42d3-a456-426614174000";
+export const LOCAL_CONVERSATION_ID = "123e4567-e89b-42d3-a456-426614174000";
 const ARCHIVED_CONVERSATION_ID = "223e4567-e89b-42d3-a456-426614174001";
 const RECOVERY_CONVERSATION_ID = "323e4567-e89b-42d3-a456-426614174002";
 
@@ -226,6 +228,16 @@ export async function bootAiWorkspaceDemo(
     optionalCorePlugins: "configured",
   });
   const stopWatchingMetadata = watchMetadata(app);
+  if (options.modelCatalogGate) {
+    const aiPlugin = app.plugins.plugins.get("ai");
+    if (aiPlugin instanceof AiPlugin) {
+      const listModels = aiPlugin.models.listModels.bind(aiPlugin.models);
+      aiPlugin.models.listModels = async (provider) => {
+        await options.modelCatalogGate;
+        return listModels(provider);
+      };
+    }
+  }
   const deleteRef = app.vault.on("delete", (file) => {
     if (!options.persistVaultData) return;
     for (const path of Object.keys(persistedFiles)) {

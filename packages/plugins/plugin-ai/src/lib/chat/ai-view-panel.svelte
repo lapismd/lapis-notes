@@ -1,0 +1,72 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import type { ConversationLocation } from "../conversations/types";
+  import AiChatPanel from "./ai-chat-panel.svelte";
+  import type { AiViewHost } from "./ai-view";
+  import {
+    initialAiViewBootstrap,
+    prepareAiViewBootstrap,
+    type AiViewBootstrap,
+  } from "./ai-view-bootstrap";
+
+  let {
+    host,
+    initialLocation,
+    onConversationLocationChange,
+  }: {
+    host: AiViewHost;
+    initialLocation: ConversationLocation | null;
+    onConversationLocationChange: (
+      location: ConversationLocation | null,
+    ) => void;
+  } = $props();
+
+  const tools = $derived(host.tools.list());
+  const initialBootstrap = $derived(initialAiViewBootstrap(host));
+  let preparedBootstrap = $state<AiViewBootstrap | null>(null);
+  const bootstrap = $derived(preparedBootstrap ?? initialBootstrap);
+  let initializing = $state(true);
+
+  onMount(() => {
+    let disposed = false;
+    void prepareAiViewBootstrap(host, initialLocation, tools)
+      .then((prepared) => {
+        if (disposed) return;
+        preparedBootstrap = prepared;
+        initializing = false;
+      })
+      .catch((error) => {
+        if (disposed) return;
+        preparedBootstrap = {
+          ...bootstrap,
+          unavailableReason:
+            error instanceof Error ? error.message : String(error),
+        };
+        initializing = false;
+      });
+    return () => {
+      disposed = true;
+    };
+  });
+</script>
+
+<AiChatPanel
+  runtime={bootstrap.runtime}
+  selectRuntime={(request) => host.selectRuntime(request)}
+  unavailableReason={bootstrap.unavailableReason}
+  {initializing}
+  {tools}
+  workspace={host.workspace}
+  repository={host.conversations}
+  {initialLocation}
+  createConversation={(explicitFolder) =>
+    host.createConversationInput(explicitFolder)}
+  onRevealHistory={() => host.revealConversationHistory()}
+  subscribeConversationMoves={host.subscribeConversationMoves?.bind(host)}
+  {onConversationLocationChange}
+  fileSearch={host.searchVaultFiles}
+  models={bootstrap.models}
+  modelCatalogError={bootstrap.modelCatalogError}
+  settings={bootstrap.settings}
+  onSettingsChange={(patch) => host.updateSettings(patch)}
+/>

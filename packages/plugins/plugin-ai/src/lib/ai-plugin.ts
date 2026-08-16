@@ -3,6 +3,7 @@ import {
   hasNativeDesktopCapability,
   type App,
   type PluginManifest,
+  type WorkspaceLeaf,
 } from "@lapis-notes/api";
 import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
@@ -192,16 +193,16 @@ export class AiPlugin extends Plugin {
   }
 
   currentAiConversation(): ConversationLocation | null {
-    const state = this.app.workspace
-      .getLeavesOfType(AiViewType)[0]
-      ?.getViewState().state;
-    return typeof state?.scopeDir === "string" &&
-      typeof state.conversationId === "string"
-      ? {
-          scopeDir: state.scopeDir,
-          conversationId: state.conversationId,
-        }
-      : null;
+    const active = this.app.workspace.activeLeaf;
+    if (active?.view.getViewType() === AiViewType) {
+      const location = conversationLocationFromLeaf(active);
+      if (location) return location;
+    }
+    for (const leaf of this.app.workspace.getLeavesOfType(AiViewType)) {
+      const location = conversationLocationFromLeaf(leaf);
+      if (location) return location;
+    }
+    return null;
   }
 
   searchAiConversations(query: string): Promise<ConversationListEntry[]> {
@@ -363,22 +364,32 @@ export class AiPlugin extends Plugin {
   }
 
   async openAiConversation(location?: ConversationLocation): Promise<void> {
-    const existing = this.app.workspace.getLeavesOfType(AiViewType)[0];
     const state = location
       ? {
           scopeDir: location.scopeDir,
           conversationId: location.conversationId,
         }
       : {};
-    const target =
-      existing ??
-      this.app.workspace.getLeavesOfType(AiHistoryViewType)[0] ??
-      this.app.workspace.getRightLeaf(false);
-    if (target) {
-      await target.setViewState({ type: AiViewType, state });
-      this.app.workspace.revealLeaf(target);
+    if (location) {
+      const existing = this.findMainConversationLeaf(location);
+      const target = existing ?? this.app.workspace.getLeaf("tab");
+      if (!existing) {
+        await target.setViewState({ type: AiViewType, state });
+      }
+      this.app.workspace.activateLeaf(target, {
+        focusRootHost: true,
+        source: "api",
+        operation: "open-conversation",
+      });
+      await this.app.workspace.revealLeaf(target);
       return;
     }
+
+    const existing = this.app.workspace.getLeavesOfType(AiViewType)[0];
+    const target =
+      existing ?? this.app.workspace.ensureSideLeaf(AiViewType, "right");
+    if (!existing) await target.setViewState({ type: AiViewType, state });
+    await this.app.workspace.revealLeaf(target);
   }
 
   async createAiConversation(scopeDir: string): Promise<void> {
@@ -391,14 +402,32 @@ export class AiPlugin extends Plugin {
   async revealConversationHistory(): Promise<void> {
     const existing = this.app.workspace.getLeavesOfType(AiHistoryViewType)[0];
     const target =
-      existing ??
-      this.app.workspace.getLeavesOfType(AiViewType)[0] ??
-      this.app.workspace.getRightLeaf(false);
-    if (!target) return;
+      existing ?? this.app.workspace.ensureSideLeaf(AiHistoryViewType, "right");
     if (!existing) {
       await target.setViewState({ type: AiHistoryViewType, state: {} });
     }
-    this.app.workspace.revealLeaf(target);
+    this.app.workspace.activateLeaf(target, {
+      focusRootHost: false,
+      source: "api",
+      operation: "reveal-conversation-history",
+    });
+    await this.app.workspace.revealLeaf(target);
+  }
+
+  private findMainConversationLeaf(
+    location: ConversationLocation,
+  ): WorkspaceLeaf | null {
+    let match: WorkspaceLeaf | null = null;
+    this.app.workspace.iterateRootLeaves((leaf) => {
+      if (
+        !match &&
+        leaf.view.getViewType() === AiViewType &&
+        sameConversationLocation(conversationLocationFromLeaf(leaf), location)
+      ) {
+        match = leaf;
+      }
+    });
+    return match;
   }
 }
 
@@ -406,4 +435,27 @@ export default AiPlugin;
 
 function isConversationSourcePath(path: string): boolean {
   return /(?:^|\/)\.lapis\/agents\/sessions(?:\/|$)/u.test(path);
+}
+
+function conversationLocationFromLeaf(
+  leaf: WorkspaceLeaf,
+): ConversationLocation | null {
+  const state = leaf.getViewState().state;
+  return typeof state?.scopeDir === "string" &&
+    typeof state.conversationId === "string"
+    ? {
+        scopeDir: state.scopeDir,
+        conversationId: state.conversationId,
+      }
+    : null;
+}
+
+function sameConversationLocation(
+  left: ConversationLocation | null,
+  right: ConversationLocation,
+): boolean {
+  return (
+    left?.scopeDir === right.scopeDir &&
+    left.conversationId === right.conversationId
+  );
 }

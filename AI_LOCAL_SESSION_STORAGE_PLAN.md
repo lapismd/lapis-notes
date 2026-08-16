@@ -40,6 +40,7 @@ work is explicitly archived.
 | AI-LOCAL-008 | Storybook scenarios and persistent Live Host vault data                              | AI-LOCAL-004, AI-LOCAL-005, AI-LOCAL-006 | Done        | AI 114 tests; 11 combined Storybook tests; six placements/axe; static Storybook build; spec gate   | `ynmkuytm`     |
 | AI-LOCAL-009 | Seeded real-host smoke launchers and manual Codex/Cursor/native checklist            | AI-LOCAL-007, AI-LOCAL-008               | Done        | Harness 3; Storybook/Electron supervisors; real Codex ACP 7 models, Cursor ACP 35, native 7 with response/tools/write; native approval; cached prerequisite 72 ms | `wpvqwrys`     |
 | AI-LOCAL-010 | Focused, consumer, Storybook, E2E, spec, check, and Turbo build gates                | AI-LOCAL-002–009                         | Done        | AI Storybook 13; static build; web E2E 4; desktop smoke 8; Turbo build 13 (12 cached); package preflight 12/12 cached in 31 ms | `qylurlyz`     |
+| AI-LOCAL-011 | Immediate AI chat shell and location-keyed history tab navigation                    | AI-LOCAL-004, AI-LOCAL-008               | Done        | AI 119 tests; 20 focused Storybook tests; static Storybook build; spec checks; live 7010 history preservation and exact-tab reuse | `mwxurplv`, `vxtnwrpt` |
 
 ## Acceptance checklist
 

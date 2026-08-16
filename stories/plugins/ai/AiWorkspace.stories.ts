@@ -1,10 +1,12 @@
-import type { App } from "@lapis-notes/api";
+import type { App, WorkspaceLeaf } from "@lapis-notes/api";
+import { AiHistoryViewType, AiViewType } from "@lapis-notes/ai";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
 import { aiWorkspaceExampleSource } from "./AiWorkspace.example-sources";
 import AiWorkspaceDemo from "./AiWorkspaceDemo.svelte";
+import { LOCAL_CONVERSATION_ID } from "./create-ai-workspace-demo";
 
 const meta = {
   title: "Plugins/AI/Workspace",
@@ -49,6 +51,24 @@ function demoApp(canvasElement: HTMLElement): App {
     throw new Error("The AI workspace story has no active Lapis app");
   }
   return root.__lapisApp;
+}
+
+function mainAiLeaves(app: App): WorkspaceLeaf[] {
+  const leaves: WorkspaceLeaf[] = [];
+  app.workspace.iterateRootLeaves((leaf) => {
+    if (leaf.view.getViewType() === AiViewType) leaves.push(leaf);
+  });
+  return leaves;
+}
+
+function releaseAiInitialization(canvasElement: HTMLElement): void {
+  const root = canvasElement.querySelector<
+    HTMLElement & { __releaseAiInitialization?: () => void }
+  >('[data-testid="ai-workspace-demo"]');
+  if (!root?.__releaseAiInitialization) {
+    throw new Error("The delayed AI workspace has no initialization gate");
+  }
+  root.__releaseAiInitialization();
 }
 
 function assertStackedComposer(panel: HTMLElement): void {
@@ -276,6 +296,44 @@ export const RightSidebarAndSettings: Story = {
   },
 };
 
+export const ImmediateInitializingComposer: Story = {
+  args: { scenario: "initializing" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The complete sidebar chat layout renders before the delayed model catalog resolves. Its composer remains visibly disabled until agent preparation finishes.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    const panel = await canvas.findByTestId("ai-chat-panel");
+    const composer = within(panel).getByRole("combobox", { name: "Message" });
+    expect(panel).toHaveAttribute("data-initializing", "true");
+    await expect(
+      within(panel).getByRole("status", { name: "" }),
+    ).toHaveTextContent("Preparing AI…");
+    await expect(composer).toHaveAttribute("aria-disabled", "true");
+    await expect(composer).toHaveAttribute("contenteditable", "false");
+    await expect(
+      within(panel).getByRole("button", { name: "Effort and model" }),
+    ).toBeDisabled();
+
+    releaseAiInitialization(canvasElement);
+    await waitFor(() => {
+      expect(panel).toHaveAttribute("data-initializing", "false");
+      expect(composer).toHaveAttribute("aria-disabled", "false");
+      expect(composer).toHaveAttribute("contenteditable", "true");
+    });
+  },
+};
+
 export const LocalConversations: Story = {
   args: { scenario: "local-conversations" },
   parameters: {
@@ -294,13 +352,25 @@ export const LocalConversations: Story = {
       ),
     );
     const panel = await canvas.findByTestId("ai-chat-panel");
+    const app = demoApp(canvasElement);
+    const sidebarChatLeaf = app.workspace.getLeavesOfType(AiViewType)[0];
+    expect(sidebarChatLeaf).toBeDefined();
     assertStackedComposer(panel);
     await userEvent.click(
       within(panel).getByRole("button", {
         name: "Show conversation history",
       }),
     );
+    await waitFor(() =>
+      expect(app.workspace.getLeavesOfType(AiHistoryViewType)).toHaveLength(1),
+    );
     const history = await canvas.findByTestId("ai-conversation-history");
+    const historyLeaf = app.workspace.getLeavesOfType(AiHistoryViewType)[0];
+    expect(historyLeaf).toBeDefined();
+    expect(app.workspace.getLeavesOfType(AiViewType)).toContain(
+      sidebarChatLeaf,
+    );
+    expect(sidebarChatLeaf?.view.getViewType()).toBe(AiViewType);
     await expect(within(history).getByText("Notes")).toBeVisible();
     await expect(
       within(history).getByText("Summarize project notes"),
@@ -378,34 +448,66 @@ export const LocalConversations: Story = {
     await userEvent.click(
       await body.findByRole("menuitem", { name: "Vault root" }),
     );
-    const emptyChat = await canvas.findByTestId("ai-chat-panel");
+    await waitFor(() => expect(mainAiLeaves(app)).toHaveLength(1));
+    const emptyConversationLeaf = mainAiLeaves(app)[0]!;
+    const emptyChat = emptyConversationLeaf.containerEl.querySelector(
+      '[data-testid="ai-chat-panel"]',
+    ) as HTMLElement | null;
+    expect(emptyChat).not.toBeNull();
     await expect(
-      within(emptyChat).getByRole("combobox", { name: "Message" }),
+      within(emptyChat!).getByRole("combobox", { name: "Message" }),
     ).toBeVisible();
 
     await userEvent.click(
-      within(emptyChat).getByRole("button", {
+      within(emptyChat!).getByRole("button", {
         name: "Show conversation history",
       }),
     );
     const rootHistory = await canvas.findByTestId("ai-conversation-history");
+    expect(app.workspace.getLeavesOfType(AiHistoryViewType)).toEqual([
+      historyLeaf,
+    ]);
     await expect(within(rootHistory).getByText("Notes")).toBeVisible();
-    await userEvent.click(
-      within(rootHistory).getByRole("button", {
-        name: "Summarize project notes",
-      }),
-    );
-    const restored = await canvas.findByTestId("ai-chat-panel");
+    const conversationButton = within(rootHistory).getByRole("button", {
+      name: "Summarize project notes",
+    });
+    await userEvent.click(conversationButton);
+    let restoredLeaf: WorkspaceLeaf | undefined;
+    await waitFor(() => {
+      restoredLeaf = mainAiLeaves(app).find((leaf) => {
+        const state = leaf.getViewState().state;
+        return state?.conversationId === LOCAL_CONVERSATION_ID;
+      });
+      expect(restoredLeaf).toBeDefined();
+      expect(mainAiLeaves(app)).toHaveLength(2);
+    });
+    const restored = restoredLeaf!.containerEl.querySelector(
+      '[data-testid="ai-chat-panel"]',
+    ) as HTMLElement | null;
+    expect(restored).not.toBeNull();
     await expect(
-      within(restored).getByText(
+      within(restored!).getByText(
         "The project has one welcome note and one TODO.",
       ),
     ).toBeVisible();
     await expect(
-      within(restored).getByRole("progressbar", {
+      within(restored!).getByRole("progressbar", {
         name: "Context window usage",
       }),
     ).toBeVisible();
+    await userEvent.click(conversationButton);
+    await waitFor(() => {
+      expect(mainAiLeaves(app)).toHaveLength(2);
+      expect(
+        mainAiLeaves(app).find(
+          (leaf) =>
+            leaf.getViewState().state?.conversationId === LOCAL_CONVERSATION_ID,
+        ),
+      ).toBe(restoredLeaf);
+    });
+    expect(app.workspace.getLeavesOfType(AiHistoryViewType)).toEqual([
+      historyLeaf,
+    ]);
     await expect(
       demoApp(canvasElement).vault.adapter.read(
         "Notes/.lapis/agents/sessions/123e4567-e89b-42d3-a456-426614174000/transcript.jsonl",
