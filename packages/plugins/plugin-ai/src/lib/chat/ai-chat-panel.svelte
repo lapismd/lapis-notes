@@ -124,9 +124,17 @@
   let localThinking = $state<AiThinkingLevel | null>(null);
   let attachments = $state<{ path: string; name: string }[]>([]);
   let drawerCollapsed = $state(false);
+  let drawerHost = $state<HTMLDivElement | null>(null);
   let visibleInteractionId = $state<string | null>(null);
   let attachOpen = $state(false);
   let attachItems = $state<ComposerTriggerItem[]>([]);
+  const attachSideOffset = $derived.by(() => {
+    void attachments.length;
+    void drawerCollapsed;
+    if (!drawerHost) return 8;
+    const height = drawerHost.getBoundingClientRect().height;
+    return height > 0 ? Math.round(height) + 8 : 8;
+  });
   const selectedAgent = $derived(
     localAgent ?? normalizeAcpAgent(settings?.acpAgent),
   );
@@ -395,54 +403,56 @@
       >
         {#snippet drawer()}
           {#if pendingInteraction || attachments.length > 0}
-            <Chat.ComposerDrawer
-              bind:collapsed={drawerCollapsed}
-              count={attachments.length + (pendingInteraction ? 1 : 0)}
-              label={pendingInteraction?.type === "approval"
-                ? "Permission requested"
-                : pendingInteraction?.type === "question"
-                  ? "User input requested"
-                  : "Attachments"}
-            >
-              {#if pendingInteraction?.type === "approval"}
-                {@const requestId = pendingInteraction.request.id}
-                <AiApprovalCard
-                  request={pendingInteraction.request}
-                  onRespond={(optionId) =>
-                    void controller.respondToApproval(requestId, optionId)}
-                />
-              {:else if pendingInteraction?.type === "question"}
-                {@const requestId = pendingInteraction.request.id}
-                <AiQuestionCard
-                  request={pendingInteraction.request}
-                  onRespond={(answers) =>
-                    void controller.respondToQuestion(requestId, answers)}
-                />
-              {/if}
-              {#if attachments.length > 0}
-                <div class="ai-chat-panel__attachment-list">
-                  {#each attachments as file (file.path)}
-                    <span class="ai-chat-panel__chip">
-                      <Chat.ComposerToken
-                        token={{
-                          value: file.path,
-                          label: file.name,
-                          variant: "secondary",
-                        }}
-                      />
-                      <Button
-                        size="icon-xs"
-                        variant="ghost"
-                        aria-label={`Remove ${file.name}`}
-                        onclick={() => removeAttachment(file.path)}
-                      >
-                        <XIcon aria-hidden="true" />
-                      </Button>
-                    </span>
-                  {/each}
-                </div>
-              {/if}
-            </Chat.ComposerDrawer>
+            <div bind:this={drawerHost}>
+              <Chat.ComposerDrawer
+                bind:collapsed={drawerCollapsed}
+                count={attachments.length + (pendingInteraction ? 1 : 0)}
+                label={pendingInteraction?.type === "approval"
+                  ? "Permission requested"
+                  : pendingInteraction?.type === "question"
+                    ? "User input requested"
+                    : "Attachments"}
+              >
+                {#if pendingInteraction?.type === "approval"}
+                  {@const requestId = pendingInteraction.request.id}
+                  <AiApprovalCard
+                    request={pendingInteraction.request}
+                    onRespond={(optionId) =>
+                      void controller.respondToApproval(requestId, optionId)}
+                  />
+                {:else if pendingInteraction?.type === "question"}
+                  {@const requestId = pendingInteraction.request.id}
+                  <AiQuestionCard
+                    request={pendingInteraction.request}
+                    onRespond={(answers) =>
+                      void controller.respondToQuestion(requestId, answers)}
+                  />
+                {/if}
+                {#if attachments.length > 0}
+                  <div class="ai-chat-panel__attachment-list">
+                    {#each attachments as file (file.path)}
+                      <span class="ai-chat-panel__chip">
+                        <Chat.ComposerToken
+                          token={{
+                            value: file.path,
+                            label: file.name,
+                            variant: "secondary",
+                          }}
+                        />
+                        <Button
+                          size="icon-xs"
+                          variant="ghost"
+                          aria-label={`Remove ${file.name}`}
+                          onclick={() => removeAttachment(file.path)}
+                        >
+                          <XIcon aria-hidden="true" />
+                        </Button>
+                      </span>
+                    {/each}
+                  </div>
+                {/if}
+              </Chat.ComposerDrawer>
+            </div>
           {/if}
         {/snippet}
         {#snippet headerActions()}
@@ -477,9 +487,11 @@
                 {/snippet}
               </Popover.Trigger>
               <Popover.Content
-                data-ui-part="attach-popover"
+                data-ai-part="attach-popover"
                 side="top"
                 align="start"
+                sideOffset={attachSideOffset}
+                avoidCollisions={false}
               >
                 <CommandView.Root>
                   <CommandView.Input placeholder="Search vault files" />

@@ -123,7 +123,8 @@ Direct api imports (one story family each):
 - `helpers` (`cn` / `fuzzySearch`) — interaction-only, `skip-visual`
 
 The `Plugins/AI/Chat` attach play asserts a Command View host inside the
-paperclip popover before selecting a vault file.
+paperclip popover, visible border and shadow, and stacking above an open
+composer drawer.
 
 ## Tooling
 

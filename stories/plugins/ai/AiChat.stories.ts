@@ -380,11 +380,19 @@ export const AgentTrace: Story = {
     await userEvent.keyboard("{Escape}");
     await userEvent.click(canvas.getByRole("button", { name: "Attach file" }));
     const attachSearch = await body.findByPlaceholderText("Search vault files");
+    const attachPopover = attachSearch.closest(
+      '[data-ui-component="popover"][data-ai-part="attach-popover"]',
+    ) as HTMLElement | null;
+    expect(attachPopover).not.toBeNull();
     expect(
-      attachSearch.closest(
+      attachPopover!.querySelector(
         '[data-ui-component="command-view"][data-ui-part="root"]',
       ),
     ).not.toBeNull();
+    const attachChrome = getComputedStyle(attachPopover!);
+    expect(attachChrome.borderTopWidth).not.toBe("0px");
+    expect(attachChrome.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(attachChrome.boxShadow).not.toBe("none");
     await userEvent.click(await body.findByText("alpha"));
     await expect(
       canvas.getByRole("button", { name: "Remove alpha" }),
@@ -408,6 +416,23 @@ export const AgentTrace: Story = {
         .getByRole("button", { name: "Remove alpha" })
         .getBoundingClientRect().height,
     ).toBeLessThanOrEqual(attachment!.getBoundingClientRect().height);
+    await userEvent.click(canvas.getByRole("button", { name: "Attach file" }));
+    const openSearch = await body.findByPlaceholderText("Search vault files");
+    const openPopover = openSearch.closest(
+      '[data-ui-component="popover"][data-ai-part="attach-popover"]',
+    ) as HTMLElement | null;
+    expect(openPopover).not.toBeNull();
+    const popoverBox = openPopover!.getBoundingClientRect();
+    const drawerBox = drawer!.getBoundingClientRect();
+    expect(popoverBox.bottom).toBeLessThanOrEqual(drawerBox.top + 2);
+    const sampleX = Math.floor((popoverBox.left + popoverBox.right) / 2);
+    const sampleY = Math.floor((popoverBox.top + popoverBox.bottom) / 2);
+    expect(
+      canvasElement.ownerDocument
+        .elementFromPoint(sampleX, sampleY)
+        ?.closest('[data-ai-part="attach-popover"]'),
+    ).not.toBeNull();
+    await userEvent.keyboard("{Escape}");
     const input = await canvas.findByRole("combobox", { name: "Message" });
     await userEvent.type(input, "Summarize this note");
     await userEvent.keyboard("{Enter}");

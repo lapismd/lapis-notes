@@ -242,6 +242,8 @@ thinking, tool, permission, user-input, and error events before the shared
 controller renders them. Runtime-neutral pending interactions are presented
 through Design Core's Composer Drawer; provider request objects and secret
 answers never enter persisted chat data.
+The paperclip attach picker uses that same drawer surface: host Popover chrome
+stays above the open drawer while Command View owns the searchable file list.
 
 ## Tooling policy
 

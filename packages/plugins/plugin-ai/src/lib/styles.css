@@ -203,7 +203,7 @@
 }
 
 [data-ui-part="effort-popover"],
-[data-ui-part="attach-popover"],
+[data-ai-part="attach-popover"],
 [data-ui-component="app-shell-settings-dialog"],
 [data-ui-component="workspace-settings"] {
   --font-sans: "DM Sans Variable", sans-serif;
@@ -238,9 +238,17 @@
   font: 0.75rem/1.45 var(--font-mono, ui-monospace, monospace);
 }
 
-[data-ui-part="attach-popover"] {
+[data-ui-component="popover"][data-ai-part="attach-popover"] {
+  z-index: 80;
+  gap: 0;
   min-width: 16rem;
   padding: 0;
+  overflow: visible;
+  border: 1px solid var(--border);
+  box-shadow: var(
+    --ui-ai-chat-shadow-large,
+    0 0.75rem 2rem color-mix(in srgb, var(--foreground) 18%, transparent)
+  );
 }
 
 [data-ui-component="ai-chat-panel"] .ai-chat-panel__chip {

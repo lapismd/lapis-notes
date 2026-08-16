@@ -165,6 +165,9 @@ wrapped tag and multivalue editors expand downward from the same origin.
 registries, Fake and ACP adapters, optional native Codex adapter, provider-safe
 plugin-data session persistence, vault-scoped file mentions, Codex and Cursor
 model catalogs, chat settings, and movable chat panel.
+Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
+and stacking above an open composer drawer—and composes Command View for the
+searchable file list.
 The root export stays plugin-safe; ACP and native Codex adapters publish only on
 `./runtimes`. Cursor uses the same ACP adapter through a known agent name.
 Domain plugins register tools. The package does not declare an acpx dependency.
