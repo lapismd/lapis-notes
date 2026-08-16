@@ -283,6 +283,13 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--send-and-complete",
   },
   {
+    id: "plugins-ai-chat-validation",
+    title: "AI Chat: Validation And Empty State",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--validation-and-empty-state",
+  },
+  {
     id: "plugins-ai-chat-approval",
     title: "AI Chat: Pending Approval",
     spec: "spec/src/ai-plugin.md",

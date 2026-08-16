@@ -8,6 +8,7 @@ import {
   aiChatMentionsExampleSource,
   aiChatScrollExampleSource,
   aiChatTraceExampleSource,
+  aiChatValidationExampleSource,
   createAiChatScrollSeedItems,
 } from "./AiChat.example-sources";
 import AiChatDemo from "./AiChatDemo.svelte";
@@ -79,6 +80,87 @@ export const SendAndComplete: Story = {
         canvas.getByRole("article", { name: "Message from assistant" }),
       ).toHaveTextContent("Summarize this note");
     });
+  },
+};
+
+export const ValidationAndEmptyState: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: {
+      modelCatalogError: "Agent runtime socket closed unexpectedly.",
+    },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-validation"),
+    docs: {
+      description: {
+        story:
+          "A provider socket failure appears immediately in the composer's top validation surface while the empty transcript fills the space above the bottom input.",
+      },
+      source: {
+        code: aiChatValidationExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-validation-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const panel = await canvas.findByTestId("ai-chat-panel");
+    const alert = canvas.getByRole("alert");
+    await expect(alert).toHaveTextContent(
+      "Agent runtime socket closed unexpectedly.",
+    );
+    expect(alert).toHaveAttribute("data-ui-part", "status");
+    expect(alert).toHaveAttribute("data-position", "top");
+
+    const layout = panel.querySelector(
+      '[data-ui-component="ai-chat-layout"]',
+    ) as HTMLElement | null;
+    const shell = panel.querySelector(
+      '[data-ui-part="scroll-shell"]',
+    ) as HTMLElement | null;
+    const empty = panel.querySelector(
+      '[data-ui-part="empty-state"]',
+    ) as HTMLElement | null;
+    const dock = panel.querySelector(
+      '[data-ui-part="composer-dock"]',
+    ) as HTMLElement | null;
+    expect(layout).not.toBeNull();
+    expect(shell).not.toBeNull();
+    expect(empty).not.toBeNull();
+    expect(dock).not.toBeNull();
+    const layoutBox = layout!.getBoundingClientRect();
+    const shellBox = shell!.getBoundingClientRect();
+    const emptyBox = empty!.getBoundingClientRect();
+    const dockBox = dock!.getBoundingClientRect();
+    expect(layoutBox.height).toBeGreaterThan(400);
+    expect(shellBox.height).toBeGreaterThanOrEqual(
+      layoutBox.height - dockBox.height - 2,
+    );
+    expect(emptyBox.height).toBeGreaterThan(shellBox.height * 0.7);
+    expect(shellBox.bottom).toBeLessThanOrEqual(dockBox.top + 2);
+    expect(dockBox.bottom).toBeLessThanOrEqual(layoutBox.bottom + 2);
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Effort and model" }),
+    );
+    const menu = canvasElement.ownerDocument
+      .querySelector('[data-testid="ai-chat-model"]')
+      ?.closest('[role="menu"]') as HTMLElement | null;
+    expect(menu).not.toBeNull();
+    expect(
+      within(menu!).queryByText("Agent runtime socket closed unexpectedly."),
+    ).toBeNull();
   },
 };
 
@@ -230,11 +312,19 @@ export const AgentTrace: Story = {
     await expect(
       canvas.getByRole("button", { name: "Remove alpha" }),
     ).toBeVisible();
-    expect(
-      canvasElement.querySelector(
-        '[data-ui-component="ai-chat-composer-drawer"]',
-      ),
-    ).not.toBeNull();
+    const drawer = canvasElement.querySelector(
+      '[data-ui-component="ai-chat-composer-drawer"]',
+    ) as HTMLElement | null;
+    const attachment = canvas
+      .getByRole("button", { name: "Remove alpha" })
+      .closest(".ai-chat-panel__chip") as HTMLElement | null;
+    expect(drawer).not.toBeNull();
+    expect(attachment).not.toBeNull();
+    const drawerPaint = getComputedStyle(drawer!).backgroundColor;
+    const attachmentStyles = getComputedStyle(attachment!);
+    expect(attachmentStyles.backgroundColor).not.toBe(drawerPaint);
+    expect(attachmentStyles.borderTopWidth).toBe("1px");
+    expect(attachmentStyles.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
     const input = await canvas.findByRole("combobox", { name: "Message" });
     await userEvent.type(input, "Summarize this note");
     await userEvent.keyboard("{Enter}");
@@ -272,6 +362,9 @@ export const AgentTrace: Story = {
     const dock = panel.querySelector(
       '[data-ui-part="composer-dock"]',
     ) as HTMLElement | null;
+    const viewport = panel.querySelector(
+      '[data-ui-part="scroll-area-viewport"]',
+    ) as HTMLElement | null;
     const assistant = canvas.getByRole("article", {
       name: "Message from assistant",
     });
@@ -279,10 +372,12 @@ export const AgentTrace: Story = {
       '[data-ui-component="ai-chat-message-bubble"]',
     ) as HTMLElement | null;
     expect(dock).not.toBeNull();
+    expect(viewport).not.toBeNull();
     expect(bubble).not.toBeNull();
-    expect(assistant.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+    expect(viewport!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
       dock!.getBoundingClientRect().top + 2,
     );
+    expect(getComputedStyle(viewport!).overflowY).toMatch(/auto|scroll/);
     const bubbleStyles = getComputedStyle(bubble!);
     expect(bubbleStyles.fontFamily).toMatch(/DM Sans/i);
     expect(bubbleStyles.fontSize).toBe("14px");

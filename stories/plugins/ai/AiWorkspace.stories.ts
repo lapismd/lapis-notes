@@ -52,18 +52,33 @@ function demoApp(canvasElement: HTMLElement): App {
 }
 
 function assertStackedComposer(panel: HTMLElement): void {
+  const layout = panel.querySelector(
+    '[data-ui-component="ai-chat-layout"]',
+  ) as HTMLElement | null;
   const dock = panel.querySelector(
     '[data-ui-part="composer-dock"]',
   ) as HTMLElement | null;
   const shell = panel.querySelector(
     '[data-ui-part="scroll-shell"]',
   ) as HTMLElement | null;
+  const empty = panel.querySelector(
+    '[data-ui-part="empty-state"]',
+  ) as HTMLElement | null;
+  expect(layout).not.toBeNull();
   expect(dock).not.toBeNull();
   expect(shell).not.toBeNull();
+  expect(empty).not.toBeNull();
   expect(getComputedStyle(dock!).position).toBe("relative");
   const panelBox = panel.getBoundingClientRect();
+  const layoutBox = layout!.getBoundingClientRect();
   const dockBox = dock!.getBoundingClientRect();
   const shellBox = shell!.getBoundingClientRect();
+  const emptyBox = empty!.getBoundingClientRect();
+  expect(layoutBox.height).toBeGreaterThan(panelBox.height * 0.8);
+  expect(shellBox.height).toBeGreaterThanOrEqual(
+    layoutBox.height - dockBox.height - 2,
+  );
+  expect(emptyBox.height).toBeGreaterThan(shellBox.height * 0.7);
   expect(shellBox.bottom).toBeLessThanOrEqual(dockBox.top + 2);
   expect(dockBox.bottom).toBeLessThanOrEqual(panelBox.bottom + 2);
   expect(dockBox.top).toBeGreaterThan(panelBox.top + panelBox.height * 0.4);
@@ -73,15 +88,20 @@ function assertNoMessageOverlap(panel: HTMLElement): void {
   const dock = panel.querySelector(
     '[data-ui-part="composer-dock"]',
   ) as HTMLElement | null;
+  const viewport = panel.querySelector(
+    '[data-ui-part="scroll-area-viewport"]',
+  ) as HTMLElement | null;
   const messages = panel.querySelectorAll(
     '[data-ui-component="ai-chat-message"]',
   );
   const last = messages[messages.length - 1] as HTMLElement | undefined;
   expect(dock).not.toBeNull();
+  expect(viewport).not.toBeNull();
   expect(last).toBeDefined();
-  expect(last!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+  expect(viewport!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
     dock!.getBoundingClientRect().top + 2,
   );
+  expect(getComputedStyle(viewport!).overflowY).toMatch(/auto|scroll/);
 }
 
 export const RightSidebarAndSettings: Story = {

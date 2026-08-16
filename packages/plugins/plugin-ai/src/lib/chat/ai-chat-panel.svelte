@@ -7,6 +7,7 @@
   import * as Popover from "@lapismd/design-core/shadcn/popover";
   import type {
     ComposerSearchSource,
+    ComposerStatus,
     ComposerTrigger,
     ComposerTriggerItem,
   } from "@lapismd/design-core/ai/chat";
@@ -125,6 +126,12 @@
   const timeline = $derived(groupChatItemsByDate(controller.items));
   const latestMessageId = $derived(controller.items.at(-1)?.id);
   const isEmpty = $derived(controller.items.length === 0);
+  const composerError = $derived(
+    controller.error ?? modelCatalogError ?? unavailableReason,
+  );
+  const composerStatus = $derived<ComposerStatus | undefined>(
+    composerError ? { type: "error", message: composerError } : undefined,
+  );
 
   async function submit(prompt: string): Promise<void> {
     const selected = catalogModelsForAgent(selectedAgent, models).find(
@@ -218,11 +225,6 @@
   data-ui-component="ai-chat-panel"
   data-testid="ai-chat-panel"
 >
-  {#if unavailableReason}
-    <p class="ai-chat-panel__unavailable" data-testid="ai-chat-unavailable">
-      {unavailableReason}
-    </p>
-  {/if}
   <Chat.Layout density="compact" {isEmpty} aria-label="AI chat">
     {#snippet composer()}
       <Chat.Composer
@@ -230,6 +232,8 @@
         placeholder="Ask the agent… Use @ or the paperclip to attach a vault file"
         disabled={controller.busy}
         isStopShown={controller.busy}
+        status={composerStatus}
+        statusPosition="top"
         triggers={mentionTriggers}
         onSubmit={(value) => void submit(value)}
         onStop={() => {
@@ -357,10 +361,6 @@
                   </DropdownMenu.RadioGroup>
                 </DropdownMenu.SubContent>
               </DropdownMenu.Sub>
-              {#if modelCatalogError}
-                <DropdownMenu.Separator />
-                <DropdownMenu.Label>{modelCatalogError}</DropdownMenu.Label>
-              {/if}
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         {/snippet}
@@ -454,9 +454,4 @@
       {/each}
     </Chat.MessageList>
   </Chat.Layout>
-  {#if controller.error}
-    <p class="ai-chat-panel__error" data-testid="ai-chat-error">
-      {controller.error}
-    </p>
-  {/if}
 </div>

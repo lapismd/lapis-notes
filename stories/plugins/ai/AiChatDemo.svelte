@@ -18,6 +18,7 @@
     persist = false,
     trace = "echo",
     seedItems = [],
+    modelCatalogError = null,
     models = [
       { provider: "codex", model: "gpt-5.6-sol" },
       { provider: "codex", model: "gpt-5.4-medium" },
@@ -31,6 +32,7 @@
     persist?: boolean;
     trace?: FakeAgentTrace;
     seedItems?: AiChatItem[];
+    modelCatalogError?: string | null;
     models?: ModelRef[];
     files?: VaultFileRef[];
   } = $props();
@@ -81,6 +83,7 @@
     {sessionStore}
     {fileSearch}
     {models}
+    {modelCatalogError}
     {settings}
     onSettingsChange={(patch) => {
       settings = { ...settings, ...patch };

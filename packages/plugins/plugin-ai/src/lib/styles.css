@@ -3,6 +3,17 @@
   --ui-workspace-view-foreground: var(--foreground);
   --ui-ai-approval-gap: 0.5rem;
   --ui-ai-chat-scroll-button-bottom: 4.75rem;
+  --ui-ai-chat-attachment-background: color-mix(
+    in oklab,
+    var(--primary) 14%,
+    var(--background)
+  );
+  --ui-ai-chat-attachment-border: color-mix(
+    in oklab,
+    var(--primary) 42%,
+    var(--border)
+  );
+  --ui-ai-chat-attachment-foreground: var(--foreground);
   --font-sans: "DM Sans Variable", sans-serif;
   --ui-workspace-font-sans: var(--font-sans), ui-sans-serif, system-ui,
     sans-serif;
@@ -19,7 +30,16 @@
 }
 
 [data-ui-component="ai-chat-panel"] [data-ui-component="ai-chat-layout"] {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+[data-ui-component="ai-chat-panel"]
+  [data-ui-component="ai-chat-layout"]
+  > [data-ui-part="scroll-shell"] {
+  flex: 1 1 0;
   min-height: 0;
 }
 
@@ -53,12 +73,6 @@
   [data-ui-component="ai-chat-layout"][data-density]
   [data-ui-part="message-area"] {
   padding-block: 0;
-}
-
-[data-ui-component="ai-chat-panel"] .ai-chat-panel__unavailable,
-[data-ui-component="ai-chat-panel"] .ai-chat-panel__error {
-  margin: 0 0 0.5rem;
-  font-size: 0.8125rem;
 }
 
 [data-ui-component="ai-approval-card"] {
@@ -144,6 +158,19 @@
   display: inline-flex;
   align-items: center;
   gap: 0.125rem;
+  padding: 0.125rem;
+  border: 1px solid var(--ui-ai-chat-attachment-border);
+  border-radius: 999px;
+  background: var(--ui-ai-chat-attachment-background);
+  color: var(--ui-ai-chat-attachment-foreground);
+}
+
+[data-ui-component="ai-chat-panel"]
+  .ai-chat-panel__chip
+  [data-ui-component="badge"] {
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
 }
 
 [data-ui-component="ai-chat-panel"]

@@ -6,6 +6,17 @@ const runtime = new FakeAgentRuntime();
 <AiChatPanel runtime={runtime} />
 `;
 
+export const aiChatValidationExampleSource = `import { AiChatPanel, FakeAgentRuntime } from "@lapis-notes/ai";
+import "@lapis-notes/ai/styles.css";
+
+const runtime = new FakeAgentRuntime();
+
+<AiChatPanel
+  runtime={runtime}
+  modelCatalogError="Agent runtime socket closed unexpectedly."
+/>
+`;
+
 export const aiChatApprovalExampleSource = `import { AiChatPanel, FakeAgentRuntime } from "@lapis-notes/ai";
 import "@lapis-notes/ai/styles.css";
 
@@ -63,7 +74,9 @@ export function createAiChatScrollSeedItems() {
   const today = new Date("2026-03-16T09:00:00.000Z");
   const items = [];
   for (let index = 0; index < 8; index += 1) {
-    const createdAt = new Date(yesterday.getTime() + index * 60_000).toISOString();
+    const createdAt = new Date(
+      yesterday.getTime() + index * 60_000,
+    ).toISOString();
     items.push({
       id: `user-y-${index}`,
       type: "message" as const,

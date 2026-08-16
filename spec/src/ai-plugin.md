@@ -65,6 +65,8 @@ execution APIs.
 | LN-AI-054 | Tool transcript items MUST retain the event-provided input and output. The panel MUST show the command or input and output in expandable details without rendering tool environment variables or host credentials.                                                                                           |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, server-request approval responses, current notifications, and process failure handling before advertising support.                                                                           |
 | LN-AI-056 | Full-workspace AI Storybook stories MUST fill the standalone viewport and the documented shell canvas while the bottom panel is closed. Plays MUST assert shell, sidebar, composer, and status-bar geometry without mutating the canvas height.                                                              |
+| LN-AI-057 | Model-catalog, runtime-selection, and active-session transport errors MUST appear immediately in the composer top validation surface. They MUST NOT require opening the Model and Thinking menu, and active-session failures MUST remain in the transcript. |
+| LN-AI-058 | Composer attachment chips MUST use a distinct background and boundary from the composer and attachment drawer on light and dark Lapis surfaces. The complete label and remove action MUST remain one visually grouped chip. |
 
 ### LN-AI-046 acceptance details
 
