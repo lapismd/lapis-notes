@@ -7,6 +7,7 @@ export type {
 } from "./host/process-host";
 export { AcpAgentRuntime } from "./runtimes/acp/acp-runtime";
 export type { AcpRuntimeBackend } from "./runtimes/acp/acp-runtime";
+export { DesktopAcpRuntimeBackend } from "./runtimes/acp/desktop-acp-backend";
 export {
   mapAcpPermissionRequest,
   mapAcpRuntimeEvent,

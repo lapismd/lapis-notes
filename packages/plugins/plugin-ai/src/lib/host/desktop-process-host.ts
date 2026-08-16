@@ -1,7 +1,7 @@
 import {
   getNativeDesktopBridge,
   hasNativeDesktopCapability,
-} from "@lapis-notes/api";
+} from "@lapis-notes/api/desktop-native";
 import { AsyncEventQueue } from "../core/event-queue";
 import type {
   AgentProcessHandle,

@@ -58,21 +58,17 @@
     <h1>Live AI host</h1>
     <p>
       This story is the manual live ACP lane. Default Plugins/AI stories stay
-      Fake. Start the host yourself, then reload Storybook.
+      Fake. Use the seeded supervisor, then return to this story.
     </p>
     <ol>
       <li>
-        In another terminal, run
-        <code>pnpm ai-host serve --workspace ./tmp/agent-workspace</code>
+        In another terminal, run <code>pnpm ai:smoke:storybook</code>.
       </li>
       <li>
-        Set <code>LAPIS_AGENT_RUNTIME_URL</code> and
-        <code>LAPIS_AGENT_RUNTIME_TOKEN</code> in
-        <code>.env.storybook.local</code>
+        The supervisor seeds the workspace and injects a one-run host attach
+        without writing its token.
       </li>
-      <li>
-        Restart Storybook and return to this story. Do not send from a play.
-      </li>
+      <li>Return to this story and send prompts manually. Plays never send.</li>
     </ol>
   </section>
 {:else}

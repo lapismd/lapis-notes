@@ -38,19 +38,19 @@ work is explicitly archived.
 | AI-LOCAL-006 | Derived AppDatabase indexing and all-conversation history search                     | AI-LOCAL-003                             | Done        | API memory/Turso/desktop/browser filtering; Search Manager; AI index/rebuild tests; package checks | `qszxmplx`     |
 | AI-LOCAL-007 | Sequenced agent-runtime protocol v2, replay buffer, reconnect and deduplication      | AI-LOCAL-003                             | Done        | AI host 28 tests; reconnect/permission replay; host-restart gap; AI provenance checks              | `qvvrsuyq`     |
 | AI-LOCAL-008 | Storybook scenarios and persistent Live Host vault data                              | AI-LOCAL-004, AI-LOCAL-005, AI-LOCAL-006 | Done        | AI 114 tests; 11 combined Storybook tests; six placements/axe; static Storybook build; spec gate   | `ynmkuytm`     |
-| AI-LOCAL-009 | Seeded real-host smoke launchers and manual Codex/Cursor/native checklist            | AI-LOCAL-007, AI-LOCAL-008               | Not started | Pending                                                                                            | Pending        |
+| AI-LOCAL-009 | Seeded real-host smoke launchers and manual Codex/Cursor/native checklist            | AI-LOCAL-007, AI-LOCAL-008               | Done        | Harness 3; Storybook/Electron supervisors; real Codex ACP 7 models, Cursor ACP 35, native 7 with response/tools/write; native approval; cached prerequisite 72 ms | `wpvqwrys`     |
 | AI-LOCAL-010 | Focused, consumer, Storybook, E2E, spec, check, and Turbo build gates                | AI-LOCAL-002–009                         | Not started | Pending                                                                                            | Pending        |
 
 ## Acceptance checklist
 
-- [ ] Scope-local source files remain readable without AppDatabase or an agent host.
-- [ ] Root, nested, explicit, renamed, moved, copied, archived, and deleted scopes are covered.
-- [ ] Reopen paints transcript, agent attribution, and usage before runtime resume.
-- [ ] Switching agents retains one conversation and never misattributes late events.
-- [ ] Search can be deleted and rebuilt solely from conversation files.
+- [x] Scope-local source files remain readable without AppDatabase or an agent host.
+- [x] Root, nested, explicit, renamed, moved, copied, archived, and deleted scopes are covered.
+- [x] Reopen paints transcript, agent attribution, and usage before runtime resume.
+- [x] Switching agents retains one conversation and never misattributes late events.
+- [x] Search can be deleted and rebuilt solely from conversation files.
 - [x] Replay cannot duplicate durable transcript entries or silently resend a turn.
-- [ ] Secrets, environment maps, raw protocol payloads, and question answers are not durable.
-- [ ] Automated tests require no paid agent subscription.
+- [x] Secrets, environment maps, raw protocol payloads, and question answers are not durable.
+- [x] Automated tests require no paid agent subscription.
 
 ## Completion notes
 

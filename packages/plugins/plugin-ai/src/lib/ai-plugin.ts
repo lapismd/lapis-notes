@@ -12,6 +12,7 @@ import { formatFileMention, searchVaultFiles } from "./chat/chat-mentions";
 import type { AgentRequest, AgentRuntime } from "./core/types";
 import { createHostAgentRuntimes } from "./host/create-host-runtimes";
 import { createAgentProcessHost } from "./host/desktop-process-host";
+import { resolveAgentWorkspace } from "./host/agent-workspace";
 import type { AgentProcessHost } from "./host/process-host";
 import { CodexModelProvider } from "./providers/codex-model-provider";
 import { AcpModelProvider } from "./providers/acp-model-provider";
@@ -86,9 +87,10 @@ export class AiPlugin extends Plugin {
       app.appDatabase,
     );
     this.processHost = createAgentProcessHost();
+    const workspace = this.workspace;
     this.models = new ModelProviderRegistry([
-      new CodexModelProvider(this.processHost),
-      new AcpModelProvider("cursor"),
+      new CodexModelProvider(this.processHost, { cwd: workspace }),
+      new AcpModelProvider("cursor", { workspace }),
     ]);
     this.registry = createAgentRuntimeRegistry([
       this.fakeRuntime,
@@ -145,7 +147,7 @@ export class AiPlugin extends Plugin {
   }
 
   get workspace(): string | undefined {
-    return this.app.vault.getName() || undefined;
+    return resolveAgentWorkspace(this.app.vault.adapter);
   }
 
   createConversationInput(explicitFolder?: string): CreateConversationInput {

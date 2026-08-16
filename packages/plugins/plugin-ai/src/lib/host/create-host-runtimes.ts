@@ -1,4 +1,4 @@
-import { hasNativeDesktopCapability } from "@lapis-notes/api";
+import { hasNativeDesktopCapability } from "@lapis-notes/api/desktop-native";
 import type { AgentRuntime } from "../core/types";
 import { AcpAgentRuntime } from "../runtimes/acp/acp-runtime";
 import { DesktopAcpRuntimeBackend } from "../runtimes/acp/desktop-acp-backend";

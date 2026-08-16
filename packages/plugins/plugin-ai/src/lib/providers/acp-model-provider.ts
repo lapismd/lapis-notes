@@ -1,7 +1,7 @@
 import {
   getNativeDesktopBridge,
   hasNativeDesktopCapability,
-} from "@lapis-notes/api";
+} from "@lapis-notes/api/desktop-native";
 import type { ModelRef } from "../core/types";
 import type { ModelProvider, ProviderAuthStatus } from "./model-provider";
 

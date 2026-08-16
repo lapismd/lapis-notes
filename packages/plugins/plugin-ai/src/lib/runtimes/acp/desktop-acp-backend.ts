@@ -2,7 +2,7 @@ import {
   getNativeDesktopBridge,
   hasNativeDesktopCapability,
   type NativeAgentRuntimeEvent,
-} from "@lapis-notes/api";
+} from "@lapis-notes/api/desktop-native";
 import { AsyncEventQueue } from "../../core/event-queue";
 import type { AgentRequest } from "../../core/types";
 import type { AcpBackendSession, AcpRuntimeBackend } from "./acp-runtime";

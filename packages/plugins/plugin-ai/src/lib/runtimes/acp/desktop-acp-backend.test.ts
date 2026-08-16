@@ -1,7 +1,7 @@
 import type {
   NativeAgentRuntimeEvent,
   NativeDesktopBridge,
-} from "@lapis-notes/api";
+} from "@lapis-notes/api/desktop-native";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AcpPermissionRequestLike } from "./acp-event-mapper";
 import { DesktopAcpRuntimeBackend } from "./desktop-acp-backend";
@@ -10,7 +10,7 @@ const native = vi.hoisted(() => ({
   bridge: null as NativeDesktopBridge | null,
 }));
 
-vi.mock("@lapis-notes/api", () => ({
+vi.mock("@lapis-notes/api/desktop-native", () => ({
   getNativeDesktopBridge: () => native.bridge,
   hasNativeDesktopCapability: (id: string) =>
     native.bridge?.capabilities?.[id as "agent-runtime"]?.status ===

@@ -14,7 +14,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Manual live ACP lane. Default Plugins/AI stories stay Fake. Start lapis-ai-host yourself, set URL and token, then use this story. Portable .lapis/agents conversation files persist in browser storage so reloads exercise filesystem restore and native resume. The play never sends a prompt.",
+          "Manual live ACP lane. Default Plugins/AI stories stay Fake. The seeded ai:smoke:storybook supervisor starts an isolated host and injects its ephemeral attach, while a lower-level manual attach remains supported. Portable .lapis/agents conversation files persist in browser storage so reloads exercise filesystem restore and native resume. The play never sends a prompt.",
       },
       source: {
         code: aiLiveHostExampleSource,

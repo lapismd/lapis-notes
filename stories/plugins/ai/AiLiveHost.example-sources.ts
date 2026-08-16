@@ -66,7 +66,7 @@ export const aiLiveHostExampleSource = `<script lang="ts">
 {#if !attached}
   <section>
     <h1>Live AI host</h1>
-    <p>Start pnpm ai-host serve, set URL and token in .env.storybook.local, then restart Storybook. Portable .lapis/agents files survive reload.</p>
+    <p>Run pnpm ai:smoke:storybook for the seeded supervised lane, or attach a lower-level host manually. Portable .lapis/agents files survive reload.</p>
   </section>
 {:else if ready}
   <WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />

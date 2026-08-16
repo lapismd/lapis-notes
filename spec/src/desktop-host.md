@@ -52,6 +52,7 @@ are intentionally omitted.
 | LN-DESK-041 | Electron end-to-end and distribution scripts MUST reuse the root Turbo-filtered desktop build before host-specific icon and packaging work.                                                                                                                                                                                                                                                                                  |
 | LN-DESK-042 | Desktop vault text replacement MUST use a crash-safe same-directory replacement, and text append MUST use a native append operation rather than renderer read-and-rewrite. Existing vault confinement and renderer ownership checks MUST apply to both operations. |
 | LN-DESK-043 | Electron and standalone ACP events MUST use the protocol-v2 `{sessionId, runId, sequence, event}` envelope, and prompt IPC MUST return its run ID. Electron MAY deliver live-only frames, while the standalone host MUST retain only bounded ordered replay state and clear it on explicit close without persisting transcripts. |
+| LN-DESK-044 | The developer-only native-agent smoke lane MUST seed one folder as both the Electron vault and absolute agent working tree, open the AI leaf with Codex Native selected, and preserve local conversations across relaunch. Its package prerequisite build MUST use Turbo's cached dependency graph. |
 
 ## Boot flow
 
