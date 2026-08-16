@@ -15,6 +15,7 @@
 
   let {
     requireApproval = false,
+    requireQuestion = false,
     persist = false,
     trace = "echo",
     seedItems = [],
@@ -29,6 +30,7 @@
     ],
   }: {
     requireApproval?: boolean;
+    requireQuestion?: boolean;
     persist?: boolean;
     trace?: FakeAgentTrace;
     seedItems?: AiChatItem[];
@@ -37,7 +39,9 @@
     files?: VaultFileRef[];
   } = $props();
 
-  const runtime = $derived(new FakeAgentRuntime({ requireApproval, trace }));
+  const runtime = $derived(
+    new FakeAgentRuntime({ requireApproval, requireQuestion, trace }),
+  );
   const sessionStore = $derived(
     persist || seedItems.length > 0
       ? createMemorySessionStore(

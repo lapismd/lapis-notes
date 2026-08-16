@@ -33,6 +33,7 @@
   import { renderChatMarkdown } from "./chat-markdown";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
   import AiApprovalCard from "./ai-approval-card.svelte";
+  import AiQuestionCard from "./ai-question-card.svelte";
   import { AiChatController } from "./chat-controller.svelte";
 
   let {
@@ -85,6 +86,7 @@
   let localThinking = $state<AiThinkingLevel | null>(null);
   let attachments = $state<{ path: string; name: string }[]>([]);
   let drawerCollapsed = $state(false);
+  let visibleInteractionId = $state<string | null>(null);
   let attachOpen = $state(false);
   let attachItems = $state<ComposerTriggerItem[]>([]);
   const selectedAgent = $derived(
@@ -139,6 +141,18 @@
         )
       : 0,
   );
+  const pendingInteraction = $derived.by(() => {
+    for (let index = controller.items.length - 1; index >= 0; index -= 1) {
+      const item = controller.items[index];
+      if (
+        (item?.type === "approval" || item?.type === "question") &&
+        item.status === "pending"
+      ) {
+        return item;
+      }
+    }
+    return undefined;
+  });
 
   async function submit(prompt: string): Promise<void> {
     const selected = catalogModelsForAgent(selectedAgent, models).find(
@@ -232,6 +246,15 @@
       void current.close();
     };
   });
+
+  $effect(() => {
+    const requestId = pendingInteraction?.request.id ?? null;
+    if (requestId && requestId !== visibleInteractionId) {
+      visibleInteractionId = requestId;
+      drawerCollapsed = false;
+    }
+    if (!requestId) visibleInteractionId = null;
+  });
 </script>
 
 {#snippet toolDetail(call: { data?: unknown })}
@@ -271,6 +294,7 @@
         bind:value={draft}
         placeholder="Ask anything…"
         disabled={controller.busy}
+        interactiveDrawerWhenDisabled={Boolean(pendingInteraction)}
         isStopShown={controller.busy}
         status={composerStatus}
         statusPosition="top"
@@ -281,31 +305,54 @@
         }}
       >
         {#snippet drawer()}
-          {#if attachments.length > 0}
+          {#if pendingInteraction || attachments.length > 0}
             <Chat.ComposerDrawer
               bind:collapsed={drawerCollapsed}
-              count={attachments.length}
-              label="Attachments"
+              count={attachments.length + (pendingInteraction ? 1 : 0)}
+              label={pendingInteraction?.type === "approval"
+                ? "Permission requested"
+                : pendingInteraction?.type === "question"
+                  ? "User input requested"
+                  : "Attachments"}
             >
-              {#each attachments as file (file.path)}
-                <span class="ai-chat-panel__chip">
-                  <Chat.ComposerToken
-                    token={{
-                      value: file.path,
-                      label: file.name,
-                      variant: "secondary",
-                    }}
-                  />
-                  <Button
-                    size="icon-xs"
-                    variant="ghost"
-                    aria-label={`Remove ${file.name}`}
-                    onclick={() => removeAttachment(file.path)}
-                  >
-                    <XIcon aria-hidden="true" />
-                  </Button>
-                </span>
-              {/each}
+              {#if pendingInteraction?.type === "approval"}
+                {@const requestId = pendingInteraction.request.id}
+                <AiApprovalCard
+                  request={pendingInteraction.request}
+                  onRespond={(optionId) =>
+                    void controller.respondToApproval(requestId, optionId)}
+                />
+              {:else if pendingInteraction?.type === "question"}
+                {@const requestId = pendingInteraction.request.id}
+                <AiQuestionCard
+                  request={pendingInteraction.request}
+                  onRespond={(answers) =>
+                    void controller.respondToQuestion(requestId, answers)}
+                />
+              {/if}
+              {#if attachments.length > 0}
+                <div class="ai-chat-panel__attachment-list">
+                  {#each attachments as file (file.path)}
+                    <span class="ai-chat-panel__chip">
+                      <Chat.ComposerToken
+                        token={{
+                          value: file.path,
+                          label: file.name,
+                          variant: "secondary",
+                        }}
+                      />
+                      <Button
+                        size="icon-xs"
+                        variant="ghost"
+                        aria-label={`Remove ${file.name}`}
+                        onclick={() => removeAttachment(file.path)}
+                      >
+                        <XIcon aria-hidden="true" />
+                      </Button>
+                    </span>
+                  {/each}
+                </div>
+              {/if}
             </Chat.ComposerDrawer>
           {/if}
         {/snippet}
@@ -526,20 +573,18 @@
             ]}
           />
         {:else if entry.item.type === "approval"}
-          {#if entry.item.status === "pending"}
-            {@const requestId = entry.item.request.id}
-            <AiApprovalCard
-              request={entry.item.request}
-              disabled={entry.item.status !== "pending"}
-              onRespond={(optionId) =>
-                void controller.respondToApproval(requestId, optionId)}
-            />
-          {:else}
+          {#if entry.item.status !== "pending"}
             <Chat.SystemMessage>
               Approval {entry.item.status}
               {entry.item.responseOptionId
                 ? ` (${entry.item.responseOptionId})`
                 : ""}
+            </Chat.SystemMessage>
+          {/if}
+        {:else if entry.item.type === "question"}
+          {#if entry.item.status !== "pending"}
+            <Chat.SystemMessage>
+              Question {entry.item.status}
             </Chat.SystemMessage>
           {/if}
         {:else if entry.item.type === "error"}

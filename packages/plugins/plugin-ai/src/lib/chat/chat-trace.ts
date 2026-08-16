@@ -114,6 +114,16 @@ export function applyAgentEventToChatItems(
       });
       return next;
     }
+    case "question.request": {
+      next.push({
+        id: `question-${event.request.id}`,
+        type: "question",
+        request: event.request,
+        status: "pending",
+        createdAt,
+      });
+      return next;
+    }
     case "status": {
       if (!isVisibleAgentStatus(event.status)) return next;
       next.push({
@@ -173,6 +183,17 @@ export function markApprovalResponse(
       responseOptionId: optionId,
     };
   });
+}
+
+export function markQuestionResponse(
+  items: AiChatItem[],
+  requestId: string,
+): AiChatItem[] {
+  return items.map((item) =>
+    item.type === "question" && item.request.id === requestId
+      ? { ...item, status: "answered" }
+      : item,
+  );
 }
 
 function stringifyUnknown(value: unknown): string | undefined {

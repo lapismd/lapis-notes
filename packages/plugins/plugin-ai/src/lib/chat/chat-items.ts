@@ -1,4 +1,4 @@
-import type { ApprovalRequest } from "../core/types";
+import type { ApprovalRequest, UserInputRequest } from "../core/types";
 
 export type AiChatApprovalStatus =
   | "pending"
@@ -40,6 +40,13 @@ export type AiChatItem =
       request: ApprovalRequest;
       status: AiChatApprovalStatus;
       responseOptionId?: string;
+      createdAt?: string;
+    }
+  | {
+      id: string;
+      type: "question";
+      request: UserInputRequest;
+      status: "pending" | "answered" | "cancelled";
       createdAt?: string;
     }
   | { id: string; type: "status"; text: string; createdAt?: string }

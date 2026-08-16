@@ -4,6 +4,7 @@ export { AiView, AiViewType } from "./chat/ai-view";
 export {
   applyAgentEventToChatItems,
   markApprovalResponse,
+  markQuestionResponse,
 } from "./chat/chat-trace";
 export type { AiChatItem } from "./chat/chat-items";
 export {
@@ -25,6 +26,10 @@ export type {
   ApprovalRequest,
   ModelRef,
   ToolContribution,
+  UserInputAnswers,
+  UserInputOption,
+  UserInputQuestion,
+  UserInputRequest,
 } from "./core/types";
 export { StaticModelProvider } from "./providers/model-provider";
 export { CodexModelProvider } from "./providers/codex-model-provider";
@@ -65,7 +70,9 @@ export {
   createPersistedSessionStore,
   createStoredAgentSession,
   interruptPendingApprovals,
+  interruptPendingInteractions,
   pendingApprovalIdFromItems,
+  pendingQuestionIdFromItems,
 } from "./sessions/session-store";
 export type {
   AgentSessionStore,

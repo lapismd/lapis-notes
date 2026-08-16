@@ -25,6 +25,14 @@ const runtime = new FakeAgentRuntime({ requireApproval: true });
 <AiChatPanel runtime={runtime} />
 `;
 
+export const aiChatQuestionExampleSource = `import { AiChatPanel, FakeAgentRuntime } from "@lapis-notes/ai";
+import "@lapis-notes/ai/styles.css";
+
+const runtime = new FakeAgentRuntime({ requireQuestion: true });
+
+<AiChatPanel runtime={runtime} />
+`;
+
 export const aiChatMentionsExampleSource = `import {
   AiChatPanel,
   FakeAgentRuntime,

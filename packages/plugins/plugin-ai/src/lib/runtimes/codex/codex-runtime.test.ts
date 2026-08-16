@@ -103,6 +103,41 @@ describe("CodexNativeRuntime", () => {
     ).toBe(true);
     host.handle.emit(
       `${JSON.stringify({
+        id: "q1",
+        method: "item/tool/requestUserInput",
+        params: {
+          threadId: "thread-1",
+          turnId: "turn-1",
+          itemId: "input-1",
+          questions: [
+            {
+              id: "approach",
+              header: "Approach",
+              question: "How should I proceed?",
+              isOther: false,
+              isSecret: false,
+              options: [{ label: "Minimal", description: "Small change" }],
+            },
+          ],
+          autoResolutionMs: null,
+        },
+      })}\n`,
+    );
+    await vi.waitFor(() => {
+      expect(events.some((event) => event.type === "question.request")).toBe(
+        true,
+      );
+    });
+    await session.respondToQuestion?.("q1", { approach: ["Minimal"] });
+    expect(
+      host.handle.writes.some(
+        (line) =>
+          line.includes('"id":"q1"') &&
+          line.includes('"approach":{"answers":["Minimal"]}'),
+      ),
+    ).toBe(true);
+    host.handle.emit(
+      `${JSON.stringify({
         method: "item/reasoning/textDelta",
         params: { delta: "Checking" },
       })}\n`,

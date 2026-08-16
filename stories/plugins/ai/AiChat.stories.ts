@@ -7,6 +7,7 @@ import {
   aiChatExampleSource,
   aiChatFailureExampleSource,
   aiChatMentionsExampleSource,
+  aiChatQuestionExampleSource,
   aiChatScrollExampleSource,
   aiChatTraceExampleSource,
   aiChatValidationExampleSource,
@@ -176,7 +177,7 @@ export const PendingApproval: Story = {
     docs: {
       description: {
         story:
-          "FakeAgentRuntime blocks the turn on an ApprovalRequest until respondToApproval runs from the shared approval card.",
+          "FakeAgentRuntime blocks the turn on an ApprovalRequest until a permission choice in the Design Core Composer Drawer responds.",
       },
       source: {
         code: aiChatApprovalExampleSource,
@@ -199,13 +200,71 @@ export const PendingApproval: Story = {
     const input = await canvas.findByRole("combobox", { name: "Message" });
     await userEvent.type(input, "Apply the change");
     await userEvent.keyboard("{Enter}");
-    const allow = await canvas.findByRole("button", { name: "Allow once" });
+    const allow = await canvas.findByRole("button", { name: /Allow once/ });
+    const drawer = allow.closest(
+      '[data-ui-component="ai-chat-composer-drawer"]',
+    );
+    expect(drawer).not.toBeNull();
+    expect(
+      canvas.queryByTestId("ai-approval-card")?.closest("article"),
+    ).toBeNull();
     await expect(canvas.getByTestId("ai-chat-working")).toHaveTextContent(
       "Agent is working…",
     );
     await userEvent.click(allow);
     await waitFor(() => {
       expect(canvas.getByText(/Approval approved/i)).toBeInTheDocument();
+      expect(canvas.queryByTestId("ai-chat-working")).toBeNull();
+    });
+  },
+};
+
+export const AgentQuestion: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { requireQuestion: true },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-question"),
+    docs: {
+      description: {
+        story:
+          "A runtime-neutral agent question appears in the Design Core Composer Drawer and keeps the turn active until every required answer is submitted.",
+      },
+      source: {
+        code: aiChatQuestionExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-question-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByRole("combobox", { name: "Message" });
+    await userEvent.type(input, "Update the sample file");
+    await userEvent.keyboard("{Enter}");
+    const option = await canvas.findByRole("button", {
+      name: /Make the smallest change/,
+    });
+    expect(
+      option.closest('[data-ui-component="ai-chat-composer-drawer"]'),
+    ).not.toBeNull();
+    await userEvent.click(option);
+    const submit = canvas.getByRole("button", { name: "Submit answer" });
+    await expect(submit).toBeEnabled();
+    await userEvent.click(submit);
+    await waitFor(() => {
+      expect(canvas.getByText("Question answered")).toBeInTheDocument();
+      expect(canvas.queryByTestId("ai-question-card")).toBeNull();
       expect(canvas.queryByTestId("ai-chat-working")).toBeNull();
     });
   },

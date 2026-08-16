@@ -50,12 +50,14 @@ describe("session store", () => {
         runtime: "fake",
         runtimeSessionId: "fake-1",
         pendingApprovalId: "p1",
+        pendingQuestionId: "q1",
         items: [{ id: "m1", type: "message", role: "user", text: "hi" }],
       }),
     );
     expect(persisted[0]).toMatchObject({
       id: "ai:default",
       pendingApprovalId: "p1",
+      pendingQuestionId: "q1",
     });
     expect((await store.get("ai:default"))?.items[0]).toMatchObject({
       text: "hi",

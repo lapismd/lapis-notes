@@ -14,6 +14,7 @@ export type StoredAgentSession = {
   updatedAt: string;
   interrupted?: boolean;
   pendingApprovalId?: string;
+  pendingQuestionId?: string;
   items: AiChatItem[];
 };
 
@@ -101,6 +102,7 @@ export function createStoredAgentSession(input: {
   usage?: AgentUsage;
   items?: AiChatItem[];
   pendingApprovalId?: string;
+  pendingQuestionId?: string;
   interrupted?: boolean;
 }): StoredAgentSession {
   const now = new Date().toISOString();
@@ -117,6 +119,7 @@ export function createStoredAgentSession(input: {
     updatedAt: now,
     interrupted: input.interrupted,
     pendingApprovalId: input.pendingApprovalId,
+    pendingQuestionId: input.pendingQuestionId,
     items: input.items ? input.items.map(sanitizeChatItem) : [],
   };
 }
@@ -131,12 +134,36 @@ export function pendingApprovalIdFromItems(
   return pending?.request.id;
 }
 
+export function pendingQuestionIdFromItems(
+  items: AiChatItem[],
+): string | undefined {
+  const pending = items.find(
+    (item): item is Extract<AiChatItem, { type: "question" }> =>
+      item.type === "question" && item.status === "pending",
+  );
+  return pending?.request.id;
+}
+
 export function interruptPendingApprovals(items: AiChatItem[]): AiChatItem[] {
   return items.map((item) =>
     item.type === "approval" && item.status === "pending"
       ? { ...item, status: "cancelled" }
       : item,
   );
+}
+
+export function interruptPendingInteractions(
+  items: AiChatItem[],
+): AiChatItem[] {
+  return items.map((item) => {
+    if (item.type === "approval" && item.status === "pending") {
+      return { ...item, status: "cancelled" };
+    }
+    if (item.type === "question" && item.status === "pending") {
+      return { ...item, status: "cancelled" };
+    }
+    return item;
+  });
 }
 
 function cloneSession(session: StoredAgentSession): StoredAgentSession {

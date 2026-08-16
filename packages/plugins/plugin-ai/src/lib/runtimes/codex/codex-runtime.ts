@@ -8,6 +8,7 @@ import {
   type AgentSession,
   type AiThinkingLevel,
   type ToolContribution,
+  type UserInputAnswers,
 } from "../../core/types";
 import type {
   AgentProcessHandle,
@@ -17,6 +18,8 @@ import {
   approvalReplyForServerRequest,
   approvalRequestFromServerRequest,
   mapCodexNotification,
+  userInputReplyForServerRequest,
+  userInputRequestFromServerRequest,
   type AppServerMessage,
 } from "./app-server-protocol";
 
@@ -124,6 +127,19 @@ export class CodexNativeSession implements AgentSession {
     await this.#write({ id: pending.id, ...reply });
   }
 
+  async respondToQuestion(
+    requestId: string,
+    answers: UserInputAnswers,
+  ): Promise<void> {
+    const pending = this.#pendingServerRequests.get(requestId);
+    if (!pending || pending.method !== "item/tool/requestUserInput") {
+      throw new Error(`Unknown Codex user-input request: ${requestId}`);
+    }
+    this.#pendingServerRequests.delete(requestId);
+    const reply = userInputReplyForServerRequest(pending, answers);
+    await this.#write({ id: pending.id, ...reply });
+  }
+
   async cancel(): Promise<void> {
     if (!this.#threadId) return;
     try {
@@ -207,6 +223,12 @@ export class CodexNativeSession implements AgentSession {
     if (approval && parsed.id !== undefined) {
       this.#pendingServerRequests.set(approval.id, parsed);
       this.#events.push({ type: "permission.request", request: approval });
+      return;
+    }
+    const question = userInputRequestFromServerRequest(parsed);
+    if (question && parsed.id !== undefined) {
+      this.#pendingServerRequests.set(question.id, parsed);
+      this.#events.push({ type: "question.request", request: question });
       return;
     }
     const event = mapCodexNotification(parsed);

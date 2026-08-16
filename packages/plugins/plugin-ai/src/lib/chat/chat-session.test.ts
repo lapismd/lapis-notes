@@ -18,6 +18,27 @@ const pendingItems = [
   },
 ];
 
+const pendingQuestionItems = [
+  {
+    id: "q1",
+    type: "question" as const,
+    status: "pending" as const,
+    request: {
+      id: "q1",
+      title: "Agent needs input",
+      questions: [
+        {
+          id: "choice",
+          header: "Choice",
+          prompt: "Choose one",
+          allowOther: false,
+          secret: false,
+        },
+      ],
+    },
+  },
+];
+
 describe("stored chat session resume policy", () => {
   it("isolates provider sessions within one workspace", () => {
     expect(chatSessionId("vault", "acp", "codex")).toBe("ai:vault:acp:codex");
@@ -56,5 +77,31 @@ describe("stored chat session resume policy", () => {
     expect(restored.interrupted).toBe(true);
     expect(restored.pendingApprovalId).toBeUndefined();
     expect(restored.items[0]).toMatchObject({ status: "cancelled" });
+  });
+
+  it("keeps or interrupts pending agent questions with the runtime session", () => {
+    const stored = createStoredAgentSession({
+      id: "ai:default",
+      runtime: "fake",
+      runtimeSessionId: "fake-1",
+      items: pendingQuestionItems,
+      pendingQuestionId: "q1",
+    });
+    const resumed = applyStoredSessionResumePolicy({
+      stored,
+      runtime: new FakeAgentRuntime(),
+      resumed: true,
+    });
+    expect(resumed.pendingQuestionId).toBe("q1");
+    expect(resumed.items[0]).toMatchObject({ status: "pending" });
+
+    const interrupted = applyStoredSessionResumePolicy({
+      stored,
+      runtime: new FakeAgentRuntime({ resumeSupported: false }),
+      resumed: false,
+    });
+    expect(interrupted.pendingQuestionId).toBeUndefined();
+    expect(interrupted.interrupted).toBe(true);
+    expect(interrupted.items[0]).toMatchObject({ status: "cancelled" });
   });
 });

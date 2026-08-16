@@ -171,6 +171,40 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
+  it("responds to agent questions without persisting answer values", async () => {
+    const store = createMemorySessionStore();
+    const controller = new AiChatController(
+      new FakeAgentRuntime({ requireQuestion: true }),
+      null,
+      [],
+      { store },
+    );
+    const sending = controller.submit("Ask me first");
+    await vi.waitFor(() => {
+      expect(controller.items.at(-1)).toMatchObject({
+        type: "question",
+        status: "pending",
+      });
+    });
+    const question = controller.items.at(-1);
+    if (question?.type !== "question") {
+      throw new Error("Expected pending question");
+    }
+    await controller.respondToQuestion(question.request.id, {
+      approach: ["super-secret-answer"],
+    });
+    await sending;
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(controller.items.at(-1)).toMatchObject({
+      type: "question",
+      status: "answered",
+    });
+    expect(JSON.stringify(await store.list())).not.toContain(
+      "super-secret-answer",
+    );
+    await controller.close();
+  });
+
   it("does not resume a legacy Codex chat after switching to Cursor", async () => {
     const store = createMemorySessionStore([
       {

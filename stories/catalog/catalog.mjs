@@ -297,6 +297,13 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--pending-approval",
   },
   {
+    id: "plugins-ai-chat-question",
+    title: "AI Chat: Agent Question",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--agent-question",
+  },
+  {
     id: "plugins-ai-chat-mentions",
     title: "AI Chat: File Mentions",
     spec: "spec/src/ai-plugin.md",

@@ -5,8 +5,9 @@ import type {
   ModelRef,
 } from "../core/types";
 import {
-  interruptPendingApprovals,
+  interruptPendingInteractions,
   pendingApprovalIdFromItems,
+  pendingQuestionIdFromItems,
   type AgentSessionStore,
   type StoredAgentSession,
 } from "../sessions/session-store";
@@ -37,6 +38,7 @@ export function applyStoredSessionResumePolicy(input: {
   items: AiChatItem[];
   interrupted: boolean;
   pendingApprovalId?: string;
+  pendingQuestionId?: string;
 } {
   const canResume = Boolean(
     input.runtime.capabilities().resume && input.runtime.resume,
@@ -46,16 +48,20 @@ export function applyStoredSessionResumePolicy(input: {
       items: [...input.stored.items],
       interrupted: false,
       pendingApprovalId: pendingApprovalIdFromItems(input.stored.items),
+      pendingQuestionId: pendingQuestionIdFromItems(input.stored.items),
     };
   }
-  const items = interruptPendingApprovals(input.stored.items);
+  const items = interruptPendingInteractions(input.stored.items);
   return {
     items,
     interrupted: Boolean(
       input.stored.pendingApprovalId ??
-        pendingApprovalIdFromItems(input.stored.items),
+        input.stored.pendingQuestionId ??
+        pendingApprovalIdFromItems(input.stored.items) ??
+        pendingQuestionIdFromItems(input.stored.items),
     ),
     pendingApprovalId: undefined,
+    pendingQuestionId: undefined,
   };
 }
 
@@ -86,6 +92,7 @@ export function snapshotStoredChatSession(input: {
     updatedAt: now,
     interrupted: input.interrupted,
     pendingApprovalId: pendingApprovalIdFromItems(input.items),
+    pendingQuestionId: pendingQuestionIdFromItems(input.items),
     items: [...input.items],
   };
 }

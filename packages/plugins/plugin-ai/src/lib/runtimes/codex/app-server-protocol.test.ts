@@ -4,6 +4,8 @@ import {
   approvalReplyForServerRequest,
   approvalResponseForOption,
   mapCodexNotification,
+  userInputReplyForServerRequest,
+  userInputRequestFromServerRequest,
 } from "./app-server-protocol";
 
 describe("Codex app-server protocol mapper", () => {
@@ -105,6 +107,62 @@ describe("Codex app-server protocol mapper", () => {
       server: undefined,
       output: "/vault",
       error: undefined,
+    });
+  });
+
+  it("maps request_user_input questions and their answer payload", () => {
+    const message = {
+      id: "q1",
+      method: "item/tool/requestUserInput",
+      params: {
+        threadId: "thread-1",
+        turnId: "turn-1",
+        itemId: "item-1",
+        questions: [
+          {
+            id: "approach",
+            header: "Approach",
+            question: "How should I proceed?",
+            isOther: true,
+            isSecret: false,
+            options: [
+              { label: "Minimal", description: "Change only this file." },
+              { label: "Refactor", description: "Clean up nearby code." },
+            ],
+          },
+        ],
+        autoResolutionMs: null,
+      },
+    };
+    expect(userInputRequestFromServerRequest(message)).toEqual({
+      id: "q1",
+      title: "Agent needs input",
+      questions: [
+        {
+          id: "approach",
+          header: "Approach",
+          prompt: "How should I proceed?",
+          allowOther: true,
+          secret: false,
+          options: [
+            {
+              id: "approach-option-1",
+              label: "Minimal",
+              description: "Change only this file.",
+            },
+            {
+              id: "approach-option-2",
+              label: "Refactor",
+              description: "Clean up nearby code.",
+            },
+          ],
+        },
+      ],
+    });
+    expect(
+      userInputReplyForServerRequest(message, { approach: ["Minimal"] }),
+    ).toEqual({
+      result: { answers: { approach: { answers: ["Minimal"] } } },
     });
   });
 });

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_APPROVAL_OPTIONS } from "../core/types";
-import { applyAgentEventToChatItems, markApprovalResponse } from "./chat-trace";
+import {
+  applyAgentEventToChatItems,
+  markApprovalResponse,
+  markQuestionResponse,
+} from "./chat-trace";
 
 describe("chat trace", () => {
   it("appends text, tools, and approval items", () => {
@@ -54,6 +58,36 @@ describe("chat trace", () => {
       { type: "thinking", state: "done" },
       { type: "error", text: "failed" },
     ]);
+  });
+
+  it("tracks an agent question without storing its answer values", () => {
+    const items = applyAgentEventToChatItems([], {
+      type: "question.request",
+      request: {
+        id: "q1",
+        title: "Agent needs input",
+        questions: [
+          {
+            id: "secret",
+            header: "Secret",
+            prompt: "Enter the token",
+            allowOther: false,
+            secret: true,
+          },
+        ],
+      },
+    });
+    expect(items[0]).toMatchObject({
+      id: "question-q1",
+      type: "question",
+      status: "pending",
+    });
+    expect(markQuestionResponse(items, "q1")[0]).toEqual(
+      expect.objectContaining({ status: "answered" }),
+    );
+    expect(JSON.stringify(markQuestionResponse(items, "q1"))).not.toContain(
+      "token-value",
+    );
   });
 
   it("coalesces repeated tool starts and keeps approval item keys distinct", () => {

@@ -57,6 +57,29 @@ export type ApprovalRequest = {
   metadata?: Record<string, unknown>;
 };
 
+export type UserInputOption = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+export type UserInputQuestion = {
+  id: string;
+  header: string;
+  prompt: string;
+  options?: UserInputOption[];
+  allowOther: boolean;
+  secret: boolean;
+};
+
+export type UserInputRequest = {
+  id: string;
+  title: string;
+  questions: UserInputQuestion[];
+};
+
+export type UserInputAnswers = Record<string, string[]>;
+
 export type ApprovalCapabilities = {
   supported: boolean;
   interactive: boolean;
@@ -107,6 +130,7 @@ export type AgentEvent =
   | { type: "command.start"; command: string }
   | { type: "command.end"; command: string; exitCode: number }
   | { type: "permission.request"; request: ApprovalRequest }
+  | { type: "question.request"; request: UserInputRequest }
   | { type: "usage"; usage: AgentUsage }
   | { type: "status"; status: string }
   | { type: "completed"; result?: unknown }
@@ -117,6 +141,10 @@ export interface AgentSession {
   events(): AsyncIterable<AgentEvent>;
   send(input: string): Promise<void>;
   respondToApproval(requestId: string, optionId: string): Promise<void>;
+  respondToQuestion?(
+    requestId: string,
+    answers: UserInputAnswers,
+  ): Promise<void>;
   cancel?(): Promise<void>;
   steer?(instruction: string): Promise<void>;
   close(): Promise<void>;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from "@lapismd/design-core/shadcn/button";
+  import { Badge } from "@lapismd/design-core/shadcn/badge";
   import type { ApprovalRequest } from "../core/types";
 
   let {
@@ -14,24 +14,27 @@
 </script>
 
 <section
-  class="ai-approval-card"
-  data-ui-component="ai-approval-card"
+  class="ai-agent-request"
+  data-ui-component="ai-agent-request"
+  data-kind="permission"
   data-testid="ai-approval-card"
 >
-  <h3>{request.title}</h3>
-  {#if request.tool}
-    <p data-ui-part="tool">{request.tool.name}</p>
-  {/if}
+  <div data-ui-part="request-heading">
+    <strong>{request.title}</strong>
+    {#if request.tool}
+      <span data-ui-part="tool">{request.tool.name}</span>
+    {/if}
+  </div>
   <div data-ui-part="options">
-    {#each request.options as option (option.id)}
-      <Button
-        variant={option.kind.startsWith("deny") ? "outline" : "default"}
-        size="sm"
+    {#each request.options as option, index (option.id)}
+      <button
+        type="button"
         disabled={disabled}
         onclick={() => onRespond(option.id)}
       >
-        {option.label}
-      </Button>
+        <Badge variant="secondary">{String.fromCharCode(65 + index)}</Badge>
+        <span>{option.label}</span>
+      </button>
     {/each}
   </div>
 </section>

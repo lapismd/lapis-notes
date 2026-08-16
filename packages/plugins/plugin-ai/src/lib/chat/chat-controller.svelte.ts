@@ -4,6 +4,7 @@ import type {
   AgentSession,
   AgentUsage,
   ToolContribution,
+  UserInputAnswers,
 } from "../core/types";
 import type {
   AgentSessionStore,
@@ -21,6 +22,7 @@ import {
   applyAgentEventToChatItems,
   isVisibleAgentStatus,
   markApprovalResponse,
+  markQuestionResponse,
 } from "./chat-trace";
 
 export class AiChatController {
@@ -179,6 +181,19 @@ export class AiChatController {
     this.items = markApprovalResponse(this.items, requestId, optionId);
     await this.#persist();
     await this.session.respondToApproval(requestId, optionId);
+    await this.#persist();
+  }
+
+  async respondToQuestion(
+    requestId: string,
+    answers: UserInputAnswers,
+  ): Promise<void> {
+    if (!this.session?.respondToQuestion) {
+      throw new Error("The active runtime cannot answer agent questions.");
+    }
+    this.items = markQuestionResponse(this.items, requestId);
+    await this.#persist();
+    await this.session.respondToQuestion(requestId, answers);
     await this.#persist();
   }
 

@@ -3,6 +3,8 @@ import {
   type AgentEvent,
   type ApprovalKind,
   type ApprovalRequest,
+  type UserInputAnswers,
+  type UserInputRequest,
 } from "../../core/types";
 
 export type AppServerMessage = {
@@ -197,6 +199,80 @@ export function approvalRequestFromServerRequest(
       ? { name: "command", input: request.command }
       : undefined,
     options: DEFAULT_APPROVAL_OPTIONS,
+  };
+}
+
+export function userInputRequestFromServerRequest(
+  message: AppServerMessage,
+): UserInputRequest | null {
+  if (
+    message.id === undefined ||
+    message.method !== "item/tool/requestUserInput"
+  ) {
+    return null;
+  }
+  const params = asRecord(message.params);
+  const questions = Array.isArray(params.questions)
+    ? params.questions.flatMap((value, questionIndex) => {
+        const question = asRecord(value);
+        const id = stringValue(question.id);
+        const prompt = stringValue(question.question);
+        if (!id || !prompt) return [];
+        const rawOptions = Array.isArray(question.options)
+          ? question.options
+          : [];
+        const options = rawOptions.flatMap((optionValue, optionIndex) => {
+          const option = asRecord(optionValue);
+          const label = stringValue(option.label);
+          if (!label) return [];
+          return [
+            {
+              id: `${id}-option-${optionIndex + 1}`,
+              label,
+              description: stringValue(option.description),
+            },
+          ];
+        });
+        return [
+          {
+            id,
+            header:
+              stringValue(question.header) ?? `Question ${questionIndex + 1}`,
+            prompt,
+            options: options.length > 0 ? options : undefined,
+            allowOther: question.isOther === true,
+            secret: question.isSecret === true,
+          },
+        ];
+      })
+    : [];
+  if (questions.length === 0) return null;
+  return {
+    id: String(message.id),
+    title: "Agent needs input",
+    questions,
+  };
+}
+
+export function userInputReplyForServerRequest(
+  message: AppServerMessage,
+  answers: UserInputAnswers,
+): {
+  result?: Record<string, unknown>;
+  error?: { code: number; message: string };
+} {
+  if (message.method !== "item/tool/requestUserInput") {
+    return { error: { code: -32601, message: "Unsupported input request" } };
+  }
+  return {
+    result: {
+      answers: Object.fromEntries(
+        Object.entries(answers).map(([id, values]) => [
+          id,
+          { answers: [...values] },
+        ]),
+      ),
+    },
   };
 }
 
