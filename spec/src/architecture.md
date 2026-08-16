@@ -245,6 +245,7 @@ through Design Core's Composer Drawer; provider request objects and secret
 answers never enter persisted chat data.
 The paperclip attach picker uses that same drawer surface: host Popover chrome
 stays above the open drawer while Command View owns the searchable file list.
+Attachment chips keep Design Core's public drawer chip and remove parts.
 
 ## Tooling policy
 

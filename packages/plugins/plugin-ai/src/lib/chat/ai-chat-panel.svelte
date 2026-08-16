@@ -429,27 +429,19 @@
                   />
                 {/if}
                 {#if attachments.length > 0}
-                  <div class="ai-chat-panel__attachment-list">
-                    {#each attachments as file (file.path)}
-                      <span class="ai-chat-panel__chip">
-                        <Chat.ComposerToken
-                          token={{
-                            value: file.path,
-                            label: file.name,
-                            variant: "secondary",
-                          }}
-                        />
-                        <Button
-                          size="icon-xs"
-                          variant="ghost"
-                          aria-label={`Remove ${file.name}`}
-                          onclick={() => removeAttachment(file.path)}
-                        >
-                          <XIcon aria-hidden="true" />
-                        </Button>
-                      </span>
-                    {/each}
-                  </div>
+                  {#each attachments as file (file.path)}
+                    <span data-ui-part="attachment-chip">
+                      <span>{file.name}</span>
+                      <button
+                        type="button"
+                        data-ui-part="attachment-remove"
+                        aria-label={`Remove ${file.name}`}
+                        onclick={() => removeAttachment(file.path)}
+                      >
+                        <XIcon aria-hidden="true" />
+                      </button>
+                    </span>
+                  {/each}
                 {/if}
               </Chat.ComposerDrawer>
             </div>

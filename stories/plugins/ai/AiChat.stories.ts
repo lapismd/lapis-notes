@@ -402,15 +402,14 @@ export const AgentTrace: Story = {
     ) as HTMLElement | null;
     const attachment = canvas
       .getByRole("button", { name: "Remove alpha" })
-      .closest(".ai-chat-panel__chip") as HTMLElement | null;
+      .closest('[data-ui-part="attachment-chip"]') as HTMLElement | null;
     expect(drawer).not.toBeNull();
     expect(attachment).not.toBeNull();
     const drawerPaint = getComputedStyle(drawer!).backgroundColor;
     const attachmentStyles = getComputedStyle(attachment!);
     expect(attachmentStyles.backgroundColor).not.toBe(drawerPaint);
-    expect(attachmentStyles.borderTopWidth).toBe("1px");
-    expect(attachmentStyles.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
-    expect(attachment!.getBoundingClientRect().height).toBeLessThanOrEqual(26);
+    expect(attachmentStyles.borderTopLeftRadius).not.toBe("999px");
+    expect(attachment!.getBoundingClientRect().height).toBeLessThanOrEqual(32);
     expect(
       canvas
         .getByRole("button", { name: "Remove alpha" })

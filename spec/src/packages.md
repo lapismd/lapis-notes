@@ -169,6 +169,8 @@ model catalogs, chat settings, and movable chat panel.
 Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
 and stacking above an open composer drawer—and composes Command View for the
 searchable file list.
+Drawer attachment chips use Design Core's public `attachment-chip` parts
+instead of plugin-local paint.
 The root export stays plugin-safe; ACP and native Codex adapters publish only on
 `./runtimes`. Cursor uses the same ACP adapter through a known agent name.
 Domain plugins register tools. The package does not declare an acpx dependency.
