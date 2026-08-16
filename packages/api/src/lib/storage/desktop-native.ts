@@ -573,13 +573,12 @@ export class NativeDesktopVaultAdapter
     data: string,
     options?: DataWriteOptions,
   ): Promise<void> {
-    const current = await this.read(normalizedPath).catch((error) => {
-      if ((error as { code?: string }).code === "ENOENT") {
-        return "";
-      }
-      throw error;
+    await invokeNative<void>("desktop_fs_append_text", {
+      rootPath: this.rootPath,
+      normalizedPath: normalizeVaultPath(normalizedPath),
+      data,
+      options,
     });
-    await this.write(normalizedPath, `${current}${data}`, options);
   }
 
   async appendBinary(

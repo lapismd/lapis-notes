@@ -35,10 +35,10 @@ describe("vault file mentions", () => {
 
   it("merges mention and drawer paths without duplicates", () => {
     expect(
-      mergeAttachmentPaths(
-        extractMentionPaths("See @Notes/alpha.md"),
-        ["Notes/alpha.md", "Notes/beta.md"],
-      ),
+      mergeAttachmentPaths(extractMentionPaths("See @Notes/alpha.md"), [
+        "Notes/alpha.md",
+        "Notes/beta.md",
+      ]),
     ).toEqual(["Notes/alpha.md", "Notes/beta.md"]);
   });
 
@@ -51,5 +51,20 @@ describe("vault file mentions", () => {
       },
     ]);
   });
-});
 
+  it("keeps portable .lapis data out of ordinary mention discovery", () => {
+    expect(
+      searchVaultFiles(
+        [
+          { path: "Notes/visible.md", name: "visible" },
+          {
+            path: "Notes/.lapis/agents/sessions/id/transcript.jsonl",
+            name: "transcript",
+          },
+          { path: ".lapis/internal.md", name: "internal" },
+        ],
+        "",
+      ),
+    ).toEqual([{ path: "Notes/visible.md", name: "visible" }]);
+  });
+});

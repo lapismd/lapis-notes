@@ -40,6 +40,7 @@ export interface BrowserFileSystemHandle {
 
 export interface BrowserFileSystemWritableFileStream {
   write(data: ArrayBuffer | Blob | string | Uint8Array): Promise<void>;
+  seek(position: number): Promise<void>;
   close(): Promise<void>;
 }
 
@@ -703,8 +704,26 @@ export class BrowserHandleVaultAdapter
     options?: DataWriteOptions,
   ): Promise<void> {
     await this.withPathLock(normalizedPath, async () => {
-      const current = await this.read(normalizedPath).catch(() => "");
-      await this.write(normalizedPath, current + data, options);
+      const path = normalizeVaultPath(normalizedPath);
+      await this.withHandleRetry(async () => {
+        const [parent, name] = await this.getParentDirectory(path, {
+          create: true,
+        });
+        const existing = await this.readStoredStat(path);
+        const handle = await parent.getFileHandle(name, { create: true });
+        const file = await handle.getFile();
+        const writable = await handle.createWritable({ keepExistingData: true });
+        await writable.seek(file.size);
+        await writable.write(data);
+        await writable.close();
+        const now = Date.now();
+        await this.writeStoredStat(path, {
+          type: "file",
+          ctime: options?.ctime ?? existing?.ctime ?? now,
+          mtime: options?.mtime ?? now,
+          size: file.size + byteSize(data),
+        });
+      });
     });
   }
 
@@ -714,13 +733,26 @@ export class BrowserHandleVaultAdapter
     options?: DataWriteOptions,
   ): Promise<void> {
     await this.withPathLock(normalizedPath, async () => {
-      const current = new Uint8Array(
-        await this.readBinary(normalizedPath).catch(() => new ArrayBuffer(0)),
-      );
-      const next = new Uint8Array(current.byteLength + data.byteLength);
-      next.set(current);
-      next.set(new Uint8Array(data), current.byteLength);
-      await this.writeBinary(normalizedPath, next.buffer, options);
+      const path = normalizeVaultPath(normalizedPath);
+      await this.withHandleRetry(async () => {
+        const [parent, name] = await this.getParentDirectory(path, {
+          create: true,
+        });
+        const existing = await this.readStoredStat(path);
+        const handle = await parent.getFileHandle(name, { create: true });
+        const file = await handle.getFile();
+        const writable = await handle.createWritable({ keepExistingData: true });
+        await writable.seek(file.size);
+        await writable.write(data);
+        await writable.close();
+        const now = Date.now();
+        await this.writeStoredStat(path, {
+          type: "file",
+          ctime: options?.ctime ?? existing?.ctime ?? now,
+          mtime: options?.mtime ?? now,
+          size: file.size + data.byteLength,
+        });
+      });
     });
   }
 

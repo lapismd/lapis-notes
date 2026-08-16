@@ -55,6 +55,7 @@ import {
   normalizeVaultPath,
   resolveAbsolutePath,
 } from "./native-paths";
+import { appendTextFileDurable, writeTextFileAtomic } from "./durable-file";
 
 const VAULT_RESOURCE_SCHEME = "lapis-vault-resource";
 const PLUGIN_ASSET_SCHEME = "lapis-plugin";
@@ -1677,8 +1678,26 @@ function registerIpcHandlers(): void {
         rootPath,
         normalizeVaultPath(normalizedPath),
       );
-      fs.mkdirSync(path.dirname(abs), { recursive: true });
-      fs.writeFileSync(abs, data, "utf-8");
+      writeTextFileAtomic(abs, data);
+    },
+  );
+
+  // File system: append text
+  ipcMain.handle(
+    "desktop_fs_append_text",
+    async (
+      _e,
+      {
+        rootPath,
+        normalizedPath,
+        data,
+      }: { rootPath: string; normalizedPath: string; data: string },
+    ) => {
+      const abs = resolveAbsolutePath(
+        rootPath,
+        normalizeVaultPath(normalizedPath),
+      );
+      appendTextFileDurable(abs, data);
     },
   );
 

@@ -1,3 +1,5 @@
+import { isLapisInternalPath } from "@lapis-notes/api/path";
+
 export type VaultFileRef = {
   path: string;
   name: string;
@@ -74,7 +76,14 @@ export function searchVaultFiles(
   const matches: VaultFileRef[] = [];
   for (const file of files) {
     const path = normalizeMentionPath(file.path);
-    if (!path || path.startsWith("..") || path.includes("://")) continue;
+    if (
+      !path ||
+      path.startsWith("..") ||
+      path.includes("://") ||
+      isLapisInternalPath(path)
+    ) {
+      continue;
+    }
     const name = file.name || path.split("/").at(-1) || path;
     if (
       needle &&

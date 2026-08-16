@@ -93,6 +93,7 @@ class MockFileHandle implements BrowserFileSystemFileHandle {
   private data: Uint8Array = new Uint8Array();
   private modified = Date.now();
   lastCreateWritableOptions: BrowserFileSystemCreateWritableOptions | undefined;
+  lastSeekPosition: number | undefined;
   private getFileFailures: Error[] = [];
 
   constructor(readonly name: string) {}
@@ -122,10 +123,15 @@ class MockFileHandle implements BrowserFileSystemFileHandle {
     options?: BrowserFileSystemCreateWritableOptions,
   ): Promise<BrowserFileSystemWritableFileStream> {
     this.lastCreateWritableOptions = options;
+    let position = 0;
     if (options?.keepExistingData === false) {
       this.data = new Uint8Array();
     }
     return {
+      seek: async (nextPosition) => {
+        position = nextPosition;
+        this.lastSeekPosition = nextPosition;
+      },
       write: async (data) => {
         if (typeof data === "object" && data !== null && "type" in data) {
           const chunk = data as {
@@ -151,7 +157,18 @@ class MockFileHandle implements BrowserFileSystemFileHandle {
           return;
         }
 
-        this.data = await encodeWritableChunk(data);
+        const bytes = await encodeWritableChunk(data);
+        if (options?.keepExistingData) {
+          const next = new Uint8Array(
+            Math.max(this.data.byteLength, position + bytes.byteLength),
+          );
+          next.set(this.data);
+          next.set(bytes, position);
+          this.data = next;
+          position += bytes.byteLength;
+        } else {
+          this.data = bytes;
+        }
         this.modified = Date.now();
       },
       close: async () => {},
@@ -297,6 +314,21 @@ describe("BrowserHandleVaultAdapter", () => {
     expect(file.lastCreateWritableOptions).toEqual({
       keepExistingData: false,
     });
+  });
+
+  it("appends through a kept-data writable positioned at the file end", async () => {
+    const root = new MockDirectoryHandle("mock");
+    const adapter = createBrowserAdapter(root);
+
+    await adapter.write("transcript.jsonl", "one\n");
+    await adapter.append("transcript.jsonl", "two\n");
+
+    const file = (await root.getFileHandle(
+      "transcript.jsonl",
+    )) as MockFileHandle;
+    expect(await adapter.read("transcript.jsonl")).toBe("one\ntwo\n");
+    expect(file.lastCreateWritableOptions).toEqual({ keepExistingData: true });
+    expect(file.lastSeekPosition).toBe(4);
   });
 
   it("retries transient stale file handles while writing", async () => {

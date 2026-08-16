@@ -22,6 +22,7 @@ workspace shell.
 | LN-DB-012 | Missing OPFS, isolation, locks, or channels MUST produce an explicit blocked state with accurate capabilities rather than opening a non-Turso app-database fallback. |
 | LN-DB-013 | Local storage MUST remain authoritative. A future synced provider MAY be injected, but this intake MUST NOT configure credentials, remote databases, or note upload. |
 | LN-DB-014 | API-owned property evaluation MUST merge indexed vault properties with normalized search-document metadata without persisting provider fields into the metadata index. |
+| LN-DB-015 | Search documents MUST retain their domain source-provider id, and search queries MUST support an allowlist of source-provider ids across memory, Turso, native IPC, and browser-proxy transports. Provider filtering MUST occur before result limits are applied. |
 
 ## Runtime topology
 

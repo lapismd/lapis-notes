@@ -22,6 +22,8 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-014 | The web session MUST register an agent-runtime WebSocket bridge before constructing `AiPlugin` only when URL and token are both set. It MUST NOT overwrite an existing desktop bridge. The bridge MUST expose agent-scoped model discovery and forward connection closure to pending commands and active sessions. |
 | LN-WEB-013 | The web renderer MUST load the public Lapis CodeMirror autocomplete stylesheet after Design Core and Lapis theme paint so shared completion extensions render the same production popover chrome as desktop and Storybook.                                                                                         |
 | LN-WEB-015 | Each web session MUST own its compatibility App lease. PWA commands and status bindings MUST use the explicit session App, unbind before replacement, and MUST NOT poll or execute through `globalThis.app`.                                                                                                       |
+| LN-WEB-016 | The browser vault adapter MUST serialize append operations and append through a kept-data writable at the current file size rather than reading the complete transcript into renderer memory. |
+| LN-WEB-017 | The standalone agent-runtime bridge MUST reconnect and resubscribe active sessions from their last accepted sequence. A replay gap or unknown host session MUST become an explicit interrupted turn and MUST NOT automatically resend user input. |
 
 ## Implemented host boundary
 

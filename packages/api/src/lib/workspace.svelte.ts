@@ -1895,6 +1895,7 @@ export class Workspace extends EventDispatcher<{
   public rootSplit: WorkspaceView = new WorkspaceView();
   public displayMode: WorkspaceDisplayMode = $state("desktop");
   public _activeLeaf: WorkspaceLeaf | null = $state(null);
+  private lastActiveFile: TFile | null = null;
   public focusMode: WorkspaceFocusModeState | null = $state(null);
   public focusedHostId: string = $state(WORKSPACE_ROOT_HOST_ID);
   public leftSplit: WorkspaceSidedock = new WorkspaceSidedock({
@@ -2696,7 +2697,11 @@ export class Workspace extends EventDispatcher<{
     this.#editorViewBridgeDisposer = () =>
       this.editorViews.offref(editorViewBridgeRef);
     $effect(() => {
-      this.trigger("active-leaf-change", this.activeLeaf);
+      const activeLeaf = this.activeLeaf;
+      if (activeLeaf?.view instanceof FileView && activeLeaf.view.file) {
+        this.lastActiveFile = activeLeaf.view.file;
+      }
+      this.trigger("active-leaf-change", activeLeaf);
     });
     $effect(() => {
       this.trigger("resize", {
@@ -3635,9 +3640,10 @@ export class Workspace extends EventDispatcher<{
   getActiveFile(): TFile | null {
     const leaf = this.activeLeaf;
     if (leaf && leaf.view instanceof FileView) {
-      return leaf.view.file;
+      if (leaf.view.file) this.lastActiveFile = leaf.view.file;
+      return leaf.view.file ?? this.lastActiveFile;
     }
-    return null;
+    return this.lastActiveFile;
   }
 
   /**

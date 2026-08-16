@@ -133,6 +133,11 @@
       "import": "./dist/app-database-host.js",
       "default": "./dist/app-database-host.js"
     },
+    "./path": {
+      "types": "./dist/storage/path.d.ts",
+      "import": "./dist/storage/path.js",
+      "default": "./dist/storage/path.js"
+    },
     "./plugin-assets": {
       "types": "./dist/plugin-assets.d.ts",
       "import": "./dist/plugin-assets.js",

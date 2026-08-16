@@ -2,6 +2,7 @@ import { afterEach, expect, it } from "vitest";
 
 import {
   MemoryKeyValueStore,
+  NativeDesktopVaultAdapter,
   NativeDesktopTursoAppDatabaseProvider,
   createNativeDesktopVault,
   getCurrentVaultProfile,
@@ -186,6 +187,33 @@ it("routes app-database operations through the bounded native Turso RPC", async 
     {
       command: "desktop_db_close",
       payload: { vaultId: "desktop-folder:/vault" },
+    },
+  ]);
+});
+
+it("routes text appends through the native append command without a readback", async () => {
+  const calls: Array<{ command: string; payload?: Record<string, unknown> }> = [];
+  setNativeDesktopBridge({
+    runtime: "electron-desktop",
+    toFileUrl: (path: string) => `file://${path}`,
+    async invoke<T>(command: string, payload?: Record<string, unknown>) {
+      calls.push({ command, payload });
+      return undefined as T;
+    },
+  });
+  const adapter = new NativeDesktopVaultAdapter("/vault");
+
+  await adapter.append("Notes/.lapis/transcript.jsonl", "entry\n");
+
+  expect(calls).toEqual([
+    {
+      command: "desktop_fs_append_text",
+      payload: {
+        rootPath: "/vault",
+        normalizedPath: "Notes/.lapis/transcript.jsonl",
+        data: "entry\n",
+        options: undefined,
+      },
     },
   ]);
 });

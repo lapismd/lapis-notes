@@ -23,6 +23,7 @@ import { mount, unmount } from "svelte";
 import LapisExplorerView from "./LapisExplorerView.svelte";
 import LapisLanding from "./LapisLandingView.svelte";
 import { openExplorerFile } from "./open-explorer-file";
+import { isVisibleExplorerPath } from "./vault-path-visibility";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
@@ -55,11 +56,6 @@ const SUPPORTED_EXTENSIONS = new Set([
   "json",
   "data",
 ]);
-
-function visiblePath(path: string): boolean {
-  const first = path.replace(/^\/+/, "").split("/", 1)[0];
-  return first !== ".obsidian" && first !== ".trash";
-}
 
 function displayError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -109,7 +105,9 @@ function createExplorerController(app: App, loading: boolean) {
       listEntries: () =>
         app.vault
           .getAllLoadedFiles()
-          .filter((file) => file.path !== "/" && visiblePath(file.path))
+          .filter(
+            (file) => file.path !== "/" && isVisibleExplorerPath(file.path),
+          )
           .map(toExplorerNode),
       subscribe: (onChange) => {
         const created = app.vault.on("create", onChange);
@@ -154,11 +152,7 @@ function createExplorerController(app: App, loading: boolean) {
         withNotice(async () => {
           const file = app.vault.getFileByPath(path);
           if (!file) throw new Error(`Unable to find file: ${path}`);
-          await openExplorerFile(
-            app,
-            file,
-            options?.disposition ?? "current",
-          );
+          await openExplorerFile(app, file, options?.disposition ?? "current");
         }),
       createFile: (parent) =>
         withNotice(async () => {
@@ -365,7 +359,7 @@ export function createFileExplorerPlugin(
               .getFiles()
               .filter(
                 (file) =>
-                  visiblePath(file.path) &&
+                  isVisibleExplorerPath(file.path) &&
                   SUPPORTED_EXTENSIONS.has(file.extension.toLocaleLowerCase()),
               )
               .filter((file) =>

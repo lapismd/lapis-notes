@@ -61,6 +61,23 @@ export function basename(path: string): string {
   return path.slice(last + 1);
 }
 
+/**
+ * Returns whether a vault path belongs to Lapis' portable internal data.
+ *
+ * Internal data can occur beneath any folder-scoped feature root. Callers
+ * that present ordinary vault content should hide these paths, while explicit
+ * storage and indexing operations remain free to address them directly.
+ *
+ * @public
+ */
+export function isLapisInternalPath(path: string): boolean {
+  return path
+    .replaceAll("\\", "/")
+    .replace(/^\/+/, "")
+    .split("/")
+    .includes(".lapis");
+}
+
 export function reducer(ancestors: string[], current: string): string[] {
   if (ancestors.length === 0) {
     ancestors.push(current);

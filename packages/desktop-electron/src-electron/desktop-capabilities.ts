@@ -8,6 +8,7 @@ export const DESKTOP_INVOKE_COMMANDS = new Set([
   "desktop_db_close",
   "desktop_db_open",
   "desktop_fs_copy",
+  "desktop_fs_append_text",
   "desktop_fs_exists",
   "desktop_fs_get_resource_url",
   "desktop_fs_list",

@@ -587,6 +587,26 @@ describe("Workspace compatibility", () => {
     expect(view.editor.app).toBe(app);
   });
 
+  it("retains the most recently active file while a non-file sidebar has focus", () => {
+    const { workspace } = createWorkspaceHarness();
+    const fileLeaf = workspace.getLeaf();
+    const file = new TFile(
+      "Notes/Recent.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const fileView = new MockTextFileView(fileLeaf);
+    fileView.file = file;
+    fileLeaf.view = fileView;
+    workspace.activeLeaf = fileLeaf;
+
+    expect(workspace.getActiveFile()).toBe(file);
+
+    workspace.activeLeaf = workspace.getLeftLeaf(false)!;
+
+    expect(workspace.getActiveFile()).toBe(file);
+  });
+
   it("projects API plugin lifecycle state into the managed settings registry", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const pluginEvents = new EventDispatcher<{

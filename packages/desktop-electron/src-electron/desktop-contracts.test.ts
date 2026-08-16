@@ -57,6 +57,7 @@ describe("desktop capability contract", () => {
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_db_open");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_db_call");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_db_close");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_fs_append_text");
     expect(
       [...DESKTOP_INVOKE_COMMANDS].some((id) =>
         /(?:load_state|save_state|search_vector_documents)/u.test(id),
