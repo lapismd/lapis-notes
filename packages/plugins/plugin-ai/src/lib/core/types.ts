@@ -76,6 +76,11 @@ export type AgentCapabilities = {
   approvals: ApprovalCapabilities;
 };
 
+export type AgentUsage = {
+  used: number;
+  limit: number;
+};
+
 export type AgentEvent =
   | { type: "text"; text: string }
   | {
@@ -102,6 +107,7 @@ export type AgentEvent =
   | { type: "command.start"; command: string }
   | { type: "command.end"; command: string; exitCode: number }
   | { type: "permission.request"; request: ApprovalRequest }
+  | { type: "usage"; usage: AgentUsage }
   | { type: "status"; status: string }
   | { type: "completed"; result?: unknown }
   | { type: "error"; error: Error };

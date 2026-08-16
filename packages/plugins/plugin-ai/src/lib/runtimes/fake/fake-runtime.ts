@@ -86,6 +86,15 @@ export class FakeAgentSession implements AgentSession {
         output: FAKE_RICH_TOOL.output,
       });
       this.#events.push({ type: "text", text: FAKE_RICH_ASSISTANT_TEXT });
+      this.#events.push({ type: "status", status: "session updated" });
+      this.#events.push({
+        type: "status",
+        status: "available commands updated (75)",
+      });
+      this.#events.push({
+        type: "usage",
+        usage: { used: 12_920, limit: 128_000 },
+      });
     } else {
       this.#events.push({ type: "text", text: input });
     }

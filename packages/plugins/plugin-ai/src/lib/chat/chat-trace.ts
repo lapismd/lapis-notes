@@ -45,16 +45,33 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "tool.start": {
-      next.push({
-        id: event.id,
-        type: "tool",
-        toolId: event.id,
-        name: event.name,
-        server: event.server,
-        state: "running",
-        input: stringifyUnknown(event.input),
-        createdAt,
-      });
+      const index = next.findIndex(
+        (item) => item.type === "tool" && item.toolId === event.id,
+      );
+      const input = stringifyUnknown(event.input);
+      if (index >= 0) {
+        const current = next[index];
+        if (current?.type === "tool") {
+          next[index] = {
+            ...current,
+            name: event.name,
+            server: event.server ?? current.server,
+            state: "running",
+            input: input ?? current.input,
+          };
+        }
+      } else {
+        next.push({
+          id: event.id,
+          type: "tool",
+          toolId: event.id,
+          name: event.name,
+          server: event.server,
+          state: "running",
+          input,
+          createdAt,
+        });
+      }
       return next;
     }
     case "tool.end": {
@@ -89,7 +106,7 @@ export function applyAgentEventToChatItems(
     }
     case "permission.request": {
       next.push({
-        id: event.request.id,
+        id: `approval-${event.request.id}`,
         type: "approval",
         request: event.request,
         status: "pending",
@@ -98,6 +115,7 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "status": {
+      if (!isVisibleAgentStatus(event.status)) return next;
       next.push({
         id: createChatItemId("status", next.length + 1),
         type: "status",
@@ -130,6 +148,15 @@ export function applyAgentEventToChatItems(
     default:
       return next;
   }
+}
+
+export function isVisibleAgentStatus(status: string): boolean {
+  const normalized = status.trim().toLowerCase();
+  return !(
+    /^usage updated(?:\s*:\s*[\d,]+\s*\/\s*[\d,]+)?$/.test(normalized) ||
+    normalized === "session updated" ||
+    /^available commands updated(?:\s*\(\d+\))?$/.test(normalized)
+  );
 }
 
 export function markApprovalResponse(

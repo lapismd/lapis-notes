@@ -14,7 +14,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Manual live ACP lane. Default Plugins/AI stories stay Fake. Start lapis-ai-host yourself, set URL and token, then use this story. The play never sends a prompt.",
+          "Manual live ACP lane. Default Plugins/AI stories stay Fake. Start lapis-ai-host yourself, set URL and token, then use this story. Conversation plugin data persists in browser storage so reloads exercise session resume. The play never sends a prompt.",
       },
       source: {
         code: aiLiveHostExampleSource,
@@ -33,7 +33,7 @@ export const ManualAttach: Story = {
     docs: {
       description: {
         story:
-          "When URL or token is missing, the canvas shows setup copy. When both are set, the real AI workspace boots with ACP. The play does not type or send.",
+          "When URL or token is missing, the canvas shows setup copy. When both are set, the real AI workspace boots with ACP and restores persisted live conversation data. The play does not type or send.",
       },
     },
   },
@@ -58,8 +58,6 @@ export const ManualAttach: Story = {
       { timeout: 20_000 },
     );
     await expect(canvas.getByTestId("ai-chat-panel")).toBeVisible();
-    expect(
-      canvas.getByRole("combobox", { name: "Message" }),
-    ).toBeVisible();
+    expect(canvas.getByRole("combobox", { name: "Message" })).toBeVisible();
   },
 };

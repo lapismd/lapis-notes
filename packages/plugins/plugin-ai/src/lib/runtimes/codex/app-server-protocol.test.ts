@@ -67,6 +67,21 @@ describe("Codex app-server protocol mapper", () => {
   it("maps current reasoning and command completion notifications", () => {
     expect(
       mapCodexNotification({
+        method: "thread/tokenUsage/updated",
+        params: {
+          tokenUsage: {
+            total: { totalTokens: 41_200 },
+            last: { totalTokens: 2_100 },
+            modelContextWindow: 258_400,
+          },
+        },
+      }),
+    ).toEqual({
+      type: "usage",
+      usage: { used: 41_200, limit: 258_400 },
+    });
+    expect(
+      mapCodexNotification({
         method: "item/reasoning/summaryTextDelta",
         params: { delta: { text: "Summary" } },
       }),

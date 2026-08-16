@@ -5,6 +5,7 @@
   import * as Command from "@lapismd/design-core/shadcn/command";
   import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import * as Popover from "@lapismd/design-core/shadcn/popover";
+  import { Spinner } from "@lapismd/design-core/shadcn/spinner";
   import type {
     ComposerSearchSource,
     ComposerStatus,
@@ -130,6 +131,14 @@
   const composerStatus = $derived<ComposerStatus | undefined>(
     composerError ? { type: "error", message: composerError } : undefined,
   );
+  const contextPercent = $derived(
+    controller.usage
+      ? Math.min(
+          100,
+          Math.round((controller.usage.used / controller.usage.limit) * 100),
+        )
+      : 0,
+  );
 
   async function submit(prompt: string): Promise<void> {
     const selected = catalogModelsForAgent(selectedAgent, models).find(
@@ -212,6 +221,10 @@
     attachItems = [];
   }
 
+  function formatTokenCount(value: number): string {
+    return new Intl.NumberFormat().format(value);
+  }
+
   $effect(() => {
     const current = controller;
     void current.restore();
@@ -242,6 +255,18 @@
 >
   <Chat.Layout density="compact" {isEmpty} aria-label="AI chat">
     {#snippet composer()}
+      {#if controller.busy}
+        <div
+          class="ai-chat-panel__working"
+          data-testid="ai-chat-working"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <Spinner />
+          <span>Agent is working…</span>
+        </div>
+      {/if}
       <Chat.Composer
         bind:value={draft}
         placeholder="Ask anything…"
@@ -324,6 +349,22 @@
                 </Command.Root>
               </Popover.Content>
             </Popover.Root>
+          {/if}
+        {/snippet}
+        {#snippet headerContext()}
+          {#if controller.usage}
+            <label
+              class="ai-chat-panel__context-usage"
+              title={`${formatTokenCount(controller.usage.used)} of ${formatTokenCount(controller.usage.limit)} tokens used`}
+            >
+              <span>Context</span>
+              <progress
+                aria-label="Context window usage"
+                value={Math.min(controller.usage.used, controller.usage.limit)}
+                max={controller.usage.limit}
+              ></progress>
+              <span>{contextPercent}%</span>
+            </label>
           {/if}
         {/snippet}
         {#snippet footerActions()}

@@ -23,6 +23,12 @@ function stringValue(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+function numberValue(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
+}
+
 function streamedText(value: unknown): string {
   if (typeof value === "string") return value;
   const record = asRecord(value);
@@ -81,6 +87,15 @@ export function mapCodexNotification(
   if (method === "item/plan/delta") {
     const text = streamedText(params.delta ?? params.text);
     return text ? { type: "thinking", text, kind: "plan" } : null;
+  }
+  if (method === "thread/tokenUsage/updated") {
+    const tokenUsage = asRecord(params.tokenUsage);
+    const total = asRecord(tokenUsage.total);
+    const used = numberValue(total.totalTokens);
+    const limit = numberValue(tokenUsage.modelContextWindow);
+    return used !== undefined && used >= 0 && limit !== undefined && limit > 0
+      ? { type: "usage", usage: { used, limit } }
+      : null;
   }
   if (method === "item/started" || method === "item/toolCall/started") {
     if (!isToolItem(item) && method !== "item/toolCall/started") return null;

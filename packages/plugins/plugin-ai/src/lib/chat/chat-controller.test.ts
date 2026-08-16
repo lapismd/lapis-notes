@@ -39,6 +39,7 @@ describe("AiChatController", () => {
       runtimeSessionId: "fake-1",
       createdAt: "2026-01-01T00:00:00.000Z",
       updatedAt: "2026-01-01T00:00:00.000Z",
+      usage: { used: 8_000, limit: 128_000 },
       items: [
         {
           id: "user-1",
@@ -59,6 +60,98 @@ describe("AiChatController", () => {
     expect(controller.items[0]).toMatchObject({
       createdAt: "2026-01-01T12:00:00.000Z",
     });
+    expect(controller.usage).toEqual({ used: 8_000, limit: 128_000 });
+    await controller.close();
+  });
+
+  it("restores transcript before a slow runtime resume completes", async () => {
+    const store = createMemorySessionStore([
+      {
+        id: "ai:default:resuming:codex",
+        runtime: "resuming",
+        runtimeSessionId: "remote-1",
+        agent: "codex",
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+        items: [
+          {
+            id: "m1",
+            type: "message",
+            role: "assistant",
+            text: "Previously saved response",
+          },
+        ],
+      },
+    ]);
+    let finishResume!: (session: AgentSession) => void;
+    const resume = new Promise<AgentSession>((resolve) => {
+      finishResume = resolve;
+    });
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const runtime: AgentRuntime = {
+      id: "resuming",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        throw new Error("not used");
+      },
+      async resume() {
+        return resume;
+      },
+    };
+    const controller = new AiChatController(runtime, null, [], {
+      store,
+      request: { agent: "codex" },
+    });
+    const restoring = controller.restore();
+    await vi.waitFor(() => {
+      expect(controller.items[0]).toMatchObject({
+        text: "Previously saved response",
+      });
+    });
+    finishResume({
+      id: "remote-1",
+      async *events() {},
+      async send() {},
+      async respondToApproval() {},
+      async close() {},
+    });
+    await restoring;
+    await controller.close();
+  });
+
+  it("tracks usage events without rendering provider bookkeeping", async () => {
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const runtime: AgentRuntime = {
+      id: "usage",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        return {
+          id: "usage-1",
+          async *events() {
+            yield { type: "status" as const, status: "session updated" };
+            yield {
+              type: "usage" as const,
+              usage: { used: 32_000, limit: 128_000 },
+            };
+            yield { type: "completed" as const };
+          },
+          async send() {},
+          async respondToApproval() {},
+          async close() {},
+        };
+      },
+    };
+    const controller = new AiChatController(runtime);
+    await controller.submit("check usage");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(controller.usage).toEqual({ used: 32_000, limit: 128_000 });
+    expect(controller.items.some((item) => item.type === "status")).toBe(false);
     await controller.close();
   });
 

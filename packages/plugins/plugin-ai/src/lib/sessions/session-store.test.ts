@@ -16,6 +16,7 @@ describe("session store", () => {
       agent: "cursor",
       model: { provider: "cursor", model: "composer-2.5" },
       thinking: "high",
+      usage: { used: 12_000, limit: 128_000 },
       items: [{ id: "m1", type: "message", role: "user", text: "hi" }],
     });
     await store.save(session);
@@ -26,6 +27,7 @@ describe("session store", () => {
       agent: "cursor",
       model: { provider: "cursor", model: "composer-2.5" },
       thinking: "high",
+      usage: { used: 12_000, limit: 128_000 },
     });
     expect((await store.list())[0]?.items[0]).toMatchObject({ text: "hi" });
     await store.remove("s1");

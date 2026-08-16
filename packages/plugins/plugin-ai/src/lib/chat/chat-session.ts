@@ -1,4 +1,9 @@
-import type { AgentRuntime, AiThinkingLevel, ModelRef } from "../core/types";
+import type {
+  AgentRuntime,
+  AgentUsage,
+  AiThinkingLevel,
+  ModelRef,
+} from "../core/types";
 import {
   interruptPendingApprovals,
   pendingApprovalIdFromItems,
@@ -62,6 +67,7 @@ export function snapshotStoredChatSession(input: {
   agent?: string;
   model?: ModelRef;
   thinking?: AiThinkingLevel;
+  usage?: AgentUsage;
   items: AiChatItem[];
   createdAt?: string;
   interrupted?: boolean;
@@ -75,6 +81,7 @@ export function snapshotStoredChatSession(input: {
     agent: input.agent,
     model: input.model,
     thinking: input.thinking,
+    usage: input.usage ? { ...input.usage } : undefined,
     createdAt: input.createdAt ?? now,
     updatedAt: now,
     interrupted: input.interrupted,

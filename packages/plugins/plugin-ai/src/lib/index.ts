@@ -18,6 +18,7 @@ export type {
   AgentRequest,
   AgentRuntime,
   AgentSession,
+  AgentUsage,
   AiThinkingLevel,
   ApprovalCapabilities,
   ApprovalOption,
@@ -28,7 +29,10 @@ export type {
 export { StaticModelProvider } from "./providers/model-provider";
 export { CodexModelProvider } from "./providers/codex-model-provider";
 export { normalizeCodexModelList } from "./providers/codex-model-catalog";
-export type { ModelProvider, ProviderAuthStatus } from "./providers/model-provider";
+export type {
+  ModelProvider,
+  ProviderAuthStatus,
+} from "./providers/model-provider";
 export {
   AgentRuntimeNotFoundError,
   createAgentRuntimeRegistry,
@@ -47,10 +51,7 @@ export {
   normalizeAcpAgent,
 } from "./settings/acp-agents";
 export type { AcpAgentId } from "./settings/acp-agents";
-export {
-  DEFAULT_AI_SETTINGS,
-  mergeAiSettings,
-} from "./settings/ai-settings";
+export { DEFAULT_AI_SETTINGS, mergeAiSettings } from "./settings/ai-settings";
 export type { AiPluginSettings } from "./settings/ai-settings";
 export { renderChatMarkdown } from "./chat/chat-markdown";
 export {

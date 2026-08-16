@@ -86,7 +86,9 @@ describe("agent runtime contract", () => {
     const resumed = await runtime.resume?.(first.id);
     expect(resumed?.id).toBe(first.id);
     await first.close();
-    await expect(runtime.resume?.(first.id)).rejects.toThrow(/Unknown fake session/);
+    await expect(runtime.resume?.(first.id)).rejects.toThrow(
+      /Unknown fake session/,
+    );
   });
 
   it("streams a rich Fake turn with thinking, a tool, and Markdown", async () => {
@@ -97,6 +99,9 @@ describe("agent runtime contract", () => {
       "tool.start",
       "tool.end",
       "text",
+      "status",
+      "status",
+      "usage",
       "completed",
     ]);
     expect(events[0]).toMatchObject({
@@ -106,6 +111,10 @@ describe("agent runtime contract", () => {
     expect(events[3]).toMatchObject({
       type: "text",
       text: expect.stringContaining("## Summary"),
+    });
+    expect(events[6]).toEqual({
+      type: "usage",
+      usage: { used: 12_920, limit: 128_000 },
     });
   });
 

@@ -1,5 +1,5 @@
 import type { AiChatItem } from "../chat/chat-items";
-import type { AiThinkingLevel, ModelRef } from "../core/types";
+import type { AgentUsage, AiThinkingLevel, ModelRef } from "../core/types";
 
 export type StoredAgentSession = {
   id: string;
@@ -9,6 +9,7 @@ export type StoredAgentSession = {
   agent?: string;
   model?: ModelRef;
   thinking?: AiThinkingLevel;
+  usage?: AgentUsage;
   createdAt: string;
   updatedAt: string;
   interrupted?: boolean;
@@ -97,6 +98,7 @@ export function createStoredAgentSession(input: {
   agent?: string;
   model?: ModelRef;
   thinking?: AiThinkingLevel;
+  usage?: AgentUsage;
   items?: AiChatItem[];
   pendingApprovalId?: string;
   interrupted?: boolean;
@@ -110,6 +112,7 @@ export function createStoredAgentSession(input: {
     agent: input.agent,
     model: input.model,
     thinking: input.thinking,
+    usage: input.usage ? { ...input.usage } : undefined,
     createdAt: now,
     updatedAt: now,
     interrupted: input.interrupted,
@@ -139,6 +142,7 @@ export function interruptPendingApprovals(items: AiChatItem[]): AiChatItem[] {
 function cloneSession(session: StoredAgentSession): StoredAgentSession {
   return {
     ...session,
+    usage: session.usage ? { ...session.usage } : undefined,
     items: session.items.map(sanitizeChatItem),
   };
 }

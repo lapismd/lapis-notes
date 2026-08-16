@@ -9,6 +9,9 @@ import {
 export type AcpRuntimeEventLike = {
   type: string;
   text?: string;
+  tag?: string;
+  used?: number;
+  size?: number;
   stream?: "output" | "thought";
   toolCallId?: string;
   title?: string;
@@ -61,6 +64,8 @@ export function mapAcpRuntimeEvent(
     return { type: "text", text: event.text ?? "" };
   }
   if (event.type === "status") {
+    const usage = usageFromAcpStatus(event);
+    if (usage) return { type: "usage", usage };
     return { type: "status", status: event.text ?? event.status ?? "status" };
   }
   if (event.type === "tool_call") {
@@ -95,6 +100,35 @@ export function mapAcpRuntimeEvent(
     };
   }
   return null;
+}
+
+function usageFromAcpStatus(
+  event: AcpRuntimeEventLike,
+): { used: number; limit: number } | null {
+  if (
+    event.tag === "usage_update" &&
+    isFiniteNonNegative(event.used) &&
+    isFinitePositive(event.size)
+  ) {
+    return { used: event.used, limit: event.size };
+  }
+  const match = event.text?.match(
+    /^usage updated:\s*([\d,]+)\s*\/\s*([\d,]+)$/i,
+  );
+  if (!match) return null;
+  const used = Number(match[1]?.replaceAll(",", ""));
+  const limit = Number(match[2]?.replaceAll(",", ""));
+  return isFiniteNonNegative(used) && isFinitePositive(limit)
+    ? { used, limit }
+    : null;
+}
+
+function isFiniteNonNegative(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function isFinitePositive(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
 export function mapAcpPermissionRequest(

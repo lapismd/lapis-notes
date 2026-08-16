@@ -55,4 +55,63 @@ describe("chat trace", () => {
       { type: "error", text: "failed" },
     ]);
   });
+
+  it("coalesces repeated tool starts and keeps approval item keys distinct", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "tool.start",
+      id: "exec-1",
+      name: "curl -I",
+      input: { command: "curl -I https://example.com" },
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "tool.start",
+      id: "exec-1",
+      name: "curl -I https://example.com",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "permission.request",
+      request: {
+        id: "exec-1",
+        kind: "network",
+        title: "Allow network?",
+        options: DEFAULT_APPROVAL_OPTIONS,
+      },
+    });
+
+    expect(items).toHaveLength(2);
+    expect(items[0]).toMatchObject({
+      id: "exec-1",
+      type: "tool",
+      name: "curl -I https://example.com",
+      input: '{"command":"curl -I https://example.com"}',
+    });
+    expect(items[1]).toMatchObject({
+      id: "approval-exec-1",
+      type: "approval",
+      request: { id: "exec-1" },
+    });
+    expect(new Set(items.map((item) => item.id)).size).toBe(items.length);
+  });
+
+  it("keeps provider bookkeeping statuses out of the transcript", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "status",
+      status: "usage updated: 25645/258400",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "status",
+      status: "session updated",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "status",
+      status: "available commands updated (75)",
+    });
+    expect(items).toEqual([]);
+
+    items = applyAgentEventToChatItems(items, {
+      type: "status",
+      status: "cancelled",
+    });
+    expect(items).toMatchObject([{ type: "status", text: "cancelled" }]);
+  });
 });

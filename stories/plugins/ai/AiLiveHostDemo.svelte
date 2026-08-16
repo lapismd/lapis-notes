@@ -27,6 +27,7 @@
     const runtimePromise = bootAiWorkspaceDemo({
       defaultRuntime: "acp",
       vaultId: "lapis-ai-live-host",
+      persistPluginData: true,
     });
     void runtimePromise
       .then((runtime) => {
@@ -69,7 +70,9 @@
         <code>LAPIS_AGENT_RUNTIME_TOKEN</code> in
         <code>.env.storybook.local</code>
       </li>
-      <li>Restart Storybook and return to this story. Do not send from a play.</li>
+      <li>
+        Restart Storybook and return to this story. Do not send from a play.
+      </li>
     </ol>
   </section>
 {:else}
@@ -86,7 +89,11 @@
     {#if error}
       <div role="alert">{error}</div>
     {:else if app}
-      <WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />
+      <WorkspaceShell
+        {app}
+        displayMode="desktop"
+        workspaceLabel="Lapis Notes"
+      />
     {/if}
   </div>
 {/if}
@@ -116,7 +123,10 @@
     font-size: 0.875em;
   }
 
-  :global(body.sb-main-fullscreen:has(#storybook-root .ai-workspace-demo) #storybook-root) {
+  :global(
+      body.sb-main-fullscreen:has(#storybook-root .ai-workspace-demo)
+        #storybook-root
+    ) {
     box-sizing: border-box;
     width: 100%;
     height: 100vh;

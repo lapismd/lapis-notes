@@ -16,6 +16,7 @@ export const AI_WORKSPACE_CONFIGURATION = {
 export type AiWorkspaceDemoOptions = {
   defaultRuntime?: "fake" | "acp";
   vaultId?: string;
+  persistPluginData?: boolean;
 };
 
 export { isLiveAgentAttachConfigured } from "./live-agent-attach";
@@ -123,14 +124,35 @@ export async function bootAiWorkspaceDemo(
 }> {
   const defaultRuntime = options.defaultRuntime ?? "fake";
   const vaultId = options.vaultId ?? "lapis-ai-workspace";
-  const adapter = new MemoryVaultAdapter(
-    createAiWorkspaceSeed(createAiWorkspacePluginData(defaultRuntime)),
-    {
-      name: "Lapis AI Workspace",
-      vaultId,
-      clock: 1_700_000_000_000,
-    },
+  const seed = createAiWorkspaceSeed(
+    createAiWorkspacePluginData(defaultRuntime),
   );
+  const storageKey = `lapis-ai-story:${vaultId}:configuration`;
+  if (options.persistPluginData && typeof localStorage !== "undefined") {
+    const storedConfiguration = localStorage.getItem(storageKey);
+    if (storedConfiguration) {
+      try {
+        const parsed = JSON.parse(storedConfiguration);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          seed[".obsidian/app.json"] = storedConfiguration;
+        }
+      } catch {
+        localStorage.removeItem(storageKey);
+      }
+    }
+  }
+  const adapter = new MemoryVaultAdapter(seed, {
+    name: "Lapis AI Workspace",
+    vaultId,
+    clock: 1_700_000_000_000,
+  });
+  if (options.persistPluginData && typeof localStorage !== "undefined") {
+    adapter.onWrite = (path, data) => {
+      if (path === ".obsidian/app.json") {
+        localStorage.setItem(storageKey, data);
+      }
+    };
+  }
   const app = new App({
     version: "0.0.1-story",
     configPath: ".obsidian/app.json",

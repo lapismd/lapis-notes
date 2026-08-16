@@ -54,6 +54,27 @@ describe("ACP event mapper", () => {
       type: "error",
       error: expect.objectContaining({ message: "nope" }),
     });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "status",
+        tag: "usage_update",
+        text: "usage updated: 25,645/258,400",
+        used: 25_645,
+        size: 258_400,
+      }),
+    ).toEqual({
+      type: "usage",
+      usage: { used: 25_645, limit: 258_400 },
+    });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "status",
+        text: "usage updated: 25645/258400",
+      }),
+    ).toEqual({
+      type: "usage",
+      usage: { used: 25_645, limit: 258_400 },
+    });
   });
 
   it("maps onPermissionRequest payloads to ApprovalRequest", () => {
@@ -95,7 +116,9 @@ describe("ACP event mapper", () => {
           kind: "execute",
           rawInput: { command: "npm install" },
         },
-        options: [{ optionId: "allow-once", kind: "allow_once", name: "Allow" }],
+        options: [
+          { optionId: "allow-once", kind: "allow_once", name: "Allow" },
+        ],
       },
     });
     expect(request).toMatchObject({

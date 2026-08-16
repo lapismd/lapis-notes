@@ -200,9 +200,13 @@ export const PendingApproval: Story = {
     await userEvent.type(input, "Apply the change");
     await userEvent.keyboard("{Enter}");
     const allow = await canvas.findByRole("button", { name: "Allow once" });
+    await expect(canvas.getByTestId("ai-chat-working")).toHaveTextContent(
+      "Agent is working…",
+    );
     await userEvent.click(allow);
     await waitFor(() => {
       expect(canvas.getByText(/Approval approved/i)).toBeInTheDocument();
+      expect(canvas.queryByTestId("ai-chat-working")).toBeNull();
     });
   },
 };
@@ -366,6 +370,12 @@ export const AgentTrace: Story = {
           '[data-ui-component="ai-chat-message-metadata"] [data-ui-part="timestamp"]',
         ),
       ).not.toBeNull();
+      expect(canvas.getByText("Context")).toBeVisible();
+      expect(
+        canvas.getByRole("progressbar", { name: "Context window usage" }),
+      ).toHaveAttribute("value", "12920");
+      expect(canvas.queryByText("session updated")).toBeNull();
+      expect(canvas.queryByText("available commands updated (75)")).toBeNull();
     });
     await userEvent.click(
       canvas.getByRole("button", { name: "Show details for vault.read" }),

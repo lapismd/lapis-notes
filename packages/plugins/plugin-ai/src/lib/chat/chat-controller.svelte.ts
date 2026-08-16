@@ -2,6 +2,7 @@ import type {
   AgentRequest,
   AgentRuntime,
   AgentSession,
+  AgentUsage,
   ToolContribution,
 } from "../core/types";
 import type {
@@ -16,12 +17,17 @@ import {
   snapshotStoredChatSession,
 } from "./chat-session";
 import type { AiChatItem } from "./chat-items";
-import { applyAgentEventToChatItems, markApprovalResponse } from "./chat-trace";
+import {
+  applyAgentEventToChatItems,
+  isVisibleAgentStatus,
+  markApprovalResponse,
+} from "./chat-trace";
 
 export class AiChatController {
   items = $state.raw<AiChatItem[]>([]);
   busy = $state(false);
   error = $state<string | null>(null);
+  usage = $state<AgentUsage | null>(null);
   session: AgentSession | null = null;
   readonly runtime: AgentRuntime;
   readonly unavailableReason: string | null;
@@ -86,6 +92,8 @@ export class AiChatController {
       thinking: stored.thinking ?? this.request.thinking,
       workspace: stored.workspace ?? this.workspace,
     };
+    this.items = [...stored.items];
+    this.usage = stored.usage ? { ...stored.usage } : null;
     let resumed = false;
     if (this.runtime.capabilities().resume && this.runtime.resume) {
       try {
@@ -93,7 +101,6 @@ export class AiChatController {
           stored.runtimeSessionId,
           this.#sessionRequest,
         );
-        void this.#consume(this.session);
         resumed = true;
       } catch {
         this.session = null;
@@ -105,6 +112,7 @@ export class AiChatController {
       resumed,
     });
     this.items = restored.items;
+    if (resumed && this.session) void this.#consume(this.session);
     await this.#persist(restored.interrupted);
   }
 
@@ -190,6 +198,14 @@ export class AiChatController {
   async #consume(session: AgentSession): Promise<void> {
     try {
       for await (const event of session.events()) {
+        if (event.type === "usage") {
+          this.usage = { ...event.usage };
+          await this.#persist();
+          continue;
+        }
+        if (event.type === "status" && !isVisibleAgentStatus(event.status)) {
+          continue;
+        }
         this.items = applyAgentEventToChatItems(this.items, event);
         if (event.type === "completed" || event.type === "error") {
           this.busy = false;
@@ -231,6 +247,7 @@ export class AiChatController {
         agent: this.#sessionRequest.agent,
         model: this.#sessionRequest.model,
         thinking: this.#sessionRequest.thinking,
+        usage: this.usage ?? undefined,
         items: this.items,
         createdAt: this.#createdAt,
         interrupted,
