@@ -7,7 +7,11 @@ import type {
   ModelRef,
   ToolContribution,
 } from "../core/types";
-import type { AgentSessionStore } from "../sessions/session-store";
+import type {
+  ConversationRepository,
+  CreateConversationInput,
+} from "../conversations/conversation-repository";
+import type { ConversationLocation } from "../conversations/types";
 import type { AiPluginSettings } from "../settings/ai-settings";
 import AiChatPanel from "./ai-chat-panel.svelte";
 import { AiViewType } from "./ai-view-type";
@@ -18,7 +22,12 @@ export type AiViewHost = {
   fallbackRuntime(): AgentRuntime;
   liveRuntimeUnavailableReason(): string | null;
   tools: { list(): ToolContribution[] };
-  sessionStore: AgentSessionStore;
+  conversations: ConversationRepository;
+  createConversationInput(explicitFolder?: string): CreateConversationInput;
+  listConversationFolders(): string[];
+  subscribeConversationMoves?(
+    listener: (oldPath: string, newPath: string) => void,
+  ): () => void;
   searchVaultFiles: ComposerSearchSource;
   getSettings(): AiPluginSettings;
   updateSettings(patch: Partial<AiPluginSettings>): Promise<void>;
@@ -33,7 +42,6 @@ export class AiView extends View {
   private component: Record<string, unknown> | null = null;
   private disposed = false;
   private mountGeneration = 0;
-  private unsubscribeSettings: (() => void) | undefined;
   private readonly host: AiViewHost;
 
   constructor(leaf: WorkspaceLeaf, host: AiViewHost) {
@@ -63,11 +71,6 @@ export class AiView extends View {
 
   onload(): void {
     this.disposed = false;
-    this.unsubscribeSettings = this.host.subscribeSettings?.((patch) => {
-      if (patch.acpAgent !== undefined || patch.defaultRuntime !== undefined) {
-        void this.remountPanel();
-      }
-    });
     this.mountGeneration += 1;
     void this.mountPanel(this.mountGeneration);
   }
@@ -75,18 +78,8 @@ export class AiView extends View {
   onunload(): void {
     this.disposed = true;
     this.mountGeneration += 1;
-    this.unsubscribeSettings?.();
-    this.unsubscribeSettings = undefined;
     if (this.component) void unmount(this.component);
     this.component = null;
-  }
-
-  private async remountPanel(): Promise<void> {
-    this.mountGeneration += 1;
-    const generation = this.mountGeneration;
-    if (this.component) await unmount(this.component);
-    this.component = null;
-    if (!this.disposed) await this.mountPanel(generation);
   }
 
   private async mountPanel(generation: number): Promise<void> {
@@ -137,7 +130,27 @@ export class AiView extends View {
         unavailableReason,
         tools,
         workspace: this.host.workspace,
-        sessionStore: this.host.sessionStore,
+        repository: this.host.conversations,
+        initialLocation: conversationLocationFromState(this.getState()),
+        createConversation: (explicitFolder?: string) =>
+          this.host.createConversationInput(explicitFolder),
+        conversationFolders: this.host.listConversationFolders(),
+        subscribeConversationMoves: this.host.subscribeConversationMoves?.bind(
+          this.host,
+        ),
+        onConversationLocationChange: (
+          location: ConversationLocation | null,
+        ) => {
+          const state = { ...this.getState() };
+          if (location) {
+            state.scopeDir = location.scopeDir;
+            state.conversationId = location.conversationId;
+          } else {
+            delete state.scopeDir;
+            delete state.conversationId;
+          }
+          void this.setState(state);
+        },
         fileSearch: this.host.searchVaultFiles,
         models,
         modelCatalogError,
@@ -146,4 +159,16 @@ export class AiView extends View {
       },
     }) as Record<string, unknown>;
   }
+}
+
+function conversationLocationFromState(
+  state: Record<string, unknown>,
+): ConversationLocation | null {
+  return typeof state.scopeDir === "string" &&
+    typeof state.conversationId === "string"
+    ? {
+        scopeDir: state.scopeDir,
+        conversationId: state.conversationId,
+      }
+    : null;
 }

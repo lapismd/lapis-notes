@@ -229,6 +229,14 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
       break;
     case "cancelled":
       assertOptionalString(data, "text", "Transcript cancellation");
+      assertOptionalString(data, "requestId", "Transcript cancellation");
+      if (
+        data.interactionType != null &&
+        data.interactionType !== "approval" &&
+        data.interactionType !== "question"
+      ) {
+        throw new Error("Transcript cancellation interaction type is invalid");
+      }
       break;
     case "error":
       requiredString(data, "message", "Transcript error");

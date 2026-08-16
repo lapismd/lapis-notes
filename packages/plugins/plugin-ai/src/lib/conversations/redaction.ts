@@ -71,8 +71,11 @@ export function sanitizeDurableField(
 ): SanitizedDurableField {
   const state = { redacted: false };
   const structured = sanitizeStructure(value, state);
-  let text = stringify(structured);
-  if (text == null) return { redacted: state.redacted, truncated: false };
+  const initialText = stringify(structured);
+  if (initialText == null) {
+    return { redacted: state.redacted, truncated: false };
+  }
+  let text: string = initialText;
 
   const replacements: Array<[string | undefined, string]> = [
     [options.vaultRoot, "<vault>"],

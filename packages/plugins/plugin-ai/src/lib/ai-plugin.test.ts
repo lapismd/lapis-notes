@@ -25,4 +25,11 @@ describe("AiPlugin contracts", () => {
     );
     expect(source).not.toContain("globalThis.app");
   });
+
+  it("does not remount an open conversation when global defaults change", () => {
+    const source = readFileSync("src/lib/chat/ai-view.ts", "utf8");
+
+    expect(source).not.toContain("this.host.subscribeSettings");
+    expect(source).not.toContain("remountPanel");
+  });
 });

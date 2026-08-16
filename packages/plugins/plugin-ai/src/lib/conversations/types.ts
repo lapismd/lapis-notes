@@ -135,6 +135,8 @@ export type TranscriptEntry =
   | (TranscriptEntryBase & {
       type: "cancelled";
       text?: string;
+      requestId?: string;
+      interactionType?: "approval" | "question";
     })
   | (TranscriptEntryBase & {
       type: "error";

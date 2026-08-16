@@ -213,15 +213,17 @@ export function projectTranscriptToChatItems(
         break;
       case "approval.response": {
         const index = approvals.get(entry.requestId);
-        const current = index == null ? undefined : items[index];
-        if (current?.type === "approval") {
-          items[index] = {
-            ...current,
-            status: entry.option.id.startsWith("deny")
-              ? "rejected"
-              : "approved",
-            responseOptionId: entry.option.id,
-          };
+        if (index !== undefined) {
+          const current = items[index];
+          if (current?.type === "approval") {
+            items[index] = {
+              ...current,
+              status: entry.option.id.startsWith("deny")
+                ? "rejected"
+                : "approved",
+              responseOptionId: entry.option.id,
+            };
+          }
         }
         break;
       }
@@ -241,9 +243,11 @@ export function projectTranscriptToChatItems(
         break;
       case "question.response": {
         const index = questions.get(entry.requestId);
-        const current = index == null ? undefined : items[index];
-        if (current?.type === "question") {
-          items[index] = { ...current, status: entry.status };
+        if (index !== undefined) {
+          const current = items[index];
+          if (current?.type === "question") {
+            items[index] = { ...current, status: entry.status };
+          }
         }
         break;
       }
@@ -264,8 +268,28 @@ export function projectTranscriptToChatItems(
         });
         break;
       case "agent.switch":
-      case "cancelled":
         break;
+      case "cancelled": {
+        if (entry.interactionType === "approval" && entry.requestId) {
+          const index = approvals.get(entry.requestId);
+          if (index !== undefined) {
+            const current = items[index];
+            if (current?.type === "approval") {
+              items[index] = { ...current, status: "cancelled" };
+            }
+          }
+        }
+        if (entry.interactionType === "question" && entry.requestId) {
+          const index = questions.get(entry.requestId);
+          if (index !== undefined) {
+            const current = items[index];
+            if (current?.type === "question") {
+              items[index] = { ...current, status: "cancelled" };
+            }
+          }
+        }
+        break;
+      }
     }
   }
   return items;

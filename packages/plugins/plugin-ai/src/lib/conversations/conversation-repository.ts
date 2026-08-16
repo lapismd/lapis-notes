@@ -90,12 +90,13 @@ export class ConversationRepository {
       const safeEntries = entries.map((entry) => this.sanitizeEntry(entry));
       await this.store.appendTranscriptEntries(location, safeEntries);
       const snapshot = await this.store.read(location);
+      const firstUserMessage = snapshot.transcript.find(
+        (entry) => entry.type === "message" && entry.role === "user",
+      );
       const title =
         snapshot.metadata.title ??
         deriveConversationTitle(
-          snapshot.transcript.find(
-            (entry) => entry.type === "message" && entry.role === "user",
-          )?.text ?? "",
+          firstUserMessage?.type === "message" ? firstUserMessage.text : "",
         );
       const updatedAt =
         safeEntries.at(-1)?.createdAt ?? new Date().toISOString();

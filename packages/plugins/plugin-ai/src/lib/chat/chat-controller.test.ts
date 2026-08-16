@@ -6,6 +6,9 @@ import type {
   AgentSession,
 } from "../core/types";
 import { createMemorySessionStore } from "../sessions/session-store";
+import { ConversationRepository } from "../conversations/conversation-repository";
+import { MemoryTranscriptStore } from "../conversations/memory-transcript-store";
+import { CONVERSATION_SCHEMA_VERSION } from "../conversations/types";
 import { AiChatController } from "./chat-controller.svelte";
 
 describe("AiChatController", () => {
@@ -218,10 +221,15 @@ describe("AiChatController", () => {
         ],
       },
     ]);
-    const controller = new AiChatController(new FakeAgentRuntime(), null, [], {
-      store,
-      request: { agent: "cursor" },
-    });
+    const controller = new AiChatController(
+      new FakeAgentRuntime({ trace: "rich" }),
+      null,
+      [],
+      {
+        store,
+        request: { agent: "cursor" },
+      },
+    );
     await controller.restore();
     expect(controller.items).toEqual([]);
     expect(controller.sessionId).toBe("ai:default:fake:cursor");
@@ -263,5 +271,304 @@ describe("AiChatController", () => {
     await controller.submit("retry");
     await vi.waitFor(() => expect(starts).toBe(2));
     await controller.close();
+  });
+
+  it("persists production chats to a folder-scoped conversation and restores offline", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const id = "123e4567-e89b-42d3-a456-426614174000";
+    const controller = new AiChatController(
+      new FakeAgentRuntime({ trace: "rich" }),
+      null,
+      [],
+      {
+        repository,
+        createConversation: () => ({
+          id,
+          scopeDir: "Projects/Atlas",
+          launchNotePath: "Projects/Atlas/note.md",
+        }),
+        request: { agent: "codex", thinking: "medium" },
+      },
+    );
+
+    await controller.submit("Persist this response");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(controller.location).toEqual({
+      scopeDir: "Projects/Atlas",
+      conversationId: id,
+    });
+    const durable = await repository.read(controller.location!);
+    expect(durable.metadata.title).toBe("Persist this response");
+    expect(durable.agents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "binding.created",
+          runtime: "fake",
+          agent: "codex",
+        }),
+        expect.objectContaining({ type: "usage.updated" }),
+      ]),
+    );
+    expect(durable.transcript).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "message", role: "user" }),
+        expect.objectContaining({ type: "message", role: "assistant" }),
+        expect.objectContaining({ type: "tool" }),
+      ]),
+    );
+
+    const offline = new AiChatController(
+      new FakeAgentRuntime({ resumeSupported: false }),
+      null,
+      [],
+      { repository, location: controller.location },
+    );
+    await offline.restore();
+    expect(offline.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "message", role: "user" }),
+        expect.objectContaining({ type: "message", role: "assistant" }),
+      ]),
+    );
+    await controller.close();
+    await offline.close();
+  });
+
+  it("renders local conversation data before a delayed native resume", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const location = {
+      scopeDir: "",
+      conversationId: "123e4567-e89b-42d3-a456-426614174000",
+    };
+    await repository.create({
+      id: location.conversationId,
+      scopeDir: "",
+      now: "2026-08-16T00:00:00.000Z",
+    });
+    await repository.appendAgentRecords(location, [
+      {
+        schemaVersion: CONVERSATION_SCHEMA_VERSION,
+        id: "binding-1",
+        type: "binding.created",
+        createdAt: "2026-08-16T00:00:00.000Z",
+        runtime: "delayed",
+        agent: "codex",
+        nativeSessionId: "native-1",
+      },
+    ]);
+    await repository.appendTranscript(location, [
+      {
+        schemaVersion: CONVERSATION_SCHEMA_VERSION,
+        id: "m1",
+        type: "message",
+        role: "assistant",
+        text: "Available locally",
+        createdAt: "2026-08-16T00:00:00.000Z",
+        agentBindingId: "binding-1",
+      },
+    ]);
+    let finishResume!: (session: AgentSession) => void;
+    const resume = new Promise<AgentSession>((resolve) => {
+      finishResume = resolve;
+    });
+    const runtime: AgentRuntime = {
+      id: "delayed",
+      capabilities: () => new FakeAgentRuntime().capabilities(),
+      async supports() {
+        return true;
+      },
+      async start() {
+        throw new Error("not used");
+      },
+      async resume() {
+        return resume;
+      },
+    };
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      location,
+      request: { agent: "codex" },
+    });
+    const restoring = controller.restore();
+    await vi.waitFor(() => {
+      expect(controller.items[0]).toMatchObject({ text: "Available locally" });
+    });
+    finishResume({
+      id: "native-1",
+      async *events() {},
+      async send() {},
+      async respondToApproval() {},
+      async close() {},
+    });
+    await restoring;
+    await controller.close();
+  });
+
+  it("records final usage in the binding log without transcript pollution", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const id = "123e4567-e89b-42d3-a456-426614174000";
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const runtime: AgentRuntime = {
+      id: "usage-local",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        return {
+          id: "usage-native",
+          async *events() {
+            yield { type: "usage" as const, usage: { used: 12, limit: 100 } };
+            yield { type: "completed" as const };
+          },
+          async send() {},
+          async respondToApproval() {},
+          async close() {},
+        };
+      },
+    };
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({ id, scopeDir: "" }),
+    });
+    await controller.submit("usage");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect((await repository.read(controller.location!)).agents.at(-1)).toMatchObject({
+        type: "usage.updated",
+        usage: { used: 12, limit: 100 },
+      });
+    });
+    const snapshot = await repository.read(controller.location!);
+    expect(JSON.stringify(snapshot.transcript)).not.toContain("usage.updated");
+    await controller.close();
+  });
+
+  it("switches model at the next turn boundary without changing conversation", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const runtime = new FakeAgentRuntime();
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      request: {
+        agent: "codex",
+        model: { provider: "codex", model: "first" },
+      },
+    });
+    await controller.submit("first", {
+      agent: "codex",
+      model: { provider: "codex", model: "first" },
+    });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await controller.submit("second", {
+      agent: "codex",
+      model: { provider: "codex", model: "second" },
+    });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+
+    const snapshot = await repository.read(controller.location!);
+    expect(runtime.sessions).toHaveLength(2);
+    expect(
+      snapshot.agents.filter((record) => record.type === "binding.created"),
+    ).toHaveLength(2);
+    expect(snapshot.transcript).toContainEqual(
+      expect.objectContaining({ type: "agent.switch" }),
+    );
+    await controller.close();
+  });
+
+  it("cancels a restored pending interaction when native resume is unavailable", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const location = {
+      scopeDir: "Projects/Atlas",
+      conversationId: "123e4567-e89b-42d3-a456-426614174000",
+    };
+    await repository.create({ ...location, id: location.conversationId });
+    await repository.appendAgentRecords(location, [
+      {
+        schemaVersion: CONVERSATION_SCHEMA_VERSION,
+        id: "binding-1",
+        type: "binding.created",
+        createdAt: "2026-08-16T00:00:00.000Z",
+        runtime: "fake",
+        agent: "codex",
+        nativeSessionId: "native-1",
+      },
+    ]);
+    await repository.appendTranscript(location, [
+      {
+        schemaVersion: CONVERSATION_SCHEMA_VERSION,
+        id: "question-1:request",
+        type: "question.request",
+        createdAt: "2026-08-16T00:00:01.000Z",
+        agentBindingId: "binding-1",
+        requestId: "question-1",
+        title: "Choose an approach",
+        questions: [
+          {
+            id: "approach",
+            header: "Approach",
+            prompt: "Which approach?",
+            allowOther: false,
+            secret: false,
+          },
+        ],
+      },
+    ]);
+
+    const controller = new AiChatController(
+      new FakeAgentRuntime({ resumeSupported: false }),
+      null,
+      [],
+      { repository, location },
+    );
+    await controller.restore();
+    expect(controller.items).toContainEqual(
+      expect.objectContaining({ type: "question", status: "cancelled" }),
+    );
+    const snapshot = await repository.read(location);
+    expect(snapshot.transcript).toContainEqual(
+      expect.objectContaining({
+        type: "cancelled",
+        requestId: "question-1",
+        interactionType: "question",
+      }),
+    );
+    await controller.close();
+  });
+
+  it("archives, reopens, relocates, and deletes one scoped conversation", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const location = {
+      scopeDir: "Projects/Atlas",
+      conversationId: "123e4567-e89b-42d3-a456-426614174000",
+    };
+    await repository.create({ ...location, id: location.conversationId });
+    const states: Array<typeof location | null> = [];
+    const controller = new AiChatController(new FakeAgentRuntime(), null, [], {
+      repository,
+      onLocationChange: (next) => states.push(next ? { ...next } : null),
+    });
+
+    await controller.openConversation(location);
+    await controller.archiveCurrent();
+    expect((await repository.read(location)).metadata.status).toBe("archived");
+
+    controller.relocateScope("Projects", "Archive/Projects");
+    expect(controller.location?.scopeDir).toBe("Archive/Projects/Atlas");
+    expect(states.at(-1)?.scopeDir).toBe("Archive/Projects/Atlas");
+
+    // The memory store does not receive a vault rename event, so move the
+    // locator back before exercising source deletion.
+    controller.relocateScope("Archive/Projects", "Projects");
+    await controller.deleteCurrent();
+    await expect(repository.read(location)).rejects.toThrow(
+      "Conversation not found",
+    );
+    expect(controller.location).toBeNull();
+    expect(states.at(-1)).toBeNull();
   });
 });

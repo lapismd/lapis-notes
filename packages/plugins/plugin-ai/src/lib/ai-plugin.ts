@@ -25,8 +25,8 @@ import {
   serializeAiPluginData,
   type AiPluginData,
 } from "./sessions/plugin-data";
-import { createMemorySessionStore } from "./sessions/session-store";
 import { ConversationRepository } from "./conversations/conversation-repository";
+import type { CreateConversationInput } from "./conversations/conversation-repository";
 import { ConversationScopeResolver } from "./conversations/scope-resolver";
 import { VaultTranscriptStore } from "./conversations/vault-transcript-store";
 import { registerAiSettings } from "./settings/register-ai-settings";
@@ -60,11 +60,13 @@ export class AiPlugin extends Plugin {
   readonly #settingsListeners = new Set<
     (patch: Partial<AiPluginSettings>) => void
   >();
+  readonly #conversationMoveListeners = new Set<
+    (oldPath: string, newPath: string) => void
+  >();
   readonly fakeRuntime = new FakeAgentRuntime({
     requireApproval: false,
     trace: "rich",
   });
-  readonly sessionStore = createMemorySessionStore();
   readonly scopeResolver = new ConversationScopeResolver();
   readonly conversations: ConversationRepository;
 
@@ -120,6 +122,13 @@ export class AiPlugin extends Plugin {
     return () => this.#settingsListeners.delete(listener);
   }
 
+  subscribeConversationMoves(
+    listener: (oldPath: string, newPath: string) => void,
+  ): () => void {
+    this.#conversationMoveListeners.add(listener);
+    return () => this.#conversationMoveListeners.delete(listener);
+  }
+
   liveRuntimeUnavailableReason(): string | null {
     if (hasNativeDesktopCapability("agent-runtime")) return null;
     return "Live agent runtimes are available only on the desktop host.";
@@ -127,6 +136,41 @@ export class AiPlugin extends Plugin {
 
   get workspace(): string | undefined {
     return this.app.vault.getName() || undefined;
+  }
+
+  createConversationInput(explicitFolder?: string): CreateConversationInput {
+    const activeFile = this.app.workspace.getActiveFile();
+    const resolved = this.scopeResolver.resolve({
+      explicitFolder,
+      activeFile,
+    });
+    const launchNotePath =
+      activeFile &&
+      (!resolved.scopeDir ||
+        activeFile.path.startsWith(`${resolved.scopeDir}/`))
+        ? activeFile.path
+        : undefined;
+    return {
+      scopeDir: resolved.scopeDir,
+      launchNotePath,
+    };
+  }
+
+  listConversationFolders(): string[] {
+    return [
+      "",
+      ...this.app.vault
+        .getAllFolders()
+        .map((folder) => folder.path)
+        .filter((path) => {
+          const parts = path.split("/");
+          return (
+            parts[0] !== ".obsidian" &&
+            parts[0] !== ".trash" &&
+            !parts.includes(".lapis")
+          );
+        }),
+    ].sort((left, right) => left.localeCompare(right));
   }
 
   searchVaultFiles = async (
@@ -166,6 +210,13 @@ export class AiPlugin extends Plugin {
     this.data = parseAiPluginData(await this.loadData());
     this.addSettingTab(new AiSettingsTab(this.app, this));
     registerAiSettings(this);
+    this.registerEvent(
+      this.app.vault.on("rename", (file, oldPath) => {
+        for (const listener of this.#conversationMoveListeners) {
+          listener(oldPath, file.path);
+        }
+      }),
+    );
     this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
       side: "right",
       title: "AI",

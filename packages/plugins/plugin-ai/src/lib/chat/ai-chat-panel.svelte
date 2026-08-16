@@ -14,6 +14,7 @@
   } from "@lapismd/design-core/ai/chat";
   import BrainIcon from "@lucide/svelte/icons/brain";
   import CopyIcon from "@lucide/svelte/icons/copy";
+  import HistoryIcon from "@lucide/svelte/icons/history";
   import PaperclipIcon from "@lucide/svelte/icons/paperclip";
   import RedoIcon from "@lucide/svelte/icons/redo-2";
   import XIcon from "@lucide/svelte/icons/x";
@@ -24,6 +25,12 @@
     ToolContribution,
   } from "../core/types";
   import type { AgentSessionStore } from "../sessions/session-store";
+  import type {
+    ConversationRepository,
+    CreateConversationInput,
+  } from "../conversations/conversation-repository";
+  import type { ConversationListEntry } from "../conversations/transcript-store";
+  import type { ConversationLocation } from "../conversations/types";
   import { catalogModelsForAgent } from "../settings/acp-agents";
   import {
     DEFAULT_AI_SETTINGS,
@@ -43,11 +50,17 @@
     tools = [],
     sessionStore,
     sessionId,
+    repository,
+    initialLocation = null,
+    createConversation,
+    conversationFolders = [],
+    subscribeConversationMoves,
+    onConversationLocationChange,
     fileSearch,
     models = [],
     modelCatalogError = null,
     settings,
-    onSettingsChange,
+    onSettingsChange: _onSettingsChange,
   }: {
     runtime: AgentRuntime;
     unavailableReason?: string | null;
@@ -55,6 +68,16 @@
     tools?: ToolContribution[];
     sessionStore?: AgentSessionStore;
     sessionId?: string;
+    repository?: ConversationRepository;
+    initialLocation?: ConversationLocation | null;
+    createConversation?: (explicitFolder?: string) => CreateConversationInput;
+    conversationFolders?: string[];
+    subscribeConversationMoves?: (
+      listener: (oldPath: string, newPath: string) => void,
+    ) => () => void;
+    onConversationLocationChange?: (
+      location: ConversationLocation | null,
+    ) => void;
     fileSearch?: ComposerSearchSource;
     models?: ModelRef[];
     modelCatalogError?: string | null;
@@ -79,6 +102,10 @@
           : undefined,
         thinking: settings?.thinking,
       },
+      repository,
+      location: initialLocation,
+      createConversation: () => createConversation?.() ?? { scopeDir: "" },
+      onLocationChange: onConversationLocationChange,
     }),
   );
   let draft = $state("");
@@ -89,6 +116,8 @@
   let visibleInteractionId = $state<string | null>(null);
   let attachOpen = $state(false);
   let attachItems = $state<ComposerTriggerItem[]>([]);
+  let historyEntries = $state<ConversationListEntry[]>([]);
+  let showArchived = $state(false);
   const selectedAgent = $derived(
     settings?.acpAgent ?? DEFAULT_AI_SETTINGS.acpAgent,
   );
@@ -178,12 +207,46 @@
 
   function changeModel(value: string): void {
     localModel = value;
-    void onSettingsChange?.({ defaultModel: value });
   }
 
   function changeThinking(value: string): void {
     localThinking = value as AiThinkingLevel;
-    void onSettingsChange?.({ thinking: localThinking });
+  }
+
+  function historyScope(): string {
+    return controller.location?.scopeDir ?? createConversation?.().scopeDir ?? "";
+  }
+
+  async function refreshHistory(): Promise<void> {
+    if (!repository) {
+      historyEntries = [];
+      return;
+    }
+    historyEntries = await repository.list(historyScope());
+  }
+
+  async function startNewChat(explicitFolder?: string): Promise<void> {
+    const input = createConversation?.(explicitFolder) ?? {
+      scopeDir: explicitFolder ?? "",
+    };
+    await controller.newConversation(input);
+    draft = "";
+    await refreshHistory();
+  }
+
+  async function openConversation(location: ConversationLocation): Promise<void> {
+    await controller.openConversation(location);
+    await refreshHistory();
+  }
+
+  async function archiveConversation(): Promise<void> {
+    await controller.archiveCurrent(true);
+    await startNewChat();
+  }
+
+  async function deleteConversation(): Promise<void> {
+    await controller.deleteCurrent();
+    await refreshHistory();
   }
 
   function addAttachment(item: ComposerTriggerItem): void {
@@ -245,6 +308,13 @@
     return () => {
       void current.close();
     };
+  });
+
+  $effect(() => {
+    if (!subscribeConversationMoves) return;
+    return subscribeConversationMoves((oldPath, newPath) => {
+      controller.relocateScope(oldPath, newPath);
+    });
   });
 
   $effect(() => {
@@ -357,6 +427,86 @@
           {/if}
         {/snippet}
         {#snippet headerActions()}
+          {#if repository}
+            <DropdownMenu.Root
+              onOpenChange={(open) => open && void refreshHistory()}
+            >
+              <DropdownMenu.Trigger>
+                {#snippet child({ props }: { props: Record<string, unknown> })}
+                  <Button
+                    {...props}
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label="Conversation history"
+                    data-testid="ai-chat-history"
+                  >
+                    <HistoryIcon aria-hidden="true" />
+                  </Button>
+                {/snippet}
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="start">
+                <DropdownMenu.Item onclick={() => void startNewChat()}>
+                  New chat
+                </DropdownMenu.Item>
+                <DropdownMenu.Sub>
+                  <DropdownMenu.SubTrigger>
+                    New chat in folder…
+                  </DropdownMenu.SubTrigger>
+                  <DropdownMenu.SubContent>
+                    {#each conversationFolders as folder (folder || "vault-root")}
+                      <DropdownMenu.Item
+                        onclick={() => void startNewChat(folder)}
+                      >
+                        {folder || "Vault root"}
+                      </DropdownMenu.Item>
+                    {/each}
+                  </DropdownMenu.SubContent>
+                </DropdownMenu.Sub>
+                <DropdownMenu.Separator />
+                <DropdownMenu.CheckboxItem bind:checked={showArchived}>
+                  Show archived
+                </DropdownMenu.CheckboxItem>
+                <DropdownMenu.Sub>
+                  <DropdownMenu.SubTrigger>
+                    This folder
+                  </DropdownMenu.SubTrigger>
+                  <DropdownMenu.SubContent>
+                    {#each historyEntries.filter((entry) => showArchived || entry.metadata?.status !== "archived") as entry (`${entry.location.scopeDir}:${entry.location.conversationId}`)}
+                      <DropdownMenu.Item
+                        disabled={Boolean(entry.unavailableReason)}
+                        onclick={() => void openConversation(entry.location)}
+                      >
+                        {entry.metadata?.title ??
+                          (entry.unavailableReason
+                            ? "Unavailable conversation"
+                            : "Untitled conversation")}
+                      </DropdownMenu.Item>
+                    {:else}
+                      <DropdownMenu.Item disabled>
+                        No conversations in this folder
+                      </DropdownMenu.Item>
+                    {/each}
+                  </DropdownMenu.SubContent>
+                </DropdownMenu.Sub>
+                <DropdownMenu.Item disabled>
+                  All conversations (index pending)
+                </DropdownMenu.Item>
+                {#if controller.location}
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Item
+                    onclick={() => void archiveConversation()}
+                  >
+                    Archive conversation
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item
+                    onclick={() => void deleteConversation()}
+                  >
+                    Delete conversation
+                  </DropdownMenu.Item>
+                {/if}
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          {/if}
           {#if fileSearch}
             <Popover.Root
               bind:open={attachOpen}
