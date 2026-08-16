@@ -75,6 +75,7 @@ execution APIs.
 | LN-AI-064 | Stored transcript items and context usage MUST render before runtime resume completes. The Live Host Storybook lane MUST persist its plugin data across browser reloads so a prior live conversation can exercise the production resume path.                                                                |
 | LN-AI-065 | While a submitted turn remains active, the chat panel MUST show an accessible working indicator immediately above the composer and remove it when the turn completes, fails, or is cancelled.                                                                                                                |
 | LN-AI-066 | Pending permission requests and agent questions MUST render in the Design Core Composer Drawer rather than the transcript. Permission choices MUST respond immediately; question forms MUST submit every required answer and MUST NOT persist secret answer values.                                         |
+| LN-AI-067 | Disposable ACP model discovery MUST tolerate agents that do not advertise `session/close`. Cleanup MUST close local resources without turning a successful model listing into a failure.                                                                                                                     |
 
 ### LN-AI-046 acceptance details
 

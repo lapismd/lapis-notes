@@ -39,7 +39,9 @@ catalogs and runtime events over the authenticated host connection. Closing
 that connection rejects pending commands and terminates active chats with a
 visible error. The standalone host uses the maintained ACP adapter supplied by
 its acpx release and tolerates sessions without a separate thinking option; the
-web host does not maintain a second provider protocol.
+host also treats unsupported backend closure of disposable model sessions as
+successful local cleanup. The web host does not maintain a second provider
+protocol.
 
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
 File System Access profiles. It constructs the API session, loads Markdown,

@@ -227,9 +227,11 @@ name. Process execution lives in `@lapis-notes/ai-host`, used in-process by
 Electron and as `lapis-ai-host serve` for WebSocket clients. Chat sessions
 persist runtime, provider, model, and thinking context through plugin data.
 Codex model listing uses the process host while Cursor model listing uses an
-agent-scoped disposable acpx session. The host consumes the maintained ACP
-adapter supplied by its acpx release and applies optional thinking controls only
-when the created session advertises them. Native Codex and ACP normalize
+agent-scoped disposable acpx session. Cleanup falls back to local session
+closure when the agent does not advertise `session/close`, without discarding a
+successful catalog. The host consumes the maintained ACP adapter supplied by
+its acpx release and applies optional thinking controls only when the created
+session advertises them. Native Codex and ACP normalize
 thinking, tool, permission, user-input, and error events before the shared
 controller renders them. Runtime-neutral pending interactions are presented
 through Design Core's Composer Drawer; provider request objects and secret

@@ -167,9 +167,11 @@ Domain plugins register tools. The package does not declare an acpx dependency.
 Private `@lapis-notes/ai-host` owns acpx, its maintained ACP adapter release,
 process spawn, disposable model-status sessions, the WebSocket server, and
 `lapis-ai-host serve`. It treats advertised session controls as capabilities so
-an agent without a separate thinking option retains its own default. Electron
-calls that library in-process. Web and Storybook attach only with a configured
-URL and token, and transport closure is forwarded to active plugin sessions.
+an agent without a separate thinking option retains its own default and an
+agent without backend session closure still releases local catalog resources.
+Electron calls that library in-process. Web and Storybook attach only with a
+configured URL and token, and transport closure is forwarded to active plugin
+sessions.
 Electron, web, and root Storybook declare the workspace package directly; the
 catalog source alias resolves that same owning package during development.
 The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview. Its compiled
