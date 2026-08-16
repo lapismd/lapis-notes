@@ -13,4 +13,4 @@ Storybook coverage.
 | LN-MD-020 | The package MUST export the real `AllProperties` Svelte component with `app: App` as its only input. Its Storybook stories MUST declare that component as Autodocs authority while rendering it through the persisted workspace shell in all six movable surfaces. Fixture-only panel kind and layout selection MUST remain outside args, Controls, and Properties. Each scenario MUST contain exactly one All Properties view, omit a visible Markdown document, retain seeded metadata, and verify sort and search behavior. |
 
 The catalog details are governed by LN-CAT-022. The shared surface, Docs, source,
-and placement rules live under [Workspace Shell / Panels](../../workspace-shell/panels.md).
+and placement rules live under [Workspace Shell / Panels](../../../workspace-shell/panels.md).

@@ -177,8 +177,8 @@ Source: `/Users/stevejuma/code/lapis-notes/packages/web` at legacy commit
 
 ### Markdown plugin intake progress
 
-Canonical Markdown requirements span `spec/src/markdown-plugin.md`, its nested
-`spec/src/markdown-plugin/panels/` pages, and the shared movable-panel contract
+Canonical Markdown requirements span `spec/src/plugins/markdown/index.md`, its nested
+`spec/src/plugins/markdown/panels/` pages, and the shared movable-panel contract
 in `spec/src/workspace-shell/panels.md` (LN-MD-001 through LN-MD-035). Parity
 detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 
@@ -197,14 +197,14 @@ detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Compact Mira feature settings → the 20 capability descriptors retain flat dotted keys/defaults/runtime gates while design-core renders their explicit labels and descriptions in a presentation-only Features toggle table (LN-MD-082/083, LN-ED-042)
 - [x] Markdown mode chrome → API-to-design-core projection of compatibility view actions and pane menus; full-repo book-open/pencil mode actions, modifier split behavior, Reading/Source menu toggles, and registered Markdown provider items (LN-MD-076/077, LN-ED-038/039)
 - [x] Reusable embedded editor → public API surface composes registered language/view extensions with flushable host-owned persistence and a source-only fallback; Markdown consumes the same surface used by external plugin pages (LN-ED-050/051, LN-MD-090)
-- [x] Domain-file Markdown delegation → public serialized return targets let external previews hand a leaf to bundled Markdown Live Preview and restore the originating view; Roles consumer acceptance covers rich source and Description editing (LN-ED-052, LN-MD-091, LN-ROLE-022)
+- [x] Domain-file Markdown delegation → public serialized return targets let external previews hand a leaf to bundled Markdown Live Preview and restore the originating view; the external Roles package owns rich source and Description acceptance (LN-ED-052, LN-MD-091)
 - [x] Markdown view-menu and Reading polish → borderless Mira Reading shell, View-first mode and toolbar controls, plus persisted toolbar indentation settings (LN-MD-078 through LN-MD-081, LN-ED-040/041)
 - [x] Mira-backed embed framework → app-bound `MiraFileAdapter`, public `FileEmbed` / `MarkdownEmbed` / `NoteLink` plus `./embed`, shared document and Design Core Hover Card link-panel previews, vault-relative resolution, refresh/navigation, image and registered custom-embed lifecycle (LN-MD-026)
 - [x] Ordinary Mira internal-link previews → linked source-owned Bits UI `LinkPreview`, owner-document portal, collision-aware viewport geometry, active appearance, and topmost cross-pane paint without a Lapis wrapper (LN-MD-027)
 - [x] Editable note hover previews → Lapis vault-backed `writeMarkdown`, automatic ordinary-link editing, opted-in Backlinks/Outgoing `FileEmbed` editing, 500ms serialized autosave, dirty-error retention, and read-only direct embeds (LN-MD-028)
 - [x] Minimal editable preview cards → no resolved filename/path chrome or panel embed guide, disclosure-safe all-round padding, sticky top-right open action, two-pixel editing border, CodeMirror-owned edit scrolling, hover/focus pinning, and persistence-safe outside-click dismissal (LN-MD-029)
 - [x] Unified editable preview appearance → inherited Mira portal theme, explicit panel FileEmbed theme, Lapis-aligned Mira accent aliases, and preview padding isolated from live-edit frontmatter (LN-MD-030)
-- [x] Focused `Workspace/Panels/Markdown/<Panel>/*` interaction stories: six movable surfaces for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags; file-scoped stories keep one minimal active note and vault-wide stories stay document-free
+- [x] Focused `Plugins/Markdown/Panels/<Panel>/*` interaction stories: six movable surfaces for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags; file-scoped stories keep one minimal active note and vault-wide stories stay document-free
 - [x] Real app-only component metadata with no kind/layout harness controls; real bottom/sidebar groups, stable ViewHost paint assertions, isolated 700px padding-free Docs previews, and explicit persisted-layout Show Code
 - [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only
 - [ ] Markdown panel Visual Delta capture/review; all placement stories declare independent pending paths, but this slice intentionally generates or updates no PNGs

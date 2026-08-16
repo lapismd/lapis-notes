@@ -1,5 +1,9 @@
 # Architecture
 
+Storybook is a documentation projection over the package graph. Its exact
+specification mirrors and post-build index acceptance do not add a runtime
+dependency or move plugin ownership into the catalog host.
+
 ## Requirements
 
 | ID          | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |

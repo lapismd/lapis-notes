@@ -2,7 +2,7 @@
 
 The Markdown plugin owns Markdown document behavior and its integration with the
 Lapis plugin, editor, metadata, and workspace APIs. Movable panel behavior is
-specified separately under [Panels](./markdown-plugin/panels/index.md).
+specified separately under [Panels](./panels/index.md).
 
 The production plugin also owns the Tags panel. Its persisted panel IDs follow
 the canonical Obsidian-compatible names governed by `LN-MD-085` and
@@ -61,15 +61,15 @@ ephemeral view badge; Markdown and Markdownlint contribute diagnostics but do
 not construct or persist that presentation.
 
 Panel registration, package exports, and per-panel behavior are documented in
-the [Markdown panel specification](./markdown-plugin/panels/index.md). Shared
+the [Markdown panel specification](./panels/index.md). Shared
 workspace presentation and Storybook rules live under
-[Workspace Shell / Panels](./workspace-shell/panels.md).
+[Workspace Shell / Panels](../../workspace-shell/panels.md).
 The panel registry is also the command-discovery authority required by
 `LN-MD-089`; document views continue to open through their file associations.
 
 Tags and All Properties remain Markdown-owned metadata views. Their vault-wide
 navigation delegates through the registered Search command described by the
-[Search Plugin](./search-plugin.md); Markdown does not import Search internals.
+[Search Plugin](../search/index.md); Markdown does not import Search internals.
 The six canonical Markdown panels register `ViewAccess.command` openers from
 their registry. Markdown and Media remain `ViewAccess.file`, and legacy panel
 view types remain `ViewAccess.alias` without palette duplicates.

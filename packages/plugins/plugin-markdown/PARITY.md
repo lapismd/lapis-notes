@@ -8,7 +8,7 @@ Living checklist vs full-repo
 `@lapis-notes/markdown` and the focused `@lapis-notes/markdown-lint` provider
 are the authorized plugin packages in this monorepo slice (LN-MD-001).
 Document render is Mira-owned; Lapis keeps Plugin/Editor/metadata write
-authority. Spec: `spec/src/markdown-plugin.md`, the nested panel pages, and
+authority. Spec: `spec/src/plugins/markdown/index.md`, the nested panel pages, and
 `spec/src/workspace-shell/panels/problems.md`; the shared panel surface
 contract lives in `spec/src/workspace-shell/panels.md`.
 

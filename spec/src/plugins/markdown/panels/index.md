@@ -1,11 +1,11 @@
 # Markdown Panels
 
 Markdown configuration and editor feature settings remain governed by the
-[Markdown Plugin overview](../../markdown-plugin.md). They do not change the
+[Markdown Plugin overview](../index.md). They do not change the
 movable-panel contracts in this chapter.
 
 The Markdown plugin registers file- and vault-scoped views into the movable
-[Workspace Shell panel contract](../../workspace-shell/panels.md). This page
+[Workspace Shell panel contract](../../../workspace-shell/panels.md). This page
 defines the shared package boundary; each concrete panel has its own behavior
 page.
 
@@ -14,7 +14,7 @@ page.
 | ID | Requirement |
 | --- | --- |
 | LN-MD-008 | The plugin MUST register All Properties, File Properties, Outline, Backlinks, and Outgoing Links with the Obsidian-compatible canonical view types `all-properties`, `file-properties`, `outline`, `backlink`, and `outgoing-link`. |
-| LN-MD-011 | Storybook MUST provide focused `Workspace/Panels/Markdown/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags. Tags is registered and exported by the Markdown package. |
+| LN-MD-011 | Storybook MUST provide focused `Plugins/Markdown/Panels/*` stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags. Tags is registered and exported by the Markdown package. |
 | LN-MD-021 | The package MUST export app-only `FileProperties`, `Outline`, `Backlinks`, and `OutgoingLinks` Svelte components. Backlinks and Outgoing Links MUST fix their mode in those public wrappers; their shared mode selector remains private. |
 | LN-MD-085 | Markdown panel registration MUST retain the former `file:properties`, `file:outline`, `file:backlinks`, and `file:outgoing-links` view types as load-only aliases. Restored aliases MUST resolve to views whose `getViewType()` returns the canonical Obsidian-compatible ID. |
 | LN-MD-089 | Markdown MUST declare All Properties, Outline, File Properties, Backlinks, Outgoing Links, and Tags in one panel registry that pairs every canonical view with unique opening-command metadata. |

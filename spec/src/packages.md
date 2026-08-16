@@ -1,5 +1,9 @@
 # Packages
 
+Repository-only Storybook taxonomy, mirror, and built-index checks remain
+development tooling at the root and are excluded from publishable package
+runtime closures.
+
 ## Requirements
 
 | ID         | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |

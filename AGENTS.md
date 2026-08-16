@@ -164,13 +164,13 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 - Treat `spec/src/workspace-shell/panels.md` as the canonical reusable panel
   contract. Concrete Markdown behavior belongs to the owning page under
-  `spec/src/markdown-plugin/panels/`; the checklist below explains how to apply
+  `spec/src/plugins/markdown/panels/`; the checklist below explains how to apply
   those requirements while editing stories and components.
 - Treat the shared panel-story helpers plus
-  `stories/workspace/panels/AllProperties.stories.ts` as the reference pattern
+  `stories/plugins/markdown/panels/AllProperties.stories.ts` as the reference pattern
   when adding or expanding stories for movable workspace panels. Put a panel's
   placement stories under one nested
-  `Workspace/Panels/<Family>/<Panel>` group instead of adding a flat run of
+  `Plugins/<Plugin>/Panels/<Panel>` group instead of adding a flat run of
   sibling stories to the family.
 - Classify every first-party plugin view registration with `ViewAccess`.
   Canonical movable panels use `command`, whose concise opener must activate

@@ -17,6 +17,7 @@ export default defineConfig(tableRequirements(), {
     book: "LN-GOV-001",
     bookIgnore: "LN-GOV-007",
     storybookCatalog: "LN-GOV-023",
+    storybookMirrors: "LN-CAT-080",
     qmd: "LN-GOV-020",
     specFirst: "LN-GOV-003",
     internal: "LN-GOV-018",
@@ -72,6 +73,16 @@ export default defineConfig(tableRequirements(), {
         "\\b(?:PanelDemo|[A-Z][A-Za-z0-9]*(?:Demo|Harness|Fixture))\\b|\\bargs\\s*\\.",
       plainTextLanguages: [],
     },
+    storybookMirrors: {
+      style: "src-spec-mdx",
+      directory: "stories/spec",
+      titlePrefix: "Specification",
+      verifyTarget: true,
+      verifyTitle: true,
+      verifyContent: true,
+      previewPath: ".storybook/preview.ts",
+      verifyOrder: true,
+    },
     qmd: { collection: "lapis-spec", configPath: ".qmd/index.yml" },
     specFirst: {
       mode: "mapped",
@@ -120,6 +131,7 @@ export default defineConfig(tableRequirements(), {
         {
           pattern: "^packages/file-explorer/",
           chapters: [
+            "spec/src/plugins/explorer/index.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
             "spec/src/editor-demo.md",
@@ -155,8 +167,8 @@ export default defineConfig(tableRequirements(), {
           pattern:
             "^packages/plugins/plugin-markdown/(?:src/|package\\.json$|PARITY\\.md$)",
           chapters: [
-            "spec/src/markdown-plugin.md",
-            "spec/src/markdown-plugin/panels/index.md",
+            "spec/src/plugins/markdown/index.md",
+            "spec/src/plugins/markdown/panels/index.md",
             "spec/src/packages.md",
             "spec/src/editor-demo.md",
           ],
@@ -176,6 +188,7 @@ export default defineConfig(tableRequirements(), {
         {
           pattern: "^packages/plugins/plugin-markdown-lint/",
           chapters: [
+            "spec/src/plugins/markdown-lint/index.md",
             "spec/src/workspace-shell/panels/problems.md",
             "spec/src/packages.md",
             "spec/src/editor-demo.md",
@@ -184,7 +197,7 @@ export default defineConfig(tableRequirements(), {
         {
           pattern: "^packages/plugins/plugin-search/",
           chapters: [
-            "spec/src/search-plugin.md",
+            "spec/src/plugins/search/index.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
           ],
@@ -192,7 +205,7 @@ export default defineConfig(tableRequirements(), {
         {
           pattern: "^packages/plugins/plugin-bases/",
           chapters: [
-            "spec/src/bases-plugin.md",
+            "spec/src/plugins/bases/index.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
           ],
@@ -201,14 +214,14 @@ export default defineConfig(tableRequirements(), {
           pattern:
             "^stories/(?:plugins/bases/|workspace/plugins/(?:bases/|Bases))",
           chapters: [
-            "spec/src/bases-plugin.md",
+            "spec/src/plugins/bases/index.md",
             "spec/src/storybook-catalog.md",
           ],
         },
         {
           pattern: "^packages/ai-host/",
           chapters: [
-            "spec/src/ai-plugin.md",
+            "spec/src/plugins/ai/index.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
             "spec/src/desktop-host.md",
@@ -218,27 +231,24 @@ export default defineConfig(tableRequirements(), {
         {
           pattern: "^packages/plugins/plugin-ai/",
           chapters: [
-            "spec/src/ai-plugin.md",
+            "spec/src/plugins/ai/index.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
           ],
         },
         {
           pattern: "^stories/plugins/ai/",
-          chapters: ["spec/src/ai-plugin.md", "spec/src/storybook-catalog.md"],
+          chapters: ["spec/src/plugins/ai/index.md", "spec/src/storybook-catalog.md"],
         },
         {
           pattern:
             "^stories/workspace/plugins/(?:roles-plugin-shell/|RolesWorkspace|CvFileView|create-roles-workspace-demo|create-cv-file-view-demo)",
-          chapters: [
-            "spec/src/roles-plugin.md",
-            "spec/src/storybook-catalog.md",
-          ],
+          chapters: ["spec/src/storybook-catalog.md"],
         },
         {
           pattern: "^packages/plugins/plugin-roles/",
           chapters: [
-            "spec/src/roles-plugin.md",
+            "spec/src/plugin-model.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
           ],
@@ -252,7 +262,7 @@ export default defineConfig(tableRequirements(), {
           pattern:
             "^packages/plugins/plugin-markdown/src/lib/views/all-properties/",
           chapters: [
-            "spec/src/markdown-plugin/panels/all-properties.md",
+            "spec/src/plugins/markdown/panels/all-properties.md",
             "spec/src/workspace-shell/panels.md",
           ],
         },
@@ -260,22 +270,22 @@ export default defineConfig(tableRequirements(), {
           pattern:
             "^packages/plugins/plugin-markdown/src/lib/(?:views/file-properties/|frontmatter/)",
           chapters: [
-            "spec/src/markdown-plugin/panels/file-properties.md",
+            "spec/src/plugins/markdown/panels/file-properties.md",
             "spec/src/workspace-shell/panels.md",
           ],
         },
         {
           pattern: "^packages/plugins/plugin-markdown/src/lib/views/outline/",
           chapters: [
-            "spec/src/markdown-plugin/panels/outline.md",
+            "spec/src/plugins/markdown/panels/outline.md",
             "spec/src/workspace-shell/panels.md",
           ],
         },
         {
           pattern: "^packages/plugins/plugin-markdown/src/lib/views/backlinks/",
           chapters: [
-            "spec/src/markdown-plugin/panels/backlinks.md",
-            "spec/src/markdown-plugin/panels/link-previews.md",
+            "spec/src/plugins/markdown/panels/backlinks.md",
+            "spec/src/plugins/markdown/panels/link-previews.md",
             "spec/src/workspace-shell/panels.md",
           ],
         },
@@ -283,8 +293,8 @@ export default defineConfig(tableRequirements(), {
           pattern:
             "^packages/plugins/plugin-markdown/src/lib/views/outgoing-links/",
           chapters: [
-            "spec/src/markdown-plugin/panels/outgoing-links.md",
-            "spec/src/markdown-plugin/panels/link-previews.md",
+            "spec/src/plugins/markdown/panels/outgoing-links.md",
+            "spec/src/plugins/markdown/panels/link-previews.md",
             "spec/src/workspace-shell/panels.md",
           ],
         },
@@ -292,7 +302,7 @@ export default defineConfig(tableRequirements(), {
           pattern:
             "^packages/plugins/plugin-markdown/src/lib/(?:views/link-sidebar/|components/embed/|mira/file-adapter\\.|embed\\.ts$)",
           chapters: [
-            "spec/src/markdown-plugin/panels/link-previews.md",
+            "spec/src/plugins/markdown/panels/link-previews.md",
             "spec/src/workspace-shell/panels.md",
           ],
         },
