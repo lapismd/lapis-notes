@@ -2,16 +2,15 @@ import {
   mergeAiSettings,
   type AiPluginSettings,
 } from "../settings/ai-settings";
-import type { StoredAgentSession } from "./session-store";
 
 export type AiPluginData = {
   settings: AiPluginSettings;
-  sessions: StoredAgentSession[];
+  source: Record<string, unknown>;
 };
 
 export function parseAiPluginData(value: unknown): AiPluginData {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { settings: mergeAiSettings(null), sessions: [] };
+    return { settings: mergeAiSettings(null), source: {} };
   }
   const record = value as Record<string, unknown>;
   const settingsSource =
@@ -20,19 +19,15 @@ export function parseAiPluginData(value: unknown): AiPluginData {
       : record;
   return {
     settings: mergeAiSettings(settingsSource as Partial<AiPluginSettings>),
-    sessions: Array.isArray(record.sessions)
-      ? record.sessions.filter(isStoredAgentSession)
-      : [],
+    source: structuredClone(record),
   };
 }
 
-function isStoredAgentSession(value: unknown): value is StoredAgentSession {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const record = value as Record<string, unknown>;
-  return (
-    typeof record.id === "string" &&
-    typeof record.runtime === "string" &&
-    typeof record.runtimeSessionId === "string" &&
-    Array.isArray(record.items)
-  );
+export function serializeAiPluginData(
+  data: AiPluginData,
+): Record<string, unknown> {
+  return {
+    ...structuredClone(data.source),
+    settings: structuredClone(data.settings),
+  };
 }

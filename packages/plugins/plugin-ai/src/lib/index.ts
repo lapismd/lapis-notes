@@ -78,7 +78,10 @@ export type {
   AgentSessionStore,
   StoredAgentSession,
 } from "./sessions/session-store";
-export { parseAiPluginData } from "./sessions/plugin-data";
+export {
+  parseAiPluginData,
+  serializeAiPluginData,
+} from "./sessions/plugin-data";
 export type { AiPluginData } from "./sessions/plugin-data";
 export {
   extractMentionPaths,
@@ -88,5 +91,44 @@ export {
   searchVaultFiles,
 } from "./chat/chat-mentions";
 export type { VaultFileRef } from "./chat/chat-mentions";
+export { ConversationScopeResolver } from "./conversations/scope-resolver";
+export {
+  ConversationRepository,
+  deriveConversationTitle,
+} from "./conversations/conversation-repository";
+export { MemoryTranscriptStore } from "./conversations/memory-transcript-store";
+export { VaultTranscriptStore } from "./conversations/vault-transcript-store";
+export {
+  projectChatItemsToTranscript,
+  projectTranscriptToChatItems,
+} from "./conversations/transcript-projection";
+export {
+  MAX_DURABLE_FIELD_BYTES,
+  sanitizeDurableField,
+} from "./conversations/redaction";
+export type {
+  DurableSanitizationOptions,
+  SanitizedDurableField,
+} from "./conversations/redaction";
+export type {
+  ConversationListEntry,
+  TranscriptStore,
+} from "./conversations/transcript-store";
+export {
+  CONVERSATION_ID_PATTERN,
+  CONVERSATION_SCHEMA_VERSION,
+  ConversationUnavailableError,
+} from "./conversations/types";
+export type {
+  AgentBindingCreatedRecord,
+  AgentBindingRecord,
+  AgentUsageRecord,
+  ConversationLocation,
+  ConversationMetadata,
+  ConversationReadWarning,
+  ConversationSnapshot,
+  RuntimeEventProvenance,
+  TranscriptEntry,
+} from "./conversations/types";
 export { createToolContributionRegistry } from "./tools/tool-registry";
 export type { ToolContributionRegistry } from "./tools/tool-registry";

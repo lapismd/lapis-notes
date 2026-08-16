@@ -138,6 +138,12 @@
       "import": "./dist/storage/path.js",
       "default": "./dist/storage/path.js"
     },
+    "./vault": {
+      "types": "./dist/vault-api.d.ts",
+      "svelte": "./dist/vault-api.js",
+      "import": "./dist/vault-api.js",
+      "default": "./dist/vault-api.js"
+    },
     "./plugin-assets": {
       "types": "./dist/plugin-assets.d.ts",
       "import": "./dist/plugin-assets.js",

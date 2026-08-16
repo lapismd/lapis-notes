@@ -20,8 +20,15 @@ import {
   type AgentRuntimeRegistry,
 } from "./registry/runtime-registry";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
-import { parseAiPluginData, type AiPluginData } from "./sessions/plugin-data";
-import { createPersistedSessionStore } from "./sessions/session-store";
+import {
+  parseAiPluginData,
+  serializeAiPluginData,
+  type AiPluginData,
+} from "./sessions/plugin-data";
+import { createMemorySessionStore } from "./sessions/session-store";
+import { ConversationRepository } from "./conversations/conversation-repository";
+import { ConversationScopeResolver } from "./conversations/scope-resolver";
+import { VaultTranscriptStore } from "./conversations/vault-transcript-store";
 import { registerAiSettings } from "./settings/register-ai-settings";
 import { AiSettingsTab } from "./settings/ai-settings-tab";
 import {
@@ -44,7 +51,7 @@ const AI_MANIFEST: PluginManifest = {
 export class AiPlugin extends Plugin {
   private data: AiPluginData = {
     settings: DEFAULT_AI_SETTINGS,
-    sessions: [],
+    source: {},
   };
   readonly processHost: AgentProcessHost;
   readonly registry: AgentRuntimeRegistry;
@@ -57,16 +64,15 @@ export class AiPlugin extends Plugin {
     requireApproval: false,
     trace: "rich",
   });
-  readonly sessionStore = createPersistedSessionStore({
-    read: async () => this.data.sessions,
-    write: async (sessions) => {
-      this.data = { ...this.data, sessions };
-      await this.saveData(this.data);
-    },
-  });
+  readonly sessionStore = createMemorySessionStore();
+  readonly scopeResolver = new ConversationScopeResolver();
+  readonly conversations: ConversationRepository;
 
   constructor(app: App, pluginManifest: PluginManifest = AI_MANIFEST) {
     super(app, pluginManifest);
+    this.conversations = new ConversationRepository(
+      new VaultTranscriptStore(app.vault),
+    );
     this.processHost = createAgentProcessHost();
     this.models = new ModelProviderRegistry([
       new CodexModelProvider(this.processHost),
@@ -103,7 +109,7 @@ export class AiPlugin extends Plugin {
         defaultModels,
       }),
     };
-    await this.saveData(this.data);
+    await this.saveData(serializeAiPluginData(this.data));
     for (const listener of this.#settingsListeners) listener(patch);
   }
 

@@ -30,9 +30,9 @@ work is explicitly archived.
 
 | ID           | Deliverable                                                                          | Depends on                               | Status      | Validation evidence | Jujutsu change |
 | ------------ | ------------------------------------------------------------------------------------ | ---------------------------------------- | ----------- | ------------------- | -------------- |
-| AI-LOCAL-001 | Canonical specification and verification requirements                                | —                                        | Done        | `pnpm spec:check`   | `54c2c43f`     |
-| AI-LOCAL-002 | Crash-safe vault writes, native append, active-file contract, hidden `.lapis` paths  | AI-LOCAL-001                             | Done        | API 126 tests; desktop 14; Explorer 5; AI mention 5; focused type checks | Pending |
-| AI-LOCAL-003 | Conversation schemas, scope resolver, transcript projection, vault and memory stores | AI-LOCAL-002                             | Not started | Pending             | Pending        |
+| AI-LOCAL-001 | Canonical specification and verification requirements                                | —                                        | Done        | `pnpm spec:check`   | `wxxrwsvu`     |
+| AI-LOCAL-002 | Crash-safe vault writes, native append, active-file contract, hidden `.lapis` paths  | AI-LOCAL-001                             | Done        | API 126 tests; desktop 14; Explorer 5; AI mention 5; focused type checks | `wxxrwsvu` |
+| AI-LOCAL-003 | Conversation schemas, scope resolver, transcript projection, vault and memory stores | AI-LOCAL-002                             | Done        | AI 91 tests; AI/API type checks; `pnpm spec:first` | Pending |
 | AI-LOCAL-004 | Controller integration, offline restore, history, new/archive/delete lifecycle       | AI-LOCAL-003                             | Not started | Pending             | Pending        |
 | AI-LOCAL-005 | Agent bindings, turn-boundary switching, context handoff, usage restoration          | AI-LOCAL-004                             | Not started | Pending             | Pending        |
 | AI-LOCAL-006 | Derived AppDatabase indexing and all-conversation history search                     | AI-LOCAL-003                             | Not started | Pending             | Pending        |

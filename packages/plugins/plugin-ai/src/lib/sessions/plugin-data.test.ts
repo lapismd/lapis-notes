@@ -13,11 +13,11 @@ describe("AI plugin data", () => {
         defaultModel: "gpt-5.6-sol",
         thinking: "medium",
       },
-      sessions: [],
+      source: { defaultRuntime: "fake", acpAgent: "codex" },
     });
   });
 
-  it("reads settings and stored sessions together", () => {
+  it("leaves legacy sessions inert while retaining the unknown source", () => {
     const parsed = parseAiPluginData({
       settings: { defaultRuntime: "acp" },
       sessions: [
@@ -32,7 +32,10 @@ describe("AI plugin data", () => {
       ],
     });
     expect(parsed.settings.defaultRuntime).toBe("acp");
-    expect(parsed.sessions[0]?.items[0]).toMatchObject({ text: "hi" });
+    expect(parsed.source.sessions).toEqual([
+      expect.objectContaining({ id: "ai:default" }),
+    ]);
+    expect(parsed).not.toHaveProperty("sessions");
   });
 
   it("keeps Cursor and falls unknown ACP agents back to Codex", () => {
@@ -55,5 +58,20 @@ describe("AI plugin data", () => {
     }).settings;
     expect(cursor.defaultModel).toBe("composer-2");
     expect(cursor.defaultModels.codex).toBe("gpt-codex");
+  });
+
+  it("preserves inert legacy and unknown values when settings are serialized", async () => {
+    const { serializeAiPluginData } = await import("./plugin-data");
+    const parsed = parseAiPluginData({
+      settings: { defaultRuntime: "fake" },
+      sessions: [{ id: "legacy", items: [{ text: "do not render" }] }],
+      futureValue: { enabled: true },
+    });
+    parsed.settings.defaultRuntime = "auto";
+    expect(serializeAiPluginData(parsed)).toMatchObject({
+      settings: { defaultRuntime: "auto" },
+      sessions: [{ id: "legacy" }],
+      futureValue: { enabled: true },
+    });
   });
 });
