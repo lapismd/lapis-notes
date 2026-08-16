@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import PanelDemo from "./PanelDemo.svelte";
+import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 
 const meta = {
-  title: "Workspace/Panels/Markdown/Link Preview Acceptance",
+  title: "Plugins/Markdown/Panels/Link Preview Acceptance",
   component: PanelDemo,
   tags: ["visual-pending", "!dev", "!autodocs"],
   parameters: {

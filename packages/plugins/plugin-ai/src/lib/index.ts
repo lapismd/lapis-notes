@@ -1,5 +1,5 @@
 export { AiPlugin, default } from "./ai-plugin";
-export { AiChatPanel } from "./public-components";
+export { AiChatPanel, AiHistoryPanel } from "./public-components";
 export { AiView, AiViewType } from "./chat/ai-view";
 export { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
 export {

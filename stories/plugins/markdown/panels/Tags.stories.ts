@@ -2,9 +2,9 @@ import type { App } from "@lapis-notes/api";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { Tags } from "@lapis-notes/markdown";
-import PanelDemo from "./PanelDemo.svelte";
-import { panelExampleSources } from "./Panel.example-sources";
-import type { PanelDemoLayout } from "./create-panel-demo";
+import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
+import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
+import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
   expectPanelPlacement,
   expectPanelSource,
@@ -12,14 +12,14 @@ import {
   PANEL_PLACEMENTS,
   panelDemoApp,
   placementParameters,
-} from "./panel-story-helpers";
-import "./Panel.docs.css";
+} from "../../_shared/panels/panel-story-helpers";
+import "../../_shared/panels/Panel.docs.css";
 
 const kind = "tags" as const;
 const sources = panelExampleSources(kind);
 
 const meta = {
-  title: "Workspace/Panels/Markdown/Tags",
+  title: "Plugins/Markdown/Panels/Tags",
   component: Tags,
   args: { app: undefined as unknown as App },
   argTypes: {
@@ -46,7 +46,10 @@ type Story = StoryObj<typeof meta>;
 type StoryRender = NonNullable<Story["render"]>;
 
 function renderPlacement(layout: PanelDemoLayout): StoryRender {
-  return (() => ({ Component: PanelDemo, props: { kind, layout } })) as StoryRender;
+  return (() => ({
+    Component: PanelDemo,
+    props: { kind, layout },
+  })) as StoryRender;
 }
 
 function placementStory(
@@ -90,7 +93,7 @@ function placementStory(
         '[data-ui-part="content"]',
       );
       const menuHost = panelElement?.querySelector<HTMLElement>(
-        '.tags-panel__menu-host',
+        ".tags-panel__menu-host",
       );
       expect(panelContent).not.toBeNull();
       expect(menuHost).not.toBeNull();
@@ -107,9 +110,7 @@ function placementStory(
       await waitFor(() => {
         expect(panel.getByText("demo")).toBeVisible();
         expect(panel.getByText("project/alpha")).toBeVisible();
-        expect(
-          panel.getByRole("button", { name: "project 3" }),
-        ).toBeVisible();
+        expect(panel.getByRole("button", { name: "project 3" })).toBeVisible();
       });
       if (layout === "middle-top-tabs") {
         const app = panelDemoApp(canvasElement);
@@ -134,13 +135,11 @@ function placementStory(
       );
       {
         const rows = Array.from(
-          panelElement?.querySelectorAll<HTMLElement>(".tags-panel__row") ??
-            [],
+          panelElement?.querySelectorAll<HTMLElement>(".tags-panel__row") ?? [],
         );
         const counts = Array.from(
-          panelElement?.querySelectorAll<HTMLElement>(
-            ".tags-panel__count",
-          ) ?? [],
+          panelElement?.querySelectorAll<HTMLElement>(".tags-panel__count") ??
+            [],
         );
         const projectRow = panel.getByRole("button", { name: "project 3" });
         const alphaRow = panel.getByRole("button", { name: "alpha 2" });
@@ -149,9 +148,8 @@ function placementStory(
         );
         const projectHash =
           projectRow.querySelector<SVGElement>("svg.lucide-hash");
-        const projectLabel = projectRow.querySelector<HTMLElement>(
-          ".tags-panel__label",
-        );
+        const projectLabel =
+          projectRow.querySelector<HTMLElement>(".tags-panel__label");
         const alphaHash = alphaRow.querySelector<SVGElement>("svg.lucide-hash");
         const alphaGuide = alphaRow.closest<HTMLElement>(".tags-panel__sub");
         const hashPositionsByDepth = new Map<number, number[]>();
@@ -213,11 +211,11 @@ function placementStory(
             return hash && getComputedStyle(hash).color === mutedColor;
           }),
         ).toBe(true);
-        expect(rows.every((row) => !row.textContent?.includes("#"))).toBe(
-          true,
-        );
+        expect(rows.every((row) => !row.textContent?.includes("#"))).toBe(true);
         expect(
-          Math.max(...counts.map((count) => count.getBoundingClientRect().right)) -
+          Math.max(
+            ...counts.map((count) => count.getBoundingClientRect().right),
+          ) -
             Math.min(
               ...counts.map((count) => count.getBoundingClientRect().right),
             ),
@@ -248,7 +246,9 @@ function placementStory(
         await waitFor(() => {
           const searchPanel = within(canvasElement).getByTestId("search-panel");
           expect(
-            within(searchPanel).getByRole("searchbox", { name: "Search vault" }),
+            within(searchPanel).getByRole("searchbox", {
+              name: "Search vault",
+            }),
           ).toHaveTextContent("tag:#project/alpha");
         });
       }

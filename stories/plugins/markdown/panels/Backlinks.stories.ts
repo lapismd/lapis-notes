@@ -2,9 +2,9 @@ import type { App } from "@lapis-notes/api";
 import { Backlinks } from "@lapis-notes/markdown";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import PanelDemo from "./PanelDemo.svelte";
-import { panelExampleSources } from "./Panel.example-sources";
-import type { PanelDemoLayout } from "./create-panel-demo";
+import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
+import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
+import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
   expectLinkPanelAlignment,
   expectLinkPreviewHoverHandoff,
@@ -16,14 +16,14 @@ import {
   PANEL_PLACEMENTS,
   panelDemoApp,
   placementParameters,
-} from "./panel-story-helpers";
-import "./Panel.docs.css";
+} from "../../_shared/panels/panel-story-helpers";
+import "../../_shared/panels/Panel.docs.css";
 
 const kind = "backlinks" as const;
 const sources = panelExampleSources(kind);
 
 const meta = {
-  title: "Workspace/Panels/Markdown/Backlinks",
+  title: "Plugins/Markdown/Panels/Backlinks",
   component: Backlinks,
   args: { app: undefined as unknown as App },
   argTypes: {

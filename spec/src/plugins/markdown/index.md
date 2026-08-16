@@ -73,3 +73,6 @@ navigation delegates through the registered Search command described by the
 The six canonical Markdown panels register `ViewAccess.command` openers from
 their registry. Markdown and Media remain `ViewAccess.file`, and legacy panel
 view types remain `ViewAccess.alias` without palette duplicates.
+The canonical registry is mirrored by the generic Storybook command-panel
+catalog, replacing Markdown-specific catalog arrays while retaining the same
+real registrations and one instance per placement.

@@ -2,6 +2,13 @@
  * Catalog of API-consumed `@lapis-notes/ui` verification stories.
  */
 
+export {
+  pluginPanelCatalog,
+  pluginPanelFamilies,
+  pluginPanelPlacements,
+} from "./plugin-panels.mjs";
+import { pluginPanelCatalog } from "./plugin-panels.mjs";
+
 /** @typedef {{ id: string, title: string, spec: string, publicSurface: string, storyId: string, skipVisual?: boolean }} CatalogEntry */
 
 /** @type {CatalogEntry[]} */
@@ -169,77 +176,6 @@ export const apiUiCatalog = [
     skipVisual: true,
   },
 ];
-
-const markdownPanelPlacements = [
-  { suffix: "", story: "middle-top-tabs", title: "Middle (Top Tabs)" },
-  { suffix: "-stacked-tabs", story: "stacked-tabs", title: "Stacked Tabs" },
-  { suffix: "-left-sidebar", story: "left-sidebar", title: "Left Sidebar" },
-  { suffix: "-right-sidebar", story: "right-sidebar", title: "Right Sidebar" },
-  { suffix: "-bottom-panel", story: "bottom-panel", title: "Bottom Panel" },
-  {
-    suffix: "-sidebar-group",
-    story: "sidebar-group",
-    title: "Sidebar As a Group",
-  },
-];
-
-const markdownPanelFamilies = [
-  {
-    kind: "ai-history",
-    title: "AI History",
-    spec: "spec/src/plugins/ai/index.md",
-    publicSurface: "@lapis-notes/ai",
-    storyPrefix: "workspace-panels-ai-history",
-  },
-  {
-    kind: "file-properties",
-    title: "File Properties",
-    spec: "spec/src/plugins/markdown/panels/file-properties.md",
-    publicSurface: "@lapis-notes/markdown",
-  },
-  {
-    kind: "outline",
-    title: "Outline",
-    spec: "spec/src/plugins/markdown/panels/outline.md",
-    publicSurface: "@lapis-notes/markdown",
-  },
-  {
-    kind: "backlinks",
-    title: "Backlinks",
-    spec: "spec/src/plugins/markdown/panels/backlinks.md",
-    publicSurface: "@lapis-notes/markdown",
-  },
-  {
-    kind: "outgoing-links",
-    title: "Outgoing Links",
-    spec: "spec/src/plugins/markdown/panels/outgoing-links.md",
-    publicSurface: "@lapis-notes/markdown",
-  },
-  {
-    kind: "tags",
-    title: "Tags",
-    spec: "spec/src/plugins/markdown/panels/tags.md",
-    publicSurface: "@lapis-notes/markdown",
-  },
-  {
-    kind: "search",
-    title: "Search",
-    spec: "spec/src/plugins/search/index.md",
-    publicSurface: "@lapis-notes/search",
-    storyPrefix: "workspace-panels-search-search",
-  },
-];
-
-/** @type {CatalogEntry[]} */
-const markdownPanelCatalog = markdownPanelFamilies.flatMap((family) =>
-  markdownPanelPlacements.map((placement) => ({
-    id: `workspace-panels-${family.kind}${placement.suffix}`,
-    title: `${family.title}: ${placement.title}`,
-    spec: family.spec,
-    publicSurface: family.publicSurface,
-    storyId: `${family.storyPrefix ?? `workspace-panels-markdown-${family.kind}`}--${placement.story}`,
-  })),
-);
 
 /** @type {CatalogEntry[]} */
 const basesViewsCatalog = [
@@ -494,49 +430,7 @@ export const workspaceCatalog = [
     publicSurface: "@lapis-notes/workspace",
     storyId: "workspace-shell--bottom-panel-settings",
   },
-  {
-    id: "workspace-panels-all-properties",
-    title: "All Properties: Middle (Top Tabs)",
-    spec: "spec/src/plugins/markdown/panels/all-properties.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown-all-properties--middle-top-tabs",
-  },
-  {
-    id: "workspace-panels-all-properties-stacked-tabs",
-    title: "All Properties: Stacked Tabs",
-    spec: "spec/src/plugins/markdown/panels/all-properties.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown-all-properties--stacked-tabs",
-  },
-  {
-    id: "workspace-panels-all-properties-left-sidebar",
-    title: "All Properties: Left Sidebar",
-    spec: "spec/src/plugins/markdown/panels/all-properties.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown-all-properties--left-sidebar",
-  },
-  {
-    id: "workspace-panels-all-properties-right-sidebar",
-    title: "All Properties: Right Sidebar",
-    spec: "spec/src/plugins/markdown/panels/all-properties.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown-all-properties--right-sidebar",
-  },
-  {
-    id: "workspace-panels-all-properties-bottom-panel",
-    title: "All Properties: Bottom Panel",
-    spec: "spec/src/plugins/markdown/panels/all-properties.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown-all-properties--bottom-panel",
-  },
-  {
-    id: "workspace-panels-all-properties-sidebar-group",
-    title: "All Properties: Sidebar As a Group",
-    spec: "spec/src/plugins/markdown/panels/all-properties.md",
-    publicSurface: "@lapis-notes/markdown",
-    storyId: "workspace-panels-markdown-all-properties--sidebar-group",
-  },
-  ...markdownPanelCatalog,
+  ...pluginPanelCatalog,
 ];
 
 export function catalogParameters(catalogId) {

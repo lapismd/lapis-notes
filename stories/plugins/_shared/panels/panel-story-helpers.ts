@@ -1,7 +1,7 @@
 import type { App } from "@lapis-notes/api";
 import { expect, userEvent, waitFor, within } from "storybook/test";
-import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
-import { WORKSPACE_SHELL_DOCS_STORY } from "../docs-parameters";
+import { workspaceCatalogParameters } from "../../../catalog/catalog.mjs";
+import { WORKSPACE_SHELL_DOCS_STORY } from "../../../workspace/docs-parameters";
 import {
   PANEL_LEAF_META,
   panelLayoutMarker,
@@ -65,14 +65,21 @@ export function placementParameters(
   description: string,
 ) {
   const placement = PANEL_PLACEMENTS[layout];
-  const baselinePath =
-    kind === "all-properties"
-      ? `/visual-baselines/stories/workspace/panels/${placement.baseline}-chromium.png`
-      : `/visual-baselines/stories/workspace/panels/${kind}/${placement.baseline}-chromium.png`;
+  const familyPath = {
+    "ai-chat": "ai/panels/chat",
+    "ai-history": "ai/panels/history",
+    explorer: "explorer/panels/explorer",
+    search: "search/panels/search",
+    "all-properties": "markdown/panels/all-properties",
+    "file-properties": "markdown/panels/file-properties",
+    outline: "markdown/panels/outline",
+    backlinks: "markdown/panels/backlinks",
+    "outgoing-links": "markdown/panels/outgoing-links",
+    tags: "markdown/panels/tags",
+  }[kind];
+  const baselinePath = `/visual-baselines/stories/plugins/${familyPath}/${placement.baseline}-chromium.png`;
   return {
-    ...workspaceCatalogParameters(
-      `workspace-panels-${kind}${placement.suffix}`,
-    ),
+    ...workspaceCatalogParameters(`plugin-panel-${kind}${placement.suffix}`),
     layout: "fullscreen",
     docs: {
       description: { story: description },
@@ -116,9 +123,13 @@ export async function expectPanelSource(
   await expect(source).toContain(
     kind === "search"
       ? 'from "@lapis-notes/search";'
-      : kind === "ai-history"
-        ? 'from "@lapis-notes/ai";'
-        : 'from "@lapis-notes/markdown";',
+      : kind === "explorer"
+        ? 'from "@lapis-notes/file-explorer";'
+        : kind === "ai-history"
+          ? 'from "@lapis-notes/ai";'
+          : kind === "ai-chat"
+            ? 'from "@lapis-notes/ai";'
+            : 'from "@lapis-notes/markdown";',
   );
   await expect(source).not.toContain("PanelDemo");
   await expect(source).not.toContain("args.");
@@ -214,9 +225,14 @@ export async function expectPanelPlacement(
   await expect(viewBackground).toBe(
     storyWindow.getComputedStyle(paintHost).backgroundColor,
   );
-  await expect(storyWindow.getComputedStyle(panel).backgroundColor).toBe(
-    viewBackground,
-  );
+  const panelBackground = storyWindow.getComputedStyle(panel).backgroundColor;
+  if (kind === "ai-chat") {
+    await expect(panelBackground).not.toBe("rgba(0, 0, 0, 0)");
+  } else if (kind === "explorer") {
+    await expect(panelBackground).toBe("rgba(0, 0, 0, 0)");
+  } else {
+    await expect(panelBackground).toBe(viewBackground);
+  }
   const stickyChrome = panel.querySelector<HTMLElement>(
     '[data-ui-part="chrome"]',
   );
@@ -233,11 +249,12 @@ export async function expectPanelPlacement(
     );
   }
   if (layout === "bottom-panel" || layout === "sidebar-group") {
-    await expect(
-      within(host as HTMLElement).getByRole("button", {
-        name: `Collapse ${PANEL_LEAF_META[kind].title}`,
-      }),
-    ).toBeVisible();
+    const groupHeader = host?.querySelector<HTMLElement>(
+      'button[data-ui-part="panel-header"]',
+    );
+    await expect(groupHeader).not.toBeNull();
+    await expect(groupHeader).toBeVisible();
+    await expect(groupHeader).toHaveAttribute("aria-expanded", "true");
   }
 
   return within(panel);

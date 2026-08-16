@@ -244,7 +244,9 @@ successful catalog. The host consumes the maintained ACP adapter supplied by
 its acpx release and applies optional thinking controls only when the created
 session advertises them. Native Codex and ACP normalize
 thinking, tool, permission, user-input, and error events before the shared
-controller renders them. Runtime-neutral pending interactions are presented
+controller renders them. Portable conversation bindings and transcript entries
+are stored beneath the captured vault scope; plugin data remains settings-only.
+Runtime-neutral pending interactions are presented
 through Design Core's Composer Drawer; provider request objects and secret
 answers never enter persisted chat data.
 The paperclip attach picker uses that same drawer surface: host Popover chrome
@@ -261,3 +263,6 @@ validators and their tests stay in `@lapismd/spec-validator`. QMD discovery
 uses that same root-only tooling boundary. Storybook manager-only dependencies,
 including the shared theme toolbar icons, remain root development tooling and
 do not enter the runtime package graph.
+The repository-local Storybook structure audit consumes the same structured
+command-panel registry as the visual catalog so command metadata, canonical
+story paths, and six-placement coverage cannot drift independently.

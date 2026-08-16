@@ -6,7 +6,11 @@ import {
   MemoryVaultAdapter,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
-import { AiHistoryViewType, AiPlugin } from "@lapis-notes/ai";
+import { AiHistoryViewType, AiPlugin, AiViewType } from "@lapis-notes/ai";
+import {
+  FileExplorerPlugin,
+  FileExplorerViewType,
+} from "@lapis-notes/file-explorer";
 import {
   AllPropertiesViewType,
   BacklinksViewType,
@@ -18,14 +22,15 @@ import {
   TagsViewType,
 } from "@lapis-notes/markdown";
 import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
 import { SearchPlugin, SearchViewType } from "@lapis-notes/search";
-import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugin";
-import { watchMetadata } from "../watch-metadata";
+import { SourceEditorDemoPlugin } from "../../../workspace/lapis-editor-demo/source-editor-plugin";
+import { watchMetadata } from "../../../workspace/watch-metadata";
 
 export type PanelDemoKind =
   | "ai-history"
+  | "ai-chat"
   | "all-properties"
+  | "explorer"
   | "file-properties"
   | "outline"
   | "backlinks"
@@ -52,7 +57,9 @@ export const PANEL_DEMO_LAYOUTS: PanelDemoLayout[] = [
 
 export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   "ai-history": AiHistoryViewType,
+  "ai-chat": AiViewType,
   "all-properties": AllPropertiesViewType,
+  explorer: FileExplorerViewType,
   "file-properties": FilePropertiesViewType,
   outline: OutlineViewType,
   backlinks: BacklinksViewType,
@@ -71,10 +78,22 @@ export const PANEL_LEAF_META: Record<
     group: "AI",
     requiresFile: true,
   },
+  "ai-chat": {
+    title: "AI chat",
+    icon: "bot",
+    group: "AI",
+    requiresFile: false,
+  },
   "all-properties": {
     title: "All properties",
     icon: "archive",
     group: "Properties",
+    requiresFile: false,
+  },
+  explorer: {
+    title: "Files",
+    icon: "folder-closed",
+    group: "Explorer",
     requiresFile: false,
   },
   "file-properties": {
@@ -595,18 +614,13 @@ export async function bootPanelDemo(
     { plugin: SourceEditorDemoPlugin, required: true },
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+    { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
     { plugin: SearchPlugin, required: false, enabledByDefault: true },
     {
       plugin: AiPlugin,
       required: false,
       enabledByDefault: true,
       distribution: "bundled",
-    },
-    {
-      plugin: RolesPlugin,
-      required: false,
-      enabledByDefault: true,
-      distribution: "first-party-external",
     },
   ]);
 
@@ -624,6 +638,7 @@ export async function bootPanelDemo(
   }
   const aiPlugin = app.plugins.plugins.get("ai");
   if (aiPlugin instanceof AiPlugin) {
+    await aiPlugin.updateSettings({ defaultRuntime: "fake" });
     await aiPlugin.conversationIndex.rebuild();
   }
   await app.workspace.loadLayout();

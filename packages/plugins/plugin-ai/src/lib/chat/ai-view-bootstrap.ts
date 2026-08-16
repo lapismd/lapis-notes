@@ -79,7 +79,7 @@ export async function prepareAiViewBootstrap(
   }
 
   let runtime: AgentRuntime;
-  let unavailableReason = host.liveRuntimeUnavailableReason();
+  let unavailableReason: string | null = null;
   try {
     runtime = await host.selectRuntime({
       prompt: "",
@@ -92,6 +92,8 @@ export async function prepareAiViewBootstrap(
           ? undefined
           : { runtime: settings.defaultRuntime },
     });
+    unavailableReason =
+      runtime.id === "fake" ? null : host.liveRuntimeUnavailableReason();
   } catch (error) {
     runtime = host.fallbackRuntime();
     unavailableReason = errorMessage(error);

@@ -2,9 +2,9 @@ import type { App } from "@lapis-notes/api";
 import { SearchPanel } from "@lapis-notes/search";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import PanelDemo from "./PanelDemo.svelte";
-import { panelExampleSources } from "./Panel.example-sources";
-import type { PanelDemoLayout } from "./create-panel-demo";
+import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
+import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
+import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
   expectPanelPlacement,
   expectPanelSource,
@@ -12,14 +12,14 @@ import {
   PANEL_DOCS_PARAMETERS,
   PANEL_PLACEMENTS,
   placementParameters,
-} from "./panel-story-helpers";
-import "./Panel.docs.css";
+} from "../../_shared/panels/panel-story-helpers";
+import "../../_shared/panels/Panel.docs.css";
 
 const kind = "search" as const;
 const sources = panelExampleSources(kind);
 
 const meta = {
-  title: "Workspace/Panels/Search/Search",
+  title: "Plugins/Search/Panels/Search",
   component: SearchPanel,
   args: { app: undefined as unknown as App },
   argTypes: {
@@ -230,9 +230,7 @@ function placementStory(
         secondarySurface,
       );
       expect(secondarySurface).not.toBe(primarySurface);
-      expect(getComputedStyle(modeBadge!).backgroundColor).toBe(
-        primarySurface,
-      );
+      expect(getComputedStyle(modeBadge!).backgroundColor).toBe(primarySurface);
       expect(getComputedStyle(modeBadge!).backgroundColor).not.toBe(
         getComputedStyle(matchList).backgroundColor,
       );
@@ -352,7 +350,8 @@ function placementStory(
         )!;
       expect(stableAfterMatch.textContent).toBe(afterExpandedText);
       await expect(fileTreeItem!).toHaveAttribute("aria-expanded", "true");
-      const highlightedMatch = stableAfterMatch.querySelector<HTMLElement>("mark")!;
+      const highlightedMatch =
+        stableAfterMatch.querySelector<HTMLElement>("mark")!;
       expect(highlightedMatch).not.toBeNull();
       searchPanel.style.setProperty(
         "--ui-search-highlight-background",
@@ -527,7 +526,9 @@ function placementStory(
         app.workspace.setActiveLeaf(searchLeaf!, { focus: false });
         app.workspace.revealLeaf(searchLeaf!);
         await waitFor(() => {
-          expect(within(canvasElement).getByTestId("search-panel")).toBeVisible();
+          expect(
+            within(canvasElement).getByTestId("search-panel"),
+          ).toBeVisible();
           expect(app.workspace.activeLeaf).toBe(searchLeaf);
         });
       }

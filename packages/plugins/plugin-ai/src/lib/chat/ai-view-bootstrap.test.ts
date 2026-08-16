@@ -14,9 +14,13 @@ import {
 const ID = "123e4567-e89b-42d3-a456-426614174000";
 const CREATED_AT = "2026-08-16T10:00:00.000Z";
 
-function createHost() {
+function createHost(
+  options: { selectedId?: string; unavailableReason?: string | null } = {},
+) {
   const fallback = new FakeAgentRuntime({ resumeSupported: false });
-  const selected = new FakeAgentRuntime({ id: "selected" });
+  const selected = new FakeAgentRuntime({
+    id: options.selectedId ?? "selected",
+  });
   const repository = new ConversationRepository(new MemoryTranscriptStore());
   let settings = mergeAiSettings(DEFAULT_AI_SETTINGS);
   const listModels = vi.fn(async (provider: string) => [
@@ -30,7 +34,7 @@ function createHost() {
   const host: AiViewHost = {
     selectRuntime,
     fallbackRuntime: () => fallback,
-    liveRuntimeUnavailableReason: () => null,
+    liveRuntimeUnavailableReason: () => options.unavailableReason ?? null,
     tools: { list: () => [] },
     conversations: repository,
     createConversationInput: () => ({ scopeDir: "" }),
@@ -99,5 +103,18 @@ describe("AI view bootstrap", () => {
         metadata: { runtime: "codex-native" },
       }),
     );
+  });
+
+  it("does not report desktop-host unavailability for the selected Fake runtime", async () => {
+    const { host } = createHost({
+      selectedId: "fake",
+      unavailableReason: "Live agent runtimes require the desktop host.",
+    });
+    await host.updateSettings({ defaultRuntime: "fake" });
+
+    const prepared = await prepareAiViewBootstrap(host, null, []);
+
+    expect(prepared.runtime.id).toBe("fake");
+    expect(prepared.unavailableReason).toBeNull();
   });
 });

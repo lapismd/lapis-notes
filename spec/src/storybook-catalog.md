@@ -125,6 +125,12 @@ The `Plugins/AI/Chat` attach play asserts a Command View host inside the
 paperclip popover, visible border and shadow, and stacking above an open
 composer drawer.
 
+The structured plugin-panel catalog covers Explorer, Search, AI Chat, AI
+History, and the six Markdown command views. Every mapped story renders the
+same registered view once in Middle Top Tabs, Stacked Tabs, both sidebars, a
+real bottom-panel group, and a real sidebar group; new or changed captures stay
+`visual-pending` until reviewed.
+
 ## Tooling
 
 - Interaction + a11y tests: `pnpm test:storybook` (axe via addon-a11y; `a11y.test: "error"`)

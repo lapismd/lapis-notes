@@ -7,7 +7,7 @@
     type PanelDemoLayout,
   } from "./create-panel-demo";
   import type { App } from "@lapis-notes/api";
-  import "../lapis-editor-demo/lapis-editor-demo.css";
+  import "../../../workspace/lapis-editor-demo/lapis-editor-demo.css";
   import "@lapismd/mira/themes/obsidian.css";
   import "@lapismd/mira-editor/styles.css";
 

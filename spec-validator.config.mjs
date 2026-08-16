@@ -40,6 +40,12 @@ export default defineConfig(tableRequirements(), {
     "VIEW-COMMAND-ACCESS-MISSING": "LN-PLUG-016",
     "VIEW-COMMAND-ACCESS-INVALID": "LN-PLUG-016",
     "VIEW-COMMAND-OPEN-SHAPE": "LN-PLUG-017",
+    "STORYBOOK-PANEL-MAPPING-DUPLICATE": "LN-GOV-038",
+    "STORYBOOK-PANEL-COMMAND-STALE": "LN-CAT-075",
+    "STORYBOOK-PANEL-SOURCE-MISSING": "LN-CAT-075",
+    "STORYBOOK-PANEL-TITLE": "LN-CAT-074",
+    "STORYBOOK-PANEL-PLACEMENT-MISSING": "LN-CAT-075",
+    "STORYBOOK-PANEL-VISUAL-STATUS": "LN-CAT-075",
   },
   validators: {
     summary: true,
@@ -238,7 +244,10 @@ export default defineConfig(tableRequirements(), {
         },
         {
           pattern: "^stories/plugins/ai/",
-          chapters: ["spec/src/plugins/ai/index.md", "spec/src/storybook-catalog.md"],
+          chapters: [
+            "spec/src/plugins/ai/index.md",
+            "spec/src/storybook-catalog.md",
+          ],
         },
         {
           pattern:
@@ -324,13 +333,24 @@ export default defineConfig(tableRequirements(), {
       protected: ["^(?:packages/[^/]+/src/|\\.storybook/|stories/catalog/)"],
     },
   },
-  plugins: ["scripts/spec-validation/view-command-audit.mjs"],
+  plugins: [
+    "scripts/spec-validation/view-command-audit.mjs",
+    "scripts/spec-validation/storybook-structure-audit.mjs",
+  ],
   check: {
     lanes: [
       {
         name: "view-command-audit",
         command: "node",
         args: ["--test", "scripts/spec-validation/view-command-audit.test.mjs"],
+      },
+      {
+        name: "storybook-structure-audit",
+        command: "node",
+        args: [
+          "--test",
+          "scripts/spec-validation/storybook-structure-audit.test.mjs",
+        ],
       },
     ],
   },

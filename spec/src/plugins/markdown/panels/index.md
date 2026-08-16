@@ -61,3 +61,7 @@ canonical command described by `LN-WS-052`.
 The canonical registry uses one `Open …` command per panel and reuses an
 existing leaf before creating, activating, and revealing the documented
 right-sidebar default.
+Every canonical panel story lives at
+`Plugins/Markdown/Panels/<Panel>` and exports the same six placement names used
+by the cross-plugin panel audit. Link Preview Acceptance remains supporting
+behavior rather than an additional command-access view.

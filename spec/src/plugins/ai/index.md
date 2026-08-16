@@ -135,3 +135,7 @@ AI registers its sidebar chat and history views through `ViewAccess.command`.
 Their canonical palette commands are `AI: Open Chat` and `AI: Open History`;
 each reuses an existing leaf or creates, activates, and reveals its documented
 right-sidebar leaf.
+`AiChatPanel` and `AiHistoryPanel` are public presentation exports used by
+Autodocs, while the six-position stories still construct them through the real
+AI plugin. Selecting the deterministic Fake runtime suppresses desktop-host
+unavailability because no live transport is required.

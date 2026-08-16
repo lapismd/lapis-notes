@@ -5,7 +5,9 @@ import {
 } from "./create-panel-demo";
 
 const publicComponents: Partial<Record<PanelDemoKind, string>> = {
-  "ai-history": "AiHistoryView",
+  "ai-history": "AiHistoryPanel",
+  "ai-chat": "AiChatPanel",
+  explorer: "ExplorerPanel",
   "file-properties": "FileProperties",
   outline: "Outline",
   backlinks: "Backlinks",
@@ -33,12 +35,22 @@ export function panelExampleSource(
   const packageName =
     kind === "search"
       ? "@lapis-notes/search"
-      : kind === "ai-history"
-        ? "@lapis-notes/ai"
-        : "@lapis-notes/markdown";
+      : kind === "explorer"
+        ? "@lapis-notes/file-explorer"
+        : kind === "ai-history"
+          ? "@lapis-notes/ai"
+          : kind === "ai-chat"
+            ? "@lapis-notes/ai"
+            : "@lapis-notes/markdown";
   const panelImport = `  import { ${publicComponents[kind] ?? "AllProperties"} } from "${packageName}";\n`;
   const pluginName =
-    kind === "search" ? "Search" : kind === "ai-history" ? "AI" : "Markdown";
+    kind === "search"
+      ? "Search"
+      : kind === "explorer"
+        ? "Explorer"
+        : kind === "ai-history" || kind === "ai-chat"
+          ? "AI"
+          : "Markdown";
   const registrationNote = `  // The enabled ${pluginName} plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
 
   return `<script lang="ts">

@@ -146,3 +146,7 @@ view identifies its empty state as page content and therefore matches the white
 body view in the default theme. Compatibility view actions and pane-menu
 contributions flow through `WorkspaceViewChrome`, so Markdown mode controls use
 the same title-bar and menu surfaces as other design-core views.
+The public `ExplorerPanel` export is exercised through the registered Explorer
+view in the shared command-panel harness; the editor demo remains the source of
+its real in-memory vault and mutation controller rather than a duplicate panel
+fixture.

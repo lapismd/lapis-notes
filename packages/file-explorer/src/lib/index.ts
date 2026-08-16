@@ -20,7 +20,7 @@ import {
 } from "@lapismd/design-core/workspace/explorer";
 import type { WorkspaceAction } from "@lapismd/design-core/workspace/core";
 import { mount, unmount } from "svelte";
-import LapisExplorerView from "./LapisExplorerView.svelte";
+import ExplorerPanel from "./LapisExplorerView.svelte";
 import LapisLanding from "./LapisLandingView.svelte";
 import { openExplorerFile } from "./open-explorer-file";
 import { isVisibleExplorerPath } from "./vault-path-visibility";
@@ -224,7 +224,7 @@ export class FileExplorerView extends View {
   load(): void {
     this.unload();
     this.containerEl.replaceChildren();
-    this.#component = mount(LapisExplorerView, {
+    this.#component = mount(ExplorerPanel, {
       target: this.containerEl,
       props: { controller: this.#controller },
     });
@@ -343,11 +343,9 @@ export function createFileExplorerPlugin(
           },
         },
       );
-      this.registerView(
-        "lapis-landing",
-        (leaf) => new LapisLandingView(leaf),
-        { kind: "internal" },
-      );
+      this.registerView("lapis-landing", (leaf) => new LapisLandingView(leaf), {
+        kind: "internal",
+      });
 
       this.addCommand({
         id: "reveal-path",
@@ -394,9 +392,11 @@ export function createFileExplorerPlugin(
     }
 
     private async openExplorer(): Promise<void> {
-      const existing = this.app.workspace.getLeavesOfType(FileExplorerViewType)[0];
+      const existing =
+        this.app.workspace.getLeavesOfType(FileExplorerViewType)[0];
       const target =
-        existing ?? this.app.workspace.ensureSideLeaf(FileExplorerViewType, "left");
+        existing ??
+        this.app.workspace.ensureSideLeaf(FileExplorerViewType, "left");
       if (!existing) {
         await target.setViewState({ type: FileExplorerViewType, state: {} });
       }
@@ -412,3 +412,4 @@ export function createFileExplorerPlugin(
 
 export const FileExplorerPlugin: PluginConstructor = createFileExplorerPlugin();
 export const FileExplorerViewType = "file-explorer";
+export { default as ExplorerPanel } from "./LapisExplorerView.svelte";

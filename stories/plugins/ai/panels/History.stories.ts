@@ -1,23 +1,24 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
+import { AiHistoryPanel } from "@lapis-notes/ai";
 import { expect, userEvent, waitFor } from "storybook/test";
-import PanelDemo from "./PanelDemo.svelte";
-import { panelExampleSources } from "./Panel.example-sources";
-import type { PanelDemoLayout } from "./create-panel-demo";
+import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
+import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
+import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
   expectPanelPlacement,
   expectPanelSource,
   PANEL_DOCS_PARAMETERS,
   PANEL_PLACEMENTS,
   placementParameters,
-} from "./panel-story-helpers";
-import "./Panel.docs.css";
+} from "../../_shared/panels/panel-story-helpers";
+import "../../_shared/panels/Panel.docs.css";
 
 const kind = "ai-history" as const;
 const sources = panelExampleSources(kind);
 
 const meta = {
-  title: "Workspace/Panels/AI/History",
-  component: PanelDemo,
+  title: "Plugins/AI/Panels/History",
+  component: AiHistoryPanel,
   tags: ["visual-pending", "test"],
   parameters: {
     layout: "fullscreen",
@@ -29,7 +30,7 @@ const meta = {
       },
     },
   },
-} satisfies Meta<typeof PanelDemo>;
+} satisfies Meta<typeof AiHistoryPanel>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

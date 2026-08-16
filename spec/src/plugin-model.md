@@ -47,3 +47,6 @@ Plugin configuration and data remain keyed by runtime plugin ID.
 Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.
+The Storybook command-panel registry maps each `ViewAccess.command` identifier
+back to its source declaration and canonical panel story. This is verification
+metadata only and does not become a runtime plugin registration surface.

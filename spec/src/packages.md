@@ -276,3 +276,8 @@ Overlapping shadcn families are consumed from `@lapismd/design-core/shadcn/*`.
 with colocated CSS and `--ui-*` tokens (no Tailwind utilities in sources).
 Date/time settings use design-core `forms` pickers via api `date-setting` (the
 old `date-time-picker-dialog` ui compound is retired).
+
+`@lapis-notes/file-explorer` publicly exports `ExplorerPanel`, and
+`@lapis-notes/ai` publicly exports `AiChatPanel` and `AiHistoryPanel`, so
+Autodocs can name the production components while stories continue to create
+them through real plugin view registrations.

@@ -2,9 +2,9 @@ import type { App } from "@lapis-notes/api";
 import { Outline } from "@lapis-notes/markdown";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor } from "storybook/test";
-import PanelDemo from "./PanelDemo.svelte";
-import { panelExampleSources } from "./Panel.example-sources";
-import type { PanelDemoLayout } from "./create-panel-demo";
+import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
+import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
+import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
   expectPanelPlacement,
   expectPanelSource,
@@ -12,20 +12,21 @@ import {
   PANEL_PLACEMENTS,
   panelDemoApp,
   placementParameters,
-} from "./panel-story-helpers";
-import "./Panel.docs.css";
+} from "../../_shared/panels/panel-story-helpers";
+import "../../_shared/panels/Panel.docs.css";
 
 const kind = "outline" as const;
 const sources = panelExampleSources(kind);
 
 const meta = {
-  title: "Workspace/Panels/Markdown/Outline",
+  title: "Plugins/Markdown/Panels/Outline",
   component: Outline,
   args: { app: undefined as unknown as App },
   argTypes: {
     app: {
       control: false,
-      description: "Initialized Lapis App supplied by the Markdown plugin view.",
+      description:
+        "Initialized Lapis App supplied by the Markdown plugin view.",
     },
   },
   tags: ["visual-pending", "test"],
@@ -46,7 +47,10 @@ type Story = StoryObj<typeof meta>;
 type StoryRender = NonNullable<Story["render"]>;
 
 function renderPlacement(layout: PanelDemoLayout): StoryRender {
-  return (() => ({ Component: PanelDemo, props: { kind, layout } })) as StoryRender;
+  return (() => ({
+    Component: PanelDemo,
+    props: { kind, layout },
+  })) as StoryRender;
 }
 
 function placementStory(
@@ -166,8 +170,9 @@ function placementStory(
         const checklistLabel = checklistRow.querySelector<HTMLElement>(
           ".markdown-outline__label",
         );
-        const detailsGuide =
-          detailsRow.closest<HTMLElement>(".markdown-outline__sub");
+        const detailsGuide = detailsRow.closest<HTMLElement>(
+          ".markdown-outline__sub",
+        );
         expect(rows.length).toBeGreaterThan(1);
         expect(welcomeLabel).not.toBeNull();
         expect(linksChevron).not.toBeNull();
