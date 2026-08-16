@@ -23,7 +23,7 @@
     AgentRuntime,
     AiThinkingLevel,
     ModelRef,
-    ToolContribution,
+    McpServerContribution,
   } from "../core/types";
   import type { AgentSessionStore } from "../sessions/session-store";
   import type {
@@ -53,7 +53,7 @@
     unavailableReason = null,
     initializing = false,
     workspace,
-    tools = [],
+    mcpServers = [],
     sessionStore,
     sessionId,
     repository,
@@ -73,7 +73,7 @@
     unavailableReason?: string | null;
     initializing?: boolean;
     workspace?: string;
-    tools?: ToolContribution[];
+    mcpServers?: McpServerContribution[];
     sessionStore?: AgentSessionStore;
     sessionId?: string;
     repository?: ConversationRepository;
@@ -96,7 +96,7 @@
   } = $props();
 
   const controller = $derived(
-    new AiChatController(runtime, unavailableReason, tools, {
+    new AiChatController(runtime, unavailableReason, mcpServers, {
       store: sessionStore,
       sessionId,
       workspace,
@@ -236,7 +236,7 @@
     drawerCollapsed = false;
     await controller.submit(prompt, {
       workspace,
-      tools,
+      mcpServers,
       agent: selectedAgent,
       model: selectedModel
         ? {

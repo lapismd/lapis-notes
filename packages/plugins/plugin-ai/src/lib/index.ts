@@ -26,7 +26,7 @@ export type {
   ApprovalOption,
   ApprovalRequest,
   ModelRef,
-  ToolContribution,
+  McpServerContribution,
   UserInputAnswers,
   UserInputOption,
   UserInputQuestion,
@@ -142,5 +142,6 @@ export type {
   RuntimeEventProvenance,
   TranscriptEntry,
 } from "./conversations/types";
-export { createToolContributionRegistry } from "./tools/tool-registry";
-export type { ToolContributionRegistry } from "./tools/tool-registry";
+export { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
+export { APP_TOOL_MCP_SERVER_NAME } from "./tools/mcp-server-registry";
+export type { McpServerContributionRegistry } from "./tools/mcp-server-registry";

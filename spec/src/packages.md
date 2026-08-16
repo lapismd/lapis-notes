@@ -106,6 +106,9 @@ application manager or presentation modules.
 The API agent-tool surface exports only schemas, results, trusted execution
 context, owner metadata, and lifecycle registration. It does not import or
 re-export MCP, ACP, acpx, or vendor runtime types.
+The AI package keeps external MCP server processes in a distinct, deterministic
+`McpServerContribution` registry that rejects duplicate names and the reserved
+`lapis-tools` bridge identity.
 
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not

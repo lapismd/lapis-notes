@@ -35,7 +35,7 @@ function createHost(
     selectRuntime,
     fallbackRuntime: () => fallback,
     liveRuntimeUnavailableReason: () => options.unavailableReason ?? null,
-    tools: { list: () => [] },
+    mcpServers: { list: () => [] },
     conversations: repository,
     createConversationInput: () => ({ scopeDir: "" }),
     listConversationFolders: () => [""],

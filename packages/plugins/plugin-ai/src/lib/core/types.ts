@@ -9,13 +9,31 @@ export type ModelRef = {
 
 export type AiThinkingLevel = "off" | "low" | "medium" | "high";
 
-export type ToolContribution = {
+export type McpServerContribution = {
   name: string;
   command: string;
   args?: string[];
   cwd?: string;
   env?: Record<string, string>;
   enabledTools?: string[];
+};
+
+export type AppToolDescriptor = {
+  registrationId: string;
+  ownerPluginId: string;
+  name: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  outputSchema?: Record<string, unknown>;
+  effect: "read" | "write" | "external";
+};
+
+export type AppToolSessionDescriptor = {
+  conversationId: string;
+  agentBindingId: string;
+  scopeDir: string;
+  launchNotePath?: string;
+  tools: AppToolDescriptor[];
 };
 
 export type AgentRequest = {
@@ -25,7 +43,8 @@ export type AgentRequest = {
   model?: ModelRef;
   thinking?: AiThinkingLevel;
   metadata?: Record<string, unknown>;
-  tools?: ToolContribution[];
+  mcpServers?: McpServerContribution[];
+  appToolSession?: AppToolSessionDescriptor;
   restricted?: boolean;
   requireApprovals?: boolean;
   requirePolicyAmendments?: boolean;
@@ -35,6 +54,7 @@ export type ApprovalKind = "read" | "write" | "execute" | "network" | "other";
 
 export type ApprovalOptionKind =
   | "allow-once"
+  | "allow-session"
   | "allow-always"
   | "deny-once"
   | "deny-always";
@@ -49,11 +69,17 @@ export type ApprovalRequest = {
   id: string;
   kind: ApprovalKind;
   title: string;
+  origin?: "runtime" | "app-tool";
   tool?: {
     name: string;
     input?: unknown;
   };
   options: ApprovalOption[];
+  details?: {
+    description?: string;
+    path?: string;
+    diff?: string;
+  };
   metadata?: Record<string, unknown>;
 };
 

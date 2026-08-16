@@ -63,7 +63,7 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
         model: request.model,
         thinking: request.thinking,
         metadata: request.metadata,
-        tools: request.tools,
+        tools: request.mcpServers,
         resumeSessionId,
       },
     );

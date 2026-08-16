@@ -7,7 +7,7 @@ import {
   type AgentRuntime,
   type AgentSession,
   type AiThinkingLevel,
-  type ToolContribution,
+  type McpServerContribution,
   type UserInputAnswers,
 } from "../../core/types";
 import type {
@@ -333,7 +333,7 @@ export class CodexNativeRuntime implements AgentRuntime {
   ): Promise<AgentSession> {
     const process = await this.#host.spawn({
       command: "codex",
-      args: codexArgsFor(request.tools),
+      args: codexArgsFor(request.mcpServers),
       cwd: request.workspace,
     });
     const session = new CodexNativeSession(process, request);
@@ -353,21 +353,23 @@ function thinkingEffort(
   return thinking === "off" ? "none" : thinking;
 }
 
-function codexArgsFor(tools: ToolContribution[] | undefined): string[] {
+function codexArgsFor(
+  mcpServers: McpServerContribution[] | undefined,
+): string[] {
   const args = ["app-server", "--stdio"];
-  for (const tool of tools ?? []) {
-    const prefix = `mcp_servers.${tool.name}`;
-    args.push("-c", `${prefix}.command=${JSON.stringify(tool.command)}`);
-    if (tool.args) {
-      args.push("-c", `${prefix}.args=${JSON.stringify(tool.args)}`);
+  for (const server of mcpServers ?? []) {
+    const prefix = `mcp_servers.${server.name}`;
+    args.push("-c", `${prefix}.command=${JSON.stringify(server.command)}`);
+    if (server.args) {
+      args.push("-c", `${prefix}.args=${JSON.stringify(server.args)}`);
     }
-    if (tool.cwd) {
-      args.push("-c", `${prefix}.cwd=${JSON.stringify(tool.cwd)}`);
+    if (server.cwd) {
+      args.push("-c", `${prefix}.cwd=${JSON.stringify(server.cwd)}`);
     }
-    if (tool.enabledTools) {
+    if (server.enabledTools) {
       args.push(
         "-c",
-        `${prefix}.enabled_tools=${JSON.stringify(tool.enabledTools)}`,
+        `${prefix}.enabled_tools=${JSON.stringify(server.enabledTools)}`,
       );
     }
   }

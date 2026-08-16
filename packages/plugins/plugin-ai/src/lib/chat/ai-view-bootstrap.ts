@@ -1,4 +1,4 @@
-import type { AgentRuntime, ModelRef, ToolContribution } from "../core/types";
+import type { AgentRuntime, ModelRef, McpServerContribution } from "../core/types";
 import type { ConversationLocation } from "../conversations/types";
 import { ACP_AGENT_IDS } from "../settings/acp-agents";
 import type { AiPluginSettings } from "../settings/ai-settings";
@@ -25,7 +25,7 @@ export function initialAiViewBootstrap(host: AiViewHost): AiViewBootstrap {
 export async function prepareAiViewBootstrap(
   host: AiViewHost,
   initialLocation: ConversationLocation | null,
-  tools: ToolContribution[],
+  mcpServers: McpServerContribution[],
 ): Promise<AiViewBootstrap> {
   let settings = host.getSettings();
   const conversation = initialLocation
@@ -83,7 +83,7 @@ export async function prepareAiViewBootstrap(
   try {
     runtime = await host.selectRuntime({
       prompt: "",
-      tools,
+      mcpServers,
       agent: settings.acpAgent,
       model: { provider: settings.acpAgent, model: settings.defaultModel },
       thinking: settings.thinking,

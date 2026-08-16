@@ -85,6 +85,9 @@ consumers without selecting the owner for newly constructed runtime objects.
 The application tool registry follows the same explicit ownership boundary.
 It stores plugin-owned, transport-neutral callbacks on the owning App while AI
 derives binding-local policy snapshots and AI Host adapts descriptors to MCP.
+AI names process-backed integrations `McpServerContribution` and carries them
+on `AgentRequest.mcpServers`, leaving the reserved `lapis-tools` identity for
+the app-owned bridge.
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

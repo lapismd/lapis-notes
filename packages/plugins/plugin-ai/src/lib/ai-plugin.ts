@@ -42,7 +42,7 @@ import {
   mergeAiSettings,
   type AiPluginSettings,
 } from "./settings/ai-settings";
-import { createToolContributionRegistry } from "./tools/tool-registry";
+import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 
 const AI_MANIFEST: PluginManifest = {
   id: "ai",
@@ -62,7 +62,7 @@ export class AiPlugin extends Plugin {
   readonly processHost: AgentProcessHost;
   readonly registry: AgentRuntimeRegistry;
   readonly models: ModelProviderRegistry;
-  readonly tools = createToolContributionRegistry();
+  readonly mcpServers = createMcpServerContributionRegistry();
   readonly #settingsListeners = new Set<
     (patch: Partial<AiPluginSettings>) => void
   >();
@@ -246,7 +246,10 @@ export class AiPlugin extends Plugin {
       fake: this.fakeRuntime,
       request: {
         ...request,
-        tools: [...(request.tools ?? []), ...this.tools.list()],
+        mcpServers: [
+          ...(request.mcpServers ?? []),
+          ...this.mcpServers.list(),
+        ],
       },
     });
   }

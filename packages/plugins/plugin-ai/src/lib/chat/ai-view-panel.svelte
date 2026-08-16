@@ -21,7 +21,7 @@
     ) => void;
   } = $props();
 
-  const tools = $derived(host.tools.list());
+  const mcpServers = $derived(host.mcpServers.list());
   const initialBootstrap = $derived(initialAiViewBootstrap(host));
   let preparedBootstrap = $state<AiViewBootstrap | null>(null);
   const bootstrap = $derived(preparedBootstrap ?? initialBootstrap);
@@ -29,7 +29,7 @@
 
   onMount(() => {
     let disposed = false;
-    void prepareAiViewBootstrap(host, initialLocation, tools)
+    void prepareAiViewBootstrap(host, initialLocation, mcpServers)
       .then((prepared) => {
         if (disposed) return;
         preparedBootstrap = prepared;
@@ -55,7 +55,7 @@
   selectRuntime={(request) => host.selectRuntime(request)}
   unavailableReason={bootstrap.unavailableReason}
   {initializing}
-  {tools}
+  {mcpServers}
   workspace={host.workspace}
   repository={host.conversations}
   {initialLocation}

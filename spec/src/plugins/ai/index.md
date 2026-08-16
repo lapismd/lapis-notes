@@ -118,6 +118,10 @@ The initial fallback controller is presentation-only: it does not restore or
 resume a conversation until preparation settles. History navigation compares
 both scope and conversation UUID and searches only main-area AI leaves before
 creating a tab; the dedicated history leaf remains mounted in its sidebar.
+External process-backed MCP servers are represented by
+`McpServerContribution` and travel through `AgentRequest.mcpServers`; the
+reserved `lapis-tools` server is exclusively owned by the application-tool
+bridge.
 
 ```text
 command or chat panel

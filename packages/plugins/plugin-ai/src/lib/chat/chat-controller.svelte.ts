@@ -3,7 +3,7 @@ import type {
   AgentRuntime,
   AgentSession,
   AgentUsage,
-  ToolContribution,
+  McpServerContribution,
   UserInputAnswers,
 } from "../core/types";
 import type {
@@ -52,7 +52,7 @@ export class AiChatController {
   session: AgentSession | null = null;
   runtime: AgentRuntime;
   readonly unavailableReason: string | null;
-  readonly tools: ToolContribution[];
+  readonly mcpServers: McpServerContribution[];
   readonly store?: AgentSessionStore;
   readonly repository?: ConversationRepository;
   readonly sessionId: string;
@@ -75,7 +75,7 @@ export class AiChatController {
   constructor(
     runtime: AgentRuntime,
     unavailableReason: string | null = null,
-    tools: ToolContribution[] = [],
+    mcpServers: McpServerContribution[] = [],
     options: {
       store?: AgentSessionStore;
       sessionId?: string;
@@ -90,7 +90,7 @@ export class AiChatController {
   ) {
     this.runtime = runtime;
     this.unavailableReason = unavailableReason;
-    this.tools = tools;
+    this.mcpServers = mcpServers;
     this.store = options.store;
     this.repository = options.repository;
     this.location = options.location ?? null;
@@ -639,7 +639,7 @@ export class AiChatController {
       ? await this.#selectRuntime({
           ...request,
           prompt: "",
-          tools: request.tools ?? this.tools,
+          mcpServers: request.mcpServers ?? this.mcpServers,
         })
       : this.runtime;
     if (
@@ -725,7 +725,7 @@ export class AiChatController {
     const started = await targetRuntime.start({
       ...preparedRequest,
       prompt: "",
-      tools: preparedRequest.tools ?? this.tools,
+      mcpServers: preparedRequest.mcpServers ?? this.mcpServers,
     });
     try {
       if (this.repository) {

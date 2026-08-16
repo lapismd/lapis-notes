@@ -9,7 +9,7 @@ import type {
   AgentRequest,
   AgentRuntime,
   ModelRef,
-  ToolContribution,
+  McpServerContribution,
 } from "../core/types";
 import type {
   ConversationRepository,
@@ -25,7 +25,7 @@ export type AiViewHost = {
   selectRuntime(request: AgentRequest): Promise<AgentRuntime>;
   fallbackRuntime(): AgentRuntime;
   liveRuntimeUnavailableReason(): string | null;
-  tools: { list(): ToolContribution[] };
+  mcpServers: { list(): McpServerContribution[] };
   conversations: ConversationRepository;
   createConversationInput(explicitFolder?: string): CreateConversationInput;
   listConversationFolders(): string[];
