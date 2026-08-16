@@ -6,6 +6,8 @@ import {
 } from "@lapis-notes/api";
 import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
+import { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
+import type { ConversationLocation } from "./conversations/types";
 import { formatFileMention, searchVaultFiles } from "./chat/chat-mentions";
 import type { AgentRequest, AgentRuntime } from "./core/types";
 import { createHostAgentRuntimes } from "./host/create-host-runtimes";
@@ -173,6 +175,12 @@ export class AiPlugin extends Plugin {
     ].sort((left, right) => left.localeCompare(right));
   }
 
+  currentConversationScope(): string {
+    return this.scopeResolver.resolve({
+      activeFile: this.app.workspace.getActiveFile(),
+    }).scopeDir;
+  }
+
   searchVaultFiles = async (
     query: string,
     signal: AbortSignal,
@@ -195,6 +203,15 @@ export class AiPlugin extends Plugin {
   }
 
   async selectRuntime(request: AgentRequest): Promise<AgentRuntime> {
+    const requestedRuntime = request.metadata?.runtime;
+    if (typeof requestedRuntime === "string") {
+      const explicit =
+        requestedRuntime === "fake"
+          ? this.fakeRuntime
+          : this.registry.get(requestedRuntime);
+      if (explicit && (await explicit.supports(request))) return explicit;
+      throw new Error(`Selected runtime ${requestedRuntime} is unavailable.`);
+    }
     return selectAgentRuntime({
       registry: this.registry,
       settings: this.data.settings,
@@ -221,6 +238,24 @@ export class AiPlugin extends Plugin {
       side: "right",
       title: "AI",
       icon: "sparkles",
+      group: "AI",
+      groupTitle: "AI",
+    });
+    this.registerSidebarView(
+      AiHistoryViewType,
+      (leaf) => new AiHistoryView(leaf, this),
+      {
+        side: "right",
+        title: "AI conversations",
+        icon: "history",
+        group: "AI",
+        groupTitle: "AI",
+      },
+    );
+    this.addCommand({
+      id: "show-ai-conversation-history",
+      name: "Show AI conversation history",
+      callback: () => void this.revealConversationHistory(),
     });
     this.addCommand({
       id: "open-ai-chat",
@@ -230,14 +265,44 @@ export class AiPlugin extends Plugin {
   }
 
   private async openAiChat(): Promise<void> {
+    await this.openAiConversation();
+  }
+
+  async openAiConversation(location?: ConversationLocation): Promise<void> {
     const existing = this.app.workspace.getLeavesOfType(AiViewType)[0];
+    const state = location
+      ? {
+          scopeDir: location.scopeDir,
+          conversationId: location.conversationId,
+        }
+      : {};
+    if (existing) {
+      await existing.setViewState({ type: AiViewType, state });
+      this.app.workspace.revealLeaf(existing);
+      return;
+    }
+    const leaf = this.app.workspace.getRightLeaf(false);
+    if (!leaf) return;
+    await leaf.setViewState({ type: AiViewType, state });
+    this.app.workspace.revealLeaf(leaf);
+  }
+
+  async createAiConversation(scopeDir: string): Promise<void> {
+    const created = await this.conversations.create(
+      this.createConversationInput(scopeDir),
+    );
+    await this.openAiConversation(created.location);
+  }
+
+  async revealConversationHistory(): Promise<void> {
+    const existing = this.app.workspace.getLeavesOfType(AiHistoryViewType)[0];
     if (existing) {
       this.app.workspace.revealLeaf(existing);
       return;
     }
     const leaf = this.app.workspace.getRightLeaf(false);
     if (!leaf) return;
-    await leaf.setViewState({ type: AiViewType, state: {} });
+    await leaf.setViewState({ type: AiHistoryViewType, state: {} });
     this.app.workspace.revealLeaf(leaf);
   }
 }

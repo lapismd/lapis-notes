@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { FakeAgentRuntime } from "../runtimes/fake/fake-runtime";
 import type {
   AgentCapabilities,
+  AgentEvent,
   AgentRuntime,
   AgentSession,
 } from "../core/types";
@@ -434,7 +435,9 @@ describe("AiChatController", () => {
     await controller.submit("usage");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     await vi.waitFor(async () => {
-      expect((await repository.read(controller.location!)).agents.at(-1)).toMatchObject({
+      expect(
+        (await repository.read(controller.location!)).agents.at(-1),
+      ).toMatchObject({
         type: "usage.updated",
         usage: { used: 12, limit: 100 },
       });
@@ -571,4 +574,211 @@ describe("AiChatController", () => {
     expect(controller.location).toBeNull();
     expect(states.at(-1)).toBeNull();
   });
+
+  it("switches agents through a prepared runtime and passes bounded local handoff", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const codex = new FakeAgentRuntime({ id: "acp-codex", trace: "rich" });
+    const cursor = new FakeAgentRuntime({ id: "acp-cursor" });
+    const controller = new AiChatController(codex, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      selectRuntime: async (request) =>
+        request.agent === "cursor" ? cursor : codex,
+      request: { agent: "codex" },
+    });
+
+    await controller.submit("Inspect the project", { agent: "codex" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await controller.submit("Continue in Cursor", { agent: "cursor" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+
+    expect(cursor.lastRequest?.metadata?.contextHandoff).toMatchObject({
+      text: expect.stringContaining("User: Inspect the project"),
+      throughEntryId: expect.any(String),
+    });
+    expect(
+      JSON.stringify(cursor.lastRequest?.metadata?.contextHandoff),
+    ).not.toContain("heading: Notes");
+    const snapshot = await repository.read(controller.location!);
+    expect(
+      snapshot.agents.filter((record) => record.type === "binding.created"),
+    ).toHaveLength(2);
+    expect(snapshot.metadata.activeAgentBindingId).toBe(
+      snapshot.agents.find(
+        (record) =>
+          record.type === "binding.created" && record.agent === "cursor",
+      )?.id,
+    );
+    await controller.close();
+  });
+
+  it("keeps the previous binding active when target preparation fails", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const codex = new FakeAgentRuntime({ id: "acp-codex" });
+    const failing: AgentRuntime = {
+      id: "acp-cursor",
+      capabilities: () => codex.capabilities(),
+      async supports() {
+        return true;
+      },
+      async start() {
+        throw new Error("Cursor failed to start");
+      },
+    };
+    const controller = new AiChatController(codex, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      selectRuntime: async (request) =>
+        request.agent === "cursor" ? failing : codex,
+      request: { agent: "codex" },
+    });
+    await controller.submit("first", { agent: "codex" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const before = await repository.read(controller.location!);
+    await controller.submit("switch", { agent: "cursor" });
+    expect(controller.error).toBe("Cursor failed to start");
+    const after = await repository.read(controller.location!);
+    expect(after.metadata.activeAgentBindingId).toBe(
+      before.metadata.activeAgentBindingId,
+    );
+    expect(
+      after.agents.filter((record) => record.type === "binding.created"),
+    ).toHaveLength(1);
+    await controller.close();
+  });
+
+  it("reuses the newest exact binding when switching back and resume succeeds", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const codex = createResumableRuntime("acp-codex");
+    const cursor = createResumableRuntime("acp-cursor");
+    const controller = new AiChatController(codex.runtime, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      selectRuntime: async (request) =>
+        request.agent === "cursor" ? cursor.runtime : codex.runtime,
+      request: { agent: "codex" },
+    });
+
+    await controller.submit("codex one", { agent: "codex" });
+    await controller.submit("cursor one", { agent: "cursor" });
+    await controller.submit("codex again", { agent: "codex" });
+
+    const snapshot = await repository.read(controller.location!);
+    expect(codex.starts()).toBe(1);
+    expect(codex.resumes()).toBe(1);
+    expect(
+      snapshot.agents.filter((record) => record.type === "binding.created"),
+    ).toHaveLength(2);
+    expect(
+      snapshot.transcript.filter((entry) => entry.type === "agent.switch"),
+    ).toHaveLength(2);
+    await controller.close();
+  });
+
+  it("attributes late events to their producing binding without changing the active UI", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    let releaseLate!: (event: AgentEvent) => void;
+    const lateEvent = new Promise<AgentEvent>((resolve) => {
+      releaseLate = resolve;
+    });
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const codex: AgentRuntime = {
+      id: "acp-codex",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        return {
+          id: "codex-native-session",
+          async *events() {
+            yield await lateEvent;
+            yield { type: "completed" as const };
+          },
+          async send() {},
+          async respondToApproval() {},
+          async cancel() {},
+          async close() {},
+        };
+      },
+    };
+    const cursor = createResumableRuntime("acp-cursor").runtime;
+    const controller = new AiChatController(codex, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      selectRuntime: async (request) =>
+        request.agent === "cursor" ? cursor : codex,
+      request: { agent: "codex" },
+    });
+
+    await controller.submit("start codex", { agent: "codex" });
+    const before = await repository.read(controller.location!);
+    const codexBindingId = before.metadata.activeAgentBindingId;
+    await controller.cancelAndSwitch({ agent: "cursor" });
+    releaseLate({ type: "text", text: "late codex output" });
+    await vi.waitFor(async () => {
+      expect(
+        JSON.stringify(
+          (await repository.read(controller.location!)).transcript,
+        ),
+      ).toContain("late codex output");
+    });
+    expect(JSON.stringify(controller.items)).not.toContain("late codex output");
+    const snapshot = await repository.read(controller.location!);
+    expect(
+      snapshot.transcript.find(
+        (entry) =>
+          entry.type === "message" && entry.text === "late codex output",
+      )?.agentBindingId,
+    ).toBe(codexBindingId);
+    await controller.close();
+  });
 });
+
+function createResumableRuntime(id: string): {
+  runtime: AgentRuntime;
+  starts: () => number;
+  resumes: () => number;
+} {
+  let startCount = 0;
+  let resumeCount = 0;
+  const capabilities = new FakeAgentRuntime().capabilities();
+  const session = (sessionId: string): AgentSession => ({
+    id: sessionId,
+    async *events() {},
+    async send() {},
+    async respondToApproval() {},
+    async close() {},
+  });
+  return {
+    runtime: {
+      id,
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        startCount += 1;
+        return session(`${id}-${startCount}`);
+      },
+      async resume(sessionId) {
+        resumeCount += 1;
+        return session(sessionId);
+      },
+    },
+    starts: () => startCount,
+    resumes: () => resumeCount,
+  };
+}

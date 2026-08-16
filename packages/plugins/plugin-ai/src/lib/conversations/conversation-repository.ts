@@ -147,6 +147,33 @@ export class ConversationRepository {
     });
   }
 
+  async activateBinding(
+    location: ConversationLocation,
+    bindingId: string,
+    switchEntry?: TranscriptEntry,
+  ): Promise<ConversationSnapshot> {
+    return this.queue.run(conversationStorageKey(location), async () => {
+      const snapshot = await this.store.read(location);
+      const binding = snapshot.agents.find(
+        (record) =>
+          record.type === "binding.created" && record.id === bindingId,
+      );
+      if (!binding) throw new Error(`Unknown agent binding: ${bindingId}`);
+      if (switchEntry) {
+        await this.store.appendTranscriptEntries(location, [
+          this.sanitizeEntry(switchEntry),
+        ]);
+      }
+      const metadata: ConversationMetadata = {
+        ...snapshot.metadata,
+        activeAgentBindingId: bindingId,
+        updatedAt: switchEntry?.createdAt ?? new Date().toISOString(),
+      };
+      await this.store.writeMetadata(location, metadata);
+      return this.store.read(location);
+    });
+  }
+
   delete(location: ConversationLocation): Promise<void> {
     return this.store.delete(location);
   }

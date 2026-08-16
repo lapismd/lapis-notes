@@ -1,6 +1,7 @@
 export { AiPlugin, default } from "./ai-plugin";
 export { AiChatPanel } from "./public-components";
 export { AiView, AiViewType } from "./chat/ai-view";
+export { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
 export {
   applyAgentEventToChatItems,
   markApprovalResponse,
@@ -92,6 +93,11 @@ export {
 } from "./chat/chat-mentions";
 export type { VaultFileRef } from "./chat/chat-mentions";
 export { ConversationScopeResolver } from "./conversations/scope-resolver";
+export {
+  buildConversationContextHandoff,
+  MAX_CONTEXT_HANDOFF_CODE_POINTS,
+} from "./conversations/context-handoff";
+export type { ConversationContextHandoff } from "./conversations/context-handoff";
 export {
   ConversationRepository,
   deriveConversationTitle,

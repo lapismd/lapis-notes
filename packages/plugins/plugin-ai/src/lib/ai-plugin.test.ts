@@ -1,12 +1,14 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { AiViewType } from "./chat/ai-view-type";
+import { AiHistoryViewType } from "./history/ai-history-view-type";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
 import { mergeAiSettings } from "./settings/ai-settings";
 
 describe("AiPlugin contracts", () => {
   it("uses a stable view type and default settings", () => {
     expect(AiViewType).toBe("ai");
+    expect(AiHistoryViewType).toBe("ai-conversation-history");
     expect(mergeAiSettings(null)).toEqual({
       defaultRuntime: "auto",
       acpAgent: "codex",
@@ -31,5 +33,15 @@ describe("AiPlugin contracts", () => {
 
     expect(source).not.toContain("this.host.subscribeSettings");
     expect(source).not.toContain("remountPanel");
+  });
+
+  it("routes history through a dedicated sidebar view instead of a popup", () => {
+    const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
+    const plugin = readFileSync("src/lib/ai-plugin.ts", "utf8");
+
+    expect(panel).toContain("onRevealHistory");
+    expect(panel).not.toContain("All conversations (index pending)");
+    expect(plugin).toContain("AiHistoryViewType");
+    expect(plugin).toContain("revealConversationHistory");
   });
 });

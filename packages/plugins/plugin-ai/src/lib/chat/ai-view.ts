@@ -1,4 +1,8 @@
-import { View, type WorkspaceLeaf } from "@lapis-notes/api";
+import {
+  View,
+  type ViewStateResult,
+  type WorkspaceLeaf,
+} from "@lapis-notes/api";
 import type { ComposerSearchSource } from "@lapismd/design-core/ai/chat";
 import { mount, unmount } from "svelte";
 import type {
@@ -13,6 +17,7 @@ import type {
 } from "../conversations/conversation-repository";
 import type { ConversationLocation } from "../conversations/types";
 import type { AiPluginSettings } from "../settings/ai-settings";
+import { ACP_AGENT_IDS } from "../settings/acp-agents";
 import AiChatPanel from "./ai-chat-panel.svelte";
 import { AiViewType } from "./ai-view-type";
 export { AiViewType } from "./ai-view-type";
@@ -25,6 +30,7 @@ export type AiViewHost = {
   conversations: ConversationRepository;
   createConversationInput(explicitFolder?: string): CreateConversationInput;
   listConversationFolders(): string[];
+  revealConversationHistory(): Promise<void>;
   subscribeConversationMoves?(
     listener: (oldPath: string, newPath: string) => void,
   ): () => void;
@@ -82,14 +88,67 @@ export class AiView extends View {
     this.component = null;
   }
 
+  async setState(
+    state: Record<string, unknown>,
+    result?: ViewStateResult,
+  ): Promise<void> {
+    const previous = conversationLocationFromState(this.getState());
+    await super.setState(state, result);
+    const next = conversationLocationFromState(state);
+    if (this.component && !sameLocation(previous, next)) {
+      this.mountGeneration += 1;
+      const generation = this.mountGeneration;
+      await unmount(this.component);
+      this.component = null;
+      if (!this.disposed) await this.mountPanel(generation);
+    }
+  }
+
   private async mountPanel(generation: number): Promise<void> {
     const tools = this.host.tools.list();
+    const initialLocation = conversationLocationFromState(this.getState());
     let settings = this.host.getSettings();
+    if (initialLocation) {
+      try {
+        const snapshot = await this.host.conversations.read(initialLocation);
+        const binding = snapshot.agents.find(
+          (record) =>
+            record.type === "binding.created" &&
+            record.id === snapshot.metadata.activeAgentBindingId,
+        );
+        if (binding?.type === "binding.created") {
+          const agent = binding.agent === "cursor" ? "cursor" : "codex";
+          settings = {
+            ...settings,
+            acpAgent: agent,
+            defaultRuntime:
+              binding.runtime === "codex-native"
+                ? "codex-native"
+                : binding.runtime === "fake"
+                  ? "fake"
+                  : "acp",
+            defaultModel: binding.model?.model ?? settings.defaultModels[agent],
+            thinking: binding.thinking ?? settings.thinking,
+          };
+        }
+      } catch {
+        // The controller reports an unavailable conversation after mounting.
+      }
+    }
     let models: ModelRef[] = [];
     let modelCatalogError: string | null = null;
     try {
-      models = await this.host.models.listModels(settings.acpAgent);
+      const catalogs = await Promise.allSettled(
+        ACP_AGENT_IDS.map((agent) => this.host.models.listModels(agent)),
+      );
+      models = catalogs.flatMap((catalog) =>
+        catalog.status === "fulfilled" ? catalog.value : [],
+      );
+      const selectedCatalog =
+        catalogs[ACP_AGENT_IDS.indexOf(settings.acpAgent)];
+      if (selectedCatalog?.status === "rejected") throw selectedCatalog.reason;
       if (
+        !initialLocation &&
         models.length > 0 &&
         !models.some((model) => model.model === settings.defaultModel)
       ) {
@@ -110,6 +169,10 @@ export class AiView extends View {
         agent: settings.acpAgent,
         model: { provider: settings.acpAgent, model: settings.defaultModel },
         thinking: settings.thinking,
+        metadata:
+          settings.defaultRuntime === "auto"
+            ? undefined
+            : { runtime: settings.defaultRuntime },
       });
     } catch (error) {
       runtime = this.host.fallbackRuntime();
@@ -127,29 +190,23 @@ export class AiView extends View {
       target: this.containerEl,
       props: {
         runtime,
+        selectRuntime: (request: AgentRequest) =>
+          this.host.selectRuntime(request),
         unavailableReason,
         tools,
         workspace: this.host.workspace,
         repository: this.host.conversations,
-        initialLocation: conversationLocationFromState(this.getState()),
+        initialLocation,
         createConversation: (explicitFolder?: string) =>
           this.host.createConversationInput(explicitFolder),
-        conversationFolders: this.host.listConversationFolders(),
+        onRevealHistory: () => this.host.revealConversationHistory(),
         subscribeConversationMoves: this.host.subscribeConversationMoves?.bind(
           this.host,
         ),
         onConversationLocationChange: (
           location: ConversationLocation | null,
         ) => {
-          const state = { ...this.getState() };
-          if (location) {
-            state.scopeDir = location.scopeDir;
-            state.conversationId = location.conversationId;
-          } else {
-            delete state.scopeDir;
-            delete state.conversationId;
-          }
-          void this.setState(state);
+          this.persistLocationHint(location);
         },
         fileSearch: this.host.searchVaultFiles,
         models,
@@ -158,6 +215,18 @@ export class AiView extends View {
         onSettingsChange: (patch) => this.host.updateSettings(patch),
       },
     }) as Record<string, unknown>;
+  }
+
+  private persistLocationHint(location: ConversationLocation | null): void {
+    const state = { ...this.getState() };
+    if (location) {
+      state.scopeDir = location.scopeDir;
+      state.conversationId = location.conversationId;
+    } else {
+      delete state.scopeDir;
+      delete state.conversationId;
+    }
+    void super.setState(state);
   }
 }
 
@@ -171,4 +240,14 @@ function conversationLocationFromState(
         conversationId: state.conversationId,
       }
     : null;
+}
+
+function sameLocation(
+  left: ConversationLocation | null,
+  right: ConversationLocation | null,
+): boolean {
+  return (
+    left?.scopeDir === right?.scopeDir &&
+    left?.conversationId === right?.conversationId
+  );
 }

@@ -170,6 +170,7 @@ export function projectTranscriptToChatItems(
           role: entry.role,
           text: entry.text,
           createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
         });
         break;
       case "thinking.summary":
@@ -180,6 +181,7 @@ export function projectTranscriptToChatItems(
           kind: entry.kind,
           state: "done",
           createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
         });
         break;
       case "tool":
@@ -193,6 +195,7 @@ export function projectTranscriptToChatItems(
           input: entry.input,
           output: entry.output,
           createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
         });
         break;
       case "approval.request":
@@ -209,6 +212,7 @@ export function projectTranscriptToChatItems(
           },
           status: "pending",
           createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
         });
         break;
       case "approval.response": {
@@ -239,6 +243,7 @@ export function projectTranscriptToChatItems(
           },
           status: "pending",
           createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
         });
         break;
       case "question.response": {
@@ -257,6 +262,7 @@ export function projectTranscriptToChatItems(
           type: "status",
           text: entry.text,
           createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
         });
         break;
       case "error":
@@ -265,6 +271,7 @@ export function projectTranscriptToChatItems(
           type: "error",
           text: entry.message,
           createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
         });
         break;
       case "agent.switch":

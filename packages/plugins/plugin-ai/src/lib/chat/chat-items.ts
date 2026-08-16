@@ -7,7 +7,7 @@ export type AiChatApprovalStatus =
   | "answered"
   | "cancelled";
 
-export type AiChatItem =
+export type AiChatItem = (
   | {
       id: string;
       type: "message";
@@ -50,7 +50,8 @@ export type AiChatItem =
       createdAt?: string;
     }
   | { id: string; type: "status"; text: string; createdAt?: string }
-  | { id: string; type: "error"; text: string; createdAt?: string };
+  | { id: string; type: "error"; text: string; createdAt?: string }
+) & { agentBindingId?: string };
 
 export function createChatItemId(prefix: string, index: number): string {
   return `${prefix}-${index}`;

@@ -19,6 +19,7 @@
   import RedoIcon from "@lucide/svelte/icons/redo-2";
   import XIcon from "@lucide/svelte/icons/x";
   import type {
+    AgentRequest,
     AgentRuntime,
     AiThinkingLevel,
     ModelRef,
@@ -29,9 +30,12 @@
     ConversationRepository,
     CreateConversationInput,
   } from "../conversations/conversation-repository";
-  import type { ConversationListEntry } from "../conversations/transcript-store";
   import type { ConversationLocation } from "../conversations/types";
-  import { catalogModelsForAgent } from "../settings/acp-agents";
+  import {
+    catalogModelsForAgent,
+    normalizeAcpAgent,
+    type AcpAgentId,
+  } from "../settings/acp-agents";
   import {
     DEFAULT_AI_SETTINGS,
     type AiPluginSettings,
@@ -45,6 +49,7 @@
 
   let {
     runtime,
+    selectRuntime,
     unavailableReason = null,
     workspace,
     tools = [],
@@ -53,8 +58,8 @@
     repository,
     initialLocation = null,
     createConversation,
-    conversationFolders = [],
     subscribeConversationMoves,
+    onRevealHistory,
     onConversationLocationChange,
     fileSearch,
     models = [],
@@ -63,6 +68,7 @@
     onSettingsChange: _onSettingsChange,
   }: {
     runtime: AgentRuntime;
+    selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
     unavailableReason?: string | null;
     workspace?: string;
     tools?: ToolContribution[];
@@ -71,17 +77,17 @@
     repository?: ConversationRepository;
     initialLocation?: ConversationLocation | null;
     createConversation?: (explicitFolder?: string) => CreateConversationInput;
-    conversationFolders?: string[];
     subscribeConversationMoves?: (
       listener: (oldPath: string, newPath: string) => void,
     ) => () => void;
+    onRevealHistory?: () => void | Promise<void>;
     onConversationLocationChange?: (
       location: ConversationLocation | null,
     ) => void;
     fileSearch?: ComposerSearchSource;
     models?: ModelRef[];
     modelCatalogError?: string | null;
-    settings?: Pick<AiPluginSettings, "acpAgent" | "defaultModel" | "thinking">;
+    settings?: Partial<AiPluginSettings>;
     onSettingsChange?: (
       patch: Partial<AiPluginSettings>,
     ) => void | Promise<void>;
@@ -96,7 +102,7 @@
         agent: settings?.acpAgent,
         model: settings?.defaultModel
           ? {
-              provider: settings.acpAgent,
+              provider: normalizeAcpAgent(settings?.acpAgent),
               model: settings.defaultModel,
             }
           : undefined,
@@ -106,9 +112,12 @@
       location: initialLocation,
       createConversation: () => createConversation?.() ?? { scopeDir: "" },
       onLocationChange: onConversationLocationChange,
+      selectRuntime,
     }),
   );
   let draft = $state("");
+  let localAgent = $state<AcpAgentId | null>(null);
+  let localRuntime = $state<"acp" | "codex-native" | "fake" | null>(null);
   let localModel = $state<string | null>(null);
   let localThinking = $state<AiThinkingLevel | null>(null);
   let attachments = $state<{ path: string; name: string }[]>([]);
@@ -116,10 +125,16 @@
   let visibleInteractionId = $state<string | null>(null);
   let attachOpen = $state(false);
   let attachItems = $state<ComposerTriggerItem[]>([]);
-  let historyEntries = $state<ConversationListEntry[]>([]);
-  let showArchived = $state(false);
   const selectedAgent = $derived(
-    settings?.acpAgent ?? DEFAULT_AI_SETTINGS.acpAgent,
+    localAgent ?? normalizeAcpAgent(settings?.acpAgent),
+  );
+  const selectedRuntime = $derived(
+    localRuntime ??
+      (settings?.defaultRuntime === "codex-native"
+        ? "codex-native"
+        : settings?.defaultRuntime === "fake"
+          ? "fake"
+          : "acp"),
   );
   const selectedModel = $derived(
     localModel ?? settings?.defaultModel ?? DEFAULT_AI_SETTINGS.defaultModel,
@@ -153,7 +168,25 @@
       },
     ];
   });
-  const timeline = $derived(groupChatItemsByDate(controller.items));
+  const agentLabels = $derived.by(() =>
+    new Map(
+      controller.bindings.map((binding) => {
+        const label =
+          binding.runtime === "codex-native"
+            ? "Codex Native"
+            : binding.agent === "cursor"
+              ? "Cursor ACP"
+              : "Codex ACP";
+        return [
+          binding.id,
+          binding.model?.model ? `${label} · ${binding.model.model}` : label,
+        ] as const;
+      }),
+    ),
+  );
+  const timeline = $derived(
+    groupChatItemsByDate(controller.items, new Date(), agentLabels),
+  );
   const latestMessageId = $derived(controller.items.at(-1)?.id);
   const isEmpty = $derived(controller.items.length === 0);
   const composerError = $derived(
@@ -201,8 +234,26 @@
           }
         : undefined,
       thinking: selectedThinking,
-      metadata: extra.length > 0 ? { attachments: extra } : undefined,
+      metadata: {
+        ...(extra.length > 0 ? { attachments: extra } : {}),
+        runtime: selectedRuntime,
+      },
     });
+  }
+
+  function changeAgent(
+    agent: AcpAgentId,
+    runtimePreference: "acp" | "codex-native",
+  ): void {
+    localAgent = agent;
+    localRuntime = runtimePreference;
+    const configured = settings?.defaultModels?.[agent];
+    localModel =
+      configured ||
+      catalogModelsForAgent(agent, models).find((model) => model.isDefault)
+        ?.model ||
+      catalogModelsForAgent(agent, models)[0]?.model ||
+      null;
   }
 
   function changeModel(value: string): void {
@@ -211,42 +262,6 @@
 
   function changeThinking(value: string): void {
     localThinking = value as AiThinkingLevel;
-  }
-
-  function historyScope(): string {
-    return controller.location?.scopeDir ?? createConversation?.().scopeDir ?? "";
-  }
-
-  async function refreshHistory(): Promise<void> {
-    if (!repository) {
-      historyEntries = [];
-      return;
-    }
-    historyEntries = await repository.list(historyScope());
-  }
-
-  async function startNewChat(explicitFolder?: string): Promise<void> {
-    const input = createConversation?.(explicitFolder) ?? {
-      scopeDir: explicitFolder ?? "",
-    };
-    await controller.newConversation(input);
-    draft = "";
-    await refreshHistory();
-  }
-
-  async function openConversation(location: ConversationLocation): Promise<void> {
-    await controller.openConversation(location);
-    await refreshHistory();
-  }
-
-  async function archiveConversation(): Promise<void> {
-    await controller.archiveCurrent(true);
-    await startNewChat();
-  }
-
-  async function deleteConversation(): Promise<void> {
-    await controller.deleteCurrent();
-    await refreshHistory();
   }
 
   function addAttachment(item: ComposerTriggerItem): void {
@@ -428,84 +443,15 @@
         {/snippet}
         {#snippet headerActions()}
           {#if repository}
-            <DropdownMenu.Root
-              onOpenChange={(open) => open && void refreshHistory()}
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Show conversation history"
+              data-testid="ai-chat-history"
+              onclick={() => void onRevealHistory?.()}
             >
-              <DropdownMenu.Trigger>
-                {#snippet child({ props }: { props: Record<string, unknown> })}
-                  <Button
-                    {...props}
-                    size="icon-sm"
-                    variant="ghost"
-                    aria-label="Conversation history"
-                    data-testid="ai-chat-history"
-                  >
-                    <HistoryIcon aria-hidden="true" />
-                  </Button>
-                {/snippet}
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="start">
-                <DropdownMenu.Item onclick={() => void startNewChat()}>
-                  New chat
-                </DropdownMenu.Item>
-                <DropdownMenu.Sub>
-                  <DropdownMenu.SubTrigger>
-                    New chat in folder…
-                  </DropdownMenu.SubTrigger>
-                  <DropdownMenu.SubContent>
-                    {#each conversationFolders as folder (folder || "vault-root")}
-                      <DropdownMenu.Item
-                        onclick={() => void startNewChat(folder)}
-                      >
-                        {folder || "Vault root"}
-                      </DropdownMenu.Item>
-                    {/each}
-                  </DropdownMenu.SubContent>
-                </DropdownMenu.Sub>
-                <DropdownMenu.Separator />
-                <DropdownMenu.CheckboxItem bind:checked={showArchived}>
-                  Show archived
-                </DropdownMenu.CheckboxItem>
-                <DropdownMenu.Sub>
-                  <DropdownMenu.SubTrigger>
-                    This folder
-                  </DropdownMenu.SubTrigger>
-                  <DropdownMenu.SubContent>
-                    {#each historyEntries.filter((entry) => showArchived || entry.metadata?.status !== "archived") as entry (`${entry.location.scopeDir}:${entry.location.conversationId}`)}
-                      <DropdownMenu.Item
-                        disabled={Boolean(entry.unavailableReason)}
-                        onclick={() => void openConversation(entry.location)}
-                      >
-                        {entry.metadata?.title ??
-                          (entry.unavailableReason
-                            ? "Unavailable conversation"
-                            : "Untitled conversation")}
-                      </DropdownMenu.Item>
-                    {:else}
-                      <DropdownMenu.Item disabled>
-                        No conversations in this folder
-                      </DropdownMenu.Item>
-                    {/each}
-                  </DropdownMenu.SubContent>
-                </DropdownMenu.Sub>
-                <DropdownMenu.Item disabled>
-                  All conversations (index pending)
-                </DropdownMenu.Item>
-                {#if controller.location}
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Item
-                    onclick={() => void archiveConversation()}
-                  >
-                    Archive conversation
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item
-                    onclick={() => void deleteConversation()}
-                  >
-                    Delete conversation
-                  </DropdownMenu.Item>
-                {/if}
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
+              <HistoryIcon aria-hidden="true" />
+            </Button>
           {/if}
           {#if fileSearch}
             <Popover.Root
@@ -580,6 +526,31 @@
               {/snippet}
             </DropdownMenu.Trigger>
             <DropdownMenu.Content data-ui-part="effort-popover" align="start">
+              {#if selectRuntime}
+                <DropdownMenu.Sub>
+                  <DropdownMenu.SubTrigger data-testid="ai-chat-agent">
+                    Agent
+                  </DropdownMenu.SubTrigger>
+                  <DropdownMenu.SubContent>
+                    <DropdownMenu.RadioGroup
+                      value={`${selectedRuntime}:${selectedAgent}`}
+                    >
+                      <DropdownMenu.RadioItem
+                        value="acp:codex"
+                        onclick={() => changeAgent("codex", "acp")}
+                      >Codex ACP</DropdownMenu.RadioItem>
+                      <DropdownMenu.RadioItem
+                        value="acp:cursor"
+                        onclick={() => changeAgent("cursor", "acp")}
+                      >Cursor ACP</DropdownMenu.RadioItem>
+                      <DropdownMenu.RadioItem
+                        value="codex-native:codex"
+                        onclick={() => changeAgent("codex", "codex-native")}
+                      >Codex Native</DropdownMenu.RadioItem>
+                    </DropdownMenu.RadioGroup>
+                  </DropdownMenu.SubContent>
+                </DropdownMenu.Sub>
+              {/if}
               <DropdownMenu.Sub>
                 <DropdownMenu.SubTrigger data-testid="ai-chat-model">
                   Model

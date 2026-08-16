@@ -5,7 +5,11 @@ export type ChatTimelineEntry =
   | { kind: "item"; item: AiChatItem };
 
 function startOfLocalDay(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  ).getTime();
 }
 
 export function formatChatTimestamp(iso: string): string {
@@ -35,9 +39,11 @@ export function formatChatDateLabel(iso: string, now = new Date()): string {
 export function groupChatItemsByDate(
   items: AiChatItem[],
   now = new Date(),
+  agentLabels: ReadonlyMap<string, string> = new Map(),
 ): ChatTimelineEntry[] {
   const entries: ChatTimelineEntry[] = [];
   let lastKey: string | null = null;
+  let lastBindingId: string | undefined;
   for (const item of items) {
     const parsed = item.createdAt ? new Date(item.createdAt) : null;
     const valid = parsed && !Number.isNaN(parsed.getTime());
@@ -52,6 +58,18 @@ export function groupChatItemsByDate(
         label: formatChatDateLabel(labelIso, now),
       });
       lastKey = key;
+    }
+    if (
+      item.agentBindingId &&
+      item.agentBindingId !== lastBindingId &&
+      agentLabels.has(item.agentBindingId)
+    ) {
+      entries.push({
+        kind: "divider",
+        id: `agent-${item.agentBindingId}-${item.id}`,
+        label: agentLabels.get(item.agentBindingId)!,
+      });
+      lastBindingId = item.agentBindingId;
     }
     entries.push({ kind: "item", item });
   }

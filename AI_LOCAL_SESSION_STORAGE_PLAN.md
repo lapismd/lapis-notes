@@ -28,18 +28,18 @@ work is explicitly archived.
 
 ## Tasks
 
-| ID           | Deliverable                                                                          | Depends on                               | Status      | Validation evidence | Jujutsu change |
-| ------------ | ------------------------------------------------------------------------------------ | ---------------------------------------- | ----------- | ------------------- | -------------- |
-| AI-LOCAL-001 | Canonical specification and verification requirements                                | —                                        | Done        | `pnpm spec:check`   | `wxxrwsvu`     |
-| AI-LOCAL-002 | Crash-safe vault writes, native append, active-file contract, hidden `.lapis` paths  | AI-LOCAL-001                             | Done        | API 126 tests; desktop 14; Explorer 5; AI mention 5; focused type checks | `wxxrwsvu` |
-| AI-LOCAL-003 | Conversation schemas, scope resolver, transcript projection, vault and memory stores | AI-LOCAL-002                             | Done        | AI 91 tests; AI/API type checks; `pnpm spec:first` | `zstskrvt` |
-| AI-LOCAL-004 | Controller integration, offline restore, history, new/archive/delete lifecycle       | AI-LOCAL-003                             | Done        | AI controller/locator/plugin 19 tests; AI Svelte and type checks; full AI package gate | `knnqtulz` |
-| AI-LOCAL-005 | Agent bindings, turn-boundary switching, context handoff, usage restoration          | AI-LOCAL-004                             | Not started | Pending             | Pending        |
-| AI-LOCAL-006 | Derived AppDatabase indexing and all-conversation history search                     | AI-LOCAL-003                             | Not started | Pending             | Pending        |
-| AI-LOCAL-007 | Sequenced agent-runtime protocol v2, replay buffer, reconnect and deduplication      | AI-LOCAL-003                             | Not started | Pending             | Pending        |
-| AI-LOCAL-008 | Storybook scenarios and persistent Live Host vault data                              | AI-LOCAL-004, AI-LOCAL-005, AI-LOCAL-006 | Not started | Pending             | Pending        |
-| AI-LOCAL-009 | Seeded real-host smoke launchers and manual Codex/Cursor/native checklist            | AI-LOCAL-007, AI-LOCAL-008               | Not started | Pending             | Pending        |
-| AI-LOCAL-010 | Focused, consumer, Storybook, E2E, spec, check, and Turbo build gates                | AI-LOCAL-002–009                         | Not started | Pending             | Pending        |
+| ID           | Deliverable                                                                          | Depends on                               | Status      | Validation evidence                                                                      | Jujutsu change |
+| ------------ | ------------------------------------------------------------------------------------ | ---------------------------------------- | ----------- | ---------------------------------------------------------------------------------------- | -------------- |
+| AI-LOCAL-001 | Canonical specification and verification requirements                                | —                                        | Done        | `pnpm spec:check`                                                                        | `wxxrwsvu`     |
+| AI-LOCAL-002 | Crash-safe vault writes, native append, active-file contract, hidden `.lapis` paths  | AI-LOCAL-001                             | Done        | API 126 tests; desktop 14; Explorer 5; AI mention 5; focused type checks                 | `wxxrwsvu`     |
+| AI-LOCAL-003 | Conversation schemas, scope resolver, transcript projection, vault and memory stores | AI-LOCAL-002                             | Done        | AI 91 tests; AI/API type checks; `pnpm spec:first`                                       | `zstskrvt`     |
+| AI-LOCAL-004 | Controller integration, offline restore, history, new/archive/delete lifecycle       | AI-LOCAL-003                             | Done        | AI controller/locator/plugin 19 tests; AI Svelte and type checks; full AI package gate   | `knnqtulz`     |
+| AI-LOCAL-005 | Agent bindings, turn-boundary switching, context handoff, usage restoration          | AI-LOCAL-004                             | Done        | AI controller/time/projection focused tests; AI full test/check/build; `pnpm spec:first` | `spuvyrmz`     |
+| AI-LOCAL-006 | Derived AppDatabase indexing and all-conversation history search                     | AI-LOCAL-003                             | Not started | Pending                                                                                  | Pending        |
+| AI-LOCAL-007 | Sequenced agent-runtime protocol v2, replay buffer, reconnect and deduplication      | AI-LOCAL-003                             | Not started | Pending                                                                                  | Pending        |
+| AI-LOCAL-008 | Storybook scenarios and persistent Live Host vault data                              | AI-LOCAL-004, AI-LOCAL-005, AI-LOCAL-006 | Not started | Pending                                                                                  | Pending        |
+| AI-LOCAL-009 | Seeded real-host smoke launchers and manual Codex/Cursor/native checklist            | AI-LOCAL-007, AI-LOCAL-008               | Not started | Pending                                                                                  | Pending        |
+| AI-LOCAL-010 | Focused, consumer, Storybook, E2E, spec, check, and Turbo build gates                | AI-LOCAL-002–009                         | Not started | Pending                                                                                  | Pending        |
 
 ## Acceptance checklist
 
