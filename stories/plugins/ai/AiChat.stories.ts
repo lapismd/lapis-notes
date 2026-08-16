@@ -1,14 +1,16 @@
 import { AiChatPanel } from "@lapis-notes/ai";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import {
   aiChatApprovalExampleSource,
   aiChatExampleSource,
+  aiChatFailureExampleSource,
   aiChatMentionsExampleSource,
   aiChatScrollExampleSource,
   aiChatTraceExampleSource,
   aiChatValidationExampleSource,
+  createAiChatFailureSeedItems,
   createAiChatScrollSeedItems,
 } from "./AiChat.example-sources";
 import AiChatDemo from "./AiChatDemo.svelte";
@@ -274,7 +276,7 @@ export const AgentTrace: Story = {
     docs: {
       description: {
         story:
-          "FakeAgentRuntime rich trace streams thinking, a vault tool call with input/output, Markdown assistant text, a date divider, timestamps, Composer Drawer attachments, and checked Model/Thinking submenus.",
+          "FakeAgentRuntime rich trace streams thinking, a vault tool call with input/output, Markdown assistant text, a Copy response action, a date divider, timestamps, compact Composer Drawer attachments, and checked Model/Thinking submenus.",
       },
       source: {
         code: aiChatTraceExampleSource,
@@ -293,6 +295,12 @@ export const AgentTrace: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);
+    const writeText = fn(async () => undefined);
+    Object.defineProperty(navigator.clipboard, "writeText", {
+      configurable: true,
+      value: writeText,
+    });
+    await expect(canvas.getByText("Ask anything…")).toBeVisible();
     await userEvent.click(
       canvas.getByRole("button", { name: "Effort and model" }),
     );
@@ -325,6 +333,12 @@ export const AgentTrace: Story = {
     expect(attachmentStyles.backgroundColor).not.toBe(drawerPaint);
     expect(attachmentStyles.borderTopWidth).toBe("1px");
     expect(attachmentStyles.borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(attachment!.getBoundingClientRect().height).toBeLessThanOrEqual(26);
+    expect(
+      canvas
+        .getByRole("button", { name: "Remove alpha" })
+        .getBoundingClientRect().height,
+    ).toBeLessThanOrEqual(attachment!.getBoundingClientRect().height);
     const input = await canvas.findByRole("combobox", { name: "Message" });
     await userEvent.type(input, "Summarize this note");
     await userEvent.keyboard("{Enter}");
@@ -358,6 +372,12 @@ export const AgentTrace: Story = {
     );
     await expect(canvas.getByText('{"path":"Notes/alpha.md"}')).toBeVisible();
     await expect(canvas.getByText("heading: Notes")).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Copy response" }),
+    );
+    await expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining("## Summary"),
+    );
     const panel = canvas.getByTestId("ai-chat-panel");
     const dock = panel.querySelector(
       '[data-ui-part="composer-dock"]',
@@ -386,6 +406,65 @@ export const AgentTrace: Story = {
     expect(heading).not.toBeNull();
     expect(getComputedStyle(heading!).fontSize).toBe(bubbleStyles.fontSize);
     expect(getComputedStyle(heading!).fontFamily).toBe(bubbleStyles.fontFamily);
+  },
+};
+
+export const FailedMessageAndRetry: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: {
+      requireApproval: false,
+      seedItems: createAiChatFailureSeedItems(),
+    },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-failure"),
+    docs: {
+      description: {
+        story:
+          "A failed assistant message uses Design Core error metadata and retries the nearest user prompt through a replacement Fake session.",
+      },
+      source: {
+        code: aiChatFailureExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-failure-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const failure = await canvas.findByText(
+      "The agent connection closed before the response completed.",
+    );
+    const message = failure.closest(
+      '[data-ui-component="ai-chat-message"]',
+    ) as HTMLElement | null;
+    expect(message).not.toBeNull();
+    await expect(
+      within(message!).getByRole("alert", { name: "Failed to send" }),
+    ).toBeVisible();
+    const retry = within(message!).getByRole("button", {
+      name: "Retry message",
+    });
+    await expect(retry).toBeEnabled();
+    await userEvent.click(retry);
+    await waitFor(() => {
+      const assistantMessages = canvas.getAllByRole("article", {
+        name: "Message from assistant",
+      });
+      expect(assistantMessages.at(-1)).toHaveTextContent(
+        "Summarize the release notes",
+      );
+    });
   },
 };
 

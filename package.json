@@ -9,8 +9,8 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "build:desktop": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/desktop-electron build",
-    "build:web": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/web build",
+    "build:desktop": "turbo run build --filter=@lapis-notes/desktop-electron...",
+    "build:web": "turbo run build --filter=@lapis-notes/web...",
     "check": "pnpm spec:validate && pnpm check:no-tailwind && pnpm check:app-ownership && turbo run check",
     "check:app-ownership": "tsx scripts/check-ambient-app-ownership.ts",
     "check:no-tailwind": "tsx scripts/check-no-tailwind-utilities.ts",

@@ -17,13 +17,13 @@
     "check:types": "tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig-main-check.json --noEmit",
     "check:e2e": "tsc -p ./e2e/tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:e2e": "pnpm build && LAPIS_SMOKE_DESKTOP_FULL_BUILD=1 playwright test -c ./playwright.config.ts",
+    "test:e2e": "pnpm --dir ../.. build:desktop && LAPIS_SMOKE_DESKTOP_FULL_BUILD=1 playwright test -c ./playwright.config.ts",
     "test:e2e:smoke": "node ./scripts/run-smoke.mjs",
     "test:packaged": "node ./scripts/smoke-packaged.mjs",
     "build:icons": "node ./scripts/generate-build-icons.mjs",
-    "package:dir": "pnpm build && pnpm run build:icons && CI=1 ELECTRON_BUILDER_DISABLE_UPDATE_CHECK=true node ./scripts/run-electron-builder.mjs --dir --config ./electron-builder.config.cjs --publish never",
-    "dist:mac": "pnpm build && pnpm run build:icons && CI=1 ELECTRON_BUILDER_DISABLE_UPDATE_CHECK=true node ./scripts/run-electron-builder.mjs --mac --x64 --arm64 --config ./electron-builder.config.cjs --publish never && node ./scripts/write-artifact-metadata.mjs mac",
-    "dist:linux": "pnpm build && pnpm run build:icons && CI=1 ELECTRON_BUILDER_DISABLE_UPDATE_CHECK=true node ./scripts/run-electron-builder.mjs --linux --x64 --config ./electron-builder.config.cjs --publish never && node ./scripts/write-artifact-metadata.mjs linux"
+    "package:dir": "pnpm --dir ../.. build:desktop && pnpm run build:icons && CI=1 ELECTRON_BUILDER_DISABLE_UPDATE_CHECK=true node ./scripts/run-electron-builder.mjs --dir --config ./electron-builder.config.cjs --publish never",
+    "dist:mac": "pnpm --dir ../.. build:desktop && pnpm run build:icons && CI=1 ELECTRON_BUILDER_DISABLE_UPDATE_CHECK=true node ./scripts/run-electron-builder.mjs --mac --x64 --arm64 --config ./electron-builder.config.cjs --publish never && node ./scripts/write-artifact-metadata.mjs mac",
+    "dist:linux": "pnpm --dir ../.. build:desktop && pnpm run build:icons && CI=1 ELECTRON_BUILDER_DISABLE_UPDATE_CHECK=true node ./scripts/run-electron-builder.mjs --linux --x64 --config ./electron-builder.config.cjs --publish never && node ./scripts/write-artifact-metadata.mjs linux"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

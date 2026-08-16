@@ -311,6 +311,13 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--agent-trace",
   },
   {
+    id: "plugins-ai-chat-failure",
+    title: "AI Chat: Failed Message And Retry",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--failed-message-and-retry",
+  },
+  {
     id: "plugins-ai-chat-scroll",
     title: "AI Chat: Scroll Recovery",
     spec: "spec/src/ai-plugin.md",

@@ -12,7 +12,9 @@
     ComposerTriggerItem,
   } from "@lapismd/design-core/ai/chat";
   import BrainIcon from "@lucide/svelte/icons/brain";
+  import CopyIcon from "@lucide/svelte/icons/copy";
   import PaperclipIcon from "@lucide/svelte/icons/paperclip";
+  import RedoIcon from "@lucide/svelte/icons/redo-2";
   import XIcon from "@lucide/svelte/icons/x";
   import type {
     AgentRuntime,
@@ -26,10 +28,7 @@
     DEFAULT_AI_SETTINGS,
     type AiPluginSettings,
   } from "../settings/ai-settings";
-  import {
-    formatFileMention,
-    mentionTokensFromText,
-  } from "./chat-mentions";
+  import { formatFileMention, mentionTokensFromText } from "./chat-mentions";
   import { renderChatMarkdown } from "./chat-markdown";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
   import AiApprovalCard from "./ai-approval-card.svelte";
@@ -58,7 +57,9 @@
     models?: ModelRef[];
     modelCatalogError?: string | null;
     settings?: Pick<AiPluginSettings, "acpAgent" | "defaultModel" | "thinking">;
-    onSettingsChange?: (patch: Partial<AiPluginSettings>) => void | Promise<void>;
+    onSettingsChange?: (
+      patch: Partial<AiPluginSettings>,
+    ) => void | Promise<void>;
   } = $props();
 
   const controller = $derived(
@@ -100,10 +101,7 @@
       selectedModel &&
       !available.some((model) => model.model === selectedModel)
     ) {
-      return [
-        { provider: selectedAgent, model: selectedModel },
-        ...available,
-      ];
+      return [{ provider: selectedAgent, model: selectedModel }, ...available];
     }
     return available;
   });
@@ -180,6 +178,23 @@
     attachments = attachments.filter((file) => file.path !== path);
   }
 
+  async function copyResponse(text: string): Promise<void> {
+    await navigator.clipboard.writeText(text);
+  }
+
+  function promptForError(errorId: string): string | null {
+    const errorIndex = controller.items.findIndex(
+      (item) => item.id === errorId,
+    );
+    for (let index = errorIndex - 1; index >= 0; index -= 1) {
+      const item = controller.items[index];
+      if (item?.type === "message" && item.role === "user") {
+        return item.text;
+      }
+    }
+    return null;
+  }
+
   async function loadVaultFiles(): Promise<void> {
     if (!fileSearch) {
       attachItems = [];
@@ -229,7 +244,7 @@
     {#snippet composer()}
       <Chat.Composer
         bind:value={draft}
-        placeholder="Ask the agent… Use @ or the paperclip to attach a vault file"
+        placeholder="Ask anything…"
         disabled={controller.busy}
         isStopShown={controller.busy}
         status={composerStatus}
@@ -257,7 +272,7 @@
                     }}
                   />
                   <Button
-                    size="icon-sm"
+                    size="icon-xs"
                     variant="ghost"
                     aria-label={`Remove ${file.name}`}
                     onclick={() => removeAttachment(file.path)}
@@ -271,7 +286,10 @@
         {/snippet}
         {#snippet headerActions()}
           {#if fileSearch}
-            <Popover.Root bind:open={attachOpen} onOpenChange={onAttachOpenChange}>
+            <Popover.Root
+              bind:open={attachOpen}
+              onOpenChange={onAttachOpenChange}
+            >
               <Popover.Trigger>
                 {#snippet child({ props }: { props: Record<string, unknown> })}
                   <Button
@@ -323,10 +341,7 @@
                 </Button>
               {/snippet}
             </DropdownMenu.Trigger>
-            <DropdownMenu.Content
-              data-ui-part="effort-popover"
-              align="start"
-            >
+            <DropdownMenu.Content data-ui-part="effort-popover" align="start">
               <DropdownMenu.Sub>
                 <DropdownMenu.SubTrigger data-testid="ai-chat-model">
                   Model
@@ -344,7 +359,9 @@
                       {/each}
                     </DropdownMenu.RadioGroup>
                   {:else}
-                    <DropdownMenu.Item disabled>No models available</DropdownMenu.Item>
+                    <DropdownMenu.Item disabled
+                      >No models available</DropdownMenu.Item
+                    >
                   {/if}
                 </DropdownMenu.SubContent>
               </DropdownMenu.Sub>
@@ -354,10 +371,26 @@
                 </DropdownMenu.SubTrigger>
                 <DropdownMenu.SubContent>
                   <DropdownMenu.RadioGroup value={selectedThinking}>
-                    <DropdownMenu.RadioItem value="off" onclick={() => changeThinking("off")}>Off</DropdownMenu.RadioItem>
-                    <DropdownMenu.RadioItem value="low" onclick={() => changeThinking("low")}>Low</DropdownMenu.RadioItem>
-                    <DropdownMenu.RadioItem value="medium" onclick={() => changeThinking("medium")}>Medium</DropdownMenu.RadioItem>
-                    <DropdownMenu.RadioItem value="high" onclick={() => changeThinking("high")}>High</DropdownMenu.RadioItem>
+                    <DropdownMenu.RadioItem
+                      value="off"
+                      onclick={() => changeThinking("off")}
+                      >Off</DropdownMenu.RadioItem
+                    >
+                    <DropdownMenu.RadioItem
+                      value="low"
+                      onclick={() => changeThinking("low")}
+                      >Low</DropdownMenu.RadioItem
+                    >
+                    <DropdownMenu.RadioItem
+                      value="medium"
+                      onclick={() => changeThinking("medium")}
+                      >Medium</DropdownMenu.RadioItem
+                    >
+                    <DropdownMenu.RadioItem
+                      value="high"
+                      onclick={() => changeThinking("high")}
+                      >High</DropdownMenu.RadioItem
+                    >
                   </DropdownMenu.RadioGroup>
                 </DropdownMenu.SubContent>
               </DropdownMenu.Sub>
@@ -374,25 +407,45 @@
     >
       {#each timeline as entry (entry.kind === "divider" ? entry.id : entry.item.id)}
         {#if entry.kind === "divider"}
-          <Chat.SystemMessage variant="divider">{entry.label}</Chat.SystemMessage>
-        {:else if entry.item.type === "message"}
-          <Chat.Message
-            sender={entry.item.role === "user" ? "user" : "assistant"}
+          <Chat.SystemMessage variant="divider"
+            >{entry.label}</Chat.SystemMessage
           >
+        {:else if entry.item.type === "message"}
+          {@const message = entry.item}
+          <Chat.Message sender={message.role === "user" ? "user" : "assistant"}>
             <Chat.MessageBubble>
-              {#if entry.item.role === "assistant"}
-                {@html renderChatMarkdown(entry.item.text)}
+              {#if message.role === "assistant"}
+                {@html renderChatMarkdown(message.text)}
               {:else}
                 <Chat.TokenizedText
-                  text={entry.item.text}
-                  tokens={mentionTokensFromText(entry.item.text)}
+                  text={message.text}
+                  tokens={mentionTokensFromText(message.text)}
                 />
               {/if}
             </Chat.MessageBubble>
             {#snippet metadata()}
-              {#if entry.item.createdAt}
+              {#if message.role === "assistant"}
                 <Chat.MessageMetadata
-                  timestamp={formatChatTimestamp(entry.item.createdAt)}
+                  timestamp={message.createdAt
+                    ? formatChatTimestamp(message.createdAt)
+                    : undefined}
+                >
+                  {#snippet footer()}
+                    <span class="ai-chat-panel__message-actions">
+                      <Button
+                        size="icon-xs"
+                        variant="ghost"
+                        aria-label="Copy response"
+                        onclick={() => void copyResponse(message.text)}
+                      >
+                        <CopyIcon aria-hidden="true" />
+                      </Button>
+                    </span>
+                  {/snippet}
+                </Chat.MessageMetadata>
+              {:else if message.createdAt}
+                <Chat.MessageMetadata
+                  timestamp={formatChatTimestamp(message.createdAt)}
                 />
               {/if}
             {/snippet}
@@ -425,7 +478,9 @@
                   output: entry.item.output,
                 },
                 detail:
-                  entry.item.input || entry.item.output ? toolDetail : undefined,
+                  entry.item.input || entry.item.output
+                    ? toolDetail
+                    : undefined,
               },
             ]}
           />
@@ -447,7 +502,33 @@
             </Chat.SystemMessage>
           {/if}
         {:else if entry.item.type === "error"}
-          <Chat.SystemMessage>{entry.item.text}</Chat.SystemMessage>
+          {@const errorItem = entry.item}
+          {@const retryPrompt = promptForError(errorItem.id)}
+          <Chat.Message sender="assistant">
+            <Chat.MessageBubble>{errorItem.text}</Chat.MessageBubble>
+            {#snippet metadata()}
+              <Chat.MessageMetadata
+                timestamp={errorItem.createdAt
+                  ? formatChatTimestamp(errorItem.createdAt)
+                  : undefined}
+                status="error"
+              >
+                {#snippet footer()}
+                  <span class="ai-chat-panel__message-actions">
+                    <Button
+                      size="icon-xs"
+                      variant="ghost"
+                      aria-label="Retry message"
+                      disabled={controller.busy || !retryPrompt}
+                      onclick={() => retryPrompt && void submit(retryPrompt)}
+                    >
+                      <RedoIcon aria-hidden="true" />
+                    </Button>
+                  </span>
+                {/snippet}
+              </Chat.MessageMetadata>
+            {/snippet}
+          </Chat.Message>
         {:else}
           <Chat.SystemMessage>{entry.item.text}</Chat.SystemMessage>
         {/if}

@@ -61,14 +61,19 @@ function assertStackedComposer(panel: HTMLElement): void {
   const shell = panel.querySelector(
     '[data-ui-part="scroll-shell"]',
   ) as HTMLElement | null;
+  const composerBody = panel.querySelector(
+    '[data-ui-component="ai-chat-composer"] [data-ui-part="body"]',
+  ) as HTMLElement | null;
   const empty = panel.querySelector(
     '[data-ui-part="empty-state"]',
   ) as HTMLElement | null;
   expect(layout).not.toBeNull();
   expect(dock).not.toBeNull();
   expect(shell).not.toBeNull();
+  expect(composerBody).not.toBeNull();
   expect(empty).not.toBeNull();
   expect(getComputedStyle(dock!).position).toBe("relative");
+  expect(parseFloat(getComputedStyle(panel).paddingBottom)).toBe(0);
   const panelBox = panel.getBoundingClientRect();
   const layoutBox = layout!.getBoundingClientRect();
   const dockBox = dock!.getBoundingClientRect();
@@ -80,6 +85,9 @@ function assertStackedComposer(panel: HTMLElement): void {
   );
   expect(emptyBox.height).toBeGreaterThan(shellBox.height * 0.7);
   expect(shellBox.bottom).toBeLessThanOrEqual(dockBox.top + 2);
+  expect(
+    dockBox.bottom - composerBody!.getBoundingClientRect().bottom,
+  ).toBeGreaterThanOrEqual(20);
   expect(dockBox.bottom).toBeLessThanOrEqual(panelBox.bottom + 2);
   expect(dockBox.top).toBeGreaterThan(panelBox.top + panelBox.height * 0.4);
 }
@@ -158,10 +166,17 @@ export const RightSidebarAndSettings: Story = {
     const dock = panel.querySelector(
       '[data-ui-part="composer-dock"]',
     ) as HTMLElement | null;
+    const composerBody = panel.querySelector(
+      '[data-ui-component="ai-chat-composer"] [data-ui-part="body"]',
+    ) as HTMLElement | null;
     const status = canvas.getByLabelText("Workspace status");
     expect(dock).not.toBeNull();
+    expect(composerBody).not.toBeNull();
     expect(dock!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
       status.getBoundingClientRect().top + 8,
+    );
+    expect(composerBody!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      status.getBoundingClientRect().top - 8,
     );
     expect(getComputedStyle(panel).fontFamily).toMatch(/DM Sans/i);
     assertStackedComposer(panel);

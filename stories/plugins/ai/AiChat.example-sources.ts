@@ -69,6 +69,47 @@ const models = await new StaticModelProvider("codex", [
 />
 `;
 
+export function createAiChatFailureSeedItems() {
+  return [
+    {
+      id: "failed-user",
+      type: "message" as const,
+      role: "user" as const,
+      text: "Summarize the release notes",
+      createdAt: "2026-03-16T09:00:00.000Z",
+    },
+    {
+      id: "failed-response",
+      type: "error" as const,
+      text: "The agent connection closed before the response completed.",
+      createdAt: "2026-03-16T09:00:01.000Z",
+    },
+  ];
+}
+
+export const aiChatFailureExampleSource = `import {
+  AiChatPanel,
+  FakeAgentRuntime,
+  createMemorySessionStore,
+} from "@lapis-notes/ai";
+import "@lapis-notes/ai/styles.css";
+
+const runtime = new FakeAgentRuntime();
+const items = ${JSON.stringify(createAiChatFailureSeedItems(), null, 2)};
+const sessionStore = createMemorySessionStore([
+  {
+    id: "ai:default",
+    runtime: "fake",
+    runtimeSessionId: "failed-session",
+    createdAt: items[0].createdAt,
+    updatedAt: items.at(-1).createdAt,
+    items,
+  },
+]);
+
+<AiChatPanel runtime={runtime} sessionStore={sessionStore} />
+`;
+
 export function createAiChatScrollSeedItems() {
   const yesterday = new Date("2026-03-15T10:00:00.000Z");
   const today = new Date("2026-03-16T09:00:00.000Z");
