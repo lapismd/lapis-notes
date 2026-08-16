@@ -159,6 +159,40 @@ describe("AppDatabase", () => {
     ]);
   });
 
+  it("filters disposable search corpora by source provider", async () => {
+    const db = new MemoryAppDatabase("vault-a");
+    await db.upsertSearchDocument({
+      path: "note.md",
+      sourceProviderId: "markdown",
+      name: "note",
+      extension: "md",
+      checksum: "note",
+      content: "shared result",
+      tags: [],
+      tagParts: [],
+      tagHierarchy: [],
+    });
+    await db.upsertSearchDocument({
+      path: "ai-conversation/root/id",
+      sourceProviderId: "ai-conversations",
+      name: "chat",
+      extension: "ai-conversation",
+      checksum: "chat",
+      content: "shared result",
+      tags: [],
+      tagParts: [],
+      tagHierarchy: [],
+    });
+
+    await expect(
+      db.searchDocuments("shared", {
+        sourceProviderIds: ["ai-conversations"],
+      }),
+    ).resolves.toMatchObject([
+      { document: { path: "ai-conversation/root/id" } },
+    ]);
+  });
+
   it("stores deduplicated file history with rename delete and restore semantics", async () => {
     const db = new MemoryAppDatabase("vault-a");
     await db.open();

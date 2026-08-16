@@ -18,12 +18,14 @@
     getScope,
     onOpenConversation,
     onNewConversation,
+    searchAllConversations,
   }: {
     app: App;
     repository: ConversationRepository;
     getScope: () => string;
     onOpenConversation: (location: ConversationLocation) => void | Promise<void>;
     onNewConversation: (scopeDir: string) => void | Promise<void>;
+    searchAllConversations: (query: string) => Promise<ConversationListEntry[]>;
   } = $props();
 
   let scopeDir = $state("");
@@ -31,6 +33,8 @@
   let showArchived = $state(false);
   let loading = $state(false);
   let error = $state<string | null>(null);
+  let mode = $state<"folder" | "all">("folder");
+  let query = $state("");
   let refreshVersion = 0;
 
   const visibleEntries = $derived(
@@ -46,7 +50,10 @@
     loading = true;
     error = null;
     try {
-      const next = await repository.list(nextScope);
+      const next =
+        mode === "all"
+          ? await searchAllConversations(query)
+          : await repository.list(nextScope);
       if (version === refreshVersion) entries = next;
     } catch (cause) {
       if (version === refreshVersion) {
@@ -112,6 +119,24 @@
   <div class="ai-history__filters">
     <Button
       size="sm"
+      variant={mode === "folder" ? "secondary" : "ghost"}
+      aria-pressed={mode === "folder"}
+      onclick={() => {
+        mode = "folder";
+        void refresh();
+      }}
+    >This folder</Button>
+    <Button
+      size="sm"
+      variant={mode === "all" ? "secondary" : "ghost"}
+      aria-pressed={mode === "all"}
+      onclick={() => {
+        mode = "all";
+        void refresh();
+      }}
+    >All conversations</Button>
+    <Button
+      size="sm"
       variant="ghost"
       aria-pressed={showArchived}
       onclick={() => (showArchived = !showArchived)}
@@ -119,6 +144,17 @@
       {showArchived ? "Hide archived" : "Show archived"}
     </Button>
   </div>
+  {#if mode === "all"}
+    <div class="ai-history__search">
+      <input
+        type="search"
+        aria-label="Search all conversations"
+        placeholder="Search conversations"
+        bind:value={query}
+        oninput={() => void refresh()}
+      />
+    </div>
+  {/if}
   <ScrollArea class="ai-history__scroll">
     {#if error}
       <p class="ai-history__state" role="alert">{error}</p>
@@ -192,7 +228,8 @@
   }
 
   .ai-history__header,
-  .ai-history__filters {
+  .ai-history__filters,
+  .ai-history__search {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -202,6 +239,21 @@
 
   .ai-history__header {
     justify-content: space-between;
+  }
+
+  .ai-history__filters {
+    flex-wrap: wrap;
+  }
+
+  .ai-history__search input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--input, var(--border));
+    border-radius: var(--radius-sm);
+    color: inherit;
+    background: var(--background);
   }
 
   .ai-history__scope {

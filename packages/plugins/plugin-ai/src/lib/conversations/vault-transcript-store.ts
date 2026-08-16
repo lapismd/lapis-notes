@@ -143,6 +143,38 @@ export class VaultTranscriptStore implements TranscriptStore {
     );
   }
 
+  async listAll(): Promise<ConversationListEntry[]> {
+    const locations = this.vault
+      .getAllFolders()
+      .flatMap((folder): ConversationLocation[] => {
+        const match = folder.path.match(
+          /^(?:(.*)\/)?\.lapis\/agents\/sessions\/([0-9a-f-]+)$/u,
+        );
+        if (!match || !CONVERSATION_ID_PATTERN.test(match[2] ?? "")) return [];
+        return [
+          {
+            scopeDir: match[1] ?? "",
+            conversationId: match[2]!,
+          },
+        ];
+      });
+    const entries = await Promise.all(
+      locations.map(async (location): Promise<ConversationListEntry> => {
+        try {
+          const snapshot = await this.read(location);
+          return { location, metadata: snapshot.metadata };
+        } catch (error) {
+          return { location, unavailableReason: errorMessage(error) };
+        }
+      }),
+    );
+    return entries.sort((left, right) =>
+      (right.metadata?.updatedAt ?? "").localeCompare(
+        left.metadata?.updatedAt ?? "",
+      ),
+    );
+  }
+
   async writeMetadata(
     location: ConversationLocation,
     metadata: ConversationMetadata,

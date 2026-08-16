@@ -520,7 +520,9 @@ export class TursoAppDatabase extends MemoryAppDatabase {
   ): Promise<AppDatabaseSearchResult[]> {
     const requestedMode = options.mode ?? "auto";
     const allPathsRequired =
-      options.caseSensitive || isStructuredSearchQuery(query);
+      options.caseSensitive ||
+      isStructuredSearchQuery(query) ||
+      Boolean(options.sourceProviderIds?.length);
     if (allPathsRequired) {
       return this.searchDocumentsForPaths(
         query,

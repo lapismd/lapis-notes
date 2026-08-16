@@ -51,6 +51,7 @@ describe("TursoAppDatabase", () => {
     await database.configureSearchEmbeddingProvider(TOKEN_HASH_PROVIDER);
     await database.upsertSearchDocument({
       path: "Projects/Proxy.md",
+      sourceProviderId: "markdown",
       name: "Proxy",
       extension: "md",
       checksum: "proxy-1",
@@ -71,6 +72,7 @@ describe("TursoAppDatabase", () => {
     });
     await database.upsertSearchDocument({
       path: "Projects/Canvas.md",
+      sourceProviderId: "canvas",
       name: "Canvas",
       extension: "md",
       checksum: "canvas-1",
@@ -101,6 +103,12 @@ describe("TursoAppDatabase", () => {
         diagnostics: { backendKind: "turso-native" },
       },
     ]);
+    await expect(
+      database.searchDocuments("render", {
+        mode: "lexical",
+        sourceProviderIds: ["markdown"],
+      }),
+    ).resolves.toEqual([]);
 
     const semantic = await database.searchDocuments("delegation ownership", {
       mode: "vector",

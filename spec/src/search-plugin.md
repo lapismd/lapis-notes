@@ -45,6 +45,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-035 | Provider registration and removal MUST refresh the index. Removing or disabling a provider MUST prune its documents, while provider extraction failures MUST leave the remaining index usable. |
 | LN-SRCH-036 | Property values MUST use the canonical `["name"]:value` spelling while legacy `[name:value]` queries remain readable. |
 | LN-SRCH-037 | Provider metadata MUST support property filters even when the vault metadata parser does not index that file extension. |
+| LN-SRCH-038 | Search Manager MUST stamp indexed documents with the selected source-provider id, pass optional provider allowlists to `AppDatabase`, and prune only documents owned by its registered providers so independent disposable projections remain intact. |
 
 ## Runtime flow
 

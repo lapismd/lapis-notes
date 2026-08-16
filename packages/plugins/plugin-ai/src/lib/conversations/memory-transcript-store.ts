@@ -89,6 +89,19 @@ export class MemoryTranscriptStore implements TranscriptStore {
       );
   }
 
+  async listAll(): Promise<ConversationListEntry[]> {
+    return [...this.conversations.values()]
+      .map((snapshot) => ({
+        location: structuredClone(snapshot.location),
+        metadata: structuredClone(snapshot.metadata),
+      }))
+      .sort((left, right) =>
+        (right.metadata?.updatedAt ?? "").localeCompare(
+          left.metadata?.updatedAt ?? "",
+        ),
+      );
+  }
+
   async writeMetadata(
     location: ConversationLocation,
     metadata: ConversationMetadata,

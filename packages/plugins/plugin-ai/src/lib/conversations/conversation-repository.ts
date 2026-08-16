@@ -26,6 +26,10 @@ export type CreateConversationInput = {
   id?: string;
 };
 
+export type ConversationRepositoryChange =
+  | { type: "upsert"; location: ConversationLocation }
+  | { type: "delete"; location: ConversationLocation };
+
 export function deriveConversationTitle(text: string): string | undefined {
   const normalized = text.replace(/\s+/gu, " ").trim();
   if (!normalized) return undefined;
@@ -34,6 +38,9 @@ export function deriveConversationTitle(text: string): string | undefined {
 
 export class ConversationRepository {
   private readonly queue = new ConversationWriteQueue();
+  private readonly listeners = new Set<
+    (change: ConversationRepositoryChange) => void
+  >();
 
   constructor(
     private readonly store: TranscriptStore,
@@ -71,7 +78,9 @@ export class ConversationRepository {
           }
         : {}),
     };
-    return this.store.create(location, metadata);
+    const snapshot = await this.store.create(location, metadata);
+    this.emit({ type: "upsert", location: snapshot.location });
+    return snapshot;
   }
 
   read(location: ConversationLocation): Promise<ConversationSnapshot> {
@@ -80,6 +89,17 @@ export class ConversationRepository {
 
   list(scopeDir: string): Promise<ConversationListEntry[]> {
     return this.store.list(scopeDir);
+  }
+
+  listAll(): Promise<ConversationListEntry[]> {
+    return this.store.listAll();
+  }
+
+  subscribe(
+    listener: (change: ConversationRepositoryChange) => void,
+  ): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   async appendTranscript(
@@ -106,7 +126,9 @@ export class ConversationRepository {
         updatedAt,
       };
       await this.store.writeMetadata(location, metadata);
-      return { ...snapshot, metadata };
+      const result = { ...snapshot, metadata };
+      this.emit({ type: "upsert", location: result.location });
+      return result;
     });
   }
 
@@ -127,7 +149,9 @@ export class ConversationRepository {
         ...(activeBinding ? { activeAgentBindingId: activeBinding.id } : {}),
       };
       await this.store.writeMetadata(location, metadata);
-      return { ...snapshot, metadata };
+      const result = { ...snapshot, metadata };
+      this.emit({ type: "upsert", location: result.location });
+      return result;
     });
   }
 
@@ -143,7 +167,9 @@ export class ConversationRepository {
         updatedAt: new Date().toISOString(),
       };
       await this.store.writeMetadata(location, metadata);
-      return { ...snapshot, metadata };
+      const result = { ...snapshot, metadata };
+      this.emit({ type: "upsert", location: result.location });
+      return result;
     });
   }
 
@@ -170,12 +196,19 @@ export class ConversationRepository {
         updatedAt: switchEntry?.createdAt ?? new Date().toISOString(),
       };
       await this.store.writeMetadata(location, metadata);
-      return this.store.read(location);
+      const result = await this.store.read(location);
+      this.emit({ type: "upsert", location: result.location });
+      return result;
     });
   }
 
-  delete(location: ConversationLocation): Promise<void> {
-    return this.store.delete(location);
+  async delete(location: ConversationLocation): Promise<void> {
+    await this.store.delete(location);
+    this.emit({ type: "delete", location: { ...location } });
+  }
+
+  private emit(change: ConversationRepositoryChange): void {
+    for (const listener of this.listeners) listener(change);
   }
 
   private sanitizeEntry(entry: TranscriptEntry): TranscriptEntry {

@@ -19,6 +19,7 @@ export interface TranscriptStore {
   ): Promise<ConversationSnapshot>;
   read(location: ConversationLocation): Promise<ConversationSnapshot>;
   list(scopeDir: string): Promise<ConversationListEntry[]>;
+  listAll(): Promise<ConversationListEntry[]>;
   writeMetadata(
     location: ConversationLocation,
     metadata: ConversationMetadata,

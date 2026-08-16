@@ -64,6 +64,7 @@ export interface SearchQueryParams {
   snippetLength?: number;
   caseSensitive?: boolean;
   mode?: "auto" | "lexical" | "vector" | "hybrid";
+  sourceProviderIds?: string[];
 }
 
 export interface SearchQueryHit {
@@ -116,12 +117,17 @@ export class SearchManager {
   private readonly flushQueuedChanges = debounce(() => {
     void this.processQueuedChanges();
   }, REACTIVE_INDEX_DELAY_MS);
+  private readonly ownedSourceProviderIds = new Set<string>();
 
   constructor(
     readonly app: App,
     private readonly getSettings: () => SearchPluginSettings = () =>
       DEFAULT_SEARCH_SETTINGS,
-  ) {}
+  ) {
+    for (const provider of app.searchDocumentProviders?.getAll?.() ?? []) {
+      this.ownedSourceProviderIds.add(provider.id);
+    }
+  }
 
   async processChange(
     file: TFile,
@@ -133,6 +139,7 @@ export class SearchManager {
       await this.processDelete(file);
       return;
     }
+    this.ownedSourceProviderIds.add(provider.id);
     const source = await provider.extract({
       app: this.app,
       file,
@@ -155,6 +162,7 @@ export class SearchManager {
     });
     await this.app.appDatabase.upsertSearchDocument({
       path: file.path,
+      sourceProviderId: provider.id,
       name: file.baseName,
       extension: file.extension.toLowerCase(),
       checksum: md5(checksumSource),
@@ -184,6 +192,9 @@ export class SearchManager {
       caseSensitive: params.caseSensitive ?? settings.view.matchCase,
       mode: params.mode ?? settings.view.retrievalMode,
       includeDiagnostics: true,
+      ...(params.sourceProviderIds?.length
+        ? { sourceProviderIds: [...params.sourceProviderIds] }
+        : {}),
     });
     return {
       count: results.length,
@@ -363,7 +374,10 @@ export class SearchManager {
           .filter((file) => this.isProviderCandidate(file));
         const paths = new Set(files.map((file) => file.path));
         const stale = (await this.app.appDatabase.listSearchDocuments()).filter(
-          (document) => !paths.has(document.path),
+          (document) =>
+            (!document.sourceProviderId ||
+              this.ownedSourceProviderIds.has(document.sourceProviderId)) &&
+            !paths.has(document.path),
         );
         const total = stale.length + files.length;
         this.refreshState = {

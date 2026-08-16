@@ -29,6 +29,8 @@ import {
 } from "./sessions/plugin-data";
 import { ConversationRepository } from "./conversations/conversation-repository";
 import type { CreateConversationInput } from "./conversations/conversation-repository";
+import { AiConversationIndex } from "./conversations/conversation-index";
+import type { ConversationListEntry } from "./conversations/transcript-store";
 import { ConversationScopeResolver } from "./conversations/scope-resolver";
 import { VaultTranscriptStore } from "./conversations/vault-transcript-store";
 import { registerAiSettings } from "./settings/register-ai-settings";
@@ -71,11 +73,17 @@ export class AiPlugin extends Plugin {
   });
   readonly scopeResolver = new ConversationScopeResolver();
   readonly conversations: ConversationRepository;
+  readonly conversationIndex: AiConversationIndex;
+  private conversationIndexTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(app: App, pluginManifest: PluginManifest = AI_MANIFEST) {
     super(app, pluginManifest);
     this.conversations = new ConversationRepository(
       new VaultTranscriptStore(app.vault),
+    );
+    this.conversationIndex = new AiConversationIndex(
+      this.conversations,
+      app.appDatabase,
     );
     this.processHost = createAgentProcessHost();
     this.models = new ModelProviderRegistry([
@@ -181,6 +189,10 @@ export class AiPlugin extends Plugin {
     }).scopeDir;
   }
 
+  searchAiConversations(query: string): Promise<ConversationListEntry[]> {
+    return this.conversationIndex.search(query);
+  }
+
   searchVaultFiles = async (
     query: string,
     signal: AbortSignal,
@@ -234,6 +246,49 @@ export class AiPlugin extends Plugin {
         }
       }),
     );
+    this.register(
+      this.conversations.subscribe((change) => {
+        const update =
+          change.type === "delete"
+            ? this.conversationIndex.delete(change.location)
+            : this.conversationIndex.sync(change.location);
+        void update.catch((error) =>
+          this.app.logger.warn("Unable to update the AI conversation index", error),
+        );
+      }),
+    );
+    const scheduleConversationIndexRepair = (file: { path: string }, oldPath?: string) => {
+      if (
+        !isConversationSourcePath(file.path) &&
+        !(oldPath && isConversationSourcePath(oldPath))
+      ) {
+        return;
+      }
+      if (this.conversationIndexTimer) clearTimeout(this.conversationIndexTimer);
+      this.conversationIndexTimer = setTimeout(() => {
+        this.conversationIndexTimer = undefined;
+        void this.conversationIndex.rebuild().catch((error) =>
+          this.app.logger.warn("Unable to rebuild the AI conversation index", error),
+        );
+      }, 150);
+    };
+    this.registerEvent(this.app.vault.on("create", scheduleConversationIndexRepair));
+    this.registerEvent(this.app.vault.on("modify", scheduleConversationIndexRepair));
+    this.registerEvent(this.app.vault.on("delete", scheduleConversationIndexRepair));
+    this.registerEvent(
+      this.app.vault.on("rename", (file, oldPath) =>
+        scheduleConversationIndexRepair(file, oldPath),
+      ),
+    );
+    this.register(() => {
+      if (this.conversationIndexTimer) clearTimeout(this.conversationIndexTimer);
+      this.conversationIndexTimer = undefined;
+    });
+    this.app.workspace.onLayoutReady(() => {
+      void this.conversationIndex.rebuild().catch((error) =>
+        this.app.logger.warn("Unable to rebuild the AI conversation index", error),
+      );
+    });
     this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
       side: "right",
       title: "AI",
@@ -308,3 +363,7 @@ export class AiPlugin extends Plugin {
 }
 
 export default AiPlugin;
+
+function isConversationSourcePath(path: string): boolean {
+  return /(?:^|\/)\.lapis\/agents\/sessions(?:\/|$)/u.test(path);
+}

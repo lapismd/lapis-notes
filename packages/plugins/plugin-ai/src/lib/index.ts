@@ -102,6 +102,12 @@ export {
   ConversationRepository,
   deriveConversationTitle,
 } from "./conversations/conversation-repository";
+export {
+  AI_CONVERSATION_SEARCH_PROVIDER_ID,
+  AiConversationIndex,
+  conversationIndexPath,
+  conversationSearchDocument,
+} from "./conversations/conversation-index";
 export { MemoryTranscriptStore } from "./conversations/memory-transcript-store";
 export { VaultTranscriptStore } from "./conversations/vault-transcript-store";
 export {

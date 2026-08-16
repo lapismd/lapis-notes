@@ -69,6 +69,7 @@ describe("SearchManager", () => {
     expect(upsertSearchDocument).toHaveBeenCalledWith(
       expect.objectContaining({
         path: "Notes/Welcome.md",
+        sourceProviderId: "search:markdown",
         name: "Welcome",
         extension: "md",
         content: "# Welcome",
@@ -151,6 +152,13 @@ describe("SearchManager", () => {
     const ordinaryYaml = file("Config/settings.yml", "yml");
     const documents = new Map<string, unknown>([
       [broken.path, { path: broken.path }],
+      [
+        "ai-conversation/root/id",
+        {
+          path: "ai-conversation/root/id",
+          sourceProviderId: "ai-conversations",
+        },
+      ],
     ]);
     const registry = new SearchDocumentProviderRegistry();
     const registration = registry.register({
@@ -207,12 +215,14 @@ describe("SearchManager", () => {
     expect(documents.has(cv.path)).toBe(true);
     expect(documents.has(broken.path)).toBe(false);
     expect(documents.has(ordinaryYaml.path)).toBe(false);
+    expect(documents.has("ai-conversation/root/id")).toBe(true);
     expect(app.logger.warn).toHaveBeenCalledOnce();
 
     registration.dispose();
     await manager.refreshFromVault("provider-removed");
 
     expect(documents.has(cv.path)).toBe(false);
+    expect(documents.has("ai-conversation/root/id")).toBe(true);
     expect(deleteSearchDocument).toHaveBeenCalledWith(cv.path);
   });
 

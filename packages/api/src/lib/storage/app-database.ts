@@ -272,6 +272,8 @@ export interface AppDatabaseIndexedMetadataRow {
 
 export interface SearchDocumentRecord {
   path: string;
+  /** Domain projection owner used to isolate disposable search corpora. */
+  sourceProviderId?: string;
   name: string;
   extension: string;
   checksum: string;
@@ -755,6 +757,7 @@ export interface AppDatabaseSearchOptions {
   mode?: AppDatabaseSearchMode | "auto";
   includeDiagnostics?: boolean;
   caseSensitive?: boolean;
+  sourceProviderIds?: string[];
   queryEnhancement?: AppDatabaseSearchQueryEnhancementRequest;
 }
 
@@ -2356,8 +2359,17 @@ export class MemoryAppDatabase implements AppDatabase {
   ): Promise<AppDatabaseSearchResult[]> {
     const propertyNames = searchPropertyNames(query);
     const allowedPaths = candidatePaths ? new Set(candidatePaths) : null;
+    const allowedSourceProviders = options.sourceProviderIds?.length
+      ? new Set(options.sourceProviderIds)
+      : null;
     const sourceDocuments = [...this.searchDocs.values()]
-      .filter((document) => !allowedPaths || allowedPaths.has(document.path))
+      .filter(
+        (document) =>
+          (!allowedPaths || allowedPaths.has(document.path)) &&
+          (!allowedSourceProviders ||
+            (document.sourceProviderId != null &&
+              allowedSourceProviders.has(document.sourceProviderId))),
+      )
       .map((document) => ({
         document,
         properties: searchDocumentProperties(

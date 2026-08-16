@@ -185,4 +185,21 @@ describe("VaultTranscriptStore", () => {
       vault.getFolderByPath(`Projects/.lapis/agents/sessions/${ID}`),
     ).toBeNull();
   });
+
+  it("discovers all scoped sources without ancestor resolution", async () => {
+    const { repository } = await createHarness();
+    await repository.create({ id: ID, scopeDir: "Projects/Atlas", now: CREATED_AT });
+    await repository.create({ id: ID, scopeDir: "Archive/Atlas", now: CREATED_AT });
+
+    await expect(repository.listAll()).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          location: { scopeDir: "Projects/Atlas", conversationId: ID },
+        }),
+        expect.objectContaining({
+          location: { scopeDir: "Archive/Atlas", conversationId: ID },
+        }),
+      ]),
+    );
+  });
 });

@@ -2,6 +2,7 @@ import { View, type WorkspaceLeaf } from "@lapis-notes/api";
 import { mount, unmount } from "svelte";
 import type { ConversationRepository } from "../conversations/conversation-repository";
 import type { ConversationLocation } from "../conversations/types";
+import type { ConversationListEntry } from "../conversations/transcript-store";
 import AiHistoryPanel from "./ai-history-panel.svelte";
 import { AiHistoryViewType } from "./ai-history-view-type";
 
@@ -10,6 +11,7 @@ export type AiHistoryViewHost = {
   currentConversationScope(): string;
   openAiConversation(location: ConversationLocation): Promise<void>;
   createAiConversation(scopeDir: string): Promise<void>;
+  searchAiConversations(query: string): Promise<ConversationListEntry[]>;
 };
 
 export class AiHistoryView extends View {
@@ -54,6 +56,8 @@ export class AiHistoryView extends View {
           this.host.openAiConversation(location),
         onNewConversation: (scopeDir: string) =>
           this.host.createAiConversation(scopeDir),
+        searchAllConversations: (query: string) =>
+          this.host.searchAiConversations(query),
       },
     }) as Record<string, unknown>;
   }
