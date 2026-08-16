@@ -33,6 +33,56 @@ const runtime = new FakeAgentRuntime({ requireQuestion: true });
 <AiChatPanel runtime={runtime} />
 `;
 
+export function createAiChatToolSeedItems(
+  state: "running" | "completed" | "error",
+) {
+  return [
+    {
+      id: `tool-${state}`,
+      type: "tool" as const,
+      toolId: `tool-${state}`,
+      name: "shell.execute",
+      server: "local workspace",
+      state,
+      input: "pnpm --filter @lapis-notes/ai test",
+      ...(state === "completed"
+        ? { output: "121 tests passed" }
+        : state === "error"
+          ? { output: "Process exited with code 1\nFAIL ai-chat-panel.test.ts" }
+          : {}),
+      createdAt: "2026-03-16T09:00:00.000Z",
+    },
+  ];
+}
+
+export function aiChatToolStateExampleSource(
+  state: "running" | "completed" | "error",
+): string {
+  const items = createAiChatToolSeedItems(state);
+  return `import {
+  AiChatPanel,
+  FakeAgentRuntime,
+  createMemorySessionStore,
+} from "@lapis-notes/ai";
+import "@lapis-notes/ai/styles.css";
+
+const runtime = new FakeAgentRuntime();
+const items = ${JSON.stringify(items, null, 2)};
+const sessionStore = createMemorySessionStore([
+  {
+    id: "ai:default",
+    runtime: "fake",
+    runtimeSessionId: "tool-state",
+    createdAt: items[0].createdAt,
+    updatedAt: items[0].createdAt,
+    items,
+  },
+]);
+
+<AiChatPanel runtime={runtime} sessionStore={sessionStore} />
+`;
+}
+
 export const aiChatMentionsExampleSource = `import {
   AiChatPanel,
   FakeAgentRuntime,

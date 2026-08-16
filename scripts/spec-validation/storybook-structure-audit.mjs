@@ -373,6 +373,71 @@ function auditPersistedWorkspace({ readOptional }) {
       ];
 }
 
+const aiStateStories = [
+  "PermissionRequested",
+  "PermissionAccepted",
+  "QuestionAsked",
+  "QuestionAnswered",
+  "ToolRunning",
+  "SuccessfulToolCall",
+  "FailedToolCall",
+  "ValidationAndEmptyState",
+  "FailedMessageAndRetry",
+  "AgentTrace",
+];
+
+function storyBlock(source, exportName) {
+  const startToken = `export const ${exportName}`;
+  const start = source.indexOf(startToken);
+  if (start < 0) return null;
+  const next = source.indexOf("\nexport const ", start + startToken.length);
+  return source.slice(start, next < 0 ? source.length : next);
+}
+
+/** Enforce the independently inspectable AI interaction state matrix. */
+export function auditAiStateMatrix({ readOptional }) {
+  const storyFile = "stories/plugins/ai/AiChat.stories.ts";
+  const source = readOptional(storyFile);
+  if (source === null) {
+    return [
+      finding(
+        "STORYBOOK-AI-STATE-MATRIX",
+        storyFile,
+        1,
+        "AI Chat must provide the canonical interaction state catalog",
+      ),
+    ];
+  }
+
+  const requiredTokens = [
+    "workspaceCatalogParameters(",
+    "docs:",
+    "source:",
+    "visualDelta:",
+    "images:",
+    "play:",
+  ];
+  const findings = [];
+  for (const exportName of aiStateStories) {
+    const block = storyBlock(source, exportName);
+    const missing =
+      block === null
+        ? ["story export"]
+        : requiredTokens.filter((token) => !block.includes(token));
+    if (missing.length > 0) {
+      findings.push(
+        finding(
+          "STORYBOOK-AI-STATE-MATRIX",
+          storyFile,
+          lineFor(source, `export const ${exportName}`),
+          `AI Chat ${exportName} is missing ${missing.join(", ")}`,
+        ),
+      );
+    }
+  }
+  return findings;
+}
+
 function auditSpecificationOrder({ readOptional }) {
   const previewFile = ".storybook/preview.ts";
   const preview = readOptional(previewFile);
@@ -408,6 +473,7 @@ export function auditStorybookStructure({
     ...auditCatalogTaxonomy({ trackedFiles, readOptional }),
     ...auditShells({ readOptional, shells }),
     ...auditPersistedWorkspace({ readOptional }),
+    ...auditAiStateMatrix({ readOptional }),
     ...auditSpecificationOrder({ readOptional }),
   ];
 }

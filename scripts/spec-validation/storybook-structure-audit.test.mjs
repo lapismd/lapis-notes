@@ -137,6 +137,31 @@ const workspaceStory = `
 export const PersistedDesktop = { args: { loadBundledPlugins: true } };
 export const Mobile = { args: { loadBundledPlugins: true } };
 `;
+const aiStateStoryNames = [
+  "PermissionRequested",
+  "PermissionAccepted",
+  "QuestionAsked",
+  "QuestionAnswered",
+  "ToolRunning",
+  "SuccessfulToolCall",
+  "FailedToolCall",
+  "ValidationAndEmptyState",
+  "FailedMessageAndRetry",
+  "AgentTrace",
+];
+const aiStateStories = aiStateStoryNames
+  .map(
+    (name) => `
+export const ${name} = {
+  parameters: {
+    ...workspaceCatalogParameters("fixture-${name}"),
+    docs: { source: { code: "example" } },
+    visualDelta: { images: ["/visual-baselines/${name}.png"] },
+  },
+  play: async () => {},
+};`,
+  )
+  .join("\n");
 
 function validStructureFiles() {
   return new Map([
@@ -145,6 +170,7 @@ function validStructureFiles() {
     ["stories/plugins/ai/shell/Shell.stories.ts", shellStory("AI")],
     ["stories/plugins/ai/shell/ShellDemo.svelte", shellDemo],
     ["stories/plugins/ai/shell/create-shell-demo.ts", shellRuntime],
+    ["stories/plugins/ai/AiChat.stories.ts", aiStateStories],
     ["stories/plugins/bases/shell/Shell.stories.ts", shellStory("Bases")],
     ["stories/plugins/bases/shell/ShellDemo.svelte", shellDemo],
     ["stories/plugins/bases/shell/create-shell-demo.ts", shellRuntime],
@@ -240,6 +266,22 @@ test("rejects an incomplete persisted Workspace plugin inventory", () => {
       (entry) => entry.code === "STORYBOOK-WORKSPACE-INVENTORY",
     ),
   );
+});
+
+test("rejects a missing or incompletely governed AI interaction state", () => {
+  const files = validStructureFiles();
+  files.set(
+    "stories/plugins/ai/AiChat.stories.ts",
+    aiStateStories
+      .replace(/export const FailedToolCall[\s\S]*?(?=\nexport const )/, "")
+      .replace("play: async () => {},", ""),
+  );
+  const findings = auditStructure(files).filter(
+    (entry) => entry.code === "STORYBOOK-AI-STATE-MATRIX",
+  );
+  assert.ok(findings.length >= 2);
+  assert.ok(findings.some((entry) => entry.message.includes("FailedToolCall")));
+  assert.ok(findings.some((entry) => entry.message.includes("play:")));
 });
 
 test("requires Specification to be the first Storybook menu item", () => {

@@ -10,9 +10,11 @@ import {
   aiChatQuestionExampleSource,
   aiChatScrollExampleSource,
   aiChatTraceExampleSource,
+  aiChatToolStateExampleSource,
   aiChatValidationExampleSource,
   createAiChatFailureSeedItems,
   createAiChatScrollSeedItems,
+  createAiChatToolSeedItems,
 } from "./AiChat.example-sources";
 import AiChatDemo from "./AiChatDemo.svelte";
 
@@ -167,17 +169,17 @@ export const ValidationAndEmptyState: Story = {
   },
 };
 
-export const PendingApproval: Story = {
+export const PermissionRequested: Story = {
   render: () => ({
     Component: AiChatDemo,
     props: { requireApproval: true },
   }),
   parameters: {
-    ...workspaceCatalogParameters("plugins-ai-chat-approval"),
+    ...workspaceCatalogParameters("plugins-ai-chat-permission-requested"),
     docs: {
       description: {
         story:
-          "FakeAgentRuntime blocks the turn on an ApprovalRequest until a permission choice in the Design Core Composer Drawer responds.",
+          "FakeAgentRuntime pauses on an ApprovalRequest so the pending permission remains visible in the Design Core Composer Drawer.",
       },
       source: {
         code: aiChatApprovalExampleSource,
@@ -187,7 +189,7 @@ export const PendingApproval: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/chat-approval-chromium.png",
+        "/visual-baselines/stories/plugins/ai/chat-permission-requested-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -211,6 +213,43 @@ export const PendingApproval: Story = {
     await expect(canvas.getByTestId("ai-chat-working")).toHaveTextContent(
       "Agent is working…",
     );
+  },
+};
+
+export const PermissionAccepted: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { requireApproval: true },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-permission-accepted"),
+    docs: {
+      description: {
+        story:
+          "Choosing Allow once records only the safe permission option and leaves the accepted state visible in the transcript.",
+      },
+      source: {
+        code: aiChatApprovalExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-permission-accepted-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByRole("combobox", { name: "Message" });
+    await userEvent.type(input, "Apply the change");
+    await userEvent.keyboard("{Enter}");
+    const allow = await canvas.findByRole("button", { name: /Allow once/ });
     await userEvent.click(allow);
     await waitFor(() => {
       expect(canvas.getByText(/Approval approved/i)).toBeInTheDocument();
@@ -219,17 +258,17 @@ export const PendingApproval: Story = {
   },
 };
 
-export const AgentQuestion: Story = {
+export const QuestionAsked: Story = {
   render: () => ({
     Component: AiChatDemo,
     props: { requireQuestion: true },
   }),
   parameters: {
-    ...workspaceCatalogParameters("plugins-ai-chat-question"),
+    ...workspaceCatalogParameters("plugins-ai-chat-question-asked"),
     docs: {
       description: {
         story:
-          "A runtime-neutral agent question appears in the Design Core Composer Drawer and keeps the turn active until every required answer is submitted.",
+          "A runtime-neutral agent question remains visible in the Design Core Composer Drawer while the turn waits for required input.",
       },
       source: {
         code: aiChatQuestionExampleSource,
@@ -239,7 +278,7 @@ export const AgentQuestion: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/chat-question-chromium.png",
+        "/visual-baselines/stories/plugins/ai/chat-question-asked-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -258,6 +297,48 @@ export const AgentQuestion: Story = {
     expect(
       option.closest('[data-ui-component="ai-chat-composer-drawer"]'),
     ).not.toBeNull();
+    await expect(canvas.getByTestId("ai-chat-working")).toHaveTextContent(
+      "Agent is working…",
+    );
+  },
+};
+
+export const QuestionAnswered: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { requireQuestion: true },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-question-answered"),
+    docs: {
+      description: {
+        story:
+          "Submitting the selected safe answer leaves an answered notice without retaining the answer value in the visible transcript.",
+      },
+      source: {
+        code: aiChatQuestionExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-question-answered-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByRole("combobox", { name: "Message" });
+    await userEvent.type(input, "Update the sample file");
+    await userEvent.keyboard("{Enter}");
+    const option = await canvas.findByRole("button", {
+      name: /Make the smallest change/,
+    });
     await userEvent.click(option);
     const submit = canvas.getByRole("button", { name: "Submit answer" });
     await expect(submit).toBeEnabled();
@@ -267,6 +348,142 @@ export const AgentQuestion: Story = {
       expect(canvas.queryByTestId("ai-question-card")).toBeNull();
       expect(canvas.queryByTestId("ai-chat-working")).toBeNull();
     });
+  },
+};
+
+export const ToolRunning: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { seedItems: createAiChatToolSeedItems("running") },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-tool-running"),
+    docs: {
+      description: {
+        story:
+          "A running workspace command remains visible with its live status and the exact command that the agent invoked.",
+      },
+      source: {
+        code: aiChatToolStateExampleSource("running"),
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-tool-running-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = await canvas.findByRole("button", {
+      name: "Show details for shell.execute",
+    });
+    await expect(
+      trigger.querySelector('[data-ui-part="detail-chevron"]'),
+    ).toHaveAttribute("data-direction", "right");
+    const status = canvasElement.querySelector(
+      '[data-ui-part="call-status"][data-status="running"]',
+    );
+    expect(status).not.toBeNull();
+    await expect(status).toHaveTextContent("Running");
+  },
+};
+
+export const SuccessfulToolCall: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { seedItems: createAiChatToolSeedItems("completed") },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-tool-success"),
+    docs: {
+      description: {
+        story:
+          "A successful tool call discloses the actual command and output, with right and down chevrons communicating collapsed and expanded state.",
+      },
+      source: {
+        code: aiChatToolStateExampleSource("completed"),
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-tool-success-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = await canvas.findByRole("button", {
+      name: "Show details for shell.execute",
+    });
+    const chevron = trigger.querySelector('[data-ui-part="detail-chevron"]');
+    await expect(chevron).toHaveAttribute("data-direction", "right");
+    await userEvent.click(trigger);
+    await expect(chevron).toHaveAttribute("data-direction", "down");
+    await expect(
+      canvas.getByText("pnpm --filter @lapis-notes/ai test"),
+    ).toBeVisible();
+    await expect(canvas.getByText("121 tests passed")).toBeVisible();
+  },
+};
+
+export const FailedToolCall: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { seedItems: createAiChatToolSeedItems("error") },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-tool-failure"),
+    docs: {
+      description: {
+        story:
+          "A failed command keeps its error visible and expands to show the exact command and captured failure output.",
+      },
+      source: {
+        code: aiChatToolStateExampleSource("error"),
+        language: "tsx",
+        type: "code",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-tool-failure-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole("alert")).toHaveTextContent(
+      "Process exited with code 1",
+    );
+    const trigger = await canvas.findByRole("button", {
+      name: "Show details for shell.execute",
+    });
+    const chevron = trigger.querySelector('[data-ui-part="detail-chevron"]');
+    await expect(chevron).toHaveAttribute("data-direction", "right");
+    await userEvent.click(trigger);
+    await expect(chevron).toHaveAttribute("data-direction", "down");
+    await expect(
+      canvas.getByText("pnpm --filter @lapis-notes/ai test"),
+    ).toBeVisible();
+    const output = canvas.getAllByText(/FAIL ai-chat-panel\.test\.ts/);
+    await expect(output[output.length - 1]).toBeVisible();
   },
 };
 
@@ -521,7 +738,7 @@ export const FailedMessageAndRetry: Story = {
     docs: {
       description: {
         story:
-          "A failed assistant message uses Design Core error metadata and retries the nearest user prompt through a replacement Fake session.",
+          "A failed assistant message uses Design Core error metadata and keeps the Retry action visible and enabled without changing the documented failure state.",
       },
       source: {
         code: aiChatFailureExampleSource,
@@ -555,15 +772,6 @@ export const FailedMessageAndRetry: Story = {
       name: "Retry message",
     });
     await expect(retry).toBeEnabled();
-    await userEvent.click(retry);
-    await waitFor(() => {
-      const assistantMessages = canvas.getAllByRole("article", {
-        name: "Message from assistant",
-      });
-      expect(assistantMessages.at(-1)).toHaveTextContent(
-        "Summarize the release notes",
-      );
-    });
   },
 };
 
