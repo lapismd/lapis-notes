@@ -8,6 +8,8 @@ export const aiLiveHostExampleSource = `<script lang="ts">
 
   const attached = Boolean(import.meta.env.LAPIS_AGENT_RUNTIME_URL?.trim())
     && Boolean(import.meta.env.LAPIS_AGENT_RUNTIME_TOKEN?.trim());
+  const storageKey = "lapis-ai-live-host:portable-conversations";
+  const portableFiles = JSON.parse(localStorage.getItem(storageKey) ?? "{}");
   const adapter = new MemoryVaultAdapter({
     ".obsidian/app.json": JSON.stringify({
       "appearence.interface.showTabTitleBar": true,
@@ -19,10 +21,16 @@ export const aiLiveHostExampleSource = `<script lang="ts">
         defaultModel: "gpt-5.6-sol",
         thinking: "medium",
       },
-      sessions: [],
     }),
     "Notes/Welcome.md": "# Welcome\\n\\nAsk the live AI host in the right sidebar.\\n",
+    ...portableFiles,
   });
+  adapter.onWrite = (path, data) => {
+    if (/(?:^|\\/)\\.lapis\\/agents\\/sessions\\/.+\\/(?:metadata\\.yaml|agents\\.jsonl|transcript\\.jsonl)$/.test(path)) {
+      portableFiles[path] = data;
+      localStorage.setItem(storageKey, JSON.stringify(portableFiles));
+    }
+  };
   const app = new App({
     version: "1.0.0",
     configPath: ".obsidian/app.json",
@@ -58,7 +66,7 @@ export const aiLiveHostExampleSource = `<script lang="ts">
 {#if !attached}
   <section>
     <h1>Live AI host</h1>
-    <p>Start pnpm ai-host serve, set URL and token in .env.storybook.local, then restart Storybook.</p>
+    <p>Start pnpm ai-host serve, set URL and token in .env.storybook.local, then restart Storybook. Portable .lapis/agents files survive reload.</p>
   </section>
 {:else if ready}
   <WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />

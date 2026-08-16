@@ -27,7 +27,7 @@
     const runtimePromise = bootAiWorkspaceDemo({
       defaultRuntime: "acp",
       vaultId: "lapis-ai-live-host",
-      persistPluginData: true,
+      persistVaultData: true,
     });
     void runtimePromise
       .then((runtime) => {

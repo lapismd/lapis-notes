@@ -5,6 +5,7 @@ import {
 } from "./create-panel-demo";
 
 const publicComponents: Partial<Record<PanelDemoKind, string>> = {
+  "ai-history": "AiHistoryView",
   "file-properties": "FileProperties",
   outline: "Outline",
   backlinks: "Backlinks",
@@ -29,9 +30,16 @@ export function panelExampleSource(
     JSON.stringify(createPanelDemoLayout(kind, layout), null, 2),
     2,
   );
-  const packageName = kind === "search" ? "@lapis-notes/search" : "@lapis-notes/markdown";
+  const packageName =
+    kind === "search"
+      ? "@lapis-notes/search"
+      : kind === "ai-history"
+        ? "@lapis-notes/ai"
+        : "@lapis-notes/markdown";
   const panelImport = `  import { ${publicComponents[kind] ?? "AllProperties"} } from "${packageName}";\n`;
-  const registrationNote = `  // The enabled ${kind === "search" ? "Search" : "Markdown"} plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
+  const pluginName =
+    kind === "search" ? "Search" : kind === "ai-history" ? "AI" : "Markdown";
+  const registrationNote = `  // The enabled ${pluginName} plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
 
   return `<script lang="ts">
   import { onMount } from "svelte";

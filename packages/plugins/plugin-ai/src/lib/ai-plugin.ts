@@ -167,26 +167,39 @@ export class AiPlugin extends Plugin {
   }
 
   listConversationFolders(): string[] {
-    return [
-      "",
-      ...this.app.vault
-        .getAllFolders()
-        .map((folder) => folder.path)
-        .filter((path) => {
-          const parts = path.split("/");
-          return (
-            parts[0] !== ".obsidian" &&
-            parts[0] !== ".trash" &&
-            !parts.includes(".lapis")
-          );
-        }),
-    ].sort((left, right) => left.localeCompare(right));
+    const folders = this.app.vault
+      .getAllFolders()
+      .map((folder) => folder.path.replace(/^\/+|\/+$/gu, ""))
+      .filter((path) => {
+        const parts = path.split("/");
+        return (
+          parts[0] !== ".obsidian" &&
+          parts[0] !== ".trash" &&
+          !parts.includes(".lapis")
+        );
+      });
+    return [...new Set(["", ...folders])].sort((left, right) =>
+      left.localeCompare(right),
+    );
   }
 
   currentConversationScope(): string {
     return this.scopeResolver.resolve({
       activeFile: this.app.workspace.getActiveFile(),
     }).scopeDir;
+  }
+
+  currentAiConversation(): ConversationLocation | null {
+    const state = this.app.workspace
+      .getLeavesOfType(AiViewType)[0]
+      ?.getViewState().state;
+    return typeof state?.scopeDir === "string" &&
+      typeof state.conversationId === "string"
+      ? {
+          scopeDir: state.scopeDir,
+          conversationId: state.conversationId,
+        }
+      : null;
   }
 
   searchAiConversations(query: string): Promise<ConversationListEntry[]> {
@@ -253,41 +266,65 @@ export class AiPlugin extends Plugin {
             ? this.conversationIndex.delete(change.location)
             : this.conversationIndex.sync(change.location);
         void update.catch((error) =>
-          this.app.logger.warn("Unable to update the AI conversation index", error),
+          this.app.logger.warn(
+            "Unable to update the AI conversation index",
+            error,
+          ),
         );
       }),
     );
-    const scheduleConversationIndexRepair = (file: { path: string }, oldPath?: string) => {
+    const scheduleConversationIndexRepair = (
+      file: { path: string },
+      oldPath?: string,
+    ) => {
       if (
         !isConversationSourcePath(file.path) &&
         !(oldPath && isConversationSourcePath(oldPath))
       ) {
         return;
       }
-      if (this.conversationIndexTimer) clearTimeout(this.conversationIndexTimer);
+      if (this.conversationIndexTimer)
+        clearTimeout(this.conversationIndexTimer);
       this.conversationIndexTimer = setTimeout(() => {
         this.conversationIndexTimer = undefined;
-        void this.conversationIndex.rebuild().catch((error) =>
-          this.app.logger.warn("Unable to rebuild the AI conversation index", error),
-        );
+        void this.conversationIndex
+          .rebuild()
+          .catch((error) =>
+            this.app.logger.warn(
+              "Unable to rebuild the AI conversation index",
+              error,
+            ),
+          );
       }, 150);
     };
-    this.registerEvent(this.app.vault.on("create", scheduleConversationIndexRepair));
-    this.registerEvent(this.app.vault.on("modify", scheduleConversationIndexRepair));
-    this.registerEvent(this.app.vault.on("delete", scheduleConversationIndexRepair));
+    this.registerEvent(
+      this.app.vault.on("create", scheduleConversationIndexRepair),
+    );
+    this.registerEvent(
+      this.app.vault.on("modify", scheduleConversationIndexRepair),
+    );
+    this.registerEvent(
+      this.app.vault.on("delete", scheduleConversationIndexRepair),
+    );
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) =>
         scheduleConversationIndexRepair(file, oldPath),
       ),
     );
     this.register(() => {
-      if (this.conversationIndexTimer) clearTimeout(this.conversationIndexTimer);
+      if (this.conversationIndexTimer)
+        clearTimeout(this.conversationIndexTimer);
       this.conversationIndexTimer = undefined;
     });
     this.app.workspace.onLayoutReady(() => {
-      void this.conversationIndex.rebuild().catch((error) =>
-        this.app.logger.warn("Unable to rebuild the AI conversation index", error),
-      );
+      void this.conversationIndex
+        .rebuild()
+        .catch((error) =>
+          this.app.logger.warn(
+            "Unable to rebuild the AI conversation index",
+            error,
+          ),
+        );
     });
     this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
       side: "right",
@@ -331,15 +368,15 @@ export class AiPlugin extends Plugin {
           conversationId: location.conversationId,
         }
       : {};
-    if (existing) {
-      await existing.setViewState({ type: AiViewType, state });
-      this.app.workspace.revealLeaf(existing);
+    const target =
+      existing ??
+      this.app.workspace.getLeavesOfType(AiHistoryViewType)[0] ??
+      this.app.workspace.getRightLeaf(false);
+    if (target) {
+      await target.setViewState({ type: AiViewType, state });
+      this.app.workspace.revealLeaf(target);
       return;
     }
-    const leaf = this.app.workspace.getRightLeaf(false);
-    if (!leaf) return;
-    await leaf.setViewState({ type: AiViewType, state });
-    this.app.workspace.revealLeaf(leaf);
   }
 
   async createAiConversation(scopeDir: string): Promise<void> {
@@ -351,14 +388,15 @@ export class AiPlugin extends Plugin {
 
   async revealConversationHistory(): Promise<void> {
     const existing = this.app.workspace.getLeavesOfType(AiHistoryViewType)[0];
-    if (existing) {
-      this.app.workspace.revealLeaf(existing);
-      return;
+    const target =
+      existing ??
+      this.app.workspace.getLeavesOfType(AiViewType)[0] ??
+      this.app.workspace.getRightLeaf(false);
+    if (!target) return;
+    if (!existing) {
+      await target.setViewState({ type: AiHistoryViewType, state: {} });
     }
-    const leaf = this.app.workspace.getRightLeaf(false);
-    if (!leaf) return;
-    await leaf.setViewState({ type: AiHistoryViewType, state: {} });
-    this.app.workspace.revealLeaf(leaf);
+    this.app.workspace.revealLeaf(target);
   }
 }
 

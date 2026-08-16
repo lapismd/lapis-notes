@@ -60,7 +60,10 @@ describe("AiConversationIndex", () => {
     expect(document?.content).not.toContain("private output");
     expect(document?.content).not.toContain("Secret question");
     await expect(index.search("parser")).resolves.toMatchObject([
-      { location: snapshot.location },
+      {
+        location: snapshot.location,
+        preview: expect.stringContaining("parser"),
+      },
     ]);
   });
 
@@ -84,8 +87,14 @@ describe("AiConversationIndex", () => {
     });
 
     await index.rebuild();
-    expect(await database.getSearchDocument(conversationIndexPath(first.location))).toBeDefined();
-    expect(await database.getSearchDocument(conversationIndexPath(copied.location))).toBeDefined();
-    expect(await database.getSearchDocument("ai-conversation/stale/id")).toBeUndefined();
+    expect(
+      await database.getSearchDocument(conversationIndexPath(first.location)),
+    ).toBeDefined();
+    expect(
+      await database.getSearchDocument(conversationIndexPath(copied.location)),
+    ).toBeDefined();
+    expect(
+      await database.getSearchDocument("ai-conversation/stale/id"),
+    ).toBeUndefined();
   });
 });

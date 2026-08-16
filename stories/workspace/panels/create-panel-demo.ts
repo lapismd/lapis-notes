@@ -6,6 +6,7 @@ import {
   MemoryVaultAdapter,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
+import { AiHistoryViewType, AiPlugin } from "@lapis-notes/ai";
 import {
   AllPropertiesViewType,
   BacklinksViewType,
@@ -23,6 +24,7 @@ import { SourceEditorDemoPlugin } from "../lapis-editor-demo/source-editor-plugi
 import { watchMetadata } from "../watch-metadata";
 
 export type PanelDemoKind =
+  | "ai-history"
   | "all-properties"
   | "file-properties"
   | "outline"
@@ -49,6 +51,7 @@ export const PANEL_DEMO_LAYOUTS: PanelDemoLayout[] = [
 ];
 
 export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
+  "ai-history": AiHistoryViewType,
   "all-properties": AllPropertiesViewType,
   "file-properties": FilePropertiesViewType,
   outline: OutlineViewType,
@@ -62,6 +65,12 @@ export const PANEL_LEAF_META: Record<
   PanelDemoKind,
   { title: string; icon: string; group: string; requiresFile: boolean }
 > = {
+  "ai-history": {
+    title: "AI conversations",
+    icon: "history",
+    group: "AI",
+    requiresFile: true,
+  },
   "all-properties": {
     title: "All properties",
     icon: "archive",
@@ -173,8 +182,7 @@ function split(
     type: "split",
     direction,
     sizes:
-      options.sizes ??
-      children.map(() => 100 / Math.max(children.length, 1)),
+      options.sizes ?? children.map(() => 100 / Math.max(children.length, 1)),
     children,
     ...(options.width ? { width: options.width } : {}),
   };
@@ -312,12 +320,9 @@ export function createPanelDemoLayout(
       right: emptyDock("right"),
       bottom: {
         ...tabs("bottom-panel", [
-          sidebarGroup(
-            `${kind}-bottom-group`,
-            meta.group,
-            meta.icon,
-            [panel("panel-bottom")],
-          ),
+          sidebarGroup(`${kind}-bottom-group`, meta.group, meta.icon, [
+            panel("panel-bottom"),
+          ]),
         ]),
         height: "22rem",
       },
@@ -334,12 +339,9 @@ export function createPanelDemoLayout(
       "vertical",
       [
         tabs("right-panel-tabs", [
-          sidebarGroup(
-            `${kind}-sidebar-group`,
-            meta.group,
-            meta.icon,
-            [panel("panel-grouped")],
-          ),
+          sidebarGroup(`${kind}-sidebar-group`, meta.group, meta.icon, [
+            panel("panel-grouped"),
+          ]),
         ]),
       ],
       { width: "24rem" },
@@ -476,13 +478,84 @@ export function createPanelDemoSeed(
       "Review the project notes.",
       "",
     ].join("\n"),
+    ...(kind === "ai-history" ? createAiHistorySeed() : {}),
+  };
+}
+
+function createAiHistorySeed(): Record<string, string> {
+  return {
+    ...conversationSeed({
+      scopeDir: "Notes",
+      id: "123e4567-e89b-42d3-a456-426614174000",
+      title: "Summarize project notes",
+      status: "active",
+      message: "Summarize the project notes and identify the next milestone.",
+      updatedAt: "2026-08-16T11:30:00.000Z",
+    }),
+    ...conversationSeed({
+      scopeDir: "Notes",
+      id: "223e4567-e89b-42d3-a456-426614174001",
+      title: "Archived planning chat",
+      status: "archived",
+      message: "Review the planning notes from last week.",
+      updatedAt: "2026-08-15T09:00:00.000Z",
+    }),
+    ...conversationSeed({
+      scopeDir: "Projects/Atlas",
+      id: "323e4567-e89b-42d3-a456-426614174002",
+      title: "Fix parser errors",
+      status: "active",
+      message: "Find the parser error in the Atlas import pipeline.",
+      updatedAt: "2026-08-16T10:00:00.000Z",
+    }),
+    ...conversationSeed({
+      scopeDir: "",
+      id: "423e4567-e89b-42d3-a456-426614174003",
+      title: "Plan vault release",
+      status: "active",
+      message: "Draft a release checklist for the whole vault.",
+      updatedAt: "2026-08-14T13:00:00.000Z",
+    }),
+  };
+}
+
+function conversationSeed(input: {
+  scopeDir: string;
+  id: string;
+  title: string;
+  status: "active" | "archived";
+  message: string;
+  updatedAt: string;
+}): Record<string, string> {
+  const scopePrefix = input.scopeDir ? `${input.scopeDir}/` : "";
+  const root = `${scopePrefix}.lapis/agents/sessions/${input.id}`;
+  return {
+    [`${root}/metadata.yaml`]: [
+      "schemaVersion: 1",
+      `id: ${input.id}`,
+      `title: ${JSON.stringify(input.title)}`,
+      'createdAt: "2026-08-14T08:00:00.000Z"',
+      `updatedAt: ${JSON.stringify(input.updatedAt)}`,
+      `status: ${input.status}`,
+      "",
+    ].join("\n"),
+    [`${root}/agents.jsonl`]: "",
+    [`${root}/transcript.jsonl`]: `${JSON.stringify({
+      schemaVersion: 1,
+      id: `message-${input.id}`,
+      type: "message",
+      role: "user",
+      text: input.message,
+      createdAt: input.updatedAt,
+    })}\n`,
   };
 }
 
 function findMarkdownLeaf(app: App): WorkspaceLeaf | null {
   let found: WorkspaceLeaf | null = null;
   app.workspace.iterateRootLeaves((leaf) => {
-    if (!found && leaf.view instanceof MarkdownView && leaf.view.file) found = leaf;
+    if (!found && leaf.view instanceof MarkdownView && leaf.view.file)
+      found = leaf;
   });
   if (found) return found;
   app.workspace.iterateRootLeaves((leaf) => {
@@ -516,14 +589,19 @@ export async function bootPanelDemo(
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
-  const disposeApplicationCompatibility =
-    installApplicationCompatibility(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
     { plugin: SourceEditorDemoPlugin, required: true },
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
     { plugin: SearchPlugin, required: false, enabledByDefault: true },
+    {
+      plugin: AiPlugin,
+      required: false,
+      enabledByDefault: true,
+      distribution: "bundled",
+    },
     {
       plugin: RolesPlugin,
       required: false,
@@ -543,6 +621,10 @@ export async function bootPanelDemo(
   const searchPlugin = app.plugins.plugins.get("search");
   if (searchPlugin instanceof SearchPlugin) {
     await searchPlugin.refreshIndex("storybook-panel-demo");
+  }
+  const aiPlugin = app.plugins.plugins.get("ai");
+  if (aiPlugin instanceof AiPlugin) {
+    await aiPlugin.conversationIndex.rebuild();
   }
   await app.workspace.loadLayout();
 

@@ -10,6 +10,8 @@ export type ConversationListEntry = {
   location: ConversationLocation;
   metadata?: ConversationMetadata;
   unavailableReason?: string;
+  /** Disposable search-index context. Never written to portable source files. */
+  preview?: string;
 };
 
 export interface TranscriptStore {

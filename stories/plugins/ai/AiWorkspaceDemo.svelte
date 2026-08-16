@@ -2,13 +2,17 @@
   import { onMount } from "svelte";
   import type { App } from "@lapis-notes/api";
   import { WorkspaceShell } from "@lapis-notes/workspace";
-  import { bootAiWorkspaceDemo } from "./create-ai-workspace-demo";
+  import {
+    bootAiWorkspaceDemo,
+    type AiWorkspaceScenario,
+  } from "./create-ai-workspace-demo";
   import "@lapis-notes/ai/styles.css";
 
   let app = $state<App | null>(null);
   let status = $state("booting");
   let error = $state("");
   let root = $state<HTMLDivElement>();
+  let { scenario = "default" }: { scenario?: AiWorkspaceScenario } = $props();
 
   $effect(() => {
     if (!root || !app) return;
@@ -21,7 +25,7 @@
 
   onMount(() => {
     let cancelled = false;
-    const runtimePromise = bootAiWorkspaceDemo();
+    const runtimePromise = bootAiWorkspaceDemo({ scenario });
     void runtimePromise
       .then((runtime) => {
         if (cancelled) return;
@@ -48,10 +52,7 @@
   data-testid="ai-workspace-demo"
   data-status={status}
 >
-  <output
-    class="ai-workspace-demo__status"
-    data-testid="ai-workspace-status"
-  >
+  <output class="ai-workspace-demo__status" data-testid="ai-workspace-status">
     {status}
   </output>
   {#if error}
@@ -62,7 +63,10 @@
 </div>
 
 <style>
-  :global(body.sb-main-fullscreen:has(#storybook-root .ai-workspace-demo) #storybook-root) {
+  :global(
+      body.sb-main-fullscreen:has(#storybook-root .ai-workspace-demo)
+        #storybook-root
+    ) {
     box-sizing: border-box;
     width: 100%;
     height: 100vh;

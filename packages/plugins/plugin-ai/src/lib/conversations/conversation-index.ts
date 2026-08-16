@@ -1,7 +1,4 @@
-import type {
-  AppDatabase,
-  SearchDocumentRecord,
-} from "@lapis-notes/api";
+import type { AppDatabase, SearchDocumentRecord } from "@lapis-notes/api";
 import type { ConversationRepository } from "./conversation-repository";
 import type { ConversationListEntry } from "./transcript-store";
 import type {
@@ -55,7 +52,11 @@ export class AiConversationIndex {
     });
     return results.flatMap((result): ConversationListEntry[] => {
       const decoded = decodeConversationIndexDocument(result.document);
-      return decoded ? [decoded] : [];
+      if (!decoded) return [];
+      const preview = result.snippets.find(
+        (snippet) => snippet.field === "content",
+      )?.text;
+      return [{ ...decoded, ...(preview ? { preview } : {}) }];
     });
   }
 
@@ -93,7 +94,10 @@ export function conversationIndexPath(location: ConversationLocation): string {
 export function conversationSearchDocument(
   snapshot: ConversationSnapshot,
 ): SearchDocumentRecord {
-  const content = [snapshot.metadata.title, ...projectSearchableTranscript(snapshot)]
+  const content = [
+    snapshot.metadata.title,
+    ...projectSearchableTranscript(snapshot),
+  ]
     .filter((value): value is string => Boolean(value?.trim()))
     .join("\n");
   const metadataText = JSON.stringify({

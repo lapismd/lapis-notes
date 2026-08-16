@@ -270,18 +270,225 @@ export const RightSidebarAndSettings: Story = {
     await userEvent.click(
       within(dialog).getByRole("button", { name: "Close settings" }),
     );
+    const raw =
+      await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
+    expect(JSON.parse(raw)).not.toHaveProperty("sessions");
+  },
+};
 
-    const cursorPanel = await canvas.findByTestId("ai-chat-panel");
-    const cursorInput = within(cursorPanel).getByRole("combobox", {
-      name: "Message",
+export const LocalConversations: Story = {
+  args: { scenario: "local-conversations" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    const panel = await canvas.findByTestId("ai-chat-panel");
+    assertStackedComposer(panel);
+    await userEvent.click(
+      within(panel).getByRole("button", {
+        name: "Show conversation history",
+      }),
+    );
+    const history = await canvas.findByTestId("ai-conversation-history");
+    await expect(within(history).getByText("Notes")).toBeVisible();
+    await expect(
+      within(history).getByText("Summarize project notes"),
+    ).toBeVisible();
+    expect(within(history).queryByText("Archived planning chat")).toBeNull();
+
+    await userEvent.click(
+      within(history).getByRole("button", {
+        name: "Show conversation options",
+      }),
+    );
+    await userEvent.click(
+      within(history).getByRole("switch", {
+        name: "Show archived conversations",
+      }),
+    );
+    await expect(
+      within(history).getByText("Archived planning chat"),
+    ).toBeVisible();
+    const activeItem = within(history)
+      .getByRole("button", { name: "Summarize project notes" })
+      .closest('[role="treeitem"]');
+    if (!activeItem)
+      throw new Error("Active conversation row was not rendered");
+    await userEvent.click(
+      within(activeItem).getByRole("button", {
+        name: "Conversation actions for Summarize project notes",
+      }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByRole("menuitem", { name: "Archive" }),
+    );
+    const archivedActiveItem = within(history)
+      .getByRole("button", { name: "Summarize project notes" })
+      .closest('[role="treeitem"]');
+    if (!archivedActiveItem) {
+      throw new Error("Archived active conversation row was not rendered");
+    }
+    const restoreActions = within(archivedActiveItem).getByRole("button", {
+      name: "Conversation actions for Summarize project notes",
     });
-    await userEvent.type(cursorInput, "Continue with Cursor");
-    await userEvent.keyboard("{Enter}");
-    await waitFor(async () => {
-      const raw =
-        await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
-      const sessions = JSON.parse(raw).sessions as Array<{ agent?: string }>;
-      expect(sessions.some((session) => session.agent === "cursor")).toBe(true);
+    await waitFor(() => {
+      expect(getComputedStyle(restoreActions).pointerEvents).not.toBe("none");
     });
+    await userEvent.click(restoreActions);
+    await userEvent.click(
+      await body.findByRole("menuitem", { name: "Restore" }),
+    );
+    const archivedItem = within(history)
+      .getByRole("button", { name: "Archived planning chat" })
+      .closest('[role="treeitem"]');
+    if (!archivedItem) {
+      throw new Error("Archived conversation row was not rendered");
+    }
+    const deleteActions = within(archivedItem).getByRole("button", {
+      name: "Conversation actions for Archived planning chat",
+    });
+    await waitFor(() => {
+      expect(getComputedStyle(deleteActions).pointerEvents).not.toBe("none");
+    });
+    await userEvent.click(deleteActions);
+    await userEvent.click(
+      await body.findByRole("menuitem", { name: "Delete" }),
+    );
+    await waitFor(() =>
+      expect(within(history).queryByText("Archived planning chat")).toBeNull(),
+    );
+
+    const newChat = within(history).getByRole("button", { name: "New chat" });
+    await waitFor(() => {
+      expect(getComputedStyle(newChat).pointerEvents).not.toBe("none");
+    });
+    await userEvent.click(newChat);
+    await userEvent.click(
+      await body.findByRole("menuitem", { name: "Vault root" }),
+    );
+    const emptyChat = await canvas.findByTestId("ai-chat-panel");
+    await expect(
+      within(emptyChat).getByRole("combobox", { name: "Message" }),
+    ).toBeVisible();
+
+    await userEvent.click(
+      within(emptyChat).getByRole("button", {
+        name: "Show conversation history",
+      }),
+    );
+    const rootHistory = await canvas.findByTestId("ai-conversation-history");
+    await expect(within(rootHistory).getByText("Notes")).toBeVisible();
+    await userEvent.click(
+      within(rootHistory).getByRole("button", {
+        name: "Summarize project notes",
+      }),
+    );
+    const restored = await canvas.findByTestId("ai-chat-panel");
+    await expect(
+      within(restored).getByText(
+        "The project has one welcome note and one TODO.",
+      ),
+    ).toBeVisible();
+    await expect(
+      within(restored).getByRole("progressbar", {
+        name: "Context window usage",
+      }),
+    ).toBeVisible();
+    await expect(
+      demoApp(canvasElement).vault.adapter.read(
+        "Notes/.lapis/agents/sessions/123e4567-e89b-42d3-a456-426614174000/transcript.jsonl",
+      ),
+    ).resolves.toContain("Summarize the project");
+  },
+};
+
+export const AgentSwitching: Story = {
+  args: { scenario: "agent-switching" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "One filesystem conversation reconstructs Codex ACP and Cursor ACP dividers, attributed messages, active usage, and copy actions without a running provider.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    const panel = await canvas.findByTestId("ai-chat-panel");
+    expect(panel.getBoundingClientRect().height).toBeGreaterThan(500);
+    await expect(
+      within(panel).getByText("Codex ACP · gpt-5.6-sol"),
+    ).toBeVisible();
+    await expect(
+      within(panel).getByText("Cursor ACP · composer-2.5"),
+    ).toBeVisible();
+    await expect(
+      within(panel).getByText(
+        "Cursor continued in the same local conversation.",
+      ),
+    ).toBeVisible();
+    expect(
+      within(panel).getAllByRole("button", { name: "Copy response" }),
+    ).toHaveLength(2);
+    await expect(
+      within(panel).getByRole("progressbar", {
+        name: "Context window usage",
+      }),
+    ).toHaveAttribute("value", "12920");
+  },
+};
+
+export const Recovery: Story = {
+  args: { scenario: "recovery" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "A malformed final append is tolerated, durable content paints before native resume, and the missing runtime session remains visible as composer validation plus a retryable failed response.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    const panel = await canvas.findByTestId("ai-chat-panel");
+    expect(panel.getBoundingClientRect().height).toBeGreaterThan(500);
+    await expect(
+      within(panel).getByText(
+        "The durable response remains available offline.",
+      ),
+    ).toBeVisible();
+    await expect(
+      within(panel).getByText(
+        "Agent host restarted before the turn completed.",
+      ),
+    ).toBeVisible();
+    await expect(
+      within(panel).getByRole("button", { name: "Retry message" }),
+    ).toBeEnabled();
+    await expect(
+      within(panel).getByText(/Could not resume the previous agent session/u),
+    ).toBeVisible();
   },
 };

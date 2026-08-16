@@ -70,7 +70,9 @@ export function placementParameters(
       ? `/visual-baselines/stories/workspace/panels/${placement.baseline}-chromium.png`
       : `/visual-baselines/stories/workspace/panels/${kind}/${placement.baseline}-chromium.png`;
   return {
-    ...workspaceCatalogParameters(`workspace-panels-${kind}${placement.suffix}`),
+    ...workspaceCatalogParameters(
+      `workspace-panels-${kind}${placement.suffix}`,
+    ),
     layout: "fullscreen",
     docs: {
       description: { story: description },
@@ -114,7 +116,9 @@ export async function expectPanelSource(
   await expect(source).toContain(
     kind === "search"
       ? 'from "@lapis-notes/search";'
-      : 'from "@lapis-notes/markdown";',
+      : kind === "ai-history"
+        ? 'from "@lapis-notes/ai";'
+        : 'from "@lapis-notes/markdown";',
   );
   await expect(source).not.toContain("PanelDemo");
   await expect(source).not.toContain("args.");
@@ -199,8 +203,7 @@ export async function expectPanelPlacement(
   if (!viewHost) throw new Error(`Missing WorkspaceViewHost for ${layout}`);
   const storyWindow = canvasElement.ownerDocument.defaultView;
   if (!storyWindow) throw new Error("Missing Storybook preview window");
-  const directSidebar =
-    layout === "left-sidebar" || layout === "right-sidebar";
+  const directSidebar = layout === "left-sidebar" || layout === "right-sidebar";
   const paintHost = directSidebar
     ? surfaceHost
     : (canvasElement.querySelector(
@@ -331,9 +334,7 @@ export async function expectLinkPanelAlignment(
   return alignment;
 }
 
-export async function expectMarkdownDocumentScroll(
-  canvasElement: HTMLElement,
-) {
+export async function expectMarkdownDocumentScroll(canvasElement: HTMLElement) {
   const viewHost = canvasElement.querySelector<HTMLElement>(
     '[data-ui-component="workspace-view-host"][data-workspace-view-type="markdown"]',
   );

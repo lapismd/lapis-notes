@@ -185,6 +185,13 @@ const markdownPanelPlacements = [
 
 const markdownPanelFamilies = [
   {
+    kind: "ai-history",
+    title: "AI History",
+    spec: "spec/src/ai-plugin.md",
+    publicSurface: "@lapis-notes/ai",
+    storyPrefix: "workspace-panels-ai-history",
+  },
+  {
     kind: "file-properties",
     title: "File Properties",
     spec: "spec/src/markdown-plugin/panels/file-properties.md",

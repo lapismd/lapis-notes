@@ -1,40 +1,68 @@
 <script lang="ts">
-  import type { App } from "@lapis-notes/api";
+  import { useTextHighlight, type App } from "@lapis-notes/api";
+  import { SearchFilterBar } from "@lapismd/design-core/filter";
+  import { Badge } from "@lapismd/design-core/shadcn/badge";
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import * as Collapsible from "@lapismd/design-core/shadcn/collapsible";
+  import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
+  import * as Sidebar from "@lapismd/design-core/shadcn/sidebar";
+  import { Switch } from "@lapismd/design-core/shadcn/switch";
   import ArchiveIcon from "@lucide/svelte/icons/archive";
   import ArchiveRestoreIcon from "@lucide/svelte/icons/archive-restore";
+  import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
+  import ChevronsUpDownIcon from "@lucide/svelte/icons/chevrons-up-down";
+  import FolderClosedIcon from "@lucide/svelte/icons/folder-closed";
+  import FolderOpenIcon from "@lucide/svelte/icons/folder-open";
+  import MessageSquareIcon from "@lucide/svelte/icons/message-square";
+  import MoreHorizontalIcon from "@lucide/svelte/icons/ellipsis";
   import PlusIcon from "@lucide/svelte/icons/plus";
   import TrashIcon from "@lucide/svelte/icons/trash-2";
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
+  import { formatChatTimestamp } from "../chat/chat-time";
   import type { ConversationRepository } from "../conversations/conversation-repository";
   import type { ConversationListEntry } from "../conversations/transcript-store";
   import type { ConversationLocation } from "../conversations/types";
-  import { formatChatTimestamp } from "../chat/chat-time";
+  import {
+    buildConversationHistoryTree,
+    conversationHistoryFolderPaths,
+    type ConversationHistoryFolder,
+  } from "./conversation-history-tree";
 
   let {
     app,
     repository,
     getScope,
+    getActiveConversation,
     onOpenConversation,
     onNewConversation,
+    listConversationFolders,
     searchAllConversations,
   }: {
     app: App;
     repository: ConversationRepository;
     getScope: () => string;
-    onOpenConversation: (location: ConversationLocation) => void | Promise<void>;
+    getActiveConversation: () => ConversationLocation | null;
+    onOpenConversation: (
+      location: ConversationLocation,
+    ) => void | Promise<void>;
     onNewConversation: (scopeDir: string) => void | Promise<void>;
+    listConversationFolders: () => string[];
     searchAllConversations: (query: string) => Promise<ConversationListEntry[]>;
   } = $props();
 
+  let root = $state<HTMLDivElement>();
   let scopeDir = $state("");
+  let selectedScope = $state("");
+  let activeConversation = $state<ConversationLocation | null>(null);
   let entries = $state<ConversationListEntry[]>([]);
   let showArchived = $state(false);
+  let filtersExpanded = $state(false);
   let loading = $state(false);
   let error = $state<string | null>(null);
-  let mode = $state<"folder" | "all">("folder");
   let query = $state("");
+  let openScopes = $state<Set<string>>(new Set());
+  let selectionInitialized = false;
   let refreshVersion = 0;
 
   const visibleEntries = $derived(
@@ -42,18 +70,177 @@
       (entry) => showArchived || entry.metadata?.status !== "archived",
     ),
   );
+  const folders = $derived(buildConversationHistoryTree(visibleEntries));
+  const folderPaths = $derived(conversationHistoryFolderPaths(folders));
+  const allFoldersOpen = $derived(
+    folderPaths.length > 0 && folderPaths.every((path) => openScopes.has(path)),
+  );
 
-  async function refresh(): Promise<void> {
+  function entryKey(entry: ConversationListEntry): string {
+    return `${entry.location.scopeDir}\u0000${entry.location.conversationId}`;
+  }
+
+  function sameLocation(
+    left: ConversationLocation | null,
+    right: ConversationLocation,
+  ): boolean {
+    return (
+      left?.scopeDir === right.scopeDir &&
+      left.conversationId === right.conversationId
+    );
+  }
+
+  function revealScope(path: string): void {
+    const next = new Set(openScopes);
+    let changed = false;
+    const add = (scope: string) => {
+      if (next.has(scope)) return;
+      next.add(scope);
+      changed = true;
+    };
+    if (!path) add("");
+    const segments = path.split("/").filter(Boolean);
+    for (let index = 0; index < segments.length; index += 1) {
+      add(segments.slice(0, index + 1).join("/"));
+    }
+    if (changed) openScopes = next;
+  }
+
+  function setFolderOpen(path: string, open: boolean): void {
+    const next = new Set(openScopes);
+    if (open) next.add(path);
+    else next.delete(path);
+    openScopes = next;
+  }
+
+  function selectFolder(path: string): void {
+    selectedScope = path;
+  }
+
+  function toggleAllFolders(): void {
+    openScopes = allFoldersOpen ? new Set() : new Set(folderPaths);
+  }
+
+  function matchesFolderLabel(
+    entry: ConversationListEntry,
+    normalizedQuery: string,
+  ): boolean {
+    const scope = entry.location.scopeDir.toLocaleLowerCase();
+    const title = entry.metadata?.title?.toLocaleLowerCase() ?? "";
+    return scope.includes(normalizedQuery) || title.includes(normalizedQuery);
+  }
+
+  async function matchLocalConversation(
+    entry: ConversationListEntry,
+    normalizedQuery: string,
+  ): Promise<ConversationListEntry | null> {
+    if (matchesFolderLabel(entry, normalizedQuery)) return entry;
+    if (entry.unavailableReason) return null;
+    try {
+      const snapshot = await repository.read(entry.location);
+      const searchable = snapshot.transcript.flatMap((item): string[] => {
+        if (item.type === "message" || item.type === "thinking.summary") {
+          return [item.text];
+        }
+        if (item.type === "tool") {
+          return [item.name, ...(item.input ? [item.input] : [])];
+        }
+        return [];
+      });
+      const preview = searchable.find((value) =>
+        value.toLocaleLowerCase().includes(normalizedQuery),
+      );
+      return preview ? { ...entry, preview } : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function mergeLocalEntries(
+    indexedEntries: ConversationListEntry[],
+    localEntries: ConversationListEntry[],
+  ): ConversationListEntry[] {
+    const merged = new Map(
+      indexedEntries.map((entry) => [entryKey(entry), entry]),
+    );
+    for (const entry of localEntries) {
+      const indexed = merged.get(entryKey(entry));
+      merged.set(entryKey(entry), {
+        ...indexed,
+        ...entry,
+        ...(indexed?.preview ? { preview: indexed.preview } : {}),
+      });
+    }
+    return [...merged.values()];
+  }
+
+  async function loadEntries(
+    activeScope: string,
+  ): Promise<ConversationListEntry[]> {
+    const localEntries = await repository.list(activeScope);
+    const trimmed = query.trim();
+    if (!trimmed) {
+      try {
+        return mergeLocalEntries(
+          await searchAllConversations(""),
+          localEntries,
+        );
+      } catch {
+        return localEntries;
+      }
+    }
+
+    const normalizedQuery = trimmed.toLocaleLowerCase();
+    const localMatches = (
+      await Promise.all(
+        localEntries.map((entry) =>
+          matchLocalConversation(entry, normalizedQuery),
+        ),
+      )
+    ).filter((entry): entry is ConversationListEntry => Boolean(entry));
+    let matches: ConversationListEntry[];
+    let allEntries: ConversationListEntry[];
+    try {
+      [matches, allEntries] = await Promise.all([
+        searchAllConversations(trimmed),
+        searchAllConversations(""),
+      ]);
+    } catch {
+      return localMatches;
+    }
+    const merged = new Map(matches.map((entry) => [entryKey(entry), entry]));
+    for (const entry of allEntries) {
+      if (
+        matchesFolderLabel(entry, normalizedQuery) &&
+        !merged.has(entryKey(entry))
+      ) {
+        merged.set(entryKey(entry), entry);
+      }
+    }
+    return mergeLocalEntries([...merged.values()], localMatches);
+  }
+
+  async function refresh(followActiveScope = false): Promise<void> {
     const version = ++refreshVersion;
     const nextScope = getScope();
-    scopeDir = nextScope;
-    loading = true;
-    error = null;
+    if (scopeDir !== nextScope) scopeDir = nextScope;
+    const nextActiveConversation = getActiveConversation();
+    if (
+      activeConversation?.scopeDir !== nextActiveConversation?.scopeDir ||
+      activeConversation?.conversationId !==
+        nextActiveConversation?.conversationId
+    ) {
+      activeConversation = nextActiveConversation;
+    }
+    if (followActiveScope || !selectionInitialized) {
+      if (selectedScope !== nextScope) selectedScope = nextScope;
+      selectionInitialized = true;
+      revealScope(nextScope);
+    }
+    if (!loading) loading = true;
+    if (error !== null) error = null;
     try {
-      const next =
-        mode === "all"
-          ? await searchAllConversations(query)
-          : await repository.list(nextScope);
+      const next = await loadEntries(nextScope);
       if (version === refreshVersion) entries = next;
     } catch (cause) {
       if (version === refreshVersion) {
@@ -77,18 +264,37 @@
     await refresh();
   }
 
-  onMount(() => {
-    const refreshFromWorkspace = () => void refresh();
-    const activeLeaf = app.workspace.on("active-leaf-change", refreshFromWorkspace);
-    const layout = app.workspace.on("layout-change", refreshFromWorkspace);
-    const created = app.vault.on("create", refreshFromWorkspace);
-    const deleted = app.vault.on("delete", refreshFromWorkspace);
-    const modified = app.vault.on("modify", refreshFromWorkspace);
-    const renamed = app.vault.on("rename", refreshFromWorkspace);
+  function updateQuery(value: string): void {
+    query = value;
     void refresh();
+  }
+
+  $effect(() => {
+    scopeDir;
+    entries;
+    void tick().then(() => {
+      root
+        ?.querySelector<HTMLElement>('[data-active-folder="true"]')
+        ?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+  });
+
+  onMount(() => {
+    const refreshFromWorkspace = () => {
+      queueMicrotask(() => void refresh(true));
+    };
+    const refreshFromVault = () => void refresh();
+    const activeLeaf = app.workspace.on(
+      "active-leaf-change",
+      refreshFromWorkspace,
+    );
+    const created = app.vault.on("create", refreshFromVault);
+    const deleted = app.vault.on("delete", refreshFromVault);
+    const modified = app.vault.on("modify", refreshFromVault);
+    const renamed = app.vault.on("rename", refreshFromVault);
+    void refresh(true);
     return () => {
       app.workspace.offref(activeLeaf);
-      app.workspace.offref(layout);
       app.vault.offref(created);
       app.vault.offref(deleted);
       app.vault.offref(modified);
@@ -98,95 +304,250 @@
 </script>
 
 <div
+  bind:this={root}
   class="ai-history"
   data-ui-component="ai-conversation-history"
   data-testid="ai-conversation-history"
+  data-current-scope={scopeDir || "vault-root"}
 >
-  <header class="ai-history__header">
-    <div class="ai-history__scope">
-      <strong>{scopeDir || "Vault root"}</strong>
-      <span>Conversations in this folder</span>
-    </div>
-    <Button
-      size="icon-sm"
-      variant="ghost"
-      aria-label="New chat in this folder"
-      onclick={() => void onNewConversation(scopeDir)}
+  <div class="ai-history__chrome" data-ui-part="chrome">
+    <SearchFilterBar
+      value={query}
+      inputMode="plain"
+      ariaLabel="Search conversations"
+      placeholder="Search conversations…"
+      showFilterToggle
+      bind:filtersExpanded
+      expandFiltersLabel="Show conversation options"
+      collapseFiltersLabel="Hide conversation options"
+      onValueChange={updateQuery}
+      onClearSearch={() => updateQuery("")}
     >
-      <PlusIcon aria-hidden="true" />
-    </Button>
-  </header>
-  <div class="ai-history__filters">
-    <Button
-      size="sm"
-      variant={mode === "folder" ? "secondary" : "ghost"}
-      aria-pressed={mode === "folder"}
-      onclick={() => {
-        mode = "folder";
-        void refresh();
-      }}
-    >This folder</Button>
-    <Button
-      size="sm"
-      variant={mode === "all" ? "secondary" : "ghost"}
-      aria-pressed={mode === "all"}
-      onclick={() => {
-        mode = "all";
-        void refresh();
-      }}
-    >All conversations</Button>
-    <Button
-      size="sm"
-      variant="ghost"
-      aria-pressed={showArchived}
-      onclick={() => (showArchived = !showArchived)}
-    >
-      {showArchived ? "Hide archived" : "Show archived"}
-    </Button>
-  </div>
-  {#if mode === "all"}
-    <div class="ai-history__search">
-      <input
-        type="search"
-        aria-label="Search all conversations"
-        placeholder="Search conversations"
-        bind:value={query}
-        oninput={() => void refresh()}
-      />
-    </div>
-  {/if}
-  <ScrollArea class="ai-history__scroll">
-    {#if error}
-      <p class="ai-history__state" role="alert">{error}</p>
-    {:else if loading && entries.length === 0}
-      <p class="ai-history__state">Loading conversations…</p>
-    {:else if visibleEntries.length === 0}
-      <p class="ai-history__state">No conversations in this folder.</p>
-    {:else}
-      <ul class="ai-history__list">
-        {#each visibleEntries as entry (`${entry.location.scopeDir}:${entry.location.conversationId}`)}
-          <li class="ai-history__item">
-            <button
-              class="ai-history__open"
-              type="button"
-              disabled={Boolean(entry.unavailableReason)}
-              onclick={() => void onOpenConversation(entry.location)}
-            >
-              <span>{entry.metadata?.title ?? "Untitled conversation"}</span>
-              <small>
-                {entry.unavailableReason ??
-                  (entry.metadata
-                    ? formatChatTimestamp(entry.metadata.updatedAt)
-                    : "Unavailable")}
-              </small>
-            </button>
-            {#if entry.metadata}
+      {#snippet filters()}
+        <label class="ai-history__archive-filter">
+          <Switch
+            size="sm"
+            aria-label="Show archived conversations"
+            bind:checked={showArchived}
+          />
+          <span>Show archived</span>
+        </label>
+      {/snippet}
+      {#snippet actions()}
+        <Button
+          size="icon-sm"
+          variant="ghost"
+          aria-label={allFoldersOpen
+            ? "Collapse all conversation folders"
+            : "Expand all conversation folders"}
+          disabled={folderPaths.length === 0}
+          onclick={toggleAllFolders}
+        >
+          <ChevronsUpDownIcon data-icon="inline-start" aria-hidden="true" />
+        </Button>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            {#snippet child({ props }: { props: Record<string, unknown> })}
               <Button
+                {...props}
+                size="icon-sm"
+                variant="ghost"
+                aria-label="New chat"
+              >
+                <PlusIcon data-icon="inline-start" aria-hidden="true" />
+              </Button>
+            {/snippet}
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            <DropdownMenu.Group>
+              <DropdownMenu.Item
+                onclick={() => void onNewConversation(selectedScope)}
+              >
+                New chat in {selectedScope || "Vault root"}
+              </DropdownMenu.Item>
+            </DropdownMenu.Group>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Label>New chat in folder…</DropdownMenu.Label>
+            <DropdownMenu.Group>
+              {#each listConversationFolders() as folder (folder || "vault-root")}
+                <DropdownMenu.Item
+                  onclick={() => void onNewConversation(folder)}
+                >
+                  {folder || "Vault root"}
+                </DropdownMenu.Item>
+              {/each}
+            </DropdownMenu.Group>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      {/snippet}
+    </SearchFilterBar>
+  </div>
+
+  <ScrollArea class="ai-history__scroll">
+    <div class="ai-history__body">
+      {#if error}
+        <p class="ai-history__state" role="alert">{error}</p>
+      {:else if loading && entries.length === 0}
+        <p class="ai-history__state">Loading conversations…</p>
+      {:else if folders.length === 0}
+        <p class="ai-history__state">
+          {query.trim()
+            ? "No conversations match your search."
+            : showArchived
+              ? "No conversations yet."
+              : "No active conversations yet."}
+        </p>
+      {:else}
+        <Sidebar.Menu
+          class="ai-history__tree"
+          role="tree"
+          aria-label="Conversation history"
+        >
+          {#each folders as folder (folder.path || "vault-root")}
+            {@render FolderNode({ folder })}
+          {/each}
+        </Sidebar.Menu>
+      {/if}
+    </div>
+  </ScrollArea>
+</div>
+
+{#snippet FolderNode({
+  folder,
+  level = 1,
+  nested = false,
+}: {
+  folder: ConversationHistoryFolder;
+  level?: number;
+  nested?: boolean;
+})}
+  {@const Item = nested ? Sidebar.MenuSubItem : Sidebar.MenuItem}
+  {@const open = query.trim() ? true : openScopes.has(folder.path)}
+  <Item role="none" class="ai-history__folder-item">
+    <Collapsible.Root
+      {open}
+      onOpenChange={(value) => setFolderOpen(folder.path, value)}
+    >
+      <Collapsible.Trigger
+        class="ai-history__folder-row"
+        role="treeitem"
+        aria-level={level}
+        aria-selected={folder.path === selectedScope}
+        aria-expanded={open}
+        aria-label={`${folder.path || "Vault root"}, ${folder.conversationCount} conversation${folder.conversationCount === 1 ? "" : "s"}`}
+        data-active-folder={folder.path === selectedScope}
+        onclick={() => selectFolder(folder.path)}
+      >
+        <ChevronRightIcon
+          class="ai-history__disclosure"
+          data-open={open}
+          aria-hidden="true"
+        />
+        {#if open}
+          <FolderOpenIcon class="ai-history__folder-icon" aria-hidden="true" />
+        {:else}
+          <FolderClosedIcon
+            class="ai-history__folder-icon"
+            aria-hidden="true"
+          />
+        {/if}
+        <span
+          class="ai-history__folder-label"
+          use:useTextHighlight={{ query, value: folder.name }}
+          >{folder.name}</span
+        >
+        <Sidebar.MenuBadge class="ai-history__count">
+          {folder.conversationCount}
+        </Sidebar.MenuBadge>
+      </Collapsible.Trigger>
+      <Collapsible.Content>
+        <Sidebar.MenuSub role="group" class="ai-history__subtree">
+          {#each folder.children as child (child.path)}
+            {@render FolderNode({
+              folder: child,
+              level: level + 1,
+              nested: true,
+            })}
+          {/each}
+          {#each folder.conversations as entry (entryKey(entry))}
+            {@render ConversationRow({ entry, level: level + 1 })}
+          {/each}
+        </Sidebar.MenuSub>
+      </Collapsible.Content>
+    </Collapsible.Root>
+  </Item>
+{/snippet}
+
+{#snippet ConversationRow({
+  entry,
+  level,
+}: {
+  entry: ConversationListEntry;
+  level: number;
+})}
+  {@const title = entry.metadata?.title ?? "Untitled conversation"}
+  {@const current = sameLocation(activeConversation, entry.location)}
+  <Sidebar.MenuSubItem role="none" class="ai-history__conversation-item">
+    <div
+      class="ai-history__conversation-row"
+      role="treeitem"
+      aria-level={level}
+      aria-selected={current}
+      data-active={current}
+    >
+      <button
+        class="ai-history__open"
+        type="button"
+        disabled={Boolean(entry.unavailableReason)}
+        aria-label={title}
+        onclick={() => void onOpenConversation(entry.location)}
+      >
+        <MessageSquareIcon class="ai-history__chat-icon" aria-hidden="true" />
+        <span class="ai-history__conversation-copy">
+          <span
+            class="ai-history__conversation-title"
+            use:useTextHighlight={{ query, value: title }}>{title}</span
+          >
+          {#if entry.preview}
+            <span
+              class="ai-history__preview"
+              use:useTextHighlight={{ query, value: entry.preview }}
+              >{entry.preview}</span
+            >
+          {:else}
+            <span class="ai-history__timestamp">
+              {entry.unavailableReason ??
+                (entry.metadata
+                  ? formatChatTimestamp(entry.metadata.updatedAt)
+                  : "Unavailable")}
+            </span>
+          {/if}
+        </span>
+        {#if entry.metadata?.status === "archived"}
+          <Badge variant="outline" class="ai-history__archived">Archived</Badge>
+        {/if}
+      </button>
+      {#if entry.metadata}
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            {#snippet child({ props }: { props: Record<string, unknown> })}
+              <Button
+                {...props}
                 size="icon-xs"
                 variant="ghost"
-                aria-label={entry.metadata.status === "archived"
-                  ? "Restore conversation"
-                  : "Archive conversation"}
+                class="ai-history__conversation-actions"
+                aria-label={`Conversation actions for ${title}`}
+              >
+                <MoreHorizontalIcon
+                  data-icon="inline-start"
+                  aria-hidden="true"
+                />
+              </Button>
+            {/snippet}
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            <DropdownMenu.Group>
+              <DropdownMenu.Item
                 onclick={() =>
                   void setArchived(
                     entry,
@@ -194,147 +555,294 @@
                   )}
               >
                 {#if entry.metadata.status === "archived"}
-                  <ArchiveRestoreIcon aria-hidden="true" />
+                  <ArchiveRestoreIcon
+                    data-icon="inline-start"
+                    aria-hidden="true"
+                  />
+                  Restore
                 {:else}
-                  <ArchiveIcon aria-hidden="true" />
+                  <ArchiveIcon data-icon="inline-start" aria-hidden="true" />
+                  Archive
                 {/if}
-              </Button>
-              <Button
-                size="icon-xs"
-                variant="ghost"
-                aria-label="Delete conversation"
-                onclick={() => void remove(entry)}
-              >
-                <TrashIcon aria-hidden="true" />
-              </Button>
-            {/if}
-          </li>
-        {/each}
-      </ul>
-    {/if}
-  </ScrollArea>
-</div>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onclick={() => void remove(entry)}>
+                <TrashIcon data-icon="inline-start" aria-hidden="true" />
+                Delete
+              </DropdownMenu.Item>
+            </DropdownMenu.Group>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      {/if}
+    </div>
+  </Sidebar.MenuSubItem>
+{/snippet}
 
 <style>
   .ai-history {
+    --ai-history-surface: var(
+      --ui-workspace-view-background,
+      var(--ui-workspace-background, var(--background))
+    );
+    --ai-history-foreground: var(
+      --ui-workspace-view-foreground,
+      var(--ui-workspace-foreground, var(--foreground))
+    );
+
     display: flex;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
     min-height: 0;
     flex-direction: column;
-    color: var(--ui-workspace-view-foreground, var(--foreground));
-    background: var(--ui-workspace-view-background, var(--background));
+    overflow: hidden;
+    color: var(--ai-history-foreground);
+    background: var(--ai-history-surface);
+    font-family: var(--ui-workspace-explorer-font-family, inherit);
+    font-size: var(--ui-workspace-explorer-font-size, 0.8125rem);
   }
 
-  .ai-history__header,
-  .ai-history__filters,
-  .ai-history__search {
-    display: flex;
+  .ai-history__chrome {
+    position: relative;
+    z-index: 10;
+    flex: 0 0 auto;
+    background: var(--ai-history-surface);
+    --cv-search-filter-background: var(--ai-history-surface);
+    --cv-search-filter-max-width: none;
+    --cv-search-filter-justify: stretch;
+    --cv-search-filter-content-justify: flex-start;
+  }
+
+  .ai-history__chrome :global(.cv-search-filter-bar) {
+    padding: 0.5rem;
+  }
+
+  .ai-history__chrome :global(.cv-search-filter-bar__search-pill) {
+    width: auto;
+    min-width: min(12rem, 100%);
+    flex: 1 1 12rem;
+  }
+
+  .ai-history__chrome :global(.cv-search-filter-bar__filters) {
+    flex-basis: 100%;
+  }
+
+  .ai-history__archive-filter {
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .ai-history__header {
-    justify-content: space-between;
-  }
-
-  .ai-history__filters {
-    flex-wrap: wrap;
-  }
-
-  .ai-history__search input {
-    box-sizing: border-box;
-    width: 100%;
-    min-width: 0;
-    padding: 0.375rem 0.5rem;
-    border: 1px solid var(--input, var(--border));
-    border-radius: var(--radius-sm);
-    color: inherit;
-    background: var(--background);
-  }
-
-  .ai-history__scope {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-  }
-
-  .ai-history__scope strong,
-  .ai-history__scope span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .ai-history__scope span,
-  .ai-history__open small {
-    color: var(--muted-foreground);
+    color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
     font-size: 0.75rem;
+    cursor: pointer;
   }
 
   :global(.ai-history__scroll) {
     min-height: 0;
+    height: 100%;
+    flex: 1 1 auto;
+    --ui-scroll-area-foreground: var(
+      --ui-workspace-border-strong,
+      var(--sidebar-border)
+    );
+  }
+
+  .ai-history__body {
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: var(--ui-workspace-explorer-content-padding, 0.5rem);
+    padding-block-end: 2.5rem;
+  }
+
+  :global(.ai-history__tree),
+  :global(.ai-history__folder-item),
+  :global(.ai-history__folder-item [data-ui-part="collapsible"]),
+  :global(.ai-history__conversation-item) {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+
+  :global(.ai-history__tree) {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    flex-direction: column;
+    gap: var(--ui-workspace-explorer-row-gap, 0.125rem);
+  }
+
+  :global(.ai-history__subtree) {
+    box-sizing: border-box;
+    width: auto;
+    max-width: 100%;
+    margin-inline: var(--ui-workspace-explorer-indent, 0.75rem);
+    padding-inline-start: var(--ui-workspace-explorer-guide-gap, 0.25rem);
+    border-inline-start: var(--ui-workspace-explorer-guide-width, 1px) solid
+      var(--ui-workspace-explorer-guide-color, var(--border));
+  }
+
+  :global(.ai-history__folder-row),
+  .ai-history__conversation-row {
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: var(--ui-workspace-explorer-row-height, 1.75rem);
+    align-items: center;
+    gap: 0.25rem;
+    border: 2px solid transparent;
+    border-radius: var(--ui-workspace-radius-small, 0.25rem);
+    padding: 0.125rem 0.375rem;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    font-size: inherit;
+    line-height: 1.25;
+    text-align: start;
+  }
+
+  :global(.ai-history__folder-row) {
+    cursor: pointer;
+  }
+
+  :global(.ai-history__folder-row:hover),
+  :global(.ai-history__folder-row:focus-visible),
+  .ai-history__conversation-row:hover,
+  .ai-history__conversation-row:focus-within {
+    background: var(
+      --ui-workspace-explorer-row-hover-background,
+      var(--sidebar-accent)
+    );
+    outline: none;
+  }
+
+  :global(.ai-history__folder-row[data-active-folder="true"]),
+  .ai-history__conversation-row[data-active="true"] {
+    background: var(
+      --ui-workspace-explorer-row-active-background,
+      var(--accent)
+    );
+    font-weight: var(--ui-workspace-explorer-row-active-weight, 600);
+  }
+
+  :global(.ai-history__disclosure),
+  :global(.ai-history__folder-icon),
+  :global(.ai-history__chat-icon) {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+  }
+
+  :global(.ai-history__disclosure) {
+    width: 0.875rem;
+    height: 0.875rem;
+    transition: transform 120ms ease;
+  }
+
+  :global(.ai-history__disclosure[data-open="true"]) {
+    transform: rotate(90deg);
+  }
+
+  :global(.ai-history__folder-icon),
+  :global(.ai-history__chat-icon) {
+    color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
+  }
+
+  .ai-history__folder-label,
+  .ai-history__conversation-title,
+  .ai-history__preview,
+  .ai-history__timestamp {
+    overflow: hidden;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ai-history__folder-label {
     flex: 1 1 auto;
   }
 
-  .ai-history__list {
-    display: flex;
-    margin: 0;
-    padding: 0.375rem;
-    list-style: none;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-
-  .ai-history__item {
-    display: flex;
-    align-items: center;
-    gap: 0.125rem;
-    border-radius: var(--radius-sm);
-  }
-
-  .ai-history__item:hover {
-    background: var(--accent);
+  :global(.ai-history__count) {
+    position: static;
+    flex: 0 0 auto;
+    min-width: 1.5rem;
+    color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
+    font-variant-numeric: tabular-nums;
+    text-align: end;
   }
 
   .ai-history__open {
     display: flex;
     min-width: 0;
     flex: 1 1 auto;
-    padding: 0.5rem;
+    align-items: center;
+    gap: 0.375rem;
     border: 0;
+    padding: 0;
     color: inherit;
     background: transparent;
+    font: inherit;
     text-align: start;
     cursor: pointer;
-    flex-direction: column;
-  }
-
-  .ai-history__open span,
-  .ai-history__open small {
-    overflow: hidden;
-    max-width: 100%;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .ai-history__open:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: -2px;
+    outline: none;
   }
 
-  .ai-history__open:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
+  .ai-history__conversation-copy {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  .ai-history__conversation-title {
+    font-size: 0.75rem;
+  }
+
+  .ai-history__preview,
+  .ai-history__timestamp {
+    color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
+    font-size: 0.6875rem;
+    font-weight: 400;
+  }
+
+  :global(.ai-history__archived) {
+    flex: 0 0 auto;
+    font-size: 0.625rem;
+  }
+
+  :global(.ai-history__conversation-actions) {
+    flex: 0 0 auto;
+    opacity: 0;
+  }
+
+  .ai-history__conversation-row:hover
+    :global(.ai-history__conversation-actions),
+  .ai-history__conversation-row:focus-within
+    :global(.ai-history__conversation-actions) {
+    opacity: 1;
   }
 
   .ai-history__state {
     margin: 0;
-    padding: 1rem;
-    color: var(--muted-foreground);
-    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
+    font-size: 0.8125rem;
+  }
+
+  :global(.ai-history .suggestion-highlight) {
+    border-radius: 0.125rem;
+    color: var(--ui-search-highlight-foreground, inherit);
+    background: var(
+      --ui-search-highlight-background,
+      color-mix(in srgb, var(--primary) 22%, transparent)
+    );
+  }
+
+  @media (pointer: coarse) {
+    :global(.ai-history__conversation-actions) {
+      opacity: 1;
+    }
   }
 </style>
