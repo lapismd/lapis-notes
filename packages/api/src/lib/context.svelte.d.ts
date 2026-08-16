@@ -26,6 +26,7 @@ import { DefaultPluginDistributionManager, type DefaultPluginDistributionManager
 import type { PluginDependencyResolverFactory } from "./plugin-dependency-resolver";
 import type { PluginAssetServer } from "./plugin-asset-server";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import { AppToolRegistry } from "./agent-tools";
 export interface AppWorkspaceShellApplicationProperties {
     /** Application name shown by the shell's About surface. */
     name?: string;
@@ -173,6 +174,7 @@ export declare class App {
     metadataCache: MetadataCache;
     embedRegistry: EmbedRegistry;
     readonly searchDocumentProviders: SearchDocumentProviderRegistry;
+    readonly agentTools: AppToolRegistry;
     lastEvent: UserEvent | null;
     renderContext: RenderContext;
     secretStorage: SecretStorage;

@@ -103,6 +103,10 @@ registry. This coordination is internal and does not add a package export.
 The worker client uses a narrow API subpath so provider workers never load the
 application manager or presentation modules.
 
+The API agent-tool surface exports only schemas, results, trusted execution
+context, owner metadata, and lifecycle registration. It does not import or
+re-export MCP, ACP, acpx, or vendor runtime types.
+
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not
 reposition counts, metadata badges, or child result surfaces with

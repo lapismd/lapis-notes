@@ -64,6 +64,7 @@ import { ConfigurationOptionSourceRegistry } from "./configuration-option-source
 import { resolveMetadataFieldValues } from "./configuration-option-source-providers";
 import type { Editor } from "./editor.svelte";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import { AppToolRegistry } from "./agent-tools";
 import {
   installApplicationCompatibility,
   resolveApplication,
@@ -273,6 +274,7 @@ export class App {
   embedRegistry: EmbedRegistry = new EmbedRegistry();
   readonly configurationOptionSources = new ConfigurationOptionSourceRegistry();
   readonly searchDocumentProviders = new SearchDocumentProviderRegistry();
+  readonly agentTools = new AppToolRegistry();
   lastEvent: UserEvent | null = $state(null);
   renderContext: RenderContext = new RenderContext();
   secretStorage: SecretStorage = new SecretStorage();

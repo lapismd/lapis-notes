@@ -45,6 +45,7 @@ import type {
   DiagnosticCollection,
   DiagnosticCollectionOptions,
 } from "./diagnostics";
+import type { AppTool, AppToolRegistration } from "./agent-tools";
 
 /**
  * A concise, plugin-owned palette command that opens a registered view.
@@ -1035,6 +1036,20 @@ export abstract class Plugin extends Component {
       ...provider,
       id,
     });
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Register an application tool under this plugin's lifecycle and identity. */
+  registerAgentTool<TInput>(tool: AppTool<TInput>): AppToolRegistration {
+    const registration = this.app.agentTools.register(
+      {
+        pluginId: this.id,
+        source: this.source,
+        provenance: this.provenance,
+      },
+      tool,
+    );
     this.register(() => registration.dispose());
     return registration;
   }

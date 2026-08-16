@@ -37,6 +37,9 @@ Markdownlint provider are implemented.
 | LN-WS-047 | Problems severity toggles MUST be compact checkbox items in an untitled filter menu triggered by an inline `list-filter` action inside the search field. The menu MUST retain semantic severity icon colours and show `Errors`, `Warnings`, `Infos`, and `Hints` with unclipped totals in one aligned count column. |
 | LN-WS-048 | The Problems panel toolbar MUST omit duplicate Problems title text because the owning leaf supplies the label. It MUST align the search, filter, presentation, and collapse controls at the toolbar's right edge. |
 
+`Plugin.registerAgentTool` is independent from diagnostic collections and does
+not add callbacks or agent-specific fields to serializable diagnostics.
+
 ## Ownership
 
 - Design Core owns diagnostics data structures, owner isolation, generic

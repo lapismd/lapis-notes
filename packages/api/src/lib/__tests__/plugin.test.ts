@@ -6,6 +6,7 @@ import { ContextKeyService } from "../context-keys.svelte";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
 import { SearchDocumentProviderRegistry } from "../search-document-provider";
+import { AppToolRegistry } from "../agent-tools";
 import { MemoryAppDatabase, Vault } from "../storage";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
@@ -62,6 +63,7 @@ function createPluginApp() {
     commands,
     configurationOptionSources: new ConfigurationOptionSourceRegistry(),
     searchDocumentProviders: new SearchDocumentProviderRegistry(),
+    agentTools: new AppToolRegistry(),
   } as unknown as App;
 
   const configuration = new Configuration(app, "/.obsidian/app.json");
@@ -91,6 +93,42 @@ beforeEach(() => {
 });
 
 describe("Plugin data persistence", () => {
+  it("registers and disposes an agent tool with immutable owner identity", () => {
+    const { app } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "fixture",
+      name: "Fixture",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.configureRuntime({ source: "core", provenance: "bundled" });
+    plugin.load();
+
+    const registration = plugin.registerAgentTool({
+      name: "fixture_read",
+      description: "Read fixture data.",
+      inputSchema: { type: "object", properties: {} },
+      effect: "read",
+      async execute() {
+        return { content: [{ type: "text", text: "fixture" }] };
+      },
+    });
+
+    expect(app.agentTools.get("fixture_read")).toMatchObject({
+      registrationId: registration.id,
+      owner: {
+        pluginId: "fixture",
+        source: "core",
+        provenance: "bundled",
+      },
+    });
+
+    plugin.unload();
+    expect(app.agentTools.get("fixture_read")).toBeUndefined();
+  });
+
   it("registers and disposes a ViewAccess command with the plugin prefix", () => {
     const { app } = createPluginApp();
     const plugin = new TestPlugin(app, {

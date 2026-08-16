@@ -58,6 +58,7 @@ export * from "./telemetry";
 export * from "./notifications";
 export * from "./status-bar.svelte";
 export * from "./app-url";
+export * from "./agent-tools";
 export * from "./language-service";
 export * from "./diagnostics";
 export * from "./metadata.svelte";
