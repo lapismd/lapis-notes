@@ -1,4 +1,8 @@
-import type { ApprovalRequest, UserInputRequest } from "../core/types";
+import type {
+  AgentEventSource,
+  ApprovalRequest,
+  UserInputRequest,
+} from "../core/types";
 
 export type AiChatApprovalStatus =
   | "pending"
@@ -51,7 +55,7 @@ export type AiChatItem = (
     }
   | { id: string; type: "status"; text: string; createdAt?: string }
   | { id: string; type: "error"; text: string; createdAt?: string }
-) & { agentBindingId?: string };
+) & { agentBindingId?: string; source?: AgentEventSource };
 
 export function createChatItemId(prefix: string, index: number): string {
   return `${prefix}-${index}`;

@@ -1,6 +1,7 @@
 import {
   getNativeDesktopBridge,
   hasNativeDesktopCapability,
+  type NativeAgentRuntimeEvent,
 } from "@lapis-notes/api";
 import { AsyncEventQueue } from "../../core/event-queue";
 import type { AgentRequest } from "../../core/types";
@@ -11,26 +12,11 @@ import type {
   AcpRuntimeEventLike,
 } from "./acp-event-mapper";
 
-type AcpIpcEvent =
-  | {
-      sessionId: string;
-      type: "event";
-      event: AcpRuntimeEventLike;
-    }
-  | {
-      sessionId: string;
-      type: "permission";
-      request: AcpPermissionRequestLike;
-    }
-  | {
-      sessionId: string;
-      type: "closed";
-      event?: { type?: string; message?: string };
-    };
-
 type AgentRuntimeBridge = {
   invoke<T>(command: string, payload?: Record<string, unknown>): Promise<T>;
-  onAgentRuntimeEvent?(listener: (event: AcpIpcEvent) => void): () => void;
+  onAgentRuntimeEvent?(
+    listener: (event: NativeAgentRuntimeEvent) => void,
+  ): () => void;
 };
 
 export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
@@ -84,24 +70,39 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
     const events = new AsyncEventQueue<AcpRuntimeEventLike>();
     const unsubscribe = bridge.onAgentRuntimeEvent?.((event) => {
       if (event.sessionId !== sessionId) return;
-      if (event.type === "event") {
-        events.push(event.event);
+      const source = {
+        sessionId: event.sessionId,
+        runId: event.runId,
+        sequence: event.sequence,
+      };
+      if (event.event.type === "event" && event.event.event) {
+        events.push({
+          ...(event.event.event as AcpRuntimeEventLike),
+          __source: source,
+        });
         return;
       }
-      if (event.type === "permission") {
-        void onPermissionRequest(event.request).then((decision) =>
+      if (event.event.type === "permission" && event.event.request) {
+        const request = {
+          ...(event.event.request as AcpPermissionRequestLike),
+          __source: source,
+        };
+        void onPermissionRequest(request).then((decision) =>
           bridge.invoke("desktop_agent_acp_respond", {
             sessionId,
-            requestId: String(event.request.requestId ?? event.request.id),
+            requestId: String(request.requestId ?? request.id),
             decision: decision.outcome,
           }),
         );
         return;
       }
-      if (event.event?.type === "error") {
+      if (event.event.event?.type === "error") {
         events.push({
           type: "error",
-          message: event.event.message ?? "Agent-runtime connection closed",
+          message:
+            String(event.event.event.message ?? "") ||
+            "Agent-runtime connection closed",
+          __source: source,
         });
       }
       events.close();

@@ -104,7 +104,13 @@ export type AgentUsage = {
   limit: number;
 };
 
-export type AgentEvent =
+export type AgentEventSource = {
+  sessionId: string;
+  runId: string;
+  sequence: number;
+};
+
+export type AgentEvent = (
   | { type: "text"; text: string }
   | {
       type: "thinking";
@@ -134,7 +140,8 @@ export type AgentEvent =
   | { type: "usage"; usage: AgentUsage }
   | { type: "status"; status: string }
   | { type: "completed"; result?: unknown }
-  | { type: "error"; error: Error };
+  | { type: "error"; error: Error }
+) & { source?: AgentEventSource };
 
 export interface AgentSession {
   readonly id: string;

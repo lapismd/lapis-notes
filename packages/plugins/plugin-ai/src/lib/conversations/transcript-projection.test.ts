@@ -61,6 +61,23 @@ describe("conversation transcript projection", () => {
     });
   });
 
+  it("projects replay provenance into durable semantic entries", () => {
+    const [entry] = projectChatItemsToTranscript([
+      {
+        id: "assistant",
+        type: "message",
+        role: "assistant",
+        text: "Recovered",
+        source: { sessionId: "session-1", runId: "run-1", sequence: 7 },
+      },
+    ]);
+    expect(entry?.source).toEqual({
+      sessionId: "session-1",
+      runId: "run-1",
+      sequence: 7,
+    });
+  });
+
   it("persists only safe approval decisions and never question answers", () => {
     const entries = projectChatItemsToTranscript(
       [

@@ -90,7 +90,11 @@ export class AcpAgentSession implements AgentSession {
     request: AcpPermissionRequestLike,
   ): Promise<AcpPermissionDecision> {
     const mapped = mapAcpPermissionRequest(request);
-    this.#events.push({ type: "permission.request", request: mapped });
+    this.#events.push({
+      type: "permission.request",
+      request: mapped,
+      ...(request.__source ? { source: { ...request.__source } } : {}),
+    });
     return new Promise<AcpPermissionDecision>((resolve, reject) => {
       this.#pending.set(mapped.id, {
         resolve: (optionId) =>

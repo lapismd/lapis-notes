@@ -1,6 +1,7 @@
 import {
   DEFAULT_APPROVAL_OPTIONS,
   type AgentEvent,
+  type AgentEventSource,
   type ApprovalKind,
   type ApprovalOption,
   type ApprovalRequest,
@@ -22,6 +23,7 @@ export type AcpRuntimeEventLike = {
   content?: unknown[];
   message?: string;
   stopReason?: string;
+  __source?: AgentEventSource;
 };
 
 export type AcpPermissionRequestLike = {
@@ -42,6 +44,7 @@ export type AcpPermissionRequestLike = {
     label?: string;
     kind?: string;
   }>;
+  __source?: AgentEventSource;
   [key: string]: unknown;
 };
 
@@ -59,20 +62,27 @@ export function mapAcpRuntimeEvent(
 ): AgentEvent | null {
   if (event.type === "text_delta") {
     if (event.stream === "thought") {
-      return { type: "thinking", text: event.text ?? "", kind: "reasoning" };
+      return withSource(event, {
+        type: "thinking",
+        text: event.text ?? "",
+        kind: "reasoning",
+      });
     }
-    return { type: "text", text: event.text ?? "" };
+    return withSource(event, { type: "text", text: event.text ?? "" });
   }
   if (event.type === "status") {
     const usage = usageFromAcpStatus(event);
-    if (usage) return { type: "usage", usage };
-    return { type: "status", status: event.text ?? event.status ?? "status" };
+    if (usage) return withSource(event, { type: "usage", usage });
+    return withSource(event, {
+      type: "status",
+      status: event.text ?? event.status ?? "status",
+    });
   }
   if (event.type === "tool_call") {
     const id = event.toolCallId ?? event.title ?? "acp-tool";
     const name = event.title ?? event.kind ?? "acp_tool";
     if (event.status === "completed" || event.status === "failed") {
-      return {
+      return withSource(event, {
         type: "tool.end",
         id,
         name,
@@ -81,25 +91,35 @@ export function mapAcpRuntimeEvent(
           event.status === "failed"
             ? (event.rawOutput ?? event.content ?? event.text)
             : undefined,
-      };
+      });
     }
-    return {
+    return withSource(event, {
       type: "tool.start",
       id,
       name,
       input: event.rawInput,
-    };
+    });
   }
   if (event.type === "done") {
-    return { type: "completed", result: { stopReason: event.stopReason } };
+    return withSource(event, {
+      type: "completed",
+      result: { stopReason: event.stopReason },
+    });
   }
   if (event.type === "error") {
-    return {
+    return withSource(event, {
       type: "error",
       error: new Error(event.message ?? "ACP runtime error"),
-    };
+    });
   }
   return null;
+}
+
+function withSource(
+  event: AcpRuntimeEventLike,
+  mapped: AgentEvent,
+): AgentEvent {
+  return event.__source ? { ...mapped, source: { ...event.__source } } : mapped;
 }
 
 function usageFromAcpStatus(

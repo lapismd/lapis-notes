@@ -36,7 +36,7 @@ work is explicitly archived.
 | AI-LOCAL-004 | Controller integration, offline restore, history, new/archive/delete lifecycle       | AI-LOCAL-003                             | Done        | AI controller/locator/plugin 19 tests; AI Svelte and type checks; full AI package gate             | `knnqtulz`     |
 | AI-LOCAL-005 | Agent bindings, turn-boundary switching, context handoff, usage restoration          | AI-LOCAL-004                             | Done        | AI controller/time/projection focused tests; AI full test/check/build; `pnpm spec:first`           | `spuvyrmz`     |
 | AI-LOCAL-006 | Derived AppDatabase indexing and all-conversation history search                     | AI-LOCAL-003                             | Done        | API memory/Turso/desktop/browser filtering; Search Manager; AI index/rebuild tests; package checks | `qszxmplx`     |
-| AI-LOCAL-007 | Sequenced agent-runtime protocol v2, replay buffer, reconnect and deduplication      | AI-LOCAL-003                             | Not started | Pending                                                                                            | Pending        |
+| AI-LOCAL-007 | Sequenced agent-runtime protocol v2, replay buffer, reconnect and deduplication      | AI-LOCAL-003                             | Done        | AI host 28 tests; reconnect/permission replay; host-restart gap; AI provenance checks              | `qvvrsuyq`     |
 | AI-LOCAL-008 | Storybook scenarios and persistent Live Host vault data                              | AI-LOCAL-004, AI-LOCAL-005, AI-LOCAL-006 | Not started | Pending                                                                                            | Pending        |
 | AI-LOCAL-009 | Seeded real-host smoke launchers and manual Codex/Cursor/native checklist            | AI-LOCAL-007, AI-LOCAL-008               | Not started | Pending                                                                                            | Pending        |
 | AI-LOCAL-010 | Focused, consumer, Storybook, E2E, spec, check, and Turbo build gates                | AI-LOCAL-002–009                         | Not started | Pending                                                                                            | Pending        |
@@ -48,7 +48,7 @@ work is explicitly archived.
 - [ ] Reopen paints transcript, agent attribution, and usage before runtime resume.
 - [ ] Switching agents retains one conversation and never misattributes late events.
 - [ ] Search can be deleted and rebuilt solely from conversation files.
-- [ ] Replay cannot duplicate durable transcript entries or silently resend a turn.
+- [x] Replay cannot duplicate durable transcript entries or silently resend a turn.
 - [ ] Secrets, environment maps, raw protocol payloads, and question answers are not durable.
 - [ ] Automated tests require no paid agent subscription.
 

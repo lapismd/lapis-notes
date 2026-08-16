@@ -54,7 +54,7 @@ export async function promptAcpSession(
   sender: WebContents,
   sessionId: string,
   text: string,
-): Promise<void> {
+): Promise<{ runId: string }> {
   return executor.promptAcpSession(sinkFor(sender), sessionId, text);
 }
 

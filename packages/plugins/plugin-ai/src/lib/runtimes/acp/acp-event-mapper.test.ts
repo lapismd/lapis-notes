@@ -77,6 +77,20 @@ describe("ACP event mapper", () => {
     });
   });
 
+  it("retains sequenced runtime provenance on mapped events", () => {
+    expect(
+      mapAcpRuntimeEvent({
+        type: "text_delta",
+        text: "replayed",
+        __source: { sessionId: "session-1", runId: "run-1", sequence: 4 },
+      }),
+    ).toEqual({
+      type: "text",
+      text: "replayed",
+      source: { sessionId: "session-1", runId: "run-1", sequence: 4 },
+    });
+  });
+
   it("maps onPermissionRequest payloads to ApprovalRequest", () => {
     const request = mapAcpPermissionRequest({
       requestId: "p1",

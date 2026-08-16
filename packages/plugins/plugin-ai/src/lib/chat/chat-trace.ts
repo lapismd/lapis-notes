@@ -8,11 +8,16 @@ export function applyAgentEventToChatItems(
 ): AiChatItem[] {
   const next = [...items];
   const createdAt = now();
+  const source = event.source ? { source: { ...event.source } } : {};
   switch (event.type) {
     case "text": {
       const last = next.at(-1);
       if (last?.type === "message" && last.role === "assistant") {
-        next[next.length - 1] = { ...last, text: `${last.text}${event.text}` };
+        next[next.length - 1] = {
+          ...last,
+          ...source,
+          text: `${last.text}${event.text}`,
+        };
         return next;
       }
       next.push({
@@ -21,6 +26,7 @@ export function applyAgentEventToChatItems(
         role: "assistant",
         text: event.text,
         createdAt,
+        ...source,
       });
       return next;
     }
@@ -31,6 +37,7 @@ export function applyAgentEventToChatItems(
           ...last,
           text: `${last.text}${event.text}`,
           kind: event.kind ?? last.kind,
+          ...source,
         };
         return next;
       }
@@ -41,6 +48,7 @@ export function applyAgentEventToChatItems(
         kind: event.kind,
         state: "streaming",
         createdAt,
+        ...source,
       });
       return next;
     }
@@ -58,6 +66,7 @@ export function applyAgentEventToChatItems(
             server: event.server ?? current.server,
             state: "running",
             input: input ?? current.input,
+            ...source,
           };
         }
       } else {
@@ -70,6 +79,7 @@ export function applyAgentEventToChatItems(
           state: "running",
           input,
           createdAt,
+          ...source,
         });
       }
       return next;
@@ -89,6 +99,7 @@ export function applyAgentEventToChatItems(
             ...current,
             state: event.error != null ? "error" : "completed",
             output,
+            ...source,
           };
         }
         return next;
@@ -101,6 +112,7 @@ export function applyAgentEventToChatItems(
         server: event.server,
         state: event.error != null ? "error" : "completed",
         output,
+        ...source,
       });
       return next;
     }
@@ -111,6 +123,7 @@ export function applyAgentEventToChatItems(
         request: event.request,
         status: "pending",
         createdAt,
+        ...source,
       });
       return next;
     }
@@ -121,6 +134,7 @@ export function applyAgentEventToChatItems(
         request: event.request,
         status: "pending",
         createdAt,
+        ...source,
       });
       return next;
     }
@@ -131,6 +145,7 @@ export function applyAgentEventToChatItems(
         type: "status",
         text: event.status,
         createdAt,
+        ...source,
       });
       return next;
     }
@@ -145,13 +160,14 @@ export function applyAgentEventToChatItems(
         type: "error",
         text: event.error.message,
         createdAt,
+        ...source,
       });
       return settled;
     }
     case "completed": {
       return next.map((item) =>
         item.type === "thinking" && item.state === "streaming"
-          ? { ...item, state: "done" }
+          ? { ...item, state: "done", ...source }
           : item,
       );
     }

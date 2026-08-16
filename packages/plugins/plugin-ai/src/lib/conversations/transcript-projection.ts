@@ -24,6 +24,7 @@ export function projectChatItemsToTranscript(
       ...(options.agentBindingId
         ? { agentBindingId: options.agentBindingId }
         : {}),
+      ...(item.source ? { source: { ...item.source } } : {}),
     } as const;
     switch (item.type) {
       case "message":

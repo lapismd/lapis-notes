@@ -75,9 +75,13 @@ export type NativeAgentProcessMessage = {
 
 export type NativeAgentRuntimeEvent = {
   sessionId: string;
-  type: "event" | "permission" | "closed";
-  event?: Record<string, unknown>;
-  request?: Record<string, unknown>;
+  runId: string;
+  sequence: number;
+  event: {
+    type: "event" | "permission" | "closed";
+    event?: Record<string, unknown>;
+    request?: Record<string, unknown>;
+  };
 };
 
 export type NativeDesktopCapabilityStatus = "available" | "unavailable";
