@@ -29,8 +29,10 @@ Shared shadcn families (button, input, dialog, select, tooltip, table, menus,
 progress, slider, context-menu, drawer, …) MUST come from
 `@lapismd/design-core/shadcn/*`. Lapis-custom compounds (`modal`,
 `confirm-dialog`, `search`, `sidebar-custom`, `table-dnd`) stay in
-`@lapis-notes/ui` and compose design-core primitives. Date/time settings use
-`@lapismd/design-core/forms` (`DatePicker` / `TimePicker`).
+`@lapis-notes/ui` and compose design-core primitives. Confirm-dialog MUST keep
+Design Core `dialog` host identity so overlay and surface paint apply; its
+colocated CSS MAY only add `--ui-confirm-dialog-*` sizing. Date/time settings
+use `@lapismd/design-core/forms` (`DatePicker` / `TimePicker`).
 
 The workspace shell uses native CSS scoped by `data-ui-component` and
 `data-ui-part` attributes, with public `--ui-workspace-*` tokens supplied by

@@ -21,6 +21,19 @@ export const ConfirmDialog: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: "Ask to confirm" }),
     );
+    const dialog = await body.findByRole("dialog", { name: "Delete note?" });
+    expect(dialog).toHaveAttribute("data-ui-component", "dialog");
+    expect(dialog).toHaveAttribute("data-ui-part", "dialog-content");
+    expect(dialog).toHaveAttribute("data-ui-confirm-dialog", "");
+    expect(getComputedStyle(dialog).position).toBe("fixed");
+    expect(getComputedStyle(dialog).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
+    );
+    expect(
+      canvasElement.ownerDocument.body.querySelector(
+        '[data-ui-component="dialog"][data-ui-part="dialog-overlay"]',
+      ),
+    ).not.toBeNull();
     await userEvent.click(await body.findByRole("button", { name: "Delete" }));
     await waitFor(() =>
       expect(canvas.getByTestId("api-ui-status")).toHaveTextContent(

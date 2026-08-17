@@ -333,6 +333,8 @@ Overlapping shadcn families are consumed from `@lapismd/design-core/shadcn/*`.
 `@lapis-notes/ui` keeps Lapis compounds only: `modal`, `search`,
 `confirm-dialog`, `sidebar-custom`, and `table-dnd` (plus helpers), each painted
 with colocated CSS and `--ui-*` tokens (no Tailwind utilities in sources).
+Confirm-dialog keeps the Design Core `dialog` host identity and only adds
+`--ui-confirm-dialog-*` max-width and footer gap.
 Date/time settings use design-core `forms` pickers via api `date-setting` (the
 old `date-time-picker-dialog` ui compound is retired).
 

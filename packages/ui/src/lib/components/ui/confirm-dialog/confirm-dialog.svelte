@@ -73,8 +73,7 @@
   <Dialog.Content
     class={cn(className)}
     {portalProps}
-    dataUiComponent="confirm-dialog"
-    dataUiPart="content"
+    data-ui-confirm-dialog=""
   >
     <Dialog.Header>
       <Dialog.Title>{title}</Dialog.Title>
@@ -83,7 +82,7 @@
       {/if}
     </Dialog.Header>
 
-    <Dialog.Footer data-ui-component="confirm-dialog" data-ui-part="footer">
+    <Dialog.Footer>
       <Button onclick={handleCancel} type="button" variant="outline">
         {cancelLabel}
       </Button>

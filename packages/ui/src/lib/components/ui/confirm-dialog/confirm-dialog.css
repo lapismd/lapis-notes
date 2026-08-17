@@ -1,13 +1,11 @@
-[data-ui-component="confirm-dialog"] {
+[data-ui-component="dialog"][data-ui-part="dialog-content"][data-ui-confirm-dialog] {
   --ui-confirm-dialog-max-width: 28rem;
   --ui-confirm-dialog-footer-gap: 0.5rem;
-}
-
-[data-ui-component="confirm-dialog"][data-ui-part="content"] {
   max-width: var(--ui-confirm-dialog-max-width);
 }
 
-[data-ui-component="confirm-dialog"][data-ui-part="footer"] {
+[data-ui-component="dialog"][data-ui-part="dialog-content"][data-ui-confirm-dialog]
+  [data-ui-part="dialog-footer"] {
   gap: var(--ui-confirm-dialog-footer-gap);
   justify-content: flex-end;
 }
