@@ -67,6 +67,7 @@ import {
   type WorkspaceDiagnosticLocation,
 } from "@lapismd/design-core/workspace/problems";
 import { createAppShellPluginPersistence } from "./app-shell-plugin-persistence";
+import type { StatusBarItemDescriptor } from "./status-bar.svelte";
 import { setWorkspaceHostBinding } from "./workspace-host-internal";
 import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
 import {
@@ -2901,6 +2902,33 @@ export class Workspace extends EventDispatcher<{
     };
   }
 
+  private projectStatusBarItem(
+    controller: AppShellController,
+    item: StatusBarItemDescriptor,
+    align: "left" | "right",
+  ): void {
+    controller.status.addItem({
+      id: item.id,
+      align,
+      priority: item.priority,
+      label: item.text,
+      segments: item.segments ?? (item.text ? [item.text] : undefined),
+      tooltip: item.tooltip,
+      icon: item.icon,
+      busy: item.spin,
+      onSelect: item.command
+        ? () => void this.app.commands.executeCommand(item.command!)
+        : undefined,
+      buildMenu: item.buildMenu
+        ? (workspaceMenu) => {
+            const menu = new Menu();
+            item.buildMenu!(menu);
+            appendLapisMenuToWorkspaceMenu(workspaceMenu, menu);
+          }
+        : undefined,
+    });
+  }
+
   private installStatusBarBridge(controller: AppShellController): void {
     const projectedIds = new Set<string>();
     const sync = () => {
@@ -2911,38 +2939,14 @@ export class Workspace extends EventDispatcher<{
         this.app.contextKeys,
       )) {
         projectedIds.add(item.id);
-        controller.status.addItem({
-          id: item.id,
-          align: "left",
-          priority: item.priority,
-          label: item.text,
-          segments: item.segments ?? (item.text ? [item.text] : undefined),
-          tooltip: item.tooltip,
-          icon: item.icon,
-          busy: item.spin,
-          onSelect: item.command
-            ? () => void this.app.commands.executeCommand(item.command!)
-            : undefined,
-        });
+        this.projectStatusBarItem(controller, item, "left");
       }
       for (const item of this.app.statusBar.getVisibleItems(
         "right",
         this.app.contextKeys,
       )) {
         projectedIds.add(item.id);
-        controller.status.addItem({
-          id: item.id,
-          align: "right",
-          priority: item.priority,
-          label: item.text,
-          segments: item.segments ?? (item.text ? [item.text] : undefined),
-          tooltip: item.tooltip,
-          icon: item.icon,
-          busy: item.spin,
-          onSelect: item.command
-            ? () => void this.app.commands.executeCommand(item.command!)
-            : undefined,
-        });
+        this.projectStatusBarItem(controller, item, "right");
       }
     };
     const unsubscribeStatus = this.app.statusBar.subscribe(sync);

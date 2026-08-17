@@ -94,7 +94,8 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-083 | `@lapis-notes/wordcount` MUST live at `packages/plugins/plugin-wordcount` as an enabled-by-default bundled plugin. It MUST depend on `@lapis-notes/api` and MUST NOT depend on `@lapis-notes/ui`. |
 
 `@lapis-notes/wordcount` updates the API status bar for the active text editor
-and stays a bundled core plugin. Design Core F-Mode remains an optional static
+and stays a bundled core plugin. Clicking the item shows reading time through
+the projected status menu. Design Core F-Mode remains an optional static
 shell plugin on the API-owned controller.
 `@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,
 open, and OS reveal only through Design Core `buildItemMenu` and the existing

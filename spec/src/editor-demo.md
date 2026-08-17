@@ -55,7 +55,7 @@
 | LN-ED-053 | API editors and command scopes MUST retain their owning App for persistence, workspace events, extensions, telemetry, and hotkey dispatch. An explicit or inherited owner MUST win when the compatibility alias references another App. |
 | LN-ED-054 | The reusable Explorer sidebar MUST declare its canonical `ViewAccess.command` opener, preserve the `lapis-file-explorer` runtime identity, and use the concise `Explorer` display prefix in the command palette. |
 | LN-ED-055 | Storybook Explorer placement plays MUST open a file-row context menu on the in-memory vault and assert that native copy, open, and reveal extras are absent. |
-| LN-ED-056 | The editor demo play MUST assert the Word Count status item for the seeded Welcome note and MUST NOT use compatibility status DOM. |
+| LN-ED-056 | The editor demo play MUST assert the Word Count status item for the seeded Welcome note, show reading time on click, and MUST NOT use compatibility status DOM. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add

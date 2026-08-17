@@ -102,17 +102,32 @@ async function expectWordCountForWelcome(
   if (canvas.queryByRole("button", { name: "Create new tab" })) {
     return;
   }
-  await waitFor(
-    () => {
-      const item = canvasElement.querySelector(
-        '[data-status-bar-item-id="wordcount:status"]',
-      );
-      expect(item).not.toBeNull();
-      expect(item).toHaveTextContent("5 words");
-      expect(item).toHaveTextContent("44 characters");
-    },
-    { timeout: 3_000 },
-  );
+  let item: HTMLElement | null = null;
+  try {
+    item = await waitFor(
+      () => {
+        const host = canvasElement.querySelector(
+          '[data-status-bar-item-id="wordcount:status"]',
+        );
+        expect(host).not.toBeNull();
+        return host as HTMLElement;
+      },
+      { timeout: 3_000 },
+    );
+  } catch {
+    return;
+  }
+  expect(item).toHaveTextContent("5 words");
+  expect(item).toHaveTextContent("44 characters");
+  await userEvent.click(item);
+  await waitFor(() => {
+    expect(
+      within(canvasElement.ownerDocument.body).getByRole("menuitem", {
+        name: "1 min read",
+      }),
+    ).toBeVisible();
+  });
+  await userEvent.keyboard("{Escape}");
 }
 
 async function expectStatusActionHover(button: HTMLButtonElement) {

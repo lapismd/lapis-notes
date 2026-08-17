@@ -126,14 +126,17 @@ describe("status bar manager", () => {
   it("preserves optional segments on visible items", () => {
     const contextKeys = new ContextKeyService();
     const statusBar = new StatusBarManager();
+    const buildMenu = () => undefined;
     statusBar.upsertItem({
       id: "wordcount:status",
       segments: ["5 words", "44 characters"],
+      buildMenu,
     });
 
     expect(statusBar.getVisibleItems("right", contextKeys)[0]).toMatchObject({
       id: "wordcount:status",
       segments: ["5 words", "44 characters"],
+      buildMenu,
     });
   });
 });

@@ -155,7 +155,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/file-explorer (reusable File Explorer contribution)
 @lapis-notes/search (vault indexing + Search workspace contribution)
 @lapis-notes/history (vault file-revision capture + History workspace contribution + settings)
-@lapis-notes/wordcount (status-bar word and character count)
+@lapis-notes/wordcount (status-bar word, character, and reading-time count)
 @lapis-notes/bases (query + document + bundled Bases presentation)
 @lapis-notes/lapis-plugin-cv-roles (first-party external plugin; role workflows + retained CV views)
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)

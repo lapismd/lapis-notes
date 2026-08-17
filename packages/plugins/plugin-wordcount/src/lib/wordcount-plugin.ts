@@ -6,7 +6,7 @@ import {
   type App,
   type PluginManifest,
 } from "@lapis-notes/api";
-import { readingMinutes, textForWordCount } from "./counts";
+import { textForWordCount } from "./counts";
 import { pluginField, statusBarEditorPlugin } from "./extensions";
 import {
   WORDCOUNT_DEFAULT_READING_SPEED,
@@ -85,24 +85,18 @@ export class WordCountPlugin extends Plugin {
   }
 
   showReadingTime(): void {
-    const minutes = readingMinutes(
-      this.status.content,
-      WORDCOUNT_DEFAULT_READING_SPEED,
-    );
-    const menu = new Menu();
-    menu.addItem((item) =>
-      item.setTitle(`${minutes} min read`).setIcon("book-open"),
-    );
+    const menu = new Menu().dropdown();
+    this.status.appendReadingTime(menu);
     const host =
       typeof document === "undefined"
         ? null
         : document.querySelector<HTMLElement>(
             `[data-status-bar-item-id="${WORDCOUNT_STATUS_ID}"]`,
           );
-    const rect = host?.getBoundingClientRect();
-    menu.showAtPosition({
-      x: rect?.left ?? 0,
-      y: (rect?.bottom ?? 0) + 4,
-    });
+    if (host) {
+      menu.showAtElement(host);
+      return;
+    }
+    menu.showAtPosition({ x: 0, y: 0 });
   }
 }

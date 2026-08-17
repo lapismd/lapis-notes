@@ -3708,17 +3708,63 @@ describe("Workspace compatibility", () => {
       command: "roles:open-actions",
       alignment: "right",
       priority: 80,
+      buildMenu: (menu) => {
+        menu.addItem((item) => item.setTitle("1 min read"));
+      },
     });
-    expect(
-      controller.status.items.find(
-        (item) => item.id === "roles:actions-attention",
-      ),
-    ).toMatchObject({
+    const projectedStatus = controller.status.items.find(
+      (item) => item.id === "roles:actions-attention",
+    );
+    expect(projectedStatus).toMatchObject({
       align: "right",
       label: "1",
       segments: ["1 due", "actions"],
       icon: "bell",
     });
+    expect(projectedStatus?.buildMenu).toEqual(expect.any(Function));
+    const projectedMenu = {
+      entries: [] as { title?: string }[],
+      addItem(
+        callback: (item: {
+          setTitle(title: string): unknown;
+          setDisabled(): unknown;
+          setSection(): unknown;
+          onClick(): unknown;
+          setIcon(): unknown;
+          setChecked(): unknown;
+        }) => void,
+      ) {
+        const entry: { title?: string } = {};
+        callback({
+          setTitle(title) {
+            entry.title = title;
+            return this;
+          },
+          setDisabled() {
+            return this;
+          },
+          setSection() {
+            return this;
+          },
+          onClick() {
+            return this;
+          },
+          setIcon() {
+            return this;
+          },
+          setChecked() {
+            return this;
+          },
+        });
+        this.entries.push(entry);
+      },
+      addSeparator() {},
+      addMenu() {},
+    };
+    projectedStatus?.buildMenu?.(projectedMenu as never);
+    expect(projectedMenu.entries).toEqual(
+      expect.arrayContaining([{ title: "1 min read" }]),
+    );
 
     app.statusBar.upsertItem({
       id: "roles:actions-attention",

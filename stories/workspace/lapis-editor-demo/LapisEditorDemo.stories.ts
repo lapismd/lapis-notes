@@ -243,14 +243,24 @@ export const Ready: Story = {
     const alternateLeaf = runtimeApp.workspace.getLeaf("tab");
     runtimeApp.workspace.activeLeaf = alternateLeaf;
     await alternateLeaf.openFile(welcomeFile!);
-    await waitFor(() => {
+    const wordCount = await waitFor(() => {
       const item = canvasElement.querySelector(
         '[data-status-bar-item-id="wordcount:status"]',
       );
       expect(item).not.toBeNull();
       expect(item?.textContent).toMatch(/\d+ words/);
       expect(item?.textContent).toMatch(/\d+ characters/);
+      return item as HTMLElement;
     });
+    await userEvent.click(wordCount);
+    await waitFor(() => {
+      expect(
+        within(canvasElement.ownerDocument.body).getByRole("menuitem", {
+          name: /\d+ min read/,
+        }),
+      ).toBeVisible();
+    });
+    await userEvent.keyboard("{Escape}");
     expect(
       canvas.queryByText(/\d+ words/, {
         selector: ".status-bar-item-segment",

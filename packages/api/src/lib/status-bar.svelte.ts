@@ -1,4 +1,5 @@
 import type { ContextKeyService } from "./context-keys.svelte";
+import type { Menu } from "./menu.svelte";
 
 export type StatusBarAlignment = "left" | "right";
 
@@ -10,6 +11,7 @@ export interface StatusBarItemDescriptor {
   spin?: boolean;
   tooltip?: string;
   command?: string;
+  buildMenu?: (menu: Menu) => void;
   when?: string;
   alignment?: StatusBarAlignment;
   priority?: number;
