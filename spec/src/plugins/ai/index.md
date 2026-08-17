@@ -122,6 +122,9 @@ External process-backed MCP servers are represented by
 `McpServerContribution` and travel through `AgentRequest.mcpServers`; the
 reserved `lapis-tools` server is exclusively owned by the application-tool
 bridge.
+Application tools are enabled by default for new bindings. The master setting
+and sorted community owner-plugin opt-ins are persisted, while an active
+binding retains the snapshot taken when it was created.
 
 ```text
 command or chat panel

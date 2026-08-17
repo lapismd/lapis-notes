@@ -39,6 +39,9 @@ conflicting names, and unload disposes the exact registration.
 This callback registry is separate from AI's external
 `McpServerContribution` registry; plugins cannot claim the reserved
 `lapis-tools` MCP server name through that process-backed integration surface.
+AI snapshots the exact active registration IDs for a new binding, and later
+plugin unload or replacement makes those snapshotted callbacks unavailable
+instead of transferring authority to a newly registered callback.
 
 ## Distribution and provenance
 

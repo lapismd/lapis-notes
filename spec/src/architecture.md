@@ -91,6 +91,9 @@ the app-owned bridge.
 API constructs immutable tool scopes from trusted conversation directories;
 scope resolution rejects absolute, traversal, non-portable, and sibling-prefix
 paths instead of normalizing them into a different target.
+AI persists only the master application-tool switch and community owner-plugin
+opt-ins; invocation grants and binding-local descriptor snapshots are runtime
+state.
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

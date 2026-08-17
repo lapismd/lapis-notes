@@ -12,6 +12,8 @@ export type AiPluginSettings = {
   /** Active-agent compatibility alias. Persisted model ownership lives in defaultModels. */
   defaultModel: string;
   thinking: AiThinkingLevel;
+  appToolsEnabled: boolean;
+  enabledCommunityToolPluginIds: string[];
 };
 
 export const DEFAULT_AI_SETTINGS: AiPluginSettings = {
@@ -23,6 +25,8 @@ export const DEFAULT_AI_SETTINGS: AiPluginSettings = {
   },
   defaultModel: "gpt-5.6-sol",
   thinking: "medium",
+  appToolsEnabled: true,
+  enabledCommunityToolPluginIds: [],
 };
 
 const THINKING_LEVELS = new Set<AiThinkingLevel>([
@@ -55,5 +59,13 @@ export function mergeAiSettings(
       thinking && THINKING_LEVELS.has(thinking)
         ? thinking
         : DEFAULT_AI_SETTINGS.thinking,
+    appToolsEnabled: value?.appToolsEnabled !== false,
+    enabledCommunityToolPluginIds: [
+      ...new Set(
+        (value?.enabledCommunityToolPluginIds ?? [])
+          .map((pluginId) => pluginId.trim())
+          .filter(Boolean),
+      ),
+    ].sort(),
   };
 }

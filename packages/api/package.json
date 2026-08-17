@@ -138,6 +138,11 @@
       "import": "./dist/app-database-host.js",
       "default": "./dist/app-database-host.js"
     },
+    "./agent-tools": {
+      "types": "./dist/agent-tools.d.ts",
+      "import": "./dist/agent-tools.js",
+      "default": "./dist/agent-tools.js"
+    },
     "./path": {
       "types": "./dist/storage/path.d.ts",
       "import": "./dist/storage/path.js",

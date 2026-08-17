@@ -144,4 +144,15 @@ export type {
 } from "./conversations/types";
 export { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 export { APP_TOOL_MCP_SERVER_NAME } from "./tools/mcp-server-registry";
+export {
+  AppToolApprovalBroker,
+  AppToolExecutionError,
+  AppToolHost,
+} from "./tools/app-tool-host";
+export type {
+  AppToolCall,
+  AppToolExecutionErrorCode,
+  AppToolPolicySettings,
+  CreateAppToolSessionInput,
+} from "./tools/app-tool-host";
 export type { McpServerContributionRegistry } from "./tools/mcp-server-registry";

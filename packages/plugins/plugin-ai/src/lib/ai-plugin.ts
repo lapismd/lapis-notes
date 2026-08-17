@@ -43,6 +43,7 @@ import {
   type AiPluginSettings,
 } from "./settings/ai-settings";
 import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
+import { AppToolHost } from "./tools/app-tool-host";
 
 const AI_MANIFEST: PluginManifest = {
   id: "ai",
@@ -63,6 +64,7 @@ export class AiPlugin extends Plugin {
   readonly registry: AgentRuntimeRegistry;
   readonly models: ModelProviderRegistry;
   readonly mcpServers = createMcpServerContributionRegistry();
+  readonly appToolHost: AppToolHost;
   readonly #settingsListeners = new Set<
     (patch: Partial<AiPluginSettings>) => void
   >();
@@ -87,6 +89,10 @@ export class AiPlugin extends Plugin {
       this.conversations,
       app.appDatabase,
     );
+    this.appToolHost = new AppToolHost(app.agentTools, () =>
+      this.getSettings(),
+    );
+    this.register(() => this.appToolHost.close());
     this.processHost = createAgentProcessHost();
     const workspace = this.workspace;
     this.models = new ModelProviderRegistry([
@@ -103,6 +109,9 @@ export class AiPlugin extends Plugin {
     return {
       ...this.data.settings,
       defaultModels: { ...this.data.settings.defaultModels },
+      enabledCommunityToolPluginIds: [
+        ...this.data.settings.enabledCommunityToolPluginIds,
+      ],
     };
   }
 

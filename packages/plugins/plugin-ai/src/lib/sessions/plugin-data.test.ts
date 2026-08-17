@@ -12,6 +12,8 @@ describe("AI plugin data", () => {
         defaultModels: { codex: "gpt-5.6-sol", cursor: "" },
         defaultModel: "gpt-5.6-sol",
         thinking: "medium",
+        appToolsEnabled: true,
+        enabledCommunityToolPluginIds: [],
       },
       source: { defaultRuntime: "fake", acpAgent: "codex" },
     });

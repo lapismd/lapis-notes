@@ -15,8 +15,22 @@ describe("AiPlugin contracts", () => {
       defaultModels: { codex: "gpt-5.6-sol", cursor: "" },
       defaultModel: "gpt-5.6-sol",
       thinking: "medium",
+      appToolsEnabled: true,
+      enabledCommunityToolPluginIds: [],
     });
     expect(new FakeAgentRuntime().id).toBe("fake");
+  });
+
+  it("normalizes community app-tool opt-ins", () => {
+    expect(
+      mergeAiSettings({
+        appToolsEnabled: false,
+        enabledCommunityToolPluginIds: ["zeta", " alpha ", "zeta", ""],
+      }),
+    ).toMatchObject({
+      appToolsEnabled: false,
+      enabledCommunityToolPluginIds: ["alpha", "zeta"],
+    });
   });
 
   it("threads the constructor owner into the Plugin base without ambient access", () => {

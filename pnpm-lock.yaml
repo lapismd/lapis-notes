@@ -614,6 +614,9 @@ importers:
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.8)
+      ajv:
+        specifier: ^8.20.0
+        version: 8.20.0
       yaml:
         specifier: ^2.9.0
         version: 2.9.0

@@ -108,9 +108,13 @@ context, owner metadata, and lifecycle registration. It does not import or
 re-export MCP, ACP, acpx, or vendor runtime types.
 Its execution-scope helper validates vault-relative portable paths and exposes
 only fixed-directory containment and resolution to portable tool callbacks.
+AI policy imports these contracts through the narrow `@lapis-notes/api/agent-tools`
+subpath so its non-UI tests and host adapters do not load API presentation code.
 The AI package keeps external MCP server processes in a distinct, deterministic
 `McpServerContribution` registry that rejects duplicate names and the reserved
 `lapis-tools` bridge identity.
+It owns application-tool enablement settings and applies changes only while
+constructing a new native binding snapshot.
 
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not

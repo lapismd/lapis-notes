@@ -42,6 +42,7 @@
     "@lapis-notes/api": "workspace:*",
     "@lapismd/design-core": "*",
     "@lucide/svelte": "^0.523.0",
+    "ajv": "^8.20.0",
     "yaml": "^2.9.0"
   },
   "peerDependencies": {

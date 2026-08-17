@@ -13,6 +13,7 @@ const FIELD_IDS = {
   acpAgent: "ai.acpAgent",
   defaultModel: "ai.defaultModel",
   thinking: "ai.thinking",
+  appToolsEnabled: "ai.appToolsEnabled",
 } as const;
 
 export function registerAiSettings(plugin: AiPlugin & Plugin): void {
@@ -132,6 +133,14 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
           { value: "high", label: "High" },
         ],
       },
+      {
+        id: FIELD_IDS.appToolsEnabled,
+        type: "boolean" as const,
+        title: "Application tools",
+        description:
+          "Expose bundled application tools to newly created agent bindings.",
+        default: DEFAULT_AI_SETTINGS.appToolsEnabled,
+      },
     ],
   });
 
@@ -144,6 +153,10 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   controller.settings.update(FIELD_IDS.acpAgent, settings.acpAgent);
   controller.settings.update(FIELD_IDS.defaultModel, settings.defaultModel);
   controller.settings.update(FIELD_IDS.thinking, settings.thinking);
+  controller.settings.update(
+    FIELD_IDS.appToolsEnabled,
+    settings.appToolsEnabled,
+  );
 
   const changeRef = controller.settings.on("change", (event) => {
     if (!event.id || !event.id.startsWith("ai.")) return;
@@ -179,6 +192,12 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
     if (event.id === FIELD_IDS.thinking) {
       void plugin.updateSettings({
         thinking: values[FIELD_IDS.thinking] as AiPluginSettings["thinking"],
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.appToolsEnabled) {
+      void plugin.updateSettings({
+        appToolsEnabled: values[FIELD_IDS.appToolsEnabled] !== false,
       });
     }
   });
