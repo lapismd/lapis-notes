@@ -235,6 +235,10 @@ database contract through bounded BroadcastChannel RPC and may promote when
 the owner disappears. Neither role is cloud synchronization.
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
+After that selection, desktop and web session boot render Design Core
+`WorkspaceStartup` for vault, configuration, plugin, and layout progress
+instead of a host-owned placeholder. Native window-drag regions stay in Design
+Core chrome CSS; hosts do not re-declare `-webkit-app-region`.
 Desktop and web “View all” palettes keep host-owned Dialog chrome and compose
 Command View for the searchable recent-vault list.
 The ready-shell vault menu follows the same boundary: Design Core presents the

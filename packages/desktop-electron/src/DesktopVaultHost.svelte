@@ -44,8 +44,6 @@
   let sessionComponent = $state<SessionComponent | null>(null);
   let errorMessage = $state("");
   let switchQueue = Promise.resolve();
-  let resolvePrepared: ((app: App) => void) | null = null;
-  let rejectPrepared: ((error: Error) => void) | null = null;
   const pendingAppUrls: string[] = [];
 
   onMount(() => {
@@ -193,33 +191,20 @@
           buildTime: null,
           copyright: "Copyright © Lapis Notes contributors.",
         }));
-      const ready = new Promise<App>((resolve, reject) => {
-        resolvePrepared = resolve;
-        rejectPrepared = reject;
-      });
       prepared = { adapter, profile, session, appInfo };
       await tick();
-      const app = await ready;
-      activeApp = app;
-      status = "ready";
-      for (const url of pendingAppUrls.splice(0)) {
-        await app.urls.dispatch(url);
-      }
     } catch (error) {
       await disposeActiveSession(false);
       throw error;
-    } finally {
-      resolvePrepared = null;
-      rejectPrepared = null;
     }
   }
 
   function handleSessionReady(app: App): void {
-    resolvePrepared?.(app);
-  }
-
-  function handleSessionFailure(error: unknown): void {
-    rejectPrepared?.(error instanceof Error ? error : new Error(String(error)));
+    activeApp = app;
+    status = "ready";
+    for (const url of pendingAppUrls.splice(0)) {
+      void app.urls.dispatch(url);
+    }
   }
 
   async function disposeActiveSession(persistLayout: boolean): Promise<void> {
@@ -245,7 +230,6 @@
       {...prepared}
       {bridge}
       onReady={handleSessionReady}
-      onFailure={handleSessionFailure}
       onOpenRecent={openRecentVault}
       onManageVaults={showLauncher}
     />

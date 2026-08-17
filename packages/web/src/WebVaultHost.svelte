@@ -32,8 +32,6 @@
   let sessionComponent = $state<SessionComponent | null>(null);
   let errorMessage = $state("");
   let switchQueue = Promise.resolve();
-  let resolvePrepared: (() => void) | null = null;
-  let rejectPrepared: ((error: Error) => void) | null = null;
 
   onMount(() => {
     void restoreVault();
@@ -178,20 +176,11 @@
       );
     }
     try {
-      const ready = new Promise<void>((resolve, reject) => {
-        resolvePrepared = resolve;
-        rejectPrepared = reject;
-      });
       prepared = { adapter, profile, session };
       await tick();
-      await ready;
-      status = "ready";
     } catch (error) {
       await disposeActiveSession(false);
       throw error;
-    } finally {
-      resolvePrepared = null;
-      rejectPrepared = null;
     }
   }
 
@@ -211,9 +200,9 @@
     <WebWorkspaceSession
       bind:this={sessionComponent}
       {...prepared}
-      onReady={() => resolvePrepared?.()}
-      onFailure={(error) =>
-        rejectPrepared?.(error instanceof Error ? error : new Error(String(error)))}
+      onReady={() => {
+        status = "ready";
+      }}
       onOpenRecent={openRecent}
       onManageVaults={showLauncher}
     />

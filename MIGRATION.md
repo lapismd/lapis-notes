@@ -101,6 +101,7 @@ legacy commit `8ec68e18`.
 - [x] Route native “Open Vault…” through the launcher after orderly session teardown
 - [x] Restore the legacy footer vault switcher with recent selection and “Manage Vaults” launcher return
 - [x] Center native loading, restore compact launcher overlays, and reserve macOS traffic-light space through desktop CSS classes
+- [x] Replace the session-boot stub with Design Core `WorkspaceStartup` and restore Design Core window-drag regions
 - [x] Serve variable-font assets from the resolved linked Design Core package during desktop development
 - [x] Load Markdown (including Tags), Markdownlint, and File Explorer before layout restoration; recover previously unavailable view placeholders when their implementation now exists
 - [x] Load Search before layout restoration; restore canonical `search` leaves and execute queries through the native app database

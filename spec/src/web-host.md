@@ -27,6 +27,15 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-018 | The web launcher “View all” action MUST open an upper-viewport searchable palette of recent vaults rather than a drawer or bottom sheet. It MUST retain Design Core’s shared full-viewport modal scrim. |
 | LN-WEB-019 | The web launcher “View all” palette MUST compose `@lapismd/design-core/shadcn/command-view` for its inner search and result list. |
 | LN-WEB-020 | An authenticated protocol-v3 web bridge MUST proxy application-tool calls, responses, and cancellation through its existing agent-runtime connection while the browser App executes the tool. A real stdio-shim round trip MUST use that same connection, and disconnect MUST revoke bridge authorization and cancel pending calls without retaining note contents in host replay. |
+| LN-WEB-021 | Web session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. |
+
+### LN-WEB-021 acceptance details
+
+Web session boot verifies the shared startup surface:
+
+- The four task ids MUST be `vault`, `configuration`, `plugins`, and `layout`.
+- `WorkspaceShell` MUST stay unmounted until that sequence completes.
+- Retry MUST reuse the mounted session and MUST NOT open the branded launcher.
 
 ## Implemented host boundary
 
@@ -59,8 +68,9 @@ authorization.
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
 File System Access profiles. “View all” opens an upper-viewport Dialog whose
 inner search list is Command View. It constructs the API session, loads Markdown,
-Markdownlint, File Explorer, Search, and Roles, and then mounts the same
-`WorkspaceShell` used by the desktop and governed Storybook hosts. The package
+Markdownlint, File Explorer, Search, and Roles, reports that sequence through
+Design Core `WorkspaceStartup`, and then mounts the same `WorkspaceShell` used
+by the desktop and governed Storybook hosts. The package
 does not seed a demo vault or activate community plugins.
 
 The production build emits the legacy manifest identity, generated icon set,

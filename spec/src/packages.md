@@ -291,6 +291,9 @@ instead of reconstructing workspace CSS. The desktop-only Vite Tailwind pass is
 limited to compiling the intaken launcher composition and does not move native
 selection or session policy into a shared package. Scoped desktop CSS owns
 launcher overlay geometry and class-selected native window-control clearance.
+Session boot consumes public `@lapismd/design-core/workspace/startup` and the
+shared drag-region stylesheet rather than a host-owned loading stub or
+`-webkit-app-region` override.
 The development renderer adds the real linked Design Core package root to its
 narrow Vite filesystem allowlist so public stylesheet assets remain available.
 

@@ -13,6 +13,7 @@ body,
 #app,
 .web-host,
 .web-host__workspace {
+  position: relative;
   width: 100%;
   height: 100%;
   min-width: 0;
@@ -91,38 +92,3 @@ body {
   --ui-command-view-list-max-height: min(20rem, calc(80vh - 6rem));
 }
 
-.web-host__loading {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  padding: 2rem;
-  place-items: center;
-  text-align: center;
-}
-
-.web-host__loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.web-host__loading-content img {
-  width: 3rem;
-  height: 3rem;
-}
-
-.web-host__loading-content h1,
-.web-host__loading-content p {
-  margin: 0;
-}
-
-.web-host__loading-content h1 {
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.web-host__loading-content p {
-  color: var(--ui-workspace-muted-foreground, #666);
-  font-size: 0.875rem;
-}

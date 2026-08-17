@@ -114,7 +114,7 @@ export async function launchDesktopApp(options: {
       };
       const capture = () => {
         const content = document.querySelector<HTMLElement>(
-          ".desktop-host__loading-content",
+          '[data-ui-component="workspace-startup"]',
         );
         if (!content) return;
         const rect = content.getBoundingClientRect();

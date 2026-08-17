@@ -57,6 +57,24 @@ are intentionally omitted.
 | LN-DESK-046 | Agent-runtime protocol v3 MUST add authenticated application-tool bridge open, response, close, call, and cancellation messages while preserving protocol-v2 agent fallback without tools. Tool authorization MUST bind to the host connection, conversation, native binding, and fixed scope; disconnect MUST revoke the bridge and its pending calls. |
 | LN-DESK-047 | AI Host MUST expose application tools through an official-SDK stdio MCP shim backed by a token-authenticated ephemeral `127.0.0.1` broker. Electron packages MUST ship an executable unpacked shim, keep stdout protocol-only, reserve `lapis-tools`, keep bridge credentials out of arguments and durable state, and cancel in-flight calls when their owning connection closes. |
 | LN-DESK-048 | Explorer MUST consume the advertised `file-system-actions` capability through the existing resolve, open, and reveal desktop IPC. It MUST NOT add a command or a second IPC channel for those actions. |
+| LN-DESK-049 | After a vault is open, Design Core spacer, stacked chrome, view-header title container, and startup root MUST compute `-webkit-app-region: drag`. Interactive controls on those surfaces MUST compute `no-drag`. Lapis MUST NOT re-declare that CSS. |
+| LN-DESK-050 | Desktop session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. |
+
+### LN-DESK-049 acceptance details
+
+Electron acceptance verifies Design Core drag chrome:
+
+- Ready top-tab spacer, stacked-tab chrome, view-header title container, and session startup root MUST compute `-webkit-app-region: drag`.
+- Interactive descendants on those surfaces MUST compute `no-drag`.
+- Lapis stylesheets MUST NOT re-declare `app-region` or `-webkit-app-region`.
+
+### LN-DESK-050 acceptance details
+
+Desktop session boot verifies the shared startup surface:
+
+- The four task ids MUST be `vault`, `configuration`, `plugins`, and `layout`.
+- `WorkspaceShell` MUST stay unmounted until that sequence completes.
+- Retry MUST reuse the mounted session and MUST NOT open the branded launcher.
 
 ## Boot flow
 
@@ -82,6 +100,7 @@ Electron main
   -> NativeDesktopBridge registration
   -> desktop-owned vault bootstrap
   -> API vault session and App
+  -> Design Core WorkspaceStartup
   -> @lapis-notes/workspace WorkspaceShell
 ```
 

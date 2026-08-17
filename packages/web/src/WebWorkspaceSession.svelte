@@ -22,6 +22,11 @@
   import { SearchPlugin } from "@lapis-notes/search";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
+  import {
+    WorkspaceStartup,
+    type WorkspaceStartupFailure,
+    type WorkspaceStartupTask,
+  } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
   import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
@@ -32,7 +37,6 @@
     profile,
     session,
     onReady,
-    onFailure,
     onOpenRecent,
     onManageVaults,
   }: {
@@ -40,10 +44,16 @@
     profile: VaultProfile;
     session: VaultSession;
     onReady(): void;
-    onFailure(error: unknown): void;
     onOpenRecent(profile: VaultProfile): Promise<void>;
     onManageVaults(): Promise<void>;
   } = $props();
+
+  const STARTUP_TASKS: WorkspaceStartupTask[] = [
+    { id: "vault", label: "Open the vault", status: "pending" },
+    { id: "configuration", label: "Load app configuration", status: "pending" },
+    { id: "plugins", label: "Load configured core plugins", status: "pending" },
+    { id: "layout", label: "Restore the workspace layout", status: "pending" },
+  ];
 
   const app = untrack(
     () =>
@@ -68,7 +78,11 @@
     installApplicationCompatibility(app);
   const disposePwaRuntimeApplication = setPwaRuntimeApplication(app);
   let ready = $state(false);
+  let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
+  let failure = $state<WorkspaceStartupFailure | null>(null);
   let disposed = false;
+  let booting = false;
+  let corePluginsRegistered = false;
   let stopMetadataTracking: (() => void) | null = null;
   let disposeDatabaseStatus: (() => void) | null = null;
   let disposeCoordinationListener: (() => void) | null = null;
@@ -108,6 +122,15 @@
     };
   });
 
+  function setTask(
+    id: string,
+    taskStatus: WorkspaceStartupTask["status"],
+  ): void {
+    tasks = tasks.map((task) =>
+      task.id === id ? { ...task, status: taskStatus } : task,
+    );
+  }
+
   function syncDatabaseStatus(role: "owner" | "proxy"): void {
     disposeDatabaseStatus?.();
     disposeDatabaseStatus = getWorkspaceHostBinding(
@@ -138,44 +161,88 @@
     ) ?? null;
   }
 
+  async function teardownPartialBoot(): Promise<void> {
+    ready = false;
+    stopMetadataTracking?.();
+    stopMetadataTracking = null;
+    disposeCoordinationListener?.();
+    disposeDatabaseStatus?.();
+    disposeCoordinationListener = null;
+    disposeDatabaseStatus = null;
+    await app.workspace.disposeWorkspaceHost().catch(() => undefined);
+    await app.metadataCache.dispose().catch(() => undefined);
+    for (const plugin of [...app.plugins.corePlugins].reverse()) {
+      await plugin.disable().catch(() => undefined);
+    }
+  }
+
   async function initialize(): Promise<void> {
+    if (disposed || booting) return;
+    booting = true;
+    failure = null;
+    tasks = structuredClone(STARTUP_TASKS);
+    let activeTask = "vault";
     try {
+      if (corePluginsRegistered || stopMetadataTracking) {
+        await teardownPartialBoot();
+      }
+      if (disposed) return;
+
+      setTask(activeTask, "active");
       registerWebAgentRuntimeBridge();
-      app.plugins.registerCorePlugins([
-        { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
-        { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
-        { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
-        { plugin: SearchPlugin, required: false, enabledByDefault: true },
-        { plugin: HistoryPlugin, required: false, enabledByDefault: true },
-        {
-          plugin: BasesPlugin,
-          required: false,
-          enabledByDefault: true,
-          distribution: "bundled",
-        },
-        {
-          plugin: AiPlugin,
-          required: false,
-          enabledByDefault: true,
-          distribution: "bundled",
-        },
-        {
-          plugin: RolesPlugin,
-          required: false,
-          enabledByDefault: true,
-          distribution: "first-party-external",
-        },
-      ]);
+      if (!corePluginsRegistered) {
+        app.plugins.registerCorePlugins([
+          { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
+          { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+          { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
+          { plugin: SearchPlugin, required: false, enabledByDefault: true },
+          { plugin: HistoryPlugin, required: false, enabledByDefault: true },
+          {
+            plugin: BasesPlugin,
+            required: false,
+            enabledByDefault: true,
+            distribution: "bundled",
+          },
+          {
+            plugin: AiPlugin,
+            required: false,
+            enabledByDefault: true,
+            distribution: "bundled",
+          },
+          {
+            plugin: RolesPlugin,
+            required: false,
+            enabledByDefault: true,
+            distribution: "first-party-external",
+          },
+        ]);
+        corePluginsRegistered = true;
+      }
       await app.vault.load();
       await app.vault.mkpath(".obsidian");
       const hasPersistedLayout = await adapter.exists(".obsidian/workspace.json");
+      if (disposed) return;
+      setTask(activeTask, "complete");
+
+      activeTask = "configuration";
+      setTask(activeTask, "active");
       await app.configuration.load();
+      if (disposed) return;
+      setTask(activeTask, "complete");
+
+      activeTask = "plugins";
+      setTask(activeTask, "active");
       await app.plugins.loadPlugins({
         communityPlugins: "disabled",
         optionalCorePlugins: "configured",
       });
       stopMetadataTracking = app.metadataTypeManager.trackChanges();
       await app.metadataCache.load();
+      if (disposed) return;
+      setTask(activeTask, "complete");
+
+      activeTask = "layout";
+      setTask(activeTask, "active");
       await app.workspace.loadLayout();
       if (
         app.plugins.isPluginEnabled("search") &&
@@ -187,6 +254,8 @@
       }
       recentVaults = await listVaultProfiles();
       registerDatabaseStatus();
+      if (disposed) return;
+      setTask(activeTask, "complete");
       ready = true;
       onReady();
       const launch = new URL(window.location.href);
@@ -195,7 +264,26 @@
         if (url) await app.urls.dispatch(url);
       }
     } catch (error) {
-      onFailure(error);
+      setTask(activeTask, "failed");
+      const detail = error instanceof Error ? error.message : String(error);
+      failure = {
+        title: "Lapis Notes could not start",
+        description:
+          activeTask === "plugins"
+            ? "A configured core plugin failed while the workspace was starting."
+            : "The workspace could not complete its startup sequence.",
+        detail,
+        actions: [
+          {
+            id: "retry",
+            label: "Retry",
+            icon: "refresh-cw",
+            onSelect: () => initialize(),
+          },
+        ],
+      };
+    } finally {
+      booting = false;
     }
   }
 
@@ -243,12 +331,10 @@
       {workspaceNavigation}
     />
   {:else}
-    <div class="web-host__loading" aria-live="polite">
-      <div class="web-host__loading-content">
-        <img src="/favicon.svg" alt="" />
-        <h1>Lapis Notes</h1>
-        <p>Opening vault…</p>
-      </div>
-    </div>
+    <WorkspaceStartup
+      title="Opening Lapis Notes"
+      {tasks}
+      {failure}
+    />
   {/if}
 </section>

@@ -27,5 +27,19 @@ describe("web Bases host registration", () => {
     expect(loadPlugins).toBeGreaterThan(roles);
     expect(metadata).toBeGreaterThan(loadPlugins);
     expect(layout).toBeGreaterThan(metadata);
+    expect(source).toContain("WorkspaceStartup");
+    expect(source).toContain('id: "vault"');
+    expect(source).toContain('id: "configuration"');
+    expect(source).toContain('id: "plugins"');
+    expect(source).toContain('id: "layout"');
+    expect(source).not.toContain("Opening vault…");
+  });
+
+  it("does not re-declare Electron app-region CSS", () => {
+    const css = readFileSync(
+      path.resolve(process.cwd(), "src/web-host.css"),
+      "utf8",
+    );
+    expect(css).not.toMatch(/(?:-webkit-)?app-region/u);
   });
 });

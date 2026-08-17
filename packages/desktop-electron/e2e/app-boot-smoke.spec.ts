@@ -170,6 +170,24 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
       usesDesktopDevRenderer() ? "http:" : "lapis-app:",
     );
     await expect(app.page.getByRole("tab", { name: "Search" })).toBeVisible();
+    const spacer = app.page.locator('[data-ui-part="spacer"]');
+    const newTab = app.page.locator('[data-ui-part="new-tab"]');
+    await expect(spacer).toHaveAttribute("data-desktop-drag-region", "");
+    await expect(newTab).toHaveAttribute("data-desktop-drag-region", "false");
+    const tabRegions = await app.page.evaluate(() => ({
+      spacer: getComputedStyle(
+        document.querySelector('[data-ui-part="spacer"]')!,
+      )
+        .getPropertyValue("-webkit-app-region")
+        .trim(),
+      newTab: getComputedStyle(
+        document.querySelector('[data-ui-part="new-tab"]')!,
+      )
+        .getPropertyValue("-webkit-app-region")
+        .trim(),
+    }));
+    expect(tabRegions.spacer).toBe("drag");
+    expect(tabRegions.newTab).toBe("no-drag");
     const runtime = await app.page.evaluate(() => ({
       runtime: (
         globalThis as typeof globalThis & {
@@ -197,10 +215,11 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
     expect(runtime).toEqual({
       runtime: "electron-desktop",
       vault: "vault-a",
-      pluginCount: 7,
+      pluginCount: 8,
       pluginIds: [
         "ai",
         "bases",
+        "history",
         "lapis-file-explorer",
         "lapis-markdown-lint",
         "markdown",
@@ -775,6 +794,140 @@ test("a second-instance app URL reaches the ready workspace host", async () => {
     ).toBe(1);
     expect(app.rendererErrors).toEqual([]);
     expect(await getMainProcessUnhandledErrors(app.electronApp)).toEqual([]);
+  } finally {
+    await app.close();
+    await state.cleanup();
+  }
+});
+
+test("session boot shows WorkspaceStartup tasks before the shell", async () => {
+  const state = await createDesktopTestState();
+  const app = await launchDesktopApp({
+    userDataDir: state.userDataDir,
+    vaultPath: state.vaultA,
+    captureLoadingGeometry: true,
+  });
+  try {
+    const startup = app.page.locator('[data-ui-component="workspace-startup"]');
+    await startup.waitFor({ state: "visible", timeout: 60_000 });
+    await expect(
+      app.page.getByRole("region", { name: "Opening Lapis Notes" }),
+    ).toBeVisible();
+    const tasks = app.page.locator('[data-ui-part="tasks"]');
+    await expect(tasks.getByText("Open the vault")).toBeVisible();
+    await expect(tasks.getByText("Load app configuration")).toBeVisible();
+    await expect(tasks.getByText("Load configured core plugins")).toBeVisible();
+    await expect(tasks.getByText("Restore the workspace layout")).toBeVisible();
+    await expect(
+      app.page.getByRole("progressbar", { name: "Startup progress" }),
+    ).toBeVisible();
+    await expect(startup).toHaveAttribute("data-desktop-drag-region", "");
+    expect(
+      (
+        await startup.evaluate((element) =>
+          getComputedStyle(element).getPropertyValue("-webkit-app-region"),
+        )
+      ).trim(),
+    ).toBe("drag");
+
+    await waitForDesktopWorkspace(app.page, app.rendererErrors);
+    await expect(startup).toHaveCount(0);
+    await expect(
+      app.page.locator('[data-ui-component="lapis-workspace-shell"]'),
+    ).toBeVisible();
+    expect(app.rendererErrors).toEqual([]);
+  } finally {
+    await app.close();
+    await state.cleanup();
+  }
+});
+
+test("ready chrome and view header expose Electron drag regions", async () => {
+  const state = await createDesktopTestState();
+  const configDir = path.join(state.vaultA, ".obsidian");
+  fs.mkdirSync(configDir, { recursive: true });
+  fs.writeFileSync(path.join(state.vaultA, "Welcome.md"), "# Welcome\n");
+  fs.writeFileSync(
+    path.join(configDir, "app.json"),
+    JSON.stringify({
+      "appearence.interface.showTabTitleBar": true,
+    }),
+  );
+  fs.writeFileSync(
+    path.join(configDir, "workspace.json"),
+    JSON.stringify({
+      main: {
+        id: "main",
+        type: "split",
+        direction: "horizontal",
+        children: [
+          {
+            id: "main-tabs",
+            type: "tabs",
+            stacked: true,
+            currentTab: 0,
+            children: [
+              {
+                id: "welcome",
+                type: "leaf",
+                state: {
+                  type: "markdown",
+                  state: { file: "Welcome.md", mode: "source" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      left: {
+        id: "left",
+        type: "split",
+        direction: "vertical",
+        children: [],
+        width: "22rem",
+      },
+      right: {
+        id: "right",
+        type: "split",
+        direction: "vertical",
+        children: [],
+        width: "0px",
+      },
+      bottom: { id: "bottom", type: "tabs", children: [], height: "0px" },
+      floating: [],
+      active: "welcome",
+    }),
+  );
+
+  const app = await launchDesktopApp({
+    userDataDir: state.userDataDir,
+    vaultPath: state.vaultA,
+  });
+  try {
+    await waitForDesktopWorkspace(app.page, app.rendererErrors);
+    const chrome = app.page.locator('[data-ui-part="chrome"]');
+    const titleContainer = app.page.locator('[data-ui-part="title-container"]');
+    const overflow = app.page.getByRole("button", { name: "Tab options" });
+    await expect(chrome).toBeVisible();
+    await expect(titleContainer).toBeVisible();
+    const regions = await app.page.evaluate(() => {
+      const read = (selector: string) => {
+        const element = document.querySelector<HTMLElement>(selector);
+        return element
+          ? getComputedStyle(element).getPropertyValue("-webkit-app-region").trim()
+          : null;
+      };
+      return {
+        chrome: read('[data-ui-part="chrome"]'),
+        titleContainer: read('[data-ui-part="title-container"]'),
+        overflow: read('[aria-label="Tab options"]'),
+      };
+    });
+    expect(regions.chrome).toBe("drag");
+    expect(regions.titleContainer).toBe("drag");
+    expect(regions.overflow).toBe("no-drag");
+    await expect(overflow).toHaveAttribute("data-desktop-drag-region", "false");
+    expect(app.rendererErrors).toEqual([]);
   } finally {
     await app.close();
     await state.cleanup();
