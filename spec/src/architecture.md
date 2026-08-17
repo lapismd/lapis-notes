@@ -82,6 +82,9 @@ Current first-party hosts install a disposable application compatibility lease,
 but workspace, editor, plugin, and story code resolve the App from explicit
 ownership or Svelte context. The compatibility alias therefore serves legacy
 consumers without selecting the owner for newly constructed runtime objects.
+App constructs the workspace before the vault, so API-owned AppShell plugin
+enablement persistence resolves `app.vault` when load and save run instead of
+capturing it during workspace construction.
 
 The application tool registry follows the same explicit ownership boundary.
 It stores plugin-owned, transport-neutral callbacks on the owning App while AI

@@ -2854,7 +2854,7 @@ export class Workspace extends EventDispatcher<{
             );
           },
         },
-        plugins: createAppShellPluginPersistence(this.app.vault),
+        plugins: createAppShellPluginPersistence(() => this.app.vault),
       },
     });
     setWorkspaceHostBinding(this, {

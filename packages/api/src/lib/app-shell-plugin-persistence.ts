@@ -9,17 +9,32 @@ export interface AppShellPluginPersistenceVault {
   };
 }
 
+export type AppShellPluginPersistenceVaultSource =
+  | AppShellPluginPersistenceVault
+  | (() => AppShellPluginPersistenceVault | undefined | null)
+  | undefined
+  | null;
+
 export interface AppShellPluginEnablementPersistence {
   load(): Promise<unknown | null>;
   save(enabledById: Record<string, boolean>): Promise<void>;
 }
 
+function resolvePluginPersistenceVault(
+  source: AppShellPluginPersistenceVaultSource,
+): AppShellPluginPersistenceVault | undefined {
+  if (typeof source === "function") {
+    return source() ?? undefined;
+  }
+  return source ?? undefined;
+}
+
 export function createAppShellPluginPersistence(
-  vault: AppShellPluginPersistenceVault,
+  vault: AppShellPluginPersistenceVaultSource,
 ): AppShellPluginEnablementPersistence {
   return {
     async load() {
-      const adapter = vault.adapter;
+      const adapter = resolvePluginPersistenceVault(vault)?.adapter;
       if (!adapter?.read) return null;
       try {
         if (adapter.exists && !(await adapter.exists(APP_SHELL_PLUGINS_PATH))) {
@@ -32,9 +47,10 @@ export function createAppShellPluginPersistence(
       }
     },
     async save(enabledById) {
-      const adapter = vault.adapter;
+      const resolved = resolvePluginPersistenceVault(vault);
+      const adapter = resolved?.adapter;
       if (!adapter?.write) return;
-      await vault.mkpath?.(".obsidian").catch(() => undefined);
+      await resolved?.mkpath?.(".obsidian").catch(() => undefined);
       await adapter.write(
         APP_SHELL_PLUGINS_PATH,
         `${JSON.stringify(enabledById, null, 2)}\n`,

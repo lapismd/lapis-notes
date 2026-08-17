@@ -330,6 +330,7 @@ function installGlobals() {
 
 function createWorkspaceHarness(
   editorAssociations: Record<string, string> = {},
+  options: { deferVault?: boolean } = {},
 ) {
   installGlobals();
   const plugins = {
@@ -388,11 +389,13 @@ function createWorkspaceHarness(
         return callback({ setAttribute() {} });
       },
     },
-    vault: {
-      create: async () => null,
-      getFileByPath: () => null,
-      read: async () => "",
-    },
+    vault: options.deferVault
+      ? undefined
+      : {
+          create: async () => null,
+          getFileByPath: () => null,
+          read: async () => "",
+        },
     configuration: {
       getConfiguration: () => ({
         get<T>(key: string, defaultValue?: T): T {
@@ -1872,6 +1875,56 @@ describe("Workspace compatibility", () => {
       enabled: true,
       status: "enabled",
     });
+    await controller.dispose();
+  });
+
+  it("loads AppShell plugin state after App assigns the vault", async () => {
+    const files = new Map<string, string>();
+    const { app, workspace } = createWorkspaceHarness({}, { deferVault: true });
+    expect(app.vault).toBeUndefined();
+    (
+      app as App & {
+        vault: {
+          adapter: {
+            exists(path: string): Promise<boolean>;
+            read(path: string): Promise<string>;
+            write(path: string, data: string): Promise<void>;
+          };
+          mkpath(path: string): Promise<void>;
+        };
+      }
+    ).vault = {
+      adapter: {
+        exists: async (path) => files.has(path),
+        read: async (path) => {
+          const value = files.get(path);
+          if (value === undefined) throw new Error("missing");
+          return value;
+        },
+        write: async (path, data) => {
+          files.set(path, data);
+        },
+      },
+      mkpath: async () => undefined,
+    };
+    const controller = getWorkspaceHostBinding(workspace).controller;
+
+    await controller.start();
+
+    expect(
+      controller.diagnostics.entries.map((entry) => entry.diagnostic.code),
+    ).not.toContain("app-shell.plugin-state-load");
+    expect(controller.plugins.get("fmode")).toMatchObject({
+      id: "fmode",
+      enabled: false,
+      status: "disabled",
+    });
+    expect(await controller.managedPlugins.enable("app-shell:fmode")).toBe(
+      true,
+    );
+    expect(files.get(".obsidian/app-shell-plugins.json")).toContain(
+      '"fmode": true',
+    );
     await controller.dispose();
   });
 
