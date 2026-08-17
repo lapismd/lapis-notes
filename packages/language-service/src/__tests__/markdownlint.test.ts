@@ -64,7 +64,7 @@ describe("markdownlint sync API", () => {
     );
   });
 
-  it("disables MD013 line-length by default like vscode-markdownlint", () => {
+  it("reports MD013 line-length unless the rule is disabled", () => {
     const longLine =
       "The cheapest loft stilts are plastic raised joist extensions that cost more than eighty characters.\n";
     const defaultResult = lintMarkdown(longLine);
@@ -72,16 +72,14 @@ describe("markdownlint sync API", () => {
       (defaultResult["note.md"] ?? []).some((issue) =>
         issue.ruleNames?.includes("MD013"),
       ),
-    ).toBe(false);
+    ).toBe(true);
 
-    const enabledResult = lintMarkdown(longLine, {
-      MD013: { line_length: 80 },
-    });
+    const disabledResult = lintMarkdown(longLine, { MD013: false });
     expect(
-      (enabledResult["note.md"] ?? []).some((issue) =>
+      (disabledResult["note.md"] ?? []).some((issue) =>
         issue.ruleNames?.includes("MD013"),
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("returns fix metadata for fixable MD018 violations", () => {

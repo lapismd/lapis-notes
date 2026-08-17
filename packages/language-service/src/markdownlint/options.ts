@@ -57,7 +57,6 @@ const md018AllowTagsRule = {
 
 export const LAPIS_MARKDOWNLINT_DEFAULT_CONFIG = {
   default: true,
-  MD013: false,
   MD018: false,
 } as const;
 

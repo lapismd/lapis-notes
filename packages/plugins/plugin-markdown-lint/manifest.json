@@ -36,11 +36,39 @@
             "disabledRules": {
               "type": "array",
               "title": "Disabled rules",
-              "description": "Markdownlint rule IDs to suppress for this vault.",
+              "description": "Markdownlint rule IDs to suppress for this vault. MD013/line-length starts off.",
               "items": {
                 "type": "string"
               },
-              "default": []
+              "default": ["MD013"]
+            },
+            "includeGlobs": {
+              "type": "array",
+              "title": "Include globs",
+              "description": "Optional path allowlist for open Markdown documents. Leave empty to lint remaining Markdown after excludes.",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "**/*.{md,markdown,mdown,mkd,mdwn,mdtxt,mdtext}"
+              ]
+            },
+            "excludeGlobs": {
+              "type": "array",
+              "title": "Exclude globs",
+              "description": "Skip matching open Markdown paths.",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "**/node_modules/**",
+                "**/bower_components/**",
+                "**/.git/**",
+                "**/vendor/**",
+                "**/.obsidian/**",
+                "**/.lapis/**",
+                "**/.jj/**"
+              ]
             }
           }
         }

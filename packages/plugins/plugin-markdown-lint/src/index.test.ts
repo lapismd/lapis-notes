@@ -44,6 +44,15 @@ vi.mock("@lapis-notes/api", () => {
     Plugin: MockPlugin,
     getNativeDesktopBridge: apiMocks.getNativeDesktopBridge,
     hasNativeDesktopCapability: apiMocks.hasNativeDesktopCapability,
+    matchesEditorAssociationGlob: (pattern: string, path: string) => {
+      if (pattern.includes("node_modules")) {
+        return /(^|\/)node_modules\//.test(path);
+      }
+      if (pattern.includes("{md") || pattern.endsWith(".md")) {
+        return /\.(md|markdown|mdown|mkd|mdwn|mdtxt|mdtext)$/iu.test(path);
+      }
+      return false;
+    },
   };
 });
 
@@ -62,7 +71,7 @@ type RegisteredProvider = {
   metadata: { id: string; languages: string[] };
 };
 
-function createMockApp(disabledRules: unknown[] = []) {
+function createMockApp(values: Record<string, unknown> = {}) {
   const providers: RegisteredProvider[] = [];
 
   return {
@@ -71,7 +80,7 @@ function createMockApp(disabledRules: unknown[] = []) {
       configuration: {
         getConfiguration: () => ({
           get: vi.fn((key: string, fallback: unknown) =>
-            key === "markdown-lint.disabledRules" ? disabledRules : fallback,
+            key in values ? values[key] : fallback,
           ),
         }),
       },
@@ -90,6 +99,10 @@ function createMockApp(disabledRules: unknown[] = []) {
       },
     },
   };
+}
+
+function documentContext(uri = "vault:///Notes/Welcome.md") {
+  return { document: { uri } };
 }
 
 describe("MarkdownLintPlugin", () => {
@@ -111,12 +124,9 @@ describe("MarkdownLintPlugin", () => {
       }),
     );
 
-    const { app, providers } = createMockApp([
-      " MD041 ",
-      "",
-      "MD013",
-      12,
-    ]);
+    const { app, providers } = createMockApp({
+      "markdown-lint.disabledRules": [" MD041 ", "", "MD013", 12],
+    });
     const plugin = new MarkdownLintPlugin(app as never);
 
     await plugin.onload();
@@ -133,7 +143,9 @@ describe("MarkdownLintPlugin", () => {
       }),
     );
 
-    const diagnostics = await providers[0]!.provider.provideDiagnostics({});
+    const diagnostics = await providers[0]!.provider.provideDiagnostics(
+      documentContext(),
+    );
 
     expect(
       languageServiceMocks.createMarkdownLanguageServiceProvider,
@@ -178,7 +190,7 @@ describe("MarkdownLintPlugin", () => {
 
     const { app, providers } = createMockApp();
     await new MarkdownLintPlugin(app as never).onload();
-    await providers[0]!.provider.provideDiagnostics({});
+    await providers[0]!.provider.provideDiagnostics(documentContext());
 
     expect(
       languageServiceMocks.probeNativeMarkdownLanguageService,
@@ -191,5 +203,58 @@ describe("MarkdownLintPlugin", () => {
     expect(
       languageServiceMocks.createMarkdownLanguageServiceProvider,
     ).not.toHaveBeenCalled();
+  });
+
+  it("seeds MD013 as disabled and skips excluded open documents", async () => {
+    languageServiceMocks.createMarkdownLanguageServiceProvider.mockImplementation(
+      ({ getRules }: { getRules: () => Record<string, unknown> }) => ({
+        metadata: {
+          id: "markdown-lint-worker",
+          languages: ["markdown"],
+        },
+        provideDiagnostics: vi.fn(async () => [{ rules: getRules() }]),
+        provideCodeActions: vi.fn(async () => [{ title: "Fix lint issue" }]),
+      }),
+    );
+
+    const { app, providers } = createMockApp();
+    await new MarkdownLintPlugin(app as never).onload();
+
+    expect(await providers[0]!.provider.provideDiagnostics(documentContext())).toEqual([
+      { rules: { MD013: false } },
+    ]);
+    expect(
+      await providers[0]!.provider.provideDiagnostics(
+        documentContext("vault:///node_modules/pkg/README.md"),
+      ),
+    ).toEqual([]);
+    expect(
+      await providers[0]!.provider.provideCodeActions(
+        documentContext("vault:///node_modules/pkg/README.md"),
+        {},
+      ),
+    ).toEqual([]);
+  });
+
+  it("re-enables MD013 when disabledRules is an empty list", async () => {
+    languageServiceMocks.createMarkdownLanguageServiceProvider.mockImplementation(
+      ({ getRules }: { getRules: () => Record<string, unknown> }) => ({
+        metadata: {
+          id: "markdown-lint-worker",
+          languages: ["markdown"],
+        },
+        provideDiagnostics: vi.fn(async () => [{ rules: getRules() }]),
+        provideCodeActions: vi.fn(async () => []),
+      }),
+    );
+
+    const { app, providers } = createMockApp({
+      "markdown-lint.disabledRules": [],
+    });
+    await new MarkdownLintPlugin(app as never).onload();
+
+    expect(await providers[0]!.provider.provideDiagnostics(documentContext())).toEqual([
+      { rules: undefined },
+    ]);
   });
 });

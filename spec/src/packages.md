@@ -208,7 +208,7 @@ is the fallback when a rich provider is absent.
 `@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
 side panels. `@lapis-notes/markdown-lint` and the internal
 `@lapis-notes/language-service` package are the focused diagnostics exceptions.
-Language-service Markdownlint defaults disable MD013/line-length so the editor
+Markdownlint Settings seed MD013/line-length in `disabledRules` so the editor
 matches vscode-markdownlint rather than the CLI's all-rules-on library default.
 `@lapis-notes/history` owns vault file-revision capture, the History panel, the
 compare tab, and the Design Core History settings section while persisting

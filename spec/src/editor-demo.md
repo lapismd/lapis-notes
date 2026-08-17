@@ -57,6 +57,7 @@
 | LN-ED-055 | Storybook Explorer placement plays MUST open a file-row context menu on the in-memory vault and assert that native copy, open, and reveal extras are absent. |
 | LN-ED-056 | The editor demo play MUST assert the Word Count status item for the seeded Welcome note, show reading time on click, and MUST NOT use compatibility status DOM. |
 | LN-ED-057 | The editor demo MUST seed a long-form loft-boarding Markdown note and open it in a focused Markdownlint story that reveals Problems. Published diagnostics MUST stay unique by code and range. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
+| LN-ED-058 | The Editor Settings story MUST open the Markdown Lint section, show the seeded MD013 disable and default file globs, and persist a setting change to `.obsidian/app.json`. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add
@@ -118,7 +119,8 @@ owned by `@lapis-notes/file-explorer`.
 `@lapis-notes/markdown` owns document behavior and reuses one
 `MiraFileAdapter` per App so ordinary-link previews and File Properties
 wikilink pills survive workspace split resize. The enabled
-`@lapis-notes/markdown-lint` plugin contributes diagnostics only. Markdown owns
+`@lapis-notes/markdown-lint` plugin contributes diagnostics only and exposes
+seeded rule and glob Settings. Markdown owns
 the Tags view. Shared panel
 presentation is specified under `workspace-shell/panels.md`. The Markdown
 Problems scenario also verifies that Design Core renders the live

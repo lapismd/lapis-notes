@@ -13,27 +13,24 @@ import {
 } from "@lapis-notes/language-service/markdown";
 
 import manifestSpec from "../manifest.json";
+import { shouldLintMarkdownPath, vaultPathFromDocumentUri } from "./path-filter";
+import { registerMarkdownLintSettings } from "./register-markdown-lint-settings";
+import {
+  markdownLintRulesFromSettings,
+  readMarkdownLintSettings,
+} from "./settings";
 
 const MARKDOWN_LINT_PROVIDER_ID = "markdown-lint";
 
 function getMarkdownLintRules(app: App): Record<string, unknown> | undefined {
-  const disabledRules = app.configuration
-    .getConfiguration()
-    .get<unknown[]>("markdown-lint.disabledRules", []);
-  if (!Array.isArray(disabledRules) || disabledRules.length === 0) {
-    return undefined;
-  }
+  return markdownLintRulesFromSettings(readMarkdownLintSettings(app));
+}
 
-  const entries = disabledRules
-    .filter((rule): rule is string => typeof rule === "string")
-    .map((rule) => rule.trim())
-    .filter((rule) => rule.length > 0)
-    .map((rule) => [rule, false] as const);
-  if (entries.length === 0) {
-    return undefined;
-  }
-
-  return Object.fromEntries(entries);
+function shouldLintDocument(app: App, uri: string): boolean {
+  return shouldLintMarkdownPath(
+    vaultPathFromDocumentUri(uri),
+    readMarkdownLintSettings(app),
+  );
 }
 
 function createMarkdownLintProviderForApp(app: App): LanguageServiceProvider {
@@ -71,10 +68,16 @@ function createMarkdownLintProviderForApp(app: App): LanguageServiceProvider {
       await provider.updateDocument?.(update);
     },
     async provideDiagnostics(context) {
+      if (!shouldLintDocument(app, context.document?.uri ?? "")) {
+        return [];
+      }
       const provider = await getProvider();
       return (await provider.provideDiagnostics?.(context)) ?? [];
     },
     async provideCodeActions(context, range) {
+      if (!shouldLintDocument(app, context.document?.uri ?? "")) {
+        return [];
+      }
       const provider = await getProvider();
       return (await provider.provideCodeActions?.(context, range)) ?? [];
     },
@@ -119,6 +122,7 @@ export class MarkdownLintPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
+    registerMarkdownLintSettings(this);
     this.registerLapisServiceProvider({
       id: MARKDOWN_LINT_PROVIDER_ID,
       service: "language-service",

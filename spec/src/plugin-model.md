@@ -85,7 +85,9 @@ of being rewritten as empty placeholders while that registration remains.
 Plugin configuration and data remain keyed by runtime plugin ID.
 Bundled plugins that own user-facing configuration register Design Core
 settings sections under `core-plugins` in addition to any legacy
-`PluginSettingTab` compatibility surface.
+`PluginSettingTab` compatibility surface. Markdown Lint seeds
+`markdown-lint.disabledRules` with MD013 and include/exclude globs for open
+documents, using the same configuration keys as its manifest schema.
 Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.

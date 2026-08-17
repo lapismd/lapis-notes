@@ -1429,7 +1429,7 @@ export const ExplorerMutations: Story = {
 export const EditorSettings: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-editor-settings",
-    "Live source-editor settings persist through API configuration, while Editor associations lists the registered Markdown, Text, and JSON views.",
+    "Live source-editor settings persist through API configuration, Markdown Lint seeds MD013 and file globs, and Editor associations lists the registered Markdown, Text, and JSON views.",
     "/visual-baselines/stories/workspace/lapis-editor-demo/editor-settings-chromium.png",
   ),
   args: { scenario: "editor-settings" },
@@ -1522,17 +1522,18 @@ export const EditorSettings: Story = {
     await waitFor(() =>
       expect(canvasElement.querySelector(".cm-lineNumbers")).toBeNull(),
     );
-    await fireEvent.input(
-      within(dialog).getByRole("slider", { name: "Indent width" }),
-      { target: { value: "6" } },
-    );
+    const indentWidth = within(dialog).getByRole("slider", {
+      name: "Indent width",
+    });
+    indentWidth.focus();
+    await userEvent.keyboard("{ArrowRight}{ArrowRight}");
     await expect(within(dialog).getByText("6")).toBeVisible();
 
     await userEvent.click(
-      within(dialog).getByRole("button", { name: "Markdown" }),
+      within(dialog).getByRole("button", { name: /^Markdown$/ }),
     );
     await expect(
-      within(dialog).getByRole("heading", { name: "Markdown" }),
+      within(dialog).getByRole("heading", { name: /^Markdown$/ }),
     ).toBeVisible();
     await expect(
       within(dialog).getByRole("heading", { name: "Features" }),
@@ -1592,6 +1593,58 @@ export const EditorSettings: Story = {
         canvasElement.querySelector("svg.mira-doodle-divider"),
       ).not.toBeNull(),
     );
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Markdown Lint" }),
+    );
+    await expect(
+      within(dialog).getByRole("heading", { name: "Markdown Lint" }),
+    ).toBeVisible();
+    const disabledRules = within(dialog).getByRole("combobox", {
+      name: "Disabled rules",
+    });
+    await expect(disabledRules).toHaveTextContent("MD013");
+    await expect(
+      disabledRules.closest(
+        "[data-ui-component='workspace-setting-multiselect']",
+      ),
+    ).not.toBeNull();
+    await expect(
+      within(dialog).getByRole("textbox", { name: "Include globs item 1" }),
+    ).toHaveValue("**/*.{md,markdown,mdown,mkd,mdwn,mdtxt,mdtext}");
+    await expect(
+      within(dialog).getByRole("textbox", { name: "Exclude globs item 1" }),
+    ).toHaveValue("**/node_modules/**");
+    await userEvent.click(disabledRules);
+    const rulesPopover = await waitFor(() => {
+      const content = canvasElement.ownerDocument.querySelector<HTMLElement>(
+        '[data-ui-component="workspace-setting-multiselect"][data-ui-part="content"]',
+      );
+      expect(content).not.toBeNull();
+      expect(
+        content!.querySelector(
+          '[data-ui-component="command-view"][data-ui-part="root"]',
+        ),
+      ).not.toBeNull();
+      return content!;
+    });
+    await userEvent.type(
+      within(rulesPopover).getByPlaceholderText("Search options..."),
+      "MD041",
+    );
+    await userEvent.click(
+      within(canvasElement.ownerDocument.body).getByRole("option", {
+        name: /MD041/,
+      }),
+    );
+    await waitFor(async () =>
+      expect(
+        (await persistedStoryConfiguration(canvasElement))[
+          "markdown-lint.disabledRules"
+        ],
+      ).toEqual(expect.arrayContaining(["MD013", "MD041"])),
+    );
+    await userEvent.keyboard("{Escape}");
 
     await userEvent.click(
       within(dialog).getByRole("button", { name: "Workspace" }),
