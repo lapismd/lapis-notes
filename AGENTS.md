@@ -367,7 +367,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   while the pointer crosses the safe handoff corridor into interactive card
   controls. Do not retarget or reposition an open card from incidental editor
   mouse movement; cover the line-11 path to the far-right copy control in the
-  real workspace pointer test.
+  real workspace pointer test. Hover-card action lists MUST use unique keys
+  even when titles repeat. Cached hover and Problems actions for a diagnostic
+  MUST belong to that diagnostic and expose at most one action per title.
 - Keep the `View Problem` expansion inside the API editor styling boundary. Its
   pointer, warning accent, header/body separation, metadata, and close control
   use native editor CSS plus public workspace tokens; do not rely on an app-level

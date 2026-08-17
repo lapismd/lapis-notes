@@ -88,7 +88,9 @@ The ready renderer corresponds to the behavior demonstrated by
 `Workspace/Shell / PersistedDesktop`, but its adapter is a selected native
 folder. The desktop consumer loads the checkout's reusable core plugins before
 layout restoration; retained sidecars remain available to those plugins and to
-later community-plugin work.
+later community-plugin work. The Markdown sidecar consumes
+`@lapis-notes/language-service/markdownlint/runtime`, which groups same-rule
+fixes in a diagnostic range so hover and Problems actions stay unique by title.
 
 The desktop launcher retains the reference Lapis logo, create/open hierarchy,
 recent-project search and actions, and persisted appearance selector. Its

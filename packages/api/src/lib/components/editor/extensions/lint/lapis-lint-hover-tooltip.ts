@@ -1,4 +1,4 @@
-import type { Action, Diagnostic } from "@codemirror/lint";
+import type { Diagnostic } from "@codemirror/lint";
 import { forEachDiagnostic } from "@codemirror/lint";
 import { type Extension } from "@codemirror/state";
 import { EditorView, ViewPlugin, type ViewUpdate } from "@codemirror/view";
@@ -365,16 +365,12 @@ function mountLintTooltipForDiagnostic(
       view,
       from: found.from,
       to: found.to,
-      actions: actionsForCurrentRange(found.payload.actions),
+      actions: found.payload.actions,
       onAction,
     },
   );
   dom.classList.add("cm-lapis-tooltip");
   return dom;
-}
-
-function actionsForCurrentRange(actions: Action[]): Action[] {
-  return actions;
 }
 
 function lintMarkerFromEvent(event: MouseEvent): Element | null {

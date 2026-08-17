@@ -106,10 +106,8 @@ export class LanguageServiceManager {
   buildDiagnosticItemMenu(menu: Menu, entry: WorkspaceDiagnosticEntry): void {
     const uri = entry.resource?.uri;
     if (!uri || !this.diagnosticsBinding) return;
-    const actions = this.cachedCodeActions.get(
-      diagnosticCacheKey(uri, entry.diagnostic),
-    );
-    if (!actions?.length) return;
+    const actions = this.cachedCodeActionsFor(uri, entry.diagnostic);
+    if (!actions.length) return;
     const document = this.documents.get(uri);
     if (!document) return;
     for (const action of actions) {
@@ -302,9 +300,11 @@ export class LanguageServiceManager {
 
   cachedCodeActionsFor(
     uri: string,
-    diagnostic: LanguageServiceDiagnostic,
+    diagnostic: Pick<WorkspaceDiagnostic, "message" | "range" | "code">,
   ): readonly LanguageServiceCodeAction[] {
-    return this.cachedCodeActions.get(diagnosticCacheKey(uri, diagnostic)) ?? [];
+    return (
+      this.cachedCodeActions.get(diagnosticCacheKey(uri, diagnostic)) ?? []
+    );
   }
 
   private context(document: VirtualDocument): LanguageServiceRequestContext {
@@ -365,7 +365,7 @@ export class LanguageServiceManager {
         if (!this.openDocuments.has(document.uri)) return;
         this.cachedCodeActions.set(
           diagnosticCacheKey(document.uri, diagnostic),
-          actions,
+          uniqueActionsForDiagnostic(actions, diagnostic),
         );
       }),
     );
@@ -424,4 +424,34 @@ function diagnosticCacheKey(
       ? diagnostic.code.value
       : (diagnostic.code ?? ""),
   )}\u0000${JSON.stringify(diagnostic.range ?? null)}`;
+}
+
+function uniqueActionsForDiagnostic(
+  actions: readonly LanguageServiceCodeAction[],
+  diagnostic: LanguageServiceDiagnostic,
+): LanguageServiceCodeAction[] {
+  const matching = actions.filter(
+    (action) =>
+      !action.diagnostics?.length ||
+      action.diagnostics.some((entry) => diagnosticsMatch(entry, diagnostic)),
+  );
+  const seenTitles = new Set<string>();
+  return matching.filter((action) => {
+    if (seenTitles.has(action.title)) {
+      return false;
+    }
+    seenTitles.add(action.title);
+    return true;
+  });
+}
+
+function diagnosticsMatch(
+  left: LanguageServiceDiagnostic,
+  right: LanguageServiceDiagnostic,
+): boolean {
+  return (
+    left.message === right.message &&
+    String(left.code ?? "") === String(right.code ?? "") &&
+    JSON.stringify(left.range ?? null) === JSON.stringify(right.range ?? null)
+  );
 }

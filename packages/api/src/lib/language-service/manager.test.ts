@@ -164,6 +164,70 @@ describe("LanguageServiceManager diagnostics bridge", () => {
     expect(collection.values.size).toBe(0);
   });
 
+  it("scopes cached actions to the originating diagnostic and unique titles", async () => {
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    const diagnostic = {
+      message: "Lists should be surrounded by blank lines",
+      severity: "warning" as const,
+      source: "markdownlint",
+      code: "MD032",
+      range: {
+        start: { line: 1, character: 0 },
+        end: { line: 1, character: 1 },
+      },
+    };
+    const other = {
+      ...diagnostic,
+      range: {
+        start: { line: 4, character: 0 },
+        end: { line: 4, character: 1 },
+      },
+    };
+    manager.registerProvider({
+      ...provider(),
+      async provideDiagnostics() {
+        return [diagnostic];
+      },
+      async provideCodeActions() {
+        return [
+          {
+            title: "Fix markdownlint MD032",
+            diagnostics: [diagnostic],
+            edit: { changes: [{ from: 0, to: 0, insert: "\n" }] },
+          },
+          {
+            title: "Ignore markdownlint MD032 for this file",
+            diagnostics: [other],
+            edit: { changes: [{ from: 0, to: 0, insert: "<!-- ignore -->" }] },
+          },
+          {
+            title: "Fix markdownlint MD032",
+            diagnostics: [diagnostic],
+            edit: { changes: [{ from: 6, to: 6, insert: "\n" }] },
+          },
+          {
+            title: "Ignore markdownlint MD032 on next line",
+            diagnostics: [diagnostic],
+            edit: { changes: [{ from: 0, to: 0, insert: "<!-- next -->" }] },
+          },
+        ];
+      },
+    });
+    manager.retainDocument(document.uri);
+    await manager.diagnostics(document);
+
+    expect(
+      manager
+        .cachedCodeActionsFor(document.uri, diagnostic)
+        .map((action) => action.title),
+    ).toEqual([
+      "Fix markdownlint MD032",
+      "Ignore markdownlint MD032 on next line",
+    ]);
+  });
+
   it("handles rejected fire-and-forget document updates", async () => {
     const manager = new LanguageServiceManager();
     const error = new Error("provider stopped");

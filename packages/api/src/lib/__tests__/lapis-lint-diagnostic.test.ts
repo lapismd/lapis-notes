@@ -149,4 +149,38 @@ describe("mountLintMessageDom", () => {
     const root = mountTooltip("Hint", {}, true);
     expect(root.querySelector('[data-testid="lapis-lint-footer"]')).toBeNull();
   });
+
+  it("mounts duplicate action titles without throwing", () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const root = mountTooltip(
+      "Lists should be surrounded by blank lines",
+      { code: "MD032", ruleId: "MD032", sourceLabel: "markdownlint" },
+      true,
+      {
+        view: {} as never,
+        from: 0,
+        to: 1,
+        actions: [
+          { name: "Fix markdownlint MD032", apply: first },
+          { name: "Fix markdownlint MD032", apply: second },
+        ],
+      },
+    );
+
+    const buttons = [
+      ...root.querySelectorAll<HTMLButtonElement>(
+        '[data-testid="lapis-lint-action"]',
+      ),
+    ];
+    expect(buttons).toHaveLength(2);
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      "Fix markdownlint MD032",
+      "Fix markdownlint MD032",
+    ]);
+    buttons[0]?.click();
+    buttons[1]?.click();
+    expect(first).toHaveBeenCalledOnce();
+    expect(second).toHaveBeenCalledOnce();
+  });
 });

@@ -108,7 +108,7 @@
       data-ui-part="lint-footer"
       data-testid="lapis-lint-footer"
     >
-      {#each actions as action (action.name)}
+      {#each actions as action, index (index)}
         <Button
           type="button"
           variant="link"

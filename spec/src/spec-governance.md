@@ -181,7 +181,9 @@ surface, and group mode and disclosure actions in the main toolbar immediately a
 Problems guidance must keep live totals in Design Core's structured workspace
 view badge, preserve the stored leaf title, and prohibit a duplicate count in
 the panel toolbar. Acceptance must cover the idle badge paint and a real
-diagnostic-count transition.
+diagnostic-count transition. Hover-card action lists must use unique keys when
+titles repeat, and cached actions for a diagnostic must belong to that
+diagnostic with at most one action per title.
 
 Desktop build output follows the same generated-artifact rule as Storybook and
 the specification book. `packages/desktop-electron/dist-electron/` and

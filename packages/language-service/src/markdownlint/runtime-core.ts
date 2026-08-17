@@ -25,46 +25,67 @@ export function markdownCodeActionsFromIssues(
   document: VirtualDocument,
   requestedRange: LanguageServiceRange,
   issues: MarkdownLintIssue[],
-  applyFixForIssue: (issue: MarkdownLintIssue) => string,
+  applyFixesForIssues: (issues: MarkdownLintIssue[]) => string,
   md018RuleAliases: string[] = [],
 ): LanguageServiceCodeAction[] {
-  const actions: LanguageServiceCodeAction[] = [];
+  const intersecting: Array<{
+    issue: MarkdownLintIssue;
+    diagnostic: LanguageServiceDiagnostic;
+    code: string;
+  }> = [];
 
   for (const issue of issues) {
     const diagnostic = toDiagnostic(issue);
     if (!rangesIntersect(diagnostic.range, requestedRange)) {
       continue;
     }
+    intersecting.push({
+      issue,
+      diagnostic,
+      code: diagnostic.code != null ? String(diagnostic.code) : "issue",
+    });
+  }
 
-    const code = diagnostic.code != null ? String(diagnostic.code) : undefined;
+  const groups = new Map<string, typeof intersecting>();
+  for (const entry of intersecting) {
+    const group = groups.get(entry.code) ?? [];
+    group.push(entry);
+    groups.set(entry.code, group);
+  }
 
-    if (issue.fixInfo) {
-      const updatedText = applyFixForIssue(issue);
+  const actions: LanguageServiceCodeAction[] = [];
+  for (const [code, group] of groups) {
+    const diagnostics = group.map((entry) => entry.diagnostic);
+    const fixable = group
+      .map((entry) => entry.issue)
+      .filter((issue) => issue.fixInfo);
+    if (fixable.length) {
+      const updatedText = applyFixesForIssues(fixable);
       const change = toSingleReplacement(document.text, updatedText);
       if (change) {
         actions.push({
-          title: `Fix markdownlint ${code ?? "issue"}`,
+          title: `Fix markdownlint ${code}`,
           kind: "quickfix",
-          diagnostics: [diagnostic],
+          diagnostics,
           edit: { changes: [change] },
         });
       }
     }
 
-    if (!code) {
+    if (code === "issue") {
       continue;
     }
 
     const ignoreNextLineChange = createIgnoreNextLineChange(
       document.text,
-      diagnostic.range.start.line,
+      group[0].diagnostic.range.start.line,
       code,
     );
     if (ignoreNextLineChange) {
       actions.push({
         title: `Ignore markdownlint ${code} on next line`,
         kind: "quickfix",
-        diagnostics: [diagnostic],
+        diagnostics,
         edit: { changes: [ignoreNextLineChange] },
       });
     }
@@ -78,7 +99,7 @@ export function markdownCodeActionsFromIssues(
       actions.push({
         title: `Ignore markdownlint ${code} for this file`,
         kind: "quickfix",
-        diagnostics: [diagnostic],
+        diagnostics,
         edit: { changes: [ignoreFileChange] },
       });
     }

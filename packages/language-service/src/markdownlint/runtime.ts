@@ -61,7 +61,7 @@ export function markdownCodeActionsForDocument(
     document,
     requestedRange,
     issues,
-    (issue) => applyFixes(document.text, [issue]),
+    (fixable) => applyFixes(document.text, fixable),
     MD018_RULE_ALIASES,
   );
 }

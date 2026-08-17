@@ -4,8 +4,9 @@ import {
   markdownCodeActionsForDocument,
   markdownDiagnosticsForDocument,
 } from "../markdownlint/runtime";
+import { markdownCodeActionsFromIssues } from "../markdownlint/runtime-core";
 import { lint } from "markdownlint/sync";
-import { applyFix } from "markdownlint";
+import { applyFix, applyFixes } from "markdownlint";
 
 const MD018_RULE_NAMES = new Set([
   "MD018",
@@ -259,5 +260,49 @@ describe("markdownlint sync API", () => {
         (action) => action.title === "Ignore markdownlint MD022 for this file",
       ),
     ).toBe(true);
+  });
+
+  it("groups intersecting same-rule MD032 fixes into unique titles", () => {
+    const content = ["# Title", "- item", "next", ""].join("\n");
+    const document = {
+      uri: "note.md",
+      languageId: "markdown",
+      version: 1,
+      text: content,
+    };
+    const issues = [
+      {
+        lineNumber: 2,
+        ruleNames: ["MD032"],
+        ruleDescription: "Lists should be surrounded by blank lines",
+        errorContext: "- item",
+        fixInfo: { lineNumber: 2, insertText: "\n" },
+      },
+      {
+        lineNumber: 2,
+        ruleNames: ["MD032"],
+        ruleDescription: "Lists should be surrounded by blank lines",
+        errorContext: "- item",
+        fixInfo: { lineNumber: 3, insertText: "\n" },
+      },
+    ];
+    const actions = markdownCodeActionsFromIssues(
+      document,
+      { start: { line: 1, character: 0 }, end: { line: 1, character: 1 } },
+      issues,
+      (fixable) => applyFixes(document.text, fixable),
+    );
+    const titles = actions.map((action) => action.title);
+    expect(titles).toEqual([...new Set(titles)]);
+    expect(titles.filter((title) => title === "Fix markdownlint MD032")).toEqual(
+      ["Fix markdownlint MD032"],
+    );
+
+    const fixAction = actions.find(
+      (action) => action.title === "Fix markdownlint MD032",
+    );
+    expect(fixAction).toBeDefined();
+    const updated = applySingleCodeAction(content, fixAction);
+    expect(updated).toBe(["# Title", "", "- item", "", "next", ""].join("\n"));
   });
 });
