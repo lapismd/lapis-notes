@@ -30,6 +30,7 @@
       { path: "Notes/beta.md", name: "beta" },
     ],
     preservePending = false,
+    seededHeight = "22rem",
   }: {
     requireApproval?: boolean;
     requireQuestion?: boolean;
@@ -40,6 +41,7 @@
     models?: ModelRef[];
     files?: VaultFileRef[];
     preservePending?: boolean;
+    seededHeight?: string;
   } = $props();
 
   const runtime = $derived.by<AgentRuntime>(() => {
@@ -103,6 +105,7 @@
 <div
   class="ai-chat-demo"
   class:ai-chat-demo--seeded={seedItems.length > 0}
+  style:--ai-chat-demo-seeded-height={seededHeight}
   data-testid="ai-chat-demo"
 >
   <AiChatPanel
@@ -132,8 +135,8 @@
   }
 
   .ai-chat-demo--seeded {
-    height: 22rem;
-    min-height: 22rem;
-    max-height: 22rem;
+    height: var(--ai-chat-demo-seeded-height);
+    min-height: var(--ai-chat-demo-seeded-height);
+    max-height: var(--ai-chat-demo-seeded-height);
   }
 </style>

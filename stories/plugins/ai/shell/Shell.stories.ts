@@ -307,7 +307,7 @@ export const CommunityToolOptIn: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/shell/community-tools-chromium.png",
+        "/visual-baselines/stories/plugins/ai/shell/community-tool-opt-in-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -340,12 +340,11 @@ export const CommunityToolOptIn: Story = {
     await userEvent.click(community);
     await expect(community).toHaveAttribute("data-state", "checked");
     await waitFor(async () => {
-      const raw = await demoApp(canvasElement).vault.adapter.read(
-        ".obsidian/ai.json",
+      const raw =
+        await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
+      expect(JSON.parse(raw).settings.enabledCommunityToolPluginIds).toContain(
+        "story-community",
       );
-      expect(
-        JSON.parse(raw).settings.enabledCommunityToolPluginIds,
-      ).toContain("story-community");
     });
   },
 };

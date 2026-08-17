@@ -457,7 +457,7 @@ export const AppToolReadTranscript: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/chat-app-tool-read-chromium.png",
+        "/visual-baselines/stories/plugins/ai/app-tool-read-transcript-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -482,6 +482,7 @@ export const AppToolPatchApproval: Story = {
     props: {
       seedItems: createAppToolPatchPendingSeedItems(),
       preservePending: true,
+      seededHeight: "26rem",
     },
   }),
   parameters: {
@@ -494,7 +495,7 @@ export const AppToolPatchApproval: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/chat-app-tool-patch-approval-chromium.png",
+        "/visual-baselines/stories/plugins/ai/app-tool-patch-approval-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -512,9 +513,7 @@ export const AppToolPatchApproval: Story = {
     await expect(
       canvas.getByRole("button", { name: /Allow for this session/ }),
     ).toBeVisible();
-    await expect(
-      canvas.getByRole("button", { name: /Deny/ }),
-    ).toBeVisible();
+    await expect(canvas.getByRole("button", { name: /Deny/ })).toBeVisible();
   },
 };
 
@@ -533,7 +532,7 @@ export const AppToolSessionGrant: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/chat-app-tool-session-grant-chromium.png",
+        "/visual-baselines/stories/plugins/ai/app-tool-session-grant-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,
@@ -569,7 +568,7 @@ export const AppToolHostUpgradeRequired: Story = {
     },
     visualDelta: {
       images: [
-        "/visual-baselines/stories/plugins/ai/chat-app-tool-host-upgrade-chromium.png",
+        "/visual-baselines/stories/plugins/ai/app-tool-host-upgrade-required-chromium.png",
       ],
       opacity: 0.5,
       colorInversion: false,

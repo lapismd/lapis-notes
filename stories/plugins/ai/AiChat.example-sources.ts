@@ -116,7 +116,11 @@ export function createAppToolPatchPendingSeedItems() {
           },
         },
         options: [
-          { id: "allow-once", label: "Allow once", kind: "allow-once" as const },
+          {
+            id: "allow-once",
+            label: "Allow once",
+            kind: "allow-once" as const,
+          },
           {
             id: "allow-session",
             label: "Allow for this session",
@@ -127,8 +131,7 @@ export function createAppToolPatchPendingSeedItems() {
         details: {
           description: "Replace exactly one current match atomically.",
           path: "Notes/alpha.md",
-          diff:
-            "--- before\\nTODO: summarize this note.\\n+++ after\\nDONE: summarized this note.",
+          diff: "--- before\nTODO: summarize this note.\n+++ after\nDONE: summarized this note.",
         },
       },
       status: "pending" as const,

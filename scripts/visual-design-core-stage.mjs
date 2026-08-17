@@ -9,6 +9,7 @@ import {
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
 export const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -64,6 +65,8 @@ const siblingDeps = [
 ];
 
 const rootPackage = path.join(repoRoot, "package.json");
+const workspaceConfig = path.join(repoRoot, "pnpm-workspace.yaml");
+const lockfile = path.join(repoRoot, "pnpm-lock.yaml");
 
 export function spawnInRepo(command, args, options = {}) {
   return spawnSync(command, args, {
@@ -94,12 +97,15 @@ function assertSucceeded(result, description) {
 
 function setSiblingSpecifiers(getSpecifier) {
   const data = JSON.parse(readFileSync(rootPackage, "utf8"));
+  const workspace = parseYaml(readFileSync(workspaceConfig, "utf8"));
+  workspace.overrides ??= {};
   for (const dep of siblingDeps) {
     const specifier = getSpecifier(dep);
     data.devDependencies[dep.name] = specifier;
-    data.pnpm.overrides[dep.name] = specifier;
+    workspace.overrides[dep.name] = specifier;
   }
   writeFileSync(rootPackage, `${JSON.stringify(data, null, 2)}\n`);
+  writeFileSync(workspaceConfig, stringifyYaml(workspace));
 }
 
 function rewriteMiraDistToBuilt(stagedRoot) {
@@ -163,6 +169,8 @@ function stageSibling(dep) {
  */
 export function withStagedDesignCore(capture) {
   const originalPackage = readFileSync(rootPackage, "utf8");
+  const originalWorkspaceConfig = readFileSync(workspaceConfig, "utf8");
+  const originalLockfile = readFileSync(lockfile, "utf8");
   let captureResult;
   let captureError;
   let restoreError;
@@ -188,7 +196,13 @@ export function withStagedDesignCore(capture) {
     captureError = error;
   } finally {
     writeFileSync(rootPackage, originalPackage);
-    const restoreResult = spawnInRepo("pnpm", ["install", "--ignore-scripts"]);
+    writeFileSync(workspaceConfig, originalWorkspaceConfig);
+    writeFileSync(lockfile, originalLockfile);
+    const restoreResult = spawnInRepo("pnpm", [
+      "install",
+      "--frozen-lockfile",
+      "--ignore-scripts",
+    ]);
     rmSync(path.join(repoRoot, ".deps"), { recursive: true, force: true });
     try {
       assertSucceeded(restoreResult, "Restoring permanent dependencies");

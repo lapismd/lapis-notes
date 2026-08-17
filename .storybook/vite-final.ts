@@ -15,6 +15,10 @@ const repoRoot = path.resolve(rootDir, "..");
 const apiLib = path.resolve(rootDir, "../packages/api/src/lib");
 const uiLib = path.resolve(rootDir, "../packages/ui/src/lib");
 const workspaceLib = path.resolve(rootDir, "../packages/workspace/src/lib");
+const fileExplorerLib = path.resolve(
+  rootDir,
+  "../packages/file-explorer/src/lib",
+);
 const basesLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-bases/src/lib",
@@ -31,6 +35,10 @@ const markdownLib = path.resolve(
 const markdownSrc = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src",
+);
+const searchLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-search/src/lib",
 );
 const uiComponents = path.join(uiLib, "components/ui");
 const linkedSiblingPackages = [
@@ -157,6 +165,13 @@ export async function viteFinal(
           replacement: path.join(apiLib, "components/editor/editor.ts"),
         },
         {
+          find: /^@lapis-notes\/api\/editor\/extensions\/(.+)$/,
+          replacement: path.join(
+            apiLib,
+            "components/editor/extensions/$1/index.ts",
+          ),
+        },
+        {
           find: /^@lapis-notes\/api\/editor$/,
           replacement: path.join(apiLib, "components/editor/index.ts"),
         },
@@ -169,12 +184,44 @@ export async function viteFinal(
           replacement: path.join(apiLib, "workspace-host.ts"),
         },
         {
+          find: /^@lapis-notes\/api\/agent-tools$/,
+          replacement: path.join(apiLib, "agent-tools.ts"),
+        },
+        {
+          find: /^@lapis-notes\/api\/app-database$/,
+          replacement: path.join(apiLib, "app-database-host.ts"),
+        },
+        {
+          find: /^@lapis-notes\/api\/desktop-native$/,
+          replacement: path.join(apiLib, "storage/desktop-native.ts"),
+        },
+        {
+          find: /^@lapis-notes\/api\/metadata-value$/,
+          replacement: path.join(apiLib, "metadata-value.ts"),
+        },
+        {
+          find: /^@lapis-notes\/api\/path$/,
+          replacement: path.join(apiLib, "storage/path.ts"),
+        },
+        {
+          find: /^@lapis-notes\/api\/plugin-assets$/,
+          replacement: path.join(apiLib, "plugin-assets.ts"),
+        },
+        {
+          find: /^@lapis-notes\/api\/vault$/,
+          replacement: path.join(apiLib, "vault-api.ts"),
+        },
+        {
           find: /^@lapis-notes\/api$/,
           replacement: path.join(apiLib, "index.ts"),
         },
         {
           find: /^@lapis-notes\/workspace$/,
           replacement: path.join(workspaceLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/file-explorer$/,
+          replacement: path.join(fileExplorerLib, "index.ts"),
         },
         {
           find: /^@lapis-notes\/bases\/styles\.css$/,
@@ -203,6 +250,10 @@ export async function viteFinal(
         {
           find: /^@lapis-notes\/markdown$/,
           replacement: path.join(markdownLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/search$/,
+          replacement: path.join(searchLib, "index.ts"),
         },
         {
           find: /^@lapis-notes\/history$/,

@@ -749,3 +749,5 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-020  | web-host                        | Planned | standalone host tests will cover browser-owned execution, disconnect cancellation, and note-content exclusion |
 | LN-PKG-080  | packages                        | Planned | package dependency checks and integration tests will verify the API, domain, AI, AI Host, and Electron ownership split |
 | LN-CAT-081  | storybook-catalog               | Planned | focused Storybook interaction, axe, and visual-pending lanes will cover the governed app-tool states |
+| LN-CAT-082  | storybook-catalog               | Implemented | Storybook Vite source aliases plus the canonical Docker static-build lane cover File Explorer and Search without staged `dist` output |
+| LN-PKG-081  | packages                        | Implemented | approved Docker visual update and compare-only capture regenerated a workspace-override-consistent lockfile, restored permanent sibling links, and completed the canonical build |
