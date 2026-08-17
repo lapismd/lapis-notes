@@ -40,3 +40,5 @@ the linked package output without reinstalling Lapis.
 - Agent workflow: [`AGENTS.md`](./AGENTS.md)
 - Migration tracker: [`MIGRATION.md`](./MIGRATION.md)
 - Canonical requirements: [`spec/src/`](./spec/src/)
+- Supporting records: [`spec/records/`](./spec/records/)
+- Completed plans: [`spec/archive/`](./spec/archive/)

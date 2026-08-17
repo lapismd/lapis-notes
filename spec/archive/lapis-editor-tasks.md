@@ -1,10 +1,17 @@
 # Lapis Editor Tasks
 
+Historical, non-normative plan. Canonical requirements live in
+[`spec/src/editor-demo.md`](../src/editor-demo.md). This file is not part of
+the mdBook or QMD collection.
+
 Status values: `Not started`, `In progress`, `Blocked`, `Done`.
 
 Update a row only after recording its validation evidence. Each completed
 implementation slice must have a PR-quality Jujutsu change in the owning
 repository.
+
+LE-07 remains Blocked on inherited visual and Prettier noise. That is not a
+live implementation blocker for the editor demo.
 
 | ID | Repository | Deliverable | Depends on | Status | Validation evidence | Jujutsu change |
 | --- | --- | --- | --- | --- | --- | --- |

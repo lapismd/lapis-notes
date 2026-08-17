@@ -1,8 +1,11 @@
 # App Tool MCP Bridge Implementation
 
-This checklist tracks the verified delivery of application-owned agent tools.
-Canonical requirements live under `spec/src`; this file records implementation
-progress, evidence, and Jujutsu slices without replacing those requirements.
+Non-normative implementation record. Canonical requirements live in
+[`spec/src`](../src). This file is not part of the mdBook or QMD collection.
+
+This checklist records the verified delivery of application-owned agent tools:
+implementation progress, evidence, and Jujutsu slices without replacing those
+requirements.
 
 ## Delivery stages
 

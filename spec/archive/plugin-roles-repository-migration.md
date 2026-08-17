@@ -1,5 +1,8 @@
 # Plugin Roles Repository Migration
 
+Historical, non-normative plan. Canonical requirements live in
+[`spec/src`](../src). This file is not part of the mdBook or QMD collection.
+
 ## Progress
 
 | Phase | Status | Repository evidence |

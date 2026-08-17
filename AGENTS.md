@@ -56,6 +56,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   fall back to `rg` when QMD or its embedding model is unavailable.
 - Authority order: `spec/src` → package interfaces / implementation → Storybook
   catalog → READMEs / this file (workflow only).
+- Supporting implementation records live under `spec/records/`. Completed
+  one-time plans live under `spec/archive/`. Neither is normative or indexed
+  by `SUMMARY.md` or QMD. Living intake remains root `MIGRATION.md`.
 
 ### Requirement authoring
 

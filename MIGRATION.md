@@ -133,7 +133,8 @@ adapted for the current App, Design Core diff surfaces, and VS Code-like caps.
 
 Transport-neutral app tools on the owning App, with AI policy snapshots and an
 AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-094`,
-`LN-SRCH-039`, `LN-DESK-047`, `LN-CAT-081`, `LN-PKG-080`.
+`LN-SRCH-039`, `LN-DESK-047`, `LN-CAT-081`, `LN-PKG-080`. Delivery evidence:
+[`spec/records/app-tool-mcp-bridge.md`](spec/records/app-tool-mcp-bridge.md).
 
 - [x] Canonical requirements, ownership chapters, verification mappings, and spec-first routing
 - [x] API registry, trusted scopes, and plugin lifecycle

@@ -1,9 +1,10 @@
 # Local-First AI Conversations Implementation
 
-This temporary root artifact tracks the implementation of the local-first AI
-conversation plan. Canonical behavior lives in `spec/src`; this file records
-delivery order, progress, validation evidence, and Jujutsu changes until the
-work is explicitly archived.
+Historical, non-normative plan. Canonical requirements live in
+[`spec/src`](../src). This file is not part of the mdBook or QMD collection.
+
+This artifact records the implementation of the local-first AI conversation
+plan: delivery order, progress, validation evidence, and Jujutsu changes.
 
 ## Decisions
 
@@ -69,6 +70,3 @@ full Storybook test run passed all owned AI stories but has two pre-existing
 timing). Root `pnpm check` reaches and passes the AI lanes, then fails on the
 linked Design Core `command-view.svelte` component-binding type contract. No
 consumer workaround or unrelated source change was made for either failure.
-
-Leave this file at the root until a separate archival change moves any
-remaining operational notes into the canonical specification.

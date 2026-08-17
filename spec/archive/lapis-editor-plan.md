@@ -1,5 +1,9 @@
 # Lapis Source Editor Storybook Demo
 
+Historical, non-normative plan. Canonical requirements live in
+[`spec/src/editor-demo.md`](../src/editor-demo.md). This file is not part of
+the mdBook or QMD collection.
+
 ## Goal
 
 Create an additive `Workspace/Lapis Editor Demo` that boots a real
@@ -44,9 +48,9 @@ is specified.
 
 ## Implementation slices
 
-1. Establish this plan, `LAPIS_EDITOR_TASKS.md`, canonical `LN-ED-*`
-   requirements, verification mappings, and the Storybook-only intake boundary
-   in `MIGRATION.md`.
+1. Establish this plan, [`lapis-editor-tasks.md`](lapis-editor-tasks.md),
+   canonical `LN-ED-*` requirements, verification mappings, and the
+   Storybook-only intake boundary in [`MIGRATION.md`](../../MIGRATION.md).
 2. Add `WorkspaceStartup` to design-core using native CSS, public
    `--ui-workspace-startup-*` tokens, semantic `data-ui-*` hosts, existing
    design-core primitives, focused tests, docs, and `visual-pending` stories.
@@ -101,7 +105,8 @@ In `lapis-notes`, run `pnpm spec:check`, `pnpm check`, focused API/workspace
 tests, `pnpm test`, `pnpm test:storybook`, `pnpm build-storybook`, and visual
 update/compare restricted to the new pending stories. In design-core, run
 focused unit/Storybook checks followed by `pnpm checks`. Record exact evidence
-and Jujutsu changes in `LAPIS_EDITOR_TASKS.md` after each verified slice.
+and Jujutsu changes in [`lapis-editor-tasks.md`](lapis-editor-tasks.md) after
+each verified slice.
 
 ## Boundaries and risks
 
