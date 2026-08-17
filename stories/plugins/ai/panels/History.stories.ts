@@ -81,6 +81,29 @@ function placementStory(
       const search = panel.getByRole("searchbox", {
         name: "Search conversations",
       });
+      const chrome = panelElement?.querySelector<HTMLElement>(
+        '[data-ui-part="chrome"]',
+      );
+      const searchPill = chrome?.querySelector<HTMLElement>(
+        ".cv-search-filter-bar__search-pill",
+      );
+      const actions = chrome?.querySelector<HTMLElement>(
+        ".cv-search-filter-bar__actions",
+      );
+      expect(chrome).not.toBeNull();
+      expect(searchPill).not.toBeNull();
+      expect(actions).not.toBeNull();
+      const chromeBox = chrome!.getBoundingClientRect();
+      const pillBox = searchPill!.getBoundingClientRect();
+      const actionsBox = actions!.getBoundingClientRect();
+      const clusterCenter =
+        (Math.min(pillBox.left, actionsBox.left) +
+          Math.max(pillBox.right, actionsBox.right)) /
+        2;
+      expect(
+        Math.abs(clusterCenter - (chromeBox.left + chromeBox.right) / 2),
+      ).toBeLessThan(8);
+
       await userEvent.type(search, "parser");
       await waitFor(() => {
         expect(

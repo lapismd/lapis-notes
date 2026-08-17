@@ -607,19 +607,12 @@
     flex: 0 0 auto;
     background: var(--ai-history-surface);
     --cv-search-filter-background: var(--ai-history-surface);
-    --cv-search-filter-max-width: none;
-    --cv-search-filter-justify: stretch;
-    --cv-search-filter-content-justify: flex-start;
+    --cv-search-filter-justify: center;
+    --cv-search-filter-content-justify: center;
   }
 
   .ai-history__chrome :global(.cv-search-filter-bar) {
     padding: 0.5rem;
-  }
-
-  .ai-history__chrome :global(.cv-search-filter-bar__search-pill) {
-    width: auto;
-    min-width: min(12rem, 100%);
-    flex: 1 1 12rem;
   }
 
   .ai-history__chrome :global(.cv-search-filter-bar__filters) {
