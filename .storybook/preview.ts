@@ -83,6 +83,7 @@ const preview: Preview = {
               "Markdown Lint",
               "Search",
               "History",
+              "Word Count",
               "Bases",
               "AI",
               "*",

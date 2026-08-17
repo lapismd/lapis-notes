@@ -16,20 +16,45 @@ describe("AiPlugin contracts", () => {
       defaultModel: "gpt-5.6-sol",
       thinking: "medium",
       appToolsEnabled: true,
+      disabledAppToolNames: [],
+      enabledAppToolNames: [],
       enabledCommunityToolPluginIds: [],
     });
     expect(new FakeAgentRuntime().id).toBe("fake");
   });
 
-  it("normalizes community app-tool opt-ins", () => {
+  it("normalizes per-tool app-tool enablement and migrates owner-plugin opt-ins", () => {
     expect(
       mergeAiSettings({
         appToolsEnabled: false,
+        disabledAppToolNames: [" notes_search ", "notes_search", ""],
+        enabledAppToolNames: [" story_word_count ", "story_word_count", ""],
         enabledCommunityToolPluginIds: ["zeta", " alpha ", "zeta", ""],
       }),
     ).toMatchObject({
       appToolsEnabled: false,
+      disabledAppToolNames: ["notes_search"],
+      enabledAppToolNames: ["story_word_count"],
       enabledCommunityToolPluginIds: ["alpha", "zeta"],
+    });
+    expect(
+      mergeAiSettings(
+        {
+          enabledCommunityToolPluginIds: ["story-community", "missing"],
+        },
+        [
+          {
+            name: "story_word_count",
+            owner: {
+              pluginId: "story-community",
+              source: "community",
+            },
+          },
+        ],
+      ),
+    ).toMatchObject({
+      enabledAppToolNames: ["story_word_count"],
+      enabledCommunityToolPluginIds: ["missing"],
     });
   });
 

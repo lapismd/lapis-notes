@@ -18,6 +18,7 @@
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
+  import { WordCountPlugin } from "@lapis-notes/wordcount";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import {
@@ -179,6 +180,7 @@
           { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
           { plugin: SearchPlugin, required: false, enabledByDefault: true },
           { plugin: HistoryPlugin, required: false, enabledByDefault: true },
+          { plugin: WordCountPlugin, required: false, enabledByDefault: true },
           {
             plugin: BasesPlugin,
             required: false,

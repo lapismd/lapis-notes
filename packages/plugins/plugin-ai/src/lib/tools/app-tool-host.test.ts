@@ -53,6 +53,8 @@ function createFixture(timeoutMs = 1_000) {
   const registry = new AppToolRegistry();
   const settings: AppToolPolicySettings = {
     appToolsEnabled: true,
+    disabledAppToolNames: [],
+    enabledAppToolNames: [],
     enabledCommunityToolPluginIds: [],
   };
   const host = new AppToolHost(registry, () => settings, timeoutMs);
@@ -96,11 +98,25 @@ describe("AppToolHost snapshots", () => {
     expect(createSession(host).tools.map((tool) => tool.name)).toEqual([
       "notes_read",
     ]);
-    settings.enabledCommunityToolPluginIds = [communityOwner.pluginId];
+    settings.enabledAppToolNames = ["community_read"];
     expect(
       createSession(host, "binding-2").tools.map((tool) => tool.name),
     ).toEqual(["community_read", "notes_read"]);
     expect(createSession(host, "binding-3", false).tools).toEqual([]);
+  });
+
+  it("applies bundled opt-out and community opt-in without rewriting an active snapshot", () => {
+    const { host, registry, settings } = createFixture();
+    registry.register(bundledOwner, createTool("notes_read"));
+    registry.register(communityOwner, createTool("community_read"));
+    const session = createSession(host);
+
+    settings.disabledAppToolNames = ["notes_read"];
+    settings.enabledAppToolNames = ["community_read"];
+    expect(session.tools.map((tool) => tool.name)).toEqual(["notes_read"]);
+    expect(
+      createSession(host, "binding-2").tools.map((tool) => tool.name),
+    ).toEqual(["community_read"]);
   });
 
   it("keeps registrations frozen and fails closed after unload or replacement", async () => {

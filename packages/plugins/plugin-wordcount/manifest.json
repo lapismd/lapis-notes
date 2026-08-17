@@ -1,0 +1,15 @@
+{
+  "id": "wordcount",
+  "name": "Word Count",
+  "version": "0.0.1",
+  "minAppVersion": "0.0.1",
+  "description": "Status bar word and character count",
+  "author": "Lapis Notes",
+  "isDesktopOnly": false,
+  "lapis": {
+    "manifestVersion": 1,
+    "source": "official",
+    "locked": false,
+    "enabledByDefault": true
+  }
+}

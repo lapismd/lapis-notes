@@ -351,6 +351,7 @@ function auditPersistedWorkspace({ readOptional }) {
     "FileExplorerPlugin",
     "SearchPlugin",
     "HistoryPlugin",
+    "WordCountPlugin",
     "BasesPlugin",
     "AiPlugin",
   ];
@@ -360,6 +361,7 @@ function auditPersistedWorkspace({ readOptional }) {
     "lapis-file-explorer",
     "search",
     "history",
+    "wordcount",
     "bases",
     "ai",
   ];
@@ -386,7 +388,7 @@ function auditPersistedWorkspace({ readOptional }) {
           "STORYBOOK-WORKSPACE-INVENTORY",
           demo === null ? demoFile : storyFile,
           1,
-          "PersistedDesktop and Mobile must enable all seven bundled plugins and use Fake AI",
+          "PersistedDesktop and Mobile must enable all eight bundled plugins and use Fake AI",
         ),
       ];
 }

@@ -225,6 +225,8 @@ async function createAppToolHarness(noteContent: string) {
   );
   const host = new AppToolHost(registry, () => ({
     appToolsEnabled: true,
+    disabledAppToolNames: [],
+    enabledAppToolNames: [],
     enabledCommunityToolPluginIds: [],
   }));
   const bridge = new DesktopAppToolBridge(host);

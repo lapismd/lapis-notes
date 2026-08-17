@@ -129,6 +129,7 @@ const workspaceDemo = `
 { plugin: FileExplorerPlugin, required: false, enabledByDefault: true }
 { plugin: SearchPlugin, required: false, enabledByDefault: true }
 { plugin: HistoryPlugin, required: false, enabledByDefault: true }
+{ plugin: WordCountPlugin, required: false, enabledByDefault: true }
 { plugin: BasesPlugin, required: false, enabledByDefault: true }
 { plugin: AiPlugin, required: false, enabledByDefault: true }
 defaultRuntime: "fake"
@@ -141,6 +142,7 @@ export const Mobile = { args: { loadBundledPlugins: true } };
 { id: "lapis-file-explorer", enabled: true }
 { id: "search", enabled: true }
 { id: "history", enabled: true }
+{ id: "wordcount", enabled: true }
 { id: "bases", enabled: true }
 { id: "ai", enabled: true }
 `;

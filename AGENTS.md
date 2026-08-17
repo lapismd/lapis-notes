@@ -8,7 +8,8 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
  Electron host, internal language service, and authorized File Explorer,
- Markdown, Markdownlint, Search, History, and CV plugins.
+ Markdown, Markdownlint, Search, History, Word Count, and CV plugins.
+ Design Core F-Mode is optional default-disabled shell chrome.
 - Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
   in `MIGRATION.md` — do not invent them ahead of the spec.
 

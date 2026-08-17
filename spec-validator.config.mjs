@@ -132,7 +132,26 @@ export default defineConfig(tableRequirements(), {
         {
           pattern:
             "^packages/api/src/lib/(?:plugin(?:-manager)?\\.ts|workspace\\.svelte\\.ts|context\\.svelte\\.ts)$",
-          chapters: ["spec/src/plugin-model.md"],
+          chapters: [
+            "spec/src/plugin-model.md",
+            "spec/src/workspace-shell.md",
+          ],
+        },
+        {
+          pattern: "^packages/api/src/lib/app-shell-plugin-persistence\\.ts$",
+          chapters: [
+            "spec/src/workspace-shell.md",
+            "spec/src/plugin-model.md",
+          ],
+        },
+        {
+          pattern: "^packages/plugins/plugin-wordcount/",
+          chapters: [
+            "spec/src/plugins/wordcount/index.md",
+            "spec/src/packages.md",
+            "spec/src/plugin-model.md",
+            "spec/src/editor-demo.md",
+          ],
         },
         {
           pattern: "^packages/ui/(?:src/|package\\.json$)",
@@ -166,6 +185,7 @@ export default defineConfig(tableRequirements(), {
             "spec/src/desktop-host.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
+            "spec/src/plugins/wordcount/index.md",
           ],
         },
         {
@@ -174,6 +194,7 @@ export default defineConfig(tableRequirements(), {
             "spec/src/web-host.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
+            "spec/src/plugins/wordcount/index.md",
           ],
         },
         {

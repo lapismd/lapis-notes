@@ -42,6 +42,7 @@
     "@lapis-notes/lapis-plugin-cv-roles": "link:../../../lapis-plugin-cv-roles",
     "@lapis-notes/history": "workspace:*",
     "@lapis-notes/search": "workspace:*",
+    "@lapis-notes/wordcount": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/design-core": "*",

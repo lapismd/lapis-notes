@@ -63,6 +63,7 @@ intake or UI swap status changes.
 | `@lapis-notes/file-explorer`               | Done                | Reusable File Explorer plugin shared by Storybook and Electron; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture                                                                                     |
 | `@lapis-notes/search`                      | Done                | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts                                                                                                                                                                                                  |
 | `@lapis-notes/history`                     | In progress         | Enabled-by-default file-history plugin captures vault revisions through AppDatabase, exposes a movable History panel, and compares through Design Core FileDiff / MergeEditor. Visual baselines remain `visual-pending`.                                                                                                    |
+| `@lapis-notes/wordcount`                   | Done                | Enabled-by-default status-bar word and character count over the API status-bar contract. Design Core F-Mode is included on the default shell and disabled until the user enables it.                                                                                                                                       |
 | `@lapis-notes/bases`                       | Done                | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 161 tests, focused Storybook and pointer coverage, Electron and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                          |
 | design-core workspace engine               | Done                | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                                                                                                                    |
 
@@ -133,13 +134,13 @@ adapted for the current App, Design Core diff surfaces, and VS Code-like caps.
 ### Application-tool MCP bridge progress
 
 Transport-neutral app tools on the owning App, with AI policy snapshots and an
-AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-094`,
+AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-095`,
 `LN-SRCH-039`, `LN-DESK-047`, `LN-CAT-081`, `LN-PKG-080`. Delivery evidence:
 [`spec/records/app-tool-mcp-bridge.md`](spec/records/app-tool-mcp-bridge.md).
 
 - [x] Canonical requirements, ownership chapters, verification mappings, and spec-first routing
 - [x] API registry, trusted scopes, and plugin lifecycle
-- [x] AI snapshots, master enablement, community opt-ins, approvals, and transcript projection
+- [x] AI snapshots, master enablement, per-tool opt-ins, approvals, and transcript projection
 - [x] Search `notes_search` and Markdown `notes_read` / `notes_list` / `notes_patch`
 - [x] AI Host stdio MCP shim, loopback broker, protocol v3, ACP, Codex Native, and authenticated remote WebSocket
 - [x] Five governed app-tool Storybook scenarios with approved canonical baselines

@@ -1,0 +1,14 @@
+# Word Count Plugin
+
+`@lapis-notes/wordcount` owns the status-bar word and character count for the
+active text editor. Presentation stays on the API status-bar contract and the
+Design Core status item.
+
+## Requirements
+
+| ID | Requirement |
+| --- | --- |
+| LN-WC-001 | The repo MUST ship `@lapis-notes/wordcount` at `packages/plugins/plugin-wordcount` with runtime id `wordcount` and `enabledByDefault: true`. |
+| LN-WC-002 | Word Count MUST report words and characters for the active `TextFileView`. A non-empty selection MUST replace the document count. Other leaves MUST hide the status item. |
+| LN-WC-003 | Word Count MUST update `app.statusBar` with optional segments and a reading-time command. It MUST NOT use compatibility status DOM. |
+| LN-WC-004 | Electron, web, editor-demo, and audited Storybook hosts MUST register Word Count as `enabledByDefault: true` and load it before metadata and layout restoration. |

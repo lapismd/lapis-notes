@@ -27,6 +27,7 @@
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
+  import { WordCountPlugin } from "@lapis-notes/wordcount";
   import { watchMetadata } from "../watch-metadata";
   import "./lapis-editor-demo.css";
   import "@lapismd/mira/themes/obsidian.css";
@@ -165,6 +166,11 @@
       },
       {
         plugin: HistoryPlugin,
+        required: false,
+        enabledByDefault: true,
+      },
+      {
+        plugin: WordCountPlugin,
         required: false,
         enabledByDefault: true,
       },

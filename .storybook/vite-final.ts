@@ -28,6 +28,10 @@ const historyLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-history/src/lib",
 );
+const wordcountLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-wordcount/src",
+);
 const markdownLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src/lib",
@@ -258,6 +262,10 @@ export async function viteFinal(
         {
           find: /^@lapis-notes\/history$/,
           replacement: path.join(historyLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/wordcount$/,
+          replacement: path.join(wordcountLib, "index.ts"),
         },
         {
           find: "@lapis-notes/ui/theme.css",

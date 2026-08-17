@@ -302,7 +302,7 @@ export const CommunityToolOptIn: Story = {
     docs: {
       description: {
         story:
-          "A discovered renderer community tool starts disabled and can be enabled globally for newly created native bindings.",
+          "Registered application tools appear by name with their contributing plugin. A community tool starts disabled and can be enabled for newly created native bindings.",
       },
     },
     visualDelta: {
@@ -333,18 +333,35 @@ export const CommunityToolOptIn: Story = {
       name: "Application tools",
     });
     const community = within(dialog).getByRole("switch", {
-      name: "Community tools: story-community",
+      name: "story_word_count",
     });
     await expect(master).toHaveAttribute("data-state", "checked");
     await expect(community).toHaveAttribute("data-state", "unchecked");
+    for (const [name, contributor] of [
+      ["notes_search", "Search"],
+      ["notes_read", "Markdown"],
+      ["notes_list", "Markdown"],
+      ["notes_patch", "Markdown"],
+    ] as const) {
+      const toggle = within(dialog).getByRole("switch", { name });
+      await expect(toggle).toHaveAttribute("data-state", "checked");
+      expect(
+        dialog.querySelector(`[data-setting-id="ai.appTools.${name}"]`)
+          ?.textContent,
+      ).toContain(contributor);
+    }
+    expect(
+      dialog.querySelector('[data-setting-id="ai.appTools.story_word_count"]')
+        ?.textContent,
+    ).toContain("story-community");
     await userEvent.click(community);
     await expect(community).toHaveAttribute("data-state", "checked");
     await waitFor(async () => {
       const raw =
         await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
-      expect(JSON.parse(raw).settings.enabledCommunityToolPluginIds).toContain(
-        "story-community",
-      );
+      const persisted = JSON.parse(raw).settings;
+      expect(persisted.enabledAppToolNames).toContain("story_word_count");
+      expect(persisted).not.toHaveProperty("enabledCommunityToolPluginIds");
     });
   },
 };

@@ -26,6 +26,7 @@
   - [Plugins / Markdown Lint](./plugins/markdown-lint/index.md)
   - [Plugins / Search](./plugins/search/index.md)
   - [Plugins / History](./plugins/history/index.md)
+  - [Plugins / Word Count](./plugins/wordcount/index.md)
   - [Plugins / Bases](./plugins/bases/index.md)
   - [Plugins / AI](./plugins/ai/index.md)
 - [UI and Styling](./ui-and-styling.md)

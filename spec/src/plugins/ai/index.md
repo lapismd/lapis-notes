@@ -94,15 +94,16 @@ execution APIs.
 | LN-AI-083 | The chat paperclip attach picker MUST compose `@lapismd/design-core/shadcn/command-view` inside the existing Popover. The open popover MUST show a visible border and shadow and MUST remain above an open composer drawer. It MUST NOT use native Command for that searchable file list. |
 | LN-AI-084 | An AI chat view MUST mount its complete chat layout synchronously before conversation, model-catalog, or runtime preparation completes. The composer MUST remain disabled and expose a non-error preparing status until preparation settles. |
 | LN-AI-085 | Selecting or creating a conversation from AI History MUST open it in a main-area AI tab, reveal an existing main-area tab with the same `(scopeDir, conversationId)`, and MUST NOT replace the history leaf. The composer History action MUST reveal an existing history leaf or create its canonical sidebar leaf without replacing chat. |
-| LN-AI-086 | AI MUST derive one deterministic app-tool snapshot for each native agent binding from the API registry. Bundled tools MUST be eligible by default, community renderer tools MUST require a saved owner-plugin opt-in, and registration changes MUST apply only to a new binding. |
+| LN-AI-086 | AI MUST derive one deterministic app-tool snapshot for each native agent binding from the API registry. Bundled tools MUST be eligible by default. Community renderer tools MUST require a saved per-tool opt-in. Registration changes MUST apply only to a new binding. |
 | LN-AI-087 | `AppToolHost` MUST validate tool arguments, resolve the exact snapshotted registration, construct conversation and binding scope from trusted state, propagate cancellation, and return bounded transport-neutral results. An unloaded or replaced registration MUST fail without invoking a stale callback. |
 | LN-AI-088 | Read app tools MAY execute under the fixed scope policy. Write and external tools MUST block on the existing approval surface with allow-once, allow-for-binding, and deny choices; patch approval details MUST show the scoped path and a readable multiline before/after diff without hiding any decision; binding grants MUST remain memory-only and expire on binding close, switch, plugin unload, or scope change. |
-| LN-AI-089 | AI settings MUST enable bundled application tools by default, provide one master switch, and persist community renderer enablement by owner plugin ID. Changing enablement MUST NOT mutate an active native binding's frozen tool list. |
+| LN-AI-089 | AI settings MUST provide one master application-tools switch and persist per-tool enablement by tool name. Bundled tools MUST default on and community tools MUST default off. Changing enablement MUST NOT mutate an active native binding's frozen tool list. |
 | LN-AI-090 | AI MUST project application tool starts, results, failures, and approvals into the normalized transcript with binding and run provenance. It MUST suppress duplicate runtime events for the reserved app-tool MCP server and MUST NOT persist bridge tokens, environments, stacks, or unbounded payloads. |
 | LN-AI-091 | External MCP server contributions MUST remain distinct from application tools and use an explicitly named `McpServerContribution` request field. The app bridge MUST reserve `lapis-tools`, reject collisions, and keep application tool implementations independent of MCP, ACP, acpx, and vendor SDKs. |
 | LN-AI-092 | Codex ACP, Cursor ACP, and Codex Native MUST expose the same effective application tool descriptors through stdio MCP. Agent switching MUST close the old bridge and grants, allocate the next binding before runtime start, and create a new snapshot without changing the conversation scope. |
 | LN-AI-093 | The first bundled application tools MUST be scoped `notes_search`, `notes_read`, `notes_list`, and `notes_patch`. Patch MUST require approval and atomically replace exactly one current text match; absent, repeated, or drifted matches MUST fail without changing the note. |
 | LN-AI-094 | A capable authenticated remote host MUST proxy app-tool calls, results, and cancellation through the existing agent-runtime channel while execution remains in the owning App. Disconnect MUST cancel pending calls and revoke the bridge, and resume MUST create a new bridge rather than reusing stale authorization. |
+| LN-AI-095 | The AI settings section MUST list every currently registered application tool with its name, contributing plugin, and an enablement control. The list MUST refresh when the registry changes. Unregistered tools MUST disappear. |
 
 ### LN-AI-046 acceptance details
 
@@ -116,6 +117,14 @@ The ReloadResume play seeds the shared `lapis-ai-story:` storage key with
 portable `.lapis/agents` files, remounts, and asserts transcript, agent
 divider, and usage before any live resume. It never sends a prompt.
 
+### LN-AI-095 acceptance details
+
+The AI settings inventory verifies:
+
+- Each registered tool shows its name, contributing plugin, and a toggle.
+- The list refreshes when the registry changes.
+- Unregistered tools disappear from the section.
+
 ## Runtime flow
 
 The initial fallback controller is presentation-only: it does not restore or
@@ -127,8 +136,8 @@ External process-backed MCP servers are represented by
 reserved `lapis-tools` server is exclusively owned by the application-tool
 bridge.
 Application tools are enabled by default for new bindings. The master setting
-and sorted community owner-plugin opt-ins are persisted, while an active
-binding retains the snapshot taken when it was created.
+and per-tool enablement lists are persisted, while an active binding retains
+the snapshot taken when it was created.
 Protocol-v3 hosts advertise `appTools: stdio-mcp`. A capable runtime receives
 only a bridge ID; AI Host merges the reserved server for ACP or injects its
 command into Codex Native while credentials remain in the spawned process

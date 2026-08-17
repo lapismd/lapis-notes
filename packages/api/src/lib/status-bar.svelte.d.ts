@@ -3,7 +3,9 @@ export type StatusBarAlignment = "left" | "right";
 export interface StatusBarItemDescriptor {
     id: string;
     text?: string;
+    segments?: string[];
     icon?: string;
+    spin?: boolean;
     tooltip?: string;
     command?: string;
     when?: string;

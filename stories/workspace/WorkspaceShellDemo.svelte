@@ -17,6 +17,7 @@
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
+  import { WordCountPlugin } from "@lapis-notes/wordcount";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import type { WorkspaceRequestedDisplayMode } from "@lapismd/design-core/workspace/core";
@@ -245,6 +246,7 @@
     "lapis-file-explorer",
     "search",
     "history",
+    "wordcount",
     "bases",
     "ai",
   ] as const;
@@ -255,6 +257,7 @@
       { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
       { plugin: SearchPlugin, required: false, enabledByDefault: true },
       { plugin: HistoryPlugin, required: false, enabledByDefault: true },
+      { plugin: WordCountPlugin, required: false, enabledByDefault: true },
       { plugin: BasesPlugin, required: false, enabledByDefault: true },
       { plugin: AiPlugin, required: false, enabledByDefault: true },
     ]);
@@ -280,6 +283,17 @@
   let persistedLayout = $state(initialJson);
   let writeCount = $state(0);
   let bundledPluginState = $state("[]");
+  let appShellPluginState = $state("[]");
+  let frame = $state<HTMLDivElement>();
+
+  $effect(() => {
+    if (!frame) return;
+    const owned = frame as HTMLDivElement & { __lapisApp?: App };
+    owned.__lapisApp = app;
+    return () => {
+      if (owned.__lapisApp === app) delete owned.__lapisApp;
+    };
+  });
   let showInlineTitle = $derived(controller.renderer.showInlineTitle);
 
   app.workspace.on("layout-change", (event) => {
@@ -325,6 +339,12 @@
       }
       await app.workspace.loadLayout();
       await controller.start();
+      appShellPluginState = JSON.stringify(
+        ["fmode", "notifications", "app-shell:problems"].map((id) => ({
+          id,
+          enabled: controller.plugins.get(id)?.enabled ?? false,
+        })),
+      );
       if (untrack(() => seedNotifications)) {
         await controller.notifications.clearAll();
         controller.notifications.notify({
@@ -358,6 +378,7 @@
 </script>
 
 <div
+  bind:this={frame}
   class="workspace-shell-story-frame"
   data-testid="workspace-shell-frame"
   data-workspace-inline-title={showInlineTitle ? "true" : "false"}
@@ -378,6 +399,9 @@
     <span data-testid="workspace-write-count">{writeCount}</span>
     <output data-testid="workspace-bundled-plugins"
       >{bundledPluginState}</output
+    >
+    <output data-testid="workspace-app-shell-plugins"
+      >{appShellPluginState}</output
     >
     <span data-testid="workspace-bottom-size"
       >{app.workspace.bottomPanel.size}</span

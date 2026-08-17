@@ -122,4 +122,18 @@ describe("status bar manager", () => {
       priority: 30,
     });
   });
+
+  it("preserves optional segments on visible items", () => {
+    const contextKeys = new ContextKeyService();
+    const statusBar = new StatusBarManager();
+    statusBar.upsertItem({
+      id: "wordcount:status",
+      segments: ["5 words", "44 characters"],
+    });
+
+    expect(statusBar.getVisibleItems("right", contextKeys)[0]).toMatchObject({
+      id: "wordcount:status",
+      segments: ["5 words", "44 characters"],
+    });
+  });
 });

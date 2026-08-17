@@ -12,7 +12,8 @@ function aiPluginData(defaultRuntime) {
       defaultModels: { codex: "gpt-5.6-sol", cursor: "" },
       thinking: "medium",
       appToolsEnabled: true,
-      enabledCommunityToolPluginIds: [],
+      disabledAppToolNames: [],
+      enabledAppToolNames: [],
     },
   };
 }

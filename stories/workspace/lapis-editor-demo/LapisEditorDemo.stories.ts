@@ -243,6 +243,19 @@ export const Ready: Story = {
     const alternateLeaf = runtimeApp.workspace.getLeaf("tab");
     runtimeApp.workspace.activeLeaf = alternateLeaf;
     await alternateLeaf.openFile(welcomeFile!);
+    await waitFor(() => {
+      const item = canvasElement.querySelector(
+        '[data-status-bar-item-id="wordcount:status"]',
+      );
+      expect(item).not.toBeNull();
+      expect(item?.textContent).toMatch(/\d+ words/);
+      expect(item?.textContent).toMatch(/\d+ characters/);
+    });
+    expect(
+      canvas.queryByText(/\d+ words/, {
+        selector: ".status-bar-item-segment",
+      }),
+    ).toBeNull();
     await runtimeApp.workspace.revealLeaf(alternateLeaf);
     const leavesWithAlternate = countRootLeaves(runtimeApp);
 

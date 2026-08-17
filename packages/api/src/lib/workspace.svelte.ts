@@ -61,10 +61,12 @@ import {
   type ManagedPluginSettingsSource,
 } from "@lapismd/design-core/workspace/core";
 import { notificationsPlugin } from "@lapismd/design-core/workspace/plugins/notifications";
+import { fModePlugin } from "@lapismd/design-core/workspace/plugins/fmode";
 import {
   problemsPlugin,
   type WorkspaceDiagnosticLocation,
 } from "@lapismd/design-core/workspace/problems";
+import { createAppShellPluginPersistence } from "./app-shell-plugin-persistence";
 import { setWorkspaceHostBinding } from "./workspace-host-internal";
 import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
 import {
@@ -2656,6 +2658,7 @@ export class Workspace extends EventDispatcher<{
         ...(shellOptions?.notifications === false
           ? []
           : [notificationsPlugin()]),
+        fModePlugin({ enabled: false }),
         problemsPlugin({
           navigation: {
             open: (location) => this.openDiagnosticLocation(location),
@@ -2681,6 +2684,7 @@ export class Workspace extends EventDispatcher<{
             );
           },
         },
+        plugins: createAppShellPluginPersistence(this.app.vault),
       },
     });
     setWorkspaceHostBinding(this, {
@@ -2912,7 +2916,7 @@ export class Workspace extends EventDispatcher<{
           align: "left",
           priority: item.priority,
           label: item.text,
-          segments: item.text ? [item.text] : undefined,
+          segments: item.segments ?? (item.text ? [item.text] : undefined),
           tooltip: item.tooltip,
           icon: item.icon,
           busy: item.spin,
@@ -2931,7 +2935,7 @@ export class Workspace extends EventDispatcher<{
           align: "right",
           priority: item.priority,
           label: item.text,
-          segments: item.text ? [item.text] : undefined,
+          segments: item.segments ?? (item.text ? [item.text] : undefined),
           tooltip: item.tooltip,
           icon: item.icon,
           busy: item.spin,

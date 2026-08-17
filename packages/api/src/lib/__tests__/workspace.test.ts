@@ -1689,7 +1689,7 @@ describe("Workspace compatibility", () => {
     expect(updateConfigurationOptions).toHaveBeenCalledTimes(2);
   });
 
-  it("configures the host controller with Lapis metadata and notification chrome", () => {
+  it("configures the host controller with Lapis metadata and notification chrome", async () => {
     const { workspace } = createWorkspaceHarness();
     const controller = getWorkspaceHostBinding(workspace).controller;
 
@@ -1703,6 +1703,27 @@ describe("Workspace compatibility", () => {
       enabled: true,
       status: "disabled",
     });
+    expect(controller.plugins.get("fmode")).toMatchObject({
+      id: "fmode",
+      enabled: false,
+      status: "disabled",
+    });
+
+    await controller.start();
+    expect(controller.plugins.get("fmode")).toMatchObject({
+      id: "fmode",
+      enabled: false,
+      status: "disabled",
+    });
+    expect(await controller.managedPlugins.enable("app-shell:fmode")).toBe(
+      true,
+    );
+    expect(controller.plugins.get("fmode")).toMatchObject({
+      id: "fmode",
+      enabled: true,
+      status: "enabled",
+    });
+    await controller.dispose();
   });
 
   it("projects controller changes while preserving compatibility leaf identity", async () => {
@@ -3681,6 +3702,7 @@ describe("Workspace compatibility", () => {
     const removeStatus = app.statusBar.registerItem({
       id: "roles:actions-attention",
       text: "1",
+      segments: ["1 due", "actions"],
       icon: "bell",
       tooltip: "Open Role Actions (1 due)",
       command: "roles:open-actions",
@@ -3694,11 +3716,15 @@ describe("Workspace compatibility", () => {
     ).toMatchObject({
       align: "right",
       label: "1",
-      segments: ["1"],
+      segments: ["1 due", "actions"],
       icon: "bell",
     });
 
-    app.statusBar.upsertItem({ id: "roles:actions-attention", text: "2" });
+    app.statusBar.upsertItem({
+      id: "roles:actions-attention",
+      text: "2",
+      segments: ["2"],
+    });
     const updated = controller.status.items.find(
       (item) => item.id === "roles:actions-attention",
     );

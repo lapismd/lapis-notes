@@ -92,8 +92,8 @@ the app-owned bridge.
 API constructs immutable tool scopes from trusted conversation directories;
 scope resolution rejects absolute, traversal, non-portable, and sibling-prefix
 paths instead of normalizing them into a different target.
-AI persists only the master application-tool switch and community owner-plugin
-opt-ins; invocation grants and binding-local descriptor snapshots are runtime
+AI persists the master application-tool switch and per-tool enablement by tool
+name; invocation grants and binding-local descriptor snapshots are runtime
 state.
 Search owns `notes_search` and applies conversation scope through the generic
 database path-prefix option before result ranking and limits.
@@ -155,6 +155,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/file-explorer (reusable File Explorer contribution)
 @lapis-notes/search (vault indexing + Search workspace contribution)
 @lapis-notes/history (vault file-revision capture + History workspace contribution + settings)
+@lapis-notes/wordcount (status-bar word and character count)
 @lapis-notes/bases (query + document + bundled Bases presentation)
 @lapis-notes/lapis-plugin-cv-roles (first-party external plugin; role workflows + retained CV views)
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)

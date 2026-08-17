@@ -14,6 +14,10 @@ import type {
   ApprovalOptionKind,
   ApprovalRequest,
 } from "../core/types";
+import {
+  isAppToolEnabled,
+  type AiPluginSettings,
+} from "../settings/ai-settings";
 
 const MAX_CONTENT_ITEMS = 32;
 const MAX_TEXT_BYTES = 64 * 1024;
@@ -41,10 +45,13 @@ export class AppToolExecutionError extends Error {
   }
 }
 
-export interface AppToolPolicySettings {
-  appToolsEnabled: boolean;
-  enabledCommunityToolPluginIds: string[];
-}
+export type AppToolPolicySettings = Pick<
+  AiPluginSettings,
+  | "appToolsEnabled"
+  | "disabledAppToolNames"
+  | "enabledAppToolNames"
+  | "enabledCommunityToolPluginIds"
+>;
 
 export interface CreateAppToolSessionInput {
   conversationId: string;
@@ -440,9 +447,9 @@ function isEligible(
   registered: RegisteredAppTool,
   settings: AppToolPolicySettings,
 ): boolean {
-  return (
-    registered.owner.source !== "community" ||
-    settings.enabledCommunityToolPluginIds.includes(registered.owner.pluginId)
+  return isAppToolEnabled(
+    { name: registered.tool.name, owner: registered.owner },
+    settings,
   );
 }
 

@@ -13,6 +13,8 @@ describe("AI plugin data", () => {
         defaultModel: "gpt-5.6-sol",
         thinking: "medium",
         appToolsEnabled: true,
+        disabledAppToolNames: [],
+        enabledAppToolNames: [],
         enabledCommunityToolPluginIds: [],
       },
       source: { defaultRuntime: "fake", acpAgent: "codex" },
@@ -75,5 +77,29 @@ describe("AI plugin data", () => {
       sessions: [{ id: "legacy" }],
       futureValue: { enabled: true },
     });
+  });
+
+  it("reads legacy community plugin opt-ins and omits the empty key on write", async () => {
+    const { serializeAiPluginData } = await import("./plugin-data");
+    const parsed = parseAiPluginData({
+      settings: {
+        enabledCommunityToolPluginIds: ["story-community"],
+        enabledAppToolNames: ["kept_tool"],
+        disabledAppToolNames: ["notes_search"],
+      },
+    });
+    expect(parsed.settings.enabledCommunityToolPluginIds).toEqual([
+      "story-community",
+    ]);
+    expect(parsed.settings.enabledAppToolNames).toEqual(["kept_tool"]);
+    expect(parsed.settings.disabledAppToolNames).toEqual(["notes_search"]);
+    parsed.settings.enabledCommunityToolPluginIds = [];
+    const serialized = serializeAiPluginData(parsed).settings as Record<
+      string,
+      unknown
+    >;
+    expect(serialized.enabledAppToolNames).toEqual(["kept_tool"]);
+    expect(serialized.disabledAppToolNames).toEqual(["notes_search"]);
+    expect(serialized).not.toHaveProperty("enabledCommunityToolPluginIds");
   });
 });

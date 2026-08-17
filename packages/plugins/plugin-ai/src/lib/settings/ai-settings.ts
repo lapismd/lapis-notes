@@ -5,6 +5,16 @@ import {
   type AcpAgentId,
 } from "./acp-agents";
 
+export type AppToolEnablementOwner = {
+  pluginId: string;
+  source: "core" | "community" | "official" | "system";
+};
+
+export type AppToolEnablementRef = {
+  name: string;
+  owner: AppToolEnablementOwner;
+};
+
 export type AiPluginSettings = {
   defaultRuntime: "auto" | "acp" | "codex-native" | "fake";
   acpAgent: AcpAgentId;
@@ -13,7 +23,14 @@ export type AiPluginSettings = {
   defaultModel: string;
   thinking: AiThinkingLevel;
   appToolsEnabled: boolean;
+  disabledAppToolNames: string[];
+  enabledAppToolNames: string[];
+  /** @deprecated Migrated into enabledAppToolNames; omitted from new writes when empty. */
   enabledCommunityToolPluginIds: string[];
+};
+
+export type StoredAiSettings = Partial<AiPluginSettings> & {
+  enabledCommunityToolPluginIds?: string[];
 };
 
 export const DEFAULT_AI_SETTINGS: AiPluginSettings = {
@@ -26,8 +43,12 @@ export const DEFAULT_AI_SETTINGS: AiPluginSettings = {
   defaultModel: "gpt-5.6-sol",
   thinking: "medium",
   appToolsEnabled: true,
+  disabledAppToolNames: [],
+  enabledAppToolNames: [],
   enabledCommunityToolPluginIds: [],
 };
+
+export const APP_TOOL_SETTING_PREFIX = "ai.appTools.";
 
 const THINKING_LEVELS = new Set<AiThinkingLevel>([
   "off",
@@ -36,8 +57,104 @@ const THINKING_LEVELS = new Set<AiThinkingLevel>([
   "high",
 ]);
 
+function normalizeNameList(value: readonly string[] | undefined): string[] {
+  return [
+    ...new Set((value ?? []).map((item) => item.trim()).filter(Boolean)),
+  ].sort();
+}
+
+export function isCommunityAppToolOwner(
+  owner: AppToolEnablementOwner,
+): boolean {
+  return owner.source === "community";
+}
+
+export function appToolSettingId(toolName: string): string {
+  return `${APP_TOOL_SETTING_PREFIX}${toolName}`;
+}
+
+export function isAppToolEnabled(
+  tool: AppToolEnablementRef,
+  settings: Pick<
+    AiPluginSettings,
+    | "disabledAppToolNames"
+    | "enabledAppToolNames"
+    | "enabledCommunityToolPluginIds"
+  >,
+): boolean {
+  if (isCommunityAppToolOwner(tool.owner)) {
+    return (
+      settings.enabledAppToolNames.includes(tool.name) ||
+      settings.enabledCommunityToolPluginIds.includes(tool.owner.pluginId)
+    );
+  }
+  return !settings.disabledAppToolNames.includes(tool.name);
+}
+
+export function migrateLegacyCommunityToolOptIns(
+  settings: AiPluginSettings,
+  registeredTools: readonly AppToolEnablementRef[],
+): AiPluginSettings {
+  const leftover = settings.enabledCommunityToolPluginIds;
+  if (leftover.length === 0) return settings;
+  const opted = new Set(leftover);
+  const names = new Set(settings.enabledAppToolNames);
+  const seenOwners = new Set<string>();
+  for (const tool of registeredTools) {
+    if (
+      !isCommunityAppToolOwner(tool.owner) ||
+      !opted.has(tool.owner.pluginId)
+    ) {
+      continue;
+    }
+    names.add(tool.name);
+    seenOwners.add(tool.owner.pluginId);
+  }
+  if (seenOwners.size === 0) return settings;
+  return {
+    ...settings,
+    enabledAppToolNames: [...names].sort(),
+    enabledCommunityToolPluginIds: leftover.filter(
+      (pluginId) => !seenOwners.has(pluginId),
+    ),
+  };
+}
+
+export function applyAppToolEnablement(
+  settings: AiPluginSettings,
+  tool: AppToolEnablementRef,
+  enabled: boolean,
+  registeredTools: readonly AppToolEnablementRef[],
+): Pick<
+  AiPluginSettings,
+  | "disabledAppToolNames"
+  | "enabledAppToolNames"
+  | "enabledCommunityToolPluginIds"
+> {
+  const migrated = migrateLegacyCommunityToolOptIns(settings, registeredTools);
+  if (isCommunityAppToolOwner(tool.owner)) {
+    const names = new Set(migrated.enabledAppToolNames);
+    if (enabled) names.add(tool.name);
+    else names.delete(tool.name);
+    return {
+      disabledAppToolNames: migrated.disabledAppToolNames,
+      enabledAppToolNames: [...names].sort(),
+      enabledCommunityToolPluginIds: migrated.enabledCommunityToolPluginIds,
+    };
+  }
+  const disabled = new Set(migrated.disabledAppToolNames);
+  if (enabled) disabled.delete(tool.name);
+  else disabled.add(tool.name);
+  return {
+    disabledAppToolNames: [...disabled].sort(),
+    enabledAppToolNames: migrated.enabledAppToolNames,
+    enabledCommunityToolPluginIds: migrated.enabledCommunityToolPluginIds,
+  };
+}
+
 export function mergeAiSettings(
-  value: Partial<AiPluginSettings> | null | undefined,
+  value: StoredAiSettings | null | undefined,
+  registeredTools?: readonly AppToolEnablementRef[],
 ): AiPluginSettings {
   const acpAgent = normalizeAcpAgent(value?.acpAgent);
   const storedModels = value?.defaultModels;
@@ -50,7 +167,7 @@ export function mergeAiSettings(
     cursor: storedModels?.cursor?.trim() || "",
   };
   const thinking = value?.thinking;
-  return {
+  const merged: AiPluginSettings = {
     defaultRuntime: value?.defaultRuntime ?? DEFAULT_AI_SETTINGS.defaultRuntime,
     acpAgent,
     defaultModels,
@@ -60,12 +177,13 @@ export function mergeAiSettings(
         ? thinking
         : DEFAULT_AI_SETTINGS.thinking,
     appToolsEnabled: value?.appToolsEnabled !== false,
-    enabledCommunityToolPluginIds: [
-      ...new Set(
-        (value?.enabledCommunityToolPluginIds ?? [])
-          .map((pluginId) => pluginId.trim())
-          .filter(Boolean),
-      ),
-    ].sort(),
+    disabledAppToolNames: normalizeNameList(value?.disabledAppToolNames),
+    enabledAppToolNames: normalizeNameList(value?.enabledAppToolNames),
+    enabledCommunityToolPluginIds: normalizeNameList(
+      value?.enabledCommunityToolPluginIds,
+    ),
   };
+  return registeredTools
+    ? migrateLegacyCommunityToolOptIns(merged, registeredTools)
+    : merged;
 }

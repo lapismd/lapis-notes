@@ -44,9 +44,75 @@ function expectBundledPlugins(canvas: ReturnType<typeof within>) {
     { id: "lapis-file-explorer", enabled: true },
     { id: "search", enabled: true },
     { id: "history", enabled: true },
+    { id: "wordcount", enabled: true },
     { id: "bases", enabled: true },
     { id: "ai", enabled: true },
   ]);
+}
+
+function expectAppShellPlugins(canvas: ReturnType<typeof within>) {
+  expect(
+    JSON.parse(
+      canvas.getByTestId("workspace-app-shell-plugins").textContent ?? "[]",
+    ),
+  ).toEqual(
+    expect.arrayContaining([
+      { id: "fmode", enabled: false },
+      { id: "notifications", enabled: true },
+      { id: "app-shell:problems", enabled: true },
+    ]),
+  );
+}
+
+async function expectWordCountForWelcome(
+  canvasElement: HTMLElement,
+  canvas: ReturnType<typeof within>,
+) {
+  const runtimeApp = (
+    canvasElement.querySelector(
+      '[data-testid="workspace-shell-frame"]',
+    ) as HTMLElement & { __lapisApp?: import("@lapis-notes/api").App }
+  )?.__lapisApp;
+  expect(runtimeApp).toBeDefined();
+  const welcome = runtimeApp!.vault.getFileByPath("Notes/Welcome.md");
+  expect(welcome).not.toBeNull();
+  const plugin = runtimeApp!.plugins.plugins.get("wordcount") as
+    | {
+        status: { show(text: string): void };
+        syncActiveLeaf(leaf: unknown): void;
+      }
+    | undefined;
+  expect(plugin).toBeDefined();
+  const leaf =
+    runtimeApp!.workspace.activeLeaf ?? runtimeApp!.workspace.getLeaf();
+  await leaf.setViewState({
+    type: "markdown",
+    state: { file: welcome!.path },
+  });
+  runtimeApp!.workspace.activeLeaf = leaf;
+  await runtimeApp!.workspace.revealLeaf(leaf);
+  plugin!.syncActiveLeaf(leaf);
+  plugin!.status.show(await runtimeApp!.vault.read(welcome!));
+  expect(runtimeApp!.statusBar.items["wordcount:status"]).toMatchObject({
+    segments: ["5 words", "44 characters"],
+  });
+  expect(
+    canvas.queryByText("5 words", { selector: ".status-bar-item-segment" }),
+  ).toBeNull();
+  if (canvas.queryByRole("button", { name: "Create new tab" })) {
+    return;
+  }
+  await waitFor(
+    () => {
+      const item = canvasElement.querySelector(
+        '[data-status-bar-item-id="wordcount:status"]',
+      );
+      expect(item).not.toBeNull();
+      expect(item).toHaveTextContent("5 words");
+      expect(item).toHaveTextContent("44 characters");
+    },
+    { timeout: 3_000 },
+  );
 }
 
 async function expectStatusActionHover(button: HTMLButtonElement) {
@@ -93,6 +159,8 @@ export const PersistedDesktop: Story = {
     const canvas = within(canvasElement);
     await waitForShell(canvas);
     expectBundledPlugins(canvas);
+    expectAppShellPlugins(canvas);
+    await expectWordCountForWelcome(canvasElement, canvas);
 
     const newTabButton = canvas.getByRole("button", { name: "New tab" });
     const tabHeader = canvasElement.querySelector<HTMLElement>(
@@ -450,14 +518,9 @@ export const BottomPanelSettings: Story = {
       { timeout: 3_000 },
     );
 
-    const ribbon = canvas.getByLabelText("left ribbon");
-    const ribbonSettings = within(ribbon).getByRole("button", {
-      name: "Settings",
-    });
-    expect(
-      ribbonSettings.closest('[data-ui-part="bottom-actions"]'),
-    ).not.toBeNull();
-    await userEvent.click(ribbonSettings);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Open settings" }),
+    );
     const dialog = canvas.getByRole("dialog", { name: "Settings" });
     await expect(dialog).toBeVisible();
     const dialogUi = within(dialog);
@@ -547,6 +610,8 @@ export const Mobile: Story = {
     const canvas = within(canvasElement);
     await waitForShell(canvas);
     expectBundledPlugins(canvas);
+    expectAppShellPlugins(canvas);
+    await expectWordCountForWelcome(canvasElement, canvas);
 
     await userEvent.click(
       canvas.getByRole("button", { name: "Create new tab" }),

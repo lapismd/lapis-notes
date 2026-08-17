@@ -6,7 +6,17 @@ import {
   normalizeAcpAgent,
   type AcpAgentId,
 } from "./acp-agents";
-import { DEFAULT_AI_SETTINGS, type AiPluginSettings } from "./ai-settings";
+import {
+  APP_TOOL_SETTING_PREFIX,
+  DEFAULT_AI_SETTINGS,
+  applyAppToolEnablement,
+  migrateLegacyCommunityToolOptIns,
+  type AiPluginSettings,
+} from "./ai-settings";
+import {
+  listAppToolSettingRows,
+  registeredAppToolRefs,
+} from "./app-tool-setting-rows";
 
 const FIELD_IDS = {
   defaultRuntime: "ai.defaultRuntime",
@@ -14,8 +24,8 @@ const FIELD_IDS = {
   defaultModel: "ai.defaultModel",
   thinking: "ai.thinking",
   appToolsEnabled: "ai.appToolsEnabled",
+  appTools: "ai.appTools",
 } as const;
-const COMMUNITY_TOOL_FIELD_PREFIX = "ai.communityTools.";
 
 export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   const binding = getWorkspaceHostBinding(plugin.app.workspace);
@@ -23,21 +33,24 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   const controller = binding.controller;
   const settings = plugin.getSettings();
   const modelSourceId = (provider: AcpAgentId) => `ai.models.${provider}`;
-  const communityToolOwners = () => {
-    const owners = new Map<string, string[]>();
-    for (const registered of plugin.app.agentTools.list()) {
-      if (registered.owner.source !== "community") continue;
-      const tools = owners.get(registered.owner.pluginId) ?? [];
-      tools.push(registered.tool.name);
-      owners.set(registered.owner.pluginId, tools);
+  const persistLegacyToolMigration = () => {
+    const current = plugin.getSettings();
+    const migrated = migrateLegacyCommunityToolOptIns(
+      current,
+      registeredAppToolRefs(plugin.app),
+    );
+    if (
+      migrated.enabledAppToolNames.join("\0") ===
+        current.enabledAppToolNames.join("\0") &&
+      migrated.enabledCommunityToolPluginIds.join("\0") ===
+        current.enabledCommunityToolPluginIds.join("\0")
+    ) {
+      return;
     }
-    return [...owners]
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([pluginId, tools]) => ({
-        pluginId,
-        tools: tools.sort(),
-        fieldId: `${COMMUNITY_TOOL_FIELD_PREFIX}${pluginId}`,
-      }));
+    void plugin.updateSettings({
+      enabledAppToolNames: migrated.enabledAppToolNames,
+      enabledCommunityToolPluginIds: migrated.enabledCommunityToolPluginIds,
+    });
   };
   for (const provider of ACP_AGENT_IDS) {
     const dispose = controller.configuration.optionSources.register({
@@ -155,16 +168,24 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
         type: "boolean" as const,
         title: "Application tools",
         description:
-          "Expose bundled application tools to newly created agent bindings.",
+          "Expose enabled application tools to newly created agent bindings.",
         default: DEFAULT_AI_SETTINGS.appToolsEnabled,
       },
-      ...communityToolOwners().map(({ pluginId, tools, fieldId }) => ({
-        id: fieldId,
-        type: "boolean" as const,
-        title: `Community tools: ${pluginId}`,
-        description: `Allow new bindings to invoke: ${tools.join(", ")}`,
-        default: false,
-      })),
+      {
+        id: FIELD_IDS.appTools,
+        type: "group" as const,
+        presentation: "toggle-table" as const,
+        title: "Registered tools",
+        description:
+          "Enable or disable each currently registered tool for new agent bindings.",
+        fields: listAppToolSettingRows(plugin.app, current).map((row) => ({
+          id: row.fieldId,
+          type: "boolean" as const,
+          title: row.name,
+          description: row.description,
+          default: row.owner.source !== "community",
+        })),
+      },
     ],
   });
 
@@ -181,21 +202,22 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
     FIELD_IDS.appToolsEnabled,
     settings.appToolsEnabled,
   );
-  const syncCommunityToolValues = (current: AiPluginSettings) => {
-    const enabled = new Set(current.enabledCommunityToolPluginIds);
-    for (const owner of communityToolOwners()) {
-      controller.settings.update(owner.fieldId, enabled.has(owner.pluginId));
+  const syncAppToolValues = (current: AiPluginSettings) => {
+    for (const row of listAppToolSettingRows(plugin.app, current)) {
+      controller.settings.update(row.fieldId, row.enabled);
     }
   };
-  syncCommunityToolValues(settings);
+  syncAppToolValues(settings);
+  persistLegacyToolMigration();
 
   const refreshSection = (current: AiPluginSettings) => {
     disposeSection();
     disposeSection = controller.registerSettingsSection(createSection(current));
-    syncCommunityToolValues(current);
+    syncAppToolValues(current);
   };
 
   const toolRegistryRef = plugin.app.agentTools.on("changed", () => {
+    persistLegacyToolMigration();
     refreshSection(plugin.getSettings());
   });
   plugin.register(() => plugin.app.agentTools.offref(toolRegistryRef));
@@ -240,19 +262,21 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
       });
       return;
     }
-    if (event.id.startsWith(COMMUNITY_TOOL_FIELD_PREFIX)) {
-      const pluginId = event.id.slice(COMMUNITY_TOOL_FIELD_PREFIX.length);
-      if (!communityToolOwners().some((owner) => owner.pluginId === pluginId)) {
-        return;
-      }
-      const enabled = new Set(
-        plugin.getSettings().enabledCommunityToolPluginIds,
+    if (
+      event.id.startsWith(APP_TOOL_SETTING_PREFIX) &&
+      event.id !== FIELD_IDS.appTools
+    ) {
+      const toolName = event.id.slice(APP_TOOL_SETTING_PREFIX.length);
+      const registered = plugin.app.agentTools.get(toolName);
+      if (!registered) return;
+      void plugin.updateSettings(
+        applyAppToolEnablement(
+          plugin.getSettings(),
+          { name: registered.tool.name, owner: registered.owner },
+          values[event.id] === true,
+          registeredAppToolRefs(plugin.app),
+        ),
       );
-      if (values[event.id] === true) enabled.add(pluginId);
-      else enabled.delete(pluginId);
-      void plugin.updateSettings({
-        enabledCommunityToolPluginIds: [...enabled].sort(),
-      });
     }
   });
   plugin.register(() => controller.settings.offref(changeRef));

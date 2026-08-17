@@ -54,8 +54,8 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 
 The Storybook structure audit treats AI, Bases, and History as required
 plugin Shell families. Its persisted Workspace inventory check requires the
-seven enabled plugin IDs, including History, in both the shell demo and the
-PersistedDesktop and Mobile stories.
+eight enabled plugin IDs, including History and Word Count, in both the shell
+demo and the PersistedDesktop and Mobile stories.
 
 ## Requirement structure
 
@@ -128,6 +128,7 @@ not installed or when an embedding model is unavailable.
 | `packages/web`                                                             | `web-host.md`, `packages.md`, `architecture.md`                                          |
 | `packages/plugins/plugin-search` package                                   | `search-plugin.md`, `packages.md`, `architecture.md`                                     |
 | `packages/plugins/plugin-history` package                                  | `history-plugin.md`, `packages.md`, `architecture.md`                                    |
+| `packages/plugins/plugin-wordcount` package                                | `wordcount-plugin.md`, `packages.md`, `plugin-model.md`, `editor-demo.md`                 |
 | Native Markdown runtime source or language-service manifest                | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md`                   |
 | `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md`        | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |
 | `packages/plugins/plugin-bases` source or manifest                         | `bases-plugin.md`, `packages.md`, `architecture.md`                                      |
@@ -196,5 +197,5 @@ and rejects duplicate or stale mappings, missing canonical stories, incorrect
 `Plugins/<Plugin>/Panels/<Panel>` titles, missing placements, and absent
 `visual-pending` status. Shell, external-plugin, and persisted-inventory checks
 extend the same validator as those catalog slices migrate. The persisted
-inventory check requires Workspace Shell stories to assert History among the
-seven enabled bundled plugins.
+inventory check requires Workspace Shell stories to assert History and Word
+Count among the eight enabled bundled plugins.

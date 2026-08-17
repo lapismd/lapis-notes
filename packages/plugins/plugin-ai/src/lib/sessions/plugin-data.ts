@@ -26,8 +26,13 @@ export function parseAiPluginData(value: unknown): AiPluginData {
 export function serializeAiPluginData(
   data: AiPluginData,
 ): Record<string, unknown> {
+  const settings = structuredClone(data.settings);
+  if (settings.enabledCommunityToolPluginIds.length === 0) {
+    delete (settings as { enabledCommunityToolPluginIds?: string[] })
+      .enabledCommunityToolPluginIds;
+  }
   return {
     ...structuredClone(data.source),
-    settings: structuredClone(data.settings),
+    settings,
   };
 }

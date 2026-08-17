@@ -42,6 +42,7 @@ import {
   mergeAiSettings,
   type AiPluginSettings,
 } from "./settings/ai-settings";
+import { registeredAppToolRefs } from "./settings/app-tool-setting-rows";
 import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 import { AppToolHost } from "./tools/app-tool-host";
 import { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
@@ -116,6 +117,8 @@ export class AiPlugin extends Plugin {
     return {
       ...this.data.settings,
       defaultModels: { ...this.data.settings.defaultModels },
+      disabledAppToolNames: [...this.data.settings.disabledAppToolNames],
+      enabledAppToolNames: [...this.data.settings.enabledAppToolNames],
       enabledCommunityToolPluginIds: [
         ...this.data.settings.enabledCommunityToolPluginIds,
       ],
@@ -133,12 +136,15 @@ export class AiPlugin extends Plugin {
     }
     this.data = {
       ...this.data,
-      settings: mergeAiSettings({
-        ...this.data.settings,
-        ...patch,
-        acpAgent,
-        defaultModels,
-      }),
+      settings: mergeAiSettings(
+        {
+          ...this.data.settings,
+          ...patch,
+          acpAgent,
+          defaultModels,
+        },
+        registeredAppToolRefs(this.app),
+      ),
     };
     await this.saveData(serializeAiPluginData(this.data));
     for (const listener of this.#settingsListeners) listener(patch);

@@ -7,7 +7,14 @@ import {
 import type { AiPlugin } from "../ai-plugin";
 import type { AiThinkingLevel } from "../core/types";
 import { ACP_AGENT_IDS, type AcpAgentId } from "./acp-agents";
-import type { AiPluginSettings } from "./ai-settings";
+import {
+  applyAppToolEnablement,
+  type AiPluginSettings,
+} from "./ai-settings";
+import {
+  listAppToolSettingRows,
+  registeredAppToolRefs,
+} from "./app-tool-setting-rows";
 
 const ACP_AGENT_LABELS: Record<AcpAgentId, string> = {
   codex: "Codex",
@@ -27,6 +34,12 @@ export class AiSettingsTab extends PluginSettingTab {
     private readonly aiPlugin: AiPlugin,
   ) {
     super(app, aiPlugin);
+    const toolRegistryRef = this.app.agentTools.on("changed", () => {
+      if (this.containerEl?.isConnected) this.display();
+    });
+    this.aiPlugin.register(() =>
+      this.app.agentTools.offref(toolRegistryRef),
+    );
   }
 
   display(): void {
@@ -100,7 +113,7 @@ export class AiSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Application tools")
       .setDesc(
-        "Expose bundled note tools to new agent bindings. Existing bindings keep their frozen tool list.",
+        "Expose enabled application tools to new agent bindings. Existing bindings keep their frozen tool list.",
       )
       .addToggle((toggle) => {
         toggle.setValue(settings.appToolsEnabled).onChange((value) => {
@@ -108,34 +121,23 @@ export class AiSettingsTab extends PluginSettingTab {
         });
       });
 
-    const communityTools = new Map<string, string[]>();
-    for (const registered of this.app.agentTools.list()) {
-      if (registered.owner.source !== "community") continue;
-      const names = communityTools.get(registered.owner.pluginId) ?? [];
-      names.push(registered.tool.name);
-      communityTools.set(registered.owner.pluginId, names);
-    }
-    for (const [pluginId, toolNames] of [...communityTools].sort(([left], [right]) =>
-      left.localeCompare(right),
-    )) {
+    for (const row of listAppToolSettingRows(this.app, settings)) {
       new Setting(this.containerEl)
-        .setName(`Community tools: ${pluginId}`)
-        .setDesc(`Allow new bindings to invoke: ${toolNames.sort().join(", ")}`)
+        .setName(row.name)
+        .setDesc(row.description)
         .addToggle((toggle) => {
-          toggle
-            .setValue(
-              settings.enabledCommunityToolPluginIds.includes(pluginId),
-            )
-            .onChange((value) => {
-              const enabled = new Set(
-                this.aiPlugin.getSettings().enabledCommunityToolPluginIds,
-              );
-              if (value) enabled.add(pluginId);
-              else enabled.delete(pluginId);
-              void this.aiPlugin.updateSettings({
-                enabledCommunityToolPluginIds: [...enabled].sort(),
-              });
-            });
+          toggle.setValue(row.enabled).onChange((value) => {
+            const registered = this.app.agentTools.get(row.name);
+            if (!registered) return;
+            void this.aiPlugin.updateSettings(
+              applyAppToolEnablement(
+                this.aiPlugin.getSettings(),
+                { name: registered.tool.name, owner: registered.owner },
+                value,
+                registeredAppToolRefs(this.app),
+              ),
+            );
+          });
         });
     }
   }

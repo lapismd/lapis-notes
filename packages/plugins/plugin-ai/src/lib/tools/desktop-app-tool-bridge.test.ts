@@ -47,6 +47,8 @@ function fixture() {
   const registry = new AppToolRegistry();
   const host = new AppToolHost(registry, () => ({
     appToolsEnabled: true,
+    disabledAppToolNames: [],
+    enabledAppToolNames: [],
     enabledCommunityToolPluginIds: [],
   }));
   const coordinator = new DesktopAppToolBridge(host);
