@@ -102,7 +102,7 @@ execution APIs.
 | LN-AI-091 | External MCP server contributions MUST remain distinct from application tools and use an explicitly named `McpServerContribution` request field. The app bridge MUST reserve `lapis-tools`, reject collisions, and keep application tool implementations independent of MCP, ACP, acpx, and vendor SDKs. |
 | LN-AI-092 | Codex ACP, Cursor ACP, and Codex Native MUST expose the same effective application tool descriptors through stdio MCP. Agent switching MUST close the old bridge and grants, allocate the next binding before runtime start, and create a new snapshot without changing the conversation scope. |
 | LN-AI-093 | The first bundled application tools MUST be scoped `notes_search`, `notes_read`, `notes_list`, and `notes_patch`. Patch MUST require approval and atomically replace exactly one current text match; absent, repeated, or drifted matches MUST fail without changing the note. |
-| LN-AI-094 | A capable authenticated remote host MUST proxy app-tool calls and cancellation through the existing agent-runtime channel while execution remains in the owning App. Disconnect MUST cancel pending calls, and resume MUST create a new bridge rather than reusing stale authorization. |
+| LN-AI-094 | A capable authenticated remote host MUST proxy app-tool calls, results, and cancellation through the existing agent-runtime channel while execution remains in the owning App. Disconnect MUST cancel pending calls and revoke the bridge, and resume MUST create a new bridge rather than reusing stale authorization. |
 
 ### LN-AI-046 acceptance details
 
