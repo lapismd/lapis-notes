@@ -45,6 +45,9 @@ instead of transferring authority to a newly registered callback.
 Bundled domain plugins register their tools through that same lifecycle helper
 and capture their own services rather than receiving execution services in the
 host-created invocation context.
+Markdown registers its three note callbacks during plugin load, so ordinary
+plugin unload disposes them before any stale binding can invoke their captured
+Vault.
 
 ## Distribution and provenance
 

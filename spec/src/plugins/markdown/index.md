@@ -61,6 +61,12 @@ replace Mira completion or hover behavior.
 The generic Problems leaf renders its live total through Design Core's
 ephemeral view badge; Markdown and Markdownlint contribute diagnostics but do
 not construct or persist that presentation.
+Markdown also owns `notes_read`, `notes_list`, and `notes_patch`. Their
+callbacks capture the plugin's Vault, accept only scoped portable Markdown
+paths outside `.obsidian`, `.lapis`, and `.trash`, and return bounded
+transport-neutral records. Patch conflicts abort the `Vault.process` callback,
+so the adapter performs no write for zero, repeated, drifted, or cancelled
+matches.
 
 Panel registration, package exports, and per-panel behavior are documented in
 the [Markdown panel specification](./panels/index.md). Shared

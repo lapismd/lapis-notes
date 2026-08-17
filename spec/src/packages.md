@@ -100,6 +100,8 @@ its unrelated UI runtime.
 The Markdown package keeps canonical movable-panel registration, compatibility
 aliases, default placement, and opening-command metadata in one package-owned
 registry. This coordination is internal and does not add a package export.
+It also owns the scoped read, list, and atomic patch application tools; those
+callbacks capture Vault directly and expose no editor, AI host, or MCP service.
 The worker client uses a narrow API subpath so provider workers never load the
 application manager or presentation modules.
 

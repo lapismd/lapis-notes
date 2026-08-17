@@ -58,9 +58,16 @@ import { widgets } from "$lib/frontmatter/widgets";
 import { registerMarkdownSettings } from "$lib/settings/register-markdown-settings";
 import "$lib/styles/surfaces.css";
 import "@lapismd/mira-editor/styles.css";
+import { createMarkdownNoteTools } from "$lib/agent-tools/note-tools";
 
 export { FileEmbed, MarkdownEmbed, NoteLink } from "$lib/components/embed";
 export { createLapisMiraFileAdapter } from "$lib/mira/file-adapter";
+export {
+  createMarkdownNoteTools,
+  createNotesListTool,
+  createNotesPatchTool,
+  createNotesReadTool,
+} from "$lib/agent-tools/note-tools";
 
 export { MarkdownView, MarkdownViewType };
 export {
@@ -117,6 +124,9 @@ export class MarkdownPlugin extends Plugin {
 
   async onload(): Promise<void> {
     registerMarkdownSettings(this);
+    for (const tool of createMarkdownNoteTools(this.app.vault)) {
+      this.registerAgentTool(tool);
+    }
 
     this.registerView(MarkdownViewType, (leaf) => new MarkdownView(leaf), {
       kind: "file",

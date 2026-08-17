@@ -150,3 +150,6 @@ The public `ExplorerPanel` export is exercised through the registered Explorer
 view in the shared command-panel harness; the editor demo remains the source of
 its real in-memory vault and mutation controller rather than a duplicate panel
 fixture.
+Markdown note tools reuse the same Vault contract but remain outside editor
+surface state: reads and lists do not open a leaf, and approved patches use
+atomic Vault processing without routing through the demo editor controller.
