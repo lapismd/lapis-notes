@@ -732,6 +732,64 @@ export const MarkdownProblems: Story = {
   },
 };
 
+export const MarkdownLintLoftBoarding: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-markdown-lint-loft-boarding",
+    "A long-form loft-boarding note produces many Markdownlint warnings, including repeated line-length and list-style messages, without publishing the same code and range twice.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-lint-loft-boarding-chromium.png",
+  ),
+  tags: ["visual-pending", "test"],
+  args: { scenario: "markdown-lint-loft-boarding" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    const runtimeApp = activeStoryApp(canvasElement);
+    const editor = activeStoryEditor(canvasElement);
+
+    expect(editor.getValue()).toContain("plastic raised joist extensions");
+    await refreshLanguageServiceDiagnostics(editor.view, {
+      languageId: "markdown",
+    });
+
+    const entries = await waitFor(
+      () => {
+        const snapshot = runtimeApp.workspace.diagnostics.snapshot().entries;
+        expect(snapshot.length).toBeGreaterThan(1);
+        return snapshot;
+      },
+      { timeout: 8_000 },
+    );
+    const identities = entries.map(
+      (entry) =>
+        `${String(entry.diagnostic.code ?? "")}\u0000${JSON.stringify(entry.diagnostic.range ?? null)}\u0000${entry.diagnostic.message}`,
+    );
+    expect(new Set(identities).size).toBe(identities.length);
+    expect(
+      entries.filter((entry) => entry.diagnostic.code === "MD013").length,
+    ).toBeGreaterThan(1);
+
+    await getWorkspaceHostBinding(
+      runtimeApp.workspace,
+    ).controller.commands.execute("app-shell:show-problems");
+    const problems = await waitFor(() => {
+      const panel = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="workspace-problems"]',
+      );
+      expect(panel).not.toBeNull();
+      return panel!;
+    });
+    const count = entries.length;
+    await expect(
+      canvas.getByLabelText(
+        `Problems, ${count} problem${count === 1 ? "" : "s"}`,
+      ),
+    ).toBeVisible();
+    expect(problems.querySelectorAll(".ui-workspace-problems__row")).toHaveLength(
+      count,
+    );
+  },
+};
+
 export const SameFileSplitSync: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-same-file-split-sync",

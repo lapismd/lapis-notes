@@ -56,6 +56,7 @@
 | LN-ED-054 | The reusable Explorer sidebar MUST declare its canonical `ViewAccess.command` opener, preserve the `lapis-file-explorer` runtime identity, and use the concise `Explorer` display prefix in the command palette. |
 | LN-ED-055 | Storybook Explorer placement plays MUST open a file-row context menu on the in-memory vault and assert that native copy, open, and reveal extras are absent. |
 | LN-ED-056 | The editor demo play MUST assert the Word Count status item for the seeded Welcome note, show reading time on click, and MUST NOT use compatibility status DOM. |
+| LN-ED-057 | The editor demo MUST seed a long-form loft-boarding Markdown note and open it in a focused Markdownlint story that reveals Problems. Published diagnostics MUST stay unique by code and range. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add
@@ -122,7 +123,9 @@ the Tags view. Shared panel
 presentation is specified under `workspace-shell/panels.md`. The Markdown
 Problems scenario also verifies that Design Core renders the live
 diagnostic total in the owning leaf badge without changing its stored title or
-duplicating the total inside the panel.
+duplicating the total inside the panel. The Markdownlint loft-boarding
+scenario seeds a long-form note so repeated line-length and list-style
+messages can be inspected without publishing the same code and range twice.
 `@lapis-notes/workspace` remains the thin shell host.
 
 ## Demo lifecycle

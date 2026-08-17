@@ -470,6 +470,13 @@ export const workspaceCatalog = [
     storyId: "workspace-lapis-editor-demo--markdown-problems",
   },
   {
+    id: "workspace-lapis-editor-demo-markdown-lint-loft-boarding",
+    title: "Lapis Editor Demo Markdown Lint Loft Boarding",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapis-notes/markdown-lint + workspace Problems",
+    storyId: "workspace-lapis-editor-demo--markdown-lint-loft-boarding",
+  },
+  {
     id: "workspace-lapis-editor-demo-same-file-split-sync",
     title: "Lapis Editor Demo Same File Split Sync",
     spec: "spec/src/editor-demo.md",

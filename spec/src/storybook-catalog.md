@@ -155,10 +155,12 @@ real bottom-panel group, and a real sidebar group; new or changed captures stay
 - Workspace shell stories use the same interaction, a11y, and nested-import
   Visual Delta workflow as API stories and remain `visual-pending` until review.
 - Editor-demo catalog entries identify the Ready, MarkdownProblems,
-  SameFileSplitSync, MarkdownFrontmatter, ExplorerMutations, EditorSettings,
-  LoadingPlugins, MarkdownAuthoring, StartupFailure, and ExplorerOpeningVault stories
-  individually so focused visual updates do not rewrite existing shell
-  baselines. MarkdownAuthoring uses the real in-memory app and editor stack,
+  MarkdownLintLoftBoarding, SameFileSplitSync, MarkdownFrontmatter,
+  ExplorerMutations, EditorSettings, LoadingPlugins, MarkdownAuthoring,
+  StartupFailure, and ExplorerOpeningVault stories individually so focused
+  visual updates do not rewrite existing shell baselines. The loft-boarding
+  Markdownlint story keeps literal `visual-pending` metadata without a
+  captured baseline. MarkdownAuthoring uses the real in-memory app and editor stack,
   consumer-oriented Show Code, literal `visual-pending` metadata, and a future
   baseline path while its pointer test performs real block dragging.
 - The bottom-panel/settings story keeps the Workspace settings page open in its

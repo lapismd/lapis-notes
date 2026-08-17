@@ -1,14 +1,41 @@
+import loftBoardingMarkdown from "./fixtures/loft-boarding.md?raw";
+
 export type LapisEditorDemoScenario =
   | "ready"
   | "markdown-frontmatter"
   | "markdown-authoring"
   | "markdown-problems"
+  | "markdown-lint-loft-boarding"
   | "same-file-split"
   | "explorer-mutations"
   | "editor-settings"
   | "loading-plugins"
   | "startup-failure"
   | "explorer-opening-vault";
+
+const OPEN_MARKDOWN_SCENARIOS = new Set<LapisEditorDemoScenario>([
+  "editor-settings",
+  "markdown-frontmatter",
+  "markdown-authoring",
+  "markdown-problems",
+  "markdown-lint-loft-boarding",
+]);
+
+function openMarkdownLeaf(scenario: LapisEditorDemoScenario) {
+  return scenario === "markdown-lint-loft-boarding"
+    ? {
+        id: "loft-boarding",
+        title: "Loft boarding",
+        file: "Notes/Loft boarding.md",
+        mode: "source",
+      }
+    : {
+        id: "welcome",
+        title: "Welcome",
+        file: "Notes/Welcome.md",
+        mode: "live-preview",
+      };
+}
 
 const APP_CONFIGURATION = {
   "editor.alwaysFocusNewTabs": false,
@@ -68,6 +95,7 @@ function tabs(id: string, children: ReturnType<typeof leaf>[]) {
 }
 
 function workspaceLayout(scenario: LapisEditorDemoScenario) {
+  const markdownLeaf = openMarkdownLeaf(scenario);
   const main =
     scenario === "same-file-split"
       ? {
@@ -88,10 +116,7 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
             ]),
           ],
         }
-      : scenario === "editor-settings" ||
-          scenario === "markdown-frontmatter" ||
-          scenario === "markdown-authoring" ||
-          scenario === "markdown-problems"
+      : OPEN_MARKDOWN_SCENARIOS.has(scenario)
         ? {
             id: "main",
             type: "split",
@@ -99,10 +124,16 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
             sizes: [100],
             children: [
               tabs("main-tabs", [
-                leaf("welcome", "Welcome", "file-text", "markdown", {
-                  file: "Notes/Welcome.md",
-                  mode: "live-preview",
-                }),
+                leaf(
+                  markdownLeaf.id,
+                  markdownLeaf.title,
+                  "file-text",
+                  "markdown",
+                  {
+                    file: markdownLeaf.file,
+                    mode: markdownLeaf.mode,
+                  },
+                ),
               ]),
             ],
           }
@@ -148,11 +179,8 @@ function workspaceLayout(scenario: LapisEditorDemoScenario) {
     active:
       scenario === "same-file-split"
         ? "welcome-left"
-        : scenario === "editor-settings" ||
-            scenario === "markdown-frontmatter" ||
-            scenario === "markdown-authoring" ||
-            scenario === "markdown-problems"
-          ? "welcome"
+        : OPEN_MARKDOWN_SCENARIOS.has(scenario)
+          ? markdownLeaf.id
           : "landing",
   };
 }
@@ -225,6 +253,7 @@ export function createLapisEditorDemoSeed(
       "```",
       "",
     ].join("\n"),
+    "Notes/Loft boarding.md": loftBoardingMarkdown,
     "Notes/Ideas.markdown": [
       "---",
       "tags: [ideas, demo]",
