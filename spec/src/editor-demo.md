@@ -124,8 +124,9 @@ presentation is specified under `workspace-shell/panels.md`. The Markdown
 Problems scenario also verifies that Design Core renders the live
 diagnostic total in the owning leaf badge without changing its stored title or
 duplicating the total inside the panel. The Markdownlint loft-boarding
-scenario seeds a long-form note so repeated line-length and list-style
-messages can be inspected without publishing the same code and range twice.
+scenario seeds a long-form note so list-style and indent messages can be
+inspected without publishing the same code and range twice, and without the
+MD013 line-length warnings vscode-markdownlint disables by default.
 `@lapis-notes/workspace` remains the thin shell host.
 
 ## Demo lifecycle

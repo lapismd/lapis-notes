@@ -37,6 +37,7 @@ Markdownlint provider are implemented.
 | LN-WS-046 | The owning Problems leaf MUST show the live total as a shared workspace badge with visible non-hover paint. The persisted title MUST remain `Problems`, and the panel toolbar MUST NOT duplicate the total. |
 | LN-WS-047 | Problems severity toggles MUST be compact checkbox items in an untitled filter menu triggered by an inline `list-filter` action inside the search field. The menu MUST retain semantic severity icon colours and show `Errors`, `Warnings`, `Infos`, and `Hints` with unclipped totals in one aligned count column. |
 | LN-WS-048 | The Problems panel toolbar MUST omit duplicate Problems title text because the owning leaf supplies the label. It MUST align the search, filter, presentation, and collapse controls at the toolbar's right edge. |
+| LN-WS-066 | Markdownlint editor defaults MUST disable MD013/line-length, matching vscode-markdownlint. Other default rules MUST stay enabled. Vault `markdown-lint.disabledRules` MUST still suppress extra rules. |
 
 `Plugin.registerAgentTool` is independent from diagnostic collections and does
 not add callbacks or agent-specific fields to serializable diagnostics.

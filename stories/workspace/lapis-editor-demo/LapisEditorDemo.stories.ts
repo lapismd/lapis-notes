@@ -735,7 +735,7 @@ export const MarkdownProblems: Story = {
 export const MarkdownLintLoftBoarding: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-markdown-lint-loft-boarding",
-    "A long-form loft-boarding note produces many Markdownlint warnings, including repeated line-length and list-style messages, without publishing the same code and range twice.",
+    "A long-form loft-boarding note produces the same Markdownlint rule set as vscode-markdownlint, including repeated list-style messages, without MD013 line-length warnings or the same code and range twice.",
     "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-lint-loft-boarding-chromium.png",
   ),
   tags: ["visual-pending", "test"],
@@ -765,8 +765,26 @@ export const MarkdownLintLoftBoarding: Story = {
     );
     expect(new Set(identities).size).toBe(identities.length);
     expect(
-      entries.filter((entry) => entry.diagnostic.code === "MD013").length,
-    ).toBeGreaterThan(1);
+      entries.map((entry) => String(entry.diagnostic.code ?? "")).sort(),
+    ).toEqual([
+      "MD004",
+      "MD004",
+      "MD004",
+      "MD004",
+      "MD004",
+      "MD004",
+      "MD007",
+      "MD007",
+      "MD007",
+      "MD007",
+      "MD009",
+      "MD009",
+      "MD009",
+      "MD010",
+      "MD010",
+      "MD012",
+      "MD041",
+    ]);
 
     await getWorkspaceHostBinding(
       runtimeApp.workspace,
