@@ -39,6 +39,9 @@ conflicting names, and unload disposes the exact registration.
 Invocation resolves that exact registration both before and after a pending
 approval, so unloading or replacing a plugin while the card is open cannot
 grant or invoke a stale callback.
+Developer diagnostics may register the bundled factories directly against a
+volatile registry, but production plugins continue to own registration and
+automatic disposal through `Plugin.registerAgentTool`.
 This callback registry is separate from AI's external
 `McpServerContribution` registry; plugins cannot claim the reserved
 `lapis-tools` MCP server name through that process-backed integration surface.

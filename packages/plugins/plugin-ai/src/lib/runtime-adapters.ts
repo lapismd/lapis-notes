@@ -15,3 +15,19 @@ export {
 } from "./runtimes/acp/acp-event-mapper";
 export type { AcpPermissionDecision } from "./runtimes/acp/acp-event-mapper";
 export { CodexNativeRuntime } from "./runtimes/codex/codex-runtime";
+export {
+  AppToolApprovalBroker,
+  AppToolExecutionError,
+  AppToolHost,
+} from "./tools/app-tool-host";
+export type {
+  AppToolCall,
+  AppToolExecutionErrorCode,
+  AppToolPolicySettings,
+  CreateAppToolSessionInput,
+} from "./tools/app-tool-host";
+export { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
+export type {
+  AppToolBridgeCoordinator,
+  AppToolBridgeEvent,
+} from "./tools/desktop-app-tool-bridge";

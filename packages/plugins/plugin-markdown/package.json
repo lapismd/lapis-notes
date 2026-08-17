@@ -34,6 +34,11 @@
       "svelte": "./dist/embed.js",
       "import": "./dist/embed.js",
       "default": "./dist/embed.js"
+    },
+    "./agent-tools": {
+      "types": "./dist/agent-tools.d.ts",
+      "import": "./dist/agent-tools.js",
+      "default": "./dist/agent-tools.js"
     }
   },
   "dependencies": {

@@ -104,6 +104,10 @@ The AI controller allocates the binding identity before runtime start, opens
 the binding-local bridge from that identity, and commits that same identity
 only after startup succeeds. Replacing an agent closes the old bridge and its
 approval grants before a fresh snapshot is opened for the next binding.
+The explicit real-agent probe composes these same owner boundaries through
+narrow package entries: Search and Markdown supply callbacks, AI supplies the
+binding coordinator, and AI Host supplies the authenticated MCP transport. Its
+volatile App-tool vault cannot mutate the durable seeded workspace.
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

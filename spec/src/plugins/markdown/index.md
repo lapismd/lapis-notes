@@ -67,6 +67,9 @@ paths outside `.obsidian`, `.lapis`, and `.trash`, and return bounded
 transport-neutral records. Patch conflicts abort the `Vault.process` callback,
 so the adapter performs no write for zero, repeated, drifted, or cancelled
 matches.
+The narrow `@lapis-notes/markdown/agent-tools` entry exposes only these
+transport-neutral factories for package tests and explicit diagnostics; the
+root plugin remains responsible for registering them in production.
 
 Panel registration, package exports, and per-panel behavior are documented in
 the [Markdown panel specification](./panels/index.md). Shared

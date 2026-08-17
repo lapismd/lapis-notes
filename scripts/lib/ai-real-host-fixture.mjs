@@ -11,6 +11,8 @@ function aiPluginData(defaultRuntime) {
       defaultModel: "gpt-5.6-sol",
       defaultModels: { codex: "gpt-5.6-sol", cursor: "" },
       thinking: "medium",
+      appToolsEnabled: true,
+      enabledCommunityToolPluginIds: [],
     },
   };
 }
@@ -85,11 +87,7 @@ export function aiRealHostSeed(defaultRuntime = "acp") {
       null,
       2,
     ),
-    ".obsidian/ai.json": JSON.stringify(
-      aiPluginData(defaultRuntime),
-      null,
-      2,
-    ),
+    ".obsidian/ai.json": JSON.stringify(aiPluginData(defaultRuntime), null, 2),
     ".obsidian/workspace.json": JSON.stringify(workspaceLayout(), null, 2),
     "Notes/Agent Smoke.md": [
       "# Agent Smoke",
@@ -101,6 +99,15 @@ export function aiRealHostSeed(defaultRuntime = "acp") {
       "Do not inspect files outside this folder.",
       "",
     ].join("\n"),
+    "Notes/Bridge Search.md": [
+      "# Bridge Search",
+      "",
+      "bridge-search-token confirms scoped application search.",
+      "",
+    ].join("\n"),
+    "Notes/Patch Target.md": ["# Patch Target", "", "status: draft", ""].join(
+      "\n",
+    ),
     "src/fixture.ts": [
       "export const smokeValue = 41;",
       'export const smokeLabel = "lapis-smoke-ready";',

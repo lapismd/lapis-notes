@@ -58,6 +58,9 @@
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add
 parallel commands to compensate for a missing plugin registration.
+The real-agent seed is a separate ignored developer fixture. Its added search
+and patch-target notes do not enter or modify the editor demo's canonical
+in-memory seed, governed Storybook scenarios, or visual baselines.
 Editor, embedded-editor, Scope, command, autocomplete, and persistence paths
 receive their App from the owning view or explicit constructor state. Focused
 multi-App evidence keeps a conflicting compatibility alias installed while the

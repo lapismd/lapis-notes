@@ -72,6 +72,9 @@ path, score, and snippet data without exposing database or MCP objects.
 The tool also enforces an aggregate structured-result budget after database
 ranking, so a high requested limit cannot expand transport or durable tool
 projection beyond the host's bounded-result contract.
+`@lapis-notes/search/agent-tools` exposes only the portable factory used by the
+explicit real-agent probe; indexing ownership and plugin registration remain in
+the Search root package.
 The canonical palette opener is `Search: Open Search` (`search:open-search`);
 it accepts the existing optional query argument, reuses a moved Search leaf,
 or creates, activates, and reveals the default left-sidebar leaf.

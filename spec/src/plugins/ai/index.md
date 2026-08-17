@@ -160,6 +160,10 @@ AI registers its sidebar chat and history views through `ViewAccess.command`.
 Their canonical palette commands are `AI: Open Chat` and `AI: Open History`;
 each reuses an existing leaf or creates, activates, and reveals its documented
 right-sidebar leaf.
+Each explicit paid-agent probe exercises the real stdio shim with a volatile
+note vault: search, read, one approved patch, binding close, agent switch, and
+the same descriptor set on the replacement binding. The deterministic seed and
+reset-confinement tests remain free of agent execution and network cost.
 `AiChatPanel` and `AiHistoryPanel` are public presentation exports used by
 Autodocs, while the six-position stories still construct them through the real
 AI plugin. Selecting the deterministic Fake runtime suppresses desktop-host
