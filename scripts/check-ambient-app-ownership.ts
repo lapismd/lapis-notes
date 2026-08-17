@@ -11,6 +11,14 @@ import { extname, resolve } from "node:path";
 import ts from "typescript";
 
 const ROOTS = ["packages", "stories", ".storybook"];
+const PORTABLE_AGENT_ROOTS = [
+  "packages/api",
+  "packages/plugins/plugin-ai",
+  "packages/plugins/plugin-markdown",
+  "packages/plugins/plugin-search",
+].map((path) => resolve(path));
+const FORBIDDEN_AGENT_DEPENDENCY =
+  /^(?:@agentclientprotocol\/|@modelcontextprotocol\/|@zed-industries\/agent-client-protocol(?:\/|$)|acpx(?:\/|$))/u;
 const COMPATIBILITY_MODULE = resolve(
   "packages/api/src/lib/application-compatibility.ts",
 );
@@ -106,6 +114,15 @@ for (const sourceFile of program.getSourceFiles()) {
   const file = resolve(sourceFile.fileName.replace(/\.svelte\.ts$/u, ".svelte"));
   if (!ROOTS.some((root) => file.startsWith(`${resolve(root)}/`))) continue;
   const source = sourceFile.text;
+  if (PORTABLE_AGENT_ROOTS.some((root) => file.startsWith(`${root}/`))) {
+    for (const match of source.matchAll(
+      /(?:from\s*|import\s*\(|require\s*\()\s*["']([^"']+)["']/gu,
+    )) {
+      if (!FORBIDDEN_AGENT_DEPENDENCY.test(match[1] ?? "")) continue;
+      const line = source.slice(0, match.index).split("\n").length;
+      findings.push({ file, line, kind: `agent SDK import ${match[1]}` });
+    }
+  }
   if (file !== COMPATIBILITY_MODULE) {
     for (const match of source.matchAll(/globalThis[^\n;]{0,120}(?:\.\s*|\[\s*["'])app\b/gu)) {
       const line = source.slice(0, match.index).split("\n").length;
@@ -131,6 +148,29 @@ for (const sourceFile of program.getSourceFiles()) {
   visit(sourceFile);
 }
 
+for (const root of PORTABLE_AGENT_ROOTS) {
+  const manifestPath = resolve(root, "package.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<
+    string,
+    Record<string, unknown> | undefined
+  >;
+  for (const field of [
+    "dependencies",
+    "devDependencies",
+    "optionalDependencies",
+    "peerDependencies",
+  ]) {
+    for (const dependency of Object.keys(manifest[field] ?? {})) {
+      if (!FORBIDDEN_AGENT_DEPENDENCY.test(dependency)) continue;
+      findings.push({
+        file: manifestPath,
+        line: 1,
+        kind: `agent SDK dependency ${dependency}`,
+      });
+    }
+  }
+}
+
 if (findings.length) {
   console.error("Ambient application ownership violations:");
   for (const finding of findings) {
@@ -141,6 +181,6 @@ if (findings.length) {
   process.exitCode = 1;
 } else {
   console.log(
-    "Application ownership audit passed; globalThis.app is compatibility-only.",
+    "Application ownership audit passed; globalThis.app is compatibility-only and portable packages contain no agent SDK imports.",
   );
 }

@@ -120,6 +120,10 @@ constructing a new native binding snapshot.
 The Search package owns `notes_search`; API owns the generic pre-limit
 `pathPrefix` database option used consistently by memory, Turso, desktop, and
 browser-coordinated implementations.
+AI Host is the only workspace package with the MCP SDK dependency. It bundles
+the protocol-clean stdio shim, authorizes each loopback bridge against one host
+connection and native binding, converts environment records to ACP name/value
+entries, and reserves `lapis-tools` before ACP startup.
 
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not

@@ -96,6 +96,10 @@ opt-ins; invocation grants and binding-local descriptor snapshots are runtime
 state.
 Search owns `notes_search` and applies conversation scope through the generic
 database path-prefix option before result ranking and limits.
+The live transport is an AI Host-owned loopback broker plus official-SDK stdio
+shim. Electron and the authenticated remote client carry only generic bridge
+commands and events; they never acquire registry, policy, or transcript
+authority.
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

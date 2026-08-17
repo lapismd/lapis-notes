@@ -1,4 +1,5 @@
-import type { WebContents } from "electron";
+import path from "node:path";
+import { app, type WebContents } from "electron";
 import {
   createAgentRuntimeExecutor,
   type AcpPermissionDecision,
@@ -6,19 +7,69 @@ import {
   type AcpStartPayload,
   type AgentHostSink,
   type SpawnPayload,
+  type ToolBridgeOpenPayload,
+  type ToolBridgeResponse,
 } from "@lapis-notes/ai-host";
 
-const executor = createAgentRuntimeExecutor();
+const executor = createAgentRuntimeExecutor({
+  toolBridgeOptions: {
+    shimPath: resolveAgentToolShimPath(),
+    extraEnv: { ELECTRON_RUN_AS_NODE: "1" },
+  },
+});
+const boundSenders = new WeakSet<WebContents>();
 
 function sinkFor(sender: WebContents): AgentHostSink {
+  const connectionId = `electron-renderer:${sender.id}`;
+  if (!boundSenders.has(sender)) {
+    boundSenders.add(sender);
+    sender.once("destroyed", () => executor.disconnectConnection(connectionId));
+  }
   return {
+    connectionId,
     sendRuntimeEvent(event) {
-      sender.send("desktop_agent_runtime_event", event);
+      if (!sender.isDestroyed()) sender.send("desktop_agent_runtime_event", event);
     },
     sendProcessMessage(event) {
-      sender.send("desktop_agent_process_message", event);
+      if (!sender.isDestroyed()) sender.send("desktop_agent_process_message", event);
+    },
+    sendToolCall(event) {
+      if (!sender.isDestroyed()) sender.send("desktop_agent_tool_call", event);
+    },
+    sendToolCancel(event) {
+      if (!sender.isDestroyed()) sender.send("desktop_agent_tool_cancel", event);
     },
   };
+}
+
+export function openAgentToolBridge(
+  sender: WebContents,
+  payload: ToolBridgeOpenPayload,
+): Promise<{ bridgeId: string }> {
+  return executor.openToolBridge(sinkFor(sender), payload);
+}
+
+export function respondAgentToolBridge(
+  sender: WebContents,
+  payload: ToolBridgeResponse,
+): void {
+  executor.respondToolBridge(sinkFor(sender), payload);
+}
+
+export function closeAgentToolBridge(sender: WebContents, bridgeId: string): void {
+  executor.closeToolBridge(sinkFor(sender), bridgeId);
+}
+
+export function shutdownAgentRuntimeHost(): Promise<void> {
+  return executor.close();
+}
+
+function resolveAgentToolShimPath(): string {
+  const appPath = app.getAppPath();
+  const unpackedRoot = app.isPackaged
+    ? appPath.replace(/app\.asar$/u, "app.asar.unpacked")
+    : appPath;
+  return path.join(unpackedRoot, "dist-electron", "mcp-shim.mjs");
 }
 
 export function spawnAgentProcess(

@@ -12,11 +12,18 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, "../dist-electron");
+const mcpShimSource = path.resolve(__dirname, "../../ai-host/dist/mcp-shim.js");
+const mcpShimDestination = path.join(distDir, "mcp-shim.mjs");
 
 fs.mkdirSync(distDir, { recursive: true });
+if (!fs.existsSync(mcpShimSource)) {
+  throw new Error(`Missing built MCP shim: ${mcpShimSource}`);
+}
+fs.copyFileSync(mcpShimSource, mcpShimDestination);
+fs.chmodSync(mcpShimDestination, 0o755);
 fs.writeFileSync(
   path.join(distDir, "package.json"),
   JSON.stringify({ type: "commonjs" }, null, 2) + "\n",
 );
 
-console.log("[electron] dist-electron/package.json written (type: commonjs)");
+console.log("[electron] dist-electron metadata and MCP shim written");

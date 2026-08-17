@@ -38,8 +38,12 @@ import {
   closeAcpSession,
   killAgentProcess,
   listAcpModels,
+  openAgentToolBridge,
   promptAcpSession,
+  respondAgentToolBridge,
   respondAcpSession,
+  closeAgentToolBridge,
+  shutdownAgentRuntimeHost,
   spawnAgentProcess,
   startAcpSession,
   writeAgentProcess,
@@ -2046,6 +2050,18 @@ function registerIpcHandlers(): void {
         String(payload?.decision ?? ""),
       ),
   );
+  ipcMain.handle("desktop_agent_tools_open", async (event, payload) =>
+    openAgentToolBridge(event.sender, payload ?? {}),
+  );
+  ipcMain.handle("desktop_agent_tools_respond", async (event, payload) => {
+    respondAgentToolBridge(event.sender, payload ?? {});
+  });
+  ipcMain.handle(
+    "desktop_agent_tools_close",
+    async (event, payload: { bridgeId?: string }) => {
+      closeAgentToolBridge(event.sender, String(payload?.bridgeId ?? ""));
+    },
+  );
 
   // Community plugins: Electron sidecar host lifecycle and capability broker.
   ipcMain.handle("desktop_plugin_host_prepare", async (_e, payload) => {
@@ -2587,4 +2603,5 @@ app.on("before-quit", () => {
   void closeAllAppDatabases();
   void shutdownPluginSidecars();
   void languageServiceSidecarManager.shutdown();
+  void shutdownAgentRuntimeHost();
 });

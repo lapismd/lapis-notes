@@ -47,6 +47,10 @@ its acpx release and tolerates sessions without a separate thinking option; the
 host also treats unsupported backend closure of disposable model sessions as
 successful local cleanup. The web host does not maintain a second provider
 protocol.
+For application tools, that same authenticated connection carries generic
+bridge open, result, close, call, and cancellation frames. The executor keeps
+the loopback broker and stdio shim local, revokes authorization on disconnect,
+and requires a fresh bridge before a resumed native binding can expose tools.
 
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
 File System Access profiles. “View all” opens an upper-viewport Dialog whose

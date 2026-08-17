@@ -51,6 +51,13 @@ describe("desktop capability contract", () => {
       [...DESKTOP_INVOKE_COMMANDS].some((id) => id.includes("notebook")),
     ).toBe(false);
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_acp_models");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_tools_open");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_tools_respond");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_tools_close");
+    expect(registry["agent-runtime"]?.details).toMatchObject({
+      protocolVersion: 3,
+      appTools: "stdio-mcp",
+    });
     expect(registry.model).toMatchObject({ status: "unavailable" });
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_pick_vault_folder");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_plugin_host_shutdown");

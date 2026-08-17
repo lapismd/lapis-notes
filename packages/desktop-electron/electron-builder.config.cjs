@@ -9,6 +9,7 @@ module.exports = {
   },
   files: ["dist/**/*", "dist-electron/**/*", "package.json"],
   asarUnpack: [
+    "dist-electron/mcp-shim.mjs",
     "node_modules/@tursodatabase/database*/**/*",
     "node_modules/@huggingface/transformers/**/*",
   ],

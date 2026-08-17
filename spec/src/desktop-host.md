@@ -51,7 +51,7 @@ are intentionally omitted.
 | LN-DESK-038 | Local Electron smoke setup MUST bundle the main process after TypeScript compilation, matching the production main-process module boundary before launching the real app.                                                                                                                                                                                                                                                    |
 | LN-DESK-041 | Electron end-to-end and distribution scripts MUST reuse the root Turbo-filtered desktop build before host-specific icon and packaging work.                                                                                                                                                                                                                                                                                  |
 | LN-DESK-042 | Desktop vault text replacement MUST use a crash-safe same-directory replacement, and text append MUST use a native append operation rather than renderer read-and-rewrite. Existing vault confinement and renderer ownership checks MUST apply to both operations. |
-| LN-DESK-043 | Electron and standalone ACP events MUST use the protocol-v2 `{sessionId, runId, sequence, event}` envelope, and prompt IPC MUST return its run ID. Electron MAY deliver live-only frames, while the standalone host MUST retain only bounded ordered replay state and clear it on explicit close without persisting transcripts. |
+| LN-DESK-043 | Electron and standalone ACP events MUST preserve the `{sessionId, runId, sequence, event}` envelope across protocol v3, and prompt IPC MUST return its run ID. Electron MAY deliver live-only frames, while the standalone host MUST retain only bounded ordered replay state and clear it on explicit close without persisting transcripts. |
 | LN-DESK-044 | The developer-only native-agent smoke lane MUST seed one folder as both the Electron vault and absolute agent working tree, open the AI leaf with Codex Native selected, and preserve local conversations across relaunch. Its package prerequisite build MUST use Turbo's cached dependency graph. |
 | LN-DESK-045 | The launcher “View all” palette MUST compose `@lapismd/design-core/shadcn/command-view` for search and results. Dialog MUST keep overlay, scrim, and upper-viewport placement. |
 | LN-DESK-046 | Agent-runtime protocol v3 MUST add authenticated application-tool bridge open, response, close, call, and cancellation messages while preserving protocol-v2 agent fallback without tools. Tool authorization MUST bind to the host connection, conversation, native binding, and fixed scope. |
@@ -66,6 +66,10 @@ layout restoration; Bases is not added to the default leaf policy.
 Each mounted desktop session provides its App to the shell and installs one
 compatibility lease for legacy consumers. Teardown releases that lease only
 after the session-owned workspace, plugins, metadata, and services close.
+The main process also owns one loopback tool broker. The context-isolated
+preload forwards bridge call and cancellation events, and packaged builds copy
+the standalone MCP shim to unpacked `dist-electron` output so Electron can run
+it in Node mode without putting its token on the command line.
 
 ```text
 Electron main

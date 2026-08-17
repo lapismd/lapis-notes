@@ -84,6 +84,19 @@ export type NativeAgentRuntimeEvent = {
   };
 };
 
+export type NativeAgentToolCall = {
+  bridgeId: string;
+  bindingId: string;
+  callId: string;
+  name: string;
+  input: unknown;
+};
+
+export type NativeAgentToolCancel = Pick<
+  NativeAgentToolCall,
+  "bridgeId" | "bindingId" | "callId"
+>;
+
 export type NativeDesktopCapabilityStatus = "available" | "unavailable";
 
 export interface NativeDesktopCapability {
@@ -117,6 +130,12 @@ export interface NativeDesktopBridge {
   ): () => void;
   onAgentRuntimeEvent?(
     listener: (event: NativeAgentRuntimeEvent) => void,
+  ): () => void;
+  onAgentToolCall?(
+    listener: (event: NativeAgentToolCall) => void,
+  ): () => void;
+  onAgentToolCancel?(
+    listener: (event: NativeAgentToolCancel) => void,
   ): () => void;
   watch?(
     rootPath: string,

@@ -3,6 +3,8 @@ import type {
   ChangeEvent,
   NativeAgentProcessMessage,
   NativeAgentRuntimeEvent,
+  NativeAgentToolCall,
+  NativeAgentToolCancel,
   NativeDesktopCapabilityRegistry,
   NativeDesktopBridge,
   NativeDesktopNotificationPayload,
@@ -44,6 +46,8 @@ ipcRenderer.on(
 const appUrlListeners = new Set<(url: string) => void>();
 const agentProcessListeners = new Set<(event: NativeAgentProcessMessage) => void>();
 const agentRuntimeListeners = new Set<(event: NativeAgentRuntimeEvent) => void>();
+const agentToolCallListeners = new Set<(event: NativeAgentToolCall) => void>();
+const agentToolCancelListeners = new Set<(event: NativeAgentToolCancel) => void>();
 
 ipcRenderer.on(
   "desktop_agent_process_message",
@@ -56,6 +60,20 @@ ipcRenderer.on(
   "desktop_agent_runtime_event",
   (_event, payload: NativeAgentRuntimeEvent) => {
     for (const listener of agentRuntimeListeners) listener(payload);
+  },
+);
+
+ipcRenderer.on(
+  "desktop_agent_tool_call",
+  (_event, payload: NativeAgentToolCall) => {
+    for (const listener of agentToolCallListeners) listener(payload);
+  },
+);
+
+ipcRenderer.on(
+  "desktop_agent_tool_cancel",
+  (_event, payload: NativeAgentToolCancel) => {
+    for (const listener of agentToolCancelListeners) listener(payload);
   },
 );
 
@@ -236,6 +254,20 @@ const bridge: NativeDesktopBridge & {
     agentRuntimeListeners.add(listener);
     return () => {
       agentRuntimeListeners.delete(listener);
+    };
+  },
+
+  onAgentToolCall(listener: (event: NativeAgentToolCall) => void): () => void {
+    agentToolCallListeners.add(listener);
+    return () => {
+      agentToolCallListeners.delete(listener);
+    };
+  },
+
+  onAgentToolCancel(listener: (event: NativeAgentToolCancel) => void): () => void {
+    agentToolCancelListeners.add(listener);
+    return () => {
+      agentToolCancelListeners.delete(listener);
     };
   },
 };

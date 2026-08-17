@@ -125,6 +125,10 @@ bridge.
 Application tools are enabled by default for new bindings. The master setting
 and sorted community owner-plugin opt-ins are persisted, while an active
 binding retains the snapshot taken when it was created.
+Protocol-v3 hosts advertise `appTools: stdio-mcp`. A capable runtime receives
+only a bridge ID; AI Host merges the reserved server for ACP or injects its
+command into Codex Native while credentials remain in the spawned process
+environment. Protocol-v2 hosts continue without application tools.
 
 ```text
 command or chat panel

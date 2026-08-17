@@ -50,6 +50,9 @@ export const DESKTOP_INVOKE_COMMANDS = new Set([
   "desktop_agent_acp_cancel",
   "desktop_agent_acp_close",
   "desktop_agent_acp_respond",
+  "desktop_agent_tools_open",
+  "desktop_agent_tools_respond",
+  "desktop_agent_tools_close",
   "desktop_renderer_close_ready",
   "desktop_vault_bootstrap_kv_del",
   "desktop_vault_bootstrap_kv_get_many",
@@ -162,8 +165,10 @@ export function createDesktopCapabilityRegistry(): NativeDesktopCapabilityRegist
       provider: "electron-agent-runtime",
       details: {
         protocol: "desktop_agent_*",
+        protocolVersion: 3,
         acp: "acpx/runtime",
         process: "stdio",
+        appTools: "stdio-mcp",
       },
     },
   };
