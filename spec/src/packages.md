@@ -96,7 +96,11 @@ dependency only and does not enter the root Storybook development closure.
 `@lapis-notes/wordcount` updates the API status bar for the active text editor
 and stays a bundled core plugin. Clicking the item shows reading time through
 the projected status menu. Design Core F-Mode remains an optional static
-shell plugin on the API-owned controller.
+shell plugin on the API-owned controller. A vault without workspace.json
+receives File Explorer then Search on the left and Outline, File Properties,
+then Tags on the right when those views are registered. The API workspace
+registers Save, Load, and Reset layout commands for named snapshots and the
+same default seed.
 `@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,
 open, and OS reveal only through Design Core `buildItemMenu` and the existing
 desktop `file-system-actions` IPC. Those extras stay out of the web and

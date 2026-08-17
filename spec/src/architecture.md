@@ -213,7 +213,11 @@ The api compatibility projection includes the design-core V3 bottom-panel tabs,
 groups, open state, active leaf, and height, including saves to the currently
 loaded alternate workspace filename. Settings displayed by the shell remain
 controller-owned while persisting through api configuration; the workspace
-shell does not initiate configuration or plugin loading.
+shell does not initiate configuration or plugin loading. A missing workspace
+file seeds File Explorer then Search on the left and Outline, File Properties,
+and Tags on the right when those views are registered. Named Save and Load
+layout commands persist snapshots in `.obsidian/workspaces.json`, and Reset
+reapplies that default seed.
 `@lapis-notes/api/workspace-host` is the explicit integration seam: root api
 exports retain their compatibility shape while workspace hosts can obtain the
 controller without reaching into api internals.

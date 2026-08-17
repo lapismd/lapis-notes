@@ -514,6 +514,10 @@ export declare class Workspace extends EventDispatcher<{
     toJson(): WorkspaceJson;
     private restoreLayoutJson;
     loadLayout(file?: string): Promise<void>;
+    listNamedLayouts(): Promise<string[]>;
+    saveNamedLayout(name: string): Promise<void>;
+    loadNamedLayout(name: string): Promise<void>;
+    resetLayoutToDefault(): Promise<void>;
     /**
      * Runs the callback function right away if layout is already ready, or push
      * it to a queue to be called later when layout is ready.

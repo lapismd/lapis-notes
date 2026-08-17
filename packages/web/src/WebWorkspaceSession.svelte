@@ -222,7 +222,6 @@
       }
       await app.vault.load();
       await app.vault.mkpath(".obsidian");
-      const hasPersistedLayout = await adapter.exists(".obsidian/workspace.json");
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -246,14 +245,6 @@
       activeTask = "layout";
       setTask(activeTask, "active");
       await app.workspace.loadLayout();
-      if (
-        app.plugins.isPluginEnabled("search") &&
-        !hasPersistedLayout &&
-        app.workspace.getLeavesOfType("search").length === 0
-      ) {
-        const searchLeaf = app.workspace.ensureSideLeaf("search");
-        await searchLeaf.setViewState({ type: "search", state: {} });
-      }
       recentVaults = await listVaultProfiles();
       registerDatabaseStatus();
       if (disposed) return;

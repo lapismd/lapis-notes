@@ -1513,6 +1513,155 @@ describe("Workspace compatibility", () => {
     expect(layout.bottom.height).toBe("0px");
   });
 
+  it("seeds File Explorer, Search, and Markdown panels when no layout file exists", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const writeLayout = vi.spyOn(app.vault, "create");
+    for (const [type, title] of [
+      ["file-explorer", "Files"],
+      ["search", "Search"],
+      ["outline", "Outline"],
+      ["file-properties", "File properties"],
+      ["tag", "Tags"],
+    ] as const) {
+      workspace.registerView(
+        type,
+        (leaf) => new MockItemView(leaf, type, title),
+      );
+    }
+
+    await workspace.loadLayout();
+
+    const left: string[] = [];
+    const right: string[] = [];
+    workspace.leftSplit.iterateAllLeaves((leaf) => {
+      left.push(leaf.view.getViewType());
+      return undefined;
+    });
+    workspace.rightSplit.iterateAllLeaves((leaf) => {
+      right.push(leaf.view.getViewType());
+      return undefined;
+    });
+    expect(left).toEqual(["file-explorer", "search"]);
+    expect(right).toEqual(["outline", "file-properties", "tag"]);
+    expect(workspace.leftSplit.collapsed).toBe(false);
+    expect(workspace.rightSplit.collapsed).toBe(false);
+    expect(workspace.activeLeaf?.getViewState().type ?? "empty").toBe("empty");
+    expect(workspace.toJson().bottom.height).toBe("0px");
+    expect(writeLayout).not.toHaveBeenCalled();
+  });
+
+  it("registers save, load, and reset workspace layout commands", () => {
+    const { app } = createWorkspaceHarness();
+    expect(app.commands.getCommand("workspace:save-layout")?.name).toBe(
+      "Save workspace layout",
+    );
+    expect(app.commands.getCommand("workspace:load-layout")?.name).toBe(
+      "Load workspace layout",
+    );
+    expect(app.commands.getCommand("workspace:reset-layout")?.name).toBe(
+      "Reset workspace layout",
+    );
+  });
+
+  it("saves and loads a named workspace layout", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const files = new Map<string, string>();
+    const fileFor = (path: string) =>
+      new TFile(path, { ctime: 0, mtime: 0, size: 0 }, null);
+    app.vault.getFileByPath = (path: string) =>
+      files.has(path) ? fileFor(path) : null;
+    app.vault.read = async (file) => files.get(file.path) ?? "";
+    app.vault.create = async (path: string, data: string) => {
+      files.set(path, data);
+      return fileFor(path);
+    };
+    for (const [type, title] of [
+      ["file-explorer", "Files"],
+      ["search", "Search"],
+      ["outline", "Outline"],
+      ["file-properties", "File properties"],
+      ["tag", "Tags"],
+    ] as const) {
+      workspace.registerView(
+        type,
+        (leaf) => new MockItemView(leaf, type, title),
+      );
+    }
+    await workspace.loadLayout();
+    await workspace.saveNamedLayout("Writing");
+
+    expect(await workspace.listNamedLayouts()).toEqual(["Writing"]);
+    await workspace.resetLayoutToDefault();
+    workspace.registerView(
+      "graph",
+      (leaf) => new MockItemView(leaf, "graph", "Graph"),
+    );
+    const extra = workspace.getRightLeaf(false)!;
+    await extra.setViewState({ type: "graph", state: {} });
+    expect(
+      workspace.getLeavesOfType("graph"),
+    ).toHaveLength(1);
+
+    await workspace.loadNamedLayout("Writing");
+    const left: string[] = [];
+    const right: string[] = [];
+    workspace.leftSplit.iterateAllLeaves((leaf) => {
+      left.push(leaf.view.getViewType());
+      return undefined;
+    });
+    workspace.rightSplit.iterateAllLeaves((leaf) => {
+      right.push(leaf.view.getViewType());
+      return undefined;
+    });
+    expect(left).toEqual(["file-explorer", "search"]);
+    expect(right).toEqual(["outline", "file-properties", "tag"]);
+    expect(workspace.getLeavesOfType("graph")).toHaveLength(0);
+    expect(files.get("/.obsidian/workspaces.json")).toContain("Writing");
+  });
+
+  it("resets the live layout to the default sidebar seed", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const save = vi.spyOn(workspace, "requestSaveLayout");
+    workspace.registerView(
+      "graph",
+      (leaf) => new MockItemView(leaf, "graph", "Graph"),
+    );
+    for (const [type, title] of [
+      ["file-explorer", "Files"],
+      ["search", "Search"],
+      ["outline", "Outline"],
+      ["file-properties", "File properties"],
+      ["tag", "Tags"],
+    ] as const) {
+      workspace.registerView(
+        type,
+        (leaf) => new MockItemView(leaf, type, title),
+      );
+    }
+    const extra = workspace.getRightLeaf(false)!;
+    await extra.setViewState({ type: "graph", state: {} });
+
+    await workspace.resetLayoutToDefault();
+
+    const left: string[] = [];
+    const right: string[] = [];
+    workspace.leftSplit.iterateAllLeaves((leaf) => {
+      left.push(leaf.view.getViewType());
+      return undefined;
+    });
+    workspace.rightSplit.iterateAllLeaves((leaf) => {
+      right.push(leaf.view.getViewType());
+      return undefined;
+    });
+    expect(left).toEqual(["file-explorer", "search"]);
+    expect(right).toEqual(["outline", "file-properties", "tag"]);
+    expect(workspace.getLeavesOfType("graph")).toHaveLength(0);
+    expect(save).toHaveBeenCalledWith({
+      source: "api",
+      operation: "reset-layout",
+    });
+  });
+
   it("loads an alternate workspace file and hydrates the host controller", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const layout = workspace.toJson();

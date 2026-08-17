@@ -28,6 +28,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-019 | The web launcher “View all” palette MUST compose `@lapismd/design-core/shadcn/command-view` for its inner search and result list. |
 | LN-WEB-020 | An authenticated protocol-v3 web bridge MUST proxy application-tool calls, responses, and cancellation through its existing agent-runtime connection while the browser App executes the tool. A real stdio-shim round trip MUST use that same connection, and disconnect MUST revoke bridge authorization and cancel pending calls without retaining note contents in host replay. |
 | LN-WEB-021 | Web session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. |
+| LN-WEB-022 | A web vault without `.obsidian/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer then Search on the left, and Outline, File Properties, then Tags on the right when those views are registered. |
 
 ### LN-WEB-021 acceptance details
 

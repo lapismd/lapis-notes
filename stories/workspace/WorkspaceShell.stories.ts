@@ -50,6 +50,38 @@ function expectBundledPlugins(canvas: ReturnType<typeof within>) {
   ]);
 }
 
+function expectDefaultSidebarViews(canvasElement: HTMLElement) {
+  const runtimeApp = (
+    canvasElement.querySelector(
+      '[data-testid="workspace-shell-frame"]',
+    ) as HTMLElement & { __lapisApp?: import("@lapis-notes/api").App }
+  )?.__lapisApp;
+  expect(runtimeApp).toBeDefined();
+  const left: string[] = [];
+  const right: string[] = [];
+  runtimeApp!.workspace.leftSplit.iterateAllLeaves((leaf) => {
+    left.push(leaf.view.getViewType());
+    return undefined;
+  });
+  runtimeApp!.workspace.rightSplit.iterateAllLeaves((leaf) => {
+    right.push(leaf.view.getViewType());
+    return undefined;
+  });
+  expect(left).toEqual(["file-explorer", "search"]);
+  expect(right).toEqual(["outline", "file-properties", "tag"]);
+  expect(runtimeApp!.workspace.leftSplit.collapsed).toBe(false);
+  expect(runtimeApp!.workspace.rightSplit.collapsed).toBe(false);
+  expect(runtimeApp!.commands.getCommand("workspace:save-layout")?.name).toBe(
+    "Save workspace layout",
+  );
+  expect(runtimeApp!.commands.getCommand("workspace:load-layout")?.name).toBe(
+    "Load workspace layout",
+  );
+  expect(runtimeApp!.commands.getCommand("workspace:reset-layout")?.name).toBe(
+    "Reset workspace layout",
+  );
+}
+
 function expectAppShellPlugins(canvas: ReturnType<typeof within>) {
   expect(
     JSON.parse(
@@ -161,7 +193,7 @@ async function expectFloatingActionHover(button: HTMLButtonElement) {
 export const PersistedDesktop: Story = {
   ...workspaceStoryMeta(
     "workspace-shell-persisted-desktop",
-    "A real API App restores the Lapis workspace file before mounting the design-core desktop shell.",
+    "A real API App restores the Lapis workspace file before mounting the design-core desktop shell, with File Explorer then Search on the left and Outline, File Properties, and Tags on the right.",
     "/visual-baselines/stories/workspace/persisted-desktop-chromium.png",
   ),
   args: {
@@ -175,6 +207,7 @@ export const PersistedDesktop: Story = {
     await waitForShell(canvas);
     expectBundledPlugins(canvas);
     expectAppShellPlugins(canvas);
+    expectDefaultSidebarViews(canvasElement);
     const ribbon = canvas.getByLabelText("left ribbon");
     await expect(
       within(ribbon).getByRole("button", { name: "Settings" }),

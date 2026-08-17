@@ -2,7 +2,9 @@
 
 `@lapis-notes/wordcount` owns the status-bar word and character count for the
 active text editor. Presentation stays on the API status-bar contract and the
-Design Core status item.
+Design Core status item. It does not contribute a default sidebar leaf; an
+empty vault still seeds File Explorer, Search, Outline, File Properties, and
+Tags.
 
 ## Requirements
 

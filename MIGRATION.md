@@ -98,7 +98,7 @@ legacy commit `8ec68e18`.
 - [x] Focused `Workspace/Shell / PersistedDesktop` Storybook interaction and accessibility validation
 - [x] Replace the temporary handwritten landing page with the branded `8ec68e18` native launcher while keeping demo seeding pruned
 - [x] Load the production Design Core stylesheet pipeline and Lapis aliases in Electron
-- [x] Match the `PersistedDesktop` captured empty-shell geometry: left open, right and bottom closed
+- [x] Match the default empty-vault shell: File Explorer then Search on the left, Outline / File Properties / Tags on the right, bottom closed
 - [x] Route native “Open Vault…” through the launcher after orderly session teardown
 - [x] Restore the legacy footer vault switcher with recent selection and “Manage Vaults” launcher return
 - [x] Center native loading, restore compact launcher overlays, and reserve macOS traffic-light space through desktop CSS classes

@@ -144,6 +144,7 @@
 
   function createInitialLayout(
     selectedScenario: "standard" | "mobile" | "stacked" | "bottom-settings",
+    bundledPlugins = false,
   ) {
     const mainChildren =
       selectedScenario === "standard"
@@ -160,6 +161,7 @@
             ];
     const mobile = selectedScenario === "mobile";
     const bottomSettings = selectedScenario === "bottom-settings";
+    const bundledDesktop = bundledPlugins && selectedScenario === "standard";
     return {
       main: {
         id: "main",
@@ -174,31 +176,53 @@
         id: "left",
         type: "split",
         direction: "vertical",
-        sizes: mobile || bottomSettings ? [100] : [],
+        sizes: mobile || bottomSettings || bundledDesktop ? [100] : [],
         children:
-          mobile || bottomSettings
+          bundledDesktop
             ? [
                 tabs("left-tabs", [
-                  leaf("files", "Files", "files", "story-files"),
+                  leaf("files", "Files", "folder-closed", "file-explorer"),
+                  leaf("search", "Search", "search", "search"),
                 ]),
               ]
-            : [],
-        width: mobile || bottomSettings ? "18rem" : "0px",
+            : mobile || bottomSettings
+              ? [
+                  tabs("left-tabs", [
+                    leaf("files", "Files", "files", "story-files"),
+                  ]),
+                ]
+              : [],
+        width:
+          mobile || bottomSettings ? "18rem" : bundledDesktop ? "22rem" : "0px",
       },
       right: {
         id: "right",
         type: "split",
         direction: "vertical",
-        sizes: mobile || bottomSettings ? [100] : [],
+        sizes: mobile || bottomSettings || bundledDesktop ? [100] : [],
         children:
-          mobile || bottomSettings
+          bundledDesktop
             ? [
                 tabs("right-tabs", [
-                  leaf("outline", "Outline", "list-tree", "story-outline"),
+                  leaf("outline", "Outline", "list", "outline"),
+                  leaf(
+                    "file-properties",
+                    "File properties",
+                    "info",
+                    "file-properties",
+                  ),
+                  leaf("tags", "Tags", "tags", "tag"),
                 ]),
               ]
-            : [],
-        width: mobile || bottomSettings ? "18rem" : "0px",
+            : mobile || bottomSettings
+              ? [
+                  tabs("right-tabs", [
+                    leaf("outline", "Outline", "list-tree", "story-outline"),
+                  ]),
+                ]
+              : [],
+        width:
+          mobile || bottomSettings ? "18rem" : bundledDesktop ? "22rem" : "0px",
       },
       bottom: {
         ...tabs(
@@ -218,7 +242,11 @@
   }
 
   const initialScenario = untrack(() => scenario);
-  const initialLayout = createInitialLayout(initialScenario);
+  const shouldLoadBundledPlugins = untrack(() => loadBundledPlugins);
+  const initialLayout = createInitialLayout(
+    initialScenario,
+    shouldLoadBundledPlugins,
+  );
 
   const workspacePath = ".obsidian/workspace.json";
   const initialJson = JSON.stringify(initialLayout, null, 2);
@@ -239,7 +267,6 @@
   provideApplicationState(app);
   const disposeApplicationCompatibility =
     installApplicationCompatibility(app);
-  const shouldLoadBundledPlugins = untrack(() => loadBundledPlugins);
   const bundledPluginIds = [
     "markdown",
     "lapis-markdown-lint",

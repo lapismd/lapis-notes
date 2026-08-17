@@ -21,6 +21,16 @@ import {
 } from "@lapis-notes/ui/sidebar-custom";
 import { uniqueId } from "./utils";
 import { normalizeWorkspaceJson } from "./workspace-layout-normalizer";
+import {
+  promptLoadWorkspaceLayout,
+  promptSaveWorkspaceLayout,
+} from "./workspace-layout-commands";
+import {
+  NAMED_WORKSPACES_FILE,
+  parseNamedWorkspaceStore,
+  serializeNamedWorkspaceStore,
+  type NamedWorkspaceStore,
+} from "./workspace-layouts";
 import { debounce, isEqual } from "lodash-es";
 import { basename, dirname, joinPath } from "./storage";
 import { HistoryManager } from "./history.svelte";
@@ -102,6 +112,12 @@ export interface WorkspaceHintTarget {
 
 const WORKSPACE_HINT_TARGET_SELECTOR = "[data-hint-target]";
 const FILE_EXPLORER_REVEAL_PATH_COMMAND = "lapis-file-explorer:reveal-path";
+const DEFAULT_LEFT_SIDEBAR_VIEW_TYPES = ["file-explorer", "search"] as const;
+const DEFAULT_RIGHT_SIDEBAR_VIEW_TYPES = [
+  "outline",
+  "file-properties",
+  "tag",
+] as const;
 
 function normalizeHintText(value: string | null | undefined): string {
   return value?.replace(/\s+/gu, " ").trim() ?? "";
@@ -2595,26 +2611,179 @@ export class Workspace extends EventDispatcher<{
           joinPath("/.obsidian", file),
         );
         this.layoutReady = false;
-        let promise!: Promise<void>;
         if (workspaceFile) {
-          promise = this.app.vault.read(workspaceFile).then((contents) => {
-            return this.restoreLayoutJson(JSON.parse(contents));
-          });
+          await this.restoreLayoutJson(
+            JSON.parse(await this.app.vault.read(workspaceFile)),
+          );
         } else {
-          promise = Promise.resolve();
+          await this.withoutLayoutPersistence(() =>
+            this.seedDefaultSidebarLayout(),
+          );
         }
-        return promise.then(() => {
-          this.commitCompatibilityLayoutToHost({ source: "layout-load" });
-          this.layoutReady = true;
-          this.layoutHandlers.forEach((it) => it());
-          this.trigger("layout-ready");
-        });
+        this.commitCompatibilityLayoutToHost({ source: "layout-load" });
+        this.layoutReady = true;
+        this.layoutHandlers.forEach((it) => it());
+        this.trigger("layout-ready");
       },
       {
         attributes: { "workspace.layout_file": file },
         slowThresholdMs: 250,
       },
     );
+  }
+
+  private async seedDefaultSideLeaf(
+    type: string,
+    side: SidebarSide,
+  ): Promise<WorkspaceLeaf | null> {
+    if (!this.viewTypes.has(type)) return null;
+    const existing = this.getLeavesOfType(type)[0];
+    if (existing) return existing;
+    const leaf = this.ensureSideLeaf(type, side);
+    await leaf.setViewState({ type, state: {} });
+    return leaf;
+  }
+
+  private async seedDefaultSidebarLayout(): Promise<void> {
+    const leftLeaves: WorkspaceLeaf[] = [];
+    const rightLeaves: WorkspaceLeaf[] = [];
+    for (const type of DEFAULT_LEFT_SIDEBAR_VIEW_TYPES) {
+      const leaf = await this.seedDefaultSideLeaf(type, "left");
+      if (leaf) leftLeaves.push(leaf);
+    }
+    for (const type of DEFAULT_RIGHT_SIDEBAR_VIEW_TYPES) {
+      const leaf = await this.seedDefaultSideLeaf(type, "right");
+      if (leaf) rightLeaves.push(leaf);
+    }
+    if (leftLeaves[0]) await this.revealLeaf(leftLeaves[0]);
+    if (rightLeaves[0]) await this.revealLeaf(rightLeaves[0]);
+  }
+
+  private namedWorkspacesPath(): string {
+    return joinPath("/.obsidian", NAMED_WORKSPACES_FILE);
+  }
+
+  private async readNamedWorkspaceStore(): Promise<NamedWorkspaceStore> {
+    const file = this.app.vault.getFileByPath(this.namedWorkspacesPath());
+    if (!file) return { workspaces: {} };
+    return parseNamedWorkspaceStore(await this.app.vault.read(file));
+  }
+
+  private async writeNamedWorkspaceStore(
+    store: NamedWorkspaceStore,
+  ): Promise<void> {
+    await this.app.vault.create(
+      this.namedWorkspacesPath(),
+      serializeNamedWorkspaceStore(store),
+    );
+  }
+
+  async listNamedLayouts(): Promise<string[]> {
+    const store = await this.readNamedWorkspaceStore();
+    return Object.keys(store.workspaces).sort((left, right) =>
+      left.localeCompare(right),
+    );
+  }
+
+  async saveNamedLayout(name: string): Promise<void> {
+    const normalized = name.trim();
+    if (!normalized) {
+      throw new Error("Workspace layout name must not be empty");
+    }
+    const store = await this.readNamedWorkspaceStore();
+    store.workspaces[normalized] = this.getLayout();
+    store.active = normalized;
+    await this.writeNamedWorkspaceStore(store);
+  }
+
+  async loadNamedLayout(name: string): Promise<void> {
+    const store = await this.readNamedWorkspaceStore();
+    const layout = store.workspaces[name];
+    if (!layout) {
+      new Notice(
+        `No saved workspace layout named “${name}”`,
+        undefined,
+        this.app,
+      );
+      return;
+    }
+    store.active = name;
+    await this.writeNamedWorkspaceStore(store);
+    await this.changeLayout(layout);
+  }
+
+  async resetLayoutToDefault(): Promise<void> {
+    this.layoutReady = false;
+    try {
+      await this.withoutLayoutPersistence(async () => {
+        await this.restoreLayoutJson({});
+        await this.seedDefaultSidebarLayout();
+      });
+      this.commitCompatibilityLayoutToHost({
+        source: "api",
+        operation: "reset-layout",
+      });
+    } finally {
+      this.layoutReady = true;
+    }
+    this.layoutHandlers.forEach((handler) => handler());
+    this.trigger("layout-ready");
+    this.requestSaveLayout({ source: "api", operation: "reset-layout" });
+  }
+
+  private installWorkspaceLayoutCommands(): void {
+    this.app.commands.registerCommand({
+      id: "workspace:save-layout",
+      name: "Save workspace layout",
+      title: "Save workspace layout",
+      category: "Workspace",
+      icon: "save",
+      sourcePlugin: "app",
+      callback: () => {
+        void this.listNamedLayouts().then((names) => {
+          promptSaveWorkspaceLayout(this.app, names, (name) =>
+            this.saveNamedLayout(name),
+          );
+        });
+      },
+    });
+    this.app.commands.registerCommand({
+      id: "workspace:load-layout",
+      name: "Load workspace layout",
+      title: "Load workspace layout",
+      category: "Workspace",
+      icon: "folder-open",
+      sourcePlugin: "app",
+      callback: () => {
+        void this.listNamedLayouts().then((names) => {
+          if (names.length === 0) {
+            new Notice("No saved workspace layouts", undefined, this.app);
+            return;
+          }
+          promptLoadWorkspaceLayout(this.app, names, (name) =>
+            this.loadNamedLayout(name),
+          );
+        });
+      },
+    });
+    this.app.commands.registerCommand({
+      id: "workspace:reset-layout",
+      name: "Reset workspace layout",
+      title: "Reset workspace layout",
+      category: "Workspace",
+      icon: "rotate-ccw",
+      sourcePlugin: "app",
+      callback: () => {
+        void promptConfirm(this.getCommandHostDocument(), {
+          title: "Reset workspace layout",
+          description:
+            "Reset the workspace to File Explorer and Search on the left, and Outline, File Properties, and Tags on the right?",
+          confirmLabel: "Reset",
+        }).then((confirmed) => {
+          if (confirmed) return this.resetLayoutToDefault();
+        });
+      },
+    });
   }
 
   /**
@@ -2692,6 +2861,7 @@ export class Workspace extends EventDispatcher<{
       controller: this.#workspaceHostController,
     });
     this.installCommandBridge(this.#workspaceHostController);
+    this.installWorkspaceLayoutCommands();
     this.installStatusBarBridge(this.#workspaceHostController);
     this.diagnostics = new DiagnosticsManager(
       this.#workspaceHostController.diagnostics,
