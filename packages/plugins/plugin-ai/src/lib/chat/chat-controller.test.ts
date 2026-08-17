@@ -3,6 +3,7 @@ import { FakeAgentRuntime } from "../runtimes/fake/fake-runtime";
 import type {
   AgentCapabilities,
   AgentEvent,
+  AgentRequest,
   AgentRuntime,
   AgentSession,
 } from "../core/types";
@@ -11,6 +12,10 @@ import { ConversationRepository } from "../conversations/conversation-repository
 import { MemoryTranscriptStore } from "../conversations/memory-transcript-store";
 import { CONVERSATION_SCHEMA_VERSION } from "../conversations/types";
 import { AiChatController } from "./chat-controller.svelte";
+import type {
+  AppToolBridgeCoordinator,
+  AppToolBridgeEvent,
+} from "../tools/desktop-app-tool-bridge";
 
 describe("AiChatController", () => {
   it("sends model and thinking on the agent request and stamps createdAt", async () => {
@@ -483,6 +488,110 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
+  it("preallocates the persisted binding for app tools and replaces it on switch", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const requests: AgentRequest[] = [];
+    const capabilities = {
+      ...new FakeAgentRuntime().capabilities(),
+      resume: false,
+    };
+    const runtime: AgentRuntime = {
+      id: "acp",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start(request) {
+        requests.push(request);
+        return {
+          id: `native-${requests.length}`,
+          async *events() {
+            yield { type: "completed" as const };
+          },
+          async send() {},
+          async respondToApproval() {},
+          async close() {},
+        };
+      },
+    };
+    const prepared: string[] = [];
+    const closed: string[] = [];
+    let listener: ((event: AppToolBridgeEvent) => void) | undefined;
+    const appToolBridge: AppToolBridgeCoordinator = {
+      async prepare(input) {
+        prepared.push(input.agentBindingId);
+        return {
+          conversationId: input.conversationId,
+          agentBindingId: input.agentBindingId,
+          scopeDir: input.scopeDir,
+          tools: [
+            {
+              registrationId: "registration-1",
+              ownerPluginId: "markdown",
+              name: "notes_read",
+              description: "Read a note",
+              inputSchema: { type: "object" },
+              effect: "read",
+            },
+          ],
+          bridgeId: `bridge-${prepared.length}`,
+          status: "available",
+        };
+      },
+      async closeBinding(bindingId) {
+        closed.push(bindingId);
+      },
+      respondToApproval: vi.fn(() => true),
+      subscribe(next) {
+        listener = next;
+        return () => {
+          listener = undefined;
+        };
+      },
+      async close() {},
+    };
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "Projects/Atlas",
+        launchNotePath: "Projects/Atlas/launch.md",
+      }),
+      request: {
+        agent: "codex",
+        model: { provider: "codex", model: "first" },
+      },
+      appToolBridge,
+    });
+
+    await controller.submit("first", {
+      agent: "codex",
+      model: { provider: "codex", model: "first" },
+    });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const first = await repository.read(controller.location!);
+    expect(requests[0]?.appToolSession).toMatchObject({
+      agentBindingId: first.metadata.activeAgentBindingId,
+      bridgeId: "bridge-1",
+    });
+
+    await controller.submit("second", {
+      agent: "codex",
+      model: { provider: "codex", model: "second" },
+    });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const second = await repository.read(controller.location!);
+    expect(prepared).toHaveLength(2);
+    expect(prepared[1]).toBe(second.metadata.activeAgentBindingId);
+    expect(prepared[1]).not.toBe(prepared[0]);
+    expect(closed).toContain(prepared[0]!);
+    expect(requests[1]?.appToolSession?.tools.map((tool) => tool.name)).toEqual([
+      "notes_read",
+    ]);
+    expect(listener).toBeTypeOf("function");
+    await controller.close();
+  });
+
   it("cancels a restored pending interaction when native resume is unavailable", async () => {
     const repository = new ConversationRepository(new MemoryTranscriptStore());
     const location = {
@@ -653,7 +762,7 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
-  it("reuses the newest exact binding when switching back and resume succeeds", async () => {
+  it("creates a fresh binding and snapshot when switching back", async () => {
     const repository = new ConversationRepository(new MemoryTranscriptStore());
     const codex = createResumableRuntime("acp-codex");
     const cursor = createResumableRuntime("acp-cursor");
@@ -673,11 +782,11 @@ describe("AiChatController", () => {
     await controller.submit("codex again", { agent: "codex" });
 
     const snapshot = await repository.read(controller.location!);
-    expect(codex.starts()).toBe(1);
-    expect(codex.resumes()).toBe(1);
+    expect(codex.starts()).toBe(2);
+    expect(codex.resumes()).toBe(0);
     expect(
       snapshot.agents.filter((record) => record.type === "binding.created"),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
     expect(
       snapshot.transcript.filter((entry) => entry.type === "agent.switch"),
     ).toHaveLength(2);

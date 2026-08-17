@@ -12,6 +12,8 @@ const native = vi.hoisted(() => ({
 
 vi.mock("@lapis-notes/api/desktop-native", () => ({
   getNativeDesktopBridge: () => native.bridge,
+  getNativeDesktopCapability: (id: string) =>
+    native.bridge?.capabilities?.[id as "agent-runtime"] ?? null,
   hasNativeDesktopCapability: (id: string) =>
     native.bridge?.capabilities?.[id as "agent-runtime"]?.status ===
     "available",
@@ -34,7 +36,11 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
     native.bridge = {
       runtime: "electron-desktop",
       capabilities: {
-        "agent-runtime": { id: "agent-runtime", status: "available" },
+        "agent-runtime": {
+          id: "agent-runtime",
+          status: "available",
+          details: { protocolVersion: 3 },
+        },
       },
       invoke,
       toFileUrl: (path) => path,
@@ -49,9 +55,27 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
       }),
     );
     const session = await new DesktopAcpRuntimeBackend().start({
-      request: { prompt: "", agent: "codex" },
+      request: {
+        prompt: "",
+        agent: "codex",
+        mcpServers: [{ name: "external", command: "external-mcp" }],
+        appToolSession: {
+          conversationId: "conversation-1",
+          agentBindingId: "binding-1",
+          scopeDir: "",
+          tools: [],
+          bridgeId: "bridge-1",
+        },
+      },
       onPermissionRequest,
     });
+    expect(invoke).toHaveBeenCalledWith(
+      "desktop_agent_acp_start",
+      expect.objectContaining({
+        mcpServers: [{ name: "external", command: "external-mcp" }],
+        appToolBridgeId: "bridge-1",
+      }),
+    );
     const iterator = session.events()[Symbol.asyncIterator]();
     const text = iterator.next();
     emit({
@@ -88,6 +112,54 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
     });
     await expect.poll(() => invoke.mock.calls.length).toBeGreaterThan(1);
     await session.prompt("continue");
+    await session.close();
+  });
+
+  it("uses the legacy external-server field and omits app tools on protocol v2", async () => {
+    const invoke = vi.fn(async (command: string) =>
+      command === "desktop_agent_acp_start"
+        ? { sessionId: "session-v2" }
+        : null,
+    );
+    native.bridge = {
+      runtime: "electron-desktop",
+      capabilities: {
+        "agent-runtime": {
+          id: "agent-runtime",
+          status: "available",
+          details: { protocolVersion: 2 },
+        },
+      },
+      invoke,
+      toFileUrl: (path) => path,
+    } as NativeDesktopBridge;
+
+    const session = await new DesktopAcpRuntimeBackend().start({
+      request: {
+        prompt: "",
+        mcpServers: [{ name: "external", command: "external-mcp" }],
+        appToolSession: {
+          conversationId: "conversation-1",
+          agentBindingId: "binding-1",
+          scopeDir: "",
+          tools: [],
+          bridgeId: "bridge-1",
+        },
+      },
+      onPermissionRequest: async () => ({ outcome: "reject_once" }),
+    });
+
+    expect(invoke).toHaveBeenCalledWith(
+      "desktop_agent_acp_start",
+      expect.objectContaining({
+        tools: [{ name: "external", command: "external-mcp" }],
+      }),
+    );
+    const startPayload = (invoke.mock.calls[0] as unknown as [
+      string,
+      Record<string, unknown>,
+    ])[1];
+    expect(startPayload).not.toHaveProperty("appToolBridgeId");
     await session.close();
   });
 });

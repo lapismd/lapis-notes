@@ -129,6 +129,11 @@ Protocol-v3 hosts advertise `appTools: stdio-mcp`. A capable runtime receives
 only a bridge ID; AI Host merges the reserved server for ACP or injects its
 command into Codex Native while credentials remain in the spawned process
 environment. Protocol-v2 hosts continue without application tools.
+The chat controller preallocates each binding UUID, prepares its fixed tool
+snapshot before runtime start, and persists that same UUID only after startup.
+Application calls use synthetic run provenance in the existing tool and
+permission projection; runtime-reported events from `lapis-tools` are dropped
+so one logical call has one authoritative transcript lifecycle.
 
 ```text
 command or chat panel

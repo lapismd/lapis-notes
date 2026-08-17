@@ -3,6 +3,8 @@ import type {
   AgentRuntime,
   AgentSession,
   AgentUsage,
+  AppToolSessionDescriptor,
+  ApprovalOptionKind,
   McpServerContribution,
   UserInputAnswers,
 } from "../core/types";
@@ -41,12 +43,18 @@ import {
   markApprovalResponse,
   markQuestionResponse,
 } from "./chat-trace";
+import { APP_TOOL_MCP_SERVER_NAME } from "../tools/mcp-server-registry";
+import type {
+  AppToolBridgeCoordinator,
+  AppToolBridgeEvent,
+} from "../tools/desktop-app-tool-bridge";
 
 export class AiChatController {
   items = $state.raw<AiChatItem[]>([]);
   busy = $state(false);
   error = $state<string | null>(null);
   usage = $state<AgentUsage | null>(null);
+  appToolsUnavailableReason = $state<string | null>(null);
   bindings = $state.raw<AgentBindingCreatedRecord[]>([]);
   location = $state.raw<ConversationLocation | null>(null);
   session: AgentSession | null = null;
@@ -71,6 +79,8 @@ export class AiChatController {
   readonly #createConversation?: () => CreateConversationInput;
   readonly #onLocationChange?: (location: ConversationLocation | null) => void;
   readonly #selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
+  readonly #appToolBridge?: AppToolBridgeCoordinator;
+  readonly #unsubscribeAppToolEvents?: () => void;
 
   constructor(
     runtime: AgentRuntime,
@@ -86,6 +96,7 @@ export class AiChatController {
       createConversation?: () => CreateConversationInput;
       onLocationChange?: (location: ConversationLocation | null) => void;
       selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
+      appToolBridge?: AppToolBridgeCoordinator;
     } = {},
   ) {
     this.runtime = runtime;
@@ -97,6 +108,10 @@ export class AiChatController {
     this.#createConversation = options.createConversation;
     this.#onLocationChange = options.onLocationChange;
     this.#selectRuntime = options.selectRuntime;
+    this.#appToolBridge = options.appToolBridge;
+    this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe((event) => {
+      void this.#consumeAppToolEvent(event);
+    });
     this.workspace = options.workspace;
     this.request = options.request ?? {};
     this.#sessionRequest = this.request;
@@ -168,6 +183,7 @@ export class AiChatController {
 
   async openConversation(location: ConversationLocation): Promise<void> {
     if (!this.repository) return;
+    await this.#closeAppToolBinding();
     await this.session?.close().catch(() => undefined);
     this.session = null;
     this.busy = false;
@@ -183,6 +199,7 @@ export class AiChatController {
 
   async newConversation(input?: CreateConversationInput): Promise<void> {
     if (!this.repository) return;
+    await this.#closeAppToolBinding();
     await this.session?.close().catch(() => undefined);
     this.session = null;
     this.busy = false;
@@ -213,6 +230,9 @@ export class AiChatController {
         newPath,
       );
       if (relocated) {
+        if (relocated.scopeDir !== this.location.scopeDir) {
+          void this.#closeAppToolBinding();
+        }
         this.location = relocated;
         this.#onLocationChange?.(relocated);
       }
@@ -231,6 +251,7 @@ export class AiChatController {
   async deleteCurrent(): Promise<void> {
     if (!this.repository || !this.location) return;
     const location = this.location;
+    await this.#closeAppToolBinding();
     await this.session?.close().catch(() => undefined);
     await this.repository.delete(location);
     this.session = null;
@@ -289,12 +310,18 @@ export class AiChatController {
       return;
     }
     try {
+      const appToolSession = await this.#prepareAppToolSession(
+        activeBinding.id,
+        this.runtime,
+        snapshot,
+      );
       this.session = await this.runtime.resume(
         activeBinding.nativeSessionId,
-        this.#sessionRequest,
+        { ...this.#sessionRequest, appToolSession },
       );
       void this.#consume(this.session, activeBinding.id);
     } catch (error) {
+      await this.#closeAppToolBinding(activeBinding.id);
       this.session = null;
       this.error = `Could not resume the previous agent session. Your local history is still available. ${error instanceof Error ? error.message : String(error)}`;
       await this.#interruptUnresumableInteractions();
@@ -370,6 +397,7 @@ export class AiChatController {
       if (!this.repository) await this.#persist();
     } catch (error) {
       const failedSession = this.session;
+      const failedBindingId = this.#activeBindingId;
       this.error = error instanceof Error ? error.message : String(error);
       this.items = applyAgentEventToChatItems(this.items, {
         type: "error",
@@ -377,6 +405,7 @@ export class AiChatController {
       });
       this.session = null;
       this.busy = false;
+      await this.#closeAppToolBinding(failedBindingId);
       await failedSession?.close().catch(() => undefined);
       if (this.repository && this.location) {
         await this.#appendDurableItems(
@@ -391,6 +420,35 @@ export class AiChatController {
   }
 
   async respondToApproval(requestId: string, optionId: string): Promise<void> {
+    const pending = this.items.find(
+      (candidate) =>
+        candidate.type === "approval" && candidate.request.id === requestId,
+    );
+    if (pending?.type === "approval" && pending.request.origin === "app-tool") {
+      if (
+        !this.#appToolBridge?.respondToApproval(
+          requestId,
+          optionId as ApprovalOptionKind,
+        )
+      ) {
+        throw new Error(`Unknown application-tool approval: ${requestId}`);
+      }
+      this.items = markApprovalResponse(this.items, requestId, optionId);
+      const item = this.items.find(
+        (candidate) =>
+          candidate.type === "approval" && candidate.request.id === requestId,
+      );
+      if (this.repository && this.location && item) {
+        await this.#appendDurableItems(
+          this.location,
+          [item],
+          this.#activeBindingId,
+        );
+      } else {
+        await this.#persist();
+      }
+      return;
+    }
     if (!this.session) return;
     this.items = markApprovalResponse(this.items, requestId, optionId);
     await this.session.respondToApproval(requestId, optionId);
@@ -453,9 +511,11 @@ export class AiChatController {
     this.busy = false;
     if (interrupted) this.items = interruptPendingInteractions(this.items);
     await this.#persist(interrupted);
+    await this.#closeAppToolBinding();
     await this.session?.close();
     this.session = null;
     this.busy = false;
+    this.#unsubscribeAppToolEvents?.();
   }
 
   async #consume(
@@ -470,6 +530,12 @@ export class AiChatController {
     let latestUsage: AgentUsage | null = null;
     try {
       for await (const event of session.events()) {
+        if (
+          (event.type === "tool.start" || event.type === "tool.end") &&
+          event.server === APP_TOOL_MCP_SERVER_NAME
+        ) {
+          continue;
+        }
         if (event.type === "usage") {
           latestUsage = { ...event.usage };
           if (this.session === session) this.usage = latestUsage;
@@ -527,6 +593,7 @@ export class AiChatController {
         }
         if (event.type === "error") {
           await session.close().catch(() => undefined);
+          await this.#closeAppToolBinding(agentBindingId);
           break;
         }
       }
@@ -545,6 +612,7 @@ export class AiChatController {
         this.session = null;
       }
       await session.close().catch(() => undefined);
+      await this.#closeAppToolBinding(agentBindingId);
     } finally {
       if (this.session === session) this.busy = false;
       if (this.repository && context.location) {
@@ -579,6 +647,7 @@ export class AiChatController {
   }
 
   async #recordNewBinding(
+    bindingId: string,
     session: AgentSession,
     request: Omit<AgentRequest, "prompt">,
     runtime = this.runtime,
@@ -589,7 +658,7 @@ export class AiChatController {
     const previousBindingId = this.#activeBindingId;
     const binding: AgentBindingCreatedRecord = {
       schemaVersion: CONVERSATION_SCHEMA_VERSION,
-      id: `binding-${crypto.randomUUID()}`,
+      id: bindingId,
       type: "binding.created",
       createdAt: new Date().toISOString(),
       runtime: runtime.id,
@@ -618,6 +687,65 @@ export class AiChatController {
     this.#activeBinding = binding;
     this.#activeBindingId = binding.id;
     this.bindings = [...this.bindings, binding];
+  }
+
+  async #prepareAppToolSession(
+    bindingId: string,
+    runtime: AgentRuntime,
+    snapshot: Awaited<ReturnType<ConversationRepository["read"]>>,
+  ): Promise<AppToolSessionDescriptor | undefined> {
+    if (!this.#appToolBridge) return undefined;
+    try {
+      const descriptor = await this.#appToolBridge.prepare({
+        conversationId: snapshot.location.conversationId,
+        agentBindingId: bindingId,
+        scopeDir: snapshot.location.scopeDir,
+        launchNotePath: snapshot.metadata.launchContext?.notePath,
+        runtimeSupportsAppTools:
+          runtime.id !== "fake" && runtime.capabilities().mcpTools,
+      });
+      this.appToolsUnavailableReason =
+        descriptor.status === "runtime-unavailable" && runtime.id === "fake"
+          ? null
+          : (descriptor.unavailableReason ?? null);
+      return descriptor;
+    } catch (error) {
+      this.appToolsUnavailableReason = `Application tools are unavailable. ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+      return undefined;
+    }
+  }
+
+  async #closeAppToolBinding(
+    bindingId = this.#activeBindingId,
+  ): Promise<void> {
+    if (!bindingId) return;
+    await this.#appToolBridge?.closeBinding(bindingId);
+  }
+
+  async #consumeAppToolEvent({
+    bindingId,
+    event,
+  }: AppToolBridgeEvent): Promise<void> {
+    if (bindingId !== this.#activeBindingId) return;
+    this.items = applyAgentEventToChatItems(this.items, event).map((item) =>
+      item.agentBindingId ? item : { ...item, agentBindingId: bindingId },
+    );
+    const itemId =
+      event.type === "permission.request"
+        ? `approval-${event.request.id}`
+        : event.type === "tool.start" || event.type === "tool.end"
+          ? event.id
+          : undefined;
+    const item = itemId
+      ? this.items.find((candidate) => candidate.id === itemId)
+      : undefined;
+    if (this.repository && this.location && item) {
+      await this.#appendDurableItems(this.location, [item], bindingId);
+    } else if (!this.repository) {
+      await this.#persist(false, bindingId);
+    }
   }
 
   #bindingMatchesRequest(
@@ -650,6 +778,8 @@ export class AiChatController {
       return;
     }
 
+    const previousBindingId = this.#activeBindingId;
+    await this.#closeAppToolBinding(previousBindingId);
     if (this.session) {
       await this.session.close().catch(() => undefined);
       this.session = null;
@@ -658,26 +788,32 @@ export class AiChatController {
 
     let exactBinding: AgentBindingCreatedRecord | undefined;
     let handoff: ConversationContextHandoff | undefined;
+    let snapshot:
+      | Awaited<ReturnType<ConversationRepository["read"]>>
+      | undefined;
     if (this.repository && this.location) {
-      const snapshot = await this.repository.read(this.location);
-      exactBinding = [...snapshot.agents]
-        .reverse()
-        .find(
-          (record): record is AgentBindingCreatedRecord =>
-            record.type === "binding.created" &&
-            this.#bindingMatchesRequest(record, request, targetRuntime),
-        );
+      snapshot = await this.repository.read(this.location);
+      exactBinding = snapshot.agents.find(
+        (record): record is AgentBindingCreatedRecord =>
+          record.type === "binding.created" &&
+          record.id === previousBindingId &&
+          this.#bindingMatchesRequest(record, request, targetRuntime),
+      );
       if (
         exactBinding?.nativeSessionId &&
         targetRuntime.capabilities().resume &&
         targetRuntime.resume
       ) {
+        const appToolSession = await this.#prepareAppToolSession(
+          exactBinding.id,
+          targetRuntime,
+          snapshot,
+        );
         try {
           const resumed = await targetRuntime.resume(
             exactBinding.nativeSessionId,
-            request,
+            { ...request, appToolSession },
           );
-          const previousBindingId = this.#activeBindingId;
           if (previousBindingId !== exactBinding.id) {
             const createdAt = new Date().toISOString();
             await this.repository.activateBinding(
@@ -701,6 +837,7 @@ export class AiChatController {
           void this.#consume(resumed, exactBinding.id);
           return;
         } catch {
+          await this.#closeAppToolBinding(exactBinding.id);
           // Native state is disposable. A replacement binding is prepared
           // below from deterministic local handoff context.
         }
@@ -722,14 +859,26 @@ export class AiChatController {
           },
         }
       : request;
-    const started = await targetRuntime.start({
-      ...preparedRequest,
-      prompt: "",
-      mcpServers: preparedRequest.mcpServers ?? this.mcpServers,
-    });
+    const bindingId = `binding-${crypto.randomUUID()}`;
+    const appToolSession = snapshot
+      ? await this.#prepareAppToolSession(bindingId, targetRuntime, snapshot)
+      : undefined;
+    let started: AgentSession;
+    try {
+      started = await targetRuntime.start({
+        ...preparedRequest,
+        prompt: "",
+        mcpServers: preparedRequest.mcpServers ?? this.mcpServers,
+        appToolSession,
+      });
+    } catch (error) {
+      await this.#closeAppToolBinding(bindingId);
+      throw error;
+    }
     try {
       if (this.repository) {
         await this.#recordNewBinding(
+          bindingId,
           started,
           request,
           targetRuntime,
@@ -738,6 +887,7 @@ export class AiChatController {
         );
       }
     } catch (error) {
+      await this.#closeAppToolBinding(bindingId);
       await started.close().catch(() => undefined);
       throw error;
     }

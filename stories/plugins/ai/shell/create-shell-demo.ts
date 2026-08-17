@@ -28,7 +28,8 @@ export type AiWorkspaceScenario =
   | "initializing"
   | "local-conversations"
   | "agent-switching"
-  | "recovery";
+  | "recovery"
+  | "community-tools";
 
 export const LOCAL_CONVERSATION_ID = "123e4567-e89b-42d3-a456-426614174000";
 const ARCHIVED_CONVERSATION_ID = "223e4567-e89b-42d3-a456-426614174001";
@@ -147,7 +148,9 @@ export function createAiWorkspaceSeed(
     ".obsidian/ai.json": JSON.stringify(pluginData, null, 2),
     "Notes/Welcome.md": "# Welcome\n\nAsk the AI chat in the workspace.\n",
     "Notes/alpha.md": "# Alpha\n\nTODO: summarize this note.\n",
-    ...(scenario === "default" ? {} : createConversationScenarioSeed(scenario)),
+    ...(scenario === "default" || scenario === "community-tools"
+      ? {}
+      : createConversationScenarioSeed(scenario)),
   };
 }
 
@@ -211,6 +214,27 @@ export async function bootAiWorkspaceDemo(
     workspaceShell: { application: { name: "Lapis Notes" } },
     markdownRenderer: async () => {},
   });
+  const communityToolRegistration =
+    scenario === "community-tools"
+      ? app.agentTools.register(
+          {
+            pluginId: "story-community",
+            source: "community",
+            provenance: "community",
+          },
+          {
+            name: "story_word_count",
+            description: "Count words in a scoped note.",
+            inputSchema: { type: "object" },
+            outputSchema: { type: "object" },
+            effect: "read",
+            execute: async () => ({
+              content: [{ type: "text", text: "42 words" }],
+              structuredContent: { words: 42 },
+            }),
+          },
+        )
+      : undefined;
 
   app.plugins.registerCorePlugins([
     { plugin: SourceEditorDemoPlugin, required: true },
@@ -298,6 +322,7 @@ export async function bootAiWorkspaceDemo(
   return {
     app,
     dispose: async () => {
+      communityToolRegistration?.dispose();
       stopWatchingMetadata();
       app.vault.offref(deleteRef);
       app.vault.offref(renameRef);

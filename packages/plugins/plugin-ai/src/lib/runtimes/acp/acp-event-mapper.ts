@@ -177,6 +177,7 @@ export function mapAcpPermissionRequest(
   const input = request.tool?.input ?? request.input ?? toolCall.rawInput;
   return {
     id,
+    origin: "runtime",
     kind: mapApprovalKind(
       request.kind ?? request.inferredKind ?? stringValue(toolCall.kind),
     ),

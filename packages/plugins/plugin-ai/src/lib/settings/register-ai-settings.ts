@@ -15,6 +15,7 @@ const FIELD_IDS = {
   thinking: "ai.thinking",
   appToolsEnabled: "ai.appToolsEnabled",
 } as const;
+const COMMUNITY_TOOL_FIELD_PREFIX = "ai.communityTools.";
 
 export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   const binding = getWorkspaceHostBinding(plugin.app.workspace);
@@ -22,6 +23,22 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   const controller = binding.controller;
   const settings = plugin.getSettings();
   const modelSourceId = (provider: AcpAgentId) => `ai.models.${provider}`;
+  const communityToolOwners = () => {
+    const owners = new Map<string, string[]>();
+    for (const registered of plugin.app.agentTools.list()) {
+      if (registered.owner.source !== "community") continue;
+      const tools = owners.get(registered.owner.pluginId) ?? [];
+      tools.push(registered.tool.name);
+      owners.set(registered.owner.pluginId, tools);
+    }
+    return [...owners]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([pluginId, tools]) => ({
+        pluginId,
+        tools: tools.sort(),
+        fieldId: `${COMMUNITY_TOOL_FIELD_PREFIX}${pluginId}`,
+      }));
+  };
   for (const provider of ACP_AGENT_IDS) {
     const dispose = controller.configuration.optionSources.register({
       id: modelSourceId(provider),
@@ -141,6 +158,13 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
           "Expose bundled application tools to newly created agent bindings.",
         default: DEFAULT_AI_SETTINGS.appToolsEnabled,
       },
+      ...communityToolOwners().map(({ pluginId, tools, fieldId }) => ({
+        id: fieldId,
+        type: "boolean" as const,
+        title: `Community tools: ${pluginId}`,
+        description: `Allow new bindings to invoke: ${tools.join(", ")}`,
+        default: false,
+      })),
     ],
   });
 
@@ -157,6 +181,24 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
     FIELD_IDS.appToolsEnabled,
     settings.appToolsEnabled,
   );
+  const syncCommunityToolValues = (current: AiPluginSettings) => {
+    const enabled = new Set(current.enabledCommunityToolPluginIds);
+    for (const owner of communityToolOwners()) {
+      controller.settings.update(owner.fieldId, enabled.has(owner.pluginId));
+    }
+  };
+  syncCommunityToolValues(settings);
+
+  const refreshSection = (current: AiPluginSettings) => {
+    disposeSection();
+    disposeSection = controller.registerSettingsSection(createSection(current));
+    syncCommunityToolValues(current);
+  };
+
+  const toolRegistryRef = plugin.app.agentTools.on("changed", () => {
+    refreshSection(plugin.getSettings());
+  });
+  plugin.register(() => plugin.app.agentTools.offref(toolRegistryRef));
 
   const changeRef = controller.settings.on("change", (event) => {
     if (!event.id || !event.id.startsWith("ai.")) return;
@@ -167,10 +209,7 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
           acpAgent: normalizeAcpAgent(values[FIELD_IDS.acpAgent]),
         });
         const next = plugin.getSettings();
-        disposeSection();
-        disposeSection = controller.registerSettingsSection(
-          createSection(next),
-        );
+        refreshSection(next);
         controller.settings.update(FIELD_IDS.defaultModel, next.defaultModel);
       })();
       return;
@@ -198,6 +237,21 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
     if (event.id === FIELD_IDS.appToolsEnabled) {
       void plugin.updateSettings({
         appToolsEnabled: values[FIELD_IDS.appToolsEnabled] !== false,
+      });
+      return;
+    }
+    if (event.id.startsWith(COMMUNITY_TOOL_FIELD_PREFIX)) {
+      const pluginId = event.id.slice(COMMUNITY_TOOL_FIELD_PREFIX.length);
+      if (!communityToolOwners().some((owner) => owner.pluginId === pluginId)) {
+        return;
+      }
+      const enabled = new Set(
+        plugin.getSettings().enabledCommunityToolPluginIds,
+      );
+      if (values[event.id] === true) enabled.add(pluginId);
+      else enabled.delete(pluginId);
+      void plugin.updateSettings({
+        enabledCommunityToolPluginIds: [...enabled].sort(),
       });
     }
   });

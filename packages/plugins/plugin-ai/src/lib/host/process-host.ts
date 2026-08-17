@@ -3,6 +3,7 @@ export type AgentProcessSpawnOptions = {
   args?: string[];
   cwd?: string;
   env?: Record<string, string>;
+  appToolBridgeId?: string;
 };
 
 export type AgentProcessMessage =

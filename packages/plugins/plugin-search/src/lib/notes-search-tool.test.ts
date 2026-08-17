@@ -77,4 +77,32 @@ describe("notes_search", () => {
     ).rejects.toMatchObject({ name: "AbortError" });
     expect(query).not.toHaveBeenCalled();
   });
+
+  it("bounds aggregate structured and text results", async () => {
+    const query = vi.fn(async () => ({
+      count: 50,
+      hits: Array.from({ length: 50 }, (_, index) => ({
+        id: `Projects/Alpha/note-${index}.md`,
+        score: 50 - index,
+        document: { path: `Projects/Alpha/note-${index}.md` },
+        snippets: Array.from({ length: 3 }, () => ({
+          text: "x".repeat(500),
+          offset: 0,
+        })),
+      })),
+    }));
+    const result = await createNotesSearchTool({ query } as never).execute(
+      { query: "x", limit: 50 },
+      context(),
+    );
+    const encoded = new TextEncoder().encode(
+      JSON.stringify(result.structuredContent),
+    );
+
+    expect(encoded.byteLength).toBeLessThanOrEqual(48 * 1024);
+    expect(result.content[0]).toMatchObject({
+      type: "text",
+      text: expect.any(String),
+    });
+  });
 });

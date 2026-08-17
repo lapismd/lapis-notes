@@ -310,6 +310,34 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--scroll-recovery",
   },
   {
+    id: "plugins-ai-chat-app-tool-read",
+    title: "AI Chat: Application Tool Read",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--app-tool-read-transcript",
+  },
+  {
+    id: "plugins-ai-chat-app-tool-patch-approval",
+    title: "AI Chat: Application Tool Patch Approval",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--app-tool-patch-approval",
+  },
+  {
+    id: "plugins-ai-chat-app-tool-session-grant",
+    title: "AI Chat: Application Tool Session Grant",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--app-tool-session-grant",
+  },
+  {
+    id: "plugins-ai-chat-app-tool-host-upgrade",
+    title: "AI Chat: Application Tool Host Upgrade",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--app-tool-host-upgrade-required",
+  },
+  {
     id: "plugins-ai-shell-desktop",
     title: "AI Shell: Desktop",
     spec: "spec/src/plugins/ai/index.md",
@@ -322,6 +350,13 @@ export const workspaceCatalog = [
     spec: "spec/src/plugins/ai/index.md",
     publicSurface: "@lapis-notes/ai + @lapis-notes/workspace",
     storyId: "plugins-ai-shell--mobile",
+  },
+  {
+    id: "plugins-ai-shell-community-tools",
+    title: "AI Shell: Community Tool Opt-In",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai + @lapis-notes/workspace",
+    storyId: "plugins-ai-shell--community-tool-opt-in",
   },
   {
     id: "plugins-ai-live-host",

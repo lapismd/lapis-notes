@@ -44,6 +44,7 @@ import {
 } from "./settings/ai-settings";
 import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 import { AppToolHost } from "./tools/app-tool-host";
+import { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
 
 const AI_MANIFEST: PluginManifest = {
   id: "ai",
@@ -65,6 +66,7 @@ export class AiPlugin extends Plugin {
   readonly models: ModelProviderRegistry;
   readonly mcpServers = createMcpServerContributionRegistry();
   readonly appToolHost: AppToolHost;
+  readonly appToolBridge: DesktopAppToolBridge;
   readonly #settingsListeners = new Set<
     (patch: Partial<AiPluginSettings>) => void
   >();
@@ -92,7 +94,12 @@ export class AiPlugin extends Plugin {
     this.appToolHost = new AppToolHost(app.agentTools, () =>
       this.getSettings(),
     );
-    this.register(() => this.appToolHost.close());
+    this.appToolBridge = new DesktopAppToolBridge(this.appToolHost);
+    this.register(() => {
+      void this.appToolBridge
+        .close()
+        .finally(() => this.appToolHost.close());
+    });
     this.processHost = createAgentProcessHost();
     const workspace = this.workspace;
     this.models = new ModelProviderRegistry([

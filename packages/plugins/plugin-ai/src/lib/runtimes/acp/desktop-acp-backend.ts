@@ -1,5 +1,6 @@
 import {
   getNativeDesktopBridge,
+  getNativeDesktopCapability,
   hasNativeDesktopCapability,
   type NativeAgentRuntimeEvent,
 } from "@lapis-notes/api/desktop-native";
@@ -55,6 +56,10 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
     resumeSessionId?: string,
   ): Promise<AcpBackendSession> {
     const bridge = getRequiredBridge();
+    const protocolVersion = Number(
+      getNativeDesktopCapability("agent-runtime")?.details?.protocolVersion ??
+        2,
+    );
     const { sessionId } = await bridge.invoke<{ sessionId: string }>(
       "desktop_agent_acp_start",
       {
@@ -63,7 +68,12 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
         model: request.model,
         thinking: request.thinking,
         metadata: request.metadata,
-        tools: request.mcpServers,
+        ...(protocolVersion >= 3
+          ? {
+              mcpServers: request.mcpServers,
+              appToolBridgeId: request.appToolSession?.bridgeId,
+            }
+          : { tools: request.mcpServers }),
         resumeSessionId,
       },
     );

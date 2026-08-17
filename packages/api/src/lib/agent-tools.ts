@@ -156,8 +156,10 @@ function validateSchema(
   if (!isRecord(schema)) {
     throw new Error(`App tool ${toolName} ${label} schema must be an object.`);
   }
-  if (label === "input" && schema.type !== "object") {
-    throw new Error(`App tool ${toolName} input schema must have type object.`);
+  if (schema.type !== "object") {
+    throw new Error(
+      `App tool ${toolName} ${label} schema must have type object.`,
+    );
   }
   try {
     JSON.stringify(schema);

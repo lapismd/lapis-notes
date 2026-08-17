@@ -15,6 +15,9 @@ import {
   createAiChatFailureSeedItems,
   createAiChatScrollSeedItems,
   createAiChatToolSeedItems,
+  createAppToolPatchPendingSeedItems,
+  createAppToolReadSeedItems,
+  createAppToolSessionGrantSeedItems,
 } from "./AiChat.example-sources";
 import AiChatDemo from "./AiChatDemo.svelte";
 
@@ -436,6 +439,148 @@ export const SuccessfulToolCall: Story = {
       canvas.getByText("pnpm --filter @lapis-notes/ai test"),
     ).toBeVisible();
     await expect(canvas.getByText("121 tests passed")).toBeVisible();
+  },
+};
+
+export const AppToolReadTranscript: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { seedItems: createAppToolReadSeedItems() },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-app-tool-read"),
+    docs: {
+      description: {
+        story:
+          "A completed notes_read call is projected through the reserved lapis-tools server into the ordinary tool transcript.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-app-tool-read-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = await canvas.findByRole("button", {
+      name: "Show details for notes_read",
+    });
+    await userEvent.click(trigger);
+    expect(canvas.getAllByText(/Notes\/alpha\.md/).length).toBeGreaterThan(0);
+    await expect(canvas.getByText(/one TODO/)).toBeVisible();
+  },
+};
+
+export const AppToolPatchApproval: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: {
+      seedItems: createAppToolPatchPendingSeedItems(),
+      preservePending: true,
+    },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-app-tool-patch-approval"),
+    docs: {
+      description: {
+        story:
+          "A pending notes_patch request shows its scoped path, before/after diff, and the three memory-only decisions.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-app-tool-patch-approval-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("Notes/alpha.md")).toBeVisible();
+    await expect(canvas.getByText(/--- before/)).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: /Allow once/ }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: /Allow for this session/ }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: /Deny/ }),
+    ).toBeVisible();
+  },
+};
+
+export const AppToolSessionGrant: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { seedItems: createAppToolSessionGrantSeedItems() },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-app-tool-session-grant"),
+    docs: {
+      description: {
+        story:
+          "One Allow for this session decision is followed by two successful notes_patch calls, demonstrating that the second call did not prompt again.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-app-tool-session-grant-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText(/Approval approved/)).toBeVisible();
+    expect(
+      canvas.getAllByRole("button", { name: "Show details for notes_patch" }),
+    ).toHaveLength(2);
+    expect(canvas.queryByRole("button", { name: /Allow once/ })).toBeNull();
+  },
+};
+
+export const AppToolHostUpgradeRequired: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: {
+      modelCatalogError:
+        "Application tools require an agent host with protocol v3 support.",
+    },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-app-tool-host-upgrade"),
+    docs: {
+      description: {
+        story:
+          "An older host leaves chat available while the composer reports that application tools require protocol v3.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/chat-app-tool-host-upgrade-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByRole("alert"),
+    ).toHaveTextContent("protocol v3");
   },
 };
 

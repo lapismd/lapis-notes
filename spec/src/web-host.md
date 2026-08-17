@@ -51,6 +51,10 @@ For application tools, that same authenticated connection carries generic
 bridge open, result, close, call, and cancellation frames. The executor keeps
 the loopback broker and stdio shim local, revokes authorization on disconnect,
 and requires a fresh bridge before a resumed native binding can expose tools.
+Disconnect handling emits cancellation for every active bridged call before
+clearing connection state. ACP sessions also receive a visible closed-runtime
+event so controller retry creates a new binding instead of reusing stale bridge
+authorization.
 
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
 File System Access profiles. “View all” opens an upper-viewport Dialog whose

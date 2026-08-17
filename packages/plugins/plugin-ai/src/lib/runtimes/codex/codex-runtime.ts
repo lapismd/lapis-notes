@@ -335,6 +335,7 @@ export class CodexNativeRuntime implements AgentRuntime {
       command: "codex",
       args: codexArgsFor(request.mcpServers),
       cwd: request.workspace,
+      appToolBridgeId: request.appToolSession?.bridgeId,
     });
     const session = new CodexNativeSession(process, request);
     try {

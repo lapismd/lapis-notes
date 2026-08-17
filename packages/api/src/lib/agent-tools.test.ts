@@ -55,6 +55,12 @@ describe("AppToolRegistry", () => {
         inputSchema: { type: "string" },
       }),
     ).toThrow(/type object/u);
+    expect(() =>
+      registry.register(owner, {
+        ...tool("bad_output_schema"),
+        outputSchema: { type: "array" },
+      }),
+    ).toThrow(/type object/u);
   });
 
   it("disposes idempotently and never resolves stale identity", () => {

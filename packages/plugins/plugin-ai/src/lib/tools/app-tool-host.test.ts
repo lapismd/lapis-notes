@@ -297,4 +297,26 @@ describe("AppToolHost approvals", () => {
     });
     expect(execute).not.toHaveBeenCalled();
   });
+
+  it("does not invoke a registration unloaded during approval", async () => {
+    const { host, registry } = createFixture();
+    const execute = vi.fn(async () => ({ content: [] }));
+    const registration = registry.register(
+      bundledOwner,
+      createTool("notes_patch", { effect: "write", execute }),
+    );
+    createSession(host);
+    let approvalId = "";
+    host.approvals.subscribe((request) => {
+      approvalId = request.id;
+    });
+
+    const pending = invoke(host, "notes_patch");
+    await vi.waitFor(() => expect(approvalId).not.toBe(""));
+    registration.dispose();
+    host.approvals.respond(approvalId, "allow-once");
+
+    await expect(pending).rejects.toMatchObject({ code: "tool_unavailable" });
+    expect(execute).not.toHaveBeenCalled();
+  });
 });

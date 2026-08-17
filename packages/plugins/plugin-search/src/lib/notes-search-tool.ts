@@ -7,6 +7,7 @@ import type { SearchManager } from "./search-manager";
 
 const MARKDOWN_SOURCE_PROVIDER_ID = "search:markdown";
 const HIDDEN_NOTE_SEGMENTS = new Set([".obsidian", ".lapis", ".trash"]);
+const MAX_STRUCTURED_RESULT_BYTES = 48 * 1024;
 
 interface NotesSearchInput {
   query: string;
@@ -56,17 +57,30 @@ async function executeNotesSearch(
     sourceProviderIds: [MARKDOWN_SOURCE_PROVIDER_ID],
   });
   context.signal.throwIfAborted();
-  const results = result.hits
-    .filter((hit) => isAllowedMarkdownPath(hit.document.path))
-    .slice(0, limit)
-    .map((hit) => ({
+  const results: Array<{
+    path: string;
+    score: number;
+    snippets: Array<{ text: string; offset: number }>;
+  }> = [];
+  for (const hit of result.hits) {
+    if (!isAllowedMarkdownPath(hit.document.path)) continue;
+    const entry = {
       path: hit.document.path,
       score: Number.isFinite(hit.score) ? hit.score : 0,
       snippets: hit.snippets.slice(0, 3).map((snippet) => ({
         text: snippet.text.slice(0, 500),
         offset: Math.max(0, snippet.offset),
       })),
-    }));
+    };
+    if (
+      new TextEncoder().encode(JSON.stringify({ results: [...results, entry] }))
+        .byteLength > MAX_STRUCTURED_RESULT_BYTES
+    ) {
+      break;
+    }
+    results.push(entry);
+    if (results.length >= limit) break;
+  }
   const structuredContent = { results } satisfies AppToolJsonValue;
   return {
     content: [{ type: "text" as const, text: JSON.stringify(structuredContent) }],

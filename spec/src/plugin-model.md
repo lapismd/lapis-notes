@@ -36,6 +36,9 @@ plugin-local paint.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects
 conflicting names, and unload disposes the exact registration.
+Invocation resolves that exact registration both before and after a pending
+approval, so unloading or replacing a plugin while the card is open cannot
+grant or invoke a stale callback.
 This callback registry is separate from AI's external
 `McpServerContribution` registry; plugins cannot claim the reserved
 `lapis-tools` MCP server name through that process-backed integration surface.

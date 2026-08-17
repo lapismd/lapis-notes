@@ -108,6 +108,10 @@ application manager or presentation modules.
 The API agent-tool surface exports only schemas, results, trusted execution
 context, owner metadata, and lifecycle registration. It does not import or
 re-export MCP, ACP, acpx, or vendor runtime types.
+AI coordinates each registry snapshot with one preallocated native binding and
+projects its events into the existing transcript. Electron and AI Host continue
+to transport opaque bridge identifiers rather than importing note-tool
+implementations.
 Its execution-scope helper validates vault-relative portable paths and exposes
 only fixed-directory containment and resolution to portable tool callbacks.
 AI policy imports these contracts through the narrow `@lapis-notes/api/agent-tools`

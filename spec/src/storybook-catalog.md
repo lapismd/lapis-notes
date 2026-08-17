@@ -73,6 +73,11 @@
 | LN-CAT-069 | App-backed stories MUST install disposable compatibility leases while their canvases use the App they own. Multi-App acceptance MUST prove Workspace, Bases, and AI do not follow another story's compatibility alias.                                                                                                                                                                                                                                                                                                                                                                         |
 | LN-CAT-070 | The Storybook browser project MUST retain a bounded 120-second per-story ceiling so real-App database and linked-plugin scenarios remain reliable under full-suite parallel load. Scenario-local waits MUST remain narrower and focused runs MUST still diagnose functional failures independently.                                                                                                                                                                                                                                                                                            |
 
+The application-tool story family uses deterministic transcript seeds and an
+inert resumable runtime to keep approval cards pending without starting an
+agent. The community-tool shell story mutates the real AI settings contract and
+verifies the disabled and newly enabled owner states.
+
 ## Show Code source contract
 
 Production desktop and web hosts continue to register external Roles in their

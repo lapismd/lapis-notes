@@ -61,7 +61,10 @@ export interface AppToolCall {
   input: unknown;
 }
 
-export type AppToolApprovalListener = (request: ApprovalRequest) => void;
+export type AppToolApprovalListener = (
+  request: ApprovalRequest,
+  bindingId: string,
+) => void;
 
 interface PendingApproval {
   bindingId: string;
@@ -131,7 +134,7 @@ export class AppToolApprovalBroker {
       });
     });
 
-    for (const listener of this.#listeners) listener(request);
+    for (const listener of this.#listeners) listener(request, bindingId);
     return decision;
   }
 
@@ -252,6 +255,7 @@ export class AppToolHost {
 
     try {
       this.validateInput(registered, call.input);
+      let grantForSession = false;
       if (
         registered.tool.effect !== "read" &&
         !this.#grants.has(grantKey(session.descriptor, registered))
@@ -276,8 +280,20 @@ export class AppToolHost {
           );
         }
         if (decision === "allow-session") {
-          this.#grants.add(grantKey(session.descriptor, registered));
+          grantForSession = true;
         }
+      }
+
+      if (
+        !this.registry.resolve(
+          snapshot.name,
+          snapshot.registrationId,
+        )
+      ) {
+        throw unavailableError(call.name);
+      }
+      if (grantForSession) {
+        this.#grants.add(grantKey(session.descriptor, registered));
       }
 
       const result = await raceWithAbort(

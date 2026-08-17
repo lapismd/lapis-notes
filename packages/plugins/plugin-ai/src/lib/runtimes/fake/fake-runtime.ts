@@ -250,6 +250,7 @@ export class FakeAgentRuntime implements AgentRuntime {
 function createFakeApprovalRequest(id: string): ApprovalRequest {
   return {
     id,
+    origin: "runtime",
     kind: "execute",
     title: "Allow the fake agent to continue?",
     tool: { name: "fake.echo", input: { id } },

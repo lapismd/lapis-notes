@@ -190,6 +190,7 @@ export function approvalRequestFromServerRequest(
   );
   return {
     id: String(message.id),
+    origin: "runtime",
     kind,
     title:
       stringValue(request.reason) ??

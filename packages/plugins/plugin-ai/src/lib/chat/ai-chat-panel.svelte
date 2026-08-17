@@ -40,6 +40,7 @@
     DEFAULT_AI_SETTINGS,
     type AiPluginSettings,
   } from "../settings/ai-settings";
+  import type { AppToolBridgeCoordinator } from "../tools/desktop-app-tool-bridge";
   import { formatFileMention, mentionTokensFromText } from "./chat-mentions";
   import { renderChatMarkdown } from "./chat-markdown";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
@@ -54,6 +55,7 @@
     initializing = false,
     workspace,
     mcpServers = [],
+    appToolBridge,
     sessionStore,
     sessionId,
     repository,
@@ -74,6 +76,7 @@
     initializing?: boolean;
     workspace?: string;
     mcpServers?: McpServerContribution[];
+    appToolBridge?: AppToolBridgeCoordinator;
     sessionStore?: AgentSessionStore;
     sessionId?: string;
     repository?: ConversationRepository;
@@ -115,6 +118,7 @@
       createConversation: () => createConversation?.() ?? { scopeDir: "" },
       onLocationChange: onConversationLocationChange,
       selectRuntime,
+      appToolBridge,
     }),
   );
   let draft = $state("");
@@ -200,7 +204,10 @@
   const latestMessageId = $derived(controller.items.at(-1)?.id);
   const isEmpty = $derived(controller.items.length === 0);
   const composerError = $derived(
-    controller.error ?? modelCatalogError ?? unavailableReason,
+    controller.error ??
+      modelCatalogError ??
+      unavailableReason ??
+      controller.appToolsUnavailableReason,
   );
   const composerStatus = $derived<ComposerStatus | undefined>(
     composerError ? { type: "error", message: composerError } : undefined,
@@ -330,9 +337,10 @@
 
   $effect(() => {
     const current = controller;
-    if (!initializing) void current.restore();
+    const ready = !initializing;
+    if (ready) void current.restore();
     return () => {
-      void current.close();
+      if (ready) void current.close();
     };
   });
 

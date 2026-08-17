@@ -34,6 +34,13 @@ export type AppToolSessionDescriptor = {
   scopeDir: string;
   launchNotePath?: string;
   tools: AppToolDescriptor[];
+  bridgeId?: string;
+  status?:
+    | "available"
+    | "disabled"
+    | "host-upgrade-required"
+    | "runtime-unavailable";
+  unavailableReason?: string;
 };
 
 export type AgentRequest = {

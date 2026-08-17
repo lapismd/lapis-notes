@@ -295,6 +295,61 @@ export const Desktop: Story = {
   },
 };
 
+export const CommunityToolOptIn: Story = {
+  args: { scenario: "community-tools" },
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-shell-community-tools"),
+    docs: {
+      description: {
+        story:
+          "A discovered renderer community tool starts disabled and can be enabled globally for newly created native bindings.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/shell/community-tools-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Open settings" }),
+    );
+    const dialog = canvas.getByRole("dialog", { name: "Settings" });
+    await userEvent.click(
+      await within(dialog).findByRole("button", { name: "AI" }),
+    );
+    const master = within(dialog).getByRole("switch", {
+      name: "Application tools",
+    });
+    const community = within(dialog).getByRole("switch", {
+      name: "Community tools: story-community",
+    });
+    await expect(master).toHaveAttribute("data-state", "checked");
+    await expect(community).toHaveAttribute("data-state", "unchecked");
+    await userEvent.click(community);
+    await expect(community).toHaveAttribute("data-state", "checked");
+    await waitFor(async () => {
+      const raw = await demoApp(canvasElement).vault.adapter.read(
+        ".obsidian/ai.json",
+      );
+      expect(
+        JSON.parse(raw).settings.enabledCommunityToolPluginIds,
+      ).toContain("story-community");
+    });
+  },
+};
+
 export const Mobile: Story = {
   args: { displayMode: "mobile" },
   parameters: {
@@ -503,7 +558,11 @@ export const LocalConversations: Story = {
     expect(app.workspace.getLeavesOfType(AiHistoryViewType)).toEqual([
       historyLeaf,
     ]);
-    await expect(within(rootHistory).getByText("Notes")).toBeVisible();
+    expect(
+      within(rootHistory)
+        .getAllByText("Notes")
+        .some((element) => element.getClientRects().length > 0),
+    ).toBe(true);
     const conversationButton = within(rootHistory).getByRole("button", {
       name: "Summarize project notes",
     });

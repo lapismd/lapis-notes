@@ -43,6 +43,7 @@ export class DesktopAgentProcessHost implements AgentProcessHost {
         args: options.args ?? [],
         cwd: options.cwd,
         env: options.env,
+        appToolBridgeId: options.appToolBridgeId,
       },
     );
     return new DesktopAgentProcessHandle(bridge, processId);

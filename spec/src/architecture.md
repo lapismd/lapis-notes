@@ -100,6 +100,10 @@ The live transport is an AI Host-owned loopback broker plus official-SDK stdio
 shim. Electron and the authenticated remote client carry only generic bridge
 commands and events; they never acquire registry, policy, or transcript
 authority.
+The AI controller allocates the binding identity before runtime start, opens
+the binding-local bridge from that identity, and commits that same identity
+only after startup succeeds. Replacing an agent closes the old bridge and its
+approval grants before a fresh snapshot is opened for the next binding.
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

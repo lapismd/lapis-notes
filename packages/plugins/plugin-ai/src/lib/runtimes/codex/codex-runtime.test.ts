@@ -4,6 +4,7 @@ import type {
   AgentProcessHandle,
   AgentProcessHost,
   AgentProcessMessage,
+  AgentProcessSpawnOptions,
 } from "../../host/process-host";
 import { UnavailableAgentProcessHost } from "../../host/process-host";
 import { CodexNativeRuntime } from "./codex-runtime";
@@ -42,8 +43,10 @@ class MemoryProcessHandle implements AgentProcessHandle {
 class MemoryProcessHost implements AgentProcessHost {
   readonly available = true;
   readonly handle = new MemoryProcessHandle();
+  lastSpawnOptions: AgentProcessSpawnOptions | undefined;
 
-  async spawn(): Promise<AgentProcessHandle> {
+  async spawn(options: AgentProcessSpawnOptions): Promise<AgentProcessHandle> {
+    this.lastSpawnOptions = options;
     return this.handle;
   }
 }
@@ -62,6 +65,27 @@ describe("CodexNativeRuntime", () => {
         requirePolicyAmendments: true,
       }),
     ).toBe(false);
+  });
+
+  it("projects the opaque app-tool bridge through process spawn", async () => {
+    const host = new MemoryProcessHost();
+    const runtime = new CodexNativeRuntime(host);
+    const session = await runtime.start({
+      prompt: "",
+      appToolSession: {
+        conversationId: "conversation-1",
+        agentBindingId: "binding-1",
+        scopeDir: "",
+        tools: [],
+        bridgeId: "bridge-1",
+      },
+    });
+
+    expect(host.lastSpawnOptions).toMatchObject({
+      command: "codex",
+      appToolBridgeId: "bridge-1",
+    });
+    await session.close();
   });
 
   it("maps requestApproval lines into ApprovalRequest and respondToApproval", async () => {

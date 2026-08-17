@@ -17,6 +17,7 @@ import type {
 } from "../conversations/conversation-repository";
 import type { ConversationLocation } from "../conversations/types";
 import type { AiPluginSettings } from "../settings/ai-settings";
+import type { AppToolBridgeCoordinator } from "../tools/desktop-app-tool-bridge";
 import AiViewPanel from "./ai-view-panel.svelte";
 import { AiViewType } from "./ai-view-type";
 export { AiViewType } from "./ai-view-type";
@@ -26,6 +27,7 @@ export type AiViewHost = {
   fallbackRuntime(): AgentRuntime;
   liveRuntimeUnavailableReason(): string | null;
   mcpServers: { list(): McpServerContribution[] };
+  appToolBridge?: AppToolBridgeCoordinator;
   conversations: ConversationRepository;
   createConversationInput(explicitFolder?: string): CreateConversationInput;
   listConversationFolders(): string[];

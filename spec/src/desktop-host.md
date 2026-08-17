@@ -70,6 +70,10 @@ The main process also owns one loopback tool broker. The context-isolated
 preload forwards bridge call and cancellation events, and packaged builds copy
 the standalone MCP shim to unpacked `dist-electron` output so Electron can run
 it in Node mode without putting its token on the command line.
+Protocol-v3 ACP starts receive `mcpServers` plus the opaque application bridge
+ID, while protocol-v2 starts retain the legacy external-server field and omit
+the application bridge. Codex Native receives only the shim command in its MCP
+configuration and inherits its bridge credential through the child environment.
 
 ```text
 Electron main

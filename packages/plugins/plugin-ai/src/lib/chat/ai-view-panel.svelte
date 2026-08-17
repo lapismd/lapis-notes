@@ -56,6 +56,7 @@
   unavailableReason={bootstrap.unavailableReason}
   {initializing}
   {mcpServers}
+  appToolBridge={host.appToolBridge}
   workspace={host.workspace}
   repository={host.conversations}
   {initialLocation}

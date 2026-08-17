@@ -6,6 +6,7 @@
     formatFileMention,
     searchVaultFiles,
     type AiChatItem,
+    type AgentRuntime,
     type AiPluginSettings,
     type FakeAgentTrace,
     type ModelRef,
@@ -28,6 +29,7 @@
       { path: "Notes/alpha.md", name: "alpha" },
       { path: "Notes/beta.md", name: "beta" },
     ],
+    preservePending = false,
   }: {
     requireApproval?: boolean;
     requireQuestion?: boolean;
@@ -37,11 +39,32 @@
     modelCatalogError?: string | null;
     models?: ModelRef[];
     files?: VaultFileRef[];
+    preservePending?: boolean;
   } = $props();
 
-  const runtime = $derived(
-    new FakeAgentRuntime({ requireApproval, requireQuestion, trace }),
-  );
+  const runtime = $derived.by<AgentRuntime>(() => {
+    const fake = new FakeAgentRuntime({
+      requireApproval,
+      requireQuestion,
+      trace,
+    });
+    if (!preservePending) return fake;
+    return {
+      id: fake.id,
+      capabilities: () => fake.capabilities(),
+      supports: (request) => fake.supports(request),
+      start: (request) => fake.start(request),
+      async resume(sessionId) {
+        return {
+          id: sessionId,
+          async *events() {},
+          async send() {},
+          async respondToApproval() {},
+          async close() {},
+        };
+      },
+    };
+  });
   const sessionStore = $derived(
     persist || seedItems.length > 0
       ? createMemorySessionStore(
