@@ -136,6 +136,13 @@ defaultRuntime: "fake"
 const workspaceStory = `
 export const PersistedDesktop = { args: { loadBundledPlugins: true } };
 export const Mobile = { args: { loadBundledPlugins: true } };
+{ id: "markdown", enabled: true }
+{ id: "lapis-markdown-lint", enabled: true }
+{ id: "lapis-file-explorer", enabled: true }
+{ id: "search", enabled: true }
+{ id: "history", enabled: true }
+{ id: "bases", enabled: true }
+{ id: "ai", enabled: true }
 `;
 const aiStateStoryNames = [
   "PermissionRequested",

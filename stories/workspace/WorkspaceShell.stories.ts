@@ -43,6 +43,7 @@ function expectBundledPlugins(canvas: ReturnType<typeof within>) {
     { id: "lapis-markdown-lint", enabled: true },
     { id: "lapis-file-explorer", enabled: true },
     { id: "search", enabled: true },
+    { id: "history", enabled: true },
     { id: "bases", enabled: true },
     { id: "ai", enabled: true },
   ]);

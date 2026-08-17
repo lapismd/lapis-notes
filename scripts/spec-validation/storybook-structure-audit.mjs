@@ -354,6 +354,15 @@ function auditPersistedWorkspace({ readOptional }) {
     "BasesPlugin",
     "AiPlugin",
   ];
+  const pluginIds = [
+    "markdown",
+    "lapis-markdown-lint",
+    "lapis-file-explorer",
+    "search",
+    "history",
+    "bases",
+    "ai",
+  ];
   const valid =
     demo !== null &&
     story !== null &&
@@ -362,6 +371,9 @@ function auditPersistedWorkspace({ readOptional }) {
       demo.includes(
         `{ plugin: ${token}, required: false, enabledByDefault: true }`,
       ),
+    ) &&
+    pluginIds.every((id) =>
+      story.includes(`{ id: "${id}", enabled: true }`),
     ) &&
     demo.includes('defaultRuntime: "fake"') &&
     story.includes("export const PersistedDesktop") &&

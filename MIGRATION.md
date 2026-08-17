@@ -129,6 +129,22 @@ adapted for the current App, Design Core diff surfaces, and VS Code-like caps.
 - [x] Six governed Storybook placements, compare story, and History Shell Desktop/Mobile
 - [ ] History panel Visual Delta capture/review; stories remain `visual-pending` and no baseline is updated in this slice
 
+### Application-tool MCP bridge progress
+
+Transport-neutral app tools on the owning App, with AI policy snapshots and an
+AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-094`,
+`LN-SRCH-039`, `LN-DESK-047`, `LN-CAT-081`, `LN-PKG-080`.
+
+- [x] Canonical requirements, ownership chapters, verification mappings, and spec-first routing
+- [x] API registry, trusted scopes, and plugin lifecycle
+- [x] AI snapshots, master enablement, community opt-ins, approvals, and transcript projection
+- [x] Search `notes_search` and Markdown `notes_read` / `notes_list` / `notes_patch`
+- [x] AI Host stdio MCP shim, loopback broker, protocol v3, ACP, Codex Native, and authenticated remote WebSocket
+- [x] Five governed app-tool Storybook scenarios with approved canonical baselines
+- [x] Rebased onto History settings so Workspace Shell asserts the seven bundled plugins from `LN-CAT-077`
+- [ ] Full Electron package lane: blocked by inherited Turso WASM Rollup/CommonJS recursion
+- [ ] Live paid-agent probes (`pnpm ai:smoke:probe:*`, Live Host, desktop smoke): harness complete, not rerun in this delivery
+
 ### Search plugin intake progress
 
 Source: `/Users/stevejuma/code/lapis-notes/packages/plugins/plugin-search` at

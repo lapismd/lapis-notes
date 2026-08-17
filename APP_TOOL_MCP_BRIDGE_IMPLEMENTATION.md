@@ -77,11 +77,12 @@ progress, evidence, and Jujutsu slices without replacing those requirements.
   `@tursodatabase/database-wasm@0.7.2` after roughly 10,100 transformed modules.
   The portable packages and AI Host build first; Electron Builder cannot run
   until that unrelated prerequisite is repaired.
-- The full Storybook browser run passes 150/153. The inherited failures are two
-  WorkspaceShell assertions whose six-plugin expectation omits the already
-  bundled History plugin, plus the unrelated Outgoing Links middle-tab preview
-  that also misses its nested-render assertion in isolation. All five app-tool
-  scenarios pass in both the full and focused lanes.
+- This stack now sits on History settings (`qyomwvsr`). Workspace Shell
+  PersistedDesktop and Mobile assert the seven bundled plugins required by
+  `LN-CAT-077`, including History.
+- The remaining inherited Storybook failure is the unrelated Outgoing Links
+  middle-tab preview that misses its nested-render assertion in isolation. All
+  five app-tool scenarios pass in both the full and focused lanes.
 - Codex ACP, Cursor ACP, and Codex Native live probes are deliberately manual
   because they invoke installed, authenticated, potentially paid agents. The
   confined probe implementation and agent-free harness are complete, but these

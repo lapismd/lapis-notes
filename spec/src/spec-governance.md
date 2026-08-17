@@ -52,7 +52,9 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 | LN-GOV-038 | The repository MUST run a local Storybook structure audit that maps command views to canonical panel stories and rejects stale mappings, missing placements, non-fullscreen panel geometry, legacy plugin paths, external Roles/CV catalog coupling, incomplete or scrolling shells, incomplete persisted Workspace plugin inventory, incomplete AI state coverage, and a non-first Specification menu.                                                                                                                                                                         |
 
 The Storybook structure audit treats AI, Bases, and History as required
-plugin Shell families.
+plugin Shell families. Its persisted Workspace inventory check requires the
+seven enabled plugin IDs, including History, in both the shell demo and the
+PersistedDesktop and Mobile stories.
 
 ## Requirement structure
 
@@ -190,4 +192,6 @@ The local Storybook structure validator reads the shared command-panel registry
 and rejects duplicate or stale mappings, missing canonical stories, incorrect
 `Plugins/<Plugin>/Panels/<Panel>` titles, missing placements, and absent
 `visual-pending` status. Shell, external-plugin, and persisted-inventory checks
-extend the same validator as those catalog slices migrate.
+extend the same validator as those catalog slices migrate. The persisted
+inventory check requires Workspace Shell stories to assert History among the
+seven enabled bundled plugins.
