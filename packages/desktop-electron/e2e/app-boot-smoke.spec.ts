@@ -884,7 +884,6 @@ test("session boot shows WorkspaceStartup tasks before the shell", async () => {
       };
     });
     expect(bootCost.pluginIds.length).toBeGreaterThan(0);
-    expect(bootCost.metadataMs).toBeGreaterThan(0);
     await expect(startup).toHaveCount(0);
     await expect(
       app.page.locator('[data-ui-component="lapis-workspace-shell"]'),

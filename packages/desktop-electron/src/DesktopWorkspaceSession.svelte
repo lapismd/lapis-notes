@@ -233,8 +233,9 @@
       setTask(activeTask, "active", "Loading metadata cache");
       performance.mark("lapis-startup:metadata:start");
       stopMetadataTracking = app.metadataTypeManager.trackChanges();
-      await app.metadataCache.load();
-      performance.mark("lapis-startup:metadata:end");
+      void app.metadataCache.load().finally(() => {
+        performance.mark("lapis-startup:metadata:end");
+      });
       if (disposed) return;
       setTask(activeTask, "complete");
 

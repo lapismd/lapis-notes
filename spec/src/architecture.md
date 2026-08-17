@@ -255,7 +255,8 @@ native profile, then delegates storage and workspace lifecycle to API sessions.
 After that selection, desktop and web session boot render Design Core
 `WorkspaceStartup` for vault, configuration, plugin, and layout progress
 instead of a host-owned placeholder. The plugins task reports the current
-plugin name, then metadata cache load. Native window-drag regions stay in Design
+plugin name. Metadata cache load starts after plugins enable and does not
+block layout restoration. Native window-drag regions stay in Design
 Core chrome CSS; hosts do not re-declare `-webkit-app-region`.
 Desktop and web “View all” palettes keep host-owned Dialog chrome and compose
 Command View for the searchable recent-vault list.

@@ -102,6 +102,7 @@ function createLoadCache(
           /\.(md|markdown)$/i.test(file.path),
         ),
       on: vi.fn(),
+      off: vi.fn(),
     },
   } as any);
   (cache as any).legacyStorage = {
@@ -352,16 +353,44 @@ describe("MetadataCache lifecycle", () => {
 
   it("persists exactly once while disposing a pending snapshot", async () => {
     vi.useFakeTimers();
-    const cache = createMetadataCache([]);
-    const saveMetadataSnapshot = vi.mocked(
-      cache.app.appDatabase.saveMetadataSnapshot,
-    );
+    const { file, snapshot } = createSnapshot();
+    const { cache, database } = createLoadCache({ files: [file] });
+    await database.saveMetadataSnapshot(snapshot);
+    await cache.load();
+    const saveMetadataSnapshot = vi.spyOn(database, "saveMetadataSnapshot");
 
     cache.scheduleSnapshotSave();
     await cache.dispose();
     await vi.runAllTimersAsync();
 
     expect(saveMetadataSnapshot).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not persist an empty cache when disposed before load finishes", async () => {
+    const { file, snapshot } = createSnapshot();
+    const { cache, database } = createLoadCache({ files: [file] });
+    await database.saveMetadataSnapshot(snapshot);
+    let releaseOpen: (() => void) | undefined;
+    const openStarted = new Promise<void>((resolve) => {
+      vi.spyOn(database, "open").mockImplementation(
+        () =>
+          new Promise((openResolve) => {
+            resolve();
+            releaseOpen = () => openResolve();
+          }),
+      );
+    });
+    const saveMetadataSnapshot = vi.spyOn(database, "saveMetadataSnapshot");
+
+    const load = cache.load();
+    await openStarted;
+    const disposing = cache.dispose();
+    releaseOpen?.();
+    await disposing;
+    await load;
+
+    expect(saveMetadataSnapshot).not.toHaveBeenCalled();
+    await expect(database.loadMetadataSnapshot()).resolves.toEqual(snapshot);
   });
 });
 

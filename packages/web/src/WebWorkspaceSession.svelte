@@ -249,7 +249,7 @@
       });
       setTask(activeTask, "active", "Loading metadata cache");
       stopMetadataTracking = app.metadataTypeManager.trackChanges();
-      await app.metadataCache.load();
+      void app.metadataCache.load();
       if (disposed) return;
       setTask(activeTask, "complete");
 

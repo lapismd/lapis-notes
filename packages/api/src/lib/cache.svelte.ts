@@ -594,6 +594,8 @@ export class MetadataCache extends EventDispatcher<{
   readonly legacyStorage: ScopedVaultStore;
   private lastPortableBackupWrite = 0;
   private disposed = false;
+  private didLoad = false;
+  private loadPromise: Promise<void> | null = null;
   private disposePromise: Promise<void> | null = null;
   private readonly pendingOperations = new Set<Promise<unknown>>();
   private readonly handleVaultChange = (
@@ -665,7 +667,7 @@ export class MetadataCache extends EventDispatcher<{
     this.saveSnapshotDebounced.cancel();
     this.disposePromise = (async () => {
       await Promise.allSettled([...this.pendingOperations]);
-      if (options.persist !== false) {
+      if (options.persist !== false && this.didLoad) {
         await this.saveSnapshotNow({ forceBackup: true });
       }
     })();
@@ -707,6 +709,8 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   private applySnapshot(snapshot: MetadataCacheSnapshot): void {
+    if (this.disposed) return;
+    this.didLoad = true;
     this.#fileCache = snapshot.fileCache;
     this.#metadataCache = snapshot.metadataCache as Record<
       string,
@@ -805,6 +809,14 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   async load() {
+    if (this.disposed) return;
+    if (this.loadPromise) return this.loadPromise;
+    this.loadPromise = this.performLoad();
+    this.trackOperation(this.loadPromise);
+    return this.loadPromise;
+  }
+
+  private async performLoad(): Promise<void> {
     await this.app.notifications.withProgress(
       {
         title: "Loading metadata cache",
@@ -813,10 +825,13 @@ export class MetadataCache extends EventDispatcher<{
         persistOnError: true,
       },
       async (progress) => {
+        if (this.disposed) return;
         progress.report({ message: "Opening metadata store" });
         await this.app.appDatabase.open();
+        if (this.disposed) return;
         progress.report({ message: "Loading metadata snapshot" });
         const primarySnapshot = await this.loadPrimarySnapshot();
+        if (this.disposed) return;
         if (primarySnapshot) {
           this.applySnapshot(primarySnapshot);
           this.trigger("loaded");
@@ -828,6 +843,7 @@ export class MetadataCache extends EventDispatcher<{
         }
 
         const portableBackupSnapshot = await this.loadPortableBackupSnapshot();
+        if (this.disposed) return;
         if (portableBackupSnapshot) {
           this.applySnapshot(portableBackupSnapshot);
           await this.hydrateDatabaseFromSnapshot(portableBackupSnapshot);
@@ -837,6 +853,7 @@ export class MetadataCache extends EventDispatcher<{
         }
 
         const legacySnapshot = await this.loadLegacySnapshot();
+        if (this.disposed) return;
         if (legacySnapshot) {
           this.applySnapshot(legacySnapshot);
           await this.hydrateDatabaseFromSnapshot(legacySnapshot);
@@ -847,6 +864,7 @@ export class MetadataCache extends EventDispatcher<{
 
         progress.report({ message: "Rebuilding metadata cache" });
         await this.rebuild();
+        if (!this.disposed) this.didLoad = true;
       },
     );
   }
