@@ -753,6 +753,8 @@ export interface AppDatabaseSearchSnippet {
 
 export interface AppDatabaseSearchOptions {
   limit?: number;
+  /** Vault-relative directory filter applied before ranking and limiting. */
+  pathPrefix?: string;
   snippetLength?: number;
   mode?: AppDatabaseSearchMode | "auto";
   includeDiagnostics?: boolean;
@@ -1639,6 +1641,10 @@ export function compareSearchResults(
   );
 }
 
+function pathWithinPrefix(path: string, prefix?: string): boolean {
+  return !prefix || path === prefix || path.startsWith(`${prefix}/`);
+}
+
 const STRONG_QUERY_ENHANCEMENT_LEXICAL_SCORE = 25;
 const STRONG_QUERY_ENHANCEMENT_RRF_SCORE =
   1 / (SEARCH_RRF_K + 1) + 1 / (SEARCH_RRF_K + 2);
@@ -2385,6 +2391,7 @@ export class MemoryAppDatabase implements AppDatabase {
       .filter(
         (document) =>
           (!allowedPaths || allowedPaths.has(document.path)) &&
+          pathWithinPrefix(document.path, options.pathPrefix) &&
           (!allowedSourceProviders ||
             (document.sourceProviderId != null &&
               allowedSourceProviders.has(document.sourceProviderId))),

@@ -42,6 +42,9 @@ This callback registry is separate from AI's external
 AI snapshots the exact active registration IDs for a new binding, and later
 plugin unload or replacement makes those snapshotted callbacks unavailable
 instead of transferring authority to a newly registered callback.
+Bundled domain plugins register their tools through that same lifecycle helper
+and capture their own services rather than receiving execution services in the
+host-created invocation context.
 
 ## Distribution and provenance
 

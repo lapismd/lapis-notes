@@ -90,7 +90,6 @@ describe("TursoAppDatabase", () => {
         },
       ],
     });
-
     await expect(
       database.searchDocuments("owner", {
         mode: "lexical",
@@ -109,6 +108,26 @@ describe("TursoAppDatabase", () => {
         sourceProviderIds: ["markdown"],
       }),
     ).resolves.toEqual([]);
+    await database.upsertSearchDocument({
+      path: "Archive/Proxy.md",
+      sourceProviderId: "markdown",
+      name: "Archived Proxy",
+      extension: "md",
+      checksum: "archive-1",
+      content: "owner owner owner archived result",
+      tags: [],
+      tagParts: [],
+      tagHierarchy: [],
+    });
+    await expect(
+      database.searchDocuments("owner", {
+        mode: "lexical",
+        pathPrefix: "Projects",
+        limit: 1,
+      }),
+    ).resolves.toMatchObject([
+      { document: { path: "Projects/Proxy.md" } },
+    ]);
 
     const semantic = await database.searchDocuments("delegation ownership", {
       mode: "vector",

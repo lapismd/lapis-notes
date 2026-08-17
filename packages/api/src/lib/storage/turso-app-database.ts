@@ -522,7 +522,8 @@ export class TursoAppDatabase extends MemoryAppDatabase {
     const allPathsRequired =
       options.caseSensitive ||
       isStructuredSearchQuery(query) ||
-      Boolean(options.sourceProviderIds?.length);
+      Boolean(options.sourceProviderIds?.length) ||
+      Boolean(options.pathPrefix);
     if (allPathsRequired) {
       return this.searchDocumentsForPaths(
         query,

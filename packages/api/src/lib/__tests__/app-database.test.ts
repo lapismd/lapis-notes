@@ -193,6 +193,36 @@ describe("AppDatabase", () => {
     ]);
   });
 
+  it("filters search paths before ranking and limiting", async () => {
+    const db = new MemoryAppDatabase("vault-scope");
+    for (const [path, content] of [
+      ["Archive/strong.md", "needle needle needle needle"],
+      ["Projects/Alpha/first.md", "needle"],
+      ["Projects/Beta/second.md", "needle needle"],
+    ]) {
+      await db.upsertSearchDocument({
+        path,
+        sourceProviderId: "search:markdown",
+        name: path.split("/").at(-1) ?? path,
+        extension: "md",
+        checksum: path,
+        content,
+        tags: [],
+        tagParts: [],
+        tagHierarchy: [],
+      });
+    }
+
+    await expect(
+      db.searchDocuments("needle", {
+        pathPrefix: "Projects",
+        limit: 1,
+      }),
+    ).resolves.toMatchObject([
+      { document: { path: "Projects/Alpha/first.md" } },
+    ]);
+  });
+
   it("stores deduplicated file history with rename delete and restore semantics", async () => {
     const db = new MemoryAppDatabase("vault-a");
     await db.open();

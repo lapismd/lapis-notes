@@ -23,12 +23,19 @@ describe("NativeDesktopTursoAppDatabase", () => {
 
     await database.searchDocuments("parser", {
       sourceProviderIds: ["ai-conversations"],
+      pathPrefix: "Projects/Alpha",
     });
 
     expect(invoke).toHaveBeenLastCalledWith("desktop_db_call", {
       vaultId: "vault",
       method: "searchDocuments",
-      args: ["parser", { sourceProviderIds: ["ai-conversations"] }],
+      args: [
+        "parser",
+        {
+          sourceProviderIds: ["ai-conversations"],
+          pathPrefix: "Projects/Alpha",
+        },
+      ],
     });
   });
 });

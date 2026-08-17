@@ -238,14 +238,20 @@ describe("SearchManager", () => {
     }));
 
     await expect(
-      manager.query({ term: "tag:#project", mode: "lexical" }),
+      manager.query({
+        term: "tag:#project",
+        mode: "lexical",
+        limit: 7,
+        pathPrefix: "Projects/Alpha",
+      }),
     ).resolves.toEqual({
       count: 0,
       hits: [],
     });
     expect(searchDocuments).toHaveBeenCalledWith("tag:#project", {
       snippetLength: 90,
-      limit: 25,
+      limit: 7,
+      pathPrefix: "Projects/Alpha",
       caseSensitive: true,
       mode: "lexical",
       includeDiagnostics: true,

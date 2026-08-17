@@ -115,6 +115,9 @@ The AI package keeps external MCP server processes in a distinct, deterministic
 `lapis-tools` bridge identity.
 It owns application-tool enablement settings and applies changes only while
 constructing a new native binding snapshot.
+The Search package owns `notes_search`; API owns the generic pre-limit
+`pathPrefix` database option used consistently by memory, Turso, desktop, and
+browser-coordinated implementations.
 
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not

@@ -99,6 +99,7 @@ describe("BrowserAppDatabaseCoordinator", () => {
     await expect(
       proxyDatabase.searchDocuments("turso", {
         sourceProviderIds: ["ai-conversations"],
+        pathPrefix: "Projects/Alpha",
       }),
     ).resolves.toMatchObject([
       {
@@ -109,7 +110,10 @@ describe("BrowserAppDatabaseCoordinator", () => {
     ]);
     expect(ownerDatabase.localDatabase.searchDocuments).toHaveBeenCalledWith(
       "turso",
-      { sourceProviderIds: ["ai-conversations"] },
+      {
+        sourceProviderIds: ["ai-conversations"],
+        pathPrefix: "Projects/Alpha",
+      },
     );
   });
 

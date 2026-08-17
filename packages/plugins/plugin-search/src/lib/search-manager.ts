@@ -61,6 +61,8 @@ function sourceMetadata(
 
 export interface SearchQueryParams {
   term: string;
+  limit?: number;
+  pathPrefix?: string;
   snippetLength?: number;
   caseSensitive?: boolean;
   mode?: "auto" | "lexical" | "vector" | "hybrid";
@@ -188,7 +190,8 @@ export class SearchManager {
     const settings = this.getSettings();
     const results = await this.app.appDatabase.searchDocuments(params.term, {
       snippetLength: params.snippetLength ?? settings.query.snippetLength,
-      limit: settings.query.resultLimit,
+      limit: params.limit ?? settings.query.resultLimit,
+      ...(params.pathPrefix ? { pathPrefix: params.pathPrefix } : {}),
       caseSensitive: params.caseSensitive ?? settings.view.matchCase,
       mode: params.mode ?? settings.view.retrievalMode,
       includeDiagnostics: true,

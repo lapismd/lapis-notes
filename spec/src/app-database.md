@@ -48,6 +48,10 @@ select it and never select SQLite or IndexedDB app-database implementations.
 Vault filename and path glob discovery does not read or populate the app
 database. It evaluates the API-owned in-memory vault tree; indexed metadata and
 property evaluation remain separate database-backed contracts.
+Search path-prefix filtering uses exact directory boundaries and runs on the
+shared candidate set before score calculation, ranking, and limiting. Turso
+requests that carry a prefix fetch the complete candidate path set before the
+shared evaluator; native and browser proxies forward the same typed option.
 
 The Electron implementation opens one Turso handle per renderer and vault in
 main on supported native targets. Its renderer client can invoke only the

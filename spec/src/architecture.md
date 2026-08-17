@@ -94,6 +94,8 @@ paths instead of normalizing them into a different target.
 AI persists only the master application-tool switch and community owner-plugin
 opt-ins; invocation grants and binding-local descriptor snapshots are runtime
 state.
+Search owns `notes_search` and applies conversation scope through the generic
+database path-prefix option before result ranking and limits.
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

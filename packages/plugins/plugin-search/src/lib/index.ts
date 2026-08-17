@@ -6,6 +6,7 @@ export type {
 } from "./search-manager";
 export { SearchPanel } from "./public-components";
 export { SearchPlugin } from "./search-plugin";
+export { createNotesSearchTool } from "./notes-search-tool";
 export {
   DEFAULT_SEARCH_SETTINGS,
   SEARCH_VIEW_SORT_OPTIONS,

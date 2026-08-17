@@ -66,6 +66,9 @@ workspace layout, vault selection, Markdown metadata parsing, or domain file
 parsers. Domain plugins contribute normalized documents through the public API
 registry without importing Search internals. Tags and Properties depend only
 on the registered Search command, not on Search package internals.
+Its bundled `notes_search` callback captures `SearchManager`, requests only the
+`search:markdown` source under the trusted scope prefix, and projects bounded
+path, score, and snippet data without exposing database or MCP objects.
 The canonical palette opener is `Search: Open Search` (`search:open-search`);
 it accepts the existing optional query argument, reuses a moved Search leaf,
 or creates, activates, and reveals the default left-sidebar leaf.
