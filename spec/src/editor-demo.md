@@ -168,3 +168,6 @@ fixture.
 Markdown note tools reuse the same Vault contract but remain outside editor
 surface state: reads and lists do not open a leaf, and approved patches use
 atomic Vault processing without routing through the demo editor controller.
+Markdown metadata parse runs in a worker. The Workspace/Shell NotificationCenter
+play starts Lapis metadata `withProgress` and asserts the notifications status
+item is busy with that title.

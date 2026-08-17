@@ -85,6 +85,7 @@ Desktop boot restores the layout before opening the metadata store:
 - `metadataCache.load` MUST start after `loadLayout` returns.
 - `WorkspaceShell` mount MUST NOT await that promise.
 - Tags, Outline, Search, Bases, and File Properties MUST refresh when `loaded` fires.
+- While load, rebuild, or reconcile runs, the notifications status item MUST show busy progress. The shell MUST NOT wait for that work before mounting.
 
 ## Boot flow
 

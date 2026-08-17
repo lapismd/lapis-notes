@@ -244,7 +244,8 @@ detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only
 - [ ] Markdown panel Visual Delta capture/review; all placement stories declare independent pending paths, but this slice intentionally generates or updates no PNGs
 - [x] File Properties vault-wide value suggestions and wikilink pills through Mira `valueSuggestions` plus the Lapis file adapter
-- [ ] Full metadata worker / heavy type widgets remain deferred
+- [x] Metadata parse worker plus status-bar progress projection for cache load, rebuild, and vault reconcile
+- [ ] Heavy type widgets remain deferred
 
 ### Workspace shell integration progress
 

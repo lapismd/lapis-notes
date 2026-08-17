@@ -1945,6 +1945,7 @@ export class Workspace extends EventDispatcher<{
   #editorViewBridgeDisposer: (() => void) | null = null;
   #pluginSettingsBridgeDisposer: (() => void) | null = null;
   #statusBarBridgeDisposer: (() => void) | null = null;
+  #notificationProgressBridgeDisposer: (() => void) | null = null;
   #commandBridgeDisposer: (() => void) | null = null;
   private workspaceLayoutFile = "workspace.json";
 
@@ -2867,6 +2868,7 @@ export class Workspace extends EventDispatcher<{
     this.installCommandBridge(this.#workspaceHostController);
     this.installWorkspaceLayoutCommands();
     this.installStatusBarBridge(this.#workspaceHostController);
+    this.installNotificationProgressBridge(this.#workspaceHostController);
     this.diagnostics = new DiagnosticsManager(
       this.#workspaceHostController.diagnostics,
       () => new Menu(),
@@ -3023,6 +3025,8 @@ export class Workspace extends EventDispatcher<{
     this.#pluginSettingsBridgeDisposer = null;
     this.#statusBarBridgeDisposer?.();
     this.#statusBarBridgeDisposer = null;
+    this.#notificationProgressBridgeDisposer?.();
+    this.#notificationProgressBridgeDisposer = null;
     this.#commandBridgeDisposer?.();
     this.#commandBridgeDisposer = null;
     this.#editorViewBridgeDisposer?.();
@@ -3130,6 +3134,62 @@ export class Workspace extends EventDispatcher<{
       this.app.contextKeys.offref(contextRef);
       for (const id of projectedIds) controller.status.removeItem(id);
       projectedIds.clear();
+    };
+  }
+
+  private installNotificationProgressBridge(
+    controller: AppShellController,
+  ): void {
+    const notifications = this.app.notifications;
+    if (typeof notifications?.on !== "function") {
+      return;
+    }
+    const projected = new Map<
+      string,
+      ReturnType<typeof controller.notifications.createProgress>
+    >();
+    const sync = () => {
+      const visible = notifications.activeProgress.filter(
+        (entry) =>
+          entry.location !== "silent" &&
+          (entry.status === "running" || entry.status === "cancelling"),
+      );
+      const visibleIds = new Set(visible.map((entry) => entry.id));
+      for (const [id, handle] of projected) {
+        if (!visibleIds.has(id)) {
+          handle.complete();
+          projected.delete(id);
+        }
+      }
+      for (const snapshot of visible) {
+        let handle = projected.get(snapshot.id);
+        if (!handle) {
+          handle = controller.notifications.createProgress({
+            id: snapshot.id,
+            title: snapshot.title,
+            message: snapshot.message,
+            source: snapshot.source,
+            location: snapshot.location,
+            cancellable: snapshot.cancellable,
+          });
+          projected.set(snapshot.id, handle);
+        }
+        handle.report({
+          message: snapshot.message,
+          current: snapshot.current,
+          total: snapshot.total,
+          indeterminate: snapshot.indeterminate,
+        });
+      }
+    };
+    const changed = notifications.on("changed", sync);
+    sync();
+    this.#notificationProgressBridgeDisposer = () => {
+      notifications.offref(changed);
+      for (const handle of projected.values()) {
+        handle.complete();
+      }
+      projected.clear();
     };
   }
 

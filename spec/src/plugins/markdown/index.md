@@ -47,10 +47,11 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-091 | A Markdown file leaf MAY receive a serialized return target containing a registered view type, label, icon, and state. While editing, the title action MUST restore that view in the same leaf, preserve the current file, support Mod+click in a right split, and leave Markdown Reading and Source controls available in the pane menu. |
 | LN-MD-093 | Markdown MUST register `notes_read` and `notes_list` through the application tool registry. Both MUST accept only normalized Markdown paths inside the trusted conversation scope, reject application-private directories, and return deterministically ordered bounded results. |
 | LN-MD-094 | Markdown MUST register `notes_patch` as a write-effect application tool. It MUST preview the target and text replacement for approval, then use atomic vault processing to replace exactly one current match; invalid scope, conflicts, cancellation, and denial MUST leave the file unchanged. |
+| LN-MD-097 | Markdown `extractMetadata` MUST run off the renderer thread through a worker. Vault I/O, link resolution, `$state` apply, and `AppDatabase` writes MUST stay on the main thread. `read()` MAY use the same parse synchronously when a worker is unavailable. |
 
 File Properties value autocomplete and wikilink pills stay on the Lapis
-frontmatter adapter and Mira file adapter. The full metadata worker remains
-deferred.
+frontmatter adapter and Mira file adapter. Metadata parse uses a Markdown
+worker; heavy type widgets remain deferred.
 
 ## Ownership
 

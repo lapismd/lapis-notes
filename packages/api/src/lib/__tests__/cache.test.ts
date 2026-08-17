@@ -63,12 +63,23 @@ function createMetadataCache(paths: string[]): MetadataCache {
 }
 
 function createProgressNotifications() {
+  const reports: Array<Record<string, unknown> & { inFlight: boolean }> = [];
+  let inFlight = false;
   return {
-    withProgress: async (_options: unknown, task: (progress: any) => any) =>
-      task({
-        report: vi.fn(),
-        throwIfCancellationRequested: vi.fn(),
-      }),
+    reports,
+    withProgress: async (_options: unknown, task: (progress: any) => any) => {
+      inFlight = true;
+      try {
+        return await task({
+          report: (value: Record<string, unknown> = {}) => {
+            reports.push({ ...value, inFlight });
+          },
+          throwIfCancellationRequested: vi.fn(),
+        });
+      } finally {
+        inFlight = false;
+      }
+    },
   };
 }
 
@@ -77,6 +88,7 @@ function createLoadCache(
     adapter?: InMemoryDataAdapter;
     database?: MemoryAppDatabase;
     files?: TFile[];
+    notifications?: ReturnType<typeof createProgressNotifications>;
   } = {},
 ) {
   setDefaultVaultStateStore(new MemoryKeyValueStore());
@@ -85,9 +97,11 @@ function createLoadCache(
     options.database ?? new MemoryAppDatabase("vault-under-test");
   const files = options.files ?? [];
   const filesByPath = new Map(files.map((file) => [file.path, file]));
+  const notifications =
+    options.notifications ?? createProgressNotifications();
   const cache = new MetadataCache({
     appDatabase: database,
-    notifications: createProgressNotifications(),
+    notifications,
     metadataTypeManager: { types: {} },
     vault: {
       adapter: Object.assign(adapter, {
@@ -352,13 +366,13 @@ describe("MetadataCache lifecycle", () => {
   });
 
   it("persists exactly once while disposing a pending snapshot", async () => {
-    vi.useFakeTimers();
     const { file, snapshot } = createSnapshot();
     const { cache, database } = createLoadCache({ files: [file] });
     await database.saveMetadataSnapshot(snapshot);
     await cache.load();
     const saveMetadataSnapshot = vi.spyOn(database, "saveMetadataSnapshot");
 
+    vi.useFakeTimers();
     cache.scheduleSnapshotSave();
     await cache.dispose();
     await vi.runAllTimersAsync();
@@ -391,6 +405,33 @@ describe("MetadataCache lifecycle", () => {
 
     expect(saveMetadataSnapshot).not.toHaveBeenCalled();
     await expect(database.loadMetadataSnapshot()).resolves.toEqual(snapshot);
+  });
+
+  it("keeps vault reconcile under the load progress handle", async () => {
+    const { file, snapshot } = createSnapshot();
+    const extra = new TFile("Notes/B.md", { ctime: 1, mtime: 2, size: 4 }, null);
+    const adapter = new InMemoryDataAdapter();
+    await adapter.write("Notes/B.md", "# Extra\n");
+    const notifications = createProgressNotifications();
+    const { cache, database } = createLoadCache({
+      adapter,
+      files: [file, extra],
+      notifications,
+    });
+    await database.saveMetadataSnapshot(snapshot);
+    cache.addProcessor("md", {
+      read: async () => ({ headings: [] }),
+      write: () => "",
+    });
+
+    await cache.load();
+
+    expect(
+      notifications.reports.some(
+        (report) => report.message === "Notes/B.md" && report.inFlight,
+      ),
+    ).toBe(true);
+    expect(notifications.reports.at(-1)?.inFlight).toBe(true);
   });
 });
 

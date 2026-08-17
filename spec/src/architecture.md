@@ -258,7 +258,10 @@ After that selection, desktop and web session boot render Design Core
 `WorkspaceStartup` for vault, configuration, plugin, and layout progress
 instead of a host-owned placeholder. The plugins task reports the current
 plugin name. Metadata cache load starts after layout restoration so Turso
-open does not contend with `loadLayout`. Native window-drag regions stay in Design
+open does not contend with `loadLayout`. That load, rebuild, and vault
+reconcile stay under one status progress handle, yield between files, and
+parse Markdown metadata in a worker. `App` constructs `NotificationManager`
+before `Workspace` so the host can project that progress. Native window-drag regions stay in Design
 Core chrome CSS; hosts do not re-declare `-webkit-app-region`.
 Desktop and web “View all” palettes keep host-owned Dialog chrome and compose
 Command View for the searchable recent-vault list.

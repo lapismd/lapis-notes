@@ -50,10 +50,8 @@ import {
   revealOrOpenMarkdownPanel,
   type MarkdownPanelViewType,
 } from "$lib/view-commands";
-import {
-  extractMetadata,
-  writeFrontmatter,
-} from "$lib/metadata/extract-metadata";
+import { writeFrontmatter } from "$lib/metadata/extract-metadata";
+import { parseMetadataOffThread } from "$lib/metadata/parse-metadata";
 import { widgets } from "$lib/frontmatter/widgets";
 import { registerMarkdownSettings } from "$lib/settings/register-markdown-settings";
 import "$lib/styles/surfaces.css";
@@ -233,7 +231,7 @@ export class MarkdownPlugin extends Plugin {
 
     // MetadataCache.writeFrontmatter passes the frontmatter object itself.
     const metadataProcessor = {
-      read: async (data: string) => extractMetadata(data),
+      read: async (data: string) => parseMetadataOffThread(data),
       write: (data) =>
         writeFrontmatter((data ?? {}) as Record<string, unknown>),
     } as MetadataProcessor;

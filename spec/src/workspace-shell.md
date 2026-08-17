@@ -39,6 +39,7 @@ persistence, and application-host responsibilities.
 | LN-WS-049 | `WorkspaceShell` MUST map persisted `editor.alwaysFocusNewTabs` into Design Core's user-created-tab activation policy, defaulting to background creation while leaving explicit application opens unchanged. |
 | LN-WS-053 | The `@lapis-notes/workspace` package MUST publish `WorkspaceShell` as a versioned shell adapter so separately versioned plugin catalogs can render an initialized public `App` without copying the AppShell composition. |
 | LN-WS-054 | API compatibility ribbon registrations and reactive status-bar descriptors MUST project into the API-owned Design Core shell registries. Projection MUST preserve identifiers, icons, labels, alignment, priority, commands, menus, updates, and plugin teardown without introducing a second plugin-facing registration contract. |
+| LN-WS-068 | The workspace host MUST project each Lapis `notifications.activeProgress` entry whose location is not `silent` into the Design Core notification manager. The notifications status item MUST show busy plus that entry's title while it runs. Silent progress MUST NOT appear. Projected handles MUST be removed when they leave `activeProgress`. |
 | LN-WS-055 | Every workspace root MUST bind to its owning `Workspace`; leaves and views MUST derive App through that ownership chain. `WorkspaceShell` MUST provide its required App to descendant Svelte components without making compatibility state authoritative. |
 | LN-WS-057 | Default shells MUST include Design Core `fModePlugin({ enabled: false })` on the API-owned controller. AppShell enablement MUST persist through Design Core `persistence.plugins`. Missing persistence MUST keep F-Mode disabled. Plugin-state load and save MUST resolve the App vault when they run. |
 | LN-WS-058 | Default desktop shells MUST show Design Core's built-in Settings action in the left ribbon bottom while the ribbon is visible. Activating it MUST open the same settings dialog as the sidebar trigger. |
@@ -114,4 +115,6 @@ deterministic teardown path as story disposal before rebuilding from the
 canonical seed.
 Desktop and web hosts report the current plugin name on the plugins startup
 task through `PluginLoadOptions.onProgress`. Metadata cache load starts after
-layout restoration and does not block shell mount.
+layout restoration and does not block shell mount. While that cache load,
+rebuild, or vault reconcile is running, the host projects Lapis progress into
+Design Core so the notifications status item is the single busy surface.

@@ -23,12 +23,19 @@ import {
 } from "$lib/storage";
 import { debounce } from "lodash-es";
 import { dirname, resolvePath } from "./storage/path";
+import type { NotificationProgressHandle } from "./notifications";
 
 export const METADATA_CACHE_BACKUP_PATH = ".lapis/cache/metadata-cache.json";
 
 const METADATA_CACHE_BACKUP_KIND = "lapis.metadata-cache.snapshot";
 const METADATA_CACHE_BACKUP_SCHEMA_VERSION = 1;
 const METADATA_CACHE_BACKUP_THROTTLE_MS = 30_000;
+
+function yieldToUi(): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
+}
 
 type MetadataCacheBackupV1 = {
   kind: typeof METADATA_CACHE_BACKUP_KIND;
@@ -838,7 +845,7 @@ export class MetadataCache extends EventDispatcher<{
           void this.savePortableBackup(primarySnapshot).catch((err) => {
             this.logger.warn("Failed to refresh portable metadata backup", err);
           });
-          void this.reconcileSnapshotWithVault();
+          await this.reconcileSnapshotWithVault(progress);
           return;
         }
 
@@ -848,7 +855,7 @@ export class MetadataCache extends EventDispatcher<{
           this.applySnapshot(portableBackupSnapshot);
           await this.hydrateDatabaseFromSnapshot(portableBackupSnapshot);
           this.trigger("loaded");
-          void this.reconcileSnapshotWithVault();
+          await this.reconcileSnapshotWithVault(progress);
           return;
         }
 
@@ -858,12 +865,12 @@ export class MetadataCache extends EventDispatcher<{
           this.applySnapshot(legacySnapshot);
           await this.hydrateDatabaseFromSnapshot(legacySnapshot);
           this.trigger("loaded");
-          void this.reconcileSnapshotWithVault();
+          await this.reconcileSnapshotWithVault(progress);
           return;
         }
 
         progress.report({ message: "Rebuilding metadata cache" });
-        await this.rebuild();
+        await this.rebuild(progress);
         if (!this.disposed) this.didLoad = true;
       },
     );
@@ -910,9 +917,26 @@ export class MetadataCache extends EventDispatcher<{
     });
   }
 
-  private async reconcileSnapshotWithVault(): Promise<void> {
+  private async reconcileSnapshotWithVault(
+    progress?: NotificationProgressHandle,
+  ): Promise<void> {
+    if (this.disposed) return;
+    const cachedEntries = Object.entries({ ...this.fileCache });
+    const missingFiles = this.app.vault
+      .getFiles()
+      .filter((file) => !this.fileCache[file.path]);
+    const total = cachedEntries.length + missingFiles.length;
+    let processed = 0;
     let changed = false;
-    for (const [path, entry] of Object.entries({ ...this.fileCache })) {
+
+    for (const [path, entry] of cachedEntries) {
+      if (this.disposed) return;
+      progress?.throwIfCancellationRequested();
+      progress?.report({
+        current: processed,
+        total,
+        message: path,
+      });
       const file = this.app.vault.getFileByPath(path);
       if (!file) {
         delete this.fileCache[path];
@@ -923,20 +947,35 @@ export class MetadataCache extends EventDispatcher<{
           this.logger.warn(`Failed to delete stale metadata for ${path}`, err);
         });
         changed = true;
-        continue;
-      }
-      if (file.stat.mtime !== entry.mtime || file.stat.size !== entry.size) {
+      } else if (
+        file.stat.mtime !== entry.mtime ||
+        file.stat.size !== entry.size
+      ) {
         changed = (await this.processFile(file)) || changed;
       }
+      processed += 1;
+      await yieldToUi();
     }
 
-    for (const file of this.app.vault.getFiles()) {
-      if (!this.fileCache[file.path]) {
-        changed = (await this.processFile(file)) || changed;
-      }
+    for (const file of missingFiles) {
+      if (this.disposed) return;
+      progress?.throwIfCancellationRequested();
+      progress?.report({
+        current: processed,
+        total,
+        message: file.path,
+      });
+      changed = (await this.processFile(file)) || changed;
+      processed += 1;
+      await yieldToUi();
     }
 
-    if (changed) {
+    if (changed && !this.disposed) {
+      progress?.report({
+        current: processed,
+        total,
+        message: "Persisting metadata cache",
+      });
       await this.saveSnapshotNow();
     }
   }
@@ -1086,7 +1125,10 @@ export class MetadataCache extends EventDispatcher<{
     );
   }
 
-  rebuild() {
+  rebuild(progress?: NotificationProgressHandle) {
+    if (progress) {
+      return this.performRebuild(progress);
+    }
     return this.app.notifications.withProgress(
       {
         title: "Rebuilding metadata cache",
@@ -1095,33 +1137,40 @@ export class MetadataCache extends EventDispatcher<{
         cancellable: true,
         persistOnError: true,
       },
-      async (progress) => {
-        clearObject(this.fileCache);
-        clearObject(this.metadataCache);
-        clearObject(this.resolvedLinks);
-        clearObject(this.unresolvedLinks);
-
-        const files = this.app.vault.getFiles();
-        let processed = 0;
-        for (const file of files) {
-          progress.throwIfCancellationRequested();
-          progress.report({
-            current: processed,
-            total: files.length,
-            message: file.path,
-          });
-          await this.processFile(file);
-          processed += 1;
-        }
-        progress.report({
-          current: processed,
-          total: files.length,
-          message: "Persisting metadata cache",
-        });
-        await this.saveSnapshotNow({ forceBackup: true });
-        this.trigger("loaded");
-      },
+      (handle) => this.performRebuild(handle),
     );
+  }
+
+  private async performRebuild(
+    progress: NotificationProgressHandle,
+  ): Promise<void> {
+    clearObject(this.fileCache);
+    clearObject(this.metadataCache);
+    clearObject(this.resolvedLinks);
+    clearObject(this.unresolvedLinks);
+
+    const files = this.app.vault.getFiles();
+    let processed = 0;
+    for (const file of files) {
+      if (this.disposed) return;
+      progress.throwIfCancellationRequested();
+      progress.report({
+        current: processed,
+        total: files.length,
+        message: file.path,
+      });
+      await this.processFile(file);
+      processed += 1;
+      await yieldToUi();
+    }
+    if (this.disposed) return;
+    progress.report({
+      current: processed,
+      total: files.length,
+      message: "Persisting metadata cache",
+    });
+    await this.saveSnapshotNow({ forceBackup: true });
+    this.trigger("loaded");
   }
 
   addProcessor(ext: string, processor: MetadataProcessor) {

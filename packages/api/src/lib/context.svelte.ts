@@ -315,6 +315,8 @@ export class App {
       );
     }
     this.appDatabase = appDatabase;
+    // Workspace host setup subscribes to notification progress.
+    this.notifications = new NotificationManager(this.appDatabase);
     this.workspace = new Workspace(this);
     const editorViewsSource = this.configurationOptionSources.register(
       "workspace.editorViews",
@@ -347,7 +349,6 @@ export class App {
     this.vault = new Vault(adapter);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
-    this.notifications = new NotificationManager(this.appDatabase);
     this.plugins = new PluginManager(this, "/.obsidian/plugins", adapter, {
       communityPluginHost: hasNativeDesktopCapability("plugin-sidecar")
         ? new NativeDesktopCommunityPluginExecutionHost(

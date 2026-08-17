@@ -154,7 +154,7 @@ the contract for new panels.
 | Area                                                              | Notes                                                                                                                                   |
 | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | List-callouts catalog + settings tab                              | Full-repo hybrid settings                                                                                                               |
-| Metadata worker / heavy type widgets                              | Lightweight `extract-metadata` intaken; full remark/worker deferred                                                                     |
+| Metadata worker / heavy type widgets                              | `extractMetadata` runs in a Markdown worker; heavy type widgets remain deferred                                                         |
 | Language-service hooks                                            | Package not authorized yet                                                                                                              |
 | Host wikilink/embed/file autocomplete tuning                      | Vault-backed Mira adapter and file/headings catalogs landed; any remaining completion ranking/format parity is a focused authoring pass |
 | Mode-switch scroll/selection restore edge cases                   | Keep if cheap with intake                                                                                                               |
@@ -162,9 +162,9 @@ the contract for new panels.
 | Reading-speed / readable-line-length host policy                  | May stay on editor schema                                                                                                               |
 | Mira `split` mode                                                 | Not in Lapis MarkdownViewModeType                                                                                                       |
 | Production AI `run` provider                                      | Demo stub only                                                                                                                          |
-| Full-repo remark metadata worker UI depth                         | Lightweight extract remains                                                                                                             |
+| Full-repo remark metadata worker UI depth                         | Lightweight extract remains; parse now runs off the renderer thread                                                                     |
 | Nest full `Sidebar.Root` inside workspace leaves                  | Prefer Lapis Explorer pattern: shell/panel NestedProvider + Content/Menu primitives (All Properties uses this); avoid remounting Root   |
-| Property-value suggestions / NoteLink behavior in File Properties | Done: Mira `valueSuggestions` plus Lapis `getValues` and file-adapter wikilink pills; full metadata worker remains deferred             |
+| Property-value suggestions / NoteLink behavior in File Properties | Done: Mira `valueSuggestions` plus Lapis `getValues` and file-adapter wikilink pills                                                    |
 | Panel Visual Delta baselines                                      | All placements are `visual-pending`; capture/review remains explicitly deferred                                                         |
 
 Update this file when intake or Mira coverage changes.

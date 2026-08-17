@@ -120,7 +120,8 @@ function encodeFrontMatter(data: Record<string, unknown>): string {
 
 /**
  * Lightweight markdown metadata extract for this intake slice.
- * Full-repo remark/worker pipeline remains deferred in PARITY.md.
+ * Production parse posts this function to a worker; tests and
+ * worker-unavailable hosts call it on the current thread.
  */
 export function extractMetadata(data: string): CachedMetadata {
   const cache: CachedMetadata = {};

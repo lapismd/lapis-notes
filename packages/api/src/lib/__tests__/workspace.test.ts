@@ -418,23 +418,7 @@ function createWorkspaceHarness(
     contextKeys: new ContextKeyService(),
     statusBar: new StatusBarManager(),
     commands,
-    notifications: {
-      notify: vi.fn((options: { id: string }) => ({ id: options.id })),
-      withProgress: vi.fn(
-        async (
-          _options: unknown,
-          task: (
-            progress: { report: ReturnType<typeof vi.fn> },
-            token: { signal: AbortSignal },
-          ) => Promise<unknown>,
-        ) => {
-          const progress = { report: vi.fn() };
-          return task(progress, {
-            signal: new AbortController().signal,
-          });
-        },
-      ),
-    },
+    notifications: new HarnessNotifications(),
     workspace: {
       requestSaveLayout() {},
       viewCreator() {
@@ -457,6 +441,75 @@ function createWorkspaceHarness(
   (app as App & { workspace: Workspace }).workspace = workspace;
 
   return { app, workspace };
+}
+
+class HarnessNotifications extends EventDispatcher<{
+  changed: [];
+  notify: [record: { id: string }];
+}> {
+  activeProgress: Array<{
+    id: string;
+    title: string;
+    message?: string;
+    source?: string;
+    location: "status" | "notification" | "silent";
+    status: "running" | "cancelling" | "completed" | "failed" | "cancelled";
+    cancellable: boolean;
+    cancelRequested: boolean;
+    current?: number;
+    total?: number;
+    indeterminate: boolean;
+    startedAt: number;
+    updatedAt: number;
+  }> = [];
+
+  notify = vi.fn((options: { id?: string }) => ({
+    id: options.id ?? "notice",
+  }));
+
+  async withProgress<T>(
+    options: {
+      id?: string;
+      title: string;
+      message?: string;
+      source?: string;
+      location?: "status" | "notification" | "silent";
+    },
+    task: (
+      progress: { report: ReturnType<typeof vi.fn> },
+      token: { signal: AbortSignal },
+    ) => Promise<T> | T,
+  ): Promise<T> {
+    const id = options.id ?? `progress-${this.activeProgress.length + 1}`;
+    const snapshot = {
+      id,
+      title: options.title,
+      message: options.message,
+      source: options.source,
+      location: options.location ?? "status",
+      status: "running" as const,
+      cancellable: false,
+      cancelRequested: false,
+      indeterminate: true,
+      startedAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    this.activeProgress = [snapshot, ...this.activeProgress];
+    this.trigger("changed");
+    try {
+      return await task(
+        {
+          report: vi.fn(),
+        },
+        { signal: new AbortController().signal },
+      );
+    } finally {
+      this.activeProgress = this.activeProgress.filter(
+        (entry) => entry.id !== id,
+      );
+      this.trigger("changed");
+    }
+  }
 }
 
 function createPluginDistributionStub(overrides: Record<string, unknown> = {}) {
@@ -4201,6 +4254,60 @@ describe("Workspace compatibility", () => {
         (item) => item.id === "roles:Open Applications",
       ),
     ).toBe(false);
+  });
+
+  it("projects Lapis notification progress into the Design Core manager", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    let release!: () => void;
+    const pending = app.notifications.withProgress(
+      {
+        title: "Loading metadata cache",
+        source: "Metadata",
+        location: "status",
+      },
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    );
+
+    await vi.waitFor(() => {
+      expect(controller.notifications.activeProgress).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            title: "Loading metadata cache",
+            source: "Metadata",
+          }),
+        ]),
+      );
+    });
+
+    release();
+    await pending;
+    expect(controller.notifications.activeProgress).toEqual([]);
+  });
+
+  it("does not project silent Lapis notification progress", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    let release!: () => void;
+    const pending = app.notifications.withProgress(
+      {
+        title: "Silent metadata work",
+        source: "Metadata",
+        location: "silent",
+      },
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    );
+
+    await Promise.resolve();
+    expect(controller.notifications.activeProgress).toEqual([]);
+    release();
+    await pending;
   });
 
   it("closes a leaf and selects a sensible fallback", () => {

@@ -387,6 +387,41 @@ export const NotificationCenter: Story = {
     const canvas = within(canvasElement);
     await waitForShell(canvas);
 
+    const runtimeApp = (
+      canvasElement.querySelector(
+        '[data-testid="workspace-shell-frame"]',
+      ) as HTMLElement & { __lapisApp?: import("@lapis-notes/api").App }
+    ).__lapisApp;
+    expect(runtimeApp).toBeDefined();
+
+    let releaseProgress!: () => void;
+    const pendingProgress = runtimeApp!.notifications.withProgress(
+      {
+        title: "Loading metadata cache",
+        source: "Metadata",
+        location: "status",
+      },
+      () =>
+        new Promise<void>((resolve) => {
+          releaseProgress = resolve;
+        }),
+    );
+    try {
+      await waitFor(() => {
+        const busy = canvasElement.querySelector<HTMLButtonElement>(
+          '[data-status-bar-item-id="notifications:status"]',
+        );
+        expect(busy).not.toBeNull();
+        expect(busy).toHaveAttribute("aria-busy", "true");
+        expect(busy?.getAttribute("aria-label") ?? "").toMatch(
+          /Loading metadata cache/,
+        );
+      });
+    } finally {
+      releaseProgress();
+      await pendingProgress;
+    }
+
     const notifications = canvasElement.querySelector<HTMLButtonElement>(
       '[data-status-bar-item-id="notifications:status"]',
     );
