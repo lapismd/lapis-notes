@@ -810,6 +810,21 @@ test("session boot shows WorkspaceStartup tasks before the shell", async () => {
   try {
     const startup = app.page.locator('[data-ui-component="workspace-startup"]');
     await startup.waitFor({ state: "visible", timeout: 60_000 });
+    await app.page.evaluate(() => {
+      const root = globalThis as typeof globalThis & {
+        __lapisStartupStatus?: string[];
+      };
+      const status = document.querySelector('[role="status"]');
+      root.__lapisStartupStatus = [status?.textContent?.trim() ?? ""];
+      if (!status) return;
+      new MutationObserver(() => {
+        root.__lapisStartupStatus?.push(status.textContent?.trim() ?? "");
+      }).observe(status, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+      });
+    });
     await expect(
       app.page.getByRole("region", { name: "Opening Lapis Notes" }),
     ).toBeVisible();
@@ -831,6 +846,45 @@ test("session boot shows WorkspaceStartup tasks before the shell", async () => {
     ).toBe("drag");
 
     await waitForDesktopWorkspace(app.page, app.rendererErrors);
+    expect(
+      await app.page.evaluate(
+        () =>
+          (
+            globalThis as typeof globalThis & {
+              __lapisStartupStatus?: string[];
+            }
+          ).__lapisStartupStatus ?? [],
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(
+          /Loading (?:Markdown Lint|Markdown|Explorer|Search|History|Word Count|Bases|AI|Roles|metadata cache)/u,
+        ),
+      ]),
+    );
+    const bootCost = await app.page.evaluate(() => {
+      const marks = performance
+        .getEntriesByType("mark")
+        .filter((entry) => entry.name.startsWith("lapis-startup:"))
+        .map((entry) => ({ name: entry.name, startTime: entry.startTime }));
+      const metadataStart = marks.find(
+        (entry) => entry.name === "lapis-startup:metadata:start",
+      )?.startTime;
+      const metadataEnd = marks.find(
+        (entry) => entry.name === "lapis-startup:metadata:end",
+      )?.startTime;
+      return {
+        pluginIds: marks
+          .filter((entry) => entry.name.startsWith("lapis-startup:plugin:"))
+          .map((entry) => entry.name.slice("lapis-startup:plugin:".length)),
+        metadataMs:
+          metadataStart !== undefined && metadataEnd !== undefined
+            ? metadataEnd - metadataStart
+            : null,
+      };
+    });
+    expect(bootCost.pluginIds.length).toBeGreaterThan(0);
+    expect(bootCost.metadataMs).toBeGreaterThan(0);
     await expect(startup).toHaveCount(0);
     await expect(
       app.page.locator('[data-ui-component="lapis-workspace-shell"]'),

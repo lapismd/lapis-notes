@@ -309,7 +309,8 @@ selection or session policy into a shared package. Scoped desktop CSS owns
 launcher overlay geometry and class-selected native window-control clearance.
 Session boot consumes public `@lapismd/design-core/workspace/startup` and the
 shared drag-region stylesheet rather than a host-owned loading stub or
-`-webkit-app-region` override.
+`-webkit-app-region` override. The plugins task reports the current plugin
+name, then metadata cache load.
 The development renderer adds the real linked Design Core package root to its
 narrow Vite filesystem allowlist so public stylesheet assets remain available.
 

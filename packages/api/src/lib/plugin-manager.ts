@@ -161,9 +161,17 @@ export interface PluginDataAliasMigration {
   removeSource?: boolean;
 }
 
+export interface PluginLoadProgress {
+  id: string;
+  name: string;
+  index: number;
+  total: number;
+}
+
 export interface PluginLoadOptions {
   communityPlugins?: "configured" | "disabled";
   optionalCorePlugins?: "configured" | "disabled";
+  onProgress?: (progress: PluginLoadProgress) => void;
 }
 
 export interface CommunityPluginDiagnostics {
@@ -1238,7 +1246,16 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         ];
 
         span.setAttribute("plugins.activation_count", activationOrder.length);
-        await this.enableAllPlugins(activationOrder);
+        for (const [index, pluginId] of activationOrder.entries()) {
+          const plugin = this.plugins.get(pluginId);
+          options.onProgress?.({
+            id: pluginId,
+            name: plugin?.manifest.name ?? pluginId,
+            index,
+            total: activationOrder.length,
+          });
+          await this.enablePlugin(pluginId);
+        }
         await this.enableConfiguredIndexedExtensions({
           communityPluginsEnabled,
           optionalCorePluginsEnabled,

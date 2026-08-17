@@ -112,3 +112,6 @@ Storybook's editor-demo consumer owns the real startup sequence. It does not
 mount the shell until the sequence completes, and retry follows the same
 deterministic teardown path as story disposal before rebuilding from the
 canonical seed.
+Desktop and web hosts report the current plugin name, then metadata cache
+load, on the plugins startup task through `PluginLoadOptions.onProgress`.
+The shell still mounts only after that host sequence completes.

@@ -14,6 +14,7 @@ import {
   PluginManager,
   type CommunityPluginEvaluationRequest,
   type CommunityPluginExecutionHost,
+  type PluginLoadProgress,
   type PluginManagerOptions,
 } from "../plugin-manager";
 import { StatusBarManager } from "../status-bar.svelte";
@@ -825,6 +826,56 @@ describe("PluginManager", () => {
     expect(app.plugins.plugins.get("broken-core")?.state).toBe("failed");
     expect(app.commands.commands["healthy-core:healthy"]).toBeDefined();
     expect(app.commands.commands["broken-core:explode"]).toBeUndefined();
+  });
+
+  it("reports enable progress for each activated core plugin", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+
+    class FirstCorePlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "first-core",
+          name: "First Core",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+
+      onload() {}
+    }
+
+    class SecondCorePlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "second-core",
+          name: "Second Core",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+
+      onload() {}
+    }
+
+    app.plugins.registerCorePlugins([FirstCorePlugin, SecondCorePlugin]);
+    const progress: PluginLoadProgress[] = [];
+    await app.plugins.loadPlugins({
+      onProgress: (event) => {
+        progress.push(event);
+      },
+    });
+
+    expect(progress).toEqual([
+      { id: "first-core", name: "First Core", index: 0, total: 2 },
+      { id: "second-core", name: "Second Core", index: 1, total: 2 },
+    ]);
+    expect(app.plugins.plugins.get("first-core")?.enabled).toBe(true);
+    expect(app.plugins.plugins.get("second-core")?.enabled).toBe(true);
   });
 
   it("loads bundled core plugin CSS on enable and removes it on disable", async () => {

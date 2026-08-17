@@ -131,9 +131,16 @@
   function setTask(
     id: string,
     taskStatus: WorkspaceStartupTask["status"],
+    detail?: string,
   ): void {
     tasks = tasks.map((task) =>
-      task.id === id ? { ...task, status: taskStatus } : task,
+      task.id === id
+        ? {
+            ...task,
+            status: taskStatus,
+            detail: taskStatus === "active" ? detail : undefined,
+          }
+        : task,
     );
   }
 
@@ -218,9 +225,16 @@
       await app.plugins.loadPlugins({
         communityPlugins: "disabled",
         optionalCorePlugins: "configured",
+        onProgress: ({ id, name }) => {
+          performance.mark(`lapis-startup:plugin:${id}`);
+          setTask(activeTask, "active", `Loading ${name}`);
+        },
       });
+      setTask(activeTask, "active", "Loading metadata cache");
+      performance.mark("lapis-startup:metadata:start");
       stopMetadataTracking = app.metadataTypeManager.trackChanges();
       await app.metadataCache.load();
+      performance.mark("lapis-startup:metadata:end");
       if (disposed) return;
       setTask(activeTask, "complete");
 

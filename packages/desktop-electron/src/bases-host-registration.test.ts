@@ -34,6 +34,8 @@ describe("desktop Bases host registration", () => {
     expect(source).toContain('id: "configuration"');
     expect(source).toContain('id: "plugins"');
     expect(source).toContain('id: "layout"');
+    expect(source).toContain("onProgress");
+    expect(source).toContain("Loading metadata cache");
     expect(source).not.toContain("Opening vault…");
   });
 
