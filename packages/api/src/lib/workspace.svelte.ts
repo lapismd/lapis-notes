@@ -4899,20 +4899,31 @@ export class Workspace extends EventDispatcher<{
       const focusedHostId = this.getFocusedCommandHostId();
       if (focusedHostId !== WORKSPACE_ROOT_HOST_ID) {
         const focusedHostLeaf = this.getCommandHostLeaf(focusedHostId);
-        if (focusedHostLeaf) {
+        if (canReuseLeafForFileNavigation(focusedHostLeaf)) {
           return focusedHostLeaf;
         }
       }
 
       const activeFloatingWindow = this.floatingWindowForLeaf(this._activeLeaf);
-      if (activeFloatingWindow && this._activeLeaf) {
+      if (
+        activeFloatingWindow &&
+        canReuseLeafForFileNavigation(this._activeLeaf)
+      ) {
         return this._activeLeaf;
       }
-      if (this.activeRootLeaf) {
+      if (canReuseLeafForFileNavigation(this.activeRootLeaf)) {
         return this.activeRootLeaf;
       }
       const tab = this.findOrCreateTab(this.rootSplit);
-      if (tab.selectedLeaf) {
+      const reusable = tab.children.find(
+        (child): child is WorkspaceLeaf =>
+          child instanceof WorkspaceLeaf &&
+          canReuseLeafForFileNavigation(child),
+      );
+      if (reusable) {
+        return reusable;
+      }
+      if (canReuseLeafForFileNavigation(tab.selectedLeaf)) {
         return tab.selectedLeaf;
       }
       const leaf = new WorkspaceLeaf();
@@ -5139,6 +5150,28 @@ type WorkspaceLeafJson = {
     title: string;
   };
 };
+
+function canReuseLeafForFileNavigation(
+  leaf: WorkspaceLeaf | null,
+): leaf is WorkspaceLeaf {
+  if (!leaf) return false;
+  return (
+    leaf.view.getViewType() === "empty" || leaf.view instanceof FileView
+  );
+}
+
+function isPoorerViewState(
+  incoming: Record<string, unknown> | undefined,
+  live: Record<string, unknown>,
+): boolean {
+  const next = incoming ?? {};
+  const liveEntries = Object.entries(live).filter(
+    ([, value]) => value !== undefined,
+  );
+  if (liveEntries.length === 0) return false;
+  if (Object.keys(next).length === 0) return true;
+  return liveEntries.some(([key]) => !(key in next));
+}
 
 function collectLayoutViewTypes(
   node: WorkspaceSplitJson | WorkspaceTabsJson | WorkspaceWindowJson,
@@ -5670,13 +5703,15 @@ export class WorkspaceLeaf extends WorkspaceItem<{
 
   loadJson(layout: WorkspaceLeafJson) {
     this.id = layout.id;
+    const liveState = this.view.getState();
     if (
       this.view.getViewType() === layout.state.type &&
-      isEqual(this.view.getState(), layout.state.state)
+      (isEqual(liveState, layout.state.state) ||
+        isPoorerViewState(layout.state.state, liveState))
     ) {
       this.state = {
         type: layout.state.type,
-        state: { ...layout.state.state },
+        state: { ...liveState },
       };
       return Promise.resolve();
     }

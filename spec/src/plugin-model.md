@@ -17,7 +17,7 @@ plugin-local paint.
 | LN-PLUG-004 | Core plugin registrations and list entries MUST expose distribution metadata, defaulting omitted registrations to `bundled`.                                                                                |
 | LN-PLUG-005 | Array-form core configuration MUST remain readable as disabled IDs. Object-form configuration MUST preserve explicit `disabled` and `enabled` IDs.                                                          |
 | LN-PLUG-006 | Markdown, Search, History, Markdown Lint, File Explorer, Bases, AI, Notifications, Word Count, and Roles MUST default enabled and remain user-disableable. Problems and other declared infrastructure MAY remain required. Required host-owned views such as Problems MUST NOT become missing-view placeholders while their host registration remains. |
-| LN-PLUG-007 | Disabling a plugin with open owned views MUST replace those leaves with persisted missing-view placeholders. Re-enabling it MUST restore the leaves without changing active selection or plugin-owned data. Restored imperative plugin views MUST receive a host-filling compatibility root without depending on application-global utility CSS. |
+| LN-PLUG-007 | Disabling a plugin with open owned views MUST replace those leaves with persisted missing-view placeholders. Re-enabling it MUST restore the leaves without changing active selection or plugin-owned data. Restored imperative plugin views MUST receive a host-filling compatibility root without depending on application-global utility CSS. Collapse, remount, and file-open projection MUST keep the same leaf id and live `getState()`. |
 | LN-PLUG-008 | Core settings MUST subscribe to lifecycle changes and failures through the Design Core managed-plugin source contract, with Included and First-party groups.                                                |
 | LN-PLUG-009 | Default Search or Explorer leaves MUST NOT be created while their owning plugin is disabled.                                                                                                                |
 | LN-PLUG-010 | Community installation, registry, signature, update, and community enablement behavior MUST remain outside the static distribution model.                                                                   |
@@ -40,7 +40,8 @@ appears only while the plugin is enabled and reuses the existing chat command.
 A vault without workspace.json seeds File Explorer then Search on the left and
 Outline, File Properties, then Tags on the right when those plugins loaded.
 Save and Load workspace layout commands store named snapshots; Reset reapplies
-that default seed.
+that default seed. Collapse, remount, and file-open restore keep the same
+plugin leaf by serialized id and its live `getState()`.
 | LN-CV-010 | Desktop and web hosts MUST register runtime plugin `roles` as `first-party-external`, optional, and enabled by default before metadata and layout restoration. Package changes MUST preserve its runtime view, command, file, and plugin-data identities. |
 | LN-ROLE-016 | Desktop and web MUST restore persisted `role`, `roles`, and `cv` leaves when Roles is enabled without forcing Roles into a default layout. Disabled leaves MUST remain persisted missing-view placeholders and recover after re-enable. |
 

@@ -1057,6 +1057,55 @@ describe("Workspace compatibility", () => {
     expect(workspace.activeLeaf).toBe(selectedLeaf);
   });
 
+  it("creates a new main tab instead of replacing a non-file root leaf", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView(
+      "fixture-panel",
+      (leaf) => new MockItemView(leaf, "fixture-panel", "Fixture"),
+    );
+    const panel = workspace.getLeaf();
+    await panel.setViewState({
+      type: "fixture-panel",
+      state: { mode: "preview" },
+    });
+    workspace.activeLeaf = panel;
+
+    const navigation = workspace.getLeaf();
+
+    expect(navigation).not.toBe(panel);
+    expect(navigation.view.getViewType()).toBe("empty");
+    expect(panel.view.getViewType()).toBe("fixture-panel");
+    expect(panel.view.getState()).toEqual({ mode: "preview" });
+
+    workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+    workspace.registerExtensions(["md"], "markdown");
+    const file = new TFile(
+      "Notes/Adjacent.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    await navigation.openFile(file);
+
+    expect(workspace.getLeafById(panel.id)).toBe(panel);
+    expect(panel.view.getState()).toEqual({ mode: "preview" });
+  });
+
+  it("reuses a file-backed main leaf for default navigation", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+    workspace.registerExtensions(["md"], "markdown");
+    const file = new TFile(
+      "Notes/Open.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const leaf = workspace.getLeaf();
+    await leaf.openFile(file);
+
+    expect(workspace.getLeaf()).toBe(leaf);
+    expect((leaf.view as MockTextFileView).file).toBe(file);
+  });
+
   it("uses a main area leaf for default navigation when the active leaf is in the sidebar", () => {
     const { workspace } = createWorkspaceHarness();
     const mainTabs = workspace.rootSplit.children[0] as WorkspaceTabs;
@@ -2083,6 +2132,98 @@ describe("Workspace compatibility", () => {
 
     expect(workspace.bottomPanel).toBe(originalPanel);
     expect(workspace.getLeafById(leaf!.id)).toBe(projectedLeaf);
+  });
+
+  it("keeps grouped leaf identity and view state across collapse and layout commits", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView(
+      "fixture-a",
+      (leaf) => new MockItemView(leaf, "fixture-a", "Fixture A"),
+    );
+    workspace.registerView(
+      "fixture-b",
+      (leaf) => new MockItemView(leaf, "fixture-b", "Fixture B"),
+    );
+
+    const first = workspace.ensureSideLeaf("fixture-a", "right", {
+      group: "tools",
+    });
+    await first.setViewState({
+      type: "fixture-a",
+      state: { mode: "preview", file: "Note.md" },
+    });
+    const second = workspace.ensureSideLeaf("fixture-b", "right", {
+      group: "tools",
+    });
+    await second.setViewState({
+      type: "fixture-b",
+      state: { mode: "source" },
+    });
+    const group = second.parent as WorkspaceSidebarGroup;
+    const controller = getWorkspaceHostBinding(workspace).controller.renderer;
+
+    workspace.requestSaveLayout({ source: "api", operation: "open-file" });
+    expect(workspace.getLeafById(first.id)).toBe(first);
+    expect(first.view.getState()).toEqual({
+      mode: "preview",
+      file: "Note.md",
+    });
+
+    controller.setSidebarGroupCollapsed(group.id, first.id, true);
+    await vi.waitFor(() => {
+      expect(workspace.getLeafById(first.id)).toBe(first);
+      expect(workspace.getLeafById(second.id)).toBe(second);
+    });
+    expect(first.view.getState()).toEqual({
+      mode: "preview",
+      file: "Note.md",
+    });
+    expect(second.view.getState()).toEqual({ mode: "source" });
+
+    group.setLeafHidden(first, true);
+    workspace.requestSaveLayout({ source: "api", operation: "visibility" });
+    expect(workspace.getLeafById(first.id)).toBe(first);
+    expect(first.view.getState()).toEqual({
+      mode: "preview",
+      file: "Note.md",
+    });
+
+    workspace.activateLeaf(first, { saveLayout: false });
+    expect(group.isLeafHidden(first)).toBe(false);
+    expect(first.view.getState()).toEqual({
+      mode: "preview",
+      file: "Note.md",
+    });
+  });
+
+  it("does not apply an empty projected snapshot onto a claimed leaf", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView(
+      "fixture-a",
+      (leaf) => new MockItemView(leaf, "fixture-a", "Fixture A"),
+    );
+    const leaf = workspace.getLeaf(true);
+    await leaf.setViewState({
+      type: "fixture-a",
+      state: { mode: "preview", file: "Note.md" },
+    });
+
+    await leaf.loadJson({
+      id: leaf.id,
+      type: "leaf",
+      state: {
+        type: "fixture-a",
+        state: {},
+        icon: "",
+        title: "Fixture A",
+      },
+    });
+
+    expect(workspace.getLeafById(leaf.id)).toBe(leaf);
+    expect(leaf.view.getState()).toEqual({
+      mode: "preview",
+      file: "Note.md",
+    });
   });
 
   it("controls the bottom panel through the compatibility API", () => {
