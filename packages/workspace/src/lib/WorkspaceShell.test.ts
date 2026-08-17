@@ -142,7 +142,11 @@ describe("WorkspaceShell", () => {
         )?.src,
       ).toContain("lapis-logo.svg");
     });
-    target.querySelector<HTMLButtonElement>('[aria-label="Open settings"]')?.click();
+    const ribbonSettings = target.querySelector<HTMLButtonElement>(
+      '[data-ui-part="bottom-actions"] [aria-label="Settings"]',
+    );
+    expect(ribbonSettings).not.toBeNull();
+    ribbonSettings?.click();
     await vi.waitFor(() => {
       expect(
         target.querySelector('[data-ui-component="app-shell-settings-dialog"]'),

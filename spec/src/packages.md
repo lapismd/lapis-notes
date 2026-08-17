@@ -220,7 +220,8 @@ wrapped tag and multivalue editors expand downward from the same origin.
 `@lapis-notes/ai` owns the provider-agnostic agent runtime and model-provider
 registries, Fake and ACP adapters, optional native Codex adapter, provider-safe
 plugin-data session persistence, vault-scoped file mentions, Codex and Cursor
-model catalogs, chat settings, and movable chat panel.
+model catalogs, chat settings, movable chat panel, and an Open Chat left-ribbon
+action that reuses the opening command.
 Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
 and stacking above an open composer drawer—and composes Command View for the
 searchable file list.

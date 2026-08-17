@@ -89,6 +89,9 @@ describe("AiPlugin contracts", () => {
 
     expect(source).toContain('id: "open-chat"');
     expect(source).toContain('name: "Open Chat"');
+    expect(source).toContain(
+      'this.addRibbonIcon("sparkles", "Open Chat"',
+    );
     expect(source).toContain('id: "open-history"');
     expect(source).toContain('name: "Open History"');
     expect(source).not.toContain("show-ai-conversation-history");

@@ -368,6 +368,9 @@ export class AiPlugin extends Plugin {
         callback: () => void this.openAiChat(),
       },
     });
+    this.addRibbonIcon("sparkles", "Open Chat", () => {
+      void this.openAiChat();
+    });
     this.registerSidebarView(
       AiHistoryViewType,
       (leaf) => new AiHistoryView(leaf, this),

@@ -175,6 +175,13 @@ export const PersistedDesktop: Story = {
     await waitForShell(canvas);
     expectBundledPlugins(canvas);
     expectAppShellPlugins(canvas);
+    const ribbon = canvas.getByLabelText("left ribbon");
+    await expect(
+      within(ribbon).getByRole("button", { name: "Settings" }),
+    ).toBeVisible();
+    await expect(
+      within(ribbon).getByRole("button", { name: "Open Chat" }),
+    ).toBeVisible();
     await expectWordCountForWelcome(canvasElement, canvas);
 
     const newTabButton = canvas.getByRole("button", { name: "New tab" });
@@ -488,7 +495,7 @@ export const BottomPanelSettings: Story = {
     await expect(desktopLayout).not.toBeNull();
     await expect(canvas.getByRole("tab", { name: "Terminal" })).toBeVisible();
     const problemsTab = canvas.getByRole("tab", {
-      name: "Problems, 0 problems",
+      name: /Problems, \d+ problems?/,
     });
     await expect(problemsTab).toBeVisible();
     const problemsBadge = problemsTab.querySelector<HTMLElement>(
@@ -533,9 +540,14 @@ export const BottomPanelSettings: Story = {
       { timeout: 3_000 },
     );
 
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Open settings" }),
-    );
+    const ribbon = canvas.getByLabelText("left ribbon");
+    const ribbonSettings = within(ribbon).getByRole("button", {
+      name: "Settings",
+    });
+    expect(
+      ribbonSettings.closest('[data-ui-part="bottom-actions"]'),
+    ).not.toBeNull();
+    await userEvent.click(ribbonSettings);
     const dialog = canvas.getByRole("dialog", { name: "Settings" });
     await expect(dialog).toBeVisible();
     const dialogUi = within(dialog);

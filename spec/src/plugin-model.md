@@ -35,6 +35,8 @@ plugin-local paint.
 Explorer native copy, open, and reveal extras stay on the File Explorer
 `buildItemMenu` hook. They do not add plugin commands or a `file-menu`
 dispatch until a listener exists.
+AI contributes an Open Chat left-ribbon action through `addRibbonIcon`, so it
+appears only while the plugin is enabled and reuses the existing chat command.
 | LN-CV-010 | Desktop and web hosts MUST register runtime plugin `roles` as `first-party-external`, optional, and enabled by default before metadata and layout restoration. Package changes MUST preserve its runtime view, command, file, and plugin-data identities. |
 | LN-ROLE-016 | Desktop and web MUST restore persisted `role`, `roles`, and `cv` leaves when Roles is enabled without forcing Roles into a default layout. Disabled leaves MUST remain persisted missing-view placeholders and recover after re-enable. |
 

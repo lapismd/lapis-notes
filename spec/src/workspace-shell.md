@@ -37,6 +37,7 @@ persistence, and application-host responsibilities.
 | LN-WS-054 | API compatibility ribbon registrations and reactive status-bar descriptors MUST project into the API-owned Design Core shell registries. Projection MUST preserve identifiers, icons, labels, alignment, priority, commands, menus, updates, and plugin teardown without introducing a second plugin-facing registration contract. |
 | LN-WS-055 | Every workspace root MUST bind to its owning `Workspace`; leaves and views MUST derive App through that ownership chain. `WorkspaceShell` MUST provide its required App to descendant Svelte components without making compatibility state authoritative. |
 | LN-WS-057 | Default shells MUST include Design Core `fModePlugin({ enabled: false })` on the API-owned controller. AppShell enablement MUST persist through Design Core `persistence.plugins`. Missing persistence MUST keep F-Mode disabled. |
+| LN-WS-058 | Default desktop shells MUST show Design Core's built-in Settings action in the left ribbon bottom while the ribbon is visible. Activating it MUST open the same settings dialog as the sidebar trigger. |
 
 ## Ownership and data flow
 
@@ -81,6 +82,8 @@ The bottom panel is projected as one top-level tabs wrapper rather than a
 recursive split. Center tab and group moves are supported; split-edge and focus
 mode operations remain restricted to the main workspace. Built-in shell settings
 use design-core's controller directly and do not share the workspace JSON writer.
+Default desktop chrome shows that Settings action in the left ribbon bottom
+while the ribbon is visible.
 The controller's settings persistence delegates to atomic API configuration
 batches. Successful API updates reconcile matching controller fields, while
 equality checks and unchanged-batch elision prevent a persistence feedback

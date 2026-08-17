@@ -164,6 +164,12 @@ export const Desktop: Story = {
       canvasElement.querySelector('[data-ui-component="workspace-explorer"]'),
     ).toBeVisible();
 
+    const ribbon = canvas.getByLabelText("left ribbon");
+    const openChat = within(ribbon).getByRole("button", { name: "Open Chat" });
+    await expect(openChat).toBeVisible();
+    await userEvent.click(openChat);
+    expect(mainAiLeaves(app)).toHaveLength(1);
+
     const panel = await canvas.findByTestId("ai-chat-panel");
     const demo = canvas.getByTestId("ai-workspace-demo");
     const workspaceShell = demo.querySelector(
