@@ -12,7 +12,7 @@ identity, not link resolution or preview ownership.
 
 | ID | Requirement |
 | --- | --- |
-| LN-MD-026 | The Markdown package MUST adapt the Lapis vault, metadata cache, workspace navigation, and `EmbedRegistry` to Mira's public `MiraFileAdapter`. |
+| LN-MD-026 | The Markdown package MUST adapt the Lapis vault, metadata cache, workspace navigation, and `EmbedRegistry` to Mira's public `MiraFileAdapter`. One App MUST reuse one adapter instance so preview effects do not churn. |
 | LN-MD-027 | Ordinary internal links rendered by Mira in reading and live-preview modes MUST retain the Lapis `MiraFileAdapter` resolution, lazy preview, and navigation path while delegating timing, safe pointer handoff, owner-document mounting, collision placement, appearance, and topmost cross-pane paint to Mira's portable Bits UI `LinkPreview`. Lapis MUST NOT add a portal wrapper, source alias, or clipping workaround. |
 | LN-MD-028 | The Lapis `MiraFileAdapter` MUST provide `writeMarkdown` through `app.vault.modify` for existing Markdown files and reject missing or non-Markdown targets. |
 | LN-MD-029 | Ordinary Mira note previews and link-panel `FileEmbed` previews MUST share minimal content-first chrome without a visible filename or path header. Rendered Markdown receives disclosure-safe inset, and editing uses a two-pixel focus-ring border. |

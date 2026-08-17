@@ -59,8 +59,13 @@ function isFile(candidate: TAbstractFile): candidate is TFile {
   return "stat" in candidate && !("children" in candidate);
 }
 
+const adapters = new WeakMap<App, MiraFileAdapter>();
+
 export function createLapisMiraFileAdapter(app: App): MiraFileAdapter {
-  return {
+  const existing = adapters.get(app);
+  if (existing) return existing;
+
+  const adapter: MiraFileAdapter = {
     resolveLink(target) {
       const file = resolveFile(app, target);
       return file ? toMiraFileRef(file) : null;
@@ -185,4 +190,6 @@ export function createLapisMiraFileAdapter(app: App): MiraFileAdapter {
       };
     },
   };
+  adapters.set(app, adapter);
+  return adapter;
 }

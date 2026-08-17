@@ -62,6 +62,13 @@ function createAppFixture() {
 }
 
 describe("Lapis Mira file adapter", () => {
+  it("reuses one adapter instance for the same App", () => {
+    const { app } = createAppFixture();
+    expect(createLapisMiraFileAdapter(app)).toBe(
+      createLapisMiraFileAdapter(app),
+    );
+  });
+
   it("resolves, reads, lists, and opens vault files", async () => {
     const { app, target, openFile } = createAppFixture();
     const adapter = createLapisMiraFileAdapter(app);

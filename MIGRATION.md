@@ -142,7 +142,7 @@ AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-094`
 - [x] AI Host stdio MCP shim, loopback broker, protocol v3, ACP, Codex Native, and authenticated remote WebSocket
 - [x] Five governed app-tool Storybook scenarios with approved canonical baselines
 - [x] Rebased onto History settings so Workspace Shell asserts the seven bundled plugins from `LN-CAT-077`
-- [ ] Full Electron package lane: blocked by inherited Turso WASM Rollup/CommonJS recursion
+- [x] Full Electron `package:dir` lane: renderer Vite includes the Turso WASM bundle; unpacked app ships an executable `mcp-shim.mjs`
 - [ ] Live paid-agent probes (`pnpm ai:smoke:probe:*`, Live Host, desktop smoke): harness complete, not rerun in this delivery
 
 ### Search plugin intake progress

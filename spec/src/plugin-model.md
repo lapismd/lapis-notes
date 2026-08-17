@@ -74,6 +74,8 @@ settings sections under `core-plugins` in addition to any legacy
 Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.
+Markdown reuses one `MiraFileAdapter` for that same App so preview effects do
+not churn when views reconfigure.
 The Storybook command-panel registry maps each `ViewAccess.command` identifier
 back to its source declaration and canonical panel story. This is verification
 metadata only and does not become a runtime plugin registration surface.

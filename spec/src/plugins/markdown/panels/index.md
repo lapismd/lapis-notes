@@ -28,7 +28,8 @@ page.
 - [Backlinks](./backlinks.md)
 - [Outgoing Links](./outgoing-links.md)
 - [Tags](./tags.md)
-- [Link Previews](./link-previews.md), shared by Backlinks and Outgoing Links
+- [Link Previews](./link-previews.md), shared by Backlinks and Outgoing Links.
+  Ordinary Mira previews keep one adapter instance per App.
 
 All production panels import through `@lapis-notes/markdown` and receive App
 state from their owning registered view rather than ambient host state.

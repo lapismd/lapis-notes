@@ -50,7 +50,9 @@ view's canonical `getViewType()` without moving registry policy into the shell.
   command.
 - Responsive acceptance resizes the owning workspace split through the real
   controller and restores it in all outcomes. A story must not constrain the
-  panel component directly to manufacture a breakpoint.
+  panel component directly to manufacture a breakpoint. Ordinary Mira
+  document-link previews must keep one adapter instance per App across that
+  resize.
 - Tree panels align guides and disclosure geometry according to the explicit
   policy on their panel page. Counts and trailing row edges remain independent
   from start-edge indentation.

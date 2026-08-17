@@ -112,7 +112,9 @@ Reusable storage, source-view, configuration, and registry behavior belongs to
 `@lapis-notes/api`. Generic startup presentation belongs to design-core. The
 Lapis source-editor remains a Storybook-local intake fixture. File Explorer is
 owned by `@lapis-notes/file-explorer`.
-`@lapis-notes/markdown` owns document behavior and the enabled
+`@lapis-notes/markdown` owns document behavior and reuses one
+`MiraFileAdapter` per App so ordinary-link previews survive workspace
+split resize. The enabled
 `@lapis-notes/markdown-lint` plugin contributes diagnostics only. Markdown owns
 the Tags view. Shared panel
 presentation is specified under `workspace-shell/panels.md`. The Markdown

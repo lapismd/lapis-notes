@@ -52,8 +52,8 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 
 Reusable Plugin and Editor contracts remain in `@lapis-notes/api`. Markdown
 document policy lives in `@lapis-notes/markdown` and is implemented by Mira.
-The Lapis package owns the app-bound `MiraFileAdapter`; portable rendering and
-editor behavior remain Mira-owned. Markdown views, renderers, frontmatter, and
+The Lapis package owns the app-bound `MiraFileAdapter` and reuses one instance
+per App; portable rendering and editor behavior remain Mira-owned. Markdown views, renderers, frontmatter, and
 Mira extension factories receive that App explicitly; static compatibility
 entrypoints resolve only through the documented fallback. The diagnostics extension reference-counts
 open editor views and reuses the manager's cached code actions; it does not

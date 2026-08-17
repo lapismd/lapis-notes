@@ -150,8 +150,12 @@ async function expectDocumentLinkPreview(
     throw new Error("Missing Welcome.md Ideas link preview trigger");
 
   await expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+  await waitFor(() => {
+    expect(trigger).toHaveAttribute("data-link-preview-state", "resolved");
+  });
   const previewAnchor = trigger.closest<HTMLElement>(".mira-link-preview");
   if (!previewAnchor) throw new Error("Missing Mira link preview anchor");
+  trigger.scrollIntoView({ block: "center", inline: "nearest" });
   const triggerRect = trigger.getBoundingClientRect();
   if (triggerRect.bottom > viewportHeight) {
     previewAnchor.style.position = "relative";
@@ -164,30 +168,22 @@ async function expectDocumentLinkPreview(
   }
   const PointerEventCtor = ownerDocument.defaultView?.PointerEvent;
   if (!PointerEventCtor) throw new Error("Missing preview PointerEvent");
+  const previewSelector =
+    '[data-mira-link-preview-content][data-link-preview-path="Ideas"]';
   trigger.focus();
-  trigger.dispatchEvent(
-    new PointerEventCtor("pointerover", {
-      bubbles: true,
-      pointerType: "mouse",
-    }),
-  );
   trigger.dispatchEvent(
     new PointerEventCtor("pointerenter", {
       bubbles: true,
       pointerType: "mouse",
     }),
   );
-  await userEvent.hover(trigger);
-  await new Promise((resolve) => setTimeout(resolve, 800));
   await waitFor(
     () => {
       expect(
-        ownerDocument.querySelector<HTMLElement>(
-          '[data-mira-link-preview-content][data-link-preview-path="Ideas"]',
-        ),
+        ownerDocument.querySelector<HTMLElement>(previewSelector),
       ).toBeVisible();
     },
-    { timeout: 5_000 },
+    { timeout: 8_000 },
   );
 
   const preview = ownerDocument.querySelector<HTMLElement>(
@@ -331,6 +327,17 @@ function placementStory(
         const app = panelDemoApp(canvasElement);
         const restoreDocumentSplit = resizeMainSplit(app, [25, 75]);
         try {
+          await waitFor(() => {
+            const liveTrigger = canvasElement.querySelector<HTMLElement>(
+              '.markdown-view__editor [data-link-preview-trigger][data-link-preview-path="Ideas"]',
+            );
+            expect(liveTrigger).toBeVisible();
+            expect(liveTrigger).toHaveAttribute(
+              "data-link-preview-state",
+              "resolved",
+            );
+          });
+          await new Promise((resolve) => setTimeout(resolve, 200));
           await expectDocumentLinkPreview(canvasElement, panelElement);
         } finally {
           restoreDocumentSplit();

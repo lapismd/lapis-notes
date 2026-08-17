@@ -13,7 +13,8 @@ progress, evidence, and Jujutsu slices without replacing those requirements.
 - [x] AI Host stdio MCP shim, loopback broker, and protocol v3
 - [x] ACP, Codex Native, authenticated remote host, and Electron integration
 - [x] Storybook interaction, accessibility, visual, and remote acceptance
-- [ ] Full Electron package and live paid-agent acceptance (see acceptance gaps)
+- [x] Full Electron package lane (`package:dir` with unpacked MCP shim)
+- [ ] Live paid-agent acceptance (see acceptance gaps)
 
 ## Protocol allocation
 
@@ -72,17 +73,14 @@ progress, evidence, and Jujutsu slices without replacing those requirements.
 
 ## Acceptance gaps
 
-- `pnpm build` and `pnpm package:desktop` reach the desktop/web renderer Vite
-  bundles, then hit the pre-existing Rollup/CommonJS recursion in
-  `@tursodatabase/database-wasm@0.7.2` after roughly 10,100 transformed modules.
-  The portable packages and AI Host build first; Electron Builder cannot run
-  until that unrelated prerequisite is repaired.
+- Desktop and web renderer Vite builds include the self-contained Turso WASM
+  bundle. `package:dir` produces an unpacked macOS app with an executable
+  `mcp-shim.mjs`.
 - This stack now sits on History settings (`qyomwvsr`). Workspace Shell
   PersistedDesktop and Mobile assert the seven bundled plugins required by
   `LN-CAT-077`, including History.
-- The remaining inherited Storybook failure is the unrelated Outgoing Links
-  middle-tab preview that misses its nested-render assertion in isolation. All
-  five app-tool scenarios pass in both the full and focused lanes.
+- Outgoing Links middle-top-tabs now reuses one `MiraFileAdapter` per App and
+  opens the ordinary Welcome.md preview after the constrained split settles.
 - Codex ACP, Cursor ACP, and Codex Native live probes are deliberately manual
   because they invoke installed, authenticated, potentially paid agents. The
   confined probe implementation and agent-free harness are complete, but these
@@ -90,8 +88,7 @@ progress, evidence, and Jujutsu slices without replacing those requirements.
 
 ## Known risks
 
-- Electron package acceptance remains coupled to the inherited Turso renderer
-  build failure even though shim staging and resolution contracts are present.
+- Live paid-agent probes remain manual and were not rerun in this delivery.
 - Abrupt process termination can interrupt the visual dependency-staging
   cleanup; normal success and failure paths restore the exact manifest,
   workspace file, lockfile, and permanent links before a frozen relink.
