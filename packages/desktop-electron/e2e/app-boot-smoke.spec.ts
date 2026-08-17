@@ -858,7 +858,7 @@ test("session boot shows WorkspaceStartup tasks before the shell", async () => {
     ).toEqual(
       expect.arrayContaining([
         expect.stringMatching(
-          /Loading (?:Markdown Lint|Markdown|Explorer|Search|History|Word Count|Bases|AI|Roles|metadata cache)/u,
+          /Loading (?:Markdown Lint|Markdown|Explorer|Search|History|Word Count|Bases|AI|Roles)/u,
         ),
       ]),
     );

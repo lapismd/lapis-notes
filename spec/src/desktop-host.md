@@ -59,7 +59,7 @@ are intentionally omitted.
 | LN-DESK-048 | Explorer MUST consume the advertised `file-system-actions` capability through the existing resolve, open, and reveal desktop IPC. It MUST NOT add a command or a second IPC channel for those actions. |
 | LN-DESK-049 | After a vault is open, Design Core spacer, stacked chrome, view-header title container, and startup root MUST compute `-webkit-app-region: drag`. Interactive controls on those surfaces MUST compute `no-drag`. Lapis MUST NOT re-declare that CSS. |
 | LN-DESK-050 | Desktop session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. While the plugins task is active, the live status MUST show the current plugin name. |
-| LN-DESK-051 | After configured plugins enable, desktop boot MUST start metadata cache load and MUST NOT wait for it before layout restoration or mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
+| LN-DESK-051 | After layout restoration, desktop boot MUST start metadata cache load. It MUST NOT start that load before `loadLayout` returns or wait for it before mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
 
 ### LN-DESK-049 acceptance details
 
@@ -80,10 +80,10 @@ Desktop session boot verifies the shared startup surface:
 
 ### LN-DESK-051 acceptance details
 
-Desktop boot starts metadata after plugins and does not wait for it:
+Desktop boot restores the layout before opening the metadata store:
 
-- `metadataCache.load` MUST start after `loadPlugins` returns.
-- `loadLayout` and `WorkspaceShell` mount MUST NOT await that promise.
+- `metadataCache.load` MUST start after `loadLayout` returns.
+- `WorkspaceShell` mount MUST NOT await that promise.
 - Tags, Outline, Search, Bases, and File Properties MUST refresh when `loaded` fires.
 
 ## Boot flow

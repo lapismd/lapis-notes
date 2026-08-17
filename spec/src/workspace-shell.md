@@ -114,4 +114,4 @@ deterministic teardown path as story disposal before rebuilding from the
 canonical seed.
 Desktop and web hosts report the current plugin name on the plugins startup
 task through `PluginLoadOptions.onProgress`. Metadata cache load starts after
-plugins enable and does not block layout restoration or shell mount.
+layout restoration and does not block shell mount.

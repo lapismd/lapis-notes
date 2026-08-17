@@ -123,6 +123,12 @@
     };
   });
 
+  function startMetadataCache(): void {
+    if (disposed || stopMetadataTracking) return;
+    stopMetadataTracking = app.metadataTypeManager.trackChanges();
+    void app.metadataCache.load();
+  }
+
   function setTask(
     id: string,
     taskStatus: WorkspaceStartupTask["status"],
@@ -247,9 +253,6 @@
           setTask(activeTask, "active", `Loading ${name}`);
         },
       });
-      setTask(activeTask, "active", "Loading metadata cache");
-      stopMetadataTracking = app.metadataTypeManager.trackChanges();
-      void app.metadataCache.load();
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -262,6 +265,7 @@
       setTask(activeTask, "complete");
       ready = true;
       onReady();
+      startMetadataCache();
       const launch = new URL(window.location.href);
       if (launch.pathname === "/open") {
         const url = launch.searchParams.get("url");

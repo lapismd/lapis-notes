@@ -6,7 +6,7 @@ Design Core status item. It does not contribute a default sidebar leaf; an
 empty vault still seeds File Explorer, Search, Outline, File Properties, and
 Tags.
 Desktop and web startup report the Word Count name on the plugins task while
-that plugin enables, then start metadata cache load without blocking layout.
+that plugin enables, then restore layout before starting metadata cache load.
 
 ## Requirements
 

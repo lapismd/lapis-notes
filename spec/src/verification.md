@@ -760,7 +760,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-020  | web-host                        | Implemented | authenticated remote-host acceptance proxies real MCP call/result/cancel traffic through the existing WebSocket and revokes pending work on disconnect; web unit tests remain 14/14 |
 | LN-WEB-021  | web-host                        | Implemented | web session source and host check replace the Opening vault stub with Design Core WorkspaceStartup tasks, plugin-name detail, and retryable failure |
 | LN-WEB-022  | web-host                        | Implemented | web session uses workspace loadLayout default sidebar seed; API tests cover File Explorer, Search, Outline, File Properties, and Tags |
-| LN-WEB-023  | web-host                        | Implemented | web session starts metadataCache.load after plugins and does not await it before loadLayout |
+| LN-WEB-023  | web-host                        | Implemented | web session starts metadataCache.load after loadLayout and does not await it before mounting the shell |
 | LN-PKG-080  | packages                        | Implemented | package manifests, source audit, focused builds, and integration tests verify neutral API contracts, Search and Markdown callbacks, AI policy, and non-authoritative AI Host/Electron transport ownership |
 | LN-CAT-081  | storybook-catalog               | Implemented | five focused app-tool interaction and axe stories pass with approved canonical baselines and a 5/5 compare-only visual run; visual-pending tags retain the separate human-promotion boundary |
 | LN-CAT-082  | storybook-catalog               | Implemented | Storybook Vite source aliases plus the canonical Docker static-build lane cover File Explorer and Search without staged `dist` output |
@@ -773,7 +773,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-048 | desktop-host                    | Implemented | Explorer consumes existing resolve/open/reveal IPC through `file-system-actions` and adds no command or second channel |
 | LN-DESK-049 | desktop-host                    | Implemented | Electron acceptance asserts Design Core spacer, stacked chrome, title container, and startup root compute drag while interactive controls compute no-drag |
 | LN-DESK-050 | desktop-host                    | Implemented | Electron loading-delay acceptance asserts WorkspaceStartup title, four live tasks, plugin-name status, and progress, then the shell after ready |
-| LN-DESK-051 | desktop-host                    | Implemented | desktop session and host audit start metadataCache.load after plugins and do not await it before loadLayout |
+| LN-DESK-051 | desktop-host                    | Implemented | desktop session and host audit start metadataCache.load after loadLayout and do not await it before mounting the shell |
 | LN-ARCH-061 | architecture                    | Implemented | native extras live in File Explorer `buildItemMenu`; Design Core still owns only the built-in vault-path copy item |
 | LN-ED-055   | editor-demo                     | Implemented | Explorer placement plays open the Notes context menu and assert native copy/open/reveal extras are absent on the in-memory vault |
 | LN-MD-095   | markdown-plugin                 | Implemented | adapter unit test flattens `getValues` into Mira `valueSuggestions`; File Properties play types in tags and asserts a value from another seeded note |

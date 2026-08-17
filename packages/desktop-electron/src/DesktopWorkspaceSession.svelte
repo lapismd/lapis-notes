@@ -128,6 +128,15 @@
     }
   }
 
+  function startMetadataCache(): void {
+    if (disposed || stopMetadataTracking) return;
+    performance.mark("lapis-startup:metadata:start");
+    stopMetadataTracking = app.metadataTypeManager.trackChanges();
+    void app.metadataCache.load().finally(() => {
+      performance.mark("lapis-startup:metadata:end");
+    });
+  }
+
   function setTask(
     id: string,
     taskStatus: WorkspaceStartupTask["status"],
@@ -230,12 +239,6 @@
           setTask(activeTask, "active", `Loading ${name}`);
         },
       });
-      setTask(activeTask, "active", "Loading metadata cache");
-      performance.mark("lapis-startup:metadata:start");
-      stopMetadataTracking = app.metadataTypeManager.trackChanges();
-      void app.metadataCache.load().finally(() => {
-        performance.mark("lapis-startup:metadata:end");
-      });
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -246,6 +249,7 @@
       setTask(activeTask, "complete");
       ready = true;
       onReady(app);
+      startMetadataCache();
     } catch (error) {
       setTask(activeTask, "failed");
       const detail = error instanceof Error ? error.message : String(error);

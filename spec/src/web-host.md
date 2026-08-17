@@ -29,7 +29,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-020 | An authenticated protocol-v3 web bridge MUST proxy application-tool calls, responses, and cancellation through its existing agent-runtime connection while the browser App executes the tool. A real stdio-shim round trip MUST use that same connection, and disconnect MUST revoke bridge authorization and cancel pending calls without retaining note contents in host replay. |
 | LN-WEB-021 | Web session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. While the plugins task is active, the live status MUST show the current plugin name. |
 | LN-WEB-022 | A web vault without `.obsidian/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer then Search on the left, and Outline, File Properties, then Tags on the right when those views are registered. |
-| LN-WEB-023 | After configured plugins enable, web boot MUST start metadata cache load and MUST NOT wait for it before layout restoration or mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
+| LN-WEB-023 | After layout restoration, web boot MUST start metadata cache load. It MUST NOT start that load before `loadLayout` returns or wait for it before mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
 
 ### LN-WEB-021 acceptance details
 
@@ -42,10 +42,10 @@ Web session boot verifies the shared startup surface:
 
 ### LN-WEB-023 acceptance details
 
-Web boot starts metadata after plugins and does not wait for it:
+Web boot restores the layout before opening the metadata store:
 
-- `metadataCache.load` MUST start after `loadPlugins` returns.
-- `loadLayout` and `WorkspaceShell` mount MUST NOT await that promise.
+- `metadataCache.load` MUST start after `loadLayout` returns.
+- `WorkspaceShell` mount MUST NOT await that promise.
 - Tags, Outline, Search, Bases, and File Properties MUST refresh when `loaded` fires.
 
 ## Implemented host boundary

@@ -14,7 +14,7 @@ describe("web Bases host registration", () => {
     const ai = source.indexOf("plugin: AiPlugin");
     const roles = source.indexOf("plugin: RolesPlugin");
     const loadPlugins = source.indexOf("await app.plugins.loadPlugins");
-    const metadata = source.indexOf("app.metadataCache.load");
+    const metadata = source.lastIndexOf("startMetadataCache()");
     const layout = source.indexOf("await app.workspace.loadLayout");
 
     expect(source).toContain('import "@lapis-notes/bases/styles.css"');
@@ -27,15 +27,15 @@ describe("web Bases host registration", () => {
     expect(ai).toBeGreaterThan(bases);
     expect(roles).toBeGreaterThan(ai);
     expect(loadPlugins).toBeGreaterThan(roles);
-    expect(metadata).toBeGreaterThan(loadPlugins);
-    expect(layout).toBeGreaterThan(metadata);
+    expect(layout).toBeGreaterThan(loadPlugins);
+    expect(metadata).toBeGreaterThan(layout);
     expect(source).toContain("WorkspaceStartup");
     expect(source).toContain('id: "vault"');
     expect(source).toContain('id: "configuration"');
     expect(source).toContain('id: "plugins"');
     expect(source).toContain('id: "layout"');
     expect(source).toContain("onProgress");
-    expect(source).toContain("Loading metadata cache");
+    expect(source).toContain("startMetadataCache");
     expect(source).not.toMatch(/await app\.metadataCache\.load/u);
     expect(source).not.toContain("Opening vault…");
   });

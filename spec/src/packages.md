@@ -311,8 +311,8 @@ launcher overlay geometry and class-selected native window-control clearance.
 Session boot consumes public `@lapismd/design-core/workspace/startup` and the
 shared drag-region stylesheet rather than a host-owned loading stub or
 `-webkit-app-region` override. The plugins task reports the current plugin
-name. Metadata cache load starts after plugins enable and does not block
-layout restoration.
+name. Metadata cache load starts after layout restoration so Turso open does
+not contend with `loadLayout`.
 The development renderer adds the real linked Design Core package root to its
 narrow Vite filesystem allowlist so public stylesheet assets remain available.
 
