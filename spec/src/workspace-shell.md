@@ -13,6 +13,7 @@ persistence, and application-host responsibilities.
 | LN-WS-062 | Each persisted leaf record MUST include that leaf's view type and live `view.getState()` snapshot. `loadJson` and controller projection MUST NOT apply an empty or poorer snapshot onto a claimed leaf of the same type. |
 | LN-WS-063 | `Workspace.getLeaf()` without a new-leaf flag and `App.openFile` MUST reuse an empty or file-backed main-area leaf, or create a new main tab. They MUST NOT replace a non-file main-area view and MUST NOT reuse a sidebar leaf. |
 | LN-WS-064 | An imperative view host MUST remount a Lapis view only when the tab id or view type changes. Remount MUST look up the existing leaf by that id and reattach its `containerEl`. |
+| LN-WS-065 | A missing-view placeholder MUST use the Lucide `ghost` icon on the leaf and the Design Core empty surface. An ordinary empty New Tab MUST keep the file empty icon. |
 | LN-WS-003 | `@lapis-notes/api/workspace-host` MUST be the only public host integration subpath and MUST return the api-owned design-core controller without adding design-core types to the root compatibility export.                                                                                                           |
 | LN-WS-004 | Layout loading and saving MUST remain owned by the api workspace: normalize the existing Lapis JSON shape, read `/.obsidian/<requested-file>`, and write `/.obsidian/workspace.json` through the owning api instance's existing 1000 ms debounce with one writer.                                                    |
 | LN-WS-005 | Api mutations MUST commit to the design-core controller, and controller-originated layout changes MUST project back into api wrappers, lifecycle state, legacy events, and persistence without feedback loops. Projection reconciliation MUST remove against a child snapshot so no stale node survives mutation.    |
@@ -80,7 +81,8 @@ The compatibility projection reuses split, tabs, group, window, and leaf
 objects by serialized id and keeps each claimed leaf's live `getState()`
 snapshot. File opens target an empty or file-backed main-area leaf rather than
 replacing a non-file view. Imperative hosts remount only when tab id or view
-type changes. Api-origin changes are committed under a bridge guard;
+type changes. Missing-view placeholders use the Lucide ghost icon on the leaf
+and Design Core empty surface; ordinary empty New Tabs keep the file icon. Api-origin changes are committed under a bridge guard;
 controller-originated changes are projected asynchronously under persistence
 suppression and emit one legacy layout-change/save request after reconciliation.
 Projection teardown iterates snapshots of mutable child collections and keeps

@@ -406,6 +406,10 @@ export class EmptyView extends View {
   }
 
   getIcon(): string {
+    const missingViewType = this.state["__missingViewType"];
+    if (typeof missingViewType === "string" && missingViewType.length > 0) {
+      return "ghost";
+    }
     return "file";
   }
 }

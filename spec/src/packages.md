@@ -117,6 +117,7 @@ API projection keeps the host-registered Problems leaf type so later API
 commits do not replace the live panel with an empty missing-view placeholder.
 The same claim-by-id path keeps each leaf's live `getState()` and opens files
 on an empty or file-backed main leaf rather than a plugin item view.
+Missing-view placeholders expose the Lucide `ghost` icon through `EmptyView`.
 Its narrow editor core and language-service subpaths let Markdown compose the
 source shell and diagnostics without importing the editor component barrel or
 its unrelated UI runtime.

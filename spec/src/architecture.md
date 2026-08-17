@@ -219,7 +219,8 @@ loaded alternate workspace filename. Host-registered Problems leaves stay
 missing-view placeholder. Claimed leaves keep their serialized id and live
 `getState()` across collapse, remount, and controller projection. Default file
 navigation reuses an empty or file-backed main leaf instead of replacing a
-non-file view. Settings displayed by the shell remain
+non-file view. Missing-view placeholders use the Lucide ghost icon; ordinary
+empty New Tabs keep the file empty icon. Settings displayed by the shell remain
 controller-owned while persisting through api configuration; the workspace
 shell does not initiate configuration or plugin loading. A missing workspace
 file seeds File Explorer then Search on the left and Outline, File Properties,

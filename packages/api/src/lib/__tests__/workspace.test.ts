@@ -227,6 +227,14 @@ vi.mock("../view.svelte", () => {
     getDisplayText(): string {
       return "Empty";
     }
+
+    getIcon(): string {
+      const missingViewType = this.getState()["__missingViewType"];
+      if (typeof missingViewType === "string" && missingViewType.length > 0) {
+        return "ghost";
+      }
+      return "file";
+    }
   }
 
   return {
@@ -1435,6 +1443,8 @@ describe("Workspace compatibility", () => {
       type: "empty",
       state: { __missingViewType: "bookmarks" },
     });
+    expect(leaf.getIcon()).toBe("ghost");
+    expect(leaf.toJson().state.icon).toBe("ghost");
   });
 
   it("keeps host-owned Problems leaves when API layout commits", async () => {
