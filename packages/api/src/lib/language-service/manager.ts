@@ -18,6 +18,7 @@ import type {
   WorkspaceDiagnostic,
 } from "../diagnostics";
 import type { Menu } from "../menu.svelte";
+import { markdownlintRuleUrl } from "../components/editor/extensions/lint/lapis-lint-diagnostic-helpers";
 
 export interface LanguageServiceDiagnosticsBinding {
   collection: DiagnosticCollection;
@@ -411,8 +412,22 @@ function toWorkspaceDiagnostic(
     severity: diagnostic.severity,
     range: diagnostic.range,
     source: diagnostic.source,
-    code: diagnostic.code,
+    code: toWorkspaceDiagnosticCode(diagnostic),
   };
+}
+
+function toWorkspaceDiagnosticCode(
+  diagnostic: LanguageServiceDiagnostic,
+): WorkspaceDiagnostic["code"] {
+  const code = diagnostic.code;
+  if (
+    diagnostic.source === "markdownlint" &&
+    typeof code === "string" &&
+    /^MD\d+$/i.test(code)
+  ) {
+    return { value: code, target: markdownlintRuleUrl(code) };
+  }
+  return code;
 }
 
 function diagnosticCacheKey(

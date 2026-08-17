@@ -122,7 +122,8 @@ later community-plugin work. The Markdown sidecar consumes
 `@lapis-notes/language-service/markdownlint/runtime`, which groups same-rule
 fixes in a diagnostic range so hover and Problems actions stay unique by title.
 That runtime applies vault `markdown-lint.disabledRules`, which seed MD013 off
-to match vscode-markdownlint.
+to match vscode-markdownlint, and formats each diagnostic as the rule-name
+path plus description used by vscode-markdownlint.
 
 The desktop launcher retains the reference Lapis logo, create/open hierarchy,
 recent-project search and actions, and persisted appearance selector. Its

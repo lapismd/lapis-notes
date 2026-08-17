@@ -4,7 +4,10 @@ import {
   markdownCodeActionsForDocument,
   markdownDiagnosticsForDocument,
 } from "../markdownlint/runtime";
-import { markdownCodeActionsFromIssues } from "../markdownlint/runtime-core";
+import {
+  formatMarkdownlintMessage,
+  markdownCodeActionsFromIssues,
+} from "../markdownlint/runtime-core";
 import { lint } from "markdownlint/sync";
 import { applyFix, applyFixes } from "markdownlint";
 
@@ -53,6 +56,28 @@ describe("markdownlint sync API", () => {
     expect(issues.some((issue) => issue.ruleNames?.includes("MD041"))).toBe(
       true,
     );
+  });
+
+  it("formats diagnostics as vscode-markdownlint rule paths", () => {
+    const document = {
+      uri: "note.md",
+      languageId: "markdown",
+      version: 1,
+      text: "hello world\n",
+    };
+    const diagnostic = markdownDiagnosticsForDocument(document).find(
+      (entry) => entry.code === "MD041",
+    );
+    expect(diagnostic?.message).toBe(
+      "MD041/first-line-heading/first-line-h1: First line in a file should be a top-level heading",
+    );
+    expect(
+      formatMarkdownlintMessage({
+        ruleNames: ["MD013", "line-length"],
+        ruleDescription: "Line length",
+        errorDetail: "Expected: 80; Actual: 209",
+      }),
+    ).toBe("MD013/line-length: Line length [Expected: 80; Actual: 209]");
   });
 
   it("suppresses disabled rules when config disables them", () => {

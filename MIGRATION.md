@@ -252,6 +252,7 @@ detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Editor-demo Markdownlint loft-boarding story seeds the long-form note, reveals Problems, and asserts unique code-and-range diagnostics (LN-ED-057)
 - [x] Markdownlint editor defaults disable MD013/line-length to match vscode-markdownlint (LN-WS-066)
 - [x] Markdownlint Settings seed disabled rules and include/exclude globs for open documents (LN-MDL-001 through LN-MDL-003, LN-ED-058)
+- [x] Markdownlint Problems listings use vscode-style rule-path messages, publish rule documentation URLs, and copy tree items or groups as JSON (LN-MDL-004, LN-WS-029, LN-WS-067)
 - [x] Diagnostic hover cards keep unique action keys when titles repeat, and cached language-service actions stay scoped to the originating diagnostic with one action per title (LN-PKG-082, LN-WS-056)
 - [x] Editor-demo runtime teardown synchronously unloads and destroys retained editors before asynchronous plugin/controller disposal, preventing HMR from accumulating Mira portal hosts (LN-WS-019, LN-ED-009)
 - [x] API editor note-column ownership neutralizes linked Mira's inherited outer-sizer constraint before applying file margins, preserving the 700px readable body when sidebars close (LN-ARCH-037, LN-PKG-048, LN-ED-046)

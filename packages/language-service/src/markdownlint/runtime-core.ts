@@ -138,10 +138,33 @@ function toDiagnostic(issue: MarkdownLintIssue): LanguageServiceDiagnostic {
     source: "markdownlint",
     code: markdownlintDiagnosticCode(issue.ruleNames, issue.ruleName),
     severity: "warning",
-    message: issue.ruleDescription
-      ? `${issue.ruleDescription}: ${issue.errorDetail ?? issue.errorContext ?? issue.ruleNames?.[0] ?? ""}`.trim()
-      : (issue.errorDetail ?? "Markdown lint issue"),
+    message: formatMarkdownlintMessage(issue),
   };
+}
+
+function markdownlintRulePath(issue: MarkdownLintIssue): string {
+  const names = (
+    issue.ruleNames ?? (issue.ruleName ? [issue.ruleName] : [])
+  ).map((name) => (name === "MD018-lapis" ? "MD018" : name));
+  const unique = [...new Set(names)];
+  if (unique.length === 0) {
+    return (
+      markdownlintDiagnosticCode(issue.ruleNames, issue.ruleName) ?? "issue"
+    );
+  }
+  return unique.join("/");
+}
+
+export function formatMarkdownlintMessage(issue: MarkdownLintIssue): string {
+  const description = issue.ruleDescription?.trim();
+  if (!description) {
+    return issue.errorDetail ?? "Markdown lint issue";
+  }
+  const path = markdownlintRulePath(issue);
+  const detail = issue.errorDetail?.trim();
+  return detail
+    ? `${path}: ${description} [${detail}]`
+    : `${path}: ${description}`;
 }
 
 function createIgnoreNextLineChange(

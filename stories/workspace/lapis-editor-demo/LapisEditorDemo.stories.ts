@@ -6,6 +6,7 @@ import { leafFilePath, type App, type Editor } from "@lapis-notes/api";
 import { refreshLanguageServiceDiagnostics } from "@lapis-notes/api/editor/language-service";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
+import { diagnosticCodeValue } from "@lapismd/design-core/workspace/problems";
 import LapisEditorDemo from "./LapisEditorDemo.svelte";
 import { workspaceStoryMeta } from "../_shared";
 
@@ -440,7 +441,7 @@ export const MarkdownProblems: Story = {
         expect(
           runtimeApp.workspace.diagnostics
             .snapshot()
-            .entries.map((entry) => entry.diagnostic.code)
+            .entries.map((entry) => diagnosticCodeValue(entry.diagnostic))
             .sort(),
         ).toEqual(["MD018", "MD025"]);
         expect(
@@ -457,7 +458,11 @@ export const MarkdownProblems: Story = {
             expect.objectContaining({
               diagnostic: expect.objectContaining({
                 source: "markdownlint",
-                code: "MD018",
+                code: {
+                  value: "MD018",
+                  target:
+                    "https://github.com/DavidAnson/markdownlint/blob/main/doc/md018.md",
+                },
               }),
             }),
           ]),
@@ -558,6 +563,9 @@ export const MarkdownProblems: Story = {
       name: /No space after hash on atx style heading/i,
     });
     await expect(problem).toHaveTextContent("markdownlint(MD018)");
+    await expect(problem).toHaveTextContent(
+      "MD018/no-missing-space-atx-except-tags: No space after hash on atx style heading, except lowercase Lapis tag lines",
+    );
 
     const severityFilter = problemsCanvas.getByRole("button", {
       name: "Filter problem severities",
@@ -667,7 +675,9 @@ export const MarkdownProblems: Story = {
         expect(
           runtimeApp.workspace.diagnostics
             .snapshot()
-            .entries.some((entry) => entry.diagnostic.code === "MD018"),
+            .entries.some(
+              (entry) => diagnosticCodeValue(entry.diagnostic) === "MD018",
+            ),
         ).toBe(false);
         expect(canvas.getByLabelText("Problems, 1 problem")).toBeVisible();
       },
@@ -699,7 +709,7 @@ export const MarkdownProblems: Story = {
         expect(
           runtimeApp.workspace.diagnostics
             .snapshot()
-            .entries.map((entry) => entry.diagnostic.code)
+            .entries.map((entry) => diagnosticCodeValue(entry.diagnostic))
             .sort(),
         ).toEqual(["MD018", "MD025"]);
         expect(
@@ -761,11 +771,13 @@ export const MarkdownLintLoftBoarding: Story = {
     );
     const identities = entries.map(
       (entry) =>
-        `${String(entry.diagnostic.code ?? "")}\u0000${JSON.stringify(entry.diagnostic.range ?? null)}\u0000${entry.diagnostic.message}`,
+        `${diagnosticCodeValue(entry.diagnostic) ?? ""}\u0000${JSON.stringify(entry.diagnostic.range ?? null)}\u0000${entry.diagnostic.message}`,
     );
     expect(new Set(identities).size).toBe(identities.length);
     expect(
-      entries.map((entry) => String(entry.diagnostic.code ?? "")).sort(),
+      entries
+        .map((entry) => diagnosticCodeValue(entry.diagnostic) ?? "")
+        .sort(),
     ).toEqual([
       "MD004",
       "MD004",

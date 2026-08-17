@@ -89,6 +89,11 @@ describe("LanguageServiceManager diagnostics bridge", () => {
     expect(collection.values.get(document.uri)?.[0]?.message).toBe(
       "Heading level skipped",
     );
+    expect(collection.values.get(document.uri)?.[0]?.code).toEqual({
+      value: "MD001",
+      target:
+        "https://github.com/DavidAnson/markdownlint/blob/main/doc/md001.md",
+    });
 
     releaseFirst();
     expect(collection.values.has(document.uri)).toBe(true);

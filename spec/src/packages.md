@@ -210,6 +210,8 @@ side panels. `@lapis-notes/markdown-lint` and the internal
 `@lapis-notes/language-service` package are the focused diagnostics exceptions.
 Markdownlint Settings seed MD013/line-length in `disabledRules` so the editor
 matches vscode-markdownlint rather than the CLI's all-rules-on library default.
+Published diagnostics use that same rule-path message form, and the API
+language-service bridge attaches each markdownlint rule's documentation URL.
 `@lapis-notes/history` owns vault file-revision capture, the History panel, the
 compare tab, and the Design Core History settings section while persisting
 revisions only through `AppDatabase`.
