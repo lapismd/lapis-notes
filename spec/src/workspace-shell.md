@@ -53,7 +53,10 @@ persistence, and application-host responsibilities.
    events project controller JSON into stable api wrappers and schedule the
    existing api persistence writer.
 5. Registered Lapis views mount through imperative design-core view hosts;
-   design-core renders the built-in empty state directly.
+   design-core renders the built-in empty state directly. Host-registered
+   class views such as Problems stay on the controller; API projection keeps
+   those leaf types so later API commits do not replace them with
+   missing-view placeholders.
 6. The api configures built-in application/version metadata and the minimal
    design-core notifications presentation without invoking the Lapis plugin
    loader.

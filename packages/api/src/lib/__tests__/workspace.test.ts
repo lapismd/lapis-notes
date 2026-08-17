@@ -1388,6 +1388,62 @@ describe("Workspace compatibility", () => {
     });
   });
 
+  it("keeps host-owned Problems leaves when API layout commits", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    await controller.start();
+    try {
+      await vi.waitFor(() => {
+        expect(
+          controller.workspace.getLeavesOfType("workspace:problems"),
+        ).toHaveLength(1);
+      });
+      await vi.waitFor(() => {
+        const [leaf] = workspace.getLeavesOfType("workspace:problems");
+        expect(leaf?.view.getViewType()).toBe("workspace:problems");
+        expect(leaf?.getDisplayText()).toBe("Problems");
+        expect(leaf?.getIcon()).toBe("circle-alert");
+      });
+
+      workspace.requestSaveLayout({ source: "api", operation: "open-file" });
+
+      expect(
+        controller.workspace.getLeavesOfType("workspace:problems"),
+      ).toHaveLength(1);
+      expect(JSON.stringify(controller.getLayout())).toContain(
+        "workspace:problems",
+      );
+      expect(JSON.stringify(controller.getLayout())).not.toContain(
+        "__missingViewType",
+      );
+    } finally {
+      await controller.dispose();
+    }
+  });
+
+  it("restores a host-owned Problems leaf from a missing-view placeholder", async () => {
+    const { workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    await controller.start();
+    try {
+      const leaf = workspace.getLeaf(true);
+      await leaf.setViewState({
+        type: "empty",
+        state: { __missingViewType: "workspace:problems" },
+      });
+
+      expect(leaf.view.getViewType()).toBe("workspace:problems");
+      expect(leaf.getViewState()).toEqual({
+        type: "workspace:problems",
+        state: {},
+      });
+      expect(leaf.getDisplayText()).toBe("Problems");
+      expect(leaf.getIcon()).toBe("circle-alert");
+    } finally {
+      await controller.dispose();
+    }
+  });
+
   it("honors explicit file-backed view state instead of falling back to the file default", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const leaf = workspace.getLeaf(true);

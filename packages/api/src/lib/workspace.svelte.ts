@@ -74,11 +74,15 @@ import { notificationsPlugin } from "@lapismd/design-core/workspace/plugins/noti
 import { fModePlugin } from "@lapismd/design-core/workspace/plugins/fmode";
 import {
   problemsPlugin,
+  PROBLEMS_VIEW_TYPE,
   type WorkspaceDiagnosticLocation,
 } from "@lapismd/design-core/workspace/problems";
 import { createAppShellPluginPersistence } from "./app-shell-plugin-persistence";
 import type { StatusBarItemDescriptor } from "./status-bar.svelte";
-import { setWorkspaceHostBinding } from "./workspace-host-internal";
+import {
+  resolveWorkspaceHostBinding,
+  setWorkspaceHostBinding,
+} from "./workspace-host-internal";
 import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
 import {
   getApplicationCompatibility,
@@ -5155,6 +5159,75 @@ function collectLayoutViewTypes(
 }
 
 /**
+ * Compatibility stand-in for a Design Core class view. The host owns the
+ * live mount; this view only preserves type and chrome across API commits.
+ */
+class HostOwnedWorkspaceView extends View {
+  readonly #viewType: string;
+  readonly #title: string;
+
+  constructor(
+    leaf: WorkspaceLeaf,
+    viewType: string,
+    title: string,
+    icon: string,
+  ) {
+    super(leaf);
+    this.#viewType = viewType;
+    this.#title = title;
+    this.icon = icon;
+  }
+
+  protected onOpen(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  protected onClose(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  getViewType(): string {
+    return this.#viewType;
+  }
+
+  getDisplayText(): string {
+    return this.#title;
+  }
+}
+
+function isHostOwnedViewType(workspace: Workspace, type: string): boolean {
+  if (!type || type === "empty" || workspace.viewCreator(type)) {
+    return false;
+  }
+  return (
+    resolveWorkspaceHostBinding(workspace)?.controller.renderer.registry.resolve(
+      type,
+    ) != null
+  );
+}
+
+function hostOwnedViewChrome(
+  type: string,
+  definition: { icon?: string } | undefined,
+  chrome?: { title?: unknown; icon?: unknown },
+): { title: string; icon: string } {
+  const title =
+    typeof chrome?.title === "string" &&
+    chrome.title.length > 0 &&
+    chrome.title !== type
+      ? chrome.title
+      : type === PROBLEMS_VIEW_TYPE
+        ? "Problems"
+        : type;
+  const icon =
+    typeof chrome?.icon === "string" && chrome.icon.length > 0
+      ? chrome.icon
+      : (definition?.icon ??
+        (type === PROBLEMS_VIEW_TYPE ? "circle-alert" : "file"));
+  return { title, icon };
+}
+
+/**
  * Single navigable pane in the workspace that hosts one {@link View} at a time.
  *
  * @public
@@ -5473,6 +5546,34 @@ export class WorkspaceLeaf extends WorkspaceItem<{
             type: requestedViewType,
             state: restoredState,
           };
+        } else if (
+          !viewCreator &&
+          isHostOwnedViewType(this.app.workspace, requestedViewType)
+        ) {
+          const restoredState = { ...(viewState.state ?? {}) };
+          delete restoredState["__missingViewType"];
+          resolvedViewState = {
+            ...viewState,
+            type: requestedViewType,
+            state: restoredState,
+          };
+          const definition = resolveWorkspaceHostBinding(
+            this.app.workspace,
+          )?.controller.renderer.registry.resolve(requestedViewType);
+          const chrome = hostOwnedViewChrome(
+            requestedViewType,
+            definition,
+            persistedMissingViewType
+              ? undefined
+              : { title: eState?.title, icon: eState?.icon },
+          );
+          viewCreator = (leaf: WorkspaceLeaf) =>
+            new HostOwnedWorkspaceView(
+              leaf,
+              requestedViewType,
+              chrome.title,
+              chrome.icon,
+            );
         } else if (!viewCreator) {
           new Notice(
             `Unknown view type: ${requestedViewType}`,
@@ -5584,7 +5685,11 @@ export class WorkspaceLeaf extends WorkspaceItem<{
         type: layout.state.type,
         state: layout.state.state,
       },
-      { history: true },
+      {
+        history: true,
+        title: layout.state.title,
+        icon: layout.state.icon,
+      },
     );
   }
 

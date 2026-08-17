@@ -16,7 +16,7 @@ plugin-local paint.
 | LN-PLUG-003 | Statically shipped bundled and first-party external plugins MUST use the core lifecycle and `.obsidian/core-plugins.json`; they MUST NOT enter the vault-installed community configuration.                 |
 | LN-PLUG-004 | Core plugin registrations and list entries MUST expose distribution metadata, defaulting omitted registrations to `bundled`.                                                                                |
 | LN-PLUG-005 | Array-form core configuration MUST remain readable as disabled IDs. Object-form configuration MUST preserve explicit `disabled` and `enabled` IDs.                                                          |
-| LN-PLUG-006 | Markdown, Search, History, Markdown Lint, File Explorer, Bases, AI, Notifications, Word Count, and Roles MUST default enabled and remain user-disableable. Problems and other declared infrastructure MAY remain required. |
+| LN-PLUG-006 | Markdown, Search, History, Markdown Lint, File Explorer, Bases, AI, Notifications, Word Count, and Roles MUST default enabled and remain user-disableable. Problems and other declared infrastructure MAY remain required. Required host-owned views such as Problems MUST NOT become missing-view placeholders while their host registration remains. |
 | LN-PLUG-007 | Disabling a plugin with open owned views MUST replace those leaves with persisted missing-view placeholders. Re-enabling it MUST restore the leaves without changing active selection or plugin-owned data. Restored imperative plugin views MUST receive a host-filling compatibility root without depending on application-global utility CSS. |
 | LN-PLUG-008 | Core settings MUST subscribe to lifecycle changes and failures through the Design Core managed-plugin source contract, with Included and First-party groups.                                                |
 | LN-PLUG-009 | Default Search or Explorer leaves MUST NOT be created while their owning plugin is disabled.                                                                                                                |
@@ -78,6 +78,8 @@ installed-plugin path. Those states are not interchangeable.
 The core configuration continues to accept the legacy array and the object
 form. Missing-view placeholders retain the original view type and serialized
 state so restart and later enablement use the existing workspace recovery path.
+Required host-owned views such as Problems keep their host view type instead
+of being rewritten as empty placeholders while that registration remains.
 Plugin configuration and data remain keyed by runtime plugin ID.
 Bundled plugins that own user-facing configuration register Design Core
 settings sections under `core-plugins` in addition to any legacy

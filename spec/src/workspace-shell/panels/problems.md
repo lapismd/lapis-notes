@@ -17,7 +17,7 @@ Markdownlint provider are implemented.
 | LN-WS-027 | A diagnostic resource MUST use an opaque URI with optional label, detail, and icon hints. Positions MUST be zero-based; ranges MAY be absent for resource-wide or workspace-wide issues, and a `null` resource MUST represent a shell-wide issue. |
 | LN-WS-028 | The generic Problems panel MUST provide severity counts and filters, search, sorted resource and Workspace groups, collapse controls, related-information rows, diagnostic tags, an empty state, and one-based line and column display. |
 | LN-WS-029 | Primary problem activation MUST delegate to a host navigation adapter. Context menus MUST provide Copy Message and Copy Problem before collection-owned actions, while unlocated shell failures remain non-navigable. |
-| LN-WS-030 | The required Problems presentation plugin MUST preserve a persisted or moved Problems leaf. Otherwise it MUST seed one inactive, closable bottom-dock tab after hydration without opening the dock, and the Show Problems command MUST reveal or recreate it. |
+| LN-WS-030 | The required Problems presentation plugin MUST preserve a persisted or moved Problems leaf. Otherwise it MUST seed one inactive, closable bottom-dock tab after hydration without opening the dock, and the Show Problems command MUST reveal or recreate it. API layout commits MUST keep a host-registered Problems leaf as that view type instead of an empty missing-view placeholder. |
 | LN-WS-031 | The App Shell MUST publish active static-plugin enablement and layout, configuration, plugin-state, and notification-persistence failures through an internal collection. It MUST clear each failure after recovery and MUST NOT mirror ordinary notices or notification history. |
 | LN-WS-032 | Lapis MUST expose structurally compatible diagnostics through `app.workspace.diagnostics` and `Plugin.createDiagnosticCollection()`. Plugin-owned collections MUST dispose automatically without requiring community plugins to import Design Core. |
 | LN-WS-033 | `LanguageServiceManager` MUST publish completed open-document diagnostics into one shared collection and cache matching code actions. It MUST reference-count editor ownership, clear final-close and provider-unload results, and MUST NOT scan unopened vault resources. |
@@ -57,7 +57,10 @@ not add callbacks or agent-specific fields to serializable diagnostics.
 ## Lifecycle
 
 Diagnostics are not workspace layout state. Closing the Problems view does not
-clear collections, and new diagnostics do not open it. Closing the final editor
+clear collections, and new diagnostics do not open it. API compatibility
+projection keeps a host-registered Problems leaf as `workspace:problems` so a
+later file open or other API layout commit cannot replace it with an empty
+missing-view placeholder. Closing the final editor
 for a Markdown resource clears its language-service entry; reopening the file
 requests a fresh result. Disabling or unloading a provider clears results that
 the provider owned. Navigation focuses an existing file leaf before opening a
