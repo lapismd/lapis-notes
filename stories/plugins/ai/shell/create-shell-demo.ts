@@ -29,11 +29,17 @@ export type AiWorkspaceScenario =
   | "local-conversations"
   | "agent-switching"
   | "recovery"
-  | "community-tools";
+  | "community-tools"
+  | "reload-resume";
 
 export const LOCAL_CONVERSATION_ID = "123e4567-e89b-42d3-a456-426614174000";
 const ARCHIVED_CONVERSATION_ID = "223e4567-e89b-42d3-a456-426614174001";
 const RECOVERY_CONVERSATION_ID = "323e4567-e89b-42d3-a456-426614174002";
+export const LIVE_HOST_VAULT_ID = "lapis-ai-live-host";
+export const LIVE_HOST_RELOAD_CONVERSATION_ID =
+  "423e4567-e89b-42d3-a456-426614174003";
+export const LIVE_HOST_RELOAD_ASSISTANT_TEXT =
+  "The durable live response remains available offline.";
 
 export { isLiveAgentAttachConfigured } from "../live-agent-attach";
 
@@ -137,7 +143,12 @@ export function createAiWorkspaceSeed(
       ? { scopeDir: "Notes", conversationId: LOCAL_CONVERSATION_ID }
       : scenario === "recovery"
         ? { scopeDir: "Notes", conversationId: RECOVERY_CONVERSATION_ID }
-        : undefined;
+        : scenario === "reload-resume"
+          ? {
+              scopeDir: "Notes",
+              conversationId: LIVE_HOST_RELOAD_CONVERSATION_ID,
+            }
+          : undefined;
   return {
     ".obsidian/app.json": JSON.stringify(AI_WORKSPACE_CONFIGURATION, null, 2),
     ".obsidian/workspace.json": JSON.stringify(
@@ -148,7 +159,9 @@ export function createAiWorkspaceSeed(
     ".obsidian/ai.json": JSON.stringify(pluginData, null, 2),
     "Notes/Welcome.md": "# Welcome\n\nAsk the AI chat in the workspace.\n",
     "Notes/alpha.md": "# Alpha\n\nTODO: summarize this note.\n",
-    ...(scenario === "default" || scenario === "community-tools"
+    ...(scenario === "default" ||
+    scenario === "community-tools" ||
+    scenario === "reload-resume"
       ? {}
       : createConversationScenarioSeed(scenario)),
   };
@@ -167,7 +180,7 @@ export async function bootAiWorkspaceDemo(
     createAiWorkspacePluginData(defaultRuntime),
     scenario,
   );
-  const storageKey = `lapis-ai-story:${vaultId}:portable-conversations`;
+  const storageKey = portableConversationStorageKey(vaultId);
   let persistedFiles: Record<string, string> = {};
   if (options.persistVaultData && typeof localStorage !== "undefined") {
     const storedVaultData = localStorage.getItem(storageKey);
@@ -535,8 +548,77 @@ function message(
   };
 }
 
-function isPortableConversationFile(path: string): boolean {
+export function portableConversationStorageKey(vaultId: string): string {
+  return `lapis-ai-story:${vaultId}:portable-conversations`;
+}
+
+export function isPortableConversationFile(path: string): boolean {
   return /(?:^|\/)\.lapis\/agents\/sessions\/[0-9a-f-]+\/(?:metadata\.yaml|agents\.jsonl|transcript\.jsonl)$/u.test(
     path,
   );
+}
+
+export function createLiveHostReloadConversationFiles(): Record<string, string> {
+  return conversationFiles({
+    id: LIVE_HOST_RELOAD_CONVERSATION_ID,
+    title: "Reloaded live conversation",
+    status: "active",
+    bindings: [binding("binding-live-reload", "codex", "gpt-5.6-sol")],
+    activeBindingId: "binding-live-reload",
+    transcript: [
+      message(
+        "live-reload-user",
+        "user",
+        "Continue the restored live conversation",
+        "binding-live-reload",
+      ),
+      message(
+        "live-reload-assistant",
+        "assistant",
+        LIVE_HOST_RELOAD_ASSISTANT_TEXT,
+        "binding-live-reload",
+      ),
+    ],
+    usage: { used: 12_920, limit: 128_000 },
+  });
+}
+
+export function seedPortableConversationStorage(
+  vaultId: string,
+  files: Record<string, string>,
+): void {
+  if (typeof localStorage === "undefined") return;
+  const portableFiles = Object.fromEntries(
+    Object.entries(files).filter(([path, data]) => {
+      return isPortableConversationFile(path) && typeof data === "string";
+    }),
+  );
+  localStorage.setItem(
+    portableConversationStorageKey(vaultId),
+    JSON.stringify(portableFiles),
+  );
+}
+
+export function readPortableConversationStorage(
+  vaultId: string,
+): Record<string, string> {
+  if (typeof localStorage === "undefined") return {};
+  const storedVaultData = localStorage.getItem(
+    portableConversationStorageKey(vaultId),
+  );
+  if (!storedVaultData) return {};
+  try {
+    const parsed = JSON.parse(storedVaultData);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {};
+    }
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        (entry): entry is [string, string] =>
+          isPortableConversationFile(entry[0]) && typeof entry[1] === "string",
+      ),
+    );
+  } catch {
+    return {};
+  }
 }

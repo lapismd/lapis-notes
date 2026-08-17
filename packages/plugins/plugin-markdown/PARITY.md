@@ -154,7 +154,7 @@ the contract for new panels.
 | Area                                                              | Notes                                                                                                                                   |
 | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | List-callouts catalog + settings tab                              | Full-repo hybrid settings                                                                                                               |
-| Metadata worker / heavy type widgets                              | Lightweight `extract-metadata` intaken; full remark/worker deferred; PillListEditor / suggestValues / NoteLink later                    |
+| Metadata worker / heavy type widgets                              | Lightweight `extract-metadata` intaken; full remark/worker deferred                                                                     |
 | Language-service hooks                                            | Package not authorized yet                                                                                                              |
 | Host wikilink/embed/file autocomplete tuning                      | Vault-backed Mira adapter and file/headings catalogs landed; any remaining completion ranking/format parity is a focused authoring pass |
 | Mode-switch scroll/selection restore edge cases                   | Keep if cheap with intake                                                                                                               |
@@ -164,7 +164,7 @@ the contract for new panels.
 | Production AI `run` provider                                      | Demo stub only                                                                                                                          |
 | Full-repo remark metadata worker UI depth                         | Lightweight extract remains                                                                                                             |
 | Nest full `Sidebar.Root` inside workspace leaves                  | Prefer Lapis Explorer pattern: shell/panel NestedProvider + Content/Menu primitives (All Properties uses this); avoid remounting Root   |
-| Property-value suggestions / NoteLink behavior in File Properties | Keep the Mira native editors and Lapis adapter; richer cross-vault suggestions/link behavior remains a dedicated pass                   |
+| Property-value suggestions / NoteLink behavior in File Properties | Done: Mira `valueSuggestions` plus Lapis `getValues` and file-adapter wikilink pills; full metadata worker remains deferred             |
 | Panel Visual Delta baselines                                      | All placements are `visual-pending`; capture/review remains explicitly deferred                                                         |
 
 Update this file when intake or Mira coverage changes.

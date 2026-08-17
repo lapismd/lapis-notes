@@ -17,7 +17,7 @@ requirements.
 - [x] ACP, Codex Native, authenticated remote host, and Electron integration
 - [x] Storybook interaction, accessibility, visual, and remote acceptance
 - [x] Full Electron package lane (`package:dir` with unpacked MCP shim)
-- [ ] Live paid-agent acceptance (see acceptance gaps)
+- [ ] Live paid-agent acceptance (see acceptance gaps; 2026-08-17 rerun)
 
 ## Protocol allocation
 
@@ -86,12 +86,17 @@ requirements.
   opens the ordinary Welcome.md preview after the constrained split settles.
 - Codex ACP, Cursor ACP, and Codex Native live probes are deliberately manual
   because they invoke installed, authenticated, potentially paid agents. The
-  confined probe implementation and agent-free harness are complete, but these
-  probes were not rerun during this delivery.
+  2026-08-17 rerun confirmed the agent-free harness (3/3) and live model
+  catalogs (Codex ACP 7, Cursor ACP 35, Codex Native 7). Tool turns did not
+  complete: Codex ACP returned Internal error on `notes_search`, Cursor ACP
+  omitted `notes_read`, and Codex Native hit a usage limit. Storybook and
+  desktop UI checklists were not walked. The Live Host ReloadResume play
+  covers restore-before-resume without sending a prompt.
 
 ## Known risks
 
-- Live paid-agent probes remain manual and were not rerun in this delivery.
+- Live paid-agent probes remain manual. The 2026-08-17 rerun reached catalogs
+  but did not complete `notes_*` tool turns.
 - Abrupt process termination can interrupt the visual dependency-staging
   cleanup; normal success and failure paths restore the exact manifest,
   workspace file, lockfile, and permanent links before a frozen relink.

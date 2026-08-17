@@ -144,7 +144,7 @@ AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-094`
 - [x] Five governed app-tool Storybook scenarios with approved canonical baselines
 - [x] Rebased onto History settings so Workspace Shell asserts the seven bundled plugins from `LN-CAT-077`
 - [x] Full Electron `package:dir` lane: renderer Vite includes the Turso WASM bundle; unpacked app ships an executable `mcp-shim.mjs`
-- [ ] Live paid-agent probes (`pnpm ai:smoke:probe:*`, Live Host, desktop smoke): harness complete, not rerun in this delivery
+- [ ] Live paid-agent probes (`pnpm ai:smoke:probe:*`, Live Host, desktop smoke): 2026-08-17 rerun — harness 3/3; Codex ACP catalog (7) then Internal error on `notes_search`; Cursor ACP catalog (35) then `notes_read` omitted; Codex Native catalog (7) then usage limit. Storybook/desktop UI checklists not completed. Automated Live Host ReloadResume play covers restore-before-resume without a live prompt.
 
 ### Search plugin intake progress
 
@@ -241,7 +241,8 @@ detail lives in `packages/plugins/plugin-markdown/PARITY.md`.
 - [x] Real app-only component metadata with no kind/layout harness controls; real bottom/sidebar groups, stable ViewHost paint assertions, isolated 700px padding-free Docs previews, and explicit persisted-layout Show Code
 - [x] Linked Mira package exports + CodeMirror/Lezer dedupe; ignored `.deps/*` staging remains Docker-only
 - [ ] Markdown panel Visual Delta capture/review; all placement stories declare independent pending paths, but this slice intentionally generates or updates no PNGs
-- [ ] Rich property-value suggestions / NoteLink behavior and full metadata worker
+- [x] File Properties vault-wide value suggestions and wikilink pills through Mira `valueSuggestions` plus the Lapis file adapter
+- [ ] Full metadata worker / heavy type widgets remain deferred
 
 ### Workspace shell integration progress
 

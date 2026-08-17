@@ -54,6 +54,7 @@
 | LN-ED-052 | The public Markdown view state MUST support a generic serialized return target so a domain file preview can delegate whole-file editing to the registered Markdown leaf without importing Markdown implementation internals. |
 | LN-ED-053 | API editors and command scopes MUST retain their owning App for persistence, workspace events, extensions, telemetry, and hotkey dispatch. An explicit or inherited owner MUST win when the compatibility alias references another App. |
 | LN-ED-054 | The reusable Explorer sidebar MUST declare its canonical `ViewAccess.command` opener, preserve the `lapis-file-explorer` runtime identity, and use the concise `Explorer` display prefix in the command palette. |
+| LN-ED-055 | Storybook Explorer placement plays MUST open a file-row context menu on the in-memory vault and assert that native copy, open, and reveal extras are absent. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add
@@ -113,8 +114,8 @@ Reusable storage, source-view, configuration, and registry behavior belongs to
 Lapis source-editor remains a Storybook-local intake fixture. File Explorer is
 owned by `@lapis-notes/file-explorer`.
 `@lapis-notes/markdown` owns document behavior and reuses one
-`MiraFileAdapter` per App so ordinary-link previews survive workspace
-split resize. The enabled
+`MiraFileAdapter` per App so ordinary-link previews and File Properties
+wikilink pills survive workspace split resize. The enabled
 `@lapis-notes/markdown-lint` plugin contributes diagnostics only. Markdown owns
 the Tags view. Shared panel
 presentation is specified under `workspace-shell/panels.md`. The Markdown

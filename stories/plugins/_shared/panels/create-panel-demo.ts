@@ -468,7 +468,7 @@ export function createPanelDemoSeed(
     "Notes/Welcome.md": [
       "---",
       "title: Welcome",
-      "aliases: [Lapis Home]",
+      'aliases: [Lapis Home, "[[Ideas|Idea inbox]]"]',
       "tags: [demo, markdown, project/alpha]",
       "status: ready",
       "priority: high",

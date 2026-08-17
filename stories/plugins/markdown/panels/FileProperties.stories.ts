@@ -151,6 +151,23 @@ function placementStory(
         ).backgroundColor,
       ).not.toBe("rgba(0, 0, 0, 0)");
       expect(aliases.getByText("Lapis Home", { exact: true })).toBeVisible();
+      expect(aliases.getByText("Idea inbox", { exact: true })).toBeVisible();
+      expect(
+        aliases
+          .getByText("Idea inbox", { exact: true })
+          .closest(".metadata-property-pill-link"),
+      ).not.toBeNull();
+      const tagsInput = tags.getByRole("combobox", { name: "tags value" });
+      await userEvent.click(tagsInput);
+      await userEvent.type(tagsInput, "ide");
+      await waitFor(() => {
+        expect(
+          within(canvasElement.ownerDocument.body).getByRole("option", {
+            name: "ideas",
+          }),
+        ).toBeVisible();
+      });
+      await userEvent.keyboard("{Escape}");
       const aliasPill = aliases
         .getByText("Lapis Home", { exact: true })
         .closest<HTMLElement>(".metadata-property-pill-chip");

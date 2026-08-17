@@ -18,6 +18,8 @@ remains a load-only alias under `LN-MD-085`.
 | LN-MD-039 | The File Properties wrapper MUST remain transparent and supply surface-aware focus, tag, and alias-pill tokens that contrast on sidebar and workspace backgrounds. |
 | LN-MD-040 | Standard Lapis property types MUST retain their registered label, icon, default, and validation definitions while using Mira's native renderers. Tags, aliases, and multitext use pill lists; text uses the non-resizable inline editor; Tags uses the Lucide hash glyph. |
 | LN-MD-041 | The active property MUST retain Mira/Lapis row-owned border, ring, and radius. Focused keys and values use a view-token-derived contrast fill, inline editors add no competing outline, and property textareas remain non-resizable. |
+| LN-MD-095 | File Properties MUST offer vault-wide value autocomplete for tags, aliases, and multitext through Mira `valueSuggestions` backed by `metadataTypeManager.getValues`. It MUST NOT reopen property-name suggestions or fork a Lapis pill editor. |
+| LN-MD-096 | Wikilink pills in File Properties MUST resolve through the Lapis `MiraFileAdapter` so they hover and open like other NoteLink surfaces. |
 
 Responsive stories resize the owning workspace split as required by LN-ED-021;
 they do not set a synthetic width on the component. The frontmatter controller

@@ -70,3 +70,5 @@ Every canonical panel story lives at
 `Plugins/Markdown/Panels/<Panel>` and exports the same six placement names used
 by the cross-plugin panel audit. Link Preview Acceptance remains supporting
 behavior rather than an additional command-access view.
+File Properties value suggestions and wikilink pills remain on that panel's
+owning page.

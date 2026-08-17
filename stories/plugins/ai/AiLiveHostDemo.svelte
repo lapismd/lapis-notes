@@ -2,13 +2,26 @@
   import { onMount } from "svelte";
   import type { App } from "@lapis-notes/api";
   import { WorkspaceShell } from "@lapis-notes/workspace";
-  import { bootAiWorkspaceDemo } from "./shell/create-shell-demo";
+  import {
+    bootAiWorkspaceDemo,
+    createLiveHostReloadConversationFiles,
+    LIVE_HOST_VAULT_ID,
+    seedPortableConversationStorage,
+    type AiWorkspaceScenario,
+  } from "./shell/create-shell-demo";
   import { isLiveAgentAttachConfigured } from "./live-agent-attach";
   import "@lapis-notes/ai/styles.css";
 
+  let {
+    scenario = "default",
+  }: {
+    scenario?: Extract<AiWorkspaceScenario, "default" | "reload-resume">;
+  } = $props();
+
   const attached = isLiveAgentAttachConfigured();
+  const persistReload = $derived(scenario === "reload-resume");
   let app = $state<App | null>(null);
-  let status = $state(attached ? "booting" : "missing");
+  let status = $state("booting");
   let error = $state("");
   let root = $state<HTMLDivElement>();
 
@@ -22,12 +35,22 @@
   });
 
   onMount(() => {
-    if (!attached) return;
+    if (!attached && !persistReload) {
+      status = "missing";
+      return;
+    }
+    if (persistReload) {
+      seedPortableConversationStorage(
+        LIVE_HOST_VAULT_ID,
+        createLiveHostReloadConversationFiles(),
+      );
+    }
     let cancelled = false;
     const runtimePromise = bootAiWorkspaceDemo({
-      defaultRuntime: "acp",
-      vaultId: "lapis-ai-live-host",
+      defaultRuntime: attached ? "acp" : "fake",
+      vaultId: LIVE_HOST_VAULT_ID,
       persistVaultData: true,
+      scenario,
     });
     void runtimePromise
       .then((runtime) => {
@@ -49,7 +72,7 @@
   });
 </script>
 
-{#if !attached}
+{#if !attached && !persistReload}
   <section
     class="ai-live-host-setup"
     data-testid="ai-live-host-setup"

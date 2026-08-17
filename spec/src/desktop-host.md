@@ -56,6 +56,7 @@ are intentionally omitted.
 | LN-DESK-045 | The launcher “View all” palette MUST compose `@lapismd/design-core/shadcn/command-view` for search and results. Dialog MUST keep overlay, scrim, and upper-viewport placement. |
 | LN-DESK-046 | Agent-runtime protocol v3 MUST add authenticated application-tool bridge open, response, close, call, and cancellation messages while preserving protocol-v2 agent fallback without tools. Tool authorization MUST bind to the host connection, conversation, native binding, and fixed scope; disconnect MUST revoke the bridge and its pending calls. |
 | LN-DESK-047 | AI Host MUST expose application tools through an official-SDK stdio MCP shim backed by a token-authenticated ephemeral `127.0.0.1` broker. Electron packages MUST ship an executable unpacked shim, keep stdout protocol-only, reserve `lapis-tools`, keep bridge credentials out of arguments and durable state, and cancel in-flight calls when their owning connection closes. |
+| LN-DESK-048 | Explorer MUST consume the advertised `file-system-actions` capability through the existing resolve, open, and reveal desktop IPC. It MUST NOT add a command or a second IPC channel for those actions. |
 
 ## Boot flow
 

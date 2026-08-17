@@ -11,6 +11,7 @@
     createLapisFrontmatterPropertyManager,
     syncLapisFrontmatterController,
   } from "../../frontmatter/lapis-frontmatter-adapter";
+  import { createLapisMiraFileAdapter } from "../../mira/file-adapter";
   import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
 
@@ -18,6 +19,7 @@
 
   const activeFile = $derived.by(() => resolvePanelTargetFile(app));
 
+  const fileAdapter = $derived(createLapisMiraFileAdapter(app));
   const propertyManager: FrontmatterPropertyManager = untrack(() =>
     createLapisFrontmatterPropertyManager(app),
   );
@@ -50,6 +52,7 @@
       <FrontmatterEditor
         {controller}
         {propertyManager}
+        {fileAdapter}
         showChrome={false}
         open={true}
       />

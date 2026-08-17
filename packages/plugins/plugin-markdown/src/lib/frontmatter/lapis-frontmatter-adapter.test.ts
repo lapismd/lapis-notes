@@ -106,6 +106,10 @@ function createAppFixture(frontmatter: Record<string, unknown>) {
         getAllProperties() {
           return this.properties;
         },
+        getValues(key: string) {
+          if (key === "tags") return [["demo"], ["ideas", "project/beta"]];
+          return [];
+        },
         setType: vi.fn((key: string, type: string) => {
           types[key] = { name: key, type };
         }),
@@ -151,6 +155,11 @@ describe("lapis frontmatter adapter", () => {
     expect(manager.resolveWidget("tags")?.render).toBeUndefined();
     expect(manager.resolveWidget("aliases")?.render).toBeUndefined();
     expect(manager.resolveType("count", "count", "2")).toBe("number");
+    expect(manager.config.valueSuggestions?.("tags", "ide")).toEqual([
+      "demo",
+      "ideas",
+      "project/beta",
+    ]);
 
     manager.setType("status", "text");
     expect(app.metadataTypeManager.setType).toHaveBeenCalledWith(

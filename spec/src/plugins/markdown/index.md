@@ -48,6 +48,10 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-093 | Markdown MUST register `notes_read` and `notes_list` through the application tool registry. Both MUST accept only normalized Markdown paths inside the trusted conversation scope, reject application-private directories, and return deterministically ordered bounded results. |
 | LN-MD-094 | Markdown MUST register `notes_patch` as a write-effect application tool. It MUST preview the target and text replacement for approval, then use atomic vault processing to replace exactly one current match; invalid scope, conflicts, cancellation, and denial MUST leave the file unchanged. |
 
+File Properties value autocomplete and wikilink pills stay on the Lapis
+frontmatter adapter and Mira file adapter. The full metadata worker remains
+deferred.
+
 ## Ownership
 
 Reusable Plugin and Editor contracts remain in `@lapis-notes/api`. Markdown

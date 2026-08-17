@@ -92,6 +92,14 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-080 | `@lapis-notes/api` MUST own only transport-neutral app-tool contracts and lifecycle. Search and Markdown MUST own note tools, AI MUST own snapshots and policy, and AI Host plus Electron MUST own live local or authenticated-remote MCP transport without becoming durable tool, note-content, or conversation authorities. |
 | LN-PKG-081 | Root Docker visual staging MUST update sibling dependency overrides in `pnpm-workspace.yaml`, regenerate the matching lockfile, and restore the root manifest, workspace configuration, and original lockfile before a frozen relink after capture. It MUST NOT depend on the retired manifest-level `pnpm.overrides` shape. |
 
+`@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,
+open, and OS reveal only through Design Core `buildItemMenu` and the existing
+desktop `file-system-actions` IPC. Those extras stay out of the web and
+Storybook memory vaults.
+`@lapis-notes/markdown` File Properties uses Mira `valueSuggestions` and the
+existing Lapis file adapter for wikilink pills without forking pill-list
+editing.
+
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.
 Live Problems totals therefore use Design Core's structured, ephemeral view

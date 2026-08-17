@@ -17,6 +17,21 @@ import {
   type FrontmatterTypeDefinition,
 } from "@lapismd/mira/preview/frontmatter";
 
+export function flattenMetadataValues(values: unknown[]): string[] {
+  const out: string[] = [];
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      out.push(...flattenMetadataValues(value));
+      continue;
+    }
+    if (typeof value === "string" || typeof value === "number") {
+      const text = String(value).trim();
+      if (text) out.push(text);
+    }
+  }
+  return out;
+}
+
 function adaptTypeWidget(widget: TypeWidget): FrontmatterTypeDefinition {
   return {
     type: widget.type,
@@ -43,6 +58,8 @@ function liveFrontmatterConfig(app: App): FrontmatterConfig {
   return {
     types,
     widgets,
+    valueSuggestions: (key) =>
+      flattenMetadataValues(manager.getValues(key)),
     propertySuggestions: () => {
       const properties = manager.getAllProperties();
       const names = new Set([

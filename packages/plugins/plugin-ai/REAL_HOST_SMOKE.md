@@ -71,7 +71,10 @@ Agent submenu to repeat it with Cursor ACP:
    cancellation row, and Retry action without an automatic resend.
 8. Reload the story. Verify the local transcript, agent divider, completed
    thinking summary, tools, approval decision label, and usage render before
-   native resume. Continue the conversation once.
+   native resume. Continue the conversation once. The `Plugins/AI/Live Host`
+   ReloadResume play seeds the same `lapis-ai-story:` storage key and asserts
+   transcript, agent divider, and usage before resume without sending a prompt.
+   This step remains the live confirmation.
 9. Stop and restart the launcher during a turn. Verify the turn becomes visibly
    interrupted and Retry is offered. A submitted prompt must never be replayed
    automatically after host loss.

@@ -83,3 +83,5 @@ asserts the stable destination and nested `WorkspaceViewHost` and exercises the
 defining interaction. New placement stories retain literal `visual-pending`
 metadata and independent future paths; PNG baselines are not generated or
 approved without explicit review.
+File Properties value autocomplete and wikilink resolution remain Markdown
+panel behavior over the shared host, not a new shell contract.

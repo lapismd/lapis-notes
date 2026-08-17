@@ -1,7 +1,7 @@
 import { ExplorerPanel } from "@lapis-notes/file-explorer";
 import type { ExplorerController } from "@lapismd/design-core/workspace/explorer";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
 import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
@@ -73,6 +73,19 @@ function placementStory(
       await expect(
         panel.getByRole("button", { name: "Create File" }),
       ).toBeVisible();
+      const notes = panel.getByText("Notes");
+      notes.dispatchEvent(
+        new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+      );
+      const body = within(canvasElement.ownerDocument.body);
+      await expect(body.findByText("Copy Path")).resolves.toBeVisible();
+      expect(body.queryByText("From system root")).toBeNull();
+      expect(body.queryByText("As Lapis URL")).toBeNull();
+      expect(body.queryByText("Open in default app")).toBeNull();
+      expect(body.queryByText("Reveal in Finder")).toBeNull();
+      expect(body.queryByText("Reveal in File Explorer")).toBeNull();
+      expect(body.queryByText("Reveal in file manager")).toBeNull();
+      await userEvent.keyboard("{Escape}");
       await expectPanelSource(parameters, kind, layout);
     },
   };

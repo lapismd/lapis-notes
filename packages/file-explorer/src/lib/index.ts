@@ -22,6 +22,10 @@ import type { WorkspaceAction } from "@lapismd/design-core/workspace/core";
 import { mount, unmount } from "svelte";
 import ExplorerPanel from "./LapisExplorerView.svelte";
 import LapisLanding from "./LapisLandingView.svelte";
+import {
+  appendNativeExplorerMenu,
+  copyExplorerText,
+} from "./native-explorer-actions";
 import { openExplorerFile } from "./open-explorer-file";
 import { isVisibleExplorerPath } from "./vault-path-visibility";
 
@@ -195,6 +199,10 @@ function createExplorerController(app: App, loading: boolean) {
           if (!file) throw new Error(`Unable to find path: ${path}`);
           await app.vault.trash(file, false);
         }),
+      copyText: copyExplorerText,
+    },
+    buildItemMenu: (menu, node) => {
+      appendNativeExplorerMenu(menu, node, app);
     },
   });
 }

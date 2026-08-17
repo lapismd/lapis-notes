@@ -367,6 +367,14 @@ export const workspaceCatalog = [
     skipVisual: true,
   },
   {
+    id: "plugins-ai-live-host-reload-resume",
+    title: "AI Live Host: Reload Resume",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai + @lapis-notes/workspace",
+    storyId: "plugins-ai-live-host--reload-resume",
+    skipVisual: true,
+  },
+  {
     id: "plugins-bases-shell-desktop",
     title: "Bases Shell: Desktop",
     spec: "spec/src/plugins/bases/index.md",

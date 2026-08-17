@@ -112,6 +112,10 @@ The Live Host story verifies:
 - Configured URL and token boot the real AI workspace with `defaultRuntime` `acp`.
 - The story play never types or sends a prompt.
 
+The ReloadResume play seeds the shared `lapis-ai-story:` storage key with
+portable `.lapis/agents` files, remounts, and asserts transcript, agent
+divider, and usage before any live resume. It never sends a prompt.
+
 ## Runtime flow
 
 The initial fallback controller is presentation-only: it does not restore or

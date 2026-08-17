@@ -8,7 +8,7 @@ export const aiLiveHostExampleSource = `<script lang="ts">
 
   const attached = Boolean(import.meta.env.LAPIS_AGENT_RUNTIME_URL?.trim())
     && Boolean(import.meta.env.LAPIS_AGENT_RUNTIME_TOKEN?.trim());
-  const storageKey = "lapis-ai-live-host:portable-conversations";
+  const storageKey = "lapis-ai-story:lapis-ai-live-host:portable-conversations";
   const portableFiles = JSON.parse(localStorage.getItem(storageKey) ?? "{}");
   const adapter = new MemoryVaultAdapter({
     ".obsidian/app.json": JSON.stringify({
