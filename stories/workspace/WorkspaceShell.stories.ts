@@ -33,6 +33,29 @@ async function waitForShell(canvas: ReturnType<typeof within>) {
   );
 }
 
+function channelMean(color: string): number {
+  const values = color.match(/[\d.]+/g)?.map(Number) ?? [];
+  if (values.length < 3) return 255;
+  return (values[0]! + values[1]! + values[2]!) / 3;
+}
+
+async function expectInvertedDesignCoreTooltip(trigger: HTMLElement) {
+  await userEvent.hover(trigger);
+  try {
+    await waitFor(() => {
+      const tooltip = document.body.querySelector<HTMLElement>(
+        '[data-ui-component="tooltip"][data-slot="tooltip-content"]',
+      );
+      expect(tooltip).not.toBeNull();
+      const style = getComputedStyle(tooltip!);
+      expect(channelMean(style.backgroundColor)).toBeLessThan(80);
+      expect(channelMean(style.color)).toBeGreaterThan(180);
+    });
+  } finally {
+    await userEvent.unhover(trigger);
+  }
+}
+
 function expectBundledPlugins(canvas: ReturnType<typeof within>) {
   expect(
     JSON.parse(
@@ -208,6 +231,9 @@ export const PersistedDesktop: Story = {
     expectBundledPlugins(canvas);
     expectAppShellPlugins(canvas);
     expectDefaultSidebarViews(canvasElement);
+    await expectInvertedDesignCoreTooltip(
+      canvas.getByRole("button", { name: "Create File" }),
+    );
     const ribbon = canvas.getByLabelText("left ribbon");
     await expect(
       within(ribbon).getByRole("button", { name: "Settings" }),
