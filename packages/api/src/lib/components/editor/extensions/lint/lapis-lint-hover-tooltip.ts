@@ -51,68 +51,76 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
     private hideTimer: ReturnType<typeof setTimeout> | null = null;
 
     private readonly handleMouseMove = (event: MouseEvent) => {
-      if (eventTargetIsInsideLapisTooltip(event.target)) {
-        this.cancelScheduledHide();
-        return;
-      }
+      this.withEditorLayout(() => {
+        if (eventTargetIsInsideLapisTooltip(event.target)) {
+          this.cancelScheduledHide();
+          return;
+        }
 
-      const found =
-        lintMarkerFromEvent(event) != null
-          ? findDiagnosticNearPointer(this.view, event)
-          : (findDiagnosticFromLintRange(this.view, event) ??
-            findDiagnosticFromContentPointer(this.view, event));
+        const found =
+          lintMarkerFromEvent(event) != null
+            ? findDiagnosticNearPointer(this.view, event)
+            : (findDiagnosticFromLintRange(this.view, event) ??
+              findDiagnosticFromContentPointer(this.view, event));
 
-      if (found && this.isActiveDiagnostic(found)) {
-        this.cancelScheduledHide();
-        return;
-      }
-      if (this.isPointerInHandoff(event)) {
-        this.cancelScheduledHide();
-        return;
-      }
-      if (!found) {
-        this.scheduleHideTooltip();
-        return;
-      }
-      this.showTooltip(found);
+        if (found && this.isActiveDiagnostic(found)) {
+          this.cancelScheduledHide();
+          return;
+        }
+        if (this.isPointerInHandoff(event)) {
+          this.cancelScheduledHide();
+          return;
+        }
+        if (!found) {
+          this.scheduleHideTooltip();
+          return;
+        }
+        this.showTooltip(found);
+      });
     };
 
     private readonly handleClick = (event: MouseEvent) => {
-      const marker = lintMarkerFromEvent(event);
-      if (!marker) {
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-      const found = findDiagnosticNearPointer(this.view, event);
-      if (found) {
-        this.showTooltip(found);
-      }
+      this.withEditorLayout(() => {
+        const marker = lintMarkerFromEvent(event);
+        if (!marker) {
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        const found = findDiagnosticNearPointer(this.view, event);
+        if (found) {
+          this.showTooltip(found);
+        }
+      });
     };
 
     private readonly handleMouseLeave = (event: MouseEvent) => {
-      if (eventTargetIsInsideLapisTooltip(event.relatedTarget)) {
-        return;
-      }
-      if (this.isPointerInHandoff(event)) {
-        this.cancelScheduledHide();
-      } else {
-        this.scheduleHideTooltip();
-      }
+      this.withEditorLayout(() => {
+        if (eventTargetIsInsideLapisTooltip(event.relatedTarget)) {
+          return;
+        }
+        if (this.isPointerInHandoff(event)) {
+          this.cancelScheduledHide();
+        } else {
+          this.scheduleHideTooltip();
+        }
+      });
     };
 
     private readonly handleDocumentMouseMove = (event: MouseEvent) => {
-      if (
-        eventTargetIsInsideLapisTooltip(event.target) ||
-        eventTargetIsInside(this.view.dom, event.target)
-      ) {
-        return;
-      }
-      if (this.isPointerInHandoff(event)) {
-        this.cancelScheduledHide();
-      } else {
-        this.scheduleHideTooltip();
-      }
+      this.withEditorLayout(() => {
+        if (
+          eventTargetIsInsideLapisTooltip(event.target) ||
+          eventTargetIsInside(this.view.dom, event.target)
+        ) {
+          return;
+        }
+        if (this.isPointerInHandoff(event)) {
+          this.cancelScheduledHide();
+        } else {
+          this.scheduleHideTooltip();
+        }
+      });
     };
 
     private readonly handleTooltipMouseEnter = () => {
@@ -120,14 +128,16 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
     };
 
     private readonly handleTooltipMouseLeave = (event: MouseEvent) => {
-      if (
-        eventTargetIsInside(this.view.dom, event.relatedTarget) ||
-        this.isPointerInHandoff(event)
-      ) {
-        this.cancelScheduledHide();
-      } else {
-        this.scheduleHideTooltip();
-      }
+      this.withEditorLayout(() => {
+        if (
+          eventTargetIsInside(this.view.dom, event.relatedTarget) ||
+          this.isPointerInHandoff(event)
+        ) {
+          this.cancelScheduledHide();
+        } else {
+          this.scheduleHideTooltip();
+        }
+      });
     };
 
     private get viewDocument(): Document {
@@ -157,6 +167,15 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       ) {
         this.hideTooltip();
       }
+      if (this.activeDiagnostic && update.docChanged) {
+        const from = update.changes.mapPos(this.activeDiagnostic.from, 1);
+        const to = update.changes.mapPos(this.activeDiagnostic.to, -1);
+        if (from > to || from > update.state.doc.length) {
+          this.hideTooltip();
+        } else {
+          this.activeDiagnostic = { ...this.activeDiagnostic, from, to };
+        }
+      }
       if (!this.tooltip || !this.activeDiagnostic) {
         return;
       }
@@ -165,7 +184,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
         update.geometryChanged ||
         update.viewportChanged
       ) {
-        this.positionTooltip(this.activeDiagnostic);
+        this.schedulePositionTooltip();
       }
     }
 
@@ -199,7 +218,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       this.tooltip.style.top = "-10000px";
       this.tooltip.style.left = "0";
       this.viewDocument.body?.appendChild(this.tooltip);
-      this.positionTooltip(found);
+      this.schedulePositionTooltip();
     }
 
     private scheduleHideTooltip(): void {
@@ -284,18 +303,52 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
       };
     }
 
-    private positionTooltip(found: FoundDiagnostic): void {
+    private withEditorLayout(run: () => void): void {
+      try {
+        run();
+      } catch (error) {
+        if (!isEditorLayoutReadError(error)) {
+          throw error;
+        }
+      }
+    }
+
+    private schedulePositionTooltip(): void {
+      this.view.requestMeasure({
+        key: this,
+        read: (view) => {
+          const found = this.activeDiagnostic;
+          const tooltip = this.tooltip;
+          if (!found || !tooltip) {
+            return null;
+          }
+          return {
+            coords: view.coordsAtPos(found.from) ?? found.anchor ?? null,
+            tooltipRect: tooltip.getBoundingClientRect(),
+          };
+        },
+        write: (measure) => {
+          if (!this.tooltip) {
+            return;
+          }
+          if (!measure?.coords) {
+            this.hideTooltip();
+            return;
+          }
+          this.applyTooltipPosition(measure.coords, measure.tooltipRect);
+        },
+      });
+    }
+
+    private applyTooltipPosition(
+      coords: RectLike,
+      tooltipRect: Pick<DOMRect, "width" | "height">,
+    ): void {
       const tooltip = this.tooltip;
       if (!tooltip) {
         return;
       }
-      const coords = this.view.coordsAtPos(found.from) ?? found.anchor;
-      if (!coords) {
-        this.hideTooltip();
-        return;
-      }
 
-      const tooltipRect = tooltip.getBoundingClientRect();
       const maxLeft =
         this.viewWindow.innerWidth -
         tooltipRect.width -
@@ -315,6 +368,15 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
     }
   },
 );
+
+function isEditorLayoutReadError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    error.message.includes(
+      "Reading the editor layout isn't allowed during an update",
+    )
+  );
+}
 
 function findDiagnosticAt(
   view: EditorView,

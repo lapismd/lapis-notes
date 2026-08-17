@@ -175,6 +175,9 @@ Search leaf by opening its target in a sibling tab.
 API diagnostic hover cards keep unique action keys when titles repeat. The
 language-service cache keeps at most one action per title for the originating
 diagnostic, including grouped markdownlint fixes from the shared runtime.
+Hover-card positioning reads editor layout only in the CodeMirror measure
+cycle so document, viewport, and geometry updates cannot crash the lint
+plugin.
 The external Roles repository owns its domain specification and plugin-only
 catalog. Lapis consumes its built public exports and owns real-App integration
 with File Explorer, Search, managed settings, and persisted layout recovery.

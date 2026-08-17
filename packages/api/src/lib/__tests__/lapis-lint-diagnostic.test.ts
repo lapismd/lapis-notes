@@ -1,7 +1,17 @@
+import { EditorState } from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { workspaceLintMarkerMask } from "../components/editor/extensions/lint/lapis-code-mirror-lint";
+import {
+  linter,
+  setDiagnostics,
+  workspaceLintMarkerMask,
+} from "../components/editor/extensions/lint/lapis-code-mirror-lint";
+import { mapToLapisLintDiagnostic } from "../components/editor/extensions/lint/lapis-lint-diagnostic";
 import { markdownlintRuleUrl } from "../components/editor/extensions/lint/lapis-lint-diagnostic-helpers";
-import { pointerWithinLintTooltipHandoff } from "../components/editor/extensions/lint/lapis-lint-hover-tooltip";
+import {
+  lapisLintHoverTooltip,
+  pointerWithinLintTooltipHandoff,
+} from "../components/editor/extensions/lint/lapis-lint-hover-tooltip";
 import { mountLintMessageDom } from "../components/editor/extensions/lint/mount-lint-tooltip";
 
 describe("lint gutter markers", () => {
@@ -37,6 +47,69 @@ describe("lint tooltip pointer handoff", () => {
     expect(
       pointerWithinLintTooltipHandoff({ x: 20, y: 95 }, trigger, tooltipAbove),
     ).toBe(false);
+  });
+
+  it("does not read editor layout during a document update while a card is open", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const view = new EditorView({
+      parent: host,
+      state: EditorState.create({
+        doc: "alpha\n",
+        extensions: [lapisLintHoverTooltip(), linter(() => [])],
+      }),
+    });
+
+    const diagnostic = mapToLapisLintDiagnostic(
+      {
+        from: 0,
+        to: 5,
+        severity: "warning",
+        message: "First line in file should be a top-level heading",
+      },
+      { code: "MD041", ruleId: "MD041", sourceLabel: "markdownlint" },
+    );
+    view.dispatch(setDiagnostics(view.state, [diagnostic]));
+
+    const coords = { left: 20, right: 48, top: 16, bottom: 32 };
+    const originalCoordsAtPos = view.coordsAtPos.bind(view);
+    view.coordsAtPos = () => coords;
+    view.posAtCoords = () => 0;
+    view.posAndSideAtCoords = () => ({ pos: 0, assoc: 1 });
+
+    view.contentDOM.dispatchEvent(
+      new MouseEvent("mousemove", {
+        clientX: 24,
+        clientY: 24,
+        bubbles: true,
+      }),
+    );
+    expect(document.querySelector(".cm-lapis-tooltip")).not.toBeNull();
+
+    let readLayoutDuringUpdate = false;
+    view.coordsAtPos = (pos, side) => {
+      try {
+        return originalCoordsAtPos(pos, side);
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes(
+            "Reading the editor layout isn't allowed during an update",
+          )
+        ) {
+          readLayoutDuringUpdate = true;
+        }
+        throw error;
+      }
+    };
+
+    expect(() => {
+      view.dispatch({ changes: { from: 0, insert: "x" } });
+    }).not.toThrow();
+    expect(readLayoutDuringUpdate).toBe(false);
+
+    view.destroy();
+    host.remove();
   });
 });
 
