@@ -37,12 +37,20 @@ test("diagnostic hover card keeps an interactive pointer handoff", async ({
   expect(markerChrome.display).toContain("flex");
   expect(markerChrome.justifyContent).toBe("center");
 
-  const range = page
+  const markedLine = page
     .locator(".cm-line")
-    .filter({ hasText: "missing heading space" })
-    .locator(".cm-lintRange-warning:visible")
-    .last();
+    .filter({ hasText: "missing heading space" });
+  const range = markedLine.locator(".cm-lintRange-warning:visible").last();
   await expect(range).toBeVisible();
+  const unmarkedPoint = await range.evaluate((element) => {
+    const rangeBox = element.getBoundingClientRect();
+    return {
+      x: rangeBox.right + 24,
+      y: rangeBox.top + rangeBox.height / 2,
+    };
+  });
+  await page.mouse.move(unmarkedPoint.x, unmarkedPoint.y);
+  await expect(page.getByTestId("lapis-lint-tooltip")).toBeHidden();
   await range.hover();
 
   const tooltip = page.getByTestId("lapis-lint-tooltip");

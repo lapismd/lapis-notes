@@ -135,7 +135,7 @@ not installed or when an embedding model is unavailable.
 | Focused or real-App Bases Storybook stories                                | `bases-plugin.md`, `storybook-catalog.md`                                                |
 | Shared Markdown panel shell source                                         | `workspace-shell/panels.md`                                                              |
 | Individual Markdown panel source                                           | Its owning `markdown-plugin/panels/<panel>.md` page                                      |
-| Reusable Problems UI, diagnostic adapters, or diagnostic providers         | `workspace-shell/panels/problems.md`                                                     |
+| Reusable Problems UI, diagnostic adapters, lint hover, or diagnostic providers | `workspace-shell/panels/problems.md`                                                 |
 | Storybook infrastructure and catalog metadata                              | `storybook-catalog.md`                                                                   |
 | Root architecture / workspace / turbo manifests                            | `architecture.md`, `packages.md`                                                         |
 | Governance scripts, QMD config/ignore rules, `AGENTS.md`, `spec/book.toml` | `spec-governance.md`                                                                     |
@@ -182,7 +182,8 @@ surface, and group mode and disclosure actions in the main toolbar immediately a
 Problems guidance must keep live totals in Design Core's structured workspace
 view badge, preserve the stored leaf title, and prohibit a duplicate count in
 the panel toolbar. Acceptance must cover the idle badge paint and a real
-diagnostic-count transition. Hover-card action lists must use unique keys when
+diagnostic-count transition. Hover cards must open only from the underlined
+range or gutter marker. Hover-card action lists must use unique keys when
 titles repeat, and cached actions for a diagnostic must belong to that
 diagnostic with at most one action per title.
 

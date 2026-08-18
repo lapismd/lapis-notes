@@ -78,6 +78,7 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-036 | `@lapis-notes/api` MUST provide compact, interactive CodeMirror diagnostic hover cards and centered severity gutter markers. The card MUST remain stable while the pointer enters its controls. The implementation MUST consume public Design Core icons without importing Problems presentation internals.                                                                                                                                                                                                                                                                                                                                           |
 | LN-PKG-082 | `@lapis-notes/api` MUST render diagnostic hover-card actions with unique list keys even when titles repeat. The card MUST NOT throw when two actions share a name.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | LN-PKG-084 | `@lapis-notes/api` MUST NOT read CodeMirror editor layout from a diagnostic hover-card plugin during a view update. Tooltip positioning MUST run in the view measure cycle after the update completes.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| LN-PKG-088 | `@lapis-notes/api` lint hover MUST resolve a diagnostic from `.cm-lintRange` or `.cm-lint-marker` only. It MUST NOT open a card from a document-position hit on the same line. |
 | LN-PKG-085 | `MetadataCache.dispose` MUST wait for an in-flight `load` and MUST NOT persist an empty snapshot when that load never applied. |
 | LN-PKG-086 | `MetadataCache` MUST keep snapshot load, rebuild, and vault reconcile under one `notifications.withProgress` handle. It MUST NOT fire-and-forget reconcile after that handle completes. |
 | LN-PKG-087 | `MetadataCache` MUST yield between files during load, rebuild, and vault reconcile so progress reports and input stay responsive while worker results are applied. |
@@ -218,6 +219,8 @@ Markdownlint Settings seed MD013/line-length in `disabledRules` so the editor
 matches vscode-markdownlint rather than the CLI's all-rules-on library default.
 Published diagnostics use that same rule-path message form, and the API
 language-service bridge attaches each markdownlint rule's documentation URL.
+API lint hover opens only from `.cm-lintRange` or `.cm-lint-marker`, not from a
+same-line document-position hit.
 `@lapis-notes/history` owns vault file-revision capture, the History panel, the
 compare tab, and the Design Core History settings section while persisting
 revisions only through `AppDatabase`.

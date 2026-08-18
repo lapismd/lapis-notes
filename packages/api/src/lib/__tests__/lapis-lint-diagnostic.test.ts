@@ -2,6 +2,7 @@ import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  lintGutter,
   linter,
   setDiagnostics,
   workspaceLintMarkerMask,
@@ -13,6 +14,50 @@ import {
   pointerWithinLintTooltipHandoff,
 } from "../components/editor/extensions/lint/lapis-lint-hover-tooltip";
 import { mountLintMessageDom } from "../components/editor/extensions/lint/mount-lint-tooltip";
+
+function mountLintHoverView() {
+  const host = document.createElement("div");
+  document.body.appendChild(host);
+  const view = new EditorView({
+    parent: host,
+    state: EditorState.create({
+      doc: "alpha extra\n",
+      extensions: [lapisLintHoverTooltip(), linter(() => []), lintGutter()],
+    }),
+  });
+  const diagnostic = mapToLapisLintDiagnostic(
+    {
+      from: 0,
+      to: 5,
+      severity: "warning",
+      message: "First line in file should be a top-level heading",
+    },
+    { code: "MD041", ruleId: "MD041", sourceLabel: "markdownlint" },
+  );
+  view.dispatch(setDiagnostics(view.state, [diagnostic]));
+  const coords = { left: 20, right: 48, top: 16, bottom: 32 };
+  view.coordsAtPos = () => coords;
+  view.posAtCoords = () => 0;
+  view.posAtDOM = () => 0;
+  return { host, view };
+}
+
+function dispatchHover(view: EditorView, selector: string): void {
+  let target = view.dom.querySelector(selector);
+  if (!target) {
+    target = document.createElement("span");
+    target.className = selector.slice(1);
+    const parent = selector === ".cm-lint-marker" ? view.dom : view.contentDOM;
+    parent.appendChild(target);
+  }
+  target.dispatchEvent(
+    new MouseEvent("mousemove", {
+      clientX: 24,
+      clientY: 24,
+      bubbles: true,
+    }),
+  );
+}
 
 describe("lint gutter markers", () => {
   it("uses the Problems panel severity glyphs", () => {
@@ -50,40 +95,9 @@ describe("lint tooltip pointer handoff", () => {
   });
 
   it("does not read editor layout during a document update while a card is open", () => {
-    const host = document.createElement("div");
-    document.body.appendChild(host);
-    const view = new EditorView({
-      parent: host,
-      state: EditorState.create({
-        doc: "alpha\n",
-        extensions: [lapisLintHoverTooltip(), linter(() => [])],
-      }),
-    });
-
-    const diagnostic = mapToLapisLintDiagnostic(
-      {
-        from: 0,
-        to: 5,
-        severity: "warning",
-        message: "First line in file should be a top-level heading",
-      },
-      { code: "MD041", ruleId: "MD041", sourceLabel: "markdownlint" },
-    );
-    view.dispatch(setDiagnostics(view.state, [diagnostic]));
-
-    const coords = { left: 20, right: 48, top: 16, bottom: 32 };
+    const { host, view } = mountLintHoverView();
     const originalCoordsAtPos = view.coordsAtPos.bind(view);
-    view.coordsAtPos = () => coords;
-    view.posAtCoords = () => 0;
-    view.posAndSideAtCoords = () => ({ pos: 0, assoc: 1 });
-
-    view.contentDOM.dispatchEvent(
-      new MouseEvent("mousemove", {
-        clientX: 24,
-        clientY: 24,
-        bubbles: true,
-      }),
-    );
+    dispatchHover(view, ".cm-lintRange");
     expect(document.querySelector(".cm-lapis-tooltip")).not.toBeNull();
 
     let readLayoutDuringUpdate = false;
@@ -108,6 +122,36 @@ describe("lint tooltip pointer handoff", () => {
     }).not.toThrow();
     expect(readLayoutDuringUpdate).toBe(false);
 
+    view.destroy();
+    host.remove();
+  });
+
+  it("does not open a card from unmarked text on the same line", () => {
+    const { host, view } = mountLintHoverView();
+    view.contentDOM.dispatchEvent(
+      new MouseEvent("mousemove", {
+        clientX: 80,
+        clientY: 24,
+        bubbles: true,
+      }),
+    );
+    expect(document.querySelector(".cm-lapis-tooltip")).toBeNull();
+    view.destroy();
+    host.remove();
+  });
+
+  it("opens a card from the underlined lint range", () => {
+    const { host, view } = mountLintHoverView();
+    dispatchHover(view, ".cm-lintRange");
+    expect(document.querySelector(".cm-lapis-tooltip")).not.toBeNull();
+    view.destroy();
+    host.remove();
+  });
+
+  it("opens a card from the matching gutter marker", () => {
+    const { host, view } = mountLintHoverView();
+    dispatchHover(view, ".cm-lint-marker");
+    expect(document.querySelector(".cm-lapis-tooltip")).not.toBeNull();
     view.destroy();
     host.remove();
   });

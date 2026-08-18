@@ -214,7 +214,7 @@ export default defineConfig(tableRequirements(), {
         },
         {
           pattern:
-            "^packages/api/src/lib/(?:diagnostics/|language-service/|components/editor/language-service/|workspace\\.ts$|plugin\\.ts$)",
+            "^packages/api/src/lib/(?:diagnostics/|language-service/|components/editor/language-service/|components/editor/extensions/lint/|workspace\\.ts$|plugin\\.ts$)",
           chapters: ["spec/src/workspace-shell/panels/problems.md"],
         },
         {

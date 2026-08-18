@@ -29,6 +29,7 @@ Markdownlint provider are implemented.
 | LN-WS-038 | CodeMirror lint gutter markers MUST use the same severity glyphs and semantic colours as the Problems panel. Each marker MUST remain centered within its gutter element alongside Mira-owned gutter controls. |
 | LN-WS-039 | A diagnostic hover card MUST keep its message, source, and code on one compact row. Its copy action MUST remain at the row's right edge without increasing the row height. |
 | LN-WS-040 | A diagnostic hover card MUST remain open while the pointer crosses from its marked source or gutter marker into the card. During handoff, it MUST retain the originating diagnostic and stable placement even when the pointer crosses another marked range. The card MUST close only after the pointer leaves both surfaces and their handoff corridor. |
+| LN-WS-072 | A diagnostic hover card MUST open only when the pointer is over the underlined diagnostic range or that diagnostic's gutter marker. It MUST NOT open from the rest of the line, including empty space after the mark. |
 | LN-WS-041 | The Problems panel MUST default to its grouped tree and provide an upper-right action that switches between tree and table presentations. A host MAY select table as the initial mode, but the choice MUST remain transient and MUST NOT mutate workspace layout. |
 | LN-WS-042 | The Problems table MUST expose Code, Message, File, and Source columns. It MUST retain the tree presentation's severity filters, search, navigation, related information, tags, and context actions. |
 | LN-WS-043 | Problems table overflow MUST use the shared shadcn Scroll Area for both axes. The table MUST NOT introduce a separate native panel scrollbar when moved into a constrained workspace surface. |
@@ -56,6 +57,8 @@ not add callbacks or agent-specific fields to serializable diagnostics.
   ignore actions, and its configuration field.
 - Mira continues to own Markdown completion and hover behavior. The language
   service contributes diagnostics and code actions only in this slice.
+  Lint hover cards open only on the underlined range or gutter marker, not the
+  rest of the line.
 
 ## Lifecycle
 

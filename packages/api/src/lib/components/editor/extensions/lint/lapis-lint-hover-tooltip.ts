@@ -60,8 +60,7 @@ const lapisLintTooltipPlugin = ViewPlugin.fromClass(
         const found =
           lintMarkerFromEvent(event) != null
             ? findDiagnosticNearPointer(this.view, event)
-            : (findDiagnosticFromLintRange(this.view, event) ??
-              findDiagnosticFromContentPointer(this.view, event));
+            : findDiagnosticFromLintRange(this.view, event);
 
         if (found && this.isActiveDiagnostic(found)) {
           this.cancelScheduledHide();
@@ -462,17 +461,6 @@ function eventTargetIsInside(
       typeof (target as Node).nodeType === "number" &&
       container.contains(target as Node),
   );
-}
-
-function findDiagnosticFromContentPointer(
-  view: EditorView,
-  event: MouseEvent,
-): FoundDiagnostic | null {
-  const hit = view.posAndSideAtCoords({
-    x: event.clientX,
-    y: event.clientY,
-  });
-  return hit ? findDiagnosticAt(view, hit.pos, hit.assoc) : null;
 }
 
 function findDiagnosticFromLintRange(
