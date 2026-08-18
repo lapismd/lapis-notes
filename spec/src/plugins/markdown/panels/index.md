@@ -29,6 +29,7 @@ File-scoped Markdown panels recover after late metadata and file restore:
 - They MUST resolve the followed note through `workspace.getActiveFile()`, then a root `FileView` scan.
 - Mount MUST read the current cache when `metadataCache` has already loaded.
 - They MUST refresh on `loaded`, `changed`, `deleted`, `file-open`, and followed-file assignment.
+- Linked Backlinks and Outgoing Links MUST read `getCache`/`getFileCache` plus vault Markdown files, not only `getAllItems()`.
 - They MUST NOT stay empty until the user switches tabs or a layout write fires.
 
 ## Panel pages

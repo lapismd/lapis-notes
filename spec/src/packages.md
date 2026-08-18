@@ -367,3 +367,5 @@ Autodocs can name the production components while stories continue to create
 them through real plugin view registrations.
 `MetadataCache.initialized` and `file-open` after `openFile` stay on the API
 kernel so Markdown file-scoped panels can refresh after late metadata load.
+Backlinks and Outgoing Links read `getCache`/`getFileCache` for linked mentions
+so they recover when `getAllItems()` still cannot map snapshot paths.

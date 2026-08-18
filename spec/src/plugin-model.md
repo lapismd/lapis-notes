@@ -102,6 +102,8 @@ Markdown reuses one `MiraFileAdapter` for that same App so preview effects do
 not churn when views reconfigure.
 `openFile` triggers `file-open` after `onLoadFile` so file-scoped Markdown
 panels can follow the restored note without waiting for a layout write.
+Linked Backlinks and Outgoing Links then read `getCache` for that note even if
+`getAllItems()` is still empty.
 The Storybook command-panel registry maps each `ViewAccess.command` identifier
 back to its source declaration and canonical panel story. This is verification
 metadata only and does not become a runtime plugin registration surface.

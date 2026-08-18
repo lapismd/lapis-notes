@@ -24,6 +24,7 @@
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
   import LinkHoverPreview from "./link-hover-preview.svelte";
   import {
+    buildLinkedLinkSidebarData,
     buildLinkSidebarData,
     formatLinkSidebarSortLabel,
     LINK_SIDEBAR_SORT_OPTIONS,
@@ -60,6 +61,13 @@
   });
   let resultOpenState = $state<Record<string, boolean>>({});
 
+  const linkedGroups = $derived.by(() => {
+    followRevision;
+    trackMetadataCacheRevision(app);
+    if (!activeFile) return emptyData.linkedGroups;
+    return buildLinkedLinkSidebarData(app, activeFile, mode, sortMode)
+      .linkedGroups;
+  });
   const title = $derived(mode === "backlinks" ? "Backlinks" : "Outgoing links");
   const linkedTitle = $derived(
     mode === "backlinks" ? "Linked mentions" : "Links",
@@ -165,7 +173,7 @@
   }
 
   const filteredData = $derived<LinkSidebarData>({
-    linkedGroups: data.linkedGroups.filter(matches),
+    linkedGroups: linkedGroups.filter(matches),
     unlinkedGroups: data.unlinkedGroups.filter(matches),
   });
 
@@ -355,7 +363,7 @@
               </span>
             </button>
             {#if sectionOpen[section.key]}
-              {#if loading}
+              {#if loading && section.key === "unlinked" && !section.groups.length}
                 <p class="markdown-sidebar-panel__empty">Loading…</p>
               {:else if !section.groups.length}
                 <p class="markdown-sidebar-panel__empty">{section.empty}</p>

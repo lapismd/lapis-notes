@@ -484,19 +484,118 @@ function normalizeDocument(document: SearchDocumentRecord): LinkSidebarDocument 
   };
 }
 
+function cacheFor(app: App, file: TFile): CachedMetadata | null {
+  return (
+    app.metadataCache.getFileCache(file) ??
+    app.metadataCache.getCache(file.path)
+  );
+}
+
+/** Vault files plus per-file cache, including the followed note when getAllItems is empty. */
+export function collectLinkSidebarSources(
+  app: App,
+  activeFile: TFile,
+): {
+  files: Map<string, TFile>;
+  caches: Map<string, CachedMetadata>;
+} {
+  const files = new Map<string, TFile>();
+  const caches = new Map<string, CachedMetadata>();
+  const add = (file: TFile | null | undefined) => {
+    if (!file) return;
+    files.set(file.path, file);
+    const cache = cacheFor(app, file);
+    if (cache) caches.set(file.path, cache);
+  };
+  add(activeFile);
+  for (const file of app.vault.getMarkdownFiles()) add(file);
+  for (const [file] of app.metadataCache.getAllItems()) add(file);
+  for (const path of Object.keys(app.metadataCache.fileCache ?? {})) {
+    if (files.has(path)) continue;
+    const vaultFile = app.vault.getFileByPath(path);
+    if (vaultFile) {
+      add(vaultFile);
+      continue;
+    }
+    const cache = app.metadataCache.getCache(path);
+    if (!cache) continue;
+    const name = path.split("/").pop() ?? path;
+    const dot = name.lastIndexOf(".");
+    files.set(path, {
+      path,
+      name,
+      basename: dot === -1 ? name : name.slice(0, dot),
+      extension: dot === -1 ? "" : name.slice(dot + 1),
+      stat: { ctime: 0, mtime: 0, size: 0 },
+    } as TFile);
+    caches.set(path, cache);
+  }
+  return { files, caches };
+}
+
+export function resolveLinkSidebarPath(
+  app: App,
+  link: string,
+  sourcePath: string,
+  files: Iterable<LinkSidebarFile>,
+): string | null {
+  const raw = link.split("|")[0]?.split("#")[0]?.trim() ?? "";
+  if (!raw) return null;
+  const resolved = app.metadataCache.getFirstLinkpathDest(raw, sourcePath);
+  if (resolved?.path) return resolved.path;
+
+  const byPath = new Map<string, LinkSidebarFile>();
+  for (const file of files) byPath.set(file.path, file);
+  const stripped = raw.replace(/\\/g, "/").replace(/\.(md|markdown)$/i, "");
+  for (const candidate of [raw, `${stripped}.md`, `${stripped}.markdown`]) {
+    const file = byPath.get(candidate);
+    if (file) return file.path;
+  }
+  const base = stripped.split("/").pop() ?? stripped;
+  for (const file of byPath.values()) {
+    if (
+      file.basename === base ||
+      file.path.endsWith(`/${raw}`) ||
+      file.path.endsWith(`/${stripped}.md`)
+    ) {
+      return file.path;
+    }
+  }
+  return null;
+}
+
+export function buildLinkedLinkSidebarData(
+  app: App,
+  activeFile: TFile,
+  mode: LinkSidebarMode,
+  sortMode: LinkSidebarSortMode = "filename-asc",
+): LinkSidebarData {
+  const { files, caches } = collectLinkSidebarSources(app, activeFile);
+  const state: LinkSidebarState = {
+    activeFile,
+    files: [...files.values()],
+    caches,
+    documents: new Map(),
+    resolveLinkPath: (link, sourcePath) =>
+      resolveLinkSidebarPath(app, link, sourcePath, files.values()),
+  };
+  const mentions =
+    mode === "backlinks"
+      ? collectLinkedBacklinks(state)
+      : collectOutgoingLinks(state);
+  return {
+    linkedGroups: sortLinkSidebarGroups(groupMentions(mentions), sortMode),
+    unlinkedGroups: [],
+  };
+}
+
 export async function buildLinkSidebarData(
   app: App,
   activeFile: TFile,
   mode: LinkSidebarMode,
   sortMode: LinkSidebarSortMode = "filename-asc",
 ): Promise<LinkSidebarData> {
-  const caches = new Map<string, CachedMetadata>();
-  const files = new Map<string, TFile>();
-  for (const [file, cache] of app.metadataCache.getAllItems()) {
-    files.set(file.path, file);
-    caches.set(file.path, cache);
-  }
-  for (const file of app.vault.getMarkdownFiles()) files.set(file.path, file);
+  const { files, caches } = collectLinkSidebarSources(app, activeFile);
 
   const documents = new Map<string, LinkSidebarDocument>();
   try {
@@ -539,10 +638,7 @@ export async function buildLinkSidebarData(
     caches,
     documents,
     resolveLinkPath: (link, sourcePath) =>
-      app.metadataCache.getFirstLinkpathDest(
-        link.split("|")[0]!.split("#")[0]!,
-        sourcePath,
-      )?.path ?? null,
+      resolveLinkSidebarPath(app, link, sourcePath, files.values()),
   };
   return mode === "backlinks"
     ? buildBacklinksData(state, sortMode)

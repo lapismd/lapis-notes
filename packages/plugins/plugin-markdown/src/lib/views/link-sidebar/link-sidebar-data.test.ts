@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import type { CachedMetadata, Pos } from "@lapis-notes/api";
 import {
   buildBacklinksData,
+  buildLinkedLinkSidebarData,
   buildOutgoingLinksData,
   findExactUnlinkedMentions,
   sortLinkSidebarGroups,
   type LinkSidebarFile,
   type LinkSidebarState,
 } from "./link-sidebar-data";
+import type { App, TFile } from "@lapis-notes/api";
 
 function file(path: string, ctime = 1, mtime = 1): LinkSidebarFile {
   const name = path.split("/").pop() ?? path;
@@ -189,5 +191,87 @@ describe("link sidebar data", () => {
     expect(sortLinkSidebarGroups(groups, "created-asc")[0]?.file.path).toBe(
       older.path,
     );
+  });
+
+  it("builds linked mentions from getCache when getAllItems is empty", () => {
+    const active = file("Active.md") as TFile;
+    const linked = file("Linked.md") as TFile;
+    const content = "See [[Linked]] and names Unlinked.";
+    const cache = {
+      links: [
+        {
+          link: "Linked",
+          original: "[[Linked]]",
+          position: pos(content, "[[Linked]]"),
+        },
+      ],
+    };
+    const caches: Record<string, typeof cache | Record<string, never>> = {
+      [active.path]: cache,
+      [linked.path]: {},
+    };
+    const app = {
+      metadataCache: {
+        getAllItems: () => new Map(),
+        getFileCache: (candidate: TFile) => caches[candidate.path] ?? null,
+        getCache: (path: string) => caches[path] ?? null,
+        getFirstLinkpathDest: () => null,
+      },
+      vault: {
+        getMarkdownFiles: () => [active, linked],
+      },
+    } as unknown as App;
+
+    expect(
+      buildLinkedLinkSidebarData(app, active, "outgoing").linkedGroups.map(
+        (group) => group.file.path,
+      ),
+    ).toEqual([linked.path]);
+    expect(
+      buildLinkedLinkSidebarData(app, linked, "backlinks").linkedGroups.map(
+        (group) => group.file.path,
+      ),
+    ).toEqual([active.path]);
+  });
+
+  it("walks metadata fileCache when the vault file map is empty", () => {
+    const active = file("Notes/Active.md") as TFile;
+    const source = file("Notes/Source.md") as TFile;
+    const content = "Back to [[Active]].";
+    const sourceCache = {
+      links: [
+        {
+          link: "Active",
+          original: "[[Active]]",
+          position: pos(content, "[[Active]]"),
+        },
+      ],
+    };
+    const caches: Record<string, typeof sourceCache | Record<string, never>> = {
+      [active.path]: {},
+      [source.path]: sourceCache,
+    };
+    const app = {
+      metadataCache: {
+        fileCache: {
+          [active.path]: { hash: "active", mtime: 1, size: 1 },
+          [source.path]: { hash: "source", mtime: 1, size: 1 },
+        },
+        getAllItems: () => new Map(),
+        getFileCache: () => null,
+        getCache: (path: string) => caches[path] ?? null,
+        getFirstLinkpathDest: () => null,
+      },
+      vault: {
+        getMarkdownFiles: () => [],
+        getFileByPath: () => null,
+      },
+    } as unknown as App;
+
+    expect(
+      buildLinkedLinkSidebarData(app, active, "backlinks").linkedGroups.map(
+        (group) => group.file.path,
+      ),
+    ).toEqual([source.path]);
   });
 });

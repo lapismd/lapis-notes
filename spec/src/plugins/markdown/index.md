@@ -53,6 +53,8 @@ File Properties value autocomplete and wikilink pills stay on the Lapis
 frontmatter adapter and Mira file adapter. Metadata parse uses a Markdown
 worker; heavy type widgets remain deferred. File-scoped Outline, Backlinks, and
 Outgoing Links refresh after late metadata and file restore under `LN-MD-098`.
+Linked mentions paint from `getCache`/`getFileCache` even when `getAllItems()`
+is still empty.
 
 ## Ownership
 
