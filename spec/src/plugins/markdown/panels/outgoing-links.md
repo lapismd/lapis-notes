@@ -17,7 +17,8 @@ remains a load-only alias under `LN-MD-085`.
 | LN-MD-070 | Outgoing Links MUST use the valid Lucide `external-link` icon in every placement. |
 
 Late metadata and file restore for Outgoing Links are governed by `LN-MD-098` on
-the [Markdown Panels](./index.md) page. Linked mentions read `getCache`/`getFileCache`
+the [Markdown Panels](./index.md) page. The shared helper ignores a leaf event
+that repeats the same followed path. Linked mentions read `getCache`/`getFileCache`
 so a reload does not depend on `getAllItems()`.
 
 Preview behavior is defined by [Link Previews](./link-previews.md).

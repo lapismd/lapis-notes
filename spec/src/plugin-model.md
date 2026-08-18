@@ -103,6 +103,7 @@ not churn when views reconfigure. Packaged metadata parse keeps an extensionless
 Vite worker import so web and desktop resolve the published worker file.
 `openFile` triggers `file-open` after `onLoadFile` so file-scoped Markdown
 panels can follow the restored note without waiting for a layout write.
+The shared helper writes only when that followed path changes.
 Linked Backlinks and Outgoing Links then read `getCache` for that note even if
 `getAllItems()` is still empty.
 The Storybook command-panel registry maps each `ViewAccess.command` identifier

@@ -53,7 +53,8 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 File Properties value autocomplete and wikilink pills stay on the Lapis
 frontmatter adapter and Mira file adapter. Metadata parse uses a Markdown
 worker whose packaged import stays extensionless; heavy type widgets remain deferred. File-scoped Outline, Backlinks, and
-Outgoing Links refresh after late metadata and file restore under `LN-MD-098`.
+Outgoing Links share one follow helper under `LN-MD-098` and do not rewrite
+state when a leaf event repeats the same followed path.
 Linked mentions paint from `getCache`/`getFileCache` even when `getAllItems()`
 is still empty.
 

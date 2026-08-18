@@ -428,3 +428,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   package tests, and `pnpm spec:check` when governance or protected surfaces
   change.
 - For api-used UI changes: also `pnpm test:storybook` and Visual Delta as above.
+- Markdown package tests and Storybook (source-aliased) do not prove `dist` or
+  a web/desktop Vite host. After Markdown source, worker, or file-scoped panel
+  follow changes, run `pnpm --filter @lapis-notes/markdown build` and prove
+  the web import path. A mounted workspace with Outline, Backlinks, and
+  Outgoing Links open MUST NOT write follow state on a no-op
+  `active-leaf-change`.

@@ -40,6 +40,7 @@ function createCacheApp(initial: Record<string, CachedMetadata> = {}) {
   const trigger = (event: string, ...args: unknown[]) => {
     for (const handler of listeners.get(event) ?? []) handler(...args);
   };
+  let activeFile: TFile | null = null;
   return {
     app: {
       metadataCache: {
@@ -55,11 +56,16 @@ function createCacheApp(initial: Record<string, CachedMetadata> = {}) {
         on,
         offref,
         trigger,
+        getActiveFile: () => activeFile,
+        iterateRootLeaves: () => undefined,
       },
     } as unknown as App,
     fileCache,
     metadataCache,
     trigger,
+    setActiveFile(file: TFile | null) {
+      activeFile = file;
+    },
   };
 }
 
@@ -97,8 +103,8 @@ describe("subscribeFileScopedPanelRefresh", () => {
     stop();
   });
 
-  it("refreshes on loaded after mount and on file-open without layout-change", () => {
-    const { app, trigger } = createCacheApp();
+  it("refreshes on loaded after mount and on a new followed path", () => {
+    const { app, trigger, setActiveFile } = createCacheApp();
     const refresh = vi.fn();
     const stop = subscribeFileScopedPanelRefresh(app, refresh);
     refresh.mockClear();
@@ -106,10 +112,34 @@ describe("subscribeFileScopedPanelRefresh", () => {
     trigger("loaded");
     expect(refresh).toHaveBeenCalledTimes(1);
 
-    trigger("file-open", { path: "Notes/Note.md" } as TFile);
+    const note = { path: "Notes/Note.md" } as TFile;
+    setActiveFile(note);
+    trigger("file-open", note);
     expect(refresh).toHaveBeenCalledTimes(2);
 
     trigger("layout-change", { source: "api" });
+    expect(refresh).toHaveBeenCalledTimes(2);
+
+    stop();
+  });
+
+  it("ignores leaf events that repeat the same followed path", () => {
+    const { app, trigger, setActiveFile } = createCacheApp();
+    const note = { path: "Notes/Note.md" } as TFile;
+    setActiveFile(note);
+    const refresh = vi.fn();
+    const stop = subscribeFileScopedPanelRefresh(app, refresh);
+    refresh.mockClear();
+
+    trigger("file-open", note);
+    trigger("active-leaf-change");
+    expect(refresh).not.toHaveBeenCalled();
+
+    trigger("changed", note);
+    expect(refresh).toHaveBeenCalledTimes(1);
+
+    setActiveFile({ path: "Notes/Other.md" } as TFile);
+    trigger("active-leaf-change");
     expect(refresh).toHaveBeenCalledTimes(2);
 
     stop();

@@ -15,4 +15,5 @@ load-only alias under `LN-MD-085`.
 | LN-MD-044 | Outline leaf headings MUST NOT reserve disclosure space. Nested guides remain beneath expanded chevron tips, leaf-child labels align with their immediate parent labels, child levels remain visibly indented, and rows preserve their trailing edge. |
 
 Late metadata and file restore for Outline are governed by `LN-MD-098` on the
-[Markdown Panels](./index.md) page.
+[Markdown Panels](./index.md) page. The shared helper ignores a leaf event
+that repeats the same followed path.

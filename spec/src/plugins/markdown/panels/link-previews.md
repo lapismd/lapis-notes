@@ -32,6 +32,6 @@ identity, not link resolution or preview ownership.
 | LN-MD-066 | The local Obsidian alias layer MUST map Mira accent, focus, soft-accent, selection, and accent-foreground variables to design-core's Lapis semantic tokens. Preview-only inset MUST NOT affect nested live-edit frontmatter widgets. |
 
 The shared link sidebar rebuilds mention groups under `LN-MD-098` after late
-metadata load or `file-open`, then applies this preview contract to those rows.
+metadata load or a new followed path, then applies this preview contract to those rows.
 Linked rows come from `getCache`/`getFileCache` and vault Markdown files so a
 reload does not wait on `getAllItems()`.

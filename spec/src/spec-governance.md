@@ -199,3 +199,7 @@ and rejects duplicate or stale mappings, missing canonical stories, incorrect
 extend the same validator as those catalog slices migrate. The persisted
 inventory check requires Workspace Shell stories to assert History and Word
 Count among the eight enabled bundled plugins.
+Markdown `dist` consumers and file-scoped metadata panels are not covered by
+package unit tests or source-aliased Storybook alone. Handoff must rebuild
+Markdown and prove the web host plus a workspace that keeps Outline, Backlinks,
+and Outgoing Links from writing on a no-op `active-leaf-change`.

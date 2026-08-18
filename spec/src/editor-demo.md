@@ -172,6 +172,7 @@ Markdown metadata parse runs in a worker. The Workspace/Shell NotificationCenter
 play starts Lapis metadata `withProgress` and asserts the notifications status
 item is busy with that title.
 File-scoped Markdown panels in the demo follow the same late `loaded` and
-`file-open` refresh as production hosts. The Markdown metadata worker import
+path-changing `file-open` refresh as production hosts. Same-path leaf events
+do not rewrite panel state. The Markdown metadata worker import
 stays extensionless in packaged output used by Vite hosts. Linked Backlinks and Outgoing Links
 use `getCache` so they do not stay empty after reload.

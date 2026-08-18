@@ -48,7 +48,6 @@
   let loading = $state(false);
   let editingPreviews = $state<Record<string, boolean>>({});
   let refreshPending = false;
-  let requestRefresh: (() => void) | null = null;
   let loadVersion = 0;
   let searchOpen = $state(false);
   let query = $state("");
@@ -105,37 +104,23 @@
       });
   }
 
-  onMount(() => {
-    const refreshNow = () => {
-      loadData(resolvePanelTargetFile(app));
-    };
-    const refresh = () => {
+  onMount(() =>
+    subscribeFileScopedPanelRefresh(app, () => {
+      followRevision += 1;
+    }),
+  );
+
+  $effect(() => {
+    followRevision;
+    const file = activeFile;
+    const currentSortMode = sortMode;
+    untrack(() => {
       if (Object.values(editingPreviews).some(Boolean)) {
         refreshPending = true;
         return;
       }
       refreshPending = false;
-      refreshNow();
-    };
-    requestRefresh = refresh;
-    const layoutChanged = app.workspace.on("layout-change", refresh);
-    const editorUpdated = app.workspace.on("editor-updated", refresh);
-    const stopFollow = subscribeFileScopedPanelRefresh(app, () => {
-      followRevision += 1;
-      refresh();
-    });
-    return () => {
-      stopFollow();
-      app.workspace.offref(layoutChanged);
-      app.workspace.offref(editorUpdated);
-      requestRefresh = null;
-    };
-  });
-
-  $effect(() => {
-    const file = activeFile;
-    untrack(() => {
-      requestRefresh?.() ?? loadData(file);
+      loadData(file, currentSortMode);
     });
   });
 
@@ -147,7 +132,8 @@
     editingPreviews = next;
 
     if (!Object.values(next).some(Boolean) && refreshPending) {
-      requestRefresh?.();
+      refreshPending = false;
+      loadData(activeFile);
     }
   }
 
@@ -234,7 +220,6 @@
           .setChecked(sortMode === option.value)
           .onClick(() => {
             sortMode = option.value;
-            loadData(activeFile, option.value);
           }),
       );
       if (index === 1 || index === 3) menu.addSeparator();
