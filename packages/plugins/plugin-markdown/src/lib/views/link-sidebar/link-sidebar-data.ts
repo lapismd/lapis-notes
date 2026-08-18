@@ -122,6 +122,67 @@ function isMarkdownFile(file: LinkSidebarFile): boolean {
   return file.extension === "md" || file.extension === "markdown";
 }
 
+function normalizeNotePath(path: string): string {
+  return path.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/{2,}/g, "/");
+}
+
+function refersToFile(
+  candidate: string | null | undefined,
+  file: Pick<LinkSidebarFile, "path" | "basename">,
+): boolean {
+  if (!candidate) return false;
+  const normalized = normalizeNotePath(candidate);
+  const path = normalizeNotePath(file.path);
+  const stripped = path.replace(/\.(md|markdown)$/i, "");
+  const aliases = new Set([
+    path,
+    stripped,
+    file.basename,
+    `${file.basename}.md`,
+    `${file.basename}.markdown`,
+  ]);
+  if (aliases.has(normalized) || aliases.has(normalized.replace(/\.(md|markdown)$/i, ""))) {
+    return true;
+  }
+  return (
+    path.endsWith(`/${normalized}`) ||
+    path.endsWith(`/${normalized}.md`) ||
+    path.endsWith(`/${normalized}.markdown`)
+  );
+}
+
+function inboundSourcePaths(app: App, activeFile: TFile): string[] {
+  const sources = new Set<string>();
+  const referencing = app.metadataCache.getDirectReferencingPaths?.(
+    activeFile.path,
+  );
+  for (const path of referencing ?? []) sources.add(path);
+  for (const [sourcePath, targets] of Object.entries(
+    app.metadataCache.resolvedLinks ?? {},
+  )) {
+    if (sourcePath === activeFile.path) continue;
+    for (const target of Object.keys(targets ?? {})) {
+      if (refersToFile(target, activeFile)) {
+        sources.add(sourcePath);
+        break;
+      }
+    }
+  }
+  return [...sources];
+}
+
+function fileStubFromPath(path: string): TFile {
+  const name = path.split("/").pop() ?? path;
+  const dot = name.lastIndexOf(".");
+  return {
+    path,
+    name,
+    basename: dot === -1 ? name : name.slice(0, dot),
+    extension: dot === -1 ? "" : name.slice(dot + 1),
+    stat: { ctime: 0, mtime: 0, size: 0 },
+  } as TFile;
+}
+
 function aliasesFor(
   file: LinkSidebarFile,
   cache: CachedMetadata | null | undefined,
@@ -327,7 +388,10 @@ function mentionFromMatch(input: {
   };
 }
 
-function collectLinkedBacklinks(state: LinkSidebarState): LinkSidebarMention[] {
+function collectLinkedBacklinks(
+  state: LinkSidebarState,
+  inboundPaths: Iterable<string> = [],
+): LinkSidebarMention[] {
   const files = new Map(state.files.map((file) => [file.path, file]));
   const mentions: LinkSidebarMention[] = [];
   for (const [sourcePath, cache] of state.caches) {
@@ -335,7 +399,12 @@ function collectLinkedBacklinks(state: LinkSidebarState): LinkSidebarMention[] {
     if (!sourceFile) continue;
     references(cache).forEach((reference, index) => {
       const targetPath = state.resolveLinkPath(reference.link, sourcePath);
-      if (targetPath !== state.activeFile.path) return;
+      if (
+        !refersToFile(targetPath, state.activeFile) &&
+        !refersToFile(reference.link, state.activeFile)
+      ) {
+        return;
+      }
       mentions.push(
         mentionFromReference({
           id: `${sourcePath}:${reference.position?.start.offset ?? index}:linked`,
@@ -343,10 +412,30 @@ function collectLinkedBacklinks(state: LinkSidebarState): LinkSidebarMention[] {
           kind: referenceKind(reference, cache),
           file: sourceFile,
           sourcePath,
-          targetPath,
+          targetPath: state.activeFile.path,
           content: state.documents.get(sourcePath)?.content,
         }),
       );
+    });
+  }
+  const seen = new Set(mentions.map((mention) => mention.sourcePath));
+  for (const sourcePath of inboundPaths) {
+    if (seen.has(sourcePath) || sourcePath === state.activeFile.path) continue;
+    const sourceFile = files.get(sourcePath);
+    if (!sourceFile) continue;
+    mentions.push({
+      id: `${sourcePath}:resolved:linked`,
+      kind: "link",
+      file: sourceFile,
+      sourcePath,
+      targetPath: state.activeFile.path,
+      linkText: state.activeFile.basename,
+      context: `[[${state.activeFile.basename}]]`,
+      expandedContext: `[[${state.activeFile.basename}]]`,
+      line: 0,
+      ch: 0,
+      offset: 0,
+      endOffset: 0,
     });
   }
   return mentions;
@@ -510,8 +599,17 @@ export function collectLinkSidebarSources(
   add(activeFile);
   for (const file of app.vault.getMarkdownFiles()) add(file);
   for (const [file] of app.metadataCache.getAllItems()) add(file);
+  for (const path of inboundSourcePaths(app, activeFile)) {
+    const vaultFile = app.vault.getFileByPath(path);
+    if (vaultFile) {
+      add(vaultFile);
+      continue;
+    }
+    const cache = app.metadataCache.getCache(path);
+    files.set(path, files.get(path) ?? fileStubFromPath(path));
+    if (cache) caches.set(path, cache);
+  }
   for (const path of Object.keys(app.metadataCache.fileCache ?? {})) {
-    if (files.has(path)) continue;
     const vaultFile = app.vault.getFileByPath(path);
     if (vaultFile) {
       add(vaultFile);
@@ -519,15 +617,7 @@ export function collectLinkSidebarSources(
     }
     const cache = app.metadataCache.getCache(path);
     if (!cache) continue;
-    const name = path.split("/").pop() ?? path;
-    const dot = name.lastIndexOf(".");
-    files.set(path, {
-      path,
-      name,
-      basename: dot === -1 ? name : name.slice(0, dot),
-      extension: dot === -1 ? "" : name.slice(dot + 1),
-      stat: { ctime: 0, mtime: 0, size: 0 },
-    } as TFile);
+    files.set(path, files.get(path) ?? fileStubFromPath(path));
     caches.set(path, cache);
   }
   return { files, caches };
@@ -581,7 +671,7 @@ export function buildLinkedLinkSidebarData(
   };
   const mentions =
     mode === "backlinks"
-      ? collectLinkedBacklinks(state)
+      ? collectLinkedBacklinks(state, inboundSourcePaths(app, activeFile))
       : collectOutgoingLinks(state);
   return {
     linkedGroups: sortLinkSidebarGroups(groupMentions(mentions), sortMode),

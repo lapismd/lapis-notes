@@ -372,3 +372,5 @@ Those panels share one follow helper and ignore a leaf event that repeats the
 same followed path.
 Backlinks and Outgoing Links read `getCache`/`getFileCache` for linked mentions
 so they recover when `getAllItems()` still cannot map snapshot paths.
+Backlinks also invert `resolvedLinks` when inbound source caches are not yet
+in that vault-keyed map.

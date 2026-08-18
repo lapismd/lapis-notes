@@ -16,7 +16,7 @@ load-only alias under `LN-MD-085`.
 
 Late metadata and file restore for Backlinks are governed by `LN-MD-098` on the
 [Markdown Panels](./index.md) page. The shared helper ignores a leaf event
-that repeats the same followed path. Linked mentions read `getCache`/`getFileCache`
+that repeats the same followed path. Linked mentions read `getCache`/`getFileCache` and `resolvedLinks`
 so a reload does not depend on `getAllItems()`.
 
 Preview behavior is defined by [Link Previews](./link-previews.md).

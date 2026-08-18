@@ -89,4 +89,5 @@ Outline, Backlinks, and Outgoing Links follow `LN-MD-098` so a restored
 file-scoped panel paints after late metadata instead of staying empty.
 Same-path leaf events do not rewrite that follow state.
 Linked Backlinks and Outgoing Links read the live per-file cache, not only the
-vault-keyed `getAllItems()` map.
+vault-keyed `getAllItems()` map. Backlinks also read `resolvedLinks` for
+inbound sources.

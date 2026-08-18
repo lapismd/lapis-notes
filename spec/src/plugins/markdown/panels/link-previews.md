@@ -33,5 +33,5 @@ identity, not link resolution or preview ownership.
 
 The shared link sidebar rebuilds mention groups under `LN-MD-098` after late
 metadata load or a new followed path, then applies this preview contract to those rows.
-Linked rows come from `getCache`/`getFileCache` and vault Markdown files so a
-reload does not wait on `getAllItems()`.
+Linked rows come from `getCache`/`getFileCache`, `resolvedLinks`, and vault
+Markdown files so a reload does not wait on `getAllItems()`.

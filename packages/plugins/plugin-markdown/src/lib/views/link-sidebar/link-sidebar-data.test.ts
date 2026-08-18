@@ -274,4 +274,45 @@ describe("link sidebar data", () => {
       ),
     ).toEqual([source.path]);
   });
+
+  it("builds linked backlinks from resolvedLinks when only the active cache is mapped", () => {
+    const active = file("Notes/Active.md") as TFile;
+    const source = file("Notes/Source.md") as TFile;
+    const caches: Record<string, CachedMetadata> = {
+      [active.path]: {
+        links: [
+          {
+            link: "Other",
+            original: "[[Other]]",
+            position: pos("See [[Other]]", "[[Other]]"),
+          },
+        ],
+      },
+    };
+    const app = {
+      metadataCache: {
+        fileCache: { [active.path]: { hash: "active", mtime: 1, size: 1 } },
+        resolvedLinks: { [source.path]: { [active.path]: 1 } },
+        getAllItems: () => new Map(),
+        getFileCache: (candidate: TFile) => caches[candidate.path] ?? null,
+        getCache: (path: string) => caches[path] ?? null,
+        getFirstLinkpathDest: () => null,
+        getDirectReferencingPaths: () => [],
+      },
+      vault: {
+        getMarkdownFiles: () => [active],
+        getFileByPath: (path: string) =>
+          path === active.path ? active : path === source.path ? source : null,
+      },
+    } as unknown as App;
+
+    expect(
+      buildLinkedLinkSidebarData(app, active, "outgoing").linkedGroups,
+    ).toEqual([]);
+    expect(
+      buildLinkedLinkSidebarData(app, active, "backlinks").linkedGroups.map(
+        (group) => group.file.path,
+      ),
+    ).toEqual([source.path]);
+  });
 });

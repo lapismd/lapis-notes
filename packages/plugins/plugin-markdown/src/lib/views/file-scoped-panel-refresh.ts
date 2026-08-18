@@ -58,4 +58,6 @@ export function subscribeFileScopedPanelRefresh(
 export function trackMetadataCacheRevision(app: App): void {
   void app.metadataCache.fileCache;
   void app.metadataCache.metadataCache;
+  void app.metadataCache.resolvedLinks;
+  void app.metadataCache.initialized;
 }

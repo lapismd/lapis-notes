@@ -32,6 +32,7 @@ File-scoped Markdown panels recover after late metadata and file restore:
 - They MUST refresh on `loaded`, `changed`, `deleted`, and followed-file assignment through one shared helper.
 - They MUST NOT write reactive panel state when `file-open` or `active-leaf-change` repeats the same followed path.
 - Linked Backlinks and Outgoing Links MUST read `getCache`/`getFileCache` plus vault Markdown files, not only `getAllItems()`.
+- Linked Backlinks MUST also read `resolvedLinks` and `getDirectReferencingPaths` so inbound sources appear when only the followed note's cache is already mapped.
 - They MUST NOT stay empty until the user switches tabs or a layout write fires.
 
 ## Panel pages

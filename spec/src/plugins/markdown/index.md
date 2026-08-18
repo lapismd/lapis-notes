@@ -56,7 +56,7 @@ worker whose packaged import stays extensionless; heavy type widgets remain defe
 Outgoing Links share one follow helper under `LN-MD-098` and do not rewrite
 state when a leaf event repeats the same followed path.
 Linked mentions paint from `getCache`/`getFileCache` even when `getAllItems()`
-is still empty.
+is still empty. Backlinks also read `resolvedLinks` for inbound sources.
 
 ## Ownership
 

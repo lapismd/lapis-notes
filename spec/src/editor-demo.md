@@ -175,4 +175,4 @@ File-scoped Markdown panels in the demo follow the same late `loaded` and
 path-changing `file-open` refresh as production hosts. Same-path leaf events
 do not rewrite panel state. The Markdown metadata worker import
 stays extensionless in packaged output used by Vite hosts. Linked Backlinks and Outgoing Links
-use `getCache` so they do not stay empty after reload.
+use `getCache` and inbound `resolvedLinks` so they do not stay empty after reload.
