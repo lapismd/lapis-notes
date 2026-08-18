@@ -32,6 +32,10 @@ const wordcountLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-wordcount/src",
 );
+const spellcheckLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-spellcheck/src",
+);
 const markdownLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-markdown/src/lib",
@@ -262,6 +266,10 @@ export async function viteFinal(
         {
           find: /^@lapis-notes\/wordcount$/,
           replacement: path.join(wordcountLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/spellcheck$/,
+          replacement: path.join(spellcheckLib, "index.ts"),
         },
         {
           find: "@lapis-notes/ui/theme.css",

@@ -18,7 +18,7 @@
 | LN-ED-011 | Storybook MUST provide one runnable demo plus focused source-editor, Explorer, settings, loading, failure, and opening-vault scenarios from one canonical in-memory seed. Every full-shell Autodocs story in this family MUST use the shared LN-WS-013 isolated 700px padding-free shell viewport, and the authored MDX MUST identify every scenario and render its canonical story description before its canvas. |
 | LN-ED-012 | New or touched component paint MUST use design-core composition, native CSS, public `--ui-*` tokens, and semantic `data-ui-*` hosts without Tailwind utility strings. |
 | LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme through the linked package's built public exports, without a Storybook or Vite source alias. Source-editor Markdown language packs remain source-only. Rich Mira surfaces MUST be provided only by `@lapis-notes/markdown` when that plugin is enabled. |
-| LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations and Tags), Markdownlint, File Explorer, History, and Word Count. Reusable File Explorer MUST come from `@lapis-notes/file-explorer`. |
+| LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations and Tags), Markdownlint, Spell Check, File Explorer, History, and Word Count. Reusable File Explorer MUST come from `@lapis-notes/file-explorer`. |
 | LN-ED-020 | Storybook MUST provide focused panel stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags, plus editor-demo integration coverage for Markdown modes and Markdown/Mira settings. |
 | LN-ED-021 | Every focused Markdown panel MUST use `Plugins/Markdown/Panels/<Panel>` with the six movable surfaces defined by All Properties. Vault-wide panels omit the document; file-scoped panels retain one minimal active Markdown leaf. |
 | LN-ED-022 | The API editor MUST support self-owned or ancestor-owned vertical scrolling: self-owned `ScrollArea` fills its workspace view for oversized source or Markdown documents, while ancestor-owned embedding MUST not mount an inner scroll host. CodeMirror MUST expand without another vertical scrollbar. Markdown's full editing wrapper MUST use self-owned scrolling. Focused Storybook acceptance MUST prove one long-document range and changed scroll position in top-tab and stacked-tab workspaces. |
@@ -58,6 +58,8 @@
 | LN-ED-056 | The editor demo play MUST assert the Word Count status item for the seeded Welcome note, show reading time on click, and MUST NOT use compatibility status DOM. |
 | LN-ED-057 | The editor demo MUST seed a long-form loft-boarding Markdown note and open it in a focused Markdownlint story that reveals Problems. Published diagnostics MUST stay unique by code and range. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
 | LN-ED-058 | The Editor Settings story MUST open the Markdown Lint section, show the seeded MD013 disable and default file globs, and persist a setting change to `.obsidian/app.json`. |
+| LN-ED-059 | The editor demo MUST seed a misspelled note and open it in a focused Spell Check story that reveals Problems. Acceptance MUST assert a gutter mark, the row quick-fix control, and one replace action. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
+| LN-ED-060 | The editor demo Ready play MUST open the Spell Check status item and show dialect choices plus a checking toggle. It MUST NOT use compatibility status DOM. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add
@@ -120,7 +122,8 @@ owned by `@lapis-notes/file-explorer`.
 `MiraFileAdapter` per App so ordinary-link previews and File Properties
 wikilink pills survive workspace split resize. The enabled
 `@lapis-notes/markdown-lint` plugin contributes diagnostics only and exposes
-seeded rule and glob Settings. Markdown owns
+seeded rule and glob Settings. `@lapis-notes/spellcheck` contributes Harper
+diagnostics, Settings, and a Lucide status item. Markdown owns
 the Tags view. Shared panel
 presentation is specified under `workspace-shell/panels.md`. The Markdown
 Problems scenario also verifies that Design Core renders the live

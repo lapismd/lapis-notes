@@ -5,6 +5,7 @@ export type LapisEditorDemoScenario =
   | "markdown-frontmatter"
   | "markdown-authoring"
   | "markdown-problems"
+  | "markdown-spellcheck"
   | "markdown-lint-loft-boarding"
   | "same-file-split"
   | "explorer-mutations"
@@ -18,18 +19,28 @@ const OPEN_MARKDOWN_SCENARIOS = new Set<LapisEditorDemoScenario>([
   "markdown-frontmatter",
   "markdown-authoring",
   "markdown-problems",
+  "markdown-spellcheck",
   "markdown-lint-loft-boarding",
 ]);
 
 function openMarkdownLeaf(scenario: LapisEditorDemoScenario) {
-  return scenario === "markdown-lint-loft-boarding"
-    ? {
-        id: "loft-boarding",
-        title: "Loft boarding",
-        file: "Notes/Loft boarding.md",
-        mode: "source",
-      }
-    : {
+  if (scenario === "markdown-lint-loft-boarding") {
+    return {
+      id: "loft-boarding",
+      title: "Loft boarding",
+      file: "Notes/Loft boarding.md",
+      mode: "source",
+    };
+  }
+  if (scenario === "markdown-spellcheck") {
+    return {
+      id: "spelling",
+      title: "Spelling",
+      file: "Notes/Spelling.md",
+      mode: "source",
+    };
+  }
+  return {
         id: "welcome",
         title: "Welcome",
         file: "Notes/Welcome.md",
@@ -254,6 +265,12 @@ export function createLapisEditorDemoSeed(
       "",
     ].join("\n"),
     "Notes/Loft boarding.md": loftBoardingMarkdown,
+    "Notes/Spelling.md": [
+      "# Spelling",
+      "",
+      "This sentense has a mispelled word.",
+      "",
+    ].join("\n"),
     "Notes/Ideas.markdown": [
       "---",
       "tags: [ideas, demo]",

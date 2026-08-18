@@ -81,6 +81,7 @@ const preview: Preview = {
                 ],
               ],
               "Markdown Lint",
+              "Spell Check",
               "Search",
               "History",
               "Word Count",

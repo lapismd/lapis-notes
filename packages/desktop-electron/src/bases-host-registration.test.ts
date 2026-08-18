@@ -9,6 +9,8 @@ describe("desktop Bases host registration", () => {
       "utf8",
     );
     const search = source.indexOf("plugin: SearchPlugin");
+    const markdownLint = source.indexOf("plugin: MarkdownLintPlugin");
+    const spellcheck = source.indexOf("plugin: SpellcheckPlugin");
     const wordcount = source.indexOf("plugin: WordCountPlugin");
     const bases = source.indexOf("plugin: BasesPlugin");
     const ai = source.indexOf("plugin: AiPlugin");
@@ -22,6 +24,9 @@ describe("desktop Bases host registration", () => {
     expect(source.slice(bases, roles)).toContain('distribution: "bundled"');
     expect(source).toContain('communityPlugins: "disabled"');
     expect(search).toBeGreaterThan(-1);
+    expect(markdownLint).toBeGreaterThan(-1);
+    expect(spellcheck).toBeGreaterThan(markdownLint);
+    expect(search).toBeGreaterThan(spellcheck);
     expect(wordcount).toBeGreaterThan(search);
     expect(bases).toBeGreaterThan(wordcount);
     expect(ai).toBeGreaterThan(bases);

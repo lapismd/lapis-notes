@@ -1,5 +1,8 @@
 # Storybook Catalog
 
+Storybook Vite aliases resolve first-party plugin sources, including
+`@lapis-notes/spellcheck`, through the same catalog host as Word Count.
+
 ## Requirements
 
 | ID         | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |

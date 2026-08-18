@@ -411,58 +411,69 @@ export class App {
     document: VirtualDocument,
     action: LanguageServiceCodeAction,
   ): Promise<void> {
+    let value = document.text;
     const path = document.uri.startsWith("vault:///")
       ? decodeURI(document.uri.slice("vault:///".length))
       : null;
     const file = path ? this.vault.getFileByPath(path) : null;
-    if (!file || !action.edit || typeof action.edit !== "object") return;
-    const changes = (action.edit as { changes?: unknown }).changes;
-    if (!Array.isArray(changes)) return;
-    const edits = changes
-      .map((change) => {
-        if (!change || typeof change !== "object") return null;
-        const record = change as Record<string, unknown>;
-        const from = typeof record.from === "number" ? record.from : null;
-        const to = typeof record.to === "number" ? record.to : from;
-        const insert =
-          typeof record.insert === "string"
-            ? record.insert
-            : typeof record.text === "string"
-              ? record.text
-              : null;
-        if (from === null || to === null || insert === null) return null;
-        return { from, to, insert };
-      })
-      .filter(
-        (edit): edit is { from: number; to: number; insert: string } =>
-          edit !== null,
-      )
-      .sort((left, right) => right.from - left.from);
-    if (!edits.length) return;
-    let value = document.text;
-    for (const edit of edits) {
-      value = `${value.slice(0, edit.from)}${edit.insert}${value.slice(edit.to)}`;
-    }
+    if (file && action.edit && typeof action.edit === "object") {
+      const changes = (action.edit as { changes?: unknown }).changes;
+      if (Array.isArray(changes)) {
+        const edits = changes
+          .map((change) => {
+            if (!change || typeof change !== "object") return null;
+            const record = change as Record<string, unknown>;
+            const from = typeof record.from === "number" ? record.from : null;
+            const to = typeof record.to === "number" ? record.to : from;
+            const insert =
+              typeof record.insert === "string"
+                ? record.insert
+                : typeof record.text === "string"
+                  ? record.text
+                  : null;
+            if (from === null || to === null || insert === null) return null;
+            return { from, to, insert };
+          })
+          .filter(
+            (edit): edit is { from: number; to: number; insert: string } =>
+              edit !== null,
+          )
+          .sort((left, right) => right.from - left.from);
+        if (edits.length) {
+          for (const edit of edits) {
+            value = `${value.slice(0, edit.from)}${edit.insert}${value.slice(edit.to)}`;
+          }
 
-    const openEditor = this.workspace.iterateAllLeaves((leaf) => {
-      const view = leaf.view as
-        | { editor?: Editor; file?: { path?: string } | null }
-        | undefined;
-      return view?.editor && view.file?.path === file.path
-        ? view.editor
-        : undefined;
-    });
-    openEditor?.view.dispatch({
-      changes: [...edits]
-        .sort((left, right) => left.from - right.from)
-        .map((edit) => ({
-          from: edit.from,
-          to: edit.to,
-          insert: edit.insert,
-        })),
-      userEvent: "input.complete",
-    });
-    await this.vault.modify(file, value);
+          const openEditor = this.workspace.iterateAllLeaves((leaf) => {
+            const view = leaf.view as
+              | { editor?: Editor; file?: { path?: string } | null }
+              | undefined;
+            return view?.editor && view.file?.path === file.path
+              ? view.editor
+              : undefined;
+          });
+          openEditor?.view.dispatch({
+            changes: [...edits]
+              .sort((left, right) => left.from - right.from)
+              .map((edit) => ({
+                from: edit.from,
+                to: edit.to,
+                insert: edit.insert,
+              })),
+            userEvent: "input.complete",
+          });
+          await this.vault.modify(file, value);
+        }
+      }
+    }
+    if (action.command) {
+      await this.languageServices.applyCommand(
+        { ...document, text: value },
+        action.command,
+      );
+    }
+    if (!file && !action.command) return;
+    if (!action.command && value === document.text) return;
     await this.languageServices.diagnostics({
       ...document,
       version: document.version + 1,

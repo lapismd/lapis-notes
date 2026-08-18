@@ -154,6 +154,15 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
+          pattern: "^packages/plugins/plugin-spellcheck/",
+          chapters: [
+            "spec/src/plugins/spellcheck/index.md",
+            "spec/src/workspace-shell/panels/problems.md",
+            "spec/src/packages.md",
+            "spec/src/editor-demo.md",
+          ],
+        },
+        {
           pattern: "^packages/ui/(?:src/|package\\.json$)",
           chapters: ["spec/src/packages.md", "spec/src/ui-and-styling.md"],
         },
@@ -186,6 +195,7 @@ export default defineConfig(tableRequirements(), {
             "spec/src/packages.md",
             "spec/src/architecture.md",
             "spec/src/plugins/wordcount/index.md",
+            "spec/src/plugins/spellcheck/index.md",
           ],
         },
         {
@@ -195,6 +205,7 @@ export default defineConfig(tableRequirements(), {
             "spec/src/packages.md",
             "spec/src/architecture.md",
             "spec/src/plugins/wordcount/index.md",
+            "spec/src/plugins/spellcheck/index.md",
           ],
         },
         {
@@ -214,7 +225,7 @@ export default defineConfig(tableRequirements(), {
         },
         {
           pattern:
-            "^packages/api/src/lib/(?:diagnostics/|language-service/|components/editor/language-service/|components/editor/extensions/lint/|workspace\\.ts$|plugin\\.ts$)",
+            "^packages/api/src/lib/(?:diagnostics/|language-service/|components/editor/language-service/|components/editor/extensions/lint/|workspace\\.ts$|plugin\\.ts$|context\\.svelte\\.ts$)",
           chapters: ["spec/src/workspace-shell/panels/problems.md"],
         },
         {

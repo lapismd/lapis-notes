@@ -109,6 +109,28 @@
       "author": "Lapis Notes",
       "authorUrl": "https://app.lapis.md",
       "badges": ["official", "verified"],
+      "categories": ["markdown", "quality"],
+      "channel": "official",
+      "contributes": {},
+      "description": "Harper grammar and spelling diagnostics for open Lapis notes.",
+      "detail": "plugins/spellcheck.json",
+      "id": "spellcheck",
+      "latestVersion": "2026.6.1",
+      "minAppVersion": "1.7.7",
+      "name": "Spell Check",
+      "owner": {
+        "name": "Lapis Notes",
+        "verified": true
+      },
+      "platforms": ["web", "electron"],
+      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-spellcheck/README.md",
+      "schemaVersion": 1,
+      "status": "active"
+    },
+    {
+      "author": "Lapis Notes",
+      "authorUrl": "https://app.lapis.md",
+      "badges": ["official", "verified"],
       "categories": ["notebook", "markdown"],
       "channel": "official",
       "contributes": {},

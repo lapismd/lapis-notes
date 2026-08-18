@@ -78,11 +78,17 @@ export interface LanguageServiceLocation {
   range: LanguageServiceRange;
 }
 
+export interface LanguageServiceCodeActionCommand {
+  id: string;
+  arguments?: unknown[];
+}
+
 export interface LanguageServiceCodeAction {
   title: string;
   kind?: string;
   diagnostics?: LanguageServiceDiagnostic[];
   edit?: unknown;
+  command?: LanguageServiceCodeActionCommand;
 }
 
 export interface LanguageServiceProviderCapabilities {
@@ -134,5 +140,9 @@ export interface LanguageServiceProvider {
     context: LanguageServiceRequestContext,
     range: LanguageServiceRange,
   ): Promise<LanguageServiceCodeAction[]>;
+  applyCommand?(
+    context: LanguageServiceRequestContext,
+    command: LanguageServiceCodeActionCommand,
+  ): Promise<void> | void;
   dispose?(): Promise<void> | void;
 }

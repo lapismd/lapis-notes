@@ -470,6 +470,13 @@ export const workspaceCatalog = [
     storyId: "workspace-lapis-editor-demo--markdown-problems",
   },
   {
+    id: "workspace-lapis-editor-demo-markdown-spellcheck",
+    title: "Lapis Editor Demo Markdown Spell Check",
+    spec: "spec/src/plugins/spellcheck/index.md",
+    publicSurface: "@lapis-notes/spellcheck + workspace Problems",
+    storyId: "workspace-lapis-editor-demo--markdown-spellcheck",
+  },
+  {
     id: "workspace-lapis-editor-demo-markdown-lint-loft-boarding",
     title: "Lapis Editor Demo Markdown Lint Loft Boarding",
     spec: "spec/src/editor-demo.md",

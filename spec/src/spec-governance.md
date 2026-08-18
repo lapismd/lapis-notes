@@ -129,6 +129,7 @@ not installed or when an embedding model is unavailable.
 | `packages/plugins/plugin-search` package                                   | `search-plugin.md`, `packages.md`, `architecture.md`                                     |
 | `packages/plugins/plugin-history` package                                  | `history-plugin.md`, `packages.md`, `architecture.md`                                    |
 | `packages/plugins/plugin-wordcount` package                                | `wordcount-plugin.md`, `packages.md`, `plugin-model.md`, `editor-demo.md`                 |
+| `packages/plugins/plugin-spellcheck` package                               | `spellcheck-plugin.md`, `packages.md`, `workspace-shell/panels/problems.md`, `editor-demo.md` |
 | Native Markdown runtime source or language-service manifest                | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md`                   |
 | `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md`        | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |
 | `packages/plugins/plugin-bases` source or manifest                         | `bases-plugin.md`, `packages.md`, `architecture.md`                                      |

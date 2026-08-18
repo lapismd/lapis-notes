@@ -293,58 +293,74 @@ function codeActionsToLintActions(
       return {
         name: action.title,
         apply(editorView, from, to) {
-          applyLanguageServiceCodeAction(editorView ?? view, action, from, to);
+          void applyLanguageServiceCodeAction(
+            editorView ?? view,
+            action,
+            from,
+            to,
+          );
         },
       } satisfies Action;
     })
     .filter((action): action is Action => Boolean(action));
 }
 
-function applyLanguageServiceCodeAction(
+async function applyLanguageServiceCodeAction(
   view: EditorView,
   action: LanguageServiceCodeAction,
   from: number,
   to: number,
-): void {
+): Promise<void> {
   const edit = action.edit;
-  if (!edit || typeof edit !== "object") {
-    return;
-  }
+  if (edit && typeof edit === "object") {
+    const record = edit as Record<string, unknown>;
+    const changes = record.changes;
+    if (Array.isArray(changes)) {
+      const mappedChanges = changes
+        .map((change) => {
+          if (typeof change !== "object" || change === null) {
+            return null;
+          }
+          const entry = change as Record<string, unknown>;
+          const insert =
+            typeof entry.insert === "string"
+              ? entry.insert
+              : typeof entry.text === "string"
+                ? entry.text
+                : undefined;
+          const changeFrom = typeof entry.from === "number" ? entry.from : from;
+          const changeTo = typeof entry.to === "number" ? entry.to : to;
+          if (insert === undefined) {
+            return null;
+          }
+          return { from: changeFrom, to: changeTo, insert };
+        })
+        .filter(
+          (change): change is { from: number; to: number; insert: string } =>
+            Boolean(change),
+        );
 
-  const record = edit as Record<string, unknown>;
-  const changes = record.changes;
-  if (!Array.isArray(changes)) {
-    return;
-  }
-
-  const mappedChanges = changes
-    .map((change) => {
-      if (typeof change !== "object" || change === null) {
-        return null;
+      if (mappedChanges.length) {
+        view.dispatch({ changes: mappedChanges });
       }
-      const entry = change as Record<string, unknown>;
-      const insert =
-        typeof entry.insert === "string"
-          ? entry.insert
-          : typeof entry.text === "string"
-            ? entry.text
-            : undefined;
-      const changeFrom = typeof entry.from === "number" ? entry.from : from;
-      const changeTo = typeof entry.to === "number" ? entry.to : to;
-      if (insert === undefined) {
-        return null;
-      }
-      return { from: changeFrom, to: changeTo, insert };
-    })
-    .filter((change): change is { from: number; to: number; insert: string } =>
-      Boolean(change),
-    );
+    }
+  }
 
-  if (!mappedChanges.length) {
+  if (!action.command) {
     return;
   }
 
-  view.dispatch({ changes: mappedChanges });
+  const resolved = resolveDocumentContext(view);
+  if (!resolved) {
+    return;
+  }
+  await resolved.info.app.languageServices.applyCommand(
+    {
+      ...resolved.document,
+      text: view.state.doc.toString(),
+    },
+    action.command,
+  );
 }
 
 export function languageServiceCompletions(

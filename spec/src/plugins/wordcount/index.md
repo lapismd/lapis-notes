@@ -8,8 +8,10 @@ Tags.
 Desktop and web startup report the Word Count name on the plugins task while
 that plugin enables, then restore layout before starting metadata cache load.
 Those host manifests MAY declare sibling `@lapismd/ai-host` without moving Word
-Count ownership. Web agent-server URL and token Settings stay on the web host
-and MUST NOT change Word Count registration or status-bar ownership. The token
+Count ownership. The same hosts register Spell Check after Markdown Lint; that
+does not change Word Count registration or status-bar ownership. Web
+agent-server URL and token Settings stay on the web host and MUST NOT change
+Word Count registration or status-bar ownership. The token
 field uses password presentation on that host Settings surface.
 
 ## Requirements

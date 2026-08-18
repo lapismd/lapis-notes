@@ -233,6 +233,30 @@ describe("LanguageServiceManager diagnostics bridge", () => {
     ]);
   });
 
+  it("runs provider applyCommand for serializable action commands", async () => {
+    const manager = new LanguageServiceManager();
+    const applyCommand = vi.fn();
+    manager.registerProvider({
+      ...provider(),
+      applyCommand,
+    });
+
+    await manager.applyCommand(document, {
+      id: "spellcheck:add-to-dictionary",
+      arguments: ["sentense"],
+    });
+
+    expect(applyCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        document,
+      }),
+      {
+        id: "spellcheck:add-to-dictionary",
+        arguments: ["sentense"],
+      },
+    );
+  });
+
   it("handles rejected fire-and-forget document updates", async () => {
     const manager = new LanguageServiceManager();
     const error = new Error("provider stopped");

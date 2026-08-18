@@ -24,6 +24,7 @@
       - [Plugins / Markdown / Panels / Tags](./plugins/markdown/panels/tags.md)
       - [Plugins / Markdown / Panels / Link Previews](./plugins/markdown/panels/link-previews.md)
   - [Plugins / Markdown Lint](./plugins/markdown-lint/index.md)
+  - [Plugins / Spell Check](./plugins/spellcheck/index.md)
   - [Plugins / Search](./plugins/search/index.md)
   - [Plugins / History](./plugins/history/index.md)
   - [Plugins / Word Count](./plugins/wordcount/index.md)

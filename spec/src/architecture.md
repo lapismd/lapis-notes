@@ -164,6 +164,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)
 @lapis-notes/language-service (internal provider-neutral client + worker)
 @lapis-notes/markdown-lint (authorized core diagnostic provider)
+@lapis-notes/spellcheck (authorized Harper diagnostic provider)
 @lapis-notes/desktop-electron (native consumer host)
 @lapis-notes/web (browser/PWA consumer host)
 

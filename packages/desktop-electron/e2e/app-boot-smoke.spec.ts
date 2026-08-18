@@ -215,7 +215,7 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
     expect(runtime).toEqual({
       runtime: "electron-desktop",
       vault: "vault-a",
-      pluginCount: 8,
+      pluginCount: 9,
       pluginIds: [
         "ai",
         "bases",
@@ -225,6 +225,7 @@ test("a selected empty folder mounts WorkspaceShell with native markers", async 
         "markdown",
         "roles",
         "search",
+        "spellcheck",
       ],
     });
     const loadedFontFaces = await app.page.evaluate(async () => {

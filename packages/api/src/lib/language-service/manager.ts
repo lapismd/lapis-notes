@@ -1,5 +1,6 @@
 import type {
   LanguageServiceCodeAction,
+  LanguageServiceCodeActionCommand,
   LanguageServiceCompletionList,
   LanguageServiceDiagnostic,
   LanguageServiceGlobalDeclaration,
@@ -267,6 +268,26 @@ export class LanguageServiceManager {
       }
     }
     return [];
+  }
+
+  async applyCommand(
+    document: VirtualDocument,
+    command: LanguageServiceCodeActionCommand,
+  ): Promise<void> {
+    this.updateDocument(document);
+    const context = this.context(document);
+    for (const provider of this.providers.values()) {
+      if (!provider.applyCommand) continue;
+      await Promise.resolve(provider.applyCommand(context, command)).catch(
+        (error) => {
+          console.warn("Language command provider failed", {
+            provider: provider.metadata.id,
+            command: command.id,
+            error,
+          });
+        },
+      );
+    }
   }
 
   async codeActions(

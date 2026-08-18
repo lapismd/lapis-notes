@@ -15,6 +15,7 @@
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
+  import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
@@ -270,6 +271,7 @@
   const bundledPluginIds = [
     "markdown",
     "lapis-markdown-lint",
+    "spellcheck",
     "lapis-file-explorer",
     "search",
     "history",
@@ -281,6 +283,7 @@
     app.plugins.registerCorePlugins([
       { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
       { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
+      { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
       { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
       { plugin: SearchPlugin, required: false, enabledByDefault: true },
       { plugin: HistoryPlugin, required: false, enabledByDefault: true },

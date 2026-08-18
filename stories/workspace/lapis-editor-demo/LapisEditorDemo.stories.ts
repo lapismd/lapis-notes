@@ -137,6 +137,23 @@ export const Ready: Story = {
     await expect(
       canvas.getByRole("heading", { name: "No file is open" }),
     ).toBeVisible();
+    const spellcheck = await waitFor(() => {
+      const item = canvasElement.querySelector(
+        '[data-status-bar-item-id="spellcheck:status"]',
+      );
+      expect(item).not.toBeNull();
+      expect(item?.textContent).toMatch(/US|GB|CA|AU|IN/);
+      return item as HTMLElement;
+    });
+    await userEvent.click(spellcheck);
+    await waitFor(() => {
+      const menus = within(canvasElement.ownerDocument.body);
+      expect(menus.getByRole("menuitem", { name: "American" })).toBeVisible();
+      expect(
+        menus.getByRole("menuitem", { name: /automatic checking/i }),
+      ).toBeVisible();
+    });
+    await userEvent.keyboard("{Escape}");
     await expect(
       canvas.getByRole("button", { name: "Create new note" }),
     ).toBeVisible();
@@ -739,6 +756,71 @@ export const MarkdownProblems: Story = {
       { timeout: 3_000 },
     );
     canvasElement.dataset.markdownProblemsAcceptanceReady = "true";
+  },
+};
+
+export const MarkdownSpellcheck: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-markdown-spellcheck",
+    "A misspelled open note shares Harper diagnostics between the editor gutter and Problems, including the row quick-fix control and one replace action.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-spellcheck-chromium.png",
+  ),
+  tags: ["visual-pending", "test"],
+  args: { scenario: "markdown-spellcheck" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    const runtimeApp = activeStoryApp(canvasElement);
+    const editor = activeStoryEditor(canvasElement);
+
+    expect(editor.getValue()).toContain("This sentense has a mispelled word.");
+    await refreshLanguageServiceDiagnostics(editor.view, {
+      languageId: "markdown",
+    });
+    await waitFor(
+      () => {
+        const entries = runtimeApp.workspace.diagnostics
+          .snapshot()
+          .entries.filter((entry) => entry.diagnostic.source === "harper");
+        expect(entries.length).toBeGreaterThan(0);
+        expect(
+          canvasElement.querySelectorAll(
+            ".cm-lint-marker-error, .cm-lint-marker-warning, .cm-lint-marker-hint",
+          ).length,
+        ).toBeGreaterThan(0);
+      },
+      { timeout: 20_000 },
+    );
+
+    await getWorkspaceHostBinding(
+      runtimeApp.workspace,
+    ).controller.commands.execute("app-shell:show-problems");
+    const problems = await waitFor(() => {
+      const panel = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="workspace-problems"]',
+      );
+      expect(panel).not.toBeNull();
+      return panel!;
+    });
+    const problemsCanvas = within(problems);
+    const quickFix = await waitFor(() => {
+      const button = problemsCanvas.getByRole("button", { name: "Quick fix" });
+      expect(button).toBeVisible();
+      return button;
+    });
+    await userEvent.click(quickFix);
+    const replace = await waitFor(() => {
+      const item = within(canvasElement.ownerDocument.body).getByRole(
+        "menuitem",
+        { name: /Replace with/i },
+      );
+      expect(item).toBeVisible();
+      return item;
+    });
+    await userEvent.click(replace);
+    await waitFor(() => {
+      expect(editor.getValue()).not.toMatch(/sentense|mispelled/u);
+    });
   },
 };
 

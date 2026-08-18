@@ -41,6 +41,8 @@ Markdownlint provider are implemented.
 | LN-WS-066 | Markdownlint Settings MUST seed `disabledRules` with MD013/line-length, matching vscode-markdownlint. Other default rules MUST stay enabled until listed. The provider MUST apply that list instead of hardcoding MD013. |
 | LN-WS-067 | `LanguageServiceManager` MUST publish markdownlint `code` as `{ value, target }` whose target is the public rule documentation URL. Other sources MAY keep a string or number code. |
 | LN-WS-069 | The Design Core Problems plugin MUST show a right-aligned status item with the circle-alert icon and the live diagnostics total as its chip. Click MUST run the same reveal-or-create path as Show Problems. The item MUST NOT open the dock when the count changes. |
+| LN-WS-073 | `LanguageServiceCodeAction` MAY carry a serializable `command`. Apply paths MUST run provider `applyCommand` after any document edit. Diagnostic objects MUST NOT carry callbacks. |
+| LN-WS-074 | Problems tree and table rows MUST show an inline quick-fix control when the collection contributed actions. Click MUST open those actions. The Copy-first context menu MUST remain. |
 
 `Plugin.registerAgentTool` is independent from diagnostic collections and does
 not add callbacks or agent-specific fields to serializable diagnostics.

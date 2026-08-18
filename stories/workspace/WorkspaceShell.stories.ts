@@ -64,6 +64,7 @@ function expectBundledPlugins(canvas: ReturnType<typeof within>) {
   ).toEqual([
     { id: "markdown", enabled: true },
     { id: "lapis-markdown-lint", enabled: true },
+    { id: "spellcheck", enabled: true },
     { id: "lapis-file-explorer", enabled: true },
     { id: "search", enabled: true },
     { id: "history", enabled: true },
