@@ -4,6 +4,8 @@ The shell's reusable movable-view contract is documented separately under
 [Panels](./workspace-shell/panels.md). This overview retains controller,
 persistence, and application-host responsibilities. Language-service apply
 paths for serializable command actions live on the Problems panel chapter.
+Workspace `Plugin.addCommand` remains the command palette. AI composer slash
+commands are a separate Plugin API (LN-PLUG-023).
 
 ## Requirements
 

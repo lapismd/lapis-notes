@@ -202,6 +202,10 @@ export async function viteFinal(
           replacement: path.join(apiLib, "agent-tools.ts"),
         },
         {
+          find: /^@lapis-notes\/api\/agent-skills$/,
+          replacement: path.join(apiLib, "agent-skills.ts"),
+        },
+        {
           find: /^@lapis-notes\/api\/app-database$/,
           replacement: path.join(apiLib, "app-database-host.ts"),
         },

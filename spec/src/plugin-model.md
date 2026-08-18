@@ -40,6 +40,8 @@ single sidebar leaf rather than a default sidebar group.
 | LN-PLUG-019 | `Plugin.registerAgentTool` MUST register a transport-neutral tool under the owning plugin ID, reject invalid or duplicate active names, and dispose it with the plugin lifecycle. Community renderer registration MUST remain inert for agents until the user enables that tool in AI settings. |
 | LN-PLUG-020 | F-Mode MUST register on the API-owned Design Core controller, default disabled, and remain user-enableable. It MUST NOT enter `registerCorePlugins` or `.obsidian/core-plugins.json`. AppShell enablement persistence MUST resolve the App vault when load and save run. |
 | LN-PLUG-021 | `loadPlugins({ onProgress })` MUST call `onProgress` immediately before each `enablePlugin` with `id`, `name`, `index`, and `total` for the current activation order. |
+| LN-PLUG-022 | `Plugin.registerAgentSkillRoot` and `registerAgentSkillDirectory` MUST register file-backed skill sources under the owning plugin, keep paths inside the extension root, and dispose them on unload. Optional `registerAgentSkill` MUST share the same descriptor model. Unloaded sources MUST NOT enter later snapshots. |
+| LN-PLUG-023 | `Plugin.registerAgentSlashCommand` MUST register a composer slash command under the owning plugin and dispose it on unload. It MUST NOT add a workspace palette command. Dispatch kinds MAY be host, tool, skill, or prompt. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the
@@ -62,6 +64,9 @@ so plugin and metadata background work reuse the notifications status item.
 | LN-CV-010 | Desktop and web hosts MUST register runtime plugin `roles` as `first-party-external`, optional, and enabled by default before metadata and layout restoration. Package changes MUST preserve its runtime view, command, file, and plugin-data identities. |
 | LN-ROLE-016 | Desktop and web MUST restore persisted `role`, `roles`, and `cv` leaves when Roles is enabled without forcing Roles into a default layout. Disabled leaves MUST remain persisted missing-view placeholders and recover after re-enable. |
 
+Skill roots and composer slash commands follow the same disposable
+plugin lifecycle as application tools. They stay off the workspace
+command palette and off Mira editor slash registration.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects
 conflicting names, and unload disposes the exact registration.

@@ -48,6 +48,10 @@ import { registeredAppToolRefs } from "./settings/app-tool-setting-rows";
 import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 import { AppToolHost } from "./tools/app-tool-host";
 import { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
+import { SkillRegistry, SkillSnapshotStore } from "./skills/registry";
+import { createSkillAppTools } from "./skills/skill-tools";
+import { SlashCommandCatalog } from "./commands/catalog";
+import { SlashCommandRouter } from "./commands/router";
 
 const AI_MANIFEST: PluginManifest = {
   id: "ai",
@@ -70,6 +74,10 @@ export class AiPlugin extends Plugin {
   readonly mcpServers = createMcpServerContributionRegistry();
   readonly appToolHost: AppToolHost;
   readonly appToolBridge: DesktopAppToolBridge;
+  readonly skillRegistry: SkillRegistry;
+  readonly skillSnapshots = new SkillSnapshotStore();
+  readonly slashCatalog: SlashCommandCatalog;
+  readonly slashRouter: SlashCommandRouter;
   readonly #settingsListeners = new Set<
     (patch: Partial<AiPluginSettings>) => void
   >();
@@ -98,6 +106,17 @@ export class AiPlugin extends Plugin {
       this.getSettings(),
     );
     this.appToolBridge = new DesktopAppToolBridge(this.appToolHost);
+    this.skillRegistry = new SkillRegistry({
+      vault: app.vault,
+      appSkills: app.agentSkills,
+      extensionRootFor: (pluginId) =>
+        this.app.plugins?.plugins.get(pluginId)?.manifest.dir,
+    });
+    this.slashCatalog = new SlashCommandCatalog(app.agentSlashCommands);
+    this.slashRouter = new SlashCommandRouter(
+      this.slashCatalog,
+      this.skillRegistry,
+    );
     this.register(() => {
       void this.appToolBridge
         .close()
@@ -113,6 +132,20 @@ export class AiPlugin extends Plugin {
       this.fakeRuntime,
       ...createHostAgentRuntimes(),
     ]);
+  }
+
+  get skills(): SkillRegistry {
+    return this.skillRegistry;
+  }
+
+  skillContext(): import("./skills/types").SkillDiscoveryContext {
+    const scopeDir = this.createConversationInput().scopeDir;
+    return {
+      scopeDir,
+      availableToolNames: this.app.agentTools.list().map((item) => item.tool.name),
+      enabledPluginIds:
+        this.app.plugins?.enabledPlugins ?? [this.manifest.id],
+    };
   }
 
   getSettings(): AiPluginSettings {
@@ -291,6 +324,13 @@ export class AiPlugin extends Plugin {
     for (const tool of createVaultFileAppTools(this.app.vault)) {
       this.registerAgentTool(tool);
     }
+    for (const tool of createSkillAppTools({
+      registry: this.skillRegistry,
+      snapshots: this.skillSnapshots,
+      vault: this.app.vault,
+    })) {
+      this.registerAgentTool(tool);
+    }
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
         for (const listener of this.#conversationMoveListeners) {
@@ -336,6 +376,30 @@ export class AiPlugin extends Plugin {
           );
       }, 150);
     };
+    const invalidateSkills = (file: { path: string }, oldPath?: string) => {
+      if (
+        file.path.includes("/.lapis/skills/") ||
+        file.path.endsWith("/.lapis/skills") ||
+        file.path.includes("/.lapis/user/skills/") ||
+        (oldPath &&
+          (oldPath.includes("/.lapis/skills/") ||
+            oldPath.includes("/.lapis/user/skills/")))
+      ) {
+        this.skillRegistry.invalidate();
+      }
+    };
+    this.registerEvent(
+      this.app.agentSkills.on("changed", () => this.skillRegistry.invalidate()),
+    );
+    this.registerEvent(
+      this.app.vault.on("create", (file) => invalidateSkills(file)),
+    );
+    this.registerEvent(
+      this.app.vault.on("modify", (file) => invalidateSkills(file)),
+    );
+    this.registerEvent(
+      this.app.vault.on("delete", (file) => invalidateSkills(file)),
+    );
     this.registerEvent(
       this.app.vault.on("create", scheduleConversationIndexRepair),
     );
@@ -346,9 +410,10 @@ export class AiPlugin extends Plugin {
       this.app.vault.on("delete", scheduleConversationIndexRepair),
     );
     this.registerEvent(
-      this.app.vault.on("rename", (file, oldPath) =>
-        scheduleConversationIndexRepair(file, oldPath),
-      ),
+      this.app.vault.on("rename", (file, oldPath) => {
+        invalidateSkills(file, oldPath);
+        scheduleConversationIndexRepair(file, oldPath);
+      }),
     );
     this.register(() => {
       if (this.conversationIndexTimer)

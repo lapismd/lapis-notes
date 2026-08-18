@@ -13,6 +13,13 @@ export default defineConfig({
         find: /^lucide-static\/tags\.json$/,
         replacement: path.resolve(packageDir, "test/lucide-tags.stub.ts"),
       },
+      {
+        find: /^@lapis-notes\/api\/agent-skills$/,
+        replacement: path.resolve(
+          packageDir,
+          "../../api/src/lib/agent-skills.ts",
+        ),
+      },
     ],
   },
   test: {

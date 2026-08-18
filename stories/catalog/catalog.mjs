@@ -338,6 +338,13 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--app-tool-host-upgrade-required",
   },
   {
+    id: "plugins-ai-chat-skills-and-slash",
+    title: "AI Chat: Skills And Slash",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--skills-and-slash",
+  },
+  {
     id: "plugins-ai-shell-desktop",
     title: "AI Shell: Desktop",
     spec: "spec/src/plugins/ai/index.md",

@@ -60,6 +60,10 @@
   import AiApprovalCard from "./ai-approval-card.svelte";
   import AiQuestionCard from "./ai-question-card.svelte";
   import { AiChatController } from "./chat-controller.svelte";
+  import type { SkillRegistry, SkillSnapshotStore } from "../skills/registry";
+  import type { SkillDiscoveryContext } from "../skills/types";
+  import type { SlashCommandRouter } from "../commands/router";
+  import type { AppToolHost } from "../tools/app-tool-host";
 
   let {
     app,
@@ -70,6 +74,11 @@
     workspace,
     mcpServers = [],
     appToolBridge,
+    skills,
+    skillSnapshots,
+    slashRouter,
+    appToolHost,
+    skillContext,
     sessionStore,
     sessionId,
     repository,
@@ -92,6 +101,11 @@
     workspace?: string;
     mcpServers?: McpServerContribution[];
     appToolBridge?: AppToolBridgeCoordinator;
+    skills?: SkillRegistry;
+    skillSnapshots?: SkillSnapshotStore;
+    slashRouter?: SlashCommandRouter;
+    appToolHost?: AppToolHost;
+    skillContext?: () => SkillDiscoveryContext;
     sessionStore?: AgentSessionStore;
     sessionId?: string;
     repository?: ConversationRepository;
@@ -134,6 +148,11 @@
       onLocationChange: onConversationLocationChange,
       selectRuntime,
       appToolBridge,
+      skills,
+      skillSnapshots,
+      slashRouter,
+      appToolHost,
+      skillContext,
     }),
   );
   let draft = $state("");
@@ -182,9 +201,29 @@
     return available;
   });
   const mentionTriggers = $derived.by<ComposerTrigger[]>(() => {
-    if (!fileSearch) return [];
-    return [
-      {
+    const triggers: ComposerTrigger[] = [];
+    if (slashRouter) {
+      triggers.push({
+        character: "/",
+        menuLabel: "Commands",
+        emptySearchResultsText: "No commands",
+        searchSource: (query) =>
+          slashRouter.catalog
+            .list(controller.activeBindingId)
+            .filter((command) =>
+              command.name.includes(query.trim().toLowerCase()),
+            )
+            .map((command) => ({
+              id: command.name,
+              label: `/${command.name}`,
+              value: `/${command.name}`,
+              description: command.description,
+            })),
+        onSelect: (item) => `${item.value ?? `/${item.id}`} `,
+      });
+    }
+    if (fileSearch) {
+      triggers.push({
         character: "@",
         menuLabel: "Files",
         emptySearchResultsText: "No vault files",
@@ -194,8 +233,9 @@
           label: item.label,
           variant: "secondary",
         }),
-      },
-    ];
+      });
+    }
+    return triggers;
   });
   const agentLabels = $derived.by(() =>
     new Map(

@@ -1,3 +1,9 @@
+import type {
+  NativeAgentCommand,
+  SkillActivation,
+  SkillSnapshot,
+} from "../skills/types";
+
 export type ModelRef = {
   provider: string;
   model: string;
@@ -53,6 +59,8 @@ export type AgentRequest = {
   metadata?: Record<string, unknown>;
   mcpServers?: McpServerContribution[];
   appToolSession?: AppToolSessionDescriptor;
+  skillSnapshot?: SkillSnapshot;
+  skillActivations?: SkillActivation[];
   restricted?: boolean;
   requireApprovals?: boolean;
   requirePolicyAmendments?: boolean;
@@ -174,6 +182,7 @@ export type AgentEvent = (
   | { type: "question.request"; request: UserInputRequest }
   | { type: "usage"; usage: AgentUsage }
   | { type: "status"; status: string }
+  | { type: "commands.update"; commands: NativeAgentCommand[] }
   | { type: "completed"; result?: unknown }
   | { type: "error"; error: Error }
 ) & { source?: AgentEventSource };

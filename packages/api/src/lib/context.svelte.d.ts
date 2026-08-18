@@ -175,6 +175,8 @@ export declare class App {
     embedRegistry: EmbedRegistry;
     readonly searchDocumentProviders: SearchDocumentProviderRegistry;
     readonly agentTools: AppToolRegistry;
+    readonly agentSkills: import("./agent-skills").AppSkillRegistry;
+    readonly agentSlashCommands: import("./agent-skills").AppSlashCommandRegistry;
     lastEvent: UserEvent | null;
     renderContext: RenderContext;
     secretStorage: SecretStorage;

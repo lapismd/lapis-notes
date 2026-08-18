@@ -46,6 +46,12 @@ import type {
   DiagnosticCollectionOptions,
 } from "./diagnostics";
 import type { AppTool, AppToolRegistration } from "./agent-tools";
+import type {
+  AppSkillSourceRegistration,
+  AppSlashCommandDefinition,
+  AppSlashCommandRegistration,
+  ProgrammaticAppSkill,
+} from "./agent-skills";
 
 /**
  * A concise, plugin-owned palette command that opens a registered view.
@@ -1049,6 +1055,48 @@ export abstract class Plugin extends Component {
         provenance: this.provenance,
       },
       tool,
+    );
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Register a directory that contains one skill. */
+  registerAgentSkillDirectory(path: string): AppSkillSourceRegistration {
+    const registration = this.app.agentSkills.registerDirectory(
+      { pluginId: this.id },
+      path,
+    );
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Register a root that may contain many skill directories. */
+  registerAgentSkillRoot(path: string): AppSkillSourceRegistration {
+    const registration = this.app.agentSkills.registerRoot(
+      { pluginId: this.id },
+      path,
+    );
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Register a programmatic skill under this plugin's lifecycle. */
+  registerAgentSkill(skill: ProgrammaticAppSkill): AppSkillSourceRegistration {
+    const registration = this.app.agentSkills.registerSkill(
+      { pluginId: this.id },
+      skill,
+    );
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Register a composer slash command. This is not a workspace palette command. */
+  registerAgentSlashCommand(
+    command: AppSlashCommandDefinition,
+  ): AppSlashCommandRegistration {
+    const registration = this.app.agentSlashCommands.register(
+      { pluginId: this.id },
+      command,
     );
     this.register(() => registration.dispose());
     return registration;

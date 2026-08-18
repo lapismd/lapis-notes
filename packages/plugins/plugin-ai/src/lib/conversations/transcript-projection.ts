@@ -8,6 +8,23 @@ export type TranscriptProjectionOptions = DurableSanitizationOptions & {
   now?: () => string;
 };
 
+function isRuntimeProvenance(
+  value: unknown,
+): value is { sessionId: string; runId: string; sequence: number } {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      "sessionId" in value &&
+      "runId" in value,
+  );
+}
+
+function runtimeProvenance(value: unknown): {
+  source?: { sessionId: string; runId: string; sequence: number };
+} {
+  return isRuntimeProvenance(value) ? { source: { ...value } } : {};
+}
+
 function createdAt(item: AiChatItem, now: () => string): string {
   return item.createdAt ?? now();
 }
@@ -24,7 +41,7 @@ export function projectChatItemsToTranscript(
       ...(options.agentBindingId
         ? { agentBindingId: options.agentBindingId }
         : {}),
-      ...(item.source ? { source: { ...item.source } } : {}),
+      ...runtimeProvenance(item.source),
     } as const;
     switch (item.type) {
       case "message":
@@ -152,6 +169,31 @@ export function projectChatItemsToTranscript(
             retryable: true,
           },
         ];
+      case "command":
+        return [
+          {
+            ...common,
+            id: item.id,
+            type: "command",
+            command: item.command,
+            origin: item.origin,
+            arguments: item.arguments,
+            status: item.status,
+          },
+        ];
+      case "skill-activation":
+        return [
+          {
+            ...common,
+            id: item.id,
+            type: "skill-activation",
+            skillId: item.skillId,
+            skillName: item.skillName,
+            version: item.version,
+            origin: item.origin,
+            arguments: item.arguments,
+          },
+        ];
     }
   });
 }
@@ -271,6 +313,33 @@ export function projectTranscriptToChatItems(
           id: entry.id,
           type: "error",
           text: entry.message,
+          createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
+        });
+        break;
+      case "command":
+        items.push({
+          id: entry.id,
+          type: "command",
+          command: entry.command,
+          origin: entry.origin,
+          arguments: entry.arguments,
+          status: entry.status,
+          text: `/${entry.command}${entry.arguments ? ` ${entry.arguments}` : ""}`,
+          createdAt: entry.createdAt,
+          agentBindingId: entry.agentBindingId,
+        });
+        break;
+      case "skill-activation":
+        items.push({
+          id: entry.id,
+          type: "skill-activation",
+          skillId: entry.skillId,
+          skillName: entry.skillName,
+          version: entry.version,
+          origin: entry.origin,
+          arguments: entry.arguments,
+          text: `Skill ${entry.skillName} (${entry.version})`,
           createdAt: entry.createdAt,
           agentBindingId: entry.agentBindingId,
         });

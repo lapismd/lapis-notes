@@ -142,6 +142,21 @@ export type TranscriptEntry =
       type: "error";
       message: string;
       retryable?: boolean;
+    })
+  | (TranscriptEntryBase & {
+      type: "command";
+      command: string;
+      origin: "app" | "extension" | "skill" | "native-agent";
+      arguments?: string;
+      status: "completed" | "failed" | "cancelled";
+    })
+  | (TranscriptEntryBase & {
+      type: "skill-activation";
+      skillId: string;
+      skillName: string;
+      version: string;
+      origin: "user" | "model" | "app";
+      arguments?: string;
     });
 
 export type ConversationReadWarning = {

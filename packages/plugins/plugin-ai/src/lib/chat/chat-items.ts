@@ -55,6 +55,27 @@ export type AiChatItem = (
     }
   | { id: string; type: "status"; text: string; createdAt?: string }
   | { id: string; type: "error"; text: string; createdAt?: string }
+  | {
+      id: string;
+      type: "command";
+      command: string;
+      origin: "app" | "extension" | "skill" | "native-agent";
+      arguments?: string;
+      status: "completed" | "failed" | "cancelled";
+      text: string;
+      createdAt?: string;
+    }
+  | {
+      id: string;
+      type: "skill-activation";
+      skillId: string;
+      skillName: string;
+      version: string;
+      origin: "user" | "model" | "app";
+      arguments?: string;
+      text: string;
+      createdAt?: string;
+    }
 ) & { agentBindingId?: string; source?: AgentEventSource };
 
 export function createChatItemId(prefix: string, index: number): string {

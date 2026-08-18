@@ -5,6 +5,7 @@ import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import {
   aiChatApprovalExampleSource,
   aiChatExampleSource,
+  aiChatSkillsExampleSource,
   aiChatFailureExampleSource,
   aiChatMentionsExampleSource,
   aiChatQuestionExampleSource,
@@ -87,6 +88,41 @@ export const SendAndComplete: Story = {
       expect(
         canvas.getByRole("article", { name: "Message from assistant" }),
       ).toHaveTextContent("Summarize this note");
+    });
+  },
+};
+
+export const SkillsAndSlash: Story = {
+  render: () => ({
+    Component: AiChatDemo,
+    props: { enableSkills: true },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-skills-and-slash"),
+    docs: {
+      description: {
+        story:
+          "A Fake folder skill and reserved /skills composer command run through the public chat panel without a live agent.",
+      },
+      source: {
+        code: aiChatSkillsExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByRole("combobox", { name: "Message" });
+    await userEvent.type(input, "/research-notes authentication");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(canvas.getByText(/Skill research-notes/u)).toBeInTheDocument();
+    });
+    await userEvent.type(input, "/skills");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(canvas.getByText(/research-notes/u)).toBeInTheDocument();
     });
   },
 };

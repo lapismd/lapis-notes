@@ -158,4 +158,39 @@ describe("ACP event mapper", () => {
     });
     expect(request.metadata).toBeUndefined();
   });
+
+  it("maps available command updates onto the binding catalog event", () => {
+    expect(
+      mapAcpRuntimeEvent({
+        type: "available_commands_update",
+        commands: [
+          { name: "compact", description: "Compact", argumentHint: "[focus]" },
+        ],
+      }),
+    ).toEqual({
+      type: "commands.update",
+      commands: [
+        {
+          name: "compact",
+          description: "Compact",
+          argumentHint: "[focus]",
+        },
+      ],
+    });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "status",
+        commands: [{ name: "/skills", description: "Native skills" }],
+      }),
+    ).toEqual({
+      type: "commands.update",
+      commands: [
+        {
+          name: "/skills",
+          description: "Native skills",
+          argumentHint: undefined,
+        },
+      ],
+    });
+  });
 });

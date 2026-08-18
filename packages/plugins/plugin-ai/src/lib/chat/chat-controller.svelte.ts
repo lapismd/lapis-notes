@@ -49,6 +49,14 @@ import type {
   AppToolBridgeCoordinator,
   AppToolBridgeEvent,
 } from "../tools/desktop-app-tool-bridge";
+import type { AppToolHost } from "../tools/app-tool-host";
+import { buildAvailableSkillsManifest } from "../skills/manifest";
+import {
+  SkillSnapshotStore,
+  type SkillRegistry,
+} from "../skills/registry";
+import type { SkillDiscoveryContext } from "../skills/types";
+import { SlashCommandRouter } from "../commands/router";
 
 export class AiChatController {
   items = $state.raw<AiChatItem[]>([]);
@@ -83,6 +91,12 @@ export class AiChatController {
   readonly #selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
   readonly #appToolBridge?: AppToolBridgeCoordinator;
   readonly #unsubscribeAppToolEvents?: () => void;
+  readonly #skills?: SkillRegistry;
+  readonly #skillSnapshots: SkillSnapshotStore;
+  readonly #slashRouter?: SlashCommandRouter;
+  readonly #appToolHost?: AppToolHost;
+  readonly #skillContext?: () => SkillDiscoveryContext;
+  #refreshSkills = false;
 
   constructor(
     runtime: AgentRuntime,
@@ -99,6 +113,11 @@ export class AiChatController {
       onLocationChange?: (location: ConversationLocation | null) => void;
       selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
       appToolBridge?: AppToolBridgeCoordinator;
+      skills?: SkillRegistry;
+      skillSnapshots?: SkillSnapshotStore;
+      slashRouter?: SlashCommandRouter;
+      appToolHost?: AppToolHost;
+      skillContext?: () => SkillDiscoveryContext;
     } = {},
   ) {
     this.runtime = runtime;
@@ -111,6 +130,11 @@ export class AiChatController {
     this.#onLocationChange = options.onLocationChange;
     this.#selectRuntime = options.selectRuntime;
     this.#appToolBridge = options.appToolBridge;
+    this.#skills = options.skills;
+    this.#skillSnapshots = options.skillSnapshots ?? new SkillSnapshotStore();
+    this.#slashRouter = options.slashRouter;
+    this.#appToolHost = options.appToolHost;
+    this.#skillContext = options.skillContext;
     this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe((event) => {
       void this.#consumeAppToolEvent(event);
     });
@@ -200,8 +224,11 @@ export class AiChatController {
     }
   }
 
+  get activeBindingId(): string | undefined {
+    return this.#activeBindingId;
+  }
+
   async newConversation(input?: CreateConversationInput): Promise<void> {
-    if (!this.repository) return;
     await this.#closeAppToolBinding();
     await this.session?.close().catch(() => undefined);
     this.session = null;
@@ -214,7 +241,7 @@ export class AiChatController {
     this.bindings = [];
     this.location = null;
     this.conversationStatus = null;
-    if (input) {
+    if (this.repository && input) {
       const created = await this.repository.create(input);
       this.location = created.location;
       this.conversationStatus = created.metadata.status;
@@ -351,7 +378,17 @@ export class AiChatController {
     prompt: string,
     request: Omit<AgentRequest, "prompt"> = {},
   ): Promise<void> {
-    const text = prompt.trim();
+    await this.#syncSlashCatalog();
+    const resolution = this.#slashRouter?.resolve(
+      prompt,
+      this.#activeBindingId,
+    );
+    if (resolution?.kind === "unknown" || resolution?.kind === "command") {
+      await this.#executeSlash(resolution, request);
+      return;
+    }
+    const text =
+      resolution?.kind === "literal" ? resolution.text.trim() : prompt.trim();
     if (!text || this.busy) return;
     this.error = null;
     this.busy = true;
@@ -523,6 +560,13 @@ export class AiChatController {
     await this.session?.close();
     this.session = null;
     this.busy = false;
+    for (const binding of this.bindings) {
+      this.#slashRouter?.catalog.clearNativeCommands(binding.id);
+    }
+    if (this.#activeBindingId) {
+      this.#slashRouter?.catalog.clearNativeCommands(this.#activeBindingId);
+    }
+    this.#skillSnapshots.clear();
     this.#unsubscribeAppToolEvents?.();
   }
 
@@ -550,6 +594,15 @@ export class AiChatController {
           continue;
         }
         if (event.type === "status" && !isVisibleAgentStatus(event.status)) {
+          continue;
+        }
+        if (event.type === "commands.update") {
+          if (agentBindingId) {
+            this.#slashRouter?.catalog.replaceNativeCommands(
+              agentBindingId,
+              event.commands,
+            );
+          }
           continue;
         }
         traceItems = applyAgentEventToChatItems(traceItems, event);
@@ -646,6 +699,264 @@ export class AiChatController {
     }
   }
 
+  async refreshSkills(): Promise<void> {
+    this.#refreshSkills = true;
+    this.#skills?.invalidate();
+    if (this.busy) return;
+    this.busy = true;
+    try {
+      await this.#prepareSession(this.#sessionRequest);
+    } finally {
+      this.busy = false;
+      this.#refreshSkills = false;
+    }
+  }
+
+  async #executeSlash(
+    resolution: NonNullable<
+      ReturnType<SlashCommandRouter["resolve"]>
+    >,
+    request: Omit<AgentRequest, "prompt">,
+  ): Promise<void> {
+    if (!this.#slashRouter || this.busy) return;
+    this.error = null;
+    if (this.repository) await this.#ensureConversation();
+    const discovery = this.#skillContext?.() ?? {
+      scopeDir: this.location?.scopeDir ?? "",
+    };
+    const result = await this.#slashRouter.execute(resolution, {
+      agentBindingId: this.#activeBindingId,
+      discovery,
+    });
+    if (result.kind === "error") {
+      this.error = result.message;
+      this.items = [
+        ...this.items,
+        {
+          id: `command-error-${crypto.randomUUID()}`,
+          type: "error",
+          text: result.message,
+          createdAt: new Date().toISOString(),
+        },
+      ];
+      return;
+    }
+    if (result.kind === "local") {
+      if (result.notice === "new") {
+        await this.newConversation({
+          scopeDir: this.location?.scopeDir ?? "",
+        });
+        return;
+      }
+      if (result.notice === "refresh") {
+        await this.refreshSkills();
+        this.#appendLocalNotice("Agent skills refreshed.");
+        return;
+      }
+      if (result.notice === "skills" || result.notice === "tools") {
+        await this.#prepareSession(request);
+      }
+      if (result.notice === "skills") {
+        const names =
+          this.#skillSnapshots
+            .get(this.#activeBindingId ?? "")
+            ?.skills.map((skill) => skill.name)
+            .join(", ") || "No skills are available.";
+        this.#appendLocalNotice(names);
+        await this.#persistCommandNotice();
+        return;
+      }
+      if (result.notice === "tools") {
+        const names =
+          this.#appToolHost
+            ?.getSession(this.#activeBindingId ?? "")
+            ?.tools.map((tool) => tool.name)
+            .join(", ") || "No application tools are available.";
+        this.#appendLocalNotice(names);
+        await this.#persistCommandNotice();
+        return;
+      }
+      this.#appendLocalNotice(`/${result.notice}`);
+      return;
+    }
+    if (result.kind === "tool") {
+      await this.#prepareSession(request);
+      this.#ensureLocalAppToolSession();
+      if (!this.#appToolHost || !this.#activeBindingId) {
+        this.error = "Application tools are unavailable for this command.";
+        return;
+      }
+      const callId = `slash-tool-${crypto.randomUUID()}`;
+      await this.#appToolHost.invoke(this.#activeBindingId, {
+        runId: callId,
+        toolCallId: callId,
+        name: result.tool,
+        input: result.input,
+      });
+      await this.#recordCommandItem(
+        result.tool,
+        "skill",
+        JSON.stringify(result.input),
+      );
+      return;
+    }
+    if (result.kind === "skill") {
+      await this.#submitWithActivation(result.activation, request);
+      return;
+    }
+    if (result.kind === "prompt") {
+      await this.submit(result.prompt, request);
+      return;
+    }
+    if (result.kind === "native") {
+      const text = `/${result.name}${result.arguments ? ` ${result.arguments}` : ""}`;
+      await this.#recordCommandItem(result.name, "native-agent", result.arguments);
+      this.busy = true;
+      try {
+        await this.#prepareSession(request);
+        await this.session?.send(text);
+      } finally {
+        this.busy = false;
+      }
+    }
+  }
+
+  async #submitWithActivation(
+    activation: {
+      skillId: string;
+      skillName: string;
+      version: string;
+      source: "user" | "model" | "app";
+      arguments?: string;
+      instructions: string;
+    },
+    request: Omit<AgentRequest, "prompt">,
+  ): Promise<void> {
+    this.busy = true;
+    try {
+      await this.#prepareSession({
+        ...request,
+        skillActivations: [activation],
+      });
+      this.items = [
+        ...this.items,
+        {
+          id: `skill-${crypto.randomUUID()}`,
+          type: "skill-activation",
+          skillId: activation.skillId,
+          skillName: activation.skillName,
+          version: activation.version,
+          origin: activation.source,
+          arguments: activation.arguments,
+          text: `Skill ${activation.skillName} (${activation.version})`,
+          createdAt: new Date().toISOString(),
+          agentBindingId: this.#activeBindingId,
+        },
+      ];
+      if (this.repository && this.location) {
+        await this.#appendDurableItems(
+          this.location,
+          [this.items.at(-1)!],
+          this.#activeBindingId,
+        );
+      }
+      await this.session?.send(activation.arguments?.trim() || activation.skillName);
+    } finally {
+      this.busy = false;
+    }
+  }
+
+  #appendLocalNotice(text: string): void {
+    this.items = [
+      ...this.items,
+      {
+        id: `notice-${crypto.randomUUID()}`,
+        type: "status",
+        text,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+  }
+
+  async #recordCommandItem(
+    command: string,
+    source: "app" | "extension" | "skill" | "native-agent",
+    args?: string,
+  ): Promise<void> {
+    const item: AiChatItem = {
+      id: `command-${crypto.randomUUID()}`,
+      type: "command",
+      command,
+      origin: source,
+      arguments: args,
+      status: "completed",
+      text: `/${command}${args ? ` ${args}` : ""}`,
+      createdAt: new Date().toISOString(),
+      agentBindingId: this.#activeBindingId,
+    };
+    this.items = [...this.items, item];
+    if (this.repository && this.location) {
+      await this.#appendDurableItems(this.location, [item], this.#activeBindingId);
+    }
+  }
+
+  async #persistCommandNotice(): Promise<void> {
+    const item = this.items.at(-1);
+    if (this.repository && this.location && item) {
+      await this.#appendDurableItems(this.location, [item], this.#activeBindingId);
+    }
+  }
+
+  async #syncSlashCatalog(): Promise<void> {
+    if (!this.#slashRouter || !this.#skills) return;
+    const existing = this.#activeBindingId
+      ? this.#skillSnapshots.get(this.#activeBindingId)
+      : undefined;
+    if (existing) {
+      this.#slashRouter.catalog.rebuildSkillCommands(existing);
+      return;
+    }
+    const snapshot = await this.#skills.snapshot(this.#discoveryContext());
+    this.#slashRouter.catalog.rebuildSkillCommands(snapshot);
+  }
+
+  #discoveryContext(): SkillDiscoveryContext {
+    return (
+      this.#skillContext?.() ?? {
+        scopeDir: this.location?.scopeDir ?? "",
+      }
+    );
+  }
+
+  #ensureLocalAppToolSession(): void {
+    if (!this.#appToolHost || !this.#activeBindingId) return;
+    if (this.#appToolHost.getSession(this.#activeBindingId)) return;
+    this.#appToolHost.createSession({
+      conversationId: this.location?.conversationId ?? "local",
+      agentBindingId: this.#activeBindingId,
+      scopeDir: this.location?.scopeDir ?? "",
+      runtimeSupportsAppTools: true,
+    });
+  }
+
+  async #prepareSkillSnapshot(
+    bindingId: string,
+    scopeDir: string,
+  ): Promise<import("../skills/types").SkillSnapshot | undefined> {
+    if (!this.#skills) return undefined;
+    const existing = this.#skillSnapshots.get(bindingId);
+    if (existing && !this.#refreshSkills) {
+      this.#slashRouter?.catalog.rebuildSkillCommands(existing);
+      return existing;
+    }
+    const snapshot = await this.#skills.snapshot(
+      this.#skillContext?.() ?? { scopeDir },
+    );
+    this.#skillSnapshots.set(bindingId, snapshot);
+    this.#slashRouter?.catalog.rebuildSkillCommands(snapshot);
+    return snapshot;
+  }
+
   async #ensureConversation(): Promise<void> {
     if (!this.repository || this.location) return;
     const input = this.#createConversation?.() ?? { scopeDir: "" };
@@ -731,6 +1042,9 @@ export class AiChatController {
   ): Promise<void> {
     if (!bindingId) return;
     await this.#appToolBridge?.closeBinding(bindingId);
+    if (!this.#appToolBridge) {
+      this.#appToolHost?.closeBinding(bindingId);
+    }
   }
 
   async #consumeAppToolEvent({
@@ -782,6 +1096,8 @@ export class AiChatController {
     if (
       this.session &&
       this.#activeBinding &&
+      !this.#refreshSkills &&
+      !(request.skillActivations && request.skillActivations.length > 0) &&
       this.#bindingMatchesRequest(this.#activeBinding, request, targetRuntime)
     ) {
       return;
@@ -809,6 +1125,7 @@ export class AiChatController {
           this.#bindingMatchesRequest(record, request, targetRuntime),
       );
       if (
+        !this.#refreshSkills &&
         exactBinding?.nativeSessionId &&
         targetRuntime.capabilities().resume &&
         targetRuntime.resume
@@ -819,9 +1136,13 @@ export class AiChatController {
           snapshot,
         );
         try {
+          const skillSnapshot = await this.#prepareSkillSnapshot(
+            exactBinding.id,
+            snapshot.location.scopeDir,
+          );
           const resumed = await targetRuntime.resume(
             exactBinding.nativeSessionId,
-            { ...request, appToolSession },
+            { ...request, appToolSession, skillSnapshot },
           );
           if (previousBindingId !== exactBinding.id) {
             const createdAt = new Date().toISOString();
@@ -856,19 +1177,29 @@ export class AiChatController {
       }
     }
 
-    const preparedRequest: Omit<AgentRequest, "prompt"> = handoff
-      ? {
-          ...request,
-          metadata: {
-            ...request.metadata,
-            contextHandoff: {
-              text: handoff.text,
-              throughEntryId: handoff.throughEntryId,
-            },
-          },
-        }
-      : request;
     const bindingId = `binding-${crypto.randomUUID()}`;
+    const skillSnapshot = await this.#prepareSkillSnapshot(
+      bindingId,
+      snapshot?.location.scopeDir ?? this.location?.scopeDir ?? "",
+    );
+    const preparedRequest: Omit<AgentRequest, "prompt"> = {
+      ...request,
+      skillSnapshot,
+      metadata: {
+        ...request.metadata,
+        ...(handoff
+          ? {
+              contextHandoff: {
+                text: handoff.text,
+                throughEntryId: handoff.throughEntryId,
+              },
+            }
+          : {}),
+        ...(skillSnapshot
+          ? { availableSkillsManifest: buildAvailableSkillsManifest(skillSnapshot) }
+          : {}),
+      },
+    };
     const appToolSession = snapshot
       ? await this.#prepareAppToolSession(bindingId, targetRuntime, snapshot)
       : undefined;
@@ -894,6 +1225,20 @@ export class AiChatController {
           handoff,
           exactBinding?.id ?? this.#activeBindingId,
         );
+      } else {
+        this.#activeBindingId = bindingId;
+        this.#activeBinding = {
+          schemaVersion: CONVERSATION_SCHEMA_VERSION,
+          id: bindingId,
+          type: "binding.created",
+          createdAt: new Date().toISOString(),
+          runtime: targetRuntime.id,
+          agent: request.agent,
+          model: request.model ? { ...request.model } : undefined,
+          thinking: request.thinking,
+          nativeSessionId: started.id,
+        };
+        this.bindings = [...this.bindings, this.#activeBinding];
       }
     } catch (error) {
       await this.#closeAppToolBinding(bindingId);
@@ -902,6 +1247,7 @@ export class AiChatController {
     }
     this.runtime = targetRuntime;
     this.session = started;
+    this.#refreshSkills = false;
     void this.#consume(started, this.#activeBindingId);
   }
 

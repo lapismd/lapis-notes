@@ -144,6 +144,11 @@
       "import": "./dist/agent-tools.js",
       "default": "./dist/agent-tools.js"
     },
+    "./agent-skills": {
+      "types": "./dist/agent-skills.d.ts",
+      "import": "./dist/agent-skills.js",
+      "default": "./dist/agent-skills.js"
+    },
     "./path": {
       "types": "./dist/storage/path.d.ts",
       "import": "./dist/storage/path.js",

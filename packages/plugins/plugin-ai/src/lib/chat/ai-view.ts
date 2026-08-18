@@ -28,6 +28,11 @@ export type AiViewHost = {
   liveRuntimeUnavailableReason(): string | null;
   mcpServers: { list(): McpServerContribution[] };
   appToolBridge?: AppToolBridgeCoordinator;
+  skills?: import("../skills/registry").SkillRegistry;
+  skillSnapshots?: import("../skills/registry").SkillSnapshotStore;
+  slashRouter?: import("../commands/router").SlashCommandRouter;
+  appToolHost?: import("../tools/app-tool-host").AppToolHost;
+  skillContext?: () => import("../skills/types").SkillDiscoveryContext;
   conversations: ConversationRepository;
   createConversationInput(explicitFolder?: string): CreateConversationInput;
   listConversationFolders(): string[];

@@ -141,6 +141,13 @@ export type {
   RuntimeEventProvenance,
   TranscriptEntry,
 } from "./conversations/types";
+export { parseSkillMarkdown, skillContentVersion } from "./skills/parser";
+export { SkillRegistry, SkillSnapshotStore } from "./skills/registry";
+export { buildAvailableSkillsManifest } from "./skills/manifest";
+export { createSkillAppTools } from "./skills/skill-tools";
+export { SlashCommandCatalog } from "./commands/catalog";
+export { SlashCommandRouter } from "./commands/router";
+export { parseSlashCommand } from "./commands/parser";
 export { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 export { APP_TOOL_MCP_SERVER_NAME } from "./tools/mcp-server-registry";
 export {

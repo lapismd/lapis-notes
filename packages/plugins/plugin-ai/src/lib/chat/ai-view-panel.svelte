@@ -61,6 +61,11 @@
   {initializing}
   {mcpServers}
   appToolBridge={host.appToolBridge}
+  skills={host.skills}
+  skillSnapshots={host.skillSnapshots}
+  slashRouter={host.slashRouter}
+  appToolHost={host.appToolHost}
+  skillContext={host.skillContext}
   workspace={host.workspace}
   repository={host.conversations}
   {initialLocation}

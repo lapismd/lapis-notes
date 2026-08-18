@@ -1,3 +1,25 @@
+export const aiChatSkillsExampleSource = `import {
+  AiChatPanel,
+  FakeAgentRuntime,
+  SkillRegistry,
+  SlashCommandCatalog,
+  SlashCommandRouter,
+} from "@lapis-notes/ai";
+import "@lapis-notes/ai/styles.css";
+
+const runtime = new FakeAgentRuntime();
+const skills = new SkillRegistry({
+  vault,
+  bundled: [researchNotesSkill],
+});
+const slashRouter = new SlashCommandRouter(
+  new SlashCommandCatalog(),
+  skills,
+);
+
+<AiChatPanel runtime={runtime} skills={skills} slashRouter={slashRouter} />
+`;
+
 export const aiChatExampleSource = `import { AiChatPanel, FakeAgentRuntime } from "@lapis-notes/ai";
 import "@lapis-notes/ai/styles.css";
 

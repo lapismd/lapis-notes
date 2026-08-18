@@ -173,6 +173,8 @@ export function applyAgentEventToChatItems(
           : item,
       );
     }
+    case "commands.update":
+      return next;
     default:
       return next;
   }

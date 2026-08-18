@@ -10,6 +10,7 @@ import {
   type UserInputAnswers,
   type UserInputRequest,
 } from "../../core/types";
+import type { NativeAgentCommand } from "../../skills/types";
 
 export type FakeAgentTrace = "echo" | "rich";
 
@@ -19,6 +20,7 @@ export type FakeAgentRuntimeOptions = {
   requireQuestion?: boolean;
   resumeSupported?: boolean;
   trace?: FakeAgentTrace;
+  nativeCommands?: NativeAgentCommand[];
 };
 
 export const FAKE_RICH_THINKING =
@@ -60,17 +62,26 @@ export class FakeAgentSession implements AgentSession {
   readonly #requireApproval: boolean;
   readonly #requireQuestion: boolean;
   readonly #trace: FakeAgentTrace;
+  readonly #nativeCommands: NativeAgentCommand[];
 
   constructor(
     id: string,
     requireApproval: boolean,
     trace: FakeAgentTrace = "echo",
     requireQuestion = false,
+    nativeCommands: NativeAgentCommand[] = [],
   ) {
     this.id = id;
     this.#requireApproval = requireApproval;
     this.#requireQuestion = requireQuestion;
     this.#trace = trace;
+    this.#nativeCommands = nativeCommands;
+    if (nativeCommands.length > 0) {
+      this.#events.push({
+        type: "commands.update",
+        commands: nativeCommands,
+      });
+    }
   }
 
   events(): AsyncIterable<AgentEvent> {
@@ -192,6 +203,7 @@ export class FakeAgentRuntime implements AgentRuntime {
   readonly #requireQuestion: boolean;
   readonly #resumeSupported: boolean;
   readonly #trace: FakeAgentTrace;
+  readonly #nativeCommands: NativeAgentCommand[];
 
   constructor(options: FakeAgentRuntimeOptions = {}) {
     this.id = options.id ?? "fake";
@@ -199,6 +211,7 @@ export class FakeAgentRuntime implements AgentRuntime {
     this.#requireQuestion = options.requireQuestion ?? false;
     this.#resumeSupported = options.resumeSupported ?? true;
     this.#trace = options.trace ?? "echo";
+    this.#nativeCommands = options.nativeCommands ?? [];
   }
 
   capabilities(): AgentCapabilities {
@@ -232,6 +245,7 @@ export class FakeAgentRuntime implements AgentRuntime {
       this.#requireApproval || Boolean(request.requireApprovals),
       this.#trace,
       this.#requireQuestion,
+      this.#nativeCommands,
     );
     this.sessions.push(session);
     return session;

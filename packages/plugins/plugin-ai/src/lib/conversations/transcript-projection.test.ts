@@ -156,4 +156,50 @@ describe("conversation transcript projection", () => {
       { id: "q1", type: "question", status: "pending" },
     ]);
   });
+
+  it("stores command and skill-activation metadata without skill bodies", () => {
+    const entries = projectChatItemsToTranscript(
+      [
+        {
+          id: "cmd",
+          type: "command",
+          command: "research-notes",
+          origin: "skill",
+          arguments: "authentication",
+          status: "completed",
+          text: "/research-notes authentication",
+        },
+        {
+          id: "skill",
+          type: "skill-activation",
+          skillId: "folder:research-notes",
+          skillName: "research-notes",
+          version: "fnv1a:1",
+          origin: "user",
+          arguments: "authentication",
+          text: "Skill research-notes (fnv1a:1)",
+        },
+      ],
+      { agentBindingId: "binding-1", now: () => "2026-08-16T00:00:00.000Z" },
+    );
+    expect(entries).toEqual([
+      expect.objectContaining({
+        type: "command",
+        command: "research-notes",
+        origin: "skill",
+        agentBindingId: "binding-1",
+      }),
+      expect.objectContaining({
+        type: "skill-activation",
+        skillName: "research-notes",
+        version: "fnv1a:1",
+        agentBindingId: "binding-1",
+      }),
+    ]);
+    expect(JSON.stringify(entries)).not.toContain("Use notes_search");
+    expect(projectTranscriptToChatItems(entries)).toMatchObject([
+      { type: "command", command: "research-notes" },
+      { type: "skill-activation", skillName: "research-notes" },
+    ]);
+  });
 });

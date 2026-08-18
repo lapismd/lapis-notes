@@ -24,6 +24,12 @@ export type AcpRuntimeEventLike = {
   content?: unknown[];
   message?: string;
   stopReason?: string;
+  commands?: Array<{
+    name?: string;
+    description?: string;
+    argumentHint?: string;
+    hint?: string;
+  }>;
   __source?: AgentEventSource;
 };
 
@@ -71,9 +77,21 @@ export function mapAcpRuntimeEvent(
     }
     return withSource(event, { type: "text", text: event.text ?? "" });
   }
+  if (event.type === "available_commands_update") {
+    return withSource(event, {
+      type: "commands.update",
+      commands: nativeCommandsFromAcp(event),
+    });
+  }
   if (event.type === "status") {
     const usage = usageFromAcpStatus(event);
     if (usage) return withSource(event, { type: "usage", usage });
+    if (event.commands) {
+      return withSource(event, {
+        type: "commands.update",
+        commands: nativeCommandsFromAcp(event),
+      });
+    }
     return withSource(event, {
       type: "status",
       status: event.text ?? event.status ?? "status",
@@ -143,6 +161,18 @@ function usageFromAcpStatus(
   return isFiniteNonNegative(used) && isFinitePositive(limit)
     ? { used, limit }
     : null;
+}
+
+function nativeCommandsFromAcp(
+  event: AcpRuntimeEventLike,
+): Array<{ name: string; description?: string; argumentHint?: string }> {
+  return (event.commands ?? [])
+    .map((command) => ({
+      name: (command.name ?? "").trim(),
+      description: command.description,
+      argumentHint: command.argumentHint ?? command.hint,
+    }))
+    .filter((command) => command.name.length > 0);
 }
 
 function isFiniteNonNegative(value: unknown): value is number {

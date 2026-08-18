@@ -147,6 +147,8 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
     "system.notice",
     "cancelled",
     "error",
+    "command",
+    "skill-activation",
   ]);
   if (typeof data.type !== "string" || !types.has(data.type)) {
     throw new Error("Transcript entry type is unsupported");
@@ -240,6 +242,36 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
       break;
     case "error":
       requiredString(data, "message", "Transcript error");
+      break;
+    case "command":
+      requiredString(data, "command", "Transcript command");
+      if (
+        data.origin !== "app" &&
+        data.origin !== "extension" &&
+        data.origin !== "skill" &&
+        data.origin !== "native-agent"
+      ) {
+        throw new Error("Transcript command origin is invalid");
+      }
+      if (
+        data.status !== "completed" &&
+        data.status !== "failed" &&
+        data.status !== "cancelled"
+      ) {
+        throw new Error("Transcript command status is invalid");
+      }
+      break;
+    case "skill-activation":
+      requiredString(data, "skillId", "Transcript skill activation");
+      requiredString(data, "skillName", "Transcript skill activation");
+      requiredString(data, "version", "Transcript skill activation");
+      if (
+        data.origin !== "user" &&
+        data.origin !== "model" &&
+        data.origin !== "app"
+      ) {
+        throw new Error("Transcript skill activation origin is invalid");
+      }
       break;
   }
   return data as TranscriptEntry;

@@ -114,6 +114,16 @@ execution APIs.
 | LN-AI-104 | The AI chat view MUST contribute an `AI` prefix breadcrumb and the conversation `scopeDir` through `getBreadcrumbs` and `getBreadcrumbFilePath`, matching History's path-segment chrome. Vault-root scope MAY omit folder segments. |
 | LN-AI-094 | A capable authenticated remote host MUST proxy app-tool calls, results, and cancellation through the existing agent-runtime channel while execution remains in the owning App. Disconnect MUST cancel pending calls and revoke the bridge, and resume MUST create a new bridge rather than reusing stale authorization. |
 | LN-AI-095 | The AI settings section MUST list every currently registered application tool with its name, contributing plugin, and an enablement control. The list MUST refresh when the registry changes. Unregistered tools MUST disappear. |
+| LN-AI-110 | AI MUST parse folder `SKILL.md` files that supply `name` and `description`. It MUST accept OpenClaw-compatible `user-invocable`, `disable-model-invocation`, `argument-hint`, and `command-dispatch` fields. Application-only gating MUST use namespaced `metadata.lapis`. Invalid frontmatter MUST produce a diagnostic and MUST NOT enter an effective snapshot. |
+| LN-AI-111 | Skill discovery MUST search conversation-scope, vault, user, extension, and bundled roots in that override order, using skill `name` for precedence. A higher source MUST replace a lower source without merging bodies. Same-level duplicates MUST be invalid. Disabled extension roots MUST NOT enter later snapshots. |
+| LN-AI-112 | Each new agent binding MUST receive an immutable skill snapshot of eligible skills. Session setup MUST inject a compact `available_skills` manifest of model-invocable skills only. The manifest MUST include name, description, id, and version and MUST NOT include host filesystem paths. Existing bindings MUST retain their snapshot until an explicit refresh or replacement binding. |
+| LN-AI-113 | AI MUST register bundled `skills_read` and `skills_resource` application tools. Both MUST execute through `AppToolHost`. `skills_read` MUST load a model-invocable skill from the current binding snapshot. `skills_resource` MUST reject traversal, symlink escape, and oversized content, and MUST NOT execute scripts. |
+| LN-AI-114 | An explicit skill command MUST load full instructions host-side and create a structured skill activation with name, version, source, and arguments. Runtime adapters MUST project that activation. The path MUST NOT depend on the model choosing `skills_read`. |
+| LN-AI-115 | The AI composer MUST parse a leading slash as a command. Reserved app commands MUST remain available across agent switches. Unknown commands MUST show a visible error and MUST NOT become model prompts. Literal `//` MUST escape to ordinary text. |
+| LN-AI-116 | A skill or slash command that dispatches a tool MUST call `AppToolHost.invoke()`. It MUST NOT execute the tool callback directly. Approval, validation, scope, and unload checks MUST remain the same as agent tool calls. |
+| LN-AI-117 | Durable transcripts MAY record `command` and `skill-activation` entries with name, version, source, and status. They MUST NOT persist full skill bodies. Projection MUST keep those entries attributable to the producing binding. |
+| LN-AI-118 | Native agent commands advertised by the active binding MUST appear in the composer catalog under that agent. They MUST NOT override reserved, extension, or skill commands. Colliding native names MUST remain available through `/native`. Session close MUST clear or disable that binding's native catalog. |
+| LN-AI-119 | An explicit skill refresh MUST create a replacement binding with the current skill snapshot. Existing native bindings MUST keep their prior snapshot until that refresh or a later replacement. Skill file changes MUST affect only future snapshots. |
 
 ### LN-AI-046 acceptance details
 
@@ -145,6 +155,11 @@ External process-backed MCP servers are represented by
 `McpServerContribution` and travel through `AgentRequest.mcpServers`; the
 reserved `lapis-tools` server is exclusively owned by the application-tool
 bridge.
+Folder skills live under `<scope>/.lapis/skills/**/SKILL.md`. The composer
+treats a leading slash as a command and keeps reserved app commands across
+agent switches. Native ACP commands stay binding-local and never override
+app, extension, or skill commands. Skill tools execute only through
+`AppToolHost`.
 Application tools are enabled by default for new bindings. The master setting
 and per-tool enablement lists are persisted, while an active binding retains
 the snapshot taken when it was created.

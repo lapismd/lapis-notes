@@ -75,6 +75,7 @@ production hosts continue to load that plugin.
 | LN-ARCH-061 | Native Explorer copy, open, and reveal extras MUST remain File Explorer consumer work over Design Core's built-in vault-path menu. Design Core MUST NOT hardcode system paths or OS reveal. |
 | LN-ARCH-062 | Generic file-tool kernels MAY live in `@lapismd/ai-host/file-tools`. API MUST supply Vault operations and AppTool wrappers. The kernel MUST NOT own conversation scope, approvals, or Vault I/O. |
 | LN-ARCH-063 | `@lapis-notes/ai` MUST render assistant chat Markdown through `@lapis-notes/markdown/embed`. That helper MUST apply the App's default Mira editor extensions. AI MUST NOT add a plugin-local Markdown renderer. Chat MUST keep the embed preview surface transparent. |
+| LN-ARCH-064 | API MUST own transport-neutral skill-source and composer slash-command registries. AI MUST own discovery, snapshots, routing, and `AppToolHost` invocation. Composer slash commands MUST remain distinct from workspace `addCommand` and from Mira editor slash commands. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core
@@ -90,6 +91,11 @@ App constructs the workspace before the vault, so API-owned AppShell plugin
 enablement persistence resolves `app.vault` when load and save run instead of
 capturing it during workspace construction.
 
+Skill-source and composer slash-command registries follow the same
+explicit ownership boundary as application tools. API stores plugin
+registrations. AI discovers vault and folder skills, snapshots them per
+binding, and routes composer commands. Mira editor slash commands remain
+a Markdown concern.
 The application tool registry follows the same explicit ownership boundary.
 It stores plugin-owned, transport-neutral callbacks on the owning App while AI
 derives binding-local policy snapshots and AI Host adapts descriptors to MCP.

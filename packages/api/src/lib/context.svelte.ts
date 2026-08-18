@@ -67,6 +67,10 @@ import type { Editor } from "./editor.svelte";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import {
+  AppSkillRegistry,
+  AppSlashCommandRegistry,
+} from "./agent-skills";
+import {
   installApplicationCompatibility,
   resolveApplication,
 } from "./application-compatibility";
@@ -276,6 +280,8 @@ export class App {
   readonly configurationOptionSources = new ConfigurationOptionSourceRegistry();
   readonly searchDocumentProviders = new SearchDocumentProviderRegistry();
   readonly agentTools = new AppToolRegistry();
+  readonly agentSkills = new AppSkillRegistry();
+  readonly agentSlashCommands = new AppSlashCommandRegistry();
   lastEvent: UserEvent | null = $state(null);
   renderContext: RenderContext = new RenderContext();
   secretStorage: SecretStorage = new SecretStorage();

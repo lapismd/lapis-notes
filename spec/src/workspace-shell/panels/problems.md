@@ -8,6 +8,9 @@ The Lapis façade, plugin-owned disposal, open-document bridge, cached actions,
 navigation adapter, diagnostics-only Markdown composition, and default
 Markdownlint provider are implemented.
 
+Skill parse and discovery diagnostics stay in the AI plugin and do not enter
+Problems collections.
+
 ## Requirements
 
 | ID | Requirement |

@@ -2,6 +2,9 @@
   import {
     AiChatPanel,
     FakeAgentRuntime,
+    SkillRegistry,
+    SlashCommandCatalog,
+    SlashCommandRouter,
     createMemorySessionStore,
     formatFileMention,
     searchVaultFiles,
@@ -12,6 +15,7 @@
     type ModelRef,
     type VaultFileRef,
   } from "@lapis-notes/ai";
+  import { MemoryVaultAdapter, Vault } from "@lapis-notes/api/vault";
   import "@lapis-notes/ai/styles.css";
 
   let {
@@ -31,6 +35,7 @@
     ],
     preservePending = false,
     seededHeight = "22rem",
+    enableSkills = false,
   }: {
     requireApproval?: boolean;
     requireQuestion?: boolean;
@@ -42,6 +47,7 @@
     files?: VaultFileRef[];
     preservePending?: boolean;
     seededHeight?: string;
+    enableSkills?: boolean;
   } = $props();
 
   const runtime = $derived.by<AgentRuntime>(() => {
@@ -67,6 +73,32 @@
       },
     };
   });
+  const skillHarness = $derived.by(() => {
+    if (!enableSkills) return undefined;
+    const vault = new Vault(new MemoryVaultAdapter());
+    const skills = new SkillRegistry({
+      vault,
+      bundled: [
+        {
+          id: "bundled:research-notes",
+          name: "research-notes",
+          description: "Research notes in the current folder",
+          source: "bundled" as const,
+          root: "bundled/research-notes",
+          version: "demo",
+          userInvocable: true,
+          modelInvocable: true,
+          command: { kind: "model" as const },
+          instructions: "Use notes_search then read.",
+        },
+      ],
+    });
+    return {
+      skills,
+      slashRouter: new SlashCommandRouter(new SlashCommandCatalog(), skills),
+    };
+  });
+
   const sessionStore = $derived(
     persist || seedItems.length > 0
       ? createMemorySessionStore(
@@ -111,6 +143,8 @@
   <AiChatPanel
     {runtime}
     {sessionStore}
+    skills={skillHarness?.skills}
+    slashRouter={skillHarness?.slashRouter}
     {fileSearch}
     {models}
     {modelCatalogError}

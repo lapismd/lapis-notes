@@ -7,6 +7,10 @@ import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
 import { SearchDocumentProviderRegistry } from "../search-document-provider";
 import { AppToolRegistry } from "../agent-tools";
+import {
+  AppSkillRegistry,
+  AppSlashCommandRegistry,
+} from "../agent-skills";
 import { MemoryAppDatabase, Vault } from "../storage";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
@@ -64,6 +68,8 @@ function createPluginApp() {
     configurationOptionSources: new ConfigurationOptionSourceRegistry(),
     searchDocumentProviders: new SearchDocumentProviderRegistry(),
     agentTools: new AppToolRegistry(),
+    agentSkills: new AppSkillRegistry(),
+    agentSlashCommands: new AppSlashCommandRegistry(),
   } as unknown as App;
 
   const configuration = new Configuration(app, "/.obsidian/app.json");
@@ -127,6 +133,52 @@ describe("Plugin data persistence", () => {
 
     plugin.unload();
     expect(app.agentTools.get("fixture_read")).toBeUndefined();
+  });
+
+  it("registers and disposes skill sources and composer slash commands", () => {
+    const { app } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "fixture",
+      name: "Fixture",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.configureRuntime({ source: "core", provenance: "bundled" });
+    plugin.load();
+
+    plugin.registerAgentSkillRoot("skills");
+    plugin.registerAgentSkillDirectory("skills/research-notes");
+    plugin.registerAgentSkill({
+      name: "review-note",
+      description: "Review the active note.",
+      instructions: "Read the note and list issues.",
+    });
+    plugin.registerAgentSlashCommand({
+      name: "open-daily-note",
+      description: "Open today's daily note.",
+      dispatch: {
+        kind: "host",
+        execute() {},
+      },
+    });
+
+    expect(app.agentSkills.list()).toHaveLength(3);
+    expect(app.agentSlashCommands.get("open-daily-note")?.ownerPluginId).toBe(
+      "fixture",
+    );
+    expect(app.commands.registerCommand).not.toHaveBeenCalled();
+    expect(() => plugin.registerAgentSkillRoot("../escape")).toThrow(
+      /traversal/u,
+    );
+    expect(() => plugin.registerAgentSkillRoot("/abs")).toThrow(
+      /extension root/u,
+    );
+
+    plugin.unload();
+    expect(app.agentSkills.list()).toEqual([]);
+    expect(app.agentSlashCommands.get("open-daily-note")).toBeUndefined();
   });
 
   it("registers and disposes a ViewAccess command with the plugin prefix", () => {

@@ -872,6 +872,21 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-107   | ai-plugin                       | Implemented | History registerSidebarView omits group; source test and opener use an ungrouped right leaf |
 | LN-AI-108   | ai-plugin                       | Implemented | Search, Markdown, and API tool factories assert prefer-over-shell descriptions; notes_search names lightweight results and read |
 | LN-AI-109   | ai-plugin                       | Implemented | Composer kebab labels in Local Conversations; controller tests keep archive on the same location |
+| LN-AI-110   | ai-plugin                       | Implemented | Skill parser tests cover required frontmatter, OpenClaw flags, namespaced metadata, and invalid exclusion |
+| LN-AI-111   | ai-plugin                       | Implemented | Discovery tests prove folder-over-vault-over-user-over-extension-over-bundled precedence and same-level duplicates |
+| LN-AI-112   | ai-plugin                       | Implemented | Binding snapshot tests keep the old manifest on an existing binding and give a replacement the current set |
+| LN-AI-113   | ai-plugin                       | Implemented | skills_read and skills_resource AppToolHost tests reject snapshot misses, traversal, and script execution |
+| LN-AI-114   | ai-plugin                       | Implemented | Explicit slash skill loads instructions host-side and records a structured activation on the Fake turn |
+| LN-AI-115   | ai-plugin                       | Implemented | Composer slash parser tests cover leading slash, unknown errors, reserved stability, and // escape |
+| LN-AI-116   | ai-plugin                       | Implemented | Direct tool-dispatch skill commands invoke AppToolHost and keep approval denial |
+| LN-AI-117   | ai-plugin                       | Implemented | Transcript projection stores command and skill-activation metadata without skill bodies |
+| LN-AI-118   | ai-plugin                       | Implemented | Native command catalog is per binding, yields to reserved names, and stays reachable through /native |
+| LN-AI-119   | ai-plugin                       | Implemented | Refresh creates a replacement binding snapshot while the prior binding retains its version |
+| LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
+| LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
+| LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |
+| LN-PKG-096  | packages                        | Implemented | API agent-skills export and AI skill/command modules stay free of MCP, ACP, and vendor types |
+| LN-CAT-087  | storybook-catalog               | Implemented | Plugins/AI/Chat SkillsAndSlash Fake play covers a folder skill and reserved /skills command |
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |

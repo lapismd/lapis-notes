@@ -57,7 +57,7 @@ intake or UI swap status changes.
 | `@lapis-notes/language-service`            | Done                | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                                                                                                                |
 | `@lapis-notes/markdown-lint`               | Done                | Enabled core plugin selects the probed native service or worker fallback and preserves configured rules, fixes, and ignores                                                                                                                                                                                                  |
 | `@lapis-notes/lapis-plugin-cv-roles`       | Done                | Clean rename and vault workflows plus the legacy Applications, Activity, Actions, ticket-card, and role-detail component/CSS presentation are complete. Lapis owns the shell and vault/Mira adapters; Tasks and AI remain excluded. Fixed-profile browser review passed, with visual baseline work deferred at user request. |
-| `@lapis-notes/ai`                          | In progress         | Bundled provider-agnostic AgentRuntime, host-gated live adapters on `./runtimes`, Codex and Cursor via ACP, Fake without a host, and a Design Core chat panel whose drawer owns pending permissions and agent questions; CV-domain MCP tools remain outside this package                                                  |
+| `@lapis-notes/ai`                          | In progress         | Bundled provider-agnostic AgentRuntime, host-gated live adapters on `./runtimes`, Codex and Cursor via ACP, Fake without a host, a Design Core chat panel, folder Agent Skills, and composer slash commands; CV-domain MCP tools remain outside this package                                                  |
 | `@lapismd/ai-host`                         | Done                | Sibling process host at `../ai-host`: acpx executor, `lapis-ai-host serve`, required WebSocket token handshake; Electron uses the library in-process; PWA attach and Storybook `Plugins/AI/Live Host` use URL and token. Host-owned requirements live in the sibling spec.                                                          |
 | `@lapismd/terminal-host`                   | In progress         | Sibling PTY host at `../terminal-host`: interactive shells, `lapis-terminal-host serve`, token handshake; Electron embeds in-process; web attaches with URL and token. |
 | `@lapis-notes/lapis-plugin-terminal`       | In progress         | Sibling plugin with `terminal` view, Open/New Terminal, bottom-panel default, Fake sessions. Package Storybook placements remain planned. |
@@ -150,6 +150,17 @@ AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-095`
 - [x] Rebased onto History settings so Workspace Shell asserts the seven bundled plugins from `LN-CAT-077`
 - [x] Full Electron `package:dir` lane: renderer Vite includes the Turso WASM bundle; unpacked app ships an executable `mcp-shim.mjs`
 - [ ] Live paid-agent probes (`pnpm ai:smoke:probe:*`, Live Host, desktop smoke): 2026-08-17 rerun — harness 3/3; Codex ACP catalog (7) then Internal error on `notes_search`; Cursor ACP catalog (35) then `notes_read` omitted; Codex Native catalog (7) then usage limit. Storybook/desktop UI checklists not completed. Automated Live Host ReloadResume play covers restore-before-resume without a live prompt.
+
+### Agent skills and composer slash commands
+
+Canonical IDs: `LN-AI-110`–`LN-AI-119`, `LN-PLUG-022`, `LN-PLUG-023`,
+`LN-ARCH-064`, `LN-PKG-096`, `LN-CAT-087`.
+
+- [x] Canonical requirements and verification mappings
+- [x] Folder skills, compact manifests, `skills_read` / `skills_resource`, and Fake activation
+- [x] Composer slash router, reserved commands, and AppToolHost tool dispatch
+- [x] Plugin skill-root and slash-command registration
+- [x] Native ACP command catalog and explicit skill refresh
 
 ### Search plugin intake progress
 
