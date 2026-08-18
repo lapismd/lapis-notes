@@ -66,14 +66,18 @@ export async function prepareAiViewBootstrap(
   let modelCatalogError: string | null = null;
   const selectedCatalog =
     settledCatalogs[ACP_AGENT_IDS.indexOf(settings.acpAgent)];
+  const agentModels = models.filter(
+    (model) => model.provider === settings.acpAgent,
+  );
   if (selectedCatalog?.status === "rejected") {
     modelCatalogError = errorMessage(selectedCatalog.reason);
   } else if (
     !initialLocation &&
-    models.length > 0 &&
-    !models.some((model) => model.model === settings.defaultModel)
+    agentModels.length > 0 &&
+    !agentModels.some((model) => model.model === settings.defaultModel)
   ) {
-    const model = (models.find((entry) => entry.isDefault) ?? models[0])!;
+    const model = (agentModels.find((entry) => entry.isDefault) ??
+      agentModels[0])!;
     await host.updateSettings({ defaultModel: model.model });
     settings = host.getSettings();
   }

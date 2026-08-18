@@ -2,7 +2,9 @@
 
 Storybook is a documentation projection over the package graph. Its exact
 specification mirrors and post-build index acceptance do not add a runtime
-dependency or move plugin ownership into the catalog host. Separately versioned
+dependency or move plugin ownership into the catalog host. Composer agent and
+model defaults persist in AI plugin data; workspace dock selection persists
+through the existing 1000 ms writer. Separately versioned
 Roles/CV catalog coverage remains in its owning repository while Lapis
 production hosts continue to load that plugin.
 

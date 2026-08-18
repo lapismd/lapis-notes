@@ -3709,6 +3709,87 @@ describe("Workspace compatibility", () => {
     expect(workspace.activeLeaf?.id).toBe("active-search");
   });
 
+  it("writes and restores the selected sidebar leaf after setViewState and activateLeaf", async () => {
+    vi.useFakeTimers();
+    const files = new Map<string, string>();
+    const { app, workspace } = createWorkspaceHarness();
+    workspace.layoutReady = true;
+    app.vault.create = async (path: string, data: string) => {
+      files.set(path, data);
+      return new TFile(path, { ctime: 0, mtime: 0, size: data.length }, null);
+    };
+    app.vault.getFileByPath = (path: string) => {
+      if (!files.has(path)) return null;
+      return new TFile(
+        path,
+        { ctime: 0, mtime: 0, size: files.get(path)!.length },
+        null,
+      );
+    };
+    app.vault.read = async (file: TFile) => files.get(file.path) ?? "";
+    workspace.registerView(
+      "graph",
+      (currentLeaf) => new MockItemView(currentLeaf, "graph", "Graph"),
+    );
+    workspace.registerView(
+      "search",
+      (currentLeaf) => new MockItemView(currentLeaf, "search", "Search"),
+    );
+
+    const links = workspace.ensureSideLeaf("graph", "right", {
+      group: "links",
+      groupTitle: "Links",
+    });
+    await links.setViewState({ type: "graph", state: {} });
+    const chat = workspace.ensureSideLeaf("search", "right", {
+      group: "ai",
+      groupTitle: "AI",
+    });
+    await chat.setViewState({ type: "search", state: {} });
+    workspace.activateLeaf(chat, {
+      focusRootHost: false,
+      source: "api",
+      operation: "open-ai-chat",
+    });
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await Promise.resolve();
+
+    expect(files.has("/.obsidian/workspace.json")).toBe(true);
+    const written = JSON.parse(files.get("/.obsidian/workspace.json")!);
+    expect(written.active).toBe(chat.id);
+    const rightTabs = written.right.children[0];
+    expect(rightTabs.currentTab).toBeGreaterThan(0);
+    expect(rightTabs.children[rightTabs.currentTab].type).toBe("sidebar-group");
+    expect(rightTabs.children[rightTabs.currentTab].selectedLeafId).toBe(
+      chat.id,
+    );
+
+    const restored = createWorkspaceHarness();
+    restored.workspace.registerView(
+      "graph",
+      (currentLeaf) => new MockItemView(currentLeaf, "graph", "Graph"),
+    );
+    restored.workspace.registerView(
+      "search",
+      (currentLeaf) => new MockItemView(currentLeaf, "search", "Search"),
+    );
+    restored.app.vault.getFileByPath = app.vault.getFileByPath;
+    restored.app.vault.read = app.vault.read;
+
+    await restored.workspace.loadLayout();
+    vi.useRealTimers();
+
+    expect(restored.workspace.activeLeaf?.id).toBe(chat.id);
+    expect(restored.workspace.activeLeaf?.view.getViewType()).toBe("search");
+    const restoredTabs = restored.workspace.rightSplit.children[0] as WorkspaceTabs;
+    expect(restoredTabs.selectedChild).toBeInstanceOf(WorkspaceSidebarGroup);
+    expect(
+      (restoredTabs.selectedChild as WorkspaceSidebarGroup).getSelectedLeaf()
+        ?.id,
+    ).toBe(chat.id);
+  });
+
   it("changeLayout restores active leaf and activates view plugins", async () => {
     const { app, workspace } = createWorkspaceHarness();
     workspace.registerView(

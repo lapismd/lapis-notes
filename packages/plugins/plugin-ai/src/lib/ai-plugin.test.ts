@@ -73,6 +73,18 @@ describe("AiPlugin contracts", () => {
     expect(source).not.toContain("globalThis.app");
   });
 
+  it("persists composer agent, model, and thinking through updateSettings", () => {
+    const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
+
+    expect(panel).toContain("persistComposerDefaults");
+    expect(panel).toContain("void onSettingsChange?.(");
+    expect(panel).toContain("acpAgent: agent");
+    expect(panel).toContain("defaultRuntime: runtimePreference");
+    expect(panel).toContain("defaultModel: model");
+    expect(panel).toContain("thinking,");
+    expect(panel).not.toContain("onSettingsChange: _onSettingsChange");
+  });
+
   it("does not remount an open conversation when global defaults change", () => {
     const source = readFileSync("src/lib/chat/ai-view.ts", "utf8");
 

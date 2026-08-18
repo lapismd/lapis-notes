@@ -860,6 +860,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-058 | desktop-host                    | Implemented | desktop Vite allows the linked Terminal plugin root so Ghostty WASM is served |
 | LN-DESK-059 | desktop-host                    | Implemented | desktop terminal host binds workspace from create payload vault path, cwd, or homedir |
 | LN-WS-080   | workspace-shell                 | Implemented | Terminal plugin seeds a bottom leaf when none exists |
+| LN-WS-081   | workspace-shell                 | Implemented | setViewState and activateLeaf schedule the 1000 ms writer; loadLayout restores the selected sidebar leaf or group |
 | LN-AI-099   | ai-plugin                       | Implemented | API write tests create or overwrite scoped text files after mkpath, reject folders, hidden paths, binary, and oversized payloads, and collide without auto-suffix |
 | LN-AI-100   | ai-plugin                       | Implemented | API apply_patch tests validate V4A add, update, move, and delete, refuse existing Add targets, trash deletes, and leave files unchanged when a later hunk fails |
 | LN-AI-101   | ai-plugin                       | Implemented | mergeAiSettings remaps notes_read to read and notes_patch to edit in persisted enablement lists |
+| LN-AI-102   | ai-plugin                       | Implemented | composer persist-on-change and bootstrap keep a saved Cursor default |

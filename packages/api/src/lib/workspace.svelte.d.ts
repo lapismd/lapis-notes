@@ -203,6 +203,7 @@ type WorkspaceSidebarGroupJson = {
     hiddenLeafIds?: string[];
     collapsed?: Record<string, boolean>;
     panelSizes?: Record<string, number>;
+    selectedLeafId?: string;
     children: WorkspaceLeafJson[];
 };
 export type SidebarSide = "left" | "right";
@@ -238,12 +239,14 @@ export declare class WorkspaceSidebarGroup extends WorkspaceParent {
     hiddenLeafIds: string[];
     collapsed: Record<string, boolean>;
     panelSizes: Record<string, number>;
+    selectedLeafId: string | undefined;
     children: WorkspaceLeaf[];
     constructor(options?: SidebarGroupOptions);
     detach(softDelete?: boolean): WorkspaceTabsChild | undefined;
     addChild(child: WorkspaceLeaf, index?: number): void;
     removeChild(index: number | WorkspaceLeaf, softDelete?: boolean): WorkspaceLeaf | undefined;
     getSelectedLeaf(): WorkspaceLeaf | null;
+    selectLeaf(leaf: WorkspaceLeaf): void;
     iterateAllLeaves<T = any>(callback: (leaf: WorkspaceLeaf) => T): T | void;
     isLeafHidden(leaf: WorkspaceLeaf | string): boolean;
     setLeafHidden(leaf: WorkspaceLeaf | string, hidden: boolean): void;

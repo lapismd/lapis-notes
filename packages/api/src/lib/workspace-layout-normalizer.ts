@@ -44,6 +44,7 @@ type WorkspaceSidebarGroupJson = {
   hiddenLeafIds?: string[];
   collapsed?: Record<string, boolean>;
   panelSizes?: Record<string, number>;
+  selectedLeafId?: string;
   children: WorkspaceLeafJson[];
 };
 
@@ -191,6 +192,11 @@ function normalizeSidebarGroup(raw: unknown): WorkspaceSidebarGroupJson | null {
     ...(hiddenLeafIds && hiddenLeafIds.length > 0 ? { hiddenLeafIds } : {}),
     ...(collapsed && Object.keys(collapsed).length > 0 ? { collapsed } : {}),
     ...(panelSizes && Object.keys(panelSizes).length > 0 ? { panelSizes } : {}),
+    ...(typeof r.selectedLeafId === "string" &&
+    r.selectedLeafId.length > 0 &&
+    children.some((child) => child.id === r.selectedLeafId)
+      ? { selectedLeafId: r.selectedLeafId }
+      : {}),
     children,
   };
 }

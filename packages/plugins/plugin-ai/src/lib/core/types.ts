@@ -2,6 +2,7 @@ export type ModelRef = {
   provider: string;
   model: string;
   displayName?: string;
+  badges?: string[];
   description?: string;
   isDefault?: boolean;
   supportedThinking?: AiThinkingLevel[];

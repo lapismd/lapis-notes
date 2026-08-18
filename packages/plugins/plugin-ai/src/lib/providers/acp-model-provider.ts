@@ -5,10 +5,17 @@ import {
 import type { ModelRef } from "../core/types";
 import type { ModelProvider, ProviderAuthStatus } from "./model-provider";
 
+type AcpModelEntry = {
+  id: string;
+  label: string;
+  badges?: string[];
+};
+
 type AcpModelCatalog = {
   agent: string;
   currentModel?: string;
   models?: string[];
+  entries?: AcpModelEntry[];
 };
 
 type AgentRuntimeBridge = {
@@ -33,14 +40,22 @@ export class AcpModelProvider implements ModelProvider {
       { agent: this.id, workspace: this.#workspace },
     );
     const current = catalog.currentModel?.trim();
+    const entries = new Map(
+      (catalog.entries ?? []).map((entry) => [entry.id, entry]),
+    );
     return [...new Set(catalog.models ?? [])]
       .map((model) => model.trim())
       .filter(Boolean)
-      .map((model) => ({
-        provider: this.id,
-        model,
-        isDefault: model === current,
-      }));
+      .map((model) => {
+        const entry = entries.get(model);
+        return {
+          provider: this.id,
+          model,
+          ...(entry?.label ? { displayName: entry.label } : {}),
+          ...(entry?.badges?.length ? { badges: entry.badges } : {}),
+          isDefault: model === current,
+        };
+      });
   }
 
   async authStatus(): Promise<ProviderAuthStatus> {

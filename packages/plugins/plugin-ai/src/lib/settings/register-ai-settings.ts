@@ -86,7 +86,9 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
           return models.map((model) => ({
             value: model.model,
             label: model.displayName ?? model.model,
-            description: model.description,
+            description: model.badges?.length
+              ? model.badges.join(" · ")
+              : model.description,
           }));
         } catch (error) {
           return saved

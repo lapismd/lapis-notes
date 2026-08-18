@@ -44,7 +44,20 @@ function createHost(
     searchVaultFiles: async () => [],
     getSettings: () => settings,
     updateSettings: async (patch) => {
-      settings = mergeAiSettings({ ...settings, ...patch });
+      const acpAgent = patch.acpAgent ?? settings.acpAgent;
+      const defaultModels = {
+        ...settings.defaultModels,
+        ...patch.defaultModels,
+      };
+      if (patch.defaultModel !== undefined) {
+        defaultModels[acpAgent] = patch.defaultModel.trim();
+      }
+      settings = mergeAiSettings({
+        ...settings,
+        ...patch,
+        acpAgent,
+        defaultModels,
+      });
     },
     models: { listModels },
   };
@@ -117,6 +130,31 @@ describe("AI view bootstrap", () => {
 
     expect(prepared.runtime.id).toBe("fake");
     expect(prepared.unavailableReason).toBeNull();
+  });
+
+  it("keeps a saved Cursor default when the flat catalog omits that model", async () => {
+    const { host, listModels } = createHost();
+    await host.updateSettings({
+      acpAgent: "cursor",
+      defaultModel: "composer-2.5[fast=true]",
+    });
+    listModels.mockImplementation(async (provider: string) =>
+      provider === "cursor"
+        ? []
+        : [
+            {
+              provider,
+              model: "gpt-5.6-sol",
+              isDefault: true,
+            },
+          ],
+    );
+
+    const prepared = await prepareAiViewBootstrap(host, null, []);
+
+    expect(prepared.settings.acpAgent).toBe("cursor");
+    expect(prepared.settings.defaultModel).toBe("composer-2.5[fast=true]");
+    expect(host.getSettings().defaultModel).toBe("composer-2.5[fast=true]");
   });
 
   it("reports a start-server message when auto falls back to Fake", async () => {

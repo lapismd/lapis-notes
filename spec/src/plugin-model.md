@@ -1,7 +1,8 @@
 # Plugin Model
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
-identities or creating a second lifecycle. Statically shipped plugins use the
+identities or creating a second lifecycle. Workspace `activateLeaf` remains an
+API-owned selection that the persisted layout must restore. Statically shipped plugins use the
 core manager even when their source is maintained in a separate repository.
 First-party plugin surfaces compose Design Core public parts for shared chrome;
 AI composer drawer chips use the public `attachment-chip` contract instead of

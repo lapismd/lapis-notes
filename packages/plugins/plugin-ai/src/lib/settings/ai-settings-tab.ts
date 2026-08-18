@@ -165,7 +165,9 @@ export class AiSettingsTab extends PluginSettingTab {
         .setItems(
           models.map((model) => ({
             value: model.model,
-            label: model.displayName ?? model.model,
+            label: model.badges?.length
+              ? `${model.displayName ?? model.model} ${model.badges.join(" · ")}`
+              : (model.displayName ?? model.model),
           })),
         )
         .setValue(selected)

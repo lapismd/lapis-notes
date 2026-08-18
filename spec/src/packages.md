@@ -2,7 +2,8 @@
 
 Repository-only Storybook taxonomy, mirror, and built-index checks remain
 development tooling at the root and are excluded from publishable package
-runtime closures. The external Roles package remains a production host
+runtime closures. AI model menus consume structured host catalog labels while
+`@lapis-notes/ai` still has no runtime `@lapismd/ai-host` dependency. The external Roles package remains a production host
 dependency only and does not enter the root Storybook development closure.
 
 ## Requirements

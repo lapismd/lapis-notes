@@ -68,7 +68,7 @@
     models = [],
     modelCatalogError = null,
     settings,
-    onSettingsChange: _onSettingsChange,
+    onSettingsChange,
   }: {
     runtime: AgentRuntime;
     selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
@@ -259,6 +259,20 @@
     });
   }
 
+  function persistComposerDefaults(
+    agent: AcpAgentId,
+    runtimePreference: "acp" | "codex-native" | "fake",
+    model: string | null,
+    thinking: AiThinkingLevel,
+  ): void {
+    void onSettingsChange?.({
+      acpAgent: agent,
+      defaultRuntime: runtimePreference,
+      ...(model ? { defaultModel: model } : {}),
+      thinking,
+    });
+  }
+
   function changeAgent(
     agent: AcpAgentId,
     runtimePreference: "acp" | "codex-native",
@@ -272,14 +286,32 @@
         ?.model ||
       catalogModelsForAgent(agent, models)[0]?.model ||
       null;
+    persistComposerDefaults(
+      agent,
+      runtimePreference,
+      localModel,
+      selectedThinking,
+    );
   }
 
   function changeModel(value: string): void {
     localModel = value;
+    persistComposerDefaults(
+      selectedAgent,
+      selectedRuntime === "fake" ? "acp" : selectedRuntime,
+      value,
+      selectedThinking,
+    );
   }
 
   function changeThinking(value: string): void {
     localThinking = value as AiThinkingLevel;
+    persistComposerDefaults(
+      selectedAgent,
+      selectedRuntime === "fake" ? "acp" : selectedRuntime,
+      selectedModel,
+      localThinking,
+    );
   }
 
   function addAttachment(item: ComposerTriggerItem): void {
@@ -582,6 +614,11 @@
                           onclick={() => changeModel(option.model)}
                         >
                           {option.displayName ?? option.model}
+                          {#if option.badges?.length}
+                            <span class="ai-chat-panel__model-badges">
+                              {option.badges.join(" · ")}
+                            </span>
+                          {/if}
                         </DropdownMenu.RadioItem>
                       {/each}
                     </DropdownMenu.RadioGroup>

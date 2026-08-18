@@ -1017,6 +1017,7 @@ type WorkspaceSidebarGroupJson = {
   hiddenLeafIds?: string[];
   collapsed?: Record<string, boolean>;
   panelSizes?: Record<string, number>;
+  selectedLeafId?: string;
   children: WorkspaceLeafJson[];
 };
 
@@ -1068,6 +1069,7 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
   hiddenLeafIds: string[] = $state([]);
   collapsed: Record<string, boolean> = $state({});
   panelSizes: Record<string, number> = $state({});
+  selectedLeafId: string | undefined = $state(undefined);
   children: WorkspaceLeaf[] = $state([]);
 
   constructor(options: SidebarGroupOptions = {}) {
@@ -1133,7 +1135,26 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
   }
 
   getSelectedLeaf(): WorkspaceLeaf | null {
-    return this.children.find((leaf) => !this.isLeafHidden(leaf)) ?? null;
+    const selected = this.selectedLeafId
+      ? this.children.find(
+          (leaf) => leaf.id === this.selectedLeafId && !this.isLeafHidden(leaf),
+        )
+      : undefined;
+    return (
+      selected ??
+      this.children.find((leaf) => !this.isLeafHidden(leaf)) ??
+      null
+    );
+  }
+
+  selectLeaf(leaf: WorkspaceLeaf): void {
+    if (!this.children.includes(leaf)) {
+      return;
+    }
+    this.selectedLeafId = leaf.id;
+    if (this.isLeafHidden(leaf)) {
+      this.setLeafHidden(leaf, false);
+    }
   }
 
   iterateAllLeaves<T = any>(callback: (leaf: WorkspaceLeaf) => T): T | void {
@@ -1223,11 +1244,17 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
       this.hiddenLeafIds = [...(layout.hiddenLeafIds ?? [])];
       this.collapsed = { ...(layout.collapsed ?? {}) };
       this.panelSizes = { ...(layout.panelSizes ?? {}) };
+      this.selectedLeafId = this.children.some(
+        (leaf) => leaf.id === layout.selectedLeafId,
+      )
+        ? layout.selectedLeafId
+        : undefined;
     });
   }
 
   toJson(): WorkspaceSidebarGroupJson {
     const panelSizes = this.serializedPanelSizes();
+    const selectedLeaf = this.getSelectedLeaf();
     return {
       id: this.id,
       type: "sidebar-group",
@@ -1240,6 +1267,7 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
         ? { collapsed: { ...this.collapsed } }
         : {}),
       ...(Object.keys(panelSizes).length ? { panelSizes } : {}),
+      ...(selectedLeaf ? { selectedLeafId: selectedLeaf.id } : {}),
       children: this.children.map((it) => it.toJson()),
     };
   }
@@ -2600,7 +2628,12 @@ export class Workspace extends EventDispatcher<{
 
     this.iterateAllLeaves((leaf) => {
       if (leaf.id === normalized.active) {
-        this.app.workspace.activeLeaf = leaf;
+        this.activateLeaf(leaf, {
+          saveLayout: false,
+          focusRootHost: false,
+          source: "layout-load",
+          operation: "restore-active-leaf",
+        });
         return false;
       }
     });
@@ -4099,10 +4132,8 @@ export class Workspace extends EventDispatcher<{
 
     const tabs = this.tabsForLeaf(leaf);
     if (leaf.parent instanceof WorkspaceSidebarGroup) {
+      leaf.parent.selectLeaf(leaf);
       tabs.selected = leaf.parent;
-      if (leaf.parent.isLeafHidden(leaf)) {
-        leaf.parent.setLeafHidden(leaf, false);
-      }
     } else {
       tabs.selected = leaf;
     }
