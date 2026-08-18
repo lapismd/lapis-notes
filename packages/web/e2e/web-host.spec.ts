@@ -3,8 +3,15 @@ import { expect, test, type Page } from "@playwright/test";
 async function createBrowserVault(page: Page, name: string): Promise<void> {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Create a vault" })).toBeVisible();
-  await page.getByLabel("New vault name").fill(name);
-  await page.getByRole("button", { name: /Create Browser Vault/ }).click();
+  await expect(
+    page.getByRole("button", { name: "Return to previous vault" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: /Create New Vault/ }).click();
+  const dialog = page.getByRole("dialog", { name: "New Browser Vault" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Create vault" })).toBeDisabled();
+  await dialog.getByLabel("Name").fill(name);
+  await dialog.getByRole("button", { name: "Create vault" }).click();
   await expect(page.getByRole("button", { name: /Current workspace:/ })).toContainText(
     name,
   );
@@ -81,6 +88,42 @@ async function seedAndOpenBasesFile(page: Page): Promise<void> {
   }, basesProjectSeed);
 }
 
+test("Manage Vaults overlays the chooser and close returns without startup", async ({
+  page,
+}) => {
+  await createBrowserVault(page, "Overlay Browser Vault");
+  await page.getByRole("button", { name: /Current workspace:/ }).click();
+  await page.getByRole("menuitem", { name: "Manage Vaults" }).click();
+  await expect(page.locator("[data-web-vault-launcher]")).toBeVisible();
+  await expect(page.locator("[data-web-host-state]")).toHaveAttribute(
+    "data-web-host-state",
+    "ready",
+  );
+  await expect(page.locator("[data-vault-id]")).toBeAttached();
+  const close = page.getByRole("button", { name: "Return to previous vault" });
+  await expect(close).toBeVisible();
+  await page
+    .getByRole("button", { name: "Open actions for Overlay Browser Vault" })
+    .click();
+  await expect(page.getByRole("menuitem", { name: "Copy ID" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Rename..." })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Delete..." })).toBeVisible();
+  await expect(
+    page.getByRole("menuitem", { name: "Remove from list" }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await close.click();
+  await expect(page.locator("[data-web-vault-launcher]")).toHaveCount(0);
+  await expect(page.locator("[data-web-host-state]")).toHaveAttribute(
+    "data-web-host-state",
+    "ready",
+  );
+  await expect(page.getByRole("button", { name: /Current workspace:/ })).toContainText(
+    "Overlay Browser Vault",
+  );
+  await expect(page.locator('[data-ui-component="workspace-startup"]')).toHaveCount(0);
+});
+
 test("first launch remains recoverable after folder cancellation", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(window, "showDirectoryPicker", {
@@ -104,11 +147,60 @@ test("OPFS vault and workspace layout survive a full PWA reload", async ({ page 
   await expect(page.locator("html")).toHaveAttribute("data-runtime", "web-pwa");
   await expect(page.getByRole("tab", { name: "Search" })).toBeVisible();
 
+  await page.addInitScript(() => {
+    const root = window as typeof window & {
+      __webHostSawChooser?: boolean;
+      __webHostStates?: string[];
+    };
+    root.__webHostSawChooser = false;
+    root.__webHostStates = [];
+    const record = () => {
+      const state = document
+        .querySelector("[data-web-host-state]")
+        ?.getAttribute("data-web-host-state");
+      if (state) root.__webHostStates?.push(state);
+      if (document.querySelector("[data-web-vault-launcher]")) {
+        root.__webHostSawChooser = true;
+      }
+    };
+    new MutationObserver(record).observe(document.documentElement, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    });
+  });
   await page.reload();
   await expect(page.getByRole("button", { name: /Current workspace:/ })).toContainText(
     "Persistent Browser Vault",
   );
   await expect(page.getByRole("tab", { name: "Search" })).toBeVisible();
+  expect(
+    await page.evaluate(() => {
+      const root = window as typeof window & {
+        __webHostSawChooser?: boolean;
+        __webHostStates?: string[];
+      };
+      return {
+        sawChooser: root.__webHostSawChooser === true,
+        states: root.__webHostStates ?? [],
+      };
+    }),
+  ).toEqual(
+    expect.objectContaining({
+      sawChooser: false,
+    }),
+  );
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as typeof window & {
+            __webHostStates?: string[];
+          }
+        ).__webHostStates ?? [],
+    ),
+  ).not.toContain("landing");
+  await expect(page.locator('[data-web-host-state="landing"]')).toHaveCount(0);
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
   });
@@ -182,11 +274,16 @@ test("secondary tab delegates Turso writes and Search before owner takeover", as
   context,
   page: owner,
 }) => {
+  test.setTimeout(90_000);
   await createBrowserVault(owner, "Coordinated Browser Vault");
 
   const proxy = await context.newPage();
   await proxy.goto("/");
   await expect(proxy.getByText("DB Proxy", { exact: true })).toBeVisible();
+  await expect(
+    proxy.getByRole("button", { name: /Current workspace:/ }),
+  ).toBeVisible();
+  await proxy.getByRole("tab", { name: "Search" }).click();
 
   await proxy.evaluate(async () => {
     const app = (

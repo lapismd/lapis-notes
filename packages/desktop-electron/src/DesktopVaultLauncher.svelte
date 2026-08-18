@@ -8,6 +8,7 @@
   import PenLine from "@lucide/svelte/icons/pen-line";
   import Search from "@lucide/svelte/icons/search";
   import Settings from "@lucide/svelte/icons/settings";
+  import X from "@lucide/svelte/icons/x";
   import {
     getBootstrapAppearanceMode,
     getNativeDesktopPlatform,
@@ -39,15 +40,19 @@
   let {
     status,
     errorMessage = "",
+    canReturn = false,
     onCreate,
     onOpen,
     onOpenRecent,
+    onClose,
   }: {
     status: LauncherStatus;
     errorMessage?: string;
+    canReturn?: boolean;
     onCreate: () => Promise<void>;
     onOpen: () => Promise<void>;
     onOpenRecent: (profile: VaultProfile) => Promise<void>;
+    onClose?: () => void;
   } = $props();
 
   const appearanceOptions: Array<{
@@ -309,15 +314,29 @@
           </p>
         </div>
       </div>
-      <Button.Root
-        variant="link"
-        size="sm"
-        class="px-0 text-sm"
-        onclick={() => (settingsOpen = true)}
-      >
-        <Settings class="size-4" />
-        Settings
-      </Button.Root>
+      <div class="flex shrink-0 items-center gap-1">
+        <Button.Root
+          variant="link"
+          size="sm"
+          class="px-0 text-sm"
+          onclick={() => (settingsOpen = true)}
+        >
+          <Settings class="size-4" />
+          Settings
+        </Button.Root>
+        {#if canReturn}
+          <Button.Root
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            class="workspace-shell__vault-chooser-close"
+            aria-label="Return to previous vault"
+            onclick={() => onClose?.()}
+          >
+            <X class="size-5" />
+          </Button.Root>
+        {/if}
+      </div>
     </div>
 
     {#if visibleError}

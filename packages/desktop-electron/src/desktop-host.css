@@ -36,6 +36,7 @@ html,
 body,
 #app,
 .desktop-host,
+.desktop-host__session,
 .desktop-host__workspace {
   position: relative;
   width: 100%;
@@ -112,6 +113,18 @@ body {
   padding-inline-start: calc(
     0.25rem + var(--lapis-desktop-window-controls-left)
   );
+}
+
+.workspace-shell__vault-chooser-close[data-ui-component="button"] {
+  border: 0;
+  box-shadow: none;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.workspace-shell__vault-chooser-close[data-ui-component="button"]:hover:not(:disabled) {
+  color: var(--ui-workspace-panel-action-hover-foreground);
+  background: var(--ui-workspace-panel-action-hover-background);
 }
 
 .workspace-shell__vault-chooser-action[data-ui-component="button"],

@@ -264,27 +264,35 @@ export async function getMainProcessUnhandledErrors(
   });
 }
 
+export async function openDesktopVaultOverlay(
+  electronApp: ElectronApplication,
+  page: Page,
+): Promise<void> {
+  await electronApp.evaluate(({ BrowserWindow, Menu }) => {
+    const file = Menu.getApplicationMenu()?.items.find(
+      (item) => item.label === "File",
+    );
+    const open = file?.submenu?.items.find(
+      (item) => item.label === "Open Vault…",
+    );
+    const win =
+      BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+    if (!open?.click || !win) throw new Error("Open Vault menu is unavailable");
+    open.click(open, win);
+  });
+  await page
+    .locator("[data-desktop-vault-launcher]")
+    .waitFor({ state: "visible", timeout: 60_000 });
+}
+
 export async function switchTestVault(
   electronApp: ElectronApplication,
   page: Page,
   vaultPath: string,
 ): Promise<void> {
-  await electronApp.evaluate(
-    ({ BrowserWindow, Menu }, selectedPath) => {
-      process.env.LAPIS_DESKTOP_TEST_VAULT_PATH = selectedPath;
-      const file = Menu.getApplicationMenu()?.items.find(
-        (item) => item.label === "File",
-      );
-      const open = file?.submenu?.items.find(
-        (item) => item.label === "Open Vault…",
-      );
-      const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
-      if (!open?.click || !win) throw new Error("Open Vault menu is unavailable");
-      open.click(open, win);
-    },
-    vaultPath,
-  );
-  const launcher = page.locator("[data-desktop-vault-launcher]");
-  await launcher.waitFor({ state: "visible", timeout: 60_000 });
+  await electronApp.evaluate((_electron, selectedPath) => {
+    process.env.LAPIS_DESKTOP_TEST_VAULT_PATH = selectedPath;
+  }, vaultPath);
+  await openDesktopVaultOverlay(electronApp, page);
   await page.getByRole("button", { name: /^Open Vault/u }).click();
 }

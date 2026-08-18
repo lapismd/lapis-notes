@@ -335,7 +335,10 @@ selection or session policy into a shared package. Scoped desktop CSS owns
 launcher overlay geometry and class-selected native window-control clearance.
 Session boot consumes public `@lapismd/design-core/workspace/startup` and the
 shared drag-region stylesheet rather than a host-owned loading stub or
-`-webkit-app-region` override. The plugins task reports the current plugin
+`-webkit-app-region` override. Hosts also use that startup surface while
+resolving a saved current profile so the branded chooser cannot flash first.
+Manage Vaults and desktop Open Vault… overlay the chooser over a retained
+session; Close returns without disposing. The plugins task reports the current plugin
 name. Metadata cache load starts after layout restoration so Turso open does
 not contend with `loadLayout`. Snapshot apply, rebuild, and vault reconcile
 stay under that progress handle; file processing yields between files so the

@@ -276,25 +276,29 @@
     }
   }
 
+  async function writeWorkspaceLayout(): Promise<void> {
+    if (!app.workspace.layoutReady) return;
+    const serializedLayout = JSON.stringify(app.workspace.getLayout(), null, 2);
+    await session.vaultAdapter.mkdir(".obsidian", { recursive: true });
+    await session.vaultAdapter.write(
+      ".obsidian/workspace.json",
+      serializedLayout,
+    );
+  }
+
+  export async function persistLayout(): Promise<void> {
+    if (disposed) return;
+    await writeWorkspaceLayout();
+  }
+
   export async function dispose(persistLayout: boolean): Promise<void> {
     if (disposed) return;
     disposed = true;
     try {
-      const serializedLayout =
-        persistLayout && app.workspace.layoutReady
-          ? JSON.stringify(app.workspace.getLayout(), null, 2)
-          : null;
+      if (persistLayout) await writeWorkspaceLayout();
 
       ready = false;
       await app.workspace.disposeWorkspaceHost();
-
-      if (serializedLayout) {
-        await session.vaultAdapter.mkdir(".obsidian", { recursive: true });
-        await session.vaultAdapter.write(
-          ".obsidian/workspace.json",
-          serializedLayout,
-        );
-      }
 
       stopMetadataTracking?.();
       stopMetadataTracking = null;

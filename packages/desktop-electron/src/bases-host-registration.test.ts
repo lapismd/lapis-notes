@@ -45,6 +45,21 @@ describe("desktop Bases host registration", () => {
     expect(source).not.toContain("Opening vault…");
   });
 
+  it("keeps the branded launcher off the restore path", () => {
+    const host = readFileSync(
+      path.resolve(process.cwd(), "src/DesktopVaultHost.svelte"),
+      "utf8",
+    );
+    expect(host).toContain("launcherOpen");
+    expect(host).toContain("bootGate");
+    expect(host).toContain("Opening Lapis Notes");
+    expect(host).toContain("showChooser");
+    expect(host).not.toMatch(
+      /\{#if prepared\}[\s\S]*DesktopWorkspaceSession[\s\S]*\{:else\}[\s\S]*DesktopVaultLauncher/u,
+    );
+    expect(host).toContain("persistLayout()");
+  });
+
   it("does not re-declare Electron app-region CSS", () => {
     const css = readFileSync(
       path.resolve(process.cwd(), "src/desktop-host.css"),

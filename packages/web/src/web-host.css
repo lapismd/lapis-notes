@@ -12,6 +12,7 @@ html,
 body,
 #app,
 .web-host,
+.web-host__session,
 .web-host__workspace {
   position: relative;
   width: 100%;
@@ -77,6 +78,18 @@ body {
   width: min(28rem, calc(100% - 2rem));
   max-width: 28rem;
   translate: -50% -50%;
+}
+
+.web-vault-launcher__close[data-ui-component="button"] {
+  border: 0;
+  box-shadow: none;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.web-vault-launcher__close[data-ui-component="button"]:hover:not(:disabled) {
+  color: var(--ui-workspace-panel-action-hover-foreground);
+  background: var(--ui-workspace-panel-action-hover-background);
 }
 
 .web-vault-launcher__command[data-ui-component="dialog"][data-ui-part="dialog-content"] {

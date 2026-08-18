@@ -6,6 +6,7 @@ import {
   getMainProcessUnhandledErrors,
   launchDesktopApp,
   launchSecondDesktopInstance,
+  openDesktopVaultOverlay,
   resetMainProcessUnhandledErrors,
   switchTestVault,
   waitForDesktopWorkspace,
@@ -124,6 +125,9 @@ test("first-launch cancellation remains on a recoverable native-folder landing s
     await expect(pageHeading(app.page)).toBeVisible();
     await expect(app.page.locator("[data-desktop-vault-launcher]")).toBeVisible();
     await expect(
+      app.page.getByRole("button", { name: "Return to previous vault" }),
+    ).toHaveCount(0);
+    await expect(
       app.page.getByRole("button", { name: "Create New Vault" }),
     ).toBeVisible();
     await expect(
@@ -137,7 +141,7 @@ test("first-launch cancellation remains on a recoverable native-folder landing s
     const create = app.page.getByRole("button", { name: /^Create New Vault/u });
     await create.click();
     await expect(create).toBeVisible();
-    await expect(app.page.locator("main")).toHaveAttribute(
+    await expect(app.page.locator("[data-desktop-host-state]")).toHaveAttribute(
       "data-desktop-host-state",
       "landing",
     );
@@ -512,6 +516,13 @@ test("workspace state persists in the vault and the saved profile reopens", asyn
 
   const second = await launchDesktopApp({ userDataDir: state.userDataDir });
   try {
+    const hostState = await second.page
+      .locator("[data-desktop-host-state]")
+      .getAttribute("data-desktop-host-state");
+    expect(["loading", "opening", "ready"]).toContain(hostState);
+    await expect(
+      second.page.locator("[data-desktop-vault-launcher]"),
+    ).toHaveCount(0);
     await waitForDesktopWorkspace(second.page);
     expect(
       await second.page.evaluate(() => ({
@@ -560,7 +571,7 @@ test("a missing remembered folder clears only the current pointer", async () => 
   });
   try {
     await expect(pageHeading(app.page)).toBeVisible();
-    await expect(app.page.locator("main")).toHaveAttribute(
+    await expect(app.page.locator("[data-desktop-host-state]")).toHaveAttribute(
       "data-desktop-host-state",
       "landing",
     );
@@ -643,13 +654,20 @@ test("workspace vault controls switch sessions and return to the launcher", asyn
     await expect(
       app.page.locator("[data-desktop-vault-launcher]"),
     ).toBeVisible();
+    await expect(app.page.locator("[data-desktop-host-state]")).toHaveAttribute(
+      "data-desktop-host-state",
+      "ready",
+    );
+    await expect(
+      app.page.getByRole("button", { name: "Return to previous vault" }),
+    ).toBeVisible();
     const stored = JSON.parse(
       fs.readFileSync(
         path.join(state.userDataDir, "vault-bootstrap-kv.json"),
         "utf8",
       ),
     ) as Record<string, unknown>;
-    expect(stored["profile:current"]).toBeUndefined();
+    expect(stored["profile:current"]).toBe(`desktop-folder:${state.vaultA}`);
     expect(stored[`profile:desktop-folder:${state.vaultA}`]).toBeDefined();
     expect(stored[`profile:desktop-folder:${state.vaultB}`]).toBeDefined();
 
@@ -734,6 +752,27 @@ test("workspace vault controls switch sessions and return to the launcher", asyn
       "data-vault-id",
       `desktop-folder:${state.vaultA}`,
     );
+    await expect(
+      app.page.locator('[data-ui-component="workspace-startup"]'),
+    ).toHaveCount(0);
+
+    await openDesktopVaultOverlay(app.electronApp, app.page);
+    await expect(
+      app.page.getByRole("button", { name: "Return to previous vault" }),
+    ).toBeVisible();
+    await app.page
+      .getByRole("button", { name: "Return to previous vault" })
+      .click();
+    await expect(
+      app.page.locator("[data-desktop-vault-launcher]"),
+    ).toHaveCount(0);
+    await expect(app.page.locator("[data-vault-id]")).toHaveAttribute(
+      "data-vault-id",
+      `desktop-folder:${state.vaultA}`,
+    );
+    await expect(
+      app.page.locator('[data-ui-component="workspace-startup"]'),
+    ).toHaveCount(0);
     expect(app.rendererErrors).toEqual([]);
   } finally {
     await app.close();

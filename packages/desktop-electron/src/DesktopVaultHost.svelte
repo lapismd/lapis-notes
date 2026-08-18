@@ -13,6 +13,10 @@
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
+  import {
+    WorkspaceStartup,
+    type WorkspaceStartupTask,
+  } from "@lapismd/design-core/workspace/startup";
   import { onMount, tick } from "svelte";
   import DesktopVaultLauncher, {
     type LauncherStatus,
@@ -35,16 +39,32 @@
   };
   type SessionComponent = {
     dispose(persistLayout: boolean): Promise<void>;
+    persistLayout(): Promise<void>;
   };
+
+  const RESTORE_TASKS: WorkspaceStartupTask[] = [
+    { id: "vault", label: "Opening vault", status: "active" },
+  ];
 
   let { bridge }: { bridge: ElectronDesktopBridge } = $props();
   let status = $state<HostStatus>("loading");
   let prepared = $state<PreparedSession | null>(null);
   let activeApp = $state<App | null>(null);
   let sessionComponent = $state<SessionComponent | null>(null);
+  let launcherOpen = $state(false);
+  let bootGate = $state(true);
   let errorMessage = $state("");
   let switchQueue = Promise.resolve();
   const pendingAppUrls: string[] = [];
+
+  const showChooser = $derived(
+    launcherOpen ||
+      (!prepared &&
+        (status === "landing" ||
+          status === "error" ||
+          (status === "opening" && !bootGate))),
+  );
+  const canReturn = $derived(launcherOpen && prepared !== null);
 
   onMount(() => {
     const disposeOpenVault = bridge.onOpenVaultPicker?.(() => {
@@ -88,30 +108,36 @@
   }
 
   async function restoreVault(): Promise<void> {
-    const profile = await getCurrentVaultProfile();
-    if (profile?.kind === "desktop-folder") {
-      try {
-        const adapter = await NativeDesktopVaultAdapter.fromProfile(profile);
-        await openVault(adapter, profile);
-        return;
-      } catch {
+    try {
+      const profile = await getCurrentVaultProfile();
+      if (profile?.kind === "desktop-folder") {
+        try {
+          status = "opening";
+          const adapter = await NativeDesktopVaultAdapter.fromProfile(profile);
+          await openVault(adapter, profile);
+          return;
+        } catch {
+          await clearCurrentVaultProfile();
+        }
+      } else if (profile) {
         await clearCurrentVaultProfile();
       }
-    } else if (profile) {
-      await clearCurrentVaultProfile();
+      status = "landing";
+    } finally {
+      if (!prepared) bootGate = false;
     }
-    status = "landing";
   }
 
   function showLauncher(): Promise<void> {
     return serialize(async () => {
+      if (sessionComponent) await sessionComponent.persistLayout();
       errorMessage = "";
-      if (prepared || activeApp || sessionComponent) {
-        await disposeActiveSession(true);
-      }
-      await clearCurrentVaultProfile();
-      status = "landing";
+      launcherOpen = true;
     });
+  }
+
+  function hideLauncher(): void {
+    launcherOpen = false;
   }
 
   function chooseVault(): Promise<void> {
@@ -121,13 +147,13 @@
       try {
         const selection = await pickNativeDesktopVault();
         if (!selection) {
-          status = "landing";
+          status = prepared && launcherOpen ? "ready" : "landing";
           return;
         }
-        await openVault(selection.adapter, selection.profile);
+        await resumeOrReplace(selection.adapter, selection.profile);
       } catch (error) {
         errorMessage = error instanceof Error ? error.message : String(error);
-        status = "error";
+        status = prepared && launcherOpen ? "ready" : "error";
       }
     });
   }
@@ -139,13 +165,13 @@
       try {
         const selection = await createNativeDesktopVault();
         if (!selection) {
-          status = "landing";
+          status = prepared && launcherOpen ? "ready" : "landing";
           return;
         }
-        await openVault(selection.adapter, selection.profile);
+        await resumeOrReplace(selection.adapter, selection.profile);
       } catch (error) {
         errorMessage = error instanceof Error ? error.message : String(error);
-        status = "error";
+        status = prepared && launcherOpen ? "ready" : "error";
       }
     });
   }
@@ -159,13 +185,33 @@
         await saveVaultProfile(activatedProfile);
         const adapter =
           await NativeDesktopVaultAdapter.fromProfile(activatedProfile);
-        await openVault(adapter, activatedProfile);
+        await resumeOrReplace(adapter, activatedProfile);
       } catch (error) {
         await clearCurrentVaultProfile();
         errorMessage = error instanceof Error ? error.message : String(error);
-        status = "error";
+        status = prepared && launcherOpen ? "ready" : "error";
       }
     });
+  }
+
+  function isCurrentProfile(profile: VaultProfile): boolean {
+    return prepared?.profile.id === profile.id;
+  }
+
+  async function resumeOrReplace(
+    adapter: NativeDesktopVaultAdapter,
+    profile: VaultProfile,
+  ): Promise<void> {
+    if (isCurrentProfile(profile)) {
+      launcherOpen = false;
+      status = "ready";
+      return;
+    }
+    const replacing = prepared !== null || sessionComponent !== null;
+    launcherOpen = false;
+    if (replacing) bootGate = true;
+    status = "opening";
+    await openVault(adapter, profile);
   }
 
   async function openVault(
@@ -225,21 +271,28 @@
 
 <main class="desktop-host" data-desktop-host-state={status}>
   {#if prepared}
-    <DesktopWorkspaceSession
-      bind:this={sessionComponent}
-      {...prepared}
-      {bridge}
-      onReady={handleSessionReady}
-      onOpenRecent={openRecentVault}
-      onManageVaults={showLauncher}
-    />
-  {:else}
+    <div class="desktop-host__session" hidden={launcherOpen} inert={launcherOpen}>
+      <DesktopWorkspaceSession
+        bind:this={sessionComponent}
+        {...prepared}
+        {bridge}
+        onReady={handleSessionReady}
+        onOpenRecent={openRecentVault}
+        onManageVaults={showLauncher}
+      />
+    </div>
+  {/if}
+  {#if showChooser}
     <DesktopVaultLauncher
       status={status as LauncherStatus}
       {errorMessage}
+      {canReturn}
       onCreate={createVault}
       onOpen={chooseVault}
       onOpenRecent={openRecentVault}
+      onClose={hideLauncher}
     />
+  {:else if !prepared}
+    <WorkspaceStartup title="Opening Lapis Notes" tasks={RESTORE_TASKS} />
   {/if}
 </main>

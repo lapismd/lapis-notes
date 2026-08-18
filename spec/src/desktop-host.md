@@ -28,8 +28,8 @@ are intentionally omitted.
 | LN-DESK-017 | First launch MUST show the branded native-vault launcher derived from legacy commit `8ec68e18` without opening a picker automatically. It MUST offer create, open, recent-project management, search, and appearance settings while omitting the demo-workspace action.                                                                                                                                                      |
 | LN-DESK-018 | The renderer MUST load Design Core's production styles, Lapis theme, and Lapis UI aliases through the Electron Vite pipeline. It MUST NOT rely on Storybook to supply workspace or launcher paint.                                                                                                                                                                                                                           |
 | LN-DESK-019 | A native vault without `.obsidian/workspace.json` MUST show one empty `New Tab`, the left dock open at `22rem` with File Explorer then Search when those views are registered, and the right dock open with Outline, File Properties, then Tags when Markdown is enabled. The bottom dock MUST stay closed. Startup MUST NOT write a layout file or inject fixture views. |
-| LN-DESK-020 | Native “Open Vault…” requests from a ready workspace MUST persist and dispose the active session before showing the launcher. Selecting another vault MUST create a replacement session without retaining old watches or database handles.                                                                                                                                                                                   |
-| LN-DESK-021 | The ready desktop shell MUST expose the legacy footer vault switcher with up to eight recent native vaults, the current vault disabled, folder descriptions, and a “Manage Vaults” action. Recent selection MUST use orderly session replacement and structured-cloneable profile records; management MUST dispose the session, clear only the current-profile pointer, retain saved records, and show the branded launcher. |
+| LN-DESK-020 | Native “Open Vault…” requests from a ready workspace MUST persist the session, keep it mounted, and show the launcher overlay without clearing the current profile. Selecting another vault MUST persist, dispose, and create a replacement session without retaining old watches or database handles.                                                                                                                                                                                   |
+| LN-DESK-021 | The ready desktop shell MUST expose the legacy footer vault switcher with up to eight recent native vaults, the current vault disabled, folder descriptions, and a “Manage Vaults” action. Recent selection MUST use orderly session replacement and structured-cloneable profile records. Manage Vaults MUST persist the session, keep it mounted, retain the current-profile pointer and saved records, and show the branded launcher overlay. |
 | LN-DESK-022 | The launcher and transient native-vault loading state MUST center their content within the Electron viewport when it fits, while an oversized launcher MUST remain scrollable from its top edge.                                                                                                                                                                                                                             |
 | LN-DESK-023 | Launcher Settings MUST use a compact centered dialog. “View all” MUST use an upper-viewport searchable command palette containing recent projects rather than a drawer or bottom sheet. Both MUST retain the shared full-viewport modal scrim.                                                                                                                                                                               |
 | LN-DESK-024 | The renderer MUST map typed Electron platform metadata to root CSS classes. macOS traffic-light clearance MUST derive from those classes and desktop CSS rather than renderer-injected geometry styles.                                                                                                                                                                                                                      |
@@ -60,6 +60,8 @@ are intentionally omitted.
 | LN-DESK-049 | After a vault is open, Design Core spacer, stacked chrome, view-header title container, and startup root MUST compute `-webkit-app-region: drag`. Interactive controls on those surfaces MUST compute `no-drag`. Lapis MUST NOT re-declare that CSS. |
 | LN-DESK-050 | Desktop session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. While the plugins task is active, the live status MUST show the current plugin name. |
 | LN-DESK-051 | After layout restoration, desktop boot MUST start metadata cache load. It MUST NOT start that load before `loadLayout` returns or wait for it before mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
+| LN-DESK-052 | While resolving a current profile, the host MUST NOT paint the branded launcher. A valid current `desktop-folder` profile MUST continue to Design Core `WorkspaceStartup`. The launcher MUST appear only when no valid current profile exists or the user opened an explicit manage or Open Vault overlay. |
+| LN-DESK-053 | A Manage Vaults or Open Vault… overlay MUST keep the ready session mounted and hidden without clearing the current profile. Close MUST sit immediately right of Settings, use Return to previous vault, and return without `WorkspaceStartup`. First launch MUST omit close. |
 
 ### LN-DESK-049 acceptance details
 
@@ -86,6 +88,24 @@ Desktop boot restores the layout before opening the metadata store:
 - `WorkspaceShell` mount MUST NOT await that promise.
 - Tags, Outline, Backlinks, Outgoing Links, Search, Bases, and File Properties MUST refresh when `loaded` fires.
 - While load, rebuild, or reconcile runs, the notifications status item MUST show busy progress. The shell MUST NOT wait for that work before mounting.
+
+### LN-DESK-052 acceptance details
+
+Desktop restore verifies the host boot gate:
+
+- `data-desktop-host-state` MUST stay `loading` or `opening` until a valid profile opens or restore falls back.
+- Restore MUST NOT mount the branded launcher or paint `landing` while a current profile is resolving.
+- A valid current profile MUST enter the session four-task `WorkspaceStartup` path.
+- No profile or an invalid current profile MUST then show the branded chooser.
+
+### LN-DESK-053 acceptance details
+
+Desktop overlay verifies:
+
+- Manage Vaults and native Open Vault… MUST keep the live session mounted and hidden.
+- Close MUST sit immediately after Settings and return to that session without a second startup.
+- Opening or creating a different vault MUST persist, dispose, then replace the session.
+- First launch MUST omit the close control.
 
 ## Boot flow
 
@@ -127,7 +147,12 @@ to match vscode-markdownlint, and formats each diagnostic as the rule-name
 path plus description used by vscode-markdownlint.
 
 The desktop launcher retains the reference Lapis logo, create/open hierarchy,
-recent-project search and actions, and persisted appearance selector. Its
+recent-project search and actions, and persisted appearance selector. While a
+saved current profile is resolving, the host paints Design Core
+`WorkspaceStartup` instead of the chooser. Manage Vaults and native Open Vault…
+overlay that chooser over a retained session; Close returns without disposing.
+Create still uses the native folder picker and names the vault from the folder
+basename. Its
 loading and overlay geometry use scoped desktop classes, while Settings and the
 command palette retain Design Core's shared modal scrim. The “View all” inner
 search and result list compose Command View. Demo workspace seeding and

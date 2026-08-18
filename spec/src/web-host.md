@@ -32,6 +32,10 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-023 | After layout restoration, web boot MUST start metadata cache load. It MUST NOT start that load before `loadLayout` returns or wait for it before mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
 | LN-WEB-024 | The web host MUST persist agent-runtime URL and token in app configuration and show both fields in Settings. The token field MUST use password presentation so the value stays masked until revealed. Environment variables MAY prefill empty fields. Live attach MUST require both values. |
 | LN-WEB-025 | After configuration load and whenever those values change, the web session MUST register or replace its `lapis-ai-host` WebSocket bridge and refresh AI host runtimes. It MUST NOT overwrite a desktop IPC bridge. |
+| LN-WEB-026 | While resolving a current profile, the host MUST NOT paint the branded launcher. A valid current profile MUST continue to Design Core `WorkspaceStartup`. The launcher MUST appear only when no valid current profile exists or the user opened an explicit manage overlay. |
+| LN-WEB-027 | Creating an OPFS vault MUST collect the name in a compact dialog titled New Browser Vault. The name field MUST start empty. Create vault MUST stay disabled until the trimmed name is non-empty. |
+| LN-WEB-028 | Web recent rows MUST use a kebab trigger labeled Open actions for the vault name. The menu MUST offer Copy ID, Rename, and Remove from list. Delete MUST appear only for OPFS vaults. |
+| LN-WEB-029 | A Manage Vaults overlay MUST keep the ready session mounted and hidden without clearing the current profile. Close MUST sit immediately right of Settings, use Return to previous vault, and return without `WorkspaceStartup`. First launch MUST omit close. |
 
 ### LN-WEB-021 acceptance details
 
@@ -67,6 +71,24 @@ Web attach after configuration verifies:
 - A later Settings change MUST replace only a `lapis-ai-host` bridge.
 - The loaded AI plugin MUST gain ACP and Codex host runtimes once the capability appears.
 
+### LN-WEB-026 acceptance details
+
+Web restore verifies the host boot gate:
+
+- `data-web-host-state` MUST stay `loading` or `opening` until a valid profile opens or restore falls back.
+- Restore MUST NOT mount the branded launcher or paint `landing` while a current profile is resolving.
+- A valid current profile MUST enter the session four-task `WorkspaceStartup` path.
+- No profile or an invalid current profile MUST then show the branded chooser.
+
+### LN-WEB-029 acceptance details
+
+Web Manage Vaults overlay verifies:
+
+- The live session MUST stay mounted and hidden while the chooser is open.
+- Close MUST sit immediately after Settings and return to that session without a second startup.
+- Opening or creating a different vault MUST persist, dispose, then replace the session.
+- First launch MUST omit the close control.
+
 ## Implemented host boundary
 
 The web session imports Bases and its exported stylesheet from the package and
@@ -96,7 +118,12 @@ event so controller retry creates a new binding instead of reusing stale bridge
 authorization.
 
 `@lapis-notes/web` owns the branded browser launcher and restores only OPFS or
-File System Access profiles. “View all” opens an upper-viewport Dialog whose
+File System Access profiles. While a saved current profile is resolving, the
+host paints Design Core `WorkspaceStartup` instead of the chooser. Manage
+Vaults overlays that chooser over a retained session; Close returns without
+disposing. OPFS create collects the name in a compact New Browser Vault dialog,
+and recent rows use a kebab including OPFS Delete. “View all” opens an
+upper-viewport Dialog whose
 inner search list is Command View. It constructs the API session, loads Markdown,
 Markdownlint, File Explorer, Search, and Roles, reports that sequence through
 Design Core `WorkspaceStartup`, and then mounts the same `WorkspaceShell` used

@@ -261,6 +261,10 @@ database contract through bounded BroadcastChannel RPC and may promote when
 the owner disappears. Neither role is cloud synchronization.
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
+While a host resolves a saved current profile, it hosts Design Core
+`WorkspaceStartup` and MUST NOT paint that chooser. Manage Vaults and desktop
+Open Vault… overlay the chooser over a retained session; Close returns without
+disposing.
 After that selection, desktop and web session boot render Design Core
 `WorkspaceStartup` for vault, configuration, plugin, and layout progress
 instead of a host-owned placeholder. The plugins task reports the current
