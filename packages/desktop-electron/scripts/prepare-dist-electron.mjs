@@ -7,12 +7,16 @@
  */
 
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, "../dist-electron");
-const mcpShimSource = path.resolve(__dirname, "../../ai-host/dist/mcp-shim.js");
+const mcpShimSource = path.join(
+  path.dirname(createRequire(import.meta.url).resolve("@lapismd/ai-host/package.json")),
+  "dist/mcp-shim.js",
+);
 const mcpShimDestination = path.join(distDir, "mcp-shim.mjs");
 
 fs.mkdirSync(distDir, { recursive: true });

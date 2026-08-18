@@ -20,8 +20,8 @@ import {
   DesktopAppToolBridge,
 } from "@lapis-notes/ai/runtimes";
 import type { AgentRuntime, AgentSession } from "@lapis-notes/ai";
-import { createAgentRuntimeBridge } from "@lapis-notes/ai-host/client";
-import { generateToken, serveAgentHost } from "@lapis-notes/ai-host";
+import { createAgentRuntimeBridge } from "@lapismd/ai-host/client";
+import { generateToken, serveAgentHost } from "@lapismd/ai-host";
 import { createMarkdownNoteTools } from "@lapis-notes/markdown/agent-tools";
 import { createNotesSearchTool } from "@lapis-notes/search/agent-tools";
 import type { SearchQueryParams, SearchQueryResult } from "@lapis-notes/search";

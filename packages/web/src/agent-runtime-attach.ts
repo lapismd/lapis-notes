@@ -3,7 +3,7 @@ import {
   setNativeDesktopBridge,
   type NativeDesktopBridge,
 } from "@lapis-notes/api";
-import { maybeRegisterAgentRuntimeBridge } from "@lapis-notes/ai-host/client";
+import { maybeRegisterAgentRuntimeBridge } from "@lapismd/ai-host/client";
 
 export function registerWebAgentRuntimeBridge(): boolean {
   return maybeRegisterAgentRuntimeBridge({

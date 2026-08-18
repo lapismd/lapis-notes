@@ -236,10 +236,6 @@ export async function viteFinal(
           replacement: path.join(basesLib, "index.ts"),
         },
         {
-          find: /^@lapis-notes\/ai-host\/client$/,
-          replacement: path.join(repoRoot, "packages/ai-host/src/client.ts"),
-        },
-        {
           find: /^@lapis-notes\/ai\/styles\.css$/,
           replacement: path.join(aiLib, "styles.css"),
         },
@@ -303,8 +299,8 @@ export async function viteFinal(
     optimizeDeps: {
       exclude: [
         "@storybook/svelte",
-        "@lapis-notes/ai-host",
-        "@lapis-notes/ai-host/client",
+        "@lapismd/ai-host",
+        "@lapismd/ai-host/client",
       ],
       include: [
         "aria-query",

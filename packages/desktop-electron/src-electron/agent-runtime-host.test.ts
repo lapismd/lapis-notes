@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { resolveAcpAgent, toAcpxSessionOptions } from "@lapis-notes/ai-host";
+import { resolveAcpAgent, toAcpxSessionOptions } from "@lapismd/ai-host";
 
 describe("desktop agent-runtime host", () => {
-  it("delegates ACP execution to @lapis-notes/ai-host", () => {
+  it("delegates ACP execution to @lapismd/ai-host", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src-electron/agent-runtime-host.ts"),
       "utf8",
@@ -13,7 +13,7 @@ describe("desktop agent-runtime host", () => {
       path.resolve(process.cwd(), "package.json"),
       "utf8",
     );
-    expect(source).toContain("@lapis-notes/ai-host");
+    expect(source).toContain("@lapismd/ai-host");
     expect(source).toContain("createAgentRuntimeExecutor");
     expect(source).not.toContain("acpx/runtime");
     expect(manifest).not.toMatch(/"acpx"/);

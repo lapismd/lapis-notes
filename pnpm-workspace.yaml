@@ -5,6 +5,7 @@ packages:
 linkWorkspacePackages: true
 
 overrides:
+  "@lapismd/ai-host": "link:../ai-host"
   "@lapismd/design-core": "link:../design-core"
   "@lapismd/mira": "link:../mira-mde/packages/mira"
   "@lapismd/mira-editor": "link:../mira-mde/packages/mira-editor"

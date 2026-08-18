@@ -19,7 +19,7 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/ai": "workspace:*",
-    "@lapis-notes/ai-host": "workspace:*",
+    "@lapismd/ai-host": "*",
     "@lapis-notes/bases": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",

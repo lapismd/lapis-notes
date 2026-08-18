@@ -28,6 +28,7 @@ describe("@lapis-notes/ai public exports", () => {
     expect(manifest.optionalDependencies?.acpx).toBeUndefined();
     expect(manifest.dependencies?.acpx).toBeUndefined();
     expect(manifest.dependencies?.["@lapis-notes/ai-host"]).toBeUndefined();
+    expect(manifest.dependencies?.["@lapismd/ai-host"]).toBeUndefined();
     expect(source).toContain("export { AiPlugin");
     expect(source).toContain("FakeAgentRuntime");
     expect(source).toContain("createAgentRuntimeRegistry");

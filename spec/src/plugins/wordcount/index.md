@@ -7,6 +7,8 @@ empty vault still seeds File Explorer, Search, Outline, File Properties, and
 Tags.
 Desktop and web startup report the Word Count name on the plugins task while
 that plugin enables, then restore layout before starting metadata cache load.
+Those host manifests MAY declare sibling `@lapismd/ai-host` without moving Word
+Count ownership.
 
 ## Requirements
 

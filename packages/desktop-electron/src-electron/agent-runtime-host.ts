@@ -9,7 +9,7 @@ import {
   type SpawnPayload,
   type ToolBridgeOpenPayload,
   type ToolBridgeResponse,
-} from "@lapis-notes/ai-host";
+} from "@lapismd/ai-host";
 
 const executor = createAgentRuntimeExecutor({
   toolBridgeOptions: {

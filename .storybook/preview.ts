@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/svelte-vite";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
-import { maybeRegisterAgentRuntimeBridge } from "@lapis-notes/ai-host/client";
+import { maybeRegisterAgentRuntimeBridge } from "@lapismd/ai-host/client";
 import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-layout";
 // Brand + shadcn paint: design-core. ui/theme.css is Obsidian alias-only.
 // Host Tailwind (vite plugin) is for story/demo layout — not component paint.

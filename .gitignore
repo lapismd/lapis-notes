@@ -23,6 +23,5 @@ tests/visual/storybook.spec.ts-snapshots/**/*.diff.png
 !.env.storybook.local.example
 .deps/
 tmp/
-packages/ai-host/tmp/
 packages/desktop-electron/dist-electron/
 packages/desktop-electron/release/

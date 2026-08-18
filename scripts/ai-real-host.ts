@@ -4,7 +4,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { generateToken, serveAgentHost } from "@lapis-notes/ai-host";
+import { generateToken, serveAgentHost } from "@lapismd/ai-host";
 import {
   AI_REAL_HOST_RELATIVE_ROOT,
   assertSafeAiSmokeReset,
@@ -152,13 +152,13 @@ async function startStorybook(workspace: string): Promise<void> {
 }
 
 async function startDesktop(workspace: string): Promise<void> {
+  await runOnce(pnpm, ["--dir", path.resolve(repoRoot, "../ai-host"), "build"]);
   await runOnce(pnpm, [
     "turbo",
     "run",
     "build",
     "--filter=@lapis-notes/api...",
     "--filter=@lapis-notes/ai...",
-    "--filter=@lapis-notes/ai-host...",
   ]);
   const userDataDir = path.resolve(
     repoRoot,
