@@ -59,9 +59,10 @@ persistence, and application-host responsibilities.
    existing api persistence writer.
 5. Registered Lapis views mount through imperative design-core view hosts;
    design-core renders the built-in empty state directly. Host-registered
-   class views such as Problems stay on the controller; API projection keeps
-   those leaf types so later API commits do not replace them with
-   missing-view placeholders.
+   class views such as Problems stay on the controller. API projection treats
+   Problems as host-owned before plugin start so `loadLayout` restores a
+   persisted leaf, and later API commits do not replace it with a
+   missing-view placeholder. Hydration does not seed a quiet bottom tab.
 6. The api configures built-in application/version metadata and the minimal
    design-core notifications presentation without invoking the Lapis plugin
    loader.

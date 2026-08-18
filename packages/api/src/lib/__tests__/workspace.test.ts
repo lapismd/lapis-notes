@@ -1505,6 +1505,12 @@ describe("Workspace compatibility", () => {
     const controller = getWorkspaceHostBinding(workspace).controller;
     await controller.start();
     try {
+      expect(
+        controller.workspace.getLeavesOfType("workspace:problems"),
+      ).toHaveLength(0);
+      expect(await controller.commands.execute("app-shell:show-problems")).toBe(
+        true,
+      );
       await vi.waitFor(() => {
         expect(
           controller.workspace.getLeavesOfType("workspace:problems"),
@@ -1522,6 +1528,62 @@ describe("Workspace compatibility", () => {
       expect(
         controller.workspace.getLeavesOfType("workspace:problems"),
       ).toHaveLength(1);
+      expect(JSON.stringify(controller.getLayout())).toContain(
+        "workspace:problems",
+      );
+      expect(JSON.stringify(controller.getLayout())).not.toContain(
+        "__missingViewType",
+      );
+    } finally {
+      await controller.dispose();
+    }
+  });
+
+  it("does not grow a persisted Problems bottom leaf after loadLayout then start", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const layout = workspace.toJson();
+    layout.bottom = {
+      ...layout.bottom,
+      height: "240px",
+      children: [
+        {
+          id: "persisted-problems",
+          type: "leaf",
+          state: {
+            type: "workspace:problems",
+            state: {},
+            icon: "circle-alert",
+            title: "Problems",
+          },
+        },
+      ],
+    };
+    const workspaceFile = new TFile(
+      "/.obsidian/workspace.json",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    vi.spyOn(app.vault, "getFileByPath").mockReturnValue(workspaceFile);
+    vi.spyOn(app.vault, "read").mockResolvedValue(JSON.stringify(layout));
+
+    await workspace.loadLayout();
+
+    expect(workspace.getLeavesOfType("workspace:problems")).toHaveLength(1);
+    expect(
+      workspace.getLeavesOfType("workspace:problems")[0]?.view.getViewType(),
+    ).toBe("workspace:problems");
+    expect(workspace.toJson().bottom.children).toHaveLength(1);
+    expect(controller.getLayout().bottom?.children ?? []).toHaveLength(1);
+
+    await controller.start();
+    try {
+      expect(
+        controller.workspace.getLeavesOfType("workspace:problems"),
+      ).toHaveLength(1);
+      expect(workspace.getLeavesOfType("workspace:problems")).toHaveLength(1);
+      expect(workspace.toJson().bottom.children).toHaveLength(1);
+      expect(controller.getLayout().bottom?.children ?? []).toHaveLength(1);
       expect(JSON.stringify(controller.getLayout())).toContain(
         "workspace:problems",
       );

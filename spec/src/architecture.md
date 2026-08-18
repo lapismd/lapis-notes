@@ -219,9 +219,10 @@ catalogs consume its versioned export rather than reconstructing that shell or
 linking to workspace source.
 The api compatibility projection includes the design-core V3 bottom-panel tabs,
 groups, open state, active leaf, and height, including saves to the currently
-loaded alternate workspace filename. Host-registered Problems leaves stay
-`workspace:problems` so an API file open cannot replace them with an empty
-missing-view placeholder. Claimed leaves keep their serialized id and live
+loaded alternate workspace filename. Problems is always a host-owned view type,
+including during `loadLayout` before plugin start, so a persisted leaf stays
+`workspace:problems` instead of an empty missing-view placeholder. Hydration
+does not seed a quiet bottom tab. Claimed leaves keep their serialized id and live
 `getState()` across collapse, remount, and controller projection. Default file
 navigation reuses an empty or file-backed main leaf instead of replacing a
 non-file view. Missing-view placeholders use the Lucide ghost icon; ordinary

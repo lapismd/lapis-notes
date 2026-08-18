@@ -5292,6 +5292,9 @@ function isHostOwnedViewType(workspace: Workspace, type: string): boolean {
   if (!type || type === "empty" || workspace.viewCreator(type)) {
     return false;
   }
+  if (type === PROBLEMS_VIEW_TYPE) {
+    return true;
+  }
   return (
     resolveWorkspaceHostBinding(workspace)?.controller.renderer.registry.resolve(
       type,
