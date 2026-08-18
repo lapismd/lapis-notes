@@ -69,6 +69,8 @@ on the registered Search command, not on Search package internals.
 Its bundled `notes_search` callback captures `SearchManager`, requests only the
 `search:markdown` source under the trusted scope prefix, and projects bounded
 path, score, and snippet data without exposing database or MCP objects.
+The tool description names indexed vault search and tells the agent to prefer
+it over host-cwd shell lookup (LN-AI-108).
 The tool also enforces an aggregate structured-result budget after database
 ranking, so a high requested limit cannot expand transport or durable tool
 projection beyond the host's bounded-result contract.

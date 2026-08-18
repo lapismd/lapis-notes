@@ -19,8 +19,21 @@ export function createNotesSearchTool(
 ): AppTool<NotesSearchInput> {
   return {
     name: "notes_search",
-    description:
-      "Search Markdown notes within the fixed conversation directory.",
+    description: `
+Search the user's Lapis Notes using the application's indexed note search.
+
+Use this tool whenever the user asks to:
+- find, search, locate, recall, or look up notes
+- find information previously written in their notes
+- discover notes related to a topic
+- search across the current folder/project
+
+Prefer this tool over shell commands such as grep, rg, find, or manually
+walking the notes filesystem. This tool uses the application's index and
+respects the current conversation's note scope.
+
+Returns lightweight matches. Use read to inspect a selected result.
+`.trim(),
     inputSchema: {
       type: "object",
       properties: {

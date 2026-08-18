@@ -106,6 +106,8 @@ Search owns `notes_search` and applies conversation scope through the generic
 database path-prefix option before result ranking and limits.
 Markdown owns `notes_list`. API owns Vault-backed `read`, `write`, `edit`, and
 `apply_patch` wrappers over the portable `@lapismd/ai-host/file-tools` kernel.
+Those bundled descriptions steer agents to the vault tools instead of host-cwd
+shell search (LN-AI-108).
 The live transport is an AI Host-owned loopback broker plus official-SDK stdio
 shim. Electron and the authenticated remote client carry only generic bridge
 commands and events; they never acquire registry, policy, or transcript

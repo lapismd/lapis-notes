@@ -44,6 +44,15 @@ describe("createMarkdownNoteTools", () => {
 });
 
 describe("notes_list", () => {
+  it("steers the agent to browse the vault instead of the host cwd", () => {
+    const description = createNotesListTool(vault).description;
+    expect(description).toContain("Prefer this tool over");
+    expect(description).toContain("ls");
+    expect(description).toContain("find");
+    expect(description).toContain("notes_search");
+    expect(description).toMatch(/\bread\b/u);
+  });
+
   it("lists stable scoped Markdown records at depth one through three", async () => {
     const tool = createNotesListTool(vault);
     const shallow = await tool.execute({}, context());

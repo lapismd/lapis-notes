@@ -870,6 +870,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-105   | ai-plugin                       | Implemented | Date grouping folds adjacent tools into one ToolCalls list; source and unit tests keep multi-call groups collapsed by default |
 | LN-AI-106   | ai-plugin                       | Implemented | Chat panel wires busy Stop to controller.cancel; Design Core Composer keeps that control pointer-interactive while disabled |
 | LN-AI-107   | ai-plugin                       | Implemented | History registerSidebarView omits group; source test and opener use an ungrouped right leaf |
+| LN-AI-108   | ai-plugin                       | Implemented | Search, Markdown, and API tool factories assert prefer-over-shell descriptions; notes_search names lightweight results and read |
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |

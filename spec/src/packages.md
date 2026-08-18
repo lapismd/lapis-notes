@@ -173,6 +173,8 @@ applies those choices only while constructing a new native binding snapshot.
 The Search package owns `notes_search`; API owns the generic pre-limit
 `pathPrefix` database option used consistently by memory, Turso, desktop, and
 browser-coordinated implementations.
+Bundled tool descriptions tell the agent to prefer those vault tools over
+host-cwd shell lookup (LN-AI-108).
 AI Host is the only workspace package with the MCP SDK dependency. It bundles
 the protocol-clean stdio shim, authorizes each loopback bridge against one host
 connection and native binding, converts environment records to ACP name/value

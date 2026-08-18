@@ -178,6 +178,8 @@ Markdown `notes_list` and API file tools reuse the same Vault contract but
 remain outside editor surface state: list and read calls do not open a leaf,
 and approved `edit` / `write` / `apply_patch` writes go through Vault without
 routing through the demo editor controller.
+Their MCP descriptions steer agents to those vault tools instead of host-cwd
+shell commands (LN-AI-108).
 Markdown metadata parse runs in a worker. The Workspace/Shell NotificationCenter
 play starts Lapis metadata `withProgress` and asserts the notifications status
 item is busy with that title.

@@ -58,7 +58,8 @@ contributions likewise use the API workspace bridge and are not panel chrome.
 Markdown application tools remain package-owned non-view contributions and do
 not open, relocate, or depend on these panel registrations. Markdown now owns
 only `notes_list`; bounded reads and mutating file edits belong to API file
-tools.
+tools. The list description prefers vault browsing over host-cwd walking
+(LN-AI-108).
 Their narrow package entry likewise exports no panel component, placement
 metadata, workspace controller, or view command.
 The document Reading surface removes Mira Editor's framework border; movable

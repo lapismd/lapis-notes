@@ -82,6 +82,8 @@ Markdown registers `notes_list` during plugin load. AI registers the API
 Vault-backed `read`, `write`, `edit`, and `apply_patch` tools during its own
 load, so ordinary plugin unload disposes them before any stale binding can
 invoke their captured Vault.
+Those advertised descriptions steer agents to the vault tools instead of
+host-cwd shell commands (LN-AI-108).
 
 ## Distribution and provenance
 

@@ -75,8 +75,10 @@ function conflictResult(
 function createReadTool(vault: Vault, operations: FileToolOperations): AppTool {
   return {
     name: "read",
-    description:
-      "Read a bounded line range from a scoped text file in the conversation directory.",
+    description: `
+Read a bounded line range from a scoped vault text file.
+Prefer this tool over cat or sed in the agent cwd; host cwd is not the browser vault.
+`.trim(),
     inputSchema: asSchema(READ_INPUT_SCHEMA),
     outputSchema: { type: "object" },
     effect: "read",
@@ -107,8 +109,10 @@ function createWriteTool(
 ): AppTool {
   return {
     name: "write",
-    description:
-      "Create or overwrite a scoped text file in the conversation directory.",
+    description: `
+Create or overwrite a scoped vault text file after creating missing parents.
+Prefer this tool over shell redirects in the agent cwd; paths are vault-relative.
+`.trim(),
     inputSchema: asSchema(WRITE_INPUT_SCHEMA),
     outputSchema: { type: "object" },
     effect: "write",
@@ -169,8 +173,10 @@ function createEditTool(
 ): AppTool {
   return {
     name: "edit",
-    description:
-      "Replace unique exact text hunks in a scoped text file in the conversation directory.",
+    description: `
+Replace unique exact text hunks in a scoped vault text file.
+Prefer this tool over sed or patching files in the agent cwd.
+`.trim(),
     inputSchema: asSchema(EDIT_INPUT_SCHEMA),
     outputSchema: { type: "object" },
     effect: "write",
@@ -222,8 +228,10 @@ function createEditTool(
 function createApplyPatchTool(operations: FileToolOperations): AppTool {
   return {
     name: "apply_patch",
-    description:
-      "Apply a V4A patch that adds, updates, moves, or deletes scoped text files.",
+    description: `
+Apply a V4A patch that adds, updates, moves, or deletes scoped vault text files.
+Prefer this tool over applying patches in the agent cwd.
+`.trim(),
     inputSchema: asSchema(APPLY_PATCH_INPUT_SCHEMA),
     outputSchema: { type: "object" },
     effect: "write",

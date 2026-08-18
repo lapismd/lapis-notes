@@ -17,6 +17,17 @@ function context(): AppToolExecutionContext {
 }
 
 describe("notes_search", () => {
+  it("steers the agent to indexed vault search instead of host-cwd shell lookup", () => {
+    const description = createNotesSearchTool({ query: vi.fn() }).description;
+    expect(description).toContain("Prefer this tool over");
+    expect(description).toContain("grep");
+    expect(description).toContain("rg");
+    expect(description).toContain("find");
+    expect(description).toContain("lightweight");
+    expect(description).toMatch(/\bread\b/u);
+    expect(description).not.toContain("notes_read");
+  });
+
   it("searches only scoped Markdown documents with portable bounded results", async () => {
     const query = vi.fn(async () => ({
       count: 3,

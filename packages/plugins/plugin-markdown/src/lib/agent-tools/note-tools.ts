@@ -21,8 +21,12 @@ export function createMarkdownNoteTools(vault: Vault): AppTool[] {
 export function createNotesListTool(vault: Vault): AppTool<NotesListInput> {
   return {
     name: "notes_list",
-    description:
-      "List Markdown notes and folders beneath the fixed conversation directory.",
+    description: `
+List Markdown notes and folders in the current conversation's Lapis vault scope.
+
+Use this to browse the note tree. Prefer this tool over ls, find, or tree on the
+host cwd. Use notes_search for content and read for a selected file.
+`.trim(),
     inputSchema: {
       type: "object",
       properties: {

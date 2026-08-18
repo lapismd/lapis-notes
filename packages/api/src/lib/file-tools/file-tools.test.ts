@@ -71,6 +71,20 @@ describe("file-tools isolation", () => {
   });
 });
 
+describe("file-tool descriptions", () => {
+  it("steers the agent to vault file tools instead of the host cwd", () => {
+    const registered = tools();
+    expect(registered.read.description).toContain("Prefer this tool over");
+    expect(registered.read.description).toContain("cat");
+    expect(registered.write.description).toContain("Prefer this tool over");
+    expect(registered.write.description).toContain("redirects");
+    expect(registered.edit.description).toContain("Prefer this tool over");
+    expect(registered.edit.description).toContain("sed");
+    expect(registered.apply_patch.description).toContain("Prefer this tool over");
+    expect(registered.apply_patch.description).toContain("agent cwd");
+  });
+});
+
 describe("read", () => {
   it("reads one-based bounded lines from any scoped text file", async () => {
     const result = await tools().read.execute(
