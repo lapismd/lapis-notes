@@ -82,6 +82,27 @@ describe("AiPlugin contracts", () => {
     expect(css).toContain("color-mix(in srgb, var(--foreground) 42%, var(--background))");
   });
 
+  it("renders assistant markdown through the public Markdown embed", () => {
+    const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
+    const css = readFileSync("src/lib/styles.css", "utf8");
+    const index = readFileSync("src/lib/index.ts", "utf8");
+    const manifest = JSON.parse(readFileSync("package.json", "utf8")) as {
+      dependencies?: Record<string, string>;
+    };
+
+    expect(manifest.dependencies?.["@lapis-notes/markdown"]).toBe("workspace:*");
+    expect(manifest.dependencies?.["@lapismd/mira"]).toBeUndefined();
+    expect(manifest.dependencies?.["@lapismd/mira-editor"]).toBeUndefined();
+    expect(panel).toContain('from "@lapis-notes/markdown/embed"');
+    expect(panel).toContain("MarkdownEmbed");
+    expect(panel).toContain('htmlPolicy="safe"');
+    expect(css).toContain("[data-ui-component=\"ai-chat-panel\"] .ai-chat-panel__markdown");
+    expect(css).toContain("--mira-preview-background: transparent");
+    expect(panel).not.toContain("{@html");
+    expect(panel).not.toContain("renderChatMarkdown");
+    expect(index).not.toContain("renderChatMarkdown");
+  });
+
   it("persists composer agent, model, and thinking through updateSettings", () => {
     const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
 

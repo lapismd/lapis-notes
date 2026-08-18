@@ -48,6 +48,7 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-093 | Markdown MUST register `notes_list` through the application tool registry. It MUST accept only normalized Markdown paths inside the trusted conversation scope, reject application-private directories, and return deterministically ordered bounded results. |
 | LN-MD-094 | Markdown MUST NOT register `notes_patch`. Unique exact-hunk replacement belongs to API `edit`. Invalid scope, conflicts, cancellation, and denial MUST leave the target file unchanged. |
 | LN-MD-100 | Markdown MUST NOT register `notes_read`. Bounded scoped file reads belong to the API `read` tool. |
+| LN-MD-101 | Public `MarkdownEmbed` MUST render through Mira's embed preview using the owning App's `createLapisMiraFileAdapter` and `resolveMarkdownMiraExtensions`. It MUST refresh those extensions when configuration changes. Consumers MAY set `htmlPolicy`. |
 | LN-MD-097 | Markdown `extractMetadata` MUST run off the renderer thread through a worker. Vault I/O, link resolution, `$state` apply, and `AppDatabase` writes MUST stay on the main thread. `read()` MAY use the same parse synchronously when a worker is unavailable. |
 | LN-MD-099 | Published `parse-metadata` MUST import the metadata worker as `./metadata-worker?worker&inline` without a `.ts` suffix so Vite hosts resolve the packaged `metadata-worker.js`. |
 

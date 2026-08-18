@@ -7,7 +7,8 @@ core manager even when their source is maintained in a separate repository.
 First-party plugin surfaces compose Design Core public parts for shared chrome;
 AI composer drawer chips use the public `attachment-chip` contract instead of
 plugin-local paint. Bundled AI MUST remain a Lapis plugin and MUST NOT gain a
-runtime dependency on sibling `@lapismd/ai-host`.
+runtime dependency on sibling `@lapismd/ai-host`. Assistant chat Markdown uses
+the public Markdown embed helper rather than a second renderer.
 
 ## Requirements
 

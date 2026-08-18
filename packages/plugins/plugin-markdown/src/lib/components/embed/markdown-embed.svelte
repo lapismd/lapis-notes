@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { App } from "@lapis-notes/api";
   import { MarkdownEmbed as MiraMarkdownEmbed } from "@lapismd/mira/preview";
+  import "@lapismd/mira/preview/styles.css";
+  import { resolveMarkdownMiraExtensions } from "../../mira/extensions";
   import { createLapisMiraFileAdapter } from "$lib/mira/file-adapter";
 
   let {
@@ -9,15 +11,21 @@
     sourcePath = "",
     class: className = "",
     frontmatterOpen = false,
+    htmlPolicy = "trusted",
   }: {
     app: App;
     value?: string;
     sourcePath?: string;
     class?: string;
     frontmatterOpen?: boolean;
+    htmlPolicy?: "trusted" | "safe";
   } = $props();
 
   const fileAdapter = $derived(createLapisMiraFileAdapter(app));
+  const resolved = $derived.by(() => {
+    void app.configuration.getConfiguration();
+    return resolveMarkdownMiraExtensions(app);
+  });
 </script>
 
 <MiraMarkdownEmbed
@@ -25,5 +33,7 @@
   {sourcePath}
   {fileAdapter}
   {frontmatterOpen}
+  {htmlPolicy}
+  extensions={resolved.miraExtensions}
   class={`lapis-markdown-embed ${className}`.trim()}
 />

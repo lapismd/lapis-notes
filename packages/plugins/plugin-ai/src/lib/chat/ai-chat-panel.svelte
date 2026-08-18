@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { App } from "@lapis-notes/api";
+  import { MarkdownEmbed } from "@lapis-notes/markdown/embed";
   import * as Chat from "@lapismd/design-core/ai/chat";
   import { Reasoning } from "@lapismd/design-core/ai/experimental";
   import { Button } from "@lapismd/design-core/shadcn/button";
@@ -42,13 +44,13 @@
   } from "../settings/ai-settings";
   import type { AppToolBridgeCoordinator } from "../tools/desktop-app-tool-bridge";
   import { formatFileMention, mentionTokensFromText } from "./chat-mentions";
-  import { renderChatMarkdown } from "./chat-markdown";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
   import AiApprovalCard from "./ai-approval-card.svelte";
   import AiQuestionCard from "./ai-question-card.svelte";
   import { AiChatController } from "./chat-controller.svelte";
 
   let {
+    app,
     runtime,
     selectRuntime,
     unavailableReason = null,
@@ -70,6 +72,7 @@
     settings,
     onSettingsChange,
   }: {
+    app?: App;
     runtime: AgentRuntime;
     selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
     unavailableReason?: string | null;
@@ -678,8 +681,13 @@
           {@const message = entry.item}
           <Chat.Message sender={message.role === "user" ? "user" : "assistant"}>
             <Chat.MessageBubble>
-              {#if message.role === "assistant"}
-                {@html renderChatMarkdown(message.text)}
+              {#if message.role === "assistant" && app}
+                <MarkdownEmbed
+                  {app}
+                  value={message.text}
+                  htmlPolicy="safe"
+                  class="ai-chat-panel__markdown"
+                />
               {:else}
                 <Chat.TokenizedText
                   text={message.text}

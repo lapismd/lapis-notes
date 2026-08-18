@@ -1,5 +1,8 @@
 # Lapis Editor Demo
 
+Public `MarkdownEmbed` applies the enabled Markdown plugin's App Mira
+extensions so string previews, including AI chat, match editor settings.
+
 ## Requirements
 
 | ID        | Requirement                                                                                                                                                                                                                           |

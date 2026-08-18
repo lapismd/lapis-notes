@@ -59,7 +59,6 @@ export {
 export type { AcpAgentId } from "./settings/acp-agents";
 export { DEFAULT_AI_SETTINGS, mergeAiSettings } from "./settings/ai-settings";
 export type { AiPluginSettings } from "./settings/ai-settings";
-export { renderChatMarkdown } from "./chat/chat-markdown";
 export {
   formatChatDateLabel,
   formatChatTimestamp,

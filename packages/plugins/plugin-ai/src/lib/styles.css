@@ -333,9 +333,27 @@
   font-family: inherit;
 }
 
+[data-ui-component="ai-chat-panel"] .ai-chat-panel__markdown,
+[data-ui-component="ai-chat-panel"] .ai-chat-panel__markdown
+  :where(
+    .mira-markdown-preview,
+    .markdown-preview-surface,
+    .markdown-embed-surface,
+    .cm-sizer,
+    .markdown-view__document
+  ) {
+  --mira-background: transparent;
+  --mira-preview-background: transparent;
+  --mira-widget-background: transparent;
+  --background: transparent;
+  --background-primary: transparent;
+  --markdown-surface-background: transparent;
+  background: transparent;
+}
+
 [data-ui-component="ai-chat-panel"]
   [data-ui-part="bubbles"]
-  :where(h1, h2, h3, p, ul, ol, li) {
+  :where(h1, h2, h3, p, ul, ol, li, table, th, td) {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import type { App } from "@lapis-notes/api";
   import type { ConversationLocation } from "../conversations/types";
   import AiChatPanel from "./ai-chat-panel.svelte";
   import type { AiViewHost } from "./ai-view";
@@ -10,10 +11,12 @@
   } from "./ai-view-bootstrap";
 
   let {
+    app,
     host,
     initialLocation,
     onConversationLocationChange,
   }: {
+    app: App;
     host: AiViewHost;
     initialLocation: ConversationLocation | null;
     onConversationLocationChange: (
@@ -51,6 +54,7 @@
 </script>
 
 <AiChatPanel
+  {app}
   runtime={bootstrap.runtime}
   selectRuntime={(request) => host.selectRuntime(request)}
   unavailableReason={bootstrap.unavailableReason}

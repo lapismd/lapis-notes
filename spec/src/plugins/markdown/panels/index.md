@@ -9,7 +9,8 @@ published worker import stays extensionless for Vite `dist` consumers.
 The Markdown plugin registers file- and vault-scoped views into the movable
 [Workspace Shell panel contract](../../../workspace-shell/panels.md). This page
 defines the shared package boundary; each concrete panel has its own behavior
-page.
+page. Public `MarkdownEmbed` remains a string preview, not a movable panel, and
+applies the App Mira extension stack.
 
 ## Requirements
 

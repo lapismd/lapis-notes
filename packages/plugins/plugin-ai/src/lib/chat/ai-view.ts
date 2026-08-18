@@ -117,6 +117,7 @@ export class AiView extends View {
     this.component = mount(AiViewPanel, {
       target: this.containerEl,
       props: {
+        app: this.app,
         host: this.host,
         initialLocation,
         onConversationLocationChange: (
