@@ -38,6 +38,18 @@ afterEach(() => {
   setDefaultVaultStateStore(null);
 });
 
+it("publishes the native desktop bridge on the process-wide global", () => {
+  const bridge = createDesktopBridge();
+  setNativeDesktopBridge(bridge);
+  expect(
+    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown }).__LAPIS_NATIVE_DESKTOP__,
+  ).toBe(bridge);
+  setNativeDesktopBridge(null);
+  expect(
+    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown }).__LAPIS_NATIVE_DESKTOP__,
+  ).toBeUndefined();
+});
+
 it("persists the selected native desktop vault profile", async () => {
   const store = new MemoryKeyValueStore();
   setDefaultVaultStateStore(store);

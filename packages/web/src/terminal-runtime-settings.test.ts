@@ -34,7 +34,12 @@ import {
 
 function createApp(values: Record<string, string> = {}) {
   const listeners = new Map<string, (event: { key: string }) => void>();
+  const refreshHostSessions = vi.fn();
   return {
+    plugins: {
+      plugins: new Map([["terminal", { refreshHostSessions }]]),
+    },
+    refreshHostSessions,
     configuration: {
       getConfiguration: () => ({
         get: (key: string, fallback = "") => values[key] ?? fallback,
@@ -133,6 +138,7 @@ describe("web terminal-runtime settings", () => {
     });
     app.emitUpdated(WEB_TERMINAL_HOST_URL_KEY);
     expect(attach.registerWebTerminalRuntimeBridge).toHaveBeenCalledTimes(2);
+    expect(app.refreshHostSessions).toHaveBeenCalled();
     dispose();
     expect(workspaceHost.disposeSection).toHaveBeenCalledOnce();
     expect(app.configuration.offref).toHaveBeenCalledOnce();

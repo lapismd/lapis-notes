@@ -22,6 +22,13 @@ const linkedDesignCoreRoot = realpathSync(
 const linkedMiraWorkspaceRoot = searchForWorkspaceRoot(
   realpathSync(path.join(workspaceRoot, "node_modules", "@lapismd", "mira")),
 );
+const linkedTerminalPluginRoot = realpathSync(
+  path.join(
+    packageRoot,
+    "node_modules",
+    "@lapis-notes/lapis-plugin-terminal",
+  ),
+);
 const crossOriginIsolationHeaders = {
   "Cross-Origin-Embedder-Policy": "require-corp",
   "Cross-Origin-Opener-Policy": "same-origin",
@@ -69,6 +76,7 @@ function wasmHeadersPlugin(): Plugin {
   };
 }
 const rendererSingletonPackages = [
+  "@lapis-notes/api",
   "@codemirror/state",
   "@codemirror/view",
   "@codemirror/language",
@@ -170,7 +178,14 @@ export default defineConfig({
     port: 4174,
     strictPort: true,
     headers: crossOriginIsolationHeaders,
-    fs: { allow: [workspaceRoot, linkedDesignCoreRoot, linkedMiraWorkspaceRoot] },
+    fs: {
+      allow: [
+        workspaceRoot,
+        linkedDesignCoreRoot,
+        linkedMiraWorkspaceRoot,
+        linkedTerminalPluginRoot,
+      ],
+    },
   },
   preview: {
     port: 4174,

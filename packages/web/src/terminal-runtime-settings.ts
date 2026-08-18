@@ -1,5 +1,6 @@
 import type { App } from "@lapis-notes/api";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
+import type { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
 import { registerWebTerminalRuntimeBridge } from "./terminal-runtime-attach";
 
 export const WEB_TERMINAL_HOST_URL_KEY = "web.terminalHost.url";
@@ -38,9 +39,16 @@ export function resolveWebTerminalRuntimeConfig(app: App): {
   };
 }
 
+export function refreshWebTerminalPlugin(app: App): void {
+  const plugin = app.plugins.plugins.get("terminal") as TerminalPlugin | undefined;
+  plugin?.refreshHostSessions?.();
+}
+
 export function syncWebTerminalRuntime(app: App): boolean {
   const { url, token } = resolveWebTerminalRuntimeConfig(app);
-  return registerWebTerminalRuntimeBridge({ url, token });
+  const attached = registerWebTerminalRuntimeBridge({ url, token });
+  refreshWebTerminalPlugin(app);
+  return attached;
 }
 
 export function registerWebTerminalRuntimeSettings(app: App): () => void {

@@ -29,5 +29,7 @@ describe("desktop terminal-runtime host", () => {
     expect(vite).toContain('assetsInclude: ["**/*.wasm"]');
     expect(vite).toContain('"ghostty-web"');
     expect(vite).toContain('"@xterm/xterm"');
+    expect(vite).toContain("linkedTerminalPluginRoot");
+    expect(vite).toContain("@lapis-notes/lapis-plugin-terminal");
   });
 });

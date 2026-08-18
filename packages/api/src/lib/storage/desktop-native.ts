@@ -242,6 +242,11 @@ export function setNativeDesktopBridge(
   bridge: NativeDesktopBridge | null,
 ): void {
   registeredNativeDesktopBridge = bridge;
+  if (bridge) {
+    globalThis[NATIVE_BRIDGE_GLOBAL] = bridge;
+  } else {
+    delete globalThis[NATIVE_BRIDGE_GLOBAL];
+  }
 }
 
 export async function startNativeDesktopWindowDragging(): Promise<void> {

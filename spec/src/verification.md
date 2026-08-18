@@ -849,5 +849,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-032  | web-host                        | Implemented | web Settings section covers `web.terminalHost.url` and password-presented token |
 | LN-WEB-033  | web-host                        | Implemented | web attach tests replace only a lapis-terminal-host contribution |
 | LN-WEB-034  | web-host                        | Implemented | web Vite includes `*.wasm` assets and excludes ghostty-web and xterm from optimizeDeps |
+| LN-WEB-035  | web-host                        | Implemented | syncWebTerminalRuntime refreshes the Terminal plugin after attach |
+| LN-WEB-036  | web-host                        | Implemented | web Vite allows the linked Terminal plugin root so Ghostty WASM is served |
 | LN-DESK-056 | desktop-host                    | Implemented | desktop Vite includes `*.wasm` assets and excludes ghostty-web and xterm from optimizeDeps |
+| LN-DESK-057 | desktop-host                    | Implemented | setNativeDesktopBridge publishes and clears the process-wide native desktop global |
+| LN-DESK-058 | desktop-host                    | Implemented | desktop Vite allows the linked Terminal plugin root so Ghostty WASM is served |
 | LN-WS-080   | workspace-shell                 | Implemented | Terminal plugin seeds a bottom leaf when none exists |
