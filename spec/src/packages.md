@@ -269,7 +269,7 @@ wrapped tag and multivalue editors expand downward from the same origin.
 registries, Fake and ACP adapters, optional native Codex adapter, provider-safe
 plugin-data session persistence, vault-scoped file mentions, Codex and Cursor
 model catalogs, chat settings, movable chat panel, grouped Design Core tool-call
-transcripts with JSON `CodeBlock` output, and an Open Chat left-ribbon
+transcripts with JSON `CodeBlock` output, a busy-turn Stop abort, an ungrouped History sidebar leaf, and an Open Chat left-ribbon
 action that reuses the opening command.
 Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
 and stacking above an open composer drawer—and composes Command View for the

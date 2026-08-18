@@ -132,6 +132,19 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain("scopeDir");
   });
 
+  it("aborts the active turn from the composer stop control", () => {
+    const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
+    const controller = readFileSync(
+      "src/lib/chat/chat-controller.svelte.ts",
+      "utf8",
+    );
+
+    expect(panel).toContain("isStopShown={controller.busy}");
+    expect(panel).toContain("void controller.cancel()");
+    expect(controller).toContain("async cancel()");
+    expect(controller).toContain("await this.session?.cancel?.()");
+  });
+
   it("groups adjacent tool calls and highlights JSON details", () => {
     const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
     const grouping = readFileSync("src/lib/chat/chat-time.ts", "utf8");
@@ -175,6 +188,17 @@ describe("AiPlugin contracts", () => {
     expect(source).not.toContain('id: "open-ai-chat"');
   });
 
+  it("remounts conversation history when the leaf loads", () => {
+    const source = readFileSync("src/lib/history/ai-history-view.ts", "utf8");
+    const panel = readFileSync("src/lib/history/ai-history-panel.svelte", "utf8");
+
+    expect(source).toContain("this.unload()");
+    expect(source).toContain("this.containerEl.replaceChildren()");
+    expect(source).toContain("mount(AiHistoryPanel");
+    expect(panel).toContain("repository.listAll()");
+    expect(panel).not.toContain("repository.list(");
+  });
+
   it("preserves history while opening exact conversations in reusable main tabs", () => {
     const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
 
@@ -184,6 +208,9 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain("findUnboundMainAiLeaf()");
     expect(source).toContain("iterateRootLeaves");
     expect(source).toContain('operation: "open-ai-chat"');
+    expect(source).toContain('focusRootHost: false');
+    expect(source).not.toContain('group: "AI"');
+    expect(source).not.toContain("groupTitle");
     expect(source).not.toContain(
       "getLeavesOfType(AiHistoryViewType)[0] ??\n      this.app.workspace.getLeavesOfType(AiViewType)[0]",
     );

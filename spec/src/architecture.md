@@ -348,7 +348,9 @@ its acpx release and applies optional thinking controls only when the created
 session advertises them. Native Codex and ACP normalize
 thinking, tool, permission, user-input, and error events before the shared
 controller renders them. Adjacent tool items share one collapsed Design Core
-`ToolCalls` group, and tool output uses a JSON `CodeBlock`. Portable conversation bindings and transcript entries
+`ToolCalls` group, and tool output uses a JSON `CodeBlock`. A busy composer
+Stop control cancels the active turn. AI History opens as an ungrouped right
+sidebar leaf and keeps that leaf while a conversation opens in the main area. Portable conversation bindings and transcript entries
 are stored beneath the captured vault scope; plugin data remains settings-only.
 Runtime-neutral pending interactions are presented
 through Design Core's Composer Drawer; provider request objects and secret

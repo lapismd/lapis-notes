@@ -174,10 +174,8 @@
     return [...merged.values()];
   }
 
-  async function loadEntries(
-    activeScope: string,
-  ): Promise<ConversationListEntry[]> {
-    const localEntries = await repository.list(activeScope);
+  async function loadEntries(): Promise<ConversationListEntry[]> {
+    const localEntries = await repository.listAll();
     const trimmed = query.trim();
     if (!trimmed) {
       try {
@@ -240,7 +238,7 @@
     if (!loading) loading = true;
     if (error !== null) error = null;
     try {
-      const next = await loadEntries(nextScope);
+      const next = await loadEntries();
       if (version === refreshVersion) entries = next;
     } catch (cause) {
       if (version === refreshVersion) {

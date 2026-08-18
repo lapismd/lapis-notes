@@ -46,7 +46,9 @@ export class AiHistoryView extends View {
     return Promise.resolve();
   }
 
-  onload(): void {
+  load(): void {
+    this.unload();
+    this.containerEl.replaceChildren();
     this.containerEl.classList.add("ai-history-view");
     this.component = mount(AiHistoryPanel, {
       target: this.containerEl,
@@ -66,7 +68,7 @@ export class AiHistoryView extends View {
     }) as Record<string, unknown>;
   }
 
-  onunload(): void {
+  unload(): void {
     if (this.component) void unmount(this.component);
     this.component = null;
   }

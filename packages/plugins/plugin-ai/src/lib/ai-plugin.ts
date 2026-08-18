@@ -369,8 +369,6 @@ export class AiPlugin extends Plugin {
       side: "right",
       title: "AI",
       icon: "sparkles",
-      group: "AI",
-      groupTitle: "AI",
     }, {
       kind: "command",
       command: {
@@ -389,8 +387,6 @@ export class AiPlugin extends Plugin {
         side: "right",
         title: "AI conversations",
         icon: "history",
-        group: "AI",
-        groupTitle: "AI",
       },
       {
         kind: "command",
@@ -424,7 +420,7 @@ export class AiPlugin extends Plugin {
         await target.setViewState({ type: AiViewType, state });
       }
       this.app.workspace.activateLeaf(target, {
-        focusRootHost: true,
+        focusRootHost: false,
         source: "api",
         operation: "open-conversation",
       });

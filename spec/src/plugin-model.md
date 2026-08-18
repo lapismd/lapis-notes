@@ -10,6 +10,8 @@ plugin-local paint. Bundled AI MUST remain a Lapis plugin and MUST NOT gain a
 runtime dependency on sibling `@lapismd/ai-host`. Assistant chat Markdown uses
 the public Markdown embed helper rather than a second renderer. Folder-scoped
 chats project path breadcrumbs through the same View chrome hooks as History.
+A busy chat Stop control cancels the active agent turn. AI History opens as a
+single sidebar leaf rather than a default sidebar group.
 
 ## Requirements
 
