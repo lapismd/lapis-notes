@@ -666,8 +666,15 @@ describe("AiChatController", () => {
     });
 
     await controller.openConversation(location);
+    expect(controller.conversationStatus).toBe("active");
+    expect(controller.location).toEqual(location);
     await controller.archiveCurrent();
     expect((await repository.read(location)).metadata.status).toBe("archived");
+    expect(controller.conversationStatus).toBe("archived");
+    expect(controller.location).toEqual(location);
+    await controller.archiveCurrent(false);
+    expect(controller.conversationStatus).toBe("active");
+    expect(controller.location).toEqual(location);
 
     controller.relocateScope("Projects", "Archive/Projects");
     expect(controller.location?.scopeDir).toBe("Archive/Projects/Atlas");
@@ -681,7 +688,35 @@ describe("AiChatController", () => {
       "Conversation not found",
     );
     expect(controller.location).toBeNull();
+    expect(controller.conversationStatus).toBeNull();
     expect(states.at(-1)).toBeNull();
+  });
+
+  it("starts a scoped new conversation with a new id", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const first = {
+      scopeDir: "Projects/Atlas",
+      conversationId: "123e4567-e89b-42d3-a456-426614174000",
+    };
+    const nextId = "223e4567-e89b-42d3-a456-426614174000";
+    await repository.create({ ...first, id: first.conversationId });
+    const controller = new AiChatController(new FakeAgentRuntime(), null, [], {
+      repository,
+      createConversation: () => ({
+        id: nextId,
+        scopeDir: "Projects/Atlas",
+      }),
+    });
+    await controller.openConversation(first);
+    await controller.newConversation({
+      id: nextId,
+      scopeDir: "Projects/Atlas",
+    });
+    expect(controller.location).toEqual({
+      scopeDir: "Projects/Atlas",
+      conversationId: nextId,
+    });
+    expect(controller.conversationStatus).toBe("active");
   });
 
   it("switches agents through a prepared runtime and passes bounded local handoff", async () => {

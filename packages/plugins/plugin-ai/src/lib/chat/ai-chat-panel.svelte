@@ -15,11 +15,16 @@
     ComposerTrigger,
     ComposerTriggerItem,
   } from "@lapismd/design-core/ai/chat";
+  import ArchiveIcon from "@lucide/svelte/icons/archive";
+  import ArchiveRestoreIcon from "@lucide/svelte/icons/archive-restore";
   import BrainIcon from "@lucide/svelte/icons/brain";
   import CopyIcon from "@lucide/svelte/icons/copy";
   import HistoryIcon from "@lucide/svelte/icons/history";
+  import MoreHorizontalIcon from "@lucide/svelte/icons/ellipsis";
   import PaperclipIcon from "@lucide/svelte/icons/paperclip";
+  import PlusIcon from "@lucide/svelte/icons/plus";
   import RedoIcon from "@lucide/svelte/icons/redo-2";
+  import TrashIcon from "@lucide/svelte/icons/trash-2";
   import XIcon from "@lucide/svelte/icons/x";
   import type {
     AgentRequest,
@@ -538,6 +543,65 @@
             >
               <HistoryIcon aria-hidden="true" />
             </Button>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger>
+                {#snippet child({ props }: { props: Record<string, unknown> })}
+                  <Button
+                    {...props}
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label="Conversation actions"
+                    data-testid="ai-chat-conversation-menu"
+                  >
+                    <MoreHorizontalIcon aria-hidden="true" />
+                  </Button>
+                {/snippet}
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="start">
+                <DropdownMenu.Group>
+                  <DropdownMenu.Item
+                    disabled={!controller.location}
+                    onclick={() =>
+                      void controller.archiveCurrent(
+                        controller.conversationStatus !== "archived",
+                      )}
+                  >
+                    {#if controller.conversationStatus === "archived"}
+                      <ArchiveRestoreIcon
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Restore Chat
+                    {:else}
+                      <ArchiveIcon
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Archive Chat
+                    {/if}
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item
+                    variant="destructive"
+                    disabled={!controller.location}
+                    onclick={() => void controller.deleteCurrent()}
+                  >
+                    <TrashIcon data-icon="inline-start" aria-hidden="true" />
+                    Delete Chat
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item
+                    onclick={() =>
+                      void controller.newConversation(
+                        createConversation?.() ?? {
+                          scopeDir: controller.location?.scopeDir ?? "",
+                        },
+                      )}
+                  >
+                    <PlusIcon data-icon="inline-start" aria-hidden="true" />
+                    Start new chat
+                  </DropdownMenu.Item>
+                </DropdownMenu.Group>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           {/if}
           {#if fileSearch}
             <Popover.Root

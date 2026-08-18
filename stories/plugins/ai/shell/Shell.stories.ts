@@ -453,7 +453,7 @@ export const LocalConversations: Story = {
     docs: {
       description: {
         story:
-          "The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
+          "The composer overflow menu offers Archive Chat, Delete Chat, and Start new chat. The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
       },
     },
   },
@@ -469,6 +469,30 @@ export const LocalConversations: Story = {
     const sidebarChatLeaf = app.workspace.getLeavesOfType(AiViewType)[0];
     expect(sidebarChatLeaf).toBeDefined();
     assertStackedComposer(panel);
+    await userEvent.click(
+      within(panel).getByRole("button", {
+        name: "Conversation actions",
+      }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await expect(
+      await body.findByRole("menuitem", { name: /^Archive Chat$/ }),
+    ).toBeVisible();
+    await expect(
+      body.getByRole("menuitem", { name: /^Delete Chat$/ }),
+    ).toBeVisible();
+    await expect(
+      body.getByRole("menuitem", { name: /^Start new chat$/ }),
+    ).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(
+        body.queryByRole("menuitem", { name: /^Archive Chat$/ }),
+      ).toBeNull();
+      expect(
+        within(panel).getByRole("button", { name: "Conversation actions" }),
+      ).toHaveAttribute("aria-expanded", "false");
+    });
     await userEvent.click(
       within(panel).getByRole("button", {
         name: "Show conversation history",
@@ -515,9 +539,8 @@ export const LocalConversations: Story = {
         name: "Conversation actions for Summarize project notes",
       }),
     );
-    const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(
-      await body.findByRole("menuitem", { name: "Archive" }),
+      await body.findByRole("menuitem", { name: /^Archive$/ }),
     );
     const archivedActiveItem = within(history)
       .getByRole("button", { name: "Summarize project notes" })
@@ -533,7 +556,7 @@ export const LocalConversations: Story = {
     });
     await userEvent.click(restoreActions);
     await userEvent.click(
-      await body.findByRole("menuitem", { name: "Restore" }),
+      await body.findByRole("menuitem", { name: /^Restore$/ }),
     );
     const archivedItem = within(history)
       .getByRole("button", { name: "Archived planning chat" })
@@ -549,7 +572,7 @@ export const LocalConversations: Story = {
     });
     await userEvent.click(deleteActions);
     await userEvent.click(
-      await body.findByRole("menuitem", { name: "Delete" }),
+      await body.findByRole("menuitem", { name: /^Delete$/ }),
     );
     await waitFor(() =>
       expect(within(history).queryByText("Archived planning chat")).toBeNull(),

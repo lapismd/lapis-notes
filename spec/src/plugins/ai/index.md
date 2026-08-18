@@ -97,6 +97,7 @@ execution APIs.
 | LN-AI-085 | Selecting or creating a conversation from AI History MUST open it in a main-area AI tab, reveal an existing main-area tab with the same `(scopeDir, conversationId)`, and MUST NOT replace the history leaf. The composer History action MUST reveal an existing history leaf or create its canonical sidebar leaf without replacing chat. |
 | LN-AI-107 | The History opener MUST create or reveal an ungrouped right-sidebar leaf, matching Search and file History. It MUST NOT register a default sidebar group. Conversation-row activation MUST NOT collapse that sidebar. Users MAY later move History into a group. |
 | LN-AI-108 | Bundled application-tool descriptions MUST name Lapis vault or index behavior and the conversation scope. They MUST tell the agent to prefer the tool over shell `grep`, `rg`, `find`, or walking the host cwd for notes. `notes_search` MUST say results are lightweight and that `read` inspects a selected path. |
+| LN-AI-109 | When a conversation repository is present, the composer MUST expose an overflow menu with Archive Chat or Restore Chat, Delete Chat, and Start new chat. Archive and Restore MUST keep the same conversation open, while Delete MUST trash the source and clear the tab. New chat MUST replace the tab with a new conversation in the current scope. Archive and Delete MUST disable when no conversation is open. |
 | LN-AI-086 | AI MUST derive one deterministic app-tool snapshot for each native agent binding from the API registry. Bundled tools MUST be eligible by default. Community renderer tools MUST require a saved per-tool opt-in. Registration changes MUST apply only to a new binding. |
 | LN-AI-087 | `AppToolHost` MUST validate tool arguments, resolve the exact snapshotted registration, construct conversation and binding scope from trusted state, propagate cancellation, and return bounded transport-neutral results. An unloaded or replaced registration MUST fail without invoking a stale callback. |
 | LN-AI-088 | Read app tools MAY execute under the fixed scope policy. Write and external tools MUST block on the existing approval surface with allow-once, allow-for-binding, and deny choices. Approval details MUST list every scoped path and a readable multiline before/after diff, including concatenated hunks. Binding grants MUST remain memory-only and expire on binding close, switch, plugin unload, or scope change. |
@@ -179,6 +180,8 @@ execution. Web and
 Storybook default stories stay Fake. The dedicated Live Host story
 attaches only when URL and token are configured. The paperclip attach picker
 keeps its Popover host and composes Command View for the vault-file list.
+The composer overflow menu archives or restores in place, deletes through
+vault trash, and starts a new chat in the current scope (LN-AI-109).
 AI registers its sidebar chat and history views through `ViewAccess.command`.
 Their canonical palette commands are `AI: Open Chat` and `AI: Open History`;
 each reuses an existing leaf or creates, activates, and reveals its documented

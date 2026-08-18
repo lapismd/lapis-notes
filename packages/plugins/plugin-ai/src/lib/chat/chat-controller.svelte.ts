@@ -28,6 +28,7 @@ import {
   CONVERSATION_SCHEMA_VERSION,
   type AgentBindingCreatedRecord,
   type ConversationLocation,
+  type ConversationMetadata,
 } from "../conversations/types";
 import { extractMentionPaths, mergeAttachmentPaths } from "./chat-mentions";
 import {
@@ -57,6 +58,7 @@ export class AiChatController {
   appToolsUnavailableReason = $state<string | null>(null);
   bindings = $state.raw<AgentBindingCreatedRecord[]>([]);
   location = $state.raw<ConversationLocation | null>(null);
+  conversationStatus = $state<ConversationMetadata["status"] | null>(null);
   session: AgentSession | null = null;
   runtime: AgentRuntime;
   readonly unavailableReason: string | null;
@@ -188,6 +190,7 @@ export class AiChatController {
     this.session = null;
     this.busy = false;
     this.error = null;
+    this.conversationStatus = null;
     this.location = { ...location };
     this.#onLocationChange?.(this.location);
     try {
@@ -210,16 +213,19 @@ export class AiChatController {
     this.#activeBindingId = undefined;
     this.bindings = [];
     this.location = null;
+    this.conversationStatus = null;
     if (input) {
       const created = await this.repository.create(input);
       this.location = created.location;
+      this.conversationStatus = created.metadata.status;
     }
     this.#onLocationChange?.(this.location);
   }
 
   async archiveCurrent(archived = true): Promise<void> {
     if (!this.repository || !this.location) return;
-    await this.repository.archive(this.location, archived);
+    const snapshot = await this.repository.archive(this.location, archived);
+    this.conversationStatus = snapshot.metadata.status;
   }
 
   relocateScope(oldPath: string, newPath: string): void {
@@ -263,12 +269,14 @@ export class AiChatController {
     this.#activeBindingId = undefined;
     this.bindings = [];
     this.location = null;
+    this.conversationStatus = null;
     this.#onLocationChange?.(null);
   }
 
   async #restoreConversation(): Promise<void> {
     if (!this.repository || !this.location) return;
     const snapshot = await this.repository.read(this.location);
+    this.conversationStatus = snapshot.metadata.status;
     this.items = projectTranscriptToChatItems(snapshot.transcript);
     const activeBinding = snapshot.agents.find(
       (record): record is AgentBindingCreatedRecord =>
@@ -643,6 +651,7 @@ export class AiChatController {
     const input = this.#createConversation?.() ?? { scopeDir: "" };
     const created = await this.repository.create(input);
     this.location = created.location;
+    this.conversationStatus = created.metadata.status;
     this.#onLocationChange?.(this.location);
   }
 
