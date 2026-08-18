@@ -17,6 +17,30 @@ describe("status bar manager", () => {
     statusBar.registerItem({ id: "demo:later", text: "3" });
     expect(listener).toHaveBeenCalledTimes(4);
   });
+
+  it("does not notify adapters for an identical visible upsert", () => {
+    // LN-PKG-090: visible fields unchanged, including a new buildMenu only.
+    const statusBar = new StatusBarManager();
+    const listener = vi.fn();
+    statusBar.subscribe(listener);
+    statusBar.upsertItem({
+      id: "demo:item",
+      text: "Same",
+      segments: ["US"],
+      icon: "spell-check",
+    });
+    listener.mockClear();
+
+    statusBar.upsertItem({
+      id: "demo:item",
+      text: "Same",
+      segments: ["US"],
+      icon: "spell-check",
+      buildMenu: () => undefined,
+    });
+
+    expect(listener).not.toHaveBeenCalled();
+  });
   it("orders visible items by alignment, priority, and registration order", () => {
     const contextKeys = new ContextKeyService({
       "plugin.enabled.demo": true,

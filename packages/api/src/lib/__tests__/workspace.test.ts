@@ -4425,6 +4425,30 @@ describe("Workspace compatibility", () => {
     ).toBe(false);
   });
 
+  it("does not save layout for an identical status upsert", () => {
+    const { app, workspace } = createWorkspaceHarness();
+    app.statusBar.upsertItem({
+      id: "demo:status",
+      text: "US",
+      segments: ["US"],
+      icon: "spell-check",
+    });
+    const requestSaveLayout = vi.spyOn(workspace, "requestSaveLayout");
+    const layoutChange = vi.fn();
+    workspace.on("layout-change", layoutChange);
+
+    app.statusBar.upsertItem({
+      id: "demo:status",
+      text: "US",
+      segments: ["US"],
+      icon: "spell-check",
+      buildMenu: () => undefined,
+    });
+
+    expect(requestSaveLayout).not.toHaveBeenCalled();
+    expect(layoutChange).not.toHaveBeenCalled();
+  });
+
   it("projects Lapis notification progress into the Design Core manager", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const controller = getWorkspaceHostBinding(workspace).controller;

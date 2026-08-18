@@ -16,6 +16,7 @@ export function installWorkerEntityDecoderDocumentShim(): void {
   if (workerGlobal.document) return;
 
   const documentShim = {
+    compatMode: "CSS1Compat",
     createElement(): EntityDecoderElement {
       let decodedText = "";
       return {

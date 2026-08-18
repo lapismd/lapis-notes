@@ -123,7 +123,8 @@ owned by `@lapis-notes/file-explorer`.
 wikilink pills survive workspace split resize. The enabled
 `@lapis-notes/markdown-lint` plugin contributes diagnostics only and exposes
 seeded rule and glob Settings. `@lapis-notes/spellcheck` contributes Harper
-diagnostics, Settings, and a Lucide status item. Markdown owns
+diagnostics, Settings, and a Lucide status item that refreshes from
+configuration rather than `layout-change`. Markdown owns
 the Tags view. Shared panel
 presentation is specified under `workspace-shell/panels.md`. The Markdown
 Problems scenario also verifies that Design Core renders the live

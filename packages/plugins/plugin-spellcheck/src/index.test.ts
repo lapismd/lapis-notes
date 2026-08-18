@@ -79,6 +79,7 @@ function createMockApp() {
           get: (_key: string, fallback: unknown) => fallback,
         }),
         updateConfigurationOption: vi.fn(),
+        on: vi.fn(() => ({})),
       },
       plugins: {
         registerLapisServiceProvider: vi.fn((registration: unknown) => {
@@ -129,6 +130,20 @@ describe("SpellcheckPlugin", () => {
       segments: ["US"],
     });
     expect(providers).toHaveLength(1);
+    expect(app.workspace.on).not.toHaveBeenCalled();
+    expect(app.configuration.on).toHaveBeenCalledWith(
+      "updated",
+      expect.any(Function),
+    );
+    const onUpdated = vi.mocked(app.configuration.on).mock.calls[0]?.[1] as (
+      event: { key: string },
+    ) => void;
+    const refreshStatus = vi.spyOn(plugin, "refreshStatus");
+    onUpdated({ key: "spellcheck.dialect" });
+    expect(refreshStatus).toHaveBeenCalledOnce();
+    refreshStatus.mockClear();
+    onUpdated({ key: "spellcheck.maxFileLength" });
+    expect(refreshStatus).not.toHaveBeenCalled();
     plugin.unload();
     expect(providers).toHaveLength(0);
     expect(app.statusBar.items["spellcheck:status"]).toBeUndefined();

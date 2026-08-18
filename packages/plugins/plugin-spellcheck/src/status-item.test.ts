@@ -34,6 +34,12 @@ describe("spellcheck status item", () => {
     expect(JSON.stringify(statusBar.items[SPELLCHECK_STATUS_ID])).not.toMatch(
       /[\uD83C][\uDDE6-\uDDFF]/u,
     );
+
+    const upsertItem = vi.spyOn(statusBar, "upsertItem");
+    status.show("british", true);
+    expect(upsertItem).not.toHaveBeenCalled();
+    status.show("american", true);
+    expect(upsertItem).toHaveBeenCalledOnce();
   });
 
   it("builds dialect and checking menu items", () => {

@@ -57,6 +57,9 @@ not add callbacks or agent-specific fields to serializable diagnostics.
 - Language-service packages own provider-neutral client and worker utilities.
 - Markdownlint owns Markdown rules, native/worker provider selection, fixes,
   ignore actions, and its configuration field.
+- Spell Check owns Harper diagnostics through the shared language-service
+  collection. Its status item refreshes from configuration and MUST NOT upsert
+  on `layout-change`.
 - Mira continues to own Markdown completion and hover behavior. The language
   service contributes diagnostics and code actions only in this slice.
   Lint hover cards open only on the underlined range or gutter marker, not the
@@ -77,7 +80,8 @@ requests a fresh result. Disabling or unloading a provider clears results that
 the provider owned. Navigation focuses an existing file leaf before opening a
 new one so diagnostic ownership is not churned. The browser fallback installs
 only the entity-decoder contract needed when Markdownlint's parser selects its
-DOM export inside a Web Worker.
+DOM export inside a Web Worker. That shim reports standards-mode
+`compatMode` so shared worker chunks cannot treat the worker as quirks.
 
 The Electron consumer uses the same provider-neutral diagnostics and actions
 through `@lapis-notes/language-service/markdownlint/runtime`. Its child process

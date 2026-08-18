@@ -8,6 +8,11 @@ import {
 } from "./settings";
 
 export class SpellcheckStatus {
+  private shown: {
+    dialect: SpellcheckDialect;
+    automaticChecking: boolean;
+  } | null = null;
+
   constructor(
     private readonly statusBar: StatusBarManager,
     private readonly commandId: string,
@@ -16,6 +21,13 @@ export class SpellcheckStatus {
   ) {}
 
   show(dialect: SpellcheckDialect, automaticChecking: boolean): void {
+    if (
+      this.shown?.dialect === dialect &&
+      this.shown.automaticChecking === automaticChecking
+    ) {
+      return;
+    }
+    this.shown = { dialect, automaticChecking };
     this.statusBar.upsertItem({
       id: SPELLCHECK_STATUS_ID,
       sourcePlugin: SPELLCHECK_PLUGIN_ID,
@@ -28,6 +40,7 @@ export class SpellcheckStatus {
   }
 
   hide(): void {
+    this.shown = null;
     this.statusBar.unregisterItem(SPELLCHECK_STATUS_ID);
   }
 

@@ -292,7 +292,9 @@ Editor-view contributions follow the same boundary and are projected from the
 API registry into the controller registry without moving registration policy
 into the shell host. Compatibility view actions and pane-menu contributions use
 that same projection, leaving design-core responsible for shared title-bar and
-menu presentation while plugins retain their control policy. The adapter keeps
+menu presentation while plugins retain their control policy. Status-bar upserts
+notify adapters only when visible item fields change (LN-PKG-090), so identical
+writes cannot loop layout restore (LN-WS-075). The adapter keeps
 compatibility view sections ahead of generic split, move, and close actions.
 The editor demo's Markdown and JSON language packages are root-only Storybook
 development dependencies. The API continues to expose the generic editor

@@ -22,6 +22,34 @@ interface RegisteredStatusBarItem extends StatusBarItemDescriptor {
   sequence: number;
 }
 
+function sameSegments(
+  left: string[] | undefined,
+  right: string[] | undefined,
+): boolean {
+  if (left === right) return true;
+  if (!left || !right || left.length !== right.length) return false;
+  return left.every((value, index) => value === right[index]);
+}
+
+function sameVisibleStatusBarItem(
+  left: RegisteredStatusBarItem,
+  right: RegisteredStatusBarItem,
+): boolean {
+  return (
+    left.id === right.id &&
+    left.text === right.text &&
+    sameSegments(left.segments, right.segments) &&
+    left.icon === right.icon &&
+    left.spin === right.spin &&
+    left.tooltip === right.tooltip &&
+    left.command === right.command &&
+    left.when === right.when &&
+    (left.alignment ?? "right") === (right.alignment ?? "right") &&
+    (left.priority ?? 0) === (right.priority ?? 0) &&
+    left.sourcePlugin === right.sourcePlugin
+  );
+}
+
 export class StatusBarManager {
   #sequence = 0;
   readonly #listeners = new Set<() => void>();
@@ -37,13 +65,17 @@ export class StatusBarManager {
 
   upsertItem(item: StatusBarItemDescriptor): void {
     const existing = this.items[item.id];
-    this.items[item.id] = {
+    const next: RegisteredStatusBarItem = {
       alignment: "right",
       priority: 0,
       ...existing,
       ...item,
       sequence: existing?.sequence ?? this.#sequence++,
     };
+    if (existing && sameVisibleStatusBarItem(existing, next)) {
+      return;
+    }
+    this.items[item.id] = next;
     this.notify();
   }
 

@@ -69,7 +69,14 @@ export class SpellcheckPlugin extends Plugin {
     this.refreshStatus();
     this.register(() => this.status.hide());
     this.registerEvent(
-      this.app.workspace.on("layout-change", () => this.refreshStatus()),
+      this.app.configuration.on("updated", (event) => {
+        if (
+          event.key === SPELLCHECK_SETTING_IDS.dialect ||
+          event.key === SPELLCHECK_SETTING_IDS.automaticChecking
+        ) {
+          this.refreshStatus();
+        }
+      }),
     );
   }
 

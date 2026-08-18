@@ -14,6 +14,7 @@ open documents into the shared language-service and Problems path. It uses
 | LN-SPL-004 | Spell Check diagnostics MUST use the Harper rule id and message. Unset severity MUST map Spelling to error, Style to warning, and other kinds to hint. A stored `diagnosticSeverity` MUST override that mapping. |
 | LN-SPL-005 | Suggestion actions MUST be serializable document edits. Add to dictionary and Ignore MUST persist configuration and refresh on the next diagnostics request. |
 | LN-SPL-006 | Spell Check MUST publish `spellcheck:status` on `app.statusBar` with Lucide `spell-check` and an optional dialect segment. Click MUST open dialect choices and a checking toggle. It MUST NOT use compatibility status DOM, the Harper logo, or flag emoji. |
+| LN-SPL-007 | Spell Check MUST refresh `spellcheck:status` from plugin load and configuration updates. It MUST NOT subscribe to `layout-change` for that item. A no-op dialect or checking write MUST NOT upsert the status bar. |
 
 ### LN-SPL-003 acceptance details
 
