@@ -7,6 +7,7 @@ import {
 } from "@lapis-notes/api";
 import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
+import { LIVE_RUNTIME_UNAVAILABLE_REASON } from "./chat/live-runtime-unavailable";
 import { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
 import type { ConversationLocation } from "./conversations/types";
 import { formatFileMention, searchVaultFiles } from "./chat/chat-mentions";
@@ -164,9 +165,15 @@ export class AiPlugin extends Plugin {
     return () => this.#conversationMoveListeners.delete(listener);
   }
 
+  refreshHostRuntimes(): void {
+    for (const runtime of createHostAgentRuntimes()) {
+      this.registry.register(runtime);
+    }
+  }
+
   liveRuntimeUnavailableReason(): string | null {
     if (hasNativeDesktopCapability("agent-runtime")) return null;
-    return "Live agent runtimes are available only on the desktop host.";
+    return LIVE_RUNTIME_UNAVAILABLE_REASON;
   }
 
   get workspace(): string | undefined {

@@ -751,7 +751,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-093   | ai-plugin                       | Implemented | Search and Markdown tool tests cover scoped Markdown-only search, bounded read/list, hidden paths, one-match atomic patch, conflict, cancellation, and no pre-approval write |
 | LN-AI-094   | ai-plugin                       | Implemented | authenticated WebSocket acceptance drives a real stdio MCP list/call/result round trip and proves pending-call cancellation plus authorization revocation on disconnect |
 | LN-AI-095   | ai-plugin                       | Implemented | AI settings and the Shell community-tools story list each registered tool with contributor and toggle, refresh on registry change, and persist per-tool enablement |
-| LN-AI-096   | ai-plugin                       | Implemented | AI plugin source test and Shell Desktop play cover the Open Chat left-ribbon action reusing the existing chat leaf |
+| LN-AI-096   | ai-plugin                       | Implemented | AI plugin source test, Shell Desktop play, and web OPFS acceptance cover the Open Chat left-ribbon action |
+| LN-AI-098   | ai-plugin                       | Implemented | bootstrap tests keep pinned Fake silent and surface the start-server Settings message on auto fallback |
 | LN-AI-097   | ai-plugin                       | Implemented | History panel stories assert the search field and action cluster stay centered in the chrome |
 | LN-ARCH-060 | architecture                    | Implemented | root application-ownership audit rejects MCP, ACP, acpx, and vendor runtime imports from API, Search, Markdown, and portable AI implementation paths |
 | LN-PLUG-019 | plugin-model                    | Implemented | six API registry tests cover name and schema validation, owner attribution, duplicate rejection, deterministic descriptors, exact registration identity, and disposal |
@@ -765,6 +766,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-021  | web-host                        | Implemented | web session source and host check replace the Opening vault stub with Design Core WorkspaceStartup tasks, plugin-name detail, and retryable failure |
 | LN-WEB-022  | web-host                        | Implemented | web session uses workspace loadLayout default sidebar seed; API tests cover File Explorer, Search, Outline, File Properties, and Tags |
 | LN-WEB-023  | web-host                        | Implemented | web session starts metadataCache.load after loadLayout and does not await it before mounting the shell |
+| LN-WEB-024  | web-host                        | Implemented | web Settings section and unit tests cover `web.agentRuntime.url` and `web.agentRuntime.token` with env prefill |
+| LN-WEB-025  | web-host                        | Implemented | web attach tests replace only a lapis-ai-host bridge after configuration load and refresh AI host runtimes |
 | LN-PKG-080  | packages                        | Implemented | package manifests, source audit, and integration tests verify neutral API contracts, Search and Markdown callbacks, AI policy, and non-authoritative sibling `@lapismd/ai-host` plus Electron transport ownership |
 | LN-CAT-081  | storybook-catalog               | Implemented | five focused app-tool interaction and axe stories pass with approved canonical baselines and a 5/5 compare-only visual run; visual-pending tags retain the separate human-promotion boundary |
 | LN-CAT-082  | storybook-catalog               | Implemented | Storybook Vite source aliases plus the canonical Docker static-build lane cover File Explorer and Search without staged `dist` output |

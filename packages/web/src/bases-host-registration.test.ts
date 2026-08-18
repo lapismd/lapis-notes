@@ -36,6 +36,8 @@ describe("web Bases host registration", () => {
     expect(source).toContain('id: "layout"');
     expect(source).toContain("onProgress");
     expect(source).toContain("startMetadataCache");
+    expect(source).toContain("registerWebAgentRuntimeSettings");
+    expect(source).toContain("syncWebAgentRuntime");
     expect(source).not.toMatch(/await app\.metadataCache\.load/u);
     expect(source).not.toContain("Opening vault…");
   });

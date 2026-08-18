@@ -6,6 +6,7 @@ import { CONVERSATION_SCHEMA_VERSION } from "../conversations/types";
 import { FakeAgentRuntime } from "../runtimes/fake/fake-runtime";
 import { DEFAULT_AI_SETTINGS, mergeAiSettings } from "../settings/ai-settings";
 import type { AiViewHost } from "./ai-view";
+import { LIVE_RUNTIME_UNAVAILABLE_REASON } from "./live-runtime-unavailable";
 import {
   initialAiViewBootstrap,
   prepareAiViewBootstrap,
@@ -105,10 +106,10 @@ describe("AI view bootstrap", () => {
     );
   });
 
-  it("does not report desktop-host unavailability for the selected Fake runtime", async () => {
+  it("does not report host unavailability for an explicit Fake runtime", async () => {
     const { host } = createHost({
       selectedId: "fake",
-      unavailableReason: "Live agent runtimes require the desktop host.",
+      unavailableReason: LIVE_RUNTIME_UNAVAILABLE_REASON,
     });
     await host.updateSettings({ defaultRuntime: "fake" });
 
@@ -116,5 +117,17 @@ describe("AI view bootstrap", () => {
 
     expect(prepared.runtime.id).toBe("fake");
     expect(prepared.unavailableReason).toBeNull();
+  });
+
+  it("reports a start-server message when auto falls back to Fake", async () => {
+    const { host } = createHost({
+      selectedId: "fake",
+      unavailableReason: LIVE_RUNTIME_UNAVAILABLE_REASON,
+    });
+
+    const prepared = await prepareAiViewBootstrap(host, null, []);
+
+    expect(prepared.runtime.id).toBe("fake");
+    expect(prepared.unavailableReason).toBe(LIVE_RUNTIME_UNAVAILABLE_REASON);
   });
 });

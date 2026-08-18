@@ -30,6 +30,10 @@
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
   import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
+  import {
+    registerWebAgentRuntimeSettings,
+    syncWebAgentRuntime,
+  } from "./agent-runtime-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { setPwaRuntimeApplication } from "./pwa";
 
@@ -87,6 +91,7 @@
   let stopMetadataTracking: (() => void) | null = null;
   let disposeDatabaseStatus: (() => void) | null = null;
   let disposeCoordinationListener: (() => void) | null = null;
+  let disposeAgentRuntimeSettings: (() => void) | null = null;
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
     const browserProfiles = recentVaults.filter(
@@ -181,8 +186,10 @@
     stopMetadataTracking = null;
     disposeCoordinationListener?.();
     disposeDatabaseStatus?.();
+    disposeAgentRuntimeSettings?.();
     disposeCoordinationListener = null;
     disposeDatabaseStatus = null;
+    disposeAgentRuntimeSettings = null;
     await app.workspace.disposeWorkspaceHost().catch(() => undefined);
     await app.metadataCache.dispose().catch(() => undefined);
     for (const plugin of [...app.plugins.corePlugins].reverse()) {
@@ -241,6 +248,9 @@
       activeTask = "configuration";
       setTask(activeTask, "active");
       await app.configuration.load();
+      disposeAgentRuntimeSettings?.();
+      disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
+      syncWebAgentRuntime(app);
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -320,8 +330,10 @@
       }
       disposeCoordinationListener?.();
       disposeDatabaseStatus?.();
+      disposeAgentRuntimeSettings?.();
       disposeCoordinationListener = null;
       disposeDatabaseStatus = null;
+      disposeAgentRuntimeSettings = null;
       await session.close();
     } finally {
       disposePwaRuntimeApplication();

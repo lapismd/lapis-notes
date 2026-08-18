@@ -8,6 +8,7 @@ async function createBrowserVault(page: Page, name: string): Promise<void> {
   await expect(page.getByRole("button", { name: /Current workspace:/ })).toContainText(
     name,
   );
+  await expect(page.getByRole("button", { name: "Open Chat" })).toBeVisible();
   await expect(page.getByText("DB Owner", { exact: true })).toBeVisible();
 }
 

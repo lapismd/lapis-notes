@@ -106,14 +106,5 @@ function getRequiredBridge(): AgentRuntimeBridge {
 }
 
 export function createAgentProcessHost(): AgentProcessHost {
-  return hasNativeDesktopCapability("agent-runtime")
-    ? new DesktopAgentProcessHost()
-    : {
-        available: false,
-        async spawn(_options) {
-          throw new Error(
-            "Live agent runtimes require the desktop agent-runtime capability.",
-          );
-        },
-      };
+  return new DesktopAgentProcessHost();
 }

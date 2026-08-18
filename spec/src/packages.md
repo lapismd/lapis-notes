@@ -254,6 +254,10 @@ Sibling `@lapismd/ai-host` owns acpx, process spawn, the WebSocket server, and
 `lapis-ai-host serve`. Electron calls that library in-process. Web and
 Storybook attach only with a configured URL and token, and transport closure is
 forwarded to active plugin sessions.
+The web host persists those values as `web.agentRuntime.url` and
+`web.agentRuntime.token` in Settings. When the selected runtime is not Fake
+and no host is connected, chat tells the user to start the local server and
+set URL, port, and token.
 Electron, web, and root Storybook declare the sibling through an explicit
 `link:` dependency or a `link:`-valued root override.
 The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview. Its compiled

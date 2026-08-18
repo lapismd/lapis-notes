@@ -93,7 +93,9 @@ export async function prepareAiViewBootstrap(
           : { runtime: settings.defaultRuntime },
     });
     unavailableReason =
-      runtime.id === "fake" ? null : host.liveRuntimeUnavailableReason();
+      settings.defaultRuntime === "fake"
+        ? null
+        : host.liveRuntimeUnavailableReason();
   } catch (error) {
     runtime = host.fallbackRuntime();
     unavailableReason = errorMessage(error);

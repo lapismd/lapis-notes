@@ -4,19 +4,59 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const api = vi.hoisted(() => ({
   hasNativeDesktopBridge: vi.fn(() => false),
+  getNativeDesktopBridge: vi.fn(() => null as unknown),
+  getNativeDesktopCapability: vi.fn(() => null as unknown),
   setNativeDesktopBridge: vi.fn(),
   hasNativeDesktopCapability: vi.fn((_capability: string) => false),
 }));
 
+const host = vi.hoisted(() => ({
+  createAgentRuntimeBridge: vi.fn((config: { url: string; token: string }) => ({
+    runtime: "electron-desktop",
+    capabilities: {
+      "agent-runtime": {
+        id: "agent-runtime",
+        status: "available",
+        provider: "lapis-ai-host",
+        details: { url: config.url },
+      },
+    },
+    dispose: vi.fn(),
+  })),
+  maybeRegisterAgentRuntimeBridge: vi.fn(
+    (options: {
+      url?: string;
+      token?: string;
+      hasBridge?(): boolean;
+      register?(bridge: unknown): void;
+    }) => {
+      if (options.hasBridge?.()) return false;
+      if (!options.url?.trim() || !options.token?.trim()) return false;
+      options.register?.(
+        host.createAgentRuntimeBridge({
+          url: options.url,
+          token: options.token,
+        }),
+      );
+      return true;
+    },
+  ),
+}));
+
 vi.mock("@lapis-notes/api", () => api);
+vi.mock("@lapismd/ai-host/client", () => host);
 
 import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
 
 describe("web agent-runtime attach", () => {
   beforeEach(() => {
     api.hasNativeDesktopBridge.mockReturnValue(false);
+    api.getNativeDesktopBridge.mockReturnValue(null);
+    api.getNativeDesktopCapability.mockReturnValue(null);
     api.hasNativeDesktopCapability.mockReturnValue(false);
     api.setNativeDesktopBridge.mockReset();
+    host.createAgentRuntimeBridge.mockClear();
+    host.maybeRegisterAgentRuntimeBridge.mockClear();
     delete (globalThis as { __LAPIS_AGENT_RUNTIME__?: unknown })
       .__LAPIS_AGENT_RUNTIME__;
   });
@@ -28,21 +68,65 @@ describe("web agent-runtime attach", () => {
   });
 
   it("registers a bridge when a test double URL and token are set", () => {
-    (
-      globalThis as {
-        __LAPIS_AGENT_RUNTIME__?: { url: string; token: string };
-      }
-    ).__LAPIS_AGENT_RUNTIME__ = {
-      url: "ws://127.0.0.1:7345",
-      token: "test-token",
-    };
     api.hasNativeDesktopCapability.mockReturnValue(true);
-    expect(registerWebAgentRuntimeBridge()).toBe(true);
+    expect(
+      registerWebAgentRuntimeBridge({
+        url: "ws://127.0.0.1:7345",
+        token: "test-token",
+      }),
+    ).toBe(true);
     expect(api.setNativeDesktopBridge).toHaveBeenCalledOnce();
     expect(api.hasNativeDesktopCapability("agent-runtime")).toBe(true);
   });
 
-  it("registers the bridge before constructing AiPlugin", () => {
+  it("replaces an existing lapis-ai-host bridge when settings change", () => {
+    const previous = { dispose: vi.fn() };
+    api.hasNativeDesktopBridge.mockReturnValue(true);
+    api.getNativeDesktopBridge.mockReturnValue(previous);
+    api.getNativeDesktopCapability.mockReturnValue({
+      provider: "lapis-ai-host",
+    });
+    expect(
+      registerWebAgentRuntimeBridge({
+        url: "ws://127.0.0.1:8000",
+        token: "next-token",
+      }),
+    ).toBe(true);
+    expect(previous.dispose).toHaveBeenCalledOnce();
+    expect(host.createAgentRuntimeBridge).toHaveBeenCalledWith({
+      url: "ws://127.0.0.1:8000",
+      token: "next-token",
+    });
+    expect(api.setNativeDesktopBridge).toHaveBeenCalledOnce();
+  });
+
+  it("detaches a lapis-ai-host bridge when URL or token is cleared", () => {
+    const previous = { dispose: vi.fn() };
+    api.hasNativeDesktopBridge.mockReturnValue(true);
+    api.getNativeDesktopBridge.mockReturnValue(previous);
+    api.getNativeDesktopCapability.mockReturnValue({
+      provider: "lapis-ai-host",
+    });
+    expect(registerWebAgentRuntimeBridge({ url: "", token: "" })).toBe(false);
+    expect(previous.dispose).toHaveBeenCalledOnce();
+    expect(api.setNativeDesktopBridge).toHaveBeenCalledWith(null);
+  });
+
+  it("does not overwrite a desktop IPC bridge", () => {
+    api.hasNativeDesktopBridge.mockReturnValue(true);
+    api.getNativeDesktopCapability.mockReturnValue({
+      provider: "electron-desktop",
+    });
+    expect(
+      registerWebAgentRuntimeBridge({
+        url: "ws://127.0.0.1:7345",
+        token: "test-token",
+      }),
+    ).toBe(false);
+    expect(api.setNativeDesktopBridge).not.toHaveBeenCalled();
+  });
+
+  it("registers the env-backed bridge before constructing AiPlugin", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
       "utf8",
@@ -50,6 +134,12 @@ describe("web agent-runtime attach", () => {
     expect(source).toContain("registerWebAgentRuntimeBridge");
     expect(source.indexOf("registerWebAgentRuntimeBridge()")).toBeLessThan(
       source.indexOf("plugin: AiPlugin"),
+    );
+    expect(source.indexOf("registerWebAgentRuntimeSettings(app)")).toBeGreaterThan(
+      source.indexOf("await app.configuration.load()"),
+    );
+    expect(source.indexOf("syncWebAgentRuntime(app)")).toBeLessThan(
+      source.indexOf("await app.plugins.loadPlugins"),
     );
   });
 });

@@ -301,7 +301,11 @@ sessions while the reserved `model` capability stays unavailable. The plugin
 obtains live runtimes from that host factory and keeps adapters off the root
 export. Cursor uses the same ACP runtime as Codex through the selected agent
 name. Process execution lives in sibling `@lapismd/ai-host`, used in-process by
-Electron and as `lapis-ai-host serve` for WebSocket clients. Chat sessions
+Electron and as `lapis-ai-host serve` for WebSocket clients.
+The web host attaches or replaces that WebSocket after configuration load
+from persisted Settings or env-prefilled URL and token, without overwriting a
+desktop IPC bridge. Chat shows a start-server message when a live runtime is
+selected and no host is connected. Chat sessions
 persist runtime, provider, model, and thinking context through plugin data.
 Codex model listing uses the process host while Cursor model listing uses an
 agent-scoped disposable acpx session. Cleanup falls back to local session

@@ -39,6 +39,9 @@ Explorer native copy, open, and reveal extras stay on the File Explorer
 dispatch until a listener exists.
 AI contributes an Open Chat left-ribbon action through `addRibbonIcon`, so it
 appears only while the plugin is enabled and reuses the existing chat command.
+Web registers the same enabled-by-default AI plugin and ribbon action. Host
+Settings own the agent-server URL and token; the plugin owns the start-server
+unavailable copy when a live runtime is selected without a connected host.
 A vault without workspace.json seeds File Explorer then Search on the left and
 Outline, File Properties, then Tags on the right when those plugins loaded.
 Save and Load workspace layout commands store named snapshots; Reset reapplies
