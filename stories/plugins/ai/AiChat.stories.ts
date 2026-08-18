@@ -452,7 +452,7 @@ export const AppToolReadTranscript: Story = {
     docs: {
       description: {
         story:
-          "A completed notes_read call is projected through the reserved lapis-tools server into the ordinary tool transcript.",
+          "A completed read call is projected through the reserved lapis-tools server into the ordinary tool transcript.",
       },
     },
     visualDelta: {
@@ -468,7 +468,7 @@ export const AppToolReadTranscript: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const trigger = await canvas.findByRole("button", {
-      name: "Show details for notes_read",
+      name: "Show details for read",
     });
     await userEvent.click(trigger);
     expect(canvas.getAllByText(/Notes\/alpha\.md/).length).toBeGreaterThan(0);
@@ -490,7 +490,7 @@ export const AppToolPatchApproval: Story = {
     docs: {
       description: {
         story:
-          "A pending notes_patch request shows its scoped path, before/after diff, and the three memory-only decisions.",
+          "A pending edit request shows its scoped path, before/after diff, and the three memory-only decisions.",
       },
     },
     visualDelta: {
@@ -527,7 +527,7 @@ export const AppToolSessionGrant: Story = {
     docs: {
       description: {
         story:
-          "One Allow for this session decision is followed by two successful notes_patch calls, demonstrating that the second call did not prompt again.",
+          "One Allow for this session decision is followed by two successful edit calls, demonstrating that the second call did not prompt again.",
       },
     },
     visualDelta: {
@@ -544,7 +544,7 @@ export const AppToolSessionGrant: Story = {
     const canvas = within(canvasElement);
     await expect(await canvas.findByText(/Approval approved/)).toBeVisible();
     expect(
-      canvas.getAllByRole("button", { name: "Show details for notes_patch" }),
+      canvas.getAllByRole("button", { name: "Show details for edit" }),
     ).toHaveLength(2);
     expect(canvas.queryByRole("button", { name: /Allow once/ })).toBeNull();
   },

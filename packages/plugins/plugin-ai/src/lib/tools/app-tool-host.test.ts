@@ -296,6 +296,36 @@ describe("AppToolHost approvals", () => {
     expect(approvals).toHaveLength(2);
   });
 
+  it("concatenates multi-file approval hunks", async () => {
+    const { host, registry } = createFixture();
+    registry.register(
+      bundledOwner,
+      createTool("apply_patch", {
+        effect: "write",
+        describeApproval: async () => ({
+          title: "Patch 2 files",
+          paths: ["Notes/a.md", "Notes/b.md"],
+          diffs: [
+            { path: "Notes/a.md", before: "old-a", after: "new-a" },
+            { path: "Notes/b.md", before: "old-b", after: "new-b" },
+          ],
+        }),
+        execute: async () => ({
+          content: [{ type: "text" as const, text: "patched" }],
+        }),
+      }),
+    );
+    createSession(host);
+    host.approvals.subscribe((request) => {
+      expect(request.details).toMatchObject({
+        path: "Notes/a.md, Notes/b.md",
+        diff: "# Notes/a.md\n--- before\nold-a\n+++ after\nnew-a\n\n# Notes/b.md\n--- before\nold-b\n+++ after\nnew-b",
+      });
+      host.approvals.respond(request.id, "allow-once");
+    });
+    await invoke(host, "apply_patch");
+  });
+
   it("denies without executing and cancels pending approval on close", async () => {
     const { host, registry } = createFixture();
     const execute = vi.fn(async () => ({ content: [] }));

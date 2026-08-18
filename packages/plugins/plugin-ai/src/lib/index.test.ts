@@ -29,6 +29,12 @@ describe("@lapis-notes/ai public exports", () => {
     expect(manifest.dependencies?.acpx).toBeUndefined();
     expect(manifest.dependencies?.["@lapis-notes/ai-host"]).toBeUndefined();
     expect(manifest.dependencies?.["@lapismd/ai-host"]).toBeUndefined();
+    const plugin = readFileSync(
+      path.resolve(process.cwd(), "src/lib/ai-plugin.ts"),
+      "utf8",
+    );
+    expect(plugin).toContain("createVaultFileAppTools");
+    expect(plugin).not.toContain("@lapismd/ai-host");
     expect(source).toContain("export { AiPlugin");
     expect(source).toContain("FakeAgentRuntime");
     expect(source).toContain("createAgentRuntimeRegistry");

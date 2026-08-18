@@ -144,7 +144,7 @@ AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-095`
 - [x] Canonical requirements, ownership chapters, verification mappings, and spec-first routing
 - [x] API registry, trusted scopes, and plugin lifecycle
 - [x] AI snapshots, master enablement, per-tool opt-ins, approvals, and transcript projection
-- [x] Search `notes_search` and Markdown `notes_read` / `notes_list` / `notes_patch`
+- [x] Search `notes_search`, Markdown `notes_list`, and API `read` / `write` / `edit` / `apply_patch` over `@lapismd/ai-host/file-tools`
 - [x] AI Host stdio MCP shim, loopback broker, protocol v3, ACP, Codex Native, and authenticated remote WebSocket
 - [x] Five governed app-tool Storybook scenarios with approved canonical baselines
 - [x] Rebased onto History settings so Workspace Shell asserts the seven bundled plugins from `LN-CAT-077`

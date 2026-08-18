@@ -54,8 +54,10 @@ authoring composition, settings, and editor-demo acceptance remain governed by
 the Markdown Plugin overview and Editor Demo chapters rather than being copied
 into individual panel contracts. Document title-bar actions and View-menu
 contributions likewise use the API workspace bridge and are not panel chrome.
-Markdown application tools are package-owned non-view contributions and do not
-open, relocate, or depend on these panel registrations.
+Markdown application tools remain package-owned non-view contributions and do
+not open, relocate, or depend on these panel registrations. Markdown now owns
+only `notes_list`; bounded reads and mutating file edits belong to API file
+tools.
 Their narrow package entry likewise exports no panel component, placement
 metadata, workspace controller, or view command.
 The document Reading surface removes Mira Editor's framework border; movable

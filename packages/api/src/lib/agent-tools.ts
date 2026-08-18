@@ -24,7 +24,9 @@ export interface AppToolApprovalDetails {
   title: string;
   description?: string;
   path?: string;
+  paths?: string[];
   diff?: { before: string; after: string };
+  diffs?: Array<{ path?: string; before: string; after: string }>;
 }
 
 export interface AppToolExecutionScope {
@@ -139,6 +141,11 @@ export type AppToolRegistryChange = {
   ownerPluginId: string;
   reason: "registered" | "unregistered";
 };
+
+export {
+  createVaultFileAppTools,
+  createVaultFileOperations,
+} from "./file-tools";
 
 export const APP_TOOL_NAME_PATTERN = /^[a-z][a-z0-9_]{0,63}$/;
 

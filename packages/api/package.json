@@ -4,6 +4,7 @@
   "description": "Lapis Notes API",
   "type": "module",
   "dependencies": {
+    "@lapismd/ai-host": "*",
     "@lapismd/design-core": "^0.1.0",
     "@lapismd/mira": "^0.0.1",
     "@huggingface/transformers": "^4.2.0",

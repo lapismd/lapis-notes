@@ -116,6 +116,7 @@ not installed or when an embedding model is unavailable.
 | Protected area                                                             | Required chapter                                                                         |
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `packages/api` source or manifest                                          | `packages.md`, `architecture.md`                                                         |
+| `packages/api/src/lib/file-tools`                                          | `packages.md`, `architecture.md`, `ai-plugin.md`                                         |
 | API plugin lifecycle and workspace managed-plugin bridge                   | `plugin-model.md`, `packages.md`, `architecture.md`                                      |
 | `packages/ui` source or manifest                                           | `packages.md`, `ui-and-styling.md`                                                       |
 | `packages/workspace` source or manifest                                    | `packages.md`, `architecture.md`, `workspace-shell.md`                                   |

@@ -96,7 +96,8 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-077 | `@lapis-notes/ai` MUST own asynchronous chat preparation and conversation-location tab reuse. `@lapis-notes/api` MUST remain limited to generic main-tab creation, sidebar-leaf registration, activation, and reveal contracts; workspace packages MUST NOT acquire AI-specific navigation policy.                                                                                                                                                                                                                                                                                                                                                    |
 | LN-PKG-078 | `@lapis-notes/api` MUST own the generic `ViewAccess` registration contract, plugin-name command prefixing, and live command-palette projection. First-party plugins MUST own their view classifications and activation callbacks, while the repository-local validator MUST own first-party-only enforcement.                                                                                                                                                                                                                                                                                                                                         |
 | LN-PKG-079 | `@lapis-notes/history` MUST live at `packages/plugins/plugin-history`, expose build, check, test, and publint, and publish its plugin, panel, views, and settings. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist revisions only through `AppDatabase`.                                                                                                                                                                                                                                                                                                                                              |
-| LN-PKG-080 | `@lapis-notes/api` MUST own only transport-neutral app-tool contracts and lifecycle. Search and Markdown MUST own note tools, AI MUST own snapshots and policy, and sibling `@lapismd/ai-host` plus Electron MUST own live local or authenticated-remote MCP transport without becoming durable tool, note-content, or conversation authorities. |
+| LN-PKG-080 | `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. AI MUST own snapshots and policy. Sibling `@lapismd/ai-host` plus Electron MUST own live MCP transport without becoming durable tool, note-content, or conversation authorities. |
+| LN-PKG-094 | `@lapis-notes/api` MAY depend on `@lapismd/ai-host` through the existing root `link:` override and MUST import only `@lapismd/ai-host/file-tools`. `@lapis-notes/ai`, Search, and Markdown MUST NOT depend on `@lapismd/ai-host`. |
 | LN-PKG-081 | Root Docker visual staging MUST update sibling dependency overrides in `pnpm-workspace.yaml`, regenerate the matching lockfile, and restore the root manifest, workspace configuration, and original lockfile before a frozen relink after capture. It MUST NOT depend on the retired manifest-level `pnpm.overrides` shape. |
 | LN-PKG-083 | `@lapis-notes/wordcount` MUST live at `packages/plugins/plugin-wordcount` as an enabled-by-default bundled plugin. It MUST depend on `@lapis-notes/api` and MUST NOT depend on `@lapis-notes/ui`. |
 | LN-PKG-089 | `@lapis-notes/spellcheck` MUST live at `packages/plugins/plugin-spellcheck` as an enabled-by-default core plugin. It MUST depend on the API and `harper.js` without importing Design Core presentation or `@lapis-notes/ui`. |
@@ -140,12 +141,14 @@ its unrelated UI runtime.
 The Markdown package keeps canonical movable-panel registration, compatibility
 aliases, default placement, and opening-command metadata in one package-owned
 registry. This coordination is internal and does not add a package export.
-It also owns the scoped read, list, and atomic patch application tools; those
-callbacks capture Vault directly and expose no editor, AI host, or MCP service.
-Markdown and Search expose narrow `./agent-tools` entries for their portable
-factories, while AI's existing `./runtimes` entry exposes the host and desktop
-bridge coordinator needed by the explicit real-agent diagnostic. These entries
-do not make the MCP SDK a dependency of either domain package.
+It also owns the scoped `notes_list` application tool; that callback captures
+Vault directly and exposes no editor, AI host, or MCP service.
+API owns Vault-backed `read`, `write`, `edit`, and `apply_patch` wrappers over
+the portable file-tools kernel. Markdown and Search expose narrow
+`./agent-tools` entries for their portable factories, while AI's existing
+`./runtimes` entry exposes the host and desktop bridge coordinator needed by
+the explicit real-agent diagnostic. These entries do not make the MCP SDK a
+dependency of either domain package.
 The worker client uses a narrow API subpath so provider workers never load the
 application manager or presentation modules.
 

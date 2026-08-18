@@ -1,5 +1,6 @@
 import {
   Plugin,
+  createVaultFileAppTools,
   hasNativeDesktopCapability,
   type App,
   type PluginManifest,
@@ -287,6 +288,9 @@ export class AiPlugin extends Plugin {
     this.data = parseAiPluginData(await this.loadData());
     this.addSettingTab(new AiSettingsTab(this.app, this));
     registerAiSettings(this);
+    for (const tool of createVaultFileAppTools(this.app.vault)) {
+      this.registerAgentTool(tool);
+    }
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
         for (const listener of this.#conversationMoveListeners) {

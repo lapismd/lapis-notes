@@ -345,9 +345,11 @@ export const CommunityToolOptIn: Story = {
     await expect(community).toHaveAttribute("data-state", "unchecked");
     for (const [name, contributor] of [
       ["notes_search", "Search"],
-      ["notes_read", "Markdown"],
       ["notes_list", "Markdown"],
-      ["notes_patch", "Markdown"],
+      ["read", "AI"],
+      ["write", "AI"],
+      ["edit", "AI"],
+      ["apply_patch", "AI"],
     ] as const) {
       const toggle = within(dialog).getByRole("switch", { name });
       await expect(toggle).toHaveAttribute("data-state", "checked");

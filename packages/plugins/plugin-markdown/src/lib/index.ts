@@ -63,8 +63,6 @@ export { createLapisMiraFileAdapter } from "$lib/mira/file-adapter";
 export {
   createMarkdownNoteTools,
   createNotesListTool,
-  createNotesPatchTool,
-  createNotesReadTool,
 } from "$lib/agent-tools/note-tools";
 
 export { MarkdownView, MarkdownViewType };

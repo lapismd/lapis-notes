@@ -73,9 +73,10 @@ instead of transferring authority to a newly registered callback.
 Bundled domain plugins register their tools through that same lifecycle helper
 and capture their own services rather than receiving execution services in the
 host-created invocation context.
-Markdown registers its three note callbacks during plugin load, so ordinary
-plugin unload disposes them before any stale binding can invoke their captured
-Vault.
+Markdown registers `notes_list` during plugin load. AI registers the API
+Vault-backed `read`, `write`, `edit`, and `apply_patch` tools during its own
+load, so ordinary plugin unload disposes them before any stale binding can
+invoke their captured Vault.
 
 ## Distribution and provenance
 

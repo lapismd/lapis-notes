@@ -22,10 +22,10 @@ pnpm ai:smoke:probe:codex-native
 
 Each explicit command starts an isolated loopback host and an in-memory Lapis
 vault over the same deterministic note content. It requires the selected agent
-to invoke `notes_search`, `notes_read`, and approved `notes_patch` through the
+to invoke `notes_search`, `read`, and approved `edit` through the
 real stdio MCP shim, then closes that binding, switches to the next supported
-agent lane, and verifies the new binding receives the same four descriptors and
-can invoke `notes_list` plus `notes_read`. The existing provider-native edit and
+agent lane, and verifies the new binding receives the same six descriptors and
+can invoke `notes_list` plus `read`. The existing provider-native edit and
 question checks remain in the lane. These probes use authenticated agents; they
 are never part of `pnpm test` or CI.
 
@@ -47,15 +47,15 @@ In the Live Host story, run this checklist first with Codex ACP and then use the
 Agent submenu to repeat it with Cursor ACP:
 
 1. Ask the agent to call `notes_search` for `bridge-search-token`, then
-   `notes_read` for `Notes/Agent Smoke.md`. Verify both calls identify
+   `read` for `Notes/Agent Smoke.md`. Verify both calls identify
    `lapis-tools`, remain under `Notes`, and the response reaches
    `lapis-smoke-ready` without exposing a bridge credential.
-2. Ask `notes_patch` to replace `status: draft` with `status: reviewed` in
+2. Ask `edit` to replace `status: draft` with `status: reviewed` in
    `Notes/Patch Target.md`. Verify the drawer shows the scoped path, before and
    after diff, and Allow once / Allow for this session / Deny. Allow once and
    verify one completed tool lifecycle and the atomic file change.
-3. Switch agents and ask for `notes_list` followed by `notes_read`. Verify the
-   new binding exposes the same four logical note tools, the old binding is not
+3. Switch agents and ask for `notes_list` followed by `read`. Verify the
+   new binding exposes the same six logical file tools, the old binding is not
    resumed, and the conversation scope remains `Notes`. Restore the patch
    target to `status: draft` before the second full pass.
 4. Send “Inspect `src/fixture.ts` and explain the current `smokeValue`. Show the

@@ -122,6 +122,14 @@ export default defineConfig(tableRequirements(), {
           chapters: ["spec/src/packages.md", "spec/src/architecture.md"],
         },
         {
+          pattern: "^packages/api/src/lib/file-tools/",
+          chapters: [
+            "spec/src/packages.md",
+            "spec/src/architecture.md",
+            "spec/src/plugins/ai/index.md",
+          ],
+        },
+        {
           pattern: "^packages/api/src/lib/storage/(?!desktop-native\\.ts).+",
           chapters: ["spec/src/app-database.md"],
         },

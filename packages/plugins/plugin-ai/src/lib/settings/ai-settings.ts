@@ -57,9 +57,22 @@ const THINKING_LEVELS = new Set<AiThinkingLevel>([
   "high",
 ]);
 
+const LEGACY_FILE_TOOL_NAMES: Record<string, string> = {
+  notes_read: "read",
+  notes_patch: "edit",
+};
+
+function migrateLegacyFileToolName(name: string): string {
+  return LEGACY_FILE_TOOL_NAMES[name] ?? name;
+}
+
 function normalizeNameList(value: readonly string[] | undefined): string[] {
   return [
-    ...new Set((value ?? []).map((item) => item.trim()).filter(Boolean)),
+    ...new Set(
+      (value ?? [])
+        .map((item) => migrateLegacyFileToolName(item.trim()))
+        .filter(Boolean),
+    ),
   ].sort();
 }
 

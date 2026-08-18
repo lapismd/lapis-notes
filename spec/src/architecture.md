@@ -71,6 +71,7 @@ production hosts continue to load that plugin.
 | LN-ARCH-059 | API MUST compose generic view access metadata into the existing plugin command lifecycle and project active API commands into the Design Core palette; first-party plugins retain placement, reuse, activation, and reveal policy for their own views.                                                                                                                                                                                                                                                                                                                                                                                |
 | LN-ARCH-060 | API MUST own the transport-neutral application tool registry, domain plugins MUST own their tool implementations, AI MUST own policy and approvals, and sibling `@lapismd/ai-host` MUST own MCP transport. API, Search, Markdown, and portable AI code MUST NOT import MCP, ACP, acpx, or vendor agent SDKs. Authenticated remote transport MUST leave execution and note content in the owning App. |
 | LN-ARCH-061 | Native Explorer copy, open, and reveal extras MUST remain File Explorer consumer work over Design Core's built-in vault-path menu. Design Core MUST NOT hardcode system paths or OS reveal. |
+| LN-ARCH-062 | Generic file-tool kernels MAY live in `@lapismd/ai-host/file-tools`. API MUST supply Vault operations and AppTool wrappers. The kernel MUST NOT own conversation scope, approvals, or Vault I/O. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core
@@ -100,6 +101,8 @@ name; invocation grants and binding-local descriptor snapshots are runtime
 state.
 Search owns `notes_search` and applies conversation scope through the generic
 database path-prefix option before result ranking and limits.
+Markdown owns `notes_list`. API owns Vault-backed `read`, `write`, `edit`, and
+`apply_patch` wrappers over the portable `@lapismd/ai-host/file-tools` kernel.
 The live transport is an AI Host-owned loopback broker plus official-SDK stdio
 shim. Electron and the authenticated remote client carry only generic bridge
 commands and events; they never acquire registry, policy, or transcript
@@ -109,9 +112,10 @@ the binding-local bridge from that identity, and commits that same identity
 only after startup succeeds. Replacing an agent closes the old bridge and its
 approval grants before a fresh snapshot is opened for the next binding.
 The explicit real-agent probe composes these same owner boundaries through
-narrow package entries: Search and Markdown supply callbacks, AI supplies the
-binding coordinator, and AI Host supplies the authenticated MCP transport. Its
-volatile App-tool vault cannot mutate the durable seeded workspace.
+narrow package entries: Search and Markdown supply list/search callbacks, API
+supplies Vault file tools, AI supplies the binding coordinator, and AI Host
+supplies the authenticated MCP transport. Its volatile App-tool vault cannot
+mutate the durable seeded workspace.
 
 Vault glob discovery remains an API-owned in-memory file-tree concern. It may
 maintain filename indexes for enumeration, but it does not move arbitrary

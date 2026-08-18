@@ -118,8 +118,8 @@ export class AppToolApprovalBroker {
       ],
       details: {
         description: details?.description,
-        path: details?.path,
-        diff: details?.diff ? formatApprovalDiff(details.diff) : undefined,
+        path: details?.path ?? details?.paths?.join(", "),
+        diff: formatApprovalDiff(details),
       },
     };
 
@@ -515,8 +515,23 @@ function byteLength(value: string): number {
   return new TextEncoder().encode(value).byteLength;
 }
 
-function formatApprovalDiff(diff: { before: string; after: string }): string {
-  return `--- before\n${diff.before}\n+++ after\n${diff.after}`;
+function formatApprovalDiff(
+  details: AppToolApprovalDetails | undefined,
+): string | undefined {
+  if (!details) return undefined;
+  const hunks = [
+    ...(details.diff
+      ? [{ path: details.path, before: details.diff.before, after: details.diff.after }]
+      : []),
+    ...(details.diffs ?? []),
+  ];
+  if (hunks.length === 0) return undefined;
+  return hunks
+    .map((hunk) => {
+      const header = hunk.path ? `# ${hunk.path}\n` : "";
+      return `${header}--- before\n${hunk.before}\n+++ after\n${hunk.after}`;
+    })
+    .join("\n\n");
 }
 
 function isAppToolApprovalDecision(

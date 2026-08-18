@@ -27,13 +27,19 @@ describe("AiPlugin contracts", () => {
     expect(
       mergeAiSettings({
         appToolsEnabled: false,
-        disabledAppToolNames: [" notes_search ", "notes_search", ""],
+        disabledAppToolNames: [
+          " notes_search ",
+          "notes_search",
+          "notes_read",
+          "notes_patch",
+          "",
+        ],
         enabledAppToolNames: [" story_word_count ", "story_word_count", ""],
         enabledCommunityToolPluginIds: ["zeta", " alpha ", "zeta", ""],
       }),
     ).toMatchObject({
       appToolsEnabled: false,
-      disabledAppToolNames: ["notes_search"],
+      disabledAppToolNames: ["edit", "notes_search", "read"],
       enabledAppToolNames: ["story_word_count"],
       enabledCommunityToolPluginIds: ["alpha", "zeta"],
     });

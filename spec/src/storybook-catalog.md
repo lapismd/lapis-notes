@@ -83,8 +83,10 @@ Storybook Vite aliases resolve first-party plugin sources, including
 
 The application-tool story family uses deterministic transcript seeds and an
 inert resumable runtime to keep approval cards pending without starting an
-agent. The community-tool shell story mutates the real AI settings contract and
-verifies the disabled and newly enabled per-tool states.
+agent. Seeded read and write cards use the OpenClaw-named `read` and `edit`
+tools. The community-tool shell story mutates the real AI settings contract and
+verifies Search, Markdown `notes_list`, and API file-tool enablement plus the
+disabled and newly enabled community-tool states.
 
 ## Show Code source contract
 

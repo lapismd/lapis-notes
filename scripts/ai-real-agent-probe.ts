@@ -22,6 +22,7 @@ import {
 import type { AgentRuntime, AgentSession } from "@lapis-notes/ai";
 import { createAgentRuntimeBridge } from "@lapismd/ai-host/client";
 import { generateToken, serveAgentHost } from "@lapismd/ai-host";
+import { createVaultFileAppTools } from "@lapis-notes/api/agent-tools";
 import { createMarkdownNoteTools } from "@lapis-notes/markdown/agent-tools";
 import { createNotesSearchTool } from "@lapis-notes/search/agent-tools";
 import type { SearchQueryParams, SearchQueryResult } from "@lapis-notes/search";
@@ -44,10 +45,12 @@ const workspace = path.resolve(
 const expectedToken = "lapis-smoke-ready";
 const patchedToken = "lapis-smoke-patched";
 const requiredAppTools = [
+  "apply_patch",
+  "edit",
   "notes_list",
-  "notes_patch",
-  "notes_read",
   "notes_search",
+  "read",
+  "write",
 ];
 
 function laneFromArgs(): ProbeLane {
@@ -220,7 +223,11 @@ async function createAppToolHarness(noteContent: string) {
     source: "core" as const,
     provenance: "bundled" as const,
   };
-  const registrations = [search, ...createMarkdownNoteTools(vault)].map(
+  const registrations = [
+    search,
+    ...createMarkdownNoteTools(vault),
+    ...createVaultFileAppTools(vault),
+  ].map(
     (tool) => registry.register(owner, tool),
   );
   const host = new AppToolHost(registry, () => ({
@@ -364,48 +371,48 @@ async function run(): Promise<void> {
       throw new Error(`${lane} notes_search response did not complete`);
     }
 
-    console.log(`[ai-probe] ${lane}: calling notes_read`);
+    console.log(`[ai-probe] ${lane}: calling read`);
     const readResultPromise = timeout(
       consumeTurn(session),
-      `${lane} notes_read`,
+      `${lane} read`,
     );
     await session.send(
-      "Call the lapis-tools notes_read tool for Notes/Agent Smoke.md. Return only its expected answer token. Do not use shell or filesystem tools.",
+      "Call the lapis-tools read tool for Notes/Agent Smoke.md. Return only its expected answer token. Do not use shell or filesystem tools.",
     );
     const readResult = await readResultPromise;
     if (!readResult.response.includes(expectedToken)) {
       throw new Error(
-        `${lane} notes_read omitted the expected token; response was ${JSON.stringify(readResult.response.slice(0, 240))}`,
+        `${lane} read omitted the expected token; response was ${JSON.stringify(readResult.response.slice(0, 240))}`,
       );
     }
 
-    console.log(`[ai-probe] ${lane}: approving notes_patch once`);
+    console.log(`[ai-probe] ${lane}: approving edit once`);
     const patchResultPromise = timeout(
       consumeTurn(session),
-      `${lane} notes_patch`,
+      `${lane} edit`,
     );
     await session.send(
-      `Call the lapis-tools notes_patch tool for Notes/Agent Smoke.md, replacing exactly ${expectedToken} with ${patchedToken}. After it succeeds reply with lapis-patch-complete. Do not use shell or filesystem tools.`,
+      `Call the lapis-tools edit tool for Notes/Agent Smoke.md, replacing exactly ${expectedToken} with ${patchedToken}. After it succeeds reply with lapis-patch-complete. Do not use shell or filesystem tools.`,
     );
     const patchResult = await patchResultPromise;
     if (!patchResult.response.includes("lapis-patch-complete")) {
-      throw new Error(`${lane} notes_patch response did not complete`);
+      throw new Error(`${lane} edit response did not complete`);
     }
     const patchedNote = await appTools.vault.adapter.read(
       "Notes/Agent Smoke.md",
     );
     if (!patchedNote.includes(patchedToken)) {
       throw new Error(
-        `${lane} reported notes_patch success without changing the note`,
+        `${lane} reported edit success without changing the note`,
       );
     }
     if ((appTools.approvals.get(bindingId) ?? 0) !== 1) {
       throw new Error(
-        `${lane} notes_patch did not require exactly one app approval`,
+        `${lane} edit did not require exactly one app approval`,
       );
     }
     const firstBindingCalls = appTools.toolNames.get(bindingId) ?? [];
-    for (const name of ["notes_search", "notes_read", "notes_patch"]) {
+    for (const name of ["notes_search", "read", "edit"]) {
       if (!firstBindingCalls.includes(name)) {
         throw new Error(`${lane} did not invoke ${name} through lapis-tools`);
       }
@@ -479,7 +486,7 @@ async function run(): Promise<void> {
       `${nextLane} switched binding`,
     );
     await switchedSession.send(
-      `Call lapis-tools notes_list for Notes, then notes_read for Notes/Agent Smoke.md. Reply with ${patchedToken} and lapis-switch-complete. Do not use shell or filesystem tools.`,
+      `Call lapis-tools notes_list for Notes, then read for Notes/Agent Smoke.md. Reply with ${patchedToken} and lapis-switch-complete. Do not use shell or filesystem tools.`,
     );
     const switchResult = await switchResultPromise;
     if (
@@ -491,7 +498,7 @@ async function run(): Promise<void> {
       );
     }
     const switchedCalls = appTools.toolNames.get(switchedBindingId) ?? [];
-    for (const name of ["notes_list", "notes_read"]) {
+    for (const name of ["notes_list", "read"]) {
       if (!switchedCalls.includes(name)) {
         throw new Error(`${nextLane} switched binding did not invoke ${name}`);
       }

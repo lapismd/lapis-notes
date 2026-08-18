@@ -45,8 +45,9 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-084 | Markdown Source and Live Preview editors MUST compose the API language-service diagnostic extension with completion and hover disabled. Reading mode MUST remain outside the CodeMirror diagnostic lifecycle. |
 | LN-MD-090 | Markdown's full editing surface MUST compose the public API embedded editor surface so file views and plugin-owned embedded editors resolve the same registered Markdown extension stack, configuration refresh, scrolling, and source fallback lifecycle. In a file leaf, its flex wrapper MUST constrain that surface so its Design Core Scroll Area owns the one usable vertical document scroll range. |
 | LN-MD-091 | A Markdown file leaf MAY receive a serialized return target containing a registered view type, label, icon, and state. While editing, the title action MUST restore that view in the same leaf, preserve the current file, support Mod+click in a right split, and leave Markdown Reading and Source controls available in the pane menu. |
-| LN-MD-093 | Markdown MUST register `notes_read` and `notes_list` through the application tool registry. Both MUST accept only normalized Markdown paths inside the trusted conversation scope, reject application-private directories, and return deterministically ordered bounded results. |
-| LN-MD-094 | Markdown MUST register `notes_patch` as a write-effect application tool. It MUST preview the target and text replacement for approval, then use atomic vault processing to replace exactly one current match; invalid scope, conflicts, cancellation, and denial MUST leave the file unchanged. |
+| LN-MD-093 | Markdown MUST register `notes_list` through the application tool registry. It MUST accept only normalized Markdown paths inside the trusted conversation scope, reject application-private directories, and return deterministically ordered bounded results. |
+| LN-MD-094 | Markdown MUST NOT register `notes_patch`. Unique exact-hunk replacement belongs to API `edit`. Invalid scope, conflicts, cancellation, and denial MUST leave the target file unchanged. |
+| LN-MD-100 | Markdown MUST NOT register `notes_read`. Bounded scoped file reads belong to the API `read` tool. |
 | LN-MD-097 | Markdown `extractMetadata` MUST run off the renderer thread through a worker. Vault I/O, link resolution, `$state` apply, and `AppDatabase` writes MUST stay on the main thread. `read()` MAY use the same parse synchronously when a worker is unavailable. |
 | LN-MD-099 | Published `parse-metadata` MUST import the metadata worker as `./metadata-worker?worker&inline` without a `.ts` suffix so Vite hosts resolve the packaged `metadata-worker.js`. |
 
@@ -71,15 +72,13 @@ replace Mira completion or hover behavior.
 The generic Problems leaf renders its live total through Design Core's
 ephemeral view badge; Markdown and Markdownlint contribute diagnostics but do
 not construct or persist that presentation.
-Markdown also owns `notes_read`, `notes_list`, and `notes_patch`. Their
-callbacks capture the plugin's Vault, accept only scoped portable Markdown
-paths outside `.obsidian`, `.lapis`, and `.trash`, and return bounded
-transport-neutral records. Patch conflicts abort the `Vault.process` callback,
-so the adapter performs no write for zero, repeated, drifted, or cancelled
-matches.
-The narrow `@lapis-notes/markdown/agent-tools` entry exposes only these
-transport-neutral factories for package tests and explicit diagnostics; the
-root plugin remains responsible for registering them in production.
+Markdown also owns `notes_list`. That callback captures the plugin's Vault,
+accepts only scoped portable Markdown paths outside `.obsidian`, `.lapis`, and
+`.trash`, and returns bounded transport-neutral records. Bounded reads and
+mutating file edits belong to API `read`, `write`, `edit`, and `apply_patch`.
+The narrow `@lapis-notes/markdown/agent-tools` entry exposes the list factory
+for package tests and explicit diagnostics; the root plugin remains responsible
+for registering it in production.
 
 Panel registration, package exports, and per-panel behavior are documented in
 the [Markdown panel specification](./panels/index.md). Shared
