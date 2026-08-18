@@ -543,6 +543,51 @@
             >
               <HistoryIcon aria-hidden="true" />
             </Button>
+          {/if}
+          {#if fileSearch}
+            <Popover.Root
+              bind:open={attachOpen}
+              onOpenChange={onAttachOpenChange}
+            >
+              <Popover.Trigger>
+                {#snippet child({ props }: { props: Record<string, unknown> })}
+                  <Button
+                    {...props}
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label="Attach file"
+                    data-testid="ai-chat-attach"
+                    disabled={initializing}
+                  >
+                    <PaperclipIcon aria-hidden="true" />
+                  </Button>
+                {/snippet}
+              </Popover.Trigger>
+              <Popover.Content
+                data-ai-part="attach-popover"
+                side="top"
+                align="start"
+                sideOffset={attachSideOffset}
+                avoidCollisions={false}
+              >
+                <CommandView.Root>
+                  <CommandView.Input placeholder="Search vault files" />
+                  <CommandView.List aria-label="Vault files">
+                    <CommandView.Empty>No vault files</CommandView.Empty>
+                    {#each attachItems as item (item.id)}
+                      <CommandView.Item
+                        value={`${item.label} ${item.id}`}
+                        onSelect={() => addAttachment(item)}
+                      >
+                        <CommandView.ItemLabel>{item.label}</CommandView.ItemLabel>
+                      </CommandView.Item>
+                    {/each}
+                  </CommandView.List>
+                </CommandView.Root>
+              </Popover.Content>
+            </Popover.Root>
+          {/if}
+          {#if repository}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger>
                 {#snippet child({ props }: { props: Record<string, unknown> })}
@@ -557,7 +602,10 @@
                   </Button>
                 {/snippet}
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="start">
+              <DropdownMenu.Content
+                data-ai-part="conversation-menu"
+                align="end"
+              >
                 <DropdownMenu.Group>
                   <DropdownMenu.Item
                     disabled={!controller.location}
@@ -602,49 +650,6 @@
                 </DropdownMenu.Group>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
-          {/if}
-          {#if fileSearch}
-            <Popover.Root
-              bind:open={attachOpen}
-              onOpenChange={onAttachOpenChange}
-            >
-              <Popover.Trigger>
-                {#snippet child({ props }: { props: Record<string, unknown> })}
-                  <Button
-                    {...props}
-                    size="icon-sm"
-                    variant="ghost"
-                    aria-label="Attach file"
-                    data-testid="ai-chat-attach"
-                    disabled={initializing}
-                  >
-                    <PaperclipIcon aria-hidden="true" />
-                  </Button>
-                {/snippet}
-              </Popover.Trigger>
-              <Popover.Content
-                data-ai-part="attach-popover"
-                side="top"
-                align="start"
-                sideOffset={attachSideOffset}
-                avoidCollisions={false}
-              >
-                <CommandView.Root>
-                  <CommandView.Input placeholder="Search vault files" />
-                  <CommandView.List aria-label="Vault files">
-                    <CommandView.Empty>No vault files</CommandView.Empty>
-                    {#each attachItems as item (item.id)}
-                      <CommandView.Item
-                        value={`${item.label} ${item.id}`}
-                        onSelect={() => addAttachment(item)}
-                      >
-                        <CommandView.ItemLabel>{item.label}</CommandView.ItemLabel>
-                      </CommandView.Item>
-                    {/each}
-                  </CommandView.List>
-                </CommandView.Root>
-              </Popover.Content>
-            </Popover.Root>
           {/if}
         {/snippet}
         {#snippet headerContext()}

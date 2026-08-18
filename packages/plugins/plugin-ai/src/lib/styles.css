@@ -227,6 +227,7 @@
 
 [data-ui-part="effort-popover"],
 [data-ai-part="attach-popover"],
+[data-ai-part="conversation-menu"],
 [data-ui-component="app-shell-settings-dialog"],
 [data-ui-component="workspace-settings"] {
   --font-sans: "DM Sans Variable", sans-serif;
@@ -241,6 +242,14 @@
   gap: 0.5rem;
   min-width: 14rem;
   padding: 0.75rem;
+}
+
+[data-ai-part="conversation-menu"] {
+  min-width: 14rem;
+}
+
+[data-ai-part="conversation-menu"] [data-ui-part="dropdown-menu-item"] {
+  white-space: nowrap;
 }
 
 [data-ui-component="ai-chat-panel"] .ai-chat-panel__tool-detail {

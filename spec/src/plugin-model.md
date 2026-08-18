@@ -11,8 +11,8 @@ runtime dependency on sibling `@lapismd/ai-host`. Assistant chat Markdown uses
 the public Markdown embed helper rather than a second renderer. Folder-scoped
 chats project path breadcrumbs through the same View chrome hooks as History.
 A busy chat Stop control cancels the active agent turn. The composer overflow
-menu archives or restores in place, deletes through vault trash, and starts a
-scoped new chat (LN-AI-109). AI History opens as a
+menu sits after History and attach, archives or restores in place, deletes
+through vault trash, and starts a scoped new chat (LN-AI-109). AI History opens as a
 single sidebar leaf rather than a default sidebar group.
 
 ## Requirements

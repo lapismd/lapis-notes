@@ -180,8 +180,9 @@ execution. Web and
 Storybook default stories stay Fake. The dedicated Live Host story
 attaches only when URL and token are configured. The paperclip attach picker
 keeps its Popover host and composes Command View for the vault-file list.
-The composer overflow menu archives or restores in place, deletes through
-vault trash, and starts a new chat in the current scope (LN-AI-109).
+The composer overflow menu sits after History and attach, archives or restores
+in place, deletes through vault trash, and starts a new chat in the current
+scope (LN-AI-109).
 AI registers its sidebar chat and history views through `ViewAccess.command`.
 Their canonical palette commands are `AI: Open Chat` and `AI: Open History`;
 each reuses an existing leaf or creates, activates, and reveals its documented
