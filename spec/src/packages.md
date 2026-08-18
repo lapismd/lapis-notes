@@ -229,7 +229,9 @@ The manager merges diagnostics and code actions from every matching provider
 so Spell Check appears beside Markdownlint (LN-WS-076). A provider that throws
 or does not complete publishes a workspace-wide Problems row (LN-WS-077).
 Lapis plugin load and enable failures use the same workspace-wide path
-(LN-WS-078).
+(LN-WS-078). Web development, preview, and production MUST serve `*.wasm` as
+`application/wasm` so Harper `WorkerLinter` can instantiate (LN-WEB-030).
+An open misspelled web note MUST then show a Harper Problems row (LN-SPL-009).
 API lint hover opens only from `.cm-lintRange` or `.cm-lint-marker`, not from a
 same-line document-position hit.
 `@lapis-notes/history` owns vault file-revision capture, the History panel, the

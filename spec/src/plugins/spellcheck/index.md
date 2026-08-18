@@ -16,6 +16,7 @@ open documents into the shared language-service and Problems path. It uses
 | LN-SPL-006 | Spell Check MUST publish `spellcheck:status` on `app.statusBar` with Lucide `spell-check` and an optional dialect segment. Click MUST open dialect choices and a checking toggle. It MUST NOT use compatibility status DOM, the Harper logo, or flag emoji. |
 | LN-SPL-007 | Spell Check MUST refresh `spellcheck:status` from plugin load and configuration updates. It MUST NOT subscribe to `layout-change` for that item. A no-op dialect or checking write MUST NOT upsert the status bar. |
 | LN-SPL-008 | Spell Check MUST start Harper during plugin load and MUST surface setup failure through LN-WS-077. It MUST NOT fail plugin enablement. |
+| LN-SPL-009 | An open misspelled Markdown note on the web host MUST publish a Harper Problems row beside Markdownlint after Spell Check starts. The manager timeout row MUST NOT remain once setup succeeds. |
 
 ### LN-SPL-003 acceptance details
 
@@ -31,6 +32,8 @@ The shared language-service collection publishes those diagnostics beside
 Markdownlint because `LanguageServiceManager` merges every matching provider
 (LN-WS-076). Harper setup starts during plugin load; a setup failure appears
 as a workspace-wide Problems row and does not fail enablement (LN-SPL-008).
+An open misspelled web note publishes a Harper Problems row once WASM setup
+succeeds (LN-SPL-009).
 Settings persist through API configuration. Markdown mode skips code fences.
 Ignore comments such as `harper:ignore` MAY mask regions through Harper
 `regex_mask`. Browser `editor.behaviour.spellCheck` remains a separate setting.

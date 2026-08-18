@@ -12,7 +12,9 @@ Count ownership. The same hosts register Spell Check after Markdown Lint; that
 does not change Word Count registration or status-bar ownership. Merged
 language-service diagnostics (LN-WS-076) also MUST NOT change Word Count
 ownership. Workspace-wide provider and plugin startup Problems (LN-WS-077,
-LN-WS-078) also MUST NOT change Word Count ownership. Web
+LN-WS-078) also MUST NOT change Word Count ownership. Web Harper WASM
+`application/wasm` responses (LN-WEB-030) and Harper Problems rows
+(LN-SPL-009) also MUST NOT change Word Count ownership. Web
 agent-server URL and token Settings stay on the web host and MUST NOT change
 Word Count registration or status-bar ownership. The token
 field uses password presentation on that host Settings surface.

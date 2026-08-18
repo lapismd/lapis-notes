@@ -1,9 +1,10 @@
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { realpathSync } from "node:fs";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineConfig, searchForWorkspaceRoot } from "vite";
+import { defineConfig, searchForWorkspaceRoot, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 // Keep these host-build values aligned with the public plugin-asset contract.
@@ -24,7 +25,49 @@ const linkedMiraWorkspaceRoot = searchForWorkspaceRoot(
 const crossOriginIsolationHeaders = {
   "Cross-Origin-Embedder-Policy": "require-corp",
   "Cross-Origin-Opener-Policy": "same-origin",
+  "Cross-Origin-Resource-Policy": "same-origin",
 };
+
+function isWasmRequest(url: string | undefined): boolean {
+  const pathname = (url ?? "").split("?")[0] ?? "";
+  return pathname.endsWith(".wasm");
+}
+
+function applyWasmResponseHeaders(
+  req: IncomingMessage,
+  res: ServerResponse,
+  next: () => void,
+): void {
+  if (!isWasmRequest(req.url)) {
+    next();
+    return;
+  }
+  const originalSetHeader = res.setHeader.bind(res);
+  res.setHeader = ((
+    name: string,
+    value: number | string | readonly string[],
+  ) => {
+    if (name.toLowerCase() === "content-type") {
+      return originalSetHeader("Content-Type", "application/wasm");
+    }
+    return originalSetHeader(name, value);
+  }) as typeof res.setHeader;
+  res.setHeader("Content-Type", "application/wasm");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  next();
+}
+
+function wasmHeadersPlugin(): Plugin {
+  return {
+    name: "lapis-wasm-headers",
+    configureServer(server) {
+      server.middlewares.use(applyWasmResponseHeaders);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(applyWasmResponseHeaders);
+    },
+  };
+}
 const rendererSingletonPackages = [
   "@codemirror/state",
   "@codemirror/view",
@@ -48,6 +91,7 @@ export default defineConfig({
     ),
   },
   plugins: [
+    wasmHeadersPlugin(),
     tailwindcss(),
     svelte(),
     VitePWA({
@@ -134,6 +178,10 @@ export default defineConfig({
     headers: crossOriginIsolationHeaders,
   },
   worker: { format: "es" },
+  optimizeDeps: {
+    exclude: ["harper.js"],
+  },
+  assetsInclude: ["**/*.wasm"],
   resolve: { dedupe: rendererSingletonPackages },
   build: {
     target: "es2022",

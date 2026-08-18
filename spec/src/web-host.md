@@ -13,6 +13,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-004 | The web session MUST register File Explorer, Markdown, Markdown Lint, Spell Check, Search, History, Word Count, Bases, and AI as optional bundled plugins plus enabled-by-default external Roles. It MUST load only their configured enabled set before metadata and layout restoration, then mount the shared `WorkspaceShell`.            |
 | LN-WEB-005 | LightningFS, demo vault seeding, notebooks, community-plugin activation, and the legacy full-app bootstrap MUST NOT be retained.                                                                                                                                                                                   |
 | LN-WEB-006 | Development, preview, and production responses MUST provide cross-origin isolation required by the database and embedding workers. Production assets MUST include required WASM files.                                                                                                                             |
+| LN-WEB-030 | Development, preview, and production web responses for `*.wasm` MUST use `Content-Type: application/wasm`. Those responses MUST carry isolation headers that allow Harper `WorkerLinter` to instantiate. |
 | LN-WEB-007 | One tab MUST own each vault database while secondary tabs delegate through typed RPC and expose a `DB Proxy` status marker.                                                                                                                                                                                        |
 | LN-WEB-008 | Owner shutdown or stale heartbeats MUST allow one proxy to promote without losing committed metadata or search state. Session disposal MUST release workers, locks, channels, and pending requests.                                                                                                                |
 | LN-WEB-009 | The PWA service worker MUST retain prompt-based updates and verified plugin-asset caching without precaching downloaded embedding models.                                                                                                                                                                          |
@@ -133,7 +134,8 @@ does not seed a demo vault or activate community plugins.
 The production build emits the legacy manifest identity, generated icon set,
 prompt-based Workbox lifecycle, `web+lapis` handler, window-controls overlay
 metadata, cross-origin isolation headers, Turso WASM, and local embedding
-runtime. Verified plugin assets enter a cache-only service-worker route only
+runtime. Harper and other `*.wasm` responses use `application/wasm` so
+`WorkerLinter` can instantiate (LN-WEB-030). Verified plugin assets enter a cache-only service-worker route only
 after the public API asset boundary confirms their registered version, path,
 size, and SHA-256 digest.
 
