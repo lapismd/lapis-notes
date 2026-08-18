@@ -27,6 +27,7 @@
     "dev": "pnpm storybook",
     "dev:desktop": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/desktop-electron dev",
     "dev:web": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/web dev",
+    "restart:web": "bash scripts/web-restart.sh",
     "storybook": "WATCHPACK_POLLING=250 node scripts/with-storybook-env.mjs node scripts/storybook-run.mjs --no-open",
     "storybook:stop": "node scripts/with-storybook-env.mjs bash scripts/storybook-stop.sh",
     "storybook:restart": "node scripts/with-storybook-env.mjs bash scripts/storybook-restart.sh",

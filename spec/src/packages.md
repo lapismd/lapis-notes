@@ -317,6 +317,8 @@ workspace, and Design Core presentation. It owns browser vault selection,
 Workbox, window-controls overlay state, and web-session lifecycle; its
 production database dependency remains the pinned API-owned Turso WASM
 provider rather than a package-local persistence implementation.
+Root `dev:web` and `restart:web` start that host after an API build; restart
+first frees listeners on Vite port 4174.
 
 Its launcher imports shadcn presentation from Design Core and profile/search
 helpers from public Lapis exports. Desktop and web “View all” palettes compose

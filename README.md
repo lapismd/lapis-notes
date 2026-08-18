@@ -26,6 +26,7 @@ the linked package output without reinstalling Lapis.
 | `pnpm dev` / `pnpm storybook`                | Storybook on port **7010** (one supervisor per checkout/port) |
 | `pnpm storybook:stop`                        | Stop this checkout's Storybook supervisor and listeners       |
 | `pnpm storybook:restart`                     | Replace the owner and start a fresh Storybook                 |
+| `pnpm restart:web`                           | Free Vite port **4174**, then start `dev:web`                 |
 | `pnpm build`                                 | Turbo build packages                                          |
 | `pnpm check`                                 | Turbo package checks                                          |
 | `pnpm test`                                  | Turbo tests                                                   |

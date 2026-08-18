@@ -331,8 +331,9 @@ Attachment chips keep Design Core's public drawer chip and remove parts.
 
 Root scripts stay thin: configured shared specification validation,
 `check:no-tailwind`, Turbo for package tasks, `spec:first` for change mapping,
-and Storybook for docs. Do not grow a parallel script forest for import path
-syncing. Lapis policy stays in `spec-validator.config.mjs`, while reusable
+and Storybook for docs. Root `restart:web` frees the web Vite port, then
+starts the existing `dev:web` lane. Do not grow a parallel script forest for
+import path syncing. Lapis policy stays in `spec-validator.config.mjs`, while reusable
 validators and their tests stay in `@lapismd/spec-validator`. QMD discovery
 uses that same root-only tooling boundary. Storybook manager-only dependencies,
 including the shared theme toolbar icons, remain root development tooling and
