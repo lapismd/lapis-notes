@@ -163,6 +163,7 @@ export type AgentEvent = (
       id: string;
       name: string;
       server?: string;
+      input?: unknown;
       output?: unknown;
       error?: unknown;
     }

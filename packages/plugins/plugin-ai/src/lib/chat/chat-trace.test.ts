@@ -127,6 +127,27 @@ describe("chat trace", () => {
     expect(new Set(items.map((item) => item.id)).size).toBe(items.length);
   });
 
+  it("fills missing tool input from a completed event", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "tool.start",
+      id: "t1",
+      name: "read",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "tool.end",
+      id: "t1",
+      name: "read",
+      input: { path: "Notes/alpha.md" },
+      output: { text: "ok" },
+    });
+    expect(items[0]).toMatchObject({
+      type: "tool",
+      input: '{"path":"Notes/alpha.md"}',
+      output: '{"text":"ok"}',
+      state: "completed",
+    });
+  });
+
   it("keeps provider bookkeeping statuses out of the transcript", () => {
     let items = applyAgentEventToChatItems([], {
       type: "status",

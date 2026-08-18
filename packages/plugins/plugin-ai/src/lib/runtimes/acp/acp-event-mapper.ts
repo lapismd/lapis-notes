@@ -20,6 +20,7 @@ export type AcpRuntimeEventLike = {
   kind?: string;
   rawInput?: unknown;
   rawOutput?: unknown;
+  locations?: unknown[];
   content?: unknown[];
   message?: string;
   stopReason?: string;
@@ -86,6 +87,7 @@ export function mapAcpRuntimeEvent(
         type: "tool.end",
         id,
         name,
+        input: acpToolInput(event),
         output: event.rawOutput ?? event.content ?? event.text,
         error:
           event.status === "failed"
@@ -97,7 +99,7 @@ export function mapAcpRuntimeEvent(
       type: "tool.start",
       id,
       name,
-      input: event.rawInput,
+      input: acpToolInput(event),
     });
   }
   if (event.type === "done") {
@@ -217,6 +219,14 @@ export function mapApprovalOptionToAcpDecision(
     default:
       return { outcome: "allow_once" };
   }
+}
+
+function acpToolInput(event: AcpRuntimeEventLike): unknown {
+  if (event.rawInput != null) return event.rawInput;
+  if (Array.isArray(event.locations) && event.locations.length > 0) {
+    return { locations: event.locations };
+  }
+  return undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

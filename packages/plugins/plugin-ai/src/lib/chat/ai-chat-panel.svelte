@@ -4,6 +4,7 @@
   import * as Chat from "@lapismd/design-core/ai/chat";
   import { Reasoning } from "@lapismd/design-core/ai/experimental";
   import { Button } from "@lapismd/design-core/shadcn/button";
+  import { CodeBlock } from "@lapismd/design-core/shadcn/code-block";
   import * as CommandView from "@lapismd/design-core/shadcn/command-view";
   import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import * as Popover from "@lapismd/design-core/shadcn/popover";
@@ -45,6 +46,12 @@
   import type { AppToolBridgeCoordinator } from "../tools/desktop-app-tool-bridge";
   import { formatFileMention, mentionTokensFromText } from "./chat-mentions";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
+  import {
+    formatToolPayloadAsJson,
+    toolCallStatus,
+    toolCallTarget,
+    type AiChatToolItem,
+  } from "./chat-tool-display";
   import AiApprovalCard from "./ai-approval-card.svelte";
   import AiQuestionCard from "./ai-question-card.svelte";
   import { AiChatController } from "./chat-controller.svelte";
@@ -370,6 +377,20 @@
     return new Intl.NumberFormat().format(value);
   }
 
+  function toolCallProps(item: AiChatToolItem) {
+    return {
+      id: item.toolId,
+      name: item.name,
+      status: toolCallStatus(item.state),
+      errorMessage: item.state === "error" ? item.output : undefined,
+      target: toolCallTarget(item.input, item.server),
+      data: {
+        input: item.input,
+        output: item.state === "error" ? undefined : item.output,
+      },
+    };
+  }
+
   $effect(() => {
     const current = controller;
     const ready = !initializing;
@@ -398,14 +419,30 @@
 
 {#snippet toolDetail(call: { data?: unknown })}
   {@const detail = call.data as { input?: string; output?: string } | undefined}
+  {@const inputJson = formatToolPayloadAsJson(detail?.input)}
+  {@const outputJson = formatToolPayloadAsJson(detail?.output)}
   <div class="ai-chat-panel__tool-detail">
-    {#if detail?.input}
-      <strong>Command / input</strong>
-      <pre>{detail.input}</pre>
+    {#if inputJson}
+      <CodeBlock
+        code={inputJson}
+        language="json"
+        title="Input"
+        size="sm"
+        width="full"
+        isWrapped
+        maxHeight="16rem"
+      />
     {/if}
-    {#if detail?.output}
-      <strong>Output</strong>
-      <pre>{detail.output}</pre>
+    {#if outputJson}
+      <CodeBlock
+        code={outputJson}
+        language="json"
+        title="Output"
+        size="sm"
+        width="full"
+        isWrapped
+        maxHeight="16rem"
+      />
     {/if}
   </div>
 {/snippet}
@@ -672,11 +709,20 @@
       isStreaming={controller.busy}
       {isEmpty}
     >
-      {#each timeline as entry (entry.kind === "divider" ? entry.id : entry.item.id)}
+      {#each timeline as entry (entry.kind === "item" ? entry.item.id : entry.id)}
         {#if entry.kind === "divider"}
           <Chat.SystemMessage variant="divider"
             >{entry.label}</Chat.SystemMessage
           >
+        {:else if entry.kind === "tools"}
+          <Chat.ToolCalls
+            calls={entry.items.map((item) => ({
+              ...toolCallProps(item),
+              detail:
+                item.input || item.output ? toolDetail : undefined,
+            }))}
+            defaultExpanded={false}
+          />
         {:else if entry.item.type === "message"}
           {@const message = entry.item}
           <Chat.Message sender={message.role === "user" ? "user" : "assistant"}>
@@ -730,32 +776,6 @@
           >
             {entry.item.text}
           </Reasoning>
-        {:else if entry.item.type === "tool"}
-          <Chat.ToolCalls
-            calls={[
-              {
-                id: entry.item.toolId,
-                name: entry.item.name,
-                status:
-                  entry.item.state === "completed"
-                    ? "complete"
-                    : entry.item.state === "error"
-                      ? "error"
-                      : "running",
-                errorMessage:
-                  entry.item.state === "error" ? entry.item.output : undefined,
-                target: entry.item.server,
-                data: {
-                  input: entry.item.input,
-                  output: entry.item.output,
-                },
-                detail:
-                  entry.item.input || entry.item.output
-                    ? toolDetail
-                    : undefined,
-              },
-            ]}
-          />
         {:else if entry.item.type === "approval"}
           {#if entry.item.status !== "pending"}
             <Chat.SystemMessage>

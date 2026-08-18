@@ -98,6 +98,7 @@ export function applyAgentEventToChatItems(
           next[index] = {
             ...current,
             state: event.error != null ? "error" : "completed",
+            input: stringifyUnknown(event.input) ?? current.input,
             output,
             ...source,
           };
@@ -111,6 +112,7 @@ export function applyAgentEventToChatItems(
         name: event.name,
         server: event.server,
         state: event.error != null ? "error" : "completed",
+        input: stringifyUnknown(event.input),
         output,
         ...source,
       });

@@ -1,8 +1,10 @@
 import type { AiChatItem } from "./chat-items";
+import type { AiChatToolItem } from "./chat-tool-display";
 
 export type ChatTimelineEntry =
   | { kind: "divider"; id: string; label: string }
-  | { kind: "item"; item: AiChatItem };
+  | { kind: "item"; item: Exclude<AiChatItem, AiChatToolItem> }
+  | { kind: "tools"; id: string; items: AiChatToolItem[] };
 
 function startOfLocalDay(date: Date): number {
   return new Date(
@@ -70,6 +72,15 @@ export function groupChatItemsByDate(
         label: agentLabels.get(item.agentBindingId)!,
       });
       lastBindingId = item.agentBindingId;
+    }
+    if (item.type === "tool") {
+      const last = entries.at(-1);
+      if (last?.kind === "tools") {
+        last.items.push(item);
+      } else {
+        entries.push({ kind: "tools", id: `tools-${item.id}`, items: [item] });
+      }
+      continue;
     }
     entries.push({ kind: "item", item });
   }

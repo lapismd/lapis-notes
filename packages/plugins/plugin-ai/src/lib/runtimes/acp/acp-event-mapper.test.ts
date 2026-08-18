@@ -37,14 +37,29 @@ describe("ACP event mapper", () => {
         toolCallId: "t1",
         title: "read",
         status: "completed",
+        rawInput: { path: "a" },
         rawOutput: "ok",
       }),
     ).toEqual({
       type: "tool.end",
       id: "t1",
       name: "read",
+      input: { path: "a" },
       output: "ok",
       error: undefined,
+    });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "tool_call",
+        toolCallId: "t2",
+        title: "read",
+        locations: [{ path: "Notes/a.md" }],
+      }),
+    ).toEqual({
+      type: "tool.start",
+      id: "t2",
+      name: "read",
+      input: { locations: [{ path: "Notes/a.md" }] },
     });
     expect(mapAcpRuntimeEvent({ type: "done", stopReason: "end" })).toEqual({
       type: "completed",

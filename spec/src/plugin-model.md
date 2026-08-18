@@ -8,7 +8,8 @@ First-party plugin surfaces compose Design Core public parts for shared chrome;
 AI composer drawer chips use the public `attachment-chip` contract instead of
 plugin-local paint. Bundled AI MUST remain a Lapis plugin and MUST NOT gain a
 runtime dependency on sibling `@lapismd/ai-host`. Assistant chat Markdown uses
-the public Markdown embed helper rather than a second renderer.
+the public Markdown embed helper rather than a second renderer. Folder-scoped
+chats project path breadcrumbs through the same View chrome hooks as History.
 
 ## Requirements
 

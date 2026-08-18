@@ -68,6 +68,25 @@ export class AiView extends View {
     return "sparkles";
   }
 
+  getBreadcrumbFilePath(): string | null {
+    const scopeDir = conversationLocationFromState(this.getState())?.scopeDir
+      .replace(/^\/+|\/+$/g, "")
+      .trim();
+    return scopeDir || null;
+  }
+
+  getBreadcrumbs() {
+    return [
+      {
+        id: "ai",
+        label: "AI",
+        onSelect: () => {
+          void this.host.revealConversationHistory();
+        },
+      },
+    ];
+  }
+
   protected onOpen(): Promise<void> {
     return Promise.resolve();
   }

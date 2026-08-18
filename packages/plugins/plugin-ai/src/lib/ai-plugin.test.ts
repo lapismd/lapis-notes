@@ -122,6 +122,33 @@ describe("AiPlugin contracts", () => {
     expect(source).not.toContain("remountPanel");
   });
 
+  it("exposes conversation scope as History-style path breadcrumbs", () => {
+    const source = readFileSync("src/lib/chat/ai-view.ts", "utf8");
+
+    expect(source).toContain("getBreadcrumbFilePath()");
+    expect(source).toContain("getBreadcrumbs()");
+    expect(source).toContain('label: "AI"');
+    expect(source).toContain("revealConversationHistory");
+    expect(source).toContain("scopeDir");
+  });
+
+  it("groups adjacent tool calls and highlights JSON details", () => {
+    const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
+    const grouping = readFileSync("src/lib/chat/chat-time.ts", "utf8");
+
+    expect(panel).toContain('from "@lapismd/design-core/shadcn/code-block"');
+    expect(panel).toContain('language="json"');
+    expect(panel).toContain("defaultExpanded={false}");
+    expect(panel).toContain("entry.kind === \"tools\"");
+    expect(grouping).toContain('kind: "tools"');
+  });
+
+  it("keeps the scroll-to-latest control in the transcript body", () => {
+    const css = readFileSync("src/lib/styles.css", "utf8");
+
+    expect(css).not.toContain("--ui-ai-chat-scroll-button-bottom");
+  });
+
   it("routes history through a dedicated sidebar view instead of a popup", () => {
     const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
     const plugin = readFileSync("src/lib/ai-plugin.ts", "utf8");

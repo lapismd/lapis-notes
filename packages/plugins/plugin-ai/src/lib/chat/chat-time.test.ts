@@ -56,4 +56,44 @@ describe("chat date grouping", () => {
     expect(labels[2]).toBe("Today");
     expect(entries.filter((entry) => entry.kind === "item")).toHaveLength(4);
   });
+
+  it("groups consecutive tools and splits them across date dividers", () => {
+    const items: AiChatItem[] = [
+      {
+        id: "t1",
+        type: "tool",
+        toolId: "t1",
+        name: "read",
+        state: "completed",
+        input: '{"path":"a.md"}',
+        createdAt: "2026-03-16T09:00:00",
+      },
+      {
+        id: "t2",
+        type: "tool",
+        toolId: "t2",
+        name: "edit",
+        state: "completed",
+        input: '{"path":"a.md"}',
+        createdAt: "2026-03-16T09:01:00",
+      },
+      {
+        id: "msg",
+        type: "message",
+        role: "assistant",
+        text: "done",
+        createdAt: "2026-03-16T09:02:00",
+      },
+    ];
+    const entries = groupChatItemsByDate(items, now);
+    expect(entries.map((entry) => entry.kind)).toEqual([
+      "divider",
+      "tools",
+      "item",
+    ]);
+    const tools = entries.find((entry) => entry.kind === "tools");
+    expect(tools?.kind === "tools" ? tools.items.map((item) => item.id) : []).toEqual(
+      ["t1", "t2"],
+    );
+  });
 });
