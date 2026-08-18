@@ -327,7 +327,7 @@
         {#if canReturn}
           <Button.Root
             type="button"
-            variant="ghost"
+            variant="secondary"
             size="icon-lg"
             class="workspace-shell__vault-chooser-close"
             aria-label="Return to previous vault"

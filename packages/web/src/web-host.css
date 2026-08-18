@@ -82,9 +82,10 @@ body {
 
 .web-vault-launcher__close[data-ui-component="button"] {
   border: 0;
+  border-radius: 50%;
   box-shadow: none;
-  color: var(--muted-foreground);
-  background: transparent;
+  color: var(--secondary-foreground);
+  background: var(--secondary);
 }
 
 .web-vault-launcher__close[data-ui-component="button"]:hover:not(:disabled) {

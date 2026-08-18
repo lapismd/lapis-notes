@@ -265,7 +265,7 @@
         {#if canReturn}
           <Button.Root
             type="button"
-            variant="ghost"
+            variant="secondary"
             size="icon-lg"
             class="web-vault-launcher__close"
             aria-label="Return to previous vault"
