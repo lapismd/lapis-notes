@@ -30,6 +30,7 @@ describe("desktop capability contract", () => {
         "notifications",
         "file-system-actions",
         "agent-runtime",
+        "terminal-runtime",
       ].sort(),
     );
     expect(registry.notebook).toMatchObject({ status: "unavailable" });
@@ -54,6 +55,11 @@ describe("desktop capability contract", () => {
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_tools_open");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_tools_respond");
     expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_agent_tools_close");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_terminal_session_create");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_terminal_session_list");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_terminal_session_write");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_terminal_session_resize");
+    expect(DESKTOP_INVOKE_COMMANDS).toContain("desktop_terminal_session_stop");
     expect(registry["agent-runtime"]?.details).toMatchObject({
       protocolVersion: 3,
       appTools: "stdio-mcp",

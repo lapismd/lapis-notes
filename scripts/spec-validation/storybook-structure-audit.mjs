@@ -198,6 +198,19 @@ function auditCatalogTaxonomy({ trackedFiles, readOptional }) {
         ),
       );
     }
+    if (
+      source.includes("@lapis-notes/lapis-plugin-terminal") ||
+      title?.startsWith("Plugins/Terminal")
+    ) {
+      findings.push(
+        finding(
+          "STORYBOOK-EXTERNAL-PLUGIN",
+          file,
+          1,
+          "Terminal Storybook acceptance belongs to lapis-plugin-terminal",
+        ),
+      );
+    }
   }
   return findings;
 }

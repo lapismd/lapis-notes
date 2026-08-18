@@ -50,6 +50,7 @@ paths for serializable command actions live on the Problems panel chapter.
 | LN-WS-059 | When `loadLayout` finds no workspace file, the workspace MUST seed registered default sidebar views: left `file-explorer` then `search`; right `outline`, `file-properties`, then `tag`. It MUST open those docks, keep one empty main New Tab and a closed bottom dock, omit unregistered types, and MUST NOT write `workspace.json` during that seed. |
 | LN-WS-060 | The workspace MUST register Save workspace layout and Load workspace layout commands. Those commands MUST persist and restore named layouts in `.obsidian/workspaces.json` while the live layout continues to write `workspace.json`. |
 | LN-WS-061 | The workspace MUST register a Reset workspace layout command. Confirming it MUST apply the same default sidebar seed as a missing workspace file and persist the result to `workspace.json`. |
+| LN-WS-080 | When the Terminal plugin is loaded and no `terminal` leaf exists after layout restore, the plugin MUST create one bottom-panel Terminal leaf and open the dock. Persisted terminal leaves MUST win. |
 
 ## Ownership and data flow
 

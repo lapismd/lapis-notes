@@ -173,9 +173,12 @@ Search leaf by opening its target in a sibling tab.
 @lapismd/storybook-addon-visual-delta (sibling; root-only Storybook tooling)
 ```
 
-API diagnostic hover cards keep unique action keys when titles repeat. The
+API diagnostic hover cards keep unique action keys when titles repeat and
+expose one Quick Fix menu for cached actions. The
 language-service cache keeps at most one action per title for the originating
-diagnostic, including grouped markdownlint fixes from the shared runtime.
+diagnostic. Markdownlint publishes per-issue Fix this actions plus Fix all
+when a rule repeats, and Spell Check uses cspell-style titles. Problems rows
+use the Design Core severity-slot lightbulb for those cached actions.
 Diagnostics and code actions merge every matching provider; priority orders
 them and does not hide a lower-priority match (LN-WS-076). Provider throw or
 timeout and Lapis plugin load or enable failures publish workspace-wide
@@ -317,6 +320,10 @@ obtains live runtimes from that host factory and keeps adapters off the root
 export. Cursor uses the same ACP runtime as Codex through the selected agent
 name. Process execution lives in sibling `@lapismd/ai-host`, used in-process by
 Electron and as `lapis-ai-host serve` for WebSocket clients.
+The same desktop bridge advertises `terminal-runtime`. Electron embeds sibling
+`@lapismd/terminal-host` in-process. The web host attaches that host after
+configuration load from persisted Settings or env-prefilled URL and token,
+without overwriting a desktop IPC bridge.
 The web host attaches or replaces that WebSocket after configuration load
 from persisted Settings or env-prefilled URL and token, without overwriting a
 desktop IPC bridge. The token Settings field stays masked until revealed. Chat shows a start-server message when a live runtime is

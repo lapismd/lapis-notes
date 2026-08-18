@@ -64,7 +64,8 @@ export type NativeDesktopCapabilityId =
   | "file-watch"
   | "notifications"
   | "file-system-actions"
-  | "agent-runtime";
+  | "agent-runtime"
+  | "terminal-runtime";
 
 export type NativeAgentProcessMessage = {
   processId: string;
@@ -96,6 +97,16 @@ export type NativeAgentToolCancel = Pick<
   NativeAgentToolCall,
   "bridgeId" | "bindingId" | "callId"
 >;
+
+export type NativeTerminalOutputEvent = {
+  sessionId: string;
+  data: string;
+};
+
+export type NativeTerminalExitEvent = {
+  sessionId: string;
+  code: number | null;
+};
 
 export type NativeDesktopCapabilityStatus = "available" | "unavailable";
 
@@ -136,6 +147,12 @@ export interface NativeDesktopBridge {
   ): () => void;
   onAgentToolCancel?(
     listener: (event: NativeAgentToolCancel) => void,
+  ): () => void;
+  onTerminalOutput?(
+    listener: (event: NativeTerminalOutputEvent) => void,
+  ): () => void;
+  onTerminalExit?(
+    listener: (event: NativeTerminalExitEvent) => void,
   ): () => void;
   watch?(
     rootPath: string,

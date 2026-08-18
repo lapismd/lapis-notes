@@ -53,6 +53,11 @@ export const DESKTOP_INVOKE_COMMANDS = new Set([
   "desktop_agent_tools_open",
   "desktop_agent_tools_respond",
   "desktop_agent_tools_close",
+  "desktop_terminal_session_create",
+  "desktop_terminal_session_list",
+  "desktop_terminal_session_write",
+  "desktop_terminal_session_resize",
+  "desktop_terminal_session_stop",
   "desktop_renderer_close_ready",
   "desktop_vault_bootstrap_kv_del",
   "desktop_vault_bootstrap_kv_get_many",
@@ -169,6 +174,15 @@ export function createDesktopCapabilityRegistry(): NativeDesktopCapabilityRegist
         acp: "acpx/runtime",
         process: "stdio",
         appTools: "stdio-mcp",
+      },
+    },
+    "terminal-runtime": {
+      id: "terminal-runtime",
+      status: "available",
+      provider: "electron-terminal-runtime",
+      details: {
+        protocol: "desktop_terminal_session_*",
+        protocolVersion: 1,
       },
     },
   };

@@ -149,6 +149,12 @@ export async function viteFinal(
       "import.meta.env.LAPIS_AGENT_RUNTIME_TOKEN": JSON.stringify(
         process.env.LAPIS_AGENT_RUNTIME_TOKEN ?? "",
       ),
+      "import.meta.env.LAPIS_TERMINAL_HOST_URL": JSON.stringify(
+        process.env.LAPIS_TERMINAL_HOST_URL ?? "",
+      ),
+      "import.meta.env.LAPIS_TERMINAL_HOST_TOKEN": JSON.stringify(
+        process.env.LAPIS_TERMINAL_HOST_TOKEN ?? "",
+      ),
     },
     resolve: {
       dedupe: [...linkedSingletonPackages, "svelte"],

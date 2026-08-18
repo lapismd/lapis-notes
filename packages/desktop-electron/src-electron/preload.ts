@@ -5,6 +5,8 @@ import type {
   NativeAgentRuntimeEvent,
   NativeAgentToolCall,
   NativeAgentToolCancel,
+  NativeTerminalExitEvent,
+  NativeTerminalOutputEvent,
   NativeDesktopCapabilityRegistry,
   NativeDesktopBridge,
   NativeDesktopNotificationPayload,
@@ -48,6 +50,8 @@ const agentProcessListeners = new Set<(event: NativeAgentProcessMessage) => void
 const agentRuntimeListeners = new Set<(event: NativeAgentRuntimeEvent) => void>();
 const agentToolCallListeners = new Set<(event: NativeAgentToolCall) => void>();
 const agentToolCancelListeners = new Set<(event: NativeAgentToolCancel) => void>();
+const terminalOutputListeners = new Set<(event: NativeTerminalOutputEvent) => void>();
+const terminalExitListeners = new Set<(event: NativeTerminalExitEvent) => void>();
 
 ipcRenderer.on(
   "desktop_agent_process_message",
@@ -74,6 +78,20 @@ ipcRenderer.on(
   "desktop_agent_tool_cancel",
   (_event, payload: NativeAgentToolCancel) => {
     for (const listener of agentToolCancelListeners) listener(payload);
+  },
+);
+
+ipcRenderer.on(
+  "desktop_terminal_output",
+  (_event, payload: NativeTerminalOutputEvent) => {
+    for (const listener of terminalOutputListeners) listener(payload);
+  },
+);
+
+ipcRenderer.on(
+  "desktop_terminal_exit",
+  (_event, payload: NativeTerminalExitEvent) => {
+    for (const listener of terminalExitListeners) listener(payload);
   },
 );
 
@@ -268,6 +286,24 @@ const bridge: NativeDesktopBridge & {
     agentToolCancelListeners.add(listener);
     return () => {
       agentToolCancelListeners.delete(listener);
+    };
+  },
+
+  onTerminalOutput(
+    listener: (event: NativeTerminalOutputEvent) => void,
+  ): () => void {
+    terminalOutputListeners.add(listener);
+    return () => {
+      terminalOutputListeners.delete(listener);
+    };
+  },
+
+  onTerminalExit(
+    listener: (event: NativeTerminalExitEvent) => void,
+  ): () => void {
+    terminalExitListeners.add(listener);
+    return () => {
+      terminalExitListeners.delete(listener);
     };
   },
 };

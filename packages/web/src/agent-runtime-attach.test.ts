@@ -45,11 +45,16 @@ const host = vi.hoisted(() => ({
 
 vi.mock("@lapis-notes/api", () => api);
 vi.mock("@lapismd/ai-host/client", () => host);
+vi.mock("@lapismd/terminal-host/client", () => ({
+  createTerminalRuntimeBridge: vi.fn(),
+}));
 
 import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
+import { resetWebRuntimeCompose } from "./web-runtime-compose";
 
 describe("web agent-runtime attach", () => {
   beforeEach(() => {
+    resetWebRuntimeCompose();
     api.hasNativeDesktopBridge.mockReturnValue(false);
     api.getNativeDesktopBridge.mockReturnValue(null);
     api.getNativeDesktopCapability.mockReturnValue(null);

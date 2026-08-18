@@ -17,6 +17,7 @@
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
+  import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
@@ -210,6 +211,12 @@
             required: false,
             enabledByDefault: true,
             distribution: "bundled",
+          },
+          {
+            plugin: TerminalPlugin,
+            required: false,
+            enabledByDefault: true,
+            distribution: "first-party-external",
           },
           {
             plugin: RolesPlugin,

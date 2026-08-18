@@ -179,7 +179,7 @@ export default defineConfig({
   },
   worker: { format: "es" },
   optimizeDeps: {
-    exclude: ["harper.js"],
+    exclude: ["harper.js", "ghostty-web", "@xterm/xterm"],
   },
   assetsInclude: ["**/*.wasm"],
   resolve: { dedupe: rendererSingletonPackages },

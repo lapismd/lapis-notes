@@ -29,6 +29,7 @@
     "@huggingface/transformers": "^4.2.0",
     "@tursodatabase/database": "0.7.2",
     "@lapismd/ai-host": "*",
+    "@lapismd/terminal-host": "*",
     "chokidar": "^4.0.3"
   },
   "devDependencies": {
@@ -41,6 +42,7 @@
     "@lapis-notes/markdown-lint": "workspace:*",
     "@lapis-notes/spellcheck": "workspace:*",
     "@lapis-notes/lapis-plugin-cv-roles": "link:../../../lapis-plugin-cv-roles",
+    "@lapis-notes/lapis-plugin-terminal": "link:../../../lapis-plugin-terminal",
     "@lapis-notes/history": "workspace:*",
     "@lapis-notes/search": "workspace:*",
     "@lapis-notes/wordcount": "workspace:*",

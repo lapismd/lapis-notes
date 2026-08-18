@@ -19,6 +19,7 @@
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
+  import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
@@ -35,6 +36,11 @@
     registerWebAgentRuntimeSettings,
     syncWebAgentRuntime,
   } from "./agent-runtime-settings";
+  import { registerWebTerminalRuntimeBridge } from "./terminal-runtime-attach";
+  import {
+    registerWebTerminalRuntimeSettings,
+    syncWebTerminalRuntime,
+  } from "./terminal-runtime-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { setPwaRuntimeApplication } from "./pwa";
 
@@ -93,6 +99,7 @@
   let disposeDatabaseStatus: (() => void) | null = null;
   let disposeCoordinationListener: (() => void) | null = null;
   let disposeAgentRuntimeSettings: (() => void) | null = null;
+  let disposeTerminalRuntimeSettings: (() => void) | null = null;
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
     const browserProfiles = recentVaults.filter(
@@ -188,9 +195,11 @@
     disposeCoordinationListener?.();
     disposeDatabaseStatus?.();
     disposeAgentRuntimeSettings?.();
+    disposeTerminalRuntimeSettings?.();
     disposeCoordinationListener = null;
     disposeDatabaseStatus = null;
     disposeAgentRuntimeSettings = null;
+    disposeTerminalRuntimeSettings = null;
     await app.workspace.disposeWorkspaceHost().catch(() => undefined);
     await app.metadataCache.dispose().catch(() => undefined);
     for (const plugin of [...app.plugins.corePlugins].reverse()) {
@@ -212,6 +221,7 @@
 
       setTask(activeTask, "active");
       registerWebAgentRuntimeBridge();
+      registerWebTerminalRuntimeBridge();
       if (!corePluginsRegistered) {
         app.plugins.registerCorePlugins([
           { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
@@ -234,6 +244,12 @@
             distribution: "bundled",
           },
           {
+            plugin: TerminalPlugin,
+            required: false,
+            enabledByDefault: true,
+            distribution: "first-party-external",
+          },
+          {
             plugin: RolesPlugin,
             required: false,
             enabledByDefault: true,
@@ -251,8 +267,11 @@
       setTask(activeTask, "active");
       await app.configuration.load();
       disposeAgentRuntimeSettings?.();
+      disposeTerminalRuntimeSettings?.();
       disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
+      disposeTerminalRuntimeSettings = registerWebTerminalRuntimeSettings(app);
       syncWebAgentRuntime(app);
+      syncWebTerminalRuntime(app);
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -338,9 +357,11 @@
       disposeCoordinationListener?.();
       disposeDatabaseStatus?.();
       disposeAgentRuntimeSettings?.();
+      disposeTerminalRuntimeSettings?.();
       disposeCoordinationListener = null;
       disposeDatabaseStatus = null;
       disposeAgentRuntimeSettings = null;
+      disposeTerminalRuntimeSettings = null;
       await session.close();
     } finally {
       disposePwaRuntimeApplication();

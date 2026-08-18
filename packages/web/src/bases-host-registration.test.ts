@@ -14,6 +14,7 @@ describe("web Bases host registration", () => {
     const wordcount = source.indexOf("plugin: WordCountPlugin");
     const bases = source.indexOf("plugin: BasesPlugin");
     const ai = source.indexOf("plugin: AiPlugin");
+    const terminal = source.indexOf("plugin: TerminalPlugin");
     const roles = source.indexOf("plugin: RolesPlugin");
     const loadPlugins = source.indexOf("await app.plugins.loadPlugins");
     const metadata = source.lastIndexOf("startMetadataCache()");
@@ -30,7 +31,8 @@ describe("web Bases host registration", () => {
     expect(wordcount).toBeGreaterThan(search);
     expect(bases).toBeGreaterThan(wordcount);
     expect(ai).toBeGreaterThan(bases);
-    expect(roles).toBeGreaterThan(ai);
+    expect(terminal).toBeGreaterThan(ai);
+    expect(roles).toBeGreaterThan(terminal);
     expect(loadPlugins).toBeGreaterThan(roles);
     expect(layout).toBeGreaterThan(loadPlugins);
     expect(metadata).toBeGreaterThan(layout);

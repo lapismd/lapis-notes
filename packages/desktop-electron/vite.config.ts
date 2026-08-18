@@ -59,6 +59,10 @@ export default defineConfig(({ command }) => ({
     headers: crossOriginIsolationHeaders,
   },
   worker: { format: "es" },
+  assetsInclude: ["**/*.wasm"],
+  optimizeDeps: {
+    exclude: ["ghostty-web", "@xterm/xterm"],
+  },
   resolve: {
     dedupe: rendererSingletonPackages,
   },

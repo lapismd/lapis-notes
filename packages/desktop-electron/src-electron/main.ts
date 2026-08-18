@@ -49,6 +49,14 @@ import {
   writeAgentProcess,
 } from "./agent-runtime-host";
 import {
+  createDesktopTerminalSession,
+  listDesktopTerminalSessions,
+  resizeDesktopTerminalSession,
+  shutdownTerminalRuntimeHost,
+  stopDesktopTerminalSession,
+  writeDesktopTerminalSession,
+} from "./terminal-runtime-host";
+import {
   getAppRendererContentType,
   resolveAppRendererFilePath,
 } from "./app-renderer-protocol";
@@ -1998,6 +2006,37 @@ function registerIpcHandlers(): void {
     registerPluginAssetContext(event, payload),
   );
 
+  ipcMain.handle("desktop_terminal_session_create", async (event, payload) =>
+    createDesktopTerminalSession(event.sender, payload ?? {}),
+  );
+  ipcMain.handle("desktop_terminal_session_list", async () =>
+    listDesktopTerminalSessions(),
+  );
+  ipcMain.handle(
+    "desktop_terminal_session_write",
+    async (_event, payload: { sessionId?: string; data?: string }) =>
+      writeDesktopTerminalSession(
+        String(payload?.sessionId ?? ""),
+        String(payload?.data ?? ""),
+      ),
+  );
+  ipcMain.handle(
+    "desktop_terminal_session_resize",
+    async (
+      _event,
+      payload: { sessionId?: string; cols?: number; rows?: number },
+    ) =>
+      resizeDesktopTerminalSession(
+        String(payload?.sessionId ?? ""),
+        Number(payload?.cols ?? 120),
+        Number(payload?.rows ?? 40),
+      ),
+  );
+  ipcMain.handle(
+    "desktop_terminal_session_stop",
+    async (_event, payload: { sessionId?: string }) =>
+      stopDesktopTerminalSession(String(payload?.sessionId ?? "")),
+  );
   ipcMain.handle("desktop_agent_process_spawn", async (event, payload) =>
     spawnAgentProcess(event.sender, payload ?? {}),
   );
@@ -2604,4 +2643,5 @@ app.on("before-quit", () => {
   void shutdownPluginSidecars();
   void languageServiceSidecarManager.shutdown();
   void shutdownAgentRuntimeHost();
+  shutdownTerminalRuntimeHost();
 });

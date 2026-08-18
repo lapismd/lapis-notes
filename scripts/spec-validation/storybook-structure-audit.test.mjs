@@ -221,6 +221,16 @@ test("rejects legacy workspace plugin paths and external Roles catalog coupling"
   assert.ok(codes.includes("STORYBOOK-EXTERNAL-PLUGIN"));
 });
 
+test("rejects external Terminal catalog coupling", () => {
+  const files = validStructureFiles();
+  files.set(
+    "stories/plugins/terminal/Panel.stories.ts",
+    'import "@lapis-notes/lapis-plugin-terminal"; export default { title: "Plugins/Terminal/Panel" };',
+  );
+  const codes = auditStructure(files).map((entry) => entry.code);
+  assert.ok(codes.includes("STORYBOOK-EXTERNAL-PLUGIN"));
+});
+
 test("rejects incomplete plugin shell variants, composition, visual status, and geometry", () => {
   const files = validStructureFiles();
   files.set(

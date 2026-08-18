@@ -6,6 +6,7 @@ linkWorkspacePackages: true
 
 overrides:
   "@lapismd/ai-host": "link:../ai-host"
+  "@lapismd/terminal-host": "link:../terminal-host"
   "@lapismd/design-core": "link:../design-core"
   "@lapismd/mira": "link:../mira-mde/packages/mira"
   "@lapismd/mira-editor": "link:../mira-mde/packages/mira-editor"
@@ -20,6 +21,7 @@ onlyBuiltDependencies:
   - electron
   - esbuild
   - node-llama-cpp
+  - node-pty
   - protobufjs
   - tree-sitter-go
   - tree-sitter-javascript
