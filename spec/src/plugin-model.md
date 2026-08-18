@@ -76,6 +76,8 @@ grant or invoke a stale callback.
 Developer diagnostics may register the bundled factories directly against a
 volatile registry, but production plugins continue to own registration and
 automatic disposal through `Plugin.registerAgentTool`.
+Search continues to own `notes_search` through that same registration path so
+live ACP sessions receive it in the application-tool snapshot.
 This callback registry is separate from AI's external
 `McpServerContribution` registry; plugins cannot claim the reserved
 `lapis-tools` MCP server name through that process-backed integration surface.

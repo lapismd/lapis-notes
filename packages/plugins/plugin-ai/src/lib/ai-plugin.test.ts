@@ -142,7 +142,7 @@ describe("AiPlugin contracts", () => {
     expect(panel).toContain("isStopShown={controller.busy}");
     expect(panel).toContain("void controller.cancel()");
     expect(controller).toContain("async cancel()");
-    expect(controller).toContain("await this.session?.cancel?.()");
+    expect(controller).toContain("void session?.cancel?.()");
   });
 
   it("groups adjacent tool calls and highlights JSON details", () => {

@@ -868,7 +868,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-103   | ai-plugin                       | Implemented | assistant bubbles compose MarkdownEmbed from @lapis-notes/markdown/embed |
 | LN-AI-104   | ai-plugin                       | Implemented | AiView contributes an AI prefix breadcrumb and scopeDir as getBreadcrumbFilePath |
 | LN-AI-105   | ai-plugin                       | Implemented | Date grouping folds adjacent tools into one ToolCalls list; source and unit tests keep multi-call groups collapsed by default |
-| LN-AI-106   | ai-plugin                       | Implemented | Chat panel wires busy Stop to controller.cancel; Design Core Composer keeps that control pointer-interactive while disabled |
+| LN-AI-106   | ai-plugin                       | Implemented | Controller cancel test clears busy without awaiting a hung runtime cancel; Design Core Composer keeps Stop opaque and clickable while disabled |
 | LN-AI-107   | ai-plugin                       | Implemented | History registerSidebarView omits group; source test and opener use an ungrouped right leaf |
 | LN-AI-108   | ai-plugin                       | Implemented | Search, Markdown, and API tool factories assert prefer-over-shell descriptions; notes_search names lightweight results and read |
 | LN-AI-109   | ai-plugin                       | Implemented | Composer kebab labels in Local Conversations; controller tests keep archive on the same location |

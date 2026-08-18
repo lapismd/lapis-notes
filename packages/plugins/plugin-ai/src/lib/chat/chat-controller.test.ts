@@ -40,6 +40,55 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
+  it("clears busy immediately when runtime cancel hangs", async () => {
+    let releaseLate!: (event: AgentEvent) => void;
+    const lateEvent = new Promise<AgentEvent>((resolve) => {
+      releaseLate = resolve;
+    });
+    let sawCancel = false;
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const runtime: AgentRuntime = {
+      id: "hanging-cancel",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        return {
+          id: "hang-1",
+          async *events() {
+            yield { type: "text" as const, text: "working" };
+            yield await lateEvent;
+            yield { type: "completed" as const };
+          },
+          async send() {},
+          async respondToApproval() {},
+          async cancel() {
+            sawCancel = true;
+            await new Promise(() => {});
+          },
+          async close() {},
+        };
+      },
+    };
+    const controller = new AiChatController(runtime);
+    await controller.submit("keep going");
+    await vi.waitFor(() => expect(controller.busy).toBe(true));
+    await vi.waitFor(() =>
+      expect(JSON.stringify(controller.items)).toContain("working"),
+    );
+    const cancelling = controller.cancel();
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(sawCancel).toBe(true);
+    releaseLate({ type: "text", text: "should stay hidden" });
+    await expect(
+      Promise.race([cancelling, new Promise((resolve) => setTimeout(resolve, 50))]),
+    ).resolves.toBeUndefined();
+    expect(JSON.stringify(controller.items)).not.toContain("should stay hidden");
+    expect(controller.busy).toBe(false);
+    await controller.close();
+  });
+
   it("restores stored timestamps", async () => {
     const store = createMemorySessionStore();
     await store.save({
@@ -588,6 +637,7 @@ describe("AiChatController", () => {
     expect(requests[1]?.appToolSession?.tools.map((tool) => tool.name)).toEqual([
       "notes_read",
     ]);
+    expect(requests[1]?.metadata?.availableAppTools).toEqual(["notes_read"]);
     expect(listener).toBeTypeOf("function");
     await controller.close();
   });

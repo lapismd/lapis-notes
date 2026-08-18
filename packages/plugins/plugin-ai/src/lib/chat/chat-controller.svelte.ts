@@ -86,6 +86,7 @@ export class AiChatController {
     AgentSession,
     { location: ConversationLocation | null }
   >();
+  readonly #cancelledSessions = new WeakSet<AgentSession>();
   readonly #createConversation?: () => CreateConversationInput;
   readonly #onLocationChange?: (location: ConversationLocation | null) => void;
   readonly #selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
@@ -348,7 +349,8 @@ export class AiChatController {
       const appToolSession = await this.#prepareAppToolSession(
         activeBinding.id,
         this.runtime,
-        snapshot,
+        snapshot.location,
+        snapshot.metadata.launchContext?.notePath,
       );
       this.session = await this.runtime.resume(
         activeBinding.nativeSessionId,
@@ -538,9 +540,11 @@ export class AiChatController {
   }
 
   async cancel(): Promise<void> {
-    await this.session?.cancel?.();
+    const session = this.session;
+    if (session) this.#cancelledSessions.add(session);
     this.busy = false;
     this.items = interruptPendingInteractions(this.items);
+    void session?.cancel?.().catch(() => undefined);
     await this.#persist(true);
   }
 
@@ -607,7 +611,8 @@ export class AiChatController {
         }
         traceItems = applyAgentEventToChatItems(traceItems, event);
         const activeSession = this.session === session;
-        if (activeSession) {
+        const cancelled = this.#cancelledSessions.has(session);
+        if (activeSession && !cancelled) {
           this.items = applyAgentEventToChatItems(this.items, event).map(
             (item) =>
               item.agentBindingId || !agentBindingId
@@ -1012,15 +1017,16 @@ export class AiChatController {
   async #prepareAppToolSession(
     bindingId: string,
     runtime: AgentRuntime,
-    snapshot: Awaited<ReturnType<ConversationRepository["read"]>>,
+    location: Pick<ConversationLocation, "conversationId" | "scopeDir">,
+    launchNotePath?: string,
   ): Promise<AppToolSessionDescriptor | undefined> {
     if (!this.#appToolBridge) return undefined;
     try {
       const descriptor = await this.#appToolBridge.prepare({
-        conversationId: snapshot.location.conversationId,
+        conversationId: location.conversationId,
         agentBindingId: bindingId,
-        scopeDir: snapshot.location.scopeDir,
-        launchNotePath: snapshot.metadata.launchContext?.notePath,
+        scopeDir: location.scopeDir,
+        launchNotePath,
         runtimeSupportsAppTools:
           runtime.id !== "fake" && runtime.capabilities().mcpTools,
       });
@@ -1133,7 +1139,8 @@ export class AiChatController {
         const appToolSession = await this.#prepareAppToolSession(
           exactBinding.id,
           targetRuntime,
-          snapshot,
+          snapshot.location,
+          snapshot.metadata.launchContext?.notePath,
         );
         try {
           const skillSnapshot = await this.#prepareSkillSnapshot(
@@ -1182,6 +1189,15 @@ export class AiChatController {
       bindingId,
       snapshot?.location.scopeDir ?? this.location?.scopeDir ?? "",
     );
+    const appToolLocation = snapshot?.location ?? this.location;
+    const appToolSession = appToolLocation
+      ? await this.#prepareAppToolSession(
+          bindingId,
+          targetRuntime,
+          appToolLocation,
+          snapshot?.metadata.launchContext?.notePath,
+        )
+      : undefined;
     const preparedRequest: Omit<AgentRequest, "prompt"> = {
       ...request,
       skillSnapshot,
@@ -1198,11 +1214,13 @@ export class AiChatController {
         ...(skillSnapshot
           ? { availableSkillsManifest: buildAvailableSkillsManifest(skillSnapshot) }
           : {}),
+        ...(appToolSession?.tools.length
+          ? {
+              availableAppTools: appToolSession.tools.map((tool) => tool.name),
+            }
+          : {}),
       },
     };
-    const appToolSession = snapshot
-      ? await this.#prepareAppToolSession(bindingId, targetRuntime, snapshot)
-      : undefined;
     let started: AgentSession;
     try {
       started = await targetRuntime.start({

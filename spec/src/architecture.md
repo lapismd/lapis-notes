@@ -357,7 +357,8 @@ session advertises them. Native Codex and ACP normalize
 thinking, tool, permission, user-input, and error events before the shared
 controller renders them. Adjacent tool items share one collapsed Design Core
 `ToolCalls` group, and tool output uses a JSON `CodeBlock`. A busy composer
-Stop control cancels the active turn. The composer overflow menu sits after History and attach, archives or
+Stop control cancels the active turn immediately, without waiting for the
+runtime cancel to settle, and stays fully opaque while input remains disabled. The composer overflow menu sits after History and attach, archives or
 restores in place, deletes through vault trash, and starts a scoped new chat
 (LN-AI-109). AI History opens as an ungrouped right
 sidebar leaf and keeps that leaf while a conversation opens in the main area. Portable conversation bindings and transcript entries
