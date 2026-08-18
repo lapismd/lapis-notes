@@ -124,7 +124,10 @@ describe("web agent-runtime settings", () => {
             id: WEB_AGENT_RUNTIME_URL_KEY,
             presentation: "url",
           }),
-          expect.objectContaining({ id: WEB_AGENT_RUNTIME_TOKEN_KEY }),
+          expect.objectContaining({
+            id: WEB_AGENT_RUNTIME_TOKEN_KEY,
+            presentation: "password",
+          }),
         ]),
       }),
     );

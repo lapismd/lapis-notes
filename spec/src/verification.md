@@ -768,7 +768,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-021  | web-host                        | Implemented | web session source and host check replace the Opening vault stub with Design Core WorkspaceStartup tasks, plugin-name detail, and retryable failure |
 | LN-WEB-022  | web-host                        | Implemented | web session uses workspace loadLayout default sidebar seed; API tests cover File Explorer, Search, Outline, File Properties, and Tags |
 | LN-WEB-023  | web-host                        | Implemented | web session starts metadataCache.load after loadLayout and does not await it before mounting the shell |
-| LN-WEB-024  | web-host                        | Implemented | web Settings section and unit tests cover `web.agentRuntime.url` and `web.agentRuntime.token` with env prefill |
+| LN-WEB-024  | web-host                        | Implemented | web Settings section and unit tests cover `web.agentRuntime.url` and a password-presented `web.agentRuntime.token` with env prefill |
 | LN-WEB-025  | web-host                        | Implemented | web attach tests replace only a lapis-ai-host bridge after configuration load and refresh AI host runtimes |
 | LN-PKG-080  | packages                        | Implemented | package manifests, source audit, and integration tests verify neutral API contracts, Search and Markdown callbacks, AI policy, and non-authoritative sibling `@lapismd/ai-host` plus Electron transport ownership |
 | LN-CAT-081  | storybook-catalog               | Implemented | five focused app-tool interaction and axe stories pass with approved canonical baselines and a 5/5 compare-only visual run; visual-pending tags retain the separate human-promotion boundary |

@@ -92,6 +92,7 @@ export function registerWebAgentRuntimeSettings(app: App): () => void {
         title: "Auth token",
         description: "Shared token required by the local agent server.",
         default: "",
+        presentation: "password",
       },
     ],
   });

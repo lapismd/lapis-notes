@@ -30,7 +30,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-021 | Web session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. While the plugins task is active, the live status MUST show the current plugin name. |
 | LN-WEB-022 | A web vault without `.obsidian/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer then Search on the left, and Outline, File Properties, then Tags on the right when those views are registered. |
 | LN-WEB-023 | After layout restoration, web boot MUST start metadata cache load. It MUST NOT start that load before `loadLayout` returns or wait for it before mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
-| LN-WEB-024 | The web host MUST persist agent-runtime URL and token in app configuration and show both fields in Settings. Environment variables MAY prefill empty fields. Live attach MUST require both values. |
+| LN-WEB-024 | The web host MUST persist agent-runtime URL and token in app configuration and show both fields in Settings. The token field MUST use password presentation so the value stays masked until revealed. Environment variables MAY prefill empty fields. Live attach MUST require both values. |
 | LN-WEB-025 | After configuration load and whenever those values change, the web session MUST register or replace its `lapis-ai-host` WebSocket bridge and refresh AI host runtimes. It MUST NOT overwrite a desktop IPC bridge. |
 
 ### LN-WEB-021 acceptance details
@@ -56,6 +56,7 @@ Web agent-runtime Settings verify:
 
 - Field ids MUST be `web.agentRuntime.url` and `web.agentRuntime.token`.
 - The URL field MUST accept a WebSocket URI that includes the port.
+- The token field MUST use `presentation: "password"`.
 - Live attach MUST stay off until both values are non-empty.
 
 ### LN-WEB-025 acceptance details

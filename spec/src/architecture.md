@@ -307,7 +307,7 @@ name. Process execution lives in sibling `@lapismd/ai-host`, used in-process by
 Electron and as `lapis-ai-host serve` for WebSocket clients.
 The web host attaches or replaces that WebSocket after configuration load
 from persisted Settings or env-prefilled URL and token, without overwriting a
-desktop IPC bridge. Chat shows a start-server message when a live runtime is
+desktop IPC bridge. The token Settings field stays masked until revealed. Chat shows a start-server message when a live runtime is
 selected and no host is connected. Chat sessions
 persist runtime, provider, model, and thinking context through plugin data.
 Codex model listing uses the process host while Cursor model listing uses an
