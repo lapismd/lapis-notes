@@ -99,7 +99,8 @@ Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.
 Markdown reuses one `MiraFileAdapter` for that same App so preview effects do
-not churn when views reconfigure.
+not churn when views reconfigure. Packaged metadata parse keeps an extensionless
+Vite worker import so web and desktop resolve the published worker file.
 `openFile` triggers `file-open` after `onLoadFile` so file-scoped Markdown
 panels can follow the restored note without waiting for a layout write.
 Linked Backlinks and Outgoing Links then read `getCache` for that note even if

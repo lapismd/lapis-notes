@@ -211,7 +211,8 @@ registered language extensions remain authoritative and the API source shell
 is the fallback when a rich provider is absent.
 
 `@lapis-notes/markdown` owns Mira-backed Markdown views and intaken Markdown
-side panels. `@lapis-notes/markdown-lint` and the internal
+side panels. Its packaged metadata worker import stays extensionless so web and
+desktop Vite resolve `dist/metadata/metadata-worker.js`. `@lapis-notes/markdown-lint` and the internal
 `@lapis-notes/language-service` package are the focused diagnostics exceptions.
 Markdownlint Settings seed MD013/line-length in `disabledRules` so the editor
 matches vscode-markdownlint rather than the CLI's all-rules-on library default.

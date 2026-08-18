@@ -1,6 +1,6 @@
 /// <reference path="../../vite-env.d.ts" />
 
-import MetadataWorker from "./metadata-worker.ts?worker&inline";
+import MetadataWorker from "./metadata-worker?worker&inline";
 import { extractMetadata } from "./extract-metadata";
 import type {
   MetadataWorkerRequest,
