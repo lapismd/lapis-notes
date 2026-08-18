@@ -5571,6 +5571,7 @@ export class WorkspaceLeaf extends WorkspaceItem<{
               this.view = view;
 
               await view.onLoadFile(file);
+              this.app.workspace.trigger("file-open", file);
               if (result?.history !== false) {
                 this.pushHistoryAfterNavigation(result);
               }

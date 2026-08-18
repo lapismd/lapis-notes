@@ -16,6 +16,10 @@
   import GalleryVertical from "@lucide/svelte/icons/gallery-vertical";
   import Search from "@lucide/svelte/icons/search";
   import { onMount, untrack } from "svelte";
+  import {
+    subscribeFileScopedPanelRefresh,
+    trackMetadataCacheRevision,
+  } from "../file-scoped-panel-refresh";
   import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
   import LinkHoverPreview from "./link-hover-preview.svelte";
@@ -34,7 +38,12 @@
 
   const emptyData: LinkSidebarData = { linkedGroups: [], unlinkedGroups: [] };
   let data = $state<LinkSidebarData>(emptyData);
-  let activeFile = $state<TFile | null>(null);
+  let followRevision = $state(0);
+  const activeFile = $derived.by(() => {
+    followRevision;
+    trackMetadataCacheRevision(app);
+    return resolvePanelTargetFile(app);
+  });
   let loading = $state(false);
   let editingPreviews = $state<Record<string, boolean>>({});
   let refreshPending = false;
@@ -90,8 +99,7 @@
 
   onMount(() => {
     const refreshNow = () => {
-      activeFile = resolvePanelTargetFile(app);
-      loadData(activeFile);
+      loadData(resolvePanelTargetFile(app));
     };
     const refresh = () => {
       if (Object.values(editingPreviews).some(Boolean)) {
@@ -102,22 +110,25 @@
       refreshNow();
     };
     requestRefresh = refresh;
-    const metadataChanged = app.metadataCache.on("changed", refresh);
-    const metadataDeleted = app.metadataCache.on("deleted", refresh);
-    const metadataLoaded = app.metadataCache.on("loaded", refresh);
-    const activeLeafChanged = app.workspace.on("active-leaf-change", refresh);
     const layoutChanged = app.workspace.on("layout-change", refresh);
     const editorUpdated = app.workspace.on("editor-updated", refresh);
-    refresh();
+    const stopFollow = subscribeFileScopedPanelRefresh(app, () => {
+      followRevision += 1;
+      refresh();
+    });
     return () => {
-      app.metadataCache.offref(metadataChanged);
-      app.metadataCache.offref(metadataDeleted);
-      app.metadataCache.offref(metadataLoaded);
-      app.workspace.offref(activeLeafChanged);
+      stopFollow();
       app.workspace.offref(layoutChanged);
       app.workspace.offref(editorUpdated);
       requestRefresh = null;
     };
+  });
+
+  $effect(() => {
+    const file = activeFile;
+    untrack(() => {
+      requestRefresh?.() ?? loadData(file);
+    });
   });
 
   function setPreviewEditing(id: string, editing: boolean): void {

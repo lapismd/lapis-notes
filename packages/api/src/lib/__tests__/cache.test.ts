@@ -240,6 +240,7 @@ describe("MetadataCache.load", () => {
 
     expect(cache.fileCache).toEqual(snapshot.fileCache);
     expect(cache.resolvedLinks).toEqual(snapshot.resolvedLinks);
+    expect(cache.initialized).toBe(true);
     expect(rebuild).not.toHaveBeenCalled();
     expect(loaded).toHaveBeenCalledTimes(1);
   });

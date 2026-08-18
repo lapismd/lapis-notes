@@ -20,6 +20,16 @@ page.
 | LN-MD-085 | Markdown panel registration MUST retain the former `file:properties`, `file:outline`, `file:backlinks`, and `file:outgoing-links` view types as load-only aliases. Restored aliases MUST resolve to views whose `getViewType()` returns the canonical Obsidian-compatible ID. |
 | LN-MD-089 | Markdown MUST declare All Properties, Outline, File Properties, Backlinks, Outgoing Links, and Tags in one panel registry that pairs every canonical view with unique opening-command metadata. |
 | LN-MD-092 | A serialized Markdown return target MUST replace only the editing title action. Reading and Source controls plus registered Markdown view-menu provider contributions MUST remain available in the pane menu, and the delegated document MUST NOT become a movable Markdown panel. |
+| LN-MD-098 | Outline, Backlinks, and Outgoing Links MUST follow `workspace.getActiveFile()`. They MUST paint from the current metadata cache on mount when that cache is already loaded, on `loaded`, `changed`, and `deleted`, and when the followed file is assigned after mount. They MUST NOT require a later tab switch or layout write to appear. |
+
+### LN-MD-098 acceptance details
+
+File-scoped Markdown panels recover after late metadata and file restore:
+
+- They MUST resolve the followed note through `workspace.getActiveFile()`, then a root `FileView` scan.
+- Mount MUST read the current cache when `metadataCache` has already loaded.
+- They MUST refresh on `loaded`, `changed`, `deleted`, `file-open`, and followed-file assignment.
+- They MUST NOT stay empty until the user switches tabs or a layout write fires.
 
 ## Panel pages
 

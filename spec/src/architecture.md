@@ -332,3 +332,6 @@ do not enter the runtime package graph.
 The repository-local Storybook structure audit consumes the same structured
 command-panel registry as the visual catalog so command metadata, canonical
 story paths, and six-placement coverage cannot drift independently.
+Hosts still start metadata cache load after layout; file-scoped Markdown
+panels refresh from that late `loaded` and `file-open` path rather than
+blocking shell mount.

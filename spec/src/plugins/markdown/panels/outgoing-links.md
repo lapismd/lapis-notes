@@ -16,4 +16,7 @@ remains a load-only alias under `LN-MD-085`.
 | LN-MD-069 | Outgoing Links rows MUST use the 0.75rem result scale, normalize nested sidebar widths, align counts to one trailing edge, and provide shared Mira hover and focus previews instead of the retired renderer. |
 | LN-MD-070 | Outgoing Links MUST use the valid Lucide `external-link` icon in every placement. |
 
+Late metadata and file restore for Outgoing Links are governed by `LN-MD-098` on
+the [Markdown Panels](./index.md) page.
+
 Preview behavior is defined by [Link Previews](./link-previews.md).

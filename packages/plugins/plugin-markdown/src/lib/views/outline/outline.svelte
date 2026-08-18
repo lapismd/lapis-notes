@@ -3,7 +3,6 @@
     FileView,
     useTextHighlight,
     type App,
-    type HeadingCache,
     type WorkspaceLeaf,
   } from "@lapis-notes/api";
   import * as Sidebar from "@lapis-notes/ui/sidebar-custom";
@@ -14,6 +13,11 @@
   import GalleryVertical from "@lucide/svelte/icons/gallery-vertical";
   import Search from "@lucide/svelte/icons/search";
   import { onMount, tick } from "svelte";
+  import {
+    readSortedHeadings,
+    subscribeFileScopedPanelRefresh,
+    trackMetadataCacheRevision,
+  } from "../file-scoped-panel-refresh";
   import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
   import {
@@ -25,15 +29,18 @@
 
   let { app }: { app: App } = $props();
 
-  let headings = $state<HeadingCache[]>([]);
   let query = $state("");
   let searchOpen = $state(false);
-  let opened = $state<Set<string>>(new Set());
+  let openedOverride = $state<Set<string> | null>(null);
   let openedPath = $state<string | null>(null);
   let selectedLine = $state<number | null>(null);
   let contentElement = $state<HTMLElement | null>(null);
+  let followRevision = $state(0);
 
-  const activeFile = $derived(resolvePanelTargetFile(app));
+  const activeFile = $derived.by(() => {
+    followRevision;
+    return resolvePanelTargetFile(app);
+  });
   const autoScroll = $derived(
     Boolean(
       app.configuration
@@ -41,27 +48,17 @@
         .get("outline.autoScrollToCurrentSection", false),
     ),
   );
+  const headings = $derived.by(() => {
+    followRevision;
+    trackMetadataCacheRevision(app);
+    return readSortedHeadings(app, activeFile?.path ?? null);
+  });
   const tree = $derived(buildOutlineTree(headings));
   const filteredTree = $derived(filterOutlineTree(tree, query));
-
-  function readHeadings(path: string | null | undefined): HeadingCache[] {
-    if (!path) return [];
-    return [...(app.metadataCache.getCache(path)?.headings ?? [])].sort(
-      (left, right) => left.position.start.offset - right.position.start.offset,
-    );
-  }
-
-  function refresh(path = activeFile?.path ?? null) {
-    const currentPath = activeFile?.path ?? null;
-    if (path !== currentPath) return;
-    const next = readHeadings(path);
-    headings = next;
-    if (openedPath !== currentPath) {
-      opened = new Set(expandableOutlineIds(buildOutlineTree(next)));
-      openedPath = currentPath;
-      selectedLine = null;
-    }
-  }
+  const defaultOpened = $derived(
+    new Set(expandableOutlineIds(headings.length ? tree : [])),
+  );
+  const opened = $derived(openedOverride ?? defaultOpened);
 
   function fileLeaf(): WorkspaceLeaf | null {
     let found: WorkspaceLeaf | null = null;
@@ -96,11 +93,11 @@
     const next = new Set(opened);
     if (value) next.add(id);
     else next.delete(id);
-    opened = next;
+    openedOverride = next;
   }
 
   function toggleCollapse() {
-    opened = opened.size
+    openedOverride = opened.size
       ? new Set()
       : new Set(expandableOutlineIds(filteredTree));
   }
@@ -117,8 +114,11 @@
   }
 
   $effect(() => {
-    const path = activeFile?.path ?? null;
-    queueMicrotask(() => refresh(path));
+    const currentPath = activeFile?.path ?? null;
+    if (openedPath === currentPath) return;
+    openedPath = currentPath;
+    openedOverride = null;
+    selectedLine = null;
   });
 
   $effect(() => {
@@ -155,16 +155,11 @@
     };
   });
 
-  onMount(() => {
-    const changed = app.metadataCache.on("changed", (file) => refresh(file.path));
-    const deleted = app.metadataCache.on("deleted", (file) => refresh(file.path));
-    const loaded = app.metadataCache.on("loaded", () => refresh());
-    return () => {
-      app.metadataCache.offref(changed);
-      app.metadataCache.offref(deleted);
-      app.metadataCache.offref(loaded);
-    };
-  });
+  onMount(() =>
+    subscribeFileScopedPanelRefresh(app, () => {
+      followRevision += 1;
+    }),
+  );
 </script>
 
 <MarkdownSidebarPanel

@@ -85,3 +85,5 @@ metadata and independent future paths; PNG baselines are not generated or
 approved without explicit review.
 File Properties value autocomplete and wikilink resolution remain Markdown
 panel behavior over the shared host, not a new shell contract.
+Outline, Backlinks, and Outgoing Links follow `LN-MD-098` so a restored
+file-scoped panel paints after late metadata instead of staying empty.

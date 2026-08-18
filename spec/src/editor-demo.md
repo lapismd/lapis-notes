@@ -171,3 +171,5 @@ atomic Vault processing without routing through the demo editor controller.
 Markdown metadata parse runs in a worker. The Workspace/Shell NotificationCenter
 play starts Lapis metadata `withProgress` and asserts the notifications status
 item is busy with that title.
+File-scoped Markdown panels in the demo follow the same late `loaded` and
+`file-open` refresh as production hosts.

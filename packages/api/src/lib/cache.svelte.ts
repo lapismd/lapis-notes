@@ -644,6 +644,10 @@ export class MetadataCache extends EventDispatcher<{
     return this.#fileCache;
   }
 
+  get initialized(): boolean {
+    return this.didLoad;
+  }
+
   getAllItems(): Map<TFile, CachedMetadata> {
     const map: Map<TFile, CachedMetadata> = new Map();
     for (const [path, cache] of Object.entries(this.#fileCache)) {

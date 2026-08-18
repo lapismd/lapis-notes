@@ -1167,6 +1167,24 @@ describe("Workspace compatibility", () => {
     expect((leaf.view as MockTextFileView).file).toBe(file);
   });
 
+  it("triggers file-open after onLoadFile succeeds", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+    workspace.registerExtensions(["md"], "markdown");
+    const file = new TFile(
+      "Notes/Opened.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const leaf = workspace.getLeaf();
+    const opened = vi.fn();
+    workspace.on("file-open", opened);
+
+    await leaf.openFile(file);
+
+    expect(opened).toHaveBeenCalledWith(file);
+  });
+
   it("uses a main area leaf for default navigation when the active leaf is in the sidebar", () => {
     const { workspace } = createWorkspaceHarness();
     const mainTabs = workspace.rootSplit.children[0] as WorkspaceTabs;

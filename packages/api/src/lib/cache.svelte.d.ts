@@ -284,6 +284,7 @@ export declare class MetadataCache extends EventDispatcher<{
         size: number;
         hash: string;
     }>;
+    get initialized(): boolean;
     getAllItems(): Map<TFile, CachedMetadata>;
     scheduleSnapshotSave(): void;
     flushSnapshotSave(): Promise<void>;

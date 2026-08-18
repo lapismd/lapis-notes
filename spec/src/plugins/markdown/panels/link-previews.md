@@ -30,3 +30,6 @@ identity, not link resolution or preview ownership.
 | LN-MD-064 | Editing cards MUST ignore hover departure and focus movement. Outside pointer dismissal flushes and closes only after successful persistence; Escape remains keyboard dismissal, and failed saves keep the dirty editor open. |
 | LN-MD-065 | Mira-owned portaled previews MUST inherit the effective `obsidian` theme from their document trigger. Editable Lapis `FileEmbed` roots MUST establish that theme explicitly. |
 | LN-MD-066 | The local Obsidian alias layer MUST map Mira accent, focus, soft-accent, selection, and accent-foreground variables to design-core's Lapis semantic tokens. Preview-only inset MUST NOT affect nested live-edit frontmatter widgets. |
+
+The shared link sidebar rebuilds mention groups under `LN-MD-098` after late
+metadata load or `file-open`, then applies this preview contract to those rows.

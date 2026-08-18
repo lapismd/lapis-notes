@@ -13,3 +13,6 @@ load-only alias under `LN-MD-085`.
 | LN-MD-042 | A newly followed Outline file MUST start expanded while expansion choices remain stable for the current file. |
 | LN-MD-043 | Outline MUST fill its `WorkspaceViewHost`, omit title and path introduction copy, inherit resolved view paint and workspace typography, and add no hash icon. |
 | LN-MD-044 | Outline leaf headings MUST NOT reserve disclosure space. Nested guides remain beneath expanded chevron tips, leaf-child labels align with their immediate parent labels, child levels remain visibly indented, and rows preserve their trailing edge. |
+
+Late metadata and file restore for Outline are governed by `LN-MD-098` on the
+[Markdown Panels](./index.md) page.
