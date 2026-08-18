@@ -8,6 +8,7 @@ vi.mock("./provider", () => ({
     },
     provideDiagnostics: vi.fn(async () => []),
     provideCodeActions: vi.fn(async () => []),
+    warmup: vi.fn(async () => {}),
   })),
 }));
 
@@ -102,6 +103,9 @@ function createMockApp() {
       workspace: {
         on: vi.fn(() => () => undefined),
       },
+      languageServices: {
+        reportProviderFailure: vi.fn(),
+      },
     },
   };
 }
@@ -147,5 +151,31 @@ describe("SpellcheckPlugin", () => {
     plugin.unload();
     expect(providers).toHaveLength(0);
     expect(app.statusBar.items["spellcheck:status"]).toBeUndefined();
+  });
+
+  it("reports Harper setup failure without failing plugin enablement", async () => {
+    const { createSpellcheckProviderForApp } = await import("./provider");
+    vi.mocked(createSpellcheckProviderForApp).mockReturnValueOnce({
+      metadata: {
+        id: "spellcheck",
+        languages: ["markdown", "plaintext"],
+      },
+      provideDiagnostics: vi.fn(async () => []),
+      provideCodeActions: vi.fn(async () => []),
+      warmup: vi.fn(async () => {
+        throw new Error("harper setup failed");
+      }),
+    } as never);
+    const { app } = createMockApp();
+    const plugin = new SpellcheckPlugin(app as never);
+    await plugin.onload();
+
+    await vi.waitFor(() => {
+      expect(app.languageServices.reportProviderFailure).toHaveBeenCalledWith(
+        "spellcheck:spellcheck",
+        expect.objectContaining({ message: "harper setup failed" }),
+      );
+    });
+    expect(app.statusBar.items["spellcheck:status"]).toBeDefined();
   });
 });

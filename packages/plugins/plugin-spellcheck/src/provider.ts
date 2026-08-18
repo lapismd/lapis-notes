@@ -39,10 +39,14 @@ import {
 const IGNORE_COMMENT_MASK = "(?:harper|spellcheck):ignore";
 const FRONTMATTER_MASK = "^---\\r?\\n[\\s\\S]*?\\r?\\n---";
 
+export type SpellcheckLanguageServiceProvider = LanguageServiceProvider & {
+  warmup(): Promise<void>;
+};
+
 export function createSpellcheckProviderForApp(
   app: App,
   createLinter: () => Promise<HarperLinterLike> = createHarperLinter,
-): LanguageServiceProvider {
+): SpellcheckLanguageServiceProvider {
   let providerPromise: Promise<HarperLinterLike> | null = null;
   let resolved: HarperLinterLike | null = null;
   let disposed = false;
@@ -81,6 +85,9 @@ export function createSpellcheckProviderForApp(
     },
     async applyCommand(context, command) {
       await applySpellcheckCommand(app, context, command);
+    },
+    async warmup() {
+      await getLinter();
     },
     dispose() {
       if (disposed) return;

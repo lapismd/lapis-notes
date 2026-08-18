@@ -153,7 +153,9 @@ The API foundation and Storybook intake are implemented: public volatile
 storage, the source-only text view, atomic configuration batches, controller
 configuration reconciliation, exact editor-registry mirroring, required
 source-editor and Explorer plugins, the staged startup runner, canonical seed,
-and focused acceptance scenarios. The source editor shell consumes Mira base
+and focused acceptance scenarios. The editor demo registers Spell Check after
+Markdownlint; a Harper setup failure appears as a workspace-wide Problems row
+and does not fail plugin enablement (LN-SPL-008). The source editor shell consumes Mira base
 CodeMirror extensions with Obsidian theme tokens. File leaves contribute tab
 title bar breadcrumbs, history, and in-place header rename through `getChrome`,
 and the demo seed enables inline title and tab title bar visibility. Visual

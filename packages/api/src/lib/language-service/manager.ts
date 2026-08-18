@@ -22,18 +22,26 @@ import type { Menu } from "../menu.svelte";
 import { markdownlintRuleUrl } from "../components/editor/extensions/lint/lapis-lint-diagnostic-helpers";
 
 const PROVIDER_REQUEST_TIMEOUT_MS = 8_000;
+const PROVIDER_TIMEOUT_MESSAGE = "did not complete";
+
+type SettledProviderRequest<T> =
+  | { status: "ok"; value: T }
+  | { status: "timeout" };
 
 async function settleProviderRequest<T>(
   request: Promise<T | undefined> | T | undefined,
   fallback: T,
-): Promise<T> {
+): Promise<SettledProviderRequest<T>> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
-      Promise.resolve(request).then((value) => value ?? fallback),
-      new Promise<T>((resolve) => {
+      Promise.resolve(request).then((value) => ({
+        status: "ok" as const,
+        value: value ?? fallback,
+      })),
+      new Promise<SettledProviderRequest<T>>((resolve) => {
         timeoutId = setTimeout(
-          () => resolve(fallback),
+          () => resolve({ status: "timeout" }),
           PROVIDER_REQUEST_TIMEOUT_MS,
         );
       }),
@@ -43,6 +51,17 @@ async function settleProviderRequest<T>(
       clearTimeout(timeoutId);
     }
   }
+}
+
+function providerFailureMessage(id: string, error: unknown): string {
+  const reason =
+    error instanceof Error ? error.message : error ? String(error) : "";
+  if (reason === PROVIDER_TIMEOUT_MESSAGE) {
+    return `Language diagnostics provider “${id}” did not complete`;
+  }
+  return reason
+    ? `Language diagnostics provider “${id}” failed: ${reason}`
+    : `Language diagnostics provider “${id}” failed`;
 }
 
 export interface LanguageServiceDiagnosticsBinding {
@@ -69,6 +88,7 @@ export class LanguageServiceManager {
     string,
     readonly LanguageServiceCodeAction[]
   >();
+  private readonly providerFailures = new Map<string, WorkspaceDiagnostic>();
 
   constructor(
     options: {
@@ -89,6 +109,7 @@ export class LanguageServiceManager {
     return () => {
       if (this.providers.get(provider.metadata.id) === provider) {
         this.providers.delete(provider.metadata.id);
+        this.clearProviderFailure(provider.metadata.id);
         this.clearPublishedDiagnostics();
         void provider.dispose?.();
       }
@@ -97,10 +118,26 @@ export class LanguageServiceManager {
 
   bindDiagnostics(binding: LanguageServiceDiagnosticsBinding): () => void {
     this.diagnosticsBinding = binding;
+    this.publishProviderFailures();
     return () => {
       if (this.diagnosticsBinding !== binding) return;
       this.unbindDiagnostics();
     };
+  }
+
+  reportProviderFailure(id: string, error: unknown): void {
+    this.providerFailures.set(id, {
+      message: providerFailureMessage(id, error),
+      severity: "error",
+      source: "Language service",
+      code: id,
+    });
+    this.publishProviderFailures();
+  }
+
+  clearProviderFailure(id: string): void {
+    if (!this.providerFailures.delete(id)) return;
+    this.publishProviderFailures();
   }
 
   unbindDiagnostics(): void {
@@ -197,23 +234,23 @@ export class LanguageServiceManager {
       this.publishDiagnostics(document, []);
       return [];
     }
+    const skipProviderIds = new Set<string>();
     const results = await Promise.all(
-      sorted.map((provider) =>
-        settleProviderRequest(
-          provider.provideDiagnostics?.(this.context(document)).catch((error) => {
-            if (this.providers.get(provider.metadata.id) !== provider) return [];
-            console.warn("Language diagnostics provider failed", {
-              provider: provider.metadata.id,
-              error,
-            });
-            return [];
-          }),
+      sorted.map(async (provider) => {
+        const result = await this.settleProviderCapability(
+          provider,
+          "diagnostics",
+          provider.provideDiagnostics?.(this.context(document)),
           [],
-        ),
-      ),
+        );
+        if (result.timedOut || this.providerFailures.has(provider.metadata.id)) {
+          skipProviderIds.add(provider.metadata.id);
+        }
+        return result.value;
+      }),
     );
     const diagnostics = results.flatMap((diagnostics) => diagnostics ?? []);
-    await this.cacheCodeActions(document, diagnostics);
+    await this.cacheCodeActions(document, diagnostics, skipProviderIds);
     this.publishDiagnostics(document, diagnostics);
     return diagnostics;
   }
@@ -316,6 +353,7 @@ export class LanguageServiceManager {
   async codeActions(
     document: VirtualDocument,
     range: LanguageServiceRange,
+    skipProviderIds?: ReadonlySet<string>,
   ): Promise<LanguageServiceCodeAction[]> {
     this.updateDocument(document);
     await this.onBeforeResolve?.(document.languageId);
@@ -324,20 +362,17 @@ export class LanguageServiceManager {
       return [];
     }
     const results = await Promise.all(
-      sorted.map((provider) =>
-        settleProviderRequest(
-          provider
-            .provideCodeActions?.(this.context(document), range)
-            .catch((error) => {
-              console.warn("Language code action provider failed", {
-                provider: provider.metadata.id,
-                error,
-              });
-              return [];
-            }),
+      sorted.map((provider) => {
+        if (skipProviderIds?.has(provider.metadata.id)) {
+          return Promise.resolve([]);
+        }
+        return this.settleProviderCapability(
+          provider,
+          "codeActions",
+          provider.provideCodeActions?.(this.context(document), range),
           [],
-        ),
-      ),
+        ).then((result) => result.value);
+      }),
     );
     return results.flatMap((actions) => actions ?? []);
   }
@@ -401,11 +436,16 @@ export class LanguageServiceManager {
   private async cacheCodeActions(
     document: VirtualDocument,
     diagnostics: readonly LanguageServiceDiagnostic[],
+    skipProviderIds?: ReadonlySet<string>,
   ): Promise<void> {
     this.deleteCachedCodeActions(document.uri);
     await Promise.all(
       diagnostics.map(async (diagnostic) => {
-        const actions = await this.codeActions(document, diagnostic.range);
+        const actions = await this.codeActions(
+          document,
+          diagnostic.range,
+          skipProviderIds,
+        );
         if (!this.openDocuments.has(document.uri)) return;
         this.cachedCodeActions.set(
           diagnosticCacheKey(document.uri, diagnostic),
@@ -422,8 +462,53 @@ export class LanguageServiceManager {
     }
   }
 
+  private async settleProviderCapability<T>(
+    provider: LanguageServiceProvider,
+    capability: "diagnostics" | "codeActions",
+    request: Promise<T | undefined> | T | undefined,
+    fallback: T,
+  ): Promise<{ value: T; timedOut: boolean }> {
+    try {
+      const settled = await settleProviderRequest(request, fallback);
+      if (this.providers.get(provider.metadata.id) !== provider) {
+        return { value: fallback, timedOut: false };
+      }
+      if (settled.status === "timeout") {
+        this.reportProviderFailure(
+          provider.metadata.id,
+          new Error(PROVIDER_TIMEOUT_MESSAGE),
+        );
+        return { value: fallback, timedOut: true };
+      }
+      this.clearProviderFailure(provider.metadata.id);
+      return { value: settled.value, timedOut: false };
+    } catch (error) {
+      if (this.providers.get(provider.metadata.id) !== provider) {
+        return { value: fallback, timedOut: false };
+      }
+      console.warn(
+        capability === "diagnostics"
+          ? "Language diagnostics provider failed"
+          : "Language code action provider failed",
+        {
+          provider: provider.metadata.id,
+          error,
+        },
+      );
+      this.reportProviderFailure(provider.metadata.id, error);
+      return { value: fallback, timedOut: false };
+    }
+  }
+
+  private publishProviderFailures(): void {
+    const collection = this.diagnosticsBinding?.collection;
+    if (!collection || collection.disposed) return;
+    collection.set(null, [...this.providerFailures.values()]);
+  }
+
   private clearPublishedDiagnostics(): void {
     this.cachedCodeActions.clear();
+    this.providerFailures.clear();
     const collection = this.diagnosticsBinding?.collection;
     if (collection && !collection.disposed) collection.clear();
   }

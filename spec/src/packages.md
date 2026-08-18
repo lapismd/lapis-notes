@@ -226,7 +226,10 @@ matches vscode-markdownlint rather than the CLI's all-rules-on library default.
 Published diagnostics use that same rule-path message form, and the API
 language-service bridge attaches each markdownlint rule's documentation URL.
 The manager merges diagnostics and code actions from every matching provider
-so Spell Check appears beside Markdownlint (LN-WS-076).
+so Spell Check appears beside Markdownlint (LN-WS-076). A provider that throws
+or does not complete publishes a workspace-wide Problems row (LN-WS-077).
+Lapis plugin load and enable failures use the same workspace-wide path
+(LN-WS-078).
 API lint hover opens only from `.cm-lintRange` or `.cm-lint-marker`, not from a
 same-line document-position hit.
 `@lapis-notes/history` owns vault file-revision capture, the History panel, the

@@ -34,6 +34,9 @@ runtime dependency on sibling `@lapismd/ai-host`.
 | LN-PLUG-020 | F-Mode MUST register on the API-owned Design Core controller, default disabled, and remain user-enableable. It MUST NOT enter `registerCorePlugins` or `.obsidian/core-plugins.json`. AppShell enablement persistence MUST resolve the App vault when load and save run. |
 | LN-PLUG-021 | `loadPlugins({ onProgress })` MUST call `onProgress` immediately before each `enablePlugin` with `id`, `name`, `index`, and `total` for the current activation order. |
 
+Load and enable failures publish workspace-wide Problems rows and clear after
+a later successful enable (LN-WS-078). Spell Check setup failure uses the
+language-service path and MUST NOT fail enablement (LN-SPL-008, LN-WS-077).
 Explorer native copy, open, and reveal extras stay on the File Explorer
 `buildItemMenu` hook. They do not add plugin commands or a `file-menu`
 dispatch until a listener exists.

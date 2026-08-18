@@ -121,6 +121,8 @@ Storybook's editor-demo consumer owns the real startup sequence. It does not
 mount the shell until the sequence completes, and retry follows the same
 deterministic teardown path as story disposal before rebuilding from the
 canonical seed.
+Language-service provider throw or timeout and Lapis plugin load or enable
+failures publish workspace-wide Problems rows (LN-WS-077, LN-WS-078).
 Desktop and web hosts report the current plugin name on the plugins startup
 task through `PluginLoadOptions.onProgress`. Metadata cache load starts after
 layout restoration and does not block shell mount. While that cache load,

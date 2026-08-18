@@ -22,6 +22,8 @@ Markdownlint provider are implemented.
 | LN-WS-032 | Lapis MUST expose structurally compatible diagnostics through `app.workspace.diagnostics` and `Plugin.createDiagnosticCollection()`. Plugin-owned collections MUST dispose automatically without requiring community plugins to import Design Core. |
 | LN-WS-033 | `LanguageServiceManager` MUST publish completed open-document diagnostics into one shared collection and cache matching code actions. It MUST reference-count editor ownership, clear final-close and provider-unload results, and MUST NOT scan unopened vault resources. |
 | LN-WS-076 | `LanguageServiceManager` MUST merge diagnostics and code actions from every matching provider into the shared collection. Priority MUST order providers and MUST NOT hide a lower-priority match. A provider that does not complete MUST NOT block other matches. Completion and hover MAY stay first-match. |
+| LN-WS-077 | `LanguageServiceManager` MUST publish a workspace-wide (`null` resource) error when a matching diagnostics or code-action provider throws or does not complete. It MUST keep other providers' document diagnostics. It MUST clear that failure when the provider later succeeds or unloads. New diagnostics MUST NOT open Problems. |
+| LN-WS-078 | Lapis MUST publish each plugin load or enable failure as a workspace-wide error and MUST clear it after a later successful enable. It MUST NOT mirror ordinary notices or notification history. App Shell static-plugin and persistence failures remain LN-WS-031. |
 | LN-WS-056 | Cached hover and Problems actions for a diagnostic MUST belong to that diagnostic. The cache MUST expose at most one action per distinct title. |
 | LN-WS-034 | Problems navigation MUST open or focus the opaque Lapis note resource and reveal its diagnostic range. Collection menus MUST expose cached language-service actions. An action for an open resource MUST update its CodeMirror document and vault before diagnostics refresh so both surfaces consume the same result. |
 | LN-WS-035 | The Markdown editor MUST compose language-service diagnostics in Source and Live Preview with completion and hover disabled. Mira MUST continue to own completion and hover behavior while the CodeMirror lint gutter and Problems panel consume the same result. |
@@ -55,7 +57,9 @@ not add callbacks or agent-specific fields to serializable diagnostics.
   behavior, movable Problems presentation, and ephemeral leaf badge rendering.
 - Lapis API owns the compatibility façade, plugin lifecycle mapping, opaque URI
   resolution, vault navigation, editor ownership, and language-service bridge.
-  That bridge merges complementary diagnostics and code actions (LN-WS-076).
+  That bridge merges complementary diagnostics and code actions (LN-WS-076)
+  and publishes provider and plugin startup failures as workspace-wide
+  Problems (LN-WS-077, LN-WS-078).
 - Language-service packages own provider-neutral client and worker utilities.
 - Markdownlint owns Markdown rules, native/worker provider selection, fixes,
   ignore actions, and its configuration field.

@@ -52,6 +52,7 @@ import {
   type LanguageServiceCodeAction,
   type VirtualDocument,
 } from "./language-service";
+import { bindRuntimePluginDiagnostics } from "./diagnostics";
 import { ContextKeyService } from "./context-keys.svelte";
 import { StatusBarManager } from "./status-bar.svelte";
 import { AppUrlService } from "./app-url";
@@ -373,6 +374,7 @@ export class App {
       applyCodeAction: (document, action) =>
         this.applyLanguageServiceCodeAction(document, action),
     });
+    bindRuntimePluginDiagnostics(this.plugins, this.workspace.diagnostics);
     this.pluginDistribution = new DefaultPluginDistributionManager({
       ...props.pluginDistributionOptions,
       adapter,

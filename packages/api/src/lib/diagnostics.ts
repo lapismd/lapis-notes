@@ -147,6 +147,44 @@ export class DiagnosticsManager {
   }
 }
 
+export function bindRuntimePluginDiagnostics(
+  plugins: {
+    on(name: "plugin-error", listener: (id: string, message: string) => void): unknown;
+    on(
+      name: "plugin-enabled",
+      listener: (plugin: { manifest: { id: string } }) => void,
+    ): unknown;
+    offref(ref: unknown): void;
+  },
+  diagnostics: Pick<DiagnosticsManager, "createCollection">,
+): () => void {
+  const collection = diagnostics.createCollection("lapis:runtime", {
+    label: "Runtime",
+  });
+  const pluginFailures = new Map<string, WorkspaceDiagnostic>();
+  const publish = () => {
+    if (collection.disposed) return;
+    collection.set(null, [...pluginFailures.values()]);
+  };
+  const errorRef = plugins.on("plugin-error", (id, message) => {
+    pluginFailures.set(id, {
+      message,
+      severity: "error",
+      source: "Plugin",
+      code: id,
+    });
+    publish();
+  });
+  const enabledRef = plugins.on("plugin-enabled", (plugin) => {
+    if (!pluginFailures.delete(plugin.manifest.id)) return;
+    publish();
+  });
+  return () => {
+    plugins.offref(errorRef);
+    plugins.offref(enabledRef);
+  };
+}
+
 export function diagnosticResourceForPath(path: string): DiagnosticResource {
   const normalized = path.replace(/^\/+/, "");
   return {

@@ -8,10 +8,14 @@ import type {
 import { LanguageServiceManager } from "./manager";
 import type { LanguageServiceProvider, VirtualDocument } from "./types";
 
+const WORKSPACE_FAILURES = "";
+
 function createCollection(): DiagnosticCollection & {
   values: Map<string, readonly WorkspaceDiagnostic[]>;
 } {
   const values = new Map<string, readonly WorkspaceDiagnostic[]>();
+  const keyFor = (resource: DiagnosticResource | null) =>
+    resource ? resource.uri : WORKSPACE_FAILURES;
   return {
     id: "language-service",
     label: "Language service",
@@ -30,34 +34,37 @@ function createCollection(): DiagnosticCollection & {
         Symbol.iterator in resourceOrEntries
       ) {
         for (const [resource, next] of resourceOrEntries) {
-          if (resource && next?.length) values.set(resource.uri, next);
+          const key = keyFor(resource);
+          if (next?.length) values.set(key, next);
+          else values.delete(key);
         }
         return;
       }
-      if (!resourceOrEntries) return;
-      if (diagnostics?.length) values.set(resourceOrEntries.uri, diagnostics);
-      else values.delete(resourceOrEntries.uri);
+      if (resourceOrEntries === undefined) return;
+      const key = keyFor(resourceOrEntries);
+      if (diagnostics?.length) values.set(key, diagnostics);
+      else values.delete(key);
     },
     get(resource) {
-      return resource ? values.get(resource.uri) : undefined;
+      return values.get(keyFor(resource));
     },
     has(resource) {
-      return resource ? values.has(resource.uri) : false;
+      return values.has(keyFor(resource));
     },
     delete(resource) {
-      return resource ? values.delete(resource.uri) : false;
+      return values.delete(keyFor(resource));
     },
     clear() {
       values.clear();
     },
     forEach(callback) {
       for (const [uri, diagnostics] of values) {
-        callback({ uri }, diagnostics, this);
+        callback(uri ? { uri } : null, diagnostics, this);
       }
     },
     *[Symbol.iterator]() {
       for (const [uri, diagnostics] of values) {
-        yield [{ uri }, diagnostics] as const;
+        yield [uri ? { uri } : null, diagnostics] as const;
       }
     },
     dispose() {
@@ -325,9 +332,94 @@ describe("LanguageServiceManager diagnostics bridge", () => {
       expect(collection.values.get(document.uri)?.[0]?.source).toBe(
         "markdownlint",
       );
+      expect(collection.get(null)).toEqual([
+        expect.objectContaining({
+          source: "Language service",
+          code: "spellcheck",
+          message: expect.stringContaining("did not complete"),
+        }),
+      ]);
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("publishes a workspace-wide row when a provider throws and keeps other diagnostics", async () => {
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    manager.registerProvider({
+      ...provider(),
+      metadata: { ...provider().metadata, id: "markdown-lint", priority: 100 },
+    });
+    manager.registerProvider({
+      ...provider(),
+      metadata: {
+        id: "spellcheck",
+        languages: ["markdown"],
+        runtime: "in-process",
+        priority: 90,
+        capabilities: { diagnostics: true, codeActions: true },
+      },
+      provideDiagnostics: async () => {
+        throw new Error("wasm instantiate failed");
+      },
+    });
+    manager.retainDocument(document.uri);
+
+    await expect(manager.diagnostics(document)).resolves.toEqual([
+      expect.objectContaining({ source: "markdownlint" }),
+    ]);
+    expect(collection.get(null)).toEqual([
+      expect.objectContaining({
+        source: "Language service",
+        code: "spellcheck",
+        message:
+          "Language diagnostics provider “spellcheck” failed: wasm instantiate failed",
+      }),
+    ]);
+    warn.mockRestore();
+  });
+
+  it("clears a provider failure after a later successful provide", async () => {
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    let shouldFail = true;
+    manager.registerProvider({
+      ...provider(),
+      provideDiagnostics: async () => {
+        if (shouldFail) {
+          shouldFail = false;
+          throw new Error("wasm instantiate failed");
+        }
+        return [];
+      },
+    });
+    manager.retainDocument(document.uri);
+
+    await manager.diagnostics(document);
+    expect(collection.get(null)?.[0]?.code).toBe("markdownlint");
+    await manager.diagnostics(document);
+    expect(collection.get(null)).toBeUndefined();
+    warn.mockRestore();
+  });
+
+  it("publishes an eager provider failure before the first lint", () => {
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    manager.reportProviderFailure("spellcheck", new Error("harper setup failed"));
+    expect(collection.get(null)).toEqual([
+      expect.objectContaining({
+        source: "Language service",
+        code: "spellcheck",
+        message:
+          "Language diagnostics provider “spellcheck” failed: harper setup failed",
+      }),
+    ]);
   });
 
   it("runs provider applyCommand for serializable action commands", async () => {

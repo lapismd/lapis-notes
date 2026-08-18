@@ -54,10 +54,11 @@ export class SpellcheckPlugin extends Plugin {
       name: "Forget ignored suggestions",
       callback: () => this.forgetIgnored(),
     });
+    const provider = createSpellcheckProviderForApp(this.app);
     this.registerLapisServiceProvider({
       id: SPELLCHECK_PROVIDER_ID,
       service: "language-service",
-      provider: createSpellcheckProviderForApp(this.app),
+      provider,
       metadata: {
         id: SPELLCHECK_PROVIDER_ID,
         languages: ["markdown", "plaintext"],
@@ -65,6 +66,12 @@ export class SpellcheckPlugin extends Plugin {
         priority: 90,
         capabilities: { diagnostics: true, codeActions: true },
       },
+    });
+    void provider.warmup().catch((error) => {
+      this.app.languageServices.reportProviderFailure(
+        `${SPELLCHECK_PLUGIN_ID}:${SPELLCHECK_PROVIDER_ID}`,
+        error,
+      );
     });
     this.refreshStatus();
     this.register(() => this.status.hide());

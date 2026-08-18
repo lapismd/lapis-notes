@@ -11,7 +11,8 @@ Those host manifests MAY declare sibling `@lapismd/ai-host` without moving Word
 Count ownership. The same hosts register Spell Check after Markdown Lint; that
 does not change Word Count registration or status-bar ownership. Merged
 language-service diagnostics (LN-WS-076) also MUST NOT change Word Count
-ownership. Web
+ownership. Workspace-wide provider and plugin startup Problems (LN-WS-077,
+LN-WS-078) also MUST NOT change Word Count ownership. Web
 agent-server URL and token Settings stay on the web host and MUST NOT change
 Word Count registration or status-bar ownership. The token
 field uses password presentation on that host Settings surface.

@@ -177,7 +177,9 @@ API diagnostic hover cards keep unique action keys when titles repeat. The
 language-service cache keeps at most one action per title for the originating
 diagnostic, including grouped markdownlint fixes from the shared runtime.
 Diagnostics and code actions merge every matching provider; priority orders
-them and does not hide a lower-priority match (LN-WS-076).
+them and does not hide a lower-priority match (LN-WS-076). Provider throw or
+timeout and Lapis plugin load or enable failures publish workspace-wide
+Problems rows (LN-WS-077, LN-WS-078).
 Markdownlint messages use the vscode rule-path form, and the API bridge
 publishes each rule code with its documentation URL.
 Hover-card positioning reads editor layout only in the CodeMirror measure

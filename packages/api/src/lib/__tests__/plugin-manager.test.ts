@@ -17,6 +17,8 @@ import {
   type PluginLoadProgress,
   type PluginManagerOptions,
 } from "../plugin-manager";
+import { bindRuntimePluginDiagnostics } from "../diagnostics";
+import type { WorkspaceDiagnostic } from "../diagnostics";
 import { StatusBarManager } from "../status-bar.svelte";
 import { Vault } from "../storage";
 import {
@@ -451,6 +453,37 @@ function createTestApp(
     obsidian: { Plugin },
     "@lapis-notes/api": { Plugin },
   });
+  const runtimeEntries: WorkspaceDiagnostic[] = [];
+  const runtimeCollection = {
+    disposed: false,
+    set(
+      _resource: unknown,
+      diagnostics: readonly WorkspaceDiagnostic[] | undefined,
+    ) {
+      runtimeEntries.splice(0, runtimeEntries.length, ...(diagnostics ?? []));
+    },
+  };
+  (app.workspace as { diagnostics?: unknown }).diagnostics = {
+    createCollection: () => runtimeCollection,
+    snapshot: () => ({
+      entries: runtimeEntries.map((diagnostic) => ({
+        key: String(diagnostic.code),
+        collectionId: "lapis:runtime",
+        collectionLabel: "Runtime",
+        resource: null,
+        diagnostic,
+      })),
+      counts: {
+        error: runtimeEntries.length,
+        warning: 0,
+        information: 0,
+        hint: 0,
+      },
+    }),
+  };
+  bindRuntimePluginDiagnostics(plugins, {
+    createCollection: () => runtimeCollection,
+  } as never);
 
   return {
     app: app as App & {
@@ -826,6 +859,68 @@ describe("PluginManager", () => {
     expect(app.plugins.plugins.get("broken-core")?.state).toBe("failed");
     expect(app.commands.commands["healthy-core:healthy"]).toBeDefined();
     expect(app.commands.commands["broken-core:explode"]).toBeUndefined();
+    expect(
+      app.workspace.diagnostics.snapshot().entries.filter(
+        (entry) => entry.resource === null,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          diagnostic: expect.objectContaining({
+            source: "Plugin",
+            code: "broken-core",
+            message: expect.stringContaining("Failed to enable plugin broken-core"),
+          }),
+        }),
+      ]),
+    );
+  });
+
+  it("clears a workspace-wide plugin failure after a later successful enable", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+    let attempts = 0;
+
+    class FlakyCorePlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "flaky-core",
+          name: "Flaky Core",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+
+      async onload() {
+        attempts += 1;
+        if (attempts === 1) {
+          throw new Error("first load failed");
+        }
+      }
+    }
+
+    app.plugins.registerCorePlugins([FlakyCorePlugin]);
+    await app.plugins.loadPlugins();
+    expect(
+      app.workspace.diagnostics
+        .snapshot()
+        .entries.some(
+          (entry) =>
+            entry.resource === null && entry.diagnostic.code === "flaky-core",
+        ),
+    ).toBe(true);
+
+    await expect(app.plugins.enablePlugin("flaky-core")).resolves.toBe(true);
+    expect(
+      app.workspace.diagnostics
+        .snapshot()
+        .entries.some(
+          (entry) =>
+            entry.resource === null && entry.diagnostic.code === "flaky-core",
+        ),
+    ).toBe(false);
   });
 
   it("reports enable progress for each activated core plugin", async () => {
