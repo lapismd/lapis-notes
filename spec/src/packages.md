@@ -118,9 +118,10 @@ Core while exporting only Lapis-owned structural types and lifecycle helpers.
 Live Problems totals therefore use Design Core's structured, ephemeral view
 badge and never enter Lapis layout state or package-owned panel markup.
 API projection treats Problems as host-owned even before the view is
-registered, so `loadLayout` restores a persisted leaf as `workspace:problems`
-and later API commits do not replace it with an empty missing-view
-placeholder. Hydration does not seed a quiet bottom tab.
+registered, so `loadLayout` restores a persisted leaf or leftover ghost
+placeholder as `workspace:problems` and later API commits do not replace it
+with an empty missing-view surface. Hydration does not seed a quiet bottom
+tab.
 The same claim-by-id path keeps each leaf's live `getState()` and opens files
 on an empty or file-backed main leaf rather than a plugin item view.
 Missing-view placeholders expose the Lucide `ghost` icon through `EmptyView`.

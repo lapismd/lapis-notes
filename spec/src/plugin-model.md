@@ -84,8 +84,8 @@ The core configuration continues to accept the legacy array and the object
 form. Missing-view placeholders retain the original view type and serialized
 state so restart and later enablement use the existing workspace recovery path.
 Required host-owned views such as Problems keep their host view type,
-including during layout restore before plugin start, instead of being
-rewritten as empty placeholders.
+including during layout restore before plugin start, and remount leftover
+ghost placeholders after the required plugin starts.
 Plugin configuration and data remain keyed by runtime plugin ID.
 Bundled plugins that own user-facing configuration register Design Core
 settings sections under `core-plugins` in addition to any legacy

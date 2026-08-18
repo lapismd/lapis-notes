@@ -1595,6 +1595,60 @@ describe("Workspace compatibility", () => {
     }
   });
 
+  it("remounts a ghost Problems placeholder after loadLayout then start", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller;
+    const layout = workspace.toJson();
+    layout.bottom = {
+      ...layout.bottom,
+      height: "240px",
+      children: [
+        {
+          id: "ghost-problems",
+          type: "leaf",
+          state: {
+            type: "empty",
+            state: { __missingViewType: "workspace:problems" },
+            icon: "ghost",
+            title: "Problems",
+          },
+        },
+      ],
+    };
+    const workspaceFile = new TFile(
+      "/.obsidian/workspace.json",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    vi.spyOn(app.vault, "getFileByPath").mockReturnValue(workspaceFile);
+    vi.spyOn(app.vault, "read").mockResolvedValue(JSON.stringify(layout));
+
+    await workspace.loadLayout();
+    await controller.start();
+    try {
+      const [leaf] = workspace.getLeavesOfType("workspace:problems");
+      expect(workspace.getLeavesOfType("workspace:problems")).toHaveLength(1);
+      expect(
+        controller.workspace.getLeavesOfType("workspace:problems"),
+      ).toHaveLength(1);
+      expect(leaf?.view.getViewType()).toBe("workspace:problems");
+      expect(leaf?.getIcon()).not.toBe("ghost");
+      const bottom = controller.getLayout().bottom?.children ?? [];
+      expect(bottom).toHaveLength(1);
+      expect(bottom[0]).toMatchObject({
+        state: {
+          type: "workspace:problems",
+          icon: "circle-alert",
+        },
+      });
+      expect(JSON.stringify(controller.getLayout())).not.toContain(
+        "__missingViewType",
+      );
+    } finally {
+      await controller.dispose();
+    }
+  });
+
   it("restores a host-owned Problems leaf from a missing-view placeholder", async () => {
     const { workspace } = createWorkspaceHarness();
     const controller = getWorkspaceHostBinding(workspace).controller;

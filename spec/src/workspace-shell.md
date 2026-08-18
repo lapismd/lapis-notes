@@ -61,8 +61,10 @@ persistence, and application-host responsibilities.
    design-core renders the built-in empty state directly. Host-registered
    class views such as Problems stay on the controller. API projection treats
    Problems as host-owned before plugin start so `loadLayout` restores a
-   persisted leaf, and later API commits do not replace it with a
-   missing-view placeholder. Hydration does not seed a quiet bottom tab.
+   persisted leaf or leftover ghost placeholder, and later API commits do
+   not replace it with a missing-view surface. Hydration does not seed a
+   quiet bottom tab. After the required plugin starts the leaf remounts as
+   Problems.
 6. The api configures built-in application/version metadata and the minimal
    design-core notifications presentation without invoking the Lapis plugin
    loader.
