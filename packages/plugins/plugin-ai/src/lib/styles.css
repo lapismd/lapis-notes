@@ -317,10 +317,9 @@
   accent-color: var(--primary);
 }
 
-[data-ui-component="ai-chat-panel"] .ai-chat-panel__model-badges {
-  margin-inline-start: 0.5rem;
-  color: var(--muted-foreground);
-  font-size: 0.75rem;
+[data-ai-part="model-badge"] {
+  margin-inline-start: 0.35em;
+  color: color-mix(in srgb, var(--foreground) 42%, var(--background));
 }
 
 [data-ui-component="ai-chat-panel"]

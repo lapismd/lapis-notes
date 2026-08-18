@@ -615,8 +615,8 @@
                         >
                           {option.displayName ?? option.model}
                           {#if option.badges?.length}
-                            <span class="ai-chat-panel__model-badges">
-                              {option.badges.join(" · ")}
+                            <span data-ai-part="model-badge">
+                              {option.badges.join(" ")}
                             </span>
                           {/if}
                         </DropdownMenu.RadioItem>

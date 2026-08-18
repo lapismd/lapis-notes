@@ -73,6 +73,15 @@ describe("AiPlugin contracts", () => {
     expect(source).not.toContain("globalThis.app");
   });
 
+  it("renders model badges as muted portaled text", () => {
+    const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
+    const css = readFileSync("src/lib/styles.css", "utf8");
+
+    expect(panel).toContain('data-ai-part="model-badge"');
+    expect(css).toContain("[data-ai-part=\"model-badge\"]");
+    expect(css).toContain("color-mix(in srgb, var(--foreground) 42%, var(--background))");
+  });
+
   it("persists composer agent, model, and thinking through updateSettings", () => {
     const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
 
