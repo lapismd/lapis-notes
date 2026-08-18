@@ -13,6 +13,7 @@ persistence, and application-host responsibilities.
 | LN-WS-062 | Each persisted leaf record MUST include that leaf's view type and live `view.getState()` snapshot. `loadJson` and controller projection MUST NOT apply an empty or poorer snapshot onto a claimed leaf of the same type. |
 | LN-WS-063 | `Workspace.getLeaf()` without a new-leaf flag and `App.openFile` MUST reuse an empty or file-backed main-area leaf, or create a new main tab. They MUST NOT replace a non-file main-area view and MUST NOT reuse a sidebar leaf. |
 | LN-WS-070 | `WorkspaceLeaf.openFile` MUST trigger `file-open` with the opened file after `onLoadFile` succeeds. It MUST fire even when layout persistence is suppressed. |
+| LN-WS-071 | `WorkspaceLeaf.open` MUST load a non-file view even when persisted state includes a `file` path. It MUST call `openFile` only when that view is a `FileView`. |
 | LN-WS-064 | An imperative view host MUST remount a Lapis view only when the tab id or view type changes. Remount MUST look up the existing leaf by that id and reattach its `containerEl`. |
 | LN-WS-065 | A missing-view placeholder MUST use the Lucide `ghost` icon on the leaf and the Design Core empty surface. An ordinary empty New Tab MUST keep the file empty icon. |
 | LN-WS-003 | `@lapis-notes/api/workspace-host` MUST be the only public host integration subpath and MUST return the api-owned design-core controller without adding design-core types to the root compatibility export.                                                                                                           |
@@ -85,7 +86,8 @@ local buttons, focus state, compact action geometry, or paint overrides.
 The compatibility projection reuses split, tabs, group, window, and leaf
 objects by serialized id and keeps each claimed leaf's live `getState()`
 snapshot. File opens target an empty or file-backed main-area leaf rather than
-replacing a non-file view. Imperative hosts remount only when tab id or view
+replacing a non-file view. Restoring a non-file leaf MUST load that view even
+when its snapshot includes a follow `file` path. Imperative hosts remount only when tab id or view
 type changes. Missing-view placeholders use the Lucide ghost icon on the leaf
 and Design Core empty surface; ordinary empty New Tabs keep the file icon. Api-origin changes are committed under a bridge guard;
 controller-originated changes are projected asynchronously under persistence

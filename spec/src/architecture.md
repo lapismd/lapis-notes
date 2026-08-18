@@ -225,7 +225,8 @@ leftover empty missing-view placeholder remounts as `workspace:problems`
 instead of a ghost surface. Hydration does not seed a quiet bottom tab. Claimed leaves keep their serialized id and live
 `getState()` across collapse, remount, and controller projection. Default file
 navigation reuses an empty or file-backed main leaf instead of replacing a
-non-file view. Missing-view placeholders use the Lucide ghost icon; ordinary
+non-file view. Restoring a non-file leaf still loads that view when its
+snapshot includes a follow `file` path. Missing-view placeholders use the Lucide ghost icon; ordinary
 empty New Tabs keep the file empty icon. Settings displayed by the shell remain
 controller-owned while persisting through api configuration; the workspace
 shell does not initiate configuration or plugin loading. A missing workspace

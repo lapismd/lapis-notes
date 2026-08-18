@@ -798,6 +798,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WS-058   | workspace-shell                 | Implemented | Workspace/Shell Bottom Panel Settings and WorkspaceShell mount test open Settings from the left-ribbon bottom control                                                                    |
 | LN-WS-059   | workspace-shell                 | Implemented | API loadLayout without a workspace file seeds left File Explorer then Search and right Outline, File Properties, then Tags without writing |
 | LN-WS-070   | workspace-shell                 | Implemented | openFile triggers file-open after onLoadFile, including when layout persistence is suppressed |
+| LN-WS-071   | workspace-shell                 | Implemented | API restore of a command panel whose state includes an existing vault `file` path keeps that view type, reports loaded, and does not become a file editor |
 | LN-WS-060   | workspace-shell                 | Implemented | API tests save and load a named layout through `.obsidian/workspaces.json` and register the Save/Load commands |
 | LN-WS-061   | workspace-shell                 | Implemented | API reset-layout test restores the default sidebar seed and persists workspace.json |
 | LN-WC-001   | wordcount-plugin                | Implemented | wordcount package, manifest id, and `enabledByDefault: true` host registrations                                                                                                                                                                          |

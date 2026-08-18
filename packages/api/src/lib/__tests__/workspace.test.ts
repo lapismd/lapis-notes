@@ -1500,6 +1500,41 @@ describe("Workspace compatibility", () => {
     });
   });
 
+  it("loads a non-file view when persisted state includes a file path", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    workspace.registerView(
+      "backlink",
+      (leaf) => new MockItemView(leaf, "backlink", "Backlinks"),
+    );
+    const file = new TFile(
+      "Notes/Followed.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    vi.spyOn(app.vault, "getFileByPath").mockImplementation((path) =>
+      path === file.path ? file : null,
+    );
+    const leaf = workspace.getLeaf(true);
+
+    await leaf.setViewState({
+      type: "backlink",
+      state: {
+        file: file.path,
+        collapseAll: false,
+        unlinkedCollapsed: true,
+      },
+    });
+
+    expect(leaf.view).toBeInstanceOf(MockItemView);
+    expect(leaf.view.getViewType()).toBe("backlink");
+    expect(leaf.view.loaded).toBe(true);
+    expect(leaf.view.getState()).toMatchObject({ file: file.path });
+    expect(leaf.getViewState()).toMatchObject({
+      type: "backlink",
+      state: { file: file.path },
+    });
+  });
+
   it("retains an unavailable missing-view placeholder", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const leaf = workspace.getLeaf(true);

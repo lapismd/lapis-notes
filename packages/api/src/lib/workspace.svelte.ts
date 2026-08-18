@@ -5469,9 +5469,9 @@ export class WorkspaceLeaf extends WorkspaceItem<{
     const filePath = (state || this.state)?.state?.["file"]?.toString();
     const file = filePath ? this.app.vault.getFileByPath(filePath) : null;
     this.view = view;
-    if (file instanceof TFile) {
+    if (view instanceof FileView && file instanceof TFile) {
       return this.openFile(file, { view, result, state }).then(() => view);
-    } else if (filePath) {
+    } else if (view instanceof FileView && filePath) {
       new Notice(`Unable to load file: ${filePath}`, undefined, this.app);
     }
     this.prepareContainerForView(view);
