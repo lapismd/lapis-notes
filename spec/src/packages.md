@@ -225,6 +225,8 @@ Markdownlint Settings seed MD013/line-length in `disabledRules` so the editor
 matches vscode-markdownlint rather than the CLI's all-rules-on library default.
 Published diagnostics use that same rule-path message form, and the API
 language-service bridge attaches each markdownlint rule's documentation URL.
+The manager merges diagnostics and code actions from every matching provider
+so Spell Check appears beside Markdownlint (LN-WS-076).
 API lint hover opens only from `.cm-lintRange` or `.cm-lint-marker`, not from a
 same-line document-position hit.
 `@lapis-notes/history` owns vault file-revision capture, the History panel, the

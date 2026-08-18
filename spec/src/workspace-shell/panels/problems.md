@@ -21,6 +21,7 @@ Markdownlint provider are implemented.
 | LN-WS-031 | The App Shell MUST publish active static-plugin enablement and layout, configuration, plugin-state, and notification-persistence failures through an internal collection. It MUST clear each failure after recovery and MUST NOT mirror ordinary notices or notification history. |
 | LN-WS-032 | Lapis MUST expose structurally compatible diagnostics through `app.workspace.diagnostics` and `Plugin.createDiagnosticCollection()`. Plugin-owned collections MUST dispose automatically without requiring community plugins to import Design Core. |
 | LN-WS-033 | `LanguageServiceManager` MUST publish completed open-document diagnostics into one shared collection and cache matching code actions. It MUST reference-count editor ownership, clear final-close and provider-unload results, and MUST NOT scan unopened vault resources. |
+| LN-WS-076 | `LanguageServiceManager` MUST merge diagnostics and code actions from every matching provider into the shared collection. Priority MUST order providers and MUST NOT hide a lower-priority match. A provider that does not complete MUST NOT block other matches. Completion and hover MAY stay first-match. |
 | LN-WS-056 | Cached hover and Problems actions for a diagnostic MUST belong to that diagnostic. The cache MUST expose at most one action per distinct title. |
 | LN-WS-034 | Problems navigation MUST open or focus the opaque Lapis note resource and reveal its diagnostic range. Collection menus MUST expose cached language-service actions. An action for an open resource MUST update its CodeMirror document and vault before diagnostics refresh so both surfaces consume the same result. |
 | LN-WS-035 | The Markdown editor MUST compose language-service diagnostics in Source and Live Preview with completion and hover disabled. Mira MUST continue to own completion and hover behavior while the CodeMirror lint gutter and Problems panel consume the same result. |
@@ -54,6 +55,7 @@ not add callbacks or agent-specific fields to serializable diagnostics.
   behavior, movable Problems presentation, and ephemeral leaf badge rendering.
 - Lapis API owns the compatibility façade, plugin lifecycle mapping, opaque URI
   resolution, vault navigation, editor ownership, and language-service bridge.
+  That bridge merges complementary diagnostics and code actions (LN-WS-076).
 - Language-service packages own provider-neutral client and worker utilities.
 - Markdownlint owns Markdown rules, native/worker provider selection, fixes,
   ignore actions, and its configuration field.

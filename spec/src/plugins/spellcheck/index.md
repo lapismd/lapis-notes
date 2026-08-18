@@ -26,6 +26,9 @@ Spell Check Settings cover Harper options and file-type filters:
 - `enabledFileTypes` MUST default to `markdown` and `plaintext`. `checkFrontmatter` MUST default off. Include and exclude globs MUST use the shared editor-association dialect.
 - `isolateEnglish` and `ignoreLinkTitle` MUST default off. `maxFileLength` MUST default to 120000 bytes. `numSuggestions` MUST default to 8.
 
+The shared language-service collection publishes those diagnostics beside
+Markdownlint because `LanguageServiceManager` merges every matching provider
+(LN-WS-076).
 Settings persist through API configuration. Markdown mode skips code fences.
 Ignore comments such as `harper:ignore` MAY mask regions through Harper
 `regex_mask`. Browser `editor.behaviour.spellCheck` remains a separate setting.

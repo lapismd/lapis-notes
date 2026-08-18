@@ -21,6 +21,30 @@ import type {
 import type { Menu } from "../menu.svelte";
 import { markdownlintRuleUrl } from "../components/editor/extensions/lint/lapis-lint-diagnostic-helpers";
 
+const PROVIDER_REQUEST_TIMEOUT_MS = 8_000;
+
+async function settleProviderRequest<T>(
+  request: Promise<T | undefined> | T | undefined,
+  fallback: T,
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      Promise.resolve(request).then((value) => value ?? fallback),
+      new Promise<T>((resolve) => {
+        timeoutId = setTimeout(
+          () => resolve(fallback),
+          PROVIDER_REQUEST_TIMEOUT_MS,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
 export interface LanguageServiceDiagnosticsBinding {
   collection: DiagnosticCollection;
   applyCodeAction: (
@@ -173,20 +197,19 @@ export class LanguageServiceManager {
       this.publishDiagnostics(document, []);
       return [];
     }
-    const topPriority = sorted[0].metadata.priority ?? 0;
-    const tier = sorted.filter(
-      (provider) => (provider.metadata.priority ?? 0) === topPriority,
-    );
     const results = await Promise.all(
-      tier.map((provider) =>
-        provider.provideDiagnostics?.(this.context(document)).catch((error) => {
-          if (this.providers.get(provider.metadata.id) !== provider) return [];
-          console.warn("Language diagnostics provider failed", {
-            provider: provider.metadata.id,
-            error,
-          });
-          return [];
-        }),
+      sorted.map((provider) =>
+        settleProviderRequest(
+          provider.provideDiagnostics?.(this.context(document)).catch((error) => {
+            if (this.providers.get(provider.metadata.id) !== provider) return [];
+            console.warn("Language diagnostics provider failed", {
+              provider: provider.metadata.id,
+              error,
+            });
+            return [];
+          }),
+          [],
+        ),
       ),
     );
     const diagnostics = results.flatMap((diagnostics) => diagnostics ?? []);
@@ -300,21 +323,20 @@ export class LanguageServiceManager {
     if (!sorted.length) {
       return [];
     }
-    const topPriority = sorted[0].metadata.priority ?? 0;
-    const tier = sorted.filter(
-      (provider) => (provider.metadata.priority ?? 0) === topPriority,
-    );
     const results = await Promise.all(
-      tier.map((provider) =>
-        provider
-          .provideCodeActions?.(this.context(document), range)
-          .catch((error) => {
-            console.warn("Language code action provider failed", {
-              provider: provider.metadata.id,
-              error,
-            });
-            return [];
-          }),
+      sorted.map((provider) =>
+        settleProviderRequest(
+          provider
+            .provideCodeActions?.(this.context(document), range)
+            .catch((error) => {
+              console.warn("Language code action provider failed", {
+                provider: provider.metadata.id,
+                error,
+              });
+              return [];
+            }),
+          [],
+        ),
       ),
     );
     return results.flatMap((actions) => actions ?? []);

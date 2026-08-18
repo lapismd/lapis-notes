@@ -233,6 +233,103 @@ describe("LanguageServiceManager diagnostics bridge", () => {
     ]);
   });
 
+  it("merges diagnostics and code actions from every matching priority", async () => {
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    manager.registerProvider({
+      ...provider(),
+      metadata: {
+        ...provider().metadata,
+        id: "markdown-lint",
+        priority: 100,
+      },
+    });
+    manager.registerProvider({
+      ...provider(),
+      metadata: {
+        id: "spellcheck",
+        languages: ["markdown"],
+        runtime: "in-process",
+        priority: 90,
+        capabilities: { diagnostics: true, codeActions: true },
+      },
+      async provideDiagnostics() {
+        return [
+          {
+            message: "Did you mean “going”?",
+            severity: "error",
+            source: "harper",
+            code: "SpellCheck",
+            range: {
+              start: { line: 0, character: 8 },
+              end: { line: 0, character: 12 },
+            },
+          },
+        ];
+      },
+      async provideCodeActions() {
+        return [{ title: "Replace with “going”" }];
+      },
+    });
+    manager.retainDocument(document.uri);
+
+    const diagnostics = await manager.diagnostics(document);
+    expect(diagnostics.map((entry) => entry.source)).toEqual([
+      "markdownlint",
+      "harper",
+    ]);
+    expect(
+      collection.values.get(document.uri)?.map((entry) => entry.source),
+    ).toEqual(["markdownlint", "harper"]);
+
+    await expect(
+      manager.codeActions(document, {
+        start: { line: 0, character: 0 },
+        end: { line: 0, character: 12 },
+      }),
+    ).resolves.toEqual([
+      expect.objectContaining({ title: "Fix heading level" }),
+      expect.objectContaining({ title: "Replace with “going”" }),
+    ]);
+  });
+
+  it("does not drop a completed provider when another diagnostics request hangs", async () => {
+    vi.useFakeTimers();
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    manager.registerProvider({
+      ...provider(),
+      metadata: { ...provider().metadata, id: "markdown-lint", priority: 100 },
+    });
+    manager.registerProvider({
+      ...provider(),
+      metadata: {
+        id: "spellcheck",
+        languages: ["markdown"],
+        runtime: "in-process",
+        priority: 90,
+        capabilities: { diagnostics: true, codeActions: true },
+      },
+      provideDiagnostics: () => new Promise(() => {}),
+    });
+    manager.retainDocument(document.uri);
+
+    const request = manager.diagnostics(document);
+    try {
+      await vi.advanceTimersByTimeAsync(8_000);
+      await expect(request).resolves.toEqual([
+        expect.objectContaining({ source: "markdownlint" }),
+      ]);
+      expect(collection.values.get(document.uri)?.[0]?.source).toBe(
+        "markdownlint",
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("runs provider applyCommand for serializable action commands", async () => {
     const manager = new LanguageServiceManager();
     const applyCommand = vi.fn();
