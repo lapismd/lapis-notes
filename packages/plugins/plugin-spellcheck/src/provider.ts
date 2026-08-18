@@ -21,6 +21,7 @@ import {
 import {
   SPELLCHECK_ADD_TO_DICTIONARY_COMMAND,
   SPELLCHECK_IGNORE_LINT_COMMAND,
+  SPELLCHECK_IGNORE_WORD_COMMAND,
   SPELLCHECK_PROVIDER_ID,
 } from "./ids";
 import {
@@ -260,10 +261,26 @@ async function codeActionsFromLints(
       const change = toSingleReplacement(text, updated);
       if (!change) continue;
       actions.push({
-        title: replacement ? `Replace with “${replacement}”` : "Remove word",
+        title: replacement || "Remove word",
         kind: "quickfix",
         diagnostics: [diagnostic],
         edit: { changes: [change] },
+      });
+    }
+    if (
+      problem &&
+      !result.settings.userDictionary.some(
+        (word) => word.toLocaleLowerCase() === problem.toLocaleLowerCase(),
+      )
+    ) {
+      actions.push({
+        title: `Add: "${problem}" to dictionary`,
+        kind: "quickfix",
+        diagnostics: [diagnostic],
+        command: {
+          id: SPELLCHECK_ADD_TO_DICTIONARY_COMMAND,
+          arguments: [problem],
+        },
       });
     }
     if (
@@ -273,11 +290,11 @@ async function codeActionsFromLints(
       )
     ) {
       actions.push({
-        title: `Add “${problem}” to dictionary`,
+        title: `Ignore: "${problem}"`,
         kind: "quickfix",
         diagnostics: [diagnostic],
         command: {
-          id: SPELLCHECK_ADD_TO_DICTIONARY_COMMAND,
+          id: SPELLCHECK_IGNORE_WORD_COMMAND,
           arguments: [problem],
         },
       });
@@ -313,6 +330,16 @@ async function applySpellcheckCommand(
     }
     await updateSpellcheckSetting(app, SPELLCHECK_SETTING_IDS.userDictionary, [
       ...settings.userDictionary,
+      argument,
+    ]);
+    return;
+  }
+  if (command.id === SPELLCHECK_IGNORE_WORD_COMMAND) {
+    if (settings.ignoreWords.includes(argument)) {
+      return;
+    }
+    await updateSpellcheckSetting(app, SPELLCHECK_SETTING_IDS.ignoreWords, [
+      ...settings.ignoreWords,
       argument,
     ]);
     return;

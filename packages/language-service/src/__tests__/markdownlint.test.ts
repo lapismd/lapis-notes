@@ -7,6 +7,8 @@ import {
 import {
   formatMarkdownlintMessage,
   markdownCodeActionsFromIssues,
+  markdownlintActionTitle,
+  MARKDOWN_LINT_DISABLE_RULE_COMMAND,
 } from "../markdownlint/runtime-core";
 import { lint } from "markdownlint/sync";
 import { applyFix, applyFixes } from "markdownlint";
@@ -28,6 +30,10 @@ function lintMarkdown(content: string, rules?: Record<string, unknown>) {
     strings: { "note.md": content },
     ...createMarkdownlintLintOptions(rules),
   });
+}
+
+function rulePathFromMessage(message: string): string {
+  return message.split(":")[0] ?? "";
 }
 
 function applySingleCodeAction(
@@ -184,8 +190,10 @@ describe("markdownlint sync API", () => {
     expect(diagnostic).toBeDefined();
 
     const actions = markdownCodeActionsForDocument(document, diagnostic.range);
+    const rulePath = rulePathFromMessage(diagnostic.message);
     const fixAction = actions.find(
-      (action) => action.title === "Fix markdownlint MD018",
+      (action) =>
+        action.title === markdownlintActionTitle("fixThis", rulePath),
     );
 
     expect(fixAction).toBeDefined();
@@ -217,8 +225,10 @@ describe("markdownlint sync API", () => {
     expect(diagnostic).toBeDefined();
 
     const actions = markdownCodeActionsForDocument(document, diagnostic.range);
+    const rulePath = rulePathFromMessage(diagnostic.message);
     const ignoreNextLineAction = actions.find(
-      (action) => action.title === "Ignore markdownlint MD018 on next line",
+      (action) =>
+        action.title === markdownlintActionTitle("disableLine", rulePath),
     );
 
     expect(ignoreNextLineAction).toBeDefined();
@@ -264,8 +274,10 @@ describe("markdownlint sync API", () => {
     expect(diagnostic).toBeDefined();
 
     const actions = markdownCodeActionsForDocument(document, diagnostic.range);
+    const rulePath = rulePathFromMessage(diagnostic.message);
     const ignoreFileAction = actions.find(
-      (action) => action.title === "Ignore markdownlint MD018 for this file",
+      (action) =>
+        action.title === markdownlintActionTitle("disableFile", rulePath),
     );
 
     expect(ignoreFileAction).toBeDefined();
@@ -293,14 +305,17 @@ describe("markdownlint sync API", () => {
     expect(diagnostic).toBeDefined();
 
     const actions = markdownCodeActionsForDocument(document, diagnostic.range);
+    const rulePath = rulePathFromMessage(diagnostic.message);
     expect(
       actions.some(
-        (action) => action.title === "Ignore markdownlint MD022 on next line",
+        (action) =>
+          action.title === markdownlintActionTitle("disableLine", rulePath),
       ),
     ).toBe(false);
     expect(
       actions.some(
-        (action) => action.title === "Ignore markdownlint MD022 for this file",
+        (action) =>
+          action.title === markdownlintActionTitle("disableFile", rulePath),
       ),
     ).toBe(true);
   });
@@ -336,16 +351,31 @@ describe("markdownlint sync API", () => {
       (fixable) => applyFixes(document.text, fixable),
     );
     const titles = actions.map((action) => action.title);
-    expect(titles).toEqual([...new Set(titles)]);
-    expect(titles.filter((title) => title === "Fix markdownlint MD032")).toEqual(
-      ["Fix markdownlint MD032"],
-    );
+    const rulePath = "MD032";
+    expect(
+      titles.filter(
+        (title) => title === markdownlintActionTitle("fixThis", rulePath),
+      ),
+    ).toHaveLength(2);
+    expect(titles).toContain(markdownlintActionTitle("fixAll", rulePath));
+    expect(titles).toContain(markdownlintActionTitle("disableLine", rulePath));
+    expect(titles).toContain(markdownlintActionTitle("disableFile", rulePath));
+    expect(titles).toContain(markdownlintActionTitle("disableVault", rulePath));
+    expect(
+      actions.find(
+        (action) =>
+          action.title === markdownlintActionTitle("disableVault", rulePath),
+      )?.command,
+    ).toEqual({
+      id: MARKDOWN_LINT_DISABLE_RULE_COMMAND,
+      arguments: ["MD032"],
+    });
 
-    const fixAction = actions.find(
-      (action) => action.title === "Fix markdownlint MD032",
+    const fixAll = actions.find(
+      (action) => action.title === markdownlintActionTitle("fixAll", rulePath),
     );
-    expect(fixAction).toBeDefined();
-    const updated = applySingleCodeAction(content, fixAction);
+    expect(fixAll).toBeDefined();
+    const updated = applySingleCodeAction(content, fixAll);
     expect(updated).toBe(["# Title", "", "- item", "", "next", ""].join("\n"));
   });
 });

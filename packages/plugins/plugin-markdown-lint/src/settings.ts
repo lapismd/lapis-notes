@@ -67,6 +67,14 @@ export function readMarkdownLintSettings(app: App): MarkdownLintSettings {
   };
 }
 
+export async function updateMarkdownLintSetting(
+  app: App,
+  id: string,
+  value: unknown,
+): Promise<void> {
+  await app.configuration.updateConfigurationOption(id, value);
+}
+
 export function markdownLintRulesFromSettings(
   settings: MarkdownLintSettings,
 ): Record<string, unknown> | undefined {

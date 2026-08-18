@@ -416,16 +416,23 @@
   background: color-mix(in srgb, var(--secondary) 82%, var(--foreground) 8%);
 }
 
-[data-ui-component="editor"][data-ui-part="lint-action"] {
+[data-ui-component="editor"][data-ui-part="lint-action"],
+[data-ui-component="editor"][data-ui-part="lint-quick-fix"] {
   height: auto;
   padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--foreground);
   text-underline-offset: 2px;
+  cursor: pointer;
 }
 
-[data-ui-component="editor"][data-ui-part="lint-action"]:hover {
+[data-ui-component="editor"][data-ui-part="lint-action"]:hover,
+[data-ui-component="editor"][data-ui-part="lint-quick-fix"]:hover,
+[data-ui-component="editor"][data-ui-part="lint-quick-fix"][data-state="open"] {
   color: var(--ui-editor-lint-accent);
   text-decoration: underline;
 }

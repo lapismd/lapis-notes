@@ -683,7 +683,7 @@ export const MarkdownProblems: Story = {
     const documentCanvas = within(canvasElement.ownerDocument.body);
     await documentCanvas.findByRole("menuitem", { name: "Copy Message" });
     const fix = await documentCanvas.findByRole("menuitem", {
-      name: "Fix markdownlint MD018",
+      name: /Fix this violation of `MD018/,
     });
     await userEvent.click(fix);
 
@@ -762,7 +762,7 @@ export const MarkdownProblems: Story = {
 export const MarkdownSpellcheck: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-markdown-spellcheck",
-    "A misspelled open note shares Harper diagnostics between the editor gutter and Problems, including the row quick-fix control and one replace action.",
+    "A misspelled open note shares Harper diagnostics between the editor gutter and Problems, including the severity-slot Quick fix, a bare suggestion, and Add/Ignore word actions.",
     "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-spellcheck-chromium.png",
   ),
   tags: ["visual-pending", "test"],
@@ -809,13 +809,24 @@ export const MarkdownSpellcheck: Story = {
       return button;
     });
     await userEvent.click(quickFix);
+    const menu = within(canvasElement.ownerDocument.body);
+    await waitFor(() => {
+      expect(
+        menu.getByRole("menuitem", { name: /Add: ".*?" to dictionary/u }),
+      ).toBeVisible();
+      expect(menu.getByRole("menuitem", { name: /Ignore: "/u })).toBeVisible();
+    });
     const replace = await waitFor(() => {
-      const item = within(canvasElement.ownerDocument.body).getByRole(
-        "menuitem",
-        { name: /Replace with/i },
+      const items = menu.getAllByRole("menuitem");
+      const suggestion = items.find(
+        (item) =>
+          item.textContent &&
+          !item.textContent.startsWith("Add:") &&
+          !item.textContent.startsWith("Ignore"),
       );
-      expect(item).toBeVisible();
-      return item;
+      expect(suggestion).toBeDefined();
+      expect(suggestion).toBeVisible();
+      return suggestion!;
     });
     await userEvent.click(replace);
     await waitFor(() => {

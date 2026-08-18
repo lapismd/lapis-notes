@@ -67,6 +67,10 @@ type RegisteredProvider = {
     metadata: { id: string; languages: string[] };
     provideDiagnostics(context: unknown): Promise<unknown[]>;
     provideCodeActions(context: unknown, range: unknown): Promise<unknown[]>;
+    applyCommand?(
+      context: unknown,
+      command: { id: string; arguments?: unknown[] },
+    ): Promise<void>;
   };
   metadata: { id: string; languages: string[] };
 };
@@ -76,12 +80,16 @@ function createMockApp(values: Record<string, unknown> = {}) {
 
   return {
     providers,
+    values,
     app: {
       configuration: {
         getConfiguration: () => ({
           get: vi.fn((key: string, fallback: unknown) =>
             key in values ? values[key] : fallback,
           ),
+        }),
+        updateConfigurationOption: vi.fn(async (key: string, value: unknown) => {
+          values[key] = value;
         }),
       },
       plugins: {
@@ -256,5 +264,32 @@ describe("MarkdownLintPlugin", () => {
     expect(await providers[0]!.provider.provideDiagnostics(documentContext())).toEqual([
       { rules: undefined },
     ]);
+  });
+
+  it("appends a vault disable command to disabledRules", async () => {
+    languageServiceMocks.createMarkdownLanguageServiceProvider.mockReturnValue({
+      metadata: {
+        id: "markdown-lint-worker",
+        languages: ["markdown"],
+      },
+      provideDiagnostics: vi.fn(async () => []),
+      provideCodeActions: vi.fn(async () => []),
+    });
+
+    const { app, providers, values } = createMockApp({
+      "markdown-lint.disabledRules": ["MD013"],
+    });
+    await new MarkdownLintPlugin(app as never).onload();
+
+    await providers[0]!.provider.applyCommand!(documentContext(), {
+      id: "markdown-lint:disable-rule",
+      arguments: ["MD018"],
+    });
+
+    expect(values["markdown-lint.disabledRules"]).toEqual(["MD013", "MD018"]);
+    expect(app.configuration.updateConfigurationOption).toHaveBeenCalledWith(
+      "markdown-lint.disabledRules",
+      ["MD013", "MD018"],
+    );
   });
 });

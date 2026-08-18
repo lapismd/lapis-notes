@@ -177,7 +177,7 @@ export class LanguageServiceManager {
       menu.addItem((item) =>
         item
           .setTitle(action.title)
-          .setIcon("wand-sparkles")
+          .setIcon("lightbulb")
           .setSection("fix")
           .onClick(() =>
             this.diagnosticsBinding?.applyCodeAction(document, action),

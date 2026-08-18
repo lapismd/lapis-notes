@@ -99,8 +99,11 @@ settings sections under `core-plugins` in addition to any legacy
 `markdown-lint.disabledRules` with MD013 and include/exclude globs for open
 documents, using the same configuration keys as its manifest schema.
 Spell Check seeds dialect, Harper rules, dictionaries, file-type filters, and
-lint options under `spellcheck.*` keys. Its status item refreshes from those
-keys and MUST NOT upsert on `layout-change`.
+lint options under `spellcheck.*` keys. Its Problems actions persist
+`userDictionary` and `ignoreWords` with cspell-style titles (LN-SPL-010).
+Its status item refreshes from those keys and MUST NOT upsert on
+`layout-change`. Markdownlint vault disable appends `disabledRules`
+(LN-MDL-005).
 Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.

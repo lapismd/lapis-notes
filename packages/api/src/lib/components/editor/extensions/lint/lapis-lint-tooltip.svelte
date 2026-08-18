@@ -1,12 +1,16 @@
 <script lang="ts">
   import { Button } from "@lapismd/design-core/shadcn/button";
   import { WorkspaceIcon } from "@lapismd/design-core/workspace/icon";
+  import { WorkspaceMenuItems } from "@lapismd/design-core/workspace/menu";
+  import { DropdownMenu } from "bits-ui";
+  import {
+    createLintQuickFixMenu,
+    splitLintTooltipActions,
+    type LintTooltipAction,
+  } from "./lint-tooltip-actions";
   import "../../editor.css";
 
-  export type LintTooltipAction = {
-    name: string;
-    onClick: (event: MouseEvent) => void;
-  };
+  export type { LintTooltipAction };
 
   type Props = {
     message: string;
@@ -28,6 +32,13 @@
 
   const showRuleLink = $derived(ruleId != null && ruleUrl != null);
   const showAttribution = $derived(sourceLabel != null || ruleId != null);
+  const { viewProblem, quickFixActions } = $derived(
+    splitLintTooltipActions(actions),
+  );
+  const quickFixMenu = $derived(createLintQuickFixMenu(quickFixActions));
+  const showFooter = $derived(
+    Boolean(viewProblem) || quickFixActions.length > 0,
+  );
 
   function copyMessage(event: MouseEvent) {
     event.preventDefault();
@@ -37,6 +48,10 @@
 
   function containPointerDown(event: PointerEvent | MouseEvent) {
     event.preventDefault();
+    event.stopPropagation();
+  }
+
+  function stopRowActivation(event: Event) {
     event.stopPropagation();
   }
 </script>
@@ -102,13 +117,45 @@
     </div>
   </div>
 
-  {#if actions.length > 0}
+  {#if showFooter}
     <div
       data-ui-component="editor"
       data-ui-part="lint-footer"
       data-testid="lapis-lint-footer"
     >
-      {#each actions as action, index (index)}
+      {#if quickFixActions.length > 0}
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger
+            class="ui-editor-lint-quick-fix"
+            data-ui-component="editor"
+            data-ui-part="lint-quick-fix"
+            data-testid="lapis-lint-quick-fix"
+            aria-label="Quick Fix"
+            title="Quick Fix"
+            onpointerdown={stopRowActivation}
+            onmousedown={stopRowActivation}
+          >
+            Quick Fix
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              class="ui-workspace-menu__content"
+              data-ui-component="workspace-menu"
+              data-ui-part="content"
+              data-lint-quick-fix-menu=""
+              align="start"
+              side="bottom"
+              sideOffset={4}
+              strategy="fixed"
+              collisionBoundary={[]}
+              onpointerdown={stopRowActivation}
+            >
+              <WorkspaceMenuItems menu={quickFixMenu} />
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+      {/if}
+      {#if viewProblem}
         <Button
           type="button"
           variant="link"
@@ -116,14 +163,14 @@
           data-ui-component="editor"
           data-ui-part="lint-action"
           data-testid="lapis-lint-action"
-          aria-label={action.name}
+          aria-label={viewProblem.name}
           onpointerdown={containPointerDown}
           onmousedown={containPointerDown}
-          onclick={action.onClick}
+          onclick={viewProblem.onClick}
         >
-          {action.name}
+          {viewProblem.name}
         </Button>
-      {/each}
+      {/if}
     </div>
   {/if}
 </div>

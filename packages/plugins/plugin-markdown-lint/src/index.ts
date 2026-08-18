@@ -3,7 +3,9 @@ import {
   hasNativeDesktopCapability,
   Plugin,
   type App,
+  type LanguageServiceCodeActionCommand,
   type LanguageServiceProvider,
+  type LanguageServiceRequestContext,
   type PluginManifest,
 } from "@lapis-notes/api";
 import {
@@ -11,16 +13,43 @@ import {
   createNativeMarkdownLanguageServiceProvider,
   probeNativeMarkdownLanguageService,
 } from "@lapis-notes/language-service/markdown";
+import { MARKDOWN_LINT_DISABLE_RULE_COMMAND } from "@lapis-notes/language-service/markdownlint/runtime";
 
 import manifestSpec from "../manifest.json";
 import { shouldLintMarkdownPath, vaultPathFromDocumentUri } from "./path-filter";
 import { registerMarkdownLintSettings } from "./register-markdown-lint-settings";
 import {
+  MARKDOWN_LINT_SETTING_IDS,
   markdownLintRulesFromSettings,
   readMarkdownLintSettings,
+  updateMarkdownLintSetting,
 } from "./settings";
 
 const MARKDOWN_LINT_PROVIDER_ID = "markdown-lint";
+
+async function applyMarkdownLintCommand(
+  app: App,
+  _context: LanguageServiceRequestContext,
+  command: LanguageServiceCodeActionCommand,
+): Promise<void> {
+  if (command.id !== MARKDOWN_LINT_DISABLE_RULE_COMMAND) {
+    return;
+  }
+  const rule = typeof command.arguments?.[0] === "string"
+    ? command.arguments[0]
+    : "";
+  if (!rule) {
+    return;
+  }
+  const settings = readMarkdownLintSettings(app);
+  if (settings.disabledRules.includes(rule)) {
+    return;
+  }
+  await updateMarkdownLintSetting(app, MARKDOWN_LINT_SETTING_IDS.disabledRules, [
+    ...settings.disabledRules,
+    rule,
+  ]);
+}
 
 function getMarkdownLintRules(app: App): Record<string, unknown> | undefined {
   return markdownLintRulesFromSettings(readMarkdownLintSettings(app));
@@ -80,6 +109,9 @@ function createMarkdownLintProviderForApp(app: App): LanguageServiceProvider {
       }
       const provider = await getProvider();
       return (await provider.provideCodeActions?.(context, range)) ?? [];
+    },
+    async applyCommand(context, command) {
+      await applyMarkdownLintCommand(app, context, command);
     },
     dispose() {
       if (disposed) return;

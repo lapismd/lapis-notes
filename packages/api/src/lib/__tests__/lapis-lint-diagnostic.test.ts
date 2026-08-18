@@ -13,6 +13,10 @@ import {
   lapisLintHoverTooltip,
   pointerWithinLintTooltipHandoff,
 } from "../components/editor/extensions/lint/lapis-lint-hover-tooltip";
+import {
+  createLintQuickFixMenu,
+  splitLintTooltipActions,
+} from "../components/editor/extensions/lint/lint-tooltip-actions";
 import { mountLintMessageDom } from "../components/editor/extensions/lint/mount-lint-tooltip";
 
 function mountLintHoverView() {
@@ -248,6 +252,9 @@ describe("mountLintMessageDom", () => {
     const footer = root.querySelector('[data-testid="lapis-lint-footer"]');
     expect(footer).not.toBeNull();
     expect(
+      footer?.querySelector('[data-testid="lapis-lint-quick-fix"]'),
+    ).toBeNull();
+    expect(
       footer?.querySelector('[data-testid="lapis-lint-action"]')?.textContent,
     ).toBe("View Problem");
     footer
@@ -267,9 +274,10 @@ describe("mountLintMessageDom", () => {
     expect(root.querySelector('[data-testid="lapis-lint-footer"]')).toBeNull();
   });
 
-  it("mounts duplicate action titles without throwing", () => {
+  it("exposes cached actions from one Quick Fix menu", () => {
     const first = vi.fn();
     const second = vi.fn();
+    const viewProblem = vi.fn();
     const root = mountTooltip(
       "Lists should be surrounded by blank lines",
       { code: "MD032", ruleId: "MD032", sourceLabel: "markdownlint" },
@@ -279,25 +287,56 @@ describe("mountLintMessageDom", () => {
         from: 0,
         to: 1,
         actions: [
-          { name: "Fix markdownlint MD032", apply: first },
-          { name: "Fix markdownlint MD032", apply: second },
+          { name: "View Problem", apply: viewProblem },
+          { name: "Fix this violation of `MD032`", apply: first },
+          { name: "Fix this violation of `MD032`", apply: second },
         ],
       },
     );
 
-    const buttons = [
-      ...root.querySelectorAll<HTMLButtonElement>(
-        '[data-testid="lapis-lint-action"]',
+    expect(
+      [...root.querySelectorAll('[data-testid="lapis-lint-action"]')].map(
+        (button) => button.textContent,
       ),
-    ];
-    expect(buttons).toHaveLength(2);
-    expect(buttons.map((button) => button.textContent)).toEqual([
-      "Fix markdownlint MD032",
-      "Fix markdownlint MD032",
+    ).toEqual(["View Problem"]);
+    expect(
+      root.querySelector('[data-testid="lapis-lint-quick-fix"]')?.textContent,
+    ).toBe("Quick Fix");
+
+    const split = splitLintTooltipActions([
+      {
+        name: "View Problem",
+        onClick: () => viewProblem(),
+      },
+      {
+        name: "Fix this violation of `MD032`",
+        onClick: () => first(),
+      },
+      {
+        name: "Fix this violation of `MD032`",
+        onClick: () => second(),
+      },
     ]);
-    buttons[0]?.click();
-    buttons[1]?.click();
+    expect(split.viewProblem?.name).toBe("View Problem");
+    expect(split.quickFixActions.map((action) => action.name)).toEqual([
+      "Fix this violation of `MD032`",
+      "Fix this violation of `MD032`",
+    ]);
+    const menu = createLintQuickFixMenu(split.quickFixActions);
+    expect(
+      menu.entries.map((entry) =>
+        entry.kind === "item" ? entry.title : entry.kind,
+      ),
+    ).toEqual([
+      "Fix this violation of `MD032`",
+      "Fix this violation of `MD032`",
+    ]);
+    const firstItem = menu.entries[0];
+    const secondItem = menu.entries[1];
+    if (firstItem?.kind === "item") void firstItem.callback?.();
+    if (secondItem?.kind === "item") void secondItem.callback?.();
     expect(first).toHaveBeenCalledOnce();
     expect(second).toHaveBeenCalledOnce();
+    expect(viewProblem).not.toHaveBeenCalled();
   });
 });

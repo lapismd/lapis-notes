@@ -21,6 +21,26 @@ type MarkdownLintIssue = {
   } | null;
 };
 
+export const MARKDOWN_LINT_DISABLE_RULE_COMMAND = "markdown-lint:disable-rule";
+
+export function markdownlintActionTitle(
+  kind: "fixThis" | "fixAll" | "disableLine" | "disableFile" | "disableVault",
+  rulePath: string,
+): string {
+  switch (kind) {
+    case "fixThis":
+      return `Fix this violation of \`${rulePath}\``;
+    case "fixAll":
+      return `Fix all violations of \`${rulePath}\` in the document`;
+    case "disableLine":
+      return `Disable ${rulePath} for this line`;
+    case "disableFile":
+      return `Disable ${rulePath} for this file`;
+    case "disableVault":
+      return `Disable ${rulePath} in this vault`;
+  }
+}
+
 export function markdownCodeActionsFromIssues(
   document: VirtualDocument,
   requestedRange: LanguageServiceRange,
@@ -56,15 +76,33 @@ export function markdownCodeActionsFromIssues(
   const actions: LanguageServiceCodeAction[] = [];
   for (const [code, group] of groups) {
     const diagnostics = group.map((entry) => entry.diagnostic);
-    const fixable = group
-      .map((entry) => entry.issue)
-      .filter((issue) => issue.fixInfo);
-    if (fixable.length) {
-      const updatedText = applyFixesForIssues(fixable);
+    const rulePath = markdownlintRulePath(group[0].issue);
+
+    for (const entry of group) {
+      if (!entry.issue.fixInfo) continue;
+      const updatedText = applyFixesForIssues([entry.issue]);
       const change = toSingleReplacement(document.text, updatedText);
       if (change) {
         actions.push({
-          title: `Fix markdownlint ${code}`,
+          title: markdownlintActionTitle("fixThis", rulePath),
+          kind: "quickfix",
+          diagnostics: [entry.diagnostic],
+          edit: { changes: [change] },
+        });
+      }
+    }
+
+    const documentFixable = issues.filter(
+      (issue) =>
+        (markdownlintDiagnosticCode(issue.ruleNames, issue.ruleName) ??
+          "issue") === code && issue.fixInfo,
+    );
+    if (documentFixable.length > 1) {
+      const updatedText = applyFixesForIssues(documentFixable);
+      const change = toSingleReplacement(document.text, updatedText);
+      if (change) {
+        actions.push({
+          title: markdownlintActionTitle("fixAll", rulePath),
           kind: "quickfix",
           diagnostics,
           edit: { changes: [change] },
@@ -83,7 +121,7 @@ export function markdownCodeActionsFromIssues(
     );
     if (ignoreNextLineChange) {
       actions.push({
-        title: `Ignore markdownlint ${code} on next line`,
+        title: markdownlintActionTitle("disableLine", rulePath),
         kind: "quickfix",
         diagnostics,
         edit: { changes: [ignoreNextLineChange] },
@@ -97,12 +135,22 @@ export function markdownCodeActionsFromIssues(
     );
     if (ignoreFileChange) {
       actions.push({
-        title: `Ignore markdownlint ${code} for this file`,
+        title: markdownlintActionTitle("disableFile", rulePath),
         kind: "quickfix",
         diagnostics,
         edit: { changes: [ignoreFileChange] },
       });
     }
+
+    actions.push({
+      title: markdownlintActionTitle("disableVault", rulePath),
+      kind: "quickfix",
+      diagnostics,
+      command: {
+        id: MARKDOWN_LINT_DISABLE_RULE_COMMAND,
+        arguments: [code],
+      },
+    });
   }
 
   return actions;

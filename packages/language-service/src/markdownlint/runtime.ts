@@ -10,8 +10,15 @@ import { createMarkdownlintLintOptions, MD018_RULE_ALIASES } from "./options";
 import {
   markdownCodeActionsFromIssues,
   markdownDiagnosticsFromIssues,
+  markdownlintActionTitle,
+  MARKDOWN_LINT_DISABLE_RULE_COMMAND,
   normalizeMarkdownlintDirectiveAliases,
 } from "./runtime-core";
+
+export {
+  markdownlintActionTitle,
+  MARKDOWN_LINT_DISABLE_RULE_COMMAND,
+};
 
 type MarkdownLintIssue = {
   lineNumber?: number;

@@ -205,22 +205,22 @@ describe("LanguageServiceManager diagnostics bridge", () => {
       async provideCodeActions() {
         return [
           {
-            title: "Fix markdownlint MD032",
+            title: "Fix this violation of `MD032`",
             diagnostics: [diagnostic],
             edit: { changes: [{ from: 0, to: 0, insert: "\n" }] },
           },
           {
-            title: "Ignore markdownlint MD032 for this file",
+            title: "Disable MD032 for this file",
             diagnostics: [other],
             edit: { changes: [{ from: 0, to: 0, insert: "<!-- ignore -->" }] },
           },
           {
-            title: "Fix markdownlint MD032",
+            title: "Fix this violation of `MD032`",
             diagnostics: [diagnostic],
             edit: { changes: [{ from: 6, to: 6, insert: "\n" }] },
           },
           {
-            title: "Ignore markdownlint MD032 on next line",
+            title: "Disable MD032 for this line",
             diagnostics: [diagnostic],
             edit: { changes: [{ from: 0, to: 0, insert: "<!-- next -->" }] },
           },
@@ -235,8 +235,8 @@ describe("LanguageServiceManager diagnostics bridge", () => {
         .cachedCodeActionsFor(document.uri, diagnostic)
         .map((action) => action.title),
     ).toEqual([
-      "Fix markdownlint MD032",
-      "Ignore markdownlint MD032 on next line",
+      "Fix this violation of `MD032`",
+      "Disable MD032 for this line",
     ]);
   });
 
@@ -276,7 +276,7 @@ describe("LanguageServiceManager diagnostics bridge", () => {
         ];
       },
       async provideCodeActions() {
-        return [{ title: "Replace with “going”" }];
+        return [{ title: "going" }];
       },
     });
     manager.retainDocument(document.uri);
@@ -297,7 +297,7 @@ describe("LanguageServiceManager diagnostics bridge", () => {
       }),
     ).resolves.toEqual([
       expect.objectContaining({ title: "Fix heading level" }),
-      expect.objectContaining({ title: "Replace with “going”" }),
+      expect.objectContaining({ title: "going" }),
     ]);
   });
 

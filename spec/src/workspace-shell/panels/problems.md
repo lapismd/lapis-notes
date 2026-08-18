@@ -45,7 +45,8 @@ Markdownlint provider are implemented.
 | LN-WS-067 | `LanguageServiceManager` MUST publish markdownlint `code` as `{ value, target }` whose target is the public rule documentation URL. Other sources MAY keep a string or number code. |
 | LN-WS-069 | The Design Core Problems plugin MUST show a right-aligned status item with the circle-alert icon and the live diagnostics total as its chip. Click MUST run the same reveal-or-create path as Show Problems. The item MUST NOT open the dock when the count changes. |
 | LN-WS-073 | `LanguageServiceCodeAction` MAY carry a serializable `command`. Apply paths MUST run provider `applyCommand` after any document edit. Diagnostic objects MUST NOT carry callbacks. |
-| LN-WS-074 | Problems tree and table rows MUST show an inline quick-fix control when the collection contributed actions. Click MUST open those actions. The Copy-first context menu MUST remain. |
+| LN-WS-074 | Problems tree and table rows MUST use the severity-icon slot as the quick-fix control when the collection contributed actions. Hover or focus MUST show a Lucide lightbulb. Click MUST open the portaled workspace menu of those actions. The Copy-first context menu MUST remain. |
+| LN-WS-079 | A diagnostic hover card MUST expose one Quick Fix control for cached code actions instead of listing each action. That control MUST open the portaled workspace menu of those actions. View Problem MAY remain a separate control. |
 
 `Plugin.registerAgentTool` is independent from diagnostic collections and does
 not add callbacks or agent-specific fields to serializable diagnostics.
@@ -61,15 +62,18 @@ not add callbacks or agent-specific fields to serializable diagnostics.
   and publishes provider and plugin startup failures as workspace-wide
   Problems (LN-WS-077, LN-WS-078).
 - Language-service packages own provider-neutral client and worker utilities.
-- Markdownlint owns Markdown rules, native/worker provider selection, fixes,
-  ignore actions, and its configuration field.
+- Markdownlint owns Markdown rules, native/worker provider selection, vscode-markdownlint
+  Fix this / Fix all / Disable line / Disable file / Disable in this vault
+  actions, and its configuration field.
 - Spell Check owns Harper diagnostics through the shared language-service
-  collection. Its status item refreshes from configuration and MUST NOT upsert
-  on `layout-change`.
+  collection. Its Problems menu uses cspell-style suggestion, dictionary, and
+  ignore-word titles. Its status item refreshes from configuration and MUST NOT
+  upsert on `layout-change`.
 - Mira continues to own Markdown completion and hover behavior. The language
   service contributes diagnostics and code actions only in this slice.
   Lint hover cards open only on the underlined range or gutter marker, not the
-  rest of the line.
+  rest of the line. Cached code actions appear behind one Quick Fix control
+  that opens the same portaled workspace menu as Problems (LN-WS-079).
 
 ## Lifecycle
 

@@ -61,9 +61,10 @@ test("native Markdown sidecar reports diagnostics and fixes", async () => {
     );
     expect(result.actions.map((action) => action.title)).toEqual(
       expect.arrayContaining([
-        "Fix markdownlint MD018",
-        "Ignore markdownlint MD018 on next line",
-        "Ignore markdownlint MD018 for this file",
+        expect.stringMatching(/^Fix this violation of `MD018/),
+        expect.stringMatching(/^Disable .+ for this line$/),
+        expect.stringMatching(/^Disable .+ for this file$/),
+        expect.stringMatching(/^Disable .+ in this vault$/),
       ]),
     );
   } finally {

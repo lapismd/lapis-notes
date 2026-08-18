@@ -439,7 +439,10 @@ function lintMarkerFromEvent(event: MouseEvent): Element | null {
 }
 
 function eventTargetIsInsideLapisTooltip(target: EventTarget | null): boolean {
-  return Boolean(closestEventTarget(target, ".cm-lapis-tooltip"));
+  return Boolean(
+    closestEventTarget(target, ".cm-lapis-tooltip") ||
+      closestEventTarget(target, "[data-lint-quick-fix-menu]"),
+  );
 }
 
 function closestEventTarget(

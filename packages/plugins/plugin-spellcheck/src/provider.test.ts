@@ -108,11 +108,18 @@ describe("spellcheck provider", () => {
       end: { line: 0, character: 13 },
     });
     expect(actions[0]).toMatchObject({
-      title: "Replace with “sentence”",
+      title: "sentence",
       edit: { changes: [{ from: 11, to: 12, insert: "c" }] },
     });
-    expect(actions[1]?.command?.id).toBe("spellcheck:add-to-dictionary");
-    expect(actions[2]?.command?.id).toBe("spellcheck:ignore-lint");
+    expect(actions[1]).toMatchObject({
+      title: 'Add: "sentense" to dictionary',
+      command: { id: "spellcheck:add-to-dictionary" },
+    });
+    expect(actions[2]).toMatchObject({
+      title: 'Ignore: "sentense"',
+      command: { id: "spellcheck:ignore-word" },
+    });
+    expect(actions[3]?.command?.id).toBe("spellcheck:ignore-lint");
   });
 
   it("persists dictionary and ignore commands without scanning closed files", async () => {
@@ -137,6 +144,12 @@ describe("spellcheck provider", () => {
       arguments: ["sentense"],
     });
     expect(values[SPELLCHECK_SETTING_IDS.userDictionary]).toEqual(["sentense"]);
+
+    await provider.applyCommand!(context, {
+      id: "spellcheck:ignore-word",
+      arguments: ["sentense"],
+    });
+    expect(values[SPELLCHECK_SETTING_IDS.ignoreWords]).toEqual(["sentense"]);
 
     await provider.applyCommand!(context, {
       id: "spellcheck:ignore-lint",
