@@ -16,6 +16,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-030 | Development, preview, and production web responses for `*.wasm` MUST use `Content-Type: application/wasm`. Those responses MUST carry isolation headers that allow Harper `WorkerLinter` to instantiate. |
 | LN-WEB-031 | The web host MUST register and load `@lapis-notes/lapis-plugin-terminal` after AI and before external Roles, metadata, and layout restoration. |
 | LN-WEB-032 | The web host MUST persist terminal-host URL and token as `web.terminalHost.url` and `web.terminalHost.token`. The token field MUST use password presentation. Live attach MUST require both values. |
+| LN-WEB-037 | Terminal server Settings MUST tell the user to start `lapis-terminal-host serve --workspace` on the vault, or a parent of `terminal.cwd`. |
 | LN-WEB-033 | After configuration load and whenever those values change, the web session MUST register or replace only a `lapis-terminal-host` contribution. It MUST NOT overwrite a desktop IPC bridge. |
 | LN-WEB-034 | Web Vite MUST keep `*.wasm` assets and MUST exclude `ghostty-web` and `@xterm/xterm` from dependency pre-bundling so the plugin renderers resolve their packaged files. |
 | LN-WEB-035 | After attaching or replacing the terminal-host contribution, the web session MUST refresh the Terminal plugin so already-constructed panels remount. |

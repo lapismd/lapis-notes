@@ -72,8 +72,8 @@ export function registerWebTerminalRuntimeSettings(app: App): () => void {
     id: "web-terminal-host",
     title: "Terminal server",
     description:
-      "Connect this browser vault to a local lapis-terminal-host WebSocket.",
-    icon: "terminal",
+      "Connect this browser vault to a local lapis-terminal-host WebSocket. Start lapis-terminal-host serve --workspace on the vault, or a parent of terminal.cwd.",
+    icon: "square-terminal",
     order: 37,
     fields: [
       {

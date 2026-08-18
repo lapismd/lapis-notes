@@ -325,9 +325,13 @@ export. Cursor uses the same ACP runtime as Codex through the selected agent
 name. Process execution lives in sibling `@lapismd/ai-host`, used in-process by
 Electron and as `lapis-ai-host serve` for WebSocket clients.
 The same desktop bridge advertises `terminal-runtime`. Electron embeds sibling
-`@lapismd/terminal-host` in-process. The web host attaches that host after
+`@lapismd/terminal-host` in-process and binds each session workspace to the
+create payload vault path, otherwise `terminal.cwd`, otherwise the home
+directory. The web host attaches that host after
 configuration load from persisted Settings or env-prefilled URL and token,
-without overwriting a desktop IPC bridge.
+without overwriting a desktop IPC bridge. Terminal server Settings tell the
+user to start `lapis-terminal-host serve --workspace` on the vault or a parent
+of `terminal.cwd`.
 The web host attaches or replaces that WebSocket after configuration load
 from persisted Settings or env-prefilled URL and token, without overwriting a
 desktop IPC bridge. The token Settings field stays masked until revealed. Chat shows a start-server message when a live runtime is

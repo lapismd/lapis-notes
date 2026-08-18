@@ -1,14 +1,35 @@
 import { homedir } from "node:os";
+import { isAbsolute, resolve } from "node:path";
 import type { WebContents } from "electron";
 import {
   createTerminalSessionService,
   type TerminalSessionService,
 } from "@lapismd/terminal-host";
 
-const sessions = createTerminalSessionService({
-  workspace: homedir(),
-});
+const services = new Map<string, TerminalSessionService>();
 const boundSenders = new WeakSet<WebContents>();
+
+function trim(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function serviceFor(workspace: string): TerminalSessionService {
+  const key = resolve(workspace);
+  const existing = services.get(key);
+  if (existing) return existing;
+  const created = createTerminalSessionService({ workspace: key });
+  services.set(key, created);
+  return created;
+}
+
+function serviceForSession(sessionId: string): TerminalSessionService | undefined {
+  for (const service of services.values()) {
+    if (service.list().some((session) => session.sessionId === sessionId)) {
+      return service;
+    }
+  }
+  return undefined;
+}
 
 function bindSender(sender: WebContents): void {
   if (boundSenders.has(sender)) return;
@@ -18,13 +39,24 @@ function bindSender(sender: WebContents): void {
   });
 }
 
+export function resolveDesktopTerminalWorkspace(payload: Record<string, unknown>): string {
+  const workspace = trim(payload.workspace);
+  if (workspace) return workspace;
+  const cwd = trim(payload.cwd);
+  if (cwd && isAbsolute(cwd)) return cwd;
+  return homedir();
+}
+
 export function createDesktopTerminalSession(
   sender: WebContents,
   payload: Record<string, unknown>,
 ) {
   bindSender(sender);
+  const workspace = resolveDesktopTerminalWorkspace(payload);
+  const sessions = serviceFor(workspace);
   const created = sessions.create({
-    cwd: typeof payload.cwd === "string" ? payload.cwd : undefined,
+    cwd: trim(payload.cwd) || undefined,
+    shell: trim(payload.shell) || undefined,
     cols: asPositive(payload.cols),
     rows: asPositive(payload.rows),
   });
@@ -51,11 +83,11 @@ export function createDesktopTerminalSession(
 }
 
 export function listDesktopTerminalSessions() {
-  return sessions.list();
+  return [...services.values()].flatMap((service) => service.list());
 }
 
 export function writeDesktopTerminalSession(sessionId: string, data: string) {
-  return sessions.write(sessionId, Buffer.from(data, "base64"));
+  return serviceForSession(sessionId)?.write(sessionId, Buffer.from(data, "base64")) ?? false;
 }
 
 export function resizeDesktopTerminalSession(
@@ -63,15 +95,16 @@ export function resizeDesktopTerminalSession(
   cols: number,
   rows: number,
 ) {
-  return sessions.resize(sessionId, cols, rows);
+  return serviceForSession(sessionId)?.resize(sessionId, cols, rows) ?? false;
 }
 
 export function stopDesktopTerminalSession(sessionId: string) {
-  return sessions.stop(sessionId);
+  return serviceForSession(sessionId)?.stop(sessionId) ?? null;
 }
 
 export function shutdownTerminalRuntimeHost(): void {
-  sessions.close();
+  for (const service of services.values()) service.close();
+  services.clear();
 }
 
 function asPositive(value: unknown): number | undefined {

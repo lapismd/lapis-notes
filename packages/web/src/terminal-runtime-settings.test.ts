@@ -119,6 +119,8 @@ describe("web terminal-runtime settings", () => {
     expect(workspaceHost.registerSettingsSection).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "web-terminal-host",
+        icon: "square-terminal",
+        description: expect.stringContaining("serve --workspace"),
         fields: expect.arrayContaining([
           expect.objectContaining({
             id: WEB_TERMINAL_HOST_URL_KEY,

@@ -22,6 +22,11 @@ describe("desktop terminal-runtime host", () => {
     );
     expect(source).toContain("@lapismd/terminal-host");
     expect(source).toContain("createTerminalSessionService");
+    expect(source).toContain("resolveDesktopTerminalWorkspace");
+    expect(source).toContain("payload.workspace");
+    expect(source).toContain("isAbsolute");
+    expect(source).toContain("payload.cwd");
+    expect(source).toContain("payload.shell");
     expect(source).not.toContain("node-pty");
     expect(preload).not.toContain("node-pty");
     expect(manifest).toContain("@lapismd/terminal-host");

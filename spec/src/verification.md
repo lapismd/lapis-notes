@@ -850,6 +850,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-055 | desktop-host                    | Implemented | desktop capabilities advertise terminal-runtime and IPC allowlists desktop_terminal_session_* |
 | LN-WEB-031  | web-host                        | Implemented | web session registers TerminalPlugin after AI and before Roles |
 | LN-WEB-032  | web-host                        | Implemented | web Settings section covers `web.terminalHost.url` and password-presented token |
+| LN-WEB-037  | web-host                        | Implemented | Terminal server Settings describe serve --workspace as the vault or parent of terminal.cwd |
 | LN-WEB-033  | web-host                        | Implemented | web attach tests replace only a lapis-terminal-host contribution |
 | LN-WEB-034  | web-host                        | Implemented | web Vite includes `*.wasm` assets and excludes ghostty-web and xterm from optimizeDeps |
 | LN-WEB-035  | web-host                        | Implemented | syncWebTerminalRuntime refreshes the Terminal plugin after attach |
@@ -857,6 +858,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-056 | desktop-host                    | Implemented | desktop Vite includes `*.wasm` assets and excludes ghostty-web and xterm from optimizeDeps |
 | LN-DESK-057 | desktop-host                    | Implemented | setNativeDesktopBridge publishes and clears the process-wide native desktop global |
 | LN-DESK-058 | desktop-host                    | Implemented | desktop Vite allows the linked Terminal plugin root so Ghostty WASM is served |
+| LN-DESK-059 | desktop-host                    | Implemented | desktop terminal host binds workspace from create payload vault path, cwd, or homedir |
 | LN-WS-080   | workspace-shell                 | Implemented | Terminal plugin seeds a bottom leaf when none exists |
 | LN-AI-099   | ai-plugin                       | Implemented | API write tests create or overwrite scoped text files after mkpath, reject folders, hidden paths, binary, and oversized payloads, and collide without auto-suffix |
 | LN-AI-100   | ai-plugin                       | Implemented | API apply_patch tests validate V4A add, update, move, and delete, refuse existing Add targets, trash deletes, and leave files unchanged when a later hunk fails |

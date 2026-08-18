@@ -102,7 +102,7 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-083 | `@lapis-notes/wordcount` MUST live at `packages/plugins/plugin-wordcount` as an enabled-by-default bundled plugin. It MUST depend on `@lapis-notes/api` and MUST NOT depend on `@lapis-notes/ui`. |
 | LN-PKG-089 | `@lapis-notes/spellcheck` MUST live at `packages/plugins/plugin-spellcheck` as an enabled-by-default core plugin. It MUST depend on the API and `harper.js` without importing Design Core presentation or `@lapis-notes/ui`. |
 | LN-PKG-092 | `@lapis-notes/lapis-plugin-terminal` MUST live in the sibling `lapis-plugin-terminal` repository, version independently, and expose `build`, `check`, and `test`. It owns the `terminal` view and commands. Consumer plugins MUST NOT depend on `@lapismd/terminal-host` at runtime. |
-| LN-PKG-093 | Private `@lapismd/terminal-host` MUST live in the sibling `terminal-host` repository, version independently, and expose `build`, `check`, `test`, and a `lapis-terminal-host` CLI. Lapis hosts MUST consume it through an explicit `link:` dependency. |
+| LN-PKG-093 | Private `@lapismd/terminal-host` MUST live in the sibling `terminal-host` repository, version independently, and expose `build`, `check`, `test`, and a `lapis-terminal-host` CLI. Lapis hosts MUST consume it through an explicit `link:` dependency. Desktop MUST pass the vault path, optional `cwd`, and optional absolute `shell` on create. |
 
 `@lapis-notes/spellcheck` registers a Harper language-service provider and a
 Lucide status item. That item refreshes from configuration, not `layout-change`.
