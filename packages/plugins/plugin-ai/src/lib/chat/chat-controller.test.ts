@@ -8,7 +8,10 @@ import type {
   AgentSession,
 } from "../core/types";
 import { createMemorySessionStore } from "../sessions/session-store";
-import { ConversationRepository } from "../conversations/conversation-repository";
+import {
+  ConversationRepository,
+  type CreateConversationInput,
+} from "../conversations/conversation-repository";
 import { MemoryTranscriptStore } from "../conversations/memory-transcript-store";
 import { CONVERSATION_SCHEMA_VERSION } from "../conversations/types";
 import { AiChatController } from "./chat-controller.svelte";
@@ -85,6 +88,98 @@ describe("AiChatController", () => {
       Promise.race([cancelling, new Promise((resolve) => setTimeout(resolve, 50))]),
     ).resolves.toBeUndefined();
     expect(JSON.stringify(controller.items)).not.toContain("should stay hidden");
+    expect(controller.busy).toBe(false);
+    await controller.close();
+  });
+
+  it("shows the user message before conversation create and session start finish", async () => {
+    let releaseCreate!: () => void;
+    const createGate = new Promise<void>((resolve) => {
+      releaseCreate = resolve;
+    });
+    let releaseStart!: () => void;
+    const startGate = new Promise<void>((resolve) => {
+      releaseStart = resolve;
+    });
+    const innerRuntime = new FakeAgentRuntime();
+    const runtime: AgentRuntime = {
+      id: "gated-start",
+      capabilities: () => innerRuntime.capabilities(),
+      supports: (request) => innerRuntime.supports(request),
+      async start(request) {
+        await startGate;
+        return innerRuntime.start(request);
+      },
+    };
+    class GatedCreateRepository extends ConversationRepository {
+      override async create(input: CreateConversationInput) {
+        await createGate;
+        return super.create(input);
+      }
+    }
+    const repository = new GatedCreateRepository(new MemoryTranscriptStore());
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({ scopeDir: "Notes" }),
+    });
+    const submitting = controller.submit("hello from a new chat");
+    await vi.waitFor(() => {
+      expect(controller.items[0]).toMatchObject({
+        type: "message",
+        role: "user",
+        text: "hello from a new chat",
+      });
+      expect(controller.busy).toBe(true);
+    });
+    releaseCreate();
+    releaseStart();
+    await submitting;
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await controller.close();
+  });
+
+  it("does not send after cancel during session start", async () => {
+    let sendCount = 0;
+    let releaseStart!: () => void;
+    const startGate = new Promise<void>((resolve) => {
+      releaseStart = resolve;
+    });
+    const innerRuntime = new FakeAgentRuntime();
+    const runtime: AgentRuntime = {
+      id: "cancel-during-start",
+      capabilities: () => innerRuntime.capabilities(),
+      supports: (request) => innerRuntime.supports(request),
+      async start(request) {
+        await startGate;
+        const session = await innerRuntime.start(request);
+        return {
+          id: session.id,
+          events: () => session.events(),
+          async send(text) {
+            sendCount += 1;
+            await session.send(text);
+          },
+          respondToApproval: (requestId, optionId) =>
+            session.respondToApproval(requestId, optionId),
+          cancel: () => session.cancel?.() ?? Promise.resolve(),
+          close: () => session.close(),
+        };
+      },
+    };
+    const controller = new AiChatController(runtime);
+    const submitting = controller.submit("stop before send");
+    await vi.waitFor(() => {
+      expect(controller.busy).toBe(true);
+      expect(controller.items[0]).toMatchObject({
+        role: "user",
+        text: "stop before send",
+      });
+    });
+    await controller.cancel();
+    expect(controller.busy).toBe(false);
+    releaseStart();
+    await submitting;
+    expect(sendCount).toBe(0);
     expect(controller.busy).toBe(false);
     await controller.close();
   });

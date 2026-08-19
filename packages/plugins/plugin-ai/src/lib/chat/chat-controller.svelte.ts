@@ -70,7 +70,7 @@ export class AiChatController {
   session: AgentSession | null = null;
   runtime: AgentRuntime;
   readonly unavailableReason: string | null;
-  readonly mcpServers: McpServerContribution[];
+  mcpServers: McpServerContribution[];
   readonly store?: AgentSessionStore;
   readonly repository?: ConversationRepository;
   readonly sessionId: string;
@@ -87,6 +87,7 @@ export class AiChatController {
     { location: ConversationLocation | null }
   >();
   readonly #cancelledSessions = new WeakSet<AgentSession>();
+  #turnId = 0;
   readonly #createConversation?: () => CreateConversationInput;
   readonly #onLocationChange?: (location: ConversationLocation | null) => void;
   readonly #selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
@@ -393,8 +394,6 @@ export class AiChatController {
       resolution?.kind === "literal" ? resolution.text.trim() : prompt.trim();
     if (!text || this.busy) return;
     this.error = null;
-    this.busy = true;
-    if (this.repository) await this.#ensureConversation();
     const userItem: AiChatItem = {
       id: this.repository
         ? `user-${crypto.randomUUID()}`
@@ -405,6 +404,8 @@ export class AiChatController {
       createdAt: new Date().toISOString(),
     };
     this.items = [...this.items, userItem];
+    this.busy = true;
+    const turnId = ++this.#turnId;
     const attachments = mergeAttachmentPaths(
       extractMentionPaths(text),
       readAttachmentPaths(request.metadata?.attachments),
@@ -419,7 +420,10 @@ export class AiChatController {
       },
     };
     try {
-      await this.#prepareSession(effectiveRequest);
+      if (this.repository) await this.#ensureConversation();
+      if (this.#isAbandoned(turnId)) return;
+      await this.#prepareSession(effectiveRequest, turnId);
+      if (this.#isAbandoned(turnId)) return;
       if (this.#activeBindingId) {
         this.items = this.items.map((item) =>
           item.id === userItem.id
@@ -436,6 +440,7 @@ export class AiChatController {
       } else {
         await this.#persist();
       }
+      if (this.#isAbandoned(turnId)) return;
       if (!this.session) {
         if (this.error) return;
         throw new Error("Agent session did not start.");
@@ -443,6 +448,7 @@ export class AiChatController {
       await this.session.send(text);
       if (!this.repository) await this.#persist();
     } catch (error) {
+      if (this.#isAbandoned(turnId)) return;
       const failedSession = this.session;
       const failedBindingId = this.#activeBindingId;
       this.error = error instanceof Error ? error.message : String(error);
@@ -540,6 +546,7 @@ export class AiChatController {
   }
 
   async cancel(): Promise<void> {
+    this.#turnId += 1;
     const session = this.session;
     if (session) this.#cancelledSessions.add(session);
     this.busy = false;
@@ -555,6 +562,7 @@ export class AiChatController {
   }
 
   async close(): Promise<void> {
+    this.#turnId += 1;
     const interrupted = this.busy;
     if (interrupted) await this.session?.cancel?.().catch(() => undefined);
     this.busy = false;
@@ -962,6 +970,10 @@ export class AiChatController {
     return snapshot;
   }
 
+  #isAbandoned(turnId?: number): boolean {
+    return turnId !== undefined && this.#turnId !== turnId;
+  }
+
   async #ensureConversation(): Promise<void> {
     if (!this.repository || this.location) return;
     const input = this.#createConversation?.() ?? { scopeDir: "" };
@@ -1091,7 +1103,11 @@ export class AiChatController {
     );
   }
 
-  async #prepareSession(request: Omit<AgentRequest, "prompt">): Promise<void> {
+  async #prepareSession(
+    request: Omit<AgentRequest, "prompt">,
+    turnId?: number,
+  ): Promise<void> {
+    if (this.#isAbandoned(turnId)) return;
     const targetRuntime = this.#selectRuntime
       ? await this.#selectRuntime({
           ...request,
@@ -1099,6 +1115,7 @@ export class AiChatController {
           mcpServers: request.mcpServers ?? this.mcpServers,
         })
       : this.runtime;
+    if (this.#isAbandoned(turnId)) return;
     if (
       this.session &&
       this.#activeBinding &&
@@ -1221,6 +1238,10 @@ export class AiChatController {
           : {}),
       },
     };
+    if (this.#isAbandoned(turnId)) {
+      await this.#closeAppToolBinding(bindingId);
+      return;
+    }
     let started: AgentSession;
     try {
       started = await targetRuntime.start({
@@ -1232,6 +1253,13 @@ export class AiChatController {
     } catch (error) {
       await this.#closeAppToolBinding(bindingId);
       throw error;
+    }
+    if (this.#isAbandoned(turnId)) {
+      this.#cancelledSessions.add(started);
+      void started.cancel?.().catch(() => undefined);
+      await started.close().catch(() => undefined);
+      await this.#closeAppToolBinding(bindingId);
+      return;
     }
     try {
       if (this.repository) {

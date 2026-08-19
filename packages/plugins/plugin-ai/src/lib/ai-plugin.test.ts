@@ -143,6 +143,23 @@ describe("AiPlugin contracts", () => {
     expect(panel).toContain("void controller.cancel()");
     expect(controller).toContain("async cancel()");
     expect(controller).toContain("void session?.cancel?.()");
+    expect(controller).toContain("#isAbandoned");
+  });
+
+  it("keeps the first user message visible while the session starts", async () => {
+    const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
+    const controller = readFileSync(
+      "src/lib/chat/chat-controller.svelte.ts",
+      "utf8",
+    );
+
+    expect(panel).toContain("untrack(() => {");
+    expect(panel).toContain("void controller.restore()");
+    expect(panel).toContain("controller.items.length === 0 && !controller.busy");
+    expect(controller).toContain("this.items = [...this.items, userItem];");
+    expect(controller).toMatch(
+      /this\.items = \[\.\.\.this\.items, userItem\];[\s\S]*this\.busy = true;[\s\S]*if \(this\.repository\) await this\.#ensureConversation\(\);/u,
+    );
   });
 
   it("groups adjacent tool calls and highlights JSON details", () => {

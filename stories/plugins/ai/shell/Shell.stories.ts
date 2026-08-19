@@ -453,7 +453,7 @@ export const LocalConversations: Story = {
     docs: {
       description: {
         story:
-          "The composer overflow menu offers Archive Chat, Delete Chat, and Start new chat. The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
+          "The composer overflow menu offers Archive Chat, Delete Chat, and New Chat. The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
       },
     },
   },
@@ -482,7 +482,7 @@ export const LocalConversations: Story = {
       body.getByRole("menuitem", { name: /^Delete Chat$/ }),
     ).toBeVisible();
     await expect(
-      body.getByRole("menuitem", { name: /^Start new chat$/ }),
+      body.getByRole("menuitem", { name: /^New Chat$/ }),
     ).toBeVisible();
     await userEvent.keyboard("{Escape}");
     await waitFor(() => {

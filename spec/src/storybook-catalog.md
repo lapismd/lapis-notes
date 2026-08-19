@@ -142,7 +142,7 @@ The `Plugins/AI/Chat` attach play asserts a Command View host inside the
 paperclip popover, visible border and shadow, and stacking above an open
 composer drawer.
 The `Plugins/AI/Shell` Local Conversations play opens the composer overflow
-menu and asserts Archive Chat, Delete Chat, and Start new chat (LN-AI-109).
+menu and asserts Archive Chat, Delete Chat, and New Chat (LN-AI-109).
 
 The structured plugin-panel catalog covers Explorer, Search, History, AI Chat, AI
 History, and the six Markdown command views. History compare stories assert

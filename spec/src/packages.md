@@ -282,8 +282,9 @@ Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
 and stacking above an open composer drawer—and composes Command View for the
 searchable file list.
 The composer overflow menu sits after History and attach, archives or restores
-in place, deletes through vault trash, and starts a scoped new chat
-(LN-AI-109).
+in place, deletes through vault trash, and offers New Chat
+(LN-AI-109). The first submitted user message stays in the transcript while
+session start is still pending (LN-AI-120).
 Drawer attachment chips use Design Core's public `attachment-chip` parts
 instead of plugin-local paint.
 The root export stays plugin-safe; ACP and native Codex adapters publish only on

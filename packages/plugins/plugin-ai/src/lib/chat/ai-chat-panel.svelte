@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import type { App } from "@lapis-notes/api";
   import { MarkdownEmbed } from "@lapis-notes/markdown/embed";
   import * as Chat from "@lapismd/design-core/ai/chat";
@@ -127,33 +128,34 @@
     ) => void | Promise<void>;
   } = $props();
 
-  const controller = $derived(
-    new AiChatController(runtime, unavailableReason, mcpServers, {
-      store: sessionStore,
-      sessionId,
-      workspace,
-      request: {
-        agent: settings?.acpAgent,
-        model: settings?.defaultModel
-          ? {
-              provider: normalizeAcpAgent(settings?.acpAgent),
-              model: settings.defaultModel,
-            }
-          : undefined,
-        thinking: settings?.thinking,
-      },
-      repository,
-      location: initialLocation,
-      createConversation: () => createConversation?.() ?? { scopeDir: "" },
-      onLocationChange: onConversationLocationChange,
-      selectRuntime,
-      appToolBridge,
-      skills,
-      skillSnapshots,
-      slashRouter,
-      appToolHost,
-      skillContext,
-    }),
+  const controller = untrack(
+    () =>
+      new AiChatController(runtime, unavailableReason, mcpServers, {
+        store: sessionStore,
+        sessionId,
+        workspace,
+        request: {
+          agent: settings?.acpAgent,
+          model: settings?.defaultModel
+            ? {
+                provider: normalizeAcpAgent(settings?.acpAgent),
+                model: settings.defaultModel,
+              }
+            : undefined,
+          thinking: settings?.thinking,
+        },
+        repository,
+        location: initialLocation,
+        createConversation: () => createConversation?.() ?? { scopeDir: "" },
+        onLocationChange: onConversationLocationChange,
+        selectRuntime,
+        appToolBridge,
+        skills,
+        skillSnapshots,
+        slashRouter,
+        appToolHost,
+        skillContext,
+      }),
   );
   let draft = $state("");
   let localAgent = $state<AcpAgentId | null>(null);
@@ -257,7 +259,9 @@
     groupChatItemsByDate(controller.items, new Date(), agentLabels),
   );
   const latestMessageId = $derived(controller.items.at(-1)?.id);
-  const isEmpty = $derived(controller.items.length === 0);
+  const isEmpty = $derived(
+    controller.items.length === 0 && !controller.busy,
+  );
   const composerError = $derived(
     controller.error ??
       modelCatalogError ??
@@ -437,11 +441,17 @@
   }
 
   $effect(() => {
-    const current = controller;
-    const ready = !initializing;
-    if (ready) void current.restore();
+    controller.runtime = runtime;
+    controller.mcpServers = mcpServers;
+  });
+
+  $effect(() => {
+    if (initializing) return;
+    untrack(() => {
+      void controller.restore();
+    });
     return () => {
-      if (ready) void current.close();
+      void controller.close();
     };
   });
 
@@ -633,7 +643,7 @@
                 {#snippet child({ props }: { props: Record<string, unknown> })}
                   <Button
                     {...props}
-                    size="icon-sm"
+                    size="icon"
                     variant="ghost"
                     aria-label="Conversation actions"
                     data-testid="ai-chat-conversation-menu"
@@ -685,7 +695,7 @@
                       )}
                   >
                     <PlusIcon data-icon="inline-start" aria-hidden="true" />
-                    Start new chat
+                    New Chat
                   </DropdownMenu.Item>
                 </DropdownMenu.Group>
               </DropdownMenu.Content>
