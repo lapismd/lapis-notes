@@ -163,6 +163,10 @@ describe("AiPlugin contracts", () => {
     expect(controller).toMatch(
       /this\.items = \[\.\.\.this\.items, userItem\];[\s\S]*this\.busy = true;[\s\S]*if \(this\.repository\) await this\.#ensureConversation\(\);/u,
     );
+    const viewPanel = readFileSync("src/lib/chat/ai-view-panel.svelte", "utf8");
+    const view = readFileSync("src/lib/chat/ai-view.ts", "utf8");
+    expect(viewPanel).toContain("() => host.skillContext()");
+    expect(view).toContain("if (!previous && next) return");
   });
 
   it("groups adjacent tool calls and highlights JSON details", () => {
@@ -180,6 +184,21 @@ describe("AiPlugin contracts", () => {
     const css = readFileSync("src/lib/styles.css", "utf8");
 
     expect(css).not.toContain("--ui-ai-chat-scroll-button-bottom");
+  });
+
+  it("sizes the conversation kebab menu to unclipped labels", () => {
+    const css = readFileSync("src/lib/styles.css", "utf8");
+    const menuCss = css.slice(css.indexOf("conversation-menu"));
+
+    expect(css).toContain(
+      '[data-ui-component="dropdown-menu"][data-ui-part="dropdown-menu-content"][data-ai-part="conversation-menu"]',
+    );
+    expect(menuCss).toContain("width: max-content");
+    expect(menuCss).toContain("min-width: max-content");
+    expect(menuCss).toContain("overflow: visible");
+    expect(menuCss).not.toMatch(
+      /\[data-ai-part="conversation-menu"\] \[data-ui-part="dropdown-menu-item"\]\s*\{[^}]*font-size/,
+    );
   });
 
   it("routes history through a dedicated sidebar view instead of a popup", () => {

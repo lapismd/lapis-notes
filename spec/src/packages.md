@@ -285,10 +285,15 @@ action that reuses the opening command.
 Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
 and stacking above an open composer drawer—and composes Command View for the
 searchable file list.
-The composer overflow menu sits after History and attach, archives or restores
-in place, deletes through vault trash, and offers New Chat
-(LN-AI-109). The first submitted user message stays in the transcript while
-session start is still pending (LN-AI-120).
+The composer overflow menu sits after History and attach, sizes to its
+labels so they stay fully visible at the model-menu type size (LN-AI-123),
+archives or restores in place,
+deletes through vault trash, and offers New Chat (LN-AI-109). The first submitted user message stays in the transcript while
+session start is still pending (LN-AI-120). An unreadable open conversation
+is reported and released so the next send starts a replacement chat
+(LN-AI-124).
+Application-tool names and arguments stay visible when ACP only reports a
+generic `tool call` title (LN-AI-125).
 Assistant MarkdownEmbed content grows with the transcript instead of a nested
 scroller (LN-AI-122).
 Drawer attachment chips use Design Core's public `attachment-chip` parts

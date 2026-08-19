@@ -63,6 +63,7 @@ execution APIs.
 | LN-AI-052 | Runtime start, send, stream, process, and transport failures MUST become visible transcript errors, clear the busy state, and leave the panel able to start a replacement session.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | LN-AI-053 | ACP thinking MUST be applied before the first turn through acpx session configuration. Thought stream events MUST map to visible reasoning items and finish on completion or error.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | LN-AI-054 | Tool transcript items MUST retain the event-provided input and output, including ACP `rawInput`, `locations`, and completed-event input. The panel MUST show command or input and output in expandable details. Output MUST use Design Core `CodeBlock` with language `json`. Details MUST NOT render tool environment variables or host credentials. |
+| LN-AI-125 | Tool items MUST keep an application-tool name and arguments when a later ACP update uses a generic title or empty input. One item MUST represent that call even when the MCP broker id and ACP `toolCallId` differ. The panel MUST show that tool name instead of `tool call`. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -127,6 +128,8 @@ execution APIs.
 | LN-AI-120 | A submitted user message MUST appear in the transcript before conversation create or session start completes. The empty-conversation layout MUST NOT remain visible while that turn is busy. Restore MUST NOT rerun when the first send assigns a conversation location. |
 | LN-AI-121 | The composer MUST expose reserved `/agent`. With no arguments it MUST report the current agent. A recognized name MUST switch the conversation agent and persist the composer default. An unknown name MUST be a visible error and MUST NOT become a model prompt. |
 | LN-AI-122 | Assistant `MarkdownEmbed` surfaces MUST grow with the transcript scroll-shell. They MUST NOT introduce a nested vertical scroller or a constrained height that clips the rendered note. Wide code blocks MAY keep horizontal overflow. |
+| LN-AI-123 | Composer conversation overflow items MUST keep their full labels visible. The menu MUST size to its content and MUST NOT clip or ellipsize those labels. Those items MUST use the same font size as composer model-menu items. |
+| LN-AI-124 | If the open conversation cannot be read, chat MUST show that error and MUST release the location. A later submit MUST keep the user message visible, create a replacement conversation, and MUST NOT stay bound to the unreadable location. A persist failure after a failed turn MUST NOT discard the in-memory transcript. |
 
 ### LN-AI-046 acceptance details
 
@@ -199,10 +202,16 @@ execution. Web and
 Storybook default stories stay Fake. The dedicated Live Host story
 attaches only when URL and token are configured. The paperclip attach picker
 keeps its Popover host and composes Command View for the vault-file list.
-The composer overflow menu sits after History and attach, archives or restores
-in place, deletes through vault trash, and offers New Chat in the current
-scope (LN-AI-109). The first user message stays in the transcript while the
+The composer overflow menu sits after History and attach, sizes to its
+labels so they stay fully visible at the model-menu type size (LN-AI-123),
+archives or restores in place,
+deletes through vault trash, and offers New Chat in the current scope
+(LN-AI-109). The first user message stays in the transcript while the
 session starts, and Stop aborts a still-preparing turn (LN-AI-106, LN-AI-120).
+An unreadable conversation is reported and released so the next send starts a
+replacement chat (LN-AI-124).
+Application-tool names and arguments stay on the transcript item when ACP
+only reports a generic `tool call` title (LN-AI-125).
 Assistant MarkdownEmbed content grows with that transcript instead of a nested
 scroller (LN-AI-122).
 AI registers its sidebar chat and history views through `ViewAccess.command`.

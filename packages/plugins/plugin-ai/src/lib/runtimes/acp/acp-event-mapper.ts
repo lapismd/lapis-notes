@@ -1,4 +1,9 @@
 import {
+  isEmptyToolInput,
+  isGenericToolName,
+  toolNameFromInput,
+} from "../../chat/chat-tool-identity";
+import {
   DEFAULT_APPROVAL_OPTIONS,
   type AgentEvent,
   type AgentEventSource,
@@ -99,7 +104,7 @@ export function mapAcpRuntimeEvent(
   }
   if (event.type === "tool_call") {
     const id = event.toolCallId ?? event.title ?? "acp-tool";
-    const name = event.title ?? event.kind ?? "acp_tool";
+    const name = acpToolName(event);
     if (event.status === "completed" || event.status === "failed") {
       return withSource(event, {
         type: "tool.end",
@@ -251,8 +256,16 @@ export function mapApprovalOptionToAcpDecision(
   }
 }
 
+function acpToolName(event: AcpRuntimeEventLike): string {
+  const title = stringValue(event.title);
+  if (title && !isGenericToolName(title)) return title;
+  return (
+    toolNameFromInput(event.rawInput) ?? stringValue(event.kind) ?? "acp_tool"
+  );
+}
+
 function acpToolInput(event: AcpRuntimeEventLike): unknown {
-  if (event.rawInput != null) return event.rawInput;
+  if (!isEmptyToolInput(event.rawInput)) return event.rawInput;
   if (Array.isArray(event.locations) && event.locations.length > 0) {
     return { locations: event.locations };
   }

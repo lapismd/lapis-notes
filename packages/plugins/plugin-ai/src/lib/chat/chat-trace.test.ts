@@ -127,6 +127,60 @@ describe("chat trace", () => {
     expect(new Set(items.map((item) => item.id)).size).toBe(items.length);
   });
 
+  it("keeps application-tool name and input when ACP later sends a generic title", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "tool.start",
+      id: "bridge-1",
+      name: "notes_search",
+      server: "lapis-tools",
+      input: { query: "vault tools" },
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "tool.start",
+      id: "acp-1",
+      name: "tool call",
+      input: {},
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "tool.end",
+      id: "acp-1",
+      name: "tool call",
+      input: {},
+      output: { totalMatches: 3, truncated: false },
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      type: "tool",
+      name: "notes_search",
+      server: "lapis-tools",
+      input: '{"query":"vault tools"}',
+      output: '{"totalMatches":3,"truncated":false}',
+      state: "completed",
+    });
+  });
+
+  it("pairs a later application-tool start onto a generic ACP tool item", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "tool.start",
+      id: "acp-1",
+      name: "tool call",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "tool.start",
+      id: "bridge-1",
+      name: "notes_list",
+      server: "lapis-tools",
+      input: { path: "" },
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      type: "tool",
+      name: "notes_list",
+      server: "lapis-tools",
+      input: '{"path":""}',
+    });
+  });
+
   it("fills missing tool input from a completed event", () => {
     let items = applyAgentEventToChatItems([], {
       type: "tool.start",

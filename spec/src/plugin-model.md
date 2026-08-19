@@ -12,9 +12,14 @@ the public Markdown embed helper rather than a second renderer and grows with
 the transcript instead of a nested scroller (LN-AI-122). Folder-scoped
 chats project path breadcrumbs through the same View chrome hooks as History.
 A busy chat Stop control cancels the active agent turn, including a send that
-is still preparing a session. The composer overflow
-menu sits after History and attach, archives or restores in place, deletes
-through vault trash, and offers New Chat (LN-AI-109). AI History opens as a
+is still preparing a session. An unreadable open conversation is reported and
+released so the next send starts a replacement chat (LN-AI-124).
+Application-tool names and arguments stay visible when ACP only reports a
+generic `tool call` title (LN-AI-125). The composer overflow
+menu sits after History and attach, sizes to its labels so they stay fully
+visible at the model-menu type size (LN-AI-123), archives or restores in
+place, deletes through vault
+trash, and offers New Chat (LN-AI-109). AI History opens as a
 single sidebar leaf rather than a default sidebar group.
 
 ## Requirements

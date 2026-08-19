@@ -798,7 +798,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-081  | packages                        | Implemented | approved Docker visual update and compare-only capture used workspace overrides, restored the exact permanent manifest, workspace file, lockfile, and sibling links, then completed the canonical build and 5/5 comparison |
 | LN-EXP-001  | explorer-plugin                 | Implemented | file-explorer unit tests add From system root and As Lapis URL only for NativeDesktopVaultAdapter plus `file-system-actions`; Explorer placement plays assert those extras are absent on the memory vault |
 | LN-EXP-002  | explorer-plugin                 | Implemented | the same native menu tests add Open in default app and OS-labeled reveal; Storybook file-row context menus omit those items without the desktop capability |
-| LN-EXP-003  | explorer-plugin                 | Implemented | visibility helper hides dotted path segments unless show-hidden is on; plugin schema, settings section, and toggle command share the same key |
+| LN-EXP-003  | explorer-plugin                 | Implemented | listEntries keeps dotted vault names; visibility helper, schema, settings, command, and toolbar persist `workspace.fileExplorer.showHiddenFiles` and reveal `.env` / `.obsidian` |
 | LN-DESK-048 | desktop-host                    | Implemented | Explorer consumes existing resolve/open/reveal IPC through `file-system-actions` and adds no command or second channel |
 | LN-DESK-049 | desktop-host                    | Implemented | Electron acceptance asserts Design Core spacer, stacked chrome, title container, and startup root compute drag while interactive controls compute no-drag |
 | LN-DESK-050 | desktop-host                    | Implemented | Electron loading-delay acceptance asserts WorkspaceStartup title, four live tasks, plugin-name status, and progress, then the shell after ready |
@@ -883,9 +883,12 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-117   | ai-plugin                       | Implemented | Transcript projection stores command and skill-activation metadata without skill bodies |
 | LN-AI-118   | ai-plugin                       | Implemented | Native command catalog is per binding, yields to reserved names, and stays reachable through /native |
 | LN-AI-119   | ai-plugin                       | Implemented | Refresh creates a replacement binding snapshot while the prior binding retains its version |
-| LN-AI-120   | ai-plugin                       | Implemented | Controller test keeps the first user item while create and start are gated; panel restore uses untrack so location assign does not remount |
+| LN-AI-120   | ai-plugin                       | Implemented | Controller test keeps the first user item while create and start are gated; panel restore uses untrack and the view skips remount on first location assign |
 | LN-AI-121   | ai-plugin                       | Implemented | Controller tests report /agent, switch a recognized name, persist the composer default, and reject unknown names |
 | LN-AI-122   | ai-plugin                       | Implemented | Chat CSS sets MarkdownEmbed preview height auto and overflow visible; plugin source test asserts those rules |
+| LN-AI-123   | ai-plugin                       | Implemented | Conversation menu CSS sizes to content without a custom item font; source test and Local Conversations play assert unclipped labels and model-menu type size |
+| LN-AI-124   | ai-plugin                       | Implemented | Controller test restores a missing conversation, releases it, then keeps the submitted user message on a new conversation |
+| LN-AI-125   | ai-plugin                       | Implemented | Chat-trace tests keep `notes_search` and its input when ACP later sends `tool call` plus `{}`, including mismatched ids |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
 | LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |

@@ -837,6 +837,58 @@ describe("AiChatController", () => {
     expect(states.at(-1)).toBeNull();
   });
 
+  it("releases an unreadable conversation and keeps a later send visible", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const missing = {
+      scopeDir: "",
+      conversationId: "123e4567-e89b-42d3-a456-426614174000",
+    };
+    const controller = new AiChatController(new FakeAgentRuntime(), null, [], {
+      repository,
+      location: missing,
+      createConversation: () => ({
+        scopeDir: "Notes",
+        id: "223e4567-e89b-42d3-a456-426614174000",
+      }),
+    });
+    await controller.restore();
+    expect(controller.error).toMatch(/Conversation not found/u);
+    expect(controller.location).toBeNull();
+    expect(controller.items).toEqual([]);
+
+    const sending = controller.submit("hello after missing metadata");
+    await vi.waitFor(() => {
+      expect(controller.items[0]).toMatchObject({
+        type: "message",
+        role: "user",
+        text: "hello after missing metadata",
+      });
+    });
+    await sending;
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(controller.items[0]).toMatchObject({
+      type: "message",
+      role: "user",
+      text: "hello after missing metadata",
+    });
+    expect(controller.items.some((item) => item.type === "error")).toBe(false);
+    expect(controller.location).toEqual({
+      scopeDir: "Notes",
+      conversationId: "223e4567-e89b-42d3-a456-426614174000",
+    });
+    const snapshot = await repository.read(controller.location!);
+    expect(snapshot.transcript).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "message",
+          role: "user",
+          text: "hello after missing metadata",
+        }),
+      ]),
+    );
+    await controller.close();
+  });
+
   it("starts a scoped new conversation with a new id", async () => {
     const repository = new ConversationRepository(new MemoryTranscriptStore());
     const first = {

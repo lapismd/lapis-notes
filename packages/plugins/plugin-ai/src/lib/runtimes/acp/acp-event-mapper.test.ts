@@ -51,6 +51,20 @@ describe("ACP event mapper", () => {
     expect(
       mapAcpRuntimeEvent({
         type: "tool_call",
+        toolCallId: "t-generic",
+        title: "tool call",
+        kind: "search",
+        rawInput: {},
+      }),
+    ).toEqual({
+      type: "tool.start",
+      id: "t-generic",
+      name: "search",
+      input: undefined,
+    });
+    expect(
+      mapAcpRuntimeEvent({
+        type: "tool_call",
         toolCallId: "t2",
         title: "read",
         locations: [{ path: "Notes/a.md" }],

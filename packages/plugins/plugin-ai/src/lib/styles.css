@@ -244,15 +244,14 @@
   padding: 0.75rem;
 }
 
-[data-ai-part="conversation-menu"] {
-  min-width: 16rem;
+[data-ui-component="dropdown-menu"][data-ui-part="dropdown-menu-content"][data-ai-part="conversation-menu"] {
+  width: max-content;
+  min-width: max-content;
+  overflow: visible;
 }
 
 [data-ai-part="conversation-menu"] [data-ui-part="dropdown-menu-item"] {
-  min-height: 2.25rem;
-  padding-block: 0.5rem;
-  padding-inline: 0.75rem;
-  font-size: 0.9375rem;
+  overflow: visible;
   white-space: nowrap;
 }
 

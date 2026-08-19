@@ -26,6 +26,7 @@ import {
 } from "../conversations/transcript-projection";
 import {
   CONVERSATION_SCHEMA_VERSION,
+  ConversationUnavailableError,
   type AgentBindingCreatedRecord,
   type ConversationLocation,
   type ConversationMetadata,
@@ -171,7 +172,7 @@ export class AiChatController {
       try {
         await this.#restoreConversation();
       } catch (error) {
-        this.error = error instanceof Error ? error.message : String(error);
+        this.#releaseUnreadableLocation(error);
       }
       return;
     }
@@ -236,7 +237,7 @@ export class AiChatController {
     try {
       await this.#restoreConversation();
     } catch (error) {
-      this.error = error instanceof Error ? error.message : String(error);
+      this.#releaseUnreadableLocation(error);
     }
   }
 
@@ -395,7 +396,21 @@ export class AiChatController {
     prompt: string,
     request: Omit<AgentRequest, "prompt"> = {},
   ): Promise<void> {
-    await this.#syncSlashCatalog();
+    try {
+      await this.#syncSlashCatalog();
+    } catch (error) {
+      this.error = error instanceof Error ? error.message : String(error);
+      this.items = [
+        ...this.items,
+        {
+          id: `error-${crypto.randomUUID()}`,
+          type: "error",
+          text: this.error,
+          createdAt: new Date().toISOString(),
+        },
+      ];
+      return;
+    }
     const resolution = this.#slashRouter?.resolve(
       prompt,
       this.#activeBindingId,
@@ -474,14 +489,23 @@ export class AiChatController {
       this.busy = false;
       await this.#closeAppToolBinding(failedBindingId);
       await failedSession?.close().catch(() => undefined);
-      if (this.repository && this.location) {
-        await this.#appendDurableItems(
-          this.location,
-          [userItem, this.items.at(-1)!],
-          this.#activeBindingId,
-        );
-      } else {
-        await this.#persist();
+      try {
+        if (this.repository) await this.#ensureConversation();
+        if (this.repository && this.location) {
+          await this.#appendDurableItems(
+            this.location,
+            [userItem, this.items.at(-1)!],
+            this.#activeBindingId,
+          );
+        } else {
+          await this.#persist();
+        }
+      } catch (persistError) {
+        const persistMessage =
+          persistError instanceof Error
+            ? persistError.message
+            : String(persistError);
+        this.error = `${this.error} Could not save this turn: ${persistMessage}`;
       }
     }
   }
@@ -1042,8 +1066,27 @@ export class AiChatController {
     return turnId !== undefined && this.#turnId !== turnId;
   }
 
+  #releaseUnreadableLocation(error: unknown): void {
+    this.error = error instanceof Error ? error.message : String(error);
+    if (!this.location) return;
+    this.location = null;
+    this.conversationStatus = null;
+    this.#onLocationChange?.(null);
+  }
+
   async #ensureConversation(): Promise<void> {
-    if (!this.repository || this.location) return;
+    if (!this.repository) return;
+    if (this.location) {
+      try {
+        await this.repository.read(this.location);
+        return;
+      } catch (error) {
+        if (!(error instanceof ConversationUnavailableError)) throw error;
+        this.location = null;
+        this.conversationStatus = null;
+        this.#onLocationChange?.(null);
+      }
+    }
     const input = this.#createConversation?.() ?? { scopeDir: "" };
     const created = await this.repository.create(input);
     this.location = created.location;
@@ -1137,7 +1180,13 @@ export class AiChatController {
     bindingId,
     event,
   }: AppToolBridgeEvent): Promise<void> {
-    if (bindingId !== this.#activeBindingId) return;
+    if (
+      this.#activeBindingId &&
+      bindingId !== this.#activeBindingId &&
+      !this.bindings.some((binding) => binding.id === bindingId)
+    ) {
+      return;
+    }
     this.items = applyAgentEventToChatItems(this.items, event).map((item) =>
       item.agentBindingId ? item : { ...item, agentBindingId: bindingId },
     );
@@ -1148,7 +1197,11 @@ export class AiChatController {
           ? event.id
           : undefined;
     const item = itemId
-      ? this.items.find((candidate) => candidate.id === itemId)
+      ? this.items.find(
+          (candidate) =>
+            candidate.id === itemId ||
+            (candidate.type === "tool" && candidate.toolId === itemId),
+        )
       : undefined;
     if (this.repository && this.location && item) {
       await this.#appendDurableItems(this.location, [item], bindingId);

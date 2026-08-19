@@ -364,11 +364,16 @@ Stop control cancels the active turn immediately, without waiting for the
 runtime cancel to settle, and stays fully opaque while input remains disabled.
 Stop also drops a still-preparing first send so it cannot start after busy
 clears. The first user message stays visible while conversation create and
-session start finish (LN-AI-106, LN-AI-120).
+session start finish (LN-AI-106, LN-AI-120). An unreadable open conversation
+is reported and released so the next send starts a replacement chat
+(LN-AI-124).
+Application-tool names and arguments stay visible when ACP only reports a
+generic `tool call` title (LN-AI-125).
 Assistant MarkdownEmbed content grows with the transcript instead of a nested
-scroller (LN-AI-122). The composer overflow menu sits after History and attach, archives or
-restores in place, deletes through vault trash, and offers New Chat
-(LN-AI-109). AI History opens as an ungrouped right
+scroller (LN-AI-122). The composer overflow menu sits after History and attach, sizes to its
+labels so they stay fully visible at the model-menu type size (LN-AI-123),
+archives or restores in
+place, deletes through vault trash, and offers New Chat (LN-AI-109). AI History opens as an ungrouped right
 sidebar leaf and keeps that leaf while a conversation opens in the main area. Portable conversation bindings and transcript entries
 are stored beneath the captured vault scope; plugin data remains settings-only.
 Runtime-neutral pending interactions are presented

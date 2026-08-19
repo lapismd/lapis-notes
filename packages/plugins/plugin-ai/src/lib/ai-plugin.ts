@@ -138,7 +138,7 @@ export class AiPlugin extends Plugin {
     return this.skillRegistry;
   }
 
-  skillContext(): import("./skills/types").SkillDiscoveryContext {
+  skillContext = (): import("./skills/types").SkillDiscoveryContext => {
     const scopeDir = this.createConversationInput().scopeDir;
     return {
       scopeDir,
@@ -146,7 +146,7 @@ export class AiPlugin extends Plugin {
       enabledPluginIds:
         this.app.plugins?.enabledPlugins ?? [this.manifest.id],
     };
-  }
+  };
 
   getSettings(): AiPluginSettings {
     return {

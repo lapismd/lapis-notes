@@ -1,5 +1,11 @@
 import type { AgentEvent } from "../core/types";
+import { APP_TOOL_MCP_SERVER_NAME } from "../tools/mcp-server-registry";
 import { createChatItemId, type AiChatItem } from "./chat-items";
+import {
+  isEmptyToolInput,
+  isGenericToolName,
+  preferToolName,
+} from "./chat-tool-identity";
 
 export function applyAgentEventToChatItems(
   items: AiChatItem[],
@@ -53,19 +59,18 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "tool.start": {
-      const index = next.findIndex(
-        (item) => item.type === "tool" && item.toolId === event.id,
-      );
-      const input = stringifyUnknown(event.input);
+      const index = findToolItemIndex(next, event);
+      const input = preferToolInput(undefined, event.input);
       if (index >= 0) {
         const current = next[index];
         if (current?.type === "tool") {
           next[index] = {
             ...current,
-            name: event.name,
+            toolId: pairedToolId(current, event.id),
+            name: preferToolName(current.name, event.name),
             server: event.server ?? current.server,
             state: "running",
-            input: input ?? current.input,
+            input: preferToolInput(current.input, event.input),
             ...source,
           };
         }
@@ -74,7 +79,7 @@ export function applyAgentEventToChatItems(
           id: event.id,
           type: "tool",
           toolId: event.id,
-          name: event.name,
+          name: preferToolName(undefined, event.name),
           server: event.server,
           state: "running",
           input,
@@ -85,9 +90,7 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "tool.end": {
-      const index = next.findIndex(
-        (item) => item.type === "tool" && item.toolId === event.id,
-      );
+      const index = findToolItemIndex(next, event);
       const output =
         event.error != null
           ? stringifyUnknown(event.error)
@@ -97,8 +100,11 @@ export function applyAgentEventToChatItems(
         if (current?.type === "tool") {
           next[index] = {
             ...current,
+            toolId: pairedToolId(current, event.id),
+            name: preferToolName(current.name, event.name),
+            server: event.server ?? current.server,
             state: event.error != null ? "error" : "completed",
-            input: stringifyUnknown(event.input) ?? current.input,
+            input: preferToolInput(current.input, event.input),
             output,
             ...source,
           };
@@ -109,11 +115,12 @@ export function applyAgentEventToChatItems(
         id: event.id,
         type: "tool",
         toolId: event.id,
-        name: event.name,
+        name: preferToolName(undefined, event.name),
         server: event.server,
         state: event.error != null ? "error" : "completed",
-        input: stringifyUnknown(event.input),
+        input: preferToolInput(undefined, event.input),
         output,
+        createdAt,
         ...source,
       });
       return next;
@@ -224,4 +231,59 @@ function stringifyUnknown(value: unknown): string | undefined {
   } catch {
     return String(value);
   }
+}
+
+function preferToolInput(
+  current: string | undefined,
+  incoming: unknown,
+): string | undefined {
+  if (isEmptyToolInput(incoming)) return current;
+  return stringifyUnknown(incoming) ?? current;
+}
+
+function pairedToolId(
+  current: Extract<AiChatItem, { type: "tool" }>,
+  incomingId: string,
+): string {
+  if (current.id === incomingId || current.toolId === incomingId) {
+    return current.toolId;
+  }
+  return incomingId;
+}
+
+function findToolItemIndex(
+  items: AiChatItem[],
+  event: { id: string; name: string; server?: string; input?: unknown },
+): number {
+  const exact = items.findIndex(
+    (item) =>
+      item.type === "tool" &&
+      (item.toolId === event.id || item.id === event.id),
+  );
+  if (exact >= 0) return exact;
+
+  const incomingApp = event.server === APP_TOOL_MCP_SERVER_NAME;
+  const incomingGeneric =
+    !incomingApp &&
+    isGenericToolName(event.name) &&
+    isEmptyToolInput(event.input);
+
+  if (incomingApp) {
+    return items.findIndex(
+      (item) =>
+        item.type === "tool" &&
+        item.server !== APP_TOOL_MCP_SERVER_NAME &&
+        isGenericToolName(item.name) &&
+        item.id === item.toolId,
+    );
+  }
+  if (incomingGeneric) {
+    return items.findIndex(
+      (item) =>
+        item.type === "tool" &&
+        item.server === APP_TOOL_MCP_SERVER_NAME &&
+        item.id === item.toolId,
+    );
+  }
+  return -1;
 }

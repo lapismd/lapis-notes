@@ -121,6 +121,9 @@ export class AiView extends View {
     await super.setState(state, result);
     const next = conversationLocationFromState(state);
     if (this.component && !sameLocation(previous, next)) {
+      // The first in-place assign from a send must not remount; remounting
+      // re-runs restore and drops the visible user message (LN-AI-120).
+      if (!previous && next) return;
       this.mountGeneration += 1;
       const generation = this.mountGeneration;
       await unmount(this.component);

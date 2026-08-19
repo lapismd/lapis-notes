@@ -453,7 +453,7 @@ export const LocalConversations: Story = {
     docs: {
       description: {
         story:
-          "The composer overflow menu offers Archive Chat, Delete Chat, and New Chat. The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
+          "The composer overflow menu offers Archive Chat, Delete Chat, and New Chat at the same type size as the model menu, without clipping those labels. The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
       },
     },
   },
@@ -474,16 +474,42 @@ export const LocalConversations: Story = {
         name: "Conversation actions",
       }),
     );
+    const conversationTrigger = within(panel).getByRole("button", {
+      name: "Conversation actions",
+    });
     const body = within(canvasElement.ownerDocument.body);
-    await expect(
-      await body.findByRole("menuitem", { name: /^Archive Chat$/ }),
-    ).toBeVisible();
-    await expect(
-      body.getByRole("menuitem", { name: /^Delete Chat$/ }),
-    ).toBeVisible();
-    await expect(
-      body.getByRole("menuitem", { name: /^New Chat$/ }),
-    ).toBeVisible();
+    const archiveChat = await body.findByRole("menuitem", {
+      name: /^Archive Chat$/,
+    });
+    const deleteChat = body.getByRole("menuitem", { name: /^Delete Chat$/ });
+    const newChatItem = body.getByRole("menuitem", { name: /^New Chat$/ });
+    await expect(archiveChat).toBeVisible();
+    await expect(deleteChat).toBeVisible();
+    await expect(newChatItem).toBeVisible();
+    const conversationMenu =
+      archiveChat.closest<HTMLElement>(
+        "[data-ai-part='conversation-menu']",
+      ) ?? archiveChat.closest<HTMLElement>("[role='menu']");
+    expect(conversationMenu).not.toBeNull();
+    const menuStyle = getComputedStyle(conversationMenu!);
+    expect(menuStyle.overflowX).not.toBe("hidden");
+    expect(menuStyle.overflowY).not.toBe("hidden");
+    expect(conversationMenu!.getBoundingClientRect().width).toBeGreaterThan(
+      conversationTrigger.getBoundingClientRect().width + 40,
+    );
+    expect(conversationMenu!.scrollWidth).toBeLessThanOrEqual(
+      conversationMenu!.clientWidth + 1,
+    );
+    for (const item of [archiveChat, deleteChat, newChatItem]) {
+      expect(getComputedStyle(item).textOverflow).not.toBe("ellipsis");
+      expect(item.scrollWidth).toBeLessThanOrEqual(item.clientWidth + 1);
+      const range = item.ownerDocument.createRange();
+      range.selectNodeContents(item);
+      expect(range.getBoundingClientRect().right).toBeLessThanOrEqual(
+        conversationMenu!.getBoundingClientRect().right + 1,
+      );
+    }
+    const conversationItemFont = getComputedStyle(archiveChat).fontSize;
     await userEvent.keyboard("{Escape}");
     await waitFor(() => {
       expect(
@@ -492,6 +518,20 @@ export const LocalConversations: Story = {
       expect(
         within(panel).getByRole("button", { name: "Conversation actions" }),
       ).toHaveAttribute("aria-expanded", "false");
+    });
+    await userEvent.click(
+      within(panel).getByRole("button", { name: "Effort and model" }),
+    );
+    await userEvent.hover(body.getByTestId("ai-chat-model"));
+    const modelItem = await body.findByRole("menuitemradio", {
+      name: "gpt-5.6-sol",
+    });
+    expect(getComputedStyle(modelItem).fontSize).toBe(conversationItemFont);
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(
+        body.queryByRole("menuitemradio", { name: "gpt-5.6-sol" }),
+      ).toBeNull();
     });
     await userEvent.click(
       within(panel).getByRole("button", {
