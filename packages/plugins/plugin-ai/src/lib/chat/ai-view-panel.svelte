@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { App } from "@lapis-notes/api";
+  import type { App, WorkspaceLeaf } from "@lapis-notes/api";
   import type { ConversationLocation } from "../conversations/types";
   import AiChatPanel from "./ai-chat-panel.svelte";
   import type { AiViewHost } from "./ai-view";
@@ -13,11 +13,13 @@
   let {
     app,
     host,
+    workspaceLeaf,
     initialLocation,
     onConversationLocationChange,
   }: {
     app: App;
     host: AiViewHost;
+    workspaceLeaf: WorkspaceLeaf;
     initialLocation: ConversationLocation | null;
     onConversationLocationChange: (
       location: ConversationLocation | null,
@@ -74,6 +76,8 @@
   onRevealHistory={() => host.revealConversationHistory()}
   subscribeConversationMoves={host.subscribeConversationMoves?.bind(host)}
   {onConversationLocationChange}
+  currentConversationScope={() => host.currentConversationScope()}
+  {workspaceLeaf}
   fileSearch={host.searchVaultFiles}
   models={bootstrap.models}
   modelCatalogError={bootstrap.modelCatalogError}

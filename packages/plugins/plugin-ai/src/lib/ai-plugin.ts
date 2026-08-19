@@ -102,6 +102,7 @@ export class AiPlugin extends Plugin {
   readonly #conversationMoveListeners = new Set<
     (oldPath: string, newPath: string) => void
   >();
+  #lastFileScope?: string;
   readonly fakeRuntime = new FakeAgentRuntime({
     requireApproval: false,
     trace: "rich",
@@ -270,8 +271,21 @@ export class AiPlugin extends Plugin {
   }
 
   currentConversationScope(): string {
-    return this.scopeResolver.resolve({
-      activeFile: this.app.workspace.getActiveFile(),
+    this.#rememberFileScope();
+    return (
+      this.#lastFileScope ??
+      this.scopeResolver.resolve({
+        activeFile: this.app.workspace.getActiveFile(),
+      }).scopeDir
+    );
+  }
+
+  #rememberFileScope(leaf?: WorkspaceLeaf | null): void {
+    if (leaf?.view.getViewType() === AiViewType) return;
+    const file = this.app.workspace.getActiveFile();
+    if (!file) return;
+    this.#lastFileScope = this.scopeResolver.resolve({
+      activeFile: file,
     }).scopeDir;
   }
 
@@ -400,6 +414,11 @@ export class AiPlugin extends Plugin {
         for (const listener of this.#conversationMoveListeners) {
           listener(oldPath, file.path);
         }
+      }),
+    );
+    this.registerEvent(
+      this.app.workspace.on("active-leaf-change", (leaf) => {
+        this.#rememberFileScope(leaf);
       }),
     );
     this.register(

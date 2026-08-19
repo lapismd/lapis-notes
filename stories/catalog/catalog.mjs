@@ -373,6 +373,14 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-shell--community-tool-opt-in",
   },
   {
+    id: "plugins-ai-shell-follow-scope",
+    title: "AI Shell: Follow Scope",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai + @lapis-notes/workspace",
+    storyId: "plugins-ai-shell--follow-scope",
+    skipVisual: true,
+  },
+  {
     id: "plugins-ai-live-host",
     title: "AI Live Host: Manual Attach",
     spec: "spec/src/plugins/ai/index.md",

@@ -39,6 +39,7 @@ function createHost(
     mcpServers: { list: () => [] },
     conversations: repository,
     createConversationInput: () => ({ scopeDir: "" }),
+    currentConversationScope: () => "",
     listConversationFolders: () => [""],
     revealConversationHistory: async () => {},
     searchVaultFiles: async () => [],

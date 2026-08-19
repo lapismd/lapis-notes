@@ -85,6 +85,8 @@ import {
   formatScopeNotice,
 } from "../commands/inspect";
 import { normalizeConversationScope } from "../conversations/paths";
+import { conversationsInScopeTree } from "../conversations/scope-tree";
+import type { ConversationListEntry } from "../conversations/transcript-store";
 import type { AcpAgentId } from "../settings/acp-agents";
 
 export class AiChatController {
@@ -97,6 +99,9 @@ export class AiChatController {
   bindings = $state.raw<AgentBindingCreatedRecord[]>([]);
   location = $state.raw<ConversationLocation | null>(null);
   conversationStatus = $state<ConversationMetadata["status"] | null>(null);
+  conversationPinned = $state(false);
+  directoryContext = $state("");
+  pickerEntries = $state.raw<ConversationListEntry[]>([]);
   session: AgentSession | null = null;
   runtime: AgentRuntime;
   readonly unavailableReason: string | null;
@@ -137,6 +142,9 @@ export class AiChatController {
   }) => void;
   #refreshSkills = false;
   #approvalGrants: ConversationApprovalGrant[] = [];
+  #followedScope?: string;
+  #desiredFollowScope?: string;
+  #followGeneration = 0;
 
   constructor(
     runtime: AgentRuntime,
@@ -171,6 +179,11 @@ export class AiChatController {
     this.store = options.store;
     this.repository = options.repository;
     this.location = options.location ?? null;
+    if (this.location) {
+      this.directoryContext = this.location.scopeDir;
+      this.#followedScope = this.location.scopeDir;
+      this.#desiredFollowScope = this.location.scopeDir;
+    }
     this.#createConversation = options.createConversation;
     this.#onLocationChange = options.onLocationChange;
     this.#selectRuntime = options.selectRuntime;
@@ -263,6 +276,10 @@ export class AiChatController {
     this.error = null;
     this.conversationStatus = null;
     this.location = { ...location };
+    this.directoryContext = location.scopeDir;
+    this.#followedScope = location.scopeDir;
+    this.#desiredFollowScope = location.scopeDir;
+    this.pickerEntries = [];
     this.#onLocationChange?.(this.location);
     try {
       await this.#restoreConversation();
@@ -288,11 +305,16 @@ export class AiChatController {
     this.bindings = [];
     this.location = null;
     this.conversationStatus = null;
+    this.conversationPinned = false;
+    this.pickerEntries = [];
     this.#approvalGrants = [];
     if (this.repository && input) {
       const created = await this.repository.create(input);
       this.location = created.location;
       this.conversationStatus = created.metadata.status;
+      this.conversationPinned = Boolean(created.metadata.pinned);
+      this.directoryContext = created.location.scopeDir;
+      this.#followedScope = created.location.scopeDir;
     }
     this.#onLocationChange?.(this.location);
   }
@@ -345,6 +367,76 @@ export class AiChatController {
     this.bindings = [];
     this.location = null;
     this.conversationStatus = null;
+    this.conversationPinned = false;
+    this.pickerEntries = [];
+    this.#approvalGrants = [];
+    this.#onLocationChange?.(null);
+  }
+
+  async followDirectoryScope(
+    scopeDir: string,
+    options: { force?: boolean } = {},
+  ): Promise<void> {
+    if (!this.repository) return;
+    const scope = normalizeConversationScope(scopeDir);
+    this.#desiredFollowScope = scope;
+    if (!options.force && (this.busy || this.conversationPinned)) return;
+    if (!options.force && this.#followedScope === scope) return;
+    const generation = ++this.#followGeneration;
+    this.directoryContext = scope;
+    this.#followedScope = scope;
+    const matches = conversationsInScopeTree(
+      await this.repository.listAll(),
+      scope,
+    );
+    if (generation !== this.#followGeneration) return;
+    if (matches.length === 0) {
+      this.pickerEntries = [];
+      if (this.location) await this.#clearOpenConversation();
+      return;
+    }
+    if (matches.length === 1) {
+      this.pickerEntries = [];
+      const next = matches[0]!.location;
+      if (
+        this.location?.scopeDir === next.scopeDir &&
+        this.location.conversationId === next.conversationId
+      ) {
+        return;
+      }
+      await this.openConversation(next);
+      return;
+    }
+    this.pickerEntries = matches;
+    if (this.location) await this.#clearOpenConversation();
+  }
+
+  async setPinned(pinned: boolean): Promise<void> {
+    if (!this.repository || !this.location) return;
+    const snapshot = await this.repository.writePinned(this.location, pinned);
+    this.conversationPinned = Boolean(snapshot.metadata.pinned);
+    if (!this.conversationPinned) {
+      await this.followDirectoryScope(
+        this.#desiredFollowScope ?? this.directoryContext,
+        { force: true },
+      );
+    }
+  }
+
+  async #clearOpenConversation(): Promise<void> {
+    await this.#closeAppToolBinding();
+    await this.session?.close().catch(() => undefined);
+    this.session = null;
+    this.busy = false;
+    this.error = null;
+    this.usage = null;
+    this.items = [];
+    this.#activeBinding = undefined;
+    this.#activeBindingId = undefined;
+    this.bindings = [];
+    this.location = null;
+    this.conversationStatus = null;
+    this.conversationPinned = false;
     this.#approvalGrants = [];
     this.#onLocationChange?.(null);
   }
@@ -353,6 +445,8 @@ export class AiChatController {
     if (!this.repository || !this.location) return;
     const snapshot = await this.repository.read(this.location);
     this.conversationStatus = snapshot.metadata.status;
+    this.conversationPinned = Boolean(snapshot.metadata.pinned);
+    this.directoryContext = snapshot.location.scopeDir;
     this.#loadApprovalGrants(snapshot.metadata);
     this.items = projectTranscriptToChatItems(snapshot.transcript);
     const activeBinding = snapshot.agents.find(
@@ -1462,6 +1556,7 @@ export class AiChatController {
     if (!this.location) return;
     this.location = null;
     this.conversationStatus = null;
+    this.conversationPinned = false;
     this.#onLocationChange?.(null);
   }
 
@@ -1504,10 +1599,20 @@ export class AiChatController {
         this.#onLocationChange?.(null);
       }
     }
-    const input = this.#createConversation?.() ?? { scopeDir: "" };
+    const followedScope = this.#followedScope ?? this.directoryContext;
+    const input =
+      this.#followedScope !== undefined || this.directoryContext
+        ? this.#createConversation?.(followedScope) ?? {
+            scopeDir: followedScope,
+          }
+        : this.#createConversation?.() ?? { scopeDir: "" };
     const created = await this.repository.create(input);
     this.location = created.location;
     this.conversationStatus = created.metadata.status;
+    this.conversationPinned = Boolean(created.metadata.pinned);
+    this.directoryContext = created.location.scopeDir;
+    this.#followedScope = created.location.scopeDir;
+    this.pickerEntries = [];
     this.#approvalGrants = [];
     this.#onLocationChange?.(this.location);
   }

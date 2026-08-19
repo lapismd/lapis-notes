@@ -399,3 +399,27 @@
   border-radius: 0.375rem;
   background: color-mix(in srgb, var(--muted) 70%, transparent);
 }
+
+[data-ui-component="ai-chat-panel"]
+  [data-ui-component="ai-chat-message-list"]
+  [data-ui-part="list-inner"],
+[data-ui-component="ai-chat-panel"] [data-ui-part="empty-state"] {
+  padding-block-end: 2.5rem;
+}
+
+[data-ui-component="ai-chat-panel"] .ai-chat-panel__scope-path {
+  margin: 1.5rem 0 0;
+  padding: 0 0.75rem;
+  color: color-mix(
+    in srgb,
+    var(--ui-workspace-view-foreground) 68%,
+    var(--ui-workspace-view-background)
+  );
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  pointer-events: none;
+}
+
+[data-ui-component="ai-chat-panel"] .ai-chat-panel__conversation-picker {
+  padding: 0.25rem 0 1rem;
+}

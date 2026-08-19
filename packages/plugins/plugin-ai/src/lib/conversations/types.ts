@@ -37,6 +37,7 @@ export type ConversationMetadata = {
   };
   activeAgentBindingId?: string;
   approvalGrants?: ConversationApprovalGrant[];
+  pinned?: boolean;
   status: "active" | "archived";
 };
 

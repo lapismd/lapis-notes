@@ -4,7 +4,10 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../../catalog/catalog.mjs";
 import { WORKSPACE_SHELL_DOCS_STORY } from "../../../workspace/docs-parameters";
-import { aiWorkspaceExampleSource } from "./Shell.example-sources";
+import {
+  aiWorkspaceExampleSource,
+  aiWorkspaceFollowScopeExampleSource,
+} from "./Shell.example-sources";
 import AiWorkspaceDemo from "./ShellDemo.svelte";
 import { LOCAL_CONVERSATION_ID } from "./create-shell-demo";
 
@@ -798,5 +801,71 @@ export const Recovery: Story = {
         /Could not resume the previous agent session/u,
       ),
     ).toBeVisible();
+  },
+};
+
+export const FollowScope: Story = {
+  tags: ["skip-visual", "test"],
+  args: { scenario: "follow-scope" },
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-shell-follow-scope"),
+    docs: {
+      description: {
+        story:
+          "An unpinned chat follows the active-file folder. Two descendant conversations appear in a Command View. Opening one, pinning it, and changing the active file keeps that transcript.",
+      },
+      source: {
+        code: aiWorkspaceFollowScopeExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() =>
+      expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+        "ready",
+      ),
+    );
+    const panel = await canvas.findByTestId("ai-chat-panel");
+    const picker = await canvas.findByTestId("ai-chat-conversation-picker");
+    await expect(within(picker).getByText("Near folder chat")).toBeVisible();
+    await expect(within(picker).getByText("Atlas folder chat")).toBeVisible();
+    await waitFor(() => {
+      expect(canvas.getByTestId("ai-chat-scope-path")).toHaveTextContent(
+        "Projects",
+      );
+    });
+    await userEvent.click(within(picker).getByText("Near folder chat"));
+    await waitFor(() => {
+      expect(
+        within(panel).getByText("The near folder chat is open."),
+      ).toBeVisible();
+      expect(
+        canvas.queryByTestId("ai-chat-conversation-picker"),
+      ).toBeNull();
+    });
+    await userEvent.click(
+      within(panel).getByRole("button", { name: "Pin conversation" }),
+    );
+    await waitFor(() => {
+      expect(
+        within(panel).getByRole("button", { name: "Unpin conversation" }),
+      ).toHaveAttribute("aria-pressed", "true");
+    });
+    const app = demoApp(canvasElement);
+    const welcome = app.vault.getFileByPath("Notes/Welcome.md");
+    if (!welcome) throw new Error("Notes/Welcome.md was not seeded");
+    const noteLeaf = app.workspace.getLeaf("tab");
+    await noteLeaf.openFile(welcome);
+    await waitFor(() => {
+      expect(
+        within(panel).getByText("The near folder chat is open."),
+      ).toBeVisible();
+      expect(
+        canvas.queryByTestId("ai-chat-conversation-picker"),
+      ).toBeNull();
+    });
   },
 };

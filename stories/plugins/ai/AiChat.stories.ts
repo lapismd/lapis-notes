@@ -263,6 +263,9 @@ export const ValidationAndEmptyState: Story = {
     expect(emptyBox.height).toBeGreaterThan(shellBox.height * 0.7);
     expect(shellBox.bottom).toBeLessThanOrEqual(dockBox.top + 2);
     expect(dockBox.bottom).toBeLessThanOrEqual(layoutBox.bottom + 2);
+    await expect(canvas.getByTestId("ai-chat-scope-path")).toHaveTextContent(
+      "Vault",
+    );
 
     await userEvent.click(
       canvas.getByRole("button", { name: "Effort and model" }),

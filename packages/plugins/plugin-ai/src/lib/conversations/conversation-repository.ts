@@ -177,6 +177,25 @@ export class ConversationRepository {
     });
   }
 
+  async writePinned(
+    location: ConversationLocation,
+    pinned: boolean,
+  ): Promise<ConversationSnapshot> {
+    return this.queue.run(conversationStorageKey(location), async () => {
+      const snapshot = await this.store.read(location);
+      const metadata: ConversationMetadata = {
+        ...snapshot.metadata,
+        updatedAt: new Date().toISOString(),
+      };
+      if (pinned) metadata.pinned = true;
+      else delete metadata.pinned;
+      await this.store.writeMetadata(location, metadata);
+      const result = { ...snapshot, metadata };
+      this.emit({ type: "upsert", location: result.location });
+      return result;
+    });
+  }
+
   async archive(
     location: ConversationLocation,
     archived = true,

@@ -27,6 +27,21 @@ describe("validateConversationMetadata", () => {
     ).toEqual([{ name: "notes_search", decision: "allow-always" }]);
   });
 
+  it("keeps pinned true and omits an explicit false", () => {
+    expect(
+      validateConversationMetadata({ ...BASE, pinned: true }).pinned,
+    ).toBe(true);
+    expect(
+      validateConversationMetadata({ ...BASE, pinned: false }).pinned,
+    ).toBeUndefined();
+  });
+
+  it("rejects a non-boolean pinned flag", () => {
+    expect(() =>
+      validateConversationMetadata({ ...BASE, pinned: "yes" }),
+    ).toThrow(/pinned must be a boolean/u);
+  });
+
   it("rejects a non-array or oversized approval grant list", () => {
     expect(() =>
       validateConversationMetadata({ ...BASE, approvalGrants: {} }),

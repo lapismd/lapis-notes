@@ -27,12 +27,17 @@ export type AiWorkspaceScenario =
   | "default"
   | "initializing"
   | "local-conversations"
+  | "follow-scope"
   | "agent-switching"
   | "recovery"
   | "community-tools"
   | "reload-resume";
 
 export const LOCAL_CONVERSATION_ID = "123e4567-e89b-42d3-a456-426614174000";
+export const FOLLOW_NEAR_CONVERSATION_ID =
+  "523e4567-e89b-42d3-a456-426614174004";
+export const FOLLOW_FAR_CONVERSATION_ID =
+  "623e4567-e89b-42d3-a456-426614174005";
 const ARCHIVED_CONVERSATION_ID = "223e4567-e89b-42d3-a456-426614174001";
 const RECOVERY_CONVERSATION_ID = "323e4567-e89b-42d3-a456-426614174002";
 export const LIVE_HOST_VAULT_ID = "lapis-ai-live-host";
@@ -159,11 +164,55 @@ export function createAiWorkspaceSeed(
     ".obsidian/ai.json": JSON.stringify(pluginData, null, 2),
     "Notes/Welcome.md": "# Welcome\n\nAsk the AI chat in the workspace.\n",
     "Notes/alpha.md": "# Alpha\n\nTODO: summarize this note.\n",
-    ...(scenario === "default" ||
-    scenario === "community-tools" ||
-    scenario === "reload-resume"
-      ? {}
-      : createConversationScenarioSeed(scenario)),
+    ...(scenario === "follow-scope"
+      ? {
+          "Projects/work.md": "# Work\n\nActive project note.\n",
+          "Projects/Atlas/note.md": "# Atlas\n\nNested project note.\n",
+          ...conversationFiles({
+            scopeDir: "Projects",
+            id: FOLLOW_NEAR_CONVERSATION_ID,
+            title: "Near folder chat",
+            status: "active",
+            bindings: [binding("binding-near", "codex", "gpt-5.6-sol")],
+            activeBindingId: "binding-near",
+            transcript: [
+              message(
+                "near-user",
+                "user",
+                "Stay in Projects",
+                "binding-near",
+              ),
+              message(
+                "near-assistant",
+                "assistant",
+                "The near folder chat is open.",
+                "binding-near",
+              ),
+            ],
+          }),
+          ...conversationFiles({
+            scopeDir: "Projects/Atlas",
+            id: FOLLOW_FAR_CONVERSATION_ID,
+            title: "Atlas folder chat",
+            status: "active",
+            bindings: [binding("binding-far", "codex", "gpt-5.6-sol")],
+            activeBindingId: "binding-far",
+            transcript: [
+              message("far-user", "user", "Stay in Atlas", "binding-far"),
+              message(
+                "far-assistant",
+                "assistant",
+                "The deeper Atlas chat is open.",
+                "binding-far",
+              ),
+            ],
+          }),
+        }
+      : scenario === "default" ||
+          scenario === "community-tools" ||
+          scenario === "reload-resume"
+        ? {}
+        : createConversationScenarioSeed(scenario)),
   };
 }
 
@@ -319,16 +368,20 @@ export async function bootAiWorkspaceDemo(
     await searchPlugin.refreshIndex("ai-shell");
   }
   await app.workspace.loadLayout();
-  if (scenario === "local-conversations") {
-    const activeNote = app.vault.getFileByPath("Notes/Welcome.md");
+  if (scenario === "local-conversations" || scenario === "follow-scope") {
+    const activeNote = app.vault.getFileByPath(
+      scenario === "follow-scope" ? "Projects/work.md" : "Notes/Welcome.md",
+    );
     const aiLeaf = app.workspace.getLeavesOfType(AiViewType)[0];
     if (activeNote && aiLeaf) {
       const noteLeaf = app.workspace.getLeaf("tab");
       await noteLeaf.openFile(activeNote);
       app.workspace.activateLeaf(noteLeaf, { saveLayout: false });
       app.workspace.getActiveFile();
+      const aiPlugin = app.plugins.plugins.get("ai");
+      if (aiPlugin instanceof AiPlugin) aiPlugin.currentConversationScope();
       app.workspace.activateLeaf(aiLeaf, { saveLayout: false });
-      noteLeaf.close();
+      if (scenario !== "follow-scope") noteLeaf.close();
     }
   }
 
@@ -474,6 +527,7 @@ function createConversationScenarioSeed(
 function conversationFiles(input: {
   id: string;
   title: string;
+  scopeDir?: string;
   status: "active" | "archived";
   bindings: Array<Record<string, unknown>>;
   activeBindingId: string;
@@ -481,7 +535,9 @@ function conversationFiles(input: {
   usage?: { used: number; limit: number };
   malformedFinalLine?: boolean;
 }): Record<string, string> {
-  const root = `Notes/.lapis/agents/sessions/${input.id}`;
+  const root = [input.scopeDir ?? "Notes", ".lapis", "agents", "sessions", input.id]
+    .filter(Boolean)
+    .join("/");
   const agents = [
     ...input.bindings,
     ...(input.usage

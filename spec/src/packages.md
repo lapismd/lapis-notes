@@ -331,6 +331,9 @@ Drawer attachment chips use Design Core's public `attachment-chip` parts
 instead of plugin-local paint.
 Permission and question option buttons use the public `feedback-option` part
 (LN-AI-157).
+An unpinned idle chat follows the active-file folder, shows a faded scope path,
+and stays put when the open conversation is pinned (LN-AI-160, LN-AI-161,
+LN-AI-162).
 API owns result-view registration; Search owns the `notes_search` view; AI
 owns lookup and `/skills` `/tools` inventories (LN-PKG-100).
 The root export stays plugin-safe; ACP and native Codex adapters publish only on

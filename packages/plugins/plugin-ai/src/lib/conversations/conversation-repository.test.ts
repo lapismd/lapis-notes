@@ -132,6 +132,16 @@ describe("ConversationRepository", () => {
     expect(cleared.metadata.approvalGrants).toBeUndefined();
   });
 
+  it("persists pinned and omits the field when cleared", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const location = { scopeDir: "", conversationId: ID };
+    await repository.create({ id: ID, scopeDir: "", now: CREATED_AT });
+    const written = await repository.writePinned(location, true);
+    expect(written.metadata.pinned).toBe(true);
+    const cleared = await repository.writePinned(location, false);
+    expect(cleared.metadata.pinned).toBeUndefined();
+  });
+
   it("normalizes title whitespace without persisting placeholders", () => {
     expect(deriveConversationTitle("  first\n\tmessage  ")).toBe(
       "first message",

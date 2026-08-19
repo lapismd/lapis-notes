@@ -35,6 +35,7 @@ export type AiViewHost = {
   skillContext?: () => import("../skills/types").SkillDiscoveryContext;
   conversations: ConversationRepository;
   createConversationInput(explicitFolder?: string): CreateConversationInput;
+  currentConversationScope(): string;
   listConversationFolders(): string[];
   revealConversationHistory(): Promise<void>;
   subscribeConversationMoves?(
@@ -146,6 +147,7 @@ export class AiView extends View {
       props: {
         app: this.app,
         host: this.host,
+        workspaceLeaf: this.leaf,
         initialLocation,
         onConversationLocationChange: (
           location: ConversationLocation | null,

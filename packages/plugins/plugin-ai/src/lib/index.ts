@@ -94,6 +94,11 @@ export {
 export type { VaultFileRef } from "./chat/chat-mentions";
 export { ConversationScopeResolver } from "./conversations/scope-resolver";
 export {
+  conversationsInScopeTree,
+  formatDirectoryContextLabel,
+  relativeScopeLabel,
+} from "./conversations/scope-tree";
+export {
   buildConversationContextHandoff,
   MAX_CONTEXT_HANDOFF_CODE_POINTS,
 } from "./conversations/context-handoff";

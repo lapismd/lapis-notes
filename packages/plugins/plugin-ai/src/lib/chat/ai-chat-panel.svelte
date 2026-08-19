@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { untrack } from "svelte";
-  import type { App } from "@lapis-notes/api";
+  import { onMount, untrack } from "svelte";
+  import type { App, WorkspaceLeaf } from "@lapis-notes/api";
   import { MarkdownEmbed } from "@lapis-notes/markdown/embed";
   import * as Chat from "@lapismd/design-core/ai/chat";
   import { Reasoning } from "@lapismd/design-core/ai/experimental";
@@ -8,6 +8,7 @@
   import { CodeBlock } from "@lapismd/design-core/shadcn/code-block";
   import * as CommandView from "@lapismd/design-core/shadcn/command-view";
   import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
+  import * as Empty from "@lapismd/design-core/shadcn/empty";
   import * as Popover from "@lapismd/design-core/shadcn/popover";
   import { Spinner } from "@lapismd/design-core/shadcn/spinner";
   import type {
@@ -20,6 +21,9 @@
   import ArchiveRestoreIcon from "@lucide/svelte/icons/archive-restore";
   import BrainIcon from "@lucide/svelte/icons/brain";
   import CopyIcon from "@lucide/svelte/icons/copy";
+  import PinIcon from "@lucide/svelte/icons/pin";
+  import PinOffIcon from "@lucide/svelte/icons/pin-off";
+  import SparklesIcon from "@lucide/svelte/icons/sparkles";
   import HistoryIcon from "@lucide/svelte/icons/history";
   import MoreHorizontalIcon from "@lucide/svelte/icons/ellipsis";
   import PaperclipIcon from "@lucide/svelte/icons/paperclip";
@@ -40,6 +44,10 @@
     CreateConversationInput,
   } from "../conversations/conversation-repository";
   import type { ConversationLocation } from "../conversations/types";
+  import {
+    formatDirectoryContextLabel,
+    groupConversationsByRelativeScope,
+  } from "../conversations/scope-tree";
   import {
     catalogModelsForAgent,
     normalizeAcpAgent,
@@ -100,6 +108,8 @@
     subscribeConversationMoves,
     onRevealHistory,
     onConversationLocationChange,
+    currentConversationScope,
+    workspaceLeaf,
     fileSearch,
     models = [],
     modelCatalogError = null,
@@ -131,6 +141,8 @@
     onConversationLocationChange?: (
       location: ConversationLocation | null,
     ) => void;
+    currentConversationScope?: () => string;
+    workspaceLeaf?: WorkspaceLeaf;
     fileSearch?: ComposerSearchSource;
     models?: ModelRef[];
     modelCatalogError?: string | null;
@@ -295,8 +307,20 @@
     scopeDirectory: controller.location?.scopeDir,
   });
   const latestMessageId = $derived(controller.items.at(-1)?.id);
+  const showPicker = $derived(controller.pickerEntries.length >= 2);
+  const pickerGroups = $derived(
+    groupConversationsByRelativeScope(
+      controller.pickerEntries,
+      controller.directoryContext,
+    ),
+  );
+  const scopePathLabel = $derived(
+    formatDirectoryContextLabel(
+      controller.directoryContext || controller.location?.scopeDir || "",
+    ),
+  );
   const isEmpty = $derived(
-    controller.items.length === 0 && !controller.busy,
+    !showPicker && controller.items.length === 0 && !controller.busy,
   );
   const composerError = $derived(
     controller.error ??
@@ -528,7 +552,41 @@
     }
     if (!requestId) visibleInteractionId = null;
   });
+
+  function directoryScope(): string {
+    return currentConversationScope?.() ?? "";
+  }
+
+  onMount(() => {
+    if (!app || !repository) return;
+    const follow = (leaf?: WorkspaceLeaf | null) => {
+      if (workspaceLeaf && leaf === workspaceLeaf) return;
+      void controller.followDirectoryScope(directoryScope());
+    };
+    const activeLeaf = app.workspace.on("active-leaf-change", follow);
+    let cancelled = false;
+    const start = !initialLocation
+      ? window.setTimeout(() => {
+          if (!cancelled) follow();
+        }, 0)
+      : undefined;
+    return () => {
+      cancelled = true;
+      if (start !== undefined) window.clearTimeout(start);
+      app.workspace.offref(activeLeaf);
+    };
+  });
 </script>
+
+{#snippet scopeFooter()}
+  <p
+    class="ai-chat-panel__scope-path"
+    data-testid="ai-chat-scope-path"
+    aria-hidden="true"
+  >
+    {scopePathLabel}
+  </p>
+{/snippet}
 
 {#snippet toolDetail(call: { data?: unknown; name?: string })}
   {@const detail = call.data as
@@ -601,6 +659,20 @@
   data-initializing={initializing}
 >
   <Chat.Layout density="compact" {isEmpty} aria-label="AI chat">
+    {#snippet emptyState()}
+      <Empty.Root>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <SparklesIcon aria-hidden="true" />
+          </Empty.Media>
+          <Empty.Title>Start a conversation</Empty.Title>
+          <Empty.Description>
+            Ask a question or describe the change you want to make.
+          </Empty.Description>
+        </Empty.Header>
+      </Empty.Root>
+      {@render scopeFooter()}
+    {/snippet}
     {#snippet composer()}
       {#if initializing || controller.busy}
         <div
@@ -781,8 +853,11 @@
                   <DropdownMenu.Item
                     onclick={() =>
                       void controller.newConversation(
-                        createConversation?.() ?? {
-                          scopeDir: controller.location?.scopeDir ?? "",
+                        createConversation?.(controller.directoryContext) ?? {
+                          scopeDir:
+                            controller.directoryContext ||
+                            controller.location?.scopeDir ||
+                            "",
                         },
                       )}
                   >
@@ -811,6 +886,24 @@
           {/if}
         {/snippet}
         {#snippet footerActions()}
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label={controller.conversationPinned
+              ? "Unpin conversation"
+              : "Pin conversation"}
+            aria-pressed={controller.conversationPinned}
+            data-testid="ai-chat-pin"
+            disabled={initializing || !controller.location}
+            onclick={() =>
+              void controller.setPinned(!controller.conversationPinned)}
+          >
+            {#if controller.conversationPinned}
+              <PinOffIcon aria-hidden="true" />
+            {:else}
+              <PinIcon aria-hidden="true" />
+            {/if}
+          </Button>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
               {#snippet child({ props }: { props: Record<string, unknown> })}
@@ -920,6 +1013,39 @@
       isStreaming={controller.busy}
       {isEmpty}
     >
+      {#if showPicker}
+        <div
+          class="ai-chat-panel__conversation-picker"
+          data-testid="ai-chat-conversation-picker"
+        >
+          <CommandView.Root>
+            <CommandView.Input placeholder="Search conversations" />
+            <CommandView.List aria-label="Conversations in this folder">
+              <CommandView.Empty>No conversations</CommandView.Empty>
+              {#each pickerGroups as group (group.heading)}
+                <CommandView.Group heading={group.heading}>
+                  {#each group.items as entry (`${entry.location.scopeDir}:${entry.location.conversationId}`)}
+                    <CommandView.Item
+                      value={`${entry.metadata?.title ?? "Untitled"} ${entry.location.scopeDir} ${entry.location.conversationId}`}
+                      onSelect={() =>
+                        void controller.openConversation(entry.location)}
+                    >
+                      <CommandView.ItemLabel>
+                        {entry.metadata?.title ?? "Untitled"}
+                      </CommandView.ItemLabel>
+                      {#if entry.preview}
+                        <CommandView.ItemDescription>
+                          {entry.preview}
+                        </CommandView.ItemDescription>
+                      {/if}
+                    </CommandView.Item>
+                  {/each}
+                </CommandView.Group>
+              {/each}
+            </CommandView.List>
+          </CommandView.Root>
+        </div>
+      {/if}
       {#each timeline as entry (entry.kind === "item" ? entry.item.id : entry.id)}
         {#if entry.kind === "divider"}
           <Chat.SystemMessage variant="divider"
@@ -1057,6 +1183,7 @@
           <Chat.SystemMessage>{entry.item.text}</Chat.SystemMessage>
         {/if}
       {/each}
+      {@render scopeFooter()}
     </Chat.MessageList>
   </Chat.Layout>
 </div>

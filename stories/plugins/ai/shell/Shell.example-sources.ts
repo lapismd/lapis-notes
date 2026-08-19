@@ -59,3 +59,14 @@ export const aiWorkspaceExampleSource = `<script lang="ts">
 {#if ready}
   <WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />
 {/if}`;
+
+export const aiWorkspaceFollowScopeExampleSource = `<script lang="ts">
+  import { WorkspaceShell } from "@lapis-notes/workspace";
+  import { App } from "@lapis-notes/api";
+
+  // Seed Projects/work.md plus two descendant conversations, then open the
+  // unbound AI chat. An unpinned idle view lists those chats in Command View.
+  let { app }: { app: App } = $props();
+</script>
+
+<WorkspaceShell {app} displayMode="desktop" workspaceLabel="Lapis Notes" />`;

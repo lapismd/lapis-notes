@@ -128,6 +128,10 @@ export function validateConversationMetadata(
     if (grants.length > 0) data.approvalGrants = grants;
     else delete data.approvalGrants;
   }
+  if (data.pinned != null && typeof data.pinned !== "boolean") {
+    throw new Error("Conversation metadata.pinned must be a boolean");
+  }
+  if (data.pinned === false) delete data.pinned;
   return data as ConversationMetadata;
 }
 
