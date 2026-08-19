@@ -102,6 +102,7 @@ execution APIs.
 | LN-AI-161 | An unpinned idle AI chat MUST follow the active-file conversation scope and list active conversations in that folder and descendants. Zero matches MUST keep the empty composer, one MUST open that conversation, and two or more MUST show a searchable Command View ordered by depth then recency. The view MUST NOT follow while busy or when the active leaf is this chat. |
 | LN-AI-162 | The composer MUST expose a pin control beside the effort button and MUST persist pin on conversation metadata. A pinned open conversation MUST NOT follow directory changes. Unpinning MUST re-evaluate the current directory context. The control MUST disable when no conversation is open. |
 | LN-AI-163 | Selecting a conversation MUST reveal that conversation's stored scope directory in File Explorer through the public reveal-path command. The chat MUST NOT change the stored scopeDir. Follow-driven auto-open MUST NOT move Explorer. |
+| LN-AI-164 | AI MUST register an Agents palette provider and MUST NOT add one workspace command per conversation. Results MUST group with `formatChatDateLabel`. Selecting a row MUST open that conversation. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -326,7 +327,9 @@ Assistant MarkdownEmbed content grows with that transcript instead of a nested
 scroller (LN-AI-122).
 AI registers its sidebar chat, history, and catalog views through
 `ViewAccess.command`. Their canonical palette commands are `AI: Open Chat`,
-`AI: Open History`, and `AI: Open Catalog`. Chat and History reuse or create
+`AI: Open History`, and `AI: Open Catalog`. Conversations themselves appear
+on the Agents palette tab through a provider that groups rows with the
+existing date labels and opens the selected chat. Chat and History reuse or create
 their documented right-sidebar leaves. Catalog reuses or creates its documented
 left-sidebar leaf.
 Each explicit paid-agent probe exercises the real stdio shim with a volatile

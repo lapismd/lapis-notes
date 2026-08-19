@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { AiChatItem } from "./chat-items";
-import { formatChatDateLabel, groupChatItemsByDate } from "./chat-time";
+import {
+  formatChatDateLabel,
+  formatChatRelativeAge,
+  groupChatItemsByDate,
+} from "./chat-time";
 
 describe("chat date grouping", () => {
   const now = new Date("2026-03-16T15:00:00");
@@ -13,6 +17,14 @@ describe("chat date grouping", () => {
     expect(formatChatDateLabel("2026-03-01T09:00:00", now)).not.toBe(
       "Yesterday",
     );
+  });
+
+  it("formats compact relative ages for palette rows", () => {
+    expect(formatChatRelativeAge("2026-03-16T14:59:30", now)).toBe("now");
+    expect(formatChatRelativeAge("2026-03-16T14:57:00", now)).toBe("3m");
+    expect(formatChatRelativeAge("2026-03-16T12:00:00", now)).toBe("3h");
+    expect(formatChatRelativeAge("2026-03-14T15:00:00", now)).toBe("2d");
+    expect(formatChatRelativeAge("2026-03-01T09:00:00", now)).toMatch(/2026/);
   });
 
   it("inserts a divider when the local calendar day changes", () => {

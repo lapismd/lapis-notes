@@ -4,9 +4,11 @@ The shell's reusable movable-view contract is documented separately under
 [Panels](./workspace-shell/panels.md). This overview retains controller,
 persistence, and application-host responsibilities. Language-service apply
 paths for serializable command actions live on the Problems panel chapter.
-Workspace `Plugin.addCommand` remains the command palette. AI composer slash
-commands are a separate Plugin API (LN-PLUG-023). Transcript result views are
-a separate Plugin API (LN-PLUG-024) and MUST NOT add palette commands.
+Workspace `Plugin.addCommand` remains the Actions tab. File Explorer and AI
+register Files and Agents palette providers. `app:go-to-file` lands on Files.
+AI composer slash commands are a separate Plugin API (LN-PLUG-023). Transcript
+result views are a separate Plugin API (LN-PLUG-024) and MUST NOT add palette
+commands.
 
 ## Requirements
 
@@ -55,6 +57,8 @@ a separate Plugin API (LN-PLUG-024) and MUST NOT add palette commands.
 | LN-WS-061 | The workspace MUST register a Reset workspace layout command. Confirming it MUST apply the same default sidebar seed as a missing workspace file and persist the result to `workspace.json`. |
 | LN-WS-080 | When the Terminal plugin is loaded and no `terminal` leaf exists after layout restore, the plugin MUST create one bottom-panel Terminal leaf and open the dock. Persisted terminal leaves MUST win. |
 | LN-WS-081 | `setViewState`, `open`, and `activateLeaf` MUST schedule the existing 1000 ms `workspace.json` writer. The written dock `currentTab` and, for a sidebar group, `selectedLeafId` MUST restore that dock's selected leaf or group after `loadLayout`. The writer MUST stay debounced. |
+| LN-WS-082 | Workspace MUST record each successfully opened file on `file-open` in a most-recent-first ring. `getLastOpenFiles` MUST return those paths. `getRecentFiles` MUST resolve surviving vault files in that order. |
+| LN-WS-083 | Workspace MUST register `app:go-to-file`. Activating it MUST call Design Core `openPalette({ tab: "files" })`. Empty-view Go to file and See recent files MUST use that command. |
 
 ## Ownership and data flow
 

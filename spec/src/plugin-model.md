@@ -97,7 +97,9 @@ so plugin and metadata background work reuse the notifications status item.
 
 Skill roots and composer slash commands follow the same disposable
 plugin lifecycle as application tools. They stay off the workspace
-command palette and off Mira editor slash registration. AI discovers
+command palette and off Mira editor slash registration. AI conversations
+reach the palette only through an Agents provider, not `addCommand`
+per chat. AI discovers
 folder, vault, and user-global command Markdown separately from plugin
 registrations. Disposing a slash-command registration removes it from
 later composer resolution; reserved application names such as `/help`,

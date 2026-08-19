@@ -223,6 +223,9 @@ export const Ready: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Go to file" }));
     const palette = canvas.getByRole("dialog", { name: "Command Palette" });
     await expect(palette).toBeVisible();
+    await expect(
+      within(palette).getByRole("tab", { name: "Files" }),
+    ).toHaveAttribute("aria-selected", "true");
     const search = within(palette).getByRole("combobox", {
       name: "Search commands",
     });

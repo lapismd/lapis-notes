@@ -6,6 +6,7 @@ import {
   type PluginManifest,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
 import AiInventoryResult from "./chat/ai-inventory-result.svelte";
@@ -35,6 +36,11 @@ import {
   serializeAiPluginData,
   type AiPluginData,
 } from "./sessions/plugin-data";
+import {
+  AI_CONVERSATION_PALETTE_PROVIDER_ID,
+  AI_CONVERSATION_PALETTE_TAB,
+  conversationPaletteItem,
+} from "./conversations/conversation-palette";
 import { ConversationRepository } from "./conversations/conversation-repository";
 import type { CreateConversationInput } from "./conversations/conversation-repository";
 import { AiConversationIndex } from "./conversations/conversation-index";
@@ -569,6 +575,21 @@ export class AiPlugin extends Plugin {
           callback: () => void this.revealAiCatalog(),
         },
       },
+    );
+    const { controller } = getWorkspaceHostBinding(this.app.workspace);
+    this.register(
+      controller.commands.registerPaletteProvider({
+        id: AI_CONVERSATION_PALETTE_PROVIDER_ID,
+        tab: AI_CONVERSATION_PALETTE_TAB,
+        emptyQueryLimit: 5,
+        search: async (query) => {
+          const entries = await this.searchAiConversations(query);
+          return entries.map((entry) => ({
+            ...conversationPaletteItem(entry),
+            run: () => void this.openAiConversation(entry.location),
+          }));
+        },
+      }),
     );
   }
 

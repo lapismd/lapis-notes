@@ -249,6 +249,10 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain('name: "Update reserved commands"');
     expect(source).not.toContain("show-ai-conversation-history");
     expect(source).not.toContain('id: "open-ai-chat"');
+    expect(source).toContain("registerPaletteProvider");
+    expect(source).toContain("AI_CONVERSATION_PALETTE_TAB");
+    expect(source).toContain("conversationPaletteItem");
+    expect(source).not.toContain("addCommand({\n      id: `ai-conversation");
   });
 
   it("remounts conversation history when the leaf loads", () => {

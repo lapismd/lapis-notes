@@ -25,7 +25,11 @@ import { openExplorerFile } from "./open-explorer-file";
 import { EXPLORER_SETTING_IDS } from "./explorer-settings";
 import { listExplorerVaultEntries } from "./explorer-vault-entries";
 import { registerExplorerSettings } from "./register-explorer-settings";
-import { isVisibleExplorerPath } from "./vault-path-visibility";
+import {
+  listVaultPaletteFiles,
+  VAULT_PALETTE_FILES_TAB,
+  VAULT_PALETTE_RECENT_GROUP,
+} from "./vault-palette-files";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
@@ -62,15 +66,6 @@ function readShowHiddenFiles(app: App): boolean {
     .getConfiguration()
     .get(EXPLORER_SETTING_IDS.showHiddenFiles, false);
 }
-
-const SUPPORTED_EXTENSIONS = new Set([
-  "md",
-  "markdown",
-  "txt",
-  "text",
-  "json",
-  "data",
-]);
 
 function displayError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -294,9 +289,7 @@ export class LapisLandingView extends View {
         label: "Go to file",
         icon: "search",
         onSelect: () => {
-          getWorkspaceHostBinding(
-            this.app.workspace,
-          ).controller.commands.openPalette();
+          void this.app.commands.executeCommand("app:go-to-file");
         },
       },
       {
@@ -400,29 +393,20 @@ export function createFileExplorerPlugin(
       this.register(
         controller.commands.registerPaletteProvider({
           id: "lapis-vault-files",
+          tab: VAULT_PALETTE_FILES_TAB,
+          emptyQueryLimit: 5,
           search: (query) => {
-            const normalized = query.trim().toLocaleLowerCase();
-            return this.app.vault
-              .getFiles()
-              .filter(
-                (file) =>
-                  isVisibleExplorerPath(file.path, {
-                    showHidden: readShowHiddenFiles(this.app),
-                  }) &&
-                  SUPPORTED_EXTENSIONS.has(file.extension.toLocaleLowerCase()),
-              )
-              .filter((file) =>
-                file.path.toLocaleLowerCase().includes(normalized),
-              )
-              .sort((left, right) => left.path.localeCompare(right.path))
-              .map((file) => ({
-                id: `vault-file:${file.path}`,
-                title: file.name,
-                subtitle: file.path,
-                icon: "file",
-                providerId: "lapis-vault-files",
-                run: () => this.app.openFile(file),
-              }));
+            const recent = query.trim().length === 0;
+            return listVaultPaletteFiles(this.app, query).map((file) => ({
+              id: `vault-file:${file.path}`,
+              title: file.name,
+              subtitle: file.path,
+              icon: "file",
+              providerId: "lapis-vault-files",
+              tab: VAULT_PALETTE_FILES_TAB.id,
+              group: recent ? VAULT_PALETTE_RECENT_GROUP : undefined,
+              run: () => this.app.openFile(file),
+            }));
           },
         }),
       );

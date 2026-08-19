@@ -1185,6 +1185,46 @@ describe("Workspace compatibility", () => {
     expect(opened).toHaveBeenCalledWith(file);
   });
 
+  it("records recent files on file-open and resolves surviving vault files", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    workspace.registerView("markdown", (leaf) => new MockTextFileView(leaf));
+    workspace.registerExtensions(["md"], "markdown");
+    const first = new TFile(
+      "Notes/First.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    const second = new TFile(
+      "Notes/Second.md",
+      { ctime: 0, mtime: 0, size: 0 },
+      null,
+    );
+    app.vault.getFileByPath = (path: string) =>
+      path === first.path ? first : path === second.path ? second : null;
+
+    await workspace.getLeaf().openFile(first);
+    await workspace.getLeaf().openFile(second);
+
+    expect(workspace.getLastOpenFiles()).toEqual([
+      "Notes/Second.md",
+      "Notes/First.md",
+    ]);
+    expect(workspace.getRecentFiles()).toEqual([second, first]);
+  });
+
+  it("opens the Files palette tab from app:go-to-file", async () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const openPalette = vi.spyOn(
+      getWorkspaceHostBinding(workspace).controller.commands,
+      "openPalette",
+    );
+
+    expect(app.commands.getCommand("app:go-to-file")?.name).toBe("Go to file");
+    await app.commands.executeCommand("app:go-to-file");
+
+    expect(openPalette).toHaveBeenCalledWith({ tab: "files" });
+  });
+
   it("uses a main area leaf for default navigation when the active leaf is in the sidebar", () => {
     const { workspace } = createWorkspaceHarness();
     const mainTabs = workspace.rootSplit.children[0] as WorkspaceTabs;

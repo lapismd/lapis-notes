@@ -642,6 +642,7 @@ export declare class Workspace extends EventDispatcher<{
     }): WorkspaceSidebarGroup;
     convertSidebarGroupToLeaves(group: WorkspaceSidebarGroup): WorkspaceLeaf[];
     getLastOpenFiles(): string[];
+    getRecentFiles(): TFile[];
     openLinkText(linktext: string, sourcePath: string, newLeaf?: PaneType | boolean, openState?: OpenViewState): Promise<void>;
     ensureSideLeaf(type: string, sideOrOptions?: SidebarSide | EnsureSideLeafOptions, options?: EnsureSideLeafOptions): WorkspaceLeaf;
     handleLinkContextMenu(menu: Menu, linktext: string, sourcePath: string, event?: MouseEvent): void;

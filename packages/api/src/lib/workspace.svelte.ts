@@ -83,6 +83,7 @@ import {
   resolveWorkspaceHostBinding,
   setWorkspaceHostBinding,
 } from "./workspace-host-internal";
+import { getWorkspaceHostBinding } from "./workspace-host";
 import { DiagnosticsManager, pathFromDiagnosticResource } from "./diagnostics";
 import {
   getApplicationCompatibility,
@@ -1952,6 +1953,8 @@ export class Workspace extends EventDispatcher<{
   public displayMode: WorkspaceDisplayMode = $state("desktop");
   public _activeLeaf: WorkspaceLeaf | null = $state(null);
   private lastActiveFile: TFile | null = null;
+  private recentFilePaths: string[] = [];
+  private static readonly RECENT_FILE_LIMIT = 20;
   public focusMode: WorkspaceFocusModeState | null = $state(null);
   public focusedHostId: string = $state(WORKSPACE_ROOT_HOST_ID);
   public leftSplit: WorkspaceSidedock = new WorkspaceSidedock({
@@ -2826,6 +2829,20 @@ export class Workspace extends EventDispatcher<{
         });
       },
     });
+    this.app.commands.registerCommand({
+      id: "app:go-to-file",
+      name: "Go to file",
+      title: "Go to file",
+      category: "Workspace",
+      icon: "file",
+      sourcePlugin: "app",
+      hotkeys: [{ modifiers: ["Mod"], key: "o" }],
+      callback: () => {
+        getWorkspaceHostBinding(this).controller.commands.openPalette({
+          tab: "files",
+        });
+      },
+    });
   }
 
   /**
@@ -2904,6 +2921,9 @@ export class Workspace extends EventDispatcher<{
     });
     this.installCommandBridge(this.#workspaceHostController);
     this.installWorkspaceLayoutCommands();
+    this.on("file-open", (file) => {
+      if (file) this.recordRecentFile(file);
+    });
     this.installStatusBarBridge(this.#workspaceHostController);
     this.installNotificationProgressBridge(this.#workspaceHostController);
     this.diagnostics = new DiagnosticsManager(
@@ -4419,6 +4439,7 @@ export class Workspace extends EventDispatcher<{
   }
 
   getLastOpenFiles(): string[] {
+    if (this.recentFilePaths.length > 0) return [...this.recentFilePaths];
     const files: string[] = [];
     this.iterateAllLeaves((leaf) => {
       if (leaf.view instanceof FileView && leaf.view.file) {
@@ -4426,6 +4447,19 @@ export class Workspace extends EventDispatcher<{
       }
     });
     return [...new Set(files)];
+  }
+
+  getRecentFiles(): TFile[] {
+    return this.getLastOpenFiles()
+      .map((path) => this.app.vault.getFileByPath(path))
+      .filter((file): file is TFile => file instanceof TFile);
+  }
+
+  private recordRecentFile(file: TFile): void {
+    this.recentFilePaths = [
+      file.path,
+      ...this.recentFilePaths.filter((path) => path !== file.path),
+    ].slice(0, Workspace.RECENT_FILE_LIMIT);
   }
 
   async openLinkText(
