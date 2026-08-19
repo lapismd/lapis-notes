@@ -58,6 +58,7 @@ const preview: Preview = {
             "Plugin Model",
             "App Database",
             "Desktop Host",
+            "Deno Desktop Host",
             "Web Host",
             "Workspace Shell",
             "Panels",

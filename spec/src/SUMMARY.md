@@ -7,6 +7,7 @@
 - [Plugin Model](./plugin-model.md)
 - [App Database](./app-database.md)
 - [Desktop Host](./desktop-host.md)
+- [Deno Desktop Host](./desktop-deno-host.md)
 - [Web Host](./web-host.md)
 - [Workspace Shell](./workspace-shell.md)
   - [Panels](./workspace-shell/panels.md)

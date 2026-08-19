@@ -45,6 +45,7 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 | LN-DB-031 | Warm metadata startup MUST make persisted queries available before background vault reconciliation. An unchanged vault MUST NOT read note bodies, metadata payload JSON, Search content, or History payloads during database open.                                                                                                                                                                  |
 | LN-DB-032 | A 50,000-note warm-vault performance lane MUST enforce bounded metadata memory and native/WASM readiness and query budgets. A 100,000-note lane MUST report non-blocking stress results.                                                                                                                                                                                                            |
 | LN-DB-033 | Compatibility metadata snapshot import and export MAY remain deprecated for one release. Production startup MUST NOT invoke either operation or maintain the snapshot after normalized writes.                                                                                                                                                                                                      |
+| LN-DB-034 | A `deno-desktop` vault session MUST open Turso WASM through the browser-compatible provider path. It MUST NOT select Electron native Turso or `desktop_db_*` IPC.                                                                                                                                                                                      |
 
 ### LN-DB-032 acceptance details
 
@@ -82,6 +83,7 @@ App / plugins
 AppDatabaseProvider
      ├─ Electron main → Turso native
      ├─ Electron Intel renderer worker → Turso WASM + OPFS
+     ├─ Deno desktop renderer → Turso WASM + OPFS
      ├─ browser owner worker → Turso WASM + OPFS
      └─ browser proxy → BroadcastChannel RPC → owner
 ```

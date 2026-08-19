@@ -135,7 +135,11 @@ export default defineConfig(tableRequirements(), {
         },
         {
           pattern: "^packages/api/src/lib/storage/desktop-native\\.ts$",
-          chapters: ["spec/src/desktop-host.md", "spec/src/packages.md"],
+          chapters: [
+            "spec/src/desktop-host.md",
+            "spec/src/desktop-deno-host.md",
+            "spec/src/packages.md",
+          ],
         },
         {
           pattern: "^packages/api/src/lib/cache\\.svelte(?:\\.d)?\\.ts$",
@@ -211,6 +215,14 @@ export default defineConfig(tableRequirements(), {
             "spec/src/architecture.md",
             "spec/src/plugins/wordcount/index.md",
             "spec/src/plugins/spellcheck/index.md",
+          ],
+        },
+        {
+          pattern: "^packages/desktop-deno/",
+          chapters: [
+            "spec/src/desktop-deno-host.md",
+            "spec/src/packages.md",
+            "spec/src/architecture.md",
           ],
         },
         {

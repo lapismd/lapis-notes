@@ -53,6 +53,7 @@ intake or UI swap status changes.
 | `@lapis-notes/workspace` shell integration | Done                | Public thin design-core host; portable api compatibility + persistence façade                                                                                                                                                                                                                                                |
 | `@lapis-notes/web`                         | Done                | Legacy `8ec68e18` PWA intake; browser-owned vault/session boot and cross-tab Turso coordination pass focused browser acceptance                                                                                                                                                                                              |
 | `@lapis-notes/desktop-electron`            | Done (partial host) | Source-first native-folder host from legacy commit `8ec68e18`; current core plugins, retained native services/sidecars, and local distribution only                                                                                                                                                                          |
+| `@lapis-notes/desktop-deno`                | Planned             | Experimental Deno 2.9+ `deno desktop` spike: vault open through `NativeDesktopBridge`, WASM Turso, Markdown + File Explorer only. MUST NOT replace Electron.                                                                                                                                                                 |
 | `@lapis-notes/markdown`                    | Done (slice)        | Authorized plugin; Mira document render + public app-only panels including Tags; Obsidian-compatible panel IDs retain load aliases for prior Lapis layouts                                                                                                                                                                   |
 | `@lapis-notes/language-service`            | Done                | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                                                                                                                |
 | `@lapis-notes/markdown-lint`               | Done                | Enabled core plugin selects the probed native service or worker fallback and preserves configured rules, fixes, and ignores                                                                                                                                                                                                  |
@@ -125,6 +126,22 @@ legacy commit `8ec68e18`.
 Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
 demo-vault seeding, bundled-plugin startup/build steps, the legacy full app
 bootstrap, Windows targets, and remote release publication.
+
+### Deno desktop host spike progress
+
+Experimental `deno desktop` host. Production authorized hosts remain Electron
+and web. This spike MUST NOT replace `@lapis-notes/desktop-electron`.
+
+- [ ] Canonical desktop-deno-host requirements, package authorization, verification mapping, and MIGRATION intake
+- [ ] Widen `NativeDesktopRuntime` / `RuntimeTarget` with `deno-desktop` and route the app database to WASM Turso
+- [ ] Private `@lapis-notes/desktop-deno` package at version `2026.31.5`
+- [ ] Deno window, `win.bind()` bridge, vault-root FS, bootstrap KV, and path-prompt vault open
+- [ ] WorkspaceStartup then WorkspaceShell with Markdown and File Explorer only
+- [ ] Focused API and package checks; manual vault-open boot
+
+Intentionally out of scope: native Turso RPC, language-service and plugin-eval
+sidecars, AI and terminal hosts, CEF-required packaging, and Electron
+replacement.
 
 ### History plugin intake progress
 

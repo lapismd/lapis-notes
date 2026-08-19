@@ -100,6 +100,9 @@ tools. The community-tool shell story mutates the real AI settings contract and
 verifies Search, Markdown `notes_list`, and API file-tool enablement plus the
 disabled and newly enabled community-tool states.
 
+The Specification sidebar follows SUMMARY order, including Deno Desktop Host
+immediately after Desktop Host. That page is a metadata-only raw-import mirror.
+
 ## Show Code source contract
 
 Production desktop and web hosts continue to register external Roles in their
