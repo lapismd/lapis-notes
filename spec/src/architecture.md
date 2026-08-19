@@ -284,7 +284,10 @@ the same session boundary.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
 OPFS in exactly one Web Locks owner per vault; other tabs retain the generic
 database contract through bounded BroadcastChannel RPC and may promote when
-the owner disappears. Neither role is cloud synchronization.
+the owner disappears. Neither role is cloud synchronization. The launcher can
+copy a picked local folder into a new OPFS vault, and an open OPFS session can
+import into or export that vault through host Settings and commands
+(LN-WEB-038, LN-WEB-039, LN-WEB-040, LN-WEB-041).
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
 While a host resolves a saved current profile, it hosts Design Core
@@ -361,7 +364,8 @@ its acpx release and applies optional thinking controls only when the created
 session advertises them. Native Codex and ACP normalize
 thinking, tool, permission, user-input, and error events before the shared
 controller renders them. Adjacent tool items share one collapsed Design Core
-`ToolCalls` group, and tool output uses a JSON `CodeBlock`. A busy composer
+`ToolCalls` group, and tool details unwrap envelope payloads into `json`,
+`bash`, or `plaintext` `CodeBlock` language (LN-AI-133). A busy composer
 Stop control cancels the active turn immediately, without waiting for the
 runtime cancel to settle, and stays fully opaque while input remains disabled.
 Stop also drops a still-preparing first send so it cannot start after busy

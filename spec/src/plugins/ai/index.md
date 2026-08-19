@@ -62,7 +62,7 @@ execution APIs.
 | LN-AI-051 | Each durable agent binding MUST retain runtime, agent, model, thinking, native session identity, and final usage. Resume MUST use only a matching binding; failed resume MUST retain local history and create a replacement binding without deleting the old one.                                                                                                                                                                                                                                                                                                                                 |
 | LN-AI-052 | Runtime start, send, stream, process, and transport failures MUST become visible transcript errors, clear the busy state, and leave the panel able to start a replacement session.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | LN-AI-053 | ACP thinking MUST be applied before the first turn through acpx session configuration. Thought stream events MUST map to visible reasoning items and finish on completion or error.                                                                                                                                                                                                                                                                                                                                                                                                               |
-| LN-AI-054 | Tool transcript items MUST retain the event-provided input and output, including ACP `rawInput`, `locations`, and completed-event input. The panel MUST show command or input and output in expandable details. Output MUST use Design Core `CodeBlock` with language `json`. Details MUST NOT render tool environment variables or host credentials. |
+| LN-AI-054 | Tool transcript items MUST retain the event-provided input and output, including ACP `rawInput`, `locations`, and completed-event input. The panel MUST show command or input and output in expandable details. Details MUST NOT render tool environment variables or host credentials. |
 | LN-AI-125 | Tool items MUST keep an application-tool name and arguments when a later ACP update uses a generic title or empty input. One item MUST represent that call even when the MCP broker id and ACP `toolCallId` differ. The panel MUST show that tool name instead of `tool call`. |
 | LN-AI-126 | The reserved composer catalog MUST include `help`, `commands`, `new`, `agent`, `model`, `status`, `scope`, `context`, `skills`, `tools`, `native`, `skill`, `cancel`, and `refresh`. Those names MUST stay available across agent switches and MUST NOT be overridden by extension, skill, or native commands. |
 | LN-AI-127 | Reserved `/help` and `/commands` MUST list effective composer commands grouped by App, Actions, Skills, and Current Agent. The listing MUST stay local and MUST NOT become a model prompt. |
@@ -71,6 +71,7 @@ execution APIs.
 | LN-AI-130 | AI MUST ship a bundled user-invocable `research` skill. `/research` MUST activate that skill host-side. A same-named folder, vault, user, or extension skill MUST override the bundled skill. |
 | LN-AI-131 | A thinking item MUST spin and stay expanded only while that item is streaming. The first later non-thinking transcript item MUST settle it to `done` and collapse it. Completion, error, and cancel MUST also settle it. |
 | LN-AI-132 | Stop MUST immediately settle streaming thinking and running tools so no transcript spinner remains. After `session.cancel()` confirms, or when there is no session, the transcript MUST show a system notice that the turn was cancelled. Busy MUST still clear without waiting. |
+| LN-AI-133 | Display MUST unwrap a single primary tool payload key when remaining keys are metadata only. After unwrap, `CodeBlock` language MUST be `json` for objects or arrays, `bash` for console or command-style text, and `plaintext` for short unmarked prose. Failed-tool errors MUST use the same helper. Stored transcript strings MUST stay the event-provided payload. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -158,6 +159,19 @@ The AI settings inventory verifies:
 - The list refreshes when the registry changes.
 - Unregistered tools disappear from the section.
 
+### LN-AI-133 acceptance details
+
+Tool-detail presentation verifies:
+
+- Primary unwrap keys are `output`, `content`, `text`, `result`, `stdout`, and
+  `aggregated` when leftover keys are only `ok`, `status`, `success`,
+  `isError`, `server`, `tool`, or `name`.
+- MCP `content: [{ type, text }]` blocks join into one text payload. Nested
+  JSON strings parse at most three times.
+- A leftover `path`, `command`, or `query` sibling keeps the object structured.
+- Non-JSON text MUST NOT use `language="json"`. Multiline, CLI-looking, or
+  runner-tool text uses `bash`; a short unmarked line uses `plaintext`.
+
 ## Runtime flow
 
 The initial fallback controller is presentation-only: it does not restore or
@@ -226,6 +240,8 @@ An unreadable conversation is reported and released so the next send starts a
 replacement chat (LN-AI-124).
 Application-tool names and arguments stay on the transcript item when ACP
 only reports a generic `tool call` title (LN-AI-125).
+Tool details unwrap envelope fields such as `output` and pick `json`, `bash`,
+or `plaintext` for the Design Core `CodeBlock` (LN-AI-133).
 Assistant MarkdownEmbed content grows with that transcript instead of a nested
 scroller (LN-AI-122).
 AI registers its sidebar chat and history views through `ViewAccess.command`.

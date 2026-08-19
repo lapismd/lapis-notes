@@ -12,7 +12,9 @@ the public Markdown embed helper rather than a second renderer and grows with
 the transcript instead of a nested scroller (LN-AI-122). Folder-scoped
 chats project path breadcrumbs through the same View chrome hooks as History.
 A busy chat Stop control cancels the active agent turn, including a send that
-is still preparing a session. Thinking stays expanded only while it streams
+is still preparing a session. Tool details unwrap envelope fields such as
+`output` and choose `json`, `bash`, or `plaintext` for the Design Core
+`CodeBlock` (LN-AI-133). Thinking stays expanded only while it streams
 and collapses when later transcript data arrives (LN-AI-131). Stop settles
 leftover spinners immediately and posts a cancelled system notice after cancel
 confirms (LN-AI-132). The notice reads `Agent turn cancelled`.

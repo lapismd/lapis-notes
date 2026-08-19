@@ -145,7 +145,7 @@ describe("AiPlugin contracts", () => {
     expect(panel).toContain("isStopShown={controller.busy}");
     expect(panel).toContain("void controller.cancel()");
     expect(controller).toContain("async cancel()");
-    expect(controller).toContain("void session?.cancel?.()");
+    expect(controller).toContain("void this.#confirmCancelledNotice(session)");
     expect(controller).toContain("#isAbandoned");
   });
 
@@ -169,12 +169,13 @@ describe("AiPlugin contracts", () => {
     expect(view).toContain("if (!previous && next) return");
   });
 
-  it("groups adjacent tool calls and highlights JSON details", () => {
+  it("groups adjacent tool calls and presents unwrapped CodeBlock details", () => {
     const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
     const grouping = readFileSync("src/lib/chat/chat-time.ts", "utf8");
 
     expect(panel).toContain('from "@lapismd/design-core/shadcn/code-block"');
-    expect(panel).toContain('language="json"');
+    expect(panel).toContain("presentToolPayload");
+    expect(panel).toContain("language={inputPayload.language}");
     expect(panel).toContain("defaultExpanded={false}");
     expect(panel).toContain("entry.kind === \"tools\"");
     expect(grouping).toContain('kind: "tools"');

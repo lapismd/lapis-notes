@@ -53,7 +53,8 @@
   import { formatFileMention, mentionTokensFromText } from "./chat-mentions";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
   import {
-    formatToolPayloadAsJson,
+    isOneLineAlert,
+    presentToolPayload,
     toolCallStatus,
     toolCallTarget,
     type AiChatToolItem,
@@ -445,15 +446,23 @@
   }
 
   function toolCallProps(item: AiChatToolItem) {
+    const hint = { toolName: item.name, input: item.input };
+    const presentedError =
+      item.state === "error" ? presentToolPayload(item.output, hint) : undefined;
     return {
       id: item.toolId,
       name: item.name,
       status: toolCallStatus(item.state),
-      errorMessage: item.state === "error" ? item.output : undefined,
+      errorMessage:
+        presentedError && isOneLineAlert(presentedError)
+          ? presentedError.code
+          : undefined,
       target: toolCallTarget(item.input, item.server),
       data: {
         input: item.input,
         output: item.state === "error" ? undefined : item.output,
+        error: item.state === "error" ? item.output : undefined,
+        name: item.name,
       },
     };
   }
@@ -490,15 +499,25 @@
   });
 </script>
 
-{#snippet toolDetail(call: { data?: unknown })}
-  {@const detail = call.data as { input?: string; output?: string } | undefined}
-  {@const inputJson = formatToolPayloadAsJson(detail?.input)}
-  {@const outputJson = formatToolPayloadAsJson(detail?.output)}
+{#snippet toolDetail(call: { data?: unknown; name?: string })}
+  {@const detail = call.data as
+    | { input?: string; output?: string; error?: string; name?: string }
+    | undefined}
+  {@const hint = {
+    toolName: detail?.name ?? call.name,
+    input: detail?.input,
+  }}
+  {@const inputPayload = presentToolPayload(detail?.input)}
+  {@const outputPayload = presentToolPayload(detail?.output, hint)}
+  {@const errorPayload = presentToolPayload(detail?.error, hint)}
+  {@const showErrorBlock = Boolean(
+    errorPayload && !isOneLineAlert(errorPayload),
+  )}
   <div class="ai-chat-panel__tool-detail">
-    {#if inputJson}
+    {#if inputPayload}
       <CodeBlock
-        code={inputJson}
-        language="json"
+        code={inputPayload.code}
+        language={inputPayload.language}
         title="Input"
         size="sm"
         width="full"
@@ -506,11 +525,22 @@
         maxHeight="16rem"
       />
     {/if}
-    {#if outputJson}
+    {#if outputPayload}
       <CodeBlock
-        code={outputJson}
-        language="json"
+        code={outputPayload.code}
+        language={outputPayload.language}
         title="Output"
+        size="sm"
+        width="full"
+        isWrapped
+        maxHeight="16rem"
+      />
+    {/if}
+    {#if showErrorBlock && errorPayload}
+      <CodeBlock
+        code={errorPayload.code}
+        language={errorPayload.language}
+        title="Error"
         size="sm"
         width="full"
         isWrapped
