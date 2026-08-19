@@ -13,7 +13,10 @@ declare namespace Deno {
     reload(): void;
     hide(): void;
     show(): void;
+    focus(): void;
+    isClosed(): boolean;
     setTitle(title: string): void;
+    setOpacity(opacity: number): void;
     getPosition(): [number, number];
     setPosition(x: number, y: number): void;
     openDevtools(options?: { deno?: boolean; renderer?: boolean }): void;

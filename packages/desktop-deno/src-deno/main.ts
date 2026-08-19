@@ -1,7 +1,6 @@
 /// <reference path="./desktop.d.ts" />
 import { serveDir } from "jsr:@std/http@1/file-server";
 
-import { bindWindow, installDesktopBindCallbackShim } from "./bind-window.ts";
 import {
   createCapabilityRegistry,
   createPlatformInfo,
@@ -15,15 +14,19 @@ import {
 } from "./renderer-http.ts";
 import {
   DESKTOP_WINDOW_TITLE,
-  PARKED_WINDOW_URL,
+  assertSupportedDenoDesktopVersion,
   createDesktopWindowOptions,
   needsCreatedChromeWindow,
   rendererOriginFromServeAddress,
+  setOverlayWindowControls,
 } from "./window-chrome.ts";
+import { installWindowBindings } from "./window-bindings.ts";
 import {
   createWindowDragController,
   isWindowDragCommand,
 } from "./window-drag.ts";
+
+assertSupportedDenoDesktopVersion(Deno.version.deno);
 
 const windowOptions = createDesktopWindowOptions(Deno.build.os);
 const bootstrap = new Deno.BrowserWindow({
@@ -36,43 +39,58 @@ const win = needsCreatedChromeWindow(Deno.build.os)
   : bootstrap;
 if (win !== bootstrap) {
   bootstrap.setTitle("");
-  bootstrap.navigate(PARKED_WINDOW_URL);
-  bootstrap.hide();
+  bootstrap.setOpacity(0);
+  const keepBootstrapWindowParked = () => {
+    bootstrap.hide();
+    if (!win.isClosed()) win.focus();
+  };
+  bootstrap.addEventListener("load", keepBootstrapWindowParked);
+  bootstrap.addEventListener("focus", keepBootstrapWindowParked);
+  keepBootstrapWindowParked();
   win.setTitle("");
   win.show();
 } else {
   win.setTitle(DESKTOP_WINDOW_TITLE);
   win.show();
 }
+setOverlayWindowControls(win !== bootstrap && Deno.build.os === "darwin");
 const drag = createWindowDragController(win);
 
 const INSPECT_ADDRESS = "127.0.0.1:9229";
 
 function registerDesktopBindings(): void {
-  bindWindow(win, "invoke", (...args: unknown[]) => {
-    const command = typeof args[0] === "string" ? args[0] : "";
-    const payload = args[1] && typeof args[1] === "object"
-      ? args[1] as Record<string, unknown>
-      : {};
-    if (!isWindowDragCommand(command)) {
-      console.log(`[desktop] invoke ${command}`);
-    }
-    if (isWindowDragCommand(command)) {
-      const screenX = Number(payload.screenX ?? 0);
-      const screenY = Number(payload.screenY ?? 0);
-      if (command === "desktop_window_drag_begin") drag.begin(screenX, screenY);
-      else if (command === "desktop_window_drag_move") drag.move(screenX, screenY);
-      else drag.end();
-      return;
-    }
-    return handleDesktopInvoke(command, payload);
-  });
-  bindWindow(win, "platform", () => createPlatformInfo());
-  bindWindow(win, "capabilities", () => createCapabilityRegistry());
+  installWindowBindings(win, [
+    [
+      "invoke",
+      (...args: unknown[]) => {
+        const command = typeof args[0] === "string" ? args[0] : "";
+        const payload =
+          args[1] && typeof args[1] === "object"
+            ? (args[1] as Record<string, unknown>)
+            : {};
+        if (!isWindowDragCommand(command)) {
+          console.log(`[desktop] invoke ${command}`);
+        }
+        if (isWindowDragCommand(command)) {
+          const screenX = Number(payload.screenX ?? 0);
+          const screenY = Number(payload.screenY ?? 0);
+          if (command === "desktop_window_drag_begin")
+            drag.begin(screenX, screenY);
+          else if (command === "desktop_window_drag_move") {
+            drag.move(screenX, screenY);
+          } else drag.end();
+          return;
+        }
+        return handleDesktopInvoke(command, payload);
+      },
+    ],
+    ["platform", () => createPlatformInfo()],
+    ["capabilities", () => createCapabilityRegistry()],
+  ]);
 }
 
-installDesktopBindCallbackShim();
 registerDesktopBindings();
+win.addEventListener("close", () => Deno.exit(0));
 
 win.setApplicationMenu([
   {
@@ -152,7 +170,9 @@ async function showRendererErrors(): Promise<void> {
     "JSON.stringify(globalThis.__LAPIS_RENDERER_ERRORS__ ?? [])",
   );
   const errors = typeof dumped === "string" ? dumped : JSON.stringify(dumped);
-  alert(errors === "[]" || errors === "" ? "No captured renderer errors." : errors);
+  alert(
+    errors === "[]" || errors === "" ? "No captured renderer errors." : errors,
+  );
 }
 
 win.addEventListener("menuclick", (event: Event) => {
@@ -184,9 +204,14 @@ win.addEventListener("menuclick", (event: Event) => {
 });
 
 const distRoot = new URL("../dist", import.meta.url).pathname;
-const devUrl = Deno.env.get("LAPIS_DESKTOP_DEV_SERVER_URL")?.replace(/\/$/u, "");
+const devUrl = Deno.env
+  .get("LAPIS_DESKTOP_DEV_SERVER_URL")
+  ?.replace(/\/$/u, "");
 
-function proxyViteWebSocket(request: Request, upstreamOrigin: string): Response {
+function proxyViteWebSocket(
+  request: Request,
+  upstreamOrigin: string,
+): Response {
   const target = rewriteUpstreamUrl(request.url, upstreamOrigin);
   target.protocol = target.protocol === "https:" ? "wss:" : "ws:";
   const { socket, response } = Deno.upgradeWebSocket(request);
@@ -215,7 +240,10 @@ function proxyViteWebSocket(request: Request, upstreamOrigin: string): Response 
   return response;
 }
 
-async function proxyVite(request: Request, upstreamOrigin: string): Promise<Response> {
+async function proxyVite(
+  request: Request,
+  upstreamOrigin: string,
+): Promise<Response> {
   if (isWebSocketUpgrade(request)) {
     return proxyViteWebSocket(request, upstreamOrigin);
   }
@@ -240,13 +268,10 @@ Deno.serve(async (request) => {
   });
   return withIsolationHeaders(response);
 });
-registerDesktopBindings();
 if (win !== bootstrap) {
-  bootstrap.navigate(PARKED_WINDOW_URL);
   bootstrap.hide();
   win.navigate(
     rendererOriginFromServeAddress(Deno.env.get("DENO_SERVE_ADDRESS")),
   );
-  registerDesktopBindings();
   win.show();
 }
