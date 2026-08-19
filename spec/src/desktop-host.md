@@ -12,7 +12,9 @@ the web host.
 The Electron host is a source-first intake from the legacy
 `/Users/stevejuma/code/lapis-notes/packages/desktop-electron` package at commit
 `8ec68e18`. Root `MIGRATION.md` records which legacy areas remain, change, or
-are intentionally omitted.
+are intentionally omitted. The shared `NativeDesktopRuntime` union now also
+includes experimental `deno-desktop`; Electron sessions remain
+`electron-desktop`.
 
 ## Requirements
 

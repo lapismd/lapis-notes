@@ -5,7 +5,8 @@ lifecycle. Registration is plugin-scoped and automatic teardown removes each
 contribution without adding another loader or contribution manifest.
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
-identities or creating a second lifecycle. Workspace `activateLeaf` remains an
+identities or creating a second lifecycle. A `deno-desktop` session reports
+plugin-distribution platform `desktop` rather than `electron` or `web`. Workspace `activateLeaf` remains an
 API-owned selection that the persisted layout must restore. Statically shipped plugins use the
 core manager even when their source is maintained in a separate repository.
 First-party plugin surfaces compose Design Core public parts for shared chrome;

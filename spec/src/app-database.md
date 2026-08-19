@@ -2,7 +2,8 @@
 
 `AppDatabase` is the stable generated-state boundary. Providers choose a local
 engine and transport without exposing either choice to Search, Markdown, or the
-workspace shell.
+workspace shell. Experimental `deno-desktop` sessions select Turso WASM and
+MUST NOT open Electron native Turso IPC.
 
 The direct-SQL runtime implements row-scoped normalized Turso writes, typed
 metadata indexes, durable revisions, native/browser change relays, bounded

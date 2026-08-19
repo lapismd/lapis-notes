@@ -10,6 +10,7 @@ contributions do not create a second Problems collection or cache.
 The Problems view is a reusable workspace panel. Design Core owns the generic
 diagnostic model, collection lifecycle, and presentation; Lapis adapts vault,
 language-service, navigation, and plugin behavior at its public API boundary.
+The experimental Deno desktop spike does not add a language-service sidecar.
 
 The Lapis façade, plugin-owned disposal, open-document bridge, cached actions,
 navigation adapter, diagnostics-only Markdown composition, and default

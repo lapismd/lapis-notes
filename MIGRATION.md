@@ -132,8 +132,8 @@ bootstrap, Windows targets, and remote release publication.
 Experimental `deno desktop` host. Production authorized hosts remain Electron
 and web. This spike MUST NOT replace `@lapis-notes/desktop-electron`.
 
-- [ ] Canonical desktop-deno-host requirements, package authorization, verification mapping, and MIGRATION intake
-- [ ] Widen `NativeDesktopRuntime` / `RuntimeTarget` with `deno-desktop` and route the app database to WASM Turso
+- [x] Canonical desktop-deno-host requirements, package authorization, verification mapping, and MIGRATION intake
+- [x] Widen `NativeDesktopRuntime` / `RuntimeTarget` with `deno-desktop` and route the app database to WASM Turso
 - [ ] Private `@lapis-notes/desktop-deno` package at version `2026.31.5`
 - [ ] Deno window, `win.bind()` bridge, vault-root FS, bootstrap KV, and path-prompt vault open
 - [ ] WorkspaceStartup then WorkspaceShell with Markdown and File Explorer only

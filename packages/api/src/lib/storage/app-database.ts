@@ -54,7 +54,7 @@ export type {
   SearchEmbeddingRuntimeStatus,
 } from "./search-embedding-provider";
 
-export type RuntimeTarget = "web-pwa" | "electron-desktop" | "test";
+export type RuntimeTarget = "web-pwa" | "electron-desktop" | "deno-desktop" | "test";
 
 export interface ElectronLocalSearchQueryEnhancementProviderConfig {
   kind: "electron-local-model";

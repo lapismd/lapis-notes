@@ -17,10 +17,12 @@ model defaults persist in AI plugin data; workspace dock selection persists
 through the existing 1000 ms writer. Separately versioned
 Roles/CV catalog coverage remains in its owning repository while Lapis
 production hosts continue to load that plugin. Hosts register the Tasks sibling
-and MUST NOT register Tasks workspace views themselves. AppDatabase owns namespaced plugin
-projections and a serializable query AST, including the public `tasks/task`
-collection. That projection stores `planKind` as the Tasks `plan.at` kind
-(`anytime`, `morning`, `afternoon`, `evening`, or `time`).
+and MUST NOT register Tasks workspace views themselves. AppDatabase owns
+namespaced plugin projections and a serializable query AST, including the public
+`tasks/task` collection. That projection stores `planKind` as the Tasks
+`plan.at` kind (`anytime`, `morning`, `afternoon`, `evening`, or `time`).
+Experimental Deno desktop sessions use the same API vault-session factory and
+WASM Turso path as browser hosts.
 
 ## Requirements
 

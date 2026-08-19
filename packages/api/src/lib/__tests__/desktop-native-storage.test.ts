@@ -221,6 +221,21 @@ it("routes app-database operations through the bounded native Turso RPC", async 
   ]);
 });
 
+it("preserves deno-desktop adapter runtime without opening native Turso", () => {
+  const adapter = new NativeDesktopVaultAdapter(
+    "/vault",
+    { name: "Vault" },
+    "deno-desktop",
+  );
+  expect(adapter.runtime).toBe("deno-desktop");
+  expect(
+    new NativeDesktopTursoAppDatabaseProvider().canOpen({
+      vaultId: "desktop-folder:/vault",
+      runtime: "deno-desktop",
+    }),
+  ).toBe(false);
+});
+
 it("routes text appends through the native append command without a readback", async () => {
   const calls: Array<{ command: string; payload?: Record<string, unknown> }> =
     [];

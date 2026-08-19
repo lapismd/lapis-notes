@@ -3,7 +3,8 @@
 The experimental Deno desktop host is a spike that proves Deno 2.9+
 `deno desktop` can implement the existing `NativeDesktopBridge` well enough to
 open a `desktop-folder` vault and mount `WorkspaceShell`. It MUST NOT replace
-the Electron host.
+the Electron host. API session creation accepts runtime `deno-desktop` and
+opens Turso WASM rather than Electron native IPC.
 
 ## Requirements
 

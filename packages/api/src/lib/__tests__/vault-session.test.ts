@@ -140,6 +140,28 @@ describe("createVaultSession", () => {
     });
   });
 
+  it("routes deno-desktop sessions to Turso WASM instead of Electron native IPC", async () => {
+    vi.stubGlobal("navigator", {
+      storage: { getDirectory: vi.fn() },
+    });
+    vi.stubGlobal("crossOriginIsolated", false);
+
+    const session = await createVaultSession(adapter, {
+      runtime: "deno-desktop",
+    });
+
+    expect(session.runtime).toBe("deno-desktop");
+    expect(session.appDatabase).toBeUndefined();
+    expect(session.appDatabaseState).toMatchObject({
+      status: "blocked",
+      mode: "turso-blocked",
+      providerId: "turso-wasm-local",
+      role: "blocked",
+      transport: "wasm-worker",
+      message: expect.stringContaining("cross-origin isolation"),
+    });
+  });
+
   it("accepts an explicit provider without changing the AppDatabase contract", async () => {
     const session = await createVaultSession(adapter, {
       runtime: "electron-desktop",

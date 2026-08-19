@@ -10,7 +10,9 @@ Markdown retains editor, persistence, and scroll ownership.
 
 The shell's reusable movable-view contract is documented separately under
 [Panels](./workspace-shell/panels.md). This overview retains controller,
-persistence, and application-host responsibilities. Language-service apply
+persistence, and application-host responsibilities. Experimental Deno desktop
+sessions still construct `App` with an API `VaultSession` before mounting the
+shell. Language-service apply
 paths for serializable command actions live on the Problems panel chapter.
 Workspace `Plugin.addCommand` remains the Actions tab. File Explorer and AI
 register Files and Agents palette providers. `app:go-to-file` lands on Files.

@@ -42,7 +42,7 @@ let registeredNativeDesktopBridge: NativeDesktopBridge | null = null;
 
 // ─── Neutral interface ────────────────────────────────────────────────────────
 
-export type NativeDesktopRuntime = "electron-desktop";
+export type NativeDesktopRuntime = "electron-desktop" | "deno-desktop";
 
 export type NativeDesktopPlatformOs = "macos" | "windows" | "linux" | "unknown";
 
@@ -481,7 +481,7 @@ export class NativeDesktopVaultAdapter
     AsyncResourceAdapter,
     NativeWatchAdapter
 {
-  readonly runtime: "electron-desktop";
+  readonly runtime: NativeDesktopRuntime;
   readonly vaultId: string;
   readonly name: string;
 

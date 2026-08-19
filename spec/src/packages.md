@@ -17,7 +17,8 @@ dependency only and does not enter the root Storybook development closure.
 `queryProjection` methods so plugins can register collections and read public
 rows, including `tasks/task`, without importing each other. The tasks
 projection `planKind` values are `anytime`, `morning`, `afternoon`,
-`evening`, and `time`.
+`evening`, and `time`. `NativeDesktopRuntime` and `RuntimeTarget` include
+experimental `deno-desktop` without changing Electron or web production hosts.
 
 ## Requirements
 

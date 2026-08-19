@@ -398,7 +398,11 @@ export class App {
       adapter,
       appVersion: this.version,
       platform:
-        props.session?.runtime === "electron-desktop" ? "electron" : "web",
+        props.session?.runtime === "electron-desktop"
+          ? "electron"
+          : props.session?.runtime === "deno-desktop"
+            ? "desktop"
+            : "web",
       workspaceTrusted: async () => (await this.workspaceTrust.ready()).trusted,
       pluginManager: this.plugins,
     });
