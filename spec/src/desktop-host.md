@@ -39,7 +39,7 @@ are intentionally omitted.
 | LN-DESK-028 | When a persisted `empty` leaf carries `state.__missingViewType`, layout restoration MUST retry that requested type after core plugins load. A now-available view MUST be restored and subsequently persist its canonical type; a still-unavailable Search, Bookmarks, or other view MUST remain an explicit placeholder.                                                                                                     |
 | LN-DESK-029 | The desktop host MUST register and load `@lapis-notes/search` before metadata and layout restoration. A vault without persisted layout MUST include File Explorer, Search, then Bookmarks in its default left tabs. Persisted Search leaves MUST use the session's native app database without a renderer-only search backend.                                                                                                                              |
 | LN-DESK-030 | The desktop host MUST register and load `@lapis-notes/lapis-plugin-cv-roles` as an optional core plugin enabled by default before metadata and layout restoration so persisted `role`, `roles`, and `cv` leaves restore with the plugin-owned legacy page presentation available.                                                                                                                                            |
-| LN-DESK-060 | The desktop host MUST register and load `@lapis-notes/lapis-plugin-tasks` after external Roles and before metadata and layout restoration. It MUST use the plugin for indexing and queries and MUST NOT register Tasks workspace views. |
+| LN-DESK-060 | The desktop host MUST register and load `@lapis-notes/lapis-plugin-tasks` after external Roles and before metadata and layout restoration. It MUST NOT register Tasks workspace views itself. |
 | LN-DESK-031 | The desktop host MUST register and load `@lapis-notes/bases` after Search and before external Roles, metadata, and layout restoration. It MUST use package-exported styles, restore persisted Bases placeholders after re-enabling, and MUST NOT create a default Bases leaf.                                                                                                                                                |
 | LN-DESK-032 | The desktop host MUST register and load `@lapis-notes/ai` after Bases and before external Roles, metadata, and layout restoration. It MUST advertise `agent-runtime` for process-backed ACP and Codex sessions and MUST NOT create a default AI leaf.                                                                                                                                                                        |
 | LN-DESK-054 | The desktop host MUST register and load `@lapis-notes/lapis-plugin-terminal` as an optional core plugin enabled by default after AI and before external Roles, metadata, and layout restoration. |
@@ -117,8 +117,8 @@ Desktop overlay verifies:
 ## Boot flow
 
 The renderer imports Bases and its exported stylesheet from the package, then
-registers it after Search and before external Roles and Tasks. Tasks loads
-only for indexing and queries. A source-order audit and
+registers it after Search and before external Roles and Tasks. Tasks views
+come from plugin onload. A source-order audit and
 the production renderer build verify plugin loading precedes metadata and
 layout restoration; Bases is not added to the default leaf policy.
 Each mounted desktop session provides its App to the shell and installs one

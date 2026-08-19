@@ -875,8 +875,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DESK-057 | desktop-host                    | Implemented | setNativeDesktopBridge publishes and clears the process-wide native desktop global |
 | LN-DESK-058 | desktop-host                    | Implemented | desktop Vite allows the linked Terminal plugin root so Ghostty WASM is served |
 | LN-DESK-059 | desktop-host                    | Implemented | desktop terminal host binds workspace from create payload vault path, cwd, or homedir |
-| LN-DESK-060 | desktop-host                    | Implemented | desktop session registers TasksPlugin after Roles for indexing and queries only |
-| LN-WEB-044  | web-host                        | Implemented | web session registers TasksPlugin after Roles for indexing and queries only |
+| LN-DESK-060 | desktop-host                    | Implemented | desktop session registers TasksPlugin after Roles; views come from plugin onload |
+| LN-WEB-044  | web-host                        | Implemented | web session registers TasksPlugin after Roles; views come from plugin onload |
 | LN-WS-080   | workspace-shell                 | Implemented | Terminal plugin seeds a bottom leaf when none exists |
 | LN-WS-081   | workspace-shell                 | Implemented | setViewState and activateLeaf schedule the 1000 ms writer; loadLayout restores the selected sidebar leaf or group |
 | LN-WS-082   | workspace-shell                 | Implemented | file-open records a recent-files ring; getLastOpenFiles and getRecentFiles return most-recent first |
@@ -976,7 +976,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-MD-102   | markdown-plugin                 | Implemented | extractMetadata parses nested YAML maps such as task.status |
 | LN-MD-103   | markdown-plugin                 | Implemented | extractMetadata indexes Markdown and wiki links with heading context |
 | LN-PKG-099  | packages                        | In progress | `@lapis-notes/bookmarks` lives at `packages/plugins/plugin-bookmarks` and persists `{ items }` through `.obsidian/bookmarks.json` |
-| LN-PKG-101  | packages                        | Implemented | Sibling `lapis-plugin-tasks` is registered by desktop and web hosts for indexing and queries only |
+| LN-PKG-101  | packages                        | Implemented | Sibling `lapis-plugin-tasks` is registered by desktop and web hosts; views come from plugin onload |
 | LN-BM-001   | bookmarks-plugin                | In progress | package location, runtime id `bookmarks`, bundled default-enabled registration |
 | LN-BM-002   | bookmarks-plugin                | In progress | schema tests persist all six types plus unknown keys through `.obsidian/bookmarks.json` |
 | LN-BM-003   | bookmarks-plugin                | In progress | `ViewAccess.command` opener `bookmarks:open-bookmarks` and default left surface |

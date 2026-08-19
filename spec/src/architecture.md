@@ -6,8 +6,8 @@ dependency or move plugin ownership into the catalog host. Composer agent and
 model defaults persist in AI plugin data; workspace dock selection persists
 through the existing 1000 ms writer. Separately versioned
 Roles/CV catalog coverage remains in its owning repository while Lapis
-production hosts continue to load that plugin. Hosts load the Tasks sibling for indexing and queries only and MUST NOT
-register Tasks workspace views. AppDatabase owns namespaced plugin
+production hosts continue to load that plugin. Hosts register the Tasks sibling
+and MUST NOT register Tasks workspace views themselves. AppDatabase owns namespaced plugin
 projections and a serializable query AST, including the public `tasks/task`
 collection.
 
@@ -204,7 +204,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/wordcount (status-bar word, character, and reading-time count)
 @lapis-notes/bases (query + document + bundled Bases presentation)
 @lapis-notes/lapis-plugin-cv-roles (first-party external plugin; role workflows + retained CV views)
-@lapis-notes/lapis-plugin-tasks (first-party external; hosts load for indexing and queries only)
+@lapis-notes/lapis-plugin-tasks (first-party external; hosts register the plugin class)
 @lapis-notes/markdown (authorized plugin; Mira document render + side panels)
 @lapis-notes/language-service (internal provider-neutral client + worker)
 @lapis-notes/markdown-lint (authorized core diagnostic provider)

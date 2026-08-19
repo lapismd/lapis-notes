@@ -25,7 +25,7 @@ This repository currently contains:
 - `@lapis-notes/bases` — bundled metadata-query views and Markdown embeds
 - `@lapis-notes/ai` — bundled provider-agnostic agent runtime and chat panel
 - `@lapis-notes/lapis-plugin-cv-roles` — vault-native role workflows plus retained CV views
-- `@lapis-notes/lapis-plugin-tasks` — sibling Tasks plugin; hosts load it for indexing and queries only
+- `@lapis-notes/lapis-plugin-tasks` — sibling Tasks plugin; hosts register the plugin class
 - Storybook host and specification governance
 
 The notebook and remaining unlisted bundled plugins remain tracked for later

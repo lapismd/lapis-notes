@@ -50,7 +50,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-041 | The launcher MUST offer Import Vault beside Create New Vault and Open Folder. It MUST pick a folder, collect a name in Import Browser Vault, create an OPFS profile, copy the folder, then open that session. Name MUST start as the folder name, and Import vault MUST stay disabled until the trimmed name is non-empty. |
 | LN-WEB-042 | In-session import and export MUST report each copied file through `notifications.withProgress`. After scanning completes, the progress message MUST include the current path and `N of M` counts. The report MUST keep determinate `current` and `total`. |
 | LN-WEB-043 | Launcher Import Vault MUST update the `import` WorkspaceStartup task `detail` with the current path and `N of M` counts while copying. It MUST NOT use App notifications before the session exists. |
-| LN-WEB-044 | The web host MUST register and load `@lapis-notes/lapis-plugin-tasks` after external Roles and before metadata and layout restoration. It MUST use the plugin for indexing and queries and MUST NOT register Tasks workspace views. |
+| LN-WEB-044 | The web host MUST register and load `@lapis-notes/lapis-plugin-tasks` after external Roles and before metadata and layout restoration. It MUST NOT register Tasks workspace views itself. |
 
 ### LN-WEB-021 acceptance details
 
