@@ -10,6 +10,7 @@ import {
   expectPanelSource,
   PANEL_DOCS_PARAMETERS,
   PANEL_PLACEMENTS,
+  panelDemoApp,
   placementParameters,
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
@@ -56,6 +57,7 @@ function placementStory(
   layout: PanelDemoLayout,
   source: string,
   description: string,
+  options: { proveShowHidden?: boolean } = {},
 ): Story {
   return {
     name: PANEL_PLACEMENTS[layout].name,
@@ -75,9 +77,22 @@ function placementStory(
       await expect(
         panel.getByRole("button", { name: "Create File" }),
       ).toBeVisible();
-      await expect(
-        panel.getByRole("button", { name: "Show hidden files" }),
-      ).toHaveAttribute("aria-pressed", "false");
+      const showHidden = panel.getByRole("button", {
+        name: "Show hidden files",
+      });
+      await expect(showHidden).toHaveAttribute("aria-pressed", "false");
+      if (options.proveShowHidden) {
+        await userEvent.click(showHidden);
+        await expect(showHidden).toHaveAttribute("aria-pressed", "true");
+        await expect(panel.getByText(".env")).toBeVisible();
+        await expect(panel.getByText(".obsidian")).toBeVisible();
+        const persisted = JSON.parse(
+          await panelDemoApp(canvasElement).vault.adapter.read(
+            ".obsidian/app.json",
+          ),
+        ) as Record<string, unknown>;
+        expect(persisted["workspace.fileExplorer.showHiddenFiles"]).toBe(true);
+      }
       const notes = panel.getByText("Notes");
       notes.dispatchEvent(
         new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
@@ -110,6 +125,7 @@ export const LeftSidebar = placementStory(
   "left-sidebar",
   sources.LeftSidebar,
   "Explorer in its canonical left-sidebar placement.",
+  { proveShowHidden: true },
 );
 export const RightSidebar = placementStory(
   "right-sidebar",

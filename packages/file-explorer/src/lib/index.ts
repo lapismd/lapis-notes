@@ -2,7 +2,6 @@ import {
   Notice,
   Plugin,
   TFile,
-  TFolder,
   View,
   basename,
   dirname,
@@ -10,14 +9,10 @@ import {
   type App,
   type PluginManifest,
   type PluginConstructor,
-  type TAbstractFile,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
-import {
-  ExplorerController,
-  type ExplorerNode,
-} from "@lapismd/design-core/workspace/explorer";
+import { ExplorerController } from "@lapismd/design-core/workspace/explorer";
 import type { WorkspaceAction } from "@lapismd/design-core/workspace/core";
 import { mount, unmount } from "svelte";
 import ExplorerPanel from "./LapisExplorerView.svelte";
@@ -28,6 +23,7 @@ import {
 } from "./native-explorer-actions";
 import { openExplorerFile } from "./open-explorer-file";
 import { EXPLORER_SETTING_IDS } from "./explorer-settings";
+import { listExplorerVaultEntries } from "./explorer-vault-entries";
 import { registerExplorerSettings } from "./register-explorer-settings";
 import { isVisibleExplorerPath } from "./vault-path-visibility";
 
@@ -100,14 +96,6 @@ async function uniquePath(
   }
 }
 
-function toExplorerNode(file: TAbstractFile): ExplorerNode {
-  return {
-    path: file.path.replace(/^\/+/, ""),
-    name: file.name,
-    kind: file instanceof TFolder ? "folder" : "file",
-  };
-}
-
 async function withNotice<T>(operation: () => Promise<T>): Promise<T> {
   try {
     return await operation();
@@ -122,10 +110,7 @@ function createExplorerController(app: App, loading: boolean) {
     loading,
     tree: {
       listEntries: () =>
-        app.vault
-          .getAllLoadedFiles()
-          .filter((file) => file.path !== "/")
-          .map(toExplorerNode),
+        listExplorerVaultEntries(app.vault.getAllLoadedFiles()),
       subscribe: (onChange) => {
         const created = app.vault.on("create", onChange);
         const deleted = app.vault.on("delete", onChange);

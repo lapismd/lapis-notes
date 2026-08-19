@@ -23,3 +23,4 @@ Show-hidden visibility is one preference:
 - The Workspace setting and toolbar MUST share `workspace.fileExplorer.showHiddenFiles` with default false.
 - The command MUST flip that key and refresh every Explorer view.
 - Palette file search MUST honor the same setting.
+- Explorer MUST pass every vault path except root to Design Core and MUST NOT pre-filter dotted names.
