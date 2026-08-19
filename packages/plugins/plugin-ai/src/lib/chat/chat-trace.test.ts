@@ -45,6 +45,50 @@ describe("chat trace", () => {
     });
   });
 
+  it("keeps one streaming thinking item while tokens continue", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "thinking",
+      text: "First ",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "thinking",
+      text: "second",
+    });
+    expect(items).toMatchObject([
+      { type: "thinking", text: "First second", state: "streaming" },
+    ]);
+  });
+
+  it("settles streaming thinking when later text or a tool arrives", () => {
+    let items = applyAgentEventToChatItems([], {
+      type: "thinking",
+      text: "Planning",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "text",
+      text: "Here is the answer.",
+    });
+    expect(items).toMatchObject([
+      { type: "thinking", state: "done" },
+      { type: "message", text: "Here is the answer." },
+    ]);
+
+    items = applyAgentEventToChatItems([], {
+      type: "thinking",
+      text: "Looking up notes",
+    });
+    items = applyAgentEventToChatItems(items, {
+      type: "tool.start",
+      id: "t1",
+      name: "notes_search",
+      input: { query: "vault" },
+    });
+    expect(items).toMatchObject([
+      { type: "thinking", state: "done" },
+      { type: "tool", name: "notes_search", state: "running" },
+    ]);
+  });
+
   it("settles visible thinking when a turn fails", () => {
     let items = applyAgentEventToChatItems([], {
       type: "thinking",

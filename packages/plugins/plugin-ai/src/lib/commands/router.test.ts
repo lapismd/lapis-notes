@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { AppSlashCommandRegistry } from "@lapis-notes/api/agent-skills";
 import { SlashCommandCatalog } from "./catalog";
+import { formatSlashHelp } from "./groups";
 import { SlashCommandRouter } from "./router";
 
 describe("SlashCommandCatalog", () => {
@@ -15,6 +16,30 @@ describe("SlashCommandCatalog", () => {
     expect(catalog.native("binding-a", "skills")?.description).toBe(
       "Codex skills",
     );
+  });
+
+  it("reserves host names including help aliases", () => {
+    const catalog = new SlashCommandCatalog();
+    const names = catalog.list().map((command) => command.name);
+    expect(names).toEqual(
+      expect.arrayContaining([
+        "help",
+        "new",
+        "agent",
+        "model",
+        "status",
+        "scope",
+        "context",
+        "skills",
+        "tools",
+        "native",
+        "skill",
+        "cancel",
+        "refresh",
+      ]),
+    );
+    expect(catalog.get("commands")?.name).toBe("help");
+    expect(catalog.get("help")?.source).toBe("app");
   });
 });
 
@@ -71,6 +96,60 @@ describe("SlashCommandRouter", () => {
       kind: "local",
       notice: "agent",
       arguments: "cursor",
+    });
+  });
+
+  it("treats /help and /commands as local catalog listings", async () => {
+    const catalog = new SlashCommandCatalog();
+    catalog.replaceNativeCommands("binding-a", [
+      { name: "compact", description: "Compact the thread" },
+    ]);
+    const router = new SlashCommandRouter(catalog);
+    expect(
+      await router.execute(router.resolve("/help")!, {
+        discovery: { scopeDir: "" },
+      }),
+    ).toEqual({ kind: "local", notice: "help" });
+    expect(
+      await router.execute(router.resolve("/commands")!, {
+        discovery: { scopeDir: "" },
+      }),
+    ).toEqual({ kind: "local", notice: "help" });
+    const help = formatSlashHelp(catalog.list("binding-a"), "Codex ACP");
+    expect(help).toContain("App");
+    expect(help).toContain("/help");
+    expect(help).toContain("Current Agent · Codex ACP");
+    expect(help).toContain("/native compact");
+  });
+
+  it("maps /search arguments onto notes_search query", async () => {
+    const extensions = new AppSlashCommandRegistry();
+    extensions.register(
+      { pluginId: "search" },
+      {
+        name: "search",
+        description: "Search notes",
+        argumentHint: "<query>",
+        dispatch: { kind: "tool", tool: "notes_search" },
+      },
+    );
+    const router = new SlashCommandRouter(new SlashCommandCatalog(extensions));
+    expect(
+      await router.execute(router.resolve("/search OAuth")!, {
+        discovery: { scopeDir: "" },
+      }),
+    ).toEqual({
+      kind: "tool",
+      tool: "notes_search",
+      input: { query: "OAuth" },
+    });
+    expect(
+      await router.execute(router.resolve("/search")!, {
+        discovery: { scopeDir: "" },
+      }),
+    ).toMatchObject({
+      kind: "error",
+      message: "Usage: /search <query>",
     });
   });
 });

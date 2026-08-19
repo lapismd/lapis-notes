@@ -62,6 +62,9 @@ import {
   composerAgentLabel,
   parseAgentCommand,
 } from "../commands/agent";
+import { formatSlashHelp } from "../commands/groups";
+import { formatContextNotice, formatScopeNotice } from "../commands/inspect";
+import { normalizeConversationScope } from "../conversations/paths";
 import type { AcpAgentId } from "../settings/acp-agents";
 
 export class AiChatController {
@@ -94,7 +97,9 @@ export class AiChatController {
   >();
   readonly #cancelledSessions = new WeakSet<AgentSession>();
   #turnId = 0;
-  readonly #createConversation?: () => CreateConversationInput;
+  readonly #createConversation?: (
+    explicitFolder?: string,
+  ) => CreateConversationInput;
   readonly #onLocationChange?: (location: ConversationLocation | null) => void;
   readonly #selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
   readonly #appToolBridge?: AppToolBridgeCoordinator;
@@ -121,7 +126,7 @@ export class AiChatController {
       request?: Omit<AgentRequest, "prompt">;
       repository?: ConversationRepository;
       location?: ConversationLocation | null;
-      createConversation?: () => CreateConversationInput;
+      createConversation?: (explicitFolder?: string) => CreateConversationInput;
       onLocationChange?: (location: ConversationLocation | null) => void;
       selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
       appToolBridge?: AppToolBridgeCoordinator;
@@ -808,6 +813,46 @@ export class AiChatController {
         await this.#applyAgentCommand(result.arguments ?? "");
         return;
       }
+      if (result.notice === "help") {
+        await this.#prepareSession(request);
+        this.#appendLocalNotice(
+          formatSlashHelp(
+            this.#slashRouter.catalog.list(this.#activeBindingId),
+            composerAgentLabel(
+              this.request.agent,
+              typeof this.request.metadata?.runtime === "string"
+                ? this.request.metadata.runtime
+                : undefined,
+            ),
+          ),
+        );
+        await this.#persistCommandNotice();
+        return;
+      }
+      if (result.notice === "scope") {
+        await this.#applyScopeCommand(result.arguments ?? "");
+        return;
+      }
+      if (result.notice === "context") {
+        await this.#prepareSession(request);
+        this.#appendLocalNotice(await this.#describeContext());
+        await this.#persistCommandNotice();
+        return;
+      }
+      if (result.notice === "model") {
+        this.#appendLocalNotice(
+          "Change the model from the composer Model menu.",
+        );
+        await this.#persistCommandNotice();
+        return;
+      }
+      if (result.notice === "cancel") {
+        this.#appendLocalNotice(
+          "Use Stop in the composer to cancel the active run.",
+        );
+        await this.#persistCommandNotice();
+        return;
+      }
       if (result.notice === "skills" || result.notice === "tools") {
         await this.#prepareSession(request);
       }
@@ -969,6 +1014,93 @@ export class AiChatController {
     }
     this.#appendLocalNotice(`Agent: ${parsed.label}`);
     await this.#persistCommandNotice();
+  }
+
+  async #applyScopeCommand(raw: string): Promise<void> {
+    const folder = raw.trim();
+    if (!folder) {
+      this.#appendLocalNotice(await this.#describeScope());
+      await this.#persistCommandNotice();
+      return;
+    }
+    try {
+      const scopeDir = normalizeConversationScope(folder);
+      const input = this.#createConversation?.(scopeDir) ?? { scopeDir };
+      await this.newConversation({
+        ...input,
+        scopeDir,
+      });
+      this.#appendLocalNotice(await this.#describeScope("explicit"));
+      await this.#persistCommandNotice();
+    } catch (error) {
+      this.error =
+        error instanceof Error ? error.message : String(error);
+      this.items = [
+        ...this.items,
+        {
+          id: `command-error-${crypto.randomUUID()}`,
+          type: "error",
+          text: this.error,
+          createdAt: new Date().toISOString(),
+        },
+      ];
+    }
+  }
+
+  async #describeScope(
+    source?: "explicit" | "active-file" | "vault-root" | "conversation",
+  ): Promise<string> {
+    const snapshot =
+      this.repository && this.location
+        ? await this.repository.read(this.location).catch(() => undefined)
+        : undefined;
+    const pending = this.#createConversation?.();
+    const scopeDir =
+      this.location?.scopeDir ?? pending?.scopeDir ?? "";
+    return formatScopeNotice({
+      scopeDir,
+      launchNotePath:
+        snapshot?.metadata.launchContext?.notePath ?? pending?.launchNotePath,
+      workspace: snapshot?.metadata.workspace?.path ?? this.workspace,
+      source:
+        source ??
+        (this.location
+          ? "conversation"
+          : scopeDir
+            ? "folder"
+            : "vault-root"),
+    });
+  }
+
+  async #describeContext(): Promise<string> {
+    const snapshot =
+      this.repository && this.location
+        ? await this.repository.read(this.location).catch(() => undefined)
+        : undefined;
+    const pending = this.#createConversation?.();
+    const binding = this.#activeBinding;
+    return formatContextNotice({
+      conversationId: this.location?.conversationId ?? snapshot?.metadata.id,
+      scopeDir: this.location?.scopeDir ?? pending?.scopeDir ?? "",
+      launchNotePath:
+        snapshot?.metadata.launchContext?.notePath ?? pending?.launchNotePath,
+      workspace: snapshot?.metadata.workspace?.path ?? this.workspace,
+      agent: composerAgentLabel(
+        this.request.agent,
+        typeof this.request.metadata?.runtime === "string"
+          ? this.request.metadata.runtime
+          : undefined,
+      ),
+      model: this.request.model?.model ?? binding?.model?.model,
+      tools:
+        this.#appToolHost
+          ?.getSession(this.#activeBindingId ?? "")
+          ?.tools.map((tool) => tool.name) ?? [],
+      skills:
+        this.#skillSnapshots
+          .get(this.#activeBindingId ?? "")
+          ?.skills.map((skill) => skill.name) ?? [],
+    });
   }
 
   #appendLocalNotice(text: string): void {

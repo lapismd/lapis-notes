@@ -6,6 +6,7 @@ export type {
 } from "./search-manager";
 export { SearchPanel } from "./public-components";
 export { SearchPlugin } from "./search-plugin";
+export { createNotesSearchSlashCommand } from "./notes-search-command";
 export { createNotesSearchTool } from "./notes-search-tool";
 export {
   DEFAULT_SEARCH_SETTINGS,

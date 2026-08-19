@@ -148,6 +148,9 @@ export { createSkillAppTools } from "./skills/skill-tools";
 export { SlashCommandCatalog } from "./commands/catalog";
 export { SlashCommandRouter } from "./commands/router";
 export { parseSlashCommand } from "./commands/parser";
+export { formatSlashHelp, composerSlashItems } from "./commands/groups";
+export { formatContextNotice, formatScopeNotice } from "./commands/inspect";
+export { BUNDLED_RESEARCH_SKILL, BUNDLED_APP_SKILLS } from "./skills/bundled/research";
 export { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 export { APP_TOOL_MCP_SERVER_NAME } from "./tools/mcp-server-registry";
 export {

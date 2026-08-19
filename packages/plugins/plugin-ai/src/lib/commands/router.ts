@@ -104,9 +104,24 @@ export class SlashCommandRouter {
       };
     }
     if (command.name === "new") return { kind: "local", notice: "new" };
+    if (command.name === "help" || command.name === "commands") {
+      return { kind: "local", notice: "help" };
+    }
     if (command.name === "skills") return { kind: "local", notice: "skills" };
     if (command.name === "tools") return { kind: "local", notice: "tools" };
     if (command.name === "refresh") return { kind: "local", notice: "refresh" };
+    if (command.name === "scope") {
+      return {
+        kind: "local",
+        notice: "scope",
+        arguments: parsed.rawArguments,
+      };
+    }
+    if (command.name === "context" || command.name === "status") {
+      return { kind: "local", notice: "context" };
+    }
+    if (command.name === "model") return { kind: "local", notice: "model" };
+    if (command.name === "cancel") return { kind: "local", notice: "cancel" };
     if (command.name === "agent") {
       return {
         kind: "local",
@@ -123,15 +138,7 @@ export class SlashCommandRouter {
       return { kind: "local", notice: command.name };
     }
     if (dispatch.kind === "tool") {
-      return {
-        kind: "tool",
-        tool: dispatch.tool,
-        input: {
-          command: parsed.rawArguments,
-          commandName: command.name,
-          skillName: command.name,
-        },
-      };
+      return toolDispatch(dispatch.tool, parsed.rawArguments, command.name);
     }
     if (dispatch.kind === "skill") {
       return this.#activateSkill(dispatch.skill, parsed.rawArguments, context);
@@ -166,15 +173,7 @@ export class SlashCommandRouter {
       return { kind: "error", message: `Unknown skill: ${name}` };
     }
     if (loaded.command.kind === "tool") {
-      return {
-        kind: "tool",
-        tool: loaded.command.tool,
-        input: {
-          command: args,
-          commandName: name,
-          skillName: name,
-        },
-      };
+      return toolDispatch(loaded.command.tool, args, name);
     }
     const activation = this.skills
       ? await this.skills.activate(name, context.discovery, "user", args)
@@ -184,4 +183,27 @@ export class SlashCommandRouter {
     }
     return { kind: "skill", activation };
   }
+}
+
+function toolDispatch(
+  tool: string,
+  args: string,
+  commandName: string,
+): CommandExecutionResult {
+  if (tool === "notes_search") {
+    const query = args.trim();
+    if (!query) {
+      return { kind: "error", message: `Usage: /${commandName} <query>` };
+    }
+    return { kind: "tool", tool, input: { query } };
+  }
+  return {
+    kind: "tool",
+    tool,
+    input: {
+      command: args,
+      commandName,
+      skillName: commandName,
+    },
+  };
 }

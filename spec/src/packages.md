@@ -159,7 +159,9 @@ application manager or presentation modules.
 
 The API agent-skills surface exports only skill-source and composer
 slash-command registration. AI owns discovery, snapshots, skill tools, and
-routing, including reserved `/agent`. Live ACP session start appends a
+routing, including reserved `/help`, `/scope`, `/context`, and `/agent`.
+AI ships a bundled `research` skill. Search owns composer `/search` as a
+`notes_search` tool-dispatch command. Live ACP session start appends a
 path-free `available_skills` manifest through host session setup. Neither
 surface imports MCP, ACP, acpx, or vendor runtime types.
 The API agent-tool surface exports only schemas, results, trusted execution
@@ -289,7 +291,10 @@ The composer overflow menu sits after History and attach, sizes to its
 labels so they stay fully visible at the model-menu type size (LN-AI-123),
 archives or restores in place,
 deletes through vault trash, and offers New Chat (LN-AI-109). The first submitted user message stays in the transcript while
-session start is still pending (LN-AI-120). An unreadable open conversation
+session start is still pending (LN-AI-120). Thinking stays expanded only while
+it streams and collapses when later transcript data arrives (LN-AI-131). Stop
+settles leftover spinners immediately and posts a cancelled system notice after
+cancel confirms (LN-AI-132). An unreadable open conversation
 is reported and released so the next send starts a replacement chat
 (LN-AI-124).
 Application-tool names and arguments stay visible when ACP only reports a

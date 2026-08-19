@@ -95,7 +95,9 @@ capturing it during workspace construction.
 Skill-source and composer slash-command registries follow the same
 explicit ownership boundary as application tools. API stores plugin
 registrations. AI discovers vault and folder skills, snapshots them per
-binding, and routes composer commands, including reserved `/agent`.
+binding, and routes composer commands, including reserved `/help`, `/scope`,
+`/context`, and `/agent`. AI ships a bundled `research` skill. Search owns
+composer `/search` as a `notes_search` tool-dispatch command.
 Live ACP session start appends a path-free `available_skills` manifest
 through the host. Mira editor slash commands remain
 a Markdown concern.
@@ -364,7 +366,10 @@ Stop control cancels the active turn immediately, without waiting for the
 runtime cancel to settle, and stays fully opaque while input remains disabled.
 Stop also drops a still-preparing first send so it cannot start after busy
 clears. The first user message stays visible while conversation create and
-session start finish (LN-AI-106, LN-AI-120). An unreadable open conversation
+session start finish (LN-AI-106, LN-AI-120). Thinking stays expanded only while
+it streams and collapses when later transcript data arrives (LN-AI-131). Stop
+settles leftover spinners immediately and posts a cancelled system notice after
+cancel confirms (LN-AI-132). An unreadable open conversation
 is reported and released so the next send starts a replacement chat
 (LN-AI-124).
 Application-tool names and arguments stay visible when ACP only reports a

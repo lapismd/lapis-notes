@@ -165,7 +165,7 @@ describe("AiPlugin contracts", () => {
     );
     const viewPanel = readFileSync("src/lib/chat/ai-view-panel.svelte", "utf8");
     const view = readFileSync("src/lib/chat/ai-view.ts", "utf8");
-    expect(viewPanel).toContain("() => host.skillContext()");
+    expect(viewPanel).toContain("skillContext={host.skillContext}");
     expect(view).toContain("if (!previous && next) return");
   });
 

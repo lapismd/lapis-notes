@@ -102,7 +102,7 @@ export const SkillsAndSlash: Story = {
     docs: {
       description: {
         story:
-          "A Fake folder skill, reserved /skills, and extension /open-daily-note run through the public chat panel. Disposing the registration removes the command. The play does not require a live agent.",
+          "A Fake folder skill, reserved /help grouping, reserved /skills, and extension /open-daily-note run through the public chat panel. Disposing the registration removes the command. The play does not require a live agent.",
       },
       source: {
         code: aiChatSkillsExampleSource,
@@ -118,6 +118,12 @@ export const SkillsAndSlash: Story = {
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(canvas.getByText(/Skill research-notes/u)).toBeInTheDocument();
+    });
+    await userEvent.type(input, "/help");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(canvas.getByText(/App/u)).toBeInTheDocument();
+      expect(canvas.getByText(/\/help/u)).toBeInTheDocument();
     });
     await userEvent.type(input, "/skills");
     await userEvent.keyboard("{Enter}");

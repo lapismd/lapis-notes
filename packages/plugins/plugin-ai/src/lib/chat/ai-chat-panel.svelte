@@ -64,6 +64,8 @@
   import type { SkillRegistry, SkillSnapshotStore } from "../skills/registry";
   import type { SkillDiscoveryContext } from "../skills/types";
   import type { SlashCommandRouter } from "../commands/router";
+  import { composerAgentLabel } from "../commands/agent";
+  import { composerSlashItems } from "../commands/groups";
   import type { AppToolHost } from "../tools/app-tool-host";
 
   let {
@@ -149,7 +151,10 @@
         },
         repository,
         location: initialLocation,
-        createConversation: () => createConversation?.() ?? { scopeDir: "" },
+        createConversation: (explicitFolder) =>
+          createConversation?.(explicitFolder) ?? {
+            scopeDir: explicitFolder ?? "",
+          },
         onLocationChange: onConversationLocationChange,
         selectRuntime,
         appToolBridge,
@@ -221,18 +226,19 @@
         character: "/",
         menuLabel: "Commands",
         emptySearchResultsText: "No commands",
-        searchSource: (query) =>
-          slashRouter.catalog
-            .list(controller.activeBindingId)
-            .filter((command) =>
-              command.name.includes(query.trim().toLowerCase()),
-            )
-            .map((command) => ({
-              id: command.name,
-              label: `/${command.name}`,
-              value: `/${command.name}`,
-              description: command.description,
-            })),
+        searchSource: (query) => {
+          const needle = query.trim().toLowerCase();
+          return composerSlashItems(
+            slashRouter.catalog.list(controller.activeBindingId),
+            composerAgentLabel(selectedAgent, selectedRuntime),
+          ).filter(
+            (item) =>
+              !needle ||
+              item.label.toLowerCase().includes(needle) ||
+              item.id.toLowerCase().includes(needle) ||
+              item.description.toLowerCase().includes(needle),
+          );
+        },
         onSelect: (item) => `${item.value ?? `/${item.id}`} `,
       });
     }
@@ -903,7 +909,7 @@
           <Reasoning
             streaming={entry.item.state === "streaming"}
             preview={entry.item.text}
-            expanded={entry.item.state === "done"}
+            expanded={entry.item.state === "streaming"}
           >
             {entry.item.text}
           </Reasoning>

@@ -19,6 +19,7 @@ import {
 } from "./search-settings";
 import { SearchSettingsTab } from "./search-settings-tab";
 import { SearchView, SearchViewType } from "./search-view";
+import { createNotesSearchSlashCommand } from "./notes-search-command";
 import { createNotesSearchTool } from "./notes-search-tool";
 
 const SEARCH_MANIFEST: PluginManifest = {
@@ -92,6 +93,7 @@ export class SearchPlugin extends Plugin {
     );
     this.registerSearchDocumentProvider("canvas", CANVAS_SEARCH_DOCUMENT_PROVIDER);
     this.registerAgentTool(createNotesSearchTool(this.searchManager));
+    this.registerAgentSlashCommand(createNotesSearchSlashCommand());
     this.addSettingTab(new SearchSettingsTab(this.app, this));
     this.register(this.searchManager.trackChanges());
     this.registerSidebarView(

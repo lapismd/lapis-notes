@@ -153,8 +153,9 @@ AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-095`
 
 ### Agent skills and composer slash commands
 
-Canonical IDs: `LN-AI-110`–`LN-AI-119`, `LN-PLUG-022`, `LN-PLUG-023`,
-`LN-ARCH-064`, `LN-PKG-096`, `LN-CAT-087`.
+Canonical IDs: `LN-AI-110`–`LN-AI-119`, `LN-AI-126`–`LN-AI-130`,
+`LN-SRCH-040`, `LN-PLUG-022`, `LN-PLUG-023`, `LN-ARCH-064`, `LN-PKG-096`,
+`LN-CAT-087`.
 
 - [x] Canonical requirements and verification mappings
 - [x] Folder skills, compact manifests, `skills_read` / `skills_resource`, and Fake activation
@@ -163,6 +164,7 @@ Canonical IDs: `LN-AI-110`–`LN-AI-119`, `LN-PLUG-022`, `LN-PLUG-023`,
 - [x] Native ACP command catalog and explicit skill refresh
 - [x] Live ACP session setup for a path-free `available_skills` manifest
 - [x] Reserved `/agent` and Storybook extension `/open-daily-note` unload
+- [x] First-slice host commands `/help`, `/scope`, and `/context`, Search-owned `/search`, and bundled `/research`
 
 ### Search plugin intake progress
 

@@ -12,7 +12,10 @@ the public Markdown embed helper rather than a second renderer and grows with
 the transcript instead of a nested scroller (LN-AI-122). Folder-scoped
 chats project path breadcrumbs through the same View chrome hooks as History.
 A busy chat Stop control cancels the active agent turn, including a send that
-is still preparing a session. An unreadable open conversation is reported and
+is still preparing a session. Thinking stays expanded only while it streams
+and collapses when later transcript data arrives (LN-AI-131). Stop settles
+leftover spinners immediately and posts a cancelled system notice after cancel
+confirms (LN-AI-132). An unreadable open conversation is reported and
 released so the next send starts a replacement chat (LN-AI-124).
 Application-tool names and arguments stay visible when ACP only reports a
 generic `tool call` title (LN-AI-125). The composer overflow
@@ -76,7 +79,9 @@ Skill roots and composer slash commands follow the same disposable
 plugin lifecycle as application tools. They stay off the workspace
 command palette and off Mira editor slash registration. Disposing a
 slash-command registration removes it from later composer resolution;
-reserved application names such as `/agent` remain app-owned.
+reserved application names such as `/help`, `/scope`, `/context`, and
+`/agent` remain app-owned. Search owns composer `/search` and disposes it
+on unload.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects
 conflicting names, and unload disposes the exact registration.

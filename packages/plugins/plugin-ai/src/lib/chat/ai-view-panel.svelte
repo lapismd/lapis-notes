@@ -65,7 +65,7 @@
   skillSnapshots={host.skillSnapshots}
   slashRouter={host.slashRouter}
   appToolHost={host.appToolHost}
-  skillContext={() => host.skillContext()}
+  skillContext={host.skillContext}
   workspace={host.workspace}
   repository={host.conversations}
   {initialLocation}

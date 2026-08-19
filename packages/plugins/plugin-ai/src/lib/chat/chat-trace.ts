@@ -17,6 +17,7 @@ export function applyAgentEventToChatItems(
   const source = event.source ? { source: { ...event.source } } : {};
   switch (event.type) {
     case "text": {
+      settleStreamingThinking(next);
       const last = next.at(-1);
       if (last?.type === "message" && last.role === "assistant") {
         next[next.length - 1] = {
@@ -59,6 +60,7 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "tool.start": {
+      settleStreamingThinking(next);
       const index = findToolItemIndex(next, event);
       const input = preferToolInput(undefined, event.input);
       if (index >= 0) {
@@ -90,6 +92,7 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "tool.end": {
+      settleStreamingThinking(next);
       const index = findToolItemIndex(next, event);
       const output =
         event.error != null
@@ -126,6 +129,7 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "permission.request": {
+      settleStreamingThinking(next);
       next.push({
         id: `approval-${event.request.id}`,
         type: "approval",
@@ -137,6 +141,7 @@ export function applyAgentEventToChatItems(
       return next;
     }
     case "question.request": {
+      settleStreamingThinking(next);
       next.push({
         id: `question-${event.request.id}`,
         type: "question",
@@ -149,6 +154,7 @@ export function applyAgentEventToChatItems(
     }
     case "status": {
       if (!isVisibleAgentStatus(event.status)) return next;
+      settleStreamingThinking(next);
       next.push({
         id: createChatItemId("status", next.length + 1),
         type: "status",
@@ -221,6 +227,14 @@ export function markQuestionResponse(
       ? { ...item, status: "answered" }
       : item,
   );
+}
+
+function settleStreamingThinking(items: AiChatItem[]): void {
+  for (const [index, item] of items.entries()) {
+    if (item.type === "thinking" && item.state === "streaming") {
+      items[index] = { ...item, state: "done" };
+    }
+  }
 }
 
 function stringifyUnknown(value: unknown): string | undefined {

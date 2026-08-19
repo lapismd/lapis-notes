@@ -6,12 +6,15 @@ import {
 import { FakeAgentRuntime } from "../runtimes/fake/fake-runtime";
 import { ConversationRepository } from "../conversations/conversation-repository";
 import { MemoryTranscriptStore } from "../conversations/memory-transcript-store";
+import { AppSlashCommandRegistry } from "@lapis-notes/api/agent-skills";
 import { SkillRegistry, SkillSnapshotStore } from "../skills/registry";
 import { SlashCommandCatalog } from "../commands/catalog";
 import { SlashCommandRouter } from "../commands/router";
 import { AppToolHost } from "../tools/app-tool-host";
 import { createSkillAppTools } from "../skills/skill-tools";
+import { BUNDLED_RESEARCH_SKILL } from "../skills/bundled/research";
 import { AiChatController } from "./chat-controller.svelte";
+import type { LoadedAppSkill } from "../skills/types";
 
 let Vault: typeof import("@lapis-notes/api/vault").Vault;
 let MemoryVaultAdapter: typeof import("@lapis-notes/api/vault").MemoryVaultAdapter;
@@ -41,6 +44,9 @@ async function createSkillController(
   options: {
     native?: boolean;
     tool?: AppTool;
+    bundled?: LoadedAppSkill[];
+    extensions?: AppSlashCommandRegistry;
+    workspace?: string;
     onComposerDefaults?: (next: {
       agent: string;
       runtimePreference: string;
@@ -53,9 +59,12 @@ async function createSkillController(
     await vault.mkpath(path.replace(/\/[^/]+$/u, ""));
     await vault.create(path, content);
   }
-  const skills = new SkillRegistry({ vault });
+  const skills = new SkillRegistry({
+    vault,
+    bundled: options.bundled,
+  });
   const skillSnapshots = new SkillSnapshotStore();
-  const catalog = new SlashCommandCatalog();
+  const catalog = new SlashCommandCatalog(options.extensions);
   const slashRouter = new SlashCommandRouter(catalog, skills);
   const toolRegistry = new AppToolRegistry();
   if (options.tool) {
@@ -86,12 +95,24 @@ async function createSkillController(
       : [],
   });
   const repository = new ConversationRepository(new MemoryTranscriptStore());
+  const conversationIds = [
+    "123e4567-e89b-42d3-a456-426614174000",
+    "223e4567-e89b-42d3-a456-426614174000",
+  ];
+  let conversationSeq = 0;
   const controller = new AiChatController(runtime, null, [], {
     repository,
-    createConversation: () => ({
-      id: "123e4567-e89b-42d3-a456-426614174000",
-      scopeDir: "Projects",
-    }),
+    workspace: options.workspace,
+    createConversation: (explicitFolder) => {
+      const scopeDir = explicitFolder ?? "Projects";
+      return {
+        id: conversationIds[Math.min(conversationSeq++, conversationIds.length - 1)]!,
+        scopeDir,
+        launchNotePath: scopeDir === "Projects" || scopeDir === ""
+          ? "Projects/architecture.md"
+          : undefined,
+      };
+    },
     skills,
     skillSnapshots,
     slashRouter,
@@ -100,7 +121,11 @@ async function createSkillController(
       scopeDir: "Projects",
       availableToolNames: ["notes_search"],
     }),
-    request: { agent: "codex", metadata: { runtime: "acp" } },
+    request: {
+      agent: "codex",
+      model: { provider: "codex", model: "gpt-5.6" },
+      metadata: { runtime: "acp" },
+    },
     onComposerDefaults: options.onComposerDefaults,
   });
   return { controller, runtime, repository, skills, skillSnapshots, appToolHost };
@@ -282,7 +307,7 @@ describe("AiChatController skills and slash commands", () => {
       expect.any(String),
       expect.objectContaining({
         name: "notes_search",
-        input: expect.objectContaining({ command: "authentication" }),
+        input: expect.objectContaining({ query: "authentication" }),
       }),
     );
     expect(execute).toHaveBeenCalledTimes(1);
@@ -338,6 +363,191 @@ describe("AiChatController skills and slash commands", () => {
     await controller.submit("/agent nope");
     expect(controller.error).toMatch(/Unknown agent/u);
     expect(runtime.lastRequest?.prompt ?? "").not.toContain("/agent nope");
+    await controller.close();
+  });
+
+  it("lists /help locally in App, Actions, Skills, and Current Agent groups", async () => {
+    const extensions = new AppSlashCommandRegistry();
+    extensions.register(
+      { pluginId: "search" },
+      {
+        name: "search",
+        description: "Search notes",
+        dispatch: { kind: "tool", tool: "notes_search" },
+      },
+    );
+    const { controller, runtime } = await createSkillController(
+      {
+        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+      },
+      { native: true, extensions },
+    );
+    await controller.submit("hello");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await controller.submit("/help");
+    const notice = controller.items.find((item) => item.type === "status");
+    expect(notice?.text).toContain("App");
+    expect(notice?.text).toContain("/help");
+    expect(notice?.text).toContain("Actions");
+    expect(notice?.text).toContain("/search");
+    expect(notice?.text).toContain("Skills");
+    expect(notice?.text).toContain("/research-notes");
+    expect(notice?.text).toContain("Current Agent · Codex ACP");
+    expect(notice?.text).toContain("/native compact");
+    expect(runtime.sessions[0]?.prompts ?? []).toEqual(["hello"]);
+    await controller.submit("/commands");
+    expect(
+      controller.items.filter((item) => item.type === "status").length,
+    ).toBeGreaterThan(1);
+    await controller.close();
+  });
+
+  it("reports /scope and starts a new conversation for a folder argument", async () => {
+    const { controller, runtime } = await createSkillController(
+      {
+        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+      },
+      { workspace: "/Users/test/vault" },
+    );
+    await controller.submit("hello");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const firstId = controller.location?.conversationId;
+    expect(firstId).toBe("123e4567-e89b-42d3-a456-426614174000");
+    await controller.submit("/scope");
+    expect(
+      controller.items.some(
+        (item) =>
+          item.type === "status" &&
+          item.text.includes("Scope: Projects") &&
+          item.text.includes("Source: conversation"),
+      ),
+    ).toBe(true);
+    await controller.submit("/scope Notes");
+    expect(controller.location?.scopeDir).toBe("Notes");
+    expect(controller.location?.conversationId).toBe(
+      "223e4567-e89b-42d3-a456-426614174000",
+    );
+    expect(controller.location?.conversationId).not.toBe(firstId);
+    expect(
+      controller.items.some(
+        (item) =>
+          item.type === "status" && item.text.includes("Scope: Notes"),
+      ),
+    ).toBe(true);
+    expect(runtime.lastRequest?.prompt ?? "").not.toContain("/scope");
+    await controller.close();
+  });
+
+  it("reports /context and /status locally", async () => {
+    const { controller, runtime } = await createSkillController(
+      {
+        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+      },
+      { workspace: "/Users/test/vault" },
+    );
+    await controller.submit("/context");
+    const notice = controller.items.find((item) => item.type === "status");
+    expect(notice?.text).toContain("Conversation:");
+    expect(notice?.text).toContain("Scope: Projects");
+    expect(notice?.text).toContain("Agent: Codex ACP");
+    expect(notice?.text).toContain("Model: gpt-5.6");
+    expect(notice?.text).toContain("research-notes");
+    expect(runtime.sessions.at(-1)?.prompts ?? []).toEqual([]);
+    await controller.submit("/status");
+    expect(
+      controller.items.filter(
+        (item) => item.type === "status" && item.text.includes("Conversation:"),
+      ).length,
+    ).toBeGreaterThan(1);
+    await controller.close();
+  });
+
+  it("activates bundled /research and lets a folder skill override it", async () => {
+    const { controller, runtime } = await createSkillController(
+      {},
+      { bundled: [BUNDLED_RESEARCH_SKILL] },
+    );
+    await controller.submit("/research OAuth");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(
+      controller.items.some(
+        (item) =>
+          item.type === "skill-activation" && item.skillName === "research",
+      ),
+    ).toBe(true);
+    expect(runtime.lastRequest?.skillActivations?.[0]).toMatchObject({
+      skillName: "research",
+      arguments: "OAuth",
+    });
+    expect(runtime.sessions.at(-1)?.prompts).toContain("OAuth");
+    await controller.close();
+
+    const overridden = await createSkillController(
+      {
+        "Projects/.lapis/skills/research/SKILL.md": `---
+name: research
+description: Folder research override
+---
+Folder body.
+`,
+      },
+      { bundled: [BUNDLED_RESEARCH_SKILL] },
+    );
+    await overridden.controller.submit("/research folders");
+    await vi.waitFor(() => expect(overridden.controller.busy).toBe(false));
+    const activation = overridden.controller.items.find(
+      (item) => item.type === "skill-activation",
+    );
+    expect(activation).toMatchObject({ skillName: "research" });
+    expect(overridden.runtime.lastRequest?.skillActivations?.[0]?.instructions).toContain(
+      "Folder body",
+    );
+    await overridden.controller.close();
+  });
+
+  it("invokes Search /search through AppToolHost without a model prompt", async () => {
+    const execute = vi.fn(async () => ({
+      content: [{ type: "text" as const, text: "hits" }],
+    }));
+    const extensions = new AppSlashCommandRegistry();
+    extensions.register(
+      { pluginId: "search" },
+      {
+        name: "search",
+        description: "Search notes",
+        argumentHint: "<query>",
+        dispatch: { kind: "tool", tool: "notes_search" },
+      },
+    );
+    const { controller, runtime, appToolHost } = await createSkillController(
+      {},
+      {
+        extensions,
+        tool: {
+          name: "notes_search",
+          description: "Search",
+          inputSchema: {
+            type: "object",
+            properties: { query: { type: "string" } },
+            required: ["query"],
+            additionalProperties: false,
+          },
+          effect: "read",
+          execute,
+        },
+      },
+    );
+    const invoke = vi.spyOn(appToolHost, "invoke");
+    await controller.submit("/search OAuth");
+    expect(invoke).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        name: "notes_search",
+        input: { query: "OAuth" },
+      }),
+    );
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(runtime.sessions.at(-1)?.prompts ?? []).toEqual([]);
     await controller.close();
   });
 });

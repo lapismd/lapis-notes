@@ -49,6 +49,7 @@ import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry
 import { AppToolHost } from "./tools/app-tool-host";
 import { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
 import { SkillRegistry, SkillSnapshotStore } from "./skills/registry";
+import { BUNDLED_APP_SKILLS } from "./skills/bundled/research";
 import { createSkillAppTools } from "./skills/skill-tools";
 import { SlashCommandCatalog } from "./commands/catalog";
 import { SlashCommandRouter } from "./commands/router";
@@ -109,6 +110,7 @@ export class AiPlugin extends Plugin {
     this.skillRegistry = new SkillRegistry({
       vault: app.vault,
       appSkills: app.agentSkills,
+      bundled: [...BUNDLED_APP_SKILLS],
       extensionRootFor: (pluginId) =>
         this.app.plugins?.plugins.get(pluginId)?.manifest.dir,
     });

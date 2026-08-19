@@ -4,8 +4,48 @@ import type { EffectiveSlashCommand, SlashCommandSource } from "./types";
 
 const RESERVED: EffectiveSlashCommand[] = [
   {
+    name: "help",
+    description: "Show available commands grouped by App, Actions, Skills, and Current Agent.",
+    aliases: ["commands"],
+    source: "app",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+  {
     name: "new",
     description: "Start a new chat in the current scope.",
+    source: "app",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+  {
+    name: "agent",
+    description: "Show or switch the current agent.",
+    argumentHint: "[codex|cursor|native|fake]",
+    source: "app",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+  {
+    name: "model",
+    description: "Reserved. Change the model from the composer Model menu.",
+    argumentHint: "[name]",
+    source: "app",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+  {
+    name: "status",
+    description: "Show conversation, agent, model, scope, and executor context.",
+    source: "app",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+  {
+    name: "scope",
+    description: "Show the current folder scope, or start a new chat in a folder.",
+    argumentHint: "[folder]",
+    source: "app",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+  {
+    name: "context",
+    description: "Show the context the app is making available to the agent.",
     source: "app",
     dispatch: { kind: "host", execute: () => undefined },
   },
@@ -29,16 +69,15 @@ const RESERVED: EffectiveSlashCommand[] = [
     dispatch: { kind: "host", execute: () => undefined },
   },
   {
-    name: "agent",
-    description: "Show or switch the current agent.",
-    argumentHint: "[codex|cursor|native|fake]",
+    name: "native",
+    description: "Forward a command to the current agent.",
+    argumentHint: "<command> [arguments]",
     source: "app",
     dispatch: { kind: "host", execute: () => undefined },
   },
   {
-    name: "native",
-    description: "Forward a command to the current agent.",
-    argumentHint: "<command> [arguments]",
+    name: "cancel",
+    description: "Reserved. Use Stop in the composer to cancel the active run.",
     source: "app",
     dispatch: { kind: "host", execute: () => undefined },
   },
@@ -50,6 +89,12 @@ const RESERVED: EffectiveSlashCommand[] = [
   },
 ];
 
+function reservedNames(): Set<string> {
+  return new Set(
+    RESERVED.flatMap((command) => [command.name, ...(command.aliases ?? [])]),
+  );
+}
+
 export class SlashCommandCatalog {
   #skillCommands: EffectiveSlashCommand[] = [];
   readonly #native = new Map<string, NativeAgentCommand[]>();
@@ -57,7 +102,7 @@ export class SlashCommandCatalog {
   constructor(private readonly extensions?: AppSlashCommandRegistry) {}
 
   rebuildSkillCommands(snapshot: SkillSnapshot): void {
-    const reserved = new Set(RESERVED.map((command) => command.name));
+    const reserved = reservedNames();
     const extensionNames = new Set(
       (this.extensions?.list() ?? []).map((item) => item.command.name),
     );
@@ -103,9 +148,9 @@ export class SlashCommandCatalog {
   }
 
   list(agentBindingId?: string): EffectiveSlashCommand[] {
-    const reservedNames = new Set(RESERVED.map((command) => command.name));
+    const reserved = reservedNames();
     const extension = (this.extensions?.list() ?? [])
-      .filter((item) => !reservedNames.has(item.command.name))
+      .filter((item) => !reserved.has(item.command.name))
       .map((item) => ({
         name: item.command.name,
         description: item.command.description,
@@ -117,10 +162,10 @@ export class SlashCommandCatalog {
     const extensionNames = new Set(extension.map((command) => command.name));
     const skills = this.#skillCommands.filter(
       (command) =>
-        !reservedNames.has(command.name) && !extensionNames.has(command.name),
+        !reserved.has(command.name) && !extensionNames.has(command.name),
     );
     const claimed = new Set([
-      ...reservedNames,
+      ...reserved,
       ...extensionNames,
       ...skills.map((command) => command.name),
     ]);

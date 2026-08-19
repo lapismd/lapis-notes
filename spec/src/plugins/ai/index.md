@@ -64,6 +64,13 @@ execution APIs.
 | LN-AI-053 | ACP thinking MUST be applied before the first turn through acpx session configuration. Thought stream events MUST map to visible reasoning items and finish on completion or error.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | LN-AI-054 | Tool transcript items MUST retain the event-provided input and output, including ACP `rawInput`, `locations`, and completed-event input. The panel MUST show command or input and output in expandable details. Output MUST use Design Core `CodeBlock` with language `json`. Details MUST NOT render tool environment variables or host credentials. |
 | LN-AI-125 | Tool items MUST keep an application-tool name and arguments when a later ACP update uses a generic title or empty input. One item MUST represent that call even when the MCP broker id and ACP `toolCallId` differ. The panel MUST show that tool name instead of `tool call`. |
+| LN-AI-126 | The reserved composer catalog MUST include `help`, `commands`, `new`, `agent`, `model`, `status`, `scope`, `context`, `skills`, `tools`, `native`, `skill`, `cancel`, and `refresh`. Those names MUST stay available across agent switches and MUST NOT be overridden by extension, skill, or native commands. |
+| LN-AI-127 | Reserved `/help` and `/commands` MUST list effective composer commands grouped by App, Actions, Skills, and Current Agent. The listing MUST stay local and MUST NOT become a model prompt. |
+| LN-AI-128 | Reserved `/scope` with no arguments MUST report the current folder, launch note, workspace, and resolution source. A folder argument MUST start a new conversation in that scope and MUST NOT mutate the open conversation. |
+| LN-AI-129 | Reserved `/context` MUST report conversation id, scope, launch note, workspace, agent, model, effective tools, and effective skills. The report MUST stay local and MUST NOT become a model prompt. Reserved `/status` MUST show the same report. |
+| LN-AI-130 | AI MUST ship a bundled user-invocable `research` skill. `/research` MUST activate that skill host-side. A same-named folder, vault, user, or extension skill MUST override the bundled skill. |
+| LN-AI-131 | A thinking item MUST spin and stay expanded only while that item is streaming. The first later non-thinking transcript item MUST settle it to `done` and collapse it. Completion, error, and cancel MUST also settle it. |
+| LN-AI-132 | Stop MUST immediately settle streaming thinking and running tools so no transcript spinner remains. After `session.cancel()` confirms, or when there is no session, the transcript MUST show a system notice that the turn was cancelled. Busy MUST still clear without waiting. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -163,7 +170,10 @@ reserved `lapis-tools` server is exclusively owned by the application-tool
 bridge.
 Folder skills live under `<scope>/.lapis/skills/**/SKILL.md`. The composer
 treats a leading slash as a command and keeps reserved app commands across
-agent switches, including `/agent`. Live ACP session start appends a path-free
+agent switches, including `/help`, `/scope`, `/context`, and `/agent`
+(LN-AI-126–LN-AI-129). AI ships a bundled `research` skill that folder skills
+may override (LN-AI-130). Search owns composer `/search` as a `notes_search`
+tool-dispatch command. Live ACP session start appends a path-free
 `available_skills` manifest through host session setup. Native ACP commands stay binding-local and never override
 app, extension, or skill commands. Skill tools execute only through
 `AppToolHost`.
@@ -208,6 +218,9 @@ archives or restores in place,
 deletes through vault trash, and offers New Chat in the current scope
 (LN-AI-109). The first user message stays in the transcript while the
 session starts, and Stop aborts a still-preparing turn (LN-AI-106, LN-AI-120).
+Thinking stays expanded only while it streams, then collapses when later
+transcript data arrives (LN-AI-131). Stop settles leftover spinners immediately
+and posts a cancelled system notice after cancel confirms (LN-AI-132).
 An unreadable conversation is reported and released so the next send starts a
 replacement chat (LN-AI-124).
 Application-tool names and arguments stay on the transcript item when ACP
