@@ -1,6 +1,20 @@
 import { dirname } from "@lapis-notes/api/path";
 import { CONVERSATION_ID_PATTERN, type ConversationLocation } from "./types";
 
+const HIDDEN_APPLICATION_SEGMENTS = new Set([
+  ".agents",
+  ".lapis",
+  ".obsidian",
+  ".trash",
+]);
+
+export function hasHiddenApplicationSegment(path: string): boolean {
+  return path
+    .split("/")
+    .filter(Boolean)
+    .some((segment) => HIDDEN_APPLICATION_SEGMENTS.has(segment));
+}
+
 export function normalizePortableVaultPath(
   value: string,
   options: { allowRoot?: boolean; label?: string } = {},
@@ -80,4 +94,13 @@ export function parentScopeForFile(vaultPath: string): string {
   });
   const parent = dirname(normalized);
   return parent === "/" ? "" : normalizeConversationScope(parent);
+}
+
+export function conversationScopeForActiveFile(vaultPath: string): string {
+  let scope = parentScopeForFile(vaultPath);
+  while (scope && hasHiddenApplicationSegment(scope)) {
+    const parent = dirname(scope);
+    scope = !parent || parent === "/" ? "" : parent;
+  }
+  return scope;
 }

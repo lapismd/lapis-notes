@@ -1,5 +1,8 @@
 import type { TFile } from "@lapis-notes/api/vault";
-import { normalizeConversationScope, parentScopeForFile } from "./paths";
+import {
+  conversationScopeForActiveFile,
+  normalizeConversationScope,
+} from "./paths";
 
 export type ConversationScopeResolution = {
   scopeDir: string;
@@ -19,7 +22,7 @@ export class ConversationScopeResolver {
     }
     if (input.activeFile?.path) {
       return {
-        scopeDir: parentScopeForFile(input.activeFile.path),
+        scopeDir: conversationScopeForActiveFile(input.activeFile.path),
         source: "active-file",
       };
     }

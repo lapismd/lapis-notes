@@ -85,6 +85,8 @@ execution APIs.
 | LN-AI-144 | Command discovery MUST search `<scope>/.agents/commands`, vault `.agents/commands`, and user-global `~/.lapis/agents/commands` when the host exposes that directory. Folder MUST override vault, then user-global, then extension. Reserved names MUST stay reserved. A colliding file MUST be a diagnostic, not a handler. |
 | LN-AI-145 | Command files MUST use YAML front-matter plus a Markdown body. Omitted or `prompt` kind MUST interpolate `$ARGUMENTS`, numbered `$1` placeholders, and `{{args}}`, then submit as a user prompt. `kind: host` MUST stay local and MUST NOT become a model prompt. A host file whose name is not reserved MUST be invalid. |
 | LN-AI-146 | When the host exposes a user-agents directory, AI MUST seed each reserved command as `~/.lapis/agents/commands/<name>.md` only when missing, with `kind: host`. Update reserved commands MUST overwrite only those reserved filenames. It MUST NOT rewrite user-authored prompt files. |
+| LN-AI-147 | An active-file conversation scope MUST skip hidden application segments `.agents`, `.lapis`, `.obsidian`, and `.trash`. It MUST use the nearest ancestor folder that contains none of those segments, or vault root. The New Chat folder list MUST omit those trees. Existing conversations stored there MUST remain readable. |
+| LN-AI-148 | Session bootstrap MUST still attach when the conversation scope or launch note is under `.agents/skills`. Those fields MUST use path-free labels. The host MUST still receive the remaining path-free block. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -221,9 +223,10 @@ command and keeps reserved app commands across agent switches, including
 bundled `research` and `lapis-notes` skills that folder skills may override
 (LN-AI-130, LN-AI-134) and seeds them as vault `SKILL.md` when missing
 (LN-AI-142, LN-AI-143). Search owns composer `/search` as a `notes_search`
-tool-dispatch command. Live ACP session start appends a path-free
+tool-dispatch command. Opening a skill file MUST NOT scope a new chat to `.agents`
+(LN-AI-147). Live ACP session start appends a path-free
 `available_skills` manifest and a generated `sessionBootstrap` through host
-session setup (LN-AI-135, LN-AI-136). `/context` reports folder-instruction
+session setup (LN-AI-135, LN-AI-136, LN-AI-148). `/context` reports folder-instruction
 paths and bootstrap truncation (LN-AI-137). The AI catalog lists live tools,
 commands, and skills (LN-AI-138–LN-AI-146). Native ACP commands stay
 binding-local and never override app, extension, skill, or command-file

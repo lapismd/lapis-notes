@@ -163,10 +163,11 @@ The API agent-skills surface exports only skill-source and composer
 slash-command registration. AI owns discovery of `.agents` skill and
 command Markdown, snapshots, skill tools, and routing, including reserved
 `/help`, `/scope`, `/context`, and `/agent`.
-AI ships bundled `research` and `lapis-notes` skills. Search owns composer
+AI ships bundled `research` and `lapis-notes` skills. An active skill file
+MUST NOT scope a new conversation to `.agents`. Search owns composer
 `/search` as a `notes_search` tool-dispatch command. Live ACP session start
 appends a path-free `available_skills` manifest and a generated
-`sessionBootstrap` through host session setup. The AI catalog lists live
+`sessionBootstrap` through host session setup, including skill-folder chats. The AI catalog lists live
 tools, commands, and skills by owner in an explorer-aligned tree. Neither
 surface imports MCP, ACP, acpx, or vendor runtime types.
 The API agent-tool surface exports only schemas, results, trusted execution

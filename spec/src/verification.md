@@ -916,6 +916,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-144   | ai-plugin                       | Implemented | Command discovery lists folder, vault, and injected user-global Markdown; reserved-name files become diagnostics |
 | LN-AI-145   | ai-plugin                       | Implemented | Command Markdown parser interpolates $ARGUMENTS, $1, and {{args}}; host kind stays local; non-reserved host files fail |
 | LN-AI-146   | ai-plugin                       | Implemented | Seed-if-missing writes reserved kind-host files under the injected user-agents directory; update overwrites those names only |
+| LN-AI-147   | ai-plugin                       | Implemented | active-file scope skips `.agents` skill folders to the nearest note folder or vault root; New Chat folder list omits hidden application trees |
+| LN-AI-148   | ai-plugin                       | Implemented | bootstrap for a skill-folder scope still emits path-free lapis_context with labeled scope/launch and without `.agents/skills` |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |

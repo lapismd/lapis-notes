@@ -32,6 +32,28 @@ describe("ConversationScopeResolver", () => {
     });
   });
 
+  it("skips hidden application folders when resolving from an active file", () => {
+    expect(
+      resolver.resolve({
+        activeFile: { path: ".agents/skills/lapis-notes/SKILL.md" },
+      }),
+    ).toEqual({ scopeDir: "", source: "active-file" });
+    expect(
+      resolver.resolve({
+        activeFile: { path: "Notes/.agents/skills/daily/SKILL.md" },
+      }),
+    ).toEqual({ scopeDir: "Notes", source: "active-file" });
+    expect(
+      resolver.resolve({
+        explicitFolder: ".agents/skills/lapis-notes",
+        activeFile: { path: "Notes/daily.md" },
+      }),
+    ).toEqual({
+      scopeDir: ".agents/skills/lapis-notes",
+      source: "explicit",
+    });
+  });
+
   it("does not walk ancestors or accept traversal and absolute paths", () => {
     expect(normalizeConversationScope("Projects/Atlas")).toBe("Projects/Atlas");
     expect(() => normalizeConversationScope("Projects/../Atlas")).toThrow(

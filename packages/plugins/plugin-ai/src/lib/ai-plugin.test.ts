@@ -75,6 +75,14 @@ describe("AiPlugin contracts", () => {
     expect(source).not.toContain("globalThis.app");
   });
 
+  it("omits hidden application folders from the New Chat folder list", () => {
+    const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
+    expect(source).toContain("hasHiddenApplicationSegment(path)");
+    expect(source).not.toMatch(
+      /parts\[0\] !== "\.obsidian"[\s\S]*!parts\.includes\("\.lapis"\)/u,
+    );
+  });
+
   it("renders model badges as muted portaled text", () => {
     const panel = readFileSync("src/lib/chat/ai-chat-panel.svelte", "utf8");
     const css = readFileSync("src/lib/styles.css", "utf8");

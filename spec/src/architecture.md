@@ -98,9 +98,11 @@ registrations. AI discovers vault and folder skills under `.agents/skills`,
 snapshots them per binding, and routes composer commands from reserved
 host names and `.agents/commands` Markdown, including `/help`, `/scope`,
 `/context`, and `/agent`. AI ships bundled `research` and `lapis-notes` skills.
+An active skill file MUST NOT scope a new conversation to `.agents`.
 Search owns composer `/search` as a `notes_search` tool-dispatch command.
 Live ACP session start appends a path-free `available_skills` manifest and a
-generated `sessionBootstrap` through the host. The AI catalog lists live
+generated `sessionBootstrap` through the host, including when the open
+conversation still sits under a skill folder. The AI catalog lists live
 tools, commands, and skills by owner in an explorer-aligned tree with
 filter and expand-all chrome. Mira editor slash commands remain
 a Markdown concern.

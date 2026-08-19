@@ -28,7 +28,8 @@ place, deletes through vault
 trash, and offers New Chat (LN-AI-109). AI History opens as a
 single sidebar leaf rather than a default sidebar group. The AI catalog
 opens as a single left-sidebar leaf of live tools, commands, and skills in
-an explorer-aligned tree.
+an explorer-aligned tree. Opening a vault skill file MUST NOT scope a new
+chat to `.agents`.
 
 ## Requirements
 

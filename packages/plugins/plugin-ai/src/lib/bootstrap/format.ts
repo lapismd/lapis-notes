@@ -20,8 +20,8 @@ export function formatSessionBootstrap(bootstrap: AgentBootstrap): string {
     "<lapis_context>",
     bootstrap.instructions.join("\n\n"),
     "",
-    `Current scope: ${bootstrap.conversation.scopeDir.trim() || "(vault root)"}`,
-    `Launched from: ${bootstrap.conversation.launchNotePath?.trim() || "(none)"}`,
+    `Current scope: ${portableBootstrapPath(bootstrap.conversation.scopeDir, "(vault root)")}`,
+    `Launched from: ${portableBootstrapPath(bootstrap.conversation.launchNotePath, "(none)")}`,
     `Workspace: ${bootstrap.workspace?.label?.trim() || "(none)"}`,
     "",
     "Available application tools:",
@@ -36,6 +36,16 @@ export function formatSessionBootstrap(bootstrap: AgentBootstrap): string {
     throw new Error("Session bootstrap must not include host filesystem paths.");
   }
   return body;
+}
+
+function portableBootstrapPath(
+  value: string | undefined,
+  empty: string,
+): string {
+  const trimmed = value?.trim() ?? "";
+  if (!trimmed) return empty;
+  if (hasHostFilesystemPath(trimmed)) return "(application folder)";
+  return trimmed;
 }
 
 function oneLine(value: string): string {

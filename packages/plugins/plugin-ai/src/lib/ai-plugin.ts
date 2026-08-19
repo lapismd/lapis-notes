@@ -39,6 +39,7 @@ import type { CreateConversationInput } from "./conversations/conversation-repos
 import { AiConversationIndex } from "./conversations/conversation-index";
 import type { ConversationListEntry } from "./conversations/transcript-store";
 import { ConversationScopeResolver } from "./conversations/scope-resolver";
+import { hasHiddenApplicationSegment } from "./conversations/paths";
 import { VaultTranscriptStore } from "./conversations/vault-transcript-store";
 import { registerAiSettings } from "./settings/register-ai-settings";
 import { AiSettingsTab } from "./settings/ai-settings-tab";
@@ -261,14 +262,7 @@ export class AiPlugin extends Plugin {
     const folders = this.app.vault
       .getAllFolders()
       .map((folder) => folder.path.replace(/^\/+|\/+$/gu, ""))
-      .filter((path) => {
-        const parts = path.split("/");
-        return (
-          parts[0] !== ".obsidian" &&
-          parts[0] !== ".trash" &&
-          !parts.includes(".lapis")
-        );
-      });
+      .filter((path) => !hasHiddenApplicationSegment(path));
     return [...new Set(["", ...folders])].sort((left, right) =>
       left.localeCompare(right),
     );

@@ -50,6 +50,25 @@ describe("AgentBootstrap builder", () => {
     expect(text).not.toContain("/Users/steve/secret");
   });
 
+  it("keeps a path-free bootstrap when scope is a skill folder", async () => {
+    const { text } = await buildSessionBootstrap({
+      scopeDir: ".agents/skills/lapis-notes",
+      launchNotePath: ".agents/skills/lapis-notes/SKILL.md",
+      tools: [
+        { name: "notes_search", description: "Search notes in the current scope." },
+      ],
+      skills: [
+        { name: "lapis-notes", description: "Operate Lapis Notes.", version: "1" },
+      ],
+    });
+    expect(text).toContain("<lapis_context>");
+    expect(text).toContain("Use application-provided tools");
+    expect(text).toContain("Current scope: (application folder)");
+    expect(text).toContain("Launched from: (application folder)");
+    expect(text).toContain("- notes_search");
+    expect(text).not.toContain(".agents/skills");
+  });
+
   it("reports budget truncation", async () => {
     const oversized = "A".repeat(MAX_FOLDER_INSTRUCTION_CHARS + 20);
     const bootstrap = await buildAgentBootstrap({
