@@ -14,6 +14,7 @@
   import "@lapis-notes/ai/styles.css";
   import { BasesPlugin } from "@lapis-notes/bases";
   import "@lapis-notes/bases/styles.css";
+  import { BookmarksPlugin } from "@lapis-notes/bookmarks";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
@@ -233,6 +234,7 @@
           { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
           { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
           { plugin: SearchPlugin, required: false, enabledByDefault: true },
+          { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
           { plugin: HistoryPlugin, required: false, enabledByDefault: true },
           { plugin: WordCountPlugin, required: false, enabledByDefault: true },
           {

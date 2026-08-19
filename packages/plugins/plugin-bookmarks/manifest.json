@@ -1,0 +1,14 @@
+{
+  "id": "bookmarks",
+  "name": "Bookmarks",
+  "version": "0.0.1",
+  "minAppVersion": "0.0.1",
+  "description": "Bookmark files, folders, searches, and groups",
+  "author": "Lapis Notes",
+  "lapis": {
+    "manifestVersion": 1,
+    "source": "official",
+    "locked": false,
+    "enabledByDefault": true
+  }
+}

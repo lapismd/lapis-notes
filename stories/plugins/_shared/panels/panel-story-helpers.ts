@@ -71,6 +71,7 @@ export function placementParameters(
     "ai-catalog": "ai/panels/catalog",
     explorer: "explorer/panels/explorer",
     search: "search/panels/search",
+    bookmarks: "bookmarks/panels/bookmarks",
     history: "history/panels/history",
     "all-properties": "markdown/panels/all-properties",
     "file-properties": "markdown/panels/file-properties",
@@ -125,7 +126,9 @@ export async function expectPanelSource(
   await expect(source).toContain(
     kind === "search"
       ? 'from "@lapis-notes/search";'
-      : kind === "history"
+      : kind === "bookmarks"
+        ? 'from "@lapis-notes/bookmarks";'
+        : kind === "history"
         ? 'from "@lapis-notes/history";'
         : kind === "explorer"
           ? 'from "@lapis-notes/file-explorer";'

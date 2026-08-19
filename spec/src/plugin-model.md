@@ -40,10 +40,10 @@ chat to `.agents`.
 | LN-PLUG-003 | Statically shipped bundled and first-party external plugins MUST use the core lifecycle and `.obsidian/core-plugins.json`; they MUST NOT enter the vault-installed community configuration.                 |
 | LN-PLUG-004 | Core plugin registrations and list entries MUST expose distribution metadata, defaulting omitted registrations to `bundled`.                                                                                |
 | LN-PLUG-005 | Array-form core configuration MUST remain readable as disabled IDs. Object-form configuration MUST preserve explicit `disabled` and `enabled` IDs.                                                          |
-| LN-PLUG-006 | Markdown, Search, History, Markdown Lint, Spell Check, File Explorer, Bases, AI, Notifications, Word Count, and Roles MUST default enabled and remain user-disableable. Problems and other declared infrastructure MAY remain required. Required host-owned views such as Problems MUST NOT become missing-view placeholders while their host registration remains. |
+| LN-PLUG-006 | Markdown, Search, History, Markdown Lint, Spell Check, File Explorer, Bookmarks, Bases, AI, Notifications, Word Count, and Roles MUST default enabled and remain user-disableable. Problems and other declared infrastructure MAY remain required. Required host-owned views such as Problems MUST NOT become missing-view placeholders while their host registration remains. |
 | LN-PLUG-007 | Disabling a plugin with open owned views MUST replace those leaves with persisted missing-view placeholders. Re-enabling it MUST restore the leaves without changing active selection or plugin-owned data. Restored imperative plugin views MUST receive a host-filling compatibility root without depending on application-global utility CSS. Collapse, remount, and file-open projection MUST keep the same leaf id and live `getState()`. |
 | LN-PLUG-008 | Core settings MUST subscribe to lifecycle changes and failures through the Design Core managed-plugin source contract, with Included and First-party groups.                                                |
-| LN-PLUG-009 | Default Search or Explorer leaves MUST NOT be created while their owning plugin is disabled.                                                                                                                |
+| LN-PLUG-009 | Default Search, Explorer, or Bookmarks leaves MUST NOT be created while their owning plugin is disabled.                                                                                                    |
 | LN-PLUG-010 | Community installation, registry, signature, update, and community enablement behavior MUST remain outside the static distribution model.                                                                   |
 | LN-PLUG-011 | A package or repository rename MUST preserve runtime IDs, commands, view types, filenames, and plugin-data paths unless a separate migration requirement explicitly changes them.                           |
 | LN-PLUG-012 | Core settings MUST list each runtime plugin ID exactly once, including when a statically registered plugin also exposes indexed manifest contributions.                                                       |
@@ -71,7 +71,7 @@ appears only while the plugin is enabled and reuses the existing chat command.
 Web registers the same enabled-by-default AI plugin and ribbon action. Host
 Settings own the agent-server URL and token; the plugin owns the start-server
 unavailable copy when a live runtime is selected without a connected host.
-A vault without workspace.json seeds File Explorer then Search on the left and
+A vault without workspace.json seeds File Explorer, Search, then Bookmarks on the left and
 Outline, File Properties, then Tags on the right when those plugins loaded.
 Save and Load workspace layout commands store named snapshots; Reset reapplies
 that default seed. Collapse, remount, and file-open restore keep the same

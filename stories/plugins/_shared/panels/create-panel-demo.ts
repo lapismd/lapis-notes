@@ -8,6 +8,7 @@ import {
   TFile,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
+import { BookmarksPlugin, BookmarksViewType } from "@lapis-notes/bookmarks";
 import { HistoryPlugin, HistoryViewType } from "@lapis-notes/history";
 import {
   AiCatalogViewType,
@@ -46,6 +47,7 @@ export type PanelDemoKind =
   | "backlinks"
   | "outgoing-links"
   | "search"
+  | "bookmarks"
   | "history"
   | "tags";
 
@@ -77,6 +79,7 @@ export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   backlinks: BacklinksViewType,
   "outgoing-links": OutgoingLinksViewType,
   search: SearchViewType,
+  bookmarks: BookmarksViewType,
   history: HistoryViewType,
   tags: TagsViewType,
 };
@@ -143,6 +146,12 @@ export const PANEL_LEAF_META: Record<
     title: "Search",
     icon: "search",
     group: "Search",
+    requiresFile: false,
+  },
+  bookmarks: {
+    title: "Bookmarks",
+    icon: "bookmark",
+    group: "Bookmarks",
     requiresFile: false,
   },
   history: {
@@ -460,7 +469,16 @@ export function createPanelDemoSeed(
         ];
 
   return {
-    ".obsidian/app.json": JSON.stringify(PANEL_APP_CONFIGURATION, null, 2),
+    ".obsidian/app.json": JSON.stringify(
+      {
+        ...PANEL_APP_CONFIGURATION,
+        ...(kind === "bookmarks"
+          ? { pluginData: { bookmarks: createBookmarksDocument() } }
+          : {}),
+      },
+      null,
+      2,
+    ),
     ".env": "DEMO=1\n",
     ".obsidian/types.json": JSON.stringify(
       {
@@ -531,6 +549,65 @@ export function createPanelDemoSeed(
     ...(kind === "ai-history" ? createAiHistorySeed() : {}),
     ...(kind === "ai-catalog" ? createAiCatalogSeed() : {}),
     ...(kind === "history" ? createHistorySeed() : {}),
+    ...(kind === "bookmarks" ? createBookmarksSeed() : {}),
+  };
+}
+
+function createBookmarksDocument() {
+  return {
+    items: [
+      {
+        type: "file",
+        ctime: 1_700_000_000_001,
+        path: "Notes/Welcome.md",
+        title: "Welcome",
+      },
+      {
+        type: "file",
+        ctime: 1_700_000_000_002,
+        path: "Notes/Welcome.md",
+        subpath: "#Links",
+        title: "Welcome links",
+      },
+      {
+        type: "folder",
+        ctime: 1_700_000_000_003,
+        path: "Notes",
+      },
+      {
+        type: "group",
+        ctime: 1_700_000_000_004,
+        title: "Reading list",
+        items: [],
+      },
+      {
+        type: "search",
+        ctime: 1_700_000_000_005,
+        query: "Welcome",
+        title: "Find Welcome",
+      },
+      {
+        type: "url",
+        ctime: 1_700_000_000_006,
+        url: "https://example.com",
+        title: "Example",
+      },
+      {
+        type: "graph",
+        ctime: 1_700_000_000_007,
+        title: "Vault graph",
+      },
+    ],
+  };
+}
+
+function createBookmarksSeed(): Record<string, string> {
+  return {
+    ".obsidian/bookmarks.json": JSON.stringify(
+      createBookmarksDocument(),
+      null,
+      2,
+    ),
   };
 }
 
@@ -704,6 +781,7 @@ export async function bootPanelDemo(
     { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
     { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
     { plugin: SearchPlugin, required: false, enabledByDefault: true },
+    { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
     { plugin: HistoryPlugin, required: false, enabledByDefault: true },
     {
       plugin: AiPlugin,

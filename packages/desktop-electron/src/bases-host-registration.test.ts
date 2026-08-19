@@ -9,6 +9,7 @@ describe("desktop Bases host registration", () => {
       "utf8",
     );
     const search = source.indexOf("plugin: SearchPlugin");
+    const bookmarks = source.indexOf("plugin: BookmarksPlugin");
     const markdownLint = source.indexOf("plugin: MarkdownLintPlugin");
     const spellcheck = source.indexOf("plugin: SpellcheckPlugin");
     const wordcount = source.indexOf("plugin: WordCountPlugin");
@@ -28,7 +29,8 @@ describe("desktop Bases host registration", () => {
     expect(markdownLint).toBeGreaterThan(-1);
     expect(spellcheck).toBeGreaterThan(markdownLint);
     expect(search).toBeGreaterThan(spellcheck);
-    expect(wordcount).toBeGreaterThan(search);
+    expect(bookmarks).toBeGreaterThan(search);
+    expect(wordcount).toBeGreaterThan(bookmarks);
     expect(bases).toBeGreaterThan(wordcount);
     expect(ai).toBeGreaterThan(bases);
     expect(terminal).toBeGreaterThan(ai);

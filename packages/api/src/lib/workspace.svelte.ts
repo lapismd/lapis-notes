@@ -116,7 +116,11 @@ export interface WorkspaceHintTarget {
 
 const WORKSPACE_HINT_TARGET_SELECTOR = "[data-hint-target]";
 const FILE_EXPLORER_REVEAL_PATH_COMMAND = "lapis-file-explorer:reveal-path";
-const DEFAULT_LEFT_SIDEBAR_VIEW_TYPES = ["file-explorer", "search"] as const;
+const DEFAULT_LEFT_SIDEBAR_VIEW_TYPES = [
+  "file-explorer",
+  "search",
+  "bookmarks",
+] as const;
 const DEFAULT_RIGHT_SIDEBAR_VIEW_TYPES = [
   "outline",
   "file-properties",

@@ -16,6 +16,7 @@
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
+  import { BookmarksPlugin } from "@lapis-notes/bookmarks";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
@@ -274,6 +275,7 @@
     "spellcheck",
     "lapis-file-explorer",
     "search",
+    "bookmarks",
     "history",
     "wordcount",
     "bases",
@@ -286,6 +288,7 @@
       { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
       { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
       { plugin: SearchPlugin, required: false, enabledByDefault: true },
+      { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
       { plugin: HistoryPlugin, required: false, enabledByDefault: true },
       { plugin: WordCountPlugin, required: false, enabledByDefault: true },
       { plugin: BasesPlugin, required: false, enabledByDefault: true },

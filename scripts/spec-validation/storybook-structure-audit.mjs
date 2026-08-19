@@ -363,6 +363,7 @@ function auditPersistedWorkspace({ readOptional }) {
     "MarkdownLintPlugin",
     "FileExplorerPlugin",
     "SearchPlugin",
+    "BookmarksPlugin",
     "HistoryPlugin",
     "WordCountPlugin",
     "BasesPlugin",
@@ -373,6 +374,7 @@ function auditPersistedWorkspace({ readOptional }) {
     "lapis-markdown-lint",
     "lapis-file-explorer",
     "search",
+    "bookmarks",
     "history",
     "wordcount",
     "bases",
@@ -401,7 +403,7 @@ function auditPersistedWorkspace({ readOptional }) {
           "STORYBOOK-WORKSPACE-INVENTORY",
           demo === null ? demoFile : storyFile,
           1,
-          "PersistedDesktop and Mobile must enable all eight bundled plugins and use Fake AI",
+          "PersistedDesktop and Mobile must enable bundled plugins including Bookmarks and use Fake AI",
         ),
       ];
 }

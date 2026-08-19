@@ -26,6 +26,7 @@
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
+  import { BookmarksPlugin } from "@lapis-notes/bookmarks";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
@@ -154,6 +155,11 @@
       },
       {
         plugin: SearchPlugin,
+        required: false,
+        enabledByDefault: true,
+      },
+      {
+        plugin: BookmarksPlugin,
         required: false,
         enabledByDefault: true,
       },

@@ -78,6 +78,7 @@
     "@lapismd/ai-host": "link:../ai-host",
     "@lapismd/terminal-host": "link:../terminal-host",
     "@lapis-notes/bases": "workspace:*",
+    "@lapis-notes/bookmarks": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
     "@lapis-notes/markdown-lint": "workspace:*",

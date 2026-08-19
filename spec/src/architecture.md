@@ -181,6 +181,7 @@ Search leaf by opening its target in a sibling tab.
        ↑
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
+@lapis-notes/bookmarks (Obsidian-compatible Bookmarks panel)
 @lapis-notes/search (vault indexing + Search workspace contribution)
 @lapis-notes/history (vault file-revision capture + History workspace contribution + settings)
 @lapis-notes/wordcount (status-bar word, character, and reading-time count)
@@ -266,7 +267,7 @@ snapshot includes a follow `file` path. Missing-view placeholders use the Lucide
 empty New Tabs keep the file empty icon. Settings displayed by the shell remain
 controller-owned while persisting through api configuration; the workspace
 shell does not initiate configuration or plugin loading. A missing workspace
-file seeds File Explorer then Search on the left and Outline, File Properties,
+file seeds File Explorer, Search, then Bookmarks on the left and Outline, File Properties,
 and Tags on the right when those views are registered. Named Save and Load
 layout commands persist snapshots in `.obsidian/workspaces.json`, and Reset
 reapplies that default seed.

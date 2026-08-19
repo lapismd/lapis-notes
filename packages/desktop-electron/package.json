@@ -36,6 +36,7 @@
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/ai": "workspace:*",
     "@lapis-notes/bases": "workspace:*",
+    "@lapis-notes/bookmarks": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
     "@lapis-notes/language-service": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",

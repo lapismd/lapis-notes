@@ -67,6 +67,7 @@ function expectBundledPlugins(canvas: ReturnType<typeof within>) {
     { id: "spellcheck", enabled: true },
     { id: "lapis-file-explorer", enabled: true },
     { id: "search", enabled: true },
+    { id: "bookmarks", enabled: true },
     { id: "history", enabled: true },
     { id: "wordcount", enabled: true },
     { id: "bases", enabled: true },
@@ -91,7 +92,7 @@ function expectDefaultSidebarViews(canvasElement: HTMLElement) {
     right.push(leaf.view.getViewType());
     return undefined;
   });
-  expect(left).toEqual(["file-explorer", "search"]);
+  expect(left).toEqual(["file-explorer", "search", "bookmarks"]);
   expect(right).toEqual(["outline", "file-properties", "tag"]);
   expect(runtimeApp!.workspace.leftSplit.collapsed).toBe(false);
   expect(runtimeApp!.workspace.rightSplit.collapsed).toBe(false);

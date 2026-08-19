@@ -15,6 +15,7 @@ const publicComponents: Partial<Record<PanelDemoKind, string>> = {
   "outgoing-links": "OutgoingLinks",
   tags: "Tags",
   search: "SearchPanel",
+  bookmarks: "BookmarksPanel",
   history: "HistoryPanel",
 };
 
@@ -37,7 +38,9 @@ export function panelExampleSource(
   const packageName =
     kind === "search"
       ? "@lapis-notes/search"
-      : kind === "history"
+      : kind === "bookmarks"
+        ? "@lapis-notes/bookmarks"
+        : kind === "history"
         ? "@lapis-notes/history"
         : kind === "explorer"
           ? "@lapis-notes/file-explorer"
@@ -50,7 +53,9 @@ export function panelExampleSource(
   const pluginName =
     kind === "search"
       ? "Search"
-      : kind === "history"
+      : kind === "bookmarks"
+        ? "Bookmarks"
+        : kind === "history"
         ? "History"
         : kind === "explorer"
           ? "Explorer"

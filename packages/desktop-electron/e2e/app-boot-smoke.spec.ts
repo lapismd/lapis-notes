@@ -363,6 +363,7 @@ test("restores every available plugin view from persisted missing-view placehold
         "markdown",
         "file-explorer",
         "search",
+        "bookmarks",
         "backlink",
         "outgoing-link",
         "tag",
@@ -382,6 +383,7 @@ test("restores every available plugin view from persisted missing-view placehold
       markdown: 1,
       "file-explorer": 1,
       search: 1,
+      bookmarks: 1,
       backlink: 1,
       "outgoing-link": 1,
       tag: 1,
@@ -392,7 +394,7 @@ test("restores every available plugin view from persisted missing-view placehold
     expect(JSON.stringify(restored.layout)).not.toContain(
       '"__missingViewType":"search"',
     );
-    expect(JSON.stringify(restored.layout)).toContain(
+    expect(JSON.stringify(restored.layout)).not.toContain(
       '"__missingViewType":"bookmarks"',
     );
 

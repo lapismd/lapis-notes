@@ -24,6 +24,10 @@ const basesLib = path.resolve(
   "../packages/plugins/plugin-bases/src/lib",
 );
 const aiLib = path.resolve(rootDir, "../packages/plugins/plugin-ai/src/lib");
+const bookmarksLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-bookmarks/src/lib",
+);
 const historyLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-history/src/lib",
@@ -268,6 +272,10 @@ export async function viteFinal(
         {
           find: /^@lapis-notes\/search$/,
           replacement: path.join(searchLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/bookmarks$/,
+          replacement: path.join(bookmarksLib, "index.ts"),
         },
         {
           find: /^@lapis-notes\/history$/,

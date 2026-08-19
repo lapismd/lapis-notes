@@ -14,6 +14,7 @@
 - [Lapis Editor Demo](./editor-demo.md)
 - [Plugins](./plugins/index.md)
   - [Plugins / Explorer](./plugins/explorer/index.md)
+  - [Plugins / Bookmarks](./plugins/bookmarks/index.md)
   - [Plugins / Markdown](./plugins/markdown/index.md)
     - [Plugins / Markdown / Panels](./plugins/markdown/panels/index.md)
       - [Plugins / Markdown / Panels / All Properties](./plugins/markdown/panels/all-properties.md)

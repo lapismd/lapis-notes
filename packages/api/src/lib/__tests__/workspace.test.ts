@@ -1859,6 +1859,7 @@ describe("Workspace compatibility", () => {
     for (const [type, title] of [
       ["file-explorer", "Files"],
       ["search", "Search"],
+      ["bookmarks", "Bookmarks"],
       ["outline", "Outline"],
       ["file-properties", "File properties"],
       ["tag", "Tags"],
@@ -1881,7 +1882,7 @@ describe("Workspace compatibility", () => {
       right.push(leaf.view.getViewType());
       return undefined;
     });
-    expect(left).toEqual(["file-explorer", "search"]);
+    expect(left).toEqual(["file-explorer", "search", "bookmarks"]);
     expect(right).toEqual(["outline", "file-properties", "tag"]);
     expect(workspace.leftSplit.collapsed).toBe(false);
     expect(workspace.rightSplit.collapsed).toBe(false);
@@ -1918,6 +1919,7 @@ describe("Workspace compatibility", () => {
     for (const [type, title] of [
       ["file-explorer", "Files"],
       ["search", "Search"],
+      ["bookmarks", "Bookmarks"],
       ["outline", "Outline"],
       ["file-properties", "File properties"],
       ["tag", "Tags"],
@@ -1953,7 +1955,7 @@ describe("Workspace compatibility", () => {
       right.push(leaf.view.getViewType());
       return undefined;
     });
-    expect(left).toEqual(["file-explorer", "search"]);
+    expect(left).toEqual(["file-explorer", "search", "bookmarks"]);
     expect(right).toEqual(["outline", "file-properties", "tag"]);
     expect(workspace.getLeavesOfType("graph")).toHaveLength(0);
     expect(files.get("/.obsidian/workspaces.json")).toContain("Writing");
@@ -1969,6 +1971,7 @@ describe("Workspace compatibility", () => {
     for (const [type, title] of [
       ["file-explorer", "Files"],
       ["search", "Search"],
+      ["bookmarks", "Bookmarks"],
       ["outline", "Outline"],
       ["file-properties", "File properties"],
       ["tag", "Tags"],
@@ -1993,7 +1996,7 @@ describe("Workspace compatibility", () => {
       right.push(leaf.view.getViewType());
       return undefined;
     });
-    expect(left).toEqual(["file-explorer", "search"]);
+    expect(left).toEqual(["file-explorer", "search", "bookmarks"]);
     expect(right).toEqual(["outline", "file-properties", "tag"]);
     expect(workspace.getLeavesOfType("graph")).toHaveLength(0);
     expect(save).toHaveBeenCalledWith({
