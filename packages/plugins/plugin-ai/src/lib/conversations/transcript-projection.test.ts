@@ -202,4 +202,29 @@ describe("conversation transcript projection", () => {
       { type: "skill-activation", skillName: "research-notes" },
     ]);
   });
+
+  it("round-trips slash-command report layout on system notices", () => {
+    const entries = projectChatItemsToTranscript([
+      {
+        id: "notice",
+        type: "status",
+        text: "Conversation: abc\nScope: Projects",
+        layout: "report",
+      },
+    ]);
+    expect(entries).toEqual([
+      expect.objectContaining({
+        type: "system.notice",
+        layout: "report",
+        text: "Conversation: abc\nScope: Projects",
+      }),
+    ]);
+    expect(projectTranscriptToChatItems(entries)).toMatchObject([
+      {
+        type: "status",
+        layout: "report",
+        text: "Conversation: abc\nScope: Projects",
+      },
+    ]);
+  });
 });

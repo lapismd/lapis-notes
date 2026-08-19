@@ -72,6 +72,7 @@ import type { AcpAgentId } from "../settings/acp-agents";
 export class AiChatController {
   items = $state.raw<AiChatItem[]>([]);
   busy = $state(false);
+  commandWorking = $state(false);
   error = $state<string | null>(null);
   usage = $state<AgentUsage | null>(null);
   appToolsUnavailableReason = $state<string | null>(null);
@@ -598,6 +599,7 @@ export class AiChatController {
     const session = this.session;
     if (session) this.#cancelledSessions.add(session);
     this.busy = false;
+    this.commandWorking = false;
     this.items = interruptPendingInteractions(this.items);
     void this.#confirmCancelledNotice(session);
     await this.#persist(true);
@@ -642,6 +644,7 @@ export class AiChatController {
     const interrupted = this.busy;
     if (interrupted) await this.session?.cancel?.().catch(() => undefined);
     this.busy = false;
+    this.commandWorking = false;
     if (interrupted) this.items = interruptPendingInteractions(this.items);
     await this.#persist(interrupted);
     await this.#closeAppToolBinding();
@@ -807,13 +810,14 @@ export class AiChatController {
     >,
     request: Omit<AgentRequest, "prompt">,
   ): Promise<void> {
-    if (!this.#slashRouter || this.busy) return;
+    const slashRouter = this.#slashRouter;
+    if (!slashRouter || this.busy) return;
     this.error = null;
     if (this.repository) await this.#ensureConversation();
     const discovery = this.#skillContext?.() ?? {
       scopeDir: this.location?.scopeDir ?? "",
     };
-    const result = await this.#slashRouter.execute(resolution, {
+    const result = await slashRouter.execute(resolution, {
       agentBindingId: this.#activeBindingId,
       discovery,
     });
@@ -847,19 +851,22 @@ export class AiChatController {
         return;
       }
       if (result.notice === "help") {
-        await this.#prepareSession(request);
-        this.#appendLocalNotice(
-          formatSlashHelp(
-            this.#slashRouter.catalog.list(this.#activeBindingId),
-            composerAgentLabel(
-              this.request.agent,
-              typeof this.request.metadata?.runtime === "string"
-                ? this.request.metadata.runtime
-                : undefined,
+        await this.#withCommandProgress(async (turnId) => {
+          await this.#prepareSession(request, turnId);
+          if (this.#isAbandoned(turnId)) return;
+          this.#appendLocalNotice(
+            formatSlashHelp(
+              slashRouter.catalog.list(this.#activeBindingId),
+              composerAgentLabel(
+                this.request.agent,
+                typeof this.request.metadata?.runtime === "string"
+                  ? this.request.metadata.runtime
+                  : undefined,
+              ),
             ),
-          ),
-        );
-        await this.#persistCommandNotice();
+          );
+          await this.#persistCommandNotice();
+        });
         return;
       }
       if (result.notice === "scope") {
@@ -867,46 +874,55 @@ export class AiChatController {
         return;
       }
       if (result.notice === "context") {
-        await this.#prepareSession(request);
-        this.#appendLocalNotice(await this.#describeContext());
-        await this.#persistCommandNotice();
+        await this.#withCommandProgress(async (turnId) => {
+          await this.#prepareSession(request, turnId);
+          if (this.#isAbandoned(turnId)) return;
+          this.#appendLocalNotice(await this.#describeContext());
+          await this.#persistCommandNotice();
+        });
         return;
       }
       if (result.notice === "model") {
-        this.#appendLocalNotice(
-          "Change the model from the composer Model menu.",
-        );
-        await this.#persistCommandNotice();
+        await this.#withCommandProgress(async (turnId) => {
+          if (this.#isAbandoned(turnId)) return;
+          this.#appendLocalNotice(
+            "Change the model from the composer Model menu.",
+          );
+          await this.#persistCommandNotice();
+        });
         return;
       }
       if (result.notice === "cancel") {
-        this.#appendLocalNotice(
-          "Use Stop in the composer to cancel the active run.",
-        );
-        await this.#persistCommandNotice();
+        await this.#withCommandProgress(async (turnId) => {
+          if (this.#isAbandoned(turnId)) return;
+          this.#appendLocalNotice(
+            "Use Stop in the composer to cancel the active run.",
+          );
+          await this.#persistCommandNotice();
+        });
         return;
       }
       if (result.notice === "skills" || result.notice === "tools") {
-        await this.#prepareSession(request);
-      }
-      if (result.notice === "skills") {
-        const names =
-          this.#skillSnapshots
-            .get(this.#activeBindingId ?? "")
-            ?.skills.map((skill) => skill.name)
-            .join(", ") || "No skills are available.";
-        this.#appendLocalNotice(names);
-        await this.#persistCommandNotice();
-        return;
-      }
-      if (result.notice === "tools") {
-        const names =
-          this.#appToolHost
-            ?.getSession(this.#activeBindingId ?? "")
-            ?.tools.map((tool) => tool.name)
-            .join(", ") || "No application tools are available.";
-        this.#appendLocalNotice(names);
-        await this.#persistCommandNotice();
+        await this.#withCommandProgress(async (turnId) => {
+          await this.#prepareSession(request, turnId);
+          if (this.#isAbandoned(turnId)) return;
+          if (result.notice === "skills") {
+            const names =
+              this.#skillSnapshots
+                .get(this.#activeBindingId ?? "")
+                ?.skills.map((skill) => skill.name)
+                .join(", ") || "No skills are available.";
+            this.#appendLocalNotice(names);
+          } else {
+            const names =
+              this.#appToolHost
+                ?.getSession(this.#activeBindingId ?? "")
+                ?.tools.map((tool) => tool.name)
+                .join(", ") || "No application tools are available.";
+            this.#appendLocalNotice(names);
+          }
+          await this.#persistCommandNotice();
+        });
         return;
       }
       this.#appendLocalNotice(`/${result.notice}`);
@@ -1015,15 +1031,18 @@ export class AiChatController {
       return;
     }
     if (parsed === "status") {
-      this.#appendLocalNotice(
-        composerAgentLabel(
-          this.request.agent,
-          typeof this.request.metadata?.runtime === "string"
-            ? this.request.metadata.runtime
-            : undefined,
-        ),
-      );
-      await this.#persistCommandNotice();
+      await this.#withCommandProgress(async (turnId) => {
+        if (this.#isAbandoned(turnId)) return;
+        this.#appendLocalNotice(
+          composerAgentLabel(
+            this.request.agent,
+            typeof this.request.metadata?.runtime === "string"
+              ? this.request.metadata.runtime
+              : undefined,
+          ),
+        );
+        await this.#persistCommandNotice();
+      });
       return;
     }
     this.request = {
@@ -1052,8 +1071,11 @@ export class AiChatController {
   async #applyScopeCommand(raw: string): Promise<void> {
     const folder = raw.trim();
     if (!folder) {
-      this.#appendLocalNotice(await this.#describeScope());
-      await this.#persistCommandNotice();
+      await this.#withCommandProgress(async (turnId) => {
+        if (this.#isAbandoned(turnId)) return;
+        this.#appendLocalNotice(await this.#describeScope());
+        await this.#persistCommandNotice();
+      });
       return;
     }
     try {
@@ -1174,6 +1196,20 @@ export class AiChatController {
     }
   }
 
+  async #withCommandProgress(
+    work: (turnId: number) => Promise<void>,
+  ): Promise<void> {
+    const turnId = ++this.#turnId;
+    this.busy = true;
+    this.commandWorking = true;
+    try {
+      await work(turnId);
+    } finally {
+      this.commandWorking = false;
+      if (this.#turnId === turnId) this.busy = false;
+    }
+  }
+
   #appendLocalNotice(text: string): void {
     this.items = [
       ...this.items,
@@ -1181,6 +1217,7 @@ export class AiChatController {
         id: `notice-${crypto.randomUUID()}`,
         type: "status",
         text,
+        layout: "report",
         createdAt: new Date().toISOString(),
       },
     ];

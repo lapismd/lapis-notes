@@ -51,6 +51,7 @@
   } from "../settings/ai-settings";
   import type { AppToolBridgeCoordinator } from "../tools/desktop-app-tool-bridge";
   import { formatFileMention, mentionTokensFromText } from "./chat-mentions";
+  import { isSlashCommandNotice } from "./chat-items";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
   import {
     isOneLineAlert,
@@ -295,6 +296,13 @@
   );
   const composerStatus = $derived<ComposerStatus | undefined>(
     composerError ? { type: "error", message: composerError } : undefined,
+  );
+  const workingLabel = $derived(
+    initializing
+      ? "Preparing AI…"
+      : controller.commandWorking
+        ? "Preparing command…"
+        : "Agent is working…",
   );
   const contextPercent = $derived(
     controller.usage
@@ -573,7 +581,7 @@
           aria-atomic="true"
         >
           <Spinner />
-          <span>{initializing ? "Preparing AI…" : "Agent is working…"}</span>
+          <span>{workingLabel}</span>
         </div>
       {/if}
       <Chat.Composer
@@ -992,6 +1000,14 @@
               </Chat.MessageMetadata>
             {/snippet}
           </Chat.Message>
+        {:else if entry.item.type === "status" && isSlashCommandNotice(entry.item)}
+          <div
+            class="ai-chat-panel__command-notice"
+            data-testid="ai-chat-command-notice"
+            role="status"
+          >
+            {entry.item.text}
+          </div>
         {:else}
           <Chat.SystemMessage>{entry.item.text}</Chat.SystemMessage>
         {/if}

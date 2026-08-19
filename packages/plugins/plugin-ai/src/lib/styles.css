@@ -285,6 +285,19 @@
   gap: 0.125rem;
 }
 
+[data-ui-component="ai-chat-panel"] .ai-chat-panel__command-notice {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0.375rem 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-align: start;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 [data-ui-component="ai-chat-panel"] .ai-chat-panel__working {
   box-sizing: border-box;
   display: flex;

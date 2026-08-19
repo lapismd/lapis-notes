@@ -157,6 +157,7 @@ export function projectChatItemsToTranscript(
             id: item.id,
             type: "system.notice",
             text: sanitizeDurableField(item.text, options).text ?? "",
+            ...(item.layout === "report" ? { layout: "report" as const } : {}),
           },
         ];
       case "error":
@@ -304,6 +305,7 @@ export function projectTranscriptToChatItems(
           id: entry.id,
           type: "status",
           text: entry.text,
+          ...(entry.layout === "report" ? { layout: "report" as const } : {}),
           createdAt: entry.createdAt,
           agentBindingId: entry.agentBindingId,
         });

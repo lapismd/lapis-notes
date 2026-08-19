@@ -87,6 +87,8 @@ execution APIs.
 | LN-AI-146 | When the host exposes a user-agents directory, AI MUST seed each reserved command as `~/.lapis/agents/commands/<name>.md` only when missing, with `kind: host`. Update reserved commands MUST overwrite only those reserved filenames. It MUST NOT rewrite user-authored prompt files. |
 | LN-AI-147 | An active-file conversation scope MUST skip hidden application segments `.agents`, `.lapis`, `.obsidian`, and `.trash`. It MUST use the nearest ancestor folder that contains none of those segments, or vault root. The New Chat folder list MUST omit those trees. Existing conversations stored there MUST remain readable. |
 | LN-AI-148 | Session bootstrap MUST still attach when the conversation scope or launch note is under `.agents/skills`. Those fields MUST use path-free labels. The host MUST still receive the remaining path-free block. |
+| LN-AI-149 | Reserved local slash-command notices MUST render start-aligned and MUST preserve authored line breaks. One-line agent, cancel, and date `SystemMessage` entries MUST keep the existing centered layout. |
+| LN-AI-150 | While a reserved local slash command is preparing its notice, the chat panel MUST show the accessible working indicator above the composer. It MUST remove that indicator when the notice is shown or the command fails. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -219,7 +221,9 @@ Markdown lives under `<scope>/.agents/commands`, vault `.agents/commands`,
 and user-global `~/.lapis/agents/commands` when the host exposes that
 directory (LN-AI-144–LN-AI-146). The composer treats a leading slash as a
 command and keeps reserved app commands across agent switches, including
-`/help`, `/scope`, `/context`, `/status`, and `/agent` (LN-AI-126–LN-AI-129). AI ships
+`/help`, `/scope`, `/context`, `/status`, and `/agent` (LN-AI-126–LN-AI-129). Those
+local notices stay start-aligned with authored line breaks and show the composer
+working indicator while they prepare (LN-AI-149, LN-AI-150). AI ships
 bundled `research` and `lapis-notes` skills that folder skills may override
 (LN-AI-130, LN-AI-134) and seeds them as vault `SKILL.md` when missing
 (LN-AI-142, LN-AI-143). Search owns composer `/search` as a `notes_search`

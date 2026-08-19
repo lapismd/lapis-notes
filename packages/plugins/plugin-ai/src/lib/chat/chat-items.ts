@@ -53,7 +53,13 @@ export type AiChatItem = (
       status: "pending" | "answered" | "cancelled";
       createdAt?: string;
     }
-  | { id: string; type: "status"; text: string; createdAt?: string }
+  | {
+      id: string;
+      type: "status";
+      text: string;
+      layout?: "report";
+      createdAt?: string;
+    }
   | { id: string; type: "error"; text: string; createdAt?: string }
   | {
       id: string;
@@ -80,4 +86,13 @@ export type AiChatItem = (
 
 export function createChatItemId(prefix: string, index: number): string {
   return `${prefix}-${index}`;
+}
+
+export function isSlashCommandNotice(
+  item: AiChatItem,
+): item is Extract<AiChatItem, { type: "status" }> {
+  return (
+    item.type === "status" &&
+    (item.layout === "report" || item.text.includes("\n"))
+  );
 }

@@ -120,8 +120,8 @@ shell plugin on the API-owned controller. A vault without workspace.json
 receives File Explorer, Search, then Bookmarks on the left and Outline, File Properties,
 then Tags on the right when those views are registered. The Bookmarks panel
 snapshots persisted items so add and remove refresh the tree, insets
-rows with the public Explorer content-padding token, and uses Explorer
-toolbar hover tokens. The API workspace
+rows with the public Explorer content-padding token, uses Explorer
+toolbar hover tokens, and follows Explorer tree indent and guide geometry. The API workspace
 registers Save, Load, and Reset layout commands for named snapshots and the
 same default seed.
 `@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,
@@ -167,6 +167,8 @@ The API agent-skills surface exports only skill-source and composer
 slash-command registration. AI owns discovery of `.agents` skill and
 command Markdown, snapshots, skill tools, and routing, including reserved
 `/help`, `/scope`, `/context`, `/status`, and `/agent`.
+Local slash notices stay start-aligned with authored line breaks and show
+the composer working indicator while they prepare.
 AI ships bundled `research` and `lapis-notes` skills. An active skill file
 MUST NOT scope a new conversation to `.agents`. Search owns composer
 `/search` as a `notes_search` tool-dispatch command. Live ACP session start

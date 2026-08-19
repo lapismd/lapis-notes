@@ -228,6 +228,9 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
       break;
     case "system.notice":
       requiredString(data, "text", "Transcript system notice");
+      if (data.layout != null && data.layout !== "report") {
+        throw new Error("Transcript system notice layout is invalid");
+      }
       break;
     case "cancelled":
       assertOptionalString(data, "text", "Transcript cancellation");

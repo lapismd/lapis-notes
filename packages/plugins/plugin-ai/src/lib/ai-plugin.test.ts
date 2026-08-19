@@ -154,6 +154,11 @@ describe("AiPlugin contracts", () => {
 
     expect(panel).toContain("isStopShown={controller.busy}");
     expect(panel).toContain("void controller.cancel()");
+    expect(panel).toContain("isSlashCommandNotice");
+    expect(panel).toContain("ai-chat-panel__command-notice");
+    expect(panel).toContain("Preparing command…");
+    expect(controller).toContain("commandWorking = $state(false)");
+    expect(controller).toContain("#withCommandProgress");
     expect(controller).toContain("async cancel()");
     expect(controller).toContain("void this.#confirmCancelledNotice(session)");
     expect(controller).toContain("#isAbandoned");

@@ -131,6 +131,7 @@ export type TranscriptEntry =
   | (TranscriptEntryBase & {
       type: "system.notice";
       text: string;
+      layout?: "report";
     })
   | (TranscriptEntryBase & {
       type: "cancelled";

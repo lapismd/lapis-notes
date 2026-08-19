@@ -97,7 +97,9 @@ explicit ownership boundary as application tools. API stores plugin
 registrations. AI discovers vault and folder skills under `.agents/skills`,
 snapshots them per binding, and routes composer commands from reserved
 host names and `.agents/commands` Markdown, including `/help`, `/scope`,
-`/context`, `/status`, and `/agent`. AI ships bundled `research` and `lapis-notes` skills.
+`/context`, `/status`, and `/agent`. Local slash notices stay start-aligned
+with authored line breaks and show the composer working indicator while they
+prepare. AI ships bundled `research` and `lapis-notes` skills.
 An active skill file MUST NOT scope a new conversation to `.agents`.
 Search owns composer `/search` as a `notes_search` tool-dispatch command.
 Live ACP session start appends a path-free `available_skills` manifest and a
@@ -181,7 +183,7 @@ Search leaf by opening its target in a sibling tab.
        ↑
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
-@lapis-notes/bookmarks (Obsidian-compatible Bookmarks panel; default left sidebar after Search; tree snapshots persisted items and matches Explorer inset and toolbar hover)
+@lapis-notes/bookmarks (Obsidian-compatible Bookmarks panel; default left sidebar after Search; tree matches Explorer inset, toolbar hover, and chevron-centered guides)
 @lapis-notes/search (vault indexing + Search workspace contribution)
 @lapis-notes/history (vault file-revision capture + History workspace contribution + settings)
 @lapis-notes/wordcount (status-bar word, character, and reading-time count)

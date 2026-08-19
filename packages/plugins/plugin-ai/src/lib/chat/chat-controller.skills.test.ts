@@ -15,6 +15,7 @@ import { createSkillAppTools } from "../skills/skill-tools";
 import { BUNDLED_LAPIS_NOTES_SKILL } from "../skills/bundled/lapis-notes";
 import { BUNDLED_RESEARCH_SKILL } from "../skills/bundled/research";
 import { AiChatController } from "./chat-controller.svelte";
+import type { AgentRequest, AgentRuntime } from "../core/types";
 import type { LoadedAppSkill } from "../skills/types";
 
 let Vault: typeof import("@lapis-notes/api/vault").Vault;
@@ -48,6 +49,7 @@ async function createSkillController(
     bundled?: LoadedAppSkill[];
     extensions?: AppSlashCommandRegistry;
     workspace?: string;
+    selectRuntime?: (request: AgentRequest) => Promise<AgentRuntime>;
     onComposerDefaults?: (next: {
       agent: string;
       runtimePreference: string;
@@ -132,6 +134,7 @@ async function createSkillController(
       metadata: { runtime: "acp" },
     },
     onComposerDefaults: options.onComposerDefaults,
+    selectRuntime: options.selectRuntime,
   });
   return { controller, runtime, repository, skills, skillSnapshots, appToolHost };
 }
@@ -398,6 +401,7 @@ describe("AiChatController skills and slash commands", () => {
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     await controller.submit("/help");
     const notice = controller.items.find((item) => item.type === "status");
+    expect(notice).toMatchObject({ type: "status", layout: "report" });
     expect(notice?.text).toContain("App");
     expect(notice?.text).toContain("/help");
     expect(notice?.text).toContain("Actions");
@@ -460,6 +464,8 @@ describe("AiChatController skills and slash commands", () => {
     );
     await controller.submit("/context");
     const notice = controller.items.find((item) => item.type === "status");
+    expect(notice).toMatchObject({ type: "status", layout: "report" });
+    expect(notice?.text).toContain("\n");
     expect(notice?.text).toContain("Conversation:");
     expect(notice?.text).toContain("Scope: Projects");
     expect(notice?.text).toContain("Agent: Codex ACP");
@@ -475,6 +481,37 @@ describe("AiChatController skills and slash commands", () => {
         (item) => item.type === "status" && item.text.includes("Conversation:"),
       ).length,
     ).toBeGreaterThan(1);
+    await controller.close();
+  });
+
+  it("marks busy while /status prepares its local notice", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const { controller, runtime } = await createSkillController(
+      {
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
+      },
+      {
+        selectRuntime: async () => {
+          await gate;
+          return runtime;
+        },
+      },
+    );
+    const pending = controller.submit("/status");
+    await vi.waitFor(() => expect(controller.commandWorking).toBe(true));
+    expect(controller.busy).toBe(true);
+    expect(controller.items.some((item) => item.type === "status")).toBe(false);
+    release();
+    await pending;
+    expect(controller.commandWorking).toBe(false);
+    expect(controller.busy).toBe(false);
+    expect(controller.items.at(-1)).toMatchObject({
+      type: "status",
+      layout: "report",
+    });
     await controller.close();
   });
 
