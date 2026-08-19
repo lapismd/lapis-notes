@@ -154,8 +154,8 @@ this repository retains only host integration and consumer acceptance contracts.
 3. Update requirements and verification before or with implementation
 4. Add evidence (unit / story) as appropriate
 5. Run `pnpm spec:first` and package checks
-6. Commit the verified slice. This is a standing request; do not wait for the
-   user to ask.
+6. Commit the verified slice. This is a standing request for every workspace
+   package; do not wait for the user to ask.
 
 `AGENTS.md` must stay aligned with architecture requirements (including
 colocated siblings as explicit `link:` dependencies or `link:`-valued root
