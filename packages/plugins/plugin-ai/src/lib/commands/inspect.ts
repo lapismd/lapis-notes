@@ -1,5 +1,3 @@
-import type { AppToolResult } from "@lapis-notes/api/agent-tools";
-
 export function formatScopeNotice(input: {
   scopeDir: string;
   launchNotePath?: string;
@@ -47,80 +45,4 @@ export function formatContextNotice(input: {
     `Folder instructions: ${folders}`,
     `Context status: ${input.truncated ? "Bootstrap truncated" : "No bootstrap truncation"}`,
   ].join("\n");
-}
-
-export function formatToolDispatchNotice(
-  tool: string,
-  input: Record<string, unknown>,
-  result: AppToolResult,
-): string {
-  if (tool === "notes_search") {
-    const query = typeof input.query === "string" ? input.query : "";
-    const hits = notesSearchHits(result);
-    if (hits.length > 0) {
-      const lines = [`Search: ${query}`];
-      for (const hit of hits) {
-        lines.push(hit.path);
-        if (hit.snippet) lines.push(`  ${hit.snippet}`);
-      }
-      return lines.join("\n");
-    }
-    const text = joinToolText(result);
-    if (text && !isEmptyNotesSearchJson(text)) return text;
-    return query
-      ? `No notes matched "${query}".`
-      : "No notes matched the query.";
-  }
-  return joinToolText(result) || `/${tool} completed.`;
-}
-
-function notesSearchHits(
-  result: AppToolResult,
-): Array<{ path: string; snippet?: string }> {
-  const structured = result.structuredContent;
-  if (!structured || typeof structured !== "object" || Array.isArray(structured)) {
-    return [];
-  }
-  const rows = Reflect.get(structured, "results");
-  if (!Array.isArray(rows)) return [];
-  const hits: Array<{ path: string; snippet?: string }> = [];
-  for (const row of rows) {
-    if (!row || typeof row !== "object" || Array.isArray(row)) continue;
-    const path = Reflect.get(row, "path");
-    if (typeof path !== "string" || !path.trim()) continue;
-    const snippets = Reflect.get(row, "snippets");
-    const first =
-      Array.isArray(snippets) && snippets[0] && typeof snippets[0] === "object"
-        ? Reflect.get(snippets[0], "text")
-        : undefined;
-    hits.push({
-      path,
-      snippet:
-        typeof first === "string" && first.trim()
-          ? first.replace(/\s+/gu, " ").trim()
-          : undefined,
-    });
-  }
-  return hits;
-}
-
-function joinToolText(result: AppToolResult): string {
-  return result.content
-    .filter((item) => item.type === "text")
-    .map((item) => item.text.trim())
-    .filter(Boolean)
-    .join("\n");
-}
-
-function isEmptyNotesSearchJson(text: string): boolean {
-  try {
-    const parsed: unknown = JSON.parse(text);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return false;
-    }
-    const results = Reflect.get(parsed, "results");
-    return Array.isArray(results) && results.length === 0;
-  } catch {
-    return false;
-  }
 }

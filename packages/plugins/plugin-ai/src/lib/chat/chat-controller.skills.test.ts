@@ -691,14 +691,20 @@ Folder lapis notes body.
     );
     expect(execute).toHaveBeenCalledTimes(1);
     expect(runtime.sessions.at(-1)?.prompts ?? []).toEqual([]);
-    const notice = [...controller.items]
+    const tool = [...controller.items]
       .reverse()
-      .find((item) => item.type === "status");
-    expect(notice?.type === "status" ? notice.text : "").toContain(
+      .find((item) => item.type === "tool");
+    expect(tool).toMatchObject({
+      type: "tool",
+      name: "notes_search",
+      state: "completed",
+    });
+    expect(tool?.type === "tool" ? tool.input : "").toContain("OAuth");
+    expect(tool?.type === "tool" ? tool.output : "").toContain(
       "Projects/auth.md",
     );
-    expect(notice?.type === "status" ? notice.layout : undefined).toBe(
-      "report",
+    expect(controller.items.some((item) => item.type === "status")).toBe(
+      false,
     );
     await controller.close();
   });

@@ -1,4 +1,5 @@
 import type {
+  AgentEvent,
   AgentRequest,
   AgentRuntime,
   AgentSession,
@@ -68,7 +69,6 @@ import { formatSlashHelp } from "../commands/groups";
 import {
   formatContextNotice,
   formatScopeNotice,
-  formatToolDispatchNotice,
 } from "../commands/inspect";
 import { normalizeConversationScope } from "../conversations/paths";
 import type { AcpAgentId } from "../settings/acp-agents";
@@ -955,8 +955,18 @@ export class AiChatController {
           ];
           return;
         }
+        const callId = `slash-tool-${crypto.randomUUID()}`;
+        const toolEvent = {
+          id: callId,
+          name: result.tool,
+          server: APP_TOOL_MCP_SERVER_NAME,
+          input: result.input,
+        };
+        await this.#applySlashToolEvent({
+          type: "tool.start",
+          ...toolEvent,
+        });
         try {
-          const callId = `slash-tool-${crypto.randomUUID()}`;
           const toolResult = await this.#appToolHost.invoke(
             this.#activeBindingId,
             {
@@ -967,22 +977,20 @@ export class AiChatController {
             },
           );
           if (this.#isAbandoned(turnId)) return;
-          this.#appendLocalNotice(
-            formatToolDispatchNotice(result.tool, result.input, toolResult),
-          );
-          await this.#persistCommandNotice();
+          await this.#applySlashToolEvent({
+            type: "tool.end",
+            ...toolEvent,
+            ...(toolResult.isError
+              ? { error: toolResult }
+              : { output: toolResult }),
+          });
         } catch (error) {
-          this.error =
-            error instanceof Error ? error.message : String(error);
-          this.items = [
-            ...this.items,
-            {
-              id: `command-error-${crypto.randomUUID()}`,
-              type: "error",
-              text: this.error,
-              createdAt: new Date().toISOString(),
-            },
-          ];
+          if (this.#isAbandoned(turnId)) return;
+          await this.#applySlashToolEvent({
+            type: "tool.end",
+            ...toolEvent,
+            error: error instanceof Error ? error.message : String(error),
+          });
         }
       });
       return;
@@ -1287,6 +1295,27 @@ export class AiChatController {
     const item = this.items.at(-1);
     if (this.repository && this.location && item) {
       await this.#appendDurableItems(this.location, [item], this.#activeBindingId);
+    }
+  }
+
+  async #applySlashToolEvent(
+    event: Extract<AgentEvent, { type: "tool.start" | "tool.end" }>,
+  ): Promise<void> {
+    const bindingId = this.#activeBindingId;
+    this.items = applyAgentEventToChatItems(this.items, event).map((item) =>
+      item.agentBindingId || !bindingId
+        ? item
+        : { ...item, agentBindingId: bindingId },
+    );
+    const item = this.items.find(
+      (candidate) =>
+        candidate.id === event.id ||
+        (candidate.type === "tool" && candidate.toolId === event.id),
+    );
+    if (this.repository && this.location && item) {
+      await this.#appendDurableItems(this.location, [item], bindingId);
+    } else if (!this.repository) {
+      await this.#persist(false, bindingId);
     }
   }
 

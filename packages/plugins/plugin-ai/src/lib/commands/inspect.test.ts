@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  formatContextNotice,
-  formatScopeNotice,
-  formatToolDispatchNotice,
-} from "./inspect";
+import { formatContextNotice, formatScopeNotice } from "./inspect";
 import { composerSlashItems, filterComposerSlashItems } from "./groups";
 import { RESERVED_SLASH_COMMANDS } from "./reserved";
 import type { EffectiveSlashCommand } from "./types";
@@ -41,37 +37,6 @@ describe("slash inspect notices", () => {
         truncated: true,
       }),
     ).toContain("Bootstrap truncated");
-  });
-
-  it("formats notes_search hits and empty results", () => {
-    expect(
-      formatToolDispatchNotice(
-        "notes_search",
-        { query: "OAuth" },
-        {
-          content: [{ type: "text", text: '{"results":[]}' }],
-          structuredContent: {
-            results: [
-              {
-                path: "Projects/auth.md",
-                score: 1,
-                snippets: [{ text: "OAuth tokens", offset: 0 }],
-              },
-            ],
-          },
-        },
-      ),
-    ).toBe("Search: OAuth\nProjects/auth.md\n  OAuth tokens");
-    expect(
-      formatToolDispatchNotice(
-        "notes_search",
-        { query: "capabilities" },
-        {
-          content: [{ type: "text", text: '{"results":[]}' }],
-          structuredContent: { results: [] },
-        },
-      ),
-    ).toBe('No notes matched "capabilities".');
   });
 });
 

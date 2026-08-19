@@ -105,7 +105,7 @@ immediately. `/skills` and `/context` hydrate a missing binding snapshot
 from current discovery. AI ships bundled `research` and `lapis-notes` skills.
 An active skill file MUST NOT scope a new conversation to `.agents`.
 Search owns composer `/search` as a `notes_search` tool-dispatch command.
-The chat shows those hits as a local report.
+The chat shows that invoke as a `ToolCalls` transcript item.
 Live ACP session start appends a path-free `available_skills` manifest and a
 generated `sessionBootstrap` through the host, including when the open
 conversation still sits under a skill folder. The AI catalog lists live
