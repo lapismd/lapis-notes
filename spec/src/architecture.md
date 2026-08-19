@@ -289,7 +289,7 @@ database contract through bounded BroadcastChannel RPC and may promote when
 the owner disappears. Neither role is cloud synchronization. The launcher can
 copy a picked local folder into a new OPFS vault, and an open OPFS session can
 import into or export that vault through host Settings and commands
-(LN-WEB-038, LN-WEB-039, LN-WEB-040, LN-WEB-041).
+(LN-WEB-038, LN-WEB-039, LN-WEB-040, LN-WEB-041, LN-WEB-042, LN-WEB-043).
 The branded vault launcher is a renderer-side desktop consumer: it chooses a
 native profile, then delegates storage and workspace lifecycle to API sessions.
 While a host resolves a saved current profile, it hosts Design Core
@@ -302,7 +302,9 @@ instead of a host-owned placeholder. The plugins task reports the current
 plugin name. Metadata cache load starts after layout restoration so Turso
 open does not contend with `loadLayout`. That load, rebuild, and vault
 reconcile stay under one status progress handle, yield between files, and
-parse Markdown metadata in a worker. `App` constructs `NotificationManager`
+parse Markdown metadata in a worker. `App` registers rebuild-vault-cache and
+rebuild-generated-state so a later manual rebuild uses the same handle
+(LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can project that progress. Native window-drag regions stay in Design
 Core chrome CSS; hosts do not re-declare `-webkit-app-region`.
 Desktop and web “View all” palettes keep host-owned Dialog chrome and compose

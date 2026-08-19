@@ -1,4 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { FakeOpfsVaultAdapter } = vi.hoisted(() => ({
+  FakeOpfsVaultAdapter: class FakeOpfsVaultAdapter {
+    kind = "opfs";
+  },
+}));
+
+vi.mock("@lapis-notes/api", () => ({
+  OpfsVaultAdapter: FakeOpfsVaultAdapter,
+  Notice: class Notice {},
+  createOpfsVault: vi.fn(),
+  deleteBrowserLocalVault: vi.fn(),
+  exportAdapterToDirectoryHandle: vi.fn(),
+  importDirectoryHandleToAdapter: vi.fn(),
+  pickFileSystemAccessDirectoryHandle: vi.fn(),
+  promptConfirm: vi.fn(),
+}));
+
 import { OpfsVaultAdapter } from "@lapis-notes/api";
 import {
   EXPORT_CURRENT_COMMAND_ID,

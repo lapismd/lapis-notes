@@ -8,6 +8,7 @@ import {
   pickFileSystemAccessDirectoryHandle,
   promptConfirm,
   type App,
+  type BrowserDirectoryImportProgress,
   type BrowserFileSystemDirectoryHandle,
   type VaultAdapter,
 } from "@lapis-notes/api";
@@ -77,6 +78,22 @@ function hostDocument(app: App): Document {
   return app.workspace.containerEl?.ownerDocument ?? globalThis.document;
 }
 
+export function formatVaultCopyProgressMessage(options: {
+  verb: "Importing" | "Exporting";
+  current: number;
+  total: number;
+  currentPath: string | null;
+  scanningLabel: string;
+}): string {
+  if (options.total <= 0) {
+    return options.scanningLabel;
+  }
+  const path = options.currentPath?.trim();
+  return path
+    ? `${options.verb} ${options.current} of ${options.total}: ${path}`
+    : `${options.verb} ${options.current} of ${options.total}`;
+}
+
 export async function importLocalFolderIntoCurrentVault(
   app: App,
   overrides: VaultTransferDependencies = {},
@@ -108,10 +125,13 @@ export async function importLocalFolderIntoCurrentVault(
             progressHandle.report({
               current: progress.importedFiles,
               total: progress.totalFiles,
-              message:
-                progress.totalFiles > 0
-                  ? `Copying ${handle.name} into ${app.vault.getName()}`
-                  : `Scanning ${handle.name}...`,
+              message: formatVaultCopyProgressMessage({
+                verb: "Importing",
+                current: progress.importedFiles,
+                total: progress.totalFiles,
+                currentPath: progress.currentPath,
+                scanningLabel: `Scanning ${handle.name}...`,
+              }),
             });
           },
         });
@@ -218,10 +238,13 @@ export async function exportCurrentVaultToLocalFolder(
             progressHandle.report({
               current: progress.exportedFiles,
               total: progress.totalFiles,
-              message:
-                progress.totalFiles > 0
-                  ? `Copying ${app.vault.getName()} into ${handle.name}`
-                  : `Scanning ${app.vault.getName()}...`,
+              message: formatVaultCopyProgressMessage({
+                verb: "Exporting",
+                current: progress.exportedFiles,
+                total: progress.totalFiles,
+                currentPath: progress.currentPath,
+                scanningLabel: `Scanning ${app.vault.getName()}...`,
+              }),
             });
           },
         });
@@ -274,13 +297,18 @@ export async function importDirectoryHandleToNewOpfsVault(options: {
   createVault?: typeof createOpfsVault;
   importHandle?: typeof importDirectoryHandleToAdapter;
   deleteVault?: typeof deleteBrowserLocalVault;
+  onProgress?: (
+    progress: BrowserDirectoryImportProgress,
+  ) => void | Promise<void>;
 }): Promise<OpfsVaultAdapter> {
   const createVault = options.createVault ?? createOpfsVault;
   const importHandle = options.importHandle ?? importDirectoryHandleToAdapter;
   const deleteVault = options.deleteVault ?? deleteBrowserLocalVault;
   const adapter = await createVault({ name: options.name });
   try {
-    await importHandle(options.handle, adapter);
+    await importHandle(options.handle, adapter, {
+      onProgress: options.onProgress,
+    });
     return adapter;
   } catch (error) {
     await deleteVault({

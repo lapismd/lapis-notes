@@ -294,4 +294,62 @@ describe("SearchManager", () => {
       isRefreshing: false,
     });
   });
+
+  it("reports each vault path while refreshing the search index", async () => {
+    const welcome = file("Notes/Welcome.md");
+    const report = vi.fn();
+    const app = {
+      searchDocumentProviders: providers({
+        id: "search:markdown",
+        provider: MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+      }),
+      vault: {
+        getFiles: () => [welcome],
+        cachedRead: vi.fn(async () => "# Welcome"),
+      },
+      metadataCache: { getFileCache: () => ({}) },
+      notifications: {
+        withProgress: async (
+          _options: unknown,
+          run: (progress: {
+            throwIfCancellationRequested(): void;
+            report(value: unknown): void;
+          }) => unknown,
+        ) =>
+          run({
+            throwIfCancellationRequested() {},
+            report,
+          }),
+      },
+      logger: { warn: vi.fn() },
+      appDatabase: {
+        kind: "memory",
+        listSearchDocuments: vi.fn(async () => []),
+        upsertSearchDocument: vi.fn(async () => undefined),
+        deleteSearchDocument: vi.fn(async () => undefined),
+        beginSearchIndexingBatch: vi.fn(async () => undefined),
+        endSearchIndexingBatch: vi.fn(async () => undefined),
+        getSearchEmbeddingProvider: vi.fn(async () => null),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: 1,
+          chunkCount: 0,
+          readyChunkCount: 0,
+          pendingChunkCount: 0,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+
+    await new SearchManager(app).refreshFromVault("manual-semantic-rebuild");
+
+    expect(report).toHaveBeenCalledWith(
+      expect.objectContaining({
+        current: 0,
+        total: 1,
+        message: "Notes/Welcome.md",
+      }),
+    );
+  });
 });

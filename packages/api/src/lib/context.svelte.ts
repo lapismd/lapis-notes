@@ -46,6 +46,7 @@ import {
   localeManager,
 } from "./localization-manager.svelte";
 import { NotificationManager } from "./notifications";
+import { installVaultMaintenanceCommands } from "./vault-maintenance-commands";
 import { NoopTelemetryService, type TelemetryService } from "./telemetry";
 import {
   LanguageServiceManager,
@@ -356,6 +357,7 @@ export class App {
     this.vault = new Vault(adapter);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
+    installVaultMaintenanceCommands(this);
     this.plugins = new PluginManager(this, "/.obsidian/plugins", adapter, {
       communityPluginHost: hasNativeDesktopCapability("plugin-sidecar")
         ? new NativeDesktopCommunityPluginExecutionHost(

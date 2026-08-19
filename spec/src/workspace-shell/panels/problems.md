@@ -113,3 +113,6 @@ presentation.
 The generic Plugin API also carries explicit `ViewAccess` classification for
 first-party view registrations; the Problems command remains governed by its
 own required-panel lifecycle above.
+App `app:rebuild-vault-cache` and `app:rebuild-generated-state` report file
+progress through notifications, not Problems collections (LN-PKG-097,
+LN-PKG-098).

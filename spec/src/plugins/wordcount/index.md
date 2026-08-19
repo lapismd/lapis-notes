@@ -21,7 +21,9 @@ agent-server URL and token Settings stay on the web host and MUST NOT change
 Word Count registration or status-bar ownership. The token
 field uses password presentation on that host Settings surface. Desktop
 terminal vault cwd binding (LN-DESK-059) and web `--workspace` Settings copy
-(LN-WEB-037) also MUST NOT change Word Count ownership.
+(LN-WEB-037) also MUST NOT change Word Count ownership. Web vault copy
+progress (LN-WEB-042, LN-WEB-043) and App rebuild-cache commands
+(LN-PKG-097, LN-PKG-098) also MUST NOT change Word Count ownership.
 
 ## Requirements
 

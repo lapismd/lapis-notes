@@ -80,7 +80,7 @@ Storybook Vite aliases resolve first-party plugin sources, including
 | LN-CAT-085 | `Workspace/Shell` PersistedDesktop MUST keep Design Core tooltip paint inverted in light mode after bundled Markdown loads Mira styles. Hovering File Explorer chrome MUST show a dark surface and light text. |
 | LN-CAT-087 | `Plugins/AI/Chat` MUST demonstrate a Fake folder skill, reserved `/help` grouping, and a reserved composer slash command through the public chat panel. The play MUST use public Show Code and MUST NOT require a live agent. |
 | LN-CAT-088 | `Plugins/AI/Chat` MUST demonstrate extension `/open-daily-note` and that disposing the registration removes it. The play MUST use public Show Code and MUST NOT require a live agent. |
-| LN-CAT-089 | `Plugins/AI/Panels/Catalog` MUST cover the nested owner and kind tree, an expandable tool description, expand-all, a filter, a persisted tool checkbox, opening a vault `SKILL.md`, public Show Code, and all six governed placements. |
+| LN-CAT-089 | `Plugins/AI/Panels/Catalog` MUST cover the nested owner and kind tree, a row-click tool description expand, expand-all, a filter, a persisted tool checkbox, Open on a vault `SKILL.md`, public Show Code, and all six governed placements. |
 | LN-CAT-069 | App-backed stories MUST install disposable compatibility leases while their canvases use the App they own. Multi-App acceptance MUST prove Workspace, Bases, and AI do not follow another story's compatibility alias.                                                                                                                                                                                                                                                                                                                                                                         |
 | LN-CAT-070 | The Storybook browser project MUST retain a bounded 120-second per-story ceiling so real-App database and linked-plugin scenarios remain reliable under full-suite parallel load. Scenario-local waits MUST remain narrower and focused runs MUST still diagnose functional failures independently.                                                                                                                                                                                                                                                                                            |
 
@@ -186,3 +186,6 @@ real bottom-panel group, and a real sidebar group; new or changed captures stay
   documented nonvisual stories, and the update helper accepts repeatable
   story-prefix filters; its defaults select API and workspace stories without
   rewriting unrelated baselines.
+App rebuild-vault-cache and rebuild-generated-state, plus web vault copy
+progress, stay on the notifications or startup-detail surfaces and do not add
+catalog stories (LN-PKG-097, LN-PKG-098, LN-WEB-042, LN-WEB-043).

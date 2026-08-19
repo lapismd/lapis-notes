@@ -69,6 +69,9 @@ describe("web Bases host registration", () => {
     expect(host).toContain("onImport={importVault}");
     expect(host).toContain("importDirectoryHandleToNewOpfsVault");
     expect(host).toContain('id: "import"');
+    expect(host).toContain("formatVaultCopyProgressMessage");
+    expect(host).toContain("onProgress");
+    expect(host).toContain("detail:");
   });
 
   it("offers Import Vault beside Open Folder", () => {

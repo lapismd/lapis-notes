@@ -860,6 +860,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-039  | web-host                        | Implemented | web import tests copy into the current OPFS vault, reload, and confirm page reload |
 | LN-WEB-040  | web-host                        | Implemented | web export tests copy the current OPFS tree with progress and silent cancel |
 | LN-WEB-041  | web-host                        | Implemented | launcher Import Vault e2e and unit tests cover name dialog, copy-before-open, and failed-copy cleanup |
+| LN-WEB-042  | web-host                        | Implemented | web import and export tests assert withProgress messages include path and N of M |
+| LN-WEB-043  | web-host                        | Implemented | launcher copy unit and host source tests forward onProgress into the import startup-task detail |
 | LN-DESK-056 | desktop-host                    | Implemented | desktop Vite includes `*.wasm` assets and excludes ghostty-web and xterm from optimizeDeps |
 | LN-DESK-057 | desktop-host                    | Implemented | setNativeDesktopBridge publishes and clears the process-wide native desktop global |
 | LN-DESK-058 | desktop-host                    | Implemented | desktop Vite allows the linked Terminal plugin root so Ghostty WASM is served |
@@ -908,15 +910,17 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-138   | ai-plugin                       | Implemented | Catalog inventory groups tools and commands by ownerPluginId and lists folder skills outside the open chat scope |
 | LN-AI-139   | ai-plugin                       | Implemented | Catalog checkbox uses existing enablement settings and leaves an open Fake binding snapshot unchanged |
 | LN-AI-140   | ai-plugin                       | Implemented | Open Catalog registers a command view; clicking a vault skill opens SKILL.md; bundled rows do not create a file |
-| LN-AI-141   | ai-plugin                       | Implemented | Catalog panel nests Tools/Commands/Skills, expands descriptions, and filters from History-style chrome |
+| LN-AI-141   | ai-plugin                       | Implemented | Catalog panel nests Tools/Commands/Skills, expands descriptions from the row, exposes Open for vault skills, and filters from History-style chrome |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
 | LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |
 | LN-PKG-096  | packages                        | Implemented | API agent-skills export and AI skill/command modules stay free of MCP, ACP, and vendor types |
+| LN-PKG-097  | packages                        | Implemented | API vault-maintenance tests register app:rebuild-vault-cache and call metadataCache.rebuild |
+| LN-PKG-098  | packages                        | Implemented | API vault-maintenance tests await metadata rebuild then Search command or appDatabase.rebuildSearchIndex |
 | LN-CAT-087  | storybook-catalog               | Implemented | Plugins/AI/Chat SkillsAndSlash Fake play covers a folder skill, reserved /help grouping, and reserved /skills |
 | LN-CAT-088  | storybook-catalog               | Implemented | SkillsAndSlash play runs /open-daily-note then unloads the extension registration and asserts the unknown-command error |
-| LN-CAT-089  | storybook-catalog               | Implemented | Plugins/AI/Panels/Catalog six placements cover nested kind folders, a description expand, expand-all, a filter, a persisted checkbox, and opening a vault SKILL.md |
+| LN-CAT-089  | storybook-catalog               | Implemented | Plugins/AI/Panels/Catalog six placements cover nested kind folders, a row-click description expand, expand-all, a filter, a persisted checkbox, and Open on a vault SKILL.md |
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |

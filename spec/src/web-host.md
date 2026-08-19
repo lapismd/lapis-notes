@@ -48,6 +48,8 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-039 | In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.obsidian` settings apply. Picker cancel MUST be silent. Notices MUST NOT mention community plugins. |
 | LN-WEB-040 | Export MUST pick a folder, copy the current OPFS tree including `.obsidian` with overwrite, report determinate progress, and notify success. Picker cancel MUST be silent. |
 | LN-WEB-041 | The launcher MUST offer Import Vault beside Create New Vault and Open Folder. It MUST pick a folder, collect a name in Import Browser Vault, create an OPFS profile, copy the folder, then open that session. Name MUST start as the folder name, and Import vault MUST stay disabled until the trimmed name is non-empty. |
+| LN-WEB-042 | In-session import and export MUST report each copied file through `notifications.withProgress`. After scanning completes, the progress message MUST include the current path and `N of M` counts. The report MUST keep determinate `current` and `total`. |
+| LN-WEB-043 | Launcher Import Vault MUST update the `import` WorkspaceStartup task `detail` with the current path and `N of M` counts while copying. It MUST NOT use App notifications before the session exists. |
 
 ### LN-WEB-021 acceptance details
 
@@ -111,6 +113,22 @@ Launcher Import Vault verifies a copy into a new private OPFS vault:
 - Picker or name-dialog cancel MUST leave the chooser recoverable without a new profile.
 - A failed copy after create MUST delete that new OPFS vault and stay on the chooser with an error.
 
+### LN-WEB-042 acceptance details
+
+In-session copy progress verifies the notification message:
+
+- After the first file is known, import MUST report `Importing {n} of {total}: {path}`.
+- After the first file is known, export MUST report `Exporting {n} of {total}: {path}`.
+- Scanning MUST keep a `Scanning {name}...` message until `total` is greater than zero.
+
+### LN-WEB-043 acceptance details
+
+Launcher copy progress verifies the startup surface:
+
+- The host MUST pass copy `onProgress` into `importDirectoryHandleToNewOpfsVault`.
+- The active `import` task `detail` MUST use the same `N of M` path string as in-session import.
+- The host MUST NOT construct App notifications before `WorkspaceShell` mounts.
+
 ## Implemented host boundary
 
 The web session imports Bases and its exported stylesheet from the package and
@@ -145,7 +163,10 @@ host paints Design Core `WorkspaceStartup` instead of the chooser. Manage
 Vaults overlays that chooser over a retained session; Close returns without
 disposing. OPFS create collects the name in a compact New Browser Vault dialog,
 and Import Vault copies a picked local folder into a new OPFS profile before
-the session mounts. An open OPFS session exposes Browser vault Settings actions
+the session mounts. Copy progress names the current file and `N of M` counts
+on the notifications status item in-session, or on the startup task detail
+before App exists (LN-WEB-042, LN-WEB-043). An open OPFS session exposes
+Browser vault Settings actions
 and palette commands for import into or export from that vault. Recent rows use
 a kebab including OPFS Delete. “View all” opens an
 upper-viewport Dialog whose

@@ -85,6 +85,8 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-085 | `MetadataCache.dispose` MUST wait for an in-flight `load` and MUST NOT persist an empty snapshot when that load never applied. |
 | LN-PKG-086 | `MetadataCache` MUST keep snapshot load, rebuild, and vault reconcile under one `notifications.withProgress` handle. It MUST NOT fire-and-forget reconcile after that handle completes. |
 | LN-PKG-087 | `MetadataCache` MUST yield between files during load, rebuild, and vault reconcile so progress reports and input stay responsive while worker results are applied. |
+| LN-PKG-097 | `App` MUST register palette command `app:rebuild-vault-cache`. That command MUST call `metadataCache.rebuild()`. |
+| LN-PKG-098 | `App` MUST register palette command `app:rebuild-generated-state`. That command MUST await `metadataCache.rebuild()`, then execute `search:rebuild-search-index` when that command is registered, otherwise `appDatabase.rebuildSearchIndex()`. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | LN-PKG-039 | `@lapis-notes/desktop-electron` MUST be a private package at `packages/desktop-electron`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -392,7 +394,9 @@ session; Close returns without disposing. The plugins task reports the current p
 name. Metadata cache load starts after layout restoration so Turso open does
 not contend with `loadLayout`. Snapshot apply, rebuild, and vault reconcile
 stay under that progress handle; file processing yields between files so the
-notifications status item can paint. `App` constructs `NotificationManager`
+notifications status item can paint. `App` registers `app:rebuild-vault-cache`
+and `app:rebuild-generated-state` so hosts can rerun that progress
+(LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can subscribe. Markdown parse runs in a worker,
 while vault I/O, link resolution, `$state` apply, and database writes stay on
 the main thread.

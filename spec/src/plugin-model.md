@@ -144,6 +144,9 @@ Its status item refreshes from those keys and MUST NOT upsert on
 Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.
+`App` registers host-neutral `app:rebuild-vault-cache` and
+`app:rebuild-generated-state` so Search can refresh after a later metadata
+rebuild without an API import of Search internals (LN-PKG-097, LN-PKG-098).
 Markdown reuses one `MiraFileAdapter` for that same App so preview effects do
 not churn when views reconfigure. Packaged metadata parse keeps an extensionless
 Vite worker import so web and desktop resolve the published worker file.

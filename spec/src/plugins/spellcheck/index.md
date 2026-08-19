@@ -5,6 +5,8 @@ open documents into the shared language-service and Problems path. It uses
 `harper.js` in the renderer. `harper-ls` remains out of scope.
 Desktop terminal vault cwd binding (LN-DESK-059) and web `--workspace`
 Settings copy (LN-WEB-037) MUST NOT change Spell Check ownership.
+Web vault copy progress (LN-WEB-042, LN-WEB-043) and App rebuild-cache
+commands (LN-PKG-097, LN-PKG-098) also MUST NOT change Spell Check ownership.
 
 ## Requirements
 

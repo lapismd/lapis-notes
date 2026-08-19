@@ -84,3 +84,8 @@ the Search root package.
 The canonical palette opener is `Search: Open Search` (`search:open-search`);
 it accepts the existing optional query argument, reuses a moved Search leaf,
 or creates, activates, and reveals the default left-sidebar leaf.
+Vault refresh and embedding rebuild report each file path through
+`notifications.withProgress`. App `app:rebuild-generated-state` executes
+`search:rebuild-search-index` when Search is loaded (LN-PKG-098). Web vault
+copy progress stays on that same notification or startup-detail surface
+(LN-WEB-042, LN-WEB-043).

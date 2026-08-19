@@ -1,9 +1,28 @@
 import { describe, expect, it, vi } from "vitest";
+
+const { FakeOpfsVaultAdapter } = vi.hoisted(() => ({
+  FakeOpfsVaultAdapter: class FakeOpfsVaultAdapter {
+    kind = "opfs";
+  },
+}));
+
+vi.mock("@lapis-notes/api", () => ({
+  OpfsVaultAdapter: FakeOpfsVaultAdapter,
+  Notice: class Notice {},
+  createOpfsVault: vi.fn(),
+  deleteBrowserLocalVault: vi.fn(),
+  exportAdapterToDirectoryHandle: vi.fn(),
+  importDirectoryHandleToAdapter: vi.fn(),
+  pickFileSystemAccessDirectoryHandle: vi.fn(),
+  promptConfirm: vi.fn(),
+}));
+
 import { OpfsVaultAdapter } from "@lapis-notes/api";
 import {
   canExportCurrentVault,
   canImportIntoCurrentVault,
   exportCurrentVaultToLocalFolder,
+  formatVaultCopyProgressMessage,
   importDirectoryHandleToNewOpfsVault,
   importLocalFolderIntoCurrentVault,
   runExportVaultCommand,
@@ -33,6 +52,7 @@ function createApp(overrides: {
       }),
     });
   const notify = vi.fn();
+  const report = vi.fn();
   const withProgress = vi.fn(
     async (
       _options: unknown,
@@ -41,7 +61,7 @@ function createApp(overrides: {
       }) => Promise<unknown> | unknown,
     ) =>
       task({
-        report: vi.fn(),
+        report,
       }),
   );
   return {
@@ -51,6 +71,7 @@ function createApp(overrides: {
       reload: vi.fn().mockResolvedValue(undefined),
     },
     notifications: { notify, withProgress },
+    report,
     metadataCache: {
       rebuild: vi.fn().mockResolvedValue(undefined),
     },
@@ -62,6 +83,36 @@ function createApp(overrides: {
 }
 
 describe("web vault transfer", () => {
+  it("formats scanning and file-level copy progress messages", () => {
+    expect(
+      formatVaultCopyProgressMessage({
+        verb: "Importing",
+        current: 0,
+        total: 0,
+        currentPath: null,
+        scanningLabel: "Scanning Source...",
+      }),
+    ).toBe("Scanning Source...");
+    expect(
+      formatVaultCopyProgressMessage({
+        verb: "Importing",
+        current: 1,
+        total: 2,
+        currentPath: "Notes/A.md",
+        scanningLabel: "Scanning Source...",
+      }),
+    ).toBe("Importing 1 of 2: Notes/A.md");
+    expect(
+      formatVaultCopyProgressMessage({
+        verb: "Exporting",
+        current: 3,
+        total: 3,
+        currentPath: null,
+        scanningLabel: "Scanning Notes...",
+      }),
+    ).toBe("Exporting 3 of 3");
+  });
+
   it("gates import to OPFS adapters and export to opaque vaults", () => {
     const opfs = createApp();
     expect(canImportIntoCurrentVault(opfs as never)).toBe(true);
@@ -81,10 +132,34 @@ describe("web vault transfer", () => {
     const app = createApp();
     const handle = { name: "Source" };
     const pickDirectory = vi.fn().mockResolvedValue(handle);
-    const importHandle = vi.fn().mockResolvedValue({
-      totalFiles: 2,
-      importedFiles: 2,
-    });
+    const importHandle = vi.fn(
+      async (
+        _handle: unknown,
+        _adapter: unknown,
+        options?: {
+          onProgress?: (progress: {
+            importedFiles: number;
+            totalFiles: number;
+            currentPath: string | null;
+          }) => void;
+        },
+      ) => {
+        await options?.onProgress?.({
+          importedFiles: 0,
+          totalFiles: 0,
+          currentPath: null,
+        });
+        await options?.onProgress?.({
+          importedFiles: 1,
+          totalFiles: 2,
+          currentPath: "Notes/A.md",
+        });
+        return {
+          totalFiles: 2,
+          importedFiles: 2,
+        };
+      },
+    );
     const confirmReload = vi.fn().mockResolvedValue(true);
     const reloadPage = vi.fn();
 
@@ -104,6 +179,16 @@ describe("web vault transfer", () => {
       app.vault.adapter,
       expect.objectContaining({ onProgress: expect.any(Function) }),
     );
+    expect(app.report).toHaveBeenCalledWith({
+      current: 0,
+      total: 0,
+      message: "Scanning Source...",
+    });
+    expect(app.report).toHaveBeenCalledWith({
+      current: 1,
+      total: 2,
+      message: "Importing 1 of 2: Notes/A.md",
+    });
     expect(app.vault.reload).toHaveBeenCalledOnce();
     expect(app.metadataCache.rebuild).toHaveBeenCalledOnce();
     expect(app.notify).toHaveBeenCalledWith(
@@ -135,10 +220,29 @@ describe("web vault transfer", () => {
     const app = createApp();
     const handle = { name: "Backup" };
     const pickDirectory = vi.fn().mockResolvedValue(handle);
-    const exportHandle = vi.fn().mockResolvedValue({
-      totalFiles: 3,
-      exportedFiles: 3,
-    });
+    const exportHandle = vi.fn(
+      async (
+        _adapter: unknown,
+        _handle: unknown,
+        options?: {
+          onProgress?: (progress: {
+            exportedFiles: number;
+            totalFiles: number;
+            currentPath: string | null;
+          }) => void;
+        },
+      ) => {
+        await options?.onProgress?.({
+          exportedFiles: 2,
+          totalFiles: 3,
+          currentPath: "Daily/Today.md",
+        });
+        return {
+          totalFiles: 3,
+          exportedFiles: 3,
+        };
+      },
+    );
 
     await exportCurrentVaultToLocalFolder(app as never, {
       pickDirectory,
@@ -154,6 +258,11 @@ describe("web vault transfer", () => {
       handle,
       expect.objectContaining({ onProgress: expect.any(Function) }),
     );
+    expect(app.report).toHaveBeenCalledWith({
+      current: 2,
+      total: 3,
+      message: "Exporting 2 of 3: Daily/Today.md",
+    });
     expect(app.notify).toHaveBeenCalledWith(
       expect.objectContaining({
         title: "Exported browser vault",
@@ -188,6 +297,7 @@ describe("web vault transfer", () => {
   it("returns the new OPFS adapter after a successful launcher copy", async () => {
     const adapter = createOpfsAdapter();
     const createVault = vi.fn().mockResolvedValue(adapter);
+    const onProgress = vi.fn();
     const importHandle = vi.fn().mockResolvedValue({
       totalFiles: 1,
       importedFiles: 1,
@@ -201,8 +311,14 @@ describe("web vault transfer", () => {
         createVault,
         importHandle,
         deleteVault,
+        onProgress,
       }),
     ).resolves.toBe(adapter);
+    expect(importHandle).toHaveBeenCalledWith(
+      { name: "Source" },
+      adapter,
+      { onProgress },
+    );
     expect(deleteVault).not.toHaveBeenCalled();
   });
 });

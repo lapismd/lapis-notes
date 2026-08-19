@@ -22,7 +22,10 @@
     type WebLauncherStatus,
   } from "./WebVaultLauncher.svelte";
   import WebWorkspaceSession from "./WebWorkspaceSession.svelte";
-  import { importDirectoryHandleToNewOpfsVault } from "./vault-transfer";
+  import {
+    formatVaultCopyProgressMessage,
+    importDirectoryHandleToNewOpfsVault,
+  } from "./vault-transfer";
 
   type HostStatus = "loading" | "landing" | "opening" | "ready" | "error";
   type PreparedSession = {
@@ -146,6 +149,27 @@
         const adapter = await importDirectoryHandleToNewOpfsVault({
           handle,
           name,
+          onProgress: (progress) => {
+            startupTasks = [
+              {
+                id: "vault",
+                label: "Creating browser vault",
+                status: "complete",
+              },
+              {
+                id: "import",
+                label: "Copying local folder",
+                status: "active",
+                detail: formatVaultCopyProgressMessage({
+                  verb: "Importing",
+                  current: progress.importedFiles,
+                  total: progress.totalFiles,
+                  currentPath: progress.currentPath,
+                  scanningLabel: `Scanning ${handle.name}...`,
+                }),
+              },
+            ];
+          },
         });
         const profile = await getCurrentVaultProfile();
         if (!profile || profile.id !== adapter.getVaultId()) {
