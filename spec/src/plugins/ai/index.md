@@ -72,6 +72,14 @@ execution APIs.
 | LN-AI-131 | A thinking item MUST spin and stay expanded only while that item is streaming. The first later non-thinking transcript item MUST settle it to `done` and collapse it. Completion, error, and cancel MUST also settle it. |
 | LN-AI-132 | Stop MUST immediately settle streaming thinking and running tools so no transcript spinner remains. After `session.cancel()` confirms, or when there is no session, the transcript MUST show a system notice that the turn was cancelled. Busy MUST still clear without waiting. |
 | LN-AI-133 | Display MUST unwrap a single primary tool payload key when remaining keys are metadata only. After unwrap, `CodeBlock` language MUST be `json` for objects or arrays, `bash` for console or command-style text, and `plaintext` for short unmarked prose. Failed-tool errors MUST use the same helper. Stored transcript strings MUST stay the event-provided payload. |
+| LN-AI-134 | AI MUST ship a bundled model-invocable `lapis-notes` skill that is not user-invocable. The skill MUST describe note-tool workflow using session tool names. A same-named folder, vault, user, or extension skill MUST override it. |
+| LN-AI-135 | Each new agent binding MUST attach a generated path-free `sessionBootstrap` on request metadata. The block MUST include host rules, scope, launch note, effective tools, and compact skills. It MUST NOT persist as a transcript message. Resume MUST NOT re-append it. |
+| LN-AI-136 | Bootstrap MUST read each ancestor `.lapis/AGENTS.md` from vault root to the conversation scope, root to leaf. It MUST skip path-bearing files and truncate past 10,000 characters per file and 25,000 total. Truncation MUST be reported. |
+| LN-AI-137 | Reserved `/context` MUST also report folder-instruction vault-relative paths and whether bootstrap text was truncated. The report MUST stay local and MUST NOT include machine-absolute paths. |
+| LN-AI-138 | AI MUST expose a live catalog of registered application tools, composer slash commands, and skills grouped by contributing plugin or folder source. The catalog MUST include folder skills outside the open chat scope and MUST refresh when registrations or `SKILL.md` files change. It MUST NOT use a frozen binding snapshot. |
+| LN-AI-139 | Catalog tool enablement MUST persist through the existing application-tool settings. Changing a checkbox MUST NOT mutate the open binding's frozen tool list. |
+| LN-AI-140 | AI MUST register a movable `ai-catalog` command view whose Open Catalog command reveals or creates the documented left-sidebar leaf. |
+| LN-AI-141 | The AI catalog tree MUST nest Tools, Commands, and Skills under each owner using explorer row tokens, hover wash, and kind icons. Tool and command rows MUST expand to show their description. Chrome MUST provide a filter plus Expand all and Collapse all. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -172,6 +180,22 @@ Tool-detail presentation verifies:
 - Non-JSON text MUST NOT use `language="json"`. Multiline, CLI-looking, or
   runner-tool text uses `bash`; a short unmarked line uses `plaintext`.
 
+### LN-AI-140 acceptance details
+
+The catalog command view verifies:
+
+- The catalog tree MUST list tools, slash commands, and skills by owner.
+- Activating a vault-backed skill MUST open that `SKILL.md` in the editor.
+- Bundled and extension-only skills MUST NOT invent a vault file.
+
+### LN-AI-141 acceptance details
+
+The catalog chrome verifies:
+
+- Owner folders nest Tools, Commands, and Skills with kind icons.
+- Expanding a tool or command shows its description.
+- Filter hides non-matches; Expand all opens every expandable row.
+
 ## Runtime flow
 
 The initial fallback controller is presentation-only: it does not restore or
@@ -185,10 +209,14 @@ bridge.
 Folder skills live under `<scope>/.lapis/skills/**/SKILL.md`. The composer
 treats a leading slash as a command and keeps reserved app commands across
 agent switches, including `/help`, `/scope`, `/context`, and `/agent`
-(LN-AI-126–LN-AI-129). AI ships a bundled `research` skill that folder skills
-may override (LN-AI-130). Search owns composer `/search` as a `notes_search`
-tool-dispatch command. Live ACP session start appends a path-free
-`available_skills` manifest through host session setup. Native ACP commands stay binding-local and never override
+(LN-AI-126–LN-AI-129). AI ships bundled `research` and `lapis-notes` skills
+that folder skills may override (LN-AI-130, LN-AI-134). Search owns composer
+`/search` as a `notes_search` tool-dispatch command. Live ACP session start
+appends a path-free `available_skills` manifest and a generated
+`sessionBootstrap` through host session setup (LN-AI-135, LN-AI-136).
+`/context` reports folder-instruction paths and bootstrap truncation
+(LN-AI-137). The AI catalog lists live tools, commands, and skills
+(LN-AI-138–LN-AI-141). Native ACP commands stay binding-local and never override
 app, extension, or skill commands. Skill tools execute only through
 `AppToolHost`.
 Application tools are enabled by default for new bindings. The master setting
@@ -244,15 +272,17 @@ Tool details unwrap envelope fields such as `output` and pick `json`, `bash`,
 or `plaintext` for the Design Core `CodeBlock` (LN-AI-133).
 Assistant MarkdownEmbed content grows with that transcript instead of a nested
 scroller (LN-AI-122).
-AI registers its sidebar chat and history views through `ViewAccess.command`.
-Their canonical palette commands are `AI: Open Chat` and `AI: Open History`;
-each reuses an existing leaf or creates, activates, and reveals its documented
-right-sidebar leaf.
+AI registers its sidebar chat, history, and catalog views through
+`ViewAccess.command`. Their canonical palette commands are `AI: Open Chat`,
+`AI: Open History`, and `AI: Open Catalog`. Chat and History reuse or create
+their documented right-sidebar leaves. Catalog reuses or creates its documented
+left-sidebar leaf.
 Each explicit paid-agent probe exercises the real stdio shim with a volatile
 note vault: search, read, one approved patch, binding close, agent switch, and
 the same descriptor set on the replacement binding. The deterministic seed and
 reset-confinement tests remain free of agent execution and network cost.
-`AiChatPanel` and `AiHistoryPanel` are public presentation exports used by
+`AiChatPanel`, `AiHistoryPanel`, and `AiCatalogPanel` are public presentation
+exports used by
 Autodocs, while the six-position stories still construct them through the real
 AI plugin. Selecting the deterministic Fake runtime suppresses desktop-host
 unavailability because no live transport is required.

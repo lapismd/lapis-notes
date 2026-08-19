@@ -9,7 +9,12 @@ import {
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
 import { HistoryPlugin, HistoryViewType } from "@lapis-notes/history";
-import { AiHistoryViewType, AiPlugin, AiViewType } from "@lapis-notes/ai";
+import {
+  AiCatalogViewType,
+  AiHistoryViewType,
+  AiPlugin,
+  AiViewType,
+} from "@lapis-notes/ai";
 import {
   FileExplorerPlugin,
   FileExplorerViewType,
@@ -32,6 +37,7 @@ import { watchMetadata } from "../../../workspace/watch-metadata";
 
 export type PanelDemoKind =
   | "ai-history"
+  | "ai-catalog"
   | "ai-chat"
   | "all-properties"
   | "explorer"
@@ -62,6 +68,7 @@ export const PANEL_DEMO_LAYOUTS: PanelDemoLayout[] = [
 
 export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   "ai-history": AiHistoryViewType,
+  "ai-catalog": AiCatalogViewType,
   "ai-chat": AiViewType,
   "all-properties": AllPropertiesViewType,
   explorer: FileExplorerViewType,
@@ -81,6 +88,12 @@ export const PANEL_LEAF_META: Record<
   "ai-history": {
     title: "AI conversations",
     icon: "history",
+    group: "AI",
+    requiresFile: true,
+  },
+  "ai-catalog": {
+    title: "Catalog",
+    icon: "library",
     group: "AI",
     requiresFile: true,
   },
@@ -516,6 +529,7 @@ export function createPanelDemoSeed(
       "",
     ].join("\n"),
     ...(kind === "ai-history" ? createAiHistorySeed() : {}),
+    ...(kind === "ai-catalog" ? createAiCatalogSeed() : {}),
     ...(kind === "history" ? createHistorySeed() : {}),
   };
 }
@@ -549,6 +563,20 @@ async function seedHistoryRevisions(app: App): Promise<void> {
     content: current,
     maxRevisions: 50,
   });
+}
+
+function createAiCatalogSeed(): Record<string, string> {
+  return {
+    "Notes/.lapis/skills/daily/SKILL.md": [
+      "---",
+      "name: daily",
+      "description: Daily notes",
+      "---",
+      "",
+      "Daily skill body.",
+      "",
+    ].join("\n"),
+  };
 }
 
 function createAiHistorySeed(): Record<string, string> {

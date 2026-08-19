@@ -96,10 +96,12 @@ Skill-source and composer slash-command registries follow the same
 explicit ownership boundary as application tools. API stores plugin
 registrations. AI discovers vault and folder skills, snapshots them per
 binding, and routes composer commands, including reserved `/help`, `/scope`,
-`/context`, and `/agent`. AI ships a bundled `research` skill. Search owns
-composer `/search` as a `notes_search` tool-dispatch command.
-Live ACP session start appends a path-free `available_skills` manifest
-through the host. Mira editor slash commands remain
+`/context`, and `/agent`. AI ships bundled `research` and `lapis-notes` skills.
+Search owns composer `/search` as a `notes_search` tool-dispatch command.
+Live ACP session start appends a path-free `available_skills` manifest and a
+generated `sessionBootstrap` through the host. The AI catalog lists live
+tools, commands, and skills by owner in an explorer-aligned tree with
+filter and expand-all chrome. Mira editor slash commands remain
 a Markdown concern.
 The application tool registry follows the same explicit ownership boundary.
 It stores plugin-owned, transport-neutral callbacks on the owning App while AI

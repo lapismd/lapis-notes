@@ -9,6 +9,9 @@ import {
 import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
 import { LIVE_RUNTIME_UNAVAILABLE_REASON } from "./chat/live-runtime-unavailable";
+import { AiCatalogView, AiCatalogViewType } from "./catalog/ai-catalog-view";
+import { collectAiCatalog } from "./catalog/inventory";
+import type { CatalogGroup, CatalogToolRow } from "./catalog/types";
 import { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
 import type { ConversationLocation } from "./conversations/types";
 import { formatFileMention, searchVaultFiles } from "./chat/chat-mentions";
@@ -40,11 +43,15 @@ import { VaultTranscriptStore } from "./conversations/vault-transcript-store";
 import { registerAiSettings } from "./settings/register-ai-settings";
 import { AiSettingsTab } from "./settings/ai-settings-tab";
 import {
+  applyAppToolEnablement,
   DEFAULT_AI_SETTINGS,
   mergeAiSettings,
   type AiPluginSettings,
 } from "./settings/ai-settings";
-import { registeredAppToolRefs } from "./settings/app-tool-setting-rows";
+import {
+  contributingPluginLabel,
+  registeredAppToolRefs,
+} from "./settings/app-tool-setting-rows";
 import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 import { AppToolHost } from "./tools/app-tool-host";
 import { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
@@ -464,6 +471,23 @@ export class AiPlugin extends Plugin {
         },
       },
     );
+    this.registerSidebarView(
+      AiCatalogViewType,
+      (leaf) => new AiCatalogView(leaf, this),
+      {
+        side: "left",
+        title: "Catalog",
+        icon: "library",
+      },
+      {
+        kind: "command",
+        command: {
+          id: "open-catalog",
+          name: "Open Catalog",
+          callback: () => void this.revealAiCatalog(),
+        },
+      },
+    );
   }
 
   private async openAiChat(): Promise<void> {
@@ -512,6 +536,51 @@ export class AiPlugin extends Plugin {
       this.createConversationInput(scopeDir),
     );
     await this.openAiConversation(created.location);
+  }
+
+  async loadAiCatalog(): Promise<CatalogGroup[]> {
+    return collectAiCatalog({
+      tools: this.app.agentTools.list(),
+      commands: this.app.agentSlashCommands.list(),
+      registeredSkills: this.app.agentSkills.list(),
+      vault: this.app.vault,
+      bundled: BUNDLED_APP_SKILLS,
+      settings: this.getSettings(),
+      pluginLabel: (pluginId) => contributingPluginLabel(this.app, pluginId),
+    });
+  }
+
+  async setCatalogToolEnabled(
+    tool: CatalogToolRow,
+    enabled: boolean,
+  ): Promise<void> {
+    await this.updateSettings(
+      applyAppToolEnablement(
+        this.getSettings(),
+        { name: tool.name, owner: tool.owner },
+        enabled,
+        registeredAppToolRefs(this.app),
+      ),
+    );
+  }
+
+  async openCatalogSkill(path: string): Promise<void> {
+    await this.app.workspace.openLinkText(path, "");
+  }
+
+  async revealAiCatalog(): Promise<void> {
+    const existing = this.app.workspace.getLeavesOfType(AiCatalogViewType)[0];
+    const target =
+      existing ?? this.app.workspace.ensureSideLeaf(AiCatalogViewType, "left");
+    if (!existing) {
+      await target.setViewState({ type: AiCatalogViewType, state: {} });
+    }
+    this.app.workspace.activateLeaf(target, {
+      focusRootHost: false,
+      source: "api",
+      operation: "reveal-ai-catalog",
+    });
+    await this.app.workspace.revealLeaf(target);
   }
 
   async revealConversationHistory(): Promise<void> {

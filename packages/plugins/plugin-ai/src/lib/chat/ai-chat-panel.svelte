@@ -164,6 +164,12 @@
         slashRouter,
         appToolHost,
         skillContext,
+        readVaultText: app
+          ? async (path) => {
+              const file = app.vault.getFileByPath(path);
+              return file ? app.vault.cachedRead(file) : undefined;
+            }
+          : undefined,
         onComposerDefaults: ({ agent, runtimePreference }) => {
           if (runtimePreference === "fake") {
             localAgent = agent;

@@ -68,6 +68,7 @@ export function placementParameters(
   const familyPath = {
     "ai-chat": "ai/panels/chat",
     "ai-history": "ai/panels/history",
+    "ai-catalog": "ai/panels/catalog",
     explorer: "explorer/panels/explorer",
     search: "search/panels/search",
     history: "history/panels/history",
@@ -128,10 +129,10 @@ export async function expectPanelSource(
         ? 'from "@lapis-notes/history";'
         : kind === "explorer"
           ? 'from "@lapis-notes/file-explorer";'
-          : kind === "ai-history"
+          : kind === "ai-history" ||
+              kind === "ai-catalog" ||
+              kind === "ai-chat"
             ? 'from "@lapis-notes/ai";'
-            : kind === "ai-chat"
-              ? 'from "@lapis-notes/ai";'
               : 'from "@lapis-notes/markdown";',
   );
   await expect(source).not.toContain("PanelDemo");

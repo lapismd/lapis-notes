@@ -62,6 +62,8 @@ import {
   composerAgentLabel,
   parseAgentCommand,
 } from "../commands/agent";
+import { buildAgentBootstrap, buildSessionBootstrap } from "../bootstrap/build";
+import { hasHostFilesystemPath } from "../skills/manifest";
 import { formatSlashHelp } from "../commands/groups";
 import { formatContextNotice, formatScopeNotice } from "../commands/inspect";
 import { normalizeConversationScope } from "../conversations/paths";
@@ -109,6 +111,7 @@ export class AiChatController {
   readonly #slashRouter?: SlashCommandRouter;
   readonly #appToolHost?: AppToolHost;
   readonly #skillContext?: () => SkillDiscoveryContext;
+  readonly #readVaultText?: (path: string) => Promise<string | undefined>;
   readonly #onComposerDefaults?: (next: {
     agent: AcpAgentId;
     runtimePreference: "acp" | "codex-native" | "fake";
@@ -135,6 +138,7 @@ export class AiChatController {
       slashRouter?: SlashCommandRouter;
       appToolHost?: AppToolHost;
       skillContext?: () => SkillDiscoveryContext;
+      readVaultText?: (path: string) => Promise<string | undefined>;
       onComposerDefaults?: (next: {
         agent: AcpAgentId;
         runtimePreference: "acp" | "codex-native" | "fake";
@@ -156,6 +160,7 @@ export class AiChatController {
     this.#slashRouter = options.slashRouter;
     this.#appToolHost = options.appToolHost;
     this.#skillContext = options.skillContext;
+    this.#readVaultText = options.readVaultText;
     this.#onComposerDefaults = options.onComposerDefaults;
     this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe((event) => {
       void this.#consumeAppToolEvent(event);
@@ -1107,12 +1112,23 @@ export class AiChatController {
         : undefined;
     const pending = this.#createConversation?.();
     const binding = this.#activeBinding;
-    return formatContextNotice({
+    const scopeDir = this.location?.scopeDir ?? pending?.scopeDir ?? "";
+    const bootstrap = await buildAgentBootstrap({
       conversationId: this.location?.conversationId ?? snapshot?.metadata.id,
-      scopeDir: this.location?.scopeDir ?? pending?.scopeDir ?? "",
+      scopeDir,
       launchNotePath:
         snapshot?.metadata.launchContext?.notePath ?? pending?.launchNotePath,
-      workspace: snapshot?.metadata.workspace?.path ?? this.workspace,
+      workspaceLabel: portableWorkspaceLabel(
+        snapshot?.metadata.workspace?.path ?? this.workspace,
+      ),
+      readText: this.#readVaultText,
+    });
+    return formatContextNotice({
+      conversationId: this.location?.conversationId ?? snapshot?.metadata.id,
+      scopeDir,
+      launchNotePath:
+        snapshot?.metadata.launchContext?.notePath ?? pending?.launchNotePath,
+      workspace: bootstrap.workspace?.label,
       agent: composerAgentLabel(
         this.request.agent,
         typeof this.request.metadata?.runtime === "string"
@@ -1128,7 +1144,34 @@ export class AiChatController {
         this.#skillSnapshots
           .get(this.#activeBindingId ?? "")
           ?.skills.map((skill) => skill.name) ?? [],
+      folderInstructionPaths: bootstrap.folderInstructions
+        .filter((entry) => !entry.omitted)
+        .map((entry) => entry.path),
+      truncated: bootstrap.truncated,
     });
+  }
+
+  async #sessionBootstrapMetadata(
+    scopeDir: string,
+    launchNotePath: string | undefined,
+    conversationId: string | undefined,
+    tools: readonly { name: string; description: string }[],
+    skills: readonly { name: string; description: string; version: string }[],
+  ): Promise<Record<string, string>> {
+    try {
+      const { text } = await buildSessionBootstrap({
+        conversationId,
+        scopeDir,
+        launchNotePath,
+        workspaceLabel: portableWorkspaceLabel(this.workspace),
+        tools,
+        skills,
+        readText: this.#readVaultText,
+      });
+      return { sessionBootstrap: text };
+    } catch {
+      return {};
+    }
   }
 
   #appendLocalNotice(text: string): void {
@@ -1517,6 +1560,14 @@ export class AiChatController {
               availableAppTools: appToolSession.tools.map((tool) => tool.name),
             }
           : {}),
+        ...(await this.#sessionBootstrapMetadata(
+          snapshot?.location.scopeDir ?? this.location?.scopeDir ?? "",
+          snapshot?.metadata.launchContext?.notePath ??
+            this.#createConversation?.()?.launchNotePath,
+          snapshot?.metadata.id ?? this.location?.conversationId,
+          appToolSession?.tools ?? [],
+          skillSnapshot?.skills ?? [],
+        )),
       },
     };
     if (this.#isAbandoned(turnId)) {
@@ -1694,6 +1745,12 @@ export class AiChatController {
 }
 
 const CANCELLED_NOTICE = "Agent turn cancelled";
+
+function portableWorkspaceLabel(value?: string): string | undefined {
+  const label = value?.trim();
+  if (!label || hasHostFilesystemPath(label)) return undefined;
+  return label;
+}
 
 function readAttachmentPaths(value: unknown): string[] {
   if (!Array.isArray(value)) return [];

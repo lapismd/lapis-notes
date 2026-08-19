@@ -21,8 +21,21 @@ describe("slash inspect notices", () => {
         model: "gpt-5.6",
         tools: ["notes_search"],
         skills: ["research"],
+        folderInstructionPaths: ["Projects/.lapis/AGENTS.md"],
+        truncated: false,
       }),
     ).toContain("Available app tools: notes_search");
+    expect(
+      formatContextNotice({
+        conversationId: "019abc",
+        scopeDir: "Projects",
+        agent: "Codex ACP",
+        tools: [],
+        skills: [],
+        folderInstructionPaths: ["Projects/.lapis/AGENTS.md"],
+        truncated: true,
+      }),
+    ).toContain("Bootstrap truncated");
   });
 });
 

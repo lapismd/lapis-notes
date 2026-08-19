@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { AiViewType } from "./chat/ai-view-type";
+import { AiCatalogViewType } from "./catalog/ai-catalog-view-type";
 import { AiHistoryViewType } from "./history/ai-history-view-type";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
 import { mergeAiSettings } from "./settings/ai-settings";
@@ -9,6 +10,7 @@ describe("AiPlugin contracts", () => {
   it("uses a stable view type and default settings", () => {
     expect(AiViewType).toBe("ai");
     expect(AiHistoryViewType).toBe("ai-conversation-history");
+    expect(AiCatalogViewType).toBe("ai-catalog");
     expect(mergeAiSettings(null)).toEqual({
       defaultRuntime: "auto",
       acpAgent: "codex",
@@ -224,6 +226,8 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain("live-runtime-unavailable");
     expect(source).toContain('id: "open-history"');
     expect(source).toContain('name: "Open History"');
+    expect(source).toContain('id: "open-catalog"');
+    expect(source).toContain('name: "Open Catalog"');
     expect(source).not.toContain("show-ai-conversation-history");
     expect(source).not.toContain('id: "open-ai-chat"');
   });
@@ -239,10 +243,22 @@ describe("AiPlugin contracts", () => {
     expect(panel).not.toContain("repository.list(");
   });
 
+  it("remounts the catalog when the leaf loads", () => {
+    const source = readFileSync("src/lib/catalog/ai-catalog-view.ts", "utf8");
+    const panel = readFileSync("src/lib/catalog/ai-catalog-panel.svelte", "utf8");
+
+    expect(source).toContain("this.unload()");
+    expect(source).toContain("this.containerEl.replaceChildren()");
+    expect(source).toContain("mount(AiCatalogPanel");
+    expect(panel).toContain("loadCatalog");
+    expect(panel).toContain("Enable ${tool.name} for the next chat");
+  });
+
   it("preserves history while opening exact conversations in reusable main tabs", () => {
     const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
 
     expect(source).toContain('ensureSideLeaf(AiHistoryViewType, "right")');
+    expect(source).toContain('ensureSideLeaf(AiCatalogViewType, "left")');
     expect(source).toContain('getLeaf("tab")');
     expect(source).toContain("findMainConversationLeaf(location)");
     expect(source).toContain("findUnboundMainAiLeaf()");

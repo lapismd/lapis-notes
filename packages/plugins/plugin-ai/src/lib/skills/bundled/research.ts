@@ -1,5 +1,6 @@
 import { parseSkillMarkdown } from "../parser";
 import type { LoadedAppSkill } from "../types";
+import { BUNDLED_LAPIS_NOTES_SKILL } from "./lapis-notes";
 
 const RESEARCH_SKILL_MARKDOWN = `---
 name: research
@@ -25,5 +26,6 @@ export const BUNDLED_RESEARCH_SKILL: LoadedAppSkill = parseSkillMarkdown(
 );
 
 export const BUNDLED_APP_SKILLS: readonly LoadedAppSkill[] = [
+  BUNDLED_LAPIS_NOTES_SKILL,
   BUNDLED_RESEARCH_SKILL,
 ];

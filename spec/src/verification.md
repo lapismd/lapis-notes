@@ -901,6 +901,14 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-131   | ai-plugin                       | Implemented | Chat-trace tests settle streaming thinking when text or a tool follows, and keep one item while thinking tokens continue |
 | LN-AI-132   | ai-plugin                       | Implemented | Interrupt settles thinking and running tools; controller cancel posts a cancelled system notice after cancel confirms |
 | LN-AI-133   | ai-plugin                       | Implemented | chat-tool-display tests unwrap output envelopes, keep structured siblings, and choose json, bash, or plaintext language |
+| LN-AI-134   | ai-plugin                       | Implemented | Bundled lapis-notes is model-invocable, not user-invocable, and yields to a folder skill of the same name |
+| LN-AI-135   | ai-plugin                       | Implemented | New-binding start metadata includes path-free sessionBootstrap and does not append a transcript bootstrap item |
+| LN-AI-136   | ai-plugin                       | Implemented | Bootstrap builder tests walk ancestor AGENTS.md, skip path-bearing files, and report budget truncation |
+| LN-AI-137   | ai-plugin                       | Implemented | /context notice includes folder-instruction vault paths and a truncation line |
+| LN-AI-138   | ai-plugin                       | Implemented | Catalog inventory groups tools and commands by ownerPluginId and lists folder skills outside the open chat scope |
+| LN-AI-139   | ai-plugin                       | Implemented | Catalog checkbox uses existing enablement settings and leaves an open Fake binding snapshot unchanged |
+| LN-AI-140   | ai-plugin                       | Implemented | Open Catalog registers a command view; clicking a vault skill opens SKILL.md; bundled rows do not create a file |
+| LN-AI-141   | ai-plugin                       | Implemented | Catalog panel nests Tools/Commands/Skills, expands descriptions, and filters from History-style chrome |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
@@ -908,6 +916,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-096  | packages                        | Implemented | API agent-skills export and AI skill/command modules stay free of MCP, ACP, and vendor types |
 | LN-CAT-087  | storybook-catalog               | Implemented | Plugins/AI/Chat SkillsAndSlash Fake play covers a folder skill, reserved /help grouping, and reserved /skills |
 | LN-CAT-088  | storybook-catalog               | Implemented | SkillsAndSlash play runs /open-daily-note then unloads the extension registration and asserts the unknown-command error |
+| LN-CAT-089  | storybook-catalog               | Implemented | Plugins/AI/Panels/Catalog six placements cover nested kind folders, a description expand, expand-all, a filter, a persisted checkbox, and opening a vault SKILL.md |
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |

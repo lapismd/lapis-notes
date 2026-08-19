@@ -26,7 +26,9 @@ menu sits after History and attach, sizes to its labels so they stay fully
 visible at the model-menu type size (LN-AI-123), archives or restores in
 place, deletes through vault
 trash, and offers New Chat (LN-AI-109). AI History opens as a
-single sidebar leaf rather than a default sidebar group.
+single sidebar leaf rather than a default sidebar group. The AI catalog
+opens as a single left-sidebar leaf of live tools, commands, and skills in
+an explorer-aligned tree.
 
 ## Requirements
 
@@ -158,4 +160,5 @@ metadata only and does not become a runtime plugin registration surface.
 Command-backed openers reuse an exact compatible leaf when one exists. A
 conversation opener may claim an unbound main-area AI leaf before creating a
 new tab, and it never replaces the dedicated history leaf. That history leaf
-keeps Design Core SearchFilterBar chrome centered in the panel.
+keeps Design Core SearchFilterBar chrome centered in the panel. The Catalog
+opener reveals or creates the documented left-sidebar leaf.

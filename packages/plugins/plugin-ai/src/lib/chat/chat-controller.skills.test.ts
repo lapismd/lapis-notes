@@ -12,6 +12,7 @@ import { SlashCommandCatalog } from "../commands/catalog";
 import { SlashCommandRouter } from "../commands/router";
 import { AppToolHost } from "../tools/app-tool-host";
 import { createSkillAppTools } from "../skills/skill-tools";
+import { BUNDLED_LAPIS_NOTES_SKILL } from "../skills/bundled/lapis-notes";
 import { BUNDLED_RESEARCH_SKILL } from "../skills/bundled/research";
 import { AiChatController } from "./chat-controller.svelte";
 import type { LoadedAppSkill } from "../skills/types";
@@ -121,6 +122,10 @@ async function createSkillController(
       scopeDir: "Projects",
       availableToolNames: ["notes_search"],
     }),
+    readVaultText: async (path) => {
+      const file = vault.getFileByPath(path);
+      return file ? vault.cachedRead(file) : undefined;
+    },
     request: {
       agent: "codex",
       model: { provider: "codex", model: "gpt-5.6" },
@@ -148,6 +153,13 @@ describe("AiChatController skills and slash commands", () => {
     expect(String(runtime.lastRequest?.metadata?.availableSkillsManifest)).not.toContain(
       "Projects/.lapis/skills",
     );
+    expect(String(runtime.lastRequest?.metadata?.sessionBootstrap)).toContain(
+      "<lapis_context>",
+    );
+    expect(String(runtime.lastRequest?.metadata?.sessionBootstrap)).toContain(
+      "Current scope: Projects",
+    );
+    expect(controller.items.some((item) => item.type === "status" && item.text.includes("<lapis_context>"))).toBe(false);
     const bindingId = controller.activeBindingId!;
     const snapshot = skillSnapshots.get(bindingId);
     expect(snapshot).toBeTruthy();
@@ -442,8 +454,9 @@ describe("AiChatController skills and slash commands", () => {
     const { controller, runtime } = await createSkillController(
       {
         "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.lapis/AGENTS.md": "Prefer notes under architecture/.",
       },
-      { workspace: "/Users/test/vault" },
+      { workspace: "lapis-code" },
     );
     await controller.submit("/context");
     const notice = controller.items.find((item) => item.type === "status");
@@ -452,6 +465,9 @@ describe("AiChatController skills and slash commands", () => {
     expect(notice?.text).toContain("Agent: Codex ACP");
     expect(notice?.text).toContain("Model: gpt-5.6");
     expect(notice?.text).toContain("research-notes");
+    expect(notice?.text).toContain("Folder instructions: Projects/.lapis/AGENTS.md");
+    expect(notice?.text).toContain("No bootstrap truncation");
+    expect(notice?.text).not.toContain("/Users/");
     expect(runtime.sessions.at(-1)?.prompts ?? []).toEqual([]);
     await controller.submit("/status");
     expect(
@@ -502,6 +518,45 @@ Folder body.
     expect(overridden.runtime.lastRequest?.skillActivations?.[0]?.instructions).toContain(
       "Folder body",
     );
+    await overridden.controller.close();
+  });
+
+  it("ships bundled lapis-notes as model-invocable and not user-invocable", async () => {
+    expect(BUNDLED_LAPIS_NOTES_SKILL.userInvocable).toBe(false);
+    expect(BUNDLED_LAPIS_NOTES_SKILL.modelInvocable).toBe(true);
+    const { controller, runtime } = await createSkillController(
+      {},
+      { bundled: [BUNDLED_LAPIS_NOTES_SKILL] },
+    );
+    await controller.submit("hello");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(
+      runtime.lastRequest?.skillSnapshot?.skills.map((skill) => skill.name),
+    ).toContain("lapis-notes");
+    expect(String(runtime.lastRequest?.metadata?.availableSkillsManifest)).toContain(
+      "<name>lapis-notes</name>",
+    );
+    await controller.submit("/lapis-notes");
+    expect(controller.error).toMatch(/Unknown command/u);
+    await controller.close();
+
+    const overridden = await createSkillController(
+      {
+        "Projects/.lapis/skills/lapis-notes/SKILL.md": `---
+name: lapis-notes
+description: Folder lapis notes
+---
+Folder lapis notes body.
+`,
+      },
+      { bundled: [BUNDLED_LAPIS_NOTES_SKILL] },
+    );
+    await overridden.controller.submit("hello");
+    await vi.waitFor(() => expect(overridden.controller.busy).toBe(false));
+    const loaded = await overridden.skills.resolve("lapis-notes", {
+      scopeDir: "Projects",
+    });
+    expect(loaded?.source).toBe("folder");
     await overridden.controller.close();
   });
 

@@ -160,9 +160,11 @@ application manager or presentation modules.
 The API agent-skills surface exports only skill-source and composer
 slash-command registration. AI owns discovery, snapshots, skill tools, and
 routing, including reserved `/help`, `/scope`, `/context`, and `/agent`.
-AI ships a bundled `research` skill. Search owns composer `/search` as a
-`notes_search` tool-dispatch command. Live ACP session start appends a
-path-free `available_skills` manifest through host session setup. Neither
+AI ships bundled `research` and `lapis-notes` skills. Search owns composer
+`/search` as a `notes_search` tool-dispatch command. Live ACP session start
+appends a path-free `available_skills` manifest and a generated
+`sessionBootstrap` through host session setup. The AI catalog lists live
+tools, commands, and skills by owner in an explorer-aligned tree. Neither
 surface imports MCP, ACP, acpx, or vendor runtime types.
 The API agent-tool surface exports only schemas, results, trusted execution
 context, owner metadata, and lifecycle registration. It does not import or
@@ -285,7 +287,7 @@ plugin-data session persistence, vault-scoped file mentions, Codex and Cursor
 model catalogs, chat settings, movable chat panel, grouped Design Core tool-call
 transcripts that unwrap tool envelopes into `json`, `bash`, or `plaintext`
 `CodeBlock` language (LN-AI-133), a busy-turn Stop abort that clears
-busy before runtime cancel settles, an ungrouped History sidebar leaf, and an Open Chat left-ribbon
+busy before runtime cancel settles, an ungrouped History sidebar leaf, a movable Catalog command leaf, and an Open Chat left-ribbon
 action that reuses the opening command.
 Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
 and stacking above an open composer drawer—and composes Command View for the
@@ -429,7 +431,8 @@ Date/time settings use design-core `forms` pickers via api `date-setting` (the
 old `date-time-picker-dialog` ui compound is retired).
 
 `@lapis-notes/file-explorer` publicly exports `ExplorerPanel`, and
-`@lapis-notes/ai` publicly exports `AiChatPanel` and `AiHistoryPanel`, so
+`@lapis-notes/ai` publicly exports `AiChatPanel`, `AiHistoryPanel`, and
+`AiCatalogPanel`, so
 Autodocs can name the production components while stories continue to create
 them through real plugin view registrations.
 `MetadataCache.initialized` and `file-open` after `openFile` stay on the API

@@ -24,9 +24,15 @@ export function formatContextNotice(input: {
   model?: string;
   tools: readonly string[];
   skills: readonly string[];
+  folderInstructionPaths?: readonly string[];
+  truncated?: boolean;
 }): string {
   const tools = input.tools.length > 0 ? input.tools.join(", ") : "(none)";
   const skills = input.skills.length > 0 ? input.skills.join(", ") : "(none)";
+  const folders =
+    input.folderInstructionPaths && input.folderInstructionPaths.length > 0
+      ? input.folderInstructionPaths.join(", ")
+      : "(none)";
   return [
     `Conversation: ${input.conversationId ?? "(none)"}`,
     `Scope: ${input.scopeDir.trim() || "(vault root)"}`,
@@ -36,5 +42,7 @@ export function formatContextNotice(input: {
     `Model: ${input.model?.trim() || "(none)"}`,
     `Available app tools: ${tools}`,
     `Available skills: ${skills}`,
+    `Folder instructions: ${folders}`,
+    `Context status: ${input.truncated ? "Bootstrap truncated" : "No bootstrap truncation"}`,
   ].join("\n");
 }
