@@ -12,12 +12,13 @@
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import FolderPlusIcon from "@lucide/svelte/icons/folder-plus";
   import SearchIcon from "@lucide/svelte/icons/search";
-  import { SvelteSet } from "svelte/reactivity";
+  import { createSubscriber, SvelteSet } from "svelte/reactivity";
   import { activateBookmark } from "./activate-bookmark";
   import { filterBookmarkItems } from "./bookmarks-filter";
   import {
     bookmarkIcon,
     bookmarkLabel,
+    cloneBookmarkItems,
     isGroupBookmark,
     type BookmarkItem,
   } from "./bookmarks-schema";
@@ -35,7 +36,6 @@
     onNewGroup: (parentCtime: number | null) => Promise<{ ctime: number }>;
   } = $props();
 
-  let revision = $state(0);
   let query = $state("");
   let showFilter = $state(false);
   let selectedCtime = $state<number | null>(null);
@@ -44,16 +44,11 @@
   let draggingCtime = $state<number | null>(null);
   let dropTarget = $state<string | null>(null);
   const expanded = new SvelteSet<number>();
-
-  $effect(() => {
-    return store.subscribe(() => {
-      revision += 1;
-    });
-  });
+  const watchStore = createSubscriber((update) => store.subscribe(update));
 
   const items = $derived.by(() => {
-    revision;
-    return store.items;
+    watchStore();
+    return cloneBookmarkItems(store.items);
   });
   const visibleItems = $derived(filterBookmarkItems(items, query));
   const filtering = $derived(query.trim().length > 0);
@@ -97,6 +92,30 @@
     renamingCtime = null;
   }
 
+  async function createGroup(parentCtime: number | null): Promise<void> {
+    if (parentCtime !== null) expanded.add(parentCtime);
+    const created = await onNewGroup(parentCtime);
+    expanded.add(created.ctime);
+    startRename({
+      type: "group",
+      ctime: created.ctime,
+      title: "Untitled group",
+      items: [],
+    });
+  }
+
+  async function removeBookmark(ctime: number): Promise<void> {
+    await store.removeItem(ctime);
+    if (selectedCtime === ctime) selectedCtime = null;
+    if (renamingCtime === ctime) renamingCtime = null;
+    expanded.delete(ctime);
+  }
+
+  function stopToolbarClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   async function activate(item: BookmarkItem): Promise<void> {
     selectedCtime = item.ctime;
     if (isGroupBookmark(item)) {
@@ -104,6 +123,25 @@
       return;
     }
     await activateBookmark(app, item);
+  }
+
+  function showMenuAtPointer(menu: Menu, event: MouseEvent): void {
+    const doc = event.view?.document ?? app.workspace.getCommandHostDocument();
+    const anchor = doc.createElement("div");
+    anchor.setAttribute("data-bookmarks-menu-anchor", "");
+    Object.assign(anchor.style, {
+      position: "fixed",
+      left: `${event.clientX}px`,
+      top: `${event.clientY}px`,
+      width: "1px",
+      height: "1px",
+      pointerEvents: "none",
+    });
+    doc.body.appendChild(anchor);
+    menu.onHide(() => {
+      anchor.remove();
+    });
+    menu.showAtElement(anchor);
   }
 
   function showMenu(event: MouseEvent, item: BookmarkItem): void {
@@ -120,13 +158,13 @@
     });
     if (isGroupBookmark(item)) {
       menu.addItem((entry) => {
-        entry.setTitle("New group").onClick(() => onNewGroup(item.ctime));
+        entry.setTitle("New group").onClick(() => void createGroup(item.ctime));
       });
     }
     menu.addItem((entry) => {
-      entry.setTitle("Remove").onClick(() => void store.removeItem(item.ctime));
+      entry.setTitle("Remove").onClick(() => void removeBookmark(item.ctime));
     });
-    menu.showAtMouseEvent(event);
+    showMenuAtPointer(menu, event);
   }
 
   function onRowKeydown(event: KeyboardEvent, item: BookmarkItem): void {
@@ -136,7 +174,7 @@
     }
     if (event.key === "Delete" || event.key === "Backspace") {
       event.preventDefault();
-      void store.removeItem(item.ctime);
+      void removeBookmark(item.ctime);
     }
     if (event.key === "F2") {
       event.preventDefault();
@@ -292,7 +330,10 @@
             variant="ghost"
             size="icon"
             aria-label="Bookmark the active tab"
-            onclick={onBookmarkActive}
+            onclick={(event) => {
+              stopToolbarClick(event);
+              onBookmarkActive();
+            }}
           >
             <BookmarkPlusIcon />
           </Button>
@@ -308,19 +349,14 @@
             variant="ghost"
             size="icon"
             aria-label="New group"
-            onclick={() => {
+            onclick={(event) => {
+              stopToolbarClick(event);
               const selected = flattenItems(items).find(
                 (item) => item.ctime === selectedCtime,
               );
-              void (async () => {
-                const created = await onNewGroup(
-                  selected && isGroupBookmark(selected) ? selected.ctime : null,
-                );
-                const item = flattenItems(store.items).find(
-                  (candidate) => candidate.ctime === created.ctime,
-                );
-                if (item) startRename(item);
-              })();
+              void createGroup(
+                selected && isGroupBookmark(selected) ? selected.ctime : null,
+              );
             }}
           >
             <FolderPlusIcon />
@@ -338,7 +374,10 @@
             size="icon"
             aria-label="Collapse all"
             aria-pressed={allExpanded}
-            onclick={toggleCollapseAll}
+            onclick={(event) => {
+              stopToolbarClick(event);
+              toggleCollapseAll();
+            }}
           >
             {#if allExpanded}
               <ChevronsDownUpIcon />
@@ -359,7 +398,8 @@
             size="icon"
             aria-label="Show search filter"
             aria-pressed={showFilter}
-            onclick={() => {
+            onclick={(event) => {
+              stopToolbarClick(event);
               showFilter = !showFilter;
               if (!showFilter) query = "";
             }}

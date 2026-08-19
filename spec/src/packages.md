@@ -118,7 +118,8 @@ and stays a bundled core plugin. Clicking the item shows reading time through
 the projected status menu. Design Core F-Mode remains an optional static
 shell plugin on the API-owned controller. A vault without workspace.json
 receives File Explorer, Search, then Bookmarks on the left and Outline, File Properties,
-then Tags on the right when those views are registered. The API workspace
+then Tags on the right when those views are registered. The Bookmarks panel
+snapshots persisted items so add and remove refresh the tree. The API workspace
 registers Save, Load, and Reset layout commands for named snapshots and the
 same default seed.
 `@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,

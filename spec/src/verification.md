@@ -793,7 +793,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-081  | storybook-catalog               | Implemented | five focused app-tool interaction and axe stories pass with approved canonical baselines and a 5/5 compare-only visual run; visual-pending tags retain the separate human-promotion boundary |
 | LN-CAT-082  | storybook-catalog               | Implemented | Storybook Vite source aliases plus the canonical Docker static-build lane cover File Explorer and Search without staged `dist` output |
 | LN-CAT-083  | storybook-catalog               | Implemented | Plugins/AI/Shell Desktop play asserts the Open Chat left-ribbon action and one reused main-area chat leaf |
-| LN-CAT-084  | storybook-catalog               | Implemented | Workspace/Shell PersistedDesktop asserts File Explorer, Search, then Bookmarks on the left; Bookmarks left-sidebar play covers toolbar, typed rows, filter, drag, search activation, and graph persistence |
+| LN-CAT-084  | storybook-catalog               | Implemented | Workspace/Shell PersistedDesktop asserts File Explorer, Search, then Bookmarks on the left; Bookmarks left-sidebar play covers toolbar, typed rows, filter, add/remove group refresh, drag, search activation, and graph persistence |
 | LN-CAT-085  | storybook-catalog               | Implemented | Workspace/Shell PersistedDesktop hovers File Explorer Create File and asserts inverted Design Core tooltip paint after Mira styles load |
 | LN-PKG-081  | packages                        | Implemented | approved Docker visual update and compare-only capture used workspace overrides, restored the exact permanent manifest, workspace file, lockfile, and sibling links, then completed the canonical build and 5/5 comparison |
 | LN-EXP-001  | explorer-plugin                 | Implemented | file-explorer unit tests add From system root and As Lapis URL only for NativeDesktopVaultAdapter plus `file-system-actions`; Explorer placement plays assert those extras are absent on the memory vault |
@@ -935,7 +935,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BM-001   | bookmarks-plugin                | In progress | package location, runtime id `bookmarks`, bundled default-enabled registration |
 | LN-BM-002   | bookmarks-plugin                | In progress | schema tests persist all six types plus unknown keys through `.obsidian/bookmarks.json` |
 | LN-BM-003   | bookmarks-plugin                | In progress | `ViewAccess.command` opener `bookmarks:open-bookmarks` and default left surface |
-| LN-BM-004   | bookmarks-plugin                | In progress | toolbar actions plus Bookmark URL command |
+| LN-BM-004   | bookmarks-plugin                | In progress | toolbar actions plus Bookmark URL command; add/remove group refresh the tree |
 | LN-BM-005   | bookmarks-plugin                | In progress | add dialog plus CommandView group picker with create-on-miss |
 | LN-BM-006   | bookmarks-plugin                | In progress | typed activation through `openFile` or registered commands; missing and disallowed targets Notice |
 | LN-BM-007   | bookmarks-plugin                | In progress | drag reparent, sibling reorder, and root drop persist `items` order |

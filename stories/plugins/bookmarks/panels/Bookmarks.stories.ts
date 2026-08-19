@@ -170,6 +170,18 @@ export const LeftSidebar = placementStory(
     await userEvent.clear(filter);
     await userEvent.click(filterToggle);
 
+    await userEvent.click(panel.getByRole("button", { name: "New group" }));
+    const untitled = await waitFor(() =>
+      panel.getByRole("treeitem", { name: "Untitled group" }),
+    );
+    expect(untitled).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    untitled.focus();
+    await userEvent.keyboard("{Delete}");
+    await waitFor(() => {
+      expect(panel.queryByRole("treeitem", { name: "Untitled group" })).toBeNull();
+    });
+
     const fileRow = rowByLabel(panel, "Welcome");
     const groupRow = rowByLabel(panel, "Reading list");
     dragBookmark(fileRow, groupRow);

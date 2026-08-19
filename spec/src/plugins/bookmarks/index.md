@@ -10,7 +10,7 @@
 | LN-BM-001 | The repo MUST ship `@lapis-notes/bookmarks` at `packages/plugins/plugin-bookmarks` with runtime id `bookmarks`, `distribution: "bundled"`, and `enabledByDefault: true`. |
 | LN-BM-002 | Bookmarks MUST persist `{ items }` to `.obsidian/bookmarks.json` through plugin data. Items MUST include `file` with optional `subpath`, `folder`, `group`, `search`, `url`, and `graph`. Unknown keys and item types MUST round-trip. |
 | LN-BM-003 | The plugin MUST register the `bookmarks` view through `ViewAccess.command` with `open-bookmarks` / `Open Bookmarks`. The opener MUST reveal an existing instance or create, activate, and reveal the default left sidebar. The leaf title MUST be `Bookmarks` and the icon MUST be `bookmark`. |
-| LN-BM-004 | The panel toolbar MUST offer bookmark the active file or Search query, new group, collapse/expand all, and show search filter. The palette MUST also offer Bookmark URL. |
+| LN-BM-004 | The panel toolbar MUST offer bookmark the active file or Search query, new group, collapse/expand all, and show search filter. The palette MUST also offer Bookmark URL. Creating or removing a group MUST update the visible tree from persisted items. |
 | LN-BM-005 | Adding a bookmark MUST show a dialog with the type-specific target — path, query, or an editable URL — and an optional title. A CommandView MUST then list existing groups plus Root. An unmatched query MUST offer Create group. |
 | LN-BM-006 | Activating an item MUST dispatch by type through `openFile` or registered commands. Missing file or folder paths and disallowed URLs MUST Notice and MUST NOT invent a leaf. |
 | LN-BM-007 | The tree MUST allow dragging every item kind to reparent into a group, reorder siblings, or move to root, and MUST persist `items` order. |

@@ -200,6 +200,10 @@ export function parseBookmarkItems(value: unknown): BookmarkItem[] {
   return value.map((item) => parseBookmarkItem(item));
 }
 
+export function cloneBookmarkItems(items: BookmarkItem[]): BookmarkItem[] {
+  return parseBookmarkItems(items);
+}
+
 export function parseBookmarksDocument(value: unknown): BookmarksDocument {
   if (!isRecord(value)) return { items: [] };
   return { items: parseBookmarkItems(value.items) };

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   bookmarkIcon,
   bookmarkLabel,
+  cloneBookmarkItems,
   isDescendantGroup,
   parseBookmarksDocument,
   removeBookmarkItem,
@@ -97,5 +98,13 @@ describe("bookmarks schema", () => {
     );
     expect(removeBookmarkItem(parsed.items, 4)?.type).toBe("file");
     expect(parsed.items.some((item) => item.ctime === 4)).toBe(false);
+  });
+
+  it("clones the tree so panel consumers can react to the same store array", () => {
+    const parsed = parseBookmarksDocument(sample);
+    const cloned = cloneBookmarkItems(parsed.items);
+    expect(cloned).not.toBe(parsed.items);
+    expect(cloned).toEqual(parsed.items);
+    expect(cloned[0]).not.toBe(parsed.items[0]);
   });
 });

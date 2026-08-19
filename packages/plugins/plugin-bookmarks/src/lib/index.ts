@@ -10,6 +10,7 @@ export { BookmarksView } from "./bookmarks-view";
 export {
   bookmarkIcon,
   bookmarkLabel,
+  cloneBookmarkItems,
   isFileBookmark,
   isFolderBookmark,
   isGraphBookmark,
