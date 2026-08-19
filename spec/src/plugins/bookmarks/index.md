@@ -20,6 +20,7 @@
 | LN-BM-011 | Each known type MUST render its Lucide icon and fallback label. Graph rows MUST remain visible when Graph is unregistered. |
 | LN-BM-012 | The Bookmarks tree MUST inset rows from every panel edge using the public Explorer content-padding token. The ScrollArea MUST stay flush so the scrollbar rides the panel edge. |
 | LN-BM-013 | Bookmarks toolbar actions MUST use the public Explorer toolbar hover and pressed tokens so ghost-button muted hover stays visible on the panel. Pressed geometry MUST stay identical to idle. |
+| LN-BM-014 | Bookmarks nested lists MUST use Explorer indent, guide, folder-gap, and row-gap tokens so the guide centers on the expanded chevron tip. Rows MUST NOT add a second depth indent. |
 
 ### LN-BM-006 acceptance details
 

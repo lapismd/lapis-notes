@@ -121,7 +121,8 @@ receives File Explorer, Search, then Bookmarks on the left and Outline, File Pro
 then Tags on the right when those views are registered. The Bookmarks panel
 snapshots persisted items so add and remove refresh the tree, insets
 rows with the public Explorer content-padding token, uses Explorer
-toolbar hover tokens, and follows Explorer tree indent and guide geometry. The API workspace
+toolbar hover tokens, and follows Explorer tree indent, chevron-centered
+guides, and row-gap geometry. The API workspace
 registers Save, Load, and Reset layout commands for named snapshots and the
 same default seed.
 `@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,

@@ -947,4 +947,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BM-011   | bookmarks-plugin                | In progress | typed Lucide icons and fallback labels; graph rows remain visible |
 | LN-BM-012   | bookmarks-plugin                | In progress | left-sidebar play asserts Explorer content-padding inset and rows clear of the panel edge |
 | LN-BM-013   | bookmarks-plugin                | In progress | left-sidebar play asserts toolbar-action class and visible Explorer pressed paint |
-| LN-BM-014   | bookmarks-plugin                | In progress | left-sidebar play asserts chevron-centered guide, folder-gap, and sibling row-gap |
+| LN-BM-014   | bookmarks-plugin                | In progress | left-sidebar play asserts chevron-centered guide, parent-to-child folder-gap, and sibling row-gap |

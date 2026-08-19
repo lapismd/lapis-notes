@@ -75,7 +75,8 @@ A vault without workspace.json seeds File Explorer, Search, then Bookmarks on th
 Outline, File Properties, then Tags on the right when those plugins loaded.
 The Bookmarks panel snapshots persisted items so add and remove refresh the tree,
 insets rows with the public Explorer content-padding token, uses Explorer
-toolbar hover tokens, and follows Explorer tree indent and guide geometry.
+toolbar hover tokens, and follows Explorer tree indent, chevron-centered
+guides, and row-gap geometry.
 Save and Load workspace layout commands store named snapshots; Reset reapplies
 that default seed. Collapse, remount, and file-open restore keep the same
 plugin leaf by serialized id and its live `getState()`.

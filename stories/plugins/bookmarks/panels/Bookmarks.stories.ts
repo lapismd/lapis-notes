@@ -61,6 +61,43 @@ function rowByLabel(panel: ReturnType<typeof within>, name: string) {
   return panel.getByRole("treeitem", { name });
 }
 
+function expectExplorerTreeGeometry(group: HTMLElement) {
+  const row = group.querySelector(".bookmarks-panel__row");
+  const chevron = group.querySelector(".bookmarks-panel__chevron");
+  const sublist = group.querySelector(":scope > .bookmarks-panel__list");
+  expect(row).toBeInstanceOf(HTMLElement);
+  expect(chevron).toBeInstanceOf(Element);
+  expect(sublist).toBeInstanceOf(HTMLElement);
+  if (
+    !(row instanceof HTMLElement) ||
+    !(chevron instanceof Element) ||
+    !(sublist instanceof HTMLElement)
+  ) {
+    return;
+  }
+  const guide = getComputedStyle(sublist);
+  expect(Number.parseFloat(guide.borderInlineStartWidth)).toBeGreaterThan(0);
+  expect(guide.borderInlineStartStyle).toBe("solid");
+  expect(Number.parseFloat(guide.paddingBlockStart)).toBeGreaterThan(0);
+  expect(Number.parseFloat(guide.gap)).toBeGreaterThan(0);
+  const chevronBox = chevron.getBoundingClientRect();
+  const sublistBox = sublist.getBoundingClientRect();
+  const guideCenter =
+    sublistBox.left + Number.parseFloat(guide.borderInlineStartWidth) / 2;
+  const chevronTip = chevronBox.left + chevronBox.width / 2;
+  expect(Math.abs(guideCenter - chevronTip)).toBeLessThan(1);
+  const firstChild = sublist.querySelector(".bookmarks-panel__row");
+  expect(firstChild).toBeInstanceOf(HTMLElement);
+  if (!(firstChild instanceof HTMLElement)) return;
+  expect(
+    firstChild.getBoundingClientRect().top - row.getBoundingClientRect().bottom,
+  ).toBeGreaterThanOrEqual(3);
+  const indent =
+    firstChild.getBoundingClientRect().left - row.getBoundingClientRect().left;
+  expect(indent).toBeGreaterThan(8);
+  expect(indent).toBeLessThan(40);
+}
+
 function dragBookmark(source: HTMLElement, target: HTMLElement) {
   const dataTransfer = new DataTransfer();
   source.dispatchEvent(
@@ -189,6 +226,9 @@ export const LeftSidebar = placementStory(
     );
     expect(panelRoot).not.toBeNull();
     const treeStyle = getComputedStyle(tree);
+    expect(treeStyle.display).toBe("flex");
+    expect(treeStyle.flexDirection).toBe("column");
+    expect(Number.parseFloat(treeStyle.gap)).toBeGreaterThan(0);
     expect(Number.parseFloat(treeStyle.paddingInlineStart)).toBeGreaterThan(0);
     expect(Number.parseFloat(treeStyle.paddingInlineEnd)).toBeGreaterThan(0);
     const welcomeRow = rowByLabel(panel, "Welcome");
@@ -242,6 +282,19 @@ export const LeftSidebar = placementStory(
         ).toBe(true);
       }
     });
+
+    const readingList = rowByLabel(panel, "Reading list");
+    if (readingList.getAttribute("aria-expanded") !== "true") {
+      await userEvent.click(readingList);
+    }
+    await waitFor(() => {
+      expect(rowByLabel(panel, "Reading list")).toHaveAttribute(
+        "aria-expanded",
+        "true",
+      );
+      expect(rowByLabel(panel, "Welcome")).toBeVisible();
+    });
+    expectExplorerTreeGeometry(rowByLabel(panel, "Reading list"));
 
     await userEvent.click(rowByLabel(panel, "Find Welcome"));
     await waitFor(() => {

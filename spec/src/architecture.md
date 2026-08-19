@@ -183,7 +183,7 @@ Search leaf by opening its target in a sibling tab.
        ↑
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
-@lapis-notes/bookmarks (Obsidian-compatible Bookmarks panel; default left sidebar after Search; tree matches Explorer inset, toolbar hover, and chevron-centered guides)
+@lapis-notes/bookmarks (Obsidian-compatible Bookmarks panel; default left sidebar after Search; tree matches Explorer inset, toolbar hover, chevron-centered guides, and row gaps)
 @lapis-notes/search (vault indexing + Search workspace contribution)
 @lapis-notes/history (vault file-revision capture + History workspace contribution + settings)
 @lapis-notes/wordcount (status-bar word, character, and reading-time count)

@@ -221,7 +221,7 @@
   }
 </script>
 
-{#snippet Tree(nodes: BookmarkItem[], parentCtime: number | null, depth: number)}
+{#snippet Tree(nodes: BookmarkItem[], parentCtime: number | null)}
   {#each nodes as item, index (item.ctime)}
     <div
       class="bookmarks-panel__item"
@@ -269,7 +269,6 @@
       <div
         class="bookmarks-panel__row"
         class:bookmarks-panel__row--selected={selectedCtime === item.ctime}
-        style={`--bookmarks-depth: ${depth}`}
       >
           {#if isGroupBookmark(item)}
             <button
@@ -290,7 +289,7 @@
             <span class="bookmarks-panel__disclosure-spacer"></span>
           {/if}
           {#if bookmarkIcon(item)}
-            <WorkspaceIcon name={bookmarkIcon(item)!} />
+            <WorkspaceIcon class="bookmarks-panel__icon" name={bookmarkIcon(item)!} />
           {/if}
           {#if renamingCtime === item.ctime}
             <Input
@@ -314,7 +313,7 @@
         </div>
       {#if isGroupBookmark(item) && isExpanded(item.ctime)}
         <div class="bookmarks-panel__list" role="group">
-          {@render Tree(item.items, item.ctime, depth + 1)}
+          {@render Tree(item.items, item.ctime)}
         </div>
       {/if}
     </div>
@@ -450,7 +449,7 @@
       }}
       ondrop={(event) => void dropAt(event, null, store.items.length)}
     >
-      {@render Tree(visibleItems, null, 0)}
+      {@render Tree(visibleItems, null)}
     </div>
   </ScrollArea>
 </div>
@@ -513,8 +512,11 @@
     }
 
     [data-ui-component="bookmarks-panel"] .bookmarks-panel__tree {
+      display: flex;
       box-sizing: border-box;
       min-height: 100%;
+      flex-direction: column;
+      gap: var(--ui-workspace-explorer-row-gap, 0.125rem);
       padding: var(--ui-workspace-explorer-content-padding, 0.5rem);
       padding-block-end: 2.5rem;
     }
@@ -537,10 +539,52 @@
     min-height: 0;
   }
 
+  .bookmarks-panel__item {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+
   .bookmarks-panel__list {
+    display: flex;
+    min-width: 0;
     margin: 0;
     padding: 0;
     list-style: none;
+    flex-direction: column;
+    gap: var(--ui-workspace-explorer-row-gap, 0.125rem);
+  }
+
+  .bookmarks-panel__item > .bookmarks-panel__list {
+    position: relative;
+    width: auto;
+    max-width: 100%;
+    margin-inline-start: var(
+      --ui-workspace-explorer-indent,
+      calc(
+        var(--ui-workspace-explorer-row-border-width, 2px) +
+          var(--ui-workspace-explorer-row-padding-inline, 0.375rem) +
+          (var(--ui-workspace-icon-size, 1rem) / 2) -
+          (var(--ui-workspace-explorer-guide-width, 1px) / 2)
+      )
+    );
+    margin-inline-end: var(
+      --ui-workspace-explorer-indent,
+      calc(
+        var(--ui-workspace-explorer-row-border-width, 2px) +
+          var(--ui-workspace-explorer-row-padding-inline, 0.375rem) +
+          (var(--ui-workspace-icon-size, 1rem) / 2) -
+          (var(--ui-workspace-explorer-guide-width, 1px) / 2)
+      )
+    );
+    padding-inline-start: var(--ui-workspace-explorer-guide-gap, 0.5rem);
+    padding-block-start: var(--ui-workspace-explorer-folder-gap, 0.25rem);
+    border-inline-start: var(--ui-workspace-explorer-guide-width, 1px) solid
+      var(
+        --ui-workspace-explorer-guide-color,
+        color-mix(in srgb, var(--ui-workspace-view-foreground) 22%, transparent)
+      );
   }
 
   .bookmarks-panel__item--drop > .bookmarks-panel__row {
@@ -549,29 +593,34 @@
 
   .bookmarks-panel__row {
     display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: var(--ui-workspace-explorer-row-height, 1.75rem);
     align-items: center;
-    gap: 0.25rem;
-    min-height: 1.5rem;
-    padding-inline-start: calc(0.35rem + (var(--bookmarks-depth) * 0.85rem));
-    padding-inline-end: 0.35rem;
-    border-radius: 0.25rem;
+    gap: 0.375rem;
+    border: var(--ui-workspace-explorer-row-border-width, 2px) solid transparent;
+    border-radius: var(--ui-workspace-radius-small, 0.25rem);
+    padding-block: 0.125rem;
+    padding-inline: var(--ui-workspace-explorer-row-padding-inline, 0.375rem);
     cursor: default;
   }
 
   .bookmarks-panel__row:hover,
   .bookmarks-panel__row--selected {
-    background: color-mix(
-      in srgb,
-      var(--ui-workspace-view-foreground) 8%,
-      transparent
+    background: var(
+      --ui-workspace-explorer-row-hover-background,
+      color-mix(in srgb, var(--ui-workspace-view-foreground) 8%, transparent)
     );
   }
 
   .bookmarks-panel__disclosure,
   .bookmarks-panel__disclosure-spacer {
     display: inline-flex;
-    width: 1rem;
-    height: 1rem;
+    flex: 0 0 auto;
+    width: var(--ui-workspace-icon-size, 1rem);
+    height: var(--ui-workspace-icon-size, 1rem);
     align-items: center;
     justify-content: center;
     padding: 0;
@@ -580,9 +629,14 @@
     color: inherit;
   }
 
+  .bookmarks-panel :global(.bookmarks-panel__chevron),
+  .bookmarks-panel :global(.bookmarks-panel__icon) {
+    flex: 0 0 auto;
+    width: var(--ui-workspace-icon-size, 1rem);
+    height: var(--ui-workspace-icon-size, 1rem);
+  }
+
   .bookmarks-panel :global(.bookmarks-panel__chevron) {
-    width: 0.85rem;
-    height: 0.85rem;
     transition: transform 120ms ease;
   }
 
@@ -599,12 +653,5 @@
   .bookmarks-panel :global(.bookmarks-panel__rename) {
     flex: 1;
     min-width: 0;
-  }
-
-  .bookmarks-panel__item .bookmarks-panel__list {
-    margin-inline-start: calc(0.85rem + 0.35rem);
-    padding-inline-start: 0.55rem;
-    border-inline-start: 1px solid
-      color-mix(in srgb, var(--ui-workspace-view-foreground) 16%, transparent);
   }
 </style>
