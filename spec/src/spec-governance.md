@@ -154,7 +154,8 @@ this repository retains only host integration and consumer acceptance contracts.
 3. Update requirements and verification before or with implementation
 4. Add evidence (unit / story) as appropriate
 5. Run `pnpm spec:first` and package checks
-6. Commit the verified slice
+6. Commit the verified slice. This is a standing request; do not wait for the
+   user to ask.
 
 `AGENTS.md` must stay aligned with architecture requirements (including
 colocated siblings as explicit `link:` dependencies or `link:`-valued root
@@ -163,7 +164,8 @@ overrides rather than workspace members, package-export resolution, alias-only u
 whenever onboarding guidance changes. Development
 workflow guidance SHOULD match mira-mde: if the `jj` binary is available, use
 the `jj-jujutsu` skill and Jujutsu for VCS inspection/diffs/commits instead of
-Git, and commit verified work with a PR-quality message. Tooling guidance for
+Git, and commit verified work with a PR-quality message without waiting for a
+later user request. Tooling guidance for
 Storybook must note that `pnpm test:storybook` fails on axe violations
 (`parameters.a11y.test: "error"`).
 
