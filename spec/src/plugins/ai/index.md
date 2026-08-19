@@ -126,6 +126,7 @@ execution APIs.
 | LN-AI-119 | An explicit skill refresh MUST create a replacement binding with the current skill snapshot. Existing native bindings MUST keep their prior snapshot until that refresh or a later replacement. Skill file changes MUST affect only future snapshots. |
 | LN-AI-120 | A submitted user message MUST appear in the transcript before conversation create or session start completes. The empty-conversation layout MUST NOT remain visible while that turn is busy. Restore MUST NOT rerun when the first send assigns a conversation location. |
 | LN-AI-121 | The composer MUST expose reserved `/agent`. With no arguments it MUST report the current agent. A recognized name MUST switch the conversation agent and persist the composer default. An unknown name MUST be a visible error and MUST NOT become a model prompt. |
+| LN-AI-122 | Assistant `MarkdownEmbed` surfaces MUST grow with the transcript scroll-shell. They MUST NOT introduce a nested vertical scroller or a constrained height that clips the rendered note. Wide code blocks MAY keep horizontal overflow. |
 
 ### LN-AI-046 acceptance details
 
@@ -202,6 +203,8 @@ The composer overflow menu sits after History and attach, archives or restores
 in place, deletes through vault trash, and offers New Chat in the current
 scope (LN-AI-109). The first user message stays in the transcript while the
 session starts, and Stop aborts a still-preparing turn (LN-AI-106, LN-AI-120).
+Assistant MarkdownEmbed content grows with that transcript instead of a nested
+scroller (LN-AI-122).
 AI registers its sidebar chat and history views through `ViewAccess.command`.
 Their canonical palette commands are `AI: Open Chat` and `AI: Open History`;
 each reuses an existing leaf or creates, activates, and reveals its documented

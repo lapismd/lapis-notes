@@ -98,6 +98,9 @@ describe("AiPlugin contracts", () => {
     expect(panel).toContain('htmlPolicy="safe"');
     expect(css).toContain("[data-ui-component=\"ai-chat-panel\"] .ai-chat-panel__markdown");
     expect(css).toContain("--mira-preview-background: transparent");
+    const markdownCss = css.slice(css.indexOf(".ai-chat-panel__markdown"));
+    expect(markdownCss).toContain("height: auto");
+    expect(markdownCss).toContain("overflow: visible");
     expect(panel).not.toContain("{@html");
     expect(panel).not.toContain("renderChatMarkdown");
     expect(index).not.toContain("renderChatMarkdown");

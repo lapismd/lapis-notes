@@ -352,6 +352,10 @@
   --background-primary: transparent;
   --markdown-surface-background: transparent;
   background: transparent;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
 }
 
 [data-ui-component="ai-chat-panel"]

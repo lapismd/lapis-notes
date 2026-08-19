@@ -885,6 +885,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-119   | ai-plugin                       | Implemented | Refresh creates a replacement binding snapshot while the prior binding retains its version |
 | LN-AI-120   | ai-plugin                       | Implemented | Controller test keeps the first user item while create and start are gated; panel restore uses untrack so location assign does not remount |
 | LN-AI-121   | ai-plugin                       | Implemented | Controller tests report /agent, switch a recognized name, persist the composer default, and reject unknown names |
+| LN-AI-122   | ai-plugin                       | Implemented | Chat CSS sets MarkdownEmbed preview height auto and overflow visible; plugin source test asserts those rules |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
 | LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |

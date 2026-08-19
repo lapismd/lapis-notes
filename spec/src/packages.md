@@ -99,7 +99,7 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-079 | `@lapis-notes/history` MUST live at `packages/plugins/plugin-history`, expose build, check, test, and publint, and publish its plugin, panel, views, and settings. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist revisions only through `AppDatabase`.                                                                                                                                                                                                                                                                                                                                              |
 | LN-PKG-080 | `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. AI MUST own snapshots and policy. Sibling `@lapismd/ai-host` plus Electron MUST own live MCP transport without becoming durable tool, note-content, or conversation authorities. |
 | LN-PKG-094 | `@lapis-notes/api` MAY depend on `@lapismd/ai-host` through the existing root `link:` override and MUST import only `@lapismd/ai-host/file-tools`. `@lapis-notes/ai`, Search, and Markdown MUST NOT depend on `@lapismd/ai-host`. |
-| LN-PKG-095 | `@lapis-notes/ai` MUST depend on `@lapis-notes/markdown` only for the public embed preview. It MUST NOT depend on `@lapismd/mira` or `@lapismd/mira-editor`. Chat styles MUST keep that embed preview surface transparent. |
+| LN-PKG-095 | `@lapis-notes/ai` MUST depend on `@lapis-notes/markdown` only for the public embed preview. It MUST NOT depend on `@lapismd/mira` or `@lapismd/mira-editor`. Chat styles MUST keep that embed preview surface transparent and MUST NOT nest a vertical scroller inside the bubble. |
 | LN-PKG-096 | `@lapis-notes/api` MUST own skill-source and composer slash-command registration. `@lapis-notes/ai` MUST own discovery, snapshots, skill tools, and the composer router. Those APIs MUST NOT expose MCP, ACP, or vendor runtime types. |
 | LN-PKG-081 | Root Docker visual staging MUST update sibling dependency overrides in `pnpm-workspace.yaml`, regenerate the matching lockfile, and restore the root manifest, workspace configuration, and original lockfile before a frozen relink after capture. It MUST NOT depend on the retired manifest-level `pnpm.overrides` shape. |
 | LN-PKG-083 | `@lapis-notes/wordcount` MUST live at `packages/plugins/plugin-wordcount` as an enabled-by-default bundled plugin. It MUST depend on `@lapis-notes/api` and MUST NOT depend on `@lapis-notes/ui`. |
@@ -289,6 +289,8 @@ The composer overflow menu sits after History and attach, archives or restores
 in place, deletes through vault trash, and offers New Chat
 (LN-AI-109). The first submitted user message stays in the transcript while
 session start is still pending (LN-AI-120).
+Assistant MarkdownEmbed content grows with the transcript instead of a nested
+scroller (LN-AI-122).
 Drawer attachment chips use Design Core's public `attachment-chip` parts
 instead of plugin-local paint.
 The root export stays plugin-safe; ACP and native Codex adapters publish only on

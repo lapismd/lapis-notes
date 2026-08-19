@@ -74,7 +74,7 @@ production hosts continue to load that plugin.
 | LN-ARCH-060 | API MUST own the transport-neutral application tool registry, domain plugins MUST own their tool implementations, AI MUST own policy and approvals, and sibling `@lapismd/ai-host` MUST own MCP transport. API, Search, Markdown, and portable AI code MUST NOT import MCP, ACP, acpx, or vendor agent SDKs. Authenticated remote transport MUST leave execution and note content in the owning App. |
 | LN-ARCH-061 | Native Explorer copy, open, and reveal extras MUST remain File Explorer consumer work over Design Core's built-in vault-path menu. Design Core MUST NOT hardcode system paths or OS reveal. |
 | LN-ARCH-062 | Generic file-tool kernels MAY live in `@lapismd/ai-host/file-tools`. API MUST supply Vault operations and AppTool wrappers. The kernel MUST NOT own conversation scope, approvals, or Vault I/O. |
-| LN-ARCH-063 | `@lapis-notes/ai` MUST render assistant chat Markdown through `@lapis-notes/markdown/embed`. That helper MUST apply the App's default Mira editor extensions. AI MUST NOT add a plugin-local Markdown renderer. Chat MUST keep the embed preview surface transparent. |
+| LN-ARCH-063 | `@lapis-notes/ai` MUST render assistant chat Markdown through `@lapis-notes/markdown/embed`. That helper MUST apply the App's default Mira editor extensions. AI MUST NOT add a plugin-local Markdown renderer. Chat MUST keep the embed preview surface transparent and MUST NOT nest a vertical scroller inside the bubble. |
 | LN-ARCH-064 | API MUST own transport-neutral skill-source and composer slash-command registries. AI MUST own discovery, snapshots, routing, and `AppToolHost` invocation. Composer slash commands MUST remain distinct from workspace `addCommand` and from Mira editor slash commands. |
 
 Existing-file navigation maps Explorer intent through the public
@@ -364,7 +364,9 @@ Stop control cancels the active turn immediately, without waiting for the
 runtime cancel to settle, and stays fully opaque while input remains disabled.
 Stop also drops a still-preparing first send so it cannot start after busy
 clears. The first user message stays visible while conversation create and
-session start finish (LN-AI-106, LN-AI-120). The composer overflow menu sits after History and attach, archives or
+session start finish (LN-AI-106, LN-AI-120).
+Assistant MarkdownEmbed content grows with the transcript instead of a nested
+scroller (LN-AI-122). The composer overflow menu sits after History and attach, archives or
 restores in place, deletes through vault trash, and offers New Chat
 (LN-AI-109). AI History opens as an ungrouped right
 sidebar leaf and keeps that leaf while a conversation opens in the main area. Portable conversation bindings and transcript entries
