@@ -1252,6 +1252,10 @@ export class AiChatController {
     }
   }
 
+  async syncComposerCommands(): Promise<void> {
+    await this.#syncSlashCatalog();
+  }
+
   async #syncSlashCatalog(): Promise<void> {
     if (!this.#slashRouter || !this.#skills) return;
     const existing = this.#activeBindingId

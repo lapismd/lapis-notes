@@ -76,7 +76,7 @@ Outline, File Properties, then Tags on the right when those plugins loaded.
 The Bookmarks panel snapshots persisted items so add and remove refresh the tree,
 insets rows with the public Explorer content-padding token, uses Explorer
 toolbar hover tokens, and follows Explorer tree indent, chevron-centered
-guides, and row-gap geometry.
+guides, and Outline-style leaf indent.
 Save and Load workspace layout commands store named snapshots; Reset reapplies
 that default seed. Collapse, remount, and file-open restore keep the same
 plugin leaf by serialized id and its live `getState()`.
@@ -92,7 +92,8 @@ folder, vault, and user-global command Markdown separately from plugin
 registrations. Disposing a slash-command registration removes it from
 later composer resolution; reserved application names such as `/help`,
 `/scope`, `/context`, `/status`, and `/agent` remain app-owned. Their local
-notices stay start-aligned with authored line breaks. Search owns composer
+notices stay start-aligned with authored line breaks. The slash menu lists
+those catalog commands and submits argument-free picks immediately. Search owns composer
 `/search` and disposes it on unload.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects

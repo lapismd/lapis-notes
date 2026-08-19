@@ -122,7 +122,7 @@ then Tags on the right when those views are registered. The Bookmarks panel
 snapshots persisted items so add and remove refresh the tree, insets
 rows with the public Explorer content-padding token, uses Explorer
 toolbar hover tokens, and follows Explorer tree indent, chevron-centered
-guides, and row-gap geometry. The API workspace
+guides, and Outline-style leaf indent. The API workspace
 registers Save, Load, and Reset layout commands for named snapshots and the
 same default seed.
 `@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,
@@ -169,7 +169,8 @@ slash-command registration. AI owns discovery of `.agents` skill and
 command Markdown, snapshots, skill tools, and routing, including reserved
 `/help`, `/scope`, `/context`, `/status`, and `/agent`.
 Local slash notices stay start-aligned with authored line breaks and show
-the composer working indicator while they prepare.
+the composer working indicator while they prepare. The slash menu lists the
+same catalog commands and submits argument-free picks immediately.
 AI ships bundled `research` and `lapis-notes` skills. An active skill file
 MUST NOT scope a new conversation to `.agents`. Search owns composer
 `/search` as a `notes_search` tool-dispatch command. Live ACP session start

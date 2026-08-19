@@ -155,6 +155,8 @@ describe("AiPlugin contracts", () => {
     expect(panel).toContain("isStopShown={controller.busy}");
     expect(panel).toContain("void controller.cancel()");
     expect(panel).toContain("isSlashCommandNotice");
+    expect(panel).toContain("item.submitOnSelect");
+    expect(panel).toContain("void controller.syncComposerCommands()");
     expect(panel).toContain("ai-chat-panel__command-notice");
     expect(panel).toContain("Preparing command…");
     expect(controller).toContain("commandWorking = $state(false)");

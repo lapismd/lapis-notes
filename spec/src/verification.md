@@ -793,7 +793,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-081  | storybook-catalog               | Implemented | five focused app-tool interaction and axe stories pass with approved canonical baselines and a 5/5 compare-only visual run; visual-pending tags retain the separate human-promotion boundary |
 | LN-CAT-082  | storybook-catalog               | Implemented | Storybook Vite source aliases plus the canonical Docker static-build lane cover File Explorer and Search without staged `dist` output |
 | LN-CAT-083  | storybook-catalog               | Implemented | Plugins/AI/Shell Desktop play asserts the Open Chat left-ribbon action and one reused main-area chat leaf |
-| LN-CAT-084  | storybook-catalog               | Implemented | Workspace/Shell PersistedDesktop asserts File Explorer, Search, then Bookmarks on the left; Bookmarks left-sidebar play covers toolbar, typed rows, filter, add/remove group refresh, row inset, toolbar hover, Explorer tree geometry, drag, search activation, and graph persistence |
+| LN-CAT-084  | storybook-catalog               | Implemented | Workspace/Shell PersistedDesktop asserts File Explorer, Search, then Bookmarks on the left; Bookmarks left-sidebar play covers toolbar, typed rows, filter, add/remove group refresh, row inset, toolbar hover, Explorer tree geometry, leaf indent, drag, search activation, and graph persistence |
 | LN-CAT-085  | storybook-catalog               | Implemented | Workspace/Shell PersistedDesktop hovers File Explorer Create File and asserts inverted Design Core tooltip paint after Mira styles load |
 | LN-PKG-081  | packages                        | Implemented | approved Docker visual update and compare-only capture used workspace overrides, restored the exact permanent manifest, workspace file, lockfile, and sibling links, then completed the canonical build and 5/5 comparison |
 | LN-EXP-001  | explorer-plugin                 | Implemented | file-explorer unit tests add From system root and As Lapis URL only for NativeDesktopVaultAdapter plus `file-system-actions`; Explorer placement plays assert those extras are absent on the memory vault |
@@ -920,6 +920,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-148   | ai-plugin                       | Implemented | bootstrap for a skill-folder scope still emits path-free lapis_context with labeled scope/launch and without `.agents/skills` |
 | LN-AI-149   | ai-plugin                       | Implemented | /help and /status notices use report layout; the panel paints them start-aligned with pre-wrap instead of centered SystemMessage |
 | LN-AI-150   | ai-plugin                       | Implemented | Controller sets busy and commandWorking while /status prepares; the panel shows Preparing command… above the composer |
+| LN-AI-151   | ai-plugin                       | Implemented | composerSlashItems includes reserved model, cancel, skill, and native with catalog commands |
+| LN-AI-152   | ai-plugin                       | Implemented | composerSlashItems sets submitOnSelect when argumentHint is absent; the panel passes that flag to the trigger |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
@@ -947,4 +949,4 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BM-011   | bookmarks-plugin                | In progress | typed Lucide icons and fallback labels; graph rows remain visible |
 | LN-BM-012   | bookmarks-plugin                | In progress | left-sidebar play asserts Explorer content-padding inset and rows clear of the panel edge |
 | LN-BM-013   | bookmarks-plugin                | In progress | left-sidebar play asserts toolbar-action class and visible Explorer pressed paint |
-| LN-BM-014   | bookmarks-plugin                | In progress | left-sidebar play asserts chevron-centered guide, parent-to-child folder-gap, and sibling row-gap |
+| LN-BM-014   | bookmarks-plugin                | In progress | left-sidebar play asserts chevron-centered guide, no leaf disclosure column, folder-gap, and row-gap |

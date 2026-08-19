@@ -247,7 +247,10 @@
               item.description.toLowerCase().includes(needle),
           );
         },
-        onSelect: (item) => `${item.value ?? `/${item.id}`} `,
+        onSelect: (item) =>
+          item.submitOnSelect
+            ? (item.value ?? `/${item.id}`)
+            : `${item.value ?? `/${item.id}`} `,
       });
     }
     if (fileSearch) {
@@ -494,6 +497,13 @@
     return () => {
       void controller.close();
     };
+  });
+
+  $effect(() => {
+    if (initializing) return;
+    void controller.location;
+    void controller.activeBindingId;
+    void controller.syncComposerCommands();
   });
 
   $effect(() => {

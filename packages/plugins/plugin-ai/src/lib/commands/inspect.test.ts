@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatContextNotice, formatScopeNotice } from "./inspect";
 import { composerSlashItems } from "./groups";
+import { RESERVED_SLASH_COMMANDS } from "./reserved";
 import type { EffectiveSlashCommand } from "./types";
 
 describe("slash inspect notices", () => {
@@ -40,7 +41,7 @@ describe("slash inspect notices", () => {
 });
 
 describe("composer slash items", () => {
-  it("keeps deferred reserved names out of the App menu", () => {
+  it("lists reserved catalog commands and marks argument-free picks for submit", () => {
     const commands: EffectiveSlashCommand[] = [
       {
         name: "help",
@@ -57,6 +58,7 @@ describe("composer slash items", () => {
       {
         name: "model",
         description: "Reserved model",
+        argumentHint: "[name]",
         source: "app",
         dispatch: { kind: "host", execute: () => undefined },
       },
@@ -77,9 +79,26 @@ describe("composer slash items", () => {
     expect(items.map((item) => item.label)).toEqual([
       "/help",
       "/status",
+      "/model",
       "/search",
       "/native compact",
     ]);
-    expect(items[3]?.description).toContain("Current Agent · Codex ACP");
+    expect(items.find((item) => item.label === "/status")?.submitOnSelect).toBe(
+      true,
+    );
+    expect(items.find((item) => item.label === "/model")?.submitOnSelect).toBe(
+      false,
+    );
+    expect(items[4]?.description).toContain("Current Agent · Codex ACP");
+  });
+
+  it("includes every reserved catalog command", () => {
+    const items = composerSlashItems(RESERVED_SLASH_COMMANDS);
+    expect(items.map((item) => item.id).sort()).toEqual(
+      [...RESERVED_SLASH_COMMANDS.map((command) => command.name)].sort(),
+    );
+    expect(items.some((item) => item.id === "cancel")).toBe(true);
+    expect(items.some((item) => item.id === "skill")).toBe(true);
+    expect(items.some((item) => item.id === "native")).toBe(true);
   });
 });

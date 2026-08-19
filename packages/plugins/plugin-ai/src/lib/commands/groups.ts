@@ -2,18 +2,6 @@ import type { EffectiveSlashCommand, SlashCommandSource } from "./types";
 
 export type SlashCommandGroup = "app" | "actions" | "skills" | "agent";
 
-export const APP_MENU_NAMES = new Set([
-  "help",
-  "new",
-  "agent",
-  "scope",
-  "context",
-  "status",
-  "skills",
-  "tools",
-  "refresh",
-]);
-
 const GROUP_LABEL: Record<SlashCommandGroup, string> = {
   app: "App",
   actions: "Actions",
@@ -99,15 +87,16 @@ export function composerSlashItems(
   value: string;
   description: string;
   source: SlashCommandSource;
+  submitOnSelect: boolean;
 }> {
   const grouped = groupSlashCommands(commands);
-  grouped.app = grouped.app.filter((command) => APP_MENU_NAMES.has(command.name));
   const items: Array<{
     id: string;
     label: string;
     value: string;
     description: string;
     source: SlashCommandSource;
+    submitOnSelect: boolean;
   }> = [];
   for (const group of GROUP_ORDER) {
     const heading = groupLabel(group, agentLabel);
@@ -120,6 +109,7 @@ export function composerSlashItems(
         value: label,
         description: `${heading} · ${command.description}`,
         source: command.source,
+        submitOnSelect: !command.argumentHint,
       });
     }
   }
