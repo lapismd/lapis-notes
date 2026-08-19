@@ -41,11 +41,11 @@ function openMarkdownLeaf(scenario: LapisEditorDemoScenario) {
     };
   }
   return {
-        id: "welcome",
-        title: "Welcome",
-        file: "Notes/Welcome.md",
-        mode: "live-preview",
-      };
+    id: "welcome",
+    title: "Welcome",
+    file: "Notes/Welcome.md",
+    mode: "live-preview",
+  };
 }
 
 const APP_CONFIGURATION = {
@@ -74,6 +74,7 @@ const APP_CONFIGURATION = {
   "appearence.interface.showInlineTitle": true,
   "appearence.interface.showTabTitleBar": true,
   "workspace.fileExplorer.autoRevealCurrentFile": true,
+  "workspace.fileExplorer.showHiddenFiles": false,
   pluginData: {
     "demo-preserved-data": {
       lastOpened: "Notes/Welcome.md",
@@ -217,6 +218,7 @@ export function createLapisEditorDemoSeed(
       null,
       2,
     ),
+    ".env": "DEMO=1\n",
     "Notes/Welcome.md": [
       "---",
       "title: Welcome",

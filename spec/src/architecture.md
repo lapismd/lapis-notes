@@ -81,7 +81,8 @@ Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core
 controller, focus, and persisted layout remain synchronized. Setting
 `activeLeaf` and calling `revealLeaf` alone does not represent user-visible tab
-activation.
+activation. File Explorer persists Show hidden files and maps that preference
+to Design Core so dotted vault names stay hidden unless the setting is on.
 
 Current first-party hosts install a disposable application compatibility lease,
 but workspace, editor, plugin, and story code resolve the App from explicit

@@ -155,6 +155,7 @@ const PANEL_APP_CONFIGURATION = {
   "outline.autoScrollToCurrentSection": false,
   "appearence.interface.showInlineTitle": true,
   "appearence.interface.showTabTitleBar": true,
+  "workspace.fileExplorer.showHiddenFiles": false,
 };
 
 function leaf(
@@ -447,6 +448,7 @@ export function createPanelDemoSeed(
 
   return {
     ".obsidian/app.json": JSON.stringify(PANEL_APP_CONFIGURATION, null, 2),
+    ".env": "DEMO=1\n",
     ".obsidian/types.json": JSON.stringify(
       {
         types: {

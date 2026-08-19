@@ -70,9 +70,14 @@ function placementStory(
         args,
       );
       await expect(panel.getByText("Notes")).toBeVisible();
+      await expect(panel.queryByText(".env")).toBeNull();
+      await expect(panel.queryByText(".obsidian")).toBeNull();
       await expect(
         panel.getByRole("button", { name: "Create File" }),
       ).toBeVisible();
+      await expect(
+        panel.getByRole("button", { name: "Show hidden files" }),
+      ).toHaveAttribute("aria-pressed", "false");
       const notes = panel.getByText("Notes");
       notes.dispatchEvent(
         new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),

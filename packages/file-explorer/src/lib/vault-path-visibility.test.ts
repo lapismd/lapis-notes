@@ -7,12 +7,17 @@ describe("file explorer vault path visibility", () => {
     ".trash/old.md",
     ".lapis/agents/sessions/id/metadata.yaml",
     "Projects/Atlas/.lapis/agents/sessions/id/transcript.jsonl",
-  ])("hides internal path %s", (path) => {
+    "Projects/Atlas/.env.example",
+    ".gitignore",
+  ])("hides dotted path %s unless show-hidden is on", (path) => {
     expect(isVisibleExplorerPath(path)).toBe(false);
+    expect(isVisibleExplorerPath(path, { showHidden: true })).toBe(true);
   });
 
-  it("keeps ordinary dotfiles and notes visible", () => {
-    expect(isVisibleExplorerPath("Projects/Atlas/.env.example")).toBe(true);
+  it("keeps ordinary notes visible", () => {
     expect(isVisibleExplorerPath("Projects/Atlas/note.md")).toBe(true);
+    expect(
+      isVisibleExplorerPath("Projects/Atlas/note.md", { showHidden: true }),
+    ).toBe(true);
   });
 });

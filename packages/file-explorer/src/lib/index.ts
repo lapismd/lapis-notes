@@ -27,6 +27,8 @@ import {
   copyExplorerText,
 } from "./native-explorer-actions";
 import { openExplorerFile } from "./open-explorer-file";
+import { EXPLORER_SETTING_IDS } from "./explorer-settings";
+import { registerExplorerSettings } from "./register-explorer-settings";
 import { isVisibleExplorerPath } from "./vault-path-visibility";
 
 const EXPLORER_MANIFEST: PluginManifest = {
@@ -43,14 +45,27 @@ const EXPLORER_SCHEMA = {
   title: "Workspace",
   type: "object",
   properties: {
-    "workspace.fileExplorer.autoRevealCurrentFile": {
+    [EXPLORER_SETTING_IDS.autoRevealCurrentFile]: {
       title: "Auto-reveal current file",
       description: "Reveal the active file in Explorer.",
       type: "boolean",
       default: true,
     },
+    [EXPLORER_SETTING_IDS.showHiddenFiles]: {
+      title: "Show hidden files",
+      description:
+        "Show dotted names, including .obsidian, .trash, and .lapis.",
+      type: "boolean",
+      default: false,
+    },
   },
 } as const;
+
+function readShowHiddenFiles(app: App): boolean {
+  return app.configuration
+    .getConfiguration()
+    .get(EXPLORER_SETTING_IDS.showHiddenFiles, false);
+}
 
 const SUPPORTED_EXTENSIONS = new Set([
   "md",
@@ -109,9 +124,7 @@ function createExplorerController(app: App, loading: boolean) {
       listEntries: () =>
         app.vault
           .getAllLoadedFiles()
-          .filter(
-            (file) => file.path !== "/" && isVisibleExplorerPath(file.path),
-          )
+          .filter((file) => file.path !== "/")
           .map(toExplorerNode),
       subscribe: (onChange) => {
         const created = app.vault.on("create", onChange);
@@ -144,10 +157,16 @@ function createExplorerController(app: App, loading: boolean) {
       getAutoReveal: () =>
         app.configuration
           .getConfiguration()
-          .get("workspace.fileExplorer.autoRevealCurrentFile", true),
+          .get(EXPLORER_SETTING_IDS.autoRevealCurrentFile, true),
       setAutoReveal: (value) =>
         app.configuration.updateConfigurationOption(
-          "workspace.fileExplorer.autoRevealCurrentFile",
+          EXPLORER_SETTING_IDS.autoRevealCurrentFile,
+          value,
+        ),
+      getShowHiddenFiles: () => readShowHiddenFiles(app),
+      setShowHiddenFiles: (value) =>
+        app.configuration.updateConfigurationOption(
+          EXPLORER_SETTING_IDS.showHiddenFiles,
           value,
         ),
     },
@@ -227,6 +246,10 @@ export class FileExplorerView extends View {
 
   revealPath(path: string): void {
     this.#controller.revealPath(path.replace(/^\/+/, ""));
+  }
+
+  applyShowHiddenFiles(value: boolean): void {
+    this.#controller.applyShowHiddenFiles(value);
   }
 
   load(): void {
@@ -333,6 +356,17 @@ export function createFileExplorerPlugin(
       this.register(() => {
         this.app.configuration.schema.unregister(EXPLORER_SCHEMA);
       });
+      registerExplorerSettings(this);
+      const configurationRef = this.app.configuration.on(
+        "updated",
+        ({ key, value }) => {
+          if (key !== EXPLORER_SETTING_IDS.showHiddenFiles) return;
+          this.syncShowHiddenFiles(Boolean(value));
+        },
+      );
+      this.register(() => {
+        this.app.configuration.offref(configurationRef);
+      });
 
       this.registerSidebarView(
         FileExplorerViewType,
@@ -366,6 +400,16 @@ export function createFileExplorerPlugin(
           });
         },
       });
+      this.addCommand({
+        id: "toggle-hidden-files",
+        name: "Toggle show hidden files",
+        callback: () => {
+          void this.app.configuration.updateConfigurationOption(
+            EXPLORER_SETTING_IDS.showHiddenFiles,
+            !readShowHiddenFiles(this.app),
+          );
+        },
+      });
 
       const { controller } = getWorkspaceHostBinding(this.app.workspace);
       this.register(
@@ -377,7 +421,9 @@ export function createFileExplorerPlugin(
               .getFiles()
               .filter(
                 (file) =>
-                  isVisibleExplorerPath(file.path) &&
+                  isVisibleExplorerPath(file.path, {
+                    showHidden: readShowHiddenFiles(this.app),
+                  }) &&
                   SUPPORTED_EXTENSIONS.has(file.extension.toLocaleLowerCase()),
               )
               .filter((file) =>
@@ -397,6 +443,13 @@ export function createFileExplorerPlugin(
       );
 
       await this.app.configuration.materializeSchemaDefaults();
+    }
+
+    private syncShowHiddenFiles(value: boolean): void {
+      this.app.workspace.iterateAllLeaves((leaf) => {
+        if (!isFileExplorerView(leaf.view)) return;
+        leaf.view.applyShowHiddenFiles(value);
+      });
     }
 
     private async openExplorer(): Promise<void> {

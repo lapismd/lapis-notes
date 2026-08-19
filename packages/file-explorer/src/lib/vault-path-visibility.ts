@@ -1,8 +1,13 @@
-import { isLapisInternalPath } from "@lapis-notes/api/path";
+export function isHiddenExplorerPath(path: string): boolean {
+  return path
+    .replace(/^\/+/, "")
+    .split("/")
+    .some((segment) => segment.startsWith("."));
+}
 
-export function isVisibleExplorerPath(path: string): boolean {
-  const first = path.replace(/^\/+/, "").split("/", 1)[0];
-  return (
-    first !== ".obsidian" && first !== ".trash" && !isLapisInternalPath(path)
-  );
+export function isVisibleExplorerPath(
+  path: string,
+  options: { showHidden?: boolean } = {},
+): boolean {
+  return options.showHidden === true || !isHiddenExplorerPath(path);
 }

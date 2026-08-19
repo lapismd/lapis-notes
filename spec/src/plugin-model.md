@@ -49,7 +49,8 @@ a later successful enable (LN-WS-078). Spell Check setup failure uses the
 language-service path and MUST NOT fail enablement (LN-SPL-008, LN-WS-077).
 Explorer native copy, open, and reveal extras stay on the File Explorer
 `buildItemMenu` hook. They do not add plugin commands or a `file-menu`
-dispatch until a listener exists.
+dispatch until a listener exists. Show hidden files uses a File Explorer
+setting, toolbar preference, and palette toggle command.
 AI contributes an Open Chat left-ribbon action through `addRibbonIcon`, so it
 appears only while the plugin is enabled and reuses the existing chat command.
 Web registers the same enabled-by-default AI plugin and ribbon action. Host
