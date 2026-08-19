@@ -5,7 +5,15 @@ import {
   type App,
   type TFile,
 } from "@lapis-notes/api";
-import type { BookmarkItem } from "./bookmarks-schema";
+import {
+  isFileBookmark,
+  isFolderBookmark,
+  isGraphBookmark,
+  isGroupBookmark,
+  isSearchBookmark,
+  isUrlBookmark,
+  type BookmarkItem,
+} from "./bookmarks-schema";
 
 const FILE_EXPLORER_REVEAL_PATH_COMMAND = "lapis-file-explorer:reveal-path";
 const SEARCH_OPEN_COMMAND = "search:open-search";
@@ -25,11 +33,11 @@ export async function activateBookmark(
   item: BookmarkItem,
   openUrl: (url: string) => void = defaultOpenUrl,
 ): Promise<void> {
-  if (item.type === "file") {
+  if (isFileBookmark(item)) {
     await activateFileBookmark(app, item.path, item.subpath);
     return;
   }
-  if (item.type === "folder") {
+  if (isFolderBookmark(item)) {
     if (!app.vault.getAbstractFileByPath(item.path)) {
       new Notice(`Unable to find folder: ${item.path || "unknown"}`);
       return;
@@ -37,11 +45,11 @@ export async function activateBookmark(
     await app.commands.executeCommand(FILE_EXPLORER_REVEAL_PATH_COMMAND, item.path);
     return;
   }
-  if (item.type === "search") {
+  if (isSearchBookmark(item)) {
     await app.commands.executeCommand(SEARCH_OPEN_COMMAND, item.query);
     return;
   }
-  if (item.type === "url") {
+  if (isUrlBookmark(item)) {
     if (!isAllowedBookmarkUrl(item.url)) {
       new Notice("Only http and https bookmark URLs can be opened.");
       return;
@@ -49,11 +57,11 @@ export async function activateBookmark(
     openUrl(item.url);
     return;
   }
-  if (item.type === "graph") {
+  if (isGraphBookmark(item)) {
     await activateGraphBookmark(app);
     return;
   }
-  if (item.type === "group") return;
+  if (isGroupBookmark(item)) return;
   new Notice(`Unsupported bookmark type: ${item.type}`);
 }
 

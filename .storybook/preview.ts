@@ -66,6 +66,7 @@ const preview: Preview = {
             "Plugins",
             [
               "Explorer",
+              "Bookmarks",
               "Markdown",
               [
                 "Panels",
@@ -99,6 +100,8 @@ const preview: Preview = {
           [
             "Explorer",
             ["Panels", ["Explorer", "*"]],
+            "Bookmarks",
+            ["Panels", ["Bookmarks", "*"]],
             "Search",
             ["Panels", ["Search", "*"]],
             "History",

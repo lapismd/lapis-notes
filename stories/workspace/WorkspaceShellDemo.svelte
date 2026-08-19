@@ -185,6 +185,7 @@
                 tabs("left-tabs", [
                   leaf("files", "Files", "folder-closed", "file-explorer"),
                   leaf("search", "Search", "search", "search"),
+                  leaf("bookmarks", "Bookmarks", "bookmark", "bookmarks"),
                 ]),
               ]
             : mobile || bottomSettings

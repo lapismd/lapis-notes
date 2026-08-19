@@ -3,6 +3,7 @@ import {
   findBookmarkItem,
   insertBookmarkItem,
   isDescendantGroup,
+  isGroupBookmark,
   nextBookmarkCtime,
   parseBookmarksDocument,
   removeBookmarkItem,
@@ -25,7 +26,6 @@ export interface BookmarksPersistence {
 export class BookmarksStore {
   #document: BookmarksDocument = { items: [] };
   #listeners = new Set<() => void>();
-  #writeTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly persistence: BookmarksPersistence) {}
 
@@ -44,25 +44,28 @@ export class BookmarksStore {
   }
 
   async addItem(
-    item: Omit<BookmarkItem, "ctime"> & { ctime?: number },
+    item: BookmarkItem,
     parentCtime: number | null = null,
   ): Promise<BookmarkItem> {
-    const created = {
+    const created: BookmarkItem = {
       ...item,
       ctime: item.ctime ?? nextBookmarkCtime(this.#document.items),
-    } as BookmarkItem;
-    if (created.type === "group" && !("items" in created)) {
-      (created as GroupBookmarkItem).items = [];
+    };
+    if (isGroupBookmark(created) && !Array.isArray(created.items)) {
+      created.items = [];
     }
+    const parent = parentCtime
+      ? findBookmarkItem(this.#document.items, parentCtime)
+      : null;
     insertBookmarkItem(
       this.#document.items,
       created,
       parentCtime,
       parentCtime === null
         ? this.#document.items.length
-        : (findBookmarkItem(this.#document.items, parentCtime) as
-            | GroupBookmarkItem
-            | undefined)?.items.length ?? 0,
+        : parent && isGroupBookmark(parent)
+          ? parent.items.length
+          : 0,
     );
     await this.persist();
     return created;
@@ -86,52 +89,52 @@ export class BookmarksStore {
     path: string,
     options: { title?: string; parentCtime?: number | null } = {},
   ): Promise<FolderBookmarkItem> {
-    return (await this.addItem(
-      {
-        type: "folder",
-        path,
-        ...(options.title ? { title: options.title } : {}),
-      },
-      options.parentCtime ?? null,
-    )) as FolderBookmarkItem;
+    const item: FolderBookmarkItem = {
+      type: "folder",
+      ctime: nextBookmarkCtime(this.#document.items),
+      path,
+      ...(options.title ? { title: options.title } : {}),
+    };
+    return (await this.addItem(item, options.parentCtime ?? null)) as FolderBookmarkItem;
   }
 
   async addGroup(
     title = "Untitled group",
     parentCtime: number | null = null,
   ): Promise<GroupBookmarkItem> {
-    return (await this.addItem(
-      { type: "group", title, items: [] },
-      parentCtime,
-    )) as GroupBookmarkItem;
+    const item: GroupBookmarkItem = {
+      type: "group",
+      ctime: nextBookmarkCtime(this.#document.items),
+      title,
+      items: [],
+    };
+    return (await this.addItem(item, parentCtime)) as GroupBookmarkItem;
   }
 
   async addSearch(
     query: string,
     options: { title?: string; parentCtime?: number | null } = {},
   ): Promise<SearchBookmarkItem> {
-    return (await this.addItem(
-      {
-        type: "search",
-        query,
-        ...(options.title ? { title: options.title } : {}),
-      },
-      options.parentCtime ?? null,
-    )) as SearchBookmarkItem;
+    const item: SearchBookmarkItem = {
+      type: "search",
+      ctime: nextBookmarkCtime(this.#document.items),
+      query,
+      ...(options.title ? { title: options.title } : {}),
+    };
+    return (await this.addItem(item, options.parentCtime ?? null)) as SearchBookmarkItem;
   }
 
   async addUrl(
     url: string,
     options: { title?: string; parentCtime?: number | null } = {},
   ): Promise<UrlBookmarkItem> {
-    return (await this.addItem(
-      {
-        type: "url",
-        url,
-        ...(options.title ? { title: options.title } : {}),
-      },
-      options.parentCtime ?? null,
-    )) as UrlBookmarkItem;
+    const item: UrlBookmarkItem = {
+      type: "url",
+      ctime: nextBookmarkCtime(this.#document.items),
+      url,
+      ...(options.title ? { title: options.title } : {}),
+    };
+    return (await this.addItem(item, options.parentCtime ?? null)) as UrlBookmarkItem;
   }
 
   async renameItem(ctime: number, title: string): Promise<void> {
@@ -187,7 +190,6 @@ export class BookmarksStore {
 
   private async persist(): Promise<void> {
     this.notify();
-    if (this.#writeTimer) clearTimeout(this.#writeTimer);
     await this.persistence.save(serializeBookmarksDocument(this.#document));
   }
 }

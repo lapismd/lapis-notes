@@ -24,10 +24,10 @@
   } = $props();
 
   let title = $state("");
-  let localTarget = $state(targetValue);
+  let editedTarget = $state("");
 
   function submit(): void {
-    const nextTarget = localTarget.trim();
+    const nextTarget = (targetEditable ? editedTarget : targetValue).trim();
     if (targetEditable && !nextTarget) return;
     onConfirm(title.trim(), nextTarget);
   }
@@ -49,11 +49,11 @@
     <div class="bookmarks-add-dialog__fields">
       <label class="bookmarks-add-dialog__field">
         <span>{targetLabel}</span>
-        <Input
-          bind:value={localTarget}
-          readonly={!targetEditable}
-          placeholder={targetEditable ? titlePlaceholder : undefined}
-        />
+        {#if targetEditable}
+          <Input bind:value={editedTarget} placeholder={titlePlaceholder} />
+        {:else}
+          <Input value={targetValue} readonly />
+        {/if}
       </label>
       <label class="bookmarks-add-dialog__field">
         <span>Title</span>

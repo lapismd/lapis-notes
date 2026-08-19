@@ -96,6 +96,34 @@ export function isKnownBookmarkType(type: string): type is KnownBookmarkType {
   return (KNOWN_BOOKMARK_TYPES as readonly string[]).includes(type);
 }
 
+export function isFileBookmark(item: BookmarkItem): item is FileBookmarkItem {
+  return item.type === "file";
+}
+
+export function isFolderBookmark(
+  item: BookmarkItem,
+): item is FolderBookmarkItem {
+  return item.type === "folder";
+}
+
+export function isGroupBookmark(item: BookmarkItem): item is GroupBookmarkItem {
+  return item.type === "group";
+}
+
+export function isSearchBookmark(
+  item: BookmarkItem,
+): item is SearchBookmarkItem {
+  return item.type === "search";
+}
+
+export function isUrlBookmark(item: BookmarkItem): item is UrlBookmarkItem {
+  return item.type === "url";
+}
+
+export function isGraphBookmark(item: BookmarkItem): item is GraphBookmarkItem {
+  return item.type === "graph";
+}
+
 export function parseBookmarkItem(value: unknown): BookmarkItem {
   if (!isRecord(value)) {
     return { type: "unknown", ctime: Date.now() };
@@ -185,21 +213,21 @@ export function serializeBookmarksDocument(
 
 export function bookmarkLabel(item: BookmarkItem): string {
   if (item.title) {
-    return item.type === "file" && "subpath" in item && item.subpath
+    return isFileBookmark(item) && item.subpath
       ? `${item.title} ${item.subpath}`
       : item.title;
   }
-  if (item.type === "file") {
+  if (isFileBookmark(item)) {
     const name = basename(item.path) || item.path || "Untitled";
     return item.subpath ? `${name} ${item.subpath}` : name;
   }
-  if (item.type === "folder") {
+  if (isFolderBookmark(item)) {
     return basename(item.path) || item.path || "Untitled folder";
   }
-  if (item.type === "group") return item.title || "Untitled group";
-  if (item.type === "search") return item.query || "Search";
-  if (item.type === "url") return item.url || "URL";
-  if (item.type === "graph") return "Graph";
+  if (isGroupBookmark(item)) return item.title || "Untitled group";
+  if (isSearchBookmark(item)) return item.query || "Search";
+  if (isUrlBookmark(item)) return item.url || "URL";
+  if (isGraphBookmark(item)) return "Graph";
   return item.type;
 }
 
@@ -241,7 +269,7 @@ export function walkBookmarkItems(
 ): void {
   for (const item of items) {
     visit(item, parent);
-    if (item.type === "group") {
+    if (isGroupBookmark(item)) {
       walkBookmarkItems(item.items, visit, item);
     }
   }
@@ -253,7 +281,7 @@ export function listBookmarkGroups(
 ): Array<{ item: GroupBookmarkItem; crumbs: string[] }> {
   const groups: Array<{ item: GroupBookmarkItem; crumbs: string[] }> = [];
   for (const item of items) {
-    if (item.type !== "group") continue;
+    if (!isGroupBookmark(item)) continue;
     const crumbs = [...ancestors, bookmarkLabel(item)];
     groups.push({ item, crumbs });
     groups.push(...listBookmarkGroups(item.items, crumbs));
@@ -267,7 +295,7 @@ export function findBookmarkItem(
 ): BookmarkItem | null {
   for (const item of items) {
     if (item.ctime === ctime) return item;
-    if (item.type === "group") {
+    if (isGroupBookmark(item)) {
       const nested = findBookmarkItem(item.items, ctime);
       if (nested) return nested;
     }
@@ -281,7 +309,7 @@ export function isDescendantGroup(
   candidateCtime: number,
 ): boolean {
   const ancestor = findBookmarkItem(items, ancestorCtime);
-  if (!ancestor || ancestor.type !== "group") return false;
+  if (!ancestor || !isGroupBookmark(ancestor)) return false;
   return findBookmarkItem(ancestor.items, candidateCtime) !== null;
 }
 
@@ -294,7 +322,7 @@ export function removeBookmarkItem(
     return items.splice(index, 1)[0] ?? null;
   }
   for (const item of items) {
-    if (item.type === "group") {
+    if (isGroupBookmark(item)) {
       const removed = removeBookmarkItem(item.items, ctime);
       if (removed) return removed;
     }
@@ -313,7 +341,7 @@ export function insertBookmarkItem(
     return true;
   }
   const parent = findBookmarkItem(items, parentCtime);
-  if (!parent || parent.type !== "group") return false;
+  if (!parent || !isGroupBookmark(parent)) return false;
   parent.items.splice(
     Math.max(0, Math.min(index, parent.items.length)),
     0,
@@ -330,7 +358,7 @@ export function rewriteBookmarkPaths(
   let changed = false;
   walkBookmarkItems(items, (item) => {
     if (
-      (item.type === "file" || item.type === "folder") &&
+      (isFileBookmark(item) || isFolderBookmark(item)) &&
       item.path === fromPath
     ) {
       item.path = toPath;

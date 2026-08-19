@@ -10,6 +10,12 @@ export { BookmarksView } from "./bookmarks-view";
 export {
   bookmarkIcon,
   bookmarkLabel,
+  isFileBookmark,
+  isFolderBookmark,
+  isGraphBookmark,
+  isGroupBookmark,
+  isSearchBookmark,
+  isUrlBookmark,
   parseBookmarksDocument,
 } from "./bookmarks-schema";
 export type { BookmarkItem, BookmarksDocument } from "./bookmarks-schema";

@@ -258,7 +258,7 @@ export async function expectPanelPlacement(
   const panelBackground = storyWindow.getComputedStyle(panel).backgroundColor;
   if (kind === "ai-chat") {
     await expect(panelBackground).not.toBe("rgba(0, 0, 0, 0)");
-  } else if (kind === "explorer") {
+  } else if (kind === "explorer" || kind === "bookmarks") {
     await expect(panelBackground).toBe("rgba(0, 0, 0, 0)");
   } else {
     await expect(panelBackground).toBe(viewBackground);

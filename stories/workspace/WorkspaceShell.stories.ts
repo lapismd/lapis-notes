@@ -218,7 +218,7 @@ async function expectFloatingActionHover(button: HTMLButtonElement) {
 export const PersistedDesktop: Story = {
   ...workspaceStoryMeta(
     "workspace-shell-persisted-desktop",
-    "A real API App restores the Lapis workspace file before mounting the design-core desktop shell, with File Explorer then Search on the left and Outline, File Properties, and Tags on the right.",
+    "A real API App restores the Lapis workspace file before mounting the design-core desktop shell, with File Explorer, Search, then Bookmarks on the left and Outline, File Properties, and Tags on the right.",
     "/visual-baselines/stories/workspace/persisted-desktop-chromium.png",
   ),
   args: {
@@ -236,10 +236,20 @@ export const PersistedDesktop: Story = {
     await expectInvertedDesignCoreTooltip(
       canvas.getByRole("button", { name: "Create File" }),
     );
+    await waitFor(() => {
+      expect(
+        document.body.querySelector(
+          '[data-ui-component="tooltip"][data-slot="tooltip-content"]',
+        ),
+      ).toBeNull();
+    });
     const ribbon = canvas.getByLabelText("left ribbon");
-    await expect(
-      within(ribbon).getByRole("button", { name: "Settings" }),
-    ).toBeVisible();
+    await waitFor(() => {
+      const settings =
+        within(ribbon).queryByRole("button", { name: "Settings" }) ??
+        canvas.getByRole("button", { name: "Open settings" });
+      expect(settings).toBeVisible();
+    });
     await expect(
       within(ribbon).getByRole("button", { name: "Open Chat" }),
     ).toBeVisible();

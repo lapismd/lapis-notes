@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterBookmarkItems } from "./bookmarks-filter";
-import { parseBookmarksDocument } from "./bookmarks-schema";
+import { isGroupBookmark, parseBookmarksDocument } from "./bookmarks-schema";
 
 describe("filterBookmarkItems", () => {
   const items = parseBookmarksDocument({
@@ -22,7 +22,7 @@ describe("filterBookmarkItems", () => {
     const filtered = filterBookmarkItems(items, "neo");
     expect(filtered).toHaveLength(1);
     expect(filtered[0]).toMatchObject({ type: "group", title: "Other" });
-    if (filtered[0]?.type === "group") {
+    if (filtered[0] && isGroupBookmark(filtered[0])) {
       expect(filtered[0].items).toHaveLength(1);
       expect(filtered[0].items[0]).toMatchObject({ type: "search" });
     }

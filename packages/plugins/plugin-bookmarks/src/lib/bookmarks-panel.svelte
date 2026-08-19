@@ -18,6 +18,7 @@
   import {
     bookmarkIcon,
     bookmarkLabel,
+    isGroupBookmark,
     type BookmarkItem,
   } from "./bookmarks-schema";
   import type { BookmarksStore } from "./bookmarks-store";
@@ -64,7 +65,7 @@
   function collectGroupCtimes(nodes: BookmarkItem[]): number[] {
     const ctimes: number[] = [];
     for (const node of nodes) {
-      if (node.type !== "group") continue;
+      if (!isGroupBookmark(node)) continue;
       ctimes.push(node.ctime);
       ctimes.push(...collectGroupCtimes(node.items));
     }
@@ -98,7 +99,7 @@
 
   async function activate(item: BookmarkItem): Promise<void> {
     selectedCtime = item.ctime;
-    if (item.type === "group") {
+    if (isGroupBookmark(item)) {
       toggleGroup(item.ctime);
       return;
     }
@@ -109,7 +110,7 @@
     event.preventDefault();
     selectedCtime = item.ctime;
     const menu = new Menu();
-    if (item.type !== "group") {
+    if (!isGroupBookmark(item)) {
       menu.addItem((entry) => {
         entry.setTitle("Open").onClick(() => void activateBookmark(app, item));
       });
@@ -117,7 +118,7 @@
     menu.addItem((entry) => {
       entry.setTitle("Rename").onClick(() => startRename(item));
     });
-    if (item.type === "group") {
+    if (isGroupBookmark(item)) {
       menu.addItem((entry) => {
         entry.setTitle("New group").onClick(() => onNewGroup(item.ctime));
       });
@@ -171,62 +172,62 @@
 
   function flattenItems(nodes: BookmarkItem[]): BookmarkItem[] {
     return nodes.flatMap((node) =>
-      node.type === "group" ? [node, ...flattenItems(node.items)] : [node],
+      isGroupBookmark(node) ? [node, ...flattenItems(node.items)] : [node],
     );
   }
 </script>
 
 {#snippet Tree(nodes: BookmarkItem[], parentCtime: number | null, depth: number)}
-  <ul class="bookmarks-panel__list" role="group">
-    {#each nodes as item, index (item.ctime)}
-      <li
-        class="bookmarks-panel__item"
-        class:bookmarks-panel__item--drop={dropTarget ===
-          dropKey(parentCtime, index)}
-        data-bookmark-type={item.type}
-        data-drop={dropTarget === dropKey(parentCtime, index)
-          ? "true"
-          : undefined}
-        ondragenter={(event) => {
-          event.preventDefault();
-          dropTarget = dropKey(parentCtime, index);
-        }}
-        ondragover={(event) => {
-          event.preventDefault();
-          if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
-          dropTarget = dropKey(parentCtime, index);
-        }}
-        ondrop={(event) =>
-          void dropAt(
-            event,
-            item.type === "group" ? item.ctime : parentCtime,
-            item.type === "group" ? item.items.length : index,
-          )}
+  {#each nodes as item, index (item.ctime)}
+    <div
+      class="bookmarks-panel__item"
+      class:bookmarks-panel__item--drop={dropTarget ===
+        dropKey(parentCtime, index)}
+      data-bookmark-type={item.type}
+      data-path={String(item.ctime)}
+      data-bookmark-icon={bookmarkIcon(item) ?? "group"}
+      role="treeitem"
+      tabindex="0"
+      aria-label={bookmarkLabel(item)}
+      aria-expanded={isGroupBookmark(item)
+        ? isExpanded(item.ctime)
+        : undefined}
+      aria-selected={selectedCtime === item.ctime}
+      data-drop={dropTarget === dropKey(parentCtime, index)
+        ? "true"
+        : undefined}
+      draggable="true"
+      ondragstart={(event) => onDragStart(event, item)}
+      ondragend={() => {
+        draggingCtime = null;
+        dropTarget = null;
+      }}
+      onclick={() => void activate(item)}
+      ondblclick={() => startRename(item)}
+      onkeydown={(event) => onRowKeydown(event, item)}
+      oncontextmenu={(event) => showMenu(event, item)}
+      ondragenter={(event) => {
+        event.preventDefault();
+        dropTarget = dropKey(parentCtime, index);
+      }}
+      ondragover={(event) => {
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+        dropTarget = dropKey(parentCtime, index);
+      }}
+      ondrop={(event) =>
+        void dropAt(
+          event,
+          isGroupBookmark(item) ? item.ctime : parentCtime,
+          isGroupBookmark(item) ? item.items.length : index,
+        )}
+    >
+      <div
+        class="bookmarks-panel__row"
+        class:bookmarks-panel__row--selected={selectedCtime === item.ctime}
+        style={`--bookmarks-depth: ${depth}`}
       >
-        <div
-          class="bookmarks-panel__row"
-          class:bookmarks-panel__row--selected={selectedCtime === item.ctime}
-          data-path={String(item.ctime)}
-          data-bookmark-icon={bookmarkIcon(item) ?? "group"}
-          role="treeitem"
-          tabindex="0"
-          aria-expanded={item.type === "group"
-            ? isExpanded(item.ctime)
-            : undefined}
-          aria-selected={selectedCtime === item.ctime}
-          style={`--bookmarks-depth: ${depth}`}
-          draggable="true"
-          ondragstart={(event) => onDragStart(event, item)}
-          ondragend={() => {
-            draggingCtime = null;
-            dropTarget = null;
-          }}
-          onclick={() => void activate(item)}
-          ondblclick={() => startRename(item)}
-          onkeydown={(event) => onRowKeydown(event, item)}
-          oncontextmenu={(event) => showMenu(event, item)}
-        >
-          {#if item.type === "group"}
+          {#if isGroupBookmark(item)}
             <button
               class="bookmarks-panel__disclosure"
               type="button"
@@ -267,12 +268,13 @@
             <span class="bookmarks-panel__label">{bookmarkLabel(item)}</span>
           {/if}
         </div>
-        {#if item.type === "group" && isExpanded(item.ctime)}
+      {#if isGroupBookmark(item) && isExpanded(item.ctime)}
+        <div class="bookmarks-panel__list" role="group">
           {@render Tree(item.items, item.ctime, depth + 1)}
-        {/if}
-      </li>
-    {/each}
-  </ul>
+        </div>
+      {/if}
+    </div>
+  {/each}
 {/snippet}
 
 <div
@@ -280,6 +282,7 @@
   data-testid="bookmarks-panel"
   data-ui-component="bookmarks-panel"
 >
+  <Tooltip.Provider delayDuration={0}>
   <div class="bookmarks-panel__toolbar">
     <Tooltip.Root>
       <Tooltip.Trigger>
@@ -311,7 +314,7 @@
               );
               void (async () => {
                 const created = await onNewGroup(
-                  selected?.type === "group" ? selected.ctime : null,
+                  selected && isGroupBookmark(selected) ? selected.ctime : null,
                 );
                 const item = flattenItems(store.items).find(
                   (candidate) => candidate.ctime === created.ctime,
@@ -368,6 +371,7 @@
       <Tooltip.Content>Show search filter</Tooltip.Content>
     </Tooltip.Root>
   </div>
+  </Tooltip.Provider>
   {#if showFilter}
     <SearchFilterBar
       inputMode="plain"
@@ -383,6 +387,7 @@
     <div
       class="bookmarks-panel__tree"
       role="tree"
+      tabindex="0"
       aria-label="Bookmarks"
       data-drop={dropTarget === dropKey(null, items.length) ? "true" : undefined}
       ondragenter={(event) => {
@@ -421,7 +426,7 @@
     padding: 0.25rem;
   }
 
-  .bookmarks-panel__scroll {
+  .bookmarks-panel :global(.bookmarks-panel__scroll) {
     flex: 1;
     min-height: 0;
   }
@@ -474,13 +479,13 @@
     color: inherit;
   }
 
-  .bookmarks-panel__chevron {
+  .bookmarks-panel :global(.bookmarks-panel__chevron) {
     width: 0.85rem;
     height: 0.85rem;
     transition: transform 120ms ease;
   }
 
-  .bookmarks-panel__chevron[data-open="true"] {
+  .bookmarks-panel :global(.bookmarks-panel__chevron[data-open="true"]) {
     transform: rotate(90deg);
   }
 
@@ -490,7 +495,7 @@
     white-space: nowrap;
   }
 
-  .bookmarks-panel__rename {
+  .bookmarks-panel :global(.bookmarks-panel__rename) {
     flex: 1;
     min-width: 0;
   }
