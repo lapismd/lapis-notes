@@ -1,4 +1,39 @@
+import {
+  PUBLIC_TASKS_PROJECTION_ID,
+  and,
+  eq,
+  gt,
+  isNull,
+  lt,
+  lte,
+  or,
+  type IndexFieldDefinition,
+  type IndexFilter,
+  type IndexQuery,
+} from "./index-projection";
+
 export const TASK_PROJECTION_VERSION = 1;
+export { PUBLIC_TASKS_PROJECTION_ID };
+
+export const TASK_PROJECTION_FIELDS: Record<string, IndexFieldDefinition> = {
+  documentPath: { type: "path", indexed: true, sortable: true },
+  documentId: { type: "string", indexed: true, unique: true },
+  kind: { type: "string", indexed: true },
+  title: { type: "string", indexed: true, sortable: true },
+  status: { type: "string", indexed: true, sortable: true },
+  inbox: { type: "boolean", indexed: true },
+  startKind: { type: "string", indexed: true },
+  startDate: { type: "date", indexed: true, sortable: true },
+  planDate: { type: "date", indexed: true, sortable: true },
+  planKind: { type: "string", indexed: true },
+  planTime: { type: "string", indexed: true, sortable: true },
+  durationMinutes: { type: "number", indexed: true, sortable: true },
+  deadline: { type: "date", indexed: true, sortable: true },
+  completedAt: { type: "string", indexed: true },
+  checklistTotal: { type: "number" },
+  checklistCompleted: { type: "number" },
+  commentCount: { type: "number", indexed: true },
+};
 
 export type AppDatabaseTaskKind = "task" | "task-list";
 export type AppDatabaseTaskStatus =
@@ -113,4 +148,57 @@ export function matchesTaskQuery(
     default:
       return false;
   }
+}
+
+export function taskQueryToIndexQuery(query: AppDatabaseTaskQuery = {}): IndexQuery {
+  const clauses: IndexFilter[] = [];
+  if (query.documentPath) clauses.push(eq("documentPath", query.documentPath));
+  if (query.documentId) clauses.push(eq("documentId", query.documentId));
+  if (query.kind) clauses.push(eq("kind", query.kind));
+  if (query.view) {
+    const today = query.today ?? new Date().toISOString().slice(0, 10);
+    const openTask = and(eq("kind", "task"), eq("status", "open"));
+    switch (query.view) {
+      case "inbox":
+        clauses.push(and(openTask, eq("inbox", true)));
+        break;
+      case "today":
+        clauses.push(
+          and(openTask, or(lte("planDate", today), lte("deadline", today))),
+        );
+        break;
+      case "anytime":
+        clauses.push(
+          and(
+            openTask,
+            isNull("planDate"),
+            or(eq("startKind", "anytime"), and(eq("startKind", "date"), lte("startDate", today))),
+          ),
+        );
+        break;
+      case "upcoming":
+        clauses.push(
+          and(
+            openTask,
+            or(gt("startDate", today), gt("planDate", today), gt("deadline", today)),
+          ),
+        );
+        break;
+      case "someday":
+        clauses.push(and(openTask, eq("startKind", "someday")));
+        break;
+      case "completed":
+        clauses.push(eq("status", "completed"));
+        break;
+      case "review":
+        clauses.push(and(openTask, lt("planDate", today)));
+        break;
+      default:
+        break;
+    }
+  }
+  return {
+    where: clauses.length === 1 ? clauses[0] : clauses.length ? and(...clauses) : undefined,
+    limit: query.limit,
+  };
 }

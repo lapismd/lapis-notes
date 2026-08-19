@@ -28,6 +28,7 @@
     "@lapis-notes/markdown-lint": "workspace:*",
     "@lapis-notes/spellcheck": "workspace:*",
     "@lapis-notes/lapis-plugin-cv-roles": "link:../../../lapis-plugin-cv-roles",
+    "@lapis-notes/lapis-plugin-tasks": "link:../../../lapis-plugin-tasks",
     "@lapis-notes/lapis-plugin-terminal": "link:../../../lapis-plugin-terminal",
     "@lapis-notes/history": "workspace:*",
     "@lapis-notes/search": "workspace:*",

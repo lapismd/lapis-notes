@@ -7,6 +7,7 @@ import {
   type DataAdapter,
   type VaultSession,
 } from "./storage";
+import { IndexProjectionRegistry } from "./storage/index-projection";
 import { AppSettings } from "./settings.svelte";
 import type { Extension } from "@codemirror/state";
 import {
@@ -281,6 +282,7 @@ export class App {
   embedRegistry: EmbedRegistry = new EmbedRegistry();
   readonly configurationOptionSources = new ConfigurationOptionSourceRegistry();
   readonly searchDocumentProviders = new SearchDocumentProviderRegistry();
+  readonly indexProjections = new IndexProjectionRegistry();
   readonly agentTools = new AppToolRegistry();
   readonly agentSkills = new AppSkillRegistry();
   readonly agentSlashCommands = new AppSlashCommandRegistry();

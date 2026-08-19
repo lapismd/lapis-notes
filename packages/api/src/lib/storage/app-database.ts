@@ -20,7 +20,29 @@ import {
   type SearchQueryTextRangeOptions,
 } from "./search-query-evaluator";
 import {
-  matchesTaskQuery,
+  assertProjectionReadAccess,
+  assertProjectionWriteAccess,
+  evaluateProjectionQuery,
+  indexedValuesForRow,
+  MAX_PROJECTION_ROWS_PER_SOURCE,
+  projectionIndexStatus,
+  PUBLIC_TASKS_PROJECTION_ID,
+  sourceIsCurrent,
+  type IndexProjectionDefinitionRecord,
+  type IndexProjectionEdgeRecord,
+  type IndexQuery,
+  type IndexQueryResult,
+  type IndexRelatedQuery,
+  type IndexProjectionRowRecord,
+  type IndexProjectionSourceRecord,
+  type IndexProjectionValueRecord,
+  type MarkProjectionSourceErrorInput,
+  type ReplaceProjectionSourceInput,
+} from "./index-projection";
+import {
+  taskQueryToIndexQuery,
+  TASK_PROJECTION_FIELDS,
+  TASK_PROJECTION_VERSION,
   type AppDatabaseLinkKind,
   type AppDatabaseTaskChildQuery,
   type AppDatabaseTaskQuery,
@@ -970,6 +992,31 @@ export interface AppDatabase {
     query: AppDatabaseTaskChildQuery,
   ): Promise<AppDatabaseLinkRecord[]>;
   listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]>;
+  registerProjectionDefinition(
+    definition: IndexProjectionDefinitionRecord,
+  ): Promise<void>;
+  unregisterProjectionDefinition(projectionId: string): Promise<void>;
+  replaceProjectionSource(input: ReplaceProjectionSourceInput): Promise<void>;
+  markProjectionSourceError(input: MarkProjectionSourceErrorInput): Promise<void>;
+  deleteProjectionSource(
+    projectionId: string,
+    sourcePath: string,
+    writerPluginId?: string,
+  ): Promise<void>;
+  queryProjection<T = Record<string, unknown>>(
+    projectionId: string,
+    query?: IndexQuery,
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>>;
+  getProjectionRow<T = Record<string, unknown>>(
+    projectionId: string,
+    rowId: string,
+    readerPluginId?: string,
+  ): Promise<T | null>;
+  queryRelated<T = Record<string, unknown>>(
+    query: IndexRelatedQuery,
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>>;
 }
 
 export interface AppDatabaseOpenContext {
@@ -999,9 +1046,15 @@ export type AppDatabaseState = {
   properties: [string, AppDatabasePropertyRecord[]][];
   searchDocuments: SearchDocumentRecord[];
   tasks: AppDatabaseTaskRecord[];
+  projections?: IndexProjectionDefinitionRecord[];
+  projectionSources?: IndexProjectionSourceRecord[];
+  projectionRows?: IndexProjectionRowRecord[];
+  projectionValues?: IndexProjectionValueRecord[];
+  projectionEdges?: IndexProjectionEdgeRecord[];
+  projectionRevision?: number;
 };
 
-export const APP_DATABASE_SCHEMA_VERSION = 4;
+export const APP_DATABASE_SCHEMA_VERSION = 5;
 
 function clone<T>(value: T): T {
   if (value === undefined || value === null) return value;
@@ -1935,6 +1988,12 @@ export class MemoryAppDatabase implements AppDatabase {
   protected properties = new Map<string, AppDatabasePropertyRecord[]>();
   protected searchDocs = new Map<string, SearchDocumentRecord>();
   protected tasks = new Map<string, AppDatabaseTaskRecord>();
+  protected projections = new Map<string, IndexProjectionDefinitionRecord>();
+  protected projectionSources = new Map<string, IndexProjectionSourceRecord>();
+  protected projectionRows = new Map<string, IndexProjectionRowRecord>();
+  protected projectionValues: IndexProjectionValueRecord[] = [];
+  protected projectionEdges: IndexProjectionEdgeRecord[] = [];
+  protected projectionRevision = 0;
 
   constructor(readonly vaultId: string) {}
 
@@ -2214,10 +2273,10 @@ export class MemoryAppDatabase implements AppDatabase {
     this.links.set(record.file.path, clone(record.links));
     this.tags.set(record.file.path, clone(record.tags));
     this.properties.set(record.file.path, clone(record.properties));
-    if (record.task === null) {
-      this.tasks.delete(record.file.path);
-    } else if (record.task) {
-      this.tasks.set(record.file.path, clone(record.task));
+    if (record.task) {
+      await this.upsertTaskProjection(record.task);
+    } else if (record.task === null) {
+      await this.deleteTaskProjection(record.file.path);
     }
   }
 
@@ -2233,6 +2292,9 @@ export class MemoryAppDatabase implements AppDatabase {
     this.properties.delete(path);
     this.searchDocs.delete(path);
     this.tasks.delete(path);
+    for (const definition of this.projections.values()) {
+      this.removeProjectionSource(definition.projectionId, path);
+    }
   }
 
   async renameIndexedFile(oldPath: string, newPath: string): Promise<void> {
@@ -2287,6 +2349,7 @@ export class MemoryAppDatabase implements AppDatabase {
       this.tasks.delete(oldPath);
       this.tasks.set(newPath, { ...task, documentPath: newPath });
     }
+    this.renameProjectionSources(oldPath, newPath);
     const searchDoc = this.searchDocs.get(oldPath);
     if (searchDoc) {
       this.searchDocs.delete(oldPath);
@@ -2413,32 +2476,317 @@ export class MemoryAppDatabase implements AppDatabase {
 
   async upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void> {
     this.tasks.set(record.documentPath, clone(record));
+    await this.ensureTasksProjectionDefinition();
+    await this.replaceProjectionSource({
+      projectionId: PUBLIC_TASKS_PROJECTION_ID,
+      sourcePath: record.documentPath,
+      sourceHash: this.files.get(record.documentPath)?.hash ?? record.documentId,
+      rows: [{ id: record.documentId, kind: record.kind, data: { ...record } }],
+    });
   }
 
   async deleteTaskProjection(path: string): Promise<void> {
     this.tasks.delete(path);
+    this.removeProjectionSource(PUBLIC_TASKS_PROJECTION_ID, path);
   }
 
   async queryTasks(
     query: AppDatabaseTaskQuery = {},
   ): Promise<AppDatabaseTaskRecord[]> {
-    const rows = [...this.tasks.values()].filter((row) =>
-      matchesTaskQuery(row, query),
+    const result = await this.queryProjection<AppDatabaseTaskRecord>(
+      PUBLIC_TASKS_PROJECTION_ID,
+      taskQueryToIndexQuery(query),
     );
-    const limited = query.limit ? rows.slice(0, query.limit) : rows;
-    return clone(limited);
+    return clone(result.rows);
   }
 
   async getTaskRow(
     lookup: { path?: string; id?: string },
   ): Promise<AppDatabaseTaskRecord | undefined> {
-    if (lookup.path) return clone(this.tasks.get(lookup.path));
     if (lookup.id) {
-      return clone(
-        [...this.tasks.values()].find((row) => row.documentId === lookup.id),
+      const row = await this.getProjectionRow<AppDatabaseTaskRecord>(
+        PUBLIC_TASKS_PROJECTION_ID,
+        lookup.id,
       );
+      return row ?? undefined;
+    }
+    if (lookup.path) {
+      const result = await this.queryProjection<AppDatabaseTaskRecord>(
+        PUBLIC_TASKS_PROJECTION_ID,
+        { where: { op: "compare", field: "documentPath", comparison: "eq", value: lookup.path } },
+      );
+      return result.rows[0];
     }
     return undefined;
+  }
+
+  async registerProjectionDefinition(
+    definition: IndexProjectionDefinitionRecord,
+  ): Promise<void> {
+    this.projections.set(definition.projectionId, clone({ ...definition, active: true }));
+    this.projectionRevision += 1;
+  }
+
+  async unregisterProjectionDefinition(projectionId: string): Promise<void> {
+    const existing = this.projections.get(projectionId);
+    if (!existing) return;
+    this.projections.set(projectionId, { ...existing, active: false });
+    this.projectionRevision += 1;
+  }
+
+  async replaceProjectionSource(input: ReplaceProjectionSourceInput): Promise<void> {
+    assertProjectionWriteAccess(input.projectionId, input.writerPluginId);
+    const definition = this.projections.get(input.projectionId);
+    if (!definition?.active) {
+      throw new Error(`Projection ${input.projectionId} is not registered.`);
+    }
+    if (input.rows.length > MAX_PROJECTION_ROWS_PER_SOURCE) {
+      throw new Error("Projection exceeded the maximum rows per source file.");
+    }
+    this.removeProjectionSource(input.projectionId, input.sourcePath);
+    this.projectionSources.set(this.projectionSourceKey(input.projectionId, input.sourcePath), {
+      projectionId: input.projectionId,
+      sourcePath: input.sourcePath,
+      sourceHash: input.sourceHash,
+      schemaVersion: definition.schemaVersion,
+      configHash: definition.configHash,
+      status: "ready",
+      error: null,
+      indexedAt: Date.now(),
+    });
+    for (const row of input.rows) {
+      const record: IndexProjectionRowRecord = {
+        projectionId: input.projectionId,
+        rowId: row.id,
+        sourcePath: input.sourcePath,
+        kind: row.kind,
+        ordinal: row.ordinal ?? 0,
+        data: clone(row.data),
+      };
+      this.projectionRows.set(this.projectionRowKey(input.projectionId, row.id), record);
+      this.projectionValues.push(
+        ...indexedValuesForRow(input.projectionId, row, definition.fields),
+      );
+    }
+    for (const edge of input.edges ?? []) {
+      this.projectionEdges.push({
+        projectionId: input.projectionId,
+        ...edge,
+        targetProjectionId: edge.targetProjectionId ?? input.projectionId,
+        data: edge.data ?? null,
+      });
+    }
+    this.projectionRevision += 1;
+  }
+
+  async markProjectionSourceError(input: MarkProjectionSourceErrorInput): Promise<void> {
+    assertProjectionWriteAccess(input.projectionId, input.writerPluginId);
+    const definition = this.projections.get(input.projectionId);
+    this.removeProjectionSource(input.projectionId, input.sourcePath);
+    this.projectionSources.set(this.projectionSourceKey(input.projectionId, input.sourcePath), {
+      projectionId: input.projectionId,
+      sourcePath: input.sourcePath,
+      sourceHash: input.sourceHash,
+      schemaVersion: definition?.schemaVersion ?? 0,
+      configHash: definition?.configHash ?? "",
+      status: "error",
+      error: input.error,
+      indexedAt: Date.now(),
+    });
+    this.projectionRevision += 1;
+  }
+
+  async deleteProjectionSource(
+    projectionId: string,
+    sourcePath: string,
+    writerPluginId?: string,
+  ): Promise<void> {
+    assertProjectionWriteAccess(projectionId, writerPluginId);
+    this.removeProjectionSource(projectionId, sourcePath);
+    this.projectionRevision += 1;
+  }
+
+  async queryProjection<T = Record<string, unknown>>(
+    projectionId: string,
+    query: IndexQuery = {},
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>> {
+    const definition = this.projections.get(projectionId);
+    assertProjectionReadAccess(definition, readerPluginId);
+    const sources = [...this.projectionSources.values()].filter(
+      (source) => source.projectionId === projectionId,
+    );
+    const rows = [...this.projectionRows.values()].filter((row) => {
+      if (row.projectionId !== projectionId) return false;
+      const source = this.projectionSources.get(
+        this.projectionSourceKey(projectionId, row.sourcePath),
+      );
+      const file = this.files.get(row.sourcePath);
+      return Boolean(
+        source &&
+          definition &&
+          sourceIsCurrent(source, file?.hash, definition, query.includeStale),
+      );
+    });
+    return evaluateProjectionQuery<T>(
+      rows,
+      query,
+      this.projectionRevision,
+      projectionIndexStatus(sources),
+    );
+  }
+
+  async getProjectionRow<T = Record<string, unknown>>(
+    projectionId: string,
+    rowId: string,
+    readerPluginId?: string,
+  ): Promise<T | null> {
+    const definition = this.projections.get(projectionId);
+    assertProjectionReadAccess(definition, readerPluginId);
+    const row = this.projectionRows.get(this.projectionRowKey(projectionId, rowId));
+    if (!row) {
+      const byDocumentId = [...this.projectionRows.values()].find(
+        (candidate) =>
+          candidate.projectionId === projectionId &&
+          (candidate.data.documentId === rowId || candidate.data.id === rowId),
+      );
+      if (!byDocumentId) return null;
+      return this.currentProjectionData(byDocumentId, definition);
+    }
+    return this.currentProjectionData(row, definition);
+  }
+
+  private currentProjectionData<T>(
+    row: IndexProjectionRowRecord,
+    definition: IndexProjectionDefinitionRecord | undefined,
+  ): T | null {
+    const source = this.projectionSources.get(
+      this.projectionSourceKey(row.projectionId, row.sourcePath),
+    );
+    const file = this.files.get(row.sourcePath);
+    if (!source || !definition || !sourceIsCurrent(source, file?.hash, definition)) {
+      return null;
+    }
+    return clone(row.data) as T;
+  }
+
+  async queryRelated<T = Record<string, unknown>>(
+    query: IndexRelatedQuery,
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>> {
+    const definition = this.projections.get(query.projectionId);
+    assertProjectionReadAccess(definition, readerPluginId);
+    const matching = this.projectionEdges
+      .filter((edge) => edge.projectionId === query.projectionId && edge.relation === query.relation)
+      .filter((edge) => {
+        if (query.direction !== "in") return edge.sourceRowId === query.rowId;
+        if (edge.targetRowId === query.rowId) return true;
+        const target = [...this.projectionRows.values()].find(
+          (row) =>
+            row.projectionId === query.projectionId && row.rowId === query.rowId,
+        );
+        return Boolean(target && edge.targetPath === target.sourcePath);
+      })
+      .sort((left, right) => left.ordinal - right.ordinal);
+    const rows: IndexProjectionRowRecord[] = [];
+    for (const edge of matching) {
+      const targetProjection =
+        query.direction === "in"
+          ? edge.projectionId
+          : (edge.targetProjectionId ?? query.projectionId);
+      const row =
+        query.direction === "in"
+          ? this.projectionRows.get(
+              this.projectionRowKey(targetProjection, edge.sourceRowId),
+            )
+          : edge.targetRowId
+            ? this.projectionRows.get(
+                this.projectionRowKey(targetProjection, edge.targetRowId),
+              )
+            : [...this.projectionRows.values()].find(
+                (candidate) =>
+                  candidate.projectionId === targetProjection &&
+                  candidate.sourcePath === edge.targetPath,
+              );
+      if (!row) continue;
+      if (query.targetWhere && !evaluateProjectionQuery([row], { where: query.targetWhere }, 0, "ready").rows.length) {
+        continue;
+      }
+      rows.push(row);
+    }
+    return evaluateProjectionQuery<T>(
+      rows,
+      { limit: query.limit },
+      this.projectionRevision,
+      "ready",
+    );
+  }
+
+  private async ensureTasksProjectionDefinition(): Promise<void> {
+    if (this.projections.get(PUBLIC_TASKS_PROJECTION_ID)?.active) return;
+    await this.registerProjectionDefinition({
+      projectionId: PUBLIC_TASKS_PROJECTION_ID,
+      ownerPluginId: "tasks",
+      schemaVersion: TASK_PROJECTION_VERSION,
+      configHash: "",
+      visibility: "public",
+      fields: TASK_PROJECTION_FIELDS,
+      active: true,
+      updatedAt: Date.now(),
+    });
+  }
+
+  private projectionSourceKey(projectionId: string, sourcePath: string): string {
+    return `${projectionId}\0${sourcePath}`;
+  }
+
+  private projectionRowKey(projectionId: string, rowId: string): string {
+    return `${projectionId}\0${rowId}`;
+  }
+
+  private removeProjectionSource(projectionId: string, sourcePath: string): void {
+    this.projectionSources.delete(this.projectionSourceKey(projectionId, sourcePath));
+    for (const [key, row] of this.projectionRows) {
+      if (row.projectionId === projectionId && row.sourcePath === sourcePath) {
+        this.projectionRows.delete(key);
+      }
+    }
+    this.projectionValues = this.projectionValues.filter(
+      (value) =>
+        !(
+          value.projectionId === projectionId &&
+          [...this.projectionRows.values()].every(
+            (row) =>
+              !(row.projectionId === projectionId && row.sourcePath === sourcePath && row.rowId === value.rowId),
+          )
+        ),
+    );
+    this.projectionEdges = this.projectionEdges.filter((edge) => {
+      if (edge.projectionId !== projectionId) return true;
+      const sourceRow = this.projectionRows.get(
+        this.projectionRowKey(projectionId, edge.sourceRowId),
+      );
+      return Boolean(sourceRow);
+    });
+  }
+
+  private renameProjectionSources(oldPath: string, newPath: string): void {
+    for (const [key, source] of this.projectionSources) {
+      if (source.sourcePath !== oldPath) continue;
+      this.projectionSources.delete(key);
+      this.projectionSources.set(this.projectionSourceKey(source.projectionId, newPath), {
+        ...source,
+        sourcePath: newPath,
+      });
+    }
+    for (const [key, row] of this.projectionRows) {
+      if (row.sourcePath !== oldPath) continue;
+      this.projectionRows.delete(key);
+      this.projectionRows.set(key, { ...row, sourcePath: newPath });
+    }
+    this.projectionEdges = this.projectionEdges.map((edge) =>
+      edge.targetPath === oldPath ? { ...edge, targetPath: newPath } : edge,
+    );
   }
 
   async listChildLinks(
@@ -2659,6 +3007,16 @@ export class MemoryAppDatabase implements AppDatabase {
         clone(value),
       ),
       tasks: [...this.tasks.values()].map((value) => clone(value)),
+      projections: [...this.projections.values()].map((value) => clone(value)),
+      projectionSources: [...this.projectionSources.values()].map((value) =>
+        clone(value),
+      ),
+      projectionRows: [...this.projectionRows.values()].map((value) =>
+        clone(value),
+      ),
+      projectionValues: this.projectionValues.map((value) => clone(value)),
+      projectionEdges: this.projectionEdges.map((value) => clone(value)),
+      projectionRevision: this.projectionRevision,
     };
   }
 
@@ -2694,6 +3052,24 @@ export class MemoryAppDatabase implements AppDatabase {
     this.tasks = new Map(
       (state.tasks ?? []).map((item) => [item.documentPath, item]),
     );
+    this.projections = new Map(
+      (state.projections ?? []).map((item) => [item.projectionId, item]),
+    );
+    this.projectionSources = new Map(
+      (state.projectionSources ?? []).map((item) => [
+        this.projectionSourceKey(item.projectionId, item.sourcePath),
+        item,
+      ]),
+    );
+    this.projectionRows = new Map(
+      (state.projectionRows ?? []).map((item) => [
+        this.projectionRowKey(item.projectionId, item.rowId),
+        item,
+      ]),
+    );
+    this.projectionValues = clone(state.projectionValues ?? []);
+    this.projectionEdges = clone(state.projectionEdges ?? []);
+    this.projectionRevision = state.projectionRevision ?? 0;
     this.rebuildSearchIndexStats();
   }
 

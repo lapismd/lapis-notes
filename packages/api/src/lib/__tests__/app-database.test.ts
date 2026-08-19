@@ -1383,4 +1383,260 @@ describe("AppDatabase", () => {
       { documentId: "t_child" },
     ]);
   });
+
+  it("queries public projections through the shared AST", async () => {
+    const db = new MemoryAppDatabase("projections");
+    await db.registerProjectionDefinition({
+      projectionId: "books/book",
+      ownerPluginId: "books",
+      schemaVersion: 1,
+      configHash: "",
+      visibility: "public",
+      fields: {
+        title: { type: "string", indexed: true, sortable: true },
+        status: { type: "string", indexed: true },
+      },
+      active: true,
+      updatedAt: 1,
+    });
+    await db.replaceProjectionSource({
+      projectionId: "books/book",
+      sourcePath: "reading.md",
+      sourceHash: "h1",
+      rows: [
+        {
+          id: "b1",
+          kind: "book",
+          data: { id: "b1", title: "Dune", status: "reading" },
+        },
+      ],
+    });
+    const result = await db.queryProjection("books/book", {
+      where: { op: "compare", field: "status", comparison: "eq", value: "reading" },
+      limit: 10,
+    });
+    expect(result.rows).toMatchObject([{ id: "b1", title: "Dune" }]);
+    expect(result.complete).toBe(true);
+    await expect(
+      db.queryProjection("books/book", {}, "roles"),
+    ).resolves.toMatchObject({ rows: [expect.objectContaining({ id: "b1" })] });
+  });
+
+  it("walks projection edges in both directions", async () => {
+    const db = new MemoryAppDatabase("projection-edges");
+    await db.registerProjectionDefinition({
+      projectionId: "tasks/task",
+      ownerPluginId: "tasks",
+      schemaVersion: 1,
+      configHash: "",
+      visibility: "public",
+      fields: {
+        title: { type: "string", indexed: true },
+      },
+      active: true,
+      updatedAt: 1,
+    });
+    await db.replaceProjectionSource({
+      projectionId: "tasks/task",
+      sourcePath: "lists/home.md",
+      sourceHash: "h-list",
+      rows: [{ id: "list_home", kind: "task-list", data: { id: "list_home", title: "Home" } }],
+      edges: [
+        {
+          sourceRowId: "list_home",
+          relation: "list-item",
+          targetPath: "buy.md",
+          ordinal: 0,
+        },
+      ],
+    });
+    await db.replaceProjectionSource({
+      projectionId: "tasks/task",
+      sourcePath: "buy.md",
+      sourceHash: "h-buy",
+      rows: [{ id: "t_buy", kind: "task", data: { id: "t_buy", title: "Buy filter" } }],
+    });
+    await expect(
+      db.queryRelated({
+        projectionId: "tasks/task",
+        rowId: "list_home",
+        relation: "list-item",
+      }),
+    ).resolves.toMatchObject({ rows: [{ id: "t_buy" }] });
+    await expect(
+      db.queryRelated({
+        projectionId: "tasks/task",
+        rowId: "t_buy",
+        relation: "list-item",
+        direction: "in",
+      }),
+    ).resolves.toMatchObject({ rows: [{ id: "list_home" }] });
+  });
+
+  it("hides stale and private projection rows", async () => {
+    const db = new MemoryAppDatabase("projection-safety");
+    await db.registerProjectionDefinition({
+      projectionId: "notes/secret",
+      ownerPluginId: "notes",
+      schemaVersion: 1,
+      configHash: "cfg",
+      visibility: "private",
+      fields: { title: { type: "string", indexed: true } },
+      active: true,
+      updatedAt: 1,
+    });
+    await db.upsertIndexedFile({
+      file: {
+        path: "secret.md",
+        normalizedPath: "secret.md",
+        extension: "md",
+        mtime: 1,
+        size: 1,
+        hash: "new",
+        indexed: true,
+      },
+      metadata: {
+        path: "secret.md",
+        hash: "new",
+        parserVersion: "test",
+        metadata: {},
+      },
+      links: [],
+      tags: [],
+      properties: [],
+    });
+    await db.replaceProjectionSource({
+      projectionId: "notes/secret",
+      sourcePath: "secret.md",
+      sourceHash: "old",
+      rows: [{ id: "s1", kind: "note", data: { id: "s1", title: "Secret" } }],
+    });
+    await expect(db.queryProjection("notes/secret", {}, "roles")).rejects.toThrow(
+      /private/,
+    );
+    await expect(
+      db.queryProjection("notes/secret", {}, "notes"),
+    ).resolves.toMatchObject({ rows: [] });
+    await db.markProjectionSourceError({
+      projectionId: "notes/secret",
+      sourcePath: "secret.md",
+      sourceHash: "new",
+      error: "bad yaml",
+    });
+    await expect(
+      db.queryProjection("notes/secret", {}, "notes"),
+    ).resolves.toMatchObject({ rows: [], indexStatus: "error" });
+  });
+
+  it("keeps core metadata when a projection write fails closed", async () => {
+    const db = new MemoryAppDatabase("projection-core-metadata");
+    await db.upsertIndexedFile({
+      file: {
+        path: "role.md",
+        normalizedPath: "role.md",
+        extension: "md",
+        mtime: 1,
+        size: 1,
+        hash: "h2",
+        indexed: true,
+      },
+      metadata: {
+        path: "role.md",
+        hash: "h2",
+        parserVersion: "test",
+        metadata: {},
+      },
+      links: [],
+      tags: [],
+      properties: [],
+    });
+    await db.registerProjectionDefinition({
+      projectionId: "roles/role",
+      ownerPluginId: "roles",
+      schemaVersion: 1,
+      configHash: "",
+      visibility: "public",
+      fields: { title: { type: "string", indexed: true } },
+      active: true,
+      updatedAt: 1,
+    });
+    await db.markProjectionSourceError({
+      projectionId: "roles/role",
+      sourcePath: "role.md",
+      sourceHash: "h2",
+      error: "bad yaml",
+    });
+    await expect(db.queryIndexedMetadata({ extensions: ["md"] })).resolves.toMatchObject([
+      { file: { path: "role.md", hash: "h2" } },
+    ]);
+    await expect(db.queryProjection("roles/role")).resolves.toMatchObject({
+      rows: [],
+      indexStatus: "error",
+    });
+    await expect(
+      db.replaceProjectionSource({
+        projectionId: "roles/role",
+        sourcePath: "role.md",
+        sourceHash: "h2",
+        rows: [{ id: "stolen", kind: "role", data: { title: "Nope" } }],
+        writerPluginId: "tasks",
+      }),
+    ).rejects.toThrow(/cannot write/);
+  });
+
+  it("rebuilds the same projection rows and never writes during a query", async () => {
+    const seed = async (db: MemoryAppDatabase) => {
+      await db.registerProjectionDefinition({
+        projectionId: "tasks/task",
+        ownerPluginId: "tasks",
+        schemaVersion: 1,
+        configHash: "",
+        visibility: "public",
+        fields: { title: { type: "string", indexed: true, sortable: true } },
+        active: true,
+        updatedAt: 1,
+      });
+      await db.replaceProjectionSource({
+        projectionId: "tasks/task",
+        sourcePath: "a.md",
+        sourceHash: "ha",
+        rows: [{ id: "a", kind: "task", data: { id: "a", title: "Alpha" } }],
+      });
+      await db.replaceProjectionSource({
+        projectionId: "tasks/task",
+        sourcePath: "b.md",
+        sourceHash: "hb",
+        rows: [{ id: "b", kind: "task", data: { id: "b", title: "Beta" } }],
+      });
+    };
+    const first = new MemoryAppDatabase("rebuild-a");
+    const second = new MemoryAppDatabase("rebuild-b");
+    await seed(first);
+    await seed(second);
+    const before = await first.queryProjection("tasks/task", {
+      orderBy: [{ field: "title", direction: "asc" }],
+    });
+    const after = await second.queryProjection("tasks/task", {
+      orderBy: [{ field: "title", direction: "asc" }],
+    });
+    expect(after.rows).toEqual(before.rows);
+    const revision = after.revision;
+    await second.queryProjection("tasks/task", {
+      where: { op: "compare", field: "title", comparison: "eq", value: "Alpha" },
+      limit: 1,
+    });
+    expect((await second.queryProjection("tasks/task")).revision).toBe(revision);
+    await second.replaceProjectionSource({
+      projectionId: "tasks/task",
+      sourcePath: "a.md",
+      sourceHash: "ha2",
+      rows: [{ id: "a", kind: "task", data: { id: "a", title: "Changed" } }],
+    });
+    await expect(second.queryProjection("tasks/task")).resolves.toMatchObject({
+      rows: expect.arrayContaining([
+        expect.objectContaining({ id: "a", title: "Changed" }),
+        expect.objectContaining({ id: "b", title: "Beta" }),
+      ]),
+    });
+  });
 });

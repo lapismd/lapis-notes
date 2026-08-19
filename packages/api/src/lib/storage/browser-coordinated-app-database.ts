@@ -65,7 +65,15 @@ type AppDatabaseMethod =
   | "queryTasks"
   | "getTaskRow"
   | "listChildLinks"
-  | "listTaskDescendants";
+  | "listTaskDescendants"
+  | "registerProjectionDefinition"
+  | "unregisterProjectionDefinition"
+  | "replaceProjectionSource"
+  | "markProjectionSourceError"
+  | "deleteProjectionSource"
+  | "queryProjection"
+  | "getProjectionRow"
+  | "queryRelated";
 
 type AppDatabaseRpcMethod = AppDatabaseMethod | "describe";
 
@@ -138,6 +146,14 @@ const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
   "getTaskRow",
   "listChildLinks",
   "listTaskDescendants",
+  "registerProjectionDefinition",
+  "unregisterProjectionDefinition",
+  "replaceProjectionSource",
+  "markProjectionSourceError",
+  "deleteProjectionSource",
+  "queryProjection",
+  "getProjectionRow",
+  "queryRelated",
 ]);
 
 export type BrowserCoordinatedAppDatabaseMode = "turso-owner" | "turso-proxy";
@@ -521,6 +537,59 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
 
   async listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]> {
     return this.invoke<AppDatabaseTaskRecord[]>("listTaskDescendants", path);
+  }
+
+  async registerProjectionDefinition(
+    definition: import("./index-projection").IndexProjectionDefinitionRecord,
+  ): Promise<void> {
+    await this.invoke("registerProjectionDefinition", definition);
+  }
+
+  async unregisterProjectionDefinition(projectionId: string): Promise<void> {
+    await this.invoke("unregisterProjectionDefinition", projectionId);
+  }
+
+  async replaceProjectionSource(
+    input: import("./index-projection").ReplaceProjectionSourceInput,
+  ): Promise<void> {
+    await this.invoke("replaceProjectionSource", input);
+  }
+
+  async markProjectionSourceError(
+    input: import("./index-projection").MarkProjectionSourceErrorInput,
+  ): Promise<void> {
+    await this.invoke("markProjectionSourceError", input);
+  }
+
+  async deleteProjectionSource(
+    projectionId: string,
+    sourcePath: string,
+    writerPluginId?: string,
+  ): Promise<void> {
+    await this.invoke("deleteProjectionSource", projectionId, sourcePath, writerPluginId);
+  }
+
+  async queryProjection<T = Record<string, unknown>>(
+    projectionId: string,
+    query?: import("./index-projection").IndexQuery,
+    readerPluginId?: string,
+  ): Promise<import("./index-projection").IndexQueryResult<T>> {
+    return this.invoke("queryProjection", projectionId, query, readerPluginId);
+  }
+
+  async getProjectionRow<T = Record<string, unknown>>(
+    projectionId: string,
+    rowId: string,
+    readerPluginId?: string,
+  ): Promise<T | null> {
+    return this.invoke("getProjectionRow", projectionId, rowId, readerPluginId);
+  }
+
+  async queryRelated<T = Record<string, unknown>>(
+    query: import("./index-projection").IndexRelatedQuery,
+    readerPluginId?: string,
+  ): Promise<import("./index-projection").IndexQueryResult<T>> {
+    return this.invoke("queryRelated", query, readerPluginId);
   }
 
   private async invoke<T>(

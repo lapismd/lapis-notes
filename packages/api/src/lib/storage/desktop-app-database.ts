@@ -21,6 +21,14 @@ import type {
   SearchEmbeddingRuntimeStatus,
 } from "./app-database";
 import type {
+  IndexProjectionDefinitionRecord,
+  IndexQuery,
+  IndexQueryResult,
+  IndexRelatedQuery,
+  MarkProjectionSourceErrorInput,
+  ReplaceProjectionSourceInput,
+} from "./index-projection";
+import type {
   AppDatabaseTaskChildQuery,
   AppDatabaseTaskQuery,
   AppDatabaseTaskRecord,
@@ -70,6 +78,14 @@ export const DESKTOP_APP_DATABASE_RPC_METHODS = [
   "getTaskRow",
   "listChildLinks",
   "listTaskDescendants",
+  "registerProjectionDefinition",
+  "unregisterProjectionDefinition",
+  "replaceProjectionSource",
+  "markProjectionSourceError",
+  "deleteProjectionSource",
+  "queryProjection",
+  "getProjectionRow",
+  "queryRelated",
 ] as const;
 
 export type DesktopAppDatabaseRpcMethod =
@@ -288,6 +304,55 @@ export class NativeDesktopTursoAppDatabase implements AppDatabase {
 
   listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]> {
     return this.call("listTaskDescendants", path);
+  }
+
+  registerProjectionDefinition(
+    definition: IndexProjectionDefinitionRecord,
+  ): Promise<void> {
+    return this.call("registerProjectionDefinition", definition);
+  }
+
+  unregisterProjectionDefinition(projectionId: string): Promise<void> {
+    return this.call("unregisterProjectionDefinition", projectionId);
+  }
+
+  replaceProjectionSource(input: ReplaceProjectionSourceInput): Promise<void> {
+    return this.call("replaceProjectionSource", input);
+  }
+
+  markProjectionSourceError(input: MarkProjectionSourceErrorInput): Promise<void> {
+    return this.call("markProjectionSourceError", input);
+  }
+
+  deleteProjectionSource(
+    projectionId: string,
+    sourcePath: string,
+    writerPluginId?: string,
+  ): Promise<void> {
+    return this.call("deleteProjectionSource", projectionId, sourcePath, writerPluginId);
+  }
+
+  queryProjection<T = Record<string, unknown>>(
+    projectionId: string,
+    query?: IndexQuery,
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>> {
+    return this.call("queryProjection", projectionId, query, readerPluginId);
+  }
+
+  getProjectionRow<T = Record<string, unknown>>(
+    projectionId: string,
+    rowId: string,
+    readerPluginId?: string,
+  ): Promise<T | null> {
+    return this.call("getProjectionRow", projectionId, rowId, readerPluginId);
+  }
+
+  queryRelated<T = Record<string, unknown>>(
+    query: IndexRelatedQuery,
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>> {
+    return this.call("queryRelated", query, readerPluginId);
   }
 
   private call<T>(method: DesktopAppDatabaseRpcMethod, ...args: unknown[]): Promise<T> {

@@ -206,4 +206,43 @@ describe("TursoAppDatabase", () => {
 
     await database.close();
   });
+
+  it("compiles projection filter, sort, and limit in SQL", async () => {
+    const database = createDatabase("turso-projections");
+    await database.open();
+    await database.registerProjectionDefinition({
+      projectionId: "books/book",
+      ownerPluginId: "books",
+      schemaVersion: 1,
+      configHash: "",
+      visibility: "public",
+      fields: {
+        title: { type: "string", indexed: true, sortable: true },
+        status: { type: "string", indexed: true },
+      },
+      active: true,
+      updatedAt: 1,
+    });
+    await database.replaceProjectionSource({
+      projectionId: "books/book",
+      sourcePath: "dune.md",
+      sourceHash: "h1",
+      rows: [
+        { id: "b1", kind: "book", data: { id: "b1", title: "Dune", status: "reading" } },
+        { id: "b2", kind: "book", data: { id: "b2", title: "Dune Messiah", status: "queued" } },
+      ],
+    });
+    const result = await database.queryProjection("books/book", {
+      where: { op: "compare", field: "status", comparison: "eq", value: "reading" },
+      orderBy: [{ field: "title", direction: "asc" }],
+      limit: 1,
+    });
+    expect(result.rows).toMatchObject([{ id: "b1", title: "Dune" }]);
+    await expect(
+      database.queryProjection("books/book", {}, "roles"),
+    ).resolves.toMatchObject({
+      rows: expect.arrayContaining([expect.objectContaining({ id: "b1" })]),
+    });
+    await database.close();
+  });
 });

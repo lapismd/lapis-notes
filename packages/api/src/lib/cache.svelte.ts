@@ -1212,6 +1212,42 @@ export class MetadataCache extends EventDispatcher<{
     return this.processors.get(ext)!.delete(processor);
   }
 
+  private async projectRegisteredIndexes(
+    file: TFile,
+    content: string,
+    cache: CachedMetadata,
+    hash: string,
+  ): Promise<void> {
+    const fileRef = {
+      path: file.path,
+      extension: file.extension,
+      name: file.name,
+    };
+    for (const entry of this.app.indexProjections.matching(fileRef, cache)) {
+      try {
+        const result = await entry.registration.project({
+          file: fileRef,
+          content,
+          cache,
+        });
+        await this.app.appDatabase.replaceProjectionSource({
+          projectionId: entry.projectionId,
+          sourcePath: file.path,
+          sourceHash: hash,
+          rows: result.rows,
+          edges: result.edges,
+        });
+      } catch (error) {
+        await this.app.appDatabase.markProjectionSourceError({
+          projectionId: entry.projectionId,
+          sourcePath: file.path,
+          sourceHash: hash,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  }
+
   addIndexedProjectionContributor(contributor: IndexedProjectionContributor) {
     this.projectionContributors.add(contributor);
   }
@@ -1309,17 +1345,8 @@ export class MetadataCache extends EventDispatcher<{
       };
       this.processLink(file);
       const record = this.toDatabaseRecord(file, hash, cachedMetadata);
-      for (const contributor of this.projectionContributors) {
-        const contribution = await contributor.project({
-          file,
-          content,
-          cache: cachedMetadata,
-        });
-        if (contribution && "task" in contribution) {
-          record.task = contribution.task;
-        }
-      }
       await this.app.appDatabase.upsertIndexedFile(record);
+      await this.projectRegisteredIndexes(file, content, cachedMetadata, hash);
       this.trigger("changed", file, content, cachedMetadata);
     }
     if (existing && existing.hash !== hash) {

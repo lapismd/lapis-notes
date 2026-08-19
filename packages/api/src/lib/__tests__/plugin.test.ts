@@ -12,7 +12,7 @@ import {
   AppSlashCommandRegistry,
 } from "../agent-skills";
 import { AppResultViewRegistry } from "../agent-result-views";
-import { MemoryAppDatabase, Vault } from "../storage";
+import { IndexProjectionRegistry, MemoryAppDatabase, Vault } from "../storage";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
 vi.mock("../settings.svelte", () => ({
@@ -68,6 +68,8 @@ function createPluginApp() {
     commands,
     configurationOptionSources: new ConfigurationOptionSourceRegistry(),
     searchDocumentProviders: new SearchDocumentProviderRegistry(),
+    indexProjections: new IndexProjectionRegistry(),
+    metadataCache: { getFileCache: () => null },
     agentTools: new AppToolRegistry(),
     agentSkills: new AppSkillRegistry(),
     agentSlashCommands: new AppSlashCommandRegistry(),
@@ -321,15 +323,14 @@ describe("Plugin data persistence", () => {
     expect(app.searchDocumentProviders.getAll()).toHaveLength(0);
   });
 
-  it("registers indexed projection contributors with plugin-owned cleanup", () => {
+  it("registers index projections with plugin-owned cleanup", async () => {
     const { app } = createPluginApp();
-    const add = vi.fn();
-    const remove = vi.fn();
-    Object.assign(app, {
-      metadataCache: {
-        addIndexedProjectionContributor: add,
-        removeIndexedProjectionContributor: remove,
-      },
+    const register = vi.fn().mockResolvedValue(undefined);
+    const unregister = vi.fn().mockResolvedValue(undefined);
+    Object.assign(app.appDatabase, {
+      registerProjectionDefinition: register,
+      unregisterProjectionDefinition: unregister,
+      queryIndexedMetadata: vi.fn().mockResolvedValue([]),
     });
     const plugin = new TestPlugin(app, {
       id: "tasks",
@@ -340,13 +341,27 @@ describe("Plugin data persistence", () => {
       author: "test",
     });
     plugin.load();
-    const contributor = {
-      project: () => ({ task: null }),
-    };
-    plugin.registerIndexedProjectionContributor(contributor);
-    expect(add).toHaveBeenCalledWith(contributor);
+    const handle = plugin.registerIndexProjection({
+      id: "task",
+      version: 1,
+      fields: { title: { type: "string", indexed: true } },
+      project: () => ({ rows: [] }),
+    });
+    expect(handle.id).toBe("tasks/task");
+    expect(register).toHaveBeenCalledWith(
+      expect.objectContaining({ projectionId: "tasks/task", ownerPluginId: "tasks" }),
+    );
+    expect(() =>
+      plugin.registerIndexProjection({
+        id: "tasks/task",
+        version: 1,
+        fields: { title: { type: "string", indexed: true } },
+        project: () => ({ rows: [] }),
+      }),
+    ).toThrow(/\//);
     plugin.unload();
-    expect(remove).toHaveBeenCalledWith(contributor);
+    expect(app.indexProjections.get("tasks/task")).toBeUndefined();
+    expect(unregister).toHaveBeenCalledWith("tasks/task");
   });
 
   it("registers editor-view metadata with plugin-owned cleanup", () => {

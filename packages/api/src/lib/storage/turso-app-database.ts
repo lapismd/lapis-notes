@@ -17,6 +17,13 @@ import {
   type SearchDocumentRecord,
   type SearchEmbeddingProviderConfig,
 } from "./app-database";
+import {
+  compileProjectionQuerySql,
+  type IndexQuery,
+  type IndexQueryResult,
+  type MarkProjectionSourceErrorInput,
+  type ReplaceProjectionSourceInput,
+} from "./index-projection";
 import type {
   AppDatabaseTaskQuery,
   AppDatabaseTaskRecord,
@@ -48,35 +55,6 @@ export interface TursoConnection {
 
 export type TursoConnectionFactory = () => Promise<TursoConnection>;
 
-function taskRowFromSql(row: Record<string, unknown>): AppDatabaseTaskRecord {
-  return {
-    documentPath: String(row.document_path ?? ""),
-    documentId: String(row.document_id ?? ""),
-    kind: row.kind === "task-list" ? "task-list" : "task",
-    title: String(row.title ?? ""),
-    status: String(row.status ?? "open") as AppDatabaseTaskRecord["status"],
-    inbox: Number(row.inbox) === 1,
-    startKind: String(row.start_kind ?? "anytime") as AppDatabaseTaskRecord["startKind"],
-    startDate: (row.start_date as string | null) ?? null,
-    planDate: (row.plan_date as string | null) ?? null,
-    planKind: (row.plan_kind as AppDatabaseTaskRecord["planKind"]) ?? null,
-    planTime: (row.plan_time as string | null) ?? null,
-    durationMinutes:
-      row.duration_minutes == null ? null : Number(row.duration_minutes),
-    deadline: (row.deadline as string | null) ?? null,
-    completedAt: (row.completed_at as string | null) ?? null,
-    repeatStrategy: (row.repeat_strategy as string | null) ?? null,
-    repeatFrequency: (row.repeat_frequency as string | null) ?? null,
-    repeatInterval:
-      row.repeat_interval == null ? null : Number(row.repeat_interval),
-    repeatAnchor: (row.repeat_anchor as string | null) ?? null,
-    checklistTotal: Number(row.checklist_total ?? 0),
-    checklistCompleted: Number(row.checklist_completed ?? 0),
-    commentCount: Number(row.comment_count ?? 0),
-    projectionVersion: Number(row.projection_version ?? 1),
-  };
-}
-
 export interface TursoAppDatabaseOptions {
   kind: Extract<AppDatabaseKind, "turso-native" | "turso-wasm">;
   providerId?: string;
@@ -86,7 +64,7 @@ export interface TursoAppDatabaseOptions {
   connectionFactory: TursoConnectionFactory;
 }
 
-export const TURSO_APP_DATABASE_SCHEMA_VERSION = 1;
+export const TURSO_APP_DATABASE_SCHEMA_VERSION = 2;
 
 export const TURSO_APP_DATABASE_SCHEMA = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -163,6 +141,63 @@ CREATE INDEX IF NOT EXISTS tasks_open_plan ON tasks(status, plan_date);
 CREATE INDEX IF NOT EXISTS tasks_open_deadline ON tasks(status, deadline);
 CREATE INDEX IF NOT EXISTS tasks_open_start ON tasks(status, start_kind, start_date);
 CREATE INDEX IF NOT EXISTS tasks_inbox ON tasks(status, inbox);
+CREATE TABLE IF NOT EXISTS index_projections (
+  projection_id TEXT PRIMARY KEY,
+  owner_plugin_id TEXT NOT NULL,
+  schema_version INTEGER NOT NULL,
+  config_hash TEXT NOT NULL,
+  visibility TEXT NOT NULL,
+  fields_json TEXT NOT NULL,
+  active INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS index_projection_sources (
+  projection_id TEXT NOT NULL,
+  source_path TEXT NOT NULL,
+  source_hash TEXT NOT NULL,
+  schema_version INTEGER NOT NULL,
+  config_hash TEXT NOT NULL,
+  status TEXT NOT NULL,
+  error TEXT,
+  indexed_at INTEGER NOT NULL,
+  PRIMARY KEY (projection_id, source_path)
+);
+CREATE TABLE IF NOT EXISTS index_projection_rows (
+  projection_id TEXT NOT NULL,
+  row_id TEXT NOT NULL,
+  source_path TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  ordinal INTEGER NOT NULL DEFAULT 0,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (projection_id, row_id)
+);
+CREATE INDEX IF NOT EXISTS index_projection_rows_source
+  ON index_projection_rows(projection_id, source_path);
+CREATE TABLE IF NOT EXISTS index_projection_values (
+  projection_id TEXT NOT NULL,
+  row_id TEXT NOT NULL,
+  field TEXT NOT NULL,
+  ordinal INTEGER NOT NULL DEFAULT 0,
+  value_type TEXT NOT NULL,
+  text_value TEXT,
+  number_value REAL,
+  boolean_value INTEGER,
+  date_value TEXT,
+  datetime_value INTEGER,
+  PRIMARY KEY (projection_id, row_id, field, ordinal)
+);
+CREATE TABLE IF NOT EXISTS index_projection_edges (
+  projection_id TEXT NOT NULL,
+  source_row_id TEXT NOT NULL,
+  relation TEXT NOT NULL,
+  target_projection_id TEXT,
+  target_row_id TEXT,
+  target_path TEXT,
+  target_text TEXT,
+  ordinal INTEGER NOT NULL,
+  data_json TEXT,
+  PRIMARY KEY (projection_id, source_row_id, relation, ordinal)
+);
 CREATE TABLE IF NOT EXISTS history_files (
   file_id TEXT PRIMARY KEY,
   data_json TEXT NOT NULL
@@ -245,6 +280,11 @@ function statePersistenceStatements(
     "DELETE FROM tags",
     "DELETE FROM properties",
     "DELETE FROM tasks",
+    "DELETE FROM index_projection_edges",
+    "DELETE FROM index_projection_values",
+    "DELETE FROM index_projection_rows",
+    "DELETE FROM index_projection_sources",
+    "DELETE FROM index_projections",
     "DELETE FROM history_files",
     "DELETE FROM history_revisions",
     "DELETE FROM notifications",
@@ -349,6 +389,92 @@ function statePersistenceStatements(
         task.checklistCompleted,
         task.commentCount,
         task.projectionVersion,
+      ],
+    });
+  }
+  for (const definition of state.projections ?? []) {
+    statements.push({
+      sql: `INSERT INTO index_projections
+            (projection_id, owner_plugin_id, schema_version, config_hash, visibility, fields_json, active, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        definition.projectionId,
+        definition.ownerPluginId,
+        definition.schemaVersion,
+        definition.configHash,
+        definition.visibility,
+        JSON.stringify(definition.fields),
+        definition.active ? 1 : 0,
+        definition.updatedAt,
+      ],
+    });
+  }
+  for (const source of state.projectionSources ?? []) {
+    statements.push({
+      sql: `INSERT INTO index_projection_sources
+            (projection_id, source_path, source_hash, schema_version, config_hash, status, error, indexed_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        source.projectionId,
+        source.sourcePath,
+        source.sourceHash,
+        source.schemaVersion,
+        source.configHash,
+        source.status,
+        source.error ?? null,
+        source.indexedAt,
+      ],
+    });
+  }
+  for (const row of state.projectionRows ?? []) {
+    statements.push({
+      sql: `INSERT INTO index_projection_rows
+            (projection_id, row_id, source_path, kind, ordinal, data_json)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+      args: [
+        row.projectionId,
+        row.rowId,
+        row.sourcePath,
+        row.kind,
+        row.ordinal,
+        JSON.stringify(row.data),
+      ],
+    });
+  }
+  for (const value of state.projectionValues ?? []) {
+    statements.push({
+      sql: `INSERT INTO index_projection_values
+            (projection_id, row_id, field, ordinal, value_type, text_value, number_value, boolean_value, date_value, datetime_value)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        value.projectionId,
+        value.rowId,
+        value.field,
+        value.ordinal,
+        value.valueType,
+        value.textValue ?? null,
+        value.numberValue ?? null,
+        value.booleanValue == null ? null : value.booleanValue ? 1 : 0,
+        value.dateValue ?? null,
+        value.datetimeValue ?? null,
+      ],
+    });
+  }
+  for (const edge of state.projectionEdges ?? []) {
+    statements.push({
+      sql: `INSERT INTO index_projection_edges
+            (projection_id, source_row_id, relation, target_projection_id, target_row_id, target_path, target_text, ordinal, data_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        edge.projectionId,
+        edge.sourceRowId,
+        edge.relation,
+        edge.targetProjectionId ?? null,
+        edge.targetRowId ?? null,
+        edge.targetPath ?? null,
+        edge.targetText ?? null,
+        edge.ordinal,
+        JSON.stringify(edge.data ?? null),
       ],
     });
   }
@@ -593,55 +719,58 @@ export class TursoAppDatabase extends MemoryAppDatabase {
   override async queryTasks(
     query: AppDatabaseTaskQuery = {},
   ): Promise<AppDatabaseTaskRecord[]> {
+    return super.queryTasks(query);
+  }
+
+  override async queryProjection<T = Record<string, unknown>>(
+    projectionId: string,
+    query: IndexQuery = {},
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>> {
     const connection = this.connection;
-    if (!connection) return super.queryTasks(query);
-    const clauses: string[] = [];
-    const args: unknown[] = [];
-    if (query.documentPath) {
-      clauses.push("document_path = ?");
-      args.push(query.documentPath);
-    }
-    if (query.documentId) {
-      clauses.push("document_id = ?");
-      args.push(query.documentId);
-    }
-    if (query.kind) {
-      clauses.push("kind = ?");
-      args.push(query.kind);
-    }
-    const today = query.today ?? new Date().toISOString().slice(0, 10);
-    if (query.view === "inbox") {
-      clauses.push("kind = 'task' AND status = 'open' AND inbox = 1");
-    } else if (query.view === "today") {
-      clauses.push(
-        "kind = 'task' AND status = 'open' AND (plan_date <= ? OR deadline <= ?)",
-      );
-      args.push(today, today);
-    } else if (query.view === "anytime") {
-      clauses.push(
-        "kind = 'task' AND status = 'open' AND plan_date IS NULL AND (start_kind = 'anytime' OR (start_kind = 'date' AND start_date <= ?))",
-      );
-      args.push(today);
-    } else if (query.view === "upcoming") {
-      clauses.push(
-        "kind = 'task' AND status = 'open' AND (start_date > ? OR plan_date > ? OR deadline > ?)",
-      );
-      args.push(today, today, today);
-    } else if (query.view === "someday") {
-      clauses.push("kind = 'task' AND status = 'open' AND start_kind = 'someday'");
-    } else if (query.view === "completed") {
-      clauses.push("status = 'completed'");
-    } else if (query.view === "review") {
-      clauses.push("kind = 'task' AND status = 'open' AND plan_date < ?");
-      args.push(today);
-    }
-    const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
-    const limit = query.limit ? `LIMIT ${Number(query.limit)}` : "";
+    const memory = await super.queryProjection<T>(projectionId, query, readerPluginId);
+    if (!connection || query.after) return memory;
+    const definition = this.projections.get(projectionId);
+    if (!definition) return memory;
+    const compiled = compileProjectionQuerySql(projectionId, query, definition);
     const rows = await connection.all<Record<string, unknown>>(
-      `SELECT * FROM tasks ${where} ${limit}`.trim(),
-      ...args,
+      compiled.sql,
+      ...compiled.args,
     );
-    return rows.map(taskRowFromSql);
+    return {
+      ...memory,
+      rows: rows.map((row) => JSON.parse(String(row.data_json ?? "{}")) as T),
+    };
+  }
+
+  override async registerProjectionDefinition(
+    definition: Parameters<MemoryAppDatabase["registerProjectionDefinition"]>[0],
+  ): Promise<void> {
+    await super.registerProjectionDefinition(definition);
+    await this.persistOrDefer();
+  }
+
+  override async replaceProjectionSource(
+    input: ReplaceProjectionSourceInput,
+  ): Promise<void> {
+    await super.replaceProjectionSource(input);
+    await this.persistOrDefer();
+  }
+
+  override async markProjectionSourceError(
+    input: MarkProjectionSourceErrorInput,
+  ): Promise<void> {
+    await super.markProjectionSourceError(input);
+    await this.persistOrDefer();
+  }
+
+  override async deleteProjectionSource(
+    projectionId: string,
+    sourcePath: string,
+    writerPluginId?: string,
+  ): Promise<void> {
+    await super.deleteProjectionSource(projectionId, sourcePath, writerPluginId);
+    await this.persistOrDefer();
   }
 
   override async deleteIndexedFile(path: string): Promise<void> {

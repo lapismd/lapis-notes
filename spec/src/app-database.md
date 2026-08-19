@@ -11,7 +11,7 @@ workspace shell.
 | LN-DB-001 | Existing `AppDatabase` operations MUST remain available while session creation accepts an optional `AppDatabaseProvider`. Explicit database injection MUST remain supported. |
 | LN-DB-002 | Every database MUST expose a descriptor with provider, engine, transport, role, storage mode, and query capabilities. Consumers MUST NOT infer capabilities from implementation names. |
 | LN-DB-003 | The production local provider MUST use pinned Turso native storage where supported and Turso WASM with OPFS in browser-compatible runtimes. Memory MUST remain explicit test-only injection. |
-| LN-DB-004 | Turso storage MUST persist metadata snapshots, indexed files, links, tags, properties, notifications, history, search documents, chunks, embedding state, and application metadata. |
+| LN-DB-004 | Turso storage MUST persist metadata snapshots, indexed files, links, tags, properties, plugin projections, notifications, history, search documents, chunks, embedding state, and application metadata. |
 | LN-DB-005 | Lexical retrieval MUST use Turso full-text search when available. Unsupported optimizations MAY degrade to Turso table evaluation while reporting the degraded capability. |
 | LN-DB-006 | Semantic retrieval MUST store float vectors in Turso and use Turso vector distance or indexes. Active query paths MUST NOT load sqlite-vec. |
 | LN-DB-007 | Document and query embeddings MUST be generated locally through the provider-neutral embedding contract. Configuration MUST remain lazy until the first semantic index or query, and changing model identity or dimensions MUST invalidate affected vectors. |
@@ -24,10 +24,13 @@ workspace shell.
 | LN-DB-014 | API-owned property evaluation MUST merge indexed vault properties with normalized search-document metadata without persisting provider fields into the metadata index. |
 | LN-DB-015 | Each search document MUST retain its singular domain source-provider id, and search queries MUST support an optional allowlist of source-provider ids across memory, Turso, native IPC, and browser-proxy transports. Provider filtering MUST occur before result limits are applied, while an absent or empty allowlist MUST preserve unfiltered search behavior. |
 | LN-DB-016 | Search queries MUST support one normalized vault-relative path prefix across memory, Turso, native IPC, and browser-proxy transports. Prefix filtering MUST occur before ranking and result limits, match only the selected path or descendants, and preserve unfiltered behavior when absent. |
-| LN-DB-017 | AppDatabase MUST persist a disposable `tasks` projection keyed by document path with typed planning columns and `projection_version`. The vault file remains authoritative. |
-| LN-DB-018 | AppDatabase MUST expose allowlisted `queryTasks`, `getTaskRow`, `listChildLinks`, and `listTaskDescendants`. Callers MUST NOT receive raw SQL. |
+| LN-DB-017 | AppDatabase MUST persist namespaced plugin projections as disposable rows with typed indexed values, source freshness, and edges. The vault file remains authoritative. |
+| LN-DB-018 | AppDatabase MUST expose allowlisted `queryProjection`, `getProjectionRow`, and `queryRelated` over a serializable query AST. Callers MUST NOT receive raw SQL. |
 | LN-DB-019 | Indexed links MUST store heading, ordinal, and kind `subtask`, `list-item`, or `reference`. Kind MUST come from the `Subtasks` or `Items` heading, else `reference`. |
-| LN-DB-020 | `upsertIndexedFile` MUST write or delete the matching `tasks` row in the same update as the file, links, tags, and properties. |
+| LN-DB-020 | Core file-index writes MUST commit independently of plugin projections. A failed projection MUST NOT block metadata and MUST hide stale rows. |
+| LN-DB-021 | The query AST MUST support and, or, not, compare, in, exists, select, orderBy, limit, and cursor after. Default queries MUST return only current ready rows. |
+| LN-DB-022 | Projection IDs MUST be namespaced by plugin id. Other plugins MAY query public projections and MUST NOT query private ones or write another plugin's rows. |
+| LN-DB-023 | `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listChildLinks` and `listTaskDescendants` MAY wrap projection edges or indexed links. |
 
 ## Runtime topology
 

@@ -174,6 +174,7 @@ export declare class App {
     metadataCache: MetadataCache;
     embedRegistry: EmbedRegistry;
     readonly searchDocumentProviders: SearchDocumentProviderRegistry;
+    readonly indexProjections: import("./storage/index-projection").IndexProjectionRegistry;
     readonly agentTools: AppToolRegistry;
     readonly agentSkills: import("./agent-skills").AppSkillRegistry;
     readonly agentSlashCommands: import("./agent-skills").AppSlashCommandRegistry;

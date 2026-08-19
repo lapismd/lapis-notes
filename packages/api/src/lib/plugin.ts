@@ -1,7 +1,9 @@
+import type { MetadataProcessor } from "./cache.svelte";
 import type {
-  IndexedProjectionContributor,
-  MetadataProcessor,
-} from "./cache.svelte";
+  IndexProjectionRegistration,
+  RegisteredIndexProjectionHandle,
+} from "./storage/index-projection";
+import { matchesProjectionSource } from "./storage/index-projection";
 import type {
   SearchDocumentProvider,
   SearchDocumentProviderRegistration,
@@ -1032,13 +1034,94 @@ export abstract class Plugin extends Component {
     });
   }
 
-  registerIndexedProjectionContributor(
-    contributor: IndexedProjectionContributor,
-  ) {
-    this.app.metadataCache.addIndexedProjectionContributor(contributor);
-    this.register(() => {
-      this.app.metadataCache.removeIndexedProjectionContributor(contributor);
+  registerIndexProjection<T = Record<string, unknown>>(
+    registration: IndexProjectionRegistration,
+  ): RegisteredIndexProjectionHandle<T> {
+    const recorded = this.app.indexProjections.register(this.id, registration);
+    void this.app.appDatabase.registerProjectionDefinition({
+      projectionId: recorded.projectionId,
+      ownerPluginId: this.id,
+      schemaVersion: registration.version,
+      configHash: registration.configurationHash ?? "",
+      visibility: registration.visibility ?? "public",
+      fields: registration.fields,
+      active: true,
+      updatedAt: Date.now(),
     });
+    this.register(() => {
+      this.app.indexProjections.unregister(recorded.projectionId);
+      void this.app.appDatabase.unregisterProjectionDefinition(
+        recorded.projectionId,
+      );
+    });
+    void this.backfillIndexProjection(recorded.projectionId);
+    return {
+      id: recorded.projectionId,
+      query: (query) =>
+        this.app.appDatabase.queryProjection<T>(
+          recorded.projectionId,
+          query,
+          this.id,
+        ),
+      get: (id) =>
+        this.app.appDatabase.getProjectionRow<T>(
+          recorded.projectionId,
+          id,
+          this.id,
+        ),
+      queryRelated: (query) =>
+        this.app.appDatabase.queryRelated<T>(
+          { ...query, projectionId: recorded.projectionId },
+          this.id,
+        ),
+    };
+  }
+
+  private async backfillIndexProjection(projectionId: string): Promise<void> {
+    const recorded = this.app.indexProjections.get(projectionId);
+    if (!recorded) return;
+    const source = recorded.registration.source;
+    const candidates = await this.app.appDatabase.queryIndexedMetadata({
+      extensions: source?.extensions,
+      pathPrefixes: source?.pathPrefix ? [source.pathPrefix] : undefined,
+    });
+    for (const candidate of candidates) {
+      const file = this.app.vault.getFileByPath(candidate.file.path);
+      if (!file) continue;
+      if (
+        !matchesProjectionSource(
+          { path: file.path, extension: file.extension, name: file.name },
+          this.app.metadataCache.getFileCache(file) ?? undefined,
+          source,
+        )
+      ) {
+        continue;
+      }
+      try {
+        const content = await this.app.vault.cachedRead(file);
+        const result = await recorded.registration.project({
+          file: { path: file.path, extension: file.extension, name: file.name },
+          content,
+          cache: this.app.metadataCache.getFileCache(file) ?? undefined,
+        });
+        await this.app.appDatabase.replaceProjectionSource({
+          projectionId,
+          sourcePath: file.path,
+          sourceHash: candidate.file.hash,
+          rows: result.rows,
+          edges: result.edges,
+          writerPluginId: this.id,
+        });
+      } catch (error) {
+        await this.app.appDatabase.markProjectionSourceError({
+          projectionId,
+          sourcePath: file.path,
+          sourceHash: candidate.file.hash,
+          error: error instanceof Error ? error.message : String(error),
+          writerPluginId: this.id,
+        });
+      }
+    }
   }
 
   /**

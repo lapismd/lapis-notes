@@ -24,6 +24,8 @@ terminal vault cwd binding (LN-DESK-059) and web `--workspace` Settings copy
 (LN-WEB-037) also MUST NOT change Word Count ownership. Web vault copy
 progress (LN-WEB-042, LN-WEB-043) and App rebuild-cache commands
 (LN-PKG-097, LN-PKG-098) also MUST NOT change Word Count ownership.
+Desktop and web Tasks index-only load (LN-DESK-060, LN-WEB-044) also MUST
+NOT change Word Count ownership.
 
 ## Requirements
 

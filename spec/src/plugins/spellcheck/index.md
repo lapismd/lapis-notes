@@ -7,6 +7,8 @@ Desktop terminal vault cwd binding (LN-DESK-059) and web `--workspace`
 Settings copy (LN-WEB-037) MUST NOT change Spell Check ownership.
 Web vault copy progress (LN-WEB-042, LN-WEB-043) and App rebuild-cache
 commands (LN-PKG-097, LN-PKG-098) also MUST NOT change Spell Check ownership.
+Desktop and web Tasks index-only load (LN-DESK-060, LN-WEB-044) also MUST
+NOT change Spell Check ownership.
 
 ## Requirements
 
