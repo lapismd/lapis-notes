@@ -618,6 +618,9 @@ importers:
       '@lapis-notes/markdown':
         specifier: workspace:*
         version: link:../plugin-markdown
+      '@lapis-notes/ui':
+        specifier: workspace:*
+        version: link:../../ui
       '@lapismd/design-core':
         specifier: link:../../../../design-core
         version: link:../../../../design-core
@@ -10417,7 +10420,7 @@ snapshots:
       '@vitest/mocker': 4.1.10(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
       playwright: 1.62.1
       tinyrainbow: 3.1.1
-      vitest: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@26.1.0)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@29.1.1(@noble/hashes@2.3.0))(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -10484,7 +10487,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@26.1.0)(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.1.2)(@vitest/browser-playwright@4.1.10)(jsdom@29.1.1(@noble/hashes@2.3.0))(vite@6.4.3(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
       ws: 8.21.2
     transitivePeerDependencies:
       - bufferutil

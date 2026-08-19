@@ -93,7 +93,8 @@ registrations. Disposing a slash-command registration removes it from
 later composer resolution; reserved application names such as `/help`,
 `/scope`, `/context`, `/status`, and `/agent` remain app-owned. Their local
 notices stay start-aligned with authored line breaks. The slash menu lists
-those catalog commands and submits argument-free picks immediately. Search owns composer
+those catalog commands, ranks Fuse name matches before description hits,
+and submits argument-free picks immediately. Search owns composer
 `/search` and disposes it on unload.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects

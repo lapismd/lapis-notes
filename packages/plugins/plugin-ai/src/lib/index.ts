@@ -149,7 +149,12 @@ export { createSkillAppTools } from "./skills/skill-tools";
 export { SlashCommandCatalog } from "./commands/catalog";
 export { SlashCommandRouter } from "./commands/router";
 export { parseSlashCommand } from "./commands/parser";
-export { formatSlashHelp, composerSlashItems } from "./commands/groups";
+export {
+  formatSlashHelp,
+  composerSlashItems,
+  filterComposerSlashItems,
+} from "./commands/groups";
+export type { ComposerSlashItem } from "./commands/groups";
 export { formatContextNotice, formatScopeNotice } from "./commands/inspect";
 export { BUNDLED_RESEARCH_SKILL, BUNDLED_APP_SKILLS } from "./skills/bundled/research";
 export { BUNDLED_LAPIS_NOTES_SKILL } from "./skills/bundled/lapis-notes";

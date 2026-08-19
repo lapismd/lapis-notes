@@ -1,4 +1,38 @@
+import { fuzzySearch } from "@lapis-notes/ui";
 import type { EffectiveSlashCommand, SlashCommandSource } from "./types";
+
+export type ComposerSlashItem = {
+  id: string;
+  label: string;
+  value: string;
+  description: string;
+  source: SlashCommandSource;
+  submitOnSelect: boolean;
+};
+
+const SLASH_SEARCH_KEYS = [
+  { name: "label", weight: 2 },
+  { name: "id", weight: 2 },
+] as const;
+
+function normalizeSlashQuery(query: string): string {
+  return query.trim().replace(/^\/+/u, "");
+}
+
+function commandNameFields(item: ComposerSlashItem): string[] {
+  const label = item.label.replace(/^\/+/u, "");
+  const idTail = item.id.includes(":")
+    ? item.id.slice(item.id.lastIndexOf(":") + 1)
+    : item.id;
+  return [item.id, idTail, label, item.value.replace(/^\/+/u, "")];
+}
+
+function matchesCommandName(item: ComposerSlashItem, query: string): boolean {
+  const needle = query.toLowerCase();
+  return commandNameFields(item).some((field) =>
+    field.toLowerCase().includes(needle),
+  );
+}
 
 export type SlashCommandGroup = "app" | "actions" | "skills" | "agent";
 
@@ -81,23 +115,9 @@ export function formatSlashHelp(
 export function composerSlashItems(
   commands: readonly EffectiveSlashCommand[],
   agentLabel?: string,
-): Array<{
-  id: string;
-  label: string;
-  value: string;
-  description: string;
-  source: SlashCommandSource;
-  submitOnSelect: boolean;
-}> {
+): ComposerSlashItem[] {
   const grouped = groupSlashCommands(commands);
-  const items: Array<{
-    id: string;
-    label: string;
-    value: string;
-    description: string;
-    source: SlashCommandSource;
-    submitOnSelect: boolean;
-  }> = [];
+  const items: ComposerSlashItem[] = [];
   for (const group of GROUP_ORDER) {
     const heading = groupLabel(group, agentLabel);
     for (const command of grouped[group]) {
@@ -114,4 +134,28 @@ export function composerSlashItems(
     }
   }
   return items;
+}
+
+export function filterComposerSlashItems(
+  items: readonly ComposerSlashItem[],
+  query: string,
+): ComposerSlashItem[] {
+  const needle = normalizeSlashQuery(query);
+  if (!needle) return [...items];
+
+  const options = {
+    keys: [...SLASH_SEARCH_KEYS, { name: "description", weight: 0.4 }],
+    minMatchCharLength: 1,
+  } as const;
+  const matches = fuzzySearch([...items], needle, options);
+  const nameHits: ComposerSlashItem[] = [];
+  const descriptionHits: ComposerSlashItem[] = [];
+  for (const { item } of matches) {
+    if (matchesCommandName(item, needle)) {
+      nameHits.push(item);
+    } else {
+      descriptionHits.push(item);
+    }
+  }
+  return [...nameHits, ...descriptionHits];
 }

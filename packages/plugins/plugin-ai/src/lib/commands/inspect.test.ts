@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatContextNotice, formatScopeNotice } from "./inspect";
-import { composerSlashItems } from "./groups";
+import { composerSlashItems, filterComposerSlashItems } from "./groups";
 import { RESERVED_SLASH_COMMANDS } from "./reserved";
 import type { EffectiveSlashCommand } from "./types";
 
@@ -100,5 +100,21 @@ describe("composer slash items", () => {
     expect(items.some((item) => item.id === "cancel")).toBe(true);
     expect(items.some((item) => item.id === "skill")).toBe(true);
     expect(items.some((item) => item.id === "native")).toBe(true);
+  });
+
+  it("ranks a command-name match ahead of a description-only hit", () => {
+    const items = composerSlashItems(RESERVED_SLASH_COMMANDS);
+    expect(items.map((item) => item.id).indexOf("status")).toBeLessThan(
+      items.map((item) => item.id).indexOf("context"),
+    );
+    expect(filterComposerSlashItems(items, "")).toEqual(items);
+    for (const query of ["context", "/context", "CONTEXT"]) {
+      const ranked = filterComposerSlashItems(items, query);
+      expect(ranked[0]?.id).toBe("context");
+      expect(ranked.map((item) => item.id)).toContain("status");
+      expect(ranked.findIndex((item) => item.id === "context")).toBeLessThan(
+        ranked.findIndex((item) => item.id === "status"),
+      );
+    }
   });
 });

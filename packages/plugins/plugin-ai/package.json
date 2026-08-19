@@ -41,6 +41,7 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
+    "@lapis-notes/ui": "workspace:*",
     "@lapismd/design-core": "*",
     "@lucide/svelte": "^0.523.0",
     "ajv": "^8.20.0",

@@ -170,7 +170,8 @@ command Markdown, snapshots, skill tools, and routing, including reserved
 `/help`, `/scope`, `/context`, `/status`, and `/agent`.
 Local slash notices stay start-aligned with authored line breaks and show
 the composer working indicator while they prepare. The slash menu lists the
-same catalog commands and submits argument-free picks immediately.
+same catalog commands, ranks Fuse name matches before description hits,
+and submits argument-free picks immediately.
 AI ships bundled `research` and `lapis-notes` skills. An active skill file
 MUST NOT scope a new conversation to `.agents`. Search owns composer
 `/search` as a `notes_search` tool-dispatch command. Live ACP session start

@@ -67,7 +67,10 @@
   import type { SkillDiscoveryContext } from "../skills/types";
   import type { SlashCommandRouter } from "../commands/router";
   import { composerAgentLabel } from "../commands/agent";
-  import { composerSlashItems } from "../commands/groups";
+  import {
+    composerSlashItems,
+    filterComposerSlashItems,
+  } from "../commands/groups";
   import type { AppToolHost } from "../tools/app-tool-host";
 
   let {
@@ -234,19 +237,14 @@
         character: "/",
         menuLabel: "Commands",
         emptySearchResultsText: "No commands",
-        searchSource: (query) => {
-          const needle = query.trim().toLowerCase();
-          return composerSlashItems(
-            slashRouter.catalog.list(controller.activeBindingId),
-            composerAgentLabel(selectedAgent, selectedRuntime),
-          ).filter(
-            (item) =>
-              !needle ||
-              item.label.toLowerCase().includes(needle) ||
-              item.id.toLowerCase().includes(needle) ||
-              item.description.toLowerCase().includes(needle),
-          );
-        },
+        searchSource: (query) =>
+          filterComposerSlashItems(
+            composerSlashItems(
+              slashRouter.catalog.list(controller.activeBindingId),
+              composerAgentLabel(selectedAgent, selectedRuntime),
+            ),
+            query,
+          ),
         onSelect: (item) =>
           item.submitOnSelect
             ? (item.value ?? `/${item.id}`)
