@@ -137,7 +137,7 @@ and web. This spike MUST NOT replace `@lapis-notes/desktop-electron`.
 - [x] Private `@lapis-notes/desktop-deno` package at version `2026.31.5`
 - [x] Deno window, `win.bind()` bridge, vault-root FS, bootstrap KV, and path-prompt vault open
 - [x] WorkspaceStartup then WorkspaceShell with Markdown and File Explorer only
-- [x] macOS hidden title bar via Deno `transparentTitlebar`, plus window drag from Design Core markers
+- [x] macOS chromeless `frameless` window plus window drag from Design Core markers
 - [ ] Focused API and package checks; manual vault-open boot
 
 Intentionally out of scope: native Turso RPC, language-service and plugin-eval

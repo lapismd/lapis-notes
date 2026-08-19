@@ -9,13 +9,15 @@ import {
 } from "./window-chrome";
 
 describe("Deno desktop window chrome", () => {
-  it("hides the macOS title bar without overlaying traffic lights", () => {
+  it("creates a chromeless macOS window and keeps other platforms framed", () => {
     expect(createDesktopWindowOptions("darwin")).toMatchObject({
       title: "",
-      transparentTitlebar: true,
+      frameless: true,
+      transparentTitlebar: false,
     });
     expect(createDesktopWindowOptions("linux")).toMatchObject({
       title: DESKTOP_WINDOW_TITLE,
+      frameless: false,
       transparentTitlebar: false,
     });
     expect(needsCreatedChromeWindow("darwin")).toBe(true);

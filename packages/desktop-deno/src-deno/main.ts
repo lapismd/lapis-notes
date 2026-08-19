@@ -26,6 +26,7 @@ import {
 const windowOptions = createDesktopWindowOptions(Deno.build.os);
 const bootstrap = new Deno.BrowserWindow({
   ...windowOptions,
+  frameless: false,
   transparentTitlebar: false,
 });
 const win = needsCreatedChromeWindow(Deno.build.os)
@@ -35,7 +36,7 @@ if (win !== bootstrap) {
   bootstrap.setTitle("");
   bootstrap.hide();
   win.setTitle("");
-  win.addEventListener("close", () => Deno.exit(0));
+  win.show();
 }
 const drag = createWindowDragController(win);
 
