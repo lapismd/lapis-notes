@@ -1,0 +1,23 @@
+---
+description: Rebuild first-party plugin dist so web and desktop UI pick up source changes
+alwaysApply: true
+---
+
+# Rebuild plugin dist for the running UI
+
+Web and desktop resolve first-party plugins through public `dist` exports
+(`svelte-package` / `prepack`). Storybook may alias source; the running app
+does not.
+
+After changing `@lapis-notes/ai` or another dist-exporting plugin, rebuild
+that package before validating the UI:
+
+```bash
+pnpm --filter @lapis-notes/ai build
+```
+
+Use the owning package name for other plugins (`@lapis-notes/markdown`,
+`@lapis-notes/search`, `@lapis-notes/file-explorer`, and so on). Then restart
+the long-running web Vite or desktop process when hot reload still shows the
+old surface. Do not treat package tests or Storybook plays as proof that
+`dist` was refreshed.
