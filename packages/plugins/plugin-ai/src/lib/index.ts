@@ -155,7 +155,11 @@ export {
   filterComposerSlashItems,
 } from "./commands/groups";
 export type { ComposerSlashItem } from "./commands/groups";
-export { formatContextNotice, formatScopeNotice } from "./commands/inspect";
+export {
+  formatContextNotice,
+  formatScopeNotice,
+  formatToolDispatchNotice,
+} from "./commands/inspect";
 export { BUNDLED_RESEARCH_SKILL, BUNDLED_APP_SKILLS } from "./skills/bundled/research";
 export { BUNDLED_LAPIS_NOTES_SKILL } from "./skills/bundled/lapis-notes";
 export { buildAgentBootstrap, buildSessionBootstrap } from "./bootstrap/build";

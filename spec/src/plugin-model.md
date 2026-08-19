@@ -96,7 +96,8 @@ notices stay start-aligned with authored line breaks. The slash menu lists
 those catalog commands, ranks Fuse name matches before description hits,
 and submits argument-free picks immediately. `/skills` and `/context`
 hydrate a missing binding snapshot from current discovery. Search owns composer
-`/search` and disposes it on unload.
+`/search` and disposes it on unload. The chat shows those hits as a local
+report.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects
 conflicting names, and unload disposes the exact registration.

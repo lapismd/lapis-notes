@@ -65,7 +65,11 @@ import {
 import { buildAgentBootstrap, buildSessionBootstrap } from "../bootstrap/build";
 import { hasHostFilesystemPath } from "../skills/manifest";
 import { formatSlashHelp } from "../commands/groups";
-import { formatContextNotice, formatScopeNotice } from "../commands/inspect";
+import {
+  formatContextNotice,
+  formatScopeNotice,
+  formatToolDispatchNotice,
+} from "../commands/inspect";
 import { normalizeConversationScope } from "../conversations/paths";
 import type { AcpAgentId } from "../settings/acp-agents";
 
@@ -934,24 +938,53 @@ export class AiChatController {
       return;
     }
     if (result.kind === "tool") {
-      await this.#prepareSession(request);
-      this.#ensureLocalAppToolSession();
-      if (!this.#appToolHost || !this.#activeBindingId) {
-        this.error = "Application tools are unavailable for this command.";
-        return;
-      }
-      const callId = `slash-tool-${crypto.randomUUID()}`;
-      await this.#appToolHost.invoke(this.#activeBindingId, {
-        runId: callId,
-        toolCallId: callId,
-        name: result.tool,
-        input: result.input,
+      await this.#withCommandProgress(async (turnId) => {
+        await this.#prepareSession(request, turnId);
+        if (this.#isAbandoned(turnId)) return;
+        this.#ensureLocalAppToolSession();
+        if (!this.#appToolHost || !this.#activeBindingId) {
+          this.error = "Application tools are unavailable for this command.";
+          this.items = [
+            ...this.items,
+            {
+              id: `command-error-${crypto.randomUUID()}`,
+              type: "error",
+              text: this.error,
+              createdAt: new Date().toISOString(),
+            },
+          ];
+          return;
+        }
+        try {
+          const callId = `slash-tool-${crypto.randomUUID()}`;
+          const toolResult = await this.#appToolHost.invoke(
+            this.#activeBindingId,
+            {
+              runId: callId,
+              toolCallId: callId,
+              name: result.tool,
+              input: result.input,
+            },
+          );
+          if (this.#isAbandoned(turnId)) return;
+          this.#appendLocalNotice(
+            formatToolDispatchNotice(result.tool, result.input, toolResult),
+          );
+          await this.#persistCommandNotice();
+        } catch (error) {
+          this.error =
+            error instanceof Error ? error.message : String(error);
+          this.items = [
+            ...this.items,
+            {
+              id: `command-error-${crypto.randomUUID()}`,
+              type: "error",
+              text: this.error,
+              createdAt: new Date().toISOString(),
+            },
+          ];
+        }
       });
-      await this.#recordCommandItem(
-        result.tool,
-        "skill",
-        JSON.stringify(result.input),
-      );
       return;
     }
     if (result.kind === "skill") {

@@ -924,6 +924,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-152   | ai-plugin                       | Implemented | composerSlashItems sets submitOnSelect when argumentHint is absent; the panel passes that flag to the trigger |
 | LN-AI-153   | ai-plugin                       | Implemented | filterComposerSlashItems ranks /context first for query context; /status may follow as a description match |
 | LN-AI-154   | ai-plugin                       | Implemented | After an existing session loses its in-memory skill snapshot, /skills still lists discovered skill names |
+| LN-AI-155   | ai-plugin                       | Implemented | /search OAuth invokes notes_search and the transcript report includes the hit path |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |

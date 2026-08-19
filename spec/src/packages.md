@@ -176,7 +176,8 @@ and submits argument-free picks immediately.
 discovery.
 AI ships bundled `research` and `lapis-notes` skills. An active skill file
 MUST NOT scope a new conversation to `.agents`. Search owns composer
-`/search` as a `notes_search` tool-dispatch command. Live ACP session start
+`/search` as a `notes_search` tool-dispatch command and shows the hits as a
+local report. Live ACP session start
 appends a path-free `available_skills` manifest and a generated
 `sessionBootstrap` through host session setup, including skill-folder chats. The AI catalog lists live
 tools, commands, and skills by owner in an explorer-aligned tree. Neither

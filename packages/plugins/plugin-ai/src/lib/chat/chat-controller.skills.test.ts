@@ -628,7 +628,29 @@ Folder lapis notes body.
 
   it("invokes Search /search through AppToolHost without a model prompt", async () => {
     const execute = vi.fn(async () => ({
-      content: [{ type: "text" as const, text: "hits" }],
+      content: [
+        {
+          type: "text" as const,
+          text: JSON.stringify({
+            results: [
+              {
+                path: "Projects/auth.md",
+                score: 1,
+                snippets: [{ text: "OAuth tokens", offset: 0 }],
+              },
+            ],
+          }),
+        },
+      ],
+      structuredContent: {
+        results: [
+          {
+            path: "Projects/auth.md",
+            score: 1,
+            snippets: [{ text: "OAuth tokens", offset: 0 }],
+          },
+        ],
+      },
     }));
     const extensions = new AppSlashCommandRegistry();
     extensions.register(
@@ -669,6 +691,15 @@ Folder lapis notes body.
     );
     expect(execute).toHaveBeenCalledTimes(1);
     expect(runtime.sessions.at(-1)?.prompts ?? []).toEqual([]);
+    const notice = [...controller.items]
+      .reverse()
+      .find((item) => item.type === "status");
+    expect(notice?.type === "status" ? notice.text : "").toContain(
+      "Projects/auth.md",
+    );
+    expect(notice?.type === "status" ? notice.layout : undefined).toBe(
+      "report",
+    );
     await controller.close();
   });
 });
