@@ -20,7 +20,7 @@
 | LN-BM-011 | Each known type MUST render its Lucide icon and fallback label. Graph rows MUST remain visible when Graph is unregistered. |
 | LN-BM-012 | The Bookmarks tree MUST inset rows from every panel edge using the public Explorer content-padding token. The ScrollArea MUST stay flush so the scrollbar rides the panel edge. |
 | LN-BM-013 | Bookmarks toolbar actions MUST use the public Explorer toolbar hover and pressed tokens so ghost-button muted hover stays visible on the panel. Pressed geometry MUST stay identical to idle. |
-| LN-BM-014 | Bookmarks nested lists MUST use Explorer indent, guide, folder-gap, and row-gap tokens so the guide centers on the expanded chevron tip. Rows MUST NOT add a second depth indent. |
+| LN-BM-014 | Bookmarks nested lists MUST use Explorer indent, guide, folder-gap, and row-gap tokens so the guide centers on the expanded chevron tip. Rows MUST NOT add a second depth indent. Leaf rows MUST NOT reserve a disclosure column. |
 
 ### LN-BM-006 acceptance details
 
@@ -36,7 +36,7 @@ Activation verifies:
 
 Row presentation verifies:
 
-- Groups use a disclosure chevron and no folder glyph.
+- Groups use a disclosure chevron and no folder glyph. Leaf rows omit the disclosure spacer so their icon starts after the guide.
 - Files use `file`, folders `folder`, searches `search`, URLs `external-link`, and graph items `git-fork`.
 - Labels fall back to basename, folder name, query, URL, or `Graph` when `title` is omitted. A file `subpath` remains visible on the row.
 

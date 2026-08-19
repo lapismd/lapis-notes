@@ -76,7 +76,7 @@ Outline, File Properties, then Tags on the right when those plugins loaded.
 The Bookmarks panel snapshots persisted items so add and remove refresh the tree,
 insets rows with the public Explorer content-padding token, uses Explorer
 toolbar hover tokens, and follows Explorer tree indent, chevron-centered
-guides, and Outline-style leaf indent.
+guides, and leaf rows that omit the disclosure column.
 Save and Load workspace layout commands store named snapshots; Reset reapplies
 that default seed. Collapse, remount, and file-open restore keep the same
 plugin leaf by serialized id and its live `getState()`.

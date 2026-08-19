@@ -122,7 +122,7 @@ then Tags on the right when those views are registered. The Bookmarks panel
 snapshots persisted items so add and remove refresh the tree, insets
 rows with the public Explorer content-padding token, uses Explorer
 toolbar hover tokens, and follows Explorer tree indent, chevron-centered
-guides, and Outline-style leaf indent. The API workspace
+guides, and leaf rows that omit the disclosure column. The API workspace
 registers Save, Load, and Reset layout commands for named snapshots and the
 same default seed.
 `@lapis-notes/file-explorer` adds native system-path copy, Lapis URL copy,

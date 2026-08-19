@@ -89,6 +89,7 @@ function expectExplorerTreeGeometry(group: HTMLElement) {
   const firstChild = sublist.querySelector(".bookmarks-panel__row");
   expect(firstChild).toBeInstanceOf(HTMLElement);
   if (!(firstChild instanceof HTMLElement)) return;
+  expect(firstChild.querySelector(".bookmarks-panel__disclosure-spacer")).toBeNull();
   expect(
     firstChild.getBoundingClientRect().top - row.getBoundingClientRect().bottom,
   ).toBeGreaterThanOrEqual(3);
@@ -96,6 +97,12 @@ function expectExplorerTreeGeometry(group: HTMLElement) {
     firstChild.getBoundingClientRect().left - row.getBoundingClientRect().left;
   expect(indent).toBeGreaterThan(8);
   expect(indent).toBeLessThan(40);
+  const icon = firstChild.querySelector(".bookmarks-panel__icon");
+  expect(icon).toBeInstanceOf(Element);
+  if (!(icon instanceof Element)) return;
+  const iconStart = icon.getBoundingClientRect().left - chevronTip;
+  expect(iconStart).toBeGreaterThan(4);
+  expect(iconStart).toBeLessThan(28);
 }
 
 function dragBookmark(source: HTMLElement, target: HTMLElement) {

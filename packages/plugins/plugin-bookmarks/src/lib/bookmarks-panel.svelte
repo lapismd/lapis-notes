@@ -285,8 +285,6 @@
                 data-open={isExpanded(item.ctime) ? "true" : undefined}
               />
             </button>
-          {:else}
-            <span class="bookmarks-panel__disclosure-spacer"></span>
           {/if}
           {#if bookmarkIcon(item)}
             <WorkspaceIcon class="bookmarks-panel__icon" name={bookmarkIcon(item)!} />
@@ -615,8 +613,7 @@
     );
   }
 
-  .bookmarks-panel__disclosure,
-  .bookmarks-panel__disclosure-spacer {
+  .bookmarks-panel__disclosure {
     display: inline-flex;
     flex: 0 0 auto;
     width: var(--ui-workspace-icon-size, 1rem);
