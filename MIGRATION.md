@@ -134,9 +134,10 @@ and web. This spike MUST NOT replace `@lapis-notes/desktop-electron`.
 
 - [x] Canonical desktop-deno-host requirements, package authorization, verification mapping, and MIGRATION intake
 - [x] Widen `NativeDesktopRuntime` / `RuntimeTarget` with `deno-desktop` and route the app database to WASM Turso
-- [ ] Private `@lapis-notes/desktop-deno` package at version `2026.31.5`
-- [ ] Deno window, `win.bind()` bridge, vault-root FS, bootstrap KV, and path-prompt vault open
-- [ ] WorkspaceStartup then WorkspaceShell with Markdown and File Explorer only
+- [x] Private `@lapis-notes/desktop-deno` package at version `2026.31.5`
+- [x] Deno window, `win.bind()` bridge, vault-root FS, bootstrap KV, and path-prompt vault open
+- [x] WorkspaceStartup then WorkspaceShell with Markdown and File Explorer only
+- [x] macOS hidden title bar via Deno `transparentTitlebar`, plus window drag from Design Core markers
 - [ ] Focused API and package checks; manual vault-open boot
 
 Intentionally out of scope: native Turso RPC, language-service and plugin-eval
