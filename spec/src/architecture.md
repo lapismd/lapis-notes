@@ -101,7 +101,8 @@ host names and `.agents/commands` Markdown, including `/help`, `/scope`,
 with authored line breaks and show the composer working indicator while they
 prepare. The slash menu lists the same catalog commands, ranks Fuse name
 matches before description hits, and submits argument-free picks
-immediately. AI ships bundled `research` and `lapis-notes` skills.
+immediately. `/skills` and `/context` hydrate a missing binding snapshot
+from current discovery. AI ships bundled `research` and `lapis-notes` skills.
 An active skill file MUST NOT scope a new conversation to `.agents`.
 Search owns composer `/search` as a `notes_search` tool-dispatch command.
 Live ACP session start appends a path-free `available_skills` manifest and a

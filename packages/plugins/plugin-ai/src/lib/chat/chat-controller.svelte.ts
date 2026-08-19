@@ -340,6 +340,12 @@ export class AiChatController {
     );
     this.#activeBinding = activeBinding;
     this.#activeBindingId = activeBinding?.id;
+    if (activeBinding) {
+      await this.#prepareSkillSnapshot(
+        activeBinding.id,
+        snapshot.location.scopeDir,
+      );
+    }
     this.bindings = snapshot.agents.filter(
       (record): record is AgentBindingCreatedRecord =>
         record.type === "binding.created",
@@ -907,11 +913,10 @@ export class AiChatController {
           await this.#prepareSession(request, turnId);
           if (this.#isAbandoned(turnId)) return;
           if (result.notice === "skills") {
+            const snapshot = await this.#effectiveSkillSnapshot();
             const names =
-              this.#skillSnapshots
-                .get(this.#activeBindingId ?? "")
-                ?.skills.map((skill) => skill.name)
-                .join(", ") || "No skills are available.";
+              snapshot?.skills.map((skill) => skill.name).join(", ") ||
+              "No skills are available.";
             this.#appendLocalNotice(names);
           } else {
             const names =
@@ -1163,9 +1168,9 @@ export class AiChatController {
           ?.getSession(this.#activeBindingId ?? "")
           ?.tools.map((tool) => tool.name) ?? [],
       skills:
-        this.#skillSnapshots
-          .get(this.#activeBindingId ?? "")
-          ?.skills.map((skill) => skill.name) ?? [],
+        (await this.#effectiveSkillSnapshot())?.skills.map(
+          (skill) => skill.name,
+        ) ?? [],
       folderInstructionPaths: bootstrap.folderInstructions
         .filter((entry) => !entry.omitted)
         .map((entry) => entry.path),
@@ -1258,17 +1263,10 @@ export class AiChatController {
 
   async #syncSlashCatalog(): Promise<void> {
     if (!this.#slashRouter || !this.#skills) return;
-    const existing = this.#activeBindingId
-      ? this.#skillSnapshots.get(this.#activeBindingId)
-      : undefined;
     const context = this.#discoveryContext();
     await this.#slashRouter.catalog.refreshFileCommands(context.scopeDir);
-    if (existing) {
-      this.#slashRouter.catalog.rebuildSkillCommands(existing);
-      return;
-    }
-    const snapshot = await this.#skills.snapshot(context);
-    this.#slashRouter.catalog.rebuildSkillCommands(snapshot);
+    const snapshot = await this.#effectiveSkillSnapshot();
+    if (snapshot) this.#slashRouter.catalog.rebuildSkillCommands(snapshot);
   }
 
   #discoveryContext(): SkillDiscoveryContext {
@@ -1288,6 +1286,18 @@ export class AiChatController {
       scopeDir: this.location?.scopeDir ?? "",
       runtimeSupportsAppTools: true,
     });
+  }
+
+  async #effectiveSkillSnapshot(): Promise<
+    import("../skills/types").SkillSnapshot | undefined
+  > {
+    const scopeDir =
+      this.location?.scopeDir ?? this.#discoveryContext().scopeDir;
+    if (this.#activeBindingId) {
+      return this.#prepareSkillSnapshot(this.#activeBindingId, scopeDir);
+    }
+    if (!this.#skills) return undefined;
+    return this.#skills.snapshot(this.#discoveryContext());
   }
 
   async #prepareSkillSnapshot(
@@ -1491,6 +1501,10 @@ export class AiChatController {
       !(request.skillActivations && request.skillActivations.length > 0) &&
       this.#bindingMatchesRequest(this.#activeBinding, request, targetRuntime)
     ) {
+      await this.#prepareSkillSnapshot(
+        this.#activeBinding.id,
+        this.location?.scopeDir ?? this.#discoveryContext().scopeDir,
+      );
       return;
     }
 

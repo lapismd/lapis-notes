@@ -92,6 +92,7 @@ execution APIs.
 | LN-AI-151 | The composer slash menu MUST list the same effective commands as the live catalog for the current conversation, including every reserved name. It MUST NOT hide reserved names behind a subset allowlist. |
 | LN-AI-152 | Selecting a slash command with no argument hint MUST insert the command and submit immediately. Commands with an argument hint MUST remain in the composer so the user can complete them. |
 | LN-AI-153 | The composer slash menu MUST rank Fuse.js results so a command-name match appears before any description-only match. An empty query MUST keep catalog order. |
+| LN-AI-154 | Reserved `/skills` and `/context` MUST report the active binding's eligible skills. If that snapshot is missing after restore or an existing session, AI MUST hydrate it from current discovery. It MUST NOT report none when eligible skills exist. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -229,7 +230,9 @@ local notices stay start-aligned with authored line breaks and show the composer
 working indicator while they prepare (LN-AI-149, LN-AI-150). The slash menu lists
 the same catalog commands, ranks Fuse name matches before description hits,
 and submits argument-free picks immediately
-(LN-AI-151–LN-AI-153). AI ships
+(LN-AI-151–LN-AI-153). `/skills` and `/context` hydrate a missing binding
+snapshot from current discovery so they list the same eligible skills as the
+catalog (LN-AI-154). AI ships
 bundled `research` and `lapis-notes` skills that folder skills may override
 (LN-AI-130, LN-AI-134) and seeds them as vault `SKILL.md` when missing
 (LN-AI-142, LN-AI-143). Search owns composer `/search` as a `notes_search`

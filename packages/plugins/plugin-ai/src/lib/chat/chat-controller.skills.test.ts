@@ -221,7 +221,36 @@ describe("AiChatController skills and slash commands", () => {
     await controller.submit("/skills");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     expect(runtime.sessions[0]?.prompts ?? []).toEqual([]);
-    expect(controller.items.some((item) => item.type === "status")).toBe(true);
+    expect(
+      controller.items.some(
+        (item) =>
+          item.type === "status" && item.text.includes("research-notes"),
+      ),
+    ).toBe(true);
+    await controller.close();
+  });
+
+  it("hydrates a missing binding snapshot so /skills lists discovered skills", async () => {
+    const { controller, skillSnapshots } = await createSkillController({
+      "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
+    });
+    await controller.submit("hello");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(controller.activeBindingId).toBeTruthy();
+    skillSnapshots.clear();
+    await controller.submit("/skills");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const notice = [...controller.items]
+      .reverse()
+      .find((item) => item.type === "status");
+    expect(notice?.type === "status" ? notice.text : "").toContain(
+      "research-notes",
+    );
+    expect(skillSnapshots.get(controller.activeBindingId ?? "")?.skills).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "research-notes" }),
+      ]),
+    );
     await controller.close();
   });
 
