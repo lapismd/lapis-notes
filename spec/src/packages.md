@@ -339,6 +339,9 @@ Permission and question option buttons use the public `feedback-option` part
 An unpinned idle chat follows the active-file folder, shows a faded centered
 scope path, stays put when pinned, and reveals the selected conversation
 folder in Explorer (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163).
+AI History chrome keeps a visible hover on search actions, a dimmed
+creation-folder path, and New chat in that Explorer or History-tree folder
+(LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).
 API owns result-view registration; Search owns the `notes_search` view; AI
 owns lookup and `/skills` `/tools` inventories (LN-PKG-100).
 The root export stays plugin-safe; ACP and native Codex adapters publish only on
@@ -466,8 +469,11 @@ Confirm-dialog keeps the Design Core `dialog` host identity and only adds
 Date/time settings use design-core `forms` pickers via api `date-setting` (the
 old `date-time-picker-dialog` ui compound is retired).
 
-`@lapis-notes/file-explorer` publicly exports `ExplorerPanel`, and
-`@lapis-notes/ai` publicly exports `AiChatPanel`, `AiHistoryPanel`, and
+`@lapis-notes/file-explorer` publicly exports `ExplorerPanel` and exposes
+`selectedPath` plus a `file-explorer:selection-change` workspace event so
+other plugins can follow folder selection without importing Explorer
+internals. `@lapis-notes/ai` publicly exports `AiChatPanel`,
+`AiHistoryPanel`, and
 `AiCatalogPanel`, so
 Autodocs can name the production components while stories continue to create
 them through real plugin view registrations.

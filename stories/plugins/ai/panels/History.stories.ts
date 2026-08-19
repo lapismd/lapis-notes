@@ -26,7 +26,7 @@ const meta = {
       ...PANEL_DOCS_PARAMETERS,
       description: {
         component:
-          "AI History is a folder-aware, local-first conversation tree. It follows the active note scope while remaining placement-neutral across the workspace.",
+          "AI History is a folder-aware, local-first conversation tree. It follows the active note scope, shows a dimmed creation-folder path, and remains placement-neutral across the workspace.",
       },
     },
   },
@@ -65,6 +65,9 @@ function placementStory(
       );
       expect(panelElement).not.toBeNull();
       expect(panelElement).toHaveAttribute("data-current-scope", "Notes");
+      expect(panelElement).toHaveAttribute("data-creation-scope", "Notes");
+      const creationPath = panel.getByTestId("ai-history-creation-scope");
+      expect(creationPath).toHaveTextContent("Notes");
 
       const tree = panel.getByRole("tree", { name: "Conversation history" });
       const activeFolder = panel.getByRole("treeitem", {
@@ -138,7 +141,48 @@ function placementStory(
         ).toBeVisible();
       });
 
-      expect(panel.getByRole("button", { name: "New chat" })).toBeVisible();
+      const newChat = panel.getByRole("button", { name: "New chat in Notes" });
+      expect(newChat).toBeVisible();
+      await userEvent.hover(newChat);
+      await waitFor(() => {
+        expect(
+          canvasElement.ownerDocument.body.querySelector(
+            '[data-slot="tooltip-content"]',
+          ),
+        ).toHaveTextContent("New chat in Notes");
+      });
+      await userEvent.unhover(newChat);
+      await waitFor(() => {
+        expect(
+          canvasElement.ownerDocument.body.querySelector(
+            '[data-slot="tooltip-content"]',
+          ),
+        ).toBeNull();
+      });
+
+      const expandAll = panel.getByRole("button", {
+        name: "Expand all conversation folders",
+      });
+      await userEvent.hover(expandAll);
+      await waitFor(() => {
+        expect(
+          canvasElement.ownerDocument.body.querySelector(
+            '[data-slot="tooltip-content"]',
+          ),
+        ).toHaveTextContent("Expand all conversation folders");
+      });
+      await userEvent.unhover(expandAll);
+
+      await userEvent.click(
+        panel.getByRole("treeitem", { name: "Projects, 1 conversation" }),
+      );
+      await waitFor(() => {
+        expect(panelElement).toHaveAttribute("data-creation-scope", "Projects");
+        expect(creationPath).toHaveTextContent("Projects");
+        expect(
+          panel.getByRole("button", { name: "New chat in Projects" }),
+        ).toBeVisible();
+      });
       await expectPanelSource(parameters, kind, layout);
     },
   };

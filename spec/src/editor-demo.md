@@ -121,6 +121,8 @@ Reusable storage, source-view, configuration, and registry behavior belongs to
 `@lapis-notes/api`. Generic startup presentation belongs to design-core. The
 Lapis source-editor remains a Storybook-local intake fixture. File Explorer is
 owned by `@lapis-notes/file-explorer`.
+Its `selectedPath` and `file-explorer:selection-change` event remain the
+public selection surface for other plugins.
 `@lapis-notes/markdown` owns document behavior and reuses one
 `MiraFileAdapter` per App so ordinary-link previews and File Properties
 wikilink pills survive workspace split resize. The enabled

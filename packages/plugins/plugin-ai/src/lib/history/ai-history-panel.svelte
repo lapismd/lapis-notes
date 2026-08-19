@@ -8,6 +8,7 @@
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
   import * as Sidebar from "@lapismd/design-core/shadcn/sidebar";
   import { Switch } from "@lapismd/design-core/shadcn/switch";
+  import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
   import ArchiveIcon from "@lucide/svelte/icons/archive";
   import ArchiveRestoreIcon from "@lucide/svelte/icons/archive-restore";
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
@@ -24,6 +25,13 @@
   import type { ConversationListEntry } from "../conversations/transcript-store";
   import type { ConversationLocation } from "../conversations/types";
   import {
+    FILE_EXPLORER_SELECTION_CHANGE_EVENT,
+    conversationScopeFromVaultPath,
+    resolveHistoryCreationScope,
+    workspaceEvents,
+  } from "../conversations/history-creation-scope";
+  import { formatDirectoryContextLabel } from "../conversations/scope-tree";
+  import {
     buildConversationHistoryTree,
     conversationHistoryFolderPaths,
     type ConversationHistoryFolder,
@@ -36,7 +44,7 @@
     getActiveConversation,
     onOpenConversation,
     onNewConversation,
-    listConversationFolders,
+    listConversationFolders: _listConversationFolders,
     searchAllConversations,
   }: {
     app: App;
@@ -63,6 +71,7 @@
   let query = $state("");
   let openScopes = $state<Set<string>>(new Set());
   let selectionInitialized = false;
+  let contextLockedByTree = false;
   let refreshVersion = 0;
 
   const visibleEntries = $derived(
@@ -75,6 +84,15 @@
   const allFoldersOpen = $derived(
     folderPaths.length > 0 && folderPaths.every((path) => openScopes.has(path)),
   );
+  const creationScopeLabel = $derived(
+    formatDirectoryContextLabel(selectedScope),
+  );
+  const expandFoldersLabel = $derived(
+    allFoldersOpen
+      ? "Collapse all conversation folders"
+      : "Expand all conversation folders",
+  );
+  const newChatLabel = $derived(`New chat in ${creationScopeLabel}`);
 
   function entryKey(entry: ConversationListEntry): string {
     return `${entry.location.scopeDir}\u0000${entry.location.conversationId}`;
@@ -115,6 +133,13 @@
 
   function selectFolder(path: string): void {
     selectedScope = path;
+    contextLockedByTree = true;
+  }
+
+  function applyCreationScope(path: string, source: "workspace" | "tree"): void {
+    if (selectedScope !== path) selectedScope = path;
+    contextLockedByTree = source === "tree";
+    revealScope(path);
   }
 
   function toggleAllFolders(): void {
@@ -231,9 +256,15 @@
       activeConversation = nextActiveConversation;
     }
     if (followActiveScope || !selectionInitialized) {
-      if (selectedScope !== nextScope) selectedScope = nextScope;
+      if (!contextLockedByTree) {
+        applyCreationScope(
+          resolveHistoryCreationScope(app, nextScope),
+          "workspace",
+        );
+      } else {
+        revealScope(selectedScope);
+      }
       selectionInitialized = true;
-      revealScope(nextScope);
     }
     if (!loading) loading = true;
     if (error !== null) error = null;
@@ -282,9 +313,18 @@
       queueMicrotask(() => void refresh(true));
     };
     const refreshFromVault = () => void refresh();
+    const applyExplorerSelection = (path: unknown) => {
+      if (typeof path !== "string") return;
+      applyCreationScope(conversationScopeFromVaultPath(app, path), "workspace");
+    };
+    const events = workspaceEvents(app);
     const activeLeaf = app.workspace.on(
       "active-leaf-change",
       refreshFromWorkspace,
+    );
+    const explorerSelection = events.on(
+      FILE_EXPLORER_SELECTION_CHANGE_EVENT,
+      applyExplorerSelection,
     );
     const created = app.vault.on("create", refreshFromVault);
     const deleted = app.vault.on("delete", refreshFromVault);
@@ -293,6 +333,7 @@
     void refresh(true);
     return () => {
       app.workspace.offref(activeLeaf);
+      events.offref(explorerSelection);
       app.vault.offref(created);
       app.vault.offref(deleted);
       app.vault.offref(modified);
@@ -301,12 +342,14 @@
   });
 </script>
 
+<Tooltip.Provider delayDuration={0}>
 <div
   bind:this={root}
   class="ai-history"
   data-ui-component="ai-conversation-history"
   data-testid="ai-conversation-history"
   data-current-scope={scopeDir || "vault-root"}
+  data-creation-scope={selectedScope || "vault-root"}
 >
   <div class="ai-history__chrome" data-ui-part="chrome">
     <SearchFilterBar
@@ -332,53 +375,51 @@
         </label>
       {/snippet}
       {#snippet actions()}
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label={allFoldersOpen
-            ? "Collapse all conversation folders"
-            : "Expand all conversation folders"}
-          disabled={folderPaths.length === 0}
-          onclick={toggleAllFolders}
-        >
-          <ChevronsUpDownIcon data-icon="inline-start" aria-hidden="true" />
-        </Button>
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
             {#snippet child({ props }: { props: Record<string, unknown> })}
               <Button
                 {...props}
                 size="icon-sm"
                 variant="ghost"
-                aria-label="New chat"
+                aria-label={expandFoldersLabel}
+                disabled={folderPaths.length === 0}
+                onclick={toggleAllFolders}
+              >
+                <ChevronsUpDownIcon
+                  data-icon="inline-start"
+                  aria-hidden="true"
+                />
+              </Button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content side="bottom">{expandFoldersLabel}</Tooltip.Content>
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props }: { props: Record<string, unknown> })}
+              <Button
+                {...props}
+                size="icon-sm"
+                variant="ghost"
+                aria-label={newChatLabel}
+                onclick={() => void onNewConversation(selectedScope)}
               >
                 <PlusIcon data-icon="inline-start" aria-hidden="true" />
               </Button>
             {/snippet}
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end">
-            <DropdownMenu.Group>
-              <DropdownMenu.Item
-                onclick={() => void onNewConversation(selectedScope)}
-              >
-                New chat in {selectedScope || "Vault root"}
-              </DropdownMenu.Item>
-            </DropdownMenu.Group>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Label>New chat in folder…</DropdownMenu.Label>
-            <DropdownMenu.Group>
-              {#each listConversationFolders() as folder (folder || "vault-root")}
-                <DropdownMenu.Item
-                  onclick={() => void onNewConversation(folder)}
-                >
-                  {folder || "Vault root"}
-                </DropdownMenu.Item>
-              {/each}
-            </DropdownMenu.Group>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+          </Tooltip.Trigger>
+          <Tooltip.Content side="bottom">{newChatLabel}</Tooltip.Content>
+        </Tooltip.Root>
       {/snippet}
     </SearchFilterBar>
+    <p
+      class="ai-history__creation-scope"
+      data-testid="ai-history-creation-scope"
+      aria-hidden="true"
+    >
+      {creationScopeLabel}
+    </p>
   </div>
 
   <ScrollArea class="ai-history__scroll">
@@ -409,6 +450,7 @@
     </div>
   </ScrollArea>
 </div>
+</Tooltip.Provider>
 
 {#snippet FolderNode({
   folder,
@@ -615,6 +657,37 @@
 
   .ai-history__chrome :global(.cv-search-filter-bar__filters) {
     flex-basis: 100%;
+  }
+
+  .ai-history__chrome
+    :global(.cv-search-filter-bar__actions [data-ui-component="button"]:hover),
+  .ai-history__chrome
+    :global(
+      .cv-search-filter-bar__actions [data-ui-component="button"]:focus-visible
+    ),
+  .ai-history__chrome :global(.cv-search-filter-bar__filter-toggle:hover),
+  .ai-history__chrome
+    :global(.cv-search-filter-bar__filter-toggle:focus-visible) {
+    background: color-mix(
+      in srgb,
+      var(--ai-history-foreground) 14%,
+      var(--ai-history-surface)
+    );
+    color: var(--ai-history-foreground);
+  }
+
+  .ai-history__creation-scope {
+    margin: 0;
+    padding: 0 0.5rem 0.4rem;
+    color: color-mix(
+      in srgb,
+      var(--ai-history-foreground) 68%,
+      var(--ai-history-surface)
+    );
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    text-align: center;
+    pointer-events: none;
   }
 
   .ai-history__archive-filter {

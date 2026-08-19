@@ -30,6 +30,7 @@ import {
   VAULT_PALETTE_FILES_TAB,
   VAULT_PALETTE_RECENT_GROUP,
 } from "./vault-palette-files";
+import { bindExplorerSelectionNotifications } from "./explorer-selection";
 
 const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
@@ -101,7 +102,7 @@ async function withNotice<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 function createExplorerController(app: App, loading: boolean) {
-  return new ExplorerController({
+  const controller = new ExplorerController({
     loading,
     tree: {
       listEntries: () =>
@@ -204,6 +205,8 @@ function createExplorerController(app: App, loading: boolean) {
       appendNativeExplorerMenu(menu, node, app);
     },
   });
+  bindExplorerSelectionNotifications(app, controller);
+  return controller;
 }
 
 export class FileExplorerView extends View {
@@ -214,6 +217,10 @@ export class FileExplorerView extends View {
     super(leaf);
     this.icon = "folder-closed";
     this.#controller = createExplorerController(this.app, loading);
+  }
+
+  get selectedPath(): string {
+    return this.#controller.selectedPath;
   }
 
   getViewType(): string {
@@ -442,4 +449,5 @@ export function createFileExplorerPlugin(
 
 export const FileExplorerPlugin: PluginConstructor = createFileExplorerPlugin();
 export const FileExplorerViewType = "file-explorer";
+export { FILE_EXPLORER_SELECTION_CHANGE_EVENT } from "./explorer-selection";
 export { default as ExplorerPanel } from "./LapisExplorerView.svelte";

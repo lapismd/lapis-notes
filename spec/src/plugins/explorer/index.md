@@ -16,6 +16,7 @@ all six command-panel placements under `Plugins/Explorer/Panels/Explorer`.
 | LN-EXP-002 | Under the same native gate, Explorer MUST offer Open in default app and Reveal in Finder, File Explorer, or file manager using existing desktop path IPC. Those extras MUST be absent when the capability is unavailable.         |
 | LN-EXP-003 | Explorer MUST persist Show hidden files, expose a palette command that toggles it, and hide dotted names at any depth unless it is on, including `.obsidian`, `.trash`, and `.lapis`.                                             |
 | LN-EXP-004 | The `lapis-vault-files` provider MUST declare the Files tab. An empty query MUST list workspace recents under Recent. A query MUST keep path filtering and the show-hidden setting. Landing Go to file MUST open the Files tab. |
+| LN-EXP-005 | FileExplorerView MUST expose `selectedPath`. `setSelectedPath`, `selectRoot`, and `revealPath` MUST trigger workspace event `file-explorer:selection-change` with that path. Vault root MUST use an empty path. |
 
 ### LN-EXP-003 acceptance details
 
