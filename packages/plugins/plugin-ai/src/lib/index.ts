@@ -99,6 +99,10 @@ export {
   relativeScopeLabel,
 } from "./conversations/scope-tree";
 export {
+  FILE_EXPLORER_REVEAL_PATH_COMMAND,
+  revealConversationScope,
+} from "./conversations/reveal-scope";
+export {
   buildConversationContextHandoff,
   MAX_CONTEXT_HANDOFF_CODE_POINTS,
 } from "./conversations/context-handoff";

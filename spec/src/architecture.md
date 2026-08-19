@@ -407,9 +407,9 @@ Permission and question option buttons use Design Core's public
 `feedback-option` part (LN-AI-157).
 Registered result views render tool detail and `/skills` `/tools` inventories
 (LN-AI-158, LN-AI-159).
-An unpinned idle chat follows the active-file folder, shows a faded scope path,
-and stays put when the open conversation is pinned (LN-AI-160, LN-AI-161,
-LN-AI-162).
+An unpinned idle chat follows the active-file folder, shows a faded centered
+scope path, stays put when pinned, and reveals the selected conversation
+folder in Explorer (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163).
 Application-tool names and arguments stay visible when ACP only reports a
 generic `tool call` title (LN-AI-125).
 Assistant MarkdownEmbed content grows with the transcript instead of a nested

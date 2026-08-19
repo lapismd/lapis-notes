@@ -812,7 +812,7 @@ export const FollowScope: Story = {
     docs: {
       description: {
         story:
-          "An unpinned chat follows the active-file folder. Two descendant conversations appear in a Command View. Opening one, pinning it, and changing the active file keeps that transcript.",
+          "An unpinned chat follows the active-file folder. Two descendant conversations appear in a Command View. Opening one reveals that folder in Explorer. Pinning it and changing the active file keeps that transcript.",
       },
       source: {
         code: aiWorkspaceFollowScopeExampleSource,
@@ -845,6 +845,10 @@ export const FollowScope: Story = {
       expect(
         canvas.queryByTestId("ai-chat-conversation-picker"),
       ).toBeNull();
+      const folder = canvasElement.querySelector(
+        '[data-path="Projects"][data-active]',
+      );
+      expect(folder).not.toBeNull();
     });
     await userEvent.click(
       within(panel).getByRole("button", { name: "Pin conversation" }),

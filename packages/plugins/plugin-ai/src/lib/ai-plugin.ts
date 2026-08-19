@@ -40,6 +40,7 @@ import type { CreateConversationInput } from "./conversations/conversation-repos
 import { AiConversationIndex } from "./conversations/conversation-index";
 import type { ConversationListEntry } from "./conversations/transcript-store";
 import { ConversationScopeResolver } from "./conversations/scope-resolver";
+import { revealConversationScope } from "./conversations/reveal-scope";
 import { hasHiddenApplicationSegment } from "./conversations/paths";
 import { VaultTranscriptStore } from "./conversations/vault-transcript-store";
 import { registerAiSettings } from "./settings/register-ai-settings";
@@ -597,6 +598,7 @@ export class AiPlugin extends Plugin {
         operation: "open-conversation",
       });
       await this.app.workspace.revealLeaf(target);
+      revealConversationScope(this.app, location.scopeDir);
       return;
     }
 

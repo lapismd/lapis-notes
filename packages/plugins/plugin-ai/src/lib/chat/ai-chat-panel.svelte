@@ -48,6 +48,7 @@
     formatDirectoryContextLabel,
     groupConversationsByRelativeScope,
   } from "../conversations/scope-tree";
+  import { revealConversationScope } from "../conversations/reveal-scope";
   import {
     catalogModelsForAgent,
     normalizeAcpAgent,
@@ -1027,8 +1028,10 @@
                   {#each group.items as entry (`${entry.location.scopeDir}:${entry.location.conversationId}`)}
                     <CommandView.Item
                       value={`${entry.metadata?.title ?? "Untitled"} ${entry.location.scopeDir} ${entry.location.conversationId}`}
-                      onSelect={() =>
-                        void controller.openConversation(entry.location)}
+                      onSelect={() => {
+                        revealConversationScope(app, entry.location.scopeDir);
+                        void controller.openConversation(entry.location);
+                      }}
                     >
                       <CommandView.ItemLabel>
                         {entry.metadata?.title ?? "Untitled"}

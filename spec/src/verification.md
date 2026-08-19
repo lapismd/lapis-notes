@@ -929,9 +929,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-157   | ai-plugin                       | Implemented | Approval and question option buttons set `feedback-option`; plugin-ai styles drop `--accent` hover and selected paint |
 | LN-AI-158   | ai-plugin                       | Implemented | ToolCalls detail mounts a registered notes_search view; an unknown tool keeps CodeBlock input/output |
 | LN-AI-159   | ai-plugin                       | Implemented | /skills and /tools persist inventory layout with names from the binding snapshot |
-| LN-AI-160   | ai-plugin                       | Implemented | Chat transcript and empty state render a faded scope path with extra bottom padding |
+| LN-AI-160   | ai-plugin                       | Implemented | Chat transcript and empty state render a faded centered scope path with extra bottom padding |
 | LN-AI-161   | ai-plugin                       | Implemented | Unpinned idle chat follows active-file scope; 0 empty, 1 opens, 2+ Command View by depth |
 | LN-AI-162   | ai-plugin                       | Implemented | Pin persists on metadata; pinned chat ignores directory follow; unpin re-evaluates |
+| LN-AI-163   | ai-plugin                       | Implemented | Selecting a conversation reveals its stored scopeDir via lapis-file-explorer:reveal-path |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-SRCH-041 | search-plugin                   | Implemented | Search registers the notes_search result view; a hit click opens that vault file |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
@@ -946,7 +947,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-088  | storybook-catalog               | Implemented | SkillsAndSlash play runs /open-daily-note then unloads the extension registration and asserts the unknown-command error |
 | LN-CAT-089  | storybook-catalog               | Implemented | Plugins/AI/Panels/Catalog six placements cover nested kind folders, a row-click description expand, expand-all, a filter, a persisted checkbox, Open on a vault SKILL.md, and Open on a vault command Markdown file |
 | LN-CAT-090  | storybook-catalog               | Implemented | Plugins/AI/Chat SearchToolHits expands notes_search, asserts hit rows, opens auth.md, and keeps the chat panel |
-| LN-CAT-091  | storybook-catalog               | Implemented | Plugins/AI/Shell follow-scope play opens a Command View, pins a chat, and keeps it after the active file changes |
+| LN-CAT-091  | storybook-catalog               | Implemented | Plugins/AI/Shell follow-scope play opens a Command View, reveals that folder in Explorer, pins a chat, and keeps it after the active file changes |
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |
