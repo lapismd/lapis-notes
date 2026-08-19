@@ -24,12 +24,17 @@ import {
 } from "./window-drag.ts";
 
 const windowOptions = createDesktopWindowOptions(Deno.build.os);
-const bootstrap = new Deno.BrowserWindow(windowOptions);
+const bootstrap = new Deno.BrowserWindow({
+  ...windowOptions,
+  transparentTitlebar: false,
+});
 const win = needsCreatedChromeWindow(Deno.build.os)
   ? new Deno.BrowserWindow(windowOptions)
   : bootstrap;
 if (win !== bootstrap) {
+  bootstrap.setTitle("");
   bootstrap.hide();
+  win.setTitle("");
   win.addEventListener("close", () => Deno.exit(0));
 }
 const drag = createWindowDragController(win);

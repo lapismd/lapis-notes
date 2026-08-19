@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DESKTOP_WINDOW_TITLE,
   createDesktopWindowOptions,
   needsCreatedChromeWindow,
   rendererOriginFromServeAddress,
@@ -9,8 +10,14 @@ import {
 
 describe("Deno desktop window chrome", () => {
   it("hides the macOS title bar without overlaying traffic lights", () => {
-    expect(createDesktopWindowOptions("darwin").transparentTitlebar).toBe(true);
-    expect(createDesktopWindowOptions("linux").transparentTitlebar).toBe(false);
+    expect(createDesktopWindowOptions("darwin")).toMatchObject({
+      title: "",
+      transparentTitlebar: true,
+    });
+    expect(createDesktopWindowOptions("linux")).toMatchObject({
+      title: DESKTOP_WINDOW_TITLE,
+      transparentTitlebar: false,
+    });
     expect(needsCreatedChromeWindow("darwin")).toBe(true);
     expect(needsCreatedChromeWindow("linux")).toBe(false);
     expect(usesOverlayWindowControls()).toBe(false);

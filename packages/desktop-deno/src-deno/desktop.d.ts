@@ -12,6 +12,7 @@ declare namespace Deno {
     navigate(url: string): void;
     reload(): void;
     hide(): void;
+    setTitle(title: string): void;
     getPosition(): [number, number];
     setPosition(x: number, y: number): void;
     openDevtools(options?: { deno?: boolean; renderer?: boolean }): void;

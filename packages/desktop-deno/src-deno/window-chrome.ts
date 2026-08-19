@@ -7,11 +7,12 @@ export function createDesktopWindowOptions(os: string): {
   height: number;
   transparentTitlebar: boolean;
 } {
+  const hiddenTitlebar = os === "darwin";
   return {
-    title: DESKTOP_WINDOW_TITLE,
+    title: hiddenTitlebar ? "" : DESKTOP_WINDOW_TITLE,
     width: DESKTOP_WINDOW_SIZE.width,
     height: DESKTOP_WINDOW_SIZE.height,
-    transparentTitlebar: os === "darwin",
+    transparentTitlebar: hiddenTitlebar,
   };
 }
 
