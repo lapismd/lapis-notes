@@ -107,6 +107,7 @@ execution APIs.
 | LN-AI-166 | AI History MUST show a dimmed folder-context path under SearchFilterBar. Vault root MUST use the Vault label. New chat MUST create a conversation in that folder on click without opening a folder menu. |
 | LN-AI-167 | Folder context MUST follow File Explorer's selected folder or the parent of a selected file, and a History tree folder pick. An explicit History-tree pick MUST persist across active-leaf refreshes until Explorer selection or another History folder pick changes it. Initial context MAY use the active-note scope when Explorer has no selection. |
 | LN-AI-168 | AI History chrome expand/collapse-all and New chat controls MUST use Design Core shadcn Tooltip. Tooltip text MUST match each control's accessible name. |
+| LN-AI-169 | AI History folder counts MUST share one trailing edge across tree depths. Nested branches MUST indent only at the start. Counts MUST NOT step inward with guide indent. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -317,7 +318,8 @@ archives or restores in place,
 deletes through vault trash, and offers New Chat in the current scope
 (LN-AI-109). History chrome keeps a visible hover on its search actions,
 shows a dimmed creation-folder path, and creates New chat in that folder
-from Explorer selection or a History tree pick (LN-AI-165–LN-AI-168). The first user message stays in the transcript while the
+from Explorer selection or a History tree pick (LN-AI-165–LN-AI-168).
+History folder counts share one trailing edge across depths (LN-AI-169). The first user message stays in the transcript while the
 session starts, and Stop aborts a still-preparing turn (LN-AI-106, LN-AI-120).
 Thinking stays expanded only while it streams, then collapses when later
 transcript data arrives (LN-AI-131). Stop settles leftover spinners immediately

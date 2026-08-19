@@ -942,6 +942,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-166   | ai-plugin                       | Implemented | History shows a dimmed Vault or folder path under search and New chat creates there |
 | LN-AI-167   | ai-plugin                       | Implemented | History creation scope follows Explorer selectedPath or History tree folder picks |
 | LN-AI-168   | ai-plugin                       | Implemented | History expand/collapse-all and New chat use Design Core tooltips matching aria-labels |
+| LN-AI-169   | ai-plugin                       | Implemented | History placement plays assert folder counts share one trailing edge across depths |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-SRCH-041 | search-plugin                   | Implemented | Search registers the notes_search result view; a hit click opens that vault file |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
@@ -957,7 +958,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-CAT-089  | storybook-catalog               | Implemented | Plugins/AI/Panels/Catalog six placements cover nested kind folders, a row-click description expand, expand-all, a filter, a persisted checkbox, Open on a vault SKILL.md, and Open on a vault command Markdown file |
 | LN-CAT-090  | storybook-catalog               | Implemented | Plugins/AI/Chat SearchToolHits expands notes_search, asserts hit rows, opens auth.md, and keeps the chat panel |
 | LN-CAT-091  | storybook-catalog               | Implemented | Plugins/AI/Shell follow-scope play opens a Command View, reveals that folder in Explorer, pins a chat, and keeps it after the active file changes |
-| LN-CAT-092  | storybook-catalog               | Implemented | Plugins/AI/Panels/History plays assert the dimmed creation path, chrome tooltips, and tree folder context |
+| LN-CAT-092  | storybook-catalog               | Implemented | Plugins/AI/Panels/History plays assert the dimmed creation path, chrome tooltips, tree folder context, and shared count trailing edge |
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |

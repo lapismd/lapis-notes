@@ -413,6 +413,7 @@ folder in Explorer (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163).
 AI History chrome keeps a visible hover on search actions, a dimmed
 creation-folder path, and New chat in that Explorer or History-tree folder
 (LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).
+History folder counts share one trailing edge across depths (LN-AI-169).
 Application-tool names and arguments stay visible when ACP only reports a
 generic `tool call` title (LN-AI-125).
 Assistant MarkdownEmbed content grows with the transcript instead of a nested

@@ -172,6 +172,29 @@ function placementStory(
         ).toHaveTextContent("Expand all conversation folders");
       });
       await userEvent.unhover(expandAll);
+      await waitFor(() => {
+        expect(
+          canvasElement.ownerDocument.body.querySelector(
+            '[data-slot="tooltip-content"]',
+          ),
+        ).toBeNull();
+      });
+
+      await userEvent.click(expandAll);
+      await waitFor(() => {
+        expect(
+          panel.getByRole("treeitem", {
+            name: "Projects/Atlas, 1 conversation",
+          }),
+        ).toBeVisible();
+      });
+      const countRights = [
+        ...panelElement.querySelectorAll<HTMLElement>(".ai-history__count"),
+      ].map((count) => count.getBoundingClientRect().right);
+      expect(countRights.length).toBeGreaterThan(1);
+      expect(Math.max(...countRights) - Math.min(...countRights)).toBeLessThan(
+        2,
+      );
 
       await userEvent.click(
         panel.getByRole("treeitem", { name: "Projects, 1 conversation" }),

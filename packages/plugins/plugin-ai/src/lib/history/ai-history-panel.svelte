@@ -639,6 +639,8 @@
     background: var(--ai-history-surface);
     font-family: var(--ui-workspace-explorer-font-family, inherit);
     font-size: var(--ui-workspace-explorer-font-size, 0.8125rem);
+    --ai-history-count-end-pad: 0.5rem;
+    --ai-history-count-width: 2rem;
   }
 
   .ai-history__chrome {
@@ -734,18 +736,24 @@
     gap: var(--ui-workspace-explorer-row-gap, 0.125rem);
   }
 
-  :global(.ai-history__subtree) {
+  :global(
+    [data-ui-component="sidebar"][data-ui-part="sidebar-menu-sub"].ai-history__subtree
+  ) {
     box-sizing: border-box;
-    width: auto;
+    width: calc(100% - var(--ui-workspace-explorer-indent, 0.75rem));
     max-width: 100%;
-    margin-inline: var(--ui-workspace-explorer-indent, 0.75rem);
+    margin-inline: 0;
+    margin-inline-start: var(--ui-workspace-explorer-indent, 0.75rem);
     padding-inline-start: var(--ui-workspace-explorer-guide-gap, 0.25rem);
+    padding-inline-end: 0;
     border-inline-start: var(--ui-workspace-explorer-guide-width, 1px) solid
       var(--ui-workspace-explorer-guide-color, var(--border));
+    translate: none;
   }
 
   :global(.ai-history__folder-row),
   .ai-history__conversation-row {
+    position: relative;
     display: flex;
     box-sizing: border-box;
     width: 100%;
@@ -765,6 +773,9 @@
   }
 
   :global(.ai-history__folder-row) {
+    padding-inline-end: calc(
+      var(--ai-history-count-width) + var(--ai-history-count-end-pad)
+    );
     cursor: pointer;
   }
 
@@ -825,10 +836,21 @@
     flex: 1 1 auto;
   }
 
-  :global(.ai-history__count) {
-    position: static;
+  :global(
+    [data-ui-component="sidebar"][data-ui-part="sidebar-menu-badge"].ai-history__count
+  ) {
+    position: absolute;
+    top: 50%;
+    right: var(--ai-history-count-end-pad);
+    z-index: 1;
+    display: inline-flex;
+    width: var(--ai-history-count-width);
+    min-width: var(--ai-history-count-width);
     flex: 0 0 auto;
-    min-width: 1.5rem;
+    align-items: center;
+    justify-content: flex-end;
+    transform: translateY(-50%);
+    pointer-events: none;
     color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
     font-variant-numeric: tabular-nums;
     text-align: end;
