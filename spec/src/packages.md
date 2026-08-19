@@ -223,7 +223,9 @@ Purpose (condensed from the full Lapis Notes api package):
   defaults and the design-core notification presentation
 - Plugin runtime contracts and distribution primitives
 - Vault/storage abstractions: browser OPFS and File System Access adapters,
-  plus the desktop-neutral folder bridge (`desktop-folder`)
+  plus the desktop-neutral folder bridge (`desktop-folder`). The web host
+  copies a picked folder into a new or current OPFS vault and can export an
+  OPFS tree back to a local folder.
 - Shared editor, menu, settings, and configuration UI building blocks
 - Public deterministic in-memory vault storage and a policy-free source-text
   view for tests, Storybook, and explicitly volatile consumers

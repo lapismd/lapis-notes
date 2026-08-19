@@ -22,6 +22,7 @@
     type WebLauncherStatus,
   } from "./WebVaultLauncher.svelte";
   import WebWorkspaceSession from "./WebWorkspaceSession.svelte";
+  import { importDirectoryHandleToNewOpfsVault } from "./vault-transfer";
 
   type HostStatus = "loading" | "landing" | "opening" | "ready" | "error";
   type PreparedSession = {
@@ -43,8 +44,10 @@
   let sessionComponent = $state<SessionComponent | null>(null);
   let launcherOpen = $state(false);
   let bootGate = $state(true);
+  let importing = $state(false);
   let errorMessage = $state("");
   let switchQueue = Promise.resolve();
+  let startupTasks = $state<WorkspaceStartupTask[]>(RESTORE_TASKS);
 
   const showChooser = $derived(
     launcherOpen ||
@@ -122,6 +125,48 @@
     } finally {
       if (!prepared) bootGate = false;
     }
+  }
+
+  function importVault(
+    name: string,
+    handle: BrowserFileSystemDirectoryHandle,
+  ): Promise<void> {
+    return serialize(async () => {
+      const overlay = launcherOpen && prepared !== null;
+      launcherOpen = false;
+      bootGate = true;
+      importing = true;
+      status = "opening";
+      errorMessage = "";
+      startupTasks = [
+        { id: "vault", label: "Creating browser vault", status: "complete" },
+        { id: "import", label: "Copying local folder", status: "active" },
+      ];
+      try {
+        const adapter = await importDirectoryHandleToNewOpfsVault({
+          handle,
+          name,
+        });
+        const profile = await getCurrentVaultProfile();
+        if (!profile || profile.id !== adapter.getVaultId()) {
+          throw new Error("The browser vault profile was not saved");
+        }
+        await resumeOrReplace(adapter, profile);
+      } catch (error) {
+        errorMessage = error instanceof Error ? error.message : String(error);
+        if (overlay && prepared) {
+          launcherOpen = true;
+          status = "ready";
+          bootGate = false;
+        } else {
+          status = "error";
+          bootGate = false;
+        }
+      } finally {
+        importing = false;
+        startupTasks = RESTORE_TASKS;
+      }
+    });
   }
 
   function createVault(name: string): Promise<void> {
@@ -257,7 +302,7 @@
 
 <main class="web-host" data-web-host-state={status}>
   {#if prepared}
-    <div class="web-host__session" hidden={launcherOpen} inert={launcherOpen}>
+    <div class="web-host__session" hidden={launcherOpen || importing} inert={launcherOpen || importing}>
       <WebWorkspaceSession
         bind:this={sessionComponent}
         {...prepared}
@@ -277,11 +322,12 @@
       currentVaultId={prepared?.profile.id}
       onCreate={createVault}
       onOpen={openFolder}
+      onImport={importVault}
       onOpenRecent={openRecent}
       onClose={hideLauncher}
       onCurrentVaultDeleted={forgetCurrentVault}
     />
-  {:else if !prepared}
-    <WorkspaceStartup title="Opening Lapis Notes" tasks={RESTORE_TASKS} />
+  {:else if !prepared || importing}
+    <WorkspaceStartup title="Opening Lapis Notes" tasks={startupTasks} />
   {/if}
 </main>

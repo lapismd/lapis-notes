@@ -44,7 +44,11 @@ describe("web Bases host registration", () => {
     expect(source).toContain("onProgress");
     expect(source).toContain("startMetadataCache");
     expect(source).toContain("registerWebAgentRuntimeSettings");
+    expect(source).toContain("registerWebVaultTransferSettings");
     expect(source).toContain("syncWebAgentRuntime");
+    expect(source.indexOf("registerWebVaultTransferSettings(app)")).toBeGreaterThan(
+      source.indexOf("await app.configuration.load()"),
+    );
     expect(source).not.toMatch(/await app\.metadataCache\.load/u);
     expect(source).not.toContain("Opening vault…");
   });
@@ -62,6 +66,23 @@ describe("web Bases host registration", () => {
       /\{#if prepared\}[\s\S]*WebWorkspaceSession[\s\S]*\{:else\}[\s\S]*WebVaultLauncher/u,
     );
     expect(host).toContain("persistLayout()");
+    expect(host).toContain("onImport={importVault}");
+    expect(host).toContain("importDirectoryHandleToNewOpfsVault");
+    expect(host).toContain('id: "import"');
+  });
+
+  it("offers Import Vault beside Open Folder", () => {
+    const launcher = readFileSync(
+      path.resolve(process.cwd(), "src/WebVaultLauncher.svelte"),
+      "utf8",
+    );
+    expect(launcher).toContain("Import Vault");
+    expect(launcher).toContain("Import Browser Vault");
+    expect(launcher).toContain("onImport");
+    expect(launcher.indexOf("Import Vault")).toBeGreaterThan(
+      launcher.indexOf("Open Folder"),
+    );
+    expect(launcher).toContain("pickFileSystemAccessDirectoryHandle");
   });
 
   it("does not re-declare Electron app-region CSS", () => {

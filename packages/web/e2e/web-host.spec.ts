@@ -124,6 +124,30 @@ test("Manage Vaults overlays the chooser and close returns without startup", asy
   await expect(page.locator('[data-ui-component="workspace-startup"]')).toHaveCount(0);
 });
 
+test("Import Vault opens Import Browser Vault with the picked folder name", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "showDirectoryPicker", {
+      configurable: true,
+      value: async () => ({ name: "Imported Notes", kind: "directory" }),
+    });
+  });
+
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Create a vault" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Import Vault/ })).toBeVisible();
+  await page.getByRole("button", { name: /Import Vault/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Import Browser Vault" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByLabel("Name")).toHaveValue("Imported Notes");
+  await expect(dialog.getByRole("button", { name: "Import vault" })).toBeEnabled();
+  await dialog.getByLabel("Name").fill("   ");
+  await expect(dialog.getByRole("button", { name: "Import vault" })).toBeDisabled();
+  await dialog.getByLabel("Name").fill("My Imported Vault");
+  await expect(dialog.getByRole("button", { name: "Import vault" })).toBeEnabled();
+});
+
 test("first launch remains recoverable after folder cancellation", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(window, "showDirectoryPicker", {

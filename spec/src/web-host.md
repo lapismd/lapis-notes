@@ -44,6 +44,10 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-027 | Creating an OPFS vault MUST collect the name in a compact dialog titled New Browser Vault. The name field MUST start empty. Create vault MUST stay disabled until the trimmed name is non-empty. |
 | LN-WEB-028 | Web recent rows MUST use a kebab trigger labeled Open actions for the vault name. The menu MUST offer Copy ID, Rename, and Remove from list. Delete MUST appear only for OPFS vaults. |
 | LN-WEB-029 | A Manage Vaults overlay MUST keep the ready session mounted and hidden without clearing the current profile. Close MUST sit immediately right of Settings, use Return to previous vault, and return without `WorkspaceStartup`. First launch MUST omit close. |
+| LN-WEB-038 | An OPFS web session MUST register a Browser vault Settings section with Import local folder and Export to local folder action fields, plus palette commands `app:import-local-vault` and `app:export-current-vault`. Those commands MUST hide through `checkCallback` when the adapter is not OPFS. File System Access sessions MUST NOT show the section or commands. |
+| LN-WEB-039 | In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.obsidian` settings apply. Picker cancel MUST be silent. Notices MUST NOT mention community plugins. |
+| LN-WEB-040 | Export MUST pick a folder, copy the current OPFS tree including `.obsidian` with overwrite, report determinate progress, and notify success. Picker cancel MUST be silent. |
+| LN-WEB-041 | The launcher MUST offer Import Vault beside Create New Vault and Open Folder. It MUST pick a folder, collect a name in Import Browser Vault, create an OPFS profile, copy the folder, then open that session. Name MUST start as the folder name, and Import vault MUST stay disabled until the trimmed name is non-empty. |
 
 ### LN-WEB-021 acceptance details
 
@@ -97,6 +101,16 @@ Web Manage Vaults overlay verifies:
 - Opening or creating a different vault MUST persist, dispose, then replace the session.
 - First launch MUST omit the close control.
 
+### LN-WEB-041 acceptance details
+
+Launcher Import Vault verifies a copy into a new private OPFS vault:
+
+- Import Vault MUST NOT replace Open Folder; the latter still mounts the picked directory as `file-system-access`.
+- Copy MUST finish before `WorkspaceShell` mounts so the first session sees imported files and `.obsidian` settings.
+- Host boot during copy MUST stay on Design Core `WorkspaceStartup` or the existing opening gate, not the branded landing copy.
+- Picker or name-dialog cancel MUST leave the chooser recoverable without a new profile.
+- A failed copy after create MUST delete that new OPFS vault and stay on the chooser with an error.
+
 ## Implemented host boundary
 
 The web session imports Bases and its exported stylesheet from the package and
@@ -130,7 +144,10 @@ File System Access profiles. While a saved current profile is resolving, the
 host paints Design Core `WorkspaceStartup` instead of the chooser. Manage
 Vaults overlays that chooser over a retained session; Close returns without
 disposing. OPFS create collects the name in a compact New Browser Vault dialog,
-and recent rows use a kebab including OPFS Delete. “View all” opens an
+and Import Vault copies a picked local folder into a new OPFS profile before
+the session mounts. An open OPFS session exposes Browser vault Settings actions
+and palette commands for import into or export from that vault. Recent rows use
+a kebab including OPFS Delete. “View all” opens an
 upper-viewport Dialog whose
 inner search list is Command View. It constructs the API session, loads Markdown,
 Markdownlint, File Explorer, Search, and Roles, reports that sequence through

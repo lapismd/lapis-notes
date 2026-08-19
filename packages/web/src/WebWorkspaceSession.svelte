@@ -41,6 +41,7 @@
     registerWebTerminalRuntimeSettings,
     syncWebTerminalRuntime,
   } from "./terminal-runtime-settings";
+  import { registerWebVaultTransferSettings } from "./vault-transfer-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
   import { setPwaRuntimeApplication } from "./pwa";
 
@@ -100,6 +101,7 @@
   let disposeCoordinationListener: (() => void) | null = null;
   let disposeAgentRuntimeSettings: (() => void) | null = null;
   let disposeTerminalRuntimeSettings: (() => void) | null = null;
+  let disposeVaultTransferSettings: (() => void) | null = null;
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
     const browserProfiles = recentVaults.filter(
@@ -196,10 +198,12 @@
     disposeDatabaseStatus?.();
     disposeAgentRuntimeSettings?.();
     disposeTerminalRuntimeSettings?.();
+    disposeVaultTransferSettings?.();
     disposeCoordinationListener = null;
     disposeDatabaseStatus = null;
     disposeAgentRuntimeSettings = null;
     disposeTerminalRuntimeSettings = null;
+    disposeVaultTransferSettings = null;
     await app.workspace.disposeWorkspaceHost().catch(() => undefined);
     await app.metadataCache.dispose().catch(() => undefined);
     for (const plugin of [...app.plugins.corePlugins].reverse()) {
@@ -268,8 +272,10 @@
       await app.configuration.load();
       disposeAgentRuntimeSettings?.();
       disposeTerminalRuntimeSettings?.();
+      disposeVaultTransferSettings?.();
       disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
       disposeTerminalRuntimeSettings = registerWebTerminalRuntimeSettings(app);
+      disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
       syncWebAgentRuntime(app);
       syncWebTerminalRuntime(app);
       if (disposed) return;
@@ -358,10 +364,12 @@
       disposeDatabaseStatus?.();
       disposeAgentRuntimeSettings?.();
       disposeTerminalRuntimeSettings?.();
+      disposeVaultTransferSettings?.();
       disposeCoordinationListener = null;
       disposeDatabaseStatus = null;
       disposeAgentRuntimeSettings = null;
       disposeTerminalRuntimeSettings = null;
+      disposeVaultTransferSettings = null;
       await session.close();
     } finally {
       disposePwaRuntimeApplication();

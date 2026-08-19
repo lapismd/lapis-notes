@@ -856,6 +856,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-WEB-034  | web-host                        | Implemented | web Vite includes `*.wasm` assets and excludes ghostty-web and xterm from optimizeDeps |
 | LN-WEB-035  | web-host                        | Implemented | syncWebTerminalRuntime refreshes the Terminal plugin after attach |
 | LN-WEB-036  | web-host                        | Implemented | web Vite allows the linked Terminal plugin root so Ghostty WASM is served |
+| LN-WEB-038  | web-host                        | Implemented | web Settings and command tests cover OPFS-only Browser vault import/export |
+| LN-WEB-039  | web-host                        | Implemented | web import tests copy into the current OPFS vault, reload, and confirm page reload |
+| LN-WEB-040  | web-host                        | Implemented | web export tests copy the current OPFS tree with progress and silent cancel |
+| LN-WEB-041  | web-host                        | Implemented | launcher Import Vault e2e and unit tests cover name dialog, copy-before-open, and failed-copy cleanup |
 | LN-DESK-056 | desktop-host                    | Implemented | desktop Vite includes `*.wasm` assets and excludes ghostty-web and xterm from optimizeDeps |
 | LN-DESK-057 | desktop-host                    | Implemented | setNativeDesktopBridge publishes and clears the process-wide native desktop global |
 | LN-DESK-058 | desktop-host                    | Implemented | desktop Vite allows the linked Terminal plugin root so Ghostty WASM is served |

@@ -2,6 +2,7 @@
   import Archive from "@lucide/svelte/icons/archive";
   import Copy from "@lucide/svelte/icons/copy";
   import Ellipsis from "@lucide/svelte/icons/ellipsis";
+  import FolderInput from "@lucide/svelte/icons/folder-input";
   import FolderOpen from "@lucide/svelte/icons/folder-open";
   import FolderPlus from "@lucide/svelte/icons/folder-plus";
   import PenLine from "@lucide/svelte/icons/pen-line";
@@ -14,9 +15,11 @@
     deleteVaultProfile,
     getBootstrapAppearanceMode,
     listVaultProfiles,
+    pickFileSystemAccessDirectoryHandle,
     replaceVaultProfile,
     saveBootstrapAppearanceMode,
     type BootstrapAppearanceMode,
+    type BrowserFileSystemDirectoryHandle,
     type VaultProfile,
   } from "@lapis-notes/api";
   import * as Button from "@lapismd/design-core/shadcn/button";
@@ -26,6 +29,10 @@
   import * as DropdownMenu from "@lapismd/design-core/shadcn/dropdown-menu";
   import * as Input from "@lapismd/design-core/shadcn/input";
   import { onMount } from "svelte";
+  import {
+    IMPORT_NEW_PICKER_ID,
+    isAbortError,
+  } from "./vault-transfer";
 
   export type WebLauncherStatus = "loading" | "landing" | "opening" | "error";
 
@@ -36,6 +43,7 @@
     currentVaultId,
     onCreate,
     onOpen,
+    onImport,
     onOpenRecent,
     onClose,
     onCurrentVaultDeleted,
@@ -46,6 +54,7 @@
     currentVaultId?: string;
     onCreate(name: string): Promise<void>;
     onOpen(): Promise<void>;
+    onImport(name: string, handle: BrowserFileSystemDirectoryHandle): Promise<void>;
     onOpenRecent(profile: VaultProfile): Promise<void>;
     onClose?(): void;
     onCurrentVaultDeleted?(): Promise<void>;
@@ -70,6 +79,9 @@
   let activeActionId = $state<string | null>(null);
   let createDialogOpen = $state(false);
   let createDialogName = $state("");
+  let importDialogOpen = $state(false);
+  let importDialogName = $state("");
+  let importHandle = $state.raw<BrowserFileSystemDirectoryHandle | null>(null);
   let renameDialogOpen = $state(false);
   let renameDialogName = $state("");
   let renameTarget = $state.raw<VaultProfile | null>(null);
@@ -178,6 +190,37 @@
       await onCreate(name);
       createDialogOpen = false;
       createDialogName = "";
+    });
+  }
+
+  async function startImport(): Promise<void> {
+    await invoke(async () => {
+      try {
+        const handle = await pickFileSystemAccessDirectoryHandle({
+          id: IMPORT_NEW_PICKER_ID,
+          mode: "readwrite",
+        });
+        importHandle = handle;
+        importDialogName = handle.name ?? "";
+        importDialogOpen = true;
+      } catch (error) {
+        if (isAbortError(error)) {
+          return;
+        }
+        throw error;
+      }
+    });
+  }
+
+  async function submitImport(): Promise<void> {
+    const name = importDialogName.trim();
+    const handle = importHandle;
+    if (!name || !handle) return;
+    await invoke(async () => {
+      await onImport(name, handle);
+      importDialogOpen = false;
+      importDialogName = "";
+      importHandle = null;
     });
   }
 
@@ -318,6 +361,18 @@
             <span class="flex flex-col items-start gap-1 text-left">
               <span class="font-medium">Open Folder</span>
               <span class="text-xs font-normal opacity-80">Use the File System Access API.</span>
+            </span>
+          </Button.Root>
+          <Button.Root
+            variant="outline"
+            class="web-vault-launcher__action"
+            disabled={busy}
+            onclick={() => void startImport()}
+          >
+            <FolderInput class="size-5 shrink-0" />
+            <span class="flex flex-col items-start gap-1 text-left">
+              <span class="font-medium">Import Vault</span>
+              <span class="text-xs font-normal opacity-80">Copy a local folder into private OPFS storage.</span>
             </span>
           </Button.Root>
         </Card.Content>
@@ -481,6 +536,40 @@
         </Button.Root>
         <Button.Root type="submit" disabled={!createDialogName.trim() || busy}>
           Create vault
+        </Button.Root>
+      </Dialog.Footer>
+    </form>
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={importDialogOpen}>
+  <Dialog.Content class="web-vault-launcher__settings sm:max-w-[28rem]">
+    <Dialog.Header>
+      <Dialog.Title>Import Browser Vault</Dialog.Title>
+      <Dialog.Description>Choose a name for this private OPFS copy of the picked folder.</Dialog.Description>
+    </Dialog.Header>
+    <form
+      class="grid gap-4"
+      onsubmit={(event) => {
+        event.preventDefault();
+        void submitImport();
+      }}
+    >
+      <label class="grid gap-2 text-sm">
+        <span>Name</span>
+        <Input.Root
+          bind:value={importDialogName}
+          autocomplete="off"
+          autofocus
+          aria-label="Name"
+        />
+      </label>
+      <Dialog.Footer>
+        <Button.Root type="button" variant="ghost" onclick={() => (importDialogOpen = false)}>
+          Cancel
+        </Button.Root>
+        <Button.Root type="submit" disabled={!importDialogName.trim() || busy}>
+          Import vault
         </Button.Root>
       </Dialog.Footer>
     </form>
