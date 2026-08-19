@@ -94,6 +94,13 @@ function placementStory(
         );
       });
 
+      await userEvent.click(panel.getByRole("button", { name: "Open review" }));
+      await waitFor(() => {
+        expect(app.workspace.getActiveFile()?.path).toBe(
+          "Notes/.agents/commands/review.md",
+        );
+      });
+
       await userEvent.type(panel.getByLabelText("Filter catalog"), "daily");
       await waitFor(() => {
         expect(panel.getByRole("button", { name: "Open daily" })).toBeVisible();
@@ -103,7 +110,7 @@ function placementStory(
       await userEvent.click(panel.getByRole("button", { name: "Open daily" }));
       await waitFor(() => {
         expect(app.workspace.getActiveFile()?.path).toBe(
-          "Notes/.lapis/skills/daily/SKILL.md",
+          "Notes/.agents/skills/daily/SKILL.md",
         );
       });
 

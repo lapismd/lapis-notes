@@ -94,8 +94,9 @@ capturing it during workspace construction.
 
 Skill-source and composer slash-command registries follow the same
 explicit ownership boundary as application tools. API stores plugin
-registrations. AI discovers vault and folder skills, snapshots them per
-binding, and routes composer commands, including reserved `/help`, `/scope`,
+registrations. AI discovers vault and folder skills under `.agents/skills`,
+snapshots them per binding, and routes composer commands from reserved
+host names and `.agents/commands` Markdown, including `/help`, `/scope`,
 `/context`, and `/agent`. AI ships bundled `research` and `lapis-notes` skills.
 Search owns composer `/search` as a `notes_search` tool-dispatch command.
 Live ACP session start appends a path-free `available_skills` manifest and a

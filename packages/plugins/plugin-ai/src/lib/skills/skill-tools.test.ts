@@ -42,9 +42,9 @@ async function createVault(files: Record<string, string>) {
 describe("skill application tools", () => {
   it("reads snapshot skills and rejects misses, manual-only, traversal, and oversized resources", async () => {
     const vault = await createVault({
-      ".lapis/skills/research-notes/SKILL.md": RESEARCH,
-      ".lapis/skills/research-notes/references/notes.md": "safe",
-      ".lapis/skills/private-notes/SKILL.md": MANUAL,
+      ".agents/skills/research-notes/SKILL.md": RESEARCH,
+      ".agents/skills/research-notes/references/notes.md": "safe",
+      ".agents/skills/private-notes/SKILL.md": MANUAL,
     });
     const registry = new SkillRegistry({ vault });
     const snapshots = new SkillSnapshotStore();
@@ -79,7 +79,7 @@ describe("skill application tools", () => {
     });
     expect(read.isError).toBeFalsy();
     expect(read.content[0]).toMatchObject({ text: expect.stringContaining("notes_search") });
-    expect(JSON.stringify(read)).not.toContain("/.lapis/skills/");
+    expect(JSON.stringify(read)).not.toContain("/.agents/skills/");
 
     const missing = await host.invoke("binding-1", {
       runId: "r2",
@@ -106,7 +106,7 @@ describe("skill application tools", () => {
     expect(traversal.isError).toBe(true);
 
     await vault.create(
-      ".lapis/skills/research-notes/references/huge.md",
+      ".agents/skills/research-notes/references/huge.md",
       "x".repeat(65 * 1024),
     );
     const oversized = await host.invoke("binding-1", {

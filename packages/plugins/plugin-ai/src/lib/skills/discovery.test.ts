@@ -61,7 +61,7 @@ describe("SkillRegistry discovery", () => {
     );
     const registry = await seed(
       {
-        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
       },
       { bundled: true, appSkills },
     );
@@ -76,8 +76,8 @@ describe("SkillRegistry discovery", () => {
 
   it("marks same-level duplicates invalid", async () => {
     const registry = await seed({
-      ".lapis/skills/a/SKILL.md": RESEARCH,
-      ".lapis/skills/b/SKILL.md": RESEARCH.replace(
+      ".agents/skills/a/SKILL.md": RESEARCH,
+      ".agents/skills/b/SKILL.md": RESEARCH.replace(
         "current scope",
         "other copy",
       ),
@@ -94,11 +94,11 @@ describe("SkillRegistry discovery", () => {
   it("keeps an existing snapshot when skills change", async () => {
     const vault = new Vault(new MemoryVaultAdapter());
     await vault.load();
-    await vault.mkpath(".lapis/skills/research-notes");
-    await vault.create(".lapis/skills/research-notes/SKILL.md", RESEARCH);
+    await vault.mkpath(".agents/skills/research-notes");
+    await vault.create(".agents/skills/research-notes/SKILL.md", RESEARCH);
     const registry = new SkillRegistry({ vault });
     const first = await registry.snapshot({ scopeDir: "" });
-    const file = vault.getFileByPath(".lapis/skills/research-notes/SKILL.md");
+    const file = vault.getFileByPath(".agents/skills/research-notes/SKILL.md");
     expect(file).toBeTruthy();
     await vault.modify(
       file!,
@@ -121,7 +121,7 @@ describe("SkillRegistry discovery", () => {
     );
     const registry = await seed(
       {
-        ".lapis/skills/gated/SKILL.md": `---
+        ".agents/skills/gated/SKILL.md": `---
 name: gated-notes
 description: Needs a missing tool
 metadata:

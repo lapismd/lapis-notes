@@ -3,7 +3,7 @@ import type { SkillSnapshot, SkillSnapshotEntry } from "./types";
 const MANIFEST_BUDGET = 8_000;
 
 export function hasHostFilesystemPath(value: string): boolean {
-  return /(?:(?:^|[\s"'>=])(?:\/|[A-Za-z]:\\|file:\/\/)|\.lapis\/skills\/)/u.test(
+  return /(?:(?:^|[\s"'>=])(?:\/|[A-Za-z]:\\|file:\/\/)|\.lapis\/skills\/|\.agents\/(?:user\/)?skills\/)/u.test(
     value,
   );
 }

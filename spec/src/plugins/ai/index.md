@@ -64,7 +64,7 @@ execution APIs.
 | LN-AI-053 | ACP thinking MUST be applied before the first turn through acpx session configuration. Thought stream events MUST map to visible reasoning items and finish on completion or error.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | LN-AI-054 | Tool transcript items MUST retain the event-provided input and output, including ACP `rawInput`, `locations`, and completed-event input. The panel MUST show command or input and output in expandable details. Details MUST NOT render tool environment variables or host credentials. |
 | LN-AI-125 | Tool items MUST keep an application-tool name and arguments when a later ACP update uses a generic title or empty input. One item MUST represent that call even when the MCP broker id and ACP `toolCallId` differ. The panel MUST show that tool name instead of `tool call`. |
-| LN-AI-126 | The reserved composer catalog MUST include `help`, `commands`, `new`, `agent`, `model`, `status`, `scope`, `context`, `skills`, `tools`, `native`, `skill`, `cancel`, and `refresh`. Those names MUST stay available across agent switches and MUST NOT be overridden by extension, skill, or native commands. |
+| LN-AI-126 | The reserved composer catalog MUST include `help`, `commands`, `new`, `agent`, `model`, `status`, `scope`, `context`, `skills`, `tools`, `native`, `skill`, `cancel`, and `refresh`. Those names MUST stay available across agent switches and MUST NOT be overridden by extension, skill, native, or command-file commands. |
 | LN-AI-127 | Reserved `/help` and `/commands` MUST list effective composer commands grouped by App, Actions, Skills, and Current Agent. The listing MUST stay local and MUST NOT become a model prompt. |
 | LN-AI-128 | Reserved `/scope` with no arguments MUST report the current folder, launch note, workspace, and resolution source. A folder argument MUST start a new conversation in that scope and MUST NOT mutate the open conversation. |
 | LN-AI-129 | Reserved `/context` MUST report conversation id, scope, launch note, workspace, agent, model, effective tools, and effective skills. The report MUST stay local and MUST NOT become a model prompt. Reserved `/status` MUST show the same report. |
@@ -76,10 +76,15 @@ execution APIs.
 | LN-AI-135 | Each new agent binding MUST attach a generated path-free `sessionBootstrap` on request metadata. The block MUST include host rules, scope, launch note, effective tools, and compact skills. It MUST NOT persist as a transcript message. Resume MUST NOT re-append it. |
 | LN-AI-136 | Bootstrap MUST read each ancestor `.lapis/AGENTS.md` from vault root to the conversation scope, root to leaf. It MUST skip path-bearing files and truncate past 10,000 characters per file and 25,000 total. Truncation MUST be reported. |
 | LN-AI-137 | Reserved `/context` MUST also report folder-instruction vault-relative paths and whether bootstrap text was truncated. The report MUST stay local and MUST NOT include machine-absolute paths. |
-| LN-AI-138 | AI MUST expose a live catalog of registered application tools, composer slash commands, and skills grouped by contributing plugin or folder source. The catalog MUST include folder skills outside the open chat scope and MUST refresh when registrations or `SKILL.md` files change. It MUST NOT use a frozen binding snapshot. |
+| LN-AI-138 | AI MUST expose a live catalog of registered application tools, composer slash commands, and skills grouped by contributing plugin or folder source. The catalog MUST include folder skills outside the open chat scope and MUST refresh when registrations, `SKILL.md`, or command Markdown files change. It MUST NOT use a frozen binding snapshot. |
 | LN-AI-139 | Catalog tool enablement MUST persist through the existing application-tool settings. Changing a checkbox MUST NOT mutate the open binding's frozen tool list. |
 | LN-AI-140 | AI MUST register a movable `ai-catalog` command view whose Open Catalog command reveals or creates the documented left-sidebar leaf. |
-| LN-AI-141 | The AI catalog tree MUST nest Tools, Commands, and Skills under each owner using explorer row tokens, hover wash, and kind icons. Clicking a tool, command, or skill row MUST expand its description; a vault-backed skill MUST also expose Open for that `SKILL.md`. Chrome MUST provide a filter plus Expand all and Collapse all. |
+| LN-AI-141 | The AI catalog tree MUST nest Tools, Commands, and Skills under each owner using explorer row tokens, hover wash, and kind icons. Clicking a tool, command, or skill row MUST expand its description. A vault-backed skill or vault/folder command file MUST expose Open. Chrome MUST provide a filter plus Expand all and Collapse all. |
+| LN-AI-142 | On load, AI MUST create each packaged skill at `.agents/skills/<name>/SKILL.md` only when that file is missing. It MUST NOT overwrite an existing file. In-memory bundled skills MAY remain a last-resort snapshot source when a write fails. |
+| LN-AI-143 | Update bundled skills MUST overwrite only packaged names under vault-root `.agents/skills/<name>/SKILL.md` with the current packaged Markdown. It MUST NOT delete or rewrite user-authored skills with other names. |
+| LN-AI-144 | Command discovery MUST search `<scope>/.agents/commands`, vault `.agents/commands`, and user-global `~/.lapis/agents/commands` when the host exposes that directory. Folder MUST override vault, then user-global, then extension. Reserved names MUST stay reserved. A colliding file MUST be a diagnostic, not a handler. |
+| LN-AI-145 | Command files MUST use YAML front-matter plus a Markdown body. Omitted or `prompt` kind MUST interpolate `$ARGUMENTS`, numbered `$1` placeholders, and `{{args}}`, then submit as a user prompt. `kind: host` MUST stay local and MUST NOT become a model prompt. A host file whose name is not reserved MUST be invalid. |
+| LN-AI-146 | When the host exposes a user-agents directory, AI MUST seed each reserved command as `~/.lapis/agents/commands/<name>.md` only when missing, with `kind: host`. Update reserved commands MUST overwrite only those reserved filenames. It MUST NOT rewrite user-authored prompt files. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -132,7 +137,7 @@ execution APIs.
 | LN-AI-094 | A capable authenticated remote host MUST proxy app-tool calls, results, and cancellation through the existing agent-runtime channel while execution remains in the owning App. Disconnect MUST cancel pending calls and revoke the bridge, and resume MUST create a new bridge rather than reusing stale authorization. |
 | LN-AI-095 | The AI settings section MUST list every currently registered application tool with its name, contributing plugin, and an enablement control. The list MUST refresh when the registry changes. Unregistered tools MUST disappear. |
 | LN-AI-110 | AI MUST parse folder `SKILL.md` files that supply `name` and `description`. It MUST accept OpenClaw-compatible `user-invocable`, `disable-model-invocation`, `argument-hint`, and `command-dispatch` fields. Application-only gating MUST use namespaced `metadata.lapis`. Invalid frontmatter MUST produce a diagnostic and MUST NOT enter an effective snapshot. |
-| LN-AI-111 | Skill discovery MUST search conversation-scope, vault, user, extension, and bundled roots in that override order, using skill `name` for precedence. A higher source MUST replace a lower source without merging bodies. Same-level duplicates MUST be invalid. Disabled extension roots MUST NOT enter later snapshots. |
+| LN-AI-111 | Skill discovery MUST search `<scope>/.agents/skills`, vault `.agents/skills`, `.agents/user/skills`, extension, and bundled roots in that override order, using skill `name` for precedence. A higher source MUST replace a lower source without merging bodies. Same-level duplicates MUST be invalid. Disabled extension roots MUST NOT enter later snapshots. |
 | LN-AI-112 | Each new agent binding MUST receive an immutable skill snapshot of eligible skills. Session setup MUST inject a compact `available_skills` manifest of model-invocable skills only. The manifest MUST include name, description, id, and version and MUST NOT include host filesystem paths. Existing bindings MUST retain their snapshot until an explicit refresh or replacement binding. |
 | LN-AI-113 | AI MUST register bundled `skills_read` and `skills_resource` application tools. Both MUST execute through `AppToolHost`. `skills_read` MUST load a model-invocable skill from the current binding snapshot. `skills_resource` MUST reject traversal, symlink escape, and oversized content, and MUST NOT execute scripts. |
 | LN-AI-114 | An explicit skill command MUST load full instructions host-side and create a structured skill activation with name, version, source, and arguments. Runtime adapters MUST project that activation. The path MUST NOT depend on the model choosing `skills_read`. |
@@ -186,7 +191,7 @@ The catalog command view verifies:
 
 - The catalog tree MUST list tools, slash commands, and skills by owner.
 - Activating a vault-backed skill MUST open that `SKILL.md` in the editor.
-- Bundled and extension-only skills MUST NOT invent a vault file.
+- Seeded bundled skills MUST expose Open for their vault `SKILL.md`.
 
 ### LN-AI-141 acceptance details
 
@@ -194,7 +199,7 @@ The catalog chrome verifies:
 
 - Owner folders nest Tools, Commands, and Skills with kind icons.
 - Clicking a tool, command, or skill row expands its description.
-- A vault-backed skill exposes Open, which opens that `SKILL.md`.
+- A vault-backed skill or vault/folder command file exposes Open.
 - Filter hides non-matches; Expand all opens every expandable row.
 
 ## Runtime flow
@@ -207,19 +212,22 @@ External process-backed MCP servers are represented by
 `McpServerContribution` and travel through `AgentRequest.mcpServers`; the
 reserved `lapis-tools` server is exclusively owned by the application-tool
 bridge.
-Folder skills live under `<scope>/.lapis/skills/**/SKILL.md`. The composer
-treats a leading slash as a command and keeps reserved app commands across
-agent switches, including `/help`, `/scope`, `/context`, and `/agent`
-(LN-AI-126–LN-AI-129). AI ships bundled `research` and `lapis-notes` skills
-that folder skills may override (LN-AI-130, LN-AI-134). Search owns composer
-`/search` as a `notes_search` tool-dispatch command. Live ACP session start
-appends a path-free `available_skills` manifest and a generated
-`sessionBootstrap` through host session setup (LN-AI-135, LN-AI-136).
-`/context` reports folder-instruction paths and bootstrap truncation
-(LN-AI-137). The AI catalog lists live tools, commands, and skills
-(LN-AI-138–LN-AI-141). Native ACP commands stay binding-local and never override
-app, extension, or skill commands. Skill tools execute only through
-`AppToolHost`.
+Folder skills live under `<scope>/.agents/skills/**/SKILL.md`. Command
+Markdown lives under `<scope>/.agents/commands`, vault `.agents/commands`,
+and user-global `~/.lapis/agents/commands` when the host exposes that
+directory (LN-AI-144–LN-AI-146). The composer treats a leading slash as a
+command and keeps reserved app commands across agent switches, including
+`/help`, `/scope`, `/context`, and `/agent` (LN-AI-126–LN-AI-129). AI ships
+bundled `research` and `lapis-notes` skills that folder skills may override
+(LN-AI-130, LN-AI-134) and seeds them as vault `SKILL.md` when missing
+(LN-AI-142, LN-AI-143). Search owns composer `/search` as a `notes_search`
+tool-dispatch command. Live ACP session start appends a path-free
+`available_skills` manifest and a generated `sessionBootstrap` through host
+session setup (LN-AI-135, LN-AI-136). `/context` reports folder-instruction
+paths and bootstrap truncation (LN-AI-137). The AI catalog lists live tools,
+commands, and skills (LN-AI-138–LN-AI-146). Native ACP commands stay
+binding-local and never override app, extension, skill, or command-file
+commands. Skill tools execute only through `AppToolHost`.
 Application tools are enabled by default for new bindings. The master setting
 and per-tool enablement lists are persisted, while an active binding retains
 the snapshot taken when it was created.

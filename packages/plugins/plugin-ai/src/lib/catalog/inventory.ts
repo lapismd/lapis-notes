@@ -6,10 +6,13 @@ import type {
 } from "@lapis-notes/api/agent-skills";
 import type { RegisteredAppTool } from "@lapis-notes/api/agent-tools";
 import { SlashCommandCatalog } from "../commands/catalog";
+import { CommandDiscovery } from "../commands/discovery";
+import type { UserAgentsCommandStore } from "../commands/user-agents";
 import {
   isAppToolEnabled,
   type AiPluginSettings,
 } from "../settings/ai-settings";
+import { BUNDLED_SKILL_NAMES } from "../skills/bundled/research";
 import { parseSkillMarkdown, SkillParseError } from "../skills/parser";
 import type { LoadedAppSkill } from "../skills/types";
 import type {
@@ -37,6 +40,8 @@ export interface CollectAiCatalogInput {
   bundled: readonly LoadedAppSkill[];
   settings: AiPluginSettings;
   pluginLabel: (pluginId: string) => string;
+  userAgents?: UserAgentsCommandStore;
+  scopeDir?: string;
 }
 
 export async function collectAiCatalog(
@@ -74,13 +79,27 @@ export async function collectAiCatalog(
     });
   }
 
-  const reserved = new SlashCommandCatalog().list();
+  const discoveredCommands = await new CommandDiscovery({
+    vault: input.vault,
+    userAgents: input.userAgents,
+  }).discover(input.scopeDir ?? "");
+  const catalog = new SlashCommandCatalog();
+  catalog.replaceFileCommands(
+    discoveredCommands.commands,
+    discoveredCommands.overlays,
+  );
+  const reserved = catalog.list();
+  const overlayByName = new Map(
+    discoveredCommands.overlays.map((command) => [command.name, command]),
+  );
   for (const command of reserved) {
+    const overlay = overlayByName.get(command.name);
     pluginGroup("ai").commands.push({
       kind: "command",
       name: command.name,
       description: command.description,
       source: "app",
+      path: overlay?.path,
     });
   }
   const reservedNames = new Set(reserved.map((command) => command.name));
@@ -92,6 +111,22 @@ export async function collectAiCatalog(
       description: registered.command.description,
       source: "extension",
     });
+  }
+  for (const command of discoveredCommands.commands) {
+    const row: CatalogCommandRow = {
+      kind: "command",
+      name: command.name,
+      description: command.description,
+      source: command.source,
+      path: command.path,
+    };
+    if (command.source === "user") {
+      ensureNamedGroup(groups, "user", "User", "user").commands.push(row);
+    } else {
+      ensureNamedGroup(groups, "folders", "Folders", "folders").commands.push(
+        row,
+      );
+    }
   }
 
   const { skills, diagnostics } = await listInventorySkills(
@@ -133,7 +168,11 @@ export async function collectAiCatalog(
       kind === "plugin" ? 0 : kind === "folders" ? 1 : kind === "user" ? 2 : 3;
     return order(left.kind) - order(right.kind) || left.label.localeCompare(right.label);
   });
-  if (diagnostics.length > 0) {
+  const allDiagnostics = [
+    ...diagnostics,
+    ...discoveredCommands.diagnostics,
+  ];
+  if (allDiagnostics.length > 0) {
     listed.push({
       id: "diagnostics",
       label: "Diagnostics",
@@ -141,7 +180,7 @@ export async function collectAiCatalog(
       tools: [],
       commands: [],
       skills: [],
-      diagnostics,
+      diagnostics: allDiagnostics,
     });
   }
   return listed;
@@ -173,29 +212,9 @@ async function listInventorySkills(
   bundled: readonly LoadedAppSkill[],
   registeredSkills: readonly RegisteredAppSkillSource[],
 ): Promise<{ skills: CatalogSkillRow[]; diagnostics: CatalogDiagnosticRow[] }> {
-  const skills: CatalogSkillRow[] = bundled.map((skill) => ({
-    kind: "skill" as const,
-    name: skill.name,
-    description: skill.description,
-    source: skill.source,
-    pluginId: "ai",
-    shadowed: false,
-    userInvocable: skill.userInvocable,
-  }));
-  for (const registered of registeredSkills) {
-    if (registered.kind !== "programmatic" || !registered.skill) continue;
-    skills.push({
-      kind: "skill",
-      name: registered.skill.name,
-      description: registered.skill.description,
-      source: "programmatic",
-      pluginId: registered.ownerPluginId,
-      shadowed: false,
-      userInvocable: registered.skill.userInvocable !== false,
-    });
-  }
+  const skills: CatalogSkillRow[] = [];
   const diagnostics: CatalogDiagnosticRow[] = [];
-  for (const file of vault.getFilesByGlob("**/.lapis/skills/**/SKILL.md")) {
+  for (const file of vault.getFilesByGlob("**/.agents/skills/**/SKILL.md")) {
     if (file.path.includes("/scripts/") || file.path.includes("/references/")) {
       continue;
     }
@@ -212,6 +231,7 @@ async function listInventorySkills(
         description: loaded.description,
         source,
         path: file.path,
+        pluginId: source === "bundled" ? "ai" : undefined,
         shadowed: false,
         userInvocable: loaded.userInvocable,
       });
@@ -225,12 +245,70 @@ async function listInventorySkills(
       });
     }
   }
+  for (const file of vault.getFilesByGlob(".agents/user/skills/**/SKILL.md")) {
+    if (file.path.includes("/scripts/") || file.path.includes("/references/")) {
+      continue;
+    }
+    try {
+      const loaded = parseSkillMarkdown(await vault.cachedRead(file), {
+        path: file.path,
+        source: "user",
+        root: file.path.replace(/\/SKILL\.md$/u, ""),
+      });
+      skills.push({
+        kind: "skill",
+        name: loaded.name,
+        description: loaded.description,
+        source: "user",
+        path: file.path,
+        shadowed: false,
+        userInvocable: loaded.userInvocable,
+      });
+    } catch (error) {
+      diagnostics.push({
+        path: file.path,
+        message:
+          error instanceof SkillParseError
+            ? error.message
+            : "Skill could not be parsed.",
+      });
+    }
+  }
+  for (const skill of bundled) {
+    if (skills.some((row) => row.name === skill.name && row.source === "bundled")) {
+      continue;
+    }
+    skills.push({
+      kind: "skill",
+      name: skill.name,
+      description: skill.description,
+      source: skill.source,
+      pluginId: "ai",
+      shadowed: false,
+      userInvocable: skill.userInvocable,
+    });
+  }
+  for (const registered of registeredSkills) {
+    if (registered.kind !== "programmatic" || !registered.skill) continue;
+    skills.push({
+      kind: "skill",
+      name: registered.skill.name,
+      description: registered.skill.description,
+      source: "programmatic",
+      pluginId: registered.ownerPluginId,
+      shadowed: false,
+      userInvocable: registered.skill.userInvocable !== false,
+    });
+  }
   return { skills, diagnostics };
 }
 
-function skillSourceForPath(path: string): SkillSourceKind {
-  if (path.startsWith(".lapis/user/skills/")) return "user";
-  if (path.startsWith(".lapis/skills/")) return "vault";
+export function skillSourceForPath(path: string): SkillSourceKind {
+  if (path.startsWith(".agents/user/skills/")) return "user";
+  if (path.startsWith(".agents/skills/")) {
+    const name = path.split("/")[2] ?? "";
+    return BUNDLED_SKILL_NAMES.has(name) ? "bundled" : "vault";
+  }
   return "folder";
 }
 

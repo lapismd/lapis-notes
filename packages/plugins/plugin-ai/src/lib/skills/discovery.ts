@@ -36,11 +36,11 @@ export interface SkillDiscoveryOptions {
 
 function skillGlob(prefix: string): string {
   const root = prefix.replace(/\/$/u, "");
-  return root ? `${root}/**/SKILL.md` : ".lapis/skills/**/SKILL.md";
+  return root ? `${root}/**/SKILL.md` : ".agents/skills/**/SKILL.md";
 }
 
 function folderPrefix(scopeDir: string): string {
-  return scopeDir ? `${scopeDir}/.lapis/skills` : ".lapis/skills";
+  return scopeDir ? `${scopeDir}/.agents/skills` : ".agents/skills";
 }
 
 export class SkillDiscovery {
@@ -56,10 +56,10 @@ export class SkillDiscovery {
       buckets,
       diagnostics,
     );
-    await this.#collectVault("vault", ".lapis/skills", buckets, diagnostics);
+    await this.#collectVault("vault", ".agents/skills", buckets, diagnostics);
     await this.#collectVault(
       "user",
-      this.options.userPrefix ?? ".lapis/user/skills",
+      this.options.userPrefix ?? ".agents/user/skills",
       buckets,
       diagnostics,
     );

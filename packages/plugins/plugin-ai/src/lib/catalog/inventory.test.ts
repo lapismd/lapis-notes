@@ -20,9 +20,9 @@ describe("AI catalog inventory", () => {
   it("groups tools and commands by owner and lists folder skills outside chat scope", async () => {
     const vault = new Vault(new MemoryVaultAdapter());
     await vault.load();
-    await vault.mkpath("Notes/.lapis/skills/daily");
+    await vault.mkpath("Notes/.agents/skills/daily");
     await vault.create(
-      "Notes/.lapis/skills/daily/SKILL.md",
+      "Notes/.agents/skills/daily/SKILL.md",
       `---
 name: daily
 description: Daily notes
@@ -30,9 +30,9 @@ description: Daily notes
 Body.
 `,
     );
-    await vault.mkpath("Projects/.lapis/skills/research");
+    await vault.mkpath("Projects/.agents/skills/research");
     await vault.create(
-      "Projects/.lapis/skills/research/SKILL.md",
+      "Projects/.agents/skills/research/SKILL.md",
       `---
 name: research
 description: Folder research
@@ -88,8 +88,49 @@ Folder body.
       false,
     );
     expect(folders?.skills.find((skill) => skill.name === "daily")?.path).toBe(
-      "Notes/.lapis/skills/daily/SKILL.md",
+      "Notes/.agents/skills/daily/SKILL.md",
     );
+  });
+
+  it("lists vault command Markdown under Folders and keeps reserved host names", async () => {
+    const vault = new Vault(new MemoryVaultAdapter());
+    await vault.load();
+    await vault.mkpath("Notes/.agents/commands");
+    await vault.create(
+      "Notes/.agents/commands/review.md",
+      `---
+description: Review the note
+---
+Review $ARGUMENTS.
+`,
+    );
+    await vault.create(
+      "Notes/.agents/commands/help.md",
+      `---
+description: Should not win
+---
+Nope
+`,
+    );
+    const groups = await collectAiCatalog({
+      tools: [],
+      commands: [],
+      vault,
+      bundled: [],
+      settings: DEFAULT_AI_SETTINGS,
+      pluginLabel: (id) => id,
+      scopeDir: "Notes",
+    });
+    const folders = groups.find((group) => group.id === "folders");
+    expect(folders?.commands.map((command) => command.name)).toEqual(["review"]);
+    expect(folders?.commands[0]?.path).toBe("Notes/.agents/commands/review.md");
+    const ai = groups.find((group) => group.id === "ai");
+    expect(ai?.commands.some((command) => command.name === "help")).toBe(true);
+    expect(
+      groups
+        .find((group) => group.id === "diagnostics")
+        ?.diagnostics.some((item) => /Reserved command name/u.test(item.message)),
+    ).toBe(true);
   });
 
   it("reports persisted tool enablement without rewriting caller settings", async () => {

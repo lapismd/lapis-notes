@@ -1,6 +1,7 @@
 import type { AppToolEffect } from "@lapis-notes/api/agent-tools";
 import type { SkillSourceKind } from "@lapis-notes/api/agent-skills";
 import type { AppToolEnablementOwner } from "../settings/ai-settings";
+import type { SlashCommandSource } from "../commands/types";
 
 export type CatalogGroupKind = "plugin" | "folders" | "user" | "diagnostics";
 
@@ -18,7 +19,8 @@ export interface CatalogCommandRow {
   kind: "command";
   name: string;
   description: string;
-  source: "app" | "extension" | "skill";
+  source: SlashCommandSource;
+  path?: string;
 }
 
 export interface CatalogSkillRow {

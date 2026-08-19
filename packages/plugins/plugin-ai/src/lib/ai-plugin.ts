@@ -57,9 +57,16 @@ import { AppToolHost } from "./tools/app-tool-host";
 import { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
 import { SkillRegistry, SkillSnapshotStore } from "./skills/registry";
 import { BUNDLED_APP_SKILLS } from "./skills/bundled/research";
+import { seedBundledSkills } from "./skills/seed";
 import { createSkillAppTools } from "./skills/skill-tools";
 import { SlashCommandCatalog } from "./commands/catalog";
+import { CommandDiscovery } from "./commands/discovery";
 import { SlashCommandRouter } from "./commands/router";
+import { seedReservedCommands } from "./commands/seed";
+import {
+  tryCreateNodeUserAgentsStore,
+  type UserAgentsCommandStore,
+} from "./commands/user-agents";
 
 const AI_MANIFEST: PluginManifest = {
   id: "ai",
@@ -86,6 +93,7 @@ export class AiPlugin extends Plugin {
   readonly skillSnapshots = new SkillSnapshotStore();
   readonly slashCatalog: SlashCommandCatalog;
   readonly slashRouter: SlashCommandRouter;
+  userAgents: UserAgentsCommandStore | undefined;
   readonly #settingsListeners = new Set<
     (patch: Partial<AiPluginSettings>) => void
   >();
@@ -101,8 +109,13 @@ export class AiPlugin extends Plugin {
   readonly conversationIndex: AiConversationIndex;
   private conversationIndexTimer: ReturnType<typeof setTimeout> | undefined;
 
-  constructor(app: App, pluginManifest: PluginManifest = AI_MANIFEST) {
+  constructor(
+    app: App,
+    pluginManifest: PluginManifest = AI_MANIFEST,
+    options: { userAgents?: UserAgentsCommandStore } = {},
+  ) {
     super(app, pluginManifest);
+    this.userAgents = options.userAgents;
     this.conversations = new ConversationRepository(
       new VaultTranscriptStore(app.vault),
     );
@@ -122,6 +135,9 @@ export class AiPlugin extends Plugin {
         this.app.plugins?.plugins.get(pluginId)?.manifest.dir,
     });
     this.slashCatalog = new SlashCommandCatalog(app.agentSlashCommands);
+    this.slashCatalog.setFileCommandLoader((scopeDir) =>
+      this.refreshFileCommands(scopeDir),
+    );
     this.slashRouter = new SlashCommandRouter(
       this.slashCatalog,
       this.skillRegistry,
@@ -326,8 +342,44 @@ export class AiPlugin extends Plugin {
     });
   }
 
+  async refreshFileCommands(
+    scopeDir = this.createConversationInput().scopeDir,
+  ): Promise<void> {
+    const discovered = await new CommandDiscovery({
+      vault: this.app.vault,
+      userAgents: this.userAgents,
+    }).discover(scopeDir);
+    this.slashCatalog.replaceFileCommands(
+      discovered.commands,
+      discovered.overlays,
+    );
+  }
+
+  async updateBundledSkills(): Promise<void> {
+    await seedBundledSkills(this.app.vault, { overwrite: true });
+    this.skillRegistry.invalidate();
+  }
+
+  async updateReservedCommands(): Promise<void> {
+    if (!this.userAgents) return;
+    await seedReservedCommands(this.userAgents, { overwrite: true });
+    await this.refreshFileCommands();
+  }
+
   async onload(): Promise<void> {
     this.data = parseAiPluginData(await this.loadData());
+    if (!this.userAgents && shouldUseHomeUserAgents()) {
+      this.userAgents = await tryCreateNodeUserAgentsStore();
+    }
+    await seedBundledSkills(this.app.vault).catch((error) =>
+      this.app.logger.warn("Unable to seed bundled AI skills", error),
+    );
+    if (this.userAgents) {
+      await seedReservedCommands(this.userAgents).catch((error) =>
+        this.app.logger.warn("Unable to seed reserved AI commands", error),
+      );
+    }
+    await this.refreshFileCommands();
     this.addSettingTab(new AiSettingsTab(this.app, this));
     registerAiSettings(this);
     for (const tool of createVaultFileAppTools(this.app.vault)) {
@@ -385,29 +437,36 @@ export class AiPlugin extends Plugin {
           );
       }, 150);
     };
-    const invalidateSkills = (file: { path: string }, oldPath?: string) => {
-      if (
-        file.path.includes("/.lapis/skills/") ||
-        file.path.endsWith("/.lapis/skills") ||
-        file.path.includes("/.lapis/user/skills/") ||
-        (oldPath &&
-          (oldPath.includes("/.lapis/skills/") ||
-            oldPath.includes("/.lapis/user/skills/")))
-      ) {
+    const invalidateAgents = (file: { path: string }, oldPath?: string) => {
+      if (isAgentsPath(file.path) || (oldPath && isAgentsPath(oldPath))) {
         this.skillRegistry.invalidate();
+        void this.refreshFileCommands();
       }
     };
+    if (this.userAgents?.subscribe) {
+      this.register(this.userAgents.subscribe(() => void this.refreshFileCommands()));
+    }
+    this.addCommand({
+      id: "update-bundled-skills",
+      name: "Update bundled skills",
+      callback: () => void this.updateBundledSkills(),
+    });
+    this.addCommand({
+      id: "update-reserved-commands",
+      name: "Update reserved commands",
+      callback: () => void this.updateReservedCommands(),
+    });
     this.registerEvent(
       this.app.agentSkills.on("changed", () => this.skillRegistry.invalidate()),
     );
     this.registerEvent(
-      this.app.vault.on("create", (file) => invalidateSkills(file)),
+      this.app.vault.on("create", (file) => invalidateAgents(file)),
     );
     this.registerEvent(
-      this.app.vault.on("modify", (file) => invalidateSkills(file)),
+      this.app.vault.on("modify", (file) => invalidateAgents(file)),
     );
     this.registerEvent(
-      this.app.vault.on("delete", (file) => invalidateSkills(file)),
+      this.app.vault.on("delete", (file) => invalidateAgents(file)),
     );
     this.registerEvent(
       this.app.vault.on("create", scheduleConversationIndexRepair),
@@ -420,7 +479,7 @@ export class AiPlugin extends Plugin {
     );
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
-        invalidateSkills(file, oldPath);
+        invalidateAgents(file, oldPath);
         scheduleConversationIndexRepair(file, oldPath);
       }),
     );
@@ -547,6 +606,8 @@ export class AiPlugin extends Plugin {
       bundled: BUNDLED_APP_SKILLS,
       settings: this.getSettings(),
       pluginLabel: (pluginId) => contributingPluginLabel(this.app, pluginId),
+      userAgents: this.userAgents,
+      scopeDir: this.createConversationInput().scopeDir,
     });
   }
 
@@ -631,8 +692,27 @@ export class AiPlugin extends Plugin {
 
 export default AiPlugin;
 
+function shouldUseHomeUserAgents(): boolean {
+  if (typeof process !== "undefined") {
+    if (process.env.VITEST || process.env.STORYBOOK) return false;
+  }
+  return hasNativeDesktopCapability("agent-runtime");
+}
+
 function isConversationSourcePath(path: string): boolean {
   return /(?:^|\/)\.lapis\/agents\/sessions(?:\/|$)/u.test(path);
+}
+
+function isAgentsPath(path: string): boolean {
+  return (
+    path.startsWith(".agents/") ||
+    path.includes("/.agents/skills/") ||
+    path.includes("/.agents/user/skills/") ||
+    path.includes("/.agents/commands/") ||
+    path.endsWith("/.agents/skills") ||
+    path.endsWith("/.agents/commands") ||
+    path.endsWith("/.agents/user/skills")
+  );
 }
 
 function conversationLocationFromLeaf(

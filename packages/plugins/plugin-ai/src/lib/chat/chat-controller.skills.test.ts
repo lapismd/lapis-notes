@@ -140,7 +140,7 @@ describe("AiChatController skills and slash commands", () => {
   it("A: records a compact skill manifest and reads the skill through AppToolHost", async () => {
     const { controller, runtime, skillSnapshots, appToolHost } =
       await createSkillController({
-        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
       });
     await controller.submit("hello");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
@@ -151,7 +151,7 @@ describe("AiChatController skills and slash commands", () => {
       "<name>research-notes</name>",
     );
     expect(String(runtime.lastRequest?.metadata?.availableSkillsManifest)).not.toContain(
-      "Projects/.lapis/skills",
+      "Projects/.agents/skills",
     );
     expect(String(runtime.lastRequest?.metadata?.sessionBootstrap)).toContain(
       "<lapis_context>",
@@ -186,7 +186,7 @@ describe("AiChatController skills and slash commands", () => {
 
   it("B: /research-notes authentication activates the skill and sends one Fake turn", async () => {
     const { controller, runtime, repository } = await createSkillController({
-      "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+      "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
     });
     await controller.submit("/research-notes authentication");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
@@ -213,7 +213,7 @@ describe("AiChatController skills and slash commands", () => {
 
   it("C: /skills is a host action and does not send to the session after the catalog is ready", async () => {
     const { controller, runtime } = await createSkillController({
-      "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+      "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
     });
     await controller.submit("/skills");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
@@ -224,7 +224,7 @@ describe("AiChatController skills and slash commands", () => {
 
   it("D: reserved app commands survive a binding switch and the new binding gets a new snapshot", async () => {
     const { controller, runtime, skillSnapshots } = await createSkillController({
-      "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+      "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
     });
     await controller.submit("first", {
       agent: "codex",
@@ -251,9 +251,9 @@ describe("AiChatController skills and slash commands", () => {
   it("refreshes skills onto a replacement binding and keeps the prior snapshot", async () => {
     const vault = new Vault(new MemoryVaultAdapter());
     await vault.load();
-    await vault.mkpath("Projects/.lapis/skills/research-notes");
+    await vault.mkpath("Projects/.agents/skills/research-notes");
     await vault.create(
-      "Projects/.lapis/skills/research-notes/SKILL.md",
+      "Projects/.agents/skills/research-notes/SKILL.md",
       RESEARCH,
     );
     const skills = new SkillRegistry({ vault });
@@ -280,7 +280,7 @@ describe("AiChatController skills and slash commands", () => {
     const firstBinding = controller.activeBindingId!;
     const firstVersion = skillSnapshots.get(firstBinding)?.skills[0]?.version;
     const file = vault.getFileByPath(
-      "Projects/.lapis/skills/research-notes/SKILL.md",
+      "Projects/.agents/skills/research-notes/SKILL.md",
     );
     await vault.modify(file!, `${RESEARCH}\nUpdated.`);
     await controller.refreshSkills();
@@ -301,7 +301,7 @@ describe("AiChatController skills and slash commands", () => {
     }));
     const { controller, runtime, appToolHost } = await createSkillController(
       {
-        "Projects/.lapis/skills/find-notes/SKILL.md": FIND,
+        "Projects/.agents/skills/find-notes/SKILL.md": FIND,
       },
       {
         tool: {
@@ -333,7 +333,7 @@ describe("AiChatController skills and slash commands", () => {
   it("keeps native collisions reachable through /native", async () => {
     const { controller, runtime } = await createSkillController(
       {
-        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
       },
       { native: true },
     );
@@ -349,7 +349,7 @@ describe("AiChatController skills and slash commands", () => {
     const defaults: Array<{ agent: string; runtimePreference: string }> = [];
     const { controller, runtime } = await createSkillController(
       {
-        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
       },
       {
         onComposerDefaults: (next) => defaults.push(next),
@@ -390,7 +390,7 @@ describe("AiChatController skills and slash commands", () => {
     );
     const { controller, runtime } = await createSkillController(
       {
-        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
       },
       { native: true, extensions },
     );
@@ -417,7 +417,7 @@ describe("AiChatController skills and slash commands", () => {
   it("reports /scope and starts a new conversation for a folder argument", async () => {
     const { controller, runtime } = await createSkillController(
       {
-        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
       },
       { workspace: "/Users/test/vault" },
     );
@@ -453,7 +453,7 @@ describe("AiChatController skills and slash commands", () => {
   it("reports /context and /status locally", async () => {
     const { controller, runtime } = await createSkillController(
       {
-        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
         "Projects/.lapis/AGENTS.md": "Prefer notes under architecture/.",
       },
       { workspace: "lapis-code" },
@@ -500,7 +500,7 @@ describe("AiChatController skills and slash commands", () => {
 
     const overridden = await createSkillController(
       {
-        "Projects/.lapis/skills/research/SKILL.md": `---
+        "Projects/.agents/skills/research/SKILL.md": `---
 name: research
 description: Folder research override
 ---
@@ -542,7 +542,7 @@ Folder body.
 
     const overridden = await createSkillController(
       {
-        "Projects/.lapis/skills/lapis-notes/SKILL.md": `---
+        "Projects/.agents/skills/lapis-notes/SKILL.md": `---
 name: lapis-notes
 description: Folder lapis notes
 ---

@@ -1220,11 +1220,13 @@ export class AiChatController {
     const existing = this.#activeBindingId
       ? this.#skillSnapshots.get(this.#activeBindingId)
       : undefined;
+    const context = this.#discoveryContext();
+    await this.#slashRouter.catalog.refreshFileCommands(context.scopeDir);
     if (existing) {
       this.#slashRouter.catalog.rebuildSkillCommands(existing);
       return;
     }
-    const snapshot = await this.#skills.snapshot(this.#discoveryContext());
+    const snapshot = await this.#skills.snapshot(context);
     this.#slashRouter.catalog.rebuildSkillCommands(snapshot);
   }
 
@@ -1253,6 +1255,7 @@ export class AiChatController {
   ): Promise<import("../skills/types").SkillSnapshot | undefined> {
     if (!this.#skills) return undefined;
     const existing = this.#skillSnapshots.get(bindingId);
+    await this.#slashRouter?.catalog.refreshFileCommands(scopeDir);
     if (existing && !this.#refreshSkills) {
       this.#slashRouter?.catalog.rebuildSkillCommands(existing);
       return existing;

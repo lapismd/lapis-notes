@@ -567,13 +567,22 @@ async function seedHistoryRevisions(app: App): Promise<void> {
 
 function createAiCatalogSeed(): Record<string, string> {
   return {
-    "Notes/.lapis/skills/daily/SKILL.md": [
+    "Notes/.agents/skills/daily/SKILL.md": [
       "---",
       "name: daily",
       "description: Daily notes",
       "---",
       "",
       "Daily skill body.",
+      "",
+    ].join("\n"),
+    "Notes/.agents/commands/review.md": [
+      "---",
+      "description: Review the current note for gaps",
+      "kind: prompt",
+      "---",
+      "",
+      "Review $ARGUMENTS. Report missing tests first.",
       "",
     ].join("\n"),
   };

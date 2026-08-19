@@ -29,7 +29,7 @@ describe("AgentBootstrap builder", () => {
       ".lapis/AGENTS.md": "Prefer notes under architecture/.",
       "Projects/.lapis/AGENTS.md": "Treat decisions/ as authoritative.",
       "Projects/Lapis/.lapis/AGENTS.md":
-        "Read /Users/steve/secret and .lapis/skills/hidden.",
+        "Read /Users/steve/secret and .agents/skills/hidden.",
     };
     const bootstrap = await buildAgentBootstrap({
       scopeDir: "Projects/Lapis",

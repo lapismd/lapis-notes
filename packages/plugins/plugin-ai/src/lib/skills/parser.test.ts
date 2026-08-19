@@ -12,9 +12,9 @@ Use notes_search.
 describe("parseSkillMarkdown", () => {
   it("parses required frontmatter and a stable version", () => {
     const skill = parseSkillMarkdown(MINIMUM, {
-      path: ".lapis/skills/research-notes/SKILL.md",
+      path: ".agents/skills/research-notes/SKILL.md",
       source: "folder",
-      root: ".lapis/skills/research-notes",
+      root: ".agents/skills/research-notes",
     });
     expect(skill.name).toBe("research-notes");
     expect(skill.description).toContain("Research notes");

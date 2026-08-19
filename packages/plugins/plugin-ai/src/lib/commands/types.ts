@@ -5,7 +5,10 @@ export type SlashCommandSource =
   | "app"
   | "extension"
   | "skill"
-  | "native-agent";
+  | "native-agent"
+  | "folder"
+  | "vault"
+  | "user";
 
 export interface EffectiveSlashCommand {
   name: string;

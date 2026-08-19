@@ -1,7 +1,7 @@
 import { parseSkillMarkdown } from "../parser";
 import type { LoadedAppSkill } from "../types";
 
-const LAPIS_NOTES_SKILL_MARKDOWN = `---
+export const LAPIS_NOTES_SKILL_MARKDOWN = `---
 name: lapis-notes
 description: Guidance for working with notes, folders, search, links, and other Lapis Notes capabilities.
 user-invocable: false

@@ -1,6 +1,7 @@
 import type { SkillRegistry } from "../skills/registry";
 import type { LoadedAppSkill, SkillDiscoveryContext } from "../skills/types";
 import { SlashCommandCatalog } from "./catalog";
+import { interpolateCommandTemplate } from "./markdown";
 import {
   isLiteralSlashText,
   parseSlashCommand,
@@ -144,10 +145,13 @@ export class SlashCommandRouter {
       return this.#activateSkill(dispatch.skill, parsed.rawArguments, context);
     }
     if (dispatch.kind === "prompt") {
-      const prompt = dispatch.template.includes("{{args}}")
-        ? dispatch.template.replaceAll("{{args}}", parsed.rawArguments)
-        : `${dispatch.template}\n${parsed.rawArguments}`.trim();
-      return { kind: "prompt", prompt };
+      return {
+        kind: "prompt",
+        prompt: interpolateCommandTemplate(
+          dispatch.template,
+          parsed.rawArguments,
+        ),
+      };
     }
     if (dispatch.kind === "native-agent") {
       return {

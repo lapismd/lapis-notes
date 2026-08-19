@@ -122,6 +122,38 @@ describe("SlashCommandRouter", () => {
     expect(help).toContain("/native compact");
   });
 
+  it("interpolates vault prompt commands without overriding reserved names", async () => {
+    const catalog = new SlashCommandCatalog();
+    catalog.replaceFileCommands(
+      [
+        {
+          name: "review",
+          description: "Review the note",
+          source: "vault",
+          kind: "prompt",
+          dispatch: { kind: "prompt", template: "Review $ARGUMENTS." },
+        },
+      ],
+      [
+        {
+          name: "help",
+          description: "Custom help docs",
+          source: "user",
+          kind: "host",
+          dispatch: { kind: "host", execute: () => undefined },
+        },
+      ],
+    );
+    const router = new SlashCommandRouter(catalog);
+    expect(catalog.get("help")?.description).toBe("Custom help docs");
+    expect(catalog.get("help")?.source).toBe("app");
+    expect(
+      await router.execute(router.resolve("/review auth")!, {
+        discovery: { scopeDir: "" },
+      }),
+    ).toEqual({ kind: "prompt", prompt: "Review auth." });
+  });
+
   it("maps /search arguments onto notes_search query", async () => {
     const extensions = new AppSlashCommandRegistry();
     extensions.register(

@@ -59,7 +59,7 @@
   let groups = $state<CatalogGroup[]>([]);
   let query = $state("");
   let openKeys = new SvelteSet<string>();
-  let openedSkillPath = $state<string | null>(null);
+  let openedCatalogPath = $state<string | null>(null);
   let defaultsApplied = false;
 
   const visibleGroups = $derived(filterCatalogGroups(groups, query));
@@ -127,10 +127,9 @@
     };
   });
 
-  async function openSkill(skill: CatalogSkillRow): Promise<void> {
-    if (!skill.path) return;
-    openedSkillPath = skill.path;
-    await onOpenSkill(skill.path);
+  async function openCatalogFile(path: string): Promise<void> {
+    openedCatalogPath = path;
+    await onOpenSkill(path);
   }
 
   function ownerIcon(group: CatalogGroup): Component {
@@ -414,6 +413,7 @@
   {@const key = catalogCommandKey(command.name)}
   {@const open = isOpen(key)}
   {@const slashName = `/${command.name}`}
+  {@const selected = Boolean(command.path && openedCatalogPath === command.path)}
   <Sidebar.MenuSubItem role="none" class="ai-catalog__item">
     <Collapsible.Root {open} onOpenChange={(value) => setOpen(key, value)}>
       <div
@@ -422,8 +422,9 @@
         tabindex="0"
         aria-level={3}
         aria-expanded={open}
-        aria-selected="false"
+        aria-selected={selected}
         aria-label={slashName}
+        data-active={selected}
         onclick={(event) => toggleLeafRow(event, key, open)}
         onkeydown={(event) => handleLeafKeydown(event, key, open)}
       >
@@ -436,6 +437,30 @@
           class="ai-catalog__label"
           use:useTextHighlight={{ query, value: slashName }}>{slashName}</span
         >
+        {#if command.path}
+          <span data-catalog-ignore-toggle>
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                {#snippet child({ props }: { props: Record<string, unknown> })}
+                  <Button
+                    {...props}
+                    size="icon-sm"
+                    variant="ghost"
+                    class="ai-catalog__open-skill"
+                    aria-label={`Open ${command.name}`}
+                    onclick={() => void openCatalogFile(command.path!)}
+                  >
+                    <SquareArrowOutUpRightIcon
+                      data-icon="inline-start"
+                      aria-hidden="true"
+                    />
+                  </Button>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="bottom">Open {command.name}</Tooltip.Content>
+            </Tooltip.Root>
+          </span>
+        {/if}
       </div>
       <Collapsible.Content>
         <p
@@ -452,7 +477,7 @@
 {#snippet SkillRow({ skill }: { skill: CatalogSkillRow })}
   {@const key = catalogSkillKey(skill.source, skill.name)}
   {@const open = isOpen(key)}
-  {@const selected = Boolean(skill.path && openedSkillPath === skill.path)}
+  {@const selected = Boolean(skill.path && openedCatalogPath === skill.path)}
   <Sidebar.MenuSubItem role="none" class="ai-catalog__item">
     <Collapsible.Root {open} onOpenChange={(value) => setOpen(key, value)}>
       <div
@@ -496,7 +521,7 @@
                     variant="ghost"
                     class="ai-catalog__open-skill"
                     aria-label={`Open ${skill.name}`}
-                    onclick={() => void openSkill(skill)}
+                    onclick={() => void openCatalogFile(skill.path!)}
                   >
                     <SquareArrowOutUpRightIcon
                       data-icon="inline-start"

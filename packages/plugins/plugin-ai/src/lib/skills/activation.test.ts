@@ -19,7 +19,7 @@ describe("projectSkillActivationPrompt", () => {
     expect(projected).toContain('<skill_activation name="research-notes" version="1">');
     expect(projected).toContain("Use notes_search then read.");
     expect(projected.endsWith("authentication")).toBe(true);
-    expect(projected).not.toContain(".lapis/skills");
+    expect(projected).not.toContain(".agents/skills");
   });
 
   it("leaves the prompt unchanged when instructions include a host path", () => {
@@ -27,7 +27,7 @@ describe("projectSkillActivationPrompt", () => {
       projectSkillActivationPrompt("authentication", [
         {
           ...activation,
-          instructions: "Read Notes/.lapis/skills/research-notes/SKILL.md",
+          instructions: "Read Notes/.agents/skills/research-notes/SKILL.md",
         },
       ]),
     ).toBe("authentication");

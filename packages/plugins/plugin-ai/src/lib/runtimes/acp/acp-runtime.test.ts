@@ -166,7 +166,7 @@ describe("AcpAgentRuntime", () => {
     expect(backend.lastPrompt).toContain("<skill_activation");
     expect(backend.lastPrompt).toContain("Use notes_search then read.");
     expect(backend.lastPrompt).toContain("authentication");
-    expect(backend.lastPrompt).not.toContain(".lapis/skills");
+    expect(backend.lastPrompt).not.toContain(".agents/skills");
     await session.close();
   });
 });

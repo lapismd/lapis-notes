@@ -30,14 +30,14 @@ describe("buildAvailableSkillsManifest", () => {
     });
     expect(xml).toContain("<name>research-notes</name>");
     expect(xml).not.toContain("private-notes");
-    expect(xml).not.toContain(".lapis/skills");
+    expect(xml).not.toContain(".agents/skills");
     expect(xml).not.toMatch(/\/Users\/|Projects\//u);
   });
 
   it("rejects vault-relative skill paths", () => {
     expect(
       hasHostFilesystemPath(
-        "<available_skills>Notes/.lapis/skills/research-notes</available_skills>",
+        "<available_skills>Notes/.agents/skills/research-notes</available_skills>",
       ),
     ).toBe(true);
     expect(

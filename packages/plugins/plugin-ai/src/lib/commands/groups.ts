@@ -30,7 +30,14 @@ const GROUP_ORDER: SlashCommandGroup[] = [
 export function slashCommandGroup(
   command: EffectiveSlashCommand,
 ): SlashCommandGroup {
-  if (command.source === "extension") return "actions";
+  if (
+    command.source === "extension" ||
+    command.source === "folder" ||
+    command.source === "vault" ||
+    command.source === "user"
+  ) {
+    return "actions";
+  }
   if (command.source === "skill") return "skills";
   if (command.source === "native-agent") return "agent";
   return "app";

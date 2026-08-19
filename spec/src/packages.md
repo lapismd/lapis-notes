@@ -160,8 +160,9 @@ The worker client uses a narrow API subpath so provider workers never load the
 application manager or presentation modules.
 
 The API agent-skills surface exports only skill-source and composer
-slash-command registration. AI owns discovery, snapshots, skill tools, and
-routing, including reserved `/help`, `/scope`, `/context`, and `/agent`.
+slash-command registration. AI owns discovery of `.agents` skill and
+command Markdown, snapshots, skill tools, and routing, including reserved
+`/help`, `/scope`, `/context`, and `/agent`.
 AI ships bundled `research` and `lapis-notes` skills. Search owns composer
 `/search` as a `notes_search` tool-dispatch command. Live ACP session start
 appends a path-free `available_skills` manifest and a generated

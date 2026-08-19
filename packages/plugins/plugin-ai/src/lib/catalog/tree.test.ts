@@ -39,7 +39,7 @@ const group: CatalogGroup = {
       name: "daily",
       description: "Daily notes",
       source: "folder",
-      path: "Notes/.lapis/skills/daily/SKILL.md",
+      path: "Notes/.agents/skills/daily/SKILL.md",
       shadowed: false,
       userInvocable: true,
     },

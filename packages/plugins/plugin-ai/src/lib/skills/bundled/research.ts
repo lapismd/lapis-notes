@@ -1,8 +1,11 @@
 import { parseSkillMarkdown } from "../parser";
 import type { LoadedAppSkill } from "../types";
-import { BUNDLED_LAPIS_NOTES_SKILL } from "./lapis-notes";
+import {
+  BUNDLED_LAPIS_NOTES_SKILL,
+  LAPIS_NOTES_SKILL_MARKDOWN,
+} from "./lapis-notes";
 
-const RESEARCH_SKILL_MARKDOWN = `---
+export const RESEARCH_SKILL_MARKDOWN = `---
 name: research
 description: Research notes in the current folder and synthesize an answer.
 user-invocable: true
@@ -29,3 +32,10 @@ export const BUNDLED_APP_SKILLS: readonly LoadedAppSkill[] = [
   BUNDLED_LAPIS_NOTES_SKILL,
   BUNDLED_RESEARCH_SKILL,
 ];
+
+export const BUNDLED_SKILL_MARKDOWN: Readonly<Record<string, string>> = {
+  research: RESEARCH_SKILL_MARKDOWN,
+  "lapis-notes": LAPIS_NOTES_SKILL_MARKDOWN,
+};
+
+export const BUNDLED_SKILL_NAMES = new Set(Object.keys(BUNDLED_SKILL_MARKDOWN));

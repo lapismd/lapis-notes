@@ -70,7 +70,7 @@ describe("AiPlugin contracts", () => {
     const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
 
     expect(source).toMatch(
-      /constructor\(app: App,[\s\S]*?super\(app, pluginManifest\)/u,
+      /constructor\(\s*app: App,[\s\S]*?super\(app, pluginManifest\)/u,
     );
     expect(source).not.toContain("globalThis.app");
   });
@@ -228,6 +228,10 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain('name: "Open History"');
     expect(source).toContain('id: "open-catalog"');
     expect(source).toContain('name: "Open Catalog"');
+    expect(source).toContain('id: "update-bundled-skills"');
+    expect(source).toContain('name: "Update bundled skills"');
+    expect(source).toContain('id: "update-reserved-commands"');
+    expect(source).toContain('name: "Update reserved commands"');
     expect(source).not.toContain("show-ai-conversation-history");
     expect(source).not.toContain('id: "open-ai-chat"');
   });
