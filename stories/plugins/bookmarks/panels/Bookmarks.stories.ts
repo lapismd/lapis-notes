@@ -153,12 +153,25 @@ export const LeftSidebar = placementStory(
   "left-sidebar",
   sources.LeftSidebar,
   "Bookmarks in its canonical left-sidebar placement after Search.",
-  async ({ panel, app }) => {
+  async ({ panel, app, canvasElement }) => {
     expect(panel.getByRole("button", { name: "Bookmark the active tab" })).toBeVisible();
-    expect(panel.getByRole("button", { name: "New group" })).toBeVisible();
+    const newGroup = panel.getByRole("button", { name: "New group" });
+    expect(newGroup).toBeVisible();
+    expect(newGroup.className).toContain("bookmarks-panel__toolbar-action");
     expect(panel.getByRole("button", { name: "Collapse all" })).toBeVisible();
     const filterToggle = panel.getByRole("button", { name: "Show search filter" });
     expect(filterToggle).toBeVisible();
+    expect(filterToggle.className).toContain("bookmarks-panel__toolbar-action");
+    expect(filterToggle).toHaveAttribute("data-ui-component", "button");
+    const idleBackground = getComputedStyle(filterToggle).backgroundColor;
+    await userEvent.click(filterToggle);
+    expect(filterToggle).toHaveAttribute("aria-pressed", "true");
+    const pressedBackground = getComputedStyle(filterToggle).backgroundColor;
+    expect(pressedBackground).not.toBe(idleBackground);
+    expect(pressedBackground).not.toBe("rgba(0, 0, 0, 0)");
+    expect(pressedBackground).not.toBe("transparent");
+    await userEvent.click(filterToggle);
+    expect(filterToggle).toHaveAttribute("aria-pressed", "false");
 
     await userEvent.click(filterToggle);
     const filter = await panel.findByRole("searchbox", { name: "Search bookmarks" });
@@ -169,6 +182,20 @@ export const LeftSidebar = placementStory(
     });
     await userEvent.clear(filter);
     await userEvent.click(filterToggle);
+
+    const tree = panel.getByRole("tree", { name: "Bookmarks" });
+    const panelRoot = canvasElement.querySelector<HTMLElement>(
+      '[data-testid="bookmarks-panel"]',
+    );
+    expect(panelRoot).not.toBeNull();
+    const treeStyle = getComputedStyle(tree);
+    expect(Number.parseFloat(treeStyle.paddingInlineStart)).toBeGreaterThan(0);
+    expect(Number.parseFloat(treeStyle.paddingInlineEnd)).toBeGreaterThan(0);
+    const welcomeRow = rowByLabel(panel, "Welcome");
+    const panelRect = panelRoot!.getBoundingClientRect();
+    const rowRect = welcomeRow.getBoundingClientRect();
+    expect(rowRect.left).toBeGreaterThan(panelRect.left);
+    expect(rowRect.right).toBeLessThan(panelRect.right);
 
     await userEvent.click(panel.getByRole("button", { name: "New group" }));
     const untitled = await waitFor(() =>

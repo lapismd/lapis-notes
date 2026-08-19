@@ -73,7 +73,9 @@ Settings own the agent-server URL and token; the plugin owns the start-server
 unavailable copy when a live runtime is selected without a connected host.
 A vault without workspace.json seeds File Explorer, Search, then Bookmarks on the left and
 Outline, File Properties, then Tags on the right when those plugins loaded.
-The Bookmarks panel snapshots persisted items so add and remove refresh the tree.
+The Bookmarks panel snapshots persisted items so add and remove refresh the tree,
+insets rows with the public Explorer content-padding token, and uses Explorer
+toolbar hover tokens.
 Save and Load workspace layout commands store named snapshots; Reset reapplies
 that default seed. Collapse, remount, and file-open restore keep the same
 plugin leaf by serialized id and its live `getState()`.

@@ -213,6 +213,12 @@
       isGroupBookmark(node) ? [node, ...flattenItems(node.items)] : [node],
     );
   }
+
+  function toolbarActionClass(className: unknown): string {
+    return typeof className === "string" && className
+      ? `bookmarks-panel__toolbar-action ${className}`
+      : "bookmarks-panel__toolbar-action";
+  }
 </script>
 
 {#snippet Tree(nodes: BookmarkItem[], parentCtime: number | null, depth: number)}
@@ -327,6 +333,7 @@
         {#snippet child({ props })}
           <Button
             {...props}
+            class={toolbarActionClass(props.class)}
             variant="ghost"
             size="icon"
             aria-label="Bookmark the active tab"
@@ -339,13 +346,14 @@
           </Button>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content>Bookmark the active tab</Tooltip.Content>
+      <Tooltip.Content side="bottom">Bookmark the active tab</Tooltip.Content>
     </Tooltip.Root>
     <Tooltip.Root>
       <Tooltip.Trigger>
         {#snippet child({ props })}
           <Button
             {...props}
+            class={toolbarActionClass(props.class)}
             variant="ghost"
             size="icon"
             aria-label="New group"
@@ -363,13 +371,14 @@
           </Button>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content>New group</Tooltip.Content>
+      <Tooltip.Content side="bottom">New group</Tooltip.Content>
     </Tooltip.Root>
     <Tooltip.Root>
       <Tooltip.Trigger>
         {#snippet child({ props })}
           <Button
             {...props}
+            class={toolbarActionClass(props.class)}
             variant="ghost"
             size="icon"
             aria-label="Collapse all"
@@ -387,13 +396,14 @@
           </Button>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content>Collapse all/Expand all</Tooltip.Content>
+      <Tooltip.Content side="bottom">Collapse all/Expand all</Tooltip.Content>
     </Tooltip.Root>
     <Tooltip.Root>
       <Tooltip.Trigger>
         {#snippet child({ props })}
           <Button
             {...props}
+            class={toolbarActionClass(props.class)}
             variant="ghost"
             size="icon"
             aria-label="Show search filter"
@@ -408,7 +418,7 @@
           </Button>
         {/snippet}
       </Tooltip.Trigger>
-      <Tooltip.Content>Show search filter</Tooltip.Content>
+      <Tooltip.Content side="bottom">Show search filter</Tooltip.Content>
     </Tooltip.Root>
   </div>
   </Tooltip.Provider>
@@ -446,6 +456,70 @@
 </div>
 
 <style>
+  :global {
+    [data-ui-component="bookmarks-panel"] .bookmarks-panel__toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.125rem;
+      padding: 0.25rem;
+    }
+
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action {
+      box-sizing: border-box;
+      color: var(--ui-workspace-view-foreground);
+    }
+
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action:hover,
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action:focus-visible,
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action[aria-pressed="true"],
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action[aria-pressed="true"]:hover,
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action[aria-pressed="true"]:focus-visible {
+      border-color: transparent;
+      background-color: color-mix(
+        in srgb,
+        var(--ui-workspace-foreground, currentColor) 14%,
+        var(--ui-workspace-panel, var(--ui-workspace-view-background, #fff))
+      );
+      color: var(
+        --ui-workspace-explorer-toolbar-action-hover-foreground,
+        var(--ui-workspace-panel-foreground, inherit)
+      );
+      box-shadow: none;
+    }
+
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action[aria-pressed="true"],
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action[aria-pressed="true"]:hover,
+    [data-ui-component="bookmarks-panel"]
+      .bookmarks-panel__toolbar
+      [data-ui-component="button"].bookmarks-panel__toolbar-action[aria-pressed="true"]:focus-visible {
+      color: var(--ui-workspace-accent, inherit);
+    }
+
+    [data-ui-component="bookmarks-panel"] .bookmarks-panel__tree {
+      box-sizing: border-box;
+      min-height: 100%;
+      padding: var(--ui-workspace-explorer-content-padding, 0.5rem);
+      padding-block-end: 2.5rem;
+    }
+  }
+
   .bookmarks-panel {
     display: flex;
     flex-direction: column;
@@ -458,22 +532,9 @@
     font-size: 0.75rem;
   }
 
-  .bookmarks-panel__toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.15rem;
-    padding: 0.25rem;
-  }
-
   .bookmarks-panel :global(.bookmarks-panel__scroll) {
     flex: 1;
     min-height: 0;
-  }
-
-  .bookmarks-panel__tree {
-    min-height: 100%;
-    padding-bottom: 1rem;
   }
 
   .bookmarks-panel__list {

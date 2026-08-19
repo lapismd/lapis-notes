@@ -18,6 +18,8 @@
 | LN-BM-009 | Vault rename MUST update matching `file.path` and `folder.path`. Missing targets MUST stay listed. |
 | LN-BM-010 | Storybook MUST demonstrate the real Bookmarks panel in all six governed placements. Docs source MUST use public `@lapis-notes/bookmarks` imports. New visuals MUST stay `visual-pending`. |
 | LN-BM-011 | Each known type MUST render its Lucide icon and fallback label. Graph rows MUST remain visible when Graph is unregistered. |
+| LN-BM-012 | The Bookmarks tree MUST inset rows from every panel edge using the public Explorer content-padding token. The ScrollArea MUST stay flush so the scrollbar rides the panel edge. |
+| LN-BM-013 | Bookmarks toolbar actions MUST use the public Explorer toolbar hover and pressed tokens so ghost-button muted hover stays visible on the panel. Pressed geometry MUST stay identical to idle. |
 
 ### LN-BM-006 acceptance details
 
