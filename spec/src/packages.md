@@ -327,6 +327,8 @@ Assistant MarkdownEmbed content grows with the transcript instead of a nested
 scroller (LN-AI-122).
 Drawer attachment chips use Design Core's public `attachment-chip` parts
 instead of plugin-local paint.
+Permission and question option buttons use the public `feedback-option` part
+(LN-AI-157).
 The root export stays plugin-safe; ACP and native Codex adapters publish only on
 `./runtimes`. Cursor uses the same ACP adapter through a known agent name.
 Domain plugins register tools. The package does not declare an acpx dependency.

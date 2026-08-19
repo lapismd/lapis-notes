@@ -42,6 +42,7 @@
     {#each request.options as option, index (option.id)}
       <button
         type="button"
+        data-ui-part="feedback-option"
         disabled={disabled}
         onclick={() => onRespond(option.id)}
       >

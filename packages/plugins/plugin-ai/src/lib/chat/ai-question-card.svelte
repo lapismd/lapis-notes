@@ -71,6 +71,7 @@
           {#each question.options as option, index (option.id)}
             <button
               type="button"
+              data-ui-part="feedback-option"
               data-selected={!otherSelected[question.id] &&
                 answers[question.id] === option.label}
               disabled={disabled}
@@ -94,6 +95,7 @@
           {#if question.allowOther}
             <button
               type="button"
+              data-ui-part="feedback-option"
               data-selected={otherSelected[question.id] === true}
               disabled={disabled}
               onclick={() => chooseOther(question)}

@@ -167,15 +167,6 @@
 
 [data-ui-component="ai-agent-request"]
   [data-ui-part="options"]
-  > button:hover:not(:disabled),
-[data-ui-component="ai-agent-request"]
-  [data-ui-part="options"]
-  > button[data-selected="true"] {
-  background: var(--accent);
-}
-
-[data-ui-component="ai-agent-request"]
-  [data-ui-part="options"]
   > button:disabled {
   cursor: not-allowed;
   opacity: 0.55;

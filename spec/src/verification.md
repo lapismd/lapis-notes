@@ -926,6 +926,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-154   | ai-plugin                       | Implemented | After an existing session loses its in-memory skill snapshot, /skills still lists discovered skill names |
 | LN-AI-155   | ai-plugin                       | Implemented | /search OAuth invokes notes_search and a completed tool item includes the hit path |
 | LN-AI-156   | ai-plugin                       | Implemented | Conversation metadata stores allow-always by normalized tool name; a later matching Fake permission.request is answered without a pending drawer item |
+| LN-AI-157   | ai-plugin                       | Implemented | Approval and question option buttons set `feedback-option`; plugin-ai styles drop `--accent` hover and selected paint |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |

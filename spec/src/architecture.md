@@ -141,6 +141,8 @@ approval grants before a fresh snapshot is opened for the next binding.
 Runtime Allow always and Deny always decisions persist on conversation
 metadata so later matching permission requests stay silent; application-tool
 write grants remain memory-only (LN-AI-156, LN-AI-088).
+Permission and question option buttons use Design Core's public
+`feedback-option` part (LN-AI-157).
 The explicit real-agent probe composes these same owner boundaries through
 narrow package entries: Search and Markdown supply list/search callbacks, API
 supplies Vault file tools, AI supplies the binding coordinator, and AI Host
@@ -396,6 +398,8 @@ is reported and released so the next send starts a replacement chat
 (LN-AI-124).
 Runtime Allow always and Deny always decisions persist on conversation
 metadata (LN-AI-156).
+Permission and question option buttons use Design Core's public
+`feedback-option` part (LN-AI-157).
 Application-tool names and arguments stay visible when ACP only reports a
 generic `tool call` title (LN-AI-125).
 Assistant MarkdownEmbed content grows with the transcript instead of a nested
