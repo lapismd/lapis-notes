@@ -402,7 +402,8 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - After each verified change, run `jj commit` with a PR-quality message that
   explains what changed, why it changed, and the validation that passed. Keep the
   message descriptive enough for review context rather than using a terse label.
-  When `jj` is unavailable, use Git with the same message quality.
+  This is a standing request; do not wait for the user to ask. When `jj` is
+  unavailable, use Git with the same message quality.
 - Keep changes scoped to the package or surface needed for the request. Do not
   add broad refactors or metadata churn unless required to complete the task.
 
