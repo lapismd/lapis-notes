@@ -38,7 +38,7 @@ import {
   loadStoredChatSession,
   snapshotStoredChatSession,
 } from "./chat-session";
-import type { AiChatItem } from "./chat-items";
+import { createChatItemId, type AiChatItem } from "./chat-items";
 import {
   applyAgentEventToChatItems,
   isVisibleAgentStatus,
@@ -594,8 +594,36 @@ export class AiChatController {
     if (session) this.#cancelledSessions.add(session);
     this.busy = false;
     this.items = interruptPendingInteractions(this.items);
-    void session?.cancel?.().catch(() => undefined);
+    void this.#confirmCancelledNotice(session);
     await this.#persist(true);
+  }
+
+  async #confirmCancelledNotice(session: AgentSession | null): Promise<void> {
+    if (session) {
+      try {
+        await session.cancel?.();
+      } catch {
+        return;
+      }
+      if (!this.#cancelledSessions.has(session)) return;
+      if (this.session !== session && this.session) return;
+    }
+    if (this.items.some((item) => item.type === "status" && item.text === CANCELLED_NOTICE)) {
+      return;
+    }
+    const item: AiChatItem = {
+      id: createChatItemId("status", this.items.length + 1),
+      type: "status",
+      text: CANCELLED_NOTICE,
+      createdAt: new Date().toISOString(),
+      agentBindingId: this.#activeBindingId,
+    };
+    this.items = [...this.items, item];
+    if (this.repository && this.location) {
+      await this.#appendDurableItems(this.location, [item], this.#activeBindingId);
+      return;
+    }
+    await this.#persist(false, this.#activeBindingId);
   }
 
   async cancelAndSwitch(request: Omit<AgentRequest, "prompt">): Promise<void> {
@@ -1664,6 +1692,8 @@ export class AiChatController {
     await this.#persistQueue;
   }
 }
+
+const CANCELLED_NOTICE = "Agent turn cancelled";
 
 function readAttachmentPaths(value: unknown): string[] {
   if (!Array.isArray(value)) return [];

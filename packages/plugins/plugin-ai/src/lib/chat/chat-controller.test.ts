@@ -89,6 +89,75 @@ describe("AiChatController", () => {
     ).resolves.toBeUndefined();
     expect(JSON.stringify(controller.items)).not.toContain("should stay hidden");
     expect(controller.busy).toBe(false);
+    expect(controller.items.some((item) => item.type === "status")).toBe(false);
+    await controller.close();
+  });
+
+  it("settles leftover spinners immediately and posts a cancelled notice after cancel confirms", async () => {
+    let releaseCancel!: () => void;
+    const cancelGate = new Promise<void>((resolve) => {
+      releaseCancel = resolve;
+    });
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const runtime: AgentRuntime = {
+      id: "confirm-cancel",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        return {
+          id: "confirm-1",
+          async *events() {
+            yield { type: "thinking" as const, text: "Planning" };
+            yield {
+              type: "tool.start" as const,
+              id: "t1",
+              name: "notes_search",
+              input: { query: "vault" },
+            };
+            await new Promise(() => {});
+          },
+          async send() {},
+          async respondToApproval() {},
+          async cancel() {
+            await cancelGate;
+          },
+          async close() {},
+        };
+      },
+    };
+    const controller = new AiChatController(runtime);
+    await controller.submit("search the vault");
+    await vi.waitFor(() => {
+      expect(controller.items).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ type: "thinking", state: "done" }),
+          expect.objectContaining({ type: "tool", state: "running" }),
+        ]),
+      );
+    });
+    const cancelling = controller.cancel();
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(controller.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "thinking", state: "done" }),
+        expect.objectContaining({ type: "tool", state: "completed" }),
+      ]),
+    );
+    expect(
+      controller.items.some(
+        (item) => item.type === "status" && item.text === "Agent turn cancelled",
+      ),
+    ).toBe(false);
+    releaseCancel();
+    await cancelling;
+    await vi.waitFor(() =>
+      expect(controller.items.at(-1)).toMatchObject({
+        type: "status",
+        text: "Agent turn cancelled",
+      }),
+    );
     await controller.close();
   });
 

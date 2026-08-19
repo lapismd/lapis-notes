@@ -369,7 +369,8 @@ clears. The first user message stays visible while conversation create and
 session start finish (LN-AI-106, LN-AI-120). Thinking stays expanded only while
 it streams and collapses when later transcript data arrives (LN-AI-131). Stop
 settles leftover spinners immediately and posts a cancelled system notice after
-cancel confirms (LN-AI-132). An unreadable open conversation
+cancel confirms (LN-AI-132). The notice reads `Agent turn cancelled`.
+An unreadable open conversation
 is reported and released so the next send starts a replacement chat
 (LN-AI-124).
 Application-tool names and arguments stay visible when ACP only reports a

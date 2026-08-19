@@ -221,6 +221,7 @@ session starts, and Stop aborts a still-preparing turn (LN-AI-106, LN-AI-120).
 Thinking stays expanded only while it streams, then collapses when later
 transcript data arrives (LN-AI-131). Stop settles leftover spinners immediately
 and posts a cancelled system notice after cancel confirms (LN-AI-132).
+That notice uses the visible status line `Agent turn cancelled`.
 An unreadable conversation is reported and released so the next send starts a
 replacement chat (LN-AI-124).
 Application-tool names and arguments stay on the transcript item when ACP

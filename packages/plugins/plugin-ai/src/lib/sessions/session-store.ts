@@ -162,6 +162,12 @@ export function interruptPendingInteractions(
     if (item.type === "question" && item.status === "pending") {
       return { ...item, status: "cancelled" };
     }
+    if (item.type === "thinking" && item.state === "streaming") {
+      return { ...item, state: "done" };
+    }
+    if (item.type === "tool" && item.state === "running") {
+      return { ...item, state: "completed" };
+    }
     return item;
   });
 }

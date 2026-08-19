@@ -15,7 +15,8 @@ A busy chat Stop control cancels the active agent turn, including a send that
 is still preparing a session. Thinking stays expanded only while it streams
 and collapses when later transcript data arrives (LN-AI-131). Stop settles
 leftover spinners immediately and posts a cancelled system notice after cancel
-confirms (LN-AI-132). An unreadable open conversation is reported and
+confirms (LN-AI-132). The notice reads `Agent turn cancelled`.
+An unreadable open conversation is reported and
 released so the next send starts a replacement chat (LN-AI-124).
 Application-tool names and arguments stay visible when ACP only reports a
 generic `tool call` title (LN-AI-125). The composer overflow

@@ -3,6 +3,7 @@ import {
   createMemorySessionStore,
   createPersistedSessionStore,
   createStoredAgentSession,
+  interruptPendingInteractions,
 } from "./session-store";
 
 describe("session store", () => {
@@ -97,5 +98,28 @@ describe("session store", () => {
         stored.items[0].type === "approval" &&
         stored.items[0].request.metadata,
     ).toBeUndefined();
+  });
+
+  it("settles streaming thinking and running tools when interrupted", () => {
+    const items = interruptPendingInteractions([
+      {
+        id: "think-1",
+        type: "thinking",
+        text: "Still reasoning",
+        state: "streaming",
+      },
+      {
+        id: "tool-1",
+        type: "tool",
+        toolId: "tool-1",
+        name: "notes_search",
+        state: "running",
+        input: '{"query":"vault"}',
+      },
+    ]);
+    expect(items).toMatchObject([
+      { type: "thinking", state: "done" },
+      { type: "tool", state: "completed" },
+    ]);
   });
 });
