@@ -59,8 +59,8 @@ describe("catalog tree keys", () => {
     );
   });
 
-  it("expands bundled skills and keeps vault skills as file rows", () => {
+  it("expands bundled and vault skills so descriptions share the same row toggle", () => {
     expect(catalogSkillExpands(group.skills[0]!)).toBe(true);
-    expect(catalogSkillExpands(group.skills[1]!)).toBe(false);
+    expect(catalogSkillExpands(group.skills[1]!)).toBe(true);
   });
 });

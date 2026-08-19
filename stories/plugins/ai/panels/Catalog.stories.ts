@@ -71,9 +71,7 @@ function placementStory(
       expect(panel.getByText("/help")).toBeVisible();
       expect(panel.getByText("lapis-notes")).toBeVisible();
 
-      await userEvent.click(
-        panel.getByRole("button", { name: "Expand notes_search" }),
-      );
+      await userEvent.click(panel.getByRole("treeitem", { name: "notes_search" }));
       expect(
         panel.getByText(/Search the user's Lapis Notes/i),
       ).toBeVisible();
@@ -98,11 +96,11 @@ function placementStory(
 
       await userEvent.type(panel.getByLabelText("Filter catalog"), "daily");
       await waitFor(() => {
-        expect(panel.getByRole("button", { name: "daily" })).toBeVisible();
+        expect(panel.getByRole("button", { name: "Open daily" })).toBeVisible();
         expect(panel.queryByText("lapis-notes")).toBeNull();
       });
 
-      await userEvent.click(panel.getByRole("button", { name: "daily" }));
+      await userEvent.click(panel.getByRole("button", { name: "Open daily" }));
       await waitFor(() => {
         expect(app.workspace.getActiveFile()?.path).toBe(
           "Notes/.lapis/skills/daily/SKILL.md",

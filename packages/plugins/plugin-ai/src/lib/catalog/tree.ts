@@ -25,8 +25,8 @@ export function catalogSkillKey(
   return `leaf:skill:${source}:${name}`;
 }
 
-export function catalogSkillExpands(skill: CatalogSkillRow): boolean {
-  return !skill.path;
+export function catalogSkillExpands(_skill: CatalogSkillRow): boolean {
+  return true;
 }
 
 export function collectCatalogFolderKeys(

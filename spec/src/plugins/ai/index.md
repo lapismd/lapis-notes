@@ -79,7 +79,7 @@ execution APIs.
 | LN-AI-138 | AI MUST expose a live catalog of registered application tools, composer slash commands, and skills grouped by contributing plugin or folder source. The catalog MUST include folder skills outside the open chat scope and MUST refresh when registrations or `SKILL.md` files change. It MUST NOT use a frozen binding snapshot. |
 | LN-AI-139 | Catalog tool enablement MUST persist through the existing application-tool settings. Changing a checkbox MUST NOT mutate the open binding's frozen tool list. |
 | LN-AI-140 | AI MUST register a movable `ai-catalog` command view whose Open Catalog command reveals or creates the documented left-sidebar leaf. |
-| LN-AI-141 | The AI catalog tree MUST nest Tools, Commands, and Skills under each owner using explorer row tokens, hover wash, and kind icons. Tool and command rows MUST expand to show their description. Chrome MUST provide a filter plus Expand all and Collapse all. |
+| LN-AI-141 | The AI catalog tree MUST nest Tools, Commands, and Skills under each owner using explorer row tokens, hover wash, and kind icons. Clicking a tool, command, or skill row MUST expand its description; a vault-backed skill MUST also expose Open for that `SKILL.md`. Chrome MUST provide a filter plus Expand all and Collapse all. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -193,7 +193,8 @@ The catalog command view verifies:
 The catalog chrome verifies:
 
 - Owner folders nest Tools, Commands, and Skills with kind icons.
-- Expanding a tool or command shows its description.
+- Clicking a tool, command, or skill row expands its description.
+- A vault-backed skill exposes Open, which opens that `SKILL.md`.
 - Filter hides non-matches; Expand all opens every expandable row.
 
 ## Runtime flow

@@ -17,6 +17,7 @@
   import FolderOpenIcon from "@lucide/svelte/icons/folder-open";
   import PackageIcon from "@lucide/svelte/icons/package";
   import PuzzleIcon from "@lucide/svelte/icons/puzzle";
+  import SquareArrowOutUpRightIcon from "@lucide/svelte/icons/square-arrow-out-up-right";
   import TerminalIcon from "@lucide/svelte/icons/terminal";
   import UserIcon from "@lucide/svelte/icons/user";
   import WrenchIcon from "@lucide/svelte/icons/wrench";
@@ -27,7 +28,6 @@
     catalogCommandKey,
     catalogKindKey,
     catalogOwnerKey,
-    catalogSkillExpands,
     catalogSkillKey,
     catalogToolKey,
     collectCatalogExpandableKeys,
@@ -154,8 +154,30 @@
     return "Diagnostics";
   }
 
+  function shouldIgnoreRowToggle(event: Event): boolean {
+    const target = event.target;
+    if (!(target instanceof Element)) return false;
+    return Boolean(target.closest("[data-catalog-ignore-toggle]"));
+  }
+
+  function toggleLeafRow(event: Event, key: string, open: boolean): void {
+    if (shouldIgnoreRowToggle(event)) return;
+    setOpen(key, !open);
+  }
+
+  function handleLeafKeydown(
+    event: KeyboardEvent,
+    key: string,
+    open: boolean,
+  ): void {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    if (shouldIgnoreRowToggle(event)) return;
+    event.preventDefault();
+    setOpen(key, !open);
+  }
 </script>
 
+<Tooltip.Provider delayDuration={0}>
 <div class="ai-catalog" data-ui-component="ai-catalog" data-testid="ai-catalog">
   <div class="ai-catalog__chrome" data-ui-part="chrome">
     <div data-ui-part="toolbar">
@@ -172,8 +194,7 @@
         }}
       >
         {#snippet actions()}
-          <Tooltip.Provider delayDuration={0}>
-            <Tooltip.Root>
+          <Tooltip.Root>
               <Tooltip.Trigger>
                 {#snippet child({ props }: { props: Record<string, unknown> })}
                   <Button
@@ -202,7 +223,6 @@
                 {allExpanded ? "Collapse all" : "Expand all"}
               </Tooltip.Content>
             </Tooltip.Root>
-          </Tooltip.Provider>
         {/snippet}
       </SearchFilterBar>
     </div>
@@ -230,6 +250,7 @@
     </div>
   </ScrollArea>
 </div>
+</Tooltip.Provider>
 
 {#snippet OwnerNode({ group }: { group: CatalogGroup })}
   {@const key = catalogOwnerKey(group.id)}
@@ -350,22 +371,20 @@
       <div
         class="ai-catalog__row"
         role="treeitem"
+        tabindex="0"
         aria-level={3}
         aria-expanded={open}
         aria-selected="false"
         aria-label={tool.name}
+        onclick={(event) => toggleLeafRow(event, key, open)}
+        onkeydown={(event) => handleLeafKeydown(event, key, open)}
       >
-        <Collapsible.Trigger
-          class="ai-catalog__expand"
-          aria-label={open ? `Collapse ${tool.name}` : `Expand ${tool.name}`}
-        >
-          <ChevronRightIcon
-            class="ai-catalog__disclosure"
-            data-open={open}
-            aria-hidden="true"
-          />
-        </Collapsible.Trigger>
-        <span class="ai-catalog__enable">
+        <ChevronRightIcon
+          class="ai-catalog__disclosure"
+          data-open={open}
+          aria-hidden="true"
+        />
+        <span class="ai-catalog__enable" data-catalog-ignore-toggle>
           <Checkbox
             checked={tool.enabled}
             aria-label={`Enable ${tool.name} for the next chat`}
@@ -400,21 +419,19 @@
       <div
         class="ai-catalog__row"
         role="treeitem"
+        tabindex="0"
         aria-level={3}
         aria-expanded={open}
         aria-selected="false"
         aria-label={slashName}
+        onclick={(event) => toggleLeafRow(event, key, open)}
+        onkeydown={(event) => handleLeafKeydown(event, key, open)}
       >
-        <Collapsible.Trigger
-          class="ai-catalog__expand"
-          aria-label={open ? `Collapse ${slashName}` : `Expand ${slashName}`}
-        >
-          <ChevronRightIcon
-            class="ai-catalog__disclosure"
-            data-open={open}
-            aria-hidden="true"
-          />
-        </Collapsible.Trigger>
+        <ChevronRightIcon
+          class="ai-catalog__disclosure"
+          data-open={open}
+          aria-hidden="true"
+        />
         <span
           class="ai-catalog__label"
           use:useTextHighlight={{ query, value: slashName }}>{slashName}</span
@@ -433,76 +450,75 @@
 {/snippet}
 
 {#snippet SkillRow({ skill }: { skill: CatalogSkillRow })}
-  {@const expands = catalogSkillExpands(skill)}
   {@const key = catalogSkillKey(skill.source, skill.name)}
-  {@const open = expands && isOpen(key)}
+  {@const open = isOpen(key)}
+  {@const selected = Boolean(skill.path && openedSkillPath === skill.path)}
   <Sidebar.MenuSubItem role="none" class="ai-catalog__item">
-    {#if skill.path}
+    <Collapsible.Root {open} onOpenChange={(value) => setOpen(key, value)}>
       <div
         class="ai-catalog__row"
         role="treeitem"
+        tabindex="0"
         aria-level={3}
+        aria-expanded={open}
+        aria-selected={selected}
         aria-label={skill.name}
-        aria-selected={openedSkillPath === skill.path}
-        data-active={openedSkillPath === skill.path}
+        data-active={selected}
+        title={skill.path ? undefined : "Bundled skill is not a vault file"}
+        onclick={(event) => toggleLeafRow(event, key, open)}
+        onkeydown={(event) => handleLeafKeydown(event, key, open)}
       >
-        <button
-          type="button"
-          class="ai-catalog__open"
-          aria-label={skill.name}
-          onclick={() => void openSkill(skill)}
-        >
+        <ChevronRightIcon
+          class="ai-catalog__disclosure"
+          data-open={open}
+          aria-hidden="true"
+        />
+        {#if skill.path}
           <FileTextIcon class="ai-catalog__icon" aria-hidden="true" />
-          <span
-            class="ai-catalog__label"
-            use:useTextHighlight={{ query, value: skill.name }}>{skill.name}</span
-          >
-          {#if skill.shadowed}
-            <span class="ai-catalog__meta">shadowed</span>
-          {/if}
-        </button>
-      </div>
-    {:else}
-      <Collapsible.Root {open} onOpenChange={(value) => setOpen(key, value)}>
-        <div
-          class="ai-catalog__row"
-          role="treeitem"
-          aria-level={3}
-          aria-expanded={open}
-          aria-selected="false"
-          aria-label={skill.name}
-          title="Bundled skill is not a vault file"
-        >
-          <Collapsible.Trigger
-            class="ai-catalog__expand"
-            aria-label={open ? `Collapse ${skill.name}` : `Expand ${skill.name}`}
-          >
-            <ChevronRightIcon
-              class="ai-catalog__disclosure"
-              data-open={open}
-              aria-hidden="true"
-            />
-          </Collapsible.Trigger>
+        {:else}
           <PackageIcon class="ai-catalog__icon" aria-hidden="true" />
-          <span
-            class="ai-catalog__label"
-            use:useTextHighlight={{ query, value: skill.name }}
-            >{skill.name}</span
-          >
-          {#if skill.shadowed}
-            <span class="ai-catalog__meta">shadowed</span>
-          {/if}
-        </div>
-        <Collapsible.Content>
-          <p
-            class="ai-catalog__description"
-            use:useTextHighlight={{ query, value: skill.description }}
-          >
-            {skill.description}
-          </p>
-        </Collapsible.Content>
-      </Collapsible.Root>
-    {/if}
+        {/if}
+        <span
+          class="ai-catalog__label"
+          use:useTextHighlight={{ query, value: skill.name }}>{skill.name}</span
+        >
+        {#if skill.shadowed}
+          <span class="ai-catalog__meta">shadowed</span>
+        {/if}
+        {#if skill.path}
+          <span data-catalog-ignore-toggle>
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                {#snippet child({ props }: { props: Record<string, unknown> })}
+                  <Button
+                    {...props}
+                    size="icon-sm"
+                    variant="ghost"
+                    class="ai-catalog__open-skill"
+                    aria-label={`Open ${skill.name}`}
+                    onclick={() => void openSkill(skill)}
+                  >
+                    <SquareArrowOutUpRightIcon
+                      data-icon="inline-start"
+                      aria-hidden="true"
+                    />
+                  </Button>
+                {/snippet}
+              </Tooltip.Trigger>
+              <Tooltip.Content side="bottom">Open {skill.name}</Tooltip.Content>
+            </Tooltip.Root>
+          </span>
+        {/if}
+      </div>
+      <Collapsible.Content>
+        <p
+          class="ai-catalog__description"
+          use:useTextHighlight={{ query, value: skill.description }}
+        >
+          {skill.description}
+        </p>
+      </Collapsible.Content>
+    </Collapsible.Root>
   </Sidebar.MenuSubItem>
 {/snippet}
 
@@ -605,6 +621,7 @@
     font-size: inherit;
     line-height: 1.25;
     text-align: start;
+    cursor: pointer;
   }
 
   :global(.ai-catalog__row:hover),
@@ -646,18 +663,6 @@
     color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
   }
 
-  :global(.ai-catalog__expand) {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    padding: 0;
-    color: inherit;
-    background: transparent;
-    cursor: pointer;
-  }
-
   .ai-catalog__enable {
     display: inline-flex;
     flex: 0 0 auto;
@@ -681,19 +686,8 @@
     color: var(--ui-workspace-muted-foreground, var(--muted-foreground));
   }
 
-  .ai-catalog__open {
-    display: flex;
-    min-width: 0;
-    flex: 1 1 auto;
-    align-items: center;
-    gap: 0.25rem;
-    border: 0;
-    padding: 0;
-    color: inherit;
-    background: transparent;
-    font: inherit;
-    text-align: start;
-    cursor: pointer;
+  :global(.ai-catalog__open-skill) {
+    flex: 0 0 auto;
   }
 
   .ai-catalog__description {
