@@ -1155,7 +1155,100 @@ describe("AiChatController", () => {
     ).toBe(codexBindingId);
     await controller.close();
   });
+
+  it("persists runtime allow-always in conversation metadata and skips the next drawer", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const location = {
+      scopeDir: "",
+      conversationId: "123e4567-e89b-42d3-a456-426614174000",
+    };
+    const runtime = new FakeAgentRuntime({ requireApproval: true });
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({
+        id: location.conversationId,
+        scopeDir: location.scopeDir,
+      }),
+    });
+    const firstTurn = controller.submit("first tool call");
+    await vi.waitFor(() => {
+      expect(pendingApprovals(controller)).toHaveLength(1);
+    });
+    const first = pendingApprovals(controller)[0];
+    await controller.respondToApproval(first.request.id, "allow-always");
+    await firstTurn;
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect((await repository.read(controller.location!)).metadata.approvalGrants)
+      .toEqual([{ name: "fake.echo", decision: "allow-always" }]);
+
+    await controller.submit("second tool call");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(runtime.sessions[0]?.prompts).toEqual([
+      "first tool call",
+      "second tool call",
+    ]);
+    expect(pendingApprovals(controller)).toHaveLength(0);
+
+    await controller.close();
+    const restoredRuntime = new FakeAgentRuntime({ requireApproval: true });
+    const restored = new AiChatController(restoredRuntime, null, [], {
+      repository,
+      location: controller.location,
+    });
+    await restored.restore();
+    await restored.submit("restored tool call");
+    await vi.waitFor(() => expect(restored.busy).toBe(false));
+    expect(restoredRuntime.sessions[0]?.prompts).toEqual(["restored tool call"]);
+    expect(pendingApprovals(restored)).toHaveLength(0);
+    await restored.close();
+  });
+
+  it("does not persist allow-once, so the next matching request stays pending", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const controller = new AiChatController(
+      new FakeAgentRuntime({ requireApproval: true }),
+      null,
+      [],
+      {
+        repository,
+        createConversation: () => ({
+          id: "123e4567-e89b-42d3-a456-426614174000",
+          scopeDir: "",
+        }),
+      },
+    );
+    const firstTurn = controller.submit("once");
+    await vi.waitFor(() => {
+      expect(pendingApprovals(controller)).toHaveLength(1);
+    });
+    await controller.respondToApproval(
+      pendingApprovals(controller)[0].request.id,
+      "allow-once",
+    );
+    await firstTurn;
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(
+      (await repository.read(controller.location!)).metadata.approvalGrants,
+    ).toBeUndefined();
+    const secondTurn = controller.submit("again");
+    await vi.waitFor(() => {
+      expect(pendingApprovals(controller)).toHaveLength(1);
+    });
+    await controller.respondToApproval(
+      pendingApprovals(controller)[0].request.id,
+      "allow-once",
+    );
+    await secondTurn;
+    await controller.close();
+  });
 });
+
+function pendingApprovals(controller: AiChatController) {
+  return controller.items.filter(
+    (item): item is Extract<(typeof controller.items)[number], { type: "approval" }> =>
+      item.type === "approval" && item.status === "pending",
+  );
+}
 
 function createResumableRuntime(id: string): {
   runtime: AgentRuntime;

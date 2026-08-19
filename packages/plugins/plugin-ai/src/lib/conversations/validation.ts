@@ -1,4 +1,8 @@
 import {
+  MAX_CONVERSATION_APPROVAL_GRANTS,
+  normalizeApprovalGrants,
+} from "./approval-grants";
+import {
   CONVERSATION_SCHEMA_VERSION,
   type AgentBindingRecord,
   type ConversationMetadata,
@@ -91,6 +95,19 @@ export function validateConversationMetadata(
     const workspace = record(data.workspace, "Conversation workspace");
     requiredString(workspace, "path", "Conversation workspace");
     assertPortableOptionalPath(workspace.path, "Conversation workspace.path");
+  }
+  if (data.approvalGrants != null) {
+    if (!Array.isArray(data.approvalGrants)) {
+      throw new Error("Conversation metadata.approvalGrants must be an array");
+    }
+    if (data.approvalGrants.length > MAX_CONVERSATION_APPROVAL_GRANTS) {
+      throw new Error(
+        "Conversation metadata.approvalGrants exceeds the stored limit",
+      );
+    }
+    const grants = normalizeApprovalGrants(data.approvalGrants);
+    if (grants.length > 0) data.approvalGrants = grants;
+    else delete data.approvalGrants;
   }
   return data as ConversationMetadata;
 }

@@ -6,6 +6,7 @@ import type {
   AgentUsage,
   AppToolSessionDescriptor,
   ApprovalOptionKind,
+  ApprovalRequest,
   McpServerContribution,
   UserInputAnswers,
 } from "../core/types";
@@ -26,9 +27,16 @@ import {
   projectTranscriptToChatItems,
 } from "../conversations/transcript-projection";
 import {
+  approvalGrantIdentity,
+  persistentDecisionForRequest,
+  persistentDecisionFromOption,
+  upsertApprovalGrant,
+} from "../conversations/approval-grants";
+import {
   CONVERSATION_SCHEMA_VERSION,
   ConversationUnavailableError,
   type AgentBindingCreatedRecord,
+  type ConversationApprovalGrant,
   type ConversationLocation,
   type ConversationMetadata,
 } from "../conversations/types";
@@ -122,6 +130,7 @@ export class AiChatController {
     runtimePreference: "acp" | "codex-native" | "fake";
   }) => void;
   #refreshSkills = false;
+  #approvalGrants: ConversationApprovalGrant[] = [];
 
   constructor(
     runtime: AgentRuntime,
@@ -273,6 +282,7 @@ export class AiChatController {
     this.bindings = [];
     this.location = null;
     this.conversationStatus = null;
+    this.#approvalGrants = [];
     if (this.repository && input) {
       const created = await this.repository.create(input);
       this.location = created.location;
@@ -329,6 +339,7 @@ export class AiChatController {
     this.bindings = [];
     this.location = null;
     this.conversationStatus = null;
+    this.#approvalGrants = [];
     this.#onLocationChange?.(null);
   }
 
@@ -336,6 +347,7 @@ export class AiChatController {
     if (!this.repository || !this.location) return;
     const snapshot = await this.repository.read(this.location);
     this.conversationStatus = snapshot.metadata.status;
+    this.#loadApprovalGrants(snapshot.metadata);
     this.items = projectTranscriptToChatItems(snapshot.transcript);
     const activeBinding = snapshot.agents.find(
       (record): record is AgentBindingCreatedRecord =>
@@ -562,6 +574,9 @@ export class AiChatController {
       return;
     }
     if (!this.session) return;
+    if (pending?.type === "approval") {
+      await this.#rememberPersistentDecision(pending.request, optionId);
+    }
     this.items = markApprovalResponse(this.items, requestId, optionId);
     await this.session.respondToApproval(requestId, optionId);
     const item = this.items.find(
@@ -705,6 +720,20 @@ export class AiChatController {
             );
           }
           continue;
+        }
+        if (event.type === "permission.request") {
+          const decision = persistentDecisionForRequest(
+            this.#approvalGrants,
+            event.request,
+          );
+          if (decision) {
+            try {
+              await session.respondToApproval(event.request.id, decision);
+              continue;
+            } catch {
+              // Fall through so an unmatched runtime request still opens the drawer.
+            }
+          }
         }
         traceItems = applyAgentEventToChatItems(traceItems, event);
         const activeSession = this.session === session;
@@ -1387,22 +1416,49 @@ export class AiChatController {
 
   #releaseUnreadableLocation(error: unknown): void {
     this.error = error instanceof Error ? error.message : String(error);
+    this.#approvalGrants = [];
     if (!this.location) return;
     this.location = null;
     this.conversationStatus = null;
     this.#onLocationChange?.(null);
   }
 
+  #loadApprovalGrants(metadata: ConversationMetadata): void {
+    this.#approvalGrants = [...(metadata.approvalGrants ?? [])];
+  }
+
+  async #rememberPersistentDecision(
+    request: ApprovalRequest,
+    optionId: string,
+  ): Promise<void> {
+    if (request.origin === "app-tool") return;
+    const decision = persistentDecisionFromOption(optionId);
+    const name = approvalGrantIdentity(request);
+    if (!decision || !name) return;
+    this.#approvalGrants = upsertApprovalGrant(
+      this.#approvalGrants,
+      name,
+      decision,
+    );
+    if (!this.repository || !this.location) return;
+    await this.repository.writeApprovalGrants(
+      this.location,
+      this.#approvalGrants,
+    );
+  }
+
   async #ensureConversation(): Promise<void> {
     if (!this.repository) return;
     if (this.location) {
       try {
-        await this.repository.read(this.location);
+        const snapshot = await this.repository.read(this.location);
+        this.#loadApprovalGrants(snapshot.metadata);
         return;
       } catch (error) {
         if (!(error instanceof ConversationUnavailableError)) throw error;
         this.location = null;
         this.conversationStatus = null;
+        this.#approvalGrants = [];
         this.#onLocationChange?.(null);
       }
     }
@@ -1410,6 +1466,7 @@ export class AiChatController {
     const created = await this.repository.create(input);
     this.location = created.location;
     this.conversationStatus = created.metadata.status;
+    this.#approvalGrants = [];
     this.#onLocationChange?.(this.location);
   }
 

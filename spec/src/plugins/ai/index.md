@@ -94,6 +94,7 @@ execution APIs.
 | LN-AI-153 | The composer slash menu MUST rank Fuse.js results so a command-name match appears before any description-only match. An empty query MUST keep catalog order. |
 | LN-AI-154 | Reserved `/skills` and `/context` MUST report the active binding's eligible skills. If that snapshot is missing after restore or an existing session, AI MUST hydrate it from current discovery. It MUST NOT report none when eligible skills exist. |
 | LN-AI-155 | A composer tool-dispatch slash command MUST append the same transcript tool item as an agent AppToolHost call: name, input, and invoke result as output. The panel MUST render it through Design Core `ToolCalls`. It MUST NOT become a model prompt or a status report. |
+| LN-AI-156 | Conversation metadata MUST persist runtime `allow-always` and `deny-always` decisions by a normalized tool identity. A later matching `permission.request` MUST be answered from that record without opening the drawer. Allow-once, deny-once, and LN-AI-088 binding grants MUST remain non-durable. Generic or empty tool identities MUST NOT be recorded. |
 | LN-AI-105 | Consecutive transcript tool items MUST render as one Design Core `ToolCalls` group. Two or more adjacent tools MUST collapse by default to an `N tool calls` summary. A single tool MAY stay inline. Date or agent dividers MUST break a group. |
 | LN-AI-106 | While a turn is busy, the composer Stop control MUST stay clickable and MUST abort the active session through `cancel()`. `cancel()` MUST clear busy immediately, MUST NOT wait for the runtime cancel to settle, and MUST prevent a still-preparing submit from sending. The composer MAY remain disabled for send and input. |
 | LN-AI-055 | The native Codex adapter MUST implement app-server initialize, thread start or resume, turn start or interrupt, approval and request-user-input responses, current notifications, and process failure handling before advertising support.                                                                                                                                                                                                                                                                                                                                                        |
@@ -211,6 +212,19 @@ The catalog chrome verifies:
 - A vault-backed skill or vault/folder command file exposes Open.
 - Filter hides non-matches; Expand all opens every expandable row.
 
+### LN-AI-156 acceptance details
+
+Conversation-scoped runtime approval grants verify:
+
+- After Allow always, a later matching runtime request is answered from
+  metadata and the drawer stays closed.
+- Restoring the conversation still auto-answers matching requests.
+- Allow once does not write a grant; the next matching request opens the
+  drawer.
+- `notes_search`, `lapis-tools-notes_search`, and
+  `lapis-tools-notes_search: notes_search` share one identity.
+- Generic titles such as `MCP: tool` or `acp_tool` MUST NOT create a grant.
+
 ## Runtime flow
 
 The initial fallback controller is presentation-only: it does not restore or
@@ -238,7 +252,10 @@ bundled `research` and `lapis-notes` skills that folder skills may override
 (LN-AI-130, LN-AI-134) and seeds them as vault `SKILL.md` when missing
 (LN-AI-142, LN-AI-143). Search owns composer `/search` as a `notes_search`
 tool-dispatch command. The chat MUST show that invoke as a `ToolCalls`
-transcript item (LN-AI-155). Opening a skill file MUST NOT scope a new
+transcript item (LN-AI-155). Runtime Allow always and Deny always decisions
+persist on conversation metadata so later matching `permission.request`
+events stay silent; application-tool write grants remain memory-only
+(LN-AI-156, LN-AI-088). Opening a skill file MUST NOT scope a new
 chat to `.agents`
 (LN-AI-147). Live ACP session start appends a path-free
 `available_skills` manifest and a generated `sessionBootstrap` through host

@@ -319,6 +319,8 @@ cancel confirms (LN-AI-132). The notice reads `Agent turn cancelled`.
 An unreadable open conversation
 is reported and released so the next send starts a replacement chat
 (LN-AI-124).
+Runtime Allow always and Deny always decisions persist on conversation
+metadata (LN-AI-156).
 Application-tool names and arguments stay visible when ACP only reports a
 generic `tool call` title (LN-AI-125).
 Assistant MarkdownEmbed content grows with the transcript instead of a nested

@@ -16,6 +16,13 @@ export type ConversationLocation = {
   conversationId: string;
 };
 
+export type ConversationApprovalDecision = "allow-always" | "deny-always";
+
+export type ConversationApprovalGrant = {
+  name: string;
+  decision: ConversationApprovalDecision;
+};
+
 export type ConversationMetadata = {
   schemaVersion: typeof CONVERSATION_SCHEMA_VERSION;
   id: string;
@@ -29,6 +36,7 @@ export type ConversationMetadata = {
     path: string;
   };
   activeAgentBindingId?: string;
+  approvalGrants?: ConversationApprovalGrant[];
   status: "active" | "archived";
 };
 

@@ -1,3 +1,4 @@
+import { normalizeApprovalGrants } from "./approval-grants";
 import { normalizePortableVaultPath, relativePathWithinScope } from "./paths";
 import type { DurableSanitizationOptions } from "./redaction";
 import { sanitizeDurableField } from "./redaction";
@@ -12,6 +13,7 @@ import {
 import {
   CONVERSATION_SCHEMA_VERSION,
   type AgentBindingRecord,
+  type ConversationApprovalGrant,
   type ConversationLocation,
   type ConversationMetadata,
   type ConversationSnapshot,
@@ -148,6 +150,26 @@ export class ConversationRepository {
         updatedAt,
         ...(activeBinding ? { activeAgentBindingId: activeBinding.id } : {}),
       };
+      await this.store.writeMetadata(location, metadata);
+      const result = { ...snapshot, metadata };
+      this.emit({ type: "upsert", location: result.location });
+      return result;
+    });
+  }
+
+  async writeApprovalGrants(
+    location: ConversationLocation,
+    grants: ConversationApprovalGrant[],
+  ): Promise<ConversationSnapshot> {
+    return this.queue.run(conversationStorageKey(location), async () => {
+      const snapshot = await this.store.read(location);
+      const approvalGrants = normalizeApprovalGrants(grants);
+      const metadata: ConversationMetadata = {
+        ...snapshot.metadata,
+        updatedAt: new Date().toISOString(),
+      };
+      if (approvalGrants.length > 0) metadata.approvalGrants = approvalGrants;
+      else delete metadata.approvalGrants;
       await this.store.writeMetadata(location, metadata);
       const result = { ...snapshot, metadata };
       this.emit({ type: "upsert", location: result.location });

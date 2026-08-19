@@ -117,6 +117,21 @@ describe("ConversationRepository", () => {
     await expect(repository.read(location)).rejects.toThrow(/not found/u);
   });
 
+  it("persists later approval grants and omits an empty list", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const location = { scopeDir: "", conversationId: ID };
+    await repository.create({ id: ID, scopeDir: "", now: CREATED_AT });
+    const written = await repository.writeApprovalGrants(location, [
+      { name: "lapis-tools-notes_search", decision: "allow-always" },
+      { name: "notes_search", decision: "deny-always" },
+    ]);
+    expect(written.metadata.approvalGrants).toEqual([
+      { name: "notes_search", decision: "deny-always" },
+    ]);
+    const cleared = await repository.writeApprovalGrants(location, []);
+    expect(cleared.metadata.approvalGrants).toBeUndefined();
+  });
+
   it("normalizes title whitespace without persisting placeholders", () => {
     expect(deriveConversationTitle("  first\n\tmessage  ")).toBe(
       "first message",
