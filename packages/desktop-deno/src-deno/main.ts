@@ -14,6 +14,8 @@ import {
   withIsolationHeaders,
 } from "./renderer-http.ts";
 import {
+  DESKTOP_WINDOW_TITLE,
+  PARKED_WINDOW_URL,
   createDesktopWindowOptions,
   needsCreatedChromeWindow,
   rendererOriginFromServeAddress,
@@ -34,8 +36,12 @@ const win = needsCreatedChromeWindow(Deno.build.os)
   : bootstrap;
 if (win !== bootstrap) {
   bootstrap.setTitle("");
+  bootstrap.navigate(PARKED_WINDOW_URL);
   bootstrap.hide();
   win.setTitle("");
+  win.show();
+} else {
+  win.setTitle(DESKTOP_WINDOW_TITLE);
   win.show();
 }
 const drag = createWindowDragController(win);
@@ -236,7 +242,11 @@ Deno.serve(async (request) => {
 });
 registerDesktopBindings();
 if (win !== bootstrap) {
+  bootstrap.navigate(PARKED_WINDOW_URL);
+  bootstrap.hide();
   win.navigate(
     rendererOriginFromServeAddress(Deno.env.get("DENO_SERVE_ADDRESS")),
   );
+  registerDesktopBindings();
+  win.show();
 }

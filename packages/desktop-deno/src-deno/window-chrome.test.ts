@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   DESKTOP_WINDOW_TITLE,
+  PARKED_WINDOW_URL,
   createDesktopWindowOptions,
   needsCreatedChromeWindow,
   rendererOriginFromServeAddress,
@@ -20,9 +21,10 @@ describe("Deno desktop window chrome", () => {
       frameless: false,
       transparentTitlebar: false,
     });
-    expect(needsCreatedChromeWindow("darwin")).toBe(true);
+    expect(needsCreatedChromeWindow("darwin")).toBe(false);
     expect(needsCreatedChromeWindow("linux")).toBe(false);
     expect(usesOverlayWindowControls()).toBe(false);
+    expect(PARKED_WINDOW_URL).toBe("about:blank");
   });
 
   it("builds the renderer origin from DENO_SERVE_ADDRESS", () => {

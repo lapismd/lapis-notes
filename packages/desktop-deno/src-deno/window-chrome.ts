@@ -1,5 +1,6 @@
 export const DESKTOP_WINDOW_TITLE = "Lapis Notes";
 export const DESKTOP_WINDOW_SIZE = { width: 1280, height: 800 } as const;
+export const PARKED_WINDOW_URL = "about:blank";
 
 let overlayWindowControls = false;
 
@@ -20,8 +21,8 @@ export function createDesktopWindowOptions(os: string): {
   };
 }
 
-export function needsCreatedChromeWindow(os: string): boolean {
-  return os === "darwin";
+export function needsCreatedChromeWindow(_os: string): boolean {
+  return false;
 }
 
 export function setOverlayWindowControls(enabled: boolean): void {

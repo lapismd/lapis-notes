@@ -21,16 +21,16 @@ opens Turso WASM rather than Electron native IPC. The private package lives at
 | LN-DENO-008 | The spike MUST NOT add language-service, plugin-eval, AI, or terminal sidecars, or CEF-required distribution artifacts.                                                                                                                                                                      |
 | LN-DENO-009 | Session boot MUST render Design Core `WorkspaceStartup` with vault, configuration, plugin, and layout tasks, then mount `WorkspaceShell` with an API `App`. It MUST NOT copy the workspace renderer.                                                                                         |
 | LN-DENO-010 | Development and production renderer responses MUST send the cross-origin isolation headers required by WASM Turso.                                                                                                                                                                           |
-| LN-DENO-011 | On macOS the visible window MUST be chromeless: no title-bar band and full-bleed page content. Launcher empty chrome and Design Core drag markers MUST move the window. Interactive controls MUST NOT. The host MUST NOT re-declare app-region CSS or use Electron titleBarStyle. |
+| LN-DENO-011 | The visible window MUST complete `win.bind()` invoke returns before mounting a vault session. A chromeless second window MUST NOT be used when those returns do not resolve. Launcher empty chrome and Design Core drag markers MUST move the window; interactive controls MUST NOT. The host MUST NOT re-declare app-region CSS. |
 
 ### LN-DENO-011 acceptance details
 
-macOS Deno window chrome verifies:
+Deno window chrome verifies:
 
-- The visible window MUST set `frameless` at creation so the title-bar band is gone. Other platforms MUST keep the native title bar.
-- The first `BrowserWindow` adopts Deno's bootstrap window, so macOS MUST open a second visible window for that creation-only option.
+- The renderer MUST boot in the adopted `BrowserWindow` when a second window drops invoke completions.
+- macOS MAY request `frameless` chrome. That option MUST NOT block session boot.
 - Launcher empty chrome and Design Core `data-desktop-drag-region` surfaces MUST start a window drag. Descendants marked `false` MUST NOT.
-- Native traffic-light overlay MAY stay unavailable until Deno ships hidden-inset chrome. The host MUST NOT crash applying AppKit style masks.
+- The host MUST NOT re-declare `app-region` CSS or use Electron `titleBarStyle`.
 
 ### LN-DENO-002 acceptance details
 
