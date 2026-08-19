@@ -4,7 +4,7 @@ export type {
   SearchQueryParams,
   SearchQueryResult,
 } from "./search-manager";
-export { SearchPanel } from "./public-components";
+export { SearchPanel, SearchToolResult } from "./public-components";
 export { SearchPlugin } from "./search-plugin";
 export { createNotesSearchSlashCommand } from "./notes-search-command";
 export { createNotesSearchTool } from "./notes-search-tool";

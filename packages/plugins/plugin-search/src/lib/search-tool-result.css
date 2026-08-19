@@ -1,0 +1,70 @@
+[data-ui-component="search-tool-result"] {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+[data-ui-component="search-tool-result"] [data-ui-part="empty"] {
+  padding: 0.375rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+[data-ui-component="search-tool-result"] [data-ui-part="hit"] {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+[data-ui-component="search-tool-result"] [data-ui-part="file"],
+[data-ui-component="search-tool-result"] [data-ui-part="snippet"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: var(--ui-workspace-radius-small, 0.25rem);
+  padding: 0.375rem 0.5rem;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+[data-ui-component="search-tool-result"] [data-ui-part="file"]:hover,
+[data-ui-component="search-tool-result"] [data-ui-part="file"]:focus-visible,
+[data-ui-component="search-tool-result"] [data-ui-part="snippet"]:hover,
+[data-ui-component="search-tool-result"] [data-ui-part="snippet"]:focus-visible {
+  background: var(
+    --ui-workspace-explorer-row-hover-background,
+    var(--sidebar-accent)
+  );
+  outline: 2px solid transparent;
+}
+
+[data-ui-component="search-tool-result"] [data-ui-part="file-label"] {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-ui-component="search-tool-result"] [data-ui-part="file-path"] {
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-ui-component="search-tool-result"] [data-ui-part="snippet-text"] {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}

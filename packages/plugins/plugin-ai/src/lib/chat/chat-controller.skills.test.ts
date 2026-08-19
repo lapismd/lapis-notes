@@ -221,12 +221,24 @@ describe("AiChatController skills and slash commands", () => {
     await controller.submit("/skills");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     expect(runtime.sessions[0]?.prompts ?? []).toEqual([]);
-    expect(
-      controller.items.some(
-        (item) =>
-          item.type === "status" && item.text.includes("research-notes"),
-      ),
-    ).toBe(true);
+    const notice = controller.items.find((item) => item.type === "status");
+    expect(notice).toMatchObject({
+      type: "status",
+      layout: "inventory",
+      inventory: {
+        kind: "skills",
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            name: "research-notes",
+            kind: "skill",
+            path: "Projects/.agents/skills/research-notes/SKILL.md",
+          }),
+        ]),
+      },
+    });
+    expect(notice?.type === "status" ? notice.text : "").toContain(
+      "research-notes",
+    );
     await controller.close();
   });
 
@@ -246,6 +258,16 @@ describe("AiChatController skills and slash commands", () => {
     expect(notice?.type === "status" ? notice.text : "").toContain(
       "research-notes",
     );
+    expect(notice).toMatchObject({
+      type: "status",
+      layout: "inventory",
+      inventory: {
+        kind: "skills",
+        items: expect.arrayContaining([
+          expect.objectContaining({ name: "research-notes" }),
+        ]),
+      },
+    });
     expect(skillSnapshots.get(controller.activeBindingId ?? "")?.skills).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "research-notes" }),
@@ -706,6 +728,47 @@ Folder lapis notes body.
     expect(controller.items.some((item) => item.type === "status")).toBe(
       false,
     );
+    await controller.close();
+  });
+
+  it("lists /tools as a catalog inventory from the binding snapshot", async () => {
+    const { controller, runtime } = await createSkillController(
+      {},
+      {
+        tool: {
+          name: "notes_search",
+          description: "Search notes in the current scope.",
+          inputSchema: {
+            type: "object",
+            properties: { query: { type: "string" } },
+            required: ["query"],
+            additionalProperties: false,
+          },
+          effect: "read",
+          execute: async () => ({ content: [{ type: "text", text: "[]" }] }),
+        },
+      },
+    );
+    await controller.submit("/tools");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const notice = controller.items.find((item) => item.type === "status");
+    expect(notice).toMatchObject({
+      type: "status",
+      layout: "inventory",
+      inventory: {
+        kind: "tools",
+        items: expect.arrayContaining([
+          expect.objectContaining({
+            name: "notes_search",
+            kind: "tool",
+          }),
+        ]),
+      },
+    });
+    expect(notice?.type === "status" ? notice.text : "").toContain(
+      "notes_search",
+    );
+    expect(runtime.sessions.at(-1)?.prompts ?? []).toEqual([]);
     await controller.close();
   });
 });

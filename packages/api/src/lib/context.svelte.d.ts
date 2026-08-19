@@ -177,6 +177,7 @@ export declare class App {
     readonly agentTools: AppToolRegistry;
     readonly agentSkills: import("./agent-skills").AppSkillRegistry;
     readonly agentSlashCommands: import("./agent-skills").AppSlashCommandRegistry;
+    readonly agentResultViews: import("./agent-result-views").AppResultViewRegistry;
     lastEvent: UserEvent | null;
     renderContext: RenderContext;
     secretStorage: SecretStorage;

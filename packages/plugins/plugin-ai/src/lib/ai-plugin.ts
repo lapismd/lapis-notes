@@ -8,6 +8,7 @@ import {
 } from "@lapis-notes/api";
 import type { ComposerTriggerItem } from "@lapismd/design-core/ai/chat";
 import { AiView, AiViewType } from "./chat/ai-view";
+import AiInventoryResult from "./chat/ai-inventory-result.svelte";
 import { LIVE_RUNTIME_UNAVAILABLE_REASON } from "./chat/live-runtime-unavailable";
 import { AiCatalogView, AiCatalogViewType } from "./catalog/ai-catalog-view";
 import { collectAiCatalog } from "./catalog/inventory";
@@ -386,6 +387,14 @@ export class AiPlugin extends Plugin {
     })) {
       this.registerAgentTool(tool);
     }
+    this.registerAgentResultView({
+      command: "skills",
+      component: AiInventoryResult,
+    });
+    this.registerAgentResultView({
+      command: "tools",
+      component: AiInventoryResult,
+    });
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
         for (const listener of this.#conversationMoveListeners) {

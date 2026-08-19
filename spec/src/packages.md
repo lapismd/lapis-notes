@@ -103,6 +103,7 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-094 | `@lapis-notes/api` MAY depend on `@lapismd/ai-host` through the existing root `link:` override and MUST import only `@lapismd/ai-host/file-tools`. `@lapis-notes/ai`, Search, and Markdown MUST NOT depend on `@lapismd/ai-host`. |
 | LN-PKG-095 | `@lapis-notes/ai` MUST depend on `@lapis-notes/markdown` only for the public embed preview. It MUST NOT depend on `@lapismd/mira` or `@lapismd/mira-editor`. Chat styles MUST keep that embed preview surface transparent and MUST NOT nest a vertical scroller inside the bubble. |
 | LN-PKG-096 | `@lapis-notes/api` MUST own skill-source and composer slash-command registration. `@lapis-notes/ai` MUST own discovery, snapshots, skill tools, and the composer router. Those APIs MUST NOT expose MCP, ACP, or vendor runtime types. |
+| LN-PKG-100 | `@lapis-notes/api` MUST own the agent result-view registry. Search MUST own the `notes_search` view. AI MUST own lookup, CodeBlock fallback, and `/skills` `/tools` inventories. AI MUST NOT import Search internals, and Search MUST NOT import AI internals. |
 | LN-PKG-081 | Root Docker visual staging MUST update sibling dependency overrides in `pnpm-workspace.yaml`, regenerate the matching lockfile, and restore the root manifest, workspace configuration, and original lockfile before a frozen relink after capture. It MUST NOT depend on the retired manifest-level `pnpm.overrides` shape. |
 | LN-PKG-083 | `@lapis-notes/wordcount` MUST live at `packages/plugins/plugin-wordcount` as an enabled-by-default bundled plugin. It MUST depend on `@lapis-notes/api` and MUST NOT depend on `@lapis-notes/ui`. |
 | LN-PKG-089 | `@lapis-notes/spellcheck` MUST live at `packages/plugins/plugin-spellcheck` as an enabled-by-default core plugin. It MUST depend on the API and `harper.js` without importing Design Core presentation or `@lapis-notes/ui`. |
@@ -329,6 +330,8 @@ Drawer attachment chips use Design Core's public `attachment-chip` parts
 instead of plugin-local paint.
 Permission and question option buttons use the public `feedback-option` part
 (LN-AI-157).
+API owns result-view registration; Search owns the `notes_search` view; AI
+owns lookup and `/skills` `/tools` inventories (LN-PKG-100).
 The root export stays plugin-safe; ACP and native Codex adapters publish only on
 `./runtimes`. Cursor uses the same ACP adapter through a known agent name.
 Domain plugins register tools. The package does not declare an acpx dependency.

@@ -24,6 +24,8 @@ Runtime Allow always and Deny always decisions persist on conversation
 metadata (LN-AI-156).
 Permission and question option buttons use the public `feedback-option` part
 (LN-AI-157).
+Plugins contribute tool and command result views through the API registry
+(LN-PLUG-024).
 Application-tool names and arguments stay visible when ACP only reports a
 generic `tool call` title (LN-AI-125). The composer overflow
 menu sits after History and attach, sizes to its labels so they stay fully
@@ -62,6 +64,7 @@ chat to `.agents`.
 | LN-PLUG-021 | `loadPlugins({ onProgress })` MUST call `onProgress` immediately before each `enablePlugin` with `id`, `name`, `index`, and `total` for the current activation order. |
 | LN-PLUG-022 | `Plugin.registerAgentSkillRoot` and `registerAgentSkillDirectory` MUST register file-backed skill sources under the owning plugin, keep paths inside the extension root, and dispose them on unload. Optional `registerAgentSkill` MUST share the same descriptor model. Unloaded sources MUST NOT enter later snapshots. |
 | LN-PLUG-023 | `Plugin.registerAgentSlashCommand` MUST register a composer slash command under the owning plugin and dispose it on unload. It MUST NOT add a workspace palette command. Dispatch kinds MAY be host, tool, skill, or prompt. |
+| LN-PLUG-024 | `Plugin.registerAgentResultView` MUST register a transcript result view under the owning plugin and dispose it on unload. The view MUST name exactly one of `tool` or `command`. It MUST NOT add a workspace palette command. Duplicate active keys MUST be rejected. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

@@ -345,6 +345,13 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--skills-and-slash",
   },
   {
+    id: "plugins-ai-chat-search-result",
+    title: "AI Chat: Search Tool Hits",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai + @lapis-notes/search",
+    storyId: "plugins-ai-chat--search-tool-hits",
+  },
+  {
     id: "plugins-ai-shell-desktop",
     title: "AI Shell: Desktop",
     spec: "spec/src/plugins/ai/index.md",

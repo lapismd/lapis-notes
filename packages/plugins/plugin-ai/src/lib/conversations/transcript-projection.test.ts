@@ -227,4 +227,52 @@ describe("conversation transcript projection", () => {
       },
     ]);
   });
+
+  it("round-trips slash-command inventory layout on system notices", () => {
+    const entries = projectChatItemsToTranscript([
+      {
+        id: "notice",
+        type: "status",
+        text: "research-notes",
+        layout: "inventory",
+        inventory: {
+          kind: "skills",
+          items: [
+            {
+              name: "research-notes",
+              description: "Research notes in the current folder",
+              kind: "skill",
+              path: "Projects/.agents/skills/research-notes/SKILL.md",
+            },
+          ],
+        },
+      },
+    ]);
+    expect(entries).toEqual([
+      expect.objectContaining({
+        type: "system.notice",
+        layout: "inventory",
+        text: "research-notes",
+        inventory: {
+          kind: "skills",
+          items: [
+            expect.objectContaining({
+              name: "research-notes",
+              kind: "skill",
+            }),
+          ],
+        },
+      }),
+    ]);
+    expect(projectTranscriptToChatItems(entries)).toMatchObject([
+      {
+        type: "status",
+        layout: "inventory",
+        inventory: {
+          kind: "skills",
+          items: [{ name: "research-notes", kind: "skill" }],
+        },
+      },
+    ]);
+  });
 });

@@ -52,6 +52,11 @@
   import type { AppToolBridgeCoordinator } from "../tools/desktop-app-tool-bridge";
   import { formatFileMention, mentionTokensFromText } from "./chat-mentions";
   import { isSlashCommandNotice } from "./chat-items";
+  import {
+    parseToolResultPayload,
+    resolveToolResultView,
+  } from "./chat-result-views";
+  import AiInventoryResult from "./ai-inventory-result.svelte";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
   import {
     isOneLineAlert,
@@ -285,6 +290,10 @@
   const timeline = $derived(
     groupChatItemsByDate(controller.items, new Date(), agentLabels),
   );
+  const resultConversation = $derived({
+    conversationId: controller.location?.conversationId,
+    scopeDirectory: controller.location?.scopeDir,
+  });
   const latestMessageId = $derived(controller.items.at(-1)?.id);
   const isEmpty = $derived(
     controller.items.length === 0 && !controller.busy,
@@ -529,12 +538,24 @@
     toolName: detail?.name ?? call.name,
     input: detail?.input,
   }}
+  {@const ResultView = resolveToolResultView(app, detail?.name ?? call.name)}
+  {@const parsedOutput = parseToolResultPayload(detail?.output)}
   {@const inputPayload = presentToolPayload(detail?.input)}
   {@const outputPayload = presentToolPayload(detail?.output, hint)}
   {@const errorPayload = presentToolPayload(detail?.error, hint)}
   {@const showErrorBlock = Boolean(
     errorPayload && !isOneLineAlert(errorPayload),
   )}
+  {#if ResultView && app && parsedOutput != null && !detail?.error}
+    <ResultView
+      {app}
+      conversation={resultConversation}
+      name={detail?.name ?? call.name ?? ""}
+      input={parseToolResultPayload(detail?.input)}
+      output={parsedOutput}
+      state="completed"
+    />
+  {:else}
   <div class="ai-chat-panel__tool-detail">
     {#if inputPayload}
       <CodeBlock
@@ -570,6 +591,7 @@
       />
     {/if}
   </div>
+  {/if}
 {/snippet}
 
 <div
@@ -1008,6 +1030,21 @@
               </Chat.MessageMetadata>
             {/snippet}
           </Chat.Message>
+        {:else if entry.item.type === "status" &&
+          entry.item.layout === "inventory"}
+          <div
+            class="ai-chat-panel__command-notice"
+            data-testid="ai-chat-command-notice"
+            data-layout="inventory"
+            role="status"
+          >
+            <AiInventoryResult
+              {app}
+              conversation={resultConversation}
+              name={entry.item.inventory?.kind ?? "skills"}
+              output={entry.item.inventory}
+            />
+          </div>
         {:else if entry.item.type === "status" && isSlashCommandNotice(entry.item)}
           <div
             class="ai-chat-panel__command-notice"

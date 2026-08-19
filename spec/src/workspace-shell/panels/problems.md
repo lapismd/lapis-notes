@@ -51,8 +51,9 @@ Problems collections.
 | LN-WS-074 | Problems tree and table rows MUST use the severity-icon slot as the quick-fix control when the collection contributed actions. Hover or focus MUST show a Lucide lightbulb. Click MUST open the portaled workspace menu of those actions. The Copy-first context menu MUST remain. |
 | LN-WS-079 | A diagnostic hover card MUST expose one Quick Fix control for cached code actions instead of listing each action. That control MUST open the portaled workspace menu of those actions. View Problem MAY remain a separate control. |
 
-`Plugin.registerAgentTool` is independent from diagnostic collections and does
-not add callbacks or agent-specific fields to serializable diagnostics.
+`Plugin.registerAgentTool` and `Plugin.registerAgentResultView` are independent
+from diagnostic collections and do not add callbacks or agent-specific fields
+to serializable diagnostics.
 
 ## Ownership
 

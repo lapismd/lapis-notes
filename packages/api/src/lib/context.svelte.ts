@@ -71,6 +71,7 @@ import {
   AppSkillRegistry,
   AppSlashCommandRegistry,
 } from "./agent-skills";
+import { AppResultViewRegistry } from "./agent-result-views";
 import {
   installApplicationCompatibility,
   resolveApplication,
@@ -283,6 +284,7 @@ export class App {
   readonly agentTools = new AppToolRegistry();
   readonly agentSkills = new AppSkillRegistry();
   readonly agentSlashCommands = new AppSlashCommandRegistry();
+  readonly agentResultViews = new AppResultViewRegistry();
   lastEvent: UserEvent | null = $state(null);
   renderContext: RenderContext = new RenderContext();
   secretStorage: SecretStorage = new SecretStorage();

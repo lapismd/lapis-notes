@@ -13,6 +13,8 @@ describe("notes_search slash command", () => {
     const onload = SearchPlugin.prototype.onload.toString();
     expect(onload).toContain("registerAgentSlashCommand");
     expect(onload).toContain("createNotesSearchSlashCommand");
+    expect(onload).toContain("registerAgentResultView");
+    expect(onload).toContain("notes_search");
     expect(onload).not.toMatch(/addCommand\(\s*\{\s*id:\s*["']search["']/u);
   });
 });

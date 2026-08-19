@@ -5,7 +5,8 @@ The shell's reusable movable-view contract is documented separately under
 persistence, and application-host responsibilities. Language-service apply
 paths for serializable command actions live on the Problems panel chapter.
 Workspace `Plugin.addCommand` remains the command palette. AI composer slash
-commands are a separate Plugin API (LN-PLUG-023).
+commands are a separate Plugin API (LN-PLUG-023). Transcript result views are
+a separate Plugin API (LN-PLUG-024) and MUST NOT add palette commands.
 
 ## Requirements
 

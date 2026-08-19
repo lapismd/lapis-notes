@@ -55,6 +55,25 @@ function assertOptionalString(
   }
 }
 
+function assertInventory(value: unknown, label: string): void {
+  const inventory = record(value, `${label}.inventory`);
+  if (inventory.kind !== "skills" && inventory.kind !== "tools") {
+    throw new Error(`${label}.inventory.kind is invalid`);
+  }
+  if (!Array.isArray(inventory.items)) {
+    throw new Error(`${label}.inventory.items must be an array`);
+  }
+  for (const entry of inventory.items) {
+    const item = record(entry, `${label}.inventory.item`);
+    requiredString(item, "name", `${label}.inventory.item`);
+    if (item.kind !== "skill" && item.kind !== "tool") {
+      throw new Error(`${label}.inventory.item.kind is invalid`);
+    }
+    assertOptionalString(item, "description", `${label}.inventory.item`);
+    assertOptionalString(item, "path", `${label}.inventory.item`);
+  }
+}
+
 function assertPortableOptionalPath(value: unknown, label: string): void {
   if (value == null) return;
   if (typeof value !== "string") throw new Error(`${label} must be a string`);
@@ -245,8 +264,15 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
       break;
     case "system.notice":
       requiredString(data, "text", "Transcript system notice");
-      if (data.layout != null && data.layout !== "report") {
+      if (
+        data.layout != null &&
+        data.layout !== "report" &&
+        data.layout !== "inventory"
+      ) {
         throw new Error("Transcript system notice layout is invalid");
+      }
+      if (data.layout === "inventory") {
+        assertInventory(data.inventory, "Transcript system notice");
       }
       break;
     case "cancelled":

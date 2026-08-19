@@ -209,6 +209,59 @@ export function createAppToolSessionGrantSeedItems() {
   ];
 }
 
+export function createNotesSearchSeedItems() {
+  return [
+    {
+      id: "search-user",
+      type: "message" as const,
+      role: "user" as const,
+      text: "/search OAuth",
+      createdAt: "2026-08-19T10:00:00.000Z",
+    },
+    {
+      id: "search-tool",
+      type: "tool" as const,
+      toolId: "search-tool",
+      name: "notes_search",
+      server: "lapis-tools",
+      state: "completed" as const,
+      input: '{"query":"OAuth"}',
+      output: JSON.stringify({
+        content: [{ type: "text", text: "1 match" }],
+        structuredContent: {
+          results: [
+            {
+              path: "Projects/auth.md",
+              score: 1,
+              snippets: [{ text: "OAuth tokens", offset: 0 }],
+            },
+          ],
+        },
+      }),
+      createdAt: "2026-08-19T10:00:01.000Z",
+    },
+  ];
+}
+
+export const aiChatSearchResultExampleSource = `import { Plugin } from "@lapis-notes/api";
+import { AiChatPanel, FakeAgentRuntime } from "@lapis-notes/ai";
+import { SearchToolResult } from "@lapis-notes/search";
+import "@lapis-notes/ai/styles.css";
+
+class SearchPlugin extends Plugin {
+  onload() {
+    this.registerAgentResultView({
+      tool: "notes_search",
+      component: SearchToolResult,
+    });
+  }
+}
+
+const runtime = new FakeAgentRuntime();
+
+<AiChatPanel app={app} runtime={runtime} />
+`;
+
 export function aiChatToolStateExampleSource(
   state: "running" | "completed" | "error",
 ): string {

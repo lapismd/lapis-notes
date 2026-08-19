@@ -273,6 +273,14 @@ describe("AiPlugin contracts", () => {
     expect(panel).toContain("Enable ${tool.name} for the next chat");
   });
 
+  it("registers reserved skills and tools result views on load", () => {
+    const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
+    expect(source).toContain("registerAgentResultView");
+    expect(source).toContain('command: "skills"');
+    expect(source).toContain('command: "tools"');
+    expect(source).toContain("AiInventoryResult");
+  });
+
   it("preserves history while opening exact conversations in reusable main tabs", () => {
     const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
 

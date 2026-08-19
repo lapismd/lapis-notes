@@ -11,6 +11,7 @@ import {
   AppSkillRegistry,
   AppSlashCommandRegistry,
 } from "../agent-skills";
+import { AppResultViewRegistry } from "../agent-result-views";
 import { MemoryAppDatabase, Vault } from "../storage";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
@@ -70,6 +71,7 @@ function createPluginApp() {
     agentTools: new AppToolRegistry(),
     agentSkills: new AppSkillRegistry(),
     agentSlashCommands: new AppSlashCommandRegistry(),
+    agentResultViews: new AppResultViewRegistry(),
   } as unknown as App;
 
   const configuration = new Configuration(app, "/.obsidian/app.json");
@@ -133,6 +135,43 @@ describe("Plugin data persistence", () => {
 
     plugin.unload();
     expect(app.agentTools.get("fixture_read")).toBeUndefined();
+  });
+
+  it("registers and disposes a result view and rejects duplicate keys", () => {
+    const { app } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "fixture",
+      name: "Fixture",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.configureRuntime({ source: "core", provenance: "bundled" });
+    plugin.load();
+
+    const component = (() => null) as never;
+    plugin.registerAgentResultView({
+      tool: "notes_search",
+      component,
+    });
+    expect(app.agentResultViews.getByTool("notes_search")?.ownerPluginId).toBe(
+      "fixture",
+    );
+    expect(() =>
+      plugin.registerAgentResultView({
+        tool: "notes_search",
+        component,
+      }),
+    ).toThrow(/already registered/i);
+    expect(() =>
+      plugin.registerAgentResultView({
+        component,
+      }),
+    ).toThrow(/exactly one/i);
+
+    plugin.unload();
+    expect(app.agentResultViews.getByTool("notes_search")).toBeUndefined();
   });
 
   it("registers and disposes skill sources and composer slash commands", () => {

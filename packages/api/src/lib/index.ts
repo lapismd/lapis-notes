@@ -60,6 +60,7 @@ export * from "./status-bar.svelte";
 export * from "./app-url";
 export * from "./agent-tools";
 export * from "./agent-skills";
+export * from "./agent-result-views";
 export * from "./language-service";
 export * from "./diagnostics";
 export * from "./metadata.svelte";

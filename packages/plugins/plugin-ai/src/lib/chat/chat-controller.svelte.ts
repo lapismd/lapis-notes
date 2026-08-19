@@ -47,7 +47,13 @@ import {
   loadStoredChatSession,
   snapshotStoredChatSession,
 } from "./chat-session";
-import { createChatItemId, type AiChatItem } from "./chat-items";
+import {
+  createChatItemId,
+  type AiChatInventory,
+  type AiChatInventoryItem,
+  type AiChatItem,
+} from "./chat-items";
+import type { AppSkillDescriptor } from "../skills/types";
 import {
   applyAgentEventToChatItems,
   isVisibleAgentStatus,
@@ -947,17 +953,35 @@ export class AiChatController {
           if (this.#isAbandoned(turnId)) return;
           if (result.notice === "skills") {
             const snapshot = await this.#effectiveSkillSnapshot();
-            const names =
-              snapshot?.skills.map((skill) => skill.name).join(", ") ||
-              "No skills are available.";
-            this.#appendLocalNotice(names);
+            const items: AiChatInventoryItem[] = (snapshot?.skills ?? []).map(
+              (skill) => ({
+                name: skill.name,
+                description: skill.description,
+                kind: "skill",
+                path: skillInventoryPath(this.#skills?.getLoaded(skill.name)),
+              }),
+            );
+            this.#appendInventoryNotice(
+              "skills",
+              items,
+              "No skills are available.",
+            );
           } else {
-            const names =
+            this.#ensureLocalAppToolSession();
+            const items: AiChatInventoryItem[] = (
               this.#appToolHost
                 ?.getSession(this.#activeBindingId ?? "")
-                ?.tools.map((tool) => tool.name)
-                .join(", ") || "No application tools are available.";
-            this.#appendLocalNotice(names);
+                ?.tools ?? []
+            ).map((tool) => ({
+              name: tool.name,
+              description: tool.description,
+              kind: "tool",
+            }));
+            this.#appendInventoryNotice(
+              "tools",
+              items,
+              "No application tools are available.",
+            );
           }
           await this.#persistCommandNotice();
         });
@@ -1293,6 +1317,24 @@ export class AiChatController {
         type: "status",
         text,
         layout: "report",
+        createdAt: new Date().toISOString(),
+      },
+    ];
+  }
+
+  #appendInventoryNotice(
+    kind: AiChatInventory["kind"],
+    items: AiChatInventoryItem[],
+    emptyText: string,
+  ): void {
+    this.items = [
+      ...this.items,
+      {
+        id: `notice-${crypto.randomUUID()}`,
+        type: "status",
+        text: items.map((item) => item.name).join(", ") || emptyText,
+        layout: "inventory",
+        inventory: { kind, items },
         createdAt: new Date().toISOString(),
       },
     ];
@@ -1932,6 +1974,18 @@ function portableWorkspaceLabel(value?: string): string | undefined {
 function readAttachmentPaths(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === "string");
+}
+
+function skillInventoryPath(
+  skill: AppSkillDescriptor | undefined,
+): string | undefined {
+  if (!skill || skill.source === "programmatic") return undefined;
+  if (skill.root.includes(":") || skill.root.startsWith("bundled/")) {
+    return undefined;
+  }
+  return skill.root.endsWith("SKILL.md")
+    ? skill.root
+    : `${skill.root}/SKILL.md`;
 }
 
 function namespaceChatItems(

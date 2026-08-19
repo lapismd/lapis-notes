@@ -47,6 +47,10 @@ import type {
 } from "./diagnostics";
 import type { AppTool, AppToolRegistration } from "./agent-tools";
 import type {
+  AgentResultViewDefinition,
+  AgentResultViewRegistration,
+} from "./agent-result-views";
+import type {
   AppSkillSourceRegistration,
   AppSlashCommandDefinition,
   AppSlashCommandRegistration,
@@ -1098,6 +1102,15 @@ export abstract class Plugin extends Component {
       { pluginId: this.id },
       command,
     );
+    this.register(() => registration.dispose());
+    return registration;
+  }
+
+  /** Register a transcript result view. This is not a workspace palette command. */
+  registerAgentResultView(
+    view: AgentResultViewDefinition<App>,
+  ): AgentResultViewRegistration {
+    const registration = this.app.agentResultViews.register(this.id, view);
     this.register(() => registration.dispose());
     return registration;
   }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { AppResultViewRegistry, TFile, type App } from "@lapis-notes/api";
   import { AppSlashCommandRegistry } from "@lapis-notes/api/agent-skills";
   import {
     AiChatPanel,
@@ -17,6 +18,7 @@
     type VaultFileRef,
   } from "@lapis-notes/ai";
   import { MemoryVaultAdapter, Vault } from "@lapis-notes/api/vault";
+  import { SearchToolResult } from "@lapis-notes/search";
   import "@lapis-notes/ai/styles.css";
 
   let {
@@ -37,6 +39,7 @@
     preservePending = false,
     seededHeight = "22rem",
     enableSkills = false,
+    enableSearchResult = false,
   }: {
     requireApproval?: boolean;
     requireQuestion?: boolean;
@@ -49,7 +52,46 @@
     preservePending?: boolean;
     seededHeight?: string;
     enableSkills?: boolean;
+    enableSearchResult?: boolean;
   } = $props();
+  let openedTick = $state(0);
+  const openedPaths: string[] = [];
+
+  function createSearchResultApp(): App {
+    const registry = new AppResultViewRegistry();
+    registry.register("search", {
+      tool: "notes_search",
+      component: SearchToolResult,
+    });
+    const chatLeaf = { view: {} };
+    const file = { path: "Projects/auth.md" } as TFile;
+    Object.setPrototypeOf(file, TFile.prototype);
+    const fileLeaf = {
+      view: {},
+      openFile: async (openedFile: { path: string }) => {
+        openedPaths.push(openedFile.path);
+        openedTick += 1;
+      },
+    };
+    return {
+      agentResultViews: registry,
+      vault: {
+        getAbstractFileByPath: (path: string) =>
+          path === "Projects/auth.md" ? file : null,
+        cachedRead: async () => "hello OAuth tokens",
+      },
+      workspace: {
+        getMostRecentLeaf: () => chatLeaf,
+        activeLeaf: chatLeaf,
+        getLeaf: () => fileLeaf,
+        revealLeaf: () => undefined,
+      },
+    } as unknown as App;
+  }
+
+  const searchApp = $derived(
+    enableSearchResult ? createSearchResultApp() : undefined,
+  );
 
   const runtime = $derived.by<AgentRuntime>(() => {
     const fake = new FakeAgentRuntime({
@@ -153,6 +195,7 @@
   class:ai-chat-demo--seeded={seedItems.length > 0}
   style:--ai-chat-demo-seeded-height={seededHeight}
   data-testid="ai-chat-demo"
+  data-opened-paths={openedTick >= 0 ? openedPaths.join(",") : ""}
 >
   {#if enableSkills}
     <button
@@ -165,6 +208,7 @@
     </button>
   {/if}
   <AiChatPanel
+    app={searchApp}
     {runtime}
     {sessionStore}
     skills={skillHarness?.skills}

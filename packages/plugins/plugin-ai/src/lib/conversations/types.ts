@@ -139,7 +139,16 @@ export type TranscriptEntry =
   | (TranscriptEntryBase & {
       type: "system.notice";
       text: string;
-      layout?: "report";
+      layout?: "report" | "inventory";
+      inventory?: {
+        kind: "skills" | "tools";
+        items: Array<{
+          name: string;
+          description?: string;
+          path?: string;
+          kind: "skill" | "tool";
+        }>;
+      };
     })
   | (TranscriptEntryBase & {
       type: "cancelled";

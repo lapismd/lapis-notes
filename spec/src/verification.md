@@ -927,16 +927,22 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-155   | ai-plugin                       | Implemented | /search OAuth invokes notes_search and a completed tool item includes the hit path |
 | LN-AI-156   | ai-plugin                       | Implemented | Conversation metadata stores allow-always by normalized tool name; a later matching Fake permission.request is answered without a pending drawer item |
 | LN-AI-157   | ai-plugin                       | Implemented | Approval and question option buttons set `feedback-option`; plugin-ai styles drop `--accent` hover and selected paint |
+| LN-AI-158   | ai-plugin                       | Implemented | ToolCalls detail mounts a registered notes_search view; an unknown tool keeps CodeBlock input/output |
+| LN-AI-159   | ai-plugin                       | Implemented | /skills and /tools persist inventory layout with names from the binding snapshot |
 | LN-SRCH-040 | search-plugin                   | Implemented | Search registers /search as notes_search tool-dispatch, maps arguments to query, and the command is absent after unload |
+| LN-SRCH-041 | search-plugin                   | Implemented | Search registers the notes_search result view; a hit click opens that vault file |
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
+| LN-PLUG-024 | plugin-model                    | Implemented | Plugin result views dispose on unload; duplicate tool or command keys are rejected |
 | LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |
 | LN-PKG-096  | packages                        | Implemented | API agent-skills export and AI skill/command modules stay free of MCP, ACP, and vendor types |
+| LN-PKG-100  | packages                        | Implemented | API owns agentResultViews; Search registers notes_search; AI looks up views without importing Search |
 | LN-PKG-097  | packages                        | Implemented | API vault-maintenance tests register app:rebuild-vault-cache and call metadataCache.rebuild |
 | LN-PKG-098  | packages                        | Implemented | API vault-maintenance tests await metadata rebuild then Search command or appDatabase.rebuildSearchIndex |
 | LN-CAT-087  | storybook-catalog               | Implemented | Plugins/AI/Chat SkillsAndSlash Fake play covers a folder skill, reserved /help grouping, and reserved /skills |
 | LN-CAT-088  | storybook-catalog               | Implemented | SkillsAndSlash play runs /open-daily-note then unloads the extension registration and asserts the unknown-command error |
 | LN-CAT-089  | storybook-catalog               | Implemented | Plugins/AI/Panels/Catalog six placements cover nested kind folders, a row-click description expand, expand-all, a filter, a persisted checkbox, Open on a vault SKILL.md, and Open on a vault command Markdown file |
+| LN-CAT-090  | storybook-catalog               | Implemented | Plugins/AI/Chat SearchToolHits expands notes_search, asserts hit rows, opens auth.md, and keeps the chat panel |
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |

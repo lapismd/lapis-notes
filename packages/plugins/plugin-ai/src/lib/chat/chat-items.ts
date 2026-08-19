@@ -57,7 +57,8 @@ export type AiChatItem = (
       id: string;
       type: "status";
       text: string;
-      layout?: "report";
+      layout?: "report" | "inventory";
+      inventory?: AiChatInventory;
       createdAt?: string;
     }
   | { id: string; type: "error"; text: string; createdAt?: string }
@@ -84,6 +85,20 @@ export type AiChatItem = (
     }
 ) & { agentBindingId?: string; source?: AgentEventSource };
 
+export type AiChatInventoryKind = "skills" | "tools";
+
+export type AiChatInventoryItem = {
+  name: string;
+  description?: string;
+  path?: string;
+  kind: "skill" | "tool";
+};
+
+export type AiChatInventory = {
+  kind: AiChatInventoryKind;
+  items: AiChatInventoryItem[];
+};
+
 export function createChatItemId(prefix: string, index: number): string {
   return `${prefix}-${index}`;
 }
@@ -93,6 +108,8 @@ export function isSlashCommandNotice(
 ): item is Extract<AiChatItem, { type: "status" }> {
   return (
     item.type === "status" &&
-    (item.layout === "report" || item.text.includes("\n"))
+    (item.layout === "report" ||
+      item.layout === "inventory" ||
+      item.text.includes("\n"))
   );
 }

@@ -15,7 +15,9 @@ import {
   aiChatValidationExampleSource,
   createAiChatFailureSeedItems,
   createAiChatScrollSeedItems,
+  aiChatSearchResultExampleSource,
   createAiChatToolSeedItems,
+  createNotesSearchSeedItems,
   createAppToolPatchPendingSeedItems,
   createAppToolReadSeedItems,
   createAppToolSessionGrantSeedItems,
@@ -128,6 +130,11 @@ export const SkillsAndSlash: Story = {
     await userEvent.type(input, "/skills");
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
+      const inventory = canvasElement.querySelector(
+        '[data-ui-component="ai-inventory-result"]',
+      );
+      expect(inventory).toBeVisible();
+      expect(inventory).toHaveAttribute("data-kind", "skills");
       expect(canvas.getByText("research-notes")).toBeInTheDocument();
     });
     await userEvent.type(input, "/open-daily-note");
@@ -143,6 +150,49 @@ export const SkillsAndSlash: Story = {
         canvas.getAllByText(/Unknown command: \/open-daily-note/u).length,
       ).toBeGreaterThan(0);
     });
+  },
+};
+
+export const SearchToolHits: Story = {
+  tags: ["skip-visual", "test"],
+  render: () => ({
+    Component: AiChatDemo,
+    props: {
+      enableSearchResult: true,
+      seedItems: createNotesSearchSeedItems(),
+    },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-search-result"),
+    docs: {
+      description: {
+        story:
+          "A completed notes_search tool item expands to Search-owned hit rows. Clicking a hit opens that vault file without replacing the chat panel.",
+      },
+      source: {
+        code: aiChatSearchResultExampleSource,
+        language: "tsx",
+        type: "code",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = await canvas.findByRole("button", {
+      name: "Show details for notes_search",
+    });
+    await userEvent.click(trigger);
+    const hit = await canvas.findByRole("button", { name: "Open auth.md" });
+    await expect(hit).toBeVisible();
+    await expect(canvas.getByText("OAuth tokens")).toBeVisible();
+    await userEvent.click(hit);
+    await waitFor(() => {
+      expect(canvas.getByTestId("ai-chat-demo")).toHaveAttribute(
+        "data-opened-paths",
+        "Projects/auth.md",
+      );
+    });
+    await expect(canvas.getByTestId("ai-chat-panel")).toBeVisible();
   },
 };
 

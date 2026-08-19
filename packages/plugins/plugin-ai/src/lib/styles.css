@@ -289,6 +289,13 @@
   overflow-wrap: anywhere;
 }
 
+[data-ui-component="ai-chat-panel"]
+  .ai-chat-panel__command-notice[data-layout="inventory"] {
+  padding: 0;
+  color: inherit;
+  white-space: normal;
+}
+
 [data-ui-component="ai-chat-panel"] .ai-chat-panel__working {
   box-sizing: border-box;
   display: flex;

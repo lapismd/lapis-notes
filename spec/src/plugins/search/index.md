@@ -48,6 +48,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-038 | Search Manager MUST stamp indexed documents with the selected source-provider id, pass optional provider allowlists to `AppDatabase`, and prune only documents owned by its registered providers so independent disposable projections remain intact. |
 | LN-SRCH-039 | Search MUST register `notes_search` through the application tool registry. It MUST query only Markdown documents inside the trusted conversation path prefix, apply the requested limit before returning, and expose bounded snippets with portable vault-relative paths. |
 | LN-SRCH-040 | Search MUST register composer `/search` as a tool-dispatch command for `notes_search`. The command MUST pass the raw arguments as `query`, MUST NOT add a workspace palette command, and MUST dispose on unload. An empty query MUST be a visible usage error. |
+| LN-SRCH-041 | Search MUST register the `notes_search` result view. A hit row MUST open that vault file in a workspace leaf without closing the chat. The view MUST consume `structuredContent.results` paths and snippets. |
 
 ## Runtime flow
 
@@ -78,6 +79,8 @@ projection beyond the host's bounded-result contract.
 Composer `/search` is the user-facing tool-dispatch path for the same
 `notes_search` callback; it stays off the workspace palette and disappears
 when Search unloads (LN-SRCH-040).
+The same plugin registers the `notes_search` chat result view so hit rows
+open the matching vault file (LN-SRCH-041).
 `@lapis-notes/search/agent-tools` exposes only the portable factory used by the
 explicit real-agent probe; indexing ownership and plugin registration remain in
 the Search root package.
