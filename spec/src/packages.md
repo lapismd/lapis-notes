@@ -110,6 +110,7 @@ dependency only and does not enter the root Storybook development closure.
 | LN-PKG-092 | `@lapis-notes/lapis-plugin-terminal` MUST live in the sibling `lapis-plugin-terminal` repository, version independently, and expose `build`, `check`, and `test`. It owns the `terminal` view and commands. Consumer plugins MUST NOT depend on `@lapismd/terminal-host` at runtime. |
 | LN-PKG-093 | Private `@lapismd/terminal-host` MUST live in the sibling `terminal-host` repository, version independently, and expose `build`, `check`, `test`, and a `lapis-terminal-host` CLI. Lapis hosts MUST consume it through an explicit `link:` dependency. Desktop MUST pass the vault path, optional `cwd`, and optional absolute `shell` on create. |
 | LN-PKG-099 | `@lapis-notes/bookmarks` MUST live at `packages/plugins/plugin-bookmarks` as an enabled-by-default bundled plugin. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist `{ items }` through `.obsidian/bookmarks.json`. Add flows collect path, query, or URL in a dialog; UI settings MUST NOT live in that blob. |
+| LN-PKG-101 | `@lapis-notes/lapis-plugin-tasks` MUST live in the sibling `lapis-plugin-tasks` repository, version independently, and expose `build`, `check`, and `test`. Desktop and web hosts MUST NOT register or load it until a later requirement authorizes host cutover. |
 
 `@lapis-notes/spellcheck` registers a Harper language-service provider and a
 Lucide status item. That item refreshes from configuration, not `layout-change`.
@@ -349,7 +350,9 @@ Electron, web, and root Storybook declare the sibling through an explicit
 `link:` dependency or a `link:`-valued root override.
 The sibling `@lapis-notes/lapis-plugin-cv-roles` package owns role workflows plus CV YAML file views and browser preview. Its compiled
 Markdown artifact composes Mira's public read-only source and preview surfaces
-under the Lapis theme. Other bundled
+under the Lapis theme. The sibling `@lapis-notes/lapis-plugin-tasks` package
+owns a stub Tasks plugin and Design Core catalog; desktop and web hosts MUST
+NOT register or load it yet. Other bundled
 plugins, notebook, and plugin-host module generation remain out of scope until
 separately specified. Desktop and web hosts are authorized by their canonical
 host chapters.

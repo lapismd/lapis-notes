@@ -947,6 +947,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |
 | LN-PKG-099  | packages                        | In progress | `@lapis-notes/bookmarks` lives at `packages/plugins/plugin-bookmarks` and persists `{ items }` through `.obsidian/bookmarks.json` |
+| LN-PKG-101  | packages                        | Planned     | Sibling `lapis-plugin-tasks` owns the stub plugin and catalog; desktop and web hosts do not register it |
 | LN-BM-001   | bookmarks-plugin                | In progress | package location, runtime id `bookmarks`, bundled default-enabled registration |
 | LN-BM-002   | bookmarks-plugin                | In progress | schema tests persist all six types plus unknown keys through `.obsidian/bookmarks.json` |
 | LN-BM-003   | bookmarks-plugin                | In progress | `ViewAccess.command` opener `bookmarks:open-bookmarks` and default left surface |
