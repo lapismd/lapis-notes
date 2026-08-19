@@ -8,6 +8,7 @@ export const APP_MENU_NAMES = new Set([
   "agent",
   "scope",
   "context",
+  "status",
   "skills",
   "tools",
   "refresh",

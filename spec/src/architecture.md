@@ -97,7 +97,7 @@ explicit ownership boundary as application tools. API stores plugin
 registrations. AI discovers vault and folder skills under `.agents/skills`,
 snapshots them per binding, and routes composer commands from reserved
 host names and `.agents/commands` Markdown, including `/help`, `/scope`,
-`/context`, and `/agent`. AI ships bundled `research` and `lapis-notes` skills.
+`/context`, `/status`, and `/agent`. AI ships bundled `research` and `lapis-notes` skills.
 An active skill file MUST NOT scope a new conversation to `.agents`.
 Search owns composer `/search` as a `notes_search` tool-dispatch command.
 Live ACP session start appends a path-free `available_skills` manifest and a

@@ -895,7 +895,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-123   | ai-plugin                       | Implemented | Conversation menu CSS sizes to content without a custom item font; source test and Local Conversations play assert unclipped labels and model-menu type size |
 | LN-AI-124   | ai-plugin                       | Implemented | Controller test restores a missing conversation, releases it, then keeps the submitted user message on a new conversation |
 | LN-AI-125   | ai-plugin                       | Implemented | Chat-trace tests keep `notes_search` and its input when ACP later sends `tool call` plus `{}`, including mismatched ids |
-| LN-AI-126   | ai-plugin                       | Implemented | Catalog tests keep the reserved host names ahead of extension, skill, native, and command-file collisions, including /help aliases |
+| LN-AI-126   | ai-plugin                       | Implemented | Catalog tests keep the reserved host names ahead of extension, skill, native, and command-file collisions, including /help aliases; App slash suggestions include /status |
 | LN-AI-127   | ai-plugin                       | Implemented | Router and controller tests list /help and /commands locally in App, Actions, Skills, and Current Agent groups |
 | LN-AI-128   | ai-plugin                       | Implemented | Controller tests report /scope and start a new conversation for a folder argument without mutating the open chat |
 | LN-AI-129   | ai-plugin                       | Implemented | Controller tests report /context and /status locally with conversation, scope, agent, tools, and skills |

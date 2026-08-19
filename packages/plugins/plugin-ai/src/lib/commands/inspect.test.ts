@@ -49,6 +49,12 @@ describe("composer slash items", () => {
         dispatch: { kind: "host", execute: () => undefined },
       },
       {
+        name: "status",
+        description: "Show conversation context",
+        source: "app",
+        dispatch: { kind: "host", execute: () => undefined },
+      },
+      {
         name: "model",
         description: "Reserved model",
         source: "app",
@@ -70,9 +76,10 @@ describe("composer slash items", () => {
     const items = composerSlashItems(commands, "Codex ACP");
     expect(items.map((item) => item.label)).toEqual([
       "/help",
+      "/status",
       "/search",
       "/native compact",
     ]);
-    expect(items[2]?.description).toContain("Current Agent · Codex ACP");
+    expect(items[3]?.description).toContain("Current Agent · Codex ACP");
   });
 });

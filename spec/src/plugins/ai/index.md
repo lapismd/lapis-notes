@@ -219,7 +219,7 @@ Markdown lives under `<scope>/.agents/commands`, vault `.agents/commands`,
 and user-global `~/.lapis/agents/commands` when the host exposes that
 directory (LN-AI-144–LN-AI-146). The composer treats a leading slash as a
 command and keeps reserved app commands across agent switches, including
-`/help`, `/scope`, `/context`, and `/agent` (LN-AI-126–LN-AI-129). AI ships
+`/help`, `/scope`, `/context`, `/status`, and `/agent` (LN-AI-126–LN-AI-129). AI ships
 bundled `research` and `lapis-notes` skills that folder skills may override
 (LN-AI-130, LN-AI-134) and seeds them as vault `SKILL.md` when missing
 (LN-AI-142, LN-AI-143). Search owns composer `/search` as a `notes_search`

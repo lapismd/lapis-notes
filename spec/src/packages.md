@@ -164,7 +164,7 @@ application manager or presentation modules.
 The API agent-skills surface exports only skill-source and composer
 slash-command registration. AI owns discovery of `.agents` skill and
 command Markdown, snapshots, skill tools, and routing, including reserved
-`/help`, `/scope`, `/context`, and `/agent`.
+`/help`, `/scope`, `/context`, `/status`, and `/agent`.
 AI ships bundled `research` and `lapis-notes` skills. An active skill file
 MUST NOT scope a new conversation to `.agents`. Search owns composer
 `/search` as a `notes_search` tool-dispatch command. Live ACP session start

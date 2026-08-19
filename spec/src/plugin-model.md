@@ -88,7 +88,7 @@ command palette and off Mira editor slash registration. AI discovers
 folder, vault, and user-global command Markdown separately from plugin
 registrations. Disposing a slash-command registration removes it from
 later composer resolution; reserved application names such as `/help`,
-`/scope`, `/context`, and `/agent` remain app-owned. Search owns composer
+`/scope`, `/context`, `/status`, and `/agent` remain app-owned. Search owns composer
 `/search` and disposes it on unload.
 Application tool registration follows existing plugin contribution lifecycle:
 the helper supplies immutable runtime owner metadata, the App registry rejects
