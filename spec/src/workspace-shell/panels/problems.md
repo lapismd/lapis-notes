@@ -9,7 +9,8 @@ navigation adapter, diagnostics-only Markdown composition, and default
 Markdownlint provider are implemented.
 
 Skill parse and discovery diagnostics stay in the AI plugin and do not enter
-Problems collections.
+Problems collections. Indexed projection contributors on Plugin do not add
+Problems diagnostics or language-service apply paths.
 
 ## Requirements
 

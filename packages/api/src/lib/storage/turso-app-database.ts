@@ -17,6 +17,10 @@ import {
   type SearchDocumentRecord,
   type SearchEmbeddingProviderConfig,
 } from "./app-database";
+import type {
+  AppDatabaseTaskQuery,
+  AppDatabaseTaskRecord,
+} from "./task-projection";
 import { isStructuredSearchQuery } from "./search-query-evaluator";
 
 export interface TursoStatementInput {
@@ -43,6 +47,35 @@ export interface TursoConnection {
 }
 
 export type TursoConnectionFactory = () => Promise<TursoConnection>;
+
+function taskRowFromSql(row: Record<string, unknown>): AppDatabaseTaskRecord {
+  return {
+    documentPath: String(row.document_path ?? ""),
+    documentId: String(row.document_id ?? ""),
+    kind: row.kind === "task-list" ? "task-list" : "task",
+    title: String(row.title ?? ""),
+    status: String(row.status ?? "open") as AppDatabaseTaskRecord["status"],
+    inbox: Number(row.inbox) === 1,
+    startKind: String(row.start_kind ?? "anytime") as AppDatabaseTaskRecord["startKind"],
+    startDate: (row.start_date as string | null) ?? null,
+    planDate: (row.plan_date as string | null) ?? null,
+    planKind: (row.plan_kind as AppDatabaseTaskRecord["planKind"]) ?? null,
+    planTime: (row.plan_time as string | null) ?? null,
+    durationMinutes:
+      row.duration_minutes == null ? null : Number(row.duration_minutes),
+    deadline: (row.deadline as string | null) ?? null,
+    completedAt: (row.completed_at as string | null) ?? null,
+    repeatStrategy: (row.repeat_strategy as string | null) ?? null,
+    repeatFrequency: (row.repeat_frequency as string | null) ?? null,
+    repeatInterval:
+      row.repeat_interval == null ? null : Number(row.repeat_interval),
+    repeatAnchor: (row.repeat_anchor as string | null) ?? null,
+    checklistTotal: Number(row.checklist_total ?? 0),
+    checklistCompleted: Number(row.checklist_completed ?? 0),
+    commentCount: Number(row.comment_count ?? 0),
+    projectionVersion: Number(row.projection_version ?? 1),
+  };
+}
 
 export interface TursoAppDatabaseOptions {
   kind: Extract<AppDatabaseKind, "turso-native" | "turso-wasm">;
@@ -102,6 +135,34 @@ CREATE TABLE IF NOT EXISTS properties (
   data_json TEXT NOT NULL,
   PRIMARY KEY (path, ordinal)
 );
+CREATE TABLE IF NOT EXISTS tasks (
+  document_path TEXT PRIMARY KEY,
+  document_id TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  title TEXT NOT NULL,
+  status TEXT NOT NULL,
+  inbox INTEGER NOT NULL DEFAULT 0,
+  start_kind TEXT NOT NULL,
+  start_date TEXT,
+  plan_date TEXT,
+  plan_kind TEXT,
+  plan_time TEXT,
+  duration_minutes INTEGER,
+  deadline TEXT,
+  completed_at TEXT,
+  repeat_strategy TEXT,
+  repeat_frequency TEXT,
+  repeat_interval INTEGER,
+  repeat_anchor TEXT,
+  checklist_total INTEGER NOT NULL DEFAULT 0,
+  checklist_completed INTEGER NOT NULL DEFAULT 0,
+  comment_count INTEGER NOT NULL DEFAULT 0,
+  projection_version INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS tasks_open_plan ON tasks(status, plan_date);
+CREATE INDEX IF NOT EXISTS tasks_open_deadline ON tasks(status, deadline);
+CREATE INDEX IF NOT EXISTS tasks_open_start ON tasks(status, start_kind, start_date);
+CREATE INDEX IF NOT EXISTS tasks_inbox ON tasks(status, inbox);
 CREATE TABLE IF NOT EXISTS history_files (
   file_id TEXT PRIMARY KEY,
   data_json TEXT NOT NULL
@@ -183,6 +244,7 @@ function statePersistenceStatements(
     "DELETE FROM links",
     "DELETE FROM tags",
     "DELETE FROM properties",
+    "DELETE FROM tasks",
     "DELETE FROM history_files",
     "DELETE FROM history_revisions",
     "DELETE FROM notifications",
@@ -252,6 +314,42 @@ function statePersistenceStatements(
         sql: "INSERT INTO properties (path, ordinal, data_json) VALUES (?, ?, ?)",
         args: [path, ordinal, JSON.stringify(entry)],
       });
+    });
+  }
+  for (const task of state.tasks ?? []) {
+    statements.push({
+      sql: `INSERT INTO tasks (
+              document_path, document_id, kind, title, status, inbox,
+              start_kind, start_date, plan_date, plan_kind, plan_time,
+              duration_minutes, deadline, completed_at, repeat_strategy,
+              repeat_frequency, repeat_interval, repeat_anchor,
+              checklist_total, checklist_completed, comment_count,
+              projection_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        task.documentPath,
+        task.documentId,
+        task.kind,
+        task.title,
+        task.status,
+        task.inbox ? 1 : 0,
+        task.startKind,
+        task.startDate ?? null,
+        task.planDate ?? null,
+        task.planKind ?? null,
+        task.planTime ?? null,
+        task.durationMinutes ?? null,
+        task.deadline ?? null,
+        task.completedAt ?? null,
+        task.repeatStrategy ?? null,
+        task.repeatFrequency ?? null,
+        task.repeatInterval ?? null,
+        task.repeatAnchor ?? null,
+        task.checklistTotal,
+        task.checklistCompleted,
+        task.commentCount,
+        task.projectionVersion,
+      ],
     });
   }
   for (const file of state.historyFiles) {
@@ -478,6 +576,72 @@ export class TursoAppDatabase extends MemoryAppDatabase {
   ): Promise<void> {
     await super.upsertIndexedFile(record);
     await this.persistOrDefer();
+  }
+
+  override async upsertTaskProjection(
+    record: AppDatabaseTaskRecord,
+  ): Promise<void> {
+    await super.upsertTaskProjection(record);
+    await this.persistOrDefer();
+  }
+
+  override async deleteTaskProjection(path: string): Promise<void> {
+    await super.deleteTaskProjection(path);
+    await this.persistOrDefer();
+  }
+
+  override async queryTasks(
+    query: AppDatabaseTaskQuery = {},
+  ): Promise<AppDatabaseTaskRecord[]> {
+    const connection = this.connection;
+    if (!connection) return super.queryTasks(query);
+    const clauses: string[] = [];
+    const args: unknown[] = [];
+    if (query.documentPath) {
+      clauses.push("document_path = ?");
+      args.push(query.documentPath);
+    }
+    if (query.documentId) {
+      clauses.push("document_id = ?");
+      args.push(query.documentId);
+    }
+    if (query.kind) {
+      clauses.push("kind = ?");
+      args.push(query.kind);
+    }
+    const today = query.today ?? new Date().toISOString().slice(0, 10);
+    if (query.view === "inbox") {
+      clauses.push("kind = 'task' AND status = 'open' AND inbox = 1");
+    } else if (query.view === "today") {
+      clauses.push(
+        "kind = 'task' AND status = 'open' AND (plan_date <= ? OR deadline <= ?)",
+      );
+      args.push(today, today);
+    } else if (query.view === "anytime") {
+      clauses.push(
+        "kind = 'task' AND status = 'open' AND plan_date IS NULL AND (start_kind = 'anytime' OR (start_kind = 'date' AND start_date <= ?))",
+      );
+      args.push(today);
+    } else if (query.view === "upcoming") {
+      clauses.push(
+        "kind = 'task' AND status = 'open' AND (start_date > ? OR plan_date > ? OR deadline > ?)",
+      );
+      args.push(today, today, today);
+    } else if (query.view === "someday") {
+      clauses.push("kind = 'task' AND status = 'open' AND start_kind = 'someday'");
+    } else if (query.view === "completed") {
+      clauses.push("status = 'completed'");
+    } else if (query.view === "review") {
+      clauses.push("kind = 'task' AND status = 'open' AND plan_date < ?");
+      args.push(today);
+    }
+    const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+    const limit = query.limit ? `LIMIT ${Number(query.limit)}` : "";
+    const rows = await connection.all<Record<string, unknown>>(
+      `SELECT * FROM tasks ${where} ${limit}`.trim(),
+      ...args,
+    );
+    return rows.map(taskRowFromSql);
   }
 
   override async deleteIndexedFile(path: string): Promise<void> {

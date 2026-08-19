@@ -18,7 +18,13 @@ import type {
   SearchDocumentRecord,
   SearchEmbeddingProviderConfig,
   SearchEmbeddingRuntimeStatus,
+  AppDatabaseLinkRecord,
 } from "./app-database";
+import type {
+  AppDatabaseTaskChildQuery,
+  AppDatabaseTaskQuery,
+  AppDatabaseTaskRecord,
+} from "./task-projection";
 import { BrowserAppDatabaseCoordinator } from "./browser-app-database-coordination";
 import { TursoWasmAppDatabaseProvider } from "./turso-app-database";
 
@@ -53,7 +59,13 @@ type AppDatabaseMethod =
   | "getSearchDocument"
   | "listSearchDocuments"
   | "rebuildSearchIndex"
-  | "searchDocuments";
+  | "searchDocuments"
+  | "upsertTaskProjection"
+  | "deleteTaskProjection"
+  | "queryTasks"
+  | "getTaskRow"
+  | "listChildLinks"
+  | "listTaskDescendants";
 
 type AppDatabaseRpcMethod = AppDatabaseMethod | "describe";
 
@@ -120,6 +132,12 @@ const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
   "listSearchDocuments",
   "rebuildSearchIndex",
   "searchDocuments",
+  "upsertTaskProjection",
+  "deleteTaskProjection",
+  "queryTasks",
+  "getTaskRow",
+  "listChildLinks",
+  "listTaskDescendants",
 ]);
 
 export type BrowserCoordinatedAppDatabaseMode = "turso-owner" | "turso-proxy";
@@ -473,6 +491,36 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
       query,
       options,
     );
+  }
+
+  async upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void> {
+    await this.invoke("upsertTaskProjection", record);
+  }
+
+  async deleteTaskProjection(path: string): Promise<void> {
+    await this.invoke("deleteTaskProjection", path);
+  }
+
+  async queryTasks(
+    query?: AppDatabaseTaskQuery,
+  ): Promise<AppDatabaseTaskRecord[]> {
+    return this.invoke<AppDatabaseTaskRecord[]>("queryTasks", query);
+  }
+
+  async getTaskRow(
+    lookup: { path?: string; id?: string },
+  ): Promise<AppDatabaseTaskRecord | undefined> {
+    return this.invoke<AppDatabaseTaskRecord | undefined>("getTaskRow", lookup);
+  }
+
+  async listChildLinks(
+    query: AppDatabaseTaskChildQuery,
+  ): Promise<AppDatabaseLinkRecord[]> {
+    return this.invoke<AppDatabaseLinkRecord[]>("listChildLinks", query);
+  }
+
+  async listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]> {
+    return this.invoke<AppDatabaseTaskRecord[]>("listTaskDescendants", path);
   }
 
   private async invoke<T>(

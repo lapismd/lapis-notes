@@ -106,6 +106,7 @@ export interface Reference {
 export interface ReferenceCache extends Reference, CacheItem {
 }
 export interface LinkCache extends ReferenceCache {
+    heading?: string;
 }
 export interface EmbedCache extends ReferenceCache {
 }
@@ -240,6 +241,16 @@ export type MetadataProcessor = {
     }) => Promise<CachedMetadata>;
     write: (cache: CachedMetadata) => string;
 };
+export type IndexedProjectionContribution = {
+    task?: import("./storage/task-projection").AppDatabaseTaskRecord | null;
+};
+export type IndexedProjectionContributor = {
+    project(input: {
+        file: TFile;
+        content: string;
+        cache: CachedMetadata;
+    }): IndexedProjectionContribution | null | Promise<IndexedProjectionContribution | null>;
+};
 /**
  * Indexes parsed markdown metadata, tags, headings, and resolved links for the
  * active vault.
@@ -271,6 +282,7 @@ export declare class MetadataCache extends EventDispatcher<{
     #private;
     readonly app: App;
     processors: Map<string, Set<MetadataProcessor>>;
+    projectionContributors: Set<IndexedProjectionContributor>;
     readonly logger: import("./logging").Logger;
     readonly legacyStorage: ScopedVaultStore;
     private lastPortableBackupWrite;
@@ -512,6 +524,8 @@ export declare class MetadataCache extends EventDispatcher<{
     rebuild(): Promise<void>;
     addProcessor(ext: string, processor: MetadataProcessor): void;
     removeProcessor(ext: string, processor: MetadataProcessor): boolean;
+    addIndexedProjectionContributor(contributor: IndexedProjectionContributor): void;
+    removeIndexedProjectionContributor(contributor: IndexedProjectionContributor): boolean;
     private handleChange;
     private handleRename;
     private processFile;

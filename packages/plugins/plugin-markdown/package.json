@@ -49,7 +49,8 @@
     "@lapismd/mira-editor": "*",
     "@lapismd/mira-plugin-ai": "*",
     "@lapismd/mira-plugin-mermaid": "*",
-    "@lucide/svelte": "^0.523.0"
+    "@lucide/svelte": "^0.523.0",
+    "yaml": "^2.9.0"
   },
   "peerDependencies": {
     "@codemirror/lang-markdown": "^6.3.3",

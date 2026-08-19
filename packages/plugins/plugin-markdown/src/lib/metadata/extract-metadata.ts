@@ -1,3 +1,5 @@
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
+
 type Pos = {
   start: { line: number; col: number; offset: number };
   end: { line: number; col: number; offset: number };
@@ -12,6 +14,7 @@ type CachedMetadata = {
     original: string;
     displayText: string;
     position: Pos;
+    heading?: string;
   }>;
   tags?: Array<{ tag: string; position: Pos }>;
 };
@@ -37,85 +40,20 @@ function posForMatch(
   };
 }
 
-function parseScalar(raw: string): unknown {
-  const value = raw.trim();
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
-    return value.slice(1, -1);
-  }
-  if (value === "true") return true;
-  if (value === "false") return false;
-  if (value === "null" || value === "~" || value === "") return null;
-  if (/^-?\d+(\.\d+)?$/.test(value)) return Number(value);
-  if (value.startsWith("[") && value.endsWith("]")) {
-    return value
-      .slice(1, -1)
-      .split(",")
-      .map((part) => String(parseScalar(part)))
-      .filter((part) => part.length > 0);
-  }
-  return value;
-}
-
 function decodeFrontMatter(block: string): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  const lines = block.split("\n");
-  let index = 0;
-  while (index < lines.length) {
-    const line = lines[index]!;
-    if (!line.trim() || line.trimStart().startsWith("#")) {
-      index += 1;
-      continue;
+  try {
+    const parsed = parseYaml(block);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
     }
-    const match = line.match(/^([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
-    if (!match) {
-      index += 1;
-      continue;
-    }
-    const key = match[1]!;
-    const rest = match[2] ?? "";
-    if (rest.length === 0) {
-      const items: string[] = [];
-      let cursor = index + 1;
-      while (cursor < lines.length) {
-        const nested = lines[cursor]!;
-        const item = nested.match(/^\s+-\s+(.*)$/);
-        if (!item) break;
-        items.push(String(parseScalar(item[1] ?? "")));
-        cursor += 1;
-      }
-      if (items.length > 0) {
-        result[key] = items;
-        index = cursor;
-        continue;
-      }
-      result[key] = null;
-      index += 1;
-      continue;
-    }
-    result[key] = parseScalar(rest);
-    index += 1;
+  } catch {
+    // Fall through to empty front matter on invalid YAML.
   }
-  return result;
+  return {};
 }
 
 function encodeFrontMatter(data: Record<string, unknown>): string {
-  const lines = Object.entries(data).map(([key, value]) => {
-    if (Array.isArray(value)) {
-      if (value.length === 0) return `${key}: []`;
-      return [`${key}:`, ...value.map((item) => `  - ${String(item)}`)].join(
-        "\n",
-      );
-    }
-    if (value === null || value === undefined) return `${key}:`;
-    if (typeof value === "string" && /[:#\n]/.test(value)) {
-      return `${key}: "${value.replaceAll('"', '\\"')}"`;
-    }
-    return `${key}: ${String(value)}`;
-  });
-  return `${lines.join("\n")}\n`;
+  return stringifyYaml(data, { lineWidth: 0 });
 }
 
 /**
@@ -138,42 +76,69 @@ export function extractMetadata(data: string): CachedMetadata {
   const body = data.slice(bodyStart);
   const lines = body.split("\n");
   let offset = bodyStart;
+  let currentHeading: string | undefined;
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
     const line = lines[lineIndex]!;
     const heading = line.match(/^(#{1,6})\s+(.+?)\s*$/);
     if (heading) {
+      currentHeading = heading[2]!.trim();
       cache.headings ||= [];
       cache.headings.push({
-        heading: heading[2]!.trim(),
+        heading: currentHeading,
         level: heading[1]!.length,
         position: posForMatch(data, offset, offset + line.length),
       });
     }
+
+    const wikiRe = /\[\[([^\]]+)\]\]/g;
+    for (const match of line.matchAll(wikiRe)) {
+      const link = match[1] ?? "";
+      const absoluteIndex = offset + (match.index ?? 0);
+      const display = link.includes("|") ? link.split("|")[1]! : link;
+      cache.links ||= [];
+      cache.links.push({
+        link,
+        original: match[0]!,
+        displayText: display,
+        position: posForMatch(
+          data,
+          absoluteIndex,
+          absoluteIndex + match[0]!.length,
+        ),
+        heading: currentHeading,
+      });
+    }
+
+    const mdRe = /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g;
+    for (const match of line.matchAll(mdRe)) {
+      const display = match[1] ?? "";
+      const href = match[2] ?? "";
+      const absoluteIndex = offset + (match.index ?? 0);
+      cache.links ||= [];
+      cache.links.push({
+        link: href,
+        original: match[0]!,
+        displayText: display,
+        position: posForMatch(
+          data,
+          absoluteIndex,
+          absoluteIndex + match[0]!.length,
+        ),
+        heading: currentHeading,
+      });
+    }
+
+    for (const match of line.matchAll(/(^|[\s([{])#([\w/-]+)/g)) {
+      const tag = `#${match[2]}`;
+      const absoluteIndex = offset + (match.index ?? 0) + (match[1]?.length ?? 0);
+      cache.tags ||= [];
+      cache.tags.push({
+        tag,
+        position: posForMatch(data, absoluteIndex, absoluteIndex + tag.length),
+      });
+    }
+
     offset += line.length + 1;
-  }
-
-  for (const match of body.matchAll(/\[\[([^\]]+)\]\]/g)) {
-    const link = match[1] ?? "";
-    const absoluteIndex = bodyStart + (match.index ?? 0);
-    const display = link.includes("|") ? link.split("|")[1]! : link;
-    cache.links ||= [];
-    cache.links.push({
-      link,
-      original: match[0]!,
-      displayText: display,
-      position: posForMatch(data, absoluteIndex, absoluteIndex + match[0]!.length),
-    });
-  }
-
-  for (const match of body.matchAll(/(^|[\s([{])#([\w/-]+)/g)) {
-    const tag = `#${match[2]}`;
-    const absoluteIndex =
-      bodyStart + (match.index ?? 0) + (match[1]?.length ?? 0);
-    cache.tags ||= [];
-    cache.tags.push({
-      tag,
-      position: posForMatch(data, absoluteIndex, absoluteIndex + tag.length),
-    });
   }
 
   return cache;

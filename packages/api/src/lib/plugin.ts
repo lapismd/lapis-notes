@@ -1,4 +1,7 @@
-import type { MetadataProcessor } from "./cache.svelte";
+import type {
+  IndexedProjectionContributor,
+  MetadataProcessor,
+} from "./cache.svelte";
 import type {
   SearchDocumentProvider,
   SearchDocumentProviderRegistration,
@@ -1026,6 +1029,15 @@ export abstract class Plugin extends Component {
     this.app.metadataCache.addProcessor(ext, processor);
     this.register(() => {
       this.app.metadataCache.removeProcessor(ext, processor);
+    });
+  }
+
+  registerIndexedProjectionContributor(
+    contributor: IndexedProjectionContributor,
+  ) {
+    this.app.metadataCache.addIndexedProjectionContributor(contributor);
+    this.register(() => {
+      this.app.metadataCache.removeIndexedProjectionContributor(contributor);
     });
   }
 

@@ -7,7 +7,9 @@ model defaults persist in AI plugin data; workspace dock selection persists
 through the existing 1000 ms writer. Separately versioned
 Roles/CV catalog coverage remains in its owning repository while Lapis
 production hosts continue to load that plugin. The Tasks sibling catalog is
-specified but MUST NOT be loaded by Lapis hosts in this slice.
+specified but MUST NOT be loaded by Lapis hosts in this slice. AppDatabase
+owns a disposable tasks projection and allowlisted task queries for that
+later plugin; hosts still MUST NOT load it.
 
 ## Requirements
 

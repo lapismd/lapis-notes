@@ -2,6 +2,7 @@ export * from "./fs";
 export * from "./memory-vault-adapter";
 export * from "./blob-store";
 export * from "./app-database";
+export * from "./task-projection";
 export * from "./turso-app-database";
 export * from "./search-embedding-provider";
 export * from "./path";

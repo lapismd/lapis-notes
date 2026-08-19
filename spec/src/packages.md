@@ -5,6 +5,8 @@ development tooling at the root and are excluded from publishable package
 runtime closures. AI model menus consume structured host catalog labels while
 `@lapis-notes/ai` still has no runtime `@lapismd/ai-host` dependency. The external Roles package remains a production host
 dependency only and does not enter the root Storybook development closure.
+`@lapis-notes/api` exports the tasks projection record types and allowlisted
+query methods used by the Tasks sibling without loading that plugin.
 
 ## Requirements
 

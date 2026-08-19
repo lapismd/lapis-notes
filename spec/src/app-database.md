@@ -24,6 +24,10 @@ workspace shell.
 | LN-DB-014 | API-owned property evaluation MUST merge indexed vault properties with normalized search-document metadata without persisting provider fields into the metadata index. |
 | LN-DB-015 | Each search document MUST retain its singular domain source-provider id, and search queries MUST support an optional allowlist of source-provider ids across memory, Turso, native IPC, and browser-proxy transports. Provider filtering MUST occur before result limits are applied, while an absent or empty allowlist MUST preserve unfiltered search behavior. |
 | LN-DB-016 | Search queries MUST support one normalized vault-relative path prefix across memory, Turso, native IPC, and browser-proxy transports. Prefix filtering MUST occur before ranking and result limits, match only the selected path or descendants, and preserve unfiltered behavior when absent. |
+| LN-DB-017 | AppDatabase MUST persist a disposable `tasks` projection keyed by document path with typed planning columns and `projection_version`. The vault file remains authoritative. |
+| LN-DB-018 | AppDatabase MUST expose allowlisted `queryTasks`, `getTaskRow`, `listChildLinks`, and `listTaskDescendants`. Callers MUST NOT receive raw SQL. |
+| LN-DB-019 | Indexed links MUST store heading, ordinal, and kind `subtask`, `list-item`, or `reference`. Kind MUST come from the `Subtasks` or `Items` heading, else `reference`. |
+| LN-DB-020 | `upsertIndexedFile` MUST write or delete the matching `tasks` row in the same update as the file, links, tags, and properties. |
 
 ## Runtime topology
 

@@ -771,6 +771,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-062 | architecture                    | Implemented | API file-tool wrappers import only `@lapismd/ai-host/file-tools`; plugin-ai, Search, and Markdown manifests have no ai-host dependency |
 | LN-PLUG-019 | plugin-model                    | Implemented | six API registry tests cover name and schema validation, owner attribution, duplicate rejection, deterministic descriptors, exact registration identity, and disposal |
 | LN-DB-016   | app-database                    | Implemented | memory, Turso, desktop-proxy, and browser-coordination tests assert path-prefix forwarding and filtering before ranking and limit |
+| LN-DB-017   | app-database                    | Implemented | Memory and Turso tests persist typed task projection rows keyed by path |
+| LN-DB-018   | app-database                    | Implemented | queryTasks, getTaskRow, listChildLinks, and listTaskDescendants are allowlisted AppDatabase methods |
+| LN-DB-019   | app-database                    | Implemented | Indexed links store heading, ordinal, and structural kind from reserved headings |
+| LN-DB-020   | app-database                    | Implemented | upsertIndexedFile writes or deletes the task row with the file record |
 | LN-SRCH-039 | search-plugin                   | Implemented | notes-search and SearchManager tests cover Markdown-only scoped queries, 1–50 limits, bounded snippets, pre-limit prefix filtering, scores, and portable paths |
 | LN-MD-093   | markdown-plugin                 | Implemented | notes_list tests cover scoped Markdown paths, depth and entry limits, deterministic sorting, traversal, and private-directory rejection |
 | LN-MD-094   | markdown-plugin                 | Implemented | Markdown agent-tool factory registers only notes_list; API edit tests cover unique hunks, conflicts, cancellation, and unchanged files |
@@ -948,6 +952,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PLUG-022 | plugin-model                    | Implemented | Plugin skill-root and programmatic skill registrations dispose on unload and reject escaped paths |
 | LN-PLUG-023 | plugin-model                    | Implemented | Plugin composer slash commands dispose on unload and do not call addCommand |
 | LN-PLUG-024 | plugin-model                    | Implemented | Plugin result views dispose on unload; duplicate tool or command keys are rejected |
+| LN-PLUG-025 | plugin-model                    | Implemented | registerIndexedProjectionContributor namespaces and disposes contributors |
 | LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |
 | LN-PKG-096  | packages                        | Implemented | API agent-skills export and AI skill/command modules stay free of MCP, ACP, and vendor types |
 | LN-PKG-100  | packages                        | Implemented | API owns agentResultViews; Search registers notes_search; AI looks up views without importing Search |
@@ -962,6 +967,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-ARCH-063 | architecture                    | Implemented | plugin-ai depends on markdown embed and not mira |
 | LN-PKG-095  | packages                        | Implemented | plugin-ai package.json depends on @lapis-notes/markdown and not mira |
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |
+| LN-MD-102   | markdown-plugin                 | Implemented | extractMetadata parses nested YAML maps such as task.status |
+| LN-MD-103   | markdown-plugin                 | Implemented | extractMetadata indexes Markdown and wiki links with heading context |
 | LN-PKG-099  | packages                        | In progress | `@lapis-notes/bookmarks` lives at `packages/plugins/plugin-bookmarks` and persists `{ items }` through `.obsidian/bookmarks.json` |
 | LN-PKG-101  | packages                        | Planned     | Sibling `lapis-plugin-tasks` owns the stub plugin and catalog; desktop and web hosts do not register it |
 | LN-BM-001   | bookmarks-plugin                | In progress | package location, runtime id `bookmarks`, bundled default-enabled registration |

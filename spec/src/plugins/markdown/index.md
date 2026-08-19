@@ -49,6 +49,8 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-094 | Markdown MUST NOT register `notes_patch`. Unique exact-hunk replacement belongs to API `edit`. Invalid scope, conflicts, cancellation, and denial MUST leave the target file unchanged. |
 | LN-MD-100 | Markdown MUST NOT register `notes_read`. Bounded scoped file reads belong to the API `read` tool. |
 | LN-MD-101 | Public `MarkdownEmbed` MUST render through Mira's embed preview using the owning App's `createLapisMiraFileAdapter` and `resolveMarkdownMiraExtensions`. It MUST refresh those extensions when configuration changes. Consumers MAY set `htmlPolicy`. |
+| LN-MD-102 | `extractMetadata` MUST parse nested YAML maps and arrays in front matter, including `task:` objects. |
+| LN-MD-103 | `extractMetadata` MUST index wiki links and standard Markdown links with the nearest preceding heading. |
 | LN-MD-097 | Markdown `extractMetadata` MUST run off the renderer thread through a worker. Vault I/O, link resolution, `$state` apply, and `AppDatabase` writes MUST stay on the main thread. `read()` MAY use the same parse synchronously when a worker is unavailable. |
 | LN-MD-099 | Published `parse-metadata` MUST import the metadata worker as `./metadata-worker?worker&inline` without a `.ts` suffix so Vite hosts resolve the packaged `metadata-worker.js`. |
 

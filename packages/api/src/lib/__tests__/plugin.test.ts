@@ -321,6 +321,34 @@ describe("Plugin data persistence", () => {
     expect(app.searchDocumentProviders.getAll()).toHaveLength(0);
   });
 
+  it("registers indexed projection contributors with plugin-owned cleanup", () => {
+    const { app } = createPluginApp();
+    const add = vi.fn();
+    const remove = vi.fn();
+    Object.assign(app, {
+      metadataCache: {
+        addIndexedProjectionContributor: add,
+        removeIndexedProjectionContributor: remove,
+      },
+    });
+    const plugin = new TestPlugin(app, {
+      id: "tasks",
+      name: "Tasks",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.load();
+    const contributor = {
+      project: () => ({ task: null }),
+    };
+    plugin.registerIndexedProjectionContributor(contributor);
+    expect(add).toHaveBeenCalledWith(contributor);
+    plugin.unload();
+    expect(remove).toHaveBeenCalledWith(contributor);
+  });
+
   it("registers editor-view metadata with plugin-owned cleanup", () => {
     const { app } = createPluginApp();
     const plugin = new TestPlugin(app, {

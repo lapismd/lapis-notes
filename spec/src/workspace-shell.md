@@ -8,7 +8,8 @@ Workspace `Plugin.addCommand` remains the Actions tab. File Explorer and AI
 register Files and Agents palette providers. `app:go-to-file` lands on Files.
 AI composer slash commands are a separate Plugin API (LN-PLUG-023). Transcript
 result views are a separate Plugin API (LN-PLUG-024) and MUST NOT add palette
-commands.
+commands. Indexed projection contributors register on MetadataCache during
+the same parse pass and MUST NOT register workspace views.
 
 ## Requirements
 

@@ -19,6 +19,13 @@ import {
   type SearchQueryEvaluationOptions,
   type SearchQueryTextRangeOptions,
 } from "./search-query-evaluator";
+import {
+  matchesTaskQuery,
+  type AppDatabaseLinkKind,
+  type AppDatabaseTaskChildQuery,
+  type AppDatabaseTaskQuery,
+  type AppDatabaseTaskRecord,
+} from "./task-projection";
 
 export type {
   SearchEmbeddingProviderConfig,
@@ -194,6 +201,9 @@ export interface AppDatabaseLinkRecord {
   type: "link" | "embed";
   position?: unknown;
   count: number;
+  heading?: string | null;
+  kind?: AppDatabaseLinkKind;
+  ordinal?: number;
 }
 
 export interface AppDatabaseTagRecord {
@@ -218,6 +228,7 @@ export interface AppDatabaseIndexedFile {
   links: AppDatabaseLinkRecord[];
   tags: AppDatabaseTagRecord[];
   properties: AppDatabasePropertyRecord[];
+  task?: AppDatabaseTaskRecord | null;
 }
 export type AppDatabaseIndexedMetadataScalar = string | number | boolean | null;
 
@@ -949,6 +960,16 @@ export interface AppDatabase {
     query: string,
     options?: AppDatabaseSearchOptions,
   ): Promise<AppDatabaseSearchResult[]>;
+  upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void>;
+  deleteTaskProjection(path: string): Promise<void>;
+  queryTasks(query?: AppDatabaseTaskQuery): Promise<AppDatabaseTaskRecord[]>;
+  getTaskRow(
+    lookup: { path?: string; id?: string },
+  ): Promise<AppDatabaseTaskRecord | undefined>;
+  listChildLinks(
+    query: AppDatabaseTaskChildQuery,
+  ): Promise<AppDatabaseLinkRecord[]>;
+  listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]>;
 }
 
 export interface AppDatabaseOpenContext {
@@ -977,9 +998,10 @@ export type AppDatabaseState = {
   tags: [string, AppDatabaseTagRecord[]][];
   properties: [string, AppDatabasePropertyRecord[]][];
   searchDocuments: SearchDocumentRecord[];
+  tasks: AppDatabaseTaskRecord[];
 };
 
-export const APP_DATABASE_SCHEMA_VERSION = 3;
+export const APP_DATABASE_SCHEMA_VERSION = 4;
 
 function clone<T>(value: T): T {
   if (value === undefined || value === null) return value;
@@ -1912,6 +1934,7 @@ export class MemoryAppDatabase implements AppDatabase {
   protected tags = new Map<string, AppDatabaseTagRecord[]>();
   protected properties = new Map<string, AppDatabasePropertyRecord[]>();
   protected searchDocs = new Map<string, SearchDocumentRecord>();
+  protected tasks = new Map<string, AppDatabaseTaskRecord>();
 
   constructor(readonly vaultId: string) {}
 
@@ -2191,6 +2214,11 @@ export class MemoryAppDatabase implements AppDatabase {
     this.links.set(record.file.path, clone(record.links));
     this.tags.set(record.file.path, clone(record.tags));
     this.properties.set(record.file.path, clone(record.properties));
+    if (record.task === null) {
+      this.tasks.delete(record.file.path);
+    } else if (record.task) {
+      this.tasks.set(record.file.path, clone(record.task));
+    }
   }
 
   async deleteIndexedFile(path: string): Promise<void> {
@@ -2204,6 +2232,7 @@ export class MemoryAppDatabase implements AppDatabase {
     this.tags.delete(path);
     this.properties.delete(path);
     this.searchDocs.delete(path);
+    this.tasks.delete(path);
   }
 
   async renameIndexedFile(oldPath: string, newPath: string): Promise<void> {
@@ -2252,6 +2281,11 @@ export class MemoryAppDatabase implements AppDatabase {
         newPath,
         properties.map((property) => ({ ...property, path: newPath })),
       );
+    }
+    const task = this.tasks.get(oldPath);
+    if (task) {
+      this.tasks.delete(oldPath);
+      this.tasks.set(newPath, { ...task, documentPath: newPath });
     }
     const searchDoc = this.searchDocs.get(oldPath);
     if (searchDoc) {
@@ -2375,6 +2409,65 @@ export class MemoryAppDatabase implements AppDatabase {
     options: AppDatabaseSearchOptions = {},
   ): Promise<AppDatabaseSearchResult[]> {
     return this.searchDocumentsForPaths(query, options);
+  }
+
+  async upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void> {
+    this.tasks.set(record.documentPath, clone(record));
+  }
+
+  async deleteTaskProjection(path: string): Promise<void> {
+    this.tasks.delete(path);
+  }
+
+  async queryTasks(
+    query: AppDatabaseTaskQuery = {},
+  ): Promise<AppDatabaseTaskRecord[]> {
+    const rows = [...this.tasks.values()].filter((row) =>
+      matchesTaskQuery(row, query),
+    );
+    const limited = query.limit ? rows.slice(0, query.limit) : rows;
+    return clone(limited);
+  }
+
+  async getTaskRow(
+    lookup: { path?: string; id?: string },
+  ): Promise<AppDatabaseTaskRecord | undefined> {
+    if (lookup.path) return clone(this.tasks.get(lookup.path));
+    if (lookup.id) {
+      return clone(
+        [...this.tasks.values()].find((row) => row.documentId === lookup.id),
+      );
+    }
+    return undefined;
+  }
+
+  async listChildLinks(
+    query: AppDatabaseTaskChildQuery,
+  ): Promise<AppDatabaseLinkRecord[]> {
+    const links = this.links.get(query.sourcePath) ?? [];
+    return clone(
+      links
+        .filter((link) => !query.kind || link.kind === query.kind)
+        .sort((left, right) => (left.ordinal ?? 0) - (right.ordinal ?? 0)),
+    );
+  }
+
+  async listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]> {
+    const seen = new Set<string>();
+    const results: AppDatabaseTaskRecord[] = [];
+    const visit = (sourcePath: string) => {
+      for (const link of this.links.get(sourcePath) ?? []) {
+        if (link.kind !== "subtask" && link.kind !== "list-item") continue;
+        const target = link.resolvedTargetPath;
+        if (!target || seen.has(target)) continue;
+        seen.add(target);
+        const row = this.tasks.get(target);
+        if (row) results.push(clone(row));
+        visit(target);
+      }
+    };
+    visit(path);
+    return results;
   }
 
   protected async searchDocumentsForPaths(
@@ -2565,6 +2658,7 @@ export class MemoryAppDatabase implements AppDatabase {
       searchDocuments: [...this.searchDocs.values()].map((value) =>
         clone(value),
       ),
+      tasks: [...this.tasks.values()].map((value) => clone(value)),
     };
   }
 
@@ -2596,6 +2690,9 @@ export class MemoryAppDatabase implements AppDatabase {
     this.properties = new Map(state.properties ?? []);
     this.searchDocs = new Map(
       (state.searchDocuments ?? []).map((item) => [item.path, item]),
+    );
+    this.tasks = new Map(
+      (state.tasks ?? []).map((item) => [item.documentPath, item]),
     );
     this.rebuildSearchIndexStats();
   }

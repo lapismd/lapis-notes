@@ -32,6 +32,7 @@ export * from "./storage/fs";
 export * from "./storage/memory-vault-adapter";
 export * from "./storage/blob-store";
 export * from "./storage/app-database";
+export * from "./storage/task-projection";
 export * from "./storage/turso-app-database";
 export * from "./storage/search-embedding-provider";
 export * from "./storage/keyval";

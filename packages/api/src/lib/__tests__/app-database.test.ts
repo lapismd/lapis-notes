@@ -1307,4 +1307,80 @@ describe("AppDatabase", () => {
     await db.deleteIndexedFile("renamed.md");
     expect(await db.getNotebookState("renamed.md")).toBeUndefined();
   });
+
+  it("queries disposable task projections without scanning Markdown", async () => {
+    const db = new MemoryAppDatabase("tasks-vault");
+    await db.open();
+    await db.upsertIndexedFile({
+      file: {
+        path: "buy.md",
+        normalizedPath: "buy.md",
+        extension: "md",
+        mtime: 1,
+        size: 1,
+        hash: "t1",
+        indexed: true,
+      },
+      metadata: {
+        path: "buy.md",
+        hash: "t1",
+        parserVersion: "test",
+        metadata: {},
+      },
+      links: [
+        {
+          sourcePath: "buy.md",
+          targetText: "./child.md",
+          resolvedTargetPath: "child.md",
+          type: "link",
+          count: 1,
+          heading: "Subtasks",
+          kind: "subtask",
+          ordinal: 0,
+        },
+      ],
+      tags: [],
+      properties: [],
+      task: {
+        documentPath: "buy.md",
+        documentId: "t_buy",
+        kind: "task",
+        title: "Buy filter",
+        status: "open",
+        inbox: true,
+        startKind: "anytime",
+        planDate: "2026-08-19",
+        checklistTotal: 0,
+        checklistCompleted: 0,
+        commentCount: 0,
+        projectionVersion: 1,
+      },
+    });
+    await db.upsertTaskProjection({
+      documentPath: "child.md",
+      documentId: "t_child",
+      kind: "task",
+      title: "Child",
+      status: "open",
+      inbox: false,
+      startKind: "anytime",
+      checklistTotal: 0,
+      checklistCompleted: 0,
+      commentCount: 0,
+      projectionVersion: 1,
+    });
+
+    await expect(
+      db.queryTasks({ view: "inbox", today: "2026-08-20" }),
+    ).resolves.toMatchObject([{ documentId: "t_buy" }]);
+    await expect(
+      db.queryTasks({ view: "today", today: "2026-08-20" }),
+    ).resolves.toMatchObject([{ documentId: "t_buy" }]);
+    await expect(
+      db.listChildLinks({ sourcePath: "buy.md", kind: "subtask" }),
+    ).resolves.toMatchObject([{ resolvedTargetPath: "child.md" }]);
+    await expect(db.listTaskDescendants("buy.md")).resolves.toMatchObject([
+      { documentId: "t_child" },
+    ]);
+  });
 });

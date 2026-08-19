@@ -138,6 +138,13 @@ export default defineConfig(tableRequirements(), {
           chapters: ["spec/src/desktop-host.md", "spec/src/packages.md"],
         },
         {
+          pattern: "^packages/api/src/lib/cache\\.svelte(?:\\.d)?\\.ts$",
+          chapters: [
+            "spec/src/app-database.md",
+            "spec/src/plugin-model.md",
+          ],
+        },
+        {
           pattern:
             "^packages/api/src/lib/(?:plugin(?:-manager)?\\.ts|workspace\\.svelte\\.ts|context\\.svelte\\.ts)$",
           chapters: [

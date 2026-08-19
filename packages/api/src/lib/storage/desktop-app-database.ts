@@ -4,6 +4,7 @@ import type {
   AppDatabaseFileHistory,
   AppDatabaseIndexedFile,
   AppDatabaseIndexedMetadataQuery,
+  AppDatabaseLinkRecord,
   AppDatabaseIndexedMetadataRow,
   AppDatabaseNotebookState,
   AppDatabaseNotificationRecord,
@@ -19,6 +20,11 @@ import type {
   SearchEmbeddingProviderConfig,
   SearchEmbeddingRuntimeStatus,
 } from "./app-database";
+import type {
+  AppDatabaseTaskChildQuery,
+  AppDatabaseTaskQuery,
+  AppDatabaseTaskRecord,
+} from "./task-projection";
 import {
   getNativeDesktopBridge,
   getNativeDesktopCapability,
@@ -58,6 +64,12 @@ export const DESKTOP_APP_DATABASE_RPC_METHODS = [
   "listSearchDocuments",
   "rebuildSearchIndex",
   "searchDocuments",
+  "upsertTaskProjection",
+  "deleteTaskProjection",
+  "queryTasks",
+  "getTaskRow",
+  "listChildLinks",
+  "listTaskDescendants",
 ] as const;
 
 export type DesktopAppDatabaseRpcMethod =
@@ -248,6 +260,34 @@ export class NativeDesktopTursoAppDatabase implements AppDatabase {
     options?: AppDatabaseSearchOptions,
   ): Promise<AppDatabaseSearchResult[]> {
     return this.call("searchDocuments", query, options);
+  }
+
+  upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void> {
+    return this.call("upsertTaskProjection", record);
+  }
+
+  deleteTaskProjection(path: string): Promise<void> {
+    return this.call("deleteTaskProjection", path);
+  }
+
+  queryTasks(query?: AppDatabaseTaskQuery): Promise<AppDatabaseTaskRecord[]> {
+    return this.call("queryTasks", query);
+  }
+
+  getTaskRow(
+    lookup: { path?: string; id?: string },
+  ): Promise<AppDatabaseTaskRecord | undefined> {
+    return this.call("getTaskRow", lookup);
+  }
+
+  listChildLinks(
+    query: AppDatabaseTaskChildQuery,
+  ): Promise<AppDatabaseLinkRecord[]> {
+    return this.call("listChildLinks", query);
+  }
+
+  listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]> {
+    return this.call("listTaskDescendants", path);
   }
 
   private call<T>(method: DesktopAppDatabaseRpcMethod, ...args: unknown[]): Promise<T> {

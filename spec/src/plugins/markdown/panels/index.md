@@ -5,6 +5,8 @@ Markdown configuration and editor feature settings remain governed by the
 movable-panel contracts in this chapter. Metadata parse now runs in a worker
 and does not move vault I/O or panel presentation off the main thread. The
 published worker import stays extensionless for Vite `dist` consumers.
+Nested YAML front matter and heading-aware Markdown links stay in the
+metadata extractor, not in panel presentation.
 
 The Markdown plugin registers file- and vault-scoped views into the movable
 [Workspace Shell panel contract](../../../workspace-shell/panels.md). This page

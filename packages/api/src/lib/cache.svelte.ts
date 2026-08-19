@@ -20,6 +20,7 @@ import {
   type MetadataCacheSnapshot,
   getAdapterVaultId,
   ScopedVaultStore,
+  structuralLinkKind,
 } from "$lib/storage";
 import { debounce } from "lodash-es";
 import { dirname, resolvePath } from "./storage/path";
@@ -216,7 +217,9 @@ export interface Reference {
 
 export interface ReferenceCache extends Reference, CacheItem {}
 
-export interface LinkCache extends ReferenceCache {}
+export interface LinkCache extends ReferenceCache {
+  heading?: string;
+}
 
 export interface EmbedCache extends ReferenceCache {}
 
@@ -520,6 +523,21 @@ export type MetadataProcessor = {
   write: (cache: CachedMetadata) => string;
 };
 
+export type IndexedProjectionContribution = {
+  task?: import("./storage/task-projection").AppDatabaseTaskRecord | null;
+};
+
+export type IndexedProjectionContributor = {
+  project(input: {
+    file: TFile;
+    content: string;
+    cache: CachedMetadata;
+  }):
+    | IndexedProjectionContribution
+    | null
+    | Promise<IndexedProjectionContribution | null>;
+};
+
 function clearObject(data: Record<string, unknown>) {
   for (const key of Object.keys(data)) {
     delete data[key];
@@ -591,6 +609,7 @@ export class MetadataCache extends EventDispatcher<{
   loaded: [];
 }> {
   processors: Map<string, Set<MetadataProcessor>> = new Map();
+  projectionContributors: Set<IndexedProjectionContributor> = new Set();
   #fileCache: Record<string, { mtime: number; size: number; hash: string }> =
     $state({});
 
@@ -1193,6 +1212,16 @@ export class MetadataCache extends EventDispatcher<{
     return this.processors.get(ext)!.delete(processor);
   }
 
+  addIndexedProjectionContributor(contributor: IndexedProjectionContributor) {
+    this.projectionContributors.add(contributor);
+  }
+
+  removeIndexedProjectionContributor(
+    contributor: IndexedProjectionContributor,
+  ): boolean {
+    return this.projectionContributors.delete(contributor);
+  }
+
   private handleChange(event: string, file: TAbstractFile) {
     if (this.disposed) return;
     if (!(file instanceof TFile)) return;
@@ -1279,9 +1308,18 @@ export class MetadataCache extends EventDispatcher<{
         hash,
       };
       this.processLink(file);
-      await this.app.appDatabase.upsertIndexedFile(
-        this.toDatabaseRecord(file, hash, cachedMetadata),
-      );
+      const record = this.toDatabaseRecord(file, hash, cachedMetadata);
+      for (const contributor of this.projectionContributors) {
+        const contribution = await contributor.project({
+          file,
+          content,
+          cache: cachedMetadata,
+        });
+        if (contribution && "task" in contribution) {
+          record.task = contribution.task;
+        }
+      }
+      await this.app.appDatabase.upsertIndexedFile(record);
       this.trigger("changed", file, content, cachedMetadata);
     }
     if (existing && existing.hash !== hash) {
@@ -1335,7 +1373,7 @@ export class MetadataCache extends EventDispatcher<{
     cache: CachedMetadata,
   ): AppDatabaseIndexedFile {
     const refs: AppDatabaseLinkRecord[] = [];
-    for (const ref of cache.links ?? []) {
+    (cache.links ?? []).forEach((ref, ordinal) => {
       const spec = this.extractLink(ref.link);
       refs.push({
         sourcePath: file.path,
@@ -1345,8 +1383,11 @@ export class MetadataCache extends EventDispatcher<{
         type: "link",
         position: ref.position,
         count: 1,
+        heading: ref.heading ?? null,
+        kind: structuralLinkKind(ref.heading),
+        ordinal,
       });
-    }
+    });
     for (const ref of cache.embeds ?? []) {
       const spec = this.extractLink(ref.link);
       refs.push({
