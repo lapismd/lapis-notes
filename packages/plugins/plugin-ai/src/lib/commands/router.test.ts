@@ -46,4 +46,31 @@ describe("SlashCommandRouter", () => {
     const catalog = new SlashCommandCatalog(extensions);
     expect(catalog.get("new")?.source).toBe("app");
   });
+
+  it("treats /agent as a reserved local command", async () => {
+    const extensions = new AppSlashCommandRegistry();
+    extensions.register(
+      { pluginId: "demo" },
+      {
+        name: "agent",
+        description: "Should not win",
+        dispatch: { kind: "prompt", template: "nope" },
+      },
+    );
+    const catalog = new SlashCommandCatalog(extensions);
+    expect(catalog.get("agent")?.source).toBe("app");
+    const router = new SlashCommandRouter(catalog);
+    const resolved = router.resolve("/agent cursor");
+    expect(resolved).toMatchObject({
+      kind: "command",
+      command: { name: "agent", source: "app" },
+    });
+    expect(
+      await router.execute(resolved!, { discovery: { scopeDir: "" } }),
+    ).toEqual({
+      kind: "local",
+      notice: "agent",
+      arguments: "cursor",
+    });
+  });
 });

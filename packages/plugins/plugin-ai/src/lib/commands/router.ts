@@ -107,6 +107,13 @@ export class SlashCommandRouter {
     if (command.name === "skills") return { kind: "local", notice: "skills" };
     if (command.name === "tools") return { kind: "local", notice: "tools" };
     if (command.name === "refresh") return { kind: "local", notice: "refresh" };
+    if (command.name === "agent") {
+      return {
+        kind: "local",
+        notice: "agent",
+        arguments: parsed.rawArguments,
+      };
+    }
 
     const dispatch = command.dispatch;
     if (dispatch.kind === "host") {

@@ -157,7 +157,9 @@ application manager or presentation modules.
 
 The API agent-skills surface exports only skill-source and composer
 slash-command registration. AI owns discovery, snapshots, skill tools, and
-routing. Neither surface imports MCP, ACP, acpx, or vendor runtime types.
+routing, including reserved `/agent`. Live ACP session start appends a
+path-free `available_skills` manifest through host session setup. Neither
+surface imports MCP, ACP, acpx, or vendor runtime types.
 The API agent-tool surface exports only schemas, results, trusted execution
 context, owner metadata, and lifecycle registration. It does not import or
 re-export MCP, ACP, acpx, or vendor runtime types.

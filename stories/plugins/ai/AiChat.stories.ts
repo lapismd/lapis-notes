@@ -102,7 +102,7 @@ export const SkillsAndSlash: Story = {
     docs: {
       description: {
         story:
-          "A Fake folder skill and reserved /skills composer command run through the public chat panel without a live agent.",
+          "A Fake folder skill, reserved /skills, and extension /open-daily-note run through the public chat panel. Disposing the registration removes the command. The play does not require a live agent.",
       },
       source: {
         code: aiChatSkillsExampleSource,
@@ -122,7 +122,20 @@ export const SkillsAndSlash: Story = {
     await userEvent.type(input, "/skills");
     await userEvent.keyboard("{Enter}");
     await waitFor(() => {
-      expect(canvas.getByText(/research-notes/u)).toBeInTheDocument();
+      expect(canvas.getByText("research-notes")).toBeInTheDocument();
+    });
+    await userEvent.type(input, "/open-daily-note");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(canvas.getByText("/open-daily-note")).toBeInTheDocument();
+    });
+    await userEvent.click(canvas.getByTestId("ai-chat-unload-extension"));
+    await userEvent.type(input, "/open-daily-note");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(
+        canvas.getAllByText(/Unknown command: \/open-daily-note/u).length,
+      ).toBeGreaterThan(0);
     });
   },
 };

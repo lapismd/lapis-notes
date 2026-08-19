@@ -28,7 +28,7 @@ export type CommandResolution =
   | { kind: "command"; parsed: ParsedSlashCommand; command: EffectiveSlashCommand };
 
 export type CommandExecutionResult =
-  | { kind: "local"; notice: string }
+  | { kind: "local"; notice: string; arguments?: string }
   | { kind: "tool"; tool: string; input: Record<string, unknown> }
   | { kind: "skill"; activation: SkillActivation }
   | { kind: "prompt"; prompt: string }

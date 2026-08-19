@@ -161,6 +161,8 @@ Canonical IDs: `LN-AI-110`–`LN-AI-119`, `LN-PLUG-022`, `LN-PLUG-023`,
 - [x] Composer slash router, reserved commands, and AppToolHost tool dispatch
 - [x] Plugin skill-root and slash-command registration
 - [x] Native ACP command catalog and explicit skill refresh
+- [x] Live ACP session setup for a path-free `available_skills` manifest
+- [x] Reserved `/agent` and Storybook extension `/open-daily-note` unload
 
 ### Search plugin intake progress
 

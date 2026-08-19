@@ -143,6 +143,9 @@
               }
             : undefined,
           thinking: settings?.thinking,
+          metadata: {
+            runtime: settings?.defaultRuntime,
+          },
         },
         repository,
         location: initialLocation,
@@ -155,6 +158,15 @@
         slashRouter,
         appToolHost,
         skillContext,
+        onComposerDefaults: ({ agent, runtimePreference }) => {
+          if (runtimePreference === "fake") {
+            localAgent = agent;
+            localRuntime = "fake";
+            persistComposerDefaults(agent, "fake", localModel, selectedThinking);
+            return;
+          }
+          changeAgent(agent, runtimePreference);
+        },
       }),
   );
   let draft = $state("");

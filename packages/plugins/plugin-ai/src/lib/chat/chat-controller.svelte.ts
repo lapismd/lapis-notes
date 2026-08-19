@@ -57,6 +57,11 @@ import {
 } from "../skills/registry";
 import type { SkillDiscoveryContext } from "../skills/types";
 import { SlashCommandRouter } from "../commands/router";
+import {
+  composerAgentLabel,
+  parseAgentCommand,
+} from "../commands/agent";
+import type { AcpAgentId } from "../settings/acp-agents";
 
 export class AiChatController {
   items = $state.raw<AiChatItem[]>([]);
@@ -75,7 +80,7 @@ export class AiChatController {
   readonly repository?: ConversationRepository;
   readonly sessionId: string;
   readonly workspace?: string;
-  readonly request: Omit<AgentRequest, "prompt">;
+  request: Omit<AgentRequest, "prompt">;
   #sessionRequest: Omit<AgentRequest, "prompt">;
   #createdAt?: string;
   #persistQueue: Promise<void> = Promise.resolve();
@@ -98,6 +103,10 @@ export class AiChatController {
   readonly #slashRouter?: SlashCommandRouter;
   readonly #appToolHost?: AppToolHost;
   readonly #skillContext?: () => SkillDiscoveryContext;
+  readonly #onComposerDefaults?: (next: {
+    agent: AcpAgentId;
+    runtimePreference: "acp" | "codex-native" | "fake";
+  }) => void;
   #refreshSkills = false;
 
   constructor(
@@ -120,6 +129,10 @@ export class AiChatController {
       slashRouter?: SlashCommandRouter;
       appToolHost?: AppToolHost;
       skillContext?: () => SkillDiscoveryContext;
+      onComposerDefaults?: (next: {
+        agent: AcpAgentId;
+        runtimePreference: "acp" | "codex-native" | "fake";
+      }) => void;
     } = {},
   ) {
     this.runtime = runtime;
@@ -137,6 +150,7 @@ export class AiChatController {
     this.#slashRouter = options.slashRouter;
     this.#appToolHost = options.appToolHost;
     this.#skillContext = options.skillContext;
+    this.#onComposerDefaults = options.onComposerDefaults;
     this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe((event) => {
       void this.#consumeAppToolEvent(event);
     });
@@ -766,6 +780,10 @@ export class AiChatController {
         this.#appendLocalNotice("Agent skills refreshed.");
         return;
       }
+      if (result.notice === "agent") {
+        await this.#applyAgentCommand(result.arguments ?? "");
+        return;
+      }
       if (result.notice === "skills" || result.notice === "tools") {
         await this.#prepareSession(request);
       }
@@ -877,6 +895,56 @@ export class AiChatController {
     } finally {
       this.busy = false;
     }
+  }
+
+  async #applyAgentCommand(raw: string): Promise<void> {
+    const parsed = parseAgentCommand(raw);
+    if (parsed === "unknown") {
+      this.error = `Unknown agent: ${raw.trim()}`;
+      this.items = [
+        ...this.items,
+        {
+          id: `command-error-${crypto.randomUUID()}`,
+          type: "error",
+          text: this.error,
+          createdAt: new Date().toISOString(),
+        },
+      ];
+      return;
+    }
+    if (parsed === "status") {
+      this.#appendLocalNotice(
+        composerAgentLabel(
+          this.request.agent,
+          typeof this.request.metadata?.runtime === "string"
+            ? this.request.metadata.runtime
+            : undefined,
+        ),
+      );
+      await this.#persistCommandNotice();
+      return;
+    }
+    this.request = {
+      ...this.request,
+      agent: parsed.agent,
+      metadata: {
+        ...this.request.metadata,
+        runtime: parsed.runtimePreference,
+      },
+    };
+    this.#sessionRequest = { ...this.request };
+    this.#onComposerDefaults?.({
+      agent: parsed.agent,
+      runtimePreference: parsed.runtimePreference,
+    });
+    if (this.session) {
+      await this.cancelAndSwitch({
+        agent: parsed.agent,
+        metadata: this.request.metadata,
+      });
+    }
+    this.#appendLocalNotice(`Agent: ${parsed.label}`);
+    await this.#persistCommandNotice();
   }
 
   #appendLocalNotice(text: string): void {

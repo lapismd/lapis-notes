@@ -2,6 +2,12 @@ import type { SkillSnapshot, SkillSnapshotEntry } from "./types";
 
 const MANIFEST_BUDGET = 8_000;
 
+export function hasHostFilesystemPath(value: string): boolean {
+  return /(?:(?:^|[\s"'>=])(?:\/|[A-Za-z]:\\|file:\/\/)|\.lapis\/skills\/)/u.test(
+    value,
+  );
+}
+
 export function buildAvailableSkillsManifest(snapshot: SkillSnapshot): string {
   const visible = snapshot.skills.filter((skill) => skill.modelInvocable);
   const body = visible

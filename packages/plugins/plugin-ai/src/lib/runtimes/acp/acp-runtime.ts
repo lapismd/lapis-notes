@@ -15,6 +15,8 @@ import {
   type AcpPermissionRequestLike,
   type AcpRuntimeEventLike,
 } from "./acp-event-mapper";
+import { projectSkillActivationPrompt } from "../../skills/activation";
+import type { SkillActivation } from "../../skills/types";
 
 export type AcpBackendSession = {
   id: string;
@@ -50,10 +52,15 @@ export class AcpAgentSession implements AgentSession {
     { resolve(optionId: string): void; reject(error: Error): void }
   >();
   #consume: Promise<void> | null = null;
+  #activations: readonly SkillActivation[] | undefined;
 
-  constructor(backend: AcpBackendSession) {
+  constructor(
+    backend: AcpBackendSession,
+    activations?: readonly SkillActivation[],
+  ) {
     this.id = backend.id;
     this.#backend = backend;
+    this.#activations = activations;
     this.#consume = this.#pump();
   }
 
@@ -62,7 +69,9 @@ export class AcpAgentSession implements AgentSession {
   }
 
   async send(input: string): Promise<void> {
-    await this.#backend.prompt(input);
+    const projected = projectSkillActivationPrompt(input, this.#activations);
+    this.#activations = undefined;
+    await this.#backend.prompt(projected);
   }
 
   async respondToApproval(requestId: string, optionId: string): Promise<void> {
@@ -156,7 +165,7 @@ export class AcpAgentRuntime implements AgentRuntime {
         return session.handlePermissionRequest(permission);
       },
     });
-    session = new AcpAgentSession(backend);
+    session = new AcpAgentSession(backend, request.skillActivations);
     return session;
   }
 
@@ -178,7 +187,7 @@ export class AcpAgentRuntime implements AgentRuntime {
         return session.handlePermissionRequest(permission);
       },
     });
-    session = new AcpAgentSession(backend);
+    session = new AcpAgentSession(backend, request?.skillActivations);
     return session;
   }
 }

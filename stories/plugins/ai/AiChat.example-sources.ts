@@ -1,4 +1,5 @@
-export const aiChatSkillsExampleSource = `import {
+export const aiChatSkillsExampleSource = `import { AppSlashCommandRegistry } from "@lapis-notes/api/agent-skills";
+import {
   AiChatPanel,
   FakeAgentRuntime,
   SkillRegistry,
@@ -12,12 +13,23 @@ const skills = new SkillRegistry({
   vault,
   bundled: [researchNotesSkill],
 });
+const extensions = new AppSlashCommandRegistry();
+const dailyNote = extensions.register(
+  { pluginId: "demo" },
+  {
+    name: "open-daily-note",
+    description: "Open today's daily note",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+);
 const slashRouter = new SlashCommandRouter(
-  new SlashCommandCatalog(),
+  new SlashCommandCatalog(extensions),
   skills,
 );
 
 <AiChatPanel runtime={runtime} skills={skills} slashRouter={slashRouter} />
+
+dailyNote.dispose();
 `;
 
 export const aiChatExampleSource = `import { AiChatPanel, FakeAgentRuntime } from "@lapis-notes/ai";

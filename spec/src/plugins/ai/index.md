@@ -125,6 +125,7 @@ execution APIs.
 | LN-AI-118 | Native agent commands advertised by the active binding MUST appear in the composer catalog under that agent. They MUST NOT override reserved, extension, or skill commands. Colliding native names MUST remain available through `/native`. Session close MUST clear or disable that binding's native catalog. |
 | LN-AI-119 | An explicit skill refresh MUST create a replacement binding with the current skill snapshot. Existing native bindings MUST keep their prior snapshot until that refresh or a later replacement. Skill file changes MUST affect only future snapshots. |
 | LN-AI-120 | A submitted user message MUST appear in the transcript before conversation create or session start completes. The empty-conversation layout MUST NOT remain visible while that turn is busy. Restore MUST NOT rerun when the first send assigns a conversation location. |
+| LN-AI-121 | The composer MUST expose reserved `/agent`. With no arguments it MUST report the current agent. A recognized name MUST switch the conversation agent and persist the composer default. An unknown name MUST be a visible error and MUST NOT become a model prompt. |
 
 ### LN-AI-046 acceptance details
 
@@ -158,7 +159,8 @@ reserved `lapis-tools` server is exclusively owned by the application-tool
 bridge.
 Folder skills live under `<scope>/.lapis/skills/**/SKILL.md`. The composer
 treats a leading slash as a command and keeps reserved app commands across
-agent switches. Native ACP commands stay binding-local and never override
+agent switches, including `/agent`. Live ACP session start appends a path-free
+`available_skills` manifest through host session setup. Native ACP commands stay binding-local and never override
 app, extension, or skill commands. Skill tools execute only through
 `AppToolHost`.
 Application tools are enabled by default for new bindings. The master setting

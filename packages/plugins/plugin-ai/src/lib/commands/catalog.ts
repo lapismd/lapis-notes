@@ -29,6 +29,13 @@ const RESERVED: EffectiveSlashCommand[] = [
     dispatch: { kind: "host", execute: () => undefined },
   },
   {
+    name: "agent",
+    description: "Show or switch the current agent.",
+    argumentHint: "[codex|cursor|native|fake]",
+    source: "app",
+    dispatch: { kind: "host", execute: () => undefined },
+  },
+  {
     name: "native",
     description: "Forward a command to the current agent.",
     argumentHint: "<command> [arguments]",

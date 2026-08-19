@@ -10,6 +10,7 @@ import type { AcpRuntimeEventLike } from "./acp-event-mapper";
 
 class MemoryAcpBackend implements AcpRuntimeBackend {
   lastRequest: AgentRequest | undefined;
+  lastPrompt = "";
   cancelled = false;
   closed = false;
 
@@ -25,10 +26,14 @@ class MemoryAcpBackend implements AcpRuntimeBackend {
   }): Promise<AcpBackendSession> {
     this.lastRequest = input.request;
     const events = new AsyncEventQueue<AcpRuntimeEventLike>();
+    const recordPrompt = (text: string) => {
+      this.lastPrompt = text;
+    };
     return {
       id: "acp-1",
       events: () => events,
       async prompt(text) {
+        recordPrompt(text);
         events.push({
           type: "text_delta",
           text: "thinking",
@@ -130,5 +135,38 @@ describe("AcpAgentRuntime", () => {
     await session.close();
     expect(backend.cancelled).toBe(true);
     expect(backend.closed).toBe(true);
+  });
+
+  it("prepends path-free skill activation instructions on the first prompt", async () => {
+    const backend = new MemoryAcpBackend();
+    const runtime = new AcpAgentRuntime(backend);
+    const session = await runtime.start({
+      prompt: "",
+      skillActivations: [
+        {
+          skillId: "folder:research-notes",
+          skillName: "research-notes",
+          version: "1",
+          source: "user",
+          arguments: "authentication",
+          instructions: "Use notes_search then read.",
+        },
+      ],
+    });
+    const consume = (async () => {
+      for await (const event of session.events()) {
+        if (event.type === "permission.request") {
+          await session.respondToApproval(event.request.id, "allow-once");
+        }
+        if (event.type === "completed") break;
+      }
+    })();
+    await session.send("authentication");
+    await consume;
+    expect(backend.lastPrompt).toContain("<skill_activation");
+    expect(backend.lastPrompt).toContain("Use notes_search then read.");
+    expect(backend.lastPrompt).toContain("authentication");
+    expect(backend.lastPrompt).not.toContain(".lapis/skills");
+    await session.close();
   });
 });

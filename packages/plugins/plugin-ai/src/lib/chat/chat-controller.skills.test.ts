@@ -38,7 +38,14 @@ Unused body.
 
 async function createSkillController(
   files: Record<string, string>,
-  options: { native?: boolean; tool?: AppTool } = {},
+  options: {
+    native?: boolean;
+    tool?: AppTool;
+    onComposerDefaults?: (next: {
+      agent: string;
+      runtimePreference: string;
+    }) => void;
+  } = {},
 ) {
   const vault = new Vault(new MemoryVaultAdapter());
   await vault.load();
@@ -93,6 +100,8 @@ async function createSkillController(
       scopeDir: "Projects",
       availableToolNames: ["notes_search"],
     }),
+    request: { agent: "codex", metadata: { runtime: "acp" } },
+    onComposerDefaults: options.onComposerDefaults,
   });
   return { controller, runtime, repository, skills, skillSnapshots, appToolHost };
 }
@@ -296,6 +305,39 @@ describe("AiChatController skills and slash commands", () => {
     await controller.submit("/native compact now");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     expect(runtime.sessions.at(-1)?.prompts).toContain("/compact now");
+    await controller.close();
+  });
+
+  it("reports, switches, and rejects /agent names", async () => {
+    const defaults: Array<{ agent: string; runtimePreference: string }> = [];
+    const { controller, runtime } = await createSkillController(
+      {
+        "Projects/.lapis/skills/research-notes/SKILL.md": RESEARCH,
+      },
+      {
+        onComposerDefaults: (next) => defaults.push(next),
+      },
+    );
+    await controller.submit("/agent");
+    expect(
+      controller.items.some(
+        (item) => item.type === "status" && item.text === "Codex ACP",
+      ),
+    ).toBe(true);
+    expect(runtime.sessions[0]?.prompts ?? []).toEqual([]);
+    await controller.submit("/agent cursor");
+    expect(defaults).toEqual([
+      { agent: "cursor", runtimePreference: "acp" },
+    ]);
+    expect(controller.request.agent).toBe("cursor");
+    expect(
+      controller.items.some(
+        (item) => item.type === "status" && item.text === "Agent: Cursor ACP",
+      ),
+    ).toBe(true);
+    await controller.submit("/agent nope");
+    expect(controller.error).toMatch(/Unknown agent/u);
+    expect(runtime.lastRequest?.prompt ?? "").not.toContain("/agent nope");
     await controller.close();
   });
 });

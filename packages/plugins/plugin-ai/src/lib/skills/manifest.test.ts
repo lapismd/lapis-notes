@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildAvailableSkillsManifest } from "./manifest";
+import {
+  buildAvailableSkillsManifest,
+  hasHostFilesystemPath,
+} from "./manifest";
 
 describe("buildAvailableSkillsManifest", () => {
   it("omits host paths and disable-model-invocation skills", () => {
@@ -29,5 +32,18 @@ describe("buildAvailableSkillsManifest", () => {
     expect(xml).not.toContain("private-notes");
     expect(xml).not.toContain(".lapis/skills");
     expect(xml).not.toMatch(/\/Users\/|Projects\//u);
+  });
+
+  it("rejects vault-relative skill paths", () => {
+    expect(
+      hasHostFilesystemPath(
+        "<available_skills>Notes/.lapis/skills/research-notes</available_skills>",
+      ),
+    ).toBe(true);
+    expect(
+      hasHostFilesystemPath(
+        "<available_skills><name>research-notes</name></available_skills>",
+      ),
+    ).toBe(false);
   });
 });

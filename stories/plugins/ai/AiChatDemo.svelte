@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { AppSlashCommandRegistry } from "@lapis-notes/api/agent-skills";
   import {
     AiChatPanel,
     FakeAgentRuntime,
@@ -93,9 +94,22 @@
         },
       ],
     });
+    const extensions = new AppSlashCommandRegistry();
+    const extension = extensions.register(
+      { pluginId: "demo" },
+      {
+        name: "open-daily-note",
+        description: "Open today's daily note",
+        dispatch: { kind: "host", execute: () => undefined },
+      },
+    );
     return {
       skills,
-      slashRouter: new SlashCommandRouter(new SlashCommandCatalog(), skills),
+      slashRouter: new SlashCommandRouter(
+        new SlashCommandCatalog(extensions),
+        skills,
+      ),
+      unloadExtension: () => extension.dispose(),
     };
   });
 
@@ -140,6 +154,16 @@
   style:--ai-chat-demo-seeded-height={seededHeight}
   data-testid="ai-chat-demo"
 >
+  {#if enableSkills}
+    <button
+      type="button"
+      class="sr-only"
+      data-testid="ai-chat-unload-extension"
+      onclick={() => skillHarness?.unloadExtension()}
+    >
+      Unload extension command
+    </button>
+  {/if}
   <AiChatPanel
     {runtime}
     {sessionStore}
