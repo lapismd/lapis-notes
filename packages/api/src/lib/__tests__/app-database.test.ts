@@ -1334,8 +1334,8 @@ describe("AppDatabase", () => {
           resolvedTargetPath: "child.md",
           type: "link",
           count: 1,
-          heading: "Subtasks",
-          kind: "subtask",
+          heading: "Development",
+          kind: "task-entry",
           ordinal: 0,
         },
       ],
@@ -1377,11 +1377,8 @@ describe("AppDatabase", () => {
       db.queryTasks({ view: "today", today: "2026-08-20" }),
     ).resolves.toMatchObject([{ documentId: "t_buy" }]);
     await expect(
-      db.listChildLinks({ sourcePath: "buy.md", kind: "subtask" }),
+      db.listChildLinks({ sourcePath: "buy.md", kind: "task-entry" }),
     ).resolves.toMatchObject([{ resolvedTargetPath: "child.md" }]);
-    await expect(db.listTaskDescendants("buy.md")).resolves.toMatchObject([
-      { documentId: "t_child" },
-    ]);
   });
 
   it("queries public projections through the shared AST", async () => {
@@ -1444,7 +1441,7 @@ describe("AppDatabase", () => {
       edges: [
         {
           sourceRowId: "list_home",
-          relation: "list-item",
+          relation: "task-entry",
           targetPath: "buy.md",
           ordinal: 0,
         },
@@ -1460,17 +1457,20 @@ describe("AppDatabase", () => {
       db.queryRelated({
         projectionId: "tasks/task",
         rowId: "list_home",
-        relation: "list-item",
+        relation: "task-entry",
       }),
     ).resolves.toMatchObject({ rows: [{ id: "t_buy" }] });
     await expect(
       db.queryRelated({
         projectionId: "tasks/task",
         rowId: "t_buy",
-        relation: "list-item",
+        relation: "task-entry",
         direction: "in",
       }),
     ).resolves.toMatchObject({ rows: [{ id: "list_home" }] });
+    await expect(db.listTaskDescendants("lists/home.md")).resolves.toMatchObject([
+      { id: "t_buy", title: "Buy filter" },
+    ]);
   });
 
   it("hides stale and private projection rows", async () => {

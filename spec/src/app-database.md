@@ -26,11 +26,11 @@ workspace shell.
 | LN-DB-016 | Search queries MUST support one normalized vault-relative path prefix across memory, Turso, native IPC, and browser-proxy transports. Prefix filtering MUST occur before ranking and result limits, match only the selected path or descendants, and preserve unfiltered behavior when absent. |
 | LN-DB-017 | AppDatabase MUST persist namespaced plugin projections as disposable rows with typed indexed values, source freshness, and edges. The vault file remains authoritative. |
 | LN-DB-018 | AppDatabase MUST expose allowlisted `queryProjection`, `getProjectionRow`, and `queryRelated` over a serializable query AST. Callers MUST NOT receive raw SQL. |
-| LN-DB-019 | Indexed links MUST store heading, ordinal, and kind `subtask`, `list-item`, or `reference`. Kind MUST come from the `Subtasks` or `Items` heading, else `reference`. |
+| LN-DB-019 | Core Markdown indexing MUST store links as `reference`. A domain projection MAY derive `task-entry`, `list-entry`, or `navigation-item` only from its resolved document model; heading text alone MUST NOT assign structural meaning. |
 | LN-DB-020 | Core file-index writes MUST commit independently of plugin projections. A failed projection MUST NOT block metadata and MUST hide stale rows. |
 | LN-DB-021 | The query AST MUST support and, or, not, compare, in, exists, select, orderBy, limit, and cursor after. Default queries MUST return only current ready rows. |
 | LN-DB-022 | Projection IDs MUST be namespaced by plugin id. Other plugins MAY query public projections and MUST NOT query private ones or write another plugin's rows. |
-| LN-DB-023 | `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listChildLinks` and `listTaskDescendants` MAY wrap projection edges or indexed links. |
+| LN-DB-023 | `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listTaskDescendants` MUST follow resolved `task-entry` and `list-entry` projection edges rather than infer structure from generic indexed links. |
 
 The public `tasks/task` `planKind` field mirrors Tasks document `plan.at`:
 `anytime`, `morning`, `afternoon`, `evening`, or `time`, with `planTime` for

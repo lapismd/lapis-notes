@@ -12,7 +12,7 @@ import {
   type IndexQuery,
 } from "./index-projection";
 
-export const TASK_PROJECTION_VERSION = 1;
+export const TASK_PROJECTION_VERSION = 2;
 export { PUBLIC_TASKS_PROJECTION_ID };
 
 export const TASK_PROJECTION_FIELDS: Record<string, IndexFieldDefinition> = {
@@ -33,6 +33,7 @@ export const TASK_PROJECTION_FIELDS: Record<string, IndexFieldDefinition> = {
   checklistTotal: { type: "number" },
   checklistCompleted: { type: "number" },
   commentCount: { type: "number", indexed: true },
+  structure: { type: "json" },
 };
 
 export type AppDatabaseTaskKind = "task" | "task-list";
@@ -49,7 +50,58 @@ export type AppDatabaseTaskPlanKind =
   | "afternoon"
   | "evening"
   | "time";
-export type AppDatabaseLinkKind = "subtask" | "list-item" | "reference";
+export type AppDatabaseLinkKind =
+  | "reference"
+  | "task-entry"
+  | "list-entry"
+  | "navigation-item";
+export type AppDatabaseTaskStructuralKind = "task-entry" | "list-entry";
+
+export interface AppDatabaseTaskStructuralEntry {
+  sourceDocumentId: string;
+  sourceDocumentPath: string;
+  targetDocumentId: string;
+  targetDocumentPath: string;
+  kind: AppDatabaseTaskStructuralKind;
+  headingPath: string[];
+  headingLevel: number | null;
+  headingText: string | null;
+  runId: string;
+  positionInRun: number;
+  sourceStart: number;
+  sourceEnd: number;
+  authoredLabel: string;
+  authoredHref: string;
+}
+
+export interface AppDatabaseTaskRun {
+  id: string;
+  documentId: string;
+  documentPath: string;
+  headingPath: string[];
+  headingLevel: number | null;
+  headingText: string | null;
+  listDepth: number;
+  startOffset: number;
+  endOffset: number;
+  entryCount: number;
+}
+
+export interface AppDatabaseTaskStructureDiagnostic {
+  code: string;
+  message: string;
+  sourceStart?: number;
+  sourceEnd?: number;
+  target?: string;
+}
+
+export interface AppDatabaseTaskStructure {
+  version: number;
+  sourceHash: string;
+  entries: AppDatabaseTaskStructuralEntry[];
+  runs: AppDatabaseTaskRun[];
+  diagnostics: AppDatabaseTaskStructureDiagnostic[];
+}
 export type AppDatabaseTaskView =
   | "inbox"
   | "today"
@@ -81,6 +133,7 @@ export interface AppDatabaseTaskRecord {
   checklistTotal: number;
   checklistCompleted: number;
   commentCount: number;
+  structure?: AppDatabaseTaskStructure | null;
   projectionVersion: number;
 }
 
@@ -96,13 +149,6 @@ export interface AppDatabaseTaskQuery {
 export interface AppDatabaseTaskChildQuery {
   sourcePath: string;
   kind?: AppDatabaseLinkKind;
-}
-
-export function structuralLinkKind(heading?: string | null): AppDatabaseLinkKind {
-  const normalized = heading?.trim().toLowerCase();
-  if (normalized === "subtasks") return "subtask";
-  if (normalized === "items") return "list-item";
-  return "reference";
 }
 
 function isOpenTask(row: AppDatabaseTaskRecord): boolean {

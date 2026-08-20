@@ -2801,20 +2801,44 @@ export class MemoryAppDatabase implements AppDatabase {
   }
 
   async listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]> {
-    const seen = new Set<string>();
+    const projectionId = PUBLIC_TASKS_PROJECTION_ID;
+    const source = [...this.projectionRows.values()].find(
+      (row) => row.projectionId === projectionId && row.sourcePath === path,
+    );
+    if (!source) return [];
+    const seen = new Set<string>([source.rowId]);
     const results: AppDatabaseTaskRecord[] = [];
-    const visit = (sourcePath: string) => {
-      for (const link of this.links.get(sourcePath) ?? []) {
-        if (link.kind !== "subtask" && link.kind !== "list-item") continue;
-        const target = link.resolvedTargetPath;
-        if (!target || seen.has(target)) continue;
-        seen.add(target);
-        const row = this.tasks.get(target);
-        if (row) results.push(clone(row));
-        visit(target);
+    const visit = (sourceRowId: string) => {
+      for (const edge of this.projectionEdges) {
+        if (
+          edge.projectionId !== projectionId ||
+          edge.sourceRowId !== sourceRowId ||
+          (edge.relation !== "task-entry" && edge.relation !== "list-entry")
+        ) {
+          continue;
+        }
+        const targetProjection = edge.targetProjectionId ?? projectionId;
+        const target = edge.targetRowId
+          ? this.projectionRows.get(
+              this.projectionRowKey(targetProjection, edge.targetRowId),
+            )
+          : [...this.projectionRows.values()].find(
+              (row) =>
+                row.projectionId === targetProjection &&
+                row.sourcePath === edge.targetPath,
+            );
+        if (!target || seen.has(target.rowId)) continue;
+        const current = this.currentProjectionData<AppDatabaseTaskRecord>(
+          target,
+          this.projections.get(target.projectionId),
+        );
+        if (!current) continue;
+        seen.add(target.rowId);
+        results.push(current);
+        visit(target.rowId);
       }
     };
-    visit(path);
+    visit(source.rowId);
     return results;
   }
 

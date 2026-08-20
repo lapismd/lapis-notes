@@ -20,7 +20,6 @@ import {
   type MetadataCacheSnapshot,
   getAdapterVaultId,
   ScopedVaultStore,
-  structuralLinkKind,
 } from "$lib/storage";
 import { debounce } from "lodash-es";
 import { dirname, resolvePath } from "./storage/path";
@@ -1411,7 +1410,7 @@ export class MetadataCache extends EventDispatcher<{
         position: ref.position,
         count: 1,
         heading: ref.heading ?? null,
-        kind: structuralLinkKind(ref.heading),
+        kind: "reference",
         ordinal,
       });
     });

@@ -773,11 +773,11 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DB-016   | app-database                    | Implemented | memory, Turso, desktop-proxy, and browser-coordination tests assert path-prefix forwarding and filtering before ranking and limit |
 | LN-DB-017   | app-database                    | Implemented | Memory and Turso tests persist namespaced projection rows, typed values, sources, and edges |
 | LN-DB-018   | app-database                    | Implemented | queryProjection, getProjectionRow, and queryRelated are allowlisted AppDatabase methods |
-| LN-DB-019   | app-database                    | Implemented | Indexed links store heading, ordinal, and structural kind from reserved headings |
+| LN-DB-019   | app-database                    | Implemented | Core cache output keeps Markdown links as references; domain projections own target-resolved relationship kinds |
 | LN-DB-020   | app-database                    | Implemented | A failed projection leaves core metadata intact and excludes stale rows |
 | LN-DB-021   | app-database                    | Implemented | Memory and Turso evaluators share the query AST for filter, sort, limit, and cursors |
 | LN-DB-022   | app-database                    | Implemented | Namespaced public projections are readable across plugins; private writes fail closed |
-| LN-DB-023   | app-database                    | Implemented | queryTasks wrappers read the public tasks/task projection; planKind mirrors Tasks plan.at |
+| LN-DB-023   | app-database                    | Implemented | Query wrappers read the public tasks/task projection; descendant tests traverse task-entry and list-entry edges |
 | LN-SRCH-039 | search-plugin                   | Implemented | notes-search and SearchManager tests cover Markdown-only scoped queries, 1–50 limits, bounded snippets, pre-limit prefix filtering, scores, and portable paths |
 | LN-MD-093   | markdown-plugin                 | Implemented | notes_list tests cover scoped Markdown paths, depth and entry limits, deterministic sorting, traversal, and private-directory rejection |
 | LN-MD-094   | markdown-plugin                 | Implemented | Markdown agent-tool factory registers only notes_list; API edit tests cover unique hunks, conflicts, cancellation, and unchanged files |
