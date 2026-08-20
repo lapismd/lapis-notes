@@ -181,7 +181,9 @@ lease exposes a different App for an older consumer.
 `app:rebuild-generated-state` so Search can refresh after a later metadata
 rebuild without an API import of Search internals (LN-PKG-097, LN-PKG-098).
 Markdown reuses one `MiraFileAdapter` for that same App so preview effects do
-not churn when views reconfigure. Packaged metadata parse keeps an extensionless
+not churn when views reconfigure. Its full-file surface establishes the
+effective Mira `obsidian` theme so domain contributions inherit Lapis semantic
+paint instead of Mira's portable fallback. Packaged metadata parse keeps an extensionless
 Vite worker import so web and desktop resolve the published worker file.
 `openFile` triggers `file-open` after `onLoadFile` so file-scoped Markdown
 panels can follow the restored note without waiting for a layout write.

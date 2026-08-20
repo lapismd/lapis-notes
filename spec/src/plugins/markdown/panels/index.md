@@ -69,7 +69,9 @@ tools. The list description prefers vault browsing over host-cwd walking
 Their narrow package entry likewise exports no panel component, placement
 metadata, workspace controller, or view command.
 The document Reading surface removes Mira Editor's framework border; movable
-panel paint remains governed by the separate workspace panel contract.
+panel paint remains governed by the separate workspace panel contract. Complete
+file surfaces establish the effective Mira `obsidian` theme before domain
+contributions render inside them.
 The reusable Problems view is specified under Workspace Shell / Panels rather
 than as a Markdown panel because non-Markdown providers and non-Lapis hosts may
 publish the same generic diagnostic model. Its live leaf badge is likewise

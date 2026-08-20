@@ -33,7 +33,7 @@ identity, not link resolution or preview ownership.
 | LN-MD-062 | Editable panel `FileEmbed` MUST omit the embedded-note guide and retain a sticky top-right open-note action that stays visible while content scrolls and reserves normal-flow content space. |
 | LN-MD-063 | In edit mode, the preview viewport MUST constrain `FileEmbed` so CodeMirror owns vertical scrolling. The outer Scroll Area MUST NOT clip an unconstrained editor or introduce a second scrollbar. |
 | LN-MD-064 | Editing cards MUST ignore hover departure and focus movement. Outside pointer dismissal flushes and closes only after successful persistence; Escape remains keyboard dismissal, and failed saves keep the dirty editor open. |
-| LN-MD-065 | Mira-owned portaled previews MUST inherit the effective `obsidian` theme from their document trigger. Editable Lapis `FileEmbed` roots MUST establish that theme explicitly. |
+| LN-MD-065 | Mira-owned portaled previews and Lapis full-file Markdown surfaces MUST resolve the effective `obsidian` theme. Editable `FileEmbed` and full-file surface roots MUST establish that theme explicitly so Mira descendants consume Lapis semantic appearance tokens instead of the portable fallback palette. |
 | LN-MD-066 | The local Obsidian alias layer MUST map Mira accent, focus, soft-accent, selection, and accent-foreground variables to design-core's Lapis semantic tokens. Preview-only inset MUST NOT affect nested live-edit frontmatter widgets. |
 
 The shared link sidebar rebuilds mention groups under `LN-MD-098` after late

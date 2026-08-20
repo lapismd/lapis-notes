@@ -2,7 +2,9 @@
 
 Panel and domain surfaces embedding complete Markdown files use the public
 file-surface provider rather than importing Markdown or Mira implementation
-code. Consumer context does not move editor or persistence ownership.
+code. Consumer context does not move editor or persistence ownership. The
+provider establishes the effective Mira `obsidian` theme at its root so both
+preview and live-edit descendants resolve the Lapis semantic appearance layer.
 
 Workspace panels are movable views. The Workspace Shell owns their destination
 surfaces and geometry; individual plugins own only their content and behavior.

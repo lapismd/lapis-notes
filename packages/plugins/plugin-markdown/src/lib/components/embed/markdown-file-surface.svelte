@@ -84,6 +84,7 @@
 <div
   class="lapis-markdown-file-surface"
   data-ui-component="markdown-file-surface"
+  data-mira-theme="obsidian"
   data-editing={editing ? "true" : "false"}
   role="document"
   ondblclick={activate}
