@@ -32,6 +32,11 @@ workspace shell.
 | LN-DB-022 | Projection IDs MUST be namespaced by plugin id. Other plugins MAY query public projections and MUST NOT query private ones or write another plugin's rows. |
 | LN-DB-023 | `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listChildLinks` and `listTaskDescendants` MAY wrap projection edges or indexed links. |
 
+The public `tasks/task` `planKind` field mirrors Tasks document `plan.at`:
+`anytime`, `morning`, `afternoon`, `evening`, or `time`, with `planTime` for
+clock values. Task YAML does not store `all-day`; that token is reserved for
+a future calendar or event resource.
+
 ## Runtime topology
 
 ```text

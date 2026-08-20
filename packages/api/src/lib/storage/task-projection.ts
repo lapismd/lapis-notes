@@ -43,7 +43,12 @@ export type AppDatabaseTaskStatus =
   | "active"
   | "archived";
 export type AppDatabaseTaskStartKind = "anytime" | "someday" | "date";
-export type AppDatabaseTaskPlanKind = "anytime" | "all-day" | "evening" | "time";
+export type AppDatabaseTaskPlanKind =
+  | "anytime"
+  | "morning"
+  | "afternoon"
+  | "evening"
+  | "time";
 export type AppDatabaseLinkKind = "subtask" | "list-item" | "reference";
 export type AppDatabaseTaskView =
   | "inbox"

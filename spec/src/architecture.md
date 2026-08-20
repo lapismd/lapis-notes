@@ -9,7 +9,8 @@ Roles/CV catalog coverage remains in its owning repository while Lapis
 production hosts continue to load that plugin. Hosts register the Tasks sibling
 and MUST NOT register Tasks workspace views themselves. AppDatabase owns namespaced plugin
 projections and a serializable query AST, including the public `tasks/task`
-collection.
+collection. That projection stores `planKind` as the Tasks `plan.at` kind
+(`anytime`, `morning`, `afternoon`, `evening`, or `time`).
 
 ## Requirements
 

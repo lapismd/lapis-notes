@@ -7,7 +7,9 @@ runtime closures. AI model menus consume structured host catalog labels while
 dependency only and does not enter the root Storybook development closure.
 `@lapis-notes/api` exports the namespaced projection query AST and allowlisted
 `queryProjection` methods so plugins can register collections and read public
-rows, including `tasks/task`, without importing each other.
+rows, including `tasks/task`, without importing each other. The tasks
+projection `planKind` values are `anytime`, `morning`, `afternoon`,
+`evening`, and `time`.
 
 ## Requirements
 

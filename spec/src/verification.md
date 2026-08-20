@@ -777,7 +777,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DB-020   | app-database                    | Implemented | A failed projection leaves core metadata intact and excludes stale rows |
 | LN-DB-021   | app-database                    | Implemented | Memory and Turso evaluators share the query AST for filter, sort, limit, and cursors |
 | LN-DB-022   | app-database                    | Implemented | Namespaced public projections are readable across plugins; private writes fail closed |
-| LN-DB-023   | app-database                    | Implemented | queryTasks wrappers read the public tasks/task projection |
+| LN-DB-023   | app-database                    | Implemented | queryTasks wrappers read the public tasks/task projection; planKind mirrors Tasks plan.at |
 | LN-SRCH-039 | search-plugin                   | Implemented | notes-search and SearchManager tests cover Markdown-only scoped queries, 1–50 limits, bounded snippets, pre-limit prefix filtering, scores, and portable paths |
 | LN-MD-093   | markdown-plugin                 | Implemented | notes_list tests cover scoped Markdown paths, depth and entry limits, deterministic sorting, traversal, and private-directory rejection |
 | LN-MD-094   | markdown-plugin                 | Implemented | Markdown agent-tool factory registers only notes_list; API edit tests cover unique hunks, conflicts, cancellation, and unchanged files |
