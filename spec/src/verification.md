@@ -977,6 +977,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-MD-103   | markdown-plugin                 | Implemented | extractMetadata indexes Markdown and wiki links with heading context |
 | LN-PKG-099  | packages                        | In progress | `@lapis-notes/bookmarks` lives at `packages/plugins/plugin-bookmarks` and persists `{ items }` through `.obsidian/bookmarks.json` |
 | LN-PKG-101  | packages                        | Implemented | Sibling `lapis-plugin-tasks` is registered by desktop and web hosts; views come from plugin onload |
+| LN-PKG-102  | packages                        | Implemented | Sibling `lapis-plugin-docs` is registered by desktop and web hosts; views come from plugin onload |
+| LN-PKG-103  | packages                        | Implemented | Docs package manifests and source exclude `/Users/stevejuma/code/cv` and `@cvstudio/*`; coding practice is out of Core Docs |
 | LN-BM-001   | bookmarks-plugin                | In progress | package location, runtime id `bookmarks`, bundled default-enabled registration |
 | LN-BM-002   | bookmarks-plugin                | In progress | schema tests persist all six types plus unknown keys through `.obsidian/bookmarks.json` |
 | LN-BM-003   | bookmarks-plugin                | In progress | `ViewAccess.command` opener `bookmarks:open-bookmarks` and default left surface |

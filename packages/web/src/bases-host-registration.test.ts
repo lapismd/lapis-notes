@@ -18,6 +18,7 @@ describe("web Bases host registration", () => {
     const terminal = source.indexOf("plugin: TerminalPlugin");
     const roles = source.indexOf("plugin: RolesPlugin");
     const tasks = source.indexOf("plugin: TasksPlugin");
+    const docs = source.indexOf("plugin: DocsPlugin");
     const loadPlugins = source.indexOf("await app.plugins.loadPlugins");
     const metadata = source.lastIndexOf("startMetadataCache()");
     const layout = source.indexOf("await app.workspace.loadLayout");
@@ -37,7 +38,8 @@ describe("web Bases host registration", () => {
     expect(terminal).toBeGreaterThan(ai);
     expect(roles).toBeGreaterThan(terminal);
     expect(tasks).toBeGreaterThan(roles);
-    expect(loadPlugins).toBeGreaterThan(tasks);
+    expect(docs).toBeGreaterThan(tasks);
+    expect(loadPlugins).toBeGreaterThan(docs);
     expect(layout).toBeGreaterThan(loadPlugins);
     expect(metadata).toBeGreaterThan(layout);
     expect(source).toContain("WorkspaceStartup");

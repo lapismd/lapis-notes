@@ -18,6 +18,7 @@
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
+  import { DocsPlugin } from "@lapis-notes/lapis-plugin-docs";
   import { TasksPlugin } from "@lapis-notes/lapis-plugin-tasks";
   import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
   import { HistoryPlugin } from "@lapis-notes/history";
@@ -229,6 +230,12 @@
           },
           {
             plugin: TasksPlugin,
+            required: false,
+            enabledByDefault: true,
+            distribution: "first-party-external",
+          },
+          {
+            plugin: DocsPlugin,
             required: false,
             enabledByDefault: true,
             distribution: "first-party-external",
