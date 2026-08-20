@@ -55,6 +55,8 @@ export * from "./glob";
 export * from "./platform";
 export * from "./suggest";
 export * from "./markdown";
+export * from "./markdown-extension-registry";
+export * from "./markdown-file-surface-registry";
 export * from "./logging";
 export * from "./telemetry";
 export * from "./notifications";

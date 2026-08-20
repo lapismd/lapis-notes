@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { App, TFile } from "@lapis-notes/api";
+  import type { App, MarkdownSurfaceContext, TFile } from "@lapis-notes/api";
   import {
     EditableMarkdownPreview,
     FileEmbed as MiraFileEmbed,
@@ -11,6 +11,7 @@
     toMiraFileRef,
   } from "$lib/mira/file-adapter";
   import { useEditablePreviewClose } from "./editable-preview-close-context";
+  import { resolveMarkdownMiraExtensions } from "$lib/mira/extensions";
 
   let {
     app,
@@ -25,6 +26,7 @@
     editing = $bindable(false),
     class: className = "",
     onopen,
+    surface = { id: "file-embed" },
   }: {
     app: App;
     id?: string;
@@ -38,6 +40,7 @@
     editing?: boolean;
     class?: string;
     onopen?: (event: MouseEvent) => void;
+    surface?: MarkdownSurfaceContext;
   } = $props();
 
   const fileAdapter = $derived(createLapisMiraFileAdapter(app));
@@ -58,6 +61,14 @@
       ? toMiraFileRef(resolvedFile)
       : null,
   );
+  const resolved = $derived.by(() => {
+    void app.configuration.getConfiguration();
+    return resolveMarkdownMiraExtensions(app, undefined, {
+      mode: "embed",
+      sourcePath: resolvedFile?.path ?? sourcePath,
+      surface,
+    });
+  });
   const closeEditablePreview = useEditablePreviewClose();
   let editablePreview: { exit: () => Promise<boolean> } | null = $state(null);
 
@@ -117,10 +128,17 @@
         bind:editing
         {frontmatterOpen}
         {returnToPreviewOnBlur}
+        extensions={resolved.miraExtensions}
         onEscape={() => closeEditablePreview?.()}
       />
     {:else}
-      <MiraFileEmbed id={target} {sourcePath} {fileAdapter} {frontmatterOpen} />
+      <MiraFileEmbed
+        id={target}
+        {sourcePath}
+        {fileAdapter}
+        {frontmatterOpen}
+        extensions={resolved.miraExtensions}
+      />
     {/if}
   </div>
 </div>

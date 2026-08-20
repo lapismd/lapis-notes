@@ -117,6 +117,18 @@ export type {
   MarkdownPostProcessorContext,
   MarkdownViewMenuItemProvider,
 } from "./markdown";
+export type {
+  MarkdownCodeMirrorExtensionContext,
+  MarkdownContributionMode,
+  MarkdownExtensionContribution,
+  MarkdownSurfaceContext,
+} from "./markdown-extension-registry";
+export type {
+  MarkdownFileSurfaceActivation,
+  MarkdownFileSurfaceHandle,
+  MarkdownFileSurfaceOptions,
+  MarkdownFileSurfaceProvider,
+} from "./markdown-file-surface-registry";
 
 export { MetadataCache } from "./cache.svelte";
 export type { CachedMetadata } from "./cache.svelte";

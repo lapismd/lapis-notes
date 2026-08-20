@@ -45,6 +45,7 @@ function createApp(values: Record<string, unknown> = {}): App {
       offref: vi.fn(),
     },
     embedRegistry: { get: () => null },
+    markdownExtensions: { getAll: () => [] },
   } as unknown as App;
 }
 
@@ -106,6 +107,26 @@ describe("Lapis Mira authoring composition", () => {
       "selection-toolbar",
     );
     expect(options.blockControls).toMatchObject({ enabled: true });
+  });
+
+  it("composes API-registered extensions for a concrete Markdown surface", () => {
+    const app = createApp() as App & {
+      markdownExtensions: { getAll: () => unknown[] };
+    };
+    app.markdownExtensions = {
+      getAll: () => [{ pluginId: "tasks", id: "items" }],
+    };
+
+    const resolved = resolveMarkdownMiraExtensions(app, undefined, {
+      mode: "reading",
+      sourcePath: "lists/docs.md",
+      surface: { id: "tasks-list" },
+      markdown: "## Items",
+    });
+
+    expect(resolved.miraExtensions).toEqual(
+      expect.arrayContaining([expect.objectContaining({ name: "tasks:items" })]),
+    );
   });
 
   it("mounts extension styles and lifecycle cleanup with the editor view", () => {

@@ -960,6 +960,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PLUG-025 | plugin-model                    | Implemented | registerIndexProjection namespaces and disposes projections |
 | LN-PLUG-026 | plugin-model                    | Implemented | Registration returns a query handle and backfills from the core file index |
 | LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |
+| LN-ARCH-065 | architecture                    | Implemented | API registry tests cover plugin-scoped Markdown contribution and file-surface registration, replacement, and disposal |
 | LN-PKG-096  | packages                        | Implemented | API agent-skills export and AI skill/command modules stay free of MCP, ACP, and vendor types |
 | LN-PKG-100  | packages                        | Implemented | API owns agentResultViews; Search registers notes_search; AI looks up views without importing Search |
 | LN-PKG-097  | packages                        | Implemented | API vault-maintenance tests register app:rebuild-vault-cache and call metadataCache.rebuild |
@@ -975,6 +976,10 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-MD-101   | markdown-plugin                 | Implemented | MarkdownEmbed applies resolveMarkdownMiraExtensions and file adapter |
 | LN-MD-102   | markdown-plugin                 | Implemented | extractMetadata parses nested YAML maps such as task.status |
 | LN-MD-103   | markdown-plugin                 | Implemented | extractMetadata indexes Markdown and wiki links with heading context |
+| LN-MD-104   | markdown-plugin                 | Implemented | adapter tests cover registered CodeMirror and postprocessor composition with source, mode, front matter, section, surface, and cleanup context |
+| LN-MD-105   | markdown-plugin                 | Implemented | provider tests cover real-file mounting, serialized writes, dirty-buffer refresh protection, editing callbacks, and imperative controls |
+| LN-MD-106   | markdown-plugin                 | Implemented | file-surface tests cover manual, click, and double-click activation, interactive-target exclusion, blur return, Escape, and retained save errors |
+| LN-MD-107   | markdown-plugin                 | Implemented | surface styling and acceptance assert outer preview scrolling and one CodeMirror scroll owner while editing |
 | LN-PKG-099  | packages                        | In progress | `@lapis-notes/bookmarks` lives at `packages/plugins/plugin-bookmarks` and persists `{ items }` through `.obsidian/bookmarks.json` |
 | LN-PKG-101  | packages                        | Implemented | Sibling `lapis-plugin-tasks` is registered by desktop and web hosts; views come from plugin onload |
 | LN-PKG-102  | packages                        | Implemented | Sibling `lapis-plugin-docs` is registered by desktop and web hosts; views come from plugin onload |

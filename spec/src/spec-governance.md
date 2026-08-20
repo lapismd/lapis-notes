@@ -1,5 +1,9 @@
 # Specification Governance
 
+Spec-first mappings cover the API Markdown registries, the Markdown provider,
+and every consumer-facing chapter affected by shared Plugin and App lifecycle
+changes.
+
 Specification changes precede or accompany protected implementation changes.
 The gate is package-aware: updating an unrelated chapter does not satisfy a
 protected package change.

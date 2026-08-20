@@ -1,5 +1,9 @@
 # Packages
 
+`@lapis-notes/api` owns the transport-neutral Markdown contribution and file
+surface registries. `@lapis-notes/markdown` adapts them to Mira and registers
+the full-file provider; domain plugins consume only the API contract.
+
 Repository-only Storybook taxonomy, mirror, and built-index checks remain
 development tooling at the root and are excluded from publishable package
 runtime closures. AI model menus consume structured host catalog labels while

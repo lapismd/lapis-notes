@@ -1,7 +1,7 @@
 <script lang="ts">
   import MiraEditor from "@lapismd/mira-editor";
   import type { MiraAiRun } from "@lapismd/mira-plugin-ai";
-  import type { App } from "@lapis-notes/api";
+  import type { App, MarkdownSurfaceContext } from "@lapis-notes/api";
   import { resolveMarkdownMiraExtensions } from "../../mira/extensions";
   import { createLapisMiraFileAdapter } from "../../mira/file-adapter";
 
@@ -11,17 +11,24 @@
     sourcePath = "",
     aiRun,
     onChange,
+    surface = { id: "workspace" },
   }: {
     app: App;
     value?: string;
     sourcePath?: string;
     aiRun?: MiraAiRun;
     onChange?: (next: string) => void;
+    surface?: MarkdownSurfaceContext;
   } = $props();
 
   const resolved = $derived.by(() => {
     void app.configuration.getConfiguration();
-    return resolveMarkdownMiraExtensions(app, aiRun);
+    return resolveMarkdownMiraExtensions(app, aiRun, {
+      mode: "reading",
+      sourcePath,
+      surface,
+      markdown: value,
+    });
   });
   const fileAdapter = $derived(createLapisMiraFileAdapter(app));
 </script>

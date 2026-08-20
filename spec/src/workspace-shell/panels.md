@@ -1,5 +1,9 @@
 # Panels
 
+Panel and domain surfaces embedding complete Markdown files use the public
+file-surface provider rather than importing Markdown or Mira implementation
+code. Consumer context does not move editor or persistence ownership.
+
 Workspace panels are movable views. The Workspace Shell owns their destination
 surfaces and geometry; individual plugins own only their content and behavior.
 Markdown panel pages therefore build on this contract instead of repeating

@@ -1,5 +1,9 @@
 # Markdown Panels
 
+Markdown-backed panel previews continue through the public FileEmbed boundary,
+which composes API-registered Markdown contributions with the same surface
+context and cleanup rules as workspace and direct embed previews.
+
 Markdown configuration and editor feature settings remain governed by the
 [Markdown Plugin overview](../index.md). They do not change the
 movable-panel contracts in this chapter. Metadata parse now runs in a worker

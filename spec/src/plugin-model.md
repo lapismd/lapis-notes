@@ -1,5 +1,9 @@
 # Plugin Model
 
+Markdown extensions and file-surface providers use the normal `Plugin`
+lifecycle. Registration is plugin-scoped and automatic teardown removes each
+contribution without adding another loader or contribution manifest.
+
 Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. Workspace `activateLeaf` remains an
 API-owned selection that the persisted layout must restore. Statically shipped plugins use the

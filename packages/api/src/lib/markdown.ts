@@ -7,6 +7,10 @@ import type { TFile } from "./storage/fs";
 import type { WorkspaceLeaf } from "./workspace.svelte";
 import { HoverPopover, type HoverParent } from "./popover";
 import type { Component as SvelteComponent } from "svelte";
+import type {
+  MarkdownContributionMode,
+  MarkdownSurfaceContext,
+} from "./markdown-extension-registry";
 
 function createFallbackElement(): HTMLElement {
   if (typeof document !== "undefined") {
@@ -79,6 +83,10 @@ export interface MarkdownPostProcessorContext {
   sourcePath: string;
   /** @public */
   frontmatter: any | null | undefined;
+  /** Rendering mode for this processor invocation. @public */
+  mode?: MarkdownContributionMode;
+  /** Owning Markdown surface and optional consumer context. @public */
+  surface?: MarkdownSurfaceContext;
 
   /**
    * Adds a child component that will have its lifecycle managed by the

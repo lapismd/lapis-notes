@@ -51,6 +51,10 @@ the canonical Obsidian-compatible names governed by `LN-MD-085` and
 | LN-MD-101 | Public `MarkdownEmbed` MUST render through Mira's embed preview using the owning App's `createLapisMiraFileAdapter` and `resolveMarkdownMiraExtensions`. It MUST refresh those extensions when configuration changes. Consumers MAY set `htmlPolicy`. |
 | LN-MD-102 | `extractMetadata` MUST parse nested YAML maps and arrays in front matter, including `task:` objects. |
 | LN-MD-103 | `extractMetadata` MUST index wiki links and standard Markdown links with the nearest preceding heading. |
+| LN-MD-104 | Markdown MUST compose every registered API Markdown contribution into workspace Source or Live Preview, Reading mode, `MarkdownEmbed`, `FileEmbed`, and editable file surfaces. Each processor context MUST identify its mode, source path, front matter, source section, and owning surface. |
+| LN-MD-105 | Markdown MUST register the API full-file surface provider. It MUST mount the real `TFile`, preserve serialized Mira writes and dirty-buffer protection, expose enter, flush, exit, and dispose controls, and report editing-state changes. |
+| LN-MD-106 | A Markdown file surface MUST support manual, single-click, or double-click activation and configurable blur return. Double-click activation MUST ignore interactive descendants, and failed persistence MUST retain the dirty editor with an accessible error. |
+| LN-MD-107 | A full-file surface MUST use its outer consumer scroll while previewing and its CodeMirror scroll while editing. It MUST NOT create two active vertical document scrollers in either state. |
 | LN-MD-097 | Markdown `extractMetadata` MUST run off the renderer thread through a worker. Vault I/O, link resolution, `$state` apply, and `AppDatabase` writes MUST stay on the main thread. `read()` MAY use the same parse synchronously when a worker is unavailable. |
 | LN-MD-099 | Published `parse-metadata` MUST import the metadata worker as `./metadata-worker?worker&inline` without a `.ts` suffix so Vite hosts resolve the packaged `metadata-worker.js`. |
 

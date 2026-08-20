@@ -1,5 +1,9 @@
 # Problems
 
+The API Markdown registries do not alter diagnostics ownership. Markdown live
+preview composes the existing language-service extension, and domain
+contributions do not create a second Problems collection or cache.
+
 The Problems view is a reusable workspace panel. Design Core owns the generic
 diagnostic model, collection lifecycle, and presentation; Lapis adapts vault,
 language-service, navigation, and plugin behavior at its public API boundary.

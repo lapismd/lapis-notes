@@ -27,6 +27,8 @@ import type { PluginDependencyResolverFactory } from "./plugin-dependency-resolv
 import type { PluginAssetServer } from "./plugin-asset-server";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import { AppToolRegistry } from "./agent-tools";
+import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
+import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
 export interface AppWorkspaceShellApplicationProperties {
     /** Application name shown by the shell's About surface. */
     name?: string;
@@ -176,6 +178,8 @@ export declare class App {
     readonly searchDocumentProviders: SearchDocumentProviderRegistry;
     readonly indexProjections: import("./storage/index-projection").IndexProjectionRegistry;
     readonly agentTools: AppToolRegistry;
+    readonly markdownExtensions: MarkdownExtensionRegistry;
+    readonly markdownFileSurfaces: MarkdownFileSurfaceRegistry;
     readonly agentSkills: import("./agent-skills").AppSkillRegistry;
     readonly agentSlashCommands: import("./agent-skills").AppSlashCommandRegistry;
     readonly agentResultViews: import("./agent-result-views").AppResultViewRegistry;

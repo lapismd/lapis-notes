@@ -1,5 +1,9 @@
 # Lapis Editor Demo
 
+The real-App demo loads Markdown before domain plugins, so API-registered
+Markdown contributions and the full-file provider exercise the same lifecycle
+and public package boundary as production hosts.
+
 Public `MarkdownEmbed` applies the enabled Markdown plugin's App Mira
 extensions so string previews, including AI chat, match editor settings.
 Markdown metadata extraction now preserves nested YAML maps used by later

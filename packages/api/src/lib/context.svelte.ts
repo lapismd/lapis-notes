@@ -73,6 +73,8 @@ import {
   AppSlashCommandRegistry,
 } from "./agent-skills";
 import { AppResultViewRegistry } from "./agent-result-views";
+import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
+import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
 import {
   installApplicationCompatibility,
   resolveApplication,
@@ -287,6 +289,8 @@ export class App {
   readonly agentSkills = new AppSkillRegistry();
   readonly agentSlashCommands = new AppSlashCommandRegistry();
   readonly agentResultViews = new AppResultViewRegistry();
+  readonly markdownExtensions = new MarkdownExtensionRegistry();
+  readonly markdownFileSurfaces = new MarkdownFileSurfaceRegistry();
   lastEvent: UserEvent | null = $state(null);
   renderContext: RenderContext = new RenderContext();
   secretStorage: SecretStorage = new SecretStorage();

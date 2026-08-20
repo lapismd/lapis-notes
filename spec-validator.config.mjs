@@ -240,6 +240,14 @@ export default defineConfig(tableRequirements(), {
         },
         {
           pattern:
+            "^packages/api/src/lib/(?:markdown(?:-extension-registry|-file-surface-registry)?\\.ts|plugin\\.ts|context\\.svelte(?:\\.d)?\\.ts|docs-api\\.ts|index\\.ts)$",
+          chapters: [
+            "spec/src/architecture.md",
+            "spec/src/plugins/markdown/index.md",
+          ],
+        },
+        {
+          pattern:
             "^packages/api/src/lib/(?:diagnostics/|language-service/|components/editor/language-service/|components/editor/extensions/lint/|workspace\\.ts$|plugin\\.ts$|context\\.svelte\\.ts$)",
           chapters: ["spec/src/workspace-shell/panels/problems.md"],
         },

@@ -57,6 +57,8 @@ import { registerMarkdownSettings } from "$lib/settings/register-markdown-settin
 import "$lib/styles/surfaces.css";
 import "@lapismd/mira-editor/styles.css";
 import { createMarkdownNoteTools } from "$lib/agent-tools/note-tools";
+import { mount, unmount } from "svelte";
+import MarkdownFileSurface from "$lib/components/embed/markdown-file-surface.svelte";
 
 export { FileEmbed, MarkdownEmbed, NoteLink } from "$lib/components/embed";
 export { createLapisMiraFileAdapter } from "$lib/mira/file-adapter";
@@ -136,6 +138,28 @@ export class MarkdownPlugin extends Plugin {
     });
     this.registerExtensions(["md", "markdown"], MarkdownViewType);
 
+    this.registerMarkdownFileSurfaceProvider((options) => {
+      options.containerEl.replaceChildren();
+      const component = mount(MarkdownFileSurface, {
+        target: options.containerEl,
+        props: {
+          app: this.app,
+          file: options.file,
+          editable: options.editable,
+          activation: options.activation,
+          returnToPreviewOnBlur: options.returnToPreviewOnBlur,
+          surface: options.surface,
+          onEditingChange: options.onEditingChange,
+        },
+      });
+      return {
+        enter: () => component.enter(),
+        flush: () => component.flush(),
+        exit: () => component.exit(),
+        dispose: () => unmount(component),
+      };
+    });
+
     this.registerEditorExtension((context) => {
       const mode =
         context && typeof context === "object" && "mode" in context
@@ -155,6 +179,14 @@ export class MarkdownPlugin extends Plugin {
             ? (context as { file: string }).file
             : undefined,
         aiRun: this.aiRun,
+        surface:
+          context &&
+          typeof context === "object" &&
+          "surface" in context &&
+          (context as { surface?: unknown }).surface &&
+          typeof (context as { surface?: unknown }).surface === "object"
+            ? (context as { surface: { id: string; context?: unknown } }).surface
+            : { id: "workspace" },
       });
     }, MarkdownViewType);
 

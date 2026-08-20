@@ -1,5 +1,9 @@
 # Link Previews
 
+Editable link previews remain Markdown-owned full-file surfaces. Registered
+domain contributions may enrich rendered content while Mira retains serialized
+writes, dirty-buffer protection, blur return, and Escape handling.
+
 Backlinks and Outgoing Links share one app-bound preview and editing contract.
 Ordinary internal links rendered by Mira use the same adapter and appearance but
 remain Mira-owned. Public `MarkdownEmbed` uses the same App adapter and the

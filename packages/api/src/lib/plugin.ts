@@ -33,6 +33,8 @@ import type {
   MarkdownPostProcessorContext,
   MarkdownViewMenuItemProvider,
 } from "./markdown";
+import type { MarkdownExtensionContribution } from "./markdown-extension-registry";
+import type { MarkdownFileSurfaceProvider } from "./markdown-file-surface-registry";
 import type { TypeWidget } from "./metadata.svelte";
 import type { PluginSettingTab } from "./settings.svelte";
 import { dirname, joinPath } from "./storage";
@@ -919,6 +921,20 @@ export abstract class Plugin extends Component {
     this.register(() => {
       this.app.unregisterEditorExtension(extension, viewType);
     });
+  }
+
+  /** Register a plugin-owned Markdown contribution for every Markdown surface. */
+  registerMarkdownExtension(
+    contribution: MarkdownExtensionContribution,
+  ): void {
+    this.register(this.app.markdownExtensions.register(this.id, contribution));
+  }
+
+  /** Register a provider for complete Markdown file surfaces. */
+  registerMarkdownFileSurfaceProvider(
+    provider: MarkdownFileSurfaceProvider,
+  ): void {
+    this.register(this.app.markdownFileSurfaces.register(this.id, provider));
   }
 
   /**

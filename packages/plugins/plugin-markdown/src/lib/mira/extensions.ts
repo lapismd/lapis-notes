@@ -23,7 +23,7 @@ import {
   type MiraFeatureFlags,
 } from "@lapismd/mira-editor";
 import { aiExtension, type MiraAiRun } from "@lapismd/mira-plugin-ai";
-import type { App } from "@lapis-notes/api";
+import type { App, MarkdownSurfaceContext } from "@lapis-notes/api";
 import { markupEditor } from "@lapis-notes/api/editor/core";
 import { languageServiceExtensions } from "@lapis-notes/api/editor/language-service";
 import {
@@ -32,12 +32,17 @@ import {
   readMiraFeatureFlags,
 } from "./config";
 import { createLapisMiraFileAdapter } from "./file-adapter";
+import {
+  resolveRegisteredMarkdownMiraExtensions,
+  type RegisteredMarkdownMiraExtensionOptions,
+} from "./registered-extensions";
 
 export type MiraMarkdownExtensionOptions = {
   app: App;
   mode: "source" | "live-preview";
   sourcePath?: string;
   aiRun?: MiraAiRun;
+  surface?: MarkdownSurfaceContext;
 };
 
 export type MarkdownMiraEditorSettings = {
@@ -93,7 +98,13 @@ export function readMarkdownMiraEditorSettings(
   };
 }
 
-export function resolveMarkdownMiraExtensions(app: App, aiRun?: MiraAiRun) {
+export function resolveMarkdownMiraExtensions(
+  app: App,
+  aiRun?: MiraAiRun,
+  surfaceOptions?: Omit<RegisteredMarkdownMiraExtensionOptions, "sourcePath"> & {
+    sourcePath?: string;
+  },
+) {
   const get = configurationReader(app);
   const features = readMiraFeatureFlags(get) as MiraFeatureFlags;
   const editorSettings = readMarkdownMiraEditorSettings(app);
@@ -152,6 +163,15 @@ export function resolveMarkdownMiraExtensions(app: App, aiRun?: MiraAiRun) {
           get,
           "markdown.mira.plugins.ai.label",
         ),
+      }),
+    );
+  }
+
+  if (surfaceOptions) {
+    miraExtensions.push(
+      ...resolveRegisteredMarkdownMiraExtensions(app, {
+        ...surfaceOptions,
+        sourcePath: surfaceOptions.sourcePath ?? "",
       }),
     );
   }
@@ -276,7 +296,11 @@ export function createMarkdownMiraCodeMirrorOptions(
 export function createMarkdownEditorExtensions(
   options: MiraMarkdownExtensionOptions,
 ): Extension {
-  const resolved = resolveMarkdownMiraExtensions(options.app, options.aiRun);
+  const resolved = resolveMarkdownMiraExtensions(options.app, options.aiRun, {
+    mode: options.mode,
+    sourcePath: options.sourcePath,
+    surface: options.surface ?? { id: "workspace" },
+  });
   const codeMirrorOptions = createMarkdownMiraCodeMirrorOptions(
     options,
     resolved,
