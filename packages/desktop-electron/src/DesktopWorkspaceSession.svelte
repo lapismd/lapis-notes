@@ -4,6 +4,7 @@
     installApplicationCompatibility,
     listVaultProfiles,
     provideApplicationState,
+    registerDefaultDailyDocumentProvider,
     type NativeDesktopVaultAdapter,
     type VaultProfile,
     type VaultSession,
@@ -79,6 +80,7 @@
   provideApplicationState(app);
   const disposeApplicationCompatibility =
     installApplicationCompatibility(app);
+  const dailyDocumentProvider = registerDefaultDailyDocumentProvider(app);
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
@@ -337,6 +339,7 @@
         .catch(() => {});
       await session.close();
     } finally {
+      dailyDocumentProvider.dispose();
       disposeApplicationCompatibility();
     }
   }

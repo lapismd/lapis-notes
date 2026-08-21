@@ -4,6 +4,7 @@
     installApplicationCompatibility,
     listVaultProfiles,
     provideApplicationState,
+    registerDefaultDailyDocumentProvider,
     type BrowserCoordinatedAppDatabase,
     type VaultAdapter,
     type VaultProfile,
@@ -92,6 +93,7 @@
   provideApplicationState(app);
   const disposeApplicationCompatibility =
     installApplicationCompatibility(app);
+  const dailyDocumentProvider = registerDefaultDailyDocumentProvider(app);
   const disposePwaRuntimeApplication = setPwaRuntimeApplication(app);
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
@@ -388,6 +390,7 @@
       disposeVaultTransferSettings = null;
       await session.close();
     } finally {
+      dailyDocumentProvider.dispose();
       disposePwaRuntimeApplication();
       disposeApplicationCompatibility();
     }

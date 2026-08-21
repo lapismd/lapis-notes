@@ -1,5 +1,6 @@
 import {
   PUBLIC_TASKS_PROJECTION_ID,
+  PUBLIC_TASK_OCCURRENCES_PROJECTION_ID,
   and,
   eq,
   gt,
@@ -12,8 +13,9 @@ import {
   type IndexQuery,
 } from "./index-projection";
 
-export const TASK_PROJECTION_VERSION = 2;
-export { PUBLIC_TASKS_PROJECTION_ID };
+export const TASK_PROJECTION_VERSION = 3;
+export const TASK_OCCURRENCE_PROJECTION_VERSION = 1;
+export { PUBLIC_TASKS_PROJECTION_ID, PUBLIC_TASK_OCCURRENCES_PROJECTION_ID };
 
 export const TASK_PROJECTION_FIELDS: Record<string, IndexFieldDefinition> = {
   documentPath: { type: "path", indexed: true, sortable: true },
@@ -30,10 +32,39 @@ export const TASK_PROJECTION_FIELDS: Record<string, IndexFieldDefinition> = {
   durationMinutes: { type: "number", indexed: true, sortable: true },
   deadline: { type: "date", indexed: true, sortable: true },
   completedAt: { type: "string", indexed: true },
+  repeat: { type: "json" },
+  repeatStart: { type: "date", indexed: true, sortable: true },
+  repeatRRule: { type: "string", indexed: true },
+  repeatAnchor: { type: "string", indexed: true },
+  repeatMissed: { type: "string", indexed: true },
+  repeatPaused: { type: "boolean", indexed: true },
+  repeatPausedSince: { type: "date", indexed: true, sortable: true },
+  tracking: { type: "json" },
+  effectiveOccurrenceDate: { type: "date", indexed: true, sortable: true },
+  effectiveOccurrenceState: { type: "string", indexed: true, sortable: true },
+  effectiveForDate: { type: "date", indexed: true, sortable: true },
   checklistTotal: { type: "number" },
   checklistCompleted: { type: "number" },
   commentCount: { type: "number", indexed: true },
   structure: { type: "json" },
+};
+
+export const TASK_OCCURRENCE_PROJECTION_FIELDS: Record<
+  string,
+  IndexFieldDefinition
+> = {
+  observationId: { type: "string", indexed: true, unique: true },
+  taskId: { type: "string", indexed: true, sortable: true },
+  taskPath: { type: "path", indexed: true },
+  dailyDocumentPath: { type: "path", indexed: true },
+  occurrenceDate: { type: "date", indexed: true, sortable: true },
+  outcome: { type: "string", indexed: true, sortable: true },
+  trackingKind: { type: "string", indexed: true },
+  value: { type: "number", indexed: true, sortable: true },
+  unit: { type: "string", indexed: true },
+  durationMinutes: { type: "number", indexed: true, sortable: true },
+  sourceStart: { type: "number" },
+  sourceEnd: { type: "number" },
 };
 
 export type AppDatabaseTaskKind = "task" | "task-list";
@@ -50,6 +81,32 @@ export type AppDatabaseTaskPlanKind =
   | "afternoon"
   | "evening"
   | "time";
+export type AppDatabaseEffectiveOccurrenceState =
+  | "current"
+  | "overdue"
+  | "future"
+  | "exhausted"
+  | "paused"
+  | "unsupported";
+export interface AppDatabaseTaskRepeat {
+  start?: string;
+  rrule: string;
+  anchor: "schedule" | "completion";
+  missed: "carry" | "skip";
+  rdate?: string[];
+  exdate?: string[];
+  resetChecklist?: boolean;
+  paused?: boolean;
+  pausedSince?: string;
+  pauseRanges?: Array<{ start: string; end: string }>;
+  lastCompletedAt?: string;
+  completionCount?: number;
+}
+export type AppDatabaseTaskTracking =
+  | { type: "boolean" }
+  | { type: "count"; unit: string; target?: number }
+  | { type: "duration"; target?: string }
+  | { type: "number"; unit: string; target?: number };
 export type AppDatabaseLinkKind =
   | "reference"
   | "task-entry"
@@ -126,14 +183,45 @@ export interface AppDatabaseTaskRecord {
   durationMinutes?: number | null;
   deadline?: string | null;
   completedAt?: string | null;
+  repeat?: AppDatabaseTaskRepeat | null;
+  tracking?: AppDatabaseTaskTracking | null;
+  effectiveOccurrenceDate?: string | null;
+  effectiveOccurrenceState?: AppDatabaseEffectiveOccurrenceState | null;
+  effectiveForDate?: string | null;
+  /** @deprecated Read compatibility for task projection v2 rows. */
   repeatStrategy?: string | null;
+  /** @deprecated Read compatibility for task projection v2 rows. */
   repeatFrequency?: string | null;
+  /** @deprecated Read compatibility for task projection v2 rows. */
   repeatInterval?: number | null;
+  /** @deprecated Read compatibility for task projection v2 rows. */
   repeatAnchor?: string | null;
   checklistTotal: number;
   checklistCompleted: number;
   commentCount: number;
   structure?: AppDatabaseTaskStructure | null;
+  projectionVersion: number;
+}
+
+export type AppDatabaseTaskOccurrenceOutcome =
+  | "pending"
+  | "completed"
+  | "missed";
+
+/** Disposable observation parsed from one exact daily-note list item range. */
+export interface AppDatabaseTaskOccurrenceRecord {
+  observationId: string;
+  taskId: string;
+  taskPath: string;
+  dailyDocumentPath: string;
+  occurrenceDate: string;
+  outcome: AppDatabaseTaskOccurrenceOutcome;
+  trackingKind: AppDatabaseTaskTracking["type"];
+  value?: number | null;
+  unit?: string | null;
+  durationMinutes?: number | null;
+  sourceStart: number;
+  sourceEnd: number;
   projectionVersion: number;
 }
 
@@ -163,6 +251,10 @@ function startIsActionable(row: AppDatabaseTaskRecord, today: string): boolean {
   return false;
 }
 
+function hasEffectiveOccurrence(row: AppDatabaseTaskRecord): boolean {
+  return Boolean(row.effectiveOccurrenceState);
+}
+
 export function matchesTaskQuery(
   row: AppDatabaseTaskRecord,
   query: AppDatabaseTaskQuery,
@@ -178,7 +270,12 @@ export function matchesTaskQuery(
     case "today":
       return (
         isOpenTask(row) &&
-        ((Boolean(row.planDate) && row.planDate! <= today) ||
+        (((row.effectiveOccurrenceState === "current" ||
+          row.effectiveOccurrenceState === "unsupported") &&
+          row.effectiveOccurrenceDate === today) ||
+          (!hasEffectiveOccurrence(row) &&
+            Boolean(row.planDate) &&
+            row.planDate! <= today) ||
           (Boolean(row.deadline) && row.deadline! <= today))
       );
     case "anytime":
@@ -186,8 +283,14 @@ export function matchesTaskQuery(
     case "upcoming":
       return (
         isOpenTask(row) &&
-        ((Boolean(row.startDate) && row.startDate! > today) ||
-          (Boolean(row.planDate) && row.planDate! > today) ||
+        ((row.effectiveOccurrenceState === "future" &&
+          Boolean(row.effectiveOccurrenceDate)) ||
+          (!hasEffectiveOccurrence(row) &&
+            Boolean(row.startDate) &&
+            row.startDate! > today) ||
+          (!hasEffectiveOccurrence(row) &&
+            Boolean(row.planDate) &&
+            row.planDate! > today) ||
           (Boolean(row.deadline) && row.deadline! > today))
       );
     case "someday":
@@ -195,7 +298,13 @@ export function matchesTaskQuery(
     case "completed":
       return row.status === "completed";
     case "review":
-      return isOpenTask(row) && Boolean(row.planDate) && row.planDate! < today;
+      return (
+        isOpenTask(row) &&
+        (row.effectiveOccurrenceState === "overdue" ||
+          (!hasEffectiveOccurrence(row) &&
+            Boolean(row.planDate) &&
+            row.planDate! < today))
+      );
     default:
       return false;
   }
@@ -215,7 +324,20 @@ export function taskQueryToIndexQuery(query: AppDatabaseTaskQuery = {}): IndexQu
         break;
       case "today":
         clauses.push(
-          and(openTask, or(lte("planDate", today), lte("deadline", today))),
+          and(
+            openTask,
+            or(
+              and(
+                or(
+                  eq("effectiveOccurrenceState", "current"),
+                  eq("effectiveOccurrenceState", "unsupported"),
+                ),
+                eq("effectiveOccurrenceDate", today),
+              ),
+              and(isNull("effectiveOccurrenceState"), lte("planDate", today)),
+              lte("deadline", today),
+            ),
+          ),
         );
         break;
       case "anytime":
@@ -231,7 +353,15 @@ export function taskQueryToIndexQuery(query: AppDatabaseTaskQuery = {}): IndexQu
         clauses.push(
           and(
             openTask,
-            or(gt("startDate", today), gt("planDate", today), gt("deadline", today)),
+            or(
+              and(
+                eq("effectiveOccurrenceState", "future"),
+                gt("effectiveOccurrenceDate", today),
+              ),
+              and(isNull("effectiveOccurrenceState"), gt("startDate", today)),
+              and(isNull("effectiveOccurrenceState"), gt("planDate", today)),
+              gt("deadline", today),
+            ),
           ),
         );
         break;
@@ -242,7 +372,15 @@ export function taskQueryToIndexQuery(query: AppDatabaseTaskQuery = {}): IndexQu
         clauses.push(eq("status", "completed"));
         break;
       case "review":
-        clauses.push(and(openTask, lt("planDate", today)));
+        clauses.push(
+          and(
+            openTask,
+            or(
+              eq("effectiveOccurrenceState", "overdue"),
+              and(isNull("effectiveOccurrenceState"), lt("planDate", today)),
+            ),
+          ),
+        );
         break;
       default:
         break;

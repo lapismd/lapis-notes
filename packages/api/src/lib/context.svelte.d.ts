@@ -26,6 +26,7 @@ import { DefaultPluginDistributionManager, type DefaultPluginDistributionManager
 import type { PluginDependencyResolverFactory } from "./plugin-dependency-resolver";
 import type { PluginAssetServer } from "./plugin-asset-server";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
 import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
@@ -176,6 +177,7 @@ export declare class App {
     metadataCache: MetadataCache;
     embedRegistry: EmbedRegistry;
     readonly searchDocumentProviders: SearchDocumentProviderRegistry;
+    readonly dailyDocumentProviders: DailyDocumentProviderRegistry;
     readonly indexProjections: import("./storage/index-projection").IndexProjectionRegistry;
     readonly agentTools: AppToolRegistry;
     readonly markdownExtensions: MarkdownExtensionRegistry;

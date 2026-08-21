@@ -1,5 +1,10 @@
 # Markdown Plugin
 
+Daily notes remain ordinary authoritative Markdown documents. The Markdown
+plugin parses and edits them through its existing file surfaces while the
+API-owned daily-document provider supplies identity and path policy to domain
+plugins.
+
 The Markdown plugin owns Markdown document behavior and its integration with the
 Lapis plugin, editor, metadata, and workspace APIs. Movable panel behavior is
 specified separately under [Panels](./panels/index.md).

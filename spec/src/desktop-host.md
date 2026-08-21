@@ -1,5 +1,10 @@
 # Desktop Host
 
+Desktop session construction registers the shared daily-document provider
+before configuration load and disposes it with the application. This keeps
+persisted daily-note settings and canonical front-matter lookup identical to
+the web host.
+
 The Electron host is a source-first intake from the legacy
 `/Users/stevejuma/code/lapis-notes/packages/desktop-electron` package at commit
 `8ec68e18`. Root `MIGRATION.md` records which legacy areas remain, change, or

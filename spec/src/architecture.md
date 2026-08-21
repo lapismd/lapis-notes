@@ -1,5 +1,10 @@
 # Architecture
 
+Daily-note path policy is a host concern exposed through the API-owned
+`DailyDocumentProviderRegistry`. Desktop and web install the same default
+provider before loading configuration; Tasks consumes the resolved provider
+without owning vault folders, filename formats, or daily-note identity.
+
 Storybook is a documentation projection over the package graph. Its exact
 specification mirrors and post-build index acceptance do not add a runtime
 dependency or move plugin ownership into the catalog host. Composer agent and

@@ -1,5 +1,8 @@
 # Problems
 
+Daily-document provider failures remain explicit caller errors; the Problems
+panel does not silently repair duplicate dates or occupied generated paths.
+
 The API Markdown registries do not alter diagnostics ownership. Markdown live
 preview composes the existing language-service extension, and domain
 contributions do not create a second Problems collection or cache.

@@ -67,6 +67,7 @@ import { ConfigurationOptionSourceRegistry } from "./configuration-option-source
 import { resolveMetadataFieldValues } from "./configuration-option-source-providers";
 import type { Editor } from "./editor.svelte";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
+import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import {
   AppSkillRegistry,
@@ -284,6 +285,7 @@ export class App {
   embedRegistry: EmbedRegistry = new EmbedRegistry();
   readonly configurationOptionSources = new ConfigurationOptionSourceRegistry();
   readonly searchDocumentProviders = new SearchDocumentProviderRegistry();
+  readonly dailyDocumentProviders = new DailyDocumentProviderRegistry();
   readonly indexProjections = new IndexProjectionRegistry();
   readonly agentTools = new AppToolRegistry();
   readonly agentSkills = new AppSkillRegistry();

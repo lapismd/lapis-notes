@@ -1,4 +1,5 @@
 export const PUBLIC_TASKS_PROJECTION_ID = "tasks/task";
+export const PUBLIC_TASK_OCCURRENCES_PROJECTION_ID = "tasks/occurrence";
 export const PUBLIC_ROLES_PROJECTION_ID = "roles/role";
 export const MAX_PROJECTION_ROWS_PER_SOURCE = 64;
 export const MAX_PROJECTION_INDEXED_FIELDS = 64;

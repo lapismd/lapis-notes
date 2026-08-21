@@ -79,6 +79,7 @@ export * from "./promise-worker";
 export * from "./search";
 export * from "./search-query";
 export * from "./search-document-provider";
+export * from "./daily-document-provider";
 export * from "./loaders";
 export * from "./bases";
 export * from "./open-file";

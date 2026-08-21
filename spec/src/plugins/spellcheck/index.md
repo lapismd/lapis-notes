@@ -1,5 +1,9 @@
 # Spell Check Plugin
 
+Canonical daily notes use the same Markdown spellcheck pipeline as other
+notes. Spellcheck does not participate in daily-document resolution or Tasks
+occurrence state.
+
 `@lapis-notes/spellcheck` adapts Harper grammar and spelling diagnostics for
 open documents into the shared language-service and Problems path. It uses
 `harper.js` in the renderer. `harper-ls` remains out of scope.

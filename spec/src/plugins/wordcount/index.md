@@ -1,5 +1,9 @@
 # Word Count Plugin
 
+Canonical daily notes use the same Markdown word-count pipeline as other
+notes. Word Count does not participate in daily-document resolution or Tasks
+occurrence state.
+
 `@lapis-notes/wordcount` owns the status-bar word and character count for the
 active text editor. Presentation stays on the API status-bar contract and the
 Design Core status item. It does not contribute a default sidebar leaf; an

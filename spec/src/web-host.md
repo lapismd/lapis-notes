@@ -1,5 +1,9 @@
 # Web Host
 
+Web session construction registers the shared daily-document provider before
+configuration load and disposes it with the application. Browser storage does
+not alter the provider's canonical front-matter-first lookup semantics.
+
 The web host is a browser/PWA consumer ported from
 `/Users/stevejuma/code/lapis-notes/packages/web` at commit `8ec68e18`.
 

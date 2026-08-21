@@ -31,11 +31,20 @@ workspace shell.
 | LN-DB-021 | The query AST MUST support and, or, not, compare, in, exists, select, orderBy, limit, and cursor after. Default queries MUST return only current ready rows. |
 | LN-DB-022 | Projection IDs MUST be namespaced by plugin id. Other plugins MAY query public projections and MUST NOT query private ones or write another plugin's rows. |
 | LN-DB-023 | `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listTaskDescendants` MUST follow resolved `task-entry` and `list-entry` projection edges rather than infer structure from generic indexed links. |
+| LN-DB-024 | Public `tasks/task` projection version 3 MUST retain the complete RRULE and tracking contracts as disposable JSON, MUST index the current effective occurrence date and state plus the local date for which they were resolved, and task view queries MUST use those effective fields so Review contains only carried overdue occurrences and Upcoming contains one future occurrence per Task row. |
+| LN-DB-025 | Public `tasks/occurrence` projection rows MUST be disposable observations sourced from exact daily Markdown ranges, MUST identify one task and occurrence date with pending, completed, or missed outcome data, and MUST retain quantitative value, unit, duration, and source offsets without becoming occurrence authority. |
 
 The public `tasks/task` `planKind` field mirrors Tasks document `plan.at`:
 `anytime`, `morning`, `afternoon`, `evening`, or `time`, with `planTime` for
 clock values. Task YAML does not store `all-day`; that token is reserved for
 a future calendar or event resource.
+
+The task projection stores the recurrence object rather than expanding a task
+into virtual rows. Its indexed `effectiveOccurrenceDate`,
+`effectiveOccurrenceState`, and `effectiveForDate` fields are refreshable
+runtime projections. The `tasks/occurrence` projection is separate: it records
+what daily Markdown says happened and may be deleted and rebuilt without
+changing either the Task document or the daily note.
 
 ## Runtime topology
 

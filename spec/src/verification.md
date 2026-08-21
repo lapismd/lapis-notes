@@ -998,3 +998,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BM-012   | bookmarks-plugin                | In progress | left-sidebar play asserts Explorer content-padding inset and rows clear of the panel edge |
 | LN-BM-013   | bookmarks-plugin                | In progress | left-sidebar play asserts toolbar-action class and visible Explorer pressed paint |
 | LN-BM-014   | bookmarks-plugin                | In progress | left-sidebar play asserts chevron-centered guide, no leaf disclosure column, folder-gap, and row-gap |
+| LN-PKG-104  | packages                        | Implemented | API provider tests cover Luxon filenames, front-matter-first lookup, configured creation, duplicates, and occupied paths; desktop and web install the shared registration before configuration load |
+| LN-PLUG-027 | plugin-model                    | Implemented | DailyDocumentProviderRegistry tests cover priority, ambiguity, registration, and disposal through the App-owned registry |
+| LN-DB-024   | app-database                    | Implemented | task-projection tests cover carried Review membership, single effective Upcoming membership, and projection v3 fields |
+| LN-DB-025   | app-database                    | Implemented | task-projection tests assert the public occurrence observation schema including outcomes, values, and exact source offsets |

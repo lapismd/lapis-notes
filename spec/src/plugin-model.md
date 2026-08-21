@@ -78,6 +78,7 @@ chat to `.agents`.
 | LN-PLUG-024 | `Plugin.registerAgentResultView` MUST register a transcript result view under the owning plugin and dispose it on unload. The view MUST name exactly one of `tool` or `command`. It MUST NOT add a workspace palette command. Duplicate active keys MUST be rejected. |
 | LN-PLUG-025 | `Plugin.registerIndexProjection` MUST register a namespaced projection with field schema and a `project` function, MUST NOT write YAML, and MUST dispose with the plugin. |
 | LN-PLUG-026 | `registerIndexProjection` MUST return a handle with `query`, `get`, and `queryRelated`. Registration MUST backfill from the core file index in bounded batches. |
+| LN-PLUG-027 | `App` MUST expose an API-owned daily-document provider registry, resolution MUST fail closed when no provider or equal-priority providers exist, and provider registration MUST be disposable without granting plugins ownership of host folder, filename, or front-matter policy. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

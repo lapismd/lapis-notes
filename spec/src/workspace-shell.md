@@ -1,5 +1,9 @@
 # Workspace Shell
 
+The shell renders the generated `dailyNotes.folder` and
+`dailyNotes.dateFormat` configuration controls supplied by the API schema. It
+does not choose daily-note paths or interpret occurrence observations.
+
 Workspace consumers may mount a complete Markdown file through the API
 file-surface registry. The consumer supplies placement and opaque context;
 Markdown retains editor, persistence, and scroll ownership.
