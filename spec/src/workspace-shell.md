@@ -69,7 +69,7 @@ MUST NOT register workspace views.
 | LN-WS-081 | `setViewState`, `open`, and `activateLeaf` MUST schedule the existing 1000 ms `workspace.json` writer. The written dock `currentTab` and, for a sidebar group, `selectedLeafId` MUST restore that dock's selected leaf or group after `loadLayout`. The writer MUST stay debounced. |
 | LN-WS-082 | Workspace MUST record each successfully opened file on `file-open` in a most-recent-first ring. `getLastOpenFiles` MUST return those paths. `getRecentFiles` MUST resolve surviving vault files in that order. |
 | LN-WS-083 | Workspace MUST register `app:go-to-file`. Activating it MUST call Design Core `openPalette({ tab: "files" })`. Empty-view Go to file and See recent files MUST use that command. |
-| LN-WS-084 | The workspace shell pane menu MUST split Lapis-hosted views by duplicating the active API leaf before the Design Core pane appears. The duplicated pane MUST project into the host layout and render the same view type with copied state for both Split right and Split down. |
+| LN-WS-084 | The workspace shell pane menu MUST split Lapis-hosted views by duplicating the active API leaf before the Design Core pane appears. The duplicated pane MUST project with translated host directions and render the same view type with copied state for both Split right and Split down. |
 
 ## Ownership and data flow
 

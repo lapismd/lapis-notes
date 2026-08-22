@@ -443,6 +443,27 @@ function createWorkspaceHarness(
   return { app, workspace };
 }
 
+function hostSplitDirectionForTab(layout: any, tabId: string): string | null {
+  const visit = (node: any, parentDirection: string | null): string | null => {
+    if (!node || typeof node !== "object") return null;
+    if (node.type === "tabs") {
+      const children = Array.isArray(node.children) ? node.children : [];
+      return children.some((child: { id?: string }) => child.id === tabId)
+        ? parentDirection
+        : null;
+    }
+    if (node.type === "split" || node.type === "floating") {
+      const children = Array.isArray(node.children) ? node.children : [];
+      for (const child of children) {
+        const match = visit(child, node.direction ?? parentDirection);
+        if (match) return match;
+      }
+    }
+    return null;
+  };
+  return visit(layout.main, null);
+}
+
 class HarnessNotifications extends EventDispatcher<{
   changed: [];
   notify: [record: { id: string }];
@@ -2794,11 +2815,11 @@ describe("Workspace compatibility", () => {
   });
 
   it.each([
-    ["Split right", "vertical"],
-    ["Split down", "horizontal"],
+    ["Split right", "vertical", "horizontal"],
+    ["Split down", "horizontal", "vertical"],
   ])(
     "duplicates a live API leaf before the design-core %s pane menu renders",
-    async (title, direction) => {
+    async (title, direction, hostDirection) => {
       const { workspace } = createWorkspaceHarness();
       const binding = getWorkspaceHostBinding(workspace);
       workspace.registerView("graph", (currentLeaf) => new MockChromeView(currentLeaf));
@@ -2830,6 +2851,9 @@ describe("Workspace compatibility", () => {
       expect(JSON.stringify(binding.controller.getLayout())).toContain(
         duplicate!.id,
       );
+      expect(
+        hostSplitDirectionForTab(binding.controller.getLayout(), duplicate!.id),
+      ).toBe(hostDirection);
       expect(binding.controller.renderer.activeTabId).toBe(duplicate!.id);
       expect(binding.controller.renderer.registry.resolve("graph")).toBeDefined();
     },

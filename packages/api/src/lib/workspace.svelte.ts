@@ -1723,22 +1723,69 @@ function workspaceCssLengthToPixels(value: string): string {
   return normalized.endsWith("px") ? normalized : `${amount}px`;
 }
 
-function workspaceJsonForDesignCore(layout: WorkspaceJson): WorkspaceJson {
+function translateWorkspaceSplitDirection(
+  direction: WorkspaceSplitJson["direction"],
+): WorkspaceSplitJson["direction"] {
+  return direction === "horizontal" ? "vertical" : "horizontal";
+}
+
+function translateWorkspaceSplitDirections<T extends WorkspaceSplitJson>(
+  split: T,
+): T {
+  return {
+    ...split,
+    direction: translateWorkspaceSplitDirection(split.direction),
+    children: split.children.map((child) =>
+      child.type === "split" ? translateWorkspaceSplitDirections(child) : child,
+    ),
+  };
+}
+
+function translateWorkspaceWindowDirections(
+  win: WorkspaceWindowJson,
+): WorkspaceWindowJson {
+  return {
+    ...win,
+    direction: translateWorkspaceSplitDirection(win.direction),
+    children: win.children.map((child) =>
+      child.type === "split" ? translateWorkspaceSplitDirections(child) : child,
+    ),
+  };
+}
+
+function translateWorkspaceJsonSplitDirections(
+  layout: WorkspaceJson,
+): WorkspaceJson {
   return {
     ...layout,
+    main: translateWorkspaceSplitDirections(layout.main),
+    left: translateWorkspaceSplitDirections(layout.left),
+    right: translateWorkspaceSplitDirections(layout.right),
+    floating: layout.floating?.map(translateWorkspaceWindowDirections),
+  };
+}
+
+function workspaceJsonForDesignCore(layout: WorkspaceJson): WorkspaceJson {
+  const translated = translateWorkspaceJsonSplitDirections(layout);
+  return {
+    ...translated,
     left: {
-      ...layout.left,
-      width: workspaceCssLengthToPixels(layout.left.width),
+      ...translated.left,
+      width: workspaceCssLengthToPixels(translated.left.width),
     },
     right: {
-      ...layout.right,
-      width: workspaceCssLengthToPixels(layout.right.width),
+      ...translated.right,
+      width: workspaceCssLengthToPixels(translated.right.width),
     },
     bottom: {
-      ...layout.bottom,
-      height: workspaceCssLengthToPixels(layout.bottom.height),
+      ...translated.bottom,
+      height: workspaceCssLengthToPixels(translated.bottom.height),
     },
   };
+}
+
+function workspaceJsonForCompatibility(layout: WorkspaceJson): WorkspaceJson {
+  return translateWorkspaceJsonSplitDirections(layout);
 }
 
 function designLayoutEventFromCompatibility(
@@ -3322,7 +3369,9 @@ export class Workspace extends EventDispatcher<{
     layout: unknown,
     event: DesignWorkspaceLayoutChangeEvent,
   ): void {
-    const projected = normalizeWorkspaceJson(layout);
+    const projected = workspaceJsonForCompatibility(
+      normalizeWorkspaceJson(layout),
+    );
     const preserveSidebarWidth = (
       side: SidebarSide,
       current: WorkspaceSidedock,

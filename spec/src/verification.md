@@ -961,7 +961,7 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-PLUG-026 | plugin-model                    | Implemented | Registration returns a query handle and backfills from the core file index |
 | LN-ARCH-064 | architecture                    | Implemented | API owns skill and slash registries; AI owns discovery, snapshots, and AppToolHost routing |
 | LN-ARCH-065 | architecture                    | Implemented | API registry tests cover plugin-scoped Markdown contribution and file-surface registration, replacement, and disposal |
-| LN-ARCH-066 | architecture                    | Implemented | API workspace-host bridge tests invoke pane-menu Split right and Split down and assert live duplicated leaves, copied state, and host layout projection |
+| LN-ARCH-066 | architecture                    | Implemented | API workspace-host bridge tests invoke pane-menu Split right and Split down and assert live duplicated leaves, copied state, host layout projection, and translated directions |
 | LN-PKG-096  | packages                        | Implemented | API agent-skills export and AI skill/command modules stay free of MCP, ACP, and vendor types |
 | LN-PKG-100  | packages                        | Implemented | API owns agentResultViews; Search registers notes_search; AI looks up views without importing Search |
 | LN-PKG-097  | packages                        | Implemented | API vault-maintenance tests register app:rebuild-vault-cache and call metadataCache.rebuild |
@@ -1001,8 +1001,8 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-BM-014   | bookmarks-plugin                | In progress | left-sidebar play asserts chevron-centered guide, no leaf disclosure column, folder-gap, and row-gap |
 | LN-PKG-104  | packages                        | Implemented | API provider tests cover Luxon filenames, front-matter-first lookup, configured creation, duplicates, and occupied paths; desktop and web install the shared registration before configuration load |
 | LN-PLUG-027 | plugin-model                    | Implemented | DailyDocumentProviderRegistry tests cover priority, ambiguity, registration, and disposal through the App-owned registry |
-| LN-PKG-105  | packages                        | Implemented | API workspace-host bridge tests cover Design Core pane-menu split actions duplicating live Lapis leaves and projecting the host layout before render |
-| LN-PLUG-028 | plugin-model                    | Implemented | API workspace-host bridge tests verify Split right and Split down keep duplicated plugin views attached to live projected WorkspaceLeaf instances |
-| LN-WS-084   | workspace-shell                 | Implemented | API workspace-host bridge tests assert Split right and Split down project into Design Core and render copied view state from duplicated leaves |
+| LN-PKG-105  | packages                        | Implemented | API workspace-host bridge tests cover Design Core pane-menu split actions duplicating live Lapis leaves with translated host directions before render |
+| LN-PLUG-028 | plugin-model                    | Implemented | API workspace-host bridge tests verify Split right and Split down keep duplicated plugin views attached to live projected WorkspaceLeaf instances with correct visual direction |
+| LN-WS-084   | workspace-shell                 | Implemented | API workspace-host bridge tests assert Split right and Split down project into Design Core with copied view state and the expected host split direction |
 | LN-DB-024   | app-database                    | Implemented | task-projection tests cover carried Review membership, single effective Upcoming membership, and projection v3 fields |
 | LN-DB-025   | app-database                    | Implemented | task-projection tests assert the public occurrence observation schema including outcomes, values, and exact source offsets |
