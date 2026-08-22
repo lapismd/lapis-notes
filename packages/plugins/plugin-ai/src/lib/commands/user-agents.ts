@@ -11,6 +11,8 @@ export interface UserAgentsCommandStore {
   subscribe?(listener: () => void): () => void;
 }
 
+const NODE_USER_AGENTS_MODULE = "./user-agents-node.js";
+
 export class MemoryUserAgentsStore implements UserAgentsCommandStore {
   readonly files = new Map<string, string>();
   readonly #listeners = new Set<() => void>();
@@ -46,7 +48,9 @@ export async function tryCreateNodeUserAgentsStore(
     return undefined;
   }
   try {
-    const { createNodeUserAgentsStore } = await import("./user-agents-node");
+    const { createNodeUserAgentsStore } = await import(
+      /* @vite-ignore */ NODE_USER_AGENTS_MODULE
+    );
     return createNodeUserAgentsStore(root);
   } catch {
     return undefined;

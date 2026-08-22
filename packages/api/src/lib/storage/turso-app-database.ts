@@ -936,11 +936,11 @@ export function canUseTursoWasmDatabase(): boolean {
 export async function createTursoWasmConnection(
   path: string,
 ): Promise<TursoConnection> {
-  // The public bundle export embeds the WASM worker, which also works from
-  // non-HTTP application schemes. Version 0.7.2 does not publish declarations
-  // for this export, so keep the untyped module at this narrow driver edge.
+  // The Vite-aware export avoids bundling through the package's prebuilt
+  // worker-inline entry, which Rollup's CommonJS resolver can recurse on, and
+  // still keeps the dev-server worker/WASM handling owned by the driver.
   const { connect } = (await import(
-    "@tursodatabase/database-wasm/bundle" as string
+    "@tursodatabase/database-wasm/vite" as string
   )) as {
     connect(
       databasePath: string,

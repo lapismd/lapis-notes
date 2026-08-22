@@ -157,6 +157,7 @@ describe("web vault transfer", () => {
         return {
           totalFiles: 2,
           importedFiles: 2,
+          currentPath: "Notes/A.md",
         };
       },
     );
@@ -240,6 +241,7 @@ describe("web vault transfer", () => {
         return {
           totalFiles: 3,
           exportedFiles: 3,
+          currentPath: "Daily/Today.md",
         };
       },
     );

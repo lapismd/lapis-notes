@@ -49,8 +49,8 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-028 | Web recent rows MUST use a kebab trigger labeled Open actions for the vault name. The menu MUST offer Copy ID, Rename, and Remove from list. Delete MUST appear only for OPFS vaults. |
 | LN-WEB-029 | A Manage Vaults overlay MUST keep the ready session mounted and hidden without clearing the current profile. Close MUST sit immediately right of Settings, use Return to previous vault, and return without `WorkspaceStartup`. First launch MUST omit close. |
 | LN-WEB-038 | An OPFS web session MUST register a Browser vault Settings section with Import local folder and Export to local folder action fields, plus palette commands `app:import-local-vault` and `app:export-current-vault`. Those commands MUST hide through `checkCallback` when the adapter is not OPFS. File System Access sessions MUST NOT show the section or commands. |
-| LN-WEB-039 | In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.obsidian` settings apply. Picker cancel MUST be silent. Notices MUST NOT mention community plugins. |
-| LN-WEB-040 | Export MUST pick a folder, copy the current OPFS tree including `.obsidian` with overwrite, report determinate progress, and notify success. Picker cancel MUST be silent. |
+| LN-WEB-039 | In-session import MUST pick a folder, copy it into the current OPFS vault with overwrite, report determinate progress, reload the vault, and start metadata rebuild without blocking. It MUST then offer a confirm to reload the page so imported `.obsidian` settings apply. Picker cancel MUST be silent. Notifications MUST use the session App and MUST NOT mention community plugins. |
+| LN-WEB-040 | Export MUST pick a folder, copy the current OPFS tree including `.obsidian` with overwrite, report determinate progress, and notify success through the session App. Picker cancel MUST be silent. |
 | LN-WEB-041 | The launcher MUST offer Import Vault beside Create New Vault and Open Folder. It MUST pick a folder, collect a name in Import Browser Vault, create an OPFS profile, copy the folder, then open that session. Name MUST start as the folder name, and Import vault MUST stay disabled until the trimmed name is non-empty. |
 | LN-WEB-042 | In-session import and export MUST report each copied file through `notifications.withProgress`. After scanning completes, the progress message MUST include the current path and `N of M` counts. The report MUST keep determinate `current` and `total`. |
 | LN-WEB-043 | Launcher Import Vault MUST update the `import` WorkspaceStartup task `detail` with the current path and `N of M` counts while copying. It MUST NOT use App notifications before the session exists. |
@@ -144,6 +144,9 @@ The web session binds PWA commands and status to its explicit App and provides
 that App to the shell. Its compatibility lease is installed before plugin load
 and released after the owned session closes, so vault replacement cannot leave
 PWA actions attached to the previous compatibility alias.
+Import and export command failures use that same explicit App notification
+manager. They do not construct compatibility Notices, so typed web builds and
+multi-session ownership keep the reporting attached to the active session.
 
 When live AI attach is configured, the shared bridge supplies provider model
 catalogs and runtime events over the authenticated host connection. Closing

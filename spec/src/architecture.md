@@ -312,7 +312,9 @@ can persist and dispose without moving ownership into main or workspace.
 Electron main owns native Turso handles behind a fixed API database RPC
 catalogue; the renderer receives descriptors and results, never SQL or storage
 paths. Intel macOS composes the API-owned WASM provider in the renderer behind
-the same session boundary.
+the same session boundary. Renderer and web WASM database imports use the
+driver's host-bundler entry so Vite serves worker and WASM assets without
+pulling the prebuilt worker-inline module through Rollup.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
 OPFS in exactly one Web Locks owner per vault; other tabs retain the generic
 database contract through bounded BroadcastChannel RPC and may promote when
@@ -376,7 +378,9 @@ sessions while the reserved `model` capability stays unavailable. The plugin
 obtains live runtimes from that host factory and keeps adapters off the root
 export. Cursor uses the same ACP runtime as Codex through the selected agent
 name. Process execution lives in sibling `@lapismd/ai-host`, used in-process by
-Electron and as `lapis-ai-host serve` for WebSocket clients.
+Electron and as `lapis-ai-host serve` for WebSocket clients. User-global agent
+command storage is a host capability, so renderer bundles must not statically
+pull the AI plugin's Node-only command-store module into the browser graph.
 The same desktop bridge advertises `terminal-runtime`. Electron embeds sibling
 `@lapismd/terminal-host` in-process and binds each session workspace to the
 create payload vault path, otherwise `terminal.cwd`, otherwise the home

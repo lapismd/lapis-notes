@@ -30,6 +30,8 @@ progress (LN-WEB-042, LN-WEB-043) and App rebuild-cache commands
 (LN-PKG-097, LN-PKG-098) also MUST NOT change Word Count ownership.
 Desktop and web Tasks index-only load (LN-DESK-060, LN-WEB-044) also MUST
 NOT change Word Count ownership.
+Browser vault transfer error reporting through session-owned notifications also
+MUST NOT change Word Count ownership.
 
 ## Requirements
 

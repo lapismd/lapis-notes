@@ -308,7 +308,9 @@ ACP via `acpx/runtime` is the default live path. Codex and Cursor share that
 adapter through the selected built-in agent name. Native Codex remains an
 optional richer adapter for policy amendments only. There is no Cursor-native
 runtime. Sibling `@lapismd/ai-host` and its `lapis-ai-host` CLI own process
-execution. Web and
+execution. The user-agents command store may load Node persistence only from a
+runtime-only host path; browser and renderer bundles must not statically include
+that Node module. Web and
 Storybook default stories stay Fake. The dedicated Live Host story
 attaches only when URL and token are configured. The paperclip attach picker
 keeps its Popover host and composes Command View for the vault-file list.

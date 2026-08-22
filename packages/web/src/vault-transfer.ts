@@ -1,5 +1,4 @@
 import {
-  Notice,
   OpfsVaultAdapter,
   createOpfsVault,
   deleteBrowserLocalVault,
@@ -157,14 +156,15 @@ export async function importLocalFolderIntoCurrentVault(
     );
 
     void app.metadataCache.rebuild().catch((error) => {
-      new Notice(
-        errorMessage(
+      app.notifications.notify({
+        title: "Metadata refresh failed",
+        message: errorMessage(
           error,
           "Imported files, but metadata refresh failed",
         ),
-        undefined,
-        app,
-      );
+        severity: "error",
+        source: "Import",
+      });
     });
 
     const imported =
@@ -201,11 +201,12 @@ export async function runImportVaultCommand(
     if (isAbortError(error)) {
       return;
     }
-    new Notice(
-      errorMessage(error, "Failed to import local folder"),
-      undefined,
-      app,
-    );
+    app.notifications.notify({
+      title: "Failed to import local folder",
+      message: errorMessage(error, "Failed to import local folder"),
+      severity: "error",
+      source: "Import",
+    });
   }
 }
 
@@ -283,11 +284,12 @@ export async function runExportVaultCommand(
     if (isAbortError(error)) {
       return;
     }
-    new Notice(
-      errorMessage(error, "Failed to export browser vault"),
-      undefined,
-      app,
-    );
+    app.notifications.notify({
+      title: "Failed to export browser vault",
+      message: errorMessage(error, "Failed to export browser vault"),
+      severity: "error",
+      source: "Export",
+    });
   }
 }
 

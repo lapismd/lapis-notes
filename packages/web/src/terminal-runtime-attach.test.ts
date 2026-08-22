@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({
   hasNativeDesktopBridge: vi.fn(() => false),
   getNativeDesktopBridge: vi.fn(() => null as unknown),
-  getNativeDesktopCapability: vi.fn(() => null as unknown),
+  getNativeDesktopCapability: vi.fn((_id: string) => null as unknown),
   setNativeDesktopBridge: vi.fn(),
   hasNativeDesktopCapability: vi.fn((_capability: string) => false),
 }));

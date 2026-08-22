@@ -182,6 +182,11 @@ lease exposes a different App for an older consumer.
 `App` registers host-neutral `app:rebuild-vault-cache` and
 `app:rebuild-generated-state` so Search can refresh after a later metadata
 rebuild without an API import of Search internals (LN-PKG-097, LN-PKG-098).
+Browser vault transfer failures report through the owning session App's
+notification manager; first-party hosts do not route those commands through the
+compatibility `Notice` constructor. AI user-global command storage is likewise
+host-owned and enters renderer code only through a runtime-only capability
+boundary, not a static Node module import.
 Markdown reuses one `MiraFileAdapter` for that same App so preview effects do
 not churn when views reconfigure. Its full-file surface establishes the
 effective Mira `obsidian` theme so domain contributions inherit Lapis semantic

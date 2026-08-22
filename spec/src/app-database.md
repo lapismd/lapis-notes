@@ -10,7 +10,7 @@ workspace shell.
 | --- | --- |
 | LN-DB-001 | Existing `AppDatabase` operations MUST remain available while session creation accepts an optional `AppDatabaseProvider`. Explicit database injection MUST remain supported. |
 | LN-DB-002 | Every database MUST expose a descriptor with provider, engine, transport, role, storage mode, and query capabilities. Consumers MUST NOT infer capabilities from implementation names. |
-| LN-DB-003 | The production local provider MUST use pinned Turso native storage where supported and Turso WASM with OPFS in browser-compatible runtimes. Memory MUST remain explicit test-only injection. |
+| LN-DB-003 | The production local provider MUST use pinned Turso native storage where supported and Turso WASM with OPFS in browser-compatible runtimes. The WASM path MUST use a host-compatible driver entrypoint instead of a prebuilt worker-inline bundle. Memory MUST remain explicit test-only injection. |
 | LN-DB-004 | Turso storage MUST persist metadata snapshots, indexed files, links, tags, properties, plugin projections, notifications, history, search documents, chunks, embedding state, and application metadata. |
 | LN-DB-005 | Lexical retrieval MUST use Turso full-text search when available. Unsupported optimizations MAY degrade to Turso table evaluation while reporting the degraded capability. |
 | LN-DB-006 | Semantic retrieval MUST store float vectors in Turso and use Turso vector distance or indexes. Active query paths MUST NOT load sqlite-vec. |
@@ -78,7 +78,10 @@ The Electron implementation opens one Turso handle per renderer and vault in
 main on supported native targets. Its renderer client can invoke only the
 fixed `AppDatabase` method catalogue. Intel macOS selects the same provider
 contract over the self-contained Turso WASM bundle and OPFS instead of opening
-a compatibility database. Session disposal drains metadata-cache work and
+a compatibility database. The WASM provider imports the driver's host-bundler
+entry so web and renderer builds serve driver-owned worker and WASM assets
+without inlining the package's prebuilt worker module. Session disposal drains
+metadata-cache work and
 cancels delayed writes before closing the owning Turso handle.
 
 The browser coordinator opens that WASM provider only in the elected owner.

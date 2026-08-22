@@ -61,7 +61,7 @@ MUST NOT register workspace views.
 | LN-WS-068 | The workspace host MUST project each Lapis `notifications.activeProgress` entry whose location is not `silent` into the Design Core notification manager. The notifications status item MUST show busy plus that entry's title while it runs. Silent progress MUST NOT appear. Projected handles MUST be removed when they leave `activeProgress`. |
 | LN-WS-055 | Every workspace root MUST bind to its owning `Workspace`; leaves and views MUST derive App through that ownership chain. `WorkspaceShell` MUST provide its required App to descendant Svelte components without making compatibility state authoritative. |
 | LN-WS-057 | Default shells MUST include Design Core `fModePlugin({ enabled: false })` on the API-owned controller. AppShell enablement MUST persist through Design Core `persistence.plugins`. Missing persistence MUST keep F-Mode disabled. Plugin-state load and save MUST resolve the App vault when they run. |
-| LN-WS-058 | Default desktop shells MUST show Design Core's built-in Settings action in the left ribbon bottom while the ribbon is visible. Activating it MUST open the same settings dialog as the sidebar trigger. |
+| LN-WS-058 | Default desktop shells MUST show Design Core's built-in Settings action in the left ribbon footer while the ribbon is visible. The action MUST expose the public "Open settings" label and activate the same settings dialog as any shell settings trigger. |
 | LN-WS-059 | When `loadLayout` finds no workspace file, the workspace MUST seed registered default sidebar views: left `file-explorer`, then `search`, then `bookmarks`; right `outline`, `file-properties`, then `tag`. It MUST open those docks, keep one empty main New Tab and a closed bottom dock, omit unregistered types, and MUST NOT write `workspace.json` during that seed. |
 | LN-WS-060 | The workspace MUST register Save workspace layout and Load workspace layout commands. Those commands MUST persist and restore named layouts in `.obsidian/workspaces.json` while the live layout continues to write `workspace.json`. |
 | LN-WS-061 | The workspace MUST register a Reset workspace layout command. Confirming it MUST apply the same default sidebar seed as a missing workspace file and persist the result to `workspace.json`. |
@@ -125,7 +125,7 @@ The bottom panel is projected as one top-level tabs wrapper rather than a
 recursive split. Center tab and group moves are supported; split-edge and focus
 mode operations remain restricted to the main workspace. Built-in shell settings
 use design-core's controller directly and do not share the workspace JSON writer.
-Default desktop chrome shows that Settings action in the left ribbon bottom
+Default desktop chrome shows that Settings action in the left ribbon footer
 while the ribbon is visible. A missing workspace file seeds File Explorer then
 Search on the left and Outline, File Properties, then Tags on the right when
 those views are registered, without writing workspace.json during that seed.

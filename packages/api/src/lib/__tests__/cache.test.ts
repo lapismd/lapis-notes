@@ -12,6 +12,7 @@ import {
 } from "../cache.svelte";
 import {
   APP_DATABASE_SCHEMA_VERSION,
+  IndexProjectionRegistry,
   MemoryAppDatabase,
   MemoryKeyValueStore,
   setDefaultVaultStateStore,
@@ -45,6 +46,7 @@ function createMetadataCache(paths: string[]): MetadataCache {
     appDatabase: {
       saveMetadataSnapshot: vi.fn(async () => {}),
     },
+    indexProjections: new IndexProjectionRegistry(),
     vault: {
       adapter: {
         getVaultId: () => "vault-under-test",
@@ -101,6 +103,7 @@ function createLoadCache(
     options.notifications ?? createProgressNotifications();
   const cache = new MetadataCache({
     appDatabase: database,
+    indexProjections: new IndexProjectionRegistry(),
     notifications,
     metadataTypeManager: { types: {} },
     vault: {
@@ -321,6 +324,7 @@ describe("MetadataCache.load", () => {
         loadMetadataSnapshot,
         saveMetadataSnapshot,
       },
+      indexProjections: new IndexProjectionRegistry(),
       notifications: createProgressNotifications(),
       vault: {
         adapter: {
