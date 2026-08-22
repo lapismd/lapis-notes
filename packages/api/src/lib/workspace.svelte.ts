@@ -4991,6 +4991,10 @@ export class Workspace extends EventDispatcher<{
       const popoutLeaf = this.openPopoutLeaf();
       return popoutLeaf.setViewState({ ...leaf.state }).then(() => {
         this.app.workspace.activeLeaf = popoutLeaf;
+        this.app.workspace.requestSaveLayout({
+          source: "popout",
+          operation: "duplicate-leaf-window",
+        });
         return popoutLeaf;
       });
     }
@@ -5022,6 +5026,11 @@ export class Workspace extends EventDispatcher<{
           }
       }
       this.app.workspace.activeLeaf = duplicateLeaf;
+      this.app.workspace.requestSaveLayout({
+        source: "api",
+        operation:
+          leafType === "split" ? `duplicate-leaf-${direction}` : "duplicate-leaf-tab",
+      });
       return duplicateLeaf;
     });
   }

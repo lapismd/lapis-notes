@@ -2827,6 +2827,10 @@ describe("Workspace compatibility", () => {
       expect(duplicate?.view.getState()).toEqual({ source: "pane-menu" });
       expect(workspace.getLeafById(duplicate!.id)).toBe(duplicate);
       expect(duplicate?.parent.parent.type).toBe(direction);
+      expect(JSON.stringify(binding.controller.getLayout())).toContain(
+        duplicate!.id,
+      );
+      expect(binding.controller.renderer.activeTabId).toBe(duplicate!.id);
       expect(binding.controller.renderer.registry.resolve("graph")).toBeDefined();
     },
   );
