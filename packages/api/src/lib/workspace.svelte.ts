@@ -203,6 +203,26 @@ function prependPaneMenu(target: DesignWorkspaceMenu, source: Menu): void {
   target.entries.unshift(...translated.entries);
 }
 
+function replaceWorkspaceHostSplitActions(
+  target: DesignWorkspaceMenu,
+  workspace: Workspace,
+  leaf: WorkspaceLeaf,
+): void {
+  for (const entry of target.entries) {
+    if (entry.kind !== "item") continue;
+    const direction =
+      entry.title === "Split right"
+        ? "vertical"
+        : entry.title === "Split down"
+          ? "horizontal"
+          : null;
+    if (!direction) continue;
+    entry.callback = async () => {
+      await workspace.duplicateLeaf(leaf, "split", direction);
+    };
+  }
+}
+
 function toDesignEditorViewContribution(
   contribution: RegisteredEditorViewContribution,
 ): DesignEditorViewContribution {
@@ -3456,8 +3476,10 @@ export class Workspace extends EventDispatcher<{
             },
           })),
           buildPaneMenu: (menu) => {
-            const currentView = this.getLeafById(context.tab.id)?.view;
+            const currentLeaf = this.getLeafById(context.tab.id);
+            const currentView = currentLeaf?.view;
             if (!currentView) return;
+            replaceWorkspaceHostSplitActions(menu, this, currentLeaf);
             const paneMenu = new Menu();
             currentView.onPaneMenu(paneMenu, "more-options");
             prependPaneMenu(menu, paneMenu);

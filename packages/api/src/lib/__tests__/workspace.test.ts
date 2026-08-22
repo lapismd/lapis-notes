@@ -2793,6 +2793,44 @@ describe("Workspace compatibility", () => {
     expect(chromeView!.providerCallback).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ["Split right", "vertical"],
+    ["Split down", "horizontal"],
+  ])(
+    "duplicates a live API leaf before the design-core %s pane menu renders",
+    async (title, direction) => {
+      const { workspace } = createWorkspaceHarness();
+      const binding = getWorkspaceHostBinding(workspace);
+      workspace.registerView("graph", (currentLeaf) => new MockChromeView(currentLeaf));
+      const leaf = workspace.getLeaf();
+      await leaf.setViewState({
+        type: "graph",
+        state: { source: "pane-menu" },
+      });
+
+      const menu = binding.controller.renderer.createPaneMenu(leaf.id);
+      const split = menu.entries.find(
+        (entry) => entry.kind === "item" && entry.title === title,
+      );
+      expect(split?.kind).toBe("item");
+      if (split?.kind !== "item") return;
+
+      const result = split.callback?.();
+      expect(result).toBeInstanceOf(Promise);
+      await result;
+
+      const duplicate = workspace.activeLeaf;
+      expect(duplicate).toBeInstanceOf(WorkspaceLeaf);
+      expect(duplicate).not.toBe(leaf);
+      expect(duplicate?.view).toBeInstanceOf(MockItemView);
+      expect(duplicate?.view.getViewType()).toBe("graph");
+      expect(duplicate?.view.getState()).toEqual({ source: "pane-menu" });
+      expect(workspace.getLeafById(duplicate!.id)).toBe(duplicate);
+      expect(duplicate?.parent.parent.type).toBe(direction);
+      expect(binding.controller.renderer.registry.resolve("graph")).toBeDefined();
+    },
+  );
+
   it("projects contributed breadcrumbs and a breadcrumb file path into chrome", async () => {
     const { app, workspace } = createWorkspaceHarness();
     const binding = getWorkspaceHostBinding(workspace);
