@@ -19,7 +19,9 @@ rows, including `tasks/task`, without importing each other. The tasks
 projection `planKind` values are `anytime`, `morning`, `afternoon`,
 `evening`, and `time`. `NativeDesktopRuntime` and `RuntimeTarget` include
 `deno-desktop` without changing Electron or web production hosts. Root scripts
-`dev:desktop-deno` and `build:desktop-deno` launch the Deno parity package only.
+`dev:desktop-deno` and `build:desktop-deno` select the Deno parity package only;
+`package:desktop-deno` and `test:desktop-deno:packaged` produce and exercise its
+local production app.
 
 ## Requirements
 

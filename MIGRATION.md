@@ -138,11 +138,12 @@ Electron and web until equivalent packaged Deno acceptance passes.
 - [x] Deno window, `win.bind()` bridge, vault-root FS, bootstrap KV, and path-prompt vault open
 - [x] WorkspaceStartup then WorkspaceShell with initial Markdown and File Explorer
 - [x] macOS full-bleed `transparentTitlebar` window with native traffic lights and Design Core drag markers
-- [ ] Register the complete Electron first-party plugin inventory and ordering
-- [ ] Add database/search, language, plugin, watch, notification, agent, and terminal capability parity
+- [x] Register the complete Electron first-party plugin inventory and ordering
+- [ ] Add database/search, language, plugin, watch, agent, and terminal capability parity
+- [x] Add platform-exact macOS notifications and macOS/Linux file open/reveal actions
 - [ ] Add single-instance URLs, full menus, close handshake, popout, and external-link policy
-- [ ] Add macOS/Linux artifacts, signing hooks, packaged smoke, and parity acceptance
-- [ ] Focused API and package checks; full production vault-open boot
+- [ ] Add Linux artifacts, stable icons, signing hooks, and the remaining parity acceptance matrix
+- [x] Focused package checks, production Vite build, macOS app packaging, and full saved-vault/plugin boot smoke
 
 Intentionally out of scope: Electron imports, default-host replacement before
 packaged acceptance, Windows distribution, and remote release publication.

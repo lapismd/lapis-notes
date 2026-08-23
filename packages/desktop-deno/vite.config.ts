@@ -17,10 +17,14 @@ const linkedMiraWorkspaceRoot = searchForWorkspaceRoot(
     path.join(lapisWorkspaceRoot, "node_modules", "@lapismd", "mira"),
   ),
 );
+const linkedTerminalPluginRoot = realpathSync(
+  path.join(packageRoot, "node_modules", "@lapis-notes/lapis-plugin-terminal"),
+);
 const rendererFileSystemAllow = [
   lapisWorkspaceRoot,
   linkedDesignCoreRoot,
   linkedMiraWorkspaceRoot,
+  linkedTerminalPluginRoot,
 ];
 const rendererSingletonPackages = [
   "@codemirror/state",
@@ -62,6 +66,9 @@ export default defineConfig(({ command }) => ({
   },
   worker: { format: "es" },
   assetsInclude: ["**/*.wasm"],
+  optimizeDeps: {
+    exclude: ["ghostty-web", "@xterm/xterm"],
+  },
   resolve: {
     dedupe: rendererSingletonPackages,
   },

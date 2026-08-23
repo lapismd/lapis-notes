@@ -1,11 +1,8 @@
 /// <reference path="./desktop.d.ts" />
 import { serveDir } from "jsr:@std/http@1/file-server";
 
-import {
-  createCapabilityRegistry,
-  createPlatformInfo,
-  handleDesktopInvoke,
-} from "./bindings.ts";
+import { createPlatformInfo, handleDesktopInvoke } from "./bindings.ts";
+import { createCapabilityRegistry } from "./capabilities.ts";
 import {
   createUpstreamHeaders,
   isWebSocketUpgrade,

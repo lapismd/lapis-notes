@@ -117,6 +117,9 @@ not installed or when an embedding model is unavailable.
 
 ## Change map
 
+Deno desktop packaging and packaged smoke changes follow the same package map
+as its renderer and native host sources.
+
 | Protected area                                                             | Required chapter                                                                         |
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `packages/api` source or manifest                                          | `packages.md`, `architecture.md`                                                         |

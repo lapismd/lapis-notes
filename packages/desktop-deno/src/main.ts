@@ -15,6 +15,7 @@ import "@lapis-notes/ui/theme.css";
 import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
+import { waitForDesktopBindings } from "./binding-probe";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
 import "./desktop-host.css";
 
@@ -28,6 +29,7 @@ export type DesktopAppInfo = {
 export type DenoDesktopPlatformInfo = NativeDesktopPlatformInfo & {
   suggestedVaultPath?: string;
   overlayWindowControls?: boolean;
+  acceptance?: boolean;
 };
 
 export type DenoDesktopBridge = NativeDesktopBridge & {
@@ -36,10 +38,7 @@ export type DenoDesktopBridge = NativeDesktopBridge & {
 };
 
 type DenoDesktopBindings = {
-  invoke(
-    command: string,
-    payload?: Record<string, unknown>,
-  ): Promise<unknown>;
+  invoke(command: string, payload?: Record<string, unknown>): Promise<unknown>;
   platform(): DenoDesktopPlatformInfo;
   capabilities(): NativeDesktopCapabilityRegistry;
 };
@@ -47,36 +46,6 @@ type DenoDesktopBindings = {
 function readBindings(): DenoDesktopBindings | null {
   const bindings = (globalThis as { bindings?: DenoDesktopBindings }).bindings;
   return bindings == null ? null : bindings;
-}
-
-async function waitForBindings(): Promise<DenoDesktopBindings> {
-  const presentAtParse = (
-    globalThis as { __LAPIS_DENO_BINDINGS__?: boolean }
-  ).__LAPIS_DENO_BINDINGS__;
-  if (presentAtParse === false) {
-    throw new Error(
-      "Deno desktop bindings are missing. Use the deno desktop window; opening the Vite port in a browser cannot install win.bind().",
-    );
-  }
-  const deadline = Date.now() + 5000;
-  let lastError: unknown;
-  while (Date.now() < deadline) {
-    const bindings = readBindings();
-    if (bindings) {
-      try {
-        await bindings.invoke("desktop_app_info_get");
-        return bindings;
-      } catch (error) {
-        lastError = error;
-      }
-    }
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
-  throw lastError instanceof Error
-    ? lastError
-    : new Error(
-        "Deno desktop bindings are missing. Use the deno desktop window; opening the Vite port in a browser cannot install win.bind().",
-      );
 }
 
 function showStartupError(error: unknown): void {
@@ -96,9 +65,7 @@ function clearBootStatus(): void {
   document.getElementById("lapis-boot-status")?.remove();
 }
 
-function applyDesktopPlatformClasses(
-  platform: DenoDesktopPlatformInfo,
-): void {
+function applyDesktopPlatformClasses(platform: DenoDesktopPlatformInfo): void {
   const root = document.documentElement;
   const desktopRuntime = platform.runtime === "deno-desktop";
   root.classList.toggle("lapis-desktop", desktopRuntime);
@@ -135,7 +102,11 @@ if (!target) {
 
 let bindings: DenoDesktopBindings;
 try {
-  bindings = await waitForBindings();
+  bindings = await waitForDesktopBindings({
+    readBindings,
+    presentAtParse: (globalThis as { __LAPIS_DENO_BINDINGS__?: boolean })
+      .__LAPIS_DENO_BINDINGS__,
+  });
 } catch (error) {
   showStartupError(error);
   throw error;
@@ -169,7 +140,9 @@ const bridge: DenoDesktopBridge = {
 };
 
 applyDesktopPlatformClasses(platform);
-installDesktopWindowDrag((command, payload) => bindings.invoke(command, payload));
+installDesktopWindowDrag((command, payload) =>
+  bindings.invoke(command, payload),
+);
 setNativeDesktopBridge(bridge);
 await migrateVaultBootstrapStoreFromIndexedDb();
 setDefaultVaultStateStore(new ElectronMainVaultBootstrapKeyValueStore());

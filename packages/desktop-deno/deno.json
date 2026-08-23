@@ -1,0 +1,17 @@
+{
+  "desktop": {
+    "app": {
+      "name": "LapisNotes",
+      "identifier": "md.lapis.notes.desktop-deno"
+    },
+    "backend": "webview"
+  },
+  "tasks": {
+    "dev": "deno desktop --hmr --inspect=127.0.0.1:9229 --no-check --no-npm --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
+    "start": "deno desktop --no-check --no-npm --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.window"]
+  }
+}

@@ -21,7 +21,7 @@ packaged acceptance passes. The private package lives at
 | LN-DENO-008 | Language, plugin, AI, and terminal host services MUST use public package boundaries and Deno-owned process lifecycles. Deno code MUST NOT import Electron main or preload modules.                                                                          |
 | LN-DENO-009 | Session boot MUST render Design Core `WorkspaceStartup` with vault, configuration, plugin, and layout tasks, then mount `WorkspaceShell` with an API `App`. It MUST NOT copy the workspace renderer.                                                        |
 | LN-DENO-010 | Development and production renderer responses MUST send the cross-origin isolation headers required by WASM Turso.                                                                                                                                          |
-| LN-DENO-011 | The visible window MUST complete `win.bind()` invoke returns before mounting a vault session. The host MUST use Deno's public binding registry and MUST NOT patch `Map.prototype`.                                                                          |
+| LN-DENO-011 | The visible window MUST complete a bounded, retrying `win.bind()` invoke probe before mounting a vault session. One lost WebView return MUST NOT stall startup. The host MUST use Deno's public binding registry and MUST NOT patch `Map.prototype`.        |
 | LN-DENO-012 | On macOS, the visible window MUST provide full-bleed content with native traffic lights through Deno `transparentTitlebar`. Other platforms MUST retain native chrome. The host MUST NOT use Electron `titleBarStyle` or AppKit style-mask mutation.        |
 | LN-DENO-013 | Launcher empty chrome and Design Core `data-desktop-drag-region` surfaces MUST move the window. Descendants marked `false` MUST NOT start a drag. The host MUST NOT re-declare Design Core `app-region` CSS.                                                |
 | LN-DENO-014 | The production renderer MUST bundle `@tursodatabase/database-wasm/bundle` as published ESM. It MUST NOT pass that file through Vite's CommonJS conversion.                                                                                                  |
@@ -40,7 +40,7 @@ packaged acceptance passes. The private package lives at
 Deno window binding verifies:
 
 - Deno 2.9.5 or later MUST provide the public per-window binding registry after the lazy-op upgrade.
-- The visible macOS overlay window MUST return `desktop_app_info_get` before the renderer mounts a vault session.
+- The visible macOS overlay window MUST return `desktop_app_info_get` before the renderer mounts a vault session, retrying when an earlier probe remains pending.
 - The host MUST NOT install the superseded `Map.prototype.get` binding shim.
 
 ### LN-DENO-012 acceptance details
@@ -74,7 +74,7 @@ The production renderer launch verifies:
 
 - Root and emitted asset requests MUST resolve beneath `<launch working directory>/dist`.
 - Static responses MUST retain the renderer's cross-origin isolation headers.
-- A production-mode Deno launch MUST serve the root document and reach the native bridge boot probe.
+- A production-mode Deno launch MUST restore an isolated vault, load the full portable plugin inventory, and reach workspace-ready through the native bridge.
 
 ### LN-DENO-002 acceptance details
 

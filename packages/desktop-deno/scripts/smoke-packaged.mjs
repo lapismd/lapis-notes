@@ -1,0 +1,150 @@
+#!/usr/bin/env node
+
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { spawn } from "node:child_process";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+
+const packageDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
+const expectedPlugins = [
+  "ai",
+  "bases",
+  "bookmarks",
+  "history",
+  "lapis-file-explorer",
+  "lapis-markdown-lint",
+  "markdown",
+  "roles",
+  "search",
+  "spellcheck",
+  "terminal",
+  "wordcount",
+];
+
+function resolveExecutable() {
+  const configured = process.env.LAPIS_DENO_PACKAGED_EXECUTABLE?.trim();
+  if (configured) return path.resolve(configured);
+  const candidates =
+    process.platform === "darwin"
+      ? [
+          path.join(
+            packageDir,
+            "release",
+            "LapisNotes.app",
+            "Contents",
+            "MacOS",
+            "laufey_webview",
+          ),
+          path.join(
+            packageDir,
+            "LapisNotes.app",
+            "Contents",
+            "MacOS",
+            "laufey_webview",
+          ),
+        ]
+      : [
+          path.join(packageDir, "release", "LapisNotes"),
+          path.join(packageDir, "LapisNotes"),
+        ];
+  const executable = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!executable) {
+    throw new Error(
+      "No packaged Deno desktop executable found; run pnpm package:app first",
+    );
+  }
+  return executable;
+}
+
+async function waitForReport(reportPath, child, diagnostics) {
+  const deadline = Date.now() + 180_000;
+  while (Date.now() < deadline) {
+    if (fs.existsSync(reportPath)) {
+      return JSON.parse(await readFile(reportPath, "utf8"));
+    }
+    if (child.exitCode !== null) {
+      throw new Error(
+        `Deno desktop exited before readiness (${child.exitCode})\n${diagnostics.join("")}`,
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(
+    `Timed out waiting for packaged Deno workspace readiness\n${diagnostics.join("")}`,
+  );
+}
+
+const root = await mkdtemp(path.join(os.tmpdir(), "lapis-deno-smoke-"));
+const userDataDir = path.join(root, "user-data");
+const vaultPath = path.join(root, "vault");
+const reportPath = path.join(root, "acceptance.json");
+await Promise.all([mkdir(userDataDir), mkdir(vaultPath)]);
+await writeFile(path.join(vaultPath, "Welcome.md"), "# Packaged Deno smoke\n");
+
+const profileId = `desktop-folder:${vaultPath}`;
+await writeFile(
+  path.join(userDataDir, "vault-bootstrap.json"),
+  `${JSON.stringify({
+    "profile:current": profileId,
+    [`profile:${profileId}`]: {
+      id: profileId,
+      name: "vault",
+      kind: "desktop-folder",
+      handle: { rootPath: vaultPath },
+      createdAt: 1,
+      updatedAt: 1,
+    },
+  })}\n`,
+);
+
+const diagnostics = [];
+let child;
+try {
+  const executable = resolveExecutable();
+  child = spawn(executable, [], {
+    cwd: packageDir,
+    env: {
+      ...process.env,
+      LAPIS_DENO_ACCEPTANCE: "1",
+      LAPIS_DENO_ACCEPTANCE_REPORT: reportPath,
+      LAPIS_DENO_USER_DATA: userDataDir,
+      LAPIS_DENO_VAULT: vaultPath,
+      LAPIS_DENO_VAULT_AUTO: "1",
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  child.stdout.on("data", (chunk) => diagnostics.push(String(chunk)));
+  child.stderr.on("data", (chunk) => diagnostics.push(String(chunk)));
+
+  const report = await waitForReport(reportPath, child, diagnostics);
+  assert.equal(report.ok, true, report.detail);
+  assert.equal(report.runtime, "deno-desktop");
+  assert.equal(report.vault, "vault");
+  assert.deepEqual(report.plugins, expectedPlugins);
+  assert.equal(report.database?.providerId, "turso-wasm-local");
+  assert.equal(report.database?.engine, "turso");
+  assert.equal(report.database?.transport, "wasm-worker");
+  assert.equal(report.capabilities?.resource?.status, "available");
+  assert.equal(report.crossOriginIsolated, true);
+  assert.equal(report.protocol, "http:");
+  console.log(`[deno] packaged smoke passed: ${executable}`);
+} catch (error) {
+  if (diagnostics.length) console.error(diagnostics.join(""));
+  throw error;
+} finally {
+  if (child && child.exitCode === null) {
+    child.kill("SIGTERM");
+    await Promise.race([
+      new Promise((resolve) => child.once("exit", resolve)),
+      new Promise((resolve) => setTimeout(resolve, 10_000)),
+    ]);
+    if (child.exitCode === null) child.kill("SIGKILL");
+  }
+  await rm(root, { recursive: true, force: true });
+}

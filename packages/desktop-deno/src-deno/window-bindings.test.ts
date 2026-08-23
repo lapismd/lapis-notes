@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { installWindowBindings } from "./window-bindings";
@@ -50,5 +52,14 @@ describe("Deno desktop window bindings", () => {
     );
 
     expect(Map.prototype.get).toBe(originalGet);
+  });
+
+  it("keeps metadata invoke dispatch synchronous for packaged bindings", () => {
+    const source = readFileSync(
+      path.resolve(process.cwd(), "src-deno/bindings.ts"),
+      "utf8",
+    );
+    expect(source).toContain("export function handleDesktopInvoke(");
+    expect(source).not.toContain("export async function handleDesktopInvoke(");
   });
 });

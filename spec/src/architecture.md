@@ -25,7 +25,9 @@ Experimental Deno desktop sessions use the same API vault-session factory and
 WASM Turso path as browser hosts.
 `packages/desktop-deno` owns the Deno window, `win.bind()` bridge, native host
 lifecycle, and Electron-parity adapters while remaining a consumer of public
-Lapis package boundaries.
+Lapis package boundaries. Its production acceptance builds through the package
+and restores an isolated real vault rather than substituting a browser-only
+renderer test.
 
 ## Requirements
 

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" class="light theme-light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#005eac" />
+    <meta
+      name="description"
+      content="Experimental Deno desktop host for Lapis Notes."
+    />
+    <title>Lapis Notes</title>
+    <style>
+      #lapis-boot-status {
+        box-sizing: border-box;
+        max-width: 40rem;
+        margin: 2rem auto;
+        padding: 1rem 1.25rem;
+        color: #1f2328;
+        font: 14px/1.45 system-ui, sans-serif;
+      }
+    </style>
+    <script>
+      globalThis.__LAPIS_DENO_BINDINGS__ = typeof bindings !== "undefined";
+      globalThis.__LAPIS_RENDERER_ERRORS__ = [];
+      function reportRendererError(message) {
+        const errors = globalThis.__LAPIS_RENDERER_ERRORS__;
+        errors.push(message);
+        const status = document.getElementById("lapis-boot-status");
+        if (status) status.textContent = message;
+      }
+      window.addEventListener("error", (event) => {
+        reportRendererError(String(event.message ?? event.error ?? "Unknown error"));
+      });
+      window.addEventListener("unhandledrejection", (event) => {
+        const reason = event.reason;
+        reportRendererError(
+          reason instanceof Error ? reason.message : String(reason),
+        );
+      });
+    </script>
+  </head>
+  <body>
+    <div id="lapis-boot-status">Loading Lapis Notes…</div>
+    <div id="app"></div>
+    <script>
+      if (!globalThis.__LAPIS_DENO_BINDINGS__) {
+        reportRendererError(
+          "Opened outside the Deno desktop window. bindings.invoke is not available on this page.",
+        );
+      }
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

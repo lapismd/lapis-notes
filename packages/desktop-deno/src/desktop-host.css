@@ -1,0 +1,143 @@
+:root {
+  --lapis-desktop-window-controls-left: 0px;
+  --lapis-desktop-window-controls-after-ribbon: 0px;
+  --lapis-desktop-window-controls-sidebar-left: 0px;
+  --lapis-desktop-window-controls-sidebar-after-ribbon: 0px;
+
+  color-scheme: light dark;
+  font-family: var(--ui-workspace-font-sans, ui-sans-serif, system-ui, sans-serif);
+  background: var(--ui-workspace-background, #fff);
+}
+
+:root.lapis-desktop--macos {
+  --lapis-desktop-window-controls-left: 65px;
+  --lapis-desktop-window-controls-sidebar-left: 80px;
+  --lapis-desktop-window-controls-after-ribbon: max(
+    0px,
+    calc(
+      var(--lapis-desktop-window-controls-left) -
+        var(--ui-workspace-ribbon-width, 3rem)
+    )
+  );
+  --lapis-desktop-window-controls-sidebar-after-ribbon: max(
+    0px,
+    calc(
+      var(--lapis-desktop-window-controls-sidebar-left) -
+        var(--ui-workspace-ribbon-width, 3rem)
+    )
+  );
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app,
+.desktop-host,
+.desktop-host__session,
+.desktop-host__workspace {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  color: var(--ui-workspace-foreground, #222);
+  background: var(--ui-workspace-background, #fff);
+}
+
+.workspace-shell__vault-chooser-settings[data-ui-component="dialog"][data-ui-part="dialog-content"] {
+  top: 50%;
+  left: 50%;
+  width: min(28rem, calc(100% - 2rem));
+  max-width: 28rem;
+  max-height: calc(100% - 2rem);
+  overflow: auto;
+  translate: -50% -50%;
+}
+
+.workspace-shell__vault-chooser-command[data-ui-component="dialog"][data-ui-part="dialog-content"] {
+  top: 20vh;
+  left: 50%;
+  width: min(34rem, calc(100% - 2rem));
+  max-width: 34rem;
+  max-height: calc(80vh - 1rem);
+  overflow: hidden;
+  translate: -50% 0;
+  gap: 0;
+  padding: 0;
+  --ui-command-view-list-max-height: min(20rem, calc(80vh - 6rem));
+}
+
+:root.lapis-desktop--macos
+  .ui-app-shell:has(> [data-ui-component="workspace-ribbon"])
+  [data-workspace-sidebar-side="left"]
+  > [data-ui-part="sidebar-tab-bar"] {
+  padding-inline-start: calc(
+    var(--ui-workspace-sidebar-tab-header-inline-padding, 0.5rem) +
+      var(--lapis-desktop-window-controls-sidebar-after-ribbon)
+  );
+}
+
+:root.lapis-desktop--macos
+  .ui-app-shell:not(:has(> [data-ui-component="workspace-ribbon"]))
+  [data-workspace-sidebar-side="left"]
+  > [data-ui-part="sidebar-tab-bar"] {
+  padding-inline-start: calc(
+    var(--ui-workspace-sidebar-tab-header-inline-padding, 0.5rem) +
+      var(--lapis-desktop-window-controls-sidebar-left)
+  );
+}
+
+:root.lapis-desktop--macos
+  .ui-app-shell:has(> [data-ui-component="workspace-ribbon"])
+  [data-workspace-tab-strip="top"]
+  > [data-ui-part="header-main"]
+  > [data-ui-part="left-toggle"] {
+  padding-inline-start: calc(
+    0.25rem + var(--lapis-desktop-window-controls-after-ribbon)
+  );
+}
+
+:root.lapis-desktop--macos
+  .ui-app-shell:not(:has(> [data-ui-component="workspace-ribbon"]))
+  [data-workspace-tab-strip="top"]
+  > [data-ui-part="header-main"]
+  > [data-ui-part="left-toggle"] {
+  padding-inline-start: calc(
+    0.25rem + var(--lapis-desktop-window-controls-left)
+  );
+}
+
+.workspace-shell__vault-chooser-close[data-ui-component="button"] {
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+
+.workspace-shell__vault-chooser-close[data-ui-component="button"]:hover:not(:disabled) {
+  color: var(--ui-workspace-panel-action-hover-foreground);
+  background: var(--ui-workspace-panel-action-hover-background);
+}
+
+.workspace-shell__vault-chooser-action[data-ui-component="button"],
+.workspace-shell__vault-chooser-settings-option[data-ui-component="button"] {
+  height: auto;
+}
+
+.workspace-shell__vault-chooser-outline-control:is(
+    [data-slot="button"],
+    button
+  ):hover:not(:disabled):not([aria-disabled="true"]),
+.workspace-shell__vault-chooser-recent-open:hover:not(:disabled) {
+  color: var(--foreground);
+  background-color: var(--background-modifier-active-hover);
+}

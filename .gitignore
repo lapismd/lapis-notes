@@ -25,3 +25,5 @@ tests/visual/storybook.spec.ts-snapshots/**/*.diff.png
 tmp/
 packages/desktop-electron/dist-electron/
 packages/desktop-electron/release/
+packages/desktop-deno/LapisNotes.app/
+packages/desktop-deno/release/
