@@ -205,6 +205,8 @@ export interface AppDatabaseFileRecord {
   mtime: number;
   size: number;
   hash: string;
+  /** Parser signature from the indexed metadata row when requested as a manifest. */
+  parserVersion?: string;
   indexed: boolean;
   deleted?: boolean;
 }
@@ -2493,7 +2495,10 @@ export class MemoryAppDatabase implements AppDatabase {
     const rows = [...this.files.values()]
       .filter((file) => file.indexed && !file.deleted && (!query.after || file.path > query.after))
       .sort((left, right) => left.path.localeCompare(right.path));
-    const page = rows.slice(0, limit);
+    const page = rows.slice(0, limit).map((file) => ({
+      ...file,
+      parserVersion: this.metadata.get(file.path)?.parserVersion,
+    }));
     return clone({
       rows: page,
       nextCursor: rows.length > page.length ? page.at(-1)?.path : undefined,

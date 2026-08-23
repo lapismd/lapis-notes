@@ -11,7 +11,6 @@ import {
   type Pos,
 } from "../cache.svelte";
 import {
-  APP_DATABASE_SCHEMA_VERSION,
   IndexProjectionRegistry,
   MemoryAppDatabase,
   MemoryKeyValueStore,
@@ -26,6 +25,16 @@ function loc(line: number): Loc {
 
 function pos(start: number, end: number = start + 1): Pos {
   return { start: loc(start), end: loc(end) };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+  return { promise, resolve, reject };
 }
 
 afterEach(() => {
@@ -122,9 +131,6 @@ function createLoadCache(
       off: vi.fn(),
     },
   } as any);
-  (cache as any).legacyStorage = {
-    getMany: vi.fn(async () => [null, null, null, null]),
-  };
   return { adapter, cache, database };
 }
 
@@ -228,135 +234,141 @@ describe("frontmatter tag parsing", () => {
   });
 });
 
+
+async function seedIndexedMetadata(
+  database: MemoryAppDatabase,
+  file: TFile,
+  metadata: CachedMetadata,
+  parserVersion = "metadata-cache-v2:md:1",
+) {
+  await database.upsertIndexedFile({
+    file: {
+      path: file.path,
+      normalizedPath: file.path,
+      extension: file.extension,
+      mtime: file.stat.mtime,
+      size: file.stat.size,
+      hash: `hash:${file.path}`,
+      indexed: true,
+    },
+    metadata: {
+      path: file.path,
+      hash: `hash:${file.path}`,
+      parserVersion,
+      metadata,
+    },
+    links: [],
+    tags: [],
+    properties: [],
+  });
+}
+
 describe("MetadataCache.load", () => {
-  it("applies an app-database snapshot and does not rebuild", async () => {
-    const { file, snapshot } = createSnapshot();
+  it("publishes loaded from a queryable database without hydrating metadata", async () => {
+    const { file } = createSnapshot();
+    const adapter = new InMemoryDataAdapter();
     const database = new MemoryAppDatabase("vault-under-test");
     await database.open();
-    await database.saveMetadataSnapshot(snapshot);
-    const { cache } = createLoadCache({ database, files: [file] });
-    const rebuild = vi.spyOn(cache, "rebuild");
-    const loaded = vi.fn();
-    cache.on("loaded", loaded);
+    await seedIndexedMetadata(database, file, { frontmatter: { status: "active" } });
+    const { cache } = createLoadCache({ adapter, database, files: [file] });
+    cache.addProcessor("md", { read: async () => ({}), write: () => "" });
+    const bodyRead = vi.spyOn(adapter, "read");
+    const snapshotLoad = vi.spyOn(database, "loadMetadataSnapshot");
+    const loadedState: number[] = [];
+    cache.on("loaded", () => loadedState.push(Object.keys(cache.fileCache).length));
 
     await cache.load();
 
-    expect(cache.fileCache).toEqual(snapshot.fileCache);
-    expect(cache.resolvedLinks).toEqual(snapshot.resolvedLinks);
+    expect(loadedState).toEqual([0]);
+    expect(snapshotLoad).not.toHaveBeenCalled();
+    expect(bodyRead).not.toHaveBeenCalled();
     expect(cache.initialized).toBe(true);
-    expect(rebuild).not.toHaveBeenCalled();
-    expect(loaded).toHaveBeenCalledTimes(1);
+    await expect(cache.getFileCacheAsync(file)).resolves.toMatchObject({
+      frontmatter: { status: "active" },
+    });
   });
 
-  it("restores from a portable backup and hydrates the app database", async () => {
-    const { file, snapshot } = createSnapshot();
+  it("leaves the legacy portable cache artifact untouched", async () => {
+    const adapter = new InMemoryDataAdapter();
+    await adapter.mkdir(".lapis");
+    await adapter.mkdir(".lapis/cache");
+    await adapter.write(METADATA_CACHE_BACKUP_PATH, "legacy-cache-artifact");
+    const { cache, database } = createLoadCache({ adapter });
+    const snapshotLoad = vi.spyOn(database, "loadMetadataSnapshot");
+
+    await cache.load();
+
+    expect(await adapter.read(METADATA_CACHE_BACKUP_PATH)).toBe(
+      "legacy-cache-artifact",
+    );
+    expect(snapshotLoad).not.toHaveBeenCalled();
+  });
+
+  it("emits loaded before parsing new files in background reconciliation", async () => {
+    const file = new TFile("Notes/New.md", { ctime: 1, mtime: 2, size: 6 }, null);
     const adapter = new InMemoryDataAdapter();
     await adapter.mkdir("Notes");
-    await adapter.write("Notes/A.md", "content");
-    await adapter.mkdir(".lapis");
-    await adapter.mkdir(".lapis/cache");
-    await adapter.write(
-      METADATA_CACHE_BACKUP_PATH,
-      JSON.stringify({
-        kind: "lapis.metadata-cache.snapshot",
-        schemaVersion: 1,
-        appDatabaseSchemaVersion: APP_DATABASE_SCHEMA_VERSION,
-        createdAt: 1,
-        updatedAt: 2,
-        sourceVaultId: "copied-vault",
-        snapshot,
-      }),
-    );
-    const database = new MemoryAppDatabase("vault-under-test");
-    const { cache } = createLoadCache({ adapter, database, files: [file] });
-    const loaded = vi.fn();
-    cache.on("loaded", loaded);
+    await adapter.write(file.path, "# New\n");
+    const { cache } = createLoadCache({ adapter, files: [file] });
+    const order: string[] = [];
+    cache.addProcessor("md", {
+      read: async () => {
+        order.push("parsed");
+        return { headings: [] };
+      },
+      write: () => "",
+    });
+    cache.on("loaded", () => order.push("loaded"));
 
     await cache.load();
 
-    expect(cache.fileCache).toEqual(snapshot.fileCache);
-    await expect(database.loadMetadataSnapshot()).resolves.toEqual(snapshot);
-    expect(loaded).toHaveBeenCalledTimes(1);
+    expect(order).toEqual(["loaded", "parsed"]);
   });
 
-  it("ignores invalid portable backups and rebuilds when no state exists", async () => {
+  it("reparses parser-signature-stale files even when stat is unchanged", async () => {
+    const file = new TFile("Notes/Stale.md", { ctime: 1, mtime: 2, size: 8 }, null);
     const adapter = new InMemoryDataAdapter();
-    await adapter.mkdir(".lapis");
-    await adapter.mkdir(".lapis/cache");
-    await adapter.write(METADATA_CACHE_BACKUP_PATH, "{");
-    const { cache } = createLoadCache({ adapter });
-    const rebuild = vi.spyOn(cache, "rebuild");
+    await adapter.mkdir("Notes");
+    await adapter.write(file.path, "# Stale\n");
+    const database = new MemoryAppDatabase("vault-under-test");
+    await database.open();
+    await seedIndexedMetadata(database, file, {}, "metadata-cache-v1");
+    const { cache } = createLoadCache({ adapter, database, files: [file] });
+    const parse = vi.fn(async () => ({ headings: [] }));
+    cache.addProcessor("md", { read: parse, write: () => "" });
 
     await cache.load();
 
-    expect(rebuild).toHaveBeenCalledTimes(1);
+    expect(parse).toHaveBeenCalledTimes(1);
   });
 
-  it("falls back when app database metadata snapshot loading times out", async () => {
-    vi.stubGlobal("indexedDB", {
-      open: vi.fn(() => {
-        const request: Record<string, any> = {
-          result: {
-            createObjectStore: vi.fn(),
-          },
-        };
+  it("caps asynchronously loaded metadata at 512 hot entries", async () => {
+    const database = new MemoryAppDatabase("vault-under-test");
+    await database.open();
+    for (let index = 0; index < 513; index += 1) {
+      const file = new TFile(`Notes/${String(index).padStart(3, "0")}.md`, {
+        ctime: 1,
+        mtime: 2,
+        size: 3,
+      }, null);
+      await seedIndexedMetadata(database, file, { frontmatter: { index } });
+    }
+    const { cache } = createLoadCache({ database });
 
-        queueMicrotask(() => {
-          request.onupgradeneeded?.();
-          request.onsuccess?.();
-        });
+    for (let index = 0; index < 513; index += 1) {
+      await cache.getFileCacheAsync(`Notes/${String(index).padStart(3, "0")}.md`);
+    }
 
-        return request;
-      }),
+    expect(Object.keys(cache.fileCache)).toHaveLength(512);
+    expect(cache.getCache("Notes/000.md")).toBeNull();
+    expect(cache.getCache("Notes/512.md")).toMatchObject({
+      frontmatter: { index: 512 },
     });
-
-    const open = vi.fn(async () => {});
-    const loadMetadataSnapshot = vi.fn(async () => {
-      throw new Error(
-        "Remote app database request timed out: loadMetadataSnapshot",
-      );
-    });
-    const saveMetadataSnapshot = vi.fn(async () => {});
-
-    const cache = new MetadataCache({
-      appDatabase: {
-        open,
-        loadMetadataSnapshot,
-        saveMetadataSnapshot,
-      },
-      indexProjections: new IndexProjectionRegistry(),
-      notifications: createProgressNotifications(),
-      vault: {
-        adapter: {
-          getVaultId: () => "vault-under-test",
-          getName: () => "fake-adapter",
-          exists: vi.fn(async () => false),
-        },
-        getFiles: vi.fn(() => []),
-        on: vi.fn(),
-      },
-    } as any);
-
-    (cache as any).legacyStorage = {
-      getMany: vi.fn(async () => [null, null, null, null]),
-    };
-
-    const loaded = vi.fn();
-    cache.on("loaded", loaded);
-
-    await expect(cache.load()).resolves.toBeUndefined();
-
-    expect(open).toHaveBeenCalledTimes(1);
-    expect(loadMetadataSnapshot).toHaveBeenCalledTimes(1);
-    expect(saveMetadataSnapshot).toHaveBeenCalledTimes(1);
-    expect(loaded).toHaveBeenCalledTimes(1);
-
-    vi.unstubAllGlobals();
   });
 });
 
 describe("MetadataCache lifecycle", () => {
-  it("cancels a pending snapshot when disposed without persistence", async () => {
+  it("does not maintain compatibility snapshots without a lease", async () => {
     vi.useFakeTimers();
     const cache = createMetadataCache([]);
     const saveMetadataSnapshot = vi.mocked(
@@ -364,39 +376,51 @@ describe("MetadataCache lifecycle", () => {
     );
 
     cache.scheduleSnapshotSave();
-    await cache.dispose({ persist: false });
     await vi.runAllTimersAsync();
 
     expect(saveMetadataSnapshot).not.toHaveBeenCalled();
   });
 
-  it("persists exactly once while disposing a pending snapshot", async () => {
-    const { file, snapshot } = createSnapshot();
-    const { cache, database } = createLoadCache({ files: [file] });
-    await database.saveMetadataSnapshot(snapshot);
-    await cache.load();
+  it("materializes a deprecated snapshot only for an explicit lease", async () => {
+    const { file } = createSnapshot();
+    const untouched = new TFile("Notes/Untouched.md", {
+      ctime: 1,
+      mtime: 2,
+      size: 3,
+    }, null);
+    const database = new MemoryAppDatabase("vault-under-test");
+    await database.open();
+    await seedIndexedMetadata(database, file, { frontmatter: { status: "active" } });
+    await seedIndexedMetadata(database, untouched, { frontmatter: { status: "cold" } });
+    const { cache } = createLoadCache({ database, files: [file, untouched] });
     const saveMetadataSnapshot = vi.spyOn(database, "saveMetadataSnapshot");
 
-    vi.useFakeTimers();
-    cache.scheduleSnapshotSave();
-    await cache.dispose();
-    await vi.runAllTimersAsync();
+    const firstLease = await cache.acquireMetadataSnapshotLease();
+    const secondLease = await cache.acquireMetadataSnapshotLease();
+    expect(cache.getCache(file.path)).toMatchObject({
+      frontmatter: { status: "active" },
+    });
+    await cache.flushSnapshotSave();
+    firstLease.release();
+    expect(cache.fileCache[untouched.path]).toBeDefined();
+    secondLease.release();
 
     expect(saveMetadataSnapshot).toHaveBeenCalledTimes(1);
+    expect(cache.fileCache[untouched.path]).toBeUndefined();
+    expect(cache.getCache(file.path)).toMatchObject({
+      frontmatter: { status: "active" },
+    });
   });
 
-  it("does not persist an empty cache when disposed before load finishes", async () => {
-    const { file, snapshot } = createSnapshot();
-    const { cache, database } = createLoadCache({ files: [file] });
-    await database.saveMetadataSnapshot(snapshot);
+  it("does not persist an empty cache when disposed before database open finishes", async () => {
+    const { cache, database } = createLoadCache();
     let releaseOpen: (() => void) | undefined;
     const openStarted = new Promise<void>((resolve) => {
       vi.spyOn(database, "open").mockImplementation(
-        () =>
-          new Promise((openResolve) => {
-            resolve();
-            releaseOpen = () => openResolve();
-          }),
+        () => new Promise((openResolve) => {
+          resolve();
+          releaseOpen = openResolve;
+        }),
       );
     });
     const saveMetadataSnapshot = vi.spyOn(database, "saveMetadataSnapshot");
@@ -405,38 +429,101 @@ describe("MetadataCache lifecycle", () => {
     await openStarted;
     const disposing = cache.dispose();
     releaseOpen?.();
-    await disposing;
-    await load;
+    await Promise.all([disposing, load]);
 
     expect(saveMetadataSnapshot).not.toHaveBeenCalled();
-    await expect(database.loadMetadataSnapshot()).resolves.toEqual(snapshot);
   });
 
-  it("keeps vault reconcile under the load progress handle", async () => {
-    const { file, snapshot } = createSnapshot();
-    const extra = new TFile("Notes/B.md", { ctime: 1, mtime: 2, size: 4 }, null);
+  it("keeps paged vault reconciliation under the load progress handle", async () => {
+    const file = new TFile("Notes/A.md", { ctime: 1, mtime: 2, size: 3 }, null);
+    const extra = new TFile("Notes/B.md", { ctime: 1, mtime: 2, size: 8 }, null);
     const adapter = new InMemoryDataAdapter();
-    await adapter.write("Notes/B.md", "# Extra\n");
+    await adapter.mkdir("Notes");
+    await adapter.write(extra.path, "# Extra\n");
+    const database = new MemoryAppDatabase("vault-under-test");
+    await database.open();
+    await seedIndexedMetadata(database, file, {});
     const notifications = createProgressNotifications();
-    const { cache, database } = createLoadCache({
+    const { cache } = createLoadCache({
       adapter,
+      database,
       files: [file, extra],
       notifications,
     });
-    await database.saveMetadataSnapshot(snapshot);
-    cache.addProcessor("md", {
-      read: async () => ({ headings: [] }),
-      write: () => "",
-    });
+    cache.addProcessor("md", { read: async () => ({ headings: [] }), write: () => "" });
 
     await cache.load();
 
-    expect(
-      notifications.reports.some(
-        (report) => report.message === "Notes/B.md" && report.inFlight,
-      ),
-    ).toBe(true);
+    expect(notifications.reports.some(
+      (report) => report.message === extra.path && report.inFlight,
+    )).toBe(true);
     expect(notifications.reports.at(-1)?.inFlight).toBe(true);
+  });
+
+  it("stops reconciliation without committing a read that finishes after disposal", async () => {
+    const file = new TFile("Notes/Slow.md", { ctime: 1, mtime: 2, size: 7 }, null);
+    const adapter = new InMemoryDataAdapter();
+    await adapter.mkdir("Notes");
+    await adapter.write(file.path, "# Slow\n");
+    const { cache, database } = createLoadCache({ adapter, files: [file] });
+    const body = deferred<string>();
+    const readStarted = deferred<void>();
+    vi.spyOn(cache.app.vault, "read").mockImplementation(async () => {
+      readStarted.resolve();
+      return body.promise;
+    });
+    cache.addProcessor("md", { read: async () => ({}), write: () => "" });
+
+    const loading = cache.load();
+    await readStarted.promise;
+    const disposing = cache.dispose();
+    body.resolve("# Slow\n");
+    await Promise.all([loading, disposing]);
+
+    await expect(database.getIndexedFile(file.path)).resolves.toBeUndefined();
+  });
+});
+
+describe("MetadataCache query watches", () => {
+  it("suppresses stale query results after a newer revision refresh", async () => {
+    const { cache, database } = createLoadCache();
+    const first = deferred<{ rows: []; nextCursor?: string }>();
+    const second = deferred<{ rows: []; nextCursor?: string }>();
+    const query = vi
+      .spyOn(database, "queryIndexedMetadataPage")
+      .mockImplementationOnce(() => first.promise)
+      .mockImplementationOnce(() => second.promise);
+    const seen: Array<string | undefined> = [];
+
+    const watch = cache.watchQuery({}, (page) => seen.push(page.nextCursor));
+    await vi.waitFor(() => expect(query).toHaveBeenCalledTimes(1));
+    cache.trigger("index-changed", {
+      revision: 2,
+      domains: ["metadata"],
+      paths: ["Notes/A.md"],
+      committedAt: 2,
+    });
+    await vi.waitFor(() => expect(query).toHaveBeenCalledTimes(2));
+    second.resolve({ rows: [], nextCursor: "newer" });
+    await vi.waitFor(() => expect(seen).toEqual(["newer"]));
+    first.resolve({ rows: [], nextCursor: "stale" });
+    await Promise.resolve();
+
+    expect(seen).toEqual(["newer"]);
+    expect(watch.current?.nextCursor).toBe("newer");
+    watch.dispose();
+  });
+
+  it("surfaces current query failures through the watch error callback", async () => {
+    const { cache, database } = createLoadCache();
+    const failure = new Error("query unavailable");
+    vi.spyOn(database, "queryIndexedMetadataPage").mockRejectedValue(failure);
+    const onError = vi.fn();
+
+    const watch = cache.watchQuery({}, vi.fn(), onError);
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(failure));
+
+    watch.dispose();
   });
 });
 

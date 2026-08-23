@@ -50,6 +50,17 @@ function createPluginApp() {
     unregisterCommand: vi.fn(),
   };
 
+  const releaseMetadataSnapshotLease = vi.fn();
+  const acquireMetadataSnapshotLease = vi.fn(async () => ({
+    snapshot: {
+      fileCache: {},
+      metadataCache: {},
+      resolvedLinks: {},
+      unresolvedLinks: {},
+    },
+    release: releaseMetadataSnapshotLease,
+  }));
+
   const app = {
     vault,
     appDatabase,
@@ -69,7 +80,11 @@ function createPluginApp() {
     configurationOptionSources: new ConfigurationOptionSourceRegistry(),
     searchDocumentProviders: new SearchDocumentProviderRegistry(),
     indexProjections: new IndexProjectionRegistry(),
-    metadataCache: { getFileCache: () => null },
+    metadataCache: {
+      getFileCache: () => null,
+      acquireMetadataSnapshotLease,
+    },
+    plugins: { plugins: new Map() },
     agentTools: new AppToolRegistry(),
     agentSkills: new AppSkillRegistry(),
     agentSlashCommands: new AppSlashCommandRegistry(),
@@ -82,6 +97,8 @@ function createPluginApp() {
   return {
     adapter,
     app: app as App & { configuration: Configuration },
+    acquireMetadataSnapshotLease,
+    releaseMetadataSnapshotLease,
   };
 }
 
@@ -103,6 +120,49 @@ beforeEach(() => {
 });
 
 describe("Plugin data persistence", () => {
+  it("leases the compatibility metadata snapshot for community plugins", async () => {
+    const {
+      app,
+      acquireMetadataSnapshotLease,
+      releaseMetadataSnapshotLease,
+    } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "legacy-metadata-plugin",
+      name: "Legacy Metadata Plugin",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+    });
+    plugin.configureRuntime({ source: "community" });
+
+    await plugin.enable();
+    expect(acquireMetadataSnapshotLease).toHaveBeenCalledTimes(1);
+    await plugin.disable();
+    expect(releaseMetadataSnapshotLease).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips snapshot materialization for query-native plugin manifests", async () => {
+    const { app, acquireMetadataSnapshotLease } = createPluginApp();
+    const plugin = new TestPlugin(app, {
+      id: "query-metadata-plugin",
+      name: "Query Metadata Plugin",
+      version: "1.0.0",
+      minAppVersion: "0.0.0",
+      description: "",
+      author: "test",
+      lapis: {
+        manifestVersion: 1,
+        database: { metadataAccess: "queries" },
+      },
+    });
+    plugin.configureRuntime({ source: "community" });
+
+    await plugin.enable();
+    expect(acquireMetadataSnapshotLease).not.toHaveBeenCalled();
+    await plugin.disable();
+  });
+
   it("registers and disposes an agent tool with immutable owner identity", () => {
     const { app } = createPluginApp();
     const plugin = new TestPlugin(app, {

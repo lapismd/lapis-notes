@@ -12,40 +12,32 @@ import {
   basename,
   TFile,
   type TAbstractFile,
-  APP_DATABASE_SCHEMA_VERSION,
+  type AppDatabaseChangeSet,
   type AppDatabaseIndexedFile,
+  type AppDatabaseIndexedMetadataPage,
+  type AppDatabaseIndexedMetadataPageQuery,
+  type AppDatabaseIndexedMetadataQuery,
+  type AppDatabaseIndexedMetadataRow,
   type AppDatabaseLinkRecord,
+  type AppDatabaseMetadataFacetQuery,
+  type AppDatabaseMetadataFacetRow,
+  type AppDatabaseMetadataLinkQuery,
   type AppDatabasePropertyRecord,
   type AppDatabaseTagRecord,
   type MetadataCacheSnapshot,
-  getAdapterVaultId,
-  ScopedVaultStore,
 } from "$lib/storage";
 import { debounce } from "lodash-es";
 import { dirname, resolvePath } from "./storage/path";
 import type { NotificationProgressHandle } from "./notifications";
 
 export const METADATA_CACHE_BACKUP_PATH = ".lapis/cache/metadata-cache.json";
-
-const METADATA_CACHE_BACKUP_KIND = "lapis.metadata-cache.snapshot";
-const METADATA_CACHE_BACKUP_SCHEMA_VERSION = 1;
-const METADATA_CACHE_BACKUP_THROTTLE_MS = 30_000;
+export const METADATA_CACHE_HOT_LIMIT = 512;
 
 function yieldToUi(): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, 0);
   });
 }
-
-type MetadataCacheBackupV1 = {
-  kind: typeof METADATA_CACHE_BACKUP_KIND;
-  schemaVersion: typeof METADATA_CACHE_BACKUP_SCHEMA_VERSION;
-  appDatabaseSchemaVersion: number;
-  createdAt: number;
-  updatedAt: number;
-  sourceVaultId?: string;
-  snapshot: MetadataCacheSnapshot;
-};
 
 function notify(message: string): void {
   const Notice = (globalThis as any).Notice;
@@ -56,53 +48,8 @@ function notify(message: string): void {
   }
 }
 
-function isMetadataCacheSnapshot(
-  value: unknown,
-): value is MetadataCacheSnapshot {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const candidate = value as Partial<MetadataCacheSnapshot>;
-  return (
-    isRecord(candidate.fileCache) &&
-    isRecord(candidate.metadataCache) &&
-    isRecord(candidate.resolvedLinks) &&
-    isRecord(candidate.unresolvedLinks)
-  );
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
-
-function parseMetadataCacheBackup(raw: string): MetadataCacheBackupV1 | null {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-  if (!isRecord(parsed)) {
-    return null;
-  }
-  if (
-    parsed.kind !== METADATA_CACHE_BACKUP_KIND ||
-    parsed.schemaVersion !== METADATA_CACHE_BACKUP_SCHEMA_VERSION ||
-    typeof parsed.appDatabaseSchemaVersion !== "number" ||
-    typeof parsed.createdAt !== "number" ||
-    typeof parsed.updatedAt !== "number" ||
-    !isMetadataCacheSnapshot(parsed.snapshot)
-  ) {
-    return null;
-  }
-  if (
-    "sourceVaultId" in parsed &&
-    parsed.sourceVaultId !== undefined &&
-    typeof parsed.sourceVaultId !== "string"
-  ) {
-    return null;
-  }
-  return parsed as MetadataCacheBackupV1;
 }
 
 /**
@@ -537,27 +484,21 @@ export type IndexedProjectionContributor = {
     | Promise<IndexedProjectionContribution | null>;
 };
 
+export interface MetadataCacheSnapshotLease {
+  readonly snapshot: MetadataCacheSnapshot;
+  release(): void;
+}
+
+export interface MetadataCacheQueryWatch<T> {
+  dispose(): void;
+  refresh(): Promise<void>;
+  readonly current: T | undefined;
+}
+
 function clearObject(data: Record<string, unknown>) {
   for (const key of Object.keys(data)) {
     delete data[key];
   }
-}
-
-function parseValue<T>(key: string, value: string, defaultValue: T): T {
-  if (value) {
-    try {
-      const data = JSON.parse(value);
-      if (data) {
-        return data as T;
-      }
-      return defaultValue;
-    } catch (e) {
-      console.error(`Unable to read ${key}:`, e);
-      notify(`Error reading ${key}: ${e}`);
-      return defaultValue;
-    }
-  }
-  return defaultValue;
 }
 
 function frontmatterValueType(value: unknown): string {
@@ -606,6 +547,8 @@ export class MetadataCache extends EventDispatcher<{
   deleted: [file: TFile, prevCache: CachedMetadata | null];
   /** Called when the metadata has been loaded */
   loaded: [];
+  /** Called after an indexed database mutation commits. */
+  "index-changed": [change: AppDatabaseChangeSet];
 }> {
   processors: Map<string, Set<MetadataProcessor>> = new Map();
   projectionContributors: Set<IndexedProjectionContributor> = new Set();
@@ -616,13 +559,17 @@ export class MetadataCache extends EventDispatcher<{
   #resolvedLinks: Record<string, Record<string, number>> = $state({});
   #unresolvedLinks: Record<string, Record<string, number>> = $state({});
   readonly logger = logging.getLogger("cache");
-  readonly legacyStorage: ScopedVaultStore;
-  private lastPortableBackupWrite = 0;
   private disposed = false;
   private didLoad = false;
   private loadPromise: Promise<void> | null = null;
   private disposePromise: Promise<void> | null = null;
   private readonly pendingOperations = new Set<Promise<unknown>>();
+  private readonly hotPathOrder = new Map<string, true>();
+  private readonly localMutationPaths = new Set<string>();
+  private snapshotLeaseCount = 0;
+  private snapshotLeasePromise: Promise<MetadataCacheSnapshot> | null = null;
+  private snapshotLeaseValue: MetadataCacheSnapshot | null = null;
+  private databaseChangeUnsubscribe: (() => void) | null = null;
   private readonly handleVaultChange = (
     event: string,
     file: TAbstractFile,
@@ -638,12 +585,11 @@ export class MetadataCache extends EventDispatcher<{
 
   constructor(readonly app: App) {
     super();
-    this.legacyStorage = new ScopedVaultStore(
-      getAdapterVaultId(app.vault.adapter),
-      "metadata-cache",
-    );
     app.vault.on("all", this.handleVaultChange);
     app.vault.on("rename", this.handleVaultRename);
+    this.databaseChangeUnsubscribe = app.appDatabase.subscribeToChanges?.(
+      (change) => this.handleDatabaseChange(change),
+    ) ?? null;
   }
 
   get metadataCache() {
@@ -679,7 +625,7 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   scheduleSnapshotSave(): void {
-    if (this.disposed) return;
+    if (this.disposed || this.snapshotLeaseCount === 0) return;
     this.saveSnapshotDebounced();
   }
 
@@ -693,39 +639,29 @@ export class MetadataCache extends EventDispatcher<{
     this.disposed = true;
     this.app.vault.off("all", this.handleVaultChange);
     this.app.vault.off("rename", this.handleVaultRename);
+    this.databaseChangeUnsubscribe?.();
+    this.databaseChangeUnsubscribe = null;
+    this.snapshotLeaseCount = 0;
+    this.snapshotLeasePromise = null;
+    this.snapshotLeaseValue = null;
     this.saveSnapshotDebounced.cancel();
     this.disposePromise = (async () => {
       await Promise.allSettled([...this.pendingOperations]);
-      if (options.persist !== false && this.didLoad) {
-        await this.saveSnapshotNow({ forceBackup: true });
-      }
+      void options;
     })();
     return this.disposePromise;
   }
 
   async saveSnapshotNow(
-    options: { forceBackup?: boolean } = {},
+    _options: { forceBackup?: boolean } = {},
   ): Promise<void> {
-    const snapshot = this.toJSON();
+    const snapshot = await this.buildCompatibilitySnapshot();
     try {
       await this.app.appDatabase.saveMetadataSnapshot(snapshot);
     } catch (err) {
       console.error("Failure saving metadata cache", err);
       notify(`Failure saving metadata cache: ${err}`);
-      return;
     }
-
-    const shouldWriteBackup =
-      options.forceBackup ||
-      Date.now() - this.lastPortableBackupWrite >=
-        METADATA_CACHE_BACKUP_THROTTLE_MS;
-    if (!shouldWriteBackup) {
-      return;
-    }
-
-    await this.savePortableBackup(snapshot).catch((err) => {
-      this.logger.warn("Failed to write portable metadata backup", err);
-    });
   }
 
   toJSON() {
@@ -749,93 +685,6 @@ export class MetadataCache extends EventDispatcher<{
     this.#unresolvedLinks = snapshot.unresolvedLinks;
   }
 
-  private async loadPortableBackupSnapshot(): Promise<MetadataCacheSnapshot | null> {
-    try {
-      if (!(await this.app.vault.adapter.exists(METADATA_CACHE_BACKUP_PATH))) {
-        return null;
-      }
-      const raw = await this.app.vault.adapter.read(METADATA_CACHE_BACKUP_PATH);
-      return parseMetadataCacheBackup(raw)?.snapshot ?? null;
-    } catch (err) {
-      this.logger.warn("Failed to load portable metadata backup", err);
-      return null;
-    }
-  }
-
-  private async savePortableBackup(
-    snapshot: MetadataCacheSnapshot,
-  ): Promise<void> {
-    const now = Date.now();
-    let createdAt = now;
-    try {
-      const existingRaw = await this.app.vault.adapter.read(
-        METADATA_CACHE_BACKUP_PATH,
-      );
-      createdAt = parseMetadataCacheBackup(existingRaw)?.createdAt ?? now;
-    } catch {
-      // Missing or invalid backups are overwritten with a fresh generated copy.
-    }
-
-    const backup: MetadataCacheBackupV1 = {
-      kind: METADATA_CACHE_BACKUP_KIND,
-      schemaVersion: METADATA_CACHE_BACKUP_SCHEMA_VERSION,
-      appDatabaseSchemaVersion: APP_DATABASE_SCHEMA_VERSION,
-      createdAt,
-      updatedAt: now,
-      sourceVaultId: getAdapterVaultId(this.app.vault.adapter),
-      snapshot,
-    };
-    await this.app.vault.adapter.mkdir(dirname(METADATA_CACHE_BACKUP_PATH), {
-      recursive: true,
-    });
-    await this.app.vault.adapter.write(
-      METADATA_CACHE_BACKUP_PATH,
-      `${JSON.stringify(backup)}\n`,
-    );
-    this.lastPortableBackupWrite = now;
-  }
-
-  private loadLegacySnapshot(): Promise<MetadataCacheSnapshot | null> {
-    return this.legacyStorage
-      .getMany<string>([
-        "fileCache",
-        "metadataCache",
-        "metadataCache.resolvedLinks",
-        "metadataCache.unresolvedLinks",
-      ])
-      .then(([fileCache, metadataCache, resolvedLinks, unresolvedLinks]) => {
-        if (
-          !fileCache &&
-          !metadataCache &&
-          !resolvedLinks &&
-          !unresolvedLinks
-        ) {
-          return null;
-        }
-        return {
-          fileCache: parseValue("fileCache", fileCache, this.#fileCache),
-          metadataCache: parseValue(
-            "metadataCache",
-            metadataCache,
-            this.#metadataCache,
-          ),
-          resolvedLinks: parseValue(
-            "resolvedLinks",
-            resolvedLinks,
-            this.#resolvedLinks,
-          ),
-          unresolvedLinks: parseValue(
-            "unresolvedLinks",
-            unresolvedLinks,
-            this.#unresolvedLinks,
-          ),
-        };
-      })
-      .catch((err) => {
-        console.error("Failed to load metadataCache", err);
-        return null;
-      });
-  }
 
   async load() {
     if (this.disposed) return;
@@ -858,156 +707,200 @@ export class MetadataCache extends EventDispatcher<{
         progress.report({ message: "Opening metadata store" });
         await this.app.appDatabase.open();
         if (this.disposed) return;
-        progress.report({ message: "Loading metadata snapshot" });
-        const primarySnapshot = await this.loadPrimarySnapshot();
-        if (this.disposed) return;
-        if (primarySnapshot) {
-          this.applySnapshot(primarySnapshot);
-          this.trigger("loaded");
-          void this.savePortableBackup(primarySnapshot).catch((err) => {
-            this.logger.warn("Failed to refresh portable metadata backup", err);
-          });
-          await this.reconcileSnapshotWithVault(progress);
-          return;
-        }
-
-        const portableBackupSnapshot = await this.loadPortableBackupSnapshot();
-        if (this.disposed) return;
-        if (portableBackupSnapshot) {
-          this.applySnapshot(portableBackupSnapshot);
-          await this.hydrateDatabaseFromSnapshot(portableBackupSnapshot);
-          this.trigger("loaded");
-          await this.reconcileSnapshotWithVault(progress);
-          return;
-        }
-
-        const legacySnapshot = await this.loadLegacySnapshot();
-        if (this.disposed) return;
-        if (legacySnapshot) {
-          this.applySnapshot(legacySnapshot);
-          await this.hydrateDatabaseFromSnapshot(legacySnapshot);
-          this.trigger("loaded");
-          await this.reconcileSnapshotWithVault(progress);
-          return;
-        }
-
-        progress.report({ message: "Rebuilding metadata cache" });
-        await this.rebuild(progress);
-        if (!this.disposed) this.didLoad = true;
+        this.didLoad = true;
+        this.trigger("loaded");
+        progress.report({ message: "Reconciling metadata index" });
+        await this.reconcileDatabaseWithVault(progress);
       },
     );
   }
 
-  private async loadPrimarySnapshot(): Promise<MetadataCacheSnapshot | null> {
-    try {
-      return await this.app.appDatabase.loadMetadataSnapshot();
-    } catch (err) {
-      this.logger.warn(
-        "Failed to load metadata snapshot from app database",
-        err,
-      );
-      return null;
-    }
-  }
 
-  private async hydrateDatabaseFromSnapshot(
-    snapshot: MetadataCacheSnapshot,
-  ): Promise<void> {
-    await this.app.appDatabase.saveMetadataSnapshot(snapshot).catch((err) => {
-      this.logger.warn("Failed to persist loaded metadata snapshot", err);
-    });
-
-    for (const [path, entry] of Object.entries(snapshot.fileCache)) {
-      const file = this.app.vault.getFileByPath(path);
-      const cache = snapshot.metadataCache[entry.hash] as
-        | CachedMetadata
-        | undefined;
-      if (!file || !cache) {
-        continue;
-      }
-      await this.app.appDatabase
-        .upsertIndexedFile(this.toDatabaseRecord(file, entry.hash, cache))
-        .catch((err) => {
-          this.logger.warn(
-            `Failed to hydrate indexed metadata for ${path}`,
-            err,
-          );
-        });
-    }
-    await this.savePortableBackup(snapshot).catch((err) => {
-      this.logger.warn("Failed to write portable metadata backup", err);
-    });
-  }
-
-  private async reconcileSnapshotWithVault(
+  private async reconcileDatabaseWithVault(
     progress?: NotificationProgressHandle,
   ): Promise<void> {
     if (this.disposed) return;
-    const cachedEntries = Object.entries({ ...this.fileCache });
-    const missingFiles = this.app.vault
+    const vaultFiles = this.app.vault
       .getFiles()
-      .filter((file) => !this.fileCache[file.path]);
-    const total = cachedEntries.length + missingFiles.length;
+      .filter((file) => this.processors.has(file.extension.toLowerCase()))
+      .sort((left, right) => left.path.localeCompare(right.path));
+    let vaultIndex = 0;
     let processed = 0;
-    let changed = false;
+    let cursor: string | undefined;
 
-    for (const [path, entry] of cachedEntries) {
-      if (this.disposed) return;
+    const report = async (path: string) => {
       progress?.throwIfCancellationRequested();
       progress?.report({
         current: processed,
-        total,
+        total: vaultFiles.length,
         message: path,
       });
-      const file = this.app.vault.getFileByPath(path);
-      if (!file) {
-        delete this.fileCache[path];
-        delete this.resolvedLinks[path];
-        delete this.unresolvedLinks[path];
-        delete this.metadataCache[entry.hash];
-        await this.app.appDatabase.deleteIndexedFile(path).catch((err) => {
-          this.logger.warn(`Failed to delete stale metadata for ${path}`, err);
-        });
-        changed = true;
-      } else if (
-        file.stat.mtime !== entry.mtime ||
-        file.stat.size !== entry.size
-      ) {
-        changed = (await this.processFile(file)) || changed;
+      processed += 1;
+      await yieldToUi();
+    };
+
+    do {
+      const page = await this.app.appDatabase.listIndexedFileManifest({
+        after: cursor,
+        limit: 500,
+      });
+      for (const indexed of page.rows) {
+        if (this.disposed) return;
+        while (
+          vaultIndex < vaultFiles.length &&
+          vaultFiles[vaultIndex].path.localeCompare(indexed.path) < 0
+        ) {
+          const created = vaultFiles[vaultIndex++];
+          await this.processFile(created);
+          await report(created.path);
+        }
+
+        const current = vaultFiles[vaultIndex];
+        if (!current || current.path !== indexed.path) {
+          await this.mutateDatabasePaths([indexed.path], () =>
+            this.app.appDatabase.deleteIndexedFile(indexed.path),
+          );
+          this.evictHotPath(indexed.path);
+          await report(indexed.path);
+          continue;
+        }
+
+        if (
+          current.stat.mtime !== indexed.mtime ||
+          current.stat.size !== indexed.size ||
+          indexed.parserVersion !== this.parserSignature(current)
+        ) {
+          await this.processFile(current);
+        }
+        vaultIndex += 1;
+        await report(current.path);
       }
-      processed += 1;
-      await yieldToUi();
-    }
+      cursor = page.nextCursor;
+    } while (cursor && !this.disposed);
 
-    for (const file of missingFiles) {
-      if (this.disposed) return;
-      progress?.throwIfCancellationRequested();
-      progress?.report({
-        current: processed,
-        total,
-        message: file.path,
-      });
-      changed = (await this.processFile(file)) || changed;
-      processed += 1;
-      await yieldToUi();
-    }
-
-    if (changed && !this.disposed) {
-      progress?.report({
-        current: processed,
-        total,
-        message: "Persisting metadata cache",
-      });
-      await this.saveSnapshotNow();
+    while (vaultIndex < vaultFiles.length && !this.disposed) {
+      const created = vaultFiles[vaultIndex++];
+      await this.processFile(created);
+      await report(created.path);
     }
   }
 
   getFileCache(file: TFile): CachedMetadata | null {
-    return this.metadataCache[this.fileCache[file.path]?.hash] ?? null;
+    return this.getCache(file.path);
   }
 
   getCache(path: string): CachedMetadata | null {
-    return this.metadataCache[this.fileCache[path]?.hash] ?? null;
+    const entry = this.fileCache[path];
+    const cache = this.metadataCache[entry?.hash];
+    if (cache) this.touchHotPath(path);
+    return cache ?? null;
+  }
+
+  async getFileCacheAsync(file: TFile | string): Promise<CachedMetadata | null> {
+    const path = typeof file === "string" ? file : file.path;
+    const hot = this.getCache(path);
+    if (hot) return hot;
+    const row = await this.app.appDatabase.getIndexedFile(path);
+    if (!row?.metadata) return null;
+    return this.cacheDatabaseRow(row);
+  }
+
+  queryMetadataPage(
+    query: AppDatabaseIndexedMetadataPageQuery = {},
+  ): Promise<AppDatabaseIndexedMetadataPage> {
+    return this.app.appDatabase.queryIndexedMetadataPage(query);
+  }
+
+  queryMetadata(
+    query: AppDatabaseIndexedMetadataQuery = {},
+  ): Promise<AppDatabaseIndexedMetadataRow[]> {
+    return this.app.appDatabase.queryIndexedMetadata(query);
+  }
+
+  queryFacets(
+    query: AppDatabaseMetadataFacetQuery,
+  ): Promise<AppDatabaseMetadataFacetRow[]> {
+    return this.app.appDatabase.queryMetadataFacets(query);
+  }
+
+  queryLinks(
+    query: AppDatabaseMetadataLinkQuery,
+  ): Promise<AppDatabaseLinkRecord[]> {
+    return this.app.appDatabase.queryMetadataLinks(query);
+  }
+
+  watchQuery(
+    query: AppDatabaseIndexedMetadataPageQuery,
+    listener: (page: AppDatabaseIndexedMetadataPage) => void,
+    onError?: (error: unknown) => void,
+  ): MetadataCacheQueryWatch<AppDatabaseIndexedMetadataPage> {
+    let current: AppDatabaseIndexedMetadataPage | undefined;
+    let generation = 0;
+    let disposed = false;
+    const refresh = async () => {
+      const requestGeneration = ++generation;
+      try {
+        const page = await this.queryMetadataPage(query);
+        if (disposed || requestGeneration !== generation) return;
+        current = page;
+        listener(page);
+      } catch (error) {
+        if (disposed || requestGeneration !== generation) return;
+        onError?.(error);
+        if (!onError) throw error;
+      }
+    };
+    const scheduleRefresh = () => {
+      void refresh().catch((error) => {
+        this.logger.warn("Metadata query watch failed", error);
+      });
+    };
+    const event = this.on("index-changed", (change) => {
+      if (change.reset || change.domains.includes("metadata")) scheduleRefresh();
+    });
+    scheduleRefresh();
+    return {
+      get current() {
+        return current;
+      },
+      refresh,
+      dispose: () => {
+        disposed = true;
+        generation += 1;
+        this.offref(event);
+      },
+    };
+  }
+
+  async acquireMetadataSnapshotLease(): Promise<MetadataCacheSnapshotLease> {
+    this.snapshotLeaseCount += 1;
+    try {
+      if (!this.snapshotLeaseValue) {
+        this.snapshotLeasePromise ??= this.buildCompatibilitySnapshot().finally(() => {
+          this.snapshotLeasePromise = null;
+        });
+        this.snapshotLeaseValue = await this.snapshotLeasePromise;
+        this.applySnapshot(this.snapshotLeaseValue);
+      }
+    } catch (error) {
+      this.snapshotLeaseCount = Math.max(0, this.snapshotLeaseCount - 1);
+      if (this.snapshotLeaseCount === 0) this.snapshotLeaseValue = null;
+      throw error;
+    }
+    const snapshot = this.snapshotLeaseValue;
+    let released = false;
+    return {
+      snapshot,
+      release: () => {
+        if (released) return;
+        released = true;
+        this.snapshotLeaseCount = Math.max(0, this.snapshotLeaseCount - 1);
+        if (this.snapshotLeaseCount === 0) {
+          this.snapshotLeaseValue = null;
+          this.trimToHotPaths();
+        }
+      },
+    };
   }
 
   getDirectReferencePaths(sourcePath: string): string[] {
@@ -1170,6 +1063,23 @@ export class MetadataCache extends EventDispatcher<{
     clearObject(this.metadataCache);
     clearObject(this.resolvedLinks);
     clearObject(this.unresolvedLinks);
+    this.hotPathOrder.clear();
+
+    let manifestCursor: string | undefined;
+    do {
+      const page = await this.app.appDatabase.listIndexedFileManifest({
+        after: manifestCursor,
+        limit: 500,
+      });
+      for (const indexed of page.rows) {
+        if (this.disposed) return;
+        progress.throwIfCancellationRequested();
+        await this.mutateDatabasePaths([indexed.path], () =>
+          this.app.appDatabase.deleteIndexedFile(indexed.path),
+        );
+      }
+      manifestCursor = page.nextCursor;
+    } while (manifestCursor && !this.disposed);
 
     const files = this.app.vault.getFiles();
     let processed = 0;
@@ -1186,13 +1096,7 @@ export class MetadataCache extends EventDispatcher<{
       await yieldToUi();
     }
     if (this.disposed) return;
-    progress.report({
-      current: processed,
-      total: files.length,
-      message: "Persisting metadata cache",
-    });
-    await this.saveSnapshotNow({ forceBackup: true });
-    this.trigger("loaded");
+    progress.report({ current: processed, total: files.length, message: "Metadata index rebuilt" });
   }
 
   addProcessor(ext: string, processor: MetadataProcessor) {
@@ -1257,31 +1161,177 @@ export class MetadataCache extends EventDispatcher<{
     return this.projectionContributors.delete(contributor);
   }
 
+  private parserSignature(file: TFile): string {
+    const processorCount = this.processors.get(file.extension.toLowerCase())?.size ?? 0;
+    return `metadata-cache-v2:${file.extension.toLowerCase()}:${processorCount}`;
+  }
+
+  private cacheDatabaseRow(row: AppDatabaseIndexedMetadataRow): CachedMetadata | null {
+    if (!row.metadata || !isRecord(row.metadata.metadata)) return null;
+    const cache = row.metadata.metadata as CachedMetadata;
+    this.#fileCache[row.file.path] = {
+      mtime: row.file.mtime,
+      size: row.file.size,
+      hash: row.metadata.hash,
+    };
+    this.#metadataCache[row.metadata.hash] = cache;
+    this.#resolvedLinks[row.file.path] = {};
+    this.#unresolvedLinks[row.file.path] = {};
+    for (const link of row.links) {
+      const target = link.resolvedTargetPath;
+      const collection = target
+        ? this.#resolvedLinks[row.file.path]
+        : this.#unresolvedLinks[row.file.path];
+      const key = target ?? link.targetText;
+      collection[key] = (collection[key] ?? 0) + Math.max(1, link.count);
+    }
+    this.touchHotPath(row.file.path);
+    return cache;
+  }
+
+  private touchHotPath(path: string): void {
+    this.hotPathOrder.delete(path);
+    this.hotPathOrder.set(path, true);
+    if (this.snapshotLeaseCount > 0) return;
+    while (this.hotPathOrder.size > METADATA_CACHE_HOT_LIMIT) {
+      const oldest = this.hotPathOrder.keys().next().value as string | undefined;
+      if (!oldest) break;
+      this.evictHotPath(oldest);
+    }
+  }
+
+  private evictHotPath(path: string): void {
+    const hash = this.#fileCache[path]?.hash;
+    delete this.#fileCache[path];
+    delete this.#resolvedLinks[path];
+    delete this.#unresolvedLinks[path];
+    this.hotPathOrder.delete(path);
+    if (
+      hash &&
+      !Object.values(this.#fileCache).some((entry) => entry.hash === hash)
+    ) {
+      delete this.#metadataCache[hash];
+    }
+  }
+
+  private trimToHotPaths(): void {
+    for (const path of Object.keys(this.#fileCache)) {
+      if (!this.hotPathOrder.has(path)) this.evictHotPath(path);
+    }
+    while (this.hotPathOrder.size > METADATA_CACHE_HOT_LIMIT) {
+      const oldest = this.hotPathOrder.keys().next().value as string | undefined;
+      if (!oldest) break;
+      this.evictHotPath(oldest);
+    }
+  }
+
+  private handleDatabaseChange(change: AppDatabaseChangeSet): void {
+    if (this.disposed) return;
+    if (this.snapshotLeaseCount > 0) {
+      this.trackOperation(this.refreshCompatibilitySnapshot(change));
+    } else if (change.reset) {
+      for (const path of [...this.hotPathOrder.keys()]) {
+        if (!this.localMutationPaths.has(path)) this.evictHotPath(path);
+      }
+    } else if (change.domains.includes("metadata")) {
+      for (const path of change.paths) {
+        if (!this.localMutationPaths.has(path)) this.evictHotPath(path);
+      }
+    }
+    this.trigger("index-changed", change);
+  }
+
+  private async refreshCompatibilitySnapshot(
+    change: AppDatabaseChangeSet,
+  ): Promise<void> {
+    if (this.disposed || this.snapshotLeaseCount === 0) return;
+    if (change.reset) {
+      const snapshot = await this.buildCompatibilitySnapshot();
+      if (this.disposed || this.snapshotLeaseCount === 0) return;
+      this.snapshotLeaseValue = snapshot;
+      this.applySnapshot(snapshot);
+      return;
+    }
+    if (!change.domains.includes("metadata")) return;
+    for (const path of change.paths) {
+      if (this.disposed || this.snapshotLeaseCount === 0) return;
+      if (this.localMutationPaths.has(path)) continue;
+      const row = await this.app.appDatabase.getIndexedFile(path);
+      if (row?.metadata) this.cacheDatabaseRow(row);
+      else this.evictHotPath(path);
+    }
+  }
+
+  private async mutateDatabasePaths<T>(
+    paths: string[],
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    paths.forEach((path) => this.localMutationPaths.add(path));
+    try {
+      return await operation();
+    } finally {
+      paths.forEach((path) => this.localMutationPaths.delete(path));
+    }
+  }
+
+  private async buildCompatibilitySnapshot(): Promise<MetadataCacheSnapshot> {
+    const snapshot: MetadataCacheSnapshot = {
+      fileCache: {},
+      metadataCache: {},
+      resolvedLinks: {},
+      unresolvedLinks: {},
+    };
+    let cursor: string | undefined;
+    do {
+      const page = await this.app.appDatabase.queryIndexedMetadataPage({
+        after: cursor,
+        limit: 500,
+      });
+      for (const row of page.rows) {
+        if (!row.metadata || !isRecord(row.metadata.metadata)) continue;
+        snapshot.fileCache[row.file.path] = {
+          mtime: row.file.mtime,
+          size: row.file.size,
+          hash: row.metadata.hash,
+        };
+        snapshot.metadataCache[row.metadata.hash] = row.metadata.metadata;
+        snapshot.resolvedLinks[row.file.path] = {};
+        snapshot.unresolvedLinks[row.file.path] = {};
+        for (const link of row.links) {
+          const target = link.resolvedTargetPath;
+          const collection = target
+            ? snapshot.resolvedLinks[row.file.path]
+            : snapshot.unresolvedLinks[row.file.path];
+          const key = target ?? link.targetText;
+          collection[key] = (collection[key] ?? 0) + Math.max(1, link.count);
+        }
+      }
+      cursor = page.nextCursor;
+    } while (cursor);
+    return snapshot;
+  }
+
   private handleChange(event: string, file: TAbstractFile) {
     if (this.disposed) return;
     if (!(file instanceof TFile)) return;
     switch (event) {
       case "create":
       case "modify":
-        this.trackOperation(
-          this.processFile(file).then((changed) => {
-            if (changed) this.scheduleSnapshotSave();
-          }),
-        );
+        this.trackOperation(this.processFile(file));
         break;
       case "delete":
         const existing = this.fileCache[file.path];
-        if (existing) {
-          this.trigger("deleted", file, this.metadataCache[existing.hash]);
-          delete this.fileCache[file.path];
-          delete this.resolvedLinks[file.path];
-          delete this.unresolvedLinks[file.path];
-          delete this.metadataCache[existing.hash];
-          this.trackOperation(
+        this.trigger(
+          "deleted",
+          file,
+          existing ? this.metadataCache[existing.hash] ?? null : null,
+        );
+        this.evictHotPath(file.path);
+        this.trackOperation(
+          this.mutateDatabasePaths([file.path], () =>
             this.app.appDatabase.deleteIndexedFile(file.path),
-          );
-          this.scheduleSnapshotSave();
-        }
+          ),
+        );
         break;
     }
   }
@@ -1290,25 +1340,29 @@ export class MetadataCache extends EventDispatcher<{
     if (this.disposed) return;
     if (!(file instanceof TFile)) return;
     const existing = this.fileCache[oldPath];
-    if (!existing) return;
-    this.fileCache[file.path] = {
-      ...existing,
-      mtime: file.stat.mtime,
-      size: file.stat.size,
-    };
-    delete this.fileCache[oldPath];
-    if (this.resolvedLinks[oldPath]) {
-      this.resolvedLinks[file.path] = this.resolvedLinks[oldPath];
-      delete this.resolvedLinks[oldPath];
-    }
-    if (this.unresolvedLinks[oldPath]) {
-      this.unresolvedLinks[file.path] = this.unresolvedLinks[oldPath];
-      delete this.unresolvedLinks[oldPath];
+    if (existing) {
+      this.fileCache[file.path] = {
+        ...existing,
+        mtime: file.stat.mtime,
+        size: file.stat.size,
+      };
+      delete this.fileCache[oldPath];
+      if (this.resolvedLinks[oldPath]) {
+        this.resolvedLinks[file.path] = this.resolvedLinks[oldPath];
+        delete this.resolvedLinks[oldPath];
+      }
+      if (this.unresolvedLinks[oldPath]) {
+        this.unresolvedLinks[file.path] = this.unresolvedLinks[oldPath];
+        delete this.unresolvedLinks[oldPath];
+      }
+      this.hotPathOrder.delete(oldPath);
+      this.touchHotPath(file.path);
     }
     this.trackOperation(
-      this.app.appDatabase.renameIndexedFile(oldPath, file.path),
+      this.mutateDatabasePaths([oldPath, file.path], () =>
+        this.app.appDatabase.renameIndexedFile(oldPath, file.path),
+      ),
     );
-    this.scheduleSnapshotSave();
   }
 
   private trackOperation(operation: Promise<unknown>): void {
@@ -1323,33 +1377,44 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   private async processFile(file: TFile | null): Promise<boolean> {
-    if (!file) return false;
+    if (this.disposed || !file) return false;
     file = this.app.vault.getFileByPath(file.path);
-    if (!file) return false;
+    if (this.disposed || !file) return false;
 
     const processors = this.processors.get(file.extension.toLowerCase());
     if (!processors || !processors.size) return false;
 
     const content = await this.app.vault.read(file);
+    if (this.disposed) return false;
     const hash = md5(content);
     const existing = this.fileCache[file.path];
     if (existing && existing.hash === hash) return false;
     let cachedMetadata = await this.read(content, file);
+    if (this.disposed) return false;
     if (cachedMetadata) {
-      this.metadataCache[hash] = cachedMetadata;
-      this.fileCache[file.path] = {
+      this.#metadataCache[hash] = cachedMetadata;
+      this.#fileCache[file.path] = {
         mtime: file.stat.mtime,
         size: file.stat.size,
         hash,
       };
+      this.touchHotPath(file.path);
       this.processLink(file);
       const record = this.toDatabaseRecord(file, hash, cachedMetadata);
-      await this.app.appDatabase.upsertIndexedFile(record);
+      await this.mutateDatabasePaths([file.path], () =>
+        this.app.appDatabase.upsertIndexedFile(record),
+      );
       await this.projectRegisteredIndexes(file, content, cachedMetadata, hash);
       this.trigger("changed", file, content, cachedMetadata);
     }
     if (existing && existing.hash !== hash) {
-      delete this.metadataCache[existing.hash];
+      if (
+        !Object.values(this.fileCache).some(
+          (entry) => entry.hash === existing.hash,
+        )
+      ) {
+        delete this.metadataCache[existing.hash];
+      }
     }
     this.logger.debug("Processing file", file.path);
     return Boolean(cachedMetadata);
@@ -1461,7 +1526,7 @@ export class MetadataCache extends EventDispatcher<{
       metadata: {
         path: file.path,
         hash,
-        parserVersion: "metadata-cache-v1",
+        parserVersion: this.parserSignature(file),
         metadata: cache,
       },
       links: refs,

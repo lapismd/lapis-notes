@@ -348,6 +348,13 @@ export abstract class Plugin extends Component {
     this.#failureMessage = null;
 
     try {
+      if (
+        (this.source === "community" || this.source === "official") &&
+        this.manifest.lapis?.database?.metadataAccess !== "queries"
+      ) {
+        const lease = await this.app.metadataCache.acquireMetadataSnapshotLease();
+        this.register(() => lease.release());
+      }
       await this.loadAsync();
       this.#runtimeState = "enabled";
       this.emit("enable");

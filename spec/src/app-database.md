@@ -119,3 +119,10 @@ responses validate the expected responder. A promoted proxy replays pending
 work against its newly opened Turso handle rather than selecting a fallback.
 The owner broadcasts committed change sets. A proxy that observes a revision
 gap or becomes owner invalidates the affected domain before serving new reads.
+
+`MetadataCache` opens this provider and publishes `loaded` as soon as the
+persisted metadata tables are queryable. It then merge-compares the vault file
+manifest with paged indexed file rows. Matching stat and parser-signature rows
+do not hydrate metadata JSON or read Markdown; only missing or stale paths enter
+the parse and row-scoped upsert path. Snapshot import and export are explicit,
+deprecated compatibility operations and are absent from this startup flow.

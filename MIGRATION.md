@@ -84,8 +84,8 @@ intake or UI swap status changes.
 - [x] Generic Web Locks and BroadcastChannel owner/proxy coordination
 - [x] Block unsupported production runtimes instead of opening a non-Turso database
 - [x] Replace production `app_state` hydration and whole-database rewrites with direct row-scoped Turso SQL
-- [ ] Serve metadata, tags, properties, and links through paginated indexed queries and revisioned change sets
-- [ ] Retain synchronous metadata maps only under bounded legacy-plugin compatibility leases
+- [x] Serve metadata, tags, properties, and links through paginated indexed queries and revisioned change sets
+- [x] Retain synchronous metadata maps only under bounded legacy-plugin compatibility leases
 - [ ] Pass the 50,000-note native/WASM warm-start and query performance gate
 
 ### Electron desktop host intake progress

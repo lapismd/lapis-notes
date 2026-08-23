@@ -7,6 +7,23 @@ import {
 } from "../lapis-extension";
 
 describe("lapis contribution registry", () => {
+  it("validates query-native metadata database declarations", () => {
+    expect(
+      validateLapisManifest("query-native", {
+        manifestVersion: 1,
+        database: { metadataAccess: "queries" },
+      }),
+    ).toEqual([]);
+    expect(
+      validateLapisManifest("invalid-database", {
+        manifestVersion: 1,
+        database: { metadataAccess: "everything" },
+      }),
+    ).toContain(
+      "Plugin invalid-database has invalid lapis.database.metadataAccess",
+    );
+  });
+
   it("exposes built-in contribution point descriptors", () => {
     expect(getLapisContributionPointDescriptors().map((it) => it.kind)).toEqual(
       [

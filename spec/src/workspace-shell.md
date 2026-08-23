@@ -148,5 +148,9 @@ task through `PluginLoadOptions.onProgress`. Metadata cache load starts after
 layout restoration and does not block shell mount. While that cache load,
 rebuild, or vault reconcile is running, the host projects Lapis progress into
 Design Core so the notifications status item is the single busy surface.
+The cache's `loaded` event denotes database query readiness rather than full
+vault materialization. Shell and panel mounting may query persisted rows at
+that point while the same progress task continues manifest reconciliation; no
+workspace layout state depends on synchronous whole-vault cache maps.
 Manual `app:rebuild-vault-cache` and `app:rebuild-generated-state` reuse that
 same projected handle (LN-PKG-097, LN-PKG-098).

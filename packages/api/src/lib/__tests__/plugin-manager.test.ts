@@ -340,6 +340,15 @@ function createTestApp(
     metadataCache: {
       on: metadataCacheEvents.on.bind(metadataCacheEvents),
       offref: metadataCacheEvents.offref.bind(metadataCacheEvents),
+      acquireMetadataSnapshotLease: async () => ({
+        snapshot: {
+          fileCache: {},
+          metadataCache: {},
+          resolvedLinks: {},
+          unresolvedLinks: {},
+        },
+        release() {},
+      }),
       addProcessor() {},
       removeProcessor() {},
       getFirstLinkpathDest() {

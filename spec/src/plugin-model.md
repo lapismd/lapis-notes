@@ -180,6 +180,13 @@ Its status item refreshes from those keys and MUST NOT upsert on
 Plugin instances retain their constructor-supplied App. Managed disable and
 restore therefore operate on the owning workspace even while a compatibility
 lease exposes a different App for an older consumer.
+For the one-release metadata transition, a community or official code plugin
+defaults to a full synchronous snapshot lease. Declaring
+`lapis.database.metadataAccess: "queries"` opts into the normalized async
+contract and skips materialization. Lease acquisition happens before `onload`,
+and the Component rollback/unload path releases it exactly once. Bundled core
+and system plugins are query-native by policy and never receive an implicit
+lease.
 `App` registers host-neutral `app:rebuild-vault-cache` and
 `app:rebuild-generated-state` so Search can refresh after a later metadata
 rebuild without an API import of Search internals (LN-PKG-097, LN-PKG-098).

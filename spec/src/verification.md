@@ -1013,11 +1013,11 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-DB-030   | app-database                    | Planned | v2 fixture migration will validate metadata and preserve History, Search, tasks, notifications, and projections on success or failure |
 | LN-DB-031   | app-database                    | Planned | warm-start instrumentation will assert query readiness without eager payload or unchanged Markdown reads |
 | LN-DB-032   | app-database                    | Planned | dedicated 50k performance gate and reported 100k stress lane will record native and WASM budgets |
-| LN-DB-033   | app-database                    | Planned | compatibility tests will keep explicit snapshot import/export off production startup and normalized writes |
-| LN-PKG-106  | packages                        | Planned | MetadataCache tests will cover async reads, query readiness, reconcile, and committed index-change events |
-| LN-PKG-107  | packages                        | Planned | cache tests will enforce the 512-entry LRU and reference-counted full compatibility materialization |
-| LN-PKG-108  | packages                        | Planned | cache tests will rebuild from Markdown without reading, writing, or deleting the legacy `.lapis/cache` snapshot |
+| LN-DB-033   | app-database                    | Implemented | production MetadataCache startup never loads or maintains a compatibility snapshot; explicit lease tests cover the deprecated materialization path |
+| LN-PKG-106  | packages                        | Implemented | MetadataCache tests cover database-ready loaded, async per-file reads, paged reconcile, revision-triggered watches, stale suppression, query errors, and disposal |
+| LN-PKG-107  | packages                        | Implemented | cache tests enforce the 512-entry hot limit and retain the full synchronous snapshot until the last compatibility lease releases |
+| LN-PKG-108  | packages                        | Implemented | warm-load and lifecycle tests prove the legacy `.lapis/cache/metadata-cache.json` artifact remains untouched and snapshot maintenance is lease-only |
 | LN-PKG-109  | packages                        | Planned | a source audit and focused consumer tests will reject first-party synchronous cache enumeration |
-| LN-PLUG-029 | plugin-model                    | Planned | plugin-manager tests will default community code to a compatibility lease and honor declared database metadata access |
+| LN-PLUG-029 | plugin-model                    | Implemented | plugin lifecycle tests acquire and release a default community snapshot lease while query-native manifests skip materialization; manifest validation rejects unknown access modes |
 | LN-SRCH-042 | search-plugin                   | Planned | warm Search tests will reconcile manifests without unchanged body reads, document enumeration, chunking, or embedding |
 | LN-SRCH-043 | search-plugin                   | Planned | Search panel tests will load tag and property facets asynchronously and suppress stale revision results |

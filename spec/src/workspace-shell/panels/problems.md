@@ -122,6 +122,9 @@ presentation.
 The generic Plugin API also carries explicit `ViewAccess` classification for
 first-party view registrations; the Problems command remains governed by its
 own required-panel lifecycle above.
+Problems is a required core surface and therefore follows the query-native
+plugin lifecycle: enabling it never requests the community metadata snapshot
+lease. Diagnostic collections remain independent of metadata index revisions.
 App `app:rebuild-vault-cache` and `app:rebuild-generated-state` report file
 progress through notifications, not Problems collections (LN-PKG-097,
 LN-PKG-098).

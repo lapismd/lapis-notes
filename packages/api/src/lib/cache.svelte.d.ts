@@ -1,7 +1,20 @@
 import type { App } from "./context.svelte";
 import { EventDispatcher } from "./events";
-import { TFile, ScopedVaultStore } from "$lib/storage";
+import {
+    TFile,
+    type AppDatabaseChangeSet,
+    type AppDatabaseIndexedMetadataPage,
+    type AppDatabaseIndexedMetadataPageQuery,
+    type AppDatabaseIndexedMetadataQuery,
+    type AppDatabaseIndexedMetadataRow,
+    type AppDatabaseLinkRecord,
+    type AppDatabaseMetadataFacetQuery,
+    type AppDatabaseMetadataFacetRow,
+    type AppDatabaseMetadataLinkQuery,
+    type MetadataCacheSnapshot,
+} from "$lib/storage";
 export declare const METADATA_CACHE_BACKUP_PATH = ".lapis/cache/metadata-cache.json";
+export declare const METADATA_CACHE_HOT_LIMIT = 512;
 /**
  * Location within a Markdown document
  *
@@ -251,6 +264,15 @@ export type IndexedProjectionContributor = {
         cache: CachedMetadata;
     }): IndexedProjectionContribution | null | Promise<IndexedProjectionContribution | null>;
 };
+export interface MetadataCacheSnapshotLease {
+    readonly snapshot: MetadataCacheSnapshot;
+    release(): void;
+}
+export interface MetadataCacheQueryWatch<T> {
+    dispose(): void;
+    refresh(): Promise<void>;
+    readonly current: T | undefined;
+}
 /**
  * Indexes parsed markdown metadata, tags, headings, and resolved links for the
  * active vault.
@@ -276,16 +298,16 @@ export declare class MetadataCache extends EventDispatcher<{
      * @public
      */
     deleted: [file: TFile, prevCache: CachedMetadata | null];
-    /** Called when the metadata has been loaded */
+    /** Called once the persisted metadata index is queryable. */
     loaded: [];
+    /** Called after an indexed database mutation commits. */
+    "index-changed": [change: AppDatabaseChangeSet];
 }> {
     #private;
     readonly app: App;
     processors: Map<string, Set<MetadataProcessor>>;
     projectionContributors: Set<IndexedProjectionContributor>;
     readonly logger: import("./logging").Logger;
-    readonly legacyStorage: ScopedVaultStore;
-    private lastPortableBackupWrite;
     private readonly saveSnapshotDebounced;
     constructor(app: App);
     get metadataCache(): Record<string, CachedMetadata>;
@@ -515,6 +537,13 @@ export declare class MetadataCache extends EventDispatcher<{
     private reconcileSnapshotWithVault;
     getFileCache(file: TFile): CachedMetadata | null;
     getCache(path: string): CachedMetadata | null;
+    getFileCacheAsync(file: TFile | string): Promise<CachedMetadata | null>;
+    queryMetadataPage(query?: AppDatabaseIndexedMetadataPageQuery): Promise<AppDatabaseIndexedMetadataPage>;
+    queryMetadata(query?: AppDatabaseIndexedMetadataQuery): Promise<AppDatabaseIndexedMetadataRow[]>;
+    queryFacets(query: AppDatabaseMetadataFacetQuery): Promise<AppDatabaseMetadataFacetRow[]>;
+    queryLinks(query: AppDatabaseMetadataLinkQuery): Promise<AppDatabaseLinkRecord[]>;
+    watchQuery(query: AppDatabaseIndexedMetadataPageQuery, listener: (page: AppDatabaseIndexedMetadataPage) => void, onError?: (error: unknown) => void): MetadataCacheQueryWatch<AppDatabaseIndexedMetadataPage>;
+    acquireMetadataSnapshotLease(): Promise<MetadataCacheSnapshotLease>;
     getDirectReferencePaths(sourcePath: string): string[];
     pathDirectlyReferences(sourcePath: string, targetPath: string): boolean;
     getDirectReferencingPaths(targetPath: string): string[];

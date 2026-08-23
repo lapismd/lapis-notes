@@ -470,6 +470,13 @@ stay on the main thread.
 The development renderer adds the real linked Design Core package root to its
 narrow Vite filesystem allowlist so public stylesheet assets remain available.
 
+The API's synchronous `metadataCache`, `fileCache`, `resolvedLinks`, and
+`unresolvedLinks` objects are a bounded open-file compatibility view, not the
+vault index. Async per-file reads populate that view on demand, while paged
+queries, facets, links, and query watches execute against `AppDatabase`. The
+legacy `.lapis/cache/metadata-cache.json` file is neither read, rewritten, nor
+removed.
+
 `@lapis-notes/language-service/markdownlint/runtime` is the Node-compatible
 boundary for desktop diagnostics and code actions. Plugin asset URLs continue
 to use public API helpers; their versioned Electron form stores path-bearing

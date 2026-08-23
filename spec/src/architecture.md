@@ -467,3 +467,9 @@ story paths, and six-placement coverage cannot drift independently.
 Hosts still start metadata index load after layout; file-scoped Markdown
 panels query persisted rows at `loaded` and refresh from revisioned changes
 without blocking shell mount.
+The metadata controller keeps only a 512-entry access-ordered hot set during
+normal production use. A community or official compatibility plugin may hold a
+reference-counted snapshot lease; the first lease materializes the full maps,
+committed database changes refresh them, and the last release returns the
+controller to the bounded hot set. Core and system code never acquire this
+lease and consume the indexed query boundary instead.

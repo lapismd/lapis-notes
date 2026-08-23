@@ -1022,10 +1022,12 @@ export class TursoAppDatabase implements AppDatabase {
   ): Promise<AppDatabaseIndexedFileManifestPage> {
     const limit = Math.max(1, query.limit ?? 500);
     const rows = await this.requireConnection().all<Record<string, unknown>>(
-      `SELECT path, normalized_path, extension, mtime, size, hash, indexed, deleted
-       FROM files
-       WHERE indexed = 1 AND deleted = 0 AND path > ?
-       ORDER BY path LIMIT ?`,
+      `SELECT f.path, f.normalized_path, f.extension, f.mtime, f.size, f.hash,
+              f.indexed, f.deleted, m.parser_version
+       FROM files f
+       LEFT JOIN metadata m ON m.path = f.path
+       WHERE f.indexed = 1 AND f.deleted = 0 AND f.path > ?
+       ORDER BY f.path LIMIT ?`,
       query.after ?? "",
       limit + 1,
     );
@@ -1621,6 +1623,7 @@ export class TursoAppDatabase implements AppDatabase {
       mtime: Number(row.mtime),
       size: Number(row.size),
       hash: String(row.hash),
+      parserVersion: row.parser_version == null ? undefined : String(row.parser_version),
       indexed: Boolean(row.indexed),
       deleted: Boolean(row.deleted),
     };

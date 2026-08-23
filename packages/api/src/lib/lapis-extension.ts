@@ -162,6 +162,10 @@ export interface LapisExtensionManifest {
       };
     };
   };
+  database?: {
+    /** Query-native access avoids the one-release full MetadataCache snapshot lease. */
+    metadataAccess?: "queries" | "snapshot";
+  };
   permissions?: LapisExtensionPermission[];
   source?: "community" | "official" | "system";
   enabled?: boolean;
@@ -330,6 +334,19 @@ export function validateLapisManifest(
   }
   if (lapis.contributes !== undefined && !isRecord(lapis.contributes)) {
     diagnostics.push(`Plugin ${pluginId} has invalid lapis.contributes`);
+  }
+  if (lapis.database !== undefined) {
+    if (!isRecord(lapis.database)) {
+      diagnostics.push(`Plugin ${pluginId} has invalid lapis.database`);
+    } else if (
+      lapis.database.metadataAccess !== undefined &&
+      lapis.database.metadataAccess !== "queries" &&
+      lapis.database.metadataAccess !== "snapshot"
+    ) {
+      diagnostics.push(
+        `Plugin ${pluginId} has invalid lapis.database.metadataAccess`,
+      );
+    }
   }
   if (lapis.runtime !== undefined) {
     if (!isRecord(lapis.runtime)) {

@@ -104,6 +104,10 @@ The panel registry is also the command-discovery authority required by
 Tags and All Properties remain Markdown-owned metadata views. Their vault-wide
 navigation delegates through the registered Search command described by the
 [Search Plugin](../search/index.md); Markdown does not import Search internals.
+These first-party views use persisted metadata facets and paged rows directly;
+file-scoped Outline, File Properties, Backlinks, and Outgoing Links fetch their
+current path asynchronously and discard results superseded by a later followed
+file or revision. Markdown does not acquire the third-party snapshot lease.
 The six canonical Markdown panels register `ViewAccess.command` openers from
 their registry. Markdown and Media remain `ViewAccess.file`, and legacy panel
 view types remain `ViewAccess.alias` without palette duplicates.
