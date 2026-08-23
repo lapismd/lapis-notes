@@ -799,9 +799,36 @@ export async function bootPanelDemo(
   });
   const stopWatchingMetadata = watchMetadata(app);
   await app.metadataCache.load();
+  const persistedMetadata = await app.metadataCache.queryMetadataPage({
+    limit: 100,
+  });
+  const persistedPaths = new Set(
+    persistedMetadata.rows.map((row) => row.file.path),
+  );
+  for (const expectedPath of [
+    "Notes/Welcome.md",
+    "Notes/Ideas.markdown",
+    "Notes/Research.md",
+  ]) {
+    if (!persistedPaths.has(expectedPath)) {
+      throw new Error(
+        `Panel fixture metadata index is missing ${expectedPath}; indexed ${[...persistedPaths].join(", ") || "nothing"}`,
+      );
+    }
+  }
+  await app.metadataTypeManager.updateProperties();
   const searchPlugin = app.plugins.plugins.get("search");
   if (searchPlugin instanceof SearchPlugin) {
     await searchPlugin.refreshIndex("storybook-panel-demo");
+  }
+  const persistedTags = await app.metadataCache.queryFacets({
+    kind: "tag",
+    limit: 100,
+  });
+  if (!persistedTags.some((tag) => tag.value === "demo")) {
+    throw new Error(
+      `Panel fixture metadata facets are incomplete; indexed tags ${persistedTags.map((tag) => String(tag.value)).join(", ") || "nothing"}`,
+    );
   }
   if (kind === "history") {
     await seedHistoryRevisions(app);

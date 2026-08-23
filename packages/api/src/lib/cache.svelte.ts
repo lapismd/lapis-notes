@@ -587,9 +587,10 @@ export class MetadataCache extends EventDispatcher<{
     super();
     app.vault.on("all", this.handleVaultChange);
     app.vault.on("rename", this.handleVaultRename);
-    this.databaseChangeUnsubscribe = app.appDatabase.subscribeToChanges?.(
-      (change) => this.handleDatabaseChange(change),
-    ) ?? null;
+    this.databaseChangeUnsubscribe =
+      app.appDatabase.subscribeToChanges?.((change) =>
+        this.handleDatabaseChange(change),
+      ) ?? null;
   }
 
   get metadataCache() {
@@ -685,7 +686,6 @@ export class MetadataCache extends EventDispatcher<{
     this.#unresolvedLinks = snapshot.unresolvedLinks;
   }
 
-
   async load() {
     if (this.disposed) return;
     if (this.loadPromise) return this.loadPromise;
@@ -715,18 +715,10 @@ export class MetadataCache extends EventDispatcher<{
     );
   }
 
-
   private async reconcileDatabaseWithVault(
     progress?: NotificationProgressHandle,
   ): Promise<void> {
     if (this.disposed) return;
-    const vaultFiles = this.app.vault
-      .getFiles()
-      .filter((file) => this.processors.has(file.extension.toLowerCase()))
-      .sort((left, right) =>
-        left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
-      );
-    let vaultIndex = 0;
     let processed = 0;
     let cursor: string | undefined;
 
@@ -734,7 +726,6 @@ export class MetadataCache extends EventDispatcher<{
       progress?.throwIfCancellationRequested();
       progress?.report({
         current: processed,
-        total: vaultFiles.length,
         message: path,
       });
       processed += 1;
@@ -748,17 +739,8 @@ export class MetadataCache extends EventDispatcher<{
       });
       for (const indexed of page.rows) {
         if (this.disposed) return;
-        while (
-          vaultIndex < vaultFiles.length &&
-          vaultFiles[vaultIndex].path < indexed.path
-        ) {
-          const created = vaultFiles[vaultIndex++];
-          await this.processFile(created);
-          await report(created.path);
-        }
-
-        const current = vaultFiles[vaultIndex];
-        if (!current || current.path !== indexed.path) {
+        const current = this.app.vault.getFileByPath(indexed.path);
+        if (!current || !this.processors.has(current.extension.toLowerCase())) {
           await this.mutateDatabasePaths([indexed.path], () =>
             this.app.appDatabase.deleteIndexedFile(indexed.path),
           );
@@ -774,17 +756,36 @@ export class MetadataCache extends EventDispatcher<{
         ) {
           await this.processFile(current);
         }
-        vaultIndex += 1;
         await report(current.path);
       }
       cursor = page.nextCursor;
     } while (cursor && !this.disposed);
 
-    while (vaultIndex < vaultFiles.length && !this.disposed) {
-      const created = vaultFiles[vaultIndex++];
-      await this.processFile(created);
-      await report(created.path);
+    const batch: TFile[] = [];
+    const reconcileCreatedBatch = async () => {
+      if (!batch.length || this.disposed) return;
+      const manifest = await this.app.appDatabase.listIndexedFileManifest({
+        paths: batch.map((file) => file.path),
+        limit: batch.length,
+      });
+      const indexedPaths = new Set(manifest.rows.map((file) => file.path));
+      for (const file of batch) {
+        if (this.disposed) return;
+        if (!indexedPaths.has(file.path)) {
+          await this.processFile(file);
+          await report(file.path);
+        }
+      }
+      batch.length = 0;
+    };
+
+    for (const file of this.app.vault.iterateFiles()) {
+      if (this.disposed) return;
+      if (!this.processors.has(file.extension.toLowerCase())) continue;
+      batch.push(file);
+      if (batch.length >= 500) await reconcileCreatedBatch();
     }
+    await reconcileCreatedBatch();
   }
 
   getFileCache(file: TFile): CachedMetadata | null {
@@ -798,7 +799,9 @@ export class MetadataCache extends EventDispatcher<{
     return cache ?? null;
   }
 
-  async getFileCacheAsync(file: TFile | string): Promise<CachedMetadata | null> {
+  async getFileCacheAsync(
+    file: TFile | string,
+  ): Promise<CachedMetadata | null> {
     const path = typeof file === "string" ? file : file.path;
     const hot = this.getCache(path);
     if (hot) return hot;
@@ -858,7 +861,8 @@ export class MetadataCache extends EventDispatcher<{
       });
     };
     const event = this.on("index-changed", (change) => {
-      if (change.reset || change.domains.includes("metadata")) scheduleRefresh();
+      if (change.reset || change.domains.includes("metadata"))
+        scheduleRefresh();
     });
     scheduleRefresh();
     return {
@@ -878,9 +882,11 @@ export class MetadataCache extends EventDispatcher<{
     this.snapshotLeaseCount += 1;
     try {
       if (!this.snapshotLeaseValue) {
-        this.snapshotLeasePromise ??= this.buildCompatibilitySnapshot().finally(() => {
-          this.snapshotLeasePromise = null;
-        });
+        this.snapshotLeasePromise ??= this.buildCompatibilitySnapshot().finally(
+          () => {
+            this.snapshotLeasePromise = null;
+          },
+        );
         this.snapshotLeaseValue = await this.snapshotLeasePromise;
         this.applySnapshot(this.snapshotLeaseValue);
       }
@@ -1098,7 +1104,11 @@ export class MetadataCache extends EventDispatcher<{
       await yieldToUi();
     }
     if (this.disposed) return;
-    progress.report({ current: processed, total: files.length, message: "Metadata index rebuilt" });
+    progress.report({
+      current: processed,
+      total: files.length,
+      message: "Metadata index rebuilt",
+    });
   }
 
   addProcessor(ext: string, processor: MetadataProcessor) {
@@ -1164,11 +1174,14 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   private parserSignature(file: TFile): string {
-    const processorCount = this.processors.get(file.extension.toLowerCase())?.size ?? 0;
+    const processorCount =
+      this.processors.get(file.extension.toLowerCase())?.size ?? 0;
     return `metadata-cache-v2:${file.extension.toLowerCase()}:${processorCount}`;
   }
 
-  private cacheDatabaseRow(row: AppDatabaseIndexedMetadataRow): CachedMetadata | null {
+  private cacheDatabaseRow(
+    row: AppDatabaseIndexedMetadataRow,
+  ): CachedMetadata | null {
     if (!row.metadata || !isRecord(row.metadata.metadata)) return null;
     const cache = row.metadata.metadata as CachedMetadata;
     this.#fileCache[row.file.path] = {
@@ -1196,7 +1209,9 @@ export class MetadataCache extends EventDispatcher<{
     this.hotPathOrder.set(path, true);
     if (this.snapshotLeaseCount > 0) return;
     while (this.hotPathOrder.size > METADATA_CACHE_HOT_LIMIT) {
-      const oldest = this.hotPathOrder.keys().next().value as string | undefined;
+      const oldest = this.hotPathOrder.keys().next().value as
+        | string
+        | undefined;
       if (!oldest) break;
       this.evictHotPath(oldest);
     }
@@ -1221,7 +1236,9 @@ export class MetadataCache extends EventDispatcher<{
       if (!this.hotPathOrder.has(path)) this.evictHotPath(path);
     }
     while (this.hotPathOrder.size > METADATA_CACHE_HOT_LIMIT) {
-      const oldest = this.hotPathOrder.keys().next().value as string | undefined;
+      const oldest = this.hotPathOrder.keys().next().value as
+        | string
+        | undefined;
       if (!oldest) break;
       this.evictHotPath(oldest);
     }
@@ -1326,7 +1343,7 @@ export class MetadataCache extends EventDispatcher<{
         this.trigger(
           "deleted",
           file,
-          existing ? this.metadataCache[existing.hash] ?? null : null,
+          existing ? (this.metadataCache[existing.hash] ?? null) : null,
         );
         this.evictHotPath(file.path);
         this.trackOperation(
@@ -1496,14 +1513,21 @@ export class MetadataCache extends EventDispatcher<{
       });
     }
 
-    const tags: AppDatabaseTagRecord[] = (cache.tags ?? []).map((tag) => {
-      const parts = tagParts(tag.tag);
+    const inlineTags = new Map(
+      (cache.tags ?? []).map((tag) => [tag.tag, tag.position]),
+    );
+    const tagNames = new Set([
+      ...inlineTags.keys(),
+      ...(parseFrontMatterTags(cache.frontmatter) ?? []),
+    ]);
+    const tags: AppDatabaseTagRecord[] = [...tagNames].map((tag) => {
+      const parts = tagParts(tag);
       return {
         path: file.path,
-        tag: tag.tag,
+        tag,
         parts: parts.parts,
         hierarchy: parts.hierarchy,
-        position: tag.position,
+        position: inlineTags.get(tag),
       };
     });
 

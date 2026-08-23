@@ -239,7 +239,9 @@
     <Sidebar.Content class="tags-panel__menu-host">
       <Sidebar.Menu class="tags-panel__menu">
         {#if queryError}
-          <p class="markdown-sidebar-panel__empty">Unable to load tags: {queryError}</p>
+          <p class="markdown-sidebar-panel__empty" role="alert">
+            Unable to load tags: {queryError}
+          </p>
         {:else if loading && !Object.keys(values).length}
           <p class="markdown-sidebar-panel__empty">Loading tags…</p>
         {:else}

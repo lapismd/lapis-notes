@@ -4,6 +4,10 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../catalog/catalog.mjs";
 import { WORKSPACE_SHELL_DOCS_STORY } from "../../workspace/docs-parameters";
+import {
+  expectAsyncQueryFailureAndRecovery,
+  triggerMetadataReset,
+} from "../_shared/panels/panel-story-helpers";
 import BasesViewsDemo from "./BasesViewsDemo.svelte";
 import { basesViewsExampleSource } from "./BasesViews.example-sources";
 import type { BasesViewScenario } from "./bases-views-fixture";
@@ -200,6 +204,25 @@ export const Table: Story = {
           '[data-ui-component="bases-table-view"]',
         )!,
       );
+    });
+    const app = demoApp(canvasElement);
+    await expectAsyncQueryFailureAndRecovery({
+      target: app.appDatabase,
+      method: "queryIndexedMetadataPage",
+      trigger: () => triggerMetadataReset(app),
+      expectFailure: () =>
+        waitFor(() => {
+          expect(canvas.getByRole("alert")).toHaveTextContent(
+            "Storybook metadata query failure",
+          );
+        }),
+      recover: () =>
+        userEvent.click(canvas.getByRole("button", { name: "Retry" })),
+      expectRecovery: () =>
+        waitFor(() => {
+          expect(canvas.queryByRole("alert")).not.toBeInTheDocument();
+          expect(canvas.getByText("Aurora.md")).toBeVisible();
+        }),
     });
   },
 };

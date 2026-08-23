@@ -41,6 +41,7 @@ describe("buildBasesAppDatabaseQuery", () => {
     });
 
     expect(query).toEqual({
+      excludeHiddenPaths: true,
       pathPrefixes: ["Projects"],
       requiredTags: ["work"],
       propertyFilters: [
@@ -70,7 +71,7 @@ describe("buildBasesAppDatabaseQuery", () => {
       limit: 5,
     });
 
-    expect(query).toEqual({});
+    expect(query).toEqual({ excludeHiddenPaths: true });
   });
 });
 
@@ -147,10 +148,12 @@ describe("queryBasesAppDatabaseRows", () => {
         { queryIndexedMetadataPage } as any,
         {
           requiredTags: ["work"],
-          sort: [{
-            field: { kind: "property", name: "priority" },
-            direction: "ASC",
-          }],
+          sort: [
+            {
+              field: { kind: "property", name: "priority" },
+              direction: "ASC",
+            },
+          ],
         },
         1,
       ),
@@ -179,11 +182,12 @@ describe("queryBasesAppDatabaseRows", () => {
   });
 
   it("pushes a fully lowered limit into one bounded page", async () => {
-    const queryIndexedMetadataPage = vi.fn(async () => ({ rows: [row("A.md")] }));
-    await queryBasesAppDatabaseRows(
-      { queryIndexedMetadataPage } as any,
-      { limit: 25 },
-    );
+    const queryIndexedMetadataPage = vi.fn(async () => ({
+      rows: [row("A.md")],
+    }));
+    await queryBasesAppDatabaseRows({ queryIndexedMetadataPage } as any, {
+      limit: 25,
+    });
     expect(queryIndexedMetadataPage).toHaveBeenCalledWith({
       query: { limit: 25 },
       limit: 25,

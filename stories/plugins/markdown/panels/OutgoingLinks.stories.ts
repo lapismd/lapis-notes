@@ -7,6 +7,7 @@ import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
 import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
+  expectAsyncQueryFailureAndRecovery,
   expectLinkPanelAlignment,
   expectLinkPreviewHoverHandoff,
   expectLinkPreviewPlacement,
@@ -17,6 +18,7 @@ import {
   PANEL_PLACEMENTS,
   panelDemoApp,
   placementParameters,
+  triggerMetadataReset,
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
 
@@ -477,7 +479,7 @@ function placementStory(
             parseFloat(embeddedPadding.paddingInlineStart),
           ).toBeGreaterThanOrEqual(32);
           await waitFor(() =>
-            expectLinkPreviewPlacement(previewTrigger, preview),
+            expectLinkPreviewPlacement(previewTrigger, preview, false),
           );
           await expectLinkPreviewHoverHandoff(previewTrigger, preview);
 
@@ -526,7 +528,7 @@ Edited through the panel FileEmbed preview.
           );
           expect(editorScroller.scrollTop).toBeGreaterThan(0);
           await waitFor(() =>
-            expectLinkPreviewPlacement(previewTrigger, preview),
+            expectLinkPreviewPlacement(previewTrigger, preview, false),
           );
 
           await userEvent.hover(panelElement);
@@ -593,3 +595,45 @@ export const SidebarGroup = placementStory(
   sources.SidebarGroup,
   "Outgoing Links as the only view in a grouped right-sidebar item.",
 );
+
+export const QueryFailure: Story = {
+  name: "Query failure and recovery",
+  parameters: placementParameters(
+    kind,
+    "middle-top-tabs",
+    sources.MiddleTopTabs,
+    "Outgoing Links surfaces an indexed-query failure and recovers after invalidation.",
+  ),
+  render: renderPlacement("middle-top-tabs"),
+  play: async ({ args, canvasElement }) => {
+    const panel = await expectPanelPlacement(
+      canvasElement,
+      kind,
+      "middle-top-tabs",
+      "outgoing-links-panel",
+      args,
+    );
+    const app = panelDemoApp(canvasElement);
+    await expectAsyncQueryFailureAndRecovery({
+      target: app.metadataCache,
+      method: "queryLinks",
+      trigger: () => triggerMetadataReset(app),
+      expectFailure: () =>
+        waitFor(() => {
+          expect(panel.getByRole("alert")).toHaveTextContent(
+            "Storybook metadata query failure",
+          );
+        }),
+      expectRecovery: () =>
+        waitFor(() => {
+          const livePanel = within(
+            canvasElement.querySelector<HTMLElement>(
+              '[data-testid="outgoing-links-panel"]',
+            )!,
+          );
+          expect(livePanel.queryByRole("alert")).not.toBeInTheDocument();
+          expect(livePanel.getByText("Links")).toBeVisible();
+        }),
+    });
+  },
+};

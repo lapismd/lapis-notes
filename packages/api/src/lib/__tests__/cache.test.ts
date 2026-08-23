@@ -63,6 +63,9 @@ function createMetadataCache(paths: string[]): MetadataCache {
       },
       getFileByPath: (path: string) => files.get(path) ?? null,
       getFiles: () => [...files.values()],
+      iterateFiles: function* () {
+        yield* files.values();
+      },
       getMarkdownFiles: () =>
         [...files.values()].filter((file) =>
           /\.(md|markdown)$/i.test(file.path),
@@ -108,13 +111,15 @@ function createLoadCache(
     options.database ?? new MemoryAppDatabase("vault-under-test");
   const files = options.files ?? [];
   const filesByPath = new Map(files.map((file) => [file.path, file]));
-  const notifications =
-    options.notifications ?? createProgressNotifications();
+  const notifications = options.notifications ?? createProgressNotifications();
   const cache = new MetadataCache({
     appDatabase: database,
     indexProjections: new IndexProjectionRegistry(),
     notifications,
-    metadataTypeManager: { types: {} },
+    metadataTypeManager: {
+      types: {},
+      determinePropertyType: () => undefined,
+    },
     vault: {
       adapter: Object.assign(adapter, {
         getVaultId: () => "vault-under-test",
@@ -123,6 +128,9 @@ function createLoadCache(
       read: (file: TFile) => adapter.read(file.path),
       getFileByPath: (path: string) => filesByPath.get(path) ?? null,
       getFiles: () => [...filesByPath.values()],
+      iterateFiles: function* () {
+        yield* filesByPath.values();
+      },
       getMarkdownFiles: () =>
         [...filesByPath.values()].filter((file) =>
           /\.(md|markdown)$/i.test(file.path),
@@ -234,7 +242,6 @@ describe("frontmatter tag parsing", () => {
   });
 });
 
-
 async function seedIndexedMetadata(
   database: MemoryAppDatabase,
   file: TFile,
@@ -269,19 +276,29 @@ describe("MetadataCache.load", () => {
     const adapter = new InMemoryDataAdapter();
     const database = new MemoryAppDatabase("vault-under-test");
     await database.open();
-    await seedIndexedMetadata(database, file, { frontmatter: { status: "active" } });
+    await seedIndexedMetadata(database, file, {
+      frontmatter: { status: "active" },
+    });
     const { cache } = createLoadCache({ adapter, database, files: [file] });
     cache.addProcessor("md", { read: async () => ({}), write: () => "" });
     const bodyRead = vi.spyOn(adapter, "read");
     const snapshotLoad = vi.spyOn(database, "loadMetadataSnapshot");
+    const eagerVaultEnumeration = vi
+      .spyOn(cache.app.vault, "getFiles")
+      .mockImplementation(() => {
+        throw new Error("warm reconciliation must use the bounded iterator");
+      });
     const loadedState: number[] = [];
-    cache.on("loaded", () => loadedState.push(Object.keys(cache.fileCache).length));
+    cache.on("loaded", () =>
+      loadedState.push(Object.keys(cache.fileCache).length),
+    );
 
     await cache.load();
 
     expect(loadedState).toEqual([0]);
     expect(snapshotLoad).not.toHaveBeenCalled();
     expect(bodyRead).not.toHaveBeenCalled();
+    expect(eagerVaultEnumeration).not.toHaveBeenCalled();
     expect(cache.initialized).toBe(true);
     await expect(cache.getFileCacheAsync(file)).resolves.toMatchObject({
       frontmatter: { status: "active" },
@@ -305,7 +322,11 @@ describe("MetadataCache.load", () => {
   });
 
   it("emits loaded before parsing new files in background reconciliation", async () => {
-    const file = new TFile("Notes/New.md", { ctime: 1, mtime: 2, size: 6 }, null);
+    const file = new TFile(
+      "Notes/New.md",
+      { ctime: 1, mtime: 2, size: 6 },
+      null,
+    );
     const adapter = new InMemoryDataAdapter();
     await adapter.mkdir("Notes");
     await adapter.write(file.path, "# New\n");
@@ -314,7 +335,10 @@ describe("MetadataCache.load", () => {
     cache.addProcessor("md", {
       read: async () => {
         order.push("parsed");
-        return { headings: [] };
+        return {
+          frontmatter: { tags: ["frontmatter", "project/nested"] },
+          headings: [],
+        };
       },
       write: () => "",
     });
@@ -323,10 +347,20 @@ describe("MetadataCache.load", () => {
     await cache.load();
 
     expect(order).toEqual(["loaded", "parsed"]);
+    await expect(cache.queryFacets({ kind: "tag" })).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value: "frontmatter", count: 1 }),
+        expect.objectContaining({ value: "project/nested", count: 1 }),
+      ]),
+    );
   });
 
   it("reparses parser-signature-stale files even when stat is unchanged", async () => {
-    const file = new TFile("Notes/Stale.md", { ctime: 1, mtime: 2, size: 8 }, null);
+    const file = new TFile(
+      "Notes/Stale.md",
+      { ctime: 1, mtime: 2, size: 8 },
+      null,
+    );
     const adapter = new InMemoryDataAdapter();
     await adapter.mkdir("Notes");
     await adapter.write(file.path, "# Stale\n");
@@ -346,17 +380,23 @@ describe("MetadataCache.load", () => {
     const database = new MemoryAppDatabase("vault-under-test");
     await database.open();
     for (let index = 0; index < 513; index += 1) {
-      const file = new TFile(`Notes/${String(index).padStart(3, "0")}.md`, {
-        ctime: 1,
-        mtime: 2,
-        size: 3,
-      }, null);
+      const file = new TFile(
+        `Notes/${String(index).padStart(3, "0")}.md`,
+        {
+          ctime: 1,
+          mtime: 2,
+          size: 3,
+        },
+        null,
+      );
       await seedIndexedMetadata(database, file, { frontmatter: { index } });
     }
     const { cache } = createLoadCache({ database });
 
     for (let index = 0; index < 513; index += 1) {
-      await cache.getFileCacheAsync(`Notes/${String(index).padStart(3, "0")}.md`);
+      await cache.getFileCacheAsync(
+        `Notes/${String(index).padStart(3, "0")}.md`,
+      );
     }
 
     expect(Object.keys(cache.fileCache)).toHaveLength(512);
@@ -383,15 +423,23 @@ describe("MetadataCache lifecycle", () => {
 
   it("materializes a deprecated snapshot only for an explicit lease", async () => {
     const { file } = createSnapshot();
-    const untouched = new TFile("Notes/Untouched.md", {
-      ctime: 1,
-      mtime: 2,
-      size: 3,
-    }, null);
+    const untouched = new TFile(
+      "Notes/Untouched.md",
+      {
+        ctime: 1,
+        mtime: 2,
+        size: 3,
+      },
+      null,
+    );
     const database = new MemoryAppDatabase("vault-under-test");
     await database.open();
-    await seedIndexedMetadata(database, file, { frontmatter: { status: "active" } });
-    await seedIndexedMetadata(database, untouched, { frontmatter: { status: "cold" } });
+    await seedIndexedMetadata(database, file, {
+      frontmatter: { status: "active" },
+    });
+    await seedIndexedMetadata(database, untouched, {
+      frontmatter: { status: "cold" },
+    });
     const { cache } = createLoadCache({ database, files: [file, untouched] });
     const saveMetadataSnapshot = vi.spyOn(database, "saveMetadataSnapshot");
 
@@ -417,10 +465,11 @@ describe("MetadataCache lifecycle", () => {
     let releaseOpen: (() => void) | undefined;
     const openStarted = new Promise<void>((resolve) => {
       vi.spyOn(database, "open").mockImplementation(
-        () => new Promise((openResolve) => {
-          resolve();
-          releaseOpen = openResolve;
-        }),
+        () =>
+          new Promise((openResolve) => {
+            resolve();
+            releaseOpen = openResolve;
+          }),
       );
     });
     const saveMetadataSnapshot = vi.spyOn(database, "saveMetadataSnapshot");
@@ -436,7 +485,11 @@ describe("MetadataCache lifecycle", () => {
 
   it("keeps paged vault reconciliation under the load progress handle", async () => {
     const file = new TFile("Notes/A.md", { ctime: 1, mtime: 2, size: 3 }, null);
-    const extra = new TFile("Notes/B.md", { ctime: 1, mtime: 2, size: 8 }, null);
+    const extra = new TFile(
+      "Notes/B.md",
+      { ctime: 1, mtime: 2, size: 8 },
+      null,
+    );
     const adapter = new InMemoryDataAdapter();
     await adapter.mkdir("Notes");
     await adapter.write(extra.path, "# Extra\n");
@@ -450,18 +503,27 @@ describe("MetadataCache lifecycle", () => {
       files: [file, extra],
       notifications,
     });
-    cache.addProcessor("md", { read: async () => ({ headings: [] }), write: () => "" });
+    cache.addProcessor("md", {
+      read: async () => ({ headings: [] }),
+      write: () => "",
+    });
 
     await cache.load();
 
-    expect(notifications.reports.some(
-      (report) => report.message === extra.path && report.inFlight,
-    )).toBe(true);
+    expect(
+      notifications.reports.some(
+        (report) => report.message === extra.path && report.inFlight,
+      ),
+    ).toBe(true);
     expect(notifications.reports.at(-1)?.inFlight).toBe(true);
   });
 
   it("stops reconciliation without committing a read that finishes after disposal", async () => {
-    const file = new TFile("Notes/Slow.md", { ctime: 1, mtime: 2, size: 7 }, null);
+    const file = new TFile(
+      "Notes/Slow.md",
+      { ctime: 1, mtime: 2, size: 7 },
+      null,
+    );
     const adapter = new InMemoryDataAdapter();
     await adapter.mkdir("Notes");
     await adapter.write(file.path, "# Slow\n");

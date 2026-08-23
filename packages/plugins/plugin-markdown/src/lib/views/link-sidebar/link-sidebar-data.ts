@@ -109,9 +109,7 @@ export function sortLinkSidebarGroups(
   );
 }
 
-export function formatLinkSidebarSortLabel(
-  mode: LinkSidebarSortMode,
-): string {
+export function formatLinkSidebarSortLabel(mode: LinkSidebarSortMode): string {
   return (
     LINK_SIDEBAR_SORT_OPTIONS.find((option) => option.value === mode)?.label ??
     LINK_SIDEBAR_SORT_OPTIONS[0]!.label
@@ -123,7 +121,10 @@ function isMarkdownFile(file: LinkSidebarFile): boolean {
 }
 
 function normalizeNotePath(path: string): string {
-  return path.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/{2,}/g, "/");
+  return path
+    .replace(/\\/g, "/")
+    .replace(/^\.\//, "")
+    .replace(/\/{2,}/g, "/");
 }
 
 function refersToFile(
@@ -141,7 +142,10 @@ function refersToFile(
     `${file.basename}.md`,
     `${file.basename}.markdown`,
   ]);
-  if (aliases.has(normalized) || aliases.has(normalized.replace(/\.(md|markdown)$/i, ""))) {
+  if (
+    aliases.has(normalized) ||
+    aliases.has(normalized.replace(/\.(md|markdown)$/i, ""))
+  ) {
     return true;
   }
   return (
@@ -151,7 +155,10 @@ function refersToFile(
   );
 }
 
-async function inboundSourcePaths(app: App, activeFile: TFile): Promise<string[]> {
+async function inboundSourcePaths(
+  app: App,
+  activeFile: TFile,
+): Promise<string[]> {
   const links = await app.metadataCache.queryLinks({
     direction: "incoming",
     path: activeFile.path,
@@ -190,14 +197,14 @@ function aliasesFor(
       : [];
   return [
     ...new Set(
-      [file.basename, ...aliases]
-        .map((value) => value.trim())
-        .filter(Boolean),
+      [file.basename, ...aliases].map((value) => value.trim()).filter(Boolean),
     ),
   ].sort((left, right) => right.length - left.length);
 }
 
-function references(cache: CachedMetadata | null | undefined): ReferenceCache[] {
+function references(
+  cache: CachedMetadata | null | undefined,
+): ReferenceCache[] {
   return [...(cache?.links ?? []), ...(cache?.embeds ?? [])];
 }
 
@@ -225,7 +232,10 @@ function groupMentions(mentions: LinkSidebarMention[]): LinkSidebarGroup[] {
 }
 
 function positionAt(content: string, offset: number): EditorPosition {
-  const before = content.slice(0, Math.max(0, Math.min(offset, content.length)));
+  const before = content.slice(
+    0,
+    Math.max(0, Math.min(offset, content.length)),
+  );
   const lines = before.split("\n");
   return { line: lines.length - 1, ch: lines.at(-1)?.length ?? 0 };
 }
@@ -268,7 +278,8 @@ function mentionFromReference(input: {
 }): LinkSidebarMention {
   const linkText = input.reference.displayText || input.reference.link;
   const offset = input.reference.position?.start.offset ?? 0;
-  const endOffset = input.reference.position?.end.offset ?? offset + linkText.length;
+  const endOffset =
+    input.reference.position?.end.offset ?? offset + linkText.length;
   const { context, expandedContext, pos } = contextAt(
     input.content,
     offset,
@@ -317,7 +328,8 @@ export function findExactUnlinkedMentions(input: {
   const blocked = input.blockedRanges ?? [];
   const minimumOffset = input.minimumOffset ?? 0;
   const seen = new Set<string>();
-  const matches: Array<{ text: string; offset: number; endOffset: number }> = [];
+  const matches: Array<{ text: string; offset: number; endOffset: number }> =
+    [];
   const haystack = input.content.toLocaleLowerCase();
 
   for (const alias of input.aliases) {
@@ -437,7 +449,10 @@ function collectOutgoingLinks(state: LinkSidebarState): LinkSidebarMention[] {
   if (!cache) return [];
   const mentions: LinkSidebarMention[] = [];
   references(cache).forEach((reference, index) => {
-    const targetPath = state.resolveLinkPath(reference.link, state.activeFile.path);
+    const targetPath = state.resolveLinkPath(
+      reference.link,
+      state.activeFile.path,
+    );
     const targetFile = targetPath ? files.get(targetPath) : null;
     if (!targetPath || !targetFile) return;
     mentions.push(
@@ -455,7 +470,9 @@ function collectOutgoingLinks(state: LinkSidebarState): LinkSidebarMention[] {
   return mentions;
 }
 
-function collectUnlinkedBacklinks(state: LinkSidebarState): LinkSidebarMention[] {
+function collectUnlinkedBacklinks(
+  state: LinkSidebarState,
+): LinkSidebarMention[] {
   const aliases = aliasesFor(
     state.activeFile,
     state.caches.get(state.activeFile.path),
@@ -487,7 +504,9 @@ function collectUnlinkedBacklinks(state: LinkSidebarState): LinkSidebarMention[]
   return mentions;
 }
 
-function collectOutgoingUnlinked(state: LinkSidebarState): LinkSidebarMention[] {
+function collectOutgoingUnlinked(
+  state: LinkSidebarState,
+): LinkSidebarMention[] {
   const document = state.documents.get(state.activeFile.path);
   if (!document) return [];
   const linkedTargets = new Set(
@@ -555,12 +574,54 @@ export function buildOutgoingLinksData(
   };
 }
 
-function normalizeDocument(document: SearchDocumentRecord): LinkSidebarDocument {
+function normalizeDocument(
+  document: SearchDocumentRecord,
+): LinkSidebarDocument {
   return {
     path: document.path,
     content: document.content,
     frontmatterEndOffset: document.sourceMetadata?.frontmatterEndOffset,
   };
+}
+
+const OUTGOING_SEARCH_QUERY_LIMIT = 32;
+const OUTGOING_SEARCH_RESULT_LIMIT = 20;
+const OUTGOING_CANDIDATE_LIMIT = 250;
+const OUTGOING_SEARCH_STOP_WORDS = new Set([
+  "and",
+  "are",
+  "for",
+  "from",
+  "has",
+  "have",
+  "into",
+  "not",
+  "that",
+  "the",
+  "this",
+  "with",
+]);
+
+function outgoingCandidateQueries(content: string): string[] {
+  const candidates = new Map<string, number>();
+  for (const match of content.matchAll(
+    /\b[\p{L}\p{N}][\p{L}\p{N}'_-]{2,}\b/gu,
+  )) {
+    const value = match[0];
+    const normalized = value.toLocaleLowerCase();
+    if (OUTGOING_SEARCH_STOP_WORDS.has(normalized)) continue;
+    const score = /^\p{Lu}/u.test(value) ? 2 : 1;
+    candidates.set(value, Math.max(score, candidates.get(value) ?? 0));
+  }
+  return [...candidates.entries()]
+    .sort(
+      ([leftValue, leftScore], [rightValue, rightScore]) =>
+        rightScore - leftScore ||
+        rightValue.length - leftValue.length ||
+        leftValue.localeCompare(rightValue),
+    )
+    .slice(0, OUTGOING_SEARCH_QUERY_LIMIT)
+    .map(([value]) => value);
 }
 
 /** Only indexed link and Search candidates needed by the followed note. */
@@ -583,17 +644,17 @@ export async function collectLinkSidebarSources(
     files.set(file.path, file);
   };
   add(activeFile);
-  const inboundPaths = mode === "backlinks"
-    ? await inboundSourcePaths(app, activeFile)
-    : [];
-  const outgoing = mode === "outgoing"
-    ? await app.metadataCache.queryLinks({
-        direction: "outgoing",
-        path: activeFile.path,
-        resolution: "all",
-        limit: 10_000,
-      })
-    : [];
+  const inboundPaths =
+    mode === "backlinks" ? await inboundSourcePaths(app, activeFile) : [];
+  const outgoing =
+    mode === "outgoing"
+      ? await app.metadataCache.queryLinks({
+          direction: "outgoing",
+          path: activeFile.path,
+          resolution: "all",
+          limit: 10_000,
+        })
+      : [];
   for (const path of inboundPaths) add(app.vault.getFileByPath(path), path);
   for (const link of outgoing) {
     const path = link.resolvedTargetPath;
@@ -621,7 +682,43 @@ export async function collectLinkSidebarSources(
           );
         }
       } catch (error) {
-        app.logger.warn(`Unable to query unlinked mentions for ${alias}`, error);
+        app.logger.warn(
+          `Unable to query unlinked mentions for ${alias}`,
+          error,
+        );
+      }
+    }
+  } else {
+    const activeDocument = await app.appDatabase.getSearchDocument(
+      activeFile.path,
+    );
+    if (activeDocument) {
+      indexedDocuments.set(activeFile.path, normalizeDocument(activeDocument));
+      for (const query of outgoingCandidateQueries(activeDocument.content)) {
+        if (files.size >= OUTGOING_CANDIDATE_LIMIT) break;
+        try {
+          const results = await app.appDatabase.searchDocuments(query, {
+            mode: "lexical",
+            limit: OUTGOING_SEARCH_RESULT_LIMIT,
+          });
+          for (const result of results) {
+            if (result.document.path === activeFile.path) continue;
+            add(
+              app.vault.getFileByPath(result.document.path),
+              result.document.path,
+            );
+            indexedDocuments.set(
+              result.document.path,
+              normalizeDocument(result.document),
+            );
+            if (files.size >= OUTGOING_CANDIDATE_LIMIT) break;
+          }
+        } catch (error) {
+          app.logger.warn(
+            `Unable to query outgoing mention candidates for ${query}`,
+            error,
+          );
+        }
       }
     }
   }
@@ -714,22 +811,21 @@ export async function buildLinkSidebarData(
     }
   });
   await Promise.all(
-    [...files.values()]
-      .map(async (file) => {
-        try {
-          documents.set(file.path, {
-            path: file.path,
-            content:
-              liveText.get(file.path) ??
-              documents.get(file.path)?.content ??
-              (await app.vault.cachedRead(file)),
-            frontmatterEndOffset:
-              caches.get(file.path)?.frontmatterPosition?.end.offset ?? 0,
-          });
-        } catch (error) {
-          app.logger.warn(`Unable to read ${file.path} for link sidebar`, error);
-        }
-      }),
+    [...files.values()].map(async (file) => {
+      try {
+        documents.set(file.path, {
+          path: file.path,
+          content:
+            liveText.get(file.path) ??
+            documents.get(file.path)?.content ??
+            (await app.vault.cachedRead(file)),
+          frontmatterEndOffset:
+            caches.get(file.path)?.frontmatterPosition?.end.offset ?? 0,
+        });
+      } catch (error) {
+        app.logger.warn(`Unable to read ${file.path} for link sidebar`, error);
+      }
+    }),
   );
 
   const state: LinkSidebarState = {

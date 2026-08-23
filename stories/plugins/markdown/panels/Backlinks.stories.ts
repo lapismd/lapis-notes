@@ -6,6 +6,7 @@ import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
 import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
+  expectAsyncQueryFailureAndRecovery,
   expectLinkPanelAlignment,
   expectLinkPreviewHoverHandoff,
   expectLinkPreviewPlacement,
@@ -16,6 +17,7 @@ import {
   PANEL_PLACEMENTS,
   panelDemoApp,
   placementParameters,
+  triggerMetadataReset,
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
 
@@ -216,3 +218,45 @@ export const SidebarGroup = placementStory(
   sources.SidebarGroup,
   "Backlinks as the only view in a grouped right-sidebar item.",
 );
+
+export const QueryFailure: Story = {
+  name: "Query failure and recovery",
+  parameters: placementParameters(
+    kind,
+    "middle-top-tabs",
+    sources.MiddleTopTabs,
+    "Backlinks surfaces an indexed-query failure and recovers after invalidation.",
+  ),
+  render: renderPlacement("middle-top-tabs"),
+  play: async ({ args, canvasElement }) => {
+    const panel = await expectPanelPlacement(
+      canvasElement,
+      kind,
+      "middle-top-tabs",
+      "backlinks-panel",
+      args,
+    );
+    const app = panelDemoApp(canvasElement);
+    await expectAsyncQueryFailureAndRecovery({
+      target: app.metadataCache,
+      method: "queryLinks",
+      trigger: () => triggerMetadataReset(app),
+      expectFailure: () =>
+        waitFor(() => {
+          expect(panel.getByRole("alert")).toHaveTextContent(
+            "Storybook metadata query failure",
+          );
+        }),
+      expectRecovery: () =>
+        waitFor(() => {
+          const livePanel = within(
+            canvasElement.querySelector<HTMLElement>(
+              '[data-testid="backlinks-panel"]',
+            )!,
+          );
+          expect(livePanel.queryByRole("alert")).not.toBeInTheDocument();
+          expect(livePanel.getByText("Linked mentions")).toBeVisible();
+        }),
+    });
+  },
+};

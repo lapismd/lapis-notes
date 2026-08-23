@@ -6,12 +6,14 @@ import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
 import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
+  expectAsyncQueryFailureAndRecovery,
   expectPanelPlacement,
   expectPanelSource,
   panelDemoApp,
   PANEL_DOCS_PARAMETERS,
   PANEL_PLACEMENTS,
   placementParameters,
+  triggerMetadataReset,
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
 
@@ -412,6 +414,22 @@ function placementStory(
       await expect(panel.getByText("Vault search syntax")).toBeVisible();
 
       if (layout === "middle-top-tabs") {
+        const metadataApp = panelDemoApp(canvasElement);
+        await expectAsyncQueryFailureAndRecovery({
+          target: metadataApp.metadataCache,
+          method: "queryFacets",
+          trigger: () => triggerMetadataReset(metadataApp),
+          expectFailure: () =>
+            waitFor(() => {
+              expect(panel.getByRole("alert")).toHaveTextContent(
+                "Storybook metadata query failure",
+              );
+            }),
+          expectRecovery: () =>
+            waitFor(() => {
+              expect(panel.queryByRole("alert")).not.toBeInTheDocument();
+            }),
+        });
         const writeText = fn(async () => undefined);
         Object.defineProperty(navigator.clipboard, "writeText", {
           configurable: true,

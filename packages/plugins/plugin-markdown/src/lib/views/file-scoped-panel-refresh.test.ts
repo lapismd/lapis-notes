@@ -1,14 +1,16 @@
-import type { App, CachedMetadata, HeadingCache, TFile } from "@lapis-notes/api";
+import type {
+  App,
+  CachedMetadata,
+  HeadingCache,
+  TFile,
+} from "@lapis-notes/api";
 import { describe, expect, it, vi } from "vitest";
 import {
   readSortedHeadings,
   subscribeFileScopedPanelRefresh,
 } from "./file-scoped-panel-refresh";
 
-function heading(
-  text: string,
-  offset: number,
-): HeadingCache {
+function heading(text: string, offset: number): HeadingCache {
   return {
     heading: text,
     level: 1,
@@ -20,8 +22,10 @@ function heading(
 }
 
 function createCacheApp(initial: Record<string, CachedMetadata> = {}) {
-  const fileCache: Record<string, { hash: string; mtime: number; size: number }> =
-    {};
+  const fileCache: Record<
+    string,
+    { hash: string; mtime: number; size: number }
+  > = {};
   const metadataCache: Record<string, CachedMetadata> = {};
   for (const [path, cache] of Object.entries(initial)) {
     fileCache[path] = { hash: path, mtime: 1, size: 1 };
@@ -47,7 +51,8 @@ function createCacheApp(initial: Record<string, CachedMetadata> = {}) {
         fileCache,
         metadataCache,
         initialized: Object.keys(metadataCache).length > 0,
-        getCache: (path: string) => metadataCache[fileCache[path]?.hash] ?? null,
+        getCache: (path: string) =>
+          metadataCache[fileCache[path]?.hash] ?? null,
         getFileCacheAsync: async (path: string) =>
           metadataCache[fileCache[path]?.hash] ?? null,
         on,
@@ -150,6 +155,25 @@ describe("subscribeFileScopedPanelRefresh", () => {
     trigger("active-leaf-change");
     expect(refresh).toHaveBeenCalledTimes(2);
 
+    stop();
+  });
+
+  it("can refresh backlinks when another note's metadata changes", () => {
+    const { app, trigger, setActiveFile } = createCacheApp();
+    setActiveFile({ path: "Notes/Target.md" } as TFile);
+    const refresh = vi.fn();
+    const stop = subscribeFileScopedPanelRefresh(app, refresh, {
+      includeAnyMetadataPath: true,
+    });
+    refresh.mockClear();
+
+    trigger("index-changed", {
+      revision: 1,
+      domains: ["metadata"],
+      paths: ["Notes/Source.md"],
+    });
+
+    expect(refresh).toHaveBeenCalledTimes(1);
     stop();
   });
 });

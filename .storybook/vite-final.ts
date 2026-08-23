@@ -164,7 +164,11 @@ export async function viteFinal(
       dedupe: [...linkedSingletonPackages, "svelte"],
       alias: [
         {
-          find: /^@tursodatabase\/database-wasm\/bundle$/,
+          find: /^harper\.js\/binary$/,
+          replacement: "harper.js/binaryInlined",
+        },
+        {
+          find: /^@tursodatabase\/database-wasm\/(?:bundle|vite)$/,
           replacement: path.join(rootDir, "turso-wasm-stub.ts"),
         },
         {

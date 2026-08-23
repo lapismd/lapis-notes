@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { CachedMetadata, Pos } from "@lapis-notes/api";
 import {
   buildBacklinksData,
+  buildLinkSidebarData,
   buildLinkedLinkSidebarData,
   buildOutgoingLinksData,
   findExactUnlinkedMentions,
@@ -40,7 +41,9 @@ function state(input: {
   resolved?: Record<string, Record<string, string>>;
 }): LinkSidebarState {
   return {
-    activeFile: input.files.find((candidate) => candidate.path === input.activePath)!,
+    activeFile: input.files.find(
+      (candidate) => candidate.path === input.activePath,
+    )!,
     files: input.files,
     caches: new Map(Object.entries(input.caches)),
     documents: new Map(
@@ -92,9 +95,9 @@ describe("link sidebar data", () => {
       }),
     );
     expect(data.linkedGroups[0]?.file.path).toBe(linked.path);
-    expect(data.linkedGroups[0]?.mentions.map((mention) => mention.kind)).toEqual(
-      ["link", "embed"],
-    );
+    expect(
+      data.linkedGroups[0]?.mentions.map((mention) => mention.kind),
+    ).toEqual(["link", "embed"]);
     expect(data.unlinkedGroups.map((group) => group.file.path)).toEqual([
       linked.path,
       plain.path,
@@ -107,7 +110,8 @@ describe("link sidebar data", () => {
   it("uses aliases and ignores frontmatter for unlinked backlinks", () => {
     const target = file("Target.md");
     const source = file("Source.md");
-    const content = "---\nalias: Project Alpha\n---\nProject Alpha is mentioned.";
+    const content =
+      "---\nalias: Project Alpha\n---\nProject Alpha is mentioned.";
     const data = buildBacklinksData(
       state({
         activePath: target.path,
@@ -214,30 +218,38 @@ describe("link sidebar data", () => {
       metadataCache: {
         queryLinks: async (query: { direction: string; path?: string }) => {
           if (query.direction === "outgoing" && query.path === active.path) {
-            return [{
-              sourcePath: active.path,
-              targetText: "Linked",
-              resolvedTargetPath: linked.path,
-              type: "link",
-              count: 1,
-            }];
+            return [
+              {
+                sourcePath: active.path,
+                targetText: "Linked",
+                resolvedTargetPath: linked.path,
+                type: "link",
+                count: 1,
+              },
+            ];
           }
           if (query.direction === "incoming" && query.path === linked.path) {
-            return [{
-              sourcePath: active.path,
-              targetText: "Linked",
-              resolvedTargetPath: linked.path,
-              type: "link",
-              count: 1,
-            }];
+            return [
+              {
+                sourcePath: active.path,
+                targetText: "Linked",
+                resolvedTargetPath: linked.path,
+                type: "link",
+                count: 1,
+              },
+            ];
           }
           return [];
         },
         getFileCacheAsync: async (candidate: TFile | string) =>
-          caches[typeof candidate === "string" ? candidate : candidate.path] ?? null,
+          caches[typeof candidate === "string" ? candidate : candidate.path] ??
+          null,
         getFirstLinkpathDest: () => null,
       },
-      appDatabase: { searchDocuments: async () => [] },
+      appDatabase: {
+        getSearchDocument: async () => undefined,
+        searchDocuments: async () => [],
+      },
       logger: { warn: () => undefined },
       vault: {
         getMarkdownFiles: () => [active, linked],
@@ -247,14 +259,14 @@ describe("link sidebar data", () => {
     } as unknown as App;
 
     expect(
-      (await buildLinkedLinkSidebarData(app, active, "outgoing")).linkedGroups.map(
-        (group) => group.file.path,
-      ),
+      (
+        await buildLinkedLinkSidebarData(app, active, "outgoing")
+      ).linkedGroups.map((group) => group.file.path),
     ).toEqual([linked.path]);
     expect(
-      (await buildLinkedLinkSidebarData(app, linked, "backlinks")).linkedGroups.map(
-        (group) => group.file.path,
-      ),
+      (
+        await buildLinkedLinkSidebarData(app, linked, "backlinks")
+      ).linkedGroups.map((group) => group.file.path),
     ).toEqual([active.path]);
   });
 
@@ -277,18 +289,24 @@ describe("link sidebar data", () => {
     };
     const app = {
       metadataCache: {
-        queryLinks: async () => [{
-          sourcePath: source.path,
-          targetText: "Active",
-          resolvedTargetPath: active.path,
-          type: "link",
-          count: 1,
-        }],
+        queryLinks: async () => [
+          {
+            sourcePath: source.path,
+            targetText: "Active",
+            resolvedTargetPath: active.path,
+            type: "link",
+            count: 1,
+          },
+        ],
         getFileCacheAsync: async (candidate: TFile | string) =>
-          caches[typeof candidate === "string" ? candidate : candidate.path] ?? null,
+          caches[typeof candidate === "string" ? candidate : candidate.path] ??
+          null,
         getFirstLinkpathDest: () => null,
       },
-      appDatabase: { searchDocuments: async () => [] },
+      appDatabase: {
+        getSearchDocument: async () => undefined,
+        searchDocuments: async () => [],
+      },
       logger: { warn: () => undefined },
       vault: {
         getMarkdownFiles: () => [],
@@ -297,9 +315,9 @@ describe("link sidebar data", () => {
     } as unknown as App;
 
     expect(
-      (await buildLinkedLinkSidebarData(app, active, "backlinks")).linkedGroups.map(
-        (group) => group.file.path,
-      ),
+      (
+        await buildLinkedLinkSidebarData(app, active, "backlinks")
+      ).linkedGroups.map((group) => group.file.path),
     ).toEqual([source.path]);
   });
 
@@ -321,19 +339,25 @@ describe("link sidebar data", () => {
       metadataCache: {
         queryLinks: async (query: { direction: string }) =>
           query.direction === "incoming"
-            ? [{
-                sourcePath: source.path,
-                targetText: "Active",
-                resolvedTargetPath: active.path,
-                type: "link",
-                count: 1,
-              }]
+            ? [
+                {
+                  sourcePath: source.path,
+                  targetText: "Active",
+                  resolvedTargetPath: active.path,
+                  type: "link",
+                  count: 1,
+                },
+              ]
             : [],
         getFileCacheAsync: async (candidate: TFile | string) =>
-          caches[typeof candidate === "string" ? candidate : candidate.path] ?? null,
+          caches[typeof candidate === "string" ? candidate : candidate.path] ??
+          null,
         getFirstLinkpathDest: () => null,
       },
-      appDatabase: { searchDocuments: async () => [] },
+      appDatabase: {
+        getSearchDocument: async () => undefined,
+        searchDocuments: async () => [],
+      },
       logger: { warn: () => undefined },
       vault: {
         getMarkdownFiles: () => [active],
@@ -346,9 +370,74 @@ describe("link sidebar data", () => {
       (await buildLinkedLinkSidebarData(app, active, "outgoing")).linkedGroups,
     ).toEqual([]);
     expect(
-      (await buildLinkedLinkSidebarData(app, active, "backlinks")).linkedGroups.map(
-        (group) => group.file.path,
-      ),
+      (
+        await buildLinkedLinkSidebarData(app, active, "backlinks")
+      ).linkedGroups.map((group) => group.file.path),
     ).toEqual([source.path]);
+  });
+
+  it("discovers bounded outgoing mention candidates through the Search index", async () => {
+    const active = file("Notes/Active.md") as TFile;
+    const candidate = file("Notes/Candidate.md") as TFile;
+    const activeDocument = {
+      path: active.path,
+      name: active.name,
+      extension: active.extension,
+      checksum: "active",
+      content: "Names Candidate plainly.",
+      tags: [],
+      tagParts: [],
+      tagHierarchy: [],
+    };
+    const candidateDocument = {
+      path: candidate.path,
+      name: candidate.name,
+      extension: candidate.extension,
+      checksum: "candidate",
+      content: "# Candidate",
+      tags: [],
+      tagParts: [],
+      tagHierarchy: [],
+    };
+    const cachedRead = vi.fn(async () => {
+      throw new Error("Indexed candidates must not reread note bodies");
+    });
+    const searchDocuments = vi.fn(async (query: string) =>
+      query === "Candidate" ? [{ document: candidateDocument }] : [],
+    );
+    const app = {
+      metadataCache: {
+        queryLinks: async () => [],
+        getFileCacheAsync: async () => ({}),
+        getFirstLinkpathDest: () => null,
+      },
+      appDatabase: {
+        getSearchDocument: async (path: string) =>
+          path === active.path ? activeDocument : undefined,
+        searchDocuments,
+      },
+      logger: { warn: () => undefined },
+      vault: {
+        getFileByPath: (path: string) =>
+          path === active.path
+            ? active
+            : path === candidate.path
+              ? candidate
+              : null,
+        cachedRead,
+      },
+      workspace: { iterateAllLeaves: () => undefined },
+    } as unknown as App;
+
+    const result = await buildLinkSidebarData(app, active, "outgoing");
+
+    expect(result.unlinkedGroups.map((group) => group.file.path)).toEqual([
+      candidate.path,
+    ]);
+    expect(searchDocuments).toHaveBeenCalledWith("Candidate", {
+      mode: "lexical",
+      limit: 20,
+    });
+    expect(cachedRead).not.toHaveBeenCalled();
   });
 });

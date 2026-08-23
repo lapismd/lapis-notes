@@ -683,6 +683,27 @@ export class Vault extends EventDispatcher<{
   }
 
   /**
+   * Iterate loaded files without allocating a second vault-sized collection.
+   * The traversal follows the existing folder tree and only retains iterator
+   * state proportional to folder depth.
+   *
+   * @public
+   */
+  *iterateFiles(): IterableIterator<TFile> {
+    const root = this.files["/"];
+    if (!(root instanceof TFolder)) return;
+
+    function* visit(folder: TFolder): IterableIterator<TFile> {
+      for (const child of folder.children) {
+        if (child instanceof TFile) yield child.copy();
+        else if (child instanceof TFolder) yield* visit(child);
+      }
+    }
+
+    yield* visit(root);
+  }
+
+  /**
    * Get all files matching a shared editor-association glob.
    *
    * Filename-only patterns match files in every folder. Patterns containing a
@@ -691,10 +712,7 @@ export class Vault extends EventDispatcher<{
    *
    * @public
    */
-  getFilesByGlob(
-    pattern: string,
-    options: VaultGlobOptions = {},
-  ): TFile[] {
+  getFilesByGlob(pattern: string, options: VaultGlobOptions = {}): TFile[] {
     const normalizedPattern = normalizeEditorAssociationGlob(pattern);
     if (!validateEditorAssociationGlob(normalizedPattern).valid) return [];
 

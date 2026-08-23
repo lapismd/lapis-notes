@@ -8,10 +8,12 @@ import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
   expectPanelPlacement,
   expectPanelSource,
+  expectAsyncQueryFailureAndRecovery,
   PANEL_DOCS_PARAMETERS,
   PANEL_PLACEMENTS,
   panelDemoApp,
   placementParameters,
+  triggerMetadataReset,
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
 
@@ -114,12 +116,54 @@ function placementStory(
       });
       if (layout === "middle-top-tabs") {
         const app = panelDemoApp(canvasElement);
+        await expectAsyncQueryFailureAndRecovery({
+          target: app.metadataCache,
+          method: "queryFacets",
+          trigger: () => triggerMetadataReset(app),
+          expectFailure: () =>
+            waitFor(() => {
+              expect(panel.getByRole("alert")).toHaveTextContent(
+                "Storybook metadata query failure",
+              );
+            }),
+          expectRecovery: () =>
+            waitFor(() => {
+              expect(panel.queryByRole("alert")).not.toBeInTheDocument();
+              expect(panel.getByText("demo")).toBeVisible();
+            }),
+        });
         const file = app.vault.getFileByPath("Notes/Research.md");
         if (!file) throw new Error("Missing seeded Research note");
         const current = await app.vault.read(file);
         await app.vault.modify(file, `${current}\n#fresh-tag\n`);
         await waitFor(() => {
           expect(panel.getByText("fresh-tag")).toBeVisible();
+        });
+        const lifecycleFile = await app.vault.create(
+          "Notes/Metadata-Lifecycle.md",
+          "#lifecycle-refresh\n",
+        );
+        await waitFor(() => {
+          expect(panel.getByText("lifecycle-refresh")).toBeVisible();
+        });
+        await app.vault.rename(
+          lifecycleFile,
+          "Notes/Metadata-Lifecycle-Renamed.md",
+        );
+        await waitFor(() => {
+          expect(panel.getByText("lifecycle-refresh")).toBeVisible();
+        });
+        const renamedLifecycleFile = app.vault.getFileByPath(
+          "Notes/Metadata-Lifecycle-Renamed.md",
+        );
+        if (!renamedLifecycleFile) {
+          throw new Error("Missing renamed metadata lifecycle note");
+        }
+        await app.vault.delete(renamedLifecycleFile);
+        await waitFor(() => {
+          expect(
+            panel.queryByText("lifecycle-refresh"),
+          ).not.toBeInTheDocument();
         });
       }
       const nestedToggle = panel.getByRole("button", {

@@ -45,9 +45,7 @@ export class DailyDocumentProviderRegistry extends EventDispatcher<{
 }> {
   private readonly providers = new Map<string, DailyDocumentProvider>();
 
-  register(
-    provider: DailyDocumentProvider,
-  ): DailyDocumentProviderRegistration {
+  register(provider: DailyDocumentProvider): DailyDocumentProviderRegistration {
     validateProvider(provider);
     const id = provider.id.trim();
     if (this.providers.has(id)) {
@@ -101,6 +99,7 @@ export class DailyDocumentProviderRegistry extends EventDispatcher<{
 const DAILY_NOTES_CONFIGURATION_SCHEMA = {
   id: "dailyNotes",
   title: "Daily notes",
+  type: "object",
   properties: {
     folder: {
       type: "string",
@@ -149,10 +148,15 @@ export function formatDailyDocumentFilename(
 }
 
 function normalizeDailyNotesFolder(folder: string): string {
-  const normalized = folder.trim().replaceAll("\\", "/").replace(/^\/+|\/+$/gu, "");
+  const normalized = folder
+    .trim()
+    .replaceAll("\\", "/")
+    .replace(/^\/+|\/+$/gu, "");
   if (
     !normalized ||
-    normalized.split("/").some((segment) => !segment || segment === "." || segment === "..") ||
+    normalized
+      .split("/")
+      .some((segment) => !segment || segment === "." || segment === "..") ||
     /[\u0000-\u001f:]/u.test(normalized)
   ) {
     throw new Error(`Invalid daily-note folder: ${JSON.stringify(folder)}.`);
@@ -160,7 +164,9 @@ function normalizeDailyNotesFolder(folder: string): string {
   return normalized;
 }
 
-function frontmatterFromContent(content: string): Record<string, unknown> | null {
+function frontmatterFromContent(
+  content: string,
+): Record<string, unknown> | null {
   const match = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u.exec(content);
   return match ? (parseYaml(match[1]) as Record<string, unknown>) : null;
 }
@@ -198,7 +204,9 @@ export function registerDefaultDailyDocumentProvider(
     assertLocalDate(date);
     const matches: TFile[] = [];
     for (const file of app.vault.getMarkdownFiles()) {
-      if (isCanonicalDailyFrontmatter(await dailyFrontmatter(app, file), date)) {
+      if (
+        isCanonicalDailyFrontmatter(await dailyFrontmatter(app, file), date)
+      ) {
         matches.push(file);
       }
     }

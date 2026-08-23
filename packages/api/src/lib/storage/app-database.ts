@@ -291,6 +291,8 @@ export interface AppDatabaseIndexedMetadataSort {
 export interface AppDatabaseIndexedMetadataQuery {
   extensions?: string[];
   pathPrefixes?: string[];
+  /** Exclude dot-prefixed path segments such as app and plugin state folders. */
+  excludeHiddenPaths?: boolean;
   propertyFilters?: AppDatabaseIndexedMetadataPropertyFilter[];
   requiredTags?: string[];
   resolvedTargetPaths?: string[];
@@ -309,6 +311,12 @@ export interface AppDatabaseIndexedMetadataRow {
 export interface AppDatabaseIndexedFileManifestQuery {
   after?: string;
   limit?: number;
+  /**
+   * Restrict the manifest lookup to a bounded set of exact paths. Callers use
+   * this to reconcile one vault iterator batch without materializing the
+   * complete vault or metadata payloads.
+   */
+  paths?: string[];
 }
 
 export interface AppDatabaseIndexedFileManifestPage {
@@ -351,7 +359,10 @@ export interface AppDatabaseMetadataFacetRow {
 }
 
 export type AppDatabaseMetadataLinkDirection = "incoming" | "outgoing";
-export type AppDatabaseMetadataLinkResolution = "resolved" | "unresolved" | "all";
+export type AppDatabaseMetadataLinkResolution =
+  | "resolved"
+  | "unresolved"
+  | "all";
 
 export interface AppDatabaseMetadataLinkQuery {
   direction: AppDatabaseMetadataLinkDirection;
@@ -1080,7 +1091,9 @@ export interface AppDatabase {
   getChangeRevision(): Promise<number>;
   subscribeToChanges(listener: AppDatabaseChangeListener): () => void;
   upsertIndexedFile(record: AppDatabaseIndexedFile): Promise<void>;
-  getIndexedFile(path: string): Promise<AppDatabaseIndexedMetadataRow | undefined>;
+  getIndexedFile(
+    path: string,
+  ): Promise<AppDatabaseIndexedMetadataRow | undefined>;
   listIndexedFileManifest(
     query?: AppDatabaseIndexedFileManifestQuery,
   ): Promise<AppDatabaseIndexedFileManifestPage>;
@@ -1113,9 +1126,10 @@ export interface AppDatabase {
   upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void>;
   deleteTaskProjection(path: string): Promise<void>;
   queryTasks(query?: AppDatabaseTaskQuery): Promise<AppDatabaseTaskRecord[]>;
-  getTaskRow(
-    lookup: { path?: string; id?: string },
-  ): Promise<AppDatabaseTaskRecord | undefined>;
+  getTaskRow(lookup: {
+    path?: string;
+    id?: string;
+  }): Promise<AppDatabaseTaskRecord | undefined>;
   listChildLinks(
     query: AppDatabaseTaskChildQuery,
   ): Promise<AppDatabaseLinkRecord[]>;
@@ -1125,7 +1139,9 @@ export interface AppDatabase {
   ): Promise<void>;
   unregisterProjectionDefinition(projectionId: string): Promise<void>;
   replaceProjectionSource(input: ReplaceProjectionSourceInput): Promise<void>;
-  markProjectionSourceError(input: MarkProjectionSourceErrorInput): Promise<void>;
+  markProjectionSourceError(
+    input: MarkProjectionSourceErrorInput,
+  ): Promise<void>;
   deleteProjectionSource(
     projectionId: string,
     sourcePath: string,
@@ -1266,7 +1282,9 @@ function indexedMetadataPropertyValues(
   const normalizedName = normalizeIndexedMetadataPropertyPath(name);
   const values: AppDatabaseIndexedMetadataScalar[] = [];
   for (const property of properties) {
-    if (normalizeIndexedMetadataPropertyPath(property.name) === normalizedName) {
+    if (
+      normalizeIndexedMetadataPropertyPath(property.name) === normalizedName
+    ) {
       const scalar = toIndexedMetadataScalar(property.value);
       if (scalar !== undefined) values.push(scalar);
       values.push(
@@ -2595,8 +2613,15 @@ export class MemoryAppDatabase implements AppDatabase {
     query: AppDatabaseIndexedFileManifestQuery = {},
   ): Promise<AppDatabaseIndexedFileManifestPage> {
     const limit = Math.max(1, query.limit ?? 500);
+    const requestedPaths = query.paths?.length ? new Set(query.paths) : null;
     const rows = [...this.files.values()]
-      .filter((file) => file.indexed && !file.deleted && (!query.after || file.path > query.after))
+      .filter(
+        (file) =>
+          file.indexed &&
+          !file.deleted &&
+          (!query.after || file.path > query.after) &&
+          (!requestedPaths || requestedPaths.has(file.path)),
+      )
       .sort((left, right) =>
         left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
       );
@@ -2629,7 +2654,8 @@ export class MemoryAppDatabase implements AppDatabase {
     const page = rows.slice(0, limit);
     return clone({
       rows: page,
-      nextCursor: rows.length > page.length ? page.at(-1)?.file.path : undefined,
+      nextCursor:
+        rows.length > page.length ? page.at(-1)?.file.path : undefined,
     });
   }
 
@@ -2638,7 +2664,9 @@ export class MemoryAppDatabase implements AppDatabase {
   ): Promise<AppDatabaseMetadataFacetRow[]> {
     const matchesPath = (path: string) =>
       !query.pathPrefixes?.length ||
-      query.pathPrefixes.some((prefix) => matchesIndexedMetadataPathPrefix(path, prefix));
+      query.pathPrefixes.some((prefix) =>
+        matchesIndexedMetadataPathPrefix(path, prefix),
+      );
     const counts = new Map<string, AppDatabaseMetadataFacetRow>();
     const types = new Map<string, Set<string>>();
     const add = (
@@ -2664,7 +2692,8 @@ export class MemoryAppDatabase implements AppDatabase {
     if (query.kind === "tag") {
       for (const [path, tags] of this.tags) {
         if (!matchesPath(path)) continue;
-        for (const tag of new Set(tags.flatMap((entry) => entry.hierarchy))) add(tag, "string");
+        for (const tag of new Set(tags.flatMap((entry) => entry.hierarchy)))
+          add(tag, "string");
       }
     } else if (query.kind === "property-name") {
       for (const [path, properties] of this.properties) {
@@ -2682,10 +2711,7 @@ export class MemoryAppDatabase implements AppDatabase {
     } else if (query.kind === "property-path") {
       for (const [path, properties] of this.properties) {
         if (!matchesPath(path)) continue;
-        const unique = new Map<
-          string,
-          { type: string; topLevel: boolean }
-        >();
+        const unique = new Map<string, { type: string; topLevel: boolean }>();
         for (const property of properties) {
           unique.set(property.name, {
             type: property.declaredType ?? property.inferredType,
@@ -2721,11 +2747,18 @@ export class MemoryAppDatabase implements AppDatabase {
           properties,
           query.propertyName,
         )) {
-            const scalarKey = `${typeof scalar}\0${String(scalar)}`;
-            if (seen.has(scalarKey)) continue;
-            seen.add(scalarKey);
-            const type = scalar === null ? "null" : typeof scalar === "number" ? "number" : typeof scalar === "boolean" ? "boolean" : "string";
-            add(scalar, type);
+          const scalarKey = `${typeof scalar}\0${String(scalar)}`;
+          if (seen.has(scalarKey)) continue;
+          seen.add(scalarKey);
+          const type =
+            scalar === null
+              ? "null"
+              : typeof scalar === "number"
+                ? "number"
+                : typeof scalar === "boolean"
+                  ? "boolean"
+                  : "string";
+          add(scalar, type);
         }
       }
     }
@@ -2734,25 +2767,48 @@ export class MemoryAppDatabase implements AppDatabase {
         ...row,
         metadataTypes: types.get(key)?.size ? [...types.get(key)!] : undefined,
       }))
-      .sort((left, right) => right.count - left.count || String(left.value).localeCompare(String(right.value)))
+      .sort(
+        (left, right) =>
+          right.count - left.count ||
+          String(left.value).localeCompare(String(right.value)),
+      )
       .slice(0, query.limit ?? 100);
   }
 
   async queryMetadataLinks(
     query: AppDatabaseMetadataLinkQuery,
   ): Promise<AppDatabaseLinkRecord[]> {
-    const paths = new Set([...(query.paths ?? []), ...(query.path ? [query.path] : [])]);
+    const paths = new Set([
+      ...(query.paths ?? []),
+      ...(query.path ? [query.path] : []),
+    ]);
     if (!paths.size) return [];
-    const links = query.direction === "outgoing"
-      ? [...paths].flatMap((path) => this.links.get(path) ?? [])
-      : [...this.links.values()].flat().filter((link) =>
-          link.resolvedTargetPath ? paths.has(link.resolvedTargetPath) : false,
-        );
-    return clone(links.filter((link) => {
-      if (query.resolution === "resolved") return link.resolvedTargetPath != null;
-      if (query.resolution === "unresolved") return link.resolvedTargetPath == null;
-      return true;
-    }).sort((left, right) => left.sourcePath.localeCompare(right.sourcePath) || (left.ordinal ?? 0) - (right.ordinal ?? 0)).slice(0, query.limit ?? 1000));
+    const links =
+      query.direction === "outgoing"
+        ? [...paths].flatMap((path) => this.links.get(path) ?? [])
+        : [...this.links.values()]
+            .flat()
+            .filter((link) =>
+              link.resolvedTargetPath
+                ? paths.has(link.resolvedTargetPath)
+                : false,
+            );
+    return clone(
+      links
+        .filter((link) => {
+          if (query.resolution === "resolved")
+            return link.resolvedTargetPath != null;
+          if (query.resolution === "unresolved")
+            return link.resolvedTargetPath == null;
+          return true;
+        })
+        .sort(
+          (left, right) =>
+            left.sourcePath.localeCompare(right.sourcePath) ||
+            (left.ordinal ?? 0) - (right.ordinal ?? 0),
+        )
+        .slice(0, query.limit ?? 1000),
+    );
   }
 
   async upsertSearchDocument(document: SearchDocumentRecord): Promise<void> {
@@ -2884,7 +2940,8 @@ export class MemoryAppDatabase implements AppDatabase {
     await this.replaceProjectionSource({
       projectionId: PUBLIC_TASKS_PROJECTION_ID,
       sourcePath: record.documentPath,
-      sourceHash: this.files.get(record.documentPath)?.hash ?? record.documentId,
+      sourceHash:
+        this.files.get(record.documentPath)?.hash ?? record.documentId,
       rows: [{ id: record.documentId, kind: record.kind, data: { ...record } }],
     });
     this.emitChange(["task"], [record.documentPath]);
@@ -2906,9 +2963,10 @@ export class MemoryAppDatabase implements AppDatabase {
     return clone(result.rows);
   }
 
-  async getTaskRow(
-    lookup: { path?: string; id?: string },
-  ): Promise<AppDatabaseTaskRecord | undefined> {
+  async getTaskRow(lookup: {
+    path?: string;
+    id?: string;
+  }): Promise<AppDatabaseTaskRecord | undefined> {
     if (lookup.id) {
       const row = await this.getProjectionRow<AppDatabaseTaskRecord>(
         PUBLIC_TASKS_PROJECTION_ID,
@@ -2919,7 +2977,14 @@ export class MemoryAppDatabase implements AppDatabase {
     if (lookup.path) {
       const result = await this.queryProjection<AppDatabaseTaskRecord>(
         PUBLIC_TASKS_PROJECTION_ID,
-        { where: { op: "compare", field: "documentPath", comparison: "eq", value: lookup.path } },
+        {
+          where: {
+            op: "compare",
+            field: "documentPath",
+            comparison: "eq",
+            value: lookup.path,
+          },
+        },
       );
       return result.rows[0];
     }
@@ -2929,7 +2994,10 @@ export class MemoryAppDatabase implements AppDatabase {
   async registerProjectionDefinition(
     definition: IndexProjectionDefinitionRecord,
   ): Promise<void> {
-    this.projections.set(definition.projectionId, clone({ ...definition, active: true }));
+    this.projections.set(
+      definition.projectionId,
+      clone({ ...definition, active: true }),
+    );
     this.projectionRevision += 1;
     this.emitChange(["projection"]);
   }
@@ -2942,7 +3010,9 @@ export class MemoryAppDatabase implements AppDatabase {
     this.emitChange(["projection"]);
   }
 
-  async replaceProjectionSource(input: ReplaceProjectionSourceInput): Promise<void> {
+  async replaceProjectionSource(
+    input: ReplaceProjectionSourceInput,
+  ): Promise<void> {
     assertProjectionWriteAccess(input.projectionId, input.writerPluginId);
     const definition = this.projections.get(input.projectionId);
     if (!definition?.active) {
@@ -2952,16 +3022,19 @@ export class MemoryAppDatabase implements AppDatabase {
       throw new Error("Projection exceeded the maximum rows per source file.");
     }
     this.removeProjectionSource(input.projectionId, input.sourcePath);
-    this.projectionSources.set(this.projectionSourceKey(input.projectionId, input.sourcePath), {
-      projectionId: input.projectionId,
-      sourcePath: input.sourcePath,
-      sourceHash: input.sourceHash,
-      schemaVersion: definition.schemaVersion,
-      configHash: definition.configHash,
-      status: "ready",
-      error: null,
-      indexedAt: Date.now(),
-    });
+    this.projectionSources.set(
+      this.projectionSourceKey(input.projectionId, input.sourcePath),
+      {
+        projectionId: input.projectionId,
+        sourcePath: input.sourcePath,
+        sourceHash: input.sourceHash,
+        schemaVersion: definition.schemaVersion,
+        configHash: definition.configHash,
+        status: "ready",
+        error: null,
+        indexedAt: Date.now(),
+      },
+    );
     for (const row of input.rows) {
       const record: IndexProjectionRowRecord = {
         projectionId: input.projectionId,
@@ -2971,7 +3044,10 @@ export class MemoryAppDatabase implements AppDatabase {
         ordinal: row.ordinal ?? 0,
         data: clone(row.data),
       };
-      this.projectionRows.set(this.projectionRowKey(input.projectionId, row.id), record);
+      this.projectionRows.set(
+        this.projectionRowKey(input.projectionId, row.id),
+        record,
+      );
       this.projectionValues.push(
         ...indexedValuesForRow(input.projectionId, row, definition.fields),
       );
@@ -2988,20 +3064,25 @@ export class MemoryAppDatabase implements AppDatabase {
     this.emitChange(["projection"], [input.sourcePath]);
   }
 
-  async markProjectionSourceError(input: MarkProjectionSourceErrorInput): Promise<void> {
+  async markProjectionSourceError(
+    input: MarkProjectionSourceErrorInput,
+  ): Promise<void> {
     assertProjectionWriteAccess(input.projectionId, input.writerPluginId);
     const definition = this.projections.get(input.projectionId);
     this.removeProjectionSource(input.projectionId, input.sourcePath);
-    this.projectionSources.set(this.projectionSourceKey(input.projectionId, input.sourcePath), {
-      projectionId: input.projectionId,
-      sourcePath: input.sourcePath,
-      sourceHash: input.sourceHash,
-      schemaVersion: definition?.schemaVersion ?? 0,
-      configHash: definition?.configHash ?? "",
-      status: "error",
-      error: input.error,
-      indexedAt: Date.now(),
-    });
+    this.projectionSources.set(
+      this.projectionSourceKey(input.projectionId, input.sourcePath),
+      {
+        projectionId: input.projectionId,
+        sourcePath: input.sourcePath,
+        sourceHash: input.sourceHash,
+        schemaVersion: definition?.schemaVersion ?? 0,
+        configHash: definition?.configHash ?? "",
+        status: "error",
+        error: input.error,
+        indexedAt: Date.now(),
+      },
+    );
     this.projectionRevision += 1;
     this.emitChange(["projection"], [input.sourcePath]);
   }
@@ -3054,7 +3135,9 @@ export class MemoryAppDatabase implements AppDatabase {
   ): Promise<T | null> {
     const definition = this.projections.get(projectionId);
     assertProjectionReadAccess(definition, readerPluginId);
-    const row = this.projectionRows.get(this.projectionRowKey(projectionId, rowId));
+    const row = this.projectionRows.get(
+      this.projectionRowKey(projectionId, rowId),
+    );
     if (!row) {
       const byDocumentId = [...this.projectionRows.values()].find(
         (candidate) =>
@@ -3075,7 +3158,11 @@ export class MemoryAppDatabase implements AppDatabase {
       this.projectionSourceKey(row.projectionId, row.sourcePath),
     );
     const file = this.files.get(row.sourcePath);
-    if (!source || !definition || !sourceIsCurrent(source, file?.hash, definition)) {
+    if (
+      !source ||
+      !definition ||
+      !sourceIsCurrent(source, file?.hash, definition)
+    ) {
       return null;
     }
     return clone(row.data) as T;
@@ -3088,13 +3175,18 @@ export class MemoryAppDatabase implements AppDatabase {
     const definition = this.projections.get(query.projectionId);
     assertProjectionReadAccess(definition, readerPluginId);
     const matching = this.projectionEdges
-      .filter((edge) => edge.projectionId === query.projectionId && edge.relation === query.relation)
+      .filter(
+        (edge) =>
+          edge.projectionId === query.projectionId &&
+          edge.relation === query.relation,
+      )
       .filter((edge) => {
         if (query.direction !== "in") return edge.sourceRowId === query.rowId;
         if (edge.targetRowId === query.rowId) return true;
         const target = [...this.projectionRows.values()].find(
           (row) =>
-            row.projectionId === query.projectionId && row.rowId === query.rowId,
+            row.projectionId === query.projectionId &&
+            row.rowId === query.rowId,
         );
         return Boolean(target && edge.targetPath === target.sourcePath);
       })
@@ -3120,7 +3212,15 @@ export class MemoryAppDatabase implements AppDatabase {
                   candidate.sourcePath === edge.targetPath,
               );
       if (!row) continue;
-      if (query.targetWhere && !evaluateProjectionQuery([row], { where: query.targetWhere }, 0, "ready").rows.length) {
+      if (
+        query.targetWhere &&
+        !evaluateProjectionQuery(
+          [row],
+          { where: query.targetWhere },
+          0,
+          "ready",
+        ).rows.length
+      ) {
         continue;
       }
       rows.push(row);
@@ -3147,7 +3247,10 @@ export class MemoryAppDatabase implements AppDatabase {
     });
   }
 
-  private projectionSourceKey(projectionId: string, sourcePath: string): string {
+  private projectionSourceKey(
+    projectionId: string,
+    sourcePath: string,
+  ): string {
     return `${projectionId}\0${sourcePath}`;
   }
 
@@ -3155,8 +3258,13 @@ export class MemoryAppDatabase implements AppDatabase {
     return `${projectionId}\0${rowId}`;
   }
 
-  private removeProjectionSource(projectionId: string, sourcePath: string): void {
-    this.projectionSources.delete(this.projectionSourceKey(projectionId, sourcePath));
+  private removeProjectionSource(
+    projectionId: string,
+    sourcePath: string,
+  ): void {
+    this.projectionSources.delete(
+      this.projectionSourceKey(projectionId, sourcePath),
+    );
     for (const [key, row] of this.projectionRows) {
       if (row.projectionId === projectionId && row.sourcePath === sourcePath) {
         this.projectionRows.delete(key);
@@ -3168,7 +3276,11 @@ export class MemoryAppDatabase implements AppDatabase {
           value.projectionId === projectionId &&
           [...this.projectionRows.values()].every(
             (row) =>
-              !(row.projectionId === projectionId && row.sourcePath === sourcePath && row.rowId === value.rowId),
+              !(
+                row.projectionId === projectionId &&
+                row.sourcePath === sourcePath &&
+                row.rowId === value.rowId
+              ),
           )
         ),
     );
@@ -3185,10 +3297,13 @@ export class MemoryAppDatabase implements AppDatabase {
     for (const [key, source] of this.projectionSources) {
       if (source.sourcePath !== oldPath) continue;
       this.projectionSources.delete(key);
-      this.projectionSources.set(this.projectionSourceKey(source.projectionId, newPath), {
-        ...source,
-        sourcePath: newPath,
-      });
+      this.projectionSources.set(
+        this.projectionSourceKey(source.projectionId, newPath),
+        {
+          ...source,
+          sourcePath: newPath,
+        },
+      );
     }
     for (const [key, row] of this.projectionRows) {
       if (row.sourcePath !== oldPath) continue;
@@ -3698,6 +3813,13 @@ export class MemoryAppDatabase implements AppDatabase {
     );
 
     let filtered = rows.filter((row) => {
+      if (
+        query.excludeHiddenPaths &&
+        row.file.path.split("/").some((part) => part.startsWith("."))
+      ) {
+        return false;
+      }
+
       if (
         normalizedExtensions.length > 0 &&
         !normalizedExtensions.includes(

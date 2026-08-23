@@ -247,7 +247,9 @@ function lowerSort(sort: SortColumn): AppDatabaseIndexedMetadataSort | null {
 export function buildBasesAppDatabaseQuery(
   input: BuildBasesAppDatabaseQueryInput,
 ): AppDatabaseIndexedMetadataQuery {
-  const query: AppDatabaseIndexedMetadataQuery = {};
+  const query: AppDatabaseIndexedMetadataQuery = {
+    excludeHiddenPaths: true,
+  };
 
   for (const filter of collectConjunctiveFilterLines(input.documentFilter)) {
     lowerFilterLine(query, filter);

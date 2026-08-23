@@ -43,7 +43,8 @@
     "test:run": "vitest run",
     "generate:search-query-parser": "lezer-generator ./src/lib/search-query/search-query.grammar -o ./src/lib/search-query/parser.js",
     "prepack": "svelte-package --tsconfig ./tsconfig.pack.json && publint",
-    "parity:generate": "node ./scripts/generate-obsidian-parity.mjs"
+    "parity:generate": "node ./scripts/generate-obsidian-parity.mjs",
+    "performance:metadata:native": "tsx ./scripts/metadata-performance-native.ts"
   },
   "files": [
     "dist",
@@ -59,7 +60,9 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "app-database": ["dist/app-database-host.d.ts"]
+      "app-database": [
+        "dist/app-database-host.d.ts"
+      ]
     }
   },
   "peerDependencies": {

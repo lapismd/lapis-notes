@@ -6,6 +6,7 @@ import {
   NativeDesktopTursoAppDatabaseProvider,
   createNativeDesktopVault,
   getCurrentVaultProfile,
+  getNativeDesktopBridge,
   getVaultProfile,
   moveNativeDesktopVaultProfile,
   pickNativeDesktopVault,
@@ -42,12 +43,28 @@ it("publishes the native desktop bridge on the process-wide global", () => {
   const bridge = createDesktopBridge();
   setNativeDesktopBridge(bridge);
   expect(
-    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown }).__LAPIS_NATIVE_DESKTOP__,
+    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown })
+      .__LAPIS_NATIVE_DESKTOP__,
   ).toBe(bridge);
   setNativeDesktopBridge(null);
   expect(
-    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown }).__LAPIS_NATIVE_DESKTOP__,
+    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown })
+      .__LAPIS_NATIVE_DESKTOP__,
   ).toBeUndefined();
+});
+
+it("registers a wrapped bridge without overwriting the read-only preload global", () => {
+  const preloadBridge = createDesktopBridge();
+  Object.defineProperty(globalThis, "__LAPIS_NATIVE_DESKTOP__", {
+    value: preloadBridge,
+    configurable: true,
+    writable: false,
+  });
+  const wrappedBridge = { ...preloadBridge };
+
+  expect(() => setNativeDesktopBridge(wrappedBridge)).not.toThrow();
+  expect(getNativeDesktopBridge()).toBe(wrappedBridge);
+  expect(globalThis.__LAPIS_NATIVE_DESKTOP__).toBe(preloadBridge);
 });
 
 it("persists the selected native desktop vault profile", async () => {
@@ -139,7 +156,8 @@ it("removes stored native desktop vault profiles", async () => {
 });
 
 it("routes app-database operations through the bounded native Turso RPC", async () => {
-  const calls: Array<{ command: string; payload?: Record<string, unknown> }> = [];
+  const calls: Array<{ command: string; payload?: Record<string, unknown> }> =
+    [];
   setNativeDesktopBridge({
     runtime: "electron-desktop",
     platform: { runtime: "electron-desktop", os: "macos", arch: "arm64" },
@@ -204,7 +222,8 @@ it("routes app-database operations through the bounded native Turso RPC", async 
 });
 
 it("routes text appends through the native append command without a readback", async () => {
-  const calls: Array<{ command: string; payload?: Record<string, unknown> }> = [];
+  const calls: Array<{ command: string; payload?: Record<string, unknown> }> =
+    [];
   setNativeDesktopBridge({
     runtime: "electron-desktop",
     toFileUrl: (path: string) => `file://${path}`,

@@ -20,6 +20,10 @@ describe("desktop terminal-runtime host", () => {
       path.resolve(process.cwd(), "vite.config.ts"),
       "utf8",
     );
+    const distPreparation = readFileSync(
+      path.resolve(process.cwd(), "scripts/prepare-dist-electron.mjs"),
+      "utf8",
+    );
     expect(source).toContain("@lapismd/terminal-host");
     expect(source).toContain("createTerminalSessionService");
     expect(source).toContain("resolveDesktopTerminalWorkspace");
@@ -36,5 +40,7 @@ describe("desktop terminal-runtime host", () => {
     expect(vite).toContain('"@xterm/xterm"');
     expect(vite).toContain("linkedTerminalPluginRoot");
     expect(vite).toContain("@lapis-notes/lapis-plugin-terminal");
+    expect(distPreparation).toContain('"node-pty/package.json"');
+    expect(distPreparation).toContain('path.join(distDir, "prebuilds")');
   });
 });

@@ -198,3 +198,7 @@ do not rewrite panel state. The Markdown metadata worker import
 stays extensionless in packaged output used by Vite hosts. Linked Backlinks and
 Outgoing Links obtain bounded source paths from indexed incoming or outgoing
 link queries and hydrate only those per-file metadata rows.
+The shared panel demo seeds core metadata and Search projections before marking
+the shell ready. Governed metadata panels therefore prove persisted initial
+paint, live modify or rename invalidation, and visible query failure/recovery
+against the same AppDatabase contract used by production.

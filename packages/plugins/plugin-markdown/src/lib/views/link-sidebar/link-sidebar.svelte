@@ -99,9 +99,13 @@
   }
 
   onMount(() =>
-    subscribeFileScopedPanelRefresh(app, () => {
-      followRevision += 1;
-    }),
+    subscribeFileScopedPanelRefresh(
+      app,
+      () => {
+        followRevision += 1;
+      },
+      { includeAnyMetadataPath: true },
+    ),
   );
 
   $effect(() => {

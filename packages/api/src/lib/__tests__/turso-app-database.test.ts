@@ -46,6 +46,71 @@ describe("TursoAppDatabase", () => {
     await database.close();
   });
 
+  it("serializes concurrent commits into unique monotonic revisions", async () => {
+    const database = createDatabase("turso-concurrent-commits");
+    await database.open();
+    const revisions: number[] = [];
+    const unsubscribe = database.subscribeToChanges((change) => {
+      revisions.push(change.revision);
+    });
+
+    await Promise.all(
+      Array.from({ length: 24 }, (_, index) =>
+        database.setMeta(`startup-service.${index}`, index),
+      ),
+    );
+
+    expect(revisions).toEqual(
+      Array.from({ length: 24 }, (_, index) => index + 1),
+    );
+    expect(await database.getChangeRevision()).toBe(24);
+    unsubscribe();
+    await database.close();
+  });
+
+  it("rebuilds persisted Search chunks after enabling embeddings", async () => {
+    const database = createDatabase("turso-search-rebuild");
+    await database.open();
+    await database.upsertSearchDocument({
+      path: "delegated-search.md",
+      sourceProviderId: "markdown",
+      name: "Delegated Search",
+      extension: "md",
+      checksum: "delegated-1",
+      content: "A turso proxy writes this searchable phrase.",
+      tags: [],
+      tagParts: [],
+      tagHierarchy: [],
+      chunks: [
+        {
+          id: "delegated-search.md#chunk-1",
+          text: "A turso proxy writes this searchable phrase.",
+          startOffset: 0,
+          endOffset: 44,
+          kind: "paragraph",
+        },
+      ],
+    });
+    await expect(
+      database.searchDocuments("searchable phrase", { mode: "vector" }),
+    ).resolves.toEqual([]);
+
+    await database.configureSearchEmbeddingProvider(TOKEN_HASH_PROVIDER);
+    await database.rebuildSearchIndex();
+
+    await expect(
+      database.searchDocuments("searchable phrase", { mode: "vector" }),
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          document: expect.objectContaining({ path: "delegated-search.md" }),
+          retrievalMode: "vector",
+        }),
+      ]),
+    );
+    await database.close();
+  });
+
   it("uses Turso FTS and vector distance before the shared evaluator", async () => {
     const database = createDatabase("turso-search");
     await database.open();
@@ -126,9 +191,7 @@ describe("TursoAppDatabase", () => {
         pathPrefix: "Projects",
         limit: 1,
       }),
-    ).resolves.toMatchObject([
-      { document: { path: "Projects/Proxy.md" } },
-    ]);
+    ).resolves.toMatchObject([{ document: { path: "Projects/Proxy.md" } }]);
 
     const semantic = await database.searchDocuments("delegation ownership", {
       mode: "vector",
@@ -229,12 +292,25 @@ describe("TursoAppDatabase", () => {
       sourcePath: "dune.md",
       sourceHash: "h1",
       rows: [
-        { id: "b1", kind: "book", data: { id: "b1", title: "Dune", status: "reading" } },
-        { id: "b2", kind: "book", data: { id: "b2", title: "Dune Messiah", status: "queued" } },
+        {
+          id: "b1",
+          kind: "book",
+          data: { id: "b1", title: "Dune", status: "reading" },
+        },
+        {
+          id: "b2",
+          kind: "book",
+          data: { id: "b2", title: "Dune Messiah", status: "queued" },
+        },
       ],
     });
     const result = await database.queryProjection("books/book", {
-      where: { op: "compare", field: "status", comparison: "eq", value: "reading" },
+      where: {
+        op: "compare",
+        field: "status",
+        comparison: "eq",
+        value: "reading",
+      },
       orderBy: [{ field: "title", direction: "asc" }],
       limit: 1,
     });
@@ -282,22 +358,36 @@ describe("TursoAppDatabase", () => {
         parserVersion: "parser-1",
         metadata: { frontmatter: { status: "draft", priority: 2 } },
       },
-      links: [{
-        sourcePath: "Projects/Direct SQL.md",
-        targetText: "Architecture",
-        resolvedTargetPath: "Architecture.md",
-        type: "link",
-        count: 1,
-      }],
-      tags: [{
-        path: "Projects/Direct SQL.md",
-        tag: "#work/database",
-        parts: ["work", "database"],
-        hierarchy: ["work", "work/database"],
-      }],
+      links: [
+        {
+          sourcePath: "Projects/Direct SQL.md",
+          targetText: "Architecture",
+          resolvedTargetPath: "Architecture.md",
+          type: "link",
+          count: 1,
+        },
+      ],
+      tags: [
+        {
+          path: "Projects/Direct SQL.md",
+          tag: "#work/database",
+          parts: ["work", "database"],
+          hierarchy: ["work", "work/database"],
+        },
+      ],
       properties: [
-        { path: "Projects/Direct SQL.md", name: "status", inferredType: "string", value: "draft" },
-        { path: "Projects/Direct SQL.md", name: "priority", inferredType: "number", value: 2 },
+        {
+          path: "Projects/Direct SQL.md",
+          name: "status",
+          inferredType: "string",
+          value: "draft",
+        },
+        {
+          path: "Projects/Direct SQL.md",
+          name: "priority",
+          inferredType: "number",
+          value: 2,
+        },
         {
           path: "Projects/Direct SQL.md",
           name: "project",
@@ -307,47 +397,70 @@ describe("TursoAppDatabase", () => {
       ],
     });
 
-    await expect(database.getIndexedFile("Projects/Direct SQL.md")).resolves.toMatchObject({
+    await expect(
+      database.getIndexedFile("Projects/Direct SQL.md"),
+    ).resolves.toMatchObject({
       file: { hash: "direct-1" },
       metadata: { parserVersion: "parser-1" },
     });
-    await expect(database.listIndexedFileManifest({ limit: 1 })).resolves.toMatchObject({
+    await expect(
+      database.listIndexedFileManifest({ limit: 1 }),
+    ).resolves.toMatchObject({
       rows: [{ path: "Projects/Direct SQL.md", hash: "direct-1" }],
     });
-    await expect(database.queryMetadataFacets({ kind: "tag" })).resolves.toEqual(
+    await expect(
+      database.queryMetadataFacets({ kind: "tag" }),
+    ).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ value: "work", count: 1 }),
         expect.objectContaining({ value: "work/database", count: 1 }),
       ]),
     );
-    await expect(database.queryMetadataFacets({
-      kind: "property-value",
-      propertyName: "priority",
-    })).resolves.toMatchObject([{ value: 2, valueType: "number", count: 1 }]);
-    await expect(database.queryMetadataFacets({
-      kind: "property-path",
-    })).resolves.toEqual(expect.arrayContaining([
-      expect.objectContaining({ value: "project.owner.name", count: 1 }),
-      expect.objectContaining({ value: "project.milestones[].done", count: 1 }),
-    ]));
-    await expect(database.queryMetadataFacets({
-      kind: "property-value",
-      propertyName: "project.milestones[].done",
-    })).resolves.toMatchObject([{ value: false, valueType: "boolean", count: 1 }]);
-    await expect(database.queryMetadataLinks({
-      direction: "incoming",
-      path: "Architecture.md",
-      resolution: "resolved",
-    })).resolves.toMatchObject([{ sourcePath: "Projects/Direct SQL.md" }]);
-    await expect(database.queryIndexedMetadata({
-      requiredTags: ["work"],
-      propertyFilters: [
-        { name: "priority", op: ">=", value: 2 },
-        { name: "project.owner.name", op: "=", value: "Mira" },
-        { name: "project.milestones[].done", op: "=", value: false },
-      ],
-      resolvedTargetPaths: ["Architecture.md"],
-    })).resolves.toMatchObject([{ file: { path: "Projects/Direct SQL.md" } }]);
+    await expect(
+      database.queryMetadataFacets({
+        kind: "property-value",
+        propertyName: "priority",
+      }),
+    ).resolves.toMatchObject([{ value: 2, valueType: "number", count: 1 }]);
+    await expect(
+      database.queryMetadataFacets({
+        kind: "property-path",
+      }),
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value: "project.owner.name", count: 1 }),
+        expect.objectContaining({
+          value: "project.milestones[].done",
+          count: 1,
+        }),
+      ]),
+    );
+    await expect(
+      database.queryMetadataFacets({
+        kind: "property-value",
+        propertyName: "project.milestones[].done",
+      }),
+    ).resolves.toMatchObject([
+      { value: false, valueType: "boolean", count: 1 },
+    ]);
+    await expect(
+      database.queryMetadataLinks({
+        direction: "incoming",
+        path: "Architecture.md",
+        resolution: "resolved",
+      }),
+    ).resolves.toMatchObject([{ sourcePath: "Projects/Direct SQL.md" }]);
+    await expect(
+      database.queryIndexedMetadata({
+        requiredTags: ["work"],
+        propertyFilters: [
+          { name: "priority", op: ">=", value: 2 },
+          { name: "project.owner.name", op: "=", value: "Mira" },
+          { name: "project.milestones[].done", op: "=", value: false },
+        ],
+        resolvedTargetPaths: ["Architecture.md"],
+      }),
+    ).resolves.toMatchObject([{ file: { path: "Projects/Direct SQL.md" } }]);
     await database.upsertSearchDocument({
       path: "Projects/Direct SQL.md",
       sourceProviderId: "search:markdown",
@@ -374,22 +487,28 @@ describe("TursoAppDatabase", () => {
         },
       },
     });
-    await expect(database.listSearchDocumentManifest({ limit: 1 })).resolves.toEqual({
-      rows: [{
-        path: "Projects/Direct SQL.md",
-        checksum: "search-1",
-        sourceProviderId: "search:markdown",
-        metadataHash: "direct-1",
-        providerVersion: "2",
-        projectionSignature: "projection-2",
-        sourceMtime: 10,
-        sourceSize: 20,
-      }],
+    await expect(
+      database.listSearchDocumentManifest({ limit: 1 }),
+    ).resolves.toEqual({
+      rows: [
+        {
+          path: "Projects/Direct SQL.md",
+          checksum: "search-1",
+          sourceProviderId: "search:markdown",
+          metadataHash: "direct-1",
+          providerVersion: "2",
+          projectionSignature: "projection-2",
+          sourceMtime: 10,
+          sourceSize: 20,
+        },
+      ],
       nextCursor: undefined,
     });
-    await expect(connection.get<{ state_json: string }>(
-      "SELECT state_json FROM app_state WHERE id = 1",
-    )).resolves.toEqual({ state_json: JSON.stringify({ frozen: true }) });
+    await expect(
+      connection.get<{ state_json: string }>(
+        "SELECT state_json FROM app_state WHERE id = 1",
+      ),
+    ).resolves.toEqual({ state_json: JSON.stringify({ frozen: true }) });
     expect(changes).toEqual([1, 2]);
     expect(await database.getChangeRevision()).toBe(2);
 
@@ -397,7 +516,9 @@ describe("TursoAppDatabase", () => {
       "EXPLAIN QUERY PLAN SELECT path FROM metadata_tag_ancestors WHERE ancestor = ?",
       "work",
     );
-    expect(plan.some((row) => row.detail.includes("metadata_tag_ancestors_idx"))).toBe(true);
+    expect(
+      plan.some((row) => row.detail.includes("metadata_tag_ancestors_idx")),
+    ).toBe(true);
     const propertyPlan = await connection.all<{ detail: string }>(
       "EXPLAIN QUERY PLAN SELECT path FROM metadata_property_values WHERE normalized_property_path = ? AND text_value = ?",
       "project.owner.name",
@@ -422,27 +543,62 @@ describe("TursoAppDatabase", () => {
     );
     await connection.run(
       "INSERT INTO files (path, normalized_path, extension, mtime, size, hash, indexed, deleted) VALUES (?, ?, ?, ?, ?, ?, 1, 0)",
-      "legacy.md", "legacy.md", "md", 1, 2, "legacy-1",
+      "legacy.md",
+      "legacy.md",
+      "md",
+      1,
+      2,
+      "legacy-1",
     );
     await connection.run(
       "INSERT INTO metadata (path, hash, parser_version, data_json) VALUES (?, ?, ?, ?)",
-      "legacy.md", "legacy-1", "legacy-parser", JSON.stringify({ frontmatter: { status: "old" } }),
+      "legacy.md",
+      "legacy-1",
+      "legacy-parser",
+      JSON.stringify({ frontmatter: { status: "old" } }),
     );
     await connection.run(
       "INSERT INTO tags (path, ordinal, data_json) VALUES (?, 0, ?)",
-      "legacy.md", JSON.stringify({ path: "legacy.md", tag: "#legacy/nested", parts: ["legacy", "nested"], hierarchy: ["legacy", "legacy/nested"] }),
+      "legacy.md",
+      JSON.stringify({
+        path: "legacy.md",
+        tag: "#legacy/nested",
+        parts: ["legacy", "nested"],
+        hierarchy: ["legacy", "legacy/nested"],
+      }),
     );
     await connection.run(
       "INSERT INTO properties (path, ordinal, data_json) VALUES (?, 0, ?)",
-      "legacy.md", JSON.stringify({ path: "legacy.md", name: "status", inferredType: "string", value: "old" }),
+      "legacy.md",
+      JSON.stringify({
+        path: "legacy.md",
+        name: "status",
+        inferredType: "string",
+        value: "old",
+      }),
     );
     await connection.run(
       "INSERT INTO history_files (file_id, data_json) VALUES (?, ?)",
-      "history-1", JSON.stringify({ fileId: "history-1", currentPath: "legacy.md", deleted: false }),
+      "history-1",
+      JSON.stringify({
+        fileId: "history-1",
+        currentPath: "legacy.md",
+        deleted: false,
+      }),
     );
     await connection.run(
       "INSERT INTO history_revisions (file_id, ordinal, data_json) VALUES (?, 0, ?)",
-      "history-1", JSON.stringify({ revisionId: "revision-1", fileId: "history-1", currentPath: "legacy.md", capturedPath: "legacy.md", eventType: "modify", createdAt: 1, contentHash: "h", content: "legacy" }),
+      "history-1",
+      JSON.stringify({
+        revisionId: "revision-1",
+        fileId: "history-1",
+        currentPath: "legacy.md",
+        capturedPath: "legacy.md",
+        eventType: "modify",
+        createdAt: 1,
+        contentHash: "h",
+        content: "legacy",
+      }),
     );
     await connection.run(
       "INSERT INTO app_state (id, state_json) VALUES (1, ?)",
@@ -543,37 +699,53 @@ describe("TursoAppDatabase", () => {
     });
     await database.open();
 
-    await expect(database.queryMetadataFacets({ kind: "tag" })).resolves.toEqual(
-      expect.arrayContaining([expect.objectContaining({ value: "legacy/nested" })]),
+    await expect(
+      database.queryMetadataFacets({ kind: "tag" }),
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value: "legacy/nested" }),
+      ]),
     );
-    await expect(connection.get<{ count: number }>(
-      "SELECT count(*) AS count FROM history_revisions",
-    )).resolves.toEqual({ count: 1 });
+    await expect(
+      connection.get<{ count: number }>(
+        "SELECT count(*) AS count FROM history_revisions",
+      ),
+    ).resolves.toEqual({ count: 1 });
     await expect(database.listSearchDocumentManifest()).resolves.toMatchObject({
-      rows: [{
-        path: "legacy.md",
-        sourceProviderId: "search:markdown",
-        metadataHash: "legacy-1",
-        projectionSignature: "projection-1",
-      }],
+      rows: [
+        {
+          path: "legacy.md",
+          sourceProviderId: "search:markdown",
+          metadataHash: "legacy-1",
+          projectionSignature: "projection-1",
+        },
+      ],
     });
     await expect(database.listNotifications()).resolves.toMatchObject([
       { id: "notification-1", message: "Keep me" },
     ]);
-    await expect(database.getTaskRow({ path: "legacy.md" })).resolves.toMatchObject({
+    await expect(
+      database.getTaskRow({ path: "legacy.md" }),
+    ).resolves.toMatchObject({
       documentId: "task-1",
     });
-    await expect(database.getProjectionRow("legacy/item", "legacy-row")).resolves.toMatchObject({
+    await expect(
+      database.getProjectionRow("legacy/item", "legacy-row"),
+    ).resolves.toMatchObject({
       title: "Keep projection",
     });
-    await expect(connection.get<{ state_json: string }>(
-      "SELECT state_json FROM app_state WHERE id = 1",
-    )).resolves.toEqual({
+    await expect(
+      connection.get<{ state_json: string }>(
+        "SELECT state_json FROM app_state WHERE id = 1",
+      ),
+    ).resolves.toEqual({
       state_json: JSON.stringify({ frozenMigrationBackup: true }),
     });
-    await expect(connection.get<{ value: string }>(
-      "SELECT value FROM schema_meta WHERE key = 'schema.version'",
-    )).resolves.toEqual({ value: String(TURSO_APP_DATABASE_SCHEMA_VERSION) });
+    await expect(
+      connection.get<{ value: string }>(
+        "SELECT value FROM schema_meta WHERE key = 'schema.version'",
+      ),
+    ).resolves.toEqual({ value: String(TURSO_APP_DATABASE_SCHEMA_VERSION) });
     await database.close();
   });
 
@@ -602,14 +774,20 @@ describe("TursoAppDatabase", () => {
     await expect(database.open()).rejects.toThrow(
       "invalid history_files.data_json",
     );
-    await expect(connection.get<{ value: string }>(
-      "SELECT value FROM schema_meta WHERE key = 'schema.version'",
-    )).resolves.toEqual({ value: "2" });
-    await expect(connection.get<{ state_json: string }>(
-      "SELECT state_json FROM app_state WHERE id = 1",
-    )).resolves.toEqual({ state_json: JSON.stringify({ frozen: true }) });
-    await expect(connection.get<{ data_json: string }>(
-      "SELECT data_json FROM history_files WHERE file_id = 'broken-history'",
-    )).resolves.toEqual({ data_json: "{broken" });
+    await expect(
+      connection.get<{ value: string }>(
+        "SELECT value FROM schema_meta WHERE key = 'schema.version'",
+      ),
+    ).resolves.toEqual({ value: "2" });
+    await expect(
+      connection.get<{ state_json: string }>(
+        "SELECT state_json FROM app_state WHERE id = 1",
+      ),
+    ).resolves.toEqual({ state_json: JSON.stringify({ frozen: true }) });
+    await expect(
+      connection.get<{ data_json: string }>(
+        "SELECT data_json FROM history_files WHERE file_id = 'broken-history'",
+      ),
+    ).resolves.toEqual({ data_json: "{broken" });
   });
 });

@@ -14,6 +14,8 @@ overrides:
   '@lapismd/mira-plugin-mermaid': link:../mira-mde/packages/mira-plugin-mermaid
   adm-zip: '>=0.6.0'
   aria-query: 5.3.2
+  '@napi-rs/wasm-runtime@1.0.7>@emnapi/core': 1.8.1
+  '@napi-rs/wasm-runtime@1.0.7>@emnapi/runtime': 1.8.1
   sharp: '>=0.35.0'
 
 importers:
@@ -8733,6 +8735,7 @@ snapshots:
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
       tslib: 2.8.1
+    optional: true
 
   '@emnapi/core@1.8.1':
     dependencies:
@@ -8753,6 +8756,7 @@ snapshots:
   '@emnapi/runtime@1.11.3':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@emnapi/runtime@1.8.1':
     dependencies:
@@ -8775,6 +8779,7 @@ snapshots:
   '@emnapi/wasi-threads@1.2.2':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@esbuild/aix-ppc64@0.25.12':
     optional: true
@@ -9390,8 +9395,8 @@ snapshots:
 
   '@napi-rs/wasm-runtime@1.0.7':
     dependencies:
-      '@emnapi/core': 1.11.2
-      '@emnapi/runtime': 1.11.3
+      '@emnapi/core': 1.8.1
+      '@emnapi/runtime': 1.8.1
       '@tybys/wasm-util': 0.10.3
 
   '@napi-rs/wasm-runtime@1.2.2(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)':

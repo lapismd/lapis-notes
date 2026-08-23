@@ -132,10 +132,9 @@ async function browserHarness(
   };
 }
 
-const providers: Array<[
-  string,
-  (vaultId: string) => Promise<DatabaseHarness>,
-]> = [
+const providers: Array<
+  [string, (vaultId: string) => Promise<DatabaseHarness>]
+> = [
   ["Memory", memoryHarness],
   ["Turso native", (vaultId) => tursoHarness(vaultId, "turso-native")],
   ["Turso WASM SQL", (vaultId) => tursoHarness(vaultId, "turso-wasm")],
@@ -174,29 +173,41 @@ describe.each(providers)("metadata query contract: %s", (_name, create) => {
         parserVersion: "contract-1",
         metadata: { frontmatter: { project: { priority } } },
       },
-      links: [{
-        sourcePath: path,
-        targetText: "Target",
-        original: "[[Target]]",
-        resolvedTargetPath: "Target.md",
-        type: "link" as const,
-        count: 1,
-      }],
-      tags: [{
-        path,
-        tag: "#work/database",
-        parts: ["work", "database"],
-        hierarchy: ["work", "work/database"],
-      }],
-      properties: [{
-        path,
-        name: "project",
-        inferredType: "object",
-        value: { priority, milestones: [{ done: false }] },
-      }],
+      links: [
+        {
+          sourcePath: path,
+          targetText: "Target",
+          original: "[[Target]]",
+          resolvedTargetPath: "Target.md",
+          type: "link" as const,
+          count: 1,
+        },
+      ],
+      tags: [
+        {
+          path,
+          tag: "#work/database",
+          parts: ["work", "database"],
+          hierarchy: ["work", "work/database"],
+        },
+      ],
+      properties: [
+        {
+          path,
+          name: "project",
+          inferredType: "object",
+          value: { priority, milestones: [{ done: false }] },
+        },
+      ],
     });
     await database.upsertIndexedFile(record("A.md", 1));
     await database.upsertIndexedFile(record("B.md", 2));
+
+    await expect(
+      database.listIndexedFileManifest({ paths: ["B.md", "Missing.md"] }),
+    ).resolves.toMatchObject({
+      rows: [{ path: "B.md", parserVersion: "contract-1" }],
+    });
 
     const firstPage = await database.queryIndexedMetadataPage({ limit: 1 });
     expect(firstPage.rows.map((row) => row.file.path)).toEqual(["A.md"]);
@@ -242,6 +253,18 @@ describe.each(providers)("metadata query contract: %s", (_name, create) => {
       }),
     ).resolves.toHaveLength(2);
 
+    await database.upsertIndexedFile(
+      record(".agents/skills/example/SKILL.md", 3),
+    );
+    await expect(
+      database.queryIndexedMetadataPage({
+        query: { excludeHiddenPaths: true },
+        limit: 10,
+      }),
+    ).resolves.toMatchObject({
+      rows: [{ file: { path: "A.md" } }, { file: { path: "B.md" } }],
+    });
+
     await database.upsertSearchDocument({
       path: "A.md",
       sourceProviderId: "search:markdown",
@@ -271,11 +294,13 @@ describe.each(providers)("metadata query contract: %s", (_name, create) => {
     await expect(
       database.listSearchDocumentManifest({ limit: 1 }),
     ).resolves.toMatchObject({
-      rows: [{
-        path: "A.md",
-        metadataHash: "hash-1",
-        projectionSignature: "projection-1",
-      }],
+      rows: [
+        {
+          path: "A.md",
+          metadataHash: "hash-1",
+          projectionSignature: "projection-1",
+        },
+      ],
     });
     expect(changes.length).toBeGreaterThanOrEqual(3);
     expect(changes).toEqual([...changes].sort((left, right) => left - right));

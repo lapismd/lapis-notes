@@ -24,6 +24,7 @@ function followedPath(app: App): string | null {
 export function subscribeFileScopedPanelRefresh(
   app: App,
   refresh: () => void | Promise<void>,
+  options: { includeAnyMetadataPath?: boolean } = {},
 ): () => void {
   let lastPath = followedPath(app);
 
@@ -42,7 +43,9 @@ export function subscribeFileScopedPanelRefresh(
     if (
       change.reset ||
       (change.domains.includes("metadata") &&
-        (!lastPath || change.paths.includes(lastPath)))
+        (options.includeAnyMetadataPath ||
+          !lastPath ||
+          change.paths.includes(lastPath)))
     ) {
       notify();
     }

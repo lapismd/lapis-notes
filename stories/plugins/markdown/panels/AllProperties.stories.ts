@@ -6,11 +6,14 @@ import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
 import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
 import {
+  expectAsyncQueryFailureAndRecovery,
   expectPanelPlacement,
   expectPanelSource,
   PANEL_DOCS_PARAMETERS,
   PANEL_PLACEMENTS,
+  panelDemoApp,
   placementParameters,
+  triggerMetadataReset,
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
 
@@ -86,6 +89,23 @@ function placementStory(
         panel.queryByRole("textbox", { name: "Search properties" }),
       ).not.toBeInTheDocument();
       if (layout === "middle-top-tabs") {
+        const app = panelDemoApp(canvasElement);
+        await expectAsyncQueryFailureAndRecovery({
+          target: app.metadataCache,
+          method: "queryFacets",
+          trigger: () => triggerMetadataReset(app),
+          expectFailure: () =>
+            waitFor(() => {
+              expect(panel.getByRole("alert")).toHaveTextContent(
+                "Storybook metadata query failure",
+              );
+            }),
+          expectRecovery: () =>
+            waitFor(() => {
+              expect(panel.queryByRole("alert")).not.toBeInTheDocument();
+              expect(panel.getByText("status")).toBeVisible();
+            }),
+        });
         await userEvent.click(panel.getByRole("button", { name: "status" }));
         await waitFor(() => {
           const searchPanel = within(canvasElement).getByTestId("search-panel");

@@ -52,7 +52,11 @@
     "dist:desktop:mac": "pnpm --filter @lapis-notes/desktop-electron dist:mac",
     "dist:desktop:linux": "pnpm --filter @lapis-notes/desktop-electron dist:linux",
     "preview:web": "pnpm --filter @lapis-notes/web preview",
-    "test:web:e2e": "pnpm --filter @lapis-notes/web test:e2e"
+    "test:web:e2e": "pnpm --filter @lapis-notes/web test:e2e",
+    "performance:metadata:native": "pnpm --filter @lapis-notes/api performance:metadata:native",
+    "performance:metadata:wasm": "tsx scripts/metadata-performance-wasm.ts",
+    "performance:metadata:stress:native": "pnpm --filter @lapis-notes/api performance:metadata:native -- --notes 100000 --runs 1 --no-enforce",
+    "performance:metadata:stress:wasm": "tsx scripts/metadata-performance-wasm.ts --notes 100000 --runs 1 --no-enforce"
   },
   "devDependencies": {
     "@codemirror/autocomplete": "^6.18.6",

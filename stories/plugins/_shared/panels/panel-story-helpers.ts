@@ -58,6 +58,46 @@ export function panelDemoApp(canvasElement: HTMLElement): App {
   return root.__lapisApp;
 }
 
+export function triggerMetadataReset(app: App): void {
+  const now = Date.now();
+  app.metadataCache.trigger("index-changed", {
+    revision: now,
+    domains: ["metadata"],
+    paths: [],
+    reset: true,
+    committedAt: now,
+  });
+}
+
+export async function expectAsyncQueryFailureAndRecovery(options: {
+  target: object;
+  method: string;
+  trigger(): void | Promise<void>;
+  expectFailure(): void | Promise<void>;
+  recover?(): void | Promise<void>;
+  expectRecovery(): void | Promise<void>;
+}): Promise<void> {
+  const target = options.target as Record<string, unknown>;
+  const hadOwnMethod = Object.hasOwn(target, options.method);
+  const ownMethod = Object.getOwnPropertyDescriptor(target, options.method);
+  target[options.method] = async () => {
+    throw new Error("Storybook metadata query failure");
+  };
+  try {
+    await options.trigger();
+    await options.expectFailure();
+  } finally {
+    if (hadOwnMethod && ownMethod) {
+      Object.defineProperty(target, options.method, ownMethod);
+    } else {
+      delete target[options.method];
+    }
+  }
+  if (options.recover) await options.recover();
+  else await options.trigger();
+  await options.expectRecovery();
+}
+
 export function placementParameters(
   kind: PanelDemoKind,
   layout: PanelDemoLayout,
@@ -129,13 +169,13 @@ export async function expectPanelSource(
       : kind === "bookmarks"
         ? 'from "@lapis-notes/bookmarks";'
         : kind === "history"
-        ? 'from "@lapis-notes/history";'
-        : kind === "explorer"
-          ? 'from "@lapis-notes/file-explorer";'
-          : kind === "ai-history" ||
-              kind === "ai-catalog" ||
-              kind === "ai-chat"
-            ? 'from "@lapis-notes/ai";'
+          ? 'from "@lapis-notes/history";'
+          : kind === "explorer"
+            ? 'from "@lapis-notes/file-explorer";'
+            : kind === "ai-history" ||
+                kind === "ai-catalog" ||
+                kind === "ai-chat"
+              ? 'from "@lapis-notes/ai";'
               : 'from "@lapis-notes/markdown";',
   );
   await expect(source).not.toContain("PanelDemo");

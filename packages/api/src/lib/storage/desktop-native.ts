@@ -150,9 +150,7 @@ export interface NativeDesktopBridge {
   onAgentRuntimeEvent?(
     listener: (event: NativeAgentRuntimeEvent) => void,
   ): () => void;
-  onAgentToolCall?(
-    listener: (event: NativeAgentToolCall) => void,
-  ): () => void;
+  onAgentToolCall?(listener: (event: NativeAgentToolCall) => void): () => void;
   onAgentToolCancel?(
     listener: (event: NativeAgentToolCancel) => void,
   ): () => void;
@@ -253,10 +251,18 @@ export function setNativeDesktopBridge(
   bridge: NativeDesktopBridge | null,
 ): void {
   registeredNativeDesktopBridge = bridge;
+  const descriptor = Object.getOwnPropertyDescriptor(
+    globalThis,
+    NATIVE_BRIDGE_GLOBAL,
+  );
   if (bridge) {
-    globalThis[NATIVE_BRIDGE_GLOBAL] = bridge;
-  } else {
+    if (!descriptor || descriptor.writable || descriptor.set) {
+      globalThis[NATIVE_BRIDGE_GLOBAL] = bridge;
+    }
+  } else if (!descriptor || descriptor.configurable) {
     delete globalThis[NATIVE_BRIDGE_GLOBAL];
+  } else if (descriptor.writable || descriptor.set) {
+    globalThis[NATIVE_BRIDGE_GLOBAL] = undefined;
   }
 }
 

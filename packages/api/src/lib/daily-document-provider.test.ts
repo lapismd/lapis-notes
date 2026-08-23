@@ -82,6 +82,18 @@ describe("DailyDocumentProviderRegistry", () => {
 });
 
 describe("default daily document provider", () => {
+  it("registers a valid object configuration contribution", () => {
+    const { app } = createApp();
+    registerDefaultDailyDocumentProvider(app);
+
+    expect(app.configuration.schema.register).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "dailyNotes",
+        type: "object",
+      }),
+    );
+  });
+
   it("uses Luxon formatting and rejects unsafe filename output", () => {
     expect(formatDailyDocumentFilename("2026-08-21", "yyyy LLL dd")).toBe(
       "2026 Aug 21.md",
@@ -89,19 +101,22 @@ describe("default daily document provider", () => {
     expect(() =>
       formatDailyDocumentFilename("2026-08-21", "yyyy/MM/dd"),
     ).toThrow(/one safe filename segment/u);
-    expect(() => formatDailyDocumentFilename("2026-02-30", "yyyy-MM-dd")).toThrow(
-      /Invalid local date/u,
-    );
+    expect(() =>
+      formatDailyDocumentFilename("2026-02-30", "yyyy-MM-dd"),
+    ).toThrow(/Invalid local date/u);
   });
 
   it("locates an existing daily note by canonical front matter after settings change", async () => {
-    const { app, created } = createApp({
-      "journal/old-name.md":
-        "---\ntype: daily-note\ndate: 2026-08-21\n---\n\nExisting\n",
-    }, {
-      "dailyNotes.folder": "new-folder",
-      "dailyNotes.dateFormat": "dd-LL-yyyy",
-    });
+    const { app, created } = createApp(
+      {
+        "journal/old-name.md":
+          "---\ntype: daily-note\ndate: 2026-08-21\n---\n\nExisting\n",
+      },
+      {
+        "dailyNotes.folder": "new-folder",
+        "dailyNotes.dateFormat": "dd-LL-yyyy",
+      },
+    );
     registerDefaultDailyDocumentProvider(app);
 
     await expect(
@@ -111,10 +126,13 @@ describe("default daily document provider", () => {
   });
 
   it("creates canonical Markdown at the configured safe path", async () => {
-    const { app, contents, created } = createApp({}, {
-      "dailyNotes.folder": "Journal/Daily",
-      "dailyNotes.dateFormat": "dd-LL-yyyy",
-    });
+    const { app, contents, created } = createApp(
+      {},
+      {
+        "dailyNotes.folder": "Journal/Daily",
+        "dailyNotes.dateFormat": "dd-LL-yyyy",
+      },
+    );
     registerDefaultDailyDocumentProvider(app);
 
     const result = await app.dailyDocumentProviders

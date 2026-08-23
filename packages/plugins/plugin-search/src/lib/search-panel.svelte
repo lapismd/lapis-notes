@@ -126,6 +126,7 @@
   let metadataFacetError = $state<string | null>(null);
   let metadataFacetGeneration = 0;
   let searchRevision = 0;
+  const databaseRefreshDelayMs = 75;
 
   const parsedQuery = $derived(parseSearchQueryAst(query));
   const diagnostic = $derived(
@@ -364,11 +365,14 @@
       const nextResults = response.hits
         .map(resultFromHit)
         .filter((result): result is SearchResult => result !== null);
-      results = nextResults;
       resultCount = response.count;
       const identity = `${term}\u0000${nextResults
-        .map((result) => `${result.file.path}:${result.matches.length}`)
+        .map(
+          (result) =>
+            `${result.file.path}:${result.hit.document.checksum}:${result.matches.length}`,
+        )
         .join("\u0000")}`;
+      if (identity !== resultIdentity) results = nextResults;
       refreshOpenState(nextResults, identity);
       void rememberSearch(term);
     } finally {
@@ -503,6 +507,15 @@
   onMount(() => {
     query = initialQuery;
     void refreshMetadataFacets();
+    let databaseRefreshTimer: number | undefined;
+    const databaseChanged = app.appDatabase.subscribeToChanges((change) => {
+      if (!change.reset && !change.domains.includes("search")) return;
+      window.clearTimeout(databaseRefreshTimer);
+      databaseRefreshTimer = window.setTimeout(() => {
+        const revision = ++searchRevision;
+        void executeSearch(query, revision);
+      }, databaseRefreshDelayMs);
+    });
     const changed = app.metadataCache.on("index-changed", (change) => {
       if (change.reset || change.domains.includes("metadata")) {
         void refreshMetadataFacets();
@@ -512,6 +525,8 @@
     return () => {
       searchRevision += 1;
       metadataFacetGeneration += 1;
+      window.clearTimeout(databaseRefreshTimer);
+      databaseChanged();
       app.metadataCache.offref(changed);
       app.metadataCache.offref(loaded);
     };
