@@ -490,6 +490,9 @@ cache-backed npm resolution so the packaged app embeds Markdownlint instead of
 depending on a pnpm symlink tree. Plugin asset URLs continue
 to use public API helpers; their versioned Electron form stores path-bearing
 vault IDs in a URL path segment and the parser retains legacy-host support.
+Deno uses the same verified metadata through a same-origin HTTP route owned by
+its native host; neither host imports a community plugin from an unchecked
+filesystem URL.
 
 ## `@lapis-notes/workspace` (shell integration)
 

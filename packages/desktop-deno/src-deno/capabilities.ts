@@ -35,7 +35,12 @@ export function createCapabilityRegistry(platform = Deno.build.os) {
     },
     "plugin-assets": {
       id: "plugin-assets" as const,
-      status: "unavailable" as const,
+      status: "available" as const,
+      provider: "deno-http-plugin-assets",
+      details: {
+        route: "/__lapis/plugins",
+        protocol: "desktop_plugin_assets_register",
+      },
     },
     "file-watch": {
       id: "file-watch" as const,

@@ -36,6 +36,7 @@ packaged acceptance passes. The private package lives at
 | LN-DENO-023 | Automated acceptance MUST cover first selection, cancellation, reopening, missing-vault fallback, switching, layout, plugin restoration, retained services, app URLs, notifications, external links, and packaged startup.                                  |
 | LN-DENO-024 | The native Markdown language service MUST consume the public language-service runtime and expose bounded capability, update, diagnostics, and code-action operations. The renderer MUST register its provider before plugin loading and release it during teardown. |
 | LN-DENO-025 | Native vault watching MUST use `Deno.watchFs`, preserve vault containment across canonical filesystem paths, and deliver portable create, modify, and delete events. Closing a subscription or session MUST stop its native watcher.                         |
+| LN-DENO-026 | Verified plugin assets MUST register through the native bridge and load from a same-origin Deno HTTP route. The host MUST enforce installed plugin identity, version, path containment, supported type, byte size, and SHA-256 before serving an asset.             |
 
 ### LN-DENO-011 acceptance details
 
@@ -128,6 +129,19 @@ Native vault watching verifies:
   bounded native event bridge.
 - Packaged acceptance MUST write a vault file and observe its event before the
   watcher is closed.
+
+### LN-DENO-026 acceptance details
+
+Verified plugin asset hosting verifies:
+
+- The renderer MUST read verified installed-plugin metadata through the public
+  API asset helpers before registering native context.
+- The native host MUST resolve every asset beneath that plugin's selected-vault
+  directory and reject traversal or mismatched metadata.
+- JavaScript, styles, data, WASM, and supported image assets MUST use explicit
+  content types with `nosniff`, no-store, and isolation headers.
+- Packaged acceptance MUST fetch a seeded verified JavaScript asset and match
+  its complete content and content type.
 
 ## Non-goals
 

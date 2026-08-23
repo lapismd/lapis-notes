@@ -5,6 +5,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
@@ -90,6 +91,35 @@ const vaultPath = path.join(root, "vault");
 const reportPath = path.join(root, "acceptance.json");
 await Promise.all([mkdir(userDataDir), mkdir(vaultPath)]);
 await writeFile(path.join(vaultPath, "Welcome.md"), "# Packaged Deno smoke\n");
+const pluginId = "deno-smoke-extension";
+const pluginSource = 'export default "deno plugin asset";\n';
+const pluginSha256 = createHash("sha256").update(pluginSource).digest("hex");
+const pluginDirectory = path.join(
+  vaultPath,
+  ".obsidian",
+  "plugins",
+  pluginId,
+);
+await mkdir(pluginDirectory, { recursive: true });
+await writeFile(path.join(pluginDirectory, "main.mjs"), pluginSource);
+await writeFile(
+  path.join(vaultPath, ".obsidian", "installed-plugins.json"),
+  `${JSON.stringify({
+    plugins: {
+      [pluginId]: {
+        pluginId,
+        installedVersion: "1.0.0",
+        files: [
+          {
+            path: "main.mjs",
+            size: Buffer.byteLength(pluginSource),
+            sha256: pluginSha256,
+          },
+        ],
+      },
+    },
+  })}\n`,
+);
 
 const profileId = `desktop-folder:${vaultPath}`;
 await writeFile(
@@ -137,8 +167,11 @@ try {
   assert.equal(report.capabilities?.resource?.status, "available");
   assert.equal(report.capabilities?.["language-service"]?.status, "available");
   assert.equal(report.capabilities?.["file-watch"]?.status, "available");
+  assert.equal(report.capabilities?.["plugin-assets"]?.status, "available");
   assert.ok(report.languageDiagnosticCount > 0);
   assert.ok(["create", "modify"].includes(report.fileWatchEventType));
+  assert.equal(report.pluginAssetText, pluginSource);
+  assert.match(report.pluginAssetContentType, /^text\/javascript/u);
   assert.equal(report.crossOriginIsolated, true);
   assert.equal(report.protocol, "http:");
   console.log(`[deno] packaged smoke passed: ${executable}`);

@@ -12,6 +12,7 @@ import {
 } from "./renderer-http.ts";
 import { createRendererEventEmitter } from "./renderer-events.ts";
 import { rendererDistRoot } from "./production-build.ts";
+import { DenoPluginAssetService } from "./plugin-assets.ts";
 import {
   DESKTOP_WINDOW_TITLE,
   assertSupportedDenoDesktopVersion,
@@ -57,6 +58,7 @@ setOverlayWindowControls(win !== bootstrap && Deno.build.os === "darwin");
 const drag = createWindowDragController(win);
 const emitRendererEvent = createRendererEventEmitter(win);
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
+const pluginAssets = new DenoPluginAssetService();
 
 const INSPECT_ADDRESS = "127.0.0.1:9229";
 
@@ -83,7 +85,10 @@ function registerDesktopBindings(): void {
           } else drag.end();
           return;
         }
-        return handleDesktopInvoke(command, payload, { fileWatch });
+        return handleDesktopInvoke(command, payload, {
+          fileWatch,
+          pluginAssets,
+        });
       },
     ],
     ["platform", () => createPlatformInfo()],
@@ -94,6 +99,7 @@ function registerDesktopBindings(): void {
 registerDesktopBindings();
 win.addEventListener("close", () => {
   fileWatch.shutdown();
+  pluginAssets.clear();
   Deno.exit(0);
 });
 
@@ -266,6 +272,8 @@ async function proxyVite(
 
 Deno.serve(async (request) => {
   if (devUrl) return await proxyVite(request, devUrl);
+  const pluginAssetResponse = await pluginAssets.respond(request.url);
+  if (pluginAssetResponse) return withIsolationHeaders(pluginAssetResponse);
   const response = await serveDir(request, {
     fsRoot: distRoot,
     urlRoot: "",

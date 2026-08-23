@@ -35,6 +35,7 @@
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
   import { getVaultProfileLocation } from "./desktop-vault-profiles";
+  import { createDenoPluginAssetServer } from "./deno-plugin-asset-server";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
   let {
@@ -64,12 +65,16 @@
     { id: "layout", label: "Restore the workspace layout", status: "pending" },
   ];
 
+  const pluginAssetServer = untrack(() =>
+    createDenoPluginAssetServer({ adapter, bridge }),
+  );
   const app = untrack(
     () =>
       new App({
         version: appInfo.version,
         configPath: ".obsidian/app.json",
         session,
+        pluginAssetServer,
         workspaceShell: { application: appInfo, notifications: true },
         markdownRenderer: async () => {},
       }),
@@ -157,6 +162,19 @@
         },
       },
     );
+    const pluginAssetUrl = await pluginAssetServer.getPluginAssetUrl({
+      pluginId: "deno-smoke-extension",
+      pluginPath: ".obsidian/plugins/deno-smoke-extension",
+      relativePath: "main.mjs",
+      version: "1.0.0",
+    });
+    const pluginAssetResponse = await fetch(pluginAssetUrl);
+    const pluginAssetText = await pluginAssetResponse.text();
+    if (!pluginAssetResponse.ok) {
+      throw new Error(
+        `Deno plugin asset acceptance failed (${pluginAssetResponse.status})`,
+      );
+    }
     const watchPath = "deno-watch-smoke.tmp";
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let watchSubscription: { close(): void } | null | void = null;
@@ -189,6 +207,9 @@
           ? diagnostics.length
           : 0,
         fileWatchEventType: await watchEvent,
+        pluginAssetText,
+        pluginAssetContentType:
+          pluginAssetResponse.headers.get("content-type") ?? "",
       };
     } finally {
       if (timeout !== undefined) clearTimeout(timeout);

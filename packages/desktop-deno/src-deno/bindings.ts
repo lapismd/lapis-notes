@@ -3,6 +3,7 @@ import { createCapabilityRegistry } from "./capabilities.ts";
 import type { DenoFileWatchService } from "./file-watch.ts";
 import { handleLanguageService } from "./language-service.ts";
 import { showNativeNotification } from "./native-actions.ts";
+import type { DenoPluginAssetService } from "./plugin-assets.ts";
 import {
   handleVaultFs,
   moveVaultFolder,
@@ -55,6 +56,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_capabilities_get",
   "desktop_acceptance_report",
   "desktop_notifications_show",
+  "desktop_plugin_assets_register",
   "desktop_fs_watch_start",
   "desktop_fs_watch_stop",
   "desktop_pick_vault_folder",
@@ -67,6 +69,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
 
 export type DesktopInvokeContext = {
   fileWatch?: DenoFileWatchService;
+  pluginAssets?: DenoPluginAssetService;
 };
 
 export function createPlatformInfo() {
@@ -124,6 +127,12 @@ export function handleDesktopInvoke(
   }
   if (command === "desktop_notifications_show") {
     return showNativeNotification(payload.notification);
+  }
+  if (command === "desktop_plugin_assets_register") {
+    if (!context.pluginAssets) {
+      throw new Error("Deno plugin assets are unavailable");
+    }
+    return context.pluginAssets.register(payload);
   }
   if (command === "desktop_fs_watch_start") {
     if (!context.fileWatch) throw new Error("Deno file watch is unavailable");
