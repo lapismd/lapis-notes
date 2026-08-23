@@ -154,3 +154,6 @@ that point while the same progress task continues manifest reconciliation; no
 workspace layout state depends on synchronous whole-vault cache maps.
 Manual `app:rebuild-vault-cache` and `app:rebuild-generated-state` reuse that
 same projected handle (LN-PKG-097, LN-PKG-098).
+Shell mounting therefore depends only on database open and query readiness.
+First-party panel data may continue refreshing from committed revisions without
+delaying leaf restoration or initial workspace paint.

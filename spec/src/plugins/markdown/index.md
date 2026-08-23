@@ -114,3 +114,6 @@ view types remain `ViewAccess.alias` without palette duplicates.
 The canonical registry is mirrored by the generic Storybook command-panel
 catalog, replacing Markdown-specific catalog arrays while retaining the same
 real registrations and one instance per placement.
+Markdown panels treat database readiness as sufficient to paint persisted
+metadata. Their async refresh paths react to committed revisions, retain the
+newest generation, and surface query failures without snapshot fallback.

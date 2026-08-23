@@ -13,6 +13,18 @@ import { parseLinktext } from "./utils";
 
 const FRONTMATTER_RETRY_ERROR = "__lapis_frontmatter_retry__";
 
+function linkOffsets(position: unknown): { start: number; end: number } | null {
+  if (!position || typeof position !== "object") return null;
+  const value = position as {
+    start?: { offset?: unknown };
+    end?: { offset?: unknown };
+  };
+  return typeof value.start?.offset === "number" &&
+    typeof value.end?.offset === "number"
+    ? { start: value.start.offset, end: value.end.offset }
+    : null;
+}
+
 /**
  * High-level helpers for vault file operations that need metadata-aware
  * follow-up work.
@@ -33,7 +45,7 @@ export class FileManager {
     content?: string,
   ): Promise<Record<string, unknown>> {
     const cachedFrontmatter =
-      this.app.metadataCache.getFileCache(file)?.frontmatter;
+      (await this.app.metadataCache.getFileCacheAsync(file))?.frontmatter;
     if (cachedFrontmatter && typeof cachedFrontmatter === "object") {
       return this.cloneFrontmatter(
         cachedFrontmatter as Record<string, unknown>,
@@ -161,10 +173,10 @@ export class FileManager {
     return alias;
   }
 
-  private collectRenameEdits(
+  private async collectRenameEdits(
     file: TFile,
     newPath: string,
-  ): Array<{
+  ): Promise<Array<{
     sourcePath: string;
     refs: Array<{
       start: number;
@@ -172,32 +184,30 @@ export class FileManager {
       link: string;
       original: string;
     }>;
-  }> {
+  }>> {
+    void newPath;
     const editsBySource = new Map<
       string,
       Array<{ start: number; end: number; link: string; original: string }>
     >();
 
-    for (const [sourceFile, cache] of this.app.metadataCache.getAllItems()) {
-      const refs = [...(cache.links ?? []), ...(cache.embeds ?? [])];
-      for (const ref of refs) {
-        const resolved = this.app.metadataCache.getFirstLinkpathDest(
-          ref.link,
-          sourceFile.path,
-        );
-        if (resolved?.path !== file.path) {
-          continue;
-        }
-
-        const sourceEdits = editsBySource.get(sourceFile.path) ?? [];
+    const refs = await this.app.metadataCache.queryLinks({
+      direction: "incoming",
+      path: file.path,
+      resolution: "resolved",
+      limit: 100_000,
+    });
+    for (const ref of refs) {
+      const offsets = linkOffsets(ref.position);
+      if (!offsets) continue;
+        const sourceEdits = editsBySource.get(ref.sourcePath) ?? [];
         sourceEdits.push({
-          start: ref.position.start.offset,
-          end: ref.position.end.offset,
-          link: ref.link,
-          original: ref.original,
+          start: offsets.start,
+          end: offsets.end,
+          link: ref.targetText,
+          original: ref.original ?? ref.targetText,
         });
-        editsBySource.set(sourceFile.path, sourceEdits);
-      }
+        editsBySource.set(ref.sourcePath, sourceEdits);
     }
 
     return [...editsBySource.entries()].map(([sourcePath, refs]) => ({
@@ -243,16 +253,17 @@ export class FileManager {
    * @param newPath - The new path for the file
    * @public
    */
-  renameFile(file: TAbstractFile, newPath: string): Promise<void> {
+  async renameFile(file: TAbstractFile, newPath: string): Promise<void> {
     if (!(file instanceof TFile)) {
       return this.app.vault.rename(file, newPath);
     }
 
-    const edits = this.collectRenameEdits(file, newPath);
-    return this.app.vault.rename(file, newPath).then(async () => {
+    const oldPath = file.path;
+    const edits = await this.collectRenameEdits(file, newPath);
+    await this.app.vault.rename(file, newPath);
       for (const edit of edits) {
         const sourcePath =
-          edit.sourcePath === file.path ? newPath : edit.sourcePath;
+          edit.sourcePath === oldPath ? newPath : edit.sourcePath;
         const sourceFile = this.app.vault.getFileByPath(sourcePath);
         if (!sourceFile) {
           continue;
@@ -272,7 +283,6 @@ export class FileManager {
           return next;
         });
       }
-    });
   }
 
   /**

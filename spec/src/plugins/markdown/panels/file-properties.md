@@ -25,3 +25,6 @@ Responsive stories resize the owning workspace split as required by LN-ED-021;
 they do not set a synthetic width on the component. The frontmatter controller
 and property manager use the panel view's App, so metadata writes and type
 lookups cannot follow another host's compatibility alias.
+The controller hydrates the followed note with `getFileCacheAsync` before
+synchronizing Mira state and discards a result if the followed file changes
+while that read is pending.

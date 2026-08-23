@@ -63,63 +63,17 @@
     }
   });
 
-  function hasTopLevelProperty(
-    frontmatter: unknown,
-    name: string,
-  ): frontmatter is Record<string, unknown> {
-    return (
-      Boolean(frontmatter) &&
-      typeof frontmatter === "object" &&
-      Object.prototype.hasOwnProperty.call(frontmatter, name)
-    );
-  }
-
   const topLevelProperties = $derived.by(() => {
-    const rows = new Map<string, MetadataTypeProperty>();
     const trackedProperties = app.metadataTypeManager.properties;
-    const declaredTypes = app.metadataTypeManager.types;
-
-    for (const [file, cache] of app.metadataCache.getAllItems()) {
-      if (!cache.frontmatter || typeof cache.frontmatter !== "object") {
-        continue;
-      }
-
-      for (const [name, value] of Object.entries(cache.frontmatter)) {
-        if (!hasTopLevelProperty(cache.frontmatter, name)) continue;
-
-        const inferredType = app.metadataTypeManager.determinePropertyType(
-          name,
-          value,
-        );
-        const existing = rows.get(name);
-        if (existing) {
-          existing.files.add(file.path);
-          existing.count = existing.files.size;
-          if (!declaredTypes[name] && existing.type !== inferredType) {
-            existing.type = "unknown";
-          }
-          continue;
-        }
-
-        rows.set(name, {
-          name,
-          type:
-            declaredTypes[name]?.type ??
-            trackedProperties[name]?.type ??
-            inferredType,
-          count: 1,
-          files: new Set([file.path]),
-        });
-      }
-    }
-
-    return [...rows.values()].map((property) => ({
-      ...property,
-      type:
-        app.metadataTypeManager.types[property.name]?.type ??
-        app.metadataTypeManager.properties[property.name]?.type ??
-        property.type,
-    }));
+    return [...app.metadataTypeManager.topLevelPropertyNames]
+      .map((name) => trackedProperties[name])
+      .filter((property): property is MetadataTypeProperty => Boolean(property))
+      .map((property) => ({
+        ...property,
+        files: new Set<string>(),
+        type:
+          app.metadataTypeManager.types[property.name]?.type ?? property.type,
+      }));
   });
 
   const properties = $derived.by(() => {
@@ -169,7 +123,7 @@
   function arrayNestedRowsFor(property: MetadataTypeProperty): PropertyRow[] {
     const groups = new Map<
       string,
-      { files: Set<string>; type: MetadataTypeProperty["type"] }
+      { count: number; type: MetadataTypeProperty["type"] }
     >();
 
     for (const candidate of Object.values(app.metadataTypeManager.properties)) {
@@ -188,10 +142,10 @@
       if (!relativePath) continue;
 
       const group = groups.get(relativePath) ?? {
-        files: new Set<string>(),
+        count: 0,
         type: candidate.type,
       };
-      for (const file of candidate.files) group.files.add(file);
+      group.count = Math.max(group.count, candidate.count);
       if (group.type !== candidate.type) group.type = "unknown";
       groups.set(relativePath, group);
     }
@@ -203,8 +157,8 @@
         property: {
           name: `${property.name}[].${relativePath}`,
           type: group.type,
-          count: group.files.size,
-          files: group.files,
+          count: group.count,
+          files: new Set<string>(),
         },
         topLevel: false,
         actionable: false,
@@ -568,7 +522,16 @@
 
     <Sidebar.NestedProvider id="all-properties" class="all-properties__fill">
       <Sidebar.Content class="all-properties__menu-host">
-        {#each properties as property (property.name)}
+        {#if app.metadataTypeManager.queryError}
+          <p class="markdown-sidebar-panel__empty" role="alert">
+            Unable to load properties: {app.metadataTypeManager.queryError}
+          </p>
+        {:else if app.metadataTypeManager.propertiesLoading && !properties.length}
+          <p class="markdown-sidebar-panel__empty">Loading properties…</p>
+        {:else if !properties.length}
+          <p class="markdown-sidebar-panel__empty">No properties found.</p>
+        {:else}
+          {#each properties as property (property.name)}
           {@const nestedRows = nestedRowsFor(property)}
           {@const renaming = isRenaming(property, true)}
           <Sidebar.Menu>
@@ -728,7 +691,8 @@
               </Sidebar.Menu>
             {/each}
           {/if}
-        {/each}
+          {/each}
+        {/if}
       </Sidebar.Content>
     </Sidebar.NestedProvider>
   </MarkdownSidebarPanel>

@@ -62,12 +62,15 @@ export declare class MetadataTypeManager {
     readonly types: Record<string, MetadataTypeDef>;
     readonly registeredTypeWidgets: Record<string, TypeWidget>;
     readonly properties: Record<string, MetadataTypeProperty>;
-    private readonly filePropertyPaths;
+    readonly topLevelPropertyNames: Set<string>;
+    readonly propertyValues: Record<string, unknown[]>;
+    propertiesLoading: boolean;
+    queryError: string | null;
     constructor(app: App);
     getAllProperties(): {
         [x: string]: MetadataTypeProperty;
     };
-    updateProperties(): void;
+    updateProperties(): Promise<void>;
     load(): Promise<void>;
     readonly save: import("lodash-es").DebouncedFunc<() => Promise<void> | undefined>;
     toJSON(): {
@@ -94,6 +97,7 @@ export declare class MetadataTypeManager {
     setPropertyType(path: string, type: MetadataType, options?: MetadataBulkOperationOptions): Promise<MetadataBulkOperationResult>;
     processChange(file: TFile, cache: CachedMetadata): void;
     getValues(key: string): unknown[];
+    getValuesAsync(key: string, limit?: number): Promise<unknown[]>;
     processDelete(file: TFile): void;
     trackChanges(): () => void;
     reload(): void;

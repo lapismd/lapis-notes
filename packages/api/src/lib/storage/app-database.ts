@@ -221,6 +221,7 @@ export interface AppDatabaseMetadataRecord {
 export interface AppDatabaseLinkRecord {
   sourcePath: string;
   targetText: string;
+  original?: string;
   resolvedTargetPath: string | null;
   type: "link" | "embed";
   position?: unknown;
@@ -326,7 +327,11 @@ export interface AppDatabaseIndexedMetadataPage {
   nextCursor?: string;
 }
 
-export type AppDatabaseMetadataFacetKind = "tag" | "property-name" | "property-value";
+export type AppDatabaseMetadataFacetKind =
+  | "tag"
+  | "property-name"
+  | "property-path"
+  | "property-value";
 
 export interface AppDatabaseMetadataFacetQuery {
   kind: AppDatabaseMetadataFacetKind;
@@ -339,6 +344,10 @@ export interface AppDatabaseMetadataFacetRow {
   value: AppDatabaseIndexedMetadataScalar;
   valueType: "null" | "string" | "number" | "boolean" | "date";
   count: number;
+  /** Metadata types observed for a property name or nested property path. */
+  metadataTypes?: string[];
+  /** Whether a property-name/path row represents a top-level frontmatter key. */
+  topLevel?: boolean;
 }
 
 export type AppDatabaseMetadataLinkDirection = "incoming" | "outgoing";
@@ -346,7 +355,9 @@ export type AppDatabaseMetadataLinkResolution = "resolved" | "unresolved" | "all
 
 export interface AppDatabaseMetadataLinkQuery {
   direction: AppDatabaseMetadataLinkDirection;
-  path: string;
+  path?: string;
+  /** Batch source/target paths for indexed consumers such as Bases. */
+  paths?: string[];
   resolution?: AppDatabaseMetadataLinkResolution;
   limit?: number;
 }
@@ -415,12 +426,41 @@ export interface SearchDocumentSourceSection {
 }
 
 export interface SearchDocumentSourceMetadata {
+  /** Core metadata/content hash used for body-free warm reconciliation. */
+  metadataHash?: string;
+  /** Domain provider version that produced this projection. */
+  providerVersion?: string;
+  /** Chunking and projection configuration signature. */
+  projectionSignature?: string;
+  sourceMtime?: number;
+  sourceSize?: number;
   rawTags: string[];
   frontmatter?: unknown;
   frontmatterEndOffset?: number;
   headings: SearchDocumentSourceHeading[];
   sections: SearchDocumentSourceSection[];
   chunking: SearchDocumentChunkingSettings;
+}
+
+export interface SearchDocumentManifestRecord {
+  path: string;
+  checksum: string;
+  sourceProviderId?: string;
+  metadataHash?: string;
+  providerVersion?: string;
+  projectionSignature?: string;
+  sourceMtime?: number;
+  sourceSize?: number;
+}
+
+export interface SearchDocumentManifestQuery {
+  after?: string;
+  limit?: number;
+}
+
+export interface SearchDocumentManifestPage {
+  rows: SearchDocumentManifestRecord[];
+  nextCursor?: string;
 }
 
 export interface SearchDocumentChunkEmbeddingState {
@@ -819,6 +859,7 @@ export function normalizeSearchDocument(
   const tags = processSearchTags(sourceMetadata.rawTags ?? document.tags);
   return {
     ...clone(baseDocument),
+    sourceMetadata: clone(sourceMetadata),
     tags: tags.tags,
     tagParts: tags.tagParts,
     tagHierarchy: tags.tagHierarchy,
@@ -1060,6 +1101,9 @@ export interface AppDatabase {
   upsertSearchDocument(document: SearchDocumentRecord): Promise<void>;
   deleteSearchDocument(path: string): Promise<void>;
   getSearchDocument(path: string): Promise<SearchDocumentRecord | undefined>;
+  listSearchDocumentManifest(
+    query?: SearchDocumentManifestQuery,
+  ): Promise<SearchDocumentManifestPage>;
   listSearchDocuments(): Promise<SearchDocumentRecord[]>;
   rebuildSearchIndex(): Promise<void>;
   searchDocuments(
@@ -1189,6 +1233,62 @@ function toIndexedMetadataScalar(
   return undefined;
 }
 
+function flattenIndexedMetadataPropertyValues(
+  value: unknown,
+  path: string,
+  output: Array<{ path: string; value: AppDatabaseIndexedMetadataScalar }> = [],
+): Array<{ path: string; value: AppDatabaseIndexedMetadataScalar }> {
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) =>
+      flattenIndexedMetadataPropertyValues(entry, `${path}[${index}]`, output),
+    );
+    return output;
+  }
+  if (value && typeof value === "object") {
+    for (const [key, entry] of Object.entries(value)) {
+      flattenIndexedMetadataPropertyValues(entry, `${path}.${key}`, output);
+    }
+    return output;
+  }
+  const scalar = toIndexedMetadataScalar(value);
+  if (scalar !== undefined) output.push({ path, value: scalar });
+  return output;
+}
+
+function normalizeIndexedMetadataPropertyPath(path: string): string {
+  return path.toLowerCase().replace(/\[\d+\]/gu, "[]");
+}
+
+function indexedMetadataPropertyValues(
+  properties: AppDatabasePropertyRecord[],
+  name: string,
+): AppDatabaseIndexedMetadataScalar[] {
+  const normalizedName = normalizeIndexedMetadataPropertyPath(name);
+  const values: AppDatabaseIndexedMetadataScalar[] = [];
+  for (const property of properties) {
+    if (normalizeIndexedMetadataPropertyPath(property.name) === normalizedName) {
+      const scalar = toIndexedMetadataScalar(property.value);
+      if (scalar !== undefined) values.push(scalar);
+      values.push(
+        ...flattenIndexedMetadataPropertyValues(
+          property.value,
+          property.name,
+        ).map((entry) => entry.value),
+      );
+      continue;
+    }
+    values.push(
+      ...flattenIndexedMetadataPropertyValues(property.value, property.name)
+        .filter(
+          (entry) =>
+            normalizeIndexedMetadataPropertyPath(entry.path) === normalizedName,
+        )
+        .map((entry) => entry.value),
+    );
+  }
+  return values;
+}
+
 function compareIndexedMetadataScalars(
   left: AppDatabaseIndexedMetadataScalar | undefined,
   right: AppDatabaseIndexedMetadataScalar | undefined,
@@ -1215,38 +1315,41 @@ function matchesIndexedMetadataPropertyFilter(
   properties: AppDatabasePropertyRecord[],
   filter: AppDatabaseIndexedMetadataPropertyFilter,
 ): boolean {
-  const property = properties.find((entry) => entry.name === filter.name);
+  const property = properties.find(
+    (entry) => entry.name.toLowerCase() === filter.name.toLowerCase(),
+  );
+  const values = indexedMetadataPropertyValues(properties, filter.name);
 
   if (filter.op === "exists") {
-    return !!property;
+    return !!property || values.length > 0;
   }
   if (filter.op === "not-exists") {
-    return !property;
+    return !property && values.length === 0;
   }
-  if (!property) {
+  if (!property && values.length === 0) {
     return false;
   }
 
-  const left = toIndexedMetadataScalar(property.value);
   const right = filter.value;
-  const comparison = compareIndexedMetadataScalars(left, right);
-
-  switch (filter.op) {
-    case "=":
-      return left === right;
-    case "!=":
-      return left !== right;
-    case ">":
-      return comparison > 0;
-    case ">=":
-      return comparison >= 0;
-    case "<":
-      return comparison < 0;
-    case "<=":
-      return comparison <= 0;
-    default:
-      return false;
-  }
+  return values.some((left) => {
+    const comparison = compareIndexedMetadataScalars(left, right);
+    switch (filter.op) {
+      case "=":
+        return left === right;
+      case "!=":
+        return left !== right;
+      case ">":
+        return comparison > 0;
+      case ">=":
+        return comparison >= 0;
+      case "<":
+        return comparison < 0;
+      case "<=":
+        return comparison <= 0;
+      default:
+        return false;
+    }
+  });
 }
 
 function indexedMetadataSortValue(
@@ -2494,7 +2597,9 @@ export class MemoryAppDatabase implements AppDatabase {
     const limit = Math.max(1, query.limit ?? 500);
     const rows = [...this.files.values()]
       .filter((file) => file.indexed && !file.deleted && (!query.after || file.path > query.after))
-      .sort((left, right) => left.path.localeCompare(right.path));
+      .sort((left, right) =>
+        left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+      );
     const page = rows.slice(0, limit).map((file) => ({
       ...file,
       parserVersion: this.metadata.get(file.path)?.parserVersion,
@@ -2535,10 +2640,26 @@ export class MemoryAppDatabase implements AppDatabase {
       !query.pathPrefixes?.length ||
       query.pathPrefixes.some((prefix) => matchesIndexedMetadataPathPrefix(path, prefix));
     const counts = new Map<string, AppDatabaseMetadataFacetRow>();
-    const add = (value: AppDatabaseIndexedMetadataScalar, valueType: AppDatabaseMetadataFacetRow["valueType"]) => {
+    const types = new Map<string, Set<string>>();
+    const add = (
+      value: AppDatabaseIndexedMetadataScalar,
+      valueType: AppDatabaseMetadataFacetRow["valueType"],
+      metadataType?: string,
+      topLevel?: boolean,
+    ) => {
       const key = `${valueType}\0${String(value)}`;
       const current = counts.get(key);
-      counts.set(key, { value, valueType, count: (current?.count ?? 0) + 1 });
+      counts.set(key, {
+        value,
+        valueType,
+        count: (current?.count ?? 0) + 1,
+        topLevel: topLevel ?? current?.topLevel,
+      });
+      if (metadataType) {
+        const observed = types.get(key) ?? new Set<string>();
+        observed.add(metadataType);
+        types.set(key, observed);
+      }
     };
     if (query.kind === "tag") {
       for (const [path, tags] of this.tags) {
@@ -2548,23 +2669,71 @@ export class MemoryAppDatabase implements AppDatabase {
     } else if (query.kind === "property-name") {
       for (const [path, properties] of this.properties) {
         if (!matchesPath(path)) continue;
-        for (const name of new Set(properties.map((entry) => entry.name))) add(name, "string");
+        const unique = new Map(properties.map((entry) => [entry.name, entry]));
+        for (const property of unique.values()) {
+          add(
+            property.name,
+            "string",
+            property.declaredType ?? property.inferredType,
+            true,
+          );
+        }
+      }
+    } else if (query.kind === "property-path") {
+      for (const [path, properties] of this.properties) {
+        if (!matchesPath(path)) continue;
+        const unique = new Map<
+          string,
+          { type: string; topLevel: boolean }
+        >();
+        for (const property of properties) {
+          unique.set(property.name, {
+            type: property.declaredType ?? property.inferredType,
+            topLevel: true,
+          });
+          for (const entry of flattenIndexedMetadataPropertyValues(
+            property.value,
+            property.name,
+          )) {
+            const type =
+              entry.value === null
+                ? "unknown"
+                : typeof entry.value === "number"
+                  ? "number"
+                  : typeof entry.value === "boolean"
+                    ? "checkbox"
+                    : "text";
+            unique.set(entry.path.replace(/\[\d+\]/gu, "[]"), {
+              type,
+              topLevel: entry.path === property.name,
+            });
+          }
+        }
+        for (const [propertyPath, descriptor] of unique) {
+          add(propertyPath, "string", descriptor.type, descriptor.topLevel);
+        }
       }
     } else if (query.propertyName) {
       for (const [path, properties] of this.properties) {
         if (!matchesPath(path)) continue;
-        for (const property of properties.filter((entry) => entry.name === query.propertyName)) {
-          const values = Array.isArray(property.value) ? property.value : [property.value];
-          for (const value of values) {
-            const scalar = toIndexedMetadataScalar(value);
-            if (scalar === undefined) continue;
+        const seen = new Set<string>();
+        for (const scalar of indexedMetadataPropertyValues(
+          properties,
+          query.propertyName,
+        )) {
+            const scalarKey = `${typeof scalar}\0${String(scalar)}`;
+            if (seen.has(scalarKey)) continue;
+            seen.add(scalarKey);
             const type = scalar === null ? "null" : typeof scalar === "number" ? "number" : typeof scalar === "boolean" ? "boolean" : "string";
             add(scalar, type);
-          }
         }
       }
     }
-    return [...counts.values()]
+    return [...counts.entries()]
+      .map(([key, row]) => ({
+        ...row,
+        metadataTypes: types.get(key)?.size ? [...types.get(key)!] : undefined,
+      }))
       .sort((left, right) => right.count - left.count || String(left.value).localeCompare(String(right.value)))
       .slice(0, query.limit ?? 100);
   }
@@ -2572,9 +2741,13 @@ export class MemoryAppDatabase implements AppDatabase {
   async queryMetadataLinks(
     query: AppDatabaseMetadataLinkQuery,
   ): Promise<AppDatabaseLinkRecord[]> {
+    const paths = new Set([...(query.paths ?? []), ...(query.path ? [query.path] : [])]);
+    if (!paths.size) return [];
     const links = query.direction === "outgoing"
-      ? this.links.get(query.path) ?? []
-      : [...this.links.values()].flat().filter((link) => link.resolvedTargetPath === query.path);
+      ? [...paths].flatMap((path) => this.links.get(path) ?? [])
+      : [...this.links.values()].flat().filter((link) =>
+          link.resolvedTargetPath ? paths.has(link.resolvedTargetPath) : false,
+        );
     return clone(links.filter((link) => {
       if (query.resolution === "resolved") return link.resolvedTargetPath != null;
       if (query.resolution === "unresolved") return link.resolvedTargetPath == null;
@@ -2599,6 +2772,31 @@ export class MemoryAppDatabase implements AppDatabase {
     path: string,
   ): Promise<SearchDocumentRecord | undefined> {
     return clone(this.searchDocs.get(path));
+  }
+
+  async listSearchDocumentManifest(
+    query: SearchDocumentManifestQuery = {},
+  ): Promise<SearchDocumentManifestPage> {
+    const limit = Math.max(1, query.limit ?? 500);
+    const rows = [...this.searchDocs.values()]
+      .filter((document) => !query.after || document.path > query.after)
+      .sort((left, right) =>
+        left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+      );
+    const page = rows.slice(0, limit).map((document) => ({
+      path: document.path,
+      checksum: document.checksum,
+      sourceProviderId: document.sourceProviderId,
+      metadataHash: document.sourceMetadata?.metadataHash,
+      providerVersion: document.sourceMetadata?.providerVersion,
+      projectionSignature: document.sourceMetadata?.projectionSignature,
+      sourceMtime: document.sourceMetadata?.sourceMtime,
+      sourceSize: document.sourceMetadata?.sourceSize,
+    }));
+    return clone({
+      rows: page,
+      nextCursor: rows.length > page.length ? page.at(-1)?.path : undefined,
+    });
   }
 
   async listSearchDocuments(): Promise<SearchDocumentRecord[]> {
@@ -3561,7 +3759,11 @@ export class MemoryAppDatabase implements AppDatabase {
           return sort.direction === "DESC" ? -comparison : comparison;
         }
 
-        return left.file.path.localeCompare(right.file.path);
+        return left.file.path < right.file.path
+          ? -1
+          : left.file.path > right.file.path
+            ? 1
+            : 0;
       });
     }
 

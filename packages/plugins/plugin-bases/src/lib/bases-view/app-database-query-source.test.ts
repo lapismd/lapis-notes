@@ -1,8 +1,27 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   appDatabaseRowToVaultRecord,
   buildBasesAppDatabaseQuery,
+  queryBasesAppDatabaseRows,
 } from "./app-database-query-source";
+
+function row(path: string) {
+  return {
+    file: {
+      path,
+      normalizedPath: path.toLowerCase(),
+      extension: "md",
+      mtime: 1,
+      size: 1,
+      hash: path,
+      indexed: true,
+    },
+    metadata: null,
+    properties: [],
+    tags: [],
+    links: [],
+  };
+}
 
 describe("buildBasesAppDatabaseQuery", () => {
   it("lowers safe conjunctive filters plus supported sort and limit", () => {
@@ -113,5 +132,61 @@ describe("appDatabaseRowToVaultRecord", () => {
     expect(record.cache?.tags).toMatchObject([{ tag: "#work" }]);
     expect(record.cache?.links).toMatchObject([{ link: "Target.md" }]);
     expect(record.file.path).toBe("Projects/Alpha.md");
+  });
+});
+
+describe("queryBasesAppDatabaseRows", () => {
+  it("pages unbounded candidates by path and leaves final sorting to PEaQL", async () => {
+    const queryIndexedMetadataPage = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [row("A.md")], nextCursor: "A.md" })
+      .mockResolvedValueOnce({ rows: [row("B.md")] });
+
+    await expect(
+      queryBasesAppDatabaseRows(
+        { queryIndexedMetadataPage } as any,
+        {
+          requiredTags: ["work"],
+          sort: [{
+            field: { kind: "property", name: "priority" },
+            direction: "ASC",
+          }],
+        },
+        1,
+      ),
+    ).resolves.toMatchObject([
+      { file: { path: "A.md" } },
+      { file: { path: "B.md" } },
+    ]);
+    expect(queryIndexedMetadataPage).toHaveBeenNthCalledWith(1, {
+      query: {
+        requiredTags: ["work"],
+        sort: undefined,
+        limit: undefined,
+      },
+      after: undefined,
+      limit: 1,
+    });
+    expect(queryIndexedMetadataPage).toHaveBeenNthCalledWith(2, {
+      query: {
+        requiredTags: ["work"],
+        sort: undefined,
+        limit: undefined,
+      },
+      after: "A.md",
+      limit: 1,
+    });
+  });
+
+  it("pushes a fully lowered limit into one bounded page", async () => {
+    const queryIndexedMetadataPage = vi.fn(async () => ({ rows: [row("A.md")] }));
+    await queryBasesAppDatabaseRows(
+      { queryIndexedMetadataPage } as any,
+      { limit: 25 },
+    );
+    expect(queryIndexedMetadataPage).toHaveBeenCalledWith({
+      query: { limit: 25 },
+      limit: 25,
+    });
   });
 });

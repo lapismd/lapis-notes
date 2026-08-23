@@ -122,7 +122,9 @@
   let searching = $state(false);
   let indexing = $state(false);
   let filtersExpanded = $state(false);
-  let metadataRevision = $state(0);
+  let metadataTags = $state<string[]>([]);
+  let metadataFacetError = $state<string | null>(null);
+  let metadataFacetGeneration = 0;
   let searchRevision = 0;
 
   const parsedQuery = $derived(parseSearchQueryAst(query));
@@ -171,7 +173,6 @@
     return sortSearchResults(matching, settings.view.sortMode);
   });
   const filterSyntax = $derived.by<SearchFilterSyntax>(() => {
-    metadataRevision;
     const files = app.vault.getFiles();
     const paths = [
       ...new Set(files.map((file) => file.parent?.path).filter(Boolean)),
@@ -179,22 +180,6 @@
       .sort()
       .slice(0, 100) as string[];
     const names = files.map((file) => file.name).sort().slice(0, 100);
-    const tags = new Set<string>();
-    for (const [, cache] of app.metadataCache.getAllItems()) {
-      for (const tag of cache.tags ?? []) tags.add(tag.tag);
-      const frontmatterTags = cache.frontmatter?.tags;
-      const values = Array.isArray(frontmatterTags)
-        ? frontmatterTags
-        : typeof frontmatterTags === "string"
-          ? frontmatterTags.split(/[\s,]+/u)
-          : [];
-      for (const tag of values) {
-        const normalized = String(tag).trim();
-        if (normalized) {
-          tags.add(normalized.startsWith("#") ? normalized : `#${normalized}`);
-        }
-      }
-    }
     return {
       title: "Vault search syntax",
       description:
@@ -216,7 +201,7 @@
           name: "tag",
           description: "Markdown or frontmatter tag",
           operators: [":"],
-          values: [...tags].sort().slice(0, 100),
+          values: metadataTags,
         },
         { name: "content", description: "Note content", operators: [":"] },
         { name: "line", description: "Terms on one line", operators: [":"] },
@@ -237,6 +222,21 @@
       notes: ["Use OR for alternatives and -term to exclude a term."],
     };
   });
+
+  async function refreshMetadataFacets(): Promise<void> {
+    const generation = ++metadataFacetGeneration;
+    metadataFacetError = null;
+    try {
+      const rows = await app.metadataCache.queryFacets({ kind: "tag", limit: 100 });
+      if (generation !== metadataFacetGeneration) return;
+      metadataTags = rows
+        .flatMap((row) => (typeof row.value === "string" ? [`#${row.value.replace(/^#/u, "")}`] : []))
+        .sort();
+    } catch (error) {
+      if (generation !== metadataFacetGeneration) return;
+      metadataFacetError = error instanceof Error ? error.message : String(error);
+    }
+  }
 
   export function setSearchQuery(next: string): void {
     query = next;
@@ -502,13 +502,17 @@
 
   onMount(() => {
     query = initialQuery;
-    const changed = app.metadataCache.on("changed", () => (metadataRevision += 1));
-    const deleted = app.metadataCache.on("deleted", () => (metadataRevision += 1));
-    const loaded = app.metadataCache.on("loaded", () => (metadataRevision += 1));
+    void refreshMetadataFacets();
+    const changed = app.metadataCache.on("index-changed", (change) => {
+      if (change.reset || change.domains.includes("metadata")) {
+        void refreshMetadataFacets();
+      }
+    });
+    const loaded = app.metadataCache.on("loaded", () => void refreshMetadataFacets());
     return () => {
       searchRevision += 1;
+      metadataFacetGeneration += 1;
       app.metadataCache.offref(changed);
-      app.metadataCache.offref(deleted);
       app.metadataCache.offref(loaded);
     };
   });
@@ -617,6 +621,11 @@
         {/snippet}
       </SearchFilterBar>
     </div>
+    {#if metadataFacetError}
+      <p class="search-panel__empty" role="alert">
+        Unable to load metadata facets: {metadataFacetError}
+      </p>
+    {/if}
 
     <div class="search-panel__summary">
       <Button

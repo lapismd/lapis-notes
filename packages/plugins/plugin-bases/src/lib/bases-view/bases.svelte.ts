@@ -4,7 +4,6 @@ import {
   TFile,
   type App,
   type BasesAllOptions,
-  type CachedMetadata,
 } from "@lapis-notes/api";
 import { DateTime, Duration } from "luxon";
 import {
@@ -28,11 +27,11 @@ import { groupEntries } from "./query-result-core";
 import { filterEntriesBySearch } from "./search-core";
 import {
   collectMetadataDependencies,
-  shouldReloadForMetadataChange,
 } from "./metadata-invalidation-core";
 import {
   appDatabaseRowsToVaultRecords,
   buildBasesAppDatabaseQuery,
+  queryBasesAppDatabaseRows,
 } from "./app-database-query-source";
 import { mount, unmount } from "svelte";
 
@@ -701,6 +700,7 @@ function convertEntries(
 export class QueryController extends Component {
   readonly app!: App;
   data: Array<VaultRecord> = $state([]);
+  loadError: string | null = $state(null);
 
   doc: BasesDocument = $state()!;
   properties: Record<string, { displayName: string }> = $state({});
@@ -820,17 +820,8 @@ export class QueryController extends Component {
     });
 
     this.registerEvent(
-      this.app.metadataCache.on("changed", (file, _data, cache) => {
-        if (this.shouldReloadForMetadataChange(file.path, cache, null)) {
-          void this.reload();
-        }
-      }),
-    );
-    this.registerEvent(
-      this.app.metadataCache.on("deleted", (file, prevCache) => {
-        if (this.shouldReloadForMetadataChange(file.path, null, prevCache)) {
-          void this.reload();
-        }
+      this.app.metadataCache.on("index-changed", (change) => {
+        if (change.reset || change.domains.includes("metadata")) void this.reload();
       }),
     );
     this.registerEvent(
@@ -920,47 +911,6 @@ export class QueryController extends Component {
     this.searchPanelOpen = !this.searchPanelOpen;
   }
 
-  private getCurrentResultPaths(): string[] {
-    return this.queryResult.data.map((entry) => entry.file.path);
-  }
-
-  private shouldReloadForMetadataChange(
-    changedPath: string,
-    cache: CachedMetadata | null,
-    prevCache: CachedMetadata | null,
-  ): boolean {
-    return shouldReloadForMetadataChange({
-      changedPath,
-      currentResultPaths: this.getCurrentResultPaths(),
-      cache,
-      prevCache,
-      dependencies: this.metadataDependencies,
-      isDirectlyAffectedByPathChange: (watchedPath, nextChangedPath) =>
-        this.app.metadataCache.isDirectlyAffectedByPathChange(
-          watchedPath,
-          nextChangedPath,
-        ),
-    });
-  }
-
-  private buildRendererRecords(): Array<VaultRecord> {
-    return Object.entries(this.app.metadataCache.fileCache).map(
-      ([path, hash]) => {
-        const cache =
-          $state.snapshot(this.app.metadataCache.getCache(path)) ?? {};
-        cache.frontmatter ||= {};
-        return {
-          id: path,
-          checksum: $state.snapshot(hash.hash),
-          file:
-            this.app.vault.getFileByPath(path) ??
-            new TFile(path, { ctime: 0, mtime: 0, size: 0 }, null),
-          cache,
-        };
-      },
-    );
-  }
-
   async reload() {
     const generation =
       ((this as QueryController & { _reloadGeneration?: number })
@@ -970,7 +920,8 @@ export class QueryController extends Component {
     )._reloadGeneration = generation;
 
     try {
-      const rows = await this.app.appDatabase.queryIndexedMetadata(
+      const rows = await queryBasesAppDatabaseRows(
+        this.app.appDatabase,
         buildBasesAppDatabaseQuery({
           documentFilter: this.doc.filters,
           viewFilter: this.selectedView?.filter,
@@ -984,7 +935,29 @@ export class QueryController extends Component {
       ) {
         return;
       }
-      this.data = appDatabaseRowsToVaultRecords(this.app, rows);
+      const records = appDatabaseRowsToVaultRecords(this.app, rows);
+      if (this.metadataDependencies.backlinks && records.length) {
+        const backlinks = new Map<string, Set<string>>();
+        for (let offset = 0; offset < records.length; offset += 400) {
+          const links = await this.app.metadataCache.queryLinks({
+            direction: "incoming",
+            paths: records.slice(offset, offset + 400).map((record) => record.id),
+            resolution: "resolved",
+            limit: 100_000,
+          });
+          for (const link of links) {
+            if (!link.resolvedTargetPath) continue;
+            const sources = backlinks.get(link.resolvedTargetPath) ?? new Set<string>();
+            sources.add(link.sourcePath);
+            backlinks.set(link.resolvedTargetPath, sources);
+          }
+        }
+        for (const record of records) {
+          record.backlinks = [...(backlinks.get(record.id) ?? [])];
+        }
+      }
+      this.loadError = null;
+      this.data = records;
     } catch (error) {
       console.error("Error loading Bases rows from AppDatabase", error);
       if (
@@ -993,7 +966,8 @@ export class QueryController extends Component {
       ) {
         return;
       }
-      this.data = this.buildRendererRecords();
+      this.loadError = error instanceof Error ? error.message : String(error);
+      this.data = [];
     }
   }
 }

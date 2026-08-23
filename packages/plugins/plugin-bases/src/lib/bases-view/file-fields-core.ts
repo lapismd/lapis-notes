@@ -125,19 +125,20 @@ export function buildFileColumns(
 export function deriveFileMetadata(
   entryPath: string,
   cache: FileMetadataCache,
-  resolvedLinks: Record<string, Record<string, number>> = {},
+  backlinkInput: string[] | Record<string, Record<string, number>> = [],
 ) {
-  const backlinks = Object.entries(resolvedLinks)
-    .filter(([sourcePath, targets]) => {
-      return sourcePath !== entryPath && !!targets[entryPath];
-    })
-    .map(([sourcePath]) => sourcePath);
-
+  const backlinks = Array.isArray(backlinkInput)
+    ? backlinkInput
+    : Object.entries(backlinkInput)
+        .filter(([sourcePath, targets]) =>
+          sourcePath !== entryPath && Boolean(targets[entryPath]),
+        )
+        .map(([sourcePath]) => sourcePath);
   return {
     tags: (cache?.tags || []).map((it) => it.tag),
     links: (cache?.links || []).map((it) => it.link),
     embeds: (cache?.embeds || []).map((it) => it.link),
-    backlinks,
+    backlinks: backlinks.filter((sourcePath) => sourcePath !== entryPath),
     properties: { ...(cache?.frontmatter || {}) },
   };
 }

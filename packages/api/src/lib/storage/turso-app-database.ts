@@ -46,6 +46,8 @@ import {
   type AppDatabaseStoreFileHistoryRevisionResult,
   type MetadataCacheSnapshot,
   type SearchDocumentRecord,
+  type SearchDocumentManifestPage,
+  type SearchDocumentManifestQuery,
   type SearchEmbeddingProviderConfig,
 } from "./app-database";
 import {
@@ -118,7 +120,7 @@ export interface TursoAppDatabaseOptions {
   connectionFactory: TursoConnectionFactory;
 }
 
-export const TURSO_APP_DATABASE_SCHEMA_VERSION = 3;
+export const TURSO_APP_DATABASE_SCHEMA_VERSION = 4;
 
 export const TURSO_APP_DATABASE_SCHEMA = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -234,6 +236,7 @@ CREATE TABLE IF NOT EXISTS metadata_property_values (
   value_ordinal INTEGER NOT NULL,
   property_name TEXT NOT NULL,
   property_path TEXT NOT NULL,
+  normalized_property_path TEXT NOT NULL,
   value_type TEXT NOT NULL,
   text_value TEXT,
   number_value REAL,
@@ -359,6 +362,12 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 CREATE TABLE IF NOT EXISTS search_docs (
   path TEXT PRIMARY KEY,
+  source_provider_id TEXT,
+  metadata_hash TEXT,
+  provider_version TEXT,
+  projection_signature TEXT,
+  source_mtime INTEGER,
+  source_size INTEGER,
   name TEXT NOT NULL,
   extension TEXT NOT NULL,
   checksum TEXT NOT NULL,
@@ -478,6 +487,10 @@ function flattenPropertyValues(
   }
   output.push({ path, value });
   return output;
+}
+
+function normalizePropertyPath(path: string): string {
+  return path.toLowerCase().replace(/\[\d+\]/gu, "[]");
 }
 
 function indexedFileStatements(record: AppDatabaseIndexedFile): TursoStatementInput[] {
@@ -612,14 +625,16 @@ function indexedFileStatements(record: AppDatabaseIndexedFile): TursoStatementIn
       statements.push({
         sql: `INSERT INTO metadata_property_values
               (path, property_ordinal, value_ordinal, property_name, property_path,
+               normalized_property_path,
                value_type, text_value, number_value, boolean_value, date_value, data_json)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         args: [
           path,
           ordinal,
           valueOrdinal,
           normalizedName,
           entry.path,
+          normalizePropertyPath(entry.path),
           valueType,
           valueType === "string" ? String(value) : null,
           valueType === "number" ? value : null,
@@ -692,13 +707,23 @@ export class TursoAppDatabase implements AppDatabase {
   async migrate(): Promise<void> {
     const connection = this.requireConnection();
     await connection.exec(TURSO_APP_DATABASE_SCHEMA);
+    await this.ensureMetadataPropertyPathSchema();
     const previousVersion = Number(
       (await connection.get<{ value: string }>(
         "SELECT value FROM schema_meta WHERE key = 'schema.version'",
       ))?.value ?? 0,
     );
     if (previousVersion > 0 && previousVersion < TURSO_APP_DATABASE_SCHEMA_VERSION) {
+      const invariants = await this.captureMigrationInvariants();
       await this.backfillNormalizedMetadata();
+      await connection.run(`UPDATE search_docs SET
+        source_provider_id = json_extract(data_json, '$.sourceProviderId'),
+        metadata_hash = json_extract(data_json, '$.sourceMetadata.metadataHash'),
+        provider_version = json_extract(data_json, '$.sourceMetadata.providerVersion'),
+        projection_signature = json_extract(data_json, '$.sourceMetadata.projectionSignature'),
+        source_mtime = json_extract(data_json, '$.sourceMetadata.sourceMtime'),
+        source_size = json_extract(data_json, '$.sourceMetadata.sourceSize')`);
+      await this.validateMigration(invariants);
     }
     await connection.batch(
       [
@@ -1071,25 +1096,65 @@ export class TursoAppDatabase implements AppDatabase {
       return rows.map((row) => ({ value: row.value, valueType: "string", count: Number(row.count) }));
     }
     if (query.kind === "property-name") {
-      const rows = await this.requireConnection().all<{ value: string; count: number }>(
-        `SELECT name AS value, count(DISTINCT path) AS count
+      const rows = await this.requireConnection().all<{
+        value: string;
+        count: number;
+        metadata_types: string | null;
+      }>(
+        `SELECT min(name) AS value, count(DISTINCT path) AS count,
+                group_concat(DISTINCT COALESCE(declared_type, inferred_type)) AS metadata_types
          FROM metadata_properties
          WHERE 1 = 1 ${prefix}
          GROUP BY normalized_name ORDER BY count DESC, normalized_name LIMIT ?`,
         ...prefixArgs,
         limit,
       );
-      return rows.map((row) => ({ value: row.value, valueType: "string", count: Number(row.count) }));
+      return rows.map((row) => ({
+        value: row.value,
+        valueType: "string",
+        count: Number(row.count),
+        metadataTypes: row.metadata_types?.split(",").filter(Boolean),
+        topLevel: true,
+      }));
+    }
+    if (query.kind === "property-path") {
+      const rows = await this.requireConnection().all<Record<string, unknown>>(
+        `SELECT min(value) AS value, count(DISTINCT path) AS count,
+                group_concat(DISTINCT metadata_type) AS metadata_types,
+                max(top_level) AS top_level
+         FROM (
+           SELECT property_path AS value, normalized_property_path AS normalized_value,
+                  value_type AS metadata_type, path,
+                  CASE WHEN property_name = normalized_property_path THEN 1 ELSE 0 END AS top_level
+           FROM metadata_property_values
+           UNION ALL
+           SELECT name AS value, normalized_name AS normalized_value,
+                  COALESCE(declared_type, inferred_type) AS metadata_type, path, 1 AS top_level
+           FROM metadata_properties
+         ) property_paths
+         WHERE 1 = 1 ${prefix}
+         GROUP BY normalized_value ORDER BY count DESC, normalized_value LIMIT ?`,
+        ...prefixArgs,
+        limit,
+      );
+      return rows.map((row) => ({
+        value: String(row.value).replace(/\[\d+\]/gu, "[]"),
+        valueType: "string",
+        count: Number(row.count),
+        metadataTypes: String(row.metadata_types ?? "").split(",").filter(Boolean),
+        topLevel: Boolean(row.top_level),
+      }));
     }
     if (!query.propertyName) return [];
     const rows = await this.requireConnection().all<Record<string, unknown>>(
       `SELECT value_type, text_value, number_value, boolean_value, date_value,
               count(DISTINCT path) AS count
        FROM metadata_property_values
-       WHERE property_name = ? ${prefix}
+       WHERE (property_name = ? OR normalized_property_path = ?) ${prefix}
        GROUP BY value_type, text_value, number_value, boolean_value, date_value
        ORDER BY count DESC LIMIT ?`,
-      query.propertyName.toLowerCase(),
+      normalizePropertyPath(query.propertyName),
+      normalizePropertyPath(query.propertyName),
       ...prefixArgs,
       limit,
     );
@@ -1104,13 +1169,16 @@ export class TursoAppDatabase implements AppDatabase {
   }
 
   async queryMetadataLinks(query: AppDatabaseMetadataLinkQuery): Promise<AppDatabaseLinkRecord[]> {
-    const conditions = [query.direction === "outgoing" ? "source_path = ?" : "resolved_target_path = ?"];
+    const paths = [...new Set([...(query.paths ?? []), ...(query.path ? [query.path] : [])])];
+    if (!paths.length) return [];
+    const field = query.direction === "outgoing" ? "source_path" : "resolved_target_path";
+    const conditions = [`${field} IN (${paths.map(() => "?").join(", ")})`];
     if (query.resolution === "resolved") conditions.push("resolution_state = 'resolved'");
     if (query.resolution === "unresolved") conditions.push("resolution_state = 'unresolved'");
     const rows = await this.requireConnection().all<{ data_json: string }>(
       `SELECT data_json FROM metadata_links WHERE ${conditions.join(" AND ")}
        ORDER BY source_path, ordinal LIMIT ?`,
-      query.path,
+      ...paths,
       query.limit ?? 1000,
     );
     return rows.map((row) => parseJson<AppDatabaseLinkRecord>(row.data_json, {} as AppDatabaseLinkRecord));
@@ -1224,6 +1292,41 @@ export class TursoAppDatabase implements AppDatabase {
       path,
     );
     return row ? parseJson<SearchDocumentRecord | undefined>(row.data_json, undefined) : undefined;
+  }
+
+  async listSearchDocumentManifest(
+    query: SearchDocumentManifestQuery = {},
+  ): Promise<SearchDocumentManifestPage> {
+    const limit = Math.max(1, query.limit ?? 500);
+    const rows = await this.requireConnection().all<Record<string, unknown>>(
+      `SELECT path, checksum, source_provider_id, metadata_hash,
+              provider_version, projection_signature, source_mtime, source_size
+       FROM search_docs WHERE path > ? ORDER BY path LIMIT ?`,
+      query.after ?? "",
+      limit + 1,
+    );
+    const page = rows.slice(0, limit);
+    return {
+      rows: page.map((row) => ({
+        path: String(row.path),
+        checksum: String(row.checksum),
+        sourceProviderId:
+          row.source_provider_id == null ? undefined : String(row.source_provider_id),
+        metadataHash:
+          row.metadata_hash == null ? undefined : String(row.metadata_hash),
+        providerVersion:
+          row.provider_version == null ? undefined : String(row.provider_version),
+        projectionSignature:
+          row.projection_signature == null
+            ? undefined
+            : String(row.projection_signature),
+        sourceMtime:
+          row.source_mtime == null ? undefined : Number(row.source_mtime),
+        sourceSize:
+          row.source_size == null ? undefined : Number(row.source_size),
+      })),
+      nextCursor: rows.length > limit ? String(page.at(-1)?.path) : undefined,
+    };
   }
 
   async listSearchDocuments(): Promise<SearchDocumentRecord[]> {
@@ -1735,11 +1838,17 @@ export class TursoAppDatabase implements AppDatabase {
     filter: AppDatabaseIndexedMetadataPropertyFilter,
     args: unknown[],
   ): string {
-    const name = filter.name.toLowerCase();
+    const name = normalizePropertyPath(filter.name);
     if (filter.op === "exists" || filter.op === "not-exists") {
-      args.push(name);
-      return `${filter.op === "not-exists" ? "NOT " : ""}EXISTS (
-        SELECT 1 FROM metadata_properties mp WHERE mp.path = f.path AND mp.normalized_name = ?
+      args.push(name, name);
+      return `${filter.op === "not-exists" ? "NOT " : ""}(
+        EXISTS (
+          SELECT 1 FROM metadata_properties mp
+          WHERE mp.path = f.path AND mp.normalized_name = ?
+        ) OR EXISTS (
+          SELECT 1 FROM metadata_property_values pv
+          WHERE pv.path = f.path AND pv.normalized_property_path = ?
+        )
       )`;
     }
     const operator = filter.op === "=" ? "=" : filter.op === "!=" ? "!=" : filter.op;
@@ -1747,10 +1856,16 @@ export class TursoAppDatabase implements AppDatabase {
     const column = typeof value === "number" ? "number_value"
       : typeof value === "boolean" ? "boolean_value"
         : typeof value === "string" && isDateScalar(value) ? "date_value" : "text_value";
-    args.push(name, typeof value === "boolean" ? (value ? 1 : 0) : value ?? null);
+    args.push(
+      name,
+      name,
+      typeof value === "boolean" ? (value ? 1 : 0) : value ?? null,
+    );
     return `EXISTS (
       SELECT 1 FROM metadata_property_values pv
-      WHERE pv.path = f.path AND pv.property_name = ? AND pv.${column} ${operator} ?
+      WHERE pv.path = f.path
+        AND (pv.property_name = ? OR pv.normalized_property_path = ?)
+        AND pv.${column} ${operator} ?
     )`;
   }
 
@@ -1804,9 +1919,18 @@ export class TursoAppDatabase implements AppDatabase {
       { sql: "DELETE FROM search_chunks WHERE path = ?", args: [document.path] },
       {
         sql: `INSERT INTO search_docs
-              (path, name, extension, checksum, content, tags, metadata_text, data_json)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+              (path, source_provider_id, metadata_hash, provider_version,
+               projection_signature, source_mtime, source_size,
+               name, extension, checksum, content, tags,
+               metadata_text, data_json)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
               ON CONFLICT(path) DO UPDATE SET
+                source_provider_id = excluded.source_provider_id,
+                metadata_hash = excluded.metadata_hash,
+                provider_version = excluded.provider_version,
+                projection_signature = excluded.projection_signature,
+                source_mtime = excluded.source_mtime,
+                source_size = excluded.source_size,
                 name = excluded.name,
                 extension = excluded.extension,
                 checksum = excluded.checksum,
@@ -1814,7 +1938,22 @@ export class TursoAppDatabase implements AppDatabase {
                 tags = excluded.tags,
                 metadata_text = excluded.metadata_text,
                 data_json = excluded.data_json`,
-        args: [document.path, document.name, document.extension, document.checksum, document.content, document.tags.join(" "), document.metadataText ?? "", JSON.stringify(document)],
+        args: [
+          document.path,
+          document.sourceProviderId ?? null,
+          document.sourceMetadata?.metadataHash ?? null,
+          document.sourceMetadata?.providerVersion ?? null,
+          document.sourceMetadata?.projectionSignature ?? null,
+          document.sourceMetadata?.sourceMtime ?? null,
+          document.sourceMetadata?.sourceSize ?? null,
+          document.name,
+          document.extension,
+          document.checksum,
+          document.content,
+          document.tags.join(" "),
+          document.metadataText ?? "",
+          JSON.stringify(document),
+        ],
       },
     );
     for (const chunk of document.chunks ?? []) {
@@ -2031,6 +2170,150 @@ export class TursoAppDatabase implements AppDatabase {
     }
     const historyAfter = Number((await connection.get<{ count: number }>("SELECT count(*) AS count FROM history_revisions"))?.count ?? 0);
     if (historyBefore !== historyAfter) throw new Error("Turso metadata migration changed History revisions");
+  }
+
+  private async captureMigrationInvariants(): Promise<Record<string, number>> {
+    const connection = this.requireConnection();
+    const tables = [
+      "app_state",
+      "files",
+      "metadata",
+      "links",
+      "tags",
+      "properties",
+      "search_docs",
+      "search_chunks",
+      "history_files",
+      "history_revisions",
+      "notifications",
+      "tasks",
+      "task_records",
+      "index_projections",
+      "index_projection_sources",
+      "index_projection_rows",
+      "index_projection_values",
+      "index_projection_edges",
+    ];
+    const counts: Record<string, number> = {};
+    for (const table of tables) {
+      counts[table] = Number(
+        (
+          await connection.get<{ count: number }>(
+            `SELECT count(*) AS count FROM ${table}`,
+          )
+        )?.count ?? 0,
+      );
+    }
+    return counts;
+  }
+
+  private async validateMigration(
+    expectedCounts: Record<string, number>,
+  ): Promise<void> {
+    const connection = this.requireConnection();
+    const actualCounts = await this.captureMigrationInvariants();
+    for (const [table, expected] of Object.entries(expectedCounts)) {
+      if (actualCounts[table] !== expected) {
+        throw new Error(
+          `Turso migration changed ${table} row count (${expected} -> ${actualCounts[table]})`,
+        );
+      }
+    }
+
+    const jsonColumns = [
+      ["app_state", "state_json"],
+      ["app_meta", "value_json"],
+      ["metadata", "data_json"],
+      ["links", "data_json"],
+      ["tags", "data_json"],
+      ["properties", "data_json"],
+      ["task_records", "data_json"],
+      ["index_projections", "fields_json"],
+      ["index_projection_rows", "data_json"],
+      ["index_projection_edges", "data_json"],
+      ["history_files", "data_json"],
+      ["history_revisions", "data_json"],
+      ["notifications", "data_json"],
+      ["search_docs", "data_json"],
+      ["search_chunks", "embedding_json"],
+    ] as const;
+    for (const [table, column] of jsonColumns) {
+      const invalid = Number(
+        (
+          await connection.get<{ count: number }>(
+            `SELECT count(*) AS count FROM ${table} WHERE ${column} IS NOT NULL AND json_valid(${column}) = 0`,
+          )
+        )?.count ?? 0,
+      );
+      if (invalid > 0) {
+        throw new Error(
+          `Turso migration validation found ${invalid} invalid ${table}.${column} rows`,
+        );
+      }
+    }
+
+    for (const [source, normalized] of [
+      ["links", "metadata_links"],
+      ["tags", "metadata_tags"],
+      ["properties", "metadata_properties"],
+    ] as const) {
+      const sourceCount = actualCounts[source] ?? 0;
+      const normalizedCount = Number(
+        (
+          await connection.get<{ count: number }>(
+            `SELECT count(*) AS count FROM ${normalized}`,
+          )
+        )?.count ?? 0,
+      );
+      if (normalizedCount !== sourceCount) {
+        throw new Error(
+          `Turso migration normalized ${normalizedCount}/${sourceCount} ${source} rows`,
+        );
+      }
+    }
+  }
+
+  private async ensureMetadataPropertyPathSchema(): Promise<void> {
+    const connection = this.requireConnection();
+    const columns = await connection.all<{ name: string }>(
+      "PRAGMA table_info(metadata_property_values)",
+    );
+    if (!columns.some((column) => column.name === "normalized_property_path")) {
+      await connection.exec(
+        "ALTER TABLE metadata_property_values ADD COLUMN normalized_property_path TEXT NOT NULL DEFAULT ''",
+      );
+    }
+    await connection.exec(`
+      CREATE INDEX IF NOT EXISTS metadata_property_path_text_idx
+        ON metadata_property_values(normalized_property_path, text_value, path);
+      CREATE INDEX IF NOT EXISTS metadata_property_path_number_idx
+        ON metadata_property_values(normalized_property_path, number_value, path);
+      CREATE INDEX IF NOT EXISTS metadata_property_path_boolean_idx
+        ON metadata_property_values(normalized_property_path, boolean_value, path);
+      CREATE INDEX IF NOT EXISTS metadata_property_path_date_idx
+        ON metadata_property_values(normalized_property_path, date_value, path);
+    `);
+    const searchColumns = await connection.all<{ name: string }>(
+      "PRAGMA table_info(search_docs)",
+    );
+    const searchColumnNames = new Set(searchColumns.map((column) => column.name));
+    for (const column of [
+      "source_provider_id",
+      "metadata_hash",
+      "provider_version",
+      "projection_signature",
+      "source_mtime",
+      "source_size",
+    ]) {
+      if (!searchColumnNames.has(column)) {
+        await connection.exec(
+          `ALTER TABLE search_docs ADD COLUMN ${column} ${column.startsWith("source_") && column !== "source_provider_id" ? "INTEGER" : "TEXT"}`,
+        );
+      }
+    }
+    await connection.exec(
+      "CREATE INDEX IF NOT EXISTS search_docs_manifest_idx ON search_docs(source_provider_id, path)",
+    );
   }
 
   private requireConnection(): TursoConnection {

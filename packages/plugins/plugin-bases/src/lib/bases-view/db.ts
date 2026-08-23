@@ -201,7 +201,7 @@ export class BasesTable extends Table {
     const metadata = deriveFileMetadata(
       entry.file.path,
       entry.cache,
-      this.app?.metadataCache.resolvedLinks || {},
+      entry.backlinks ?? [],
     );
     file.tags.push(...metadata.tags);
     file.links.push(...metadata.links);

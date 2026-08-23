@@ -126,3 +126,6 @@ manifest with paged indexed file rows. Matching stat and parser-signature rows
 do not hydrate metadata JSON or read Markdown; only missing or stale paths enter
 the parse and row-scoped upsert path. Snapshot import and export are explicit,
 deprecated compatibility operations and are absent from this startup flow.
+Search reconciliation reads only its lightweight manifest columns and the
+metadata file manifest. Structured facets, nested property paths, and batched
+incoming-link lookups execute against their named normalized indexes.

@@ -25,6 +25,8 @@ import type {
   AppDatabaseStoreFileHistoryRevisionResult,
   MetadataCacheSnapshot,
   SearchDocumentRecord,
+  SearchDocumentManifestPage,
+  SearchDocumentManifestQuery,
   SearchEmbeddingProviderConfig,
   SearchEmbeddingRuntimeStatus,
   AppDatabaseLinkRecord,
@@ -72,6 +74,7 @@ type AppDatabaseMethod =
   | "upsertSearchDocument"
   | "deleteSearchDocument"
   | "getSearchDocument"
+  | "listSearchDocumentManifest"
   | "listSearchDocuments"
   | "rebuildSearchIndex"
   | "searchDocuments"
@@ -166,6 +169,7 @@ const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
   "upsertSearchDocument",
   "deleteSearchDocument",
   "getSearchDocument",
+  "listSearchDocumentManifest",
   "listSearchDocuments",
   "rebuildSearchIndex",
   "searchDocuments",
@@ -581,6 +585,15 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
     return this.invoke<SearchDocumentRecord | undefined>(
       "getSearchDocument",
       path,
+    );
+  }
+
+  async listSearchDocumentManifest(
+    query?: SearchDocumentManifestQuery,
+  ): Promise<SearchDocumentManifestPage> {
+    return this.invoke<SearchDocumentManifestPage>(
+      "listSearchDocumentManifest",
+      query,
     );
   }
 

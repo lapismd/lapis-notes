@@ -473,3 +473,7 @@ reference-counted snapshot lease; the first lease materializes the full maps,
 committed database changes refresh them, and the last release returns the
 controller to the bounded hot set. Core and system code never acquire this
 lease and consume the indexed query boundary instead.
+First-party panels suppress stale async results with a local generation and
+translate committed database revisions into only the queries their surface
+owns. A query failure remains visible and never selects snapshot enumeration
+as a fallback.

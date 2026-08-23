@@ -298,6 +298,12 @@ describe("TursoAppDatabase", () => {
       properties: [
         { path: "Projects/Direct SQL.md", name: "status", inferredType: "string", value: "draft" },
         { path: "Projects/Direct SQL.md", name: "priority", inferredType: "number", value: 2 },
+        {
+          path: "Projects/Direct SQL.md",
+          name: "project",
+          inferredType: "object",
+          value: { owner: { name: "Mira" }, milestones: [{ done: false }] },
+        },
       ],
     });
 
@@ -318,6 +324,16 @@ describe("TursoAppDatabase", () => {
       kind: "property-value",
       propertyName: "priority",
     })).resolves.toMatchObject([{ value: 2, valueType: "number", count: 1 }]);
+    await expect(database.queryMetadataFacets({
+      kind: "property-path",
+    })).resolves.toEqual(expect.arrayContaining([
+      expect.objectContaining({ value: "project.owner.name", count: 1 }),
+      expect.objectContaining({ value: "project.milestones[].done", count: 1 }),
+    ]));
+    await expect(database.queryMetadataFacets({
+      kind: "property-value",
+      propertyName: "project.milestones[].done",
+    })).resolves.toMatchObject([{ value: false, valueType: "boolean", count: 1 }]);
     await expect(database.queryMetadataLinks({
       direction: "incoming",
       path: "Architecture.md",
@@ -325,20 +341,73 @@ describe("TursoAppDatabase", () => {
     })).resolves.toMatchObject([{ sourcePath: "Projects/Direct SQL.md" }]);
     await expect(database.queryIndexedMetadata({
       requiredTags: ["work"],
-      propertyFilters: [{ name: "priority", op: ">=", value: 2 }],
+      propertyFilters: [
+        { name: "priority", op: ">=", value: 2 },
+        { name: "project.owner.name", op: "=", value: "Mira" },
+        { name: "project.milestones[].done", op: "=", value: false },
+      ],
       resolvedTargetPaths: ["Architecture.md"],
     })).resolves.toMatchObject([{ file: { path: "Projects/Direct SQL.md" } }]);
+    await database.upsertSearchDocument({
+      path: "Projects/Direct SQL.md",
+      sourceProviderId: "search:markdown",
+      name: "Direct SQL",
+      extension: "md",
+      checksum: "search-1",
+      content: "large body that manifest queries must not return",
+      tags: [],
+      tagParts: [],
+      tagHierarchy: [],
+      sourceMetadata: {
+        metadataHash: "direct-1",
+        providerVersion: "2",
+        projectionSignature: "projection-2",
+        sourceMtime: 10,
+        sourceSize: 20,
+        rawTags: [],
+        headings: [],
+        sections: [],
+        chunking: {
+          targetChars: 1_200,
+          breakpointWindowChars: 120,
+          breakpointDecay: 0.8,
+        },
+      },
+    });
+    await expect(database.listSearchDocumentManifest({ limit: 1 })).resolves.toEqual({
+      rows: [{
+        path: "Projects/Direct SQL.md",
+        checksum: "search-1",
+        sourceProviderId: "search:markdown",
+        metadataHash: "direct-1",
+        providerVersion: "2",
+        projectionSignature: "projection-2",
+        sourceMtime: 10,
+        sourceSize: 20,
+      }],
+      nextCursor: undefined,
+    });
     await expect(connection.get<{ state_json: string }>(
       "SELECT state_json FROM app_state WHERE id = 1",
     )).resolves.toEqual({ state_json: JSON.stringify({ frozen: true }) });
-    expect(changes).toEqual([1]);
-    expect(await database.getChangeRevision()).toBe(1);
+    expect(changes).toEqual([1, 2]);
+    expect(await database.getChangeRevision()).toBe(2);
 
     const plan = await connection.all<{ detail: string }>(
       "EXPLAIN QUERY PLAN SELECT path FROM metadata_tag_ancestors WHERE ancestor = ?",
       "work",
     );
     expect(plan.some((row) => row.detail.includes("metadata_tag_ancestors_idx"))).toBe(true);
+    const propertyPlan = await connection.all<{ detail: string }>(
+      "EXPLAIN QUERY PLAN SELECT path FROM metadata_property_values WHERE normalized_property_path = ? AND text_value = ?",
+      "project.owner.name",
+      "Mira",
+    );
+    expect(
+      propertyPlan.some((row) =>
+        row.detail.includes("metadata_property_path_text_idx"),
+      ),
+    ).toBe(true);
     unsubscribe();
     await database.close();
   });
@@ -375,6 +444,97 @@ describe("TursoAppDatabase", () => {
       "INSERT INTO history_revisions (file_id, ordinal, data_json) VALUES (?, 0, ?)",
       "history-1", JSON.stringify({ revisionId: "revision-1", fileId: "history-1", currentPath: "legacy.md", capturedPath: "legacy.md", eventType: "modify", createdAt: 1, contentHash: "h", content: "legacy" }),
     );
+    await connection.run(
+      "INSERT INTO app_state (id, state_json) VALUES (1, ?)",
+      JSON.stringify({ frozenMigrationBackup: true }),
+    );
+    await connection.run(
+      `INSERT INTO search_docs
+       (path, name, extension, checksum, content, tags, metadata_text, data_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      "legacy.md",
+      "legacy",
+      "md",
+      "search-legacy",
+      "legacy body",
+      "",
+      "",
+      JSON.stringify({
+        path: "legacy.md",
+        sourceProviderId: "search:markdown",
+        name: "legacy",
+        extension: "md",
+        checksum: "search-legacy",
+        content: "legacy body",
+        tags: [],
+        tagParts: [],
+        tagHierarchy: [],
+        sourceMetadata: {
+          metadataHash: "legacy-1",
+          providerVersion: "1",
+          projectionSignature: "projection-1",
+          sourceMtime: 1,
+          sourceSize: 2,
+        },
+      }),
+    );
+    await connection.run(
+      "INSERT INTO notifications (id, data_json) VALUES (?, ?)",
+      "notification-1",
+      JSON.stringify({
+        id: "notification-1",
+        message: "Keep me",
+        severity: "info",
+        createdAt: 1,
+        updatedAt: 1,
+        read: false,
+        cleared: false,
+      }),
+    );
+    await connection.run(
+      "INSERT INTO task_records (document_path, data_json) VALUES (?, ?)",
+      "legacy.md",
+      JSON.stringify({
+        documentPath: "legacy.md",
+        documentId: "task-1",
+        kind: "task",
+        title: "Keep task",
+        status: "open",
+        inbox: false,
+        startKind: "anytime",
+        checklistTotal: 0,
+        checklistCompleted: 0,
+        commentCount: 0,
+        projectionVersion: 1,
+      }),
+    );
+    await connection.run(
+      `INSERT INTO index_projections
+       (projection_id, owner_plugin_id, schema_version, config_hash,
+        visibility, fields_json, active, updated_at)
+       VALUES (?, ?, 1, '', 'public', ?, 1, 1)`,
+      "legacy/item",
+      "legacy",
+      JSON.stringify({ title: { type: "string", indexed: true } }),
+    );
+    await connection.run(
+      `INSERT INTO index_projection_sources
+       (projection_id, source_path, source_hash, schema_version, config_hash,
+        status, error, indexed_at)
+       VALUES (?, ?, ?, 1, '', 'ready', NULL, 1)`,
+      "legacy/item",
+      "legacy.md",
+      "legacy-1",
+    );
+    await connection.run(
+      `INSERT INTO index_projection_rows
+       (projection_id, row_id, source_path, kind, ordinal, data_json)
+       VALUES (?, ?, ?, 'item', 0, ?)`,
+      "legacy/item",
+      "legacy-row",
+      "legacy.md",
+      JSON.stringify({ id: "legacy-row", title: "Keep projection" }),
+    );
 
     const database = new TursoAppDatabase("turso-v2-migration", {
       kind: "turso-native",
@@ -389,9 +549,67 @@ describe("TursoAppDatabase", () => {
     await expect(connection.get<{ count: number }>(
       "SELECT count(*) AS count FROM history_revisions",
     )).resolves.toEqual({ count: 1 });
+    await expect(database.listSearchDocumentManifest()).resolves.toMatchObject({
+      rows: [{
+        path: "legacy.md",
+        sourceProviderId: "search:markdown",
+        metadataHash: "legacy-1",
+        projectionSignature: "projection-1",
+      }],
+    });
+    await expect(database.listNotifications()).resolves.toMatchObject([
+      { id: "notification-1", message: "Keep me" },
+    ]);
+    await expect(database.getTaskRow({ path: "legacy.md" })).resolves.toMatchObject({
+      documentId: "task-1",
+    });
+    await expect(database.getProjectionRow("legacy/item", "legacy-row")).resolves.toMatchObject({
+      title: "Keep projection",
+    });
+    await expect(connection.get<{ state_json: string }>(
+      "SELECT state_json FROM app_state WHERE id = 1",
+    )).resolves.toEqual({
+      state_json: JSON.stringify({ frozenMigrationBackup: true }),
+    });
     await expect(connection.get<{ value: string }>(
       "SELECT value FROM schema_meta WHERE key = 'schema.version'",
     )).resolves.toEqual({ value: String(TURSO_APP_DATABASE_SCHEMA_VERSION) });
     await database.close();
+  });
+
+  it("leaves the prior schema version and durable payloads intact on migration validation failure", async () => {
+    const connection = (await connect(":memory:", {
+      experimental: ["index_method"],
+    })) as TursoConnection;
+    await connection.exec(TURSO_APP_DATABASE_SCHEMA);
+    await connection.run(
+      "INSERT INTO schema_meta (key, value) VALUES ('schema.version', '2') ON CONFLICT(key) DO UPDATE SET value = '2'",
+    );
+    await connection.run(
+      "INSERT INTO app_state (id, state_json) VALUES (1, ?)",
+      JSON.stringify({ frozen: true }),
+    );
+    await connection.run(
+      "INSERT INTO history_files (file_id, data_json) VALUES ('broken-history', '{broken')",
+    );
+
+    const database = new TursoAppDatabase("turso-v2-invalid", {
+      kind: "turso-native",
+      transport: "native",
+      connectionFactory: async () => connection,
+    });
+
+    await expect(database.open()).rejects.toThrow(
+      "invalid history_files.data_json",
+    );
+    await expect(connection.get<{ value: string }>(
+      "SELECT value FROM schema_meta WHERE key = 'schema.version'",
+    )).resolves.toEqual({ value: "2" });
+    await expect(connection.get<{ state_json: string }>(
+      "SELECT state_json FROM app_state WHERE id = 1",
+    )).resolves.toEqual({ state_json: JSON.stringify({ frozen: true }) });
+    await expect(connection.get<{ data_json: string }>(
+      "SELECT data_json FROM history_files WHERE file_id = 'broken-history'",
+    )).resolves.toEqual({ data_json: "{broken" });
   });
 });

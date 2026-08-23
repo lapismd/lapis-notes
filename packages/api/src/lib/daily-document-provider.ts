@@ -169,7 +169,7 @@ async function dailyFrontmatter(
   app: App,
   file: TFile,
 ): Promise<Record<string, unknown> | null> {
-  const cached = app.metadataCache.getFileCache(file)?.frontmatter;
+  const cached = (await app.metadataCache.getFileCacheAsync(file))?.frontmatter;
   if (cached) return cached as Record<string, unknown>;
   return frontmatterFromContent(await app.vault.read(file));
 }

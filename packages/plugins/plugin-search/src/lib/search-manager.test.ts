@@ -4,6 +4,7 @@ import {
   type SearchDocumentProvider,
   SearchDocumentProviderRegistry,
   type TFile,
+  md5,
 } from "@lapis-notes/api";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -178,7 +179,10 @@ describe("SearchManager", () => {
         getFiles: () => [cv, broken, ordinaryYaml],
         cachedRead: vi.fn(async () => "cv: {}"),
       },
-      metadataCache: { getFileCache: () => ({}) },
+      metadataCache: {
+        processors: new Map(),
+        getFileCacheAsync: async () => ({}),
+      },
       notifications: {
         withProgress: async (_options: unknown, run: (progress: unknown) => unknown) =>
           run({
@@ -190,6 +194,32 @@ describe("SearchManager", () => {
       appDatabase: {
         kind: "memory",
         listSearchDocuments: vi.fn(async () => [...documents.values()]),
+        listSearchDocumentManifest: vi.fn(async () => ({
+          rows: [...documents.values()]
+            .map((value) => {
+              const document = value as {
+                path: string;
+                checksum?: string;
+                sourceProviderId?: string;
+                sourceMetadata?: Record<string, unknown>;
+              };
+              return {
+                path: document.path,
+                checksum: document.checksum ?? "",
+                sourceProviderId: document.sourceProviderId,
+                metadataHash: document.sourceMetadata?.metadataHash,
+                providerVersion: document.sourceMetadata?.providerVersion,
+                projectionSignature:
+                  document.sourceMetadata?.projectionSignature,
+                sourceMtime: document.sourceMetadata?.sourceMtime,
+                sourceSize: document.sourceMetadata?.sourceSize,
+              };
+            })
+            .sort((left, right) =>
+              left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+            ),
+        })),
+        listIndexedFileManifest: vi.fn(async () => ({ rows: [] })),
         upsertSearchDocument: vi.fn(async (document: { path: string }) => {
           documents.set(document.path, document);
         }),
@@ -219,7 +249,7 @@ describe("SearchManager", () => {
     expect(app.logger.warn).toHaveBeenCalledOnce();
 
     registration.dispose();
-    await manager.refreshFromVault("provider-removed");
+    await new SearchManager(app).refreshFromVault("provider-removed-after-restart");
 
     expect(documents.has(cv.path)).toBe(false);
     expect(documents.has("ai-conversation/root/id")).toBe(true);
@@ -307,7 +337,10 @@ describe("SearchManager", () => {
         getFiles: () => [welcome],
         cachedRead: vi.fn(async () => "# Welcome"),
       },
-      metadataCache: { getFileCache: () => ({}) },
+      metadataCache: {
+        processors: new Map(),
+        getFileCacheAsync: async () => ({}),
+      },
       notifications: {
         withProgress: async (
           _options: unknown,
@@ -325,6 +358,8 @@ describe("SearchManager", () => {
       appDatabase: {
         kind: "memory",
         listSearchDocuments: vi.fn(async () => []),
+        listSearchDocumentManifest: vi.fn(async () => ({ rows: [] })),
+        listIndexedFileManifest: vi.fn(async () => ({ rows: [] })),
         upsertSearchDocument: vi.fn(async () => undefined),
         deleteSearchDocument: vi.fn(async () => undefined),
         beginSearchIndexingBatch: vi.fn(async () => undefined),
@@ -351,5 +386,99 @@ describe("SearchManager", () => {
         message: "Notes/Welcome.md",
       }),
     );
+  });
+
+  it("skips note bodies and full Search snapshots on an unchanged warm refresh", async () => {
+    const welcome = file("Notes/Welcome.md");
+    const projectionSignature = md5(
+      JSON.stringify({
+        providerId: "search:markdown",
+        providerVersion: "1",
+        chunking: DEFAULT_SEARCH_SETTINGS.chunking,
+      }),
+    );
+    const cachedRead = vi.fn(async () => {
+      throw new Error("warm refresh must not read the note body");
+    });
+    const getFileCacheAsync = vi.fn(async () => {
+      throw new Error("warm refresh must not hydrate metadata JSON");
+    });
+    const listSearchDocuments = vi.fn(async () => {
+      throw new Error("warm refresh must not enumerate Search documents");
+    });
+    const upsertSearchDocument = vi.fn(async () => undefined);
+    const app = {
+      searchDocumentProviders: providers({
+        id: "search:markdown",
+        provider: MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+      }),
+      vault: { getFiles: () => [welcome], cachedRead },
+      metadataCache: {
+        processors: new Map([["md", new Set([vi.fn()])]]),
+        getFileCacheAsync,
+      },
+      notifications: {
+        withProgress: async (
+          _options: unknown,
+          run: (progress: {
+            throwIfCancellationRequested(): void;
+            report(value: unknown): void;
+          }) => unknown,
+        ) =>
+          run({
+            throwIfCancellationRequested() {},
+            report() {},
+          }),
+      },
+      logger: { warn: vi.fn() },
+      appDatabase: {
+        kind: "memory",
+        listSearchDocuments,
+        listSearchDocumentManifest: vi.fn(async () => ({
+          rows: [{
+            path: welcome.path,
+            checksum: "search-checksum",
+            sourceProviderId: "search:markdown",
+            metadataHash: "metadata-hash",
+            providerVersion: "1",
+            projectionSignature,
+            sourceMtime: welcome.stat.mtime,
+            sourceSize: welcome.stat.size,
+          }],
+        })),
+        listIndexedFileManifest: vi.fn(async () => ({
+          rows: [{
+            path: welcome.path,
+            normalizedPath: welcome.path.toLowerCase(),
+            extension: "md",
+            mtime: welcome.stat.mtime,
+            size: welcome.stat.size,
+            hash: "metadata-hash",
+            indexed: true,
+          }],
+        })),
+        upsertSearchDocument,
+        deleteSearchDocument: vi.fn(async () => undefined),
+        beginSearchIndexingBatch: vi.fn(async () => undefined),
+        endSearchIndexingBatch: vi.fn(async () => undefined),
+        getSearchEmbeddingProvider: vi.fn(async () => null),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: 1,
+          chunkCount: 0,
+          readyChunkCount: 0,
+          pendingChunkCount: 0,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+
+    await new SearchManager(app).refreshFromVault("startup");
+
+    expect(cachedRead).not.toHaveBeenCalled();
+    expect(getFileCacheAsync).not.toHaveBeenCalled();
+    expect(listSearchDocuments).not.toHaveBeenCalled();
+    expect(upsertSearchDocument).not.toHaveBeenCalled();
   });
 });

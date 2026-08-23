@@ -1,4 +1,5 @@
 import {
+  type AppDatabase,
   type AppDatabaseIndexedMetadataQuery,
   type AppDatabaseIndexedMetadataRow,
   type AppDatabaseIndexedMetadataSort,
@@ -32,6 +33,7 @@ type QuerySourceVaultRecord = {
   checksum?: string;
   file: TFile;
   cache: CachedMetadata | null;
+  backlinks?: string[];
 };
 
 function clone<T>(value: T): T {
@@ -265,6 +267,40 @@ export function buildBasesAppDatabaseQuery(
   }
 
   return query;
+}
+
+/**
+ * Read database candidates in bounded pages. When no pushed-down limit is
+ * available, final PEaQL sorting remains authoritative and candidates page by
+ * path so the cursor is stable across every provider.
+ */
+export async function queryBasesAppDatabaseRows(
+  database: Pick<AppDatabase, "queryIndexedMetadataPage">,
+  query: AppDatabaseIndexedMetadataQuery,
+  pageSize = 500,
+): Promise<AppDatabaseIndexedMetadataRow[]> {
+  if (query.limit && query.limit > 0) {
+    return (
+      await database.queryIndexedMetadataPage({
+        query,
+        limit: query.limit,
+      })
+    ).rows;
+  }
+
+  const rows: AppDatabaseIndexedMetadataRow[] = [];
+  const pagedQuery = { ...query, sort: undefined, limit: undefined };
+  let after: string | undefined;
+  do {
+    const page = await database.queryIndexedMetadataPage({
+      query: pagedQuery,
+      after,
+      limit: pageSize,
+    });
+    rows.push(...page.rows);
+    after = page.nextCursor;
+  } while (after);
+  return rows;
 }
 
 export function appDatabaseRowToVaultRecord(

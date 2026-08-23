@@ -11,6 +11,7 @@ export type MetadataDependencySet = {
   custom: boolean;
   tags: boolean;
   links: boolean;
+  backlinks: boolean;
   properties: Set<string>;
   propertyPresence: boolean;
   staticFileFields: Set<string>;
@@ -46,6 +47,7 @@ export function createMetadataDependencySet(): MetadataDependencySet {
     custom: false,
     tags: false,
     links: false,
+    backlinks: false,
     properties: new Set(),
     propertyPresence: false,
     staticFileFields: new Set(),
@@ -77,10 +79,14 @@ function trackPropertyDependency(
 
   if (
     propertyId === "file.links" ||
-    propertyId === "file.embeds" ||
-    propertyId === "file.backlinks"
+    propertyId === "file.embeds"
   ) {
     dependencies.links = true;
+    return;
+  }
+  if (propertyId === "file.backlinks") {
+    dependencies.links = true;
+    dependencies.backlinks = true;
     return;
   }
 

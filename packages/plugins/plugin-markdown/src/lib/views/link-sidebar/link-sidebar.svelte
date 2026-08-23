@@ -18,13 +18,11 @@
   import { onMount, untrack } from "svelte";
   import {
     subscribeFileScopedPanelRefresh,
-    trackMetadataCacheRevision,
   } from "../file-scoped-panel-refresh";
   import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
   import LinkHoverPreview from "./link-hover-preview.svelte";
   import {
-    buildLinkedLinkSidebarData,
     buildLinkSidebarData,
     formatLinkSidebarSortLabel,
     LINK_SIDEBAR_SORT_OPTIONS,
@@ -42,10 +40,10 @@
   let followRevision = $state(0);
   const activeFile = $derived.by(() => {
     followRevision;
-    trackMetadataCacheRevision(app);
     return resolvePanelTargetFile(app);
   });
   let loading = $state(false);
+  let loadError = $state<string | null>(null);
   let editingPreviews = $state<Record<string, boolean>>({});
   let refreshPending = false;
   let loadVersion = 0;
@@ -60,13 +58,6 @@
   });
   let resultOpenState = $state<Record<string, boolean>>({});
 
-  const linkedGroups = $derived.by(() => {
-    followRevision;
-    trackMetadataCacheRevision(app);
-    if (!activeFile) return emptyData.linkedGroups;
-    return buildLinkedLinkSidebarData(app, activeFile, mode, sortMode)
-      .linkedGroups;
-  });
   const title = $derived(mode === "backlinks" ? "Backlinks" : "Outgoing links");
   const linkedTitle = $derived(
     mode === "backlinks" ? "Linked mentions" : "Links",
@@ -80,10 +71,12 @@
       data = emptyData;
       resultOpenState = {};
       loading = false;
+      loadError = null;
       return;
     }
     const version = ++loadVersion;
     loading = true;
+    loadError = null;
     void buildLinkSidebarData(app, file, mode, currentSortMode)
       .then((next) => {
         if (version !== loadVersion) return;
@@ -98,6 +91,7 @@
         if (version !== loadVersion) return;
         app.logger.warn(`Unable to build ${title} data`, error);
         data = emptyData;
+        loadError = error instanceof Error ? error.message : String(error);
       })
       .finally(() => {
         if (version === loadVersion) loading = false;
@@ -159,7 +153,7 @@
   }
 
   const filteredData = $derived<LinkSidebarData>({
-    linkedGroups: linkedGroups.filter(matches),
+    linkedGroups: data.linkedGroups.filter(matches),
     unlinkedGroups: data.unlinkedGroups.filter(matches),
   });
 
@@ -326,6 +320,15 @@
         <p class="markdown-sidebar-panel__empty">
           Open a Markdown note to see {title.toLocaleLowerCase()}.
         </p>
+      {:else if loadError}
+        <p class="markdown-sidebar-panel__empty" role="alert">
+          Unable to load {title.toLocaleLowerCase()}: {loadError}
+        </p>
+        <button
+          type="button"
+          class="markdown-link-sidebar__retry"
+          onclick={() => loadData(activeFile)}
+        >Retry</button>
       {:else}
         {#each sections as section (section.key)}
           <section
@@ -535,5 +538,13 @@
     -webkit-line-clamp: 3;
     line-clamp: 3;
     white-space: pre-line;
+  }
+
+  .markdown-link-sidebar__retry {
+    align-self: center;
+    border: 1px solid currentColor;
+    border-radius: var(--ui-workspace-radius-small, 0.25rem);
+    margin: 0.5rem;
+    padding: 0.25rem 0.625rem;
   }
 </style>

@@ -2,12 +2,13 @@ import type { App, HeadingCache } from "@lapis-notes/api";
 import { resolvePanelTargetFile } from "./panel-target-file";
 
 /** Sorted headings for a vault path from the live metadata cache. */
-export function readSortedHeadings(
+export async function readSortedHeadings(
   app: App,
   path: string | null | undefined,
-): HeadingCache[] {
+): Promise<HeadingCache[]> {
   if (!path) return [];
-  return [...(app.metadataCache.getCache(path)?.headings ?? [])].sort(
+  const cache = await app.metadataCache.getFileCacheAsync(path);
+  return [...(cache?.headings ?? [])].sort(
     (left, right) => left.position.start.offset - right.position.start.offset,
   );
 }
@@ -22,33 +23,39 @@ function followedPath(app: App): string | null {
  */
 export function subscribeFileScopedPanelRefresh(
   app: App,
-  refresh: () => void,
+  refresh: () => void | Promise<void>,
 ): () => void {
   let lastPath = followedPath(app);
 
   const notify = () => {
     lastPath = followedPath(app);
-    refresh();
+    void refresh();
   };
   const notifyIfPathChanged = () => {
     const nextPath = followedPath(app);
     if (nextPath === lastPath) return;
     lastPath = nextPath;
-    refresh();
+    void refresh();
   };
 
-  const metadataChanged = app.metadataCache.on("changed", notify);
-  const metadataDeleted = app.metadataCache.on("deleted", notify);
+  const metadataChanged = app.metadataCache.on("index-changed", (change) => {
+    if (
+      change.reset ||
+      (change.domains.includes("metadata") &&
+        (!lastPath || change.paths.includes(lastPath)))
+    ) {
+      notify();
+    }
+  });
   const metadataLoaded = app.metadataCache.on("loaded", notify);
   const fileOpened = app.workspace.on("file-open", notifyIfPathChanged);
   const activeLeafChanged = app.workspace.on(
     "active-leaf-change",
     notifyIfPathChanged,
   );
-  refresh();
+  void refresh();
   return () => {
     app.metadataCache.offref(metadataChanged);
-    app.metadataCache.offref(metadataDeleted);
     app.metadataCache.offref(metadataLoaded);
     app.workspace.offref(fileOpened);
     app.workspace.offref(activeLeafChanged);
@@ -56,8 +63,5 @@ export function subscribeFileScopedPanelRefresh(
 }
 
 export function trackMetadataCacheRevision(app: App): void {
-  void app.metadataCache.fileCache;
-  void app.metadataCache.metadataCache;
-  void app.metadataCache.resolvedLinks;
   void app.metadataCache.initialized;
 }

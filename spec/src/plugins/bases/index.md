@@ -77,3 +77,6 @@ provider, complete Obsidian value wrappers and method-style formula semantics,
 `this` binding, richer file/link behavior, deeper grouped summaries, removal of
 the compatibility/runtime duplication, and behavioral parity beyond exported
 name comparison remain future work tracked in `MIGRATION.md`.
+The current query source lowers safe candidates into AppDatabase filters and
+reads unbounded candidate sets in stable path pages. A fully lowered view limit
+uses one bounded sorted page; final PEaQL evaluation remains authoritative.

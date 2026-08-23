@@ -94,3 +94,7 @@ Vault refresh and embedding rebuild report each file path through
 `search:rebuild-search-index` when Search is loaded (LN-PKG-098). Web vault
 copy progress stays on that same notification or startup-detail surface
 (LN-WEB-042, LN-WEB-043).
+Warm refresh merge-compares sorted Search and metadata manifests with the vault
+stat manifest. Matching provider version, projection signature, stat, and
+metadata hash skip body reads, metadata hydration, chunking, and embedding.
+Search syntax tag suggestions use revision-aware indexed facets.

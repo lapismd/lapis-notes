@@ -522,7 +522,8 @@ Those panels share one follow helper and ignore a leaf event that repeats the
 same followed path.
 Restoring a non-file leaf still loads that view when its snapshot includes a
 follow `file` path.
-Backlinks and Outgoing Links read `getCache`/`getFileCache` for linked mentions
-so they recover when `getAllItems()` still cannot map snapshot paths.
-Backlinks also invert `resolvedLinks` when inbound source caches are not yet
-in that vault-keyed map.
+Backlinks and Outgoing Links read indexed link rows and async per-file metadata
+for only the active note and its candidate sources. They neither enumerate
+`getAllItems()` nor invert the synchronous link maps. The canonical check and
+specification lanes enforce this boundary with the first-party metadata-query
+source audit.

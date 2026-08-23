@@ -72,3 +72,21 @@ export function resolveMetadataFieldValues(
   const options = values.map((value) => ({ value, label: value }));
   return filterOptionsByQuery(options, query, limit);
 }
+
+export async function resolveMetadataFieldValuesAsync(
+  getValues: (field: string) => Promise<readonly unknown[]>,
+  schema: StringType | EnumType,
+  query = "",
+  limit = 50,
+): Promise<Array<{ value: string; label: string }>> {
+  const field = schema.optionsSourceParams?.field;
+  if (typeof field !== "string" || !field.trim()) return [];
+  const values = normalizeMetadataFieldOptionValues(
+    await getValues(field.trim()),
+  );
+  return filterOptionsByQuery(
+    values.map((value) => ({ value, label: value })),
+    query,
+    limit,
+  );
+}

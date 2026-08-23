@@ -41,6 +41,7 @@ export type VaultRecord = {
   checksum?: string;
   file: TFile;
   cache: CachedMetadata | null;
+  backlinks?: string[];
 };
 
 declare module "@lapis-notes/api" {

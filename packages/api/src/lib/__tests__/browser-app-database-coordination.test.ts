@@ -56,6 +56,101 @@ afterEach(() => {
 });
 
 describe("BrowserAppDatabaseCoordinator", () => {
+  it("relays committed changes and resets after a proxy revision gap", async () => {
+    vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
+
+    const ownerCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const proxyCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    (proxyCoordinator as any).lastOwnerId = ownerCoordinator.ownerId;
+    let publishChange: ((change: any) => void) | undefined;
+    const localDatabase = {
+      descriptor: {
+        providerId: "turso-wasm",
+        engine: "turso",
+        transport: "wasm-worker",
+        role: "owner",
+        storageMode: "local",
+        capabilities: {},
+      },
+      subscribeToChanges(listener: (change: any) => void) {
+        publishChange = listener;
+        return () => undefined;
+      },
+      getChangeRevision: vi.fn(async () => 0),
+      close: vi.fn(async () => undefined),
+    };
+    const provider = { open: vi.fn(async () => localDatabase) };
+    const ownerDatabase = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      ownerCoordinator,
+      true,
+      provider as any,
+    );
+    const proxyDatabase = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      proxyCoordinator,
+      false,
+    ) as any;
+    proxyDatabase.ensureRpcChannel();
+    proxyDatabase.opened = true;
+    const changes: any[] = [];
+    proxyDatabase.subscribeToChanges((change: any) => changes.push(change));
+
+    await ownerDatabase.open();
+    publishChange?.({
+      revision: 1,
+      domains: ["metadata"],
+      paths: ["one.md"],
+      committedAt: 1,
+    });
+    publishChange?.({
+      revision: 3,
+      domains: ["metadata"],
+      paths: ["three.md"],
+      committedAt: 3,
+    });
+
+    expect(changes).toMatchObject([
+      { revision: 1, paths: ["one.md"] },
+      { revision: 3, reset: true, paths: [] },
+    ]);
+    await ownerDatabase.close();
+  });
+
+  it("publishes a reset after a proxy is promoted to owner", async () => {
+    vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
+    const coordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const localDatabase = {
+      descriptor: {
+        providerId: "turso-wasm",
+        engine: "turso",
+        transport: "wasm-worker",
+        role: "owner",
+        storageMode: "local",
+        capabilities: {},
+      },
+      subscribeToChanges: vi.fn(() => () => undefined),
+      getChangeRevision: vi.fn(async () => 12),
+    };
+    const database = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      coordinator,
+      false,
+      { open: vi.fn(async () => localDatabase) } as any,
+    ) as any;
+    database.ensureRpcChannel();
+    database.opened = true;
+    database.lastSeenRevision = 5;
+    const changes: any[] = [];
+    database.subscribeToChanges((change: any) => changes.push(change));
+
+    await database.promoteToOwner();
+
+    expect(changes).toMatchObject([
+      { revision: 12, reset: true, paths: [], domains: expect.arrayContaining(["metadata", "search"]) },
+    ]);
+  });
+
   it("delegates app-database requests to the owner tab", async () => {
     vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
 

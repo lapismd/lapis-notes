@@ -17,3 +17,6 @@ load-only alias under `LN-MD-085`.
 Late metadata and file restore for Outline are governed by `LN-MD-098` on the
 [Markdown Panels](./index.md) page. The shared helper ignores a leaf event
 that repeats the same followed path.
+The helper hydrates headings through the async per-file database lookup and
+sorts them by source offset. The view generation prevents a slower previous
+file from replacing the current outline.

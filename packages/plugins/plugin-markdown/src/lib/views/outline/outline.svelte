@@ -16,7 +16,6 @@
   import {
     readSortedHeadings,
     subscribeFileScopedPanelRefresh,
-    trackMetadataCacheRevision,
   } from "../file-scoped-panel-refresh";
   import { resolvePanelTargetFile } from "../panel-target-file";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
@@ -36,6 +35,8 @@
   let selectedLine = $state<number | null>(null);
   let contentElement = $state<HTMLElement | null>(null);
   let followRevision = $state(0);
+  let headings = $state<import("@lapis-notes/api").HeadingCache[]>([]);
+  let headingsGeneration = 0;
 
   const activeFile = $derived.by(() => {
     followRevision;
@@ -48,17 +49,20 @@
         .get("outline.autoScrollToCurrentSection", false),
     ),
   );
-  const headings = $derived.by(() => {
-    followRevision;
-    trackMetadataCacheRevision(app);
-    return readSortedHeadings(app, activeFile?.path ?? null);
-  });
   const tree = $derived(buildOutlineTree(headings));
   const filteredTree = $derived(filterOutlineTree(tree, query));
   const defaultOpened = $derived(
     new Set(expandableOutlineIds(headings.length ? tree : [])),
   );
   const opened = $derived(openedOverride ?? defaultOpened);
+
+  async function refreshHeadings(): Promise<void> {
+    const generation = ++headingsGeneration;
+    const path = activeFile?.path ?? null;
+    const next = await readSortedHeadings(app, path);
+    if (generation !== headingsGeneration || path !== (activeFile?.path ?? null)) return;
+    headings = next;
+  }
 
   function fileLeaf(): WorkspaceLeaf | null {
     let found: WorkspaceLeaf | null = null;
@@ -158,6 +162,7 @@
   onMount(() =>
     subscribeFileScopedPanelRefresh(app, () => {
       followRevision += 1;
+      return refreshHeadings();
     }),
   );
 </script>

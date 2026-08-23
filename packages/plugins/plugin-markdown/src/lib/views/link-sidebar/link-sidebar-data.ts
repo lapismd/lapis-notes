@@ -151,24 +151,14 @@ function refersToFile(
   );
 }
 
-function inboundSourcePaths(app: App, activeFile: TFile): string[] {
-  const sources = new Set<string>();
-  const referencing = app.metadataCache.getDirectReferencingPaths?.(
-    activeFile.path,
-  );
-  for (const path of referencing ?? []) sources.add(path);
-  for (const [sourcePath, targets] of Object.entries(
-    app.metadataCache.resolvedLinks ?? {},
-  )) {
-    if (sourcePath === activeFile.path) continue;
-    for (const target of Object.keys(targets ?? {})) {
-      if (refersToFile(target, activeFile)) {
-        sources.add(sourcePath);
-        break;
-      }
-    }
-  }
-  return [...sources];
+async function inboundSourcePaths(app: App, activeFile: TFile): Promise<string[]> {
+  const links = await app.metadataCache.queryLinks({
+    direction: "incoming",
+    path: activeFile.path,
+    resolution: "resolved",
+    limit: 10_000,
+  });
+  return [...new Set(links.map((link) => link.sourcePath))];
 }
 
 function fileStubFromPath(path: string): TFile {
@@ -573,54 +563,76 @@ function normalizeDocument(document: SearchDocumentRecord): LinkSidebarDocument 
   };
 }
 
-function cacheFor(app: App, file: TFile): CachedMetadata | null {
-  return (
-    app.metadataCache.getFileCache(file) ??
-    app.metadataCache.getCache(file.path)
-  );
-}
-
-/** Vault files plus per-file cache, including the followed note when getAllItems is empty. */
-export function collectLinkSidebarSources(
+/** Only indexed link and Search candidates needed by the followed note. */
+export async function collectLinkSidebarSources(
   app: App,
   activeFile: TFile,
-): {
+  mode: LinkSidebarMode,
+): Promise<{
   files: Map<string, TFile>;
   caches: Map<string, CachedMetadata>;
-} {
+  indexedDocuments: Map<string, LinkSidebarDocument>;
+  inboundPaths: string[];
+}> {
   const files = new Map<string, TFile>();
   const caches = new Map<string, CachedMetadata>();
-  const add = (file: TFile | null | undefined) => {
+  const indexedDocuments = new Map<string, LinkSidebarDocument>();
+  const add = (file: TFile | null | undefined, path?: string) => {
+    if (!file && path) file = fileStubFromPath(path);
     if (!file) return;
     files.set(file.path, file);
-    const cache = cacheFor(app, file);
-    if (cache) caches.set(file.path, cache);
   };
   add(activeFile);
-  for (const file of app.vault.getMarkdownFiles()) add(file);
-  for (const [file] of app.metadataCache.getAllItems()) add(file);
-  for (const path of inboundSourcePaths(app, activeFile)) {
-    const vaultFile = app.vault.getFileByPath(path);
-    if (vaultFile) {
-      add(vaultFile);
-      continue;
-    }
-    const cache = app.metadataCache.getCache(path);
-    files.set(path, files.get(path) ?? fileStubFromPath(path));
-    if (cache) caches.set(path, cache);
+  const inboundPaths = mode === "backlinks"
+    ? await inboundSourcePaths(app, activeFile)
+    : [];
+  const outgoing = mode === "outgoing"
+    ? await app.metadataCache.queryLinks({
+        direction: "outgoing",
+        path: activeFile.path,
+        resolution: "all",
+        limit: 10_000,
+      })
+    : [];
+  for (const path of inboundPaths) add(app.vault.getFileByPath(path), path);
+  for (const link of outgoing) {
+    const path = link.resolvedTargetPath;
+    if (path) add(app.vault.getFileByPath(path), path);
   }
-  for (const path of Object.keys(app.metadataCache.fileCache ?? {})) {
-    const vaultFile = app.vault.getFileByPath(path);
-    if (vaultFile) {
-      add(vaultFile);
-      continue;
+
+  const activeCache = await app.metadataCache.getFileCacheAsync(activeFile);
+  if (activeCache) caches.set(activeFile.path, activeCache);
+  if (mode === "backlinks") {
+    for (const alias of aliasesFor(activeFile, activeCache).slice(0, 8)) {
+      try {
+        const results = await app.appDatabase.searchDocuments(alias, {
+          mode: "lexical",
+          limit: 250,
+        });
+        for (const result of results) {
+          if (result.document.path === activeFile.path) continue;
+          add(
+            app.vault.getFileByPath(result.document.path),
+            result.document.path,
+          );
+          indexedDocuments.set(
+            result.document.path,
+            normalizeDocument(result.document),
+          );
+        }
+      } catch (error) {
+        app.logger.warn(`Unable to query unlinked mentions for ${alias}`, error);
+      }
     }
-    const cache = app.metadataCache.getCache(path);
-    if (!cache) continue;
-    files.set(path, files.get(path) ?? fileStubFromPath(path));
-    caches.set(path, cache);
   }
-  return { files, caches };
+  await Promise.all(
+    [...files.values()].map(async (file) => {
+      if (caches.has(file.path)) return;
+      const cache = await app.metadataCache.getFileCacheAsync(file.path);
+      if (cache) caches.set(file.path, cache);
+    }),
+  );
+  return { files, caches, indexedDocuments, inboundPaths };
 }
 
 export function resolveLinkSidebarPath(
@@ -654,24 +666,25 @@ export function resolveLinkSidebarPath(
   return null;
 }
 
-export function buildLinkedLinkSidebarData(
+export async function buildLinkedLinkSidebarData(
   app: App,
   activeFile: TFile,
   mode: LinkSidebarMode,
   sortMode: LinkSidebarSortMode = "filename-asc",
-): LinkSidebarData {
-  const { files, caches } = collectLinkSidebarSources(app, activeFile);
+): Promise<LinkSidebarData> {
+  const { files, caches, indexedDocuments, inboundPaths } =
+    await collectLinkSidebarSources(app, activeFile, mode);
   const state: LinkSidebarState = {
     activeFile,
     files: [...files.values()],
     caches,
-    documents: new Map(),
+    documents: indexedDocuments,
     resolveLinkPath: (link, sourcePath) =>
       resolveLinkSidebarPath(app, link, sourcePath, files.values()),
   };
   const mentions =
     mode === "backlinks"
-      ? collectLinkedBacklinks(state, inboundSourcePaths(app, activeFile))
+      ? collectLinkedBacklinks(state, inboundPaths)
       : collectOutgoingLinks(state);
   return {
     linkedGroups: sortLinkSidebarGroups(groupMentions(mentions), sortMode),
@@ -685,16 +698,10 @@ export async function buildLinkSidebarData(
   mode: LinkSidebarMode,
   sortMode: LinkSidebarSortMode = "filename-asc",
 ): Promise<LinkSidebarData> {
-  const { files, caches } = collectLinkSidebarSources(app, activeFile);
+  const { files, caches, indexedDocuments, inboundPaths } =
+    await collectLinkSidebarSources(app, activeFile, mode);
 
-  const documents = new Map<string, LinkSidebarDocument>();
-  try {
-    for (const document of await app.appDatabase.listSearchDocuments()) {
-      documents.set(document.path, normalizeDocument(document));
-    }
-  } catch (error) {
-    app.logger.warn("Unable to load indexed documents for link sidebar", error);
-  }
+  const documents = new Map(indexedDocuments);
 
   const liveText = new Map<string, string>();
   app.workspace.iterateAllLeaves((leaf) => {
@@ -712,7 +719,10 @@ export async function buildLinkSidebarData(
         try {
           documents.set(file.path, {
             path: file.path,
-            content: liveText.get(file.path) ?? (await app.vault.cachedRead(file)),
+            content:
+              liveText.get(file.path) ??
+              documents.get(file.path)?.content ??
+              (await app.vault.cachedRead(file)),
             frontmatterEndOffset:
               caches.get(file.path)?.frontmatterPosition?.end.offset ?? 0,
           });
@@ -730,7 +740,17 @@ export async function buildLinkSidebarData(
     resolveLinkPath: (link, sourcePath) =>
       resolveLinkSidebarPath(app, link, sourcePath, files.values()),
   };
-  return mode === "backlinks"
-    ? buildBacklinksData(state, sortMode)
-    : buildOutgoingLinksData(state, sortMode);
+  if (mode === "backlinks") {
+    return {
+      linkedGroups: sortLinkSidebarGroups(
+        groupMentions(collectLinkedBacklinks(state, inboundPaths)),
+        sortMode,
+      ),
+      unlinkedGroups: sortLinkSidebarGroups(
+        groupMentions(collectUnlinkedBacklinks(state)),
+        sortMode,
+      ),
+    };
+  }
+  return buildOutgoingLinksData(state, sortMode);
 }

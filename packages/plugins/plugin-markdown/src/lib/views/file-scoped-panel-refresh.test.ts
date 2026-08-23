@@ -48,6 +48,8 @@ function createCacheApp(initial: Record<string, CachedMetadata> = {}) {
         metadataCache,
         initialized: Object.keys(metadataCache).length > 0,
         getCache: (path: string) => metadataCache[fileCache[path]?.hash] ?? null,
+        getFileCacheAsync: async (path: string) =>
+          metadataCache[fileCache[path]?.hash] ?? null,
         on,
         offref,
         trigger,
@@ -70,23 +72,25 @@ function createCacheApp(initial: Record<string, CachedMetadata> = {}) {
 }
 
 describe("readSortedHeadings", () => {
-  it("returns empty headings before the cache has the file", () => {
+  it("returns empty headings before the cache has the file", async () => {
     const { app } = createCacheApp();
-    expect(readSortedHeadings(app, "Notes/Note.md")).toEqual([]);
+    await expect(readSortedHeadings(app, "Notes/Note.md")).resolves.toEqual([]);
   });
 
-  it("reads sorted headings after a late cache apply", () => {
+  it("reads sorted headings after a late cache apply", async () => {
     const { app, fileCache, metadataCache } = createCacheApp();
-    expect(readSortedHeadings(app, "Notes/Note.md")).toEqual([]);
+    await expect(readSortedHeadings(app, "Notes/Note.md")).resolves.toEqual([]);
 
     fileCache["Notes/Note.md"] = { hash: "note", mtime: 1, size: 1 };
     metadataCache.note = {
       headings: [heading("Second", 20), heading("First", 4)],
     };
 
-    expect(readSortedHeadings(app, "Notes/Note.md").map((item) => item.heading)).toEqual(
-      ["First", "Second"],
-    );
+    await expect(
+      readSortedHeadings(app, "Notes/Note.md").then((items) =>
+        items.map((item) => item.heading),
+      ),
+    ).resolves.toEqual(["First", "Second"]);
   });
 });
 
@@ -135,7 +139,11 @@ describe("subscribeFileScopedPanelRefresh", () => {
     trigger("active-leaf-change");
     expect(refresh).not.toHaveBeenCalled();
 
-    trigger("changed", note);
+    trigger("index-changed", {
+      revision: 1,
+      domains: ["metadata"],
+      paths: [note.path],
+    });
     expect(refresh).toHaveBeenCalledTimes(1);
 
     setActiveFile({ path: "Notes/Other.md" } as TFile);

@@ -85,11 +85,14 @@ function adaptPostProcessor(
     void loadSource().then(async (markdown) => {
       if (disposed) return;
       const typedNode = (node ?? {}) as MarkdownNode;
+      const metadata = await app.metadataCache.getFileCacheAsync(
+        options.sourcePath,
+      );
+      if (disposed) return;
       const context: MarkdownPostProcessorContext = {
         docId: options.sourcePath,
         sourcePath: options.sourcePath,
-        frontmatter:
-          app.metadataCache.getCache(options.sourcePath)?.frontmatter ?? null,
+        frontmatter: metadata?.frontmatter ?? null,
         mode: options.mode,
         surface: options.surface,
         addChild(child) {

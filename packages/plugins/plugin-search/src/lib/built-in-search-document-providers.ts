@@ -32,11 +32,13 @@ function canvasText(content: string): string {
 }
 
 export const MARKDOWN_SEARCH_DOCUMENT_PROVIDER: LocalSearchDocumentProvider = {
+  version: "1",
   matches: (file) => ["md", "markdown"].includes(file.extension.toLowerCase()),
   extract: ({ content }) => ({ content }),
 };
 
 export const CANVAS_SEARCH_DOCUMENT_PROVIDER: LocalSearchDocumentProvider = {
+  version: "1",
   matches: (file) => file.extension.toLowerCase() === "canvas",
   extract: ({ content }) => ({ content: canvasText(content) }),
 };

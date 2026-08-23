@@ -37,7 +37,7 @@ function createApp(
           configuration[key] ?? defaultValue,
       }),
     },
-    metadataCache: { getFileCache: () => null },
+    metadataCache: { getFileCacheAsync: async () => null },
     vault: {
       getMarkdownFiles: () => [...files.values()],
       getFileByPath: (path: string) => files.get(path) ?? null,

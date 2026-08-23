@@ -26,43 +26,36 @@
   };
 
   let values = $state<Record<string, number>>({});
-  let taggedPaths = $state<Set<string>>(new Set());
+  let loading = $state(false);
+  let queryError = $state<string | null>(null);
+  let reloadGeneration = 0;
   let opened = $state<Set<string>>(new Set());
   let query = $state("");
   let searchOpen = $state(false);
   let nested = $state(false);
   let sortMode = $state<TagSortMode>("frequency:desc");
 
-  function hierarchy(tag: string): string[] {
-    const parts = tag
-      .replace(/^#/u, "")
-      .split("/")
-      .map((part) => part.trim())
-      .filter(Boolean);
-    return parts.map((_, index) => parts.slice(0, index + 1).join("/"));
-  }
-
-  function reload() {
+  async function reload() {
+    const generation = ++reloadGeneration;
+    loading = true;
+    queryError = null;
     const nextValues: Record<string, number> = {};
-    const nextPaths = new Set<string>();
-    for (const [file, cache] of app.metadataCache.getAllItems()) {
-      const frontmatterValue = cache.frontmatter?.tags;
-      const frontmatterTags = Array.isArray(frontmatterValue)
-        ? frontmatterValue
-        : typeof frontmatterValue === "string"
-          ? frontmatterValue.split(/[\s,]+/u)
-          : [];
-      const fileTags = new Set(
-        [
-          ...(cache.tags ?? []).map((tag) => tag.tag),
-          ...frontmatterTags.map((tag) => String(tag)),
-        ].flatMap((tag) => hierarchy(tag)),
-      );
-      if (fileTags.size) nextPaths.add(file.path);
-      for (const tag of fileTags) nextValues[tag] = (nextValues[tag] ?? 0) + 1;
+    try {
+      const facets = await app.metadataCache.queryFacets({
+        kind: "tag",
+        limit: 10_000,
+      });
+      if (generation !== reloadGeneration) return;
+      for (const row of facets) {
+        if (typeof row.value === "string") nextValues[row.value] = row.count;
+      }
+      values = nextValues;
+    } catch (error) {
+      if (generation !== reloadGeneration) return;
+      queryError = error instanceof Error ? error.message : String(error);
+    } finally {
+      if (generation === reloadGeneration) loading = false;
     }
-    values = nextValues;
-    taggedPaths = nextPaths;
   }
 
   function flatTags(): TagNode[] {
@@ -181,18 +174,15 @@
   });
 
   onMount(() => {
-    reload();
-    const changed = app.metadataCache.on("changed", (file, _data, cache) => {
-      if (taggedPaths.has(file.path) || (cache.tags?.length ?? 0) > 0) reload();
+    void reload();
+    const changed = app.metadataCache.on("index-changed", (change) => {
+      if (change.reset || change.domains.includes("metadata")) void reload();
     });
-    const deleted = app.metadataCache.on("deleted", (file) => {
-      if (taggedPaths.has(file.path)) reload();
-    });
-    const loaded = app.metadataCache.on("loaded", reload);
+    const loaded = app.metadataCache.on("loaded", () => void reload());
     return () => {
       app.metadataCache.offref(changed);
-      app.metadataCache.offref(deleted);
       app.metadataCache.offref(loaded);
+      reloadGeneration += 1;
     };
   });
 </script>
@@ -248,11 +238,17 @@
   >
     <Sidebar.Content class="tags-panel__menu-host">
       <Sidebar.Menu class="tags-panel__menu">
+        {#if queryError}
+          <p class="markdown-sidebar-panel__empty">Unable to load tags: {queryError}</p>
+        {:else if loading && !Object.keys(values).length}
+          <p class="markdown-sidebar-panel__empty">Loading tags…</p>
+        {:else}
         {#each tags as tag (tag.tag)}
           {@render TagTree({ tag })}
         {:else}
           <p class="markdown-sidebar-panel__empty">No tags in this vault yet.</p>
         {/each}
+        {/if}
       </Sidebar.Menu>
     </Sidebar.Content>
   </Sidebar.NestedProvider>

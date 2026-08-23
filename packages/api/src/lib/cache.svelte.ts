@@ -723,7 +723,9 @@ export class MetadataCache extends EventDispatcher<{
     const vaultFiles = this.app.vault
       .getFiles()
       .filter((file) => this.processors.has(file.extension.toLowerCase()))
-      .sort((left, right) => left.path.localeCompare(right.path));
+      .sort((left, right) =>
+        left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+      );
     let vaultIndex = 0;
     let processed = 0;
     let cursor: string | undefined;
@@ -748,7 +750,7 @@ export class MetadataCache extends EventDispatcher<{
         if (this.disposed) return;
         while (
           vaultIndex < vaultFiles.length &&
-          vaultFiles[vaultIndex].path.localeCompare(indexed.path) < 0
+          vaultFiles[vaultIndex].path < indexed.path
         ) {
           const created = vaultFiles[vaultIndex++];
           await this.processFile(created);
@@ -1469,6 +1471,7 @@ export class MetadataCache extends EventDispatcher<{
       refs.push({
         sourcePath: file.path,
         targetText: ref.link,
+        original: ref.original,
         resolvedTargetPath:
           this.getFirstLinkpathDest(spec.url, file.path)?.path ?? null,
         type: "link",
@@ -1484,6 +1487,7 @@ export class MetadataCache extends EventDispatcher<{
       refs.push({
         sourcePath: file.path,
         targetText: ref.link,
+        original: ref.original,
         resolvedTargetPath:
           this.getFirstLinkpathDest(spec.url, file.path)?.path ?? null,
         type: "embed",
@@ -1508,7 +1512,9 @@ export class MetadataCache extends EventDispatcher<{
     ).map(([name, value]) => ({
       path: file.path,
       name,
-      inferredType: frontmatterValueType(value),
+      inferredType:
+        this.app.metadataTypeManager?.determinePropertyType(name, value) ??
+        frontmatterValueType(value),
       declaredType: this.app.metadataTypeManager?.types?.[name]?.type,
       value,
     }));

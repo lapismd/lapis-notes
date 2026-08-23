@@ -9,6 +9,7 @@ import {
   type SearchDocumentRecord,
   type SearchDocumentSource,
   type SearchDocumentSourceMetadata,
+  type SearchDocumentManifestRecord,
   type TFile,
   debounce,
   md5,
@@ -33,8 +34,16 @@ function sourceMetadata(
   cache: CachedMetadata,
   settings: SearchPluginSettings["chunking"],
   source: SearchDocumentSource,
+  manifest: {
+    metadataHash: string;
+    providerVersion: string;
+    projectionSignature: string;
+    sourceMtime: number;
+    sourceSize: number;
+  },
 ): SearchDocumentSourceMetadata {
   return {
+    ...manifest,
     rawTags: source.tags
       ? [...source.tags]
       : (cache.tags ?? []).map((tag) => tag.tag),
@@ -162,6 +171,11 @@ export class SearchManager {
       metadata: source.metadata ?? null,
       tags: source.tags ?? [],
     });
+    const providerVersion = provider.version ?? "1";
+    const projectionSignature = this.projectionSignature(
+      provider.id,
+      providerVersion,
+    );
     await this.app.appDatabase.upsertSearchDocument({
       path: file.path,
       sourceProviderId: provider.id,
@@ -176,6 +190,13 @@ export class SearchManager {
         cache,
         this.getSettings().chunking,
         source,
+        {
+          metadataHash: md5(content),
+          providerVersion,
+          projectionSignature,
+          sourceMtime: file.stat.mtime,
+          sourceSize: file.stat.size,
+        },
       ),
     });
   }
@@ -311,22 +332,53 @@ export class SearchManager {
       return;
     }
     const content = await this.app.vault.cachedRead(file);
-    const cache = this.app.metadataCache.getFileCache(file) ?? {};
+    const cache = (await this.app.metadataCache.getFileCacheAsync(file)) ?? {};
     await this.processChange(file, content, cache);
+  }
+
+  private projectionSignature(
+    providerId: string,
+    providerVersion: string,
+  ): string {
+    return md5(
+      JSON.stringify({
+        providerId,
+        providerVersion,
+        chunking: this.getSettings().chunking,
+      }),
+    );
+  }
+
+  private async *searchManifestRows(): AsyncGenerator<SearchDocumentManifestRecord> {
+    let cursor: string | undefined;
+    do {
+      const page = await this.app.appDatabase.listSearchDocumentManifest({
+        after: cursor,
+        limit: 500,
+      });
+      for (const row of page.rows) yield row;
+      cursor = page.nextCursor;
+    } while (cursor);
+  }
+
+  private async *metadataManifestRows(): AsyncGenerator<
+    Awaited<ReturnType<App["appDatabase"]["listIndexedFileManifest"]>>["rows"][number]
+  > {
+    let cursor: string | undefined;
+    do {
+      const page = await this.app.appDatabase.listIndexedFileManifest({
+        after: cursor,
+        limit: 500,
+      });
+      for (const row of page.rows) yield row;
+      cursor = page.nextCursor;
+    } while (cursor);
   }
 
   private usesMetadataPipeline(file: TFile): boolean {
     return Boolean(
       this.app.metadataCache.processors.get(file.extension.toLowerCase())?.size,
     );
-  }
-
-  private isProviderCandidate(file: TFile): boolean {
-    try {
-      return Boolean(this.app.searchDocumentProviders.resolve(file));
-    } catch {
-      return true;
-    }
   }
 
   private async processFileSafely(file: TFile): Promise<void> {
@@ -374,15 +426,13 @@ export class SearchManager {
       async (progress) => {
         const files = this.app.vault
           .getFiles()
-          .filter((file) => this.isProviderCandidate(file));
-        const paths = new Set(files.map((file) => file.path));
-        const stale = (await this.app.appDatabase.listSearchDocuments()).filter(
-          (document) =>
-            (!document.sourceProviderId ||
-              this.ownedSourceProviderIds.has(document.sourceProviderId)) &&
-            !paths.has(document.path),
-        );
-        const total = stale.length + files.length;
+          .sort((left, right) =>
+            left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+          );
+        for (const provider of this.app.searchDocumentProviders.getAll()) {
+          this.ownedSourceProviderIds.add(provider.id);
+        }
+        const total = files.length;
         this.refreshState = {
           active: true,
           processed: 0,
@@ -392,25 +442,74 @@ export class SearchManager {
         };
         await this.app.appDatabase.beginSearchIndexingBatch();
         try {
-          for (const document of stale) {
-            progress.throwIfCancellationRequested();
-            progress.report({
-              current: this.refreshState.processed,
-              total,
-              message: document.path,
-            });
-            await this.app.appDatabase.deleteSearchDocument(document.path);
-            this.refreshState.processed += 1;
-          }
+          const searchIterator = this.searchManifestRows();
+          const metadataIterator = this.metadataManifestRows();
+          let searchRow = (await searchIterator.next()).value;
+          let metadataRow = (await metadataIterator.next()).value;
+          const ownedSearchRow = (row: SearchDocumentManifestRecord) =>
+            !row.sourceProviderId ||
+            this.ownedSourceProviderIds.has(row.sourceProviderId);
+
           for (const file of files) {
             progress.throwIfCancellationRequested();
+            while (searchRow && searchRow.path < file.path) {
+              if (ownedSearchRow(searchRow)) {
+                await this.app.appDatabase.deleteSearchDocument(searchRow.path);
+              }
+              searchRow = (await searchIterator.next()).value;
+            }
+            while (metadataRow && metadataRow.path < file.path) {
+              metadataRow = (await metadataIterator.next()).value;
+            }
             progress.report({
               current: this.refreshState.processed,
               total,
               message: file.path,
             });
-            await this.processFileSafely(file);
+            const indexedSearch = searchRow?.path === file.path ? searchRow : undefined;
+            const indexedMetadata =
+              metadataRow?.path === file.path ? metadataRow : undefined;
+            const provider = this.app.searchDocumentProviders.resolve(file);
+            if (!provider) {
+              // A persisted Search row whose path is still a vault file is a
+              // stale vault projection when no provider currently claims it.
+              if (indexedSearch) {
+                await this.app.appDatabase.deleteSearchDocument(file.path);
+              }
+            } else {
+              const providerVersion = provider.version ?? "1";
+              const projectionSignature = this.projectionSignature(
+                provider.id,
+                providerVersion,
+              );
+              const usesMetadata = this.usesMetadataPipeline(file);
+              const unchanged =
+                indexedSearch?.sourceProviderId === provider.id &&
+                indexedSearch.providerVersion === providerVersion &&
+                indexedSearch.projectionSignature === projectionSignature &&
+                indexedSearch.sourceMtime === file.stat.mtime &&
+                indexedSearch.sourceSize === file.stat.size &&
+                (!usesMetadata ||
+                  (Boolean(indexedMetadata?.hash) &&
+                    indexedSearch.metadataHash === indexedMetadata?.hash));
+              if (!unchanged && (!usesMetadata || indexedMetadata)) {
+                await this.processFileSafely(file);
+              }
+            }
+            if (searchRow?.path === file.path) {
+              searchRow = (await searchIterator.next()).value;
+            }
+            if (metadataRow?.path === file.path) {
+              metadataRow = (await metadataIterator.next()).value;
+            }
             this.refreshState.processed += 1;
+          }
+          while (searchRow) {
+            progress.throwIfCancellationRequested();
+            if (ownedSearchRow(searchRow)) {
+              await this.app.appDatabase.deleteSearchDocument(searchRow.path);
+            }
+            searchRow = (await searchIterator.next()).value;
           }
           this.refreshState.refreshedAt = Date.now();
           progress.report({

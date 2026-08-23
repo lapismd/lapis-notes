@@ -64,7 +64,7 @@ import {
   type DefaultPluginDistributionManagerOptions,
 } from "./plugin-distribution";
 import { ConfigurationOptionSourceRegistry } from "./configuration-option-source-registry";
-import { resolveMetadataFieldValues } from "./configuration-option-source-providers";
+import { resolveMetadataFieldValuesAsync } from "./configuration-option-source-providers";
 import type { Editor } from "./editor.svelte";
 import { SearchDocumentProviderRegistry } from "./search-document-provider";
 import { DailyDocumentProviderRegistry } from "./daily-document-provider";
@@ -410,8 +410,8 @@ export class App {
         description: "Known frontmatter values for a metadata field.",
         cache: "session",
         getOptions: (context) =>
-          resolveMetadataFieldValues(
-            (field) => this.metadataTypeManager.getValues(field),
+          resolveMetadataFieldValuesAsync(
+            (field) => this.metadataTypeManager.getValuesAsync(field),
             context.schema,
             context.query,
             context.limit,

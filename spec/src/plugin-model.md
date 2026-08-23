@@ -215,3 +215,6 @@ conversation opener may claim an unbound main-area AI leaf before creating a
 new tab, and it never replaces the dedicated history leaf. That history leaf
 keeps Design Core SearchFilterBar chrome centered in the panel. The Catalog
 opener reveals or creates the documented left-sidebar leaf.
+Code plugins that omit query-native metadata access receive a snapshot lease
+for their enabled lifetime. Query-native first-party plugins declare the
+database contract and remain on bounded per-file, facet, page, and link APIs.

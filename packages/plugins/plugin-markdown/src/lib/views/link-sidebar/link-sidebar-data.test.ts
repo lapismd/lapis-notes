@@ -193,7 +193,7 @@ describe("link sidebar data", () => {
     );
   });
 
-  it("builds linked mentions from getCache when getAllItems is empty", () => {
+  it("builds linked mentions from indexed link queries", async () => {
     const active = file("Active.md") as TFile;
     const linked = file("Linked.md") as TFile;
     const content = "See [[Linked]] and names Unlinked.";
@@ -212,29 +212,53 @@ describe("link sidebar data", () => {
     };
     const app = {
       metadataCache: {
-        getAllItems: () => new Map(),
-        getFileCache: (candidate: TFile) => caches[candidate.path] ?? null,
-        getCache: (path: string) => caches[path] ?? null,
+        queryLinks: async (query: { direction: string; path?: string }) => {
+          if (query.direction === "outgoing" && query.path === active.path) {
+            return [{
+              sourcePath: active.path,
+              targetText: "Linked",
+              resolvedTargetPath: linked.path,
+              type: "link",
+              count: 1,
+            }];
+          }
+          if (query.direction === "incoming" && query.path === linked.path) {
+            return [{
+              sourcePath: active.path,
+              targetText: "Linked",
+              resolvedTargetPath: linked.path,
+              type: "link",
+              count: 1,
+            }];
+          }
+          return [];
+        },
+        getFileCacheAsync: async (candidate: TFile | string) =>
+          caches[typeof candidate === "string" ? candidate : candidate.path] ?? null,
         getFirstLinkpathDest: () => null,
       },
+      appDatabase: { searchDocuments: async () => [] },
+      logger: { warn: () => undefined },
       vault: {
         getMarkdownFiles: () => [active, linked],
+        getFileByPath: (path: string) =>
+          path === active.path ? active : path === linked.path ? linked : null,
       },
     } as unknown as App;
 
     expect(
-      buildLinkedLinkSidebarData(app, active, "outgoing").linkedGroups.map(
+      (await buildLinkedLinkSidebarData(app, active, "outgoing")).linkedGroups.map(
         (group) => group.file.path,
       ),
     ).toEqual([linked.path]);
     expect(
-      buildLinkedLinkSidebarData(app, linked, "backlinks").linkedGroups.map(
+      (await buildLinkedLinkSidebarData(app, linked, "backlinks")).linkedGroups.map(
         (group) => group.file.path,
       ),
     ).toEqual([active.path]);
   });
 
-  it("walks metadata fileCache when the vault file map is empty", () => {
+  it("materializes incoming indexed paths when the vault file map is empty", async () => {
     const active = file("Notes/Active.md") as TFile;
     const source = file("Notes/Source.md") as TFile;
     const content = "Back to [[Active]].";
@@ -253,15 +277,19 @@ describe("link sidebar data", () => {
     };
     const app = {
       metadataCache: {
-        fileCache: {
-          [active.path]: { hash: "active", mtime: 1, size: 1 },
-          [source.path]: { hash: "source", mtime: 1, size: 1 },
-        },
-        getAllItems: () => new Map(),
-        getFileCache: () => null,
-        getCache: (path: string) => caches[path] ?? null,
+        queryLinks: async () => [{
+          sourcePath: source.path,
+          targetText: "Active",
+          resolvedTargetPath: active.path,
+          type: "link",
+          count: 1,
+        }],
+        getFileCacheAsync: async (candidate: TFile | string) =>
+          caches[typeof candidate === "string" ? candidate : candidate.path] ?? null,
         getFirstLinkpathDest: () => null,
       },
+      appDatabase: { searchDocuments: async () => [] },
+      logger: { warn: () => undefined },
       vault: {
         getMarkdownFiles: () => [],
         getFileByPath: () => null,
@@ -269,13 +297,13 @@ describe("link sidebar data", () => {
     } as unknown as App;
 
     expect(
-      buildLinkedLinkSidebarData(app, active, "backlinks").linkedGroups.map(
+      (await buildLinkedLinkSidebarData(app, active, "backlinks")).linkedGroups.map(
         (group) => group.file.path,
       ),
     ).toEqual([source.path]);
   });
 
-  it("builds linked backlinks from resolvedLinks when only the active cache is mapped", () => {
+  it("builds linked backlinks from incoming indexed rows without source metadata", async () => {
     const active = file("Notes/Active.md") as TFile;
     const source = file("Notes/Source.md") as TFile;
     const caches: Record<string, CachedMetadata> = {
@@ -291,14 +319,22 @@ describe("link sidebar data", () => {
     };
     const app = {
       metadataCache: {
-        fileCache: { [active.path]: { hash: "active", mtime: 1, size: 1 } },
-        resolvedLinks: { [source.path]: { [active.path]: 1 } },
-        getAllItems: () => new Map(),
-        getFileCache: (candidate: TFile) => caches[candidate.path] ?? null,
-        getCache: (path: string) => caches[path] ?? null,
+        queryLinks: async (query: { direction: string }) =>
+          query.direction === "incoming"
+            ? [{
+                sourcePath: source.path,
+                targetText: "Active",
+                resolvedTargetPath: active.path,
+                type: "link",
+                count: 1,
+              }]
+            : [],
+        getFileCacheAsync: async (candidate: TFile | string) =>
+          caches[typeof candidate === "string" ? candidate : candidate.path] ?? null,
         getFirstLinkpathDest: () => null,
-        getDirectReferencingPaths: () => [],
       },
+      appDatabase: { searchDocuments: async () => [] },
+      logger: { warn: () => undefined },
       vault: {
         getMarkdownFiles: () => [active],
         getFileByPath: (path: string) =>
@@ -307,10 +343,10 @@ describe("link sidebar data", () => {
     } as unknown as App;
 
     expect(
-      buildLinkedLinkSidebarData(app, active, "outgoing").linkedGroups,
+      (await buildLinkedLinkSidebarData(app, active, "outgoing")).linkedGroups,
     ).toEqual([]);
     expect(
-      buildLinkedLinkSidebarData(app, active, "backlinks").linkedGroups.map(
+      (await buildLinkedLinkSidebarData(app, active, "backlinks")).linkedGroups.map(
         (group) => group.file.path,
       ),
     ).toEqual([source.path]);

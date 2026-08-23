@@ -22,6 +22,8 @@ export type SearchDocumentProviderContext = {
 export type SearchDocumentProvider = {
   /** Registry-wide provider id. Plugin helpers namespace local ids. */
   id: string;
+  /** Projection version used to invalidate persisted Search documents. */
+  version?: string;
   /** Higher priorities override lower-priority matching providers. */
   priority?: number;
   matches(file: TFile): boolean;

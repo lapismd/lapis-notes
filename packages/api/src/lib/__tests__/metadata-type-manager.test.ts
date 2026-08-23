@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MetadataTypeManager } from "../metadata.svelte";
+import { inferMetadataPropertyType } from "../metadata-value";
 import { TFile, TFolder } from "../storage/fs";
 
 vi.mock("svelte", () => ({
@@ -14,6 +15,47 @@ function createAppContext() {
   const files = new Map<string, TFile>();
   const caches = new Map<string, { frontmatter: Record<string, unknown> }>();
   const frontmatters = new Map<string, Record<string, unknown>>();
+
+  function collectProperties(
+    value: unknown,
+    path: string,
+    output: Array<{
+      name: string;
+      type: string;
+      value: unknown;
+      topLevel: boolean;
+    }>,
+    topLevel = false,
+  ) {
+    output.push({
+      name: path.replace(/\[\d+\]/gu, "[]"),
+      type: inferMetadataPropertyType(path, value),
+      value,
+      topLevel,
+    });
+    if (Array.isArray(value)) {
+      value.forEach((entry, index) =>
+        collectProperties(entry, `${path}[${index}]`, output),
+      );
+    } else if (value && typeof value === "object") {
+      for (const [key, entry] of Object.entries(value)) {
+        collectProperties(entry, `${path}.${key}`, output);
+      }
+    }
+  }
+
+  function indexedProperties(frontmatter: Record<string, unknown>) {
+    const output: Array<{
+      name: string;
+      type: string;
+      value: unknown;
+      topLevel: boolean;
+    }> = [];
+    for (const [name, value] of Object.entries(frontmatter)) {
+      collectProperties(value, name, output, true);
+    }
+    return output;
+  }
 
   const app = {
     props: { configPath: ".obsidian/app.json" },
@@ -37,6 +79,112 @@ function createAppContext() {
       ),
       getCache: vi.fn((path: string) => caches.get(path) ?? null),
       fileCache: {} as Record<string, unknown>,
+      queryFacets: vi.fn(
+        async (query: {
+          kind: "property-name" | "property-path" | "property-value";
+          propertyName?: string;
+          limit?: number;
+        }) => {
+          const counts = new Map<
+            string,
+            {
+              value: unknown;
+              valueType: "string" | "number" | "boolean" | "null";
+              count: number;
+              metadataTypes?: string[];
+              topLevel?: boolean;
+            }
+          >();
+          for (const cache of caches.values()) {
+            const properties = indexedProperties(cache.frontmatter);
+            const candidates =
+              query.kind === "property-name"
+                ? properties.filter((property) => property.topLevel)
+                : properties;
+            const seen = new Set<string>();
+            for (const property of candidates) {
+              if (
+                query.kind === "property-value" &&
+                property.name !== query.propertyName
+              ) {
+                continue;
+              }
+              const value =
+                query.kind === "property-value" ? property.value : property.name;
+              if (
+                value !== null &&
+                !["string", "number", "boolean"].includes(typeof value)
+              ) {
+                continue;
+              }
+              const key = `${typeof value}\0${String(value)}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+              const current = counts.get(key);
+              counts.set(key, {
+                value,
+                valueType:
+                  value === null
+                    ? "null"
+                    : (typeof value as "string" | "number" | "boolean"),
+                count: (current?.count ?? 0) + 1,
+                metadataTypes: [property.type],
+                topLevel: property.topLevel,
+              });
+            }
+          }
+          return [...counts.values()]
+            .sort(
+              (left, right) =>
+                right.count - left.count ||
+                String(left.value).localeCompare(String(right.value)),
+            )
+            .slice(0, query.limit ?? 100);
+        },
+      ),
+      queryMetadataPage: vi.fn(
+        async (query: {
+          after?: string;
+          limit?: number;
+          query?: { propertyFilters?: Array<{ name: string }> };
+        }) => {
+          const required = query.query?.propertyFilters?.map(({ name }) => name) ?? [];
+          const paths = [...files.keys()]
+            .filter((path) => {
+              const frontmatter = caches.get(path)?.frontmatter;
+              if (!frontmatter) return false;
+              const properties = indexedProperties(frontmatter);
+              return required.every((name) =>
+                properties.some((property) => property.name === name),
+              );
+            })
+            .sort()
+            .filter((path) => !query.after || path > query.after);
+          const limit = query.limit ?? 100;
+          const pagePaths = paths.slice(0, limit);
+          return {
+            rows: pagePaths.map((path) => ({
+              file: {
+                path,
+                normalizedPath: path.toLowerCase(),
+                extension: "md",
+                mtime: 0,
+                size: 1,
+                hash: path,
+                indexed: true,
+              },
+              metadata: null,
+              properties: [],
+              tags: [],
+              links: [],
+            })),
+            nextCursor:
+              pagePaths.length === limit && paths.length > limit
+                ? pagePaths.at(-1)
+                : undefined,
+          };
+        },
+      ),
     },
     fileManager: {
       processFrontMatter: vi.fn(
@@ -67,7 +215,7 @@ describe("MetadataTypeManager", () => {
     vi.clearAllMocks();
   });
 
-  it("tracks nested property membership and removes stale paths on change", () => {
+  it("tracks nested property membership and removes stale paths on change", async () => {
     const ctx = createAppContext();
     const file = ctx.addFile("Notes/one.md", {
       status: "open",
@@ -75,18 +223,18 @@ describe("MetadataTypeManager", () => {
     });
     const manager = new MetadataTypeManager(ctx.app as any);
 
-    manager.processChange(file, ctx.caches.get(file.path)! as any);
+    await manager.updateProperties();
     expect(manager.properties["status"]?.count).toBe(1);
     expect(manager.properties["stats.done"]?.count).toBe(1);
 
     ctx.caches.set(file.path, { frontmatter: { status: "open" } });
-    manager.processChange(file, ctx.caches.get(file.path)! as any);
+    await manager.updateProperties();
 
     expect(manager.properties["status"]?.count).toBe(1);
     expect(manager.properties["stats.done"]).toBeUndefined();
   });
 
-  it("infers semantic top-level types while preserving nested tracking", () => {
+  it("infers semantic top-level types while preserving nested tracking", async () => {
     const ctx = createAppContext();
     const file = ctx.addFile("Notes/one.md", {
       tags: ["work"],
@@ -96,13 +244,13 @@ describe("MetadataTypeManager", () => {
     });
     const manager = new MetadataTypeManager(ctx.app as any);
 
-    manager.processChange(file, ctx.caches.get(file.path)! as any);
+    await manager.updateProperties();
 
     expect(manager.properties.tags?.type).toBe("tags");
     expect(manager.properties.aliases?.type).toBe("aliases");
     expect(manager.properties["note.status"]?.type).toBe("text");
     expect(manager.properties.prop?.type).toBe("array");
-    expect(manager.properties["prop[0].name"]?.type).toBe("text");
+    expect(manager.properties["prop[].name"]?.type).toBe("text");
   });
 
   it("renames nested properties with falsey values and migrates persisted types", async () => {
@@ -236,5 +384,25 @@ describe("MetadataTypeManager", () => {
       published: true,
     });
     expect(manager.types.published?.type).toBe("checkbox");
+  });
+
+  it("surfaces facet query failures and recovers on the next revision", async () => {
+    const ctx = createAppContext();
+    ctx.addFile("Notes/one.md", { status: "open" });
+    const manager = new MetadataTypeManager(ctx.app as any);
+    await manager.updateProperties();
+
+    ctx.app.metadataCache.queryFacets.mockRejectedValueOnce(
+      new Error("metadata database unavailable"),
+    );
+    await manager.updateProperties();
+
+    expect(manager.queryError).toBe("metadata database unavailable");
+    expect(manager.propertiesLoading).toBe(false);
+    expect(manager.properties.status?.count).toBe(1);
+
+    await manager.updateProperties();
+    expect(manager.queryError).toBeNull();
+    expect(manager.properties.status?.count).toBe(1);
   });
 });

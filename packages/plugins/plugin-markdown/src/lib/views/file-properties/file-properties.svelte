@@ -5,7 +5,7 @@
     type FrontmatterController,
     type FrontmatterPropertyManager,
   } from "@lapismd/mira/preview";
-  import { untrack } from "svelte";
+  import { onMount, untrack } from "svelte";
   import {
     createLapisFrontmatterController,
     createLapisFrontmatterPropertyManager,
@@ -13,11 +13,17 @@
   } from "../../frontmatter/lapis-frontmatter-adapter";
   import { createLapisMiraFileAdapter } from "../../mira/file-adapter";
   import { resolvePanelTargetFile } from "../panel-target-file";
+  import { subscribeFileScopedPanelRefresh } from "../file-scoped-panel-refresh";
   import MarkdownSidebarPanel from "../sidebar-panel/markdown-sidebar-panel.svelte";
 
   let { app }: { app: App } = $props();
+  let followRevision = $state(0);
+  let syncGeneration = 0;
 
-  const activeFile = $derived.by(() => resolvePanelTargetFile(app));
+  const activeFile = $derived.by(() => {
+    followRevision;
+    return resolvePanelTargetFile(app);
+  });
 
   const fileAdapter = $derived(createLapisMiraFileAdapter(app));
   const propertyManager: FrontmatterPropertyManager = untrack(() =>
@@ -29,16 +35,24 @@
 
   $effect(() => {
     const file = activeFile;
-    if (file) {
-      void app.metadataCache.getCache(file.path)?.frontmatter;
-    }
-    syncLapisFrontmatterController(
-      controller,
-      app,
-      file ?? null,
-      propertyManager,
-    );
+    const generation = ++syncGeneration;
+    void (async () => {
+      if (file) await app.metadataCache.getFileCacheAsync(file);
+      if (generation !== syncGeneration || file !== activeFile) return;
+      syncLapisFrontmatterController(
+        controller,
+        app,
+        file ?? null,
+        propertyManager,
+      );
+    })();
   });
+
+  onMount(() =>
+    subscribeFileScopedPanelRefresh(app, () => {
+      followRevision += 1;
+    }),
+  );
 </script>
 
 <MarkdownSidebarPanel

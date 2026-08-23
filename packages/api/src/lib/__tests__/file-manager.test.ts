@@ -119,14 +119,18 @@ describe("FileManager", () => {
         getFiles: () => [...files.values()],
       },
       metadataCache: {
-        getAllItems: () => new Map([[source, sourceCache]]),
-        getFirstLinkpathDest: (link: string) => {
-          const path = link.split("#", 1)[0];
-          if (path === "Target" || path === "Target.md") {
-            return target;
-          }
-          return null;
-        },
+        queryLinks: vi.fn(async () =>
+          sourceCache.links!.map((link, ordinal) => ({
+            sourcePath: source.path,
+            targetText: link.link,
+            original: link.original,
+            resolvedTargetPath: target.path,
+            type: link.original.startsWith("!") ? "embed" : "link",
+            position: link.position,
+            count: 1,
+            ordinal,
+          })),
+        ),
       },
     } as any);
 
@@ -189,7 +193,7 @@ describe("FileManager", () => {
         process,
       },
       metadataCache: {
-        getFileCache: () => null,
+        getFileCacheAsync: async () => null,
         read: metadataRead,
         writeFrontmatter,
       },
@@ -236,7 +240,7 @@ describe("FileManager", () => {
       configuration: createConfiguration(),
       vault: { read, process },
       metadataCache: {
-        getFileCache: () => null,
+        getFileCacheAsync: async () => null,
         read: metadataRead,
         writeFrontmatter,
       },
@@ -267,7 +271,7 @@ describe("FileManager", () => {
       configuration: createConfiguration(),
       vault: { read, process },
       metadataCache: {
-        getFileCache: () => ({ frontmatter: { status: "open" } }),
+        getFileCacheAsync: async () => ({ frontmatter: { status: "open" } }),
         read: vi.fn(),
         writeFrontmatter,
       },
@@ -290,7 +294,7 @@ describe("FileManager", () => {
       configuration: createConfiguration(),
       vault: { read, process },
       metadataCache: {
-        getFileCache: () => ({ frontmatter: { title: "Example" } }),
+        getFileCacheAsync: async () => ({ frontmatter: { title: "Example" } }),
         read: vi.fn(),
         writeFrontmatter: vi.fn(),
       },
@@ -352,7 +356,7 @@ describe("FileManager", () => {
       configuration: createConfiguration(),
       vault: { read, process },
       metadataCache: {
-        getFileCache: () => null,
+        getFileCacheAsync: async () => null,
         read: metadataRead,
         writeFrontmatter,
       },
@@ -377,7 +381,7 @@ describe("FileManager", () => {
       configuration: createConfiguration(),
       vault: { read, process },
       metadataCache: {
-        getFileCache: () => null,
+        getFileCacheAsync: async () => null,
         read: vi.fn(async () => {
           throw failure;
         }),

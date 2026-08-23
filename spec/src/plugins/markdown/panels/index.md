@@ -99,3 +99,6 @@ by the cross-plugin panel audit. Link Preview Acceptance remains supporting
 behavior rather than an additional command-access view.
 File Properties value suggestions and wikilink pills remain on that panel's
 owning page.
+Tags and All Properties query persisted facets. Outline and File Properties
+hydrate one followed file. Backlinks and Outgoing Links query indexed link
+directions and only bounded Search candidates for unlinked mentions.

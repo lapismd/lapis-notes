@@ -20,7 +20,11 @@ describe("registered Markdown contributions", () => {
           postProcessor: processor,
         }],
       },
-      metadataCache: { getCache: () => ({ frontmatter: { type: "task-list" } }) },
+      metadataCache: {
+        getFileCacheAsync: async () => ({
+          frontmatter: { type: "task-list" },
+        }),
+      },
       vault: { getFileByPath: vi.fn(), read: vi.fn() },
     } as any;
     const markdown = "---\ntype: task-list\n---\n\n## Items\n\n- [[tasks/one]]\n\n## Notes\n";

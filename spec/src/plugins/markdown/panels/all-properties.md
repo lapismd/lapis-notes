@@ -14,3 +14,6 @@ Storybook coverage.
 
 The catalog details are governed by LN-CAT-022. The shared surface, Docs, source,
 and placement rules live under [Workspace Shell / Panels](../../../workspace-shell/panels.md).
+All Properties derives top-level names, nested paths, counts, and observed
+types from indexed property facets. Bulk edits page only the files that contain
+the selected property; loading and database failures remain explicit.

@@ -25,6 +25,8 @@ import type {
   AppDatabaseStoreFileHistoryRevisionResult,
   MetadataCacheSnapshot,
   SearchDocumentRecord,
+  SearchDocumentManifestPage,
+  SearchDocumentManifestQuery,
   SearchEmbeddingProviderConfig,
   SearchEmbeddingRuntimeStatus,
 } from "./app-database";
@@ -83,6 +85,7 @@ export const DESKTOP_APP_DATABASE_RPC_METHODS = [
   "upsertSearchDocument",
   "deleteSearchDocument",
   "getSearchDocument",
+  "listSearchDocumentManifest",
   "listSearchDocuments",
   "rebuildSearchIndex",
   "searchDocuments",
@@ -326,6 +329,12 @@ export class NativeDesktopTursoAppDatabase implements AppDatabase {
 
   getSearchDocument(path: string): Promise<SearchDocumentRecord | undefined> {
     return this.call("getSearchDocument", path);
+  }
+
+  listSearchDocumentManifest(
+    query?: SearchDocumentManifestQuery,
+  ): Promise<SearchDocumentManifestPage> {
+    return this.call("listSearchDocumentManifest", query);
   }
 
   listSearchDocuments(): Promise<SearchDocumentRecord[]> {

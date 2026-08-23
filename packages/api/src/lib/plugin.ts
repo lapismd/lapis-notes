@@ -1,4 +1,4 @@
-import type { MetadataProcessor } from "./cache.svelte";
+import type { CachedMetadata, MetadataProcessor } from "./cache.svelte";
 import type {
   IndexProjectionRegistration,
   RegisteredIndexProjectionHandle,
@@ -1111,10 +1111,11 @@ export abstract class Plugin extends Component {
     for (const candidate of candidates) {
       const file = this.app.vault.getFileByPath(candidate.file.path);
       if (!file) continue;
+      const cache = candidate.metadata?.metadata as CachedMetadata | undefined;
       if (
         !matchesProjectionSource(
           { path: file.path, extension: file.extension, name: file.name },
-          this.app.metadataCache.getFileCache(file) ?? undefined,
+          cache,
           source,
         )
       ) {
@@ -1125,7 +1126,7 @@ export abstract class Plugin extends Component {
         const result = await recorded.registration.project({
           file: { path: file.path, extension: file.extension, name: file.name },
           content,
-          cache: this.app.metadataCache.getFileCache(file) ?? undefined,
+          cache,
         });
         await this.app.appDatabase.replaceProjectionSource({
           projectionId,

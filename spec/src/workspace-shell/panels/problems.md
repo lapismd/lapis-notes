@@ -128,3 +128,5 @@ lease. Diagnostic collections remain independent of metadata index revisions.
 App `app:rebuild-vault-cache` and `app:rebuild-generated-state` report file
 progress through notifications, not Problems collections (LN-PKG-097,
 LN-PKG-098).
+Metadata query failures remain owned by the requesting panel and its retry
+surface. They do not become editor diagnostics or Problems collection entries.

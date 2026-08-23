@@ -152,7 +152,14 @@
       </div>
     </div>
   {/if}
-  {#if show}
+  {#if queryController.loadError}
+    <div class="bases-view__query-error" role="alert">
+      <p>Unable to load indexed metadata: {queryController.loadError}</p>
+      <button type="button" onclick={() => void queryController.reload()}>
+        Retry
+      </button>
+    </div>
+  {:else if show}
     <div
       class="bases-view__content bases-style-min-h-0-fb7302 bases-style-w-full-6da6a3 bases-style-flex-1-36e579"
       bind:this={contentEl}
@@ -163,3 +170,23 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .bases-view__query-error {
+    align-items: center;
+    color: var(--destructive, currentColor);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.75rem;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .bases-view__query-error button {
+    border: 1px solid currentColor;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+  }
+</style>
