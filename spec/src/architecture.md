@@ -23,6 +23,9 @@ namespaced plugin projections and a serializable query AST, including the public
 `plan.at` kind (`anytime`, `morning`, `afternoon`, `evening`, or `time`).
 Experimental Deno desktop sessions use the same API vault-session factory and
 WASM Turso path as browser hosts.
+`packages/desktop-deno` owns the Deno window, `win.bind()` bridge, native host
+lifecycle, and Electron-parity adapters while remaining a consumer of public
+Lapis package boundaries.
 
 ## Requirements
 
@@ -94,7 +97,7 @@ WASM Turso path as browser hosts.
 | LN-ARCH-064 | API MUST own transport-neutral skill-source and composer slash-command registries. AI MUST own discovery, snapshots, routing, and `AppToolHost` invocation. Composer slash commands MUST remain distinct from workspace `addCommand` and from Mira editor slash commands.                                                                                                                                                                                                                                                                                                                                                             |
 | LN-ARCH-065 | API MUST own plugin-scoped Markdown extension and file-surface registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin.                                                                                                                                                                                                                                                                              |
 | LN-ARCH-066 | API-owned workspace leaves MUST split through API leaf duplication before Design Core renders the new pane. Design Core MAY own generic tab splitting, but Lapis-hosted imperative views MUST NOT create orphan design tabs without live `WorkspaceLeaf` containers, host layout projection, or translated split directions.                                                                                                                                                                                                                                                                                                          |
-| LN-ARCH-067 | The experimental Deno desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native window, bindings, vault discovery, and session boot belong to the host. It MUST NOT replace the Electron host.                                                                                                                                                                                                                                                                                                                                       |
+| LN-ARCH-067 | The Deno desktop parity host MUST remain a consumer of `@lapis-notes/api`, `@lapis-notes/workspace`, and public host packages. Native window, bindings, services, vault discovery, and session boot belong to the host. It MUST NOT replace Electron before packaged parity acceptance.                                                                                                                                                                                                                                                                              |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

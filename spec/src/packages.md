@@ -18,7 +18,8 @@ dependency only and does not enter the root Storybook development closure.
 rows, including `tasks/task`, without importing each other. The tasks
 projection `planKind` values are `anytime`, `morning`, `afternoon`,
 `evening`, and `time`. `NativeDesktopRuntime` and `RuntimeTarget` include
-experimental `deno-desktop` without changing Electron or web production hosts.
+`deno-desktop` without changing Electron or web production hosts. Root scripts
+`dev:desktop-deno` and `build:desktop-deno` launch the Deno parity package only.
 
 ## Requirements
 
@@ -112,7 +113,7 @@ entrypoints.
 | LN-PKG-108 | Automatic metadata snapshots under `.lapis/cache` MUST stop. Existing files MUST remain untouched, and missing or stale rebuildable metadata MUST be recovered from authoritative vault Markdown. |
 | LN-PKG-109 | First-party metadata consumers MUST use async indexed queries and revision-aware refresh. A source audit MUST reject first-party enumeration of synchronous `fileCache`, `metadataCache`, `resolvedLinks`, `unresolvedLinks`, or `getAllItems`. |
 | LN-PKG-110 | Vault MUST expose a file iterator whose additional memory is bounded by folder depth. Warm MetadataCache reconciliation MUST combine it with exact-path manifest batches no larger than 500 entries. |
-| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be a private experimental package at `packages/desktop-deno`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts. It MUST NOT replace `@lapis-notes/desktop-electron`. |
+| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be a private parity-track package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, end-to-end, and distribution scripts. It MUST NOT replace Electron before packaged parity acceptance. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-039 | `@lapis-notes/desktop-electron` MUST be a private package at `packages/desktop-electron`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts. |

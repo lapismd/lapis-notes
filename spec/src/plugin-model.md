@@ -33,7 +33,9 @@ folder in Explorer (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163).
 File Explorer publishes `selectedPath` and a workspace selection-change
 event so AI History can follow folder context without importing Explorer
 internals (LN-EXP-005, LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).
-History folder counts share one trailing edge across depths (LN-AI-169).
+History folder counts share one trailing edge across depths (LN-AI-169). The
+public AI renderer entry keeps optional Node user-agent storage outside browser
+and WebView bundles (LN-AI-170).
 Permission and question option buttons use the public `feedback-option` part
 (LN-AI-157).
 Plugins contribute tool and command result views through the API registry
