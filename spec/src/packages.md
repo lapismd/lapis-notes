@@ -115,7 +115,7 @@ entrypoints.
 | LN-PKG-108 | Automatic metadata snapshots under `.lapis/cache` MUST stop. Existing files MUST remain untouched, and missing or stale rebuildable metadata MUST be recovered from authoritative vault Markdown. |
 | LN-PKG-109 | First-party metadata consumers MUST use async indexed queries and revision-aware refresh. A source audit MUST reject first-party enumeration of synchronous `fileCache`, `metadataCache`, `resolvedLinks`, `unresolvedLinks`, or `getAllItems`. |
 | LN-PKG-110 | Vault MUST expose a file iterator whose additional memory is bounded by folder depth. Warm MetadataCache reconciliation MUST combine it with exact-path manifest batches no larger than 500 entries. |
-| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be a private parity-track package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, end-to-end, and distribution scripts. It MUST NOT replace Electron before packaged parity acceptance. |
+| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be a private parity-track package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, end-to-end, current-platform, and explicit macOS/Linux distribution scripts. It MUST NOT replace Electron before packaged parity acceptance. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-039 | `@lapis-notes/desktop-electron` MUST be a private package at `packages/desktop-electron`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts. |
@@ -508,6 +508,9 @@ The Deno host also owns one application-data lock and a bearer-authenticated
 loopback activation endpoint. Its distribution metadata declares application
 URL schemes, while the shared App URL registry remains the only interpreter of
 delivered `lapis` and `lapis-notes` URLs.
+Distribution scripts qualify stable artifact names by package version, platform,
+and architecture; reuse the Lapis application icons; and select signing
+credentials only through OS keychain or agent-backed identities.
 
 ## `@lapis-notes/workspace` (shell integration)
 

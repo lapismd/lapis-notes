@@ -14,6 +14,9 @@ const packageDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const packageMetadata = JSON.parse(
+  await readFile(path.join(packageDir, "package.json"), "utf8"),
+);
 const expectedPlugins = [
   "ai",
   "bases",
@@ -32,13 +35,15 @@ const expectedPlugins = [
 function resolveExecutable() {
   const configured = process.env.LAPIS_DENO_PACKAGED_EXECUTABLE?.trim();
   if (configured) return path.resolve(configured);
+  const architecture = process.arch === "arm64" ? "arm64" : "x64";
+  const baseName = `Lapis-Notes-${packageMetadata.version}`;
   const candidates =
     process.platform === "darwin"
       ? [
           path.join(
             packageDir,
             "release",
-            "LapisNotes.app",
+            `${baseName}-macos-${architecture}.app`,
             "Contents",
             "MacOS",
             "laufey_webview",
@@ -52,7 +57,11 @@ function resolveExecutable() {
           ),
         ]
       : [
-          path.join(packageDir, "release", "LapisNotes"),
+          path.join(
+            packageDir,
+            "release",
+            `${baseName}-linux-${architecture}.AppImage`,
+          ),
           path.join(packageDir, "LapisNotes"),
         ];
   const executable = candidates.find((candidate) => fs.existsSync(candidate));
@@ -80,6 +89,14 @@ function assertApplicationUrlMetadata(executable) {
       CFBundleURLSchemes: ["lapis", "lapis-notes"],
     },
   ]);
+}
+
+function assertApplicationSignature(executable) {
+  if (process.platform !== "darwin") return;
+  const appBundle = path.resolve(path.dirname(executable), "..", "..");
+  execFileSync("codesign", ["--verify", "--deep", "--strict", appBundle], {
+    stdio: "pipe",
+  });
 }
 
 async function waitForReport(reportPath, child, diagnostics) {
@@ -267,6 +284,7 @@ try {
     /\[desktop\] invoke desktop_renderer_close_ready/u,
     "Packaged close exited without renderer teardown acknowledgement",
   );
+  assertApplicationSignature(executable);
   console.log(`[deno] packaged smoke passed: ${executable}`);
 } catch (error) {
   if (diagnostics.length) console.error(diagnostics.join(""));

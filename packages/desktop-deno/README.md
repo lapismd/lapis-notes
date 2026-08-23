@@ -63,3 +63,17 @@ pnpm --filter @lapis-notes/desktop-deno build
 pnpm --filter @lapis-notes/desktop-deno package:app
 pnpm --filter @lapis-notes/desktop-deno test:packaged
 ```
+
+`package:app` builds the current platform. Explicit local/cross-target entry
+points are `package:macos:arm64`, `package:macos:x64`, and
+`package:linux:x64`. Artifacts use versioned platform/architecture names and
+the shared Lapis application icons. Every distribution entry point first runs
+the root Turbo-filtered Deno desktop build and its dependency closure.
+
+macOS packages are ad-hoc signed by default. Set
+`LAPIS_DENO_MAC_SIGN_IDENTITY` to a keychain Developer ID identity and
+`LAPIS_DENO_NOTARY_PROFILE` to an `xcrun notarytool` keychain profile to sign
+and notarize without putting credentials in command arguments. An optional
+`LAPIS_DENO_NOTARY_KEYCHAIN` selects a non-default keychain. Linux packages
+skip signatures unless `LAPIS_DENO_GPG_KEY_ID` selects a key available through
+the local GPG agent.
