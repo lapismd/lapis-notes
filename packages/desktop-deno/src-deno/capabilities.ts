@@ -21,7 +21,13 @@ export function createCapabilityRegistry(platform = Deno.build.os) {
     search: { id: "search" as const, status: "unavailable" as const },
     "language-service": {
       id: "language-service" as const,
-      status: "unavailable" as const,
+      status: "available" as const,
+      provider: "deno-markdownlint-runtime",
+      details: {
+        markdown: "markdownlint-node",
+        protocolVersion: 1,
+        lifecycle: "deno-runtime",
+      },
     },
     "plugin-sidecar": {
       id: "plugin-sidecar" as const,
@@ -31,7 +37,11 @@ export function createCapabilityRegistry(platform = Deno.build.os) {
       id: "plugin-assets" as const,
       status: "unavailable" as const,
     },
-    "file-watch": { id: "file-watch" as const, status: "unavailable" as const },
+    "file-watch": {
+      id: "file-watch" as const,
+      status: "available" as const,
+      provider: "deno-watch-fs",
+    },
     "file-system-actions": {
       id: "file-system-actions" as const,
       status: fileActionsAvailable

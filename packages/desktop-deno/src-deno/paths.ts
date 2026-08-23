@@ -49,6 +49,17 @@ export function resolveAbsolutePath(
   return absolutePath;
 }
 
+export function toVaultRelativePath(
+  rootPath: string,
+  absolutePath: string,
+): string | null {
+  const root = normalizeRootPath(rootPath);
+  const target = normalizeRootPath(absolutePath);
+  if (target === root) return "/";
+  if (!target.startsWith(`${root}/`)) return null;
+  return target.slice(root.length + 1);
+}
+
 export function basename(value: string): string {
   const normalized = normalizeSeparators(value).replace(/\/+$/, "");
   const index = normalized.lastIndexOf("/");

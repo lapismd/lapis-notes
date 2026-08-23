@@ -1,4 +1,17 @@
 declare namespace Deno {
+  interface FsEvent {
+    kind: "any" | "access" | "create" | "modify" | "remove" | "other";
+    paths: string[];
+  }
+  interface FsWatcher extends AsyncIterable<FsEvent> {
+    close(): void;
+  }
+  function watchFs(
+    paths: string | string[],
+    options?: { recursive?: boolean },
+  ): FsWatcher;
+  function realPathSync(path: string): string;
+
   class BrowserWindow extends EventTarget {
     constructor(options?: {
       title?: string;

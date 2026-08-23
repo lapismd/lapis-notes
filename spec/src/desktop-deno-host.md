@@ -34,6 +34,8 @@ packaged acceptance passes. The private package lives at
 | LN-DENO-021 | New windows MUST be limited to the workspace popout path. External HTTP and HTTPS links MUST open in the system browser instead of receiving a privileged Deno desktop window.                                                                              |
 | LN-DENO-022 | Local distribution MUST produce macOS and Linux artifacts with stable names, icons, and credential-safe signing hooks. Deno MUST remain non-default until packaged startup and vault acceptance pass on both platforms.                                     |
 | LN-DENO-023 | Automated acceptance MUST cover first selection, cancellation, reopening, missing-vault fallback, switching, layout, plugin restoration, retained services, app URLs, notifications, external links, and packaged startup.                                  |
+| LN-DENO-024 | The native Markdown language service MUST consume the public language-service runtime and expose bounded capability, update, diagnostics, and code-action operations. The renderer MUST register its provider before plugin loading and release it during teardown. |
+| LN-DENO-025 | Native vault watching MUST use `Deno.watchFs`, preserve vault containment across canonical filesystem paths, and deliver portable create, modify, and delete events. Closing a subscription or session MUST stop its native watcher.                         |
 
 ### LN-DENO-011 acceptance details
 
@@ -102,6 +104,30 @@ Deno session boot verifies the shared startup surface:
 - The four task ids MUST be `vault`, `configuration`, `plugins`, and `layout`.
 - `WorkspaceShell` MUST stay unmounted until that sequence completes.
 - The host MUST consume `@lapis-notes/workspace` rather than a copied shell.
+
+### LN-DENO-024 acceptance details
+
+The native Markdown language service verifies:
+
+- Deno MUST consume `@lapis-notes/language-service/markdownlint/runtime`
+  without copying its implementation.
+- Capability probing, document updates, diagnostics, and code actions MUST
+  validate protocol versions and bounded document payloads.
+- A packaged saved-vault session MUST report at least one native Markdown
+  diagnostic before acceptance completes.
+
+### LN-DENO-025 acceptance details
+
+Native vault watching verifies:
+
+- macOS canonical `/private/var` events MUST remain inside a vault opened
+  through its equivalent `/var` path.
+- Atomic final renames MUST publish a portable modification while host-created
+  UUID temporary files MUST NOT create change churn.
+- Each native event MUST reach the matching renderer subscription through the
+  bounded native event bridge.
+- Packaged acceptance MUST write a vault file and observe its event before the
+  watcher is closed.
 
 ## Non-goals
 

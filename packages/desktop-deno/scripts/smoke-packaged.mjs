@@ -73,6 +73,10 @@ async function waitForReport(reportPath, child, diagnostics) {
         `Deno desktop exited before readiness (${child.exitCode})\n${diagnostics.join("")}`,
       );
     }
+    const diagnosticText = diagnostics.join("");
+    if (diagnosticText.includes("[desktop] Deno runtime error:")) {
+      throw new Error(`Deno desktop runtime failed\n${diagnosticText}`);
+    }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   throw new Error(
@@ -131,6 +135,10 @@ try {
   assert.equal(report.database?.engine, "turso");
   assert.equal(report.database?.transport, "wasm-worker");
   assert.equal(report.capabilities?.resource?.status, "available");
+  assert.equal(report.capabilities?.["language-service"]?.status, "available");
+  assert.equal(report.capabilities?.["file-watch"]?.status, "available");
+  assert.ok(report.languageDiagnosticCount > 0);
+  assert.ok(["create", "modify"].includes(report.fileWatchEventType));
   assert.equal(report.crossOriginIsolated, true);
   assert.equal(report.protocol, "http:");
   console.log(`[deno] packaged smoke passed: ${executable}`);

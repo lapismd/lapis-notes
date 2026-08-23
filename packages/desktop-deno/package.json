@@ -11,7 +11,7 @@
     "dev": "node scripts/dev.mjs",
     "dev:vite": "vite",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
-    "package:app": "deno desktop --output release/LapisNotes.app --no-check --no-npm --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
+    "package:app": "deno desktop --output release/LapisNotes.app --no-check --sloppy-imports --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
     "preview": "vite preview",
     "check": "pnpm check:svelte && pnpm check:types",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",

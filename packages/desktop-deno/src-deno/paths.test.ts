@@ -6,6 +6,7 @@ import {
   mkdirWhenPathExists,
   normalizeVaultPath,
   resolveAbsolutePath,
+  toVaultRelativePath,
 } from "./paths";
 
 describe("Deno desktop path containment", () => {
@@ -34,5 +35,13 @@ describe("Deno desktop path containment", () => {
     expect(mkdirWhenPathExists({ isDirectory: true })).toBe("skip");
     expect(mkdirWhenPathExists({ isDirectory: false })).toBe("eexist");
     expect(mkdirWhenPathExists(null)).toBe("create");
+  });
+
+  it("maps native watcher paths back into the owning vault", () => {
+    expect(toVaultRelativePath("/vault", "/vault/folder/note.md")).toBe(
+      "folder/note.md",
+    );
+    expect(toVaultRelativePath("/vault", "/vault")).toBe("/");
+    expect(toVaultRelativePath("/vault", "/vault-two/note.md")).toBeNull();
   });
 });

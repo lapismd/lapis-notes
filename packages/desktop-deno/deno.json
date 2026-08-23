@@ -6,9 +6,16 @@
     },
     "backend": "webview"
   },
+  "imports": {
+    "@lapis-notes/api/language-service": "../api/src/lib/language-service/index.ts",
+    "@lapis-notes/language-service/markdownlint/runtime": "../language-service/src/markdownlint/runtime.ts",
+    "markdownlint": "npm:markdownlint@0.40.0",
+    "markdownlint/sync": "npm:markdownlint@0.40.0/sync"
+  },
+  "nodeModulesDir": "none",
   "tasks": {
-    "dev": "deno desktop --hmr --inspect=127.0.0.1:9229 --no-check --no-npm --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
-    "start": "deno desktop --no-check --no-npm --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
+    "dev": "deno desktop --hmr --inspect=127.0.0.1:9229 --no-check --sloppy-imports --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
+    "start": "deno desktop --no-check --sloppy-imports --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
   },
   "compilerOptions": {
     "strict": true,

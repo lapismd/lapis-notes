@@ -1,5 +1,7 @@
 import { handleBootstrapKv } from "./bootstrap-kv.ts";
 import { createCapabilityRegistry } from "./capabilities.ts";
+import type { DenoFileWatchService } from "./file-watch.ts";
+import { handleLanguageService } from "./language-service.ts";
 import { showNativeNotification } from "./native-actions.ts";
 import {
   handleVaultFs,
@@ -29,6 +31,13 @@ const FS_COMMANDS = new Set([
   "desktop_fs_get_resource_url",
 ]);
 
+const LANGUAGE_SERVICE_COMMANDS = new Set([
+  "desktop_ls_capabilities",
+  "desktop_ls_update_document",
+  "desktop_ls_diagnostics",
+  "desktop_ls_code_actions",
+]);
+
 const KV_COMMANDS = new Set([
   "desktop_vault_bootstrap_kv_get",
   "desktop_vault_bootstrap_kv_set",
@@ -46,12 +55,19 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_capabilities_get",
   "desktop_acceptance_report",
   "desktop_notifications_show",
+  "desktop_fs_watch_start",
+  "desktop_fs_watch_stop",
   "desktop_pick_vault_folder",
   "desktop_create_vault_folder",
   "desktop_move_vault_folder",
   ...FS_COMMANDS,
   ...KV_COMMANDS,
+  ...LANGUAGE_SERVICE_COMMANDS,
 ]);
+
+export type DesktopInvokeContext = {
+  fileWatch?: DenoFileWatchService;
+};
 
 export function createPlatformInfo() {
   const os =
@@ -80,6 +96,7 @@ export function createPlatformInfo() {
 export function handleDesktopInvoke(
   command: string,
   payload: Record<string, unknown> = {},
+  context: DesktopInvokeContext = {},
 ): unknown {
   if (!DENO_INVOKE_COMMANDS.has(command)) {
     throw new Error(`Unimplemented desktop command: ${command}`);
@@ -108,6 +125,14 @@ export function handleDesktopInvoke(
   if (command === "desktop_notifications_show") {
     return showNativeNotification(payload.notification);
   }
+  if (command === "desktop_fs_watch_start") {
+    if (!context.fileWatch) throw new Error("Deno file watch is unavailable");
+    return context.fileWatch.start(payload);
+  }
+  if (command === "desktop_fs_watch_stop") {
+    context.fileWatch?.stop(String(payload.watchId ?? ""));
+    return;
+  }
   if (command === "desktop_pick_vault_folder") {
     return selectVaultFolder(false);
   }
@@ -119,6 +144,9 @@ export function handleDesktopInvoke(
   }
   if (FS_COMMANDS.has(command)) {
     return handleVaultFs(command, payload);
+  }
+  if (LANGUAGE_SERVICE_COMMANDS.has(command)) {
+    return handleLanguageService(command, payload);
   }
   return handleBootstrapKv(command, payload);
 }

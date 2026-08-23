@@ -5,9 +5,14 @@ import {
   setDefaultVaultStateStore,
   setNativeDesktopBridge,
   type BootstrapAppearanceMode,
+  type ChangeEvent,
   type NativeDesktopBridge,
   type NativeDesktopCapabilityRegistry,
+  type NativeDesktopNotificationPayload,
   type NativeDesktopPlatformInfo,
+  type NativeWatchSubscription,
+  type WatchErrorEvent,
+  type WatchOptions,
 } from "@lapis-notes/api";
 import "@lapismd/design-core/styles.css";
 import "@lapismd/design-core/themes/lapis.css";
@@ -42,6 +47,33 @@ type DenoDesktopBindings = {
   platform(): DenoDesktopPlatformInfo;
   capabilities(): NativeDesktopCapabilityRegistry;
 };
+
+type DenoRendererNativeEvent = {
+  channel?: unknown;
+  payload?: unknown;
+};
+
+const watchListeners = new Map<
+  string,
+  (event: ChangeEvent | WatchErrorEvent) => void
+>();
+
+globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
+  const detail = (rawEvent as CustomEvent<DenoRendererNativeEvent>).detail;
+  if (detail?.channel !== "desktop_fs_watch_event") return;
+  const payload = detail.payload as
+    | { watchId?: unknown; event?: ChangeEvent | WatchErrorEvent }
+    | undefined;
+  if (typeof payload?.watchId !== "string" || !payload.event) return;
+  watchListeners.get(payload.watchId)?.(payload.event);
+});
+
+function createWatchId(): string {
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `watch-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
+}
 
 function readBindings(): DenoDesktopBindings | null {
   const bindings = (globalThis as { bindings?: DenoDesktopBindings }).bindings;
@@ -130,7 +162,50 @@ const bridge: DenoDesktopBridge = {
   capabilities,
   invoke: (command, payload) =>
     bindings.invoke(command, payload) as Promise<never>,
-  toFileUrl: (path) => `file://${path}`,
+  toFileUrl(path) {
+    const normalized = path.replace(/\\/gu, "/");
+    return `file://${normalized.startsWith("/") ? normalized : `/${normalized}`}`;
+  },
+  getResourceUrl(rootPath, normalizedPath) {
+    return bindings.invoke("desktop_fs_get_resource_url", {
+      rootPath,
+      normalizedPath,
+    }) as Promise<string>;
+  },
+  showNotification(payload: NativeDesktopNotificationPayload) {
+    return bindings.invoke("desktop_notifications_show", {
+      notification: payload,
+    }) as Promise<void>;
+  },
+  watch(
+    rootPath: string,
+    normalizedPath: string,
+    options: WatchOptions,
+    listener: (event: ChangeEvent | WatchErrorEvent) => void,
+  ): NativeWatchSubscription {
+    const watchId = createWatchId();
+    watchListeners.set(watchId, listener);
+    void bindings
+      .invoke("desktop_fs_watch_start", {
+        watchId,
+        rootPath,
+        normalizedPath,
+        recursive: options.recursive ?? false,
+      })
+      .catch((error) => {
+        watchListeners.get(watchId)?.({
+          type: "error",
+          path: normalizedPath || "/",
+          error,
+        });
+      });
+    return {
+      close() {
+        watchListeners.delete(watchId);
+        void bindings.invoke("desktop_fs_watch_stop", { watchId });
+      },
+    };
+  },
   onOpenVaultPicker(listener) {
     openVaultListeners.add(listener);
     return () => {

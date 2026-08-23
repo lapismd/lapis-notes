@@ -3,12 +3,14 @@ import { serveDir } from "jsr:@std/http@1/file-server";
 
 import { createPlatformInfo, handleDesktopInvoke } from "./bindings.ts";
 import { createCapabilityRegistry } from "./capabilities.ts";
+import { DenoFileWatchService } from "./file-watch.ts";
 import {
   createUpstreamHeaders,
   isWebSocketUpgrade,
   rewriteUpstreamUrl,
   withIsolationHeaders,
 } from "./renderer-http.ts";
+import { createRendererEventEmitter } from "./renderer-events.ts";
 import { rendererDistRoot } from "./production-build.ts";
 import {
   DESKTOP_WINDOW_TITLE,
@@ -53,6 +55,8 @@ if (win !== bootstrap) {
 }
 setOverlayWindowControls(win !== bootstrap && Deno.build.os === "darwin");
 const drag = createWindowDragController(win);
+const emitRendererEvent = createRendererEventEmitter(win);
+const fileWatch = new DenoFileWatchService(emitRendererEvent);
 
 const INSPECT_ADDRESS = "127.0.0.1:9229";
 
@@ -79,7 +83,7 @@ function registerDesktopBindings(): void {
           } else drag.end();
           return;
         }
-        return handleDesktopInvoke(command, payload);
+        return handleDesktopInvoke(command, payload, { fileWatch });
       },
     ],
     ["platform", () => createPlatformInfo()],
@@ -88,7 +92,10 @@ function registerDesktopBindings(): void {
 }
 
 registerDesktopBindings();
-win.addEventListener("close", () => Deno.exit(0));
+win.addEventListener("close", () => {
+  fileWatch.shutdown();
+  Deno.exit(0);
+});
 
 win.setApplicationMenu([
   {

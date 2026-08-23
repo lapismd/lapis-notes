@@ -119,7 +119,7 @@ entrypoints.
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-039 | `@lapis-notes/desktop-electron` MUST be a private package at `packages/desktop-electron`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts. |
-| LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for the Electron Markdown sidecar. The desktop package MUST consume that export instead of copying the runtime or importing package source paths. |
+| LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. Electron and Deno desktop hosts MUST consume that public specifier instead of copying the runtime or importing a private implementation path. |
 | LN-PKG-041 | `@lapis-notes/desktop-electron` MUST consume launcher primitives from public Design Core exports and Lapis helpers from public package exports. It MUST keep launcher policy and native session switching inside the desktop package. |
 | LN-PKG-042 | `@lapis-notes/workspace` MAY forward Design Core's generic workspace-navigation contract to its shell surface, but profile discovery, vault labels, selection, management, persistence, and lifecycle policy MUST remain consumer-owned. |
 | LN-PKG-074 | `@lapis-notes/ai` MUST own portable conversations, projection, Explorer-style history presentation, bindings, handoff, and replay provenance. Its history view MAY compose public Design Core search, sidebar-tree, disclosure, menu, badge, and switch primitives but MUST keep that search chrome centered and retain scope selection, filesystem/index merging, conversation actions, and workspace-view registration in AI. API MUST expose generic path, durability, search, highlighting, and native-event primitives through narrow entries. `@lapismd/ai-host` and Electron MUST remain non-authoritative execution transports with only live native state and bounded replay. |
@@ -484,7 +484,10 @@ legacy `.lapis/cache/metadata-cache.json` file is neither read, rewritten, nor
 removed.
 
 `@lapis-notes/language-service/markdownlint/runtime` is the Node-compatible
-boundary for desktop diagnostics and code actions. Plugin asset URLs continue
+boundary for Electron and Deno desktop diagnostics and code actions. The Deno
+package maps that public specifier into its compiled native graph and uses
+cache-backed npm resolution so the packaged app embeds Markdownlint instead of
+depending on a pnpm symlink tree. Plugin asset URLs continue
 to use public API helpers; their versioned Electron form stores path-bearing
 vault IDs in a URL path segment and the parser retains legacy-host support.
 
