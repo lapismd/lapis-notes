@@ -302,7 +302,7 @@ AgentRuntime.start → AgentSession
         ↓
 events() + approval or question response
         ↓
-desktop IPC or standalone ai-host WebSocket (live) or Fake (tests)
+Deno native bindings or standalone ai-host WebSocket (live) or Fake (tests)
 ```
 
 ACP via `acpx/runtime` is the default live path. Codex and Cursor share that

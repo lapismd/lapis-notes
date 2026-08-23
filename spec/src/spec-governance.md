@@ -127,19 +127,18 @@ as its renderer and native host sources.
 | API plugin lifecycle and workspace managed-plugin bridge                   | `plugin-model.md`, `packages.md`, `architecture.md`                                      |
 | `packages/ui` source or manifest                                           | `packages.md`, `ui-and-styling.md`                                                       |
 | `packages/workspace` source or manifest                                    | `packages.md`, `architecture.md`, `workspace-shell.md`                                   |
-| `packages/desktop-electron` package                                        | `desktop-host.md`, `packages.md`, `architecture.md`                                      |
 | `packages/desktop-deno` package                                            | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                 |
 | `packages/api/src/lib/storage` except `desktop-native.ts`                  | `app-database.md`, `packages.md`, `architecture.md`                                      |
-| `packages/api/src/lib/storage/desktop-native.ts`                           | `desktop-host.md`, `packages.md`, `architecture.md`                                      |
+| `packages/api/src/lib/storage/desktop-native.ts`                           | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                 |
 | `packages/plugins/plugin-ai` source or manifest                            | `ai-plugin.md`, `packages.md`, `architecture.md`                                         |
-| `packages/ai-host` cutover remnants                                        | `ai-plugin.md`, `packages.md`, `architecture.md`, `desktop-host.md`, `web-host.md`       |
+| `packages/ai-host` cutover remnants                                        | `ai-plugin.md`, `packages.md`, `architecture.md`, `desktop-deno-host.md`, `web-host.md`  |
 | Focused AI Storybook stories                                               | `ai-plugin.md`, `storybook-catalog.md`                                                   |
 | `packages/web`                                                             | `web-host.md`, `packages.md`, `architecture.md`                                          |
 | `packages/plugins/plugin-search` package                                   | `search-plugin.md`, `packages.md`, `architecture.md`                                     |
 | `packages/plugins/plugin-history` package                                  | `history-plugin.md`, `packages.md`, `architecture.md`                                    |
 | `packages/plugins/plugin-wordcount` package                                | `wordcount-plugin.md`, `packages.md`, `plugin-model.md`, `editor-demo.md`                 |
 | `packages/plugins/plugin-spellcheck` package                               | `spellcheck-plugin.md`, `packages.md`, `workspace-shell/panels/problems.md`, `editor-demo.md` |
-| Native Markdown runtime source or language-service manifest                | `desktop-host.md`, `packages.md`, `workspace-shell/panels/problems.md`                   |
+| Native Markdown runtime source or language-service manifest                | `desktop-deno-host.md`, `packages.md`, `workspace-shell/panels/problems.md`              |
 | `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md`        | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md` |
 | `packages/plugins/plugin-bases` source or manifest                         | `bases-plugin.md`, `packages.md`, `architecture.md`                                      |
 | Focused or real-App Bases Storybook stories                                | `bases-plugin.md`, `storybook-catalog.md`                                                |
@@ -200,8 +199,8 @@ titles repeat, and cached actions for a diagnostic must belong to that
 diagnostic with at most one action per title.
 
 Desktop build output follows the same generated-artifact rule as Storybook and
-the specification book. `packages/desktop-electron/dist-electron/` and
-`packages/desktop-electron/release/` stay ignored, while package source,
+the specification book. `packages/desktop-deno/dist/` and
+`packages/desktop-deno/release/` stay ignored, while package source,
 acceptance tests, icons, and entitlements remain reviewable inputs. The change
 map requires desktop implementation slices to update the desktop, package, and
 architecture chapters; language-runtime changes additionally update Problems.

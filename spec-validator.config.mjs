@@ -136,7 +136,6 @@ export default defineConfig(tableRequirements(), {
         {
           pattern: "^packages/api/src/lib/storage/desktop-native\\.ts$",
           chapters: [
-            "spec/src/desktop-host.md",
             "spec/src/desktop-deno-host.md",
             "spec/src/packages.md",
           ],
@@ -210,11 +209,13 @@ export default defineConfig(tableRequirements(), {
         {
           pattern: "^packages/desktop-electron/",
           chapters: [
-            "spec/src/desktop-host.md",
+            "spec/src/desktop-deno-host.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
-            "spec/src/plugins/wordcount/index.md",
-            "spec/src/plugins/spellcheck/index.md",
+            "spec/src/plugin-model.md",
+            "spec/src/workspace-shell.md",
+            "spec/src/plugins/ai/index.md",
+            "spec/src/plugins/markdown/index.md",
           ],
         },
         {
@@ -238,7 +239,7 @@ export default defineConfig(tableRequirements(), {
         {
           pattern:
             "^packages/language-service/(?:src/markdownlint/|package\\.json$)",
-          chapters: ["spec/src/desktop-host.md"],
+          chapters: ["spec/src/desktop-deno-host.md"],
         },
         {
           pattern:
@@ -338,7 +339,7 @@ export default defineConfig(tableRequirements(), {
             "spec/src/plugins/ai/index.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
-            "spec/src/desktop-host.md",
+            "spec/src/desktop-deno-host.md",
             "spec/src/web-host.md",
           ],
         },

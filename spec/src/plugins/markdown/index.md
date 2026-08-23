@@ -12,6 +12,8 @@ specified separately under [Panels](./panels/index.md).
 The production plugin also owns the Tags panel. Its persisted panel IDs follow
 the canonical Obsidian-compatible names governed by `LN-MD-085` and
 `LN-MD-086`, while former Lapis IDs remain load-only compatibility aliases.
+The Deno desktop host loads the same public Markdown package and verified asset
+metadata as web; Markdown does not own a desktop-specific loader or asset URL.
 
 ## Requirements
 

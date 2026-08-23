@@ -21,16 +21,14 @@ and MUST NOT register Tasks workspace views themselves. AppDatabase owns
 namespaced plugin projections and a serializable query AST, including the public
 `tasks/task` collection. That projection stores `planKind` as the Tasks
 `plan.at` kind (`anytime`, `morning`, `afternoon`, `evening`, or `time`).
-Experimental Deno desktop sessions use the same API vault-session factory and
-WASM Turso path as browser hosts.
-`packages/desktop-deno` owns the Deno window, `win.bind()` bridge, native host
-lifecycle, and Electron-parity adapters while remaining a consumer of public
-Lapis package boundaries. Its production acceptance builds through the package
-and restores an isolated real vault rather than substituting a browser-only
-renderer test. Target-specific artifact naming, metadata, icons, and
+Deno desktop sessions use the same API vault-session factory and WASM Turso
+path as browser hosts. `packages/desktop-deno` is the sole native desktop
+consumer and owns the Deno window, `win.bind()` bridge, native host lifecycle,
+and services while remaining a consumer of public Lapis package boundaries.
+Its production acceptance builds through the package and restores an isolated
+real vault rather than substituting a browser-only renderer test.
+Target-specific artifact naming, metadata, icons, verified PTY libraries, and
 credential-selecting signing orchestration remain owned by that host package.
-The open promotion boundaries and exit evidence are maintained in the
-[Deno Desktop Parity Blockers](./desktop-deno-parity-blockers.md) register.
 
 ## Requirements
 
@@ -63,10 +61,10 @@ The open promotion boundaries and exit evidence are maintained in the
 | LN-ARCH-025 | Design Core MUST own reusable diagnostics state and Problems presentation. Lapis API MUST adapt that contract to plugins, vault navigation, and language services; provider packages MUST remain independent of Design Core and workspace layout.                                                                                                                                                                                                                                                                                                                                                                                     |
 | LN-ARCH-026 | The API editor MUST consume diagnostic glyphs and semantic colours from Design Core's public workspace contract. It MUST keep CodeMirror-specific marker mounting, tooltip geometry, and pointer lifecycle inside the editor boundary. An open diagnostic card MUST retain its origin and placement throughout pointer handoff.                                                                                                                                                                                                                                                                                                       |
 | LN-ARCH-027 | The API editor MUST own CodeMirror inline-problem structure and styling. It MUST consume public workspace semantic tokens without moving editor-specific widgets into Design Core or application-global styles.                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| LN-ARCH-028 | The Electron desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault discovery and selection, session boot, and IPC belong to the host; the workspace package MAY forward generic navigation presentation while rendering and persisted layout compatibility remain in their owning packages.                                                                                                                                                                                                                                                                                 |
-| LN-ARCH-029 | Electron main, preload, and renderer code MUST communicate through the typed desktop-neutral bridge. The renderer MUST NOT receive Node integration or raw Electron IPC access.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| LN-ARCH-028 | The Deno desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault discovery and selection, session boot, and bounded bindings belong to the host; the workspace package MAY forward generic navigation presentation while rendering and persisted layout compatibility remain in their owning packages.                                                                                                                                                                                                                                                                    |
+| LN-ARCH-029 | Deno native and renderer code MUST communicate through the typed native desktop bridge. The renderer MUST NOT receive unrestricted Deno APIs or raw host objects.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | LN-ARCH-030 | Production application hosts MUST load Design Core's public runtime stylesheet and theme entries directly. Storybook-only host configuration MUST NOT be required for reusable workspace components to render correctly.                                                                                                                                                                                                                                                                                                                                                                                                              |
-| LN-ARCH-031 | Native application hosts MUST map typed platform metadata to host-owned root CSS state. Reusable workspace components MUST expose semantic styling hosts without detecting Electron or hard-coding native window-control geometry.                                                                                                                                                                                                                                                                                                                                                                                                    |
+| LN-ARCH-031 | Native application hosts MUST map typed platform metadata to host-owned root CSS state. Reusable workspace components MUST expose semantic styling hosts without detecting a desktop framework or hard-coding native window-control geometry.                                                                                                                                                                                                                                                                                                                                                                                       |
 | LN-ARCH-032 | Application hosts MAY register the reusable `@lapis-notes/file-explorer` contribution, but plugin enablement order, configuration and metadata boot, community-plugin policy, and teardown MUST remain host-owned. `@lapis-notes/workspace` MUST remain shell-only.                                                                                                                                                                                                                                                                                                                                                                   |
 | LN-ARCH-033 | `@lapis-notes/search` MUST keep indexing and query execution behind API contracts while composing its grouped tree, settings, facets, badges, and overlays from public Design Core exports. Markdown panels MAY invoke Search only through commands.                                                                                                                                                                                                                                                                                                                                                                                  |
 | LN-ARCH-034 | App-database selection MUST use an API-owned provider contract. Production hosts MUST register Turso providers without retaining SQLite compatibility or non-Turso fallback paths, while Search and workspace consumers MUST depend only on generic `AppDatabase` capabilities.                                                                                                                                                                                                                                                                                                                                                       |
@@ -92,7 +90,7 @@ The open promotion boundaries and exit evidence are maintained in the
 | LN-ARCH-054 | App-linked runtime objects MUST resolve App through explicit injection, workspace ownership, or Svelte context. `globalThis.app` MAY remain only as a host-installed compatibility fallback, and constructing an App MUST NOT mutate global state.                                                                                                                                                                                                                                                                                                                                                                                    |
 | LN-ARCH-055 | Folder-contained AI conversation files MUST be the portable source of truth and use API-owned vault durability. Chat and folder-aware history MUST remain separate views joined by a non-authoritative scope-and-ID hint that follows live folder moves in memory. The selected history scope MUST read portable source while the provider-filtered AppDatabase projection remains disposable and limited to cross-scope discovery and full-text previews.                                                                                                                                                                            |
 | LN-ARCH-056 | AI History MUST remain an AI-owned, placement-neutral Explorer-style tree composed from public shared primitives. Its SearchFilterBar search field and trailing actions MUST stay centered in the panel. Host replay and native agent state MUST remain bounded, non-canonical, and safe to lose without automatically repeating a side-effecting turn. Chrome actions MUST keep a visible hover fill, and New chat MUST use the dimmed folder-context path.                                                                                                                                                                          |
-| LN-ARCH-057 | Real-agent diagnostics MUST use explicit developer-invoked supervisors around the production host boundaries. Storybook MUST remain passive, an attached loopback token MUST exist only in the supervised child environment, and Electron MUST use one seeded folder as both portable vault source and native agent workspace.                                                                                                                                                                                                                                                                                                        |
+| LN-ARCH-057 | Real-agent diagnostics MUST use explicit developer-invoked supervisors around the production host boundaries. Storybook MUST remain passive, an attached loopback token MUST exist only in the supervised child environment, and Deno desktop MUST use one seeded folder as both portable vault source and native agent workspace.                                                                                                                                                                                                                                                                                                     |
 | LN-ARCH-058 | AI chat view construction MUST remain synchronous and presentation-first while conversation, catalog, and runtime preparation continue behind the mounted surface. Conversation history MUST use generic workspace leaf activation to preserve its sidebar view and route location-keyed conversations into reusable main-area tabs. The chat view MUST project scope path breadcrumbs through the generic view chrome contract.                                                                                                                                                                                                      |
 | LN-ARCH-059 | API MUST compose generic view access metadata into the existing plugin command lifecycle and project active API commands into the Design Core Actions tab. File Explorer and AI MUST register Files and Agents palette providers. First-party plugins retain placement, reuse, activation, and reveal policy for their own views.                                                                                                                                                                                                                                                                                                     |
 | LN-ARCH-060 | API MUST own the transport-neutral application tool registry, domain plugins MUST own their tool implementations, AI MUST own policy and approvals, and sibling `@lapismd/ai-host` MUST own MCP transport. API, Search, Markdown, and portable AI code MUST NOT import MCP, ACP, acpx, or vendor agent SDKs. Authenticated remote transport MUST leave execution and note content in the owning App.                                                                                                                                                                                                                                  |
@@ -102,7 +100,7 @@ The open promotion boundaries and exit evidence are maintained in the
 | LN-ARCH-064 | API MUST own transport-neutral skill-source and composer slash-command registries. AI MUST own discovery, snapshots, routing, and `AppToolHost` invocation. Composer slash commands MUST remain distinct from workspace `addCommand` and from Mira editor slash commands.                                                                                                                                                                                                                                                                                                                                                             |
 | LN-ARCH-065 | API MUST own plugin-scoped Markdown extension and file-surface registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin.                                                                                                                                                                                                                                                                              |
 | LN-ARCH-066 | API-owned workspace leaves MUST split through API leaf duplication before Design Core renders the new pane. Design Core MAY own generic tab splitting, but Lapis-hosted imperative views MUST NOT create orphan design tabs without live `WorkspaceLeaf` containers, host layout projection, or translated split directions.                                                                                                                                                                                                                                                                                                          |
-| LN-ARCH-067 | The Deno desktop parity host MUST remain a consumer of `@lapis-notes/api`, `@lapis-notes/workspace`, and public host packages. Native window, bindings, services, vault discovery, session boot, and local distribution orchestration belong to the host. Language diagnostics and verified asset metadata MUST use public boundaries while watching and HTTP delivery remain Deno-owned. It MUST NOT replace Electron before packaged parity acceptance.                                                                                                                                                        |
+| LN-ARCH-067 | The Deno desktop host MUST remain a consumer of `@lapis-notes/api`, `@lapis-notes/workspace`, and public host packages. Native window, bindings, services, vault discovery, session boot, and local distribution orchestration belong to the host. Language diagnostics, terminal execution, and verified asset metadata MUST use public boundaries while watching and HTTP delivery remain Deno-owned.                                                                                                                                                                                         |
 | LN-ARCH-068 | Deno agent execution MUST consume the public `@lapismd/ai-host` executor. Deno MAY attach the host package's authenticated Web-standard MCP handler to its existing loopback server, but MUST retain renderer routing, event delivery, process lifetime, and shutdown ownership.                                                                                                                                                                                                                                                                                                                         |
 | LN-ARCH-069 | Deno native close, menu, and external-navigation policy MUST remain host-owned while session persistence and disposal remain renderer-owned. The close handshake MUST cross the bounded native bridge and fail closed on timeout; it MUST NOT bypass the shared workspace or plugin teardown path.                                                                                                                                                                                                                                                                                                              |
 | LN-ARCH-070 | Deno single-instance ownership MUST use an exclusive application-data lock and authenticated local handoff. The native host MUST retain URL arguments until a subscribed renderer takes them; only the ready App URL registry MAY interpret their application action.                                                                                                                                                                                                                                                                                                                                           |
@@ -161,7 +159,7 @@ Markdown owns `notes_list`. API owns Vault-backed `read`, `write`, `edit`, and
 Those bundled descriptions steer agents to the vault tools instead of host-cwd
 shell search (LN-AI-108).
 The live transport is an AI Host-owned loopback broker plus official-SDK stdio
-shim. Electron and the authenticated remote client carry only generic bridge
+shim. Deno desktop and the authenticated remote client carry only generic bridge
 commands and events; they never acquire registry, policy, or transcript
 authority.
 The AI controller allocates the binding identity before runtime start, opens
@@ -236,7 +234,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/language-service (internal provider-neutral client + worker)
 @lapis-notes/markdown-lint (authorized core diagnostic provider)
 @lapis-notes/spellcheck (authorized Harper diagnostic provider)
-@lapis-notes/desktop-electron (native consumer host)
+@lapis-notes/desktop-deno (native consumer host)
 @lapis-notes/web (browser/PWA consumer host)
 
 @lapismd/design-core (sibling; UI primitives + workspace layout engine)
@@ -284,7 +282,7 @@ around that shared primitive.
 Filter controls consume Design Core's public Popover width token and Accordion
 indicator position while Bases owns the legacy 45svw geometry, opaque panel
 surface, and on-accent indicator paint.
-Electron, web, and the root real-App catalog consume its package exports and
+Deno desktop, web, and the root real-App catalog consume its package exports and
 share the Search, Bases, external-Roles boot order without a consumer copy.
 
 Overlapping shadcn and forms controls used by `@lapis-notes/api` import from
@@ -323,15 +321,13 @@ Every workspace package exposes the common `build`, `check`, and `test`
 contract, so the shell participates in the same Turbo verification graph as
 the kernel and retained UI surface.
 
-The desktop renderer bundles its workspace consumers, while Electron main
-retains only native lifecycle and service dependencies. Main communicates with
-the context-isolated preload through an explicit command allowlist. Renderer
-shutdown is acknowledged before window destruction so the API-owned session
-can persist and dispose without moving ownership into main or workspace.
-Electron main owns native Turso handles behind a fixed API database RPC
-catalogue; the renderer receives descriptors and results, never SQL or storage
-paths. Intel macOS composes the API-owned WASM provider in the renderer behind
-the same session boundary. Renderer and web WASM database imports use the
+The desktop renderer bundles its workspace consumers, while the Deno host
+retains native lifecycle and service dependencies. Native commands cross an
+explicit binding allowlist. Renderer shutdown is acknowledged before window
+destruction so the API-owned session can persist and dispose without moving
+ownership into native code or workspace. Deno desktop and web compose the
+API-owned WASM provider in the renderer behind the same session boundary.
+Renderer and web WASM database imports use the
 driver's host-bundler entry so Vite serves worker and WASM assets without
 pulling the prebuilt worker-inline module through Rollup.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
@@ -370,8 +366,8 @@ The production renderer imports Design Core's public stylesheet and Lapis theme
 plus the Lapis UI alias sheet before mounting either the launcher or workspace.
 Its Vite pipeline compiles the desktop launcher's utility classes; reusable
 workspace paint remains supplied by the public Design Core stylesheet rather
-than Storybook-only configuration. Electron-specific window-control clearance
-is applied by host CSS against Design Core's semantic shell attributes. The
+than Storybook-only configuration. Native window-control clearance is applied
+by host CSS against Design Core's semantic shell attributes. The
 development server permits the resolved Design Core package root for imported
 assets while retaining package-export resolution and the default Lapis
 workspace boundary.
@@ -398,20 +394,18 @@ sessions while the reserved `model` capability stays unavailable. The plugin
 obtains live runtimes from that host factory and keeps adapters off the root
 export. Cursor uses the same ACP runtime as Codex through the selected agent
 name. Process execution lives in sibling `@lapismd/ai-host`, used in-process by
-Electron and as `lapis-ai-host serve` for WebSocket clients. User-global agent
+Deno desktop and as `lapis-ai-host serve` for WebSocket clients. User-global agent
 command storage is a host capability, so renderer bundles must not statically
 pull the AI plugin's Node-only command-store module into the browser graph.
-The same desktop bridge advertises `terminal-runtime`. Electron embeds sibling
-`@lapismd/terminal-host` in-process and binds each session workspace to the
-create payload vault path, otherwise `terminal.cwd`, otherwise the home
-directory. The web host attaches that host after
-configuration load from persisted Settings or env-prefilled URL and token,
-without overwriting a desktop IPC bridge. Terminal server Settings tell the
+The same desktop bridge advertises `terminal-runtime`. Deno desktop embeds
+sibling `@lapismd/terminal-host/deno` in-process, supplies a verified Sigma
+native library, and binds each session workspace to the create payload vault
+path, otherwise `terminal.cwd`, otherwise the home directory. Terminal server Settings tell the
 user to start `lapis-terminal-host serve --workspace` on the vault or a parent
 of `terminal.cwd`.
 The web host attaches or replaces that WebSocket after configuration load
 from persisted Settings or env-prefilled URL and token, without overwriting a
-desktop IPC bridge. The token Settings field stays masked until revealed. Chat shows a start-server message when a live runtime is
+native desktop bridge. The token Settings field stays masked until revealed. Chat shows a start-server message when a live runtime is
 selected and no host is connected. Chat sessions
 persist runtime, provider, model, and thinking context through plugin data.
 Codex model listing uses the process host while Cursor model listing uses an

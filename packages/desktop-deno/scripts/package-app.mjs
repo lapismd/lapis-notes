@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
@@ -32,6 +33,10 @@ const packageDir = path.resolve(
 const releaseDir = path.join(packageDir, "release");
 const packageMetadata = JSON.parse(
   await readFile(path.join(packageDir, "package.json"), "utf8"),
+);
+const terminalHostDir = path.resolve(packageDir, "../../../terminal-host");
+const terminalArtifacts = JSON.parse(
+  await readFile(path.join(terminalHostDir, "native-artifacts.json"), "utf8"),
 );
 
 function resolveDenoExecutable() {
@@ -68,6 +73,8 @@ async function buildDesktopOutput(plan, output) {
     plan.icon,
     "--no-check",
     "--sloppy-imports",
+    "--include",
+    "native",
     "--exclude",
     "node_modules",
     "--exclude",
@@ -77,6 +84,28 @@ async function buildDesktopOutput(plan, output) {
     "-A",
     "src-deno/main.ts",
   ]);
+}
+
+async function prepareNativeLibrary(plan) {
+  const artifact = terminalArtifacts.targets[plan.target];
+  if (!artifact) {
+    throw new Error(`Missing terminal native artifact for ${plan.target}`);
+  }
+  const nativeDir = path.join(packageDir, "native");
+  await rm(nativeDir, { force: true, recursive: true });
+  await mkdir(nativeDir, { recursive: true });
+  const response = await fetch(`${terminalArtifacts.baseUrl}/${artifact.file}`);
+  if (!response.ok) {
+    throw new Error(`Unable to download terminal native library: HTTP ${response.status}`);
+  }
+  const bytes = Buffer.from(await response.arrayBuffer());
+  const actual = createHash("sha256").update(bytes).digest("hex");
+  if (actual !== artifact.sha256) {
+    throw new Error(
+      `Terminal native library checksum mismatch: expected ${artifact.sha256}, received ${actual}`,
+    );
+  }
+  await writeFile(path.join(nativeDir, artifact.file), bytes, { mode: 0o755 });
 }
 
 async function declareMacApplicationMetadata(appBundle) {
@@ -118,10 +147,7 @@ async function declareMacApplicationMetadata(appBundle) {
 
 async function signMacApplication(appBundle) {
   const identity = process.env.LAPIS_DENO_MAC_SIGN_IDENTITY?.trim() || "-";
-  const entitlements = path.resolve(
-    packageDir,
-    "../desktop-electron/build/entitlements.mac.plist",
-  );
+  const entitlements = path.resolve(packageDir, "build/entitlements.mac.plist");
   await run(
     "codesign",
     createMacSigningArguments({ appBundle, identity, entitlements }),
@@ -262,6 +288,8 @@ const plan = createDistributionPlan({
 if (!fs.existsSync(plan.icon)) {
   throw new Error(`Lapis application icon is missing: ${plan.icon}`);
 }
+
+await prepareNativeLibrary(plan);
 
 if (plan.platform === "macos") {
   await packageMac(plan);

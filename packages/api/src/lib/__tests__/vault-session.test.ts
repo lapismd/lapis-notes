@@ -140,7 +140,7 @@ describe("createVaultSession", () => {
     });
   });
 
-  it("routes deno-desktop sessions to Turso WASM instead of Electron native IPC", async () => {
+  it("routes deno-desktop sessions to Turso WASM without native database RPC", async () => {
     vi.stubGlobal("navigator", {
       storage: { getDirectory: vi.fn() },
     });
@@ -164,7 +164,7 @@ describe("createVaultSession", () => {
 
   it("accepts an explicit provider without changing the AppDatabase contract", async () => {
     const session = await createVaultSession(adapter, {
-      runtime: "electron-desktop",
+      runtime: "test",
       appDatabaseProvider: provider,
     });
 

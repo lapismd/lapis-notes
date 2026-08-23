@@ -39,7 +39,7 @@ describe("Deno application menu", () => {
     });
   });
 
-  it("projects all Electron menu groups and host actions", () => {
+  it("projects all application menu groups and host actions", () => {
     const menu = createDenoApplicationMenu("linux");
     expect(
       menu.map((item) =>
@@ -61,7 +61,7 @@ describe("Deno application menu", () => {
     expect(group(menu, "Edit")).toContainEqual({ role: { role: "undo" } });
   });
 
-  it("keeps unsupported Electron roles visible and disabled", () => {
+  it("keeps unsupported native roles visible and disabled", () => {
     const view = group(createDenoApplicationMenu("darwin"), "View");
     const disabledLabels = view.flatMap((item) =>
       typeof item === "object" && "item" in item && !item.item.enabled

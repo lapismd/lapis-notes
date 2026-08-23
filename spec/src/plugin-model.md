@@ -6,7 +6,11 @@ contribution without adding another loader or contribution manifest.
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. A `deno-desktop` session reports
-plugin-distribution platform `desktop` rather than `electron` or `web`. Workspace `activateLeaf` remains an
+plugin-distribution platform `desktop` rather than `electron` or `web`.
+Electron-labelled manifest hosts remain accepted compatibility vocabulary for
+installed plugins; they do not imply an Electron application runtime. Verified
+desktop assets are served only through the Deno host's same-origin route, while
+web retains its public route. Workspace `activateLeaf` remains an
 API-owned selection that the persisted layout must restore. Statically shipped plugins use the
 core manager even when their source is maintained in a separate repository.
 First-party plugin surfaces compose Design Core public parts for shared chrome;

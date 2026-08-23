@@ -67,7 +67,7 @@ export default defineConfig(({ command }) => ({
   worker: { format: "es" },
   assetsInclude: ["**/*.wasm"],
   optimizeDeps: {
-    exclude: ["ghostty-web", "@xterm/xterm"],
+    exclude: ["ghostty-web"],
   },
   resolve: {
     dedupe: rendererSingletonPackages,

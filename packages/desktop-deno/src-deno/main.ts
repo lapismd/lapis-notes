@@ -21,6 +21,8 @@ import { createRendererEventEmitter } from "./renderer-events.ts";
 import { rendererDistRoot } from "./production-build.ts";
 import { DenoPluginAssetService } from "./plugin-assets.ts";
 import { acquireDenoSingleInstance } from "./single-instance.ts";
+import { resolveDenoPtyLibrary } from "./terminal-native-library.ts";
+import { DenoTerminalRuntimeHost } from "./terminal-runtime.ts";
 import { userDataDir } from "./user-data.ts";
 import {
   DESKTOP_WINDOW_TITLE,
@@ -75,6 +77,14 @@ const emitRendererEvent = createRendererEventEmitter(win);
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
 const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
+let terminalRuntime: DenoTerminalRuntimeHost | undefined;
+try {
+  terminalRuntime = new DenoTerminalRuntimeHost(emitRendererEvent, {
+    libraryPath: await resolveDenoPtyLibrary(),
+  });
+} catch (error) {
+  console.error("[desktop] terminal runtime unavailable", error);
+}
 const closeCoordinator = createDenoCloseCoordinator({
   emitBeforeClose() {
     console.log("[desktop-close] request");
@@ -87,6 +97,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     console.log("[desktop-close] shutdown");
     fileWatch.shutdown();
     pluginAssets.clear();
+    await terminalRuntime?.shutdown();
     await agentRuntime.shutdown();
     await singleInstance.close();
   },
@@ -126,6 +137,7 @@ function registerDesktopBindings(): void {
           fileWatch,
           pluginAssets,
           agentRuntime,
+          terminalRuntime,
           rendererCloseReady: () => closeCoordinator.rendererReady(),
           requestClose: () => closeCoordinator.requestClose(),
           takePendingAppUrls: () => singleInstance.queue.takePending(),
@@ -134,7 +146,12 @@ function registerDesktopBindings(): void {
       },
     ],
     ["platform", () => createPlatformInfo()],
-    ["capabilities", () => createCapabilityRegistry()],
+    [
+      "capabilities",
+      () => createCapabilityRegistry(Deno.build.os, {
+        terminalAvailable: Boolean(terminalRuntime),
+      }),
+    ],
   ]);
 }
 

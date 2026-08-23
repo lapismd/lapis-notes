@@ -7,15 +7,15 @@ occurrence state.
 `@lapis-notes/spellcheck` adapts Harper grammar and spelling diagnostics for
 open documents into the shared language-service and Problems path. It uses
 `harper.js` in the renderer. `harper-ls` remains out of scope.
-Desktop terminal vault cwd binding (LN-DESK-059) and web `--workspace`
+Desktop terminal vault cwd binding (LN-DENO-028) and web `--workspace`
 Settings copy (LN-WEB-037) MUST NOT change Spell Check ownership.
 Web vault copy progress (LN-WEB-042, LN-WEB-043) and App rebuild-cache
 commands (LN-PKG-097, LN-PKG-098) also MUST NOT change Spell Check ownership.
-Desktop and web Tasks index-only load (LN-DESK-060, LN-WEB-044) also MUST
+Desktop and web Tasks index-only load (LN-DENO-006, LN-WEB-044) also MUST
 NOT change Spell Check ownership.
 Browser vault transfer error reporting through session-owned notifications also
 MUST NOT change Spell Check ownership.
-Electron database revision IPC and direct-SQL metadata startup are host
+Deno WASM database revisions and direct-SQL metadata startup are host
 infrastructure and MUST NOT change Spell Check registration, diagnostics, or
 status-bar ownership.
 

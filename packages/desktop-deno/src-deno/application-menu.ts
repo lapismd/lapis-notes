@@ -61,8 +61,8 @@ function submenu(label: string, items: DenoMenuItem[]): DenoMenuItem {
 }
 
 /**
- * Projects Electron's visible menu into Deno Desktop's currently documented
- * role set. Electron-only roles stay visible but disabled.
+ * Projects the established Lapis menu into Deno Desktop's currently documented
+ * role set. Unsupported native roles stay visible but disabled.
  */
 export function createDenoApplicationMenu(platform: string): DenoMenuItem[] {
   const isMac = platform === "darwin";

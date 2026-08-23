@@ -10,7 +10,7 @@ const sourceLogoSvgPath = path.resolve(
   webDir,
   "../api/src/lib/assets/lapis-logo.svg",
 );
-const sourceAppIconPath = path.resolve(webDir, "../desktop-electron/build/icon.png");
+const sourceAppIconPath = path.resolve(webDir, "../desktop-deno/build/icon.png");
 
 const rasterTargets = [
   ["apple-touch-icon.png", 180, 0.82],

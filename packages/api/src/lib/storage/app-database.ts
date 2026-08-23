@@ -54,10 +54,10 @@ export type {
   SearchEmbeddingRuntimeStatus,
 } from "./search-embedding-provider";
 
-export type RuntimeTarget = "web-pwa" | "electron-desktop" | "deno-desktop" | "test";
+export type RuntimeTarget = "web-pwa" | "deno-desktop" | "test";
 
-export interface ElectronLocalSearchQueryEnhancementProviderConfig {
-  kind: "electron-local-model";
+export interface LocalSearchQueryEnhancementProviderConfig {
+  kind: "local-model";
   queryExpansionModelId: string;
   rerankerModelId: string;
   allowRemoteModels?: boolean;
@@ -67,7 +67,7 @@ export interface ElectronLocalSearchQueryEnhancementProviderConfig {
 }
 
 export type SearchQueryEnhancementProviderConfig =
-  ElectronLocalSearchQueryEnhancementProviderConfig;
+  LocalSearchQueryEnhancementProviderConfig;
 
 export type SearchQueryEnhancementRuntimePhase =
   | "ready"
@@ -151,7 +151,7 @@ export interface AppDatabaseSearchIndexStats {
 export function supportsSearchQueryEnhancementRuntime(
   runtimeTarget?: RuntimeTarget | null,
 ): boolean {
-  return runtimeTarget === "electron-desktop";
+  return runtimeTarget === "deno-desktop";
 }
 
 export type AppDatabaseKind = "turso-wasm" | "turso-native" | "memory";

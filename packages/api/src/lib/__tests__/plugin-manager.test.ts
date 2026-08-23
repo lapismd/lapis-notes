@@ -2166,7 +2166,7 @@ describe("PluginManager", () => {
 
   it("selects electron renderer ESM entries when plugin assets are available", async () => {
     setNativeDesktopBridge({
-      runtime: "electron-desktop",
+      runtime: "deno-desktop",
       capabilities: {
         "plugin-assets": {
           id: "plugin-assets",

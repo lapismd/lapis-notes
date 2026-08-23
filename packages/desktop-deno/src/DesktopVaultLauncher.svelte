@@ -89,7 +89,7 @@
 
   // Profiles cross the context-isolated IPC boundary when reopened or edited.
   // Keep them as plain records rather than wrapping nested handles in Svelte
-  // proxies, which Electron cannot structured-clone.
+  // proxies, which native host bridges cannot structured-clone.
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let recentVaultQuery = $state("");
   let recentVaultDialogOpen = $state(false);

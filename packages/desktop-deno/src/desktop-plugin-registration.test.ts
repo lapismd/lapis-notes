@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Deno desktop plugin registration", () => {
-  it("matches Electron first-party ordering before layout restoration", () => {
+  it("matches canonical first-party ordering before layout restoration", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src/DesktopWorkspaceSession.svelte"),
       "utf8",

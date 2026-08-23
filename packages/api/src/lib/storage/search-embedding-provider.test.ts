@@ -243,7 +243,7 @@ describe("search embedding provider", () => {
     expect("localModelPath" in runtime.env).toBe(false);
   });
 
-  it("disables browser cache when running in a native desktop renderer", async () => {
+  it("keeps browser embedding semantics in the Deno desktop renderer", async () => {
     let progressCallback:
       | ((event: { progress?: number; file?: string; status?: string }) => void)
       | undefined;
@@ -256,7 +256,7 @@ describe("search embedding provider", () => {
         _model: string,
         options?: Record<string, unknown>,
       ) => {
-        expect(options).toMatchObject({ device: "cpu" });
+        expect(options).toMatchObject({ device: "wasm" });
         progressCallback =
           options?.progress_callback as typeof progressCallback;
         progressCallback?.({
@@ -273,11 +273,11 @@ describe("search embedding provider", () => {
     (
       globalThis as {
         __LAPIS_NATIVE_DESKTOP__?: {
-          runtime: "electron-desktop";
+          runtime: "deno-desktop";
         };
       }
     ).__LAPIS_NATIVE_DESKTOP__ = {
-      runtime: "electron-desktop",
+      runtime: "deno-desktop",
     };
 
     setSearchEmbeddingProviderRuntimeLoaderForTests(
@@ -291,10 +291,10 @@ describe("search embedding provider", () => {
     });
 
     await expect(provider?.ready()).resolves.toBe(true);
-    expect(runtime.env.useBrowserCache).toBe(false);
+    expect(runtime.env.useBrowserCache).toBe(true);
     expect(provider?.getRuntimeStatus()).toMatchObject({
       phase: "ready",
-      message: "Embedding model downloaded for the current desktop session",
+      message: "Embedding model downloaded and cached in browser",
     });
   });
 });

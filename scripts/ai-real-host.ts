@@ -167,13 +167,14 @@ async function startDesktop(workspace: string): Promise<void> {
   );
   await mkdir(userDataDir, { recursive: true });
   console.log(`[ai-smoke] seeded native vault and agent workspace: ${workspace}`);
-  console.log("[ai-smoke] Electron opens the AI chat with Codex Native selected");
+  console.log("[ai-smoke] Deno desktop opens the AI chat with Codex Native selected");
   const child = spawnChild(
     pnpm,
-    ["--filter", "@lapis-notes/desktop-electron", "dev"],
+    ["--filter", "@lapis-notes/desktop-deno", "dev"],
     {
-      LAPIS_DESKTOP_TEST_VAULT_PATH: workspace,
-      LAPIS_DESKTOP_USER_DATA_DIR: userDataDir,
+      LAPIS_DENO_VAULT: workspace,
+      LAPIS_DENO_VAULT_AUTO: "1",
+      LAPIS_DENO_USER_DATA: userDataDir,
     },
   );
   await supervise(child, async () => {});

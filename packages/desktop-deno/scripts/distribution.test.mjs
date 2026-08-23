@@ -1,4 +1,5 @@
 import path from "node:path";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   createDistributionPlan,
@@ -60,9 +61,9 @@ describe("Deno desktop distribution", () => {
         path.join("release", "Lapis-Notes-2026.31.5-macos-arm64.zip"),
       ),
     ).toBe(true);
-    expect(
-      mac.icon.endsWith(path.join("desktop-electron", "build", "icon.icns")),
-    ).toBe(true);
+    expect(mac.icon.endsWith(path.join("desktop-deno", "build", "icon.icns"))).toBe(
+      true,
+    );
 
     const linux = createDistributionPlan({
       ...common,
@@ -78,9 +79,18 @@ describe("Deno desktop distribution", () => {
         path.join("release", "Lapis-Notes-2026.31.5-linux-x64.tar.gz"),
       ),
     ).toBe(true);
-    expect(
-      linux.icon.endsWith(path.join("desktop-electron", "build", "icon.png")),
-    ).toBe(true);
+    expect(linux.icon.endsWith(path.join("desktop-deno", "build", "icon.png"))).toBe(
+      true,
+    );
+  });
+
+  it("includes a checksum-verified terminal native library in the Deno bundle", () => {
+    const source = readFileSync(new URL("./package-app.mjs", import.meta.url), "utf8");
+    expect(source).toContain('path.resolve(packageDir, "../../../terminal-host")');
+    expect(source).toContain('"native-artifacts.json"');
+    expect(source).toContain('"--include"');
+    expect(source).toContain('"native"');
+    expect(source).toContain('createHash("sha256")');
   });
 
   it("writes URL-aware Linux metadata", () => {

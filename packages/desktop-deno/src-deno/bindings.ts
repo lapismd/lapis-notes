@@ -9,6 +9,10 @@ import { handleLanguageService } from "./language-service.ts";
 import { openExternalUrl, showNativeNotification } from "./native-actions.ts";
 import type { DenoPluginAssetService } from "./plugin-assets.ts";
 import {
+  DENO_TERMINAL_COMMANDS,
+  type DenoTerminalRuntimeHost,
+} from "./terminal-runtime.ts";
+import {
   handleVaultFs,
   moveVaultFolder,
   selectVaultFolder,
@@ -74,12 +78,14 @@ export const DENO_INVOKE_COMMANDS = new Set([
   ...KV_COMMANDS,
   ...LANGUAGE_SERVICE_COMMANDS,
   ...DENO_AGENT_COMMANDS,
+  ...DENO_TERMINAL_COMMANDS,
 ]);
 
 export type DesktopInvokeContext = {
   fileWatch?: DenoFileWatchService;
   pluginAssets?: DenoPluginAssetService;
   agentRuntime?: DenoAgentRuntimeHost;
+  terminalRuntime?: DenoTerminalRuntimeHost;
   rendererCloseReady?: () => void;
   requestClose?: () => void;
   takePendingAppUrls?: () => string[];
@@ -130,7 +136,9 @@ export function handleDesktopInvoke(
     return createPlatformInfo();
   }
   if (command === "desktop_capabilities_get") {
-    return createCapabilityRegistry();
+    return createCapabilityRegistry(Deno.build.os, {
+      terminalAvailable: Boolean(context.terminalRuntime),
+    });
   }
   if (command === "desktop_acceptance_report") {
     const reportPath = Deno.env.get("LAPIS_DENO_ACCEPTANCE_REPORT")?.trim();
@@ -201,6 +209,12 @@ export function handleDesktopInvoke(
       throw new Error("Deno agent runtime is unavailable");
     }
     return context.agentRuntime.handle(command, payload);
+  }
+  if (DENO_TERMINAL_COMMANDS.has(command)) {
+    if (!context.terminalRuntime) {
+      throw new Error("Deno terminal runtime is unavailable");
+    }
+    return context.terminalRuntime.handle(command, payload);
   }
   return handleBootstrapKv(command, payload);
 }

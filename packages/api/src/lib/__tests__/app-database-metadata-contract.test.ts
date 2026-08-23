@@ -3,9 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AppDatabase, AppDatabaseProvider } from "../storage";
 import {
   MemoryAppDatabase,
-  NativeDesktopTursoAppDatabase,
   TursoAppDatabase,
-  type NativeDesktopBridge,
   type TursoConnection,
 } from "../storage";
 import { BrowserAppDatabaseCoordinator } from "../storage/browser-app-database-coordination";
@@ -69,30 +67,6 @@ async function tursoHarness(
   };
 }
 
-async function desktopHarness(vaultId: string): Promise<DatabaseHarness> {
-  const backend = new MemoryAppDatabase(`${vaultId}-backend`);
-  await backend.open();
-  const bridge: NativeDesktopBridge = {
-    invoke: async <T>(channel: string, payload?: unknown): Promise<T> => {
-      if (channel === "desktop_db_open") return backend.descriptor as T;
-      if (channel === "desktop_db_close") return undefined as T;
-      const call = payload as { method: keyof AppDatabase; args: unknown[] };
-      return (backend[call.method] as (...args: unknown[]) => Promise<T>)(
-        ...call.args,
-      );
-    },
-    onAppDatabaseChange(listener) {
-      return backend.subscribeToChanges((change) =>
-        listener({ vaultId, change }),
-      );
-    },
-  } as NativeDesktopBridge;
-  return {
-    database: new NativeDesktopTursoAppDatabase(vaultId, bridge),
-    cleanup: () => backend.close(),
-  };
-}
-
 async function browserHarness(
   vaultId: string,
   proxy: boolean,
@@ -138,7 +112,6 @@ const providers: Array<
   ["Memory", memoryHarness],
   ["Turso native", (vaultId) => tursoHarness(vaultId, "turso-native")],
   ["Turso WASM SQL", (vaultId) => tursoHarness(vaultId, "turso-wasm")],
-  ["Electron IPC", desktopHarness],
   ["browser owner", (vaultId) => browserHarness(vaultId, false)],
   ["browser proxy", (vaultId) => browserHarness(vaultId, true)],
 ];

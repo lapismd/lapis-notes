@@ -79,7 +79,7 @@ Agent submenu to repeat it with Cursor ACP:
    interrupted and Retry is offered. A submitted prompt must never be replayed
    automatically after host loss.
 
-## Codex Native in Electron
+## Codex Native in Deno desktop
 
 Run:
 
@@ -88,7 +88,7 @@ pnpm ai:smoke:desktop
 ```
 
 The lane uses Turbo's cache for package prerequisites, opens the same seeded
-folder as the native vault and agent `cwd`, and starts Electron with Codex
+folder as the native vault and agent `cwd`, and starts Deno desktop with Codex
 Native selected. Repeat steps 1–8 above, including the native approval drawer.
 Codex's `request_user_input` tool is only advertised by its Plan collaboration
 mode; the plugin's Default-mode native chat therefore returns an ordinary

@@ -65,7 +65,7 @@ function capableBridge() {
     return null;
   });
   const bridge = {
-    runtime: "electron-desktop",
+    runtime: "deno-desktop",
     capabilities: {},
     invoke,
     toFileUrl: (path: string) => path,

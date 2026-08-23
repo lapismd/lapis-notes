@@ -20,7 +20,7 @@ This repository currently contains:
 - `@lapis-notes/api` — shared runtime kernel
 - `@lapis-notes/ui` — pruned UI surface required by api
 - `@lapis-notes/workspace` — thin design-core workspace host
-- `@lapis-notes/desktop-electron` — partial native-folder Electron host
+- `@lapis-notes/desktop-deno` — native-folder Deno desktop host
 - `@lapis-notes/desktop-deno` — experimental Deno desktop vault-open spike
 - `@lapis-notes/web` — local-first browser/PWA consumer host
 - `@lapis-notes/bases` — bundled metadata-query views and Markdown embeds

@@ -3,7 +3,6 @@ import { afterEach, expect, it } from "vitest";
 import {
   MemoryKeyValueStore,
   NativeDesktopVaultAdapter,
-  NativeDesktopTursoAppDatabaseProvider,
   createNativeDesktopVault,
   getCurrentVaultProfile,
   getNativeDesktopBridge,
@@ -17,7 +16,7 @@ import {
 
 function createDesktopBridge() {
   return {
-    runtime: "electron-desktop" as const,
+    runtime: "deno-desktop" as const,
     toFileUrl: (path: string) => `file://${path}`,
     invoke: async <T>(command: string): Promise<T> => {
       switch (command) {
@@ -155,92 +154,20 @@ it("removes stored native desktop vault profiles", async () => {
   await expect(getCurrentVaultProfile(store)).resolves.toBe(undefined);
 });
 
-it("routes app-database operations through the bounded native Turso RPC", async () => {
-  const calls: Array<{ command: string; payload?: Record<string, unknown> }> =
-    [];
-  setNativeDesktopBridge({
-    runtime: "electron-desktop",
-    platform: { runtime: "electron-desktop", os: "macos", arch: "arm64" },
-    capabilities: {
-      database: { id: "database", status: "available" },
-    },
-    toFileUrl: (path: string) => `file://${path}`,
-    async invoke<T>(command: string, payload?: Record<string, unknown>) {
-      calls.push({ command, payload });
-      if (command === "desktop_db_open") {
-        return {
-          providerId: "electron-turso-native",
-          engine: "turso",
-          transport: "native",
-          role: "direct",
-          storageMode: "local",
-          capabilities: {
-            nativeFullTextSearch: true,
-            vectorSearch: true,
-            approximateNearestNeighbors: false,
-            localEmbeddings: true,
-            crossTabCoordination: false,
-            sync: false,
-          },
-        } as T;
-      }
-      return undefined as T;
-    },
-  });
-
-  const database = await new NativeDesktopTursoAppDatabaseProvider().open({
-    vaultId: "desktop-folder:/vault",
-    runtime: "electron-desktop",
-  });
-  await database.setMeta("theme", "dark");
-  await database.close();
-
-  expect(database.descriptor).toMatchObject({
-    providerId: "electron-turso-native",
-    engine: "turso",
-    transport: "native",
-    capabilities: { nativeFullTextSearch: true, vectorSearch: true },
-  });
-  expect(calls).toEqual([
-    {
-      command: "desktop_db_open",
-      payload: { vaultId: "desktop-folder:/vault" },
-    },
-    {
-      command: "desktop_db_call",
-      payload: {
-        vaultId: "desktop-folder:/vault",
-        method: "setMeta",
-        args: ["theme", "dark"],
-      },
-    },
-    {
-      command: "desktop_db_close",
-      payload: { vaultId: "desktop-folder:/vault" },
-    },
-  ]);
-});
-
-it("preserves deno-desktop adapter runtime without opening native Turso", () => {
+it("preserves the deno-desktop adapter runtime", () => {
   const adapter = new NativeDesktopVaultAdapter(
     "/vault",
     { name: "Vault" },
     "deno-desktop",
   );
   expect(adapter.runtime).toBe("deno-desktop");
-  expect(
-    new NativeDesktopTursoAppDatabaseProvider().canOpen({
-      vaultId: "desktop-folder:/vault",
-      runtime: "deno-desktop",
-    }),
-  ).toBe(false);
 });
 
 it("routes text appends through the native append command without a readback", async () => {
   const calls: Array<{ command: string; payload?: Record<string, unknown> }> =
     [];
   setNativeDesktopBridge({
-    runtime: "electron-desktop",
+    runtime: "deno-desktop",
     toFileUrl: (path: string) => `file://${path}`,
     async invoke<T>(command: string, payload?: Record<string, unknown>) {
       calls.push({ command, payload });

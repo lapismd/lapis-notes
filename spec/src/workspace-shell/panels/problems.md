@@ -106,7 +106,7 @@ only the entity-decoder contract needed when Markdownlint's parser selects its
 DOM export inside a Web Worker. That shim reports standards-mode
 `compatMode` so shared worker chunks cannot treat the worker as quirks.
 
-The Electron consumer uses the same provider-neutral diagnostics and actions
+The Deno desktop consumer uses the same provider-neutral diagnostics and actions
 through `@lapis-notes/language-service/markdownlint/runtime`. Its child process
 accepts Markdown documents only, exposes capability probing, update,
 diagnostics, and code actions, and uses bounded request timeouts plus restart

@@ -68,7 +68,7 @@ function publish(): void {
   }
   if (!agentBridge && terminalBridge) {
     setNativeDesktopBridge({
-      runtime: "electron-desktop",
+      runtime: "deno-desktop",
       capabilities: terminalBridge.capabilities,
       invoke: (command, payload) =>
         terminalBridge!.invoke(toHostTerminalCommand(command), payload),
@@ -79,7 +79,7 @@ function publish(): void {
     return;
   }
   setNativeDesktopBridge({
-    runtime: "electron-desktop",
+    runtime: "deno-desktop",
     capabilities: {
       ...agentBridge!.capabilities,
       ...terminalBridge!.capabilities,

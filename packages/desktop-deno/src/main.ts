@@ -1,5 +1,5 @@
 import {
-  ElectronMainVaultBootstrapKeyValueStore,
+  NativeDesktopVaultBootstrapKeyValueStore,
   getBootstrapAppearanceMode,
   migrateVaultBootstrapStoreFromIndexedDb,
   setDefaultVaultStateStore,
@@ -14,6 +14,8 @@ import {
   type NativeAgentRuntimeEvent,
   type NativeAgentToolCall,
   type NativeAgentToolCancel,
+  type NativeTerminalExitEvent,
+  type NativeTerminalOutputEvent,
   type NativeWatchSubscription,
   type WatchErrorEvent,
   type WatchOptions,
@@ -74,6 +76,12 @@ const agentRuntimeListeners = new Set<
 const agentToolCallListeners = new Set<(event: NativeAgentToolCall) => void>();
 const agentToolCancelListeners = new Set<
   (event: NativeAgentToolCancel) => void
+>();
+const terminalOutputListeners = new Set<
+  (event: NativeTerminalOutputEvent) => void
+>();
+const terminalExitListeners = new Set<
+  (event: NativeTerminalExitEvent) => void
 >();
 const openVaultListeners = new Set<() => void>();
 const openAboutListeners = new Set<() => void>();
@@ -141,6 +149,18 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
   if (detail?.channel === "desktop_agent_tool_cancel") {
     for (const listener of agentToolCancelListeners) {
       listener(detail.payload as NativeAgentToolCancel);
+    }
+    return;
+  }
+  if (detail?.channel === "desktop_terminal_output") {
+    for (const listener of terminalOutputListeners) {
+      listener(detail.payload as NativeTerminalOutputEvent);
+    }
+    return;
+  }
+  if (detail?.channel === "desktop_terminal_exit") {
+    for (const listener of terminalExitListeners) {
+      listener(detail.payload as NativeTerminalExitEvent);
     }
     return;
   }
@@ -285,6 +305,12 @@ const bridge: DenoDesktopBridge = {
   onAgentToolCancel(listener) {
     return subscribe(agentToolCancelListeners, listener);
   },
+  onTerminalOutput(listener) {
+    return subscribe(terminalOutputListeners, listener);
+  },
+  onTerminalExit(listener) {
+    return subscribe(terminalExitListeners, listener);
+  },
   watch(
     rootPath: string,
     normalizedPath: string,
@@ -356,7 +382,7 @@ installDesktopWindowDrag((command, payload) =>
 );
 setNativeDesktopBridge(bridge);
 await migrateVaultBootstrapStoreFromIndexedDb();
-setDefaultVaultStateStore(new ElectronMainVaultBootstrapKeyValueStore());
+setDefaultVaultStateStore(new NativeDesktopVaultBootstrapKeyValueStore());
 await initializeAppearance();
 
 clearBootStatus();

@@ -236,17 +236,7 @@ async function createPreferredAppDatabase(
       provider ?? new TursoWasmAppDatabaseProvider(),
     );
   }
-  if (provider) {
-    const database = await provider.open({
-      vaultId,
-      runtime,
-      role: "direct",
-    });
-    return { appDatabase: database, state: readyState(database, false) };
-  }
-  return {
-    state: blockedState("The Electron Turso database provider is unavailable.", false),
-  };
+  throw new Error(`Unsupported application database runtime: ${runtime}`);
 }
 
 function createVaultSessionFactory(

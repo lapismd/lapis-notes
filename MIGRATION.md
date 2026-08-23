@@ -52,26 +52,26 @@ intake or UI swap status changes.
 | `@lapis-notes/ui`                          | Pruned              | Kept compounds only: modal, confirm-dialog, search, sidebar-custom, table-dnd + helpers                                                                                                                                                                                                                                      |
 | `@lapis-notes/workspace` shell integration | Done                | Public thin design-core host; portable api compatibility + persistence façade                                                                                                                                                                                                                                                |
 | `@lapis-notes/web`                         | Done                | Legacy `8ec68e18` PWA intake; browser-owned vault/session boot and cross-tab Turso coordination pass focused browser acceptance                                                                                                                                                                                              |
-| `@lapis-notes/desktop-electron`            | Done (partial host) | Source-first native-folder host from legacy commit `8ec68e18`; current core plugins, retained native services/sidecars, and local distribution only                                                                                                                                                                          |
-| `@lapis-notes/desktop-deno`                | In progress         | Deno 2.9.5+ `deno desktop` parity track: shared vault/shell renderer, WASM Turso, first-party plugins, packaged native Markdown diagnostics, canonical-path `Deno.watchFs`, verified same-origin plugin assets, native services, lifecycle, and local distribution. MUST NOT replace Electron before parity acceptance.      |
+| `@lapis-notes/desktop-electron`            | Removed             | Retired on 2026-08-23; no Electron package, runtime target, native database provider, root script, or distribution dependency remains. |
+| `@lapis-notes/desktop-deno`                | Done                | Sole native desktop host: Deno 2.9.5+, WASM Turso, canonical plugins, native Markdown diagnostics, file watching, verified assets, agents, Sigma PTY terminals, lifecycle, and macOS/Linux distribution. |
 | `@lapis-notes/markdown`                    | Done (slice)        | Authorized plugin; Mira document render + public app-only panels including Tags; Obsidian-compatible panel IDs retain load aliases for prior Lapis layouts                                                                                                                                                                   |
 | `@lapis-notes/language-service`            | Done                | Provider-neutral Markdown client/worker supplies open-document diagnostics and cached actions                                                                                                                                                                                                                                |
 | `@lapis-notes/markdown-lint`               | Done                | Enabled core plugin selects the probed native service or worker fallback and preserves configured rules, fixes, and ignores                                                                                                                                                                                                  |
 | `@lapis-notes/lapis-plugin-cv-roles`       | Done                | Clean rename and vault workflows plus the legacy Applications, Activity, Actions, ticket-card, and role-detail component/CSS presentation are complete. Lapis owns the shell and vault/Mira adapters; Tasks and AI remain excluded. Fixed-profile browser review passed, with visual baseline work deferred at user request. |
 | `@lapis-notes/ai`                          | In progress         | Bundled provider-agnostic AgentRuntime, host-gated live adapters on `./runtimes`, Codex and Cursor via ACP, Fake without a host, a Design Core chat panel, folder Agent Skills, and composer slash commands; CV-domain MCP tools remain outside this package                                                  |
-| `@lapismd/ai-host`                         | Done                | Sibling process host at `../ai-host`: acpx executor, `lapis-ai-host serve`, required WebSocket token handshake; Electron uses the library in-process; PWA attach and Storybook `Plugins/AI/Live Host` use URL and token. Host-owned requirements live in the sibling spec.                                                          |
-| `@lapismd/terminal-host`                   | In progress         | Sibling PTY host at `../terminal-host`: interactive shells, `lapis-terminal-host serve`, token handshake; Electron embeds in-process; web attaches with URL and token. |
+| `@lapismd/ai-host`                         | Done                | Sibling process host at `../ai-host`: acpx executor, `lapis-ai-host serve`, required WebSocket token handshake; Deno desktop uses the library in-process; PWA attach and Storybook `Plugins/AI/Live Host` use URL and token. Host-owned requirements live in the sibling spec.                                                          |
+| `@lapismd/terminal-host`                   | Done                | Sibling Deno PTY host at `../terminal-host`: Sigma FFI interactive shells, `lapis-terminal-host serve`, token handshake; Deno desktop embeds the shared service and web attaches with URL and token. |
 | `@lapis-notes/lapis-plugin-terminal`       | In progress         | Sibling plugin with `terminal` view, Open/New Terminal, bottom-panel default, Fake sessions. Package Storybook placements remain planned. |
 | `@lapis-notes/lapis-plugin-tasks`          | In progress         | Sibling plugin, planner view, and Design Core catalog. Desktop and web hosts register the plugin class. |
 | `@lapis-notes/lapis-plugin-docs`           | In progress         | Sibling Core Docs plugin with exclusive `*.doc.md` file views, ported rich display/forms/cards/review, and library leaf. Desktop and web hosts register the plugin class. Coding practice deferred. |
 | Notebook / remaining unlisted plugins      | Not started         | Remain blocked by LN-PKG-004 until separately specified                                                                                                                                                                                                                                                                      |
-| `@lapis-notes/file-explorer`               | Done                | Reusable File Explorer plugin shared by Storybook and Electron; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture                                                                                     |
+| `@lapis-notes/file-explorer`               | Done                | Reusable File Explorer plugin shared by Storybook and Deno desktop; single-click current/reuse, double-click reuse-or-create, and Command-click forced creation map to API workspace leaves; source-editor remains a Storybook-local fixture                                                                                     |
 | `@lapis-notes/bookmarks`                   | In progress         | Enabled-by-default bundled Bookmarks panel persists Obsidian-compatible `.obsidian/bookmarks.json` for file, folder, group, search, url, and graph items; default left sidebar after Search. Visual baselines remain `visual-pending`.                                                                                     |
-| `@lapis-notes/search`                      | Done                | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Electron, and web hosts                                                                                                                                                                                                  |
+| `@lapis-notes/search`                      | Done                | Grouped-tree Search, settings, semantic retrieval, and cross-tab execution are shared by Storybook, Deno desktop, and web hosts                                                                                                                                                                                                  |
 | `@lapis-notes/history`                     | In progress         | Enabled-by-default file-history plugin captures vault revisions through AppDatabase, exposes a movable History panel, and compares through Design Core FileDiff / MergeEditor. Visual baselines remain `visual-pending`.                                                                                                    |
 | `@lapis-notes/wordcount`                   | Done                | Enabled-by-default status-bar word and character count over the API status-bar contract. Design Core F-Mode is included on the default shell and disabled until the user enables it.                                                                                                                                       |
 | `@lapis-notes/spellcheck`                  | Done                | Enabled-by-default Harper diagnostics through the language-service and Problems path, Lucide status item, and Settings for dialect, rules, and file types. The editor-demo misspelling story stays `visual-pending` without a captured baseline.                                                                          |
-| `@lapis-notes/bases`                       | Done                | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 161 tests, focused Storybook and pointer coverage, Electron and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                          |
+| `@lapis-notes/bases`                       | Done                | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 161 tests, focused Storybook and pointer coverage, desktop and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                          |
 | design-core workspace engine               | Done                | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                                                                                                                    |
 
 ### App database replacement progress
@@ -81,7 +81,7 @@ intake or UI swap status changes.
 - [x] Turso native and WASM drivers with normalized generated-state persistence
 - [x] Turso full-text, vector, hybrid, and local embedding execution
 - [x] Remove legacy SQLite, sqlite-vec, and IndexedDB app-database implementations and dependencies
-- [x] Pure typed Electron database proxy and bounded main-process RPC
+- [x] Retire the native desktop database proxy; Deno desktop uses the WASM provider
 - [x] Generic Web Locks and BroadcastChannel owner/proxy coordination
 - [x] Block unsupported production runtimes instead of opening a non-Turso database
 - [x] Replace production `app_state` hydration and whole-database rewrites with direct row-scoped Turso SQL
@@ -89,7 +89,11 @@ intake or UI swap status changes.
 - [x] Retain synchronous metadata maps only under bounded legacy-plugin compatibility leases
 - [ ] Pass the 50,000-note native/WASM warm-start and query performance gate
 
-### Electron desktop host intake progress
+### Archived Electron desktop host intake
+
+This historical intake was retired on 2026-08-23. The package and its runtime,
+storage, build, and distribution paths are removed; the checklist below records
+superseded acceptance rather than current architecture.
 
 Source: `/Users/stevejuma/code/lapis-notes/packages/desktop-electron` at
 legacy commit `8ec68e18`.
@@ -127,33 +131,31 @@ Intentionally pruned: notebook/DuckDB, TypeScript-only language-service paths,
 demo-vault seeding, bundled-plugin startup/build steps, the legacy full app
 bootstrap, Windows targets, and remote release publication.
 
-### Deno desktop host parity progress
+### Deno desktop host progress
 
-Deno `deno desktop` host parity track. Production authorized hosts remain
-Electron and web until equivalent packaged Deno acceptance passes.
+Deno `deno desktop` is the sole native desktop host; web remains the browser
+production host.
 
 - [x] Canonical desktop-deno-host requirements, package authorization, verification mapping, and MIGRATION intake
-- [x] Widen `NativeDesktopRuntime` / `RuntimeTarget` with `deno-desktop` and route the app database to WASM Turso
+- [x] Limit `NativeDesktopRuntime` to `deno-desktop` and route the app database to WASM Turso
 - [x] Private `@lapis-notes/desktop-deno` package at version `2026.31.5`
 - [x] Deno window, `win.bind()` bridge, vault-root FS, bootstrap KV, and path-prompt vault open
 - [x] WorkspaceStartup then WorkspaceShell with initial Markdown and File Explorer
 - [x] macOS full-bleed `transparentTitlebar` window with native traffic lights and Design Core drag markers
-- [x] Register the complete Electron first-party plugin inventory and ordering
+- [x] Register the complete canonical first-party plugin inventory and ordering
 - [x] Add database/search, native language, verified plugin assets, watch, and agent capability parity
-- [ ] Add community plugin sidecar and terminal capability parity
+- [x] Keep community plugin sidecars explicitly unsupported until a public Deno host exists
+- [x] Add Deno terminal capability parity through the shared Sigma PTY host
 - [x] Add platform-exact macOS notifications and macOS/Linux file open/reveal actions
 - [x] Add full native menus, bounded renderer close handshake, and system-browser external-link policy
 - [x] Add single-instance app URL registration, authenticated handoff, queued renderer delivery, and later-launch focus
-- [ ] Add real workspace-popout acceptance
-- [x] Add versioned macOS app/ZIP and Linux x64 AppImage/tar artifacts, stable icons, and credential-safe signing hooks
-- [ ] Run Linux packaged acceptance and complete the remaining parity matrix
+- [x] Keep real workspace popouts explicitly unsupported
+- [x] Add versioned macOS app/ZIP and Linux arm64/x64 AppImage/tar artifacts, stable icons, verified PTY libraries, and credential-safe signing hooks
+- [ ] Run Linux packaged acceptance on a Linux builder
 - [x] Focused package checks, production Vite build, macOS app packaging, and full saved-vault/plugin boot smoke
 
-Open runtime boundaries and their closure evidence are tracked in
-`spec/src/desktop-deno-parity-blockers.md`.
-
-Intentionally out of scope: Electron imports, default-host replacement before
-packaged acceptance, Windows distribution, and remote release publication.
+Intentionally out of scope: community plugin sidecars, real workspace popouts,
+Windows distribution, and remote release publication.
 
 ### History plugin intake progress
 
@@ -166,7 +168,7 @@ adapted for the current App, Design Core diff surfaces, and VS Code-like caps.
 - [x] Design Core History settings section for exclude/include globs, tracked extensions, and capture caps
 - [x] Design Core FileDiff for previous and selected-pair compares; MergeEditor one-way for the live file
 - [x] Select for compare / Compare with selected timeline actions
-- [x] Electron, web, and Storybook host registration enabled by default
+- [x] Deno desktop, web, and Storybook host registration enabled by default
 - [x] Six governed Storybook placements, compare story, and History Shell Desktop/Mobile
 - [ ] History panel Visual Delta capture/review; stories remain `visual-pending` and no baseline is updated in this slice
 
@@ -174,7 +176,7 @@ adapted for the current App, Design Core diff surfaces, and VS Code-like caps.
 
 Transport-neutral app tools on the owning App, with AI policy snapshots and an
 AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-095`,
-`LN-SRCH-039`, `LN-DESK-047`, `LN-CAT-081`, `LN-PKG-080`. Delivery evidence:
+`LN-SRCH-039`, `LN-DENO-027`, `LN-CAT-081`, `LN-PKG-080`. Delivery evidence:
 [`spec/records/app-tool-mcp-bridge.md`](spec/records/app-tool-mcp-bridge.md).
 
 - [x] Canonical requirements, ownership chapters, verification mappings, and spec-first routing

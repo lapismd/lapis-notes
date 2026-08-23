@@ -1,9 +1,9 @@
 /**
  * Desktop-neutral native bridge for Lapis Notes desktop hosts.
  *
- * The Electron shell registers its host bridge before calling
- * `mountWorkspaceApp()`, and shared storage/session code in `packages/api`
- * picks it up via `getNativeDesktopBridge()` / `hasNativeDesktopBridge()`.
+ * The Deno shell registers its host bridge before mounting the workspace, and
+ * shared storage/session code in `packages/api` picks it up through
+ * `getNativeDesktopBridge()` / `hasNativeDesktopBridge()`.
  */
 
 import type {
@@ -42,7 +42,7 @@ let registeredNativeDesktopBridge: NativeDesktopBridge | null = null;
 
 // ─── Neutral interface ────────────────────────────────────────────────────────
 
-export type NativeDesktopRuntime = "electron-desktop" | "deno-desktop";
+export type NativeDesktopRuntime = "deno-desktop";
 
 export type NativeDesktopPlatformOs = "macos" | "windows" | "linux" | "unknown";
 
@@ -130,8 +130,8 @@ export type NativeDesktopCapabilityRegistry = Partial<
 >;
 
 /**
- * The desktop-neutral native bridge interface. The Electron desktop host
- * implements this contract and registers it via `setNativeDesktopBridge`.
+ * The native bridge interface implemented and registered by the Deno desktop
+ * host through `setNativeDesktopBridge`.
  */
 export interface NativeDesktopBridge {
   readonly runtime: NativeDesktopRuntime;
@@ -488,7 +488,7 @@ export class NativeDesktopVaultAdapter
   constructor(
     readonly rootPath: string,
     options: NativeVaultOptions = {},
-    runtime: NativeDesktopRuntime = "electron-desktop",
+    runtime: NativeDesktopRuntime = "deno-desktop",
   ) {
     this.runtime = runtime;
     this.vaultId = options.vaultId ?? buildVaultId(rootPath);

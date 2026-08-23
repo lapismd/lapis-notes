@@ -94,7 +94,7 @@ describe("web Bases host registration", () => {
     expect(launcher).toContain("pickFileSystemAccessDirectoryHandle");
   });
 
-  it("does not re-declare Electron app-region CSS", () => {
+  it("does not re-declare native app-region CSS", () => {
     const css = readFileSync(
       path.resolve(process.cwd(), "src/web-host.css"),
       "utf8",

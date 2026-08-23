@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  createElectronPluginAssetUrl,
   createWebPluginAssetUrl,
   getInstalledPluginAssetHash,
   getInstalledPluginAssetVersion,
   getPluginAssetContentType,
-  parseElectronPluginAssetUrl,
   parseWebPluginAssetUrl,
   PluginAssetServerError,
   readInstalledPluginAsset,
@@ -36,44 +34,6 @@ describe("plugin asset server helpers", () => {
     });
   });
 
-  it("builds and parses Electron plugin asset URLs", () => {
-    const sha256 = "b".repeat(64);
-    const url = createElectronPluginAssetUrl({
-      vaultId: "desktop-vault",
-      pluginId: "plugin-a",
-      version: "2.0.0",
-      sha256,
-      path: "main.mjs",
-    });
-
-    expect(url).toBe(
-      `lapis-plugin://asset-v1/desktop-vault/plugin-a/2.0.0/${sha256}/main.mjs`,
-    );
-    expect(parseElectronPluginAssetUrl(url)).toEqual({
-      vaultId: "desktop-vault",
-      pluginId: "plugin-a",
-      version: "2.0.0",
-      sha256,
-      path: "main.mjs",
-    });
-  });
-
-  it("round-trips native folder vault IDs through Electron asset URLs", () => {
-    const sha256 = "c".repeat(64);
-    const parts = {
-      vaultId: "desktop-folder:/Users/example/Lapis Notes",
-      pluginId: "plugin-a",
-      version: "1.0.0",
-      sha256,
-      path: "chunks/main.mjs",
-    };
-
-    const url = createElectronPluginAssetUrl(parts);
-
-    expect(() => new URL(url)).not.toThrow();
-    expect(parseElectronPluginAssetUrl(url)).toEqual(parts);
-  });
-
   it("rejects traversal in asset paths", () => {
     expect(() =>
       createWebPluginAssetUrl({
@@ -94,11 +54,6 @@ describe("plugin asset server helpers", () => {
   it("rejects plugin asset URLs without a hash segment", () => {
     expect(() =>
       parseWebPluginAssetUrl("/__lapis/plugins/vault/plugin-a/1.0.0/main.mjs"),
-    ).toThrow(PluginAssetServerError);
-    expect(() =>
-      parseElectronPluginAssetUrl(
-        "lapis-plugin://vault/plugin-a/1.0.0/main.mjs",
-      ),
     ).toThrow(PluginAssetServerError);
   });
 

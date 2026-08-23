@@ -50,7 +50,7 @@ The port keeps query and TanStack-to-Svelte adapters private. Package evidence
 retains the legacy 14-file / 142-test baseline and adds regressions for explicit
 App flow, ordered and flushed writes, URL revocation, invalid read-only YAML,
 and the published entrypoint without expanding the public surface.
-Electron, web, and the real-App catalog import the plugin and stylesheet from
+Deno desktop, web, and the real-App catalog import the plugin and stylesheet from
 the package, register it as optional bundled and default-enabled, and load it
 before metadata and persisted layout restoration.
 

@@ -12,7 +12,7 @@ const api = vi.hoisted(() => ({
 
 const host = vi.hoisted(() => ({
   createAgentRuntimeBridge: vi.fn((config: { url: string; token: string }) => ({
-    runtime: "electron-desktop",
+    runtime: "deno-desktop",
     capabilities: {
       "agent-runtime": {
         id: "agent-runtime",
@@ -120,7 +120,7 @@ describe("web agent-runtime attach", () => {
   it("does not overwrite a desktop IPC bridge", () => {
     api.hasNativeDesktopBridge.mockReturnValue(true);
     api.getNativeDesktopCapability.mockReturnValue({
-      provider: "electron-desktop",
+      provider: "deno-desktop",
     });
     expect(
       registerWebAgentRuntimeBridge({

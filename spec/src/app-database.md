@@ -2,8 +2,8 @@
 
 `AppDatabase` is the stable generated-state boundary. Providers choose a local
 engine and transport without exposing either choice to Search, Markdown, or the
-workspace shell. Experimental `deno-desktop` sessions select Turso WASM and
-MUST NOT open Electron native Turso IPC.
+workspace shell. `deno-desktop` sessions select Turso WASM and MUST NOT expose
+native database RPC or raw SQL to the renderer.
 
 The direct-SQL runtime implements row-scoped normalized Turso writes, typed
 metadata indexes, durable revisions, native/browser change relays, bounded
@@ -22,13 +22,12 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 | LN-DB-007 | Document and query embeddings MUST be generated locally through the provider-neutral embedding contract. Configuration MUST remain lazy until the first semantic index or query, and changing model identity or dimensions MUST invalidate affected vectors.                                                                                                                                        |
 | LN-DB-008 | Hybrid retrieval MUST combine lexical and vector candidates through the shared API result contract and reciprocal-rank fusion. Structured-query correctness MUST remain API-owned.                                                                                                                                                                                                                  |
 | LN-DB-009 | Legacy SQLite files MUST NOT be opened, imported, migrated, or deleted. Removing backward compatibility MUST also remove their runtime dependencies and query paths.                                                                                                                                                                                                                                |
-| LN-DB-010 | Electron database IPC MUST expose bounded allowlisted operations, validate renderer and vault ownership, and never expose raw SQL or filesystem paths.                                                                                                                                                                                                                                              |
 | LN-DB-011 | Browser coordination MUST use Web Locks for ownership and BroadcastChannel for heartbeats and typed RPC. A surviving proxy MUST promote after the owner closes or becomes stale.                                                                                                                                                                                                                    |
 | LN-DB-012 | Missing OPFS, isolation, locks, or channels MUST produce an explicit blocked state with accurate capabilities rather than opening a non-Turso app-database fallback.                                                                                                                                                                                                                                |
 | LN-DB-013 | Local storage MUST remain authoritative. A future synced provider MAY be injected, but this intake MUST NOT configure credentials, remote databases, or note upload.                                                                                                                                                                                                                                |
 | LN-DB-014 | API-owned property evaluation MUST merge indexed vault properties with normalized search-document metadata without persisting provider fields into the metadata index.                                                                                                                                                                                                                              |
-| LN-DB-015 | Each search document MUST retain its singular domain source-provider id, and search queries MUST support an optional allowlist of source-provider ids across memory, Turso, native IPC, and browser-proxy transports. Provider filtering MUST occur before result limits are applied, while an absent or empty allowlist MUST preserve unfiltered search behavior.                                  |
-| LN-DB-016 | Search queries MUST support one normalized vault-relative path prefix across memory, Turso, native IPC, and browser-proxy transports. Prefix filtering MUST occur before ranking and result limits, match only the selected path or descendants, and preserve unfiltered behavior when absent.                                                                                                      |
+| LN-DB-015 | Each search document MUST retain its singular domain source-provider id, and search queries MUST support an optional allowlist of source-provider ids across memory, Turso, and browser-proxy transports. Provider filtering MUST occur before result limits are applied, while an absent or empty allowlist MUST preserve unfiltered search behavior.                                  |
+| LN-DB-016 | Search queries MUST support one normalized vault-relative path prefix across memory, Turso, and browser-proxy transports. Prefix filtering MUST occur before ranking and result limits, match only the selected path or descendants, and preserve unfiltered behavior when absent.                                                                                                      |
 | LN-DB-017 | AppDatabase MUST persist namespaced plugin projections as disposable rows with typed indexed values, source freshness, and edges. The vault file remains authoritative.                                                                                                                                                                                                                             |
 | LN-DB-018 | AppDatabase MUST expose allowlisted `queryProjection`, `getProjectionRow`, and `queryRelated` over a serializable query AST. Callers MUST NOT receive raw SQL.                                                                                                                                                                                                                                      |
 | LN-DB-019 | Core Markdown indexing MUST store links as `reference`. A domain projection MAY derive `task-entry`, `list-entry`, or `navigation-item` only from its resolved document model; heading text alone MUST NOT assign structural meaning.                                                                                                                                                               |
@@ -41,12 +40,12 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 | LN-DB-026 | Production Turso providers MUST execute reads and row-scoped writes directly against Turso. They MUST NOT inherit the memory provider, hydrate `app_state`, or rewrite unaffected tables after one mutation.                                                                                                                                                                                        |
 | LN-DB-027 | Indexed metadata MUST expose async per-file, paginated, tag-facet, property-facet, incoming-link, outgoing-link, resolved-link, and unresolved-link queries. Queryable tag, property, and link fields MUST use typed indexed columns rather than JSON scans.                                                                                                                                        |
 | LN-DB-028 | AppDatabase mutations MUST publish a typed change set only after commit. Change sets MUST carry a durable revision and bounded invalidation detail; a revision gap MUST invalidate the complete affected domain.                                                                                                                                                                                    |
-| LN-DB-029 | Browser owner/proxy and Electron transports MUST relay database change sets without exposing raw SQL. Browser promotion and renderer reconnection MUST compare durable revisions before resuming incremental invalidation.                                                                                                                                                                          |
+| LN-DB-029 | Browser owner/proxy transports MUST relay database change sets without exposing raw SQL. Browser promotion and renderer reconnection MUST compare durable revisions before resuming incremental invalidation.                                                                                                                                                                                        |
 | LN-DB-030 | The Turso v2 migration MUST validate normalized metadata, Search, History, task, notification, and projection rows before activating direct SQL. Failure MUST preserve the prior database and MUST NOT rebuild or discard database-only History.                                                                                                                                                    |
 | LN-DB-031 | Warm metadata startup MUST make persisted queries available before background vault reconciliation. An unchanged vault MUST NOT read note bodies, metadata payload JSON, Search content, or History payloads during database open.                                                                                                                                                                  |
 | LN-DB-032 | A 50,000-note warm-vault performance lane MUST enforce bounded metadata memory and native/WASM readiness and query budgets. A 100,000-note lane MUST report non-blocking stress results.                                                                                                                                                                                                            |
 | LN-DB-033 | Compatibility metadata snapshot import and export MAY remain deprecated for one release. Production startup MUST NOT invoke either operation or maintain the snapshot after normalized writes.                                                                                                                                                                                                      |
-| LN-DB-034 | A `deno-desktop` vault session MUST open Turso WASM through the browser-compatible provider path. It MUST NOT select Electron native Turso or `desktop_db_*` IPC.                                                                                                                                                                                      |
+| LN-DB-034 | A `deno-desktop` vault session MUST open Turso WASM through the browser-compatible provider path. It MUST NOT expose or select a native `desktop_db_*` provider.                                                                                                                                                                                                     |
 
 ### LN-DB-032 acceptance details
 
@@ -82,8 +81,6 @@ changing either the Task document or the daily note.
 App / plugins
      ↓ AppDatabase
 AppDatabaseProvider
-     ├─ Electron main → Turso native
-     ├─ Electron Intel renderer worker → Turso WASM + OPFS
      ├─ Deno desktop renderer → Turso WASM + OPFS
      ├─ browser owner worker → Turso WASM + OPFS
      └─ browser proxy → BroadcastChannel RPC → owner
@@ -108,16 +105,12 @@ shared candidate set before score calculation, ranking, and limiting. Turso
 requests that carry a prefix fetch the complete candidate path set before the
 shared evaluator; native and browser proxies forward the same typed option.
 
-The Electron implementation opens one Turso handle per renderer and vault in
-main on supported native targets. Its renderer client can invoke only the
-fixed `AppDatabase` method catalogue and receives committed change sets through
-the bounded bridge. Intel macOS selects the same provider
-contract over the self-contained Turso WASM bundle and OPFS instead of opening
-a compatibility database. The WASM provider imports the driver's host-bundler
-entry so web and renderer builds serve driver-owned worker and WASM assets
-without inlining the package's prebuilt worker module. Session disposal drains
-metadata-cache work and
-cancels delayed writes before closing the owning Turso handle.
+The Deno desktop renderer selects the same provider contract over the
+self-contained Turso WASM bundle and OPFS. The WASM provider imports the
+driver's host-bundler entry so web and desktop renderer builds serve
+driver-owned worker and WASM assets without inlining the package's prebuilt
+worker module. Session disposal drains metadata-cache work and cancels delayed
+writes before closing the owning Turso handle.
 
 The browser coordinator opens that WASM provider only in the elected owner.
 Proxy tabs obtain the owner's probed descriptor and delegate through a bounded

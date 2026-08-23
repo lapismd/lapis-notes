@@ -12,7 +12,7 @@ interface PlatformSpec {
    */
   isMobile: boolean;
   /**
-   * We're running the electron-based desktop app.
+   * We're running the native desktop app.
    *
    * @public
    */
@@ -99,7 +99,7 @@ export const Platform = {
    */
   isMobile: false,
   /**
-   * We're running the electron-based desktop app.
+   * We're running the native desktop app.
    *
    * @public
    */

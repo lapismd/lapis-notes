@@ -34,7 +34,7 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
       return null;
     });
     native.bridge = {
-      runtime: "electron-desktop",
+      runtime: "deno-desktop",
       capabilities: {
         "agent-runtime": {
           id: "agent-runtime",
@@ -122,7 +122,7 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
         : null,
     );
     native.bridge = {
-      runtime: "electron-desktop",
+      runtime: "deno-desktop",
       capabilities: {
         "agent-runtime": {
           id: "agent-runtime",

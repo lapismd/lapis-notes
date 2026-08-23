@@ -48,7 +48,7 @@ export function createDistributionPlan({
     throw new Error(`Unsupported Deno desktop target ${target}`);
   }
   const baseName = `Lapis-Notes-${version}-${targetInfo.platform}-${targetInfo.architecture}`;
-  const sharedBuildDir = path.resolve(packageDir, "../desktop-electron/build");
+  const sharedBuildDir = path.resolve(packageDir, "build");
   if (targetInfo.platform === "macos") {
     return {
       ...targetInfo,

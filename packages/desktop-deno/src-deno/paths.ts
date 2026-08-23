@@ -5,7 +5,7 @@ export function makeFsError(
   return Object.assign(new Error(`${code}: ${target}`), { code });
 }
 
-/** Match Electron: existing directories are a no-op; a file at the path is EEXIST. */
+/** Existing directories are a no-op; a file at the path is EEXIST. */
 export function mkdirWhenPathExists(
   existing: { isDirectory: boolean } | null,
 ): "skip" | "eexist" | "create" {

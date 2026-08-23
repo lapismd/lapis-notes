@@ -130,8 +130,6 @@ const DEFAULT_DIMENSIONS = 48;
 const DEFAULT_REMOTE_HOST = "https://huggingface.co/";
 const DEFAULT_REMOTE_PATH_TEMPLATE = "{model}/resolve/{revision}/";
 
-type NativeDesktopRuntime = "electron-desktop";
-
 function normalizeText(value: string): string {
   return value.trim().toLowerCase();
 }
@@ -192,27 +190,6 @@ function fingerprint(text: string): string {
 function trimModelPath(path?: string): string | undefined {
   const normalized = path?.trim();
   return normalized?.length ? normalized : undefined;
-}
-
-function getNativeDesktopRuntime(): NativeDesktopRuntime | null {
-  const globalRuntime = globalThis as {
-    process?: { versions?: { electron?: unknown } };
-    __LAPIS_NATIVE_DESKTOP__?: {
-      runtime?: unknown;
-    };
-  };
-  const runtime = (
-    globalThis as {
-      __LAPIS_NATIVE_DESKTOP__?: {
-        runtime?: unknown;
-      };
-    }
-  ).__LAPIS_NATIVE_DESKTOP__?.runtime;
-
-  return runtime === "electron-desktop" ||
-    typeof globalRuntime.process?.versions?.electron === "string"
-    ? "electron-desktop"
-    : null;
 }
 
 function normalizeEmbeddingRows(value: unknown): number[][] {
@@ -306,7 +283,6 @@ let browserSearchEmbeddingWorkerFactory: (() => Worker) | null = null;
 
 function canUseBrowserEmbeddingWorker(): boolean {
   return (
-    getNativeDesktopRuntime() === null &&
     typeof window !== "undefined" &&
     browserSearchEmbeddingWorkerFactory !== null
   );
@@ -458,7 +434,6 @@ class TransformersJsSearchEmbeddingProvider implements SearchEmbeddingProvider {
   private extractorPromise: Promise<TransformersFeatureExtractor> | null = null;
   private runtimeStatus: SearchEmbeddingRuntimeStatus;
   private sawDownloadProgress = false;
-  private readonly nativeDesktopRuntime = getNativeDesktopRuntime();
 
   constructor(config: TransformersJsSearchEmbeddingProviderConfig) {
     this.config = {
@@ -571,9 +546,6 @@ class TransformersJsSearchEmbeddingProvider implements SearchEmbeddingProvider {
 
     runtime.env.allowLocalModels = hasExplicitLocalModelPath;
     runtime.env.allowRemoteModels = this.config.allowRemoteModels ?? true;
-    if (this.nativeDesktopRuntime) {
-      runtime.env.useBrowserCache = false;
-    }
     runtime.env.remoteHost ||= DEFAULT_REMOTE_HOST;
     runtime.env.remotePathTemplate ||= DEFAULT_REMOTE_PATH_TEMPLATE;
     if (hasExplicitLocalModelPath) {
@@ -598,12 +570,7 @@ class TransformersJsSearchEmbeddingProvider implements SearchEmbeddingProvider {
       {
         revision: this.config.revision,
         dtype: this.config.dtype,
-        // The public setting names the portable browser backend. Transformers.js
-        // exposes the equivalent Electron-main execution provider as `cpu`.
-        device:
-          this.nativeDesktopRuntime && this.config.device === "wasm"
-            ? "cpu"
-            : this.config.device,
+        device: this.config.device,
         progress_callback: (event: TransformersProgressEvent) => {
           this.sawDownloadProgress = true;
           this.updateRuntimeStatus({
@@ -646,9 +613,7 @@ class TransformersJsSearchEmbeddingProvider implements SearchEmbeddingProvider {
 
   private readyMessage(): string {
     if (this.sawDownloadProgress) {
-      return this.nativeDesktopRuntime
-        ? "Embedding model downloaded for the current desktop session"
-        : "Embedding model downloaded and cached in browser";
+      return "Embedding model downloaded and cached in browser";
     }
     if (this.config.allowRemoteModels === false && this.config.localModelPath) {
       return `Embedding model loaded from ${this.config.localModelPath}`;
@@ -656,9 +621,7 @@ class TransformersJsSearchEmbeddingProvider implements SearchEmbeddingProvider {
     if (this.config.allowRemoteModels === false) {
       return "Embedding model loaded without remote downloads";
     }
-    return this.nativeDesktopRuntime
-      ? "Embedding model ready from existing local files or runtime artifacts"
-      : "Embedding model ready from browser cache or existing local files";
+    return "Embedding model ready from browser cache or existing local files";
   }
 }
 

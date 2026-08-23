@@ -3,7 +3,10 @@ import {
   notificationCapabilityAvailable,
 } from "./native-actions.ts";
 
-export function createCapabilityRegistry(platform = Deno.build.os) {
+export function createCapabilityRegistry(
+  platform = Deno.build.os,
+  options: { terminalAvailable?: boolean } = {},
+) {
   const notificationsAvailable = notificationCapabilityAvailable(platform);
   const fileActionsAvailable = fileActionCapabilityAvailable(platform);
   return {
@@ -68,7 +71,18 @@ export function createCapabilityRegistry(platform = Deno.build.os) {
     },
     "terminal-runtime": {
       id: "terminal-runtime" as const,
-      status: "unavailable" as const,
+      status: options.terminalAvailable === false
+        ? ("unavailable" as const)
+        : ("available" as const),
+      provider: options.terminalAvailable === false
+        ? "deno-pty-unavailable"
+        : "deno-sigma-pty-ffi",
+      details: options.terminalAvailable === false
+        ? undefined
+        : {
+            protocol: "desktop_terminal_session_*",
+            lifecycle: "deno-runtime",
+          },
     },
     notebook: { id: "notebook" as const, status: "unavailable" as const },
     model: { id: "model" as const, status: "unavailable" as const },

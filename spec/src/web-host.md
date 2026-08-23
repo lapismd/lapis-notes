@@ -22,7 +22,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-032 | The web host MUST persist terminal-host URL and token as `web.terminalHost.url` and `web.terminalHost.token`. The token field MUST use password presentation. Live attach MUST require both values. |
 | LN-WEB-037 | Terminal server Settings MUST tell the user to start `lapis-terminal-host serve --workspace` on the vault, or a parent of `terminal.cwd`. |
 | LN-WEB-033 | After configuration load and whenever those values change, the web session MUST register or replace only a `lapis-terminal-host` contribution. It MUST NOT overwrite a desktop IPC bridge. |
-| LN-WEB-034 | Web Vite MUST keep `*.wasm` assets and MUST exclude `ghostty-web` and `@xterm/xterm` from dependency pre-bundling so the plugin renderers resolve their packaged files. |
+| LN-WEB-034 | Web Vite MUST keep `*.wasm` assets and MUST exclude `ghostty-web` from dependency pre-bundling so the sole packaged Ghostty renderer resolves its WASM file. |
 | LN-WEB-035 | After attaching or replacing the terminal-host contribution, the web session MUST refresh the Terminal plugin so already-constructed panels remount. |
 | LN-WEB-036 | Web Vite MUST allow the linked `@lapis-notes/lapis-plugin-terminal` package root through `server.fs.allow` so packaged `ghostty-vt.wasm` is served in development. |
 | LN-WEB-007 | One tab MUST own each vault database while secondary tabs delegate through typed RPC and expose a `DB Proxy` status marker.                                                                                                                                                                                        |
@@ -201,5 +201,5 @@ same provider and changes the surviving marker to `DB Owner`. Closing or
 switching sessions drains metadata and workspace persistence before releasing
 database requests, embedding workers, channels, and locks. Transformers.js is
 constructed lazily inside the owner tab's dedicated embedding worker, while
-the Electron owner maps the same portable WASM setting to its CPU execution
+the Deno desktop owner uses the same portable WASM setting in its renderer
 provider in main.

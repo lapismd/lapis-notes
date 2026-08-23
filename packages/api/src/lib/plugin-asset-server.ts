@@ -5,8 +5,8 @@ import { sha256Hex } from "./plugin-distribution/hashes";
 
 export const WEB_PLUGIN_ASSET_ROUTE_PREFIX = "/__lapis/plugins";
 export const WEB_PLUGIN_ASSET_CACHE_NAME = "lapis-plugin-assets-v1";
+/** Compatibility classifier for installed-plugin diagnostics; not a host. */
 export const ELECTRON_PLUGIN_ASSET_SCHEME = "lapis-plugin";
-const ELECTRON_PLUGIN_ASSET_HOST = "asset-v1";
 
 export type PluginAssetServerErrorCode =
   | "asset-server-unavailable"
@@ -116,50 +116,6 @@ export function parseWebPluginAssetUrl(
   );
   return normalizePluginAssetUrlParts({
     vaultId: decodePathSegment(vaultId),
-    pluginId: decodePathSegment(pluginId),
-    version: decodePathSegment(version),
-    sha256: decodePathSegment(sha256),
-    path: decodePluginAssetPath(assetPathParts),
-  });
-}
-
-export function createElectronPluginAssetUrl(
-  parts: PluginAssetUrlParts,
-): string {
-  const path = normalizePluginAssetRelativePath(parts.path);
-  return `${ELECTRON_PLUGIN_ASSET_SCHEME}://${ELECTRON_PLUGIN_ASSET_HOST}/${encodePathSegment(
-    parts.vaultId,
-  )}/${encodePathSegment(parts.pluginId)}/${encodePathSegment(
-    parts.version,
-  )}/${encodePathSegment(normalizePluginAssetSha256(parts.sha256))}/${encodePluginAssetPath(path)}`;
-}
-
-export function parseElectronPluginAssetUrl(
-  value: string,
-): PluginAssetUrlParts {
-  const url = new URL(value);
-  if (url.protocol !== `${ELECTRON_PLUGIN_ASSET_SCHEME}:`) {
-    throw new PluginAssetServerError(
-      "invalid-url",
-      `Invalid Electron plugin asset URL: ${value}`,
-      { details: { url: value } },
-    );
-  }
-
-  const parts = url.pathname.split("/").filter(Boolean);
-  const usesPathVaultId = url.hostname === ELECTRON_PLUGIN_ASSET_HOST;
-  if (!url.hostname || parts.length < (usesPathVaultId ? 5 : 4)) {
-    throw new PluginAssetServerError(
-      "invalid-url",
-      `Invalid Electron plugin asset URL: ${value}`,
-      { details: { url: value } },
-    );
-  }
-
-  const [pathVaultId, pluginId, version, sha256, ...assetPathParts] =
-    usesPathVaultId ? parts : [url.hostname, ...parts];
-  return normalizePluginAssetUrlParts({
-    vaultId: decodePathSegment(pathVaultId),
     pluginId: decodePathSegment(pluginId),
     version: decodePathSegment(version),
     sha256: decodePathSegment(sha256),

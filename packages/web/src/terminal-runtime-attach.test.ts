@@ -12,7 +12,7 @@ const api = vi.hoisted(() => ({
 
 const aiHost = vi.hoisted(() => ({
   createAgentRuntimeBridge: vi.fn((config: { url: string; token: string }) => ({
-    runtime: "electron-desktop",
+    runtime: "deno-desktop",
     capabilities: {
       "agent-runtime": {
         id: "agent-runtime",
@@ -169,7 +169,7 @@ describe("web terminal-runtime attach", () => {
     );
     expect(vite).toContain('assetsInclude: ["**/*.wasm"]');
     expect(vite).toContain('"ghostty-web"');
-    expect(vite).toContain('"@xterm/xterm"');
+    expect(vite).not.toContain('"@xterm/xterm"');
     expect(vite).toContain("linkedTerminalPluginRoot");
     expect(vite).toContain("@lapis-notes/lapis-plugin-terminal");
   });

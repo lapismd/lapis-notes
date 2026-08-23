@@ -13,11 +13,11 @@ function requireDesktopInvoke(): <T>(
 }
 
 /**
- * Persists vault bootstrap keys (saved vault profiles, current profile id) in
- * Electron main-process storage instead of renderer IndexedDB so a corrupted
- * Chromium storage partition cannot strand the shell on “Opening vault”.
+ * Persists vault bootstrap keys (saved vault profiles and current profile id)
+ * in the native Deno host instead of renderer IndexedDB so a corrupted webview
+ * storage partition cannot strand the shell on “Opening vault”.
  */
-export class ElectronMainVaultBootstrapKeyValueStore implements KeyValueStore {
+export class NativeDesktopVaultBootstrapKeyValueStore implements KeyValueStore {
   async get<T = unknown>(key: IDBValidKey): Promise<T | undefined> {
     const invoke = requireDesktopInvoke();
     return invoke<T | undefined>("desktop_vault_bootstrap_kv_get", {

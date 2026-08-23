@@ -5,7 +5,7 @@ describe("resolveAgentWorkspace", () => {
   it("uses the native vault root instead of its display name", () => {
     expect(
       resolveAgentWorkspace({
-        runtime: "electron-desktop",
+        runtime: "deno-desktop",
         rootPath: "/Users/example/Test Vault",
       }),
     ).toBe("/Users/example/Test Vault");
@@ -14,7 +14,7 @@ describe("resolveAgentWorkspace", () => {
   it("lets an attached host supply the workspace for memory vaults", () => {
     expect(resolveAgentWorkspace({ rootPath: "/memory" })).toBeUndefined();
     expect(
-      resolveAgentWorkspace({ runtime: "electron-desktop", rootPath: " " }),
+      resolveAgentWorkspace({ runtime: "deno-desktop", rootPath: " " }),
     ).toBeUndefined();
   });
 });

@@ -13,7 +13,7 @@ export function resolveAgentWorkspace(
 ): string | undefined {
   if (!adapter || typeof adapter !== "object") return undefined;
   const candidate = adapter as AgentWorkspaceAdapter;
-  if (candidate.runtime !== "electron-desktop") return undefined;
+  if (candidate.runtime !== "deno-desktop") return undefined;
   if (typeof candidate.rootPath !== "string") return undefined;
   const rootPath = candidate.rootPath.trim();
   return rootPath || undefined;
