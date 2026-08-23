@@ -175,6 +175,7 @@
         `Deno plugin asset acceptance failed (${pluginAssetResponse.status})`,
       );
     }
+    const appUrl = await bridge.waitForAcceptanceAppUrl?.();
     const appToolBridge = await bridge.invoke<{ bridgeId: string }>(
       "desktop_agent_tools_open",
       {
@@ -263,6 +264,7 @@
           pluginAssetResponse.headers.get("content-type") ?? "",
         agentProcessOutput,
         appToolBridgeOpened: Boolean(appToolBridge.bridgeId),
+        appUrl,
       };
     } finally {
       if (timeout !== undefined) clearTimeout(timeout);

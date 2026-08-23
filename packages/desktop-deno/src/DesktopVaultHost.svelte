@@ -48,6 +48,7 @@
   let bootGate = $state(true);
   let errorMessage = $state("");
   let switchQueue = Promise.resolve();
+  const pendingAppUrls: string[] = [];
 
   const showChooser = $derived(
     launcherOpen ||
@@ -67,6 +68,13 @@
         void activeApp.commands.executeCommand("app:about").catch(() => {});
       }
     });
+    const disposeAppUrl = bridge.onAppUrlOpen?.((url) => {
+      if (activeApp?.workspace.layoutReady) {
+        void activeApp.urls.dispatch(url);
+      } else {
+        pendingAppUrls.push(url);
+      }
+    });
     const disposeBeforeClose = bridge.onBeforeClose?.(() => {
       void serialize(async () => {
         try {
@@ -80,6 +88,7 @@
     return () => {
       disposeOpenVault?.();
       disposeOpenAbout?.();
+      disposeAppUrl?.();
       disposeBeforeClose?.();
       void disposeActiveSession(false);
     };
@@ -228,6 +237,9 @@
   function handleSessionReady(app: App): void {
     activeApp = app;
     status = "ready";
+    for (const url of pendingAppUrls.splice(0)) {
+      void app.urls.dispatch(url);
+    }
   }
 
   async function disposeActiveSession(persistLayout: boolean): Promise<void> {

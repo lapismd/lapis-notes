@@ -5,6 +5,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -63,6 +64,24 @@ function resolveExecutable() {
   return executable;
 }
 
+function assertApplicationUrlMetadata(executable) {
+  if (process.platform !== "darwin") return;
+  const plist = path.resolve(path.dirname(executable), "..", "Info.plist");
+  const urlTypes = JSON.parse(
+    execFileSync(
+      "plutil",
+      ["-extract", "CFBundleURLTypes", "json", "-o", "-", plist],
+      { encoding: "utf8" },
+    ),
+  );
+  assert.deepEqual(urlTypes, [
+    {
+      CFBundleURLName: "Lapis Notes",
+      CFBundleURLSchemes: ["lapis", "lapis-notes"],
+    },
+  ]);
+}
+
 async function waitForReport(reportPath, child, diagnostics) {
   const deadline = Date.now() + 180_000;
   while (Date.now() < deadline) {
@@ -111,6 +130,22 @@ async function waitForCleanExit(child, diagnostics) {
     child.exitCode,
     0,
     `Deno desktop close failed\n${diagnostics.join("")}`,
+  );
+}
+
+async function waitForInstanceEndpoint(endpointPath, child, diagnostics) {
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    if (fs.existsSync(endpointPath)) return;
+    if (child.exitCode !== null) {
+      throw new Error(
+        `Deno desktop exited before publishing its instance endpoint\n${diagnostics.join("")}`,
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error(
+    `Timed out waiting for Deno instance endpoint\n${diagnostics.join("")}`,
   );
 }
 
@@ -163,22 +198,45 @@ await writeFile(
 
 const diagnostics = [];
 let child;
+let secondary;
 try {
   const executable = resolveExecutable();
+  assertApplicationUrlMetadata(executable);
+  const appUrl = "lapis://open?vault=packaged-smoke";
+  const environment = {
+    ...process.env,
+    LAPIS_DENO_ACCEPTANCE: "1",
+    LAPIS_DENO_ACCEPTANCE_REPORT: reportPath,
+    LAPIS_DENO_USER_DATA: userDataDir,
+    LAPIS_DENO_VAULT: vaultPath,
+    LAPIS_DENO_VAULT_AUTO: "1",
+  };
   child = spawn(executable, [], {
     cwd: packageDir,
-    env: {
-      ...process.env,
-      LAPIS_DENO_ACCEPTANCE: "1",
-      LAPIS_DENO_ACCEPTANCE_REPORT: reportPath,
-      LAPIS_DENO_USER_DATA: userDataDir,
-      LAPIS_DENO_VAULT: vaultPath,
-      LAPIS_DENO_VAULT_AUTO: "1",
-    },
+    env: environment,
     stdio: ["ignore", "pipe", "pipe"],
   });
   child.stdout.on("data", (chunk) => diagnostics.push(String(chunk)));
   child.stderr.on("data", (chunk) => diagnostics.push(String(chunk)));
+
+  await waitForInstanceEndpoint(
+    path.join(userDataDir, "desktop-instance.json"),
+    child,
+    diagnostics,
+  );
+  const secondaryDiagnostics = [];
+  secondary = spawn(executable, [appUrl], {
+    cwd: packageDir,
+    env: environment,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  secondary.stdout.on("data", (chunk) =>
+    secondaryDiagnostics.push(String(chunk)),
+  );
+  secondary.stderr.on("data", (chunk) =>
+    secondaryDiagnostics.push(String(chunk)),
+  );
+  await waitForCleanExit(secondary, secondaryDiagnostics);
 
   const report = await waitForReport(reportPath, child, diagnostics);
   assert.equal(report.ok, true, report.detail);
@@ -199,14 +257,22 @@ try {
   assert.match(report.pluginAssetContentType, /^text\/javascript/u);
   assert.equal(report.agentProcessOutput, "deno-agent-process");
   assert.equal(report.appToolBridgeOpened, true);
+  assert.equal(report.appUrl, appUrl);
+  assert.equal(report.laterLaunchFocusCount, 1);
   assert.equal(report.crossOriginIsolated, true);
   assert.equal(report.protocol, "http:");
   await waitForCleanExit(child, diagnostics);
+  assert.match(
+    diagnostics.join(""),
+    /\[desktop\] invoke desktop_renderer_close_ready/u,
+    "Packaged close exited without renderer teardown acknowledgement",
+  );
   console.log(`[deno] packaged smoke passed: ${executable}`);
 } catch (error) {
   if (diagnostics.length) console.error(diagnostics.join(""));
   throw error;
 } finally {
+  if (secondary && secondary.exitCode === null) secondary.kill("SIGTERM");
   if (child && child.exitCode === null) {
     child.kill("SIGTERM");
     await Promise.race([

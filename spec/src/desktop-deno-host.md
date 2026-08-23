@@ -157,6 +157,19 @@ Native agent execution verifies:
 - Packaged acceptance MUST open and close an application-tool bridge and run a
   process through the compiled app without a system Node host.
 
+### LN-DENO-018 acceptance details
+
+Deno application activation verifies:
+
+- The primary process MUST hold an exclusive application-data lock and publish
+  an authenticated loopback endpoint readable only by the current user.
+- A later process MUST forward valid `lapis` and `lapis-notes` arguments, focus
+  the primary window, and exit before creating another application host.
+- Startup and later-launch URLs MUST remain queued until the renderer subscribes
+  and the ready `App` MUST dispatch them through its public URL registry.
+- The macOS application bundle and Linux desktop metadata MUST declare both URL
+  schemes without embedding credentials or environment-specific paths.
+
 ### LN-DENO-019 acceptance details
 
 Deno application menus verify:

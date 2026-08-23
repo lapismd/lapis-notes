@@ -20,6 +20,8 @@ import {
 import { createRendererEventEmitter } from "./renderer-events.ts";
 import { rendererDistRoot } from "./production-build.ts";
 import { DenoPluginAssetService } from "./plugin-assets.ts";
+import { acquireDenoSingleInstance } from "./single-instance.ts";
+import { userDataDir } from "./user-data.ts";
 import {
   DESKTOP_WINDOW_TITLE,
   assertSupportedDenoDesktopVersion,
@@ -35,6 +37,12 @@ import {
 } from "./window-drag.ts";
 
 assertSupportedDenoDesktopVersion(Deno.version.deno);
+
+const instance = await acquireDenoSingleInstance(userDataDir(), Deno.args);
+if (!instance.primary) {
+  Deno.exit(instance.delivered ? 0 : 1);
+}
+const singleInstance = instance.host;
 
 const windowOptions = createDesktopWindowOptions(Deno.build.os);
 const bootstrap = new Deno.BrowserWindow({
@@ -70,16 +78,17 @@ const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
 const closeCoordinator = createDenoCloseCoordinator({
   emitBeforeClose() {
     console.log("[desktop-close] request");
-    emitRendererEvent("desktop_renderer_before_close", null);
-  },
-  requestWindowClose() {
-    win.close();
+    void emitRendererEvent({
+      channel: "desktop_renderer_before_close",
+      payload: null,
+    });
   },
   async shutdown() {
     console.log("[desktop-close] shutdown");
     fileWatch.shutdown();
     pluginAssets.clear();
     await agentRuntime.shutdown();
+    await singleInstance.close();
   },
   exit(code) {
     console.log(`[desktop-close] exit:${code}`);
@@ -88,6 +97,7 @@ const closeCoordinator = createDenoCloseCoordinator({
 });
 
 const INSPECT_ADDRESS = "127.0.0.1:9229";
+let laterLaunchFocusCount = 0;
 
 function registerDesktopBindings(): void {
   installWindowBindings(win, [
@@ -118,6 +128,8 @@ function registerDesktopBindings(): void {
           agentRuntime,
           rendererCloseReady: () => closeCoordinator.rendererReady(),
           requestClose: () => closeCoordinator.requestClose(),
+          takePendingAppUrls: () => singleInstance.queue.takePending(),
+          acceptanceDetails: () => ({ laterLaunchFocusCount }),
         });
       },
     ],
@@ -127,6 +139,17 @@ function registerDesktopBindings(): void {
 }
 
 registerDesktopBindings();
+singleInstance.queue.onLaterLaunch(() => {
+  if (!win.isClosed()) {
+    win.show();
+    win.focus();
+    laterLaunchFocusCount += 1;
+  }
+  void emitRendererEvent({
+    channel: "desktop_app_url_available",
+    payload: null,
+  });
+});
 win.addEventListener("close", (event) => {
   closeCoordinator.onWindowClose(event);
 });
@@ -162,11 +185,17 @@ async function showRendererErrors(): Promise<void> {
 win.addEventListener("menuclick", (event: Event) => {
   const id = (event as CustomEvent<{ id?: string }>).detail?.id;
   if (id === DENO_MENU_IDS.openVault) {
-    emitRendererEvent("desktop_menu_open_vault_picker", null);
+    void emitRendererEvent({
+      channel: "desktop_menu_open_vault_picker",
+      payload: null,
+    });
     return;
   }
   if (id === DENO_MENU_IDS.about) {
-    emitRendererEvent("desktop_menu_open_about_dialog", null);
+    void emitRendererEvent({
+      channel: "desktop_menu_open_about_dialog",
+      payload: null,
+    });
     return;
   }
   if (id === DENO_MENU_IDS.reload) {

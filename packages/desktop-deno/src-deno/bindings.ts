@@ -62,6 +62,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_acceptance_request_close",
   "desktop_renderer_close_ready",
   "desktop_open_external",
+  "desktop_app_url_take_pending",
   "desktop_notifications_show",
   "desktop_plugin_assets_register",
   "desktop_fs_watch_start",
@@ -81,6 +82,8 @@ export type DesktopInvokeContext = {
   agentRuntime?: DenoAgentRuntimeHost;
   rendererCloseReady?: () => void;
   requestClose?: () => void;
+  takePendingAppUrls?: () => string[];
+  acceptanceDetails?: () => Record<string, unknown>;
 };
 
 export function createPlatformInfo() {
@@ -134,7 +137,10 @@ export function handleDesktopInvoke(
     if (Deno.env.get("LAPIS_DENO_ACCEPTANCE") !== "1" || !reportPath) {
       throw new Error("Deno desktop acceptance reporting is disabled");
     }
-    return Deno.writeTextFile(reportPath, `${JSON.stringify(payload)}\n`);
+    return Deno.writeTextFile(
+      reportPath,
+      `${JSON.stringify({ ...payload, ...context.acceptanceDetails?.() })}\n`,
+    );
   }
   if (command === "desktop_acceptance_request_close") {
     if (Deno.env.get("LAPIS_DENO_ACCEPTANCE") !== "1") {
@@ -154,6 +160,9 @@ export function handleDesktopInvoke(
   }
   if (command === "desktop_open_external") {
     return openExternalUrl(payload.url);
+  }
+  if (command === "desktop_app_url_take_pending") {
+    return context.takePendingAppUrls?.() ?? [];
   }
   if (command === "desktop_notifications_show") {
     return showNativeNotification(payload.notification);

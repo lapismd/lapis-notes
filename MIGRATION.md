@@ -143,7 +143,8 @@ Electron and web until equivalent packaged Deno acceptance passes.
 - [ ] Add community plugin sidecar and terminal capability parity
 - [x] Add platform-exact macOS notifications and macOS/Linux file open/reveal actions
 - [x] Add full native menus, bounded renderer close handshake, and system-browser external-link policy
-- [ ] Add single-instance app URLs and real workspace-popout acceptance
+- [x] Add single-instance app URL registration, authenticated handoff, queued renderer delivery, and later-launch focus
+- [ ] Add real workspace-popout acceptance
 - [ ] Add Linux artifacts, stable icons, signing hooks, and the remaining parity acceptance matrix
 - [x] Focused package checks, production Vite build, macOS app packaging, and full saved-vault/plugin boot smoke
 

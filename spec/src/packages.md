@@ -504,6 +504,11 @@ URL launch commands, and the bounded close coordinator. Its renderer continues
 to own `App`, workspace, plugin, database, and vault-session disposal and
 acknowledges native close only after that shared teardown completes.
 
+The Deno host also owns one application-data lock and a bearer-authenticated
+loopback activation endpoint. Its distribution metadata declares application
+URL schemes, while the shared App URL registry remains the only interpreter of
+delivered `lapis` and `lapis-notes` URLs.
+
 ## `@lapis-notes/workspace` (shell integration)
 
 The workspace package is a thin Svelte adapter over

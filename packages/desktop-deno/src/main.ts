@@ -47,6 +47,7 @@ export type DenoDesktopBridge = NativeDesktopBridge & {
   onOpenVaultPicker?(listener: () => void): () => void;
   onOpenAboutDialog?(listener: () => void): () => void;
   onBeforeClose?(listener: () => void): () => void;
+  waitForAcceptanceAppUrl?(): Promise<string>;
 };
 
 type DenoDesktopBindings = {
@@ -77,6 +78,37 @@ const agentToolCancelListeners = new Set<
 const openVaultListeners = new Set<() => void>();
 const openAboutListeners = new Set<() => void>();
 const beforeCloseListeners = new Set<() => void>();
+const appUrlListeners = new Set<(url: string) => void>();
+const acceptanceAppUrls: string[] = [];
+const acceptanceAppUrlWaiters: Array<(url: string) => void> = [];
+let appUrlFlushPending = false;
+let appUrlFlushRequested = false;
+
+async function flushPendingAppUrls(): Promise<void> {
+  if (appUrlFlushPending) {
+    appUrlFlushRequested = true;
+    return;
+  }
+  appUrlFlushPending = true;
+  try {
+    do {
+      appUrlFlushRequested = false;
+      const urls = (await bindings.invoke(
+        "desktop_app_url_take_pending",
+      )) as unknown;
+      if (!Array.isArray(urls)) continue;
+      for (const value of urls) {
+        if (typeof value !== "string") continue;
+        for (const listener of appUrlListeners) listener(value);
+        const waiter = acceptanceAppUrlWaiters.shift();
+        if (waiter) waiter(value);
+        else acceptanceAppUrls.push(value);
+      }
+    } while (appUrlFlushRequested);
+  } finally {
+    appUrlFlushPending = false;
+  }
+}
 
 globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
   const detail = (rawEvent as CustomEvent<DenoRendererNativeEvent>).detail;
@@ -122,6 +154,10 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
   }
   if (detail?.channel === "desktop_renderer_before_close") {
     for (const listener of beforeCloseListeners) listener();
+    return;
+  }
+  if (detail?.channel === "desktop_app_url_available") {
+    void flushPendingAppUrls();
   }
 });
 
@@ -286,6 +322,28 @@ const bridge: DenoDesktopBridge = {
   },
   onBeforeClose(listener) {
     return subscribe(beforeCloseListeners, listener);
+  },
+  onAppUrlOpen(listener) {
+    const unsubscribe = subscribe(appUrlListeners, listener);
+    void flushPendingAppUrls();
+    return unsubscribe;
+  },
+  waitForAcceptanceAppUrl() {
+    const queued = acceptanceAppUrls.shift();
+    if (queued) return Promise.resolve(queued);
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        const index = acceptanceAppUrlWaiters.indexOf(onUrl);
+        if (index !== -1) acceptanceAppUrlWaiters.splice(index, 1);
+        reject(new Error("Deno app URL acceptance timed out"));
+      }, 30_000);
+      const onUrl = (url: string) => {
+        clearTimeout(timeout);
+        resolve(url);
+      };
+      acceptanceAppUrlWaiters.push(onUrl);
+      void flushPendingAppUrls();
+    });
   },
 };
 

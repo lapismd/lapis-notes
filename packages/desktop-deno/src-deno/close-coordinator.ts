@@ -6,7 +6,6 @@ type TimerHandle = ReturnType<typeof setTimeout>;
 
 export type DenoCloseCoordinatorOptions = {
   emitBeforeClose(): void;
-  requestWindowClose(): void;
   shutdown(): Promise<void> | void;
   exit(code: number): void;
   timeoutMs?: number;
@@ -26,7 +25,7 @@ export function createDenoCloseCoordinator(
   const setTimer = options.setTimer ?? setTimeout;
   const clearTimer = options.clearTimer ?? clearTimeout;
   const timeoutMs = options.timeoutMs ?? 10_000;
-  let phase: "idle" | "pending" | "ready" | "closing" = "idle";
+  let phase: "idle" | "pending" | "closing" = "idle";
   let timer: TimerHandle | undefined;
 
   const clearCloseTimer = () => {
@@ -45,29 +44,28 @@ export function createDenoCloseCoordinator(
     }
   };
 
+  const beginClose = () => {
+    if (phase !== "idle") return;
+    phase = "pending";
+    options.emitBeforeClose();
+    timer = setTimer(() => {
+      void shutdownAndExit();
+    }, timeoutMs);
+  };
+
   return {
     onWindowClose(event) {
-      if (phase === "ready") {
-        void shutdownAndExit();
-        return;
-      }
       if (phase === "closing") return;
       event.preventDefault();
-      if (phase === "pending") return;
-      phase = "pending";
-      options.emitBeforeClose();
-      timer = setTimer(() => {
-        void shutdownAndExit();
-      }, timeoutMs);
+      beginClose();
     },
     rendererReady() {
       if (phase !== "pending") return;
       clearCloseTimer();
-      phase = "ready";
-      queueMicrotask(() => options.requestWindowClose());
+      void shutdownAndExit();
     },
     requestClose() {
-      if (phase === "idle") options.requestWindowClose();
+      beginClose();
     },
   };
 }

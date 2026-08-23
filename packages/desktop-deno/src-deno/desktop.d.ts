@@ -4,7 +4,6 @@ declare namespace Deno {
     paths: string[];
   }
   interface FsWatcher extends AsyncIterable<FsEvent> {
-    close(): void;
   }
   function watchFs(
     paths: string | string[],

@@ -5,13 +5,11 @@ import { createDenoCloseCoordinator } from "./close-coordinator";
 describe("Deno close coordinator", () => {
   it("prevents the first close until renderer teardown is ready", async () => {
     const emitBeforeClose = vi.fn();
-    const requestWindowClose = vi.fn();
     const shutdown = vi.fn(async () => {});
     const exit = vi.fn();
     const preventDefault = vi.fn();
     const coordinator = createDenoCloseCoordinator({
       emitBeforeClose,
-      requestWindowClose,
       shutdown,
       exit,
     });
@@ -22,9 +20,6 @@ describe("Deno close coordinator", () => {
     expect(shutdown).not.toHaveBeenCalled();
 
     coordinator.rendererReady();
-    await Promise.resolve();
-    expect(requestWindowClose).toHaveBeenCalledOnce();
-    coordinator.onWindowClose({ preventDefault });
     await vi.waitFor(() => expect(exit).toHaveBeenCalledWith(0));
     expect(preventDefault).toHaveBeenCalledOnce();
     expect(shutdown).toHaveBeenCalledOnce();
@@ -37,7 +32,6 @@ describe("Deno close coordinator", () => {
       const exit = vi.fn();
       const coordinator = createDenoCloseCoordinator({
         emitBeforeClose: vi.fn(),
-        requestWindowClose: vi.fn(),
         shutdown,
         exit,
         timeoutMs: 25,
@@ -53,11 +47,10 @@ describe("Deno close coordinator", () => {
 
   it("ignores duplicate close requests and acknowledgements", async () => {
     const emitBeforeClose = vi.fn();
-    const requestWindowClose = vi.fn();
+    const shutdown = vi.fn();
     const coordinator = createDenoCloseCoordinator({
       emitBeforeClose,
-      requestWindowClose,
-      shutdown: vi.fn(),
+      shutdown,
       exit: vi.fn(),
     });
     const event = { preventDefault: vi.fn() };
@@ -67,6 +60,18 @@ describe("Deno close coordinator", () => {
     coordinator.rendererReady();
     await Promise.resolve();
     expect(emitBeforeClose).toHaveBeenCalledOnce();
-    expect(requestWindowClose).toHaveBeenCalledOnce();
+    expect(shutdown).toHaveBeenCalledOnce();
+  });
+
+  it("runs the same handshake for a native acceptance close request", () => {
+    const emitBeforeClose = vi.fn();
+    const coordinator = createDenoCloseCoordinator({
+      emitBeforeClose,
+      shutdown: vi.fn(),
+      exit: vi.fn(),
+    });
+    coordinator.requestClose();
+    coordinator.requestClose();
+    expect(emitBeforeClose).toHaveBeenCalledOnce();
   });
 });
