@@ -71,7 +71,7 @@ are intentionally omitted.
 | LN-DESK-048 | Explorer MUST consume the advertised `file-system-actions` capability through the existing resolve, open, and reveal desktop IPC. It MUST NOT add a command or a second IPC channel for those actions. |
 | LN-DESK-049 | After a vault is open, Design Core spacer, stacked chrome, view-header title container, and startup root MUST compute `-webkit-app-region: drag`. Interactive controls on those surfaces MUST compute `no-drag`. Lapis MUST NOT re-declare that CSS. |
 | LN-DESK-050 | Desktop session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. While the plugins task is active, the live status MUST show the current plugin name. |
-| LN-DESK-051 | After layout restoration, desktop boot MUST start metadata cache load. It MUST NOT start that load before `loadLayout` returns or wait for it before mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
+| LN-DESK-051 | After layout restoration, desktop boot MUST start metadata index load. It MUST NOT start before `loadLayout` returns or block `WorkspaceShell`. Persisted queries MUST become available at `loaded`, and later committed revisions MUST refresh affected surfaces. |
 | LN-DESK-052 | While resolving a current profile, the host MUST NOT paint the branded launcher. A valid current `desktop-folder` profile MUST continue to Design Core `WorkspaceStartup`. The launcher MUST appear only when no valid current profile exists or the user opened an explicit manage or Open Vault overlay. |
 | LN-DESK-053 | A Manage Vaults or Open Vault… overlay MUST keep the ready session mounted and hidden without clearing the current profile. Close MUST sit immediately right of Settings, use Return to previous vault, and return without `WorkspaceStartup`. First launch MUST omit close. |
 
@@ -98,7 +98,8 @@ Desktop boot restores the layout before opening the metadata store:
 
 - `metadataCache.load` MUST start after `loadLayout` returns.
 - `WorkspaceShell` mount MUST NOT await that promise.
-- Tags, Outline, Backlinks, Outgoing Links, Search, Bases, and File Properties MUST refresh when `loaded` fires.
+- `loaded` MUST make persisted metadata queries available before vault reconciliation completes.
+- Tags, Outline, Backlinks, Outgoing Links, Search, Bases, and File Properties MUST refresh on readiness and relevant committed revisions.
 - While load, rebuild, or reconcile runs, the notifications status item MUST show busy progress. The shell MUST NOT wait for that work before mounting.
 
 ### LN-DESK-052 acceptance details

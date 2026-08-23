@@ -41,7 +41,7 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-020 | An authenticated protocol-v3 web bridge MUST proxy application-tool calls, responses, and cancellation through its existing agent-runtime connection while the browser App executes the tool. A real stdio-shim round trip MUST use that same connection, and disconnect MUST revoke bridge authorization and cancel pending calls without retaining note contents in host replay. |
 | LN-WEB-021 | Web session boot MUST render Design Core `WorkspaceStartup` with live vault, configuration, plugin, and layout tasks. Failure MUST stay on that surface with Retry that tears down and reboots. It MUST NOT keep the Opening vault stub or return a mid-boot failure to the launcher. While the plugins task is active, the live status MUST show the current plugin name. |
 | LN-WEB-022 | A web vault without `.obsidian/workspace.json` MUST use the same default sidebar seed as desktop: File Explorer, Search, then Bookmarks on the left, and Outline, File Properties, then Tags on the right when those views are registered. |
-| LN-WEB-023 | After layout restoration, web boot MUST start metadata cache load. It MUST NOT start that load before `loadLayout` returns or wait for it before mounting `WorkspaceShell`. Metadata-backed surfaces MUST refresh on `loaded`. |
+| LN-WEB-023 | After layout restoration, web boot MUST start metadata index load. It MUST NOT start before `loadLayout` returns or block `WorkspaceShell`. Persisted queries MUST become available at `loaded`, and later committed revisions MUST refresh affected surfaces. |
 | LN-WEB-024 | The web host MUST persist agent-runtime URL and token in app configuration and show both fields in Settings. The token field MUST use password presentation so the value stays masked until revealed. Environment variables MAY prefill empty fields. Live attach MUST require both values. |
 | LN-WEB-025 | After configuration load and whenever those values change, the web session MUST register or replace its `lapis-ai-host` WebSocket bridge and refresh AI host runtimes. It MUST NOT overwrite a desktop IPC bridge. |
 | LN-WEB-026 | While resolving a current profile, the host MUST NOT paint the branded launcher. A valid current profile MUST continue to Design Core `WorkspaceStartup`. The launcher MUST appear only when no valid current profile exists or the user opened an explicit manage overlay. |
@@ -71,7 +71,8 @@ Web boot restores the layout before opening the metadata store:
 
 - `metadataCache.load` MUST start after `loadLayout` returns.
 - `WorkspaceShell` mount MUST NOT await that promise.
-- Tags, Outline, Backlinks, Outgoing Links, Search, Bases, and File Properties MUST refresh when `loaded` fires.
+- `loaded` MUST make persisted metadata queries available before vault reconciliation completes.
+- Tags, Outline, Backlinks, Outgoing Links, Search, Bases, and File Properties MUST refresh on readiness and relevant committed revisions.
 
 ### LN-WEB-024 acceptance details
 

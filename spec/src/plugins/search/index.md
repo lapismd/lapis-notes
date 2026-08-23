@@ -49,6 +49,8 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-039 | Search MUST register `notes_search` through the application tool registry. It MUST query only Markdown documents inside the trusted conversation path prefix, apply the requested limit before returning, and expose bounded snippets with portable vault-relative paths. |
 | LN-SRCH-040 | Search MUST register composer `/search` as a tool-dispatch command for `notes_search`. The command MUST pass the raw arguments as `query`, MUST NOT add a workspace palette command, and MUST dispose on unload. An empty query MUST be a visible usage error. |
 | LN-SRCH-041 | Search MUST register the `notes_search` result view. A hit row MUST open that vault file in a workspace leaf without closing the chat. The view MUST consume `structuredContent.results` paths and snippets. |
+| LN-SRCH-042 | Warm Search startup MUST reconcile lightweight document manifests against metadata hashes and provider versions. Unchanged documents MUST NOT read vault bodies, enumerate complete Search documents, regenerate chunks, or recompute embeddings. |
+| LN-SRCH-043 | Search syntax facets MUST query indexed metadata tags and properties asynchronously. Revision-aware refresh MUST suppress stale results and MUST NOT enumerate `MetadataCache.getAllItems`. |
 
 ## Runtime flow
 

@@ -91,8 +91,8 @@ projection `planKind` values are `anytime`, `morning`, `afternoon`,
 | LN-PKG-082 | `@lapis-notes/api` MUST render diagnostic hover-card actions with unique list keys even when titles repeat. The card MUST NOT throw when two actions share a name.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | LN-PKG-084 | `@lapis-notes/api` MUST NOT read CodeMirror editor layout from a diagnostic hover-card plugin during a view update. Tooltip positioning MUST run in the view measure cycle after the update completes.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | LN-PKG-088 | `@lapis-notes/api` lint hover MUST resolve a diagnostic from `.cm-lintRange` or `.cm-lint-marker` only. It MUST NOT open a card from a document-position hit on the same line. |
-| LN-PKG-085 | `MetadataCache.dispose` MUST wait for an in-flight `load` and MUST NOT persist an empty snapshot when that load never applied. |
-| LN-PKG-086 | `MetadataCache` MUST keep snapshot load, rebuild, and vault reconcile under one `notifications.withProgress` handle. It MUST NOT fire-and-forget reconcile after that handle completes. |
+| LN-PKG-085 | `MetadataCache.dispose` MUST wait for in-flight load, reconciliation, query, and index-write work. It MUST release database subscriptions and compatibility leases before the owning AppDatabase closes. |
+| LN-PKG-086 | `MetadataCache` MUST keep database readiness, rebuild, and vault reconcile under one `notifications.withProgress` handle. It MUST NOT fire-and-forget reconcile after that handle completes. |
 
 `@lapis-notes/ai` may offer a Node-backed user-agents command store only through
 a runtime-only module boundary. Browser and renderer builds consume the portable
@@ -102,6 +102,10 @@ entrypoints.
 | LN-PKG-087 | `MetadataCache` MUST yield between files during load, rebuild, and vault reconcile so progress reports and input stay responsive while worker results are applied. |
 | LN-PKG-097 | `App` MUST register palette command `app:rebuild-vault-cache`. That command MUST call `metadataCache.rebuild()`. |
 | LN-PKG-098 | `App` MUST register palette command `app:rebuild-generated-state`. That command MUST await `metadataCache.rebuild()`, then execute `search:rebuild-search-index` when that command is registered, otherwise `appDatabase.rebuildSearchIndex()`. |
+| LN-PKG-106 | `MetadataCache` MUST surface normalized AppDatabase data through async per-file and query APIs. `loaded` MUST mean persisted queries are available, while reconciliation continues within the load operation and emits committed index changes. |
+| LN-PKG-107 | Normal operation MUST retain at most 512 recently used metadata entries. Full synchronous maps MUST exist only under a reference-counted compatibility lease and MUST be released when its last owner unloads. |
+| LN-PKG-108 | Automatic metadata snapshots under `.lapis/cache` MUST stop. Existing files MUST remain untouched, and missing or stale rebuildable metadata MUST be recovered from authoritative vault Markdown. |
+| LN-PKG-109 | First-party metadata consumers MUST use async indexed queries and revision-aware refresh. A source audit MUST reject first-party enumeration of synchronous `fileCache`, `metadataCache`, `resolvedLinks`, `unresolvedLinks`, or `getAllItems`. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | LN-PKG-039 | `@lapis-notes/desktop-electron` MUST be a private package at `packages/desktop-electron`, retain version `2026.31.5`, and expose the common `build`, `check`, and `test` scripts.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -449,15 +453,16 @@ shared drag-region stylesheet rather than a host-owned loading stub or
 resolving a saved current profile so the branded chooser cannot flash first.
 Manage Vaults and desktop Open Vault… overlay the chooser over a retained
 session; Close returns without disposing. The plugins task reports the current plugin
-name. Metadata cache load starts after layout restoration so Turso open does
-not contend with `loadLayout`. Snapshot apply, rebuild, and vault reconcile
-stay under that progress handle; file processing yields between files so the
-notifications status item can paint. `App` registers `app:rebuild-vault-cache`
+name. Metadata index load starts after layout restoration so database readiness
+does not contend with `loadLayout`. Persisted queries become available before
+rebuild or vault reconcile completes. That work stays under the progress
+handle; file processing yields between files so the notifications status item
+can paint. `App` registers `app:rebuild-vault-cache`
 and `app:rebuild-generated-state` so hosts can rerun that progress
 (LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can subscribe. Markdown parse runs in a worker,
-while vault I/O, link resolution, `$state` apply, and database writes stay on
-the main thread.
+while vault I/O, link resolution, bounded hot-cache apply, and database writes
+stay on the main thread.
 The development renderer adds the real linked Design Core package root to its
 narrow Vite filesystem allowlist so public stylesheet assets remain available.
 

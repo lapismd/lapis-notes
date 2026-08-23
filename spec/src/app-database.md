@@ -11,7 +11,7 @@ workspace shell.
 | LN-DB-001 | Existing `AppDatabase` operations MUST remain available while session creation accepts an optional `AppDatabaseProvider`. Explicit database injection MUST remain supported. |
 | LN-DB-002 | Every database MUST expose a descriptor with provider, engine, transport, role, storage mode, and query capabilities. Consumers MUST NOT infer capabilities from implementation names. |
 | LN-DB-003 | The production local provider MUST use pinned Turso native storage where supported and Turso WASM with OPFS in browser-compatible runtimes. The WASM path MUST use a host-compatible driver entrypoint instead of a prebuilt worker-inline bundle. Memory MUST remain explicit test-only injection. |
-| LN-DB-004 | Turso storage MUST persist metadata snapshots, indexed files, links, tags, properties, plugin projections, notifications, history, search documents, chunks, embedding state, and application metadata. |
+| LN-DB-004 | Turso storage MUST persist indexed files, metadata, links, tags, properties, plugin projections, notifications, history, search documents, chunks, embedding state, and application metadata in normalized tables. Metadata and other durable domains MUST NOT depend on a whole-database compatibility snapshot. |
 | LN-DB-005 | Lexical retrieval MUST use Turso full-text search when available. Unsupported optimizations MAY degrade to Turso table evaluation while reporting the degraded capability. |
 | LN-DB-006 | Semantic retrieval MUST store float vectors in Turso and use Turso vector distance or indexes. Active query paths MUST NOT load sqlite-vec. |
 | LN-DB-007 | Document and query embeddings MUST be generated locally through the provider-neutral embedding contract. Configuration MUST remain lazy until the first semantic index or query, and changing model identity or dimensions MUST invalidate affected vectors. |
@@ -33,6 +33,24 @@ workspace shell.
 | LN-DB-023 | `queryTasks` and `getTaskRow` MAY wrap the public `tasks/task` projection. `listTaskDescendants` MUST follow resolved `task-entry` and `list-entry` projection edges rather than infer structure from generic indexed links. |
 | LN-DB-024 | Public `tasks/task` projection version 3 MUST retain the complete RRULE and tracking contracts as disposable JSON, MUST index the current effective occurrence date and state plus the local date for which they were resolved, and task view queries MUST use those effective fields so Review contains only carried overdue occurrences and Upcoming contains one future occurrence per Task row. |
 | LN-DB-025 | Public `tasks/occurrence` projection rows MUST be disposable observations sourced from exact daily Markdown ranges, MUST identify one task and occurrence date with pending, completed, or missed outcome data, and MUST retain quantitative value, unit, duration, and source offsets without becoming occurrence authority. |
+| LN-DB-026 | Production Turso providers MUST execute reads and row-scoped writes directly against Turso. They MUST NOT inherit the memory provider, hydrate `app_state`, or rewrite unaffected tables after one mutation. |
+| LN-DB-027 | Indexed metadata MUST expose async per-file, paginated, tag-facet, property-facet, incoming-link, outgoing-link, resolved-link, and unresolved-link queries. Queryable tag, property, and link fields MUST use typed indexed columns rather than JSON scans. |
+| LN-DB-028 | AppDatabase mutations MUST publish a typed change set only after commit. Change sets MUST carry a durable revision and bounded invalidation detail; a revision gap MUST invalidate the complete affected domain. |
+| LN-DB-029 | Browser owner/proxy and Electron transports MUST relay database change sets without exposing raw SQL. Browser promotion and renderer reconnection MUST compare durable revisions before resuming incremental invalidation. |
+| LN-DB-030 | The Turso v2 migration MUST validate normalized metadata, Search, History, task, notification, and projection rows before activating direct SQL. Failure MUST preserve the prior database and MUST NOT rebuild or discard database-only History. |
+| LN-DB-031 | Warm metadata startup MUST make persisted queries available before background vault reconciliation. An unchanged vault MUST NOT read note bodies, metadata payload JSON, Search content, or History payloads during database open. |
+| LN-DB-032 | A 50,000-note warm-vault performance lane MUST enforce bounded metadata memory and native/WASM readiness and query budgets. A 100,000-note lane MUST report non-blocking stress results. |
+| LN-DB-033 | Compatibility metadata snapshot import and export MAY remain deprecated for one release. Production startup MUST NOT invoke either operation or maintain the snapshot after normalized writes. |
+
+### LN-DB-032 acceptance details
+
+The dedicated performance runner verifies a warm 50,000-note vault:
+
+- Database open plus queryable metadata readiness MUST complete within 1 second for native Turso and 2.5 seconds for WASM/OPFS at p95 over five runs.
+- Per-file lookup MUST complete within 25ms native and 75ms WASM/OPFS at p95.
+- Indexed tag, property, and backlink queries MUST complete within 200ms native and 500ms WASM/OPFS at p95.
+- The metadata hot cache MUST retain at most 512 entries, and unchanged warm startup MUST read zero Markdown bodies.
+- A 100,000-note run MUST report the same measurements without blocking the required lane.
 
 The public `tasks/task` `planKind` field mirrors Tasks document `plan.at`:
 `anytime`, `morning`, `afternoon`, `evening`, or `time`, with `planTime` for
@@ -62,9 +80,12 @@ AppDatabaseProvider
 caller sets `replaceLatest`. History uses that option for the modify merge
 window so rapid edits do not append a new snapshot.
 
-The provider persists generated state outside the user-visible vault. Memory is
-an explicitly injected test and Storybook double; production sessions do not
-select it and never select SQLite or IndexedDB app-database implementations.
+The provider persists application and generated state outside the user-visible
+vault. Memory is an explicitly injected test and Storybook double; production
+Turso implements the same contract through direct SQL and does not materialize
+the Memory provider's maps. Markdown remains authoritative for rebuildable note
+metadata, Search documents, tasks, and plugin projections. Migration must retain
+database-only History and other non-rebuildable application state.
 
 Vault filename and path glob discovery does not read or populate the app
 database. It evaluates the API-owned in-memory vault tree; indexed metadata and
@@ -76,7 +97,8 @@ shared evaluator; native and browser proxies forward the same typed option.
 
 The Electron implementation opens one Turso handle per renderer and vault in
 main on supported native targets. Its renderer client can invoke only the
-fixed `AppDatabase` method catalogue. Intel macOS selects the same provider
+fixed `AppDatabase` method catalogue and receives committed change sets through
+the bounded bridge. Intel macOS selects the same provider
 contract over the self-contained Turso WASM bundle and OPFS instead of opening
 a compatibility database. The WASM provider imports the driver's host-bundler
 entry so web and renderer builds serve driver-owned worker and WASM assets
@@ -90,3 +112,5 @@ method catalogue that excludes lifecycle and raw-storage operations. Requests
 validate vault, owner, method, argument count, identifiers, and payload size;
 responses validate the expected responder. A promoted proxy replays pending
 work against its newly opened Turso handle rather than selecting a fallback.
+The owner broadcasts committed change sets. A proxy that observes a revision
+gap or becomes owner invalidates the affected domain before serving new reads.

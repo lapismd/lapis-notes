@@ -80,6 +80,7 @@ chat to `.agents`.
 | LN-PLUG-026 | `registerIndexProjection` MUST return a handle with `query`, `get`, and `queryRelated`. Registration MUST backfill from the core file index in bounded batches. |
 | LN-PLUG-027 | `App` MUST expose an API-owned daily-document provider registry, resolution MUST fail closed when no provider or equal-priority providers exist, and provider registration MUST be disposable without granting plugins ownership of host folder, filename, or front-matter policy. |
 | LN-PLUG-028 | Plugin and host-owned view registrations MUST remain attached to live `WorkspaceLeaf` instances when a pane-menu split duplicates their view. Split panes MUST NOT create a design-only tab, wrong-direction pane, or unprojected API leaf that bypasses the plugin view lifecycle. |
+| LN-PLUG-029 | A Lapis plugin manifest MAY declare database metadata access. Community and official code plugins without that declaration MUST acquire a synchronous metadata compatibility lease before enable and release it after unload. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

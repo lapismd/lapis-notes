@@ -331,10 +331,11 @@ disposing.
 After that selection, desktop and web session boot render Design Core
 `WorkspaceStartup` for vault, configuration, plugin, and layout progress
 instead of a host-owned placeholder. The plugins task reports the current
-plugin name. Metadata cache load starts after layout restoration so Turso
-open does not contend with `loadLayout`. That load, rebuild, and vault
-reconcile stay under one status progress handle, yield between files, and
-parse Markdown metadata in a worker. `App` registers rebuild-vault-cache and
+plugin name. Metadata index load starts after layout restoration so database
+readiness does not contend with `loadLayout`. Persisted queries become
+available before background reconciliation. Load, rebuild, and reconcile stay
+under one status progress handle, yield between files, and parse changed
+Markdown metadata in a worker. `App` registers rebuild-vault-cache and
 rebuild-generated-state so a later manual rebuild uses the same handle
 (LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can project that progress. Native window-drag regions stay in Design
@@ -458,6 +459,6 @@ do not enter the runtime package graph.
 The repository-local Storybook structure audit consumes the same structured
 command-panel registry as the visual catalog so command metadata, canonical
 story paths, and six-placement coverage cannot drift independently.
-Hosts still start metadata cache load after layout; file-scoped Markdown
-panels refresh from that late `loaded` and `file-open` path rather than
-blocking shell mount.
+Hosts still start metadata index load after layout; file-scoped Markdown
+panels query persisted rows at `loaded` and refresh from revisioned changes
+without blocking shell mount.
