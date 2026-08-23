@@ -3,8 +3,14 @@ import { serveDir } from "jsr:@std/http@1/file-server";
 
 import { createPlatformInfo, handleDesktopInvoke } from "./bindings.ts";
 import { DenoAgentRuntimeHost } from "./agent-runtime.ts";
+import {
+  createDenoApplicationMenu,
+  DENO_MENU_IDS,
+} from "./application-menu.ts";
 import { createCapabilityRegistry } from "./capabilities.ts";
+import { createDenoCloseCoordinator } from "./close-coordinator.ts";
 import { DenoFileWatchService } from "./file-watch.ts";
+import { openExternalUrl } from "./native-actions.ts";
 import {
   createUpstreamHeaders,
   isWebSocketUpgrade,
@@ -61,6 +67,25 @@ const emitRendererEvent = createRendererEventEmitter(win);
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
 const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
+const closeCoordinator = createDenoCloseCoordinator({
+  emitBeforeClose() {
+    console.log("[desktop-close] request");
+    emitRendererEvent("desktop_renderer_before_close", null);
+  },
+  requestWindowClose() {
+    win.close();
+  },
+  async shutdown() {
+    console.log("[desktop-close] shutdown");
+    fileWatch.shutdown();
+    pluginAssets.clear();
+    await agentRuntime.shutdown();
+  },
+  exit(code) {
+    console.log(`[desktop-close] exit:${code}`);
+    Deno.exit(code);
+  },
+});
 
 const INSPECT_ADDRESS = "127.0.0.1:9229";
 
@@ -91,6 +116,8 @@ function registerDesktopBindings(): void {
           fileWatch,
           pluginAssets,
           agentRuntime,
+          rendererCloseReady: () => closeCoordinator.rendererReady(),
+          requestClose: () => closeCoordinator.requestClose(),
         });
       },
     ],
@@ -100,68 +127,11 @@ function registerDesktopBindings(): void {
 }
 
 registerDesktopBindings();
-win.addEventListener("close", () => {
-  fileWatch.shutdown();
-  pluginAssets.clear();
-  void agentRuntime.shutdown().finally(() => Deno.exit(0));
+win.addEventListener("close", (event) => {
+  closeCoordinator.onWindowClose(event);
 });
 
-win.setApplicationMenu([
-  {
-    submenu: {
-      label: "File",
-      items: [
-        {
-          item: {
-            label: "Open Vault…",
-            id: "open-vault",
-            accelerator: "CmdOrCtrl+Shift+O",
-            enabled: true,
-          },
-        },
-        { role: { role: "quit" } },
-      ],
-    },
-  },
-  {
-    submenu: {
-      label: "View",
-      items: [
-        {
-          item: {
-            label: "Reload",
-            id: "reload",
-            accelerator: "CmdOrCtrl+R",
-            enabled: true,
-          },
-        },
-        "separator",
-        {
-          item: {
-            label: "Toggle Developer Tools",
-            id: "toggle-devtools",
-            accelerator: "Alt+CmdOrCtrl+I",
-            enabled: true,
-          },
-        },
-        {
-          item: {
-            label: "Show Renderer Errors…",
-            id: "show-renderer-errors",
-            enabled: true,
-          },
-        },
-        {
-          item: {
-            label: "Deno Inspector…",
-            id: "open-inspector",
-            enabled: true,
-          },
-        },
-      ],
-    },
-  },
-]);
+win.setApplicationMenu(createDenoApplicationMenu(Deno.build.os));
 
 async function openDeveloperTools(): Promise<void> {
   try {
@@ -191,28 +161,36 @@ async function showRendererErrors(): Promise<void> {
 
 win.addEventListener("menuclick", (event: Event) => {
   const id = (event as CustomEvent<{ id?: string }>).detail?.id;
-  if (id === "open-vault") {
-    void win.executeJs(
-      "window.dispatchEvent(new CustomEvent('lapis-deno-open-vault'))",
-    );
+  if (id === DENO_MENU_IDS.openVault) {
+    emitRendererEvent("desktop_menu_open_vault_picker", null);
     return;
   }
-  if (id === "reload") {
+  if (id === DENO_MENU_IDS.about) {
+    emitRendererEvent("desktop_menu_open_about_dialog", null);
+    return;
+  }
+  if (id === DENO_MENU_IDS.reload) {
     win.reload();
     return;
   }
-  if (id === "toggle-devtools") {
+  if (id === DENO_MENU_IDS.toggleDevtools) {
     void openDeveloperTools();
     return;
   }
-  if (id === "show-renderer-errors") {
+  if (id === DENO_MENU_IDS.showRendererErrors) {
     void showRendererErrors();
     return;
   }
-  if (id === "open-inspector") {
+  if (id === DENO_MENU_IDS.openInspector) {
     alert(
       `This spike starts with --inspect=${INSPECT_ADDRESS}.\n\n` +
         `Open chrome://inspect or edge://inspect and inspect the LapisNotes target.`,
+    );
+    return;
+  }
+  if (id === DENO_MENU_IDS.learnMore) {
+    void openExternalUrl("https://github.com/lapis-notes/lapis").catch(
+      (error) => console.error("[desktop] Learn More failed", error),
     );
   }
 });

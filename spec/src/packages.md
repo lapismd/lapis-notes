@@ -499,6 +499,10 @@ ACP, and application-tool execution to that public executor. Because Deno
 Desktop owns one loopback renderer server, the host attaches the public
 Web-standard MCP handler to a reserved same-origin route instead of starting a
 Node compatibility listener or copying broker logic.
+The same private host owns Deno application-menu projection, validated external
+URL launch commands, and the bounded close coordinator. Its renderer continues
+to own `App`, workspace, plugin, database, and vault-session disposal and
+acknowledges native close only after that shared teardown completes.
 
 ## `@lapis-notes/workspace` (shell integration)
 

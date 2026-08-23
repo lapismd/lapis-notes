@@ -3,11 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 import { createCapabilityRegistry } from "./capabilities";
 import {
   createFileActionCommand,
+  createExternalUrlCommand,
   createNotificationCommand,
   fileActionCapabilityAvailable,
   normalizeNativeNotification,
+  normalizeExternalUrl,
   notificationCapabilityAvailable,
   runFileAction,
+  openExternalUrl,
   showNativeNotification,
 } from "./native-actions";
 
@@ -62,5 +65,31 @@ describe("Deno native desktop actions", () => {
     await expect(
       runFileAction("open", "/vault/note.md", "linux", run),
     ).rejects.toThrow(/File open failed/u);
+  });
+
+  it("opens complete validated external URLs as one process argument", async () => {
+    const url = normalizeExternalUrl(
+      "https://example.com/a?value=one%20two&next=$(touch%20/tmp/nope)",
+    );
+    expect(createExternalUrlCommand("darwin", url)).toEqual({
+      command: "open",
+      args: [url],
+    });
+    expect(createExternalUrlCommand("linux", url)).toEqual({
+      command: "xdg-open",
+      args: [url],
+    });
+    const run = vi.fn(async () => ({ success: true }));
+    await expect(openExternalUrl(url, "linux", run)).resolves.toBeUndefined();
+    expect(run).toHaveBeenCalledWith({ command: "xdg-open", args: [url] });
+  });
+
+  it("rejects external URL schemes the host does not authorize", async () => {
+    for (const url of ["file:///etc/passwd", "javascript:alert(1)", "/notes"]) {
+      expect(() => normalizeExternalUrl(url)).toThrow(/external URL|scheme/u);
+    }
+    await expect(
+      openExternalUrl("https://example.com", "windows", vi.fn()),
+    ).rejects.toThrow(/unavailable/u);
   });
 });

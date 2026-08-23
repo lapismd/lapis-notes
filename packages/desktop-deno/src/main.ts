@@ -26,6 +26,7 @@ import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import { waitForDesktopBindings } from "./binding-probe";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
+import { installDenoExternalLinkPolicy } from "./external-links";
 import "./desktop-host.css";
 
 export type DesktopAppInfo = {
@@ -44,6 +45,8 @@ export type DenoDesktopPlatformInfo = NativeDesktopPlatformInfo & {
 export type DenoDesktopBridge = NativeDesktopBridge & {
   platform: DenoDesktopPlatformInfo;
   onOpenVaultPicker?(listener: () => void): () => void;
+  onOpenAboutDialog?(listener: () => void): () => void;
+  onBeforeClose?(listener: () => void): () => void;
 };
 
 type DenoDesktopBindings = {
@@ -67,12 +70,13 @@ const agentProcessListeners = new Set<
 const agentRuntimeListeners = new Set<
   (event: NativeAgentRuntimeEvent) => void
 >();
-const agentToolCallListeners = new Set<
-  (event: NativeAgentToolCall) => void
->();
+const agentToolCallListeners = new Set<(event: NativeAgentToolCall) => void>();
 const agentToolCancelListeners = new Set<
   (event: NativeAgentToolCancel) => void
 >();
+const openVaultListeners = new Set<() => void>();
+const openAboutListeners = new Set<() => void>();
+const beforeCloseListeners = new Set<() => void>();
 
 globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
   const detail = (rawEvent as CustomEvent<DenoRendererNativeEvent>).detail;
@@ -106,10 +110,25 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
     for (const listener of agentToolCancelListeners) {
       listener(detail.payload as NativeAgentToolCancel);
     }
+    return;
+  }
+  if (detail?.channel === "desktop_menu_open_vault_picker") {
+    for (const listener of openVaultListeners) listener();
+    return;
+  }
+  if (detail?.channel === "desktop_menu_open_about_dialog") {
+    for (const listener of openAboutListeners) listener();
+    return;
+  }
+  if (detail?.channel === "desktop_renderer_before_close") {
+    for (const listener of beforeCloseListeners) listener();
   }
 });
 
-function subscribe<T>(listeners: Set<(event: T) => void>, listener: (event: T) => void) {
+function subscribe<T>(
+  listeners: Set<(event: T) => void>,
+  listener: (event: T) => void,
+) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
@@ -196,11 +215,6 @@ const platform = (await bindings
 const capabilities = (await bindings
   .invoke("desktop_capabilities_get")
   .catch(() => bindings.capabilities())) as NativeDesktopCapabilityRegistry;
-const openVaultListeners = new Set<() => void>();
-
-window.addEventListener("lapis-deno-open-vault", () => {
-  for (const listener of openVaultListeners) listener();
-});
 
 const bridge: DenoDesktopBridge = {
   runtime: "deno-desktop",
@@ -265,14 +279,20 @@ const bridge: DenoDesktopBridge = {
     };
   },
   onOpenVaultPicker(listener) {
-    openVaultListeners.add(listener);
-    return () => {
-      openVaultListeners.delete(listener);
-    };
+    return subscribe(openVaultListeners, listener);
+  },
+  onOpenAboutDialog(listener) {
+    return subscribe(openAboutListeners, listener);
+  },
+  onBeforeClose(listener) {
+    return subscribe(beforeCloseListeners, listener);
   },
 };
 
 applyDesktopPlatformClasses(platform);
+installDenoExternalLinkPolicy((command, payload) =>
+  bindings.invoke(command, payload),
+);
 installDesktopWindowDrag((command, payload) =>
   bindings.invoke(command, payload),
 );

@@ -85,6 +85,35 @@ async function waitForReport(reportPath, child, diagnostics) {
   );
 }
 
+async function waitForCleanExit(child, diagnostics) {
+  if (child.exitCode === null) {
+    await Promise.race([
+      new Promise((resolve) => child.once("exit", resolve)),
+      new Promise((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                `Timed out waiting for renderer-coordinated close\n${diagnostics.join("")}`,
+              ),
+            ),
+          30_000,
+        ),
+      ),
+    ]);
+  }
+  assert.equal(
+    child.signalCode,
+    null,
+    `Deno desktop was terminated by ${child.signalCode}\n${diagnostics.join("")}`,
+  );
+  assert.equal(
+    child.exitCode,
+    0,
+    `Deno desktop close failed\n${diagnostics.join("")}`,
+  );
+}
+
 const root = await mkdtemp(path.join(os.tmpdir(), "lapis-deno-smoke-"));
 const userDataDir = path.join(root, "user-data");
 const vaultPath = path.join(root, "vault");
@@ -94,12 +123,7 @@ await writeFile(path.join(vaultPath, "Welcome.md"), "# Packaged Deno smoke\n");
 const pluginId = "deno-smoke-extension";
 const pluginSource = 'export default "deno plugin asset";\n';
 const pluginSha256 = createHash("sha256").update(pluginSource).digest("hex");
-const pluginDirectory = path.join(
-  vaultPath,
-  ".obsidian",
-  "plugins",
-  pluginId,
-);
+const pluginDirectory = path.join(vaultPath, ".obsidian", "plugins", pluginId);
 await mkdir(pluginDirectory, { recursive: true });
 await writeFile(path.join(pluginDirectory, "main.mjs"), pluginSource);
 await writeFile(
@@ -177,6 +201,7 @@ try {
   assert.equal(report.appToolBridgeOpened, true);
   assert.equal(report.crossOriginIsolated, true);
   assert.equal(report.protocol, "http:");
+  await waitForCleanExit(child, diagnostics);
   console.log(`[deno] packaged smoke passed: ${executable}`);
 } catch (error) {
   if (diagnostics.length) console.error(diagnostics.join(""));

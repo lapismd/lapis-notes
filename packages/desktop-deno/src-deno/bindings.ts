@@ -6,7 +6,7 @@ import {
 import { createCapabilityRegistry } from "./capabilities.ts";
 import type { DenoFileWatchService } from "./file-watch.ts";
 import { handleLanguageService } from "./language-service.ts";
-import { showNativeNotification } from "./native-actions.ts";
+import { openExternalUrl, showNativeNotification } from "./native-actions.ts";
 import type { DenoPluginAssetService } from "./plugin-assets.ts";
 import {
   handleVaultFs,
@@ -59,6 +59,9 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_platform_get",
   "desktop_capabilities_get",
   "desktop_acceptance_report",
+  "desktop_acceptance_request_close",
+  "desktop_renderer_close_ready",
+  "desktop_open_external",
   "desktop_notifications_show",
   "desktop_plugin_assets_register",
   "desktop_fs_watch_start",
@@ -76,6 +79,8 @@ export type DesktopInvokeContext = {
   fileWatch?: DenoFileWatchService;
   pluginAssets?: DenoPluginAssetService;
   agentRuntime?: DenoAgentRuntimeHost;
+  rendererCloseReady?: () => void;
+  requestClose?: () => void;
 };
 
 export function createPlatformInfo() {
@@ -130,6 +135,25 @@ export function handleDesktopInvoke(
       throw new Error("Deno desktop acceptance reporting is disabled");
     }
     return Deno.writeTextFile(reportPath, `${JSON.stringify(payload)}\n`);
+  }
+  if (command === "desktop_acceptance_request_close") {
+    if (Deno.env.get("LAPIS_DENO_ACCEPTANCE") !== "1") {
+      throw new Error("Deno desktop acceptance close is disabled");
+    }
+    if (!context.requestClose)
+      throw new Error("Deno window close is unavailable");
+    context.requestClose();
+    return;
+  }
+  if (command === "desktop_renderer_close_ready") {
+    if (!context.rendererCloseReady) {
+      throw new Error("Deno close coordinator is unavailable");
+    }
+    context.rendererCloseReady();
+    return;
+  }
+  if (command === "desktop_open_external") {
+    return openExternalUrl(payload.url);
   }
   if (command === "desktop_notifications_show") {
     return showNativeNotification(payload.notification);

@@ -23,6 +23,7 @@ declare namespace Deno {
     bind(name: string, handler: (...args: unknown[]) => unknown): void;
     setApplicationMenu(menu: unknown[]): void;
     navigate(url: string): void;
+    close(): void;
     reload(): void;
     hide(): void;
     show(): void;

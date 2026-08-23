@@ -414,6 +414,9 @@
         crossOriginIsolated: globalThis.crossOriginIsolated,
         ...(await collectAcceptanceEvidence()),
       });
+      if (bridge.platform.acceptance === true) {
+        await bridge.invoke("desktop_acceptance_request_close");
+      }
     } catch (error) {
       setTask(activeTask, "failed");
       const detail = error instanceof Error ? error.message : String(error);

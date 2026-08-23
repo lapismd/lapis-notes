@@ -42,6 +42,7 @@
   let { bridge }: { bridge: DenoDesktopBridge } = $props();
   let status = $state<HostStatus>("loading");
   let prepared = $state<PreparedSession | null>(null);
+  let activeApp = $state<App | null>(null);
   let sessionComponent = $state<SessionComponent | null>(null);
   let launcherOpen = $state(false);
   let bootGate = $state(true);
@@ -58,13 +59,28 @@
   const canReturn = $derived(launcherOpen && prepared !== null);
 
   onMount(() => {
-    const onOpenVault = () => {
+    const disposeOpenVault = bridge.onOpenVaultPicker?.(() => {
       void showLauncher();
-    };
-    window.addEventListener("lapis-deno-open-vault", onOpenVault);
+    });
+    const disposeOpenAbout = bridge.onOpenAboutDialog?.(() => {
+      if (activeApp) {
+        void activeApp.commands.executeCommand("app:about").catch(() => {});
+      }
+    });
+    const disposeBeforeClose = bridge.onBeforeClose?.(() => {
+      void serialize(async () => {
+        try {
+          await disposeActiveSession(true);
+        } finally {
+          await bridge.invoke("desktop_renderer_close_ready").catch(() => {});
+        }
+      });
+    });
     void restoreVault();
     return () => {
-      window.removeEventListener("lapis-deno-open-vault", onOpenVault);
+      disposeOpenVault?.();
+      disposeOpenAbout?.();
+      disposeBeforeClose?.();
       void disposeActiveSession(false);
     };
   });
@@ -209,7 +225,8 @@
     }
   }
 
-  function handleSessionReady(_app: App): void {
+  function handleSessionReady(app: App): void {
+    activeApp = app;
     status = "ready";
   }
 
@@ -223,6 +240,7 @@
     }
     sessionComponent = null;
     prepared = null;
+    activeApp = null;
     await tick();
   }
 </script>

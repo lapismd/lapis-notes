@@ -143,3 +143,44 @@ export async function runFileAction(
   const result = await run(command);
   if (!result.success) throw new Error(`File ${action} failed for ${path}`);
 }
+
+export function normalizeExternalUrl(value: unknown): string {
+  if (typeof value !== "string") throw new Error("Invalid external URL");
+  const normalized = value.trim();
+  if (!normalized || normalized.length > 8_192) {
+    throw new Error("Invalid external URL");
+  }
+  let url: URL;
+  try {
+    url = new URL(normalized);
+  } catch {
+    throw new Error("Invalid external URL");
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error(`Unsupported external URL scheme: ${url.protocol}`);
+  }
+  return url.href;
+}
+
+export function createExternalUrlCommand(
+  platform: NativeActionPlatform,
+  url: string,
+): NativeCommand | null {
+  if (platform === "darwin") return { command: "open", args: [url] };
+  if (platform === "linux") return { command: "xdg-open", args: [url] };
+  return null;
+}
+
+export async function openExternalUrl(
+  value: unknown,
+  platform: NativeActionPlatform = Deno.build.os,
+  run: CommandRunner = runNativeCommand,
+): Promise<void> {
+  const url = normalizeExternalUrl(value);
+  const command = createExternalUrlCommand(platform, url);
+  if (!command) {
+    throw new Error(`External URLs are unavailable on ${platform}`);
+  }
+  const result = await run(command);
+  if (!result.success) throw new Error(`Opening external URL failed: ${url}`);
+}

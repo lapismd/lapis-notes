@@ -157,6 +157,43 @@ Native agent execution verifies:
 - Packaged acceptance MUST open and close an application-tool bridge and run a
   process through the compiled app without a system Node host.
 
+### LN-DENO-019 acceptance details
+
+Deno application menus verify:
+
+- macOS MUST put About and Quit in the first application submenu; other
+  platforms MUST expose About through Help.
+- File, Edit, View, Window, and Help MUST preserve Electron labels and common
+  accelerators where Deno supplies an equivalent role or host action.
+- Unsupported force reload, zoom, and fullscreen actions MUST remain visible
+  and disabled instead of silently performing a different action.
+- Open Vault, About, developer tools, reload, and Learn More MUST reach their
+  native or renderer-owned action.
+
+### LN-DENO-020 acceptance details
+
+Deno window close verifies:
+
+- The first close request MUST be cancelled while the renderer persists layout
+  and disposes the active session through its normal teardown path.
+- A bounded timeout MUST still close native watches, plugin asset state, and
+  agent resources if the renderer never acknowledges the request.
+- Renderer acknowledgement MUST release the prevented close and exit only
+  after native host shutdown settles.
+- Packaged acceptance MUST request a real window close and observe a clean
+  process exit without sending an external termination signal.
+
+### LN-DENO-021 acceptance details
+
+Deno window navigation verifies:
+
+- Renderer-created blank windows MAY be used by the shared workspace popout
+  host; other non-HTTP new-window targets MUST be rejected.
+- HTTP and HTTPS new-window requests and anchor activations MUST invoke a
+  validated system-browser action instead of navigating a privileged webview.
+- System-browser commands MUST pass the complete URL as one process argument
+  and MUST reject unsupported schemes.
+
 ## Non-goals
 
 This parity track excludes importing Electron modules, making Deno the default
