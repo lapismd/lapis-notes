@@ -36,17 +36,21 @@
     "@lapis-notes/lapis-plugin-terminal": "link:../../../lapis-plugin-terminal",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
+    "@lapismd/ai-host": "link:../../../ai-host",
     "@lapismd/design-core": "*",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@lucide/svelte": "^0.523.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/vite": "^4.1.12",
     "@tsconfig/svelte": "^5.0.5",
     "@types/node": "^22.10.5",
+    "acpx": "^0.13.0",
     "svelte": "^5.38.2",
     "svelte-check": "^4.3.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.3",
     "vite": "^7.3.2",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.8",
+    "ws": "^8.18.3"
   }
 }

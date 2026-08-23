@@ -10,6 +10,10 @@ import {
   type NativeDesktopCapabilityRegistry,
   type NativeDesktopNotificationPayload,
   type NativeDesktopPlatformInfo,
+  type NativeAgentProcessMessage,
+  type NativeAgentRuntimeEvent,
+  type NativeAgentToolCall,
+  type NativeAgentToolCancel,
   type NativeWatchSubscription,
   type WatchErrorEvent,
   type WatchOptions,
@@ -57,16 +61,58 @@ const watchListeners = new Map<
   string,
   (event: ChangeEvent | WatchErrorEvent) => void
 >();
+const agentProcessListeners = new Set<
+  (event: NativeAgentProcessMessage) => void
+>();
+const agentRuntimeListeners = new Set<
+  (event: NativeAgentRuntimeEvent) => void
+>();
+const agentToolCallListeners = new Set<
+  (event: NativeAgentToolCall) => void
+>();
+const agentToolCancelListeners = new Set<
+  (event: NativeAgentToolCancel) => void
+>();
 
 globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
   const detail = (rawEvent as CustomEvent<DenoRendererNativeEvent>).detail;
-  if (detail?.channel !== "desktop_fs_watch_event") return;
-  const payload = detail.payload as
-    | { watchId?: unknown; event?: ChangeEvent | WatchErrorEvent }
-    | undefined;
-  if (typeof payload?.watchId !== "string" || !payload.event) return;
-  watchListeners.get(payload.watchId)?.(payload.event);
+  if (detail?.channel === "desktop_fs_watch_event") {
+    const payload = detail.payload as
+      | { watchId?: unknown; event?: ChangeEvent | WatchErrorEvent }
+      | undefined;
+    if (typeof payload?.watchId !== "string" || !payload.event) return;
+    watchListeners.get(payload.watchId)?.(payload.event);
+    return;
+  }
+  if (detail?.channel === "desktop_agent_process_message") {
+    for (const listener of agentProcessListeners) {
+      listener(detail.payload as NativeAgentProcessMessage);
+    }
+    return;
+  }
+  if (detail?.channel === "desktop_agent_runtime_event") {
+    for (const listener of agentRuntimeListeners) {
+      listener(detail.payload as NativeAgentRuntimeEvent);
+    }
+    return;
+  }
+  if (detail?.channel === "desktop_agent_tool_call") {
+    for (const listener of agentToolCallListeners) {
+      listener(detail.payload as NativeAgentToolCall);
+    }
+    return;
+  }
+  if (detail?.channel === "desktop_agent_tool_cancel") {
+    for (const listener of agentToolCancelListeners) {
+      listener(detail.payload as NativeAgentToolCancel);
+    }
+  }
 });
+
+function subscribe<T>(listeners: Set<(event: T) => void>, listener: (event: T) => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 
 function createWatchId(): string {
   return (
@@ -176,6 +222,18 @@ const bridge: DenoDesktopBridge = {
     return bindings.invoke("desktop_notifications_show", {
       notification: payload,
     }) as Promise<void>;
+  },
+  onAgentProcessMessage(listener) {
+    return subscribe(agentProcessListeners, listener);
+  },
+  onAgentRuntimeEvent(listener) {
+    return subscribe(agentRuntimeListeners, listener);
+  },
+  onAgentToolCall(listener) {
+    return subscribe(agentToolCallListeners, listener);
+  },
+  onAgentToolCancel(listener) {
+    return subscribe(agentToolCancelListeners, listener);
   },
   watch(
     rootPath: string,

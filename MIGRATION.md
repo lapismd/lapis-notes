@@ -139,7 +139,8 @@ Electron and web until equivalent packaged Deno acceptance passes.
 - [x] WorkspaceStartup then WorkspaceShell with initial Markdown and File Explorer
 - [x] macOS full-bleed `transparentTitlebar` window with native traffic lights and Design Core drag markers
 - [x] Register the complete Electron first-party plugin inventory and ordering
-- [ ] Add database/search, language, plugin, watch, agent, and terminal capability parity
+- [x] Add database/search, native language, verified plugin assets, watch, and agent capability parity
+- [ ] Add community plugin sidecar and terminal capability parity
 - [x] Add platform-exact macOS notifications and macOS/Linux file open/reveal actions
 - [ ] Add single-instance URLs, full menus, close handshake, popout, and external-link policy
 - [ ] Add Linux artifacts, stable icons, signing hooks, and the remaining parity acceptance matrix

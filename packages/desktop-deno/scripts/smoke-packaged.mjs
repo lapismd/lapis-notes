@@ -168,10 +168,13 @@ try {
   assert.equal(report.capabilities?.["language-service"]?.status, "available");
   assert.equal(report.capabilities?.["file-watch"]?.status, "available");
   assert.equal(report.capabilities?.["plugin-assets"]?.status, "available");
+  assert.equal(report.capabilities?.["agent-runtime"]?.status, "available");
   assert.ok(report.languageDiagnosticCount > 0);
   assert.ok(["create", "modify"].includes(report.fileWatchEventType));
   assert.equal(report.pluginAssetText, pluginSource);
   assert.match(report.pluginAssetContentType, /^text\/javascript/u);
+  assert.equal(report.agentProcessOutput, "deno-agent-process");
+  assert.equal(report.appToolBridgeOpened, true);
   assert.equal(report.crossOriginIsolated, true);
   assert.equal(report.protocol, "http:");
   console.log(`[deno] packaged smoke passed: ${executable}`);

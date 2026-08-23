@@ -56,7 +56,15 @@ export function createCapabilityRegistry(platform = Deno.build.os) {
     },
     "agent-runtime": {
       id: "agent-runtime" as const,
-      status: "unavailable" as const,
+      status: "available" as const,
+      provider: "deno-ai-host",
+      details: {
+        protocol: "desktop_agent_*",
+        protocolVersion: 3,
+        acp: "acpx/runtime",
+        process: "stdio",
+        appTools: "http-mcp",
+      },
     },
     "terminal-runtime": {
       id: "terminal-runtime" as const,

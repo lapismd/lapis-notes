@@ -1,4 +1,8 @@
 import { handleBootstrapKv } from "./bootstrap-kv.ts";
+import {
+  DENO_AGENT_COMMANDS,
+  type DenoAgentRuntimeHost,
+} from "./agent-runtime.ts";
 import { createCapabilityRegistry } from "./capabilities.ts";
 import type { DenoFileWatchService } from "./file-watch.ts";
 import { handleLanguageService } from "./language-service.ts";
@@ -65,11 +69,13 @@ export const DENO_INVOKE_COMMANDS = new Set([
   ...FS_COMMANDS,
   ...KV_COMMANDS,
   ...LANGUAGE_SERVICE_COMMANDS,
+  ...DENO_AGENT_COMMANDS,
 ]);
 
 export type DesktopInvokeContext = {
   fileWatch?: DenoFileWatchService;
   pluginAssets?: DenoPluginAssetService;
+  agentRuntime?: DenoAgentRuntimeHost;
 };
 
 export function createPlatformInfo() {
@@ -156,6 +162,12 @@ export function handleDesktopInvoke(
   }
   if (LANGUAGE_SERVICE_COMMANDS.has(command)) {
     return handleLanguageService(command, payload);
+  }
+  if (DENO_AGENT_COMMANDS.has(command)) {
+    if (!context.agentRuntime) {
+      throw new Error("Deno agent runtime is unavailable");
+    }
+    return context.agentRuntime.handle(command, payload);
   }
   return handleBootstrapKv(command, payload);
 }

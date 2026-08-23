@@ -493,6 +493,12 @@ vault IDs in a URL path segment and the parser retains legacy-host support.
 Deno uses the same verified metadata through a same-origin HTTP route owned by
 its native host; neither host imports a community plugin from an unchecked
 filesystem URL.
+The Deno package links sibling `@lapismd/ai-host`, maps its public source entry
+and npm transport dependencies into the compiled graph, and delegates process,
+ACP, and application-tool execution to that public executor. Because Deno
+Desktop owns one loopback renderer server, the host attaches the public
+Web-standard MCP handler to a reserved same-origin route instead of starting a
+Node compatibility listener or copying broker logic.
 
 ## `@lapis-notes/workspace` (shell integration)
 

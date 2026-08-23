@@ -37,6 +37,7 @@ packaged acceptance passes. The private package lives at
 | LN-DENO-024 | The native Markdown language service MUST consume the public language-service runtime and expose bounded capability, update, diagnostics, and code-action operations. The renderer MUST register its provider before plugin loading and release it during teardown. |
 | LN-DENO-025 | Native vault watching MUST use `Deno.watchFs`, preserve vault containment across canonical filesystem paths, and deliver portable create, modify, and delete events. Closing a subscription or session MUST stop its native watcher.                         |
 | LN-DENO-026 | Verified plugin assets MUST register through the native bridge and load from a same-origin Deno HTTP route. The host MUST enforce installed plugin identity, version, path containment, supported type, byte size, and SHA-256 before serving an asset.             |
+| LN-DENO-027 | The native agent runtime MUST consume the public `@lapismd/ai-host` executor for process and ACP sessions. Application tools MUST use its authenticated Web-standard MCP handler through the existing Deno loopback server, and host shutdown MUST close every owned agent resource. |
 
 ### LN-DENO-011 acceptance details
 
@@ -142,6 +143,19 @@ Verified plugin asset hosting verifies:
   content types with `nosniff`, no-store, and isolation headers.
 - Packaged acceptance MUST fetch a seeded verified JavaScript asset and match
   its complete content and content type.
+
+### LN-DENO-027 acceptance details
+
+Native agent execution verifies:
+
+- Every `desktop_agent_process_*`, `desktop_agent_acp_*`, and
+  `desktop_agent_tools_*` command MUST delegate through the public executor.
+- Runtime, process, tool-call, and tool-cancel events MUST reach the renderer
+  through the bounded native event bridge.
+- Application tools MUST use a bearer-authenticated Streamable HTTP MCP route
+  attached to Deno's existing `127.0.0.1` renderer server.
+- Packaged acceptance MUST open and close an application-tool bridge and run a
+  process through the compiled app without a system Node host.
 
 ## Non-goals
 

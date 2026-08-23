@@ -12,7 +12,8 @@
     "jsr:@std/net@^1.0.6": "1.0.6",
     "jsr:@std/path@1": "1.1.6",
     "jsr:@std/path@^1.1.6": "1.1.6",
-    "jsr:@std/streams@^1.1.2": "1.1.2"
+    "jsr:@std/streams@^1.1.2": "1.1.2",
+    "npm:node-pty@1.2.0-beta.13": "1.2.0-beta.13"
   },
   "jsr": {
     "@std/cli@1.0.32": {
@@ -63,7 +64,22 @@
       "integrity": "0249bf9b78a999f57032ca4d8e7ccaa57579090242640b35ddc948fbb745d3af"
     }
   },
+  "npm": {
+    "node-addon-api@7.1.1": {
+      "integrity": "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="
+    },
+    "node-pty@1.2.0-beta.13": {
+      "integrity": "sha512-ZbbJ7aJdmvRA53bw30D6YSJJKqo1IXTojD0kJeHZ/xZIxr7p1DCmvOmrOnjUo/rn1z4MDwKQGpx0C7K+cRKETw==",
+      "dependencies": [
+        "node-addon-api"
+      ],
+      "scripts": true
+    }
+  },
   "workspace": {
+    "dependencies": [
+      "npm:markdownlint@0.40.0"
+    ],
     "packageJson": {
       "dependencies": [
         "npm:@lapismd/design-core@*",

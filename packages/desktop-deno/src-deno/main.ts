@@ -2,6 +2,7 @@
 import { serveDir } from "jsr:@std/http@1/file-server";
 
 import { createPlatformInfo, handleDesktopInvoke } from "./bindings.ts";
+import { DenoAgentRuntimeHost } from "./agent-runtime.ts";
 import { createCapabilityRegistry } from "./capabilities.ts";
 import { DenoFileWatchService } from "./file-watch.ts";
 import {
@@ -59,6 +60,7 @@ const drag = createWindowDragController(win);
 const emitRendererEvent = createRendererEventEmitter(win);
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
+const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
 
 const INSPECT_ADDRESS = "127.0.0.1:9229";
 
@@ -88,6 +90,7 @@ function registerDesktopBindings(): void {
         return handleDesktopInvoke(command, payload, {
           fileWatch,
           pluginAssets,
+          agentRuntime,
         });
       },
     ],
@@ -100,7 +103,7 @@ registerDesktopBindings();
 win.addEventListener("close", () => {
   fileWatch.shutdown();
   pluginAssets.clear();
-  Deno.exit(0);
+  void agentRuntime.shutdown().finally(() => Deno.exit(0));
 });
 
 win.setApplicationMenu([
@@ -271,6 +274,8 @@ async function proxyVite(
 }
 
 Deno.serve(async (request) => {
+  const agentToolResponse = await agentRuntime.respond(request);
+  if (agentToolResponse) return agentToolResponse;
   if (devUrl) return await proxyVite(request, devUrl);
   const pluginAssetResponse = await pluginAssets.respond(request.url);
   if (pluginAssetResponse) return withIsolationHeaders(pluginAssetResponse);
