@@ -12,6 +12,7 @@ import {
   rewriteUpstreamUrl,
   withIsolationHeaders,
 } from "./renderer-http.ts";
+import { rendererDistRoot } from "./production-build.ts";
 import {
   DESKTOP_WINDOW_TITLE,
   assertSupportedDenoDesktopVersion,
@@ -203,7 +204,7 @@ win.addEventListener("menuclick", (event: Event) => {
   }
 });
 
-const distRoot = new URL("../dist", import.meta.url).pathname;
+const distRoot = rendererDistRoot(Deno.cwd());
 const devUrl = Deno.env
   .get("LAPIS_DESKTOP_DEV_SERVER_URL")
   ?.replace(/\/$/u, "");

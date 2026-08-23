@@ -24,6 +24,8 @@ opens Turso WASM rather than Electron native IPC. The private package lives at
 | LN-DENO-011 | The visible window MUST complete `win.bind()` invoke returns before mounting a vault session. The host MUST use Deno's public binding registry and MUST NOT patch `Map.prototype`.                                                                                                          |
 | LN-DENO-012 | On macOS, the visible window MUST provide full-bleed content with native traffic lights through Deno `transparentTitlebar`. Other platforms MUST retain native chrome. The host MUST NOT use Electron `titleBarStyle` or AppKit style-mask mutation.                                            |
 | LN-DENO-013 | Launcher empty chrome and Design Core `data-desktop-drag-region` surfaces MUST move the window. Descendants marked `false` MUST NOT start a drag. The host MUST NOT re-declare Design Core `app-region` CSS.                                                                                     |
+| LN-DENO-014 | The production renderer MUST bundle `@tursodatabase/database-wasm/bundle` as published ESM. It MUST NOT pass that file through Vite's CommonJS conversion.                                                                                                                              |
+| LN-DENO-015 | The production host MUST serve the built renderer from the launch working directory's `dist` folder. It MUST NOT resolve that folder relative to Deno's compiled module cache.                                                                                                        |
 
 ### LN-DENO-011 acceptance details
 
@@ -49,6 +51,22 @@ Deno window dragging verifies:
 - Launcher empty chrome and Design Core `data-desktop-drag-region` surfaces MUST start a window drag. Descendants marked `false` MUST NOT.
 - The host MUST NOT re-declare `app-region` CSS or use Electron `titleBarStyle`.
 - Pointer release and cancellation MUST end the native drag.
+
+### LN-DENO-014 acceptance details
+
+The production Turso WASM build verifies:
+
+- The CommonJS exclusion MUST target only Turso's published `bundle/main.es.js` file.
+- Vite MUST still emit the self-contained Turso bundle with its embedded worker and WASM data.
+- The package production build MUST complete without a CommonJS resolver stack overflow.
+
+### LN-DENO-015 acceptance details
+
+The production renderer launch verifies:
+
+- Root and emitted asset requests MUST resolve beneath `<launch working directory>/dist`.
+- Static responses MUST retain the renderer's cross-origin isolation headers.
+- A production-mode Deno launch MUST serve the root document and reach the native bridge boot probe.
 
 ### LN-DENO-002 acceptance details
 
