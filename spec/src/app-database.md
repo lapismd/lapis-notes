@@ -4,6 +4,11 @@
 engine and transport without exposing either choice to Search, Markdown, or the
 workspace shell.
 
+The direct-SQL runtime slice implements row-scoped normalized Turso writes,
+typed metadata indexes, durable revisions, and native/browser change relays.
+The remaining lifecycle and consumer slices replace startup snapshot use and
+exercise the large-vault performance gates.
+
 ## Requirements
 
 | ID | Requirement |

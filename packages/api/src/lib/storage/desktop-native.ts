@@ -6,7 +6,10 @@
  * picks it up via `getNativeDesktopBridge()` / `hasNativeDesktopBridge()`.
  */
 
-import type { AppDatabaseNotificationSeverity } from "./app-database";
+import type {
+  AppDatabaseChangeSet,
+  AppDatabaseNotificationSeverity,
+} from "./app-database";
 import { dirname, joinPath, normalizePath, basename } from "./path";
 import type {
   ChangeEvent,
@@ -108,6 +111,11 @@ export type NativeTerminalExitEvent = {
   code: number | null;
 };
 
+export type NativeAppDatabaseChangeEvent = {
+  vaultId: string;
+  change: AppDatabaseChangeSet;
+};
+
 export type NativeDesktopCapabilityStatus = "available" | "unavailable";
 
 export interface NativeDesktopCapability {
@@ -153,6 +161,9 @@ export interface NativeDesktopBridge {
   ): () => void;
   onTerminalExit?(
     listener: (event: NativeTerminalExitEvent) => void,
+  ): () => void;
+  onAppDatabaseChange?(
+    listener: (event: NativeAppDatabaseChangeEvent) => void,
   ): () => void;
   watch?(
     rootPath: string,

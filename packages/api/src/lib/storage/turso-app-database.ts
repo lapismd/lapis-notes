@@ -1,16 +1,47 @@
 import { collectSearchQueryTerms } from "../search-query";
 import {
+  buildSearchResult,
+  compareSearchResults,
+  embeddingErrorState,
   EMPTY_APP_DATABASE_CAPABILITIES,
-  MemoryAppDatabase,
+  hasSearchPropertyNames,
+  MIN_VECTOR_SEARCH_SCORE,
+  normalizeSearchDocument,
+  pathWithinPrefix,
+  rankSearchScores,
+  resolveSearchQueryEnhancementDiagnostics,
+  scoreSearchDocument,
+  scoreVectorDocument,
+  searchDocumentProperties,
+  searchPropertyNames,
   type AppDatabase,
+  type AppDatabaseChangeDomain,
+  type AppDatabaseChangeListener,
+  type AppDatabaseChangeSet,
   type AppDatabaseDescriptor,
+  type AppDatabaseFileHistory,
+  type AppDatabaseFileHistoryFile,
+  type AppDatabaseFileHistoryRevision,
   type AppDatabaseIndexedFile,
+  type AppDatabaseIndexedFileManifestPage,
+  type AppDatabaseIndexedFileManifestQuery,
+  type AppDatabaseIndexedMetadataPage,
+  type AppDatabaseIndexedMetadataPageQuery,
+  type AppDatabaseIndexedMetadataPropertyFilter,
+  type AppDatabaseIndexedMetadataQuery,
+  type AppDatabaseIndexedMetadataRow,
   type AppDatabaseKind,
+  type AppDatabaseLinkRecord,
+  type AppDatabaseMetadataFacetQuery,
+  type AppDatabaseMetadataFacetRow,
+  type AppDatabaseMetadataLinkQuery,
+  type AppDatabaseNotebookState,
+  type AppDatabaseNotificationRecord,
   type AppDatabaseOpenContext,
   type AppDatabaseProvider,
+  type AppDatabaseSearchIndexStats,
   type AppDatabaseSearchOptions,
   type AppDatabaseSearchResult,
-  type AppDatabaseState,
   type AppDatabaseStoreFileHistoryRevisionInput,
   type AppDatabaseStoreFileHistoryRevisionResult,
   type MetadataCacheSnapshot,
@@ -18,16 +49,39 @@ import {
   type SearchEmbeddingProviderConfig,
 } from "./app-database";
 import {
+  assertProjectionReadAccess,
+  assertProjectionWriteAccess,
   compileProjectionQuerySql,
+  evaluateProjectionQuery,
+  indexedValuesForRow,
+  MAX_PROJECTION_ROWS_PER_SOURCE,
+  projectionIndexStatus,
+  PUBLIC_TASKS_PROJECTION_ID,
+  type IndexProjectionDefinitionRecord,
+  type IndexProjectionEdgeRecord,
+  type IndexProjectionRowRecord,
+  type IndexProjectionSourceRecord,
   type IndexQuery,
   type IndexQueryResult,
+  type IndexRelatedQuery,
   type MarkProjectionSourceErrorInput,
   type ReplaceProjectionSourceInput,
 } from "./index-projection";
 import type {
+  AppDatabaseTaskChildQuery,
   AppDatabaseTaskQuery,
   AppDatabaseTaskRecord,
 } from "./task-projection";
+import {
+  TASK_PROJECTION_FIELDS,
+  TASK_PROJECTION_VERSION,
+  taskQueryToIndexQuery,
+} from "./task-projection";
+import {
+  createSearchEmbeddingProvider,
+  type SearchEmbeddingProvider,
+  type SearchEmbeddingRuntimeStatus,
+} from "./search-embedding-provider";
 import { isStructuredSearchQuery } from "./search-query-evaluator";
 
 export interface TursoStatementInput {
@@ -64,7 +118,7 @@ export interface TursoAppDatabaseOptions {
   connectionFactory: TursoConnectionFactory;
 }
 
-export const TURSO_APP_DATABASE_SCHEMA_VERSION = 2;
+export const TURSO_APP_DATABASE_SCHEMA_VERSION = 3;
 
 export const TURSO_APP_DATABASE_SCHEMA = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -79,6 +133,17 @@ CREATE TABLE IF NOT EXISTS app_meta (
   key TEXT PRIMARY KEY,
   value_json TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS app_revision (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  revision INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS app_changes (
+  revision INTEGER PRIMARY KEY,
+  domains_json TEXT NOT NULL,
+  paths_json TEXT NOT NULL,
+  renamed_json TEXT,
+  committed_at INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS files (
   path TEXT PRIMARY KEY,
   normalized_path TEXT NOT NULL,
@@ -89,6 +154,10 @@ CREATE TABLE IF NOT EXISTS files (
   indexed INTEGER NOT NULL,
   deleted INTEGER NOT NULL
 );
+CREATE INDEX IF NOT EXISTS files_manifest_idx
+  ON files(deleted, indexed, path);
+CREATE INDEX IF NOT EXISTS files_extension_path_idx
+  ON files(extension, deleted, indexed, path);
 CREATE TABLE IF NOT EXISTS metadata (
   path TEXT PRIMARY KEY,
   hash TEXT NOT NULL,
@@ -113,6 +182,74 @@ CREATE TABLE IF NOT EXISTS properties (
   data_json TEXT NOT NULL,
   PRIMARY KEY (path, ordinal)
 );
+CREATE TABLE IF NOT EXISTS metadata_links (
+  source_path TEXT NOT NULL,
+  ordinal INTEGER NOT NULL,
+  normalized_target TEXT NOT NULL,
+  resolved_target_path TEXT,
+  resolution_state TEXT NOT NULL,
+  link_type TEXT NOT NULL,
+  link_kind TEXT,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (source_path, ordinal)
+);
+CREATE INDEX IF NOT EXISTS metadata_links_incoming_idx
+  ON metadata_links(resolved_target_path, source_path, ordinal);
+CREATE INDEX IF NOT EXISTS metadata_links_unresolved_idx
+  ON metadata_links(resolution_state, normalized_target, source_path);
+CREATE TABLE IF NOT EXISTS metadata_tags (
+  path TEXT NOT NULL,
+  ordinal INTEGER NOT NULL,
+  tag TEXT NOT NULL,
+  normalized_tag TEXT NOT NULL,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (path, ordinal)
+);
+CREATE INDEX IF NOT EXISTS metadata_tags_exact_idx
+  ON metadata_tags(normalized_tag, path);
+CREATE TABLE IF NOT EXISTS metadata_tag_ancestors (
+  path TEXT NOT NULL,
+  tag_ordinal INTEGER NOT NULL,
+  ancestor TEXT NOT NULL,
+  depth INTEGER NOT NULL,
+  PRIMARY KEY (path, tag_ordinal, ancestor)
+);
+CREATE INDEX IF NOT EXISTS metadata_tag_ancestors_idx
+  ON metadata_tag_ancestors(ancestor, path);
+CREATE TABLE IF NOT EXISTS metadata_properties (
+  path TEXT NOT NULL,
+  ordinal INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  normalized_name TEXT NOT NULL,
+  inferred_type TEXT NOT NULL,
+  declared_type TEXT,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (path, ordinal)
+);
+CREATE INDEX IF NOT EXISTS metadata_properties_name_idx
+  ON metadata_properties(normalized_name, path);
+CREATE TABLE IF NOT EXISTS metadata_property_values (
+  path TEXT NOT NULL,
+  property_ordinal INTEGER NOT NULL,
+  value_ordinal INTEGER NOT NULL,
+  property_name TEXT NOT NULL,
+  property_path TEXT NOT NULL,
+  value_type TEXT NOT NULL,
+  text_value TEXT,
+  number_value REAL,
+  boolean_value INTEGER,
+  date_value TEXT,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (path, property_ordinal, value_ordinal, property_path)
+);
+CREATE INDEX IF NOT EXISTS metadata_property_text_idx
+  ON metadata_property_values(property_name, text_value, path);
+CREATE INDEX IF NOT EXISTS metadata_property_number_idx
+  ON metadata_property_values(property_name, number_value, path);
+CREATE INDEX IF NOT EXISTS metadata_property_boolean_idx
+  ON metadata_property_values(property_name, boolean_value, path);
+CREATE INDEX IF NOT EXISTS metadata_property_date_idx
+  ON metadata_property_values(property_name, date_value, path);
 CREATE TABLE IF NOT EXISTS tasks (
   document_path TEXT PRIMARY KEY,
   document_id TEXT NOT NULL,
@@ -136,6 +273,10 @@ CREATE TABLE IF NOT EXISTS tasks (
   checklist_completed INTEGER NOT NULL DEFAULT 0,
   comment_count INTEGER NOT NULL DEFAULT 0,
   projection_version INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS task_records (
+  document_path TEXT PRIMARY KEY,
+  data_json TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS tasks_open_plan ON tasks(status, plan_date);
 CREATE INDEX IF NOT EXISTS tasks_open_deadline ON tasks(status, deadline);
@@ -202,6 +343,10 @@ CREATE TABLE IF NOT EXISTS history_files (
   file_id TEXT PRIMARY KEY,
   data_json TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS history_file_paths (
+  path TEXT PRIMARY KEY,
+  file_id TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS history_revisions (
   file_id TEXT NOT NULL,
   ordinal INTEGER NOT NULL,
@@ -242,8 +387,6 @@ CREATE INDEX IF NOT EXISTS search_docs_fts ON search_docs USING fts (
 ) WITH (weights = 'name=2.0,path=1.5,content=1.0,tags=1.5,metadata_text=1.0');
 `;
 
-const NOTIFICATIONS_META_KEY = "notifications.records";
-
 function clone<T>(value: T): T {
   if (value === undefined || value === null) return value;
   return structuredClone(value);
@@ -268,317 +411,252 @@ function ftsQueryForTerms(terms: string[]): string {
     .join(" AND ");
 }
 
-function statePersistenceStatements(
-  state: AppDatabaseState,
-  vectorSearch: boolean,
-): Array<string | TursoStatementInput> {
-  const statements: Array<string | TursoStatementInput> = [
-    "DELETE FROM app_meta",
-    "DELETE FROM files",
-    "DELETE FROM metadata",
-    "DELETE FROM links",
-    "DELETE FROM tags",
-    "DELETE FROM properties",
-    "DELETE FROM tasks",
-    "DELETE FROM index_projection_edges",
-    "DELETE FROM index_projection_values",
-    "DELETE FROM index_projection_rows",
-    "DELETE FROM index_projection_sources",
-    "DELETE FROM index_projections",
-    "DELETE FROM history_files",
-    "DELETE FROM history_revisions",
-    "DELETE FROM notifications",
-    "DELETE FROM search_chunks",
-    "DELETE FROM search_docs",
-    {
-      sql: `INSERT INTO app_state (id, state_json) VALUES (1, ?)
-            ON CONFLICT(id) DO UPDATE SET state_json = excluded.state_json`,
-      args: [JSON.stringify(state)],
-    },
-  ];
 
-  for (const [key, value] of Object.entries(state.meta)) {
-    statements.push({
-      sql: "INSERT INTO app_meta (key, value_json) VALUES (?, ?)",
-      args: [key, JSON.stringify(value)],
-    });
+const METADATA_SNAPSHOT_META_KEY = "compat.metadataSnapshot";
+const SEARCH_EMBEDDING_PROVIDER_META_KEY = "search.embeddingProvider";
+
+function parseJson<T>(value: unknown, fallback: T): T {
+  if (typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
   }
-  for (const file of state.files) {
-    statements.push({
+}
+
+function notebookStateMetaKey(sourcePath: string): string {
+  return `notebook.state:${sourcePath}`;
+}
+
+function createStableId(prefix: string): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `${prefix}:${crypto.randomUUID()}`;
+  }
+  return `${prefix}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2)}`;
+}
+
+function hashText(value: string): string {
+  let hash = 2166136261;
+  for (const character of value) {
+    hash ^= character.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function normalizeTag(value: string): string {
+  return value.trim().replace(/^#/, "").toLowerCase();
+}
+
+function normalizeExtension(value: string): string {
+  return value.trim().replace(/^\./, "").toLowerCase();
+}
+
+function isDateScalar(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}(?:$|T)/.test(value);
+}
+
+interface FlattenedPropertyValue {
+  path: string;
+  value: unknown;
+}
+
+function flattenPropertyValues(
+  value: unknown,
+  path: string,
+  output: FlattenedPropertyValue[] = [],
+): FlattenedPropertyValue[] {
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) => flattenPropertyValues(entry, `${path}[${index}]`, output));
+    return output;
+  }
+  if (value && typeof value === "object") {
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      flattenPropertyValues(entry, path ? `${path}.${key}` : key, output);
+    }
+    return output;
+  }
+  output.push({ path, value });
+  return output;
+}
+
+function indexedFileStatements(record: AppDatabaseIndexedFile): TursoStatementInput[] {
+  const path = record.file.path;
+  const statements: TursoStatementInput[] = [
+    {
       sql: `INSERT INTO files
             (path, normalized_path, extension, mtime, size, hash, indexed, deleted)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+            ON CONFLICT(path) DO UPDATE SET
+              normalized_path = excluded.normalized_path,
+              extension = excluded.extension,
+              mtime = excluded.mtime,
+              size = excluded.size,
+              hash = excluded.hash,
+              indexed = excluded.indexed,
+              deleted = 0`,
       args: [
-        file.path,
-        file.normalizedPath,
-        file.extension,
-        file.mtime,
-        file.size,
-        file.hash,
-        file.indexed ? 1 : 0,
-        file.deleted ? 1 : 0,
+        path,
+        record.file.normalizedPath,
+        normalizeExtension(record.file.extension),
+        record.file.mtime,
+        record.file.size,
+        record.file.hash,
+        record.file.indexed ? 1 : 0,
       ],
-    });
-  }
-  for (const entry of state.metadata) {
-    statements.push({
+    },
+    {
       sql: `INSERT INTO metadata (path, hash, parser_version, data_json)
-            VALUES (?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(path) DO UPDATE SET
+              hash = excluded.hash,
+              parser_version = excluded.parser_version,
+              data_json = excluded.data_json`,
       args: [
-        entry.path,
-        entry.hash,
-        entry.parserVersion,
-        JSON.stringify(entry.metadata),
+        record.metadata.path,
+        record.metadata.hash,
+        record.metadata.parserVersion,
+        JSON.stringify(record.metadata.metadata),
       ],
-    });
-  }
-  for (const [path, entries] of state.links) {
-    entries.forEach((entry, ordinal) => {
-      statements.push({
-        sql: "INSERT INTO links (source_path, ordinal, data_json) VALUES (?, ?, ?)",
-        args: [path, ordinal, JSON.stringify(entry)],
-      });
-    });
-  }
-  for (const [path, entries] of state.tags) {
-    entries.forEach((entry, ordinal) => {
-      statements.push({
-        sql: "INSERT INTO tags (path, ordinal, data_json) VALUES (?, ?, ?)",
-        args: [path, ordinal, JSON.stringify(entry)],
-      });
-    });
-  }
-  for (const [path, entries] of state.properties) {
-    entries.forEach((entry, ordinal) => {
-      statements.push({
-        sql: "INSERT INTO properties (path, ordinal, data_json) VALUES (?, ?, ?)",
-        args: [path, ordinal, JSON.stringify(entry)],
-      });
-    });
-  }
-  for (const task of state.tasks ?? []) {
-    statements.push({
-      sql: `INSERT INTO tasks (
-              document_path, document_id, kind, title, status, inbox,
-              start_kind, start_date, plan_date, plan_kind, plan_time,
-              duration_minutes, deadline, completed_at, repeat_strategy,
-              repeat_frequency, repeat_interval, repeat_anchor,
-              checklist_total, checklist_completed, comment_count,
-              projection_version
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        task.documentPath,
-        task.documentId,
-        task.kind,
-        task.title,
-        task.status,
-        task.inbox ? 1 : 0,
-        task.startKind,
-        task.startDate ?? null,
-        task.planDate ?? null,
-        task.planKind ?? null,
-        task.planTime ?? null,
-        task.durationMinutes ?? null,
-        task.deadline ?? null,
-        task.completedAt ?? null,
-        task.repeatStrategy ?? null,
-        task.repeatFrequency ?? null,
-        task.repeatInterval ?? null,
-        task.repeatAnchor ?? null,
-        task.checklistTotal,
-        task.checklistCompleted,
-        task.commentCount,
-        task.projectionVersion,
-      ],
-    });
-  }
-  for (const definition of state.projections ?? []) {
-    statements.push({
-      sql: `INSERT INTO index_projections
-            (projection_id, owner_plugin_id, schema_version, config_hash, visibility, fields_json, active, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        definition.projectionId,
-        definition.ownerPluginId,
-        definition.schemaVersion,
-        definition.configHash,
-        definition.visibility,
-        JSON.stringify(definition.fields),
-        definition.active ? 1 : 0,
-        definition.updatedAt,
-      ],
-    });
-  }
-  for (const source of state.projectionSources ?? []) {
-    statements.push({
-      sql: `INSERT INTO index_projection_sources
-            (projection_id, source_path, source_hash, schema_version, config_hash, status, error, indexed_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        source.projectionId,
-        source.sourcePath,
-        source.sourceHash,
-        source.schemaVersion,
-        source.configHash,
-        source.status,
-        source.error ?? null,
-        source.indexedAt,
-      ],
-    });
-  }
-  for (const row of state.projectionRows ?? []) {
-    statements.push({
-      sql: `INSERT INTO index_projection_rows
-            (projection_id, row_id, source_path, kind, ordinal, data_json)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-      args: [
-        row.projectionId,
-        row.rowId,
-        row.sourcePath,
-        row.kind,
-        row.ordinal,
-        JSON.stringify(row.data),
-      ],
-    });
-  }
-  for (const value of state.projectionValues ?? []) {
-    statements.push({
-      sql: `INSERT INTO index_projection_values
-            (projection_id, row_id, field, ordinal, value_type, text_value, number_value, boolean_value, date_value, datetime_value)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        value.projectionId,
-        value.rowId,
-        value.field,
-        value.ordinal,
-        value.valueType,
-        value.textValue ?? null,
-        value.numberValue ?? null,
-        value.booleanValue == null ? null : value.booleanValue ? 1 : 0,
-        value.dateValue ?? null,
-        value.datetimeValue ?? null,
-      ],
-    });
-  }
-  for (const edge of state.projectionEdges ?? []) {
-    statements.push({
-      sql: `INSERT INTO index_projection_edges
-            (projection_id, source_row_id, relation, target_projection_id, target_row_id, target_path, target_text, ordinal, data_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        edge.projectionId,
-        edge.sourceRowId,
-        edge.relation,
-        edge.targetProjectionId ?? null,
-        edge.targetRowId ?? null,
-        edge.targetPath ?? null,
-        edge.targetText ?? null,
-        edge.ordinal,
-        JSON.stringify(edge.data ?? null),
-      ],
-    });
-  }
-  for (const file of state.historyFiles) {
-    statements.push({
-      sql: "INSERT INTO history_files (file_id, data_json) VALUES (?, ?)",
-      args: [file.fileId, JSON.stringify(file)],
-    });
-  }
-  for (const [fileId, revisions] of state.historyRevisions) {
-    revisions.forEach((revision, ordinal) => {
-      statements.push({
-        sql: `INSERT INTO history_revisions (file_id, ordinal, data_json)
-              VALUES (?, ?, ?)`,
-        args: [fileId, ordinal, JSON.stringify(revision)],
-      });
-    });
-  }
-  const notifications = Array.isArray(state.meta[NOTIFICATIONS_META_KEY])
-    ? state.meta[NOTIFICATIONS_META_KEY]
-    : [];
-  for (const notification of notifications as Array<{ id?: unknown }>) {
-    if (typeof notification.id !== "string") continue;
-    statements.push({
-      sql: "INSERT INTO notifications (id, data_json) VALUES (?, ?)",
-      args: [notification.id, JSON.stringify(notification)],
-    });
-  }
-  for (const document of state.searchDocuments) {
-    statements.push({
-      sql: `INSERT INTO search_docs
-            (path, name, extension, checksum, content, tags, metadata_text, data_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        document.path,
-        document.name,
-        document.extension,
-        document.checksum,
-        document.content,
-        document.tags.join(" "),
-        document.metadataText ?? "",
-        JSON.stringify(document),
-      ],
-    });
-    for (const chunk of document.chunks ?? []) {
-      const vector = chunk.embedding?.vector;
-      statements.push({
-        sql:
-          vectorSearch && vector?.length
-            ? `INSERT INTO search_chunks
-               (id, path, text, embedding_json, embedding)
-               VALUES (?, ?, ?, ?, vector32(?))`
-            : `INSERT INTO search_chunks
-               (id, path, text, embedding_json, embedding)
-               VALUES (?, ?, ?, ?, NULL)`,
-        args:
-          vectorSearch && vector?.length
-            ? [
-                chunk.id,
-                document.path,
-                chunk.text,
-                JSON.stringify(chunk.embedding ?? null),
-                JSON.stringify(vector),
-              ]
-            : [
-                chunk.id,
-                document.path,
-                chunk.text,
-                JSON.stringify(chunk.embedding ?? null),
-              ],
-      });
-    }
-  }
+    },
+    { sql: "DELETE FROM links WHERE source_path = ?", args: [path] },
+    { sql: "DELETE FROM tags WHERE path = ?", args: [path] },
+    { sql: "DELETE FROM properties WHERE path = ?", args: [path] },
+    { sql: "DELETE FROM metadata_links WHERE source_path = ?", args: [path] },
+    { sql: "DELETE FROM metadata_tags WHERE path = ?", args: [path] },
+    { sql: "DELETE FROM metadata_tag_ancestors WHERE path = ?", args: [path] },
+    { sql: "DELETE FROM metadata_properties WHERE path = ?", args: [path] },
+    { sql: "DELETE FROM metadata_property_values WHERE path = ?", args: [path] },
+  ];
 
-  statements.push({
-    sql: `INSERT INTO schema_meta (key, value) VALUES ('schema.version', ?)
-          ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
-    args: [String(TURSO_APP_DATABASE_SCHEMA_VERSION)],
+  record.links.forEach((link, ordinal) => {
+    const data = { ...link, ordinal: link.ordinal ?? ordinal };
+    statements.push(
+      {
+        sql: "INSERT INTO links (source_path, ordinal, data_json) VALUES (?, ?, ?)",
+        args: [path, ordinal, JSON.stringify(data)],
+      },
+      {
+        sql: `INSERT INTO metadata_links
+              (source_path, ordinal, normalized_target, resolved_target_path, resolution_state, link_type, link_kind, data_json)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          path,
+          ordinal,
+          link.targetText.trim().toLowerCase(),
+          link.resolvedTargetPath,
+          link.resolvedTargetPath ? "resolved" : "unresolved",
+          link.type,
+          link.kind ?? null,
+          JSON.stringify(data),
+        ],
+      },
+    );
   });
+
+  record.tags.forEach((tag, ordinal) => {
+    statements.push(
+      {
+        sql: "INSERT INTO tags (path, ordinal, data_json) VALUES (?, ?, ?)",
+        args: [path, ordinal, JSON.stringify(tag)],
+      },
+      {
+        sql: `INSERT INTO metadata_tags
+              (path, ordinal, tag, normalized_tag, data_json)
+              VALUES (?, ?, ?, ?, ?)`,
+        args: [path, ordinal, tag.tag, normalizeTag(tag.tag), JSON.stringify(tag)],
+      },
+    );
+    [...new Set(tag.hierarchy.map(normalizeTag))].forEach((ancestor, depth) => {
+      statements.push({
+        sql: `INSERT INTO metadata_tag_ancestors
+              (path, tag_ordinal, ancestor, depth) VALUES (?, ?, ?, ?)`,
+        args: [path, ordinal, ancestor, depth],
+      });
+    });
+  });
+
+  record.properties.forEach((property, ordinal) => {
+    const normalizedName = property.name.trim().toLowerCase();
+    statements.push(
+      {
+        sql: "INSERT INTO properties (path, ordinal, data_json) VALUES (?, ?, ?)",
+        args: [path, ordinal, JSON.stringify(property)],
+      },
+      {
+        sql: `INSERT INTO metadata_properties
+              (path, ordinal, name, normalized_name, inferred_type, declared_type, data_json)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          path,
+          ordinal,
+          property.name,
+          normalizedName,
+          property.inferredType,
+          property.declaredType ?? null,
+          JSON.stringify(property),
+        ],
+      },
+    );
+    flattenPropertyValues(property.value, property.name).forEach((entry, valueOrdinal) => {
+      const value = entry.value;
+      const valueType = value === null || value === undefined
+        ? "null"
+        : typeof value === "number"
+          ? "number"
+          : typeof value === "boolean"
+            ? "boolean"
+            : typeof value === "string" && isDateScalar(value)
+              ? "date"
+              : "string";
+      statements.push({
+        sql: `INSERT INTO metadata_property_values
+              (path, property_ordinal, value_ordinal, property_name, property_path,
+               value_type, text_value, number_value, boolean_value, date_value, data_json)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          path,
+          ordinal,
+          valueOrdinal,
+          normalizedName,
+          entry.path,
+          valueType,
+          valueType === "string" ? String(value) : null,
+          valueType === "number" ? value : null,
+          valueType === "boolean" ? (value ? 1 : 0) : null,
+          valueType === "date" ? String(value) : null,
+          JSON.stringify(value ?? null),
+        ],
+      });
+    });
+  });
+
   return statements;
 }
 
-export class TursoAppDatabase extends MemoryAppDatabase {
-  override readonly kind: Extract<
+export class TursoAppDatabase implements AppDatabase {
+  readonly kind: Extract<
     AppDatabaseKind,
     "turso-native" | "turso-wasm"
   >;
 
   private connection: TursoConnection | null = null;
   private opened = false;
-  private indexingBatchDepth = 0;
-  private indexingBatchDirty = false;
   private nativeFullTextSearch = false;
   private nativeVectorSearch = false;
+  private searchEmbeddingProviderConfig: SearchEmbeddingProviderConfig | null = null;
+  private searchEmbeddingProvider: SearchEmbeddingProvider | null = null;
+  private currentRevision = 0;
+  private readonly changeListeners = new Set<AppDatabaseChangeListener>();
 
   constructor(
-    vaultId: string,
+    readonly vaultId: string,
     private readonly options: TursoAppDatabaseOptions,
   ) {
-    super(vaultId);
     this.kind = options.kind;
   }
 
-  override get descriptor(): AppDatabaseDescriptor {
+  get descriptor(): AppDatabaseDescriptor {
     return {
       providerId: this.options.providerId ?? "turso-local",
       engine: "turso",
@@ -595,25 +673,50 @@ export class TursoAppDatabase extends MemoryAppDatabase {
     };
   }
 
-  override async open(): Promise<void> {
+  async open(): Promise<void> {
     if (this.opened) return;
     this.connection = await this.options.connectionFactory();
     await this.migrate();
-    const row = await this.connection.get<{ state_json: string }>(
-      "SELECT state_json FROM app_state WHERE id = 1",
+    const revision = await this.connection.get<{ revision: number }>(
+      "SELECT revision FROM app_revision WHERE id = 1",
     );
-    if (row?.state_json) {
-      this.fromState(JSON.parse(row.state_json) as AppDatabaseState);
-    } else {
-      await super.migrate();
-      await this.persist();
-    }
+    this.currentRevision = Number(revision?.revision ?? 0);
+    this.searchEmbeddingProviderConfig =
+      (await this.getMeta<SearchEmbeddingProviderConfig>(SEARCH_EMBEDDING_PROVIDER_META_KEY)) ?? null;
+    this.searchEmbeddingProvider = createSearchEmbeddingProvider(
+      this.searchEmbeddingProviderConfig,
+    );
     this.opened = true;
   }
 
-  override async migrate(): Promise<void> {
+  async migrate(): Promise<void> {
     const connection = this.requireConnection();
     await connection.exec(TURSO_APP_DATABASE_SCHEMA);
+    const previousVersion = Number(
+      (await connection.get<{ value: string }>(
+        "SELECT value FROM schema_meta WHERE key = 'schema.version'",
+      ))?.value ?? 0,
+    );
+    if (previousVersion > 0 && previousVersion < TURSO_APP_DATABASE_SCHEMA_VERSION) {
+      await this.backfillNormalizedMetadata();
+    }
+    await connection.batch(
+      [
+        `INSERT INTO app_revision (id, revision) VALUES (1, 0)
+         ON CONFLICT(id) DO NOTHING`,
+        {
+          sql: `INSERT INTO schema_meta (key, value) VALUES ('schema.version', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+          args: [String(TURSO_APP_DATABASE_SCHEMA_VERSION)],
+        },
+        {
+          sql: `INSERT INTO app_meta (key, value_json) VALUES ('schema.version', ?)
+                ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+          args: [JSON.stringify(TURSO_APP_DATABASE_SCHEMA_VERSION)],
+        },
+      ],
+      "immediate",
+    );
     try {
       await connection.exec(TURSO_SEARCH_FTS_SCHEMA);
       await connection.get(
@@ -633,181 +736,506 @@ export class TursoAppDatabase extends MemoryAppDatabase {
     }
   }
 
-  override async close(): Promise<void> {
-    if (!this.connection) {
-      await super.close();
-      return;
-    }
-    try {
-      if (this.indexingBatchDirty) {
-        this.indexingBatchDirty = false;
-        await this.persist();
-      }
-      const connection = this.connection;
-      this.connection = null;
-      this.opened = false;
-      await connection.close();
-    } finally {
-      await super.close();
-    }
+  async close(): Promise<void> {
+    if (!this.connection) return;
+    const connection = this.connection;
+    this.connection = null;
+    this.opened = false;
+    await this.searchEmbeddingProvider?.dispose?.();
+    this.searchEmbeddingProvider = null;
+    this.changeListeners.clear();
+    await connection.close();
   }
 
-  override async beginSearchIndexingBatch(): Promise<void> {
-    this.indexingBatchDepth += 1;
-  }
+  async beginSearchIndexingBatch(): Promise<void> {}
 
-  override async endSearchIndexingBatch(): Promise<void> {
-    if (this.indexingBatchDepth === 0) return;
-    this.indexingBatchDepth -= 1;
-    if (this.indexingBatchDepth === 0 && this.indexingBatchDirty) {
-      this.indexingBatchDirty = false;
-      await this.persist();
-    }
-  }
+  async endSearchIndexingBatch(): Promise<void> {}
 
-  override async configureSearchEmbeddingProvider(
+  async configureSearchEmbeddingProvider(
     provider: SearchEmbeddingProviderConfig | null,
   ): Promise<void> {
-    await super.configureSearchEmbeddingProvider(provider);
-    await this.persistOrDefer();
-  }
-
-  override async setMeta(key: string, value: unknown): Promise<void> {
-    await super.setMeta(key, value);
-    await this.persistOrDefer();
-  }
-
-  override async deleteNotebookState(sourcePath: string): Promise<void> {
-    await super.deleteNotebookState(sourcePath);
-    await this.persistOrDefer();
-  }
-
-  override async saveMetadataSnapshot(
-    snapshot: MetadataCacheSnapshot,
-  ): Promise<void> {
-    await super.saveMetadataSnapshot(snapshot);
-    await this.persistOrDefer();
-  }
-
-  override async storeFileHistoryRevision(
-    input: AppDatabaseStoreFileHistoryRevisionInput,
-  ): Promise<AppDatabaseStoreFileHistoryRevisionResult> {
-    const result = await super.storeFileHistoryRevision(input);
-    if (result.stored) await this.persistOrDefer();
-    return result;
-  }
-
-  override async upsertIndexedFile(
-    record: AppDatabaseIndexedFile,
-  ): Promise<void> {
-    await super.upsertIndexedFile(record);
-    await this.persistOrDefer();
-  }
-
-  override async upsertTaskProjection(
-    record: AppDatabaseTaskRecord,
-  ): Promise<void> {
-    await super.upsertTaskProjection(record);
-    await this.persistOrDefer();
-  }
-
-  override async deleteTaskProjection(path: string): Promise<void> {
-    await super.deleteTaskProjection(path);
-    await this.persistOrDefer();
-  }
-
-  override async queryTasks(
-    query: AppDatabaseTaskQuery = {},
-  ): Promise<AppDatabaseTaskRecord[]> {
-    return super.queryTasks(query);
-  }
-
-  override async queryProjection<T = Record<string, unknown>>(
-    projectionId: string,
-    query: IndexQuery = {},
-    readerPluginId?: string,
-  ): Promise<IndexQueryResult<T>> {
-    const connection = this.connection;
-    const memory = await super.queryProjection<T>(projectionId, query, readerPluginId);
-    if (!connection || query.after) return memory;
-    const definition = this.projections.get(projectionId);
-    if (!definition) return memory;
-    const compiled = compileProjectionQuerySql(projectionId, query, definition);
-    const rows = await connection.all<Record<string, unknown>>(
-      compiled.sql,
-      ...compiled.args,
+    if (JSON.stringify(provider) === JSON.stringify(this.searchEmbeddingProviderConfig)) return;
+    const previous = this.searchEmbeddingProvider;
+    this.searchEmbeddingProviderConfig = clone(provider);
+    this.searchEmbeddingProvider = createSearchEmbeddingProvider(provider);
+    await previous?.dispose?.();
+    await this.commit(
+      [{
+        sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
+              ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+        args: [SEARCH_EMBEDDING_PROVIDER_META_KEY, JSON.stringify(provider)],
+      }],
+      ["search"],
     );
+  }
+
+  async getSearchEmbeddingProvider(): Promise<SearchEmbeddingProviderConfig | null> {
+    return clone(this.searchEmbeddingProviderConfig);
+  }
+
+  async getSearchEmbeddingRuntimeStatus(): Promise<SearchEmbeddingRuntimeStatus | null> {
+    return this.searchEmbeddingProvider
+      ? clone(this.searchEmbeddingProvider.getRuntimeStatus())
+      : null;
+  }
+
+  async getSearchIndexStats(): Promise<AppDatabaseSearchIndexStats> {
+    const rows = await this.requireConnection().all<{ embedding_json: string | null }>(
+      "SELECT embedding_json FROM search_chunks",
+    );
+    const stats: AppDatabaseSearchIndexStats = {
+      documentCount: Number((await this.requireConnection().get<{ count: number }>("SELECT count(*) AS count FROM search_docs"))?.count ?? 0),
+      chunkCount: rows.length,
+      readyChunkCount: 0,
+      pendingChunkCount: 0,
+      errorChunkCount: 0,
+      lastError: null,
+    };
+    for (const row of rows) {
+      const embedding = parseJson<{ status?: string; error?: string } | null>(row.embedding_json, null);
+      if (embedding?.status === "ready") stats.readyChunkCount += 1;
+      else if (embedding?.status === "error") {
+        stats.errorChunkCount += 1;
+        stats.lastError ??= embedding.error ?? null;
+      } else stats.pendingChunkCount += 1;
+    }
+    return stats;
+  }
+
+  async getMeta<T = unknown>(key: string): Promise<T | undefined> {
+    const row = await this.requireConnection().get<{ value_json: string }>(
+      "SELECT value_json FROM app_meta WHERE key = ?",
+      key,
+    );
+    return row ? parseJson<T | undefined>(row.value_json, undefined) : undefined;
+  }
+
+  async setMeta(key: string, value: unknown): Promise<void> {
+    await this.commit(
+      [{
+        sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
+              ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+        args: [key, JSON.stringify(value)],
+      }],
+      ["meta"],
+    );
+  }
+
+  async getNotebookState(sourcePath: string): Promise<AppDatabaseNotebookState | undefined> {
+    return this.getMeta(notebookStateMetaKey(sourcePath));
+  }
+
+  async setNotebookState(sourcePath: string, state: AppDatabaseNotebookState): Promise<void> {
+    await this.commit(
+      [{
+        sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
+              ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+        args: [notebookStateMetaKey(sourcePath), JSON.stringify(state)],
+      }],
+      ["notebook"],
+      [sourcePath],
+    );
+  }
+
+  async deleteNotebookState(sourcePath: string): Promise<void> {
+    await this.commit(
+      [{ sql: "DELETE FROM app_meta WHERE key = ?", args: [notebookStateMetaKey(sourcePath)] }],
+      ["notebook"],
+      [sourcePath],
+    );
+  }
+
+  async loadMetadataSnapshot(): Promise<MetadataCacheSnapshot | null> {
+    const stored = await this.getMeta<MetadataCacheSnapshot>(METADATA_SNAPSHOT_META_KEY);
+    if (stored) return stored;
+    const legacy = await this.requireConnection().get<{ state_json: string }>(
+      "SELECT state_json FROM app_state WHERE id = 1",
+    );
+    return parseJson<{ metadataSnapshot?: MetadataCacheSnapshot | null }>(legacy?.state_json, {}).metadataSnapshot ?? null;
+  }
+
+  async saveMetadataSnapshot(snapshot: MetadataCacheSnapshot): Promise<void> {
+    await this.commit(
+      [{
+        sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
+              ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+        args: [METADATA_SNAPSHOT_META_KEY, JSON.stringify(snapshot)],
+      }],
+      ["metadata"],
+    );
+  }
+
+  async getFileHistory(path: string): Promise<AppDatabaseFileHistory | null> {
+    const pathRow = await this.requireConnection().get<{ file_id: string }>(
+      "SELECT file_id FROM history_file_paths WHERE path = ?",
+      path,
+    );
+    if (!pathRow) return null;
+    const [fileRow, revisionRows] = await Promise.all([
+      this.requireConnection().get<{ data_json: string }>(
+        "SELECT data_json FROM history_files WHERE file_id = ?",
+        pathRow.file_id,
+      ),
+      this.requireConnection().all<{ data_json: string }>(
+        "SELECT data_json FROM history_revisions WHERE file_id = ? ORDER BY ordinal",
+        pathRow.file_id,
+      ),
+    ]);
+    if (!fileRow) return null;
     return {
-      ...memory,
-      rows: rows.map((row) => JSON.parse(String(row.data_json ?? "{}")) as T),
+      file: parseJson<AppDatabaseFileHistoryFile>(fileRow.data_json, {
+        fileId: pathRow.file_id,
+        currentPath: path,
+        deleted: false,
+      }),
+      revisions: revisionRows.map((row) =>
+        parseJson<AppDatabaseFileHistoryRevision>(row.data_json, {} as AppDatabaseFileHistoryRevision),
+      ),
     };
   }
 
-  override async registerProjectionDefinition(
-    definition: Parameters<MemoryAppDatabase["registerProjectionDefinition"]>[0],
-  ): Promise<void> {
-    await super.registerProjectionDefinition(definition);
-    await this.persistOrDefer();
+  async storeFileHistoryRevision(
+    input: AppDatabaseStoreFileHistoryRevisionInput,
+  ): Promise<AppDatabaseStoreFileHistoryRevisionResult> {
+    const existing = await this.getFileHistory(input.path) ??
+      (input.previousPath ? await this.getFileHistory(input.previousPath) : null);
+    const fileId = existing?.file.fileId ?? createStableId("history-file");
+    const latest = existing?.revisions.at(-1);
+    const content = input.content ?? latest?.content ?? "";
+    const contentHash = input.contentHash ?? latest?.contentHash ?? hashText(content);
+    const deduplicate = input.eventType !== "rename" && input.eventType !== "delete" &&
+      !existing?.file.deleted && latest?.contentHash === contentHash;
+    if (deduplicate) return { fileId, stored: false, deduplicated: true };
+    const file: AppDatabaseFileHistoryFile = {
+      fileId,
+      currentPath: input.path,
+      deleted: input.eventType === "delete",
+    };
+    const revision: AppDatabaseFileHistoryRevision = input.replaceLatest && latest
+      ? {
+          ...latest,
+          currentPath: input.path,
+          capturedPath: input.eventType === "rename" && input.previousPath ? input.previousPath : input.path,
+          eventType: input.eventType,
+          createdAt: input.createdAt,
+          sourceMtime: input.sourceMtime,
+          sourceSize: input.sourceSize,
+          contentHash,
+          content,
+        }
+      : {
+          revisionId: createStableId("history-revision"),
+          fileId,
+          currentPath: input.path,
+          capturedPath: input.eventType === "rename" && input.previousPath ? input.previousPath : input.path,
+          eventType: input.eventType,
+          createdAt: input.createdAt,
+          sourceMtime: input.sourceMtime,
+          sourceSize: input.sourceSize,
+          contentHash,
+          content,
+        };
+    const revisions = input.replaceLatest && latest
+      ? [...(existing?.revisions.slice(0, -1) ?? []), revision]
+      : [...(existing?.revisions ?? []), revision];
+    const retained = revisions.slice(-Math.max(1, input.maxRevisions ?? revisions.length));
+    const statements: TursoStatementInput[] = [
+      {
+        sql: `INSERT INTO history_files (file_id, data_json) VALUES (?, ?)
+              ON CONFLICT(file_id) DO UPDATE SET data_json = excluded.data_json`,
+        args: [fileId, JSON.stringify(file)],
+      },
+      { sql: "DELETE FROM history_revisions WHERE file_id = ?", args: [fileId] },
+      { sql: "DELETE FROM history_file_paths WHERE file_id = ?", args: [fileId] },
+      {
+        sql: `INSERT INTO history_file_paths (path, file_id) VALUES (?, ?)
+              ON CONFLICT(path) DO UPDATE SET file_id = excluded.file_id`,
+        args: [input.path, fileId],
+      },
+    ];
+    retained.forEach((entry, ordinal) => statements.push({
+      sql: "INSERT INTO history_revisions (file_id, ordinal, data_json) VALUES (?, ?, ?)",
+      args: [fileId, ordinal, JSON.stringify(entry)],
+    }));
+    await this.commit(statements, ["history"], [input.path]);
+    return { fileId, stored: true, deduplicated: false, revision };
   }
 
-  override async replaceProjectionSource(
-    input: ReplaceProjectionSourceInput,
-  ): Promise<void> {
-    await super.replaceProjectionSource(input);
-    await this.persistOrDefer();
+  async listNotifications(): Promise<AppDatabaseNotificationRecord[]> {
+    const rows = await this.requireConnection().all<{ data_json: string }>(
+      "SELECT data_json FROM notifications",
+    );
+    return rows
+      .map((row) => parseJson<AppDatabaseNotificationRecord>(row.data_json, {} as AppDatabaseNotificationRecord))
+      .filter((record) => !record.cleared)
+      .sort((left, right) => right.createdAt - left.createdAt);
   }
 
-  override async markProjectionSourceError(
-    input: MarkProjectionSourceErrorInput,
-  ): Promise<void> {
-    await super.markProjectionSourceError(input);
-    await this.persistOrDefer();
+  async upsertNotification(record: AppDatabaseNotificationRecord): Promise<void> {
+    await this.commit([{
+      sql: `INSERT INTO notifications (id, data_json) VALUES (?, ?)
+            ON CONFLICT(id) DO UPDATE SET data_json = excluded.data_json`,
+      args: [record.id, JSON.stringify(record)],
+    }], ["notification"]);
   }
 
-  override async deleteProjectionSource(
-    projectionId: string,
-    sourcePath: string,
-    writerPluginId?: string,
-  ): Promise<void> {
-    await super.deleteProjectionSource(projectionId, sourcePath, writerPluginId);
-    await this.persistOrDefer();
+  async markNotificationRead(id: string): Promise<void> {
+    await this.updateNotification(id, (record) => ({ ...record, read: true, updatedAt: Date.now() }));
   }
 
-  override async deleteIndexedFile(path: string): Promise<void> {
-    await super.deleteIndexedFile(path);
-    await this.persistOrDefer();
+  async clearNotification(id: string): Promise<void> {
+    await this.updateNotification(id, (record) => ({ ...record, cleared: true, updatedAt: Date.now() }));
   }
 
-  override async renameIndexedFile(
-    oldPath: string,
-    newPath: string,
-  ): Promise<void> {
-    await super.renameIndexedFile(oldPath, newPath);
-    await this.persistOrDefer();
+  async clearAllNotifications(): Promise<void> {
+    const rows = await this.requireConnection().all<{ id: string; data_json: string }>(
+      "SELECT id, data_json FROM notifications",
+    );
+    const now = Date.now();
+    await this.commit(rows.map((row) => ({
+      sql: "UPDATE notifications SET data_json = ? WHERE id = ?",
+      args: [JSON.stringify({ ...parseJson(row.data_json, {}), cleared: true, updatedAt: now }), row.id],
+    })), ["notification"]);
   }
 
-  override async upsertSearchDocument(
-    document: SearchDocumentRecord,
-  ): Promise<void> {
-    await super.upsertSearchDocument(document);
-    await this.persistOrDefer();
+  async getChangeRevision(): Promise<number> {
+    return this.currentRevision;
   }
 
-  override async deleteSearchDocument(path: string): Promise<void> {
-    await super.deleteSearchDocument(path);
-    await this.persistOrDefer();
+  subscribeToChanges(listener: AppDatabaseChangeListener): () => void {
+    this.changeListeners.add(listener);
+    return () => this.changeListeners.delete(listener);
   }
 
-  override async rebuildSearchIndex(): Promise<void> {
-    const documents = await this.listSearchDocuments();
-    for (const document of documents) {
-      await super.upsertSearchDocument(document);
+  async upsertIndexedFile(record: AppDatabaseIndexedFile): Promise<void> {
+    await this.commit(indexedFileStatements(record), ["metadata"], [record.file.path]);
+    if (record.task) await this.upsertTaskProjection(record.task);
+    else if (record.task === null) await this.deleteTaskProjection(record.file.path);
+  }
+
+  async getIndexedFile(path: string): Promise<AppDatabaseIndexedMetadataRow | undefined> {
+    return this.readIndexedFile(path, false);
+  }
+
+  async listIndexedFileManifest(
+    query: AppDatabaseIndexedFileManifestQuery = {},
+  ): Promise<AppDatabaseIndexedFileManifestPage> {
+    const limit = Math.max(1, query.limit ?? 500);
+    const rows = await this.requireConnection().all<Record<string, unknown>>(
+      `SELECT path, normalized_path, extension, mtime, size, hash, indexed, deleted
+       FROM files
+       WHERE indexed = 1 AND deleted = 0 AND path > ?
+       ORDER BY path LIMIT ?`,
+      query.after ?? "",
+      limit + 1,
+    );
+    const page = rows.slice(0, limit).map((row) => this.fileRecordFromRow(row));
+    return { rows: page, nextCursor: rows.length > limit ? page.at(-1)?.path : undefined };
+  }
+
+  async queryIndexedMetadata(
+    query: AppDatabaseIndexedMetadataQuery = {},
+  ): Promise<AppDatabaseIndexedMetadataRow[]> {
+    return (await this.queryIndexedMetadataPage({ query, limit: query.limit ?? 10_000 })).rows;
+  }
+
+  async queryIndexedMetadataPage(
+    input: AppDatabaseIndexedMetadataPageQuery = {},
+  ): Promise<AppDatabaseIndexedMetadataPage> {
+    const limit = Math.max(1, input.limit ?? input.query?.limit ?? 100);
+    const { sql, args } = this.compileMetadataPathQuery(input.query ?? {}, input.after, limit + 1);
+    const rows = await this.requireConnection().all<{ path: string }>(sql, ...args);
+    const pagePaths = rows.slice(0, limit).map((row) => row.path);
+    const materialized = await Promise.all(pagePaths.map((path) => this.readIndexedFile(path, false)));
+    return {
+      rows: materialized.filter((row): row is AppDatabaseIndexedMetadataRow => Boolean(row)),
+      nextCursor: rows.length > limit ? pagePaths.at(-1) : undefined,
+    };
+  }
+
+  async queryMetadataFacets(query: AppDatabaseMetadataFacetQuery): Promise<AppDatabaseMetadataFacetRow[]> {
+    const limit = Math.max(1, query.limit ?? 100);
+    const prefixArgs: unknown[] = [];
+    const prefix = this.compilePathPrefixes("path", query.pathPrefixes, prefixArgs);
+    if (query.kind === "tag") {
+      const rows = await this.requireConnection().all<{ value: string; count: number }>(
+        `SELECT ancestor AS value, count(DISTINCT path) AS count
+         FROM metadata_tag_ancestors
+         WHERE 1 = 1 ${prefix}
+         GROUP BY ancestor ORDER BY count DESC, ancestor LIMIT ?`,
+        ...prefixArgs,
+        limit,
+      );
+      return rows.map((row) => ({ value: row.value, valueType: "string", count: Number(row.count) }));
     }
-    await super.rebuildSearchIndex();
-    await this.persistOrDefer();
+    if (query.kind === "property-name") {
+      const rows = await this.requireConnection().all<{ value: string; count: number }>(
+        `SELECT name AS value, count(DISTINCT path) AS count
+         FROM metadata_properties
+         WHERE 1 = 1 ${prefix}
+         GROUP BY normalized_name ORDER BY count DESC, normalized_name LIMIT ?`,
+        ...prefixArgs,
+        limit,
+      );
+      return rows.map((row) => ({ value: row.value, valueType: "string", count: Number(row.count) }));
+    }
+    if (!query.propertyName) return [];
+    const rows = await this.requireConnection().all<Record<string, unknown>>(
+      `SELECT value_type, text_value, number_value, boolean_value, date_value,
+              count(DISTINCT path) AS count
+       FROM metadata_property_values
+       WHERE property_name = ? ${prefix}
+       GROUP BY value_type, text_value, number_value, boolean_value, date_value
+       ORDER BY count DESC LIMIT ?`,
+      query.propertyName.toLowerCase(),
+      ...prefixArgs,
+      limit,
+    );
+    return rows.map((row) => ({
+      value: row.value_type === "number" ? Number(row.number_value)
+        : row.value_type === "boolean" ? Boolean(row.boolean_value)
+          : row.value_type === "null" ? null
+            : String(row.date_value ?? row.text_value ?? ""),
+      valueType: String(row.value_type) as AppDatabaseMetadataFacetRow["valueType"],
+      count: Number(row.count),
+    }));
   }
 
-  override async searchDocuments(
+  async queryMetadataLinks(query: AppDatabaseMetadataLinkQuery): Promise<AppDatabaseLinkRecord[]> {
+    const conditions = [query.direction === "outgoing" ? "source_path = ?" : "resolved_target_path = ?"];
+    if (query.resolution === "resolved") conditions.push("resolution_state = 'resolved'");
+    if (query.resolution === "unresolved") conditions.push("resolution_state = 'unresolved'");
+    const rows = await this.requireConnection().all<{ data_json: string }>(
+      `SELECT data_json FROM metadata_links WHERE ${conditions.join(" AND ")}
+       ORDER BY source_path, ordinal LIMIT ?`,
+      query.path,
+      query.limit ?? 1000,
+    );
+    return rows.map((row) => parseJson<AppDatabaseLinkRecord>(row.data_json, {} as AppDatabaseLinkRecord));
+  }
+
+  async deleteIndexedFile(path: string): Promise<void> {
+    await this.commit([
+      { sql: "UPDATE files SET indexed = 0, deleted = 1 WHERE path = ?", args: [path] },
+      ...this.deletePathStatements(path),
+    ], ["metadata", "search", "task", "projection", "notebook"], [path]);
+  }
+
+  async renameIndexedFile(oldPath: string, newPath: string): Promise<void> {
+    const record = await this.readIndexedFile(oldPath, false);
+    if (!record) return;
+    const renamed: AppDatabaseIndexedFile = {
+      file: { ...record.file, path: newPath, normalizedPath: newPath },
+      metadata: record.metadata
+        ? { ...record.metadata, path: newPath }
+        : { path: newPath, hash: record.file.hash, parserVersion: "unknown", metadata: {} },
+      links: record.links.map((link) => ({ ...link, sourcePath: newPath })),
+      tags: record.tags.map((tag) => ({ ...tag, path: newPath })),
+      properties: record.properties.map((property) => ({ ...property, path: newPath })),
+    };
+    const search = await this.getSearchDocument(oldPath);
+    const notebook = await this.getNotebookState(oldPath);
+    const task = await this.getTaskRow({ path: oldPath });
+    const incoming = await this.requireConnection().all<{
+      source_path: string;
+      ordinal: number;
+      data_json: string;
+    }>(
+      "SELECT source_path, ordinal, data_json FROM metadata_links WHERE resolved_target_path = ?",
+      oldPath,
+    );
+    const statements = [
+      ...this.deleteMetadataPathStatements(oldPath),
+      { sql: "DELETE FROM files WHERE path = ?", args: [oldPath] },
+      ...indexedFileStatements(renamed),
+      { sql: "UPDATE index_projection_sources SET source_path = ? WHERE source_path = ?", args: [newPath, oldPath] },
+      { sql: "UPDATE index_projection_rows SET source_path = ? WHERE source_path = ?", args: [newPath, oldPath] },
+      { sql: "UPDATE index_projection_edges SET target_path = ? WHERE target_path = ?", args: [newPath, oldPath] },
+    ] satisfies TursoStatementInput[];
+    if (notebook) {
+      statements.push(
+        { sql: "DELETE FROM app_meta WHERE key = ?", args: [notebookStateMetaKey(oldPath)] },
+        {
+          sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
+                ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+          args: [notebookStateMetaKey(newPath), JSON.stringify({ ...notebook, sourcePath: newPath })],
+        },
+      );
+    }
+    if (search) statements.push(...this.searchDocumentStatements({
+      ...search,
+      path: newPath,
+      chunks: search.chunks?.map((chunk) => ({
+        ...chunk,
+        id: chunk.id === oldPath
+          ? newPath
+          : chunk.id.startsWith(`${oldPath}#`)
+            ? `${newPath}${chunk.id.slice(oldPath.length)}`
+            : chunk.id,
+      })),
+    }, oldPath));
+    if (task) statements.push(
+      { sql: "DELETE FROM task_records WHERE document_path = ?", args: [oldPath] },
+      {
+        sql: `INSERT INTO task_records (document_path, data_json) VALUES (?, ?)
+              ON CONFLICT(document_path) DO UPDATE SET data_json = excluded.data_json`,
+        args: [newPath, JSON.stringify({ ...task, documentPath: newPath })],
+      },
+    );
+    for (const row of incoming) {
+      const link = parseJson<AppDatabaseLinkRecord>(row.data_json, {} as AppDatabaseLinkRecord);
+      const data = JSON.stringify({ ...link, resolvedTargetPath: newPath });
+      statements.push(
+        {
+          sql: "UPDATE metadata_links SET resolved_target_path = ?, data_json = ? WHERE source_path = ? AND ordinal = ?",
+          args: [newPath, data, row.source_path, row.ordinal],
+        },
+        {
+          sql: "UPDATE links SET data_json = ? WHERE source_path = ? AND ordinal = ?",
+          args: [data, row.source_path, row.ordinal],
+        },
+      );
+    }
+    await this.commit(
+      statements,
+      ["metadata", "search", "task", "projection", "notebook"],
+      [oldPath, newPath],
+      [{ oldPath, newPath }],
+    );
+  }
+
+  async upsertSearchDocument(document: SearchDocumentRecord): Promise<void> {
+    const prepared = await this.prepareSearchDocument(document);
+    await this.commit(this.searchDocumentStatements(prepared), ["search"], [prepared.path]);
+  }
+
+  async deleteSearchDocument(path: string): Promise<void> {
+    await this.commit([
+      { sql: "DELETE FROM search_chunks WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM search_docs WHERE path = ?", args: [path] },
+    ], ["search"], [path]);
+  }
+
+  async getSearchDocument(path: string): Promise<SearchDocumentRecord | undefined> {
+    const row = await this.requireConnection().get<{ data_json: string }>(
+      "SELECT data_json FROM search_docs WHERE path = ?",
+      path,
+    );
+    return row ? parseJson<SearchDocumentRecord | undefined>(row.data_json, undefined) : undefined;
+  }
+
+  async listSearchDocuments(): Promise<SearchDocumentRecord[]> {
+    const rows = await this.requireConnection().all<{ data_json: string }>(
+      "SELECT data_json FROM search_docs ORDER BY path",
+    );
+    return rows.map((row) => parseJson<SearchDocumentRecord>(row.data_json, {} as SearchDocumentRecord));
+  }
+
+  async rebuildSearchIndex(): Promise<void> {
+    await this.commit([], ["search"]);
+  }
+
+  async searchDocuments(
     query: string,
     options: AppDatabaseSearchOptions = {},
   ): Promise<AppDatabaseSearchResult[]> {
@@ -818,7 +1246,7 @@ export class TursoAppDatabase extends MemoryAppDatabase {
       Boolean(options.sourceProviderIds?.length) ||
       Boolean(options.pathPrefix);
     if (allPathsRequired) {
-      return this.searchDocumentsForPaths(
+      return this.evaluateSearchDocumentsForPaths(
         query,
         options,
         await this.queryAllSearchPaths(options.limit),
@@ -850,13 +1278,13 @@ export class TursoAppDatabase extends MemoryAppDatabase {
     }
 
     if (requestedMode === "vector" && !includesVector) return [];
-    return this.searchDocumentsForPaths(query, options, candidates);
+    return this.evaluateSearchDocumentsForPaths(query, options, candidates);
   }
 
   private async queryAllSearchPaths(limit = 100): Promise<string[]> {
     const rows = await this.requireConnection().all<{ path: string }>(
       "SELECT path FROM search_docs ORDER BY path LIMIT ?",
-      Math.max(limit, this.searchDocs.size),
+      Math.max(limit, 100),
     );
     return rows.map((row) => row.path);
   }
@@ -901,20 +1329,705 @@ export class TursoAppDatabase extends MemoryAppDatabase {
     return [...new Set(rows.map((row) => row.path))];
   }
 
-  private async persistOrDefer(): Promise<void> {
-    if (this.indexingBatchDepth > 0) {
-      this.indexingBatchDirty = true;
-      return;
-    }
-    await this.persist();
+  async upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void> {
+    await this.ensureTasksProjectionDefinition();
+    await this.commit([{
+      sql: `INSERT INTO task_records (document_path, data_json) VALUES (?, ?)
+            ON CONFLICT(document_path) DO UPDATE SET data_json = excluded.data_json`,
+      args: [record.documentPath, JSON.stringify(record)],
+    }], ["task"], [record.documentPath]);
+    await this.replaceProjectionSource({
+      projectionId: PUBLIC_TASKS_PROJECTION_ID,
+      sourcePath: record.documentPath,
+      sourceHash: (await this.requireConnection().get<{ hash: string }>("SELECT hash FROM files WHERE path = ?", record.documentPath))?.hash ?? record.documentId,
+      rows: [{ id: record.documentId, kind: record.kind, data: { ...record } }],
+    });
   }
 
-  private async persist(): Promise<void> {
-    const connection = this.requireConnection();
-    await connection.batch(
-      statePersistenceStatements(this.toState(), this.nativeVectorSearch),
-      "immediate",
+  async deleteTaskProjection(path: string): Promise<void> {
+    await this.commit([
+      { sql: "DELETE FROM task_records WHERE document_path = ?", args: [path] },
+      ...this.deleteProjectionSourceStatements(PUBLIC_TASKS_PROJECTION_ID, path),
+    ], ["task", "projection"], [path]);
+  }
+
+  async queryTasks(query: AppDatabaseTaskQuery = {}): Promise<AppDatabaseTaskRecord[]> {
+    return (await this.queryProjection<AppDatabaseTaskRecord>(
+      PUBLIC_TASKS_PROJECTION_ID,
+      taskQueryToIndexQuery(query),
+    )).rows;
+  }
+
+  async getTaskRow(lookup: { path?: string; id?: string }): Promise<AppDatabaseTaskRecord | undefined> {
+    if (lookup.id) return (await this.getProjectionRow<AppDatabaseTaskRecord>(PUBLIC_TASKS_PROJECTION_ID, lookup.id)) ?? undefined;
+    if (!lookup.path) return undefined;
+    const row = await this.requireConnection().get<{ data_json: string }>(
+      "SELECT data_json FROM task_records WHERE document_path = ?",
+      lookup.path,
     );
+    return row ? parseJson<AppDatabaseTaskRecord | undefined>(row.data_json, undefined) : undefined;
+  }
+
+  async listChildLinks(query: AppDatabaseTaskChildQuery): Promise<AppDatabaseLinkRecord[]> {
+    const conditions = ["source_path = ?"];
+    const args: unknown[] = [query.sourcePath];
+    if (query.kind) {
+      conditions.push("link_kind = ?");
+      args.push(query.kind);
+    }
+    const rows = await this.requireConnection().all<{ data_json: string }>(
+      `SELECT data_json FROM metadata_links WHERE ${conditions.join(" AND ")} ORDER BY ordinal`,
+      ...args,
+    );
+    return rows.map((row) => parseJson<AppDatabaseLinkRecord>(row.data_json, {} as AppDatabaseLinkRecord));
+  }
+
+  async listTaskDescendants(path: string): Promise<AppDatabaseTaskRecord[]> {
+    const source = await this.requireConnection().get<{ row_id: string }>(
+      "SELECT row_id FROM index_projection_rows WHERE projection_id = ? AND source_path = ? LIMIT 1",
+      PUBLIC_TASKS_PROJECTION_ID,
+      path,
+    );
+    if (!source) return [];
+    const seen = new Set([source.row_id]);
+    const queue = [source.row_id];
+    const result: AppDatabaseTaskRecord[] = [];
+    while (queue.length) {
+      const sourceRowId = queue.shift()!;
+      const edges = await this.requireConnection().all<{ target_row_id: string | null; target_path: string | null }>(
+        `SELECT target_row_id, target_path FROM index_projection_edges
+         WHERE projection_id = ? AND source_row_id = ? AND relation IN ('task-entry', 'list-entry')
+         ORDER BY ordinal`,
+        PUBLIC_TASKS_PROJECTION_ID,
+        sourceRowId,
+      );
+      for (const edge of edges) {
+        const row = edge.target_row_id
+          ? await this.getProjectionRow<AppDatabaseTaskRecord>(PUBLIC_TASKS_PROJECTION_ID, edge.target_row_id)
+          : edge.target_path ? await this.getTaskRow({ path: edge.target_path }) : null;
+        if (!row || seen.has(row.documentId)) continue;
+        seen.add(row.documentId);
+        queue.push(row.documentId);
+        result.push(row);
+      }
+    }
+    return result;
+  }
+
+  async registerProjectionDefinition(definition: IndexProjectionDefinitionRecord): Promise<void> {
+    await this.commit([{
+      sql: `INSERT INTO index_projections
+            (projection_id, owner_plugin_id, schema_version, config_hash, visibility, fields_json, active, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(projection_id) DO UPDATE SET
+              owner_plugin_id = excluded.owner_plugin_id,
+              schema_version = excluded.schema_version,
+              config_hash = excluded.config_hash,
+              visibility = excluded.visibility,
+              fields_json = excluded.fields_json,
+              active = excluded.active,
+              updated_at = excluded.updated_at`,
+      args: [definition.projectionId, definition.ownerPluginId, definition.schemaVersion, definition.configHash, definition.visibility, JSON.stringify(definition.fields), definition.active ? 1 : 0, definition.updatedAt],
+    }], ["projection"]);
+  }
+
+  async unregisterProjectionDefinition(projectionId: string): Promise<void> {
+    await this.commit([
+      { sql: "UPDATE index_projections SET active = 0, updated_at = ? WHERE projection_id = ?", args: [Date.now(), projectionId] },
+      { sql: "DELETE FROM index_projection_edges WHERE projection_id = ?", args: [projectionId] },
+      { sql: "DELETE FROM index_projection_values WHERE projection_id = ?", args: [projectionId] },
+      { sql: "DELETE FROM index_projection_rows WHERE projection_id = ?", args: [projectionId] },
+      { sql: "DELETE FROM index_projection_sources WHERE projection_id = ?", args: [projectionId] },
+    ], ["projection"]);
+  }
+
+  async replaceProjectionSource(input: ReplaceProjectionSourceInput): Promise<void> {
+    assertProjectionWriteAccess(input.projectionId, input.writerPluginId);
+    if (input.rows.length > MAX_PROJECTION_ROWS_PER_SOURCE) throw new Error(`Projection ${input.projectionId} exceeded ${MAX_PROJECTION_ROWS_PER_SOURCE} rows per source.`);
+    const definition = await this.getProjectionDefinition(input.projectionId);
+    if (!definition?.active) throw new Error("Projection is not registered.");
+    const statements = this.deleteProjectionSourceStatements(input.projectionId, input.sourcePath);
+    statements.push({
+      sql: `INSERT INTO index_projection_sources
+            (projection_id, source_path, source_hash, schema_version, config_hash, status, error, indexed_at)
+            VALUES (?, ?, ?, ?, ?, 'ready', NULL, ?)`,
+      args: [input.projectionId, input.sourcePath, input.sourceHash, definition.schemaVersion, definition.configHash, Date.now()],
+    });
+    for (const row of input.rows) {
+      statements.push({
+        sql: `INSERT INTO index_projection_rows
+              (projection_id, row_id, source_path, kind, ordinal, data_json)
+              VALUES (?, ?, ?, ?, ?, ?)`,
+        args: [input.projectionId, row.id, input.sourcePath, row.kind, row.ordinal ?? 0, JSON.stringify(row.data)],
+      });
+      for (const value of indexedValuesForRow(input.projectionId, row, definition.fields)) {
+        statements.push({
+          sql: `INSERT INTO index_projection_values
+                (projection_id, row_id, field, ordinal, value_type, text_value, number_value, boolean_value, date_value, datetime_value)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [value.projectionId, value.rowId, value.field, value.ordinal, value.valueType, value.textValue ?? null, value.numberValue ?? null, value.booleanValue == null ? null : value.booleanValue ? 1 : 0, value.dateValue ?? null, value.datetimeValue ?? null],
+        });
+      }
+    }
+    for (const edge of input.edges ?? []) statements.push({
+      sql: `INSERT INTO index_projection_edges
+            (projection_id, source_row_id, relation, target_projection_id, target_row_id, target_path, target_text, ordinal, data_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [input.projectionId, edge.sourceRowId, edge.relation, edge.targetProjectionId ?? null, edge.targetRowId ?? null, edge.targetPath ?? null, edge.targetText ?? null, edge.ordinal, JSON.stringify(edge.data ?? null)],
+    });
+    await this.commit(statements, ["projection"], [input.sourcePath]);
+  }
+
+  async markProjectionSourceError(input: MarkProjectionSourceErrorInput): Promise<void> {
+    assertProjectionWriteAccess(input.projectionId, input.writerPluginId);
+    const definition = await this.getProjectionDefinition(input.projectionId);
+    if (!definition?.active) throw new Error("Projection is not registered.");
+    await this.commit([
+      ...this.deleteProjectionSourceStatements(input.projectionId, input.sourcePath),
+      {
+        sql: `INSERT INTO index_projection_sources
+              (projection_id, source_path, source_hash, schema_version, config_hash, status, error, indexed_at)
+              VALUES (?, ?, ?, ?, ?, 'error', ?, ?)`,
+        args: [input.projectionId, input.sourcePath, input.sourceHash, definition.schemaVersion, definition.configHash, input.error, Date.now()],
+      },
+    ], ["projection"], [input.sourcePath]);
+  }
+
+  async deleteProjectionSource(projectionId: string, sourcePath: string, writerPluginId?: string): Promise<void> {
+    assertProjectionWriteAccess(projectionId, writerPluginId);
+    await this.commit(this.deleteProjectionSourceStatements(projectionId, sourcePath), ["projection"], [sourcePath]);
+  }
+
+  async queryProjection<T = Record<string, unknown>>(
+    projectionId: string,
+    query: IndexQuery = {},
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>> {
+    const definition = await this.getProjectionDefinition(projectionId);
+    assertProjectionReadAccess(definition, readerPluginId);
+    const compiled = compileProjectionQuerySql(projectionId, { ...query, after: undefined, limit: query.after ? undefined : query.limit }, definition!);
+    const [rows, sources] = await Promise.all([
+      this.requireConnection().all<Record<string, unknown>>(compiled.sql, ...compiled.args),
+      this.getProjectionSources(projectionId),
+    ]);
+    const records = rows.map((row) => ({
+      projectionId,
+      rowId: String(row.row_id),
+      sourcePath: String(row.source_path),
+      kind: String(row.kind),
+      ordinal: Number(row.ordinal),
+      data: parseJson<Record<string, unknown>>(row.data_json, {}),
+    } satisfies IndexProjectionRowRecord));
+    return evaluateProjectionQuery<T>(records, query, this.currentRevision, projectionIndexStatus(sources));
+  }
+
+  async getProjectionRow<T = Record<string, unknown>>(
+    projectionId: string,
+    rowId: string,
+    readerPluginId?: string,
+  ): Promise<T | null> {
+    const definition = await this.getProjectionDefinition(projectionId);
+    assertProjectionReadAccess(definition, readerPluginId);
+    const row = await this.requireConnection().get<{ data_json: string }>(
+      `SELECT r.data_json FROM index_projection_rows r
+       INNER JOIN index_projection_sources s ON s.projection_id = r.projection_id AND s.source_path = r.source_path
+       LEFT JOIN files f ON f.path = r.source_path
+       WHERE r.projection_id = ?
+         AND (r.row_id = ? OR r.source_path = ? OR json_extract(r.data_json, '$.documentId') = ? OR json_extract(r.data_json, '$.id') = ?)
+         AND s.status = 'ready' AND s.schema_version = ? AND s.config_hash = ?
+         AND (f.path IS NULL OR (f.hash = s.source_hash AND f.deleted = 0))
+       LIMIT 1`,
+      projectionId, rowId, rowId, rowId, rowId, definition!.schemaVersion, definition!.configHash,
+    );
+    return row ? parseJson<T | null>(row.data_json, null) : null;
+  }
+
+  async queryRelated<T = Record<string, unknown>>(
+    query: IndexRelatedQuery,
+    readerPluginId?: string,
+  ): Promise<IndexQueryResult<T>> {
+    const definition = await this.getProjectionDefinition(query.projectionId);
+    assertProjectionReadAccess(definition, readerPluginId);
+    const edges = await this.requireConnection().all<Record<string, unknown>>(
+      query.direction === "in"
+        ? `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND target_row_id = ? ORDER BY ordinal LIMIT ?`
+        : `SELECT * FROM index_projection_edges WHERE projection_id = ? AND relation = ? AND source_row_id = ? ORDER BY ordinal LIMIT ?`,
+      query.projectionId, query.relation, query.rowId, query.limit ?? 1000,
+    );
+    const rows: IndexProjectionRowRecord[] = [];
+    for (const edge of edges) {
+      const targetId = query.direction === "in" ? String(edge.source_row_id) : edge.target_row_id ? String(edge.target_row_id) : null;
+      const targetProjection = query.direction === "in" ? query.projectionId : String(edge.target_projection_id ?? query.projectionId);
+      const data = targetId
+        ? await this.getProjectionRow<Record<string, unknown>>(targetProjection, targetId, readerPluginId)
+        : edge.target_path ? await this.getProjectionRow<Record<string, unknown>>(targetProjection, String(edge.target_path), readerPluginId) : null;
+      if (!data) continue;
+      rows.push({ projectionId: targetProjection, rowId: String((data as { id?: unknown; documentId?: unknown }).id ?? (data as { documentId?: unknown }).documentId ?? targetId ?? edge.target_path), sourcePath: String((data as { documentPath?: unknown }).documentPath ?? edge.target_path ?? ""), kind: "related", ordinal: Number(edge.ordinal), data });
+    }
+    return evaluateProjectionQuery<T>(rows, { where: query.targetWhere, limit: query.limit }, this.currentRevision, "ready");
+  }
+
+  private async commit(
+    statements: Array<string | TursoStatementInput>,
+    domains: AppDatabaseChangeDomain[],
+    paths: string[] = [],
+    renamed?: { oldPath: string; newPath: string }[],
+  ): Promise<AppDatabaseChangeSet> {
+    const revision = this.currentRevision + 1;
+    const change: AppDatabaseChangeSet = {
+      revision,
+      domains: [...new Set(domains)],
+      paths: [...new Set(paths)],
+      renamed: renamed?.map((entry) => ({ ...entry })),
+      committedAt: Date.now(),
+    };
+    await this.requireConnection().batch([
+      ...statements,
+      {
+        sql: `INSERT INTO app_changes
+              (revision, domains_json, paths_json, renamed_json, committed_at)
+              VALUES (?, ?, ?, ?, ?)`,
+        args: [revision, JSON.stringify(change.domains), JSON.stringify(change.paths), JSON.stringify(change.renamed ?? null), change.committedAt],
+      },
+      {
+        sql: `INSERT INTO app_revision (id, revision) VALUES (1, ?)
+              ON CONFLICT(id) DO UPDATE SET revision = excluded.revision`,
+        args: [revision],
+      },
+    ], "immediate");
+    this.currentRevision = revision;
+    for (const listener of this.changeListeners) listener(clone(change));
+    return change;
+  }
+
+  private async updateNotification(
+    id: string,
+    update: (record: AppDatabaseNotificationRecord) => AppDatabaseNotificationRecord,
+  ): Promise<void> {
+    const row = await this.requireConnection().get<{ data_json: string }>(
+      "SELECT data_json FROM notifications WHERE id = ?",
+      id,
+    );
+    if (!row) return;
+    const record = update(parseJson<AppDatabaseNotificationRecord>(row.data_json, {} as AppDatabaseNotificationRecord));
+    await this.commit([{ sql: "UPDATE notifications SET data_json = ? WHERE id = ?", args: [JSON.stringify(record), id] }], ["notification"]);
+  }
+
+  private fileRecordFromRow(row: Record<string, unknown>) {
+    return {
+      path: String(row.path),
+      normalizedPath: String(row.normalized_path),
+      extension: String(row.extension),
+      mtime: Number(row.mtime),
+      size: Number(row.size),
+      hash: String(row.hash),
+      indexed: Boolean(row.indexed),
+      deleted: Boolean(row.deleted),
+    };
+  }
+
+  private async readIndexedFile(
+    path: string,
+    legacyOnly: boolean,
+  ): Promise<AppDatabaseIndexedMetadataRow | undefined> {
+    const file = await this.requireConnection().get<Record<string, unknown>>(
+      `SELECT path, normalized_path, extension, mtime, size, hash, indexed, deleted
+       FROM files WHERE path = ? AND indexed = 1 AND deleted = 0`,
+      path,
+    );
+    if (!file) return undefined;
+    const [metadata, properties, tags, links] = await Promise.all([
+      this.requireConnection().get<Record<string, unknown>>(
+        "SELECT path, hash, parser_version, data_json FROM metadata WHERE path = ?",
+        path,
+      ),
+      this.requireConnection().all<{ data_json: string }>(
+        legacyOnly
+          ? "SELECT data_json FROM properties WHERE path = ? ORDER BY ordinal"
+          : "SELECT data_json FROM metadata_properties WHERE path = ? ORDER BY ordinal",
+        path,
+      ),
+      this.requireConnection().all<{ data_json: string }>(
+        legacyOnly
+          ? "SELECT data_json FROM tags WHERE path = ? ORDER BY ordinal"
+          : "SELECT data_json FROM metadata_tags WHERE path = ? ORDER BY ordinal",
+        path,
+      ),
+      this.requireConnection().all<{ data_json: string }>(
+        legacyOnly
+          ? "SELECT data_json FROM links WHERE source_path = ? ORDER BY ordinal"
+          : "SELECT data_json FROM metadata_links WHERE source_path = ? ORDER BY ordinal",
+        path,
+      ),
+    ]);
+    return {
+      file: this.fileRecordFromRow(file),
+      metadata: metadata
+        ? {
+            path: String(metadata.path),
+            hash: String(metadata.hash),
+            parserVersion: String(metadata.parser_version),
+            metadata: parseJson(metadata.data_json, {}),
+          }
+        : null,
+      properties: properties.map((row) => parseJson(row.data_json, {} as AppDatabaseIndexedMetadataRow["properties"][number])),
+      tags: tags.map((row) => parseJson(row.data_json, {} as AppDatabaseIndexedMetadataRow["tags"][number])),
+      links: links.map((row) => parseJson(row.data_json, {} as AppDatabaseLinkRecord)),
+    };
+  }
+
+  private compileMetadataPathQuery(
+    query: AppDatabaseIndexedMetadataQuery,
+    after: string | undefined,
+    limit: number,
+  ): { sql: string; args: unknown[] } {
+    const args: unknown[] = [];
+    const conditions = ["f.indexed = 1", "f.deleted = 0"];
+    if (after) {
+      conditions.push("f.path > ?");
+      args.push(after);
+    }
+    if (query.extensions?.length) {
+      conditions.push(`f.extension IN (${query.extensions.map(() => "?").join(", ")})`);
+      args.push(...query.extensions.map(normalizeExtension));
+    }
+    if (query.pathPrefixes?.length) {
+      const prefixClauses = query.pathPrefixes.map(() => "(f.path = ? OR f.path LIKE ? ESCAPE '\\')");
+      conditions.push(`(${prefixClauses.join(" OR ")})`);
+      for (const raw of query.pathPrefixes) {
+        const prefix = raw.replace(/^\/+|\/+$/g, "");
+        args.push(prefix, `${prefix.replaceAll("%", "\\%").replaceAll("_", "\\_")}/%`);
+      }
+    }
+    for (const tag of query.requiredTags ?? []) {
+      conditions.push("EXISTS (SELECT 1 FROM metadata_tag_ancestors ta WHERE ta.path = f.path AND ta.ancestor = ?)");
+      args.push(normalizeTag(tag));
+    }
+    for (const target of query.resolvedTargetPaths ?? []) {
+      conditions.push("EXISTS (SELECT 1 FROM metadata_links ml WHERE ml.source_path = f.path AND ml.resolved_target_path = ?)");
+      args.push(target);
+    }
+    for (const filter of query.propertyFilters ?? []) {
+      conditions.push(this.compilePropertyFilter(filter, args));
+    }
+    const order = (query.sort ?? []).map((sort) => {
+      const direction = sort.direction === "DESC" ? "DESC" : "ASC";
+      if (sort.field.kind === "file") return `f.${sort.field.field === "path" ? "path" : sort.field.field} ${direction}`;
+      args.push(sort.field.name.toLowerCase());
+      return `(SELECT COALESCE(pv.number_value, pv.boolean_value, pv.date_value, pv.text_value)
+               FROM metadata_property_values pv
+               WHERE pv.path = f.path AND pv.property_name = ?
+               ORDER BY pv.property_ordinal, pv.value_ordinal LIMIT 1) ${direction}`;
+    });
+    order.push("f.path ASC");
+    args.push(limit);
+    return {
+      sql: `SELECT f.path FROM files f WHERE ${conditions.join(" AND ")}
+            ORDER BY ${order.join(", ")} LIMIT ?`,
+      args,
+    };
+  }
+
+  private compilePropertyFilter(
+    filter: AppDatabaseIndexedMetadataPropertyFilter,
+    args: unknown[],
+  ): string {
+    const name = filter.name.toLowerCase();
+    if (filter.op === "exists" || filter.op === "not-exists") {
+      args.push(name);
+      return `${filter.op === "not-exists" ? "NOT " : ""}EXISTS (
+        SELECT 1 FROM metadata_properties mp WHERE mp.path = f.path AND mp.normalized_name = ?
+      )`;
+    }
+    const operator = filter.op === "=" ? "=" : filter.op === "!=" ? "!=" : filter.op;
+    const value = filter.value;
+    const column = typeof value === "number" ? "number_value"
+      : typeof value === "boolean" ? "boolean_value"
+        : typeof value === "string" && isDateScalar(value) ? "date_value" : "text_value";
+    args.push(name, typeof value === "boolean" ? (value ? 1 : 0) : value ?? null);
+    return `EXISTS (
+      SELECT 1 FROM metadata_property_values pv
+      WHERE pv.path = f.path AND pv.property_name = ? AND pv.${column} ${operator} ?
+    )`;
+  }
+
+  private compilePathPrefixes(column: string, prefixes: string[] | undefined, args: unknown[]): string {
+    if (!prefixes?.length) return "";
+    const clauses = prefixes.map(() => `(${column} = ? OR ${column} LIKE ? ESCAPE '\\')`);
+    for (const raw of prefixes) {
+      const prefix = raw.replace(/^\/+|\/+$/g, "");
+      args.push(prefix, `${prefix.replaceAll("%", "\\%").replaceAll("_", "\\_")}/%`);
+    }
+    return `AND (${clauses.join(" OR ")})`;
+  }
+
+  private deletePathStatements(path: string): TursoStatementInput[] {
+    return [
+      ...this.deleteMetadataPathStatements(path),
+      { sql: "DELETE FROM search_chunks WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM search_docs WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM task_records WHERE document_path = ?", args: [path] },
+      { sql: "DELETE FROM index_projection_edges WHERE source_row_id IN (SELECT row_id FROM index_projection_rows WHERE source_path = ?)", args: [path] },
+      { sql: "DELETE FROM index_projection_values WHERE row_id IN (SELECT row_id FROM index_projection_rows WHERE source_path = ?)", args: [path] },
+      { sql: "DELETE FROM index_projection_rows WHERE source_path = ?", args: [path] },
+      { sql: "DELETE FROM index_projection_sources WHERE source_path = ?", args: [path] },
+    ];
+  }
+
+  private deleteMetadataPathStatements(path: string): TursoStatementInput[] {
+    return [
+      { sql: "DELETE FROM app_meta WHERE key = ?", args: [notebookStateMetaKey(path)] },
+      { sql: "DELETE FROM metadata WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM links WHERE source_path = ?", args: [path] },
+      { sql: "DELETE FROM tags WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM properties WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM metadata_links WHERE source_path = ?", args: [path] },
+      { sql: "DELETE FROM metadata_tags WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM metadata_tag_ancestors WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM metadata_properties WHERE path = ?", args: [path] },
+      { sql: "DELETE FROM metadata_property_values WHERE path = ?", args: [path] },
+    ];
+  }
+
+  private searchDocumentStatements(document: SearchDocumentRecord, previousPath?: string): TursoStatementInput[] {
+    const statements: TursoStatementInput[] = [];
+    if (previousPath) {
+      statements.push(
+        { sql: "DELETE FROM search_chunks WHERE path = ?", args: [previousPath] },
+        { sql: "DELETE FROM search_docs WHERE path = ?", args: [previousPath] },
+      );
+    }
+    statements.push(
+      { sql: "DELETE FROM search_chunks WHERE path = ?", args: [document.path] },
+      {
+        sql: `INSERT INTO search_docs
+              (path, name, extension, checksum, content, tags, metadata_text, data_json)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+              ON CONFLICT(path) DO UPDATE SET
+                name = excluded.name,
+                extension = excluded.extension,
+                checksum = excluded.checksum,
+                content = excluded.content,
+                tags = excluded.tags,
+                metadata_text = excluded.metadata_text,
+                data_json = excluded.data_json`,
+        args: [document.path, document.name, document.extension, document.checksum, document.content, document.tags.join(" "), document.metadataText ?? "", JSON.stringify(document)],
+      },
+    );
+    for (const chunk of document.chunks ?? []) {
+      const vector = chunk.embedding?.vector;
+      statements.push({
+        sql: this.nativeVectorSearch && vector?.length
+          ? `INSERT INTO search_chunks (id, path, text, embedding_json, embedding)
+             VALUES (?, ?, ?, ?, vector32(?))`
+          : `INSERT INTO search_chunks (id, path, text, embedding_json, embedding)
+             VALUES (?, ?, ?, ?, NULL)`,
+        args: this.nativeVectorSearch && vector?.length
+          ? [chunk.id, document.path, chunk.text, JSON.stringify(chunk.embedding ?? null), JSON.stringify(vector)]
+          : [chunk.id, document.path, chunk.text, JSON.stringify(chunk.embedding ?? null)],
+      });
+    }
+    return statements;
+  }
+
+  private async prepareSearchDocument(document: SearchDocumentRecord): Promise<SearchDocumentRecord> {
+    const normalized = normalizeSearchDocument(document);
+    const provider = this.searchEmbeddingProvider;
+    if (!provider || !normalized.chunks?.length) return clone(normalized);
+    try {
+      if (!(await provider.ready())) {
+        return {
+          ...clone(normalized),
+          chunks: normalized.chunks.map((chunk) => ({
+            ...clone(chunk),
+            embedding: {
+              ...clone(chunk.embedding),
+              status: "pending",
+              modelId: provider.config.modelId ?? "lapis/token-hash-v0",
+              modelVersion: provider.config.modelVersion,
+              dimensions: provider.config.dimensions,
+            },
+          })),
+        };
+      }
+      const embeddings = new Map((await provider.embedDocument(normalized)).map((entry) => [entry.chunkId, entry]));
+      const timestamp = Date.now();
+      return {
+        ...clone(normalized),
+        chunks: normalized.chunks.map((chunk) => {
+          const embedding = embeddings.get(chunk.id);
+          return embedding ? {
+            ...clone(chunk),
+            embedding: {
+              status: "ready",
+              modelId: provider.config.modelId ?? "lapis/token-hash-v0",
+              modelVersion: provider.config.modelVersion,
+              dimensions: embedding.vector.length,
+              vector: [...embedding.vector],
+              fingerprint: embedding.fingerprint,
+              dirty: false,
+              updatedAt: timestamp,
+            },
+          } : clone(chunk);
+        }),
+      };
+    } catch (error) {
+      return embeddingErrorState(normalized, provider, error);
+    }
+  }
+
+  private async evaluateSearchDocumentsForPaths(
+    query: string,
+    options: AppDatabaseSearchOptions,
+    candidatePaths: Iterable<string>,
+  ): Promise<AppDatabaseSearchResult[]> {
+    const paths = [...new Set(candidatePaths)];
+    if (!paths.length) return [];
+    const placeholders = paths.map(() => "?").join(", ");
+    const rows = await this.requireConnection().all<{ data_json: string }>(
+      `SELECT data_json FROM search_docs WHERE path IN (${placeholders})`,
+      ...paths,
+    );
+    const propertyNames = searchPropertyNames(query);
+    const allowedProviders = options.sourceProviderIds?.length ? new Set(options.sourceProviderIds) : null;
+    const sourceDocuments = await Promise.all(rows.map(async (row) => {
+      const document = parseJson<SearchDocumentRecord>(row.data_json, {} as SearchDocumentRecord);
+      const indexed = await this.readIndexedFile(document.path, false);
+      return { document, properties: searchDocumentProperties(document, indexed?.properties ?? []) };
+    }));
+    const filtered = sourceDocuments.filter(({ document, properties }) =>
+      pathWithinPrefix(document.path, options.pathPrefix) &&
+      (!allowedProviders || (document.sourceProviderId != null && allowedProviders.has(document.sourceProviderId))) &&
+      hasSearchPropertyNames(properties, propertyNames),
+    );
+    const requestedMode = options.mode ?? "auto";
+    const queryVector = requestedMode === "lexical" || !this.searchEmbeddingProvider
+      ? null : await this.safeEmbedQuery(query);
+    const vectorScores = new Map(filtered.map(({ document }) => [document.path, queryVector ? scoreVectorDocument(document, queryVector) : { score: 0, matchedChunkIds: [] }]));
+    const lexicalScores = new Map(filtered.map(({ document, properties }) => [document.path, scoreSearchDocument(document, query, properties, options)]));
+    const vectorCandidateCount = [...vectorScores.values()].filter((entry) => entry.score >= MIN_VECTOR_SEARCH_SCORE).length;
+    const appliedMode = queryVector ? requestedMode === "vector" ? "vector" : vectorCandidateCount ? "hybrid" : "lexical" : "lexical";
+    const lexicalRanks = rankSearchScores([...lexicalScores].map(([path, score]) => ({ path, score })));
+    const vectorRanks = rankSearchScores([...vectorScores].map(([path, entry]) => ({ path, score: entry.score })), (score) => score >= MIN_VECTOR_SEARCH_SCORE);
+    const results = filtered.map(({ document }) => buildSearchResult(document, query, options, {
+      backendKind: this.kind,
+      appliedMode,
+      lexicalScore: lexicalScores.get(document.path) ?? 0,
+      vectorScore: vectorScores.get(document.path)?.score ?? 0,
+      lexicalCandidateCount: filtered.length,
+      vectorCandidateCount,
+      providerConfig: this.searchEmbeddingProviderConfig,
+      preferredChunkIds: vectorScores.get(document.path)?.matchedChunkIds ?? [],
+      lexicalRank: lexicalRanks.get(document.path),
+      vectorRank: vectorRanks.get(document.path),
+    })).filter((result) => {
+      const lexicalHit = (result.scoreBreakdown.lexical ?? 0) > 0;
+      const vectorHit = (result.scoreBreakdown.vector ?? 0) >= MIN_VECTOR_SEARCH_SCORE;
+      return appliedMode === "vector" ? vectorHit && result.snippets.length > 0
+        : appliedMode === "hybrid" ? (lexicalHit || vectorHit) && result.snippets.length > 0
+          : lexicalHit && result.snippets.length > 0;
+    }).sort(compareSearchResults);
+    const diagnostics = resolveSearchQueryEnhancementDiagnostics(results, options);
+    return results.slice(0, options.limit ?? 100).map((result) => {
+      const copy = clone(result);
+      if (copy.diagnostics && diagnostics) copy.diagnostics.queryEnhancement = clone(diagnostics);
+      return copy;
+    });
+  }
+
+  private async safeEmbedQuery(query: string): Promise<number[] | null> {
+    try {
+      return this.searchEmbeddingProvider ? await this.searchEmbeddingProvider.embedQuery(query) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private deleteProjectionSourceStatements(projectionId: string, sourcePath: string): TursoStatementInput[] {
+    return [
+      { sql: "DELETE FROM index_projection_edges WHERE projection_id = ? AND source_row_id IN (SELECT row_id FROM index_projection_rows WHERE projection_id = ? AND source_path = ?)", args: [projectionId, projectionId, sourcePath] },
+      { sql: "DELETE FROM index_projection_values WHERE projection_id = ? AND row_id IN (SELECT row_id FROM index_projection_rows WHERE projection_id = ? AND source_path = ?)", args: [projectionId, projectionId, sourcePath] },
+      { sql: "DELETE FROM index_projection_rows WHERE projection_id = ? AND source_path = ?", args: [projectionId, sourcePath] },
+      { sql: "DELETE FROM index_projection_sources WHERE projection_id = ? AND source_path = ?", args: [projectionId, sourcePath] },
+    ];
+  }
+
+  private async getProjectionDefinition(projectionId: string): Promise<IndexProjectionDefinitionRecord | undefined> {
+    const row = await this.requireConnection().get<Record<string, unknown>>(
+      "SELECT * FROM index_projections WHERE projection_id = ?",
+      projectionId,
+    );
+    return row ? {
+      projectionId: String(row.projection_id),
+      ownerPluginId: String(row.owner_plugin_id),
+      schemaVersion: Number(row.schema_version),
+      configHash: String(row.config_hash),
+      visibility: String(row.visibility) as IndexProjectionDefinitionRecord["visibility"],
+      fields: parseJson(row.fields_json, {}),
+      active: Boolean(row.active),
+      updatedAt: Number(row.updated_at),
+    } : undefined;
+  }
+
+  private async getProjectionSources(projectionId: string): Promise<IndexProjectionSourceRecord[]> {
+    const rows = await this.requireConnection().all<Record<string, unknown>>(
+      "SELECT * FROM index_projection_sources WHERE projection_id = ?",
+      projectionId,
+    );
+    return rows.map((row) => ({
+      projectionId: String(row.projection_id),
+      sourcePath: String(row.source_path),
+      sourceHash: String(row.source_hash),
+      schemaVersion: Number(row.schema_version),
+      configHash: String(row.config_hash),
+      status: String(row.status) as IndexProjectionSourceRecord["status"],
+      error: row.error == null ? null : String(row.error),
+      indexedAt: Number(row.indexed_at),
+    }));
+  }
+
+  private async ensureTasksProjectionDefinition(): Promise<void> {
+    if ((await this.getProjectionDefinition(PUBLIC_TASKS_PROJECTION_ID))?.active) return;
+    await this.registerProjectionDefinition({
+      projectionId: PUBLIC_TASKS_PROJECTION_ID,
+      ownerPluginId: "tasks",
+      schemaVersion: TASK_PROJECTION_VERSION,
+      configHash: "",
+      visibility: "public",
+      fields: TASK_PROJECTION_FIELDS,
+      active: true,
+      updatedAt: Date.now(),
+    });
+  }
+
+  private async backfillNormalizedMetadata(): Promise<void> {
+    const connection = this.requireConnection();
+    const historyBefore = Number((await connection.get<{ count: number }>("SELECT count(*) AS count FROM history_revisions"))?.count ?? 0);
+    const paths = await connection.all<{ path: string }>("SELECT path FROM files WHERE indexed = 1 AND deleted = 0 ORDER BY path");
+    for (const { path } of paths) {
+      const record = await this.readIndexedFile(path, true);
+      if (record?.metadata) await connection.batch(indexedFileStatements({ ...record, metadata: record.metadata }), "immediate");
+    }
+    const historyFiles = await connection.all<{ file_id: string; data_json: string }>(
+      "SELECT file_id, data_json FROM history_files",
+    );
+    const historyPathStatements = historyFiles.flatMap((row) => {
+      const file = parseJson<AppDatabaseFileHistoryFile>(row.data_json, {
+        fileId: row.file_id,
+        currentPath: "",
+        deleted: false,
+      });
+      return file.currentPath ? [{
+        sql: `INSERT INTO history_file_paths (path, file_id) VALUES (?, ?)
+              ON CONFLICT(path) DO UPDATE SET file_id = excluded.file_id`,
+        args: [file.currentPath, row.file_id],
+      }] : [];
+    });
+    if (historyPathStatements.length) {
+      await connection.batch(historyPathStatements, "immediate");
+    }
+    const historyAfter = Number((await connection.get<{ count: number }>("SELECT count(*) AS count FROM history_revisions"))?.count ?? 0);
+    if (historyBefore !== historyAfter) throw new Error("Turso metadata migration changed History revisions");
   }
 
   private requireConnection(): TursoConnection {

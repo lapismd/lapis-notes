@@ -1,11 +1,20 @@
 import type {
   AppDatabase,
+  AppDatabaseChangeListener,
+  AppDatabaseChangeSet,
   AppDatabaseDescriptor,
   AppDatabaseFileHistory,
   AppDatabaseIndexedFile,
+  AppDatabaseIndexedFileManifestPage,
+  AppDatabaseIndexedFileManifestQuery,
+  AppDatabaseIndexedMetadataPage,
+  AppDatabaseIndexedMetadataPageQuery,
   AppDatabaseIndexedMetadataQuery,
   AppDatabaseIndexedMetadataRow,
   AppDatabaseKind,
+  AppDatabaseMetadataFacetQuery,
+  AppDatabaseMetadataFacetRow,
+  AppDatabaseMetadataLinkQuery,
   AppDatabaseProvider,
   AppDatabaseNotificationRecord,
   AppDatabaseSearchIndexStats,
@@ -50,10 +59,16 @@ type AppDatabaseMethod =
   | "markNotificationRead"
   | "clearNotification"
   | "clearAllNotifications"
+  | "getChangeRevision"
   | "upsertIndexedFile"
+  | "getIndexedFile"
+  | "listIndexedFileManifest"
   | "deleteIndexedFile"
   | "renameIndexedFile"
   | "queryIndexedMetadata"
+  | "queryIndexedMetadataPage"
+  | "queryMetadataFacets"
+  | "queryMetadataLinks"
   | "upsertSearchDocument"
   | "deleteSearchDocument"
   | "getSearchDocument"
@@ -98,9 +113,17 @@ type AppDatabaseResponseMessage = {
   error?: string;
 };
 
+type AppDatabaseChangeMessage = {
+  type: "db-change";
+  vaultId: string;
+  ownerId: string;
+  change: AppDatabaseChangeSet;
+};
+
 type AppDatabaseMessage =
   | AppDatabaseRequestMessage
-  | AppDatabaseResponseMessage;
+  | AppDatabaseResponseMessage
+  | AppDatabaseChangeMessage;
 
 const REQUEST_TIMEOUT_MS = 15_000;
 const LOCAL_RECOVERY_POLL_MS = 100;
@@ -130,10 +153,16 @@ const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
   "markNotificationRead",
   "clearNotification",
   "clearAllNotifications",
+  "getChangeRevision",
   "upsertIndexedFile",
+  "getIndexedFile",
+  "listIndexedFileManifest",
   "deleteIndexedFile",
   "renameIndexedFile",
   "queryIndexedMetadata",
+  "queryIndexedMetadataPage",
+  "queryMetadataFacets",
+  "queryMetadataLinks",
   "upsertSearchDocument",
   "deleteSearchDocument",
   "getSearchDocument",
@@ -216,6 +245,24 @@ function isResponseMessage(
   );
 }
 
+function isChangeMessage(message: unknown): message is AppDatabaseChangeMessage {
+  const change = (message as AppDatabaseChangeMessage | null)?.change;
+  return (
+    typeof message === "object" &&
+    message !== null &&
+    (message as AppDatabaseChangeMessage).type === "db-change" &&
+    isBoundedIdentifier((message as AppDatabaseChangeMessage).vaultId) &&
+    isBoundedIdentifier((message as AppDatabaseChangeMessage).ownerId) &&
+    typeof change === "object" &&
+    change !== null &&
+    Number.isSafeInteger(change.revision) &&
+    change.revision >= 0 &&
+    Array.isArray(change.domains) &&
+    Array.isArray(change.paths) &&
+    isBoundedRpcMessage(message)
+  );
+}
+
 function createRequestId(): string {
   if (
     typeof crypto !== "undefined" &&
@@ -281,6 +328,9 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
   private coordinationModeListeners = new Set<
     (mode: BrowserCoordinatedAppDatabaseMode) => void
   >();
+  private changeListeners = new Set<AppDatabaseChangeListener>();
+  private localChangeUnsubscribe: (() => void) | null = null;
+  private lastSeenRevision = 0;
 
   constructor(
     readonly vaultId: string,
@@ -342,6 +392,9 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
     try {
       await this.localDatabase?.close();
     } finally {
+      this.localChangeUnsubscribe?.();
+      this.localChangeUnsubscribe = null;
+      this.changeListeners.clear();
       this.localDatabase = null;
       this.rpcChannel?.close();
       this.rpcChannel = null;
@@ -452,8 +505,31 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
     await this.invoke("clearAllNotifications");
   }
 
+  async getChangeRevision(): Promise<number> {
+    const revision = await this.invoke<number>("getChangeRevision");
+    this.lastSeenRevision = Math.max(this.lastSeenRevision, revision);
+    return revision;
+  }
+
+  subscribeToChanges(listener: AppDatabaseChangeListener): () => void {
+    this.changeListeners.add(listener);
+    return () => this.changeListeners.delete(listener);
+  }
+
   async upsertIndexedFile(record: AppDatabaseIndexedFile): Promise<void> {
     await this.invoke("upsertIndexedFile", record);
+  }
+
+  async getIndexedFile(
+    path: string,
+  ): Promise<AppDatabaseIndexedMetadataRow | undefined> {
+    return this.invoke<AppDatabaseIndexedMetadataRow | undefined>("getIndexedFile", path);
+  }
+
+  async listIndexedFileManifest(
+    query?: AppDatabaseIndexedFileManifestQuery,
+  ): Promise<AppDatabaseIndexedFileManifestPage> {
+    return this.invoke<AppDatabaseIndexedFileManifestPage>("listIndexedFileManifest", query);
   }
 
   async deleteIndexedFile(path: string): Promise<void> {
@@ -471,6 +547,24 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
       "queryIndexedMetadata",
       query,
     );
+  }
+
+  async queryIndexedMetadataPage(
+    query?: AppDatabaseIndexedMetadataPageQuery,
+  ): Promise<AppDatabaseIndexedMetadataPage> {
+    return this.invoke<AppDatabaseIndexedMetadataPage>("queryIndexedMetadataPage", query);
+  }
+
+  async queryMetadataFacets(
+    query: AppDatabaseMetadataFacetQuery,
+  ): Promise<AppDatabaseMetadataFacetRow[]> {
+    return this.invoke<AppDatabaseMetadataFacetRow[]>("queryMetadataFacets", query);
+  }
+
+  async queryMetadataLinks(
+    query: AppDatabaseMetadataLinkQuery,
+  ): Promise<AppDatabaseLinkRecord[]> {
+    return this.invoke<AppDatabaseLinkRecord[]>("queryMetadataLinks", query);
   }
 
   async upsertSearchDocument(document: SearchDocumentRecord): Promise<void> {
@@ -646,6 +740,13 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
           pending.reject(
             new Error(message.error ?? "Remote app database request failed"),
           );
+        }
+        return;
+      }
+
+      if (isChangeMessage(message)) {
+        if (!this.localDatabase && message.ownerId === this.coordinator.observedOwnerId) {
+          this.acceptChange(message.change);
         }
         return;
       }
@@ -843,12 +944,29 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
       const previousMode = this.coordinationMode;
       const database = await this.openLocalDatabase();
       this.localDatabase = database;
+      this.localChangeUnsubscribe = database.subscribeToChanges((change) => {
+        this.acceptChange(change);
+        this.rpcChannel?.postMessage({
+          type: "db-change",
+          vaultId: this.vaultId,
+          ownerId: this.coordinator.ownerId,
+          change,
+        } satisfies AppDatabaseChangeMessage);
+      });
       this.startsOwned = true;
       this.coordinator.startHeartbeat();
       this.servingRequests = true;
       if (previousMode !== this.coordinationMode) {
         this.notifyCoordinationModeChange();
       }
+      const revision = await database.getChangeRevision();
+      this.acceptChange({
+        revision,
+        domains: ["metadata", "search", "history", "notification", "notebook", "task", "projection", "meta"],
+        paths: [],
+        reset: true,
+        committedAt: Date.now(),
+      });
     })();
 
     try {
@@ -871,5 +989,14 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
     for (const listener of this.coordinationModeListeners) {
       listener(mode);
     }
+  }
+
+  private acceptChange(change: AppDatabaseChangeSet): void {
+    if (!change.reset && change.revision <= this.lastSeenRevision) return;
+    const next = !change.reset && this.lastSeenRevision > 0 && change.revision !== this.lastSeenRevision + 1
+      ? { ...change, reset: true, paths: [] }
+      : change;
+    this.lastSeenRevision = Math.max(this.lastSeenRevision, change.revision);
+    for (const listener of this.changeListeners) listener(structuredClone(next));
   }
 }

@@ -2,6 +2,7 @@ import { connect } from "@tursodatabase/database";
 import { describe, expect, it } from "vitest";
 
 import {
+  TURSO_APP_DATABASE_SCHEMA,
   TURSO_APP_DATABASE_SCHEMA_VERSION,
   TursoAppDatabase,
   type TursoConnection,
@@ -243,6 +244,154 @@ describe("TursoAppDatabase", () => {
     ).resolves.toMatchObject({
       rows: expect.arrayContaining([expect.objectContaining({ id: "b1" })]),
     });
+    await database.close();
+  });
+
+  it("keeps app_state frozen while committing row-scoped metadata revisions", async () => {
+    const connection = (await connect(":memory:", {
+      experimental: ["index_method"],
+    })) as TursoConnection;
+    const database = new TursoAppDatabase("turso-row-scoped", {
+      kind: "turso-native",
+      transport: "native",
+      connectionFactory: async () => connection,
+    });
+    await database.open();
+    await connection.run(
+      "INSERT INTO app_state (id, state_json) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET state_json = excluded.state_json",
+      JSON.stringify({ frozen: true }),
+    );
+
+    const changes: number[] = [];
+    const unsubscribe = database.subscribeToChanges((change) => {
+      changes.push(change.revision);
+    });
+    await database.upsertIndexedFile({
+      file: {
+        path: "Projects/Direct SQL.md",
+        normalizedPath: "Projects/Direct SQL.md",
+        extension: "md",
+        mtime: 10,
+        size: 20,
+        hash: "direct-1",
+        indexed: true,
+      },
+      metadata: {
+        path: "Projects/Direct SQL.md",
+        hash: "direct-1",
+        parserVersion: "parser-1",
+        metadata: { frontmatter: { status: "draft", priority: 2 } },
+      },
+      links: [{
+        sourcePath: "Projects/Direct SQL.md",
+        targetText: "Architecture",
+        resolvedTargetPath: "Architecture.md",
+        type: "link",
+        count: 1,
+      }],
+      tags: [{
+        path: "Projects/Direct SQL.md",
+        tag: "#work/database",
+        parts: ["work", "database"],
+        hierarchy: ["work", "work/database"],
+      }],
+      properties: [
+        { path: "Projects/Direct SQL.md", name: "status", inferredType: "string", value: "draft" },
+        { path: "Projects/Direct SQL.md", name: "priority", inferredType: "number", value: 2 },
+      ],
+    });
+
+    await expect(database.getIndexedFile("Projects/Direct SQL.md")).resolves.toMatchObject({
+      file: { hash: "direct-1" },
+      metadata: { parserVersion: "parser-1" },
+    });
+    await expect(database.listIndexedFileManifest({ limit: 1 })).resolves.toMatchObject({
+      rows: [{ path: "Projects/Direct SQL.md", hash: "direct-1" }],
+    });
+    await expect(database.queryMetadataFacets({ kind: "tag" })).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value: "work", count: 1 }),
+        expect.objectContaining({ value: "work/database", count: 1 }),
+      ]),
+    );
+    await expect(database.queryMetadataFacets({
+      kind: "property-value",
+      propertyName: "priority",
+    })).resolves.toMatchObject([{ value: 2, valueType: "number", count: 1 }]);
+    await expect(database.queryMetadataLinks({
+      direction: "incoming",
+      path: "Architecture.md",
+      resolution: "resolved",
+    })).resolves.toMatchObject([{ sourcePath: "Projects/Direct SQL.md" }]);
+    await expect(database.queryIndexedMetadata({
+      requiredTags: ["work"],
+      propertyFilters: [{ name: "priority", op: ">=", value: 2 }],
+      resolvedTargetPaths: ["Architecture.md"],
+    })).resolves.toMatchObject([{ file: { path: "Projects/Direct SQL.md" } }]);
+    await expect(connection.get<{ state_json: string }>(
+      "SELECT state_json FROM app_state WHERE id = 1",
+    )).resolves.toEqual({ state_json: JSON.stringify({ frozen: true }) });
+    expect(changes).toEqual([1]);
+    expect(await database.getChangeRevision()).toBe(1);
+
+    const plan = await connection.all<{ detail: string }>(
+      "EXPLAIN QUERY PLAN SELECT path FROM metadata_tag_ancestors WHERE ancestor = ?",
+      "work",
+    );
+    expect(plan.some((row) => row.detail.includes("metadata_tag_ancestors_idx"))).toBe(true);
+    unsubscribe();
+    await database.close();
+  });
+
+  it("migrates v2 normalized metadata without changing History", async () => {
+    const connection = (await connect(":memory:", {
+      experimental: ["index_method"],
+    })) as TursoConnection;
+    await connection.exec(TURSO_APP_DATABASE_SCHEMA);
+    await connection.run(
+      "INSERT INTO schema_meta (key, value) VALUES ('schema.version', '2') ON CONFLICT(key) DO UPDATE SET value = '2'",
+    );
+    await connection.run(
+      "INSERT INTO files (path, normalized_path, extension, mtime, size, hash, indexed, deleted) VALUES (?, ?, ?, ?, ?, ?, 1, 0)",
+      "legacy.md", "legacy.md", "md", 1, 2, "legacy-1",
+    );
+    await connection.run(
+      "INSERT INTO metadata (path, hash, parser_version, data_json) VALUES (?, ?, ?, ?)",
+      "legacy.md", "legacy-1", "legacy-parser", JSON.stringify({ frontmatter: { status: "old" } }),
+    );
+    await connection.run(
+      "INSERT INTO tags (path, ordinal, data_json) VALUES (?, 0, ?)",
+      "legacy.md", JSON.stringify({ path: "legacy.md", tag: "#legacy/nested", parts: ["legacy", "nested"], hierarchy: ["legacy", "legacy/nested"] }),
+    );
+    await connection.run(
+      "INSERT INTO properties (path, ordinal, data_json) VALUES (?, 0, ?)",
+      "legacy.md", JSON.stringify({ path: "legacy.md", name: "status", inferredType: "string", value: "old" }),
+    );
+    await connection.run(
+      "INSERT INTO history_files (file_id, data_json) VALUES (?, ?)",
+      "history-1", JSON.stringify({ fileId: "history-1", currentPath: "legacy.md", deleted: false }),
+    );
+    await connection.run(
+      "INSERT INTO history_revisions (file_id, ordinal, data_json) VALUES (?, 0, ?)",
+      "history-1", JSON.stringify({ revisionId: "revision-1", fileId: "history-1", currentPath: "legacy.md", capturedPath: "legacy.md", eventType: "modify", createdAt: 1, contentHash: "h", content: "legacy" }),
+    );
+
+    const database = new TursoAppDatabase("turso-v2-migration", {
+      kind: "turso-native",
+      transport: "native",
+      connectionFactory: async () => connection,
+    });
+    await database.open();
+
+    await expect(database.queryMetadataFacets({ kind: "tag" })).resolves.toEqual(
+      expect.arrayContaining([expect.objectContaining({ value: "legacy/nested" })]),
+    );
+    await expect(connection.get<{ count: number }>(
+      "SELECT count(*) AS count FROM history_revisions",
+    )).resolves.toEqual({ count: 1 });
+    await expect(connection.get<{ value: string }>(
+      "SELECT value FROM schema_meta WHERE key = 'schema.version'",
+    )).resolves.toEqual({ value: String(TURSO_APP_DATABASE_SCHEMA_VERSION) });
     await database.close();
   });
 });

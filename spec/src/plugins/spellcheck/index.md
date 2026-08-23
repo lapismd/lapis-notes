@@ -15,6 +15,8 @@ Desktop and web Tasks index-only load (LN-DESK-060, LN-WEB-044) also MUST
 NOT change Spell Check ownership.
 Browser vault transfer error reporting through session-owned notifications also
 MUST NOT change Spell Check ownership.
+Electron database revision IPC is host infrastructure and MUST NOT change Spell
+Check registration, diagnostics, or status-bar ownership.
 
 ## Requirements
 

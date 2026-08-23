@@ -1,5 +1,9 @@
 # Packages
 
+The API package owns direct-SQL `AppDatabase` contracts and transport-neutral
+metadata/revision types. Desktop Electron owns only the native connection and
+bounded IPC relay; domain persistence remains API-owned.
+
 `@lapis-notes/api` owns the transport-neutral Markdown contribution and file
 surface registries. `@lapis-notes/markdown` adapts them to Mira and registers
 the full-file provider; domain plugins consume only the API contract.

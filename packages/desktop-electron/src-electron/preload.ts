@@ -5,6 +5,7 @@ import type {
   NativeAgentRuntimeEvent,
   NativeAgentToolCall,
   NativeAgentToolCancel,
+  NativeAppDatabaseChangeEvent,
   NativeTerminalExitEvent,
   NativeTerminalOutputEvent,
   NativeDesktopCapabilityRegistry,
@@ -52,6 +53,16 @@ const agentToolCallListeners = new Set<(event: NativeAgentToolCall) => void>();
 const agentToolCancelListeners = new Set<(event: NativeAgentToolCancel) => void>();
 const terminalOutputListeners = new Set<(event: NativeTerminalOutputEvent) => void>();
 const terminalExitListeners = new Set<(event: NativeTerminalExitEvent) => void>();
+const appDatabaseChangeListeners = new Set<
+  (event: NativeAppDatabaseChangeEvent) => void
+>();
+
+ipcRenderer.on(
+  "desktop_db_change",
+  (_event, payload: NativeAppDatabaseChangeEvent) => {
+    for (const listener of appDatabaseChangeListeners) listener(payload);
+  },
+);
 
 ipcRenderer.on(
   "desktop_agent_process_message",
@@ -304,6 +315,15 @@ const bridge: NativeDesktopBridge & {
     terminalExitListeners.add(listener);
     return () => {
       terminalExitListeners.delete(listener);
+    };
+  },
+
+  onAppDatabaseChange(
+    listener: (event: NativeAppDatabaseChangeEvent) => void,
+  ): () => void {
+    appDatabaseChangeListeners.add(listener);
+    return () => {
+      appDatabaseChangeListeners.delete(listener);
     };
   },
 };

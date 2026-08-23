@@ -303,6 +303,73 @@ export interface AppDatabaseIndexedMetadataRow {
   links: AppDatabaseLinkRecord[];
 }
 
+export interface AppDatabaseIndexedFileManifestQuery {
+  after?: string;
+  limit?: number;
+}
+
+export interface AppDatabaseIndexedFileManifestPage {
+  rows: AppDatabaseFileRecord[];
+  nextCursor?: string;
+}
+
+export interface AppDatabaseIndexedMetadataPageQuery {
+  query?: AppDatabaseIndexedMetadataQuery;
+  after?: string;
+  limit?: number;
+}
+
+export interface AppDatabaseIndexedMetadataPage {
+  rows: AppDatabaseIndexedMetadataRow[];
+  nextCursor?: string;
+}
+
+export type AppDatabaseMetadataFacetKind = "tag" | "property-name" | "property-value";
+
+export interface AppDatabaseMetadataFacetQuery {
+  kind: AppDatabaseMetadataFacetKind;
+  propertyName?: string;
+  pathPrefixes?: string[];
+  limit?: number;
+}
+
+export interface AppDatabaseMetadataFacetRow {
+  value: AppDatabaseIndexedMetadataScalar;
+  valueType: "null" | "string" | "number" | "boolean" | "date";
+  count: number;
+}
+
+export type AppDatabaseMetadataLinkDirection = "incoming" | "outgoing";
+export type AppDatabaseMetadataLinkResolution = "resolved" | "unresolved" | "all";
+
+export interface AppDatabaseMetadataLinkQuery {
+  direction: AppDatabaseMetadataLinkDirection;
+  path: string;
+  resolution?: AppDatabaseMetadataLinkResolution;
+  limit?: number;
+}
+
+export type AppDatabaseChangeDomain =
+  | "metadata"
+  | "search"
+  | "history"
+  | "notification"
+  | "notebook"
+  | "task"
+  | "projection"
+  | "meta";
+
+export interface AppDatabaseChangeSet {
+  revision: number;
+  domains: AppDatabaseChangeDomain[];
+  paths: string[];
+  renamed?: { oldPath: string; newPath: string }[];
+  reset?: boolean;
+  committedAt: number;
+}
+
+export type AppDatabaseChangeListener = (change: AppDatabaseChangeSet) => void;
+
 export interface SearchDocumentRecord {
   path: string;
   /** Domain projection owner used to isolate disposable search corpora. */
@@ -739,7 +806,7 @@ function buildSearchChunks(
   return chunks;
 }
 
-function normalizeSearchDocument(
+export function normalizeSearchDocument(
   document: SearchDocumentRecord,
 ): SearchDocumentRecord {
   const { sourceMetadata, ...baseDocument } = document;
@@ -967,10 +1034,25 @@ export interface AppDatabase {
   markNotificationRead(id: string): Promise<void>;
   clearNotification(id: string): Promise<void>;
   clearAllNotifications(): Promise<void>;
+  getChangeRevision(): Promise<number>;
+  subscribeToChanges(listener: AppDatabaseChangeListener): () => void;
   upsertIndexedFile(record: AppDatabaseIndexedFile): Promise<void>;
+  getIndexedFile(path: string): Promise<AppDatabaseIndexedMetadataRow | undefined>;
+  listIndexedFileManifest(
+    query?: AppDatabaseIndexedFileManifestQuery,
+  ): Promise<AppDatabaseIndexedFileManifestPage>;
   queryIndexedMetadata(
     query?: AppDatabaseIndexedMetadataQuery,
   ): Promise<AppDatabaseIndexedMetadataRow[]>;
+  queryIndexedMetadataPage(
+    query?: AppDatabaseIndexedMetadataPageQuery,
+  ): Promise<AppDatabaseIndexedMetadataPage>;
+  queryMetadataFacets(
+    query: AppDatabaseMetadataFacetQuery,
+  ): Promise<AppDatabaseMetadataFacetRow[]>;
+  queryMetadataLinks(
+    query: AppDatabaseMetadataLinkQuery,
+  ): Promise<AppDatabaseLinkRecord[]>;
   deleteIndexedFile(path: string): Promise<void>;
   renameIndexedFile(oldPath: string, newPath: string): Promise<void>;
   upsertSearchDocument(document: SearchDocumentRecord): Promise<void>;
@@ -1274,7 +1356,7 @@ export function hasSearchPropertyNames(
   });
 }
 
-function searchDocumentProperties(
+export function searchDocumentProperties(
   document: SearchDocumentRecord,
   indexedProperties: AppDatabasePropertyRecord[],
 ): AppDatabasePropertyRecord[] {
@@ -1716,7 +1798,7 @@ export function compareSearchResults(
   );
 }
 
-function pathWithinPrefix(path: string, prefix?: string): boolean {
+export function pathWithinPrefix(path: string, prefix?: string): boolean {
   return !prefix || path === prefix || path.startsWith(`${prefix}/`);
 }
 
@@ -1765,7 +1847,7 @@ function shouldSkipSearchQueryEnhancement(
   );
 }
 
-function resolveSearchQueryEnhancementDiagnostics(
+export function resolveSearchQueryEnhancementDiagnostics(
   results: AppDatabaseSearchResult[],
   options: AppDatabaseSearchOptions,
 ): AppDatabaseSearchQueryEnhancementDiagnostics | undefined {
@@ -1828,7 +1910,7 @@ function firstEmbeddingModel(
     );
 }
 
-function embeddingErrorState(
+export function embeddingErrorState(
   document: SearchDocumentRecord,
   provider: SearchEmbeddingProvider,
   error: unknown,
@@ -1994,6 +2076,8 @@ export class MemoryAppDatabase implements AppDatabase {
   protected projectionValues: IndexProjectionValueRecord[] = [];
   protected projectionEdges: IndexProjectionEdgeRecord[] = [];
   protected projectionRevision = 0;
+  protected changeRevision = 0;
+  private readonly changeListeners = new Set<AppDatabaseChangeListener>();
 
   constructor(readonly vaultId: string) {}
 
@@ -2033,6 +2117,7 @@ export class MemoryAppDatabase implements AppDatabase {
     await previousRuntime?.dispose?.();
 
     if (this.searchDocs.size === 0) {
+      this.emitChange(["search"]);
       return;
     }
 
@@ -2043,6 +2128,7 @@ export class MemoryAppDatabase implements AppDatabase {
       }),
     );
     this.rebuildSearchIndexStats();
+    this.emitChange(["search"]);
   }
 
   async getSearchEmbeddingProvider(): Promise<SearchEmbeddingProviderConfig | null> {
@@ -2065,6 +2151,7 @@ export class MemoryAppDatabase implements AppDatabase {
 
   async setMeta(key: string, value: unknown): Promise<void> {
     this.meta[key] = clone(value);
+    this.emitChange(["meta"]);
   }
 
   async getNotebookState(
@@ -2079,11 +2166,13 @@ export class MemoryAppDatabase implements AppDatabase {
     sourcePath: string,
     state: AppDatabaseNotebookState,
   ): Promise<void> {
-    await this.setMeta(notebookStateMetaKey(sourcePath), state);
+    this.meta[notebookStateMetaKey(sourcePath)] = clone(state);
+    this.emitChange(["notebook"], [sourcePath]);
   }
 
   async deleteNotebookState(sourcePath: string): Promise<void> {
     delete this.meta[notebookStateMetaKey(sourcePath)];
+    this.emitChange(["notebook"], [sourcePath]);
   }
 
   async loadMetadataSnapshot(): Promise<MetadataCacheSnapshot | null> {
@@ -2092,6 +2181,7 @@ export class MemoryAppDatabase implements AppDatabase {
 
   async saveMetadataSnapshot(snapshot: MetadataCacheSnapshot): Promise<void> {
     this.metadataSnapshot = clone(snapshot);
+    this.emitChange(["metadata"]);
   }
 
   async getFileHistory(path: string): Promise<AppDatabaseFileHistory | null> {
@@ -2193,6 +2283,7 @@ export class MemoryAppDatabase implements AppDatabase {
         : [...previousRevisions, revision]
     ).slice(-Math.max(1, maxRevisions));
     this.historyRevisions.set(nextFile.fileId, nextRevisions);
+    this.emitChange(["history"], [input.path]);
 
     return {
       fileId: nextFile.fileId,
@@ -2222,7 +2313,8 @@ export class MemoryAppDatabase implements AppDatabase {
       )) ?? [];
     const next = new Map(records.map((entry) => [entry.id, entry]));
     next.set(record.id, clone(record));
-    await this.setMeta(NOTIFICATIONS_META_KEY, [...next.values()]);
+    this.meta[NOTIFICATIONS_META_KEY] = clone([...next.values()]);
+    this.emitChange(["notification"]);
   }
 
   async markNotificationRead(id: string): Promise<void> {
@@ -2231,12 +2323,12 @@ export class MemoryAppDatabase implements AppDatabase {
         NOTIFICATIONS_META_KEY,
       )) ?? [];
     const now = Date.now();
-    await this.setMeta(
-      NOTIFICATIONS_META_KEY,
+    this.meta[NOTIFICATIONS_META_KEY] = clone(
       records.map((record) =>
         record.id === id ? { ...record, read: true, updatedAt: now } : record,
       ),
     );
+    this.emitChange(["notification"]);
   }
 
   async clearNotification(id: string): Promise<void> {
@@ -2245,14 +2337,14 @@ export class MemoryAppDatabase implements AppDatabase {
         NOTIFICATIONS_META_KEY,
       )) ?? [];
     const now = Date.now();
-    await this.setMeta(
-      NOTIFICATIONS_META_KEY,
+    this.meta[NOTIFICATIONS_META_KEY] = clone(
       records.map((record) =>
         record.id === id
           ? { ...record, cleared: true, updatedAt: now }
           : record,
       ),
     );
+    this.emitChange(["notification"]);
   }
 
   async clearAllNotifications(): Promise<void> {
@@ -2261,10 +2353,19 @@ export class MemoryAppDatabase implements AppDatabase {
         NOTIFICATIONS_META_KEY,
       )) ?? [];
     const now = Date.now();
-    await this.setMeta(
-      NOTIFICATIONS_META_KEY,
+    this.meta[NOTIFICATIONS_META_KEY] = clone(
       records.map((record) => ({ ...record, cleared: true, updatedAt: now })),
     );
+    this.emitChange(["notification"]);
+  }
+
+  async getChangeRevision(): Promise<number> {
+    return this.changeRevision;
+  }
+
+  subscribeToChanges(listener: AppDatabaseChangeListener): () => void {
+    this.changeListeners.add(listener);
+    return () => this.changeListeners.delete(listener);
   }
 
   async upsertIndexedFile(record: AppDatabaseIndexedFile): Promise<void> {
@@ -2278,6 +2379,7 @@ export class MemoryAppDatabase implements AppDatabase {
     } else if (record.task === null) {
       await this.deleteTaskProjection(record.file.path);
     }
+    this.emitChange(["metadata"], [record.file.path]);
   }
 
   async deleteIndexedFile(path: string): Promise<void> {
@@ -2295,6 +2397,7 @@ export class MemoryAppDatabase implements AppDatabase {
     for (const definition of this.projections.values()) {
       this.removeProjectionSource(definition.projectionId, path);
     }
+    this.emitChange(["metadata", "search", "task", "projection"], [path]);
   }
 
   async renameIndexedFile(oldPath: string, newPath: string): Promise<void> {
@@ -2370,6 +2473,31 @@ export class MemoryAppDatabase implements AppDatabase {
         }
       }
     }
+    this.emitChange(
+      ["metadata", "search", "task", "projection", "notebook"],
+      [oldPath, newPath],
+      [{ oldPath, newPath }],
+    );
+  }
+
+  async getIndexedFile(
+    path: string,
+  ): Promise<AppDatabaseIndexedMetadataRow | undefined> {
+    return clone(this.materializeIndexedMetadataRows([path])[0]);
+  }
+
+  async listIndexedFileManifest(
+    query: AppDatabaseIndexedFileManifestQuery = {},
+  ): Promise<AppDatabaseIndexedFileManifestPage> {
+    const limit = Math.max(1, query.limit ?? 500);
+    const rows = [...this.files.values()]
+      .filter((file) => file.indexed && !file.deleted && (!query.after || file.path > query.after))
+      .sort((left, right) => left.path.localeCompare(right.path));
+    const page = rows.slice(0, limit);
+    return clone({
+      rows: page,
+      nextCursor: rows.length > page.length ? page.at(-1)?.path : undefined,
+    });
   }
 
   async queryIndexedMetadata(
@@ -2379,15 +2507,87 @@ export class MemoryAppDatabase implements AppDatabase {
     return clone(this.applyIndexedMetadataQuery(rows, query));
   }
 
+  async queryIndexedMetadataPage(
+    input: AppDatabaseIndexedMetadataPageQuery = {},
+  ): Promise<AppDatabaseIndexedMetadataPage> {
+    const limit = Math.max(1, input.limit ?? input.query?.limit ?? 100);
+    const query = { ...(input.query ?? {}), limit: undefined };
+    const rows = this.applyIndexedMetadataQuery(
+      this.materializeIndexedMetadataRows(),
+      query,
+    ).filter((row) => !input.after || row.file.path > input.after);
+    const page = rows.slice(0, limit);
+    return clone({
+      rows: page,
+      nextCursor: rows.length > page.length ? page.at(-1)?.file.path : undefined,
+    });
+  }
+
+  async queryMetadataFacets(
+    query: AppDatabaseMetadataFacetQuery,
+  ): Promise<AppDatabaseMetadataFacetRow[]> {
+    const matchesPath = (path: string) =>
+      !query.pathPrefixes?.length ||
+      query.pathPrefixes.some((prefix) => matchesIndexedMetadataPathPrefix(path, prefix));
+    const counts = new Map<string, AppDatabaseMetadataFacetRow>();
+    const add = (value: AppDatabaseIndexedMetadataScalar, valueType: AppDatabaseMetadataFacetRow["valueType"]) => {
+      const key = `${valueType}\0${String(value)}`;
+      const current = counts.get(key);
+      counts.set(key, { value, valueType, count: (current?.count ?? 0) + 1 });
+    };
+    if (query.kind === "tag") {
+      for (const [path, tags] of this.tags) {
+        if (!matchesPath(path)) continue;
+        for (const tag of new Set(tags.flatMap((entry) => entry.hierarchy))) add(tag, "string");
+      }
+    } else if (query.kind === "property-name") {
+      for (const [path, properties] of this.properties) {
+        if (!matchesPath(path)) continue;
+        for (const name of new Set(properties.map((entry) => entry.name))) add(name, "string");
+      }
+    } else if (query.propertyName) {
+      for (const [path, properties] of this.properties) {
+        if (!matchesPath(path)) continue;
+        for (const property of properties.filter((entry) => entry.name === query.propertyName)) {
+          const values = Array.isArray(property.value) ? property.value : [property.value];
+          for (const value of values) {
+            const scalar = toIndexedMetadataScalar(value);
+            if (scalar === undefined) continue;
+            const type = scalar === null ? "null" : typeof scalar === "number" ? "number" : typeof scalar === "boolean" ? "boolean" : "string";
+            add(scalar, type);
+          }
+        }
+      }
+    }
+    return [...counts.values()]
+      .sort((left, right) => right.count - left.count || String(left.value).localeCompare(String(right.value)))
+      .slice(0, query.limit ?? 100);
+  }
+
+  async queryMetadataLinks(
+    query: AppDatabaseMetadataLinkQuery,
+  ): Promise<AppDatabaseLinkRecord[]> {
+    const links = query.direction === "outgoing"
+      ? this.links.get(query.path) ?? []
+      : [...this.links.values()].flat().filter((link) => link.resolvedTargetPath === query.path);
+    return clone(links.filter((link) => {
+      if (query.resolution === "resolved") return link.resolvedTargetPath != null;
+      if (query.resolution === "unresolved") return link.resolvedTargetPath == null;
+      return true;
+    }).sort((left, right) => left.sourcePath.localeCompare(right.sourcePath) || (left.ordinal ?? 0) - (right.ordinal ?? 0)).slice(0, query.limit ?? 1000));
+  }
+
   async upsertSearchDocument(document: SearchDocumentRecord): Promise<void> {
     const prepared = await this.prepareSearchDocument(document);
     this.searchDocs.set(prepared.path, clone(prepared));
     this.updateSearchIndexStatsForDocument(prepared.path, prepared);
+    this.emitChange(["search"], [prepared.path]);
   }
 
   async deleteSearchDocument(path: string): Promise<void> {
     this.searchDocs.delete(path);
     this.deleteSearchIndexStatsForPath(path);
+    this.emitChange(["search"], [path]);
   }
 
   async getSearchDocument(
@@ -2402,6 +2602,7 @@ export class MemoryAppDatabase implements AppDatabase {
 
   async rebuildSearchIndex(): Promise<void> {
     this.rebuildSearchIndexStats();
+    this.emitChange(["search"]);
   }
 
   protected async prepareSearchDocument(
@@ -2483,11 +2684,13 @@ export class MemoryAppDatabase implements AppDatabase {
       sourceHash: this.files.get(record.documentPath)?.hash ?? record.documentId,
       rows: [{ id: record.documentId, kind: record.kind, data: { ...record } }],
     });
+    this.emitChange(["task"], [record.documentPath]);
   }
 
   async deleteTaskProjection(path: string): Promise<void> {
     this.tasks.delete(path);
     this.removeProjectionSource(PUBLIC_TASKS_PROJECTION_ID, path);
+    this.emitChange(["task", "projection"], [path]);
   }
 
   async queryTasks(
@@ -2525,6 +2728,7 @@ export class MemoryAppDatabase implements AppDatabase {
   ): Promise<void> {
     this.projections.set(definition.projectionId, clone({ ...definition, active: true }));
     this.projectionRevision += 1;
+    this.emitChange(["projection"]);
   }
 
   async unregisterProjectionDefinition(projectionId: string): Promise<void> {
@@ -2532,6 +2736,7 @@ export class MemoryAppDatabase implements AppDatabase {
     if (!existing) return;
     this.projections.set(projectionId, { ...existing, active: false });
     this.projectionRevision += 1;
+    this.emitChange(["projection"]);
   }
 
   async replaceProjectionSource(input: ReplaceProjectionSourceInput): Promise<void> {
@@ -2577,6 +2782,7 @@ export class MemoryAppDatabase implements AppDatabase {
       });
     }
     this.projectionRevision += 1;
+    this.emitChange(["projection"], [input.sourcePath]);
   }
 
   async markProjectionSourceError(input: MarkProjectionSourceErrorInput): Promise<void> {
@@ -2594,6 +2800,7 @@ export class MemoryAppDatabase implements AppDatabase {
       indexedAt: Date.now(),
     });
     this.projectionRevision += 1;
+    this.emitChange(["projection"], [input.sourcePath]);
   }
 
   async deleteProjectionSource(
@@ -2604,6 +2811,7 @@ export class MemoryAppDatabase implements AppDatabase {
     assertProjectionWriteAccess(projectionId, writerPluginId);
     this.removeProjectionSource(projectionId, sourcePath);
     this.projectionRevision += 1;
+    this.emitChange(["projection"], [sourcePath]);
   }
 
   async queryProjection<T = Record<string, unknown>>(
@@ -3357,5 +3565,21 @@ export class MemoryAppDatabase implements AppDatabase {
     }
 
     return filtered;
+  }
+
+  protected emitChange(
+    domains: AppDatabaseChangeDomain[],
+    paths: string[] = [],
+    renamed?: { oldPath: string; newPath: string }[],
+  ): AppDatabaseChangeSet {
+    const change: AppDatabaseChangeSet = {
+      revision: ++this.changeRevision,
+      domains: [...new Set(domains)],
+      paths: [...new Set(paths)],
+      renamed: renamed?.map((entry) => ({ ...entry })),
+      committedAt: Date.now(),
+    };
+    for (const listener of this.changeListeners) listener(clone(change));
+    return change;
   }
 }

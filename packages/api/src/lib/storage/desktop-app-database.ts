@@ -1,11 +1,19 @@
 import type {
   AppDatabase,
+  AppDatabaseChangeListener,
   AppDatabaseDescriptor,
   AppDatabaseFileHistory,
   AppDatabaseIndexedFile,
+  AppDatabaseIndexedFileManifestPage,
+  AppDatabaseIndexedFileManifestQuery,
+  AppDatabaseIndexedMetadataPage,
+  AppDatabaseIndexedMetadataPageQuery,
   AppDatabaseIndexedMetadataQuery,
   AppDatabaseLinkRecord,
   AppDatabaseIndexedMetadataRow,
+  AppDatabaseMetadataFacetQuery,
+  AppDatabaseMetadataFacetRow,
+  AppDatabaseMetadataLinkQuery,
   AppDatabaseNotebookState,
   AppDatabaseNotificationRecord,
   AppDatabaseOpenContext,
@@ -62,8 +70,14 @@ export const DESKTOP_APP_DATABASE_RPC_METHODS = [
   "markNotificationRead",
   "clearNotification",
   "clearAllNotifications",
+  "getChangeRevision",
   "upsertIndexedFile",
+  "getIndexedFile",
+  "listIndexedFileManifest",
   "queryIndexedMetadata",
+  "queryIndexedMetadataPage",
+  "queryMetadataFacets",
+  "queryMetadataLinks",
   "deleteIndexedFile",
   "renameIndexedFile",
   "upsertSearchDocument",
@@ -117,6 +131,9 @@ export class NativeDesktopTursoAppDatabase implements AppDatabase {
   readonly kind = "turso-native" as const;
   private opened = false;
   private currentDescriptor: AppDatabaseDescriptor = DEFAULT_NATIVE_DESCRIPTOR;
+  private changeListeners = new Set<AppDatabaseChangeListener>();
+  private bridgeChangeUnsubscribe: (() => void) | null = null;
+  private lastSeenRevision = 0;
 
   constructor(
     readonly vaultId: string,
@@ -133,12 +150,23 @@ export class NativeDesktopTursoAppDatabase implements AppDatabase {
       "desktop_db_open",
       { vaultId: this.vaultId },
     );
+    this.bridgeChangeUnsubscribe = this.bridge.onAppDatabaseChange?.((event) => {
+      if (event.vaultId !== this.vaultId || event.change.revision <= this.lastSeenRevision) return;
+      const change = this.lastSeenRevision > 0 && event.change.revision !== this.lastSeenRevision + 1
+        ? { ...event.change, reset: true, paths: [] }
+        : event.change;
+      this.lastSeenRevision = event.change.revision;
+      for (const listener of this.changeListeners) listener(structuredClone(change));
+    }) ?? null;
     this.opened = true;
   }
 
   async close(): Promise<void> {
     if (!this.opened) return;
     this.opened = false;
+    this.bridgeChangeUnsubscribe?.();
+    this.bridgeChangeUnsubscribe = null;
+    this.changeListeners.clear();
     await this.bridge.invoke("desktop_db_close", { vaultId: this.vaultId });
   }
 
@@ -233,14 +261,51 @@ export class NativeDesktopTursoAppDatabase implements AppDatabase {
     return this.call("clearAllNotifications");
   }
 
+  getChangeRevision(): Promise<number> {
+    return this.call("getChangeRevision");
+  }
+
+  subscribeToChanges(listener: AppDatabaseChangeListener): () => void {
+    this.changeListeners.add(listener);
+    return () => this.changeListeners.delete(listener);
+  }
+
   upsertIndexedFile(record: AppDatabaseIndexedFile): Promise<void> {
     return this.call("upsertIndexedFile", record);
+  }
+
+  getIndexedFile(path: string): Promise<AppDatabaseIndexedMetadataRow | undefined> {
+    return this.call("getIndexedFile", path);
+  }
+
+  listIndexedFileManifest(
+    query?: AppDatabaseIndexedFileManifestQuery,
+  ): Promise<AppDatabaseIndexedFileManifestPage> {
+    return this.call("listIndexedFileManifest", query);
   }
 
   queryIndexedMetadata(
     query?: AppDatabaseIndexedMetadataQuery,
   ): Promise<AppDatabaseIndexedMetadataRow[]> {
     return this.call("queryIndexedMetadata", query);
+  }
+
+  queryIndexedMetadataPage(
+    query?: AppDatabaseIndexedMetadataPageQuery,
+  ): Promise<AppDatabaseIndexedMetadataPage> {
+    return this.call("queryIndexedMetadataPage", query);
+  }
+
+  queryMetadataFacets(
+    query: AppDatabaseMetadataFacetQuery,
+  ): Promise<AppDatabaseMetadataFacetRow[]> {
+    return this.call("queryMetadataFacets", query);
+  }
+
+  queryMetadataLinks(
+    query: AppDatabaseMetadataLinkQuery,
+  ): Promise<AppDatabaseLinkRecord[]> {
+    return this.call("queryMetadataLinks", query);
   }
 
   deleteIndexedFile(path: string): Promise<void> {

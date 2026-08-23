@@ -1,5 +1,9 @@
 # Desktop Host
 
+Electron main owns the native Turso handle and relays committed typed database
+changes to its renderer. The renderer proxy never receives raw SQL or a
+whole-database state payload.
+
 Desktop session construction registers the shared daily-document provider
 before configuration load and disposes it with the application. This keeps
 persisted daily-note settings and canonical front-matter lookup identical to

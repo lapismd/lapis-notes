@@ -32,6 +32,8 @@ Desktop and web Tasks index-only load (LN-DESK-060, LN-WEB-044) also MUST
 NOT change Word Count ownership.
 Browser vault transfer error reporting through session-owned notifications also
 MUST NOT change Word Count ownership.
+Electron database revision IPC is host infrastructure and MUST NOT change Word
+Count registration, active-editor counting, or status-bar ownership.
 
 ## Requirements
 

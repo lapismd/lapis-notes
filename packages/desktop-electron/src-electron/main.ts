@@ -25,6 +25,7 @@ import {
   DESKTOP_APP_DATABASE_RPC_METHODS,
   TursoAppDatabase,
   type AppDatabase,
+  type AppDatabaseChangeSet,
   type AppDatabaseDescriptor,
   type DesktopAppDatabaseRpcMethod,
   type TursoConnection,
@@ -433,6 +434,11 @@ async function openAppDatabaseForWindow(
     connectionFactory: () => createNativeTursoConnection(vaultId),
   });
   await database.open();
+  database.subscribeToChanges((change: AppDatabaseChangeSet) => {
+    const target = BrowserWindow.fromId(windowId);
+    if (!target || target.isDestroyed()) return;
+    target.webContents.send("desktop_db_change", { vaultId, change });
+  });
   databases.set(vaultId, database);
   return database.descriptor;
 }

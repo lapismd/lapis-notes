@@ -1,5 +1,10 @@
 # Architecture
 
+Production generated state now uses direct, row-scoped Turso access with typed
+post-commit revisions. Memory remains the explicit test and Storybook provider;
+renderer transports relay the database revision contract without owning domain
+state.
+
 Daily-note path policy is a host concern exposed through the API-owned
 `DailyDocumentProviderRegistry`. Desktop and web install the same default
 provider before loading configuration; Tasks consumes the resolved provider
