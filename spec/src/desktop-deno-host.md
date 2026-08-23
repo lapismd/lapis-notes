@@ -5,7 +5,9 @@ user-facing parity with the Electron host. It reuses the existing
 `NativeDesktopBridge`, `WorkspaceShell`, and first-party plugins without
 copying their implementation. It MUST NOT replace Electron until equivalent
 packaged acceptance passes. The private package lives at
-`packages/desktop-deno` and is launched with `pnpm dev:desktop-deno`.
+`packages/desktop-deno` and is launched with `pnpm dev:desktop-deno`. The
+[parity blocker register](./desktop-deno-parity-blockers.md) records the open
+runtime boundaries and their exit evidence.
 
 ## Requirements
 

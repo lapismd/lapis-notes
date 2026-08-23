@@ -22,6 +22,8 @@ projection `planKind` values are `anytime`, `morning`, `afternoon`,
 `dev:desktop-deno` and `build:desktop-deno` select the Deno parity package only;
 `package:desktop-deno` and `test:desktop-deno:packaged` produce and exercise its
 local production app.
+The package's unresolved runtime and promotion boundaries are tracked in
+[Deno Desktop Parity Blockers](./desktop-deno-parity-blockers.md).
 
 ## Requirements
 

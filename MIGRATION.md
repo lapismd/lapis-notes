@@ -149,6 +149,9 @@ Electron and web until equivalent packaged Deno acceptance passes.
 - [ ] Run Linux packaged acceptance and complete the remaining parity matrix
 - [x] Focused package checks, production Vite build, macOS app packaging, and full saved-vault/plugin boot smoke
 
+Open runtime boundaries and their closure evidence are tracked in
+`spec/src/desktop-deno-parity-blockers.md`.
+
 Intentionally out of scope: Electron imports, default-host replacement before
 packaged acceptance, Windows distribution, and remote release publication.
 

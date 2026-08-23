@@ -59,6 +59,7 @@ const preview: Preview = {
             "App Database",
             "Desktop Host",
             "Deno Desktop Host",
+            "Deno Desktop Parity Blockers",
             "Web Host",
             "Workspace Shell",
             "Panels",

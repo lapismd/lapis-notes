@@ -48,13 +48,15 @@ window implementation and the corrected public per-window binding registry.
 
 Implemented here: Deno window and `win.bind()` bridge, `desktop-folder` vaults,
 vault-root filesystem containment, WASM Turso, the full portable first-party
-plugin inventory, native macOS notifications, macOS/Linux file actions, and
-the App compatibility lease.
+plugin inventory, native Markdown diagnostics, file watching, verified plugin
+assets, agents, single-instance URLs, native menus, external-link policy,
+macOS notifications, macOS/Linux file actions, ordered close, and local
+cross-platform artifacts.
 
-Still gated before replacement: Deno-owned language, plugin, AI, terminal, and
-file-watch services; single-instance URL delivery; complete native menus and
-external-window policy; cross-platform distribution; and the complete
-acceptance matrix in `spec/src/desktop-deno-host.md`.
+Still gated before replacement: terminal runtime, community plugin sidecar,
+real workspace popouts, Linux packaged runtime acceptance, and the remaining
+launcher and switching matrix. The canonical register and exit evidence live
+in `spec/src/desktop-deno-parity-blockers.md`.
 
 Build and exercise the production app with:
 

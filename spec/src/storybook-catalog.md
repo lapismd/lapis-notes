@@ -101,7 +101,8 @@ verifies Search, Markdown `notes_list`, and API file-tool enablement plus the
 disabled and newly enabled community-tool states.
 
 The Specification sidebar follows SUMMARY order, including Deno Desktop Host
-immediately after Desktop Host. That page is a metadata-only raw-import mirror.
+and Deno Desktop Parity Blockers immediately after Desktop Host. Those pages
+are metadata-only raw-import mirrors.
 
 ## Show Code source contract
 

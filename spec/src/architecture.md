@@ -29,6 +29,8 @@ Lapis package boundaries. Its production acceptance builds through the package
 and restores an isolated real vault rather than substituting a browser-only
 renderer test. Target-specific artifact naming, metadata, icons, and
 credential-selecting signing orchestration remain owned by that host package.
+The open promotion boundaries and exit evidence are maintained in the
+[Deno Desktop Parity Blockers](./desktop-deno-parity-blockers.md) register.
 
 ## Requirements
 

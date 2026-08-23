@@ -8,6 +8,7 @@
 - [App Database](./app-database.md)
 - [Desktop Host](./desktop-host.md)
 - [Deno Desktop Host](./desktop-deno-host.md)
+- [Deno Desktop Parity Blockers](./desktop-deno-parity-blockers.md)
 - [Web Host](./web-host.md)
 - [Workspace Shell](./workspace-shell.md)
   - [Panels](./workspace-shell/panels.md)
