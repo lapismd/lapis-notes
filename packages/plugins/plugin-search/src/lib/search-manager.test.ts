@@ -397,8 +397,12 @@ describe("SearchManager", () => {
         chunking: DEFAULT_SEARCH_SETTINGS.chunking,
       }),
     );
+    let allowBodyRead = false;
     const cachedRead = vi.fn(async () => {
-      throw new Error("warm refresh must not read the note body");
+      if (!allowBodyRead) {
+        throw new Error("warm refresh must not read the note body");
+      }
+      return "# Welcome";
     });
     const getFileCacheAsync = vi.fn(async () => {
       throw new Error("warm refresh must not hydrate metadata JSON");
@@ -407,6 +411,30 @@ describe("SearchManager", () => {
       throw new Error("warm refresh must not enumerate Search documents");
     });
     const upsertSearchDocument = vi.fn(async () => undefined);
+    const meta = new Map<string, unknown>();
+    const searchManifest = vi.fn(async () => ({
+      rows: [{
+        path: welcome.path,
+        checksum: "search-checksum",
+        sourceProviderId: "search:markdown",
+        metadataHash: "metadata-hash",
+        providerVersion: "1",
+        projectionSignature,
+        sourceMtime: welcome.stat.mtime,
+        sourceSize: welcome.stat.size,
+      }],
+    }));
+    const metadataManifest = vi.fn(async () => ({
+      rows: [{
+        path: welcome.path,
+        normalizedPath: welcome.path.toLowerCase(),
+        extension: "md",
+        mtime: welcome.stat.mtime,
+        size: welcome.stat.size,
+        hash: "metadata-hash",
+        indexed: true,
+      }],
+    }));
     const app = {
       searchDocumentProviders: providers({
         id: "search:markdown",
@@ -433,30 +461,13 @@ describe("SearchManager", () => {
       logger: { warn: vi.fn() },
       appDatabase: {
         kind: "memory",
+        getMeta: vi.fn(async (key: string) => meta.get(key)),
+        setMeta: vi.fn(async (key: string, value: unknown) => {
+          meta.set(key, value);
+        }),
         listSearchDocuments,
-        listSearchDocumentManifest: vi.fn(async () => ({
-          rows: [{
-            path: welcome.path,
-            checksum: "search-checksum",
-            sourceProviderId: "search:markdown",
-            metadataHash: "metadata-hash",
-            providerVersion: "1",
-            projectionSignature,
-            sourceMtime: welcome.stat.mtime,
-            sourceSize: welcome.stat.size,
-          }],
-        })),
-        listIndexedFileManifest: vi.fn(async () => ({
-          rows: [{
-            path: welcome.path,
-            normalizedPath: welcome.path.toLowerCase(),
-            extension: "md",
-            mtime: welcome.stat.mtime,
-            size: welcome.stat.size,
-            hash: "metadata-hash",
-            indexed: true,
-          }],
-        })),
+        listSearchDocumentManifest: searchManifest,
+        listIndexedFileManifest: metadataManifest,
         upsertSearchDocument,
         deleteSearchDocument: vi.fn(async () => undefined),
         beginSearchIndexingBatch: vi.fn(async () => undefined),
@@ -474,11 +485,366 @@ describe("SearchManager", () => {
       },
     } as unknown as App;
 
-    await new SearchManager(app).refreshFromVault("startup");
+    await new SearchManager(app).refreshFromVault("startup-seed");
 
     expect(cachedRead).not.toHaveBeenCalled();
     expect(getFileCacheAsync).not.toHaveBeenCalled();
     expect(listSearchDocuments).not.toHaveBeenCalled();
     expect(upsertSearchDocument).not.toHaveBeenCalled();
+    expect(
+      meta.get("search.reconcile-checkpoint.v1"),
+    ).toMatchObject({
+      fingerprint: expect.stringContaining("search-index-v1"),
+      completedAt: expect.any(Number),
+    });
+
+    searchManifest.mockClear();
+    metadataManifest.mockClear();
+    await new SearchManager(app).reconcileStartup();
+    expect(searchManifest).not.toHaveBeenCalled();
+    expect(metadataManifest).not.toHaveBeenCalled();
+    expect(cachedRead).not.toHaveBeenCalled();
+
+    app.searchDocumentProviders.getAll()[0]!.version = "2";
+    allowBodyRead = true;
+    await new SearchManager(app).reconcileStartup();
+    expect(searchManifest).toHaveBeenCalled();
+    expect(cachedRead).toHaveBeenCalled();
+  });
+
+  it("keeps persisted queries available while reconciliation is blocked", async () => {
+    let releaseManifest!: () => void;
+    let markManifestStarted!: () => void;
+    const manifestStarted = new Promise<void>((resolve) => {
+      markManifestStarted = resolve;
+    });
+    const manifestRelease = new Promise<void>((resolve) => {
+      releaseManifest = resolve;
+    });
+    const app = {
+      searchDocumentProviders: providers(),
+      vault: { getFiles: () => [] },
+      metadataCache: { processors: new Map() },
+      notifications: {
+        withProgress: async (
+          _options: unknown,
+          run: (progress: {
+            throwIfCancellationRequested(): void;
+            report(value: unknown): void;
+          }) => unknown,
+        ) =>
+          run({
+            throwIfCancellationRequested() {},
+            report() {},
+          }),
+      },
+      logger: { warn: vi.fn() },
+      appDatabase: {
+        kind: "memory",
+        getMeta: vi.fn(async () => undefined),
+        setMeta: vi.fn(async () => undefined),
+        listSearchDocumentManifest: vi.fn(async () => {
+          markManifestStarted();
+          await manifestRelease;
+          return { rows: [] };
+        }),
+        listIndexedFileManifest: vi.fn(async () => ({ rows: [] })),
+        beginSearchIndexingBatch: vi.fn(async () => undefined),
+        endSearchIndexingBatch: vi.fn(async () => undefined),
+        searchDocuments: vi.fn(async () => [{
+          document: {
+            path: "Notes/Persisted.md",
+            sourceProviderId: "search:markdown",
+            name: "Persisted",
+            extension: "md",
+            checksum: "persisted",
+            content: "Persisted result",
+            tags: [],
+            tagParts: [],
+            tagHierarchy: [],
+          },
+          score: 1,
+          snippets: [],
+          retrievalMode: "lexical",
+          scoreBreakdown: {},
+          matchedChunkIds: [],
+        }]),
+        getSearchEmbeddingProvider: vi.fn(async () => null),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: 1,
+          chunkCount: 0,
+          readyChunkCount: 0,
+          pendingChunkCount: 0,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+    const manager = new SearchManager(app);
+    const refreshing = manager.refreshFromVault("controlled");
+    await manifestStarted;
+
+    await expect(manager.query({ term: "Persisted" })).resolves.toMatchObject({
+      count: 1,
+      hits: [{ id: "Notes/Persisted.md" }],
+    });
+
+    releaseManifest();
+    await refreshing;
+  });
+
+  it("reveals first-index documents while later files are still indexing", async () => {
+    const first = file("Notes/First.md");
+    const second = file("Notes/Second.md");
+    const documents = new Map<string, any>();
+    let releaseSecond!: () => void;
+    let markSecondStarted!: () => void;
+    const secondStarted = new Promise<void>((resolve) => {
+      markSecondStarted = resolve;
+    });
+    const secondRelease = new Promise<void>((resolve) => {
+      releaseSecond = resolve;
+    });
+    const app = {
+      searchDocumentProviders: providers({
+        id: "search:markdown",
+        provider: MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+      }),
+      vault: {
+        getFiles: () => [first, second],
+        cachedRead: vi.fn(async (candidate: TFile) => {
+          if (candidate.path === second.path) {
+            markSecondStarted();
+            await secondRelease;
+          }
+          return `# ${candidate.baseName}`;
+        }),
+      },
+      metadataCache: {
+        processors: new Map(),
+        getFileCacheAsync: vi.fn(async () => ({})),
+      },
+      notifications: {
+        withProgress: async (
+          _options: unknown,
+          run: (progress: {
+            throwIfCancellationRequested(): void;
+            report(value: unknown): void;
+          }) => unknown,
+        ) =>
+          run({
+            throwIfCancellationRequested() {},
+            report() {},
+          }),
+      },
+      logger: { warn: vi.fn() },
+      appDatabase: {
+        kind: "memory",
+        getMeta: vi.fn(async () => undefined),
+        setMeta: vi.fn(async () => undefined),
+        listSearchDocumentManifest: vi.fn(async () => ({ rows: [] })),
+        listIndexedFileManifest: vi.fn(async () => ({ rows: [] })),
+        upsertSearchDocument: vi.fn(async (document: { path: string }) => {
+          documents.set(document.path, document);
+        }),
+        deleteSearchDocument: vi.fn(async () => undefined),
+        beginSearchIndexingBatch: vi.fn(async () => undefined),
+        endSearchIndexingBatch: vi.fn(async () => undefined),
+        searchDocuments: vi.fn(async () =>
+          [...documents.values()].map((document) => ({
+            document,
+            score: 1,
+            snippets: [],
+            retrievalMode: "lexical",
+            scoreBreakdown: {},
+            matchedChunkIds: [],
+          }))),
+        getSearchEmbeddingProvider: vi.fn(async () => null),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: documents.size,
+          chunkCount: 0,
+          readyChunkCount: 0,
+          pendingChunkCount: 0,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+    const manager = new SearchManager(app);
+    const refreshing = manager.refreshFromVault("first-index");
+    await secondStarted;
+
+    await expect(manager.query({ term: "First" })).resolves.toMatchObject({
+      count: 1,
+      hits: [{ id: first.path }],
+    });
+
+    releaseSecond();
+    await refreshing;
+    expect(documents.has(second.path)).toBe(true);
+  });
+
+  it("leaves a failed checkpoint stale so startup retries reconciliation", async () => {
+    const meta = new Map<string, unknown>();
+    const cancelled = new Error("cancelled");
+    const listSearchDocumentManifest = vi
+      .fn()
+      .mockRejectedValueOnce(cancelled)
+      .mockResolvedValue({ rows: [] });
+    const app = {
+      searchDocumentProviders: providers(),
+      vault: { getFiles: () => [] },
+      metadataCache: { processors: new Map() },
+      notifications: {
+        withProgress: async (
+          _options: unknown,
+          run: (progress: {
+            throwIfCancellationRequested(): void;
+            report(value: unknown): void;
+          }) => unknown,
+        ) =>
+          run({
+            throwIfCancellationRequested() {},
+            report() {},
+          }),
+      },
+      logger: { warn: vi.fn() },
+      appDatabase: {
+        kind: "memory",
+        getMeta: vi.fn(async (key: string) => meta.get(key)),
+        setMeta: vi.fn(async (key: string, value: unknown) => {
+          meta.set(key, value);
+        }),
+        listSearchDocumentManifest,
+        listIndexedFileManifest: vi.fn(async () => ({ rows: [] })),
+        beginSearchIndexingBatch: vi.fn(async () => undefined),
+        endSearchIndexingBatch: vi.fn(async () => undefined),
+        getSearchEmbeddingProvider: vi.fn(async () => null),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: 0,
+          chunkCount: 0,
+          readyChunkCount: 0,
+          pendingChunkCount: 0,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+    const manager = new SearchManager(app);
+
+    await expect(manager.refreshFromVault("cancelled")).rejects.toBe(cancelled);
+    expect(meta.get("search.reconcile-checkpoint.v1")).toMatchObject({
+      fingerprint: "",
+      completedAt: 0,
+    });
+
+    await manager.reconcileStartup();
+
+    expect(listSearchDocumentManifest).toHaveBeenCalledTimes(2);
+    expect(meta.get("search.reconcile-checkpoint.v1")).toMatchObject({
+      fingerprint: expect.stringContaining("search-index-v1"),
+    });
+  });
+
+  it("advances the checkpoint after incremental metadata changes drain", async () => {
+    const welcome = file("Notes/Live.md");
+    const metadataHandlers = new Map<string, (...args: any[]) => void>();
+    const vaultHandlers = new Map<string, (...args: any[]) => void>();
+    const meta = new Map<string, unknown>();
+    const upsertSearchDocument = vi.fn(async () => undefined);
+    const app = {
+      searchDocumentProviders: providers({
+        id: "search:markdown",
+        provider: MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
+      }),
+      vault: {
+        getFiles: () => [welcome],
+        cachedRead: vi.fn(async () => "# Live"),
+        on: vi.fn((event: string, callback: (...args: any[]) => void) => {
+          vaultHandlers.set(event, callback);
+          return { event };
+        }),
+        offref: vi.fn(),
+      },
+      metadataCache: {
+        processors: new Map([["md", new Set([vi.fn()])]]),
+        getFileCacheAsync: vi.fn(async () => ({})),
+        on: vi.fn((event: string, callback: (...args: any[]) => void) => {
+          metadataHandlers.set(event, callback);
+          return { event };
+        }),
+        offref: vi.fn(),
+      },
+      notifications: {
+        withProgress: async (
+          _options: unknown,
+          run: (progress: {
+            throwIfCancellationRequested(): void;
+            report(value: unknown): void;
+          }) => unknown,
+        ) =>
+          run({
+            throwIfCancellationRequested() {},
+            report() {},
+          }),
+      },
+      logger: { warn: vi.fn() },
+      appDatabase: {
+        kind: "memory",
+        getMeta: vi.fn(async (key: string) => meta.get(key)),
+        setMeta: vi.fn(async (key: string, value: unknown) => {
+          meta.set(key, value);
+        }),
+        listSearchDocumentManifest: vi.fn(async () => ({ rows: [] })),
+        listIndexedFileManifest: vi.fn(async () => ({
+          rows: [
+            {
+              path: welcome.path,
+              mtime: welcome.stat.mtime,
+              size: welcome.stat.size,
+              hash: md5("# Live"),
+              parserSignature: "markdown-v1",
+            },
+          ],
+        })),
+        upsertSearchDocument,
+        deleteSearchDocument: vi.fn(async () => undefined),
+        beginSearchIndexingBatch: vi.fn(async () => undefined),
+        endSearchIndexingBatch: vi.fn(async () => undefined),
+        getSearchEmbeddingProvider: vi.fn(async () => null),
+        getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
+        getSearchIndexStats: vi.fn(async () => ({
+          documentCount: 1,
+          chunkCount: 0,
+          readyChunkCount: 0,
+          pendingChunkCount: 0,
+          errorChunkCount: 0,
+          lastError: null,
+        })),
+      },
+    } as unknown as App;
+    const manager = new SearchManager(app);
+    const stop = manager.trackChanges();
+    await manager.reconcileStartup();
+    const before = meta.get("search.reconcile-checkpoint.v1") as {
+      fingerprint: string;
+    };
+    (welcome.stat as { mtime: number; size: number }).mtime = 4;
+    (welcome.stat as { mtime: number; size: number }).size = 8;
+
+    metadataHandlers.get("changed")?.(welcome, "# Updated", {});
+
+    await vi.waitFor(() => {
+      const after = meta.get("search.reconcile-checkpoint.v1") as {
+        fingerprint: string;
+      };
+      expect(after.fingerprint).not.toBe(before.fingerprint);
+    });
+    expect(upsertSearchDocument).toHaveBeenCalledTimes(2);
+    stop();
+    await manager.dispose();
   });
 });

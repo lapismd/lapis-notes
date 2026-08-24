@@ -271,6 +271,8 @@ async function seedIndexedMetadata(
 }
 
 describe("MetadataCache.load", () => {
+  const checkpointKey = "metadata-cache.reconcile-checkpoint.v1";
+
   it("publishes loaded from a queryable database without hydrating metadata", async () => {
     const { file } = createSnapshot();
     const adapter = new InMemoryDataAdapter();
@@ -374,6 +376,161 @@ describe("MetadataCache.load", () => {
     await cache.load();
 
     expect(parse).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips the full warm scan when the manifest checkpoint matches", async () => {
+    const file = new TFile(
+      "Notes/Warm.md",
+      { ctime: 1, mtime: 2, size: 7 },
+      null,
+    );
+    const adapter = new InMemoryDataAdapter();
+    await adapter.mkdir("Notes");
+    await adapter.write(file.path, "# Warm\n");
+    const database = new MemoryAppDatabase("vault-under-test");
+    const first = createLoadCache({ adapter, database, files: [file] }).cache;
+    first.addProcessor("md", { read: async () => ({}), write: () => "" });
+    await first.load();
+    const checkpoint = await database.getMeta<{
+      fingerprint: string;
+      completedAt: number;
+    }>(checkpointKey);
+    expect(checkpoint).toMatchObject({
+      fingerprint: expect.stringContaining("metadata-cache-v1"),
+      completedAt: expect.any(Number),
+    });
+    await first.dispose();
+
+    const second = createLoadCache({ adapter, database, files: [file] }).cache;
+    second.addProcessor("md", { read: async () => ({}), write: () => "" });
+    const manifest = vi.spyOn(database, "listIndexedFileManifest");
+    const bodyRead = vi.spyOn(adapter, "read");
+
+    await second.load();
+
+    expect(manifest).not.toHaveBeenCalled();
+    expect(bodyRead).not.toHaveBeenCalled();
+  });
+
+  it("reconciles when a checkpointed vault manifest changes", async () => {
+    const file = new TFile(
+      "Notes/Changed.md",
+      { ctime: 1, mtime: 2, size: 8 },
+      null,
+    );
+    const adapter = new InMemoryDataAdapter();
+    await adapter.mkdir("Notes");
+    await adapter.write(file.path, "# Before\n");
+    const database = new MemoryAppDatabase("vault-under-test");
+    const first = createLoadCache({ adapter, database, files: [file] }).cache;
+    first.addProcessor("md", { read: async () => ({}), write: () => "" });
+    await first.load();
+    await first.dispose();
+
+    const changed = new TFile(
+      file.path,
+      { ctime: 1, mtime: 3, size: 7 },
+      null,
+    );
+    await adapter.write(changed.path, "# After\n");
+    const second = createLoadCache({
+      adapter,
+      database,
+      files: [changed],
+    }).cache;
+    const parse = vi.fn(async () => ({}));
+    second.addProcessor("md", { read: parse, write: () => "" });
+
+    await second.load();
+
+    expect(parse).toHaveBeenCalledOnce();
+  });
+
+  it("does not advance the checkpoint after failed reconciliation", async () => {
+    const file = new TFile(
+      "Notes/Broken.md",
+      { ctime: 1, mtime: 2, size: 9 },
+      null,
+    );
+    const adapter = new InMemoryDataAdapter();
+    await adapter.mkdir("Notes");
+    await adapter.write(file.path, "# Broken\n");
+    const { cache, database } = createLoadCache({ adapter, files: [file] });
+    cache.addProcessor("md", {
+      read: async () => {
+        throw new Error("parser failed");
+      },
+      write: () => "",
+    });
+
+    await expect(cache.load()).rejects.toThrow("parser failed");
+    await expect(database.getMeta(checkpointKey)).resolves.toBeUndefined();
+  });
+
+  it("does not advance the checkpoint after cancelled reconciliation", async () => {
+    const file = new TFile(
+      "Notes/Cancelled.md",
+      { ctime: 1, mtime: 2, size: 12 },
+      null,
+    );
+    const adapter = new InMemoryDataAdapter();
+    await adapter.mkdir("Notes");
+    await adapter.write(file.path, "# Cancelled\n");
+    const notifications = {
+      withProgress: async (_options: unknown, task: (progress: any) => any) =>
+        task({
+          report() {},
+          throwIfCancellationRequested() {
+            throw new Error("cancelled");
+          },
+        }),
+    } as ReturnType<typeof createProgressNotifications>;
+    const { cache, database } = createLoadCache({
+      adapter,
+      files: [file],
+      notifications,
+    });
+    cache.addProcessor("md", { read: async () => ({}), write: () => "" });
+
+    await expect(cache.load()).rejects.toThrow("cancelled");
+    await expect(database.getMeta(checkpointKey)).resolves.toBeUndefined();
+  });
+
+  it("advances the checkpoint after an incremental update drains", async () => {
+    const file = new TFile(
+      "Notes/Live.md",
+      { ctime: 1, mtime: 2, size: 7 },
+      null,
+    );
+    const adapter = new InMemoryDataAdapter();
+    await adapter.mkdir("Notes");
+    await adapter.write(file.path, "# Live\n");
+    const { cache, database } = createLoadCache({ adapter, files: [file] });
+    cache.addProcessor("md", { read: async () => ({}), write: () => "" });
+    await cache.load();
+    const before = await database.getMeta<{ fingerprint: string }>(
+      checkpointKey,
+    );
+    (file.stat as { mtime: number; size: number }).mtime = 3;
+    (file.stat as { mtime: number; size: number }).size = 10;
+    await adapter.write(file.path, "# Updated\n");
+    const on = cache.app.vault.on as unknown as {
+      mock: { calls: Array<[string, (...args: any[]) => void]> };
+    };
+    const allHandler = on.mock.calls.find(([event]) => event === "all")?.[1];
+    expect(allHandler).toBeDefined();
+
+    allHandler?.("modify", file);
+
+    await vi.waitFor(async () => {
+      const after = await database.getMeta<{ fingerprint: string }>(
+        checkpointKey,
+      );
+      expect(after?.fingerprint).not.toBe(before?.fingerprint);
+    });
+    await expect(database.getIndexedFile(file.path)).resolves.toMatchObject({
+      file: { mtime: 3, size: 10 },
+    });
   });
 
   it("caps asynchronously loaded metadata at 512 hot entries", async () => {

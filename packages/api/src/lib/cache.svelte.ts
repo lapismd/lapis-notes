@@ -33,6 +33,44 @@ import type { NotificationProgressHandle } from "./notifications";
 export const METADATA_CACHE_BACKUP_PATH = ".lapis/cache/metadata-cache.json";
 export const METADATA_CACHE_HOT_LIMIT = 512;
 
+const METADATA_RECONCILE_CHECKPOINT_KEY =
+  "metadata-cache.reconcile-checkpoint.v1";
+const METADATA_RECONCILE_CHECKPOINT_VERSION = 1;
+const FINGERPRINT_MASK = (1n << 128n) - 1n;
+
+type ReconcileCheckpoint = {
+  version: number;
+  fingerprint: string;
+  completedAt: number;
+};
+
+class StreamingManifestFingerprint {
+  private count = 0;
+  private sum = 0n;
+  private xor = 0n;
+
+  add(value: string): void {
+    const digest = BigInt(`0x${md5(value)}`);
+    this.count += 1;
+    this.sum = (this.sum + digest) & FINGERPRINT_MASK;
+    this.xor ^= digest;
+  }
+
+  finish(scope: string): string {
+    return `${scope}:${this.count}:${this.sum.toString(16).padStart(32, "0")}:${this.xor.toString(16).padStart(32, "0")}`;
+  }
+}
+
+function isReconcileCheckpoint(value: unknown): value is ReconcileCheckpoint {
+  return (
+    isRecord(value) &&
+    value.version === METADATA_RECONCILE_CHECKPOINT_VERSION &&
+    typeof value.fingerprint === "string" &&
+    typeof value.completedAt === "number" &&
+    Number.isFinite(value.completedAt)
+  );
+}
+
 function yieldToUi(): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, 0);
@@ -581,6 +619,11 @@ export class MetadataCache extends EventDispatcher<{
   private readonly localMutationPaths = new Set<string>();
   private reconcileIndexChangeDepth = 0;
   private deferredReconcileIndexChange: AppDatabaseChangeSet | null = null;
+  private reconcileCheckpointReady = false;
+  private reconcileCheckpointDirty = false;
+  private reconcileCheckpointGeneration = 0;
+  private activeReconcileMutations = 0;
+  private reconcileCheckpointWrite: Promise<void> | null = null;
   private snapshotLeaseCount = 0;
   private snapshotLeasePromise: Promise<MetadataCacheSnapshot> | null = null;
   private snapshotLeaseValue: MetadataCacheSnapshot | null = null;
@@ -663,6 +706,7 @@ export class MetadataCache extends EventDispatcher<{
     this.saveSnapshotDebounced.cancel();
     this.disposePromise = (async () => {
       await Promise.allSettled([...this.pendingOperations]);
+      await this.persistReconcileCheckpoint({ allowDisposed: true });
       void options;
     })();
     return this.disposePromise;
@@ -724,8 +768,25 @@ export class MetadataCache extends EventDispatcher<{
         if (this.disposed) return;
         this.didLoad = true;
         this.trigger("loaded");
+        const fingerprint = this.currentReconcileFingerprint();
+        const checkpoint = await this.app.appDatabase.getMeta(
+          METADATA_RECONCILE_CHECKPOINT_KEY,
+        );
+        if (
+          isReconcileCheckpoint(checkpoint) &&
+          checkpoint.fingerprint === fingerprint
+        ) {
+          this.reconcileCheckpointReady = true;
+          this.reconcileCheckpointDirty = false;
+          progress.report({ message: "Metadata index ready" });
+          return;
+        }
         progress.report({ message: "Reconciling metadata index" });
         await this.reconcileDatabaseWithVault(progress);
+        if (this.disposed) return;
+        this.reconcileCheckpointReady = true;
+        this.markReconcileCheckpointDirty();
+        await this.persistReconcileCheckpoint();
       },
     );
   }
@@ -862,6 +923,116 @@ export class MetadataCache extends EventDispatcher<{
       }
     }
     return total;
+  }
+
+  private currentReconcileFingerprint(): string {
+    const fingerprint = new StreamingManifestFingerprint();
+    for (const file of this.app.vault.iterateFiles()) {
+      if (!this.processors.has(file.extension.toLowerCase())) continue;
+      fingerprint.add(
+        [
+          file.path,
+          file.stat.mtime,
+          file.stat.size,
+          this.parserSignature(file),
+        ].join("\u0000"),
+      );
+    }
+    return fingerprint.finish("metadata-cache-v1");
+  }
+
+  private markReconcileCheckpointDirty(): void {
+    this.reconcileCheckpointDirty = true;
+    this.reconcileCheckpointGeneration += 1;
+  }
+
+  private async persistReconcileCheckpoint(
+    options: { allowDisposed?: boolean } = {},
+  ): Promise<void> {
+    if (this.reconcileCheckpointWrite) {
+      await this.reconcileCheckpointWrite;
+      return;
+    }
+    if (
+      (!options.allowDisposed && this.disposed) ||
+      !this.reconcileCheckpointReady ||
+      !this.reconcileCheckpointDirty ||
+      this.activeReconcileMutations > 0
+    ) {
+      return;
+    }
+
+    this.reconcileCheckpointWrite = (async () => {
+      while (
+        (options.allowDisposed || !this.disposed) &&
+        this.reconcileCheckpointReady &&
+        this.reconcileCheckpointDirty &&
+        this.activeReconcileMutations === 0
+      ) {
+        const generation = this.reconcileCheckpointGeneration;
+        const fingerprint = this.currentReconcileFingerprint();
+        try {
+          await this.app.appDatabase.setMeta(
+            METADATA_RECONCILE_CHECKPOINT_KEY,
+            {
+              version: METADATA_RECONCILE_CHECKPOINT_VERSION,
+              fingerprint,
+              completedAt: Date.now(),
+            } satisfies ReconcileCheckpoint,
+          );
+        } catch (error) {
+          this.reconcileCheckpointReady = false;
+          this.logger.warn(
+            "Failed to persist metadata reconciliation checkpoint",
+            error,
+          );
+          return;
+        }
+        if (generation === this.reconcileCheckpointGeneration) {
+          this.reconcileCheckpointDirty = false;
+        }
+      }
+    })();
+    try {
+      await this.reconcileCheckpointWrite;
+    } finally {
+      this.reconcileCheckpointWrite = null;
+    }
+  }
+
+  private async invalidateReconcileCheckpoint(): Promise<void> {
+    this.reconcileCheckpointReady = false;
+    this.markReconcileCheckpointDirty();
+    await this.app.appDatabase.setMeta(METADATA_RECONCILE_CHECKPOINT_KEY, {
+      version: METADATA_RECONCILE_CHECKPOINT_VERSION,
+      fingerprint: "",
+      completedAt: 0,
+    } satisfies ReconcileCheckpoint);
+  }
+
+  private trackReconcileMutation<T>(
+    operation: Promise<T>,
+    completed: (value: T) => boolean = () => true,
+  ): void {
+    this.markReconcileCheckpointDirty();
+    this.activeReconcileMutations += 1;
+    const tracked = operation
+      .then((value) => {
+        if (!completed(value)) this.reconcileCheckpointReady = false;
+        return value;
+      })
+      .catch((error) => {
+        this.reconcileCheckpointReady = false;
+        throw error;
+      })
+      .finally(() => {
+        this.activeReconcileMutations = Math.max(
+          0,
+          this.activeReconcileMutations - 1,
+        );
+        void this.persistReconcileCheckpoint();
+      });
+    this.trackOperation(tracked);
   }
 
   getFileCache(file: TFile): CachedMetadata | null {
@@ -1143,6 +1314,7 @@ export class MetadataCache extends EventDispatcher<{
   private async performRebuild(
     progress: NotificationProgressHandle,
   ): Promise<void> {
+    await this.invalidateReconcileCheckpoint();
     clearObject(this.fileCache);
     clearObject(this.metadataCache);
     clearObject(this.resolvedLinks);
@@ -1185,6 +1357,9 @@ export class MetadataCache extends EventDispatcher<{
       total: files.length,
       message: "Metadata index rebuilt",
     });
+    this.reconcileCheckpointReady = true;
+    this.markReconcileCheckpointDirty();
+    await this.persistReconcileCheckpoint();
   }
 
   addProcessor(ext: string, processor: MetadataProcessor) {
@@ -1445,7 +1620,11 @@ export class MetadataCache extends EventDispatcher<{
     switch (event) {
       case "create":
       case "modify":
-        this.trackOperation(this.processFile(file));
+        if (!this.processors.has(file.extension.toLowerCase())) break;
+        this.trackReconcileMutation(
+          this.processFile(file),
+          (processed) => processed,
+        );
         break;
       case "delete":
         const existing = this.fileCache[file.path];
@@ -1455,7 +1634,7 @@ export class MetadataCache extends EventDispatcher<{
           existing ? (this.metadataCache[existing.hash] ?? null) : null,
         );
         this.evictHotPath(file.path);
-        this.trackOperation(
+        this.trackReconcileMutation(
           this.mutateDatabasePaths([file.path], () =>
             this.app.appDatabase.deleteIndexedFile(file.path),
           ),
@@ -1486,7 +1665,7 @@ export class MetadataCache extends EventDispatcher<{
       this.hotPathOrder.delete(oldPath);
       this.touchHotPath(file.path);
     }
-    this.trackOperation(
+    this.trackReconcileMutation(
       this.mutateDatabasePaths([oldPath, file.path], () =>
         this.app.appDatabase.renameIndexedFile(oldPath, file.path),
       ),

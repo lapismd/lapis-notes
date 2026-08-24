@@ -43,10 +43,11 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 | LN-DB-028 | AppDatabase mutations MUST publish a typed change set only after commit. Change sets MUST carry a durable revision and bounded invalidation detail; a revision gap MUST invalidate the complete affected domain.                                                                                                                                                                                    |
 | LN-DB-029 | Browser owner/proxy transports MUST relay database change sets without exposing raw SQL. Browser promotion and renderer reconnection MUST compare durable revisions before resuming incremental invalidation.                                                                                                                                                                                        |
 | LN-DB-030 | The Turso v2 migration MUST validate normalized metadata, Search, History, task, notification, and projection rows before activating direct SQL. Failure MUST preserve the prior database and MUST NOT rebuild or discard database-only History.                                                                                                                                                    |
-| LN-DB-031 | Warm metadata startup MUST make persisted queries available before background vault reconciliation. An unchanged vault MUST NOT read note bodies, metadata payload JSON, Search content, or History payloads during database open.                                                                                                                                                                  |
+| LN-DB-031 | Warm metadata startup MUST make persisted queries available before background vault reconciliation. A matching reconciliation checkpoint MUST skip the full manifest scan, and an unchanged vault MUST NOT read note bodies, metadata payload JSON, Search content, or History payloads during database open.                                                                                                                           |
 | LN-DB-032 | A 50,000-note warm-vault performance lane MUST enforce bounded metadata memory and native/WASM readiness and query budgets. A 100,000-note lane MUST report non-blocking stress results.                                                                                                                                                                                                            |
 | LN-DB-033 | Compatibility metadata snapshot import and export MAY remain deprecated for one release. Production startup MUST NOT invoke either operation or maintain the snapshot after normalized writes.                                                                                                                                                                                                      |
 | LN-DB-034 | A `deno-desktop` vault session MUST open a host-owned native Turso provider through an allowlisted bridge. The renderer MUST NOT receive raw SQL, database paths, or non-AppDatabase operations.                                                                                                                                                               |
+| LN-DB-035 | Metadata and Search reconciliation MUST store independent versioned checkpoints in `app_meta`. Metadata fingerprints MUST cover processable path, mtime, size, and parser signature; Search fingerprints MUST additionally cover provider identity and version, projection signature, and chunk settings. A checkpoint MUST advance only after successful reconciliation or a drained incremental update, while missing, stale, failed, or cancelled work MUST remain fail-closed. |
 
 ### LN-DB-032 acceptance details
 
@@ -125,12 +126,16 @@ The owner broadcasts committed change sets. A proxy that observes a revision
 gap or becomes owner invalidates the affected domain before serving new reads.
 
 `MetadataCache` opens this provider and publishes `loaded` as soon as the
-persisted metadata tables are queryable. It then reports determinate
+persisted metadata tables are queryable. A matching versioned checkpoint skips
+the full manifest scan; otherwise it reports determinate
 processable-file counts while merge-comparing the vault file manifest with paged
 indexed file rows. Matching stat and parser-signature rows do not hydrate
 metadata JSON or read Markdown; only missing or stale paths enter the parse and
 row-scoped upsert path. Snapshot import and export are explicit, deprecated
 compatibility operations and are absent from this startup flow.
-Search reconciliation reads only its lightweight manifest columns and the
-metadata file manifest. Structured facets, nested property paths, and batched
-incoming-link lookups execute against their named normalized indexes.
+Search remains queryable from persisted rows while its reconciliation waits for
+the MetadataCache load promise. A matching Search checkpoint skips the scan;
+otherwise reconciliation reads only lightweight Search and metadata manifests,
+yields between bounded batches, and advances the checkpoint after successful
+completion. Structured facets, nested property paths, and batched incoming-link
+lookups execute against their named normalized indexes.

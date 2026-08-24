@@ -121,6 +121,7 @@ entrypoints.
 | LN-PKG-109 | First-party metadata consumers MUST use async indexed queries and revision-aware refresh. A source audit MUST reject first-party enumeration of synchronous `fileCache`, `metadataCache`, `resolvedLinks`, `unresolvedLinks`, or `getAllItems`. |
 | LN-PKG-110 | Vault MUST expose a file iterator whose additional memory is bounded by folder depth. Warm MetadataCache reconciliation MUST combine it with exact-path manifest batches no larger than 500 entries. |
 | LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be the sole private native desktop package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, CEF debug, current-platform, and explicit macOS/Linux distribution scripts. Root desktop scripts MUST select it without a `-deno` suffix, and no Windows distribution target is supported. |
+| LN-PKG-112 | MetadataCache and Search MUST persist separate versioned reconciliation checkpoints in `app_meta` and skip full warm scans when their streaming manifest fingerprints match. Database readiness MUST precede reconciliation, and Search MUST begin its single startup reconciliation only after MetadataCache load completes. Failed, cancelled, or undrained work MUST NOT advance a checkpoint. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. |
@@ -470,9 +471,11 @@ Manage Vaults and desktop Open Vault… overlay the chooser over a retained
 session; Close returns without disposing. The plugins task reports the current plugin
 name. Metadata index load starts after layout restoration so database readiness
 does not contend with `loadLayout`. Persisted queries become available before
-rebuild or vault reconcile completes. That work stays under the progress
-handle and reports determinate processable-file counts; file processing yields
-between files so the notifications status item can paint. `App` registers
+rebuild or vault reconcile completes. Matching versioned Metadata and Search
+checkpoints skip full warm scans; stale Metadata reconciliation finishes before
+the single Search startup reconciliation begins. That work stays under status
+progress handles and reports determinate processable-file counts; bounded file
+batches yield so the notifications status item can paint. `App` registers
 `app:rebuild-vault-cache`
 and `app:rebuild-generated-state` so hosts can rerun that progress
 (LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`

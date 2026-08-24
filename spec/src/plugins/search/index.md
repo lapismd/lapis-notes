@@ -52,6 +52,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-042 | Warm Search startup MUST reconcile lightweight document manifests against metadata hashes and provider versions. Unchanged documents MUST NOT read vault bodies, enumerate complete Search documents, regenerate chunks, or recompute embeddings.                                                                                                                                                                                              |
 | LN-SRCH-043 | Search syntax facets MUST query indexed metadata tags and properties asynchronously. Revision-aware refresh MUST suppress stale results and MUST NOT enumerate `MetadataCache.getAllItems`.                                                                                                                                                                                                                                                    |
 | LN-SRCH-044 | An active Search view MUST subscribe to revisioned AppDatabase changes and debounce re-execution of its current query after committed Search-domain changes or reset invalidation. It MUST suppress stale results and release the subscription on teardown.                                                                                                                                                                                    |
+| LN-SRCH-045 | Search startup MUST schedule exactly one reconciliation after the MetadataCache load promise completes and MUST keep persisted results queryable while that work runs. A matching checkpoint MUST skip the full scan; missing or stale state MUST reconcile in bounded yielding batches and expose non-blocking indexing progress. A first index MUST reveal committed batches incrementally, and manual Refresh MUST force reconciliation. |
 
 ## Runtime flow
 
@@ -98,6 +99,11 @@ copy progress stays on that same notification or startup-detail surface
 Warm refresh merge-compares sorted Search and metadata manifests with the vault
 stat manifest. Matching provider version, projection signature, stat, and
 metadata hash skip body reads, metadata hydration, chunking, and embedding.
+Startup performs this work once after MetadataCache finishes its own load and
+skips it entirely when the versioned Search checkpoint matches. Persisted rows
+remain queryable throughout a stale or first-index reconciliation, whose
+bounded batches yield to renderer input and report through the status progress
+surface. Manual Refresh remains a forced reconciliation.
 Search syntax tag suggestions use revision-aware indexed facets.
 The governed Search panel story starts from persisted indexed facets, exposes a
 failed facet query as an alert, and proves a later committed invalidation

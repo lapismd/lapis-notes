@@ -22,6 +22,7 @@ import { SearchView, SearchViewType } from "./search-view";
 import { createNotesSearchSlashCommand } from "./notes-search-command";
 import { createNotesSearchTool } from "./notes-search-tool";
 import SearchToolResult from "./search-tool-result.svelte";
+import { reconcileSearchAfterMetadata } from "./search-startup";
 
 const SEARCH_MANIFEST: PluginManifest = {
   id: "search",
@@ -120,9 +121,9 @@ export class SearchPlugin extends Plugin {
         void this.startupRefresh();
       }),
     );
-    this.app.workspace.onLayoutReady(() => {
+    if (this.app.metadataCache.initialized) {
       void this.startupRefresh();
-    });
+    }
 
     this.addCommand({
       id: "rebuild-semantic-search",
@@ -164,11 +165,15 @@ export class SearchPlugin extends Plugin {
     return this.searchManager.refreshFromVault(reason);
   }
 
+  async onunload(): Promise<void> {
+    await this.searchManager.dispose();
+  }
+
   private async startupRefresh(): Promise<void> {
     if (this.startupRefreshStarted) return;
     this.startupRefreshStarted = true;
     try {
-      await this.refreshIndex("startup");
+      await reconcileSearchAfterMetadata(this.app, this.searchManager);
     } catch (error) {
       this.startupRefreshStarted = false;
       new Notice(

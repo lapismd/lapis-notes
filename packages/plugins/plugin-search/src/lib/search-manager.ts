@@ -20,6 +20,49 @@ import {
 } from "./search-settings";
 
 const REACTIVE_INDEX_DELAY_MS = 75;
+const SEARCH_RECONCILE_CHECKPOINT_KEY = "search.reconcile-checkpoint.v1";
+const SEARCH_RECONCILE_CHECKPOINT_VERSION = 1;
+const FINGERPRINT_MASK = (1n << 128n) - 1n;
+
+type SearchReconcileCheckpoint = {
+  version: number;
+  fingerprint: string;
+  completedAt: number;
+};
+
+class StreamingManifestFingerprint {
+  private count = 0;
+  private sum = 0n;
+  private xor = 0n;
+
+  add(value: string): void {
+    const digest = BigInt(`0x${md5(value)}`);
+    this.count += 1;
+    this.sum = (this.sum + digest) & FINGERPRINT_MASK;
+    this.xor ^= digest;
+  }
+
+  finish(scope: string): string {
+    return `${scope}:${this.count}:${this.sum.toString(16).padStart(32, "0")}:${this.xor.toString(16).padStart(32, "0")}`;
+  }
+}
+
+function isSearchReconcileCheckpoint(
+  value: unknown,
+): value is SearchReconcileCheckpoint {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const checkpoint = value as Record<string, unknown>;
+  return (
+    checkpoint.version === SEARCH_RECONCILE_CHECKPOINT_VERSION &&
+    typeof checkpoint.fingerprint === "string" &&
+    typeof checkpoint.completedAt === "number" &&
+    Number.isFinite(checkpoint.completedAt)
+  );
+}
+
+function yieldToBackground(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
 
 function isFileLike(value: unknown): value is TFile {
   return (
@@ -126,9 +169,19 @@ export class SearchManager {
   >();
   private readonly queuedDeletes = new Map<string, TFile>();
   private readonly flushQueuedChanges = debounce(() => {
-    void this.processQueuedChanges();
+    void this.drainQueuedChanges();
   }, REACTIVE_INDEX_DELAY_MS);
   private readonly ownedSourceProviderIds = new Set<string>();
+  private changeTrackingReady = false;
+  private sourceGeneration = 0;
+  private reconcileCheckpointReady = false;
+  private reconcileCheckpointDirty = false;
+  private reconcileCheckpointGeneration = 0;
+  private activeIncrementalOperations = 0;
+  private reconcileCheckpointWrite: Promise<void> | null = null;
+  private queuedProcessing: Promise<void> = Promise.resolve();
+  private readonly pendingIncrementalOperations = new Set<Promise<unknown>>();
+  private disposed = false;
 
   constructor(
     readonly app: App,
@@ -269,6 +322,33 @@ export class SearchManager {
     return this.refreshPromise;
   }
 
+  async reconcileStartup(): Promise<SearchRuntimeStatus> {
+    const initialGeneration = this.sourceGeneration;
+    let status: SearchRuntimeStatus;
+    try {
+      const fingerprint = this.currentReconcileFingerprint();
+      const checkpoint = await this.readReconcileCheckpoint();
+      if (
+        isSearchReconcileCheckpoint(checkpoint) &&
+        checkpoint.fingerprint === fingerprint &&
+        initialGeneration === this.sourceGeneration
+      ) {
+        this.reconcileCheckpointReady = true;
+        this.reconcileCheckpointDirty = false;
+        status = await this.getStatus();
+      } else {
+        status = await this.refreshFromVault("startup");
+      }
+    } finally {
+      this.changeTrackingReady = true;
+    }
+
+    if (initialGeneration !== this.sourceGeneration) {
+      status = await this.refreshFromVault("startup-drift");
+    }
+    return status;
+  }
+
   private async runRefreshQueue(): Promise<SearchRuntimeStatus> {
     let status: SearchRuntimeStatus | null = null;
     while (this.queuedRefreshReason) {
@@ -283,40 +363,57 @@ export class SearchManager {
     const changed = this.app.metadataCache.on(
       "changed",
       (file, content, cache) => {
+        this.recordSourceMutation();
+        if (!this.changeTrackingReady) return;
         this.queuedDeletes.delete(file.path);
         this.queuedChanges.set(file.path, { file, content, cache });
         this.flushQueuedChanges();
       },
     );
     const deleted = this.app.metadataCache.on("deleted", (file) => {
+      this.recordSourceMutation();
+      if (!this.changeTrackingReady) return;
       this.queuedChanges.delete(file.path);
       this.queuedDeletes.set(file.path, file);
       this.flushQueuedChanges();
     });
     const vaultChanged = this.app.vault.on("modify", (file) => {
       if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
-        void this.processFileSafely(file);
+        this.recordSourceMutation();
+        if (this.changeTrackingReady) {
+          this.trackIncrementalOperation(this.processFileSafely(file));
+        }
       }
     });
     const vaultCreated = this.app.vault.on("create", (file) => {
       if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
-        void this.processFileSafely(file);
+        this.recordSourceMutation();
+        if (this.changeTrackingReady) {
+          this.trackIncrementalOperation(this.processFileSafely(file));
+        }
       }
     });
     const vaultDeleted = this.app.vault.on("delete", (file) => {
       if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
-        void this.processDelete(file);
+        this.recordSourceMutation();
+        if (this.changeTrackingReady) {
+          this.trackIncrementalOperation(this.processDelete(file));
+        }
       }
     });
     const vaultRenamed = this.app.vault.on("rename", (file, oldPath) => {
-      void this.processDelete(oldPath);
-      if (isFileLike(file)) void this.processFileSafely(file);
+      this.recordSourceMutation();
+      if (!this.changeTrackingReady) return;
+      this.trackIncrementalOperation(
+        Promise.all([
+          this.processDelete(oldPath),
+          isFileLike(file) ? this.processFileSafely(file) : Promise.resolve(),
+        ]).then(() => undefined),
+      );
     });
 
     return () => {
       this.flushQueuedChanges.cancel();
-      this.queuedChanges.clear();
-      this.queuedDeletes.clear();
       this.app.metadataCache.offref(changed);
       this.app.metadataCache.offref(deleted);
       this.app.vault.offref(vaultChanged);
@@ -324,6 +421,23 @@ export class SearchManager {
       this.app.vault.offref(vaultDeleted);
       this.app.vault.offref(vaultRenamed);
     };
+  }
+
+  async dispose(): Promise<void> {
+    if (this.disposed) return;
+    this.flushQueuedChanges.cancel();
+    if (this.queuedChanges.size || this.queuedDeletes.size) {
+      await this.drainQueuedChanges();
+    }
+    await Promise.allSettled([
+      ...this.pendingIncrementalOperations,
+      this.queuedProcessing,
+      ...(this.refreshPromise ? [this.refreshPromise] : []),
+    ]);
+    await this.persistReconcileCheckpoint();
+    this.disposed = true;
+    this.queuedChanges.clear();
+    this.queuedDeletes.clear();
   }
 
   private async processFile(file: TFile): Promise<void> {
@@ -347,6 +461,149 @@ export class SearchManager {
         chunking: this.getSettings().chunking,
       }),
     );
+  }
+
+  private currentReconcileFingerprint(): string {
+    const fingerprint = new StreamingManifestFingerprint();
+    const providers = this.app.searchDocumentProviders
+      .getAll()
+      .sort((left, right) => left.id.localeCompare(right.id));
+    for (const provider of providers) {
+      fingerprint.add(
+        [
+          "provider",
+          provider.id,
+          provider.version ?? "1",
+          provider.priority ?? 0,
+          this.projectionSignature(provider.id, provider.version ?? "1"),
+        ].join("\u0000"),
+      );
+    }
+
+    const files =
+      typeof this.app.vault.iterateFiles === "function"
+        ? this.app.vault.iterateFiles()
+        : this.app.vault.getFiles();
+    for (const file of files) {
+      const provider = this.app.searchDocumentProviders.resolve(file);
+      if (!provider) continue;
+      const providerVersion = provider.version ?? "1";
+      fingerprint.add(
+        [
+          "file",
+          file.path,
+          file.stat.mtime,
+          file.stat.size,
+          provider.id,
+          providerVersion,
+          this.projectionSignature(provider.id, providerVersion),
+        ].join("\u0000"),
+      );
+    }
+    return fingerprint.finish("search-index-v1");
+  }
+
+  private readReconcileCheckpoint(): Promise<unknown> {
+    return typeof this.app.appDatabase.getMeta === "function"
+      ? this.app.appDatabase.getMeta(SEARCH_RECONCILE_CHECKPOINT_KEY)
+      : Promise.resolve(undefined);
+  }
+
+  private markReconcileCheckpointDirty(): void {
+    this.reconcileCheckpointDirty = true;
+    this.reconcileCheckpointGeneration += 1;
+  }
+
+  private recordSourceMutation(): void {
+    this.sourceGeneration += 1;
+    this.markReconcileCheckpointDirty();
+  }
+
+  private async invalidateReconcileCheckpoint(): Promise<void> {
+    this.reconcileCheckpointReady = false;
+    this.markReconcileCheckpointDirty();
+    if (typeof this.app.appDatabase.setMeta !== "function") return;
+    await this.app.appDatabase.setMeta(SEARCH_RECONCILE_CHECKPOINT_KEY, {
+      version: SEARCH_RECONCILE_CHECKPOINT_VERSION,
+      fingerprint: "",
+      completedAt: 0,
+    } satisfies SearchReconcileCheckpoint);
+  }
+
+  private async persistReconcileCheckpoint(): Promise<void> {
+    if (this.reconcileCheckpointWrite) {
+      await this.reconcileCheckpointWrite;
+      return;
+    }
+    if (
+      this.disposed ||
+      !this.reconcileCheckpointReady ||
+      !this.reconcileCheckpointDirty ||
+      this.activeIncrementalOperations > 0 ||
+      this.refreshState.active ||
+      typeof this.app.appDatabase.setMeta !== "function"
+    ) {
+      return;
+    }
+
+    this.reconcileCheckpointWrite = (async () => {
+      while (
+        !this.disposed &&
+        this.reconcileCheckpointReady &&
+        this.reconcileCheckpointDirty &&
+        this.activeIncrementalOperations === 0 &&
+        !this.refreshState.active
+      ) {
+        const generation = this.reconcileCheckpointGeneration;
+        const fingerprint = this.currentReconcileFingerprint();
+        try {
+          await this.app.appDatabase.setMeta(
+            SEARCH_RECONCILE_CHECKPOINT_KEY,
+            {
+              version: SEARCH_RECONCILE_CHECKPOINT_VERSION,
+              fingerprint,
+              completedAt: Date.now(),
+            } satisfies SearchReconcileCheckpoint,
+          );
+        } catch (error) {
+          this.reconcileCheckpointReady = false;
+          this.app.logger.warn(
+            "Failed to persist Search reconciliation checkpoint",
+            error instanceof Error ? error : new Error(String(error)),
+          );
+          return;
+        }
+        if (generation === this.reconcileCheckpointGeneration) {
+          this.reconcileCheckpointDirty = false;
+        }
+      }
+    })();
+    try {
+      await this.reconcileCheckpointWrite;
+    } finally {
+      this.reconcileCheckpointWrite = null;
+    }
+  }
+
+  private trackIncrementalOperation(operation: Promise<unknown>): void {
+    this.activeIncrementalOperations += 1;
+    const tracked = operation
+      .catch((error) => {
+        this.reconcileCheckpointReady = false;
+        this.app.logger.warn(
+          "Search incremental indexing failed",
+          error instanceof Error ? error : new Error(String(error)),
+        );
+      })
+      .finally(() => {
+        this.activeIncrementalOperations = Math.max(
+          0,
+          this.activeIncrementalOperations - 1,
+        );
+        this.pendingIncrementalOperations.delete(tracked);
+        void this.persistReconcileCheckpoint();
+      });
+    this.pendingIncrementalOperations.add(tracked);
   }
 
   private async *searchManifestRows(): AsyncGenerator<SearchDocumentManifestRecord> {
@@ -415,7 +672,18 @@ export class SearchManager {
     }
   }
 
+  private drainQueuedChanges(): Promise<void> {
+    const operation = this.queuedProcessing.then(() =>
+      this.processQueuedChanges(),
+    );
+    this.queuedProcessing = operation.catch(() => undefined);
+    this.trackIncrementalOperation(operation);
+    return operation;
+  }
+
   private async runRefresh(reason: string): Promise<SearchRuntimeStatus> {
+    await this.invalidateReconcileCheckpoint();
+    const refreshGeneration = this.sourceGeneration;
     return this.app.notifications.withProgress(
       {
         title: "Refreshing search index",
@@ -503,13 +771,19 @@ export class SearchManager {
               metadataRow = (await metadataIterator.next()).value;
             }
             this.refreshState.processed += 1;
+            if (this.refreshState.processed % 25 === 0) {
+              await yieldToBackground();
+            }
           }
+          let trailingRows = 0;
           while (searchRow) {
             progress.throwIfCancellationRequested();
             if (ownedSearchRow(searchRow)) {
               await this.app.appDatabase.deleteSearchDocument(searchRow.path);
             }
             searchRow = (await searchIterator.next()).value;
+            trailingRows += 1;
+            if (trailingRows % 25 === 0) await yieldToBackground();
           }
           this.refreshState.refreshedAt = Date.now();
           progress.report({
@@ -522,6 +796,11 @@ export class SearchManager {
           await this.app.appDatabase.endSearchIndexingBatch();
           this.refreshState.active = false;
           this.refreshState.reason = null;
+        }
+        this.reconcileCheckpointReady = true;
+        this.markReconcileCheckpointDirty();
+        if (refreshGeneration === this.sourceGeneration) {
+          await this.persistReconcileCheckpoint();
         }
         return this.getStatus();
       },
