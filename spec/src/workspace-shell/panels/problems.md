@@ -80,8 +80,10 @@ to serializable diagnostics.
   actions, and its configuration field.
 - Spell Check owns Harper diagnostics through the shared language-service
   collection. Its Problems menu uses cspell-style suggestion, dictionary, and
-  ignore-word titles. Its status item refreshes from configuration and MUST NOT
-  upsert on `layout-change`.
+  ignore-word titles. Diagnostics requested while Harper is warming complete
+  empty; setup failures still surface through the provider-failure Problems row.
+  Its status item refreshes from configuration and MUST NOT upsert on
+  `layout-change`.
 - Mira continues to own Markdown completion and hover behavior. The language
   service contributes diagnostics and code actions only in this slice.
   Lint hover cards open only on the underlined range or gutter marker, not the

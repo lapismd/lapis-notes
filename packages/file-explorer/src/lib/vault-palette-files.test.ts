@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { EXPLORER_SETTING_IDS } from "./explorer-settings";
 import {
   listVaultPaletteFiles,
+  VAULT_PALETTE_EMPTY_QUERY_FALLBACK_LIMIT,
   VAULT_PALETTE_FILES_TAB,
   VAULT_PALETTE_RECENT_GROUP,
 } from "./vault-palette-files";
@@ -58,6 +59,28 @@ describe("listVaultPaletteFiles", () => {
     expect(listVaultPaletteFiles(createApp({ recentFiles: recent }), "")).toEqual(
       [recent[0]],
     );
+  });
+
+  it("falls back to a bounded file list when a fresh vault has no recents", () => {
+    const files = [
+      createFile("Projects/Beta.md"),
+      createFile("Projects/Alpha.md"),
+      createFile(".obsidian/app.json"),
+    ];
+    expect(
+      listVaultPaletteFiles(createApp({ queryFiles: files }), "").map(
+        (file) => file.path,
+      ),
+    ).toEqual(["Projects/Alpha.md", "Projects/Beta.md"]);
+  });
+
+  it("caps the empty-query fallback list for large vaults", () => {
+    const files = Array.from({ length: 40 }, (_, index) =>
+      createFile(`Notes/${String(index).padStart(2, "0")}.md`),
+    );
+    expect(
+      listVaultPaletteFiles(createApp({ queryFiles: files }), ""),
+    ).toHaveLength(VAULT_PALETTE_EMPTY_QUERY_FALLBACK_LIMIT);
   });
 
   it("filters vault files by path and hidden-file setting", () => {

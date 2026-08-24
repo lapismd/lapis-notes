@@ -9,6 +9,7 @@ export const VAULT_PALETTE_FILES_TAB = {
 } as const;
 
 export const VAULT_PALETTE_RECENT_GROUP = "Recent";
+export const VAULT_PALETTE_EMPTY_QUERY_FALLBACK_LIMIT = 25;
 
 const SUPPORTED_EXTENSIONS = new Set([
   "md",
@@ -36,13 +37,18 @@ function isPaletteVisibleFile(app: App, file: TFile): boolean {
 export function listVaultPaletteFiles(app: App, query: string): TFile[] {
   const normalized = query.trim().toLocaleLowerCase();
   if (!normalized) {
-    return app.workspace.getRecentFiles().filter((file) =>
+    const recent = app.workspace.getRecentFiles().filter((file) =>
       isPaletteVisibleFile(app, file),
     );
+    if (recent.length > 0) return recent;
   }
   return app.vault
     .getFiles()
     .filter((file) => isPaletteVisibleFile(app, file))
     .filter((file) => file.path.toLocaleLowerCase().includes(normalized))
-    .sort((left, right) => left.path.localeCompare(right.path));
+    .sort((left, right) => left.path.localeCompare(right.path))
+    .slice(
+      0,
+      normalized ? undefined : VAULT_PALETTE_EMPTY_QUERY_FALLBACK_LIMIT,
+    );
 }

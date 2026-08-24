@@ -25,6 +25,7 @@ import { openExplorerFile } from "./open-explorer-file";
 import { EXPLORER_SETTING_IDS } from "./explorer-settings";
 import { listExplorerVaultEntries } from "./explorer-vault-entries";
 import { registerExplorerSettings } from "./register-explorer-settings";
+import { subscribeExplorerVaultTreeChanges } from "./explorer-tree-subscription";
 import {
   listVaultPaletteFiles,
   VAULT_PALETTE_FILES_TAB,
@@ -107,16 +108,8 @@ function createExplorerController(app: App, loading: boolean) {
     tree: {
       listEntries: () =>
         listExplorerVaultEntries(app.vault.getAllLoadedFiles()),
-      subscribe: (onChange) => {
-        const created = app.vault.on("create", onChange);
-        const deleted = app.vault.on("delete", onChange);
-        const renamed = app.vault.on("rename", onChange);
-        return () => {
-          app.vault.offref(created);
-          app.vault.offref(deleted);
-          app.vault.offref(renamed);
-        };
-      },
+      subscribe: (onChange) =>
+        subscribeExplorerVaultTreeChanges(app, onChange),
     },
     selection: {
       subscribe: (onActivePath) => {

@@ -149,8 +149,9 @@ entrypoints.
 | LN-PKG-105 | `@lapis-notes/api` MUST own the bridge from Design Core pane-menu split actions to Lapis `WorkspaceLeaf` duplication. Lapis-hosted imperative views MUST keep live leaf ids, containers, copied view state, translated split directions, and projected host layout before the new pane renders. |
 
 `@lapis-notes/spellcheck` registers a Harper language-service provider and a
-Lucide status item. That item refreshes from configuration, not `layout-change`.
-It stays a bundled core plugin and does not import Design Core presentation.
+Lucide status item. Provider warmup is non-blocking for diagnostics, and the
+status item refreshes from configuration, not `layout-change`. It stays a
+bundled core plugin and does not import Design Core presentation.
 `@lapis-notes/wordcount` updates the API status bar for the active text editor
 and stays a bundled core plugin. Clicking the item shows reading time through
 the projected status menu. Design Core F-Mode remains an optional static

@@ -83,6 +83,7 @@ describe("spellcheck provider", () => {
       app as never,
       async () => createLinter(lint),
     );
+    await provider.warmup();
     const context = {
       document: {
         uri: "vault:///Notes/Welcome.md",
@@ -129,6 +130,7 @@ describe("spellcheck provider", () => {
       app as never,
       async () => createLinter(lint),
     );
+    await provider.warmup();
     const context = {
       document: {
         uri: "vault:///Notes/Welcome.md",
@@ -190,5 +192,40 @@ describe("spellcheck provider", () => {
         globals: [],
       }),
     ).toEqual([]);
+  });
+
+  it("returns empty diagnostics while Harper is still warming up", async () => {
+    const linter = createLinter(lint);
+    let resolveLinter: (value: HarperLinterLike) => void = () => undefined;
+    const createLinterDeferred = vi.fn(
+      () =>
+        new Promise<HarperLinterLike>((resolve) => {
+          resolveLinter = resolve;
+        }),
+    );
+    const provider = createSpellcheckProviderForApp(
+      createApp() as never,
+      createLinterDeferred,
+    );
+    const context = {
+      document: {
+        uri: "vault:///Notes/Welcome.md",
+        languageId: "markdown",
+        version: 1,
+        text,
+      },
+      globals: [],
+    };
+
+    await expect(provider.provideDiagnostics!(context)).resolves.toEqual([]);
+    expect(createLinterDeferred).toHaveBeenCalledOnce();
+
+    resolveLinter(linter);
+    await provider.warmup();
+    await expect(provider.provideDiagnostics!(context)).resolves.toEqual([
+      expect.objectContaining({
+        message: "`sentense` is a misspelling.",
+      }),
+    ]);
   });
 });

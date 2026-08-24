@@ -51,21 +51,31 @@ export function createSpellcheckProviderForApp(
   let providerPromise: Promise<HarperLinterLike> | null = null;
   let resolved: HarperLinterLike | null = null;
   let disposed = false;
-  const getLinter = async (): Promise<HarperLinterLike> => {
+  const ensureLinter = async (): Promise<HarperLinterLike> => {
     if (disposed) {
       throw new Error("Spellcheck provider disposed");
     }
     if (!providerPromise) {
-      providerPromise = createLinter().then((linter) => {
-        resolved = linter;
-        if (disposed) {
-          void linter.dispose?.();
-          throw new Error("Spellcheck provider disposed");
-        }
-        return linter;
-      });
+      providerPromise = createLinter()
+        .then((linter) => {
+          resolved = linter;
+          if (disposed) {
+            void linter.dispose?.();
+            throw new Error("Spellcheck provider disposed");
+          }
+          return linter;
+        })
+        .catch((error) => {
+          providerPromise = null;
+          throw error;
+        });
     }
     return providerPromise;
+  };
+  const getReadyLinter = (): HarperLinterLike | null => {
+    if (resolved) return resolved;
+    void ensureLinter().catch(() => undefined);
+    return null;
   };
 
   return {
@@ -77,18 +87,19 @@ export function createSpellcheckProviderForApp(
       capabilities: { diagnostics: true, codeActions: true },
     },
     async provideDiagnostics(context) {
-      return (await lintDocument(app, context, getLinter)).diagnostics;
+      return (await lintDocument(app, context, getReadyLinter)).diagnostics;
     },
     async provideCodeActions(context, range) {
-      const result = await lintDocument(app, context, getLinter);
-      const linter = await getLinter();
+      const linter = getReadyLinter();
+      if (!linter) return [];
+      const result = await lintDocument(app, context, () => linter);
       return codeActionsFromLints(linter, context.document.text, range, result);
     },
     async applyCommand(context, command) {
       await applySpellcheckCommand(app, context, command);
     },
     async warmup() {
-      await getLinter();
+      await ensureLinter();
     },
     dispose() {
       if (disposed) return;
@@ -104,7 +115,7 @@ export function createSpellcheckProviderForApp(
 async function lintDocument(
   app: App,
   context: LanguageServiceRequestContext,
-  getLinter: () => Promise<HarperLinterLike>,
+  getLinter: () => HarperLinterLike | Promise<HarperLinterLike | null> | null,
 ): Promise<{
   settings: SpellcheckSettings;
   language: HarperLanguage;
@@ -122,6 +133,9 @@ async function lintDocument(
 
   const language = fileTypeFromPath(path);
   const linter = await getLinter();
+  if (!linter) {
+    return { settings, language, diagnostics: [], lints: [] };
+  }
   await applyHarperSettings(linter, settings);
 
   const options = lintOptions(settings, language);

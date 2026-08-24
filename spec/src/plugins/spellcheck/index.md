@@ -30,7 +30,7 @@ status-bar ownership.
 | LN-SPL-005 | Suggestion actions MUST be serializable document edits. Add to dictionary and Ignore MUST persist configuration and refresh on the next diagnostics request. |
 | LN-SPL-006 | Spell Check MUST publish `spellcheck:status` on `app.statusBar` with Lucide `spell-check` and an optional dialect segment. Click MUST open dialect choices and a checking toggle. It MUST NOT use compatibility status DOM, the Harper logo, or flag emoji. |
 | LN-SPL-007 | Spell Check MUST refresh `spellcheck:status` from plugin load and configuration updates. It MUST NOT subscribe to `layout-change` for that item. A no-op dialect or checking write MUST NOT upsert the status bar. |
-| LN-SPL-008 | Spell Check MUST start Harper during plugin load and MUST surface setup failure through LN-WS-077. It MUST NOT fail plugin enablement. |
+| LN-SPL-008 | Spell Check MUST start Harper during plugin load and MUST surface setup failure through LN-WS-077. Open-document diagnostics requested while Harper is still warming MUST complete with no Spell Check diagnostics instead of timing out. It MUST NOT fail plugin enablement. |
 | LN-SPL-009 | An open misspelled Markdown note on the web host MUST publish a Harper Problems row beside Markdownlint after Spell Check starts. The manager timeout row MUST NOT remain once setup succeeds. |
 | LN-SPL-010 | Spell Check code actions MUST use cspell-style titles: bare suggestion text, `Add: "<word>" to dictionary`, and `Ignore: "<word>"`. Ignore this suggestion MUST remain last. User, folder, and cspell.json targets MUST NOT appear. |
 
@@ -46,10 +46,12 @@ Spell Check Settings cover Harper options and file-type filters:
 
 The shared language-service collection publishes those diagnostics beside
 Markdownlint because `LanguageServiceManager` merges every matching provider
-(LN-WS-076). Harper setup starts during plugin load; a setup failure appears
-as a workspace-wide Problems row and does not fail enablement (LN-SPL-008).
-An open misspelled web note publishes a Harper Problems row once WASM setup
-succeeds (LN-SPL-009). Problems actions use cspell-style titles (LN-SPL-010).
-Settings persist through API configuration. Markdown mode skips code fences.
-Ignore comments such as `harper:ignore` MAY mask regions through Harper
-`regex_mask`. Browser `editor.behaviour.spellCheck` remains a separate setting.
+(LN-WS-076). Harper setup starts during plugin load; diagnostics requested before
+that setup resolves complete empty rather than producing a provider timeout. A
+setup failure appears as a workspace-wide Problems row and does not fail
+enablement (LN-SPL-008). An open misspelled web note publishes a Harper Problems
+row once WASM setup succeeds (LN-SPL-009). Problems actions use cspell-style
+titles (LN-SPL-010). Settings persist through API configuration. Markdown mode
+skips code fences. Ignore comments such as `harper:ignore` MAY mask regions
+through Harper `regex_mask`. Browser `editor.behaviour.spellCheck` remains a
+separate setting.
