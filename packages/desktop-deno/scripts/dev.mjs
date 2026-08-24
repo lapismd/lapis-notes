@@ -3,11 +3,16 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
+import {
+  createDenoDesktopDevArgs,
+  ensureDesktopDevSiblingLinks,
+} from "./dev-command.mjs";
 
 const homeDeno = path.join(process.env.HOME ?? "", ".deno", "bin", "deno");
 const denoBin = process.env.DENO ?? (existsSync(homeDeno) ? homeDeno : "deno");
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+await ensureDesktopDevSiblingLinks(packageRoot);
 
 const server = await createServer({
   configFile: path.join(packageRoot, "vite.config.ts"),
@@ -20,22 +25,7 @@ console.log(`Deno desktop renderer: ${address}`);
 const backend = process.env.LAPIS_DENO_BACKEND?.trim();
 const deno = spawn(
   denoBin,
-  [
-    "desktop",
-    "--hmr",
-    "--inspect=127.0.0.1:9229",
-    "--no-check",
-    "--no-npm",
-    "--exclude",
-    "node_modules",
-    "--exclude",
-    "dist",
-    "--exclude",
-    "src",
-    ...(backend === "cef" || backend === "webview" ? ["--backend", backend] : []),
-    "-A",
-    "src-deno/main.ts",
-  ],
+  createDenoDesktopDevArgs(backend),
   {
     cwd: packageRoot,
     env: {

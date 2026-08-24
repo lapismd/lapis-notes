@@ -201,9 +201,11 @@ diagnostic with at most one action per title.
 Desktop build output follows the same generated-artifact rule as Storybook and
 the specification book. `packages/desktop-deno/dist/` and
 `packages/desktop-deno/release/` stay ignored, while package source,
-acceptance tests, icons, and entitlements remain reviewable inputs. The change
-map requires desktop implementation slices to update the desktop, package, and
-architecture chapters; language-runtime changes additionally update Problems.
+acceptance tests, icons, and entitlements remain reviewable inputs. Ignored
+package-local desktop development symlinks for source imports are generated
+bootstrap state, not tracked source. The change map requires desktop
+implementation slices to update the desktop, package, and architecture chapters;
+language-runtime changes additionally update Problems.
 The local Storybook structure validator reads the shared command-panel registry
 and rejects duplicate or stale mappings, missing canonical stories, incorrect
 `Plugins/<Plugin>/Panels/<Panel>` titles, missing placements, and absent

@@ -29,6 +29,12 @@ Its production acceptance builds through the package and restores an isolated
 real vault rather than substituting a browser-only renderer test.
 Target-specific artifact naming, metadata, icons, verified PTY libraries, and
 credential-selecting signing orchestration remain owned by that host package.
+The development launcher is part of that host boundary: `pnpm dev:desktop`
+starts Vite, then runs `deno desktop` against the same Deno import map used by
+the native host, including its declared npm compatibility imports. When Deno
+Desktop embeds colocated sibling source paths relative to the host package, the
+launcher creates ignored package-local symlinks only for those declared sibling
+or workspace sources and refuses to replace an existing non-owned path.
 
 ## Requirements
 

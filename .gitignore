@@ -26,3 +26,6 @@ tmp/
 packages/desktop-deno/LapisNotes.app/
 packages/desktop-deno/release/
 packages/desktop-deno/native/
+packages/desktop-deno/lapis-notes
+packages/desktop-deno/ai-host
+packages/desktop-deno/terminal-host

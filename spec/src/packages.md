@@ -21,6 +21,9 @@ projection `planKind` values are `anytime`, `morning`, `afternoon`,
 production hosts are Deno desktop and web. Root `dev:desktop`, `build:desktop`,
 `package:desktop`, and `test:desktop:packaged` scripts select and exercise the
 Deno package.
+The desktop development script is a pnpm entrypoint that starts the Deno desktop
+host, so its Deno arguments must stay consistent with the package-local
+`deno.json` imports rather than imposing a root-level package-manager policy.
 
 ## Requirements
 
@@ -488,7 +491,10 @@ a same-origin HTTP route owned by its native host and does not import a
 community plugin from an unchecked filesystem URL.
 The Deno package links sibling `@lapismd/ai-host`, maps its public source entry
 and npm transport dependencies into the compiled graph, and delegates process,
-ACP, and application-tool execution to that public executor. Because Deno
+ACP, and application-tool execution to that public executor. Its development
+launcher may create ignored package-local symlinks for declared sibling and
+workspace Deno source imports so `deno desktop` resolves embedded files without
+reintroducing a root Deno workspace. Because Deno
 Desktop owns one loopback renderer server, the host attaches the public
 Web-standard MCP handler to a reserved same-origin route instead of starting a
 Node compatibility listener or copying broker logic.
