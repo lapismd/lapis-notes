@@ -435,9 +435,10 @@ the portable Mira feature stack from internal source modules.
 
 The private Deno desktop package consumes API, workspace, Design Core, the
 internal language service, and Markdownlint while building its bundled
-renderer and native graph. It uses the API-owned Turso WASM provider, embeds
-public Deno host packages, and materializes checksum-verified PTY libraries for
-the selected macOS or Linux target. The API manifest
+renderer and native graph. It supplies API sessions with a native Turso
+AppDatabase provider over the bounded desktop bridge, embeds public Deno host
+packages, and materializes checksum-verified PTY libraries for the selected
+macOS or Linux target. The API manifest
 declares `dist/enhance.js` and its source counterpart as side effects so a
 production consumer cannot tree-shake the compatibility DOM initialization
 required before constructing `App`.
@@ -445,8 +446,8 @@ required before constructing `App`.
 The private web package consumes the public API, current core plugins,
 workspace, and Design Core presentation. It owns browser vault selection,
 Workbox, window-controls overlay state, and web-session lifecycle; its
-production database dependency remains the pinned API-owned Turso WASM
-provider rather than a package-local persistence implementation.
+production database dependency remains the pinned API-owned Turso WASM provider
+rather than a package-local persistence implementation.
 Root `dev:web` and `restart:web` start that host after an API build; restart
 first frees listeners on Vite port 4174.
 

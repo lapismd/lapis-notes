@@ -20,7 +20,8 @@
     "jsr:@std/path@1.1.6": "1.1.6",
     "jsr:@std/path@^1.1.5": "1.1.6",
     "jsr:@std/path@^1.1.6": "1.1.6",
-    "jsr:@std/streams@^1.1.2": "1.1.2"
+    "jsr:@std/streams@^1.1.2": "1.1.2",
+    "npm:@tursodatabase/database@0.7.2": "0.7.2"
   },
   "jsr": {
     "@denosaurs/plug@1.1.0": {
@@ -92,6 +93,43 @@
     },
     "@std/streams@1.1.2": {
       "integrity": "0249bf9b78a999f57032ca4d8e7ccaa57579090242640b35ddc948fbb745d3af"
+    }
+  },
+  "npm": {
+    "@tursodatabase/database-common@0.7.2": {
+      "integrity": "sha512-c4uWaA5m7nyDemUrjvX6lQQ89cBxv1jCv7nmwq5JoagyXgbMxDeBfLcY7N5kn0oEcnD0Y+cf09S0wKEXKFKbfg=="
+    },
+    "@tursodatabase/database-darwin-arm64@0.7.2": {
+      "integrity": "sha512-pDYbrPnmsqzWsf21bQXXGKmGhcLdfQQVjx+yrpC/IboCue5o/h9fDZ1QFzQEP6CHRXXoc+pwQCyF8KBntI8fdA==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
+    },
+    "@tursodatabase/database-linux-arm64-gnu@0.7.2": {
+      "integrity": "sha512-/Blz7cRssWh7dk8vGs7Cq3kupHOnI0GROAg+u9J4MD5U5ABAabJGN7iW5YQ16jZW35Bv2AkmJAyjvsCWdTyfTg==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@tursodatabase/database-linux-x64-gnu@0.7.2": {
+      "integrity": "sha512-rXxInfTxKRPG3XeOAZvzJuX4wF+m9t9BjLbFnKU83Ad8ob2z88r1x+EV7IBzEFhz2FbvrRgriH7PhIEZ7Lx5ug==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@tursodatabase/database-win32-x64-msvc@0.7.2": {
+      "integrity": "sha512-AUvN3KO1bZOpsXVofRIMM2+MJ6OghUhgK62t8/3Bsb0Zzt6PztaMvJrtaWI6u5Olx0WCfGdhaVKyegcjYPNAeA==",
+      "os": ["win32"],
+      "cpu": ["x64"]
+    },
+    "@tursodatabase/database@0.7.2": {
+      "integrity": "sha512-B84QicyDYnKt97qxgb7861cQQC26kuv/LkUlCnpxGs4tuGT9zgS2z/Mt+BkG/wOo1fB4rsSycOgGCbi0xU0YOQ==",
+      "dependencies": [
+        "@tursodatabase/database-common"
+      ],
+      "optionalDependencies": [
+        "@tursodatabase/database-darwin-arm64",
+        "@tursodatabase/database-linux-arm64-gnu",
+        "@tursodatabase/database-linux-x64-gnu",
+        "@tursodatabase/database-win32-x64-msvc"
+      ]
     }
   },
   "workspace": {

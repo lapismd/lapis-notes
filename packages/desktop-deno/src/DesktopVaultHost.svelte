@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     NativeDesktopVaultAdapter,
-    TursoWasmAppDatabaseProvider,
     clearCurrentVaultProfile,
     createNativeDesktopVault,
     createVaultSession,
@@ -21,6 +20,7 @@
     type LauncherStatus,
   } from "./DesktopVaultLauncher.svelte";
   import DesktopWorkspaceSession from "./DesktopWorkspaceSession.svelte";
+  import { DenoDesktopAppDatabaseProvider } from "./deno-app-database";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
   type HostStatus = "loading" | "landing" | "opening" | "ready" | "error";
@@ -215,7 +215,7 @@
     const session = await createVaultSession(adapter, {
       runtime: "deno-desktop",
       profile,
-      appDatabaseProvider: new TursoWasmAppDatabaseProvider(),
+      appDatabaseProvider: new DenoDesktopAppDatabaseProvider(bridge),
     });
     try {
       const appInfo = await bridge

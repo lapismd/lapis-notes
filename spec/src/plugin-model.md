@@ -14,6 +14,9 @@ web retains its public route. Workspace `activateLeaf` remains an
 API-owned selection that the persisted layout must restore. Statically shipped plugins use the
 core manager even when their source is maintained in a separate repository.
 First-party plugin surfaces compose Design Core public parts for shared chrome;
+plugin projection and search-document registrations stay plugin-scoped even
+when Deno desktop persists their generated rows through the native AppDatabase
+bridge.
 AI composer drawer chips use the public `attachment-chip` contract instead of
 plugin-local paint. Bundled AI MUST remain a Lapis plugin and MUST NOT gain a
 runtime dependency on sibling `@lapismd/ai-host`. Assistant chat Markdown uses

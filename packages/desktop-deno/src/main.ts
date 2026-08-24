@@ -4,6 +4,7 @@ import {
   migrateVaultBootstrapStoreFromIndexedDb,
   setDefaultVaultStateStore,
   setNativeDesktopBridge,
+  type AppDatabaseChangeSet,
   type BootstrapAppearanceMode,
   type ChangeEvent,
   type NativeDesktopBridge,
@@ -14,6 +15,7 @@ import {
   type NativeAgentRuntimeEvent,
   type NativeAgentToolCall,
   type NativeAgentToolCancel,
+  type NativeAppDatabaseChangeEvent,
   type NativeTerminalExitEvent,
   type NativeTerminalOutputEvent,
   type NativeWatchSubscription,
@@ -83,6 +85,9 @@ const terminalOutputListeners = new Set<
 const terminalExitListeners = new Set<
   (event: NativeTerminalExitEvent) => void
 >();
+const appDatabaseChangeListeners = new Set<
+  (event: NativeAppDatabaseChangeEvent) => void
+>();
 const openVaultListeners = new Set<() => void>();
 const openAboutListeners = new Set<() => void>();
 const beforeCloseListeners = new Set<() => void>();
@@ -126,6 +131,27 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
       | undefined;
     if (typeof payload?.watchId !== "string" || !payload.event) return;
     watchListeners.get(payload.watchId)?.(payload.event);
+    return;
+  }
+  if (detail?.channel === "desktop_app_database_change") {
+    const payload = detail.payload as
+      | {
+          vaultId?: unknown;
+          change?: AppDatabaseChangeSet;
+        }
+      | undefined;
+    if (
+      typeof payload?.vaultId !== "string" ||
+      !payload.change
+    ) {
+      return;
+    }
+    for (const listener of appDatabaseChangeListeners) {
+      listener({
+        vaultId: payload.vaultId,
+        change: payload.change,
+      });
+    }
     return;
   }
   if (detail?.channel === "desktop_agent_process_message") {
@@ -310,6 +336,9 @@ const bridge: DenoDesktopBridge = {
   },
   onTerminalExit(listener) {
     return subscribe(terminalExitListeners, listener);
+  },
+  onAppDatabaseChange(listener) {
+    return subscribe(appDatabaseChangeListeners, listener);
   },
   watch(
     rootPath: string,

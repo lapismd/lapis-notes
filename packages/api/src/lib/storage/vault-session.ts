@@ -230,7 +230,17 @@ async function createPreferredAppDatabase(
     if (!provider) await database.open();
     return { appDatabase: database, state: readyState(database, false) };
   }
-  if (runtime === "web-pwa" || runtime === "deno-desktop") {
+  if (runtime === "deno-desktop") {
+    const database = provider
+      ? await provider.open({ vaultId, runtime, role: "direct" })
+      : await new TursoWasmAppDatabaseProvider().open({
+          vaultId,
+          runtime,
+          role: "direct",
+        });
+    return { appDatabase: database, state: readyState(database, false) };
+  }
+  if (runtime === "web-pwa") {
     return createBrowserAppDatabase(
       vaultId,
       provider ?? new TursoWasmAppDatabaseProvider(),

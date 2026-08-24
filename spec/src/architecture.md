@@ -21,10 +21,11 @@ and MUST NOT register Tasks workspace views themselves. AppDatabase owns
 namespaced plugin projections and a serializable query AST, including the public
 `tasks/task` collection. That projection stores `planKind` as the Tasks
 `plan.at` kind (`anytime`, `morning`, `afternoon`, `evening`, or `time`).
-Deno desktop sessions use the same API vault-session factory and WASM Turso
-path as browser hosts. `packages/desktop-deno` is the sole native desktop
-consumer and owns the Deno window, `win.bind()` bridge, native host lifecycle,
-and services while remaining a consumer of public Lapis package boundaries.
+Deno desktop sessions use the same API vault-session factory with a
+desktop-native Turso provider supplied by the host. `packages/desktop-deno` is
+the sole native desktop consumer and owns the Deno window, `win.bind()` bridge,
+native app-database handle, native host lifecycle, and services while remaining
+a consumer of public Lapis package boundaries.
 Its production acceptance builds through the package and restores an isolated
 real vault rather than substituting a browser-only renderer test.
 Target-specific artifact naming, metadata, icons, verified PTY libraries, and
@@ -334,11 +335,12 @@ The desktop renderer bundles its workspace consumers, while the Deno host
 retains native lifecycle and service dependencies. Native commands cross an
 explicit binding allowlist. Renderer shutdown is acknowledged before window
 destruction so the API-owned session can persist and dispose without moving
-ownership into native code or workspace. Deno desktop and web compose the
-API-owned WASM provider in the renderer behind the same session boundary.
-Renderer and web WASM database imports use the
-driver's host-bundler entry so Vite serves worker and WASM assets without
-pulling the prebuilt worker-inline module through Rollup.
+ownership into native code or workspace. Deno desktop composes a host-supplied
+native Turso provider through an allowlisted AppDatabase bridge, while web
+composes the API-owned WASM provider in the renderer behind the same session
+boundary. Web WASM database imports use the driver's host-bundler entry so Vite
+serves worker and WASM assets without pulling the prebuilt worker-inline module
+through Rollup.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
 OPFS in exactly one Web Locks owner per vault; other tabs retain the generic
 database contract through bounded BroadcastChannel RPC and may promote when

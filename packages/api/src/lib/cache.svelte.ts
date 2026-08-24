@@ -52,6 +52,19 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
+function cloneAppDatabaseChange(
+  change: AppDatabaseChangeSet,
+): AppDatabaseChangeSet {
+  return {
+    revision: change.revision,
+    domains: [...change.domains],
+    paths: [...change.paths],
+    renamed: change.renamed?.map((entry) => ({ ...entry })),
+    reset: change.reset,
+    committedAt: change.committedAt,
+  };
+}
+
 /**
  * Location within a Markdown document
  *
@@ -566,6 +579,8 @@ export class MetadataCache extends EventDispatcher<{
   private readonly pendingOperations = new Set<Promise<unknown>>();
   private readonly hotPathOrder = new Map<string, true>();
   private readonly localMutationPaths = new Set<string>();
+  private reconcileIndexChangeDepth = 0;
+  private deferredReconcileIndexChange: AppDatabaseChangeSet | null = null;
   private snapshotLeaseCount = 0;
   private snapshotLeasePromise: Promise<MetadataCacheSnapshot> | null = null;
   private snapshotLeaseValue: MetadataCacheSnapshot | null = null;
@@ -719,85 +734,124 @@ export class MetadataCache extends EventDispatcher<{
     progress?: NotificationProgressHandle,
   ): Promise<void> {
     if (this.disposed) return;
+    this.reconcileIndexChangeDepth += 1;
     let processed = 0;
     let total = this.countProcessableVaultFiles();
     let cursor: string | undefined;
 
-    progress?.report({
-      current: 0,
-      total,
-      message:
-        total > 0
-          ? `Reconciling metadata index (0 of ${total})`
-          : "Reconciling metadata index",
-    });
-
-    const report = async (path: string) => {
-      progress?.throwIfCancellationRequested();
-      processed += 1;
-      total = Math.max(total, processed);
+    try {
       progress?.report({
-        current: processed,
+        current: 0,
         total,
-        message: `${path} (${processed} of ${total})`,
+        message:
+          total > 0
+            ? `Reconciling metadata index (0 of ${total})`
+            : "Reconciling metadata index",
       });
-      await yieldToUi();
-    };
 
-    do {
-      const page = await this.app.appDatabase.listIndexedFileManifest({
-        after: cursor,
-        limit: 500,
-      });
-      for (const indexed of page.rows) {
+      const report = async (path: string) => {
+        progress?.throwIfCancellationRequested();
+        processed += 1;
+        total = Math.max(total, processed);
+        progress?.report({
+          current: processed,
+          total,
+          message: `${path} (${processed} of ${total})`,
+        });
+        await yieldToUi();
+      };
+      const reportProcessing = async (path: string, stage = "Indexing") => {
+        progress?.throwIfCancellationRequested();
+        progress?.report({
+          current: processed,
+          total,
+          message: `${stage}: ${path} (${processed + 1} of ${total})`,
+        });
+        await yieldToUi();
+      };
+
+      do {
+        progress?.report({
+          current: processed,
+          total,
+          message: `Querying existing metadata index (${processed} of ${total})`,
+        });
+        const page = await this.app.appDatabase.listIndexedFileManifest({
+          after: cursor,
+          limit: 500,
+        });
+        for (const indexed of page.rows) {
+          if (this.disposed) return;
+          const current = this.app.vault.getFileByPath(indexed.path);
+          if (
+            !current ||
+            !this.processors.has(current.extension.toLowerCase())
+          ) {
+            await this.mutateDatabasePaths([indexed.path], () =>
+              this.app.appDatabase.deleteIndexedFile(indexed.path),
+            );
+            this.evictHotPath(indexed.path);
+            await report(indexed.path);
+            continue;
+          }
+
+          if (
+            current.stat.mtime !== indexed.mtime ||
+            current.stat.size !== indexed.size ||
+            indexed.parserVersion !== this.parserSignature(current)
+          ) {
+            await reportProcessing(current.path);
+            await this.processFile(current, (stage) =>
+              reportProcessing(current.path, stage),
+            );
+          }
+          await report(current.path);
+        }
+        cursor = page.nextCursor;
+      } while (cursor && !this.disposed);
+
+      const batch: TFile[] = [];
+      const reconcileCreatedBatch = async () => {
+        if (!batch.length || this.disposed) return;
+        progress?.report({
+          current: processed,
+          total,
+          message: `Querying ${batch.length} vault files against metadata index (${processed} of ${total})`,
+        });
+        const manifest = await this.app.appDatabase.listIndexedFileManifest({
+          paths: batch.map((file) => file.path),
+          limit: batch.length,
+        });
+        const indexedPaths = new Set(manifest.rows.map((file) => file.path));
+        for (const file of batch) {
+          if (this.disposed) return;
+          if (!indexedPaths.has(file.path)) {
+            await reportProcessing(file.path);
+            await this.processFile(file, (stage) =>
+              reportProcessing(file.path, stage),
+            );
+            await report(file.path);
+          }
+        }
+        batch.length = 0;
+      };
+
+      for (const file of this.app.vault.iterateFiles()) {
         if (this.disposed) return;
-        const current = this.app.vault.getFileByPath(indexed.path);
-        if (!current || !this.processors.has(current.extension.toLowerCase())) {
-          await this.mutateDatabasePaths([indexed.path], () =>
-            this.app.appDatabase.deleteIndexedFile(indexed.path),
-          );
-          this.evictHotPath(indexed.path);
-          await report(indexed.path);
-          continue;
-        }
-
-        if (
-          current.stat.mtime !== indexed.mtime ||
-          current.stat.size !== indexed.size ||
-          indexed.parserVersion !== this.parserSignature(current)
-        ) {
-          await this.processFile(current);
-        }
-        await report(current.path);
+        if (!this.processors.has(file.extension.toLowerCase())) continue;
+        batch.push(file);
+        if (batch.length >= 500) await reconcileCreatedBatch();
       }
-      cursor = page.nextCursor;
-    } while (cursor && !this.disposed);
-
-    const batch: TFile[] = [];
-    const reconcileCreatedBatch = async () => {
-      if (!batch.length || this.disposed) return;
-      const manifest = await this.app.appDatabase.listIndexedFileManifest({
-        paths: batch.map((file) => file.path),
-        limit: batch.length,
-      });
-      const indexedPaths = new Set(manifest.rows.map((file) => file.path));
-      for (const file of batch) {
-        if (this.disposed) return;
-        if (!indexedPaths.has(file.path)) {
-          await this.processFile(file);
-          await report(file.path);
-        }
+      await reconcileCreatedBatch();
+    } finally {
+      this.reconcileIndexChangeDepth = Math.max(
+        0,
+        this.reconcileIndexChangeDepth - 1,
+      );
+      if (this.reconcileIndexChangeDepth === 0) {
+        this.flushDeferredReconcileIndexChange();
       }
-      batch.length = 0;
-    };
-
-    for (const file of this.app.vault.iterateFiles()) {
-      if (this.disposed) return;
-      if (!this.processors.has(file.extension.toLowerCase())) continue;
-      batch.push(file);
-      if (batch.length >= 500) await reconcileCreatedBatch();
     }
-    await reconcileCreatedBatch();
   }
 
   private countProcessableVaultFiles(): number {
@@ -1279,6 +1333,39 @@ export class MetadataCache extends EventDispatcher<{
         if (!this.localMutationPaths.has(path)) this.evictHotPath(path);
       }
     }
+    if (
+      this.reconcileIndexChangeDepth > 0 &&
+      change.domains.includes("metadata")
+    ) {
+      this.deferReconcileIndexChange(change);
+      return;
+    }
+    this.trigger("index-changed", change);
+  }
+
+  private deferReconcileIndexChange(change: AppDatabaseChangeSet): void {
+    if (!this.deferredReconcileIndexChange) {
+      this.deferredReconcileIndexChange = cloneAppDatabaseChange(change);
+      return;
+    }
+    const current = this.deferredReconcileIndexChange;
+    this.deferredReconcileIndexChange = {
+      revision: Math.max(current.revision, change.revision),
+      domains: [...new Set([...current.domains, ...change.domains])],
+      paths: [...new Set([...current.paths, ...change.paths])],
+      renamed: [
+        ...(current.renamed ?? []),
+        ...(change.renamed?.map((entry) => ({ ...entry })) ?? []),
+      ],
+      reset: current.reset || change.reset,
+      committedAt: Math.max(current.committedAt, change.committedAt),
+    };
+  }
+
+  private flushDeferredReconcileIndexChange(): void {
+    const change = this.deferredReconcileIndexChange;
+    this.deferredReconcileIndexChange = null;
+    if (!change || this.disposed) return;
     this.trigger("index-changed", change);
   }
 
@@ -1417,7 +1504,10 @@ export class MetadataCache extends EventDispatcher<{
       });
   }
 
-  private async processFile(file: TFile | null): Promise<boolean> {
+  private async processFile(
+    file: TFile | null,
+    onStage?: (stage: string) => Promise<void> | void,
+  ): Promise<boolean> {
     if (this.disposed || !file) return false;
     file = this.app.vault.getFileByPath(file.path);
     if (this.disposed || !file) return false;
@@ -1425,11 +1515,14 @@ export class MetadataCache extends EventDispatcher<{
     const processors = this.processors.get(file.extension.toLowerCase());
     if (!processors || !processors.size) return false;
 
+    await onStage?.("Reading");
     const content = await this.app.vault.read(file);
     if (this.disposed) return false;
+    await onStage?.("Hashing");
     const hash = md5(content);
     const existing = this.fileCache[file.path];
     if (existing && existing.hash === hash) return false;
+    await onStage?.("Parsing metadata");
     let cachedMetadata = await this.read(content, file);
     if (this.disposed) return false;
     if (cachedMetadata) {
@@ -1442,10 +1535,13 @@ export class MetadataCache extends EventDispatcher<{
       this.touchHotPath(file.path);
       this.processLink(file);
       const record = this.toDatabaseRecord(file, hash, cachedMetadata);
+      await onStage?.("Writing metadata index");
       await this.mutateDatabasePaths([file.path], () =>
         this.app.appDatabase.upsertIndexedFile(record),
       );
+      await onStage?.("Writing projection index");
       await this.projectRegisteredIndexes(file, content, cachedMetadata, hash);
+      await onStage?.("Notifying metadata listeners");
       this.trigger("changed", file, content, cachedMetadata);
     }
     if (existing && existing.hash !== hash) {

@@ -3,6 +3,7 @@ import { serveDir } from "jsr:@std/http@1/file-server";
 
 import { createPlatformInfo, handleDesktopInvoke } from "./bindings.ts";
 import { DenoAgentRuntimeHost } from "./agent-runtime.ts";
+import { DenoAppDatabaseHost } from "./app-database.ts";
 import {
   createDenoApplicationMenu,
   DENO_MENU_IDS,
@@ -77,6 +78,7 @@ const emitRendererEvent = createRendererEventEmitter(win);
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
 const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
+const appDatabase = new DenoAppDatabaseHost(userDataDir(), emitRendererEvent);
 let terminalRuntime: DenoTerminalRuntimeHost | undefined;
 try {
   terminalRuntime = new DenoTerminalRuntimeHost(emitRendererEvent, {
@@ -98,6 +100,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     fileWatch.shutdown();
     pluginAssets.clear();
     await terminalRuntime?.shutdown();
+    await appDatabase.closeAll();
     await agentRuntime.shutdown();
     await singleInstance.close();
   },
@@ -137,6 +140,7 @@ function registerDesktopBindings(): void {
           fileWatch,
           pluginAssets,
           agentRuntime,
+          appDatabase,
           terminalRuntime,
           rendererCloseReady: () => closeCoordinator.rendererReady(),
           requestClose: () => closeCoordinator.requestClose(),

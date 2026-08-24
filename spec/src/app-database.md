@@ -2,8 +2,9 @@
 
 `AppDatabase` is the stable generated-state boundary. Providers choose a local
 engine and transport without exposing either choice to Search, Markdown, or the
-workspace shell. `deno-desktop` sessions select Turso WASM and MUST NOT expose
-native database RPC or raw SQL to the renderer.
+workspace shell. `deno-desktop` sessions select a native Turso database owned
+by the Deno host and expose only the typed AppDatabase method catalogue to the
+renderer.
 
 The direct-SQL runtime implements row-scoped normalized Turso writes, typed
 metadata indexes, durable revisions, native/browser change relays, bounded
@@ -45,7 +46,7 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 | LN-DB-031 | Warm metadata startup MUST make persisted queries available before background vault reconciliation. An unchanged vault MUST NOT read note bodies, metadata payload JSON, Search content, or History payloads during database open.                                                                                                                                                                  |
 | LN-DB-032 | A 50,000-note warm-vault performance lane MUST enforce bounded metadata memory and native/WASM readiness and query budgets. A 100,000-note lane MUST report non-blocking stress results.                                                                                                                                                                                                            |
 | LN-DB-033 | Compatibility metadata snapshot import and export MAY remain deprecated for one release. Production startup MUST NOT invoke either operation or maintain the snapshot after normalized writes.                                                                                                                                                                                                      |
-| LN-DB-034 | A `deno-desktop` vault session MUST open Turso WASM through the browser-compatible provider path. It MUST NOT expose or select a native `desktop_db_*` provider.                                                                                                                                                                                                     |
+| LN-DB-034 | A `deno-desktop` vault session MUST open a host-owned native Turso provider through an allowlisted bridge. The renderer MUST NOT receive raw SQL, database paths, or non-AppDatabase operations.                                                                                                                                                               |
 
 ### LN-DB-032 acceptance details
 
@@ -81,7 +82,7 @@ changing either the Task document or the daily note.
 App / plugins
      ↓ AppDatabase
 AppDatabaseProvider
-     ├─ Deno desktop renderer → Turso WASM + OPFS
+     ├─ Deno desktop renderer → bounded bridge → native Turso
      ├─ browser owner worker → Turso WASM + OPFS
      └─ browser proxy → BroadcastChannel RPC → owner
 ```
@@ -105,12 +106,14 @@ shared candidate set before score calculation, ranking, and limiting. Turso
 requests that carry a prefix fetch the complete candidate path set before the
 shared evaluator; native and browser proxies forward the same typed option.
 
-The Deno desktop renderer selects the same provider contract over the
-self-contained Turso WASM bundle and OPFS. The WASM provider imports the
-driver's host-bundler entry so web and desktop renderer builds serve
-driver-owned worker and WASM assets without inlining the package's prebuilt
-worker module. Session disposal drains metadata-cache work and cancels delayed
-writes before closing the owning Turso handle.
+The Deno desktop renderer selects the same provider contract over a host-owned
+native Turso handle. The bridge materializes the AppDatabase method surface in
+the renderer, forwards only allowlisted calls and typed arguments, and relays
+post-commit change sets without exposing raw storage. The WASM provider remains
+the browser-compatible path and imports the driver's host-bundler entry so web
+builds serve driver-owned worker and WASM assets without inlining the package's
+prebuilt worker module. Session disposal drains metadata-cache work and cancels
+delayed writes before closing the owning Turso handle.
 
 The browser coordinator opens that WASM provider only in the elected owner.
 Proxy tabs obtain the owner's probed descriptor and delegate through a bounded

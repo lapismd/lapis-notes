@@ -140,26 +140,44 @@ describe("createVaultSession", () => {
     });
   });
 
-  it("routes deno-desktop sessions to Turso WASM without native database RPC", async () => {
+  it("opens deno-desktop sessions through the supplied native provider", async () => {
     vi.stubGlobal("navigator", {
       storage: { getDirectory: vi.fn() },
+      locks: {
+        request: vi.fn(() => {
+          throw new Error("deno-desktop must not request a browser lock");
+        }),
+      },
     });
     vi.stubGlobal("crossOriginIsolated", false);
+    const open = vi.fn(provider.open.bind(provider));
+    const desktopProvider: AppDatabaseProvider = {
+      ...provider,
+      id: "desktop-native-test-provider",
+      open,
+    };
 
     const session = await createVaultSession(adapter, {
       runtime: "deno-desktop",
+      appDatabaseProvider: desktopProvider,
     });
 
     expect(session.runtime).toBe("deno-desktop");
-    expect(session.appDatabase).toBeUndefined();
-    expect(session.appDatabaseState).toMatchObject({
-      status: "blocked",
-      mode: "turso-blocked",
-      providerId: "turso-wasm-local",
-      role: "blocked",
-      transport: "wasm-worker",
-      message: expect.stringContaining("cross-origin isolation"),
+    expect(open).toHaveBeenCalledWith({
+      vaultId: "vault-under-test",
+      runtime: "deno-desktop",
+      role: "direct",
     });
+    expect(session.appDatabase).toBeDefined();
+    expect(session.appDatabaseState).toMatchObject({
+      status: "ready",
+      mode: "memory-test",
+      providerId: "memory-test",
+      role: "test",
+      transport: "memory",
+      lockSupported: false,
+    });
+    await session.close();
   });
 
   it("accepts an explicit provider without changing the AppDatabase contract", async () => {

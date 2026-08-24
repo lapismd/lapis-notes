@@ -7,10 +7,15 @@
     "backend": "webview"
   },
   "imports": {
+    "@codemirror/language": "npm:@codemirror/language@6.11.3",
     "@lapis-notes/api/language-service": "../api/src/lib/language-service/index.ts",
     "@lapis-notes/language-service/markdownlint/runtime": "../language-service/src/markdownlint/runtime.ts",
     "@lapismd/ai-host": "../../../ai-host/src/index.ts",
     "@lapismd/terminal-host/deno": "../../../terminal-host/src/deno.ts",
+    "@lezer/common": "npm:@lezer/common@1.2.3",
+    "@lezer/highlight": "npm:@lezer/highlight@1.2.1",
+    "@lezer/lr": "npm:@lezer/lr@1.4.2",
+    "@tursodatabase/database": "npm:@tursodatabase/database@0.7.2",
     "@modelcontextprotocol/sdk/server/index.js": "npm:@modelcontextprotocol/sdk@1.29.0/server/index.js",
     "@modelcontextprotocol/sdk/server/streamableHttp.js": "npm:@modelcontextprotocol/sdk@1.29.0/server/streamableHttp.js",
     "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js": "npm:@modelcontextprotocol/sdk@1.29.0/server/webStandardStreamableHttp.js",

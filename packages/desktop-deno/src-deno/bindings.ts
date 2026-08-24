@@ -1,4 +1,5 @@
 import { handleBootstrapKv } from "./bootstrap-kv.ts";
+import type { DenoAppDatabaseHost } from "./app-database.ts";
 import {
   DENO_AGENT_COMMANDS,
   type DenoAgentRuntimeHost,
@@ -64,6 +65,9 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_capabilities_get",
   "desktop_acceptance_report",
   "desktop_acceptance_request_close",
+  "desktop_app_database_open",
+  "desktop_app_database_close",
+  "desktop_app_database_invoke",
   "desktop_renderer_close_ready",
   "desktop_open_external",
   "desktop_app_url_take_pending",
@@ -85,6 +89,7 @@ export type DesktopInvokeContext = {
   fileWatch?: DenoFileWatchService;
   pluginAssets?: DenoPluginAssetService;
   agentRuntime?: DenoAgentRuntimeHost;
+  appDatabase?: DenoAppDatabaseHost;
   terminalRuntime?: DenoTerminalRuntimeHost;
   rendererCloseReady?: () => void;
   requestClose?: () => void;
@@ -158,6 +163,24 @@ export function handleDesktopInvoke(
       throw new Error("Deno window close is unavailable");
     context.requestClose();
     return;
+  }
+  if (command === "desktop_app_database_open") {
+    if (!context.appDatabase) {
+      throw new Error("Deno app database host is unavailable");
+    }
+    return context.appDatabase.open(payload);
+  }
+  if (command === "desktop_app_database_close") {
+    if (!context.appDatabase) {
+      throw new Error("Deno app database host is unavailable");
+    }
+    return context.appDatabase.close(payload);
+  }
+  if (command === "desktop_app_database_invoke") {
+    if (!context.appDatabase) {
+      throw new Error("Deno app database host is unavailable");
+    }
+    return context.appDatabase.invoke(payload);
   }
   if (command === "desktop_renderer_close_ready") {
     if (!context.rendererCloseReady) {
