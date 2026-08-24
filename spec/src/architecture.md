@@ -358,8 +358,9 @@ instead of a host-owned placeholder. The plugins task reports the current
 plugin name. Metadata index load starts after layout restoration so database
 readiness does not contend with `loadLayout`. Persisted queries become
 available before background reconciliation. Load, rebuild, and reconcile stay
-under one status progress handle, yield between files, and parse changed
-Markdown metadata in a worker. `App` registers rebuild-vault-cache and
+under one status progress handle, report determinate processable-file counts,
+yield between files, and parse changed Markdown metadata in a worker. `App`
+registers rebuild-vault-cache and
 rebuild-generated-state so a later manual rebuild uses the same handle
 (LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can project that progress. Native window-drag regions stay in Design

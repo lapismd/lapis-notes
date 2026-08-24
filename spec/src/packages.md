@@ -105,7 +105,7 @@ workspace startup policy out of the application packages.
 | LN-PKG-084 | `@lapis-notes/api` MUST NOT read CodeMirror editor layout from a diagnostic hover-card plugin during a view update. Tooltip positioning MUST run in the view measure cycle after the update completes.                                                                                                                                                                                                                                                                                                                                                 |
 | LN-PKG-088 | `@lapis-notes/api` lint hover MUST resolve a diagnostic from `.cm-lintRange` or `.cm-lint-marker` only. It MUST NOT open a card from a document-position hit on the same line.                                                                                                                                                                                                                                                                                                                                                                         |
 | LN-PKG-085 | `MetadataCache.dispose` MUST wait for in-flight load, reconciliation, query, and index-write work. It MUST release database subscriptions and compatibility leases before the owning AppDatabase closes.                                                                                                                                                                                                                                                                                                                                               |
-| LN-PKG-086 | `MetadataCache` MUST keep database readiness, rebuild, and vault reconcile under one `notifications.withProgress` handle. It MUST NOT fire-and-forget reconcile after that handle completes.                                                                                                                                                                                                                                                                                                                                                           |
+| LN-PKG-086 | `MetadataCache` MUST keep database readiness, rebuild, and vault reconcile under one `notifications.withProgress` handle. It MUST NOT fire-and-forget reconcile after that handle completes. Load reconciliation and rebuild progress reports MUST remain determinate with current and total processable file counts.                                                                                                                                                                                                                                |
 
 `@lapis-notes/ai` may offer a Node-backed user-agents command store only through
 a runtime-only module boundary. Browser and renderer builds consume the portable
@@ -468,8 +468,9 @@ session; Close returns without disposing. The plugins task reports the current p
 name. Metadata index load starts after layout restoration so database readiness
 does not contend with `loadLayout`. Persisted queries become available before
 rebuild or vault reconcile completes. That work stays under the progress
-handle; file processing yields between files so the notifications status item
-can paint. `App` registers `app:rebuild-vault-cache`
+handle and reports determinate processable-file counts; file processing yields
+between files so the notifications status item can paint. `App` registers
+`app:rebuild-vault-cache`
 and `app:rebuild-generated-state` so hosts can rerun that progress
 (LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can subscribe. Markdown parse runs in a worker,

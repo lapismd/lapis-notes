@@ -111,7 +111,8 @@ Save and Load workspace layout commands store named snapshots; Reset reapplies
 that default seed. Collapse, remount, and file-open restore keep the same
 plugin leaf by serialized id and its live `getState()`.
 The workspace host also projects Lapis notification progress into Design Core
-so plugin and metadata background work reuse the notifications status item.
+so plugin and determinate metadata background work reuse the notifications
+status item.
 | LN-CV-010 | Desktop and web hosts MUST register runtime plugin `roles` as `first-party-external`, optional, and enabled by default before metadata and layout restoration. Package changes MUST preserve its runtime view, command, file, and plugin-data identities. |
 | LN-ROLE-016 | Desktop and web MUST restore persisted `role`, `roles`, and `cv` leaves when Roles is enabled without forcing Roles into a default layout. Disabled leaves MUST remain persisted missing-view placeholders and recover after re-enable. |
 

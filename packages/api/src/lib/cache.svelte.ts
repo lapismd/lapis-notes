@@ -720,15 +720,27 @@ export class MetadataCache extends EventDispatcher<{
   ): Promise<void> {
     if (this.disposed) return;
     let processed = 0;
+    let total = this.countProcessableVaultFiles();
     let cursor: string | undefined;
+
+    progress?.report({
+      current: 0,
+      total,
+      message:
+        total > 0
+          ? `Reconciling metadata index (0 of ${total})`
+          : "Reconciling metadata index",
+    });
 
     const report = async (path: string) => {
       progress?.throwIfCancellationRequested();
+      processed += 1;
+      total = Math.max(total, processed);
       progress?.report({
         current: processed,
-        message: path,
+        total,
+        message: `${path} (${processed} of ${total})`,
       });
-      processed += 1;
       await yieldToUi();
     };
 
@@ -786,6 +798,16 @@ export class MetadataCache extends EventDispatcher<{
       if (batch.length >= 500) await reconcileCreatedBatch();
     }
     await reconcileCreatedBatch();
+  }
+
+  private countProcessableVaultFiles(): number {
+    let total = 0;
+    for (const file of this.app.vault.iterateFiles()) {
+      if (this.processors.has(file.extension.toLowerCase())) {
+        total += 1;
+      }
+    }
+    return total;
   }
 
   getFileCache(file: TFile): CachedMetadata | null {

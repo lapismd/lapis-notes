@@ -510,11 +510,22 @@ describe("MetadataCache lifecycle", () => {
 
     await cache.load();
 
-    expect(
-      notifications.reports.some(
-        (report) => report.message === extra.path && report.inFlight,
-      ),
-    ).toBe(true);
+    expect(notifications.reports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          current: 0,
+          total: 2,
+          message: "Reconciling metadata index (0 of 2)",
+          inFlight: true,
+        }),
+        expect.objectContaining({
+          current: 2,
+          total: 2,
+          message: `${extra.path} (2 of 2)`,
+          inFlight: true,
+        }),
+      ]),
+    );
     expect(notifications.reports.at(-1)?.inFlight).toBe(true);
   });
 
