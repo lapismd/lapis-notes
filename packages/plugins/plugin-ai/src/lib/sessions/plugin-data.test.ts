@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseAiPluginData } from "./plugin-data";
+import { equalAiPluginData, parseAiPluginData } from "./plugin-data";
 
 describe("AI plugin data", () => {
   it("reads legacy settings-only payloads", () => {
@@ -101,5 +101,23 @@ describe("AI plugin data", () => {
     expect(serialized.enabledAppToolNames).toEqual(["kept_tool"]);
     expect(serialized.disabledAppToolNames).toEqual(["notes_search"]);
     expect(serialized).not.toHaveProperty("enabledCommunityToolPluginIds");
+  });
+
+  it("detects normalized no-op settings updates before persistence", () => {
+    const current = parseAiPluginData({
+      settings: { defaultRuntime: "auto", thinking: "medium" },
+      futureValue: { enabled: true },
+    });
+    const unchanged = {
+      ...current,
+      settings: { ...current.settings, thinking: "medium" as const },
+    };
+    const changed = {
+      ...current,
+      settings: { ...current.settings, thinking: "high" as const },
+    };
+
+    expect(equalAiPluginData(current, unchanged)).toBe(true);
+    expect(equalAiPluginData(current, changed)).toBe(false);
   });
 });

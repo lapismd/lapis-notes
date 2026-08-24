@@ -32,6 +32,7 @@ import {
 } from "./registry/runtime-registry";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
 import {
+  equalAiPluginData,
   parseAiPluginData,
   serializeAiPluginData,
   type AiPluginData,
@@ -204,7 +205,7 @@ export class AiPlugin extends Plugin {
     if (patch.defaultModel !== undefined) {
       defaultModels[acpAgent] = patch.defaultModel.trim();
     }
-    this.data = {
+    const nextData = {
       ...this.data,
       settings: mergeAiSettings(
         {
@@ -216,6 +217,8 @@ export class AiPlugin extends Plugin {
         registeredAppToolRefs(this.app),
       ),
     };
+    if (equalAiPluginData(this.data, nextData)) return;
+    this.data = nextData;
     await this.saveData(serializeAiPluginData(this.data));
     for (const listener of this.#settingsListeners) listener(patch);
   }

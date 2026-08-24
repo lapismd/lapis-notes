@@ -36,3 +36,13 @@ export function serializeAiPluginData(
     settings,
   };
 }
+
+export function equalAiPluginData(
+  left: AiPluginData,
+  right: AiPluginData,
+): boolean {
+  return (
+    JSON.stringify(serializeAiPluginData(left)) ===
+    JSON.stringify(serializeAiPluginData(right))
+  );
+}
