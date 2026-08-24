@@ -1,5 +1,5 @@
 import { MemoryAppDatabase } from "@lapis-notes/api/app-database";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ConversationRepository } from "./conversation-repository";
 import {
   AI_CONVERSATION_SEARCH_PROVIDER_ID,
@@ -65,6 +65,22 @@ describe("AiConversationIndex", () => {
         preview: expect.stringContaining("parser"),
       },
     ]);
+  });
+
+  it("lists empty-query recents from portable conversation files", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const database = new MemoryAppDatabase("ai-index-recents");
+    const index = new AiConversationIndex(repository, database);
+    const snapshot = await repository.create({
+      id: "123e4567-e89b-42d3-a456-426614174000",
+      scopeDir: "Projects/Atlas",
+    });
+    const listSearchDocuments = vi.spyOn(database, "listSearchDocuments");
+
+    await expect(index.search("", 5)).resolves.toMatchObject([
+      { location: snapshot.location },
+    ]);
+    expect(listSearchDocuments).not.toHaveBeenCalled();
   });
 
   it("rebuilds copied scopes independently and removes stale derived state", async () => {

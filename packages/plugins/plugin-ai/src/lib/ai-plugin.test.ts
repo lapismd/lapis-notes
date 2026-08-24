@@ -252,6 +252,7 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain("registerPaletteProvider");
     expect(source).toContain("AI_CONVERSATION_PALETTE_TAB");
     expect(source).toContain("conversationPaletteItem");
+    expect(source).not.toContain("this.app.workspace.onLayoutReady");
     expect(source).not.toContain("addCommand({\n      id: `ai-conversation");
   });
 

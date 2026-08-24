@@ -517,16 +517,6 @@ export class AiPlugin extends Plugin {
         clearTimeout(this.conversationIndexTimer);
       this.conversationIndexTimer = undefined;
     });
-    this.app.workspace.onLayoutReady(() => {
-      void this.conversationIndex
-        .rebuild()
-        .catch((error) =>
-          this.app.logger.warn(
-            "Unable to rebuild the AI conversation index",
-            error,
-          ),
-        );
-    });
     this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
       side: "right",
       title: "AI",

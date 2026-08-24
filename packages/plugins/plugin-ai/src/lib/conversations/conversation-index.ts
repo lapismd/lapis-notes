@@ -29,21 +29,7 @@ export class AiConversationIndex {
 
   async search(query: string, limit = 100): Promise<ConversationListEntry[]> {
     if (!query.trim()) {
-      return (await this.database.listSearchDocuments())
-        .filter(
-          (document) =>
-            document.sourceProviderId === AI_CONVERSATION_SEARCH_PROVIDER_ID,
-        )
-        .flatMap((document) => {
-          const decoded = decodeConversationIndexDocument(document);
-          return decoded ? [decoded] : [];
-        })
-        .sort((left, right) =>
-          (right.metadata?.updatedAt ?? "").localeCompare(
-            left.metadata?.updatedAt ?? "",
-          ),
-        )
-        .slice(0, limit);
+      return (await this.repository.listAll()).slice(0, limit);
     }
     const results = await this.database.searchDocuments(query, {
       sourceProviderIds: [AI_CONVERSATION_SEARCH_PROVIDER_ID],
