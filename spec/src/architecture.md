@@ -42,6 +42,9 @@ refuses to replace an existing non-owned path.
 The pre-renderer boot document is part of the same desktop boundary and owns
 only transient startup presentation. It shows the Lapis brand while the Svelte
 renderer and native bridge initialize, then yields to the mounted application.
+Packaged acceptance reads the renderer-visible AppDatabase descriptor and must
+observe the host-owned `turso-native-desktop` provider over `native` transport;
+the browser-only WASM descriptor is not valid desktop evidence.
 
 ## Requirements
 

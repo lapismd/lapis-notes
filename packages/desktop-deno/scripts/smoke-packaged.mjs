@@ -260,9 +260,9 @@ try {
   assert.equal(report.runtime, "deno-desktop");
   assert.equal(report.vault, "vault");
   assert.deepEqual(report.plugins, expectedPlugins);
-  assert.equal(report.database?.providerId, "turso-wasm-local");
+  assert.equal(report.database?.providerId, "turso-native-desktop");
   assert.equal(report.database?.engine, "turso");
-  assert.equal(report.database?.transport, "wasm-worker");
+  assert.equal(report.database?.transport, "native");
   assert.equal(report.capabilities?.resource?.status, "available");
   assert.equal(report.capabilities?.["language-service"]?.status, "available");
   assert.equal(report.capabilities?.["file-watch"]?.status, "available");
