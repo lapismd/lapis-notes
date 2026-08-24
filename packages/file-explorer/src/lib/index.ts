@@ -29,6 +29,7 @@ import { subscribeExplorerVaultTreeChanges } from "./explorer-tree-subscription"
 import {
   listVaultPaletteFiles,
   VAULT_PALETTE_FILES_TAB,
+  VAULT_PALETTE_RECENT_GROUP,
 } from "./vault-palette-files";
 import { bindExplorerSelectionNotifications } from "./explorer-selection";
 
@@ -107,8 +108,7 @@ function createExplorerController(app: App, loading: boolean) {
     tree: {
       listEntries: () =>
         listExplorerVaultEntries(app.vault.getAllLoadedFiles()),
-      subscribe: (onChange) =>
-        subscribeExplorerVaultTreeChanges(app, onChange),
+      subscribe: (onChange) => subscribeExplorerVaultTreeChanges(app, onChange),
     },
     selection: {
       subscribe: (onActivePath) => {
@@ -393,7 +393,16 @@ export function createFileExplorerPlugin(
         controller.commands.registerPaletteProvider({
           id: "lapis-vault-files",
           tab: VAULT_PALETTE_FILES_TAB,
+          emptyQueryLimit: 5,
           search: (query) => {
+            const starterFiles = query.trim().length === 0;
+            const recentPaths = starterFiles
+              ? new Set(
+                  this.app.workspace
+                    .getRecentFiles()
+                    .map((recent) => recent.path),
+                )
+              : null;
             return listVaultPaletteFiles(this.app, query).map((file) => ({
               id: `vault-file:${file.path}`,
               title: file.name,
@@ -401,6 +410,9 @@ export function createFileExplorerPlugin(
               icon: "file",
               providerId: "lapis-vault-files",
               tab: VAULT_PALETTE_FILES_TAB.id,
+              group: recentPaths?.has(file.path)
+                ? VAULT_PALETTE_RECENT_GROUP
+                : undefined,
               run: () => this.app.openFile(file),
             }));
           },

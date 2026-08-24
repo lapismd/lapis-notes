@@ -10,14 +10,14 @@ all six command-panel placements under `Plugins/Explorer/Panels/Explorer`.
 
 ## Requirements
 
-| ID         | Requirement                                                                                                                                                                                                                       |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| LN-EXP-001 | When the vault adapter is `NativeDesktopVaultAdapter` and `file-system-actions` is available, Explorer MUST extend Copy Path with From system root and, for files, As Lapis URL. Web and memory vaults MUST NOT show those items. |
-| LN-EXP-002 | Under the same native gate, Explorer MUST offer Open in default app and Reveal in Finder, File Explorer, or file manager using existing desktop path IPC. Those extras MUST be absent when the capability is unavailable.         |
-| LN-EXP-003 | Explorer MUST persist Show hidden files, expose a palette command that toggles it, and hide dotted names at any depth unless it is on, including `.obsidian`, `.trash`, and `.lapis`.                                             |
-| LN-EXP-004 | The `lapis-vault-files` provider MUST declare the Files tab. An empty query MUST return no file results until the user enters a query. Queries MUST keep path filtering and the show-hidden setting. Landing Go to file MUST open the Files tab. |
-| LN-EXP-005 | FileExplorerView MUST expose `selectedPath`. `setSelectedPath`, `selectRoot`, and `revealPath` MUST trigger workspace event `file-explorer:selection-change` with that path. Vault root MUST use an empty path. |
-| LN-EXP-006 | Explorer MUST refresh its tree after the vault initial `load` event and after create, delete, and rename events so desktop views mounted during vault startup do not retain a partial tree. |
+| ID         | Requirement                                                                                                                                                                                                                                                                                                                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LN-EXP-001 | When the vault adapter is `NativeDesktopVaultAdapter` and `file-system-actions` is available, Explorer MUST extend Copy Path with From system root and, for files, As Lapis URL. Web and memory vaults MUST NOT show those items.                                                                                                                                                         |
+| LN-EXP-002 | Under the same native gate, Explorer MUST offer Open in default app and Reveal in Finder, File Explorer, or file manager using existing desktop path IPC. Those extras MUST be absent when the capability is unavailable.                                                                                                                                                                 |
+| LN-EXP-003 | Explorer MUST persist Show hidden files, expose a palette command that toggles it, and hide dotted names at any depth unless it is on, including `.obsidian`, `.trash`, and `.lapis`.                                                                                                                                                                                                     |
+| LN-EXP-004 | The `lapis-vault-files` provider MUST declare the Files tab. An empty query MUST return at most 25 visible recent files, or the first 25 visible paths in lexical order when no recents exist. Design Core MUST cap those provider rows to five in the combined All view. Typed queries MUST keep path filtering and the show-hidden setting. |
+| LN-EXP-005 | FileExplorerView MUST expose `selectedPath`. `setSelectedPath`, `selectRoot`, and `revealPath` MUST trigger workspace event `file-explorer:selection-change` with that path. Vault root MUST use an empty path.                                                                                                                                                                           |
+| LN-EXP-006 | Explorer MUST refresh its tree after the vault initial `load` event and after create, delete, and rename events so desktop views mounted during vault startup do not retain a partial tree.                                                                                                                                                                                               |
 
 ### LN-EXP-003 acceptance details
 
@@ -28,6 +28,7 @@ Show-hidden visibility is one preference:
 - Palette file search MUST honor the same setting.
 - Explorer MUST pass every vault path except root to Design Core and MUST NOT pre-filter dotted names.
 
-The Files palette tab stays blank while its query is empty so it does not imply a
-default result set for large vaults. A typed query keeps today's path filter.
-Landing Go to file opens that tab through `app:go-to-file`.
+The Files palette tab starts with a bounded recent-file set, falling back to a
+bounded lexical file list for a fresh vault. The combined All view receives at
+most five of those rows. A typed query keeps today's path filter. Landing Go to
+file opens that tab through `app:go-to-file`.

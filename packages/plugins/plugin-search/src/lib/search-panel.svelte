@@ -41,13 +41,8 @@
     expandSearchMatchContext,
     sliceSearchMatchContext,
     type SearchMatchContextDirection,
-    type SearchMatchContextWindow,
   } from "./search-match-context";
-  import type {
-    SearchManager,
-    SearchQueryHit,
-    SearchRuntimeStatus,
-  } from "./search-manager";
+  import type { SearchManager, SearchRuntimeStatus } from "./search-manager";
   import {
     SEARCH_VIEW_SORT_OPTIONS,
     type SearchPluginSettings,
@@ -58,6 +53,11 @@
     resolveSearchSnippetLength,
   } from "./search-settings";
   import { formatSearchViewSortLabel, sortSearchResults } from "./search-sort";
+  import {
+    searchResultFromHit,
+    type SearchMatch,
+    type SearchResult,
+  } from "./search-result-model";
   import { SearchViewType } from "./search-view-type";
 
   type SearchPanelPlugin = {
@@ -65,22 +65,6 @@
     getSettings(): SearchPluginSettings;
     updateSettings(patch: SearchPluginSettingsPatch): Promise<void>;
     refreshIndex(reason?: string): Promise<SearchRuntimeStatus>;
-  };
-
-  type SearchRange = { start: number; end: number };
-  type SearchMatch = {
-    id: string;
-    key: string;
-    text: string;
-    ranges: SearchRange[];
-    pos?: EditorPosition;
-    context?: SearchMatchContextWindow & { sourceLength: number };
-  };
-  type SearchResult = {
-    file: TFile;
-    title: { text: string; ranges: SearchRange[] } | null;
-    matches: SearchMatch[];
-    hit: SearchQueryHit;
   };
 
   const RESULT_FACET_OPTIONS = [
@@ -258,51 +242,6 @@
     );
   }
 
-  function offsetPosition(content: string, offset: number): EditorPosition {
-    const before = content.slice(0, Math.max(0, offset));
-    const lines = before.split("\n");
-    return {
-      line: lines.length - 1,
-      ch: lines.at(-1)?.length ?? 0,
-    };
-  }
-
-  function resultFromHit(hit: SearchQueryHit): SearchResult | null {
-    const file = app.vault.getFileByPath(hit.id);
-    if (!file) return null;
-    const title = hit.snippets.find((snippet) => snippet.field === "name");
-    return {
-      file,
-      title: title ? { text: title.text, ranges: title.ranges } : null,
-      matches: hit.snippets
-        .filter((snippet) => snippet.field !== "name")
-        .map((snippet, index) => ({
-          id: `${snippet.field}:${snippet.offset}:${index}`,
-          key: snippet.field === "tags" ? "tag" : snippet.field,
-          text: snippet.text,
-          ranges: snippet.ranges,
-          ...(snippet.field === "content" && snippet.ranges.length
-            ? {
-                pos: offsetPosition(
-                  hit.document.content,
-                  snippet.offset + snippet.ranges[0]!.start,
-                ),
-                context: {
-                  start: snippet.offset,
-                  end: snippet.offset + snippet.text.length,
-                  ranges: snippet.ranges.map((range) => ({
-                    start: snippet.offset + range.start,
-                    end: snippet.offset + range.end,
-                  })),
-                  sourceLength: hit.document.content.length,
-                },
-              }
-            : {}),
-        })),
-      hit,
-    };
-  }
-
   function refreshOpenState(items: SearchResult[], identity: string): void {
     if (identity === resultIdentity) return;
     resultIdentity = identity;
@@ -363,7 +302,7 @@
       });
       if (revision !== searchRevision) return;
       const nextResults = response.hits
-        .map(resultFromHit)
+        .map((hit) => searchResultFromHit(app, hit))
         .filter((result): result is SearchResult => result !== null);
       resultCount = response.count;
       const identity = `${term}\u0000${nextResults
@@ -690,16 +629,7 @@
   <ScrollArea class="search-panel__scroll-area">
     <Sidebar.Content class="search-panel__results" data-ui-part="content">
       {#if !query.trim()}
-        {#if settings.view.recentSearches.length}
-          <section class="search-panel__recent" aria-labelledby="recent-searches-title">
-            <h2 id="recent-searches-title">Recent searches</h2>
-            {#each settings.view.recentSearches as recent (recent)}
-              <button type="button" onclick={() => (query = recent)}>{recent}</button>
-            {/each}
-          </section>
-        {:else}
-          <p class="search-panel__empty">Type to search.</p>
-        {/if}
+        <p class="search-panel__empty">Type to search.</p>
       {:else if !searching && !diagnostic && filteredResults.length === 0}
         <p class="search-panel__empty">No matches found.</p>
       {:else}
@@ -708,8 +638,7 @@
           {#each filteredResults as result (result.file.path)}
             {@const open = resultOpenState[result.file.path] ?? !settings.view.collapseResults}
             <Sidebar.MenuItem role="none" class="search-panel__tree-item">
-              {#if result.matches.length}
-                <Collapsible.Root
+              <Collapsible.Root
                   {open}
                   onOpenChange={(next) => setResultOpen(result.file.path, next)}
                   class="search-panel__result"
@@ -813,26 +742,8 @@
                         </Sidebar.MenuSubItem>
                       {/each}
                     </Sidebar.MenuSub>
-                  </Collapsible.Content>
-                </Collapsible.Root>
-              {:else}
-                <button
-                  type="button"
-                  class="search-panel__file search-panel__file--leaf"
-                  role="treeitem"
-                  aria-level="1"
-                  aria-selected="false"
-                  onclick={() => openResult(result)}
-                >
-                  <FileText class="search-panel__file-icon" aria-hidden="true" />
-                  <span class="search-panel__file-label">
-                    <HighlightedText
-                      text={result.file.basename}
-                      ranges={result.title?.ranges ?? []}
-                    />
-                  </span>
-                </button>
-              {/if}
+                </Collapsible.Content>
+              </Collapsible.Root>
             </Sidebar.MenuItem>
           {/each}
           </Sidebar.Menu>

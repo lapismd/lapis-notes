@@ -546,6 +546,8 @@ export function createPanelDemoSeed(
       "Review the project notes.",
       "",
     ].join("\n"),
+    "Notes/FilenameOnly.md":
+      "# Quiet note\n\nThe body deliberately omits the filename token.\n",
     ...(kind === "ai-history" ? createAiHistorySeed() : {}),
     ...(kind === "ai-catalog" ? createAiCatalogSeed() : {}),
     ...(kind === "history" ? createHistorySeed() : {}),

@@ -1,4 +1,5 @@
 import type { App } from "@lapis-notes/api";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { SearchPanel } from "@lapis-notes/search";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
@@ -85,6 +86,17 @@ function placementStory(
         args,
       );
       const searchbox = panel.getByRole("searchbox", { name: "Search vault" });
+      if (layout === "middle-top-tabs") {
+        const startupItems = await getWorkspaceHostBinding(
+          panelDemoApp(canvasElement).workspace,
+        ).controller.commands.searchPalette("", { tab: "all" });
+        expect(startupItems.some((item) => item.tab === "actions")).toBe(true);
+        const startupFiles = startupItems.filter(
+          (item) => item.providerId === "lapis-vault-files",
+        );
+        expect(startupFiles.length).toBeGreaterThan(0);
+        expect(startupFiles.length).toBeLessThanOrEqual(5);
+      }
       await userEvent.click(searchbox);
       await userEvent.type(searchbox, "Welcome");
 
@@ -506,14 +518,15 @@ function placementStory(
         await userEvent.click(
           panel.getByRole("button", { name: "Clear search" }),
         );
-        await expect(
-          panel.getByRole("heading", { name: "Recent searches" }),
-        ).toBeVisible();
-        await userEvent.click(panel.getByRole("button", { name: "Welcome" }));
+        await expect(panel.getByText("Type to search.")).toBeVisible();
+        expect(
+          panel.queryByRole("heading", { name: "Recent searches" }),
+        ).not.toBeInTheDocument();
+        await userEvent.type(searchbox, "file:FilenameOnly");
         await waitFor(() =>
           expect(
             panel.getByRole("treeitem", {
-              name: /Notes\/Welcome\.md, \d+ matches/,
+              name: /Notes\/FilenameOnly\.md, \d+ matches/,
             }),
           ).toBeVisible(),
         );
@@ -521,14 +534,63 @@ function placementStory(
         const app = panelDemoApp(canvasElement);
         const searchLeaf = app.workspace.getLeavesOfType("search")[0];
         expect(searchLeaf).toBeDefined();
-        const currentFileTreeItem = within(currentTree)
+        const currentFileTreeItems = within(currentTree)
+          .getAllByRole("treeitem")
+          .filter((item) => item.getAttribute("aria-level") === "1");
+        expect(currentFileTreeItems.length).toBeGreaterThan(0);
+        for (const currentFileTreeItem of currentFileTreeItems) {
+          await expect(currentFileTreeItem).toHaveAttribute("aria-expanded");
+          if (currentFileTreeItem.getAttribute("aria-expanded") !== "true") {
+            await userEvent.click(currentFileTreeItem);
+          }
+          const resultGroup = currentFileTreeItem.closest(
+            ".search-panel__result",
+          )!;
+          const resultPath = currentFileTreeItem
+            .getAttribute("aria-label")!
+            .replace(/, \d+ matches$/, "");
+          expect(
+            within(resultGroup)
+              .getAllByRole("treeitem")
+              .some((item) => item.getAttribute("aria-level") === "2"),
+          ).toBe(true);
+          await expect(
+            within(resultGroup).getByText(resultPath),
+          ).toBeVisible();
+          await expect(within(resultGroup).getByText("lexical")).toBeVisible();
+        }
+        const filenameOnlyResult = currentFileTreeItems.find((item) =>
+          item
+            .getAttribute("aria-label")
+            ?.startsWith("Notes/FilenameOnly.md,"),
+        )!;
+        await expect(
+          within(filenameOnlyResult.closest(".search-panel__result")!).getByText(
+            "name",
+          ),
+        ).toBeVisible();
+        await userEvent.click(
+          panel.getByRole("button", { name: "Clear search" }),
+        );
+        await userEvent.type(searchbox, "Welcome");
+        await waitFor(() =>
+          expect(
+            panel.getByRole("treeitem", {
+              name: /Notes\/Welcome\.md, \d+ matches/,
+            }),
+          ).toBeVisible(),
+        );
+        const navigationTree = panel.getByRole("tree", {
+          name: "Search results",
+        });
+        const navigationFile = within(navigationTree)
           .getAllByRole("treeitem")
           .find((item) => item.getAttribute("aria-level") === "1")!;
-        if (currentFileTreeItem.getAttribute("aria-expanded") !== "true") {
-          await userEvent.click(currentFileTreeItem);
+        if (navigationFile.getAttribute("aria-expanded") !== "true") {
+          await userEvent.click(navigationFile);
         }
         await userEvent.click(
-          within(currentTree)
+          within(navigationTree)
             .getAllByRole("treeitem")
             .find((item) => item.getAttribute("aria-level") === "2")!,
         );
