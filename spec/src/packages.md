@@ -24,6 +24,9 @@ Deno package.
 The desktop development script is a pnpm entrypoint that starts the Deno desktop
 host, so its Deno arguments must stay consistent with the package-local
 `deno.json` imports rather than imposing a root-level package-manager policy.
+The Deno package also owns the initial HTML boot surface displayed before the
+renderer mounts; it may use package-local brand assets but must not move
+workspace startup policy out of the application packages.
 
 ## Requirements
 
@@ -502,6 +505,8 @@ The same private host owns Deno application-menu projection, validated external
 URL launch commands, and the bounded close coordinator. Its renderer continues
 to own `App`, workspace, plugin, database, and vault-session disposal and
 acknowledges native close only after that shared teardown completes.
+Its boot document provides only a branded loading state until the renderer
+clears it or reports a startup failure through the existing status element.
 
 The Deno host also owns one application-data lock and a bearer-authenticated
 loopback activation endpoint. Its distribution metadata declares application

@@ -35,6 +35,9 @@ the native host, including its declared npm compatibility imports. When Deno
 Desktop embeds colocated sibling source paths relative to the host package, the
 launcher creates ignored package-local symlinks only for those declared sibling
 or workspace sources and refuses to replace an existing non-owned path.
+The pre-renderer boot document is part of the same desktop boundary and owns
+only transient startup presentation. It shows the Lapis brand while the Svelte
+renderer and native bridge initialize, then yields to the mounted application.
 
 ## Requirements
 
