@@ -9,6 +9,8 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
+    "dev:cef": "LAPIS_DENO_BACKEND=cef node scripts/dev.mjs",
+    "dev:chrome": "pnpm dev:cef",
     "dev:vite": "vite",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "package:prepare": "pnpm --dir ../.. build:desktop",

@@ -18,9 +18,9 @@ dependency only and does not enter the root Storybook development closure.
 rows, including `tasks/task`, without importing each other. The tasks
 projection `planKind` values are `anytime`, `morning`, `afternoon`,
 `evening`, and `time`. `NativeDesktopRuntime` names only `deno-desktop`; the
-production hosts are Deno desktop and web. Root `dev:desktop`, `build:desktop`,
-`package:desktop`, and `test:desktop:packaged` scripts select and exercise the
-Deno package.
+production hosts are Deno desktop and web. Root `dev:desktop`,
+`dev:desktop:cef`, `build:desktop`, `package:desktop`, and
+`test:desktop:packaged` scripts select and exercise the Deno package.
 The desktop development script is a pnpm entrypoint that starts the Deno desktop
 host, so its Deno arguments must stay consistent with the package-local
 `deno.json` imports rather than imposing a root-level package-manager policy.
@@ -120,7 +120,7 @@ entrypoints.
 | LN-PKG-108 | Automatic metadata snapshots under `.lapis/cache` MUST stop. Existing files MUST remain untouched, and missing or stale rebuildable metadata MUST be recovered from authoritative vault Markdown. |
 | LN-PKG-109 | First-party metadata consumers MUST use async indexed queries and revision-aware refresh. A source audit MUST reject first-party enumeration of synchronous `fileCache`, `metadataCache`, `resolvedLinks`, `unresolvedLinks`, or `getAllItems`. |
 | LN-PKG-110 | Vault MUST expose a file iterator whose additional memory is bounded by folder depth. Warm MetadataCache reconciliation MUST combine it with exact-path manifest batches no larger than 500 entries. |
-| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be the sole private native desktop package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, current-platform, and explicit macOS/Linux distribution scripts. Root desktop scripts MUST select it without a `-deno` suffix, and no Windows distribution target is supported. |
+| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be the sole private native desktop package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, CEF debug, current-platform, and explicit macOS/Linux distribution scripts. Root desktop scripts MUST select it without a `-deno` suffix, and no Windows distribution target is supported. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. |

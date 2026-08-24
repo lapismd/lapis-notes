@@ -4,7 +4,9 @@ The Deno desktop host is the sole native Lapis Notes application. It requires
 Deno 2.9.5+ `deno desktop` and reuses `NativeDesktopBridge`, `WorkspaceShell`,
 and first-party plugins without copying their implementation. The private
 package remains at `packages/desktop-deno` and the root launches it with
-`pnpm dev:desktop`. Windows distribution is outside the supported matrix.
+`pnpm dev:desktop`; `pnpm dev:desktop:cef` starts the same development host with
+the Chromium Embedded Framework backend for renderer debugging. Windows
+distribution is outside the supported matrix.
 
 ## Requirements
 
@@ -38,7 +40,7 @@ package remains at `packages/desktop-deno` and the root launches it with
 | LN-DENO-026 | Verified plugin assets MUST register through the native bridge and load from a same-origin Deno HTTP route. The host MUST enforce installed plugin identity, version, path containment, supported type, byte size, and SHA-256 before serving an asset.                              |
 | LN-DENO-027 | The native agent runtime MUST consume the public `@lapismd/ai-host` executor for process and ACP sessions. Application tools MUST use its authenticated Web-standard MCP handler through the existing Deno loopback server, and host shutdown MUST close every owned agent resource. |
 | LN-DENO-028 | Deno MUST expose all five `desktop_terminal_session_*` commands through the shared terminal service, emit raw output and one exit event, close every PTY during host shutdown, and package the checksum-verified Sigma native library for each macOS or Linux target.                  |
-| LN-DENO-029 | The desktop development launcher MUST run `deno desktop` without `--no-npm` so declared npm imports in `packages/desktop-deno/deno.json` can load. It MUST preserve HMR, inspector, sloppy-import resolution, and development exclusions for `node_modules`, `dist`, and renderer `src`. It MAY create ignored package-local symlinks for declared sibling and workspace Deno source imports, and MUST refuse to replace non-owned paths. |
+| LN-DENO-029 | The desktop development launcher MUST run `deno desktop` without `--no-npm` so declared npm imports in `packages/desktop-deno/deno.json` can load. It MUST preserve HMR, inspector, sloppy-import resolution, and development exclusions for `node_modules`, `dist`, and renderer `src`. It MUST expose a CEF debug entrypoint for renderer DevTools. It MAY create ignored package-local symlinks for declared sibling and workspace Deno source imports, and MUST refuse to replace non-owned paths. |
 | LN-DENO-030 | The desktop boot document MUST present a branded loading surface before the renderer mounts. It MUST center the Lapis logo, show muted `Loading…` text beneath it, support light and dark backgrounds, and retain the same status element for startup failures. |
 
 ### LN-DENO-011 acceptance details

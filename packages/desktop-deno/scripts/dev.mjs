@@ -23,6 +23,15 @@ const address = "http://127.0.0.1:1422";
 console.log(`Deno desktop renderer: ${address}`);
 
 const backend = process.env.LAPIS_DENO_BACKEND?.trim();
+if (backend === "cef") {
+  console.log(
+    "Deno desktop backend: cef. Use View → Toggle Developer Tools for the Chromium DevTools window.",
+  );
+} else if (backend && backend !== "webview") {
+  console.warn(
+    `Ignoring unsupported LAPIS_DENO_BACKEND=${JSON.stringify(backend)}; using deno.json default backend.`,
+  );
+}
 const deno = spawn(
   denoBin,
   createDenoDesktopDevArgs(backend),

@@ -28,6 +28,8 @@
     "test:ai:smoke-harness": "node --test scripts/lib/ai-real-host-fixture.test.mjs scripts/ai-host-storybook-boundary.test.mjs",
     "dev": "pnpm storybook",
     "dev:desktop": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/desktop-deno dev",
+    "dev:desktop:cef": "pnpm --filter @lapis-notes/api build && LAPIS_DENO_BACKEND=cef pnpm --filter @lapis-notes/desktop-deno dev",
+    "dev:desktop:chrome": "pnpm dev:desktop:cef",
     "dev:web": "pnpm --filter @lapis-notes/api build && pnpm --filter @lapis-notes/web dev",
     "restart:web": "bash scripts/web-restart.sh",
     "storybook": "WATCHPACK_POLLING=250 node scripts/with-storybook-env.mjs node scripts/storybook-run.mjs --no-open",

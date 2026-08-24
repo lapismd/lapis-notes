@@ -21,7 +21,9 @@ pnpm --filter @lapis-notes/api build
 pnpm --filter @lapis-notes/desktop-deno dev
 ```
 
-Or `pnpm dev:desktop`. Vite listens on **127.0.0.1:1422** as an upstream
+Or `pnpm dev:desktop`. Use `pnpm dev:desktop:cef` when debugging with the
+Chromium Embedded Framework backend; `pnpm dev:desktop:chrome` is a convenience
+alias for the same command. Vite listens on **127.0.0.1:1422** as an upstream
 only. `deno desktop` opens the window, injects `win.bind()` on that document,
 and proxies the Vite renderer so `bindings.invoke` stays available. Do not open
 the Vite port in a browser tab; that page cannot receive desktop bindings.
@@ -29,8 +31,8 @@ the Vite port in a browser tab; that page cannot receive desktop bindings.
 The **View** menu reloads the window, tries `openDevtools()`, and shows
 captured renderer errors. The OS webview backend cannot host in-app DevTools, so
 dev also starts `--inspect=127.0.0.1:9229`. Attach from `chrome://inspect` or
-`edge://inspect`. To get a built-in console window, restart with
-`LAPIS_DENO_BACKEND=cef`.
+`edge://inspect`. The CEF debug command enables the in-app **View → Toggle
+Developer Tools** console window for renderer DOM and console inspection.
 
 On macOS, Create and Open use the system folder picker; other platforms fall
 back to a path prompt. Set `LAPIS_DENO_VAULT_AUTO=1` with `LAPIS_DENO_VAULT`

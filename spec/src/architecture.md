@@ -32,10 +32,13 @@ Target-specific artifact naming, metadata, icons, verified PTY libraries, and
 credential-selecting signing orchestration remain owned by that host package.
 The development launcher is part of that host boundary: `pnpm dev:desktop`
 starts Vite, then runs `deno desktop` against the same Deno import map used by
-the native host, including its declared npm compatibility imports. When Deno
-Desktop embeds colocated sibling source paths relative to the host package, the
-launcher creates ignored package-local symlinks only for those declared sibling
-or workspace sources and refuses to replace an existing non-owned path.
+the native host, including its declared npm compatibility imports. The
+`pnpm dev:desktop:cef` debug launcher selects Deno Desktop's Chromium Embedded
+Framework backend so renderer DevTools can inspect the real bound desktop
+document rather than an unbound browser tab. When Deno Desktop embeds colocated
+sibling source paths relative to the host package, the launcher creates ignored
+package-local symlinks only for those declared sibling or workspace sources and
+refuses to replace an existing non-owned path.
 The pre-renderer boot document is part of the same desktop boundary and owns
 only transient startup presentation. It shows the Lapis brand while the Svelte
 renderer and native bridge initialize, then yields to the mounted application.

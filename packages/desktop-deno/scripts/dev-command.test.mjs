@@ -1,4 +1,4 @@
-import { lstat, mkdir, mkdtemp, readlink } from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, readFile, readlink } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -55,6 +55,29 @@ describe("Deno desktop development command", () => {
       expect.arrayContaining(["--backend", "cef"]),
     );
     expect(createDenoDesktopDevArgs("unknown")).not.toContain("--backend");
+  });
+
+  it("exposes root and package CEF debug commands", async () => {
+    const rootManifest = JSON.parse(
+      await readFile(new URL("../../../package.json", import.meta.url), "utf8"),
+    );
+    const packageManifest = JSON.parse(
+      await readFile(new URL("../package.json", import.meta.url), "utf8"),
+    );
+
+    expect(rootManifest.scripts["dev:desktop:cef"]).toContain(
+      "LAPIS_DENO_BACKEND=cef",
+    );
+    expect(rootManifest.scripts["dev:desktop:cef"]).toContain(
+      "@lapis-notes/desktop-deno dev",
+    );
+    expect(rootManifest.scripts["dev:desktop:chrome"]).toBe(
+      "pnpm dev:desktop:cef",
+    );
+    expect(packageManifest.scripts["dev:cef"]).toBe(
+      "LAPIS_DENO_BACKEND=cef node scripts/dev.mjs",
+    );
+    expect(packageManifest.scripts["dev:chrome"]).toBe("pnpm dev:cef");
   });
 
   it("creates package-local source links for Deno Desktop embedded path resolution", async () => {
