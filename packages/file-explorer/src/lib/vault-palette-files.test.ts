@@ -3,9 +3,7 @@ import { describe, expect, it } from "vitest";
 import { EXPLORER_SETTING_IDS } from "./explorer-settings";
 import {
   listVaultPaletteFiles,
-  VAULT_PALETTE_EMPTY_QUERY_FALLBACK_LIMIT,
   VAULT_PALETTE_FILES_TAB,
-  VAULT_PALETTE_RECENT_GROUP,
 } from "./vault-palette-files";
 
 function createFile(path: string): TFile {
@@ -41,46 +39,52 @@ function createApp(options: {
 }
 
 describe("listVaultPaletteFiles", () => {
-  it("declares the Files tab and Recent group labels", () => {
+  it("declares the Files tab label", () => {
     expect(VAULT_PALETTE_FILES_TAB).toEqual({
       id: "files",
       label: "Files",
       order: 20,
     });
-    expect(VAULT_PALETTE_RECENT_GROUP).toBe("Recent");
   });
 
-  it("lists visible recents when the query is empty", () => {
+  it("keeps results blank until the user enters a query", () => {
     const recent = [
       createFile("Notes/Welcome.md"),
       createFile(".obsidian/app.json"),
       createFile("Notes/draft.bin"),
     ];
-    expect(listVaultPaletteFiles(createApp({ recentFiles: recent }), "")).toEqual(
-      [recent[0]],
-    );
-  });
-
-  it("falls back to a bounded file list when a fresh vault has no recents", () => {
     const files = [
       createFile("Projects/Beta.md"),
       createFile("Projects/Alpha.md"),
       createFile(".obsidian/app.json"),
     ];
     expect(
-      listVaultPaletteFiles(createApp({ queryFiles: files }), "").map(
-        (file) => file.path,
+      listVaultPaletteFiles(
+        createApp({ queryFiles: files, recentFiles: recent }),
+        "",
       ),
-    ).toEqual(["Projects/Alpha.md", "Projects/Beta.md"]);
+    ).toEqual([]);
+    expect(
+      listVaultPaletteFiles(
+        createApp({ queryFiles: files, recentFiles: recent }),
+        "   ",
+      ),
+    ).toEqual([]);
   });
 
-  it("caps the empty-query fallback list for large vaults", () => {
+  it("sorts typed query matches without imposing the empty-query cap", () => {
     const files = Array.from({ length: 40 }, (_, index) =>
       createFile(`Notes/${String(index).padStart(2, "0")}.md`),
     );
     expect(
-      listVaultPaletteFiles(createApp({ queryFiles: files }), ""),
-    ).toHaveLength(VAULT_PALETTE_EMPTY_QUERY_FALLBACK_LIMIT);
+      listVaultPaletteFiles(createApp({ queryFiles: files }), "Notes/").map(
+        (file) => file.path,
+      ),
+    ).toEqual(
+      files
+        .map((file) => file.path)
+        .sort((left, right) => left.localeCompare(right)),
+    );
   });
 
   it("filters vault files by path and hidden-file setting", () => {

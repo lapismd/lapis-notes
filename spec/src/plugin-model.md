@@ -119,6 +119,10 @@ status item.
 | LN-CV-010 | Desktop and web hosts MUST register runtime plugin `roles` as `first-party-external`, optional, and enabled by default before metadata and layout restoration. Package changes MUST preserve its runtime view, command, file, and plugin-data identities. |
 | LN-ROLE-016 | Desktop and web MUST restore persisted `role`, `roles`, and `cv` leaves when Roles is enabled without forcing Roles into a default layout. Disabled leaves MUST remain persisted missing-view placeholders and recover after re-enable. |
 
+Workspace palette providers may define their own query-empty result policy.
+File Explorer's Files provider stays blank until the user types, while
+AI-owned conversation rows reach the palette only through an Agents provider.
+
 Skill roots and composer slash commands follow the same disposable
 plugin lifecycle as application tools. They stay off the workspace
 command palette and off Mira editor slash registration. AI conversations

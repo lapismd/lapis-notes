@@ -29,7 +29,6 @@ import { subscribeExplorerVaultTreeChanges } from "./explorer-tree-subscription"
 import {
   listVaultPaletteFiles,
   VAULT_PALETTE_FILES_TAB,
-  VAULT_PALETTE_RECENT_GROUP,
 } from "./vault-palette-files";
 import { bindExplorerSelectionNotifications } from "./explorer-selection";
 
@@ -394,9 +393,7 @@ export function createFileExplorerPlugin(
         controller.commands.registerPaletteProvider({
           id: "lapis-vault-files",
           tab: VAULT_PALETTE_FILES_TAB,
-          emptyQueryLimit: 5,
           search: (query) => {
-            const recent = query.trim().length === 0;
             return listVaultPaletteFiles(this.app, query).map((file) => ({
               id: `vault-file:${file.path}`,
               title: file.name,
@@ -404,7 +401,6 @@ export function createFileExplorerPlugin(
               icon: "file",
               providerId: "lapis-vault-files",
               tab: VAULT_PALETTE_FILES_TAB.id,
-              group: recent ? VAULT_PALETTE_RECENT_GROUP : undefined,
               run: () => this.app.openFile(file),
             }));
           },

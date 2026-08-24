@@ -170,8 +170,8 @@ desktop `file-system-actions` IPC. Those extras stay out of the web and
 Storybook memory vaults. It also persists Show hidden files, registers the
 matching Workspace setting and palette command, and lets Design Core hide
 dotted names until that setting is on. Its vault-file palette provider
-declares the Files tab, lists recents when the query is empty, and keeps
-path filtering when the user types. The API workspace records those recents
+declares the Files tab, stays blank until the user enters a query, and keeps
+path filtering when the user types. The API workspace records file recents
 on `file-open` and registers `app:go-to-file` so landing and empty-view
 actions open that tab. `@lapis-notes/ai` registers an Agents provider that
 groups conversations by date without adding one command per chat.
