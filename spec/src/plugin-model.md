@@ -17,6 +17,11 @@ First-party plugin surfaces compose Design Core public parts for shared chrome;
 plugin projection and search-document registrations stay plugin-scoped even
 when Deno desktop persists their generated rows through the native AppDatabase
 bridge.
+Global Graph initially fits and centers its complete visible projection; it
+does not inherit the active document as an implicit focus. Local Graph retains
+its explicit active-note center contract. The explicit Focus active file action
+may zoom and center the active note, but it does not participate in Global
+Graph startup.
 AI composer drawer chips use the public `attachment-chip` contract instead of
 plugin-local paint. Bundled AI MUST remain a Lapis plugin and MUST NOT gain a
 runtime dependency on sibling `@lapismd/ai-host`. Assistant chat Markdown uses

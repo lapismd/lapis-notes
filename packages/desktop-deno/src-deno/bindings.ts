@@ -18,6 +18,7 @@ import {
   moveVaultFolder,
   selectVaultFolder,
 } from "./vault-fs.ts";
+import type { DenoVaultResourceService } from "./vault-resources.ts";
 import { usesOverlayWindowControls } from "./window-chrome.ts";
 
 const FS_COMMANDS = new Set([
@@ -89,6 +90,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
 export type DesktopInvokeContext = {
   fileWatch?: DenoFileWatchService;
   pluginAssets?: DenoPluginAssetService;
+  vaultResources?: DenoVaultResourceService;
   agentRuntime?: DenoAgentRuntimeHost;
   appDatabase?: DenoAppDatabaseHost;
   terminalRuntime?: DenoTerminalRuntimeHost;
@@ -229,6 +231,12 @@ export function handleDesktopInvoke(
   }
   if (command === "desktop_move_vault_folder") {
     return moveVaultFolder(String(payload.path ?? ""));
+  }
+  if (command === "desktop_fs_get_resource_url") {
+    if (!context.vaultResources) {
+      throw new Error("Deno vault resources are unavailable");
+    }
+    return context.vaultResources.getUrl(payload);
   }
   if (FS_COMMANDS.has(command)) {
     return handleVaultFs(command, payload);

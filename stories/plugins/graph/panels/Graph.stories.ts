@@ -100,6 +100,7 @@ function placementStory(
         GraphPlugin,
       );
 
+      await userEvent.click(panel.getByLabelText("Focus active file"));
       await userEvent.click(panel.getByLabelText("Zoom in"));
       await userEvent.click(panel.getByLabelText("Reset view"));
       await userEvent.click(panel.getByLabelText("Toggle graph settings"));
@@ -127,6 +128,11 @@ function placementStory(
       const graphStyle = getComputedStyle(graphRoot!);
       expect(graphStyle.getPropertyValue("--ui-graph-node-note").trim()).toBe(
         graphStyle.getPropertyValue("--muted-foreground").trim(),
+      );
+      expect(
+        graphStyle.getPropertyValue("--ui-graph-node-label-hover").trim(),
+      ).toBe(
+        graphStyle.getPropertyValue("--ui-graph-surface-foreground").trim(),
       );
       await userEvent.click(within(dialog).getByText("Filters"));
       await expect(within(dialog).getByLabelText("Search files")).toBeVisible();

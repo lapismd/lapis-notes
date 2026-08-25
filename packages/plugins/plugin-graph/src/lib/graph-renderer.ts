@@ -31,7 +31,9 @@ type GraphPalette = {
   nodeNeutral: string;
   nodeStroke: string;
   nodeStrokeActive: string;
+  nodeFocusRing: string;
   label: string;
+  labelHover: string;
 };
 
 function simulationNodeId(value: string | number | RenderNode): string {
@@ -43,11 +45,13 @@ interface GraphRendererCallbacks {
   onNodeContextMenu: (node: GraphNode, event: MouseEvent) => void;
 }
 
-type Transform = {
+export type GraphViewportTransform = {
   x: number;
   y: number;
   k: number;
 };
+
+type Transform = GraphViewportTransform;
 
 type StoredPosition = {
   x: number;
@@ -119,10 +123,20 @@ function resolveGraphPalette(el: HTMLElement): GraphPalette {
       "--ui-graph-node-active-stroke",
       "rgba(15, 23, 42, 0.65)",
     ),
+    nodeFocusRing: readStyleValue(
+      styles,
+      "--ui-graph-node-focus-ring",
+      "rgba(15, 23, 42, 0.82)",
+    ),
     label: readStyleValue(
       styles,
       "--ui-graph-node-label",
       "rgba(100, 116, 139, 0.92)",
+    ),
+    labelHover: readStyleValue(
+      styles,
+      "--ui-graph-node-label-hover",
+      "rgb(15, 23, 42)",
     ),
   };
 }
@@ -156,6 +170,7 @@ function clamp(value: number, min: number, max: number): number {
 export const GRAPH_MIN_ZOOM = 0.1;
 export const GRAPH_MAX_ZOOM = 3.5;
 export const GRAPH_MAX_FIT_ZOOM = 1.35;
+export const GRAPH_FOCUS_ZOOM = 1.1;
 const BASE_WHEEL_ZOOM_SENSITIVITY = 0.0008;
 const WHEEL_ZOOM_DELTA_CAP = 240;
 
@@ -183,6 +198,65 @@ export function graphFitScale(options: {
   );
   return clamp(fitScale, GRAPH_MIN_ZOOM, GRAPH_MAX_FIT_ZOOM);
 }
+
+export function graphFitTransform(options: {
+  viewportWidth: number;
+  viewportHeight: number;
+  bounds: Bounds;
+  padding: number;
+}): GraphViewportTransform {
+  const { viewportWidth, viewportHeight, bounds, padding } = options;
+  const contentWidth = Math.max(bounds.maxX - bounds.minX, 1);
+  const contentHeight = Math.max(bounds.maxY - bounds.minY, 1);
+  const scale = graphFitScale({
+    viewportWidth,
+    viewportHeight,
+    contentWidth,
+    contentHeight,
+    padding,
+  });
+  const centerX = (bounds.minX + bounds.maxX) / 2;
+  const centerY = (bounds.minY + bounds.maxY) / 2;
+  return {
+    x: viewportWidth / 2 - centerX * scale,
+    y: viewportHeight / 2 - centerY * scale,
+    k: scale,
+  };
+}
+
+export function graphFocusTransform(options: {
+  viewportWidth: number;
+  viewportHeight: number;
+  nodeX: number;
+  nodeY: number;
+  currentScale: number;
+}): GraphViewportTransform {
+  const { viewportWidth, viewportHeight, nodeX, nodeY, currentScale } = options;
+  const scale = clampGraphZoom(Math.max(currentScale, GRAPH_FOCUS_ZOOM));
+  return {
+    x: viewportWidth / 2 - nodeX * scale,
+    y: viewportHeight / 2 - nodeY * scale,
+    k: scale,
+  };
+}
+
+export function graphNodeLabelAlpha(options: {
+  zoom: number;
+  textFadeThreshold: number;
+  hovered: boolean;
+  context: boolean;
+}): number {
+  if (options.hovered) {
+    return 1;
+  }
+  const labelZoomThreshold = Math.max(1.05, options.textFadeThreshold + 0.35);
+  const zoomProgress = clamp((options.zoom - labelZoomThreshold) / 0.55, 0, 1);
+  return zoomProgress * (options.context ? 0.82 : 0.72);
+}
+
+export type GraphFocusOptions = {
+  zoom?: boolean;
+};
 
 function normalizeWheelDelta(event: WheelEvent, pageHeight: number): number {
   const deltaModeScale =
@@ -218,6 +292,7 @@ export class GraphRenderer {
   private hoveredNodeId: string | null = null;
   private focusedNodeId: string | null = null;
   private autoCenterNodeId: string | null = null;
+  private autoCenterZoom = false;
   private autoFitViewport = false;
   private pendingCenterNodeId: string | null = null;
   private pendingFitViewport = false;
@@ -286,6 +361,7 @@ export class GraphRenderer {
 
   setGraph(graph: GraphData, settings: GraphSettings): void {
     const shouldAutoFit = !this.hasSameTopology(graph);
+    const continueInitialAutoFit = this.autoFitViewport;
     this.storePositions();
     this.graph = graph;
     this.settings = settings;
@@ -324,7 +400,7 @@ export class GraphRenderer {
     this.nodes = nextNodes;
     this.links = nextLinks;
     this.rebuildNeighborMap();
-    this.autoFitViewport = shouldAutoFit;
+    this.autoFitViewport = shouldAutoFit || continueInitialAutoFit;
     if (shouldAutoFit) {
       this.hasFittedViewport = false;
       this.viewportAdjustedByUser = false;
@@ -366,9 +442,10 @@ export class GraphRenderer {
     return true;
   }
 
-  focusNode(nodeId: string | null): void {
+  focusNode(nodeId: string | null, options: GraphFocusOptions = {}): void {
     this.focusedNodeId = nodeId;
     this.autoCenterNodeId = nodeId;
+    this.autoCenterZoom = options.zoom === true;
     if (!nodeId) {
       this.pendingCenterNodeId = null;
       this.queueRender();
@@ -379,6 +456,7 @@ export class GraphRenderer {
       this.queueRender();
       return;
     }
+    this.viewportAdjustedByUser = false;
     if (!this.hasViewportSize()) {
       this.pendingCenterNodeId = nodeId;
       this.queueRender();
@@ -400,11 +478,17 @@ export class GraphRenderer {
   }
 
   resetView(): void {
+    this.focusedNodeId = null;
     this.autoCenterNodeId = null;
+    this.autoCenterZoom = false;
     this.autoFitViewport = false;
     this.viewportAdjustedByUser = false;
     this.fitGraphToViewport();
     this.queueRender();
+  }
+
+  refreshViewport(): void {
+    this.resize();
   }
 
   destroy(): void {
@@ -583,6 +667,8 @@ export class GraphRenderer {
         case "Escape":
           this.hoveredNodeId = null;
           this.focusedNodeId = null;
+          this.autoCenterNodeId = null;
+          this.autoCenterZoom = false;
           this.queueRender();
           event.preventDefault();
           break;
@@ -613,7 +699,7 @@ export class GraphRenderer {
           this.pendingFitViewport = false;
         }
         if (node) {
-          this.centerNodeInViewport(node);
+          this.applyFocusAlignment(node);
         }
         this.pendingCenterNodeId = null;
       } else if (this.pendingFitViewport) {
@@ -624,22 +710,29 @@ export class GraphRenderer {
           (entry) => entry.id === this.autoCenterNodeId,
         );
         if (node) {
-          this.centerNodeInViewport(node);
+          this.applyFocusAlignment(node);
         }
       } else if (this.autoFitViewport) {
         this.fitGraphToViewport();
       } else if (
-        prevViewportWidth > 0 &&
-        prevViewportHeight > 0 &&
-        (viewportWidth !== prevViewportWidth ||
-          viewportHeight !== prevViewportHeight)
+        viewportWidth !== prevViewportWidth ||
+        viewportHeight !== prevViewportHeight
       ) {
-        this.applyResizeAlignment(
-          prevViewportWidth,
-          prevViewportHeight,
-          viewportWidth,
-          viewportHeight,
-        );
+        if (prevViewportWidth > 0 && prevViewportHeight > 0) {
+          this.applyResizeAlignment(
+            prevViewportWidth,
+            prevViewportHeight,
+            viewportWidth,
+            viewportHeight,
+          );
+        } else if (!this.viewportAdjustedByUser) {
+          this.applyResizeAlignment(
+            viewportWidth,
+            viewportHeight,
+            viewportWidth,
+            viewportHeight,
+          );
+        }
       }
     }
 
@@ -663,6 +756,16 @@ export class GraphRenderer {
   private applyFocusAlignment(node: RenderNode): void {
     if (this.autoFitViewport || !this.hasFittedViewport) {
       this.fitGraphToViewport();
+    }
+    if (this.autoCenterZoom) {
+      this.transform = graphFocusTransform({
+        viewportWidth: this.wrapperEl.clientWidth,
+        viewportHeight: this.wrapperEl.clientHeight,
+        nodeX: node.x ?? 0,
+        nodeY: node.y ?? 0,
+        currentScale: this.transform.k,
+      });
+      return;
     }
     this.centerNodeInViewport(node);
   }
@@ -723,23 +826,13 @@ export class GraphRenderer {
 
     const viewportWidth = Math.max(this.wrapperEl.clientWidth, 1);
     const viewportHeight = Math.max(this.wrapperEl.clientHeight, 1);
-    const contentWidth = Math.max(bounds.maxX - bounds.minX, 1);
-    const contentHeight = Math.max(bounds.maxY - bounds.minY, 1);
     const padding = 48;
-    const scale = graphFitScale({
+    this.transform = graphFitTransform({
       viewportWidth,
       viewportHeight,
-      contentWidth,
-      contentHeight,
+      bounds,
       padding,
     });
-    const centerX = (bounds.minX + bounds.maxX) / 2;
-    const centerY = (bounds.minY + bounds.maxY) / 2;
-    this.transform = {
-      x: viewportWidth / 2 - centerX * scale,
-      y: viewportHeight / 2 - centerY * scale,
-      k: scale,
-    };
     this.hasFittedViewport = true;
   }
 
@@ -857,6 +950,7 @@ export class GraphRenderer {
     }
 
     this.autoCenterNodeId = null;
+    this.autoCenterZoom = false;
     this.autoFitViewport = false;
     this.queueRender();
   }
@@ -955,29 +1049,34 @@ export class GraphRenderer {
       ? palette.nodeStrokeActive
       : palette.nodeStroke;
     this.context.stroke();
+
+    if (node.id === this.focusedNodeId) {
+      const screenScale = Math.max(this.transform.k, GRAPH_MIN_ZOOM);
+      this.context.beginPath();
+      this.context.arc(
+        node.x,
+        node.y,
+        node.radius + 3.5 / screenScale,
+        0,
+        Math.PI * 2,
+      );
+      this.context.lineWidth = 1.75 / screenScale;
+      this.context.strokeStyle = palette.nodeFocusRing;
+      this.context.stroke();
+    }
   }
 
   private drawLabel(node: RenderNode, palette: GraphPalette): void {
     if (typeof node.x !== "number" || typeof node.y !== "number") {
       return;
     }
-    const labelZoomThreshold = Math.max(
-      1.05,
-      (this.settings?.display.textFadeThreshold ?? 0.8) + 0.35,
-    );
-    const zoomProgress = clamp(
-      (this.transform.k - labelZoomThreshold) / 0.55,
-      0,
-      1,
-    );
-    const isFocusedLabel =
-      node.id === this.focusedNodeId || node.id === this.hoveredNodeId;
-    const isContextLabel = !isFocusedLabel && this.isNodeActive(node.id);
-    const alpha = isFocusedLabel
-      ? clamp(zoomProgress + 0.18, 0, 1)
-      : isContextLabel
-        ? zoomProgress * 0.82
-        : zoomProgress * 0.72;
+    const isHoveredLabel = node.id === this.hoveredNodeId;
+    const alpha = graphNodeLabelAlpha({
+      zoom: this.transform.k,
+      textFadeThreshold: this.settings?.display.textFadeThreshold ?? 0.8,
+      hovered: isHoveredLabel,
+      context: this.isNodeActive(node.id),
+    });
     if (alpha <= 0.05) {
       return;
     }
@@ -986,10 +1085,12 @@ export class GraphRenderer {
     const screenRadius = node.radius * this.transform.k;
     this.context.save();
     this.context.globalAlpha = alpha;
-    this.context.font = isFocusedLabel
+    this.context.font = isHoveredLabel
       ? "600 11px system-ui"
       : "500 11px system-ui";
-    this.context.fillStyle = palette.label;
+    this.context.fillStyle = isHoveredLabel
+      ? palette.labelHover
+      : palette.label;
     this.context.textAlign = "center";
     this.context.textBaseline = "top";
     this.context.fillText(node.label, screenX, screenY + screenRadius + 8);

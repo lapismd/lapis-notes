@@ -26,6 +26,11 @@ desktop-native Turso provider supplied by the host. `packages/desktop-deno` is
 the sole native desktop consumer and owns the Deno window, `win.bind()` bridge,
 native app-database handle, native host lifecycle, and services while remaining
 a consumer of public Lapis package boundaries.
+Vault resources stay within that host boundary: the renderer receives an
+opaque same-origin loopback URL, while Deno validates the capability and vault
+path before returning the binary HTTP response. Binary file bytes never travel
+through Laufey's string-valued binding response, and the host rejects NUL-bearing
+text reads before they can reach that response boundary.
 Its native console uses severity thresholds: routine bridge traffic is
 debug-only, while the default output is limited to bounded lifecycle notices,
 warnings, and failures and never includes invocation payloads or credentials.
@@ -253,7 +258,7 @@ Search leaf by opening its target in a sibling tab.
 @lapis-notes/workspace (thin Storybook-runnable shell host)
 @lapis-notes/file-explorer (reusable File Explorer contribution)
 @lapis-notes/search (vault indexing + Search workspace contribution)
-@lapis-notes/graph (indexed global/local graph contribution; legacy controls, muted note paint, whole-graph fit, and no default leaf)
+@lapis-notes/graph (indexed global/local graph contribution; legacy controls, muted note paint, centered whole-graph initial fit, and no default leaf)
 @lapis-notes/bookmarks (Obsidian-compatible Bookmarks panel; default left sidebar after Search; tree matches Explorer inset, toolbar hover, chevron-centered guides, and leaf rows that omit the disclosure column)
 @lapis-notes/history (vault file-revision capture + History workspace contribution + settings)
 @lapis-notes/wordcount (status-bar word, character, and reading-time count)

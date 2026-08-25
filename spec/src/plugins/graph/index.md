@@ -34,6 +34,8 @@ canvas positions only as presentation state.
 | LN-GRAPH-012 | Storybook MUST demonstrate real global and local Graph views in all six governed panel placements over one deterministic indexed vault. Docs MUST use public `@lapis-notes/graph` imports, isolated 700px canvases, and `visual-pending` evidence.                                                                                                                                                       |
 | LN-GRAPH-013 | The package MUST publicly export GraphPlugin, GraphControlsOverlay, GraphEmbed, GraphRenderer, view types, settings helpers, graph types, embed entry point, and stylesheet entry points without exporting a story-only UI wrapper.                                                                                                                                                                      |
 | LN-GRAPH-014 | Graph stories and tests MUST cover populated, loading, query failure and recovery, filtering, local depth, note navigation, exact tag Search state, disabled Search, viewport controls, and settings persistence.                                                                                                                                                                                        |
+| LN-GRAPH-015 | Global Graph MUST fit and center the complete visible graph bounds when its panel first loads. It MUST NOT replace that initial whole-graph alignment with the active note. Local Graph MUST retain active-note centering.                                                                                                                                                                               |
+| LN-GRAPH-016 | `Focus active file` MUST zoom to and center the active note without changing Global Graph's initial whole-graph alignment. The focused node MUST use a compact ring. Node titles MUST remain hidden below the configured zoom threshold unless hovered, and hovered titles MUST use the stronger scoped hover-label token.                                                                               |
 
 ## Runtime flow
 
@@ -52,4 +54,5 @@ file navigation or search:open-search
 Graph owns graph derivation, settings, and presentation. Search owns query
 state and results; Graph crosses that boundary only through the registered
 command. Design Core owns reusable controls, while workspace placement and
-vault persistence remain application concerns.
+vault persistence remain application concerns. Initial Global alignment is a
+projection-wide fit; active-file focus is a separate, explicit camera action.

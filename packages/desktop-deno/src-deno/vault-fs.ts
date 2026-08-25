@@ -19,6 +19,16 @@ async function ensureParent(path: string): Promise<void> {
   }
 }
 
+export function decodeVaultTextForBinding(
+  bytes: Uint8Array,
+  target: string,
+): string {
+  if (bytes.includes(0)) {
+    throw makeFsError("EILSEQ", target);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
 export async function writeTextAtomic(
   path: string,
   data: string,
@@ -59,8 +69,9 @@ export async function handleVaultFs(
       }
     case "desktop_fs_read_text":
       try {
-        return await Deno.readTextFile(abs);
-      } catch {
+        return decodeVaultTextForBinding(await Deno.readFile(abs), abs);
+      } catch (error) {
+        if ((error as { code?: string }).code === "EILSEQ") throw error;
         throw makeFsError("ENOENT", abs);
       }
     case "desktop_fs_read_binary":
@@ -164,8 +175,6 @@ export async function handleVaultFs(
         abs,
       );
       return;
-    case "desktop_fs_get_resource_url":
-      return `file://${abs}`;
     default:
       throw new Error(`Unhandled filesystem command: ${command}`);
   }

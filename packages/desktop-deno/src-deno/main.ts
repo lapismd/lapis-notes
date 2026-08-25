@@ -30,6 +30,7 @@ import { acquireDenoSingleInstance } from "./single-instance.ts";
 import { resolveDenoPtyLibrary } from "./terminal-native-library.ts";
 import { DenoTerminalRuntimeHost } from "./terminal-runtime.ts";
 import { userDataDir } from "./user-data.ts";
+import { DenoVaultResourceService } from "./vault-resources.ts";
 import {
   DESKTOP_WINDOW_TITLE,
   assertSupportedDenoDesktopVersion,
@@ -88,6 +89,7 @@ const drag = createWindowDragController(win);
 const emitRendererEvent = createRendererEventEmitter(win);
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
+const vaultResources = new DenoVaultResourceService();
 const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
 const appDatabase = new DenoAppDatabaseHost(userDataDir(), emitRendererEvent);
 let terminalRuntime: DenoTerminalRuntimeHost | undefined;
@@ -110,6 +112,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     desktopLog.info("[desktop-close] shutdown");
     fileWatch.shutdown();
     pluginAssets.clear();
+    vaultResources.clear();
     await terminalRuntime?.shutdown();
     await appDatabase.closeAll();
     await agentRuntime.shutdown();
@@ -155,6 +158,7 @@ function registerDesktopBindings(): void {
             handleDesktopInvoke(command, payload, {
               fileWatch,
               pluginAssets,
+              vaultResources,
               agentRuntime,
               appDatabase,
               terminalRuntime,
@@ -324,6 +328,10 @@ async function proxyVite(
 Deno.serve(async (request) => {
   const agentToolResponse = await agentRuntime.respond(request);
   if (agentToolResponse) return agentToolResponse;
+  const vaultResourceResponse = await vaultResources.respond(request);
+  if (vaultResourceResponse) {
+    return withIsolationHeaders(vaultResourceResponse);
+  }
   if (devUrl) return await proxyVite(request, devUrl);
   const pluginAssetResponse = await pluginAssets.respond(request.url);
   if (pluginAssetResponse) return withIsolationHeaders(pluginAssetResponse);

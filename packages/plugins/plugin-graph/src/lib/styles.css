@@ -24,8 +24,10 @@
   --ui-graph-node-unresolved: var(--destructive);
   --ui-graph-node-neutral: var(--muted-foreground);
   --ui-graph-node-label: var(--muted-foreground);
+  --ui-graph-node-label-hover: var(--ui-graph-surface-foreground);
   --ui-graph-node-stroke: var(--ui-graph-surface-background);
   --ui-graph-node-active-stroke: var(--ui-graph-node-note);
+  --ui-graph-node-focus-ring: var(--ring, var(--ui-graph-surface-foreground));
   --ui-graph-stats-background: color-mix(
     in srgb,
     var(--ui-graph-surface-background) 90%,

@@ -5,6 +5,7 @@ import {
   graphNodeIdForFile,
 } from "./graph-data";
 import { GraphBuildGeneration } from "./graph-build-generation";
+import { graphLoadFocusNodeId } from "./graph-load-alignment";
 import { openGraphTagSearch } from "./graph-node-activation";
 import GraphControlsOverlay from "./graph-controls-overlay.svelte";
 import { GraphRenderer } from "./graph-renderer";
@@ -58,7 +59,6 @@ abstract class GraphViewBase extends ItemView {
   private renderer: GraphRenderer | null = null;
   private overlay: LocalMountComponent<Record<string, unknown>> | null = null;
   private settings: GraphSettings;
-  private hasAppliedInitialCenter = false;
   private currentGraphPaths: Set<string> = new Set();
   private unregisterView: (() => void) | null = null;
   private readonly buildGeneration = new GraphBuildGeneration();
@@ -152,7 +152,10 @@ abstract class GraphViewBase extends ItemView {
       this.app.metadataCache.on("index-changed", (change) => {
         if (!change.reset && !change.domains.includes("metadata")) return;
         if (
-          this.shouldRebuildForMetadataPaths(change.paths, change.reset ?? false)
+          this.shouldRebuildForMetadataPaths(
+            change.paths,
+            change.reset ?? false,
+          )
         ) {
           this.scheduleRebuild();
         }
@@ -161,7 +164,7 @@ abstract class GraphViewBase extends ItemView {
     this.registerEvent(
       this.app.workspace.on("active-leaf-change", (leaf) => {
         if (leaf === this.leaf) {
-          this.scheduleRebuildWhenVisible();
+          this.scheduleViewportRefreshWhenVisible();
         }
         if (this.isLocal) {
           this.scheduleRebuild();
@@ -174,7 +177,7 @@ abstract class GraphViewBase extends ItemView {
     });
   }
 
-  private scheduleRebuildWhenVisible(): void {
+  private scheduleViewportRefreshWhenVisible(): void {
     requestAnimationFrame(() => {
       if (!this.renderer) {
         return;
@@ -189,7 +192,7 @@ abstract class GraphViewBase extends ItemView {
       if (width <= 0 || height <= 0) {
         return;
       }
-      void this.rebuild();
+      this.renderer.refreshViewport();
     });
   }
 
@@ -202,7 +205,6 @@ abstract class GraphViewBase extends ItemView {
     this.renderer = null;
     this.overlay?.destroy();
     this.overlay = null;
-    this.hasAppliedInitialCenter = false;
     this.currentGraphPaths = new Set();
   }
 
@@ -231,7 +233,9 @@ abstract class GraphViewBase extends ItemView {
       new Notice("No active file to focus in graph");
       return;
     }
-    this.renderer?.focusNode(graphNodeIdForFile(activeFile.path));
+    this.renderer?.focusNode(graphNodeIdForFile(activeFile.path), {
+      zoom: true,
+    });
   }
 
   applyGraphSettings(settings: GraphSettings): void {
@@ -269,11 +273,10 @@ abstract class GraphViewBase extends ItemView {
         .filter((path): path is string => typeof path === "string"),
     );
     this.renderer?.setGraph(graph, this.settings);
-    const preferredCenterNodeId = this.getPreferredCenterNodeId(graph);
+    const preferredCenterNodeId = graphLoadFocusNodeId(this.isLocal, graph);
     if (preferredCenterNodeId) {
       this.renderer?.focusNode(preferredCenterNodeId);
     }
-    this.hasAppliedInitialCenter = true;
     if (this.overlay) {
       this.overlay.props.settings = this.settings;
       this.overlay.props.statsText = this.getStatsText(graph);
@@ -325,23 +328,6 @@ abstract class GraphViewBase extends ItemView {
         ? ` • ${activeFile.baseName ?? activeFile.path}`
         : "";
     return `${graph.nodes.length} nodes • ${graph.links.length} links${centerLabel}`;
-  }
-
-  private getPreferredCenterNodeId(graph: GraphData): string | null {
-    if (graph.centerNodeId) {
-      return graph.centerNodeId;
-    }
-    if (this.hasAppliedInitialCenter) {
-      return null;
-    }
-    const activeFile = this.app.workspace.getActiveFile();
-    if (!activeFile) {
-      return null;
-    }
-    const activeNodeId = graphNodeIdForFile(activeFile.path);
-    return graph.nodes.some((node) => node.id === activeNodeId)
-      ? activeNodeId
-      : null;
   }
 
   private updateLocalSettings(patch: GraphSettingsPatch): void {
