@@ -175,10 +175,11 @@ Markdown owns `notes_list`. API owns Vault-backed `read`, `write`, `edit`, and
 `apply_patch` wrappers over the portable `@lapismd/ai-host/file-tools` kernel.
 Those bundled descriptions steer agents to the vault tools instead of host-cwd
 shell search (LN-AI-108).
-The live transport is an AI Host-owned loopback broker plus official-SDK stdio
-shim. Deno desktop and the authenticated remote client carry only generic bridge
-commands and events; they never acquire registry, policy, or transcript
-authority.
+The live transport is host-advertised and AI Host-owned. Node and WebSocket
+hosts use the loopback broker plus official-SDK stdio shim; Deno desktop attaches
+the broker's authenticated Streamable HTTP handler to its renderer server.
+Both carry only generic bridge commands and events and never acquire registry,
+policy, or transcript authority.
 The AI controller allocates the binding identity before runtime start, opens
 the binding-local bridge from that identity, and commits that same identity
 only after startup succeeds. Replacing an agent closes the old bridge and its
@@ -188,6 +189,8 @@ metadata so later matching permission requests stay silent; application-tool
 write grants remain memory-only (LN-AI-156, LN-AI-088).
 Permission and question option buttons use Design Core's public
 `feedback-option` part (LN-AI-157).
+Any visible runtime or host error removes the composer working indicator while
+the controller clears its owned busy state and remains retryable (LN-AI-052).
 API owns result-view registration so Search can render `notes_search` hits
 and AI can render `/skills` and `/tools` inventories (LN-PKG-100, LN-AI-158,
 LN-AI-159).

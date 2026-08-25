@@ -17,6 +17,7 @@ import {
 } from "./app-tool-host";
 
 const APP_TOOL_MCP_SERVER_NAME = "lapis-tools";
+const SUPPORTED_APP_TOOL_TRANSPORTS = new Set(["stdio-mcp", "http-mcp"]);
 
 export type AppToolBridgeEvent = {
   bindingId: string;
@@ -77,7 +78,7 @@ export class DesktopAppToolBridge implements AppToolBridgeCoordinator {
       throw new Error(`App tool bridge already exists: ${input.agentBindingId}`);
     }
     const bridge = getNativeDesktopBridge();
-    const hostCapable = supportsStdioAppTools();
+    const hostCapable = supportsAppTools();
     const runtimeCapable = input.runtimeSupportsAppTools;
     const descriptor = this.host.createSession({
       ...input,
@@ -261,13 +262,14 @@ export class DesktopAppToolBridge implements AppToolBridgeCoordinator {
   }
 }
 
-function supportsStdioAppTools(): boolean {
+function supportsAppTools(): boolean {
   const capability = getNativeDesktopCapability("agent-runtime");
   const protocolVersion = Number(capability?.details?.protocolVersion ?? 0);
+  const transport = String(capability?.details?.appTools ?? "");
   return (
     capability?.status === "available" &&
     protocolVersion >= 3 &&
-    capability.details?.appTools === "stdio-mcp"
+    SUPPORTED_APP_TOOL_TRANSPORTS.has(transport)
   );
 }
 

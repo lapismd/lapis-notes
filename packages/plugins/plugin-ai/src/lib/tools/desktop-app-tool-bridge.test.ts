@@ -55,7 +55,7 @@ function fixture() {
   return { coordinator, host, registry };
 }
 
-function capableBridge() {
+function capableBridge(appTools = "stdio-mcp") {
   let emitCall: ((call: NativeAgentToolCall) => void) | undefined;
   let emitCancel: ((cancel: NativeAgentToolCancel) => void) | undefined;
   const invoke = vi.fn(async (command: string) => {
@@ -86,7 +86,7 @@ function capableBridge() {
   native.capability = {
     id: "agent-runtime",
     status: "available",
-    details: { protocolVersion: 3, appTools: "stdio-mcp" },
+    details: { protocolVersion: 3, appTools },
   };
   return {
     invoke,
@@ -177,6 +177,32 @@ describe("DesktopAppToolBridge", () => {
 
     await coordinator.closeBinding("binding-1");
     expect(host.getSession("binding-1")).toBeUndefined();
+    await coordinator.close();
+    host.close();
+  });
+
+  it("opens application tools through the Deno HTTP MCP transport", async () => {
+    const bridge = capableBridge("http-mcp");
+    const { coordinator, host, registry } = fixture();
+    registry.register(owner, tool("notes_read"));
+
+    await expect(
+      coordinator.prepare({
+        conversationId: "conversation-1",
+        agentBindingId: "binding-1",
+        scopeDir: "Notes",
+        runtimeSupportsAppTools: true,
+      }),
+    ).resolves.toMatchObject({
+      bridgeId: "bridge-1",
+      status: "available",
+      tools: [{ name: "notes_read" }],
+    });
+    expect(bridge.invoke).toHaveBeenCalledWith(
+      "desktop_agent_tools_open",
+      expect.objectContaining({ bindingId: "binding-1" }),
+    );
+
     await coordinator.close();
     host.close();
   });

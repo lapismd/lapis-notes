@@ -67,6 +67,7 @@
   } from "./chat-result-views";
   import AiInventoryResult from "./ai-inventory-result.svelte";
   import { formatChatTimestamp, groupChatItemsByDate } from "./chat-time";
+  import { shouldShowWorkingIndicator } from "./chat-status";
   import {
     isOneLineAlert,
     presentToolPayload,
@@ -331,6 +332,9 @@
   );
   const composerStatus = $derived<ComposerStatus | undefined>(
     composerError ? { type: "error", message: composerError } : undefined,
+  );
+  const showWorkingIndicator = $derived(
+    shouldShowWorkingIndicator(initializing, controller.busy, composerError),
   );
   const workingLabel = $derived(
     initializing
@@ -675,7 +679,7 @@
       {@render scopeFooter()}
     {/snippet}
     {#snippet composer()}
-      {#if initializing || controller.busy}
+      {#if showWorkingIndicator}
         <div
           class="ai-chat-panel__working"
           data-testid="ai-chat-working"

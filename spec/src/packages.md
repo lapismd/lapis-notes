@@ -236,6 +236,8 @@ AI coordinates each registry snapshot with one preallocated native binding and
 projects its events into the existing transcript. Deno desktop and AI Host continue
 to transport opaque bridge identifiers rather than importing note-tool
 implementations.
+The bridge coordinator accepts only protocol-v3 hosts that advertise the owned
+`stdio-mcp` or `http-mcp` application-tool transport.
 Its execution-scope helper validates vault-relative portable paths and exposes
 only fixed-directory containment and resolution to portable tool callbacks.
 AI policy imports these contracts through the narrow `@lapis-notes/api/agent-tools`
@@ -350,7 +352,8 @@ plugin-data session persistence, vault-scoped file mentions, Codex and Cursor
 model catalogs, chat settings, movable chat panel, grouped Design Core tool-call
 transcripts that unwrap tool envelopes into `json`, `bash`, or `plaintext`
 `CodeBlock` language (LN-AI-133), a busy-turn Stop abort that clears
-busy before runtime cancel settles, an ungrouped History sidebar leaf, a movable Catalog command leaf, and an Open Chat left-ribbon
+busy before runtime cancel settles, and error presentation that removes the
+working indicator. It also owns an ungrouped History sidebar leaf, a movable Catalog command leaf, and an Open Chat left-ribbon
 action that reuses the opening command.
 Its paperclip attach picker keeps host Popover chrome—visible border, shadow,
 and stacking above an open composer drawer—and composes Command View for the

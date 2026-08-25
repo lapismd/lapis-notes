@@ -30,6 +30,8 @@ is still preparing a session. Tool details unwrap envelope fields such as
 and collapses when later transcript data arrives (LN-AI-131). Stop settles
 leftover spinners immediately and posts a cancelled system notice after cancel
 confirms (LN-AI-132). The notice reads `Agent turn cancelled`.
+Visible runtime and host errors remove the working indicator and leave the chat
+able to retry (LN-AI-052).
 An unreadable open conversation is reported and
 released so the next send starts a replacement chat (LN-AI-124).
 Runtime Allow always and Deny always decisions persist on conversation
@@ -158,6 +160,9 @@ live ACP sessions receive it in the application-tool snapshot.
 This callback registry is separate from AI's external
 `McpServerContribution` registry; plugins cannot claim the reserved
 `lapis-tools` MCP server name through that process-backed integration surface.
+Protocol-v3 hosts may carry that reserved bridge through their advertised
+authenticated stdio or Streamable HTTP MCP transport; plugins do not select the
+transport.
 AI snapshots the exact active registration IDs for a new binding, and later
 plugin unload or replacement makes those snapshotted callbacks unavailable
 instead of transferring authority to a newly registered callback.
