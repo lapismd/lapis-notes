@@ -8,25 +8,36 @@
     var(--foreground)
   );
   --ui-graph-surface-border: var(--ui-workspace-view-border, var(--border));
-  --ui-graph-link: color-mix(
+  --graph-text: var(--ui-graph-surface-foreground);
+  --graph-line: color-mix(
     in srgb,
     var(--ui-graph-surface-foreground) 24%,
     transparent
   );
-  --ui-graph-link-active: color-mix(
+  --graph-node: var(--muted-foreground);
+  --graph-node-unresolved: color-mix(
     in srgb,
-    var(--ui-graph-surface-foreground) 52%,
+    var(--muted-foreground) 46%,
     transparent
   );
-  --ui-graph-node-note: var(--muted-foreground);
-  --ui-graph-node-attachment: var(--warning, #d97706);
-  --ui-graph-node-tag: var(--success, #16a34a);
-  --ui-graph-node-unresolved: var(--destructive);
-  --ui-graph-node-neutral: var(--muted-foreground);
-  --ui-graph-node-label: var(--muted-foreground);
-  --ui-graph-node-label-hover: var(--ui-graph-surface-foreground);
+  --graph-node-focused: var(--primary, var(--accent-foreground));
+  --graph-node-tag: var(--success, #16a34a);
+  --graph-node-attachment: var(--warning, #d97706);
+  --ui-graph-link: var(--graph-line);
+  --ui-graph-link-active: color-mix(
+    in srgb,
+    var(--graph-text) 52%,
+    transparent
+  );
+  --ui-graph-node-note: var(--graph-node);
+  --ui-graph-node-attachment: var(--graph-node-attachment);
+  --ui-graph-node-tag: var(--graph-node-tag);
+  --ui-graph-node-unresolved: var(--graph-node-unresolved);
+  --ui-graph-node-neutral: var(--graph-node);
+  --ui-graph-node-label: var(--graph-text);
+  --ui-graph-node-label-hover: var(--graph-text);
   --ui-graph-node-stroke: var(--ui-graph-surface-background);
-  --ui-graph-node-active-stroke: var(--ui-graph-node-note);
+  --ui-graph-node-active-stroke: var(--graph-node-focused);
   --ui-graph-node-focus-ring: var(--ring, var(--ui-graph-surface-foreground));
   --ui-graph-stats-background: color-mix(
     in srgb,

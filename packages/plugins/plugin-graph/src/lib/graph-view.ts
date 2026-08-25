@@ -143,6 +143,14 @@ abstract class GraphViewBase extends ItemView {
       onNodeContextMenu: (node, event) => {
         this.showNodeMenu(node, event);
       },
+      onLayoutComplete: (summary) => {
+        this.app.telemetry.recordEvent("graph.layout.complete", {
+          animated: summary.animated,
+          "graph.layout.duration.ms": summary.durationMs,
+          "graph.node.count": summary.nodeCount,
+          "graph.link.count": summary.linkCount,
+        });
+      },
     });
 
     this.unregisterView = this.plugin.registerGraphView(this);

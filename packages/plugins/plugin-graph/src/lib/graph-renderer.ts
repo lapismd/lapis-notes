@@ -11,11 +11,11 @@ import {
 import type { GraphData, GraphNode, GraphSettings } from "./graph-types";
 import { adjustTransformForViewportResize } from "./graph-viewport-alignment";
 
-interface RenderNode extends GraphNode, SimulationNodeDatum {
+export interface GraphRenderNode extends GraphNode, SimulationNodeDatum {
   radius: number;
 }
 
-interface RenderLink extends SimulationLinkDatum<RenderNode> {
+export interface GraphRenderLink extends SimulationLinkDatum<GraphRenderNode> {
   id: string;
   count: number;
   directed: boolean;
@@ -28,6 +28,7 @@ type GraphPalette = {
   nodeAttachment: string;
   nodeTag: string;
   nodeUnresolved: string;
+  nodeFocused: string;
   nodeNeutral: string;
   nodeStroke: string;
   nodeStrokeActive: string;
@@ -36,6 +37,9 @@ type GraphPalette = {
   labelHover: string;
 };
 
+type RenderNode = GraphRenderNode;
+type RenderLink = GraphRenderLink;
+
 function simulationNodeId(value: string | number | RenderNode): string {
   return typeof value === "object" ? value.id : String(value);
 }
@@ -43,6 +47,12 @@ function simulationNodeId(value: string | number | RenderNode): string {
 interface GraphRendererCallbacks {
   onNodeClick: (node: GraphNode, event: MouseEvent) => void;
   onNodeContextMenu: (node: GraphNode, event: MouseEvent) => void;
+  onLayoutComplete?: (summary: {
+    animated: boolean;
+    durationMs: number;
+    nodeCount: number;
+    linkCount: number;
+  }) => void;
 }
 
 export type GraphViewportTransform = {
@@ -69,6 +79,135 @@ type Bounds = {
 
 function nodeRadius(node: GraphNode, settings: GraphSettings): number {
   return settings.display.nodeSize + Math.log2(node.refCount + 1) * 2.6;
+}
+
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+const ENTRANCE_PREWARM_TICKS = 12;
+const REDUCED_MOTION_SETTLE_TICKS = 240;
+const EMPHASIS_IN_DURATION_MS = 140;
+const EMPHASIS_OUT_DURATION_MS = 180;
+
+export function graphPhyllotaxisPosition(
+  index: number,
+  spacing = 18,
+): { x: number; y: number } {
+  const radius = spacing * Math.sqrt(Math.max(index, 0));
+  const angle = index * GOLDEN_ANGLE;
+  return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+}
+
+export function graphNodeWorldRadius(baseRadius: number, zoom: number): number {
+  return baseRadius / Math.sqrt(Math.max(zoom, GRAPH_MIN_ZOOM));
+}
+
+export function graphNodeScreenRadius(baseRadius: number, zoom: number): number {
+  return baseRadius * Math.sqrt(Math.max(zoom, GRAPH_MIN_ZOOM));
+}
+
+export function graphEmphasisAlpha(
+  kind: "node" | "link" | "label",
+  active: boolean,
+  progress: number,
+): number {
+  if (active) return 1;
+  const target = kind === "node" ? 0.12 : kind === "link" ? 0.05 : 0;
+  return 1 - clamp(progress, 0, 1) * (1 - target);
+}
+
+export function createGraphForceSimulation(
+  nodes: GraphRenderNode[],
+  links: GraphRenderLink[],
+  settings: GraphSettings,
+) {
+  return forceSimulation(nodes)
+    .force(
+      "link",
+      forceLink<GraphRenderNode, GraphRenderLink>(links)
+        .id((node) => node.id)
+        .distance(settings.forces.linkDistance)
+        .strength(
+          (link) => settings.forces.linkForce * Math.log1p(link.count + 1),
+        ),
+    )
+    .force(
+      "charge",
+      forceManyBody<GraphRenderNode>().strength(-settings.forces.repelForce),
+    )
+    .force(
+      "center-x",
+      forceX<GraphRenderNode>(0).strength(settings.forces.centerForce),
+    )
+    .force(
+      "center-y",
+      forceY<GraphRenderNode>(0).strength(settings.forces.centerForce),
+    )
+    .force(
+      "collision",
+      forceCollide<GraphRenderNode>().radius((node) => node.radius + 6),
+    )
+    .alphaDecay(0.04)
+    .stop();
+}
+
+export function graphNodeIntersectsViewport(options: {
+  nodeX: number;
+  nodeY: number;
+  screenRadius: number;
+  transform: GraphViewportTransform;
+  viewportWidth: number;
+  viewportHeight: number;
+  margin?: number;
+}): boolean {
+  const {
+    nodeX,
+    nodeY,
+    screenRadius,
+    transform,
+    viewportWidth,
+    viewportHeight,
+    margin = 24,
+  } = options;
+  const x = nodeX * transform.k + transform.x;
+  const y = nodeY * transform.k + transform.y;
+  const radius = screenRadius + margin;
+  return (
+    x + radius >= 0 &&
+    x - radius <= viewportWidth &&
+    y + radius >= 0 &&
+    y - radius <= viewportHeight
+  );
+}
+
+export function graphLinkIntersectsViewport(options: {
+  sourceX: number;
+  sourceY: number;
+  targetX: number;
+  targetY: number;
+  transform: GraphViewportTransform;
+  viewportWidth: number;
+  viewportHeight: number;
+  margin?: number;
+}): boolean {
+  const {
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    transform,
+    viewportWidth,
+    viewportHeight,
+    margin = 24,
+  } = options;
+  const x1 = sourceX * transform.k + transform.x;
+  const y1 = sourceY * transform.k + transform.y;
+  const x2 = targetX * transform.k + transform.x;
+  const y2 = targetY * transform.k + transform.y;
+  return !(
+    Math.max(x1, x2) < -margin ||
+    Math.min(x1, x2) > viewportWidth + margin ||
+    Math.max(y1, y2) < -margin ||
+    Math.min(y1, y2) > viewportHeight + margin
+  );
 }
 
 function readStyleValue(
@@ -107,6 +246,11 @@ function resolveGraphPalette(el: HTMLElement): GraphPalette {
       styles,
       "--ui-graph-node-unresolved",
       "rgb(239, 68, 68)",
+    ),
+    nodeFocused: readStyleValue(
+      styles,
+      "--graph-node-focused",
+      "rgb(58, 127, 246)",
     ),
     nodeNeutral: readStyleValue(
       styles,
@@ -167,11 +311,11 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-export const GRAPH_MIN_ZOOM = 0.1;
-export const GRAPH_MAX_ZOOM = 3.5;
+export const GRAPH_MIN_ZOOM = 1 / 128;
+export const GRAPH_MAX_ZOOM = 8;
 export const GRAPH_MAX_FIT_ZOOM = 1.35;
 export const GRAPH_FOCUS_ZOOM = 1.1;
-const BASE_WHEEL_ZOOM_SENSITIVITY = 0.0008;
+export const GRAPH_ZOOM_STEP = 1.5;
 const WHEEL_ZOOM_DELTA_CAP = 240;
 
 export function clampGraphZoom(value: number): number {
@@ -291,6 +435,13 @@ export class GraphRenderer {
   private animationFrame: number | null = null;
   private hoveredNodeId: string | null = null;
   private focusedNodeId: string | null = null;
+  private emphasisProgress = 0;
+  private emphasisFrom = 0;
+  private emphasisTarget = 0;
+  private emphasisStartedAt = 0;
+  private emphasisDuration = EMPHASIS_IN_DURATION_MS;
+  private layoutStartedAt = 0;
+  private readonly reducedMotion: boolean;
   private autoCenterNodeId: string | null = null;
   private autoCenterZoom = false;
   private autoFitViewport = false;
@@ -311,6 +462,9 @@ export class GraphRenderer {
 
   constructor(containerEl: HTMLElement, callbacks: GraphRendererCallbacks) {
     this.callbacks = callbacks;
+    this.reducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     this.wrapperEl = document.createElement("div");
     this.wrapperEl.style.position = "relative";
     this.wrapperEl.style.flex = "1";
@@ -360,8 +514,7 @@ export class GraphRenderer {
   }
 
   setGraph(graph: GraphData, settings: GraphSettings): void {
-    const shouldAutoFit = !this.hasSameTopology(graph);
-    const continueInitialAutoFit = this.autoFitViewport;
+    const sameTopology = this.hasSameTopology(graph);
     this.storePositions();
     this.graph = graph;
     this.settings = settings;
@@ -369,13 +522,12 @@ export class GraphRenderer {
 
     const nextNodes = graph.nodes.map((node, index) => {
       const previous = this.positions.get(node.id);
-      const angle = (index / Math.max(graph.nodes.length, 1)) * Math.PI * 2;
-      const distance = 140 + (index % 9) * 14;
+      const seed = graphPhyllotaxisPosition(index);
       return {
         ...node,
         radius: nodeRadius(node, settings),
-        x: previous?.x ?? Math.cos(angle) * distance,
-        y: previous?.y ?? Math.sin(angle) * distance,
+        x: previous?.x ?? seed.x,
+        y: previous?.y ?? seed.y,
         vx: previous?.vx ?? 0,
         vy: previous?.vy ?? 0,
       } satisfies RenderNode;
@@ -400,20 +552,14 @@ export class GraphRenderer {
     this.nodes = nextNodes;
     this.links = nextLinks;
     this.rebuildNeighborMap();
-    this.autoFitViewport = shouldAutoFit || continueInitialAutoFit;
-    if (shouldAutoFit) {
+    this.autoFitViewport = false;
+    if (!sameTopology) {
       this.hasFittedViewport = false;
       this.viewportAdjustedByUser = false;
-      if (this.hasViewportSize()) {
-        this.fitGraphToViewport();
-        this.pendingFitViewport = false;
-      } else {
-        this.pendingFitViewport = true;
-      }
     } else {
       this.pendingFitViewport = false;
     }
-    this.restartSimulation();
+    this.restartSimulation(sameTopology);
     this.queueRender();
   }
 
@@ -446,6 +592,7 @@ export class GraphRenderer {
     this.focusedNodeId = nodeId;
     this.autoCenterNodeId = nodeId;
     this.autoCenterZoom = options.zoom === true;
+    this.updateEmphasisTarget();
     if (!nodeId) {
       this.pendingCenterNodeId = null;
       this.queueRender();
@@ -453,6 +600,10 @@ export class GraphRenderer {
     }
     const node = this.nodes.find((entry) => entry.id === nodeId);
     if (!node) {
+      this.focusedNodeId = null;
+      this.autoCenterNodeId = null;
+      this.autoCenterZoom = false;
+      this.updateEmphasisTarget();
       this.queueRender();
       return;
     }
@@ -470,11 +621,11 @@ export class GraphRenderer {
   }
 
   zoomIn(): void {
-    this.zoomAtCenter(1.15);
+    this.zoomAtCenter(GRAPH_ZOOM_STEP);
   }
 
   zoomOut(): void {
-    this.zoomAtCenter(1 / 1.15);
+    this.zoomAtCenter(1 / GRAPH_ZOOM_STEP);
   }
 
   resetView(): void {
@@ -483,6 +634,7 @@ export class GraphRenderer {
     this.autoCenterZoom = false;
     this.autoFitViewport = false;
     this.viewportAdjustedByUser = false;
+    this.updateEmphasisTarget();
     this.fitGraphToViewport();
     this.queueRender();
   }
@@ -527,9 +679,11 @@ export class GraphRenderer {
           this.wrapperEl.clientHeight,
         );
         const wheelZoomSensitivity =
-          BASE_WHEEL_ZOOM_SENSITIVITY *
-          (this.settings?.display.wheelZoomSensitivity ?? 1);
-        const zoomFactor = Math.exp(-wheelDelta * wheelZoomSensitivity);
+          this.settings?.display.wheelZoomSensitivity ?? 1;
+        const zoomFactor = Math.pow(
+          GRAPH_ZOOM_STEP,
+          (-wheelDelta / 120) * wheelZoomSensitivity,
+        );
         const nextScale = this.transform.k * zoomFactor;
         this.transform.k = clampGraphZoom(nextScale);
         this.transform.x = offsetX - worldX * this.transform.k;
@@ -595,9 +749,18 @@ export class GraphRenderer {
       const hoveredNodeId = hovered?.id ?? null;
       if (hoveredNodeId !== this.hoveredNodeId) {
         this.hoveredNodeId = hoveredNodeId;
+        this.updateEmphasisTarget();
         this.canvasEl.style.cursor = hovered ? "pointer" : "grab";
         this.queueRender();
       }
+    });
+
+    this.wrapperEl.addEventListener("pointerleave", () => {
+      if (this.pointerMode || this.hoveredNodeId === null) return;
+      this.hoveredNodeId = null;
+      this.updateEmphasisTarget();
+      this.canvasEl.style.cursor = "grab";
+      this.queueRender();
     });
 
     this.wrapperEl.addEventListener("pointerup", (event) => {
@@ -657,11 +820,11 @@ export class GraphRenderer {
           break;
         case "+":
         case "=":
-          this.zoomAtCenter(1.15);
+          this.zoomAtCenter(GRAPH_ZOOM_STEP);
           event.preventDefault();
           break;
         case "-":
-          this.zoomAtCenter(1 / 1.15);
+          this.zoomAtCenter(1 / GRAPH_ZOOM_STEP);
           event.preventDefault();
           break;
         case "Escape":
@@ -669,6 +832,7 @@ export class GraphRenderer {
           this.focusedNodeId = null;
           this.autoCenterNodeId = null;
           this.autoCenterZoom = false;
+          this.updateEmphasisTarget();
           this.queueRender();
           event.preventDefault();
           break;
@@ -873,47 +1037,62 @@ export class GraphRenderer {
     }
   }
 
-  private restartSimulation(): void {
+  private restartSimulation(sameTopology: boolean): void {
     this.simulation.stop();
     if (!this.settings) {
       return;
     }
-    this.simulation = forceSimulation(this.nodes)
-      .force(
-        "link",
-        forceLink<RenderNode, RenderLink>(this.links)
-          .id((node) => node.id)
-          .distance(this.settings.forces.linkDistance)
-          .strength(
-            (link) =>
-              this.settings!.forces.linkForce * Math.log1p(link.count + 1),
-          ),
-      )
-      .force(
-        "charge",
-        forceManyBody<RenderNode>().strength(-this.settings.forces.repelForce),
-      )
-      .force(
-        "center-x",
-        forceX<RenderNode>(0).strength(this.settings.forces.centerForce),
-      )
-      .force(
-        "center-y",
-        forceY<RenderNode>(0).strength(this.settings.forces.centerForce),
-      )
-      .force(
-        "collision",
-        forceCollide<RenderNode>().radius((node) => node.radius + 6),
-      )
-      .alpha(1)
-      .alphaDecay(0.04)
+    this.layoutStartedAt = performance.now();
+    this.simulation = createGraphForceSimulation(
+      this.nodes,
+      this.links,
+      this.settings,
+    )
       .on("tick", () => {
         this.applyAutoCenter();
         this.queueRender();
       })
       .on("end", () => {
         this.applyFinalAlignment();
+        this.callbacks.onLayoutComplete?.({
+          animated: !this.reducedMotion,
+          durationMs: Math.round(performance.now() - this.layoutStartedAt),
+          nodeCount: this.nodes.length,
+          linkCount: this.links.length,
+        });
       });
+
+    this.simulation.stop();
+    if (this.reducedMotion) {
+      this.simulation
+        .alpha(sameTopology ? 0.18 : 1)
+        .tick(sameTopology ? 80 : REDUCED_MOTION_SETTLE_TICKS);
+      this.prepareInitialFit(sameTopology);
+      this.applyFinalAlignment();
+      this.callbacks.onLayoutComplete?.({
+        animated: false,
+        durationMs: Math.round(performance.now() - this.layoutStartedAt),
+        nodeCount: this.nodes.length,
+        linkCount: this.links.length,
+      });
+      return;
+    }
+
+    if (!sameTopology) {
+      this.simulation.alpha(1).tick(ENTRANCE_PREWARM_TICKS);
+    }
+    this.prepareInitialFit(sameTopology);
+    this.simulation.alpha(sameTopology ? 0.18 : 0.82).restart();
+  }
+
+  private prepareInitialFit(sameTopology: boolean): void {
+    if (sameTopology) return;
+    if (this.hasViewportSize()) {
+      this.fitGraphToViewport();
+      this.pendingFitViewport = false;
+    } else {
+      this.pendingFitViewport = true;
+    }
   }
 
   private applyAutoCenter(): void {
@@ -928,8 +1107,6 @@ export class GraphRenderer {
           y: this.wrapperEl.clientHeight / 2 - node.y * this.transform.k,
         };
       }
-    } else if (this.autoFitViewport) {
-      this.fitGraphToViewport();
     }
   }
 
@@ -945,8 +1122,6 @@ export class GraphRenderer {
       if (node) {
         this.applyFocusAlignment(node);
       }
-    } else if (this.autoFitViewport) {
-      this.fitGraphToViewport();
     }
 
     this.autoCenterNodeId = null;
@@ -955,13 +1130,45 @@ export class GraphRenderer {
     this.queueRender();
   }
 
+  private updateEmphasisTarget(): void {
+    const nextTarget = this.hoveredNodeId || this.focusedNodeId ? 1 : 0;
+    if (nextTarget === this.emphasisTarget) return;
+    if (this.reducedMotion) {
+      this.emphasisProgress = nextTarget;
+      this.emphasisFrom = nextTarget;
+      this.emphasisTarget = nextTarget;
+      return;
+    }
+    this.advanceEmphasis(performance.now());
+    this.emphasisFrom = this.emphasisProgress;
+    this.emphasisTarget = nextTarget;
+    this.emphasisStartedAt = performance.now();
+    this.emphasisDuration = nextTarget
+      ? EMPHASIS_IN_DURATION_MS
+      : EMPHASIS_OUT_DURATION_MS;
+  }
+
+  private advanceEmphasis(now: number): boolean {
+    if (this.emphasisProgress === this.emphasisTarget) return false;
+    const elapsed = Math.max(0, now - this.emphasisStartedAt);
+    const progress = clamp(elapsed / this.emphasisDuration, 0, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    this.emphasisProgress =
+      this.emphasisFrom +
+      (this.emphasisTarget - this.emphasisFrom) * eased;
+    if (progress >= 1) this.emphasisProgress = this.emphasisTarget;
+    return progress < 1;
+  }
+
   private queueRender(): void {
     if (this.animationFrame !== null) {
       return;
     }
-    this.animationFrame = requestAnimationFrame(() => {
+    this.animationFrame = requestAnimationFrame((now) => {
       this.animationFrame = null;
+      const continueEmphasis = this.advanceEmphasis(now);
       this.render();
+      if (continueEmphasis) this.queueRender();
     });
   }
 
@@ -976,10 +1183,43 @@ export class GraphRenderer {
     this.context.scale(this.transform.k, this.transform.k);
 
     for (const link of this.links) {
+      const source = link.source as RenderNode;
+      const target = link.target as RenderNode;
+      if (
+        typeof source.x !== "number" ||
+        typeof source.y !== "number" ||
+        typeof target.x !== "number" ||
+        typeof target.y !== "number" ||
+        !graphLinkIntersectsViewport({
+          sourceX: source.x,
+          sourceY: source.y,
+          targetX: target.x,
+          targetY: target.y,
+          transform: this.transform,
+          viewportWidth: width,
+          viewportHeight: height,
+        })
+      ) {
+        continue;
+      }
       this.drawLink(link, palette);
     }
 
     for (const node of this.nodes) {
+      if (
+        typeof node.x !== "number" ||
+        typeof node.y !== "number" ||
+        !graphNodeIntersectsViewport({
+          nodeX: node.x,
+          nodeY: node.y,
+          screenRadius: graphNodeScreenRadius(node.radius, this.transform.k),
+          transform: this.transform,
+          viewportWidth: width,
+          viewportHeight: height,
+        })
+      ) {
+        continue;
+      }
       this.drawNode(node, palette);
     }
 
@@ -1002,24 +1242,34 @@ export class GraphRenderer {
       return;
     }
     const active = this.isLinkActive(source.id, target.id);
+    this.context.save();
+    this.context.globalAlpha = graphEmphasisAlpha(
+      "link",
+      active,
+      this.emphasisProgress,
+    );
     this.context.beginPath();
     this.context.moveTo(source.x, source.y);
     this.context.lineTo(target.x, target.y);
     this.context.strokeStyle = linkColor(active, palette);
-    this.context.lineWidth = Math.max(
+    const screenScale = Math.max(this.transform.k, GRAPH_MIN_ZOOM);
+    const screenLineWidth = Math.max(
       0.75,
       (this.settings?.display.linkThickness ?? 1) * Math.log1p(link.count + 1),
     );
+    this.context.lineWidth = screenLineWidth / screenScale;
     this.context.stroke();
 
     if (!this.settings?.display.showArrows) {
+      this.context.restore();
       return;
     }
     const angle = Math.atan2(target.y - source.y, target.x - source.x);
-    const targetRadius = target.radius + 4;
+    const targetRadius =
+      graphNodeWorldRadius(target.radius, this.transform.k) + 4 / screenScale;
     const arrowX = target.x - Math.cos(angle) * targetRadius;
     const arrowY = target.y - Math.sin(angle) * targetRadius;
-    const arrowSize = 6;
+    const arrowSize = 6 / screenScale;
     this.context.beginPath();
     this.context.moveTo(arrowX, arrowY);
     this.context.lineTo(
@@ -1033,6 +1283,7 @@ export class GraphRenderer {
     this.context.closePath();
     this.context.fillStyle = linkColor(active, palette);
     this.context.fill();
+    this.context.restore();
   }
 
   private drawNode(node: RenderNode, palette: GraphPalette): void {
@@ -1040,23 +1291,34 @@ export class GraphRenderer {
       return;
     }
     const active = this.isNodeActive(node.id);
+    const isEmphasisSource =
+      node.id === this.hoveredNodeId || node.id === this.focusedNodeId;
+    const screenScale = Math.max(this.transform.k, GRAPH_MIN_ZOOM);
+    const radius = graphNodeWorldRadius(node.radius, screenScale);
+    this.context.save();
+    this.context.globalAlpha = graphEmphasisAlpha(
+      "node",
+      active,
+      this.emphasisProgress,
+    );
     this.context.beginPath();
-    this.context.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-    this.context.fillStyle = nodeColor(node, palette);
+    this.context.arc(node.x, node.y, radius, 0, Math.PI * 2);
+    this.context.fillStyle = isEmphasisSource
+      ? palette.nodeFocused
+      : nodeColor(node, palette);
     this.context.fill();
-    this.context.lineWidth = active ? 2.4 : 1.2;
+    this.context.lineWidth = (active ? 2.4 : 1.2) / screenScale;
     this.context.strokeStyle = active
       ? palette.nodeStrokeActive
       : palette.nodeStroke;
     this.context.stroke();
 
     if (node.id === this.focusedNodeId) {
-      const screenScale = Math.max(this.transform.k, GRAPH_MIN_ZOOM);
       this.context.beginPath();
       this.context.arc(
         node.x,
         node.y,
-        node.radius + 3.5 / screenScale,
+        radius + 3.5 / screenScale,
         0,
         Math.PI * 2,
       );
@@ -1064,6 +1326,7 @@ export class GraphRenderer {
       this.context.strokeStyle = palette.nodeFocusRing;
       this.context.stroke();
     }
+    this.context.restore();
   }
 
   private drawLabel(node: RenderNode, palette: GraphPalette): void {
@@ -1071,18 +1334,32 @@ export class GraphRenderer {
       return;
     }
     const isHoveredLabel = node.id === this.hoveredNodeId;
+    const active = this.isNodeActive(node.id);
     const alpha = graphNodeLabelAlpha({
       zoom: this.transform.k,
       textFadeThreshold: this.settings?.display.textFadeThreshold ?? 0.8,
       hovered: isHoveredLabel,
-      context: this.isNodeActive(node.id),
-    });
+      context: active,
+    }) * graphEmphasisAlpha("label", active, this.emphasisProgress);
     if (alpha <= 0.05) {
       return;
     }
     const screenX = node.x * this.transform.k + this.transform.x;
     const screenY = node.y * this.transform.k + this.transform.y;
-    const screenRadius = node.radius * this.transform.k;
+    if (
+      !graphNodeIntersectsViewport({
+        nodeX: node.x,
+        nodeY: node.y,
+        screenRadius: graphNodeScreenRadius(node.radius, this.transform.k),
+        transform: this.transform,
+        viewportWidth: this.wrapperEl.clientWidth,
+        viewportHeight: this.wrapperEl.clientHeight,
+        margin: 80,
+      })
+    ) {
+      return;
+    }
+    const screenRadius = graphNodeScreenRadius(node.radius, this.transform.k);
     this.context.save();
     this.context.globalAlpha = alpha;
     this.context.font = isHoveredLabel
@@ -1140,7 +1417,11 @@ export class GraphRenderer {
         continue;
       }
       const distance = Math.hypot(point.x - node.x, point.y - node.y);
-      if (distance <= node.radius + 6 / this.transform.k) {
+      if (
+        distance <=
+        graphNodeWorldRadius(node.radius, this.transform.k) +
+          6 / this.transform.k
+      ) {
         return node;
       }
     }

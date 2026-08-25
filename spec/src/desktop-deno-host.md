@@ -53,6 +53,7 @@ distribution is outside the supported matrix.
 | LN-DENO-039 | System WebView and CEF sessions MUST consume the same Design Core scrollbar visibility setting persisted through `.obsidian/app.json`. File Explorer, Markdown, and other shared Scroll Areas MUST use Design Core's engine strategy without desktop-local scrollbar CSS, and the File Explorer thumb MUST remain flush to its container edge.                                                                                                                                                         |
 | LN-DENO-040 | The bounded native AppDatabase bridge MUST allow projected indexed-metadata pages and path-only Search matching without exposing SQL or unrequested document payloads. Native telemetry MAY classify the path-only operation as Search but MUST NOT record returned paths or query text. |
 | LN-DENO-041 | Global Graph startup against a native Turso vault MUST render a valid persisted snapshot before stale reconciliation and MUST use one serialized projected scan when rebuilding. Rapid Graph opens, settings changes, metadata revisions, and manual refreshes MUST NOT saturate the native event channel. |
+| LN-DENO-042 | System WebView and CEF Graph canvases MUST share the `1/128…8` camera range, deterministic visible entrance settlement, zoom-stable geometry, viewport culling, semantic colours, and animated neighbourhood emphasis. Reduced-motion OS preference MUST disable entrance and emphasis animation without changing the final graph. |
 
 ### LN-DENO-039 acceptance details
 
