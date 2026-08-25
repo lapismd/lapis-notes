@@ -1,14 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createDenoCloseCoordinator } from "./close-coordinator";
+import {
+  createDenoCloseCoordinator,
+  installDenoWindowCloseRouting,
+} from "./close-coordinator";
 
 describe("Deno close coordinator", () => {
   it("prevents the first close until renderer teardown is ready", async () => {
+    const dismissVisibleWindow = vi.fn();
     const emitBeforeClose = vi.fn();
     const shutdown = vi.fn(async () => {});
     const exit = vi.fn();
     const preventDefault = vi.fn();
     const coordinator = createDenoCloseCoordinator({
+      dismissVisibleWindow,
       emitBeforeClose,
       shutdown,
       exit,
@@ -16,6 +21,7 @@ describe("Deno close coordinator", () => {
 
     coordinator.onWindowClose({ preventDefault });
     expect(preventDefault).toHaveBeenCalledOnce();
+    expect(dismissVisibleWindow).toHaveBeenCalledOnce();
     expect(emitBeforeClose).toHaveBeenCalledOnce();
     expect(shutdown).not.toHaveBeenCalled();
 
@@ -46,9 +52,11 @@ describe("Deno close coordinator", () => {
   });
 
   it("ignores duplicate close requests and acknowledgements", async () => {
+    const dismissVisibleWindow = vi.fn();
     const emitBeforeClose = vi.fn();
     const shutdown = vi.fn();
     const coordinator = createDenoCloseCoordinator({
+      dismissVisibleWindow,
       emitBeforeClose,
       shutdown,
       exit: vi.fn(),
@@ -60,18 +68,53 @@ describe("Deno close coordinator", () => {
     coordinator.rendererReady();
     await Promise.resolve();
     expect(emitBeforeClose).toHaveBeenCalledOnce();
+    expect(dismissVisibleWindow).toHaveBeenCalledOnce();
+    expect(event.preventDefault).toHaveBeenCalledTimes(2);
     expect(shutdown).toHaveBeenCalledOnce();
   });
 
   it("runs the same handshake for a native acceptance close request", () => {
+    const dismissVisibleWindow = vi.fn();
     const emitBeforeClose = vi.fn();
     const coordinator = createDenoCloseCoordinator({
+      dismissVisibleWindow,
       emitBeforeClose,
       shutdown: vi.fn(),
       exit: vi.fn(),
     });
     coordinator.requestClose();
     coordinator.requestClose();
+    expect(dismissVisibleWindow).toHaveBeenCalledOnce();
     expect(emitBeforeClose).toHaveBeenCalledOnce();
+  });
+
+  it("routes bootstrap and visible window close events through one coordinator", () => {
+    const bootstrap = new EventTarget();
+    const visible = new EventTarget();
+    const coordinator = createDenoCloseCoordinator({
+      dismissVisibleWindow: vi.fn(),
+      emitBeforeClose: vi.fn(),
+      shutdown: vi.fn(),
+      exit: vi.fn(),
+    });
+    const onWindowClose = vi.spyOn(coordinator, "onWindowClose");
+    const removeRouting = installDenoWindowCloseRouting(coordinator, [
+      bootstrap,
+      visible,
+      visible,
+    ]);
+
+    const bootstrapClose = new Event("close", { cancelable: true });
+    const visibleClose = new Event("close", { cancelable: true });
+    bootstrap.dispatchEvent(bootstrapClose);
+    visible.dispatchEvent(visibleClose);
+
+    expect(bootstrapClose.defaultPrevented).toBe(true);
+    expect(visibleClose.defaultPrevented).toBe(true);
+    expect(onWindowClose).toHaveBeenCalledTimes(2);
+
+    removeRouting();
+    visible.dispatchEvent(new Event("close", { cancelable: true }));
+    expect(onWindowClose).toHaveBeenCalledTimes(2);
   });
 });

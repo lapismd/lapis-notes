@@ -9,7 +9,10 @@ import {
   DENO_MENU_IDS,
 } from "./application-menu.ts";
 import { createCapabilityRegistry } from "./capabilities.ts";
-import { createDenoCloseCoordinator } from "./close-coordinator.ts";
+import {
+  createDenoCloseCoordinator,
+  installDenoWindowCloseRouting,
+} from "./close-coordinator.ts";
 import { createDesktopLogger } from "./desktop-logging.ts";
 import {
   createNativeDesktopTelemetry,
@@ -100,7 +103,15 @@ try {
 } catch (error) {
   desktopLog.error("[desktop] terminal runtime unavailable", error);
 }
+let removeCloseRouting = () => {};
 const closeCoordinator = createDenoCloseCoordinator({
+  dismissVisibleWindow() {
+    try {
+      if (!win.isClosed()) win.setOpacity(0);
+    } catch (error) {
+      desktopLog.warn("[desktop-close] window dismissal failed", error);
+    }
+  },
   emitBeforeClose() {
     desktopLog.info("[desktop-close] request");
     void emitRendererEvent({
@@ -110,6 +121,7 @@ const closeCoordinator = createDenoCloseCoordinator({
   },
   async shutdown() {
     desktopLog.info("[desktop-close] shutdown");
+    removeCloseRouting();
     fileWatch.shutdown();
     pluginAssets.clear();
     vaultResources.clear();
@@ -123,6 +135,10 @@ const closeCoordinator = createDenoCloseCoordinator({
     Deno.exit(code);
   },
 });
+removeCloseRouting = installDenoWindowCloseRouting(closeCoordinator, [
+  bootstrap,
+  win,
+]);
 
 const INSPECT_ADDRESS = "127.0.0.1:9229";
 let laterLaunchFocusCount = 0;
@@ -195,10 +211,6 @@ singleInstance.queue.onLaterLaunch(() => {
     payload: null,
   });
 });
-win.addEventListener("close", (event) => {
-  closeCoordinator.onWindowClose(event);
-});
-
 win.setApplicationMenu(createDenoApplicationMenu(Deno.build.os));
 
 async function openDeveloperTools(): Promise<void> {

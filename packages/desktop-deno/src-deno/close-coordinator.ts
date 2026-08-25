@@ -5,6 +5,7 @@ export type DenoWindowCloseEvent = {
 type TimerHandle = ReturnType<typeof setTimeout>;
 
 export type DenoCloseCoordinatorOptions = {
+  dismissVisibleWindow?(): void;
   emitBeforeClose(): void;
   shutdown(): Promise<void> | void;
   exit(code: number): void;
@@ -47,6 +48,7 @@ export function createDenoCloseCoordinator(
   const beginClose = () => {
     if (phase !== "idle") return;
     phase = "pending";
+    options.dismissVisibleWindow?.();
     options.emitBeforeClose();
     timer = setTimer(() => {
       void shutdownAndExit();
@@ -55,8 +57,8 @@ export function createDenoCloseCoordinator(
 
   return {
     onWindowClose(event) {
-      if (phase === "closing") return;
       event.preventDefault();
+      if (phase === "closing") return;
       beginClose();
     },
     rendererReady() {
@@ -67,5 +69,21 @@ export function createDenoCloseCoordinator(
     requestClose() {
       beginClose();
     },
+  };
+}
+
+export function installDenoWindowCloseRouting(
+  coordinator: DenoCloseCoordinator,
+  sources: readonly EventTarget[],
+): () => void {
+  const listener = (event: Event) => coordinator.onWindowClose(event);
+  const uniqueSources = [...new Set(sources)];
+  for (const source of uniqueSources) {
+    source.addEventListener("close", listener);
+  }
+  return () => {
+    for (const source of uniqueSources) {
+      source.removeEventListener("close", listener);
+    }
   };
 }
