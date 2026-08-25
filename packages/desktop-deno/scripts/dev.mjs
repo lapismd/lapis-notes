@@ -7,11 +7,21 @@ import {
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
 } from "./dev-command.mjs";
+import {
+  createDesktopTelemetryEnvironment,
+  isDesktopTelemetryRequested,
+} from "./telemetry-env.mjs";
+import packageManifest from "../package.json" with { type: "json" };
 
 const homeDeno = path.join(process.env.HOME ?? "", ".deno", "bin", "deno");
 const denoBin = process.env.DENO ?? (existsSync(homeDeno) ? homeDeno : "deno");
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const telemetryEnabled = isDesktopTelemetryRequested(process.argv.slice(2));
+const desktopEnvironment = createDesktopTelemetryEnvironment(process.env, {
+  enabled: telemetryEnabled,
+  version: packageManifest.version,
+});
 await ensureDesktopDevSiblingLinks(packageRoot);
 
 const server = await createServer({
@@ -21,6 +31,11 @@ const server = await createServer({
 await server.listen();
 const address = "http://127.0.0.1:1422";
 console.log(`Deno desktop renderer: ${address}`);
+if (telemetryEnabled) {
+  console.log(
+    `Deno desktop telemetry: Grafana http://localhost:3000, OTLP ${desktopEnvironment.OTEL_EXPORTER_OTLP_ENDPOINT}`,
+  );
+}
 
 const backend = process.env.LAPIS_DENO_BACKEND?.trim();
 if (backend === "cef") {
@@ -38,7 +53,7 @@ const deno = spawn(
   {
     cwd: packageRoot,
     env: {
-      ...process.env,
+      ...desktopEnvironment,
       LAPIS_DESKTOP_DEV_SERVER_URL: address.replace(/\/$/u, ""),
     },
     stdio: "inherit",

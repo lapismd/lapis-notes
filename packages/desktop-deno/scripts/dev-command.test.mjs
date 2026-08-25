@@ -7,6 +7,10 @@ import {
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
 } from "./dev-command.mjs";
+import {
+  createDesktopTelemetryEnvironment,
+  isDesktopTelemetryRequested,
+} from "./telemetry-env.mjs";
 
 async function createDesktopDevWorkspace() {
   const workspaceRoot = await mkdtemp(
@@ -78,6 +82,58 @@ describe("Deno desktop development command", () => {
       "LAPIS_DENO_BACKEND=cef node scripts/dev.mjs",
     );
     expect(packageManifest.scripts["dev:chrome"]).toBe("pnpm dev:cef");
+    expect(rootManifest.scripts["dev:desktop:telemetry"]).toContain(
+      "@lapis-notes/desktop-deno dev:telemetry",
+    );
+    expect(rootManifest.scripts["dev:desktop:telemetry:cef"]).toContain(
+      "@lapis-notes/desktop-deno dev:telemetry:cef",
+    );
+    expect(packageManifest.scripts["telemetry:lgtm"]).toBe(
+      "node scripts/run-lgtm.mjs",
+    );
+  });
+
+  it("creates local-only native and renderer telemetry environments", () => {
+    const environment = createDesktopTelemetryEnvironment({}, {
+      enabled: true,
+      version: "2026.31.5",
+    });
+
+    expect(environment).toMatchObject({
+      LAPIS_DESKTOP_TELEMETRY: "1",
+      OTEL_DENO: "true",
+      OTEL_SERVICE_NAME: "lapis-notes-desktop",
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf",
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://127.0.0.1:4318",
+      OTEL_DENO_CONSOLE: "capture",
+      VITE_LAPIS_DESKTOP_TELEMETRY: "1",
+      VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT:
+        "http://127.0.0.1:4318/v1/traces",
+      VITE_LAPIS_DESKTOP_TELEMETRY_SERVICE_NAME: "lapis-notes-renderer",
+    });
+    expect(environment.OTEL_RESOURCE_ATTRIBUTES).toContain(
+      "service.namespace=lapismd",
+    );
+    expect(environment.OTEL_RESOURCE_ATTRIBUTES).toContain(
+      "deployment.environment.name=local",
+    );
+  });
+
+  it("leaves normal development untouched and rejects remote exporters", () => {
+    expect(
+      createDesktopTelemetryEnvironment({ KEEP: "yes" }, {
+        enabled: false,
+        version: "1.0.0",
+      }),
+    ).toEqual({ KEEP: "yes" });
+    expect(() =>
+      createDesktopTelemetryEnvironment(
+        { OTEL_EXPORTER_OTLP_ENDPOINT: "https://collector.example.com" },
+        { enabled: true, version: "1.0.0" },
+      ),
+    ).toThrow("local-only");
+    expect(isDesktopTelemetryRequested(["--telemetry"])).toBe(true);
+    expect(isDesktopTelemetryRequested([])).toBe(false);
   });
 
   it("creates package-local source links for Deno Desktop embedded path resolution", async () => {
