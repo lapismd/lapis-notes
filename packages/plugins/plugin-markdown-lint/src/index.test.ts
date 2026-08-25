@@ -208,6 +208,11 @@ describe("MarkdownLintPlugin", () => {
     ).toHaveBeenCalledWith(expect.any(Function), {
       getRules: expect.any(Function),
     });
+    const nativeOptions = languageServiceMocks
+      .createNativeMarkdownLanguageServiceProvider.mock.calls[0]![1] as {
+        getRules(): Record<string, unknown>;
+      };
+    expect(nativeOptions.getRules()).toEqual({ MD013: false });
     expect(
       languageServiceMocks.createMarkdownLanguageServiceProvider,
     ).not.toHaveBeenCalled();

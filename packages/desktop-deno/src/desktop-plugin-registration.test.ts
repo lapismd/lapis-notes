@@ -40,4 +40,15 @@ describe("Deno desktop plugin registration", () => {
       source.indexOf("await app.plugins.loadPlugins"),
     );
   });
+
+  it("leaves native Markdownlint provider ownership with the plugin", () => {
+    const source = readFileSync(
+      path.resolve(process.cwd(), "src/DesktopWorkspaceSession.svelte"),
+      "utf8",
+    );
+
+    expect(source).toContain("plugin: MarkdownLintPlugin");
+    expect(source).not.toContain("createNativeMarkdownLanguageServiceProvider");
+    expect(source).not.toContain("app.languageServices.registerProvider");
+  });
 });

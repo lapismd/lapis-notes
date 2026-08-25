@@ -39,7 +39,7 @@ diagnostics or language-service apply paths.
 | LN-WS-056 | Cached hover and Problems actions for a diagnostic MUST belong to that diagnostic. The cache MUST expose at most one action per distinct title. |
 | LN-WS-034 | Problems navigation MUST open or focus the opaque Lapis note resource and reveal its diagnostic range. Collection menus MUST expose cached language-service actions. An action for an open resource MUST update its CodeMirror document and vault before diagnostics refresh so both surfaces consume the same result. |
 | LN-WS-035 | The Markdown editor MUST compose language-service diagnostics in Source and Live Preview with completion and hover disabled. Mira MUST continue to own completion and hover behavior while the CodeMirror lint gutter and Problems panel consume the same result. |
-| LN-WS-036 | The enabled Markdownlint core plugin MUST prefer the probed native Markdown language-service capability and fall back to its worker. It MUST preserve `markdown-lint.disabledRules`, fixes, and ignore actions through the existing provider contract. |
+| LN-WS-036 | The enabled Markdownlint core plugin MUST own the sole renderer provider, prefer the probed native Markdown language-service capability, and fall back to its worker. It MUST preserve `markdown-lint.disabledRules`, fixes, and ignore actions through the existing provider contract. The desktop host MUST NOT register a competing provider. |
 | LN-WS-037 | Storybook acceptance MUST prove an invalid open Markdown note appears in the lint gutter and bottom Problems panel, filters and navigates correctly, and applies a fix. It MUST restore the invalid fixture before completion and wait until both surfaces report the same diagnostics. New Problems stories MUST retain literal `visual-pending` metadata without creating a baseline. |
 | LN-WS-038 | CodeMirror lint gutter markers MUST use the same severity glyphs and semantic colours as the Problems panel. Each marker MUST remain centered within its gutter element alongside Mira-owned gutter controls. |
 | LN-WS-039 | A diagnostic hover card MUST keep its message, source, and code on one compact row. Its copy action MUST remain at the row's right edge without increasing the row height. |
@@ -53,7 +53,7 @@ diagnostics or language-service apply paths.
 | LN-WS-046 | The owning Problems leaf MUST show the live total as a shared workspace badge with visible non-hover paint. The persisted title MUST remain `Problems`, and the panel toolbar MUST NOT duplicate the total. |
 | LN-WS-047 | Problems severity toggles MUST be compact checkbox items in an untitled filter menu triggered by an inline `list-filter` action inside the search field. The menu MUST retain semantic severity icon colours and show `Errors`, `Warnings`, `Infos`, and `Hints` with unclipped totals in one aligned count column. |
 | LN-WS-048 | The Problems panel toolbar MUST omit duplicate Problems title text because the owning leaf supplies the label. It MUST align the search, filter, presentation, and collapse controls at the toolbar's right edge. |
-| LN-WS-066 | Markdownlint Settings MUST seed `disabledRules` with MD013/line-length, matching vscode-markdownlint. Other default rules MUST stay enabled until listed. The provider MUST apply that list instead of hardcoding MD013. |
+| LN-WS-066 | Markdownlint Settings MUST seed `disabledRules` with MD013/line-length, matching vscode-markdownlint. Other default rules MUST stay enabled until listed. The plugin provider MUST pass that list to both worker and native runtimes instead of hardcoding MD013 or accepting an unconfigured host duplicate. |
 | LN-WS-067 | `LanguageServiceManager` MUST publish markdownlint `code` as `{ value, target }` whose target is the public rule documentation URL. Other sources MAY keep a string or number code. |
 | LN-WS-069 | The Design Core Problems plugin MUST show a right-aligned status item with the circle-alert icon and the live diagnostics total as its chip. Click MUST run the same reveal-or-create path as Show Problems. The item MUST NOT open the dock when the count changes. |
 | LN-WS-073 | `LanguageServiceCodeAction` MAY carry a serializable `command`. Apply paths MUST run provider `applyCommand` after any document edit. Diagnostic objects MUST NOT carry callbacks. |
@@ -112,9 +112,9 @@ The Deno desktop consumer uses the same provider-neutral diagnostics and actions
 through `@lapis-notes/language-service/markdownlint/runtime`. Its child process
 accepts Markdown documents only, exposes capability probing, update,
 diagnostics, and code actions, and uses bounded request timeouts plus restart
-and shutdown handling. The desktop host does not register the Markdownlint
-plugin during partial-shell startup; the native provider remains available for
-later plugin activation.
+and shutdown handling. The desktop host exposes that bounded service but does
+not register a renderer provider during partial-shell startup. Plugin activation
+registers the sole provider and forwards the current vault rules.
 
 Plugin view ownership retained for disable and re-enable recovery remains
 separate from diagnostic collection ownership. Both use the API `Plugin`

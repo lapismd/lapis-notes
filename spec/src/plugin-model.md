@@ -191,7 +191,10 @@ Bundled plugins that own user-facing configuration register Design Core
 settings sections under `core-plugins` in addition to any legacy
 `PluginSettingTab` compatibility surface. Markdown Lint seeds
 `markdown-lint.disabledRules` with MD013 and include/exclude globs for open
-documents, using the same configuration keys as its manifest schema.
+documents, using the same configuration keys as its manifest schema. Markdown
+Lint owns the sole renderer provider in browser and desktop hosts; its native
+adapter forwards those live vault rules instead of accepting a host-default
+provider alongside it.
 Spell Check seeds dialect, Harper rules, dictionaries, file-type filters, and
 lint options under `spellcheck.*` keys. Its Problems actions persist
 `userDictionary` and `ignoreWords` with cspell-style titles (LN-SPL-010).

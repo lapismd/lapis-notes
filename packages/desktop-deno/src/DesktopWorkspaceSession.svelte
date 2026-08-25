@@ -15,10 +15,6 @@
   import { BookmarksPlugin } from "@lapis-notes/bookmarks";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
   import { HistoryPlugin } from "@lapis-notes/history";
-  import {
-    createNativeMarkdownLanguageServiceProvider,
-    probeNativeMarkdownLanguageService,
-  } from "@lapis-notes/language-service/markdown";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
@@ -88,7 +84,6 @@
   let disposed = false;
   let booting = false;
   let corePluginsRegistered = false;
-  let unregisterLanguageService: (() => void) | null = null;
   let stopMetadataTracking: (() => void) | null = null;
   let recentVaults = $state.raw<VaultProfile[]>([]);
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
@@ -304,8 +299,6 @@
     for (const plugin of [...app.plugins.corePlugins].reverse()) {
       await plugin.disable().catch(() => undefined);
     }
-    unregisterLanguageService?.();
-    unregisterLanguageService = null;
   }
 
   async function initialize(): Promise<void> {
@@ -315,27 +308,12 @@
     tasks = structuredClone(STARTUP_TASKS);
     let activeTask = "vault";
     try {
-      if (
-        corePluginsRegistered ||
-        unregisterLanguageService ||
-        stopMetadataTracking
-      ) {
+      if (corePluginsRegistered || stopMetadataTracking) {
         await teardownPartialBoot();
       }
       if (disposed) return;
 
       setTask(activeTask, "active");
-      if (
-        await probeNativeMarkdownLanguageService((command, payload) =>
-          bridge.invoke(command, payload),
-        )
-      ) {
-        unregisterLanguageService = app.languageServices.registerProvider(
-          createNativeMarkdownLanguageServiceProvider((command, payload) =>
-            bridge.invoke(command, payload),
-          ),
-        );
-      }
       if (!corePluginsRegistered) {
         app.plugins.registerCorePlugins([
           { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
@@ -472,8 +450,6 @@
       for (const plugin of [...app.plugins.corePlugins].reverse()) {
         await plugin.disable().catch(() => undefined);
       }
-      unregisterLanguageService?.();
-      unregisterLanguageService = null;
       await session.close();
     } finally {
       disposeApplicationCompatibility();

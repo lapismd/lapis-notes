@@ -67,7 +67,7 @@ task projections.
 | LN-ED-055 | Storybook Explorer placement plays MUST open a file-row context menu on the in-memory vault and assert that native copy, open, and reveal extras are absent. |
 | LN-ED-056 | The editor demo play MUST assert the Word Count status item for the seeded Welcome note, show reading time on click, and MUST NOT use compatibility status DOM. |
 | LN-ED-057 | The editor demo MUST seed a long-form loft-boarding Markdown note and open it in a focused Markdownlint story that reveals Problems. Published diagnostics MUST stay unique by code and range. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
-| LN-ED-058 | The Editor Settings story MUST open the Markdown Lint section, show the seeded MD013 disable and default file globs, and persist a setting change to `.obsidian/app.json`. |
+| LN-ED-058 | The Editor Settings story MUST open the Markdown Lint section, show the seeded MD013 disable and default file globs, and persist a setting change to `.obsidian/app.json`. The same vault setting MUST govern the plugin's worker and native desktop adapters. |
 | LN-ED-059 | The editor demo MUST seed a misspelled note and open it in a focused Spell Check story that reveals Problems. Acceptance MUST assert a gutter mark, the severity-slot Quick fix, a bare suggestion, Add to dictionary, and Ignore word. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
 | LN-ED-060 | The editor demo Ready play MUST open the Spell Check status item and show dialect choices plus a checking toggle. It MUST NOT use compatibility status DOM. |
 
@@ -146,7 +146,8 @@ scenario seeds a long-form note so list-style and indent messages can be
 inspected without publishing the same code and range twice, and without the
 MD013 line-length warnings vscode-markdownlint disables by default. Tree
 listings show those vscode-style rule-path messages and copy a problem or
-group as JSON.
+group as JSON. Desktop parity comes from the same plugin-owned provider and
+vault rule map, not an additional host provider with default rules.
 `@lapis-notes/workspace` remains the thin shell host.
 
 ## Demo lifecycle

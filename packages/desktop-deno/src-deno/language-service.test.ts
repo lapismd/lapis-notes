@@ -31,6 +31,26 @@ describe("Deno Markdown language service", () => {
     );
   });
 
+  it("applies renderer-provided disabled rules", () => {
+    const longLineDocument = {
+      ...document,
+      text:
+        "The cheapest loft stilts are plastic raised joist extensions that cost more than eighty characters.\n",
+    };
+    const enabled = handleLanguageService("desktop_ls_diagnostics", {
+      protocolVersion: DENO_LANGUAGE_SERVICE_PROTOCOL_VERSION,
+      document: longLineDocument,
+    }) as Array<{ code?: string }>;
+    const disabled = handleLanguageService("desktop_ls_diagnostics", {
+      protocolVersion: DENO_LANGUAGE_SERVICE_PROTOCOL_VERSION,
+      document: longLineDocument,
+      rules: { MD013: false },
+    }) as Array<{ code?: string }>;
+
+    expect(enabled.some((diagnostic) => diagnostic.code === "MD013")).toBe(true);
+    expect(disabled.some((diagnostic) => diagnostic.code === "MD013")).toBe(false);
+  });
+
   it("rejects invalid protocols and unbounded documents", () => {
     expect(() =>
       handleLanguageService("desktop_ls_diagnostics", {

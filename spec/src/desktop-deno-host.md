@@ -35,7 +35,7 @@ distribution is outside the supported matrix.
 | LN-DENO-021 | New windows MUST be limited to the workspace popout path. External HTTP and HTTPS links MUST open in the system browser instead of receiving a privileged Deno desktop window.                                                                                                       |
 | LN-DENO-022 | Local distribution MUST produce macOS and Linux artifacts with stable names, icons, verified target PTY libraries, and credential-safe signing hooks. It MUST reject Windows targets.                                                                                             |
 | LN-DENO-023 | Automated acceptance MUST cover first selection, cancellation, reopening, missing-vault fallback, switching, layout, plugin restoration, retained services, app URLs, notifications, external links, and packaged startup.                                                           |
-| LN-DENO-024 | The native Markdown language service MUST consume the public language-service runtime and expose bounded capability, update, diagnostics, and code-action operations. The renderer MUST register its provider before plugin loading and release it during teardown.                  |
+| LN-DENO-024 | The native Markdown language service MUST consume the public language-service runtime and expose bounded capability, update, diagnostics, and code-action operations. The Markdown Lint plugin MUST be the sole renderer provider, pass live vault rules to the native service, and release its provider during teardown. The desktop host MUST NOT register a competing default-rule provider. |
 | LN-DENO-025 | Native vault watching MUST use `Deno.watchFs`, preserve vault containment across canonical filesystem paths, and deliver portable create, modify, and delete events. Closing a subscription or session MUST stop its native watcher.                                                 |
 | LN-DENO-026 | Verified plugin assets MUST register through the native bridge and load from a same-origin Deno HTTP route. The host MUST enforce installed plugin identity, version, path containment, supported type, byte size, and SHA-256 before serving an asset.                              |
 | LN-DENO-027 | The native agent runtime MUST consume the public `@lapismd/ai-host` executor for process and ACP sessions. Application tools MUST use its authenticated Web-standard MCP handler through the existing Deno loopback server, and host shutdown MUST close every owned agent resource. |
@@ -119,6 +119,8 @@ The native Markdown language service verifies:
   without copying its implementation.
 - Capability probing, document updates, diagnostics, and code actions MUST
   validate protocol versions and bounded document payloads.
+- The Markdown Lint plugin MUST select the native adapter and forward the
+  current vault rule configuration on every diagnostics request.
 - A packaged saved-vault session MUST report at least one native Markdown
   diagnostic before acceptance completes.
 
