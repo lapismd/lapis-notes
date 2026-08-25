@@ -44,6 +44,33 @@ distribution is outside the supported matrix.
 | LN-DENO-030 | The desktop boot document MUST present a branded loading surface before the renderer mounts. It MUST center the Lapis logo, show muted `Loading…` text beneath it, support light and dark backgrounds, and retain the same status element for startup failures. |
 | LN-DENO-031 | Routine native bridge invocation logging MUST be disabled by default and enabled only at the `debug` severity through `LAPIS_DENO_LOG_LEVEL`. Default logging MUST retain bounded lifecycle notices, warnings, and failures without logging invocation payloads or credentials. |
 | LN-DENO-032 | Desktop observability MUST be an explicit local-development mode with root LGTM and telemetry launch commands. It MUST use loopback OTLP/HTTP, keep normal and packaged launches disabled, retain terminal logs, and MUST NOT require a Telemetry plugin or unstable Deno flag. |
+| LN-DENO-033 | Telemetry mode MUST identify renderer and native host as separate services and propagate validated W3C trace context through a private versioned invocation envelope. Native dispatch MUST remove telemetry metadata before business handlers, while legacy unwrapped calls remain accepted. |
+| LN-DENO-034 | Desktop bridge tracing and metrics MUST cover only bounded database, language, AI, terminal, and telemetry operations. High-volume filesystem, PTY data, window, and per-file operations MUST remain untraced, and operation attributes MUST come from finite allowlists. |
+| LN-DENO-035 | Renderer lifecycle logs MUST use an allowlisted structured native relay. Native console capture MUST retain terminal output, reject arbitrary events and attributes, and MUST NOT forward the renderer console or invocation payloads. |
+
+### LN-DENO-033 acceptance details
+
+Correlated desktop telemetry verifies:
+
+- Renderer spans export under `lapis-notes-renderer` and native spans under `lapis-notes-desktop`.
+- Selected renderer invocations produce valid remote-parent native spans.
+- Malformed envelopes fail closed, while payload handlers receive no trace fields.
+
+### LN-DENO-034 acceptance details
+
+Bounded native instrumentation verifies:
+
+- Selected operations record static scope, operation, duration, result-count, and failure signals.
+- Excluded high-volume commands create no bridge span.
+- Span and metric attributes contain no vault, file, query, prompt, or terminal payload.
+
+### LN-DENO-035 acceptance details
+
+Structured desktop logging verifies:
+
+- Only named session and reconciliation lifecycle events are accepted.
+- Attribute keys and values use a finite, low-cardinality vocabulary.
+- `capture` keeps logs visible in the terminal while Deno exports them.
 
 ### LN-DENO-032 acceptance details
 

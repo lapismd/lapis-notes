@@ -21,6 +21,7 @@
     "jsr:@std/path@^1.1.5": "1.1.6",
     "jsr:@std/path@^1.1.6": "1.1.6",
     "jsr:@std/streams@^1.1.2": "1.1.2",
+    "npm:@opentelemetry/api@1.9.1": "1.9.1",
     "npm:@tursodatabase/database@0.7.2": "0.7.2"
   },
   "jsr": {
@@ -96,6 +97,9 @@
     }
   },
   "npm": {
+    "@opentelemetry/api@1.9.1": {
+      "integrity": "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="
+    },
     "@tursodatabase/database-common@0.7.2": {
       "integrity": "sha512-c4uWaA5m7nyDemUrjvX6lQQ89cBxv1jCv7nmwq5JoagyXgbMxDeBfLcY7N5kn0oEcnD0Y+cf09S0wKEXKFKbfg=="
     },
@@ -134,7 +138,13 @@
   },
   "workspace": {
     "dependencies": [
+      "npm:@codemirror/language@6.11.3",
+      "npm:@lezer/common@1.2.3",
+      "npm:@lezer/highlight@1.2.1",
+      "npm:@lezer/lr@1.4.2",
       "npm:@modelcontextprotocol/sdk@1.29.0",
+      "npm:@opentelemetry/api@1.9.1",
+      "npm:@tursodatabase/database@0.7.2",
       "npm:acpx@0.13.0",
       "npm:markdownlint@0.40.0",
       "npm:ws@8.18.3"
@@ -144,6 +154,11 @@
         "npm:@lapismd/design-core@*",
         "npm:@lucide/svelte@0.523",
         "npm:@modelcontextprotocol/sdk@^1.29.0",
+        "npm:@opentelemetry/api@1.9.1",
+        "npm:@opentelemetry/exporter-trace-otlp-http@0.221.0",
+        "npm:@opentelemetry/resources@2.10.0",
+        "npm:@opentelemetry/sdk-trace-base@2.10.0",
+        "npm:@opentelemetry/sdk-trace-web@2.10.0",
         "npm:@sveltejs/vite-plugin-svelte@^6.2.4",
         "npm:@tailwindcss/vite@^4.1.12",
         "npm:@tsconfig/svelte@^5.0.5",

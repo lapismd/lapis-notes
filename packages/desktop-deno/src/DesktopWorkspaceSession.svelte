@@ -64,17 +64,18 @@
   const pluginAssetServer = untrack(() =>
     createDenoPluginAssetServer({ adapter, bridge }),
   );
-  const app = untrack(
-    () =>
-      new App({
+  const app = untrack(() => {
+    const ownedApp = new App({
         version: appInfo.version,
         configPath: ".obsidian/app.json",
         session,
         pluginAssetServer,
         workspaceShell: { application: appInfo, notifications: true },
         markdownRenderer: async () => {},
-      }),
-  );
+      });
+    ownedApp.telemetry = bridge.telemetry;
+    return ownedApp;
+  });
   provideApplicationState(app);
   const disposeApplicationCompatibility =
     installApplicationCompatibility(app);

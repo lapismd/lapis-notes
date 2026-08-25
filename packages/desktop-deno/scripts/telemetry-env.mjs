@@ -22,7 +22,10 @@ function normalizeLoopbackEndpoint(value) {
 
 function mergeResourceAttributes(current, required) {
   const entries = current
-    ? current.split(",").map((entry) => entry.trim()).filter(Boolean)
+    ? current
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean)
     : [];
   const keys = new Set(
     entries.map((entry) => entry.slice(0, entry.indexOf("="))).filter(Boolean),
@@ -65,8 +68,7 @@ export function createDesktopTelemetryEnvironment(
   );
 
   environment.VITE_LAPIS_DESKTOP_TELEMETRY = "1";
-  environment.VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT =
-    `${endpoint}/v1/traces`;
+  environment.VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT = `${endpoint}/v1/traces`;
   environment.VITE_LAPIS_DESKTOP_TELEMETRY_SERVICE_NAME = rendererServiceName;
   environment.VITE_LAPIS_DESKTOP_TELEMETRY_VERSION = version;
   return environment;

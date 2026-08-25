@@ -11,6 +11,10 @@ import {
 import { createCapabilityRegistry } from "./capabilities.ts";
 import { createDenoCloseCoordinator } from "./close-coordinator.ts";
 import { createDesktopLogger } from "./desktop-logging.ts";
+import {
+  createNativeDesktopTelemetry,
+  writeStructuredRendererLog,
+} from "./native-telemetry.ts";
 import { DenoFileWatchService } from "./file-watch.ts";
 import { openExternalUrl } from "./native-actions.ts";
 import {
@@ -39,11 +43,14 @@ import {
   createWindowDragController,
   isWindowDragCommand,
 } from "./window-drag.ts";
+import { unwrapDesktopInvokeEnvelope } from "../src/desktop-invoke-envelope.ts";
+import { classifyDesktopTelemetryOperation } from "../src/telemetry-operations.ts";
 
 assertSupportedDenoDesktopVersion(Deno.version.deno);
 const desktopLog = createDesktopLogger({
   level: Deno.env.get("LAPIS_DENO_LOG_LEVEL"),
 });
+const nativeTelemetry = createNativeDesktopTelemetry();
 
 const instance = await acquireDenoSingleInstance(userDataDir(), Deno.args);
 if (!instance.primary) {
@@ -123,10 +130,11 @@ function registerDesktopBindings(): void {
       "invoke",
       (...args: unknown[]) => {
         const command = typeof args[0] === "string" ? args[0] : "";
-        const payload =
+        const rawPayload =
           args[1] && typeof args[1] === "object"
             ? (args[1] as Record<string, unknown>)
             : {};
+        const { payload, trace } = unwrapDesktopInvokeEnvelope(rawPayload);
         if (!isWindowDragCommand(command)) {
           desktopLog.debug(`[desktop] invoke ${command}`);
         }
@@ -140,25 +148,33 @@ function registerDesktopBindings(): void {
           } else drag.end();
           return;
         }
-        return handleDesktopInvoke(command, payload, {
-          fileWatch,
-          pluginAssets,
-          agentRuntime,
-          appDatabase,
-          terminalRuntime,
-          rendererCloseReady: () => closeCoordinator.rendererReady(),
-          requestClose: () => closeCoordinator.requestClose(),
-          takePendingAppUrls: () => singleInstance.queue.takePending(),
-          acceptanceDetails: () => ({ laterLaunchFocusCount }),
-        });
+        return nativeTelemetry.run(
+          classifyDesktopTelemetryOperation(command, payload),
+          trace,
+          () =>
+            handleDesktopInvoke(command, payload, {
+              fileWatch,
+              pluginAssets,
+              agentRuntime,
+              appDatabase,
+              terminalRuntime,
+              rendererCloseReady: () => closeCoordinator.rendererReady(),
+              requestClose: () => closeCoordinator.requestClose(),
+              takePendingAppUrls: () => singleInstance.queue.takePending(),
+              acceptanceDetails: () => ({ laterLaunchFocusCount }),
+              telemetryLog: (logPayload) =>
+                writeStructuredRendererLog(logPayload, desktopLog),
+            }),
+        );
       },
     ],
     ["platform", () => createPlatformInfo()],
     [
       "capabilities",
-      () => createCapabilityRegistry(Deno.build.os, {
-        terminalAvailable: Boolean(terminalRuntime),
-      }),
+      () =>
+        createCapabilityRegistry(Deno.build.os, {
+          terminalAvailable: Boolean(terminalRuntime),
+        }),
     ],
   ]);
 }

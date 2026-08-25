@@ -31,6 +31,12 @@ import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import { waitForDesktopBindings } from "./binding-probe";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
 import { installDenoExternalLinkPolicy } from "./external-links";
+import {
+  createDesktopRendererTelemetry,
+  type DesktopRawInvoke,
+  type DesktopRendererTelemetryController,
+  type DesktopTelemetryLogLevel,
+} from "./renderer-telemetry";
 import "./desktop-host.css";
 
 export type DesktopAppInfo = {
@@ -48,6 +54,13 @@ export type DenoDesktopPlatformInfo = NativeDesktopPlatformInfo & {
 
 export type DenoDesktopBridge = NativeDesktopBridge & {
   platform: DenoDesktopPlatformInfo;
+  telemetry: DesktopRendererTelemetryController["service"];
+  logTelemetry(
+    level: DesktopTelemetryLogLevel,
+    event: string,
+    attributes?: Record<string, string | number | boolean | null | undefined>,
+  ): Promise<void>;
+  shutdownTelemetry(): Promise<void>;
   onOpenVaultPicker?(listener: () => void): () => void;
   onOpenAboutDialog?(listener: () => void): () => void;
   onBeforeClose?(listener: () => void): () => void;
@@ -96,6 +109,7 @@ const acceptanceAppUrls: string[] = [];
 const acceptanceAppUrlWaiters: Array<(url: string) => void> = [];
 let appUrlFlushPending = false;
 let appUrlFlushRequested = false;
+let invokeDesktop: DesktopRawInvoke;
 
 async function flushPendingAppUrls(): Promise<void> {
   if (appUrlFlushPending) {
@@ -106,7 +120,7 @@ async function flushPendingAppUrls(): Promise<void> {
   try {
     do {
       appUrlFlushRequested = false;
-      const urls = (await bindings.invoke(
+      const urls = (await invokeDesktop(
         "desktop_app_url_take_pending",
       )) as unknown;
       if (!Array.isArray(urls)) continue;
@@ -140,10 +154,7 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
           change?: AppDatabaseChangeSet;
         }
       | undefined;
-    if (
-      typeof payload?.vaultId !== "string" ||
-      !payload.change
-    ) {
+    if (typeof payload?.vaultId !== "string" || !payload.change) {
       return;
     }
     for (const listener of appDatabaseChangeListeners) {
@@ -298,24 +309,44 @@ const capabilities = (await bindings
   .invoke("desktop_capabilities_get")
   .catch(() => bindings.capabilities())) as NativeDesktopCapabilityRegistry;
 
+const rawInvoke: DesktopRawInvoke = (command, payload) =>
+  bindings.invoke(command, payload) as Promise<never>;
+const rendererTelemetry = await createDesktopRendererTelemetry({
+  enabled: import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY === "1",
+  endpoint: import.meta.env.VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT,
+  serviceName: import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY_SERVICE_NAME,
+  version:
+    import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY_VERSION ??
+    platform.appVersion ??
+    "2026.31.5",
+});
+invokeDesktop = (command, payload) =>
+  rendererTelemetry.invoke(rawInvoke, command, payload);
+
 const bridge: DenoDesktopBridge = {
   runtime: "deno-desktop",
   platform,
   capabilities,
-  invoke: (command, payload) =>
-    bindings.invoke(command, payload) as Promise<never>,
+  telemetry: rendererTelemetry.service,
+  invoke: invokeDesktop,
+  logTelemetry(level, event, attributes) {
+    return rendererTelemetry.log(rawInvoke, level, event, attributes);
+  },
+  shutdownTelemetry() {
+    return rendererTelemetry.shutdown();
+  },
   toFileUrl(path) {
     const normalized = path.replace(/\\/gu, "/");
     return `file://${normalized.startsWith("/") ? normalized : `/${normalized}`}`;
   },
   getResourceUrl(rootPath, normalizedPath) {
-    return bindings.invoke("desktop_fs_get_resource_url", {
+    return invokeDesktop("desktop_fs_get_resource_url", {
       rootPath,
       normalizedPath,
     }) as Promise<string>;
   },
   showNotification(payload: NativeDesktopNotificationPayload) {
-    return bindings.invoke("desktop_notifications_show", {
+    return invokeDesktop("desktop_notifications_show", {
       notification: payload,
     }) as Promise<void>;
   },
@@ -348,24 +379,22 @@ const bridge: DenoDesktopBridge = {
   ): NativeWatchSubscription {
     const watchId = createWatchId();
     watchListeners.set(watchId, listener);
-    void bindings
-      .invoke("desktop_fs_watch_start", {
-        watchId,
-        rootPath,
-        normalizedPath,
-        recursive: options.recursive ?? false,
-      })
-      .catch((error) => {
-        watchListeners.get(watchId)?.({
-          type: "error",
-          path: normalizedPath || "/",
-          error,
-        });
+    void invokeDesktop("desktop_fs_watch_start", {
+      watchId,
+      rootPath,
+      normalizedPath,
+      recursive: options.recursive ?? false,
+    }).catch((error) => {
+      watchListeners.get(watchId)?.({
+        type: "error",
+        path: normalizedPath || "/",
+        error,
       });
+    });
     return {
       close() {
         watchListeners.delete(watchId);
-        void bindings.invoke("desktop_fs_watch_stop", { watchId });
+        void invokeDesktop("desktop_fs_watch_stop", { watchId });
       },
     };
   },
@@ -404,11 +433,9 @@ const bridge: DenoDesktopBridge = {
 
 applyDesktopPlatformClasses(platform);
 installDenoExternalLinkPolicy((command, payload) =>
-  bindings.invoke(command, payload),
+  invokeDesktop(command, payload),
 );
-installDesktopWindowDrag((command, payload) =>
-  bindings.invoke(command, payload),
-);
+installDesktopWindowDrag((command, payload) => invokeDesktop(command, payload));
 setNativeDesktopBridge(bridge);
 await migrateVaultBootstrapStoreFromIndexedDb();
 setDefaultVaultStateStore(new NativeDesktopVaultBootstrapKeyValueStore());

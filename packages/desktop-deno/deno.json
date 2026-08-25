@@ -20,6 +20,7 @@
     "@modelcontextprotocol/sdk/server/streamableHttp.js": "npm:@modelcontextprotocol/sdk@1.29.0/server/streamableHttp.js",
     "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js": "npm:@modelcontextprotocol/sdk@1.29.0/server/webStandardStreamableHttp.js",
     "@modelcontextprotocol/sdk/types.js": "npm:@modelcontextprotocol/sdk@1.29.0/types.js",
+    "@opentelemetry/api": "npm:@opentelemetry/api@1.9.1",
     "acpx/runtime": "npm:acpx@0.13.0/runtime",
     "markdownlint": "npm:markdownlint@0.40.0",
     "markdownlint/sync": "npm:markdownlint@0.40.0/sync",

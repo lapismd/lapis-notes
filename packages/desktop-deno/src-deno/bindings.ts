@@ -72,6 +72,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_open_external",
   "desktop_app_url_take_pending",
   "desktop_notifications_show",
+  "desktop_telemetry_log",
   "desktop_plugin_assets_register",
   "desktop_fs_watch_start",
   "desktop_fs_watch_stop",
@@ -95,6 +96,7 @@ export type DesktopInvokeContext = {
   requestClose?: () => void;
   takePendingAppUrls?: () => string[];
   acceptanceDetails?: () => Record<string, unknown>;
+  telemetryLog?: (payload: Record<string, unknown>) => void;
 };
 
 export function createPlatformInfo() {
@@ -197,6 +199,13 @@ export function handleDesktopInvoke(
   }
   if (command === "desktop_notifications_show") {
     return showNativeNotification(payload.notification);
+  }
+  if (command === "desktop_telemetry_log") {
+    if (!context.telemetryLog) {
+      throw new Error("Deno desktop telemetry logging is unavailable");
+    }
+    context.telemetryLog(payload);
+    return;
   }
   if (command === "desktop_plugin_assets_register") {
     if (!context.pluginAssets) {

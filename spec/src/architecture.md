@@ -125,6 +125,7 @@ the browser-only WASM descriptor is not valid desktop evidence.
 | LN-ARCH-070 | Deno single-instance ownership MUST use an exclusive application-data lock and authenticated local handoff. The native host MUST retain URL arguments until a subscribed renderer takes them; only the ready App URL registry MAY interpret their application action.                                                                                                                                                                                                                                                                                                                                                                 |
 | LN-ARCH-071 | Plugin settings materialization MUST be idempotent at the persistence boundary. A normalized no-op update MUST NOT mutate portable vault files whose timestamps participate in generated-state reconciliation checkpoints. |
 | LN-ARCH-072 | Local observability MUST remain owned by the Deno desktop host and use the API telemetry boundary. It MUST NOT require a first-party plugin, product setting, remote collector, or telemetry-enabled production package. |
+| LN-ARCH-073 | API MUST expose its transport-neutral telemetry contract through a narrow package entry. The Deno desktop renderer and native host MAY supply local exporters and propagation, but plugins and portable packages MUST remain exporter-neutral. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

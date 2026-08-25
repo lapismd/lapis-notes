@@ -22,7 +22,9 @@ function inspectLgtm(runCommand) {
     ) {
       return null;
     }
-    throw new Error(`Unable to inspect the lgtm container: ${readErrorText(error).trim()}`);
+    throw new Error(
+      `Unable to inspect the lgtm container: ${readErrorText(error).trim()}`,
+    );
   }
 }
 

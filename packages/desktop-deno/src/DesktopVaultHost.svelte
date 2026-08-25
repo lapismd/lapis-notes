@@ -80,6 +80,7 @@
         try {
           await disposeActiveSession(true);
         } finally {
+          await bridge.shutdownTelemetry().catch(() => {});
           await bridge.invoke("desktop_renderer_close_ready").catch(() => {});
         }
       });
@@ -91,6 +92,7 @@
       disposeAppUrl?.();
       disposeBeforeClose?.();
       void disposeActiveSession(false);
+      void bridge.shutdownTelemetry();
     };
   });
 
