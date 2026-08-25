@@ -50,6 +50,7 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 | LN-DB-035 | Metadata and Search reconciliation MUST store independent versioned checkpoints in `app_meta`. Metadata fingerprints MUST cover processable path, mtime, size, and parser signature; Search fingerprints MUST additionally cover provider identity and version, projection signature, and chunk settings. A checkpoint MUST advance only after successful reconciliation or a drained incremental update, while missing, stale, failed, or cancelled work MUST remain fail-closed. |
 | LN-DB-036 | Opt-in desktop telemetry MAY trace bounded native database lifecycle, manifest, query, and indexing-boundary operations. It MUST preserve the AppDatabase method contract and MUST NOT export database identifiers, arguments, paths, Search text, document rows, or result contents. |
 | LN-DB-037 | Metadata and Search reconciliation telemetry MUST distinguish checkpoint hit, miss, completion, cancellation, and failure without changing `app_meta` checkpoint semantics. It MAY report bounded totals, processed, changed, deleted, result, provider-failure, and batch counts, but MUST NOT export manifest rows, fingerprints, paths, Search terms, snippets, or exception messages. |
+| LN-DB-038 | Indexed metadata paging MUST accept an optional metadata-domain projection while preserving the complete-row default. Direct Turso providers MUST materialize each requested page with bounded table-level reads and bind-safe path chunks rather than per-file child queries. AppDatabase MUST also expose an allowlisted path-only Search operation so consumers that need membership sets do not receive document bodies, snippets, or metadata payloads. |
 
 ### LN-DB-032 acceptance details
 
@@ -141,3 +142,12 @@ otherwise reconciliation reads only lightweight Search and metadata manifests,
 yields between bounded batches, and advances the checkpoint after successful
 completion. Structured facets, nested property paths, and batched incoming-link
 lookups execute against their named normalized indexes.
+
+Projection-aware metadata pages always include the indexed file record, while
+omitted metadata domains retain their neutral empty values. The unprojected
+call remains source compatible and returns the complete row. Turso resolves a
+page with one bounded read per selected table and chunks path parameters below
+SQLite's bind ceiling. Path-only Search applies the same query, provider, path,
+mode, ranking, and limit semantics as document Search, but returns only ordered
+vault-relative paths through direct, browser-proxy, and desktop-native
+transports.

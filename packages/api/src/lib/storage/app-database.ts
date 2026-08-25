@@ -328,7 +328,19 @@ export interface AppDatabaseIndexedMetadataPageQuery {
   query?: AppDatabaseIndexedMetadataQuery;
   after?: string;
   limit?: number;
+  /**
+   * Select the materialized metadata domains returned for each file. File
+   * records are always included. Omit this field to preserve the complete
+   * metadata-row contract.
+   */
+  include?: AppDatabaseIndexedMetadataDomain[];
 }
+
+export type AppDatabaseIndexedMetadataDomain =
+  | "metadata"
+  | "properties"
+  | "tags"
+  | "links";
 
 export interface AppDatabaseIndexedMetadataPage {
   rows: AppDatabaseIndexedMetadataRow[];
@@ -1123,6 +1135,11 @@ export interface AppDatabase {
     query: string,
     options?: AppDatabaseSearchOptions,
   ): Promise<AppDatabaseSearchResult[]>;
+  /** Match indexed search documents without returning their content. */
+  searchDocumentPaths(
+    query: string,
+    options?: AppDatabaseSearchOptions,
+  ): Promise<string[]>;
   upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void>;
   deleteTaskProjection(path: string): Promise<void>;
   queryTasks(query?: AppDatabaseTaskQuery): Promise<AppDatabaseTaskRecord[]>;
@@ -1207,6 +1224,21 @@ function clone<T>(value: T): T {
 
 function normalizeIndexedMetadataExtension(extension: string): string {
   return extension.replace(/^\.+/, "").trim().toLowerCase();
+}
+
+function projectIndexedMetadataRow(
+  row: AppDatabaseIndexedMetadataRow,
+  include: AppDatabaseIndexedMetadataDomain[] | undefined,
+): AppDatabaseIndexedMetadataRow {
+  if (include === undefined) return row;
+  const selected = new Set(include);
+  return {
+    file: row.file,
+    metadata: selected.has("metadata") ? row.metadata : null,
+    properties: selected.has("properties") ? row.properties : [],
+    tags: selected.has("tags") ? row.tags : [],
+    links: selected.has("links") ? row.links : [],
+  };
 }
 
 function normalizeIndexedMetadataPathPrefix(prefix: string): string {
@@ -2651,7 +2683,9 @@ export class MemoryAppDatabase implements AppDatabase {
       this.materializeIndexedMetadataRows(),
       query,
     ).filter((row) => !input.after || row.file.path > input.after);
-    const page = rows.slice(0, limit);
+    const page = rows
+      .slice(0, limit)
+      .map((row) => projectIndexedMetadataRow(row, input.include));
     return clone({
       rows: page,
       nextCursor:
@@ -2932,6 +2966,15 @@ export class MemoryAppDatabase implements AppDatabase {
     options: AppDatabaseSearchOptions = {},
   ): Promise<AppDatabaseSearchResult[]> {
     return this.searchDocumentsForPaths(query, options);
+  }
+
+  async searchDocumentPaths(
+    query: string,
+    options: AppDatabaseSearchOptions = {},
+  ): Promise<string[]> {
+    return (await this.searchDocuments(query, options)).map(
+      (result) => result.document.path,
+    );
   }
 
   async upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void> {

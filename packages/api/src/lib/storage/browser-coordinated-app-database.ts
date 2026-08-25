@@ -78,6 +78,7 @@ type AppDatabaseMethod =
   | "listSearchDocuments"
   | "rebuildSearchIndex"
   | "searchDocuments"
+  | "searchDocumentPaths"
   | "upsertTaskProjection"
   | "deleteTaskProjection"
   | "queryTasks"
@@ -173,6 +174,7 @@ const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
   "listSearchDocuments",
   "rebuildSearchIndex",
   "searchDocuments",
+  "searchDocumentPaths",
   "upsertTaskProjection",
   "deleteTaskProjection",
   "queryTasks",
@@ -614,6 +616,13 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
       query,
       options,
     );
+  }
+
+  async searchDocumentPaths(
+    query: string,
+    options?: AppDatabaseSearchOptions,
+  ): Promise<string[]> {
+    return this.invoke<string[]>("searchDocumentPaths", query, options);
   }
 
   async upsertTaskProjection(record: AppDatabaseTaskRecord): Promise<void> {

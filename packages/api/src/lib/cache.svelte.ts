@@ -789,7 +789,7 @@ export class MetadataCache extends EventDispatcher<{
               this.trigger("loaded");
               const total = this.countProcessableVaultFiles();
               loadSpan.setAttribute("metadata.files.total", total);
-              const fingerprint = this.currentReconcileFingerprint();
+              const fingerprint = this.getReconciliationFingerprint();
               const checkpoint = await this.app.appDatabase.getMeta(
                 METADATA_RECONCILE_CHECKPOINT_KEY,
               );
@@ -1037,7 +1037,11 @@ export class MetadataCache extends EventDispatcher<{
     return total;
   }
 
-  private currentReconcileFingerprint(): string {
+  /**
+   * Return the current vault/parser manifest fingerprint used to validate the
+   * durable metadata index and disposable indexed-consumer snapshots.
+   */
+  getReconciliationFingerprint(): string {
     const fingerprint = new StreamingManifestFingerprint();
     for (const file of this.app.vault.iterateFiles()) {
       if (!this.processors.has(file.extension.toLowerCase())) continue;
@@ -1082,7 +1086,7 @@ export class MetadataCache extends EventDispatcher<{
         this.activeReconcileMutations === 0
       ) {
         const generation = this.reconcileCheckpointGeneration;
-        const fingerprint = this.currentReconcileFingerprint();
+        const fingerprint = this.getReconciliationFingerprint();
         try {
           await this.app.appDatabase.setMeta(
             METADATA_RECONCILE_CHECKPOINT_KEY,

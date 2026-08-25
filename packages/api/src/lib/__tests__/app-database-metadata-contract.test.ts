@@ -186,6 +186,22 @@ describe.each(providers)("metadata query contract: %s", (_name, create) => {
     expect(firstPage.rows.map((row) => row.file.path)).toEqual(["A.md"]);
     await expect(
       database.queryIndexedMetadataPage({
+        limit: 1,
+        include: ["tags", "links"],
+      }),
+    ).resolves.toMatchObject({
+      rows: [
+        {
+          file: { path: "A.md" },
+          metadata: null,
+          properties: [],
+          tags: [expect.objectContaining({ tag: "#work/database" })],
+          links: [expect.objectContaining({ targetText: "Target" })],
+        },
+      ],
+    });
+    await expect(
+      database.queryIndexedMetadataPage({
         after: firstPage.nextCursor,
         limit: 1,
       }),
@@ -275,6 +291,9 @@ describe.each(providers)("metadata query contract: %s", (_name, create) => {
         },
       ],
     });
+    await expect(
+      database.searchDocumentPaths("body", { mode: "lexical" }),
+    ).resolves.toEqual(["A.md"]);
     expect(changes.length).toBeGreaterThanOrEqual(3);
     expect(changes).toEqual([...changes].sort((left, right) => left - right));
 

@@ -18,6 +18,7 @@ const DATABASE_METHODS = new Set([
   "queryMetadataLinks",
   "listSearchDocumentManifest",
   "searchDocuments",
+  "searchDocumentPaths",
 ]);
 
 const LANGUAGE_COMMANDS = new Set([

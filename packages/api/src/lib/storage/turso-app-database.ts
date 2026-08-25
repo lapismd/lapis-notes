@@ -27,6 +27,7 @@ import {
   type AppDatabaseIndexedFileManifestQuery,
   type AppDatabaseIndexedMetadataPage,
   type AppDatabaseIndexedMetadataPageQuery,
+  type AppDatabaseIndexedMetadataDomain,
   type AppDatabaseIndexedMetadataPropertyFilter,
   type AppDatabaseIndexedMetadataQuery,
   type AppDatabaseIndexedMetadataRow,
@@ -422,6 +423,15 @@ function ftsQueryForTerms(terms: string[]): string {
 
 const METADATA_SNAPSHOT_META_KEY = "compat.metadataSnapshot";
 const SEARCH_EMBEDDING_PROVIDER_META_KEY = "search.embeddingProvider";
+const MAX_BOUND_PATHS_PER_QUERY = 400;
+
+function chunkPaths(paths: string[]): string[][] {
+  const chunks: string[][] = [];
+  for (let index = 0; index < paths.length; index += MAX_BOUND_PATHS_PER_QUERY) {
+    chunks.push(paths.slice(index, index + MAX_BOUND_PATHS_PER_QUERY));
+  }
+  return chunks;
+}
 
 function parseJson<T>(value: unknown, fallback: T): T {
   if (typeof value !== "string") return fallback;
@@ -1225,13 +1235,12 @@ export class TursoAppDatabase implements AppDatabase {
       ...args,
     );
     const pagePaths = rows.slice(0, limit).map((row) => row.path);
-    const materialized = await Promise.all(
-      pagePaths.map((path) => this.readIndexedFile(path, false)),
+    const materialized = await this.readIndexedFiles(
+      pagePaths,
+      input.include,
     );
     return {
-      rows: materialized.filter((row): row is AppDatabaseIndexedMetadataRow =>
-        Boolean(row),
-      ),
+      rows: materialized,
       nextCursor: rows.length > limit ? pagePaths.at(-1) : undefined,
     };
   }
@@ -1670,6 +1679,15 @@ export class TursoAppDatabase implements AppDatabase {
 
     if (requestedMode === "vector" && !includesVector) return [];
     return this.evaluateSearchDocumentsForPaths(query, options, candidates);
+  }
+
+  async searchDocumentPaths(
+    query: string,
+    options: AppDatabaseSearchOptions = {},
+  ): Promise<string[]> {
+    return (await this.searchDocuments(query, options)).map(
+      (result) => result.document.path,
+    );
   }
 
   private async queryAllSearchPaths(limit = 100): Promise<string[]> {
@@ -2285,6 +2303,134 @@ export class TursoAppDatabase implements AppDatabase {
     };
   }
 
+  private async readIndexedFiles(
+    paths: string[],
+    include?: AppDatabaseIndexedMetadataDomain[],
+  ): Promise<AppDatabaseIndexedMetadataRow[]> {
+    if (!paths.length) return [];
+    const selected = include === undefined ? null : new Set(include);
+    const includes = (domain: AppDatabaseIndexedMetadataDomain) =>
+      selected === null || selected.has(domain);
+    const chunks = chunkPaths([...new Set(paths)]);
+    const connection = this.requireConnection();
+
+    const readFiles = async () => {
+      const rows: Record<string, unknown>[] = [];
+      for (const chunk of chunks) {
+        rows.push(
+          ...(await connection.all<Record<string, unknown>>(
+            `SELECT f.path, f.normalized_path, f.extension, f.mtime, f.size,
+                    f.hash, f.indexed, f.deleted, m.parser_version
+             FROM files f
+             LEFT JOIN metadata m ON m.path = f.path
+             WHERE f.indexed = 1 AND f.deleted = 0
+               AND f.path IN (${chunk.map(() => "?").join(", ")})
+             ORDER BY f.path`,
+            ...chunk,
+          )),
+        );
+      }
+      return rows;
+    };
+
+    const readMetadata = async () => {
+      if (!includes("metadata")) return [];
+      const rows: Record<string, unknown>[] = [];
+      for (const chunk of chunks) {
+        rows.push(
+          ...(await connection.all<Record<string, unknown>>(
+            `SELECT path, hash, parser_version, data_json
+             FROM metadata
+             WHERE path IN (${chunk.map(() => "?").join(", ")})`,
+            ...chunk,
+          )),
+        );
+      }
+      return rows;
+    };
+
+    const readDomain = async (
+      domain: Exclude<AppDatabaseIndexedMetadataDomain, "metadata">,
+      table: string,
+      pathColumn: string,
+    ) => {
+      if (!includes(domain)) return [];
+      const rows: Array<{ path: string; data_json: string }> = [];
+      for (const chunk of chunks) {
+        rows.push(
+          ...(await connection.all<{ path: string; data_json: string }>(
+            `SELECT ${pathColumn} AS path, data_json
+             FROM ${table}
+             WHERE ${pathColumn} IN (${chunk.map(() => "?").join(", ")})
+             ORDER BY ${pathColumn}, ordinal`,
+            ...chunk,
+          )),
+        );
+      }
+      return rows;
+    };
+
+    const [fileRows, metadataRows, propertyRows, tagRows, linkRows] =
+      await Promise.all([
+        readFiles(),
+        readMetadata(),
+        readDomain("properties", "metadata_properties", "path"),
+        readDomain("tags", "metadata_tags", "path"),
+        readDomain("links", "metadata_links", "source_path"),
+      ]);
+
+    const metadataByPath = new Map(
+      metadataRows.map((row) => [
+        String(row.path),
+        {
+          path: String(row.path),
+          hash: String(row.hash),
+          parserVersion: String(row.parser_version),
+          metadata: parseJson(row.data_json, {}),
+        },
+      ]),
+    );
+    const collectDomain = <T>(
+      rows: Array<{ path: string; data_json: string }>,
+    ): Map<string, T[]> => {
+      const values = new Map<string, T[]>();
+      for (const row of rows) {
+        const current = values.get(String(row.path)) ?? [];
+        current.push(parseJson<T>(row.data_json, {} as T));
+        values.set(String(row.path), current);
+      }
+      return values;
+    };
+    const propertiesByPath = collectDomain<
+      AppDatabaseIndexedMetadataRow["properties"][number]
+    >(propertyRows);
+    const tagsByPath = collectDomain<
+      AppDatabaseIndexedMetadataRow["tags"][number]
+    >(tagRows);
+    const linksByPath = collectDomain<AppDatabaseLinkRecord>(linkRows);
+    const filesByPath = new Map(
+      fileRows.map((row) => [String(row.path), this.fileRecordFromRow(row)]),
+    );
+
+    return paths.flatMap((path) => {
+      const file = filesByPath.get(path);
+      if (!file) return [];
+      return [
+        {
+          file,
+          metadata: includes("metadata")
+            ? (metadataByPath.get(path) ?? null)
+            : null,
+          properties: includes("properties")
+            ? (propertiesByPath.get(path) ?? [])
+            : [],
+          tags: includes("tags") ? (tagsByPath.get(path) ?? []) : [],
+          links: includes("links") ? (linksByPath.get(path) ?? []) : [],
+        } satisfies AppDatabaseIndexedMetadataRow,
+      ];
+    });
+  }
+
   private async readIndexedFile(
     path: string,
     legacyOnly: boolean,
@@ -2672,31 +2818,40 @@ export class TursoAppDatabase implements AppDatabase {
   ): Promise<AppDatabaseSearchResult[]> {
     const paths = [...new Set(candidatePaths)];
     if (!paths.length) return [];
-    const placeholders = paths.map(() => "?").join(", ");
-    const rows = await this.requireConnection().all<{ data_json: string }>(
-      `SELECT data_json FROM search_docs WHERE path IN (${placeholders})`,
-      ...paths,
-    );
+    const rows: Array<{ path: string; data_json: string }> = [];
+    for (const chunk of chunkPaths(paths)) {
+      rows.push(
+        ...(await this.requireConnection().all<{
+          path: string;
+          data_json: string;
+        }>(
+          `SELECT path, data_json FROM search_docs
+           WHERE path IN (${chunk.map(() => "?").join(", ")})`,
+          ...chunk,
+        )),
+      );
+    }
     const propertyNames = searchPropertyNames(query);
     const allowedProviders = options.sourceProviderIds?.length
       ? new Set(options.sourceProviderIds)
       : null;
-    const sourceDocuments = await Promise.all(
-      rows.map(async (row) => {
-        const document = parseJson<SearchDocumentRecord>(
-          row.data_json,
-          {} as SearchDocumentRecord,
-        );
-        const indexed = await this.readIndexedFile(document.path, false);
-        return {
-          document,
-          properties: searchDocumentProperties(
-            document,
-            indexed?.properties ?? [],
-          ),
-        };
-      }),
+    const propertyRows = await this.readIndexedFiles(paths, ["properties"]);
+    const propertiesByPath = new Map(
+      propertyRows.map((row) => [row.file.path, row.properties]),
     );
+    const sourceDocuments = rows.map((row) => {
+      const document = parseJson<SearchDocumentRecord>(
+        row.data_json,
+        {} as SearchDocumentRecord,
+      );
+      return {
+        document,
+        properties: searchDocumentProperties(
+          document,
+          propertiesByPath.get(document.path) ?? [],
+        ),
+      };
+    });
     const filtered = sourceDocuments.filter(
       ({ document, properties }) =>
         pathWithinPrefix(document.path, options.pathPrefix) &&

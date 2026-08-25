@@ -271,6 +271,59 @@ describe("TursoAppDatabase", () => {
     await database.close();
   });
 
+  it("materializes projected metadata pages with bounded bulk reads", async () => {
+    const connection = (await connect(":memory:", {
+      experimental: ["index_method"],
+    })) as TursoConnection;
+    let allCalls = 0;
+    const trackedConnection: TursoConnection = {
+      exec: (sql) => connection.exec(sql),
+      run: (sql, ...args) => connection.run(sql, ...args),
+      get: <T extends Record<string, unknown>>(sql: string, ...args: unknown[]) =>
+        connection.get<T>(sql, ...args),
+      all: <T extends Record<string, unknown>>(sql: string, ...args: unknown[]) => {
+        allCalls += 1;
+        return connection.all<T>(sql, ...args);
+      },
+      batch: (statements, options) => connection.batch(statements, options),
+      close: () => connection.close(),
+    };
+    const database = new TursoAppDatabase("turso-bulk-pages", {
+      kind: "turso-native",
+      transport: "native",
+      connectionFactory: async () => trackedConnection,
+    });
+    await database.open();
+    await connection.batch(
+      Array.from({ length: 401 }, (_, index) => {
+        const path = `Notes/${String(index).padStart(3, "0")}.md`;
+        return {
+          sql: `INSERT INTO files
+            (path, normalized_path, extension, mtime, size, hash, indexed, deleted)
+            VALUES (?, ?, 'md', ?, 1, ?, 1, 0)`,
+          args: [path, path.toLowerCase(), index, `hash-${index}`],
+        };
+      }),
+    );
+
+    allCalls = 0;
+    const page = await database.queryIndexedMetadataPage({
+      limit: 401,
+      include: ["tags", "links"],
+    });
+
+    expect(page.rows).toHaveLength(401);
+    expect(page.rows[0]).toMatchObject({
+      file: { path: "Notes/000.md" },
+      metadata: null,
+      properties: [],
+      tags: [],
+      links: [],
+    });
+    expect(allCalls).toBe(7);
+    await database.close();
+  });
+
   it("compiles projection filter, sort, and limit in SQL", async () => {
     const database = createDatabase("turso-projections");
     await database.open();

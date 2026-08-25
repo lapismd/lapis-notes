@@ -37,6 +37,7 @@ export const DESKTOP_APP_DATABASE_METHODS = [
   "listSearchDocuments",
   "rebuildSearchIndex",
   "searchDocuments",
+  "searchDocumentPaths",
   "upsertTaskProjection",
   "deleteTaskProjection",
   "queryTasks",
@@ -67,4 +68,3 @@ export function isDesktopAppDatabaseMethod(
     typeof value === "string" && DESKTOP_APP_DATABASE_METHOD_SET.has(value)
   );
 }
-
