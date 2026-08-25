@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  advanceGraphEmphasis,
   clampGraphZoom,
   createGraphForceSimulation,
   graphEmphasisAlpha,
@@ -7,6 +8,8 @@ import {
   graphFitTransform,
   graphFocusTransform,
   graphLinkIntersectsViewport,
+  graphLinkScreenWidth,
+  graphLinkUsesAccentPaint,
   graphNodeLabelAlpha,
   graphNodeIntersectsViewport,
   graphNodeScreenRadius,
@@ -126,6 +129,29 @@ describe("Graph renderer zoom bounds", () => {
     expect(graphEmphasisAlpha("node", false, 0.5)).toBeCloseTo(0.56);
   });
 
+  it("uses elapsed-time-normalized Obsidian-style emphasis easing", () => {
+    const at60Hz = advanceGraphEmphasis(0, 1, 1000 / 60);
+    const at120Hz = advanceGraphEmphasis(
+      advanceGraphEmphasis(0, 1, 1000 / 120),
+      1,
+      1000 / 120,
+    );
+
+    expect(at60Hz).toBeCloseTo(0.1, 6);
+    expect(at120Hz).toBeCloseTo(at60Hz, 6);
+    expect(advanceGraphEmphasis(0, 1, 0)).toBe(0);
+    expect(advanceGraphEmphasis(0.9995, 1, 1000 / 60)).toBe(1);
+  });
+
+  it("uses direct screen-pixel link widths and accent paint only during emphasis", () => {
+    expect(graphLinkScreenWidth(0.1)).toBe(0.1);
+    expect(graphLinkScreenWidth(2.5)).toBe(2.5);
+    expect(graphLinkScreenWidth(8)).toBe(5);
+    expect(graphLinkUsesAccentPaint(false, true)).toBe(false);
+    expect(graphLinkUsesAccentPaint(true, false)).toBe(false);
+    expect(graphLinkUsesAccentPaint(true, true)).toBe(true);
+  });
+
   it("seeds deterministic phyllotaxis positions for large entrance layouts", () => {
     const first = Array.from({ length: 1_100 }, (_, index) =>
       graphPhyllotaxisPosition(index),
@@ -189,9 +215,9 @@ describe("Graph renderer zoom bounds", () => {
     simulation.tick(180);
 
     expect(simulation.alpha()).toBeLessThan(0.001);
-    expect(nodes.every((node) => Number.isFinite(node.x) && Number.isFinite(node.y))).toBe(
-      true,
-    );
+    expect(
+      nodes.every((node) => Number.isFinite(node.x) && Number.isFinite(node.y)),
+    ).toBe(true);
     expect(camera).toEqual({ x: 12, y: 24, k: 0.5 });
   }, 30_000);
 

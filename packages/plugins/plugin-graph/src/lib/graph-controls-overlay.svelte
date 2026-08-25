@@ -558,9 +558,9 @@
                 <Slider
                   aria-label="Link thickness"
                   type="single"
-                  min={1}
-                  max={4}
-                  step={0.25}
+                  min={0.1}
+                  max={5}
+                  step={0.1}
                   class="graph-controls-slider__control"
                   bind:value={
                     () => settings.display.linkThickness,

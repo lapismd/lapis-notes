@@ -88,8 +88,9 @@ function nodeRadius(node: GraphNode, settings: GraphSettings): number {
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 const ENTRANCE_PREWARM_TICKS = 12;
 const REDUCED_MOTION_SETTLE_TICKS = 240;
-const EMPHASIS_IN_DURATION_MS = 140;
-const EMPHASIS_OUT_DURATION_MS = 180;
+const EMPHASIS_FRAME_MS = 1000 / 60;
+const EMPHASIS_DECAY_PER_FRAME = 0.9;
+const EMPHASIS_EPSILON = 0.001;
 
 export function graphPhyllotaxisPosition(
   index: number,
@@ -104,7 +105,10 @@ export function graphNodeWorldRadius(baseRadius: number, zoom: number): number {
   return baseRadius / Math.sqrt(Math.max(zoom, GRAPH_MIN_ZOOM));
 }
 
-export function graphNodeScreenRadius(baseRadius: number, zoom: number): number {
+export function graphNodeScreenRadius(
+  baseRadius: number,
+  zoom: number,
+): number {
   return baseRadius * Math.sqrt(Math.max(zoom, GRAPH_MIN_ZOOM));
 }
 
@@ -116,6 +120,37 @@ export function graphEmphasisAlpha(
   if (active) return 1;
   const target = kind === "node" ? 0.12 : kind === "link" ? 0.05 : 0;
   return 1 - clamp(progress, 0, 1) * (1 - target);
+}
+
+export function advanceGraphEmphasis(
+  previous: number,
+  target: number,
+  elapsedMs: number,
+): number {
+  const resolvedTarget = clamp(target, 0, 1);
+  const resolvedPrevious = clamp(previous, 0, 1);
+  if (Math.abs(resolvedTarget - resolvedPrevious) <= EMPHASIS_EPSILON) {
+    return resolvedTarget;
+  }
+  const decay = Math.pow(
+    EMPHASIS_DECAY_PER_FRAME,
+    Math.max(0, elapsedMs) / EMPHASIS_FRAME_MS,
+  );
+  const next = resolvedPrevious * decay + resolvedTarget * (1 - decay);
+  return Math.abs(resolvedTarget - next) <= EMPHASIS_EPSILON
+    ? resolvedTarget
+    : next;
+}
+
+export function graphLinkScreenWidth(value: number): number {
+  return clamp(Number.isFinite(value) ? value : 1, 0.1, 5);
+}
+
+export function graphLinkUsesAccentPaint(
+  hasEmphasis: boolean,
+  incidentToSource: boolean,
+): boolean {
+  return hasEmphasis && incidentToSource;
 }
 
 export function createGraphForceSimulation(
@@ -511,10 +546,8 @@ export class GraphRenderer {
   private hoveredNodeId: string | null = null;
   private focusedNodeId: string | null = null;
   private emphasisProgress = 0;
-  private emphasisFrom = 0;
   private emphasisTarget = 0;
-  private emphasisStartedAt = 0;
-  private emphasisDuration = EMPHASIS_IN_DURATION_MS;
+  private emphasisFrameAt = 0;
   private layoutStartedAt = 0;
   private readonly reducedMotion: boolean;
   private autoCenterNodeId: string | null = null;
@@ -1253,29 +1286,26 @@ export class GraphRenderer {
     if (nextTarget === this.emphasisTarget) return;
     if (this.reducedMotion) {
       this.emphasisProgress = nextTarget;
-      this.emphasisFrom = nextTarget;
       this.emphasisTarget = nextTarget;
+      this.emphasisFrameAt = 0;
       return;
     }
-    this.advanceEmphasis(performance.now());
-    this.emphasisFrom = this.emphasisProgress;
+    const now = performance.now();
+    this.advanceEmphasis(now);
     this.emphasisTarget = nextTarget;
-    this.emphasisStartedAt = performance.now();
-    this.emphasisDuration = nextTarget
-      ? EMPHASIS_IN_DURATION_MS
-      : EMPHASIS_OUT_DURATION_MS;
+    this.emphasisFrameAt = now;
   }
 
   private advanceEmphasis(now: number): boolean {
     if (this.emphasisProgress === this.emphasisTarget) return false;
-    const elapsed = Math.max(0, now - this.emphasisStartedAt);
-    const progress = clamp(elapsed / this.emphasisDuration, 0, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    this.emphasisProgress =
-      this.emphasisFrom +
-      (this.emphasisTarget - this.emphasisFrom) * eased;
-    if (progress >= 1) this.emphasisProgress = this.emphasisTarget;
-    return progress < 1;
+    const elapsed = Math.max(0, now - this.emphasisFrameAt);
+    this.emphasisFrameAt = now;
+    this.emphasisProgress = advanceGraphEmphasis(
+      this.emphasisProgress,
+      this.emphasisTarget,
+      elapsed,
+    );
+    return this.emphasisProgress !== this.emphasisTarget;
   }
 
   private scheduleTimeLapseFrame(): void {
@@ -1298,7 +1328,9 @@ export class GraphRenderer {
         added += 1;
       }
       if (added > 0) {
-        this.simulation.alpha(Math.max(this.simulation.alpha(), 0.08)).restart();
+        this.simulation
+          .alpha(Math.max(this.simulation.alpha(), 0.08))
+          .restart();
         this.queueRender();
       }
       if (
@@ -1402,6 +1434,10 @@ export class GraphRenderer {
       return;
     }
     const active = this.isLinkActive(source.id, target.id);
+    const usesAccent = graphLinkUsesAccentPaint(
+      this.hasEmphasisSource(),
+      active,
+    );
     this.context.save();
     this.context.globalAlpha = graphEmphasisAlpha(
       "link",
@@ -1411,11 +1447,10 @@ export class GraphRenderer {
     this.context.beginPath();
     this.context.moveTo(source.x, source.y);
     this.context.lineTo(target.x, target.y);
-    this.context.strokeStyle = linkColor(active, palette);
+    this.context.strokeStyle = linkColor(usesAccent, palette);
     const screenScale = Math.max(this.transform.k, GRAPH_MIN_ZOOM);
-    const screenLineWidth = Math.max(
-      0.75,
-      (this.settings?.display.linkThickness ?? 1) * Math.log1p(link.count + 1),
+    const screenLineWidth = graphLinkScreenWidth(
+      this.settings?.display.linkThickness ?? 1,
     );
     this.context.lineWidth = screenLineWidth / screenScale;
     this.context.stroke();
@@ -1441,7 +1476,7 @@ export class GraphRenderer {
       arrowY - Math.sin(angle + Math.PI / 7) * arrowSize,
     );
     this.context.closePath();
-    this.context.fillStyle = linkColor(active, palette);
+    this.context.fillStyle = linkColor(usesAccent, palette);
     this.context.fill();
     this.context.restore();
   }
@@ -1467,11 +1502,11 @@ export class GraphRenderer {
       ? palette.nodeFocused
       : nodeColor(node, palette);
     this.context.fill();
-    this.context.lineWidth = (active ? 2.4 : 1.2) / screenScale;
-    this.context.strokeStyle = active
-      ? palette.nodeStrokeActive
-      : palette.nodeStroke;
-    this.context.stroke();
+    if (isEmphasisSource) {
+      this.context.lineWidth = 1.5 / screenScale;
+      this.context.strokeStyle = palette.nodeStrokeActive;
+      this.context.stroke();
+    }
 
     if (node.id === this.focusedNodeId) {
       this.context.beginPath();
@@ -1495,12 +1530,13 @@ export class GraphRenderer {
     }
     const isHoveredLabel = node.id === this.hoveredNodeId;
     const active = this.isNodeActive(node.id);
-    const alpha = graphNodeLabelAlpha({
-      zoom: this.transform.k,
-      textFadeThreshold: this.settings?.display.textFadeThreshold ?? 0.8,
-      hovered: isHoveredLabel,
-      context: active,
-    }) * graphEmphasisAlpha("label", active, this.emphasisProgress);
+    const alpha =
+      graphNodeLabelAlpha({
+        zoom: this.transform.k,
+        textFadeThreshold: this.settings?.display.textFadeThreshold ?? 0.8,
+        hovered: isHoveredLabel,
+        context: active,
+      }) * graphEmphasisAlpha("label", active, this.emphasisProgress);
     if (alpha <= 0.05) {
       return;
     }
@@ -1554,6 +1590,10 @@ export class GraphRenderer {
       return true;
     }
     return false;
+  }
+
+  private hasEmphasisSource(): boolean {
+    return this.hoveredNodeId !== null || this.focusedNodeId !== null;
   }
 
   private isLinkActive(sourceId: string, targetId: string): boolean {

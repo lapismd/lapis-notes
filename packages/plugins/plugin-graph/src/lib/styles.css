@@ -9,26 +9,18 @@
   );
   --ui-graph-surface-border: var(--ui-workspace-view-border, var(--border));
   --graph-text: var(--ui-graph-surface-foreground);
-  --graph-line: color-mix(
-    in srgb,
-    var(--ui-graph-surface-foreground) 24%,
-    transparent
-  );
+  --graph-line: var(--input, #d4d4d4);
   --graph-node: var(--muted-foreground);
   --graph-node-unresolved: color-mix(
     in srgb,
-    var(--muted-foreground) 46%,
-    transparent
+    var(--graph-node) 50%,
+    var(--ui-graph-surface-background)
   );
-  --graph-node-focused: var(--primary, var(--accent-foreground));
+  --graph-node-focused: var(--ring, var(--primary));
   --graph-node-tag: var(--success, #16a34a);
-  --graph-node-attachment: var(--warning, #d97706);
+  --graph-node-attachment: #e0ac00;
   --ui-graph-link: var(--graph-line);
-  --ui-graph-link-active: color-mix(
-    in srgb,
-    var(--graph-text) 52%,
-    transparent
-  );
+  --ui-graph-link-active: var(--graph-node-focused);
   --ui-graph-node-note: var(--graph-node);
   --ui-graph-node-attachment: var(--graph-node-attachment);
   --ui-graph-node-tag: var(--graph-node-tag);
@@ -60,7 +52,7 @@
     --ui-workspace-view-secondary-background,
     var(--background)
   );
-  --ui-graph-controls-width: 28rem;
+  --ui-graph-controls-width: 240px;
   --ui-graph-controls-shadow: var(
     --ui-overlay-shadow,
     0 10px 28px rgb(0 0 0 / 18%)
@@ -75,6 +67,11 @@
   overflow: hidden;
   background: var(--ui-graph-surface-background);
   color: var(--ui-graph-surface-foreground);
+}
+
+[data-ui-theme="lapis"].dark .graph-view,
+.dark [data-ui-theme="lapis"] .graph-view {
+  --graph-node-attachment: #e0de71;
 }
 
 .graph-view__layout {

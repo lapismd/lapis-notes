@@ -104,7 +104,7 @@ chat to `.agents`.
 | LN-PLUG-031 | First-party plugin and cache instrumentation MUST depend only on the App telemetry contract and remain safe under `NoopTelemetryService`. Search provider failures MAY increment a bounded failure count, but plugin IDs, provider payloads, settings, document paths, content, and error messages MUST NOT become telemetry attributes or structured logs.                                                                                    |
 | LN-PLUG-032 | First-party plugins that need only selected indexed metadata domains or Search membership MUST use the API projection and path-only query contracts. They MUST NOT enumerate complete Search documents or issue per-file metadata lookups to reconstruct an indexed page. |
 | LN-PLUG-033 | A plugin that exposes multiple views over one generated global projection MUST own single-flight construction above the view lifetime. View closure MUST release subscriptions without discarding a valid plugin-owned snapshot, while plugin unload MUST cancel in-flight work and flush pending plugin data. |
-| LN-PLUG-034 | Canvas-based plugin views MAY retain package-owned force simulation, camera, culling, and emphasis state when those concerns are presentation-only. Such state MUST remain disposable, respect reduced motion, preserve keyboard and pointer navigation, and MUST NOT become a second domain-data or workspace persistence authority. |
+| LN-PLUG-034 | Canvas plugin views MAY retain package-owned simulation, camera, culling, and emphasis state when presentation-only. Emphasis MUST start on the next animation frame, remain elapsed-time normalized, and respect reduced motion. Such state MUST preserve keyboard and pointer navigation and MUST NOT become domain-data or workspace authority. |
 | LN-PLUG-035 | A plugin MAY use AppDatabase path-only Search to evaluate its own ordered presentation rules. It MUST keep rule persistence and precedence plugin-owned, react to Search-domain revisions, present invalid-query diagnostics locally, and MUST NOT import another plugin's manager, panel, or settings implementation. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
@@ -124,9 +124,10 @@ Outline, File Properties, then Tags on the right when those plugins loaded.
 Graph is enabled in that fresh session but contributes no default leaf; persisted
 global and local Graph leaves instead follow the normal missing-view disable and
 re-enable lifecycle.
-Its Design Core controls preserve the legacy disclosure-header presentation,
-while scoped Graph tokens keep ordinary note nodes muted and renderer zoom
-allows the complete settled graph to fit the viewport.
+Its Design Core controls preserve the legacy disclosure-header presentation in
+a 240px panel. Scoped Graph tokens keep idle geometry neutral, while renderer
+zoom allows the complete settled graph to fit the viewport and pointer or
+keyboard emphasis introduces accent paint without changing domain state.
 The Bookmarks panel snapshots persisted items so add and remove refresh the tree,
 insets rows with the public Explorer content-padding token, uses Explorer
 toolbar hover tokens, and follows Explorer tree indent, chevron-centered

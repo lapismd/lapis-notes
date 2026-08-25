@@ -111,6 +111,7 @@ function placementStory(
       const dialog = await panel.findByRole("dialog", {
         name: "Graph settings",
       });
+      expect(getComputedStyle(dialog).width).toBe("240px");
       const displayTrigger = within(dialog).getByRole("button", {
         name: "Display",
       });
@@ -149,6 +150,19 @@ function placementStory(
       ]) {
         expect(graphStyle.getPropertyValue(role).trim()).not.toBe("");
       }
+      expect(graphStyle.getPropertyValue("--graph-line").trim()).toBe(
+        graphStyle.getPropertyValue("--input").trim(),
+      );
+      expect(graphStyle.getPropertyValue("--ui-graph-link-active").trim()).toBe(
+        graphStyle.getPropertyValue("--graph-node-focused").trim(),
+      );
+      await userEvent.click(displayTrigger);
+      const linkThickness = within(dialog).getByRole("slider", {
+        name: "Link thickness",
+      });
+      expect(linkThickness).toHaveAttribute("aria-valuemin", "0.1");
+      expect(linkThickness).toHaveAttribute("aria-valuemax", "5");
+      await userEvent.click(displayTrigger);
       await userEvent.click(within(dialog).getByText("Filters"));
       await expect(within(dialog).getByLabelText("Search files")).toBeVisible();
       await expect(within(dialog).getByLabelText("Show tags")).toBeVisible();
