@@ -1,9 +1,10 @@
 import { ItemView, Menu, Notice, type WorkspaceLeaf } from "@lapis-notes/api";
 import {
-  buildGlobalGraph,
   buildLocalGraph,
+  filterGraphBySettings,
   graphNodeIdForFile,
 } from "./graph-data";
+import type { GraphCoordinatorState } from "./graph-data-coordinator";
 import { GraphBuildGeneration } from "./graph-build-generation";
 import { graphLoadFocusNodeId } from "./graph-load-alignment";
 import { openGraphTagSearch } from "./graph-node-activation";
@@ -59,6 +60,9 @@ abstract class GraphViewBase extends ItemView {
   private renderer: GraphRenderer | null = null;
   private overlay: LocalMountComponent<Record<string, unknown>> | null = null;
   private settings: GraphSettings;
+  private canonicalGraph: GraphData | null = null;
+  private coordinatorGraphVersion = -1;
+  private unsubscribeCoordinator: (() => void) | null = null;
   private currentGraphPaths: Set<string> = new Set();
   private unregisterView: (() => void) | null = null;
   private readonly buildGeneration = new GraphBuildGeneration();
@@ -116,7 +120,11 @@ abstract class GraphViewBase extends ItemView {
           this.renderer?.resetView();
         },
         onRefreshGraph: () => {
-          void this.rebuild();
+          if (this.isLocal) {
+            void this.rebuild();
+          } else {
+            void this.plugin.refreshGlobalGraph(true);
+          }
         },
         onResetDefaults: () => {
           this.resetLocalSettings();
@@ -138,29 +146,33 @@ abstract class GraphViewBase extends ItemView {
     });
 
     this.unregisterView = this.plugin.registerGraphView(this);
-    this.registerEvent(
-      this.app.workspace.on("file-open", () => {
-        if (this.isLocal) {
+    if (this.isLocal) {
+      this.registerEvent(
+        this.app.workspace.on("file-open", () => {
           this.scheduleRebuild();
-        }
-      }),
-    );
-    this.registerEvent(
-      this.app.metadataCache.on("loaded", () => this.scheduleRebuild()),
-    );
-    this.registerEvent(
-      this.app.metadataCache.on("index-changed", (change) => {
-        if (!change.reset && !change.domains.includes("metadata")) return;
-        if (
-          this.shouldRebuildForMetadataPaths(
-            change.paths,
-            change.reset ?? false,
-          )
-        ) {
-          this.scheduleRebuild();
-        }
-      }),
-    );
+        }),
+      );
+      this.registerEvent(
+        this.app.metadataCache.on("loaded", () => this.scheduleRebuild()),
+      );
+      this.registerEvent(
+        this.app.metadataCache.on("index-changed", (change) => {
+          if (!change.reset && !change.domains.includes("metadata")) return;
+          if (
+            this.shouldRebuildForMetadataPaths(
+              change.paths,
+              change.reset ?? false,
+            )
+          ) {
+            this.scheduleRebuild();
+          }
+        }),
+      );
+    } else {
+      this.unsubscribeCoordinator = this.plugin.subscribeToGlobalGraph(
+        (state) => this.applyCoordinatorState(state),
+      );
+    }
     this.registerEvent(
       this.app.workspace.on("active-leaf-change", (leaf) => {
         if (leaf === this.leaf) {
@@ -172,9 +184,11 @@ abstract class GraphViewBase extends ItemView {
       }),
     );
 
-    requestAnimationFrame(() => {
-      void this.rebuild();
-    });
+    if (this.isLocal) {
+      requestAnimationFrame(() => {
+        void this.rebuild();
+      });
+    }
   }
 
   private scheduleViewportRefreshWhenVisible(): void {
@@ -201,11 +215,14 @@ abstract class GraphViewBase extends ItemView {
     this.buildGeneration.invalidate();
     this.unregisterView?.();
     this.unregisterView = null;
+    this.unsubscribeCoordinator?.();
+    this.unsubscribeCoordinator = null;
     this.renderer?.destroy();
     this.renderer = null;
     this.overlay?.destroy();
     this.overlay = null;
     this.currentGraphPaths = new Set();
+    this.canonicalGraph = null;
   }
 
   onPaneMenu(menu: Menu): void {
@@ -214,7 +231,11 @@ abstract class GraphViewBase extends ItemView {
         .setTitle("Refresh graph")
         .setIcon("refresh-cw")
         .onClick(() => {
-          void this.rebuild();
+          if (this.isLocal) {
+            void this.rebuild();
+          } else {
+            void this.plugin.refreshGlobalGraph(true);
+          }
         });
     });
     menu.addItem((item) => {
@@ -243,7 +264,13 @@ abstract class GraphViewBase extends ItemView {
     if (this.overlay) {
       this.overlay.props.settings = this.settings;
     }
-    void this.rebuild();
+    if (this.isLocal) {
+      void this.rebuild();
+      return;
+    }
+    if (this.canonicalGraph) {
+      this.renderGraph(filterGraphBySettings(this.canonicalGraph, this.settings));
+    }
   }
 
   protected abstract getGraphData(settings: GraphSettings): Promise<GraphData>;
@@ -266,6 +293,48 @@ abstract class GraphViewBase extends ItemView {
       return;
     }
     if (!this.buildGeneration.isCurrent(generation)) return;
+    this.renderGraph(graph);
+    if (this.overlay) {
+      this.overlay.props.settings = this.settings;
+      this.overlay.props.statsText = this.getStatsText(graph);
+      this.overlay.props.statusText = "";
+      this.overlay.props.statusKind = null;
+    }
+  }
+
+  private applyCoordinatorState(state: GraphCoordinatorState): void {
+    if (!this.overlay) return;
+    if (
+      state.graph &&
+      (state.version !== this.coordinatorGraphVersion || !this.canonicalGraph)
+    ) {
+      this.coordinatorGraphVersion = state.version;
+      this.canonicalGraph = state.graph;
+      this.renderGraph(filterGraphBySettings(state.graph, this.settings));
+    }
+
+    const progress = state.progress;
+    const progressText = progress?.total
+      ? ` (${Math.min(progress.processed, progress.total)} of ${progress.total})`
+      : "";
+    if (state.status === "loading" || state.status === "idle") {
+      this.overlay.props.statusText = `Loading graph${progressText}…`;
+      this.overlay.props.statusKind = "loading";
+    } else if (state.status === "updating") {
+      this.overlay.props.statusText = `Updating graph${progressText}…`;
+      this.overlay.props.statusKind = "loading";
+    } else if (state.status === "error") {
+      this.overlay.props.statusText = state.graph
+        ? "Unable to refresh graph; showing cached data"
+        : `Unable to load graph: ${state.error ?? "Unknown error"}`;
+      this.overlay.props.statusKind = "error";
+    } else {
+      this.overlay.props.statusText = "";
+      this.overlay.props.statusKind = null;
+    }
+  }
+
+  private renderGraph(graph: GraphData): void {
     this.currentGraphPaths = new Set(
       graph.nodes
         .filter((node) => node.type === "note")
@@ -280,8 +349,6 @@ abstract class GraphViewBase extends ItemView {
     if (this.overlay) {
       this.overlay.props.settings = this.settings;
       this.overlay.props.statsText = this.getStatsText(graph);
-      this.overlay.props.statusText = "";
-      this.overlay.props.statusKind = null;
     }
   }
 
@@ -431,8 +498,8 @@ export class GraphView extends GraphViewBase {
     return "waypoints";
   }
 
-  protected getGraphData(settings: GraphSettings) {
-    return buildGlobalGraph(this.app, settings);
+  protected getGraphData(_settings: GraphSettings): Promise<GraphData> {
+    return Promise.resolve({ nodes: [], links: [], centerNodeId: null });
   }
 }
 

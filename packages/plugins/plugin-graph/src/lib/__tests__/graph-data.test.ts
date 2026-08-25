@@ -154,7 +154,10 @@ describe("graph data", () => {
     const graph = await buildGlobalGraph(app, settings);
 
     expect(queryMetadataPage).toHaveBeenCalledWith(
-      expect.objectContaining({ limit: 256 }),
+      expect.objectContaining({
+        limit: 256,
+        include: ["tags", "links"],
+      }),
     );
     expect(graph.nodes.map((node) => node.id)).toEqual(
       expect.arrayContaining([

@@ -5,6 +5,10 @@ import {
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
 import { DEFAULT_GRAPH_SETTINGS, mergeGraphSettings } from "./graph-settings";
+import {
+  GraphDataCoordinator,
+  type GraphCoordinatorState,
+} from "./graph-data-coordinator";
 import type { GraphSettings } from "./graph-types";
 import {
   GraphView,
@@ -29,13 +33,17 @@ const GRAPH_MANIFEST: PluginManifest = {
 
 export class GraphPlugin extends Plugin {
   private readonly views = new Set<GraphFocusableView>();
+  private readonly graphCoordinator: GraphDataCoordinator;
   private settings: GraphSettings = mergeGraphSettings(DEFAULT_GRAPH_SETTINGS);
+  private settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingSettingsSave: GraphSettings | null = null;
 
   constructor(
     app: App,
     manifest: PluginManifest = GRAPH_MANIFEST,
   ) {
     super(app, manifest);
+    this.graphCoordinator = new GraphDataCoordinator(app);
   }
 
   async onload(): Promise<void> {
@@ -74,6 +82,23 @@ export class GraphPlugin extends Plugin {
         this.views.forEach((view) => view.focusActiveFile());
       },
     });
+
+    this.registerEvent(
+      this.app.metadataCache.on("index-changed", (change) => {
+        if (!change.reset && !change.domains.includes("metadata")) return;
+        void this.graphCoordinator.requestRefresh("metadata-change");
+      }),
+    );
+    void this.graphCoordinator.start();
+  }
+
+  async onunload(): Promise<void> {
+    this.graphCoordinator.dispose();
+    if (this.settingsSaveTimer) clearTimeout(this.settingsSaveTimer);
+    this.settingsSaveTimer = null;
+    const pending = this.pendingSettingsSave;
+    this.pendingSettingsSave = null;
+    if (pending) await this.saveData(pending);
   }
 
   getSettings(): GraphSettings {
@@ -86,7 +111,17 @@ export class GraphPlugin extends Plugin {
     this.views.forEach((view) => {
       view.applyGraphSettings(snapshot);
     });
-    await this.saveData(snapshot);
+    this.scheduleSettingsSave(snapshot);
+  }
+
+  subscribeToGlobalGraph(
+    listener: (state: GraphCoordinatorState) => void,
+  ): () => void {
+    return this.graphCoordinator.subscribe(listener);
+  }
+
+  refreshGlobalGraph(force = false): Promise<void> {
+    return this.graphCoordinator.requestRefresh("view-refresh", force);
   }
 
   registerGraphView(view: GraphFocusableView): () => void {
@@ -99,6 +134,17 @@ export class GraphPlugin extends Plugin {
   private async initializeSettings(): Promise<void> {
     const storedData = await this.loadData();
     this.settings = mergeGraphSettings(storedData);
+  }
+
+  private scheduleSettingsSave(settings: GraphSettings): void {
+    this.pendingSettingsSave = mergeGraphSettings(settings);
+    if (this.settingsSaveTimer) clearTimeout(this.settingsSaveTimer);
+    this.settingsSaveTimer = setTimeout(() => {
+      this.settingsSaveTimer = null;
+      const pending = this.pendingSettingsSave;
+      this.pendingSettingsSave = null;
+      if (pending) void this.saveData(pending);
+    }, 180);
   }
 
   private async openGraphView(local: boolean): Promise<void> {

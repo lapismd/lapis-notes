@@ -14,6 +14,17 @@ import type {
 type GraphApp = Pick<App, "vault" | "metadataCache" | "workspace">;
 type MutableNode = GraphNode;
 
+export interface GraphBuildProgress {
+  processed: number;
+  total: number;
+  pages: number;
+}
+
+export interface GraphBuildOptions {
+  signal?: AbortSignal;
+  onProgress?: (progress: GraphBuildProgress) => void;
+}
+
 const GLOBAL_GRAPH_PAGE_SIZE = 256;
 const LOCAL_GRAPH_QUERY_LIMIT = 10_000;
 
@@ -263,7 +274,7 @@ function matchesSearch(node: GraphNode, query: string): boolean {
     .includes(value);
 }
 
-function filterBySettings(
+export function filterGraphBySettings(
   graph: GraphData,
   settings: GraphSettings,
 ): GraphData {
@@ -344,7 +355,12 @@ function buildCanonicalGraphFromRows(
   const rowsByPath = new Map(rows.map((row) => [row.file.path, row]));
   const allowedMarkdownPaths = new Set(rows.map((row) => row.file.path));
 
-  for (const row of rows) ensureNoteNodeFromRow(nodes, row);
+  for (const row of rows) {
+    const node = ensureNoteNodeFromRow(nodes, row);
+    const file = resolvedFile(app, row.file.path);
+    node.ctime = file?.stat?.ctime;
+    node.mtime = file?.stat?.mtime ?? row.file.mtime;
+  }
 
   for (const row of rows) {
     const sourceNode = ensureNoteNodeFromRow(nodes, row);
@@ -428,25 +444,52 @@ function buildCanonicalGraphFromRows(
 
 async function queryGlobalRows(
   app: GraphApp,
+  options: GraphBuildOptions = {},
 ): Promise<AppDatabaseIndexedMetadataRow[]> {
   const rows: AppDatabaseIndexedMetadataRow[] = [];
+  let total = 0;
+  if (typeof app.vault.iterateFiles === "function") {
+    for (const file of app.vault.iterateFiles()) {
+      if (!isMarkdownPath(file.path)) continue;
+      if (file.path.split("/").some((segment) => segment.startsWith("."))) {
+        continue;
+      }
+      total += 1;
+    }
+  }
   let after: string | undefined;
+  let pages = 0;
   do {
+    throwIfGraphBuildCancelled(options.signal);
     const page = await app.metadataCache.queryMetadataPage({
       after,
       limit: GLOBAL_GRAPH_PAGE_SIZE,
+      include: ["tags", "links"],
       query: {
         extensions: ["md", "markdown"],
         excludeHiddenPaths: true,
       },
     });
     rows.push(...page.rows);
+    pages += 1;
+    options.onProgress?.({
+      processed: rows.length,
+      total: Math.max(total, rows.length),
+      pages,
+    });
     after = page.nextCursor;
     if (after) {
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
     }
   } while (after);
   return rows;
+}
+
+function throwIfGraphBuildCancelled(signal?: AbortSignal): void {
+  if (!signal?.aborted) return;
+  const error = new Error("Graph build cancelled");
+  error.name = "AbortError";
+  throw error;
 }
 
 async function queryRowsForPaths(
@@ -546,15 +589,20 @@ async function collectLocalRows(
   return { rows: [...rowsByPath.values()], depthByPath };
 }
 
-export async function buildCanonicalGraph(app: GraphApp): Promise<GraphData> {
-  return buildCanonicalGraphFromRows(app, await queryGlobalRows(app));
+export async function buildCanonicalGraph(
+  app: GraphApp,
+  options: GraphBuildOptions = {},
+): Promise<GraphData> {
+  const rows = await queryGlobalRows(app, options);
+  throwIfGraphBuildCancelled(options.signal);
+  return buildCanonicalGraphFromRows(app, rows);
 }
 
 export async function buildGlobalGraph(
   app: GraphApp,
   settings: GraphSettings,
 ): Promise<GraphData> {
-  return filterBySettings(await buildCanonicalGraph(app), settings);
+  return filterGraphBySettings(await buildCanonicalGraph(app), settings);
 }
 
 export async function buildLocalGraph(
@@ -581,7 +629,7 @@ export async function buildLocalGraph(
     ...canonical,
     centerNodeId: fileNodeId(activeFile.path),
   };
-  const filtered = filterBySettings(scoped, settings);
+  const filtered = filterGraphBySettings(scoped, settings);
   return filtered.nodes.length
     ? filtered
     : buildSingleFileGraph(settings, activeFile);
