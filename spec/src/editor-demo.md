@@ -70,6 +70,7 @@ task projections.
 | LN-ED-058 | The Editor Settings story MUST open the Markdown Lint section, show the seeded MD013 disable and default file globs, and persist a setting change to `.obsidian/app.json`. The same vault setting MUST govern the plugin's worker and native desktop adapters. |
 | LN-ED-059 | The editor demo MUST seed a misspelled note and open it in a focused Spell Check story that reveals Problems. Acceptance MUST assert a gutter mark, the severity-slot Quick fix, a bare suggestion, Add to dictionary, and Ignore word. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
 | LN-ED-060 | The editor demo Ready play MUST open the Spell Check status item and show dialect choices plus a checking toggle. It MUST NOT use compatibility status DOM. |
+| LN-ED-061 | Source and Live Preview editors MUST keep the complete Design Core scrollbar interaction rail above adjacent workspace resize handles. Focused acceptance MUST assert that priority on the real API editor surface. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add

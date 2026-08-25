@@ -127,6 +127,13 @@
   width: 100%;
 }
 
+.cm-editor-scroll-area
+  > [data-ui-component="scroll-area"][data-ui-part="scroll-area-scrollbar"][data-orientation="vertical"] {
+  /* Keep the editor thumb fully pointer-reachable above an adjacent workspace
+     resize rail, matching the shared Explorer scroll-area integration. */
+  z-index: 11;
+}
+
 .cm-editor-scroll-area--ancestor {
   height: auto;
   overflow: visible;

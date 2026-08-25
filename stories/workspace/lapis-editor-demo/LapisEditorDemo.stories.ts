@@ -1054,6 +1054,31 @@ export const MarkdownFrontmatter: Story = {
       { timeout: 5_000 },
     );
     expect(markdownEditor).toHaveClass("mira-live-preview-mode");
+    const editorScrollRoot = markdownEditor.closest<HTMLElement>(
+      ".cm-editor-scroll-area",
+    );
+    expect(editorScrollRoot).not.toBeNull();
+    const editorViewport = editorScrollRoot!.querySelector<HTMLElement>(
+      '[data-ui-part="scroll-area-viewport"]',
+    );
+    expect(editorViewport).not.toBeNull();
+    expect(editorViewport!.scrollHeight).toBeGreaterThan(
+      editorViewport!.clientHeight,
+    );
+    editorViewport!.scrollTop = 20;
+    await fireEvent.scroll(editorViewport!);
+    await fireEvent.pointerEnter(editorScrollRoot!);
+    const editorScrollbar = await waitFor(() => {
+      const element = editorScrollRoot!.querySelector<HTMLElement>(
+        '[data-ui-part="scroll-area-scrollbar"][data-orientation="vertical"]',
+      );
+      expect(element).not.toBeNull();
+      return element!;
+    });
+    expect(
+      Number.parseInt(getComputedStyle(editorScrollbar!).zIndex, 10),
+    ).toBeGreaterThan(3);
+    await fireEvent.pointerLeave(editorScrollRoot!);
 
     const heading = await waitFor(
       () => {
