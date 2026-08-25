@@ -36,7 +36,7 @@ describe("native desktop telemetry", () => {
 
     await expect(
       telemetry.run(
-        { scope: "database", operation: "searchDocuments" },
+        { scope: "database", operation: "searchDocuments", batchSize: 1 },
         { traceparent: `00-${traceId}-${parentSpanId}-01` },
         async () => [{ path: "private.md" }],
       ),
@@ -49,6 +49,7 @@ describe("native desktop telemetry", () => {
     expect(span.attributes).toMatchObject({
       "lapis.operation.scope": "database",
       "lapis.operation.name": "searchDocuments",
+      "lapis.batch.size": 1,
       "lapis.result.count": 1,
     });
     expect(JSON.stringify(span.attributes)).not.toContain("private.md");

@@ -136,6 +136,11 @@ export function createNativeDesktopTelemetry(
     description: "Bounded result counts from selected desktop operations",
     unit: "{item}",
   });
+  const batchSize = meter.createHistogram("lapis.desktop.batch.size", {
+    description:
+      "Bounded batch sizes from selected desktop database operations",
+    unit: "{item}",
+  });
 
   return {
     run<T>(
@@ -147,8 +152,14 @@ export function createNativeDesktopTelemetry(
       const attributes = {
         "lapis.operation.scope": operation.scope,
         "lapis.operation.name": operation.operation,
+        ...(operation.batchSize !== undefined
+          ? { "lapis.batch.size": operation.batchSize }
+          : {}),
       } satisfies Attributes;
       const startedAt = now();
+      if (operation.batchSize !== undefined) {
+        batchSize.record(operation.batchSize, attributes);
+      }
       const span = tracer.startSpan(
         "desktop.bridge.request",
         { attributes },

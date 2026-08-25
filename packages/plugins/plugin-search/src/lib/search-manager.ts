@@ -64,6 +64,21 @@ function yieldToBackground(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+function telemetryRefreshReason(reason: string): string {
+  if (reason.startsWith("startup")) return "startup";
+  if (reason.includes("provider")) return "provider";
+  if (reason.includes("settings")) return "settings";
+  if (reason.includes("manual") || reason.includes("rebuild")) return "manual";
+  return "other";
+}
+
+function isCancellationError(error: unknown): boolean {
+  return (
+    (error instanceof Error && error.name === "AbortError") ||
+    (error instanceof Error && /cancel/iu.test(error.message))
+  );
+}
+
 function isFileLike(value: unknown): value is TFile {
   return (
     Boolean(value) &&
@@ -261,36 +276,74 @@ export class SearchManager {
   }
 
   async query(params: SearchQueryParams): Promise<SearchQueryResult> {
-    const settings = this.getSettings();
-    const results = await this.app.appDatabase.searchDocuments(params.term, {
-      snippetLength: params.snippetLength ?? settings.query.snippetLength,
-      limit: params.limit ?? settings.query.resultLimit,
-      ...(params.pathPrefix ? { pathPrefix: params.pathPrefix } : {}),
-      caseSensitive: params.caseSensitive ?? settings.view.matchCase,
-      mode: params.mode ?? settings.view.retrievalMode,
-      includeDiagnostics: true,
-      ...(params.sourceProviderIds?.length
-        ? { sourceProviderIds: [...params.sourceProviderIds] }
-        : {}),
-    });
-    return {
-      count: results.length,
-      hits: results.map((result) => ({
-        id: result.document.path,
-        score: result.score,
-        document: result.document,
-        snippets: result.snippets.map((snippet) => ({
-          ...snippet,
-          ranges: snippet.ranges.map((range) => ({ ...range })),
-        })),
-        retrievalMode: result.retrievalMode,
-        scoreBreakdown: { ...result.scoreBreakdown },
-        matchedChunkIds: [...result.matchedChunkIds],
-        diagnostics: result.diagnostics
-          ? { ...result.diagnostics }
-          : undefined,
-      })),
+    const execute = async () => {
+      const settings = this.getSettings();
+      const requestedMode = params.mode ?? settings.view.retrievalMode;
+      const limit = params.limit ?? settings.query.resultLimit;
+      const results = await this.app.appDatabase.searchDocuments(params.term, {
+        snippetLength: params.snippetLength ?? settings.query.snippetLength,
+        limit,
+        ...(params.pathPrefix ? { pathPrefix: params.pathPrefix } : {}),
+        caseSensitive: params.caseSensitive ?? settings.view.matchCase,
+        mode: requestedMode,
+        includeDiagnostics: true,
+        ...(params.sourceProviderIds?.length
+          ? { sourceProviderIds: [...params.sourceProviderIds] }
+          : {}),
+      });
+      return {
+        requestedMode,
+        limit,
+        result: {
+          count: results.length,
+          hits: results.map((result) => ({
+            id: result.document.path,
+            score: result.score,
+            document: result.document,
+            snippets: result.snippets.map((snippet) => ({
+              ...snippet,
+              ranges: snippet.ranges.map((range) => ({ ...range })),
+            })),
+            retrievalMode: result.retrievalMode,
+            scoreBreakdown: { ...result.scoreBreakdown },
+            matchedChunkIds: [...result.matchedChunkIds],
+            diagnostics: result.diagnostics
+              ? { ...result.diagnostics }
+              : undefined,
+          })),
+        } satisfies SearchQueryResult,
+      };
     };
+    if (!this.app.telemetry) return (await execute()).result;
+    return this.app.telemetry.measureAsync(
+      "search.query",
+      async (span) => {
+        const { requestedMode, limit, result } = await execute();
+        const appliedModes = new Set(
+          result.hits.map((hit) => hit.retrievalMode),
+        );
+        span.setAttribute("search.retrieval.requested", requestedMode);
+        span.setAttribute(
+          "search.retrieval.applied",
+          appliedModes.size === 1 ? [...appliedModes][0] : "mixed",
+        );
+        span.setAttribute("search.result.limit", limit);
+        span.setAttribute("search.result.count", result.count);
+        span.setAttribute("search.path_prefix", Boolean(params.pathPrefix));
+        span.setAttribute(
+          "search.source_provider.count",
+          params.sourceProviderIds?.length ?? 0,
+        );
+        span.setAttribute("search.reconcile.active", this.refreshState.active);
+        return result;
+      },
+      {
+        attributes: {
+          "search.case_sensitive":
+            params.caseSensitive ?? this.getSettings().view.matchCase,
+        },
+      },
+    );
   }
 
   async getStatus(): Promise<SearchRuntimeStatus> {
@@ -323,30 +376,46 @@ export class SearchManager {
   }
 
   async reconcileStartup(): Promise<SearchRuntimeStatus> {
-    const initialGeneration = this.sourceGeneration;
-    let status: SearchRuntimeStatus;
-    try {
-      const fingerprint = this.currentReconcileFingerprint();
-      const checkpoint = await this.readReconcileCheckpoint();
-      if (
-        isSearchReconcileCheckpoint(checkpoint) &&
-        checkpoint.fingerprint === fingerprint &&
-        initialGeneration === this.sourceGeneration
-      ) {
-        this.reconcileCheckpointReady = true;
-        this.reconcileCheckpointDirty = false;
-        status = await this.getStatus();
-      } else {
-        status = await this.refreshFromVault("startup");
+    const execute = async (setCheckpoint?: (value: string) => void) => {
+      const initialGeneration = this.sourceGeneration;
+      let status: SearchRuntimeStatus;
+      try {
+        const fingerprint = this.currentReconcileFingerprint();
+        const checkpoint = await this.readReconcileCheckpoint();
+        if (
+          isSearchReconcileCheckpoint(checkpoint) &&
+          checkpoint.fingerprint === fingerprint &&
+          initialGeneration === this.sourceGeneration
+        ) {
+          this.reconcileCheckpointReady = true;
+          this.reconcileCheckpointDirty = false;
+          setCheckpoint?.("hit");
+          status = await this.getStatus();
+          this.app.telemetry?.recordEvent("search.reconcile.complete", {
+            checkpoint: "hit",
+            "files.total": 0,
+            "files.processed": 0,
+            "results.count": status.documentCount,
+          });
+        } else {
+          setCheckpoint?.("miss");
+          status = await this.refreshFromVault("startup");
+        }
+      } finally {
+        this.changeTrackingReady = true;
       }
-    } finally {
-      this.changeTrackingReady = true;
-    }
 
-    if (initialGeneration !== this.sourceGeneration) {
-      status = await this.refreshFromVault("startup-drift");
-    }
-    return status;
+      if (initialGeneration !== this.sourceGeneration) {
+        status = await this.refreshFromVault("startup-drift");
+      }
+      return status;
+    };
+    if (!this.app.telemetry) return execute();
+    return this.app.telemetry.measureAsync("search.startup_reconcile", (span) =>
+      execute((checkpoint) =>
+        span.setAttribute("search.checkpoint", checkpoint),
+      ),
+    );
   }
 
   private async runRefreshQueue(): Promise<SearchRuntimeStatus> {
@@ -581,14 +650,11 @@ export class SearchManager {
         const generation = this.reconcileCheckpointGeneration;
         const fingerprint = this.currentReconcileFingerprint();
         try {
-          await this.app.appDatabase.setMeta(
-            SEARCH_RECONCILE_CHECKPOINT_KEY,
-            {
-              version: SEARCH_RECONCILE_CHECKPOINT_VERSION,
-              fingerprint,
-              completedAt: Date.now(),
-            } satisfies SearchReconcileCheckpoint,
-          );
+          await this.app.appDatabase.setMeta(SEARCH_RECONCILE_CHECKPOINT_KEY, {
+            version: SEARCH_RECONCILE_CHECKPOINT_VERSION,
+            fingerprint,
+            completedAt: Date.now(),
+          } satisfies SearchReconcileCheckpoint);
         } catch (error) {
           this.reconcileCheckpointReady = false;
           this.app.logger.warn(
@@ -643,7 +709,9 @@ export class SearchManager {
   }
 
   private async *metadataManifestRows(): AsyncGenerator<
-    Awaited<ReturnType<App["appDatabase"]["listIndexedFileManifest"]>>["rows"][number]
+    Awaited<
+      ReturnType<App["appDatabase"]["listIndexedFileManifest"]>
+    >["rows"][number]
   > {
     let cursor: string | undefined;
     do {
@@ -664,7 +732,7 @@ export class SearchManager {
 
   private fileAtPath(file: TFile, path: string): TFile {
     const name = path.split("/").at(-1) ?? path;
-    const extension = name.includes(".") ? name.split(".").at(-1) ?? "" : "";
+    const extension = name.includes(".") ? (name.split(".").at(-1) ?? "") : "";
     return {
       ...file,
       path,
@@ -674,11 +742,13 @@ export class SearchManager {
     } as TFile;
   }
 
-  private async processFileSafely(file: TFile): Promise<void> {
+  private async processFileSafely(file: TFile): Promise<boolean> {
     try {
       await this.processFile(file);
+      return true;
     } catch (error) {
       await this.handleProviderFailure(file, error);
+      return false;
     }
   }
 
@@ -718,128 +788,193 @@ export class SearchManager {
   }
 
   private async runRefresh(reason: string): Promise<SearchRuntimeStatus> {
-    await this.invalidateReconcileCheckpoint();
-    const refreshGeneration = this.sourceGeneration;
-    return this.app.notifications.withProgress(
-      {
-        title: "Refreshing search index",
-        source: "Search",
-        location: "status",
-        persistOnError: true,
-      },
-      async (progress) => {
-        const files = this.app.vault
-          .getFiles()
-          .sort((left, right) =>
-            left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
-          );
-        for (const provider of this.app.searchDocumentProviders.getAll()) {
-          this.ownedSourceProviderIds.add(provider.id);
-        }
-        const total = files.length;
-        this.refreshState = {
-          active: true,
-          processed: 0,
-          total,
-          reason,
-          refreshedAt: this.refreshState.refreshedAt,
-        };
-        await this.app.appDatabase.beginSearchIndexingBatch();
-        try {
-          const searchIterator = this.searchManifestRows();
-          const metadataIterator = this.metadataManifestRows();
-          let searchRow = (await searchIterator.next()).value;
-          let metadataRow = (await metadataIterator.next()).value;
-          const ownedSearchRow = (row: SearchDocumentManifestRecord) =>
-            !row.sourceProviderId ||
-            this.ownedSourceProviderIds.has(row.sourceProviderId);
+    let changed = 0;
+    let deleted = 0;
+    let providerFailures = 0;
+    let batches = 0;
+    const reasonCategory = telemetryRefreshReason(reason);
+    const execute = async () => {
+      await this.invalidateReconcileCheckpoint();
+      const refreshGeneration = this.sourceGeneration;
+      const status = await this.app.notifications.withProgress(
+        {
+          title: "Refreshing search index",
+          source: "Search",
+          location: "status",
+          persistOnError: true,
+        },
+        async (progress) => {
+          const files = this.app.vault
+            .getFiles()
+            .sort((left, right) =>
+              left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
+            );
+          for (const provider of this.app.searchDocumentProviders.getAll()) {
+            this.ownedSourceProviderIds.add(provider.id);
+          }
+          const total = files.length;
+          this.refreshState = {
+            active: true,
+            processed: 0,
+            total,
+            reason,
+            refreshedAt: this.refreshState.refreshedAt,
+          };
+          await this.app.appDatabase.beginSearchIndexingBatch();
+          try {
+            const searchIterator = this.searchManifestRows();
+            const metadataIterator = this.metadataManifestRows();
+            let searchRow = (await searchIterator.next()).value;
+            let metadataRow = (await metadataIterator.next()).value;
+            const ownedSearchRow = (row: SearchDocumentManifestRecord) =>
+              !row.sourceProviderId ||
+              this.ownedSourceProviderIds.has(row.sourceProviderId);
 
-          for (const file of files) {
-            progress.throwIfCancellationRequested();
-            while (searchRow && searchRow.path < file.path) {
+            for (const file of files) {
+              progress.throwIfCancellationRequested();
+              while (searchRow && searchRow.path < file.path) {
+                if (ownedSearchRow(searchRow)) {
+                  await this.app.appDatabase.deleteSearchDocument(
+                    searchRow.path,
+                  );
+                  deleted += 1;
+                }
+                searchRow = (await searchIterator.next()).value;
+              }
+              while (metadataRow && metadataRow.path < file.path) {
+                metadataRow = (await metadataIterator.next()).value;
+              }
+              progress.report({
+                current: this.refreshState.processed,
+                total,
+                message: file.path,
+              });
+              const indexedSearch =
+                searchRow?.path === file.path ? searchRow : undefined;
+              const indexedMetadata =
+                metadataRow?.path === file.path ? metadataRow : undefined;
+              const provider = this.app.searchDocumentProviders.resolve(file);
+              if (!provider) {
+                // A persisted Search row whose path is still a vault file is a
+                // stale vault projection when no provider currently claims it.
+                if (indexedSearch) {
+                  await this.app.appDatabase.deleteSearchDocument(file.path);
+                  deleted += 1;
+                }
+              } else {
+                const providerVersion = provider.version ?? "1";
+                const projectionSignature = this.projectionSignature(
+                  provider.id,
+                  providerVersion,
+                );
+                const usesMetadata = this.usesMetadataPipeline(file);
+                const unchanged =
+                  indexedSearch?.sourceProviderId === provider.id &&
+                  indexedSearch.providerVersion === providerVersion &&
+                  indexedSearch.projectionSignature === projectionSignature &&
+                  indexedSearch.sourceMtime === file.stat.mtime &&
+                  indexedSearch.sourceSize === file.stat.size &&
+                  (!usesMetadata ||
+                    (Boolean(indexedMetadata?.hash) &&
+                      indexedSearch.metadataHash === indexedMetadata?.hash));
+                if (!unchanged && (!usesMetadata || indexedMetadata)) {
+                  if (await this.processFileSafely(file)) changed += 1;
+                  else providerFailures += 1;
+                }
+              }
+              if (searchRow?.path === file.path) {
+                searchRow = (await searchIterator.next()).value;
+              }
+              if (metadataRow?.path === file.path) {
+                metadataRow = (await metadataIterator.next()).value;
+              }
+              this.refreshState.processed += 1;
+              if (this.refreshState.processed % 25 === 0) {
+                batches += 1;
+                await yieldToBackground();
+              }
+            }
+            let trailingRows = 0;
+            while (searchRow) {
+              progress.throwIfCancellationRequested();
               if (ownedSearchRow(searchRow)) {
                 await this.app.appDatabase.deleteSearchDocument(searchRow.path);
+                deleted += 1;
               }
               searchRow = (await searchIterator.next()).value;
+              trailingRows += 1;
+              if (trailingRows % 25 === 0) {
+                batches += 1;
+                await yieldToBackground();
+              }
             }
-            while (metadataRow && metadataRow.path < file.path) {
-              metadataRow = (await metadataIterator.next()).value;
-            }
+            this.refreshState.refreshedAt = Date.now();
             progress.report({
-              current: this.refreshState.processed,
+              current: total,
               total,
-              message: file.path,
+              message:
+                reason === "startup" ? "Search ready" : "Search refreshed",
             });
-            const indexedSearch = searchRow?.path === file.path ? searchRow : undefined;
-            const indexedMetadata =
-              metadataRow?.path === file.path ? metadataRow : undefined;
-            const provider = this.app.searchDocumentProviders.resolve(file);
-            if (!provider) {
-              // A persisted Search row whose path is still a vault file is a
-              // stale vault projection when no provider currently claims it.
-              if (indexedSearch) {
-                await this.app.appDatabase.deleteSearchDocument(file.path);
-              }
-            } else {
-              const providerVersion = provider.version ?? "1";
-              const projectionSignature = this.projectionSignature(
-                provider.id,
-                providerVersion,
-              );
-              const usesMetadata = this.usesMetadataPipeline(file);
-              const unchanged =
-                indexedSearch?.sourceProviderId === provider.id &&
-                indexedSearch.providerVersion === providerVersion &&
-                indexedSearch.projectionSignature === projectionSignature &&
-                indexedSearch.sourceMtime === file.stat.mtime &&
-                indexedSearch.sourceSize === file.stat.size &&
-                (!usesMetadata ||
-                  (Boolean(indexedMetadata?.hash) &&
-                    indexedSearch.metadataHash === indexedMetadata?.hash));
-              if (!unchanged && (!usesMetadata || indexedMetadata)) {
-                await this.processFileSafely(file);
-              }
-            }
-            if (searchRow?.path === file.path) {
-              searchRow = (await searchIterator.next()).value;
-            }
-            if (metadataRow?.path === file.path) {
-              metadataRow = (await metadataIterator.next()).value;
-            }
-            this.refreshState.processed += 1;
-            if (this.refreshState.processed % 25 === 0) {
-              await yieldToBackground();
-            }
+          } finally {
+            await this.app.appDatabase.endSearchIndexingBatch();
+            this.refreshState.active = false;
+            this.refreshState.reason = null;
           }
-          let trailingRows = 0;
-          while (searchRow) {
-            progress.throwIfCancellationRequested();
-            if (ownedSearchRow(searchRow)) {
-              await this.app.appDatabase.deleteSearchDocument(searchRow.path);
-            }
-            searchRow = (await searchIterator.next()).value;
-            trailingRows += 1;
-            if (trailingRows % 25 === 0) await yieldToBackground();
+          this.reconcileCheckpointReady = true;
+          this.markReconcileCheckpointDirty();
+          if (refreshGeneration === this.sourceGeneration) {
+            await this.persistReconcileCheckpoint();
           }
-          this.refreshState.refreshedAt = Date.now();
-          progress.report({
-            current: total,
-            total,
-            message:
-              reason === "startup" ? "Search ready" : "Search refreshed",
-          });
+          return this.getStatus();
+        },
+      );
+      this.app.telemetry?.recordEvent("search.reconcile.complete", {
+        checkpoint: "miss",
+        reason: reasonCategory,
+        "files.total": this.refreshState.total,
+        "files.processed": this.refreshState.processed,
+        "files.changed": changed,
+        "files.deleted": deleted,
+        "providers.failed": providerFailures,
+        "results.count": status.documentCount,
+      });
+      return status;
+    };
+
+    if (!this.app.telemetry) return execute();
+    return this.app.telemetry.measureAsync(
+      "search.reconcile",
+      async (span) => {
+        try {
+          return await execute();
+        } catch (error) {
+          const cancelled = isCancellationError(error);
+          this.app.telemetry.recordEvent(
+            cancelled
+              ? "search.reconcile.cancelled"
+              : "search.reconcile.failed",
+            {
+              status: cancelled ? "cancelled" : "failed",
+              reason: reasonCategory,
+              "files.total": this.refreshState.total,
+              "files.processed": this.refreshState.processed,
+            },
+          );
+          throw error;
         } finally {
-          await this.app.appDatabase.endSearchIndexingBatch();
-          this.refreshState.active = false;
-          this.refreshState.reason = null;
+          span.setAttribute("search.reconcile.reason", reasonCategory);
+          span.setAttribute("search.files.total", this.refreshState.total);
+          span.setAttribute(
+            "search.files.processed",
+            this.refreshState.processed,
+          );
+          span.setAttribute("search.files.changed", changed);
+          span.setAttribute("search.files.deleted", deleted);
+          span.setAttribute("search.providers.failed", providerFailures);
+          span.setAttribute("search.batch.count", batches);
         }
-        this.reconcileCheckpointReady = true;
-        this.markReconcileCheckpointDirty();
-        if (refreshGeneration === this.sourceGeneration) {
-          await this.persistReconcileCheckpoint();
-        }
-        return this.getStatus();
       },
+      { attributes: { "search.reconcile.reason": reasonCategory } },
     );
   }
 }

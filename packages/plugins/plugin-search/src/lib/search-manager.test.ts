@@ -4,6 +4,12 @@ import {
   type SearchDocumentProvider,
   SearchDocumentProviderRegistry,
   type TFile,
+  NoopTelemetryService,
+  type TelemetryAttributes,
+  type TelemetryMeasurementOptions,
+  type TelemetryService,
+  type TelemetrySpan,
+  type TelemetrySpanOptions,
   md5,
 } from "@lapis-notes/api";
 import { describe, expect, it, vi } from "vitest";
@@ -13,6 +19,58 @@ import {
 } from "./built-in-search-document-providers";
 import { SearchManager } from "./search-manager";
 import { DEFAULT_SEARCH_SETTINGS } from "./search-settings";
+
+function createRecordingTelemetry() {
+  const telemetry: TelemetryService = new NoopTelemetryService({
+    enabled: true,
+  });
+  const spans: Array<{ name: string; attributes: TelemetryAttributes }> = [];
+  const events: Array<{ name: string; attributes: TelemetryAttributes }> = [];
+  telemetry.startSpan = (
+    name: string,
+    options: TelemetrySpanOptions = {},
+  ): TelemetrySpan => {
+    const record = { name, attributes: { ...options.attributes } };
+    spans.push(record);
+    return {
+      name,
+      startedAt: performance.now(),
+      setAttribute: (key, value) => {
+        record.attributes[key] = value;
+      },
+      addEvent() {},
+      recordException(error) {
+        record.attributes["error.type"] =
+          error instanceof Error ? error.name : "Error";
+      },
+      end(attributes) {
+        Object.assign(record.attributes, attributes);
+      },
+    };
+  };
+  telemetry.measureAsync = async <T>(
+    name: string,
+    callback: (span: TelemetrySpan) => Promise<T>,
+    options: TelemetryMeasurementOptions = {},
+  ): Promise<T> => {
+    const span = telemetry.startSpan(name, options);
+    try {
+      return await callback(span);
+    } catch (error) {
+      span.recordException(error);
+      throw error;
+    } finally {
+      span.end();
+    }
+  };
+  telemetry.recordEvent = (
+    name: string,
+    attributes: TelemetryAttributes = {},
+  ) => {
+    events.push({ name, attributes: { ...attributes } });
+  };
+  return { telemetry, spans, events };
+}
 
 function file(path: string, extension = "md"): TFile {
   const name = path.split("/").at(-1) ?? path;
@@ -184,7 +242,10 @@ describe("SearchManager", () => {
         getFileCacheAsync: async () => ({}),
       },
       notifications: {
-        withProgress: async (_options: unknown, run: (progress: unknown) => unknown) =>
+        withProgress: async (
+          _options: unknown,
+          run: (progress: unknown) => unknown,
+        ) =>
           run({
             throwIfCancellationRequested() {},
             report() {},
@@ -249,7 +310,9 @@ describe("SearchManager", () => {
     expect(app.logger.warn).toHaveBeenCalledOnce();
 
     registration.dispose();
-    await new SearchManager(app).refreshFromVault("provider-removed-after-restart");
+    await new SearchManager(app).refreshFromVault(
+      "provider-removed-after-restart",
+    );
 
     expect(documents.has(cv.path)).toBe(false);
     expect(documents.has("ai-conversation/root/id")).toBe(true);
@@ -258,8 +321,10 @@ describe("SearchManager", () => {
 
   it("passes bounded query settings to the API database", async () => {
     const searchDocuments = vi.fn(async () => []);
+    const recording = createRecordingTelemetry();
     const app = {
       appDatabase: { searchDocuments },
+      telemetry: recording.telemetry,
     } as unknown as App;
     const manager = new SearchManager(app, () => ({
       ...DEFAULT_SEARCH_SETTINGS,
@@ -286,6 +351,20 @@ describe("SearchManager", () => {
       mode: "lexical",
       includeDiagnostics: true,
     });
+    expect(recording.spans).toContainEqual(
+      expect.objectContaining({
+        name: "search.query",
+        attributes: expect.objectContaining({
+          "search.retrieval.requested": "lexical",
+          "search.result.limit": 7,
+          "search.result.count": 0,
+          "search.path_prefix": true,
+        }),
+      }),
+    );
+    const serialized = JSON.stringify(recording.spans);
+    expect(serialized).not.toContain("tag:#project");
+    expect(serialized).not.toContain("Projects/Alpha");
   });
 
   it("reports provider-neutral semantic and refresh status", async () => {
@@ -413,29 +492,34 @@ describe("SearchManager", () => {
       throw new Error("warm refresh must not enumerate Search documents");
     });
     const upsertSearchDocument = vi.fn(async () => undefined);
+    const recording = createRecordingTelemetry();
     const meta = new Map<string, unknown>();
     const searchManifest = vi.fn(async () => ({
-      rows: [{
-        path: welcome.path,
-        checksum: "search-checksum",
-        sourceProviderId: "search:markdown",
-        metadataHash: "metadata-hash",
-        providerVersion: "1",
-        projectionSignature,
-        sourceMtime: welcome.stat.mtime,
-        sourceSize: welcome.stat.size,
-      }],
+      rows: [
+        {
+          path: welcome.path,
+          checksum: "search-checksum",
+          sourceProviderId: "search:markdown",
+          metadataHash: "metadata-hash",
+          providerVersion: "1",
+          projectionSignature,
+          sourceMtime: welcome.stat.mtime,
+          sourceSize: welcome.stat.size,
+        },
+      ],
     }));
     const metadataManifest = vi.fn(async () => ({
-      rows: [{
-        path: welcome.path,
-        normalizedPath: welcome.path.toLowerCase(),
-        extension: "md",
-        mtime: welcome.stat.mtime,
-        size: welcome.stat.size,
-        hash: "metadata-hash",
-        indexed: true,
-      }],
+      rows: [
+        {
+          path: welcome.path,
+          normalizedPath: welcome.path.toLowerCase(),
+          extension: "md",
+          mtime: welcome.stat.mtime,
+          size: welcome.stat.size,
+          hash: "metadata-hash",
+          indexed: true,
+        },
+      ],
     }));
     const app = {
       searchDocumentProviders: providers({
@@ -474,6 +558,7 @@ describe("SearchManager", () => {
           }),
       },
       logger: { warn: vi.fn() },
+      telemetry: recording.telemetry,
       appDatabase: {
         kind: "memory",
         getMeta: vi.fn(async (key: string) => meta.get(key)),
@@ -506,25 +591,40 @@ describe("SearchManager", () => {
     expect(getFileCacheAsync).not.toHaveBeenCalled();
     expect(listSearchDocuments).not.toHaveBeenCalled();
     expect(upsertSearchDocument).not.toHaveBeenCalled();
-    expect(
-      meta.get("search.reconcile-checkpoint.v1"),
-    ).toMatchObject({
+    expect(meta.get("search.reconcile-checkpoint.v1")).toMatchObject({
       fingerprint: expect.stringContaining("search-index-v1"),
       completedAt: expect.any(Number),
     });
 
     searchManifest.mockClear();
     metadataManifest.mockClear();
+    recording.spans.length = 0;
+    recording.events.length = 0;
     const warmManager = new SearchManager(app);
     const stopTracking = warmManager.trackChanges();
     const warmReconciliation = warmManager.reconcileStartup();
-    vaultHandlers.get("modify")?.(
-      file(".obsidian/workspace.json", "json"),
-    );
+    vaultHandlers.get("modify")?.(file(".obsidian/workspace.json", "json"));
     await warmReconciliation;
     expect(searchManifest).not.toHaveBeenCalled();
     expect(metadataManifest).not.toHaveBeenCalled();
     expect(cachedRead).not.toHaveBeenCalled();
+    expect(recording.spans).toContainEqual(
+      expect.objectContaining({
+        name: "search.startup_reconcile",
+        attributes: expect.objectContaining({
+          "search.checkpoint": "hit",
+        }),
+      }),
+    );
+    expect(recording.spans).not.toContainEqual(
+      expect.objectContaining({ name: "search.reconcile" }),
+    );
+    expect(recording.events).toContainEqual(
+      expect.objectContaining({
+        name: "search.reconcile.complete",
+        attributes: expect.objectContaining({ checkpoint: "hit" }),
+      }),
+    );
     stopTracking();
     await warmManager.dispose();
 
@@ -574,24 +674,26 @@ describe("SearchManager", () => {
         listIndexedFileManifest: vi.fn(async () => ({ rows: [] })),
         beginSearchIndexingBatch: vi.fn(async () => undefined),
         endSearchIndexingBatch: vi.fn(async () => undefined),
-        searchDocuments: vi.fn(async () => [{
-          document: {
-            path: "Notes/Persisted.md",
-            sourceProviderId: "search:markdown",
-            name: "Persisted",
-            extension: "md",
-            checksum: "persisted",
-            content: "Persisted result",
-            tags: [],
-            tagParts: [],
-            tagHierarchy: [],
+        searchDocuments: vi.fn(async () => [
+          {
+            document: {
+              path: "Notes/Persisted.md",
+              sourceProviderId: "search:markdown",
+              name: "Persisted",
+              extension: "md",
+              checksum: "persisted",
+              content: "Persisted result",
+              tags: [],
+              tagParts: [],
+              tagHierarchy: [],
+            },
+            score: 1,
+            snippets: [],
+            retrievalMode: "lexical",
+            scoreBreakdown: {},
+            matchedChunkIds: [],
           },
-          score: 1,
-          snippets: [],
-          retrievalMode: "lexical",
-          scoreBreakdown: {},
-          matchedChunkIds: [],
-        }]),
+        ]),
         getSearchEmbeddingProvider: vi.fn(async () => null),
         getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
         getSearchIndexStats: vi.fn(async () => ({
@@ -682,7 +784,8 @@ describe("SearchManager", () => {
             retrievalMode: "lexical",
             scoreBreakdown: {},
             matchedChunkIds: [],
-          }))),
+          })),
+        ),
         getSearchEmbeddingProvider: vi.fn(async () => null),
         getSearchEmbeddingRuntimeStatus: vi.fn(async () => null),
         getSearchIndexStats: vi.fn(async () => ({
@@ -712,6 +815,7 @@ describe("SearchManager", () => {
   it("leaves a failed checkpoint stale so startup retries reconciliation", async () => {
     const meta = new Map<string, unknown>();
     const cancelled = new Error("cancelled");
+    const recording = createRecordingTelemetry();
     const listSearchDocumentManifest = vi
       .fn()
       .mockRejectedValueOnce(cancelled)
@@ -734,6 +838,7 @@ describe("SearchManager", () => {
           }),
       },
       logger: { warn: vi.fn() },
+      telemetry: recording.telemetry,
       appDatabase: {
         kind: "memory",
         getMeta: vi.fn(async (key: string) => meta.get(key)),
@@ -759,6 +864,13 @@ describe("SearchManager", () => {
     const manager = new SearchManager(app);
 
     await expect(manager.refreshFromVault("cancelled")).rejects.toBe(cancelled);
+    expect(recording.events).toContainEqual(
+      expect.objectContaining({
+        name: "search.reconcile.cancelled",
+        attributes: expect.objectContaining({ status: "cancelled" }),
+      }),
+    );
+    expect(JSON.stringify(recording.spans)).not.toContain("cancelled");
     expect(meta.get("search.reconcile-checkpoint.v1")).toMatchObject({
       fingerprint: "",
       completedAt: 0,

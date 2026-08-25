@@ -5,6 +5,7 @@
     listVaultProfiles,
     provideApplicationState,
     type NativeDesktopVaultAdapter,
+    type TelemetrySpan,
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
@@ -302,12 +303,25 @@
     }
   }
 
+  async function runStartupPhase<T>(
+    parent: TelemetrySpan,
+    phase: WorkspaceStartupTask["id"],
+    callback: () => Promise<T>,
+  ): Promise<T> {
+    return app.telemetry.measureAsync("desktop.session.phase", callback, {
+      parent,
+      attributes: { phase },
+    });
+  }
+
   async function initialize(): Promise<void> {
     if (disposed || booting) return;
     booting = true;
     failure = null;
     tasks = structuredClone(STARTUP_TASKS);
     let activeTask = "vault";
+    let startupStatus = "cancelled";
+    const startupSpan = app.telemetry.startSpan("desktop.session.startup");
     try {
       if (corePluginsRegistered || stopMetadataTracking) {
         await teardownPartialBoot();
@@ -352,37 +366,47 @@
         ]);
         corePluginsRegistered = true;
       }
-      await app.vault.load();
-      await app.vault.mkpath(".obsidian");
+      await runStartupPhase(startupSpan, activeTask, async () => {
+        await app.vault.load();
+        await app.vault.mkpath(".obsidian");
+      });
       if (disposed) return;
       setTask(activeTask, "complete");
 
       activeTask = "configuration";
       setTask(activeTask, "active");
-      await app.configuration.load();
+      await runStartupPhase(startupSpan, activeTask, () =>
+        app.configuration.load(),
+      );
       if (disposed) return;
       setTask(activeTask, "complete");
 
       activeTask = "plugins";
       setTask(activeTask, "active");
-      await app.plugins.loadPlugins({
-        communityPlugins: "disabled",
-        optionalCorePlugins: "configured",
-        onProgress: ({ name }) => {
-          setTask(activeTask, "active", `Loading ${name}`);
-        },
-      });
+      await runStartupPhase(startupSpan, activeTask, () =>
+        app.plugins.loadPlugins({
+          communityPlugins: "disabled",
+          optionalCorePlugins: "configured",
+          onProgress: ({ name }) => {
+            setTask(activeTask, "active", `Loading ${name}`);
+          },
+        }),
+      );
       if (disposed) return;
       setTask(activeTask, "complete");
 
       activeTask = "layout";
       setTask(activeTask, "active");
-      await app.workspace.loadLayout();
+      await runStartupPhase(startupSpan, activeTask, () =>
+        app.workspace.loadLayout(),
+      );
       if (disposed) return;
       setTask(activeTask, "complete");
       ready = true;
       onReady(app);
       startMetadataCache();
+      startupStatus = "ready";
+      app.telemetry.recordEvent("desktop.session.ready", { status: "ready" });
       console.info("[lapis-deno] workspace ready");
       await reportAcceptance({
         ok: true,
@@ -399,6 +423,8 @@
         await bridge.invoke("desktop_acceptance_request_close");
       }
     } catch (error) {
+      startupStatus = "failed";
+      startupSpan.recordException(error);
       setTask(activeTask, "failed");
       const detail = error instanceof Error ? error.message : String(error);
       failure = {
@@ -417,8 +443,16 @@
           },
         ],
       };
+      app.telemetry.recordEvent("desktop.session.failed", {
+        status: "failed",
+        task: activeTask,
+      });
       await reportAcceptance({ ok: false, activeTask, detail });
     } finally {
+      startupSpan.end({
+        "desktop.session.status": startupStatus,
+        "desktop.session.task": activeTask,
+      });
       booting = false;
     }
   }
@@ -442,16 +476,22 @@
     if (disposed) return;
     disposed = true;
     try {
-      if (persistLayout) await writeWorkspaceLayout();
-      ready = false;
-      await app.workspace.disposeWorkspaceHost();
-      stopMetadataTracking?.();
-      stopMetadataTracking = null;
-      await app.metadataCache.dispose();
-      for (const plugin of [...app.plugins.corePlugins].reverse()) {
-        await plugin.disable().catch(() => undefined);
-      }
-      await session.close();
+      await app.telemetry.measureAsync(
+        "desktop.session.teardown",
+        async () => {
+          if (persistLayout) await writeWorkspaceLayout();
+          ready = false;
+          await app.workspace.disposeWorkspaceHost();
+          stopMetadataTracking?.();
+          stopMetadataTracking = null;
+          await app.metadataCache.dispose();
+          for (const plugin of [...app.plugins.corePlugins].reverse()) {
+            await plugin.disable().catch(() => undefined);
+          }
+          await session.close();
+        },
+        { attributes: { "desktop.layout.persisted": persistLayout } },
+      );
     } finally {
       disposeApplicationCompatibility();
     }

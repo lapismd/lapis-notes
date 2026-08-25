@@ -30,6 +30,10 @@ workspace startup policy out of the application packages.
 It also owns the native console threshold. `LAPIS_DENO_LOG_LEVEL=debug` enables
 command-name-only bridge traces; the default `info` level suppresses that
 routine traffic while retaining lifecycle, warning, and failure diagnostics.
+The package development launcher MUST pass Deno's quiet flag, omit native
+inspection by default, and reject it in telemetry mode so inspector-only
+binding diagnostics cannot expose arguments or return values outside that
+threshold.
 
 ## Requirements
 
@@ -128,6 +132,7 @@ entrypoints.
 | LN-PKG-113 | `@lapis-notes/ai` MUST serve empty-query Agents palette rows from portable conversation files without enumerating or rebuilding the global Search store. Workspace layout readiness MUST NOT trigger AI conversation-index repair. Normalized no-op settings updates MUST NOT rewrite plugin data and invalidate warm-start manifests. |
 | LN-PKG-114 | The private desktop package MUST expose local LGTM and telemetry development commands. Root commands MUST delegate to that package, while ordinary development, build, package, test, and distribution commands remain telemetry-disabled. |
 | LN-PKG-115 | `@lapis-notes/api` MUST export its telemetry contract through `@lapis-notes/api/telemetry`. Browser OpenTelemetry SDK dependencies MUST remain private to `@lapis-notes/desktop-deno` and load only after explicit telemetry enablement. |
+| LN-PKG-116 | `MetadataCache` MUST instrument database-ready load, checkpoint hit or miss, full reconciliation, and bounded manifest batches through the App telemetry contract. Completion, cancellation, and failure events MUST carry only checkpoint state and aggregate file or batch counts; they MUST NOT include vault identity, file paths, parser output, note content, or error messages. Disabled hosts MUST retain identical behavior through the no-op service. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter. |

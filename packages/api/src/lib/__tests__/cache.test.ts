@@ -17,7 +17,67 @@ import {
   setDefaultVaultStateStore,
 } from "../storage";
 import { TFile } from "../storage/fs";
+import {
+  NoopTelemetryService,
+  type TelemetryAttributes,
+  type TelemetryMeasurementOptions,
+  type TelemetryService,
+  type TelemetrySpan,
+  type TelemetrySpanOptions,
+} from "../telemetry";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
+
+function createRecordingTelemetry() {
+  const telemetry: TelemetryService = new NoopTelemetryService({
+    enabled: true,
+  });
+  const spans: Array<{ name: string; attributes: TelemetryAttributes }> = [];
+  const events: Array<{ name: string; attributes: TelemetryAttributes }> = [];
+  telemetry.startSpan = (
+    name: string,
+    options: TelemetrySpanOptions = {},
+  ): TelemetrySpan => {
+    const record = { name, attributes: { ...options.attributes } };
+    spans.push(record);
+    return {
+      name,
+      startedAt: performance.now(),
+      setAttribute: (key, value) => {
+        record.attributes[key] = value;
+      },
+      addEvent() {},
+      recordException(error) {
+        record.attributes["error.type"] =
+          error instanceof Error ? error.name : "Error";
+      },
+      end(attributes) {
+        Object.assign(record.attributes, attributes);
+      },
+    };
+  };
+  telemetry.measureAsync = async <T>(
+    name: string,
+    callback: (span: TelemetrySpan) => Promise<T>,
+    options: TelemetryMeasurementOptions = {},
+  ): Promise<T> => {
+    const span = telemetry.startSpan(name, options);
+    try {
+      return await callback(span);
+    } catch (error) {
+      span.recordException(error);
+      throw error;
+    } finally {
+      span.end();
+    }
+  };
+  telemetry.recordEvent = (
+    name: string,
+    attributes: TelemetryAttributes = {},
+  ) => {
+    events.push({ name, attributes: { ...attributes } });
+  };
+  return { telemetry, spans, events };
+}
 
 function loc(line: number): Loc {
   return { line, col: 0, offset: line };
@@ -55,6 +115,7 @@ function createMetadataCache(paths: string[]): MetadataCache {
     appDatabase: {
       saveMetadataSnapshot: vi.fn(async () => {}),
     },
+    telemetry: new NoopTelemetryService(),
     indexProjections: new IndexProjectionRegistry(),
     vault: {
       adapter: {
@@ -103,6 +164,7 @@ function createLoadCache(
     database?: MemoryAppDatabase;
     files?: TFile[];
     notifications?: ReturnType<typeof createProgressNotifications>;
+    telemetry?: TelemetryService;
   } = {},
 ) {
   setDefaultVaultStateStore(new MemoryKeyValueStore());
@@ -116,6 +178,7 @@ function createLoadCache(
     appDatabase: database,
     indexProjections: new IndexProjectionRegistry(),
     notifications,
+    telemetry: options.telemetry ?? new NoopTelemetryService(),
     metadataTypeManager: {
       types: {},
       determinePropertyType: () => undefined,
@@ -332,7 +395,12 @@ describe("MetadataCache.load", () => {
     const adapter = new InMemoryDataAdapter();
     await adapter.mkdir("Notes");
     await adapter.write(file.path, "# New\n");
-    const { cache } = createLoadCache({ adapter, files: [file] });
+    const recording = createRecordingTelemetry();
+    const { cache } = createLoadCache({
+      adapter,
+      files: [file],
+      telemetry: recording.telemetry,
+    });
     const order: string[] = [];
     cache.addProcessor("md", {
       read: async () => {
@@ -349,6 +417,22 @@ describe("MetadataCache.load", () => {
     await cache.load();
 
     expect(order).toEqual(["loaded", "parsed"]);
+    expect(recording.spans.map((span) => span.name)).toEqual(
+      expect.arrayContaining([
+        "metadata.cache.load",
+        "metadata.reconcile",
+        "metadata.reconcile.batch",
+      ]),
+    );
+    expect(recording.events).toContainEqual({
+      name: "metadata.reconcile.complete",
+      attributes: expect.objectContaining({
+        checkpoint: "miss",
+        "files.total": 1,
+        "files.changed": 1,
+      }),
+    });
+    expect(JSON.stringify(recording.spans)).not.toContain(file.path);
     await expect(cache.queryFacets({ kind: "tag" })).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ value: "frontmatter", count: 1 }),
@@ -401,7 +485,13 @@ describe("MetadataCache.load", () => {
     });
     await first.dispose();
 
-    const second = createLoadCache({ adapter, database, files: [file] }).cache;
+    const recording = createRecordingTelemetry();
+    const second = createLoadCache({
+      adapter,
+      database,
+      files: [file],
+      telemetry: recording.telemetry,
+    }).cache;
     second.addProcessor("md", { read: async () => ({}), write: () => "" });
     const manifest = vi.spyOn(database, "listIndexedFileManifest");
     const bodyRead = vi.spyOn(adapter, "read");
@@ -410,6 +500,17 @@ describe("MetadataCache.load", () => {
 
     expect(manifest).not.toHaveBeenCalled();
     expect(bodyRead).not.toHaveBeenCalled();
+    expect(recording.spans).toContainEqual(
+      expect.objectContaining({
+        name: "metadata.cache.load",
+        attributes: expect.objectContaining({
+          "metadata.checkpoint": "hit",
+        }),
+      }),
+    );
+    expect(recording.spans).not.toContainEqual(
+      expect.objectContaining({ name: "metadata.reconcile" }),
+    );
   });
 
   it("reconciles when a checkpointed vault manifest changes", async () => {
@@ -427,11 +528,7 @@ describe("MetadataCache.load", () => {
     await first.load();
     await first.dispose();
 
-    const changed = new TFile(
-      file.path,
-      { ctime: 1, mtime: 3, size: 7 },
-      null,
-    );
+    const changed = new TFile(file.path, { ctime: 1, mtime: 3, size: 7 }, null);
     await adapter.write(changed.path, "# After\n");
     const second = createLoadCache({
       adapter,
@@ -455,7 +552,12 @@ describe("MetadataCache.load", () => {
     const adapter = new InMemoryDataAdapter();
     await adapter.mkdir("Notes");
     await adapter.write(file.path, "# Broken\n");
-    const { cache, database } = createLoadCache({ adapter, files: [file] });
+    const recording = createRecordingTelemetry();
+    const { cache, database } = createLoadCache({
+      adapter,
+      files: [file],
+      telemetry: recording.telemetry,
+    });
     cache.addProcessor("md", {
       read: async () => {
         throw new Error("parser failed");
@@ -465,6 +567,11 @@ describe("MetadataCache.load", () => {
 
     await expect(cache.load()).rejects.toThrow("parser failed");
     await expect(database.getMeta(checkpointKey)).resolves.toBeUndefined();
+    expect(recording.events).toContainEqual({
+      name: "metadata.reconcile.failed",
+      attributes: { status: "failed" },
+    });
+    expect(JSON.stringify(recording.spans)).not.toContain("parser failed");
   });
 
   it("does not advance the checkpoint after cancelled reconciliation", async () => {
@@ -485,15 +592,21 @@ describe("MetadataCache.load", () => {
           },
         }),
     } as ReturnType<typeof createProgressNotifications>;
+    const recording = createRecordingTelemetry();
     const { cache, database } = createLoadCache({
       adapter,
       files: [file],
       notifications,
+      telemetry: recording.telemetry,
     });
     cache.addProcessor("md", { read: async () => ({}), write: () => "" });
 
     await expect(cache.load()).rejects.toThrow("cancelled");
     await expect(database.getMeta(checkpointKey)).resolves.toBeUndefined();
+    expect(recording.events).toContainEqual({
+      name: "metadata.reconcile.cancelled",
+      attributes: { status: "cancelled" },
+    });
   });
 
   it("advances the checkpoint after an incremental update drains", async () => {

@@ -1,6 +1,7 @@
 export type DesktopTelemetryOperation = {
   scope: "database" | "language" | "ai" | "terminal" | "telemetry";
   operation: string;
+  batchSize?: number;
 };
 
 const DATABASE_METHODS = new Set([
@@ -42,6 +43,25 @@ const TERMINAL_COMMANDS = new Set([
   "desktop_terminal_session_stop",
 ]);
 
+function readDatabaseBatchSize(
+  method: string,
+  payload: Record<string, unknown>,
+): number | undefined {
+  if (
+    method !== "listIndexedFileManifest" &&
+    method !== "listSearchDocumentManifest"
+  ) {
+    return undefined;
+  }
+  const args = Array.isArray(payload.args) ? payload.args : [];
+  const options = args[0];
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    return undefined;
+  }
+  const paths = (options as Record<string, unknown>).paths;
+  return Array.isArray(paths) ? Math.min(paths.length, 1_000) : undefined;
+}
+
 export function classifyDesktopTelemetryOperation(
   command: string,
   payload: Record<string, unknown>,
@@ -57,9 +77,13 @@ export function classifyDesktopTelemetryOperation(
   }
   if (command === "desktop_app_database_invoke") {
     const method = typeof payload.method === "string" ? payload.method : "";
-    return DATABASE_METHODS.has(method)
-      ? { scope: "database", operation: method }
-      : null;
+    if (!DATABASE_METHODS.has(method)) return null;
+    const batchSize = readDatabaseBatchSize(method, payload);
+    return {
+      scope: "database",
+      operation: method,
+      ...(batchSize !== undefined ? { batchSize } : {}),
+    };
   }
   if (LANGUAGE_COMMANDS.has(command)) {
     return { scope: "language", operation: command.replace("desktop_ls_", "") };

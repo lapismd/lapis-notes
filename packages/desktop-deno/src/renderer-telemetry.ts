@@ -33,6 +33,7 @@ export type DesktopRendererTelemetryOptions = {
   endpoint?: string;
   serviceName?: string;
   version: string;
+  rawInvoke?: DesktopRawInvoke;
 };
 
 class DisabledDesktopRendererTelemetry
@@ -73,5 +74,6 @@ export async function createDesktopRendererTelemetry(
     endpoint: options.endpoint,
     serviceName: options.serviceName,
     version: options.version,
+    rawInvoke: options.rawInvoke,
   });
 }

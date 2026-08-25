@@ -44,6 +44,14 @@ type ReconcileCheckpoint = {
   completedAt: number;
 };
 
+type MetadataReconcileSummary = {
+  total: number;
+  processed: number;
+  changed: number;
+  deleted: number;
+  batches: number;
+};
+
 class StreamingManifestFingerprint {
   private count = 0;
   private sum = 0n;
@@ -75,6 +83,13 @@ function yieldToUi(): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, 0);
   });
+}
+
+function isCancellationError(error: unknown): boolean {
+  return (
+    (error instanceof Error && error.name === "AbortError") ||
+    (error instanceof Error && /cancel/iu.test(error.message))
+  );
 }
 
 function notify(message: string): void {
@@ -754,50 +769,92 @@ export class MetadataCache extends EventDispatcher<{
   }
 
   private async performLoad(): Promise<void> {
-    await this.app.notifications.withProgress(
-      {
-        title: "Loading metadata cache",
-        source: "Metadata",
-        location: "status",
-        persistOnError: true,
-      },
-      async (progress) => {
-        if (this.disposed) return;
-        progress.report({ message: "Opening metadata store" });
-        await this.app.appDatabase.open();
-        if (this.disposed) return;
-        this.didLoad = true;
-        this.trigger("loaded");
-        const fingerprint = this.currentReconcileFingerprint();
-        const checkpoint = await this.app.appDatabase.getMeta(
-          METADATA_RECONCILE_CHECKPOINT_KEY,
-        );
-        if (
-          isReconcileCheckpoint(checkpoint) &&
-          checkpoint.fingerprint === fingerprint
-        ) {
-          this.reconcileCheckpointReady = true;
-          this.reconcileCheckpointDirty = false;
-          progress.report({ message: "Metadata index ready" });
-          return;
-        }
-        progress.report({ message: "Reconciling metadata index" });
-        await this.reconcileDatabaseWithVault(progress);
-        if (this.disposed) return;
-        this.reconcileCheckpointReady = true;
-        this.markReconcileCheckpointDirty();
-        await this.persistReconcileCheckpoint();
-      },
-    );
+    try {
+      await this.app.telemetry.measureAsync(
+        "metadata.cache.load",
+        async (loadSpan) =>
+          this.app.notifications.withProgress(
+            {
+              title: "Loading metadata cache",
+              source: "Metadata",
+              location: "status",
+              persistOnError: true,
+            },
+            async (progress) => {
+              if (this.disposed) return;
+              progress.report({ message: "Opening metadata store" });
+              await this.app.appDatabase.open();
+              if (this.disposed) return;
+              this.didLoad = true;
+              this.trigger("loaded");
+              const total = this.countProcessableVaultFiles();
+              loadSpan.setAttribute("metadata.files.total", total);
+              const fingerprint = this.currentReconcileFingerprint();
+              const checkpoint = await this.app.appDatabase.getMeta(
+                METADATA_RECONCILE_CHECKPOINT_KEY,
+              );
+              if (
+                isReconcileCheckpoint(checkpoint) &&
+                checkpoint.fingerprint === fingerprint
+              ) {
+                this.reconcileCheckpointReady = true;
+                this.reconcileCheckpointDirty = false;
+                loadSpan.setAttribute("metadata.checkpoint", "hit");
+                progress.report({ message: "Metadata index ready" });
+                this.app.telemetry.recordEvent("metadata.reconcile.complete", {
+                  checkpoint: "hit",
+                  "files.total": total,
+                  "files.processed": 0,
+                  "files.changed": 0,
+                  "files.deleted": 0,
+                });
+                return;
+              }
+              loadSpan.setAttribute("metadata.checkpoint", "miss");
+              progress.report({ message: "Reconciling metadata index" });
+              const summary = await this.reconcileDatabaseWithVault(progress);
+              if (this.disposed) return;
+              this.reconcileCheckpointReady = true;
+              this.markReconcileCheckpointDirty();
+              await this.persistReconcileCheckpoint();
+              this.app.telemetry.recordEvent("metadata.reconcile.complete", {
+                checkpoint: "miss",
+                "files.total": summary.total,
+                "files.processed": summary.processed,
+                "files.changed": summary.changed,
+                "files.deleted": summary.deleted,
+              });
+            },
+          ),
+      );
+    } catch (error) {
+      this.app.telemetry.recordEvent(
+        isCancellationError(error)
+          ? "metadata.reconcile.cancelled"
+          : "metadata.reconcile.failed",
+        { status: isCancellationError(error) ? "cancelled" : "failed" },
+      );
+      throw error;
+    }
   }
 
   private async reconcileDatabaseWithVault(
     progress?: NotificationProgressHandle,
-  ): Promise<void> {
-    if (this.disposed) return;
+  ): Promise<MetadataReconcileSummary> {
+    const summary: MetadataReconcileSummary = {
+      total: this.countProcessableVaultFiles(),
+      processed: 0,
+      changed: 0,
+      deleted: 0,
+      batches: 0,
+    };
+    if (this.disposed) return summary;
+    const reconcileSpan = this.app.telemetry.startSpan("metadata.reconcile", {
+      attributes: { "metadata.files.total": summary.total },
+    });
     this.reconcileIndexChangeDepth += 1;
     let processed = 0;
-    let total = this.countProcessableVaultFiles();
+    let total = summary.total;
     let cursor: string | undefined;
 
     try {
@@ -837,12 +894,31 @@ export class MetadataCache extends EventDispatcher<{
           total,
           message: `Querying existing metadata index (${processed} of ${total})`,
         });
-        const page = await this.app.appDatabase.listIndexedFileManifest({
-          after: cursor,
-          limit: 500,
-        });
+        const batchSpan = this.app.telemetry.startSpan(
+          "metadata.reconcile.batch",
+          {
+            parent: reconcileSpan,
+            attributes: {
+              "metadata.batch.kind": "indexed",
+              "metadata.batch.limit": 500,
+            },
+          },
+        );
+        summary.batches += 1;
+        let page;
+        try {
+          page = await this.app.appDatabase.listIndexedFileManifest({
+            after: cursor,
+            limit: 500,
+          });
+          batchSpan.end({ "metadata.batch.rows": page.rows.length });
+        } catch (error) {
+          batchSpan.recordException(error);
+          batchSpan.end();
+          throw error;
+        }
         for (const indexed of page.rows) {
-          if (this.disposed) return;
+          if (this.disposed) return summary;
           const current = this.app.vault.getFileByPath(indexed.path);
           if (
             !current ||
@@ -852,6 +928,7 @@ export class MetadataCache extends EventDispatcher<{
               this.app.appDatabase.deleteIndexedFile(indexed.path),
             );
             this.evictHotPath(indexed.path);
+            summary.deleted += 1;
             await report(indexed.path);
             continue;
           }
@@ -865,6 +942,7 @@ export class MetadataCache extends EventDispatcher<{
             await this.processFile(current, (stage) =>
               reportProcessing(current.path, stage),
             );
+            summary.changed += 1;
           }
           await report(current.path);
         }
@@ -874,15 +952,35 @@ export class MetadataCache extends EventDispatcher<{
       const batch: TFile[] = [];
       const reconcileCreatedBatch = async () => {
         if (!batch.length || this.disposed) return;
+        const batchSize = batch.length;
         progress?.report({
           current: processed,
           total,
           message: `Querying ${batch.length} vault files against metadata index (${processed} of ${total})`,
         });
-        const manifest = await this.app.appDatabase.listIndexedFileManifest({
-          paths: batch.map((file) => file.path),
-          limit: batch.length,
-        });
+        const batchSpan = this.app.telemetry.startSpan(
+          "metadata.reconcile.batch",
+          {
+            parent: reconcileSpan,
+            attributes: {
+              "metadata.batch.kind": "vault",
+              "metadata.batch.limit": batchSize,
+            },
+          },
+        );
+        summary.batches += 1;
+        let manifest;
+        try {
+          manifest = await this.app.appDatabase.listIndexedFileManifest({
+            paths: batch.map((file) => file.path),
+            limit: batch.length,
+          });
+          batchSpan.end({ "metadata.batch.rows": manifest.rows.length });
+        } catch (error) {
+          batchSpan.recordException(error);
+          batchSpan.end();
+          throw error;
+        }
         const indexedPaths = new Set(manifest.rows.map((file) => file.path));
         for (const file of batch) {
           if (this.disposed) return;
@@ -891,6 +989,7 @@ export class MetadataCache extends EventDispatcher<{
             await this.processFile(file, (stage) =>
               reportProcessing(file.path, stage),
             );
+            summary.changed += 1;
             await report(file.path);
           }
         }
@@ -898,13 +997,25 @@ export class MetadataCache extends EventDispatcher<{
       };
 
       for (const file of this.app.vault.iterateFiles()) {
-        if (this.disposed) return;
+        if (this.disposed) return summary;
         if (!this.processors.has(file.extension.toLowerCase())) continue;
         batch.push(file);
         if (batch.length >= 500) await reconcileCreatedBatch();
       }
       await reconcileCreatedBatch();
+    } catch (error) {
+      reconcileSpan.recordException(error);
+      throw error;
     } finally {
+      summary.total = total;
+      summary.processed = processed;
+      reconcileSpan.end({
+        "metadata.files.total": summary.total,
+        "metadata.files.processed": summary.processed,
+        "metadata.files.changed": summary.changed,
+        "metadata.files.deleted": summary.deleted,
+        "metadata.batch.count": summary.batches,
+      });
       this.reconcileIndexChangeDepth = Math.max(
         0,
         this.reconcileIndexChangeDepth - 1,
@@ -913,6 +1024,7 @@ export class MetadataCache extends EventDispatcher<{
         this.flushDeferredReconcileIndexChange();
       }
     }
+    return summary;
   }
 
   private countProcessableVaultFiles(): number {

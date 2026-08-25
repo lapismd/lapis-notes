@@ -1,6 +1,12 @@
 const DEFAULT_OTLP_ENDPOINT = "http://127.0.0.1:4318";
 const DEFAULT_NATIVE_SERVICE_NAME = "lapis-notes-desktop";
 const DEFAULT_RENDERER_SERVICE_NAME = "lapis-notes-renderer";
+const RENDERER_TELEMETRY_ENVIRONMENT_KEYS = [
+  "VITE_LAPIS_DESKTOP_TELEMETRY",
+  "VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT",
+  "VITE_LAPIS_DESKTOP_TELEMETRY_SERVICE_NAME",
+  "VITE_LAPIS_DESKTOP_TELEMETRY_VERSION",
+];
 
 function normalizeLoopbackEndpoint(value) {
   const endpoint = new URL(value);
@@ -76,4 +82,19 @@ export function createDesktopTelemetryEnvironment(
 
 export function isDesktopTelemetryRequested(arguments_) {
   return arguments_.includes("--telemetry");
+}
+
+export function createDesktopRendererTelemetryDefines(
+  environment,
+  enabled,
+) {
+  return Object.fromEntries(
+    RENDERER_TELEMETRY_ENVIRONMENT_KEYS.map((name) => {
+      const value = enabled ? environment[name] : undefined;
+      return [
+        `import.meta.env.${name}`,
+        value === undefined ? "undefined" : JSON.stringify(value),
+      ];
+    }),
+  );
 }

@@ -6,8 +6,10 @@ import { createServer } from "vite";
 import {
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
+  resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
 import {
+  createDesktopRendererTelemetryDefines,
   createDesktopTelemetryEnvironment,
   isDesktopTelemetryRequested,
 } from "./telemetry-env.mjs";
@@ -18,6 +20,10 @@ const denoBin = process.env.DENO ?? (existsSync(homeDeno) ? homeDeno : "deno");
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const telemetryEnabled = isDesktopTelemetryRequested(process.argv.slice(2));
+const nativeInspectorEnabled = resolveDenoDesktopInspector(
+  process.env.LAPIS_DENO_INSPECT,
+  telemetryEnabled,
+);
 const desktopEnvironment = createDesktopTelemetryEnvironment(process.env, {
   enabled: telemetryEnabled,
   version: packageManifest.version,
@@ -26,6 +32,10 @@ await ensureDesktopDevSiblingLinks(packageRoot);
 
 const server = await createServer({
   configFile: path.join(packageRoot, "vite.config.ts"),
+  define: createDesktopRendererTelemetryDefines(
+    desktopEnvironment,
+    telemetryEnabled,
+  ),
   root: packageRoot,
 });
 await server.listen();
@@ -49,7 +59,7 @@ if (backend === "cef") {
 }
 const deno = spawn(
   denoBin,
-  createDenoDesktopDevArgs(backend),
+  createDenoDesktopDevArgs(backend, { inspect: nativeInspectorEnabled }),
   {
     cwd: packageRoot,
     env: {

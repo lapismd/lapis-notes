@@ -253,8 +253,8 @@ win.addEventListener("menuclick", (event: Event) => {
   }
   if (id === DENO_MENU_IDS.openInspector) {
     alert(
-      `This spike starts with --inspect=${INSPECT_ADDRESS}.\n\n` +
-        `Open chrome://inspect or edge://inspect and inspect the LapisNotes target.`,
+      `Native inspection is off by default because Deno 2.9.5 logs desktop binding payloads while it is enabled.\n\n` +
+        `For a nonsensitive test vault, restart with LAPIS_DENO_INSPECT=1 and attach to ${INSPECT_ADDRESS} from chrome://inspect or edge://inspect.`,
     );
     return;
   }

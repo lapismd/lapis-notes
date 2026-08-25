@@ -319,6 +319,7 @@ const rendererTelemetry = await createDesktopRendererTelemetry({
     import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY_VERSION ??
     platform.appVersion ??
     "2026.31.5",
+  rawInvoke,
 });
 invokeDesktop = (command, payload) =>
   rendererTelemetry.invoke(rawInvoke, command, payload);

@@ -6,8 +6,10 @@ import { describe, expect, it } from "vitest";
 import {
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
+  resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
 import {
+  createDesktopRendererTelemetryDefines,
   createDesktopTelemetryEnvironment,
   isDesktopTelemetryRequested,
 } from "./telemetry-env.mjs";
@@ -35,8 +37,9 @@ describe("Deno desktop development command", () => {
     const args = createDenoDesktopDevArgs();
 
     expect(args).toContain("desktop");
+    expect(args).toContain("--quiet");
     expect(args).toContain("--hmr");
-    expect(args).toContain("--inspect=127.0.0.1:9229");
+    expect(args).not.toContain("--inspect=127.0.0.1:9229");
     expect(args).toContain("--sloppy-imports");
     expect(args).not.toContain("--no-npm");
     expect(args).toEqual(
@@ -48,6 +51,17 @@ describe("Deno desktop development command", () => {
         "-A",
         "src-deno/main.ts",
       ]),
+    );
+  });
+
+  it("keeps native inspection explicit and rejects it during telemetry", () => {
+    expect(resolveDenoDesktopInspector(undefined)).toBe(false);
+    expect(resolveDenoDesktopInspector("1")).toBe(true);
+    expect(
+      createDenoDesktopDevArgs(undefined, { inspect: true }),
+    ).toContain("--inspect=127.0.0.1:9229");
+    expect(() => resolveDenoDesktopInspector("1", true)).toThrow(
+      "cannot be combined with desktop telemetry",
     );
   });
 
@@ -117,6 +131,15 @@ describe("Deno desktop development command", () => {
     expect(environment.OTEL_RESOURCE_ATTRIBUTES).toContain(
       "deployment.environment.name=local",
     );
+    expect(
+      createDesktopRendererTelemetryDefines(environment, true),
+    ).toMatchObject({
+      "import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY": '"1"',
+      "import.meta.env.VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT":
+        '"http://127.0.0.1:4318/v1/traces"',
+      "import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY_SERVICE_NAME":
+        '"lapis-notes-renderer"',
+    });
   });
 
   it("leaves normal development untouched and rejects remote exporters", () => {
@@ -134,6 +157,10 @@ describe("Deno desktop development command", () => {
     ).toThrow("local-only");
     expect(isDesktopTelemetryRequested(["--telemetry"])).toBe(true);
     expect(isDesktopTelemetryRequested([])).toBe(false);
+    expect(createDesktopRendererTelemetryDefines({}, false)).toMatchObject({
+      "import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY": "undefined",
+      "import.meta.env.VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT": "undefined",
+    });
   });
 
   it("creates package-local source links for Deno Desktop embedded path resolution", async () => {

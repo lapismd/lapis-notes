@@ -7,11 +7,22 @@ export const desktopDevSiblingLinks = [
   { name: "terminal-host", target: "../../../terminal-host" },
 ];
 
-export function createDenoDesktopDevArgs(backend) {
+export function resolveDenoDesktopInspector(value, telemetryEnabled = false) {
+  const requested = value?.trim() === "1";
+  if (requested && telemetryEnabled) {
+    throw new Error(
+      "LAPIS_DENO_INSPECT=1 cannot be combined with desktop telemetry because Deno 2.9.5 logs binding payloads while its native inspector is enabled.",
+    );
+  }
+  return requested;
+}
+
+export function createDenoDesktopDevArgs(backend, options = {}) {
   return [
     "desktop",
+    "--quiet",
     "--hmr",
-    "--inspect=127.0.0.1:9229",
+    ...(options.inspect ? ["--inspect=127.0.0.1:9229"] : []),
     "--no-check",
     "--sloppy-imports",
     "--exclude",

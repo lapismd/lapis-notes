@@ -36,8 +36,8 @@ describe("desktop renderer telemetry", () => {
     const invoke = vi.fn(async (_command, envelope) => {
       const wrapped = envelope?.__lapisDesktopInvoke;
       expect(wrapped.payload).toEqual({
-        method: "searchDocuments",
-        args: [],
+        method: "listIndexedFileManifest",
+        args: [{ paths: ["not-exported.md"] }],
       });
       expect(wrapped.payload).not.toHaveProperty("traceparent");
       expect(wrapped.trace.traceparent).toMatch(/^00-[0-9a-f-]+$/u);
@@ -48,8 +48,8 @@ describe("desktop renderer telemetry", () => {
       invoke as DesktopRawInvoke,
       "desktop_app_database_invoke",
       {
-        method: "searchDocuments",
-        args: [],
+        method: "listIndexedFileManifest",
+        args: [{ paths: ["not-exported.md"] }],
       },
     );
 
@@ -57,7 +57,8 @@ describe("desktop renderer telemetry", () => {
     expect(span.name).toBe("desktop.bridge.request");
     expect(span.attributes).toMatchObject({
       "lapis.operation.scope": "database",
-      "lapis.operation.name": "searchDocuments",
+      "lapis.operation.name": "listIndexedFileManifest",
+      "lapis.batch.size": 1,
       "lapis.result.count": 1,
     });
     expect(span.resource.attributes).toMatchObject({
@@ -103,6 +104,41 @@ describe("desktop renderer telemetry", () => {
     expect(serialized).toContain("TypeError");
     expect(serialized).not.toContain("private vault content");
     expect(serialized).toContain("metric.startup");
+    await telemetry.shutdown();
+  });
+
+  it("relays only allowlisted structured lifecycle events to native logging", async () => {
+    const exporter = new InMemorySpanExporter();
+    const rawInvoke = vi.fn(async () => undefined);
+    const telemetry = createOtelDesktopRendererTelemetry({
+      endpoint: "http://127.0.0.1:4318/v1/traces",
+      serviceName: "lapis-notes-renderer",
+      version: "1.0.0",
+      exporter,
+      registerGlobal: false,
+      rawInvoke: rawInvoke as DesktopRawInvoke,
+    });
+
+    telemetry.service.recordEvent("desktop.session.ready", {
+      status: "ready",
+    });
+    telemetry.service.recordEvent("arbitrary.renderer.event", {
+      status: "ignored",
+    });
+
+    await vi.waitFor(() => expect(rawInvoke).toHaveBeenCalledOnce());
+    expect(rawInvoke).toHaveBeenCalledWith(
+      "desktop_telemetry_log",
+      expect.objectContaining({
+        __lapisDesktopInvoke: expect.objectContaining({
+          payload: {
+            level: "info",
+            event: "desktop.session.ready",
+            attributes: { status: "ready" },
+          },
+        }),
+      }),
+    );
     await telemetry.shutdown();
   });
 });

@@ -29,6 +29,9 @@ a consumer of public Lapis package boundaries.
 Its native console uses severity thresholds: routine bridge traffic is
 debug-only, while the default output is limited to bounded lifecycle notices,
 warnings, and failures and never includes invocation payloads or credentials.
+The development launcher also keeps Deno's native inspector opt-in and rejects
+it in telemetry mode because Deno 2.9.5 couples inspector activation to a raw
+binding-payload trace that would bypass that policy.
 Its production acceptance builds through the package and restores an isolated
 real vault rather than substituting a browser-only renderer test.
 Target-specific artifact naming, metadata, icons, verified PTY libraries, and
@@ -126,6 +129,7 @@ the browser-only WASM descriptor is not valid desktop evidence.
 | LN-ARCH-071 | Plugin settings materialization MUST be idempotent at the persistence boundary. A normalized no-op update MUST NOT mutate portable vault files whose timestamps participate in generated-state reconciliation checkpoints. |
 | LN-ARCH-072 | Local observability MUST remain owned by the Deno desktop host and use the API telemetry boundary. It MUST NOT require a first-party plugin, product setting, remote collector, or telemetry-enabled production package. |
 | LN-ARCH-073 | API MUST expose its transport-neutral telemetry contract through a narrow package entry. The Deno desktop renderer and native host MAY supply local exporters and propagation, but plugins and portable packages MUST remain exporter-neutral. |
+| LN-ARCH-074 | Core startup, MetadataCache, and Search MAY emit transport-neutral spans, measurements, and lifecycle events through the App telemetry contract. Normal hosts MUST retain `NoopTelemetryService`; exporters, structured-log relays, service identities, and shutdown flushing MUST remain private to explicitly enabled Deno desktop development. Embedded AI and terminal boundaries MUST remain instrumentation scopes of the desktop service rather than separate services. |
 
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core

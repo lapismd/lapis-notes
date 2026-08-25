@@ -30,9 +30,12 @@ the Vite port in a browser tab; that page cannot receive desktop bindings.
 
 The **View** menu reloads the window, tries `openDevtools()`, and shows
 captured renderer errors. The OS webview backend cannot host in-app DevTools, so
-dev also starts `--inspect=127.0.0.1:9229`. Attach from `chrome://inspect` or
-`edge://inspect`. The CEF debug command enables the in-app **View → Toggle
-Developer Tools** console window for renderer DOM and console inspection.
+use the CEF debug command for the in-app **View → Toggle Developer Tools**
+console window. Native inspection is deliberately off by default because Deno
+2.9.5's inspector prints every desktop binding argument and return value. For a
+nonsensitive test vault only, set `LAPIS_DENO_INSPECT=1` and attach from
+`chrome://inspect` or `edge://inspect`; inspector mode is rejected when local
+telemetry is enabled.
 
 On macOS, Create and Open use the system folder picker; other platforms fall
 back to a path prompt. Set `LAPIS_DENO_VAULT_AUTO=1` with `LAPIS_DENO_VAULT`

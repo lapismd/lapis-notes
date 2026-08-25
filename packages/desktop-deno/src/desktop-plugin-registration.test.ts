@@ -33,11 +33,9 @@ describe("Deno desktop plugin registration", () => {
     expect(source).toContain('import "@lapis-notes/bases/styles.css"');
     expect(source).toContain('import "@lapis-notes/ai/styles.css"');
     expect(source).toContain('communityPlugins: "disabled"');
-    expect(source.indexOf("await app.plugins.loadPlugins")).toBeGreaterThan(
-      previous,
-    );
-    expect(source.indexOf("await app.workspace.loadLayout")).toBeGreaterThan(
-      source.indexOf("await app.plugins.loadPlugins"),
+    expect(source.indexOf("app.plugins.loadPlugins")).toBeGreaterThan(previous);
+    expect(source.indexOf("app.workspace.loadLayout")).toBeGreaterThan(
+      source.indexOf("app.plugins.loadPlugins"),
     );
   });
 
@@ -50,5 +48,22 @@ describe("Deno desktop plugin registration", () => {
     expect(source).toContain("plugin: MarkdownLintPlugin");
     expect(source).not.toContain("createNativeMarkdownLanguageServiceProvider");
     expect(source).not.toContain("app.languageServices.registerProvider");
+  });
+
+  it("installs telemetry before plugins and bounds startup lifecycle signals", () => {
+    const source = readFileSync(
+      path.resolve(process.cwd(), "src/DesktopWorkspaceSession.svelte"),
+      "utf8",
+    );
+
+    expect(
+      source.indexOf("ownedApp.telemetry = bridge.telemetry"),
+    ).toBeLessThan(source.indexOf("app.plugins.registerCorePlugins"));
+    expect(source).toContain('startSpan("desktop.session.startup")');
+    expect(source).toContain('measureAsync("desktop.session.phase"');
+    expect(source).toContain('recordEvent("desktop.session.ready"');
+    expect(source).toContain('recordEvent("desktop.session.failed"');
+    expect(source).toContain('"desktop.session.teardown"');
+    expect(source).not.toContain('"desktop.vault.path"');
   });
 });

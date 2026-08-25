@@ -44,9 +44,21 @@ type OtelDesktopRendererTelemetryOptions = {
   endpoint: string;
   serviceName: string;
   version: string;
+  rawInvoke?: DesktopRawInvoke;
   exporter?: SpanExporter;
   registerGlobal?: boolean;
 };
+
+const STRUCTURED_EVENT_LEVELS = new Map<string, DesktopTelemetryLogLevel>([
+  ["desktop.session.ready", "info"],
+  ["desktop.session.failed", "error"],
+  ["metadata.reconcile.complete", "info"],
+  ["metadata.reconcile.failed", "error"],
+  ["metadata.reconcile.cancelled", "warn"],
+  ["search.reconcile.complete", "info"],
+  ["search.reconcile.failed", "error"],
+  ["search.reconcile.cancelled", "warn"],
+]);
 
 function setSpanAttributes(
   span: Span,
@@ -125,6 +137,10 @@ class OtelTelemetryService implements TelemetryService {
   constructor(
     private readonly tracer: Tracer,
     endpoint: string,
+    private readonly eventSink?: (
+      name: string,
+      attributes: TelemetryAttributes,
+    ) => void,
   ) {
     this.config = createTelemetryConfiguration({
       enabled: true,
@@ -209,6 +225,7 @@ class OtelTelemetryService implements TelemetryService {
 
   recordEvent(name: string, attributes?: TelemetryAttributes): void {
     this.startSpan(`event.${name}`, { attributes }).end();
+    this.eventSink?.(name, attributes ?? {});
   }
 
   recordMeasurement(measurement: TelemetryMeasurement): void {
@@ -245,9 +262,20 @@ class OtelDesktopRendererTelemetry
     private readonly provider: WebTracerProvider,
     endpoint: string,
     version: string,
+    private readonly rawInvoke?: DesktopRawInvoke,
   ) {
     this.tracer = provider.getTracer("lapis.desktop.renderer", version);
-    this.service = new OtelTelemetryService(this.tracer, endpoint);
+    this.service = new OtelTelemetryService(
+      this.tracer,
+      endpoint,
+      (event, attributes) => {
+        const level = STRUCTURED_EVENT_LEVELS.get(event);
+        if (!level || !this.rawInvoke) return;
+        void this.log(this.rawInvoke, level, event, attributes).catch(
+          () => undefined,
+        );
+      },
+    );
   }
 
   async invoke<T>(
@@ -264,6 +292,9 @@ class OtelDesktopRendererTelemetry
       attributes: {
         "lapis.operation.scope": operation.scope,
         "lapis.operation.name": operation.operation,
+        ...(operation.batchSize !== undefined
+          ? { "lapis.batch.size": operation.batchSize }
+          : {}),
       },
     });
     try {
@@ -331,5 +362,6 @@ export function createOtelDesktopRendererTelemetry(
     provider,
     options.endpoint,
     options.version,
+    options.rawInvoke,
   );
 }

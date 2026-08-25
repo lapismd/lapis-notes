@@ -42,11 +42,21 @@ distribution is outside the supported matrix.
 | LN-DENO-028 | Deno MUST expose all five `desktop_terminal_session_*` commands through the shared terminal service, emit raw output and one exit event, close every PTY during host shutdown, and package the checksum-verified Sigma native library for each macOS or Linux target.                  |
 | LN-DENO-029 | The desktop development launcher MUST run `deno desktop` without `--no-npm` so declared npm imports in `packages/desktop-deno/deno.json` can load. It MUST preserve HMR, inspector, sloppy-import resolution, and development exclusions for `node_modules`, `dist`, and renderer `src`. It MUST expose a CEF debug entrypoint for renderer DevTools. It MAY create ignored package-local symlinks for declared sibling and workspace Deno source imports, and MUST refuse to replace non-owned paths. |
 | LN-DENO-030 | The desktop boot document MUST present a branded loading surface before the renderer mounts. It MUST center the Lapis logo, show muted `Loading…` text beneath it, support light and dark backgrounds, and retain the same status element for startup failures. |
-| LN-DENO-031 | Routine native bridge invocation logging MUST be disabled by default and enabled only at the `debug` severity through `LAPIS_DENO_LOG_LEVEL`. Default logging MUST retain bounded lifecycle notices, warnings, and failures without logging invocation payloads or credentials. |
+| LN-DENO-031 | Routine native bridge invocation logging MUST be disabled by default and enabled only at the `debug` severity through `LAPIS_DENO_LOG_LEVEL`. Development launch MUST suppress ordinary Deno diagnostics and keep native inspection opt-in because Deno 2.9.5 inspector mode emits binding payloads. Telemetry launch MUST reject native inspection. Default application logging retains bounded lifecycle notices, warnings, and failures without logging invocation payloads or credentials. |
 | LN-DENO-032 | Desktop observability MUST be an explicit local-development mode with root LGTM and telemetry launch commands. It MUST use loopback OTLP/HTTP, keep normal and packaged launches disabled, retain terminal logs, and MUST NOT require a Telemetry plugin or unstable Deno flag. |
 | LN-DENO-033 | Telemetry mode MUST identify renderer and native host as separate services and propagate validated W3C trace context through a private versioned invocation envelope. Native dispatch MUST remove telemetry metadata before business handlers, while legacy unwrapped calls remain accepted. |
 | LN-DENO-034 | Desktop bridge tracing and metrics MUST cover only bounded database, language, AI, terminal, and telemetry operations. High-volume filesystem, PTY data, window, and per-file operations MUST remain untraced, and operation attributes MUST come from finite allowlists. |
 | LN-DENO-035 | Renderer lifecycle logs MUST use an allowlisted structured native relay. Native console capture MUST retain terminal output, reject arbitrary events and attributes, and MUST NOT forward the renderer console or invocation payloads. |
+| LN-DENO-036 | Telemetry mode MUST trace desktop session startup as one root with bounded vault, configuration, plugin, and layout phases, then record readiness or failure and trace teardown. The renderer service MUST be installed before plugin loading, and session disposal MUST complete before provider flush and shutdown. Attributes and lifecycle logs MUST NOT contain vault identity, paths, plugin settings, or failure details. |
+
+### LN-DENO-036 acceptance details
+
+Desktop session lifecycle telemetry verifies:
+
+- The API telemetry service is installed before core plugin registration and loading.
+- Startup contains only the four named phases and finishes with a bounded ready or failed outcome.
+- Teardown completes before renderer telemetry is flushed and shut down.
+- Lifecycle events relay to the native console without exporting vault or error text.
 
 ### LN-DENO-033 acceptance details
 
@@ -60,7 +70,7 @@ Correlated desktop telemetry verifies:
 
 Bounded native instrumentation verifies:
 
-- Selected operations record static scope, operation, duration, result-count, and failure signals.
+- Selected operations record static scope, operation, duration, bounded batch-size or result-count, and failure signals.
 - Excluded high-volume commands create no bridge span.
 - Span and metric attributes contain no vault, file, query, prompt, or terminal payload.
 
@@ -85,6 +95,7 @@ Local desktop observability verifies:
 Deno desktop logging verifies:
 
 - An unset or invalid log level MUST use `info` and suppress native invocation traces.
+- The development command MUST pass Deno `--quiet`, omit native inspection by default, and reject native inspection in telemetry mode so Deno's inspector-only binding trace cannot print invocation arguments or return payloads.
 - `debug` MUST print only the invoked command name, never its payload.
 - `warn`, `error`, and `silent` MUST progressively reduce console output while preserving the configured severity threshold.
 
