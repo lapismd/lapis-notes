@@ -5,6 +5,7 @@ import {
   createMarkdownSettingsFields,
   MARKDOWN_SETTING_DESCRIPTORS,
   MIRA_EDITOR_SETTING_KEYS,
+  MIRA_DOCUMENT_SETTING_KEYS,
   MIRA_FEATURE_KEYS,
   MIRA_FEATURE_METADATA,
   miraFeatureConfigKey,
@@ -17,7 +18,11 @@ describe("Markdown setting descriptors", () => {
     const fields = createMarkdownSettingsFields();
     const ids = MARKDOWN_SETTING_DESCRIPTORS.map((descriptor) => descriptor.id);
     const featureIds = MIRA_FEATURE_KEYS.map(miraFeatureConfigKey);
-    const ordinaryIds = ids.filter((id) => !featureIds.includes(id));
+    const featureTableIds = [
+      ...featureIds,
+      MIRA_DOCUMENT_SETTING_KEYS.outlineNavigation,
+    ];
+    const ordinaryIds = ids.filter((id) => !featureTableIds.includes(id));
     const featureGroup = fields.find(
       (field) => field.id === "markdown.mira.features",
     );
@@ -40,14 +45,16 @@ describe("Markdown setting descriptors", () => {
     if (featureGroup?.type !== "group") {
       throw new Error("Expected the Markdown feature settings group");
     }
-    expect(featureGroup.fields.map((field) => field.id)).toEqual(featureIds);
+    expect(featureGroup.fields.map((field) => field.id)).toEqual(
+      featureTableIds,
+    );
 
     for (const descriptor of MARKDOWN_SETTING_DESCRIPTORS) {
       expect(schema.properties[descriptor.id]).toMatchObject({
         title: descriptor.title,
         default: descriptor.default,
       });
-      const field = featureIds.includes(descriptor.id)
+      const field = featureTableIds.includes(descriptor.id)
         ? featureGroup.fields.find(
             (candidate) => candidate.id === descriptor.id,
           )
@@ -92,6 +99,8 @@ describe("Markdown setting descriptors", () => {
       "markdown.mira.features.block-controls": true,
       "markdown.mira.plugins.ai.enabled": false,
       "markdown.mira.plugins.mermaid.enabled": true,
+      [MIRA_DOCUMENT_SETTING_KEYS.frontmatterDefaultOpen]: false,
+      [MIRA_DOCUMENT_SETTING_KEYS.outlineNavigation]: true,
     });
   });
 

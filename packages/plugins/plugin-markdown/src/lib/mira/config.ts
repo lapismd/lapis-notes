@@ -19,6 +19,11 @@ export const MIRA_EDITOR_SETTING_KEYS = {
   doodleDividers: "markdown.mira.editor.doodleDividers.enabled",
 } as const;
 
+export const MIRA_DOCUMENT_SETTING_KEYS = {
+  frontmatterDefaultOpen: "markdown.mira.frontmatter.defaultOpen",
+  outlineNavigation: "markdown.mira.features.outline-navigation",
+} as const;
+
 export const MIRA_FEATURE_KEYS = [
   MiraFeature.ModeSwitch,
   MiraFeature.Formatting,
@@ -169,13 +174,23 @@ export type MarkdownSettingDescriptor =
   | MarkdownStringSettingDescriptor
   | MarkdownEnumSettingDescriptor;
 
-const FEATURE_SETTING_DESCRIPTORS: MarkdownBooleanSettingDescriptor[] =
-  MIRA_FEATURE_KEYS.map((feature) => ({
-    id: miraFeatureConfigKey(feature),
+const FEATURE_SETTING_DESCRIPTORS: MarkdownBooleanSettingDescriptor[] = [
+  ...MIRA_FEATURE_KEYS.map(
+    (feature): MarkdownBooleanSettingDescriptor => ({
+      id: miraFeatureConfigKey(feature),
+      type: "boolean" as const,
+      ...MIRA_FEATURE_METADATA[feature],
+      default: true,
+    }),
+  ),
+  {
+    id: MIRA_DOCUMENT_SETTING_KEYS.outlineNavigation,
     type: "boolean",
-    ...MIRA_FEATURE_METADATA[feature],
+    title: "Outline navigation",
+    description: "Show Mira's floating heading navigation in Reading view.",
     default: true,
-  }));
+  },
+];
 
 export const MARKDOWN_SETTING_DESCRIPTORS: readonly MarkdownSettingDescriptor[] =
   [
@@ -207,6 +222,14 @@ export const MARKDOWN_SETTING_DESCRIPTORS: readonly MarkdownSettingDescriptor[] 
       title: "Auto-scroll Outline to current section",
       description:
         "Keep the Outline panel aligned with the visible Markdown heading.",
+      default: false,
+    },
+    {
+      id: MIRA_DOCUMENT_SETTING_KEYS.frontmatterDefaultOpen,
+      type: "boolean",
+      title: "Expand Properties by default",
+      description:
+        "Start frontmatter expanded when opening Live Preview or Reading view.",
       default: false,
     },
     {

@@ -65,6 +65,8 @@ const APP_CONFIGURATION = {
   "markdown.mira.editor.selectionToolbar.enabled": true,
   "markdown.mira.editor.blockToolbar.enabled": false,
   "markdown.mira.editor.doodleDividers.enabled": false,
+  "markdown.mira.frontmatter.defaultOpen": false,
+  "markdown.mira.features.outline-navigation": true,
   "markdown.mira.features.slash-commands": true,
   "markdown.mira.features.block-controls": true,
   "markdown.mira.features.headings": true,

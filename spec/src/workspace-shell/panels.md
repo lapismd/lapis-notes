@@ -10,7 +10,9 @@ Workspace panels are movable views. The Workspace Shell owns their destination
 surfaces and geometry; individual plugins own only their content and behavior.
 Markdown panel pages therefore build on this contract instead of repeating
 placement or Storybook rules. Public `MarkdownEmbed` is an in-bubble string
-preview and is not a movable workspace panel.
+preview, keeps its explicit collapsed frontmatter default, and is not a movable
+workspace panel. Mira's inline Reading outline is likewise not the movable
+Outline panel.
 
 Plugin view aliases are a load-time API compatibility concern. Once a legacy or
 previously unavailable view resolves, workspace serialization uses the opened

@@ -5,7 +5,7 @@ import type { MiraExtension } from "@lapismd/mira/extensions";
 import { MiraFeature } from "@lapismd/mira-editor";
 import type { App } from "@lapis-notes/api";
 import { describe, expect, it, vi } from "vitest";
-import { MIRA_EDITOR_SETTING_KEYS } from "./config";
+import { MIRA_DOCUMENT_SETTING_KEYS, MIRA_EDITOR_SETTING_KEYS } from "./config";
 import {
   createMarkdownMiraCodeMirrorOptions,
   createMiraExtensionLifecycle,
@@ -62,6 +62,9 @@ describe("Lapis Mira authoring composition", () => {
     expect(options.includeBaseExtensions).toBe(false);
     expect(options.blockControls).toBe(true);
     expect(options.fileAdapter).toBeDefined();
+    expect(options.frontmatterOpen).toBe(false);
+    expect(resolved.frontmatterDefaultOpen).toBe(false);
+    expect(resolved.outlineNavigation).toBe(true);
     expect(resolved.features).toMatchObject({
       [MiraFeature.Formatting]: true,
       [MiraFeature.Headings]: true,
@@ -86,6 +89,8 @@ describe("Lapis Mira authoring composition", () => {
       [MIRA_EDITOR_SETTING_KEYS.selectionToolbar]: false,
       [MIRA_EDITOR_SETTING_KEYS.blockToolbar]: true,
       [MIRA_EDITOR_SETTING_KEYS.doodleDividers]: true,
+      [MIRA_DOCUMENT_SETTING_KEYS.frontmatterDefaultOpen]: true,
+      [MIRA_DOCUMENT_SETTING_KEYS.outlineNavigation]: false,
     });
     const settings = readMarkdownMiraEditorSettings(app);
     const resolved = resolveMarkdownMiraExtensions(app);
@@ -107,6 +112,8 @@ describe("Lapis Mira authoring composition", () => {
       "selection-toolbar",
     );
     expect(options.blockControls).toMatchObject({ enabled: true });
+    expect(options.frontmatterOpen).toBe(true);
+    expect(resolved.outlineNavigation).toBe(false);
   });
 
   it("composes API-registered extensions for a concrete Markdown surface", () => {

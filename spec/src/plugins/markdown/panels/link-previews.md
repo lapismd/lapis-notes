@@ -8,6 +8,8 @@ Backlinks and Outgoing Links share one app-bound preview and editing contract.
 Ordinary internal links rendered by Mira use the same adapter and appearance but
 remain Mira-owned. Public `MarkdownEmbed` uses the same App adapter and the
 current Mira editor-extension resolution for standalone Markdown strings.
+Those embed surfaces retain their explicit default-collapsed frontmatter input;
+the document default in LN-MD-108 applies only to workspace note surfaces.
 
 Backlinks and Outgoing Links retain this preview behavior when a legacy
 view-type alias is restored. Canonicalization changes only persisted workspace

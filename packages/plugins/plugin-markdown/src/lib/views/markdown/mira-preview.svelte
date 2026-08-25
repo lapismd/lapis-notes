@@ -46,6 +46,9 @@
       extensions={resolved.miraExtensions}
       {fileAdapter}
       {sourcePath}
+      frontmatterOpen={resolved.frontmatterDefaultOpen}
+      outline={resolved.outlineNavigation}
+      outlineVariant="floating"
       onChange={(next) => onChange?.(next)}
     />
   </ScrollArea>

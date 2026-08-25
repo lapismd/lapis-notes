@@ -1100,8 +1100,8 @@ export const MarkdownFrontmatter: Story = {
       },
       { timeout: 5_000 },
     );
-    const trigger = within(frontmatterWidget).getByRole("button", {
-      name: "Collapse properties",
+    const expandProperties = within(frontmatterWidget).getByRole("button", {
+      name: "Expand properties",
     });
     const nestedSizer = frontmatterWidget.querySelector<HTMLElement>(
       ".mira-markdown-preview > .cm-sizer",
@@ -1109,6 +1109,10 @@ export const MarkdownFrontmatter: Story = {
     const editorLine = [
       ...canvasElement.querySelectorAll<HTMLElement>(".cm-line"),
     ].find((line) => line.getClientRects().length > 0);
+    await expect(expandProperties).toHaveAttribute("aria-expanded", "false");
+    expect(
+      frontmatterWidget.querySelector(".md-frontmatter__content"),
+    ).toBeNull();
     expect(nestedSizer).not.toBeNull();
     expect(editorLine).not.toBeNull();
     expect(getComputedStyle(nestedSizer!).paddingInlineStart).toBe("0px");
@@ -1119,20 +1123,22 @@ export const MarkdownFrontmatter: Story = {
       ),
     ).toBeLessThan(1);
 
-    await fireEvent.click(trigger);
-    const expandProperties = await waitFor(() =>
+    await fireEvent.click(expandProperties);
+    const collapseProperties = await waitFor(() =>
+      within(frontmatterWidget).getByRole("button", {
+        name: "Collapse properties",
+      }),
+    );
+    await expect(collapseProperties).toHaveAttribute("aria-expanded", "true");
+    await fireEvent.click(collapseProperties);
+    const expandAgain = await waitFor(() =>
       within(frontmatterWidget).getByRole("button", {
         name: "Expand properties",
       }),
     );
-    await expect(expandProperties).toHaveAttribute("aria-expanded", "false");
-    await waitFor(() =>
-      expect(
-        frontmatterWidget.querySelector(".md-frontmatter__content"),
-      ).toBeNull(),
-    );
+    await expect(expandAgain).toHaveAttribute("aria-expanded", "false");
 
-    await fireEvent.click(expandProperties);
+    await fireEvent.click(expandAgain);
     await waitFor(() =>
       expect(
         within(frontmatterWidget).getByRole("button", {
@@ -1185,6 +1191,100 @@ export const MarkdownFrontmatter: Story = {
         canvasElement.querySelector(".mira-rich-widget--frontmatter"),
       ).not.toBeNull(),
     );
+
+    const readAction = canvas.getByRole("button", {
+      name: /^Current view: editing\nClick to read/,
+    });
+    await userEvent.click(readAction);
+    const readingSurface = await waitFor(() => {
+      const surface = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="markdown-mira-preview"]',
+      );
+      expect(surface).not.toBeNull();
+      return surface!;
+    });
+    const readingExpand = within(readingSurface).getByRole("button", {
+      name: "Expand properties",
+    });
+    await expect(readingExpand).toHaveAttribute("aria-expanded", "false");
+
+    const outline = within(readingSurface).getByRole("group", {
+      name: "Document outline",
+    });
+    const portableHeading = readingSurface.querySelector<HTMLElement>(
+      "#portable-authoring",
+    );
+    expect(portableHeading).not.toBeNull();
+    await userEvent.click(
+      within(outline).getByRole("button", {
+        name: "Open outline and scroll to Portable authoring",
+      }),
+    );
+    await waitFor(() => expect(portableHeading).toHaveFocus());
+
+    const app = activeStoryApp(canvasElement);
+    await app.configuration.updateConfigurationOption(
+      "markdown.mira.features.outline-navigation",
+      false,
+    );
+    await waitFor(() =>
+      expect(
+        within(readingSurface).queryByRole("group", {
+          name: "Document outline",
+        }),
+      ).toBeNull(),
+    );
+    expect(app.commands.getCommand("markdown:open-outline")).toMatchObject({
+      name: "Markdown: Open Outline",
+    });
+    await app.configuration.updateConfigurationOption(
+      "markdown.mira.features.outline-navigation",
+      true,
+    );
+    await waitFor(() =>
+      expect(
+        within(readingSurface).getByRole("group", {
+          name: "Document outline",
+        }),
+      ).toBeVisible(),
+    );
+
+    await userEvent.click(
+      canvas.getByRole("button", {
+        name: /^Current view: preview\nClick to edit/,
+      }),
+    );
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('.cm-editor[data-language="markdown"]'),
+      ).not.toBeNull(),
+    );
+    await app.configuration.updateConfigurationOption(
+      "markdown.mira.frontmatter.defaultOpen",
+      true,
+    );
+    await userEvent.click(
+      canvas.getByRole("button", {
+        name: /^Current view: editing\nClick to read/,
+      }),
+    );
+    const optedInReadingSurface = await waitFor(() => {
+      const surface = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="markdown-mira-preview"]',
+      );
+      expect(surface).not.toBeNull();
+      return surface!;
+    });
+    const optedInCollapse = within(optedInReadingSurface).getByRole("button", {
+      name: "Collapse properties",
+    });
+    await expect(optedInCollapse).toHaveAttribute("aria-expanded", "true");
+    await userEvent.click(optedInCollapse);
+    await expect(
+      within(optedInReadingSurface).getByRole("button", {
+        name: "Expand properties",
+      }),
+    ).toHaveAttribute("aria-expanded", "false");
   },
 };
 
@@ -1709,10 +1809,32 @@ export const EditorSettings: Story = {
     const doodleDividers = within(dialog).getByRole("switch", {
       name: "Doodle Dividers",
     });
+    const frontmatterDefaultOpen = within(dialog).getByRole("switch", {
+      name: "Expand Properties by default",
+    });
+    const outlineNavigation = within(dialog).getByRole("switch", {
+      name: "Outline navigation",
+    });
     await expect(topToolbar).toHaveAttribute("data-state", "unchecked");
     await expect(selectionToolbar).toHaveAttribute("data-state", "checked");
     await expect(blockToolbar).toHaveAttribute("data-state", "unchecked");
     await expect(doodleDividers).toHaveAttribute("data-state", "unchecked");
+    await expect(frontmatterDefaultOpen).toHaveAttribute(
+      "data-state",
+      "unchecked",
+    );
+    await expect(outlineNavigation).toHaveAttribute("data-state", "checked");
+
+    await userEvent.click(frontmatterDefaultOpen);
+    await userEvent.click(outlineNavigation);
+    await waitFor(async () => {
+      const persisted = await persistedStoryConfiguration(canvasElement);
+      expect(persisted["markdown.mira.frontmatter.defaultOpen"]).toBe(true);
+      expect(persisted["markdown.mira.features.outline-navigation"]).toBe(
+        false,
+      );
+      expect("markdown.mira.features" in persisted).toBe(false);
+    });
 
     const slashCommands = within(dialog).getByRole("switch", {
       name: "Slash commands",

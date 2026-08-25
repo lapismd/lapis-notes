@@ -28,6 +28,7 @@ import { markupEditor } from "@lapis-notes/api/editor/core";
 import { languageServiceExtensions } from "@lapis-notes/api/editor/language-service";
 import {
   MIRA_EDITOR_SETTING_KEYS,
+  MIRA_DOCUMENT_SETTING_KEYS,
   readMarkdownSetting,
   readMiraFeatureFlags,
 } from "./config";
@@ -118,6 +119,14 @@ export function resolveMarkdownMiraExtensions(
   const aiEnabled = Boolean(
     readMarkdownSetting<boolean>(get, "markdown.mira.plugins.ai.enabled"),
   );
+  const frontmatterDefaultOpen = readMarkdownSetting<boolean>(
+    get,
+    MIRA_DOCUMENT_SETTING_KEYS.frontmatterDefaultOpen,
+  );
+  const outlineNavigation = readMarkdownSetting<boolean>(
+    get,
+    MIRA_DOCUMENT_SETTING_KEYS.outlineNavigation,
+  );
 
   const featureFlags: MiraFeatureFlags = {
     ...features,
@@ -183,6 +192,8 @@ export function resolveMarkdownMiraExtensions(
     miraExtensions,
     mermaidEnabled,
     aiEnabled,
+    frontmatterDefaultOpen,
+    outlineNavigation,
   };
 }
 
@@ -282,6 +293,7 @@ export function createMarkdownMiraCodeMirrorOptions(
     extensions: resolved.miraExtensions,
     sourcePath: options.sourcePath,
     fileAdapter: createLapisMiraFileAdapter(options.app),
+    frontmatterOpen: resolved.frontmatterDefaultOpen,
     indentGuides,
     indentWidth,
     indentWithTabs,

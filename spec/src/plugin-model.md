@@ -3,6 +3,8 @@
 Markdown extensions and file-surface providers use the normal `Plugin`
 lifecycle. Registration is plugin-scoped and automatic teardown removes each
 contribution without adding another loader or contribution manifest.
+Markdown's frontmatter and inline-outline preferences remain flat plugin
+settings; they do not add another Mira extension or plugin lifecycle.
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. A `deno-desktop` session reports
