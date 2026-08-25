@@ -240,7 +240,9 @@ boundary, not a static Node module import.
 Markdown reuses one `MiraFileAdapter` for that same App so preview effects do
 not churn when views reconfigure. Its full-file surface establishes the
 effective Mira `obsidian` theme so domain contributions inherit Lapis semantic
-paint instead of Mira's portable fallback. Packaged metadata parse keeps an extensionless
+paint instead of Mira's portable fallback. Its Reading mode makes the inherited
+Design Core Scroll Area the sole preview scroll owner while Mira's inner
+preview remains non-scrolling. Packaged metadata parse keeps an extensionless
 Vite worker import so web and desktop resolve the published worker file.
 `openFile` triggers `file-open` after `onLoadFile` so file-scoped Markdown
 panels can follow the restored note without waiting for a layout write.

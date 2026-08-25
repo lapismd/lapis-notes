@@ -1444,6 +1444,32 @@ export const MarkdownAuthoring: Story = {
       expect(readingEditor).not.toBeNull();
       expect(getComputedStyle(readingEditor!).borderTopWidth).toBe("0px");
       expect(getComputedStyle(readingEditor!).borderRadius).toBe("0px");
+      const readingSurface = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="markdown-mira-preview"]',
+      );
+      const readingScrollArea = readingSurface?.querySelector<HTMLElement>(
+        ':scope > [data-ui-component="scroll-area"]',
+      );
+      const readingViewport = readingScrollArea?.querySelector<HTMLElement>(
+        '[data-ui-part="scroll-area-viewport"]',
+      );
+      const readingPreview = readingSurface?.querySelector<HTMLElement>(
+        ".mira-markdown-preview",
+      );
+      expect(readingScrollArea).not.toBeNull();
+      expect(readingScrollArea).toHaveAttribute(
+        "data-scroll-visibility",
+        "scroll",
+      );
+      expect(readingViewport).not.toBeNull();
+      expect(readingPreview).not.toBeNull();
+      expect(getComputedStyle(readingPreview!).overflowY).toBe("visible");
+      expect(readingViewport!.scrollHeight).toBeGreaterThan(
+        readingViewport!.clientHeight,
+      );
+      readingViewport!.scrollTop = 48;
+      await fireEvent.scroll(readingViewport!);
+      expect(readingViewport!.scrollTop).toBeGreaterThan(0);
 
       await userEvent.click(
         within(viewHeader!).getByRole("button", { name: "More options" }),
