@@ -182,7 +182,8 @@ function placementStory(
       ).toBeVisible();
 
       await userEvent.click(tagsTypeButton);
-      const typeMenu = tags.getByRole("menu", {
+      const page = within(canvasElement.ownerDocument.body);
+      const typeMenu = page.getByRole("menu", {
         name: "Property type for tags",
       });
       const textType = within(typeMenu).getByRole("menuitemradio", {
@@ -190,7 +191,7 @@ function placementStory(
       });
       await expect(typeMenu).toBeVisible();
       await expect(textType).toBeVisible();
-      expect(getComputedStyle(tagsRow as HTMLElement).overflow).toBe("visible");
+      expect((tagsRow as HTMLElement).contains(typeMenu)).toBe(false);
       expect(typeMenu.getBoundingClientRect().bottom).toBeGreaterThan(
         (tagsRow as HTMLElement).getBoundingClientRect().bottom,
       );
@@ -199,11 +200,14 @@ function placementStory(
         textTypeBounds.left + textTypeBounds.width / 2,
         textTypeBounds.top + textTypeBounds.height / 2,
       );
-      expect(hit === textType || textType.contains(hit)).toBe(true);
+      expect(
+        hit === textType || textType.contains(hit),
+        `Expected the Text item to own its center point; hit ${hit?.tagName ?? "nothing"}.${hit instanceof HTMLElement ? hit.className : ""}`,
+      ).toBe(true);
       await userEvent.click(tagsTypeButton);
       await waitFor(() => {
         expect(
-          tags.queryByRole("menu", { name: "Property type for tags" }),
+          page.queryByRole("menu", { name: "Property type for tags" }),
         ).toBeNull();
       });
 

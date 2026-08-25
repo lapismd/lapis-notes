@@ -1155,7 +1155,8 @@ export const MarkdownFrontmatter: Story = {
       name: "Change title type",
     });
     await userEvent.click(titleTypeButton);
-    const typeMenu = within(titleRow!).getByRole("menu", {
+    const page = within(canvasElement.ownerDocument.body);
+    const typeMenu = page.getByRole("menu", {
       name: "Property type for title",
     });
     const numberType = within(typeMenu).getByRole("menuitemradio", {
@@ -1163,7 +1164,7 @@ export const MarkdownFrontmatter: Story = {
     });
     await expect(typeMenu).toBeVisible();
     await expect(numberType).toBeVisible();
-    expect(getComputedStyle(titleRow!).overflow).toBe("visible");
+    expect(titleRow!.contains(typeMenu)).toBe(false);
     expect(typeMenu.getBoundingClientRect().bottom).toBeGreaterThan(
       titleRow!.getBoundingClientRect().bottom,
     );
@@ -1176,7 +1177,7 @@ export const MarkdownFrontmatter: Story = {
     await userEvent.click(titleTypeButton);
     await waitFor(() => {
       expect(
-        within(titleRow!).queryByRole("menu", {
+        page.queryByRole("menu", {
           name: "Property type for title",
         }),
       ).toBeNull();
