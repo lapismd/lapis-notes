@@ -153,10 +153,36 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-const MIN_ZOOM = 0.35;
-const MAX_ZOOM = 3.5;
+export const GRAPH_MIN_ZOOM = 0.1;
+export const GRAPH_MAX_ZOOM = 3.5;
+export const GRAPH_MAX_FIT_ZOOM = 1.35;
 const BASE_WHEEL_ZOOM_SENSITIVITY = 0.0008;
 const WHEEL_ZOOM_DELTA_CAP = 240;
+
+export function clampGraphZoom(value: number): number {
+  return clamp(value, GRAPH_MIN_ZOOM, GRAPH_MAX_ZOOM);
+}
+
+export function graphFitScale(options: {
+  viewportWidth: number;
+  viewportHeight: number;
+  contentWidth: number;
+  contentHeight: number;
+  padding: number;
+}): number {
+  const {
+    viewportWidth,
+    viewportHeight,
+    contentWidth,
+    contentHeight,
+    padding,
+  } = options;
+  const fitScale = Math.min(
+    (viewportWidth - padding * 2) / contentWidth,
+    (viewportHeight - padding * 2) / contentHeight,
+  );
+  return clamp(fitScale, GRAPH_MIN_ZOOM, GRAPH_MAX_FIT_ZOOM);
+}
 
 function normalizeWheelDelta(event: WheelEvent, pageHeight: number): number {
   const deltaModeScale =
@@ -421,7 +447,7 @@ export class GraphRenderer {
           (this.settings?.display.wheelZoomSensitivity ?? 1);
         const zoomFactor = Math.exp(-wheelDelta * wheelZoomSensitivity);
         const nextScale = this.transform.k * zoomFactor;
-        this.transform.k = clamp(nextScale, MIN_ZOOM, MAX_ZOOM);
+        this.transform.k = clampGraphZoom(nextScale);
         this.transform.x = offsetX - worldX * this.transform.k;
         this.transform.y = offsetY - worldY * this.transform.k;
         this.viewportAdjustedByUser = true;
@@ -700,11 +726,13 @@ export class GraphRenderer {
     const contentWidth = Math.max(bounds.maxX - bounds.minX, 1);
     const contentHeight = Math.max(bounds.maxY - bounds.minY, 1);
     const padding = 48;
-    const fitScale = Math.min(
-      (viewportWidth - padding * 2) / contentWidth,
-      (viewportHeight - padding * 2) / contentHeight,
-    );
-    const scale = clamp(fitScale, 0.45, 1.35);
+    const scale = graphFitScale({
+      viewportWidth,
+      viewportHeight,
+      contentWidth,
+      contentHeight,
+      padding,
+    });
     const centerX = (bounds.minX + bounds.maxX) / 2;
     const centerY = (bounds.minY + bounds.maxY) / 2;
     this.transform = {
@@ -1066,7 +1094,7 @@ export class GraphRenderer {
     const centerY = this.wrapperEl.clientHeight / 2;
     const worldX = (centerX - this.transform.x) / this.transform.k;
     const worldY = (centerY - this.transform.y) / this.transform.k;
-    this.transform.k = clamp(this.transform.k * factor, MIN_ZOOM, MAX_ZOOM);
+    this.transform.k = clampGraphZoom(this.transform.k * factor);
     this.transform.x = centerX - worldX * this.transform.k;
     this.transform.y = centerY - worldY * this.transform.k;
     this.queueRender();

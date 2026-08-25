@@ -18,14 +18,14 @@
     var(--ui-graph-surface-foreground) 52%,
     transparent
   );
-  --ui-graph-node-note: var(--primary);
+  --ui-graph-node-note: var(--muted-foreground);
   --ui-graph-node-attachment: var(--warning, #d97706);
   --ui-graph-node-tag: var(--success, #16a34a);
   --ui-graph-node-unresolved: var(--destructive);
   --ui-graph-node-neutral: var(--muted-foreground);
   --ui-graph-node-label: var(--muted-foreground);
   --ui-graph-node-stroke: var(--ui-graph-surface-background);
-  --ui-graph-node-active-stroke: var(--ui-graph-surface-foreground);
+  --ui-graph-node-active-stroke: var(--ui-graph-node-note);
   --ui-graph-stats-background: color-mix(
     in srgb,
     var(--ui-graph-surface-background) 90%,
@@ -210,11 +210,23 @@
 }
 
 .graph-view .graph-controls-trigger {
+  align-items: center;
+  gap: 0.75rem;
   min-height: 40px;
-  padding: 0 1rem;
+  padding-block: 0;
+  padding-inline: 1rem;
   color: var(--ui-graph-controls-foreground);
   font-size: 0.875rem;
   font-weight: 600;
+  text-decoration: none;
+}
+
+.graph-view .graph-controls-trigger[data-indicator-position="start"] {
+  padding-inline-start: 1rem;
+}
+
+.graph-view .graph-controls-trigger:is(:hover, :focus, :active) {
+  text-decoration: none;
 }
 
 .graph-controls-section-header {

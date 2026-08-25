@@ -113,6 +113,9 @@ Outline, File Properties, then Tags on the right when those plugins loaded.
 Graph is enabled in that fresh session but contributes no default leaf; persisted
 global and local Graph leaves instead follow the normal missing-view disable and
 re-enable lifecycle.
+Its Design Core controls preserve the legacy disclosure-header presentation,
+while scoped Graph tokens keep ordinary note nodes muted and renderer zoom
+allows the complete settled graph to fit the viewport.
 The Bookmarks panel snapshots persisted items so add and remove refresh the tree,
 insets rows with the public Explorer content-padding token, uses Explorer
 toolbar hover tokens, and follows Explorer tree indent, chevron-centered

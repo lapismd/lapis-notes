@@ -178,6 +178,7 @@
             <Accordion.Trigger
               style="height: 40px; min-height: 40px;"
               indicatorPosition="start"
+              indicatorVariant="disclosure"
               class="graph-controls-trigger graph-controls-trigger--actions"
             >
               <span>Filters</span>
@@ -293,6 +294,7 @@
           <Accordion.Trigger
             style="height: 40px; min-height: 40px;"
             indicatorPosition="start"
+            indicatorVariant="disclosure"
             class="graph-controls-trigger"
           >
             <div class="graph-controls-trigger__content">
@@ -417,6 +419,7 @@
           <Accordion.Trigger
             style="height: 40px; min-height: 40px;"
             indicatorPosition="start"
+            indicatorVariant="disclosure"
             class="graph-controls-trigger"
           >
             <div class="graph-controls-trigger__content">
@@ -530,6 +533,7 @@
             <Accordion.Trigger
               style="height: 40px; min-height: 40px;"
               indicatorPosition="start"
+              indicatorVariant="disclosure"
               class="graph-controls-trigger"
             >
               <div

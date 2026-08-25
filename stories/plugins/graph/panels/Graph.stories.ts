@@ -106,6 +106,28 @@ function placementStory(
       const dialog = await panel.findByRole("dialog", {
         name: "Graph settings",
       });
+      const displayTrigger = within(dialog).getByRole("button", {
+        name: "Display",
+      });
+      const displayTriggerStyle = getComputedStyle(displayTrigger);
+      expect(displayTriggerStyle.alignItems).toBe("center");
+      expect(displayTriggerStyle.gap).toBe("12px");
+      expect(displayTriggerStyle.fontWeight).toBe("600");
+      expect(displayTriggerStyle.paddingInlineStart).toBe("16px");
+      await userEvent.hover(displayTrigger);
+      expect(getComputedStyle(displayTrigger).textDecorationLine).toBe("none");
+      await userEvent.unhover(displayTrigger);
+      expect(
+        displayTrigger.querySelector('[data-indicator-glyph="chevron-right"]'),
+      ).toBeVisible();
+      const graphRoot = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="graph"]',
+      );
+      expect(graphRoot).not.toBeNull();
+      const graphStyle = getComputedStyle(graphRoot!);
+      expect(graphStyle.getPropertyValue("--ui-graph-node-note").trim()).toBe(
+        graphStyle.getPropertyValue("--muted-foreground").trim(),
+      );
       await userEvent.click(within(dialog).getByText("Filters"));
       await expect(within(dialog).getByLabelText("Search files")).toBeVisible();
       await expect(within(dialog).getByLabelText("Show tags")).toBeVisible();
