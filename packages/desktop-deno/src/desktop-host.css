@@ -9,6 +9,10 @@
   background: var(--ui-workspace-background, #fff);
 }
 
+:root[data-desktop-closing="true"] {
+  opacity: 0;
+}
+
 :root.lapis-desktop--macos {
   --lapis-desktop-window-controls-left: 65px;
   --lapis-desktop-window-controls-sidebar-left: 80px;

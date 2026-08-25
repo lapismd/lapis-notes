@@ -6,29 +6,34 @@ import {
 } from "./close-coordinator";
 
 describe("Deno close coordinator", () => {
-  it("prevents the first close until renderer teardown is ready", async () => {
-    const dismissVisibleWindow = vi.fn();
-    const emitBeforeClose = vi.fn();
-    const shutdown = vi.fn(async () => {});
-    const exit = vi.fn();
-    const preventDefault = vi.fn();
-    const coordinator = createDenoCloseCoordinator({
-      dismissVisibleWindow,
-      emitBeforeClose,
-      shutdown,
-      exit,
-    });
+  it("defers renderer teardown outside the native close callback", async () => {
+    vi.useFakeTimers();
+    try {
+      const emitBeforeClose = vi.fn();
+      const shutdown = vi.fn(async () => {});
+      const exit = vi.fn();
+      const preventDefault = vi.fn();
+      const coordinator = createDenoCloseCoordinator({
+        emitBeforeClose,
+        shutdown,
+        exit,
+      });
 
-    coordinator.onWindowClose({ preventDefault });
-    expect(preventDefault).toHaveBeenCalledOnce();
-    expect(dismissVisibleWindow).toHaveBeenCalledOnce();
-    expect(emitBeforeClose).toHaveBeenCalledOnce();
-    expect(shutdown).not.toHaveBeenCalled();
+      coordinator.onWindowClose({ preventDefault });
+      expect(preventDefault).toHaveBeenCalledOnce();
+      expect(emitBeforeClose).not.toHaveBeenCalled();
 
-    coordinator.rendererReady();
-    await vi.waitFor(() => expect(exit).toHaveBeenCalledWith(0));
-    expect(preventDefault).toHaveBeenCalledOnce();
-    expect(shutdown).toHaveBeenCalledOnce();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(emitBeforeClose).toHaveBeenCalledOnce();
+      expect(shutdown).not.toHaveBeenCalled();
+
+      coordinator.rendererReady();
+      await vi.waitFor(() => expect(exit).toHaveBeenCalledWith(0));
+      expect(preventDefault).toHaveBeenCalledOnce();
+      expect(shutdown).toHaveBeenCalledOnce();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("shuts native services down when renderer teardown times out", async () => {
@@ -37,6 +42,7 @@ describe("Deno close coordinator", () => {
       const shutdown = vi.fn(async () => {});
       const exit = vi.fn();
       const coordinator = createDenoCloseCoordinator({
+        deferRendererClose: (callback) => callback(),
         emitBeforeClose: vi.fn(),
         shutdown,
         exit,
@@ -52,11 +58,10 @@ describe("Deno close coordinator", () => {
   });
 
   it("ignores duplicate close requests and acknowledgements", async () => {
-    const dismissVisibleWindow = vi.fn();
     const emitBeforeClose = vi.fn();
     const shutdown = vi.fn();
     const coordinator = createDenoCloseCoordinator({
-      dismissVisibleWindow,
+      deferRendererClose: (callback) => callback(),
       emitBeforeClose,
       shutdown,
       exit: vi.fn(),
@@ -68,23 +73,20 @@ describe("Deno close coordinator", () => {
     coordinator.rendererReady();
     await Promise.resolve();
     expect(emitBeforeClose).toHaveBeenCalledOnce();
-    expect(dismissVisibleWindow).toHaveBeenCalledOnce();
     expect(event.preventDefault).toHaveBeenCalledTimes(2);
     expect(shutdown).toHaveBeenCalledOnce();
   });
 
   it("runs the same handshake for a native acceptance close request", () => {
-    const dismissVisibleWindow = vi.fn();
     const emitBeforeClose = vi.fn();
     const coordinator = createDenoCloseCoordinator({
-      dismissVisibleWindow,
+      deferRendererClose: (callback) => callback(),
       emitBeforeClose,
       shutdown: vi.fn(),
       exit: vi.fn(),
     });
     coordinator.requestClose();
     coordinator.requestClose();
-    expect(dismissVisibleWindow).toHaveBeenCalledOnce();
     expect(emitBeforeClose).toHaveBeenCalledOnce();
   });
 
@@ -92,7 +94,7 @@ describe("Deno close coordinator", () => {
     const bootstrap = new EventTarget();
     const visible = new EventTarget();
     const coordinator = createDenoCloseCoordinator({
-      dismissVisibleWindow: vi.fn(),
+      deferRendererClose: (callback) => callback(),
       emitBeforeClose: vi.fn(),
       shutdown: vi.fn(),
       exit: vi.fn(),

@@ -31,7 +31,7 @@ distribution is outside the supported matrix.
 | LN-DENO-017 | Native notifications and file open/reveal actions MUST either complete on the current platform or report the capability unavailable. The bridge MUST NOT advertise an operation that resolves as an unimplemented command or silent no-op.                                                                                                                                                                                                                                                             |
 | LN-DENO-018 | Deno MUST retain one application instance, deliver `lapis` and `lapis-notes` URLs to the ready workspace, and focus the existing window for later launches.                                                                                                                                                                                                                                                                                                                                            |
 | LN-DENO-019 | Deno menus MUST expose the established application, File, Edit, View, Window, and Help actions where the platform supports them. Unsupported native roles MUST have a documented equivalent or remain disabled.                                                                                                                                                                                                                                                                                        |
-| LN-DENO-020 | Window close and vault replacement MUST persist layout and dispose views, watches, databases, plugins, host services, and the compatibility lease before process exit or session replacement. Native close events from the adopted bootstrap or visible window MUST enter one coordinator; the visible presentation MUST dismiss immediately while teardown continues without calling unreliable programmatic secondary-window close or hide paths. Accepted renderer teardown MUST emit a structured close lifecycle signal without enabling verbose invocation logging.                                                    |
+| LN-DENO-020 | Window close and vault replacement MUST persist layout and dispose views, watches, databases, plugins, host services, and the compatibility lease before process exit or session replacement. Native close events from the adopted bootstrap or visible window MUST enter one coordinator. Renderer acknowledgement MUST precede native shutdown, with a bounded timeout as the fail-safe.                                                    |
 | LN-DENO-021 | New windows MUST be limited to the workspace popout path. External HTTP and HTTPS links MUST open in the system browser instead of receiving a privileged Deno desktop window.                                                                                                                                                                                                                                                                                                                         |
 | LN-DENO-022 | Local distribution MUST produce macOS and Linux artifacts with stable names, icons, verified target PTY libraries, and credential-safe signing hooks. It MUST reject Windows targets.                                                                                                                                                                                                                                                                                                                  |
 | LN-DENO-023 | Automated acceptance MUST cover first selection, cancellation, reopening, missing-vault fallback, switching, layout, plugin restoration, retained services, app URLs, notifications, external links, and packaged startup.                                                                                                                                                                                                                                                                             |
@@ -56,6 +56,7 @@ distribution is outside the supported matrix.
 | LN-DENO-042 | System WebView and CEF Graph canvases MUST share the `1/128…8` camera range, deterministic visible entrance settlement, zoom-stable geometry, viewport culling, semantic colours, and animated neighbourhood emphasis. Reduced-motion OS preference MUST disable entrance and emphasis animation without changing the final graph. |
 | LN-DENO-043 | Native Graph Groups MUST evaluate through the bounded path-only Search bridge, and chronological Animate/Stop MUST remain renderer-local. Group or time-lapse activity MUST NOT transfer query text, paths, tags, filenames, or node labels into native telemetry. System WebView and CEF MUST preserve Group order, colour precedence, force ranges, and time-lapse restoration. |
 | LN-DENO-044 | On macOS, closing the left sidebar MUST apply the ribbon-adjusted native traffic-light inset to the leading top-tabs or stacked-tabs main-pane header through the Design Core window-controls token. Reopening the left sidebar MUST remove that main-pane offset while retaining the sidebar tab-bar inset, and ribbon-off sessions MUST use the full traffic-light inset. |
+| LN-DENO-045 | The close coordinator MUST defer renderer notification out of native close and binding callback stacks. It MUST use a private same-origin signal because post-close script execution and programmatic close, hide, or opacity operations are unreliable on secondary macOS WebViews. The renderer MUST dismiss presentation before shared teardown and retain the structured ready acknowledgement. |
 
 ### LN-DENO-044 acceptance details
 
@@ -296,6 +297,18 @@ Deno window close verifies:
   window close or hide.
 - Packaged acceptance MUST request a real window close and observe a clean
   process exit without sending an external termination signal.
+
+### LN-DENO-045 acceptance details
+
+The macOS close transport verifies:
+
+- Native close MUST release the private pending renderer request on the next
+  event-loop turn instead of invoking the secondary WebView from the close
+  callback.
+- The renderer MUST hide its document before disposing the active session and
+  acknowledging readiness through the bounded native binding.
+- Normal close MUST reach renderer-ready without waiting for the fail-safe or
+  producing legacy request-abort warnings.
 
 ### LN-DENO-021 acceptance details
 

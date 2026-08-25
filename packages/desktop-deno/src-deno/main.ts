@@ -13,6 +13,7 @@ import {
   createDenoCloseCoordinator,
   installDenoWindowCloseRouting,
 } from "./close-coordinator.ts";
+import { createDesktopCloseSignal } from "./close-signal.ts";
 import { createDesktopLogger } from "./desktop-logging.ts";
 import {
   createNativeDesktopTelemetry,
@@ -104,24 +105,16 @@ try {
   desktopLog.error("[desktop] terminal runtime unavailable", error);
 }
 let removeCloseRouting = () => {};
+const closeSignal = createDesktopCloseSignal();
 const closeCoordinator = createDenoCloseCoordinator({
-  dismissVisibleWindow() {
-    try {
-      if (!win.isClosed()) win.setOpacity(0);
-    } catch (error) {
-      desktopLog.warn("[desktop-close] window dismissal failed", error);
-    }
-  },
   emitBeforeClose() {
     desktopLog.info("[desktop-close] request");
-    void emitRendererEvent({
-      channel: "desktop_renderer_before_close",
-      payload: null,
-    });
+    closeSignal.requestClose();
   },
   async shutdown() {
     desktopLog.info("[desktop-close] shutdown");
     removeCloseRouting();
+    closeSignal.close();
     fileWatch.shutdown();
     pluginAssets.clear();
     vaultResources.clear();
@@ -341,6 +334,8 @@ async function proxyVite(
 }
 
 Deno.serve(async (request) => {
+  const closeResponse = closeSignal.respond(request);
+  if (closeResponse) return await closeResponse;
   const agentToolResponse = await agentRuntime.respond(request);
   if (agentToolResponse) return agentToolResponse;
   const vaultResourceResponse = await vaultResources.respond(request);

@@ -31,6 +31,7 @@ import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import { waitForDesktopBindings } from "./binding-probe";
 import { applyDesktopHostDocument } from "./desktop-host-document";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
+import { waitForDesktopCloseSignal } from "./desktop-close-signal";
 import { installDenoExternalLinkPolicy } from "./external-links";
 import {
   createDesktopRendererTelemetry,
@@ -111,7 +112,21 @@ const acceptanceAppUrls: string[] = [];
 const acceptanceAppUrlWaiters: Array<(url: string) => void> = [];
 let appUrlFlushPending = false;
 let appUrlFlushRequested = false;
+let rendererCloseRequested = false;
 let invokeDesktop: DesktopRawInvoke;
+
+function dispatchRendererClose(): void {
+  if (rendererCloseRequested) return;
+  rendererCloseRequested = true;
+  document.documentElement.setAttribute("data-desktop-closing", "true");
+  for (const listener of beforeCloseListeners) listener();
+}
+
+void waitForDesktopCloseSignal()
+  .then((requested) => {
+    if (requested) dispatchRendererClose();
+  })
+  .catch(() => {});
 
 async function flushPendingAppUrls(): Promise<void> {
   if (appUrlFlushPending) {
@@ -212,7 +227,7 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
     return;
   }
   if (detail?.channel === "desktop_renderer_before_close") {
-    for (const listener of beforeCloseListeners) listener();
+    dispatchRendererClose();
     return;
   }
   if (detail?.channel === "desktop_app_url_available") {
@@ -396,7 +411,9 @@ const bridge: DenoDesktopBridge = {
     return subscribe(openAboutListeners, listener);
   },
   onBeforeClose(listener) {
-    return subscribe(beforeCloseListeners, listener);
+    const unsubscribe = subscribe(beforeCloseListeners, listener);
+    if (rendererCloseRequested) queueMicrotask(listener);
+    return unsubscribe;
   },
   onAppUrlOpen(listener) {
     const unsubscribe = subscribe(appUrlListeners, listener);

@@ -546,10 +546,11 @@ Node compatibility listener or copying broker logic.
 The same private host owns Deno application-menu projection, validated external
 URL launch commands, and the bounded close coordinator. On macOS it routes both
 the adopted bootstrap and visible-window close sources through that coordinator
-and dismisses the visible presentation without using programmatic secondary
-window close or hide. Its renderer continues to own `App`, workspace, plugin,
-database, and vault-session disposal and acknowledges native close only after
-that shared teardown completes.
+and releases a private same-origin renderer close signal on the next event-loop
+turn. The renderer dismisses its presentation without using post-close native
+window close, hide, opacity, or script operations. It continues to own `App`,
+workspace, plugin, database, and vault-session disposal and acknowledges native
+close only after that shared teardown completes.
 Its boot document provides only a branded loading state until the renderer
 clears it or reports a startup failure through the existing status element.
 

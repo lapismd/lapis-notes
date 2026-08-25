@@ -5,8 +5,8 @@ export type DenoWindowCloseEvent = {
 type TimerHandle = ReturnType<typeof setTimeout>;
 
 export type DenoCloseCoordinatorOptions = {
-  dismissVisibleWindow?(): void;
   emitBeforeClose(): void;
+  deferRendererClose?(callback: () => void): void;
   shutdown(): Promise<void> | void;
   exit(code: number): void;
   timeoutMs?: number;
@@ -25,6 +25,9 @@ export function createDenoCloseCoordinator(
 ): DenoCloseCoordinator {
   const setTimer = options.setTimer ?? setTimeout;
   const clearTimer = options.clearTimer ?? clearTimeout;
+  const deferRendererClose =
+    options.deferRendererClose ??
+    ((callback: () => void) => setTimeout(callback, 0));
   const timeoutMs = options.timeoutMs ?? 10_000;
   let phase: "idle" | "pending" | "closing" = "idle";
   let timer: TimerHandle | undefined;
@@ -48,8 +51,9 @@ export function createDenoCloseCoordinator(
   const beginClose = () => {
     if (phase !== "idle") return;
     phase = "pending";
-    options.dismissVisibleWindow?.();
-    options.emitBeforeClose();
+    deferRendererClose(() => {
+      if (phase === "pending") options.emitBeforeClose();
+    });
     timer = setTimer(() => {
       void shutdownAndExit();
     }, timeoutMs);
