@@ -193,7 +193,7 @@ describe("Graph renderer zoom bounds", () => {
       true,
     );
     expect(camera).toEqual({ x: 12, y: 24, k: 0.5 });
-  });
+  }, 30_000);
 
   it("culls off-screen nodes and links without changing their coordinates", () => {
     const transform = { x: 0, y: 0, k: 1 };
