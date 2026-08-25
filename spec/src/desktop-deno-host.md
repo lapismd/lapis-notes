@@ -55,6 +55,19 @@ distribution is outside the supported matrix.
 | LN-DENO-041 | Global Graph startup against a native Turso vault MUST render a valid persisted snapshot before stale reconciliation and MUST use one serialized projected scan when rebuilding. Rapid Graph opens, settings changes, metadata revisions, and manual refreshes MUST NOT saturate the native event channel. |
 | LN-DENO-042 | System WebView and CEF Graph canvases MUST share the `1/128…8` camera range, deterministic visible entrance settlement, zoom-stable geometry, viewport culling, semantic colours, and animated neighbourhood emphasis. Reduced-motion OS preference MUST disable entrance and emphasis animation without changing the final graph. |
 | LN-DENO-043 | Native Graph Groups MUST evaluate through the bounded path-only Search bridge, and chronological Animate/Stop MUST remain renderer-local. Group or time-lapse activity MUST NOT transfer query text, paths, tags, filenames, or node labels into native telemetry. System WebView and CEF MUST preserve Group order, colour precedence, force ranges, and time-lapse restoration. |
+| LN-DENO-044 | On macOS, closing the left sidebar MUST apply the ribbon-adjusted native traffic-light inset to the leading top-tabs or stacked-tabs main-pane header through the Design Core window-controls token. Reopening the left sidebar MUST remove that main-pane offset while retaining the sidebar tab-bar inset, and ribbon-off sessions MUST use the full traffic-light inset. |
+
+### LN-DENO-044 acceptance details
+
+Desktop window-chrome acceptance verifies the ribbon-on and ribbon-off token
+mapping, left-sidebar open and closed states, and both top-tabs and stacked-tabs
+main-pane layouts. The leading visible tab and the sidebar reopen control clear
+the macOS traffic lights while declared drag regions remain usable.
+
+- With the ribbon visible, the main-pane token uses the traffic-light clearance remaining after the ribbon width.
+- Without the ribbon, the main-pane token uses the full macOS traffic-light clearance.
+- Closing the left sidebar offsets the leading top-tabs and stacked-tabs header; reopening it removes that main-pane offset and keeps the left tab-strip inset.
+- Native drag spacers remain drag regions while tab triggers and sidebar controls remain interactive.
 
 ### LN-DENO-039 acceptance details
 

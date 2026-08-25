@@ -377,6 +377,10 @@ composes the API-owned WASM provider in the renderer behind the same session
 boundary. Web WASM database imports use the driver's host-bundler entry so Vite
 serves worker and WASM assets without pulling the prebuilt worker-inline module
 through Rollup.
+The Deno host also supplies native window-control geometry as a public Design
+Core workspace token. Design Core decides which leading main-pane header uses
+that input when the left sidebar is closed; the host retains ribbon and macOS
+traffic-light measurements plus the separate open-sidebar tab-bar inset.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
 OPFS in exactly one Web Locks owner per vault; other tabs retain the generic
 database contract through bounded BroadcastChannel RPC and may promote when

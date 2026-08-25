@@ -28,6 +28,20 @@
   );
 }
 
+:root.lapis-desktop--macos
+  .ui-app-shell:has(> [data-ui-component="workspace-ribbon"]) {
+  --ui-workspace-window-controls-inline-start: var(
+    --lapis-desktop-window-controls-after-ribbon
+  );
+}
+
+:root.lapis-desktop--macos
+  .ui-app-shell:not(:has(> [data-ui-component="workspace-ribbon"])) {
+  --ui-workspace-window-controls-inline-start: var(
+    --lapis-desktop-window-controls-left
+  );
+}
+
 * {
   box-sizing: border-box;
 }
@@ -92,26 +106,6 @@ body {
   padding-inline-start: calc(
     var(--ui-workspace-sidebar-tab-header-inline-padding, 0.5rem) +
       var(--lapis-desktop-window-controls-sidebar-left)
-  );
-}
-
-:root.lapis-desktop--macos
-  .ui-app-shell:has(> [data-ui-component="workspace-ribbon"])
-  [data-workspace-tab-strip="top"]
-  > [data-ui-part="header-main"]
-  > [data-ui-part="left-toggle"] {
-  padding-inline-start: calc(
-    0.25rem + var(--lapis-desktop-window-controls-after-ribbon)
-  );
-}
-
-:root.lapis-desktop--macos
-  .ui-app-shell:not(:has(> [data-ui-component="workspace-ribbon"]))
-  [data-workspace-tab-strip="top"]
-  > [data-ui-part="header-main"]
-  > [data-ui-part="left-toggle"] {
-  padding-inline-start: calc(
-    0.25rem + var(--lapis-desktop-window-controls-left)
   );
 }
 

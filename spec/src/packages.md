@@ -467,6 +467,10 @@ the system-WebView compatibility path deterministically. The API manifest
 declares `dist/enhance.js` and its source counterpart as side effects so a
 production consumer cannot tree-shake the compatibility DOM initialization
 required before constructing `App`.
+Its desktop stylesheet maps ribbon-on and ribbon-off macOS traffic-light
+measurements to Design Core's window-controls token. It does not target the
+sidebar reopen button directly; top and stacked main-pane headers consume the
+generic token, while the open left sidebar keeps its dedicated tab-strip inset.
 
 The private web package consumes the public API, current core plugins,
 workspace, and Design Core presentation. It owns browser vault selection,
