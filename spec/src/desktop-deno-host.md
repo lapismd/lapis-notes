@@ -42,6 +42,15 @@ distribution is outside the supported matrix.
 | LN-DENO-028 | Deno MUST expose all five `desktop_terminal_session_*` commands through the shared terminal service, emit raw output and one exit event, close every PTY during host shutdown, and package the checksum-verified Sigma native library for each macOS or Linux target.                  |
 | LN-DENO-029 | The desktop development launcher MUST run `deno desktop` without `--no-npm` so declared npm imports in `packages/desktop-deno/deno.json` can load. It MUST preserve HMR, inspector, sloppy-import resolution, and development exclusions for `node_modules`, `dist`, and renderer `src`. It MUST expose a CEF debug entrypoint for renderer DevTools. It MAY create ignored package-local symlinks for declared sibling and workspace Deno source imports, and MUST refuse to replace non-owned paths. |
 | LN-DENO-030 | The desktop boot document MUST present a branded loading surface before the renderer mounts. It MUST center the Lapis logo, show muted `Loading…` text beneath it, support light and dark backgrounds, and retain the same status element for startup failures. |
+| LN-DENO-031 | Routine native bridge invocation logging MUST be disabled by default and enabled only at the `debug` severity through `LAPIS_DENO_LOG_LEVEL`. Default logging MUST retain bounded lifecycle notices, warnings, and failures without logging invocation payloads or credentials. |
+
+### LN-DENO-031 acceptance details
+
+Deno desktop logging verifies:
+
+- An unset or invalid log level MUST use `info` and suppress native invocation traces.
+- `debug` MUST print only the invoked command name, never its payload.
+- `warn`, `error`, and `silent` MUST progressively reduce console output while preserving the configured severity threshold.
 
 ### LN-DENO-011 acceptance details
 

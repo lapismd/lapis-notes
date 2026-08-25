@@ -10,6 +10,7 @@ import {
 } from "./application-menu.ts";
 import { createCapabilityRegistry } from "./capabilities.ts";
 import { createDenoCloseCoordinator } from "./close-coordinator.ts";
+import { createDesktopLogger } from "./desktop-logging.ts";
 import { DenoFileWatchService } from "./file-watch.ts";
 import { openExternalUrl } from "./native-actions.ts";
 import {
@@ -40,6 +41,9 @@ import {
 } from "./window-drag.ts";
 
 assertSupportedDenoDesktopVersion(Deno.version.deno);
+const desktopLog = createDesktopLogger({
+  level: Deno.env.get("LAPIS_DENO_LOG_LEVEL"),
+});
 
 const instance = await acquireDenoSingleInstance(userDataDir(), Deno.args);
 if (!instance.primary) {
@@ -85,18 +89,18 @@ try {
     libraryPath: await resolveDenoPtyLibrary(),
   });
 } catch (error) {
-  console.error("[desktop] terminal runtime unavailable", error);
+  desktopLog.error("[desktop] terminal runtime unavailable", error);
 }
 const closeCoordinator = createDenoCloseCoordinator({
   emitBeforeClose() {
-    console.log("[desktop-close] request");
+    desktopLog.info("[desktop-close] request");
     void emitRendererEvent({
       channel: "desktop_renderer_before_close",
       payload: null,
     });
   },
   async shutdown() {
-    console.log("[desktop-close] shutdown");
+    desktopLog.info("[desktop-close] shutdown");
     fileWatch.shutdown();
     pluginAssets.clear();
     await terminalRuntime?.shutdown();
@@ -105,7 +109,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     await singleInstance.close();
   },
   exit(code) {
-    console.log(`[desktop-close] exit:${code}`);
+    desktopLog.info(`[desktop-close] exit:${code}`);
     Deno.exit(code);
   },
 });
@@ -124,7 +128,7 @@ function registerDesktopBindings(): void {
             ? (args[1] as Record<string, unknown>)
             : {};
         if (!isWindowDragCommand(command)) {
-          console.log(`[desktop] invoke ${command}`);
+          desktopLog.debug(`[desktop] invoke ${command}`);
         }
         if (isWindowDragCommand(command)) {
           const screenX = Number(payload.screenX ?? 0);
@@ -240,7 +244,7 @@ win.addEventListener("menuclick", (event: Event) => {
   }
   if (id === DENO_MENU_IDS.learnMore) {
     void openExternalUrl("https://github.com/lapis-notes/lapis").catch(
-      (error) => console.error("[desktop] Learn More failed", error),
+      (error) => desktopLog.error("[desktop] Learn More failed", error),
     );
   }
 });

@@ -26,6 +26,9 @@ desktop-native Turso provider supplied by the host. `packages/desktop-deno` is
 the sole native desktop consumer and owns the Deno window, `win.bind()` bridge,
 native app-database handle, native host lifecycle, and services while remaining
 a consumer of public Lapis package boundaries.
+Its native console uses severity thresholds: routine bridge traffic is
+debug-only, while the default output is limited to bounded lifecycle notices,
+warnings, and failures and never includes invocation payloads or credentials.
 Its production acceptance builds through the package and restores an isolated
 real vault rather than substituting a browser-only renderer test.
 Target-specific artifact naming, metadata, icons, verified PTY libraries, and

@@ -27,6 +27,9 @@ host, so its Deno arguments must stay consistent with the package-local
 The Deno package also owns the initial HTML boot surface displayed before the
 renderer mounts; it may use package-local brand assets but must not move
 workspace startup policy out of the application packages.
+It also owns the native console threshold. `LAPIS_DENO_LOG_LEVEL=debug` enables
+command-name-only bridge traces; the default `info` level suppresses that
+routine traffic while retaining lifecycle, warning, and failure diagnostics.
 
 ## Requirements
 
