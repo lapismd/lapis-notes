@@ -50,6 +50,16 @@ distribution is outside the supported matrix.
 | LN-DENO-036 | Telemetry mode MUST trace desktop session startup as one root with bounded vault, configuration, plugin, and layout phases, then record readiness or failure and trace teardown. The renderer service MUST be installed before plugin loading, and session disposal MUST complete before provider flush and shutdown. Attributes and lifecycle logs MUST NOT contain vault identity, paths, plugin settings, or failure details.                                                                       |
 | LN-DENO-037 | Vault resource URLs MUST use a capability-scoped same-origin HTTP route with vault-root containment, explicit content types, no-store and nosniff headers, and binary response bodies. Raw vault bytes and `file:` URLs MUST NOT cross the Laufey binding string boundary, and text reads containing NUL bytes MUST fail before producing a native string response.                                                                                                                                    |
 | LN-DENO-038 | Before mounting application UI, the desktop renderer MUST mark the document engine from the native host's selected backend. The default and packaged system-webview backend MUST identify as WebKit, CEF MUST identify as Blink, and shared UI compatibility MUST NOT depend on Laufey's user-agent shape.                                                                                                                                                                                             |
+| LN-DENO-039 | System WebView and CEF sessions MUST consume the same Design Core scrollbar visibility setting persisted through `.obsidian/app.json`. File Explorer, Markdown, and other shared Scroll Areas MUST use Design Core's engine strategy without desktop-local scrollbar CSS, and the File Explorer thumb MUST remain flush to its container edge.                                                                                                                                             |
+
+### LN-DENO-039 acceptance details
+
+Cross-renderer scrollbar acceptance verifies:
+
+- Unsaved profiles default to `scroll`, and `scroll`, `hover`, and `always` changes persist through API configuration.
+- System WebView uses the Design Core native viewport and overlay while CEF uses the Design Core Bits UI strategy.
+- File Explorer, Markdown, and popout Scroll Areas inherit one live setting without consumer theme overrides.
+- The File Explorer scrollbar is edge-aligned and remains draggable without reserving a native gutter.
 
 ### LN-DENO-038 acceptance details
 

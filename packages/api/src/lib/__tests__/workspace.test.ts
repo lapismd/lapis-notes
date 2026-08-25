@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isEqual } from "lodash-es";
 import { effect_root } from "svelte/internal/client";
+import { APP_SHELL_SETTING_IDS } from "@lapismd/design-core/workspace/core";
 import type { App } from "../context.svelte";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
@@ -2175,6 +2176,7 @@ describe("Workspace compatibility", () => {
     }>();
     const values: Record<string, unknown> = {
       "editor.display.wrapLines": false,
+      [APP_SHELL_SETTING_IDS.appearanceScrollbarVisibility]: "hover",
       "unrelated.key": "keep",
     };
     let physicalWrites = 0;
@@ -2215,14 +2217,22 @@ describe("Workspace compatibility", () => {
     });
 
     expect(controller.settings.get("editor.display.wrapLines")).toBe(false);
+    expect(controller.appearance.scrollbarVisibility).toBe("hover");
     expect(controller.settings.update("editor.display.wrapLines", true)).toBe(
       true,
     );
+    expect(
+      controller.settings.update(
+        APP_SHELL_SETTING_IDS.appearanceScrollbarVisibility,
+        "always",
+      ),
+    ).toBe(true);
     await controller.settings.flushSave();
     expect(physicalWrites).toBe(1);
     expect(values).toEqual(
       expect.objectContaining({
         "editor.display.wrapLines": true,
+        [APP_SHELL_SETTING_IDS.appearanceScrollbarVisibility]: "always",
         "unrelated.key": "keep",
       }),
     );
