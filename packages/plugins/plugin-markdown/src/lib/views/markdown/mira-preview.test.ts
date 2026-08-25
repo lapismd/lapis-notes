@@ -21,4 +21,24 @@ describe("Mira reading preview", () => {
       /\.mira-markdown-preview\)\s*\{[^}]*overflow:\s*visible/s,
     );
   });
+
+  it("anchors the floating outline to the visible Reading pane", () => {
+    const source = readFileSync(
+      new URL("./mira-preview.svelte", import.meta.url),
+      "utf8",
+    );
+
+    expect(source).toMatch(
+      /\.markdown-view__reading\s*\{[^}]*transform:\s*translateZ\(0\)/s,
+    );
+    expect(source).toMatch(
+      /\.mira-markdown-outline--floating\)\s*\{[^}]*position:\s*fixed/s,
+    );
+    expect(source).toMatch(
+      /scroll-padding-block-start:\s*var\(--mira-preview-padding,\s*2rem\)/,
+    );
+    expect(source).toMatch(
+      /padding-inline-end:\s*max\(var\(--mira-preview-padding,\s*2rem\),\s*4rem\)/,
+    );
+  });
 });

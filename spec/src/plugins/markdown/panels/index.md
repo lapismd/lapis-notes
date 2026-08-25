@@ -12,7 +12,9 @@ published worker import stays extensionless for Vite `dist` consumers.
 Nested YAML front matter and heading-aware Markdown links stay in the
 metadata extractor, not in panel presentation.
 The inline Reading outline remains independent of the standalone Outline panel,
-and document frontmatter defaults do not override explicit embed inputs.
+stays centered in the visible document pane instead of the full scrolled body,
+and reserves inline-end body clearance for its marker rail. Document
+frontmatter defaults do not override explicit embed inputs.
 
 The Markdown plugin registers file- and vault-scoped views into the movable
 [Workspace Shell panel contract](../../../workspace-shell/panels.md). This page

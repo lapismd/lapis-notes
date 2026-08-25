@@ -11,6 +11,8 @@ Markdown metadata extraction now preserves nested YAML maps used by later
 task projections.
 The real Editor Settings and Markdown Frontmatter scenarios also verify the
 flat frontmatter and inline-outline defaults defined by LN-MD-108 and LN-MD-109.
+Markdown Reading Outline keeps the inline outline centered in the visible
+Reading pane and clear of body content as required by LN-MD-110.
 
 ## Requirements
 

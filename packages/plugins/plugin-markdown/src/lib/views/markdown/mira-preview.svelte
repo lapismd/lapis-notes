@@ -58,8 +58,11 @@
   .markdown-view__reading {
     display: flex;
     height: 100%;
+    isolation: isolate;
     min-height: 0;
     overflow: hidden;
+    position: relative;
+    transform: translateZ(0);
   }
 
   .markdown-view__reading :global(.markdown-view__reading-scroll) {
@@ -85,5 +88,18 @@
     height: auto;
     min-height: 0;
     overflow: visible;
+  }
+
+  .markdown-view__reading
+    :global([data-ui-part="scroll-area-viewport"]) {
+    scroll-padding-block-start: var(--mira-preview-padding, 2rem);
+  }
+
+  .markdown-view__reading :global(.mira-markdown-preview) {
+    padding-inline-end: max(var(--mira-preview-padding, 2rem), 4rem);
+  }
+
+  .markdown-view__reading :global(.mira-markdown-outline--floating) {
+    position: fixed;
   }
 </style>

@@ -910,9 +910,9 @@ export const MarkdownLintLoftBoarding: Story = {
         `Problems, ${count} problem${count === 1 ? "" : "s"}`,
       ),
     ).toBeVisible();
-    expect(problems.querySelectorAll(".ui-workspace-problems__row")).toHaveLength(
-      count,
-    );
+    expect(
+      problems.querySelectorAll(".ui-workspace-problems__row"),
+    ).toHaveLength(count);
   },
 };
 
@@ -1618,6 +1618,114 @@ export const MarkdownAuthoring: Story = {
         ).not.toBeNull(),
       );
     });
+  },
+};
+
+export const MarkdownReadingOutline: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-markdown-reading-outline",
+    "Reading mode keeps Mira's floating document outline centered in the visible pane and clear of the rendered Markdown body while the shared Scroll Area moves.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-reading-outline-chromium.png",
+  ),
+  tags: ["visual-pending"],
+  args: { scenario: "markdown-authoring" },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+
+    await userEvent.click(
+      canvas.getByRole("button", {
+        name: /^Current view: editing\nClick to read/,
+      }),
+    );
+    const readingSurface = await waitFor(() => {
+      const surface = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-component="markdown-mira-preview"]',
+      );
+      expect(surface).not.toBeNull();
+      return surface!;
+    });
+    const readingViewport = readingSurface.querySelector<HTMLElement>(
+      '[data-ui-part="scroll-area-viewport"]',
+    );
+    const readingPreview = readingSurface.querySelector<HTMLElement>(
+      ".mira-markdown-preview",
+    );
+    const readingOutline = readingSurface.querySelector<HTMLElement>(
+      ".mira-markdown-outline--floating",
+    );
+    const readingOutlineRail = readingOutline?.querySelector<HTMLElement>(
+      ".mira-markdown-outline__rail",
+    );
+    const readingDocument = readingPreview?.querySelector<HTMLElement>(
+      ".markdown-view__document",
+    );
+    expect(readingViewport).not.toBeNull();
+    expect(readingPreview).not.toBeNull();
+    expect(readingOutline).not.toBeNull();
+    expect(readingOutlineRail).not.toBeNull();
+    expect(readingDocument).not.toBeNull();
+
+    await step("center the outline and clear the document body", async () => {
+      expect(getComputedStyle(readingOutline!).position).toBe("fixed");
+      const viewportRect = readingViewport!.getBoundingClientRect();
+      const outlineRect = readingOutline!.getBoundingClientRect();
+      const railRect = readingOutlineRail!.getBoundingClientRect();
+      expect(
+        Math.abs(
+          outlineRect.top +
+            outlineRect.height / 2 -
+            (viewportRect.top + viewportRect.height / 2),
+        ),
+      ).toBeLessThan(1);
+      expect(
+        Number.parseFloat(
+          getComputedStyle(readingViewport!).scrollPaddingBlockStart,
+        ),
+      ).toBeGreaterThanOrEqual(32);
+      expect(
+        Number.parseFloat(getComputedStyle(readingPreview!).paddingInlineEnd),
+      ).toBeGreaterThanOrEqual(viewportRect.right - railRect.left);
+      expect(readingDocument!.getBoundingClientRect().right).toBeLessThan(
+        railRect.left - 12,
+      );
+    });
+
+    await step("keep the outline fixed while Reading scrolls", async () => {
+      expect(readingViewport!.scrollHeight).toBeGreaterThan(
+        readingViewport!.clientHeight,
+      );
+      const outlineTop = readingOutline!.getBoundingClientRect().top;
+      readingViewport!.scrollTop = Math.min(
+        320,
+        readingViewport!.scrollHeight - readingViewport!.clientHeight,
+      );
+      await fireEvent.scroll(readingViewport!);
+      expect(readingViewport!.scrollTop).toBeGreaterThan(0);
+      expect(
+        Math.abs(readingOutline!.getBoundingClientRect().top - outlineTop),
+      ).toBeLessThan(1);
+    });
+
+    await step(
+      "navigate headings below the view header clearance",
+      async () => {
+        const target = readingSurface.querySelector<HTMLElement>(
+          "#portable-authoring",
+        );
+        expect(target).not.toBeNull();
+        await userEvent.click(
+          within(readingOutline!).getByRole("button", {
+            name: "Open outline and scroll to Portable authoring",
+          }),
+        );
+        await waitFor(() => expect(target).toHaveFocus());
+        expect(
+          target!.getBoundingClientRect().top -
+            readingViewport!.getBoundingClientRect().top,
+        ).toBeGreaterThanOrEqual(31);
+      },
+    );
   },
 };
 

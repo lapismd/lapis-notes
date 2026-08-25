@@ -4,7 +4,9 @@ Markdown extensions and file-surface providers use the normal `Plugin`
 lifecycle. Registration is plugin-scoped and automatic teardown removes each
 contribution without adding another loader or contribution manifest.
 Markdown's frontmatter and inline-outline preferences remain flat plugin
-settings; they do not add another Mira extension or plugin lifecycle.
+settings; they do not add another Mira extension or plugin lifecycle. The
+Markdown-owned Reading wrapper adapts the floating outline to its shared outer
+scroll owner without changing Mira's portable outline contract.
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. A `deno-desktop` session reports
@@ -250,8 +252,10 @@ not churn when views reconfigure. Its full-file surface establishes the
 effective Mira `obsidian` theme so domain contributions inherit Lapis semantic
 paint instead of Mira's portable fallback. Its Reading mode makes the inherited
 Design Core Scroll Area the sole preview scroll owner while Mira's inner
-preview remains non-scrolling. Packaged metadata parse keeps an extensionless
-Vite worker import so web and desktop resolve the published worker file.
+preview remains non-scrolling. The floating outline stays centered in that
+visible Scroll Area and reserves body clearance for its collapsed rail.
+Packaged metadata parse keeps an extensionless Vite worker import so web and
+desktop resolve the published worker file.
 `openFile` triggers `file-open` after `onLoadFile` so file-scoped Markdown
 panels can follow the restored note without waiting for a layout write.
 Restoring a command panel still loads that view when its snapshot includes a

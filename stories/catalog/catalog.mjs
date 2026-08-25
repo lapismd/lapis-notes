@@ -527,6 +527,13 @@ export const workspaceCatalog = [
     storyId: "workspace-lapis-editor-demo--markdown-authoring",
   },
   {
+    id: "workspace-lapis-editor-demo-markdown-reading-outline",
+    title: "Lapis Editor Demo Markdown Reading Outline",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapis-notes/markdown + @lapismd/mira",
+    storyId: "workspace-lapis-editor-demo--markdown-reading-outline",
+  },
+  {
     id: "workspace-lapis-editor-demo-explorer-mutations",
     title: "Lapis Editor Demo Explorer Mutations",
     spec: "spec/src/editor-demo.md",
