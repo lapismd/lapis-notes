@@ -27,6 +27,20 @@ export interface GraphBuildOptions {
 
 const GLOBAL_GRAPH_PAGE_SIZE = 256;
 const LOCAL_GRAPH_QUERY_LIMIT = 10_000;
+const LOCAL_GRAPH_PATH_BATCH_SIZE = 200;
+
+function graphPathBatches(paths: string[]): string[][] {
+  const unique = [...new Set(paths)];
+  const batches: string[][] = [];
+  for (
+    let index = 0;
+    index < unique.length;
+    index += LOCAL_GRAPH_PATH_BATCH_SIZE
+  ) {
+    batches.push(unique.slice(index, index + LOCAL_GRAPH_PATH_BATCH_SIZE));
+  }
+  return batches;
+}
 
 function basename(path: string): string {
   return path.split("/").at(-1) ?? path;
@@ -518,14 +532,47 @@ async function queryRowsForPaths(
   paths: string[],
 ): Promise<AppDatabaseIndexedMetadataRow[]> {
   if (!paths.length) return [];
-  const pathSet = new Set(paths);
-  const rows = await app.metadataCache.queryMetadata({
-    extensions: ["md", "markdown"],
-    pathPrefixes: paths,
-    excludeHiddenPaths: true,
-    limit: Math.max(LOCAL_GRAPH_QUERY_LIMIT, paths.length),
+  const requestedPaths = [...new Set(paths)];
+  const pathSet = new Set(requestedPaths);
+  const rowsByPath = new Map<string, AppDatabaseIndexedMetadataRow>();
+  for (const batch of graphPathBatches(requestedPaths)) {
+    const rows = await app.metadataCache.queryMetadata({
+      extensions: ["md", "markdown"],
+      pathPrefixes: batch,
+      excludeHiddenPaths: true,
+      limit: Math.max(LOCAL_GRAPH_QUERY_LIMIT, batch.length),
+    });
+    for (const row of rows) {
+      if (pathSet.has(row.file.path)) rowsByPath.set(row.file.path, row);
+    }
+  }
+  return requestedPaths.flatMap((path) => {
+    const row = rowsByPath.get(path);
+    return row ? [row] : [];
   });
-  return rows.filter((row) => pathSet.has(row.file.path));
+}
+
+async function queryLocalLinks(
+  app: GraphApp,
+  query: {
+    direction: "incoming" | "outgoing";
+    paths: string[];
+    resolution: "all" | "resolved";
+  },
+): Promise<AppDatabaseLinkRecord[]> {
+  const records: AppDatabaseLinkRecord[] = [];
+  for (const paths of graphPathBatches(query.paths)) {
+    const remaining = LOCAL_GRAPH_QUERY_LIMIT - records.length;
+    if (remaining <= 0) break;
+    records.push(
+      ...(await app.metadataCache.queryLinks({
+        ...query,
+        paths,
+        limit: remaining,
+      })),
+    );
+  }
+  return records.slice(0, LOCAL_GRAPH_QUERY_LIMIT);
 }
 
 function markdownNeighbors(records: AppDatabaseLinkRecord[]): string[] {
@@ -564,42 +611,19 @@ async function collectLocalRows(
     if (depth >= settings.localGraph.depth) break;
 
     const [incoming, outgoing] = await Promise.all([
-      app.metadataCache.queryLinks({
+      queryLocalLinks(app, {
         direction: "incoming",
         paths: frontier,
         resolution: "resolved",
-        limit: LOCAL_GRAPH_QUERY_LIMIT,
       }),
-      app.metadataCache.queryLinks({
+      queryLocalLinks(app, {
         direction: "outgoing",
         paths: frontier,
         resolution: "all",
-        limit: LOCAL_GRAPH_QUERY_LIMIT,
       }),
     ]);
 
     const candidates = new Set(markdownNeighbors([...incoming, ...outgoing]));
-    if (settings.filters.showTags) {
-      const tags = [
-        ...new Set(
-          rows.flatMap((row) =>
-            row.tags.map((record) => normalizeGraphTag(record.tag).slice(1)),
-          ),
-        ),
-      ].filter(Boolean);
-      const taggedRows = await Promise.all(
-        tags.map((tag) =>
-          app.metadataCache.queryMetadata({
-            extensions: ["md", "markdown"],
-            requiredTags: [tag],
-            excludeHiddenPaths: true,
-            limit: LOCAL_GRAPH_QUERY_LIMIT,
-          }),
-        ),
-      );
-      for (const row of taggedRows.flat()) candidates.add(row.file.path);
-    }
-
     frontier = [...candidates].filter((path) => {
       if (depthByPath.has(path)) return false;
       depthByPath.set(path, depth + 1);

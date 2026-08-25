@@ -433,6 +433,21 @@ function chunkPaths(paths: string[]): string[][] {
   return chunks;
 }
 
+function balancedSqlDisjunction(clauses: string[]): string {
+  if (!clauses.length) return "0";
+  let level = [...clauses];
+  while (level.length > 1) {
+    const next: string[] = [];
+    for (let index = 0; index < level.length; index += 2) {
+      const left = level[index]!;
+      const right = level[index + 1];
+      next.push(right ? `(${left} OR ${right})` : left);
+    }
+    level = next;
+  }
+  return level[0]!;
+}
+
 function parseJson<T>(value: unknown, fallback: T): T {
   if (typeof value !== "string") return fallback;
   try {
@@ -2514,7 +2529,7 @@ export class TursoAppDatabase implements AppDatabase {
       const prefixClauses = query.pathPrefixes.map(
         () => "(f.path = ? OR f.path LIKE ? ESCAPE '\\')",
       );
-      conditions.push(`(${prefixClauses.join(" OR ")})`);
+      conditions.push(balancedSqlDisjunction(prefixClauses));
       for (const raw of query.pathPrefixes) {
         const prefix = raw.replace(/^\/+|\/+$/g, "");
         args.push(
@@ -2617,7 +2632,7 @@ export class TursoAppDatabase implements AppDatabase {
         `${prefix.replaceAll("%", "\\%").replaceAll("_", "\\_")}/%`,
       );
     }
-    return `AND (${clauses.join(" OR ")})`;
+    return `AND ${balancedSqlDisjunction(clauses)}`;
   }
 
   private deletePathStatements(path: string): TursoStatementInput[] {

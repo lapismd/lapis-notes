@@ -212,4 +212,131 @@ describe("graph data", () => {
       false,
     );
   });
+
+  test("batches a large local neighbourhood below the database path budget", async () => {
+    const activeFile = createFile("Notes/Active.md", "md");
+    const neighbours = Array.from({ length: 450 }, (_, index) =>
+      createFile(`Notes/Neighbour-${String(index).padStart(3, "0")}.md`, "md"),
+    );
+    const rows = [
+      createRow(activeFile, {
+        links: neighbours.map((file) => ({
+          targetText: file.path,
+          resolvedTargetPath: file.path,
+          type: "link" as const,
+          count: 1,
+        })),
+      }),
+      ...neighbours.map((file) => createRow(file)),
+    ];
+    const rowsByPath = new Map(rows.map((row) => [row.file.path, row]));
+    const metadataBatchSizes: number[] = [];
+    const linkBatchSizes: number[] = [];
+    const app = {
+      vault: {
+        getFileByPath(path: string) {
+          return path === activeFile.path
+            ? activeFile
+            : (neighbours.find((file) => file.path === path) ?? null);
+        },
+      },
+      metadataCache: {
+        async queryMetadata(query: { pathPrefixes?: string[] }) {
+          const paths = query.pathPrefixes ?? [];
+          metadataBatchSizes.push(paths.length);
+          if (paths.length > 200) throw new Error("metadata path batch too large");
+          return paths.flatMap((path) => {
+            const row = rowsByPath.get(path);
+            return row ? [row] : [];
+          });
+        },
+        async queryLinks(query: {
+          direction: "incoming" | "outgoing";
+          paths?: string[];
+        }) {
+          const paths = query.paths ?? [];
+          linkBatchSizes.push(paths.length);
+          if (paths.length > 200) throw new Error("link path batch too large");
+          const selected = new Set(paths);
+          const links = rows.flatMap((row) => row.links);
+          return query.direction === "incoming"
+            ? links.filter(
+                (link) =>
+                  link.resolvedTargetPath &&
+                  selected.has(link.resolvedTargetPath),
+              )
+            : links.filter((link) => selected.has(link.sourcePath));
+        },
+      },
+      workspace: { getActiveFile: () => activeFile },
+    } as any;
+    const settings = patchGraphSettings(DEFAULT_GRAPH_SETTINGS, {
+      localGraph: { depth: 2 },
+    });
+
+    const graph = await buildLocalGraph(app, settings, activeFile as never);
+
+    expect(graph.nodes.filter((node) => node.type === "note")).toHaveLength(
+      451,
+    );
+    expect(Math.max(...metadataBatchSizes)).toBeLessThanOrEqual(200);
+    expect(Math.max(...linkBatchSizes)).toBeLessThanOrEqual(200);
+    expect(metadataBatchSizes.length).toBeGreaterThan(2);
+    expect(linkBatchSizes.length).toBeGreaterThan(2);
+  });
+
+  test("does not expand a local neighbourhood through shared tags", async () => {
+    const activeFile = createFile("Notes/Active.md", "md");
+    const activeRow = createRow(activeFile, {
+      tags: ["#shared"],
+    });
+    const unrelatedFile = createFile("Notes/Unrelated.md", "md");
+    const unrelatedRow = createRow(unrelatedFile, { tags: ["#shared"] });
+    const queryMetadata = vi.fn(
+      async (query: {
+        pathPrefixes?: string[];
+        requiredTags?: string[];
+      }) => {
+        if (query.requiredTags?.length) {
+          throw new Error("Local Graph must not traverse shared tags");
+        }
+        const paths = new Set(query.pathPrefixes ?? []);
+        return [activeRow, unrelatedRow].filter((row) =>
+          paths.has(row.file.path),
+        );
+      },
+    );
+    const app = {
+      vault: {
+        getFileByPath(path: string) {
+          if (path === activeFile.path) return activeFile;
+          if (path === unrelatedFile.path) return unrelatedFile;
+          return null;
+        },
+      },
+      metadataCache: {
+        queryMetadata,
+        async queryLinks() {
+          return [];
+        },
+      },
+      workspace: { getActiveFile: () => activeFile },
+    } as any;
+    const settings = patchGraphSettings(DEFAULT_GRAPH_SETTINGS, {
+      filters: { showTags: true },
+      localGraph: { depth: 1 },
+    });
+
+    const graph = await buildLocalGraph(app, settings, activeFile as never);
+
+    expect(graph.centerNodeId).toBe("note:Notes/Active.md");
+    expect(graph.nodes.map((node) => node.id)).toEqual([
+      "note:Notes/Active.md",
+      "tag:#shared",
+    ]);
+    expect(queryMetadata).toHaveBeenCalledTimes(1);
+    expect(queryMetadata).not.toHaveBeenCalledWith(
+      expect.objectContaining({ requiredTags: expect.anything() }),
+    );
+  });
 });

@@ -332,6 +332,50 @@ describe("TursoAppDatabase", () => {
     await database.close();
   });
 
+  it("queries large path-prefix sets without exceeding SQLite expression depth", async () => {
+    const database = createDatabase("turso-balanced-path-prefixes");
+    await database.open();
+    const paths = Array.from(
+      { length: 128 },
+      (_, index) => `Notes/${String(index).padStart(3, "0")}.md`,
+    );
+    await Promise.all(
+      paths.map((path, index) =>
+        database.upsertIndexedFile({
+          file: {
+            path,
+            normalizedPath: path.toLowerCase(),
+            extension: "md",
+            mtime: index,
+            size: 1,
+            hash: `hash-${index}`,
+            indexed: true,
+          },
+          metadata: {
+            path,
+            hash: `hash-${index}`,
+            parserVersion: "balanced-prefixes-1",
+            metadata: {},
+          },
+          properties: [],
+          tags: [],
+          links: [],
+        }),
+      ),
+    );
+
+    await expect(
+      database.queryIndexedMetadataPage({
+        limit: paths.length,
+        include: ["tags", "links"],
+        query: { pathPrefixes: paths },
+      }),
+    ).resolves.toMatchObject({
+      rows: paths.map((path) => ({ file: { path } })),
+    });
+    await database.close();
+  });
+
   it("compiles projection filter, sort, and limit in SQL", async () => {
     const database = createDatabase("turso-projections");
     await database.open();

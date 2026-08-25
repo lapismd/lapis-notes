@@ -310,6 +310,9 @@ abstract class GraphViewBase extends ItemView {
 
   private async rebuild(): Promise<void> {
     const generation = this.buildGeneration.next();
+    const diagnosticPath = this.isLocal
+      ? (this.app.workspace.getActiveFile()?.path ?? null)
+      : null;
     if (this.overlay) {
       this.overlay.props.statusText = "Loading graph…";
       this.overlay.props.statusKind = "loading";
@@ -323,9 +326,15 @@ abstract class GraphViewBase extends ItemView {
         error instanceof Error ? error.message : String(error)
       }`;
       this.overlay.props.statusKind = "error";
+      this.plugin.reportGraphBuildFailure(
+        this.isLocal ? "local" : "global",
+        diagnosticPath,
+        error,
+      );
       return;
     }
     if (!this.buildGeneration.isCurrent(generation)) return;
+    this.plugin.clearGraphBuildFailure(this.isLocal ? "local" : "global");
     this.canonicalGraph = graph;
     const resolved = await this.plugin.resolveGraphSettings(graph, this.settings);
     if (!this.buildGeneration.isCurrent(generation)) return;

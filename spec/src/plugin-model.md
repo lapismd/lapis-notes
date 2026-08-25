@@ -109,6 +109,7 @@ chat to `.agents`.
 | LN-PLUG-034 | Canvas plugin views MAY retain package-owned simulation, camera, culling, and emphasis state when presentation-only. Emphasis MUST start on the next animation frame, remain elapsed-time normalized, and respect reduced motion. Such state MUST preserve keyboard and pointer navigation and MUST NOT become domain-data or workspace authority. |
 | LN-PLUG-035 | A plugin MAY use AppDatabase path-only Search to evaluate its own ordered presentation rules. It MUST keep rule persistence and precedence plugin-owned, react to Search-domain revisions, present invalid-query diagnostics locally, and MUST NOT import another plugin's manager, panel, or settings implementation. |
 | LN-PLUG-036 | A plugin-owned presentation-settings migration MUST be versioned, idempotent, and limited to fields whose semantics changed. It MUST preserve unrelated settings and MUST NOT read another application's configuration as a migration source. |
+| LN-PLUG-037 | A first-party plugin that exposes a retryable generated view MUST publish current build failures through an owner-scoped diagnostic collection when the failure requires user visibility. Resource-specific failures use an opaque resource; workspace failures use `null`. Recovery and plugin disposal MUST clear those diagnostics without opening Problems. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

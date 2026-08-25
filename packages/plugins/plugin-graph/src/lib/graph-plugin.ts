@@ -28,6 +28,11 @@ import {
   LocalGraphView,
   LocalGraphViewType,
 } from "./graph-view";
+import {
+  createGraphProblemReporter,
+  type GraphProblemReporter,
+  type GraphProblemScope,
+} from "./graph-problems";
 
 interface GraphFocusableView {
   focusActiveFile(): void;
@@ -49,6 +54,7 @@ export class GraphPlugin extends Plugin {
   private settings: GraphSettings = mergeGraphSettings(DEFAULT_GRAPH_SETTINGS);
   private settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingSettingsSave: PersistedGraphSettings | null = null;
+  private graphProblems: GraphProblemReporter | null = null;
   private readonly pathQueryCache = new Map<
     string,
     Promise<ReadonlySet<string>>
@@ -61,6 +67,16 @@ export class GraphPlugin extends Plugin {
 
   async onload(): Promise<void> {
     await this.initializeSettings();
+    this.graphProblems = createGraphProblemReporter(this);
+    this.register(
+      this.graphCoordinator.subscribe((state) => {
+        if (state.status === "error") {
+          this.reportGraphBuildFailure("global", null, state.error);
+        } else if (state.status === "ready") {
+          this.clearGraphBuildFailure("global");
+        }
+      }),
+    );
 
     this.registerView(GraphViewType, (leaf) => new GraphView(leaf, this), {
       kind: "command",
@@ -118,6 +134,7 @@ export class GraphPlugin extends Plugin {
 
   async onunload(): Promise<void> {
     this.graphCoordinator.dispose();
+    this.graphProblems = null;
     if (this.settingsSaveTimer) clearTimeout(this.settingsSaveTimer);
     this.settingsSaveTimer = null;
     const pending = this.pendingSettingsSave;
@@ -146,6 +163,18 @@ export class GraphPlugin extends Plugin {
 
   refreshGlobalGraph(force = false): Promise<void> {
     return this.graphCoordinator.requestRefresh("view-refresh", force);
+  }
+
+  reportGraphBuildFailure(
+    scope: GraphProblemScope,
+    path: string | null,
+    error: unknown,
+  ): void {
+    this.graphProblems?.report(scope, path, error);
+  }
+
+  clearGraphBuildFailure(scope: GraphProblemScope): void {
+    this.graphProblems?.clear(scope);
   }
 
   async resolveGraphSettings(

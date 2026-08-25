@@ -51,6 +51,7 @@ warm reconciliation, and the native plus WASM/OPFS large-vault gates.
 | LN-DB-036 | Opt-in desktop telemetry MAY trace bounded native database lifecycle, manifest, query, and indexing-boundary operations. It MUST preserve the AppDatabase method contract and MUST NOT export database identifiers, arguments, paths, Search text, document rows, or result contents. |
 | LN-DB-037 | Metadata and Search reconciliation telemetry MUST distinguish checkpoint hit, miss, completion, cancellation, and failure without changing `app_meta` checkpoint semantics. It MAY report bounded totals, processed, changed, deleted, result, provider-failure, and batch counts, but MUST NOT export manifest rows, fingerprints, paths, Search terms, snippets, or exception messages. |
 | LN-DB-038 | Indexed metadata paging MUST accept an optional metadata-domain projection while preserving the complete-row default. Direct Turso providers MUST materialize each requested page with bounded table-level reads and bind-safe path chunks rather than per-file child queries. AppDatabase MUST also expose an allowlisted path-only Search operation so consumers that need membership sets do not receive document bodies, snippets, or metadata payloads. |
+| LN-DB-039 | Indexed metadata path-prefix filters MUST remain valid for large bounded sets. Direct SQLite providers MUST compile disjunctions with bounded expression depth instead of a linear `OR` tree, while callers that expand graph neighbourhoods MUST still split path sets below the provider bind budget. |
 
 ### LN-DB-032 acceptance details
 
