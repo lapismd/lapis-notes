@@ -50,4 +50,16 @@ describe("@lapis-notes/bases public exports", () => {
     expect(source).toContain("serializeBasesDocument");
     expect(source).toContain("export default BasesPlugin");
   });
+
+  it("does not replace host typography tokens from its packaged stylesheet", () => {
+    const styles = readFileSync(
+      path.resolve(process.cwd(), "src/lib/styles.css"),
+      "utf8",
+    );
+    const rootThemeBlock = styles.match(/:root,\s*:host\s*\{(?<body>[^}]*)\}/u)
+      ?.groups?.body;
+
+    expect(rootThemeBlock).toBeDefined();
+    expect(rootThemeBlock).not.toMatch(/--font-(?:sans|mono)\s*:/u);
+  });
 });

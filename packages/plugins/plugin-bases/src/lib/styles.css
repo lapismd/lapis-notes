@@ -598,10 +598,6 @@
 /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
 :root, :host {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial,
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-    monospace;
   --spacing: 0.25rem;
   --container-md: 28rem;
   --container-5xl: 64rem;
@@ -2166,4 +2162,3 @@
 .bases-style-ring-ring-3e1868 {
   --tw-ring-color: var(--ring);
 }
-
