@@ -71,3 +71,18 @@ export function patchGraphSettings(
     groups: patch.groups ?? current.groups,
   });
 }
+
+export function moveGraphGroup(
+  groups: GraphGroupRule[],
+  index: number,
+  delta: number,
+): GraphGroupRule[] {
+  const target = index + delta;
+  if (index < 0 || index >= groups.length || target < 0 || target >= groups.length) {
+    return groups.map((group) => ({ ...group }));
+  }
+  const next = groups.map((group) => ({ ...group }));
+  const [group] = next.splice(index, 1);
+  if (group) next.splice(target, 0, group);
+  return next;
+}

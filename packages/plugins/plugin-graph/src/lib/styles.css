@@ -329,6 +329,70 @@
   width: 100%;
 }
 
+.graph-controls-section-count {
+  color: var(--ui-graph-controls-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.graph-controls-groups,
+.graph-controls-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.graph-controls-groups {
+  gap: 0.75rem;
+}
+
+.graph-controls-group {
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.graph-controls-group__header,
+.graph-controls-group__footer,
+.graph-controls-group__order {
+  display: flex;
+  align-items: center;
+}
+
+.graph-controls-group__header,
+.graph-controls-group__footer {
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.graph-controls-group__name {
+  flex: 1;
+  min-width: 0;
+}
+
+.graph-controls-group__footer .ui-color-picker {
+  flex: 1;
+  min-width: 0;
+}
+
+.graph-controls-group__order {
+  gap: 0.125rem;
+}
+
+.graph-controls-group__error {
+  margin: 0;
+  color: var(--destructive);
+  font-size: 0.75rem;
+}
+
+.graph-view .graph-controls-add-group {
+  width: 100%;
+}
+
+.graph-view .graph-controls-add-group svg,
+.graph-controls-group__order svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
 .graph-view [data-slot="switch"] {
   box-shadow: none;
 }

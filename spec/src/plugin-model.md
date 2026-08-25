@@ -103,6 +103,7 @@ chat to `.agents`.
 | LN-PLUG-032 | First-party plugins that need only selected indexed metadata domains or Search membership MUST use the API projection and path-only query contracts. They MUST NOT enumerate complete Search documents or issue per-file metadata lookups to reconstruct an indexed page. |
 | LN-PLUG-033 | A plugin that exposes multiple views over one generated global projection MUST own single-flight construction above the view lifetime. View closure MUST release subscriptions without discarding a valid plugin-owned snapshot, while plugin unload MUST cancel in-flight work and flush pending plugin data. |
 | LN-PLUG-034 | Canvas-based plugin views MAY retain package-owned force simulation, camera, culling, and emphasis state when those concerns are presentation-only. Such state MUST remain disposable, respect reduced motion, preserve keyboard and pointer navigation, and MUST NOT become a second domain-data or workspace persistence authority. |
+| LN-PLUG-035 | A plugin MAY use AppDatabase path-only Search to evaluate its own ordered presentation rules. It MUST keep rule persistence and precedence plugin-owned, react to Search-domain revisions, present invalid-query diagnostics locally, and MUST NOT import another plugin's manager, panel, or settings implementation. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

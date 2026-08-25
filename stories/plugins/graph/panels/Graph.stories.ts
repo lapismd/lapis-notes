@@ -32,12 +32,15 @@ const meta = {
     statsText: "",
     statusText: "",
     statusKind: null,
+    groupDiagnostics: {},
+    isAnimating: false,
     onFocusActiveFile: fn(),
     onZoomIn: fn(),
     onZoomOut: fn(),
     onResetView: fn(),
     onRefreshGraph: fn(),
     onResetDefaults: fn(),
+    onToggleAnimation: fn(),
     onSettingsPatch: fn(),
   },
   argTypes: {
@@ -48,6 +51,7 @@ const meta = {
     onResetView: { control: false },
     onRefreshGraph: { control: false },
     onResetDefaults: { control: false },
+    onToggleAnimation: { control: false },
     onSettingsPatch: { control: false },
   },
   tags: ["visual-pending", "test"],
@@ -134,6 +138,17 @@ function placementStory(
       ).toBe(
         graphStyle.getPropertyValue("--ui-graph-surface-foreground").trim(),
       );
+      for (const role of [
+        "--graph-text",
+        "--graph-line",
+        "--graph-node",
+        "--graph-node-unresolved",
+        "--graph-node-focused",
+        "--graph-node-tag",
+        "--graph-node-attachment",
+      ]) {
+        expect(graphStyle.getPropertyValue(role).trim()).not.toBe("");
+      }
       await userEvent.click(within(dialog).getByText("Filters"));
       await expect(within(dialog).getByLabelText("Search files")).toBeVisible();
       await expect(within(dialog).getByLabelText("Show tags")).toBeVisible();
@@ -153,6 +168,35 @@ function placementStory(
             });
           },
         });
+
+        await userEvent.click(
+          within(dialog).getByRole("button", { name: /Groups/ }),
+        );
+        await userEvent.click(
+          within(dialog).getByRole("button", { name: "Add group" }),
+        );
+        const groupQuery = within(dialog).getByLabelText("Group 1 query");
+        await userEvent.type(groupQuery, "path:Code");
+        await waitFor(() => expect(groupQuery).toHaveValue("path:Code"));
+
+        await userEvent.click(displayTrigger);
+        await userEvent.click(
+          within(dialog).getByRole("button", { name: "Animate graph" }),
+        );
+        const stopAnimation = await within(dialog).findByRole("button", {
+          name: "Stop graph animation",
+        });
+        await userEvent.click(stopAnimation);
+
+        await userEvent.click(
+          within(dialog).getByRole("button", { name: "Forces" }),
+        );
+        expect(
+          within(dialog).getByRole("slider", { name: "Center force" }),
+        ).toHaveAttribute("aria-valuemax", "1");
+        expect(
+          within(dialog).getByRole("slider", { name: "Link distance" }),
+        ).toHaveAttribute("aria-valuemax", "500");
       }
       await expectPanelSource(parameters, kind, layout);
     },

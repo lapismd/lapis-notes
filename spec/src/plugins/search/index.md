@@ -54,6 +54,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-044 | An active Search view MUST subscribe to revisioned AppDatabase changes and debounce re-execution of its current query after committed Search-domain changes or reset invalidation. It MUST suppress stale results and release the subscription on teardown.                                                                                                                                                                                    |
 | LN-SRCH-045 | Search startup MUST schedule exactly one reconciliation after the MetadataCache load promise completes and all configured startup providers are registered, and MUST keep persisted results queryable while that work runs. A matching checkpoint MUST skip the full scan even when unrelated configuration or workspace files change; missing or stale state MUST reconcile in bounded yielding batches and expose non-blocking indexing progress. A first index MUST reveal committed batches incrementally, and manual Refresh MUST force reconciliation. |
 | LN-SRCH-046 | Search MUST instrument query duration, requested and applied retrieval mode, result count, checkpoint outcome, refresh reason, aggregate reconciliation counts, provider-failure count, cancellation, and failure through the App telemetry contract. Telemetry MUST NOT include the query term, path prefix value, filenames, snippets, documents, provider payloads, or error messages, and matching warm checkpoints MUST produce no reconciliation span. |
+| LN-SRCH-047 | AppDatabase path-only Search MUST preserve the structured-query grammar, retrieval mode, ranking, provider, path-prefix, and limit semantics of document Search while returning only ordered vault-relative paths. Graph Filters and Groups MAY consume this operation for membership without importing Search package internals or transferring document bodies and snippets. |
 
 ## Runtime flow
 
@@ -112,3 +113,6 @@ Search syntax tag suggestions use revision-aware indexed facets.
 The governed Search panel story starts from persisted indexed facets, exposes a
 failed facet query as an alert, and proves a later committed invalidation
 recovers without enumerating Search documents or MetadataCache snapshots.
+Path-only Search remains an API database capability rather than a Search-plugin
+presentation API. Consumers receive membership paths only; indexing,
+structured-query semantics, and Search-domain revision ownership remain here.

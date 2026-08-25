@@ -54,6 +54,7 @@ distribution is outside the supported matrix.
 | LN-DENO-040 | The bounded native AppDatabase bridge MUST allow projected indexed-metadata pages and path-only Search matching without exposing SQL or unrequested document payloads. Native telemetry MAY classify the path-only operation as Search but MUST NOT record returned paths or query text. |
 | LN-DENO-041 | Global Graph startup against a native Turso vault MUST render a valid persisted snapshot before stale reconciliation and MUST use one serialized projected scan when rebuilding. Rapid Graph opens, settings changes, metadata revisions, and manual refreshes MUST NOT saturate the native event channel. |
 | LN-DENO-042 | System WebView and CEF Graph canvases MUST share the `1/128…8` camera range, deterministic visible entrance settlement, zoom-stable geometry, viewport culling, semantic colours, and animated neighbourhood emphasis. Reduced-motion OS preference MUST disable entrance and emphasis animation without changing the final graph. |
+| LN-DENO-043 | Native Graph Groups MUST evaluate through the bounded path-only Search bridge, and chronological Animate/Stop MUST remain renderer-local. Group or time-lapse activity MUST NOT transfer query text, paths, tags, filenames, or node labels into native telemetry. System WebView and CEF MUST preserve Group order, colour precedence, force ranges, and time-lapse restoration. |
 
 ### LN-DENO-039 acceptance details
 

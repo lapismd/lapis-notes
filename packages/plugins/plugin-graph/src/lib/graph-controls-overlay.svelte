@@ -4,6 +4,9 @@
   import { Input } from "@lapismd/design-core/shadcn/input";
   import { Slider } from "@lapismd/design-core/shadcn/slider";
   import { Switch } from "@lapismd/design-core/shadcn/switch";
+  import { ColorPicker, SortableArrayItem } from "@lapismd/design-core/forms";
+  import ChevronDown from "@lucide/svelte/icons/chevron-down";
+  import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import LocateFixed from "@lucide/svelte/icons/locate-fixed";
   import Minus from "@lucide/svelte/icons/minus";
   import Plus from "@lucide/svelte/icons/plus";
@@ -11,7 +14,12 @@
   import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
   import Settings from "@lucide/svelte/icons/settings";
   import X from "@lucide/svelte/icons/x";
-  import type { GraphSettings, GraphSettingsPatch } from "./graph-types";
+  import type {
+    GraphGroupRule,
+    GraphSettings,
+    GraphSettingsPatch,
+  } from "./graph-types";
+  import { moveGraphGroup } from "./graph-settings";
 
   let {
     isLocal,
@@ -19,12 +27,15 @@
     statsText,
     statusText,
     statusKind,
+    groupDiagnostics,
+    isAnimating,
     onFocusActiveFile,
     onZoomIn,
     onZoomOut,
     onResetView,
     onRefreshGraph,
     onResetDefaults,
+    onToggleAnimation,
     onSettingsPatch,
   }: {
     isLocal: boolean;
@@ -32,12 +43,15 @@
     statsText: string;
     statusText: string;
     statusKind: "loading" | "error" | null;
+    groupDiagnostics: Readonly<Record<string, string>>;
+    isAnimating: boolean;
     onFocusActiveFile: () => void;
     onZoomIn: () => void;
     onZoomOut: () => void;
     onResetView: () => void;
     onRefreshGraph: () => void;
     onResetDefaults: () => void;
+    onToggleAnimation: () => void;
     onSettingsPatch: (patch: GraphSettingsPatch) => void;
   } = $props();
 
@@ -63,6 +77,55 @@
     if (Number.isFinite(nextValue)) {
       onSettingsPatch(createPatch(nextValue));
     }
+  }
+
+  const groupColors = [
+    "#3b82f6",
+    "#16a34a",
+    "#d97706",
+    "#9333ea",
+    "#db2777",
+  ];
+
+  function updateGroups(groups: GraphGroupRule[]): void {
+    onSettingsPatch({ groups });
+  }
+
+  function updateGroup(
+    id: string,
+    patch: Partial<GraphGroupRule>,
+  ): void {
+    updateGroups(
+      settings.groups.map((group) =>
+        group.id === id ? { ...group, ...patch } : group,
+      ),
+    );
+  }
+
+  function addGroup(): void {
+    const index = settings.groups.length;
+    const id =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `group-${Date.now()}-${index}`;
+    updateGroups([
+      ...settings.groups,
+      {
+        id,
+        name: `Group ${index + 1}`,
+        query: "",
+        color: groupColors[index % groupColors.length]!,
+        enabled: true,
+      },
+    ]);
+  }
+
+  function removeGroup(id: string): void {
+    updateGroups(settings.groups.filter((group) => group.id !== id));
+  }
+
+  function moveGroup(index: number, delta: number): void {
+    updateGroups(moveGraphGroup(settings.groups, index, delta));
   }
 
   const toolbarIconStyle = "width: 12px; height: 12px";
@@ -290,6 +353,113 @@
           </Accordion.Content>
         </Accordion.Item>
 
+        <Accordion.Item value="groups">
+          <Accordion.Trigger
+            style="height: 40px; min-height: 40px;"
+            indicatorPosition="start"
+            indicatorVariant="disclosure"
+            class="graph-controls-trigger"
+          >
+            <div class="graph-controls-trigger__content">
+              <span>Groups</span>
+              <span class="graph-controls-section-count"
+                >{settings.groups.length}</span
+              >
+            </div>
+          </Accordion.Trigger>
+
+          <Accordion.Content class="graph-controls-section-content">
+            <div class="graph-controls-groups">
+              {#each settings.groups as group, index (group.id)}
+                <SortableArrayItem
+                  id={group.id}
+                  {index}
+                  compact
+                  inset="tight"
+                  onRemove={() => removeGroup(group.id)}
+                >
+                  <div class="graph-controls-group">
+                    <div class="graph-controls-group__header">
+                      <Input
+                        aria-label={`Group ${index + 1} name`}
+                        class="graph-controls-input graph-controls-group__name"
+                        value={group.name}
+                        oninput={(event) =>
+                          updateGroup(group.id, {
+                            name: event.currentTarget.value,
+                          })}
+                      />
+                      <Switch
+                        aria-label={`Enable ${group.name || `Group ${index + 1}`}`}
+                        checked={group.enabled}
+                        onCheckedChange={(enabled) =>
+                          updateGroup(group.id, { enabled })}
+                      />
+                    </div>
+
+                    <Input
+                      aria-label={`Group ${index + 1} query`}
+                      placeholder="path:Code"
+                      class="graph-controls-input"
+                      value={group.query}
+                      aria-invalid={groupDiagnostics[group.id]
+                        ? "true"
+                        : undefined}
+                      oninput={(event) =>
+                        updateGroup(group.id, {
+                          query: event.currentTarget.value,
+                        })}
+                    />
+                    {#if groupDiagnostics[group.id]}
+                      <p class="graph-controls-group__error" role="alert">
+                        {groupDiagnostics[group.id]}
+                      </p>
+                    {/if}
+
+                    <div class="graph-controls-group__footer">
+                      <ColorPicker
+                        value={group.color}
+                        ariaLabel={`${group.name || `Group ${index + 1}`} color`}
+                        onChange={(color) => updateGroup(group.id, { color })}
+                      />
+                      <div class="graph-controls-group__order">
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          aria-label={`Move ${group.name || `Group ${index + 1}`} up`}
+                          disabled={index === 0}
+                          onclick={() => moveGroup(index, -1)}
+                        >
+                          <ChevronUp aria-hidden="true" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          aria-label={`Move ${group.name || `Group ${index + 1}`} down`}
+                          disabled={index === settings.groups.length - 1}
+                          onclick={() => moveGroup(index, 1)}
+                        >
+                          <ChevronDown aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </SortableArrayItem>
+              {/each}
+
+              <Button
+                variant="outline"
+                size="sm"
+                class="graph-controls-add-group"
+                onclick={addGroup}
+              >
+                <Plus aria-hidden="true" />
+                Add group
+              </Button>
+            </div>
+          </Accordion.Content>
+        </Accordion.Item>
+
         <Accordion.Item value="display">
           <Accordion.Trigger
             style="height: 40px; min-height: 40px;"
@@ -304,6 +474,20 @@
 
           <Accordion.Content class="graph-controls-section-content">
             <div class="graph-controls-field-list">
+              <div class="graph-controls-toggle-row">
+                <span class="graph-controls-label">Time-lapse</span>
+                <Button
+                  variant={isAnimating ? "destructive" : "outline"}
+                  size="sm"
+                  aria-label={isAnimating
+                    ? "Stop graph animation"
+                    : "Animate graph"}
+                  onclick={onToggleAnimation}
+                >
+                  {isAnimating ? "Stop" : "Animate"}
+                </Button>
+              </div>
+
               <div class="graph-controls-toggle-row">
                 <span class="graph-controls-label">Show arrows</span>
                 <Switch
@@ -440,7 +624,7 @@
                   aria-label="Center force"
                   type="single"
                   min={0}
-                  max={0.3}
+                  max={1}
                   step={0.01}
                   class="graph-controls-slider__control"
                   bind:value={
@@ -512,7 +696,7 @@
                   aria-label="Link distance"
                   type="single"
                   min={40}
-                  max={220}
+                  max={500}
                   step={5}
                   class="graph-controls-slider__control"
                   bind:value={

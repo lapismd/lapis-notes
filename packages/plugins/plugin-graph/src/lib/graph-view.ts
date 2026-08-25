@@ -1,7 +1,6 @@
 import { ItemView, Menu, Notice, type WorkspaceLeaf } from "@lapis-notes/api";
 import {
-  buildLocalGraph,
-  filterGraphBySettings,
+  buildCanonicalLocalGraph,
   graphNodeIdForFile,
 } from "./graph-data";
 import type { GraphCoordinatorState } from "./graph-data-coordinator";
@@ -66,9 +65,13 @@ abstract class GraphViewBase extends ItemView {
   private currentGraphPaths: Set<string> = new Set();
   private unregisterView: (() => void) | null = null;
   private readonly buildGeneration = new GraphBuildGeneration();
+  private readonly deriveGeneration = new GraphBuildGeneration();
   private readonly scheduleRebuild = createDebounce(() => {
     void this.rebuild();
   }, 120);
+  private readonly scheduleDerive = createDebounce(() => {
+    void this.deriveGraphFromSettings();
+  }, 90);
 
   constructor(
     leaf: WorkspaceLeaf | undefined,
@@ -107,6 +110,8 @@ abstract class GraphViewBase extends ItemView {
         statsText: "",
         statusText: "Loading graph…",
         statusKind: "loading",
+        groupDiagnostics: {},
+        isAnimating: false,
         onFocusActiveFile: () => {
           this.focusActiveFile();
         },
@@ -129,6 +134,13 @@ abstract class GraphViewBase extends ItemView {
         onResetDefaults: () => {
           this.resetLocalSettings();
         },
+        onToggleAnimation: () => {
+          if (this.renderer?.isTimeLapseRunning()) {
+            this.renderer.stopTimeLapse();
+          } else {
+            this.renderer?.startTimeLapse();
+          }
+        },
         onSettingsPatch: (patch: GraphSettingsPatch) => {
           this.updateLocalSettings(patch);
         },
@@ -149,6 +161,13 @@ abstract class GraphViewBase extends ItemView {
           "graph.layout.duration.ms": summary.durationMs,
           "graph.node.count": summary.nodeCount,
           "graph.link.count": summary.linkCount,
+        });
+      },
+      onTimeLapseStateChange: (state) => {
+        if (this.overlay) this.overlay.props.isAnimating = state.running;
+        this.app.telemetry.recordEvent("graph.timelapse", {
+          running: state.running,
+          reason: state.reason,
         });
       },
     });
@@ -220,7 +239,9 @@ abstract class GraphViewBase extends ItemView {
 
   onunload(): void {
     this.scheduleRebuild.cancel();
+    this.scheduleDerive.cancel();
     this.buildGeneration.invalidate();
+    this.deriveGeneration.invalidate();
     this.unregisterView?.();
     this.unregisterView = null;
     this.unsubscribeCoordinator?.();
@@ -268,16 +289,20 @@ abstract class GraphViewBase extends ItemView {
   }
 
   applyGraphSettings(settings: GraphSettings): void {
+    const previous = this.settings;
     this.settings = mergeGraphSettings(settings);
     if (this.overlay) {
       this.overlay.props.settings = this.settings;
     }
-    if (this.isLocal) {
-      void this.rebuild();
+    if (
+      this.isLocal &&
+      previous.localGraph.depth !== this.settings.localGraph.depth
+    ) {
+      this.scheduleRebuild();
       return;
     }
     if (this.canonicalGraph) {
-      this.renderGraph(filterGraphBySettings(this.canonicalGraph, this.settings));
+      this.scheduleDerive();
     }
   }
 
@@ -301,7 +326,13 @@ abstract class GraphViewBase extends ItemView {
       return;
     }
     if (!this.buildGeneration.isCurrent(generation)) return;
-    this.renderGraph(graph);
+    this.canonicalGraph = graph;
+    const resolved = await this.plugin.resolveGraphSettings(graph, this.settings);
+    if (!this.buildGeneration.isCurrent(generation)) return;
+    if (this.overlay) {
+      this.overlay.props.groupDiagnostics = resolved.matches.groupDiagnostics;
+    }
+    this.renderGraph(resolved.graph);
     if (this.overlay) {
       this.overlay.props.settings = this.settings;
       this.overlay.props.statsText = this.getStatsText(graph);
@@ -318,7 +349,7 @@ abstract class GraphViewBase extends ItemView {
     ) {
       this.coordinatorGraphVersion = state.version;
       this.canonicalGraph = state.graph;
-      this.renderGraph(filterGraphBySettings(state.graph, this.settings));
+      void this.deriveGraphFromSettings();
     }
 
     const progress = state.progress;
@@ -340,6 +371,21 @@ abstract class GraphViewBase extends ItemView {
       this.overlay.props.statusText = "";
       this.overlay.props.statusKind = null;
     }
+  }
+
+  private async deriveGraphFromSettings(): Promise<void> {
+    const canonical = this.canonicalGraph;
+    if (!canonical) return;
+    const generation = this.deriveGeneration.next();
+    const resolved = await this.plugin.resolveGraphSettings(
+      canonical,
+      this.settings,
+    );
+    if (!this.deriveGeneration.isCurrent(generation)) return;
+    if (this.overlay) {
+      this.overlay.props.groupDiagnostics = resolved.matches.groupDiagnostics;
+    }
+    this.renderGraph(resolved.graph);
   }
 
   private renderGraph(graph: GraphData): void {
@@ -529,7 +575,7 @@ export class LocalGraphView extends GraphViewBase {
   }
 
   protected getGraphData(settings: GraphSettings) {
-    return buildLocalGraph(
+    return buildCanonicalLocalGraph(
       this.app,
       settings,
       this.app.workspace.getActiveFile(),

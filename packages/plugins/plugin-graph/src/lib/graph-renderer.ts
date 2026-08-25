@@ -53,6 +53,10 @@ interface GraphRendererCallbacks {
     nodeCount: number;
     linkCount: number;
   }) => void;
+  onTimeLapseStateChange?: (state: {
+    running: boolean;
+    reason: "started" | "stopped" | "completed" | "graph-changed";
+  }) => void;
 }
 
 export type GraphViewportTransform = {
@@ -147,6 +151,72 @@ export function createGraphForceSimulation(
     )
     .alphaDecay(0.04)
     .stop();
+}
+
+function graphNodeChronology(node: GraphNode): number {
+  if (typeof node.ctime === "number" && node.ctime > 0) return node.ctime;
+  if (typeof node.mtime === "number" && node.mtime > 0) return node.mtime;
+  return Number.POSITIVE_INFINITY;
+}
+
+export function createGraphTimeLapsePlan(graph: GraphData): string[] {
+  const primary = graph.nodes
+    .filter((node) => node.type === "note" || node.type === "attachment")
+    .sort((left, right) => {
+      const chronology = graphNodeChronology(left) - graphNodeChronology(right);
+      return Number.isNaN(chronology) || chronology === 0
+        ? left.id.localeCompare(right.id)
+        : chronology;
+    });
+  const primaryRank = new Map(primary.map((node, index) => [node.id, index]));
+  const auxiliaryRank = new Map<string, number>();
+  for (const link of graph.links) {
+    const sourceRank = primaryRank.get(link.source);
+    const targetRank = primaryRank.get(link.target);
+    if (sourceRank !== undefined && targetRank === undefined) {
+      auxiliaryRank.set(
+        link.target,
+        Math.min(auxiliaryRank.get(link.target) ?? Infinity, sourceRank),
+      );
+    }
+    if (targetRank !== undefined && sourceRank === undefined) {
+      auxiliaryRank.set(
+        link.source,
+        Math.min(auxiliaryRank.get(link.source) ?? Infinity, targetRank),
+      );
+    }
+  }
+
+  const entries = [
+    ...primary.map((node, index) => ({ id: node.id, rank: index, kind: 0 })),
+    ...graph.nodes
+      .filter((node) => !primaryRank.has(node.id))
+      .map((node) => ({
+        id: node.id,
+        rank: auxiliaryRank.get(node.id) ?? Infinity,
+        kind: 1,
+      })),
+  ];
+  entries.sort(
+    (left, right) =>
+      left.rank - right.rank ||
+      left.kind - right.kind ||
+      left.id.localeCompare(right.id),
+  );
+  return entries.map((entry) => entry.id);
+}
+
+export function graphTimeLapseVisibleCount(
+  elapsedMs: number,
+  durationMs: number,
+  total: number,
+): number {
+  if (total <= 0) return 0;
+  if (durationMs <= 0) return total;
+  return Math.min(
+    total,
+    Math.floor(clamp(elapsedMs / durationMs, 0, 1) * total),
+  );
 }
 
 export function graphNodeIntersectsViewport(options: {
@@ -433,6 +503,11 @@ export class GraphRenderer {
   private positions: Map<string, StoredPosition> = new Map();
   private resizeObserver: ResizeObserver | null = null;
   private animationFrame: number | null = null;
+  private timeLapseFrame: number | null = null;
+  private timeLapseStartedAt = 0;
+  private timeLapseDurationMs = 10_000;
+  private timeLapseOrder: string[] = [];
+  private visibleTimeLapseNodes: Set<string> | null = null;
   private hoveredNodeId: string | null = null;
   private focusedNodeId: string | null = null;
   private emphasisProgress = 0;
@@ -514,6 +589,7 @@ export class GraphRenderer {
   }
 
   setGraph(graph: GraphData, settings: GraphSettings): void {
+    this.stopTimeLapse("graph-changed");
     const sameTopology = this.hasSameTopology(graph);
     this.storePositions();
     this.graph = graph;
@@ -643,12 +719,54 @@ export class GraphRenderer {
     this.resize();
   }
 
+  startTimeLapse(durationMs = 10_000): void {
+    if (!this.nodes.length) return;
+    this.stopTimeLapse("stopped", false);
+    this.timeLapseDurationMs = Math.max(1, durationMs);
+    this.timeLapseOrder = createGraphTimeLapsePlan(this.graph);
+    this.visibleTimeLapseNodes = new Set();
+    this.timeLapseStartedAt = performance.now();
+    this.callbacks.onTimeLapseStateChange?.({
+      running: true,
+      reason: "started",
+    });
+    this.scheduleTimeLapseFrame();
+    this.queueRender();
+  }
+
+  stopTimeLapse(
+    reason: "stopped" | "completed" | "graph-changed" = "stopped",
+    notify = true,
+  ): void {
+    const wasRunning = this.visibleTimeLapseNodes !== null;
+    if (this.timeLapseFrame !== null) {
+      cancelAnimationFrame(this.timeLapseFrame);
+      this.timeLapseFrame = null;
+    }
+    this.visibleTimeLapseNodes = null;
+    this.timeLapseOrder = [];
+    if (wasRunning) {
+      this.queueRender();
+      if (notify) {
+        this.callbacks.onTimeLapseStateChange?.({ running: false, reason });
+      }
+    }
+  }
+
+  isTimeLapseRunning(): boolean {
+    return this.visibleTimeLapseNodes !== null;
+  }
+
   destroy(): void {
     this.storePositions();
     this.simulation.stop();
     if (this.animationFrame !== null) {
       cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
+    }
+    if (this.timeLapseFrame !== null) {
+      cancelAnimationFrame(this.timeLapseFrame);
+      this.timeLapseFrame = null;
     }
     this.resizeObserver?.disconnect();
     this.wrapperEl.remove();
@@ -1160,6 +1278,44 @@ export class GraphRenderer {
     return progress < 1;
   }
 
+  private scheduleTimeLapseFrame(): void {
+    if (this.timeLapseFrame !== null || !this.visibleTimeLapseNodes) return;
+    this.timeLapseFrame = requestAnimationFrame((now) => {
+      this.timeLapseFrame = null;
+      const visible = this.visibleTimeLapseNodes;
+      if (!visible) return;
+      const elapsed = Math.max(0, now - this.timeLapseStartedAt);
+      const targetCount = graphTimeLapseVisibleCount(
+        elapsed,
+        this.timeLapseDurationMs,
+        this.timeLapseOrder.length,
+      );
+      let added = 0;
+      while (visible.size < targetCount && added < 64) {
+        const nodeId = this.timeLapseOrder[visible.size];
+        if (!nodeId) break;
+        visible.add(nodeId);
+        added += 1;
+      }
+      if (added > 0) {
+        this.simulation.alpha(Math.max(this.simulation.alpha(), 0.08)).restart();
+        this.queueRender();
+      }
+      if (
+        elapsed >= this.timeLapseDurationMs &&
+        visible.size >= this.timeLapseOrder.length
+      ) {
+        this.stopTimeLapse("completed");
+        return;
+      }
+      this.scheduleTimeLapseFrame();
+    });
+  }
+
+  private isNodeVisibleInTimeLapse(nodeId: string): boolean {
+    return this.visibleTimeLapseNodes?.has(nodeId) ?? true;
+  }
+
   private queueRender(): void {
     if (this.animationFrame !== null) {
       return;
@@ -1186,6 +1342,8 @@ export class GraphRenderer {
       const source = link.source as RenderNode;
       const target = link.target as RenderNode;
       if (
+        !this.isNodeVisibleInTimeLapse(source.id) ||
+        !this.isNodeVisibleInTimeLapse(target.id) ||
         typeof source.x !== "number" ||
         typeof source.y !== "number" ||
         typeof target.x !== "number" ||
@@ -1207,6 +1365,7 @@ export class GraphRenderer {
 
     for (const node of this.nodes) {
       if (
+        !this.isNodeVisibleInTimeLapse(node.id) ||
         typeof node.x !== "number" ||
         typeof node.y !== "number" ||
         !graphNodeIntersectsViewport({
@@ -1226,6 +1385,7 @@ export class GraphRenderer {
     this.context.restore();
 
     for (const node of this.nodes) {
+      if (!this.isNodeVisibleInTimeLapse(node.id)) continue;
       this.drawLabel(node, palette);
     }
   }
@@ -1413,6 +1573,7 @@ export class GraphRenderer {
     const point = this.screenToWorld(clientX, clientY);
     for (let index = this.nodes.length - 1; index >= 0; index -= 1) {
       const node = this.nodes[index];
+      if (!this.isNodeVisibleInTimeLapse(node.id)) continue;
       if (typeof node.x !== "number" || typeof node.y !== "number") {
         continue;
       }

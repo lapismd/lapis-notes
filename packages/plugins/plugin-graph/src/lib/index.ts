@@ -7,6 +7,7 @@ export { GraphRenderer } from "./graph-renderer";
 export {
   DEFAULT_GRAPH_SETTINGS,
   mergeGraphSettings,
+  moveGraphGroup,
   patchGraphSettings,
 } from "./graph-settings";
 export {

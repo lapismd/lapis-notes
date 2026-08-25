@@ -10,6 +10,12 @@ import {
   type GraphCoordinatorState,
 } from "./graph-data-coordinator";
 import type { GraphSettings } from "./graph-types";
+import type { GraphData } from "./graph-types";
+import { filterGraphBySettings } from "./graph-data";
+import {
+  resolveGraphQueryMatches,
+  type GraphQueryMatches,
+} from "./graph-query-resolution";
 import {
   GraphView,
   GraphViewType,
@@ -37,6 +43,10 @@ export class GraphPlugin extends Plugin {
   private settings: GraphSettings = mergeGraphSettings(DEFAULT_GRAPH_SETTINGS);
   private settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingSettingsSave: GraphSettings | null = null;
+  private readonly pathQueryCache = new Map<
+    string,
+    Promise<ReadonlySet<string>>
+  >();
 
   constructor(
     app: App,
@@ -85,8 +95,19 @@ export class GraphPlugin extends Plugin {
 
     this.registerEvent(
       this.app.metadataCache.on("index-changed", (change) => {
-        if (!change.reset && !change.domains.includes("metadata")) return;
-        void this.graphCoordinator.requestRefresh("metadata-change");
+        if (
+          change.reset ||
+          change.domains.includes("metadata") ||
+          change.domains.includes("search")
+        ) {
+          this.pathQueryCache.clear();
+        }
+        if (change.reset || change.domains.includes("metadata")) {
+          void this.graphCoordinator.requestRefresh("metadata-change", true);
+        } else if (change.domains.includes("search")) {
+          const snapshot = this.getSettings();
+          this.views.forEach((view) => view.applyGraphSettings(snapshot));
+        }
       }),
     );
     void this.graphCoordinator.start();
@@ -124,6 +145,19 @@ export class GraphPlugin extends Plugin {
     return this.graphCoordinator.requestRefresh("view-refresh", force);
   }
 
+  async resolveGraphSettings(
+    graph: GraphData,
+    settings: GraphSettings,
+  ): Promise<{ graph: GraphData; matches: GraphQueryMatches }> {
+    const matches = await resolveGraphQueryMatches(settings, (query) =>
+      this.matchSearchPaths(query),
+    );
+    return {
+      graph: filterGraphBySettings(graph, settings, matches),
+      matches,
+    };
+  }
+
   registerGraphView(view: GraphFocusableView): () => void {
     this.views.add(view);
     return () => {
@@ -145,6 +179,18 @@ export class GraphPlugin extends Plugin {
       this.pendingSettingsSave = null;
       if (pending) void this.saveData(pending);
     }, 180);
+  }
+
+  private matchSearchPaths(query: string): Promise<ReadonlySet<string>> {
+    let cached = this.pathQueryCache.get(query);
+    if (!cached) {
+      cached = this.app.appDatabase
+        .searchDocumentPaths(query, { mode: "lexical", limit: 50_000 })
+        .then((paths) => new Set(paths));
+      this.pathQueryCache.set(query, cached);
+      void cached.catch(() => this.pathQueryCache.delete(query));
+    }
+    return cached;
   }
 
   private async openGraphView(local: boolean): Promise<void> {

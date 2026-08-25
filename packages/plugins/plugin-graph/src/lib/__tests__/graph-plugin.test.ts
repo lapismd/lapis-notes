@@ -3,6 +3,7 @@ import { GraphPlugin } from "../graph-plugin";
 import {
   DEFAULT_GRAPH_SETTINGS,
   mergeGraphSettings,
+  moveGraphGroup,
   patchGraphSettings,
 } from "../graph-settings";
 
@@ -62,6 +63,16 @@ describe("graph settings persistence snapshots", () => {
     expect(nextSettings.display.nodeSize).toBe(
       DEFAULT_GRAPH_SETTINGS.display.nodeSize,
     );
+  });
+
+  it("reorders Groups without changing their persisted fields", () => {
+    const groups = [
+      { id: "a", name: "A", query: "path:A", color: "#111111", enabled: true },
+      { id: "b", name: "B", query: "path:B", color: "#222222", enabled: false },
+    ];
+
+    expect(moveGraphGroup(groups, 1, -1)).toEqual([groups[1], groups[0]]);
+    expect(moveGraphGroup(groups, 0, -1)).toEqual(groups);
   });
 
   it("coalesces rapid plugin settings writes and flushes on unload", async () => {

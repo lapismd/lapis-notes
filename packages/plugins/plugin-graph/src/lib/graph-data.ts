@@ -245,6 +245,7 @@ function applyNodeCounts(
 function assignGroups(
   nodes: GraphNode[],
   settings: GraphSettings,
+  groupPathMatches?: ReadonlyMap<string, ReadonlySet<string>>,
 ): GraphNode[] {
   if (!settings.groups.length) return nodes.map(cloneNode);
   return nodes.map((node) => {
@@ -254,10 +255,18 @@ function assignGroups(
     for (const group of settings.groups) {
       const query = group.query.trim().toLowerCase();
       if (!group.enabled || !query) continue;
-      const haystack = [nextNode.label, nextNode.path ?? "", ...nextNode.tags]
-        .join(" ")
-        .toLowerCase();
-      if (!haystack.includes(query)) continue;
+      const resolvedPaths = groupPathMatches?.get(group.id);
+      const matches = groupPathMatches
+        ? Boolean(
+            resolvedPaths &&
+              nextNode.path &&
+              resolvedPaths.has(nextNode.path),
+          )
+        : [nextNode.label, nextNode.path ?? "", ...nextNode.tags]
+            .join(" ")
+            .toLowerCase()
+            .includes(query);
+      if (!matches) continue;
       nextNode.groupIds.push(group.id);
       nextNode.primaryColor ??= group.color;
     }
@@ -277,6 +286,10 @@ function matchesSearch(node: GraphNode, query: string): boolean {
 export function filterGraphBySettings(
   graph: GraphData,
   settings: GraphSettings,
+  matches: {
+    filterPaths?: ReadonlySet<string>;
+    groupPaths?: ReadonlyMap<string, ReadonlySet<string>>;
+  } = {},
 ): GraphData {
   const visibleNodes = new Map<string, GraphNode>();
   for (const node of graph.nodes) {
@@ -284,7 +297,11 @@ export function filterGraphBySettings(
     if (node.type === "attachment" && !settings.filters.showAttachments)
       continue;
     if (settings.filters.existingFilesOnly && !node.exists) continue;
-    if (!matchesSearch(node, settings.filters.searchQuery)) continue;
+    if (matches.filterPaths) {
+      if (!node.path || !matches.filterPaths.has(node.path)) continue;
+    } else if (!matchesSearch(node, settings.filters.searchQuery)) {
+      continue;
+    }
     visibleNodes.set(node.id, cloneNode(node));
   }
 
@@ -308,7 +325,11 @@ export function filterGraphBySettings(
   }
 
   return {
-    nodes: assignGroups([...visibleNodes.values()], settings),
+    nodes: assignGroups(
+      [...visibleNodes.values()],
+      settings,
+      matches.groupPaths,
+    ),
     links: visibleLinks.map((link) => ({ ...link })),
     centerNodeId: graph.centerNodeId ?? null,
   };
@@ -610,6 +631,17 @@ export async function buildLocalGraph(
   settings: GraphSettings,
   activeFile: TFile | null,
 ): Promise<GraphData> {
+  return filterGraphBySettings(
+    await buildCanonicalLocalGraph(app, settings, activeFile),
+    settings,
+  );
+}
+
+export async function buildCanonicalLocalGraph(
+  app: GraphApp,
+  settings: GraphSettings,
+  activeFile: TFile | null,
+): Promise<GraphData> {
   if (!activeFile) return { nodes: [], links: [], centerNodeId: null };
 
   const { rows, depthByPath } = await collectLocalRows(
@@ -629,10 +661,7 @@ export async function buildLocalGraph(
     ...canonical,
     centerNodeId: fileNodeId(activeFile.path),
   };
-  const filtered = filterGraphBySettings(scoped, settings);
-  return filtered.nodes.length
-    ? filtered
-    : buildSingleFileGraph(settings, activeFile);
+  return scoped.nodes.length ? scoped : buildSingleFileGraph(settings, activeFile);
 }
 
 export function graphNodeIdForFile(path: string): string {
