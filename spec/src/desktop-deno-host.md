@@ -49,6 +49,15 @@ distribution is outside the supported matrix.
 | LN-DENO-035 | Renderer lifecycle logs MUST use an allowlisted structured native relay. Native console capture MUST retain terminal output, reject arbitrary events and attributes, and MUST NOT forward the renderer console or invocation payloads.                                                                                                                                                                                                                                                                 |
 | LN-DENO-036 | Telemetry mode MUST trace desktop session startup as one root with bounded vault, configuration, plugin, and layout phases, then record readiness or failure and trace teardown. The renderer service MUST be installed before plugin loading, and session disposal MUST complete before provider flush and shutdown. Attributes and lifecycle logs MUST NOT contain vault identity, paths, plugin settings, or failure details.                                                                       |
 | LN-DENO-037 | Vault resource URLs MUST use a capability-scoped same-origin HTTP route with vault-root containment, explicit content types, no-store and nosniff headers, and binary response bodies. Raw vault bytes and `file:` URLs MUST NOT cross the Laufey binding string boundary, and text reads containing NUL bytes MUST fail before producing a native string response.                                                                                                                                    |
+| LN-DENO-038 | Before mounting application UI, the desktop renderer MUST mark the document engine from the native host's selected backend. The default and packaged system-webview backend MUST identify as WebKit, CEF MUST identify as Blink, and shared UI compatibility MUST NOT depend on Laufey's user-agent shape.                                                                                                                                                                                             |
+
+### LN-DENO-038 acceptance details
+
+Desktop renderer-engine selection verifies:
+
+- Native platform metadata maps the default and explicit system-webview backend to WebKit.
+- Native platform metadata maps the explicit CEF backend to Blink.
+- The renderer applies the engine marker before mounting the desktop application.
 
 ### LN-DENO-036 acceptance details
 

@@ -360,7 +360,10 @@ The desktop renderer bundles its workspace consumers, while the Deno host
 retains native lifecycle and service dependencies. Native commands cross an
 explicit binding allowlist. Renderer shutdown is acknowledged before window
 destruction so the API-owned session can persist and dispose without moving
-ownership into native code or workspace. Deno desktop composes a host-supplied
+ownership into native code or workspace. Before shared UI mounts, the renderer
+projects the native host's selected webview or CEF backend into the document
+engine marker so compatibility behavior does not depend on Laufey's user-agent
+shape. Deno desktop composes a host-supplied
 native Turso provider through an allowlisted AppDatabase bridge, while web
 composes the API-owned WASM provider in the renderer behind the same session
 boundary. Web WASM database imports use the driver's host-bundler entry so Vite

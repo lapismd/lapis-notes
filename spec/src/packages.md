@@ -456,7 +456,9 @@ internal language service, and Markdownlint while building its bundled
 renderer and native graph. It supplies API sessions with a native Turso
 AppDatabase provider over the bounded desktop bridge, embeds public Deno host
 packages, and materializes checksum-verified PTY libraries for the selected
-macOS or Linux target. The API manifest
+macOS or Linux target. Its private platform metadata also identifies the
+selected renderer engine before application mount so Design Core may select
+the system-WebView compatibility path deterministically. The API manifest
 declares `dist/enhance.js` and its source counterpart as side effects so a
 production consumer cannot tree-shake the compatibility DOM initialization
 required before constructing `App`.

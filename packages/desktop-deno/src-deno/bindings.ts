@@ -9,6 +9,7 @@ import type { DenoFileWatchService } from "./file-watch.ts";
 import { handleLanguageService } from "./language-service.ts";
 import { openExternalUrl, showNativeNotification } from "./native-actions.ts";
 import type { DenoPluginAssetService } from "./plugin-assets.ts";
+import { resolveDesktopRendererEngine } from "./renderer-engine.ts";
 import {
   DENO_TERMINAL_COMMANDS,
   type DenoTerminalRuntimeHost,
@@ -116,6 +117,9 @@ export function createPlatformInfo() {
     arch: Deno.build.arch,
     runtimeVersion: Deno.version.deno,
     appVersion: "2026.31.5",
+    rendererEngine: resolveDesktopRendererEngine(
+      Deno.env.get("LAPIS_DENO_BACKEND"),
+    ),
     packaged: !Deno.env.get("LAPIS_DESKTOP_DEV_SERVER_URL"),
     overlayWindowControls: usesOverlayWindowControls(),
     suggestedVaultPath: Deno.env.get("LAPIS_DENO_VAULT")?.trim() || undefined,

@@ -29,6 +29,7 @@ import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import { waitForDesktopBindings } from "./binding-probe";
+import { applyDesktopHostDocument } from "./desktop-host-document";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
 import { installDenoExternalLinkPolicy } from "./external-links";
 import {
@@ -50,6 +51,7 @@ export type DenoDesktopPlatformInfo = NativeDesktopPlatformInfo & {
   suggestedVaultPath?: string;
   overlayWindowControls?: boolean;
   acceptance?: boolean;
+  rendererEngine?: "webkit" | "blink";
 };
 
 export type DenoDesktopBridge = NativeDesktopBridge & {
@@ -255,18 +257,6 @@ function clearBootStatus(): void {
   document.getElementById("lapis-boot-status")?.remove();
 }
 
-function applyDesktopPlatformClasses(platform: DenoDesktopPlatformInfo): void {
-  const root = document.documentElement;
-  const desktopRuntime = platform.runtime === "deno-desktop";
-  root.classList.toggle("lapis-desktop", desktopRuntime);
-  root.classList.toggle(
-    "lapis-desktop--macos",
-    desktopRuntime &&
-      platform.os === "macos" &&
-      platform.overlayWindowControls === true,
-  );
-}
-
 function resolveAppearance(mode: BootstrapAppearanceMode): "dark" | "light" {
   if (mode === "system") {
     return globalThis.matchMedia?.("(prefers-color-scheme: dark)").matches
@@ -432,7 +422,7 @@ const bridge: DenoDesktopBridge = {
   },
 };
 
-applyDesktopPlatformClasses(platform);
+applyDesktopHostDocument(platform);
 installDenoExternalLinkPolicy((command, payload) =>
   invokeDesktop(command, payload),
 );
