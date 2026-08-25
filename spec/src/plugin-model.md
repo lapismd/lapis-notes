@@ -270,3 +270,7 @@ for their enabled lifetime. Query-native first-party plugins declare the
 database contract and remain on bounded per-file, facet, page, and link APIs.
 Storybook's first-party real-App fixtures follow the query-native path and MUST
 NOT acquire a compatibility lease merely to seed or assert persisted metadata.
+Search completion remains plugin-owned presentation over API-owned grammar:
+facet labels expose their original tag values, while their separate apply text
+uses the API formatter so slash and quoted space tags are executable queries
+rather than display-only suggestions.

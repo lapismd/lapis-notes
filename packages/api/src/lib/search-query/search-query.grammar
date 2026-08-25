@@ -23,6 +23,7 @@ PrimaryExpression {
   Regex |
   Phrase |
   NullKeyword |
+  SlashWord |
   Identifier |
   Word
 }
@@ -45,6 +46,7 @@ FieldValue {
   Regex |
   Phrase |
   NullKeyword |
+  SlashWord |
   Identifier |
   Word
 }
@@ -66,6 +68,7 @@ PropertyValue {
   Regex |
   Phrase |
   NullKeyword |
+  SlashWord |
   Identifier |
   Word
 }
@@ -77,6 +80,7 @@ Comparison {
 ComparisonValue {
   Phrase |
   NullKeyword |
+  SlashWord |
   Identifier |
   Word
 }
@@ -84,7 +88,14 @@ ComparisonValue {
 @tokens {
   space { @whitespace+ }
 
-  @precedence { OrKeyword, NullKeyword, Identifier, ComparisonOperator, Word }
+  @precedence {
+    OrKeyword,
+    NullKeyword,
+    SlashWord,
+    Identifier,
+    ComparisonOperator,
+    Word
+  }
 
   OrKeyword { "OR" }
   NullKeyword { "null" }
@@ -94,13 +105,14 @@ ComparisonValue {
 
   ComparisonOperator { "<=" | ">=" | "<" | ">" }
 
-  Word { wordChar+ }
+  SlashWord { wordStartChar wordChar* "/" wordChar* }
+  Word { wordStartChar wordChar* }
 
   Phrase { '"' phraseChar* '"' }
   Regex { "/" regexChar* "/" }
 
   identifierChar { @asciiLetter | @digit | "_" }
-  wordChar {
+  wordStartChar {
     @asciiLetter |
     @digit |
     "_" |
@@ -109,6 +121,7 @@ ComparisonValue {
     "*" |
     "?"
   }
+  wordChar { wordStartChar | "/" }
   phraseChar { !["\\\n\r] | "\\" anyChar }
   regexChar { ![/\\\n\r] | "\\" anyChar }
   anyChar { @asciiLetter | @digit | @whitespace | ![] }

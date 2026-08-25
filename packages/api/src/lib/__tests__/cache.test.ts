@@ -295,13 +295,20 @@ describe("metadata reference helpers", () => {
 });
 
 describe("frontmatter tag parsing", () => {
-  it("collects bare and prefixed tags from tag arrays and strings", () => {
+  it("collects slash and space tags from arrays while splitting strings", () => {
     expect(
       parseFrontMatterTags({
-        tags: ["work", "#project/nested", "not valid tag"],
+        tags: ["work", "#project/nested", "project alpha", "not:valid"],
         tag: "inbox, #waiting; next",
       }),
-    ).toEqual(["#work", "#project/nested", "#inbox", "#waiting", "#next"]);
+    ).toEqual([
+      "#work",
+      "#project/nested",
+      "#project alpha",
+      "#inbox",
+      "#waiting",
+      "#next",
+    ]);
   });
 });
 

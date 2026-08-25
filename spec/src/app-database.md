@@ -151,3 +151,8 @@ SQLite's bind ceiling. Path-only Search applies the same query, provider, path,
 mode, ranking, and limit semantics as document Search, but returns only ordered
 vault-relative paths through direct, browser-proxy, and desktop-native
 transports.
+Structured tag evaluation receives decoded query literal values from the API
+parser. Slash-bearing tags remain bare query words, quoted tags preserve spaces
+and escaped delimiters, and leading slash literals continue to reach regex
+evaluation. Indexed metadata accepts an explicit space-containing tag from a
+frontmatter array so its facet and Search projection retain the same value.

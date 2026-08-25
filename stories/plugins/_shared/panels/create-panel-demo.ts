@@ -527,7 +527,7 @@ export function createPanelDemoSeed(
       "---",
       "title: Welcome",
       'aliases: [Lapis Home, "[[Ideas|Idea inbox]]"]',
-      "tags: [demo, markdown, project/alpha]",
+      'tags: [demo, markdown, project/alpha, "project alpha"]',
       "status: ready",
       "priority: high",
       "---",

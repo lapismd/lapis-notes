@@ -515,6 +515,11 @@ vault index. Async per-file reads populate that view on demand, while paged
 queries, facets, links, and query watches execute against `AppDatabase`. The
 legacy `.lapis/cache/metadata-cache.json` file is neither read, rewritten, nor
 removed.
+The API package also exports the canonical search-query value formatter used by
+dynamic consumers. It leaves parser-safe slash paths and tags bare, quotes and
+escapes unsafe values, and round-trips the decoded literal without changing
+leading-regex syntax. Search uses that public boundary for tag, path, and
+filename completion insertion.
 
 `@lapis-notes/language-service/markdownlint/runtime` is the public
 boundary for Deno desktop diagnostics and code actions. The Deno

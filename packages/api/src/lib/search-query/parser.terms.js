@@ -20,6 +20,7 @@ export const
   ComparisonOperator = 18,
   ComparisonValue = 19,
   NullKeyword = 20,
-  Word = 21,
-  Regex = 22,
-  OrKeyword = 23
+  SlashWord = 21,
+  Word = 22,
+  Regex = 23,
+  OrKeyword = 24

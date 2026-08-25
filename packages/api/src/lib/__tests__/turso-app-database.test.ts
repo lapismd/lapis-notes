@@ -122,7 +122,7 @@ describe("TursoAppDatabase", () => {
       extension: "md",
       checksum: "proxy-1",
       content: "delegated requests route through the database owner tab",
-      tags: ["architecture/search"],
+      tags: ["architecture/search", "project alpha"],
       tagParts: ["architecture", "search"],
       tagHierarchy: ["architecture", "architecture/search"],
       chunks: [
@@ -174,6 +174,14 @@ describe("TursoAppDatabase", () => {
         sourceProviderIds: ["markdown"],
       }),
     ).resolves.toEqual([]);
+    await expect(
+      database.searchDocuments("tag:#architecture/search", {
+        mode: "lexical",
+      }),
+    ).resolves.toMatchObject([{ document: { path: "Projects/Proxy.md" } }]);
+    await expect(
+      database.searchDocuments('tag:"#project alpha"', { mode: "lexical" }),
+    ).resolves.toMatchObject([{ document: { path: "Projects/Proxy.md" } }]);
     await database.upsertSearchDocument({
       path: "Archive/Proxy.md",
       sourceProviderId: "markdown",

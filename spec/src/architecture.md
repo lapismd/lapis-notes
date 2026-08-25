@@ -251,6 +251,10 @@ schedule replacement queries, so expanded context remains component state until
 query-driving inputs change or the index explicitly refreshes. Result navigation
 reuses an existing document leaf when available, but preserves a body-hosted
 Search leaf by opening its target in a sibling tab.
+The API owns search-query parsing and parser-safe dynamic-value formatting.
+Search supplies human-readable tag, path, and filename labels to Design Core
+with a separate formatted insertion value; reusable filter chrome does not
+learn Lapis grammar or escaping rules.
 
 ## Package graph
 

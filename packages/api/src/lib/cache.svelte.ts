@@ -347,7 +347,7 @@ export function parseFrontMatterTags(frontmatter: any | null): string[] | null {
       return;
     }
     const normalized = tag.startsWith("#") ? tag : `#${tag}`;
-    if (/^#[/a-zA-Z0-9_-]+$/.test(normalized)) {
+    if (/^#[/a-zA-Z0-9 _-]+$/.test(normalized)) {
       tags.push(normalized);
     }
   };

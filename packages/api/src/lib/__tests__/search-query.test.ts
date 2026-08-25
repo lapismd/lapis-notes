@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   collectSearchQueryPropertyNames,
+  formatSearchQueryValue,
   parseSearchQuery,
   parseSearchQueryAst,
 } from "../search-query";
@@ -92,6 +93,56 @@ describe("search query parser", () => {
         ],
       },
     });
+  });
+
+  it("accepts slash tags without changing leading regex syntax", () => {
+    const slashTag = parseSearchQueryAst("tag:#team/project");
+    const regex = parseSearchQueryAst("/Ship\\s+search/");
+
+    expect(slashTag).toMatchObject({
+      diagnostics: [],
+      expression: {
+        type: "field",
+        name: "tag",
+        value: { type: "literal", kind: "word", value: "#team/project" },
+      },
+    });
+    expect(regex).toMatchObject({
+      diagnostics: [],
+      expression: {
+        type: "literal",
+        kind: "regex",
+        value: "Ship\\s+search",
+      },
+    });
+  });
+
+  it("round-trips dynamic values through quoted field syntax", () => {
+    const values = [
+      "#team/project",
+      "Notes/Welcome.md",
+      "project alpha",
+      'quoted "value"',
+      "folder\\name",
+      "OR",
+      "null",
+      "",
+    ];
+
+    expect(formatSearchQueryValue("#team/project")).toBe("#team/project");
+    expect(formatSearchQueryValue("project alpha")).toBe(
+      '"project alpha"',
+    );
+
+    for (const value of values) {
+      const ast = parseSearchQueryAst(`tag:${formatSearchQueryValue(value)}`);
+      expect(ast.diagnostics).toEqual([]);
+      expect(ast.expression).toMatchObject({
+        type: "field",
+        name: "tag",
+        value: { type: "literal", value },
+      });
+    }
   });
 
   it("parses bracketed properties and comparisons", () => {

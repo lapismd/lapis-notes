@@ -522,6 +522,56 @@ function placementStory(
         expect(
           panel.queryByRole("heading", { name: "Recent searches" }),
         ).not.toBeInTheDocument();
+        await userEvent.type(searchbox, "tag:#project/a");
+        await waitFor(() => {
+          expect(
+            canvasElement.ownerDocument.body.querySelector(
+              ".cm-tooltip-autocomplete",
+            ),
+          ).toBeTruthy();
+        });
+        await userEvent.keyboard("{Enter}");
+        await waitFor(() => {
+          expect(searchbox).toHaveTextContent("tag:#project/alpha");
+          expect(searchbox).toHaveAttribute("aria-invalid", "false");
+          expect(
+            panel.getByRole("treeitem", {
+              name: /Notes\/Welcome\.md, \d+ matches/,
+            }),
+          ).toBeVisible();
+          expect(panel.queryByRole("alert")).not.toBeInTheDocument();
+        });
+        await userEvent.click(
+          panel.getByRole("button", { name: "Clear search" }),
+        );
+        await userEvent.type(searchbox, "tag:#project");
+        const spacedTagOption = await waitFor(() => {
+          const options = [
+            ...canvasElement.ownerDocument.body.querySelectorAll<HTMLElement>(
+              ".cm-tooltip-autocomplete li",
+            ),
+          ];
+          expect(options.map((option) => option.textContent)).toContain(
+            "#project alpha",
+          );
+          return options.find(
+            (candidate) => candidate.textContent === "#project alpha",
+          )!;
+        });
+        await userEvent.click(spacedTagOption);
+        await waitFor(() => {
+          expect(searchbox).toHaveTextContent('tag:"#project alpha"');
+          expect(searchbox).toHaveAttribute("aria-invalid", "false");
+          expect(
+            panel.getByRole("treeitem", {
+              name: /Notes\/Welcome\.md, \d+ matches/,
+            }),
+          ).toBeVisible();
+          expect(panel.queryByRole("alert")).not.toBeInTheDocument();
+        });
+        await userEvent.click(
+          panel.getByRole("button", { name: "Clear search" }),
+        );
         await userEvent.type(searchbox, "file:FilenameOnly");
         await waitFor(() =>
           expect(

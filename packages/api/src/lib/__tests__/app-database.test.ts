@@ -634,7 +634,7 @@ describe("AppDatabase", () => {
         "- [ ] Write parity tests",
         "- [x] Ship search",
       ].join("\n"),
-      tags: ["work/project"],
+      tags: ["work/project", "project alpha"],
       tagParts: ["work", "project"],
       tagHierarchy: ["work", "work/project"],
       metadataText: JSON.stringify({ status: "draft", duration: 4 }),
@@ -666,6 +666,12 @@ describe("AppDatabase", () => {
 
     await expect(
       db.searchDocuments("file:Daily tag:#work"),
+    ).resolves.toMatchObject([{ document: { path: "Projects/Daily.md" } }]);
+    await expect(db.searchDocuments("tag:#work/project")).resolves.toMatchObject(
+      [{ document: { path: "Projects/Daily.md" } }],
+    );
+    await expect(
+      db.searchDocuments('tag:"#project alpha"'),
     ).resolves.toMatchObject([{ document: { path: "Projects/Daily.md" } }]);
     await expect(db.searchDocuments("Alpha OR personal")).resolves.toHaveLength(
       2,

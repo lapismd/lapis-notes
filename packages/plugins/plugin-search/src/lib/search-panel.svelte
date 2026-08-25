@@ -3,6 +3,7 @@
   import {
     canCollectSearchQueryTerms,
     collectSearchQueryTerms,
+    formatSearchQueryValue,
     parseSearchQueryAst,
     searchQueryLanguageSupport,
     Notice,
@@ -174,19 +175,28 @@
           name: "file",
           description: "File name",
           operators: [":"],
-          values: names,
+          values: names.map((value) => ({
+            value,
+            apply: formatSearchQueryValue(value),
+          })),
         },
         {
           name: "path",
           description: "Folder or path",
           operators: [":"],
-          values: paths,
+          values: paths.map((value) => ({
+            value,
+            apply: formatSearchQueryValue(value),
+          })),
         },
         {
           name: "tag",
           description: "Markdown or frontmatter tag",
           operators: [":"],
-          values: metadataTags,
+          values: metadataTags.map((value) => ({
+            value,
+            apply: formatSearchQueryValue(value),
+          })),
         },
         { name: "content", description: "Note content", operators: [":"] },
         { name: "line", description: "Terms on one line", operators: [":"] },

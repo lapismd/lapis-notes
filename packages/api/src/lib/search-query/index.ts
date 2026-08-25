@@ -97,6 +97,7 @@ const configuredParser = parser.configure({
       NullKeyword: tags.atom,
       Negation: tags.operator,
       Word: tags.variableName,
+      SlashWord: tags.variableName,
       Identifier: tags.variableName,
       FieldName: tags.attributeName,
       "FieldName/Identifier": tags.attributeName,
@@ -126,6 +127,29 @@ export const searchQueryLanguage = LRLanguage.define({
 
 export function searchQueryLanguageSupport(): LanguageSupport {
   return new LanguageSupport(searchQueryLanguage);
+}
+
+const SAFE_SEARCH_QUERY_WORD =
+  /^[A-Za-z0-9_.#*?][A-Za-z0-9_.#*?/]*$/u;
+const SAFE_SEARCH_QUERY_IDENTIFIER = /^[A-Za-z0-9_]+(?:-[A-Za-z0-9_]+)*$/u;
+const RESERVED_SEARCH_QUERY_WORDS = new Set(["OR", "null"]);
+
+/** Formats a dynamic field value so it round-trips through the search parser. */
+export function formatSearchQueryValue(value: string): string {
+  if (
+    !RESERVED_SEARCH_QUERY_WORDS.has(value) &&
+    (SAFE_SEARCH_QUERY_WORD.test(value) ||
+      SAFE_SEARCH_QUERY_IDENTIFIER.test(value))
+  ) {
+    return value;
+  }
+
+  return `"${value
+    .replaceAll("\\", "\\\\")
+    .replaceAll('"', '\\"')
+    .replaceAll("\n", "\\n")
+    .replaceAll("\r", "\\r")
+    .replaceAll("\t", "\\t")}"`;
 }
 
 export function parseSearchQuery(input: string): Tree {
@@ -354,6 +378,7 @@ function lowerSearchQueryNode(
         value: lowerSearchQueryLiteral(findChild(node, "ComparisonValue")),
         ...nodeRange(node),
       };
+    case "SlashWord":
     case "Word":
     case "Identifier":
       return {
@@ -366,7 +391,7 @@ function lowerSearchQueryNode(
       return {
         type: "literal",
         kind: "phrase",
-        value: stripSearchQueryDelimiter(node.text),
+        value: decodeSearchQueryPhrase(node.text),
         ...nodeRange(node),
       };
     case "Regex":
@@ -448,7 +473,7 @@ function readPropertyName(node: SearchQuerySyntaxNode | undefined): string {
   if (!node) return "";
   const phrase = findChild(node, "Phrase");
   if (phrase) {
-    return stripSearchQueryDelimiter(phrase.text);
+    return decodeSearchQueryPhrase(phrase.text);
   }
   return readIdentifier(node);
 }
@@ -466,6 +491,24 @@ function readComparisonOperator(
 function stripSearchQueryDelimiter(value: string): string {
   if (value.length < 2) return value;
   return value.slice(1, -1);
+}
+
+function decodeSearchQueryPhrase(value: string): string {
+  return stripSearchQueryDelimiter(value).replace(
+    /\\(["\\nrt])/gu,
+    (_match, escaped: string) => {
+      switch (escaped) {
+        case "n":
+          return "\n";
+        case "r":
+          return "\r";
+        case "t":
+          return "\t";
+        default:
+          return escaped;
+      }
+    },
+  );
 }
 
 function nodeRange(node: SearchQuerySyntaxNode): SearchQueryNodeBase {
