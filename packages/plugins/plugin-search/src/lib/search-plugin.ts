@@ -36,6 +36,9 @@ const SEARCH_MANIFEST: PluginManifest = {
 export class SearchPlugin extends Plugin {
   private settings: SearchPluginSettings;
   private startupRefreshStarted = false;
+  private startupRefreshPromise: Promise<void> | null = null;
+  private providerReconcileReason: string | null = null;
+  private providerReconcilePromise: Promise<void> | null = null;
   readonly searchManager: SearchManager;
 
   constructor(app: App, pluginManifest: PluginManifest = SEARCH_MANIFEST) {
@@ -82,11 +85,13 @@ export class SearchPlugin extends Plugin {
     this.registerEvent(
       this.app.searchDocumentProviders.on("changed", ({ reason }) => {
         if (this.state !== "enabled") return;
-        void this.refreshIndex(`provider-${reason}`).catch((error) => {
-          new Notice(
-            `Search provider refresh failed: ${error instanceof Error ? error.message : String(error)}`,
-          );
-        });
+        if (
+          !this.app.metadataCache.initialized ||
+          !this.startupRefreshStarted
+        ) {
+          return;
+        }
+        this.scheduleProviderReconciliation(`provider-${reason}`);
       }),
     );
     this.registerSearchDocumentProvider(
@@ -169,17 +174,48 @@ export class SearchPlugin extends Plugin {
     await this.searchManager.dispose();
   }
 
-  private async startupRefresh(): Promise<void> {
-    if (this.startupRefreshStarted) return;
+  private startupRefresh(): Promise<void> {
+    if (this.startupRefreshPromise) return this.startupRefreshPromise;
+    if (this.startupRefreshStarted) return Promise.resolve();
     this.startupRefreshStarted = true;
-    try {
-      await reconcileSearchAfterMetadata(this.app, this.searchManager);
-    } catch (error) {
-      this.startupRefreshStarted = false;
-      new Notice(
-        `Search index refresh failed: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
+    this.startupRefreshPromise = reconcileSearchAfterMetadata(
+      this.app,
+      this.searchManager,
+    )
+      .then(() => undefined)
+      .catch((error) => {
+        this.startupRefreshStarted = false;
+        new Notice(
+          `Search index refresh failed: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      })
+      .finally(() => {
+        if (!this.startupRefreshStarted) this.startupRefreshPromise = null;
+      });
+    return this.startupRefreshPromise;
+  }
+
+  private scheduleProviderReconciliation(reason: string): void {
+    this.providerReconcileReason = reason;
+    if (this.providerReconcilePromise) return;
+    this.providerReconcilePromise = (async () => {
+      await this.startupRefresh();
+      while (this.providerReconcileReason) {
+        this.providerReconcileReason = null;
+        await this.searchManager.reconcileStartup();
+      }
+    })()
+      .catch((error) => {
+        new Notice(
+          `Search provider refresh failed: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      })
+      .finally(() => {
+        this.providerReconcilePromise = null;
+        if (this.providerReconcileReason) {
+          this.scheduleProviderReconciliation(this.providerReconcileReason);
+        }
+      });
   }
 
   private async openSearchInLeftSidebar(query = ""): Promise<void> {

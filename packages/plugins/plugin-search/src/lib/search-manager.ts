@@ -363,6 +363,7 @@ export class SearchManager {
     const changed = this.app.metadataCache.on(
       "changed",
       (file, content, cache) => {
+        if (!this.app.searchDocumentProviders.resolve(file)) return;
         this.recordSourceMutation();
         if (!this.changeTrackingReady) return;
         this.queuedDeletes.delete(file.path);
@@ -371,6 +372,7 @@ export class SearchManager {
       },
     );
     const deleted = this.app.metadataCache.on("deleted", (file) => {
+      if (!this.app.searchDocumentProviders.resolve(file)) return;
       this.recordSourceMutation();
       if (!this.changeTrackingReady) return;
       this.queuedChanges.delete(file.path);
@@ -378,7 +380,11 @@ export class SearchManager {
       this.flushQueuedChanges();
     });
     const vaultChanged = this.app.vault.on("modify", (file) => {
-      if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
+      if (
+        isFileLike(file) &&
+        !this.usesMetadataPipeline(file) &&
+        this.app.searchDocumentProviders.resolve(file)
+      ) {
         this.recordSourceMutation();
         if (this.changeTrackingReady) {
           this.trackIncrementalOperation(this.processFileSafely(file));
@@ -386,7 +392,11 @@ export class SearchManager {
       }
     });
     const vaultCreated = this.app.vault.on("create", (file) => {
-      if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
+      if (
+        isFileLike(file) &&
+        !this.usesMetadataPipeline(file) &&
+        this.app.searchDocumentProviders.resolve(file)
+      ) {
         this.recordSourceMutation();
         if (this.changeTrackingReady) {
           this.trackIncrementalOperation(this.processFileSafely(file));
@@ -394,7 +404,11 @@ export class SearchManager {
       }
     });
     const vaultDeleted = this.app.vault.on("delete", (file) => {
-      if (isFileLike(file) && !this.usesMetadataPipeline(file)) {
+      if (
+        isFileLike(file) &&
+        !this.usesMetadataPipeline(file) &&
+        this.app.searchDocumentProviders.resolve(file)
+      ) {
         this.recordSourceMutation();
         if (this.changeTrackingReady) {
           this.trackIncrementalOperation(this.processDelete(file));
@@ -402,12 +416,22 @@ export class SearchManager {
       }
     });
     const vaultRenamed = this.app.vault.on("rename", (file, oldPath) => {
+      const oldFile = isFileLike(file) ? this.fileAtPath(file, oldPath) : null;
+      const currentProvider = isFileLike(file)
+        ? this.app.searchDocumentProviders.resolve(file)
+        : null;
+      const previousProvider = oldFile
+        ? this.app.searchDocumentProviders.resolve(oldFile)
+        : null;
+      if (!currentProvider && !previousProvider) return;
       this.recordSourceMutation();
       if (!this.changeTrackingReady) return;
       this.trackIncrementalOperation(
         Promise.all([
           this.processDelete(oldPath),
-          isFileLike(file) ? this.processFileSafely(file) : Promise.resolve(),
+          currentProvider && isFileLike(file)
+            ? this.processFileSafely(file)
+            : Promise.resolve(),
         ]).then(() => undefined),
       );
     });
@@ -636,6 +660,18 @@ export class SearchManager {
     return Boolean(
       this.app.metadataCache.processors.get(file.extension.toLowerCase())?.size,
     );
+  }
+
+  private fileAtPath(file: TFile, path: string): TFile {
+    const name = path.split("/").at(-1) ?? path;
+    const extension = name.includes(".") ? name.split(".").at(-1) ?? "" : "";
+    return {
+      ...file,
+      path,
+      name,
+      baseName: extension ? name.slice(0, -(extension.length + 1)) : name,
+      extension,
+    } as TFile;
   }
 
   private async processFileSafely(file: TFile): Promise<void> {

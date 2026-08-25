@@ -37,4 +37,10 @@ describe("reconcileSearchAfterMetadata", () => {
       "onLayoutReady",
     );
   });
+
+  it("absorbs configured provider registration into the startup reconciliation", () => {
+    const onload = SearchPlugin.prototype.onload.toString();
+    expect(onload).toContain("!this.startupRefreshStarted");
+    expect(onload).not.toContain("this.refreshIndex(`provider-");
+  });
 });

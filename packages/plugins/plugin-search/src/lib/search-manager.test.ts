@@ -390,6 +390,8 @@ describe("SearchManager", () => {
 
   it("skips note bodies and full Search snapshots on an unchanged warm refresh", async () => {
     const welcome = file("Notes/Welcome.md");
+    const vaultHandlers = new Map<string, (...args: any[]) => void>();
+    const metadataHandlers = new Map<string, (...args: any[]) => void>();
     const projectionSignature = md5(
       JSON.stringify({
         providerId: "search:markdown",
@@ -440,10 +442,23 @@ describe("SearchManager", () => {
         id: "search:markdown",
         provider: MARKDOWN_SEARCH_DOCUMENT_PROVIDER,
       }),
-      vault: { getFiles: () => [welcome], cachedRead },
+      vault: {
+        getFiles: () => [welcome],
+        cachedRead,
+        on: vi.fn((event: string, callback: (...args: any[]) => void) => {
+          vaultHandlers.set(event, callback);
+          return { event };
+        }),
+        offref: vi.fn(),
+      },
       metadataCache: {
         processors: new Map([["md", new Set([vi.fn()])]]),
         getFileCacheAsync,
+        on: vi.fn((event: string, callback: (...args: any[]) => void) => {
+          metadataHandlers.set(event, callback);
+          return { event };
+        }),
+        offref: vi.fn(),
       },
       notifications: {
         withProgress: async (
@@ -500,10 +515,18 @@ describe("SearchManager", () => {
 
     searchManifest.mockClear();
     metadataManifest.mockClear();
-    await new SearchManager(app).reconcileStartup();
+    const warmManager = new SearchManager(app);
+    const stopTracking = warmManager.trackChanges();
+    const warmReconciliation = warmManager.reconcileStartup();
+    vaultHandlers.get("modify")?.(
+      file(".obsidian/workspace.json", "json"),
+    );
+    await warmReconciliation;
     expect(searchManifest).not.toHaveBeenCalled();
     expect(metadataManifest).not.toHaveBeenCalled();
     expect(cachedRead).not.toHaveBeenCalled();
+    stopTracking();
+    await warmManager.dispose();
 
     app.searchDocumentProviders.getAll()[0]!.version = "2";
     allowBodyRead = true;

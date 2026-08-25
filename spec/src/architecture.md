@@ -368,7 +368,9 @@ plugin name. Metadata index load starts after layout restoration so database
 readiness does not contend with `loadLayout`. Persisted queries become
 available before background reconciliation. Matching versioned Metadata and
 Search checkpoints skip full warm scans; stale Metadata reconciliation finishes
-before the single Search startup reconciliation begins. Load, rebuild, and
+before the single Search startup reconciliation begins. Configured provider
+registration is folded into that one pass, and unrelated configuration or
+workspace-file events cannot invalidate the Search checkpoint. Load, rebuild, and
 reconcile stay under status progress handles, report determinate
 processable-file counts, yield between bounded batches, and parse changed
 Markdown metadata in a worker. `App`
