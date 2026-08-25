@@ -9,6 +9,7 @@ describe("web Bases host registration", () => {
       "utf8",
     );
     const search = source.indexOf("plugin: SearchPlugin");
+    const graph = source.indexOf("plugin: GraphPlugin");
     const bookmarks = source.indexOf("plugin: BookmarksPlugin");
     const markdownLint = source.indexOf("plugin: MarkdownLintPlugin");
     const spellcheck = source.indexOf("plugin: SpellcheckPlugin");
@@ -25,13 +26,15 @@ describe("web Bases host registration", () => {
 
     expect(source).toContain('import "@lapis-notes/bases/styles.css"');
     expect(source).toContain('import "@lapis-notes/ai/styles.css"');
+    expect(source).toContain('import "@lapis-notes/graph/styles.css"');
     expect(source.slice(bases, roles)).toContain('distribution: "bundled"');
     expect(source).toContain('communityPlugins: "disabled"');
     expect(search).toBeGreaterThan(-1);
     expect(markdownLint).toBeGreaterThan(-1);
     expect(spellcheck).toBeGreaterThan(markdownLint);
     expect(search).toBeGreaterThan(spellcheck);
-    expect(bookmarks).toBeGreaterThan(search);
+    expect(graph).toBeGreaterThan(search);
+    expect(bookmarks).toBeGreaterThan(graph);
     expect(wordcount).toBeGreaterThan(bookmarks);
     expect(bases).toBeGreaterThan(wordcount);
     expect(ai).toBeGreaterThan(bases);
@@ -52,9 +55,9 @@ describe("web Bases host registration", () => {
     expect(source).toContain("registerWebAgentRuntimeSettings");
     expect(source).toContain("registerWebVaultTransferSettings");
     expect(source).toContain("syncWebAgentRuntime");
-    expect(source.indexOf("registerWebVaultTransferSettings(app)")).toBeGreaterThan(
-      source.indexOf("await app.configuration.load()"),
-    );
+    expect(
+      source.indexOf("registerWebVaultTransferSettings(app)"),
+    ).toBeGreaterThan(source.indexOf("await app.configuration.load()"));
     expect(source).not.toMatch(/await app\.metadataCache\.load/u);
     expect(source).not.toContain("Opening vault…");
   });

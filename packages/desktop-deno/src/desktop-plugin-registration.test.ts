@@ -14,6 +14,7 @@ describe("Deno desktop plugin registration", () => {
       "SpellcheckPlugin",
       "FileExplorerPlugin",
       "SearchPlugin",
+      "GraphPlugin",
       "BookmarksPlugin",
       "HistoryPlugin",
       "WordCountPlugin",
@@ -32,6 +33,7 @@ describe("Deno desktop plugin registration", () => {
 
     expect(source).toContain('import "@lapis-notes/bases/styles.css"');
     expect(source).toContain('import "@lapis-notes/ai/styles.css"');
+    expect(source).toContain('import "@lapis-notes/graph/styles.css"');
     expect(source).toContain('communityPlugins: "disabled"');
     expect(source.indexOf("app.plugins.loadPlugins")).toBeGreaterThan(previous);
     expect(source.indexOf("app.workspace.loadLayout")).toBeGreaterThan(

@@ -35,6 +35,7 @@
     "@lapis-notes/bases": "workspace:*",
     "@lapis-notes/bookmarks": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
+    "@lapis-notes/graph": "workspace:*",
     "@lapis-notes/history": "workspace:*",
     "@lapis-notes/language-service": "workspace:*",
     "@lapis-notes/lapis-plugin-cv-roles": "link:../../../lapis-plugin-cv-roles",

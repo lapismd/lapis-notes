@@ -11,6 +11,8 @@
   } from "@lapis-notes/api";
   import { BasesPlugin } from "@lapis-notes/bases";
   import "@lapis-notes/bases/styles.css";
+  import { GraphPlugin } from "@lapis-notes/graph";
+  import "@lapis-notes/graph/styles.css";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import {
     WorkspaceStartup,
@@ -157,6 +159,12 @@
         plugin: SearchPlugin,
         required: false,
         enabledByDefault: true,
+      },
+      {
+        plugin: GraphPlugin,
+        required: false,
+        enabledByDefault: true,
+        distribution: "bundled",
       },
       {
         plugin: BookmarksPlugin,

@@ -15,6 +15,8 @@
   import "@lapis-notes/bases/styles.css";
   import { BookmarksPlugin } from "@lapis-notes/bookmarks";
   import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
+  import { GraphPlugin } from "@lapis-notes/graph";
+  import "@lapis-notes/graph/styles.css";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
   import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
@@ -336,6 +338,12 @@
           { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
           { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
           { plugin: SearchPlugin, required: false, enabledByDefault: true },
+          {
+            plugin: GraphPlugin,
+            required: false,
+            enabledByDefault: true,
+            distribution: "bundled",
+          },
           { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
           { plugin: HistoryPlugin, required: false, enabledByDefault: true },
           { plugin: WordCountPlugin, required: false, enabledByDefault: true },

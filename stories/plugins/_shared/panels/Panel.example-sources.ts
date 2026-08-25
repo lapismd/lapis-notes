@@ -15,6 +15,8 @@ const publicComponents: Partial<Record<PanelDemoKind, string>> = {
   "outgoing-links": "OutgoingLinks",
   tags: "Tags",
   search: "SearchPanel",
+  graph: "GraphControlsOverlay",
+  "local-graph": "GraphControlsOverlay",
   bookmarks: "BookmarksPanel",
   history: "HistoryPanel",
 };
@@ -36,34 +38,38 @@ export function panelExampleSource(
     2,
   );
   const packageName =
-    kind === "search"
-      ? "@lapis-notes/search"
-      : kind === "bookmarks"
-        ? "@lapis-notes/bookmarks"
-        : kind === "history"
-        ? "@lapis-notes/history"
-        : kind === "explorer"
-          ? "@lapis-notes/file-explorer"
-          : kind === "ai-history" ||
-              kind === "ai-catalog" ||
-              kind === "ai-chat"
-            ? "@lapis-notes/ai"
-              : "@lapis-notes/markdown";
+    kind === "graph" || kind === "local-graph"
+      ? "@lapis-notes/graph"
+      : kind === "search"
+        ? "@lapis-notes/search"
+        : kind === "bookmarks"
+          ? "@lapis-notes/bookmarks"
+          : kind === "history"
+            ? "@lapis-notes/history"
+            : kind === "explorer"
+              ? "@lapis-notes/file-explorer"
+              : kind === "ai-history" ||
+                  kind === "ai-catalog" ||
+                  kind === "ai-chat"
+                ? "@lapis-notes/ai"
+                : "@lapis-notes/markdown";
   const panelImport = `  import { ${publicComponents[kind] ?? "AllProperties"} } from "${packageName}";\n`;
   const pluginName =
-    kind === "search"
-      ? "Search"
-      : kind === "bookmarks"
-        ? "Bookmarks"
-        : kind === "history"
-        ? "History"
-        : kind === "explorer"
-          ? "Explorer"
-          : kind === "ai-history" ||
-              kind === "ai-catalog" ||
-              kind === "ai-chat"
-            ? "AI"
-            : "Markdown";
+    kind === "graph" || kind === "local-graph"
+      ? "Graph"
+      : kind === "search"
+        ? "Search"
+        : kind === "bookmarks"
+          ? "Bookmarks"
+          : kind === "history"
+            ? "History"
+            : kind === "explorer"
+              ? "Explorer"
+              : kind === "ai-history" ||
+                  kind === "ai-catalog" ||
+                  kind === "ai-chat"
+                ? "AI"
+                : "Markdown";
   const registrationNote = `  // The enabled ${pluginName} plugin registers the workspace view that renders ${publicComponents[kind] ?? "AllProperties"}.`;
 
   return `<script lang="ts">

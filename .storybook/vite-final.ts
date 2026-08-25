@@ -32,6 +32,10 @@ const historyLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-history/src/lib",
 );
+const graphLib = path.resolve(
+  rootDir,
+  "../packages/plugins/plugin-graph/src/lib",
+);
 const wordcountLib = path.resolve(
   rootDir,
   "../packages/plugins/plugin-wordcount/src",
@@ -284,6 +288,18 @@ export async function viteFinal(
         {
           find: /^@lapis-notes\/history$/,
           replacement: path.join(historyLib, "index.ts"),
+        },
+        {
+          find: /^@lapis-notes\/graph\/(?:app|styles)\.css$/,
+          replacement: path.join(graphLib, "styles.css"),
+        },
+        {
+          find: /^@lapis-notes\/graph\/embed$/,
+          replacement: path.join(graphLib, "embed.ts"),
+        },
+        {
+          find: /^@lapis-notes\/graph$/,
+          replacement: path.join(graphLib, "index.ts"),
         },
         {
           find: /^@lapis-notes\/wordcount$/,

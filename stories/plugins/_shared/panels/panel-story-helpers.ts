@@ -113,6 +113,8 @@ export function placementParameters(
     search: "search/panels/search",
     bookmarks: "bookmarks/panels/bookmarks",
     history: "history/panels/history",
+    graph: "graph/panels/graph",
+    "local-graph": "graph/panels/local-graph",
     "all-properties": "markdown/panels/all-properties",
     "file-properties": "markdown/panels/file-properties",
     outline: "markdown/panels/outline",
@@ -164,19 +166,21 @@ export async function expectPanelSource(
   await expect(source).toContain("app.workspace.changeLayout(layout)");
   await expect(source).toContain(`"${panelLayoutMarker(kind, layout)}"`);
   await expect(source).toContain(
-    kind === "search"
-      ? 'from "@lapis-notes/search";'
-      : kind === "bookmarks"
-        ? 'from "@lapis-notes/bookmarks";'
-        : kind === "history"
-          ? 'from "@lapis-notes/history";'
-          : kind === "explorer"
-            ? 'from "@lapis-notes/file-explorer";'
-            : kind === "ai-history" ||
-                kind === "ai-catalog" ||
-                kind === "ai-chat"
-              ? 'from "@lapis-notes/ai";'
-              : 'from "@lapis-notes/markdown";',
+    kind === "graph" || kind === "local-graph"
+      ? 'from "@lapis-notes/graph";'
+      : kind === "search"
+        ? 'from "@lapis-notes/search";'
+        : kind === "bookmarks"
+          ? 'from "@lapis-notes/bookmarks";'
+          : kind === "history"
+            ? 'from "@lapis-notes/history";'
+            : kind === "explorer"
+              ? 'from "@lapis-notes/file-explorer";'
+              : kind === "ai-history" ||
+                  kind === "ai-catalog" ||
+                  kind === "ai-chat"
+                ? 'from "@lapis-notes/ai";'
+                : 'from "@lapis-notes/markdown";',
   );
   await expect(source).not.toContain("PanelDemo");
   await expect(source).not.toContain("args.");

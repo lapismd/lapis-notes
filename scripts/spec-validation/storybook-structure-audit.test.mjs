@@ -128,6 +128,7 @@ const workspaceDemo = `
 { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true }
 { plugin: FileExplorerPlugin, required: false, enabledByDefault: true }
 { plugin: SearchPlugin, required: false, enabledByDefault: true }
+{ plugin: GraphPlugin, required: false, enabledByDefault: true }
 { plugin: BookmarksPlugin, required: false, enabledByDefault: true }
 { plugin: HistoryPlugin, required: false, enabledByDefault: true }
 { plugin: WordCountPlugin, required: false, enabledByDefault: true }
@@ -142,6 +143,7 @@ export const Mobile = { args: { loadBundledPlugins: true } };
 { id: "lapis-markdown-lint", enabled: true }
 { id: "lapis-file-explorer", enabled: true }
 { id: "search", enabled: true }
+{ id: "lapis-graph", enabled: true }
 { id: "bookmarks", enabled: true }
 { id: "history", enabled: true }
 { id: "wordcount", enabled: true }

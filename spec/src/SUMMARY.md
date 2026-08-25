@@ -27,6 +27,7 @@
   - [Plugins / Markdown Lint](./plugins/markdown-lint/index.md)
   - [Plugins / Spell Check](./plugins/spellcheck/index.md)
   - [Plugins / Search](./plugins/search/index.md)
+  - [Plugins / Graph](./plugins/graph/index.md)
   - [Plugins / History](./plugins/history/index.md)
   - [Plugins / Word Count](./plugins/wordcount/index.md)
   - [Plugins / Bases](./plugins/bases/index.md)

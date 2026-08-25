@@ -9,6 +9,12 @@ import {
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
 import { BookmarksPlugin, BookmarksViewType } from "@lapis-notes/bookmarks";
+import {
+  GraphPlugin,
+  GraphViewType,
+  LocalGraphViewType,
+} from "@lapis-notes/graph";
+import "@lapis-notes/graph/styles.css";
 import { HistoryPlugin, HistoryViewType } from "@lapis-notes/history";
 import {
   AiCatalogViewType,
@@ -47,6 +53,8 @@ export type PanelDemoKind =
   | "backlinks"
   | "outgoing-links"
   | "search"
+  | "graph"
+  | "local-graph"
   | "bookmarks"
   | "history"
   | "tags";
@@ -79,6 +87,8 @@ export const PANEL_VIEW_TYPE: Record<PanelDemoKind, string> = {
   backlinks: BacklinksViewType,
   "outgoing-links": OutgoingLinksViewType,
   search: SearchViewType,
+  graph: GraphViewType,
+  "local-graph": LocalGraphViewType,
   bookmarks: BookmarksViewType,
   history: HistoryViewType,
   tags: TagsViewType,
@@ -147,6 +157,18 @@ export const PANEL_LEAF_META: Record<
     icon: "search",
     group: "Search",
     requiresFile: false,
+  },
+  graph: {
+    title: "Graph",
+    icon: "waypoints",
+    group: "Graph",
+    requiresFile: false,
+  },
+  "local-graph": {
+    title: "Local graph",
+    icon: "git-branch-plus",
+    group: "Graph",
+    requiresFile: true,
   },
   bookmarks: {
     title: "Bookmarks",
@@ -419,6 +441,7 @@ export function createPanelDemoSeed(
           "## Links",
           "",
           "See [[Ideas]] and ![[Ideas]] while #project/alpha stays searchable.",
+          "The unresolved [[Missing graph note]] remains visible in Graph.",
           "",
           "### Link details",
           "",
@@ -456,6 +479,7 @@ export function createPanelDemoSeed(
           "## Links",
           "",
           "See [[Ideas]] and ![[Ideas]] while #project/alpha stays searchable.",
+          "The unresolved [[Missing graph note]] remains visible in Graph.",
           "",
           "### Link details",
           "",
@@ -525,7 +549,7 @@ export function createPanelDemoSeed(
       "",
       "## Capture",
       "",
-      "Link back to [[Welcome]] from the ideas note.",
+      "Link back to [[Welcome]] and embed ![[Assets/map.png]] from the ideas note.",
       "",
       "## Next",
       "",
@@ -548,6 +572,7 @@ export function createPanelDemoSeed(
     ].join("\n"),
     "Notes/FilenameOnly.md":
       "# Quiet note\n\nThe body deliberately omits the filename token.\n",
+    "Assets/map.png": new Uint8Array([137, 80, 78, 71]).buffer,
     ...(kind === "ai-history" ? createAiHistorySeed() : {}),
     ...(kind === "ai-catalog" ? createAiCatalogSeed() : {}),
     ...(kind === "history" ? createHistorySeed() : {}),
@@ -783,6 +808,12 @@ export async function bootPanelDemo(
     { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
     { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
     { plugin: SearchPlugin, required: false, enabledByDefault: true },
+    {
+      plugin: GraphPlugin,
+      required: false,
+      enabledByDefault: true,
+      distribution: "bundled",
+    },
     { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
     { plugin: HistoryPlugin, required: false, enabledByDefault: true },
     {

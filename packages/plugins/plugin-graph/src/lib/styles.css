@@ -1,0 +1,325 @@
+.graph-view {
+  --ui-graph-surface-background: var(
+    --ui-workspace-view-background,
+    var(--background)
+  );
+  --ui-graph-surface-foreground: var(
+    --ui-workspace-view-foreground,
+    var(--foreground)
+  );
+  --ui-graph-surface-border: var(--ui-workspace-view-border, var(--border));
+  --ui-graph-link: color-mix(
+    in srgb,
+    var(--ui-graph-surface-foreground) 24%,
+    transparent
+  );
+  --ui-graph-link-active: color-mix(
+    in srgb,
+    var(--ui-graph-surface-foreground) 52%,
+    transparent
+  );
+  --ui-graph-node-note: var(--primary);
+  --ui-graph-node-attachment: var(--warning, #d97706);
+  --ui-graph-node-tag: var(--success, #16a34a);
+  --ui-graph-node-unresolved: var(--destructive);
+  --ui-graph-node-neutral: var(--muted-foreground);
+  --ui-graph-node-label: var(--muted-foreground);
+  --ui-graph-node-stroke: var(--ui-graph-surface-background);
+  --ui-graph-node-active-stroke: var(--ui-graph-surface-foreground);
+  --ui-graph-stats-background: color-mix(
+    in srgb,
+    var(--ui-graph-surface-background) 90%,
+    transparent
+  );
+  --ui-graph-stats-foreground: var(--muted-foreground);
+  --ui-graph-controls-background: var(
+    --popover,
+    var(--ui-graph-surface-background)
+  );
+  --ui-graph-controls-foreground: var(
+    --popover-foreground,
+    var(--ui-graph-surface-foreground)
+  );
+  --ui-graph-controls-border: var(--ui-graph-surface-border);
+  --ui-graph-controls-hover: var(--muted);
+  --ui-graph-controls-muted: var(--muted-foreground);
+  --ui-graph-controls-input-background: var(
+    --ui-workspace-view-secondary-background,
+    var(--background)
+  );
+  --ui-graph-controls-width: 28rem;
+  --ui-graph-controls-shadow: var(
+    --ui-overlay-shadow,
+    0 10px 28px rgb(0 0 0 / 18%)
+  );
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.75rem;
+  overflow: hidden;
+  background: var(--ui-graph-surface-background);
+  color: var(--ui-graph-surface-foreground);
+}
+
+.graph-view__layout {
+  position: relative;
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.graph-view__surface {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: var(--ui-graph-surface-background);
+}
+
+.graph-view__stats,
+.graph-view__status {
+  position: absolute;
+  z-index: 10;
+  left: 0.75rem;
+  pointer-events: none;
+}
+
+.graph-view__stats {
+  top: 0.75rem;
+}
+
+.graph-view__status {
+  bottom: 0.75rem;
+  max-width: calc(100% - 1.5rem);
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--ui-graph-controls-border);
+  border-radius: 0.5rem;
+  background: var(--ui-graph-stats-background);
+  color: var(--ui-graph-stats-foreground);
+  font-size: 0.75rem;
+  box-shadow: var(--ui-graph-controls-shadow);
+  backdrop-filter: blur(8px);
+}
+
+.graph-view__status[data-state="error"] {
+  border-color: var(--destructive);
+  color: var(--destructive);
+}
+
+.graph-view__stats-badge {
+  display: inline-flex;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ui-graph-controls-border);
+  border-radius: 999px;
+  background: var(--ui-graph-stats-background);
+  color: var(--ui-graph-stats-foreground);
+  font-size: 0.75rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+  backdrop-filter: blur(8px);
+}
+
+.graph-controls-toolbar {
+  position: absolute;
+  z-index: 10;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--ui-graph-controls-border);
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 14%);
+  pointer-events: auto;
+}
+
+.graph-view .graph-controls-toolbar-button {
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  min-height: 26px;
+  padding: 4px;
+  border: 0;
+  border-bottom: 1px solid var(--ui-graph-controls-border);
+  border-radius: 0;
+  background: var(--ui-graph-surface-background);
+  color: var(--ui-graph-controls-muted);
+  box-shadow: none;
+}
+
+.graph-view .graph-controls-toolbar-button:last-child,
+.graph-view .graph-controls-toolbar-button--last {
+  border-bottom: 0;
+}
+
+.graph-controls-panel {
+  position: absolute;
+  z-index: 20;
+  top: 2px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--ui-graph-controls-width), calc(100% - 0.5rem));
+  max-width: calc(100% - 0.5rem);
+  max-height: calc(100% - 0.5rem);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--ui-graph-controls-border);
+  border-radius: 0.625rem;
+  background: var(--ui-graph-controls-background);
+  color: var(--ui-graph-controls-foreground);
+  box-shadow: var(--ui-graph-controls-shadow);
+  pointer-events: auto;
+}
+
+.graph-controls-sections,
+.graph-controls-field-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.graph-controls-field-list {
+  gap: 1rem;
+}
+
+.graph-view .graph-controls-toolbar-button:hover,
+.graph-view .graph-controls-header-button:hover {
+  background: var(--ui-graph-controls-hover);
+  color: var(--ui-graph-controls-foreground);
+}
+
+.graph-view .graph-controls-header-button {
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  color: var(--ui-graph-controls-muted);
+}
+
+.graph-controls-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.graph-view .graph-controls-trigger {
+  min-height: 40px;
+  padding: 0 1rem;
+  color: var(--ui-graph-controls-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.graph-controls-section-header {
+  position: relative;
+}
+
+.graph-view .graph-controls-trigger--actions {
+  width: 100%;
+  padding-inline-end: 7.5rem;
+}
+
+.graph-controls-trigger__content,
+.graph-controls-trigger__actions,
+.graph-controls-toggle-row,
+.graph-controls-slider__header {
+  display: flex;
+  align-items: center;
+}
+
+.graph-controls-trigger__content {
+  flex: 1;
+  min-width: 0;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.graph-controls-trigger__actions {
+  gap: 0.25rem;
+}
+
+.graph-controls-section-header > .graph-controls-trigger__actions {
+  position: absolute;
+  z-index: 1;
+  top: 0.25rem;
+  right: 0.5rem;
+}
+
+.graph-controls-section-content {
+  padding: 0.5rem 1rem 1.5rem 0.75rem;
+}
+
+.graph-view .graph-controls-input {
+  height: 2.25rem;
+  border-color: var(--ui-graph-controls-border);
+  border-radius: var(--radius);
+  background: var(--ui-graph-controls-input-background);
+  color: var(--ui-graph-controls-foreground);
+  font-size: 0.875rem;
+  box-shadow: none;
+}
+
+.graph-view .graph-controls-input::placeholder {
+  color: var(--ui-graph-controls-muted);
+}
+
+.graph-view [data-slot="accordion-item"] {
+  border-bottom: 1px solid var(--ui-graph-controls-border);
+}
+
+.graph-view [data-slot="accordion-item"]:last-child {
+  border-bottom: 0;
+}
+
+.graph-controls-toggle-row,
+.graph-controls-slider__header {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.graph-controls-label,
+.graph-controls-slider__header {
+  font-size: 0.875rem;
+}
+
+.graph-controls-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.graph-controls-slider__value {
+  color: var(--ui-graph-controls-muted);
+  font-size: 0.75rem;
+}
+
+.graph-controls-slider__control {
+  width: 100%;
+}
+
+.graph-view [data-slot="switch"] {
+  box-shadow: none;
+}
+
+.graph-view [data-slot="slider-track"] {
+  background: color-mix(
+    in srgb,
+    var(--ui-graph-controls-muted) 42%,
+    transparent
+  );
+}
+
+.graph-view [data-slot="slider-range"] {
+  background: var(--primary);
+}
+
+.graph-view [data-slot="slider-thumb"] {
+  background: var(--ui-graph-controls-input-background);
+}

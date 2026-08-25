@@ -67,6 +67,7 @@ function expectBundledPlugins(canvas: ReturnType<typeof within>) {
     { id: "spellcheck", enabled: true },
     { id: "lapis-file-explorer", enabled: true },
     { id: "search", enabled: true },
+    { id: "lapis-graph", enabled: true },
     { id: "bookmarks", enabled: true },
     { id: "history", enabled: true },
     { id: "wordcount", enabled: true },

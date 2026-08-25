@@ -93,6 +93,7 @@
     "@lapis-notes/bases": "workspace:*",
     "@lapis-notes/bookmarks": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
+    "@lapis-notes/graph": "workspace:*",
     "@lapis-notes/markdown": "workspace:*",
     "@lapis-notes/markdown-lint": "workspace:*",
     "@lapis-notes/spellcheck": "workspace:*",

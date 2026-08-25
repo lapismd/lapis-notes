@@ -363,6 +363,7 @@ function auditPersistedWorkspace({ readOptional }) {
     "MarkdownLintPlugin",
     "FileExplorerPlugin",
     "SearchPlugin",
+    "GraphPlugin",
     "BookmarksPlugin",
     "HistoryPlugin",
     "WordCountPlugin",
@@ -374,6 +375,7 @@ function auditPersistedWorkspace({ readOptional }) {
     "lapis-markdown-lint",
     "lapis-file-explorer",
     "search",
+    "lapis-graph",
     "bookmarks",
     "history",
     "wordcount",
@@ -385,13 +387,12 @@ function auditPersistedWorkspace({ readOptional }) {
     story !== null &&
     pluginTokens.every((token) => demo.includes(token)) &&
     pluginTokens.every((token) =>
-      demo.includes(
-        `{ plugin: ${token}, required: false, enabledByDefault: true }`,
-      ),
+      new RegExp(
+        `plugin:\\s*${token},[\\s\\S]{0,120}?required:\\s*false,[\\s\\S]{0,120}?enabledByDefault:\\s*true`,
+        "u",
+      ).test(demo),
     ) &&
-    pluginIds.every((id) =>
-      story.includes(`{ id: "${id}", enabled: true }`),
-    ) &&
+    pluginIds.every((id) => story.includes(`{ id: "${id}", enabled: true }`)) &&
     demo.includes('defaultRuntime: "fake"') &&
     story.includes("export const PersistedDesktop") &&
     story.includes("export const Mobile") &&
@@ -403,7 +404,7 @@ function auditPersistedWorkspace({ readOptional }) {
           "STORYBOOK-WORKSPACE-INVENTORY",
           demo === null ? demoFile : storyFile,
           1,
-          "PersistedDesktop and Mobile must enable bundled plugins including Bookmarks and use Fake AI",
+          "PersistedDesktop and Mobile must enable bundled plugins including Graph and Bookmarks and use Fake AI",
         ),
       ];
 }

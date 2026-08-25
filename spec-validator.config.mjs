@@ -135,32 +135,20 @@ export default defineConfig(tableRequirements(), {
         },
         {
           pattern: "^packages/api/src/lib/storage/desktop-native\\.ts$",
-          chapters: [
-            "spec/src/desktop-deno-host.md",
-            "spec/src/packages.md",
-          ],
+          chapters: ["spec/src/desktop-deno-host.md", "spec/src/packages.md"],
         },
         {
           pattern: "^packages/api/src/lib/cache\\.svelte(?:\\.d)?\\.ts$",
-          chapters: [
-            "spec/src/app-database.md",
-            "spec/src/plugin-model.md",
-          ],
+          chapters: ["spec/src/app-database.md", "spec/src/plugin-model.md"],
         },
         {
           pattern:
             "^packages/api/src/lib/(?:plugin(?:-manager)?\\.ts|workspace\\.svelte\\.ts|context\\.svelte\\.ts)$",
-          chapters: [
-            "spec/src/plugin-model.md",
-            "spec/src/workspace-shell.md",
-          ],
+          chapters: ["spec/src/plugin-model.md", "spec/src/workspace-shell.md"],
         },
         {
           pattern: "^packages/api/src/lib/app-shell-plugin-persistence\\.ts$",
-          chapters: [
-            "spec/src/workspace-shell.md",
-            "spec/src/plugin-model.md",
-          ],
+          chapters: ["spec/src/workspace-shell.md", "spec/src/plugin-model.md"],
         },
         {
           pattern: "^packages/plugins/plugin-wordcount/",
@@ -232,8 +220,6 @@ export default defineConfig(tableRequirements(), {
             "spec/src/web-host.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
-            "spec/src/plugins/wordcount/index.md",
-            "spec/src/plugins/spellcheck/index.md",
           ],
         },
         {
@@ -289,6 +275,15 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
+          pattern: "^packages/plugins/plugin-graph/",
+          chapters: [
+            "spec/src/plugins/graph/index.md",
+            "spec/src/packages.md",
+            "spec/src/plugin-model.md",
+            "spec/src/architecture.md",
+          ],
+        },
+        {
           pattern: "^packages/plugins/plugin-history/",
           chapters: [
             "spec/src/plugins/history/index.md",
@@ -315,6 +310,13 @@ export default defineConfig(tableRequirements(), {
           pattern: "^stories/plugins/history/",
           chapters: [
             "spec/src/plugins/history/index.md",
+            "spec/src/storybook-catalog.md",
+          ],
+        },
+        {
+          pattern: "^stories/plugins/graph/",
+          chapters: [
+            "spec/src/plugins/graph/index.md",
             "spec/src/storybook-catalog.md",
           ],
         },
