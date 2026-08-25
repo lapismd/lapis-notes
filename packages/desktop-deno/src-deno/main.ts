@@ -178,7 +178,10 @@ function registerDesktopBindings(): void {
               agentRuntime,
               appDatabase,
               terminalRuntime,
-              rendererCloseReady: () => closeCoordinator.rendererReady(),
+              rendererCloseReady: () => {
+                desktopLog.info("[desktop-close] renderer-ready");
+                closeCoordinator.rendererReady();
+              },
               requestClose: () => closeCoordinator.requestClose(),
               takePendingAppUrls: () => singleInstance.queue.takePending(),
               acceptanceDetails: () => ({ laterLaunchFocusCount }),

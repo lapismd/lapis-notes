@@ -23,6 +23,7 @@ const expectedPlugins = [
   "bookmarks",
   "history",
   "lapis-file-explorer",
+  "lapis-graph",
   "lapis-markdown-lint",
   "markdown",
   "roles",
@@ -281,7 +282,7 @@ try {
   await waitForCleanExit(child, diagnostics);
   assert.match(
     diagnostics.join(""),
-    /\[desktop\] invoke desktop_renderer_close_ready/u,
+    /\[desktop-close\] renderer-ready/u,
     "Packaged close exited without renderer teardown acknowledgement",
   );
   assertApplicationSignature(executable);
