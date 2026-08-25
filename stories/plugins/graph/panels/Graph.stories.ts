@@ -205,12 +205,26 @@ function placementStory(
         await userEvent.click(
           within(dialog).getByRole("button", { name: "Forces" }),
         );
-        expect(
-          within(dialog).getByRole("slider", { name: "Center force" }),
-        ).toHaveAttribute("aria-valuemax", "1");
-        expect(
-          within(dialog).getByRole("slider", { name: "Link distance" }),
-        ).toHaveAttribute("aria-valuemax", "500");
+        const centerForce = within(dialog).getByRole("slider", {
+          name: "Center force",
+        });
+        expect(centerForce).toHaveAttribute("aria-valuemin", "0");
+        expect(centerForce).toHaveAttribute("aria-valuemax", "1");
+        const repelForce = within(dialog).getByRole("slider", {
+          name: "Repel force",
+        });
+        expect(repelForce).toHaveAttribute("aria-valuemin", "0");
+        expect(repelForce).toHaveAttribute("aria-valuemax", "20");
+        const linkForce = within(dialog).getByRole("slider", {
+          name: "Link force",
+        });
+        expect(linkForce).toHaveAttribute("aria-valuemin", "0");
+        expect(linkForce).toHaveAttribute("aria-valuemax", "1");
+        const linkDistance = within(dialog).getByRole("slider", {
+          name: "Link distance",
+        });
+        expect(linkDistance).toHaveAttribute("aria-valuemin", "30");
+        expect(linkDistance).toHaveAttribute("aria-valuemax", "500");
       }
       await expectPanelSource(parameters, kind, layout);
     },

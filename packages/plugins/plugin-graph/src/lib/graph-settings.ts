@@ -5,6 +5,31 @@ import type {
 } from "./graph-types";
 
 export const DEFAULT_GRAPH_GROUPS: GraphGroupRule[] = [];
+export const GRAPH_SETTINGS_VERSION = 1;
+
+const GRAPH_FORCE_CURVE_BASE = 0.01;
+
+export function graphForceSliderToStrength(value: number): number {
+  const slider = Math.min(Math.max(Number.isFinite(value) ? value : 0, 0), 1);
+  return (
+    (Math.pow(GRAPH_FORCE_CURVE_BASE, 1 - slider) - GRAPH_FORCE_CURVE_BASE) /
+    (1 - GRAPH_FORCE_CURVE_BASE)
+  );
+}
+
+export function graphStrengthToForceSlider(value: number): number {
+  const strength = Math.min(Math.max(Number.isFinite(value) ? value : 0, 0), 1);
+  const curved =
+    strength * (1 - GRAPH_FORCE_CURVE_BASE) + GRAPH_FORCE_CURVE_BASE;
+  return 1 - Math.log(curved) / Math.log(GRAPH_FORCE_CURVE_BASE);
+}
+
+export function graphRepelForceMagnitude(value: number): number {
+  const slider = Math.min(Math.max(Number.isFinite(value) ? value : 0, 0), 20);
+  return Math.max(slider ** 3, 1);
+}
+
+export const DEFAULT_GRAPH_CENTER_FORCE = graphStrengthToForceSlider(0.1);
 
 export const DEFAULT_GRAPH_SETTINGS: GraphSettings = {
   filters: {
@@ -22,16 +47,56 @@ export const DEFAULT_GRAPH_SETTINGS: GraphSettings = {
     wheelZoomSensitivity: 1,
   },
   forces: {
-    centerForce: 0.08,
-    repelForce: 240,
-    linkForce: 0.22,
-    linkDistance: 96,
+    centerForce: DEFAULT_GRAPH_CENTER_FORCE,
+    repelForce: 10,
+    linkForce: 1,
+    linkDistance: 250,
   },
   localGraph: {
     depth: 1,
   },
   groups: DEFAULT_GRAPH_GROUPS,
 };
+
+export type PersistedGraphSettings = GraphSettings & {
+  settingsVersion: number;
+};
+
+export type LoadedGraphSettings = {
+  settings: GraphSettings;
+  migrated: boolean;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function loadPersistedGraphSettings(
+  stored: unknown,
+): LoadedGraphSettings {
+  if (!isRecord(stored)) {
+    return {
+      settings: mergeGraphSettings(null),
+      migrated: false,
+    };
+  }
+
+  const settings = mergeGraphSettings(stored as Partial<GraphSettings>);
+  if (stored.settingsVersion === undefined) {
+    settings.forces = { ...DEFAULT_GRAPH_SETTINGS.forces };
+    return { settings, migrated: true };
+  }
+  return { settings, migrated: false };
+}
+
+export function serializeGraphSettings(
+  settings: GraphSettings,
+): PersistedGraphSettings {
+  return {
+    settingsVersion: GRAPH_SETTINGS_VERSION,
+    ...mergeGraphSettings(settings),
+  };
+}
 
 export function mergeGraphSettings(
   stored: Partial<GraphSettings> | null | undefined,
@@ -78,7 +143,12 @@ export function moveGraphGroup(
   delta: number,
 ): GraphGroupRule[] {
   const target = index + delta;
-  if (index < 0 || index >= groups.length || target < 0 || target >= groups.length) {
+  if (
+    index < 0 ||
+    index >= groups.length ||
+    target < 0 ||
+    target >= groups.length
+  ) {
     return groups.map((group) => ({ ...group }));
   }
   const next = groups.map((group) => ({ ...group }));

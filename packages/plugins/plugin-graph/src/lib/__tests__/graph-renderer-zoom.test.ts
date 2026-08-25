@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   advanceGraphEmphasis,
   clampGraphZoom,
+  createGraphLinkDegreeMap,
   createGraphForceSimulation,
   graphEmphasisAlpha,
+  graphDegreeNormalizedLinkStrength,
   graphFitScale,
   graphFitTransform,
   graphFocusTransform,
@@ -16,6 +18,8 @@ import {
   graphNodeWorldRadius,
   graphPhyllotaxisPosition,
   GRAPH_FOCUS_ZOOM,
+  GRAPH_D3_ALPHA_DECAY,
+  GRAPH_D3_VELOCITY_DECAY,
   GRAPH_MAX_ZOOM,
   GRAPH_MIN_ZOOM,
   GRAPH_ZOOM_STEP,
@@ -152,6 +156,76 @@ describe("Graph renderer zoom bounds", () => {
     expect(graphLinkUsesAccentPaint(true, true)).toBe(true);
   });
 
+  it("normalizes link force by endpoint degree without count weighting", () => {
+    const nodes: GraphRenderNode[] = ["a", "b", "c", "d"].map((id) => ({
+      id,
+      label: id,
+      path: `${id}.md`,
+      type: "note",
+      exists: true,
+      refCount: 0,
+      outgoingCount: 0,
+      tags: [],
+      groupIds: [],
+      radius: 8,
+    }));
+    const links: GraphRenderLink[] = [
+      { id: "ab", source: "a", target: "b", count: 1, directed: true },
+      { id: "ac", source: "a", target: "c", count: 40, directed: true },
+      { id: "bd", source: "b", target: "d", count: 1, directed: true },
+    ];
+    const degrees = createGraphLinkDegreeMap(nodes, links);
+
+    expect(degrees).toEqual(
+      new Map([
+        ["a", 2],
+        ["b", 2],
+        ["c", 1],
+        ["d", 1],
+      ]),
+    );
+    expect(graphDegreeNormalizedLinkStrength(links[0]!, degrees, 1)).toBe(0.5);
+    expect(graphDegreeNormalizedLinkStrength(links[1]!, degrees, 1)).toBe(1);
+    const countChanged = { ...links[1]!, count: 4_000 };
+    expect(graphDegreeNormalizedLinkStrength(countChanged, degrees, 1)).toBe(1);
+  });
+
+  it("uses the governed D3 charge, collision, and decay configuration", () => {
+    const nodes: GraphRenderNode[] = ["a", "b"].map((id) => ({
+      id,
+      label: id,
+      path: `${id}.md`,
+      type: "note",
+      exists: true,
+      refCount: 0,
+      outgoingCount: 0,
+      tags: [],
+      groupIds: [],
+      radius: 8,
+    }));
+    const links: GraphRenderLink[] = [
+      { id: "ab", source: "a", target: "b", count: 8, directed: true },
+    ];
+    const simulation = createGraphForceSimulation(
+      nodes,
+      links,
+      DEFAULT_GRAPH_SETTINGS,
+    );
+    const charge = simulation.force("charge") as unknown as {
+      distanceMin(): number;
+    };
+    const collision = simulation.force("collision") as unknown as {
+      radius(): (node: GraphRenderNode) => number;
+      strength(): number;
+    };
+
+    expect(charge.distanceMin()).toBe(30);
+    expect(collision.radius()(nodes[0]!)).toBe(60);
+    expect(collision.strength()).toBe(0.5);
+    expect(simulation.alphaDecay()).toBeCloseTo(GRAPH_D3_ALPHA_DECAY, 12);
+    expect(simulation.velocityDecay()).toBe(GRAPH_D3_VELOCITY_DECAY);
+  });
+
   it("seeds deterministic phyllotaxis positions for large entrance layouts", () => {
     const first = Array.from({ length: 1_100 }, (_, index) =>
       graphPhyllotaxisPosition(index),
@@ -212,9 +286,9 @@ describe("Graph renderer zoom bounds", () => {
           node.x !== initial[index]!.x || node.y !== initial[index]!.y,
       ),
     ).toBe(true);
-    simulation.tick(180);
+    simulation.tick(300);
 
-    expect(simulation.alpha()).toBeLessThan(0.001);
+    expect(simulation.alpha()).toBeLessThanOrEqual(0.00101);
     expect(
       nodes.every((node) => Number.isFinite(node.x) && Number.isFinite(node.y)),
     ).toBe(true);

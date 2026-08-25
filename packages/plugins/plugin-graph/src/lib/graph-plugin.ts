@@ -4,7 +4,13 @@ import {
   type PluginManifest,
   type WorkspaceLeaf,
 } from "@lapis-notes/api";
-import { DEFAULT_GRAPH_SETTINGS, mergeGraphSettings } from "./graph-settings";
+import {
+  DEFAULT_GRAPH_SETTINGS,
+  loadPersistedGraphSettings,
+  mergeGraphSettings,
+  serializeGraphSettings,
+  type PersistedGraphSettings,
+} from "./graph-settings";
 import {
   GraphDataCoordinator,
   type GraphCoordinatorState,
@@ -42,16 +48,13 @@ export class GraphPlugin extends Plugin {
   private readonly graphCoordinator: GraphDataCoordinator;
   private settings: GraphSettings = mergeGraphSettings(DEFAULT_GRAPH_SETTINGS);
   private settingsSaveTimer: ReturnType<typeof setTimeout> | null = null;
-  private pendingSettingsSave: GraphSettings | null = null;
+  private pendingSettingsSave: PersistedGraphSettings | null = null;
   private readonly pathQueryCache = new Map<
     string,
     Promise<ReadonlySet<string>>
   >();
 
-  constructor(
-    app: App,
-    manifest: PluginManifest = GRAPH_MANIFEST,
-  ) {
+  constructor(app: App, manifest: PluginManifest = GRAPH_MANIFEST) {
     super(app, manifest);
     this.graphCoordinator = new GraphDataCoordinator(app);
   }
@@ -167,11 +170,15 @@ export class GraphPlugin extends Plugin {
 
   private async initializeSettings(): Promise<void> {
     const storedData = await this.loadData();
-    this.settings = mergeGraphSettings(storedData);
+    const loaded = loadPersistedGraphSettings(storedData);
+    this.settings = loaded.settings;
+    if (loaded.migrated) {
+      await this.saveData(serializeGraphSettings(this.settings));
+    }
   }
 
   private scheduleSettingsSave(settings: GraphSettings): void {
-    this.pendingSettingsSave = mergeGraphSettings(settings);
+    this.pendingSettingsSave = serializeGraphSettings(settings);
     if (this.settingsSaveTimer) clearTimeout(this.settingsSaveTimer);
     this.settingsSaveTimer = setTimeout(() => {
       this.settingsSaveTimer = null;

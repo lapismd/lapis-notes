@@ -106,6 +106,7 @@ chat to `.agents`.
 | LN-PLUG-033 | A plugin that exposes multiple views over one generated global projection MUST own single-flight construction above the view lifetime. View closure MUST release subscriptions without discarding a valid plugin-owned snapshot, while plugin unload MUST cancel in-flight work and flush pending plugin data. |
 | LN-PLUG-034 | Canvas plugin views MAY retain package-owned simulation, camera, culling, and emphasis state when presentation-only. Emphasis MUST start on the next animation frame, remain elapsed-time normalized, and respect reduced motion. Such state MUST preserve keyboard and pointer navigation and MUST NOT become domain-data or workspace authority. |
 | LN-PLUG-035 | A plugin MAY use AppDatabase path-only Search to evaluate its own ordered presentation rules. It MUST keep rule persistence and precedence plugin-owned, react to Search-domain revisions, present invalid-query diagnostics locally, and MUST NOT import another plugin's manager, panel, or settings implementation. |
+| LN-PLUG-036 | A plugin-owned presentation-settings migration MUST be versioned, idempotent, and limited to fields whose semantics changed. It MUST preserve unrelated settings and MUST NOT read another application's configuration as a migration source. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

@@ -9,6 +9,10 @@ import {
   type SimulationNodeDatum,
 } from "d3-force";
 import type { GraphData, GraphNode, GraphSettings } from "./graph-types";
+import {
+  graphForceSliderToStrength,
+  graphRepelForceMagnitude,
+} from "./graph-settings";
 import { adjustTransformForViewportResize } from "./graph-viewport-alignment";
 
 export interface GraphRenderNode extends GraphNode, SimulationNodeDatum {
@@ -91,6 +95,8 @@ const REDUCED_MOTION_SETTLE_TICKS = 240;
 const EMPHASIS_FRAME_MS = 1000 / 60;
 const EMPHASIS_DECAY_PER_FRAME = 0.9;
 const EMPHASIS_EPSILON = 0.001;
+export const GRAPH_D3_ALPHA_DECAY = 1 - Math.pow(0.001, 1 / 300);
+export const GRAPH_D3_VELOCITY_DECAY = 0.4;
 
 export function graphPhyllotaxisPosition(
   index: number,
@@ -153,38 +159,83 @@ export function graphLinkUsesAccentPaint(
   return hasEmphasis && incidentToSource;
 }
 
+export function createGraphLinkDegreeMap(
+  nodes: GraphRenderNode[],
+  links: GraphRenderLink[],
+): ReadonlyMap<string, number> {
+  const degrees = new Map(nodes.map((node) => [node.id, 0]));
+  for (const link of links) {
+    const sourceId = simulationNodeId(link.source);
+    const targetId = simulationNodeId(link.target);
+    degrees.set(sourceId, (degrees.get(sourceId) ?? 0) + 1);
+    degrees.set(targetId, (degrees.get(targetId) ?? 0) + 1);
+  }
+  return degrees;
+}
+
+export function graphDegreeNormalizedLinkStrength(
+  link: GraphRenderLink,
+  degrees: ReadonlyMap<string, number>,
+  sliderValue: number,
+): number {
+  const sourceDegree = Math.max(
+    degrees.get(simulationNodeId(link.source)) ?? 0,
+    1,
+  );
+  const targetDegree = Math.max(
+    degrees.get(simulationNodeId(link.target)) ?? 0,
+    1,
+  );
+  return (
+    graphForceSliderToStrength(sliderValue) /
+    Math.min(sourceDegree, targetDegree)
+  );
+}
+
 export function createGraphForceSimulation(
   nodes: GraphRenderNode[],
   links: GraphRenderLink[],
   settings: GraphSettings,
 ) {
+  const degrees = createGraphLinkDegreeMap(nodes, links);
   return forceSimulation(nodes)
     .force(
       "link",
       forceLink<GraphRenderNode, GraphRenderLink>(links)
         .id((node) => node.id)
         .distance(settings.forces.linkDistance)
-        .strength(
-          (link) => settings.forces.linkForce * Math.log1p(link.count + 1),
+        .strength((link) =>
+          graphDegreeNormalizedLinkStrength(
+            link,
+            degrees,
+            settings.forces.linkForce,
+          ),
         ),
     )
     .force(
       "charge",
-      forceManyBody<GraphRenderNode>().strength(-settings.forces.repelForce),
+      forceManyBody<GraphRenderNode>()
+        .strength(-graphRepelForceMagnitude(settings.forces.repelForce))
+        .distanceMin(30),
     )
     .force(
       "center-x",
-      forceX<GraphRenderNode>(0).strength(settings.forces.centerForce),
+      forceX<GraphRenderNode>(0).strength(
+        graphForceSliderToStrength(settings.forces.centerForce),
+      ),
     )
     .force(
       "center-y",
-      forceY<GraphRenderNode>(0).strength(settings.forces.centerForce),
+      forceY<GraphRenderNode>(0).strength(
+        graphForceSliderToStrength(settings.forces.centerForce),
+      ),
     )
     .force(
       "collision",
-      forceCollide<GraphRenderNode>().radius((node) => node.radius + 6),
+      forceCollide<GraphRenderNode>().radius(60).strength(0.5),
     )
-    .alphaDecay(0.04)
+    .alphaDecay(GRAPH_D3_ALPHA_DECAY)
+    .velocityDecay(GRAPH_D3_VELOCITY_DECAY)
     .stop();
 }
 

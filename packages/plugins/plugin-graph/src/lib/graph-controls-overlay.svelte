@@ -647,9 +647,9 @@
                 <Slider
                   aria-label="Repel force"
                   type="single"
-                  min={80}
-                  max={480}
-                  step={10}
+                  min={0}
+                  max={20}
+                  step={0.1}
                   class="graph-controls-slider__control"
                   bind:value={
                     () => settings.forces.repelForce,
@@ -671,9 +671,9 @@
                 <Slider
                   aria-label="Link force"
                   type="single"
-                  min={0.05}
+                  min={0}
                   max={1}
-                  step={0.05}
+                  step={0.01}
                   class="graph-controls-slider__control"
                   bind:value={
                     () => settings.forces.linkForce,
@@ -695,9 +695,9 @@
                 <Slider
                   aria-label="Link distance"
                   type="single"
-                  min={40}
+                  min={30}
                   max={500}
-                  step={5}
+                  step={1}
                   class="graph-controls-slider__control"
                   bind:value={
                     () => settings.forces.linkDistance,
