@@ -131,9 +131,11 @@ function placementStory(
       );
       expect(tagsRow).not.toBeNull();
       expect(aliasesRow).not.toBeNull();
-      const tagsTypeIcon = tagsRow?.querySelector<SVGElement>(
-        'button[aria-label="Change tags type"] svg',
+      const tagsTypeButton = within(tagsRow as HTMLElement).getByRole(
+        "button",
+        { name: "Change tags type" },
       );
+      const tagsTypeIcon = tagsTypeButton.querySelector<SVGElement>("svg");
       expect(tagsTypeIcon).not.toBeNull();
       expect(tagsTypeIcon?.querySelector('path[d="M4 9h16"]')).not.toBeNull();
       expect(tagsTypeIcon?.querySelector('path[d="M4 15h16"]')).not.toBeNull();
@@ -178,6 +180,32 @@ function placementStory(
       expect(
         aliases.getByRole("button", { name: "Remove Lapis Home" }),
       ).toBeVisible();
+
+      await userEvent.click(tagsTypeButton);
+      const typeMenu = tags.getByRole("menu", {
+        name: "Property type for tags",
+      });
+      const textType = within(typeMenu).getByRole("menuitemradio", {
+        name: "Text",
+      });
+      await expect(typeMenu).toBeVisible();
+      await expect(textType).toBeVisible();
+      expect(getComputedStyle(tagsRow as HTMLElement).overflow).toBe("visible");
+      expect(typeMenu.getBoundingClientRect().bottom).toBeGreaterThan(
+        (tagsRow as HTMLElement).getBoundingClientRect().bottom,
+      );
+      const textTypeBounds = textType.getBoundingClientRect();
+      const hit = canvasElement.ownerDocument.elementFromPoint(
+        textTypeBounds.left + textTypeBounds.width / 2,
+        textTypeBounds.top + textTypeBounds.height / 2,
+      );
+      expect(hit === textType || textType.contains(hit)).toBe(true);
+      await userEvent.click(tagsTypeButton);
+      await waitFor(() => {
+        expect(
+          tags.queryByRole("menu", { name: "Property type for tags" }),
+        ).toBeNull();
+      });
 
       const propertyContainer =
         alignment.panelElement.querySelector<HTMLElement>(

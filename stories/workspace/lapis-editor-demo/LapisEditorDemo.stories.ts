@@ -1147,6 +1147,41 @@ export const MarkdownFrontmatter: Story = {
       ).toHaveAttribute("aria-expanded", "true"),
     );
 
+    const titleRow = frontmatterWidget.querySelector<HTMLElement>(
+      '[data-property="title"]',
+    );
+    expect(titleRow).not.toBeNull();
+    const titleTypeButton = within(titleRow!).getByRole("button", {
+      name: "Change title type",
+    });
+    await userEvent.click(titleTypeButton);
+    const typeMenu = within(titleRow!).getByRole("menu", {
+      name: "Property type for title",
+    });
+    const numberType = within(typeMenu).getByRole("menuitemradio", {
+      name: "Number",
+    });
+    await expect(typeMenu).toBeVisible();
+    await expect(numberType).toBeVisible();
+    expect(getComputedStyle(titleRow!).overflow).toBe("visible");
+    expect(typeMenu.getBoundingClientRect().bottom).toBeGreaterThan(
+      titleRow!.getBoundingClientRect().bottom,
+    );
+    const numberTypeBounds = numberType.getBoundingClientRect();
+    const hit = canvasElement.ownerDocument.elementFromPoint(
+      numberTypeBounds.left + numberTypeBounds.width / 2,
+      numberTypeBounds.top + numberTypeBounds.height / 2,
+    );
+    expect(hit === numberType || numberType.contains(hit)).toBe(true);
+    await userEvent.click(titleTypeButton);
+    await waitFor(() => {
+      expect(
+        within(titleRow!).queryByRole("menu", {
+          name: "Property type for title",
+        }),
+      ).toBeNull();
+    });
+
     const foldGutter =
       markdownEditor?.querySelector<HTMLElement>(".cm-foldGutter");
     expect(markdownEditor).not.toBeNull();
