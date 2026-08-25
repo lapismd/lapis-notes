@@ -542,6 +542,20 @@ function placementStory(
           expect(panel.queryByRole("alert")).not.toBeInTheDocument();
         });
         await userEvent.click(
+          panel.getByRole("button", { name: "Copy search results" }),
+        );
+        await waitFor(() => {
+          const chip = searchbox.querySelector<HTMLElement>(
+            ".cv-search-filter-bar__predicate-chip",
+          );
+          expect(chip).not.toBeNull();
+          expect(
+            chip!.querySelector<HTMLElement>(
+              ".cv-search-filter-bar__predicate-chip-label",
+            ),
+          ).toHaveTextContent("tag:#project/alpha");
+        });
+        await userEvent.click(
           panel.getByRole("button", { name: "Clear search" }),
         );
         await userEvent.type(searchbox, "tag:#project");
