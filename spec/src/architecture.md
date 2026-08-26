@@ -512,8 +512,12 @@ from persisted Settings or env-prefilled URL and token, without overwriting a
 native desktop bridge. The token Settings field stays masked until revealed. Chat shows a start-server message when a live runtime is
 selected and no host is connected. Chat sessions
 persist runtime, provider, model, and thinking context through plugin data.
-Codex model listing uses the process host while Cursor model listing uses an
-agent-scoped disposable acpx session. Cleanup falls back to local session
+Default Codex and Cursor model listing uses the selected agent through an
+agent-scoped disposable ACP session. A native host advertising deferred model
+discovery returns a request id before delivering that catalog through its
+runtime event stream, so neither default catalog starts a renderer-owned
+process. The separately exported native Codex adapter retains its process-host
+catalog for explicit native surfaces only. Cleanup falls back to local session
 closure when the agent does not advertise `session/close`, without discarding a
 successful catalog. The host consumes the maintained ACP adapter supplied by
 its acpx release and applies optional thinking controls only when the created

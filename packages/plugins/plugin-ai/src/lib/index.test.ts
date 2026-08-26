@@ -35,6 +35,9 @@ describe("@lapis-notes/ai public exports", () => {
     );
     expect(plugin).toContain("createVaultFileAppTools");
     expect(plugin).not.toContain("@lapismd/ai-host");
+    expect(plugin).toContain('new AcpModelProvider("codex", { workspace })');
+    expect(plugin).toContain('new AcpModelProvider("cursor", { workspace })');
+    expect(plugin).not.toContain("new CodexModelProvider");
     expect(source).toContain("export { AiPlugin");
     expect(source).toContain("FakeAgentRuntime");
     expect(source).toContain("createAgentRuntimeRegistry");

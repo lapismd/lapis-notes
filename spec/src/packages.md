@@ -564,6 +564,11 @@ reintroducing a root Deno workspace. Because Deno
 Desktop owns one loopback renderer server, the host attaches the public
 Web-standard MCP handler to a reserved same-origin route instead of starting a
 Node compatibility listener or copying broker logic.
+The bundled AI package selects both default Codex and Cursor catalogs through
+its ACP model provider. The Deno package owns deferred discovery execution and
+catalog event delivery; the plugin owns request correlation and presentation.
+The optional native Codex process catalog remains an explicit AI adapter and is
+not the default Codex ACP discovery route (LN-AI-175, LN-DENO-056).
 The same private host owns Deno application-menu projection, validated external
 URL launch commands, and the bounded close coordinator. On macOS it routes both
 the adopted bootstrap and visible-window close sources through that coordinator

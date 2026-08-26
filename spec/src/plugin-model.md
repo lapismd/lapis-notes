@@ -42,7 +42,10 @@ reserves the session and subscribes before start; other hosts retain the
 awaited start path (LN-AI-172).
 For a native host that advertises deferred model discovery, the model provider
 subscribes before sending its request and resolves the matching catalog event;
-other hosts retain the awaited catalog path (LN-AI-173).
+other hosts retain the awaited catalog path. Both default Codex and Cursor
+providers use this agent-scoped ACP route; the separately exported native Codex
+process provider remains explicit rather than replacing Codex ACP discovery
+(LN-AI-173, LN-AI-175).
 Tool details unwrap envelope fields such as
 `output` and choose `json`, `bash`, or `plaintext` for the Design Core
 `CodeBlock` (LN-AI-133). Thinking stays expanded only while it streams
