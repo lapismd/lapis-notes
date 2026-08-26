@@ -15,6 +15,9 @@ The inline Reading outline remains independent of the standalone Outline panel,
 stays centered in the visible document pane instead of the full scrolled body,
 and reserves inline-end body clearance for its marker rail. Document
 frontmatter defaults do not override explicit embed inputs.
+File Properties uses the same Mira frontmatter value editor as document
+surfaces. Lapis supplies vault metadata suggestions; the dropdown is portalled
+to the owner document so workspace placement cannot clip it.
 
 The Markdown plugin registers file- and vault-scoped views into the movable
 [Workspace Shell panel contract](../../../workspace-shell/panels.md). This page

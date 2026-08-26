@@ -3,6 +3,7 @@
   import type { MiraAiRun } from "@lapismd/mira-plugin-ai";
   import { ScrollArea } from "@lapismd/design-core/shadcn/scroll-area";
   import type { App, MarkdownSurfaceContext } from "@lapis-notes/api";
+  import { createLapisFrontmatterPropertyManager } from "../../frontmatter/lapis-frontmatter-adapter";
   import { resolveMarkdownMiraExtensions } from "../../mira/extensions";
   import { createLapisMiraFileAdapter } from "../../mira/file-adapter";
 
@@ -32,6 +33,9 @@
     });
   });
   const fileAdapter = $derived(createLapisMiraFileAdapter(app));
+  const frontmatterConfig = $derived(
+    createLapisFrontmatterPropertyManager(app).config,
+  );
 </script>
 
 <div
@@ -45,6 +49,7 @@
       features={resolved.features}
       extensions={resolved.miraExtensions}
       {fileAdapter}
+      {frontmatterConfig}
       {sourcePath}
       frontmatterOpen={resolved.frontmatterDefaultOpen}
       outline={resolved.outlineNavigation}

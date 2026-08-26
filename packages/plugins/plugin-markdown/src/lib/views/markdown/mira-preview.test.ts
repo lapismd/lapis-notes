@@ -41,4 +41,14 @@ describe("Mira reading preview", () => {
       /padding-inline-end:\s*max\(var\(--mira-preview-padding,\s*2rem\),\s*4rem\)/,
     );
   });
+
+  it("passes the live vault-backed frontmatter config to Reading mode", () => {
+    const source = readFileSync(
+      new URL("./mira-preview.svelte", import.meta.url),
+      "utf8",
+    );
+
+    expect(source).toContain("createLapisFrontmatterPropertyManager(app).config");
+    expect(source).toContain("{frontmatterConfig}");
+  });
 });

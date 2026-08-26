@@ -71,7 +71,9 @@ metadata as web; Markdown does not own a desktop-specific loader or asset URL.
 | LN-MD-099 | Published `parse-metadata` MUST import the metadata worker as `./metadata-worker?worker&inline` without a `.ts` suffix so Vite hosts resolve the packaged `metadata-worker.js`.                                                                                                                                                                                                                            |
 
 File Properties value autocomplete and wikilink pills stay on the Lapis
-frontmatter adapter and Mira file adapter. Metadata parse uses a Markdown
+frontmatter adapter and Mira file adapter. Live Preview and Reading receive the
+same App-scoped configuration so text and list property values can be completed
+from metadata across the vault; Mira owns the portalled editor UI. Metadata parse uses a Markdown
 worker whose packaged import stays extensionless; heavy type widgets remain deferred. File-scoped Outline, Backlinks, and
 Outgoing Links share one follow helper under `LN-MD-098` and do not rewrite
 state when a leaf event repeats the same followed path.

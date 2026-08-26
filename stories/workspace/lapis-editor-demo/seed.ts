@@ -278,6 +278,7 @@ export function createLapisEditorDemoSeed(
     "Notes/Ideas.markdown": [
       "---",
       "tags: [ideas, demo]",
+      "status: planned",
       "---",
       "",
       "# Ideas",

@@ -7,6 +7,9 @@ Markdown's frontmatter and inline-outline preferences remain flat plugin
 settings; they do not add another Mira extension or plugin lifecycle. The
 Markdown-owned Reading wrapper adapts the floating outline to its shared outer
 scroll owner without changing Mira's portable outline contract.
+Markdown likewise adapts its App-scoped metadata type manager to Mira's
+frontmatter value-suggestion callback. Storybook panel fixtures must exercise
+that plugin boundary rather than providing a component-only completion list.
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. A `deno-desktop` session reports

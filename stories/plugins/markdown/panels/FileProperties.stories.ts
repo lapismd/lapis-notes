@@ -101,7 +101,7 @@ function placementStory(
       );
       await waitFor(() => {
         expect(
-          panel.getByRole("textbox", { name: "status value" }),
+          panel.getByRole("combobox", { name: "status value" }),
         ).toHaveTextContent("ready");
       });
       const editor = alignment.panelElement.querySelector<HTMLElement>(
@@ -129,8 +129,12 @@ function placementStory(
       const aliasesRow = alignment.panelElement.querySelector<HTMLElement>(
         '[data-property="aliases"]',
       );
+      const ownersRow = alignment.panelElement.querySelector<HTMLElement>(
+        '[data-property="owners"]',
+      );
       expect(tagsRow).not.toBeNull();
       expect(aliasesRow).not.toBeNull();
+      expect(ownersRow).not.toBeNull();
       const tagsTypeButton = within(tagsRow as HTMLElement).getByRole(
         "button",
         { name: "Property options for tags" },
@@ -141,6 +145,7 @@ function placementStory(
       expect(tagsTypeIcon?.querySelector('path[d="M4 15h16"]')).not.toBeNull();
       const tags = within(tagsRow as HTMLElement);
       const aliases = within(aliasesRow as HTMLElement);
+      const owners = within(ownersRow as HTMLElement);
       expect(tags.getByText("demo", { exact: true })).toBeVisible();
       expect(tags.getByText("markdown", { exact: true })).toBeVisible();
       expect(tags.getByText("project/alpha", { exact: true })).toBeVisible();
@@ -180,9 +185,65 @@ function placementStory(
       expect(
         aliases.getByRole("button", { name: "Remove Lapis Home" }),
       ).toBeVisible();
+      expect(owners.getByText("Ada Lovelace", { exact: true })).toBeVisible();
+      expect(owners.getByText("Grace Hopper", { exact: true })).toBeVisible();
+      const ownersPill = owners
+        .getByText("Ada Lovelace", { exact: true })
+        .closest<HTMLElement>(".metadata-property-pill-chip");
+      expect(ownersPill).not.toBeNull();
+      expect(
+        getComputedStyle(ownersPill as HTMLElement).backgroundColor,
+      ).not.toBe(getComputedStyle(alignment.viewHost).backgroundColor);
+
+      for (const [scope, label] of [
+        [tags, "demo"],
+        [aliases, "Lapis Home"],
+        [owners, "Ada Lovelace"],
+      ] as const) {
+        const remove = scope.getByRole("button", {
+          name: `Remove ${label}`,
+        });
+        const removeIcon = remove.querySelector<SVGElement>("svg");
+        expect(removeIcon).not.toBeNull();
+        expect(
+          removeIcon?.querySelector('path[d="M18 6 6 18"]'),
+        ).not.toBeNull();
+        expect(
+          removeIcon?.querySelector('path[d="m6 6 12 12"]'),
+        ).not.toBeNull();
+        expect(
+          removeIcon?.getBoundingClientRect().width ?? 0,
+        ).toBeGreaterThanOrEqual(9);
+      }
+
+      const page = within(canvasElement.ownerDocument.body);
+      const ownersInput = owners.getByRole("combobox", {
+        name: "owners value",
+      });
+      await userEvent.click(ownersInput);
+      await userEvent.type(ownersInput, "Mar");
+      const ownerOption = await page.findByRole("option", {
+        name: "Margaret Hamilton",
+      });
+      const ownerSuggestions = ownerOption.closest<HTMLElement>(
+        ".mira-property-value-suggestions",
+      );
+      expect(ownerSuggestions).not.toBeNull();
+      expect((ownersRow as HTMLElement).contains(ownerSuggestions)).toBe(false);
+      const ownerOptionBounds = ownerOption.getBoundingClientRect();
+      const ownerOptionHit = canvasElement.ownerDocument.elementFromPoint(
+        ownerOptionBounds.left + ownerOptionBounds.width / 2,
+        ownerOptionBounds.top + ownerOptionBounds.height / 2,
+      );
+      expect(
+        ownerOptionHit === ownerOption || ownerOption.contains(ownerOptionHit),
+      ).toBe(true);
+      await userEvent.click(ownerOption);
+      await expect(
+        owners.getByText("Margaret Hamilton", { exact: true }),
+      ).toBeVisible();
 
       await userEvent.click(tagsTypeButton);
-      const page = within(canvasElement.ownerDocument.body);
       const optionsMenu = page.getByRole("menu", {
         name: "Property options for tags",
       });
@@ -332,7 +393,31 @@ function placementStory(
         });
       }
 
-      let status = panel.getByRole("textbox", { name: "status value" });
+      let status = panel.getByRole("combobox", { name: "status value" });
+      await userEvent.click(status);
+      await userEvent.clear(status);
+      await userEvent.type(status, "pla");
+      const plannedOption = await page.findByRole("option", {
+        name: "planned",
+      });
+      const statusRow = status.closest<HTMLElement>(".metadata-property");
+      const statusSuggestions = plannedOption.closest<HTMLElement>(
+        ".mira-property-value-suggestions",
+      );
+      expect(statusRow).not.toBeNull();
+      expect(statusSuggestions).not.toBeNull();
+      expect(statusRow?.contains(statusSuggestions)).toBe(false);
+      const plannedBounds = plannedOption.getBoundingClientRect();
+      const plannedHit = canvasElement.ownerDocument.elementFromPoint(
+        plannedBounds.left + plannedBounds.width / 2,
+        plannedBounds.top + plannedBounds.height / 2,
+      );
+      expect(
+        plannedHit === plannedOption || plannedOption.contains(plannedHit),
+      ).toBe(true);
+      await userEvent.click(plannedOption);
+      status = panel.getByRole("combobox", { name: "status value" });
+      await expect(status).toHaveTextContent("planned");
       if (layout === "middle-top-tabs") {
         const app = panelDemoApp(canvasElement);
         const file = app.vault.getFileByPath("Notes/Welcome.md");
@@ -342,10 +427,10 @@ function placementStory(
         });
         await waitFor(() => {
           expect(
-            panel.getByRole("textbox", { name: "status value" }),
+            panel.getByRole("combobox", { name: "status value" }),
           ).toHaveTextContent("review");
         });
-        status = panel.getByRole("textbox", { name: "status value" });
+        status = panel.getByRole("combobox", { name: "status value" });
       }
       await userEvent.click(status);
       await expect(status).toHaveFocus();
@@ -379,6 +464,7 @@ function placementStory(
         ).every((textarea) => getComputedStyle(textarea).resize === "none"),
       ).toBe(true);
       expect(getComputedStyle(status).fontSize).toBe("12px");
+      await userEvent.keyboard("{Escape}");
       await expect(
         panel.getByRole("button", { name: /Add property/i }),
       ).toBeVisible();

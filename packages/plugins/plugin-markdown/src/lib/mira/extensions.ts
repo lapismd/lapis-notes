@@ -33,6 +33,7 @@ import {
   readMiraFeatureFlags,
 } from "./config";
 import { createLapisMiraFileAdapter } from "./file-adapter";
+import { createLapisFrontmatterPropertyManager } from "../frontmatter/lapis-frontmatter-adapter";
 import {
   resolveRegisteredMarkdownMiraExtensions,
   type RegisteredMarkdownMiraExtensionOptions,
@@ -71,8 +72,7 @@ function configGet(app: App, key: string, fallback: unknown): unknown {
 }
 
 function configurationReader(app: App) {
-  return <T>(key: string, fallback?: T) =>
-    configGet(app, key, fallback) as T;
+  return <T>(key: string, fallback?: T) => configGet(app, key, fallback) as T;
 }
 
 export function readMarkdownMiraEditorSettings(
@@ -102,7 +102,10 @@ export function readMarkdownMiraEditorSettings(
 export function resolveMarkdownMiraExtensions(
   app: App,
   aiRun?: MiraAiRun,
-  surfaceOptions?: Omit<RegisteredMarkdownMiraExtensionOptions, "sourcePath"> & {
+  surfaceOptions?: Omit<
+    RegisteredMarkdownMiraExtensionOptions,
+    "sourcePath"
+  > & {
     sourcePath?: string;
   },
 ) {
@@ -253,10 +256,7 @@ export function createMiraExtensionLifecycle(
       sourcePath: options.sourcePath,
     });
     const cleanups: Array<() => void> = [
-      mountMiraExtensionStyles(
-        resolved.styles,
-        view.dom.ownerDocument.head,
-      ),
+      mountMiraExtensionStyles(resolved.styles, view.dom.ownerDocument.head),
     ];
     const context = createRuntimeContext(view, options);
     for (const mountExtension of resolved.onMount) {
@@ -294,6 +294,8 @@ export function createMarkdownMiraCodeMirrorOptions(
     sourcePath: options.sourcePath,
     fileAdapter: createLapisMiraFileAdapter(options.app),
     frontmatterOpen: resolved.frontmatterDefaultOpen,
+    frontmatterConfig: createLapisFrontmatterPropertyManager(options.app)
+      .config,
     indentGuides,
     indentWidth,
     indentWithTabs,

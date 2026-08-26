@@ -184,7 +184,7 @@
 
   :global(
     .markdown-file-properties__editor
-      .metadata-property-value-list.mod-aliases
+      .metadata-property-value-list:is(.mod-aliases, .mod-multitext)
       .metadata-property-pill-chip
   ) {
     color: var(--ui-workspace-view-foreground, var(--foreground));
@@ -194,7 +194,7 @@
   @media (hover: hover) {
     :global(
       .markdown-file-properties__editor
-        .metadata-property-value-list.mod-aliases
+        .metadata-property-value-list:is(.mod-aliases, .mod-multitext)
         .metadata-property-pill-chip:hover
     ) {
       background: var(--markdown-alias-background-hover);

@@ -2,6 +2,7 @@
 
 import { EditorView } from "@codemirror/view";
 import type { MiraExtension } from "@lapismd/mira/extensions";
+import type { FrontmatterConfig } from "@lapismd/mira/preview/frontmatter";
 import { MiraFeature } from "@lapismd/mira-editor";
 import type { App } from "@lapis-notes/api";
 import { describe, expect, it, vi } from "vitest";
@@ -44,6 +45,12 @@ function createApp(values: Record<string, unknown> = {}): App {
       on: vi.fn(() => ({})),
       offref: vi.fn(),
     },
+    metadataTypeManager: {
+      types: {},
+      registeredTypeWidgets: {},
+      getValues: vi.fn(() => ["ideas"]),
+      getAllProperties: () => ({}),
+    },
     embedRegistry: { get: () => null },
     markdownExtensions: { getAll: () => [] },
   } as unknown as App;
@@ -63,6 +70,12 @@ describe("Lapis Mira authoring composition", () => {
     expect(options.blockControls).toBe(true);
     expect(options.fileAdapter).toBeDefined();
     expect(options.frontmatterOpen).toBe(false);
+    expect(
+      (options.frontmatterConfig as FrontmatterConfig).valueSuggestions?.(
+        "tags",
+        "ide",
+      ),
+    ).toEqual(["ideas"]);
     expect(resolved.frontmatterDefaultOpen).toBe(false);
     expect(resolved.outlineNavigation).toBe(true);
     expect(resolved.features).toMatchObject({
@@ -105,12 +118,12 @@ describe("Lapis Mira authoring composition", () => {
       blockToolbar: true,
       doodleDividers: true,
     });
-    expect(resolved.miraExtensions.map((extension) => extension.name)).toContain(
-      "doodle-dividers",
-    );
-    expect(resolved.miraExtensions.map((extension) => extension.name)).not.toContain(
-      "selection-toolbar",
-    );
+    expect(
+      resolved.miraExtensions.map((extension) => extension.name),
+    ).toContain("doodle-dividers");
+    expect(
+      resolved.miraExtensions.map((extension) => extension.name),
+    ).not.toContain("selection-toolbar");
     expect(options.blockControls).toMatchObject({ enabled: true });
     expect(options.frontmatterOpen).toBe(true);
     expect(resolved.outlineNavigation).toBe(false);
@@ -132,7 +145,9 @@ describe("Lapis Mira authoring composition", () => {
     });
 
     expect(resolved.miraExtensions).toEqual(
-      expect.arrayContaining([expect.objectContaining({ name: "tasks:items" })]),
+      expect.arrayContaining([
+        expect.objectContaining({ name: "tasks:items" }),
+      ]),
     );
   });
 

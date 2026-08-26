@@ -1210,6 +1210,41 @@ export const MarkdownFrontmatter: Story = {
       ).not.toBe("none");
     });
 
+    const tagsRow = frontmatterWidget.querySelector<HTMLElement>(
+      '[data-property="tags"]',
+    );
+    expect(tagsRow).not.toBeNull();
+    const demoRemove = within(tagsRow!).getByRole("button", {
+      name: "Remove demo",
+    });
+    const removeIcon = demoRemove.querySelector<SVGElement>("svg");
+    expect(removeIcon?.querySelector('path[d="M18 6 6 18"]')).not.toBeNull();
+    expect(removeIcon?.querySelector('path[d="m6 6 12 12"]')).not.toBeNull();
+    expect(
+      removeIcon?.getBoundingClientRect().width ?? 0,
+    ).toBeGreaterThanOrEqual(9);
+
+    const tagsInput = within(tagsRow!).getByRole("combobox", {
+      name: "tags value",
+    });
+    await userEvent.click(tagsInput);
+    await userEvent.type(tagsInput, "ide");
+    const ideasOption = await page.findByRole("option", { name: "ideas" });
+    const suggestions = ideasOption.closest<HTMLElement>(
+      ".mira-property-value-suggestions",
+    );
+    expect(suggestions).not.toBeNull();
+    expect(tagsRow!.contains(suggestions)).toBe(false);
+    const ideasBounds = ideasOption.getBoundingClientRect();
+    const ideasHit = canvasElement.ownerDocument.elementFromPoint(
+      ideasBounds.left + ideasBounds.width / 2,
+      ideasBounds.top + ideasBounds.height / 2,
+    );
+    expect(ideasHit === ideasOption || ideasOption.contains(ideasHit)).toBe(
+      true,
+    );
+    await userEvent.keyboard("{Escape}");
+
     const foldGutter =
       markdownEditor?.querySelector<HTMLElement>(".cm-foldGutter");
     expect(markdownEditor).not.toBeNull();

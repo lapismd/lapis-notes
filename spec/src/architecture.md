@@ -21,6 +21,11 @@ and MUST NOT register Tasks workspace views themselves. AppDatabase owns
 namespaced plugin projections and a serializable query AST, including the public
 `tasks/task` collection. That projection stores `planKind` as the Tasks
 `plan.at` kind (`anytime`, `morning`, `afternoon`, `evening`, or `time`).
+
+Frontmatter value discovery remains application-owned: Markdown adapts the
+App metadata type manager into Mira's portable property configuration, while
+Mira owns the editor presentation and portalled suggestion surface. This keeps
+vault enumeration out of the shared renderer without duplicating its controls.
 Deno desktop sessions use the same API vault-session factory with a
 desktop-native Turso provider supplied by the host. `packages/desktop-deno` is
 the sole native desktop consumer and owns the Deno window, `win.bind()` bridge,

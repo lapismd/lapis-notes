@@ -8,6 +8,9 @@ bounded bindings; domain persistence remains API-owned.
 surface registries. `@lapis-notes/markdown` adapts them to Mira and registers
 the full-file provider, including the LN-MD-108 and LN-MD-109 document defaults;
 its Reading wrapper owns the LN-MD-110 viewport placement and content clearance.
+The same package supplies Mira with vault-backed frontmatter value suggestions
+for Live Preview, Reading, and File Properties without moving vault access into
+the linked renderer.
 Domain plugins consume only the API contract.
 
 Repository-only Storybook taxonomy, mirror, and built-index checks remain
