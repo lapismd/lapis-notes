@@ -13,7 +13,12 @@ import {
   type CreateConversationInput,
 } from "../conversations/conversation-repository";
 import { MemoryTranscriptStore } from "../conversations/memory-transcript-store";
-import { CONVERSATION_SCHEMA_VERSION } from "../conversations/types";
+import {
+  CONVERSATION_SCHEMA_VERSION,
+  type AgentBindingRecord,
+  type ConversationLocation,
+  type TranscriptEntry,
+} from "../conversations/types";
 import { AiChatController } from "./chat-controller.svelte";
 import type {
   AppToolBridgeCoordinator,
@@ -85,9 +90,14 @@ describe("AiChatController", () => {
     expect(sawCancel).toBe(true);
     releaseLate({ type: "text", text: "should stay hidden" });
     await expect(
-      Promise.race([cancelling, new Promise((resolve) => setTimeout(resolve, 50))]),
+      Promise.race([
+        cancelling,
+        new Promise((resolve) => setTimeout(resolve, 50)),
+      ]),
     ).resolves.toBeUndefined();
-    expect(JSON.stringify(controller.items)).not.toContain("should stay hidden");
+    expect(JSON.stringify(controller.items)).not.toContain(
+      "should stay hidden",
+    );
     expect(controller.busy).toBe(false);
     expect(controller.items.some((item) => item.type === "status")).toBe(false);
     await controller.close();
@@ -147,7 +157,8 @@ describe("AiChatController", () => {
     );
     expect(
       controller.items.some(
-        (item) => item.type === "status" && item.text === "Agent turn cancelled",
+        (item) =>
+          item.type === "status" && item.text === "Agent turn cancelled",
       ),
     ).toBe(false);
     releaseCancel();
@@ -516,6 +527,14 @@ describe("AiChatController", () => {
       scopeDir: "Projects/Atlas",
       conversationId: id,
     });
+    await vi.waitFor(async () => {
+      const persisted = await repository.read(controller.location!);
+      expect(persisted.agents).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ type: "usage.updated" }),
+        ]),
+      );
+    });
     const durable = await repository.read(controller.location!);
     expect(durable.metadata.title).toBe("Persist this response");
     expect(durable.agents).toEqual(
@@ -551,6 +570,95 @@ describe("AiChatController", () => {
     );
     await controller.close();
     await offline.close();
+  });
+
+  it("streams in memory and clears busy before terminal persistence", async () => {
+    let releaseCompletion!: () => void;
+    const completionGate = new Promise<void>((resolve) => {
+      releaseCompletion = resolve;
+    });
+    let releaseTerminalWrite!: () => void;
+    const terminalWriteGate = new Promise<void>((resolve) => {
+      releaseTerminalWrite = resolve;
+    });
+    let terminalWriteStarted = false;
+    let durableWriteAttempts = 0;
+    let assistantWriteAttempts = 0;
+    class GatedTerminalRepository extends ConversationRepository {
+      override async appendAgentRecords(
+        location: ConversationLocation,
+        records: AgentBindingRecord[],
+      ) {
+        durableWriteAttempts += 1;
+        return super.appendAgentRecords(location, records);
+      }
+
+      override async appendTranscript(
+        location: ConversationLocation,
+        entries: TranscriptEntry[],
+      ) {
+        durableWriteAttempts += 1;
+        if (
+          entries.some(
+            (entry) => entry.type === "message" && entry.role === "assistant",
+          )
+        ) {
+          assistantWriteAttempts += 1;
+          terminalWriteStarted = true;
+          await terminalWriteGate;
+        }
+        return super.appendTranscript(location, entries);
+      }
+    }
+    const capabilities = new FakeAgentRuntime().capabilities();
+    const runtime: AgentRuntime = {
+      id: "gated-terminal-write",
+      capabilities: () => capabilities,
+      async supports() {
+        return true;
+      },
+      async start() {
+        return {
+          id: "gated-terminal-session",
+          async *events() {
+            yield { type: "text" as const, text: "Streamed response" };
+            await completionGate;
+            yield { type: "completed" as const };
+          },
+          async send() {},
+          async respondToApproval() {},
+          async close() {},
+        };
+      },
+    };
+    const repository = new GatedTerminalRepository(new MemoryTranscriptStore());
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+    });
+
+    await controller.submit("Show streaming");
+    await vi.waitFor(() =>
+      expect(JSON.stringify(controller.items)).toContain("Streamed response"),
+    );
+    expect(controller.busy).toBe(true);
+    expect(durableWriteAttempts).toBe(0);
+    expect(assistantWriteAttempts).toBe(0);
+
+    releaseCompletion();
+    await vi.waitFor(() => expect(terminalWriteStarted).toBe(true));
+    expect(controller.busy).toBe(false);
+
+    releaseTerminalWrite();
+    await vi.waitFor(async () => {
+      expect(
+        JSON.stringify(await repository.read(controller.location!)),
+      ).toContain("Streamed response");
+    });
+    await controller.close();
   });
 
   it("renders local conversation data before a delayed native resume", async () => {
@@ -689,6 +797,13 @@ describe("AiChatController", () => {
       model: { provider: "codex", model: "second" },
     });
     await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(controller.location!)).agents.filter(
+          (record) => record.type === "binding.created",
+        ),
+      ).toHaveLength(2);
+    });
 
     const snapshot = await repository.read(controller.location!);
     expect(runtime.sessions).toHaveLength(2);
@@ -701,7 +816,7 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
-  it("preallocates the persisted binding for app tools and replaces it on switch", async () => {
+  it("preallocates the binding for app tools and persists it at the turn boundary", async () => {
     const repository = new ConversationRepository(new MemoryTranscriptStore());
     const requests: AgentRequest[] = [];
     const capabilities = {
@@ -782,6 +897,12 @@ describe("AiChatController", () => {
       model: { provider: "codex", model: "first" },
     });
     await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(controller.location!)).metadata
+          .activeAgentBindingId,
+      ).toBe(requests[0]?.appToolSession?.agentBindingId);
+    });
     const first = await repository.read(controller.location!);
     expect(requests[0]?.appToolSession).toMatchObject({
       agentBindingId: first.metadata.activeAgentBindingId,
@@ -793,14 +914,20 @@ describe("AiChatController", () => {
       model: { provider: "codex", model: "second" },
     });
     await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(controller.location!)).metadata
+          .activeAgentBindingId,
+      ).toBe(prepared[1]);
+    });
     const second = await repository.read(controller.location!);
     expect(prepared).toHaveLength(2);
     expect(prepared[1]).toBe(second.metadata.activeAgentBindingId);
     expect(prepared[1]).not.toBe(prepared[0]);
     expect(closed).toContain(prepared[0]!);
-    expect(requests[1]?.appToolSession?.tools.map((tool) => tool.name)).toEqual([
-      "notes_read",
-    ]);
+    expect(requests[1]?.appToolSession?.tools.map((tool) => tool.name)).toEqual(
+      ["notes_read"],
+    );
     expect(requests[1]?.metadata?.availableAppTools).toEqual(["notes_read"]);
     expect(listener).toBeTypeOf("function");
     await controller.close();
@@ -1004,6 +1131,13 @@ describe("AiChatController", () => {
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     await controller.submit("Continue in Cursor", { agent: "cursor" });
     await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(controller.location!)).agents.filter(
+          (record) => record.type === "binding.created",
+        ),
+      ).toHaveLength(2);
+    });
 
     expect(cursor.lastRequest?.metadata?.contextHandoff).toMatchObject({
       text: expect.stringContaining("User: Inspect the project"),
@@ -1079,8 +1213,18 @@ describe("AiChatController", () => {
     });
 
     await controller.submit("codex one", { agent: "codex" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
     await controller.submit("cursor one", { agent: "cursor" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
     await controller.submit("codex again", { agent: "codex" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(controller.location!)).agents.filter(
+          (record) => record.type === "binding.created",
+        ),
+      ).toHaveLength(3);
+    });
 
     const snapshot = await repository.read(controller.location!);
     expect(codex.starts()).toBe(2);
@@ -1134,8 +1278,6 @@ describe("AiChatController", () => {
     });
 
     await controller.submit("start codex", { agent: "codex" });
-    const before = await repository.read(controller.location!);
-    const codexBindingId = before.metadata.activeAgentBindingId;
     await controller.cancelAndSwitch({ agent: "cursor" });
     releaseLate({ type: "text", text: "late codex output" });
     await vi.waitFor(async () => {
@@ -1147,6 +1289,9 @@ describe("AiChatController", () => {
     });
     expect(JSON.stringify(controller.items)).not.toContain("late codex output");
     const snapshot = await repository.read(controller.location!);
+    const codexBindingId = snapshot.agents.find(
+      (record) => record.type === "binding.created" && record.agent === "codex",
+    )?.id;
     expect(
       snapshot.transcript.find(
         (entry) =>
@@ -1178,8 +1323,9 @@ describe("AiChatController", () => {
     await controller.respondToApproval(first.request.id, "allow-always");
     await firstTurn;
     await vi.waitFor(() => expect(controller.busy).toBe(false));
-    expect((await repository.read(controller.location!)).metadata.approvalGrants)
-      .toEqual([{ name: "fake.echo", decision: "allow-always" }]);
+    expect(
+      (await repository.read(controller.location!)).metadata.approvalGrants,
+    ).toEqual([{ name: "fake.echo", decision: "allow-always" }]);
 
     await controller.submit("second tool call");
     await vi.waitFor(() => expect(controller.busy).toBe(false));
@@ -1198,7 +1344,9 @@ describe("AiChatController", () => {
     await restored.restore();
     await restored.submit("restored tool call");
     await vi.waitFor(() => expect(restored.busy).toBe(false));
-    expect(restoredRuntime.sessions[0]?.prompts).toEqual(["restored tool call"]);
+    expect(restoredRuntime.sessions[0]?.prompts).toEqual([
+      "restored tool call",
+    ]);
     expect(pendingApprovals(restored)).toHaveLength(0);
     await restored.close();
   });
@@ -1245,8 +1393,12 @@ describe("AiChatController", () => {
 
 function pendingApprovals(controller: AiChatController) {
   return controller.items.filter(
-    (item): item is Extract<(typeof controller.items)[number], { type: "approval" }> =>
-      item.type === "approval" && item.status === "pending",
+    (
+      item,
+    ): item is Extract<
+      (typeof controller.items)[number],
+      { type: "approval" }
+    > => item.type === "approval" && item.status === "pending",
   );
 }
 

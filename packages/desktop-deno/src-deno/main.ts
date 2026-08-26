@@ -42,7 +42,7 @@ import {
   rewriteUpstreamUrl,
   withIsolationHeaders,
 } from "./renderer-http.ts";
-import { createRendererEventEmitter } from "./renderer-events.ts";
+import { createRendererEventStream } from "./renderer-events.ts";
 import { rendererDistRoot } from "./production-build.ts";
 import { DenoPluginAssetService } from "./plugin-assets.ts";
 import { acquireDenoSingleInstance } from "./single-instance.ts";
@@ -169,7 +169,8 @@ const aboutWindow = createDesktopAboutWindowManager({
   closeNativeWindowsByTitle: closeNativeMacosWindowsByTitle,
 });
 const drag = createWindowDragController(win);
-const emitRendererEvent = createRendererEventEmitter(win);
+const rendererEvents = createRendererEventStream();
+const emitRendererEvent = rendererEvents.emit;
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
 const vaultResources = new DenoVaultResourceService();
@@ -201,6 +202,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     trafficLights?.close();
     appIcon?.close();
     closeSignal.close();
+    rendererEvents.close();
     fileWatch.shutdown();
     pluginAssets.clear();
     vaultResources.clear();
@@ -423,6 +425,8 @@ async function proxyVite(
 Deno.serve(async (request) => {
   const closeResponse = closeSignal.respond(request);
   if (closeResponse) return await closeResponse;
+  const rendererEventResponse = rendererEvents.respond(request);
+  if (rendererEventResponse) return rendererEventResponse;
   const agentToolResponse = await agentRuntime.respond(request);
   if (agentToolResponse) return agentToolResponse;
   const vaultResourceResponse = await vaultResources.respond(request);
@@ -441,8 +445,6 @@ Deno.serve(async (request) => {
 });
 if (win !== bootstrap) {
   bootstrap.hide();
-  win.navigate(
-    rendererOrigin,
-  );
+  win.navigate(rendererOrigin);
   win.show();
 }

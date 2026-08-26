@@ -66,16 +66,44 @@ distribution is outside the supported matrix.
 | LN-DENO-052 | A failed saved-vault restore MUST retain the profile and recent-vault entry, show the actual failure, and allow another vault to be selected. Session startup failures MUST keep the failed phase visible and expose the complete error stack plus a copyable diagnostic; they MUST NOT return to an indefinite loading surface.                                                                                                                                                                       |
 | LN-DENO-053 | Desktop startup recovery MUST offer retry, Manage Vaults, optional-core-plugin disablement, layout-skip, and saved-layout reset when relevant. Recovery state MUST be session-scoped, pass through the API `AppSafeModeState`, govern plugin and layout startup, and never change canonical vault configuration merely by entering recovery.                                                                                                                                                           |
 | LN-DENO-054 | A ready desktop session with recovery restrictions MUST show a Safe Mode banner describing those restrictions, provide metadata and Search rebuild actions, and allow a normal restart that clears session recovery state. Community-plugin and notebook recovery controls MUST remain absent while those capabilities are unavailable in the Deno host.                                                                                                                                               |
-| LN-DENO-055 | ACP session initialization MUST NOT hold a Deno native binding while an agent connects to the authenticated application-tool route on the same loopback server. The host MUST advertise deferred start, reserve the renderer's session id, return from start immediately, and use the AI Host pending lifecycle so prompt, cancel, close, and one sequenced startup error remain available during initialization.                                                                                                                              |
+| LN-DENO-055 | ACP session initialization MUST NOT hold a Deno native binding while an agent connects to the authenticated application-tool route on the same loopback server. The host MUST advertise deferred start, reserve the renderer's session id, return from start immediately, begin initialization in a later event-loop task after the native response can flush, and use the AI Host pending lifecycle so prompt, cancel, close, and one sequenced startup error remain available during initialization.                                                                                                                              |
+| LN-DENO-056 | ACP model discovery MUST NOT hold a Deno native binding while Cursor or Codex starts and reports its catalog. The host MUST advertise deferred model discovery, return the renderer's request id immediately, begin discovery in a later event-loop task, and deliver either the catalog or error through the matching runtime event.                                                                                                                                                                                                                                       |
+| LN-DENO-057 | Native-to-renderer events MUST use a same-origin loopback event stream and schedule application delivery in a later renderer task so renderer handlers never re-enter native work while a stream write is active. The stream MUST accept only `GET`, encode payloads as JSON, buffer a bounded number of startup events, retain source order, reconnect through the browser event-source contract, and become a no-op after host shutdown.                                                                                                                               |
+| LN-DENO-058 | ACP prompt submission MUST NOT hold a Deno native binding for the lifetime of the agent turn. The host MUST reserve and return a run id synchronously, begin the prompt in a later event-loop task, and deliver text, usage, completion, or failure through the renderer event stream while the loopback server remains responsive.                                                                                                                                                                                                                                                               |
 
 ### LN-DENO-055 acceptance details
 
 Deferred native ACP acceptance verifies:
 
-- The native start command returns the reserved session id before the underlying `ensureSession` resolves.
+- The native start command returns the reserved session id and flushes that response before the underlying initialization task begins.
 - A prompt issued immediately after start waits for that session, while cancel and close remain callable.
 - A startup failure reaches the renderer as one sequenced runtime error.
 - The Deno loopback application-tool route responds while Cursor and Codex ACP initialization is in progress.
+
+### LN-DENO-056 acceptance details
+
+Deferred native model discovery acceptance verifies:
+
+- The native command returns the renderer's request id before discovery begins.
+- The catalog or error event retains that request id and arrives after the binding response can flush.
+- Concurrent Cursor and Codex catalogs cannot satisfy each other's requests.
+- Older desktop hosts continue to return their catalog directly.
+
+### LN-DENO-057 acceptance details
+
+Renderer event acceptance verifies:
+
+- Native producers enqueue JSON events without calling browser-window evaluation.
+- The renderer subscribes to the reserved same-origin event-stream route, ignores malformed messages, and schedules valid delivery after the stream callback returns.
+- Startup events remain ordered until the renderer connects, and host shutdown closes every active stream.
+
+### LN-DENO-058 acceptance details
+
+Deferred prompt acceptance verifies:
+
+- The native prompt command returns its reserved run id before the underlying ACP turn starts.
+- A configured Codex turn renders its complete response, clears the working state, and leaves the composer enabled.
+- The loopback application route remains responsive after completion, and the event-stream route rejects non-GET access.
 
 ### LN-DENO-050 through LN-DENO-054 acceptance details
 

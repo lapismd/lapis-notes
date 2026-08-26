@@ -68,22 +68,26 @@ export function createCapabilityRegistry(
         process: "stdio",
         appTools: "http-mcp",
         deferredStart: true,
+        deferredModels: true,
       },
     },
     "terminal-runtime": {
       id: "terminal-runtime" as const,
-      status: options.terminalAvailable === false
-        ? ("unavailable" as const)
-        : ("available" as const),
-      provider: options.terminalAvailable === false
-        ? "deno-pty-unavailable"
-        : "deno-sigma-pty-ffi",
-      details: options.terminalAvailable === false
-        ? undefined
-        : {
-            protocol: "desktop_terminal_session_*",
-            lifecycle: "deno-runtime",
-          },
+      status:
+        options.terminalAvailable === false
+          ? ("unavailable" as const)
+          : ("available" as const),
+      provider:
+        options.terminalAvailable === false
+          ? "deno-pty-unavailable"
+          : "deno-sigma-pty-ffi",
+      details:
+        options.terminalAvailable === false
+          ? undefined
+          : {
+              protocol: "desktop_terminal_session_*",
+              lifecycle: "deno-runtime",
+            },
     },
     notebook: { id: "notebook" as const, status: "unavailable" as const },
     model: { id: "model" as const, status: "unavailable" as const },

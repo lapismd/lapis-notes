@@ -207,7 +207,12 @@ the broker's authenticated Streamable HTTP handler to its renderer server.
 Because that handler shares Deno's native event loop, the renderer reserves and
 subscribes to the ACP session before the host begins deferred initialization;
 the native binding returns before the agent connects back to the route
-(LN-AI-172, LN-DENO-055).
+(LN-AI-172, LN-DENO-055). Deno model discovery follows the same response-first
+boundary: the renderer subscribes with a request id, the binding returns, and
+the catalog arrives as a later runtime event (LN-AI-173, LN-DENO-056).
+Native-to-renderer events are likewise scheduled for a later browser task so
+their handlers cannot re-enter a native binding before window evaluation
+returns (LN-DENO-057).
 Both carry only generic bridge commands and events and never acquire registry,
 policy, or transcript authority.
 The AI controller allocates the binding identity before runtime start, opens

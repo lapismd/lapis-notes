@@ -99,13 +99,87 @@ describe("Deno agent runtime", () => {
     );
   });
 
+  it("acknowledges ACP prompts through the deferred native boundary", () => {
+    const executor = {
+      promptAcpSessionDeferred: vi.fn(() => ({ runId: "run-1" })),
+      disconnectConnection: vi.fn(),
+      close: vi.fn(async () => {}),
+    };
+    const host = new DenoAgentRuntimeHost(
+      vi.fn(async () => undefined),
+      executor as never,
+    );
+
+    expect(
+      host.handle("desktop_agent_acp_prompt", {
+        sessionId: "session-1",
+        text: "hello",
+      }),
+    ).toEqual({ runId: "run-1" });
+    expect(executor.promptAcpSessionDeferred).toHaveBeenCalledWith(
+      expect.objectContaining({ connectionId: "deno-renderer:main" }),
+      "session-1",
+      "hello",
+    );
+  });
+
+  it("returns before deferred model discovery starts and emits its result", async () => {
+    vi.useFakeTimers();
+    try {
+      const emit = vi.fn(async () => undefined);
+      const listAcpModels = vi.fn(async () => ({
+        agent: "codex",
+        currentModel: "gpt-5.6-sol",
+        models: ["gpt-5.6-sol"],
+        entries: [{ id: "gpt-5.6-sol", label: "GPT-5.6-Sol" }],
+      }));
+      const executor = {
+        listAcpModels,
+        disconnectConnection: vi.fn(),
+        close: vi.fn(async () => {}),
+      };
+      const host = new DenoAgentRuntimeHost(emit, executor as never);
+
+      expect(
+        host.handle("desktop_agent_acp_models", {
+          requestId: "catalog-request-1",
+          agent: "codex",
+        }),
+      ).toEqual({ requestId: "catalog-request-1" });
+      await Promise.resolve();
+      expect(listAcpModels).not.toHaveBeenCalled();
+
+      await vi.runOnlyPendingTimersAsync();
+      await vi.waitFor(() => expect(emit).toHaveBeenCalledOnce());
+      expect(emit).toHaveBeenCalledWith({
+        channel: "desktop_agent_runtime_event",
+        payload: expect.objectContaining({
+          sessionId: "catalog-request-1",
+          runId: "model-catalog",
+          event: {
+            type: "event",
+            event: {
+              type: "model_catalog",
+              catalog: expect.objectContaining({
+                agent: "codex",
+                models: ["gpt-5.6-sol"],
+              }),
+            },
+          },
+        }),
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("serves attached app tools while deferred ACP initialization is pending", async () => {
     const broker = new ToolBridgeBroker({
-      externalHttpBaseUrl:
-        "http://127.0.0.1:61776/__lapis/agent-tools/",
+      externalHttpBaseUrl: "http://127.0.0.1:61776/__lapis/agent-tools/",
     });
     let contribution: Extract<AcpMcpServer, { type: "http" }> | undefined;
     let startReturned = false;
+    let initializationStarted = false;
     let listed = false;
     let host!: DenoAgentRuntimeHost;
     const runtime = {
@@ -149,6 +223,7 @@ describe("Deno agent runtime", () => {
     const executor = createAgentRuntimeExecutor({
       toolBridgeBroker: broker,
       createAcpxRuntime: async (_sink, _sessionId, payload) => {
+        initializationStarted = true;
         contribution = payload.mcpServers?.find(
           (server): server is Extract<AcpMcpServer, { type: "http" }> =>
             server.type === "http" && server.name === "lapis-tools",
@@ -179,6 +254,9 @@ describe("Deno agent runtime", () => {
       agent: "cursor",
       appToolBridgeId: opened.bridgeId,
     });
+    expect(initializationStarted).toBe(false);
+    await Promise.resolve();
+    expect(initializationStarted).toBe(false);
     startReturned = true;
     expect(started).toEqual({ sessionId: "session-with-tools" });
     await expect.poll(() => listed).toBe(true);

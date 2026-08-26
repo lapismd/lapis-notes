@@ -33,6 +33,10 @@ import { installDesktopAppIconAppearanceSync } from "./desktop-app-icon";
 import { applyDesktopHostDocument } from "./desktop-host-document";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
 import { waitForDesktopCloseSignal } from "./desktop-close-signal";
+import {
+  connectDesktopRendererEvents,
+  type DenoRendererNativeEvent,
+} from "./desktop-renderer-events";
 import { installDenoExternalLinkPolicy } from "./external-links";
 import {
   createDesktopRendererTelemetry,
@@ -74,14 +78,7 @@ type DenoDesktopBindings = {
   invoke(command: string, payload?: Record<string, unknown>): Promise<unknown>;
   platform(): DenoDesktopPlatformInfo;
   capabilities(): NativeDesktopCapabilityRegistry;
-  applicationIconAppearance?(
-    appearance: "light" | "dark",
-  ): Promise<void>;
-};
-
-type DenoRendererNativeEvent = {
-  channel?: unknown;
-  payload?: unknown;
+  applicationIconAppearance?(appearance: "light" | "dark"): Promise<void>;
 };
 
 const watchListeners = new Map<
@@ -156,8 +153,9 @@ async function flushPendingAppUrls(): Promise<void> {
   }
 }
 
-globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
-  const detail = (rawEvent as CustomEvent<DenoRendererNativeEvent>).detail;
+function handleRendererNativeEvent(
+  detail: DenoRendererNativeEvent | undefined,
+): void {
   if (detail?.channel === "desktop_fs_watch_event") {
     const payload = detail.payload as
       | { watchId?: unknown; event?: ChangeEvent | WatchErrorEvent }
@@ -231,7 +229,12 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
   if (detail?.channel === "desktop_app_url_available") {
     void flushPendingAppUrls();
   }
-});
+}
+
+const disposeRendererEvents = connectDesktopRendererEvents(
+  handleRendererNativeEvent,
+);
+globalThis.addEventListener("pagehide", disposeRendererEvents, { once: true });
 
 function subscribe<T>(
   listeners: Set<(event: T) => void>,

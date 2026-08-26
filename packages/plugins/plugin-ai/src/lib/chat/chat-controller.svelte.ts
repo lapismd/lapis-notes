@@ -39,6 +39,7 @@ import {
   type ConversationApprovalGrant,
   type ConversationLocation,
   type ConversationMetadata,
+  type TranscriptEntry,
 } from "../conversations/types";
 import { extractMentionPaths, mergeAttachmentPaths } from "./chat-mentions";
 import {
@@ -67,23 +68,14 @@ import type {
 } from "../tools/desktop-app-tool-bridge";
 import type { AppToolHost } from "../tools/app-tool-host";
 import { buildAvailableSkillsManifest } from "../skills/manifest";
-import {
-  SkillSnapshotStore,
-  type SkillRegistry,
-} from "../skills/registry";
+import { SkillSnapshotStore, type SkillRegistry } from "../skills/registry";
 import type { SkillDiscoveryContext } from "../skills/types";
 import { SlashCommandRouter } from "../commands/router";
-import {
-  composerAgentLabel,
-  parseAgentCommand,
-} from "../commands/agent";
+import { composerAgentLabel, parseAgentCommand } from "../commands/agent";
 import { buildAgentBootstrap, buildSessionBootstrap } from "../bootstrap/build";
 import { hasHostFilesystemPath } from "../skills/manifest";
 import { formatSlashHelp } from "../commands/groups";
-import {
-  formatContextNotice,
-  formatScopeNotice,
-} from "../commands/inspect";
+import { formatContextNotice, formatScopeNotice } from "../commands/inspect";
 import { normalizeConversationScope } from "../conversations/paths";
 import { conversationsInScopeTree } from "../conversations/scope-tree";
 import type { ConversationListEntry } from "../conversations/transcript-store";
@@ -119,7 +111,12 @@ export class AiChatController {
   #usageDirty = false;
   readonly #sessionContexts = new Map<
     AgentSession,
-    { location: ConversationLocation | null }
+    {
+      location: ConversationLocation | null;
+      pendingBinding?: AgentBindingCreatedRecord;
+      pendingSwitch?: TranscriptEntry;
+      pendingItems: AiChatItem[];
+    }
   >();
   readonly #cancelledSessions = new WeakSet<AgentSession>();
   #turnId = 0;
@@ -195,9 +192,11 @@ export class AiChatController {
     this.#skillContext = options.skillContext;
     this.#readVaultText = options.readVaultText;
     this.#onComposerDefaults = options.onComposerDefaults;
-    this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe((event) => {
-      void this.#consumeAppToolEvent(event);
-    });
+    this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe(
+      (event) => {
+        void this.#consumeAppToolEvent(event);
+      },
+    );
     this.workspace = options.workspace;
     this.request = options.request ?? {};
     this.#sessionRequest = this.request;
@@ -501,10 +500,10 @@ export class AiChatController {
         snapshot.location,
         snapshot.metadata.launchContext?.notePath,
       );
-      this.session = await this.runtime.resume(
-        activeBinding.nativeSessionId,
-        { ...this.#sessionRequest, appToolSession },
-      );
+      this.session = await this.runtime.resume(activeBinding.nativeSessionId, {
+        ...this.#sessionRequest,
+        appToolSession,
+      });
       void this.#consume(this.session, activeBinding.id);
     } catch (error) {
       await this.#closeAppToolBinding(activeBinding.id);
@@ -593,12 +592,15 @@ export class AiChatController {
             : item,
         );
       }
-      if (this.repository && this.location) {
-        await this.#appendDurableItems(
-          this.location,
-          [userItem],
-          this.#activeBindingId,
+      if (this.repository && this.location && this.session) {
+        const context = this.#sessionContexts.get(this.session) ?? {
+          location: { ...this.location },
+          pendingItems: [],
+        };
+        context.pendingItems.push(
+          this.items.find((item) => item.id === userItem.id) ?? userItem,
         );
+        this.#sessionContexts.set(this.session, context);
       } else {
         await this.#persist();
       }
@@ -740,7 +742,11 @@ export class AiChatController {
       if (!this.#cancelledSessions.has(session)) return;
       if (this.session !== session && this.session) return;
     }
-    if (this.items.some((item) => item.type === "status" && item.text === CANCELLED_NOTICE)) {
+    if (
+      this.items.some(
+        (item) => item.type === "status" && item.text === CANCELLED_NOTICE,
+      )
+    ) {
       return;
     }
     const item: AiChatItem = {
@@ -752,7 +758,11 @@ export class AiChatController {
     };
     this.items = [...this.items, item];
     if (this.repository && this.location) {
-      await this.#appendDurableItems(this.location, [item], this.#activeBindingId);
+      await this.#appendDurableItems(
+        this.location,
+        [item],
+        this.#activeBindingId,
+      );
       return;
     }
     await this.#persist(false, this.#activeBindingId);
@@ -790,12 +800,59 @@ export class AiChatController {
     session: AgentSession,
     agentBindingId = this.#activeBindingId,
   ): Promise<void> {
-    const context = {
+    const context = this.#sessionContexts.get(session) ?? {
       location: this.location ? { ...this.location } : null,
+      pendingItems: [],
     };
     this.#sessionContexts.set(session, context);
     let traceItems: AiChatItem[] = [];
     let latestUsage: AgentUsage | null = null;
+    const persistCompletedTrace = async () => {
+      if (
+        traceItems.length === 0 &&
+        !latestUsage &&
+        !context.pendingBinding &&
+        !context.pendingSwitch &&
+        context.pendingItems.length === 0
+      ) {
+        return;
+      }
+      await waitForNextTask();
+      if (this.repository && context.location) {
+        if (context.pendingBinding) {
+          await this.repository.appendAgentRecords(context.location, [
+            context.pendingBinding,
+          ]);
+        }
+        if (context.pendingSwitch) {
+          await this.repository.appendTranscript(context.location, [
+            context.pendingSwitch,
+          ]);
+        }
+        await this.#appendDurableItems(
+          context.location,
+          [...context.pendingItems, ...traceItems],
+          agentBindingId,
+          false,
+          false,
+          agentBindingId,
+        );
+        if (latestUsage && agentBindingId) {
+          await this.#appendUsage(
+            context.location,
+            agentBindingId,
+            latestUsage,
+          );
+        }
+      } else {
+        await this.#persist(false, agentBindingId);
+      }
+      context.pendingBinding = undefined;
+      context.pendingSwitch = undefined;
+      context.pendingItems = [];
+      traceItems = [];
+      latestUsage = null;
+    };
     try {
       for await (const event of session.events()) {
         if (
@@ -828,6 +885,7 @@ export class AiChatController {
           );
           if (decision) {
             try {
+              await waitForNextTask();
               await session.respondToApproval(event.request.id, decision);
               continue;
             } catch {
@@ -852,36 +910,14 @@ export class AiChatController {
             this.session = null;
           }
         }
-        if (this.repository && context.location) {
-          await this.#appendDurableItems(
-            context.location,
-            traceItems,
-            agentBindingId,
-            event.type !== "completed" && event.type !== "error",
-            false,
-            agentBindingId,
-          );
-        } else {
-          await this.#persist(false, agentBindingId);
-        }
-        if (
-          (event.type === "completed" || event.type === "error") &&
-          latestUsage &&
-          agentBindingId &&
-          context.location
-        ) {
-          await this.#appendUsage(
-            context.location,
-            agentBindingId,
-            latestUsage,
-          );
-          latestUsage = null;
-        }
         if (
           activeSession &&
           (event.type === "completed" || event.type === "error")
         ) {
           this.busy = false;
+        }
+        if (event.type === "completed" || event.type === "error") {
+          await persistCompletedTrace();
         }
         if (event.type === "error") {
           await session.close().catch(() => undefined);
@@ -903,29 +939,12 @@ export class AiChatController {
         this.busy = false;
         this.session = null;
       }
+      await persistCompletedTrace();
       await session.close().catch(() => undefined);
       await this.#closeAppToolBinding(agentBindingId);
     } finally {
       if (this.session === session) this.busy = false;
-      if (this.repository && context.location) {
-        await this.#appendDurableItems(
-          context.location,
-          traceItems,
-          agentBindingId,
-          false,
-          false,
-          agentBindingId,
-        );
-        if (latestUsage && agentBindingId) {
-          await this.#appendUsage(
-            context.location,
-            agentBindingId,
-            latestUsage,
-          );
-        }
-      } else {
-        await this.#persist(false, agentBindingId);
-      }
+      await persistCompletedTrace();
       this.#sessionContexts.delete(session);
     }
   }
@@ -944,9 +963,7 @@ export class AiChatController {
   }
 
   async #executeSlash(
-    resolution: NonNullable<
-      ReturnType<SlashCommandRouter["resolve"]>
-    >,
+    resolution: NonNullable<ReturnType<SlashCommandRouter["resolve"]>>,
     request: Omit<AgentRequest, "prompt">,
   ): Promise<void> {
     const slashRouter = this.#slashRouter;
@@ -1063,8 +1080,7 @@ export class AiChatController {
           } else {
             this.#ensureLocalAppToolSession();
             const items: AiChatInventoryItem[] = (
-              this.#appToolHost
-                ?.getSession(this.#activeBindingId ?? "")
+              this.#appToolHost?.getSession(this.#activeBindingId ?? "")
                 ?.tools ?? []
             ).map((tool) => ({
               name: tool.name,
@@ -1152,7 +1168,11 @@ export class AiChatController {
     }
     if (result.kind === "native") {
       const text = `/${result.name}${result.arguments ? ` ${result.arguments}` : ""}`;
-      await this.#recordCommandItem(result.name, "native-agent", result.arguments);
+      await this.#recordCommandItem(
+        result.name,
+        "native-agent",
+        result.arguments,
+      );
       this.busy = true;
       try {
         await this.#prepareSession(request);
@@ -1202,7 +1222,9 @@ export class AiChatController {
           this.#activeBindingId,
         );
       }
-      await this.session?.send(activation.arguments?.trim() || activation.skillName);
+      await this.session?.send(
+        activation.arguments?.trim() || activation.skillName,
+      );
     } finally {
       this.busy = false;
     }
@@ -1281,8 +1303,7 @@ export class AiChatController {
       this.#appendLocalNotice(await this.#describeScope("explicit"));
       await this.#persistCommandNotice();
     } catch (error) {
-      this.error =
-        error instanceof Error ? error.message : String(error);
+      this.error = error instanceof Error ? error.message : String(error);
       this.items = [
         ...this.items,
         {
@@ -1303,8 +1324,7 @@ export class AiChatController {
         ? await this.repository.read(this.location).catch(() => undefined)
         : undefined;
     const pending = this.#createConversation?.();
-    const scopeDir =
-      this.location?.scopeDir ?? pending?.scopeDir ?? "";
+    const scopeDir = this.location?.scopeDir ?? pending?.scopeDir ?? "";
     return formatScopeNotice({
       scopeDir,
       launchNotePath:
@@ -1312,11 +1332,7 @@ export class AiChatController {
       workspace: snapshot?.metadata.workspace?.path ?? this.workspace,
       source:
         source ??
-        (this.location
-          ? "conversation"
-          : scopeDir
-            ? "folder"
-            : "vault-root"),
+        (this.location ? "conversation" : scopeDir ? "folder" : "vault-root"),
     });
   }
 
@@ -1452,14 +1468,22 @@ export class AiChatController {
     };
     this.items = [...this.items, item];
     if (this.repository && this.location) {
-      await this.#appendDurableItems(this.location, [item], this.#activeBindingId);
+      await this.#appendDurableItems(
+        this.location,
+        [item],
+        this.#activeBindingId,
+      );
     }
   }
 
   async #persistCommandNotice(): Promise<void> {
     const item = this.items.at(-1);
     if (this.repository && this.location && item) {
-      await this.#appendDurableItems(this.location, [item], this.#activeBindingId);
+      await this.#appendDurableItems(
+        this.location,
+        [item],
+        this.#activeBindingId,
+      );
     }
   }
 
@@ -1602,10 +1626,10 @@ export class AiChatController {
     const followedScope = this.#followedScope ?? this.directoryContext;
     const input =
       this.#followedScope !== undefined || this.directoryContext
-        ? this.#createConversation?.(followedScope) ?? {
+        ? (this.#createConversation?.(followedScope) ?? {
             scopeDir: followedScope,
-          }
-        : this.#createConversation?.() ?? { scopeDir: "" };
+          })
+        : (this.#createConversation?.() ?? { scopeDir: "" });
     const created = await this.repository.create(input);
     this.location = created.location;
     this.conversationStatus = created.metadata.status;
@@ -1617,15 +1641,14 @@ export class AiChatController {
     this.#onLocationChange?.(this.location);
   }
 
-  async #recordNewBinding(
+  #activateNewBinding(
     bindingId: string,
     session: AgentSession,
     request: Omit<AgentRequest, "prompt">,
     runtime = this.runtime,
     handoff?: ConversationContextHandoff,
     replacesBindingId = this.#activeBindingId,
-  ): Promise<void> {
-    if (!this.repository || !this.location) return;
+  ): { binding: AgentBindingCreatedRecord; switchRecord?: TranscriptEntry } {
     const previousBindingId = this.#activeBindingId;
     const binding: AgentBindingCreatedRecord = {
       schemaVersion: CONVERSATION_SCHEMA_VERSION,
@@ -1640,10 +1663,8 @@ export class AiChatController {
       handoffThroughEntryId: handoff?.throughEntryId,
       replacesBindingId,
     };
-    await this.repository.appendAgentRecords(this.location, [binding]);
-    if (previousBindingId) {
-      await this.repository.appendTranscript(this.location, [
-        {
+    const switchRecord: TranscriptEntry | undefined = previousBindingId
+      ? {
           schemaVersion: CONVERSATION_SCHEMA_VERSION,
           id: `switch-${crypto.randomUUID()}`,
           type: "agent.switch",
@@ -1652,12 +1673,12 @@ export class AiChatController {
           fromBindingId: previousBindingId,
           toBindingId: binding.id,
           handoffThroughEntryId: handoff?.throughEntryId,
-        },
-      ]);
-    }
+        }
+      : undefined;
     this.#activeBinding = binding;
     this.#activeBindingId = binding.id;
     this.bindings = [...this.bindings, binding];
+    return { binding, switchRecord };
   }
 
   async #prepareAppToolSession(
@@ -1689,9 +1710,7 @@ export class AiChatController {
     }
   }
 
-  async #closeAppToolBinding(
-    bindingId = this.#activeBindingId,
-  ): Promise<void> {
+  async #closeAppToolBinding(bindingId = this.#activeBindingId): Promise<void> {
     if (!bindingId) return;
     await this.#appToolBridge?.closeBinding(bindingId);
     if (!this.#appToolBridge) {
@@ -1877,7 +1896,10 @@ export class AiChatController {
             }
           : {}),
         ...(skillSnapshot
-          ? { availableSkillsManifest: buildAvailableSkillsManifest(skillSnapshot) }
+          ? {
+              availableSkillsManifest:
+                buildAvailableSkillsManifest(skillSnapshot),
+            }
           : {}),
         ...(appToolSession?.tools.length
           ? {
@@ -1917,36 +1939,22 @@ export class AiChatController {
       await this.#closeAppToolBinding(bindingId);
       return;
     }
-    try {
-      if (this.repository) {
-        await this.#recordNewBinding(
-          bindingId,
-          started,
-          request,
-          targetRuntime,
-          handoff,
-          exactBinding?.id ?? this.#activeBindingId,
-        );
-      } else {
-        this.#activeBindingId = bindingId;
-        this.#activeBinding = {
-          schemaVersion: CONVERSATION_SCHEMA_VERSION,
-          id: bindingId,
-          type: "binding.created",
-          createdAt: new Date().toISOString(),
-          runtime: targetRuntime.id,
-          agent: request.agent,
-          model: request.model ? { ...request.model } : undefined,
-          thinking: request.thinking,
-          nativeSessionId: started.id,
-        };
-        this.bindings = [...this.bindings, this.#activeBinding];
-      }
-    } catch (error) {
-      await this.#closeAppToolBinding(bindingId);
-      await started.close().catch(() => undefined);
-      throw error;
-    }
+    const { binding, switchRecord } = this.#activateNewBinding(
+      bindingId,
+      started,
+      request,
+      targetRuntime,
+      handoff,
+      exactBinding?.id ?? this.#activeBindingId,
+    );
+    this.#sessionContexts.set(started, {
+      location: this.location ? { ...this.location } : null,
+      ...(this.repository ? { pendingBinding: binding } : {}),
+      ...(this.repository && switchRecord
+        ? { pendingSwitch: switchRecord }
+        : {}),
+      pendingItems: [],
+    });
     this.runtime = targetRuntime;
     this.session = started;
     this.#refreshSkills = false;
@@ -2069,6 +2077,10 @@ export class AiChatController {
 }
 
 const CANCELLED_NOTICE = "Agent turn cancelled";
+
+function waitForNextTask(): Promise<void> {
+  return new Promise((resolve) => globalThis.setTimeout(resolve, 0));
+}
 
 function portableWorkspaceLabel(value?: string): string | undefined {
   const label = value?.trim();

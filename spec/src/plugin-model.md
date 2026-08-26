@@ -40,6 +40,9 @@ is still preparing a session.
 For a native host that advertises deferred ACP start, the AI runtime adapter
 reserves the session and subscribes before start; other hosts retain the
 awaited start path (LN-AI-172).
+For a native host that advertises deferred model discovery, the model provider
+subscribes before sending its request and resolves the matching catalog event;
+other hosts retain the awaited catalog path (LN-AI-173).
 Tool details unwrap envelope fields such as
 `output` and choose `json`, `bash`, or `plaintext` for the Design Core
 `CodeBlock` (LN-AI-133). Thinking stays expanded only while it streams

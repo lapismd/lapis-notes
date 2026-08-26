@@ -57,9 +57,11 @@ function createDenoToolBridgeBroker(): ToolBridgeBroker {
 export function createDenoAgentSink(emit: Emit): AgentHostSink {
   let pending = Promise.resolve();
   const send = (event: RendererNativeEvent) => {
-    pending = pending.then(() => emit(event)).catch((error) => {
-      console.error("[desktop] agent renderer event failed", error);
-    });
+    pending = pending
+      .then(() => emit(event))
+      .catch((error) => {
+        console.error("[desktop] agent renderer event failed", error);
+      });
   };
   return {
     connectionId: "deno-renderer:main",
@@ -89,7 +91,8 @@ export class DenoAgentRuntimeHost {
     broker?: ToolBridgeBroker,
   ) {
     this.#sink = createDenoAgentSink(emit);
-    this.#broker = broker ?? (executor ? undefined : createDenoToolBridgeBroker());
+    this.#broker =
+      broker ?? (executor ? undefined : createDenoToolBridgeBroker());
     this.#executor =
       executor ??
       createAgentRuntimeExecutor({
@@ -98,7 +101,9 @@ export class DenoAgentRuntimeHost {
   }
 
   respond(request: Request): Promise<Response | undefined> {
-    return this.#broker?.handleWebRequest(request) ?? Promise.resolve(undefined);
+    return (
+      this.#broker?.handleWebRequest(request) ?? Promise.resolve(undefined)
+    );
   }
 
   handle(command: string, payload: Record<string, unknown>): unknown {
@@ -131,13 +136,45 @@ export class DenoAgentRuntimeHost {
       );
     }
     if (command === "desktop_agent_acp_models") {
-      return this.#executor.listAcpModels(
-        this.#sink,
-        payload as Pick<AcpStartPayload, "workspace" | "agent">,
-      );
+      const requestId =
+        String(payload.requestId ?? "").trim() || crypto.randomUUID();
+      setTimeout(() => {
+        void this.#executor
+          .listAcpModels(
+            this.#sink,
+            payload as Pick<AcpStartPayload, "workspace" | "agent">,
+          )
+          .then(
+            (catalog) =>
+              this.#sink.sendRuntimeEvent({
+                sessionId: requestId,
+                runId: "model-catalog",
+                sequence: 1,
+                event: {
+                  type: "event",
+                  event: { type: "model_catalog", catalog },
+                },
+              }),
+            (error) =>
+              this.#sink.sendRuntimeEvent({
+                sessionId: requestId,
+                runId: "model-catalog",
+                sequence: 1,
+                event: {
+                  type: "event",
+                  event: {
+                    type: "model_catalog_error",
+                    message:
+                      error instanceof Error ? error.message : String(error),
+                  },
+                },
+              }),
+          );
+      }, 0);
+      return { requestId };
     }
     if (command === "desktop_agent_acp_prompt") {
-      return this.#executor.promptAcpSession(
+      return this.#executor.promptAcpSessionDeferred(
         this.#sink,
         String(payload.sessionId ?? ""),
         String(payload.text ?? ""),
@@ -170,10 +207,7 @@ export class DenoAgentRuntimeHost {
       );
       return;
     }
-    this.#executor.closeToolBridge(
-      this.#sink,
-      String(payload.bridgeId ?? ""),
-    );
+    this.#executor.closeToolBridge(this.#sink, String(payload.bridgeId ?? ""));
   }
 
   async shutdown(): Promise<void> {
