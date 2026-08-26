@@ -23,6 +23,7 @@ import {
   type MacosTrafficLightController,
   type MacosTrafficLightDriver,
 } from "./macos-traffic-lights.ts";
+import { closeNativeMacosWindowsByTitle } from "./macos-window-close.ts";
 import {
   createNativeDesktopTelemetry,
   writeStructuredRendererLog,
@@ -136,6 +137,7 @@ const aboutWindow = createDesktopAboutWindowManager({
   createWindow: (options) => new Deno.BrowserWindow(options),
   rendererOrigin,
   applicationInfo: DESKTOP_APPLICATION_INFO,
+  closeNativeWindowsByTitle: closeNativeMacosWindowsByTitle,
 });
 const drag = createWindowDragController(win);
 const emitRendererEvent = createRendererEventEmitter(win);

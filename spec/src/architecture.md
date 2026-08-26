@@ -388,7 +388,9 @@ platform-isolated adapter so they share the open left-sidebar header's
 centreline; renderer controls and shared Design Core geometry remain untouched. Its
 application menu owns a single reusable native About window, whose dedicated
 renderer composes Design Core's public About surface without creating a vault,
-plugin runtime, or second application session. The pnpm development launcher
+plugin runtime, or second application session. The host completely closes that
+secondary native window for renderer and native dismissals before a later menu
+action creates a fresh instance. The pnpm development launcher
 passes the tracked Lapis icon to Deno while production retains signed bundle
 metadata.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over

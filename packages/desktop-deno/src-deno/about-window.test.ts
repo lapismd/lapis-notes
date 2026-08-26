@@ -61,8 +61,9 @@ describe("Deno desktop About window", () => {
     expect(manager.hasOpenWindow()).toBe(true);
   });
 
-  it("closes independently and creates a fresh window after native dismissal", async () => {
+  it("fully closes the native window after renderer dismissal", async () => {
     const windows: FakeAboutWindow[] = [];
+    const closeNativeWindowsByTitle = vi.fn(() => 1);
     const manager = createDesktopAboutWindowManager({
       createWindow() {
         const window = new FakeAboutWindow();
@@ -71,15 +72,55 @@ describe("Deno desktop About window", () => {
       },
       rendererOrigin: "http://127.0.0.1:48123/",
       applicationInfo: DESKTOP_APPLICATION_INFO,
+      closeNativeWindowsByTitle,
     });
 
     manager.open();
     windows[0].bindings.get("closeAboutWindow")?.();
     await new Promise<void>((resolve) => queueMicrotask(resolve));
-    expect(windows[0].closed).toBe(true);
+    expect(closeNativeWindowsByTitle).toHaveBeenCalledWith(
+      "About Lapis Notes",
+    );
+    expect(windows[0].closed).toBe(false);
     expect(manager.hasOpenWindow()).toBe(false);
 
     manager.open();
     expect(windows).toHaveLength(2);
+  });
+
+  it("fully closes the native shell after its close event", async () => {
+    const window = new FakeAboutWindow();
+    const closeNativeWindowsByTitle = vi.fn(() => 1);
+    const manager = createDesktopAboutWindowManager({
+      createWindow: () => window,
+      rendererOrigin: "http://127.0.0.1:48123/",
+      applicationInfo: DESKTOP_APPLICATION_INFO,
+      closeNativeWindowsByTitle,
+    });
+
+    manager.open();
+    window.dispatchEvent(new Event("close"));
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+
+    expect(closeNativeWindowsByTitle).toHaveBeenCalledWith(
+      "About Lapis Notes",
+    );
+    expect(manager.hasOpenWindow()).toBe(false);
+  });
+
+  it("falls back to BrowserWindow close outside the native adapter", async () => {
+    const window = new FakeAboutWindow();
+    const manager = createDesktopAboutWindowManager({
+      createWindow: () => window,
+      rendererOrigin: "http://127.0.0.1:48123/",
+      applicationInfo: DESKTOP_APPLICATION_INFO,
+    });
+
+    manager.open();
+    window.bindings.get("closeAboutWindow")?.();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+
+    expect(window.closed).toBe(true);
+    expect(manager.hasOpenWindow()).toBe(false);
   });
 });

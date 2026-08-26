@@ -478,6 +478,8 @@ correction and leaves the open left-sidebar header layout untouched. The
 package's native host owns a dedicated,
 single-instance About child window that mounts Design Core's public About
 surface from a separate Vite entry without creating application or vault state.
+Its macOS adapter closes every exact-title About shell on AppKit's main thread
+for both native and renderer dismissal while preserving the main window.
 Its pnpm development launcher passes the checked-in Lapis icon to `deno
 desktop`; distribution remains responsible for final bundle metadata and
 signing.

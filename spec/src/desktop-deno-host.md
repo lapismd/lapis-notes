@@ -59,7 +59,7 @@ distribution is outside the supported matrix.
 | LN-DENO-045 | The close coordinator MUST defer renderer notification out of native close and binding callback stacks. It MUST use a private same-origin signal because post-close script execution and programmatic close, hide, or opacity operations are unreliable on secondary macOS WebViews. The renderer MUST dismiss presentation before shared teardown and retain the structured ready acknowledgement. |
 | LN-DENO-046 | On macOS, the native traffic-light buttons MUST share the open left-sidebar tab controls' vertical centreline. The desktop host MUST lower only the three standard window buttons through its platform-isolated native adapter and MUST NOT offset renderer controls or change Design Core geometry. |
 | LN-DENO-047 | The pnpm desktop development launcher MUST supply the tracked Lapis application icon and declared Lapis application identity to `deno desktop`. Packaged icon and identity metadata MUST remain unchanged. |
-| LN-DENO-048 | The native About menu action MUST open one reusable small desktop window containing Design Core's public Lapis About surface. It MUST work before vault readiness, focus an existing About window, and close independently without disposing the main application session. |
+| LN-DENO-048 | The native About menu action MUST open one reusable small desktop window containing Design Core's public Lapis About surface. It MUST work before vault readiness and focus an existing About window. Every dismissal MUST completely close the secondary native window without disposing the main application session. |
 
 ### LN-DENO-048 acceptance details
 
@@ -67,7 +67,7 @@ Native About-window acceptance verifies:
 
 - The menu action creates at most one About window and focuses it on repeated selection.
 - The window uses the public Design Core About component with native application metadata and the Lapis logo.
-- OK, Escape, backdrop, and native window close dismiss only the About window.
+- OK, Escape, backdrop, and native window close remove the complete native About window; reopening creates a fresh secondary window.
 - The main renderer does not depend on a plugin command or active vault to open About.
 
 ### LN-DENO-047 acceptance details

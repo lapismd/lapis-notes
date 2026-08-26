@@ -33,6 +33,7 @@ export function createDesktopAboutWindowManager(options: {
   createWindow(options: AboutWindowOptions): AboutWindow;
   rendererOrigin: string;
   applicationInfo: DesktopApplicationInfo;
+  closeNativeWindowsByTitle?(title: string): number;
 }): DesktopAboutWindowManager {
   let current: AboutWindow | undefined;
 
@@ -51,20 +52,28 @@ export function createDesktopAboutWindowManager(options: {
       transparentTitlebar: false,
     });
     current = about;
+    let dismissalScheduled = false;
+
+    const dismiss = () => {
+      if (dismissalScheduled) return;
+      dismissalScheduled = true;
+      if (current === about) current = undefined;
+
+      queueMicrotask(() => {
+        const nativeCloseCount = options.closeNativeWindowsByTitle?.(
+          `About ${options.applicationInfo.name}`,
+        ) ?? 0;
+        if (nativeCloseCount === 0 && !about.isClosed()) about.close();
+      });
+    };
 
     const registerBindings = () => {
       about.bind("aboutInfo", () => options.applicationInfo);
-      about.bind("closeAboutWindow", () => {
-        queueMicrotask(() => {
-          if (!about.isClosed()) about.close();
-        });
-      });
+      about.bind("closeAboutWindow", dismiss);
     };
     registerBindings();
     about.addEventListener("load", registerBindings);
-    about.addEventListener("close", () => {
-      if (current === about) current = undefined;
-    });
+    about.addEventListener("close", dismiss);
 
     about.navigate(new URL("about.html", options.rendererOrigin).href);
     about.show();
