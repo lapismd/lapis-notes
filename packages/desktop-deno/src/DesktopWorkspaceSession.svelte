@@ -5,6 +5,8 @@
     listVaultProfiles,
     provideApplicationState,
     type NativeDesktopVaultAdapter,
+    type AppSafeModeFailure,
+    type AppSafeModeState,
     type TelemetrySpan,
     type VaultProfile,
     type VaultSession,
@@ -26,6 +28,7 @@
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
   import { WorkspaceShell } from "@lapis-notes/workspace";
+  import * as Button from "@lapismd/design-core/shadcn/button";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import {
     WorkspaceStartup,
@@ -34,6 +37,14 @@
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, untrack } from "svelte";
   import { getVaultProfileLocation } from "./desktop-vault-profiles";
+  import {
+    clearDesktopSafeModeState,
+    createDesktopStartupFailure,
+    describeDesktopSafeMode,
+    formatDesktopStartupDiagnostic,
+    readDesktopSafeModeState,
+    updateDesktopSafeModeState,
+  } from "./desktop-recovery";
   import { createDenoPluginAssetServer } from "./deno-plugin-asset-server";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
@@ -68,14 +79,16 @@
     createDenoPluginAssetServer({ adapter, bridge }),
   );
   const app = untrack(() => {
+    const safeMode = readDesktopSafeModeState();
     const ownedApp = new App({
-        version: appInfo.version,
-        configPath: ".obsidian/app.json",
-        session,
-        pluginAssetServer,
-        workspaceShell: { application: appInfo, notifications: true },
-        markdownRenderer: async () => {},
-      });
+      version: appInfo.version,
+      configPath: ".obsidian/app.json",
+      session,
+      safeMode,
+      pluginAssetServer,
+      workspaceShell: { application: appInfo, notifications: true },
+      markdownRenderer: async () => {},
+    });
     ownedApp.telemetry = bridge.telemetry;
     return ownedApp;
   });
@@ -89,7 +102,12 @@
   let booting = false;
   let corePluginsRegistered = false;
   let stopMetadataTracking: (() => void) | null = null;
+  let startupFailure = $state.raw<AppSafeModeFailure | null>(null);
+  let recoveryMessage = $state("");
+  let rebuildingMetadata = $state(false);
+  let rebuildingSearch = $state(false);
   let recentVaults = $state.raw<VaultProfile[]>([]);
+  const safeModeReasons = $derived(describeDesktopSafeMode(app.safeMode));
   let workspaceNavigation = $derived.by<WorkspaceNavigation>(() => {
     const desktopProfiles = recentVaults.filter(
       (candidate) => candidate.kind === "desktop-folder",
@@ -316,10 +334,93 @@
     });
   }
 
+  function restartNormally(): void {
+    clearDesktopSafeModeState();
+    globalThis.location.reload();
+  }
+
+  function enterSafeMode(
+    update: Partial<AppSafeModeState>,
+  ): void {
+    updateDesktopSafeModeState({
+      ...update,
+      lastStartupFailure: startupFailure,
+    });
+    globalThis.location.reload();
+  }
+
+  async function copyStartupDiagnostic(): Promise<void> {
+    if (!startupFailure) return;
+    try {
+      await navigator.clipboard.writeText(
+        formatDesktopStartupDiagnostic({
+          appVersion: appInfo.version,
+          vaultName: profile.name,
+          vaultLocation: getVaultProfileLocation(profile),
+          failure: startupFailure,
+        }),
+      );
+      recoveryMessage = "Startup diagnostic copied";
+    } catch (error) {
+      recoveryMessage = `Could not copy diagnostic: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+    }
+  }
+
+  async function resetSavedLayout(): Promise<void> {
+    try {
+      const path = ".obsidian/workspace.json";
+      if (await session.vaultAdapter.exists(path)) {
+        await session.vaultAdapter.remove(path);
+      }
+      clearDesktopSafeModeState();
+      globalThis.location.reload();
+    } catch (error) {
+      recoveryMessage = `Could not reset layout: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+    }
+  }
+
+  async function rebuildMetadataCache(): Promise<void> {
+    if (rebuildingMetadata) return;
+    rebuildingMetadata = true;
+    recoveryMessage = "Rebuilding metadata…";
+    try {
+      await app.metadataCache.rebuild();
+      recoveryMessage = "Metadata rebuilt";
+    } catch (error) {
+      recoveryMessage = `Metadata rebuild failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+    } finally {
+      rebuildingMetadata = false;
+    }
+  }
+
+  async function rebuildSearchIndex(): Promise<void> {
+    if (rebuildingSearch) return;
+    rebuildingSearch = true;
+    recoveryMessage = "Rebuilding Search…";
+    try {
+      await app.appDatabase.rebuildSearchIndex();
+      recoveryMessage = "Search index rebuilt";
+    } catch (error) {
+      recoveryMessage = `Search rebuild failed: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+    } finally {
+      rebuildingSearch = false;
+    }
+  }
+
   async function initialize(): Promise<void> {
     if (disposed || booting) return;
     booting = true;
     failure = null;
+    startupFailure = null;
+    recoveryMessage = "";
     tasks = structuredClone(STARTUP_TASKS);
     let activeTask = "vault";
     let startupStatus = "cancelled";
@@ -394,7 +495,9 @@
       await runStartupPhase(startupSpan, activeTask, () =>
         app.plugins.loadPlugins({
           communityPlugins: "disabled",
-          optionalCorePlugins: "configured",
+          optionalCorePlugins: app.safeMode.disableOptionalCorePlugins
+            ? "disabled"
+            : "configured",
           onProgress: ({ name }) => {
             setTask(activeTask, "active", `Loading ${name}`);
           },
@@ -405,9 +508,13 @@
 
       activeTask = "layout";
       setTask(activeTask, "active");
-      await runStartupPhase(startupSpan, activeTask, () =>
-        app.workspace.loadLayout(),
-      );
+      if (app.safeMode.skipLayoutRestore) {
+        setTask(activeTask, "active", "Safe Mode skipped saved layout restore");
+      } else {
+        await runStartupPhase(startupSpan, activeTask, () =>
+          app.workspace.loadLayout(),
+        );
+      }
       if (disposed) return;
       setTask(activeTask, "complete");
       ready = true;
@@ -434,7 +541,8 @@
       startupStatus = "failed";
       startupSpan.recordException(error);
       setTask(activeTask, "failed");
-      const detail = error instanceof Error ? error.message : String(error);
+      startupFailure = createDesktopStartupFailure(activeTask, error);
+      const detail = startupFailure.detail;
       failure = {
         title: "Lapis Notes could not start",
         description:
@@ -448,6 +556,37 @@
             label: "Retry",
             icon: "refresh-cw",
             onSelect: () => initialize(),
+          },
+          {
+            id: "copy-diagnostic",
+            label: "Copy error details",
+            icon: "copy",
+            onSelect: () => copyStartupDiagnostic(),
+          },
+          {
+            id: "manage-vaults",
+            label: "Manage Vaults",
+            icon: "folder-open",
+            onSelect: () => onManageVaults(),
+          },
+          {
+            id: "disable-optional-plugins",
+            label: "Start with optional plugins disabled",
+            icon: "shield-alert",
+            onSelect: () =>
+              enterSafeMode({ disableOptionalCorePlugins: true }),
+          },
+          {
+            id: "skip-layout",
+            label: "Start without restoring layout",
+            icon: "layout-panel-top",
+            onSelect: () => enterSafeMode({ skipLayoutRestore: true }),
+          },
+          {
+            id: "reset-layout",
+            label: "Reset saved layout",
+            icon: "panel-top-close",
+            onSelect: () => resetSavedLayout(),
           },
         ],
       };
@@ -518,7 +657,50 @@
       workspaceLabel={profile.name}
       {workspaceNavigation}
     />
+    {#if app.safeMode.active}
+      <aside
+        class="desktop-host__safe-mode-banner"
+        role="status"
+        aria-label="Safe Mode"
+        data-desktop-drag-region="false"
+      >
+        <div class="desktop-host__safe-mode-message">
+          <strong>Safe Mode is active</strong>
+          <span>
+            {safeModeReasons.length
+              ? safeModeReasons.join(". ")
+              : "Startup recovery restrictions are active for this session."}
+          </span>
+          {#if app.safeMode.lastStartupFailure}
+            <span>Last failure: {app.safeMode.lastStartupFailure.message}</span>
+          {/if}
+          {#if recoveryMessage}<span>{recoveryMessage}</span>{/if}
+        </div>
+        <div class="desktop-host__safe-mode-actions">
+          <Button.Root
+            variant="outline"
+            disabled={rebuildingMetadata}
+            onclick={() => void rebuildMetadataCache()}
+          >
+            {rebuildingMetadata ? "Rebuilding metadata…" : "Rebuild metadata"}
+          </Button.Root>
+          <Button.Root
+            variant="outline"
+            disabled={rebuildingSearch}
+            onclick={() => void rebuildSearchIndex()}
+          >
+            {rebuildingSearch ? "Rebuilding Search…" : "Rebuild Search"}
+          </Button.Root>
+          <Button.Root onclick={restartNormally}>Restart normally</Button.Root>
+        </div>
+      </aside>
+    {/if}
   {:else}
     <WorkspaceStartup title="Opening Lapis Notes" {tasks} {failure} />
+    {#if recoveryMessage}
+      <p class="desktop-host__recovery-message" role="status">
+        {recoveryMessage}
+      </p>
+    {/if}
   {/if}
 </section>

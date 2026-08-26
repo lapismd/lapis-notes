@@ -70,6 +70,12 @@ export function resolveMacosDesktopDevHost(packageRoot, backend) {
     root,
     bundle,
     executable,
+    runtimeLibrary: path.join(
+      bundle,
+      "Contents",
+      "MacOS",
+      selectedBackend === "cef" ? "laufey.dylib" : "libruntime.dylib",
+    ),
     plist: path.join(bundle, "Contents", "Info.plist"),
     marker: path.join(root, `${selectedBackend}.json`),
   };
@@ -90,7 +96,22 @@ export function createDenoDesktopDevHostBuildArgs(options) {
   ];
 }
 
+export function createMacosDesktopDevHostSignArgs(bundle) {
+  return ["--force", "--deep", "--sign", "-", bundle];
+}
+
+export function createMacosDesktopDevHostVerifyArgs(bundle) {
+  return ["--verify", "--deep", "--strict", bundle];
+}
+
 export function isMacosDesktopDevHostCurrent(options) {
+  return (
+    isMacosDesktopDevHostIdentityCurrent(options) &&
+    options.signatureValid === true
+  );
+}
+
+export function isMacosDesktopDevHostIdentityCurrent(options) {
   return (
     options.executable === true &&
     options.bundleName === options.expected.name &&

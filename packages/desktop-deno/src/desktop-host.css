@@ -5,7 +5,12 @@
   --lapis-desktop-window-controls-sidebar-after-ribbon: 0px;
 
   color-scheme: light dark;
-  font-family: var(--ui-workspace-font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-family: var(
+    --ui-workspace-font-sans,
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
   background: var(--ui-workspace-background, #fff);
 }
 
@@ -70,6 +75,68 @@ body {
   background: var(--ui-workspace-background, #fff);
 }
 
+.desktop-host__safe-mode-banner {
+  position: absolute;
+  z-index: 80;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 50%;
+  display: flex;
+  width: min(56rem, calc(100% - 2rem));
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border, var(--ui-workspace-border));
+  border-radius: var(--radius, 0.625rem);
+  color: var(--card-foreground, var(--ui-workspace-foreground));
+  background: var(--card, var(--ui-workspace-panel-background));
+  box-shadow: var(--ui-workspace-shadow-lg, 0 12px 30px rgb(0 0 0 / 16%));
+  translate: -50% 0;
+}
+
+.desktop-host__safe-mode-message {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground, var(--ui-workspace-muted-foreground));
+}
+
+.desktop-host__safe-mode-message strong {
+  font-size: 0.875rem;
+  color: var(--card-foreground, var(--ui-workspace-foreground));
+}
+
+.desktop-host__safe-mode-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.desktop-host__recovery-message {
+  position: absolute;
+  z-index: 2;
+  inset-block-end: 1.5rem;
+  inset-inline: 1rem;
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted-foreground, var(--ui-workspace-muted-foreground));
+}
+
+@media (width < 48rem) {
+  .desktop-host__safe-mode-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .desktop-host__safe-mode-actions {
+    justify-content: flex-start;
+  }
+}
+
 .workspace-shell__vault-chooser-settings[data-ui-component="dialog"][data-ui-part="dialog-content"] {
   top: 50%;
   left: 50%;
@@ -121,7 +188,9 @@ body {
   background: var(--secondary);
 }
 
-.workspace-shell__vault-chooser-close[data-ui-component="button"]:hover:not(:disabled) {
+.workspace-shell__vault-chooser-close[data-ui-component="button"]:hover:not(
+    :disabled
+  ) {
   color: var(--ui-workspace-panel-action-hover-foreground);
   background: var(--ui-workspace-panel-action-hover-background);
 }

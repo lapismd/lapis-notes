@@ -416,6 +416,16 @@ While a host resolves a saved current profile, it hosts Design Core
 `WorkspaceStartup` and MUST NOT paint that chooser. Manage Vaults and desktop
 Open Vault… overlay the chooser over a retained session; Close returns without
 disposing.
+If saved-vault restore fails, the desktop host retains that profile and presents
+the native failure instead of silently deleting the recovery route. Deno
+filesystem bindings preserve missing, permission, wrong-type, busy, and
+existence classifications so a protected folder is not misreported as absent.
+Startup failure details retain the complete stack and local absolute target for
+copying. Recovery choices are session-scoped `AppSafeModeState`: optional core
+plugins and layout restoration can be disabled before startup, a broken saved
+layout can be removed explicitly, and a recovered shell shows a Safe Mode
+banner with generated-index rebuild and normal-restart actions. These controls
+do not add canonical vault settings or unavailable community/notebook policy.
 After that selection, desktop and web session boot render Design Core
 `WorkspaceStartup` for vault, configuration, plugin, and layout progress
 instead of a host-owned placeholder. The plugins task reports the current

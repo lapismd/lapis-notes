@@ -8,7 +8,10 @@ import { createServer } from "vite";
 import {
   createDenoDesktopDevHostBuildArgs,
   createDenoDesktopDevArgs,
+  createMacosDesktopDevHostSignArgs,
+  createMacosDesktopDevHostVerifyArgs,
   ensureDesktopDevSiblingLinks,
+  isMacosDesktopDevHostIdentityCurrent,
   isMacosDesktopDevHostCurrent,
   resolveMacosDesktopDevHost,
   resolveDesktopDevIcon,
@@ -66,6 +69,55 @@ async function replaceOrInsertPlistString(plist, key, value) {
   }
 }
 
+async function signAndVerifyMacosDesktopDevHost(layout) {
+  await execFileAsync(
+    "codesign",
+    createMacosDesktopDevHostSignArgs(layout.bundle),
+  );
+  await execFileAsync(
+    "codesign",
+    createMacosDesktopDevHostVerifyArgs(layout.bundle),
+  );
+}
+
+async function fileModifiedAt(pathname) {
+  try {
+    return (await stat(pathname)).mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
+async function resignMacosDesktopDevHostAfterRuntimeUpdate(
+  layout,
+  previousModifiedAt,
+) {
+  const deadline = Date.now() + 10_000;
+  let observedModifiedAt = null;
+  let stableObservations = 0;
+  while (Date.now() < deadline) {
+    const modifiedAt = await fileModifiedAt(layout.runtimeLibrary);
+    const changed =
+      modifiedAt !== null &&
+      (previousModifiedAt === null || modifiedAt !== previousModifiedAt);
+    if (changed && modifiedAt === observedModifiedAt) {
+      stableObservations += 1;
+    } else {
+      observedModifiedAt = modifiedAt;
+      stableObservations = changed ? 1 : 0;
+    }
+    if (stableObservations >= 3) {
+      await signAndVerifyMacosDesktopDevHost(layout);
+      console.log("Verified Lapis Notes macOS development host signature");
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error(
+    `Timed out waiting for Deno to update ${layout.runtimeLibrary}`,
+  );
+}
+
 async function ensureMacosDesktopDevHost(backend, icon) {
   if (process.platform !== "darwin") return undefined;
 
@@ -91,15 +143,32 @@ async function ensureMacosDesktopDevHost(backend, icon) {
       "-",
       layout.plist,
     ]);
+    const signatureValid = await execFileAsync(
+      "codesign",
+      createMacosDesktopDevHostVerifyArgs(layout.bundle),
+    )
+      .then(() => true)
+      .catch(() => false);
+    const identityCurrent = isMacosDesktopDevHostIdentityCurrent({
+      expected,
+      marker,
+      executable: executable.isFile(),
+      bundleName: bundleName.trim(),
+    });
     if (
       isMacosDesktopDevHostCurrent({
         expected,
         marker,
         executable: executable.isFile(),
+        signatureValid,
         bundleName: bundleName.trim(),
       })
     ) {
-      return layout.root;
+      return layout;
+    }
+    if (identityCurrent) {
+      await signAndVerifyMacosDesktopDevHost(layout);
+      return layout;
     }
   } catch {
     // Missing or stale generated host; rebuild it below.
@@ -127,8 +196,9 @@ async function ensureMacosDesktopDevHost(backend, icon) {
     "CFBundleIdentifier",
     expected.identifier,
   );
+  await signAndVerifyMacosDesktopDevHost(layout);
   await writeFile(layout.marker, `${JSON.stringify(expected, null, 2)}\n`);
-  return layout.root;
+  return layout;
 }
 
 const backend = process.env.LAPIS_DENO_BACKEND?.trim();
@@ -137,6 +207,9 @@ const macosDesktopDevHost = await ensureMacosDesktopDevHost(
   backend,
   desktopIcon,
 );
+const macosRuntimeModifiedAt = macosDesktopDevHost
+  ? await fileModifiedAt(macosDesktopDevHost.runtimeLibrary)
+  : null;
 
 const server = await createServer({
   configFile: path.join(packageRoot, "vite.config.ts"),
@@ -175,11 +248,23 @@ const deno = spawn(
     env: {
       ...desktopEnvironment,
       LAPIS_DESKTOP_DEV_SERVER_URL: address.replace(/\/$/u, ""),
-      ...(macosDesktopDevHost ? { LAUFEY_DEV_DIR: macosDesktopDevHost } : {}),
+      ...(macosDesktopDevHost
+        ? { LAUFEY_DEV_DIR: macosDesktopDevHost.root }
+        : {}),
     },
     stdio: "inherit",
   },
 );
+
+if (macosDesktopDevHost) {
+  void resignMacosDesktopDevHostAfterRuntimeUpdate(
+    macosDesktopDevHost,
+    macosRuntimeModifiedAt,
+  ).catch((error) => {
+    console.error("Failed to finalize macOS development host signature", error);
+    deno.kill("SIGTERM");
+  });
+}
 
 const shutdown = async () => {
   deno.kill("SIGTERM");

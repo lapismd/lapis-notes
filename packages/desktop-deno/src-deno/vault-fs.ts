@@ -12,6 +12,51 @@ export type VaultSelection = {
   name: string;
 };
 
+const portableFsCodes = new Set([
+  "EACCES",
+  "EBUSY",
+  "EEXIST",
+  "EILSEQ",
+  "EIO",
+  "EISDIR",
+  "EINVAL",
+  "ENOENT",
+  "ENOTDIR",
+  "EPERM",
+]);
+
+const denoFsNames: Record<string, string> = {
+  AlreadyExists: "EEXIST",
+  Busy: "EBUSY",
+  IsADirectory: "EISDIR",
+  NotADirectory: "ENOTDIR",
+  NotFound: "ENOENT",
+  PermissionDenied: "EACCES",
+};
+
+export function classifyVaultFsError(error: unknown): string {
+  if (!error || typeof error !== "object") return "EIO";
+  const record = error as { code?: unknown; name?: unknown };
+  if (typeof record.code === "string" && portableFsCodes.has(record.code)) {
+    return record.code;
+  }
+  if (typeof record.name === "string" && denoFsNames[record.name]) {
+    return denoFsNames[record.name];
+  }
+  return "EIO";
+}
+
+export function toPortableVaultFsError(
+  error: unknown,
+  target: string,
+): Error & { code: string } {
+  return makeFsError(classifyVaultFsError(error), target);
+}
+
+function isMissingVaultFsError(error: unknown): boolean {
+  return classifyVaultFsError(error) === "ENOENT";
+}
+
 async function ensureParent(path: string): Promise<void> {
   const parent = path.replace(/\/[^/]+$/, "");
   if (parent && parent !== path) {
@@ -47,67 +92,62 @@ export async function handleVaultFs(
   const normalizedPath = String(payload.normalizedPath ?? "");
   const abs = resolveAbsolutePath(rootPath, normalizedPath);
 
-  switch (command) {
-    case "desktop_fs_exists":
-      try {
-        await Deno.lstat(abs);
-        return true;
-      } catch {
-        return false;
-      }
-    case "desktop_fs_stat":
-      try {
-        const stat = await Deno.stat(abs);
-        return {
-          type: stat.isDirectory ? "folder" : "file",
-          size: stat.size,
-          ctime: stat.birthtime?.getTime() ?? stat.mtime?.getTime() ?? 0,
-          mtime: stat.mtime?.getTime() ?? 0,
-        };
-      } catch {
-        return null;
-      }
-    case "desktop_fs_read_text":
-      try {
+  try {
+    switch (command) {
+      case "desktop_fs_exists":
+        try {
+          await Deno.lstat(abs);
+          return true;
+        } catch (error) {
+          if (isMissingVaultFsError(error)) return false;
+          throw error;
+        }
+      case "desktop_fs_stat":
+        try {
+          const stat = await Deno.stat(abs);
+          return {
+            type: stat.isDirectory ? "folder" : "file",
+            size: stat.size,
+            ctime: stat.birthtime?.getTime() ?? stat.mtime?.getTime() ?? 0,
+            mtime: stat.mtime?.getTime() ?? 0,
+          };
+        } catch (error) {
+          if (isMissingVaultFsError(error)) return null;
+          throw error;
+        }
+      case "desktop_fs_read_text":
         return decodeVaultTextForBinding(await Deno.readFile(abs), abs);
-      } catch (error) {
-        if ((error as { code?: string }).code === "EILSEQ") throw error;
-        throw makeFsError("ENOENT", abs);
-      }
-    case "desktop_fs_read_binary":
-      try {
+      case "desktop_fs_read_binary":
         return Array.from(await Deno.readFile(abs));
-      } catch {
-        throw makeFsError("ENOENT", abs);
+      case "desktop_fs_write_text":
+        await writeTextAtomic(abs, String(payload.data ?? ""));
+        return;
+      case "desktop_fs_append_text": {
+        await ensureParent(abs);
+        const file = await Deno.open(abs, {
+          create: true,
+          append: true,
+          write: true,
+        });
+        try {
+          await file.write(
+            new TextEncoder().encode(String(payload.data ?? "")),
+          );
+        } finally {
+          file.close();
+        }
+        return;
       }
-    case "desktop_fs_write_text":
-      await writeTextAtomic(abs, String(payload.data ?? ""));
-      return;
-    case "desktop_fs_append_text": {
-      await ensureParent(abs);
-      const file = await Deno.open(abs, {
-        create: true,
-        append: true,
-        write: true,
-      });
-      try {
-        await file.write(new TextEncoder().encode(String(payload.data ?? "")));
-      } finally {
-        file.close();
+      case "desktop_fs_write_binary": {
+        const data = payload.data;
+        const bytes = Array.isArray(data)
+          ? Uint8Array.from(data as number[])
+          : new Uint8Array();
+        await ensureParent(abs);
+        await Deno.writeFile(abs, bytes);
+        return;
       }
-      return;
-    }
-    case "desktop_fs_write_binary": {
-      const data = payload.data;
-      const bytes = Array.isArray(data)
-        ? Uint8Array.from(data as number[])
-        : new Uint8Array();
-      await ensureParent(abs);
-      await Deno.writeFile(abs, bytes);
-      return;
-    }
-    case "desktop_fs_list": {
-      try {
+      case "desktop_fs_list": {
         const files: string[] = [];
         const folders: string[] = [];
         for await (const entry of Deno.readDir(abs)) {
@@ -115,68 +155,74 @@ export async function handleVaultFs(
           else files.push(entry.name);
         }
         return { files, folders };
-      } catch {
-        throw makeFsError("ENOENT", abs);
       }
-    }
-    case "desktop_fs_mkdir": {
-      const existing = await Deno.stat(abs)
-        .then((stat) => ({ isDirectory: stat.isDirectory }))
-        .catch(() => null);
-      const action = mkdirWhenPathExists(existing);
-      if (action === "skip") return;
-      if (action === "eexist") throw makeFsError("EEXIST", abs);
-      try {
-        await Deno.mkdir(abs, {
-          recursive: Boolean(payload.recursive),
-        });
-      } catch (error) {
-        if (error instanceof Deno.errors.AlreadyExists) {
-          const raced = await Deno.stat(abs)
-            .then((stat) => ({ isDirectory: stat.isDirectory }))
-            .catch(() => null);
-          if (mkdirWhenPathExists(raced) === "skip") return;
-          throw makeFsError("EEXIST", abs);
+      case "desktop_fs_mkdir": {
+        const existing = await Deno.stat(abs)
+          .then((stat) => ({ isDirectory: stat.isDirectory }))
+          .catch((error) => {
+            if (isMissingVaultFsError(error)) return null;
+            throw error;
+          });
+        const action = mkdirWhenPathExists(existing);
+        if (action === "skip") return;
+        if (action === "eexist") throw makeFsError("EEXIST", abs);
+        try {
+          await Deno.mkdir(abs, {
+            recursive: Boolean(payload.recursive),
+          });
+        } catch (error) {
+          if (error instanceof Deno.errors.AlreadyExists) {
+            const raced = await Deno.stat(abs)
+              .then((stat) => ({ isDirectory: stat.isDirectory }))
+              .catch((statError) => {
+                if (isMissingVaultFsError(statError)) return null;
+                throw statError;
+              });
+            if (mkdirWhenPathExists(raced) === "skip") return;
+            throw makeFsError("EEXIST", abs);
+          }
+          throw error;
         }
-        throw error;
+        return;
       }
-      return;
+      case "desktop_fs_rmdir":
+        await Deno.remove(abs, { recursive: Boolean(payload.recursive) });
+        return;
+      case "desktop_fs_remove":
+        await Deno.remove(abs);
+        return;
+      case "desktop_fs_rename": {
+        const dest = resolveAbsolutePath(
+          rootPath,
+          String(payload.normalizedNewPath ?? ""),
+        );
+        await Deno.rename(abs, dest);
+        return;
+      }
+      case "desktop_fs_copy": {
+        const dest = resolveAbsolutePath(
+          rootPath,
+          String(payload.normalizedNewPath ?? ""),
+        );
+        await Deno.copyFile(abs, dest);
+        return;
+      }
+      case "desktop_fs_resolve_path":
+        return abs;
+      case "desktop_fs_to_vault_path":
+        return String(payload.normalizedPath ?? "");
+      case "desktop_fs_open_path":
+      case "desktop_fs_reveal_path":
+        await runFileAction(
+          command === "desktop_fs_reveal_path" ? "reveal" : "open",
+          abs,
+        );
+        return;
+      default:
+        throw new Error(`Unhandled filesystem command: ${command}`);
     }
-    case "desktop_fs_rmdir":
-      await Deno.remove(abs, { recursive: Boolean(payload.recursive) });
-      return;
-    case "desktop_fs_remove":
-      await Deno.remove(abs);
-      return;
-    case "desktop_fs_rename": {
-      const dest = resolveAbsolutePath(
-        rootPath,
-        String(payload.normalizedNewPath ?? ""),
-      );
-      await Deno.rename(abs, dest);
-      return;
-    }
-    case "desktop_fs_copy": {
-      const dest = resolveAbsolutePath(
-        rootPath,
-        String(payload.normalizedNewPath ?? ""),
-      );
-      await Deno.copyFile(abs, dest);
-      return;
-    }
-    case "desktop_fs_resolve_path":
-      return abs;
-    case "desktop_fs_to_vault_path":
-      return String(payload.normalizedPath ?? "");
-    case "desktop_fs_open_path":
-    case "desktop_fs_reveal_path":
-      await runFileAction(
-        command === "desktop_fs_reveal_path" ? "reveal" : "open",
-        abs,
-      );
-      return;
-    default:
-      throw new Error(`Unhandled filesystem command: ${command}`);
+  } catch (error) {
+    throw toPortableVaultFsError(error, abs);
   }
 }
 
@@ -229,8 +275,7 @@ export async function selectVaultFolder(
     const stat = await Deno.stat(path);
     if (!stat.isDirectory) throw makeFsError("ENOTDIR", path);
   } catch (error) {
-    if (error instanceof Error && "code" in error) throw error;
-    throw makeFsError("ENOENT", path);
+    throw toPortableVaultFsError(error, path);
   }
   return { path, name: basename(path) };
 }

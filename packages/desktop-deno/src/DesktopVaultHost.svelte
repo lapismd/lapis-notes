@@ -104,8 +104,10 @@
           const adapter = await NativeDesktopVaultAdapter.fromProfile(profile);
           await openVault(adapter, profile);
           return;
-        } catch {
-          await clearCurrentVaultProfile();
+        } catch (error) {
+          errorMessage = error instanceof Error ? error.message : String(error);
+          status = "error";
+          return;
         }
       } else if (profile) {
         await clearCurrentVaultProfile();
@@ -175,7 +177,6 @@
           await NativeDesktopVaultAdapter.fromProfile(activatedProfile);
         await resumeOrReplace(adapter, activatedProfile);
       } catch (error) {
-        await clearCurrentVaultProfile();
         errorMessage = error instanceof Error ? error.message : String(error);
         status = prepared && launcherOpen ? "ready" : "error";
       }

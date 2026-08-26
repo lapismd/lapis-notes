@@ -6,7 +6,10 @@ import { describe, expect, it } from "vitest";
 import {
   createDenoDesktopDevHostBuildArgs,
   createDenoDesktopDevArgs,
+  createMacosDesktopDevHostSignArgs,
+  createMacosDesktopDevHostVerifyArgs,
   ensureDesktopDevSiblingLinks,
+  isMacosDesktopDevHostIdentityCurrent,
   isMacosDesktopDevHostCurrent,
   resolveMacosDesktopDevHost,
   resolveDesktopDevIcon,
@@ -108,10 +111,16 @@ describe("Deno desktop development command", () => {
         "/laufey_webview.app/Contents/MacOS/laufey_webview",
       ),
     ).toBe(true);
+    expect(webview.runtimeLibrary).toBe(
+      "/workspace/desktop-deno/release/dev-laufey/webview/build/laufey_webview.app/Contents/MacOS/libruntime.dylib",
+    );
     expect(
       cef.bundle.endsWith("/release/dev-laufey/cef/build/Release/laufey.app"),
     ).toBe(true);
     expect(cef.executable.endsWith("/laufey.app/Contents/MacOS/laufey")).toBe(
+      true,
+    );
+    expect(cef.runtimeLibrary.endsWith("/Contents/MacOS/laufey.dylib")).toBe(
       true,
     );
     expect(
@@ -146,6 +155,7 @@ describe("Deno desktop development command", () => {
         expected,
         marker: { ...expected },
         executable: true,
+        signatureValid: true,
         bundleName: "Lapis Notes",
       }),
     ).toBe(true);
@@ -161,10 +171,47 @@ describe("Deno desktop development command", () => {
           expected,
           marker,
           executable: true,
+          signatureValid: true,
           bundleName: "Lapis Notes",
         }),
       ).toBe(false);
     }
+
+    expect(
+      isMacosDesktopDevHostCurrent({
+        expected,
+        marker: { ...expected },
+        executable: true,
+        signatureValid: false,
+        bundleName: "Lapis Notes",
+      }),
+    ).toBe(false);
+    expect(
+      isMacosDesktopDevHostIdentityCurrent({
+        expected,
+        marker: { ...expected },
+        executable: true,
+        signatureValid: false,
+        bundleName: "Lapis Notes",
+      }),
+    ).toBe(true);
+  });
+
+  it("signs generated macOS hosts only after identity patching", () => {
+    const bundle = "/workspace/release/dev-laufey/laufey.app";
+    expect(createMacosDesktopDevHostSignArgs(bundle)).toEqual([
+      "--force",
+      "--deep",
+      "--sign",
+      "-",
+      bundle,
+    ]);
+    expect(createMacosDesktopDevHostVerifyArgs(bundle)).toEqual([
+      "--verify",
+      "--deep",
+      "--strict",
+      bundle,
+    ]);
   });
 
   it("exposes root and package CEF debug commands", async () => {
