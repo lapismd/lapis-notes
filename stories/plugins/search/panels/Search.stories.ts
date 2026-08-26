@@ -128,10 +128,16 @@ function placementStory(
       expect(completionRect.bottom).toBeLessThanOrEqual(
         ownerDocument.documentElement.clientHeight,
       );
-      const completionOption = completionTooltip.querySelector<HTMLElement>(
-        "li[role='option']",
-      );
+      expect(completionRect.width).toBeGreaterThanOrEqual(280);
+      expect(completionRect.width).toBeLessThanOrEqual(304);
+      const completionOption =
+        completionTooltip.querySelector<HTMLElement>("li[role='option']");
       expect(completionOption).not.toBeNull();
+      const completionDetail = completionOption!.querySelector<HTMLElement>(
+        ".cm-completionDetail",
+      );
+      expect(completionDetail).not.toBeNull();
+      expect(getComputedStyle(completionDetail!).whiteSpace).toBe("normal");
       const optionRect = completionOption!.getBoundingClientRect();
       const hit = ownerDocument.elementFromPoint(
         optionRect.left + optionRect.width / 2,
@@ -664,20 +670,16 @@ function placementStory(
               .getAllByRole("treeitem")
               .some((item) => item.getAttribute("aria-level") === "2"),
           ).toBe(true);
-          await expect(
-            within(resultGroup).getByText(resultPath),
-          ).toBeVisible();
+          await expect(within(resultGroup).getByText(resultPath)).toBeVisible();
           await expect(within(resultGroup).getByText("lexical")).toBeVisible();
         }
         const filenameOnlyResult = currentFileTreeItems.find((item) =>
-          item
-            .getAttribute("aria-label")
-            ?.startsWith("Notes/FilenameOnly.md,"),
+          item.getAttribute("aria-label")?.startsWith("Notes/FilenameOnly.md,"),
         )!;
         await expect(
-          within(filenameOnlyResult.closest(".search-panel__result")!).getByText(
-            "name",
-          ),
+          within(
+            filenameOnlyResult.closest(".search-panel__result")!,
+          ).getByText("name"),
         ).toBeVisible();
         await userEvent.click(
           panel.getByRole("button", { name: "Clear search" }),
