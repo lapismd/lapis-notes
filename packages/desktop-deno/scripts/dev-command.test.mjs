@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
+  resolveDesktopDevIcon,
   resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
 import {
@@ -73,6 +74,17 @@ describe("Deno desktop development command", () => {
       expect.arrayContaining(["--backend", "cef"]),
     );
     expect(createDenoDesktopDevArgs("unknown")).not.toContain("--backend");
+  });
+
+  it("passes the tracked platform application icon", () => {
+    const macIcon = resolveDesktopDevIcon("/workspace/desktop-deno", "darwin");
+    const linuxIcon = resolveDesktopDevIcon("/workspace/desktop-deno", "linux");
+
+    expect(macIcon).toBe("/workspace/desktop-deno/build/icon.icns");
+    expect(linuxIcon).toBe("/workspace/desktop-deno/build/icon.png");
+    expect(createDenoDesktopDevArgs(undefined, { icon: macIcon })).toEqual(
+      expect.arrayContaining(["--icon", macIcon]),
+    );
   });
 
   it("exposes root and package CEF debug commands", async () => {

@@ -78,6 +78,12 @@ export default defineConfig(({ command }) => ({
     minify: false,
     reportCompressedSize: false,
     outDir: "dist",
+    rollupOptions: {
+      input: {
+        main: path.resolve(packageRoot, "index.html"),
+        about: path.resolve(packageRoot, "about.html"),
+      },
+    },
     commonjsOptions: {
       // Turso publishes this self-contained file as ESM. Let Rollup consume it
       // directly instead of recursively analysing its embedded worker/WASM data.

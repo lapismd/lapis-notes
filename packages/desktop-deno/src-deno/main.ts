@@ -4,6 +4,8 @@ import { serveDir } from "jsr:@std/http@1/file-server";
 import { createPlatformInfo, handleDesktopInvoke } from "./bindings.ts";
 import { DenoAgentRuntimeHost } from "./agent-runtime.ts";
 import { DenoAppDatabaseHost } from "./app-database.ts";
+import { createDesktopAboutWindowManager } from "./about-window.ts";
+import { DESKTOP_APPLICATION_INFO } from "./application-info.ts";
 import {
   createDenoApplicationMenu,
   DENO_MENU_IDS,
@@ -64,6 +66,9 @@ if (!instance.primary) {
 const singleInstance = instance.host;
 
 const windowOptions = createDesktopWindowOptions(Deno.build.os);
+const rendererOrigin = rendererOriginFromServeAddress(
+  Deno.env.get("DENO_SERVE_ADDRESS"),
+);
 const bootstrap = new Deno.BrowserWindow({
   ...windowOptions,
   frameless: false,
@@ -89,6 +94,11 @@ if (win !== bootstrap) {
   win.show();
 }
 setOverlayWindowControls(win !== bootstrap && Deno.build.os === "darwin");
+const aboutWindow = createDesktopAboutWindowManager({
+  createWindow: (options) => new Deno.BrowserWindow(options),
+  rendererOrigin,
+  applicationInfo: DESKTOP_APPLICATION_INFO,
+});
 const drag = createWindowDragController(win);
 const emitRendererEvent = createRendererEventEmitter(win);
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
@@ -245,10 +255,7 @@ win.addEventListener("menuclick", (event: Event) => {
     return;
   }
   if (id === DENO_MENU_IDS.about) {
-    void emitRendererEvent({
-      channel: "desktop_menu_open_about_dialog",
-      payload: null,
-    });
+    aboutWindow.open();
     return;
   }
   if (id === DENO_MENU_IDS.reload) {
@@ -355,7 +362,7 @@ Deno.serve(async (request) => {
 if (win !== bootstrap) {
   bootstrap.hide();
   win.navigate(
-    rendererOriginFromServeAddress(Deno.env.get("DENO_SERVE_ADDRESS")),
+    rendererOrigin,
   );
   win.show();
 }

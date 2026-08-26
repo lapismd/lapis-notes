@@ -22,6 +22,7 @@ export function createDenoDesktopDevArgs(backend, options = {}) {
     "desktop",
     "--quiet",
     "--hmr",
+    ...(options.icon ? ["--icon", options.icon] : []),
     ...(options.inspect ? ["--inspect=127.0.0.1:9229"] : []),
     "--no-check",
     "--sloppy-imports",
@@ -35,6 +36,14 @@ export function createDenoDesktopDevArgs(backend, options = {}) {
     "-A",
     "src-deno/main.ts",
   ];
+}
+
+export function resolveDesktopDevIcon(packageRoot, platform) {
+  return path.join(
+    packageRoot,
+    "build",
+    platform === "darwin" ? "icon.icns" : "icon.png",
+  );
 }
 
 export async function ensureDesktopDevSiblingLinks(packageRoot) {

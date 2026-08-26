@@ -1,7 +1,7 @@
 {
   "desktop": {
     "app": {
-      "name": "LapisNotes",
+      "name": "Lapis Notes",
       "identifier": "md.lapis.notes.desktop-deno"
     },
     "backend": "webview"

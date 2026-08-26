@@ -63,11 +63,6 @@
     const disposeOpenVault = bridge.onOpenVaultPicker?.(() => {
       void showLauncher();
     });
-    const disposeOpenAbout = bridge.onOpenAboutDialog?.(() => {
-      if (activeApp) {
-        void activeApp.commands.executeCommand("app:about").catch(() => {});
-      }
-    });
     const disposeAppUrl = bridge.onAppUrlOpen?.((url) => {
       if (activeApp?.workspace.layoutReady) {
         void activeApp.urls.dispatch(url);
@@ -88,7 +83,6 @@
     void restoreVault();
     return () => {
       disposeOpenVault?.();
-      disposeOpenAbout?.();
       disposeAppUrl?.();
       disposeBeforeClose?.();
       void disposeActiveSession(false);

@@ -16,6 +16,8 @@ declare namespace Deno {
       title?: string;
       width?: number;
       height?: number;
+      resizable?: boolean;
+      alwaysOnTop?: boolean;
       transparentTitlebar?: boolean;
       frameless?: boolean;
     });

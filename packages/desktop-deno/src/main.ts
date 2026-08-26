@@ -65,7 +65,6 @@ export type DenoDesktopBridge = NativeDesktopBridge & {
   ): Promise<void>;
   shutdownTelemetry(): Promise<void>;
   onOpenVaultPicker?(listener: () => void): () => void;
-  onOpenAboutDialog?(listener: () => void): () => void;
   onBeforeClose?(listener: () => void): () => void;
   waitForAcceptanceAppUrl?(): Promise<string>;
 };
@@ -105,7 +104,6 @@ const appDatabaseChangeListeners = new Set<
   (event: NativeAppDatabaseChangeEvent) => void
 >();
 const openVaultListeners = new Set<() => void>();
-const openAboutListeners = new Set<() => void>();
 const beforeCloseListeners = new Set<() => void>();
 const appUrlListeners = new Set<(url: string) => void>();
 const acceptanceAppUrls: string[] = [];
@@ -220,10 +218,6 @@ globalThis.addEventListener("lapis-deno-native-event", (rawEvent) => {
   }
   if (detail?.channel === "desktop_menu_open_vault_picker") {
     for (const listener of openVaultListeners) listener();
-    return;
-  }
-  if (detail?.channel === "desktop_menu_open_about_dialog") {
-    for (const listener of openAboutListeners) listener();
     return;
   }
   if (detail?.channel === "desktop_renderer_before_close") {
@@ -406,9 +400,6 @@ const bridge: DenoDesktopBridge = {
   },
   onOpenVaultPicker(listener) {
     return subscribe(openVaultListeners, listener);
-  },
-  onOpenAboutDialog(listener) {
-    return subscribe(openAboutListeners, listener);
   },
   onBeforeClose(listener) {
     const unsubscribe = subscribe(beforeCloseListeners, listener);

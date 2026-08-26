@@ -1,4 +1,5 @@
 import { handleBootstrapKv } from "./bootstrap-kv.ts";
+import { DESKTOP_APPLICATION_INFO } from "./application-info.ts";
 import type { DenoAppDatabaseHost } from "./app-database.ts";
 import {
   DENO_AGENT_COMMANDS,
@@ -116,7 +117,7 @@ export function createPlatformInfo() {
     os,
     arch: Deno.build.arch,
     runtimeVersion: Deno.version.deno,
-    appVersion: "2026.31.5",
+    appVersion: DESKTOP_APPLICATION_INFO.version,
     rendererEngine: resolveDesktopRendererEngine(
       Deno.env.get("LAPIS_DENO_BACKEND"),
     ),
@@ -138,12 +139,7 @@ export function handleDesktopInvoke(
     throw new Error(`Unimplemented desktop command: ${command}`);
   }
   if (command === "desktop_app_info_get") {
-    return {
-      name: "Lapis Notes",
-      version: "2026.31.5",
-      buildTime: null,
-      copyright: "Copyright © Lapis Notes contributors.",
-    };
+    return DESKTOP_APPLICATION_INFO;
   }
   if (command === "desktop_platform_get") {
     return createPlatformInfo();

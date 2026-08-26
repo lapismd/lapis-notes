@@ -6,6 +6,7 @@ import { createServer } from "vite";
 import {
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
+  resolveDesktopDevIcon,
   resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
 import {
@@ -59,7 +60,10 @@ if (backend === "cef") {
 }
 const deno = spawn(
   denoBin,
-  createDenoDesktopDevArgs(backend, { inspect: nativeInspectorEnabled }),
+  createDenoDesktopDevArgs(backend, {
+    inspect: nativeInspectorEnabled,
+    icon: resolveDesktopDevIcon(packageRoot, process.platform),
+  }),
   {
     cwd: packageRoot,
     env: {

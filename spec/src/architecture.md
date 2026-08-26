@@ -383,6 +383,13 @@ The Deno host also supplies native window-control geometry as a public Design
 Core workspace token. Design Core decides which leading main-pane header uses
 that input when the left sidebar is closed; the host retains ribbon and macOS
 traffic-light measurements plus the separate open-sidebar tab-bar inset.
+The macOS host also applies its measured vertical traffic-light centreline to
+the open left-sidebar header without changing shared Design Core geometry. Its
+application menu owns a single reusable native About window, whose dedicated
+renderer composes Design Core's public About surface without creating a vault,
+plugin runtime, or second application session. The pnpm development launcher
+passes the tracked Lapis icon to Deno while production retains signed bundle
+metadata.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
 OPFS in exactly one Web Locks owner per vault; other tabs retain the generic
 database contract through bounded BroadcastChannel RPC and may promote when
