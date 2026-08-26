@@ -14,6 +14,7 @@
     "dev:telemetry": "node scripts/dev.mjs --telemetry",
     "dev:telemetry:cef": "LAPIS_DENO_BACKEND=cef node scripts/dev.mjs --telemetry",
     "telemetry:lgtm": "node scripts/run-lgtm.mjs",
+    "icons:build": "node scripts/generate-build-icons.mjs",
     "dev:vite": "vite",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "package:prepare": "pnpm --dir ../.. build:desktop",

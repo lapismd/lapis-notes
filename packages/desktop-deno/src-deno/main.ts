@@ -18,6 +18,12 @@ import {
 import { createDesktopCloseSignal } from "./close-signal.ts";
 import { createDesktopLogger } from "./desktop-logging.ts";
 import {
+  createDesktopAppIconController,
+  createNativeMacosAppIconDriver,
+  type DesktopAppIconController,
+  type MacosAppIconDriver,
+} from "./macos-app-icon.ts";
+import {
   createMacosTrafficLightController,
   createNativeMacosTrafficLightDriver,
   type MacosTrafficLightController,
@@ -133,6 +139,29 @@ const scheduleTrafficLightAlignment = () => {
 win.addEventListener("load", scheduleTrafficLightAlignment);
 win.addEventListener("resize", scheduleTrafficLightAlignment);
 scheduleTrafficLightAlignment();
+let appIconDriver: MacosAppIconDriver | undefined;
+let appIcon: DesktopAppIconController | undefined;
+try {
+  appIconDriver = createNativeMacosAppIconDriver();
+  if (appIconDriver) {
+    const [light, dark] = await Promise.all([
+      Deno.readFile(new URL("../build/icon-light.png", import.meta.url)),
+      Deno.readFile(new URL("../build/icon-dark.png", import.meta.url)),
+    ]);
+    appIcon = createDesktopAppIconController({
+      platform: Deno.build.os,
+      driver: appIconDriver,
+      icons: { light, dark },
+    });
+    appIcon.apply("light");
+  }
+} catch (error) {
+  if (appIcon) appIcon.close();
+  else appIconDriver?.close();
+  appIcon = undefined;
+  appIconDriver = undefined;
+  desktopLog.warn("[desktop] native application icon unavailable", error);
+}
 const aboutWindow = createDesktopAboutWindowManager({
   createWindow: (options) => new Deno.BrowserWindow(options),
   rendererOrigin,
@@ -170,6 +199,7 @@ const closeCoordinator = createDenoCloseCoordinator({
       clearTimeout(trafficLightLayoutTimer);
     }
     trafficLights?.close();
+    appIcon?.close();
     closeSignal.close();
     fileWatch.shutdown();
     pluginAssets.clear();
@@ -241,6 +271,10 @@ function registerDesktopBindings(): void {
       },
     ],
     ["platform", () => createPlatformInfo()],
+    [
+      "applicationIconAppearance",
+      (appearance: unknown) => appIcon?.apply(appearance),
+    ],
     [
       "capabilities",
       () =>

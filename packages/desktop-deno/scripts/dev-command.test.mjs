@@ -45,6 +45,9 @@ describe("Deno desktop development command", () => {
     expect(args).not.toContain("--no-npm");
     expect(args).toEqual(
       expect.arrayContaining([
+        "--include",
+        "build/icon-light.png",
+        "build/icon-dark.png",
         "--exclude",
         "node_modules",
         "dist",

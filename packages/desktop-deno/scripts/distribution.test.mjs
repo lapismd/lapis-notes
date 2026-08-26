@@ -90,6 +90,8 @@ describe("Deno desktop distribution", () => {
     expect(source).toContain('"native-artifacts.json"');
     expect(source).toContain('"--include"');
     expect(source).toContain('"native"');
+    expect(source).toContain('"build/icon-light.png"');
+    expect(source).toContain('"build/icon-dark.png"');
     expect(source).toContain('createHash("sha256")');
   });
 

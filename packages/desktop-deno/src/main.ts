@@ -29,6 +29,7 @@ import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import { waitForDesktopBindings } from "./binding-probe";
+import { installDesktopAppIconAppearanceSync } from "./desktop-app-icon";
 import { applyDesktopHostDocument } from "./desktop-host-document";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
 import { waitForDesktopCloseSignal } from "./desktop-close-signal";
@@ -73,6 +74,9 @@ type DenoDesktopBindings = {
   invoke(command: string, payload?: Record<string, unknown>): Promise<unknown>;
   platform(): DenoDesktopPlatformInfo;
   capabilities(): NativeDesktopCapabilityRegistry;
+  applicationIconAppearance?(
+    appearance: "light" | "dark",
+  ): Promise<void>;
 };
 
 type DenoRendererNativeEvent = {
@@ -310,6 +314,12 @@ const capabilities = (await bindings
 
 const rawInvoke: DesktopRawInvoke = (command, payload) =>
   bindings.invoke(command, payload) as Promise<never>;
+const stopDesktopAppIconSync = installDesktopAppIconAppearanceSync({
+  platform: platform.os,
+  matchMedia: globalThis.matchMedia?.bind(globalThis),
+  apply: (appearance) => bindings.applicationIconAppearance?.(appearance),
+});
+globalThis.addEventListener("pagehide", stopDesktopAppIconSync, { once: true });
 const rendererTelemetry = await createDesktopRendererTelemetry({
   enabled: import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY === "1",
   endpoint: import.meta.env.VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT,

@@ -129,7 +129,7 @@ entrypoints.
 | LN-PKG-108 | Automatic metadata snapshots under `.lapis/cache` MUST stop. Existing files MUST remain untouched, and missing or stale rebuildable metadata MUST be recovered from authoritative vault Markdown. |
 | LN-PKG-109 | First-party metadata consumers MUST use async indexed queries and revision-aware refresh. A source audit MUST reject first-party enumeration of synchronous `fileCache`, `metadataCache`, `resolvedLinks`, `unresolvedLinks`, or `getAllItems`. |
 | LN-PKG-110 | Vault MUST expose a file iterator whose additional memory is bounded by folder depth. Warm MetadataCache reconciliation MUST combine it with exact-path manifest batches no larger than 500 entries. |
-| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be the sole private native desktop package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, CEF debug, current-platform, and explicit macOS/Linux distribution scripts. Root desktop scripts MUST select it without a `-deno` suffix, and no Windows distribution target is supported. Packaged smoke MUST assert native Turso, the canonical core-plugin inventory, and structured renderer-ready close acceptance, while vault resources MUST stay on the contained loopback route. |
+| LN-PKG-111 | `@lapis-notes/desktop-deno` MUST be the sole private native desktop package at `packages/desktop-deno`, retain version `2026.31.5`, and expose common build, check, test, CEF debug, icon-generation, current-platform, and explicit macOS/Linux distribution scripts. Root desktop scripts MUST select it without a `-deno` suffix, and no Windows distribution target is supported. Packaged smoke MUST assert native Turso, the canonical core-plugin inventory, and structured renderer-ready close acceptance, while vault resources MUST stay on the contained loopback route. |
 | LN-PKG-112 | MetadataCache and Search MUST persist separate versioned reconciliation checkpoints in `app_meta` and skip full warm scans when their streaming manifest fingerprints match. Database readiness MUST precede reconciliation, and Search MUST begin its single startup reconciliation only after MetadataCache load completes and configured providers have registered. Non-provider vault events MUST NOT invalidate Search. Failed, cancelled, or undrained work MUST NOT advance a checkpoint. |
 | LN-PKG-113 | `@lapis-notes/ai` MUST serve empty-query Agents palette rows from portable conversation files without enumerating or rebuilding the global Search store. Workspace layout readiness MUST NOT trigger AI conversation-index repair. Normalized no-op settings updates MUST NOT rewrite plugin data and invalidate warm-start manifests. |
 | LN-PKG-114 | The private desktop package MUST expose local LGTM and telemetry development commands. Root commands MUST delegate to that package, while ordinary development, build, package, test, and distribution commands remain telemetry-disabled. |
@@ -480,9 +480,11 @@ single-instance About child window that mounts Design Core's public About
 surface from a separate Vite entry without creating application or vault state.
 Its macOS adapter closes every exact-title About shell on AppKit's main thread
 for both native and renderer dismissal while preserving the main window.
-Its pnpm development launcher passes the checked-in Lapis icon to `deno
-desktop`; distribution remains responsible for final bundle metadata and
-signing.
+Its pnpm development launcher passes the checked-in visible-background Lapis
+fallback icon to `deno desktop`; deterministic package-local generation retains
+separate light and dark rounded-tile variants. A private renderer/native binding
+keeps the macOS Dock icon aligned with the operating-system colour scheme, while
+distribution remains responsible for final bundle metadata and signing.
 
 The private web package consumes the public API, current core plugins,
 workspace, and Design Core presentation. It owns browser vault selection,

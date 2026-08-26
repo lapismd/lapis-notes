@@ -390,9 +390,13 @@ application menu owns a single reusable native About window, whose dedicated
 renderer composes Design Core's public About surface without creating a vault,
 plugin runtime, or second application session. The host completely closes that
 secondary native window for renderer and native dismissals before a later menu
-action creates a fresh instance. The pnpm development launcher
-passes the tracked Lapis icon to Deno while production retains signed bundle
-metadata.
+action creates a fresh instance. The pnpm development launcher passes the
+tracked visible-background Lapis icon to Deno while production retains signed
+bundle metadata. The desktop package owns deterministic light and dark
+rounded-tile variants. On macOS, the main renderer forwards only the
+operating-system colour-scheme state through a private binding and the native
+host updates AppKit's application icon when that state changes; no vault,
+plugin, or application setting owns Dock identity.
 The web consumer owns its launcher and PWA lifecycle. It opens Turso WASM over
 OPFS in exactly one Web Locks owner per vault; other tabs retain the generic
 database contract through bounded BroadcastChannel RPC and may promote when
@@ -430,7 +434,8 @@ The ready-shell vault menu follows the same boundary: Design Core presents the
 generic menu, the workspace package forwards its contract, and the desktop
 consumer supplies profiles plus serialized switch and management callbacks.
 Generated renderer and main outputs are Turbo cache outputs and remain
-untracked; checked-in build resources are limited to icons and entitlements.
+untracked; checked-in build resources are limited to deterministic icon
+variants, their macOS fallback, and entitlements.
 The production renderer imports Design Core's public stylesheet and Lapis theme
 plus the Lapis UI alias sheet before mounting either the launcher or workspace.
 Its Vite pipeline compiles the desktop launcher's utility classes; reusable
