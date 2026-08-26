@@ -1754,21 +1754,73 @@ export const MarkdownReadingOutline: Story = {
       );
     });
 
-    await step("keep the outline fixed while Reading scrolls", async () => {
-      expect(readingViewport!.scrollHeight).toBeGreaterThan(
-        readingViewport!.clientHeight,
-      );
-      const outlineTop = readingOutline!.getBoundingClientRect().top;
-      readingViewport!.scrollTop = Math.min(
-        320,
-        readingViewport!.scrollHeight - readingViewport!.clientHeight,
-      );
-      await fireEvent.scroll(readingViewport!);
-      expect(readingViewport!.scrollTop).toBeGreaterThan(0);
-      expect(
-        Math.abs(readingOutline!.getBoundingClientRect().top - outlineTop),
-      ).toBeLessThan(1);
-    });
+    await step(
+      "keep the outline fixed and track the current Reading section",
+      async () => {
+        expect(readingViewport!.scrollHeight).toBeGreaterThan(
+          readingViewport!.clientHeight,
+        );
+        const outlineTop = readingOutline!.getBoundingClientRect().top;
+        readingViewport!.scrollTop =
+          readingViewport!.scrollHeight - readingViewport!.clientHeight;
+        await fireEvent.scroll(readingViewport!);
+        expect(readingViewport!.scrollTop).toBeGreaterThan(0);
+        expect(
+          Math.abs(readingOutline!.getBoundingClientRect().top - outlineTop),
+        ).toBeLessThan(1);
+
+        const viewportTop = readingViewport!.getBoundingClientRect().top;
+        const currentSection = [
+          { id: "welcome-to-lapis-notes", label: "Welcome to Lapis Notes" },
+          { id: "portable-authoring", label: "Portable authoring" },
+          {
+            id: "nested-authoring-details",
+            label: "Nested authoring details",
+          },
+        ]
+          .filter(({ id }) => {
+            const heading = readingSurface.querySelector<HTMLElement>(`#${id}`);
+            return Boolean(
+              heading &&
+                heading.getBoundingClientRect().top - viewportTop <= 96,
+            );
+          })
+          .at(-1);
+        expect(currentSection).toBeDefined();
+        expect(currentSection?.id).not.toBe("welcome-to-lapis-notes");
+
+        const activeMarker = within(readingOutline!).getByRole("button", {
+          name: `Open outline and scroll to ${currentSection!.label}`,
+        });
+        await waitFor(() =>
+          expect(activeMarker).toHaveAttribute("aria-current", "true"),
+        );
+        const activeStroke = activeMarker.querySelector<HTMLElement>(
+          ".mira-markdown-outline__rail-line",
+        );
+        const inactiveStroke = within(readingOutline!)
+          .getByRole("button", {
+            name: "Open outline and scroll to Welcome to Lapis Notes",
+          })
+          .querySelector<HTMLElement>(".mira-markdown-outline__rail-line");
+        expect(activeStroke).toHaveClass("is-active");
+        expect(inactiveStroke).not.toHaveClass("is-active");
+        expect(getComputedStyle(activeStroke!).backgroundColor).not.toBe(
+          getComputedStyle(inactiveStroke!).backgroundColor,
+        );
+
+        await userEvent.hover(readingOutline!);
+        const outlinePanel = within(readingOutline!).getByRole("navigation", {
+          name: "Table of contents",
+        });
+        const activePanelItem = within(outlinePanel).getByRole("button", {
+          name: currentSection!.label,
+        });
+        await expect(activePanelItem).toHaveAttribute("aria-current", "true");
+        await expect(activePanelItem).toHaveClass("is-active");
+        await userEvent.unhover(readingOutline!);
+      },
+    );
 
     await step(
       "navigate headings below the view header clearance",
@@ -1783,10 +1835,14 @@ export const MarkdownReadingOutline: Story = {
           }),
         );
         await waitFor(() => expect(target).toHaveFocus());
-        expect(
-          target!.getBoundingClientRect().top -
-            readingViewport!.getBoundingClientRect().top,
-        ).toBeGreaterThanOrEqual(31);
+        await waitFor(
+          () =>
+            expect(
+              target!.getBoundingClientRect().top -
+                readingViewport!.getBoundingClientRect().top,
+            ).toBeGreaterThanOrEqual(31),
+          { timeout: 2_000 },
+        );
       },
     );
   },
