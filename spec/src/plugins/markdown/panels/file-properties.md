@@ -28,5 +28,9 @@ lookups cannot follow another host's compatibility alias.
 The controller hydrates the followed note with `getFileCacheAsync` before
 synchronizing Mira state and discards a result if the followed file changes
 while that read is pending.
-The shared frontmatter type menu remains visible and hit-testable in this panel
-under `LN-MD-111`; the panel does not replace or override Mira's portalled menu.
+The shared frontmatter property menu remains visible and hit-testable in this
+panel under `LN-MD-111`. File Properties uses Mira's standard dropdown styling
+and legacy-compatible hierarchy: `Property type` opens the checked type submenu,
+each choice displays its registered type icon, and Cut, Copy, Paste, and Remove
+remain top-level actions. The panel does not replace or override Mira's
+portalled menu.

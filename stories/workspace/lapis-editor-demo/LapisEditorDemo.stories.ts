@@ -1152,14 +1152,32 @@ export const MarkdownFrontmatter: Story = {
     );
     expect(titleRow).not.toBeNull();
     const titleTypeButton = within(titleRow!).getByRole("button", {
-      name: "Change title type",
+      name: "Property options for title",
     });
     await userEvent.click(titleTypeButton);
     const page = within(canvasElement.ownerDocument.body);
+    const optionsMenu = page.getByRole("menu", {
+      name: "Property options for title",
+    });
+    const propertyType = within(optionsMenu).getByRole("menuitem", {
+      name: "Property type",
+    });
+    await expect(optionsMenu).toBeVisible();
+    expect(
+      within(optionsMenu)
+        .getAllByRole("menuitem")
+        .map((item) => item.textContent?.trim()),
+    ).toEqual(["Property type", "Cut", "Copy", "Paste", "Remove"]);
+    expect(
+      within(optionsMenu).queryByRole("menuitemcheckbox", { name: "Number" }),
+    ).not.toBeInTheDocument();
+
+    propertyType.focus();
+    await userEvent.keyboard("{ArrowRight}");
     const typeMenu = page.getByRole("menu", {
       name: "Property type for title",
     });
-    const numberType = within(typeMenu).getByRole("menuitemradio", {
+    const numberType = within(typeMenu).getByRole("menuitemcheckbox", {
       name: "Number",
     });
     await expect(typeMenu).toBeVisible();
@@ -1174,13 +1192,22 @@ export const MarkdownFrontmatter: Story = {
       numberTypeBounds.top + numberTypeBounds.height / 2,
     );
     expect(hit === numberType || numberType.contains(hit)).toBe(true);
-    await userEvent.click(titleTypeButton);
+    await userEvent.keyboard("{Escape}");
+    await userEvent.keyboard("{Escape}");
     await waitFor(() => {
+      expect(
+        page.queryByRole("menu", {
+          name: "Property options for title",
+        }),
+      ).toBeNull();
       expect(
         page.queryByRole("menu", {
           name: "Property type for title",
         }),
       ).toBeNull();
+      expect(
+        getComputedStyle(canvasElement.ownerDocument.body).pointerEvents,
+      ).not.toBe("none");
     });
 
     const foldGutter =

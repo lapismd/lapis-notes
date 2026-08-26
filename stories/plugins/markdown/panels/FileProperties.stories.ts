@@ -133,7 +133,7 @@ function placementStory(
       expect(aliasesRow).not.toBeNull();
       const tagsTypeButton = within(tagsRow as HTMLElement).getByRole(
         "button",
-        { name: "Change tags type" },
+        { name: "Property options for tags" },
       );
       const tagsTypeIcon = tagsTypeButton.querySelector<SVGElement>("svg");
       expect(tagsTypeIcon).not.toBeNull();
@@ -183,14 +183,45 @@ function placementStory(
 
       await userEvent.click(tagsTypeButton);
       const page = within(canvasElement.ownerDocument.body);
+      const optionsMenu = page.getByRole("menu", {
+        name: "Property options for tags",
+      });
+      const propertyType = within(optionsMenu).getByRole("menuitem", {
+        name: "Property type",
+      });
+      await expect(optionsMenu).toBeVisible();
+      expect(
+        within(optionsMenu)
+          .getAllByRole("menuitem")
+          .map((item) => item.textContent?.trim()),
+      ).toEqual(["Property type", "Cut", "Copy", "Paste", "Remove"]);
+      expect(
+        within(optionsMenu).queryByRole("menuitemcheckbox", { name: "Text" }),
+      ).not.toBeInTheDocument();
+
+      propertyType.focus();
+      await userEvent.keyboard("{ArrowRight}");
       const typeMenu = page.getByRole("menu", {
         name: "Property type for tags",
       });
-      const textType = within(typeMenu).getByRole("menuitemradio", {
+      const textType = within(typeMenu).getByRole("menuitemcheckbox", {
         name: "Text",
+      });
+      const tagsType = within(typeMenu).getByRole("menuitemcheckbox", {
+        name: "Tags",
       });
       await expect(typeMenu).toBeVisible();
       await expect(textType).toBeVisible();
+      await expect(textType).toHaveAttribute("aria-checked", "false");
+      expect(textType.firstElementChild?.querySelector("svg")).toBeNull();
+      expect(
+        textType.querySelector(".metadata-property-type-menu__type-icon"),
+      ).not.toBeNull();
+      await expect(tagsType).toHaveAttribute("aria-checked", "true");
+      expect(tagsType.firstElementChild?.querySelector("svg")).not.toBeNull();
+      expect(
+        tagsType.querySelector(".metadata-property-type-menu__type-icon"),
+      ).not.toBeNull();
       expect((tagsRow as HTMLElement).contains(typeMenu)).toBe(false);
       expect(typeMenu.getBoundingClientRect().bottom).toBeGreaterThan(
         (tagsRow as HTMLElement).getBoundingClientRect().bottom,
@@ -204,11 +235,18 @@ function placementStory(
         hit === textType || textType.contains(hit),
         `Expected the Text item to own its center point; hit ${hit?.tagName ?? "nothing"}.${hit instanceof HTMLElement ? hit.className : ""}`,
       ).toBe(true);
-      await userEvent.click(tagsTypeButton);
+      await userEvent.keyboard("{Escape}");
+      await userEvent.keyboard("{Escape}");
       await waitFor(() => {
+        expect(
+          page.queryByRole("menu", { name: "Property options for tags" }),
+        ).toBeNull();
         expect(
           page.queryByRole("menu", { name: "Property type for tags" }),
         ).toBeNull();
+        expect(
+          getComputedStyle(canvasElement.ownerDocument.body).pointerEvents,
+        ).not.toBe("none");
       });
 
       const propertyContainer =
