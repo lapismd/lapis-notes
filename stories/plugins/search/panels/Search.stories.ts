@@ -98,6 +98,52 @@ function placementStory(
         expect(startupFiles.length).toBeLessThanOrEqual(5);
       }
       await userEvent.click(searchbox);
+      const ownerDocument = canvasElement.ownerDocument;
+      const completionTooltip = await waitFor(() => {
+        const current = ownerDocument.body.querySelector<HTMLElement>(
+          ".cm-tooltip-autocomplete",
+        );
+        expect(current).not.toBeNull();
+        const currentRect = current!.getBoundingClientRect();
+        expect(currentRect.left).toBeGreaterThanOrEqual(0);
+        expect(currentRect.top).toBeGreaterThanOrEqual(0);
+        return current!;
+      });
+      const completionPortal = completionTooltip.closest<HTMLElement>(
+        ".cv-search-filter-bar__tooltip-layer",
+      );
+      const searchPanelRoot = canvasElement.querySelector<HTMLElement>(
+        '[data-testid="search-panel"]',
+      );
+      expect(completionPortal).not.toBeNull();
+      expect(completionPortal!.parentElement).toBe(ownerDocument.body);
+      expect(searchPanelRoot).not.toBeNull();
+      expect(searchPanelRoot!.contains(completionTooltip)).toBe(false);
+      const completionRect = completionTooltip.getBoundingClientRect();
+      expect(completionRect.left).toBeGreaterThanOrEqual(0);
+      expect(completionRect.top).toBeGreaterThanOrEqual(0);
+      expect(completionRect.right).toBeLessThanOrEqual(
+        ownerDocument.documentElement.clientWidth,
+      );
+      expect(completionRect.bottom).toBeLessThanOrEqual(
+        ownerDocument.documentElement.clientHeight,
+      );
+      const completionOption = completionTooltip.querySelector<HTMLElement>(
+        "li[role='option']",
+      );
+      expect(completionOption).not.toBeNull();
+      const optionRect = completionOption!.getBoundingClientRect();
+      const hit = ownerDocument.elementFromPoint(
+        optionRect.left + optionRect.width / 2,
+        optionRect.top + optionRect.height / 2,
+      );
+      expect(completionOption!.contains(hit)).toBe(true);
+      await userEvent.keyboard("{Escape}");
+      await waitFor(() => {
+        expect(
+          ownerDocument.body.querySelector(".cm-tooltip-autocomplete"),
+        ).toBeNull();
+      });
       await userEvent.type(searchbox, "Welcome");
 
       await waitFor(() => {

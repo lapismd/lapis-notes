@@ -56,6 +56,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-046 | Search MUST instrument query duration, requested and applied retrieval mode, result count, checkpoint outcome, refresh reason, aggregate reconciliation counts, provider-failure count, cancellation, and failure through the App telemetry contract. Telemetry MUST NOT include the query term, path prefix value, filenames, snippets, documents, provider payloads, or error messages, and matching warm checkpoints MUST produce no reconciliation span. |
 | LN-SRCH-047 | AppDatabase path-only Search MUST preserve the structured-query grammar, retrieval mode, ranking, provider, path-prefix, and limit semantics of document Search while returning only ordered vault-relative paths. Graph Filters and Groups MAY consume this operation for membership without importing Search package internals or transferring document bodies and snippets. |
 | LN-SRCH-048 | Search tag filters MUST accept `/` after a normal word start, retain leading `/.../` regex syntax, and use quoted phrases for values containing spaces. API-owned dynamic-value formatting and Search autocomplete MUST insert parser-safe tag, path, and filename values while keeping their labels human-readable. A completed predicate facet MUST render the entire accepted value inside its chip. |
+| LN-SRCH-049 | Search completion popups MUST portal into their owner document outside workspace clipping, remain above adjacent panels, and keep every visible option hit-testable. |
 
 ## Runtime flow
 
