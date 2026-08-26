@@ -164,7 +164,7 @@ function placementStory(
           .getByText("Idea inbox", { exact: true })
           .closest(".metadata-property-pill-link"),
       ).not.toBeNull();
-      const tagsInput = tags.getByRole("combobox", { name: "tags value" });
+      let tagsInput = tags.getByRole("combobox", { name: "tags value" });
       await userEvent.click(tagsInput);
       await userEvent.type(tagsInput, "ide");
       await waitFor(() => {
@@ -175,6 +175,17 @@ function placementStory(
         ).toBeVisible();
       });
       await userEvent.keyboard("{Escape}");
+      const longTag =
+        "topic/financial-planning-and-long-term-investing-with-custom-scenarios-and-review-notes";
+      tagsInput = tags.getByRole("combobox", { name: "tags value" });
+      await userEvent.type(tagsInput, longTag);
+      await expect(tagsInput).toHaveValue(longTag);
+      await userEvent.keyboard("{Enter}");
+      const longTagLabel = tags.getByText(longTag, { exact: true });
+      const longTagPill = longTagLabel.closest<HTMLElement>(
+        ".metadata-property-pill-chip",
+      );
+      expect(longTagPill).not.toBeNull();
       const aliasPill = aliases
         .getByText("Lapis Home", { exact: true })
         .closest<HTMLElement>(".metadata-property-pill-chip");
@@ -217,14 +228,15 @@ function placementStory(
       }
 
       const page = within(canvasElement.ownerDocument.body);
-      const ownersInput = owners.getByRole("combobox", {
+      let ownersInput = owners.getByRole("combobox", {
         name: "owners value",
       });
       await userEvent.click(ownersInput);
       await userEvent.type(ownersInput, "Mar");
-      const ownerOption = await page.findByRole("option", {
+      let ownerOption = await page.findByRole("option", {
         name: "Margaret Hamilton",
       });
+      await expect(ownerOption).toHaveAttribute("aria-selected", "false");
       const ownerSuggestions = ownerOption.closest<HTMLElement>(
         ".mira-property-value-suggestions",
       );
@@ -238,6 +250,33 @@ function placementStory(
       expect(
         ownerOptionHit === ownerOption || ownerOption.contains(ownerOptionHit),
       ).toBe(true);
+      await userEvent.keyboard("{Enter}");
+      await expect(owners.getByText("Mar", { exact: true })).toBeVisible();
+
+      const longOwner =
+        "International Collaboration and Research Coordination Working Group";
+      ownersInput = owners.getByRole("combobox", { name: "owners value" });
+      await userEvent.type(ownersInput, longOwner);
+      await expect(ownersInput).toHaveValue(longOwner);
+      await userEvent.keyboard("{Enter}");
+      const longOwnerLabel = owners.getByText(longOwner, { exact: true });
+      const longOwnerPill = longOwnerLabel.closest<HTMLElement>(
+        ".metadata-property-pill-chip",
+      );
+      expect(longOwnerPill).not.toBeNull();
+
+      for (const label of [longTagLabel, longOwnerLabel]) {
+        const style = getComputedStyle(label);
+        expect(style.whiteSpace).toBe("normal");
+        expect(style.overflowWrap).toBe("anywhere");
+        expect(style.textOverflow).toBe("clip");
+      }
+
+      ownersInput = owners.getByRole("combobox", { name: "owners value" });
+      await userEvent.type(ownersInput, "Mar");
+      ownerOption = await page.findByRole("option", {
+        name: "Margaret Hamilton",
+      });
       await userEvent.click(ownerOption);
       await expect(
         owners.getByText("Margaret Hamilton", { exact: true }),
@@ -369,6 +408,23 @@ function placementStory(
               (keyBounds?.bottom ?? 0) - 1,
             );
             expect(Math.abs(valueStart - labelTextStart)).toBeLessThan(1);
+            const ownersValue = ownersRow?.querySelector<HTMLElement>(
+              ".metadata-property-value",
+            );
+            for (const [pill, valueContainer] of [
+              [longTagPill, tagsValue],
+              [longOwnerPill, ownersValue],
+            ] as const) {
+              const pillBounds = pill?.getBoundingClientRect();
+              const valueContainerBounds =
+                valueContainer?.getBoundingClientRect();
+              expect(pillBounds?.right ?? 0).toBeLessThanOrEqual(
+                (valueContainerBounds?.right ?? 0) + 1,
+              );
+              expect(
+                (pill?.scrollWidth ?? 0) - (pill?.clientWidth ?? 0),
+              ).toBeLessThanOrEqual(1);
+            }
             const scrollViewport =
               alignment.panelElement.querySelector<HTMLElement>(
                 '.markdown-sidebar-panel__scroll [data-ui-part="scroll-area-viewport"]',
@@ -400,6 +456,7 @@ function placementStory(
       const plannedOption = await page.findByRole("option", {
         name: "planned",
       });
+      await expect(plannedOption).toHaveAttribute("aria-selected", "false");
       const statusRow = status.closest<HTMLElement>(".metadata-property");
       const statusSuggestions = plannedOption.closest<HTMLElement>(
         ".mira-property-value-suggestions",
@@ -415,7 +472,15 @@ function placementStory(
       expect(
         plannedHit === plannedOption || plannedOption.contains(plannedHit),
       ).toBe(true);
-      await userEvent.click(plannedOption);
+      await userEvent.keyboard("{Enter}");
+      status = panel.getByRole("combobox", { name: "status value" });
+      await expect(status).toHaveTextContent("pla");
+
+      await userEvent.clear(status);
+      await userEvent.type(status, "pla");
+      await userEvent.click(
+        await page.findByRole("option", { name: "planned" }),
+      );
       status = panel.getByRole("combobox", { name: "status value" });
       await expect(status).toHaveTextContent("planned");
       if (layout === "middle-top-tabs") {
