@@ -164,6 +164,13 @@ function placementStory(
           .getByText("Idea inbox", { exact: true })
           .closest(".metadata-property-pill-link"),
       ).not.toBeNull();
+      const linkedAlias = aliases.getByRole("button", {
+        name: "Idea inbox",
+      });
+      const linkedAliasBounds = linkedAlias.getBoundingClientRect();
+      expect(linkedAliasBounds.width).toBeGreaterThan(
+        linkedAliasBounds.height * 2.5,
+      );
       let tagsInput = tags.getByRole("combobox", { name: "tags value" });
       await userEvent.click(tagsInput);
       await userEvent.type(tagsInput, "ide");
@@ -178,6 +185,7 @@ function placementStory(
       const longTag =
         "topic/financial-planning-and-long-term-investing-with-custom-scenarios-and-review-notes";
       tagsInput = tags.getByRole("combobox", { name: "tags value" });
+      await userEvent.clear(tagsInput);
       await userEvent.type(tagsInput, longTag);
       await expect(tagsInput).toHaveValue(longTag);
       await userEvent.keyboard("{Enter}");
@@ -265,11 +273,26 @@ function placementStory(
       );
       expect(longOwnerPill).not.toBeNull();
 
-      for (const label of [longTagLabel, longOwnerLabel]) {
+      expect(getComputedStyle(longTagPill as HTMLElement).borderRadius).toBe(
+        getComputedStyle(longOwnerPill as HTMLElement).borderRadius,
+      );
+
+      for (const [label, pill] of [
+        [longTagLabel, longTagPill],
+        [longOwnerLabel, longOwnerPill],
+      ] as const) {
         const style = getComputedStyle(label);
+        const pillStyle = getComputedStyle(pill as HTMLElement);
+        const pillBounds = (pill as HTMLElement).getBoundingClientRect();
+        const labelBounds = label.getBoundingClientRect();
         expect(style.whiteSpace).toBe("normal");
         expect(style.overflowWrap).toBe("anywhere");
         expect(style.textOverflow).toBe("clip");
+        expect(pillStyle.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+        expect(labelBounds.left).toBeGreaterThan(pillBounds.left);
+        expect(labelBounds.top).toBeGreaterThanOrEqual(pillBounds.top);
+        expect(labelBounds.right).toBeLessThan(pillBounds.right);
+        expect(labelBounds.bottom).toBeLessThanOrEqual(pillBounds.bottom);
       }
 
       ownersInput = owners.getByRole("combobox", { name: "owners value" });
