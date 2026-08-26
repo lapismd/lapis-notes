@@ -125,7 +125,7 @@ export class DenoAgentRuntimeHost {
       return;
     }
     if (command === "desktop_agent_acp_start") {
-      return this.#executor.startAcpSession(
+      return this.#executor.startAcpSessionDeferred(
         this.#sink,
         payload as AcpStartPayload,
       );

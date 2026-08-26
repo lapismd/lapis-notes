@@ -204,6 +204,10 @@ shell search (LN-AI-108).
 The live transport is host-advertised and AI Host-owned. Node and WebSocket
 hosts use the loopback broker plus official-SDK stdio shim; Deno desktop attaches
 the broker's authenticated Streamable HTTP handler to its renderer server.
+Because that handler shares Deno's native event loop, the renderer reserves and
+subscribes to the ACP session before the host begins deferred initialization;
+the native binding returns before the agent connects back to the route
+(LN-AI-172, LN-DENO-055).
 Both carry only generic bridge commands and events and never acquire registry,
 policy, or transcript authority.
 The AI controller allocates the binding identity before runtime start, opens

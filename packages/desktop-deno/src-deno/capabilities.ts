@@ -67,6 +67,7 @@ export function createCapabilityRegistry(
         acp: "acpx/runtime",
         process: "stdio",
         appTools: "http-mcp",
+        deferredStart: true,
       },
     },
     "terminal-runtime": {

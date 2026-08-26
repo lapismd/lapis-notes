@@ -162,4 +162,80 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
     expect(startPayload).not.toHaveProperty("appToolBridgeId");
     await session.close();
   });
+
+  it("subscribes before deferred start and keeps pending lifecycle commands usable", async () => {
+    let emit!: (event: NativeAgentRuntimeEvent) => void;
+    let subscribed = false;
+    const invoke = vi.fn(
+      async (command: string, payload?: Record<string, unknown>) => {
+        if (command === "desktop_agent_acp_start") {
+          expect(subscribed).toBe(true);
+          const sessionId = String(payload?.sessionId ?? "");
+          expect(sessionId).toBeTruthy();
+          emit({
+            sessionId,
+            runId: "session",
+            sequence: 1,
+            event: {
+              type: "event",
+              event: { type: "error", message: "startup failed" },
+            },
+          });
+          return { sessionId };
+        }
+        if (command === "desktop_agent_acp_prompt") {
+          return { runId: "pending-run" };
+        }
+        return null;
+      },
+    );
+    native.bridge = {
+      runtime: "deno-desktop",
+      capabilities: {
+        "agent-runtime": {
+          id: "agent-runtime",
+          status: "available",
+          details: { protocolVersion: 3, deferredStart: true },
+        },
+      },
+      invoke,
+      toFileUrl: (path) => path,
+      onAgentRuntimeEvent(listener) {
+        subscribed = true;
+        emit = listener;
+        return () => {
+          subscribed = false;
+        };
+      },
+    } as NativeDesktopBridge;
+
+    const session = await new DesktopAcpRuntimeBackend().start({
+      request: { prompt: "", agent: "cursor" },
+      onPermissionRequest: async () => ({ outcome: "reject_once" }),
+    });
+    const event = session.events()[Symbol.asyncIterator]().next();
+    await expect(event).resolves.toMatchObject({
+      done: false,
+      value: {
+        type: "error",
+        message: "startup failed",
+        __source: { sessionId: session.id, sequence: 1 },
+      },
+    });
+
+    await session.prompt("hello");
+    await session.cancel();
+    await session.close();
+    expect(invoke).toHaveBeenNthCalledWith(
+      1,
+      "desktop_agent_acp_start",
+      expect.objectContaining({ sessionId: session.id }),
+    );
+    expect(invoke.mock.calls.map(([command]) => command)).toEqual([
+      "desktop_agent_acp_start",
+      "desktop_agent_acp_prompt",
+      "desktop_agent_acp_cancel",
+      "desktop_agent_acp_close",
+    ]);
+  });
 });

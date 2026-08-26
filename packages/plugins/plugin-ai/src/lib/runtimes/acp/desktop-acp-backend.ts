@@ -60,25 +60,14 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
       getNativeDesktopCapability("agent-runtime")?.details?.protocolVersion ??
         2,
     );
-    const { sessionId } = await bridge.invoke<{ sessionId: string }>(
-      "desktop_agent_acp_start",
-      {
-        workspace: request.workspace,
-        agent: request.agent,
-        model: request.model,
-        thinking: request.thinking,
-        metadata: request.metadata,
-        ...(protocolVersion >= 3
-          ? {
-              mcpServers: request.mcpServers,
-              appToolBridgeId: request.appToolSession?.bridgeId,
-            }
-          : { tools: request.mcpServers }),
-        resumeSessionId,
-      },
-    );
+    const deferredStart =
+      getNativeDesktopCapability("agent-runtime")?.details?.deferredStart ===
+      true;
     const events = new AsyncEventQueue<AcpRuntimeEventLike>();
-    const unsubscribe = bridge.onAgentRuntimeEvent?.((event) => {
+    let sessionId = deferredStart
+      ? (resumeSessionId ?? crypto.randomUUID())
+      : "";
+    const onRuntimeEvent = (event: NativeAgentRuntimeEvent) => {
       if (event.sessionId !== sessionId) return;
       const source = {
         sessionId: event.sessionId,
@@ -116,7 +105,41 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
         });
       }
       events.close();
-    });
+    };
+    let unsubscribe = deferredStart
+      ? bridge.onAgentRuntimeEvent?.(onRuntimeEvent)
+      : undefined;
+    try {
+      const started = await bridge.invoke<{ sessionId: string }>(
+        "desktop_agent_acp_start",
+        {
+          ...(deferredStart ? { sessionId } : {}),
+          workspace: request.workspace,
+          agent: request.agent,
+          model: request.model,
+          thinking: request.thinking,
+          metadata: request.metadata,
+          ...(protocolVersion >= 3
+            ? {
+                mcpServers: request.mcpServers,
+                appToolBridgeId: request.appToolSession?.bridgeId,
+              }
+            : { tools: request.mcpServers }),
+          resumeSessionId,
+        },
+      );
+      if (deferredStart && started.sessionId !== sessionId) {
+        throw new Error(
+          "The desktop agent host returned a different reserved session id.",
+        );
+      }
+      sessionId = started.sessionId;
+      unsubscribe ??= bridge.onAgentRuntimeEvent?.(onRuntimeEvent);
+    } catch (error) {
+      unsubscribe?.();
+      events.close();
+      throw error;
+    }
 
     return {
       id: sessionId,
