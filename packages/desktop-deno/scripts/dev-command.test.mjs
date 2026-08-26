@@ -4,8 +4,11 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  createDenoDesktopDevHostBuildArgs,
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
+  isMacosDesktopDevHostCurrent,
+  resolveMacosDesktopDevHost,
   resolveDesktopDevIcon,
   resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
@@ -61,9 +64,9 @@ describe("Deno desktop development command", () => {
   it("keeps native inspection explicit and rejects it during telemetry", () => {
     expect(resolveDenoDesktopInspector(undefined)).toBe(false);
     expect(resolveDenoDesktopInspector("1")).toBe(true);
-    expect(
-      createDenoDesktopDevArgs(undefined, { inspect: true }),
-    ).toContain("--inspect=127.0.0.1:9229");
+    expect(createDenoDesktopDevArgs(undefined, { inspect: true })).toContain(
+      "--inspect=127.0.0.1:9229",
+    );
     expect(() => resolveDenoDesktopInspector("1", true)).toThrow(
       "cannot be combined with desktop telemetry",
     );
@@ -88,6 +91,80 @@ describe("Deno desktop development command", () => {
     expect(createDenoDesktopDevArgs(undefined, { icon: macIcon })).toEqual(
       expect.arrayContaining(["--icon", macIcon]),
     );
+  });
+
+  it("prepares an app-named package-local macOS host bundle", () => {
+    const webview = resolveMacosDesktopDevHost(
+      "/workspace/desktop-deno",
+      "webview",
+    );
+    const cef = resolveMacosDesktopDevHost("/workspace/desktop-deno", "cef");
+
+    expect(webview.bundle).toBe(
+      "/workspace/desktop-deno/release/dev-laufey/webview/build/laufey_webview.app",
+    );
+    expect(
+      webview.executable.endsWith(
+        "/laufey_webview.app/Contents/MacOS/laufey_webview",
+      ),
+    ).toBe(true);
+    expect(
+      cef.bundle.endsWith("/release/dev-laufey/cef/build/Release/laufey.app"),
+    ).toBe(true);
+    expect(cef.executable.endsWith("/laufey.app/Contents/MacOS/laufey")).toBe(
+      true,
+    );
+    expect(
+      createDenoDesktopDevHostBuildArgs({
+        backend: webview.backend,
+        output: webview.bundle,
+        icon: "/workspace/icon.icns",
+      }),
+    ).toEqual([
+      "desktop",
+      "--quiet",
+      "--output",
+      webview.bundle,
+      "--backend",
+      "webview",
+      "--icon",
+      "/workspace/icon.icns",
+      "--no-check",
+      "src-deno/application-info.ts",
+    ]);
+  });
+
+  it("reuses only a matching Deno host identity", () => {
+    const expected = {
+      denoVersion: "deno 2.9.5",
+      backend: "webview",
+      name: "Lapis Notes",
+      identifier: "md.lapis.notes.desktop-deno",
+    };
+    expect(
+      isMacosDesktopDevHostCurrent({
+        expected,
+        marker: { ...expected },
+        executable: true,
+        bundleName: "Lapis Notes",
+      }),
+    ).toBe(true);
+
+    for (const marker of [
+      { ...expected, denoVersion: "deno 2.9.6" },
+      { ...expected, backend: "cef" },
+      { ...expected, name: "Deno" },
+      { ...expected, identifier: "com.deno.desktop" },
+    ]) {
+      expect(
+        isMacosDesktopDevHostCurrent({
+          expected,
+          marker,
+          executable: true,
+          bundleName: "Lapis Notes",
+        }),
+      ).toBe(false);
+    }
   });
 
   it("exposes root and package CEF debug commands", async () => {
@@ -123,10 +200,13 @@ describe("Deno desktop development command", () => {
   });
 
   it("creates local-only native and renderer telemetry environments", () => {
-    const environment = createDesktopTelemetryEnvironment({}, {
-      enabled: true,
-      version: "2026.31.5",
-    });
+    const environment = createDesktopTelemetryEnvironment(
+      {},
+      {
+        enabled: true,
+        version: "2026.31.5",
+      },
+    );
 
     expect(environment).toMatchObject({
       LAPIS_DESKTOP_TELEMETRY: "1",
@@ -159,10 +239,13 @@ describe("Deno desktop development command", () => {
 
   it("leaves normal development untouched and rejects remote exporters", () => {
     expect(
-      createDesktopTelemetryEnvironment({ KEEP: "yes" }, {
-        enabled: false,
-        version: "1.0.0",
-      }),
+      createDesktopTelemetryEnvironment(
+        { KEEP: "yes" },
+        {
+          enabled: false,
+          version: "1.0.0",
+        },
+      ),
     ).toEqual({ KEEP: "yes" });
     expect(() =>
       createDesktopTelemetryEnvironment(
@@ -218,7 +301,9 @@ describe("Deno desktop development command", () => {
     await expect(ensureDesktopDevSiblingLinks(packageRoot)).rejects.toThrow(
       "Missing desktop dev source target",
     );
-    await expect(lstat(path.join(packageRoot, "ai-host"))).rejects.toMatchObject({
+    await expect(
+      lstat(path.join(packageRoot, "ai-host")),
+    ).rejects.toMatchObject({
       code: "ENOENT",
     });
   });

@@ -1,11 +1,16 @@
-import { spawn } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { existsSync } from "node:fs";
+import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import {
+  createDenoDesktopDevHostBuildArgs,
   createDenoDesktopDevArgs,
   ensureDesktopDevSiblingLinks,
+  isMacosDesktopDevHostCurrent,
+  resolveMacosDesktopDevHost,
   resolveDesktopDevIcon,
   resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
@@ -18,8 +23,15 @@ import packageManifest from "../package.json" with { type: "json" };
 
 const homeDeno = path.join(process.env.HOME ?? "", ".deno", "bin", "deno");
 const denoBin = process.env.DENO ?? (existsSync(homeDeno) ? homeDeno : "deno");
+const execFileAsync = promisify(execFile);
 
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const packageRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
+const desktopConfig = JSON.parse(
+  await readFile(path.join(packageRoot, "deno.json"), "utf8"),
+);
 const telemetryEnabled = isDesktopTelemetryRequested(process.argv.slice(2));
 const nativeInspectorEnabled = resolveDenoDesktopInspector(
   process.env.LAPIS_DENO_INSPECT,
@@ -30,6 +42,101 @@ const desktopEnvironment = createDesktopTelemetryEnvironment(process.env, {
   version: packageManifest.version,
 });
 await ensureDesktopDevSiblingLinks(packageRoot);
+
+async function run(command, args) {
+  await new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd: packageRoot,
+      env: process.env,
+      stdio: "inherit",
+    });
+    child.once("error", reject);
+    child.once("exit", (code, signal) => {
+      if (code === 0) resolve();
+      else reject(new Error(`${command} failed (${signal ?? code})`));
+    });
+  });
+}
+
+async function replaceOrInsertPlistString(plist, key, value) {
+  try {
+    await execFileAsync("plutil", ["-replace", key, "-string", value, plist]);
+  } catch {
+    await execFileAsync("plutil", ["-insert", key, "-string", value, plist]);
+  }
+}
+
+async function ensureMacosDesktopDevHost(backend, icon) {
+  if (process.platform !== "darwin") return undefined;
+
+  const layout = resolveMacosDesktopDevHost(packageRoot, backend);
+  const denoVersion = (await execFileAsync(denoBin, ["--version"])).stdout
+    .split("\n", 1)[0]
+    .trim();
+  const expected = {
+    denoVersion,
+    backend: layout.backend,
+    name: desktopConfig.desktop.app.name,
+    identifier: desktopConfig.desktop.app.identifier,
+  };
+
+  try {
+    const marker = JSON.parse(await readFile(layout.marker, "utf8"));
+    const executable = await stat(layout.executable);
+    const { stdout: bundleName } = await execFileAsync("plutil", [
+      "-extract",
+      "CFBundleName",
+      "raw",
+      "-o",
+      "-",
+      layout.plist,
+    ]);
+    if (
+      isMacosDesktopDevHostCurrent({
+        expected,
+        marker,
+        executable: executable.isFile(),
+        bundleName: bundleName.trim(),
+      })
+    ) {
+      return layout.root;
+    }
+  } catch {
+    // Missing or stale generated host; rebuild it below.
+  }
+
+  await rm(layout.bundle, { force: true, recursive: true });
+  await mkdir(path.dirname(layout.bundle), { recursive: true });
+  console.log(`Preparing ${expected.name} macOS ${layout.backend} host…`);
+  await run(
+    denoBin,
+    createDenoDesktopDevHostBuildArgs({
+      backend: layout.backend,
+      output: layout.bundle,
+      icon,
+    }),
+  );
+  await replaceOrInsertPlistString(layout.plist, "CFBundleName", expected.name);
+  await replaceOrInsertPlistString(
+    layout.plist,
+    "CFBundleDisplayName",
+    expected.name,
+  );
+  await replaceOrInsertPlistString(
+    layout.plist,
+    "CFBundleIdentifier",
+    expected.identifier,
+  );
+  await writeFile(layout.marker, `${JSON.stringify(expected, null, 2)}\n`);
+  return layout.root;
+}
+
+const backend = process.env.LAPIS_DENO_BACKEND?.trim();
+const desktopIcon = resolveDesktopDevIcon(packageRoot, process.platform);
+const macosDesktopDevHost = await ensureMacosDesktopDevHost(
+  backend,
+  desktopIcon,
+);
 
 const server = await createServer({
   configFile: path.join(packageRoot, "vite.config.ts"),
@@ -48,7 +155,6 @@ if (telemetryEnabled) {
   );
 }
 
-const backend = process.env.LAPIS_DENO_BACKEND?.trim();
 if (backend === "cef") {
   console.log(
     "Deno desktop backend: cef. Use View → Toggle Developer Tools for the Chromium DevTools window.",
@@ -62,13 +168,14 @@ const deno = spawn(
   denoBin,
   createDenoDesktopDevArgs(backend, {
     inspect: nativeInspectorEnabled,
-    icon: resolveDesktopDevIcon(packageRoot, process.platform),
+    icon: desktopIcon,
   }),
   {
     cwd: packageRoot,
     env: {
       ...desktopEnvironment,
       LAPIS_DESKTOP_DEV_SERVER_URL: address.replace(/\/$/u, ""),
+      ...(macosDesktopDevHost ? { LAUFEY_DEV_DIR: macosDesktopDevHost } : {}),
     },
     stdio: "inherit",
   },

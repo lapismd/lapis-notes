@@ -36,7 +36,9 @@ export function createDenoDesktopDevArgs(backend, options = {}) {
     "dist",
     "--exclude",
     "src",
-    ...(backend === "cef" || backend === "webview" ? ["--backend", backend] : []),
+    ...(backend === "cef" || backend === "webview"
+      ? ["--backend", backend]
+      : []),
     "-A",
     "src-deno/main.ts",
   ];
@@ -47,6 +49,55 @@ export function resolveDesktopDevIcon(packageRoot, platform) {
     packageRoot,
     "build",
     platform === "darwin" ? "icon.icns" : "icon.png",
+  );
+}
+
+export function resolveMacosDesktopDevHost(packageRoot, backend) {
+  const selectedBackend = backend === "cef" ? "cef" : "webview";
+  const root = path.join(packageRoot, "release", "dev-laufey");
+  const bundle =
+    selectedBackend === "cef"
+      ? path.join(root, "cef", "build", "Release", "laufey.app")
+      : path.join(root, "webview", "build", "laufey_webview.app");
+  const executable = path.join(
+    bundle,
+    "Contents",
+    "MacOS",
+    selectedBackend === "cef" ? "laufey" : "laufey_webview",
+  );
+  return {
+    backend: selectedBackend,
+    root,
+    bundle,
+    executable,
+    plist: path.join(bundle, "Contents", "Info.plist"),
+    marker: path.join(root, `${selectedBackend}.json`),
+  };
+}
+
+export function createDenoDesktopDevHostBuildArgs(options) {
+  return [
+    "desktop",
+    "--quiet",
+    "--output",
+    options.output,
+    "--backend",
+    options.backend,
+    "--icon",
+    options.icon,
+    "--no-check",
+    "src-deno/application-info.ts",
+  ];
+}
+
+export function isMacosDesktopDevHostCurrent(options) {
+  return (
+    options.executable === true &&
+    options.bundleName === options.expected.name &&
+    options.marker.denoVersion === options.expected.denoVersion &&
+    options.marker.backend === options.expected.backend &&
+    options.marker.name === options.expected.name &&
+    options.marker.identifier === options.expected.identifier
   );
 }
 

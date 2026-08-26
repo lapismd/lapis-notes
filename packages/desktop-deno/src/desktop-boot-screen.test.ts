@@ -13,7 +13,12 @@ describe("Deno desktop boot screen", () => {
     expect(bootDocument).toContain('src="/src/assets/lapis-logo.svg"');
     expect(bootDocument).toContain('alt="Lapis Notes"');
     expect(bootDocument).toContain('class="lapis-boot-status__text"');
-    expect(bootDocument).toContain("Loading…");
+    expect(bootDocument).toContain("Loading Lapis Notes");
     expect(bootDocument).toContain("color: #6b7280");
+    expect(bootDocument).toContain("flex-direction: column");
+    expect(bootDocument).toContain("align-items: center");
+    expect(
+      bootDocument.indexOf('class="lapis-boot-status__logo"'),
+    ).toBeLessThan(bootDocument.indexOf('class="lapis-boot-status__text"'));
   });
 });
