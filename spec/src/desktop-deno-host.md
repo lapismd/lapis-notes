@@ -57,7 +57,7 @@ distribution is outside the supported matrix.
 | LN-DENO-043 | Native Graph Groups MUST evaluate through the bounded path-only Search bridge, and chronological Animate/Stop MUST remain renderer-local. Group or time-lapse activity MUST NOT transfer query text, paths, tags, filenames, or node labels into native telemetry. System WebView and CEF MUST preserve Group order, colour precedence, force ranges, and time-lapse restoration. |
 | LN-DENO-044 | On macOS, closing the left sidebar MUST apply the ribbon-adjusted native traffic-light inset to the leading top-tabs or stacked-tabs main-pane header through the Design Core window-controls token. Reopening the left sidebar MUST remove that main-pane offset while retaining the sidebar tab-bar inset, and ribbon-off sessions MUST use the full traffic-light inset. |
 | LN-DENO-045 | The close coordinator MUST defer renderer notification out of native close and binding callback stacks. It MUST use a private same-origin signal because post-close script execution and programmatic close, hide, or opacity operations are unreliable on secondary macOS WebViews. The renderer MUST dismiss presentation before shared teardown and retain the structured ready acknowledgement. |
-| LN-DENO-046 | On macOS, the open left-sidebar tab controls MUST share the native traffic-light vertical centreline. The desktop host MUST apply the measured renderer offset without moving native controls, changing Design Core defaults, or using private AppKit APIs. |
+| LN-DENO-046 | On macOS, the native traffic-light buttons MUST share the open left-sidebar tab controls' vertical centreline. The desktop host MUST lower only the three standard window buttons through its platform-isolated native adapter and MUST NOT offset renderer controls or change Design Core geometry. |
 | LN-DENO-047 | The pnpm desktop development launcher MUST supply the tracked Lapis application icon and declared Lapis application identity to `deno desktop`. Packaged icon and identity metadata MUST remain unchanged. |
 | LN-DENO-048 | The native About menu action MUST open one reusable small desktop window containing Design Core's public Lapis About surface. It MUST work before vault readiness, focus an existing About window, and close independently without disposing the main application session. |
 
@@ -82,9 +82,10 @@ Development application identity verifies:
 
 macOS traffic-light alignment verifies:
 
-- The left-sidebar tab list, drag spacer, and close control receive one shared vertical offset.
-- The offset aligns the 40px workspace tab row with the native traffic-light centreline.
-- Browser, CEF, non-macOS, and closed-sidebar main-pane geometry remain unchanged.
+- Close, minimise, and zoom retain their native horizontal positions and move down by the same bounded offset.
+- Repeated application and native relayout do not accumulate movement.
+- The desktop stylesheet contains no vertical transform for the sidebar tab list, drag spacer, or close control.
+- Browser and non-macOS geometry remain unchanged. On macOS, system WebView and CEF windows share only the native button adjustment; their renderer and closed-sidebar main-pane geometry remain unchanged.
 
 ### LN-DENO-044 acceptance details
 

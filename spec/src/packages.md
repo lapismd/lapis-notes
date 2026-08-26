@@ -473,8 +473,9 @@ Its desktop stylesheet maps ribbon-on and ribbon-off macOS traffic-light
 measurements to Design Core's window-controls token. It does not target the
 sidebar reopen button directly; top and stacked main-pane headers consume the
 generic token, while the open left sidebar keeps its dedicated tab-strip inset.
-The same desktop stylesheet owns the macOS-only vertical centreline correction
-for the open left-sidebar header. The package's native host owns a dedicated,
+The package's macOS-only native adapter owns the traffic-light centreline
+correction and leaves the open left-sidebar header layout untouched. The
+package's native host owns a dedicated,
 single-instance About child window that mounts Design Core's public About
 surface from a separate Vite entry without creating application or vault state.
 Its pnpm development launcher passes the checked-in Lapis icon to `deno

@@ -3,7 +3,6 @@
   --lapis-desktop-window-controls-after-ribbon: 0px;
   --lapis-desktop-window-controls-sidebar-left: 0px;
   --lapis-desktop-window-controls-sidebar-after-ribbon: 0px;
-  --lapis-desktop-window-controls-block-offset: 0px;
 
   color-scheme: light dark;
   font-family: var(--ui-workspace-font-sans, ui-sans-serif, system-ui, sans-serif);
@@ -17,7 +16,6 @@
 :root.lapis-desktop--macos {
   --lapis-desktop-window-controls-left: 65px;
   --lapis-desktop-window-controls-sidebar-left: 80px;
-  --lapis-desktop-window-controls-block-offset: -0.375rem;
   --lapis-desktop-window-controls-after-ribbon: max(
     0px,
     calc(
@@ -32,17 +30,6 @@
         var(--ui-workspace-ribbon-width, 3rem)
     )
   );
-}
-
-:root.lapis-desktop--macos
-  [data-workspace-sidebar-side="left"]
-  > [data-ui-part="sidebar-tab-bar"]
-  > :is(
-    [role="tablist"],
-    [data-ui-part="sidebar-tab-spacer"],
-    [data-ui-component="workspace-sidebar-toggle"]
-  ) {
-  transform: translateY(var(--lapis-desktop-window-controls-block-offset));
 }
 
 :root.lapis-desktop--macos

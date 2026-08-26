@@ -383,8 +383,9 @@ The Deno host also supplies native window-control geometry as a public Design
 Core workspace token. Design Core decides which leading main-pane header uses
 that input when the left sidebar is closed; the host retains ribbon and macOS
 traffic-light measurements plus the separate open-sidebar tab-bar inset.
-The macOS host also applies its measured vertical traffic-light centreline to
-the open left-sidebar header without changing shared Design Core geometry. Its
+The macOS host also lowers the three native standard window buttons through a
+platform-isolated adapter so they share the open left-sidebar header's
+centreline; renderer controls and shared Design Core geometry remain untouched. Its
 application menu owns a single reusable native About window, whose dedicated
 renderer composes Design Core's public About surface without creating a vault,
 plugin runtime, or second application session. The pnpm development launcher

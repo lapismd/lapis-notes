@@ -18,6 +18,12 @@ import {
 import { createDesktopCloseSignal } from "./close-signal.ts";
 import { createDesktopLogger } from "./desktop-logging.ts";
 import {
+  createMacosTrafficLightController,
+  createNativeMacosTrafficLightDriver,
+  type MacosTrafficLightController,
+  type MacosTrafficLightDriver,
+} from "./macos-traffic-lights.ts";
+import {
   createNativeDesktopTelemetry,
   writeStructuredRendererLog,
 } from "./native-telemetry.ts";
@@ -94,6 +100,38 @@ if (win !== bootstrap) {
   win.show();
 }
 setOverlayWindowControls(win !== bootstrap && Deno.build.os === "darwin");
+let trafficLightDriver: MacosTrafficLightDriver | undefined;
+let trafficLights: MacosTrafficLightController | undefined;
+let trafficLightFailureReported = false;
+const alignTrafficLights = () => {
+  try {
+    if (!trafficLights) {
+      trafficLightDriver = createNativeMacosTrafficLightDriver();
+      if (!trafficLightDriver) return;
+      trafficLights = createMacosTrafficLightController({
+        platform: Deno.build.os,
+        driver: trafficLightDriver,
+      });
+    }
+    trafficLights.apply();
+  } catch (error) {
+    if (!trafficLightFailureReported) {
+      trafficLightFailureReported = true;
+      desktopLog.warn("[desktop] native traffic-light alignment failed", error);
+    }
+  }
+};
+let trafficLightLayoutTimer: number | undefined;
+const scheduleTrafficLightAlignment = () => {
+  queueMicrotask(alignTrafficLights);
+  if (trafficLightLayoutTimer !== undefined) {
+    clearTimeout(trafficLightLayoutTimer);
+  }
+  trafficLightLayoutTimer = setTimeout(alignTrafficLights, 50);
+};
+win.addEventListener("load", scheduleTrafficLightAlignment);
+win.addEventListener("resize", scheduleTrafficLightAlignment);
+scheduleTrafficLightAlignment();
 const aboutWindow = createDesktopAboutWindowManager({
   createWindow: (options) => new Deno.BrowserWindow(options),
   rendererOrigin,
@@ -124,6 +162,12 @@ const closeCoordinator = createDenoCloseCoordinator({
   async shutdown() {
     desktopLog.info("[desktop-close] shutdown");
     removeCloseRouting();
+    win.removeEventListener("load", scheduleTrafficLightAlignment);
+    win.removeEventListener("resize", scheduleTrafficLightAlignment);
+    if (trafficLightLayoutTimer !== undefined) {
+      clearTimeout(trafficLightLayoutTimer);
+    }
+    trafficLights?.close();
     closeSignal.close();
     fileWatch.shutdown();
     pluginAssets.clear();

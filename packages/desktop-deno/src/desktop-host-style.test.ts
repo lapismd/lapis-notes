@@ -24,12 +24,10 @@ describe("desktop host workspace safe area", () => {
     expect(source).not.toContain('[data-ui-part="left-toggle"]');
   });
 
-  it("aligns every open left-sidebar header control to the traffic lights", () => {
-    expect(source).toContain(
-      "--lapis-desktop-window-controls-block-offset: -0.375rem",
-    );
-    expect(source).toMatch(
-      /\[data-workspace-sidebar-side="left"\][\s\S]+\[role="tablist"\][\s\S]+\[data-ui-part="sidebar-tab-spacer"\][\s\S]+\[data-ui-component="workspace-sidebar-toggle"\][\s\S]+translateY\(var\(--lapis-desktop-window-controls-block-offset\)\)/u,
+  it("leaves the open sidebar header at Design Core's native position", () => {
+    expect(source).not.toContain("window-controls-block-offset");
+    expect(source).not.toMatch(
+      /\[data-workspace-sidebar-side="left"\][\s\S]+translateY/u,
     );
   });
 });
