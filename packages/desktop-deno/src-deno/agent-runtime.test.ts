@@ -72,6 +72,33 @@ describe("Deno agent runtime", () => {
       }),
     ).toThrow("use ACP");
     expect(DENO_AGENT_COMMANDS).toContain("desktop_agent_tools_open");
+    expect(DENO_AGENT_COMMANDS).toContain("desktop_agent_acp_configure");
+  });
+
+  it("forwards provider-neutral ACP configuration to AI Host", async () => {
+    const executor = {
+      configureAcpSession: vi.fn(async () => ({
+        model: { status: "applied" },
+      })),
+      disconnectConnection: vi.fn(),
+      close: vi.fn(async () => {}),
+    };
+    const host = new DenoAgentRuntimeHost(
+      vi.fn(async () => undefined),
+      executor as never,
+    );
+
+    await expect(
+      host.handle("desktop_agent_acp_configure", {
+        sessionId: "session-1",
+        model: { provider: "codex", model: "gpt-next" },
+      }),
+    ).resolves.toEqual({ model: { status: "applied" } });
+    expect(executor.configureAcpSession).toHaveBeenCalledWith({
+      sessionId: "session-1",
+      model: { provider: "codex", model: "gpt-next" },
+      thinking: undefined,
+    });
   });
 
   it("returns a reserved ACP session without awaiting native initialization", () => {

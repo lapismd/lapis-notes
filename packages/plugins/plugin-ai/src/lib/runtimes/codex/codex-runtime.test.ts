@@ -125,6 +125,39 @@ describe("CodexNativeRuntime", () => {
     await session.close();
   });
 
+  it("applies model and thinking changes to the next turn without replacing the thread", async () => {
+    const host = new MemoryProcessHost();
+    const runtime = new CodexNativeRuntime(host);
+    const session = await runtime.start({
+      prompt: "",
+      model: { provider: "codex", model: "first" },
+      thinking: "low",
+    });
+
+    await expect(
+      session.configure?.({
+        model: { provider: "codex", model: "second" },
+        thinking: "high",
+      }),
+    ).resolves.toEqual({
+      model: { status: "applied" },
+      thinking: { status: "applied" },
+    });
+    await session.send("continue");
+
+    const turns = host.handle.writes
+      .map((line) => JSON.parse(line) as { method?: string; params?: unknown })
+      .filter((message) => message.method === "turn/start");
+    expect(session.id).toBe("thread-1");
+    expect(turns).toHaveLength(1);
+    expect(turns[0]?.params).toMatchObject({
+      threadId: "thread-1",
+      model: "second",
+      effort: "high",
+    });
+    await session.close();
+  });
+
   it("maps requestApproval lines into ApprovalRequest and respondToApproval", async () => {
     const host = new MemoryProcessHost();
     const runtime = new CodexNativeRuntime(host);

@@ -176,12 +176,7 @@ export function createAiWorkspaceSeed(
             bindings: [binding("binding-near", "codex", "gpt-5.6-sol")],
             activeBindingId: "binding-near",
             transcript: [
-              message(
-                "near-user",
-                "user",
-                "Stay in Projects",
-                "binding-near",
-              ),
+              message("near-user", "user", "Stay in Projects", "binding-near"),
               message(
                 "near-assistant",
                 "assistant",
@@ -412,11 +407,56 @@ function createConversationScenarioSeed(
       bindings: [
         binding("binding-codex", "codex", "gpt-5.6-sol"),
         ...(scenario === "agent-switching"
-          ? [binding("binding-cursor", "cursor", "composer-2.5")]
+          ? [
+              binding("binding-cursor", "cursor", "composer-2.5"),
+              {
+                schemaVersion: 3,
+                type: "binding.context.updated",
+                id: "context-codex-before-cursor",
+                createdAt: "2026-08-16T09:01:30.000Z",
+                agentBindingId: "binding-codex",
+                throughEntryId: "assistant-1",
+                throughEntryHash: "a".repeat(64),
+                cause: "native-turn",
+              },
+              {
+                schemaVersion: 3,
+                type: "binding.context.updated",
+                id: "context-cursor-before-codex",
+                createdAt: "2026-08-16T09:03:30.000Z",
+                agentBindingId: "binding-cursor",
+                throughEntryId: "assistant-2",
+                throughEntryHash: "b".repeat(64),
+                cause: "handoff",
+                handoffId: "handoff-codex-to-cursor",
+                projectionMode: "full",
+                omittedEntryCount: 0,
+              },
+              {
+                schemaVersion: 3,
+                type: "binding.config.updated",
+                id: "config-codex-model",
+                createdAt: "2026-08-16T09:04:30.000Z",
+                agentBindingId: "binding-codex",
+                model: { provider: "codex", model: "gpt-5.6-terra" },
+              },
+              {
+                schemaVersion: 3,
+                type: "binding.context.updated",
+                id: "context-codex-after-cursor",
+                createdAt: "2026-08-16T09:06:30.000Z",
+                agentBindingId: "binding-codex",
+                throughEntryId: "assistant-3",
+                throughEntryHash: "c".repeat(64),
+                cause: "handoff",
+                handoffId: "handoff-cursor-to-codex",
+                projectionMode: "delta",
+                omittedEntryCount: 0,
+              },
+            ]
           : []),
       ],
-      activeBindingId:
-        scenario === "agent-switching" ? "binding-cursor" : "binding-codex",
+      activeBindingId: "binding-codex",
       transcript:
         scenario === "agent-switching"
           ? [
@@ -428,13 +468,17 @@ function createConversationScenarioSeed(
                 "binding-codex",
               ),
               {
-                schemaVersion: 1,
+                schemaVersion: 3,
                 id: "switch-1",
                 type: "agent.switch",
                 createdAt: "2026-08-16T09:02:00.000Z",
                 agentBindingId: "binding-cursor",
                 fromBindingId: "binding-codex",
                 toBindingId: "binding-cursor",
+                handoffId: "handoff-codex-to-cursor",
+                handoffMode: "full",
+                handoffThroughEntryId: "assistant-1",
+                omittedEntryCount: 0,
               },
               message(
                 "user-2",
@@ -447,6 +491,39 @@ function createConversationScenarioSeed(
                 "assistant",
                 "Cursor continued in the same local conversation.",
                 "binding-cursor",
+              ),
+              {
+                schemaVersion: 3,
+                id: "switch-2",
+                type: "agent.switch",
+                createdAt: "2026-08-16T09:04:00.000Z",
+                agentBindingId: "binding-codex",
+                fromBindingId: "binding-cursor",
+                toBindingId: "binding-codex",
+                handoffId: "handoff-cursor-to-codex",
+                handoffMode: "delta",
+                handoffThroughEntryId: "assistant-2",
+                omittedEntryCount: 0,
+              },
+              {
+                schemaVersion: 3,
+                id: "agent-config-1",
+                type: "agent.config",
+                createdAt: "2026-08-16T09:04:30.000Z",
+                agentBindingId: "binding-codex",
+                model: { provider: "codex", model: "gpt-5.6-terra" },
+              },
+              message(
+                "user-3",
+                "user",
+                "Finish back in Codex",
+                "binding-codex",
+              ),
+              message(
+                "assistant-3",
+                "assistant",
+                "Codex resumed its original binding with the Cursor delta.",
+                "binding-codex",
               ),
             ]
           : [
@@ -535,7 +612,13 @@ function conversationFiles(input: {
   usage?: { used: number; limit: number };
   malformedFinalLine?: boolean;
 }): Record<string, string> {
-  const root = [input.scopeDir ?? "Notes", ".lapis", "agents", "sessions", input.id]
+  const root = [
+    input.scopeDir ?? "Notes",
+    ".lapis",
+    "agents",
+    "sessions",
+    input.id,
+  ]
     .filter(Boolean)
     .join("/");
   const agents = [
@@ -614,7 +697,10 @@ export function isPortableConversationFile(path: string): boolean {
   );
 }
 
-export function createLiveHostReloadConversationFiles(): Record<string, string> {
+export function createLiveHostReloadConversationFiles(): Record<
+  string,
+  string
+> {
   return conversationFiles({
     id: LIVE_HOST_RELOAD_CONVERSATION_ID,
     title: "Reloaded live conversation",

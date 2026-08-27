@@ -7,10 +7,12 @@ import type {
   UserInputQuestion,
 } from "../core/types";
 
-export const CONVERSATION_SCHEMA_VERSION = 2 as const;
+export const CONVERSATION_SCHEMA_VERSION = 3 as const;
+export const PREVIOUS_CONVERSATION_SCHEMA_VERSION = 2 as const;
 export const LEGACY_CONVERSATION_SCHEMA_VERSION = 1 as const;
 export type ConversationSchemaVersion =
   | typeof LEGACY_CONVERSATION_SCHEMA_VERSION
+  | typeof PREVIOUS_CONVERSATION_SCHEMA_VERSION
   | typeof CONVERSATION_SCHEMA_VERSION;
 export const CONVERSATION_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
@@ -70,7 +72,52 @@ export type AgentUsageRecord = {
   usage: AgentUsage;
 };
 
-export type AgentBindingRecord = AgentBindingCreatedRecord | AgentUsageRecord;
+export type HandoffProjectionMode = "full" | "delta" | "summary-tail";
+
+export type AgentBindingContextUpdatedRecord = {
+  schemaVersion: ConversationSchemaVersion;
+  type: "binding.context.updated";
+  id: string;
+  createdAt: string;
+  agentBindingId: string;
+  throughEntryId: string;
+  throughEntryHash: string;
+  cause: "native-turn" | "handoff";
+  handoffId?: string;
+  projectionMode?: HandoffProjectionMode;
+  omittedEntryCount?: number;
+};
+
+export type AgentBindingConfigUpdatedRecord = {
+  schemaVersion: ConversationSchemaVersion;
+  type: "binding.config.updated";
+  id: string;
+  createdAt: string;
+  agentBindingId: string;
+  model?: ModelRef;
+  thinking?: AiThinkingLevel;
+};
+
+export type HandoffSummaryCreatedRecord = {
+  schemaVersion: ConversationSchemaVersion;
+  type: "handoff.summary.created";
+  id: string;
+  createdAt: string;
+  conversationId: string;
+  fromEntryId: string;
+  throughEntryId: string;
+  sourceHash: string;
+  summary: string;
+  processor: { runtime: string; agent?: string; model?: string };
+  estimatedTokens: number;
+};
+
+export type AgentBindingRecord =
+  | AgentBindingCreatedRecord
+  | AgentUsageRecord
+  | AgentBindingContextUpdatedRecord
+  | AgentBindingConfigUpdatedRecord
+  | HandoffSummaryCreatedRecord;
 
 export type RuntimeEventProvenance = {
   sessionId: string;
@@ -148,7 +195,15 @@ export type TranscriptEntry =
       type: "agent.switch";
       fromBindingId?: string;
       toBindingId: string;
+      handoffId?: string;
+      handoffMode?: HandoffProjectionMode;
       handoffThroughEntryId?: string;
+      omittedEntryCount?: number;
+    })
+  | (TranscriptEntryBase & {
+      type: "agent.config";
+      model?: ModelRef;
+      thinking?: AiThinkingLevel;
     })
   | (TranscriptEntryBase & {
       type: "system.notice";

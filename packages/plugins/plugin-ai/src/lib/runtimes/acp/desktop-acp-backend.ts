@@ -6,7 +6,10 @@ import {
   type NativeAgentRuntimeEvent,
 } from "@lapis-notes/api/desktop-native";
 import { AsyncEventQueue } from "../../core/event-queue";
-import type { AgentRequest } from "../../core/types";
+import type {
+  AgentRequest,
+  AgentSessionConfigurationResult,
+} from "../../core/types";
 import type { AcpBackendSession, AcpRuntimeBackend } from "./acp-runtime";
 import type {
   AcpPermissionDecision,
@@ -70,14 +73,13 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
     resumeSessionId?: string,
   ): Promise<AcpBackendSession> {
     const bridge = getRequiredBridge();
-    const protocolVersion = Number(
-      getNativeDesktopCapability("agent-runtime")?.details?.protocolVersion ??
-        2,
-    );
-    const deferredStart =
-      getNativeDesktopCapability("agent-runtime")?.details?.deferredStart ===
-      true;
-    const reconcilesRunStatus = protocolVersion >= 4;
+    const capability = getNativeDesktopCapability("agent-runtime");
+    const protocolVersion = Number(capability?.details?.protocolVersion ?? 2);
+    const supportsSessionConfiguration =
+      protocolVersion >= 5 ||
+      capability?.details?.sessionConfiguration === "configure";
+    const deferredStart = capability?.details?.deferredStart === true;
+    const reconcilesRunStatus = capability?.details?.runStatus === true;
     const events = new AsyncEventQueue<AcpRuntimeEventLike>();
     let sessionId = deferredStart
       ? (resumeSessionId ?? crypto.randomUUID())
@@ -250,6 +252,14 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
       throw error;
     }
 
+    const detach = () => {
+      disposed = true;
+      activeRunId = null;
+      clearStatusTimer();
+      unsubscribe?.();
+      events.close();
+    };
+
     return {
       id: sessionId,
       events: () => events,
@@ -263,18 +273,37 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
         statusFailures = 0;
         scheduleRunStatus(prompted.runId);
       },
+      async configure(input): Promise<AgentSessionConfigurationResult> {
+        if (!supportsSessionConfiguration) {
+          return {
+            ...(input.model
+              ? { model: { status: "unsupported" as const } }
+              : {}),
+            ...(input.thinking
+              ? { thinking: { status: "unsupported" as const } }
+              : {}),
+          };
+        }
+        return bridge.invoke<AgentSessionConfigurationResult>(
+          "desktop_agent_acp_configure",
+          {
+            sessionId,
+            model: input.model,
+            thinking: input.thinking,
+          },
+        );
+      },
       async cancel() {
         activeRunId = null;
         clearStatusTimer();
         await bridge.invoke("desktop_agent_acp_cancel", { sessionId });
       },
+      async detach() {
+        detach();
+      },
       async close() {
-        disposed = true;
-        activeRunId = null;
-        clearStatusTimer();
-        unsubscribe?.();
+        detach();
         await bridge.invoke("desktop_agent_acp_close", { sessionId });
-        events.close();
       },
     };
   }

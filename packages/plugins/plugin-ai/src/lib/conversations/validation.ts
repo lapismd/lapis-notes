@@ -5,6 +5,7 @@ import {
 import {
   CONVERSATION_SCHEMA_VERSION,
   LEGACY_CONVERSATION_SCHEMA_VERSION,
+  PREVIOUS_CONVERSATION_SCHEMA_VERSION,
   type AgentBindingRecord,
   type ConversationMetadata,
   type TranscriptEntry,
@@ -32,10 +33,27 @@ function requiredString(
 function assertSchemaVersion(value: Record<string, unknown>, label: string) {
   if (
     value.schemaVersion !== CONVERSATION_SCHEMA_VERSION &&
+    value.schemaVersion !== PREVIOUS_CONVERSATION_SCHEMA_VERSION &&
     value.schemaVersion !== LEGACY_CONVERSATION_SCHEMA_VERSION
   ) {
     throw new Error(`${label} uses an unsupported required schema version`);
   }
+}
+
+function assertCurrentSchemaVersion(
+  value: Record<string, unknown>,
+  label: string,
+): void {
+  if (value.schemaVersion !== CONVERSATION_SCHEMA_VERSION) {
+    throw new Error(`${label} requires schema version 3`);
+  }
+}
+
+function assertModelRef(value: unknown, label: string): void {
+  if (value == null) return;
+  const model = record(value, label);
+  requiredString(model, "provider", label);
+  requiredString(model, "model", label);
 }
 
 function assertTimestamp(
@@ -168,6 +186,51 @@ export function validateAgentBindingRecord(value: unknown): AgentBindingRecord {
     ) {
       throw new Error("Agent record usage is invalid");
     }
+  } else if (data.type === "binding.context.updated") {
+    assertCurrentSchemaVersion(data, "Agent context record");
+    requiredString(data, "agentBindingId", "Agent record");
+    requiredString(data, "throughEntryId", "Agent record");
+    const hash = requiredString(data, "throughEntryHash", "Agent record");
+    if (!/^[0-9a-f]{64}$/u.test(hash)) {
+      throw new Error("Agent record.throughEntryHash is invalid");
+    }
+    if (data.cause !== "native-turn" && data.cause !== "handoff") {
+      throw new Error("Agent record.cause is invalid");
+    }
+    assertOptionalString(data, "handoffId", "Agent record");
+    assertProjectionMode(data.projectionMode, "Agent record.projectionMode");
+    assertOptionalCount(
+      data.omittedEntryCount,
+      "Agent record.omittedEntryCount",
+    );
+  } else if (data.type === "binding.config.updated") {
+    assertCurrentSchemaVersion(data, "Agent configuration record");
+    requiredString(data, "agentBindingId", "Agent record");
+    assertModelRef(data.model, "Agent record.model");
+    assertThinking(data.thinking, "Agent record.thinking");
+    if (data.model == null && data.thinking == null) {
+      throw new Error("Agent configuration record must change a field");
+    }
+  } else if (data.type === "handoff.summary.created") {
+    assertCurrentSchemaVersion(data, "Handoff summary record");
+    requiredString(data, "conversationId", "Agent record");
+    requiredString(data, "fromEntryId", "Agent record");
+    requiredString(data, "throughEntryId", "Agent record");
+    const hash = requiredString(data, "sourceHash", "Agent record");
+    if (!/^[0-9a-f]{64}$/u.test(hash)) {
+      throw new Error("Agent record.sourceHash is invalid");
+    }
+    requiredString(data, "summary", "Agent record");
+    const processor = record(data.processor, "Agent record processor");
+    requiredString(processor, "runtime", "Agent record processor");
+    requiredString(processor, "agent", "Agent record processor");
+    requiredString(processor, "model", "Agent record processor");
+    if (
+      !Number.isSafeInteger(data.estimatedTokens) ||
+      Number(data.estimatedTokens) <= 0
+    ) {
+      throw new Error("Agent record.estimatedTokens is invalid");
+    }
   } else {
     throw new Error("Agent record type is unsupported");
   }
@@ -188,6 +251,7 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
     "question.request",
     "question.response",
     "agent.switch",
+    "agent.config",
     "system.notice",
     "cancelled",
     "error",
@@ -206,10 +270,7 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
     }
   }
   if (data.provenance != null) {
-    const provenance = record(
-      data.provenance,
-      "Transcript entry provenance",
-    );
+    const provenance = record(data.provenance, "Transcript entry provenance");
     if (
       !["owner", "agent", "untrusted", "system"].includes(
         String(provenance.originClass),
@@ -293,6 +354,28 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
       break;
     case "agent.switch":
       requiredString(data, "toBindingId", "Transcript agent switch");
+      assertOptionalString(data, "handoffId", "Transcript agent switch");
+      assertOptionalString(
+        data,
+        "handoffThroughEntryId",
+        "Transcript agent switch",
+      );
+      assertProjectionMode(
+        data.handoffMode,
+        "Transcript agent switch handoffMode",
+      );
+      assertOptionalCount(
+        data.omittedEntryCount,
+        "Transcript agent switch omittedEntryCount",
+      );
+      break;
+    case "agent.config":
+      assertCurrentSchemaVersion(data, "Transcript agent config");
+      assertModelRef(data.model, "Transcript agent config model");
+      assertThinking(data.thinking, "Transcript agent config thinking");
+      if (data.model == null && data.thinking == null) {
+        throw new Error("Transcript agent config must change a field");
+      }
       break;
     case "system.notice":
       requiredString(data, "text", "Transcript system notice");
@@ -353,4 +436,33 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
       break;
   }
   return data as TranscriptEntry;
+}
+
+function assertProjectionMode(value: unknown, label: string): void {
+  if (
+    value != null &&
+    value !== "full" &&
+    value !== "delta" &&
+    value !== "summary-tail"
+  ) {
+    throw new Error(`${label} is invalid`);
+  }
+}
+
+function assertOptionalCount(value: unknown, label: string): void {
+  if (value != null && (!Number.isSafeInteger(value) || Number(value) < 0)) {
+    throw new Error(`${label} is invalid`);
+  }
+}
+
+function assertThinking(value: unknown, label: string): void {
+  if (
+    value != null &&
+    value !== "off" &&
+    value !== "low" &&
+    value !== "medium" &&
+    value !== "high"
+  ) {
+    throw new Error(`${label} is invalid`);
+  }
 }

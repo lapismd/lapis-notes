@@ -90,6 +90,7 @@
   } from "../commands/groups";
   import type { AppToolHost } from "../tools/app-tool-host";
   import type { AutomaticMemoryRecall } from "../memory/types";
+  import type { HandoffSummaryCoordinator } from "../conversations/handoff-summary";
 
   let {
     app,
@@ -105,6 +106,7 @@
     slashRouter,
     appToolHost,
     memoryRecall,
+    handoffSummaries,
     skillContext,
     sessionStore,
     sessionId,
@@ -136,6 +138,7 @@
     slashRouter?: SlashCommandRouter;
     appToolHost?: AppToolHost;
     memoryRecall?: AutomaticMemoryRecall;
+    handoffSummaries?: Pick<HandoffSummaryCoordinator, "afterTerminal">;
     skillContext?: () => SkillDiscoveryContext;
     sessionStore?: AgentSessionStore;
     sessionId?: string;
@@ -194,6 +197,7 @@
         slashRouter,
         appToolHost,
         memoryRecall: settings?.memoryAutomaticRecall ? memoryRecall : undefined,
+        handoffSummaries,
         skillContext,
         readVaultText: app
           ? async (path) => {

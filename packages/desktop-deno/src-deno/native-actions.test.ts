@@ -58,10 +58,11 @@ describe("Deno native desktop actions", () => {
     expect(
       createCapabilityRegistry("darwin")["agent-runtime"].details,
     ).toMatchObject({
-      protocolVersion: 4,
+      protocolVersion: 5,
       deferredStart: true,
       deferredModels: true,
       runStatus: true,
+      sessionConfiguration: "configure",
     });
   });
 

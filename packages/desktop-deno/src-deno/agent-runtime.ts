@@ -28,6 +28,7 @@ export const DENO_AGENT_COMMANDS = new Set([
   "desktop_agent_acp_start",
   "desktop_agent_acp_models",
   "desktop_agent_acp_prompt",
+  "desktop_agent_acp_configure",
   "desktop_agent_acp_status",
   "desktop_agent_acp_cancel",
   "desktop_agent_acp_close",
@@ -201,6 +202,21 @@ export class DenoAgentRuntimeHost {
         events: [],
       });
       return result;
+    }
+    if (command === "desktop_agent_acp_configure") {
+      return this.#executor.configureAcpSession({
+        sessionId: String(payload.sessionId ?? ""),
+        model:
+          payload.model && typeof payload.model === "object"
+            ? (payload.model as { provider?: string; model?: string })
+            : undefined,
+        thinking: payload.thinking as
+          | "off"
+          | "low"
+          | "medium"
+          | "high"
+          | undefined,
+      });
     }
     if (command === "desktop_agent_acp_status") {
       const sessionId = String(payload.sessionId ?? "");

@@ -3,6 +3,7 @@ import {
   projectChatItemsToTranscript,
   projectTranscriptToChatItems,
 } from "./transcript-projection";
+import { CONVERSATION_SCHEMA_VERSION } from "./types";
 
 describe("conversation transcript projection", () => {
   it("persists stable visible content while excluding raw and streaming thinking", () => {
@@ -64,7 +65,7 @@ describe("conversation transcript projection", () => {
       },
     });
     expect(entries[0]).toMatchObject({
-      schemaVersion: 2,
+      schemaVersion: CONVERSATION_SCHEMA_VERSION,
       provenance: {
         originClass: "owner",
         sourceKind: "user-message",

@@ -28,6 +28,10 @@ const FIELD_IDS = {
   memoryConsolidationRuntime: "ai.memoryConsolidationRuntime",
   memoryConsolidationAgent: "ai.memoryConsolidationAgent",
   memoryConsolidationModel: "ai.memoryConsolidationModel",
+  handoffSummariesEnabled: "ai.handoffSummariesEnabled",
+  handoffSummaryRuntime: "ai.handoffSummaryRuntime",
+  handoffSummaryAgent: "ai.handoffSummaryAgent",
+  handoffSummaryModel: "ai.handoffSummaryModel",
   appToolsEnabled: "ai.appToolsEnabled",
   appTools: "ai.appTools",
 } as const;
@@ -190,8 +194,7 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
         id: FIELD_IDS.memoryConsolidationRuntime,
         type: "enum" as const,
         title: "Memory processor runtime",
-        description:
-          "Pinned independently from the interactive chat runtime.",
+        description: "Pinned independently from the interactive chat runtime.",
         default: DEFAULT_AI_SETTINGS.memoryConsolidationRuntime,
         options: [
           { value: "acp", label: "ACP" },
@@ -216,6 +219,44 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
         description:
           "Exact model used only for restricted background consolidation.",
         default: DEFAULT_AI_SETTINGS.memoryConsolidationModel,
+      },
+      {
+        id: FIELD_IDS.handoffSummariesEnabled,
+        type: "boolean" as const,
+        title: "Background handoff summaries",
+        description:
+          "Prepare verified summaries after long turns for future cross-agent switches. This never runs during a switch and may consume provider quota.",
+        default: DEFAULT_AI_SETTINGS.handoffSummariesEnabled,
+      },
+      {
+        id: FIELD_IDS.handoffSummaryRuntime,
+        type: "enum" as const,
+        title: "Handoff summary runtime",
+        description: "Pinned independently from the interactive chat runtime.",
+        default: DEFAULT_AI_SETTINGS.handoffSummaryRuntime,
+        options: [
+          { value: "acp", label: "ACP" },
+          { value: "codex-native", label: "Codex native" },
+        ],
+      },
+      {
+        id: FIELD_IDS.handoffSummaryAgent,
+        type: "enum" as const,
+        title: "Handoff summary agent",
+        description: "Pinned independently from the interactive chat agent.",
+        default: DEFAULT_AI_SETTINGS.handoffSummaryAgent,
+        options: ACP_AGENT_IDS.map((value) => ({
+          value,
+          label: value === "cursor" ? "Cursor" : "Codex",
+        })),
+      },
+      {
+        id: FIELD_IDS.handoffSummaryModel,
+        type: "string" as const,
+        title: "Handoff summary model",
+        description:
+          "Exact model used only for restricted background summaries.",
+        default: DEFAULT_AI_SETTINGS.handoffSummaryModel,
       },
       {
         id: FIELD_IDS.appToolsEnabled,
@@ -271,6 +312,22 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   controller.settings.update(
     FIELD_IDS.memoryConsolidationModel,
     settings.memoryConsolidationModel,
+  );
+  controller.settings.update(
+    FIELD_IDS.handoffSummariesEnabled,
+    settings.handoffSummariesEnabled,
+  );
+  controller.settings.update(
+    FIELD_IDS.handoffSummaryRuntime,
+    settings.handoffSummaryRuntime,
+  );
+  controller.settings.update(
+    FIELD_IDS.handoffSummaryAgent,
+    settings.handoffSummaryAgent,
+  );
+  controller.settings.update(
+    FIELD_IDS.handoffSummaryModel,
+    settings.handoffSummaryModel,
   );
   controller.settings.update(
     FIELD_IDS.appToolsEnabled,
@@ -332,8 +389,7 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
     }
     if (event.id === FIELD_IDS.memoryAutomaticRecall) {
       void plugin.updateSettings({
-        memoryAutomaticRecall:
-          values[FIELD_IDS.memoryAutomaticRecall] === true,
+        memoryAutomaticRecall: values[FIELD_IDS.memoryAutomaticRecall] === true,
       });
       return;
     }
@@ -365,6 +421,38 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
       void plugin.updateSettings({
         memoryConsolidationModel: String(
           values[FIELD_IDS.memoryConsolidationModel] ?? "",
+        ),
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.handoffSummariesEnabled) {
+      void plugin.updateSettings({
+        handoffSummariesEnabled:
+          values[FIELD_IDS.handoffSummariesEnabled] === true,
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.handoffSummaryRuntime) {
+      void plugin.updateSettings({
+        handoffSummaryRuntime:
+          values[FIELD_IDS.handoffSummaryRuntime] === "codex-native"
+            ? "codex-native"
+            : "acp",
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.handoffSummaryAgent) {
+      void plugin.updateSettings({
+        handoffSummaryAgent: normalizeAcpAgent(
+          values[FIELD_IDS.handoffSummaryAgent],
+        ),
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.handoffSummaryModel) {
+      void plugin.updateSettings({
+        handoffSummaryModel: String(
+          values[FIELD_IDS.handoffSummaryModel] ?? "",
         ),
       });
       return;

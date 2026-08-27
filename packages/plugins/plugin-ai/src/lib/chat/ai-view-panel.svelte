@@ -68,6 +68,7 @@
   slashRouter={host.slashRouter}
   appToolHost={host.appToolHost}
   memoryRecall={host.memory}
+  handoffSummaries={host.handoffSummaries}
   skillContext={host.skillContext}
   workspace={host.workspace}
   repository={host.conversations}

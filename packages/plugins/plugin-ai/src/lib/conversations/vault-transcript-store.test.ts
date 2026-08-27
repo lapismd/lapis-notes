@@ -135,7 +135,7 @@ describe("VaultTranscriptStore", () => {
     )!;
     await vault.modify(
       metadata,
-      `schemaVersion: 3\nid: ${ID}\ncreatedAt: ${CREATED_AT}\nupdatedAt: ${CREATED_AT}\nstatus: active\n`,
+      `schemaVersion: 4\nid: ${ID}\ncreatedAt: ${CREATED_AT}\nupdatedAt: ${CREATED_AT}\nstatus: active\n`,
     );
 
     await expect(repository.read(first)).rejects.toThrow(/unsupported/u);
@@ -188,8 +188,16 @@ describe("VaultTranscriptStore", () => {
 
   it("discovers all scoped sources without ancestor resolution", async () => {
     const { repository } = await createHarness();
-    await repository.create({ id: ID, scopeDir: "Projects/Atlas", now: CREATED_AT });
-    await repository.create({ id: ID, scopeDir: "Archive/Atlas", now: CREATED_AT });
+    await repository.create({
+      id: ID,
+      scopeDir: "Projects/Atlas",
+      now: CREATED_AT,
+    });
+    await repository.create({
+      id: ID,
+      scopeDir: "Archive/Atlas",
+      now: CREATED_AT,
+    });
 
     await expect(repository.listAll()).resolves.toEqual(
       expect.arrayContaining([

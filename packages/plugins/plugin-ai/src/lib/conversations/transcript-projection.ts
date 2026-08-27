@@ -412,6 +412,7 @@ export function projectTranscriptToChatItems(
         });
         break;
       case "agent.switch":
+      case "agent.config":
         break;
       case "cancelled": {
         if (entry.interactionType === "approval" && entry.requestId) {

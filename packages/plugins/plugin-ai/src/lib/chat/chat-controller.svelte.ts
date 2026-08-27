@@ -1,4 +1,5 @@
 import type {
+  AgentContextBlock,
   AgentEvent,
   AgentRequest,
   AgentRuntime,
@@ -24,6 +25,13 @@ import {
   type ConversationContextHandoff,
 } from "../conversations/context-handoff";
 import {
+  effectiveAgentBinding,
+  reduceAgentBindings,
+  type EffectiveAgentBinding,
+} from "../conversations/binding-state";
+import { transcriptEntryHash } from "../conversations/hashes";
+import type { HandoffSummaryCoordinator } from "../conversations/handoff-summary";
+import {
   projectChatItemsToTranscript,
   projectTranscriptToChatItems,
 } from "../conversations/transcript-projection";
@@ -37,6 +45,7 @@ import {
   CONVERSATION_SCHEMA_VERSION,
   ConversationUnavailableError,
   type AgentBindingCreatedRecord,
+  type AgentBindingConfigUpdatedRecord,
   type ConversationApprovalGrant,
   type ConversationLocation,
   type ConversationMetadata,
@@ -107,8 +116,9 @@ export class AiChatController {
   #sessionRequest: Omit<AgentRequest, "prompt">;
   #createdAt?: string;
   #persistQueue: Promise<void> = Promise.resolve();
+  #terminalCheckpoint: Promise<void> = Promise.resolve();
   #activeBindingId?: string;
-  #activeBinding?: AgentBindingCreatedRecord;
+  #activeBinding?: EffectiveAgentBinding;
   #usageDirty = false;
   readonly #sessionContexts = new Map<
     AgentSession,
@@ -116,6 +126,14 @@ export class AiChatController {
       location: ConversationLocation | null;
       pendingBinding?: AgentBindingCreatedRecord;
       pendingSwitch?: TranscriptEntry;
+      pendingActivationBindingId?: string;
+      pendingConfiguration?: {
+        previous: EffectiveAgentBinding;
+        updated: EffectiveAgentBinding;
+        agentRecord: AgentBindingConfigUpdatedRecord;
+        transcriptEntry: Extract<TranscriptEntry, { type: "agent.config" }>;
+      };
+      handoff?: ConversationContextHandoff;
       pendingItems: AiChatItem[];
     }
   >();
@@ -135,12 +153,17 @@ export class AiChatController {
   readonly #skillContext?: () => SkillDiscoveryContext;
   readonly #readVaultText?: (path: string) => Promise<string | undefined>;
   readonly #memoryRecall?: AutomaticMemoryRecall;
+  readonly #handoffSummaries?: Pick<HandoffSummaryCoordinator, "afterTerminal">;
   readonly #onComposerDefaults?: (next: {
     agent: AcpAgentId;
     runtimePreference: "acp" | "codex-native" | "fake";
   }) => void;
   #refreshSkills = false;
   #activeRecallAbort?: AbortController;
+  readonly #pendingHandoffs = new WeakMap<
+    AgentSession,
+    ConversationContextHandoff
+  >();
   #approvalGrants: ConversationApprovalGrant[] = [];
   #followedScope?: string;
   #desiredFollowScope?: string;
@@ -168,6 +191,7 @@ export class AiChatController {
       skillContext?: () => SkillDiscoveryContext;
       readVaultText?: (path: string) => Promise<string | undefined>;
       memoryRecall?: AutomaticMemoryRecall;
+      handoffSummaries?: Pick<HandoffSummaryCoordinator, "afterTerminal">;
       onComposerDefaults?: (next: {
         agent: AcpAgentId;
         runtimePreference: "acp" | "codex-native" | "fake";
@@ -196,6 +220,7 @@ export class AiChatController {
     this.#skillContext = options.skillContext;
     this.#readVaultText = options.readVaultText;
     this.#memoryRecall = options.memoryRecall;
+    this.#handoffSummaries = options.handoffSummaries;
     this.#onComposerDefaults = options.onComposerDefaults;
     this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe(
       (event) => {
@@ -453,10 +478,9 @@ export class AiChatController {
     this.directoryContext = snapshot.location.scopeDir;
     this.#loadApprovalGrants(snapshot.metadata);
     this.items = projectTranscriptToChatItems(snapshot.transcript);
-    const activeBinding = snapshot.agents.find(
-      (record): record is AgentBindingCreatedRecord =>
-        record.type === "binding.created" &&
-        record.id === snapshot.metadata.activeAgentBindingId,
+    const activeBinding = effectiveAgentBinding(
+      snapshot.agents,
+      snapshot.metadata.activeAgentBindingId,
     );
     this.#activeBinding = activeBinding;
     this.#activeBindingId = activeBinding?.id;
@@ -466,10 +490,7 @@ export class AiChatController {
         snapshot.location.scopeDir,
       );
     }
-    this.bindings = snapshot.agents.filter(
-      (record): record is AgentBindingCreatedRecord =>
-        record.type === "binding.created",
-    );
+    this.bindings = reduceAgentBindings(snapshot.agents);
     const latestUsage = [...snapshot.agents]
       .reverse()
       .find(
@@ -492,6 +513,7 @@ export class AiChatController {
     };
     if (
       !activeBinding.nativeSessionId ||
+      !activeBinding.context ||
       !this.runtime.capabilities().resume ||
       !this.runtime.resume
     ) {
@@ -585,6 +607,10 @@ export class AiChatController {
         ...(attachments.length > 0 ? { attachments } : {}),
       },
     };
+    const previousRuntime = this.runtime;
+    const previousBinding = this.#activeBinding;
+    const previousBindingId = this.#activeBindingId;
+    const previousSessionRequest = this.#sessionRequest;
     try {
       if (this.repository) await this.#ensureConversation();
       if (this.#isAbandoned(turnId)) return;
@@ -617,7 +643,7 @@ export class AiChatController {
       const recallAbort = new AbortController();
       this.#activeRecallAbort?.abort();
       this.#activeRecallAbort = recallAbort;
-      const contextBlocks = await this.#memoryRecall
+      const recalledBlocks = await this.#memoryRecall
         ?.recall(
           text,
           {
@@ -633,14 +659,43 @@ export class AiChatController {
         this.#activeRecallAbort = undefined;
       }
       if (this.#isAbandoned(turnId)) return;
+      const handoff = this.#pendingHandoffs.get(this.session);
+      const contextBlocks: AgentContextBlock[] = [
+        ...(handoff ? [handoff.block] : []),
+        ...(recalledBlocks ?? []),
+      ];
       await this.session.send(text, {
-        contextBlocks: contextBlocks ?? [],
+        contextBlocks,
       });
+      if (handoff) this.#pendingHandoffs.delete(this.session);
       if (!this.repository) await this.#persist();
     } catch (error) {
       if (this.#isAbandoned(turnId)) return;
       const failedSession = this.session;
       const failedBindingId = this.#activeBindingId;
+      const failedContext = failedSession
+        ? this.#sessionContexts.get(failedSession)
+        : undefined;
+      if (
+        failedContext?.pendingBinding ||
+        failedContext?.pendingSwitch ||
+        failedContext?.pendingConfiguration
+      ) {
+        this.runtime = previousRuntime;
+        this.#activeBinding = previousBinding;
+        this.#activeBindingId = previousBindingId;
+        this.#sessionRequest = previousSessionRequest;
+        this.bindings = this.bindings.filter(
+          (binding) => binding.id !== failedContext.pendingBinding?.id,
+        );
+        if (failedContext.pendingConfiguration) {
+          this.bindings = this.bindings.map((binding) =>
+            binding.id === failedContext.pendingConfiguration?.previous.id
+              ? failedContext.pendingConfiguration.previous
+              : binding,
+          );
+        }
+      }
       this.error = error instanceof Error ? error.message : String(error);
       this.items = applyAgentEventToChatItems(this.items, {
         type: "error",
@@ -843,6 +898,7 @@ export class AiChatController {
         !latestUsage &&
         !context.pendingBinding &&
         !context.pendingSwitch &&
+        !context.pendingConfiguration &&
         context.pendingItems.length === 0
       ) {
         return;
@@ -854,9 +910,23 @@ export class AiChatController {
             context.pendingBinding,
           ]);
         }
-        if (context.pendingSwitch) {
+        if (context.pendingActivationBindingId) {
+          await this.repository.activateBinding(
+            context.location,
+            context.pendingActivationBindingId,
+            context.pendingSwitch,
+          );
+        } else if (context.pendingSwitch) {
           await this.repository.appendTranscript(context.location, [
             context.pendingSwitch,
+          ]);
+        }
+        if (context.pendingConfiguration) {
+          await this.repository.appendAgentRecords(context.location, [
+            context.pendingConfiguration.agentRecord,
+          ]);
+          await this.repository.appendTranscript(context.location, [
+            context.pendingConfiguration.transcriptEntry,
           ]);
         }
         await this.#appendDurableItems(
@@ -874,14 +944,46 @@ export class AiChatController {
             latestUsage,
           );
         }
+        if (agentBindingId) {
+          const checkpoint = await this.repository.read(context.location);
+          const through = checkpoint.transcript.at(-1);
+          if (through) {
+            await this.repository.appendAgentRecords(context.location, [
+              {
+                schemaVersion: CONVERSATION_SCHEMA_VERSION,
+                id: `context-${crypto.randomUUID()}`,
+                type: "binding.context.updated",
+                createdAt: new Date().toISOString(),
+                agentBindingId,
+                throughEntryId: through.id,
+                throughEntryHash: await transcriptEntryHash(through),
+                cause: context.handoff ? "handoff" : "native-turn",
+                handoffId: context.handoff?.handoffId,
+                projectionMode: context.handoff?.mode,
+                omittedEntryCount: context.handoff?.omittedEntryCount,
+              },
+            ]);
+          }
+        }
+        void this.#handoffSummaries
+          ?.afterTerminal(context.location)
+          .catch(() => undefined);
       } else {
         await this.#persist(false, agentBindingId);
       }
       context.pendingBinding = undefined;
       context.pendingSwitch = undefined;
+      context.pendingActivationBindingId = undefined;
+      context.pendingConfiguration = undefined;
+      context.handoff = undefined;
       context.pendingItems = [];
       traceItems = [];
       latestUsage = null;
+    };
+    const checkpointTrace = (): Promise<void> => {
+      const checkpoint = persistCompletedTrace();
+      this.#terminalCheckpoint = checkpoint.catch(() => undefined);
+      return checkpoint;
     };
     try {
       for await (const event of session.events()) {
@@ -947,7 +1049,7 @@ export class AiChatController {
           this.busy = false;
         }
         if (event.type === "completed" || event.type === "error") {
-          await persistCompletedTrace();
+          await checkpointTrace();
         }
         if (event.type === "error") {
           await session.close().catch(() => undefined);
@@ -969,12 +1071,12 @@ export class AiChatController {
         this.busy = false;
         this.session = null;
       }
-      await persistCompletedTrace();
+      await checkpointTrace();
       await session.close().catch(() => undefined);
       await this.#closeAppToolBinding(agentBindingId);
     } finally {
       if (this.session === session) this.busy = false;
-      await persistCompletedTrace();
+      await checkpointTrace();
       this.#sessionContexts.delete(session);
     }
   }
@@ -1702,7 +1804,10 @@ export class AiChatController {
           agentBindingId: binding.id,
           fromBindingId: previousBindingId,
           toBindingId: binding.id,
+          handoffId: handoff?.handoffId,
+          handoffMode: handoff?.mode,
           handoffThroughEntryId: handoff?.throughEntryId,
+          omittedEntryCount: handoff?.omittedEntryCount,
         }
       : undefined;
     this.#activeBinding = binding;
@@ -1748,6 +1853,12 @@ export class AiChatController {
     }
   }
 
+  async #detachSession(session: AgentSession | null): Promise<void> {
+    if (!session) return;
+    if (session.detach) await session.detach().catch(() => undefined);
+    else await session.close().catch(() => undefined);
+  }
+
   async #consumeAppToolEvent({
     bindingId,
     event,
@@ -1782,24 +1893,115 @@ export class AiChatController {
     }
   }
 
-  #bindingMatchesRequest(
+  #bindingMatchesIdentity(
     binding: AgentBindingCreatedRecord,
     request: Omit<AgentRequest, "prompt">,
     runtime = this.runtime,
   ): boolean {
+    return binding.runtime === runtime.id && binding.agent === request.agent;
+  }
+
+  #bindingMatchesConfiguration(
+    binding: AgentBindingCreatedRecord,
+    request: Omit<AgentRequest, "prompt">,
+  ): boolean {
     return (
-      binding.runtime === runtime.id &&
-      binding.agent === request.agent &&
       binding.model?.provider === request.model?.provider &&
       binding.model?.model === request.model?.model &&
       binding.thinking === request.thinking
     );
   }
 
+  async #configureBinding(
+    session: AgentSession,
+    binding: EffectiveAgentBinding,
+    request: Omit<AgentRequest, "prompt">,
+  ): Promise<
+    | {
+        binding: EffectiveAgentBinding;
+        pendingConfiguration?: {
+          previous: EffectiveAgentBinding;
+          updated: EffectiveAgentBinding;
+          agentRecord: AgentBindingConfigUpdatedRecord;
+          transcriptEntry: Extract<TranscriptEntry, { type: "agent.config" }>;
+        };
+      }
+    | undefined
+  > {
+    const modelChanged =
+      binding.model?.provider !== request.model?.provider ||
+      binding.model?.model !== request.model?.model;
+    const thinkingChanged = binding.thinking !== request.thinking;
+    if (!modelChanged && !thinkingChanged) return { binding };
+    if (!session.configure) return undefined;
+    try {
+      const result = await session.configure({
+        ...(modelChanged ? { model: request.model } : {}),
+        ...(thinkingChanged ? { thinking: request.thinking } : {}),
+      });
+      if (
+        (modelChanged &&
+          result.model?.status !== "applied" &&
+          result.model?.status !== "unchanged") ||
+        (thinkingChanged &&
+          result.thinking?.status !== "applied" &&
+          result.thinking?.status !== "unchanged")
+      ) {
+        return undefined;
+      }
+    } catch {
+      return undefined;
+    }
+
+    const updated: EffectiveAgentBinding = {
+      ...binding,
+      ...(modelChanged
+        ? { model: request.model ? { ...request.model } : undefined }
+        : {}),
+      ...(thinkingChanged ? { thinking: request.thinking } : {}),
+    };
+    const createdAt = new Date().toISOString();
+    return {
+      binding: updated,
+      pendingConfiguration: {
+        previous: binding,
+        updated,
+        agentRecord: {
+          schemaVersion: CONVERSATION_SCHEMA_VERSION,
+          id: `config-${crypto.randomUUID()}`,
+          type: "binding.config.updated",
+          createdAt,
+          agentBindingId: binding.id,
+          ...(modelChanged && request.model
+            ? { model: { ...request.model } }
+            : {}),
+          ...(thinkingChanged && request.thinking
+            ? { thinking: request.thinking }
+            : {}),
+        },
+        transcriptEntry: {
+          schemaVersion: CONVERSATION_SCHEMA_VERSION,
+          id: `agent-config-${crypto.randomUUID()}`,
+          type: "agent.config",
+          createdAt,
+          agentBindingId: binding.id,
+          ...(modelChanged && request.model
+            ? { model: { ...request.model } }
+            : {}),
+          ...(thinkingChanged && request.thinking
+            ? { thinking: request.thinking }
+            : {}),
+        },
+      },
+    };
+  }
+
   async #prepareSession(
     request: Omit<AgentRequest, "prompt">,
     turnId?: number,
   ): Promise<void> {
+    if (this.#isAbandoned(turnId)) return;
+    await this.#terminalCheckpoint;
     if (this.#isAbandoned(turnId)) return;
     const targetRuntime = this.#selectRuntime
       ? await this.#selectRuntime({
@@ -1809,96 +2011,186 @@ export class AiChatController {
         })
       : this.runtime;
     if (this.#isAbandoned(turnId)) return;
+
+    const refreshRequiresReplacement =
+      this.#refreshSkills ||
+      Boolean(request.skillActivations && request.skillActivations.length > 0);
+    let activeConfigurationFailed = false;
     if (
       this.session &&
       this.#activeBinding &&
-      !this.#refreshSkills &&
-      !(request.skillActivations && request.skillActivations.length > 0) &&
-      this.#bindingMatchesRequest(this.#activeBinding, request, targetRuntime)
+      !refreshRequiresReplacement &&
+      this.#bindingMatchesIdentity(this.#activeBinding, request, targetRuntime)
     ) {
-      await this.#prepareSkillSnapshot(
-        this.#activeBinding.id,
-        this.location?.scopeDir ?? this.#discoveryContext().scopeDir,
+      const configured = await this.#configureBinding(
+        this.session,
+        this.#activeBinding,
+        request,
       );
-      return;
+      if (configured) {
+        this.bindings = this.bindings.map((binding) =>
+          binding.id === configured.binding.id ? configured.binding : binding,
+        );
+        this.#activeBinding = configured.binding;
+        if (configured.pendingConfiguration) {
+          const context = this.#sessionContexts.get(this.session) ?? {
+            location: this.location ? { ...this.location } : null,
+            pendingItems: [],
+          };
+          context.pendingConfiguration = configured.pendingConfiguration;
+          this.#sessionContexts.set(this.session, context);
+        }
+        await this.#prepareSkillSnapshot(
+          configured.binding.id,
+          this.location?.scopeDir ?? this.#discoveryContext().scopeDir,
+        );
+        this.#sessionRequest = request;
+        return;
+      }
+      activeConfigurationFailed = true;
     }
 
+    const previousSession = this.session;
     const previousBindingId = this.#activeBindingId;
-    await this.#closeAppToolBinding(previousBindingId);
-    if (this.session) {
-      await this.session.close().catch(() => undefined);
-      this.session = null;
-    }
     this.#sessionRequest = request;
-
-    let exactBinding: AgentBindingCreatedRecord | undefined;
-    let handoff: ConversationContextHandoff | undefined;
     let snapshot:
       | Awaited<ReturnType<ConversationRepository["read"]>>
       | undefined;
+    let compatibleBinding: EffectiveAgentBinding | undefined;
+    let failedCompatibleBindingId: string | undefined;
     if (this.repository && this.location) {
       snapshot = await this.repository.read(this.location);
-      exactBinding = snapshot.agents.find(
-        (record): record is AgentBindingCreatedRecord =>
-          record.type === "binding.created" &&
-          record.id === previousBindingId &&
-          this.#bindingMatchesRequest(record, request, targetRuntime),
-      );
-      if (
-        !this.#refreshSkills &&
-        exactBinding?.nativeSessionId &&
-        targetRuntime.capabilities().resume &&
-        targetRuntime.resume
-      ) {
+      compatibleBinding = [...reduceAgentBindings(snapshot.agents)]
+        .reverse()
+        .find(
+          (binding) =>
+            this.#bindingMatchesIdentity(binding, request, targetRuntime) &&
+            binding.id !==
+              (activeConfigurationFailed ? previousBindingId : undefined) &&
+            Boolean(binding.context) &&
+            Boolean(binding.nativeSessionId),
+        );
+    }
+
+    if (
+      !refreshRequiresReplacement &&
+      compatibleBinding?.nativeSessionId &&
+      compatibleBinding.context &&
+      snapshot &&
+      targetRuntime.capabilities().resume &&
+      targetRuntime.resume
+    ) {
+      let resumed: AgentSession | undefined;
+      try {
+        const handoff = await buildConversationContextHandoff(
+          snapshot.transcript,
+          {
+            conversationId: snapshot.metadata.id,
+            targetBindingId: compatibleBinding.id,
+            after: {
+              entryId: compatibleBinding.context.throughEntryId,
+              entryHash: compatibleBinding.context.throughEntryHash,
+            },
+            bindings: reduceAgentBindings(snapshot.agents),
+            summaries: snapshot.agents.filter(
+              (record) => record.type === "handoff.summary.created",
+            ),
+          },
+        );
         const appToolSession = await this.#prepareAppToolSession(
-          exactBinding.id,
+          compatibleBinding.id,
           targetRuntime,
           snapshot.location,
           snapshot.metadata.launchContext?.notePath,
         );
-        try {
-          const skillSnapshot = await this.#prepareSkillSnapshot(
-            exactBinding.id,
-            snapshot.location.scopeDir,
-          );
-          const resumed = await targetRuntime.resume(
-            exactBinding.nativeSessionId,
-            { ...request, appToolSession, skillSnapshot },
-          );
-          if (previousBindingId !== exactBinding.id) {
-            const createdAt = new Date().toISOString();
-            await this.repository.activateBinding(
-              this.location,
-              exactBinding.id,
-              {
+        const skillSnapshot = await this.#prepareSkillSnapshot(
+          compatibleBinding.id,
+          snapshot.location.scopeDir,
+        );
+        resumed = await targetRuntime.resume(
+          compatibleBinding.nativeSessionId,
+          {
+            ...request,
+            appToolSession,
+            skillSnapshot,
+          },
+        );
+        const configured = await this.#configureBinding(
+          resumed,
+          compatibleBinding,
+          request,
+        );
+        if (!configured)
+          throw new Error("Session configuration is unsupported.");
+        if (this.#isAbandoned(turnId)) {
+          await resumed.close().catch(() => undefined);
+          await this.#closeAppToolBinding(compatibleBinding.id);
+          return;
+        }
+        if (previousBindingId && previousBindingId !== compatibleBinding.id) {
+          await this.#closeAppToolBinding(previousBindingId);
+          await this.#detachSession(previousSession);
+        }
+        const switchRecord: TranscriptEntry | undefined =
+          previousBindingId !== compatibleBinding.id
+            ? {
                 schemaVersion: CONVERSATION_SCHEMA_VERSION,
                 id: `switch-${crypto.randomUUID()}`,
                 type: "agent.switch",
-                createdAt,
-                agentBindingId: exactBinding.id,
+                createdAt: new Date().toISOString(),
+                agentBindingId: compatibleBinding.id,
                 fromBindingId: previousBindingId,
-                toBindingId: exactBinding.id,
-              },
-            );
-          }
-          this.runtime = targetRuntime;
-          this.session = resumed;
-          this.#activeBinding = exactBinding;
-          this.#activeBindingId = exactBinding.id;
-          void this.#consume(resumed, exactBinding.id);
-          return;
-        } catch {
-          await this.#closeAppToolBinding(exactBinding.id);
-          // Native state is disposable. A replacement binding is prepared
-          // below from deterministic local handoff context.
-        }
-      }
-      if (this.#activeBindingId) {
-        handoff = buildConversationContextHandoff(snapshot.transcript);
+                toBindingId: compatibleBinding.id,
+                handoffId: handoff?.handoffId,
+                handoffMode: handoff?.mode,
+                handoffThroughEntryId: handoff?.throughEntryId,
+                omittedEntryCount: handoff?.omittedEntryCount,
+              }
+            : undefined;
+        this.runtime = targetRuntime;
+        this.session = resumed;
+        this.#activeBinding = configured.binding;
+        this.#activeBindingId = configured.binding.id;
+        this.bindings = this.bindings.map((binding) =>
+          binding.id === configured.binding.id ? configured.binding : binding,
+        );
+        if (handoff) this.#pendingHandoffs.set(resumed, handoff);
+        this.#sessionContexts.set(resumed, {
+          location: { ...snapshot.location },
+          ...(switchRecord
+            ? {
+                pendingSwitch: switchRecord,
+                pendingActivationBindingId: configured.binding.id,
+              }
+            : {}),
+          ...(configured.pendingConfiguration
+            ? { pendingConfiguration: configured.pendingConfiguration }
+            : {}),
+          ...(handoff ? { handoff } : {}),
+          pendingItems: [],
+        });
+        void this.#consume(resumed, configured.binding.id);
+        return;
+      } catch {
+        await resumed?.close().catch(() => undefined);
+        await this.#closeAppToolBinding(compatibleBinding.id);
+        failedCompatibleBindingId = compatibleBinding.id;
+        compatibleBinding = undefined;
       }
     }
 
     const bindingId = `binding-${crypto.randomUUID()}`;
+    const handoff =
+      snapshot && previousBindingId
+        ? await buildConversationContextHandoff(snapshot.transcript, {
+            conversationId: snapshot.metadata.id,
+            targetBindingId: bindingId,
+            bindings: reduceAgentBindings(snapshot.agents),
+            summaries: snapshot.agents.filter(
+              (record) => record.type === "handoff.summary.created",
+            ),
+          })
+        : undefined;
     const skillSnapshot = await this.#prepareSkillSnapshot(
       bindingId,
       snapshot?.location.scopeDir ?? this.location?.scopeDir ?? "",
@@ -1917,14 +2209,6 @@ export class AiChatController {
       skillSnapshot,
       metadata: {
         ...request.metadata,
-        ...(handoff
-          ? {
-              contextHandoff: {
-                text: handoff.text,
-                throughEntryId: handoff.throughEntryId,
-              },
-            }
-          : {}),
         ...(skillSnapshot
           ? {
               availableSkillsManifest:
@@ -1969,20 +2253,26 @@ export class AiChatController {
       await this.#closeAppToolBinding(bindingId);
       return;
     }
+    if (previousBindingId) {
+      await this.#closeAppToolBinding(previousBindingId);
+      await this.#detachSession(previousSession);
+    }
     const { binding, switchRecord } = this.#activateNewBinding(
       bindingId,
       started,
       request,
       targetRuntime,
       handoff,
-      exactBinding?.id ?? this.#activeBindingId,
+      failedCompatibleBindingId ?? compatibleBinding?.id ?? previousBindingId,
     );
+    if (handoff) this.#pendingHandoffs.set(started, handoff);
     this.#sessionContexts.set(started, {
       location: this.location ? { ...this.location } : null,
       ...(this.repository ? { pendingBinding: binding } : {}),
       ...(this.repository && switchRecord
         ? { pendingSwitch: switchRecord }
         : {}),
+      ...(handoff ? { handoff } : {}),
       pendingItems: [],
     });
     this.runtime = targetRuntime;

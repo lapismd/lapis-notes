@@ -66,7 +66,7 @@ export type AgentRequest = {
   requirePolicyAmendments?: boolean;
 };
 
-export type AgentContextBlock = {
+export type MemoryRecallContextBlock = {
   kind: "memory-recall";
   id: string;
   content: string;
@@ -76,6 +76,25 @@ export type AgentContextBlock = {
     scope: "user" | "workspace" | "project";
   };
 };
+
+export type ConversationHandoffContextBlock = {
+  kind: "conversation-handoff";
+  id: string;
+  content: string;
+  metadata: {
+    conversationId: string;
+    targetBindingId: string;
+    sourceFromEntryId?: string;
+    throughEntryId: string;
+    throughEntryHash: string;
+    projectionMode: "full" | "delta" | "summary-tail";
+    omittedEntryCount: number;
+  };
+};
+
+export type AgentContextBlock =
+  | MemoryRecallContextBlock
+  | ConversationHandoffContextBlock;
 
 export type AgentTurnOptions = {
   contextBlocks?: AgentContextBlock[];
@@ -206,22 +225,44 @@ export interface AgentSession {
   readonly id: string;
   events(): AsyncIterable<AgentEvent>;
   send(input: string, options?: AgentTurnOptions): Promise<void>;
+  configure?(
+    input: AgentSessionConfiguration,
+  ): Promise<AgentSessionConfigurationResult>;
   respondToApproval(requestId: string, optionId: string): Promise<void>;
   respondToQuestion?(
     requestId: string,
     answers: UserInputAnswers,
   ): Promise<void>;
   cancel?(): Promise<void>;
+  detach?(): Promise<void>;
   steer?(instruction: string): Promise<void>;
   close(): Promise<void>;
 }
+
+export type AgentSessionConfiguration = {
+  model?: ModelRef;
+  thinking?: AiThinkingLevel;
+};
+
+export type AgentSessionConfigurationFieldResult = {
+  status: "applied" | "unchanged" | "unsupported";
+  reason?: string;
+};
+
+export type AgentSessionConfigurationResult = {
+  model?: AgentSessionConfigurationFieldResult;
+  thinking?: AgentSessionConfigurationFieldResult;
+};
 
 export function projectAgentTurnPrompt(
   input: string,
   contextBlocks: readonly AgentContextBlock[] | undefined,
 ): string {
   if (!contextBlocks?.length) return input;
-  const blocks = contextBlocks.map((block) =>
+  const ordered = [...contextBlocks].sort(
+    (left, right) => contextBlockOrder(left) - contextBlockOrder(right),
+  );
+  const blocks = ordered.map((block) =>
     [
       `<lapis-context kind="${block.kind}" id="${escapeContextAttribute(block.id)}">`,
       block.content,
@@ -235,6 +276,10 @@ export function projectAgentTurnPrompt(
     input,
     "</lapis-user-prompt>",
   ].join("\n\n");
+}
+
+function contextBlockOrder(block: AgentContextBlock): number {
+  return block.kind === "conversation-handoff" ? 0 : 1;
 }
 
 function escapeContextAttribute(value: string): string {

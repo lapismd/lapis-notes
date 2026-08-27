@@ -72,6 +72,10 @@ import { createMemoryAppTools } from "./memory/memory-tools";
 import { VaultMemoryRecordStore } from "./memory/memory-record-store";
 import { MemoryMaintenanceScheduler } from "./memory/memory-scheduler";
 import { RuntimeMemoryConsolidationProvider } from "./memory/runtime-consolidation-provider";
+import {
+  HandoffSummaryCoordinator,
+  RuntimeHandoffSummaryProvider,
+} from "./conversations/handoff-summary";
 import { confirmForgetDerivedMemory } from "./memory/forget-confirmation";
 import { conversationMemoryScope } from "./memory/paths";
 import { SkillRegistry, SkillSnapshotStore } from "./skills/registry";
@@ -130,6 +134,8 @@ export class AiPlugin extends Plugin {
   readonly conversationIndexCoordinator: ConversationIndexCoordinator;
   readonly memory: NativeMemoryService;
   readonly memoryConsolidationProvider: RuntimeMemoryConsolidationProvider;
+  readonly handoffSummaryProvider: RuntimeHandoffSummaryProvider;
+  readonly handoffSummaries: HandoffSummaryCoordinator;
   readonly memoryIngestionCoordinator: MemoryIngestionCoordinator;
   readonly memoryScheduler: MemoryMaintenanceScheduler;
 
@@ -175,9 +181,7 @@ export class AiPlugin extends Plugin {
       this.skillRegistry,
     );
     this.register(() => {
-      void this.appToolBridge
-        .close()
-        .finally(() => this.appToolHost.close());
+      void this.appToolBridge.close().finally(() => this.appToolHost.close());
     });
     this.processHost = createAgentProcessHost();
     const workspace = this.workspace;
@@ -189,41 +193,72 @@ export class AiPlugin extends Plugin {
       this.fakeRuntime,
       ...createHostAgentRuntimes(),
     ]);
-    this.memoryConsolidationProvider =
-      new RuntimeMemoryConsolidationProvider({
-        configuration: () => {
-          const settings = this.getSettings();
-          return {
-            runtimeId: settings.memoryConsolidationRuntime,
-            agent: settings.memoryConsolidationAgent,
-            model: settings.memoryConsolidationModel,
-          };
-        },
-        resolveRuntime: async (request) => {
-          const runtimeId = request.metadata?.runtime;
-          const runtime =
-            typeof runtimeId === "string"
-              ? this.registry.get(runtimeId)
-              : undefined;
-          if (!runtime || !(await runtime.supports(request))) {
-            throw new Error(
-              `Pinned memory runtime ${String(runtimeId)} is unavailable.`,
-            );
-          }
-          return runtime;
-        },
-      });
-    this.memory = new NativeMemoryService(
-      this.conversations,
-      app.appDatabase,
-      {
-        recordStore: new VaultMemoryRecordStore(app.vault),
-        consolidationProvider: () =>
-          this.getSettings().memoryConsolidationEnabled
-            ? this.memoryConsolidationProvider
-            : undefined,
+    this.memoryConsolidationProvider = new RuntimeMemoryConsolidationProvider({
+      configuration: () => {
+        const settings = this.getSettings();
+        return {
+          runtimeId: settings.memoryConsolidationRuntime,
+          agent: settings.memoryConsolidationAgent,
+          model: settings.memoryConsolidationModel,
+        };
       },
+      resolveRuntime: async (request) => {
+        const runtimeId = request.metadata?.runtime;
+        const runtime =
+          typeof runtimeId === "string"
+            ? this.registry.get(runtimeId)
+            : undefined;
+        if (!runtime || !(await runtime.supports(request))) {
+          throw new Error(
+            `Pinned memory runtime ${String(runtimeId)} is unavailable.`,
+          );
+        }
+        return runtime;
+      },
+    });
+    this.handoffSummaryProvider = new RuntimeHandoffSummaryProvider({
+      configuration: () => {
+        const settings = this.getSettings();
+        return {
+          runtime: settings.handoffSummaryRuntime,
+          agent: settings.handoffSummaryAgent,
+          model: settings.handoffSummaryModel,
+        };
+      },
+      resolveRuntime: async (request) => {
+        const runtimeId = request.metadata?.runtime;
+        const runtime =
+          typeof runtimeId === "string"
+            ? this.registry.get(runtimeId)
+            : undefined;
+        if (!runtime || !(await runtime.supports(request))) {
+          throw new Error(
+            `Pinned handoff-summary runtime ${String(runtimeId)} is unavailable.`,
+          );
+        }
+        return runtime;
+      },
+    });
+    this.handoffSummaries = new HandoffSummaryCoordinator(
+      this.conversations,
+      this.handoffSummaryProvider,
+      () => {
+        const settings = this.getSettings();
+        return {
+          runtime: settings.handoffSummaryRuntime,
+          agent: settings.handoffSummaryAgent,
+          model: settings.handoffSummaryModel,
+        };
+      },
+      () => this.getSettings().handoffSummariesEnabled,
     );
+    this.memory = new NativeMemoryService(this.conversations, app.appDatabase, {
+      recordStore: new VaultMemoryRecordStore(app.vault),
+      consolidationProvider: () =>
+        this.getSettings().memoryConsolidationEnabled
+          ? this.memoryConsolidationProvider
+          : undefined,
+    });
     this.memoryIngestionCoordinator = new MemoryIngestionCoordinator(
       this.conversations,
       this.memory,
@@ -254,9 +289,10 @@ export class AiPlugin extends Plugin {
     const scopeDir = this.createConversationInput().scopeDir;
     return {
       scopeDir,
-      availableToolNames: this.app.agentTools.list().map((item) => item.tool.name),
-      enabledPluginIds:
-        this.app.plugins?.enabledPlugins ?? [this.manifest.id],
+      availableToolNames: this.app.agentTools
+        .list()
+        .map((item) => item.tool.name),
+      enabledPluginIds: this.app.plugins?.enabledPlugins ?? [this.manifest.id],
     };
   };
 
@@ -429,10 +465,7 @@ export class AiPlugin extends Plugin {
       fake: this.fakeRuntime,
       request: {
         ...request,
-        mcpServers: [
-          ...(request.mcpServers ?? []),
-          ...this.mcpServers.list(),
-        ],
+        mcpServers: [...(request.mcpServers ?? []), ...this.mcpServers.list()],
       },
     });
   }
@@ -529,7 +562,9 @@ export class AiPlugin extends Plugin {
       }
     };
     if (this.userAgents?.subscribe) {
-      this.register(this.userAgents.subscribe(() => void this.refreshFileCommands()));
+      this.register(
+        this.userAgents.subscribe(() => void this.refreshFileCommands()),
+      );
     }
     this.addCommand({
       id: "update-bundled-skills",
@@ -680,21 +715,15 @@ export class AiPlugin extends Plugin {
     this.registerEvent(
       this.app.vault.on("create", scheduleConversationIndexUpdate),
     );
-    this.registerEvent(
-      this.app.vault.on("create", scheduleMemoryIngestion),
-    );
+    this.registerEvent(this.app.vault.on("create", scheduleMemoryIngestion));
     this.registerEvent(
       this.app.vault.on("modify", scheduleConversationIndexUpdate),
     );
-    this.registerEvent(
-      this.app.vault.on("modify", scheduleMemoryIngestion),
-    );
+    this.registerEvent(this.app.vault.on("modify", scheduleMemoryIngestion));
     this.registerEvent(
       this.app.vault.on("delete", scheduleConversationIndexUpdate),
     );
-    this.registerEvent(
-      this.app.vault.on("delete", scheduleMemoryIngestion),
-    );
+    this.registerEvent(this.app.vault.on("delete", scheduleMemoryIngestion));
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
         invalidateAgents(file, oldPath);
@@ -716,18 +745,23 @@ export class AiPlugin extends Plugin {
     this.register(() => this.memoryScheduler.dispose());
     this.memoryIngestionCoordinator.startCatchUp();
     this.memoryScheduler.start();
-    this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
-      side: "right",
-      title: "AI",
-      icon: "sparkles",
-    }, {
-      kind: "command",
-      command: {
-        id: "open-chat",
-        name: "Open Chat",
-        callback: () => void this.openAiChat(),
+    this.registerSidebarView(
+      AiViewType,
+      (leaf) => new AiView(leaf, this),
+      {
+        side: "right",
+        title: "AI",
+        icon: "sparkles",
       },
-    });
+      {
+        kind: "command",
+        command: {
+          id: "open-chat",
+          name: "Open Chat",
+          callback: () => void this.openAiChat(),
+        },
+      },
+    );
     this.addRibbonIcon("sparkles", "Open Chat", () => {
       void this.openAiChat();
     });

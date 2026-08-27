@@ -6,6 +6,8 @@ import {
   type AgentRequest,
   type AgentRuntime,
   type AgentSession,
+  type AgentSessionConfiguration,
+  type AgentSessionConfigurationResult,
   type AgentTurnOptions,
   projectAgentTurnPrompt,
 } from "../../core/types";
@@ -24,7 +26,11 @@ export type AcpBackendSession = {
   id: string;
   events(): AsyncIterable<AcpRuntimeEventLike>;
   prompt(text: string): Promise<void>;
+  configure?(
+    input: AgentSessionConfiguration,
+  ): Promise<AgentSessionConfigurationResult>;
   cancel(): Promise<void>;
+  detach?(): Promise<void>;
   close(): Promise<void>;
 };
 
@@ -79,6 +85,32 @@ export class AcpAgentSession implements AgentSession {
     await this.#backend.prompt(projected);
   }
 
+  configure(
+    input: AgentSessionConfiguration,
+  ): Promise<AgentSessionConfigurationResult> {
+    if (!this.#backend.configure) {
+      return Promise.resolve({
+        ...(input.model
+          ? {
+              model: {
+                status: "unsupported" as const,
+                reason: "ACP backend configuration is unavailable.",
+              },
+            }
+          : {}),
+        ...(input.thinking
+          ? {
+              thinking: {
+                status: "unsupported" as const,
+                reason: "ACP backend configuration is unavailable.",
+              },
+            }
+          : {}),
+      });
+    }
+    return this.#backend.configure(input);
+  }
+
   async respondToApproval(requestId: string, optionId: string): Promise<void> {
     const pending = this.#pending.get(requestId);
     if (!pending) throw new Error(`Unknown approval request: ${requestId}`);
@@ -88,6 +120,17 @@ export class AcpAgentSession implements AgentSession {
 
   async cancel(): Promise<void> {
     await this.#backend.cancel();
+  }
+
+  async detach(): Promise<void> {
+    for (const [id, pending] of this.#pending) {
+      this.#pending.delete(id);
+      pending.reject(new Error("Session detached."));
+    }
+    if (this.#backend.detach) await this.#backend.detach();
+    else await this.#backend.close();
+    await this.#consume;
+    this.#events.close();
   }
 
   async close(): Promise<void> {

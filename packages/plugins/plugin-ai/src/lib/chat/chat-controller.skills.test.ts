@@ -1,8 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import {
-  AppToolRegistry,
-  type AppTool,
-} from "@lapis-notes/api/agent-tools";
+import { AppToolRegistry, type AppTool } from "@lapis-notes/api/agent-tools";
 import { FakeAgentRuntime } from "../runtimes/fake/fake-runtime";
 import { ConversationRepository } from "../conversations/conversation-repository";
 import { MemoryTranscriptStore } from "../conversations/memory-transcript-store";
@@ -109,11 +106,14 @@ async function createSkillController(
     createConversation: (explicitFolder) => {
       const scopeDir = explicitFolder ?? "Projects";
       return {
-        id: conversationIds[Math.min(conversationSeq++, conversationIds.length - 1)]!,
+        id: conversationIds[
+          Math.min(conversationSeq++, conversationIds.length - 1)
+        ]!,
         scopeDir,
-        launchNotePath: scopeDir === "Projects" || scopeDir === ""
-          ? "Projects/architecture.md"
-          : undefined,
+        launchNotePath:
+          scopeDir === "Projects" || scopeDir === ""
+            ? "Projects/architecture.md"
+            : undefined,
       };
     },
     skills,
@@ -136,7 +136,14 @@ async function createSkillController(
     onComposerDefaults: options.onComposerDefaults,
     selectRuntime: options.selectRuntime,
   });
-  return { controller, runtime, repository, skills, skillSnapshots, appToolHost };
+  return {
+    controller,
+    runtime,
+    repository,
+    skills,
+    skillSnapshots,
+    appToolHost,
+  };
 }
 
 describe("AiChatController skills and slash commands", () => {
@@ -150,19 +157,24 @@ describe("AiChatController skills and slash commands", () => {
     expect(runtime.lastRequest?.skillSnapshot?.skills[0]?.name).toBe(
       "research-notes",
     );
-    expect(String(runtime.lastRequest?.metadata?.availableSkillsManifest)).toContain(
-      "<name>research-notes</name>",
-    );
-    expect(String(runtime.lastRequest?.metadata?.availableSkillsManifest)).not.toContain(
-      "Projects/.agents/skills",
-    );
+    expect(
+      String(runtime.lastRequest?.metadata?.availableSkillsManifest),
+    ).toContain("<name>research-notes</name>");
+    expect(
+      String(runtime.lastRequest?.metadata?.availableSkillsManifest),
+    ).not.toContain("Projects/.agents/skills");
     expect(String(runtime.lastRequest?.metadata?.sessionBootstrap)).toContain(
       "<lapis_context>",
     );
     expect(String(runtime.lastRequest?.metadata?.sessionBootstrap)).toContain(
       "Current scope: Projects",
     );
-    expect(controller.items.some((item) => item.type === "status" && item.text.includes("<lapis_context>"))).toBe(false);
+    expect(
+      controller.items.some(
+        (item) =>
+          item.type === "status" && item.text.includes("<lapis_context>"),
+      ),
+    ).toBe(false);
     const bindingId = controller.activeBindingId!;
     const snapshot = skillSnapshots.get(bindingId);
     expect(snapshot).toBeTruthy();
@@ -199,9 +211,9 @@ describe("AiChatController skills and slash commands", () => {
       instructions: expect.stringContaining("notes_search"),
     });
     expect(runtime.sessions[0]?.prompts).toEqual(["authentication"]);
-    expect(controller.items.some((item) => item.type === "skill-activation")).toBe(
-      true,
-    );
+    expect(
+      controller.items.some((item) => item.type === "skill-activation"),
+    ).toBe(true);
     const snapshot = await repository.read(controller.location!);
     const activation = snapshot.transcript.find(
       (entry) => entry.type === "skill-activation",
@@ -268,7 +280,9 @@ describe("AiChatController skills and slash commands", () => {
         ]),
       },
     });
-    expect(skillSnapshots.get(controller.activeBindingId ?? "")?.skills).toEqual(
+    expect(
+      skillSnapshots.get(controller.activeBindingId ?? "")?.skills,
+    ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "research-notes" }),
       ]),
@@ -276,10 +290,12 @@ describe("AiChatController skills and slash commands", () => {
     await controller.close();
   });
 
-  it("D: reserved app commands survive a binding switch and the new binding gets a new snapshot", async () => {
-    const { controller, runtime, skillSnapshots } = await createSkillController({
-      "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
-    });
+  it("D: reserved app commands survive in-place model configuration", async () => {
+    const { controller, runtime, skillSnapshots } = await createSkillController(
+      {
+        "Projects/.agents/skills/research-notes/SKILL.md": RESEARCH,
+      },
+    );
     await controller.submit("first", {
       agent: "codex",
       model: { provider: "codex", model: "first" },
@@ -293,10 +309,10 @@ describe("AiChatController skills and slash commands", () => {
     });
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     const secondBinding = controller.activeBindingId!;
-    expect(secondBinding).not.toBe(firstBinding);
+    expect(secondBinding).toBe(firstBinding);
     expect(skillSnapshots.get(firstBinding)?.id).toBe(firstSnapshot?.id);
-    expect(skillSnapshots.get(secondBinding)?.id).not.toBe(firstSnapshot?.id);
-    expect(runtime.sessions).toHaveLength(2);
+    expect(skillSnapshots.get(secondBinding)?.id).toBe(firstSnapshot?.id);
+    expect(runtime.sessions).toHaveLength(1);
     await controller.submit("/skills");
     expect(controller.error).toBeNull();
     await controller.close();
@@ -417,9 +433,7 @@ describe("AiChatController skills and slash commands", () => {
     ).toBe(true);
     expect(runtime.sessions[0]?.prompts ?? []).toEqual([]);
     await controller.submit("/agent cursor");
-    expect(defaults).toEqual([
-      { agent: "cursor", runtimePreference: "acp" },
-    ]);
+    expect(defaults).toEqual([{ agent: "cursor", runtimePreference: "acp" }]);
     expect(controller.request.agent).toBe("cursor");
     expect(
       controller.items.some(
@@ -497,8 +511,7 @@ describe("AiChatController skills and slash commands", () => {
     expect(controller.location?.conversationId).not.toBe(firstId);
     expect(
       controller.items.some(
-        (item) =>
-          item.type === "status" && item.text.includes("Scope: Notes"),
+        (item) => item.type === "status" && item.text.includes("Scope: Notes"),
       ),
     ).toBe(true);
     expect(runtime.lastRequest?.prompt ?? "").not.toContain("/scope");
@@ -522,7 +535,9 @@ describe("AiChatController skills and slash commands", () => {
     expect(notice?.text).toContain("Agent: Codex ACP");
     expect(notice?.text).toContain("Model: gpt-5.6");
     expect(notice?.text).toContain("research-notes");
-    expect(notice?.text).toContain("Folder instructions: Projects/.lapis/AGENTS.md");
+    expect(notice?.text).toContain(
+      "Folder instructions: Projects/.lapis/AGENTS.md",
+    );
     expect(notice?.text).toContain("No bootstrap truncation");
     expect(notice?.text).not.toContain("/Users/");
     expect(runtime.sessions.at(-1)?.prompts ?? []).toEqual([]);
@@ -603,9 +618,9 @@ Folder body.
       (item) => item.type === "skill-activation",
     );
     expect(activation).toMatchObject({ skillName: "research" });
-    expect(overridden.runtime.lastRequest?.skillActivations?.[0]?.instructions).toContain(
-      "Folder body",
-    );
+    expect(
+      overridden.runtime.lastRequest?.skillActivations?.[0]?.instructions,
+    ).toContain("Folder body");
     await overridden.controller.close();
   });
 
@@ -621,9 +636,9 @@ Folder body.
     expect(
       runtime.lastRequest?.skillSnapshot?.skills.map((skill) => skill.name),
     ).toContain("lapis-notes");
-    expect(String(runtime.lastRequest?.metadata?.availableSkillsManifest)).toContain(
-      "<name>lapis-notes</name>",
-    );
+    expect(
+      String(runtime.lastRequest?.metadata?.availableSkillsManifest),
+    ).toContain("<name>lapis-notes</name>");
     await controller.submit("/lapis-notes");
     expect(controller.error).toMatch(/Unknown command/u);
     await controller.close();
@@ -725,9 +740,7 @@ Folder lapis notes body.
     expect(tool?.type === "tool" ? tool.output : "").toContain(
       "Projects/auth.md",
     );
-    expect(controller.items.some((item) => item.type === "status")).toBe(
-      false,
-    );
+    expect(controller.items.some((item) => item.type === "status")).toBe(false);
     await controller.close();
   });
 

@@ -490,9 +490,8 @@ export const LocalConversations: Story = {
     await expect(deleteChat).toBeVisible();
     await expect(newChatItem).toBeVisible();
     const conversationMenu =
-      archiveChat.closest<HTMLElement>(
-        "[data-ai-part='conversation-menu']",
-      ) ?? archiveChat.closest<HTMLElement>("[role='menu']");
+      archiveChat.closest<HTMLElement>("[data-ai-part='conversation-menu']") ??
+      archiveChat.closest<HTMLElement>("[role='menu']");
     expect(conversationMenu).not.toBeNull();
     const menuStyle = getComputedStyle(conversationMenu!);
     expect(menuStyle.overflowX).not.toBe("hidden");
@@ -723,7 +722,7 @@ export const AgentSwitching: Story = {
     docs: {
       description: {
         story:
-          "One filesystem conversation reconstructs Codex ACP and Cursor ACP dividers, attributed messages, active usage, and copy actions without a running provider.",
+          "One filesystem conversation reconstructs Codex to Cursor to Codex handoffs, a delta switch-back, an in-place model change, attributed messages, and app-owned audit records without a running provider.",
       },
     },
   },
@@ -736,13 +735,13 @@ export const AgentSwitching: Story = {
     );
     const panel = await canvas.findByTestId("ai-chat-panel");
     expect(panel.getBoundingClientRect().height).toBeGreaterThan(500);
-    await expect(
-      await within(panel).findByText(
-        "Codex ACP · gpt-5.6-sol",
-        {},
-        { timeout: 8_000 },
-      ),
-    ).toBeVisible();
+    const codexDividers = await within(panel).findAllByText(
+      "Codex ACP · gpt-5.6-terra",
+      {},
+      { timeout: 8_000 },
+    );
+    expect(codexDividers).toHaveLength(2);
+    for (const divider of codexDividers) await expect(divider).toBeVisible();
     await expect(
       await within(panel).findByText("Cursor ACP · composer-2.5"),
     ).toBeVisible();
@@ -751,14 +750,30 @@ export const AgentSwitching: Story = {
         "Cursor continued in the same local conversation.",
       ),
     ).toBeVisible();
+    await expect(
+      await within(panel).findByText(
+        "Codex resumed its original binding with the Cursor delta.",
+      ),
+    ).toBeVisible();
     expect(
       await within(panel).findAllByRole("button", { name: "Copy response" }),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
     await expect(
       within(panel).getByRole("progressbar", {
         name: "Context window usage",
       }),
     ).toHaveAttribute("value", "12920");
+    const app = demoApp(canvasElement);
+    const root = `Notes/.lapis/agents/sessions/${LOCAL_CONVERSATION_ID}`;
+    await expect(
+      app.vault.adapter.read(`${root}/agents.jsonl`),
+    ).resolves.toContain('"projectionMode":"delta"');
+    const transcript = await app.vault.adapter.read(`${root}/transcript.jsonl`);
+    expect(transcript).toContain('"handoffMode":"full"');
+    expect(transcript).toContain('"handoffMode":"delta"');
+    expect(transcript).toContain('"type":"agent.config"');
+    expect(transcript).not.toContain("<lapis-context");
+    expect(transcript).not.toContain("Lapis conversation handoff");
   },
 };
 
@@ -862,9 +877,7 @@ export const FollowScope: Story = {
       expect(
         within(panel).getByText("The near folder chat is open."),
       ).toBeVisible();
-      expect(
-        canvas.queryByTestId("ai-chat-conversation-picker"),
-      ).toBeNull();
+      expect(canvas.queryByTestId("ai-chat-conversation-picker")).toBeNull();
       const folder = canvasElement.querySelector(
         '[data-path="Projects"][data-active]',
       );
@@ -889,9 +902,7 @@ export const FollowScope: Story = {
       expect(
         within(panel).getByText("The near folder chat is open."),
       ).toBeVisible();
-      expect(
-        canvas.queryByTestId("ai-chat-conversation-picker"),
-      ).toBeNull();
+      expect(canvas.queryByTestId("ai-chat-conversation-picker")).toBeNull();
     });
   },
 };

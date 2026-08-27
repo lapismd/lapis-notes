@@ -6,6 +6,8 @@ import {
   type AgentRequest,
   type AgentRuntime,
   type AgentSession,
+  type AgentSessionConfiguration,
+  type AgentSessionConfigurationResult,
   type AgentTurnOptions,
   type ApprovalRequest,
   type UserInputAnswers,
@@ -47,8 +49,10 @@ export class FakeAgentSession implements AgentSession {
   readonly id: string;
   readonly prompts: string[] = [];
   readonly contextBlocks: AgentTurnOptions["contextBlocks"][] = [];
+  readonly configurations: AgentSessionConfiguration[] = [];
   cancelled = false;
   closed = false;
+  detached = false;
   readonly #events = new AsyncEventQueue<AgentEvent>();
   readonly #pending = new Map<
     string,
@@ -150,6 +154,16 @@ export class FakeAgentSession implements AgentSession {
     this.#events.push({ type: "completed", result: { prompt: input } });
   }
 
+  async configure(
+    input: AgentSessionConfiguration,
+  ): Promise<AgentSessionConfigurationResult> {
+    this.configurations.push(structuredClone(input));
+    return {
+      ...(input.model ? { model: { status: "applied" as const } } : {}),
+      ...(input.thinking ? { thinking: { status: "applied" as const } } : {}),
+    };
+  }
+
   async respondToApproval(requestId: string, optionId: string): Promise<void> {
     const pending = this.#pending.get(requestId);
     if (!pending) {
@@ -195,6 +209,11 @@ export class FakeAgentSession implements AgentSession {
       pending.reject(new Error("Session closed."));
     }
     this.#events.close();
+  }
+
+  async detach(): Promise<void> {
+    this.detached = true;
+    await this.close();
   }
 }
 
@@ -259,8 +278,20 @@ export class FakeAgentRuntime implements AgentRuntime {
       throw new Error("Fake runtime does not support resume.");
     }
     const existing = this.sessions.find((session) => session.id === sessionId);
-    if (existing && !existing.closed) return existing;
-    throw new Error(`Unknown fake session: ${sessionId}`);
+    if (!existing) throw new Error(`Unknown fake session: ${sessionId}`);
+    if (!existing.closed) return existing;
+    if (!existing.detached) {
+      throw new Error(`Unknown fake session: ${sessionId}`);
+    }
+    const resumed = new FakeAgentSession(
+      sessionId,
+      this.#requireApproval,
+      this.#trace,
+      this.#requireQuestion,
+      this.#nativeCommands,
+    );
+    this.sessions.push(resumed);
+    return resumed;
   }
 }
 

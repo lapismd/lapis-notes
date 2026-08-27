@@ -27,6 +27,10 @@ export type AiPluginSettings = {
   memoryConsolidationRuntime: "acp" | "codex-native";
   memoryConsolidationAgent: AcpAgentId;
   memoryConsolidationModel: string;
+  handoffSummariesEnabled: boolean;
+  handoffSummaryRuntime: "acp" | "codex-native";
+  handoffSummaryAgent: AcpAgentId;
+  handoffSummaryModel: string;
   appToolsEnabled: boolean;
   disabledAppToolNames: string[];
   enabledAppToolNames: string[];
@@ -52,6 +56,10 @@ export const DEFAULT_AI_SETTINGS: AiPluginSettings = {
   memoryConsolidationRuntime: "acp",
   memoryConsolidationAgent: "codex",
   memoryConsolidationModel: "gpt-5.6-sol",
+  handoffSummariesEnabled: false,
+  handoffSummaryRuntime: "acp",
+  handoffSummaryAgent: "codex",
+  handoffSummaryModel: "gpt-5.6-sol",
   appToolsEnabled: true,
   disabledAppToolNames: [],
   enabledAppToolNames: [],
@@ -211,6 +219,13 @@ export function mergeAiSettings(
     memoryConsolidationModel:
       value?.memoryConsolidationModel?.trim() ||
       DEFAULT_AI_SETTINGS.memoryConsolidationModel,
+    handoffSummariesEnabled: value?.handoffSummariesEnabled === true,
+    handoffSummaryRuntime:
+      value?.handoffSummaryRuntime === "codex-native" ? "codex-native" : "acp",
+    handoffSummaryAgent: normalizeAcpAgent(value?.handoffSummaryAgent),
+    handoffSummaryModel:
+      value?.handoffSummaryModel?.trim() ||
+      DEFAULT_AI_SETTINGS.handoffSummaryModel,
     appToolsEnabled: value?.appToolsEnabled !== false,
     disabledAppToolNames: normalizeNameList(value?.disabledAppToolNames),
     enabledAppToolNames: normalizeNameList(value?.enabledAppToolNames),

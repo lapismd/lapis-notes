@@ -25,10 +25,11 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
   });
 
   it("forwards the provider-neutral restricted session contract", async () => {
-    const invoke = vi.fn(async (command: string, payload?: Record<string, unknown>) =>
-      command === "desktop_agent_acp_start"
-        ? { sessionId: String(payload?.sessionId) }
-        : null,
+    const invoke = vi.fn(
+      async (command: string, payload?: Record<string, unknown>) =>
+        command === "desktop_agent_acp_start"
+          ? { sessionId: String(payload?.sessionId) }
+          : null,
     );
     native.bridge = {
       runtime: "deno-desktop",
@@ -65,6 +66,150 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
         appToolBridgeId: undefined,
       }),
     );
+    await session.close();
+  });
+
+  it("forwards structured session configuration on protocol v5", async () => {
+    const invoke = vi.fn(
+      async (command: string, payload?: Record<string, unknown>) => {
+        if (command === "desktop_agent_acp_start") {
+          return { sessionId: String(payload?.sessionId) };
+        }
+        if (command === "desktop_agent_acp_configure") {
+          return {
+            model: { status: "applied" },
+            thinking: { status: "applied" },
+          };
+        }
+        return null;
+      },
+    );
+    native.bridge = {
+      runtime: "deno-desktop",
+      capabilities: {
+        "agent-runtime": {
+          id: "agent-runtime",
+          status: "available",
+          details: { protocolVersion: 5, deferredStart: true },
+        },
+      },
+      invoke,
+      toFileUrl: (path) => path,
+      onAgentRuntimeEvent() {
+        return () => {};
+      },
+    } as NativeDesktopBridge;
+    const session = await new DesktopAcpRuntimeBackend().start({
+      request: { prompt: "", agent: "codex" },
+      onPermissionRequest: vi.fn(),
+    });
+
+    await expect(
+      session.configure?.({
+        model: { provider: "codex", model: "gpt-next" },
+        thinking: "high",
+      }),
+    ).resolves.toEqual({
+      model: { status: "applied" },
+      thinking: { status: "applied" },
+    });
+    expect(invoke).toHaveBeenCalledWith("desktop_agent_acp_configure", {
+      sessionId: session.id,
+      model: { provider: "codex", model: "gpt-next" },
+      thinking: "high",
+    });
+    await session.close();
+  });
+
+  it("reports configuration as unsupported below protocol v5", async () => {
+    const invoke = vi.fn(
+      async (command: string, payload?: Record<string, unknown>) =>
+        command === "desktop_agent_acp_start"
+          ? { sessionId: String(payload?.sessionId) }
+          : null,
+    );
+    native.bridge = {
+      runtime: "deno-desktop",
+      capabilities: {
+        "agent-runtime": {
+          id: "agent-runtime",
+          status: "available",
+          details: { protocolVersion: 4, deferredStart: true },
+        },
+      },
+      invoke,
+      toFileUrl: (path) => path,
+      onAgentRuntimeEvent() {
+        return () => {};
+      },
+    } as NativeDesktopBridge;
+    const session = await new DesktopAcpRuntimeBackend().start({
+      request: { prompt: "", agent: "codex" },
+      onPermissionRequest: vi.fn(),
+    });
+
+    await expect(
+      session.configure?.({
+        model: { provider: "codex", model: "gpt-next" },
+      }),
+    ).resolves.toEqual({
+      model: {
+        status: "unsupported",
+      },
+    });
+    expect(invoke).not.toHaveBeenCalledWith(
+      "desktop_agent_acp_configure",
+      expect.anything(),
+    );
+    await session.close();
+  });
+
+  it("uses the negotiated browser-attach configuration capability on protocol v4", async () => {
+    const invoke = vi.fn(
+      async (command: string, payload?: Record<string, unknown>) => {
+        if (command === "desktop_agent_acp_start") {
+          return { sessionId: String(payload?.sessionId) };
+        }
+        if (command === "desktop_agent_acp_configure") {
+          return { model: { status: "applied" } };
+        }
+        return null;
+      },
+    );
+    native.bridge = {
+      runtime: "deno-desktop",
+      capabilities: {
+        "agent-runtime": {
+          id: "agent-runtime",
+          status: "available",
+          details: {
+            protocolVersion: 4,
+            deferredStart: true,
+            sessionConfiguration: "configure",
+          },
+        },
+      },
+      invoke,
+      toFileUrl: (path) => path,
+      onAgentRuntimeEvent() {
+        return () => {};
+      },
+    } as NativeDesktopBridge;
+    const session = await new DesktopAcpRuntimeBackend().start({
+      request: { prompt: "", agent: "codex" },
+      onPermissionRequest: vi.fn(),
+    });
+
+    await expect(
+      session.configure?.({
+        model: { provider: "codex", model: "gpt-next" },
+      }),
+    ).resolves.toEqual({ model: { status: "applied" } });
+    expect(invoke).toHaveBeenCalledWith("desktop_agent_acp_configure", {
+      sessionId: session.id,
+      model: { provider: "codex", model: "gpt-next" },
+      thinking: undefined,
+    });
     await session.close();
   });
 
@@ -345,7 +490,7 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
           "agent-runtime": {
             id: "agent-runtime",
             status: "available",
-            details: { protocolVersion: 4 },
+            details: { protocolVersion: 4, runStatus: true },
           },
         },
         invoke,
@@ -410,7 +555,7 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
           "agent-runtime": {
             id: "agent-runtime",
             status: "available",
-            details: { protocolVersion: 4 },
+            details: { protocolVersion: 4, runStatus: true },
           },
         },
         invoke,

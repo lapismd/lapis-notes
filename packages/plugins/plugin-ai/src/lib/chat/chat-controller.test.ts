@@ -13,6 +13,7 @@ import {
   type CreateConversationInput,
 } from "../conversations/conversation-repository";
 import { MemoryTranscriptStore } from "../conversations/memory-transcript-store";
+import { transcriptEntryHash } from "../conversations/hashes";
 import {
   CONVERSATION_SCHEMA_VERSION,
   type AgentBindingRecord,
@@ -733,15 +734,26 @@ describe("AiChatController", () => {
         nativeSessionId: "native-1",
       },
     ]);
-    await repository.appendTranscript(location, [
+    const assistantEntry: TranscriptEntry = {
+      schemaVersion: CONVERSATION_SCHEMA_VERSION,
+      id: "m1",
+      type: "message",
+      role: "assistant",
+      text: "Available locally",
+      createdAt: "2026-08-16T00:00:00.000Z",
+      agentBindingId: "binding-1",
+    };
+    await repository.appendTranscript(location, [assistantEntry]);
+    await repository.appendAgentRecords(location, [
       {
         schemaVersion: CONVERSATION_SCHEMA_VERSION,
-        id: "m1",
-        type: "message",
-        role: "assistant",
-        text: "Available locally",
-        createdAt: "2026-08-16T00:00:00.000Z",
+        id: "context-1",
+        type: "binding.context.updated",
+        createdAt: "2026-08-16T00:00:01.000Z",
         agentBindingId: "binding-1",
+        throughEntryId: assistantEntry.id,
+        throughEntryHash: await transcriptEntryHash(assistantEntry),
+        cause: "native-turn",
       },
     ]);
     let finishResume!: (session: AgentSession) => void;
@@ -781,6 +793,69 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
+  it("replaces a legacy binding without a verified cursor on its next turn", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const location = {
+      scopeDir: "",
+      conversationId: "123e4567-e89b-42d3-a456-426614174000",
+    };
+    await repository.create({ ...location, id: location.conversationId });
+    await repository.appendAgentRecords(location, [
+      {
+        schemaVersion: 2,
+        id: "legacy-binding",
+        type: "binding.created",
+        createdAt: "2026-08-16T00:00:00.000Z",
+        runtime: "legacy-runtime",
+        agent: "codex",
+        nativeSessionId: "legacy-native",
+      },
+    ]);
+    await repository.appendTranscript(location, [
+      {
+        schemaVersion: 2,
+        id: "legacy-message",
+        type: "message",
+        role: "assistant",
+        text: "Legacy local evidence",
+        createdAt: "2026-08-16T00:00:01.000Z",
+        agentBindingId: "legacy-binding",
+      },
+    ]);
+    const resumable = createResumableRuntime("legacy-runtime");
+    const controller = new AiChatController(resumable.runtime, null, [], {
+      repository,
+      location,
+      request: { agent: "codex" },
+    });
+
+    await controller.restore();
+    expect(resumable.resumes()).toBe(0);
+    await controller.submit("continue", { agent: "codex" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(location)).agents.filter(
+          (record) => record.type === "binding.created",
+        ),
+      ).toHaveLength(2);
+    });
+
+    const snapshot = await repository.read(location);
+    expect(resumable.starts()).toBe(1);
+    expect(
+      snapshot.agents.filter((record) => record.type === "binding.created"),
+    ).toHaveLength(2);
+    expect(snapshot.transcript).toContainEqual(
+      expect.objectContaining({
+        type: "agent.switch",
+        fromBindingId: "legacy-binding",
+        handoffMode: "full",
+      }),
+    );
+    await controller.close();
+  });
+
   it("records final usage in the binding log without transcript pollution", async () => {
     const repository = new ConversationRepository(new MemoryTranscriptStore());
     const id = "123e4567-e89b-42d3-a456-426614174000";
@@ -812,7 +887,9 @@ describe("AiChatController", () => {
     await vi.waitFor(() => expect(controller.busy).toBe(false));
     await vi.waitFor(async () => {
       expect(
-        (await repository.read(controller.location!)).agents.at(-1),
+        (await repository.read(controller.location!)).agents.find(
+          (record) => record.type === "usage.updated",
+        ),
       ).toMatchObject({
         type: "usage.updated",
         usage: { used: 12, limit: 100 },
@@ -823,7 +900,7 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
-  it("switches model at the next turn boundary without changing conversation", async () => {
+  it("configures the model in place without changing conversation or binding", async () => {
     const repository = new ConversationRepository(new MemoryTranscriptStore());
     const runtime = new FakeAgentRuntime();
     const controller = new AiChatController(runtime, null, [], {
@@ -852,16 +929,119 @@ describe("AiChatController", () => {
         (await repository.read(controller.location!)).agents.filter(
           (record) => record.type === "binding.created",
         ),
-      ).toHaveLength(2);
+      ).toHaveLength(1);
     });
 
     const snapshot = await repository.read(controller.location!);
+    expect(runtime.sessions).toHaveLength(1);
+    expect(runtime.sessions[0]?.configurations).toEqual([
+      { model: { provider: "codex", model: "second" } },
+    ]);
+    expect(
+      snapshot.agents.filter((record) => record.type === "binding.created"),
+    ).toHaveLength(1);
+    expect(snapshot.agents).toContainEqual(
+      expect.objectContaining({ type: "binding.config.updated" }),
+    );
+    expect(snapshot.transcript).toContainEqual(
+      expect.objectContaining({ type: "agent.config" }),
+    );
+    expect(snapshot.transcript).not.toContainEqual(
+      expect.objectContaining({ type: "agent.switch" }),
+    );
+    await controller.close();
+  });
+
+  it("replaces the binding with a full handoff when configuration is unsupported", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const runtime = new FakeAgentRuntime();
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      request: {
+        agent: "codex",
+        model: { provider: "codex", model: "first" },
+      },
+    });
+    await controller.submit("first evidence", {
+      agent: "codex",
+      model: { provider: "codex", model: "first" },
+    });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    runtime.sessions[0]!.configure = async () => ({
+      model: { status: "unsupported", reason: "not mutable" },
+    });
+
+    await controller.submit("second", {
+      agent: "codex",
+      model: { provider: "codex", model: "second" },
+    });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(controller.location!)).agents.filter(
+          (record) => record.type === "binding.created",
+        ),
+      ).toHaveLength(2);
+    });
+
     expect(runtime.sessions).toHaveLength(2);
+    expect(runtime.sessions[1]?.contextBlocks[0]?.[0]).toMatchObject({
+      kind: "conversation-handoff",
+      metadata: { projectionMode: "full" },
+      content: expect.stringContaining("first evidence"),
+    });
+    const snapshot = await repository.read(controller.location!);
     expect(
       snapshot.agents.filter((record) => record.type === "binding.created"),
     ).toHaveLength(2);
     expect(snapshot.transcript).toContainEqual(
       expect.objectContaining({ type: "agent.switch" }),
+    );
+    await controller.close();
+  });
+
+  it("does not persist an in-place configuration until the prompt is accepted", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const runtime = new FakeAgentRuntime();
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      request: {
+        agent: "codex",
+        model: { provider: "codex", model: "first" },
+      },
+    });
+    await controller.submit("first", {
+      agent: "codex",
+      model: { provider: "codex", model: "first" },
+    });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const activeBefore = (await repository.read(controller.location!)).metadata
+      .activeAgentBindingId;
+    runtime.sessions[0]!.send = async () => {
+      throw new Error("provider rejected configured turn");
+    };
+
+    await controller.submit("second", {
+      agent: "codex",
+      model: { provider: "codex", model: "second" },
+    });
+
+    expect(controller.error).toBe("provider rejected configured turn");
+    const snapshot = await repository.read(controller.location!);
+    expect(snapshot.metadata.activeAgentBindingId).toBe(activeBefore);
+    expect(snapshot.agents).not.toContainEqual(
+      expect.objectContaining({ type: "binding.config.updated" }),
+    );
+    expect(snapshot.transcript).not.toContainEqual(
+      expect.objectContaining({ type: "agent.config" }),
     );
     await controller.close();
   });
@@ -1175,6 +1355,20 @@ describe("AiChatController", () => {
       selectRuntime: async (request) =>
         request.agent === "cursor" ? cursor : codex,
       request: { agent: "codex" },
+      memoryRecall: {
+        recall: async () => [
+          {
+            kind: "memory-recall",
+            id: "memory:handoff-order:1",
+            content: "Use the app-owned transcript.",
+            metadata: {
+              memoryId: "handoff-order",
+              revision: 1,
+              scope: "workspace",
+            },
+          },
+        ],
+      },
     });
 
     await controller.submit("Inspect the project", { agent: "codex" });
@@ -1189,13 +1383,15 @@ describe("AiChatController", () => {
       ).toHaveLength(2);
     });
 
-    expect(cursor.lastRequest?.metadata?.contextHandoff).toMatchObject({
-      text: expect.stringContaining("User: Inspect the project"),
-      throughEntryId: expect.any(String),
+    expect(cursor.lastRequest?.metadata?.contextHandoff).toBeUndefined();
+    expect(cursor.sessions[0]?.contextBlocks[0]?.[0]).toMatchObject({
+      kind: "conversation-handoff",
+      content: expect.stringContaining("Inspect the project"),
+      metadata: { projectionMode: "full" },
     });
     expect(
-      JSON.stringify(cursor.lastRequest?.metadata?.contextHandoff),
-    ).not.toContain("heading: Notes");
+      cursor.sessions[0]?.contextBlocks[0]?.map((block) => block.kind),
+    ).toEqual(["conversation-handoff", "memory-recall"]);
     const snapshot = await repository.read(controller.location!);
     expect(
       snapshot.agents.filter((record) => record.type === "binding.created"),
@@ -1247,18 +1443,69 @@ describe("AiChatController", () => {
     await controller.close();
   });
 
-  it("creates a fresh binding and snapshot when switching back", async () => {
+  it("keeps the previous binding active when the prepared target rejects the prompt", async () => {
     const repository = new ConversationRepository(new MemoryTranscriptStore());
-    const codex = createResumableRuntime("acp-codex");
-    const cursor = createResumableRuntime("acp-cursor");
-    const controller = new AiChatController(codex.runtime, null, [], {
+    const codex = new FakeAgentRuntime({ id: "acp-codex" });
+    const failing: AgentRuntime = {
+      id: "acp-cursor",
+      capabilities: () => codex.capabilities(),
+      async supports() {
+        return true;
+      },
+      async start() {
+        return {
+          id: "cursor-prepared",
+          async *events() {},
+          async send() {
+            throw new Error("Cursor rejected the prompt");
+          },
+          async respondToApproval() {},
+          async close() {},
+        };
+      },
+    };
+    const controller = new AiChatController(codex, null, [], {
       repository,
       createConversation: () => ({
         id: "123e4567-e89b-42d3-a456-426614174000",
         scopeDir: "",
       }),
       selectRuntime: async (request) =>
-        request.agent === "cursor" ? cursor.runtime : codex.runtime,
+        request.agent === "cursor" ? failing : codex,
+      request: { agent: "codex" },
+    });
+    await controller.submit("first", { agent: "codex" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    const before = await repository.read(controller.location!);
+
+    await controller.submit("switch", { agent: "cursor" });
+
+    expect(controller.error).toBe("Cursor rejected the prompt");
+    const after = await repository.read(controller.location!);
+    expect(after.metadata.activeAgentBindingId).toBe(
+      before.metadata.activeAgentBindingId,
+    );
+    expect(
+      after.agents.filter((record) => record.type === "binding.created"),
+    ).toHaveLength(1);
+    expect(after.transcript).not.toContainEqual(
+      expect.objectContaining({ type: "agent.switch", toAgent: "cursor" }),
+    );
+    await controller.close();
+  });
+
+  it("resumes the original binding with only the verified switch-back delta", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const codex = new FakeAgentRuntime({ id: "acp-codex" });
+    const cursor = new FakeAgentRuntime({ id: "acp-cursor" });
+    const controller = new AiChatController(codex, null, [], {
+      repository,
+      createConversation: () => ({
+        id: "123e4567-e89b-42d3-a456-426614174000",
+        scopeDir: "",
+      }),
+      selectRuntime: async (request) =>
+        request.agent === "cursor" ? cursor : codex,
       request: { agent: "codex" },
     });
 
@@ -1273,15 +1520,37 @@ describe("AiChatController", () => {
         (await repository.read(controller.location!)).agents.filter(
           (record) => record.type === "binding.created",
         ),
-      ).toHaveLength(3);
+      ).toHaveLength(2);
     });
 
+    const beforeActivation = await repository.read(controller.location!);
+    const codexBinding = beforeActivation.agents.find(
+      (record) => record.type === "binding.created" && record.agent === "codex",
+    );
+    await vi.waitFor(async () => {
+      expect(
+        (await repository.read(controller.location!)).metadata
+          .activeAgentBindingId,
+      ).toBe(codexBinding?.id);
+    });
     const snapshot = await repository.read(controller.location!);
-    expect(codex.starts()).toBe(2);
-    expect(codex.resumes()).toBe(0);
+    expect(snapshot.metadata.activeAgentBindingId).toBe(codexBinding?.id);
+    expect(codex.sessions).toHaveLength(2);
+    expect(codex.sessions[1]?.id).toBe(codex.sessions[0]?.id);
+    expect(codex.sessions[1]?.contextBlocks[0]?.[0]).toMatchObject({
+      kind: "conversation-handoff",
+      metadata: { projectionMode: "delta" },
+      content: expect.stringContaining("cursor one"),
+    });
+    expect(codex.sessions[1]?.contextBlocks[0]?.[0]?.content).not.toContain(
+      "codex one",
+    );
+    await controller.submit("codex stays", { agent: "codex" });
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+    expect(codex.sessions[1]?.contextBlocks[1]).toEqual([]);
     expect(
       snapshot.agents.filter((record) => record.type === "binding.created"),
-    ).toHaveLength(3);
+    ).toHaveLength(2);
     expect(
       snapshot.transcript.filter((entry) => entry.type === "agent.switch"),
     ).toHaveLength(2);

@@ -8,6 +8,12 @@ export type {
 export { AcpAgentRuntime } from "./runtimes/acp/acp-runtime";
 export type { AcpRuntimeBackend } from "./runtimes/acp/acp-runtime";
 export { DesktopAcpRuntimeBackend } from "./runtimes/acp/desktop-acp-backend";
+export { buildConversationContextHandoff } from "./conversations/context-handoff";
+export type { AgentSession } from "./core/types";
+export type {
+  AgentBindingCreatedRecord,
+  TranscriptEntry,
+} from "./conversations/types";
 export {
   mapAcpPermissionRequest,
   mapAcpRuntimeEvent,

@@ -33,6 +33,10 @@ export type AiViewHost = {
   slashRouter?: import("../commands/router").SlashCommandRouter;
   appToolHost?: import("../tools/app-tool-host").AppToolHost;
   memory?: import("../memory/types").AutomaticMemoryRecall;
+  handoffSummaries?: Pick<
+    import("../conversations/handoff-summary").HandoffSummaryCoordinator,
+    "afterTerminal"
+  >;
   skillContext?: () => import("../skills/types").SkillDiscoveryContext;
   conversations: ConversationRepository;
   createConversationInput(explicitFolder?: string): CreateConversationInput;
@@ -76,8 +80,8 @@ export class AiView extends View {
   }
 
   getBreadcrumbFilePath(): string | null {
-    const scopeDir = conversationLocationFromState(this.getState())?.scopeDir
-      .replace(/^\/+|\/+$/g, "")
+    const scopeDir = conversationLocationFromState(this.getState())
+      ?.scopeDir.replace(/^\/+|\/+$/g, "")
       .trim();
     return scopeDir || null;
   }

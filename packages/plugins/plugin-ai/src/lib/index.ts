@@ -1,5 +1,9 @@
 export { AiPlugin, default } from "./ai-plugin";
-export { AiCatalogPanel, AiChatPanel, AiHistoryPanel } from "./public-components";
+export {
+  AiCatalogPanel,
+  AiChatPanel,
+  AiHistoryPanel,
+} from "./public-components";
 export { AiView, AiViewType } from "./chat/ai-view";
 export { AiCatalogView, AiCatalogViewType } from "./catalog/ai-catalog-view";
 export { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
@@ -130,8 +134,18 @@ export {
 export {
   buildConversationContextHandoff,
   MAX_CONTEXT_HANDOFF_CODE_POINTS,
+  MAX_CONTEXT_HANDOFF_TOKENS,
 } from "./conversations/context-handoff";
 export type { ConversationContextHandoff } from "./conversations/context-handoff";
+export {
+  HandoffSummaryCoordinator,
+  RuntimeHandoffSummaryProvider,
+} from "./conversations/handoff-summary";
+export type {
+  GroundedHandoffSummaryInput,
+  HandoffSummaryProcessorIdentity,
+  HandoffSummaryProvider,
+} from "./conversations/handoff-summary";
 export {
   ConversationRepository,
   deriveConversationTitle,
@@ -167,6 +181,8 @@ export {
 } from "./conversations/types";
 export type {
   AgentBindingCreatedRecord,
+  AgentBindingConfigUpdatedRecord,
+  AgentBindingContextUpdatedRecord,
   AgentBindingRecord,
   AgentUsageRecord,
   ConversationLocation,
@@ -174,6 +190,7 @@ export type {
   ConversationReadWarning,
   ConversationSnapshot,
   RuntimeEventProvenance,
+  HandoffSummaryCreatedRecord,
   TranscriptEntry,
 } from "./conversations/types";
 export { parseSkillMarkdown, skillContentVersion } from "./skills/parser";
@@ -189,11 +206,11 @@ export {
   filterComposerSlashItems,
 } from "./commands/groups";
 export type { ComposerSlashItem } from "./commands/groups";
+export { formatContextNotice, formatScopeNotice } from "./commands/inspect";
 export {
-  formatContextNotice,
-  formatScopeNotice,
-} from "./commands/inspect";
-export { BUNDLED_RESEARCH_SKILL, BUNDLED_APP_SKILLS } from "./skills/bundled/research";
+  BUNDLED_RESEARCH_SKILL,
+  BUNDLED_APP_SKILLS,
+} from "./skills/bundled/research";
 export { BUNDLED_LAPIS_NOTES_SKILL } from "./skills/bundled/lapis-notes";
 export { buildAgentBootstrap, buildSessionBootstrap } from "./bootstrap/build";
 export { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";

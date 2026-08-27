@@ -6,6 +6,8 @@ import {
   type AgentRequest,
   type AgentRuntime,
   type AgentSession,
+  type AgentSessionConfiguration,
+  type AgentSessionConfigurationResult,
   type AgentTurnOptions,
   type AiThinkingLevel,
   type McpServerContribution,
@@ -40,7 +42,7 @@ type CodexTurnResponse = {
 
 export class CodexNativeSession implements AgentSession {
   readonly #process: AgentProcessHandle;
-  readonly #request: Omit<AgentRequest, "prompt">;
+  #request: Omit<AgentRequest, "prompt">;
   readonly #events = new AsyncEventQueue<AgentEvent>();
   readonly #pending = new Map<string | number, PendingRequest>();
   readonly #pendingServerRequests = new Map<string, AppServerMessage>();
@@ -124,6 +126,20 @@ export class CodexNativeSession implements AgentSession {
         : {}),
     })) as CodexTurnResponse;
     this.#activeTurnId = response.turn?.id ?? this.#activeTurnId;
+  }
+
+  async configure(
+    input: AgentSessionConfiguration,
+  ): Promise<AgentSessionConfigurationResult> {
+    this.#request = {
+      ...this.#request,
+      ...(input.model ? { model: { ...input.model } } : {}),
+      ...(input.thinking ? { thinking: input.thinking } : {}),
+    };
+    return {
+      ...(input.model ? { model: { status: "applied" as const } } : {}),
+      ...(input.thinking ? { thinking: { status: "applied" as const } } : {}),
+    };
   }
 
   async respondToApproval(requestId: string, optionId: string): Promise<void> {

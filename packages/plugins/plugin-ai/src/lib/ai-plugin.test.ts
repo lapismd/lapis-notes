@@ -22,6 +22,10 @@ describe("AiPlugin contracts", () => {
       memoryConsolidationRuntime: "acp",
       memoryConsolidationAgent: "codex",
       memoryConsolidationModel: "gpt-5.6-sol",
+      handoffSummariesEnabled: false,
+      handoffSummaryRuntime: "acp",
+      handoffSummaryAgent: "codex",
+      handoffSummaryModel: "gpt-5.6-sol",
       appToolsEnabled: true,
       disabledAppToolNames: [],
       enabledAppToolNames: [],
@@ -93,8 +97,10 @@ describe("AiPlugin contracts", () => {
     const css = readFileSync("src/lib/styles.css", "utf8");
 
     expect(panel).toContain('data-ai-part="model-badge"');
-    expect(css).toContain("[data-ai-part=\"model-badge\"]");
-    expect(css).toContain("color-mix(in srgb, var(--foreground) 42%, var(--background))");
+    expect(css).toContain('[data-ai-part="model-badge"]');
+    expect(css).toContain(
+      "color-mix(in srgb, var(--foreground) 42%, var(--background))",
+    );
   });
 
   it("renders assistant markdown through the public Markdown embed", () => {
@@ -105,13 +111,17 @@ describe("AiPlugin contracts", () => {
       dependencies?: Record<string, string>;
     };
 
-    expect(manifest.dependencies?.["@lapis-notes/markdown"]).toBe("workspace:*");
+    expect(manifest.dependencies?.["@lapis-notes/markdown"]).toBe(
+      "workspace:*",
+    );
     expect(manifest.dependencies?.["@lapismd/mira"]).toBeUndefined();
     expect(manifest.dependencies?.["@lapismd/mira-editor"]).toBeUndefined();
     expect(panel).toContain('from "@lapis-notes/markdown/embed"');
     expect(panel).toContain("MarkdownEmbed");
     expect(panel).toContain('htmlPolicy="safe"');
-    expect(css).toContain("[data-ui-component=\"ai-chat-panel\"] .ai-chat-panel__markdown");
+    expect(css).toContain(
+      '[data-ui-component="ai-chat-panel"] .ai-chat-panel__markdown',
+    );
     expect(css).toContain("--mira-preview-background: transparent");
     const markdownCss = css.slice(css.indexOf(".ai-chat-panel__markdown"));
     expect(markdownCss).toContain("height: auto");
@@ -180,7 +190,9 @@ describe("AiPlugin contracts", () => {
 
     expect(panel).toContain("untrack(() => {");
     expect(panel).toContain("void controller.restore()");
-    expect(panel).toContain("controller.items.length === 0 && !controller.busy");
+    expect(panel).toContain(
+      "controller.items.length === 0 && !controller.busy",
+    );
     expect(controller).toContain("this.items = [...this.items, userItem];");
     expect(controller).toMatch(
       /this\.items = \[\.\.\.this\.items, userItem\];[\s\S]*this\.busy = true;[\s\S]*if \(this\.repository\) await this\.#ensureConversation\(\);/u,
@@ -199,7 +211,7 @@ describe("AiPlugin contracts", () => {
     expect(panel).toContain("presentToolPayload");
     expect(panel).toContain("language={inputPayload.language}");
     expect(panel).toContain("defaultExpanded={false}");
-    expect(panel).toContain("entry.kind === \"tools\"");
+    expect(panel).toContain('entry.kind === "tools"');
     expect(grouping).toContain('kind: "tools"');
   });
 
@@ -239,9 +251,7 @@ describe("AiPlugin contracts", () => {
 
     expect(source).toContain('id: "open-chat"');
     expect(source).toContain('name: "Open Chat"');
-    expect(source).toContain(
-      'this.addRibbonIcon("sparkles", "Open Chat"',
-    );
+    expect(source).toContain('this.addRibbonIcon("sparkles", "Open Chat"');
     expect(source).toContain("refreshHostRuntimes");
     expect(source).toContain("live-runtime-unavailable");
     expect(source).toContain('id: "open-history"');
@@ -263,7 +273,10 @@ describe("AiPlugin contracts", () => {
 
   it("remounts conversation history when the leaf loads", () => {
     const source = readFileSync("src/lib/history/ai-history-view.ts", "utf8");
-    const panel = readFileSync("src/lib/history/ai-history-panel.svelte", "utf8");
+    const panel = readFileSync(
+      "src/lib/history/ai-history-panel.svelte",
+      "utf8",
+    );
 
     expect(source).toContain("this.unload()");
     expect(source).toContain("this.containerEl.replaceChildren()");
@@ -274,7 +287,10 @@ describe("AiPlugin contracts", () => {
 
   it("remounts the catalog when the leaf loads", () => {
     const source = readFileSync("src/lib/catalog/ai-catalog-view.ts", "utf8");
-    const panel = readFileSync("src/lib/catalog/ai-catalog-panel.svelte", "utf8");
+    const panel = readFileSync(
+      "src/lib/catalog/ai-catalog-panel.svelte",
+      "utf8",
+    );
 
     expect(source).toContain("this.unload()");
     expect(source).toContain("this.containerEl.replaceChildren()");
@@ -301,7 +317,7 @@ describe("AiPlugin contracts", () => {
     expect(source).toContain("findUnboundMainAiLeaf()");
     expect(source).toContain("iterateRootLeaves");
     expect(source).toContain('operation: "open-ai-chat"');
-    expect(source).toContain('focusRootHost: false');
+    expect(source).toContain("focusRootHost: false");
     expect(source).not.toContain('group: "AI"');
     expect(source).not.toContain("groupTitle");
     expect(source).not.toContain(
