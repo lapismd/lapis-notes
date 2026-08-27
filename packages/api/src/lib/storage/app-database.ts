@@ -393,6 +393,7 @@ export type AppDatabaseChangeDomain =
   | "notebook"
   | "task"
   | "projection"
+  | "memory"
   | "meta";
 
 export interface AppDatabaseChangeSet {
@@ -1064,6 +1065,112 @@ export interface AppDatabaseNotificationRecord {
   cleared: boolean;
 }
 
+export type AppDatabaseMemoryScopeKind = "user" | "workspace" | "project";
+export type AppDatabaseMemoryOriginClass =
+  | "owner"
+  | "agent"
+  | "untrusted"
+  | "system";
+
+export interface AppDatabaseMemorySourceRecord {
+  sourceKey: string;
+  sourcePath: string;
+  sourceHash: string;
+  lastEntryId?: string;
+  lastEntryHash?: string;
+  status: "ready" | "inconsistent" | "error" | "excluded";
+  indexedAt: number;
+  errorCode?: string;
+}
+
+export interface AppDatabaseMemoryCandidateRecord {
+  id: string;
+  scopeKind: AppDatabaseMemoryScopeKind;
+  scopePath: string;
+  kind: "preference" | "fact" | "decision" | "procedure" | "constraint";
+  normalizedClaim: string;
+  claimHash: string;
+  supersessionKey?: string;
+  originClass: AppDatabaseMemoryOriginClass;
+  importance: 1 | 2 | 3 | 4 | 5;
+  triggers: string[];
+  state: "staged" | "review" | "promoted" | "rejected";
+  firstSeenAt: number;
+  lastSeenAt: number;
+  recurrenceCount: number;
+  conversationCount: number;
+  promotedMemoryId?: string;
+}
+
+export interface AppDatabaseMemoryCandidateOriginRecord {
+  candidateId: string;
+  conversationId: string;
+  entryId: string;
+  entryHash: string;
+  observedAt: number;
+}
+
+export interface AppDatabaseMemoryCandidateInput {
+  candidate: AppDatabaseMemoryCandidateRecord;
+  origins: AppDatabaseMemoryCandidateOriginRecord[];
+}
+
+export interface AppDatabaseMemoryCandidateQuery {
+  scopeKind?: AppDatabaseMemoryScopeKind;
+  scopePath?: string;
+  states?: AppDatabaseMemoryCandidateRecord["state"][];
+  limit?: number;
+}
+
+export interface AppDatabaseMemoryCandidateResult {
+  candidate: AppDatabaseMemoryCandidateRecord;
+  origins: AppDatabaseMemoryCandidateOriginRecord[];
+}
+
+export interface AppDatabaseMemoryRecallSignalRecord {
+  targetRef: string;
+  queryFingerprint: string;
+  day: string;
+  bestScore: number;
+  hitCount: number;
+}
+
+export interface AppDatabaseMemoryJobRecord {
+  id: string;
+  kind: "ingest" | "consolidate" | "rebuild" | "forget";
+  scopeKey: string;
+  status: "queued" | "running" | "completed" | "failed";
+  cursor?: string;
+  attempts: number;
+  maxAttempts: number;
+  ownerId?: string;
+  leaseUntil?: number;
+  createdAt: number;
+  startedAt?: number;
+  finishedAt?: number;
+  errorCode?: string;
+}
+
+export interface AppDatabaseMemoryJobClaimInput {
+  job: AppDatabaseMemoryJobRecord;
+  ownerId: string;
+  now: number;
+  leaseMs: number;
+}
+
+export interface AppDatabaseMemoryJobUpdateInput {
+  jobId: string;
+  ownerId: string;
+  now: number;
+  patch: Pick<AppDatabaseMemoryJobRecord, "status"> &
+    Partial<
+      Pick<
+        AppDatabaseMemoryJobRecord,
+        "cursor" | "leaseUntil" | "finishedAt" | "errorCode"
+      >
+    >;
+}
+
 export interface AppDatabase {
   readonly kind: AppDatabaseKind;
   readonly vaultId: string;
@@ -1100,6 +1207,33 @@ export interface AppDatabase {
   markNotificationRead(id: string): Promise<void>;
   clearNotification(id: string): Promise<void>;
   clearAllNotifications(): Promise<void>;
+  getMemorySourceState(
+    sourceKey: string,
+  ): Promise<AppDatabaseMemorySourceRecord | undefined>;
+  listMemorySourceStates(): Promise<AppDatabaseMemorySourceRecord[]>;
+  upsertMemorySourceState(
+    record: AppDatabaseMemorySourceRecord,
+  ): Promise<void>;
+  deleteMemorySourceState(sourceKey: string): Promise<void>;
+  upsertMemoryCandidate(input: AppDatabaseMemoryCandidateInput): Promise<void>;
+  queryMemoryCandidates(
+    query?: AppDatabaseMemoryCandidateQuery,
+  ): Promise<AppDatabaseMemoryCandidateResult[]>;
+  deleteMemoryCandidatesByConversation(conversationId: string): Promise<void>;
+  recordMemoryRecallSignal(
+    record: AppDatabaseMemoryRecallSignalRecord,
+  ): Promise<void>;
+  listMemoryRecallSignals(
+    targetRef?: string,
+  ): Promise<AppDatabaseMemoryRecallSignalRecord[]>;
+  claimMemoryJob(
+    input: AppDatabaseMemoryJobClaimInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null>;
+  updateMemoryJob(
+    input: AppDatabaseMemoryJobUpdateInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null>;
+  listMemoryJobs(scopeKey?: string): Promise<AppDatabaseMemoryJobRecord[]>;
+  clearMemoryDerivedState(): Promise<void>;
   getChangeRevision(): Promise<number>;
   subscribeToChanges(listener: AppDatabaseChangeListener): () => void;
   upsertIndexedFile(record: AppDatabaseIndexedFile): Promise<void>;
@@ -1194,6 +1328,19 @@ export interface AppDatabaseProvider {
 
 const NOTIFICATIONS_META_KEY = "notifications.records";
 
+function memoryRecallSignalKey(
+  record: Pick<
+    AppDatabaseMemoryRecallSignalRecord,
+    "targetRef" | "queryFingerprint" | "day"
+  >,
+): string {
+  return JSON.stringify([
+    record.targetRef,
+    record.queryFingerprint,
+    record.day,
+  ]);
+}
+
 export type AppDatabaseState = {
   meta: Record<string, unknown>;
   metadataSnapshot: MetadataCacheSnapshot | null;
@@ -1213,9 +1360,14 @@ export type AppDatabaseState = {
   projectionValues?: IndexProjectionValueRecord[];
   projectionEdges?: IndexProjectionEdgeRecord[];
   projectionRevision?: number;
+  memorySources?: AppDatabaseMemorySourceRecord[];
+  memoryCandidates?: AppDatabaseMemoryCandidateRecord[];
+  memoryCandidateOrigins?: AppDatabaseMemoryCandidateOriginRecord[];
+  memoryRecallSignals?: AppDatabaseMemoryRecallSignalRecord[];
+  memoryJobs?: AppDatabaseMemoryJobRecord[];
 };
 
-export const APP_DATABASE_SCHEMA_VERSION = 5;
+export const APP_DATABASE_SCHEMA_VERSION = 6;
 
 function clone<T>(value: T): T {
   if (value === undefined || value === null) return value;
@@ -2231,6 +2383,20 @@ export class MemoryAppDatabase implements AppDatabase {
   protected projectionValues: IndexProjectionValueRecord[] = [];
   protected projectionEdges: IndexProjectionEdgeRecord[] = [];
   protected projectionRevision = 0;
+  protected memorySources = new Map<string, AppDatabaseMemorySourceRecord>();
+  protected memoryCandidates = new Map<
+    string,
+    AppDatabaseMemoryCandidateRecord
+  >();
+  protected memoryCandidateOrigins = new Map<
+    string,
+    AppDatabaseMemoryCandidateOriginRecord[]
+  >();
+  protected memoryRecallSignals = new Map<
+    string,
+    AppDatabaseMemoryRecallSignalRecord
+  >();
+  protected memoryJobs = new Map<string, AppDatabaseMemoryJobRecord>();
   protected changeRevision = 0;
   private readonly changeListeners = new Set<AppDatabaseChangeListener>();
 
@@ -2512,6 +2678,188 @@ export class MemoryAppDatabase implements AppDatabase {
       records.map((record) => ({ ...record, cleared: true, updatedAt: now })),
     );
     this.emitChange(["notification"]);
+  }
+
+  async getMemorySourceState(
+    sourceKey: string,
+  ): Promise<AppDatabaseMemorySourceRecord | undefined> {
+    return clone(this.memorySources.get(sourceKey));
+  }
+
+  async listMemorySourceStates(): Promise<AppDatabaseMemorySourceRecord[]> {
+    return [...this.memorySources.values()]
+      .sort((left, right) => left.sourceKey.localeCompare(right.sourceKey))
+      .map((record) => clone(record));
+  }
+
+  async upsertMemorySourceState(
+    record: AppDatabaseMemorySourceRecord,
+  ): Promise<void> {
+    this.memorySources.set(record.sourceKey, clone(record));
+    this.emitChange(["memory"], [record.sourcePath]);
+  }
+
+  async deleteMemorySourceState(sourceKey: string): Promise<void> {
+    const existing = this.memorySources.get(sourceKey);
+    this.memorySources.delete(sourceKey);
+    this.emitChange(["memory"], existing ? [existing.sourcePath] : []);
+  }
+
+  async upsertMemoryCandidate(
+    input: AppDatabaseMemoryCandidateInput,
+  ): Promise<void> {
+    this.memoryCandidates.set(input.candidate.id, clone(input.candidate));
+    this.memoryCandidateOrigins.set(
+      input.candidate.id,
+      clone(
+        input.origins.filter(
+          (origin) => origin.candidateId === input.candidate.id,
+        ),
+      ),
+    );
+    this.emitChange(["memory"]);
+  }
+
+  async queryMemoryCandidates(
+    query: AppDatabaseMemoryCandidateQuery = {},
+  ): Promise<AppDatabaseMemoryCandidateResult[]> {
+    const states = query.states ? new Set(query.states) : null;
+    const limit = Math.max(0, query.limit ?? Number.POSITIVE_INFINITY);
+    return [...this.memoryCandidates.values()]
+      .filter(
+        (candidate) =>
+          (!query.scopeKind || candidate.scopeKind === query.scopeKind) &&
+          (query.scopePath === undefined ||
+            candidate.scopePath === query.scopePath) &&
+          (!states || states.has(candidate.state)),
+      )
+      .sort(
+        (left, right) =>
+          right.lastSeenAt - left.lastSeenAt || left.id.localeCompare(right.id),
+      )
+      .slice(0, limit)
+      .map((candidate) => ({
+        candidate: clone(candidate),
+        origins: clone(this.memoryCandidateOrigins.get(candidate.id) ?? []),
+      }));
+  }
+
+  async deleteMemoryCandidatesByConversation(
+    conversationId: string,
+  ): Promise<void> {
+    for (const [candidateId, origins] of this.memoryCandidateOrigins) {
+      if (!origins.some((origin) => origin.conversationId === conversationId)) {
+        continue;
+      }
+      this.memoryCandidateOrigins.delete(candidateId);
+      this.memoryCandidates.delete(candidateId);
+    }
+    this.emitChange(["memory"]);
+  }
+
+  async recordMemoryRecallSignal(
+    record: AppDatabaseMemoryRecallSignalRecord,
+  ): Promise<void> {
+    const key = memoryRecallSignalKey(record);
+    const existing = this.memoryRecallSignals.get(key);
+    this.memoryRecallSignals.set(key, {
+      ...clone(record),
+      bestScore: Math.max(existing?.bestScore ?? 0, record.bestScore),
+      hitCount: (existing?.hitCount ?? 0) + Math.max(0, record.hitCount),
+    });
+    this.emitChange(["memory"]);
+  }
+
+  async listMemoryRecallSignals(
+    targetRef?: string,
+  ): Promise<AppDatabaseMemoryRecallSignalRecord[]> {
+    return [...this.memoryRecallSignals.values()]
+      .filter((record) => targetRef === undefined || record.targetRef === targetRef)
+      .sort(
+        (left, right) =>
+          right.day.localeCompare(left.day) ||
+          left.queryFingerprint.localeCompare(right.queryFingerprint),
+      )
+      .map((record) => clone(record));
+  }
+
+  async claimMemoryJob(
+    input: AppDatabaseMemoryJobClaimInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null> {
+    const existing = this.memoryJobs.get(input.job.id);
+    const renewing =
+      existing?.status === "running" && existing.ownerId === input.ownerId;
+    if (
+      existing?.status === "running" &&
+      existing.ownerId !== input.ownerId &&
+      (existing.leaseUntil ?? 0) > input.now
+    ) {
+      return null;
+    }
+    const base = existing ?? input.job;
+    const attempts = renewing ? base.attempts : base.attempts + 1;
+    if (attempts > base.maxAttempts) return null;
+    const claimed: AppDatabaseMemoryJobRecord = {
+      ...clone(base),
+      status: "running",
+      attempts,
+      ownerId: input.ownerId,
+      leaseUntil: input.now + Math.max(1, input.leaseMs),
+      startedAt: renewing ? base.startedAt : input.now,
+      finishedAt: undefined,
+      errorCode: undefined,
+    };
+    this.memoryJobs.set(claimed.id, claimed);
+    this.emitChange(["memory"]);
+    return clone(claimed);
+  }
+
+  async updateMemoryJob(
+    input: AppDatabaseMemoryJobUpdateInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null> {
+    const existing = this.memoryJobs.get(input.jobId);
+    if (
+      !existing ||
+      existing.status !== "running" ||
+      existing.ownerId !== input.ownerId ||
+      (existing.leaseUntil ?? 0) < input.now
+    ) {
+      return null;
+    }
+    const updated: AppDatabaseMemoryJobRecord = {
+      ...existing,
+      ...clone(input.patch),
+      ownerId:
+        input.patch.status === "running" ? existing.ownerId : undefined,
+      leaseUntil:
+        input.patch.status === "running"
+          ? input.patch.leaseUntil ?? existing.leaseUntil
+          : undefined,
+    };
+    this.memoryJobs.set(updated.id, updated);
+    this.emitChange(["memory"]);
+    return clone(updated);
+  }
+
+  async listMemoryJobs(
+    scopeKey?: string,
+  ): Promise<AppDatabaseMemoryJobRecord[]> {
+    return [...this.memoryJobs.values()]
+      .filter((job) => scopeKey === undefined || job.scopeKey === scopeKey)
+      .sort(
+        (left, right) =>
+          right.createdAt - left.createdAt || left.id.localeCompare(right.id),
+      )
+      .map((job) => clone(job));
+  }
+
+  async clearMemoryDerivedState(): Promise<void> {
+    this.memorySources.clear();
+    this.memoryCandidates.clear();
+    this.memoryCandidateOrigins.clear();
+    this.memoryRecallSignals.clear();
+    this.memoryJobs.clear();
+    this.emitChange(["memory"]);
   }
 
   async getChangeRevision(): Promise<number> {
@@ -3610,6 +3958,19 @@ export class MemoryAppDatabase implements AppDatabase {
       projectionValues: this.projectionValues.map((value) => clone(value)),
       projectionEdges: this.projectionEdges.map((value) => clone(value)),
       projectionRevision: this.projectionRevision,
+      memorySources: [...this.memorySources.values()].map((value) =>
+        clone(value),
+      ),
+      memoryCandidates: [...this.memoryCandidates.values()].map((value) =>
+        clone(value),
+      ),
+      memoryCandidateOrigins: [
+        ...this.memoryCandidateOrigins.values(),
+      ].flatMap((origins) => origins.map((origin) => clone(origin))),
+      memoryRecallSignals: [...this.memoryRecallSignals.values()].map((value) =>
+        clone(value),
+      ),
+      memoryJobs: [...this.memoryJobs.values()].map((value) => clone(value)),
     };
   }
 
@@ -3663,6 +4024,27 @@ export class MemoryAppDatabase implements AppDatabase {
     this.projectionValues = clone(state.projectionValues ?? []);
     this.projectionEdges = clone(state.projectionEdges ?? []);
     this.projectionRevision = state.projectionRevision ?? 0;
+    this.memorySources = new Map(
+      (state.memorySources ?? []).map((record) => [record.sourceKey, record]),
+    );
+    this.memoryCandidates = new Map(
+      (state.memoryCandidates ?? []).map((record) => [record.id, record]),
+    );
+    this.memoryCandidateOrigins = new Map();
+    for (const origin of state.memoryCandidateOrigins ?? []) {
+      const origins = this.memoryCandidateOrigins.get(origin.candidateId) ?? [];
+      origins.push(origin);
+      this.memoryCandidateOrigins.set(origin.candidateId, origins);
+    }
+    this.memoryRecallSignals = new Map(
+      (state.memoryRecallSignals ?? []).map((record) => [
+        memoryRecallSignalKey(record),
+        record,
+      ]),
+    );
+    this.memoryJobs = new Map(
+      (state.memoryJobs ?? []).map((record) => [record.id, record]),
+    );
     this.rebuildSearchIndexStats();
   }
 

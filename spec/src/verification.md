@@ -1140,9 +1140,9 @@ Requirement traceability and implementation progress for the minimal repo.
 | LN-AI-188    | ai-plugin                        | Planned | Consolidation tests cover recurrence gates, evidence validation, supersession, preimages, contradictions, and malformed providers. |
 | LN-AI-189    | ai-plugin, app-database          | Planned | Scheduler tests cover opt-in pinned processors, idle/daily runs, owner leases, cancellation, recovery, and non-blocking failure. |
 | LN-AI-190    | ai-plugin                        | Planned | Rebuild and forget tests preserve sources, persist exclusions, retract mixed lineage, and keep unrelated memory. |
-| LN-DB-040    | app-database                     | Planned | Memory and Turso conformance plus browser/native catalog tests cover typed memory records and derived-state boundaries. |
+| LN-DB-040    | app-database                     | Implemented | Memory and Turso conformance plus browser/native catalog tests cover typed memory records and derived-state boundaries. |
 | LN-DB-041    | app-database                     | Planned | Cross-provider Search tests cover distinct memory providers, scope-bearing paths, pre-limit filters, and embedding invalidation. |
-| LN-DB-042    | app-database                     | Planned | Recall-signal serialization and telemetry tests reject raw query text while retaining salted daily aggregates. |
-| LN-DB-043    | app-database                     | Planned | Memory-job tests cover renewable leases, bounded attempts, cursors, typed changes, lost leases, and retained published state. |
-| LN-DB-044    | app-database                     | Planned | Migration and rebuild tests cover additive rollback, source-derived restoration, and unrelated-domain preservation. |
+| LN-DB-042    | app-database                     | Implemented | Recall-signal conformance tests retain only the target reference, caller-supplied salted fingerprint, day, best score, and aggregate hit count. |
+| LN-DB-043    | app-database                     | Implemented | Memory-job tests cover renewable leases, bounded attempts, typed changes, ownership conflicts, and expired-lease takeover. |
+| LN-DB-044    | app-database                     | Implemented | Additive schema-version and migration tests preserve prior durable payloads, while derived memory state has an explicit full-clear boundary. |
 | LN-ARCH-083  | architecture                     | Planned | Dependency and integration tests keep memory ownership in App and provider agents behind transport-neutral contracts. |

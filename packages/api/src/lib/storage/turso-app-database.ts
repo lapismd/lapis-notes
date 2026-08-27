@@ -36,6 +36,16 @@ import {
   type AppDatabaseMetadataFacetQuery,
   type AppDatabaseMetadataFacetRow,
   type AppDatabaseMetadataLinkQuery,
+  type AppDatabaseMemoryCandidateInput,
+  type AppDatabaseMemoryCandidateOriginRecord,
+  type AppDatabaseMemoryCandidateQuery,
+  type AppDatabaseMemoryCandidateRecord,
+  type AppDatabaseMemoryCandidateResult,
+  type AppDatabaseMemoryJobClaimInput,
+  type AppDatabaseMemoryJobRecord,
+  type AppDatabaseMemoryJobUpdateInput,
+  type AppDatabaseMemoryRecallSignalRecord,
+  type AppDatabaseMemorySourceRecord,
   type AppDatabaseNotebookState,
   type AppDatabaseNotificationRecord,
   type AppDatabaseOpenContext,
@@ -121,7 +131,7 @@ export interface TursoAppDatabaseOptions {
   connectionFactory: TursoConnectionFactory;
 }
 
-export const TURSO_APP_DATABASE_SCHEMA_VERSION = 4;
+export const TURSO_APP_DATABASE_SCHEMA_VERSION = 5;
 
 export const TURSO_APP_DATABASE_SCHEMA = `
 CREATE TABLE IF NOT EXISTS schema_meta (
@@ -385,6 +395,52 @@ CREATE TABLE IF NOT EXISTS search_chunks (
   embedding BLOB
 );
 CREATE INDEX IF NOT EXISTS search_chunks_path_idx ON search_chunks(path);
+CREATE TABLE IF NOT EXISTS memory_source_state (
+  source_key TEXT PRIMARY KEY,
+  source_path TEXT NOT NULL,
+  source_hash TEXT NOT NULL,
+  status TEXT NOT NULL,
+  indexed_at INTEGER NOT NULL,
+  data_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS memory_candidates (
+  id TEXT PRIMARY KEY,
+  scope_kind TEXT NOT NULL,
+  scope_path TEXT NOT NULL,
+  state TEXT NOT NULL,
+  last_seen_at INTEGER NOT NULL,
+  data_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS memory_candidates_scope_state
+  ON memory_candidates(scope_kind, scope_path, state, last_seen_at DESC);
+CREATE TABLE IF NOT EXISTS memory_candidate_origins (
+  candidate_id TEXT NOT NULL,
+  conversation_id TEXT NOT NULL,
+  entry_id TEXT NOT NULL,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (candidate_id, conversation_id, entry_id)
+);
+CREATE INDEX IF NOT EXISTS memory_candidate_origins_conversation
+  ON memory_candidate_origins(conversation_id, candidate_id);
+CREATE TABLE IF NOT EXISTS memory_recall_signals (
+  target_ref TEXT NOT NULL,
+  query_fingerprint TEXT NOT NULL,
+  day TEXT NOT NULL,
+  best_score REAL NOT NULL,
+  hit_count INTEGER NOT NULL,
+  data_json TEXT NOT NULL,
+  PRIMARY KEY (target_ref, query_fingerprint, day)
+);
+CREATE TABLE IF NOT EXISTS memory_jobs (
+  id TEXT PRIMARY KEY,
+  scope_key TEXT NOT NULL,
+  status TEXT NOT NULL,
+  lease_until INTEGER,
+  created_at INTEGER NOT NULL,
+  data_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS memory_jobs_scope_created
+  ON memory_jobs(scope_key, created_at DESC);
 `;
 
 const TURSO_SEARCH_FTS_SCHEMA = `
@@ -1170,6 +1226,405 @@ export class TursoAppDatabase implements AppDatabase {
         ],
       })),
       ["notification"],
+    );
+  }
+
+  async getMemorySourceState(
+    sourceKey: string,
+  ): Promise<AppDatabaseMemorySourceRecord | undefined> {
+    const row = await this.requireConnection().get<{ data_json: string }>(
+      "SELECT data_json FROM memory_source_state WHERE source_key = ?",
+      sourceKey,
+    );
+    return row
+      ? parseJson<AppDatabaseMemorySourceRecord>(
+          row.data_json,
+          {} as AppDatabaseMemorySourceRecord,
+        )
+      : undefined;
+  }
+
+  async listMemorySourceStates(): Promise<AppDatabaseMemorySourceRecord[]> {
+    const rows = await this.requireConnection().all<{ data_json: string }>(
+      "SELECT data_json FROM memory_source_state ORDER BY source_key",
+    );
+    return rows.map((row) =>
+      parseJson<AppDatabaseMemorySourceRecord>(
+        row.data_json,
+        {} as AppDatabaseMemorySourceRecord,
+      ),
+    );
+  }
+
+  async upsertMemorySourceState(
+    record: AppDatabaseMemorySourceRecord,
+  ): Promise<void> {
+    await this.commit(
+      [
+        {
+          sql: `INSERT INTO memory_source_state
+              (source_key, source_path, source_hash, status, indexed_at, data_json)
+              VALUES (?, ?, ?, ?, ?, ?)
+              ON CONFLICT(source_key) DO UPDATE SET
+                source_path = excluded.source_path,
+                source_hash = excluded.source_hash,
+                status = excluded.status,
+                indexed_at = excluded.indexed_at,
+                data_json = excluded.data_json`,
+          args: [
+            record.sourceKey,
+            record.sourcePath,
+            record.sourceHash,
+            record.status,
+            record.indexedAt,
+            JSON.stringify(record),
+          ],
+        },
+      ],
+      ["memory"],
+      [record.sourcePath],
+    );
+  }
+
+  async deleteMemorySourceState(sourceKey: string): Promise<void> {
+    const existing = await this.getMemorySourceState(sourceKey);
+    await this.commit(
+      [
+        {
+          sql: "DELETE FROM memory_source_state WHERE source_key = ?",
+          args: [sourceKey],
+        },
+      ],
+      ["memory"],
+      existing ? [existing.sourcePath] : [],
+    );
+  }
+
+  async upsertMemoryCandidate(
+    input: AppDatabaseMemoryCandidateInput,
+  ): Promise<void> {
+    const candidate = input.candidate;
+    await this.commit(
+      [
+        {
+          sql: `INSERT INTO memory_candidates
+              (id, scope_kind, scope_path, state, last_seen_at, data_json)
+              VALUES (?, ?, ?, ?, ?, ?)
+              ON CONFLICT(id) DO UPDATE SET
+                scope_kind = excluded.scope_kind,
+                scope_path = excluded.scope_path,
+                state = excluded.state,
+                last_seen_at = excluded.last_seen_at,
+                data_json = excluded.data_json`,
+          args: [
+            candidate.id,
+            candidate.scopeKind,
+            candidate.scopePath,
+            candidate.state,
+            candidate.lastSeenAt,
+            JSON.stringify(candidate),
+          ],
+        },
+        {
+          sql: "DELETE FROM memory_candidate_origins WHERE candidate_id = ?",
+          args: [candidate.id],
+        },
+        ...input.origins
+          .filter((origin) => origin.candidateId === candidate.id)
+          .map((origin) => ({
+            sql: `INSERT INTO memory_candidate_origins
+                (candidate_id, conversation_id, entry_id, data_json)
+                VALUES (?, ?, ?, ?)`,
+            args: [
+              origin.candidateId,
+              origin.conversationId,
+              origin.entryId,
+              JSON.stringify(origin),
+            ],
+          })),
+      ],
+      ["memory"],
+    );
+  }
+
+  async queryMemoryCandidates(
+    query: AppDatabaseMemoryCandidateQuery = {},
+  ): Promise<AppDatabaseMemoryCandidateResult[]> {
+    const clauses: string[] = [];
+    const args: unknown[] = [];
+    if (query.scopeKind) {
+      clauses.push("scope_kind = ?");
+      args.push(query.scopeKind);
+    }
+    if (query.scopePath !== undefined) {
+      clauses.push("scope_path = ?");
+      args.push(query.scopePath);
+    }
+    if (query.states?.length) {
+      clauses.push(`state IN (${query.states.map(() => "?").join(", ")})`);
+      args.push(...query.states);
+    }
+    const limit = Math.max(1, Math.min(query.limit ?? 1_000, 10_000));
+    const rows = await this.requireConnection().all<{
+      id: string;
+      data_json: string;
+    }>(
+      `SELECT id, data_json FROM memory_candidates
+       ${clauses.length ? `WHERE ${clauses.join(" AND ")}` : ""}
+       ORDER BY last_seen_at DESC, id ASC LIMIT ?`,
+      ...args,
+      limit,
+    );
+    if (rows.length === 0) return [];
+    const originRows = await this.requireConnection().all<{
+      candidate_id: string;
+      data_json: string;
+    }>(
+      `SELECT candidate_id, data_json FROM memory_candidate_origins
+       WHERE candidate_id IN (${rows.map(() => "?").join(", ")})
+       ORDER BY candidate_id, conversation_id, entry_id`,
+      ...rows.map((row) => row.id),
+    );
+    const origins = new Map<string, AppDatabaseMemoryCandidateOriginRecord[]>();
+    for (const row of originRows) {
+      const values = origins.get(row.candidate_id) ?? [];
+      values.push(
+        parseJson<AppDatabaseMemoryCandidateOriginRecord>(
+          row.data_json,
+          {} as AppDatabaseMemoryCandidateOriginRecord,
+        ),
+      );
+      origins.set(row.candidate_id, values);
+    }
+    return rows.map((row) => ({
+      candidate: parseJson<AppDatabaseMemoryCandidateRecord>(
+        row.data_json,
+        {} as AppDatabaseMemoryCandidateRecord,
+      ),
+      origins: origins.get(row.id) ?? [],
+    }));
+  }
+
+  async deleteMemoryCandidatesByConversation(
+    conversationId: string,
+  ): Promise<void> {
+    const rows = await this.requireConnection().all<{ candidate_id: string }>(
+      `SELECT DISTINCT candidate_id FROM memory_candidate_origins
+       WHERE conversation_id = ?`,
+      conversationId,
+    );
+    if (rows.length === 0) return;
+    const ids = rows.map((row) => row.candidate_id);
+    const placeholders = ids.map(() => "?").join(", ");
+    await this.commit(
+      [
+        {
+          sql: `DELETE FROM memory_candidate_origins
+                WHERE candidate_id IN (${placeholders})`,
+          args: ids,
+        },
+        {
+          sql: `DELETE FROM memory_candidates WHERE id IN (${placeholders})`,
+          args: ids,
+        },
+      ],
+      ["memory"],
+    );
+  }
+
+  async recordMemoryRecallSignal(
+    record: AppDatabaseMemoryRecallSignalRecord,
+  ): Promise<void> {
+    await this.commit(
+      [
+        {
+          sql: `INSERT INTO memory_recall_signals
+              (target_ref, query_fingerprint, day, best_score, hit_count, data_json)
+              VALUES (?, ?, ?, ?, ?, ?)
+              ON CONFLICT(target_ref, query_fingerprint, day) DO UPDATE SET
+                best_score = max(best_score, excluded.best_score),
+                hit_count = hit_count + excluded.hit_count,
+                data_json = excluded.data_json`,
+          args: [
+            record.targetRef,
+            record.queryFingerprint,
+            record.day,
+            record.bestScore,
+            Math.max(0, record.hitCount),
+            JSON.stringify(record),
+          ],
+        },
+      ],
+      ["memory"],
+    );
+  }
+
+  async listMemoryRecallSignals(
+    targetRef?: string,
+  ): Promise<AppDatabaseMemoryRecallSignalRecord[]> {
+    const rows = await this.requireConnection().all<{
+      target_ref: string;
+      query_fingerprint: string;
+      day: string;
+      best_score: number;
+      hit_count: number;
+      data_json: string;
+    }>(
+      `SELECT target_ref, query_fingerprint, day, best_score, hit_count, data_json
+       FROM memory_recall_signals
+       ${targetRef === undefined ? "" : "WHERE target_ref = ?"}
+       ORDER BY day DESC, query_fingerprint`,
+      ...(targetRef === undefined ? [] : [targetRef]),
+    );
+    return rows.map((row) => ({
+      ...parseJson<AppDatabaseMemoryRecallSignalRecord>(row.data_json, {
+        targetRef: row.target_ref,
+        queryFingerprint: row.query_fingerprint,
+        day: row.day,
+        bestScore: Number(row.best_score),
+        hitCount: Number(row.hit_count),
+      }),
+      bestScore: Number(row.best_score),
+      hitCount: Number(row.hit_count),
+    }));
+  }
+
+  async claimMemoryJob(
+    input: AppDatabaseMemoryJobClaimInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null> {
+    const row = await this.requireConnection().get<{ data_json: string }>(
+      "SELECT data_json FROM memory_jobs WHERE id = ?",
+      input.job.id,
+    );
+    const existing = row
+      ? parseJson<AppDatabaseMemoryJobRecord>(
+          row.data_json,
+          {} as AppDatabaseMemoryJobRecord,
+        )
+      : undefined;
+    const renewing =
+      existing?.status === "running" && existing.ownerId === input.ownerId;
+    if (
+      existing?.status === "running" &&
+      existing.ownerId !== input.ownerId &&
+      (existing.leaseUntil ?? 0) > input.now
+    ) {
+      return null;
+    }
+    const base = existing ?? input.job;
+    const attempts = renewing ? base.attempts : base.attempts + 1;
+    if (attempts > base.maxAttempts) return null;
+    const claimed: AppDatabaseMemoryJobRecord = {
+      ...base,
+      status: "running",
+      attempts,
+      ownerId: input.ownerId,
+      leaseUntil: input.now + Math.max(1, input.leaseMs),
+      startedAt: renewing ? base.startedAt : input.now,
+      finishedAt: undefined,
+      errorCode: undefined,
+    };
+    await this.commit(
+      [
+        {
+          sql: `INSERT INTO memory_jobs
+              (id, scope_key, status, lease_until, created_at, data_json)
+              VALUES (?, ?, ?, ?, ?, ?)
+              ON CONFLICT(id) DO UPDATE SET
+                scope_key = excluded.scope_key,
+                status = excluded.status,
+                lease_until = excluded.lease_until,
+                created_at = excluded.created_at,
+                data_json = excluded.data_json`,
+          args: [
+            claimed.id,
+            claimed.scopeKey,
+            claimed.status,
+            claimed.leaseUntil ?? null,
+            claimed.createdAt,
+            JSON.stringify(claimed),
+          ],
+        },
+      ],
+      ["memory"],
+    );
+    return claimed;
+  }
+
+  async updateMemoryJob(
+    input: AppDatabaseMemoryJobUpdateInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null> {
+    const row = await this.requireConnection().get<{ data_json: string }>(
+      "SELECT data_json FROM memory_jobs WHERE id = ?",
+      input.jobId,
+    );
+    if (!row) return null;
+    const existing = parseJson<AppDatabaseMemoryJobRecord>(
+      row.data_json,
+      {} as AppDatabaseMemoryJobRecord,
+    );
+    if (
+      existing.status !== "running" ||
+      existing.ownerId !== input.ownerId ||
+      (existing.leaseUntil ?? 0) < input.now
+    ) {
+      return null;
+    }
+    const updated: AppDatabaseMemoryJobRecord = {
+      ...existing,
+      ...input.patch,
+      ownerId:
+        input.patch.status === "running" ? existing.ownerId : undefined,
+      leaseUntil:
+        input.patch.status === "running"
+          ? input.patch.leaseUntil ?? existing.leaseUntil
+          : undefined,
+    };
+    await this.commit(
+      [
+        {
+          sql: `UPDATE memory_jobs
+                SET status = ?, lease_until = ?, data_json = ? WHERE id = ?`,
+          args: [
+            updated.status,
+            updated.leaseUntil ?? null,
+            JSON.stringify(updated),
+            updated.id,
+          ],
+        },
+      ],
+      ["memory"],
+    );
+    return updated;
+  }
+
+  async listMemoryJobs(
+    scopeKey?: string,
+  ): Promise<AppDatabaseMemoryJobRecord[]> {
+    const rows = await this.requireConnection().all<{ data_json: string }>(
+      `SELECT data_json FROM memory_jobs
+       ${scopeKey === undefined ? "" : "WHERE scope_key = ?"}
+       ORDER BY created_at DESC, id`,
+      ...(scopeKey === undefined ? [] : [scopeKey]),
+    );
+    return rows.map((row) =>
+      parseJson<AppDatabaseMemoryJobRecord>(
+        row.data_json,
+        {} as AppDatabaseMemoryJobRecord,
+      ),
+    );
+  }
+
+  async clearMemoryDerivedState(): Promise<void> {
+    await this.commit(
+      [
+        "DELETE FROM memory_candidate_origins",
+        "DELETE FROM memory_candidates",
+        "DELETE FROM memory_source_state",
+        "DELETE FROM memory_recall_signals",
+        "DELETE FROM memory_jobs",
+      ],
+      ["memory"],
     );
   }
 

@@ -159,6 +159,14 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-082 | Design Core MUST own the reusable structured-query input, completion presentation, colour popover, and sortable-row interaction. API MUST own the shared vault syntax/completion model. Graph MUST depend only on those public contracts, AppDatabase path-only membership, and the public Markdown read-only embed while retaining viewport-clamped settings-panel composition with guttered handles, divider-free idle rows, rounded whole-row focus paint with an outer trailing gap, and visible padding-owned row actions with an internal trailing gutter; it MUST NOT import Search-plugin internals or duplicate Markdown rendering. |
 | LN-ARCH-083 | The App MUST own AI memory services, durable vault records, derived AppDatabase state, recall policy, and consolidation scheduling. ACP agents and models MAY consume or propose memory through transport-neutral contracts but MUST NOT own its identity, scope, persistence, trust, or lifecycle. |
 
+The first app-owned memory boundary is the disposable database substrate:
+portable memory code calls one typed `AppDatabase` surface for checkpoints,
+candidates, exact candidate origins, daily salted recall aggregates, and leased
+jobs. The memory and Turso providers implement the same surface, while browser
+tabs and the Deno renderer forward only the allowlisted methods. This transport
+parity does not transfer memory ownership to the database owner, browser tab,
+desktop worker, ACP session, or processing model.
+
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core
 controller, focus, and persisted layout remain synchronized. Setting

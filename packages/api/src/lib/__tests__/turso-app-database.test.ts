@@ -68,6 +68,119 @@ describe("TursoAppDatabase", () => {
     await database.close();
   });
 
+  it("persists disposable memory state and enforces renewable job leases", async () => {
+    const database = createDatabase("turso-memory");
+    await database.open();
+
+    await database.upsertMemorySourceState({
+      sourceKey: "conversation-1",
+      sourcePath: ".lapis/agents/sessions/conversation-1/transcript.jsonl",
+      sourceHash: "source-hash",
+      lastEntryId: "entry-1",
+      lastEntryHash: "entry-hash",
+      status: "ready",
+      indexedAt: 100,
+    });
+    await database.upsertMemoryCandidate({
+      candidate: {
+        id: "candidate-1",
+        scopeKind: "workspace",
+        scopePath: "",
+        kind: "decision",
+        normalizedClaim: "Keep transcripts immutable",
+        claimHash: "claim-hash",
+        supersessionKey: "ai.transcript-authority",
+        originClass: "owner",
+        importance: 5,
+        triggers: ["transcript", "memory"],
+        state: "review",
+        firstSeenAt: 100,
+        lastSeenAt: 200,
+        recurrenceCount: 2,
+        conversationCount: 2,
+      },
+      origins: [
+        {
+          candidateId: "candidate-1",
+          conversationId: "conversation-1",
+          entryId: "entry-1",
+          entryHash: "entry-hash",
+          observedAt: 100,
+        },
+      ],
+    });
+    await database.recordMemoryRecallSignal({
+      targetRef: "curated:memory-1:1",
+      queryFingerprint: "salted",
+      day: "2026-08-27",
+      bestScore: 0.4,
+      hitCount: 1,
+    });
+    await database.recordMemoryRecallSignal({
+      targetRef: "curated:memory-1:1",
+      queryFingerprint: "salted",
+      day: "2026-08-27",
+      bestScore: 0.9,
+      hitCount: 2,
+    });
+
+    const job = {
+      id: "consolidate:workspace",
+      kind: "consolidate" as const,
+      scopeKey: "workspace:",
+      status: "queued" as const,
+      attempts: 0,
+      maxAttempts: 3,
+      createdAt: 100,
+    };
+    await expect(
+      database.claimMemoryJob({
+        job,
+        ownerId: "owner-a",
+        now: 200,
+        leaseMs: 100,
+      }),
+    ).resolves.toMatchObject({ ownerId: "owner-a", attempts: 1 });
+    await expect(
+      database.claimMemoryJob({
+        job,
+        ownerId: "owner-b",
+        now: 250,
+        leaseMs: 100,
+      }),
+    ).resolves.toBeNull();
+    await expect(
+      database.claimMemoryJob({
+        job,
+        ownerId: "owner-b",
+        now: 301,
+        leaseMs: 100,
+      }),
+    ).resolves.toMatchObject({ ownerId: "owner-b", attempts: 2 });
+
+    await expect(database.listMemorySourceStates()).resolves.toHaveLength(1);
+    await expect(
+      database.queryMemoryCandidates({ states: ["review"] }),
+    ).resolves.toMatchObject([
+      {
+        candidate: { id: "candidate-1" },
+        origins: [{ conversationId: "conversation-1" }],
+      },
+    ]);
+    await expect(
+      database.listMemoryRecallSignals("curated:memory-1:1"),
+    ).resolves.toEqual([
+      expect.objectContaining({ bestScore: 0.9, hitCount: 3 }),
+    ]);
+
+    await database.clearMemoryDerivedState();
+    await expect(database.listMemorySourceStates()).resolves.toEqual([]);
+    await expect(database.queryMemoryCandidates()).resolves.toEqual([]);
+    await expect(database.listMemoryRecallSignals()).resolves.toEqual([]);
+    await expect(database.listMemoryJobs()).resolves.toEqual([]);
+    await database.close();
+  });
+
   it("rebuilds persisted Search chunks after enabling embeddings", async () => {
     const database = createDatabase("turso-search-rebuild");
     await database.open();

@@ -15,6 +15,14 @@ import type {
   AppDatabaseMetadataFacetQuery,
   AppDatabaseMetadataFacetRow,
   AppDatabaseMetadataLinkQuery,
+  AppDatabaseMemoryCandidateInput,
+  AppDatabaseMemoryCandidateQuery,
+  AppDatabaseMemoryCandidateResult,
+  AppDatabaseMemoryJobClaimInput,
+  AppDatabaseMemoryJobRecord,
+  AppDatabaseMemoryJobUpdateInput,
+  AppDatabaseMemoryRecallSignalRecord,
+  AppDatabaseMemorySourceRecord,
   AppDatabaseProvider,
   AppDatabaseNotificationRecord,
   AppDatabaseSearchIndexStats,
@@ -61,6 +69,19 @@ type AppDatabaseMethod =
   | "markNotificationRead"
   | "clearNotification"
   | "clearAllNotifications"
+  | "getMemorySourceState"
+  | "listMemorySourceStates"
+  | "upsertMemorySourceState"
+  | "deleteMemorySourceState"
+  | "upsertMemoryCandidate"
+  | "queryMemoryCandidates"
+  | "deleteMemoryCandidatesByConversation"
+  | "recordMemoryRecallSignal"
+  | "listMemoryRecallSignals"
+  | "claimMemoryJob"
+  | "updateMemoryJob"
+  | "listMemoryJobs"
+  | "clearMemoryDerivedState"
   | "getChangeRevision"
   | "upsertIndexedFile"
   | "getIndexedFile"
@@ -157,6 +178,19 @@ const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
   "markNotificationRead",
   "clearNotification",
   "clearAllNotifications",
+  "getMemorySourceState",
+  "listMemorySourceStates",
+  "upsertMemorySourceState",
+  "deleteMemorySourceState",
+  "upsertMemoryCandidate",
+  "queryMemoryCandidates",
+  "deleteMemoryCandidatesByConversation",
+  "recordMemoryRecallSignal",
+  "listMemoryRecallSignals",
+  "claimMemoryJob",
+  "updateMemoryJob",
+  "listMemoryJobs",
+  "clearMemoryDerivedState",
   "getChangeRevision",
   "upsertIndexedFile",
   "getIndexedFile",
@@ -509,6 +543,91 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
 
   async clearAllNotifications(): Promise<void> {
     await this.invoke("clearAllNotifications");
+  }
+
+  async getMemorySourceState(
+    sourceKey: string,
+  ): Promise<AppDatabaseMemorySourceRecord | undefined> {
+    return this.invoke<AppDatabaseMemorySourceRecord | undefined>(
+      "getMemorySourceState",
+      sourceKey,
+    );
+  }
+
+  async listMemorySourceStates(): Promise<AppDatabaseMemorySourceRecord[]> {
+    return this.invoke<AppDatabaseMemorySourceRecord[]>("listMemorySourceStates");
+  }
+
+  async upsertMemorySourceState(
+    record: AppDatabaseMemorySourceRecord,
+  ): Promise<void> {
+    await this.invoke("upsertMemorySourceState", record);
+  }
+
+  async deleteMemorySourceState(sourceKey: string): Promise<void> {
+    await this.invoke("deleteMemorySourceState", sourceKey);
+  }
+
+  async upsertMemoryCandidate(
+    input: AppDatabaseMemoryCandidateInput,
+  ): Promise<void> {
+    await this.invoke("upsertMemoryCandidate", input);
+  }
+
+  async queryMemoryCandidates(
+    query?: AppDatabaseMemoryCandidateQuery,
+  ): Promise<AppDatabaseMemoryCandidateResult[]> {
+    return this.invoke<AppDatabaseMemoryCandidateResult[]>(
+      "queryMemoryCandidates",
+      query,
+    );
+  }
+
+  async deleteMemoryCandidatesByConversation(
+    conversationId: string,
+  ): Promise<void> {
+    await this.invoke("deleteMemoryCandidatesByConversation", conversationId);
+  }
+
+  async recordMemoryRecallSignal(
+    record: AppDatabaseMemoryRecallSignalRecord,
+  ): Promise<void> {
+    await this.invoke("recordMemoryRecallSignal", record);
+  }
+
+  async listMemoryRecallSignals(
+    targetRef?: string,
+  ): Promise<AppDatabaseMemoryRecallSignalRecord[]> {
+    return this.invoke<AppDatabaseMemoryRecallSignalRecord[]>(
+      "listMemoryRecallSignals",
+      targetRef,
+    );
+  }
+
+  async claimMemoryJob(
+    input: AppDatabaseMemoryJobClaimInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null> {
+    return this.invoke<AppDatabaseMemoryJobRecord | null>(
+      "claimMemoryJob",
+      input,
+    );
+  }
+
+  async updateMemoryJob(
+    input: AppDatabaseMemoryJobUpdateInput,
+  ): Promise<AppDatabaseMemoryJobRecord | null> {
+    return this.invoke<AppDatabaseMemoryJobRecord | null>(
+      "updateMemoryJob",
+      input,
+    );
+  }
+
+  async listMemoryJobs(scopeKey?: string): Promise<AppDatabaseMemoryJobRecord[]> {
+    return this.invoke<AppDatabaseMemoryJobRecord[]>("listMemoryJobs", scopeKey);
+  }
+
+  async clearMemoryDerivedState(): Promise<void> {
+    await this.invoke("clearMemoryDerivedState");
   }
 
   async getChangeRevision(): Promise<number> {

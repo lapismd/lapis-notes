@@ -223,6 +223,125 @@ describe("AppDatabase", () => {
     ]);
   });
 
+  it("stores disposable memory checkpoints, candidates, signals, and leases", async () => {
+    const db = new MemoryAppDatabase("vault-memory");
+    await db.open();
+    const changes: string[][] = [];
+    const unsubscribe = db.subscribeToChanges((change) => {
+      changes.push([...change.domains]);
+    });
+
+    await db.upsertMemorySourceState({
+      sourceKey: "conversation-1",
+      sourcePath: ".lapis/agents/sessions/conversation-1/transcript.jsonl",
+      sourceHash: "source-hash",
+      lastEntryId: "entry-1",
+      lastEntryHash: "entry-hash",
+      status: "ready",
+      indexedAt: 100,
+    });
+    await db.upsertMemoryCandidate({
+      candidate: {
+        id: "candidate-1",
+        scopeKind: "project",
+        scopePath: "Projects/Alpha",
+        kind: "preference",
+        normalizedClaim: "Use compact headings",
+        claimHash: "claim-hash",
+        supersessionKey: "writing.headings",
+        originClass: "owner",
+        importance: 4,
+        triggers: ["writing", "headings"],
+        state: "staged",
+        firstSeenAt: 100,
+        lastSeenAt: 200,
+        recurrenceCount: 1,
+        conversationCount: 1,
+      },
+      origins: [
+        {
+          candidateId: "candidate-1",
+          conversationId: "conversation-1",
+          entryId: "entry-1",
+          entryHash: "entry-hash",
+          observedAt: 100,
+        },
+      ],
+    });
+    await db.recordMemoryRecallSignal({
+      targetRef: "curated:memory-1:1",
+      queryFingerprint: "salted-fingerprint",
+      day: "2026-08-27",
+      bestScore: 0.6,
+      hitCount: 1,
+    });
+    await db.recordMemoryRecallSignal({
+      targetRef: "curated:memory-1:1",
+      queryFingerprint: "salted-fingerprint",
+      day: "2026-08-27",
+      bestScore: 0.8,
+      hitCount: 2,
+    });
+
+    const job = {
+      id: "ingest:conversation-1",
+      kind: "ingest" as const,
+      scopeKey: "project:Projects/Alpha",
+      status: "queued" as const,
+      attempts: 0,
+      maxAttempts: 3,
+      createdAt: 100,
+    };
+    await expect(
+      db.claimMemoryJob({ job, ownerId: "tab-a", now: 200, leaseMs: 100 }),
+    ).resolves.toMatchObject({
+      status: "running",
+      ownerId: "tab-a",
+      attempts: 1,
+      leaseUntil: 300,
+    });
+    await expect(
+      db.claimMemoryJob({ job, ownerId: "tab-b", now: 250, leaseMs: 100 }),
+    ).resolves.toBeNull();
+    await expect(
+      db.updateMemoryJob({
+        jobId: job.id,
+        ownerId: "tab-a",
+        now: 250,
+        patch: { status: "completed", finishedAt: 250 },
+      }),
+    ).resolves.toMatchObject({ status: "completed", finishedAt: 250 });
+
+    await expect(db.getMemorySourceState("conversation-1")).resolves.toMatchObject({
+      lastEntryHash: "entry-hash",
+    });
+    await expect(
+      db.queryMemoryCandidates({
+        scopeKind: "project",
+        scopePath: "Projects/Alpha",
+        states: ["staged"],
+      }),
+    ).resolves.toMatchObject([
+      {
+        candidate: { id: "candidate-1" },
+        origins: [{ conversationId: "conversation-1", entryId: "entry-1" }],
+      },
+    ]);
+    await expect(
+      db.listMemoryRecallSignals("curated:memory-1:1"),
+    ).resolves.toEqual([
+      expect.objectContaining({ bestScore: 0.8, hitCount: 3 }),
+    ]);
+    expect(changes.every((domains) => domains.includes("memory"))).toBe(true);
+
+    await db.clearMemoryDerivedState();
+    await expect(db.listMemorySourceStates()).resolves.toEqual([]);
+    await expect(db.queryMemoryCandidates()).resolves.toEqual([]);
+    await expect(db.listMemoryJobs()).resolves.toEqual([]);
+    unsubscribe();
+    await db.close();
+  });
+
   it("stores deduplicated file history with rename delete and restore semantics", async () => {
     const db = new MemoryAppDatabase("vault-a");
     await db.open();

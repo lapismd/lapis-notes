@@ -196,7 +196,7 @@ Canonical IDs: `LN-AI-179`–`LN-AI-190`, `LN-DB-040`–`LN-DB-044`,
 `LN-ARCH-083`.
 
 - [x] Canonical ownership, evidence, scope, retrieval, consolidation, and migration requirements
-- [ ] Typed disposable AppDatabase memory state and provider parity
+- [x] Typed disposable AppDatabase memory state and provider parity
 - [ ] Message-granular episodic projection and scoped memory tools
 - [ ] Human-readable curated records, preimages, review, and supersession
 - [ ] Background candidate ingestion, consolidation, and scheduling

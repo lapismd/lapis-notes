@@ -212,6 +212,89 @@ describe("BrowserAppDatabaseCoordinator", () => {
     );
   });
 
+  it("delegates memory-derived state through the fixed owner RPC surface", async () => {
+    vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
+
+    const ownerCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const proxyCoordinator = new BrowserAppDatabaseCoordinator("vault-under-test");
+    const upsertMemorySourceState = vi.fn(async () => undefined);
+    const listMemorySourceStates = vi.fn(async () => [
+      {
+        sourceKey: "conversation-1",
+        sourcePath: ".lapis/agents/sessions/conversation-1/transcript.jsonl",
+        sourceHash: "hash-1",
+        status: "ready",
+        indexedAt: 100,
+      },
+    ]);
+    const claimMemoryJob = vi.fn(async (input) => ({
+      ...input.job,
+      status: "running",
+      attempts: 1,
+      ownerId: input.ownerId,
+      leaseUntil: input.now + input.leaseMs,
+    }));
+
+    const ownerDatabase = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      ownerCoordinator,
+      true,
+    ) as any;
+    ownerDatabase.ensureRpcChannel();
+    ownerDatabase.localDatabase = {
+      upsertMemorySourceState,
+      listMemorySourceStates,
+      claimMemoryJob,
+    };
+    ownerDatabase.servingRequests = true;
+
+    const proxyDatabase = new BrowserCoordinatedAppDatabase(
+      "vault-under-test",
+      proxyCoordinator,
+      false,
+    ) as any;
+    proxyDatabase.ensureRpcChannel();
+    proxyDatabase.opened = true;
+
+    const source = {
+      sourceKey: "conversation-1",
+      sourcePath: ".lapis/agents/sessions/conversation-1/transcript.jsonl",
+      sourceHash: "hash-1",
+      status: "ready" as const,
+      indexedAt: 100,
+    };
+    await proxyDatabase.upsertMemorySourceState(source);
+    await expect(proxyDatabase.listMemorySourceStates()).resolves.toEqual([
+      source,
+    ]);
+    await expect(
+      proxyDatabase.claimMemoryJob({
+        job: {
+          id: "ingest:conversation-1",
+          kind: "ingest",
+          scopeKey: "workspace:",
+          status: "queued",
+          attempts: 0,
+          maxAttempts: 3,
+          createdAt: 100,
+        },
+        ownerId: "tab-a",
+        now: 200,
+        leaseMs: 100,
+      }),
+    ).resolves.toMatchObject({
+      status: "running",
+      ownerId: "tab-a",
+      leaseUntil: 300,
+    });
+
+    expect(upsertMemorySourceState).toHaveBeenCalledWith(source);
+    expect(listMemorySourceStates).toHaveBeenCalledWith();
+    expect(claimMemoryJob).toHaveBeenCalledWith(
+      expect.objectContaining({ ownerId: "tab-a", leaseMs: 100 }),
+    );
+  });
+
   it("delegates file history requests to the owner tab", async () => {
     vi.stubGlobal("BroadcastChannel", FakeBroadcastChannel as any);
 

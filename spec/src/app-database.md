@@ -108,6 +108,15 @@ the Memory provider's maps. Markdown remains authoritative for rebuildable note
 metadata, Search documents, tasks, and plugin projections. Migration must retain
 database-only History and other non-rebuildable application state.
 
+Memory-derived state follows that same provider contract. The in-memory and
+direct-Turso implementations expose source checkpoints, normalized candidates
+with exact origins, salted daily recall aggregates, and renewable jobs through
+typed methods. Browser proxies and the Deno renderer forward only those methods
+through their fixed allowlists. Every mutation emits the `memory` change domain;
+clearing the memory tables is an explicit derived-state operation and does not
+touch transcripts, curated Markdown, Search documents owned by other providers,
+History, metadata, tasks, notifications, or plugin projections.
+
 Vault filename and path glob discovery does not read or populate the app
 database. It evaluates the API-owned in-memory vault tree; indexed metadata and
 property evaluation remain separate database-backed contracts.
