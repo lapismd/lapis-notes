@@ -111,6 +111,7 @@ execution APIs.
 | LN-AI-173 | When the native agent-runtime advertises deferred model discovery, the ACP model provider MUST reserve a request id and subscribe before invoking discovery. It MUST resolve or reject only the matching catalog event, clean up that subscription, and time out a missing result. Hosts without that capability MUST retain awaited model discovery compatibility. |
 | LN-AI-174 | An active agent turn MUST update its visible trace in memory without writing binding, user, assistant, tool, or usage records during streamed events. On completion or error, the controller MUST clear busy before a later-task durable checkpoint writes the pending binding, switch, full turn trace, and usage in source order. Reusable sessions MUST reset their per-turn checkpoint state, and an automatic persistent approval response MUST also run in a later task. |
 | LN-AI-175 | The default Codex and Cursor model providers MUST both discover models through their selected ACP agent. A desktop host advertising deferred model discovery MUST therefore route the Codex catalog through the request-id/runtime-event contract from LN-AI-173 rather than spawning a renderer-owned Codex app-server process. The optional native Codex provider MUST remain an explicit adapter and MUST NOT replace the default Codex ACP catalog. |
+| LN-AI-176 | AI conversation Search projection MUST coalesce vault source changes per conversation and update only the affected Search document. Ordinary transcript writes MUST NOT rebuild the global Search index. Repeated unchanged projections MUST NOT rewrite their full-text rows. |
 | LN-AI-168 | AI History chrome expand/collapse-all and New chat controls MUST use Design Core shadcn Tooltip. Tooltip text MUST match each control's accessible name. |
 | LN-AI-169 | AI History folder counts MUST share one trailing edge across tree depths. Nested branches MUST indent only at the start. Counts MUST NOT step inward with guide indent. |
 | LN-AI-170 | The public AI renderer entry MUST remain browser and WebView bundleable. Its optional Node user-agents store MUST load only through a runtime-gated dynamic boundary and MUST NOT add `node:*` modules to a renderer bundle. |
@@ -331,6 +332,10 @@ shows a dimmed creation-folder path, and creates New chat in that folder
 from Explorer selection or a History tree pick (LN-AI-165–LN-AI-168).
 History folder counts share one trailing edge across depths (LN-AI-169). The first user message stays in the transcript while the
 session starts, and Stop aborts a still-preparing turn (LN-AI-106, LN-AI-120).
+Conversation files remain the portable authority for AI history. Their derived
+Search documents update incrementally after a short per-conversation debounce;
+full repair is an explicit recovery operation rather than part of turn
+persistence (LN-AI-176).
 Thinking stays expanded only while it streams, then collapses when later
 transcript data arrives (LN-AI-131). Stop settles leftover spinners immediately
 and posts a cancelled system notice after cancel confirms (LN-AI-132).

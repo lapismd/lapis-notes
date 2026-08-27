@@ -102,6 +102,7 @@ describe("AiConversationIndex", () => {
       tagHierarchy: [],
     });
 
+    const rebuildSearchIndex = vi.spyOn(database, "rebuildSearchIndex");
     await index.rebuild();
     expect(
       await database.getSearchDocument(conversationIndexPath(first.location)),
@@ -112,5 +113,22 @@ describe("AiConversationIndex", () => {
     expect(
       await database.getSearchDocument("ai-conversation/stale/id"),
     ).toBeUndefined();
+    expect(rebuildSearchIndex).not.toHaveBeenCalled();
+  });
+
+  it("does not rewrite an unchanged conversation projection", async () => {
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const database = new MemoryAppDatabase("ai-index-unchanged");
+    const index = new AiConversationIndex(repository, database);
+    const snapshot = await repository.create({
+      id: "123e4567-e89b-42d3-a456-426614174000",
+      scopeDir: "Projects/Atlas",
+    });
+    const upsert = vi.spyOn(database, "upsertSearchDocument");
+
+    await index.sync(snapshot.location);
+    await index.sync(snapshot.location);
+
+    expect(upsert).toHaveBeenCalledOnce();
   });
 });

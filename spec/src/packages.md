@@ -201,7 +201,9 @@ lets Design Core cap that provider to five rows in All, and keeps path filtering
 when the user types. The API workspace records file recents
 on `file-open` and registers `app:go-to-file` so landing and empty-view
 actions open that tab. `@lapis-notes/ai` registers an Agents provider that
-groups conversations by date without adding one command per chat.
+groups conversations by date without adding one command per chat. It coalesces
+source-file events per portable conversation and incrementally maintains only
+the affected derived Search document (LN-AI-176).
 `@lapis-notes/markdown` File Properties uses Mira `valueSuggestions` and the
 existing Lapis file adapter for wikilink pills without forking pill-list
 editing.

@@ -44,6 +44,7 @@ import {
 import { ConversationRepository } from "./conversations/conversation-repository";
 import type { CreateConversationInput } from "./conversations/conversation-repository";
 import { AiConversationIndex } from "./conversations/conversation-index";
+import { ConversationIndexCoordinator } from "./conversations/conversation-index-coordinator";
 import type { ConversationListEntry } from "./conversations/transcript-store";
 import { ConversationScopeResolver } from "./conversations/scope-resolver";
 import { revealConversationScope } from "./conversations/reveal-scope";
@@ -117,7 +118,7 @@ export class AiPlugin extends Plugin {
   readonly scopeResolver = new ConversationScopeResolver();
   readonly conversations: ConversationRepository;
   readonly conversationIndex: AiConversationIndex;
-  private conversationIndexTimer: ReturnType<typeof setTimeout> | undefined;
+  readonly conversationIndexCoordinator: ConversationIndexCoordinator;
 
   constructor(
     app: App,
@@ -132,6 +133,14 @@ export class AiPlugin extends Plugin {
     this.conversationIndex = new AiConversationIndex(
       this.conversations,
       app.appDatabase,
+    );
+    this.conversationIndexCoordinator = new ConversationIndexCoordinator(
+      this.conversationIndex,
+      (operation, location, error) =>
+        this.app.logger.warn(
+          `Unable to ${operation} the AI conversation index for ${location.conversationId}`,
+          error,
+        ),
     );
     this.appToolHost = new AppToolHost(app.agentTools, () =>
       this.getSettings(),
@@ -430,43 +439,11 @@ export class AiPlugin extends Plugin {
         this.#rememberFileScope(leaf);
       }),
     );
-    this.register(
-      this.conversations.subscribe((change) => {
-        const update =
-          change.type === "delete"
-            ? this.conversationIndex.delete(change.location)
-            : this.conversationIndex.sync(change.location);
-        void update.catch((error) =>
-          this.app.logger.warn(
-            "Unable to update the AI conversation index",
-            error,
-          ),
-        );
-      }),
-    );
-    const scheduleConversationIndexRepair = (
+    const scheduleConversationIndexUpdate = (
       file: { path: string },
       oldPath?: string,
     ) => {
-      if (
-        !isConversationSourcePath(file.path) &&
-        !(oldPath && isConversationSourcePath(oldPath))
-      ) {
-        return;
-      }
-      if (this.conversationIndexTimer)
-        clearTimeout(this.conversationIndexTimer);
-      this.conversationIndexTimer = setTimeout(() => {
-        this.conversationIndexTimer = undefined;
-        void this.conversationIndex
-          .rebuild()
-          .catch((error) =>
-            this.app.logger.warn(
-              "Unable to rebuild the AI conversation index",
-              error,
-            ),
-          );
-      }, 150);
+      this.conversationIndexCoordinator.handleVaultChange(file.path, oldPath);
     };
     const invalidateAgents = (file: { path: string }, oldPath?: string) => {
       if (isAgentsPath(file.path) || (oldPath && isAgentsPath(oldPath))) {
@@ -500,25 +477,21 @@ export class AiPlugin extends Plugin {
       this.app.vault.on("delete", (file) => invalidateAgents(file)),
     );
     this.registerEvent(
-      this.app.vault.on("create", scheduleConversationIndexRepair),
+      this.app.vault.on("create", scheduleConversationIndexUpdate),
     );
     this.registerEvent(
-      this.app.vault.on("modify", scheduleConversationIndexRepair),
+      this.app.vault.on("modify", scheduleConversationIndexUpdate),
     );
     this.registerEvent(
-      this.app.vault.on("delete", scheduleConversationIndexRepair),
+      this.app.vault.on("delete", scheduleConversationIndexUpdate),
     );
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
         invalidateAgents(file, oldPath);
-        scheduleConversationIndexRepair(file, oldPath);
+        scheduleConversationIndexUpdate(file, oldPath);
       }),
     );
-    this.register(() => {
-      if (this.conversationIndexTimer)
-        clearTimeout(this.conversationIndexTimer);
-      this.conversationIndexTimer = undefined;
-    });
+    this.register(() => this.conversationIndexCoordinator.dispose());
     this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
       side: "right",
       title: "AI",
@@ -734,10 +707,6 @@ function shouldUseHomeUserAgents(): boolean {
     if (process.env.VITEST || process.env.STORYBOOK) return false;
   }
   return hasNativeDesktopCapability("agent-runtime");
-}
-
-function isConversationSourcePath(path: string): boolean {
-  return /(?:^|\/)\.lapis\/agents\/sessions(?:\/|$)/u.test(path);
 }
 
 function isAgentsPath(path: string): boolean {

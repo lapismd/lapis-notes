@@ -164,6 +164,8 @@ starter set until the user types, while
 AI-owned conversation rows reach the palette only through an Agents provider.
 Its empty-query recents come from portable conversation files so one derived
 index query cannot delay the All palette's commands and Files rows.
+Its generated full-text projection coalesces source events by conversation and
+does not use an application-wide Search rebuild as a write hook (LN-AI-176).
 Plugin settings adapters must also treat normalized no-op updates as read-only
 so startup materialization does not invalidate generated-state checkpoints.
 

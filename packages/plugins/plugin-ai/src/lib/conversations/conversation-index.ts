@@ -18,9 +18,10 @@ export class AiConversationIndex {
 
   async sync(location: ConversationLocation): Promise<void> {
     const snapshot = await this.repository.read(location);
-    await this.database.upsertSearchDocument(
-      conversationSearchDocument(snapshot),
-    );
+    const document = conversationSearchDocument(snapshot);
+    const existing = await this.database.getSearchDocument(document.path);
+    if (existing?.checksum === document.checksum) return;
+    await this.database.upsertSearchDocument(document);
   }
 
   delete(location: ConversationLocation): Promise<void> {
@@ -69,7 +70,6 @@ export class AiConversationIndex {
         await this.database.deleteSearchDocument(document.path);
       }
     }
-    await this.database.rebuildSearchIndex();
   }
 }
 

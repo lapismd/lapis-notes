@@ -226,6 +226,9 @@ Permission and question option buttons use Design Core's public
 `feedback-option` part (LN-AI-157).
 Any visible runtime or host error removes the composer working indicator while
 the controller clears its owned busy state and remains retryable (LN-AI-052).
+Portable AI conversation files project into Search per affected conversation;
+ordinary turn persistence neither rebuilds the global index nor rewrites an
+unchanged full-text row (LN-AI-176).
 API owns result-view registration so Search can render `notes_search` hits
 and AI can render `/skills` and `/tools` inventories (LN-PKG-100, LN-AI-158,
 LN-AI-159).
