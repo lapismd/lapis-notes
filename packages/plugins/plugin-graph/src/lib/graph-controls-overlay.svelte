@@ -444,7 +444,7 @@
                   sortableGroup="graph-groups"
                   dragging={draggingGroupId === group.id}
                   compact
-                  inset="flush"
+                  inset="normal"
                   dragLabel={`Reorder Group ${index + 1}`}
                   canMoveUp={index > 0}
                   canMoveDown={index < settings.groups.length - 1}

@@ -91,6 +91,29 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 type StoryRender = NonNullable<Story["render"]>;
 
+function styleRules(ownerDocument: Document): CSSStyleRule[] {
+  const result: CSSStyleRule[] = [];
+  const visit = (rules: CSSRuleList) => {
+    for (const rule of rules) {
+      if ("selectorText" in rule && "style" in rule) {
+        result.push(rule as CSSStyleRule);
+      }
+      const nestedRules = (rule as CSSRule & { cssRules?: CSSRuleList })
+        .cssRules;
+      if (nestedRules) visit(nestedRules);
+    }
+  };
+
+  for (const sheet of ownerDocument.styleSheets) {
+    try {
+      visit(sheet.cssRules);
+    } catch {
+      // Cross-origin Storybook assets are irrelevant to the local component rules.
+    }
+  }
+  return result;
+}
+
 function renderPlacement(layout: PanelDemoLayout): StoryRender {
   return (() => ({
     Component: PanelDemo,
@@ -132,7 +155,7 @@ function placementStory(
         name: "Graph settings",
       });
       const dialogWidth = Number.parseFloat(getComputedStyle(dialog).width);
-      expect(dialogWidth).toBeLessThanOrEqual(280);
+      expect(dialogWidth).toBeLessThanOrEqual(300);
       expect(dialogWidth).toBeGreaterThanOrEqual(272);
       const displayTrigger = within(dialog).getByRole("button", {
         name: "Display",
@@ -153,6 +176,9 @@ function placementStory(
       );
       expect(graphRoot).not.toBeNull();
       const graphStyle = getComputedStyle(graphRoot!);
+      expect(
+        graphStyle.getPropertyValue("--ui-graph-controls-width").trim(),
+      ).toBe("300px");
       expect(graphStyle.getPropertyValue("--ui-graph-node-note").trim()).toBe(
         graphStyle.getPropertyValue("--muted-foreground").trim(),
       );
@@ -226,23 +252,90 @@ function placementStory(
           '[data-sortable-group="graph-groups"]',
         );
         expect(groupItem).not.toBeNull();
+        const groupList = groupItem!.parentElement;
+        expect(groupList).not.toBeNull();
         const colorButton = within(dialog).getByRole("button", {
           name: "Group 1 color picker",
+        });
+        const dragHandle = within(groupItem!).getByRole("button", {
+          name: "Reorder Group 1",
         });
         const removeButton = within(groupItem!).getByRole("button", {
           name: "Remove item",
         });
         const queryRect = groupQuery.getBoundingClientRect();
         const groupItemRect = groupItem!.getBoundingClientRect();
+        const groupListRect = groupList!.getBoundingClientRect();
+        const dragRect = dragHandle.getBoundingClientRect();
         const colorRect = colorButton.getBoundingClientRect();
         const removeRect = removeButton.getBoundingClientRect();
         expect(queryRect.width).toBeGreaterThanOrEqual(190);
+        expect(getComputedStyle(groupItem!).paddingLeft).toBe("24px");
+        expect(
+          Math.abs(dragRect.left - groupItemRect.left - 4),
+        ).toBeLessThanOrEqual(0.5);
+        expect(queryRect.left - dragRect.right).toBeGreaterThanOrEqual(4);
         expect(queryRect.right).toBeLessThanOrEqual(colorRect.left);
         expect(colorRect.right).toBeLessThanOrEqual(removeRect.left);
         expect(getComputedStyle(removeButton).position).toBe("absolute");
-        expect(removeRect.left).toBeGreaterThanOrEqual(groupItemRect.right);
+        expect(removeRect.left).toBeGreaterThanOrEqual(groupListRect.right);
+        expect(removeRect.right).toBeLessThanOrEqual(groupItemRect.right);
         expect(removeRect.right).toBeLessThanOrEqual(
           dialog.getBoundingClientRect().right,
+        );
+        await userEvent.click(groupQuery);
+        groupQuery.focus();
+        await waitFor(() =>
+          expect(groupItem!.matches(":focus-within")).toBe(true),
+        );
+        const focusPaintProbe =
+          canvasElement.ownerDocument.createElement("span");
+        focusPaintProbe.style.background = "var(--ui-graph-controls-hover)";
+        groupItem!.append(focusPaintProbe);
+        const expectedFocusBackground =
+          getComputedStyle(focusPaintProbe).backgroundColor;
+        focusPaintProbe.remove();
+        await waitFor(() =>
+          expect(getComputedStyle(groupItem!).backgroundColor).toBe(
+            expectedFocusBackground,
+          ),
+        );
+        const focusedItemStyle = getComputedStyle(groupItem!);
+        expect(
+          Number.parseFloat(focusedItemStyle.borderRadius),
+        ).toBeGreaterThan(0);
+        expect(dragRect.left).toBeGreaterThanOrEqual(groupItemRect.left);
+        expect(removeRect.right).toBeLessThanOrEqual(groupItemRect.right);
+        const removeStyle = getComputedStyle(removeButton);
+        expect(removeStyle.opacity).toBe("1");
+        const removeHitTarget = canvasElement.ownerDocument.elementFromPoint(
+          removeRect.left + removeRect.width / 2,
+          removeRect.top + removeRect.height / 2,
+        );
+        expect(removeHitTarget && removeButton.contains(removeHitTarget)).toBe(
+          true,
+        );
+        expect(
+          removeStyle
+            .getPropertyValue(
+              "--ui-sortable-array-item-remove-hover-background",
+            )
+            .trim(),
+        ).toBe(
+          removeStyle.getPropertyValue("--ui-graph-controls-hover").trim(),
+        );
+        const ownerRules = styleRules(canvasElement.ownerDocument);
+        const handleHoverRule = ownerRules.find((rule) =>
+          rule.selectorText.includes(
+            '[data-ui-part="sortable-array-item-drag"]:hover:not(:focus-visible)',
+          ),
+        );
+        expect(handleHoverRule?.style.boxShadow).toBe("none");
+        const removeHoverRule = ownerRules.find((rule) =>
+          rule.selectorText.includes(".ui-sortable-array-item__remove:hover"),
+        );
+        expect(removeHoverRule?.style.background).toContain(
+          "--ui-sortable-array-item-remove-hover-background",
         );
         await userEvent.type(groupQuery, "tag:");
         const ownerBody = within(canvasElement.ownerDocument.body);
