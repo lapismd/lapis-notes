@@ -9,6 +9,7 @@ describe("Deno desktop plugin registration", () => {
       "utf8",
     );
     const orderedPlugins = [
+      "SourceEditorPlugin",
       "MarkdownPlugin",
       "MarkdownLintPlugin",
       "SpellcheckPlugin",

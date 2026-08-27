@@ -44,7 +44,10 @@ export async function waitForDesktopBindings<T extends DesktopBindingProbe>({
   probeTimeoutMs = 500,
   retryDelayMs = 50,
 }: WaitForDesktopBindingsOptions<T>): Promise<T> {
-  if (presentAtParse === false) throw new Error(MISSING_BINDINGS_MESSAGE);
+  // The WebView can parse the document before win.bind() finishes installing
+  // its globals on a cold launch. Treat this snapshot as diagnostic context;
+  // the bounded runtime probe below is the startup authority.
+  void presentAtParse;
 
   const deadline = Date.now() + timeoutMs;
   let lastError: unknown;

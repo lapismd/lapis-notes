@@ -45,10 +45,25 @@ const crossOriginIsolationHeaders = {
   "Cross-Origin-Opener-Policy": "same-origin",
 };
 
+export const rendererOptimizeDependencyExclusions = [
+  "harper.js",
+  "ghostty-web",
+  "@lapismd/design-core",
+] as const;
+
+export const rendererSvelteOptions = {
+  // Design Core intentionally publishes Svelte source. In development, Vite
+  // can otherwise issue a second virtual-CSS request after the source module's
+  // transform cache has moved on, causing Tailwind to parse the component
+  // script as CSS. Keeping component CSS with its compiled module avoids that
+  // registry-only cold-start failure.
+  emitCss: false,
+} as const;
+
 export default defineConfig(({ command }) => ({
   base: command === "build" ? "./" : "/",
   clearScreen: false,
-  plugins: [tailwindcss(), svelte()],
+  plugins: [svelte(rendererSvelteOptions), tailwindcss()],
   server: {
     host: "127.0.0.1",
     port: 1422,
@@ -67,7 +82,7 @@ export default defineConfig(({ command }) => ({
   worker: { format: "es" },
   assetsInclude: ["**/*.wasm"],
   optimizeDeps: {
-    exclude: ["ghostty-web"],
+    exclude: [...rendererOptimizeDependencyExclusions],
   },
   resolve: {
     dedupe: rendererSingletonPackages,

@@ -492,6 +492,13 @@ export const workspaceCatalog = [
     storyId: "workspace-lapis-editor-demo--ready",
   },
   {
+    id: "workspace-lapis-editor-demo-yaml-source",
+    title: "Lapis Editor Demo YAML Source",
+    spec: "spec/src/editor-demo.md",
+    publicSurface: "@lapis-notes/source-editor",
+    storyId: "workspace-lapis-editor-demo--yaml-source",
+  },
+  {
     id: "workspace-lapis-editor-demo-markdown-problems",
     title: "Lapis Editor Demo Markdown Problems",
     spec: "spec/src/editor-demo.md",

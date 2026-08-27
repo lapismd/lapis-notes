@@ -3,6 +3,9 @@
 `@lapis-notes/bookmarks` owns the movable Bookmarks panel and Obsidian-compatible
 `.obsidian/bookmarks.json`. It does not own Explorer, Search, or Graph.
 
+The package consumes the published Design Core semver contract and MUST NOT
+assume a sibling-repository path or a workspace `link:` override.
+
 ## Requirements
 
 | ID | Requirement |

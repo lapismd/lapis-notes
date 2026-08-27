@@ -25,6 +25,7 @@
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SearchPlugin } from "@lapis-notes/search";
+  import { SourceEditorPlugin } from "@lapis-notes/source-editor";
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
   import { WorkspaceShell } from "@lapis-notes/workspace";
@@ -434,6 +435,7 @@
       setTask(activeTask, "active");
       if (!corePluginsRegistered) {
         app.plugins.registerCorePlugins([
+          { plugin: SourceEditorPlugin, required: false, enabledByDefault: true },
           { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
           { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
           { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },

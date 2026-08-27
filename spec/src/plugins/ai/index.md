@@ -4,6 +4,8 @@
 normalized events, and the movable chat panel. Domain plugins may register
 tools and consume events. They MUST NOT own Codex, Claude, Cursor, or acpx
 execution APIs.
+The real-App AI shell loads the public Source Editor before Markdown so it uses
+the same source settings and file associations as production hosts.
 
 ## Requirements
 

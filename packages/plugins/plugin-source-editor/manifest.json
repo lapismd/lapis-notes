@@ -1,0 +1,30 @@
+{
+  "id": "lapis-source-editor",
+  "name": "Source Editor",
+  "version": "0.0.1",
+  "minAppVersion": "0.0.1",
+  "description": "Source editing for text, JSON, and YAML files",
+  "author": "Lapis Notes",
+  "authorUrl": "https://app.lapis.md",
+  "isDesktopOnly": false,
+  "lapis": {
+    "manifestVersion": 1,
+    "source": "official",
+    "locked": false,
+    "enabledByDefault": true,
+    "runtime": {
+      "entries": {
+        "workspace": {
+          "path": "main.mjs",
+          "format": "esm",
+          "sharedDependencies": [
+            "@lapis-notes/api",
+            "@lapismd/design-core",
+            "svelte"
+          ],
+          "requiresReloadOnUpdate": false
+        }
+      }
+    }
+  }
+}

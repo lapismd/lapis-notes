@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
-    "@lapismd/design-core": "*"
+    "@lapismd/design-core": "^0.1.0"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

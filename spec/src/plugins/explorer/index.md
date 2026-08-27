@@ -18,6 +18,7 @@ all six command-panel placements under `Plugins/Explorer/Panels/Explorer`.
 | LN-EXP-004 | The `lapis-vault-files` provider MUST declare the Files tab. An empty query MUST return at most 25 visible recent files, or the first 25 visible paths in lexical order when no recents exist. Design Core MUST cap those provider rows to five in the combined All view. Typed queries MUST keep path filtering and the show-hidden setting. |
 | LN-EXP-005 | FileExplorerView MUST expose `selectedPath`. `setSelectedPath`, `selectRoot`, and `revealPath` MUST trigger workspace event `file-explorer:selection-change` with that path. Vault root MUST use an empty path.                                                                                                                                                                           |
 | LN-EXP-006 | Explorer MUST refresh its tree after the vault initial `load` event and after create, delete, and rename events so desktop views mounted during vault startup do not retain a partial tree.                                                                                                                                                                                               |
+| LN-EXP-007 | The Files palette extension allowlist MUST be exposed as the flat `workspace.fileExplorer.paletteFileExtensions` list setting. Its default MUST include Markdown, text, JSON, and YAML/YML source-editor extensions. Values MUST be normalized without leading dots and case-insensitively before filtering; an explicit empty list MUST yield no file results. |
 
 ### LN-EXP-003 acceptance details
 
@@ -32,3 +33,7 @@ The Files palette tab starts with a bounded recent-file set, falling back to a
 bounded lexical file list for a fresh vault. The combined All view receives at
 most five of those rows. A typed query keeps today's path filter. Landing Go to
 file opens that tab through `app:go-to-file`.
+
+The extension allowlist is independent from hidden-file visibility. A hidden
+YAML file such as `.lapis/**/metadata.yaml` is eligible by extension by default,
+but appears in the Files palette only while Show hidden files is enabled.

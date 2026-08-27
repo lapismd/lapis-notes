@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm generate-icons && vite build",
+    "build": "pnpm generate-icons && NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "preview": "vite preview",
     "check": "pnpm check:svelte && pnpm check:types && pnpm check:e2e",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
@@ -34,10 +34,11 @@
     "@lapis-notes/lapis-plugin-terminal": "link:../../../lapis-plugin-terminal",
     "@lapis-notes/history": "workspace:*",
     "@lapis-notes/search": "workspace:*",
+    "@lapis-notes/source-editor": "workspace:*",
     "@lapis-notes/wordcount": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/design-core": "*",
+    "@lapismd/design-core": "^0.1.0",
     "@lucide/svelte": "^0.523.0",
     "workbox-window": "^7.4.1"
   },

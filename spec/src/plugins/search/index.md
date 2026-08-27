@@ -3,6 +3,9 @@
 `@lapis-notes/search` owns vault search indexing, query presentation, result
 navigation, and the `search` workspace view. Query parsing and generated search
 state remain API contracts, while reusable search chrome remains Design Core.
+The package consumes that Design Core boundary through its published semver
+contract and MUST NOT assume a sibling-repository path or workspace `link:`
+override.
 
 ## Requirements
 

@@ -6,6 +6,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, searchForWorkspaceRoot, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import {
+  rendererOptimizeDependencyExclusions,
+  rendererSvelteOptions,
+} from "./src/renderer-config";
+
+export {
+  rendererOptimizeDependencyExclusions,
+  rendererSvelteOptions,
+} from "./src/renderer-config";
 
 // Keep these host-build values aligned with the public plugin-asset contract.
 // Importing the browser API package while Vite evaluates its Node config would
@@ -100,8 +109,8 @@ export default defineConfig({
   },
   plugins: [
     wasmHeadersPlugin(),
+    svelte(rendererSvelteOptions),
     tailwindcss(),
-    svelte(),
     VitePWA({
       injectRegister: false,
       registerType: "prompt",
@@ -194,7 +203,7 @@ export default defineConfig({
   },
   worker: { format: "es" },
   optimizeDeps: {
-    exclude: ["harper.js", "ghostty-web"],
+    exclude: [...rendererOptimizeDependencyExclusions],
   },
   assetsInclude: ["**/*.wasm"],
   resolve: { dedupe: rendererSingletonPackages },

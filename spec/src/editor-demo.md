@@ -1,6 +1,6 @@
 # Lapis Editor Demo
 
-The real-App demo loads Markdown before domain plugins, so API-registered
+The real-App demo loads the production Source Editor before Markdown and domain plugins, so API-registered
 Markdown contributions and the full-file provider exercise the same lifecycle
 and public package boundary as production hosts. The provider establishes the
 effective Mira `obsidian` theme before it mounts preview or live-edit content.
@@ -23,7 +23,7 @@ different seeded note and a dropdown portalled outside the property row.
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LN-ED-001 | `@lapis-notes/api` MUST export a complete non-persistent `MemoryVaultAdapter` for deterministic tests, Storybook demos, and consumers that explicitly choose volatile storage.                                                        |
 | LN-ED-002 | `@lapis-notes/api` MUST export a concrete source-text file view which mounts the existing accessibly named CodeMirror editor without defining Markdown rendering policy.                                                              |
-| LN-ED-003 | The editor demo MUST register source views for text (`txt`, `text`) and JSON (`json`, `data`) through the Storybook source-editor plugin; Markdown associations MUST be owned by `@lapis-notes/markdown` when that plugin is enabled. |
+| LN-ED-003 | The editor demo MUST register the production `@lapis-notes/source-editor` views for text (`txt`, `text`) and JSON (`json`, `data`); Markdown associations MUST be owned by `@lapis-notes/markdown` when that plugin is enabled. |
 | LN-ED-004 | While only the source-editor demo plugin is enabled, Markdown MUST remain source-only. When `@lapis-notes/markdown` is enabled it MUST own Markdown with Mira `source`, `live-preview`, and `preview` modes.                          |
 
 | LN-ED-005 | The API-owned design-core settings controller MUST load and save through API configuration atomically, preserve unrelated configuration, and avoid controller/configuration feedback loops. |
@@ -78,6 +78,7 @@ different seeded note and a dropdown portalled outside the property row.
 | LN-ED-059 | The editor demo MUST seed a misspelled note and open it in a focused Spell Check story that reveals Problems. Acceptance MUST assert a gutter mark, the severity-slot Quick fix, a bare suggestion, Add to dictionary, and Ignore word. The story MUST keep literal `visual-pending` metadata and MUST NOT create a baseline. |
 | LN-ED-060 | The editor demo Ready play MUST open the Spell Check status item and show dialect choices plus a checking toggle. It MUST NOT use compatibility status DOM. |
 | LN-ED-061 | Source and Live Preview editors MUST keep the complete Design Core scrollbar interaction rail above adjacent workspace resize handles. Focused acceptance MUST assert that priority on the real API editor surface. |
+| LN-ED-062 | The editor demo MUST seed and open a YAML file from the Files command-palette provider through the production Source Editor, expose YAML as an editor association, and verify the `yaml` CodeMirror language host for both `.yaml` and `.yml` associations. |
 
 The real demo loads the production Markdown plugin, so panel commands come
 from the same declarative registry as production. Story fixtures MUST NOT add

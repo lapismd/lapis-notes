@@ -1,4 +1,5 @@
 import { json } from "@codemirror/lang-json";
+import { yaml } from "@codemirror/lang-yaml";
 import {
   Plugin,
   SourceTextFileView,
@@ -7,9 +8,10 @@ import {
 } from "@lapis-notes/api";
 import { markupEditor } from "@lapis-notes/api/editor";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
-import type { WorkspaceSettingField } from "@lapismd/design-core/workspace/settings";
+import type { WorkspaceSettingsSection } from "@lapismd/design-core/workspace/settings";
+import manifestSpec from "../manifest.json";
 
-const SOURCE_EDITOR_SETTING_FIELDS = [
+export const SOURCE_EDITOR_SETTING_FIELDS = [
   {
     id: "editor.alwaysFocusNewTabs",
     type: "boolean",
@@ -70,9 +72,9 @@ const SOURCE_EDITOR_SETTING_FIELDS = [
     maximum: 8,
     default: 4,
   },
-] satisfies readonly WorkspaceSettingField[];
+] satisfies NonNullable<WorkspaceSettingsSection["fields"]>;
 
-const EDITOR_SCHEMA = {
+export const SOURCE_EDITOR_SCHEMA = {
   id: "editor",
   title: "Editor",
   type: "object",
@@ -84,17 +86,7 @@ const EDITOR_SCHEMA = {
   ),
 } as const;
 
-const SOURCE_EDITOR_MANIFEST: PluginManifest = {
-  id: "lapis-source-editor",
-  name: "Lapis Source Editor",
-  author: "Lapis Notes",
-  version: "0.0.1",
-  minAppVersion: "0.0.1",
-  description:
-    "Source-only text and JSON editing for the demo. Markdown is owned by @lapis-notes/markdown when enabled.",
-};
-
-const VIEW_DEFINITIONS = [
+export const SOURCE_EDITOR_VIEW_DEFINITIONS = [
   {
     type: "text",
     label: "Text",
@@ -110,17 +102,28 @@ const VIEW_DEFINITIONS = [
     createExtension: (app: App) =>
       markupEditor({ language: "json", app }, json()),
   },
+  {
+    type: "yaml",
+    label: "YAML",
+    extensions: ["yaml", "yml"],
+    patterns: [".yaml", ".yml", "*.yaml", "*.yml"],
+    createExtension: (app: App) =>
+      markupEditor({ language: "yaml", app }, yaml()),
+  },
 ] as const;
 
-export class SourceEditorDemoPlugin extends Plugin {
-  constructor(app: App) {
-    super(app, SOURCE_EDITOR_MANIFEST);
+export class SourceEditorPlugin extends Plugin {
+  constructor(
+    app: App,
+    manifest: PluginManifest = manifestSpec as PluginManifest,
+  ) {
+    super(app, manifest);
   }
 
   async onload(): Promise<void> {
-    this.app.configuration.schema.register(EDITOR_SCHEMA);
+    this.app.configuration.schema.register(SOURCE_EDITOR_SCHEMA);
     this.register(() => {
-      this.app.configuration.schema.unregister(EDITOR_SCHEMA);
+      this.app.configuration.schema.unregister(SOURCE_EDITOR_SCHEMA);
     });
 
     const { controller } = getWorkspaceHostBinding(this.app.workspace);
@@ -129,7 +132,7 @@ export class SourceEditorDemoPlugin extends Plugin {
         id: "lapis-source-editor",
         title: "Editor",
         description:
-          "Source editor behavior shared by Markdown, text, and JSON files.",
+          "Source editor behavior shared by Markdown, text, JSON, and YAML files.",
         icon: "file-pen-line",
         order: 20,
         navigationGroupId: "core-plugins",
@@ -138,11 +141,12 @@ export class SourceEditorDemoPlugin extends Plugin {
       }),
     );
 
-    for (const definition of VIEW_DEFINITIONS) {
+    for (const definition of SOURCE_EDITOR_VIEW_DEFINITIONS) {
       this.registerView(
         definition.type,
         (leaf) =>
           new SourceTextFileView(leaf, definition.type, definition.extensions),
+        { kind: "file" },
       );
       this.registerEditorView({
         id: definition.type,
@@ -162,3 +166,5 @@ export class SourceEditorDemoPlugin extends Plugin {
     await this.app.configuration.materializeSchemaDefaults();
   }
 }
+
+export default SourceEditorPlugin;

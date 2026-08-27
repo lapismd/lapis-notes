@@ -44,11 +44,11 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
-    "@lapismd/design-core": "*",
-    "@lapismd/mira": "*",
-    "@lapismd/mira-editor": "*",
-    "@lapismd/mira-plugin-ai": "*",
-    "@lapismd/mira-plugin-mermaid": "*",
+    "@lapismd/design-core": "^0.1.0",
+    "@lapismd/mira": "^0.0.1",
+    "@lapismd/mira-editor": "^0.0.1",
+    "@lapismd/mira-plugin-ai": "^0.0.1",
+    "@lapismd/mira-plugin-mermaid": "^0.0.1",
     "@lucide/svelte": "^0.523.0",
     "yaml": "^2.9.0"
   },

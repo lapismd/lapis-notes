@@ -314,6 +314,15 @@ export function createLapisEditorDemoSeed(
       null,
       2,
     ),
+    "Projects/config.yaml": [
+      "name: Lapis Notes",
+      "features:",
+      "  sourceEditor: true",
+      "  formats:",
+      "    - yaml",
+      "    - yml",
+      "",
+    ].join("\n"),
     "README.text": "Files, editors, and settings all run inside Storybook.\n",
     "Assets/pixel.bin": new Uint8Array([0x4c, 0x41, 0x50, 0x49, 0x53]).buffer,
   };

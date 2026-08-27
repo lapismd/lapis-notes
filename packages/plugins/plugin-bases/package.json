@@ -40,7 +40,7 @@
     "@dnd-kit/helpers": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
     "@lapis-notes/api": "workspace:*",
-    "@lapismd/design-core": "*",
+    "@lapismd/design-core": "^0.1.0",
     "@lucide/svelte": "^0.523.0",
     "@tanstack/table-core": "^8.21.3",
     "js-yaml": "^4.1.0",

@@ -169,6 +169,15 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
+          pattern: "^packages/plugins/plugin-source-editor/",
+          chapters: [
+            "spec/src/packages.md",
+            "spec/src/architecture.md",
+            "spec/src/plugin-model.md",
+            "spec/src/editor-demo.md",
+          ],
+        },
+        {
           pattern: "^packages/ui/(?:src/|package\\.json$)",
           chapters: ["spec/src/packages.md", "spec/src/ui-and-styling.md"],
         },

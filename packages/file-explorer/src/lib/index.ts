@@ -22,7 +22,10 @@ import {
   copyExplorerText,
 } from "./native-explorer-actions";
 import { openExplorerFile } from "./open-explorer-file";
-import { EXPLORER_SETTING_IDS } from "./explorer-settings";
+import {
+  DEFAULT_VAULT_PALETTE_FILE_EXTENSIONS,
+  EXPLORER_SETTING_IDS,
+} from "./explorer-settings";
 import { listExplorerVaultEntries } from "./explorer-vault-entries";
 import { registerExplorerSettings } from "./register-explorer-settings";
 import { subscribeExplorerVaultTreeChanges } from "./explorer-tree-subscription";
@@ -59,6 +62,14 @@ const EXPLORER_SCHEMA = {
         "Show dotted names, including .obsidian, .trash, and .lapis.",
       type: "boolean",
       default: false,
+    },
+    [EXPLORER_SETTING_IDS.paletteFileExtensions]: {
+      title: "File palette extensions",
+      description:
+        "Extensions shown by Go to file, without leading dots. An empty list hides every file from the Files palette.",
+      type: "array",
+      items: { type: "string" },
+      default: [...DEFAULT_VAULT_PALETTE_FILE_EXTENSIONS],
     },
   },
 } as const;

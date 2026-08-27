@@ -24,7 +24,7 @@
     createLapisEditorDemoSeed,
     type LapisEditorDemoScenario,
   } from "./seed";
-  import { SourceEditorDemoPlugin } from "./source-editor-plugin";
+  import { SourceEditorPlugin } from "@lapis-notes/source-editor";
   import { MarkdownPlugin } from "@lapis-notes/markdown";
   import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
   import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
@@ -139,7 +139,7 @@
       markdownRenderer: async () => {},
     });
     runtimeApp.plugins.registerCorePlugins([
-      { plugin: SourceEditorDemoPlugin, required: true },
+      { plugin: SourceEditorPlugin, required: true },
       {
         plugin: MarkdownPlugin,
         required: false,

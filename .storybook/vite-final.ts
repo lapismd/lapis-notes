@@ -137,17 +137,23 @@ function packageLibAlias(): Plugin {
 export async function viteFinal(
   viteConfig: InlineConfig,
 ): Promise<InlineConfig> {
-  const plugins = viteConfig.plugins ?? [];
+  const plugins = (viteConfig.plugins ?? []).flat(Infinity) as Plugin[];
+  const nonSveltePlugins = plugins.filter(
+    (plugin) =>
+      !plugin?.name?.startsWith("vite-plugin-svelte") &&
+      plugin?.name !== "sveltekit-autoimport-configuration",
+  );
   viteConfig.plugins = [
     packageLibAlias(),
     svelte({
       preprocess: vitePreprocess(),
+      emitCss: false,
       compilerOptions: {
         runes: undefined,
       },
     }),
     tailwindcss(),
-    ...plugins,
+    ...nonSveltePlugins,
   ];
   return mergeConfig(viteConfig, {
     define: {
@@ -347,9 +353,12 @@ export async function viteFinal(
         "@storybook/svelte",
         "@lapismd/ai-host",
         "@lapismd/ai-host/client",
+        "@lapismd/design-core",
       ],
       include: [
         "aria-query",
+        "debug",
+        "extend",
         "react",
         "react-dom",
         "react-dom/client",

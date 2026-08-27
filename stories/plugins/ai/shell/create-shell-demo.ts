@@ -7,8 +7,8 @@ import {
 import { AiPlugin, AiViewType } from "@lapis-notes/ai";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
+import { SourceEditorPlugin } from "@lapis-notes/source-editor";
 import { SearchPlugin } from "@lapis-notes/search";
-import { SourceEditorDemoPlugin } from "../../../workspace/lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../../../workspace/watch-metadata";
 
 export const AI_WORKSPACE_CONFIGURATION = {
@@ -294,7 +294,7 @@ export async function bootAiWorkspaceDemo(
       : undefined;
 
   app.plugins.registerCorePlugins([
-    { plugin: SourceEditorDemoPlugin, required: true },
+    { plugin: SourceEditorPlugin, required: true },
     {
       plugin: MarkdownPlugin,
       required: false,

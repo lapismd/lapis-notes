@@ -18,6 +18,9 @@ frontmatter defaults do not override explicit embed inputs.
 File Properties uses the same Mira frontmatter value editor as document
 surfaces. Lapis supplies vault metadata suggestions; the dropdown is portalled
 to the owner document so workspace placement cannot clip it.
+Markdown panels consume published Design Core and Mira contracts and MUST NOT
+resolve their implementation through sibling-repository paths or `link:`
+overrides.
 
 The Markdown plugin registers file- and vault-scoped views into the movable
 [Workspace Shell panel contract](../../../workspace-shell/panels.md). This page

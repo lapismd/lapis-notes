@@ -28,6 +28,7 @@
   import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
   import { HistoryPlugin } from "@lapis-notes/history";
   import { SearchPlugin } from "@lapis-notes/search";
+  import { SourceEditorPlugin } from "@lapis-notes/source-editor";
   import { WordCountPlugin } from "@lapis-notes/wordcount";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -235,6 +236,7 @@
       registerWebTerminalRuntimeBridge();
       if (!corePluginsRegistered) {
         app.plugins.registerCorePlugins([
+          { plugin: SourceEditorPlugin, required: false, enabledByDefault: true },
           { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
           { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
           { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },

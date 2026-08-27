@@ -36,10 +36,10 @@ import {
   OutgoingLinksViewType,
   TagsViewType,
 } from "@lapis-notes/markdown";
+import { SourceEditorPlugin } from "@lapis-notes/source-editor";
 import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
 import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
 import { SearchPlugin, SearchViewType } from "@lapis-notes/search";
-import { SourceEditorDemoPlugin } from "../../../workspace/lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../../../workspace/watch-metadata";
 
 export type PanelDemoKind =
@@ -806,7 +806,7 @@ export async function bootPanelDemo(
   const disposeApplicationCompatibility = installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
-    { plugin: SourceEditorDemoPlugin, required: true },
+    { plugin: SourceEditorPlugin, required: true },
     { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
     { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
     { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },

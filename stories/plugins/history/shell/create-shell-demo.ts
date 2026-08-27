@@ -8,8 +8,8 @@ import {
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { HistoryPlugin } from "@lapis-notes/history";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
+import { SourceEditorPlugin } from "@lapis-notes/source-editor";
 import { SearchPlugin } from "@lapis-notes/search";
-import { SourceEditorDemoPlugin } from "../../../workspace/lapis-editor-demo/source-editor-plugin";
 import { watchMetadata } from "../../../workspace/watch-metadata";
 
 export const HISTORY_SHELL_CONFIGURATION = {
@@ -66,9 +66,10 @@ const HISTORY_SHELL_REVISIONS: Array<{
       Overview:
         "Lapis Notes is a local-first workspace for Markdown notes and daily planning.",
       Setup: "Clone the vault and open it in the desktop host.",
-      Tasks: ["- [ ] Write the project overview", "- [ ] List the first setup steps"].join(
-        "\n",
-      ),
+      Tasks: [
+        "- [ ] Write the project overview",
+        "- [ ] List the first setup steps",
+      ].join("\n"),
     }),
   },
   {
@@ -268,7 +269,7 @@ export async function bootHistoryShellDemo(): Promise<{
   const disposeApplicationCompatibility = installApplicationCompatibility(app);
 
   app.plugins.registerCorePlugins([
-    { plugin: SourceEditorDemoPlugin, required: true },
+    { plugin: SourceEditorPlugin, required: true },
     {
       plugin: MarkdownPlugin,
       required: false,

@@ -8,6 +8,8 @@ describe("web Bases host registration", () => {
       path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
       "utf8",
     );
+    const sourceEditor = source.indexOf("plugin: SourceEditorPlugin");
+    const markdown = source.indexOf("plugin: MarkdownPlugin");
     const search = source.indexOf("plugin: SearchPlugin");
     const graph = source.indexOf("plugin: GraphPlugin");
     const bookmarks = source.indexOf("plugin: BookmarksPlugin");
@@ -29,6 +31,8 @@ describe("web Bases host registration", () => {
     expect(source).toContain('import "@lapis-notes/graph/styles.css"');
     expect(source.slice(bases, roles)).toContain('distribution: "bundled"');
     expect(source).toContain('communityPlugins: "disabled"');
+    expect(sourceEditor).toBeGreaterThan(-1);
+    expect(markdown).toBeGreaterThan(sourceEditor);
     expect(search).toBeGreaterThan(-1);
     expect(markdownLint).toBeGreaterThan(-1);
     expect(spellcheck).toBeGreaterThan(markdownLint);

@@ -219,6 +219,9 @@ export const Ready: Story = {
     await expect(
       canvas.getByTestId("lapis-editor-registered-views"),
     ).toHaveTextContent(/JSON:.*\.json/);
+    await expect(
+      canvas.getByTestId("lapis-editor-registered-views"),
+    ).toHaveTextContent(/YAML:.*\.yaml/);
 
     await userEvent.click(canvas.getByRole("button", { name: "Go to file" }));
     const palette = canvas.getByRole("dialog", { name: "Command Palette" });
@@ -421,6 +424,51 @@ export const Ready: Story = {
     await expect(
       canvas.getByRole("heading", { name: "No file is open" }),
     ).toBeVisible();
+  },
+};
+
+export const YamlSource: Story = {
+  ...workspaceStoryMeta(
+    "workspace-lapis-editor-demo-yaml-source",
+    "The production Source Editor opens YAML files with the shared YAML CodeMirror language association used by desktop and web.",
+    "/visual-baselines/stories/workspace/lapis-editor-demo/yaml-source-chromium.png",
+  ),
+  tags: ["visual-pending"],
+  args: { scenario: "ready" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await userEvent.click(canvas.getByRole("button", { name: "Go to file" }));
+    const palette = canvas.getByRole("dialog", { name: "Command Palette" });
+    const search = within(palette).getByRole("combobox", {
+      name: "Search commands",
+    });
+    await userEvent.type(search, "config.yaml");
+    const yamlOption = await waitFor(() => {
+      const option = within(palette).getByRole("option", {
+        name: /config\.yaml/i,
+      });
+      expect(option).toBeVisible();
+      return option;
+    });
+    await userEvent.click(yamlOption);
+
+    await waitFor(() =>
+      expect(canvas.getByTestId("lapis-editor-active-view")).toHaveTextContent(
+        "yaml",
+      ),
+    );
+    const yamlEditor = await waitFor(() => {
+      const editor = canvasElement.querySelector<HTMLElement>(
+        '.cm-editor.cm-editor-source[data-language="yaml"]',
+      );
+      expect(editor).not.toBeNull();
+      return editor!;
+    });
+    await expect(yamlEditor).toHaveTextContent("sourceEditor: true");
+    await expect(
+      activeStoryApp(canvasElement).workspace.activeEditor?.file?.path,
+    ).toBe("Projects/config.yaml");
   },
 };
 
@@ -1950,9 +1998,10 @@ export const ExplorerMutations: Story = {
 export const EditorSettings: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-editor-settings",
-    "Live source-editor settings persist through API configuration, Markdown Lint seeds MD013 and file globs, and Editor associations lists the registered Markdown, Text, and JSON views.",
+    "Live source-editor settings persist through API configuration, Markdown Lint seeds MD013 and file globs, and Editor associations lists the registered Markdown, Text, JSON, and YAML views.",
     "/visual-baselines/stories/workspace/lapis-editor-demo/editor-settings-chromium.png",
   ),
+  tags: ["visual-pending"],
   args: { scenario: "editor-settings" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -2190,6 +2239,23 @@ export const EditorSettings: Story = {
     await userEvent.keyboard("{Escape}");
 
     await userEvent.click(
+      within(dialog).getByRole("button", { name: "Explorer" }),
+    );
+    await expect(
+      within(dialog).getByRole("heading", { name: "Explorer" }),
+    ).toBeVisible();
+    await expect(
+      within(dialog).getByRole("textbox", {
+        name: "File palette extensions item 7",
+      }),
+    ).toHaveValue("yaml");
+    await expect(
+      within(dialog).getByRole("textbox", {
+        name: "File palette extensions item 8",
+      }),
+    ).toHaveValue("yml");
+
+    await userEvent.click(
       within(dialog).getByRole("button", { name: "Workspace" }),
     );
     await expect(within(dialog).getByText("Editor associations")).toBeVisible();
@@ -2205,6 +2271,7 @@ export const EditorSettings: Story = {
     await expect(page.getByRole("option", { name: "Markdown" })).toBeVisible();
     await expect(page.getByRole("option", { name: "Text" })).toBeVisible();
     await expect(page.getByRole("option", { name: "JSON" })).toBeVisible();
+    await expect(page.getByRole("option", { name: "YAML" })).toBeVisible();
   },
 };
 

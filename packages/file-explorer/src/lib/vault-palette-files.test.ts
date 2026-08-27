@@ -18,6 +18,7 @@ function createApp(options: {
   queryFiles?: TFile[];
   recentFiles?: TFile[];
   showHidden?: boolean;
+  paletteFileExtensions?: string[];
 }): App {
   const files = options.queryFiles ?? [];
   return {
@@ -32,6 +33,12 @@ function createApp(options: {
         get<T>(key: string, defaultValue?: T): T {
           if (key === EXPLORER_SETTING_IDS.showHiddenFiles) {
             return Boolean(options.showHidden) as T;
+          }
+          if (
+            key === EXPLORER_SETTING_IDS.paletteFileExtensions &&
+            options.paletteFileExtensions
+          ) {
+            return options.paletteFileExtensions as T;
           }
           return defaultValue as T;
         },
@@ -123,5 +130,51 @@ describe("listVaultPaletteFiles", () => {
     expect(
       listVaultPaletteFiles(hiddenOn, "app.json").map((file) => file.path),
     ).toEqual([".obsidian/app.json"]);
+  });
+
+  it("includes YAML defaults and still applies hidden-file visibility", () => {
+    const files = [
+      createFile("Projects/config.yaml"),
+      createFile("Projects/legacy.yml"),
+      createFile(".lapis/agents/session/metadata.yaml"),
+      createFile("Projects/archive.bin"),
+    ];
+
+    const hiddenOff = createApp({ queryFiles: files });
+    expect(
+      listVaultPaletteFiles(hiddenOff, "config.yaml").map((file) => file.path),
+    ).toEqual(["Projects/config.yaml"]);
+    expect(
+      listVaultPaletteFiles(hiddenOff, "legacy.yml").map((file) => file.path),
+    ).toEqual(["Projects/legacy.yml"]);
+    expect(listVaultPaletteFiles(hiddenOff, "metadata.yaml")).toEqual([]);
+
+    const hiddenOn = createApp({ queryFiles: files, showHidden: true });
+    expect(
+      listVaultPaletteFiles(hiddenOn, "metadata.yaml").map(
+        (file) => file.path,
+      ),
+    ).toEqual([".lapis/agents/session/metadata.yaml"]);
+    expect(listVaultPaletteFiles(hiddenOn, "archive.bin")).toEqual([]);
+  });
+
+  it("reads and normalizes the configurable extension allowlist", () => {
+    const files = [
+      createFile("Notes/Welcome.md"),
+      createFile("Projects/config.yaml"),
+      createFile("Projects/app.toml"),
+    ];
+    const app = createApp({
+      queryFiles: files,
+      paletteFileExtensions: [" .TOML ", "yaml"],
+    });
+
+    expect(listVaultPaletteFiles(app, "Welcome.md")).toEqual([]);
+    expect(
+      listVaultPaletteFiles(app, "app.toml").map((file) => file.path),
+    ).toEqual(["Projects/app.toml"]);
+    expect(
+      listVaultPaletteFiles(app, "config.yaml").map((file) => file.path),
+    ).toEqual(["Projects/config.yaml"]);
   });
 });

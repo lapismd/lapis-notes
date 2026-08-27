@@ -21,11 +21,33 @@ describe("Deno desktop binding probe", () => {
     expect(invoke).toHaveBeenCalledTimes(2);
   });
 
-  it("fails immediately outside a Deno desktop document", async () => {
+  it("recovers when bindings appear after the document was parsed", async () => {
+    const bindings = {
+      invoke: vi.fn().mockResolvedValue({ name: "Lapis Notes" }),
+    };
+    const readBindings = vi
+      .fn<() => typeof bindings | null>()
+      .mockReturnValueOnce(null)
+      .mockReturnValue(bindings);
+
+    await expect(
+      waitForDesktopBindings({
+        readBindings,
+        presentAtParse: false,
+        timeoutMs: 100,
+        retryDelayMs: 0,
+      }),
+    ).resolves.toBe(bindings);
+    expect(readBindings).toHaveBeenCalledTimes(2);
+  });
+
+  it("fails after the bounded deadline outside a Deno desktop document", async () => {
     await expect(
       waitForDesktopBindings({
         readBindings: () => null,
         presentAtParse: false,
+        timeoutMs: 5,
+        retryDelayMs: 0,
       }),
     ).rejects.toThrow(/opening the Vite port in a browser/u);
   });

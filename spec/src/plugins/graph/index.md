@@ -1,5 +1,9 @@
 # Graph Plugin
 
+The package consumes the published Design Core semver contract. Its public UI
+boundary MUST NOT require a sibling-repository path or workspace `link:`
+override.
+
 `@lapis-notes/graph` owns the global and local graph views over indexed vault
 metadata. It preserves the legacy canvas presentation and control structure
 while adapting data, theme, and workspace integration to current Lapis APIs.
