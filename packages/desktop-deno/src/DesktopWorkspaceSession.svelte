@@ -31,7 +31,6 @@
   import * as Button from "@lapismd/design-core/shadcn/button";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import {
-    WorkspaceStartup,
     type WorkspaceStartupFailure,
     type WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
@@ -46,6 +45,7 @@
     updateDesktopSafeModeState,
   } from "./desktop-recovery";
   import { createDenoPluginAssetServer } from "./deno-plugin-asset-server";
+  import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
   let {
@@ -696,7 +696,7 @@
       </aside>
     {/if}
   {:else}
-    <WorkspaceStartup title="Opening Lapis Notes" {tasks} {failure} />
+    <DesktopWorkspaceStartup {tasks} {failure} />
     {#if recoveryMessage}
       <p class="desktop-host__recovery-message" role="status">
         {recoveryMessage}

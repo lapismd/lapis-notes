@@ -11,15 +11,15 @@
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
-  import {
-    WorkspaceStartup,
-    type WorkspaceStartupTask,
+  import type {
+    WorkspaceStartupTask,
   } from "@lapismd/design-core/workspace/startup";
   import { onMount, tick } from "svelte";
   import DesktopVaultLauncher, {
     type LauncherStatus,
   } from "./DesktopVaultLauncher.svelte";
   import DesktopWorkspaceSession from "./DesktopWorkspaceSession.svelte";
+  import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
   import { DenoDesktopAppDatabaseProvider } from "./deno-app-database";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
@@ -278,6 +278,6 @@
       onClose={hideLauncher}
     />
   {:else if !prepared}
-    <WorkspaceStartup title="Opening Lapis Notes" tasks={RESTORE_TASKS} />
+    <DesktopWorkspaceStartup tasks={RESTORE_TASKS} />
   {/if}
 </main>

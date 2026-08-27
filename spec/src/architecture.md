@@ -461,8 +461,10 @@ banner with generated-index rebuild and normal-restart actions. These controls
 do not add canonical vault settings or unavailable community/notebook policy.
 After that selection, desktop and web session boot render Design Core
 `WorkspaceStartup` for vault, configuration, plugin, and layout progress
-instead of a host-owned placeholder. The plugins task reports the current
-plugin name. Metadata index load starts after layout restoration so database
+instead of a host-owned placeholder. The desktop host supplies its package-local
+Lapis logo in place of the visible loading title while keeping that title as the
+region's accessible name. The plugins task reports the current plugin name.
+Metadata index load starts after layout restoration so database
 readiness does not contend with `loadLayout`. Persisted queries become
 available before background reconciliation. Matching versioned Metadata and
 Search checkpoints skip full warm scans; stale Metadata reconciliation finishes

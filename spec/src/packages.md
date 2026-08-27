@@ -531,6 +531,8 @@ Session boot consumes public `@lapismd/design-core/workspace/startup` and the
 shared drag-region stylesheet rather than a host-owned loading stub or
 `-webkit-app-region` override. Hosts also use that startup surface while
 resolving a saved current profile so the branded chooser cannot flash first.
+The desktop adapter supplies the package-local Lapis logo as the visible loading
+visual while preserving the startup region's accessible title.
 Manage Vaults and desktop Open Vault… overlay the chooser over a retained
 session; Close returns without disposing. The plugins task reports the current plugin
 name. Metadata index load starts after layout restoration so database readiness
