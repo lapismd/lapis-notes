@@ -47,7 +47,37 @@ type OtelDesktopRendererTelemetryOptions = {
   rawInvoke?: DesktopRawInvoke;
   exporter?: SpanExporter;
   registerGlobal?: boolean;
+  shutdownTimeoutMs?: number;
 };
+
+export const DESKTOP_TELEMETRY_SHUTDOWN_TIMEOUT_MS = 1_000;
+
+export async function settleDesktopTelemetryShutdown(
+  task: () => Promise<void>,
+  {
+    timeoutMs = DESKTOP_TELEMETRY_SHUTDOWN_TIMEOUT_MS,
+    setTimer = setTimeout,
+    clearTimer = clearTimeout,
+  }: {
+    timeoutMs?: number;
+    setTimer?: typeof setTimeout;
+    clearTimer?: typeof clearTimeout;
+  } = {},
+): Promise<"completed" | "timed-out"> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const completion = Promise.resolve()
+    .then(task)
+    .then(
+      () => "completed" as const,
+      () => "completed" as const,
+    );
+  const timeout = new Promise<"timed-out">((resolve) => {
+    timer = setTimer(() => resolve("timed-out"), timeoutMs);
+  });
+  const result = await Promise.race([completion, timeout]);
+  if (timer !== undefined) clearTimer(timer);
+  return result;
+}
 
 const STRUCTURED_EVENT_LEVELS = new Map<string, DesktopTelemetryLogLevel>([
   ["desktop.session.ready", "info"],
@@ -263,6 +293,7 @@ class OtelDesktopRendererTelemetry
     endpoint: string,
     version: string,
     private readonly rawInvoke?: DesktopRawInvoke,
+    private readonly shutdownTimeoutMs = DESKTOP_TELEMETRY_SHUTDOWN_TIMEOUT_MS,
   ) {
     this.tracer = provider.getTracer("lapis.desktop.renderer", version);
     this.service = new OtelTelemetryService(
@@ -332,10 +363,13 @@ class OtelDesktopRendererTelemetry
   }
 
   async shutdown(): Promise<void> {
-    this.shutdownPromise ??= (async () => {
-      await this.provider.forceFlush();
-      await this.provider.shutdown();
-    })();
+    this.shutdownPromise ??= settleDesktopTelemetryShutdown(
+      async () => {
+        await this.provider.forceFlush();
+        await this.provider.shutdown();
+      },
+      { timeoutMs: this.shutdownTimeoutMs },
+    ).then(() => undefined);
     await this.shutdownPromise;
   }
 }
@@ -343,11 +377,19 @@ class OtelDesktopRendererTelemetry
 export function createOtelDesktopRendererTelemetry(
   options: OtelDesktopRendererTelemetryOptions,
 ): DesktopRendererTelemetryController {
+  const shutdownTimeoutMs =
+    options.shutdownTimeoutMs ?? DESKTOP_TELEMETRY_SHUTDOWN_TIMEOUT_MS;
   const exporter =
-    options.exporter ?? new OTLPTraceExporter({ url: options.endpoint });
+    options.exporter ??
+    new OTLPTraceExporter({
+      url: options.endpoint,
+      timeoutMillis: shutdownTimeoutMs,
+    });
   const spanProcessor = options.exporter
     ? new SimpleSpanProcessor(exporter)
-    : new BatchSpanProcessor(exporter);
+    : new BatchSpanProcessor(exporter, {
+        exportTimeoutMillis: shutdownTimeoutMs,
+      });
   const provider = new WebTracerProvider({
     resource: resourceFromAttributes({
       "service.name": options.serviceName,
@@ -355,6 +397,7 @@ export function createOtelDesktopRendererTelemetry(
       "service.version": options.version,
       "deployment.environment.name": "local",
     }),
+    forceFlushTimeoutMillis: shutdownTimeoutMs,
     spanProcessors: [spanProcessor],
   });
   if (options.registerGlobal !== false) provider.register();
@@ -363,5 +406,6 @@ export function createOtelDesktopRendererTelemetry(
     options.endpoint,
     options.version,
     options.rawInvoke,
+    shutdownTimeoutMs,
   );
 }

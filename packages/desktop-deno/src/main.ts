@@ -30,6 +30,10 @@ import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import { waitForDesktopBindings } from "./binding-probe";
 import { installDesktopAppIconAppearanceSync } from "./desktop-app-icon";
+import {
+  dismissDesktopBootPresentation,
+  showDesktopClosingPresentation,
+} from "./desktop-close-presentation";
 import { applyDesktopHostDocument } from "./desktop-host-document";
 import { installDesktopWindowDrag } from "./desktop-window-drag";
 import { waitForDesktopCloseSignal } from "./desktop-close-signal";
@@ -117,7 +121,7 @@ let invokeDesktop: DesktopRawInvoke;
 function dispatchRendererClose(): void {
   if (rendererCloseRequested) return;
   rendererCloseRequested = true;
-  document.documentElement.setAttribute("data-desktop-closing", "true");
+  showDesktopClosingPresentation(document);
   for (const listener of beforeCloseListeners) listener();
 }
 
@@ -267,10 +271,6 @@ function showStartupError(error: unknown): void {
   notice.setAttribute("role", "alert");
   notice.textContent = message;
   target.append(notice);
-}
-
-function clearBootStatus(): void {
-  document.getElementById("lapis-boot-status")?.remove();
 }
 
 function resolveAppearance(mode: BootstrapAppearanceMode): "dark" | "light" {
@@ -453,5 +453,5 @@ await migrateVaultBootstrapStoreFromIndexedDb();
 setDefaultVaultStateStore(new NativeDesktopVaultBootstrapKeyValueStore());
 await initializeAppearance();
 
-clearBootStatus();
+dismissDesktopBootPresentation(document);
 export default mount(DesktopVaultHost, { target, props: { bridge } });

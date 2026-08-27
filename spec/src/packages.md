@@ -590,13 +590,15 @@ catalog event delivery; the plugin owns request correlation and presentation.
 The optional native Codex process catalog remains an explicit AI adapter and is
 not the default Codex ACP discovery route (LN-AI-175, LN-DENO-056).
 The same private host owns Deno application-menu projection, validated external
-URL launch commands, and the bounded close coordinator. On macOS it routes both
-the adopted bootstrap and visible-window close sources through that coordinator
-and releases a private same-origin renderer close signal on the next event-loop
-turn. The renderer dismisses its presentation without using post-close native
-window close, hide, opacity, or script operations. It continues to own `App`,
-workspace, plugin, database, and vault-session disposal and acknowledges native
-close only after that shared teardown completes.
+URL launch commands, local collector preflight, and the bounded close
+coordinator. On macOS it routes both the adopted bootstrap and visible-window
+close sources through that coordinator and releases a private same-origin
+renderer close signal on the next event-loop turn. The renderer replaces the
+workspace with its opaque branded status surface without using post-close
+native window close or hide. It continues to own `App`, workspace, plugin,
+database, and vault-session disposal, bounds best-effort telemetry flushing to
+one second, and acknowledges native close only after that shared teardown
+completes.
 Its boot document provides only a branded loading state until the renderer
 clears it or reports a startup failure through the existing status element.
 

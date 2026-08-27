@@ -5,6 +5,10 @@ const bootDocument = readFileSync(
   new URL("../index.html", import.meta.url),
   "utf8",
 );
+const desktopStyles = readFileSync(
+  new URL("./desktop-host.css", import.meta.url),
+  "utf8",
+);
 
 describe("Deno desktop boot screen", () => {
   it("shows only the branded logo visually before the renderer mounts", () => {
@@ -17,5 +21,14 @@ describe("Deno desktop boot screen", () => {
     expect(bootDocument).not.toContain(">Loading Lapis Notes<");
     expect(bootDocument).toContain("color: #6b7280");
     expect(bootDocument).toContain('status.removeAttribute("aria-label")');
+    expect(desktopStyles).toContain("#lapis-boot-status[hidden]");
+    expect(desktopStyles).toContain(
+      ':root[data-desktop-closing="true"] #lapis-boot-status',
+    );
+    expect(desktopStyles).toContain(
+      "background: var(--ui-workspace-background, #f8fafc)",
+    );
+    expect(desktopStyles).toContain(':root[data-desktop-closing="true"] #app');
+    expect(desktopStyles).not.toContain("opacity: 0");
   });
 });

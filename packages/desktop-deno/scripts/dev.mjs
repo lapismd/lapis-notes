@@ -18,6 +18,7 @@ import {
   resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
 import {
+  assertDesktopTelemetryCollectorAvailable,
   createDesktopRendererTelemetryDefines,
   createDesktopTelemetryEnvironment,
   isDesktopTelemetryRequested,
@@ -44,6 +45,11 @@ const desktopEnvironment = createDesktopTelemetryEnvironment(process.env, {
   enabled: telemetryEnabled,
   version: packageManifest.version,
 });
+if (telemetryEnabled) {
+  await assertDesktopTelemetryCollectorAvailable(
+    desktopEnvironment.OTEL_EXPORTER_OTLP_ENDPOINT,
+  );
+}
 await ensureDesktopDevSiblingLinks(packageRoot);
 
 async function run(command, args) {

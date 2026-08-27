@@ -1,4 +1,5 @@
 const DEFAULT_OTLP_ENDPOINT = "http://127.0.0.1:4318";
+export const DEFAULT_TELEMETRY_COLLECTOR_PROBE_TIMEOUT_MS = 1_000;
 const DEFAULT_NATIVE_SERVICE_NAME = "lapis-notes-desktop";
 const DEFAULT_RENDERER_SERVICE_NAME = "lapis-notes-renderer";
 const RENDERER_TELEMETRY_ENVIRONMENT_KEYS = [
@@ -24,6 +25,39 @@ function normalizeLoopbackEndpoint(value) {
   endpoint.search = "";
   endpoint.hash = "";
   return endpoint.toString().replace(/\/$/u, "");
+}
+
+export async function assertDesktopTelemetryCollectorAvailable(
+  endpoint,
+  {
+    fetchImpl = globalThis.fetch,
+    timeoutMs = DEFAULT_TELEMETRY_COLLECTOR_PROBE_TIMEOUT_MS,
+    setTimer = setTimeout,
+    clearTimer = clearTimeout,
+  } = {},
+) {
+  const normalized = normalizeLoopbackEndpoint(endpoint);
+  const traceEndpoint = `${normalized}/v1/traces`;
+  const controller = new AbortController();
+  const timer = setTimer(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetchImpl(traceEndpoint, {
+      method: "POST",
+      headers: { "content-type": "application/x-protobuf" },
+      body: new Uint8Array(),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      throw new Error(`collector returned HTTP ${response.status}`);
+    }
+  } catch (error) {
+    throw new Error(
+      `Desktop telemetry collector is unavailable at ${normalized}. Start or repair the local stack with \`pnpm telemetry:lgtm\`, wait for it to become healthy, then retry.`,
+      { cause: error },
+    );
+  } finally {
+    clearTimer(timer);
+  }
 }
 
 function mergeResourceAttributes(current, required) {
@@ -84,10 +118,7 @@ export function isDesktopTelemetryRequested(arguments_) {
   return arguments_.includes("--telemetry");
 }
 
-export function createDesktopRendererTelemetryDefines(
-  environment,
-  enabled,
-) {
+export function createDesktopRendererTelemetryDefines(environment, enabled) {
   return Object.fromEntries(
     RENDERER_TELEMETRY_ENVIRONMENT_KEYS.map((name) => {
       const value = enabled ? environment[name] : undefined;

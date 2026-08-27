@@ -1,7 +1,7 @@
 import { lstat, mkdir, mkdtemp, readFile, readlink } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   createDenoDesktopDevHostBuildArgs,
@@ -17,6 +17,7 @@ import {
   resolveDenoDesktopInspector,
 } from "./dev-command.mjs";
 import {
+  assertDesktopTelemetryCollectorAvailable,
   createDesktopRendererTelemetryDefines,
   createDesktopTelemetryEnvironment,
   isDesktopTelemetryRequested,
@@ -312,6 +313,37 @@ describe("Deno desktop development command", () => {
       "import.meta.env.VITE_LAPIS_DESKTOP_TELEMETRY": "undefined",
       "import.meta.env.VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT": "undefined",
     });
+  });
+
+  it("preflights the local OTLP trace endpoint before telemetry launch", async () => {
+    const fetchImpl = vi.fn(async () => new Response(null, { status: 200 }));
+
+    await expect(
+      assertDesktopTelemetryCollectorAvailable("http://127.0.0.1:4318", {
+        fetchImpl,
+      }),
+    ).resolves.toBeUndefined();
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://127.0.0.1:4318/v1/traces",
+      expect.objectContaining({
+        method: "POST",
+        headers: { "content-type": "application/x-protobuf" },
+        body: expect.any(Uint8Array),
+        signal: expect.any(AbortSignal),
+      }),
+    );
+  });
+
+  it("fails telemetry launch with actionable guidance when OTLP is unavailable", async () => {
+    await expect(
+      assertDesktopTelemetryCollectorAvailable("http://127.0.0.1:4318", {
+        fetchImpl: async () => {
+          throw new TypeError("connection refused");
+        },
+      }),
+    ).rejects.toThrow(
+      "Start or repair the local stack with `pnpm telemetry:lgtm`",
+    );
   });
 
   it("creates package-local source links for Deno Desktop embedded path resolution", async () => {

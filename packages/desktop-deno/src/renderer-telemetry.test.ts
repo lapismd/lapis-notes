@@ -3,9 +3,43 @@ import { describe, expect, it, vi } from "vitest";
 
 import { createDesktopRendererTelemetry } from "./renderer-telemetry";
 import type { DesktopRawInvoke } from "./renderer-telemetry";
-import { createOtelDesktopRendererTelemetry } from "./renderer-telemetry-otel";
+import {
+  createOtelDesktopRendererTelemetry,
+  DESKTOP_TELEMETRY_SHUTDOWN_TIMEOUT_MS,
+  settleDesktopTelemetryShutdown,
+} from "./renderer-telemetry-otel";
 
 describe("desktop renderer telemetry", () => {
+  it("bounds best-effort shutdown when an exporter never settles", async () => {
+    vi.useFakeTimers();
+    try {
+      const shutdown = settleDesktopTelemetryShutdown(
+        () => new Promise(() => {}),
+      );
+      let settled = false;
+      void shutdown.then(() => {
+        settled = true;
+      });
+
+      await vi.advanceTimersByTimeAsync(
+        DESKTOP_TELEMETRY_SHUTDOWN_TIMEOUT_MS - 1,
+      );
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      await expect(shutdown).resolves.toBe("timed-out");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("treats exporter failure as completed best-effort shutdown", async () => {
+    await expect(
+      settleDesktopTelemetryShutdown(async () => {
+        throw new Error("collector unavailable");
+      }),
+    ).resolves.toBe("completed");
+  });
+
   it("keeps disabled mode no-op and payload-compatible", async () => {
     const telemetry = await createDesktopRendererTelemetry({
       enabled: false,
