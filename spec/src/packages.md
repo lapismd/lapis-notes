@@ -210,6 +210,9 @@ editing.
 
 The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.
+Desktop Deno owns a worker boundary around its native Turso handle so database
+execution cannot starve the package's window and agent transports
+(LN-DENO-059).
 Live Problems totals therefore use Design Core's structured, ephemeral view
 badge and never enter Lapis layout state or package-owned panel markup.
 API projection treats Problems as host-owned even before the view is

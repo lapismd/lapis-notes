@@ -112,7 +112,9 @@ requests that carry a prefix fetch the complete candidate path set before the
 shared evaluator; native and browser proxies forward the same typed option.
 
 The Deno desktop renderer selects the same provider contract over a host-owned
-native Turso handle. The bridge materializes the AppDatabase method surface in
+native Turso handle. The host executes that handle in a dedicated worker so
+native driver steps cannot block window, ACP, or renderer-event work
+(LN-DENO-059). The bridge materializes the AppDatabase method surface in
 the renderer, forwards only allowlisted calls and typed arguments, and relays
 post-commit change sets without exposing raw storage. The WASM provider remains
 the browser-compatible path and imports the driver's host-bundler entry so web

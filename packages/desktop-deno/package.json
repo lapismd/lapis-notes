@@ -28,6 +28,7 @@
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
     "check:types": "tsc -p tsconfig.node.json --noEmit",
     "test": "vitest run",
+    "test:database-worker": "node scripts/smoke-database-worker.mjs",
     "test:packaged": "node scripts/smoke-packaged.mjs"
   },
   "devDependencies": {
