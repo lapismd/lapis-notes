@@ -19,8 +19,8 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/ai": "workspace:*",
-    "@lapismd/ai-host": "*",
-    "@lapismd/terminal-host": "*",
+    "@lapismd/ai-host": "^0.1.0",
+    "@lapismd/terminal-host": "^0.1.0",
     "@lapis-notes/bases": "workspace:*",
     "@lapis-notes/bookmarks": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",

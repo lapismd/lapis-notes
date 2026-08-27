@@ -7,21 +7,21 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
- Electron host, internal language service, and authorized File Explorer,
+ Deno desktop host, web host, internal language service, and authorized File Explorer,
  Markdown, Markdownlint, Search, History, Word Count, and CV plugins.
  Design Core F-Mode is optional default-disabled shell chrome.
 - Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
   in `MIGRATION.md` — do not invent them ahead of the spec.
 
-## Colocated sibling dependencies
+## Package dependency policy
 
-- Consume a colocated LapisMD sibling through an explicit `link:` dependency or
-  a `link:`-valued root `pnpm-workspace.yaml` override; do not add the sibling
-  repository as a workspace member.
-- Keep publishable manifests portable. Do not vendor sibling source, edit its
-  `node_modules`, or replace a local checkout with a registry copy.
-- When a sibling exports built output, rebuild it before validating this
-  repository as a consumer.
+- Consume published LapisMD packages through normal npm semver ranges.
+- Keep publishable manifests portable. Do not vendor dependency source, edit
+  dependency `node_modules`, or add checkout-specific paths.
+- If a LapisMD dependency needs a source fix, make the change in the owning
+  repository, verify it there, and consume a released package version here.
+- Keep unpublished first-party Lapis packages inside this monorepo until their
+  publication plan is complete.
 
 ## Application ownership
 
@@ -90,8 +90,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 ## UI And Styling
 
-- Prefer `@lapismd/design-core` for overlapping shadcn primitives over time
-  (sibling package via `link:../design-core` and its public exports).
+- Prefer `@lapismd/design-core` for overlapping shadcn primitives over time.
 - Keep Lapis-specific compounds in `@lapis-notes/ui` until migrated; each
   retained custom family needs Storybook stories and docs.
 - Every UI family consumed by `@lapis-notes/api` has an `API/<Name>` verification
@@ -256,7 +255,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   Escape remains the keyboard dismissal and a failed save stays open. Direct
   document embeds remain read-only. Do not add a Lapis portal wrapper, editor,
   save timer, source alias, or clipping override. The middle-top-tabs Outgoing
-  Links play is the linked-consumer regression for both ordinary and
+  Links play is the cross-package regression for both ordinary and
   panel-result editable previews and must verify persisted vault content,
   minimal chrome, sticky action, padding, edit border, hover/focus pinning, and
   outside-click dismissal after that boundary.

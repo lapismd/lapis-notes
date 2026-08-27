@@ -1,23 +1,22 @@
-# Lapis Notes (minimal)
+# Lapis Notes
 
-Minimal Lapis Notes monorepo: `@lapis-notes/api` + pruned `@lapis-notes/ui`,
-Turbo/pnpm, mira-inspired spec-first governance, and Storybook for custom UI.
+Lapis Notes monorepo for the application shell, public API/UI/workspace
+packages, bundled plugins, Deno desktop host, web host, spec-first governance,
+and Storybook acceptance.
 
 ## Setup
 
-Keep `../design-core` and `../mira-mde` checked out beside this repository.
-Mira publishes local development output from `dist`, so build it before the
-initial Lapis install and after Mira source changes:
+Install dependencies from the repository root:
 
 ```bash
-pnpm --dir ../mira-mde build
 pnpm install
 ```
 
 Requires Node 22+, pnpm 10, and [mdBook](https://rust-lang.github.io/mdBook/)
-for `pnpm spec:build`. Sibling packages are declarative `link:` dependencies:
-design-core exports its live source contract, while rebuilding Mira refreshes
-the linked package output without reinstalling Lapis.
+for `pnpm spec:build`. Desktop work also requires Deno 2.9.5. Published
+`@lapismd/*` packages resolve from npm semver ranges. Keep adjacent source
+checkouts only when actively fixing those packages; after release, update this
+repository to the published registry version.
 
 ## Scripts
 

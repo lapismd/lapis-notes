@@ -5,8 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@lapismd/ai-host': link:../ai-host
-  '@lapismd/terminal-host': link:../terminal-host
   adm-zip: '>=0.6.0'
   aria-query: 5.3.2
   '@napi-rs/wasm-runtime@1.0.7>@emnapi/core': 1.8.1
@@ -105,8 +103,8 @@ importers:
         specifier: workspace:*
         version: link:packages/workspace
       '@lapismd/ai-host':
-        specifier: link:../ai-host
-        version: link:../ai-host
+        specifier: ^0.1.0
+        version: 0.1.0(zod@4.4.3)
       '@lapismd/design-core':
         specifier: ^0.1.0
         version: 0.1.0(@codemirror/lang-markdown@6.5.2)(@codemirror/language-data@6.5.2)(@codemirror/search@6.7.1)(@lezer/markdown@1.7.2)(svelte@5.56.8)(tailwindcss@4.3.3)
@@ -129,8 +127,8 @@ importers:
         specifier: 0.0.7
         version: 0.0.7(playwright@1.61.1)(react@19.2.8)(storybook@10.5.7(@types/react@19.2.18)(prettier@3.3.3)(react@19.2.8))(svelte@5.56.8)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0))
       '@lapismd/terminal-host':
-        specifier: link:../terminal-host
-        version: link:../terminal-host
+        specifier: ^0.1.0
+        version: 0.1.0
       '@lezer/common':
         specifier: ^1.5.2
         version: 1.5.2
@@ -264,8 +262,8 @@ importers:
         specifier: ^0.0.1
         version: link:../ui
       '@lapismd/ai-host':
-        specifier: link:../../../ai-host
-        version: link:../../../ai-host
+        specifier: ^0.1.0
+        version: 0.1.0(zod@3.25.76)
       '@lapismd/design-core':
         specifier: ^0.1.0
         version: 0.1.0(@codemirror/lang-markdown@6.5.2)(@codemirror/language-data@6.5.2)(@codemirror/search@6.7.1)(@lezer/markdown@1.7.2)(svelte@5.56.8)(tailwindcss@4.3.3)
@@ -490,14 +488,14 @@ importers:
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/ai-host':
-        specifier: link:../../../ai-host
-        version: link:../../../ai-host
+        specifier: ^0.1.0
+        version: 0.1.0(zod@4.4.3)
       '@lapismd/design-core':
         specifier: ^0.1.0
         version: 0.1.0(@codemirror/lang-markdown@6.5.2)(@codemirror/language-data@6.5.2)(@codemirror/search@6.7.1)(@lezer/markdown@1.7.2)(svelte@5.56.8)(tailwindcss@4.3.3)
       '@lapismd/terminal-host':
-        specifier: link:../../../terminal-host
-        version: link:../../../terminal-host
+        specifier: ^0.1.0
+        version: 0.1.0
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.8)
@@ -1275,14 +1273,14 @@ importers:
         specifier: workspace:*
         version: link:../workspace
       '@lapismd/ai-host':
-        specifier: link:../../../ai-host
-        version: link:../../../ai-host
+        specifier: ^0.1.0
+        version: 0.1.0(zod@4.4.3)
       '@lapismd/design-core':
         specifier: ^0.1.0
         version: 0.1.0(@codemirror/lang-markdown@6.5.2)(@codemirror/language-data@6.5.2)(@codemirror/search@6.7.1)(@lezer/markdown@1.7.2)(svelte@5.56.8)(tailwindcss@4.3.3)
       '@lapismd/terminal-host':
-        specifier: link:../../../terminal-host
-        version: link:../../../terminal-host
+        specifier: ^0.1.0
+        version: 0.1.0
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.8)
@@ -2872,6 +2870,11 @@ packages:
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
+  '@lapismd/ai-host@0.1.0':
+    resolution: {integrity: sha512-CMXPXvAav8MW7ODGXASO4FGb0Rg4VGOF15B1yqWL8NrEnZay692LaU+ng73oXgeFdb8NyF1Rx5yp3ig93e+5cw==}
+    engines: {node: '>=22'}
+    hasBin: true
+
   '@lapismd/design-core@0.1.0':
     resolution: {integrity: sha512-iiEC9lyFjgFW/DQD2nieA2PLiq7RvcoTTvq1uXSRpJgUIhTOC8aCj/LlQmT0pYjQhYpwRjpsx2w7UjzaV/E7EQ==}
     engines: {node: '>=22'}
@@ -2941,6 +2944,11 @@ packages:
         optional: true
       vite:
         optional: true
+
+  '@lapismd/terminal-host@0.1.0':
+    resolution: {integrity: sha512-MLXUN2/116AX5NyvbPfG1luJspqQQAhI6n0vrEDI365mz6e3RATBvf8cvPs3Wy/DeFpNfZoOFOOD9BBt8OHvOA==}
+    engines: {deno: '>=2.9.5', node: '>=22'}
+    hasBin: true
 
   '@lezer/common@1.5.2':
     resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
@@ -9640,6 +9648,36 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
+  '@lapismd/ai-host@0.1.0(zod@3.25.76)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
+      acpx: 0.13.1
+      ws: 8.21.2
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - bare-abort-controller
+      - bare-buffer
+      - bufferutil
+      - react-native-b4a
+      - supports-color
+      - utf-8-validate
+      - zod
+
+  '@lapismd/ai-host@0.1.0(zod@4.4.3)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.29.0(zod@4.4.3)
+      acpx: 0.13.1
+      ws: 8.21.2
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - bare-abort-controller
+      - bare-buffer
+      - bufferutil
+      - react-native-b4a
+      - supports-color
+      - utf-8-validate
+      - zod
+
   '@lapismd/design-core@0.1.0(@codemirror/lang-markdown@6.5.2)(@codemirror/language-data@6.5.2)(@codemirror/search@6.7.1)(@lezer/markdown@1.7.2)(svelte@5.56.8)(tailwindcss@4.3.3)':
     dependencies:
       '@codemirror/autocomplete': 6.20.3
@@ -9853,6 +9891,8 @@ snapshots:
       svelte: 5.56.8
       vite: 7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0)(tsx@4.23.9)(yaml@2.9.0)
 
+  '@lapismd/terminal-host@0.1.0': {}
+
   '@lezer/common@1.5.2': {}
 
   '@lezer/cpp@1.1.6':
@@ -9984,6 +10024,28 @@ snapshots:
   '@mermaid-js/parser@1.2.1':
     dependencies:
       '@chevrotain/types': 11.1.2
+
+  '@modelcontextprotocol/sdk@1.29.0(zod@3.25.76)':
+    dependencies:
+      '@hono/node-server': 1.19.17(hono@4.13.1)
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      content-type: 1.0.5
+      cors: 2.8.6
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.1.1
+      express: 5.2.1
+      express-rate-limit: 8.6.2(express@5.2.1)
+      hono: 4.13.1
+      jose: 6.2.8
+      json-schema-typed: 8.0.2
+      pkce-challenge: 5.0.1
+      raw-body: 3.0.2
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.2(zod@3.25.76)
+    transitivePeerDependencies:
+      - supports-color
 
   '@modelcontextprotocol/sdk@1.29.0(zod@4.2.1)':
     dependencies:
@@ -16177,6 +16239,10 @@ snapshots:
   zimmerframe@1.1.2: {}
 
   zimmerframe@1.1.4: {}
+
+  zod-to-json-schema@3.25.2(zod@3.25.76):
+    dependencies:
+      zod: 3.25.76
 
   zod-to-json-schema@3.25.2(zod@4.2.1):
     dependencies:

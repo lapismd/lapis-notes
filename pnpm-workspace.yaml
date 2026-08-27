@@ -5,8 +5,6 @@ packages:
 linkWorkspacePackages: true
 
 overrides:
-  "@lapismd/ai-host": "link:../ai-host"
-  "@lapismd/terminal-host": "link:../terminal-host"
   adm-zip: ">=0.6.0"
   aria-query: "5.3.2"
   "@napi-rs/wasm-runtime@1.0.7>@emnapi/core": "1.8.1"
