@@ -14,6 +14,7 @@ import {
   graphRepelForceMagnitude,
 } from "./graph-settings";
 import { adjustTransformForViewportResize } from "./graph-viewport-alignment";
+import { GraphHoverIntent } from "./graph-hover-intent";
 
 export interface GraphRenderNode extends GraphNode, SimulationNodeDatum {
   radius: number;
@@ -61,6 +62,16 @@ interface GraphRendererCallbacks {
     running: boolean;
     reason: "started" | "stopped" | "completed" | "graph-changed";
   }) => void;
+  onNodePreviewChange?: (preview: GraphNodePreview | null) => void;
+}
+
+export interface GraphPreviewAnchor {
+  getBoundingClientRect(): DOMRect;
+}
+
+export interface GraphNodePreview {
+  node: GraphNode;
+  anchor: GraphPreviewAnchor;
 }
 
 export type GraphViewportTransform = {
@@ -116,6 +127,35 @@ export function graphNodeScreenRadius(
   zoom: number,
 ): number {
   return baseRadius * Math.sqrt(Math.max(zoom, GRAPH_MIN_ZOOM));
+}
+
+export function graphNodeSupportsPreview(node: GraphNode): boolean {
+  return Boolean(
+    node.type === "note" &&
+      node.exists &&
+      node.path &&
+      /\.(?:md|markdown)$/iu.test(node.path),
+  );
+}
+
+export function graphNodePreviewRect(options: {
+  node: GraphRenderNode;
+  transform: GraphViewportTransform;
+  canvasRect: Pick<DOMRect, "left" | "top">;
+}): { x: number; y: number; width: number; height: number } {
+  const { node, transform, canvasRect } = options;
+  if (typeof node.x !== "number" || typeof node.y !== "number") {
+    return { x: canvasRect.left, y: canvasRect.top, width: 0, height: 0 };
+  }
+  const radius = graphNodeScreenRadius(node.radius, transform.k);
+  const centerX = canvasRect.left + node.x * transform.k + transform.x;
+  const centerY = canvasRect.top + node.y * transform.k + transform.y;
+  return {
+    x: centerX - radius,
+    y: centerY - radius,
+    width: radius * 2,
+    height: radius * 2,
+  };
 }
 
 export function graphEmphasisAlpha(
@@ -595,6 +635,7 @@ export class GraphRenderer {
   private timeLapseOrder: string[] = [];
   private visibleTimeLapseNodes: Set<string> | null = null;
   private hoveredNodeId: string | null = null;
+  private emphasisNodeId: string | null = null;
   private focusedNodeId: string | null = null;
   private emphasisProgress = 0;
   private emphasisTarget = 0;
@@ -618,6 +659,21 @@ export class GraphRenderer {
   private pointerStart = { x: 0, y: 0 };
   private panStart: Transform = { x: 0, y: 0, k: 1 };
   private transform: Transform = { x: 0, y: 0, k: 1 };
+  private readonly hoverIntent: GraphHoverIntent;
+  private modifierDown = false;
+  private previewNodeId: string | null = null;
+  private previewSuppressedNodeId: string | null = null;
+  private readonly handleDocumentKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === "Meta" || event.key === "Control") {
+      this.modifierDown = true;
+      this.openPreviewForHoveredNode();
+    }
+  };
+  private readonly handleDocumentKeyUp = (event: KeyboardEvent): void => {
+    if (event.key === "Meta" || event.key === "Control") {
+      this.modifierDown = event.metaKey || event.ctrlKey;
+    }
+  };
 
   constructor(containerEl: HTMLElement, callbacks: GraphRendererCallbacks) {
     this.callbacks = callbacks;
@@ -667,13 +723,36 @@ export class GraphRenderer {
     }
     this.context = context;
 
+    this.hoverIntent = new GraphHoverIntent(
+      () => ({
+        activationDelayMs: this.settings?.display.hoverActivationDelayMs ?? 500,
+        releaseDelayMs: this.settings?.display.hoverReleaseDelayMs ?? 350,
+      }),
+      (nodeId) => {
+        this.emphasisNodeId = nodeId;
+        this.updateEmphasisTarget();
+        this.queueRender();
+      },
+    );
+
     this.bindEvents();
+    this.wrapperEl.ownerDocument.addEventListener(
+      "keydown",
+      this.handleDocumentKeyDown,
+    );
+    this.wrapperEl.ownerDocument.addEventListener(
+      "keyup",
+      this.handleDocumentKeyUp,
+    );
     this.observeResize();
     this.resize();
   }
 
   setGraph(graph: GraphData, settings: GraphSettings): void {
     this.stopTimeLapse("graph-changed");
+    this.hoveredNodeId = null;
+    this.hoverIntent.clear();
+    this.closePreview();
     const sameTopology = this.hasSameTopology(graph);
     this.storePositions();
     this.graph = graph;
@@ -805,6 +884,8 @@ export class GraphRenderer {
 
   startTimeLapse(durationMs = 10_000): void {
     if (!this.nodes.length) return;
+    this.hoveredNodeId = null;
+    this.hoverIntent.clear();
     this.stopTimeLapse("stopped", false);
     this.timeLapseDurationMs = Math.max(1, durationMs);
     this.timeLapseOrder = createGraphTimeLapsePlan(this.graph);
@@ -841,7 +922,22 @@ export class GraphRenderer {
     return this.visibleTimeLapseNodes !== null;
   }
 
+  dismissPreview(): void {
+    this.previewSuppressedNodeId = this.hoveredNodeId;
+    this.closePreview();
+  }
+
   destroy(): void {
+    this.hoverIntent.destroy();
+    this.closePreview();
+    this.wrapperEl.ownerDocument.removeEventListener(
+      "keydown",
+      this.handleDocumentKeyDown,
+    );
+    this.wrapperEl.ownerDocument.removeEventListener(
+      "keyup",
+      this.handleDocumentKeyUp,
+    );
     this.storePositions();
     this.simulation.stop();
     if (this.animationFrame !== null) {
@@ -901,6 +997,9 @@ export class GraphRenderer {
         return;
       }
       this.wrapperEl.focus();
+      this.hoveredNodeId = null;
+      this.hoverIntent.clear();
+      this.closePreview();
       this.pointerId = event.pointerId;
       this.pointerStart = { x: event.clientX, y: event.clientY };
       this.panStart = { ...this.transform };
@@ -950,17 +1049,22 @@ export class GraphRenderer {
       const hovered = this.hitTest(event.clientX, event.clientY);
       const hoveredNodeId = hovered?.id ?? null;
       if (hoveredNodeId !== this.hoveredNodeId) {
+        this.closePreview();
+        this.previewSuppressedNodeId = null;
         this.hoveredNodeId = hoveredNodeId;
-        this.updateEmphasisTarget();
+        this.hoverIntent.setPointerNode(hoveredNodeId);
         this.canvasEl.style.cursor = hovered ? "pointer" : "grab";
         this.queueRender();
       }
+      this.modifierDown = event.metaKey || event.ctrlKey || this.modifierDown;
+      if (hovered && this.modifierDown) this.openPreview(hovered);
     });
 
     this.wrapperEl.addEventListener("pointerleave", () => {
       if (this.pointerMode || this.hoveredNodeId === null) return;
       this.hoveredNodeId = null;
-      this.updateEmphasisTarget();
+      this.hoverIntent.setPointerNode(null);
+      this.closePreview();
       this.canvasEl.style.cursor = "grab";
       this.queueRender();
     });
@@ -1031,6 +1135,9 @@ export class GraphRenderer {
           break;
         case "Escape":
           this.hoveredNodeId = null;
+          this.hoverIntent.clear();
+          this.previewSuppressedNodeId = this.previewNodeId;
+          this.closePreview();
           this.focusedNodeId = null;
           this.autoCenterNodeId = null;
           this.autoCenterZoom = false;
@@ -1333,7 +1440,7 @@ export class GraphRenderer {
   }
 
   private updateEmphasisTarget(): void {
-    const nextTarget = this.hoveredNodeId || this.focusedNodeId ? 1 : 0;
+    const nextTarget = this.emphasisNodeId || this.focusedNodeId ? 1 : 0;
     if (nextTarget === this.emphasisTarget) return;
     if (this.reducedMotion) {
       this.emphasisProgress = nextTarget;
@@ -1538,7 +1645,7 @@ export class GraphRenderer {
     }
     const active = this.isNodeActive(node.id);
     const isEmphasisSource =
-      node.id === this.hoveredNodeId || node.id === this.focusedNodeId;
+      node.id === this.emphasisNodeId || node.id === this.focusedNodeId;
     const screenScale = Math.max(this.transform.k, GRAPH_MIN_ZOOM);
     const radius = graphNodeWorldRadius(node.radius, screenScale);
     this.context.save();
@@ -1622,15 +1729,15 @@ export class GraphRenderer {
   }
 
   private isNodeActive(nodeId: string): boolean {
-    if (!this.hoveredNodeId && !this.focusedNodeId) {
+    if (!this.emphasisNodeId && !this.focusedNodeId) {
       return true;
     }
-    if (nodeId === this.hoveredNodeId || nodeId === this.focusedNodeId) {
+    if (nodeId === this.emphasisNodeId || nodeId === this.focusedNodeId) {
       return true;
     }
     if (
-      this.hoveredNodeId &&
-      this.neighborMap.get(this.hoveredNodeId)?.has(nodeId)
+      this.emphasisNodeId &&
+      this.neighborMap.get(this.emphasisNodeId)?.has(nodeId)
     ) {
       return true;
     }
@@ -1644,16 +1751,16 @@ export class GraphRenderer {
   }
 
   private hasEmphasisSource(): boolean {
-    return this.hoveredNodeId !== null || this.focusedNodeId !== null;
+    return this.emphasisNodeId !== null || this.focusedNodeId !== null;
   }
 
   private isLinkActive(sourceId: string, targetId: string): boolean {
-    if (!this.hoveredNodeId && !this.focusedNodeId) {
+    if (!this.emphasisNodeId && !this.focusedNodeId) {
       return true;
     }
     const hoveredActive =
-      this.hoveredNodeId !== null &&
-      (sourceId === this.hoveredNodeId || targetId === this.hoveredNodeId);
+      this.emphasisNodeId !== null &&
+      (sourceId === this.emphasisNodeId || targetId === this.emphasisNodeId);
     const focusedActive =
       this.focusedNodeId !== null &&
       (sourceId === this.focusedNodeId || targetId === this.focusedNodeId);
@@ -1678,6 +1785,42 @@ export class GraphRenderer {
       }
     }
     return null;
+  }
+
+  private openPreviewForHoveredNode(): void {
+    const node = this.nodes.find((entry) => entry.id === this.hoveredNodeId);
+    if (node) this.openPreview(node);
+  }
+
+  private openPreview(node: RenderNode): void {
+    if (
+      node.id === this.previewNodeId ||
+      node.id === this.previewSuppressedNodeId ||
+      !graphNodeSupportsPreview(node)
+    ) {
+      return;
+    }
+    this.previewNodeId = node.id;
+    const anchor: GraphPreviewAnchor = {
+      getBoundingClientRect: () => {
+        const current = this.nodes.find((entry) => entry.id === node.id);
+        const canvasRect = this.canvasEl.getBoundingClientRect();
+        if (!current) return new DOMRect(canvasRect.left, canvasRect.top, 0, 0);
+        const rect = graphNodePreviewRect({
+          node: current,
+          transform: this.transform,
+          canvasRect,
+        });
+        return new DOMRect(rect.x, rect.y, rect.width, rect.height);
+      },
+    };
+    this.callbacks.onNodePreviewChange?.({ node, anchor });
+  }
+
+  private closePreview(): void {
+    if (this.previewNodeId === null) return;
+    this.previewNodeId = null;
+    this.callbacks.onNodePreviewChange?.(null);
   }
 
   private screenToWorld(

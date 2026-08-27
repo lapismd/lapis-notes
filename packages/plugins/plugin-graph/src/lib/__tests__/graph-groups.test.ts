@@ -52,10 +52,8 @@ describe("Graph Groups", () => {
       groups: [
         {
           id: "code",
-          name: "Code",
           query: "path:Code",
           color: "#16a34a",
-          enabled: true,
         },
       ],
     });
@@ -72,22 +70,18 @@ describe("Graph Groups", () => {
     expect(filtered.nodes[1]).toMatchObject({ groupIds: [] });
   });
 
-  test("uses the first matching enabled Group as colour owner", async () => {
+  test("uses the first matching Group as colour owner", async () => {
     const settings = patchGraphSettings(DEFAULT_GRAPH_SETTINGS, {
       groups: [
         {
           id: "first",
-          name: "First",
           query: "path:Code",
           color: "#111111",
-          enabled: true,
         },
         {
           id: "second",
-          name: "Second",
           query: "file:A",
           color: "#222222",
-          enabled: true,
         },
       ],
     });
@@ -96,12 +90,12 @@ describe("Graph Groups", () => {
       async () => new Set(["Code/A.md"]),
     );
 
-    expect(filterGraphBySettings(graph, settings, matches).nodes[0]).toMatchObject(
-      {
-        groupIds: ["first", "second"],
-        primaryColor: "#111111",
-      },
-    );
+    expect(
+      filterGraphBySettings(graph, settings, matches).nodes[0],
+    ).toMatchObject({
+      groupIds: ["first", "second"],
+      primaryColor: "#111111",
+    });
   });
 
   test("reports invalid Group queries without failing graph derivation", async () => {
@@ -109,10 +103,8 @@ describe("Graph Groups", () => {
       groups: [
         {
           id: "invalid",
-          name: "Invalid",
           query: "(",
           color: "#111111",
-          enabled: true,
         },
       ],
     });
@@ -124,6 +116,8 @@ describe("Graph Groups", () => {
     expect(matches.groupDiagnostics.invalid).toBeTruthy();
     expect(matchPaths).not.toHaveBeenCalled();
     expect(filtered.nodes).toHaveLength(2);
-    expect(filtered.nodes.every((node) => node.groupIds.length === 0)).toBe(true);
+    expect(filtered.nodes.every((node) => node.groupIds.length === 0)).toBe(
+      true,
+    );
   });
 });

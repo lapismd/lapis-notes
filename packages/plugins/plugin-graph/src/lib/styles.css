@@ -347,31 +347,20 @@
   gap: 0.5rem;
 }
 
-.graph-controls-group__header,
-.graph-controls-group__footer,
-.graph-controls-group__order {
-  display: flex;
+.graph-controls-group__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-}
-
-.graph-controls-group__header,
-.graph-controls-group__footer {
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.graph-controls-group__name {
-  flex: 1;
+  gap: 0.375rem;
   min-width: 0;
 }
 
-.graph-controls-group__footer .ui-color-picker {
-  flex: 1;
+.graph-controls-group__row > :first-child {
   min-width: 0;
 }
 
-.graph-controls-group__order {
-  gap: 0.125rem;
+.graph-controls-groups [data-ui-part="sortable-array-item-drag"] {
+  opacity: 0.72;
 }
 
 .graph-controls-group__error {
@@ -382,12 +371,6 @@
 
 .graph-view .graph-controls-add-group {
   width: 100%;
-}
-
-.graph-view .graph-controls-add-group svg,
-.graph-controls-group__order svg {
-  width: 0.875rem;
-  height: 0.875rem;
 }
 
 .graph-view [data-slot="switch"] {
@@ -408,4 +391,17 @@
 
 .graph-view [data-slot="slider-thumb"] {
   background: var(--ui-graph-controls-input-background);
+}
+
+.graph-file-preview {
+  box-sizing: border-box;
+  width: min(26rem, calc(100vw - 2rem));
+  max-height: min(24rem, calc(100vh - 2rem));
+  padding: 0.75rem;
+}
+
+.graph-file-preview__scroll {
+  width: 100%;
+  height: 21rem;
+  min-height: 0;
 }

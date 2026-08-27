@@ -3,7 +3,7 @@
   import {
     canCollectSearchQueryTerms,
     collectSearchQueryTerms,
-    formatSearchQueryValue,
+    createVaultSearchFilterSyntax,
     parseSearchQueryAst,
     searchQueryLanguageSupport,
     Notice,
@@ -13,10 +13,7 @@
     TextFileView,
     WorkspaceLeaf,
   } from "@lapis-notes/api";
-  import {
-    SearchFilterBar,
-    type SearchFilterSyntax,
-  } from "@lapismd/design-core/filter";
+  import { SearchFilterBar } from "@lapismd/design-core/filter";
   import {
     FilterCommandPicker,
     type FilterCommandOption,
@@ -120,7 +117,7 @@
   const structuredQuery = $derived(
     Boolean(
       query.trim() &&
-      parsedQuery.diagnostics.length === 0 &&
+        parsedQuery.diagnostics.length === 0 &&
         !canCollectSearchQueryTerms(parsedQuery),
     ),
   );
@@ -138,10 +135,7 @@
     const terms = (
       canCollectSearchQueryTerms(parsedQuery)
         ? collectSearchQueryTerms(parsedQuery)
-        : query
-            .trim()
-            .split(/\s+/u)
-            .filter(Boolean)
+        : query.trim().split(/\s+/u).filter(Boolean)
     )
       .slice(0, 8)
       .join(", ");
@@ -158,78 +152,44 @@
     });
     return sortSearchResults(matching, settings.view.sortMode);
   });
-  const filterSyntax = $derived.by<SearchFilterSyntax>(() => {
+  const filterSyntax = $derived.by(() => {
     const files = app.vault.getFiles();
     const paths = [
       ...new Set(files.map((file) => file.parent?.path).filter(Boolean)),
     ]
       .sort()
       .slice(0, 100) as string[];
-    const names = files.map((file) => file.name).sort().slice(0, 100);
-    return {
-      title: "Vault search syntax",
-      description:
-        "Combine text with file, path, tag, content, line, section, and bracket-property filters.",
-      fields: [
-        {
-          name: "file",
-          description: "File name",
-          operators: [":"],
-          values: names.map((value) => ({
-            value,
-            apply: formatSearchQueryValue(value),
-          })),
-        },
-        {
-          name: "path",
-          description: "Folder or path",
-          operators: [":"],
-          values: paths.map((value) => ({
-            value,
-            apply: formatSearchQueryValue(value),
-          })),
-        },
-        {
-          name: "tag",
-          description: "Markdown or frontmatter tag",
-          operators: [":"],
-          values: metadataTags.map((value) => ({
-            value,
-            apply: formatSearchQueryValue(value),
-          })),
-        },
-        { name: "content", description: "Note content", operators: [":"] },
-        { name: "line", description: "Terms on one line", operators: [":"] },
-        {
-          name: "section",
-          description: "Terms in one section",
-          operators: [":"],
-        },
-      ],
-      examples: [
-        { query: "tag:#project", description: "Notes with a project tag" },
-        {
-          query: 'path:"Notes" OR file:Welcome',
-          description: "Path or file filters",
-        },
-        { query: '["status"]:ready', description: "Exact frontmatter property" },
-      ],
-      notes: ["Use OR for alternatives and -term to exclude a term."],
-    };
+    const names = files
+      .map((file) => file.name)
+      .sort()
+      .slice(0, 100);
+    return createVaultSearchFilterSyntax({
+      fileNames: names,
+      paths,
+      tags: metadataTags,
+    });
   });
 
   async function refreshMetadataFacets(): Promise<void> {
     const generation = ++metadataFacetGeneration;
     metadataFacetError = null;
     try {
-      const rows = await app.metadataCache.queryFacets({ kind: "tag", limit: 100 });
+      const rows = await app.metadataCache.queryFacets({
+        kind: "tag",
+        limit: 100,
+      });
       if (generation !== metadataFacetGeneration) return;
       metadataTags = rows
-        .flatMap((row) => (typeof row.value === "string" ? [`#${row.value.replace(/^#/u, "")}`] : []))
+        .flatMap((row) =>
+          typeof row.value === "string"
+            ? [`#${row.value.replace(/^#/u, "")}`]
+            : [],
+        )
         .sort();
     } catch (error) {
       if (generation !== metadataFacetGeneration) return;
-      metadataFacetError = error instanceof Error ? error.message : String(error);
+      metadataFacetError =
+        error instanceof Error ? error.message : String(error);
     }
   }
 
@@ -283,7 +243,9 @@
     await patchSettings({ view: { recentSearches } });
   }
 
-  async function patchSettings(patch: SearchPluginSettingsPatch): Promise<void> {
+  async function patchSettings(
+    patch: SearchPluginSettingsPatch,
+  ): Promise<void> {
     await plugin.updateSettings(patch);
     settings = plugin.getSettings();
     if (patch.view?.collapseResults !== undefined) {
@@ -370,7 +332,9 @@
       textarea.select();
       const copied = document.execCommand("copy");
       textarea.remove();
-      new Notice(copied ? "Search results copied" : "Unable to copy search results");
+      new Notice(
+        copied ? "Search results copied" : "Unable to copy search results",
+      );
     }
   }
 
@@ -392,7 +356,8 @@
     await leaf.openFile(result.file);
     app.workspace.activeLeaf = leaf;
     app.workspace.revealLeaf(leaf);
-    if (pos && leaf.view instanceof TextFileView) leaf.view.editor.setCursor(pos);
+    if (pos && leaf.view instanceof TextFileView)
+      leaf.view.editor.setCursor(pos);
   }
 
   async function expandMatchContext(
@@ -470,7 +435,10 @@
         void refreshMetadataFacets();
       }
     });
-    const loaded = app.metadataCache.on("loaded", () => void refreshMetadataFacets());
+    const loaded = app.metadataCache.on(
+      "loaded",
+      () => void refreshMetadataFacets(),
+    );
     return () => {
       searchRevision += 1;
       metadataFacetGeneration += 1;
@@ -545,39 +513,66 @@
                 <span>Match case</span>
                 <Switch
                   size="sm"
-                  bind:checked={() => settings.view.matchCase, (checked) => void patchSettings({ view: { matchCase: checked } })}
+                  bind:checked={
+                    () => settings.view.matchCase,
+                    (checked) =>
+                      void patchSettings({ view: { matchCase: checked } })
+                  }
                 />
               </label>
               <label>
                 <span>Collapse results</span>
                 <Switch
                   size="sm"
-                  bind:checked={() => settings.view.collapseResults, (checked) => void patchSettings({ view: { collapseResults: checked } })}
+                  bind:checked={
+                    () => settings.view.collapseResults,
+                    (checked) =>
+                      void patchSettings({ view: { collapseResults: checked } })
+                  }
                 />
               </label>
               <label>
                 <span>Show more context</span>
                 <Switch
                   size="sm"
-                  bind:checked={() => settings.view.showMoreContext, (checked) => void patchSettings({ view: { showMoreContext: checked } })}
+                  bind:checked={
+                    () => settings.view.showMoreContext,
+                    (checked) =>
+                      void patchSettings({ view: { showMoreContext: checked } })
+                  }
                 />
               </label>
               <label>
                 <span>Explain search terms</span>
                 <Switch
                   size="sm"
-                  bind:checked={() => settings.view.explainSearchTerms, (checked) => void patchSettings({ view: { explainSearchTerms: checked } })}
+                  bind:checked={
+                    () => settings.view.explainSearchTerms,
+                    (checked) =>
+                      void patchSettings({
+                        view: { explainSearchTerms: checked },
+                      })
+                  }
                 />
               </label>
               <label class="search-panel__structured-semantic">
                 <span>
                   <strong>Semantic search in structured queries</strong>
-                  <small>Allow semantic candidates alongside filters, OR, and negation.</small>
+                  <small
+                    >Allow semantic candidates alongside filters, OR, and
+                    negation.</small
+                  >
                 </span>
                 <Switch
                   size="sm"
                   aria-label="Semantic search in structured queries"
-                  bind:checked={() => settings.view.semanticSearchInStructuredQueries, (checked) => void patchSettings({ view: { semanticSearchInStructuredQueries: checked } })}
+                  bind:checked={
+                    () => settings.view.semanticSearchInStructuredQueries,
+                    (checked) =>
+                      void patchSettings({
+                        view: { semanticSearchInStructuredQueries: checked },
+                      })
+                  }
                 />
               </label>
             </section>
@@ -601,7 +596,9 @@
         onclick={copySearchResults}
       >
         <Copy aria-hidden="true" />
-        {searching ? "Searching…" : `${resultCount} result${resultCount === 1 ? "" : "s"}`}
+        {searching
+          ? "Searching…"
+          : `${resultCount} result${resultCount === 1 ? "" : "s"}`}
       </Button>
       <Popover.Root>
         <Popover.Trigger>
@@ -620,11 +617,14 @@
         <Popover.Content align="end" class="search-panel__sort-popover">
           {#each SEARCH_VIEW_SORT_OPTIONS as option (option.value)}
             <Button
-              variant={option.value === settings.view.sortMode ? "secondary" : "ghost"}
+              variant={option.value === settings.view.sortMode
+                ? "secondary"
+                : "ghost"}
               class="search-panel__sort-option"
               onclick={() =>
                 void patchSettings({ view: { sortMode: option.value } })}
-            >{option.label}</Button>
+              >{option.label}</Button
+            >
           {/each}
         </Popover.Content>
       </Popover.Root>
@@ -633,7 +633,6 @@
     {#if explanation}
       <p class="search-panel__explanation">{explanation}</p>
     {/if}
-
   </div>
 
   <ScrollArea class="search-panel__scroll-area">
@@ -644,11 +643,17 @@
         <p class="search-panel__empty">No matches found.</p>
       {:else}
         <div class="search-panel__tree-inset">
-          <Sidebar.Menu role="tree" aria-label="Search results" class="search-panel__tree">
-          {#each filteredResults as result (result.file.path)}
-            {@const open = resultOpenState[result.file.path] ?? !settings.view.collapseResults}
-            <Sidebar.MenuItem role="none" class="search-panel__tree-item">
-              <Collapsible.Root
+          <Sidebar.Menu
+            role="tree"
+            aria-label="Search results"
+            class="search-panel__tree"
+          >
+            {#each filteredResults as result (result.file.path)}
+              {@const open =
+                resultOpenState[result.file.path] ??
+                !settings.view.collapseResults}
+              <Sidebar.MenuItem role="none" class="search-panel__tree-item">
+                <Collapsible.Root
                   {open}
                   onOpenChange={(next) => setResultOpen(result.file.path, next)}
                   class="search-panel__result"
@@ -661,11 +666,20 @@
                     aria-expanded={open}
                     aria-label={`${result.file.path}, ${result.matches.length} matches`}
                   >
-                    <ChevronRight class="search-panel__disclosure" aria-hidden="true" />
+                    <ChevronRight
+                      class="search-panel__disclosure"
+                      aria-hidden="true"
+                    />
                     {#if result.file.extension === "canvas"}
-                      <Hash class="search-panel__file-icon" aria-hidden="true" />
+                      <Hash
+                        class="search-panel__file-icon"
+                        aria-hidden="true"
+                      />
                     {:else}
-                      <FileText class="search-panel__file-icon" aria-hidden="true" />
+                      <FileText
+                        class="search-panel__file-icon"
+                        aria-hidden="true"
+                      />
                     {/if}
                     <span class="search-panel__file-label">
                       <HighlightedText
@@ -679,7 +693,10 @@
                   </Collapsible.Trigger>
                   <Collapsible.Content class="search-panel__match-list">
                     <div class="search-panel__match-header">
-                      <span class="search-panel__match-path" title={result.file.path}>
+                      <span
+                        class="search-panel__match-path"
+                        title={result.file.path}
+                      >
                         {result.file.path}
                       </span>
                       <Badge variant="outline" class="search-panel__mode-badge">
@@ -703,7 +720,8 @@
                             )}
                             onclick={() => openResult(result, match.pos)}
                             onkeydown={(event) => {
-                              if (event.key !== "Enter" && event.key !== " ") return;
+                              if (event.key !== "Enter" && event.key !== " ")
+                                return;
                               event.preventDefault();
                               void openResult(result, match.pos);
                             }}
@@ -717,7 +735,11 @@
                                 disabled={contextLoading[loadingKey]}
                                 onclick={(event) => {
                                   event.stopPropagation();
-                                  void expandMatchContext(result, match, "before");
+                                  void expandMatchContext(
+                                    result,
+                                    match,
+                                    "before",
+                                  );
                                 }}
                               >
                                 <ChevronUp aria-hidden="true" />
@@ -725,10 +747,16 @@
                             {/if}
                             <div class="search-panel__match">
                               <span class="search-panel__match-text">
-                                <HighlightedText text={match.text} ranges={match.ranges} />
+                                <HighlightedText
+                                  text={match.text}
+                                  ranges={match.ranges}
+                                />
                               </span>
                               <span class="search-panel__match-meta">
-                                <Badge variant="outline" class="search-panel__match-key">
+                                <Badge
+                                  variant="outline"
+                                  class="search-panel__match-key"
+                                >
                                   {match.key}
                                 </Badge>
                               </span>
@@ -742,7 +770,11 @@
                                 disabled={contextLoading[loadingKey]}
                                 onclick={(event) => {
                                   event.stopPropagation();
-                                  void expandMatchContext(result, match, "after");
+                                  void expandMatchContext(
+                                    result,
+                                    match,
+                                    "after",
+                                  );
                                 }}
                               >
                                 <ChevronDown aria-hidden="true" />
@@ -752,10 +784,10 @@
                         </Sidebar.MenuSubItem>
                       {/each}
                     </Sidebar.MenuSub>
-                </Collapsible.Content>
-              </Collapsible.Root>
-            </Sidebar.MenuItem>
-          {/each}
+                  </Collapsible.Content>
+                </Collapsible.Root>
+              </Sidebar.MenuItem>
+            {/each}
           </Sidebar.Menu>
         </div>
       {/if}

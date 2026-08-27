@@ -1,14 +1,18 @@
-import { ItemView, Menu, Notice, type WorkspaceLeaf } from "@lapis-notes/api";
 import {
-  buildCanonicalLocalGraph,
-  graphNodeIdForFile,
-} from "./graph-data";
+  createVaultSearchFilterSyntax,
+  ItemView,
+  Menu,
+  Notice,
+  type WorkspaceLeaf,
+} from "@lapis-notes/api";
+import type { SearchFilterSyntax } from "@lapismd/design-core/filter";
+import { buildCanonicalLocalGraph, graphNodeIdForFile } from "./graph-data";
 import type { GraphCoordinatorState } from "./graph-data-coordinator";
 import { GraphBuildGeneration } from "./graph-build-generation";
 import { graphLoadFocusNodeId } from "./graph-load-alignment";
 import { openGraphTagSearch } from "./graph-node-activation";
 import GraphControlsOverlay from "./graph-controls-overlay.svelte";
-import { GraphRenderer } from "./graph-renderer";
+import { GraphRenderer, type GraphNodePreview } from "./graph-renderer";
 import {
   DEFAULT_GRAPH_SETTINGS,
   mergeGraphSettings,
@@ -66,6 +70,12 @@ abstract class GraphViewBase extends ItemView {
   private unregisterView: (() => void) | null = null;
   private readonly buildGeneration = new GraphBuildGeneration();
   private readonly deriveGeneration = new GraphBuildGeneration();
+  private metadataFacetGeneration = 0;
+  private filterSyntax: SearchFilterSyntax = createVaultSearchFilterSyntax({
+    fileNames: [],
+    paths: [],
+    tags: [],
+  });
   private readonly scheduleRebuild = createDebounce(() => {
     void this.rebuild();
   }, 120);
@@ -105,12 +115,16 @@ abstract class GraphViewBase extends ItemView {
     this.overlay = mountLocalComponent(GraphControlsOverlay, {
       target: this.contentEl,
       props: {
+        app: this.app,
         isLocal: this.isLocal,
         settings: this.settings,
         statsText: "",
         statusText: "Loading graph…",
         statusKind: "loading",
         groupDiagnostics: {},
+        filterDiagnostic: null,
+        filterSyntax: this.filterSyntax,
+        preview: null,
         isAnimating: false,
         onFocusActiveFile: () => {
           this.focusActiveFile();
@@ -144,6 +158,12 @@ abstract class GraphViewBase extends ItemView {
         onSettingsPatch: (patch: GraphSettingsPatch) => {
           this.updateLocalSettings(patch);
         },
+        onOpenPreviewFile: (preview: GraphNodePreview) => {
+          void this.openNode(preview.node, false);
+        },
+        onDismissPreview: () => {
+          this.renderer?.dismissPreview();
+        },
       },
     });
 
@@ -170,7 +190,13 @@ abstract class GraphViewBase extends ItemView {
           reason: state.reason,
         });
       },
+      onNodePreviewChange: (preview) => {
+        if (this.overlay) this.overlay.props.preview = preview;
+      },
     });
+
+    this.refreshFilterSyntaxFromVault();
+    void this.refreshMetadataFacets();
 
     this.unregisterView = this.plugin.registerGraphView(this);
     if (this.isLocal) {
@@ -210,6 +236,19 @@ abstract class GraphViewBase extends ItemView {
         }
       }),
     );
+    this.registerEvent(
+      this.app.metadataCache.on("loaded", () => {
+        this.refreshFilterSyntaxFromVault();
+        void this.refreshMetadataFacets();
+      }),
+    );
+    this.registerEvent(
+      this.app.metadataCache.on("index-changed", (change) => {
+        if (!change.reset && !change.domains.includes("metadata")) return;
+        this.refreshFilterSyntaxFromVault();
+        void this.refreshMetadataFacets();
+      }),
+    );
 
     if (this.isLocal) {
       requestAnimationFrame(() => {
@@ -242,6 +281,7 @@ abstract class GraphViewBase extends ItemView {
     this.scheduleDerive.cancel();
     this.buildGeneration.invalidate();
     this.deriveGeneration.invalidate();
+    this.metadataFacetGeneration += 1;
     this.unregisterView?.();
     this.unregisterView = null;
     this.unsubscribeCoordinator?.();
@@ -336,10 +376,14 @@ abstract class GraphViewBase extends ItemView {
     if (!this.buildGeneration.isCurrent(generation)) return;
     this.plugin.clearGraphBuildFailure(this.isLocal ? "local" : "global");
     this.canonicalGraph = graph;
-    const resolved = await this.plugin.resolveGraphSettings(graph, this.settings);
+    const resolved = await this.plugin.resolveGraphSettings(
+      graph,
+      this.settings,
+    );
     if (!this.buildGeneration.isCurrent(generation)) return;
     if (this.overlay) {
       this.overlay.props.groupDiagnostics = resolved.matches.groupDiagnostics;
+      this.overlay.props.filterDiagnostic = resolved.matches.filterDiagnostic;
     }
     this.renderGraph(resolved.graph);
     if (this.overlay) {
@@ -393,6 +437,7 @@ abstract class GraphViewBase extends ItemView {
     if (!this.deriveGeneration.isCurrent(generation)) return;
     if (this.overlay) {
       this.overlay.props.groupDiagnostics = resolved.matches.groupDiagnostics;
+      this.overlay.props.filterDiagnostic = resolved.matches.filterDiagnostic;
     }
     this.renderGraph(resolved.graph);
   }
@@ -458,6 +503,38 @@ abstract class GraphViewBase extends ItemView {
         ? ` • ${activeFile.baseName ?? activeFile.path}`
         : "";
     return `${graph.nodes.length} nodes • ${graph.links.length} links${centerLabel}`;
+  }
+
+  private refreshFilterSyntaxFromVault(tags: readonly string[] = []): void {
+    const files = this.app.vault.getFiles();
+    this.filterSyntax = createVaultSearchFilterSyntax({
+      fileNames: files.map((file) => file.name),
+      paths: files.flatMap((file) =>
+        file.parent?.path ? [file.parent.path] : [],
+      ),
+      tags,
+    });
+    if (this.overlay) this.overlay.props.filterSyntax = this.filterSyntax;
+  }
+
+  private async refreshMetadataFacets(): Promise<void> {
+    const generation = ++this.metadataFacetGeneration;
+    try {
+      const rows = await this.app.metadataCache.queryFacets({
+        kind: "tag",
+        limit: 100,
+      });
+      if (generation !== this.metadataFacetGeneration) return;
+      const tags = rows.flatMap((row) =>
+        typeof row.value === "string"
+          ? [`#${row.value.replace(/^#/u, "")}`]
+          : [],
+      );
+      this.refreshFilterSyntaxFromVault(tags);
+    } catch {
+      if (generation !== this.metadataFacetGeneration) return;
+      this.refreshFilterSyntaxFromVault();
+    }
   }
 
   private updateLocalSettings(patch: GraphSettingsPatch): void {

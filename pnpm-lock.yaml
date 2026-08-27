@@ -802,6 +802,9 @@ importers:
       '@lapis-notes/api':
         specifier: workspace:*
         version: link:../../api
+      '@lapis-notes/markdown':
+        specifier: workspace:*
+        version: link:../plugin-markdown
       '@lapismd/design-core':
         specifier: link:../../../../design-core
         version: link:../../../../design-core

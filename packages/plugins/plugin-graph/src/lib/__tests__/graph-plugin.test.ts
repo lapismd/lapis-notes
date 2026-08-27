@@ -85,15 +85,15 @@ describe("graph settings persistence snapshots", () => {
 
   it("reorders Groups without changing their persisted fields", () => {
     const groups = [
-      { id: "a", name: "A", query: "path:A", color: "#111111", enabled: true },
-      { id: "b", name: "B", query: "path:B", color: "#222222", enabled: false },
+      { id: "a", query: "path:A", color: "#111111" },
+      { id: "b", query: "path:B", color: "#222222" },
     ];
 
     expect(moveGraphGroup(groups, 1, -1)).toEqual([groups[1], groups[0]]);
     expect(moveGraphGroup(groups, 0, -1)).toEqual(groups);
   });
 
-  it("migrates only force values in unversioned settings", () => {
+  it("migrates unversioned forces and simplifies Groups", () => {
     const loaded = loadPersistedGraphSettings({
       filters: { showTags: true },
       display: { nodeSize: 13, linkThickness: 0.4 },
@@ -123,7 +123,43 @@ describe("graph settings persistence snapshots", () => {
     );
     expect(loaded.settings.localGraph.depth).toBe(4);
     expect(loaded.settings.groups).toEqual([
-      expect.objectContaining({ id: "code", query: "path:Code" }),
+      { id: "code", query: "path:Code", color: "#112233" },
+    ]);
+  });
+
+  it("migrates version-one Groups to ordered always-active rules", () => {
+    const loaded = loadPersistedGraphSettings({
+      settingsVersion: 1,
+      groups: [
+        {
+          id: "disabled",
+          name: "Disabled before migration",
+          query: "tag:#topic/finance",
+          color: "#112233",
+          enabled: false,
+        },
+        {
+          id: "active",
+          name: "Active before migration",
+          query: 'tag:"#project alpha"',
+          color: "#445566",
+          enabled: true,
+        },
+      ],
+    });
+
+    expect(loaded.migrated).toBe(true);
+    expect(loaded.settings.groups).toEqual([
+      {
+        id: "disabled",
+        query: "tag:#topic/finance",
+        color: "#112233",
+      },
+      {
+        id: "active",
+        query: 'tag:"#project alpha"',
+        color: "#445566",
+      },
     ]);
   });
 

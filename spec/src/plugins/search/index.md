@@ -57,6 +57,7 @@ state remain API contracts, while reusable search chrome remains Design Core.
 | LN-SRCH-047 | AppDatabase path-only Search MUST preserve the structured-query grammar, retrieval mode, ranking, provider, path-prefix, and limit semantics of document Search while returning only ordered vault-relative paths. Graph Filters and Groups MAY consume this operation for membership without importing Search package internals or transferring document bodies and snippets.                                                                                                                                                                               |
 | LN-SRCH-048 | Search tag filters MUST accept `/` after a normal word start, retain leading `/.../` regex syntax, and use quoted phrases for values containing spaces. API-owned dynamic-value formatting and Search autocomplete MUST insert parser-safe tag, path, and filename values while keeping their labels human-readable. A completed predicate facet MUST render the entire accepted value inside its chip.                                                                                                                                                      |
 | LN-SRCH-049 | Search completion popups MUST portal into their owner document outside workspace clipping, remain above adjacent panels, keep every visible option hit-testable, and use Design Core's compact 18rem viewport-bounded layout with row labels and details wrapping when needed.                                                                                                                                                                                                                                                                               |
+| LN-SRCH-050 | API MUST export one vault Search-filter syntax factory that owns the canonical fields, examples, notes, human-readable labels, and parser-safe filename, path, and tag insertion values. Search and Graph MUST provide their vault-derived values to that factory and compose the public Design Core query input with the API language support rather than duplicating syntax catalogs.                                                                                                                                                                      |
 
 ## Runtime flow
 
@@ -123,4 +124,6 @@ tags such as `tag:#team/project` remain bare while a leading slash continues to
 start a regex. Values containing whitespace use quoted field syntax, for example
 `tag:"#project alpha"`. Dynamic tag, path, and filename suggestions retain their
 plain labels and delegate insertion escaping to the API formatter so selected
-values always round-trip through the shared parser.
+values always round-trip through the shared parser. The API vault-syntax
+factory is the single catalog consumed by Search and Graph; each plugin owns
+only its value discovery, diagnostics, and query consequences.

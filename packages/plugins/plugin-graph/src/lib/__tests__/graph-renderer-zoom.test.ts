@@ -14,7 +14,9 @@ import {
   graphLinkUsesAccentPaint,
   graphNodeLabelAlpha,
   graphNodeIntersectsViewport,
+  graphNodePreviewRect,
   graphNodeScreenRadius,
+  graphNodeSupportsPreview,
   graphNodeWorldRadius,
   graphPhyllotaxisPosition,
   GRAPH_FOCUS_ZOOM,
@@ -123,6 +125,40 @@ describe("Graph renderer zoom bounds", () => {
     expect(graphNodeScreenRadius(8, 4)).toBe(16);
     expect(graphNodeWorldRadius(8, 4)).toBe(4);
     expect(graphNodeWorldRadius(8, 4) * 4).toBe(16);
+  });
+
+  it("limits previews to existing Markdown notes and tracks the canvas anchor", () => {
+    const note: GraphRenderNode = {
+      id: "note:Notes/Welcome.md",
+      label: "Welcome",
+      path: "Notes/Welcome.md",
+      type: "note",
+      exists: true,
+      refCount: 0,
+      outgoingCount: 0,
+      tags: [],
+      groupIds: [],
+      radius: 8,
+      x: 10,
+      y: 20,
+    };
+
+    expect(graphNodeSupportsPreview(note)).toBe(true);
+    expect(graphNodeSupportsPreview({ ...note, type: "attachment" })).toBe(
+      false,
+    );
+    expect(graphNodeSupportsPreview({ ...note, exists: false })).toBe(false);
+    expect(
+      graphNodeSupportsPreview({ ...note, path: "Images/diagram.png" }),
+    ).toBe(false);
+
+    expect(
+      graphNodePreviewRect({
+        node: note,
+        transform: { x: 5, y: 7, k: 4 },
+        canvasRect: { left: 100, top: 200 },
+      }),
+    ).toMatchObject({ x: 129, y: 271, width: 32, height: 32 });
   });
 
   it("fades unrelated graph geometry to the governed hover levels", () => {

@@ -1,4 +1,5 @@
 import { LRLanguage, LanguageSupport } from "@codemirror/language";
+import type { SearchFilterSyntax } from "@lapismd/design-core/filter";
 import type { Tree, TreeCursor } from "@lezer/common";
 import { styleTags, tags } from "@lezer/highlight";
 import { parser } from "./parser";
@@ -129,8 +130,7 @@ export function searchQueryLanguageSupport(): LanguageSupport {
   return new LanguageSupport(searchQueryLanguage);
 }
 
-const SAFE_SEARCH_QUERY_WORD =
-  /^[A-Za-z0-9_.#*?][A-Za-z0-9_.#*?/]*$/u;
+const SAFE_SEARCH_QUERY_WORD = /^[A-Za-z0-9_.#*?][A-Za-z0-9_.#*?/]*$/u;
 const SAFE_SEARCH_QUERY_IDENTIFIER = /^[A-Za-z0-9_]+(?:-[A-Za-z0-9_]+)*$/u;
 const RESERVED_SEARCH_QUERY_WORDS = new Set(["OR", "null"]);
 
@@ -150,6 +150,67 @@ export function formatSearchQueryValue(value: string): string {
     .replaceAll("\n", "\\n")
     .replaceAll("\r", "\\r")
     .replaceAll("\t", "\\t")}"`;
+}
+
+export interface VaultSearchFilterValues {
+  fileNames: readonly string[];
+  paths: readonly string[];
+  tags: readonly string[];
+}
+
+/** Builds the shared, parser-safe field catalog for vault search surfaces. */
+export function createVaultSearchFilterSyntax({
+  fileNames,
+  paths,
+  tags: tagValues,
+}: VaultSearchFilterValues): SearchFilterSyntax {
+  const values = (items: readonly string[]) =>
+    [...new Set(items)]
+      .sort((left, right) => left.localeCompare(right))
+      .slice(0, 100)
+      .map((value) => ({ value, apply: formatSearchQueryValue(value) }));
+
+  return {
+    title: "Vault search syntax",
+    description:
+      "Combine text with file, path, tag, content, line, section, and bracket-property filters.",
+    fields: [
+      {
+        name: "file",
+        description: "File name",
+        operators: [":"],
+        values: values(fileNames),
+      },
+      {
+        name: "path",
+        description: "Folder or path",
+        operators: [":"],
+        values: values(paths),
+      },
+      {
+        name: "tag",
+        description: "Markdown or frontmatter tag",
+        operators: [":"],
+        values: values(tagValues),
+      },
+      { name: "content", description: "Note content", operators: [":"] },
+      { name: "line", description: "Terms on one line", operators: [":"] },
+      {
+        name: "section",
+        description: "Terms in one section",
+        operators: [":"],
+      },
+    ],
+    examples: [
+      { query: "tag:#project", description: "Notes with a project tag" },
+      {
+        query: 'path:"Notes" OR file:Welcome',
+        description: "Path or file filters",
+      },
+      { query: '["status"]:ready', description: "Exact frontmatter property" },
+    ],
+    notes: ["Use OR for alternatives and -term to exclude a term."],
+  };
 }
 
 export function parseSearchQuery(input: string): Tree {

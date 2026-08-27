@@ -5,7 +5,7 @@ import type {
 } from "./graph-types";
 
 export const DEFAULT_GRAPH_GROUPS: GraphGroupRule[] = [];
-export const GRAPH_SETTINGS_VERSION = 1;
+export const GRAPH_SETTINGS_VERSION = 2;
 
 const GRAPH_FORCE_CURVE_BASE = 0.01;
 
@@ -45,6 +45,8 @@ export const DEFAULT_GRAPH_SETTINGS: GraphSettings = {
     nodeSize: 8,
     linkThickness: 1,
     wheelZoomSensitivity: 1,
+    hoverActivationDelayMs: 500,
+    hoverReleaseDelayMs: 350,
   },
   forces: {
     centerForce: DEFAULT_GRAPH_CENTER_FORCE,
@@ -86,7 +88,10 @@ export function loadPersistedGraphSettings(
     settings.forces = { ...DEFAULT_GRAPH_SETTINGS.forces };
     return { settings, migrated: true };
   }
-  return { settings, migrated: false };
+  return {
+    settings,
+    migrated: stored.settingsVersion === 1,
+  };
 }
 
 export function serializeGraphSettings(
@@ -118,7 +123,14 @@ export function mergeGraphSettings(
       ...DEFAULT_GRAPH_SETTINGS.localGraph,
       ...stored?.localGraph,
     },
-    groups: stored?.groups?.map((group) => ({ ...group })) ?? [],
+    groups:
+      stored?.groups?.flatMap((group, index) => {
+        if (!isRecord(group)) return [];
+        const id = typeof group.id === "string" ? group.id : `group-${index}`;
+        const query = typeof group.query === "string" ? group.query : "";
+        const color = typeof group.color === "string" ? group.color : "#3b82f6";
+        return [{ id, query, color }];
+      }) ?? [],
   };
 }
 

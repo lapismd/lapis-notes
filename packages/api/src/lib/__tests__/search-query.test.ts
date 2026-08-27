@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   collectSearchQueryPropertyNames,
+  createVaultSearchFilterSyntax,
   formatSearchQueryValue,
   parseSearchQuery,
   parseSearchQueryAst,
@@ -130,9 +131,7 @@ describe("search query parser", () => {
     ];
 
     expect(formatSearchQueryValue("#team/project")).toBe("#team/project");
-    expect(formatSearchQueryValue("project alpha")).toBe(
-      '"project alpha"',
-    );
+    expect(formatSearchQueryValue("project alpha")).toBe('"project alpha"');
 
     for (const value of values) {
       const ast = parseSearchQueryAst(`tag:${formatSearchQueryValue(value)}`);
@@ -142,6 +141,37 @@ describe("search query parser", () => {
         name: "tag",
         value: { type: "literal", value },
       });
+    }
+  });
+
+  it("builds a shared vault syntax with parser-safe dynamic completions", () => {
+    const syntax = createVaultSearchFilterSyntax({
+      fileNames: ["Welcome.md", "Project brief.md"],
+      paths: ["Notes", "Project alpha"],
+      tags: ["#topic/finance", "#project alpha"],
+    });
+
+    expect(syntax.fields.map((field) => field.name)).toEqual([
+      "file",
+      "path",
+      "tag",
+      "content",
+      "line",
+      "section",
+    ]);
+    expect(syntax.fields.find((field) => field.name === "tag")?.values).toEqual(
+      [
+        { value: "#project alpha", apply: '"#project alpha"' },
+        { value: "#topic/finance", apply: "#topic/finance" },
+      ],
+    );
+
+    for (const field of syntax.fields.filter((field) => field.values)) {
+      for (const value of field.values ?? []) {
+        expect(
+          parseSearchQueryAst(`${field.name}:${value.apply}`).diagnostics,
+        ).toEqual([]);
+      }
     }
   });
 

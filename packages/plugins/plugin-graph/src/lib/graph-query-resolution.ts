@@ -38,7 +38,7 @@ export async function resolveGraphQueryMatches(
   await Promise.all(
     settings.groups.map(async (group) => {
       const query = group.query.trim();
-      if (!group.enabled || !query) return;
+      if (!query) return;
       const diagnostic = queryDiagnostic(query);
       if (diagnostic) {
         groupDiagnostics[group.id] = diagnostic;

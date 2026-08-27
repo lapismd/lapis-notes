@@ -1,10 +1,18 @@
+import { createVaultSearchFilterSyntax } from "@lapis-notes/api";
 import {
   DEFAULT_GRAPH_SETTINGS,
   GraphControlsOverlay,
   GraphPlugin,
 } from "@lapis-notes/graph";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  fn,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
 import type { PanelDemoLayout } from "../../_shared/panels/create-panel-demo";
@@ -27,12 +35,20 @@ const meta = {
   title: "Plugins/Graph/Panels/Graph",
   component: GraphControlsOverlay,
   args: {
+    app: undefined as never,
     isLocal: false,
     settings: DEFAULT_GRAPH_SETTINGS,
     statsText: "",
     statusText: "",
     statusKind: null,
     groupDiagnostics: {},
+    filterDiagnostic: null,
+    filterSyntax: createVaultSearchFilterSyntax({
+      fileNames: [],
+      paths: [],
+      tags: [],
+    }),
+    preview: null,
     isAnimating: false,
     onFocusActiveFile: fn(),
     onZoomIn: fn(),
@@ -42,6 +58,8 @@ const meta = {
     onResetDefaults: fn(),
     onToggleAnimation: fn(),
     onSettingsPatch: fn(),
+    onOpenPreviewFile: fn(),
+    onDismissPreview: fn(),
   },
   argTypes: {
     settings: { control: false },
@@ -53,6 +71,8 @@ const meta = {
     onResetDefaults: { control: false },
     onToggleAnimation: { control: false },
     onSettingsPatch: { control: false },
+    onOpenPreviewFile: { control: false },
+    onDismissPreview: { control: false },
   },
   tags: ["visual-pending", "test"],
   parameters: {
@@ -162,6 +182,16 @@ function placementStory(
       });
       expect(linkThickness).toHaveAttribute("aria-valuemin", "0.1");
       expect(linkThickness).toHaveAttribute("aria-valuemax", "5");
+      expect(
+        within(dialog).getByRole("slider", {
+          name: "Hover activation delay",
+        }),
+      ).toHaveAttribute("aria-valuenow", "500");
+      expect(
+        within(dialog).getByRole("slider", {
+          name: "Hover release delay",
+        }),
+      ).toHaveAttribute("aria-valuenow", "350");
       await userEvent.click(displayTrigger);
       await userEvent.click(within(dialog).getByText("Filters"));
       await expect(within(dialog).getByLabelText("Search files")).toBeVisible();
@@ -187,11 +217,118 @@ function placementStory(
           within(dialog).getByRole("button", { name: /Groups/ }),
         );
         await userEvent.click(
-          within(dialog).getByRole("button", { name: "Add group" }),
+          within(dialog).getByRole("button", { name: "New group" }),
         );
         const groupQuery = within(dialog).getByLabelText("Group 1 query");
-        await userEvent.type(groupQuery, "path:Code");
-        await waitFor(() => expect(groupQuery).toHaveValue("path:Code"));
+        await userEvent.type(groupQuery, "tag:");
+        const ownerBody = within(canvasElement.ownerDocument.body);
+        const slashTag = await ownerBody.findByRole("option", {
+          name: /#project\/alpha/,
+        });
+        await userEvent.click(slashTag);
+        await waitFor(() =>
+          expect(groupQuery).toHaveTextContent("tag:#project/alpha"),
+        );
+
+        const colorButton = within(dialog).getByRole("button", {
+          name: "Group 1 color picker",
+        });
+        await userEvent.click(colorButton);
+        const colorPreset = await ownerBody.findByRole("button", {
+          name: "Use #16a34a",
+        });
+        const palette = colorPreset.closest<HTMLElement>(
+          '[data-ui-part="popover-content"]',
+        );
+        expect(palette).not.toBeNull();
+        const triggerRect = colorButton.getBoundingClientRect();
+        const paletteRect = palette!.getBoundingClientRect();
+        expect(
+          Math.min(
+            Math.abs(paletteRect.left - triggerRect.right),
+            Math.abs(triggerRect.left - paletteRect.right),
+            Math.abs(paletteRect.top - triggerRect.bottom),
+            Math.abs(triggerRect.top - paletteRect.bottom),
+          ),
+        ).toBeLessThanOrEqual(8);
+        await userEvent.click(colorPreset);
+
+        await userEvent.click(
+          within(dialog).getByRole("button", { name: "New group" }),
+        );
+        const secondQuery = within(dialog).getByLabelText("Group 2 query");
+        await userEvent.type(secondQuery, "path:Code");
+        await waitFor(() => expect(secondQuery).toHaveTextContent("path:Code"));
+        const reorderButton = within(dialog).getByRole("button", {
+          name: "Reorder Group 2",
+        });
+        await fireEvent.keyDown(reorderButton, { key: "ArrowUp" });
+        await waitFor(() => {
+          const reordered = dialog.querySelectorAll<HTMLElement>(
+            '[data-sortable-group="graph-groups"]',
+          );
+          expect(
+            within(reordered[0]!).getByLabelText("Group 1 query"),
+          ).toHaveTextContent("path:Code");
+        });
+
+        await userEvent.click(panel.getByLabelText("Focus active file"));
+        const canvas = canvasElement.querySelector<HTMLCanvasElement>(
+          '[data-ui-part="canvas"]',
+        );
+        expect(canvas).not.toBeNull();
+        const canvasRect = canvas!.getBoundingClientRect();
+        await fireEvent.pointerMove(canvas!, {
+          clientX: canvasRect.left + canvasRect.width / 2,
+          clientY: canvasRect.top + canvasRect.height / 2,
+          metaKey: true,
+        });
+        const previewCard = await waitFor(
+          () => {
+            const card = canvasElement.ownerDocument.querySelector<HTMLElement>(
+              ".graph-file-preview",
+            );
+            expect(card).toBeVisible();
+            return card!;
+          },
+          { timeout: 2000 },
+        );
+        expect(
+          within(previewCard).getByRole("button", { name: /^Open / }),
+        ).toBeVisible();
+        await waitFor(() => {
+          const previewRect = previewCard.getBoundingClientRect();
+          const ownerWindow = canvasElement.ownerDocument.defaultView!;
+          const visibleLeft = Math.max(0, previewRect.left);
+          const visibleRight = Math.min(
+            ownerWindow.innerWidth,
+            previewRect.right,
+          );
+          const visibleTop = Math.max(0, previewRect.top);
+          const visibleBottom = Math.min(
+            ownerWindow.innerHeight,
+            previewRect.bottom,
+          );
+          expect(visibleRight).toBeGreaterThan(visibleLeft);
+          expect(visibleBottom).toBeGreaterThan(visibleTop);
+          const topmost = canvasElement.ownerDocument.elementFromPoint(
+            (visibleLeft + visibleRight) / 2,
+            visibleTop + Math.min((visibleBottom - visibleTop) / 2, 80),
+          );
+          expect(topmost && previewCard.contains(topmost)).toBe(true);
+        });
+        await fireEvent.keyUp(canvasElement.ownerDocument, { key: "Meta" });
+        expect(previewCard).toBeVisible();
+
+        await fireEvent.pointerMove(canvas!, {
+          clientX: canvasRect.left + 2,
+          clientY: canvasRect.top + 2,
+        });
+        await fireEvent.pointerEnter(previewCard);
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        expect(previewCard).toBeVisible();
+        await fireEvent.keyDown(previewCard, { key: "Escape" });
+        await waitFor(() => expect(previewCard).not.toBeVisible());
 
         await userEvent.click(displayTrigger);
         await userEvent.click(

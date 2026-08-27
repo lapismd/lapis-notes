@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/markdown": "workspace:*",
     "@lapismd/design-core": "*",
     "@lucide/svelte": "^0.523.0",
     "d3-force": "^3.0.0"

@@ -268,13 +268,11 @@ function assignGroups(
     nextNode.primaryColor = undefined;
     for (const group of settings.groups) {
       const query = group.query.trim().toLowerCase();
-      if (!group.enabled || !query) continue;
+      if (!query) continue;
       const resolvedPaths = groupPathMatches?.get(group.id);
       const matches = groupPathMatches
         ? Boolean(
-            resolvedPaths &&
-              nextNode.path &&
-              resolvedPaths.has(nextNode.path),
+            resolvedPaths && nextNode.path && resolvedPaths.has(nextNode.path),
           )
         : [nextNode.label, nextNode.path ?? "", ...nextNode.tags]
             .join(" ")
@@ -685,7 +683,9 @@ export async function buildCanonicalLocalGraph(
     ...canonical,
     centerNodeId: fileNodeId(activeFile.path),
   };
-  return scoped.nodes.length ? scoped : buildSingleFileGraph(settings, activeFile);
+  return scoped.nodes.length
+    ? scoped
+    : buildSingleFileGraph(settings, activeFile);
 }
 
 export function graphNodeIdForFile(path: string): string {

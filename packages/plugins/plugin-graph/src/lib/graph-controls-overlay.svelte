@@ -1,12 +1,14 @@
 <script lang="ts">
+  import { searchQueryLanguageSupport, type App } from "@lapis-notes/api";
+  import {
+    SearchFilterInput,
+    type SearchFilterSyntax,
+  } from "@lapismd/design-core/filter";
   import * as Accordion from "@lapismd/design-core/shadcn/accordion";
   import { Button } from "@lapismd/design-core/shadcn/button";
-  import { Input } from "@lapismd/design-core/shadcn/input";
   import { Slider } from "@lapismd/design-core/shadcn/slider";
   import { Switch } from "@lapismd/design-core/shadcn/switch";
   import { ColorPicker, SortableArrayItem } from "@lapismd/design-core/forms";
-  import ChevronDown from "@lucide/svelte/icons/chevron-down";
-  import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import LocateFixed from "@lucide/svelte/icons/locate-fixed";
   import Minus from "@lucide/svelte/icons/minus";
   import Plus from "@lucide/svelte/icons/plus";
@@ -14,6 +16,9 @@
   import RotateCcw from "@lucide/svelte/icons/rotate-ccw";
   import Settings from "@lucide/svelte/icons/settings";
   import X from "@lucide/svelte/icons/x";
+  import { onDestroy } from "svelte";
+  import GraphFilePreview from "./graph-file-preview.svelte";
+  import type { GraphNodePreview } from "./graph-renderer";
   import type {
     GraphGroupRule,
     GraphSettings,
@@ -22,12 +27,16 @@
   import { moveGraphGroup } from "./graph-settings";
 
   let {
+    app,
     isLocal,
     settings,
     statsText,
     statusText,
     statusKind,
     groupDiagnostics,
+    filterDiagnostic,
+    filterSyntax,
+    preview,
     isAnimating,
     onFocusActiveFile,
     onZoomIn,
@@ -37,13 +46,19 @@
     onResetDefaults,
     onToggleAnimation,
     onSettingsPatch,
+    onOpenPreviewFile,
+    onDismissPreview,
   }: {
+    app: App;
     isLocal: boolean;
     settings: GraphSettings;
     statsText: string;
     statusText: string;
     statusKind: "loading" | "error" | null;
     groupDiagnostics: Readonly<Record<string, string>>;
+    filterDiagnostic: string | null;
+    filterSyntax: SearchFilterSyntax;
+    preview: GraphNodePreview | null;
     isAnimating: boolean;
     onFocusActiveFile: () => void;
     onZoomIn: () => void;
@@ -53,10 +68,15 @@
     onResetDefaults: () => void;
     onToggleAnimation: () => void;
     onSettingsPatch: (patch: GraphSettingsPatch) => void;
+    onOpenPreviewFile: (preview: GraphNodePreview, event: MouseEvent) => void;
+    onDismissPreview: () => void;
   } = $props();
 
   let settingsOpen = $state(false);
   let openSections = $state<string[]>([]);
+  let draggingGroupId = $state<string | null>(null);
+  let stopGroupDrag: (() => void) | null = null;
+  const queryExtensions = [searchQueryLanguageSupport()];
 
   function formatValue(value: number): string {
     if (Number.isInteger(value)) {
@@ -79,22 +99,13 @@
     }
   }
 
-  const groupColors = [
-    "#3b82f6",
-    "#16a34a",
-    "#d97706",
-    "#9333ea",
-    "#db2777",
-  ];
+  const groupColors = ["#3b82f6", "#16a34a", "#d97706", "#9333ea", "#db2777"];
 
   function updateGroups(groups: GraphGroupRule[]): void {
     onSettingsPatch({ groups });
   }
 
-  function updateGroup(
-    id: string,
-    patch: Partial<GraphGroupRule>,
-  ): void {
+  function updateGroup(id: string, patch: Partial<GraphGroupRule>): void {
     updateGroups(
       settings.groups.map((group) =>
         group.id === id ? { ...group, ...patch } : group,
@@ -112,10 +123,8 @@
       ...settings.groups,
       {
         id,
-        name: `Group ${index + 1}`,
         query: "",
         color: groupColors[index % groupColors.length]!,
-        enabled: true,
       },
     ]);
   }
@@ -127,6 +136,50 @@
   function moveGroup(index: number, delta: number): void {
     updateGroups(moveGraphGroup(settings.groups, index, delta));
   }
+
+  function startGroupDrag(event: PointerEvent, index: number): void {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    stopGroupDrag?.();
+    draggingGroupId = settings.groups[index]?.id ?? null;
+    const handle = event.currentTarget;
+    if (!(handle instanceof HTMLElement)) return;
+    const ownerDocument = handle.ownerDocument;
+    const ownerWindow = ownerDocument.defaultView;
+    if (!draggingGroupId || !ownerWindow) return;
+
+    const handleMove = (moveEvent: PointerEvent) => {
+      const target = ownerDocument
+        .elementFromPoint(moveEvent.clientX, moveEvent.clientY)
+        ?.closest<HTMLElement>(
+          '[data-sortable-group="graph-groups"][data-sortable-item]',
+        );
+      const targetIndex = Number(target?.dataset.sortableIndex);
+      const currentIndex = settings.groups.findIndex(
+        (group) => group.id === draggingGroupId,
+      );
+      if (
+        Number.isInteger(targetIndex) &&
+        currentIndex >= 0 &&
+        targetIndex !== currentIndex
+      ) {
+        moveGroup(currentIndex, targetIndex - currentIndex);
+      }
+    };
+    const handleEnd = () => stopGroupDrag?.();
+    stopGroupDrag = () => {
+      ownerWindow.removeEventListener("pointermove", handleMove);
+      ownerWindow.removeEventListener("pointerup", handleEnd);
+      ownerWindow.removeEventListener("pointercancel", handleEnd);
+      draggingGroupId = null;
+      stopGroupDrag = null;
+    };
+    ownerWindow.addEventListener("pointermove", handleMove);
+    ownerWindow.addEventListener("pointerup", handleEnd, { once: true });
+    ownerWindow.addEventListener("pointercancel", handleEnd, { once: true });
+  }
+
+  onDestroy(() => stopGroupDrag?.());
 
   const toolbarIconStyle = "width: 12px; height: 12px";
 </script>
@@ -141,6 +194,14 @@
     data-ui-part="surface"
     class="graph-view__surface"
   ></div>
+
+  <GraphFilePreview
+    {app}
+    {preview}
+    closeDelayMs={settings.display.hoverReleaseDelayMs}
+    onOpenFile={onOpenPreviewFile}
+    onDismiss={onDismissPreview}
+  />
 
   {#if statsText && !isLocal}
     <div class="graph-view__stats" data-ui-part="stats">
@@ -288,15 +349,21 @@
           <Accordion.Content class="graph-controls-section-content">
             <div class="graph-controls-field-list">
               <div>
-                <Input
-                  aria-label="Search files"
+                <SearchFilterInput
                   placeholder="Search files"
-                  class="graph-controls-input"
-                  bind:value={
-                    () => settings.filters.searchQuery,
-                    (value) =>
-                      onSettingsPatch({ filters: { searchQuery: value } })
-                  }
+                  ariaLabel="Search files"
+                  value={settings.filters.searchQuery}
+                  density="compact"
+                  inputMode="filter-query"
+                  showSearchIcon
+                  showClearButton
+                  error={filterDiagnostic}
+                  editorExtensions={queryExtensions}
+                  {filterSyntax}
+                  onValueChange={(value) =>
+                    onSettingsPatch({ filters: { searchQuery: value } })}
+                  onClearSearch={() =>
+                    onSettingsPatch({ filters: { searchQuery: "" } })}
                 />
               </div>
 
@@ -374,75 +441,48 @@
                 <SortableArrayItem
                   id={group.id}
                   {index}
+                  sortableGroup="graph-groups"
+                  dragging={draggingGroupId === group.id}
                   compact
-                  inset="tight"
+                  inset="flush"
+                  dragLabel={`Reorder Group ${index + 1}`}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < settings.groups.length - 1}
+                  onDragStart={startGroupDrag}
+                  onKeyboardMove={moveGroup}
                   onRemove={() => removeGroup(group.id)}
                 >
                   <div class="graph-controls-group">
-                    <div class="graph-controls-group__header">
-                      <Input
-                        aria-label={`Group ${index + 1} name`}
-                        class="graph-controls-input graph-controls-group__name"
-                        value={group.name}
-                        oninput={(event) =>
+                    <div class="graph-controls-group__row">
+                      <SearchFilterInput
+                        ariaLabel={`Group ${index + 1} query`}
+                        placeholder="Enter query…"
+                        value={group.query}
+                        density="compact"
+                        inputMode="filter-query"
+                        showSearchIcon={false}
+                        showClearButton={false}
+                        error={groupDiagnostics[group.id] ?? null}
+                        editorExtensions={queryExtensions}
+                        {filterSyntax}
+                        onValueChange={(value) =>
                           updateGroup(group.id, {
-                            name: event.currentTarget.value,
+                            query: value,
                           })}
                       />
-                      <Switch
-                        aria-label={`Enable ${group.name || `Group ${index + 1}`}`}
-                        checked={group.enabled}
-                        onCheckedChange={(enabled) =>
-                          updateGroup(group.id, { enabled })}
+                      <ColorPicker
+                        value={group.color}
+                        ariaLabel={`Group ${index + 1}`}
+                        presentation="popover"
+                        presets={groupColors}
+                        onChange={(color) => updateGroup(group.id, { color })}
                       />
                     </div>
-
-                    <Input
-                      aria-label={`Group ${index + 1} query`}
-                      placeholder="path:Code"
-                      class="graph-controls-input"
-                      value={group.query}
-                      aria-invalid={groupDiagnostics[group.id]
-                        ? "true"
-                        : undefined}
-                      oninput={(event) =>
-                        updateGroup(group.id, {
-                          query: event.currentTarget.value,
-                        })}
-                    />
                     {#if groupDiagnostics[group.id]}
                       <p class="graph-controls-group__error" role="alert">
                         {groupDiagnostics[group.id]}
                       </p>
                     {/if}
-
-                    <div class="graph-controls-group__footer">
-                      <ColorPicker
-                        value={group.color}
-                        ariaLabel={`${group.name || `Group ${index + 1}`} color`}
-                        onChange={(color) => updateGroup(group.id, { color })}
-                      />
-                      <div class="graph-controls-group__order">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          aria-label={`Move ${group.name || `Group ${index + 1}`} up`}
-                          disabled={index === 0}
-                          onclick={() => moveGroup(index, -1)}
-                        >
-                          <ChevronUp aria-hidden="true" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          aria-label={`Move ${group.name || `Group ${index + 1}`} down`}
-                          disabled={index === settings.groups.length - 1}
-                          onclick={() => moveGroup(index, 1)}
-                        >
-                          <ChevronDown aria-hidden="true" />
-                        </Button>
-                      </div>
-                    </div>
                   </div>
                 </SortableArrayItem>
               {/each}
@@ -453,8 +493,7 @@
                 class="graph-controls-add-group"
                 onclick={addGroup}
               >
-                <Plus aria-hidden="true" />
-                Add group
+                New group
               </Button>
             </div>
           </Accordion.Content>
@@ -519,6 +558,54 @@
                     (value) =>
                       updateSlider(value, (next) => ({
                         display: { textFadeThreshold: next },
+                      }))
+                  }
+                />
+              </div>
+
+              <div class="graph-controls-slider">
+                <div class="graph-controls-slider__header">
+                  <span>Hover activation delay</span>
+                  <span class="graph-controls-slider__value"
+                    >{formatValue(settings.display.hoverActivationDelayMs)} ms</span
+                  >
+                </div>
+                <Slider
+                  aria-label="Hover activation delay"
+                  type="single"
+                  min={0}
+                  max={2000}
+                  step={50}
+                  class="graph-controls-slider__control"
+                  bind:value={
+                    () => settings.display.hoverActivationDelayMs,
+                    (value) =>
+                      updateSlider(value, (next) => ({
+                        display: { hoverActivationDelayMs: next },
+                      }))
+                  }
+                />
+              </div>
+
+              <div class="graph-controls-slider">
+                <div class="graph-controls-slider__header">
+                  <span>Hover release delay</span>
+                  <span class="graph-controls-slider__value"
+                    >{formatValue(settings.display.hoverReleaseDelayMs)} ms</span
+                  >
+                </div>
+                <Slider
+                  aria-label="Hover release delay"
+                  type="single"
+                  min={0}
+                  max={2000}
+                  step={50}
+                  class="graph-controls-slider__control"
+                  bind:value={
+                    () => settings.display.hoverReleaseDelayMs,
+                    (value) =>
+                      updateSlider(value, (next) => ({
+                        display: { hoverReleaseDelayMs: next },
                       }))
                   }
                 />
@@ -720,9 +807,7 @@
               indicatorVariant="disclosure"
               class="graph-controls-trigger"
             >
-              <div
-                class="graph-controls-trigger__content"
-              >
+              <div class="graph-controls-trigger__content">
                 <span>Local graph</span>
               </div>
             </Accordion.Trigger>

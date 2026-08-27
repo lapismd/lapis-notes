@@ -37,10 +37,8 @@ export interface GraphData {
 
 export interface GraphGroupRule {
   id: string;
-  name: string;
   query: string;
   color: string;
-  enabled: boolean;
 }
 
 export interface GraphSettings {
@@ -57,6 +55,8 @@ export interface GraphSettings {
     nodeSize: number;
     linkThickness: number;
     wheelZoomSensitivity: number;
+    hoverActivationDelayMs: number;
+    hoverReleaseDelayMs: number;
   };
   forces: {
     centerForce: number;
