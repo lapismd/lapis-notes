@@ -52,6 +52,11 @@ export function projectChatItemsToTranscript(
             type: "message",
             role: item.role,
             text: item.text,
+            provenance: {
+              originClass: item.role === "user" ? "owner" : "agent",
+              sourceKind:
+                item.role === "user" ? "user-message" : "assistant-message",
+            },
           },
         ];
       case "thinking":
@@ -68,6 +73,10 @@ export function projectChatItemsToTranscript(
             type: "thinking.summary",
             text: item.text,
             kind: item.kind,
+            provenance: {
+              originClass: "agent",
+              sourceKind: "runtime-output",
+            },
           },
         ];
       case "tool": {
@@ -87,6 +96,10 @@ export function projectChatItemsToTranscript(
             output: output.text,
             redacted: input.redacted || output.redacted || undefined,
             truncated: input.truncated || output.truncated || undefined,
+            provenance: {
+              originClass: "untrusted",
+              sourceKind: "runtime-output",
+            },
           },
         ];
       }
@@ -109,6 +122,10 @@ export function projectChatItemsToTranscript(
             options: item.request.options.map((option) => ({ ...option })),
             redacted: toolInput.redacted || undefined,
             truncated: toolInput.truncated || undefined,
+            provenance: {
+              originClass: "untrusted",
+              sourceKind: "runtime-output",
+            },
           },
         ];
         if (item.responseOptionId) {
@@ -124,6 +141,10 @@ export function projectChatItemsToTranscript(
               id: item.responseOptionId,
               label: option?.label ?? item.responseOptionId,
             },
+            provenance: {
+              originClass: "owner",
+              sourceKind: "owner-response",
+            },
           });
         }
         return entries;
@@ -137,6 +158,10 @@ export function projectChatItemsToTranscript(
             requestId: item.request.id,
             title: item.request.title,
             questions: structuredClone(item.request.questions),
+            provenance: {
+              originClass: "agent",
+              sourceKind: "runtime-output",
+            },
           },
         ];
         if (item.status !== "pending") {
@@ -146,6 +171,10 @@ export function projectChatItemsToTranscript(
             type: "question.response",
             requestId: item.request.id,
             status: item.status,
+            provenance: {
+              originClass: "owner",
+              sourceKind: "owner-response",
+            },
           });
         }
         return entries;
@@ -163,6 +192,10 @@ export function projectChatItemsToTranscript(
             ...(item.layout === "inventory" && item.inventory
               ? { inventory: item.inventory }
               : {}),
+            provenance: {
+              originClass: "system",
+              sourceKind: "app-system",
+            },
           },
         ];
       case "error":
@@ -173,6 +206,10 @@ export function projectChatItemsToTranscript(
             type: "error",
             message: sanitizeDurableField(item.text, options).text ?? "",
             retryable: true,
+            provenance: {
+              originClass: "system",
+              sourceKind: "app-system",
+            },
           },
         ];
       case "command":
@@ -185,6 +222,10 @@ export function projectChatItemsToTranscript(
             origin: item.origin,
             arguments: item.arguments,
             status: item.status,
+            provenance: {
+              originClass: "system",
+              sourceKind: "app-system",
+            },
           },
         ];
       case "skill-activation":
@@ -198,6 +239,20 @@ export function projectChatItemsToTranscript(
             version: item.version,
             origin: item.origin,
             arguments: item.arguments,
+            provenance: {
+              originClass:
+                item.origin === "user"
+                  ? "owner"
+                  : item.origin === "model"
+                    ? "agent"
+                    : "system",
+              sourceKind:
+                item.origin === "user"
+                  ? "owner-response"
+                  : item.origin === "model"
+                    ? "runtime-output"
+                    : "app-system",
+            },
           },
         ];
     }

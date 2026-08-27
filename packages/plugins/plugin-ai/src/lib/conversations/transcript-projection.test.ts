@@ -58,6 +58,17 @@ describe("conversation transcript projection", () => {
     expect(entries.find((entry) => entry.type === "tool")).toMatchObject({
       input: expect.not.stringContaining("secret"),
       redacted: true,
+      provenance: {
+        originClass: "untrusted",
+        sourceKind: "runtime-output",
+      },
+    });
+    expect(entries[0]).toMatchObject({
+      schemaVersion: 2,
+      provenance: {
+        originClass: "owner",
+        sourceKind: "user-message",
+      },
     });
   });
 

@@ -1,4 +1,5 @@
 import {
+  Notice,
   Plugin,
   createVaultFileAppTools,
   hasNativeDesktopCapability,
@@ -65,6 +66,14 @@ import {
 import { createMcpServerContributionRegistry } from "./tools/mcp-server-registry";
 import { AppToolHost } from "./tools/app-tool-host";
 import { DesktopAppToolBridge } from "./tools/desktop-app-tool-bridge";
+import { NativeMemoryService } from "./memory/native-memory-service";
+import { MemoryIngestionCoordinator } from "./memory/memory-ingestion-coordinator";
+import { createMemoryAppTools } from "./memory/memory-tools";
+import { VaultMemoryRecordStore } from "./memory/memory-record-store";
+import { MemoryMaintenanceScheduler } from "./memory/memory-scheduler";
+import { RuntimeMemoryConsolidationProvider } from "./memory/runtime-consolidation-provider";
+import { confirmForgetDerivedMemory } from "./memory/forget-confirmation";
+import { conversationMemoryScope } from "./memory/paths";
 import { SkillRegistry, SkillSnapshotStore } from "./skills/registry";
 import { BUNDLED_APP_SKILLS } from "./skills/bundled/research";
 import { seedBundledSkills } from "./skills/seed";
@@ -119,6 +128,10 @@ export class AiPlugin extends Plugin {
   readonly conversations: ConversationRepository;
   readonly conversationIndex: AiConversationIndex;
   readonly conversationIndexCoordinator: ConversationIndexCoordinator;
+  readonly memory: NativeMemoryService;
+  readonly memoryConsolidationProvider: RuntimeMemoryConsolidationProvider;
+  readonly memoryIngestionCoordinator: MemoryIngestionCoordinator;
+  readonly memoryScheduler: MemoryMaintenanceScheduler;
 
   constructor(
     app: App,
@@ -176,6 +189,61 @@ export class AiPlugin extends Plugin {
       this.fakeRuntime,
       ...createHostAgentRuntimes(),
     ]);
+    this.memoryConsolidationProvider =
+      new RuntimeMemoryConsolidationProvider({
+        configuration: () => {
+          const settings = this.getSettings();
+          return {
+            runtimeId: settings.memoryConsolidationRuntime,
+            agent: settings.memoryConsolidationAgent,
+            model: settings.memoryConsolidationModel,
+          };
+        },
+        resolveRuntime: async (request) => {
+          const runtimeId = request.metadata?.runtime;
+          const runtime =
+            typeof runtimeId === "string"
+              ? this.registry.get(runtimeId)
+              : undefined;
+          if (!runtime || !(await runtime.supports(request))) {
+            throw new Error(
+              `Pinned memory runtime ${String(runtimeId)} is unavailable.`,
+            );
+          }
+          return runtime;
+        },
+      });
+    this.memory = new NativeMemoryService(
+      this.conversations,
+      app.appDatabase,
+      {
+        recordStore: new VaultMemoryRecordStore(app.vault),
+        consolidationProvider: () =>
+          this.getSettings().memoryConsolidationEnabled
+            ? this.memoryConsolidationProvider
+            : undefined,
+      },
+    );
+    this.memoryIngestionCoordinator = new MemoryIngestionCoordinator(
+      this.conversations,
+      this.memory,
+      (operation, location, error) =>
+        this.app.logger.warn(
+          `Unable to ${operation} AI memory${location ? ` for ${location.conversationId}` : ""}`,
+          error,
+        ),
+    );
+    this.memoryScheduler = new MemoryMaintenanceScheduler(
+      app.appDatabase,
+      this.memory,
+      {
+        onError: (_operation, scope, error) =>
+          this.app.logger.warn(
+            `Unable to consolidate AI memory for ${scope.kind}`,
+            error,
+          ),
+      },
+    );
   }
 
   get skills(): SkillRegistry {
@@ -419,6 +487,9 @@ export class AiPlugin extends Plugin {
     })) {
       this.registerAgentTool(tool);
     }
+    for (const tool of createMemoryAppTools(this.memory)) {
+      this.registerAgentTool(tool);
+    }
     this.registerAgentResultView({
       command: "skills",
       component: AiInventoryResult,
@@ -445,6 +516,12 @@ export class AiPlugin extends Plugin {
     ) => {
       this.conversationIndexCoordinator.handleVaultChange(file.path, oldPath);
     };
+    const scheduleMemoryIngestion = (
+      file: { path: string },
+      oldPath?: string,
+    ) => {
+      this.memoryIngestionCoordinator.handleVaultChange(file.path, oldPath);
+    };
     const invalidateAgents = (file: { path: string }, oldPath?: string) => {
       if (isAgentsPath(file.path) || (oldPath && isAgentsPath(oldPath))) {
         this.skillRegistry.invalidate();
@@ -464,6 +541,130 @@ export class AiPlugin extends Plugin {
       name: "Update reserved commands",
       callback: () => void this.updateReservedCommands(),
     });
+    this.addCommand({
+      id: "rebuild-memory-index",
+      name: "Rebuild memory index",
+      callback: async () => {
+        const result = await this.memory.rebuild();
+        new Notice(
+          `Memory index rebuilt (${result.conversations} conversations, ${result.episodes} episodes)`,
+        );
+      },
+    });
+    this.addCommand({
+      id: "preview-memory-consolidation",
+      name: "Preview memory consolidation",
+      callback: async () => {
+        const preview = await this.memory.previewConsolidation(
+          conversationMemoryScope(this.currentConversationScope()),
+        );
+        new Notice(
+          `${preview.proposals} memory proposal${preview.proposals === 1 ? "" : "s"} ready from ${preview.candidateIds.length} candidate${preview.candidateIds.length === 1 ? "" : "s"}`,
+        );
+      },
+    });
+    this.addCommand({
+      id: "run-memory-consolidation",
+      name: "Run memory consolidation",
+      callback: async () => {
+        const result = await this.memory.consolidate(
+          conversationMemoryScope(this.currentConversationScope()),
+        );
+        new Notice(
+          `Memory consolidation wrote ${result.written} revision${result.written === 1 ? "" : "s"}; ${result.needsReview} need review`,
+        );
+      },
+    });
+    this.addCommand({
+      id: "show-memory-status",
+      name: "Show memory status",
+      callback: async () => {
+        const [sources, candidates, jobs] = await Promise.all([
+          this.app.appDatabase.listMemorySourceStates(),
+          this.app.appDatabase.queryMemoryCandidates({ limit: 10_000 }),
+          this.app.appDatabase.listMemoryJobs(),
+        ]);
+        new Notice(
+          `Memory: ${sources.length} conversation source${sources.length === 1 ? "" : "s"}, ${candidates.length} candidate${candidates.length === 1 ? "" : "s"}, ${jobs.filter((job) => job.status === "running").length} active job${jobs.filter((job) => job.status === "running").length === 1 ? "" : "s"}`,
+        );
+      },
+    });
+    this.addCommand({
+      id: "open-latest-memory-record",
+      name: "Open latest memory record",
+      callback: async () => {
+        const files = new Map(
+          [
+            ...this.app.vault.getFilesByGlob(
+              ".lapis/agents/memory/user/records/*.md",
+            ),
+            ...this.app.vault.getFilesByGlob(
+              ".lapis/agents/memory/workspace/records/*.md",
+            ),
+            ...this.app.vault.getFilesByGlob(
+              "**/.lapis/agents/memory/project/records/*.md",
+            ),
+          ].map((candidate) => [candidate.path, candidate]),
+        );
+        const file = [...files.values()].sort(
+          (left, right) => right.stat.mtime - left.stat.mtime,
+        )[0];
+        if (!file) {
+          new Notice("No curated memory records yet");
+          return;
+        }
+        await this.app.workspace.openLinkText(file.path, "");
+      },
+    });
+    this.addCommand({
+      id: "open-latest-memory-review",
+      name: "Open latest memory review",
+      callback: async () => {
+        const files = new Map(
+          [
+            ...this.app.vault.getFilesByGlob(
+              ".lapis/agents/memory/reviews/*.md",
+            ),
+            ...this.app.vault.getFilesByGlob(
+              "**/.lapis/agents/memory/reviews/*.md",
+            ),
+          ].map((candidate) => [candidate.path, candidate]),
+        );
+        const file = [...files.values()].sort(
+          (left, right) => right.stat.mtime - left.stat.mtime,
+        )[0];
+        if (!file) {
+          new Notice("No memory review reports yet");
+          return;
+        }
+        await this.app.workspace.openLinkText(file.path, "");
+      },
+    });
+    this.addCommand({
+      id: "forget-current-conversation-memory",
+      name: "Forget derived memory from current conversation",
+      callback: async () => {
+        const location = this.currentAiConversation();
+        if (!location) {
+          new Notice("Open an AI conversation before forgetting its memory");
+          return;
+        }
+        const preview = await this.memory.previewForgetConversation(location);
+        if (
+          preview.episodeRefs.length === 0 &&
+          preview.candidateIds.length === 0 &&
+          preview.memoryIds.length === 0
+        ) {
+          new Notice("This conversation has no derived memory to forget");
+          return;
+        }
+        if (!(await confirmForgetDerivedMemory(this.app, preview))) return;
+        const result = await this.memory.forgetConversation(location);
+        new Notice(
+          `Forgot derived conversation memory and retracted ${result.retracted} record${result.retracted === 1 ? "" : "s"}; the transcript was preserved`,
+        );
+      },
+    });
     this.registerEvent(
       this.app.agentSkills.on("changed", () => this.skillRegistry.invalidate()),
     );
@@ -480,18 +681,41 @@ export class AiPlugin extends Plugin {
       this.app.vault.on("create", scheduleConversationIndexUpdate),
     );
     this.registerEvent(
+      this.app.vault.on("create", scheduleMemoryIngestion),
+    );
+    this.registerEvent(
       this.app.vault.on("modify", scheduleConversationIndexUpdate),
+    );
+    this.registerEvent(
+      this.app.vault.on("modify", scheduleMemoryIngestion),
     );
     this.registerEvent(
       this.app.vault.on("delete", scheduleConversationIndexUpdate),
     );
     this.registerEvent(
+      this.app.vault.on("delete", scheduleMemoryIngestion),
+    );
+    this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
         invalidateAgents(file, oldPath);
         scheduleConversationIndexUpdate(file, oldPath);
+        scheduleMemoryIngestion(file, oldPath);
       }),
     );
     this.register(() => this.conversationIndexCoordinator.dispose());
+    this.register(() => this.memoryIngestionCoordinator.dispose());
+    this.register(
+      this.conversations.subscribe((change) => {
+        if (change.type === "upsert") {
+          this.memoryScheduler.noteActivity(
+            conversationMemoryScope(change.location.scopeDir),
+          );
+        }
+      }),
+    );
+    this.register(() => this.memoryScheduler.dispose());
+    this.memoryIngestionCoordinator.startCatchUp();
+    this.memoryScheduler.start();
     this.registerSidebarView(AiViewType, (leaf) => new AiView(leaf, this), {
       side: "right",
       title: "AI",

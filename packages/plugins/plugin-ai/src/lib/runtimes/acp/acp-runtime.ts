@@ -6,6 +6,8 @@ import {
   type AgentRequest,
   type AgentRuntime,
   type AgentSession,
+  type AgentTurnOptions,
+  projectAgentTurnPrompt,
 } from "../../core/types";
 import {
   mapAcpPermissionRequest,
@@ -68,8 +70,11 @@ export class AcpAgentSession implements AgentSession {
     return this.#events;
   }
 
-  async send(input: string): Promise<void> {
-    const projected = projectSkillActivationPrompt(input, this.#activations);
+  async send(input: string, options?: AgentTurnOptions): Promise<void> {
+    const projected = projectSkillActivationPrompt(
+      projectAgentTurnPrompt(input, options?.contextBlocks),
+      this.#activations,
+    );
     this.#activations = undefined;
     await this.#backend.prompt(projected);
   }

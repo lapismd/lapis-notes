@@ -17,10 +17,12 @@ export {
 } from "./core/types";
 export type {
   AgentCapabilities,
+  AgentContextBlock,
   AgentEvent,
   AgentRequest,
   AgentRuntime,
   AgentSession,
+  AgentTurnOptions,
   AgentUsage,
   AiThinkingLevel,
   ApprovalCapabilities,
@@ -33,6 +35,29 @@ export type {
   UserInputQuestion,
   UserInputRequest,
 } from "./core/types";
+export { NativeMemoryService } from "./memory/native-memory-service";
+export type {
+  AutomaticMemoryRecall,
+  ConsolidationPreview,
+  ConsolidationProposal,
+  ConsolidationResult,
+  DurableMemoryKind,
+  DurableMemoryRecord,
+  GroundedConsolidationInput,
+  MemoryConsolidationProvider,
+  MemoryContext,
+  MemoryDetail,
+  MemoryEvidenceMessage,
+  MemoryEvidenceRef,
+  MemoryForgetPreview,
+  MemoryForgetResult,
+  MemoryOriginClass,
+  MemoryRebuildResult,
+  MemoryScope,
+  MemorySearchQuery,
+  MemorySearchResult,
+  MemoryService,
+} from "./memory/types";
 export { StaticModelProvider } from "./providers/model-provider";
 export { CodexModelProvider } from "./providers/codex-model-provider";
 export { normalizeCodexModelList } from "./providers/codex-model-catalog";

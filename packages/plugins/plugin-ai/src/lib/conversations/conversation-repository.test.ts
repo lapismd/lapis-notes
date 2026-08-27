@@ -38,7 +38,7 @@ describe("ConversationRepository", () => {
       now: CREATED_AT,
     });
     expect(created.metadata).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: CONVERSATION_SCHEMA_VERSION,
       id: ID,
       status: "active",
       launchContext: { notePath: "Notes/launch.md" },

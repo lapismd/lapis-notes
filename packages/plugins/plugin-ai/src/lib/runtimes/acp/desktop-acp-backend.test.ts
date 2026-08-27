@@ -24,6 +24,50 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
     native.bridge = null;
   });
 
+  it("forwards the provider-neutral restricted session contract", async () => {
+    const invoke = vi.fn(async (command: string, payload?: Record<string, unknown>) =>
+      command === "desktop_agent_acp_start"
+        ? { sessionId: String(payload?.sessionId) }
+        : null,
+    );
+    native.bridge = {
+      runtime: "deno-desktop",
+      capabilities: {
+        "agent-runtime": {
+          id: "agent-runtime",
+          status: "available",
+          details: { protocolVersion: 4, deferredStart: true },
+        },
+      },
+      invoke,
+      toFileUrl: (path) => path,
+      onAgentRuntimeEvent() {
+        return () => {};
+      },
+    } as NativeDesktopBridge;
+
+    const session = await new DesktopAcpRuntimeBackend().start({
+      request: {
+        prompt: "",
+        agent: "codex",
+        restricted: true,
+        mcpServers: [],
+      },
+      onPermissionRequest: vi.fn(),
+    });
+
+    expect(invoke).toHaveBeenCalledWith(
+      "desktop_agent_acp_start",
+      expect.objectContaining({
+        restricted: true,
+        workspace: undefined,
+        mcpServers: [],
+        appToolBridgeId: undefined,
+      }),
+    );
+    await session.close();
+  });
+
   it("unwraps sequenced events and permissions with stable provenance", async () => {
     let emit!: (event: NativeAgentRuntimeEvent) => void;
     const invoke = vi.fn(async (command: string) => {

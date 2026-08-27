@@ -2787,6 +2787,7 @@ export class MemoryAppDatabase implements AppDatabase {
     input: AppDatabaseMemoryJobClaimInput,
   ): Promise<AppDatabaseMemoryJobRecord | null> {
     const existing = this.memoryJobs.get(input.job.id);
+    if (existing?.status === "completed") return null;
     const renewing =
       existing?.status === "running" && existing.ownerId === input.ownerId;
     if (

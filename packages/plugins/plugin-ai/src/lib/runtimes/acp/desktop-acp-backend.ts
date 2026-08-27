@@ -227,6 +227,7 @@ export class DesktopAcpRuntimeBackend implements AcpRuntimeBackend {
           model: request.model,
           thinking: request.thinking,
           metadata: request.metadata,
+          restricted: request.restricted,
           ...(protocolVersion >= 3
             ? {
                 mcpServers: request.mcpServers,

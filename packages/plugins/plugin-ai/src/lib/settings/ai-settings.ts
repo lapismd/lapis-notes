@@ -22,6 +22,11 @@ export type AiPluginSettings = {
   /** Active-agent compatibility alias. Persisted model ownership lives in defaultModels. */
   defaultModel: string;
   thinking: AiThinkingLevel;
+  memoryAutomaticRecall: boolean;
+  memoryConsolidationEnabled: boolean;
+  memoryConsolidationRuntime: "acp" | "codex-native";
+  memoryConsolidationAgent: AcpAgentId;
+  memoryConsolidationModel: string;
   appToolsEnabled: boolean;
   disabledAppToolNames: string[];
   enabledAppToolNames: string[];
@@ -42,6 +47,11 @@ export const DEFAULT_AI_SETTINGS: AiPluginSettings = {
   },
   defaultModel: "gpt-5.6-sol",
   thinking: "medium",
+  memoryAutomaticRecall: false,
+  memoryConsolidationEnabled: false,
+  memoryConsolidationRuntime: "acp",
+  memoryConsolidationAgent: "codex",
+  memoryConsolidationModel: "gpt-5.6-sol",
   appToolsEnabled: true,
   disabledAppToolNames: [],
   enabledAppToolNames: [],
@@ -189,6 +199,18 @@ export function mergeAiSettings(
       thinking && THINKING_LEVELS.has(thinking)
         ? thinking
         : DEFAULT_AI_SETTINGS.thinking,
+    memoryAutomaticRecall: value?.memoryAutomaticRecall === true,
+    memoryConsolidationEnabled: value?.memoryConsolidationEnabled === true,
+    memoryConsolidationRuntime:
+      value?.memoryConsolidationRuntime === "codex-native"
+        ? "codex-native"
+        : "acp",
+    memoryConsolidationAgent: normalizeAcpAgent(
+      value?.memoryConsolidationAgent,
+    ),
+    memoryConsolidationModel:
+      value?.memoryConsolidationModel?.trim() ||
+      DEFAULT_AI_SETTINGS.memoryConsolidationModel,
     appToolsEnabled: value?.appToolsEnabled !== false,
     disabledAppToolNames: normalizeNameList(value?.disabledAppToolNames),
     enabledAppToolNames: normalizeNameList(value?.enabledAppToolNames),

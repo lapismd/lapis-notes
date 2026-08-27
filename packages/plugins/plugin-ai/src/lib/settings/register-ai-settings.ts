@@ -23,6 +23,11 @@ const FIELD_IDS = {
   acpAgent: "ai.acpAgent",
   defaultModel: "ai.defaultModel",
   thinking: "ai.thinking",
+  memoryAutomaticRecall: "ai.memoryAutomaticRecall",
+  memoryConsolidationEnabled: "ai.memoryConsolidationEnabled",
+  memoryConsolidationRuntime: "ai.memoryConsolidationRuntime",
+  memoryConsolidationAgent: "ai.memoryConsolidationAgent",
+  memoryConsolidationModel: "ai.memoryConsolidationModel",
   appToolsEnabled: "ai.appToolsEnabled",
   appTools: "ai.appTools",
 } as const;
@@ -166,6 +171,53 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
         ],
       },
       {
+        id: FIELD_IDS.memoryAutomaticRecall,
+        type: "boolean" as const,
+        title: "Automatic memory recall",
+        description:
+          "Inject up to three trusted curated memories into a turn. Transcript evidence remains available only through memory tools.",
+        default: DEFAULT_AI_SETTINGS.memoryAutomaticRecall,
+      },
+      {
+        id: FIELD_IDS.memoryConsolidationEnabled,
+        type: "boolean" as const,
+        title: "Automatic memory consolidation",
+        description:
+          "Use the separately pinned processor below for bounded background proposals. This may consume provider quota.",
+        default: DEFAULT_AI_SETTINGS.memoryConsolidationEnabled,
+      },
+      {
+        id: FIELD_IDS.memoryConsolidationRuntime,
+        type: "enum" as const,
+        title: "Memory processor runtime",
+        description:
+          "Pinned independently from the interactive chat runtime.",
+        default: DEFAULT_AI_SETTINGS.memoryConsolidationRuntime,
+        options: [
+          { value: "acp", label: "ACP" },
+          { value: "codex-native", label: "Codex native" },
+        ],
+      },
+      {
+        id: FIELD_IDS.memoryConsolidationAgent,
+        type: "enum" as const,
+        title: "Memory processor agent",
+        description: "Pinned independently from the interactive chat agent.",
+        default: DEFAULT_AI_SETTINGS.memoryConsolidationAgent,
+        options: ACP_AGENT_IDS.map((value) => ({
+          value,
+          label: value === "cursor" ? "Cursor" : "Codex",
+        })),
+      },
+      {
+        id: FIELD_IDS.memoryConsolidationModel,
+        type: "string" as const,
+        title: "Memory processor model",
+        description:
+          "Exact model used only for restricted background consolidation.",
+        default: DEFAULT_AI_SETTINGS.memoryConsolidationModel,
+      },
+      {
         id: FIELD_IDS.appToolsEnabled,
         type: "boolean" as const,
         title: "Application tools",
@@ -200,6 +252,26 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
   controller.settings.update(FIELD_IDS.acpAgent, settings.acpAgent);
   controller.settings.update(FIELD_IDS.defaultModel, settings.defaultModel);
   controller.settings.update(FIELD_IDS.thinking, settings.thinking);
+  controller.settings.update(
+    FIELD_IDS.memoryAutomaticRecall,
+    settings.memoryAutomaticRecall,
+  );
+  controller.settings.update(
+    FIELD_IDS.memoryConsolidationEnabled,
+    settings.memoryConsolidationEnabled,
+  );
+  controller.settings.update(
+    FIELD_IDS.memoryConsolidationRuntime,
+    settings.memoryConsolidationRuntime,
+  );
+  controller.settings.update(
+    FIELD_IDS.memoryConsolidationAgent,
+    settings.memoryConsolidationAgent,
+  );
+  controller.settings.update(
+    FIELD_IDS.memoryConsolidationModel,
+    settings.memoryConsolidationModel,
+  );
   controller.settings.update(
     FIELD_IDS.appToolsEnabled,
     settings.appToolsEnabled,
@@ -255,6 +327,45 @@ export function registerAiSettings(plugin: AiPlugin & Plugin): void {
     if (event.id === FIELD_IDS.thinking) {
       void plugin.updateSettings({
         thinking: values[FIELD_IDS.thinking] as AiPluginSettings["thinking"],
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.memoryAutomaticRecall) {
+      void plugin.updateSettings({
+        memoryAutomaticRecall:
+          values[FIELD_IDS.memoryAutomaticRecall] === true,
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.memoryConsolidationEnabled) {
+      void plugin.updateSettings({
+        memoryConsolidationEnabled:
+          values[FIELD_IDS.memoryConsolidationEnabled] === true,
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.memoryConsolidationRuntime) {
+      void plugin.updateSettings({
+        memoryConsolidationRuntime:
+          values[FIELD_IDS.memoryConsolidationRuntime] === "codex-native"
+            ? "codex-native"
+            : "acp",
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.memoryConsolidationAgent) {
+      void plugin.updateSettings({
+        memoryConsolidationAgent: normalizeAcpAgent(
+          values[FIELD_IDS.memoryConsolidationAgent],
+        ),
+      });
+      return;
+    }
+    if (event.id === FIELD_IDS.memoryConsolidationModel) {
+      void plugin.updateSettings({
+        memoryConsolidationModel: String(
+          values[FIELD_IDS.memoryConsolidationModel] ?? "",
+        ),
       });
       return;
     }

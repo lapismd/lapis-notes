@@ -122,8 +122,11 @@ database. It evaluates the API-owned in-memory vault tree; indexed metadata and
 property evaluation remain separate database-backed contracts.
 Search path-prefix filtering uses exact directory boundaries and runs on the
 shared candidate set before score calculation, ranking, and limiting. Turso
-requests that carry a prefix fetch the complete candidate path set before the
-shared evaluator; native and browser proxies forward the same typed option.
+applies provider and exact-or-descendant path predicates in SQL before its
+candidate limit, then uses the shared evaluator for ranking; native and browser
+proxies forward the same typed option. A completed memory job is terminal and
+cannot be reclaimed as a new lease, while expired running jobs remain eligible
+for owner takeover.
 
 The Deno desktop renderer selects the same provider contract over a host-owned
 native Turso handle. The host executes that handle in a dedicated worker so

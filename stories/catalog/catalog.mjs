@@ -310,6 +310,13 @@ export const workspaceCatalog = [
     storyId: "plugins-ai-chat--scroll-recovery",
   },
   {
+    id: "plugins-ai-chat-memory-recall",
+    title: "AI Chat: Automatic Memory Recall",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai",
+    storyId: "plugins-ai-chat--automatic-memory-recall",
+  },
+  {
     id: "plugins-ai-chat-app-tool-read",
     title: "AI Chat: Application Tool Read",
     spec: "spec/src/plugins/ai/index.md",

@@ -167,6 +167,14 @@ tabs and the Deno renderer forward only the allowlisted methods. This transport
 parity does not transfer memory ownership to the database owner, browser tab,
 desktop worker, ACP session, or processing model.
 
+AI constructs the native service, record store, ingestion coordinator, and idle
+scheduler once per App. Conversation sessions receive only provider-neutral
+context blocks and read-effect App tools. The optional consolidator is a
+separately configured one-shot processor behind `MemoryConsolidationProvider`;
+its restricted host session has no workspace or tool surface. Consequently an
+interactive agent, model, runtime, or resumable-session switch changes only who
+processes the next turn and never changes memory identity or scope.
+
 Existing-file navigation maps Explorer intent through the public
 `Workspace.activateLeaf` contract so compatibility selection, the Design Core
 controller, focus, and persisted layout remain synchronized. Setting

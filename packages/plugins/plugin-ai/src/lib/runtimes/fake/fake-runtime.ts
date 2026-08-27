@@ -6,6 +6,7 @@ import {
   type AgentRequest,
   type AgentRuntime,
   type AgentSession,
+  type AgentTurnOptions,
   type ApprovalRequest,
   type UserInputAnswers,
   type UserInputRequest,
@@ -45,6 +46,7 @@ export const FAKE_RICH_ASSISTANT_TEXT = [
 export class FakeAgentSession implements AgentSession {
   readonly id: string;
   readonly prompts: string[] = [];
+  readonly contextBlocks: AgentTurnOptions["contextBlocks"][] = [];
   cancelled = false;
   closed = false;
   readonly #events = new AsyncEventQueue<AgentEvent>();
@@ -88,9 +90,10 @@ export class FakeAgentSession implements AgentSession {
     return this.#events;
   }
 
-  async send(input: string): Promise<void> {
+  async send(input: string, options?: AgentTurnOptions): Promise<void> {
     if (this.closed) throw new Error("Fake session is closed.");
     this.prompts.push(input);
+    this.contextBlocks.push(structuredClone(options?.contextBlocks));
     if (this.#trace === "rich") {
       this.#events.push({
         type: "thinking",

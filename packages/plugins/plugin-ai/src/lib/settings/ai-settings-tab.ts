@@ -111,6 +111,73 @@ export class AiSettingsTab extends PluginSettingTab {
       });
 
     new Setting(this.containerEl)
+      .setName("Automatic memory recall")
+      .setDesc(
+        "Inject up to three trusted curated memories into turns. Migrated vaults keep this off until enabled.",
+      )
+      .addToggle((toggle) => {
+        toggle.setValue(settings.memoryAutomaticRecall).onChange((value) => {
+          void this.aiPlugin.updateSettings({ memoryAutomaticRecall: value });
+        });
+      });
+
+    new Setting(this.containerEl)
+      .setName("Automatic memory consolidation")
+      .setDesc(
+        "Run bounded background proposals with a separately pinned processor. Enabling this may consume provider quota.",
+      )
+      .addToggle((toggle) => {
+        toggle.setValue(settings.memoryConsolidationEnabled).onChange((value) => {
+          void this.aiPlugin.updateSettings({
+            memoryConsolidationEnabled: value,
+          });
+        });
+      });
+
+    new Setting(this.containerEl)
+      .setName("Memory processor runtime")
+      .setDesc("Pinned independently from the interactive chat runtime.")
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOption("acp", "ACP")
+          .addOption("codex-native", "Codex native")
+          .setValue(settings.memoryConsolidationRuntime)
+          .onChange((value) => {
+            void this.aiPlugin.updateSettings({
+              memoryConsolidationRuntime:
+                value === "codex-native" ? "codex-native" : "acp",
+            });
+          });
+      });
+
+    new Setting(this.containerEl)
+      .setName("Memory processor agent")
+      .setDesc("Pinned independently from the interactive chat agent.")
+      .addDropdown((dropdown) => {
+        for (const id of ACP_AGENT_IDS) {
+          dropdown.addOption(id, ACP_AGENT_LABELS[id]);
+        }
+        dropdown.setValue(settings.memoryConsolidationAgent).onChange((value) => {
+          void this.aiPlugin.updateSettings({
+            memoryConsolidationAgent: value as AcpAgentId,
+          });
+        });
+      });
+
+    new Setting(this.containerEl)
+      .setName("Memory processor model")
+      .setDesc("Exact model used only for restricted background consolidation.")
+      .addText((text) => {
+        text
+          .setValue(settings.memoryConsolidationModel)
+          .onChange((value) => {
+            void this.aiPlugin.updateSettings({
+              memoryConsolidationModel: value,
+            });
+          });
+      });
+
+    new Setting(this.containerEl)
       .setName("Application tools")
       .setDesc(
         "Expose enabled application tools to new agent bindings. Existing bindings keep their frozen tool list.",

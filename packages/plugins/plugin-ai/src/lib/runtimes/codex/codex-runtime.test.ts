@@ -88,6 +88,43 @@ describe("CodexNativeRuntime", () => {
     await session.close();
   });
 
+  it("serializes typed memory context into the native turn only", async () => {
+    const host = new MemoryProcessHost();
+    const runtime = new CodexNativeRuntime(host);
+    const session = await runtime.start({ prompt: "" });
+
+    await session.send("Draft the note", {
+      contextBlocks: [
+        {
+          kind: "memory-recall",
+          id: "memory:headings:2",
+          content: "Use compact headings.",
+          metadata: {
+            memoryId: "headings",
+            revision: 2,
+            scope: "project",
+          },
+        },
+      ],
+    });
+
+    const turn = host.handle.writes
+      .map((line) => JSON.parse(line) as { method?: string; params?: unknown })
+      .find((message) => message.method === "turn/start");
+    expect(turn?.params).toMatchObject({
+      input: [
+        {
+          type: "text",
+          text: expect.stringContaining(
+            '<lapis-context kind="memory-recall" id="memory:headings:2">',
+          ),
+        },
+      ],
+    });
+    expect(JSON.stringify(turn?.params)).toContain("Draft the note");
+    await session.close();
+  });
+
   it("maps requestApproval lines into ApprovalRequest and respondToApproval", async () => {
     const host = new MemoryProcessHost();
     const runtime = new CodexNativeRuntime(host);

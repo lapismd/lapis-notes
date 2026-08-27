@@ -157,6 +157,22 @@ describe("TursoAppDatabase", () => {
         leaseMs: 100,
       }),
     ).resolves.toMatchObject({ ownerId: "owner-b", attempts: 2 });
+    await expect(
+      database.updateMemoryJob({
+        jobId: job.id,
+        ownerId: "owner-b",
+        now: 350,
+        patch: { status: "completed", finishedAt: 350 },
+      }),
+    ).resolves.toMatchObject({ status: "completed" });
+    await expect(
+      database.claimMemoryJob({
+        job,
+        ownerId: "owner-a",
+        now: 402,
+        leaseMs: 100,
+      }),
+    ).resolves.toBeNull();
 
     await expect(database.listMemorySourceStates()).resolves.toHaveLength(1);
     await expect(
@@ -306,9 +322,23 @@ describe("TursoAppDatabase", () => {
       tagParts: [],
       tagHierarchy: [],
     });
+    for (let index = 0; index < 110; index += 1) {
+      await database.upsertSearchDocument({
+        path: `000-unrelated/${String(index).padStart(3, "0")}.md`,
+        sourceProviderId: "other-provider",
+        name: `Unrelated ${index}`,
+        extension: "md",
+        checksum: `unrelated-${index}`,
+        content: "owner appears in an unrelated provider and scope",
+        tags: [],
+        tagParts: [],
+        tagHierarchy: [],
+      });
+    }
     await expect(
       database.searchDocuments("owner", {
         mode: "lexical",
+        sourceProviderIds: ["markdown"],
         pathPrefix: "Projects",
         limit: 1,
       }),

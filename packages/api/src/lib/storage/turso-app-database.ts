@@ -1502,6 +1502,7 @@ export class TursoAppDatabase implements AppDatabase {
           {} as AppDatabaseMemoryJobRecord,
         )
       : undefined;
+    if (existing?.status === "completed") return null;
     const renewing =
       existing?.status === "running" && existing.ownerId === input.ownerId;
     if (
@@ -2119,7 +2120,7 @@ export class TursoAppDatabase implements AppDatabase {
       return this.evaluateSearchDocumentsForPaths(
         query,
         options,
-        await this.queryAllSearchPaths(options.limit),
+        await this.queryAllSearchPaths(options.limit, options),
       );
     }
 
@@ -2160,9 +2161,30 @@ export class TursoAppDatabase implements AppDatabase {
     );
   }
 
-  private async queryAllSearchPaths(limit = 100): Promise<string[]> {
+  private async queryAllSearchPaths(
+    limit = 100,
+    options: Pick<
+      AppDatabaseSearchOptions,
+      "pathPrefix" | "sourceProviderIds"
+    > = {},
+  ): Promise<string[]> {
+    const clauses: string[] = [];
+    const args: Array<string | number> = [];
+    if (options.sourceProviderIds?.length) {
+      clauses.push(
+        `source_provider_id IN (${options.sourceProviderIds.map(() => "?").join(", ")})`,
+      );
+      args.push(...options.sourceProviderIds);
+    }
+    if (options.pathPrefix) {
+      clauses.push("(path = ? OR instr(path, ?) = 1)");
+      args.push(options.pathPrefix, `${options.pathPrefix}/`);
+    }
     const rows = await this.requireConnection().all<{ path: string }>(
-      "SELECT path FROM search_docs ORDER BY path LIMIT ?",
+      `SELECT path FROM search_docs
+       ${clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : ""}
+       ORDER BY path LIMIT ?`,
+      ...args,
       Math.max(limit, 100),
     );
     return rows.map((row) => row.path);

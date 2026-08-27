@@ -26,6 +26,56 @@ import type {
 } from "../tools/desktop-app-tool-bridge";
 
 describe("AiChatController", () => {
+  it("passes typed memory recall without polluting the authored transcript", async () => {
+    const runtime = new FakeAgentRuntime();
+    const repository = new ConversationRepository(new MemoryTranscriptStore());
+    const memoryRecall = {
+      recall: vi.fn(async () => [
+        {
+          kind: "memory-recall" as const,
+          id: "memory:writing-headings:2",
+          content: "Use compact headings.\nProvenance: conversation/message",
+          metadata: {
+            memoryId: "writing-headings",
+            revision: 2,
+            scope: "project" as const,
+          },
+        },
+      ]),
+    };
+    const controller = new AiChatController(runtime, null, [], {
+      repository,
+      createConversation: () => ({ scopeDir: "Projects/Atlas" }),
+      memoryRecall,
+    });
+
+    await controller.submit("Draft the release note");
+    await vi.waitFor(() => expect(controller.busy).toBe(false));
+
+    expect(runtime.sessions[0]?.prompts).toEqual(["Draft the release note"]);
+    expect(runtime.sessions[0]?.contextBlocks[0]).toMatchObject([
+      {
+        kind: "memory-recall",
+        id: "memory:writing-headings:2",
+      },
+    ]);
+    const snapshot = await repository.read(controller.location!);
+    expect(snapshot.transcript).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "message",
+          role: "user",
+          text: "Draft the release note",
+        }),
+      ]),
+    );
+    expect(JSON.stringify(snapshot.transcript)).not.toContain(
+      "Use compact headings",
+    );
+    expect(JSON.stringify(snapshot.transcript)).not.toContain("memory-recall");
+    await controller.close();
+  });
+
   it("sends model and thinking on the agent request and stamps createdAt", async () => {
     const runtime = new FakeAgentRuntime();
     const controller = new AiChatController(runtime);

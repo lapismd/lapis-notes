@@ -89,6 +89,7 @@
     filterComposerSlashItems,
   } from "../commands/groups";
   import type { AppToolHost } from "../tools/app-tool-host";
+  import type { AutomaticMemoryRecall } from "../memory/types";
 
   let {
     app,
@@ -103,6 +104,7 @@
     skillSnapshots,
     slashRouter,
     appToolHost,
+    memoryRecall,
     skillContext,
     sessionStore,
     sessionId,
@@ -133,6 +135,7 @@
     skillSnapshots?: SkillSnapshotStore;
     slashRouter?: SlashCommandRouter;
     appToolHost?: AppToolHost;
+    memoryRecall?: AutomaticMemoryRecall;
     skillContext?: () => SkillDiscoveryContext;
     sessionStore?: AgentSessionStore;
     sessionId?: string;
@@ -190,6 +193,7 @@
         skillSnapshots,
         slashRouter,
         appToolHost,
+        memoryRecall: settings?.memoryAutomaticRecall ? memoryRecall : undefined,
         skillContext,
         readVaultText: app
           ? async (path) => {

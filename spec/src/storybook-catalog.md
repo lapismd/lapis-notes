@@ -163,6 +163,12 @@ Direct api imports (one story family each):
 The `Plugins/AI/Chat` attach play asserts a Command View host inside the
 paperclip popover, visible border and shadow, and stacking above an open
 composer drawer.
+The same Fake chat family includes a `skip-visual` automatic-memory-recall
+scenario. Its play enables recall, submits one turn, and proves a typed recall
+block reached the Fake session exactly once while the visible and durable user
+prompt remains authored text only. Memory maintenance and review surfaces stay
+unit- and command-covered until their visual review UI is promoted to a
+governed catalog family.
 The `Plugins/AI/Shell` Local Conversations play opens the composer overflow
 menu, asserts Archive Chat, Delete Chat, and New Chat, checks those labels
 are not clipped, and matches their font size to the model menu (LN-AI-109,

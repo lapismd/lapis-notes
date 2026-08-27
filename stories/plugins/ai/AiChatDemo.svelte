@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import { AppResultViewRegistry, TFile, type App } from "@lapis-notes/api";
   import { AppSlashCommandRegistry } from "@lapis-notes/api/agent-skills";
   import {
@@ -40,6 +41,7 @@
     seededHeight = "22rem",
     enableSkills = false,
     enableSearchResult = false,
+    enableMemoryRecall = false,
   }: {
     requireApproval?: boolean;
     requireQuestion?: boolean;
@@ -53,8 +55,10 @@
     seededHeight?: string;
     enableSkills?: boolean;
     enableSearchResult?: boolean;
+    enableMemoryRecall?: boolean;
   } = $props();
   let openedTick = $state(0);
+  let recallCalls = $state(0);
   const openedPaths: string[] = [];
 
   function createSearchResultApp(): App {
@@ -175,10 +179,33 @@
         )
       : undefined,
   );
-  let settings = $state<Pick<AiPluginSettings, "defaultModel" | "thinking">>({
+  let settings = $state<
+    Pick<
+      AiPluginSettings,
+      "defaultModel" | "thinking" | "memoryAutomaticRecall"
+    >
+  >({
     defaultModel: "gpt-5.6-sol",
     thinking: "medium",
+    memoryAutomaticRecall: untrack(() => enableMemoryRecall),
   });
+  const memoryRecall = {
+    async recall() {
+      recallCalls += 1;
+      return [
+        {
+          kind: "memory-recall" as const,
+          id: "memory:storybook-headings:1",
+          content: "Use compact headings in Atlas notes.",
+          metadata: {
+            memoryId: "storybook-headings",
+            revision: 1,
+            scope: "project" as const,
+          },
+        },
+      ];
+    },
+  };
 
   async function fileSearch(query: string) {
     return searchVaultFiles(files, query).map((file) => ({
@@ -196,6 +223,7 @@
   style:--ai-chat-demo-seeded-height={seededHeight}
   data-testid="ai-chat-demo"
   data-opened-paths={openedTick >= 0 ? openedPaths.join(",") : ""}
+  data-memory-recall-calls={recallCalls}
 >
   {#if enableSkills}
     <button
@@ -217,6 +245,7 @@
     {models}
     {modelCatalogError}
     {settings}
+    memoryRecall={enableMemoryRecall ? memoryRecall : undefined}
     onSettingsChange={(patch) => {
       settings = { ...settings, ...patch };
     }}

@@ -10,6 +10,7 @@ import type {
   McpServerContribution,
   UserInputAnswers,
 } from "../core/types";
+import type { AutomaticMemoryRecall } from "../memory/types";
 import type {
   AgentSessionStore,
   StoredAgentSession,
@@ -133,11 +134,13 @@ export class AiChatController {
   readonly #appToolHost?: AppToolHost;
   readonly #skillContext?: () => SkillDiscoveryContext;
   readonly #readVaultText?: (path: string) => Promise<string | undefined>;
+  readonly #memoryRecall?: AutomaticMemoryRecall;
   readonly #onComposerDefaults?: (next: {
     agent: AcpAgentId;
     runtimePreference: "acp" | "codex-native" | "fake";
   }) => void;
   #refreshSkills = false;
+  #activeRecallAbort?: AbortController;
   #approvalGrants: ConversationApprovalGrant[] = [];
   #followedScope?: string;
   #desiredFollowScope?: string;
@@ -164,6 +167,7 @@ export class AiChatController {
       appToolHost?: AppToolHost;
       skillContext?: () => SkillDiscoveryContext;
       readVaultText?: (path: string) => Promise<string | undefined>;
+      memoryRecall?: AutomaticMemoryRecall;
       onComposerDefaults?: (next: {
         agent: AcpAgentId;
         runtimePreference: "acp" | "codex-native" | "fake";
@@ -191,6 +195,7 @@ export class AiChatController {
     this.#appToolHost = options.appToolHost;
     this.#skillContext = options.skillContext;
     this.#readVaultText = options.readVaultText;
+    this.#memoryRecall = options.memoryRecall;
     this.#onComposerDefaults = options.onComposerDefaults;
     this.#unsubscribeAppToolEvents = options.appToolBridge?.subscribe(
       (event) => {
@@ -609,7 +614,28 @@ export class AiChatController {
         if (this.error) return;
         throw new Error("Agent session did not start.");
       }
-      await this.session.send(text);
+      const recallAbort = new AbortController();
+      this.#activeRecallAbort?.abort();
+      this.#activeRecallAbort = recallAbort;
+      const contextBlocks = await this.#memoryRecall
+        ?.recall(
+          text,
+          {
+            scopeDir: this.location?.scopeDir ?? this.directoryContext,
+            conversationId: this.location?.conversationId,
+            agentBindingId: this.#activeBindingId,
+            runId: `turn-${turnId}`,
+          },
+          recallAbort.signal,
+        )
+        .catch(() => []);
+      if (this.#activeRecallAbort === recallAbort) {
+        this.#activeRecallAbort = undefined;
+      }
+      if (this.#isAbandoned(turnId)) return;
+      await this.session.send(text, {
+        contextBlocks: contextBlocks ?? [],
+      });
       if (!this.repository) await this.#persist();
     } catch (error) {
       if (this.#isAbandoned(turnId)) return;
@@ -723,6 +749,8 @@ export class AiChatController {
 
   async cancel(): Promise<void> {
     this.#turnId += 1;
+    this.#activeRecallAbort?.abort();
+    this.#activeRecallAbort = undefined;
     const session = this.session;
     if (session) this.#cancelledSessions.add(session);
     this.busy = false;
@@ -776,6 +804,8 @@ export class AiChatController {
 
   async close(): Promise<void> {
     this.#turnId += 1;
+    this.#activeRecallAbort?.abort();
+    this.#activeRecallAbort = undefined;
     const interrupted = this.busy;
     if (interrupted) await this.session?.cancel?.().catch(() => undefined);
     this.busy = false;

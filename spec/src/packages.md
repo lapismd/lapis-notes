@@ -639,6 +639,11 @@ internals. `@lapis-notes/ai` publicly exports `AiChatPanel`,
 `AiCatalogPanel`, so
 Autodocs can name the production components while stories continue to create
 them through real plugin view registrations.
+The same public AI entry exports provider-neutral memory service, scope,
+retrieval, evidence, and typed turn-context contracts. The implementation and
+policy remain AI-owned; API owns only the generic AppDatabase and App-tool
+surfaces, and neither public boundary exposes ACP or consolidator-provider
+payloads.
 `MetadataCache.initialized` and `file-open` after `openFile` stay on the API
 kernel so Markdown file-scoped panels can refresh after late metadata load.
 Those panels share one follow helper and ignore a leaf event that repeats the

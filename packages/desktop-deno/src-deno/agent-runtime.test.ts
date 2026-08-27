@@ -89,6 +89,7 @@ describe("Deno agent runtime", () => {
       host.handle("desktop_agent_acp_start", {
         sessionId: "session-1",
         agent: "cursor",
+        restricted: true,
       }),
     ).toEqual({ sessionId: "session-1" });
     expect(executor.startAcpSessionDeferred).toHaveBeenCalledWith(
@@ -96,6 +97,7 @@ describe("Deno agent runtime", () => {
       expect.objectContaining({
         sessionId: "session-1",
         agent: "cursor",
+        restricted: true,
       }),
     );
   });

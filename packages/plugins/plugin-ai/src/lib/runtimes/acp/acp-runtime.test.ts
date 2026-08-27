@@ -169,4 +169,40 @@ describe("AcpAgentRuntime", () => {
     expect(backend.lastPrompt).not.toContain(".agents/skills");
     await session.close();
   });
+
+  it("serializes typed memory context separately from the user prompt contract", async () => {
+    const backend = new MemoryAcpBackend();
+    const runtime = new AcpAgentRuntime(backend);
+    const session = await runtime.start({ prompt: "" });
+    const consume = (async () => {
+      for await (const event of session.events()) {
+        if (event.type === "permission.request") {
+          await session.respondToApproval(event.request.id, "allow-once");
+        }
+        if (event.type === "completed") break;
+      }
+    })();
+    await session.send("Draft the note", {
+      contextBlocks: [
+        {
+          kind: "memory-recall",
+          id: "memory:headings:2",
+          content: "Use compact headings.",
+          metadata: {
+            memoryId: "headings",
+            revision: 2,
+            scope: "project",
+          },
+        },
+      ],
+    });
+    await consume;
+
+    expect(backend.lastPrompt).toContain(
+      '<lapis-context kind="memory-recall" id="memory:headings:2">',
+    );
+    expect(backend.lastPrompt).toContain("Use compact headings.");
+    expect(backend.lastPrompt).toContain("<lapis-user-prompt>\n\nDraft the note");
+    await session.close();
+  });
 });

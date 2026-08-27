@@ -135,7 +135,7 @@ describe("VaultTranscriptStore", () => {
     )!;
     await vault.modify(
       metadata,
-      `schemaVersion: 2\nid: ${ID}\ncreatedAt: ${CREATED_AT}\nupdatedAt: ${CREATED_AT}\nstatus: active\n`,
+      `schemaVersion: 3\nid: ${ID}\ncreatedAt: ${CREATED_AT}\nupdatedAt: ${CREATED_AT}\nstatus: active\n`,
     );
 
     await expect(repository.read(first)).rejects.toThrow(/unsupported/u);

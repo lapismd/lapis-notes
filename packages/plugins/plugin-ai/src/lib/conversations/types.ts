@@ -7,7 +7,11 @@ import type {
   UserInputQuestion,
 } from "../core/types";
 
-export const CONVERSATION_SCHEMA_VERSION = 1 as const;
+export const CONVERSATION_SCHEMA_VERSION = 2 as const;
+export const LEGACY_CONVERSATION_SCHEMA_VERSION = 1 as const;
+export type ConversationSchemaVersion =
+  | typeof LEGACY_CONVERSATION_SCHEMA_VERSION
+  | typeof CONVERSATION_SCHEMA_VERSION;
 export const CONVERSATION_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 
@@ -24,7 +28,7 @@ export type ConversationApprovalGrant = {
 };
 
 export type ConversationMetadata = {
-  schemaVersion: typeof CONVERSATION_SCHEMA_VERSION;
+  schemaVersion: ConversationSchemaVersion;
   id: string;
   title?: string;
   createdAt: string;
@@ -42,7 +46,7 @@ export type ConversationMetadata = {
 };
 
 export type AgentBindingCreatedRecord = {
-  schemaVersion: typeof CONVERSATION_SCHEMA_VERSION;
+  schemaVersion: ConversationSchemaVersion;
   type: "binding.created";
   id: string;
   createdAt: string;
@@ -57,7 +61,7 @@ export type AgentBindingCreatedRecord = {
 };
 
 export type AgentUsageRecord = {
-  schemaVersion: typeof CONVERSATION_SCHEMA_VERSION;
+  schemaVersion: ConversationSchemaVersion;
   type: "usage.updated";
   id: string;
   createdAt: string;
@@ -75,12 +79,21 @@ export type RuntimeEventProvenance = {
 };
 
 type TranscriptEntryBase = {
-  schemaVersion: typeof CONVERSATION_SCHEMA_VERSION;
+  schemaVersion: ConversationSchemaVersion;
   id: string;
   createdAt: string;
   parentId?: string;
   agentBindingId?: string;
   source?: RuntimeEventProvenance;
+  provenance?: {
+    originClass: "owner" | "agent" | "untrusted" | "system";
+    sourceKind:
+      | "user-message"
+      | "assistant-message"
+      | "runtime-output"
+      | "owner-response"
+      | "app-system";
+  };
 };
 
 export type TranscriptEntry =

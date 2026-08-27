@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { MAX_CONVERSATION_APPROVAL_GRANTS } from "./approval-grants";
 import { CONVERSATION_SCHEMA_VERSION } from "./types";
-import { validateConversationMetadata } from "./validation";
+import {
+  validateConversationMetadata,
+  validateTranscriptEntry,
+} from "./validation";
 
 const BASE = {
   schemaVersion: CONVERSATION_SCHEMA_VERSION,
@@ -12,6 +15,25 @@ const BASE = {
 };
 
 describe("validateConversationMetadata", () => {
+  it("accepts legacy v1 alongside current v2 without rewriting either", () => {
+    expect(validateConversationMetadata({ ...BASE, schemaVersion: 1 })).toMatchObject({
+      schemaVersion: 1,
+    });
+    expect(validateConversationMetadata(BASE)).toMatchObject({
+      schemaVersion: CONVERSATION_SCHEMA_VERSION,
+    });
+    expect(
+      validateTranscriptEntry({
+        schemaVersion: 1,
+        id: "legacy-message",
+        type: "message",
+        role: "user",
+        text: "Legacy evidence",
+        createdAt: "2026-08-19T12:00:00.000Z",
+      }),
+    ).toMatchObject({ schemaVersion: 1, type: "message" });
+  });
+
   it("keeps normalized approval grants and drops generic identities", () => {
     expect(
       validateConversationMetadata({

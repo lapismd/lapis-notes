@@ -126,6 +126,30 @@ execution APIs.
 | LN-AI-188 | Background consolidation MUST apply deterministic provenance and recurrence gates before any optional model proposal. A qualified update MUST preserve preimages and evidence, use stable supersession identity, and leave contradictory, malformed, tool-using, or concurrently edited proposals in review without changing recall. |
 | LN-AI-189 | Automated consolidation MUST run through an App-owned bounded scheduler and renewable database-owner lease rather than a sidecar or operating-system daemon. Provider-backed consolidation MUST require explicit opt-in and a pinned processor independent of the interactive agent. Failures MUST NOT block chat. |
 | LN-AI-190 | Memory rebuild and derived-forget operations MUST preserve transcripts and curated Markdown unless the user invokes their separate deletion paths. Forgetting a conversation's derivatives MUST persist an exclusion so rebuild cannot silently restore them and MUST retract mixed-lineage curated revisions for review. |
+
+The native implementation lives behind AI-owned `MemoryService` and
+`MemoryConsolidationProvider` contracts. `NativeMemoryService` projects exact
+transcript-message chunks into `ai-memory-episodic`, projects current Markdown
+records into `ai-memory-curated`, and treats both Search corpora plus every
+memory database table as rebuildable derived state. Durable records, immutable
+revision preimages, review reports, and exclusions remain under
+`.lapis/agents/memory`; existing conversation JSONL is opened only through the
+conversation repository and is never rewritten by memory maintenance.
+
+`memory_search` and `memory_get` are ordinary App tools, so the App supplies the
+binding and directory context before model-authored arguments are evaluated.
+Normal turns can additionally receive typed `memory-recall` context blocks.
+ACP and native adapters serialize those blocks without adding them to the user
+prompt or authored transcript. Automatic recall is independently disableable;
+provider-backed consolidation is separately opt-in and pins its processor
+runtime, agent, and model instead of following the interactive binding.
+
+The app-owned ingestion coordinator observes durable terminal checkpoints and
+external transcript changes. Its idle scheduler resumes bounded work through
+renewable AppDatabase jobs. Restricted processor sessions receive no workspace,
+skills, MCP servers, or App tools, and any tool, approval, command, question,
+malformed proposal, evidence mismatch, or optimistic-write conflict produces no
+unreviewed durable mutation.
 | LN-AI-168 | AI History chrome expand/collapse-all and New chat controls MUST use Design Core shadcn Tooltip. Tooltip text MUST match each control's accessible name. |
 | LN-AI-169 | AI History folder counts MUST share one trailing edge across tree depths. Nested branches MUST indent only at the start. Counts MUST NOT step inward with guide indent. |
 | LN-AI-170 | The public AI renderer entry MUST remain browser and WebView bundleable. Its optional Node user-agents store MUST load only through a runtime-gated dynamic boundary and MUST NOT add `node:*` modules to a renderer bundle. |

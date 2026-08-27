@@ -37,6 +37,12 @@ the transcript instead of a nested scroller (LN-AI-122). Folder-scoped
 chats project path breadcrumbs through the same View chrome hooks as History.
 A busy chat Stop control cancels the active agent turn, including a send that
 is still preparing a session.
+The same enabled AI plugin owns one memory service per App. It registers
+provider-neutral read tools, consumes durable conversation checkpoints, writes
+curated vault records through its own store, and schedules derived ingestion
+and consolidation work. AppDatabase and native hosts provide generic storage
+and transport only; disabling or switching an ACP binding does not transfer or
+delete this plugin-owned memory lifecycle (LN-AI-179, LN-ARCH-083).
 For a native host that advertises deferred ACP start, the AI runtime adapter
 reserves the session and subscribes before start; other hosts retain the
 awaited start path (LN-AI-172).

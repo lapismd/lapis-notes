@@ -311,6 +311,9 @@ describe("AppDatabase", () => {
         patch: { status: "completed", finishedAt: 250 },
       }),
     ).resolves.toMatchObject({ status: "completed", finishedAt: 250 });
+    await expect(
+      db.claimMemoryJob({ job, ownerId: "tab-b", now: 301, leaseMs: 100 }),
+    ).resolves.toBeNull();
 
     await expect(db.getMemorySourceState("conversation-1")).resolves.toMatchObject({
       lastEntryHash: "entry-hash",

@@ -32,6 +32,7 @@ export type AiViewHost = {
   skillSnapshots?: import("../skills/registry").SkillSnapshotStore;
   slashRouter?: import("../commands/router").SlashCommandRouter;
   appToolHost?: import("../tools/app-tool-host").AppToolHost;
+  memory?: import("../memory/types").AutomaticMemoryRecall;
   skillContext?: () => import("../skills/types").SkillDiscoveryContext;
   conversations: ConversationRepository;
   createConversationInput(explicitFolder?: string): CreateConversationInput;

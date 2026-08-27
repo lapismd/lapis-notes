@@ -197,10 +197,13 @@ Canonical IDs: `LN-AI-179`–`LN-AI-190`, `LN-DB-040`–`LN-DB-044`,
 
 - [x] Canonical ownership, evidence, scope, retrieval, consolidation, and migration requirements
 - [x] Typed disposable AppDatabase memory state and provider parity
-- [ ] Message-granular episodic projection and scoped memory tools
-- [ ] Human-readable curated records, preimages, review, and supersession
-- [ ] Background candidate ingestion, consolidation, and scheduling
-- [ ] Bounded automatic recall and configured-host acceptance
+- [x] Message-granular episodic projection and scoped memory tools
+- [x] Human-readable curated records, preimages, review, and supersession
+- [x] Background candidate ingestion, consolidation, and scheduling
+- [x] Bounded automatic recall, provider-neutral context projection, and
+  restricted processor isolation
+- [ ] Configured-host Codex and Cursor memory-tool/recall smoke plus warmed
+  50,000-message performance acceptance
 
 ### Agent skills and composer slash commands
 

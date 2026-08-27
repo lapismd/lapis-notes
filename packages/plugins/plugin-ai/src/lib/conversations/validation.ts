@@ -4,6 +4,7 @@ import {
 } from "./approval-grants";
 import {
   CONVERSATION_SCHEMA_VERSION,
+  LEGACY_CONVERSATION_SCHEMA_VERSION,
   type AgentBindingRecord,
   type ConversationMetadata,
   type TranscriptEntry,
@@ -29,7 +30,10 @@ function requiredString(
 }
 
 function assertSchemaVersion(value: Record<string, unknown>, label: string) {
-  if (value.schemaVersion !== CONVERSATION_SCHEMA_VERSION) {
+  if (
+    value.schemaVersion !== CONVERSATION_SCHEMA_VERSION &&
+    value.schemaVersion !== LEGACY_CONVERSATION_SCHEMA_VERSION
+  ) {
     throw new Error(`${label} uses an unsupported required schema version`);
   }
 }
@@ -199,6 +203,30 @@ export function validateTranscriptEntry(value: unknown): TranscriptEntry {
     requiredString(source, "runId", "Transcript entry source");
     if (!Number.isSafeInteger(source.sequence) || Number(source.sequence) < 0) {
       throw new Error("Transcript entry source.sequence is invalid");
+    }
+  }
+  if (data.provenance != null) {
+    const provenance = record(
+      data.provenance,
+      "Transcript entry provenance",
+    );
+    if (
+      !["owner", "agent", "untrusted", "system"].includes(
+        String(provenance.originClass),
+      )
+    ) {
+      throw new Error("Transcript entry provenance.originClass is invalid");
+    }
+    if (
+      ![
+        "user-message",
+        "assistant-message",
+        "runtime-output",
+        "owner-response",
+        "app-system",
+      ].includes(String(provenance.sourceKind))
+    ) {
+      throw new Error("Transcript entry provenance.sourceKind is invalid");
     }
   }
   switch (data.type) {

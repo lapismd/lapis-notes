@@ -94,6 +94,42 @@ export const SendAndComplete: Story = {
   },
 };
 
+export const AutomaticMemoryRecall: Story = {
+  tags: ["skip-visual", "test"],
+  render: () => ({
+    Component: AiChatDemo,
+    props: { enableMemoryRecall: true },
+  }),
+  parameters: {
+    ...workspaceCatalogParameters("plugins-ai-chat-memory-recall"),
+    docs: {
+      description: {
+        story:
+          "A trusted app-owned memory block is supplied out-of-band to the fake runtime while the authored prompt and visible transcript remain unchanged.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByRole("combobox", { name: "Message" });
+    await userEvent.type(input, "Draft the Atlas summary");
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(canvas.getByTestId("ai-chat-demo")).toHaveAttribute(
+        "data-memory-recall-calls",
+        "1",
+      );
+      expect(
+        canvas.getByRole("article", { name: "Message from user" }),
+      ).toHaveTextContent("Draft the Atlas summary");
+      expect(
+        canvas.getByRole("article", { name: "Message from assistant" }),
+      ).toHaveTextContent("Draft the Atlas summary");
+    });
+    expect(canvas.queryByText("Use compact headings in Atlas notes.")).toBeNull();
+  },
+};
+
 export const SkillsAndSlash: Story = {
   render: () => ({
     Component: AiChatDemo,

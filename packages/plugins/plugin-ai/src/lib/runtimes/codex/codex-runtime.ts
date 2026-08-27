@@ -6,9 +6,11 @@ import {
   type AgentRequest,
   type AgentRuntime,
   type AgentSession,
+  type AgentTurnOptions,
   type AiThinkingLevel,
   type McpServerContribution,
   type UserInputAnswers,
+  projectAgentTurnPrompt,
 } from "../../core/types";
 import type {
   AgentProcessHandle,
@@ -95,11 +97,17 @@ export class CodexNativeSession implements AgentSession {
     return this.#events;
   }
 
-  async send(input: string): Promise<void> {
+  async send(input: string, options?: AgentTurnOptions): Promise<void> {
     if (!this.#threadId) throw new Error("Codex session has not initialized.");
     const response = (await this.#requestRpc("turn/start", {
       threadId: this.#threadId,
-      input: [{ type: "text", text: input, text_elements: [] }],
+      input: [
+        {
+          type: "text",
+          text: projectAgentTurnPrompt(input, options?.contextBlocks),
+          text_elements: [],
+        },
+      ],
       ...(this.#request.workspace
         ? {
             cwd: this.#request.workspace,
