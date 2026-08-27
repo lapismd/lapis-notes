@@ -478,11 +478,6 @@
                         onChange={(color) => updateGroup(group.id, { color })}
                       />
                     </div>
-                    {#if groupDiagnostics[group.id]}
-                      <p class="graph-controls-group__error" role="alert">
-                        {groupDiagnostics[group.id]}
-                      </p>
-                    {/if}
                   </div>
                 </SortableArrayItem>
               {/each}

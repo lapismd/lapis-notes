@@ -145,7 +145,7 @@ Graph is enabled in that fresh session but contributes no default leaf; persiste
 global and local Graph leaves instead follow the normal missing-view disable and
 re-enable lifecycle.
 Its Design Core controls preserve the legacy disclosure-header presentation in
-a 240px panel. Scoped Graph tokens keep idle geometry neutral, while renderer
+a viewport-clamped 280px panel. Scoped Graph tokens keep idle geometry neutral, while renderer
 zoom allows the complete settled graph to fit the viewport and pointer or
 keyboard emphasis introduces accent paint without changing domain state.
 The Bookmarks panel snapshots persisted items so add and remove refresh the tree,

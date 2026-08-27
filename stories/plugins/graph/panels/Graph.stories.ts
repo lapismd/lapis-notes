@@ -131,7 +131,9 @@ function placementStory(
       const dialog = await panel.findByRole("dialog", {
         name: "Graph settings",
       });
-      expect(getComputedStyle(dialog).width).toBe("240px");
+      const dialogWidth = Number.parseFloat(getComputedStyle(dialog).width);
+      expect(dialogWidth).toBeLessThanOrEqual(280);
+      expect(dialogWidth).toBeGreaterThanOrEqual(272);
       const displayTrigger = within(dialog).getByRole("button", {
         name: "Display",
       });
@@ -220,6 +222,25 @@ function placementStory(
           within(dialog).getByRole("button", { name: "New group" }),
         );
         const groupQuery = within(dialog).getByLabelText("Group 1 query");
+        const groupItem = groupQuery.closest<HTMLElement>(
+          '[data-sortable-group="graph-groups"]',
+        );
+        expect(groupItem).not.toBeNull();
+        const colorButton = within(dialog).getByRole("button", {
+          name: "Group 1 color picker",
+        });
+        const removeButton = within(groupItem!).getByRole("button", {
+          name: "Remove item",
+        });
+        const queryRect = groupQuery.getBoundingClientRect();
+        const colorRect = colorButton.getBoundingClientRect();
+        const removeRect = removeButton.getBoundingClientRect();
+        expect(queryRect.width).toBeGreaterThanOrEqual(170);
+        expect(queryRect.right).toBeLessThanOrEqual(colorRect.left);
+        expect(colorRect.right).toBeLessThanOrEqual(removeRect.left);
+        expect(removeRect.right).toBeLessThanOrEqual(
+          dialog.getBoundingClientRect().right,
+        );
         await userEvent.type(groupQuery, "tag:");
         const ownerBody = within(canvasElement.ownerDocument.body);
         const slashTag = await ownerBody.findByRole("option", {
@@ -230,9 +251,6 @@ function placementStory(
           expect(groupQuery).toHaveTextContent("tag:#project/alpha"),
         );
 
-        const colorButton = within(dialog).getByRole("button", {
-          name: "Group 1 color picker",
-        });
         await userEvent.click(colorButton);
         const colorPreset = await ownerBody.findByRole("button", {
           name: "Use #16a34a",
