@@ -190,6 +190,18 @@ AI Host-owned `lapis-tools` MCP bridge. Canonical IDs: `LN-AI-086`–`LN-AI-095`
 - [x] Full Electron `package:dir` lane: renderer Vite includes the Turso WASM bundle; unpacked app ships an executable `mcp-shim.mjs`
 - [ ] Live paid-agent probes (`pnpm ai:smoke:probe:*`, Live Host, desktop smoke): 2026-08-17 rerun — harness 3/3; Codex ACP catalog (7) then Internal error on `notes_search`; Cursor ACP catalog (35) then `notes_read` omitted; Codex Native catalog (7) then usage limit. Storybook/desktop UI checklists not completed. Automated Live Host ReloadResume play covers restore-before-resume without a live prompt.
 
+### Native app-owned AI memory
+
+Canonical IDs: `LN-AI-179`–`LN-AI-190`, `LN-DB-040`–`LN-DB-044`,
+`LN-ARCH-083`.
+
+- [x] Canonical ownership, evidence, scope, retrieval, consolidation, and migration requirements
+- [ ] Typed disposable AppDatabase memory state and provider parity
+- [ ] Message-granular episodic projection and scoped memory tools
+- [ ] Human-readable curated records, preimages, review, and supersession
+- [ ] Background candidate ingestion, consolidation, and scheduling
+- [ ] Bounded automatic recall and configured-host acceptance
+
 ### Agent skills and composer slash commands
 
 Canonical IDs: `LN-AI-110`–`LN-AI-119`, `LN-AI-126`–`LN-AI-130`,
