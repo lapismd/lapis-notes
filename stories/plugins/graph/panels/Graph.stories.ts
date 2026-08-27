@@ -233,11 +233,14 @@ function placementStory(
           name: "Remove item",
         });
         const queryRect = groupQuery.getBoundingClientRect();
+        const groupItemRect = groupItem!.getBoundingClientRect();
         const colorRect = colorButton.getBoundingClientRect();
         const removeRect = removeButton.getBoundingClientRect();
-        expect(queryRect.width).toBeGreaterThanOrEqual(170);
+        expect(queryRect.width).toBeGreaterThanOrEqual(190);
         expect(queryRect.right).toBeLessThanOrEqual(colorRect.left);
         expect(colorRect.right).toBeLessThanOrEqual(removeRect.left);
+        expect(getComputedStyle(removeButton).position).toBe("absolute");
+        expect(removeRect.left).toBeGreaterThanOrEqual(groupItemRect.right);
         expect(removeRect.right).toBeLessThanOrEqual(
           dialog.getBoundingClientRect().right,
         );

@@ -363,6 +363,19 @@
   opacity: 0.72;
 }
 
+.graph-controls-groups
+  [data-ui-component="sortable-array-item"][data-ui-part="sortable-array-item"] {
+  padding-right: 0;
+}
+
+.graph-controls-groups
+  [data-ui-component="sortable-array-item"][data-ui-part="sortable-array-item"]
+  [data-ui-component="button"].ui-sortable-array-item__remove {
+  right: -1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
 .graph-view .graph-controls-add-group {
   width: 100%;
 }
