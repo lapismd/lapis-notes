@@ -7,6 +7,14 @@ execution APIs.
 The real-App AI shell loads the public Source Editor before Markdown so it uses
 the same source settings and file associations as production hosts.
 
+AI also owns the default read-only `.jsonl` file view. Portable
+`transcript.jsonl` files use the same durable validation and chat-item
+projection as restored conversations, so messages, Markdown, reasoning, tools,
+interactions, commands, and errors remain recognizable without starting an
+agent. `agents.jsonl` uses its binding-event schema, while unrelated JSONL stays
+inspectable as line-numbered structured records. The preview never exposes a
+composer or writes back to the append-only source.
+
 ## Requirements
 
 | ID        | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -135,6 +143,7 @@ the same source settings and file associations as production hosts.
 | LN-AI-194 | A target session with a matching verified cursor MUST receive only the transcript delta after that cursor. A new or replacement session MUST receive a full bounded projection. Cursor records MUST advance only after terminal persistence and MUST prefer deterministic at-least-once replay after a crash. |
 | LN-AI-195 | When a session advertises model or thinking configuration, AI MUST configure and verify the active native session without switching bindings. Unsupported, failed, or unverifiable configuration MUST use a replacement binding and full handoff, while recording no successful configuration audit entry. |
 | LN-AI-196 | Optional handoff summaries MUST be produced outside the interactive switch by a restricted, pinned, no-tool processor. Each append-only summary MUST cover a verified transcript range and source hash; invalid or unavailable summaries MUST fall back to deterministic projection without sending a context-free prompt. |
+| LN-AI-197 | The enabled AI plugin MUST register `.jsonl` as a default file association through a file-only `ai-jsonl` view. The view MUST be read-only, render validated `transcript.jsonl` through the existing chat projection, render validated `agents.jsonl` as an agent-event timeline, retain a structured fallback for other JSONL, and surface malformed records plus interrupted-final-append warnings without adding a composer or mutating the file. |
 
 The native implementation lives behind AI-owned `MemoryService` and
 `MemoryConsolidationProvider` contracts. `NativeMemoryService` projects exact

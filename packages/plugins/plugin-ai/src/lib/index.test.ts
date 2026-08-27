@@ -44,6 +44,7 @@ describe("@lapis-notes/ai public exports", () => {
     expect(source).toContain("CodexModelProvider");
     expect(source).toContain("createPersistedSessionStore");
     expect(source).toContain("searchVaultFiles");
+    expect(source).toContain("AiJsonlView");
     expect(source).not.toContain("AcpAgentRuntime");
     expect(source).not.toContain("CodexNativeRuntime");
     expect(adapters).toContain("AcpAgentRuntime");

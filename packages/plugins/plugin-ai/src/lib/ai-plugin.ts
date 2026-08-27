@@ -16,6 +16,7 @@ import { AiCatalogView, AiCatalogViewType } from "./catalog/ai-catalog-view";
 import { collectAiCatalog } from "./catalog/inventory";
 import type { CatalogGroup, CatalogToolRow } from "./catalog/types";
 import { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
+import { AiJsonlView, AiJsonlViewType } from "./jsonl/ai-jsonl-view";
 import type { ConversationLocation } from "./conversations/types";
 import { formatFileMention, searchVaultFiles } from "./chat/chat-mentions";
 import type { AgentRequest, AgentRuntime } from "./core/types";
@@ -745,6 +746,20 @@ export class AiPlugin extends Plugin {
     this.register(() => this.memoryScheduler.dispose());
     this.memoryIngestionCoordinator.startCatchUp();
     this.memoryScheduler.start();
+    this.registerView(
+      AiJsonlViewType,
+      (leaf) => new AiJsonlView(leaf),
+      { kind: "file" },
+    );
+    this.registerEditorView({
+      id: AiJsonlViewType,
+      viewType: AiJsonlViewType,
+      label: "AI JSONL",
+      description: "Read-only chat and event preview for JSON Lines files.",
+      filenamePatterns: [".jsonl", "*.jsonl"],
+      priority: "default",
+    });
+    this.registerExtensions(["jsonl"], AiJsonlViewType);
     this.registerSidebarView(
       AiViewType,
       (leaf) => new AiView(leaf, this),

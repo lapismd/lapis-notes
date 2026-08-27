@@ -45,6 +45,13 @@ describe("ConversationScopeResolver", () => {
     ).toEqual({ scopeDir: "Notes", source: "active-file" });
     expect(
       resolver.resolve({
+        activeFile: {
+          path: "Notes/.lapis/agents/sessions/id/transcript.jsonl",
+        },
+      }),
+    ).toEqual({ scopeDir: "Notes", source: "active-file" });
+    expect(
+      resolver.resolve({
         explicitFolder: ".agents/skills/lapis-notes",
         activeFile: { path: "Notes/daily.md" },
       }),

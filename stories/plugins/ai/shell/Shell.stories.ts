@@ -1,5 +1,9 @@
 import type { App, WorkspaceLeaf } from "@lapis-notes/api";
-import { AiHistoryViewType, AiViewType } from "@lapis-notes/ai";
+import {
+  AiHistoryViewType,
+  AiJsonlViewType,
+  AiViewType,
+} from "@lapis-notes/ai";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { workspaceCatalogParameters } from "../../../catalog/catalog.mjs";
@@ -301,6 +305,71 @@ export const Desktop: Story = {
       await demoApp(canvasElement).vault.adapter.read(".obsidian/ai.json");
     expect(JSON.parse(raw)).not.toHaveProperty("sessions");
     expect(app.workspace.rightSplit.collapsed).toBe(true);
+  },
+};
+
+export const JsonlPreview: Story = {
+  args: { scenario: "jsonl-preview" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The AI plugin owns the default .jsonl file association and renders a portable transcript as a read-only chat timeline.",
+      },
+    },
+    visualDelta: {
+      images: [
+        "/visual-baselines/stories/plugins/ai/shell/jsonl-preview-chromium.png",
+      ],
+      opacity: 0.5,
+      colorInversion: false,
+      align: "canvas",
+      placement: "right",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(
+      () => {
+        expect(canvas.getByTestId("ai-workspace-status")).toHaveTextContent(
+          "ready",
+        );
+      },
+      { timeout: 12_000 },
+    );
+
+    const app = demoApp(canvasElement);
+    const preview = canvasElement.querySelector<HTMLElement>(
+      '[data-ui-component="ai-jsonl-view"]',
+    );
+    expect(preview).not.toBeNull();
+    expect(preview).toHaveAttribute("data-preview-kind", "transcript");
+    expect(preview).toHaveAttribute(
+      "data-file-path",
+      `Notes/.lapis/agents/sessions/${LOCAL_CONVERSATION_ID}/transcript.jsonl`,
+    );
+    expect(app.workspace.getLeavesOfType(AiJsonlViewType)).toHaveLength(1);
+    expect(app.workspace.editorViews.get(AiJsonlViewType)).toMatchObject({
+      viewType: AiJsonlViewType,
+      priority: "default",
+      filenamePatterns: expect.arrayContaining([".jsonl", "*.jsonl"]),
+    });
+
+    const surface = within(preview!);
+    expect(surface.getByText("Summarize the preview log")).toBeVisible();
+    expect(surface.getByText("notes_search")).toBeVisible();
+    expect(
+      preview!.querySelector('[data-ui-component="ai-chat-reasoning"]'),
+    ).not.toBeNull();
+    expect(
+      surface.getByRole("article", { name: "Message from assistant" }),
+    ).toHaveTextContent("Preview rendering is ready.");
+    expect(
+      preview!.querySelector('[data-ui-component="ai-chat-composer"]'),
+    ).toBeNull();
+    expect(
+      preview!.querySelector('[data-ui-part="composer-dock"]'),
+    ).not.toBeVisible();
   },
 };
 

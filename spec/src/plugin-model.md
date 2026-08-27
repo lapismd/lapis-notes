@@ -143,6 +143,11 @@ dispatch until a listener exists. Show hidden files uses a File Explorer
 setting, toolbar preference, and palette toggle command.
 AI contributes an Open Chat left-ribbon action through `addRibbonIcon`, so it
 appears only while the plugin is enabled and reuses the existing chat command.
+The same plugin registers a file-only `ai-jsonl` view as the default `.jsonl`
+association. It previews portable transcripts with the established chat
+projection, agent bindings as readable events, and unknown JSONL as structured
+line records. This association adds no palette opener and remains read-only so
+the view cannot become append-only conversation authority.
 Web registers the same enabled-by-default AI plugin and ribbon action. Host
 Settings own the agent-server URL and token; the plugin owns the start-server
 unavailable copy when a live runtime is selected without a connected host.

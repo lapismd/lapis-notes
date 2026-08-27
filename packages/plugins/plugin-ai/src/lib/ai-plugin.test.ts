@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { AiViewType } from "./chat/ai-view-type";
 import { AiCatalogViewType } from "./catalog/ai-catalog-view-type";
 import { AiHistoryViewType } from "./history/ai-history-view-type";
+import { AiJsonlViewType } from "./jsonl/ai-jsonl-view-type";
 import { FakeAgentRuntime } from "./runtimes/fake/fake-runtime";
 import { mergeAiSettings } from "./settings/ai-settings";
 
@@ -11,6 +12,7 @@ describe("AiPlugin contracts", () => {
     expect(AiViewType).toBe("ai");
     expect(AiHistoryViewType).toBe("ai-conversation-history");
     expect(AiCatalogViewType).toBe("ai-catalog");
+    expect(AiJsonlViewType).toBe("ai-jsonl");
     expect(mergeAiSettings(null)).toEqual({
       defaultRuntime: "auto",
       acpAgent: "codex",
@@ -32,6 +34,19 @@ describe("AiPlugin contracts", () => {
       enabledCommunityToolPluginIds: [],
     });
     expect(new FakeAgentRuntime().id).toBe("fake");
+  });
+
+  it("registers JSONL as a default read-only AI file view", () => {
+    const source = readFileSync("src/lib/ai-plugin.ts", "utf8");
+
+    expect(source).toContain("new AiJsonlView(leaf)");
+    expect(source).toContain('{ kind: "file" }');
+    expect(source).toContain('label: "AI JSONL"');
+    expect(source).toContain('filenamePatterns: [".jsonl", "*.jsonl"]');
+    expect(source).toContain('priority: "default"');
+    expect(source).toContain(
+      'this.registerExtensions(["jsonl"], AiJsonlViewType)',
+    );
   });
 
   it("normalizes per-tool app-tool enablement and migrates owner-plugin opt-ins", () => {

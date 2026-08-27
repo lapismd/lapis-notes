@@ -4,7 +4,7 @@ import {
   MemoryAppDatabase,
   MemoryVaultAdapter,
 } from "@lapis-notes/api";
-import { AiPlugin, AiViewType } from "@lapis-notes/ai";
+import { AiJsonlViewType, AiPlugin, AiViewType } from "@lapis-notes/ai";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
 import { SourceEditorPlugin } from "@lapis-notes/source-editor";
@@ -30,6 +30,7 @@ export type AiWorkspaceScenario =
   | "follow-scope"
   | "agent-switching"
   | "recovery"
+  | "jsonl-preview"
   | "community-tools"
   | "reload-resume";
 
@@ -106,12 +107,21 @@ function split(
 export function createAiWorkspaceLayout(initialLocation?: {
   scopeDir: string;
   conversationId: string;
-}) {
+}, scenario: AiWorkspaceScenario = "default") {
+  const jsonlPath = `Notes/.lapis/agents/sessions/${LOCAL_CONVERSATION_ID}/transcript.jsonl`;
+  const mainLeaf =
+    scenario === "jsonl-preview"
+      ? leaf(
+          "ai-jsonl-preview",
+          "transcript.jsonl",
+          "messages-square",
+          AiJsonlViewType,
+          { file: jsonlPath },
+        )
+      : leaf("ai-chat", "AI", "sparkles", AiViewType, initialLocation);
   return {
     main: split("main", "horizontal", [
-      tabs("main-tabs", [
-        leaf("ai-chat", "AI", "sparkles", "ai", initialLocation),
-      ]),
+      tabs("main-tabs", [mainLeaf]),
     ]),
     left: split(
       "left",
@@ -135,7 +145,7 @@ export function createAiWorkspaceLayout(initialLocation?: {
     ),
     bottom: { ...tabs("bottom-panel", []), height: "0px" },
     floating: [],
-    active: "ai-chat",
+    active: mainLeaf.id,
   };
 }
 
@@ -157,7 +167,7 @@ export function createAiWorkspaceSeed(
   return {
     ".obsidian/app.json": JSON.stringify(AI_WORKSPACE_CONFIGURATION, null, 2),
     ".obsidian/workspace.json": JSON.stringify(
-      createAiWorkspaceLayout(initialLocation),
+      createAiWorkspaceLayout(initialLocation, scenario),
       null,
       2,
     ),
@@ -458,7 +468,43 @@ function createConversationScenarioSeed(
       ],
       activeBindingId: "binding-codex",
       transcript:
-        scenario === "agent-switching"
+        scenario === "jsonl-preview"
+          ? [
+              message(
+                "preview-user",
+                "user",
+                "Summarize the preview log",
+                "binding-codex",
+              ),
+              {
+                schemaVersion: 1,
+                id: "preview-thinking",
+                type: "thinking.summary",
+                kind: "summary",
+                text: "I inspected the indexed project notes.",
+                createdAt: "2026-08-16T09:01:30.000Z",
+                agentBindingId: "binding-codex",
+              },
+              {
+                schemaVersion: 1,
+                id: "preview-tool",
+                type: "tool",
+                toolId: "preview-notes-search",
+                name: "notes_search",
+                state: "completed",
+                input: JSON.stringify({ query: "project" }),
+                output: JSON.stringify({ results: ["Notes/alpha.md"] }),
+                createdAt: "2026-08-16T09:01:45.000Z",
+                agentBindingId: "binding-codex",
+              },
+              message(
+                "preview-assistant",
+                "assistant",
+                "Preview **rendering** is ready.",
+                "binding-codex",
+              ),
+            ]
+          : scenario === "agent-switching"
           ? [
               message("user-1", "user", "Review the note", "binding-codex"),
               message(

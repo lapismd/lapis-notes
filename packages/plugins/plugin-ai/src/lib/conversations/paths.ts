@@ -97,10 +97,14 @@ export function parentScopeForFile(vaultPath: string): string {
 }
 
 export function conversationScopeForActiveFile(vaultPath: string): string {
-  let scope = parentScopeForFile(vaultPath);
+  const normalized = normalizePortableVaultPath(vaultPath, {
+    label: "Active file",
+  });
+  const initialParent = dirname(normalized);
+  let scope = initialParent === "/" ? "" : initialParent;
   while (scope && hasHiddenApplicationSegment(scope)) {
     const parent = dirname(scope);
     scope = !parent || parent === "/" ? "" : parent;
   }
-  return scope;
+  return normalizeConversationScope(scope);
 }

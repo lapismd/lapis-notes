@@ -388,6 +388,13 @@ export const workspaceCatalog = [
     skipVisual: true,
   },
   {
+    id: "plugins-ai-shell-jsonl-preview",
+    title: "AI Shell: JSONL Preview",
+    spec: "spec/src/plugins/ai/index.md",
+    publicSurface: "@lapis-notes/ai + @lapis-notes/workspace",
+    storyId: "plugins-ai-shell--jsonl-preview",
+  },
+  {
     id: "plugins-ai-live-host",
     title: "AI Live Host: Manual Attach",
     spec: "spec/src/plugins/ai/index.md",

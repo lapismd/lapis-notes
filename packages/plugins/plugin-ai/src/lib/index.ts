@@ -7,6 +7,7 @@ export {
 export { AiView, AiViewType } from "./chat/ai-view";
 export { AiCatalogView, AiCatalogViewType } from "./catalog/ai-catalog-view";
 export { AiHistoryView, AiHistoryViewType } from "./history/ai-history-view";
+export { AiJsonlView, AiJsonlViewType } from "./jsonl/ai-jsonl-view";
 export {
   applyAgentEventToChatItems,
   markApprovalResponse,
