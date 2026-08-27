@@ -24,6 +24,7 @@ import {
   createMacSigningArguments,
   readRequestedTarget,
 } from "./distribution.mjs";
+import { createDenoDesktopDynamicIncludeArgs } from "./dev-command.mjs";
 
 const execFileAsync = promisify(execFile);
 const packageDir = path.resolve(
@@ -73,6 +74,7 @@ async function buildDesktopOutput(plan, output) {
     plan.icon,
     "--no-check",
     "--sloppy-imports",
+    ...createDenoDesktopDynamicIncludeArgs(),
     "--include",
     "native",
     "--include",
@@ -100,7 +102,9 @@ async function prepareNativeLibrary(plan) {
   await mkdir(nativeDir, { recursive: true });
   const response = await fetch(`${terminalArtifacts.baseUrl}/${artifact.file}`);
   if (!response.ok) {
-    throw new Error(`Unable to download terminal native library: HTTP ${response.status}`);
+    throw new Error(
+      `Unable to download terminal native library: HTTP ${response.status}`,
+    );
   }
   const bytes = Buffer.from(await response.arrayBuffer());
   const actual = createHash("sha256").update(bytes).digest("hex");

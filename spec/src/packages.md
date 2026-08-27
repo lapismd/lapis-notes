@@ -212,7 +212,8 @@ The API package delegates reusable diagnostic state and presentation to Design
 Core while exporting only Lapis-owned structural types and lifecycle helpers.
 Desktop Deno owns a worker boundary around its native Turso handle so database
 execution cannot starve the package's window and agent transports
-(LN-DENO-059).
+(LN-DENO-059). Its shared dynamic compile inputs keep the worker entry embedded
+in both development and distribution hosts (LN-DENO-062).
 Its private event transport retains monotonic replay and current ACP terminal
 state; AI consumes that state only to recover live presentation and remains the
 sole durable transcript owner (LN-DENO-060, LN-DENO-061, LN-AI-177).

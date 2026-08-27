@@ -28,8 +28,8 @@
   },
   "nodeModulesDir": "none",
   "tasks": {
-    "dev": "deno desktop --quiet --hmr --no-check --sloppy-imports --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
-    "start": "deno desktop --quiet --no-check --sloppy-imports --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
+    "dev": "deno desktop --quiet --hmr --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
+    "start": "deno desktop --quiet --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
   },
   "compilerOptions": {
     "strict": true,

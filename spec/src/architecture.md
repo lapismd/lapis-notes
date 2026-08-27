@@ -217,7 +217,8 @@ reconciliation recover unseen terminal delivery without resending a prompt
 (LN-DENO-060, LN-DENO-061, LN-AI-177).
 The Deno host keeps native Turso work on a dedicated worker; synchronous driver
 steps therefore cannot occupy the runtime that owns ACP and renderer events
-(LN-DENO-059).
+(LN-DENO-059). Development and distribution compiles explicitly include that
+worker entry so the boundary survives Deno's compiled snapshot (LN-DENO-062).
 Both carry only generic bridge commands and events and never acquire registry,
 policy, or transcript authority.
 The AI controller allocates the binding identity before runtime start, opens

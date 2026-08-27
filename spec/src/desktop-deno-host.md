@@ -73,6 +73,7 @@ distribution is outside the supported matrix.
 | LN-DENO-059 | Native Turso lifecycle and AppDatabase methods MUST execute in a dedicated Deno worker. Synchronous native driver steps MUST NOT run on the desktop runtime thread that owns window bindings, ACP, or renderer events. Session close and host shutdown MUST close worker databases and terminate the worker. |
 | LN-DENO-060 | Every native-to-renderer server-sent event MUST receive a monotonic event id and remain in the bounded replay ring after live delivery. A reconnect that supplies `Last-Event-ID` MUST replay only unseen retained events in source order, including an ACP terminal event. |
 | LN-DENO-061 | Protocol-v4 agent hosts MUST expose the active run state and retained terminal event by session id. The renderer MUST reconcile an active run until it observes that terminal sequence, deduplicate replayed sequences, and surface a transport error after bounded consecutive status failures. |
+| LN-DENO-062 | Every Deno desktop development and distribution compile MUST explicitly include the native database worker entry module so the worker and its statically imported runtime are available from the compiled snapshot. |
 
 ### LN-DENO-055 acceptance details
 

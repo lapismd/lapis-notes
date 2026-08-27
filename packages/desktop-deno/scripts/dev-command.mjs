@@ -7,6 +7,12 @@ export const desktopDevSiblingLinks = [
   { name: "terminal-host", target: "../../../terminal-host" },
 ];
 
+export const desktopDenoDynamicIncludes = ["src-deno/app-database-worker.ts"];
+
+export function createDenoDesktopDynamicIncludeArgs() {
+  return desktopDenoDynamicIncludes.flatMap((module) => ["--include", module]);
+}
+
 export function resolveDenoDesktopInspector(value, telemetryEnabled = false) {
   const requested = value?.trim() === "1";
   if (requested && telemetryEnabled) {
@@ -26,6 +32,7 @@ export function createDenoDesktopDevArgs(backend, options = {}) {
     ...(options.inspect ? ["--inspect=127.0.0.1:9229"] : []),
     "--no-check",
     "--sloppy-imports",
+    ...createDenoDesktopDynamicIncludeArgs(),
     "--include",
     "build/icon-light.png",
     "--include",

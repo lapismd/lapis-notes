@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import {
   createDenoDesktopDevHostBuildArgs,
   createDenoDesktopDevArgs,
+  desktopDenoDynamicIncludes,
   createMacosDesktopDevHostSignArgs,
   createMacosDesktopDevHostVerifyArgs,
   ensureDesktopDevSiblingLinks,
@@ -52,6 +53,8 @@ describe("Deno desktop development command", () => {
     expect(args).toEqual(
       expect.arrayContaining([
         "--include",
+        "src-deno/app-database-worker.ts",
+        "--include",
         "build/icon-light.png",
         "build/icon-dark.png",
         "--exclude",
@@ -62,6 +65,9 @@ describe("Deno desktop development command", () => {
         "src-deno/main.ts",
       ]),
     );
+    expect(desktopDenoDynamicIncludes).toEqual([
+      "src-deno/app-database-worker.ts",
+    ]);
   });
 
   it("keeps native inspection explicit and rejects it during telemetry", () => {
