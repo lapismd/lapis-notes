@@ -125,8 +125,8 @@ importers:
         specifier: link:../mira-mde/packages/mira-plugin-mermaid
         version: link:../mira-mde/packages/mira-plugin-mermaid
       '@lapismd/spec-validator':
-        specifier: link:../spec-validator
-        version: link:../spec-validator
+        specifier: 0.1.0
+        version: 0.1.0(@tobilu/qmd@2.5.3(typescript@5.9.3))
       '@lapismd/storybook-addon-visual-delta':
         specifier: link:../storybook-addon-visual-delta
         version: link:../storybook-addon-visual-delta
@@ -2803,6 +2803,16 @@ packages:
 
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
+
+  '@lapismd/spec-validator@0.1.0':
+    resolution: {integrity: sha512-LixMQdIgdh96K4nEq3G31cRa26zQ830SvhLSp1AFufhP6lc1AS6PTyc/bV6JhlN6NC94PtgmBOBeq0VJGhQCFA==}
+    engines: {deno: 2.9.5, node: '>=22'}
+    hasBin: true
+    peerDependencies:
+      '@tobilu/qmd': 2.5.3
+    peerDependenciesMeta:
+      '@tobilu/qmd':
+        optional: true
 
   '@lezer/common@1.5.2':
     resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
@@ -8866,6 +8876,13 @@ snapshots:
       - supports-color
 
   '@kwsites/promise-deferred@1.1.1': {}
+
+  '@lapismd/spec-validator@0.1.0(@tobilu/qmd@2.5.3(typescript@5.9.3))':
+    dependencies:
+      jiti: 2.7.0
+      typescript: 5.9.3
+    optionalDependencies:
+      '@tobilu/qmd': 2.5.3(typescript@5.9.3)
 
   '@lezer/common@1.5.2': {}
 

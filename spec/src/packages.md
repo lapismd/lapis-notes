@@ -467,8 +467,10 @@ Storybook theme controls and their manager dependencies remain root-only
 development tooling rather than package exports or runtime dependencies.
 Specification validation remains root tooling configured by
 `spec-validator.config.mjs`; reusable validators and their tests belong to
-`@lapismd/spec-validator`, not a runtime package. The QMD CLI and its local
-native dependencies follow that root-only rule.
+`@lapismd/spec-validator`, not a runtime package. The root development
+dependency resolves from npm once the shared validator is published rather than
+through a sibling `link:` override. The QMD CLI and its local native
+dependencies follow that root-only rule.
 The editor demo's CodeMirror Markdown and JSON language packages follow that
 same root-only rule; the source view and editor registry remain language-policy
 neutral package contracts. The shared source-editor shell depends on sibling
