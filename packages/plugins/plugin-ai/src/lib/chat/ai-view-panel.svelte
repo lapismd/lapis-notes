@@ -77,6 +77,7 @@
   subscribeConversationMoves={host.subscribeConversationMoves?.bind(host)}
   {onConversationLocationChange}
   currentConversationScope={() => host.currentConversationScope()}
+  listConversationFolders={() => host.listConversationFolders()}
   {workspaceLeaf}
   fileSearch={host.searchVaultFiles}
   models={bootstrap.models}

@@ -21,6 +21,7 @@
   import ArchiveRestoreIcon from "@lucide/svelte/icons/archive-restore";
   import BrainIcon from "@lucide/svelte/icons/brain";
   import CopyIcon from "@lucide/svelte/icons/copy";
+  import FolderIcon from "@lucide/svelte/icons/folder";
   import PinIcon from "@lucide/svelte/icons/pin";
   import PinOffIcon from "@lucide/svelte/icons/pin-off";
   import SparklesIcon from "@lucide/svelte/icons/sparkles";
@@ -44,6 +45,7 @@
     CreateConversationInput,
   } from "../conversations/conversation-repository";
   import type { ConversationLocation } from "../conversations/types";
+  import { normalizeConversationScope } from "../conversations/paths";
   import {
     formatDirectoryContextLabel,
     groupConversationsByRelativeScope,
@@ -111,6 +113,7 @@
     onRevealHistory,
     onConversationLocationChange,
     currentConversationScope,
+    listConversationFolders,
     workspaceLeaf,
     fileSearch,
     models = [],
@@ -144,6 +147,7 @@
       location: ConversationLocation | null,
     ) => void;
     currentConversationScope?: () => string;
+    listConversationFolders?: () => string[];
     workspaceLeaf?: WorkspaceLeaf;
     fileSearch?: ComposerSearchSource;
     models?: ModelRef[];
@@ -215,6 +219,8 @@
   let visibleInteractionId = $state<string | null>(null);
   let attachOpen = $state(false);
   let attachItems = $state<ComposerTriggerItem[]>([]);
+  let scopePickerOpen = $state(false);
+  let scopeFolders = $state<string[]>([""]);
   const attachSideOffset = $derived.by(() => {
     void attachments.length;
     void drawerCollapsed;
@@ -494,6 +500,40 @@
     attachItems = [];
   }
 
+  function loadConversationFolders(): void {
+    const current =
+      controller.directoryContext || controller.location?.scopeDir || "";
+    const folders = new Set<string>();
+    for (const candidate of [
+      "",
+      current,
+      ...(listConversationFolders?.() ?? []),
+    ]) {
+      try {
+        folders.add(normalizeConversationScope(candidate));
+      } catch {
+        // Ignore stale or invalid host catalogue entries.
+      }
+    }
+    scopeFolders = [...folders].sort((left, right) => {
+      if (!left) return -1;
+      if (!right) return 1;
+      return left.localeCompare(right);
+    });
+  }
+
+  function onScopePickerOpenChange(open: boolean): void {
+    scopePickerOpen = open;
+    if (open) loadConversationFolders();
+  }
+
+  async function changeConversationScope(scopeDir: string): Promise<void> {
+    if (initializing || controller.busy || !repository) return;
+    scopePickerOpen = false;
+    revealConversationScope(app, scopeDir);
+    await controller.followDirectoryScope(scopeDir, { force: true });
+  }
+
   function formatTokenCount(value: number): string {
     return new Intl.NumberFormat().format(value);
   }
@@ -584,13 +624,57 @@
 </script>
 
 {#snippet scopeFooter()}
-  <p
-    class="ai-chat-panel__scope-path"
-    data-testid="ai-chat-scope-path"
-    aria-hidden="true"
-  >
-    {scopePathLabel}
-  </p>
+  <div class="ai-chat-panel__scope-path">
+    <Popover.Root
+      bind:open={scopePickerOpen}
+      onOpenChange={onScopePickerOpenChange}
+    >
+      <Popover.Trigger>
+        {#snippet child({ props }: { props: Record<string, unknown> })}
+          <Button
+            {...props}
+            class="ai-chat-panel__scope-button"
+            size="sm"
+            variant="ghost"
+            data-testid="ai-chat-scope-path"
+            aria-label={`Change chat folder: ${scopePathLabel}`}
+            disabled={initializing || controller.busy || !repository}
+          >
+            <FolderIcon data-icon="inline-start" aria-hidden="true" />
+            <span>{scopePathLabel}</span>
+          </Button>
+        {/snippet}
+      </Popover.Trigger>
+      <Popover.Content
+        data-ai-part="scope-picker-popover"
+        side="top"
+        align="center"
+        sideOffset={8}
+      >
+        <CommandView.Root>
+          <CommandView.Input placeholder="Search chat folders" />
+          <CommandView.List aria-label="Chat folders">
+            <CommandView.Empty>No folders</CommandView.Empty>
+            <CommandView.Group>
+              {#each scopeFolders as folder (folder || "vault-root")}
+                <CommandView.Item
+                  value={`${formatDirectoryContextLabel(folder)} ${folder}`}
+                  onSelect={() => void changeConversationScope(folder)}
+                >
+                  <CommandView.ItemIcon>
+                    <FolderIcon aria-hidden="true" />
+                  </CommandView.ItemIcon>
+                  <CommandView.ItemLabel>
+                    {formatDirectoryContextLabel(folder)}
+                  </CommandView.ItemLabel>
+                </CommandView.Item>
+              {/each}
+            </CommandView.Group>
+          </CommandView.List>
+        </CommandView.Root>
+      </Popover.Content>
+    </Popover.Root>
+  </div>
 {/snippet}
 
 {#snippet toolDetail(call: { data?: unknown; name?: string })}

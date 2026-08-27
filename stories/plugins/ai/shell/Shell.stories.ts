@@ -812,7 +812,7 @@ export const FollowScope: Story = {
     docs: {
       description: {
         story:
-          "An unpinned chat follows the active-file folder. Two descendant conversations appear in a Command View. Opening one reveals that folder in Explorer. Pinning it and changing the active file keeps that transcript.",
+          "An unpinned chat follows the active-file folder. Its footer Command View can switch explicitly to any folder or Vault root, applies the existing conversation-list behavior, and reveals the same scope in Explorer. Pinning an opened conversation still prevents active-file follow.",
       },
       source: {
         code: aiWorkspaceFollowScopeExampleSource,
@@ -829,6 +829,7 @@ export const FollowScope: Story = {
       ),
     );
     const panel = await canvas.findByTestId("ai-chat-panel");
+    const app = demoApp(canvasElement);
     const picker = await canvas.findByTestId("ai-chat-conversation-picker");
     await expect(within(picker).getByText("Near folder chat")).toBeVisible();
     await expect(within(picker).getByText("Atlas folder chat")).toBeVisible();
@@ -836,6 +837,25 @@ export const FollowScope: Story = {
       expect(canvas.getByTestId("ai-chat-scope-path")).toHaveTextContent(
         "Projects",
       );
+    });
+    await userEvent.click(
+      within(panel).getByRole("button", {
+        name: "Change chat folder: Projects",
+      }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await expect(
+      await body.findByPlaceholderText("Search chat folders"),
+    ).toBeVisible();
+    await userEvent.click(body.getByRole("option", { name: "Vault" }));
+    await waitFor(() => {
+      expect(canvas.getByTestId("ai-chat-scope-path")).toHaveTextContent(
+        "Vault",
+      );
+      expect(canvas.getByTestId("ai-chat-conversation-picker")).toBeVisible();
+      const explorer = app.workspace.getLeavesOfType("file-explorer")[0]
+        ?.view as { selectedPath?: string } | undefined;
+      expect(explorer?.selectedPath).toBe("");
     });
     await userEvent.click(within(picker).getByText("Near folder chat"));
     await waitFor(() => {
@@ -849,6 +869,9 @@ export const FollowScope: Story = {
         '[data-path="Projects"][data-active]',
       );
       expect(folder).not.toBeNull();
+      expect(canvas.getByTestId("ai-chat-scope-path")).toHaveTextContent(
+        "Projects",
+      );
     });
     await userEvent.click(
       within(panel).getByRole("button", { name: "Pin conversation" }),
@@ -858,7 +881,6 @@ export const FollowScope: Story = {
         within(panel).getByRole("button", { name: "Unpin conversation" }),
       ).toHaveAttribute("aria-pressed", "true");
     });
-    const app = demoApp(canvasElement);
     const welcome = app.vault.getFileByPath("Notes/Welcome.md");
     if (!welcome) throw new Error("Notes/Welcome.md was not seeded");
     const noteLeaf = app.workspace.getLeaf("tab");

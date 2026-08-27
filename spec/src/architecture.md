@@ -552,9 +552,11 @@ Permission and question option buttons use Design Core's public
 `feedback-option` part (LN-AI-157).
 Registered result views render tool detail and `/skills` `/tools` inventories
 (LN-AI-158, LN-AI-159).
-An unpinned idle chat follows the active-file folder, shows a faded centered
-scope path, stays put when pinned, and reveals the selected conversation
-folder in Explorer (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163).
+An unpinned idle chat follows the active-file folder and shows a faded centered
+scope control. Its folder Command View includes Vault root and reveals an
+explicitly selected scope in Explorer before applying the same zero, one, or
+many conversation transition. Pinning still prevents automatic active-file
+follow (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163, LN-AI-178).
 AI History chrome keeps a visible hover on search actions, a dimmed
 creation-folder path, and New chat in that Explorer or History-tree folder
 (LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).

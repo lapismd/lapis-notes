@@ -58,9 +58,12 @@ An unreadable open conversation is reported and
 released so the next send starts a replacement chat (LN-AI-124).
 Runtime Allow always and Deny always decisions persist on conversation
 metadata (LN-AI-156).
-An unpinned idle chat follows the active-file folder, shows a faded centered
-scope path, stays put when pinned, and reveals the selected conversation
-folder in Explorer (LN-AI-160, LN-AI-161, LN-AI-162, LN-AI-163).
+An unpinned idle chat follows the active-file folder and shows a faded centered
+scope control. The host supplies its visible-folder catalogue; the control adds
+Vault root, reuses the existing conversation transition, and reveals an
+explicitly selected scope through Explorer's public command. Pinning still
+prevents automatic active-file follow (LN-AI-160, LN-AI-161, LN-AI-162,
+LN-AI-163, LN-AI-178).
 File Explorer publishes `selectedPath` and a workspace selection-change
 event so AI History can follow folder context without importing Explorer
 internals (LN-EXP-005, LN-AI-165, LN-AI-166, LN-AI-167, LN-AI-168).
