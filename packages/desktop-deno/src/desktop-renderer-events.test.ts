@@ -71,4 +71,44 @@ describe("desktop renderer event stream", () => {
 
     expect(listener).not.toHaveBeenCalled();
   });
+
+  it("advances its resume cursor only after scheduled application delivery", () => {
+    const sources: DesktopRendererEventSource[] = [];
+    const scheduled: Array<() => void> = [];
+    const createSource = () => {
+      const source: DesktopRendererEventSource = {
+        onmessage: null,
+        close: vi.fn(),
+      };
+      sources.push(source);
+      return source;
+    };
+    const dispose = connectDesktopRendererEvents(
+      vi.fn(),
+      createSource,
+      (task) => scheduled.push(task),
+    );
+    sources[0]?.onmessage?.(
+      new MessageEvent("message", {
+        data: JSON.stringify({ channel: "desktop_test", payload: 4 }),
+        lastEventId: "4",
+      }),
+    );
+    dispose();
+    scheduled.splice(0).forEach((task) => task());
+
+    const listener = vi.fn();
+    connectDesktopRendererEvents(listener, createSource, (task) => task());
+    sources[1]?.onmessage?.(
+      new MessageEvent("message", {
+        data: JSON.stringify({ channel: "desktop_test", payload: 4 }),
+        lastEventId: "4",
+      }),
+    );
+
+    expect(listener).toHaveBeenCalledWith({
+      channel: "desktop_test",
+      payload: 4,
+    });
+  });
 });

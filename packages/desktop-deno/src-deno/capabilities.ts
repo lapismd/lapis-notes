@@ -63,12 +63,13 @@ export function createCapabilityRegistry(
       provider: "deno-ai-host",
       details: {
         protocol: "desktop_agent_*",
-        protocolVersion: 3,
+        protocolVersion: 4,
         acp: "acpx/runtime",
         process: "stdio",
         appTools: "http-mcp",
         deferredStart: true,
         deferredModels: true,
+        runStatus: true,
       },
     },
     "terminal-runtime": {

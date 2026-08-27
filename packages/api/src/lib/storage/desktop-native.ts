@@ -88,6 +88,15 @@ export type NativeAgentRuntimeEvent = {
   };
 };
 
+export type NativeAgentRunSnapshot = {
+  sessionId: string;
+  runId?: string;
+  sequence: number;
+  state: "idle" | "running" | "terminal";
+  events?: NativeAgentRuntimeEvent[];
+  terminalEvent?: NativeAgentRuntimeEvent;
+};
+
 export type NativeAgentToolCall = {
   bridgeId: string;
   bindingId: string;

@@ -5,6 +5,7 @@ import {
   ToolBridgeBroker,
   createAgentRuntimeExecutor,
   type AcpMcpServer,
+  type AgentHostSink,
 } from "@lapismd/ai-host";
 
 import {
@@ -99,9 +100,13 @@ describe("Deno agent runtime", () => {
     );
   });
 
-  it("acknowledges ACP prompts through the deferred native boundary", () => {
+  it("acknowledges ACP prompts and retains their terminal status", () => {
+    let sink: AgentHostSink | undefined;
     const executor = {
-      promptAcpSessionDeferred: vi.fn(() => ({ runId: "run-1" })),
+      promptAcpSessionDeferred: vi.fn((value) => {
+        sink = value;
+        return { runId: "run-1" };
+      }),
       disconnectConnection: vi.fn(),
       close: vi.fn(async () => {}),
     };
@@ -121,6 +126,69 @@ describe("Deno agent runtime", () => {
       "session-1",
       "hello",
     );
+    expect(
+      host.handle("desktop_agent_acp_status", { sessionId: "session-1" }),
+    ).toEqual({
+      sessionId: "session-1",
+      runId: "run-1",
+      sequence: 0,
+      state: "running",
+    });
+
+    sink?.sendRuntimeEvent({
+      sessionId: "session-1",
+      runId: "run-1",
+      sequence: 3,
+      event: {
+        type: "event",
+        event: { type: "done", stopReason: "completed" },
+      },
+    });
+
+    expect(
+      host.handle("desktop_agent_acp_status", { sessionId: "session-1" }),
+    ).toMatchObject({
+      sessionId: "session-1",
+      runId: "run-1",
+      sequence: 3,
+      state: "terminal",
+      terminalEvent: {
+        event: { event: { type: "done" } },
+      },
+    });
+
+    executor.promptAcpSessionDeferred.mockReturnValueOnce({ runId: "run-2" });
+    expect(
+      host.handle("desktop_agent_acp_prompt", {
+        sessionId: "session-1",
+        text: "again",
+      }),
+    ).toEqual({ runId: "run-2" });
+    expect(
+      host.handle("desktop_agent_acp_status", { sessionId: "session-1" }),
+    ).toEqual({
+      sessionId: "session-1",
+      runId: "run-2",
+      sequence: 0,
+      state: "running",
+    });
+    sink?.sendRuntimeEvent({
+      sessionId: "session-1",
+      runId: "run-2",
+      sequence: 1,
+      event: {
+        type: "event",
+        event: { type: "text_delta", text: "second run" },
+      },
+    });
+    expect(
+      host.handle("desktop_agent_acp_status", { sessionId: "session-1" }),
+    ).toEqual({
+      sessionId: "session-1",
+      runId: "run-2",
+      sequence: 1,
+      state: "running",
+    });
   });
 
   it("returns before deferred model discovery starts and emits its result", async () => {

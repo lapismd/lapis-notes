@@ -10,6 +10,14 @@ export type DesktopRendererEventSource = {
   close(): void;
 };
 
+let lastDeliveredRendererEventId = 0;
+
+function rendererEventSourceUrl(): string {
+  return lastDeliveredRendererEventId > 0
+    ? `${DESKTOP_RENDERER_EVENTS_PATH}?lastEventId=${lastDeliveredRendererEventId}`
+    : DESKTOP_RENDERER_EVENTS_PATH;
+}
+
 export function parseDesktopRendererEvent(
   data: string,
 ): DenoRendererNativeEvent | null {
@@ -24,7 +32,7 @@ export function parseDesktopRendererEvent(
 export function connectDesktopRendererEvents(
   listener: (event: DenoRendererNativeEvent) => void,
   createSource: () => DesktopRendererEventSource = () =>
-    new EventSource(DESKTOP_RENDERER_EVENTS_PATH),
+    new EventSource(rendererEventSourceUrl()),
   schedule: (task: () => void) => void = (task) =>
     globalThis.setTimeout(task, 0),
 ): () => void {
@@ -34,7 +42,15 @@ export function connectDesktopRendererEvents(
     const event = parseDesktopRendererEvent(rawEvent.data);
     if (!event) return;
     schedule(() => {
-      if (active) listener(event);
+      if (!active) return;
+      const eventId = Number(rawEvent.lastEventId);
+      if (
+        Number.isSafeInteger(eventId) &&
+        eventId > lastDeliveredRendererEventId
+      ) {
+        lastDeliveredRendererEventId = eventId;
+      }
+      listener(event);
     });
   };
   return () => {

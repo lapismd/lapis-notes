@@ -13,8 +13,13 @@ import {
 } from "@lapismd/ai-host";
 import type { RendererNativeEvent } from "./renderer-events.ts";
 import { rendererOriginFromServeAddress } from "./window-chrome.ts";
+import type {
+  NativeAgentRunSnapshot,
+  NativeAgentRuntimeEvent,
+} from "../../api/src/lib/storage/desktop-native.ts";
 
 type Emit = (event: RendererNativeEvent) => Promise<void>;
+const MAX_RETAINED_RUN_EVENTS = 4_096;
 
 export const DENO_AGENT_COMMANDS = new Set([
   "desktop_agent_process_spawn",
@@ -23,6 +28,7 @@ export const DENO_AGENT_COMMANDS = new Set([
   "desktop_agent_acp_start",
   "desktop_agent_acp_models",
   "desktop_agent_acp_prompt",
+  "desktop_agent_acp_status",
   "desktop_agent_acp_cancel",
   "desktop_agent_acp_close",
   "desktop_agent_acp_respond",
@@ -54,7 +60,10 @@ function createDenoToolBridgeBroker(): ToolBridgeBroker {
   return broker;
 }
 
-export function createDenoAgentSink(emit: Emit): AgentHostSink {
+export function createDenoAgentSink(
+  emit: Emit,
+  observeRuntimeEvent: (event: NativeAgentRuntimeEvent) => void = () => {},
+): AgentHostSink {
   let pending = Promise.resolve();
   const send = (event: RendererNativeEvent) => {
     pending = pending
@@ -66,6 +75,7 @@ export function createDenoAgentSink(emit: Emit): AgentHostSink {
   return {
     connectionId: "deno-renderer:main",
     sendRuntimeEvent(payload) {
+      observeRuntimeEvent(payload);
       send({ channel: "desktop_agent_runtime_event", payload });
     },
     sendProcessMessage(payload) {
@@ -84,13 +94,16 @@ export class DenoAgentRuntimeHost {
   readonly #sink: AgentHostSink;
   readonly #broker: ToolBridgeBroker | undefined;
   readonly #executor: AgentRuntimeExecutor;
+  readonly #runSnapshots = new Map<string, NativeAgentRunSnapshot>();
 
   constructor(
     emit: Emit,
     executor?: AgentRuntimeExecutor,
     broker?: ToolBridgeBroker,
   ) {
-    this.#sink = createDenoAgentSink(emit);
+    this.#sink = createDenoAgentSink(emit, (event) =>
+      this.#recordRuntimeEvent(event),
+    );
     this.#broker =
       broker ?? (executor ? undefined : createDenoToolBridgeBroker());
     this.#executor =
@@ -174,17 +187,43 @@ export class DenoAgentRuntimeHost {
       return { requestId };
     }
     if (command === "desktop_agent_acp_prompt") {
-      return this.#executor.promptAcpSessionDeferred(
+      const sessionId = String(payload.sessionId ?? "");
+      const result = this.#executor.promptAcpSessionDeferred(
         this.#sink,
-        String(payload.sessionId ?? ""),
+        sessionId,
         String(payload.text ?? ""),
+      );
+      this.#runSnapshots.set(sessionId, {
+        sessionId,
+        runId: result.runId,
+        sequence: 0,
+        state: "running",
+        events: [],
+      });
+      return result;
+    }
+    if (command === "desktop_agent_acp_status") {
+      const sessionId = String(payload.sessionId ?? "");
+      const snapshot = this.#runSnapshots.get(sessionId);
+      if (!snapshot) {
+        return {
+          sessionId,
+          sequence: 0,
+          state: "idle",
+        };
+      }
+      const { events, ...status } = snapshot;
+      return structuredClone(
+        snapshot.state === "terminal" ? { ...status, events } : status,
       );
     }
     if (command === "desktop_agent_acp_cancel") {
       return this.#executor.cancelAcpSession(String(payload.sessionId ?? ""));
     }
     if (command === "desktop_agent_acp_close") {
-      return this.#executor.closeAcpSession(String(payload.sessionId ?? ""));
+      const sessionId = String(payload.sessionId ?? "");
+      this.#runSnapshots.delete(sessionId);
+      return this.#executor.closeAcpSession(sessionId);
     }
     if (command === "desktop_agent_acp_respond") {
       this.#executor.respondAcpSession(
@@ -211,7 +250,38 @@ export class DenoAgentRuntimeHost {
   }
 
   async shutdown(): Promise<void> {
+    this.#runSnapshots.clear();
     this.#executor.disconnectConnection(this.#sink.connectionId ?? "");
     await this.#executor.close();
+  }
+
+  #recordRuntimeEvent(event: NativeAgentRuntimeEvent): void {
+    const current = this.#runSnapshots.get(event.sessionId);
+    if (current && event.sequence <= current.sequence) return;
+    if (
+      current?.state === "running" &&
+      current.runId &&
+      current.runId !== event.runId
+    ) {
+      return;
+    }
+    const eventType = event.event.event?.type;
+    const terminal =
+      event.event.type === "closed" ||
+      eventType === "done" ||
+      eventType === "completed" ||
+      eventType === "error";
+    const events = [
+      ...(current?.runId === event.runId ? (current.events ?? []) : []),
+      event,
+    ].slice(-MAX_RETAINED_RUN_EVENTS);
+    this.#runSnapshots.set(event.sessionId, {
+      sessionId: event.sessionId,
+      runId: event.runId,
+      sequence: event.sequence,
+      state: terminal ? "terminal" : "running",
+      events,
+      ...(terminal ? { terminalEvent: structuredClone(event) } : {}),
+    });
   }
 }

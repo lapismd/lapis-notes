@@ -111,7 +111,21 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
       __source: { sessionId: "session-1", runId: "run-1", sequence: 2 },
     });
     await expect.poll(() => invoke.mock.calls.length).toBeGreaterThan(1);
+    const continued = iterator.next();
     await session.prompt("continue");
+    emit({
+      sessionId: "session-1",
+      runId: "run-1",
+      sequence: 1,
+      event: {
+        type: "event",
+        event: { type: "text_delta", text: "again" },
+      },
+    });
+    await expect(continued).resolves.toMatchObject({
+      done: false,
+      value: { type: "text_delta", text: "again" },
+    });
     await session.close();
   });
 
@@ -155,10 +169,9 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
         tools: [{ name: "external", command: "external-mcp" }],
       }),
     );
-    const startPayload = (invoke.mock.calls[0] as unknown as [
-      string,
-      Record<string, unknown>,
-    ])[1];
+    const startPayload = (
+      invoke.mock.calls[0] as unknown as [string, Record<string, unknown>]
+    )[1];
     expect(startPayload).not.toHaveProperty("appToolBridgeId");
     await session.close();
   });
@@ -237,5 +250,148 @@ describe("DesktopAcpRuntimeBackend protocol v2", () => {
       "desktop_agent_acp_cancel",
       "desktop_agent_acp_close",
     ]);
+  });
+
+  it("recovers an omitted terminal stream event from protocol-v4 run status", async () => {
+    vi.useFakeTimers();
+    try {
+      let emit!: (event: NativeAgentRuntimeEvent) => void;
+      const retained: NativeAgentRuntimeEvent[] = [
+        {
+          sessionId: "session-v4",
+          runId: "run-v4",
+          sequence: 1,
+          event: {
+            type: "event",
+            event: { type: "text_delta", text: "complete output" },
+          },
+        },
+        {
+          sessionId: "session-v4",
+          runId: "run-v4",
+          sequence: 2,
+          event: {
+            type: "event",
+            event: { type: "done", stopReason: "completed" },
+          },
+        },
+      ];
+      const invoke = vi.fn(async (command: string) => {
+        if (command === "desktop_agent_acp_start") {
+          return { sessionId: "session-v4" };
+        }
+        if (command === "desktop_agent_acp_prompt") {
+          return { runId: "run-v4" };
+        }
+        if (command === "desktop_agent_acp_status") {
+          return {
+            sessionId: "session-v4",
+            runId: "run-v4",
+            sequence: 2,
+            state: "terminal",
+            events: retained,
+            terminalEvent: retained[1],
+          };
+        }
+        return null;
+      });
+      native.bridge = {
+        runtime: "deno-desktop",
+        capabilities: {
+          "agent-runtime": {
+            id: "agent-runtime",
+            status: "available",
+            details: { protocolVersion: 4 },
+          },
+        },
+        invoke,
+        toFileUrl: (path) => path,
+        onAgentRuntimeEvent(listener) {
+          emit = listener;
+          return () => {};
+        },
+      } as NativeDesktopBridge;
+      const session = await new DesktopAcpRuntimeBackend().start({
+        request: { prompt: "", agent: "codex" },
+        onPermissionRequest: async () => ({ outcome: "reject_once" }),
+      });
+      const iterator = session.events()[Symbol.asyncIterator]();
+
+      await session.prompt("hello");
+      emit(retained[1]!);
+      await vi.advanceTimersByTimeAsync(1_000);
+
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "text_delta", text: "complete output" },
+      });
+      await expect(iterator.next()).resolves.toMatchObject({
+        done: false,
+        value: { type: "done", stopReason: "completed" },
+      });
+      emit(retained[1]!);
+      await session.close();
+      await expect(iterator.next()).resolves.toEqual({
+        done: true,
+        value: undefined,
+      });
+      expect(
+        invoke.mock.calls.filter(
+          ([command]) => command === "desktop_agent_acp_status",
+        ),
+      ).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("turns bounded protocol-v4 status failures into a terminal error", async () => {
+    vi.useFakeTimers();
+    try {
+      const invoke = vi.fn(async (command: string) => {
+        if (command === "desktop_agent_acp_start") {
+          return { sessionId: "session-failed-status" };
+        }
+        if (command === "desktop_agent_acp_prompt") {
+          return { runId: "run-failed-status" };
+        }
+        if (command === "desktop_agent_acp_status") {
+          throw new Error("binding unavailable");
+        }
+        return null;
+      });
+      native.bridge = {
+        runtime: "deno-desktop",
+        capabilities: {
+          "agent-runtime": {
+            id: "agent-runtime",
+            status: "available",
+            details: { protocolVersion: 4 },
+          },
+        },
+        invoke,
+        toFileUrl: (path) => path,
+        onAgentRuntimeEvent: () => () => {},
+      } as NativeDesktopBridge;
+      const session = await new DesktopAcpRuntimeBackend().start({
+        request: { prompt: "", agent: "codex" },
+        onPermissionRequest: async () => ({ outcome: "reject_once" }),
+      });
+      const next = session.events()[Symbol.asyncIterator]().next();
+
+      await session.prompt("hello");
+      await vi.advanceTimersByTimeAsync(3_000);
+
+      await expect(next).resolves.toMatchObject({
+        done: false,
+        value: {
+          type: "error",
+          message: "The desktop agent status channel became unavailable.",
+        },
+      });
+      await session.close();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

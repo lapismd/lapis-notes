@@ -35,6 +35,7 @@ describe("Deno renderer native events", () => {
     const second = new TextDecoder().decode((await reader?.read())?.value);
     await reader?.cancel();
     expect(first).toContain('"sequence":1');
+    expect(first).toContain("id: 1");
     expect(first).toContain("globalThis.pwned");
     expect(second).toContain('"sequence":2');
   });
@@ -49,6 +50,50 @@ describe("Deno renderer native events", () => {
     await events.emit({ channel: "desktop_test", payload: { sequence: 1 } });
 
     await expect(next).resolves.toContain('"sequence":1');
+  });
+
+  it("replays only unseen retained events after a live subscriber reconnects", async () => {
+    const events = createRendererEventStream();
+    const firstResponse = events.respond(
+      new Request(`http://127.0.0.1${DESKTOP_RENDERER_EVENTS_PATH}`),
+    );
+    const firstReader = firstResponse?.body?.getReader();
+    await events.emit({ channel: "desktop_test", payload: { sequence: 1 } });
+    const first = new TextDecoder().decode((await firstReader?.read())?.value);
+    expect(first).toContain("id: 1");
+    await firstReader?.cancel();
+
+    await events.emit({ channel: "desktop_test", payload: { sequence: 2 } });
+    const resumed = events.respond(
+      new Request(`http://127.0.0.1${DESKTOP_RENDERER_EVENTS_PATH}`, {
+        headers: { "last-event-id": "1" },
+      }),
+    );
+    const next = new TextDecoder().decode(
+      (await resumed?.body?.getReader().read())?.value,
+    );
+
+    expect(next).toContain("id: 2");
+    expect(next).toContain('"sequence":2');
+    expect(next).not.toContain('"sequence":1');
+  });
+
+  it("accepts an explicit resume cursor for a newly constructed EventSource", async () => {
+    const events = createRendererEventStream();
+    await events.emit({ channel: "desktop_test", payload: { sequence: 1 } });
+    await events.emit({ channel: "desktop_test", payload: { sequence: 2 } });
+
+    const response = events.respond(
+      new Request(
+        `http://127.0.0.1${DESKTOP_RENDERER_EVENTS_PATH}?lastEventId=1`,
+      ),
+    );
+    const next = new TextDecoder().decode(
+      (await response?.body?.getReader().read())?.value,
+    );
+
+    expect(next).toContain("id: 2");
+    expect(next).not.toContain('"sequence":1');
   });
 
   it("rejects writes and closes active renderer streams", async () => {

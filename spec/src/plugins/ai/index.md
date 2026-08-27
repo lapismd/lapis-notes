@@ -112,6 +112,7 @@ execution APIs.
 | LN-AI-174 | An active agent turn MUST update its visible trace in memory without writing binding, user, assistant, tool, or usage records during streamed events. On completion or error, the controller MUST clear busy before a later-task durable checkpoint writes the pending binding, switch, full turn trace, and usage in source order. Reusable sessions MUST reset their per-turn checkpoint state, and an automatic persistent approval response MUST also run in a later task. |
 | LN-AI-175 | The default Codex and Cursor model providers MUST both discover models through their selected ACP agent. A desktop host advertising deferred model discovery MUST therefore route the Codex catalog through the request-id/runtime-event contract from LN-AI-173 rather than spawning a renderer-owned Codex app-server process. The optional native Codex provider MUST remain an explicit adapter and MUST NOT replace the default Codex ACP catalog. |
 | LN-AI-176 | AI conversation Search projection MUST coalesce vault source changes per conversation and update only the affected Search document. Ordinary transcript writes MUST NOT rebuild the global Search index. Repeated unchanged projections MUST NOT rewrite their full-text rows. |
+| LN-AI-177 | A protocol-v4 desktop ACP session MUST reconcile its active run with the native host until completion or failure is observed. Replayed or reconciled native sequences MUST apply at most once. Missing terminal stream delivery MUST therefore clear the composer working state from the retained host terminal event without resending the prompt. |
 | LN-AI-168 | AI History chrome expand/collapse-all and New chat controls MUST use Design Core shadcn Tooltip. Tooltip text MUST match each control's accessible name. |
 | LN-AI-169 | AI History folder counts MUST share one trailing edge across tree depths. Nested branches MUST indent only at the start. Counts MUST NOT step inward with guide indent. |
 | LN-AI-170 | The public AI renderer entry MUST remain browser and WebView bundleable. Its optional Node user-agents store MUST load only through a runtime-gated dynamic boundary and MUST NOT add `node:*` modules to a renderer bundle. |
@@ -293,6 +294,9 @@ Node and WebSocket hosts use `appTools: stdio-mcp`; Deno desktop uses
 runtime receives only a bridge ID; AI Host merges the reserved server for ACP
 or injects its command into Codex Native while credentials remain confined to
 the host transport. Protocol-v2 hosts continue without application tools.
+Protocol-v4 desktop sessions reconcile their active run with the host's retained
+terminal sequence. This recovers a missed stream completion at most once and
+never retries the user prompt (LN-AI-177, LN-DENO-061).
 The chat controller preallocates each binding UUID, prepares its fixed tool
 snapshot before runtime start, and persists that same UUID only after startup.
 Application calls use synthetic run provenance in the existing tool and

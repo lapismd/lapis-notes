@@ -57,7 +57,12 @@ describe("Deno native desktop actions", () => {
     ).toBe("unavailable");
     expect(
       createCapabilityRegistry("darwin")["agent-runtime"].details,
-    ).toMatchObject({ deferredStart: true, deferredModels: true });
+    ).toMatchObject({
+      protocolVersion: 4,
+      deferredStart: true,
+      deferredModels: true,
+      runStatus: true,
+    });
   });
 
   it("opens the containing folder for Linux reveal", async () => {

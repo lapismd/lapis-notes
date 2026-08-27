@@ -212,7 +212,9 @@ boundary: the renderer subscribes with a request id, the binding returns, and
 the catalog arrives as a later runtime event (LN-AI-173, LN-DENO-056).
 Native-to-renderer events are likewise scheduled for a later browser task so
 their handlers cannot re-enter a native binding before window evaluation
-returns (LN-DENO-057).
+returns (LN-DENO-057). Monotonic event replay and protocol-v4 run-state
+reconciliation recover unseen terminal delivery without resending a prompt
+(LN-DENO-060, LN-DENO-061, LN-AI-177).
 The Deno host keeps native Turso work on a dedicated worker; synchronous driver
 steps therefore cannot occupy the runtime that owns ACP and renderer events
 (LN-DENO-059).
