@@ -147,7 +147,7 @@ re-enable lifecycle.
 Its Design Core controls preserve the legacy disclosure-header presentation in
 a viewport-clamped 300px panel. Compact Group handles use a balanced gutter
 without mouse-hover outlines, while visible remove actions occupy the panel's
-right padding and gain a muted hover fill. A public sortable-row token applies
+right padding with an internal trailing gutter and gain a muted hover fill. A public sortable-row token applies
 rounded focus paint across every Group control. Scoped Graph tokens keep idle geometry neutral, while renderer zoom
 allows the complete settled graph to fit the viewport and pointer or keyboard
 emphasis introduces accent paint without changing domain state.

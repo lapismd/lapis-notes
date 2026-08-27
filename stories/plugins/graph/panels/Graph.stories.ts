@@ -252,8 +252,6 @@ function placementStory(
           '[data-sortable-group="graph-groups"]',
         );
         expect(groupItem).not.toBeNull();
-        const groupList = groupItem!.parentElement;
-        expect(groupList).not.toBeNull();
         const colorButton = within(dialog).getByRole("button", {
           name: "Group 1 color picker",
         });
@@ -265,11 +263,10 @@ function placementStory(
         });
         const queryRect = groupQuery.getBoundingClientRect();
         const groupItemRect = groupItem!.getBoundingClientRect();
-        const groupListRect = groupList!.getBoundingClientRect();
         const dragRect = dragHandle.getBoundingClientRect();
         const colorRect = colorButton.getBoundingClientRect();
         const removeRect = removeButton.getBoundingClientRect();
-        expect(queryRect.width).toBeGreaterThanOrEqual(190);
+        expect(queryRect.width).toBeGreaterThanOrEqual(180);
         expect(getComputedStyle(groupItem!).paddingLeft).toBe("24px");
         expect(
           Math.abs(dragRect.left - groupItemRect.left - 4),
@@ -278,8 +275,10 @@ function placementStory(
         expect(queryRect.right).toBeLessThanOrEqual(colorRect.left);
         expect(colorRect.right).toBeLessThanOrEqual(removeRect.left);
         expect(getComputedStyle(removeButton).position).toBe("absolute");
-        expect(removeRect.left).toBeGreaterThanOrEqual(groupListRect.right);
         expect(removeRect.right).toBeLessThanOrEqual(groupItemRect.right);
+        expect(
+          Math.abs(groupItemRect.right - removeRect.right - 8),
+        ).toBeLessThanOrEqual(0.5);
         expect(removeRect.right).toBeLessThanOrEqual(
           dialog.getBoundingClientRect().right,
         );
