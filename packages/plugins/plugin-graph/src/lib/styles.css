@@ -381,7 +381,8 @@
 .graph-controls-groups
   [data-ui-component="sortable-array-item"][data-ui-part="sortable-array-item"][data-inset="normal"] {
   box-sizing: border-box;
-  width: calc(100% + 1rem);
+  width: calc(100% + 0.75rem);
+  border-bottom: 0;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   border-radius: calc(var(--radius) * 0.75);

@@ -263,11 +263,15 @@ function placementStory(
         });
         const queryRect = groupQuery.getBoundingClientRect();
         const groupItemRect = groupItem!.getBoundingClientRect();
+        const dialogRect = dialog.getBoundingClientRect();
         const dragRect = dragHandle.getBoundingClientRect();
         const colorRect = colorButton.getBoundingClientRect();
         const removeRect = removeButton.getBoundingClientRect();
         expect(queryRect.width).toBeGreaterThanOrEqual(180);
-        expect(getComputedStyle(groupItem!).paddingLeft).toBe("24px");
+        const idleItemStyle = getComputedStyle(groupItem!);
+        expect(idleItemStyle.paddingLeft).toBe("24px");
+        expect(idleItemStyle.borderBottomWidth).toBe("0px");
+        expect(idleItemStyle.boxShadow).toBe("none");
         expect(
           Math.abs(dragRect.left - groupItemRect.left - 4),
         ).toBeLessThanOrEqual(0.5);
@@ -303,6 +307,9 @@ function placementStory(
         expect(
           Number.parseFloat(focusedItemStyle.borderRadius),
         ).toBeGreaterThan(0);
+        expect(
+          dialogRect.right - groupItem!.getBoundingClientRect().right,
+        ).toBeGreaterThanOrEqual(4);
         expect(dragRect.left).toBeGreaterThanOrEqual(groupItemRect.left);
         expect(removeRect.right).toBeLessThanOrEqual(groupItemRect.right);
         const removeStyle = getComputedStyle(removeButton);
@@ -364,6 +371,17 @@ function placementStory(
             Math.abs(triggerRect.top - paletteRect.bottom),
           ),
         ).toBeLessThanOrEqual(8);
+        const anyColor = ownerBody.getByLabelText("Group 1 any color");
+        expect(anyColor).toHaveValue("#3b82f6");
+        (anyColor as HTMLInputElement).value = "#0ea5e9";
+        await fireEvent.input(anyColor);
+        await waitFor(() =>
+          expect(
+            getComputedStyle(colorButton)
+              .getPropertyValue("--ui-color-picker-current")
+              .trim(),
+          ).toBe("#0ea5e9"),
+        );
         await userEvent.click(colorPreset);
 
         await userEvent.click(
