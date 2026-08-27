@@ -30,8 +30,9 @@ The desktop development script is a pnpm entrypoint that starts the Deno desktop
 host, so its Deno arguments must stay consistent with the package-local
 `deno.json` imports rather than imposing a root-level package-manager policy.
 The Deno package also owns the initial HTML boot surface displayed before the
-renderer mounts; it may use package-local brand assets but must not move
-workspace startup policy out of the application packages.
+renderer mounts. It uses the package-local Lapis logo without visible loading
+copy, retains an accessible status name, and must not move workspace startup
+policy out of the application packages.
 It also owns the native console threshold. `LAPIS_DENO_LOG_LEVEL=debug` enables
 command-name-only bridge traces; the default `info` level suppresses that
 routine traffic while retaining lifecycle, warning, and failure diagnostics.

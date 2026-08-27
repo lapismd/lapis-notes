@@ -34,23 +34,12 @@
         text-align: center;
       }
 
-      .lapis-boot-status__content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.875rem;
-        transform: translateY(-2vh);
-      }
-
       .lapis-boot-status__logo {
         width: 5rem;
         height: 5rem;
         object-fit: contain;
         filter: drop-shadow(0 1rem 2rem rgb(0 94 172 / 0.14));
-      }
-
-      .lapis-boot-status__text {
-        margin: 0;
+        transform: translateY(-2vh);
       }
 
       @media (prefers-color-scheme: dark) {
@@ -76,7 +65,10 @@
         const errors = globalThis.__LAPIS_RENDERER_ERRORS__;
         errors.push(message);
         const status = document.getElementById("lapis-boot-status");
-        if (status) status.textContent = message;
+        if (status) {
+          status.removeAttribute("aria-label");
+          status.textContent = message;
+        }
       }
       window.addEventListener("error", (event) => {
         reportRendererError(String(event.message ?? event.error ?? "Unknown error"));
@@ -90,15 +82,17 @@
     </script>
   </head>
   <body>
-    <div id="lapis-boot-status" role="status" aria-live="polite">
-      <div class="lapis-boot-status__content">
-        <img
-          class="lapis-boot-status__logo"
-          src="/src/assets/lapis-logo.svg"
-          alt="Lapis Notes"
-        />
-        <p class="lapis-boot-status__text">Loading Lapis Notes</p>
-      </div>
+    <div
+      id="lapis-boot-status"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading Lapis Notes"
+    >
+      <img
+        class="lapis-boot-status__logo"
+        src="/src/assets/lapis-logo.svg"
+        alt=""
+      />
     </div>
     <div id="app"></div>
     <script>
