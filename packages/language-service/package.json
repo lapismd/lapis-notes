@@ -1,44 +1,68 @@
 {
   "name": "@lapis-notes/language-service",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Provider-neutral Markdown language services for Lapis applications",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lapismd/lapis-notes.git",
+    "directory": "packages/language-service"
+  },
+  "homepage": "https://github.com/lapismd/lapis-notes/tree/main/packages/language-service#readme",
+  "bugs": {
+    "url": "https://github.com/lapismd/lapis-notes/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "pnpm check:types",
     "check:types": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepack": "pnpm build && publint"
   },
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md",
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./src/index.ts",
-      "default": "./src/index.ts"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./markdown": {
       "types": "./dist/markdown.d.ts",
-      "import": "./src/markdown.ts",
-      "default": "./src/markdown.ts"
+      "import": "./dist/markdown.js",
+      "default": "./dist/markdown.js"
     },
     "./markdownlint/runtime": {
       "types": "./dist/markdownlint/runtime.d.ts",
-      "import": "./src/markdownlint/runtime.ts",
-      "default": "./src/markdownlint/runtime.ts"
+      "import": "./dist/markdownlint/runtime.js",
+      "default": "./dist/markdownlint/runtime.js"
     }
   },
   "typesVersions": {
     "*": {
-      "markdownlint/runtime": ["dist/markdownlint/runtime.d.ts"]
+      "markdownlint/runtime": [
+        "dist/markdownlint/runtime.d.ts"
+      ]
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/api": "^0.1.0",
     "character-entities": "^2.0.2",
     "markdownlint": "^0.40.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
+    "publint": "^0.3.12",
     "typescript": "~5.9.3",
     "vite": "^6.4.2",
     "vitest": "^4.1.8"

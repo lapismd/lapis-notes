@@ -1,9 +1,20 @@
 {
   "name": "@lapis-notes/file-explorer",
-  "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Reusable Lapis Notes file explorer plugin",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lapismd/lapis-notes.git",
+    "directory": "packages/file-explorer"
+  },
+  "homepage": "https://github.com/lapismd/lapis-notes/tree/main/packages/file-explorer#readme",
+  "bugs": {
+    "url": "https://github.com/lapismd/lapis-notes/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "scripts": {
     "build": "pnpm run prepack",
@@ -14,11 +25,16 @@
     "prepack": "svelte-package --tsconfig ./tsconfig.pack.json && publint"
   },
   "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md",
     "dist",
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -30,7 +46,7 @@
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/api": "^0.1.0",
     "@lapismd/design-core": "^0.1.0"
   },
   "peerDependencies": {

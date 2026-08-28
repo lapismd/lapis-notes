@@ -566,7 +566,7 @@ importers:
   packages/file-explorer:
     dependencies:
       '@lapis-notes/api':
-        specifier: workspace:*
+        specifier: ^0.1.0
         version: link:../api
       '@lapismd/design-core':
         specifier: ^0.1.0
@@ -603,7 +603,7 @@ importers:
   packages/language-service:
     dependencies:
       '@lapis-notes/api':
-        specifier: workspace:*
+        specifier: ^0.1.0
         version: link:../api
       character-entities:
         specifier: ^2.0.2
@@ -615,6 +615,9 @@ importers:
       '@types/node':
         specifier: ^22.10.5
         version: 22.20.1
+      publint:
+        specifier: ^0.3.12
+        version: 0.3.23
       typescript:
         specifier: ~5.9.3
         version: 5.9.3

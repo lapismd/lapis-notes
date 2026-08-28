@@ -48,6 +48,24 @@ export const PUBLIC_PACKAGE_GRAPH = Object.freeze([
     resolveSpecifiers: [],
   }),
   Object.freeze({
+    name: "@lapis-notes/language-service",
+    directory: "language-service",
+    internalDependencies: ["@lapis-notes/api"],
+    importSpecifiers: [
+      "@lapis-notes/language-service",
+      "@lapis-notes/language-service/markdown",
+      "@lapis-notes/language-service/markdownlint/runtime",
+    ],
+    resolveSpecifiers: [],
+  }),
+  Object.freeze({
+    name: "@lapis-notes/file-explorer",
+    directory: "file-explorer",
+    internalDependencies: ["@lapis-notes/api"],
+    importSpecifiers: ["@lapis-notes/file-explorer"],
+    resolveSpecifiers: [],
+  }),
+  Object.freeze({
     name: "@lapis-notes/workspace",
     directory: "workspace",
     internalDependencies: ["@lapis-notes/api"],

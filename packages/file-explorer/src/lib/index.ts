@@ -40,7 +40,7 @@ const EXPLORER_MANIFEST: PluginManifest = {
   id: "lapis-file-explorer",
   name: "Explorer",
   author: "Lapis Notes",
-  version: "0.0.1",
+  version: "0.1.0",
   minAppVersion: "0.0.1",
   description: "Lapis file explorer backed by the API vault.",
 };

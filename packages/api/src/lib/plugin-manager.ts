@@ -122,13 +122,21 @@ export interface PluginLoader {
   pluginsPath: string;
 }
 
-export interface CorePluginRegistration {
+export interface StaticPluginRegistration {
   plugin: PluginConstructor;
   required?: boolean;
   enabledByDefault?: boolean;
   distribution?: CorePluginDistribution;
   styles?: CorePluginStyles;
 }
+
+/** @deprecated Use {@link StaticPluginRegistration}. */
+export type CorePluginRegistration = StaticPluginRegistration;
+
+export type PluginProfile = readonly (
+  | PluginConstructor
+  | StaticPluginRegistration
+)[];
 
 export type CorePluginDistribution = "bundled" | "first-party-external";
 
@@ -969,10 +977,8 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     return migrated;
   }
 
-  registerCorePlugins(
-    pluginTypes: Array<PluginConstructor | CorePluginRegistration>,
-  ): void {
-    for (const registration of pluginTypes) {
+  registerStaticPlugins(profile: PluginProfile): void {
+    for (const registration of profile) {
       const {
         plugin: PluginType,
         required = false,
@@ -1026,6 +1032,11 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
         );
       }
     }
+  }
+
+  /** @deprecated Use {@link registerStaticPlugins}. */
+  registerCorePlugins(profile: PluginProfile): void {
+    this.registerStaticPlugins(profile);
   }
 
   private registerCorePluginManifestContributions(

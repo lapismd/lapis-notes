@@ -982,6 +982,46 @@ describe("PluginManager", () => {
     expect(app.plugins.plugins.get("second-core")?.enabled).toBe(true);
   });
 
+  it("registers readonly application-owned static plugin profiles", async () => {
+    const { app } = createTestApp();
+    await app.vault.load();
+
+    class ProfilePlugin extends Plugin {
+      constructor(app: App) {
+        super(app, {
+          id: "profile-plugin",
+          name: "Profile plugin",
+          version: "1.0.0",
+          minAppVersion: "0.0.0",
+          description: "",
+          author: "test",
+        });
+      }
+
+      onload() {}
+    }
+
+    const profile = [
+      {
+        plugin: ProfilePlugin,
+        enabledByDefault: false,
+        styles: ".profile-plugin { display: contents; }",
+      },
+    ] as const;
+    app.plugins.registerStaticPlugins(profile);
+
+    expect(app.plugins.plugins.get("profile-plugin")).toMatchObject({
+      required: false,
+      enabled: false,
+    });
+    expect(app.plugins.corePluginEntries).toEqual([
+      expect.objectContaining({
+        manifest: expect.objectContaining({ id: "profile-plugin" }),
+        distribution: "bundled",
+      }),
+    ]);
+  });
+
   it("loads bundled core plugin CSS on enable and removes it on disable", async () => {
     const { app } = createTestApp();
     await app.vault.load();

@@ -7,7 +7,7 @@ import {
   type LanguageServiceProvider,
 } from "@lapis-notes/api/language-service";
 import { LanguageServiceWorkerClient } from "@lapis-notes/api/language-service/worker";
-import MarkdownLintWorker from "./workers/markdownlint.worker.ts?worker&inline";
+import MarkdownLintWorker from "./workers/markdownlint.worker.js?worker&inline";
 
 const DESKTOP_LANGUAGE_SERVICE_PROTOCOL_VERSION = 1 as const;
 
