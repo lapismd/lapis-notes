@@ -22,6 +22,11 @@ export const pluginProvenanceSchema = z.enum([
 ]);
 
 export const pluginRegistryChannelSchema = z.enum(["official", "community"]);
+export const pluginCatalogStatusSchema = z.enum([
+  "active",
+  "pending",
+  "revoked",
+]);
 export const pluginPlatformSchema = z.enum(["web", "electron", "desktop"]);
 export const pluginBadgeSchema = z.enum([
   "official",
@@ -52,6 +57,32 @@ export const remoteFileReferenceSchema = z
     url: urlOrRelative,
     sha256,
     size: z.number().int().nonnegative().optional(),
+  })
+  .passthrough();
+
+export const pluginMarkdownReferenceSchema = z
+  .object({
+    url: httpsUrl,
+    sourceUrl: httpsUrl,
+    sha256,
+    size: z.number().int().nonnegative().max(256 * 1024),
+    mediaType: z.literal("text/markdown"),
+  })
+  .passthrough();
+
+export const pluginCatalogContentSchema = z
+  .object({
+    overview: pluginMarkdownReferenceSchema.optional(),
+    changelog: pluginMarkdownReferenceSchema.optional(),
+  })
+  .passthrough();
+
+export const pluginCatalogLinksSchema = z
+  .object({
+    homepage: httpsUrl.optional(),
+    repository: httpsUrl.optional(),
+    documentation: httpsUrl.optional(),
+    issues: httpsUrl.optional(),
   })
   .passthrough();
 
@@ -198,12 +229,21 @@ export const pluginCatalogEntrySchema = z
     description: z.string(),
     readmeUrl: httpsUrl.optional(),
     author: nonEmpty,
+    authorUrl: httpsUrl.optional(),
     channel: pluginRegistryChannelSchema,
+    status: pluginCatalogStatusSchema.optional(),
     latestVersion: nonEmpty,
     minAppVersion: nonEmpty,
     platforms: z.array(pluginPlatformSchema).min(1),
     categories: z.array(nonEmpty),
     badges: z.array(pluginBadgeSchema).optional(),
+    latestRelease: z
+      .object({
+        releasedAt: isoDate,
+        bundleSize: z.number().int().nonnegative(),
+      })
+      .passthrough()
+      .optional(),
     detail: urlOrRelative,
     contributes: pluginContributionSummarySchema.optional(),
   })
@@ -265,6 +305,7 @@ export const pluginCatalogDetailSchema = z
     description: z.string(),
     readmeUrl: httpsUrl.optional(),
     channel: pluginRegistryChannelSchema,
+    status: pluginCatalogStatusSchema.optional(),
     owner: z.object({
       name: nonEmpty,
       verified: z.boolean().optional(),
@@ -272,6 +313,11 @@ export const pluginCatalogDetailSchema = z
     }),
     latestVersion: nonEmpty,
     readme: remoteFileReferenceSchema.optional(),
+    license: nonEmpty.optional(),
+    links: pluginCatalogLinksSchema.optional(),
+    highlights: z.array(nonEmpty.max(160)).max(8).optional(),
+    content: pluginCatalogContentSchema.optional(),
+    contributes: pluginContributionSummarySchema.optional(),
     versions: z.record(pluginCatalogReleaseSchema),
     signatures: z.array(signatureRecordSchema).optional(),
   })

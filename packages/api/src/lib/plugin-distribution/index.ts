@@ -6,6 +6,7 @@ export * from "./installed-plugin-state";
 export * from "./installer";
 export * from "./manager";
 export * from "./path-safety";
+export * from "./plugin-markdown";
 export * from "./plugin-bundle";
 export * from "./plugin-bundle-verifier";
 export * from "./plugin-bundle-worker";

@@ -29,6 +29,10 @@ compact, mutually exclusive status and action contract in LN-PLUG-047.
 Plugin-management pages share the empty-state and selected-tab presentation
 contracts in LN-PLUG-048 through LN-PLUG-052 without moving registry policy
 into the shell.
+The same package presents verified registry summaries and detail content through
+the shared responsive row, toolbar, and contextual-state contracts in
+LN-PLUG-055 through LN-PLUG-058. It MUST NOT verify signatures, resolve source
+ownership, or add installation behavior outside the injected App services.
 
 ## Requirements
 

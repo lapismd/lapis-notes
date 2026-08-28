@@ -17,6 +17,7 @@ export interface PluginRegistrySource {
 }
 
 export type PluginRegistryChannel = "official" | "community";
+export type PluginCatalogStatus = "active" | "pending" | "revoked";
 
 export type PluginPlatform = "web" | "electron" | "desktop";
 
@@ -56,14 +57,22 @@ export interface PluginCatalogEntry {
   description: string;
   readmeUrl?: string;
   author: string;
+  authorUrl?: string;
   channel: PluginRegistryChannel;
+  status?: PluginCatalogStatus;
   latestVersion: string;
   minAppVersion: string;
   platforms: PluginPlatform[];
   categories: string[];
   badges?: PluginBadge[];
+  latestRelease?: PluginCatalogLatestRelease;
   detail: string;
   contributes?: PluginContributionSummary;
+}
+
+export interface PluginCatalogLatestRelease {
+  releasedAt: string;
+  bundleSize: number;
 }
 
 export interface PluginCatalogDetail {
@@ -73,15 +82,41 @@ export interface PluginCatalogDetail {
   description: string;
   readmeUrl?: string;
   channel: PluginRegistryChannel;
+  status?: PluginCatalogStatus;
   owner: {
     name: string;
     verified?: boolean;
     url?: string;
   };
   latestVersion: string;
+  license?: string;
+  links?: PluginCatalogLinks;
+  highlights?: string[];
+  content?: PluginCatalogContent;
   readme?: RemoteFileReference;
+  contributes?: PluginContributionSummary;
   versions: Record<string, PluginCatalogRelease>;
   signatures?: SignatureRecord[];
+}
+
+export interface PluginCatalogLinks {
+  homepage?: string;
+  repository?: string;
+  documentation?: string;
+  issues?: string;
+}
+
+export interface PluginMarkdownReference {
+  url: string;
+  sourceUrl: string;
+  sha256: string;
+  size: number;
+  mediaType: "text/markdown";
+}
+
+export interface PluginCatalogContent {
+  overview?: PluginMarkdownReference;
+  changelog?: PluginMarkdownReference;
 }
 
 export interface PluginCatalogRelease {
