@@ -1,19 +1,13 @@
 <script lang="ts">
-  import AlertTriangle from "@lucide/svelte/icons/alert-triangle";
   import ArrowUpCircle from "@lucide/svelte/icons/arrow-up-circle";
-  import BookOpen from "@lucide/svelte/icons/book-open";
-  import CalendarClock from "@lucide/svelte/icons/calendar-clock";
   import Check from "@lucide/svelte/icons/check";
-  import CircleCheck from "@lucide/svelte/icons/circle-check";
   import Download from "@lucide/svelte/icons/download";
-  import PackageIcon from "@lucide/svelte/icons/package";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
-  import ShieldAlert from "@lucide/svelte/icons/shield-alert";
-  import Sparkles from "@lucide/svelte/icons/sparkles";
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import Upload from "@lucide/svelte/icons/upload";
   import {
     DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE,
+    fetchVerifiedPluginMarkdown,
     isAbortError,
     Notice,
     PluginDistributionError,
@@ -23,24 +17,24 @@
     type PluginCatalogEntry,
     type PluginUpdateInfo,
   } from "@lapis-notes/api";
-  import * as Alert from "@lapismd/design-core/shadcn/alert";
   import * as AlertDialog from "@lapismd/design-core/shadcn/alert-dialog";
-  import * as Badge from "@lapismd/design-core/shadcn/badge";
   import * as Button from "@lapismd/design-core/shadcn/button";
-  import * as Dialog from "@lapismd/design-core/shadcn/dialog";
-  import * as Input from "@lapismd/design-core/shadcn/input";
-  import * as Resizable from "@lapismd/design-core/shadcn/resizable";
-  import * as Separator from "@lapismd/design-core/shadcn/separator";
   import * as Tabs from "@lapismd/design-core/shadcn/tabs";
   import type { WorkspaceSettingsPageProps } from "@lapismd/design-core/workspace/settings";
   import { onMount, tick, untrack } from "svelte";
   import { getPluginManagementContext } from "./plugin-management-context.svelte";
   import "./plugin-management.css";
+  import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
+  import type { PluginRegistryBadgeTone } from "./PluginRegistryBadge.svelte";
+  import PluginRegistryDetailDialog, {
+    type PluginMarkdownState,
+  } from "./PluginRegistryDetailDialog.svelte";
+  import PluginRegistryRow from "./PluginRegistryRow.svelte";
+  import PluginRegistryToolbar from "./PluginRegistryToolbar.svelte";
   import {
     fetchPluginReadmeMarkdown,
-    type PluginReadmeLoadState,
+    resolveReadmeRelativeUrls,
   } from "./plugin-readme";
-  import PluginReadmeRenderer from "./PluginReadmeRenderer.svelte";
 
   type PluginsRegistryTabId = "installed" | "browse" | "updates" | "sources";
 
@@ -49,11 +43,11 @@
   const app = context.app;
 
   let activeTab = $state<PluginsRegistryTabId>("installed");
-  let searchText = $state("");
   let catalogEntries = $state<PluginCatalogEntry[]>([]);
   let installed = $state<InstalledPluginRecord[]>([]);
   let updates = $state<PluginUpdateInfo[]>([]);
   let lastError = $state<Error | null>(null);
+  let initialLoading = $state(true);
   let refreshing = $state(false);
   let runningAction = $state<string | null>(null);
   let detailDialogOpen = $state(false);
@@ -62,10 +56,24 @@
   let detailPluginId = $state<string | null>(null);
   let detailPluginDetail = $state<PluginCatalogDetail | null>(null);
   let detailLoading = $state(false);
-  let readmeState = $state<PluginReadmeLoadState>({ status: "idle" });
-  let latestReleaseDates = $state<Record<string, string | null>>({});
-  let latestReleaseSizes = $state<Record<string, number | null>>({});
+  let overviewState = $state<PluginMarkdownState>({ status: "idle" });
+  let changelogState = $state<PluginMarkdownState>({ status: "idle" });
   let bundleFileInput = $state<HTMLInputElement | null>(null);
+
+  let installedSearch = $state("");
+  let installedStatus = $state("all");
+  let installedProvenance = $state("all");
+  let installedSort = $state("name");
+  let browseSearch = $state("");
+  let browsePlatform = $state("all");
+  let browseChannel = $state("all");
+  let browseCategory = $state("all");
+  let browseInstallState = $state("all");
+  let browseCompatibleOnly = $state(false);
+  let browseSort = $state("name");
+  let updatesSearch = $state("");
+  let updatesStatus = $state("all");
+  let updatesSort = $state("status");
 
   let installedIds = $derived(new Set(installed.map((record) => record.pluginId)));
   let staticPluginIds = $derived(
@@ -79,17 +87,179 @@
       (plugin) => !installedIds.has(plugin.manifest.id),
     ),
   );
-  let filteredCatalogEntries = $derived(
-    catalogEntries.filter((entry) => {
-      const text = searchText.trim().toLowerCase();
-      if (!text) return true;
-      return `${entry.name} ${entry.id} ${entry.description} ${entry.author}`
-        .toLowerCase()
-        .includes(text);
-    }),
+  let categories = $derived(
+    [...new Set(catalogEntries.flatMap((entry) => entry.categories))].sort(),
   );
+  let compatiblePluginIds = $derived(
+    new Set(
+      app.pluginDistribution
+        .search({ compatibleOnly: true })
+        .map((entry) => entry.id),
+    ),
+  );
+  let filteredCatalogEntries = $derived.by(() => {
+    const text = browseSearch.trim().toLowerCase();
+    return catalogEntries
+      .filter((entry) => {
+        if (
+          text &&
+          !`${entry.name} ${entry.id} ${entry.description} ${entry.author}`
+            .toLowerCase()
+            .includes(text)
+        ) {
+          return false;
+        }
+        if (
+          browsePlatform !== "all" &&
+          !entry.platforms.includes(
+            browsePlatform as PluginCatalogEntry["platforms"][number],
+          )
+        ) {
+          return false;
+        }
+        if (browseChannel !== "all" && entry.channel !== browseChannel) {
+          return false;
+        }
+        if (
+          browseCategory !== "all" &&
+          !entry.categories.includes(browseCategory)
+        ) {
+          return false;
+        }
+        if (
+          browseInstallState === "installed" &&
+          !availablePluginIds.has(entry.id)
+        ) {
+          return false;
+        }
+        if (
+          browseInstallState === "available" &&
+          availablePluginIds.has(entry.id)
+        ) {
+          return false;
+        }
+        if (browseCompatibleOnly && !compatiblePluginIds.has(entry.id)) {
+          return false;
+        }
+        return true;
+      })
+      .sort((left, right) =>
+        browseSort === "recent"
+          ? (right.latestRelease?.releasedAt ?? "").localeCompare(
+              left.latestRelease?.releasedAt ?? "",
+            ) || left.name.localeCompare(right.name)
+          : left.name.localeCompare(right.name),
+      );
+  });
+  let filteredInstalled = $derived.by(() => {
+    const text = installedSearch.trim().toLowerCase();
+    return installed
+      .filter((record) => {
+        const entry = catalogEntry(record.pluginId);
+        const runtime = app.plugins.plugins.get(record.pluginId);
+        const name = entry?.name ?? runtime?.manifest.name ?? record.pluginId;
+        const description = entry?.description ?? runtime?.manifest.description ?? "";
+        if (
+          text &&
+          !`${name} ${record.pluginId} ${description}`.toLowerCase().includes(text)
+        ) {
+          return false;
+        }
+        if (
+          installedProvenance !== "all" &&
+          record.provenance !== installedProvenance
+        ) {
+          return false;
+        }
+        if (installedStatus === "enabled" && !runtime?.enabled) return false;
+        if (installedStatus === "disabled" && runtime?.enabled) return false;
+        if (installedStatus === "revoked" && !record.revoked) return false;
+        if (installedStatus === "restart" && !record.restartRequired) return false;
+        return true;
+      })
+      .sort((left, right) =>
+        installedSort === "recent"
+          ? right.updatedAt.localeCompare(left.updatedAt)
+          : installedName(left).localeCompare(installedName(right)),
+      );
+  });
+  let filteredCommunityPlugins = $derived.by(() => {
+    const text = installedSearch.trim().toLowerCase();
+    if (installedProvenance !== "all" && installedProvenance !== "manual") {
+      return [];
+    }
+    return communityPlugins.filter((plugin) => {
+      if (
+        text &&
+        !`${plugin.manifest.name} ${plugin.manifest.id} ${plugin.manifest.description}`
+          .toLowerCase()
+          .includes(text)
+      ) {
+        return false;
+      }
+      if (installedStatus === "enabled" && !plugin.enabled) return false;
+      if (installedStatus === "disabled" && plugin.enabled) return false;
+      if (installedStatus === "revoked" || installedStatus === "restart") {
+        return false;
+      }
+      return true;
+    });
+  });
+  let filteredUpdates = $derived.by(() => {
+    const text = updatesSearch.trim().toLowerCase();
+    const priority = (update: PluginUpdateInfo) =>
+      update.canUpdate ? 0 : update.status === "revoked" ? 2 : 1;
+    return updates
+      .filter((update) => {
+        if (
+          text &&
+          !`${update.name} ${update.id}`.toLowerCase().includes(text)
+        ) {
+          return false;
+        }
+        if (updatesStatus === "ready" && !update.canUpdate) return false;
+        if (
+          updatesStatus === "incompatible" &&
+          (update.canUpdate || update.status === "revoked")
+        ) {
+          return false;
+        }
+        if (updatesStatus === "revoked" && update.status !== "revoked") {
+          return false;
+        }
+        return true;
+      })
+      .sort((left, right) =>
+        updatesSort === "name"
+          ? left.name.localeCompare(right.name)
+          : priority(left) - priority(right) || left.name.localeCompare(right.name),
+      );
+  });
   let detailPluginEntry = $derived(
     catalogEntries.find((entry) => entry.id === detailPluginId) ?? null,
+  );
+  let detailUpdate = $derived(
+    updates.find((update) => update.id === detailPluginId) ?? null,
+  );
+  let browseFilterCount = $derived(
+    Number(Boolean(browseSearch.trim())) +
+      Number(browsePlatform !== "all") +
+      Number(browseChannel !== "all") +
+      Number(browseCategory !== "all") +
+      Number(browseInstallState !== "all") +
+      Number(browseCompatibleOnly) +
+      Number(browseSort !== "name"),
+  );
+  let installedFilterCount = $derived(
+    Number(Boolean(installedSearch.trim())) +
+      Number(installedStatus !== "all") +
+      Number(installedProvenance !== "all") +
+      Number(installedSort !== "name"),
+  );
+  let updatesFilterCount = $derived(
+    Number(Boolean(updatesSearch.trim())) +
+      Number(updatesStatus !== "all") +
+      Number(updatesSort !== "status"),
   );
 
   $effect(() => {
@@ -119,19 +289,15 @@
       lastError = null;
       if (force || !catalogEntries.length) {
         await app.pluginDistribution.refreshCatalog({ force });
-        if (force) {
-          latestReleaseDates = {};
-          latestReleaseSizes = {};
-        }
       }
       catalogEntries = app.pluginDistribution.search({ channel: "all" });
       installed = await app.pluginDistribution.listInstalled();
       updates = await app.pluginDistribution.listUpdates();
-      void loadLatestReleaseDates(catalogEntries);
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       new Notice(`Plugin registry unavailable: ${errorMessage(lastError)}`);
     } finally {
+      initialLoading = false;
       refreshing = false;
     }
   }
@@ -176,9 +342,128 @@
     }
   }
 
+  async function installEntry(entry: PluginCatalogEntry): Promise<void> {
+    await runPluginProgressAction(
+      `install:${entry.id}`,
+      entry.id,
+      `Installing ${entry.name}`,
+      (signal) =>
+        app.pluginDistribution.install(entry.id, {
+          enable: true,
+          requireOfficial: entry.channel === "official",
+          signal,
+        }),
+    );
+  }
+
+  async function updatePlugin(update: PluginUpdateInfo): Promise<void> {
+    await runPluginProgressAction(
+      `update:${update.id}`,
+      update.id,
+      `Updating ${update.name}`,
+      (signal) =>
+        app.pluginDistribution.update(update.id, update.targetVersion, { signal }),
+    );
+  }
+
   async function openDetails(entry: PluginCatalogEntry): Promise<void> {
     detailDialogOpen = true;
     await selectDetail(entry);
+  }
+
+  async function selectDetail(entry: PluginCatalogEntry): Promise<void> {
+    detailPluginId = entry.id;
+    detailPluginDetail = null;
+    detailLoading = true;
+    overviewState = { status: "loading" };
+    changelogState = { status: "loading" };
+    try {
+      const detail = await app.pluginDistribution.getPluginDetail(entry.id);
+      if (detailPluginId !== entry.id) return;
+      detailPluginDetail = detail;
+      await Promise.all([
+        loadDetailContent("overview", entry, detail),
+        loadDetailContent("changelog", entry, detail),
+      ]);
+    } catch (error) {
+      if (detailPluginId !== entry.id) return;
+      overviewState = {
+        status: "error",
+        message: errorMessage(
+          error instanceof Error ? error : new Error(String(error)),
+        ),
+      };
+      changelogState = { status: "missing" };
+    } finally {
+      if (detailPluginId === entry.id) detailLoading = false;
+    }
+  }
+
+  async function loadDetailContent(
+    kind: "overview" | "changelog",
+    entry: PluginCatalogEntry,
+    detail: PluginCatalogDetail | null,
+  ): Promise<void> {
+    const reference = detail?.content?.[kind];
+    const setState = (state: PluginMarkdownState) => {
+      if (detailPluginId !== entry.id) return;
+      if (kind === "overview") overviewState = state;
+      else changelogState = state;
+    };
+    if (reference) {
+      try {
+        const markdown = await fetchVerifiedPluginMarkdown(reference);
+        setState({
+          status: "loaded",
+          url: reference.url,
+          sourceUrl: reference.sourceUrl,
+          markdown: resolveReadmeRelativeUrls(markdown, reference.url),
+        });
+      } catch (error) {
+        setState({
+          status: "error",
+          message: errorMessage(
+            error instanceof Error ? error : new Error(String(error)),
+          ),
+          sourceUrl: reference.sourceUrl,
+        });
+      }
+      return;
+    }
+    if (kind === "changelog") {
+      setState({ status: "missing" });
+      return;
+    }
+    const readmeUrl = detail?.readmeUrl ?? entry.readmeUrl;
+    if (!readmeUrl) {
+      setState({ status: "missing" });
+      return;
+    }
+    try {
+      const markdown = await fetchPluginReadmeMarkdown(readmeUrl, {
+        pluginId: entry.id,
+        detailUrl: entry.detail,
+      });
+      setState({
+        status: "loaded",
+        url: readmeUrl,
+        sourceUrl: readmeUrl,
+        markdown,
+      });
+    } catch (error) {
+      setState({
+        status: "error",
+        message: error instanceof Error ? error.message : String(error),
+        sourceUrl: readmeUrl,
+      });
+    }
+  }
+
+  async function retryDetailContent(kind: "overview" | "changelog") {
+    if (!detailPluginEntry) return;
+    if (kind === "overview") overviewState = { status: "loading" };
+    else changelogState = { status: "loading" };
+    await loadDetailContent(kind, detailPluginEntry, detailPluginDetail);
   }
 
   function requestUninstall(record: InstalledPluginRecord): void {
@@ -196,52 +481,13 @@
     );
   }
 
-  async function selectDetail(entry: PluginCatalogEntry): Promise<void> {
-    detailPluginId = entry.id;
-    detailPluginDetail = null;
-    detailLoading = true;
-    readmeState = { status: "loading" };
-    try {
-      const detail = await app.pluginDistribution.getPluginDetail(entry.id);
-      if (detailPluginId !== entry.id) return;
-      detailPluginDetail = detail;
-      latestReleaseDates = {
-        ...latestReleaseDates,
-        [entry.id]: latestReleaseDate(detail),
-      };
-      latestReleaseSizes = {
-        ...latestReleaseSizes,
-        [entry.id]: latestBundleSize(detail),
-      };
-      const readmeUrl = detail?.readmeUrl ?? entry.readmeUrl;
-      if (!readmeUrl) {
-        readmeState = { status: "missing" };
-        return;
-      }
-      const markdown = await fetchPluginReadmeMarkdown(readmeUrl, {
-        pluginId: entry.id,
-        detailUrl: entry.detail,
-      });
-      if (detailPluginId !== entry.id) return;
-      readmeState = { status: "loaded", url: readmeUrl, markdown };
-    } catch (error) {
-      if (detailPluginId !== entry.id) return;
-      readmeState = {
-        status: "error",
-        message: error instanceof Error ? error.message : String(error),
-      };
-    } finally {
-      if (detailPluginId === entry.id) detailLoading = false;
-    }
-  }
-
   function errorMessage(error: Error): string {
     return error instanceof PluginDistributionError
       ? `${error.code}: ${error.message}`
       : error.message;
   }
 
-  function badge(value: string): string {
+  function titleCase(value: string): string {
     return value
       .split(/[\s-]+/)
       .filter(Boolean)
@@ -249,55 +495,39 @@
       .join(" ");
   }
 
-  async function loadLatestReleaseDates(
-    entries: PluginCatalogEntry[],
-  ): Promise<void> {
-    const missing = entries.filter(
-      (entry) =>
-        !Object.prototype.hasOwnProperty.call(latestReleaseDates, entry.id) ||
-        !Object.prototype.hasOwnProperty.call(latestReleaseSizes, entry.id),
-    );
-    if (!missing.length) return;
-    const summaries = await Promise.all(
-      missing.map(async (entry) => {
-        try {
-          const detail = await app.pluginDistribution.getPluginDetail(entry.id);
-          return [
-            entry.id,
-            { releasedAt: latestReleaseDate(detail), size: latestBundleSize(detail) },
-          ] as const;
-        } catch {
-          return [entry.id, { releasedAt: null, size: null }] as const;
-        }
-      }),
-    );
-    latestReleaseDates = {
-      ...latestReleaseDates,
-      ...Object.fromEntries(summaries.map(([id, value]) => [id, value.releasedAt])),
-    };
-    latestReleaseSizes = {
-      ...latestReleaseSizes,
-      ...Object.fromEntries(summaries.map(([id, value]) => [id, value.size])),
-    };
+  function provenanceBadgeTone(value: string): PluginRegistryBadgeTone {
+    if (value === "official" || value === "community") return value;
+    return "neutral";
   }
 
-  function latestReleaseDate(detail: PluginCatalogDetail | null): string | null {
-    return detail?.versions[detail.latestVersion]?.releasedAt ?? null;
+  function catalogEntry(pluginId: string): PluginCatalogEntry | undefined {
+    return catalogEntries.find((entry) => entry.id === pluginId);
   }
 
-  function latestBundleSize(detail: PluginCatalogDetail | null): number | null {
-    return detail?.versions[detail.latestVersion]?.bundle.size ?? null;
+  function installedName(record: InstalledPluginRecord): string {
+    return (
+      catalogEntry(record.pluginId)?.name ??
+      app.plugins.plugins.get(record.pluginId)?.manifest.name ??
+      record.pluginId
+    );
+  }
+
+  function installedDescription(record: InstalledPluginRecord): string {
+    return (
+      catalogEntry(record.pluginId)?.description ??
+      app.plugins.plugins.get(record.pluginId)?.manifest.description ??
+      `Installed plugin ${record.pluginId}`
+    );
   }
 
   function installedSize(record: InstalledPluginRecord): number | null {
-    const detailSize = latestReleaseSizes[record.pluginId];
-    if (typeof detailSize === "number") return detailSize;
     return record.files.length
       ? record.files.reduce((total, file) => total + file.size, 0)
       : null;
   }
 
-  function formatReleaseDate(value: string): string | null {
+  function formatDate(value?: string): string | null {
+    if (!value) return null;
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return null;
     return new Intl.DateTimeFormat(undefined, {
@@ -307,22 +537,8 @@
     }).format(date);
   }
 
-  function updateDescription(update: PluginUpdateInfo): string {
-    return [
-      `${update.currentVersion} -> ${update.targetVersion}`,
-      typeof update.bundleSize === "number"
-        ? `Size ${formatByteSize(update.bundleSize)}`
-        : "",
-      update.targetVersion !== update.latestVersion
-        ? `Latest ${update.latestVersion}`
-        : "",
-      update.reasons.length ? `Blocked: ${update.reasons.join(", ")}` : "",
-    ]
-      .filter(Boolean)
-      .join(" | ");
-  }
-
-  function formatByteSize(bytes: number): string {
+  function formatByteSize(bytes?: number | null): string | null {
+    if (typeof bytes !== "number") return null;
     if (bytes < 1024) return `${bytes} B`;
     const units = ["KiB", "MiB", "GiB"];
     let value = bytes / 1024;
@@ -334,6 +550,45 @@
     return `${new Intl.NumberFormat(undefined, {
       maximumFractionDigits: value >= 10 ? 0 : 1,
     }).format(value)} ${units[unitIndex]}`;
+  }
+
+  function updateReason(update: PluginUpdateInfo): string | undefined {
+    if (update.status === "revoked") {
+      return (
+        update.revoked?.message ??
+        update.revoked?.reason ??
+        "This installed version was revoked by the official registry."
+      );
+    }
+    if (!update.canUpdate) {
+      return update.reasons.length
+        ? update.reasons.join(", ")
+        : "The latest version is not compatible with this runtime.";
+    }
+    return undefined;
+  }
+
+  function resetInstalledFilters(): void {
+    installedSearch = "";
+    installedStatus = "all";
+    installedProvenance = "all";
+    installedSort = "name";
+  }
+
+  function resetBrowseFilters(): void {
+    browseSearch = "";
+    browsePlatform = "all";
+    browseChannel = "all";
+    browseCategory = "all";
+    browseInstallState = "all";
+    browseCompatibleOnly = false;
+    browseSort = "name";
+  }
+
+  function resetUpdateFilters(): void {
+    updatesSearch = "";
+    updatesStatus = "all";
+    updatesSort = "status";
   }
 
   function openBundleFilePicker(): void {
@@ -386,11 +641,9 @@
         size="sm"
         disabled={runningAction === "install-bundle"}
         onclick={openBundleFilePicker}
-      >
-        <Upload class="lapis-plugin-management__icon" />
-        Install from .lapis-plugin
-      </Button.Root>
+      ><Upload />Install from .lapis-plugin</Button.Root>
       <Button.Root
+        class="lapis-plugin-registry__refresh"
         variant="outline"
         size="sm"
         disabled={refreshing}
@@ -398,379 +651,251 @@
         aria-label={refreshing ? "Refreshing plugin registry" : "Refresh plugin registry"}
         onclick={() => void refresh(true)}
       >
-        <RefreshCw
-          class="lapis-plugin-management__icon"
-          data-spinning={refreshing || undefined}
-        />
-        Refresh
+        <RefreshCw data-spinning={refreshing || undefined} />
+        <span>Refresh</span>
       </Button.Root>
     </div>
   </header>
 
-  {#if lastError}
-    <Alert.Root variant="destructive">
-      <AlertTriangle class="lapis-plugin-management__icon" />
-      <Alert.Title>Plugin registry unavailable</Alert.Title>
-      <Alert.Description>{errorMessage(lastError)}</Alert.Description>
-    </Alert.Root>
-  {/if}
-
   <Tabs.Root bind:value={activeTab} class="lapis-plugin-registry__tabs">
     <Tabs.List class="lapis-plugin-registry__tab-list">
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="installed"
-        >Installed</Tabs.Trigger
-      >
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="browse"
-        >Browse</Tabs.Trigger
-      >
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="updates"
-        >Updates</Tabs.Trigger
-      >
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="sources"
-        >Sources</Tabs.Trigger
-      >
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="installed">Installed</Tabs.Trigger>
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="browse">Browse</Tabs.Trigger>
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="updates">Updates</Tabs.Trigger>
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="sources">Sources</Tabs.Trigger>
     </Tabs.List>
 
-    <Tabs.Content value="installed" class="lapis-plugin-management__rows">
-      {#if !installed.length && !communityPlugins.length}
-        <div
-          class="lapis-plugin-management__empty-state"
-          data-ui-part="registry-installed-empty-state"
-        >
-          <div
-            class="lapis-plugin-management__empty-state-icon"
-            data-empty-icon="package"
-            aria-hidden="true"
-          >
-            <PackageIcon />
-            <Sparkles />
-          </div>
-          <h2>No plugins installed</h2>
-          <p>No installed registry or community plugins.</p>
-          <Button.Root onclick={() => (activeTab = "browse")}
-            >Browse plugins</Button.Root
-          >
+    <Tabs.Content value="installed" class="lapis-plugin-registry__content">
+      <PluginRegistryToolbar
+        tab="installed"
+        bind:search={installedSearch}
+        bind:enabledState={installedStatus}
+        bind:provenance={installedProvenance}
+        bind:sort={installedSort}
+        filterCount={installedFilterCount}
+        resultCount={filteredInstalled.length + filteredCommunityPlugins.length}
+        onreset={resetInstalledFilters}
+      />
+      {#if initialLoading}
+        <PluginRegistryContentState kind="loading" heading="Loading installed plugins" description="Reading installed plugin state and registry provenance…" />
+      {:else if lastError && !installed.length && !communityPlugins.length}
+        <PluginRegistryContentState kind="error" heading="Installed plugins unavailable" description={errorMessage(lastError)} actionLabel="Retry" onaction={() => void refresh(true)} />
+      {:else if !installed.length && !communityPlugins.length}
+        <PluginRegistryContentState part="registry-installed-empty-state" kind="empty" heading="No plugins installed" description="No installed registry or community plugins." actionLabel="Browse plugins" onaction={() => (activeTab = "browse")} />
+      {:else if !filteredInstalled.length && !filteredCommunityPlugins.length}
+        <PluginRegistryContentState kind="filtered" heading="No installed plugins match" description="Try changing the search or installed-plugin filters." actionLabel="Reset filters" onaction={resetInstalledFilters} />
+      {:else}
+        <div class="lapis-plugin-registry__rows">
+          {#each filteredInstalled as record (record.pluginId)}
+            {@const runtimePlugin = app.plugins.plugins.get(record.pluginId)}
+            {@const size = installedSize(record)}
+            {@const update = updates.find((candidate) => candidate.id === record.pluginId)}
+            <PluginRegistryRow
+              id={record.pluginId}
+              name={installedName(record)}
+              description={installedDescription(record)}
+              metadata={[
+                `Version ${record.installedVersion}`,
+                runtimePlugin?.enabled ? "Enabled" : "Disabled",
+                ...(size === null ? [] : [`Size ${formatByteSize(size)}`]),
+                `Updated ${formatDate(record.updatedAt) ?? record.updatedAt}`,
+              ]}
+              badges={[
+                {
+                  label: titleCase(record.provenance),
+                  tone: provenanceBadgeTone(record.provenance),
+                },
+                ...(record.restartRequired ? [{ label: "Restart required" }] : []),
+              ]}
+              status={record.revoked
+                ? {
+                    label: "Revoked",
+                    reason: record.revoked.message ?? record.revoked.reason,
+                    tone: "danger",
+                  }
+                : update?.canUpdate
+                  ? { label: "Update available", tone: "warning" }
+                  : undefined}
+            >
+              {#snippet actions()}
+                {#if update?.canUpdate}
+                  <Button.Root size="sm" variant="outline" disabled={runningAction === `update:${record.pluginId}`} onclick={() => void updatePlugin(update)}><ArrowUpCircle />Update</Button.Root>
+                {/if}
+                <Button.Root size="sm" variant="outline" disabled={runningAction === `toggle:${record.pluginId}`} onclick={() => void runAction(`toggle:${record.pluginId}`, () => runtimePlugin?.enabled ? app.plugins.disablePlugin(record.pluginId) : app.plugins.enablePlugin(record.pluginId))}>{runtimePlugin?.enabled ? "Disable" : "Enable"}</Button.Root>
+                <Button.Root size="icon" variant="ghost" aria-label={`Uninstall ${record.pluginId}`} title="Uninstall" disabled={runningAction === `uninstall:${record.pluginId}`} onclick={() => requestUninstall(record)}><Trash2 /></Button.Root>
+              {/snippet}
+            </PluginRegistryRow>
+          {/each}
+          {#each filteredCommunityPlugins as plugin (plugin.manifest.id)}
+            <PluginRegistryRow
+              id={plugin.manifest.id}
+              name={plugin.manifest.name}
+              description={plugin.manifest.description}
+              metadata={[plugin.enabled ? "Enabled" : "Disabled"]}
+              badges={[{ label: "Manual" }]}
+            />
+          {/each}
         </div>
       {/if}
-      {#each installed as record (record.pluginId)}
-        {@const runtimePlugin = app.plugins.plugins.get(record.pluginId)}
-        {@const size = installedSize(record)}
-        {@const update = updates.find((candidate) => candidate.id === record.pluginId)}
-        <article class="lapis-plugin-card" data-plugin-id={record.pluginId}>
-          <div class="lapis-plugin-card__content">
-            <h2>{record.pluginId}</h2>
-            <p>
-              Version {record.installedVersion} | {runtimePlugin?.enabled ? "Enabled" : "Disabled"}{typeof size === "number" ? ` | Size ${formatByteSize(size)}` : ""}
-            </p>
-            <div class="lapis-plugin-card__badges">
-              <Badge.Badge variant="outline">{badge(record.provenance)}</Badge.Badge>
-              {#if record.revoked}<Badge.Badge variant="destructive">Revoked</Badge.Badge>{/if}
-              {#if record.restartRequired}<Badge.Badge variant="outline">Restart required</Badge.Badge>{/if}
-            </div>
-          </div>
-          <div class="lapis-plugin-card__actions">
-            {#if update?.canUpdate}
-              <Button.Root
-                variant="outline"
-                size="sm"
-                disabled={runningAction === `update:${record.pluginId}`}
-                onclick={() =>
-                  void runPluginProgressAction(
-                    `update:${record.pluginId}`,
-                    record.pluginId,
-                    `Updating ${update.name}`,
-                    (signal) =>
-                      app.pluginDistribution.update(
-                        update.id,
-                        update.targetVersion,
-                        { signal },
-                      ),
-                  )}
-              >
-                <ArrowUpCircle class="lapis-plugin-management__icon" />Update
-              </Button.Root>
-            {/if}
-            <Button.Root
-              variant="outline"
-              size="sm"
-              disabled={runningAction === `toggle:${record.pluginId}`}
-              onclick={() =>
-                void runAction(`toggle:${record.pluginId}`, () =>
-                  runtimePlugin?.enabled
-                    ? app.plugins.disablePlugin(record.pluginId)
-                    : app.plugins.enablePlugin(record.pluginId),
-                )}
-            >{runtimePlugin?.enabled ? "Disable" : "Enable"}</Button.Root>
-            <Button.Root
-              variant="outline"
-              size="icon"
-              aria-label={`Uninstall ${record.pluginId}`}
-              title="Uninstall"
-              disabled={runningAction === `uninstall:${record.pluginId}`}
-              onclick={() => requestUninstall(record)}
-            ><Trash2 class="lapis-plugin-management__icon" /></Button.Root>
-          </div>
-        </article>
-        {#if record.revoked}
-          <Alert.Root variant="destructive">
-            <ShieldAlert class="lapis-plugin-management__icon" />
-            <Alert.Title>{record.pluginId} was revoked</Alert.Title>
-            <Alert.Description>{record.revoked.message ?? record.revoked.reason}</Alert.Description>
-          </Alert.Root>
-        {/if}
-      {/each}
-      {#each communityPlugins as plugin (plugin.manifest.id)}
-        <article class="lapis-plugin-card">
-          <div class="lapis-plugin-card__content">
-            <h2>{plugin.manifest.name}</h2>
-            <p>ID {plugin.manifest.id} | {plugin.enabled ? "Enabled" : "Disabled"}</p>
-            <div class="lapis-plugin-card__badges">
-              <Badge.Badge variant="outline">Manual</Badge.Badge>
-            </div>
-          </div>
-        </article>
-      {/each}
     </Tabs.Content>
 
-    <Tabs.Content value="browse" class="lapis-plugin-registry__browse">
-      <Input.Input bind:value={searchText} placeholder="Search plugins" aria-label="Search plugins" />
-      {#if !filteredCatalogEntries.length}
-        <p class="lapis-plugin-management__empty">No registry entries loaded.</p>
-      {/if}
-      <div class="lapis-plugin-registry__grid">
-        {#each filteredCatalogEntries as entry (entry.id)}
-          {@const isInstalled = availablePluginIds.has(entry.id)}
-          {@const updatedAt = latestReleaseDates[entry.id]}
-          {@const size = latestReleaseSizes[entry.id]}
-          {@const updatedLabel = updatedAt ? formatReleaseDate(updatedAt) : null}
-          <article class="lapis-plugin-registry-card">
-            <div class="lapis-plugin-registry-card__icon" aria-hidden="true">
-              <PackageIcon class="lapis-plugin-management__icon" />
-            </div>
-            <div class="lapis-plugin-registry-card__content">
-              <div class="lapis-plugin-registry-card__title">
-                <h2>{entry.name}</h2>
-                {#if entry.channel === "official"}<Badge.Badge variant="outline">Official</Badge.Badge>{/if}
-              </div>
-              <p>{entry.description}</p>
-              <div class="lapis-plugin-registry-card__metadata">
-                <span>Version {entry.latestVersion}</span>
-                {#if typeof size === "number"}<span>Size {formatByteSize(size)}</span>{/if}
-                {#if updatedLabel}<span><CalendarClock class="lapis-plugin-management__small-icon" />Updated {updatedLabel}</span>{/if}
-              </div>
-              <div class="lapis-plugin-card__actions">
+    <Tabs.Content value="browse" class="lapis-plugin-registry__content">
+      <PluginRegistryToolbar
+        tab="browse"
+        bind:search={browseSearch}
+        bind:platform={browsePlatform}
+        bind:channel={browseChannel}
+        bind:category={browseCategory}
+        bind:installedState={browseInstallState}
+        bind:compatibleOnly={browseCompatibleOnly}
+        bind:sort={browseSort}
+        {categories}
+        filterCount={browseFilterCount}
+        resultCount={filteredCatalogEntries.length}
+        onreset={resetBrowseFilters}
+      />
+      {#if initialLoading}
+        <PluginRegistryContentState kind="loading" heading="Loading plugin registry" description="Verifying the official catalog and revocation metadata…" />
+      {:else if lastError && !catalogEntries.length}
+        <PluginRegistryContentState kind="error" heading="Plugin registry unavailable" description={errorMessage(lastError)} actionLabel="Retry" onaction={() => void refresh(true)} />
+      {:else if !catalogEntries.length}
+        <PluginRegistryContentState kind="empty" heading="No registry entries" description="The configured registry did not return any plugin entries." actionLabel="Refresh" onaction={() => void refresh(true)} />
+      {:else if !filteredCatalogEntries.length}
+        <PluginRegistryContentState kind="filtered" heading="No plugins match" description="Try changing the search or Browse filters." actionLabel="Reset filters" onaction={resetBrowseFilters} />
+      {:else}
+        <div class="lapis-plugin-registry__rows">
+          {#each filteredCatalogEntries as entry (entry.id)}
+            {@const isInstalled = availablePluginIds.has(entry.id)}
+            {@const releaseDate = formatDate(entry.latestRelease?.releasedAt)}
+            {@const releaseSize = formatByteSize(entry.latestRelease?.bundleSize)}
+            <PluginRegistryRow
+              id={entry.id}
+              name={entry.name}
+              description={entry.description}
+              metadata={[
+                `Version ${entry.latestVersion}`,
+                entry.platforms.map(titleCase).join(", "),
+                ...(releaseDate ? [`Released ${releaseDate}`] : []),
+                ...(releaseSize ? [`Size ${releaseSize}`] : []),
+              ]}
+              badges={[
+                { label: titleCase(entry.channel), tone: entry.channel },
+                ...entry.categories.slice(0, 2).map((category) => ({
+                  label: titleCase(category),
+                  tone: "category" as const,
+                })),
+                ...(entry.status === "revoked" ? [{ label: "Revoked", tone: "danger" as const }] : []),
+              ]}
+              onopen={() => void openDetails(entry)}
+            >
+              {#snippet actions()}
                 <Button.Root
-                  variant="outline"
                   size="sm"
-                  disabled={detailLoading && detailPluginId === entry.id}
-                  onclick={() => void openDetails(entry)}
-                ><BookOpen class="lapis-plugin-management__icon" />Details</Button.Root>
-                <Button.Root
                   variant={isInstalled ? "outline" : "default"}
-                  size="sm"
                   disabled={isInstalled || runningAction === `install:${entry.id}`}
-                  onclick={() =>
-                    void runPluginProgressAction(
-                      `install:${entry.id}`,
-                      entry.id,
-                      `Installing ${entry.name}`,
-                      (signal) =>
-                        app.pluginDistribution.install(entry.id, {
-                          enable: true,
-                          requireOfficial: entry.channel === "official",
-                          signal,
-                        }),
-                    )}
-                >
-                  {#if isInstalled}<Check class="lapis-plugin-management__icon" />Installed{:else}<Download class="lapis-plugin-management__icon" />Install{/if}
-                </Button.Root>
-              </div>
-            </div>
-          </article>
-        {/each}
-      </div>
-    </Tabs.Content>
-
-    <Tabs.Content value="updates" class="lapis-plugin-management__rows">
-      {#if !updates.length}
-        <div
-          class="lapis-plugin-management__empty-state"
-          data-ui-part="registry-updates-empty-state"
-        >
-          <div
-            class="lapis-plugin-management__empty-state-icon"
-            data-empty-icon="circle-check"
-            aria-hidden="true"
-          >
-            <CircleCheck />
-            <Sparkles />
-          </div>
-          <h2>You’re up to date</h2>
-          <p>No plugin updates available.</p>
-          <Button.Root disabled={refreshing} onclick={() => void refresh(true)}
-            >Check for updates</Button.Root
-          >
+                  onclick={() => void installEntry(entry)}
+                >{#if isInstalled}<Check />Installed{:else}<Download />Install{/if}</Button.Root>
+              {/snippet}
+            </PluginRegistryRow>
+          {/each}
         </div>
       {/if}
-      {#each updates as update (update.id)}
-        {#if update.status === "revoked"}
-          <Alert.Root variant="destructive">
-            <ShieldAlert class="lapis-plugin-management__icon" />
-            <Alert.Title>{update.name} was revoked</Alert.Title>
-            <Alert.Description>{update.revoked?.message ?? update.revoked?.reason ?? "This installed version was revoked by the official registry."}</Alert.Description>
-          </Alert.Root>
-        {:else if !update.canUpdate}
-          <Alert.Root>
-            <AlertTriangle class="lapis-plugin-management__icon" />
-            <Alert.Title>{update.name} update is unavailable</Alert.Title>
-            <Alert.Description>{update.reasons.length ? update.reasons.join(", ") : "The latest version is not compatible with this runtime."}</Alert.Description>
-          </Alert.Root>
-        {/if}
-        <article class="lapis-plugin-card">
-          <div class="lapis-plugin-card__content">
-            <h2>{update.name}</h2>
-            <p>{updateDescription(update)}</p>
-            <div class="lapis-plugin-card__badges">
-              <Badge.Badge variant="outline">{badge(update.provenance)}</Badge.Badge>
-              <Badge.Badge variant={update.status === "revoked" ? "destructive" : "outline"}>{badge(update.status.replace(/-/g, " "))}</Badge.Badge>
-            </div>
-          </div>
-          <div class="lapis-plugin-card__actions">
-            <Button.Root
-              variant="outline"
-              size="sm"
-              disabled={!update.canUpdate || runningAction === `update:${update.id}`}
-              onclick={() =>
-                void runPluginProgressAction(
-                  `update:${update.id}`,
-                  update.id,
-                  `Updating ${update.name}`,
-                  (signal) =>
-                    app.pluginDistribution.update(
-                      update.id,
-                      update.targetVersion,
-                      { signal },
-                    ),
-                )}
-            ><ArrowUpCircle class="lapis-plugin-management__icon" />Update</Button.Root>
-          </div>
-        </article>
-      {/each}
     </Tabs.Content>
 
-    <Tabs.Content value="sources" class="lapis-plugin-management__rows">
-      <article class="lapis-plugin-card">
-        <div class="lapis-plugin-card__content">
-          <h2>{DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.name}</h2>
-          <p>{DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.url}</p>
-          <div class="lapis-plugin-card__badges">
-            <Badge.Badge variant="outline">Official</Badge.Badge>
-            <Badge.Badge variant="outline">Locked</Badge.Badge>
-          </div>
+    <Tabs.Content value="updates" class="lapis-plugin-registry__content">
+      <PluginRegistryToolbar
+        tab="updates"
+        bind:search={updatesSearch}
+        bind:updateState={updatesStatus}
+        bind:sort={updatesSort}
+        filterCount={updatesFilterCount}
+        resultCount={filteredUpdates.length}
+        onreset={resetUpdateFilters}
+      />
+      {#if initialLoading}
+        <PluginRegistryContentState kind="loading" heading="Checking for updates" description="Comparing installed plugins with verified registry releases…" />
+      {:else if lastError && !updates.length}
+        <PluginRegistryContentState kind="error" heading="Updates unavailable" description={errorMessage(lastError)} actionLabel="Retry" onaction={() => void refresh(true)} />
+      {:else if !updates.length}
+        <PluginRegistryContentState part="registry-updates-empty-state" kind="success" heading="You’re up to date" description="No plugin updates available." actionLabel="Check for updates" onaction={() => void refresh(true)} />
+      {:else if !filteredUpdates.length}
+        <PluginRegistryContentState kind="filtered" heading="No updates match" description="Try changing the search or update-status filter." actionLabel="Reset filters" onaction={resetUpdateFilters} />
+      {:else}
+        <div class="lapis-plugin-registry__rows">
+          {#each filteredUpdates as update (update.id)}
+            <PluginRegistryRow
+              id={update.id}
+              name={update.name}
+              description={`${update.currentVersion} → ${update.targetVersion}`}
+              metadata={[
+                titleCase(update.provenance),
+                ...(typeof update.bundleSize === "number" ? [`Size ${formatByteSize(update.bundleSize)}`] : []),
+                ...(update.targetVersion !== update.latestVersion ? [`Latest ${update.latestVersion}`] : []),
+              ]}
+              badges={[
+                {
+                  label: titleCase(update.provenance),
+                  tone: provenanceBadgeTone(update.provenance),
+                },
+              ]}
+              status={{
+                label: update.canUpdate ? "Ready" : update.status === "revoked" ? "Revoked" : "Incompatible",
+                reason: updateReason(update),
+                tone: update.status === "revoked" ? "danger" : update.canUpdate ? "success" : "warning",
+              }}
+            >
+              {#snippet actions()}
+                <Button.Root size="sm" variant="outline" disabled={!update.canUpdate || runningAction === `update:${update.id}`} onclick={() => void updatePlugin(update)}><ArrowUpCircle />Update</Button.Root>
+              {/snippet}
+            </PluginRegistryRow>
+          {/each}
         </div>
-      </article>
-      <Separator.Separator />
-      <p class="lapis-plugin-management__empty">Additional third-party registry sources are outside Full Registry V1.</p>
+      {/if}
+    </Tabs.Content>
+
+    <Tabs.Content value="sources" class="lapis-plugin-registry__content">
+      <div class="lapis-plugin-registry__rows">
+        <PluginRegistryRow
+          id={DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.id}
+          name={DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.name}
+          description={DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.url}
+          metadata={["Built-in source", "Read only"]}
+          badges={[
+            { label: "Enabled" },
+            { label: "Official", tone: "official" },
+            { label: "Locked" },
+          ]}
+          status={lastError
+            ? { label: "Source problem", reason: errorMessage(lastError), tone: "warning" }
+            : { label: "Available", tone: "success" }}
+        >
+          {#snippet actions()}
+            {#if lastError}
+              <Button.Root size="sm" variant="outline" onclick={() => void refresh(true)}><RefreshCw />Retry</Button.Root>
+            {/if}
+          {/snippet}
+        </PluginRegistryRow>
+      </div>
     </Tabs.Content>
   </Tabs.Root>
 
-  <Dialog.Root bind:open={detailDialogOpen}>
-    <Dialog.Content class="lapis-plugin-detail-dialog">
-      <Dialog.Header class="sr-only">
-        <Dialog.Title>{detailPluginEntry?.name ?? "Plugin details"}</Dialog.Title>
-        <Dialog.Description>Registry plugin details and README content.</Dialog.Description>
-      </Dialog.Header>
-      <div class="lapis-plugin-detail-dialog__layout">
-        <header class="lapis-plugin-detail-dialog__header">
-          <div>
-            <h2>{detailPluginEntry?.name ?? "Plugin details"}</h2>
-            <p>{detailPluginDetail?.description ?? detailPluginEntry?.description ?? "Select a plugin to review its registry details."}</p>
-          </div>
-          {#if detailPluginEntry}
-            {@const isInstalled = availablePluginIds.has(detailPluginEntry.id)}
-            <Button.Root
-              variant={isInstalled ? "outline" : "default"}
-              size="sm"
-              disabled={isInstalled || runningAction === `install:${detailPluginEntry.id}`}
-              onclick={() =>
-                void runPluginProgressAction(
-                  `install:${detailPluginEntry.id}`,
-                  detailPluginEntry.id,
-                  `Installing ${detailPluginEntry.name}`,
-                  (signal) =>
-                    app.pluginDistribution.install(detailPluginEntry.id, {
-                      enable: true,
-                      requireOfficial: detailPluginEntry.channel === "official",
-                      signal,
-                    }),
-                )}
-            >{isInstalled ? "Installed" : "Install"}</Button.Root>
-          {/if}
-        </header>
-        <Resizable.PaneGroup direction="horizontal" class="lapis-plugin-detail-dialog__panes">
-          <Resizable.Pane defaultSize={30} minSize={22} maxSize={42}>
-            <aside class="lapis-plugin-detail-dialog__results">
-              <header>
-                <strong>Browse results</strong>
-                <span>{filteredCatalogEntries.length} {filteredCatalogEntries.length === 1 ? "plugin" : "plugins"}</span>
-              </header>
-              <div class="lapis-plugin-detail-dialog__result-list">
-                {#each filteredCatalogEntries as entry (entry.id)}
-                  <button
-                    type="button"
-                    data-active={entry.id === detailPluginId || undefined}
-                    onclick={() => void selectDetail(entry)}
-                  >
-                    <strong>{entry.name}</strong>
-                    <span>{entry.description}</span>
-                    <small>{entry.latestVersion}</small>
-                  </button>
-                {/each}
-                {#if !filteredCatalogEntries.length}<p>No plugins match the current Browse search.</p>{/if}
-              </div>
-            </aside>
-          </Resizable.Pane>
-          <Resizable.Handle />
-          <Resizable.Pane defaultSize={70} minSize={45}>
-            <div class="lapis-plugin-detail-dialog__detail">
-              {#if detailPluginEntry}
-                {@const updatedAt = latestReleaseDates[detailPluginEntry.id]}
-                {@const size = detailPluginDetail ? latestBundleSize(detailPluginDetail) : latestReleaseSizes[detailPluginEntry.id]}
-                {@const updatedLabel = updatedAt ? formatReleaseDate(updatedAt) : null}
-                <div class="lapis-plugin-detail-dialog__metadata">
-                  <div>
-                    <span>Version {detailPluginEntry.latestVersion}</span>
-                    {#if typeof size === "number"}<span>Size {formatByteSize(size)}</span>{/if}
-                    <span>{detailPluginEntry.platforms.map(badge).join(", ")}</span>
-                    {#if updatedLabel}<span>Updated {updatedLabel}</span>{/if}
-                  </div>
-                  <div class="lapis-plugin-card__badges">
-                    <Badge.Badge variant="outline">{badge(detailPluginEntry.channel)}</Badge.Badge>
-                    {#if availablePluginIds.has(detailPluginEntry.id)}<Badge.Badge variant="outline">Installed</Badge.Badge>{/if}
-                    {#each detailPluginEntry.badges ?? [] as entryBadge}<Badge.Badge variant={entryBadge === "revoked" ? "destructive" : "outline"}>{badge(entryBadge)}</Badge.Badge>{/each}
-                    {#each detailPluginEntry.categories as category}<Badge.Badge variant="outline">{badge(category)}</Badge.Badge>{/each}
-                  </div>
-                </div>
-                <div class="lapis-plugin-detail-dialog__readme" data-plugin-readme-url={readmeState.status === "loaded" ? readmeState.url : undefined}>
-                  {#if detailLoading && readmeState.status === "loading"}
-                    <p>Loading README...</p>
-                  {:else if readmeState.status === "loaded"}
-                    <PluginReadmeRenderer app={app} markdown={readmeState.markdown} sourcePath={readmeState.url} />
-                  {:else if readmeState.status === "error"}
-                    <Alert.Root><AlertTriangle class="lapis-plugin-management__icon" /><Alert.Title>README unavailable</Alert.Title><Alert.Description>{readmeState.message}</Alert.Description></Alert.Root>
-                  {:else}
-                    <p>No README is available for this registry entry.</p>
-                  {/if}
-                </div>
-              {:else}
-                <p class="lapis-plugin-management__empty">Select a plugin from the Browse results.</p>
-              {/if}
-            </div>
-          </Resizable.Pane>
-        </Resizable.PaneGroup>
-      </div>
-    </Dialog.Content>
-  </Dialog.Root>
+  <PluginRegistryDetailDialog
+    app={app}
+    bind:open={detailDialogOpen}
+    entries={filteredCatalogEntries}
+    selectedEntry={detailPluginEntry}
+    detail={detailPluginDetail}
+    loading={detailLoading}
+    overview={overviewState}
+    changelog={changelogState}
+    {availablePluginIds}
+    update={detailUpdate}
+    {runningAction}
+    onselect={selectDetail}
+    oninstall={installEntry}
+    onupdate={updatePlugin}
+    onretry={retryDetailContent}
+  />
 
   <AlertDialog.Root bind:open={uninstallConfirmOpen}>
     <AlertDialog.Content>

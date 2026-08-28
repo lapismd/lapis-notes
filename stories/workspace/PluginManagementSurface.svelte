@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     App,
+    clearVerifiedPluginMarkdownCache,
     MemoryAppDatabase,
     MemoryVaultAdapter,
     Plugin,
@@ -28,10 +29,17 @@
   let {
     scenario = "catalog",
     section = "plugin-registry",
+    markdownMode = "valid",
   }: {
     scenario?: PluginManagementScenario;
     section?: "plugin-registry" | "core-plugins" | "community-plugins";
+    markdownMode?: "valid" | "invalid";
   } = $props();
+
+  const graphOverview =
+    "# Graph\n\nExplore local and global relationships between notes.\n\n## Highlights\n\n- Open graph navigation\n- Local relationship exploration\n";
+  const graphChangelog =
+    "# Changelog\n\n## 0.2.0\n\n- Added structured registry details.\n";
 
   const catalog: PluginCatalogEntry[] =
     untrack(() => scenario) === "empty"
@@ -43,12 +51,18 @@
             description: "Plain text, JSON, and YAML editing for Lapis apps.",
             readmeUrl: "https://story.invalid/source-editor/README.md",
             author: "Lapis Notes",
+            authorUrl: "https://lapis.md",
             channel: "official",
+            status: "active",
             latestVersion: "0.1.0",
             minAppVersion: "0.0.0",
             platforms: ["web", "desktop"],
             categories: ["editor"],
             badges: ["official", "verified"],
+            latestRelease: {
+              releasedAt: "2026-08-22T12:00:00.000Z",
+              bundleSize: 18_432,
+            },
             detail: "https://story.invalid/v1/plugins/lapis-source-editor.json",
           },
           {
@@ -57,12 +71,18 @@
             description: "Explore local and global relationships between notes.",
             readmeUrl: "https://story.invalid/graph/README.md",
             author: "Lapis Notes",
+            authorUrl: "https://lapis.md",
             channel: "official",
+            status: "active",
             latestVersion: "0.2.0",
             minAppVersion: "0.0.0",
             platforms: ["web", "desktop"],
             categories: ["visualization"],
             badges: ["official", "update-available"],
+            latestRelease: {
+              releasedAt: "2026-08-24T12:00:00.000Z",
+              bundleSize: 44_032,
+            },
             detail: "https://story.invalid/v1/plugins/lapis-graph.json",
           },
           {
@@ -71,11 +91,16 @@
             description: "A fixture used to preserve the registry revocation state.",
             author: "Community Author",
             channel: "community",
+            status: "revoked",
             latestVersion: "1.1.0",
             minAppVersion: "0.0.0",
             platforms: ["web"],
             categories: ["fixture"],
             badges: ["revoked"],
+            latestRelease: {
+              releasedAt: "2026-08-20T12:00:00.000Z",
+              bundleSize: 8_192,
+            },
             detail: "https://story.invalid/v1/plugins/revoked-plugin.json",
           },
         ];
@@ -162,9 +187,66 @@
       description: entry.description,
       readmeUrl: entry.readmeUrl,
       channel: entry.channel,
-      owner: { name: entry.author, verified: entry.channel === "official" },
+      status: entry.status,
+      owner: {
+        name: entry.author,
+        verified: entry.channel === "official",
+        url: entry.authorUrl,
+      },
       latestVersion: entry.latestVersion,
+      license: "MIT",
+      links: {
+        homepage: "https://lapis.md/plugins",
+        repository: `https://github.com/lapismd/lapis-plugins/tree/main/packages/${entry.id.replace(/^lapis-/, "")}`,
+        documentation: entry.readmeUrl,
+        issues: "https://github.com/lapismd/lapis-plugins/issues",
+      },
+      highlights:
+        entry.id === "lapis-graph"
+          ? [
+              "Navigate directly between graph nodes and notes.",
+              "Inspect local relationships without leaving the workspace.",
+            ]
+          : undefined,
+      content:
+        entry.id === "lapis-graph"
+          ? {
+              overview: {
+                url: "https://story.invalid/v1/content/lapis-graph/overview.md",
+                sourceUrl:
+                  "https://github.com/lapismd/lapis-plugins/blob/story/packages/graph/README.md",
+                sha256:
+                  "ad83480f9afb01c6e38f8085587e560019f600145bf73f3782987d7beb4e7b94",
+                size: 136,
+                mediaType: "text/markdown",
+              },
+              changelog: {
+                url: "https://story.invalid/v1/content/lapis-graph/changelog.md",
+                sourceUrl:
+                  "https://github.com/lapismd/lapis-plugins/blob/story/packages/graph/CHANGELOG.md",
+                sha256:
+                  "ea7ec8636f6d85b5a3c22b1839061e0797aa8f01b84ab90fd886c1583dd01180",
+                size: 60,
+                mediaType: "text/markdown",
+              },
+            }
+          : undefined,
       versions: {
+        ...(entry.id === "lapis-graph"
+          ? {
+              "0.1.0": {
+                version: "0.1.0",
+                minAppVersion: entry.minAppVersion,
+                releasedAt: "2026-08-01T12:00:00.000Z",
+                platforms: entry.platforms,
+                bundle: {
+                  url: `https://story.invalid/releases/${entry.id}-0.1.0.lapis-plugin`,
+                  sha256: "c".repeat(64),
+                  size: 40_960,
+                },
+              },
+            }
+          : {}),
         [entry.latestVersion]: {
           version: entry.latestVersion,
           minAppVersion: entry.minAppVersion,
@@ -442,6 +524,34 @@
 
   onMount(() => {
     let disposed = false;
+    const storyWindow = window;
+    const originalFetch = storyWindow.fetch;
+    const storyFetch: typeof fetch = async (input, init) => {
+      if (String(input).endsWith("/lapis-graph/overview.md")) {
+        const body = untrack(() => markdownMode) === "invalid" ? "invalid" : graphOverview;
+        return new Response(body, {
+          status: 200,
+          headers: {
+            "content-type": "text/markdown",
+            "content-length": String(new TextEncoder().encode(body).length),
+          },
+        });
+      }
+      if (String(input).endsWith("/lapis-graph/changelog.md")) {
+        return new Response(graphChangelog, {
+          status: 200,
+          headers: {
+            "content-type": "text/markdown",
+            "content-length": String(
+              new TextEncoder().encode(graphChangelog).length,
+            ),
+          },
+        });
+      }
+      return originalFetch(input, init);
+    };
+    clearVerifiedPluginMarkdownCache();
+    storyWindow.fetch = storyFetch;
     void (async () => {
       await app.vault.load();
       await app.configuration.load();
@@ -457,6 +567,8 @@
     })();
     return () => {
       disposed = true;
+      if (storyWindow.fetch === storyFetch) storyWindow.fetch = originalFetch;
+      clearVerifiedPluginMarkdownCache();
     };
   });
 
@@ -495,8 +607,10 @@
   .plugin-management-story {
     box-sizing: border-box;
     width: 100%;
-    height: 760px;
-    min-width: 780px;
+    height: 100vh;
+    height: 100dvh;
+    min-width: 0;
+    min-height: 0;
     overflow: hidden;
     background: var(--ui-background-primary);
   }

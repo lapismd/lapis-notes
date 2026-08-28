@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import PluginManagementSurface from "./PluginManagementSurface.svelte";
+import "./PluginManagement.docs.css";
 
 const meta = {
   title: "Workspace/Plugin Management",
@@ -8,8 +9,8 @@ const meta = {
   tags: ["test", "visual-pending"],
   parameters: {
     layout: "fullscreen",
-    viewport: { defaultViewport: "desktop" },
     docs: {
+      canvas: { className: "plugin-management-docs-canvas" },
       description: {
         component:
           "The application-owned plugin settings family ported from legacy Lapis Notes. Visual parity remains review-only and does not gate deployment.",
@@ -49,8 +50,7 @@ export const EmptyTabsAndSources: Story = {
       .map((tab) => tab.getBoundingClientRect().width);
     expect(Math.max(...tabWidths) - Math.min(...tabWidths)).toBeLessThan(1);
     expect(
-      canvasElement.ownerDocument.defaultView!
-        .getComputedStyle(installedTab)
+      canvasElement.ownerDocument.defaultView!.getComputedStyle(installedTab)
         .borderBottomColor,
     ).not.toBe("rgba(0, 0, 0, 0)");
     await expect(
@@ -65,12 +65,16 @@ export const EmptyTabsAndSources: Story = {
       ),
     ).not.toBeNull();
 
-    await userEvent.click(canvas.getByRole("button", { name: "Browse plugins" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Browse plugins" }),
+    );
     await expect(canvas.getByRole("tab", { name: "Browse" })).toHaveAttribute(
       "data-state",
       "active",
     );
-    await expect(canvas.getByText("No registry entries loaded.")).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { name: "No registry entries" }),
+    ).toBeVisible();
     await selectRegistryTab(canvas, "Updates");
     await expect(canvas.getByRole("tab", { name: "Updates" })).toHaveAttribute(
       "data-state",
@@ -79,7 +83,9 @@ export const EmptyTabsAndSources: Story = {
     await expect(
       canvas.getByRole("heading", { name: "You’re up to date" }),
     ).toBeVisible();
-    await expect(canvas.getByText("No plugin updates available.")).toBeVisible();
+    await expect(
+      canvas.getByText("No plugin updates available."),
+    ).toBeVisible();
     await expect(
       canvasElement.querySelector(
         '[data-ui-part="registry-updates-empty-state"] [data-empty-icon="circle-check"]',
@@ -94,8 +100,12 @@ export const EmptyTabsAndSources: Story = {
       "active",
     );
     await expect(canvas.getByText("Lapis Official Plugins")).toBeVisible();
-    await expect(canvas.getByText("Official", { selector: "span" })).toBeVisible();
-    await expect(canvas.getByText("Locked", { selector: "span" })).toBeVisible();
+    await expect(
+      canvas.getByText("Official", { selector: "span" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByText("Locked", { selector: "span" }),
+    ).toBeVisible();
   },
 };
 
@@ -107,48 +117,213 @@ export const BrowseDetailsAndReadme: Story = {
     await selectRegistryTab(canvas, "Browse");
 
     const sourceEditorCard = canvas
-      .getByRole("heading", { name: "Source Editor" })
+      .getByRole("button", { name: "View details for Source Editor" })
       .closest("article");
     expect(sourceEditorCard).not.toBeNull();
     await expect(
       within(sourceEditorCard!).getByRole("button", { name: "Installed" }),
     ).toBeDisabled();
 
-    const storyWindow = canvasElement.ownerDocument.defaultView!;
-    const originalFetch = storyWindow.fetch;
-    storyWindow.fetch = async (input) => {
-      if (String(input).includes("story.invalid/v1/readmes/")) {
-        return new Response(
-          "# Graph plugin\n\n**README rendering is supplied by the application.**",
-          { status: 200, headers: { "content-type": "text/markdown" } },
-        );
-      }
-      return originalFetch(input);
-    };
-    try {
-      const graphCard = canvas
-        .getByRole("heading", { name: "Graph" })
-        .closest("article");
-      expect(graphCard).not.toBeNull();
-      await userEvent.click(
-        within(graphCard!).getByRole("button", { name: "Details" }),
-      );
-      const body = within(canvasElement.ownerDocument.body);
-      await waitFor(() => {
-        expect(body.getByRole("dialog")).toBeVisible();
-        expect(body.getByRole("heading", { name: "Graph plugin" })).toBeVisible();
-      });
-      await expect(body.getByText("Browse results")).toBeVisible();
-      await expect(body.getAllByText("Version 0.2.0")[0]).toBeVisible();
-      await expect(
-        body.getByText("README rendering is supplied by the application."),
+    const graphCard = canvas
+      .getByRole("button", { name: "View details for Graph" })
+      .closest("article");
+    expect(graphCard).not.toBeNull();
+    await userEvent.click(
+      within(graphCard!).getByRole("button", {
+        name: "View details for Graph",
+      }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await waitFor(() => {
+      expect(body.getByRole("dialog")).toBeVisible();
+      expect(body.getByRole("heading", { name: "Highlights" })).toBeVisible();
+    });
+    await expect(body.queryByText("Browse results")).toBeNull();
+    await expect(body.getByText(/Open graph navigation/)).toBeVisible();
+    await expect(body.getByRole("link", { name: "Homepage" })).toBeVisible();
+    await expect(
+      body.getAllByText("Web", { selector: "span" }).length,
+    ).toBeGreaterThan(1);
+    await expect(
+      body.getAllByText("Desktop", { selector: "span" }).length,
+    ).toBeGreaterThan(1);
+    await expect(
+      body.getAllByRole("button", { name: "Install" })[0],
+    ).toBeEnabled();
+    await userEvent.click(body.getByRole("tab", { name: "Changelog" }));
+    await expect(
+      body.getByText(/Added structured registry details/),
+    ).toBeVisible();
+    await userEvent.click(body.getByRole("tab", { name: "Versions" }));
+    await expect(body.getAllByRole("link", { name: "Bundle" })).toHaveLength(2);
+    await userEvent.click(body.getByRole("tab", { name: "Overview" }));
+    await expect(
+      body.getByRole("heading", { name: "Highlights" }),
+    ).toBeVisible();
+    await userEvent.click(body.getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+  },
+};
+
+export const BrowseSearchAndExpandableFilters: Story = {
+  args: { scenario: "catalog", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const search = canvas.getByRole("searchbox", { name: "Search browse" });
+    await userEvent.type(search, "Graph");
+    await expect(canvas.getByText("1 result")).toBeVisible();
+    await expect(canvas.queryByText("Source Editor")).toBeNull();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Show browse filters" }),
+    );
+    await expect(
+      canvas.getByRole("button", { name: "Filter by platform" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Hide browse filters" }),
+    ).toBeVisible();
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Filter by channel" }),
+    );
+    await userEvent.click(
+      await body.findByRole("option", { name: "Community" }),
+    );
+    await expect(canvas.getByText("2 active filters")).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { name: "No plugins match" }),
+    ).toBeVisible();
+    // Vitest can retain a just-dismissed Bits UI portal layer in the shared
+    // body; fireEvent keeps this reset assertion scoped to application state.
+    fireEvent.click(
+      canvas.getByRole("button", { name: "Reset search and filters" }),
+    );
+    await waitFor(() => expect(canvas.getByText("3 results")).toBeVisible());
+    await expect(canvas.getByText("Source Editor")).toBeVisible();
+  },
+};
+
+export const BrowseRecentlyUpdatedSort: Story = {
+  args: { scenario: "catalog", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Show browse filters" }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Sort Browse plugins" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByRole("option", { name: "Recently updated" }),
+    );
+    await expect(canvas.getByText("1 active filter")).toBeVisible();
+  },
+};
+
+export const StructuredMarkdownFailureKeepsMetadata: Story = {
+  args: {
+    scenario: "catalog",
+    section: "plugin-registry",
+    markdownMode: "invalid",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "View details for Graph" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await waitFor(() => {
+      expect(
+        body.getByRole("heading", { name: "Overview unavailable" }),
       ).toBeVisible();
-      await expect(
-        body.getAllByRole("button", { name: "Install" })[0],
-      ).toBeEnabled();
-    } finally {
-      storyWindow.fetch = originalFetch;
-    }
+    });
+    await expect(body.getByText("MIT")).toBeVisible();
+    await expect(body.getByRole("button", { name: "Retry" })).toBeVisible();
+    await userEvent.click(body.getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+  },
+};
+
+export const NarrowDetailDrillIn: Story = {
+  args: { scenario: "catalog", section: "plugin-registry" },
+  globals: { viewport: "mobile2" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "View details for Graph" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = body.getByRole("dialog");
+    await expect(
+      dialog.querySelector(".lapis-plugin-detail-dialog__back"),
+    ).not.toBeNull();
+    await expect(
+      dialog.querySelector("[data-narrow-view='detail']"),
+    ).not.toBeNull();
+    await userEvent.click(body.getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+  },
+};
+
+export const DarkBrowseRows: Story = {
+  args: { scenario: "catalog", section: "plugin-registry" },
+  globals: { colorMode: "dark" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    await expect(
+      canvasElement.querySelector('[data-registry-badge-tone="official"]'),
+    ).not.toBeNull();
+    await expect(
+      canvasElement.querySelector('[data-registry-badge-tone="community"]'),
+    ).not.toBeNull();
+  },
+};
+
+export const PopulatedInstalledBrowseAndUpdates: Story = {
+  args: { scenario: "installed", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+
+    const installed = canvas.getByRole("tabpanel", { name: "Installed" });
+    await waitFor(() => {
+      expect(
+        installed.querySelectorAll('[data-ui-component="plugin-registry-row"]')
+          .length,
+      ).toBeGreaterThan(0);
+    });
+
+    await selectRegistryTab(canvas, "Browse");
+    const browse = canvas.getByRole("tabpanel", { name: "Browse" });
+    await expect(
+      within(browse).getByRole("button", { name: "View details for Graph" }),
+    ).toBeVisible();
+    expect(
+      browse.querySelectorAll('[data-ui-component="plugin-registry-row"]')
+        .length,
+    ).toBeGreaterThan(0);
+
+    await selectRegistryTab(canvas, "Updates");
+    const updates = canvas.getByRole("tabpanel", { name: "Updates" });
+    await expect(within(updates).getByText(/0\.1\.0.*0\.2\.0/)).toBeVisible();
+    expect(
+      updates.querySelectorAll('[data-ui-component="plugin-registry-row"]')
+        .length,
+    ).toBeGreaterThan(0);
+
+    await selectRegistryTab(canvas, "Installed");
+    await expect(installed).toBeVisible();
   },
 };
 
@@ -198,9 +373,9 @@ export const ManualBundleValidationAndProgress: Story = {
         ],
       },
     });
-    await expect(canvas.getByTestId("plugin-bundle-install-calls")).toHaveTextContent(
-      "0",
-    );
+    await expect(
+      canvas.getByTestId("plugin-bundle-install-calls"),
+    ).toHaveTextContent("0");
 
     await fireEvent.change(input!, {
       target: {
@@ -212,9 +387,9 @@ export const ManualBundleValidationAndProgress: Story = {
       },
     });
     await waitFor(() => {
-      expect(canvas.getByTestId("plugin-bundle-install-calls")).toHaveTextContent(
-        "1",
-      );
+      expect(
+        canvas.getByTestId("plugin-bundle-install-calls"),
+      ).toHaveTextContent("1");
       expect(canvas.getByTestId("plugin-install-progress")).toHaveTextContent(
         "Verifying files (2 of 4)",
       );
@@ -229,11 +404,16 @@ export const RegistryFailure: Story = {
   args: { scenario: "failure", section: "plugin-registry" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
     await waitFor(() => {
       expect(canvas.getByText("Plugin registry unavailable")).toBeVisible();
     });
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
     await expect(
-      canvas.getByText("The registry signature could not be verified."),
+      within(browsePanel).getByText(
+        "The registry signature could not be verified.",
+      ),
     ).toBeVisible();
   },
 };
@@ -243,17 +423,27 @@ export const CoreTogglesOptionsRestartAndDiagnostics: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
-    await expect(canvas.getByRole("heading", { name: "Installed Core Plugins" })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "Options for Source Editor" })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "Restart Source Editor" })).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { name: "Installed Core Plugins" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Options for Source Editor" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Restart Source Editor" }),
+    ).toBeVisible();
 
     await userEvent.click(
       canvas.getByRole("button", { name: "Expand Source Editor details" }),
     );
     await expect(canvas.getAllByText("Runtime entry")[0]).toBeVisible();
-    await userEvent.click(canvas.getByRole("switch", { name: "Disable Source Editor" }));
+    await userEvent.click(
+      canvas.getByRole("switch", { name: "Disable Source Editor" }),
+    );
     await waitFor(() => {
-      expect(canvas.getByRole("switch", { name: "Enable Source Editor" })).toBeVisible();
+      expect(
+        canvas.getByRole("switch", { name: "Enable Source Editor" }),
+      ).toBeVisible();
     });
   },
 };
@@ -283,7 +473,9 @@ export const CommunityEmptyState: Story = {
     ).not.toBeNull();
     await expect(canvasElement.querySelector("article")).toBeNull();
 
-    await userEvent.click(canvas.getByRole("button", { name: "Browse plugins" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Browse plugins" }),
+    );
     await waitFor(() => {
       expect(canvas.getByRole("tab", { name: "Browse" })).toHaveAttribute(
         "data-state",
@@ -315,7 +507,9 @@ export const CommunityTrustToggleAndFailure: Story = {
     await expect(
       canvas.getByRole("heading", { name: "Workspace trusted" }),
     ).toBeVisible();
-    await expect(canvas.getByText("Trusted", { selector: "span" })).toBeVisible();
+    await expect(
+      canvas.getByText("Trusted", { selector: "span" }),
+    ).toBeVisible();
     await expect(
       canvas.getByText(
         "Community plugins and desktop capabilities can run in this vault.",
@@ -325,12 +519,16 @@ export const CommunityTrustToggleAndFailure: Story = {
     await expect(
       canvas.queryByRole("button", { name: "Trust workspace" }),
     ).toBeNull();
-    await expect(canvas.getByRole("heading", { name: "Community Example" })).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { name: "Community Example" }),
+    ).toBeVisible();
     await expect(canvas.getByTestId("failed-plugin-state")).toHaveTextContent(
       "failed: The plugin runtime entry could not be loaded.",
     );
     await userEvent.click(
-      canvas.getByRole("button", { name: "Expand Failed Community Plugin details" }),
+      canvas.getByRole("button", {
+        name: "Expand Failed Community Plugin details",
+      }),
     );
     await expect(
       canvas.getByText(/The plugin runtime entry could not be loaded\./),

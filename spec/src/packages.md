@@ -641,8 +641,9 @@ The package also owns the Community Plugins trust presentation defined by
 LN-PLUG-047 and the plugin-management empty and selected-tab presentation in
 LN-PLUG-048 through LN-PLUG-052, while App services retain action authority.
 It owns the shared registry rows, toolbars, structured details, and contextual
-content states in LN-PLUG-055 through LN-PLUG-058. The API package owns the
-additive signed metadata parser and verified Markdown fetcher in LN-PLUG-053 and
+content states in LN-PLUG-055 through LN-PLUG-058, including composition of the
+public Design Core expandable SearchFilterBar. The API package owns the additive
+signed metadata parser and verified Markdown fetcher in LN-PLUG-053 and
 LN-PLUG-054; Workspace receives those contracts without owning registry trust.
 
 ## `@lapis-notes/ui` (pruned)

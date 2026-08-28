@@ -28,8 +28,9 @@ selected-tab presentation defined by LN-PLUG-048 through LN-PLUG-052.
 The API parses additive signed registry metadata and verifies referenced
 Markdown before Workspace rendering (LN-PLUG-053, LN-PLUG-054). Workspace owns
 the responsive row and detail presentation in LN-PLUG-055 through LN-PLUG-058
-without moving source, signature, installation, or lifecycle authority out of
-App services.
+by composing Design Core's expandable SearchFilterBar and public controls.
+It does so without moving source, signature, installation, or lifecycle
+authority out of App services.
 
 Frontmatter value discovery remains application-owned: Markdown adapts the
 App metadata type manager into Mira's portable property configuration, while
