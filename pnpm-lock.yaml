@@ -11,8 +11,6 @@ overrides:
   '@napi-rs/wasm-runtime@1.0.7>@emnapi/runtime': 1.8.1
   sharp: '>=0.35.0'
 
-pnpmfileChecksum: sha256-FyEq4wnWyct3/xbxSgNp/cTpWLG71ed3ZRKZzfHRLHM=
-
 importers:
 
   .:

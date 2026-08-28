@@ -11,10 +11,15 @@ export type BindableDesktopWindow = {
   removeEventListener(type: "load", listener: () => void): void;
 };
 
+export type InstalledWindowBindings = {
+  refresh(): void;
+  dispose(): void;
+};
+
 export function installWindowBindings(
   win: BindableDesktopWindow,
   bindings: readonly DesktopWindowBinding[],
-): () => void {
+): InstalledWindowBindings {
   const register = () => {
     for (const [name, handler] of bindings) {
       win.bind(name, handler);
@@ -24,7 +29,10 @@ export function installWindowBindings(
   register();
   win.addEventListener("load", register);
 
-  return () => {
-    win.removeEventListener("load", register);
+  return {
+    refresh: register,
+    dispose() {
+      win.removeEventListener("load", register);
+    },
   };
 }

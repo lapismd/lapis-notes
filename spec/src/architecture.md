@@ -621,6 +621,12 @@ validators and their tests stay in `@lapismd/spec-validator`. QMD discovery
 uses that same root-only tooling boundary. Storybook manager-only dependencies,
 including the shared theme toolbar icons, remain root development tooling and
 do not enter the runtime package graph.
+Web and Deno own their Vite renderer interop policy. Registry package source
+continues through the appropriate Svelte transform, while deep Mira modules and
+their transitive CommonJS dependencies are pre-bundled before a native browser
+module loader sees them. Local tarball installation preserves the committed
+registry lockfile and invalidates generated consumer caches only when the
+verified release-candidate fingerprint changes.
 The repository-local Storybook structure audit consumes the same structured
 command-panel registry as the visual catalog so command metadata, canonical
 story paths, and six-placement coverage cannot drift independently.

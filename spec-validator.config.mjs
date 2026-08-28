@@ -119,7 +119,7 @@ export default defineConfig(tableRequirements(), {
       rules: [
         {
           pattern:
-            "^(?:\\.github/workflows/(?:lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent|prepare-local-plugin-consumer)\\.mjs|scripts/local-plugin-pnpmfile(?:\\.test)?\\.(?:cjs|mjs))$",
+            "^(?:\\.github/workflows/(?:lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent|prepare-local-plugin-consumer|lib/local-plugin-consumer)\\.mjs|scripts/local-plugin-pnpmfile(?:\\.test)?\\.(?:cjs|mjs))$",
           chapters: ["spec/src/packages.md", "spec/src/spec-governance.md"],
         },
         {

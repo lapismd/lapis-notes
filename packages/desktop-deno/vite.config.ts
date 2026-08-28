@@ -22,7 +22,8 @@ const rendererFileSystemAllow = [
   linkedDesignCoreRoot,
   linkedMiraWorkspaceRoot,
 ];
-const rendererSingletonPackages = [
+export const rendererSingletonPackages = [
+  "@lapis-notes/api",
   "@codemirror/state",
   "@codemirror/view",
   "@codemirror/language",
@@ -42,9 +43,14 @@ const crossOriginIsolationHeaders = {
 };
 
 export const rendererOptimizeDependencyExclusions = [
+  "@lapis-notes/api",
   "harper.js",
   "ghostty-web",
   "@lapismd/design-core",
+] as const;
+
+export const rendererOptimizeDependencyInclusions = [
+  "@lapismd/mira/**",
 ] as const;
 
 export const rendererSvelteOptions = {
@@ -79,6 +85,7 @@ export default defineConfig(({ command }) => ({
   assetsInclude: ["**/*.wasm"],
   optimizeDeps: {
     exclude: [...rendererOptimizeDependencyExclusions],
+    include: [...rendererOptimizeDependencyInclusions],
   },
   resolve: {
     dedupe: rendererSingletonPackages,

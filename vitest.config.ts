@@ -3,11 +3,16 @@ import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
+import {
+  storybookFirstPartyPackageExcludes,
+  storybookPackedDependencyIncludes,
+} from "./.storybook/dependency-optimization.ts";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   optimizeDeps: {
+    exclude: [...storybookFirstPartyPackageExcludes],
     include: [
       "aria-query",
       "react",
@@ -15,6 +20,7 @@ export default defineConfig({
       "react-dom/client",
       "@storybook/addon-a11y/preview",
       "@storybook/svelte-vite",
+      ...storybookPackedDependencyIncludes,
     ],
   },
   ssr: {
@@ -28,6 +34,7 @@ export default defineConfig({
           storybookTest({ configDir: path.join(dirname, ".storybook") }),
         ],
         optimizeDeps: {
+          exclude: [...storybookFirstPartyPackageExcludes],
           include: [
             "aria-query",
             "react",
@@ -35,6 +42,7 @@ export default defineConfig({
             "react-dom/client",
             "@storybook/addon-a11y/preview",
             "@storybook/svelte-vite",
+            ...storybookPackedDependencyIncludes,
           ],
         },
         ssr: {

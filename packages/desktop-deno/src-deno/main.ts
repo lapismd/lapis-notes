@@ -185,6 +185,7 @@ try {
   desktopLog.error("[desktop] terminal runtime unavailable", error);
 }
 let removeCloseRouting = () => {};
+let removeDesktopBindings = () => {};
 const closeSignal = createDesktopCloseSignal();
 const closeCoordinator = createDenoCloseCoordinator({
   emitBeforeClose() {
@@ -194,6 +195,7 @@ const closeCoordinator = createDenoCloseCoordinator({
   async shutdown() {
     desktopLog.info("[desktop-close] shutdown");
     removeCloseRouting();
+    removeDesktopBindings();
     win.removeEventListener("load", scheduleTrafficLightAlignment);
     win.removeEventListener("resize", scheduleTrafficLightAlignment);
     if (trafficLightLayoutTimer !== undefined) {
@@ -224,8 +226,8 @@ removeCloseRouting = installDenoWindowCloseRouting(closeCoordinator, [
 const INSPECT_ADDRESS = "127.0.0.1:9229";
 let laterLaunchFocusCount = 0;
 
-function registerDesktopBindings(): void {
-  installWindowBindings(win, [
+function registerDesktopBindings() {
+  return installWindowBindings(win, [
     [
       "invoke",
       (...args: unknown[]) => {
@@ -287,7 +289,8 @@ function registerDesktopBindings(): void {
   ]);
 }
 
-registerDesktopBindings();
+const desktopBindings = registerDesktopBindings();
+removeDesktopBindings = desktopBindings.dispose;
 singleInstance.queue.onLaterLaunch(() => {
   if (!win.isClosed()) {
     win.show();
@@ -446,5 +449,6 @@ Deno.serve(async (request) => {
 if (win !== bootstrap) {
   bootstrap.hide();
   win.navigate(rendererOrigin);
+  desktopBindings.refresh();
   win.show();
 }

@@ -8,11 +8,13 @@ import { defineConfig, searchForWorkspaceRoot, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import {
   rendererOptimizeDependencyExclusions,
+  rendererOptimizeDependencyInclusions,
   rendererSvelteOptions,
 } from "./src/renderer-config";
 
 export {
   rendererOptimizeDependencyExclusions,
+  rendererOptimizeDependencyInclusions,
   rendererSvelteOptions,
 } from "./src/renderer-config";
 
@@ -181,11 +183,7 @@ export default defineConfig({
     strictPort: true,
     headers: crossOriginIsolationHeaders,
     fs: {
-      allow: [
-        workspaceRoot,
-        linkedDesignCoreRoot,
-        linkedMiraWorkspaceRoot,
-      ],
+      allow: [workspaceRoot, linkedDesignCoreRoot, linkedMiraWorkspaceRoot],
     },
   },
   preview: {
@@ -196,6 +194,7 @@ export default defineConfig({
   worker: { format: "es" },
   optimizeDeps: {
     exclude: [...rendererOptimizeDependencyExclusions],
+    include: [...rendererOptimizeDependencyInclusions],
   },
   assetsInclude: ["**/*.wasm"],
   resolve: { dedupe: rendererSingletonPackages },

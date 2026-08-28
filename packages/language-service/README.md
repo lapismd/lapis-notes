@@ -3,7 +3,9 @@
 Provider-neutral Markdown language services for Lapis applications.
 
 The package exposes browser-worker and native-host adapters without owning
-workspace presentation, vault navigation, or application policy.
+workspace presentation, vault navigation, or application policy. Its browser
+provider loads the emitted worker through the standard module-worker URL form,
+so installed package consumers do not require a Vite-specific worker import.
 
 ## Public surface
 

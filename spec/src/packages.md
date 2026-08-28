@@ -26,6 +26,12 @@ projection `planKind` values are `anytime`, `morning`, `afternoon`,
 production hosts are Deno desktop and web. Root `dev:desktop`,
 `dev:desktop:cef`, `build:desktop`, `package:desktop`, and
 `test:desktop:packaged` scripts select and exercise the Deno package.
+The Web and Deno packages share the same renderer dependency-optimization
+boundary for registry-installed plugins. Deep Mira modules and their transitive
+CommonJS dependencies cross that boundary as one package-level pre-bundle.
+The local release-candidate installer preserves the committed registry
+lockfile, reuses a matching verified install, and invalidates generated Vite
+and Storybook caches when its package fingerprint changes.
 The desktop development script is a pnpm entrypoint that starts the Deno desktop
 host, so its Deno arguments must stay consistent with the package-local
 `deno.json` imports rather than imposing a root-level package-manager policy.
@@ -157,6 +163,7 @@ entrypoints.
 | LN-PKG-132 | Private `@lapis-notes/app-profile` MUST own the shared Web and Deno static plugin profile and app-owned plugin-management registration. Host packages MUST consume that one profile instead of duplicating registration arrays or importing extracted plugins directly. |
 | LN-PKG-133 | The sibling `lapis-plugins` repository MUST own source, behavior specifications, tests, release tooling, and one repository-level Storybook for AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source Editor, Spellcheck, and Word Count. Lapis Notes MUST retain only framework, application-profile, host, and install-management integration contracts for those packages. |
 | LN-PKG-134 | Lapis Notes manifests and its committed lockfile MUST consume extracted plugins through registry semver ranges. A git-ignored local pnpm hook MAY redirect only those plugin ranges to checksum-verified sibling npm tarballs without changing host-package ranges or the lockfile; Web, Deno desktop, Storybook, and AI integration development entrypoints MUST prepare that package-boundary install before launch. |
+| LN-PKG-135 | `@lapis-notes/language-service` browser providers MUST construct workers from package-stable emitted JavaScript URLs using the standards-aligned module-worker form. Published output MUST NOT retain Vite query-suffix worker imports that require source-mode transformation. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter. |

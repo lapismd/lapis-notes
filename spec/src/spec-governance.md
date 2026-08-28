@@ -147,6 +147,7 @@ as its renderer and native host sources.
 | Storybook infrastructure and catalog metadata                                  | `storybook-catalog.md`                                                                        |
 | Root architecture / workspace / turbo manifests                                | `architecture.md`, `packages.md`                                                              |
 | Governance scripts, QMD config/ignore rules, `AGENTS.md`, `spec/book.toml`     | `spec-governance.md`                                                                          |
+| Local release-candidate installer and support module                           | `packages.md`, `spec-governance.md`                                                           |
 
 ## Agent workflow
 

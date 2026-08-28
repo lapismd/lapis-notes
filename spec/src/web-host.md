@@ -57,6 +57,8 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-044 | The web host MUST NOT statically import or register `@lapis-notes/lapis-plugin-tasks`. When installed and enabled, Tasks MUST load through configured plugin persistence and register its own workspace views. |
 | LN-WEB-045 | The web host MUST register the default-enabled `@lapis-notes/source-editor` before Markdown so text, JSON, YAML, and YML files use the same source associations as desktop without transferring Markdown ownership. |
 | LN-WEB-046 | The production web build MUST provide an explicit 8 GiB Node heap budget so the registry-backed Design Core and Mira graph completes chunk rendering under the root package build. |
+| LN-WEB-047 | The Web development renderer MUST pre-bundle deep `@lapismd/mira` modules used by registry-installed Markdown so browsers receive interoperable exports for their transitive CommonJS dependencies instead of importing raw CommonJS through native ESM URLs. |
+| LN-WEB-048 | The Web development renderer MUST keep `@lapis-notes/api` outside dependency optimization and resolve it as a singleton across the host and packed static plugins. API-owned workspace state MUST remain visible when plugins load from local release-candidate tarballs. |
 
 ### LN-WEB-021 acceptance details
 

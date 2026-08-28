@@ -1,5 +1,3 @@
-/// <reference path="./vite-env.d.ts" />
-
 import {
   type LanguageServiceCodeAction,
   type LanguageServiceDiagnostic,
@@ -7,7 +5,6 @@ import {
   type LanguageServiceProvider,
 } from "@lapis-notes/api/language-service";
 import { LanguageServiceWorkerClient } from "@lapis-notes/api/language-service/worker";
-import MarkdownLintWorker from "./workers/markdownlint.worker.js?worker&inline";
 
 const DESKTOP_LANGUAGE_SERVICE_PROTOCOL_VERSION = 1 as const;
 
@@ -25,7 +22,11 @@ function resolveMarkdownRules(
 export function createMarkdownLanguageServiceProvider(
   options: MarkdownLanguageServiceProviderOptions = {},
 ): LanguageServiceProvider {
-  const client = new LanguageServiceWorkerClient(new MarkdownLintWorker());
+  const client = new LanguageServiceWorkerClient(
+    new Worker(new URL("./workers/markdownlint.worker.js", import.meta.url), {
+      type: "module",
+    }),
+  );
   return {
     metadata: {
       id: "markdownlint-worker",

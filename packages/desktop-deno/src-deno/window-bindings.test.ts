@@ -9,7 +9,7 @@ describe("Deno desktop window bindings", () => {
     const bind = vi.fn();
     let onLoad: (() => void) | undefined;
     const removeEventListener = vi.fn();
-    const dispose = installWindowBindings(
+    const installed = installWindowBindings(
       {
         bind,
         addEventListener(_type, listener) {
@@ -28,7 +28,7 @@ describe("Deno desktop window bindings", () => {
       "platform",
     ]);
 
-    onLoad?.();
+    installed.refresh();
     expect(bind.mock.calls.map(([name]) => name)).toEqual([
       "invoke",
       "platform",
@@ -36,7 +36,17 @@ describe("Deno desktop window bindings", () => {
       "platform",
     ]);
 
-    dispose();
+    onLoad?.();
+    expect(bind.mock.calls.map(([name]) => name)).toEqual([
+      "invoke",
+      "platform",
+      "invoke",
+      "platform",
+      "invoke",
+      "platform",
+    ]);
+
+    installed.dispose();
     expect(removeEventListener).toHaveBeenCalledWith("load", onLoad);
   });
 

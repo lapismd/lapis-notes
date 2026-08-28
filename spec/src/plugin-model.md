@@ -301,8 +301,9 @@ paint instead of Mira's portable fallback. Its Reading mode makes the inherited
 Design Core Scroll Area the sole preview scroll owner while Mira's inner
 preview remains non-scrolling. The floating outline stays centered in that
 visible Scroll Area and reserves body clearance for its collapsed rail.
-Packaged metadata parse keeps an extensionless Vite worker import so web and
-desktop resolve the published worker file.
+Packaged metadata parse uses a standard module-worker URL pointed at the
+emitted JavaScript file. Web and desktop retain host-owned dependency interop
+for the remaining registry package graph.
 `openFile` triggers `file-open` after `onLoadFile` so file-scoped Markdown
 panels can follow the restored note without waiting for a layout write.
 Restoring a command panel still loads that view when its snapshot includes a

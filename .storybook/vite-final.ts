@@ -9,6 +9,10 @@ import {
   type InlineConfig,
   type Plugin,
 } from "vite";
+import {
+  storybookFirstPartyPackageExcludes,
+  storybookPackedDependencyIncludes,
+} from "./dependency-optimization.ts";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(rootDir, "..");
@@ -31,6 +35,7 @@ const linkedSiblingPackages = [
 /** Keep host peer identities authoritative across linked sibling packages. */
 const linkedSingletonPackages = [
   "@lapis-notes/api",
+  "@lapismd/design-core",
   "@codemirror/state",
   "@codemirror/view",
   "@codemirror/language",
@@ -255,14 +260,13 @@ export async function viteFinal(
     optimizeDeps: {
       exclude: [
         "@storybook/svelte",
+        ...storybookFirstPartyPackageExcludes,
         "@lapismd/ai-host",
         "@lapismd/ai-host/client",
-        "@lapismd/design-core",
       ],
       include: [
         "aria-query",
-        "debug",
-        "extend",
+        ...storybookPackedDependencyIncludes,
         "react",
         "react-dom",
         "react-dom/client",

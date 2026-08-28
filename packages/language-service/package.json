@@ -1,6 +1,6 @@
 {
   "name": "@lapis-notes/language-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Provider-neutral Markdown language services for Lapis applications",
   "license": "AGPL-3.0-or-later",
   "repository": {
