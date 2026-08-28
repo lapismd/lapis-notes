@@ -21,6 +21,9 @@ result views are a separate Plugin API (LN-PLUG-024) and MUST NOT add palette
 commands. Plugins register namespaced AppDatabase projections through
 `registerIndexProjection`. Indexing runs after the core metadata write and
 MUST NOT register workspace views.
+The application registers plugin-management pages against the shell controller;
+Workspace renders those pages and an App-injected README renderer without owning
+the selected static profile, registry policy, or host boot order.
 
 ## Requirements
 
@@ -73,6 +76,7 @@ MUST NOT register workspace views.
 | LN-WS-083 | Workspace MUST register `app:go-to-file`. Activating it MUST call Design Core `openPalette({ tab: "files" })`. Empty-view Go to file and See recent files MUST use that command. |
 | LN-WS-084 | The workspace shell pane menu MUST split Lapis-hosted views by duplicating the active API leaf before the Design Core pane appears. The duplicated pane MUST project with translated host directions and render the same view type with copied state for both Split right and Split down. |
 | LN-WS-085 | The `@lapis-notes/workspace` public `0.1.0` package MUST remain a shell adapter around a host-supplied API `App`. Its release manifest, README, and package metadata MUST keep vault discovery, plugin boot, persistence, profile management, and backend setup outside the package. |
+| LN-WS-086 | Workspace MUST expose the reusable plugin-management settings pages and App registration helper without selecting an application profile or importing Markdown. The host application MUST register the pages, and README rendering MUST use the App injection contract. |
 
 ## Ownership and data flow
 

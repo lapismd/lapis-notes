@@ -1,7 +1,10 @@
 import type { App } from "@lapis-notes/api";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
-import type { AiPlugin } from "@lapis-notes/ai";
 import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
+
+interface RefreshableAgentRuntimePlugin {
+  refreshHostRuntimes?(): void;
+}
 
 export const WEB_AGENT_RUNTIME_URL_KEY = "web.agentRuntime.url";
 export const WEB_AGENT_RUNTIME_TOKEN_KEY = "web.agentRuntime.token";
@@ -40,7 +43,9 @@ export function resolveWebAgentRuntimeConfig(app: App): {
 }
 
 export function refreshWebAiHostRuntimes(app: App): void {
-  const plugin = app.plugins.plugins.get("ai") as AiPlugin | undefined;
+  const plugin = app.plugins.plugins.get("ai") as
+    | RefreshableAgentRuntimePlugin
+    | undefined;
   plugin?.refreshHostRuntimes?.();
 }
 

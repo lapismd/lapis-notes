@@ -31,13 +31,6 @@ const linkedDesignCoreRoot = realpathSync(
 const linkedMiraWorkspaceRoot = searchForWorkspaceRoot(
   realpathSync(path.join(workspaceRoot, "node_modules", "@lapismd", "mira")),
 );
-const linkedTerminalPluginRoot = realpathSync(
-  path.join(
-    packageRoot,
-    "node_modules",
-    "@lapis-notes/lapis-plugin-terminal",
-  ),
-);
 const crossOriginIsolationHeaders = {
   "Cross-Origin-Embedder-Policy": "require-corp",
   "Cross-Origin-Opener-Policy": "same-origin",
@@ -192,7 +185,6 @@ export default defineConfig({
         workspaceRoot,
         linkedDesignCoreRoot,
         linkedMiraWorkspaceRoot,
-        linkedTerminalPluginRoot,
       ],
     },
   },

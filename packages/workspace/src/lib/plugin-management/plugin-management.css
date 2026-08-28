@@ -1,0 +1,477 @@
+[data-ui-component="lapis-plugin-management"] {
+  --ui-lapis-plugin-surface: var(
+    --ui-workspace-panel,
+    var(--ui-workspace-background, var(--background))
+  );
+  --ui-lapis-plugin-muted-surface: var(
+    --ui-workspace-muted,
+    var(--muted)
+  );
+  --ui-lapis-plugin-foreground: var(
+    --ui-workspace-foreground,
+    var(--foreground)
+  );
+  --ui-lapis-plugin-muted-foreground: var(
+    --ui-workspace-muted-foreground,
+    var(--muted-foreground)
+  );
+  --ui-lapis-plugin-border: var(--ui-workspace-border, var(--border));
+  --ui-lapis-plugin-accent: var(
+    --ui-workspace-accent,
+    var(--interactive-accent, var(--primary))
+  );
+  --ui-lapis-plugin-hover: var(
+    --ui-workspace-panel-action-hover-background,
+    var(--background-modifier-hover, var(--accent))
+  );
+  --ui-lapis-plugin-radius: var(--ui-workspace-radius-medium, var(--radius));
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem 0.5rem;
+  color: var(--ui-lapis-plugin-foreground);
+}
+
+.lapis-plugin-management__header,
+.lapis-plugin-management__trust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.lapis-plugin-management__header h1,
+.lapis-plugin-management__trust h1,
+.lapis-plugin-card h2,
+.lapis-plugin-registry-card h2,
+.lapis-plugin-settings-row h2,
+.lapis-plugin-detail-dialog h2 {
+  margin: 0;
+  color: var(--ui-lapis-plugin-foreground);
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.lapis-plugin-management__header p,
+.lapis-plugin-management__trust p,
+.lapis-plugin-card p,
+.lapis-plugin-registry-card p,
+.lapis-plugin-settings-row p,
+.lapis-plugin-detail-dialog p {
+  margin: 0.25rem 0 0;
+  color: var(--ui-lapis-plugin-muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.lapis-plugin-management__actions,
+.lapis-plugin-card__actions,
+.lapis-plugin-card__badges,
+.lapis-plugin-settings-row__actions,
+.lapis-plugin-settings-row__title-line,
+.lapis-plugin-settings-row__summary,
+.lapis-plugin-registry-card__metadata,
+.lapis-plugin-detail-dialog__metadata > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lapis-plugin-management__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.lapis-plugin-management__small-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.lapis-plugin-management__icon[data-spinning="true"] {
+  animation: lapis-plugin-spin 1s linear infinite;
+}
+
+@keyframes lapis-plugin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lapis-plugin-management__rows,
+.lapis-plugin-registry__tabs,
+.lapis-plugin-registry__browse {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.lapis-plugin-management__empty {
+  padding: 1rem 0.5rem;
+  color: var(--ui-lapis-plugin-muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.lapis-plugin-management__trust {
+  border: 1px solid var(--ui-lapis-plugin-border);
+  border-radius: var(--ui-lapis-plugin-radius);
+  padding: 0.875rem;
+  background: var(--ui-lapis-plugin-muted-surface);
+}
+
+.lapis-plugin-settings-row,
+.lapis-plugin-card {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  border: 1px solid var(--ui-lapis-plugin-border);
+  border-radius: var(--ui-lapis-plugin-radius);
+  padding: 0.75rem;
+  background: var(--ui-lapis-plugin-surface);
+}
+
+.lapis-plugin-settings-row__disclosure {
+  display: inline-grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  border: 0;
+  border-radius: var(--ui-workspace-radius-small, 0.25rem);
+  color: var(--ui-lapis-plugin-muted-foreground);
+  background: transparent;
+  cursor: pointer;
+}
+
+.lapis-plugin-settings-row__disclosure:hover,
+.lapis-plugin-settings-row__disclosure:focus-visible {
+  color: var(--ui-lapis-plugin-foreground);
+  background: var(--ui-lapis-plugin-hover);
+}
+
+[data-ui-component="collapsible"][data-state="open"]
+  .lapis-plugin-settings-row__disclosure
+  svg {
+  transform: rotate(90deg);
+}
+
+.lapis-plugin-settings-row__disclosure svg {
+  transition: transform 140ms ease;
+}
+
+.lapis-plugin-settings-row__content,
+.lapis-plugin-card__content,
+.lapis-plugin-registry-card__content {
+  min-width: 0;
+}
+
+.lapis-plugin-settings-row__description,
+.lapis-plugin-card p,
+.lapis-plugin-registry-card > div > p {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.lapis-plugin-settings-row__summary,
+.lapis-plugin-registry-card__metadata {
+  margin-top: 0.5rem;
+  color: var(--ui-lapis-plugin-muted-foreground);
+  font-size: 0.75rem;
+}
+
+.lapis-plugin-settings-row__details {
+  grid-column: 2 / -1;
+  border-top: 1px solid var(--ui-lapis-plugin-border);
+  padding-top: 0.75rem;
+  color: var(--ui-lapis-plugin-muted-foreground);
+  font-size: 0.75rem;
+}
+
+.lapis-plugin-settings-row__details dl {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+}
+
+.lapis-plugin-settings-row__details dl > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.3fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.lapis-plugin-settings-row__details dt {
+  font-weight: 600;
+  color: var(--ui-lapis-plugin-foreground);
+}
+
+.lapis-plugin-settings-row__details dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.lapis-plugin-settings-row__error {
+  color: var(--ui-workspace-destructive, var(--destructive));
+}
+
+.lapis-plugin-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.lapis-plugin-card__badges {
+  margin-top: 0.5rem;
+  gap: 0.375rem;
+}
+
+.lapis-plugin-registry__tab-list {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0;
+  border: 0;
+  border-bottom: 1px solid var(--ui-lapis-plugin-border);
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.lapis-plugin-registry__tab-list.lapis-plugin-registry__tab-list
+  .lapis-plugin-registry__tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-lapis-plugin-foreground) !important;
+}
+
+.lapis-plugin-registry__tab-list
+  [data-ui-component="tabs-trigger"][data-state="active"] {
+  border-bottom-color: var(--ui-lapis-plugin-accent);
+}
+
+.lapis-plugin-registry__grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 0.625rem;
+}
+
+.lapis-plugin-registry-card {
+  display: grid;
+  min-width: 0;
+  min-height: 8rem;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0.75rem;
+  border: 1px solid var(--ui-lapis-plugin-border);
+  border-radius: var(--ui-lapis-plugin-radius);
+  padding: 0.75rem;
+  background: var(--ui-lapis-plugin-surface);
+}
+
+.lapis-plugin-registry-card__icon {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 1px solid var(--ui-lapis-plugin-border);
+  border-radius: var(--ui-workspace-radius-small, 0.25rem);
+  color: var(--ui-lapis-plugin-muted-foreground);
+  background: var(--ui-lapis-plugin-muted-surface);
+}
+
+.lapis-plugin-registry-card__title {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lapis-plugin-registry-card__title h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lapis-plugin-registry-card__metadata span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.lapis-plugin-registry-card .lapis-plugin-card__actions {
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.lapis-plugin-detail-dialog {
+  width: min(90vw, 68.75rem);
+  max-width: min(90vw, 68.75rem);
+  height: min(85vh, 62.5rem);
+  max-height: min(85vh, 62.5rem);
+  overflow: hidden;
+  padding: 0;
+}
+
+.lapis-plugin-detail-dialog__layout,
+.lapis-plugin-detail-dialog__detail,
+.lapis-plugin-detail-dialog__results {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.lapis-plugin-detail-dialog__header,
+.lapis-plugin-detail-dialog__metadata,
+.lapis-plugin-detail-dialog__results > header {
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--ui-lapis-plugin-border);
+  padding: 1rem 1.5rem;
+}
+
+.lapis-plugin-detail-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-right: 3rem;
+}
+
+.lapis-plugin-detail-dialog__panes {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.lapis-plugin-detail-dialog__results {
+  border-right: 1px solid var(--ui-lapis-plugin-border);
+}
+
+.lapis-plugin-detail-dialog__results > header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+}
+
+.lapis-plugin-detail-dialog__results > header span {
+  color: var(--ui-lapis-plugin-muted-foreground);
+}
+
+.lapis-plugin-detail-dialog__result-list,
+.lapis-plugin-detail-dialog__readme {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 0.5rem;
+}
+
+.lapis-plugin-detail-dialog__result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lapis-plugin-detail-dialog__result-list button {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--ui-workspace-radius-small, 0.25rem);
+  padding: 0.5rem 0.75rem;
+  color: var(--ui-lapis-plugin-muted-foreground);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lapis-plugin-detail-dialog__result-list button:hover,
+.lapis-plugin-detail-dialog__result-list button[data-active="true"] {
+  color: var(--ui-lapis-plugin-foreground);
+  background: var(--ui-lapis-plugin-hover);
+}
+
+.lapis-plugin-detail-dialog__result-list button[data-active="true"] {
+  border-color: var(--ui-lapis-plugin-accent);
+}
+
+.lapis-plugin-detail-dialog__result-list button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.lapis-plugin-detail-dialog__result-list button small {
+  font-size: 0.6875rem;
+}
+
+.lapis-plugin-detail-dialog__metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lapis-plugin-detail-dialog__metadata > div:first-child {
+  color: var(--ui-lapis-plugin-muted-foreground);
+  font-size: 0.75rem;
+}
+
+.lapis-plugin-detail-dialog__readme {
+  padding: 1.5rem;
+}
+
+.lapis-plugin-readme {
+  min-height: 100%;
+  color: var(--ui-lapis-plugin-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.lapis-plugin-readme img,
+.lapis-plugin-readme pre,
+.lapis-plugin-readme table {
+  max-width: 100%;
+}
+
+@media (max-width: 48rem) {
+  .lapis-plugin-settings-row,
+  .lapis-plugin-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .lapis-plugin-settings-row__actions,
+  .lapis-plugin-card__actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .lapis-plugin-detail-dialog {
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lapis-plugin-management__icon[data-spinning="true"] {
+    animation: none;
+  }
+}

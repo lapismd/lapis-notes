@@ -11,7 +11,8 @@
     "test": "vitest run"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./styles.css": "./styles.css"
   },
   "dependencies": {
     "@codemirror/lang-json": "^6.0.2",

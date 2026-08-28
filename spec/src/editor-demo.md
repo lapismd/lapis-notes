@@ -1,6 +1,6 @@
 # Lapis Editor Demo
 
-The real-App demo loads the production Source Editor before Markdown and domain plugins, so API-registered
+The real-App demo consumes the application-owned Notes profile, so API-registered
 Markdown contributions and the full-file provider exercise the same lifecycle
 and public package boundary as production hosts. The provider establishes the
 effective Mira `obsidian` theme before it mounts preview or live-edit content.
@@ -35,7 +35,7 @@ different seeded note and a dropdown portalled outside the property row.
 | LN-ED-011 | Storybook MUST provide one runnable demo plus focused source-editor, Explorer, settings, loading, failure, and opening-vault scenarios from one canonical in-memory seed. Every full-shell Autodocs story in this family MUST use the shared LN-WS-013 isolated 700px padding-free shell viewport, and the authored MDX MUST identify every scenario and render its canonical story description before its canvas. |
 | LN-ED-012 | New or touched component paint MUST use design-core composition, native CSS, public `--ui-*` tokens, and semantic `data-ui-*` hosts without Tailwind utility strings. |
 | LN-ED-013 | The default source editor shell MUST compose `@lapismd/mira` base CodeMirror extensions with the Obsidian theme through the linked package's built public exports, without a Storybook or Vite source alias. Source-editor Markdown language packs remain source-only. Rich Mira surfaces MUST be provided only by `@lapis-notes/markdown` when that plugin is enabled. |
-| LN-ED-019 | The editor demo MUST register core plugins in order: required source-editor, then `@lapis-notes/markdown` (`enabledByDefault: true`, exclusive markdown associations and Tags), Markdownlint, Spell Check, File Explorer, Bookmarks, History, and Word Count. Reusable File Explorer MUST come from `@lapis-notes/file-explorer`. |
+| LN-ED-019 | The application-profile integration demo MUST register exactly Source Editor, Markdown, reusable File Explorer, and Search in the same order as Web and Deno. Extracted plugin component and workspace stories MUST live in the sibling `lapis-plugins` Storybook; Lapis Notes MAY retain only framework and management integration fixtures. |
 | LN-ED-020 | Storybook MUST provide focused panel stories for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags, plus editor-demo integration coverage for Markdown modes and Markdown/Mira settings. |
 | LN-ED-021 | Every focused Markdown panel MUST use `Plugins/Markdown/Panels/<Panel>` with the six movable surfaces defined by All Properties. Vault-wide panels omit the document; file-scoped panels retain one minimal active Markdown leaf. |
 | LN-ED-022 | The API editor MUST support self-owned or ancestor-owned vertical scrolling: self-owned `ScrollArea` fills its workspace view for oversized source or Markdown documents, while ancestor-owned embedding MUST not mount an inner scroll host. CodeMirror MUST expand without another vertical scrollbar. Markdown's full editing wrapper MUST use self-owned scrolling. Focused Storybook acceptance MUST prove one long-document range and changed scroll position in top-tab and stacked-tab workspaces. |

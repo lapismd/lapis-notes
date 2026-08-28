@@ -17,14 +17,10 @@ const linkedMiraWorkspaceRoot = searchForWorkspaceRoot(
     path.join(lapisWorkspaceRoot, "node_modules", "@lapismd", "mira"),
   ),
 );
-const linkedTerminalPluginRoot = realpathSync(
-  path.join(packageRoot, "node_modules", "@lapis-notes/lapis-plugin-terminal"),
-);
 const rendererFileSystemAllow = [
   lapisWorkspaceRoot,
   linkedDesignCoreRoot,
   linkedMiraWorkspaceRoot,
-  linkedTerminalPluginRoot,
 ];
 const rendererSingletonPackages = [
   "@codemirror/state",

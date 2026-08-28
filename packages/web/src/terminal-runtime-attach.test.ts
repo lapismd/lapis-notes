@@ -148,14 +148,14 @@ describe("web terminal-runtime attach", () => {
     expect(api.setNativeDesktopBridge).not.toHaveBeenCalled();
   });
 
-  it("registers the env-backed bridge before constructing TerminalPlugin", () => {
+  it("registers the env-backed bridge without coupling the host to TerminalPlugin", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
       "utf8",
     );
     expect(source).toContain("registerWebTerminalRuntimeBridge");
     expect(source.indexOf("registerWebTerminalRuntimeBridge()")).toBeLessThan(
-      source.indexOf("plugin: TerminalPlugin"),
+      source.indexOf("app.plugins.registerStaticPlugins(notesPluginProfile)"),
     );
     expect(
       source.indexOf("registerWebTerminalRuntimeSettings(app)"),
@@ -175,7 +175,8 @@ describe("web terminal-runtime attach", () => {
     expect(vite).toContain("rendererOptimizeDependencyExclusions");
     expect(rendererConfig).toContain('"ghostty-web"');
     expect(vite).not.toContain('"@xterm/xterm"');
-    expect(vite).toContain("linkedTerminalPluginRoot");
-    expect(vite).toContain("@lapis-notes/lapis-plugin-terminal");
+    expect(vite).not.toContain("linkedTerminalPluginRoot");
+    expect(vite).not.toContain("@lapis-notes/lapis-plugin-terminal");
+    expect(source).not.toContain("TerminalPlugin");
   });
 });

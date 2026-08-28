@@ -1,0 +1,31 @@
+{
+  "name": "@lapis-notes/app-profile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "pnpm check",
+    "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --output human",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/file-explorer": "workspace:*",
+    "@lapis-notes/markdown": "workspace:*",
+    "@lapis-notes/search": "workspace:*",
+    "@lapis-notes/source-editor": "workspace:*",
+    "@lapis-notes/workspace": "workspace:*"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@tsconfig/svelte": "^5.0.5",
+    "svelte": "^5.38.2",
+    "svelte-check": "^4.3.1",
+    "typescript": "~5.8.3",
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10"
+  }
+}

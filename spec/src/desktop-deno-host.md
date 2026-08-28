@@ -17,7 +17,7 @@ distribution is outside the supported matrix.
 | LN-DENO-003 | Vault profiles MUST use the `desktop-folder` kind. Native filesystem bindings MUST reject paths outside the selected vault root.                                                                                                                                                                                                                                                                                                                                                                            |
 | LN-DENO-004 | Open and create vault MAY collect an absolute folder path through a prompt or the `LAPIS_DENO_VAULT` environment variable until Deno ships a native picker. Cancelling MUST return to the branded launcher.                                                                                                                                                                                                                                                                                                 |
 | LN-DENO-005 | A Deno desktop session MUST open the app database through a native Turso handle owned by the Deno host. Its descriptor MUST report provider `turso-native-desktop`, engine `turso`, and transport `native`. Renderer access MUST use the bounded AppDatabase bridge, including typed derived-memory methods, and advertise database/search only when those operations are implemented. Raw SQL, memory files, transcript contents, and non-AppDatabase operations MUST remain outside the bridge catalogue. |
-| LN-DENO-006 | Before restoring layout, the host MUST register the canonical enabled-by-default first-party plugin inventory and ordering, with Source Editor before Markdown and Graph after Search and before Bookmarks. It MUST load only the configured enabled set, keep community plugins disabled until a public plugin host is available, and verify that inventory in packaged acceptance.                                                                                                                                                          |
+| LN-DENO-006 | Before restoring layout, the host MUST register the shared application-owned `notesPluginProfile` containing exactly Source Editor, Markdown, File Explorer, and Search in that order. All four MUST default enabled and remain user-disableable. The host MUST load configured installed plugins unless Safe Mode disables community plugins and MUST verify this profile and persistence in packaged acceptance. |
 | LN-DENO-007 | Each vault session MUST install one compatibility App lease before plugin loading and release it only after plugin, workspace, metadata, and vault-session teardown.                                                                                                                                                                                                                                                                                                                                        |
 | LN-DENO-008 | Language, plugin, AI, and terminal host services MUST use public package boundaries and Deno-owned process lifecycles. Terminal sessions MUST use public `@lapismd/terminal-host/deno`; Deno code MUST NOT import another desktop host.                                                                                                                                                                                                                                                                     |
 | LN-DENO-009 | Session boot MUST render Design Core `WorkspaceStartup` with vault, configuration, plugin, and layout tasks, then mount `WorkspaceShell` with an API `App`. While loading without failure, it MUST replace the visible title with the package-local Lapis logo while retaining the title as the region's accessible name. It MUST NOT copy the workspace renderer.                                                                                                                                          |
@@ -294,12 +294,16 @@ The Deno bridge registration verifies:
 
 Plugin registration parity verifies:
 
-- Markdown, Markdown Lint, Spell Check, File Explorer, Search, Bookmarks,
-  History, Word Count, Bases, AI, Terminal, and Roles MUST register in the
-  canonical order before `loadLayout`.
-- `loadPlugins` MUST keep community plugins disabled.
-- A plugin whose required host capability is unavailable MUST remain visible
-  with a bounded unavailable state instead of failing session boot.
+- The shared profile contains Source Editor, Markdown, File Explorer, and
+  Search exactly once in that order.
+- All four profile entries are optional and default enabled.
+- Desktop and web consume the same exported profile.
+- Configured installed plugins load after the static profile and survive
+  restart.
+- Safe Mode disables installed community plugins without changing the static
+  profile.
+- A plugin whose required host capability is unavailable remains visible with
+  a bounded unavailable state instead of failing session boot.
 
 ### LN-DENO-009 acceptance details
 

@@ -2,51 +2,27 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("web Bases host registration", () => {
-  it("registers bundled Bases after Search and before restore work", () => {
+describe("web plugin profile registration", () => {
+  it("registers the shared Notes profile before configured plugins and restore work", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
       "utf8",
     );
-    const sourceEditor = source.indexOf("plugin: SourceEditorPlugin");
-    const markdown = source.indexOf("plugin: MarkdownPlugin");
-    const search = source.indexOf("plugin: SearchPlugin");
-    const graph = source.indexOf("plugin: GraphPlugin");
-    const bookmarks = source.indexOf("plugin: BookmarksPlugin");
-    const markdownLint = source.indexOf("plugin: MarkdownLintPlugin");
-    const spellcheck = source.indexOf("plugin: SpellcheckPlugin");
-    const wordcount = source.indexOf("plugin: WordCountPlugin");
-    const bases = source.indexOf("plugin: BasesPlugin");
-    const ai = source.indexOf("plugin: AiPlugin");
-    const terminal = source.indexOf("plugin: TerminalPlugin");
-    const roles = source.indexOf("plugin: RolesPlugin");
-    const tasks = source.indexOf("plugin: TasksPlugin");
-    const docs = source.indexOf("plugin: DocsPlugin");
+    const registerProfile = source.indexOf(
+      "app.plugins.registerStaticPlugins(notesPluginProfile)",
+    );
     const loadPlugins = source.indexOf("await app.plugins.loadPlugins");
     const metadata = source.lastIndexOf("startMetadataCache()");
     const layout = source.indexOf("await app.workspace.loadLayout");
 
-    expect(source).toContain('import "@lapis-notes/bases/styles.css"');
-    expect(source).toContain('import "@lapis-notes/ai/styles.css"');
-    expect(source).toContain('import "@lapis-notes/graph/styles.css"');
-    expect(source.slice(bases, roles)).toContain('distribution: "bundled"');
-    expect(source).toContain('communityPlugins: "disabled"');
-    expect(sourceEditor).toBeGreaterThan(-1);
-    expect(markdown).toBeGreaterThan(sourceEditor);
-    expect(search).toBeGreaterThan(-1);
-    expect(markdownLint).toBeGreaterThan(-1);
-    expect(spellcheck).toBeGreaterThan(markdownLint);
-    expect(search).toBeGreaterThan(spellcheck);
-    expect(graph).toBeGreaterThan(search);
-    expect(bookmarks).toBeGreaterThan(graph);
-    expect(wordcount).toBeGreaterThan(bookmarks);
-    expect(bases).toBeGreaterThan(wordcount);
-    expect(ai).toBeGreaterThan(bases);
-    expect(terminal).toBeGreaterThan(ai);
-    expect(roles).toBeGreaterThan(terminal);
-    expect(tasks).toBeGreaterThan(roles);
-    expect(docs).toBeGreaterThan(tasks);
-    expect(loadPlugins).toBeGreaterThan(docs);
+    expect(source).toContain("notesPluginProfile");
+    expect(source).toContain("registerNotesPluginSettings(app)");
+    expect(source).toContain('communityPlugins: "configured"');
+    expect(source).not.toMatch(
+      /@lapis-notes\/(?:ai|bases|bookmarks|graph|history|markdown-lint|spellcheck|wordcount)/u,
+    );
+    expect(registerProfile).toBeGreaterThan(-1);
+    expect(loadPlugins).toBeGreaterThan(registerProfile);
     expect(layout).toBeGreaterThan(loadPlugins);
     expect(metadata).toBeGreaterThan(layout);
     expect(source).toContain("WorkspaceStartup");
@@ -64,6 +40,30 @@ describe("web Bases host registration", () => {
     ).toBeGreaterThan(source.indexOf("await app.configuration.load()"));
     expect(source).not.toMatch(/await app\.metadataCache\.load/u);
     expect(source).not.toContain("Opening vault…");
+  });
+
+  it("keeps exactly the four app-owned default plugins in stable order", () => {
+    const source = readFileSync(
+      path.resolve(process.cwd(), "../app-profile/src/index.ts"),
+      "utf8",
+    );
+    const orderedPlugins = [
+      "SourceEditorPlugin",
+      "MarkdownPlugin",
+      "FileExplorerPlugin",
+      "SearchPlugin",
+    ];
+
+    let previous = source.indexOf("notesPluginProfile = [");
+    for (const plugin of orderedPlugins) {
+      const current = source.indexOf(`plugin: ${plugin}`, previous);
+      expect(current, plugin).toBeGreaterThan(previous);
+      previous = current;
+    }
+
+    expect(source.match(/plugin: \w+Plugin/g)).toHaveLength(4);
+    expect(source.match(/enabledByDefault: true/g)).toHaveLength(4);
+    expect(source.match(/required: false/g)).toHaveLength(4);
   });
 
   it("keeps the branded launcher off the restore path", () => {

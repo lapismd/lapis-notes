@@ -11,25 +11,10 @@
     type VaultSession,
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
-  import { AiPlugin } from "@lapis-notes/ai";
-  import "@lapis-notes/ai/styles.css";
-  import { BasesPlugin } from "@lapis-notes/bases";
-  import "@lapis-notes/bases/styles.css";
-  import { BookmarksPlugin } from "@lapis-notes/bookmarks";
-  import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
-  import { GraphPlugin } from "@lapis-notes/graph";
-  import "@lapis-notes/graph/styles.css";
-  import { MarkdownPlugin } from "@lapis-notes/markdown";
-  import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-  import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
-  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
-  import { DocsPlugin } from "@lapis-notes/lapis-plugin-docs";
-  import { TasksPlugin } from "@lapis-notes/lapis-plugin-tasks";
-  import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
-  import { HistoryPlugin } from "@lapis-notes/history";
-  import { SearchPlugin } from "@lapis-notes/search";
-  import { SourceEditorPlugin } from "@lapis-notes/source-editor";
-  import { WordCountPlugin } from "@lapis-notes/wordcount";
+  import {
+    notesPluginProfile,
+    registerNotesPluginSettings,
+  } from "@lapis-notes/app-profile";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
   import {
@@ -96,6 +81,7 @@
   provideApplicationState(app);
   const disposeApplicationCompatibility =
     installApplicationCompatibility(app);
+  const disposePluginManagementSettings = registerNotesPluginSettings(app);
   const dailyDocumentProvider = registerDefaultDailyDocumentProvider(app);
   const disposePwaRuntimeApplication = setPwaRuntimeApplication(app);
   let ready = $state(false);
@@ -235,59 +221,7 @@
       registerWebAgentRuntimeBridge();
       registerWebTerminalRuntimeBridge();
       if (!corePluginsRegistered) {
-        app.plugins.registerCorePlugins([
-          { plugin: SourceEditorPlugin, required: false, enabledByDefault: true },
-          { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
-          { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
-          { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
-          { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
-          { plugin: SearchPlugin, required: false, enabledByDefault: true },
-          {
-            plugin: GraphPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "bundled",
-          },
-          { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
-          { plugin: HistoryPlugin, required: false, enabledByDefault: true },
-          { plugin: WordCountPlugin, required: false, enabledByDefault: true },
-          {
-            plugin: BasesPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "bundled",
-          },
-          {
-            plugin: AiPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "bundled",
-          },
-          {
-            plugin: TerminalPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "first-party-external",
-          },
-          {
-            plugin: RolesPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "first-party-external",
-          },
-          {
-            plugin: TasksPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "first-party-external",
-          },
-          {
-            plugin: DocsPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "first-party-external",
-          },
-        ]);
+        app.plugins.registerStaticPlugins(notesPluginProfile);
         corePluginsRegistered = true;
       }
       await app.vault.load();
@@ -312,7 +246,7 @@
       activeTask = "plugins";
       setTask(activeTask, "active");
       await app.plugins.loadPlugins({
-        communityPlugins: "disabled",
+        communityPlugins: "configured",
         optionalCorePlugins: "configured",
         onProgress: ({ name }) => {
           setTask(activeTask, "active", `Loading ${name}`);
@@ -401,6 +335,7 @@
       await session.close();
     } finally {
       dailyDocumentProvider.dispose();
+      disposePluginManagementSettings();
       disposePwaRuntimeApplication();
       disposeApplicationCompatibility();
     }

@@ -11,23 +11,10 @@
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
-  import { AiPlugin } from "@lapis-notes/ai";
-  import "@lapis-notes/ai/styles.css";
-  import { BasesPlugin } from "@lapis-notes/bases";
-  import "@lapis-notes/bases/styles.css";
-  import { BookmarksPlugin } from "@lapis-notes/bookmarks";
-  import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
-  import { GraphPlugin } from "@lapis-notes/graph";
-  import "@lapis-notes/graph/styles.css";
-  import { HistoryPlugin } from "@lapis-notes/history";
-  import { RolesPlugin } from "@lapis-notes/lapis-plugin-cv-roles";
-  import { TerminalPlugin } from "@lapis-notes/lapis-plugin-terminal";
-  import { MarkdownPlugin } from "@lapis-notes/markdown";
-  import { MarkdownLintPlugin } from "@lapis-notes/markdown-lint";
-  import { SearchPlugin } from "@lapis-notes/search";
-  import { SourceEditorPlugin } from "@lapis-notes/source-editor";
-  import { SpellcheckPlugin } from "@lapis-notes/spellcheck";
-  import { WordCountPlugin } from "@lapis-notes/wordcount";
+  import {
+    notesPluginProfile,
+    registerNotesPluginSettings,
+  } from "@lapis-notes/app-profile";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -96,6 +83,7 @@
   provideApplicationState(app);
   const disposeApplicationCompatibility =
     installApplicationCompatibility(app);
+  const disposePluginManagementSettings = registerNotesPluginSettings(app);
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
@@ -434,47 +422,7 @@
 
       setTask(activeTask, "active");
       if (!corePluginsRegistered) {
-        app.plugins.registerCorePlugins([
-          { plugin: SourceEditorPlugin, required: false, enabledByDefault: true },
-          { plugin: MarkdownPlugin, required: false, enabledByDefault: true },
-          { plugin: MarkdownLintPlugin, required: false, enabledByDefault: true },
-          { plugin: SpellcheckPlugin, required: false, enabledByDefault: true },
-          { plugin: FileExplorerPlugin, required: false, enabledByDefault: true },
-          { plugin: SearchPlugin, required: false, enabledByDefault: true },
-          {
-            plugin: GraphPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "bundled",
-          },
-          { plugin: BookmarksPlugin, required: false, enabledByDefault: true },
-          { plugin: HistoryPlugin, required: false, enabledByDefault: true },
-          { plugin: WordCountPlugin, required: false, enabledByDefault: true },
-          {
-            plugin: BasesPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "bundled",
-          },
-          {
-            plugin: AiPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "bundled",
-          },
-          {
-            plugin: TerminalPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "first-party-external",
-          },
-          {
-            plugin: RolesPlugin,
-            required: false,
-            enabledByDefault: true,
-            distribution: "first-party-external",
-          },
-        ]);
+        app.plugins.registerStaticPlugins(notesPluginProfile);
         corePluginsRegistered = true;
       }
       await runStartupPhase(startupSpan, activeTask, async () => {
@@ -496,7 +444,9 @@
       setTask(activeTask, "active");
       await runStartupPhase(startupSpan, activeTask, () =>
         app.plugins.loadPlugins({
-          communityPlugins: "disabled",
+          communityPlugins: app.safeMode.disableCommunityPlugins
+            ? "disabled"
+            : "configured",
           optionalCorePlugins: app.safeMode.disableOptionalCorePlugins
             ? "disabled"
             : "configured",
@@ -642,6 +592,7 @@
         { attributes: { "desktop.layout.persisted": persistLayout } },
       );
     } finally {
+      disposePluginManagementSettings();
       disposeApplicationCompatibility();
     }
   }

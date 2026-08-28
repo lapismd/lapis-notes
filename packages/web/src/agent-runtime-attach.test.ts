@@ -131,14 +131,14 @@ describe("web agent-runtime attach", () => {
     expect(api.setNativeDesktopBridge).not.toHaveBeenCalled();
   });
 
-  it("registers the env-backed bridge before constructing AiPlugin", () => {
+  it("registers the env-backed bridge before loading configured plugins", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
       "utf8",
     );
     expect(source).toContain("registerWebAgentRuntimeBridge");
     expect(source.indexOf("registerWebAgentRuntimeBridge()")).toBeLessThan(
-      source.indexOf("plugin: AiPlugin"),
+      source.indexOf("app.plugins.registerStaticPlugins(notesPluginProfile)"),
     );
     expect(source.indexOf("registerWebAgentRuntimeSettings(app)")).toBeGreaterThan(
       source.indexOf("await app.configuration.load()"),

@@ -3,52 +3,39 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Deno desktop plugin registration", () => {
-  it("matches canonical first-party ordering before layout restoration", () => {
+  it("uses the shared Notes profile before configured plugins and layout restoration", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src/DesktopWorkspaceSession.svelte"),
       "utf8",
     );
-    const orderedPlugins = [
-      "SourceEditorPlugin",
-      "MarkdownPlugin",
-      "MarkdownLintPlugin",
-      "SpellcheckPlugin",
-      "FileExplorerPlugin",
-      "SearchPlugin",
-      "GraphPlugin",
-      "BookmarksPlugin",
-      "HistoryPlugin",
-      "WordCountPlugin",
-      "BasesPlugin",
-      "AiPlugin",
-      "TerminalPlugin",
-      "RolesPlugin",
-    ];
+    const registerProfile = source.indexOf(
+      "app.plugins.registerStaticPlugins(notesPluginProfile)",
+    );
 
-    let previous = -1;
-    for (const plugin of orderedPlugins) {
-      const current = source.indexOf(`plugin: ${plugin}`);
-      expect(current, plugin).toBeGreaterThan(previous);
-      previous = current;
-    }
-
-    expect(source).toContain('import "@lapis-notes/bases/styles.css"');
-    expect(source).toContain('import "@lapis-notes/ai/styles.css"');
-    expect(source).toContain('import "@lapis-notes/graph/styles.css"');
-    expect(source).toContain('communityPlugins: "disabled"');
-    expect(source.indexOf("app.plugins.loadPlugins")).toBeGreaterThan(previous);
+    expect(source).toContain("notesPluginProfile");
+    expect(source).toContain("registerNotesPluginSettings(app)");
+    expect(source).not.toMatch(
+      /@lapis-notes\/(?:ai|bases|bookmarks|graph|history|markdown-lint|spellcheck|wordcount)/u,
+    );
+    expect(registerProfile).toBeGreaterThan(-1);
+    expect(source.indexOf("app.plugins.loadPlugins")).toBeGreaterThan(
+      registerProfile,
+    );
+    expect(source).toContain(
+      'communityPlugins: app.safeMode.disableCommunityPlugins\n            ? "disabled"\n            : "configured"',
+    );
     expect(source.indexOf("app.workspace.loadLayout")).toBeGreaterThan(
       source.indexOf("app.plugins.loadPlugins"),
     );
   });
 
-  it("leaves native Markdownlint provider ownership with the plugin", () => {
+  it("does not make Markdown Lint a host-owned default", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "src/DesktopWorkspaceSession.svelte"),
       "utf8",
     );
 
-    expect(source).toContain("plugin: MarkdownLintPlugin");
+    expect(source).not.toContain("MarkdownLintPlugin");
     expect(source).not.toContain("createNativeMarkdownLanguageServiceProvider");
     expect(source).not.toContain("app.languageServices.registerProvider");
   });
@@ -61,7 +48,9 @@ describe("Deno desktop plugin registration", () => {
 
     expect(
       source.indexOf("ownedApp.telemetry = bridge.telemetry"),
-    ).toBeLessThan(source.indexOf("app.plugins.registerCorePlugins"));
+    ).toBeLessThan(
+      source.indexOf("app.plugins.registerStaticPlugins(notesPluginProfile)"),
+    );
     expect(source).toContain('startSpan("desktop.session.startup")');
     expect(source).toContain('measureAsync("desktop.session.phase"');
     expect(source).toContain('recordEvent("desktop.session.ready"');

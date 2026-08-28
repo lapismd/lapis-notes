@@ -32,7 +32,8 @@
       "types": "./dist/agent-tools.d.ts",
       "import": "./dist/agent-tools.js",
       "default": "./dist/agent-tools.js"
-    }
+    },
+    "./styles.css": "./styles.css"
   },
   "dependencies": {
     "@lapis-notes/api": "workspace:*",

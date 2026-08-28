@@ -195,6 +195,16 @@ export default defineConfig(tableRequirements(), {
             "spec/src/packages.md",
             "spec/src/architecture.md",
             "spec/src/workspace-shell.md",
+            "spec/src/plugin-model.md",
+          ],
+        },
+        {
+          pattern: "^packages/app-profile/",
+          chapters: [
+            "spec/src/plugin-model.md",
+            "spec/src/packages.md",
+            "spec/src/web-host.md",
+            "spec/src/desktop-deno-host.md",
           ],
         },
         {
@@ -218,6 +228,7 @@ export default defineConfig(tableRequirements(), {
             "spec/src/packages.md",
             "spec/src/architecture.md",
             "spec/src/plugin-model.md",
+            "spec/src/plugin-model.md",
             "spec/src/workspace-shell.md",
             "spec/src/plugins/ai/index.md",
             "spec/src/plugins/markdown/index.md",
@@ -237,6 +248,7 @@ export default defineConfig(tableRequirements(), {
             "spec/src/web-host.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",
+            "spec/src/plugin-model.md",
           ],
         },
         {
