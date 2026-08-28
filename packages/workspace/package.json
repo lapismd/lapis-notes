@@ -1,12 +1,16 @@
 {
   "name": "@lapis-notes/workspace",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Lapis Notes workspace shell backed by design-core",
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lapismd/lapis-notes.git",
     "directory": "packages/workspace"
+  },
+  "homepage": "https://github.com/lapismd/lapis-notes/tree/main/packages/workspace#readme",
+  "bugs": {
+    "url": "https://github.com/lapismd/lapis-notes/issues"
   },
   "publishConfig": {
     "access": "public"
@@ -21,7 +25,10 @@
     "prepack": "svelte-package --tsconfig ./tsconfig.pack.json && publint"
   },
   "files": [
+    "CHANGELOG.md",
     "dist",
+    "LICENSE.md",
+    "README.md",
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
@@ -39,7 +46,7 @@
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "^0.0.1",
+    "@lapis-notes/api": "^0.1.0",
     "@lapismd/design-core": "^0.1.0"
   },
   "peerDependencies": {

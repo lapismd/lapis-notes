@@ -118,7 +118,13 @@ export default defineConfig(tableRequirements(), {
       ],
       rules: [
         {
-          pattern: "^packages/api/(?:src/|package\\.json$)",
+          pattern:
+            "^(?:\\.github/workflows/(?:lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent)\\.mjs)$",
+          chapters: ["spec/src/packages.md", "spec/src/spec-governance.md"],
+        },
+        {
+          pattern:
+            "^packages/api/(?:src/|package\\.json$|README\\.md$|CHANGELOG\\.md$|LICENSE\\.md$)",
           chapters: ["spec/src/packages.md", "spec/src/architecture.md"],
         },
         {
@@ -178,11 +184,13 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
-          pattern: "^packages/ui/(?:src/|package\\.json$)",
+          pattern:
+            "^packages/ui/(?:src/|package\\.json$|README\\.md$|CHANGELOG\\.md$|LICENSE\\.md$)",
           chapters: ["spec/src/packages.md", "spec/src/ui-and-styling.md"],
         },
         {
-          pattern: "^packages/workspace/(?:src/|package\\.json$)",
+          pattern:
+            "^packages/workspace/(?:src/|package\\.json$|README\\.md$|CHANGELOG\\.md$|LICENSE\\.md$)",
           chapters: [
             "spec/src/packages.md",
             "spec/src/architecture.md",

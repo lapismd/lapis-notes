@@ -1,0 +1,79 @@
+name: Lapis CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lapis-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance:
+    name: Spec governance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook@0.5.4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm spec:validate
+      - run: pnpm spec:build
+      - name: Spec-first gate
+        if: github.event_name == 'pull_request'
+        run: pnpm spec:first -- --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
+      - name: Release intent gate
+        if: github.event_name == 'pull_request'
+        run: pnpm release:intent -- --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
+
+  packages:
+    name: Package release checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook@0.5.4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm packages:check
+      - run: pnpm check:all
+      - run: pnpm packages:pack
+      - run: pnpm release:plan -- --registry https://registry.npmjs.org
+
+  storybook:
+    name: Storybook acceptance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium --with-deps
+      - run: pnpm build-storybook
+      - run: pnpm test:storybook

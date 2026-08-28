@@ -1,0 +1,156 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: lapis-public-release
+  cancel-in-progress: false
+
+jobs:
+  changesets:
+    name: Version packages
+    runs-on: ubuntu-latest
+    outputs:
+      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
+      published: ${{ steps.changesets.outputs.published }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - id: changesets
+        uses: changesets/action@v1.8.0
+        with:
+          version: pnpm release:version
+          commitMode: github-api
+          title: "chore: version Lapis packages"
+          commit: "chore: version Lapis packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  artifact:
+    name: Build release artifact
+    needs: changesets
+    if: needs.changesets.outputs.hasChangesets != 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      bootstrap_required: ${{ steps.plan.outputs.bootstrap_required }}
+      has_work: ${{ steps.plan.outputs.has_work }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook@0.5.4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm spec:check
+      - run: pnpm packages:check
+      - run: pnpm check:all
+      - run: pnpm packages:pack
+      - run: pnpm release:plan -- --registry https://registry.npmjs.org --json > .release/release-plan.json
+      - run: pnpm release:prepare -- --registry https://registry.npmjs.org
+      - id: plan
+        run: |
+          node -e 'const fs=require("node:fs");const m=JSON.parse(fs.readFileSync(".release/release-manifest.json","utf8"));const hasWork=m.packages.length>0;const bootstrap=Boolean(m.bootstrapRequired);fs.appendFileSync(process.env.GITHUB_OUTPUT,"has_work="+hasWork+"\nbootstrap_required="+bootstrap+"\n");if(bootstrap){console.log("::notice ::Initial packages require manual npm publication from the verified release artifact.");}'
+      - uses: actions/upload-artifact@v6
+        with:
+          name: lapis-notes-release-${{ github.sha }}
+          path: .release
+          if-no-files-found: error
+
+  publish:
+    name: Publish packages
+    needs: artifact
+    if: needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: npm-production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v6
+        with:
+          name: lapis-notes-release-${{ github.sha }}
+          path: .release
+      - run: pnpm release:publish
+        env:
+          LAPIS_RELEASE_APPROVED: "1"
+
+  verify:
+    name: Verify published packages
+    needs:
+      - artifact
+      - publish
+    if: always() && needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true' && needs.publish.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v6
+        with:
+          name: lapis-notes-release-${{ github.sha }}
+          path: .release
+      - run: pnpm release:verify
+
+  notes:
+    name: Create GitHub releases
+    needs:
+      - artifact
+      - verify
+    if: always() && needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true' && needs.verify.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v6
+        with:
+          name: lapis-notes-release-${{ github.sha }}
+          path: .release
+      - run: pnpm release:notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

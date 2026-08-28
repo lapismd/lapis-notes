@@ -72,6 +72,7 @@ MUST NOT register workspace views.
 | LN-WS-082 | Workspace MUST record each successfully opened file on `file-open` in a most-recent-first ring. `getLastOpenFiles` MUST return those paths. `getRecentFiles` MUST resolve surviving vault files in that order. |
 | LN-WS-083 | Workspace MUST register `app:go-to-file`. Activating it MUST call Design Core `openPalette({ tab: "files" })`. Empty-view Go to file and See recent files MUST use that command. |
 | LN-WS-084 | The workspace shell pane menu MUST split Lapis-hosted views by duplicating the active API leaf before the Design Core pane appears. The duplicated pane MUST project with translated host directions and render the same view type with copied state for both Split right and Split down. |
+| LN-WS-085 | The `@lapis-notes/workspace` public `0.1.0` package MUST remain a shell adapter around a host-supplied API `App`. Its release manifest, README, and package metadata MUST keep vault discovery, plugin boot, persistence, profile management, and backend setup outside the package. |
 
 ## Ownership and data flow
 

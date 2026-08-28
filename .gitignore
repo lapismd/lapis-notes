@@ -3,6 +3,7 @@ dist
 .turbo
 .svelte-kit
 storybook-static
+.release/
 spec/book
 .qmd/index.sqlite*
 coverage

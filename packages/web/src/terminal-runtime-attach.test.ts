@@ -167,8 +167,13 @@ describe("web terminal-runtime attach", () => {
       path.resolve(process.cwd(), "vite.config.ts"),
       "utf8",
     );
+    const rendererConfig = readFileSync(
+      path.resolve(process.cwd(), "src/renderer-config.ts"),
+      "utf8",
+    );
     expect(vite).toContain('assetsInclude: ["**/*.wasm"]');
-    expect(vite).toContain('"ghostty-web"');
+    expect(vite).toContain("rendererOptimizeDependencyExclusions");
+    expect(rendererConfig).toContain('"ghostty-web"');
     expect(vite).not.toContain('"@xterm/xterm"');
     expect(vite).toContain("linkedTerminalPluginRoot");
     expect(vite).toContain("@lapis-notes/lapis-plugin-terminal");

@@ -1,7 +1,20 @@
 {
   "name": "@lapis-notes/api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Lapis Notes API",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lapismd/lapis-notes.git",
+    "directory": "packages/api"
+  },
+  "homepage": "https://github.com/lapismd/lapis-notes/tree/main/packages/api#readme",
+  "bugs": {
+    "url": "https://github.com/lapismd/lapis-notes/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "dependencies": {
     "@lapismd/ai-host": "^0.1.0",
@@ -47,7 +60,10 @@
     "performance:metadata:native": "tsx ./scripts/metadata-performance-native.ts"
   },
   "files": [
+    "CHANGELOG.md",
     "dist",
+    "LICENSE.md",
+    "README.md",
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
@@ -82,7 +98,7 @@
     "@codemirror/search": "^6.5.11",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.35.0",
-    "@lapis-notes/ui": "^0.0.1",
+    "@lapis-notes/ui": "^0.1.0",
     "@lapismd/design-core": "^0.1.0",
     "@lapismd/mira": "^0.0.1",
     "@lezer/highlight": "^1.2.1",
@@ -221,6 +237,5 @@
     "typescript": "~5.8.3",
     "vite": "^6.4.2",
     "vitest": "^4.1.8"
-  },
-  "license": "Apache-2.0"
+  }
 }
