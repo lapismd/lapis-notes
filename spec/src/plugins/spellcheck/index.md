@@ -23,7 +23,7 @@ status-bar ownership.
 
 | ID | Requirement |
 | --- | --- |
-| LN-SPL-001 | The repo MUST ship `@lapis-notes/spellcheck` at `packages/plugins/plugin-spellcheck` with runtime id `spellcheck` and `enabledByDefault: true`. |
+| LN-SPL-001 | The sibling `lapis-plugins` repository MUST ship `@lapis-notes/spellcheck` at `packages/spellcheck` with runtime id `spellcheck` for static composition or registry installation. |
 | LN-SPL-002 | Spell Check MUST register a language-service provider for open documents that match its include and exclude globs. It MUST NOT scan unopened vault files. |
 | LN-SPL-003 | Spell Check Settings MUST expose dialect, disabled Harper rules, dictionaries, ignore state, file-type filters, and Harper lint options. Changing a setting MUST apply on the next open-document diagnostics request. |
 | LN-SPL-004 | Spell Check diagnostics MUST use the Harper rule id and message. Unset severity MUST map Spelling to error, Style to warning, and other kinds to hint. A stored `diagnosticSeverity` MUST override that mapping. |

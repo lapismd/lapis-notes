@@ -79,7 +79,7 @@
         "verified": true
       },
       "platforms": ["web", "electron"],
-      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-graph/README.md",
+      "readmeUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/main/packages/graph/README.md",
       "schemaVersion": 1,
       "status": "active"
     },
@@ -101,7 +101,7 @@
         "verified": true
       },
       "platforms": ["web", "electron"],
-      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-markdown-lint/README.md",
+      "readmeUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/main/packages/markdown-lint/README.md",
       "schemaVersion": 1,
       "status": "active"
     },
@@ -123,7 +123,7 @@
         "verified": true
       },
       "platforms": ["web", "electron"],
-      "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-spellcheck/README.md",
+      "readmeUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/main/packages/spellcheck/README.md",
       "schemaVersion": 1,
       "status": "active"
     },
@@ -235,7 +235,7 @@
     {
       "keyId": "lapis-registry-fixture-test",
       "alg": "ed25519",
-      "sig": "YfEi5jHzGqFwge3FQOffTnGisMD4vDM0ME6IfNqOxrI25rkf+yuqCpjp54ruGqzcmQbQEeezlF8bsFQJIJMxAQ=="
+      "sig": "O+/E9lrCFbXDLb1ur6sDta0mAoqgycXzYhT+k73vGP5twoeBwnbTXzofGpJNgdvzwMVkbi6WyGG+G/jpXaQ8Cg=="
     }
   ]
 }

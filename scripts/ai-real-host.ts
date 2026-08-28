@@ -158,7 +158,6 @@ async function startDesktop(workspace: string): Promise<void> {
     "run",
     "build",
     "--filter=@lapis-notes/api...",
-    "--filter=@lapis-notes/ai...",
   ]);
   const userDataDir = path.resolve(
     repoRoot,

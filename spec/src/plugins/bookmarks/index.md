@@ -10,7 +10,7 @@ assume a sibling-repository path or a workspace `link:` override.
 
 | ID | Requirement |
 | --- | --- |
-| LN-BM-001 | The repo MUST ship `@lapis-notes/bookmarks` at `packages/plugins/plugin-bookmarks` with runtime id `bookmarks`, `distribution: "bundled"`, and `enabledByDefault: true`. |
+| LN-BM-001 | The sibling `lapis-plugins` repository MUST ship `@lapis-notes/bookmarks` at `packages/bookmarks` with runtime id `bookmarks` and support static composition or registry installation. |
 | LN-BM-002 | Bookmarks MUST persist `{ items }` to `.obsidian/bookmarks.json` through plugin data. Items MUST include `file` with optional `subpath`, `folder`, `group`, `search`, `url`, and `graph`. Unknown keys and item types MUST round-trip. |
 | LN-BM-003 | The plugin MUST register the `bookmarks` view through `ViewAccess.command` with `open-bookmarks` / `Open Bookmarks`. The opener MUST reveal an existing instance or create, activate, and reveal the default left sidebar. The leaf title MUST be `Bookmarks` and the icon MUST be `bookmark`. |
 | LN-BM-004 | The panel toolbar MUST offer bookmark the active file or Search query, new group, collapse/expand all, and show search filter. The palette MUST also offer Bookmark URL. Creating or removing a group MUST update the visible tree from persisted items. |

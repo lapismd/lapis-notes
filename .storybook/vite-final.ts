@@ -19,43 +19,6 @@ const fileExplorerLib = path.resolve(
   rootDir,
   "../packages/file-explorer/src/lib",
 );
-const basesLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-bases/src/lib",
-);
-const aiLib = path.resolve(rootDir, "../packages/plugins/plugin-ai/src/lib");
-const bookmarksLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-bookmarks/src/lib",
-);
-const historyLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-history/src/lib",
-);
-const graphLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-graph/src/lib",
-);
-const wordcountLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-wordcount/src",
-);
-const spellcheckLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-spellcheck/src",
-);
-const markdownLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-markdown/src/lib",
-);
-const markdownSrc = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-markdown/src",
-);
-const searchLib = path.resolve(
-  rootDir,
-  "../packages/plugins/plugin-search/src/lib",
-);
 const uiComponents = path.join(uiLib, "components/ui");
 const linkedSiblingPackages = [
   "@lapismd/design-core",
@@ -123,10 +86,7 @@ function packageLibAlias(): Plugin {
         ? apiLib
         : cleanImporter.startsWith(workspaceLib)
           ? workspaceLib
-          : cleanImporter.startsWith(markdownLib) ||
-              cleanImporter.startsWith(markdownSrc)
-            ? markdownLib
-            : uiLib;
+          : uiLib;
       return this.resolve(path.join(owner, suffix), importer, {
         skipSelf: true,
       });
@@ -258,62 +218,6 @@ export async function viteFinal(
         {
           find: /^@lapis-notes\/file-explorer$/,
           replacement: path.join(fileExplorerLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/bases\/styles\.css$/,
-          replacement: path.join(basesLib, "styles.css"),
-        },
-        {
-          find: /^@lapis-notes\/bases$/,
-          replacement: path.join(basesLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/ai\/styles\.css$/,
-          replacement: path.join(aiLib, "styles.css"),
-        },
-        {
-          find: /^@lapis-notes\/ai\/runtimes$/,
-          replacement: path.join(aiLib, "runtime-adapters.ts"),
-        },
-        {
-          find: /^@lapis-notes\/ai$/,
-          replacement: path.join(aiLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/markdown$/,
-          replacement: path.join(markdownLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/search$/,
-          replacement: path.join(searchLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/bookmarks$/,
-          replacement: path.join(bookmarksLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/history$/,
-          replacement: path.join(historyLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/graph\/(?:app|styles)\.css$/,
-          replacement: path.join(graphLib, "styles.css"),
-        },
-        {
-          find: /^@lapis-notes\/graph\/embed$/,
-          replacement: path.join(graphLib, "embed.ts"),
-        },
-        {
-          find: /^@lapis-notes\/graph$/,
-          replacement: path.join(graphLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/wordcount$/,
-          replacement: path.join(wordcountLib, "index.ts"),
-        },
-        {
-          find: /^@lapis-notes\/spellcheck$/,
-          replacement: path.join(spellcheckLib, "index.ts"),
         },
         {
           find: "@lapis-notes/ui/theme.css",

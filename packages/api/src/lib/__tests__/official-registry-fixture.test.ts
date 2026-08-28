@@ -13,7 +13,7 @@ const fixtureTrustedKeys: TrustedSigningKey[] = [
   {
     keyId: "lapis-registry-fixture-test",
     alg: "ed25519",
-    publicKey: "TvsTPh4USRhwV1hmfcFepH/UNICOt+KF0U+Pn7U92yU=",
+    publicKey: "SjrUGoQc5VbAy3pRaEQX1aJy4p5hZP+LaLExbs84vuY=",
     trustTier: "official",
   },
 ];

@@ -7,8 +7,11 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 - This is a pnpm + Turbo monorepo for a focused Lapis Notes slice.
 - Current packages include the API/runtime kernel, retained UI, workspace shell,
- Deno desktop host, web host, internal language service, and authorized File Explorer,
- Markdown, Markdownlint, Search, History, Word Count, and CV plugins.
+  Deno desktop host, web host, internal language service, reusable File Explorer,
+  and the private Lapis Notes application profile.
+- AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source
+  Editor, Spellcheck, and Word Count are owned by the sibling `lapis-plugins`
+  repository and are consumed here through npm package boundaries.
  Design Core F-Mode is optional default-disabled shell chrome.
 - Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
   in `MIGRATION.md` — do not invent them ahead of the spec.
@@ -20,8 +23,9 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   dependency `node_modules`, or add checkout-specific paths.
 - If a LapisMD dependency needs a source fix, make the change in the owning
   repository, verify it there, and consume a released package version here.
-- Keep unpublished first-party Lapis packages inside this monorepo until their
-  publication plan is complete.
+- A git-ignored local pnpm hook MAY redirect extracted plugin ranges to verified
+  sibling release tarballs for development acceptance. Committed manifests and
+  lockfiles must continue to use registry semver packages.
 
 ## Application ownership
 

@@ -18,19 +18,10 @@ const packageMetadata = JSON.parse(
   await readFile(path.join(packageDir, "package.json"), "utf8"),
 );
 const expectedPlugins = [
-  "ai",
-  "bases",
-  "bookmarks",
-  "history",
   "lapis-file-explorer",
-  "lapis-graph",
-  "lapis-markdown-lint",
+  "lapis-source-editor",
   "markdown",
-  "roles",
   "search",
-  "spellcheck",
-  "terminal",
-  "wordcount",
 ];
 
 function resolveExecutable() {

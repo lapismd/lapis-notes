@@ -37,7 +37,7 @@
     {
       "keyId": "lapis-registry-fixture-test",
       "alg": "ed25519",
-      "sig": "AEhLxf1EUb/GC4Va5XLALhUMSl5G86sxeGl3aZmJW1PCuBgx/tBqG/ivi2+x89fPOQ27ktUC6A15eFK2x44vCA=="
+      "sig": "g06+xAa0tpQA3IEyY+CjYRCqAxJrv8w+f5EJ/IrRgy+KMe2Npbb6LJNEAJInBPAaZ9x4/fryU7gjgnrtH0iGAQ=="
     }
   ]
 }

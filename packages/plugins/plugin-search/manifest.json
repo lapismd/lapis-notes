@@ -1,8 +1,0 @@
-{
-  "id": "search",
-  "name": "Search",
-  "version": "0.0.1",
-  "minAppVersion": "0.0.1",
-  "description": "Search files, metadata, tags, and note content.",
-  "author": "Lapis Notes"
-}

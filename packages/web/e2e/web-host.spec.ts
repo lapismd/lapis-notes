@@ -15,8 +15,28 @@ async function createBrowserVault(page: Page, name: string): Promise<void> {
   await expect(page.getByRole("button", { name: /Current workspace:/ })).toContainText(
     name,
   );
-  await expect(page.getByRole("button", { name: "Open Chat" })).toBeVisible();
   await expect(page.getByText("DB Owner", { exact: true })).toBeVisible();
+  expect(
+    await page.evaluate(() => {
+      const app = (
+        window as typeof window & {
+          app: {
+            plugins: {
+              plugins: Map<string, { enabled: boolean }>;
+            };
+          };
+        }
+      ).app;
+      return [...app.plugins.plugins.entries()]
+        .map(([id, plugin]) => ({ id, enabled: plugin.enabled }))
+        .sort((left, right) => left.id.localeCompare(right.id));
+    }),
+  ).toEqual([
+    { id: "lapis-file-explorer", enabled: true },
+    { id: "lapis-source-editor", enabled: true },
+    { id: "markdown", enabled: true },
+    { id: "search", enabled: true },
+  ]);
 }
 
 const basesProjectSeed = {

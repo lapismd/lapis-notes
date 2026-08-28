@@ -11,7 +11,7 @@ History does not carry a Storybook-only editor fixture.
 
 | ID | Requirement |
 | --- | --- |
-| LN-HIST-001 | The repo MUST ship `@lapis-notes/history` at `packages/plugins/plugin-history` as an enabled-by-default core plugin. It MUST NOT reuse AI conversation-history view types or commands. |
+| LN-HIST-001 | The sibling `lapis-plugins` repository MUST ship `@lapis-notes/history` at `packages/history` for static composition or registry installation. It MUST NOT reuse AI conversation-history view types or commands. |
 | LN-HIST-002 | History MUST capture vault create, modify, rename, delete, and restore events into `AppDatabase` file-history tables only. It MUST NOT write snapshots into the vault, `.obsidian/`, or `.lapis/`. |
 | LN-HIST-003 | Tracking MUST skip internal `.lapis` paths, glob excludes, binaries, oversized files, and read failures. Defaults MUST be 256 KiB, 50 revisions, a 10s modify merge window, and the documented exclude globs. Empty include-glob and extension allowlists MUST track remaining UTF-8 text. |
 | LN-HIST-004 | The plugin MUST register the `history` view through `ViewAccess.command` with `open-file-history` / `Open file history`. The opener MUST reveal an existing instance wherever it was moved or create, activate, and reveal the default right sidebar. |

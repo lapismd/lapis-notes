@@ -23,6 +23,7 @@ tests/visual/storybook.spec.ts-snapshots/**/*.diff.png
 !.env.example
 !.env.storybook.local.example
 .deps/
+.pnpmfile.cjs
 tmp/
 packages/desktop-deno/LapisNotes.app/
 packages/desktop-deno/release/

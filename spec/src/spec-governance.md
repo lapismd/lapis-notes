@@ -134,19 +134,12 @@ as its renderer and native host sources.
 | `packages/desktop-deno` package                                                | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                      |
 | `packages/api/src/lib/storage` except `desktop-native.ts`                      | `app-database.md`, `packages.md`, `architecture.md`                                           |
 | `packages/api/src/lib/storage/desktop-native.ts`                               | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                      |
-| `packages/plugins/plugin-ai` source or manifest                                | `ai-plugin.md`, `packages.md`, `architecture.md`                                              |
 | `packages/ai-host` cutover remnants                                            | `ai-plugin.md`, `packages.md`, `architecture.md`, `desktop-deno-host.md`, `web-host.md`       |
 | Focused AI Storybook stories                                                   | `ai-plugin.md`, `storybook-catalog.md`                                                        |
 | `packages/web`                                                                 | `web-host.md`, `packages.md`, `architecture.md`                                               |
-| `packages/plugins/plugin-search` package                                       | `search-plugin.md`, `packages.md`, `architecture.md`                                          |
-| `packages/plugins/plugin-graph` package                                        | `graph-plugin.md`, `packages.md`, `plugin-model.md`, `architecture.md`                        |
 | Focused real-App Graph Storybook stories                                       | `graph-plugin.md`, `storybook-catalog.md`                                                     |
-| `packages/plugins/plugin-history` package                                      | `history-plugin.md`, `packages.md`, `architecture.md`                                         |
-| `packages/plugins/plugin-wordcount` package                                    | `wordcount-plugin.md`, `packages.md`, `plugin-model.md`, `editor-demo.md`                     |
-| `packages/plugins/plugin-spellcheck` package                                   | `spellcheck-plugin.md`, `packages.md`, `workspace-shell/panels/problems.md`, `editor-demo.md` |
 | Native Markdown runtime source or language-service manifest                    | `desktop-deno-host.md`, `packages.md`, `workspace-shell/panels/problems.md`                   |
-| `packages/plugins/plugin-markdown` source, manifest, or `PARITY.md`            | `markdown-plugin.md`, `markdown-plugin/panels/index.md`, `packages.md`, `editor-demo.md`      |
-| `packages/plugins/plugin-bases` source or manifest                             | `bases-plugin.md`, `packages.md`, `architecture.md`                                           |
+| Extracted plugin npm ranges and local tarball acceptance                       | `packages.md`, `plugin-model.md`, `architecture.md`, `desktop-deno-host.md`, `web-host.md`    |
 | Focused or real-App Bases Storybook stories                                    | `bases-plugin.md`, `storybook-catalog.md`                                                     |
 | Shared Markdown panel shell source                                             | `workspace-shell/panels.md`                                                                   |
 | Individual Markdown panel source                                               | Its owning `markdown-plugin/panels/<panel>.md` page                                           |

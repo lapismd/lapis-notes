@@ -13,9 +13,6 @@ import ts from "typescript";
 const ROOTS = ["packages", "stories", ".storybook"];
 const PORTABLE_AGENT_ROOTS = [
   "packages/api",
-  "packages/plugins/plugin-ai",
-  "packages/plugins/plugin-markdown",
-  "packages/plugins/plugin-search",
 ].map((path) => resolve(path));
 const FORBIDDEN_AGENT_DEPENDENCY =
   /^(?:@agentclientprotocol\/|@modelcontextprotocol\/|@zed-industries\/agent-client-protocol(?:\/|$)|acpx(?:\/|$))/u;
