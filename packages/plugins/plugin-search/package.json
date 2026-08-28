@@ -15,6 +15,7 @@
   },
   "files": [
     "dist",
+    "styles.css",
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
