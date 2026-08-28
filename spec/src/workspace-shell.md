@@ -24,6 +24,8 @@ MUST NOT register workspace views.
 The application registers plugin-management pages against the shell controller;
 Workspace renders those pages and an App-injected README renderer without owning
 the selected static profile, registry policy, or host boot order.
+Its Community Plugins page presents the App-owned trust state through the
+compact, mutually exclusive status and action contract in LN-PLUG-047.
 
 ## Requirements
 

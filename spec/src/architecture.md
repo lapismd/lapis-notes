@@ -21,6 +21,9 @@ owned and hosts MUST NOT register its workspace views themselves. AppDatabase ow
 namespaced plugin projections and a serializable query AST, including the public
 `tasks/task` collection. That projection stores `planKind` as the Tasks
 `plan.at` kind (`anytime`, `morning`, `afternoon`, `evening`, or `time`).
+The workspace presentation package owns the compact Community Plugins trust
+status card defined by LN-PLUG-047; the API trust service remains the state and
+action authority.
 
 Frontmatter value discovery remains application-owned: Markdown adapts the
 App metadata type manager into Mira's portable property configuration, while

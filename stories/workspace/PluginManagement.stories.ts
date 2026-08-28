@@ -216,12 +216,73 @@ export const CoreTogglesOptionsRestartAndDiagnostics: Story = {
   },
 };
 
+export const CommunityEmptyState: Story = {
+  args: { scenario: "empty", section: "community-plugins" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await expect(
+      canvas.getByRole("heading", { name: "No community plugins found" }),
+    ).toBeVisible();
+    const emptyState = canvasElement.querySelector<HTMLElement>(
+      '[data-ui-part="community-empty-state"]',
+    );
+    expect(emptyState).not.toBeNull();
+    await expect(emptyState!).toHaveTextContent(
+      "Looks like you haven’t installed any community plugins yet. Browse the community plugins list to get started.",
+    );
+    await expect(
+      canvasElement.querySelector('[data-empty-icon="puzzle"]'),
+    ).not.toBeNull();
+    const reload = canvas.getByRole("button", { name: "Reload plugins" });
+    await expect(reload).toBeVisible();
+    await expect(
+      reload.querySelector('[data-reload-icon="refresh-cw"]'),
+    ).not.toBeNull();
+    await expect(canvasElement.querySelector("article")).toBeNull();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Browse plugins" }));
+    await waitFor(() => {
+      expect(canvas.getByRole("tab", { name: "Browse" })).toHaveAttribute(
+        "data-state",
+        "active",
+      );
+    });
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Community plugins" }),
+    );
+    await expect(
+      canvas.getByRole("heading", { name: "No community plugins found" }),
+    ).toBeVisible();
+  },
+};
+
 export const CommunityTrustToggleAndFailure: Story = {
   args: { scenario: "community", section: "community-plugins" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
-    await expect(canvas.getByRole("heading", { name: "Workspace Trust" })).toBeVisible();
+    const trustCard = canvasElement.querySelector<HTMLElement>(
+      '[data-ui-component="workspace-trust-status"]',
+    );
+    expect(trustCard).not.toBeNull();
+    await expect(trustCard!).toHaveAttribute("data-trust-state", "trusted");
+    await expect(
+      trustCard!.querySelector('[data-trust-icon="shield-check"]'),
+    ).not.toBeNull();
+    await expect(
+      canvas.getByRole("heading", { name: "Workspace trusted" }),
+    ).toBeVisible();
+    await expect(canvas.getByText("Trusted", { selector: "span" })).toBeVisible();
+    await expect(
+      canvas.getByText(
+        "Community plugins and desktop capabilities can run in this vault.",
+      ),
+    ).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "Revoke" })).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "Trust workspace" }),
+    ).toBeNull();
     await expect(canvas.getByRole("heading", { name: "Community Example" })).toBeVisible();
     await expect(canvas.getByTestId("failed-plugin-state")).toHaveTextContent(
       "failed: The plugin runtime entry could not be loaded.",
@@ -240,9 +301,27 @@ export const CommunityTrustToggleAndFailure: Story = {
         "1",
       );
     });
-    await userEvent.click(canvas.getByRole("button", { name: "Revoke trust" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Revoke" }));
     await waitFor(() => {
-      expect(canvas.getByText(/This vault is untrusted/)).toBeVisible();
+      expect(trustCard).toHaveAttribute("data-trust-state", "untrusted");
+      expect(
+        canvas.getByRole("heading", { name: "Workspace not trusted" }),
+      ).toBeVisible();
+      expect(
+        trustCard!.querySelector('[data-trust-icon="shield-alert"]'),
+      ).not.toBeNull();
     });
+    await expect(
+      canvas.getByText("Not trusted", { selector: "span" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByText(
+        "Community plugins and desktop capabilities are disabled until this vault is trusted.",
+      ),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Trust workspace" }),
+    ).toBeVisible();
+    await expect(canvas.queryByRole("button", { name: "Revoke" })).toBeNull();
   },
 };

@@ -637,6 +637,8 @@ mount test supplies a real initialized api `App` while asserting plugin loading
 remains consumer-owned. Its public package metadata and semver dependency
 manifest let standalone first-party plugin catalogs use the real shell without
 source aliases or machine-specific link protocols.
+The package also owns the Community Plugins trust presentation defined by
+LN-PLUG-047 while delegating trust state changes to the supplied App service.
 
 ## `@lapis-notes/ui` (pruned)
 
