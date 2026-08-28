@@ -4,10 +4,12 @@
   import BookOpen from "@lucide/svelte/icons/book-open";
   import CalendarClock from "@lucide/svelte/icons/calendar-clock";
   import Check from "@lucide/svelte/icons/check";
+  import CircleCheck from "@lucide/svelte/icons/circle-check";
   import Download from "@lucide/svelte/icons/download";
   import PackageIcon from "@lucide/svelte/icons/package";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import ShieldAlert from "@lucide/svelte/icons/shield-alert";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import Upload from "@lucide/svelte/icons/upload";
   import {
@@ -431,9 +433,24 @@
 
     <Tabs.Content value="installed" class="lapis-plugin-management__rows">
       {#if !installed.length && !communityPlugins.length}
-        <p class="lapis-plugin-management__empty">
-          No installed registry or community plugins.
-        </p>
+        <div
+          class="lapis-plugin-management__empty-state"
+          data-ui-part="registry-installed-empty-state"
+        >
+          <div
+            class="lapis-plugin-management__empty-state-icon"
+            data-empty-icon="package"
+            aria-hidden="true"
+          >
+            <PackageIcon />
+            <Sparkles />
+          </div>
+          <h2>No plugins installed</h2>
+          <p>No installed registry or community plugins.</p>
+          <Button.Root onclick={() => (activeTab = "browse")}
+            >Browse plugins</Button.Root
+          >
+        </div>
       {/if}
       {#each installed as record (record.pluginId)}
         {@const runtimePlugin = app.plugins.plugins.get(record.pluginId)}
@@ -575,7 +592,26 @@
     </Tabs.Content>
 
     <Tabs.Content value="updates" class="lapis-plugin-management__rows">
-      {#if !updates.length}<p class="lapis-plugin-management__empty">No plugin updates available.</p>{/if}
+      {#if !updates.length}
+        <div
+          class="lapis-plugin-management__empty-state"
+          data-ui-part="registry-updates-empty-state"
+        >
+          <div
+            class="lapis-plugin-management__empty-state-icon"
+            data-empty-icon="circle-check"
+            aria-hidden="true"
+          >
+            <CircleCheck />
+            <Sparkles />
+          </div>
+          <h2>You’re up to date</h2>
+          <p>No plugin updates available.</p>
+          <Button.Root disabled={refreshing} onclick={() => void refresh(true)}
+            >Check for updates</Button.Root
+          >
+        </div>
+      {/if}
       {#each updates as update (update.id)}
         {#if update.status === "revoked"}
           <Alert.Root variant="destructive">

@@ -23,7 +23,8 @@ namespaced plugin projections and a serializable query AST, including the public
 `plan.at` kind (`anytime`, `morning`, `afternoon`, `evening`, or `time`).
 The workspace presentation package owns the compact Community Plugins trust
 status card defined by LN-PLUG-047; the API trust service remains the state and
-action authority.
+action authority. It also owns the registry and community empty-state and
+selected-tab presentation defined by LN-PLUG-048 through LN-PLUG-052.
 
 Frontmatter value discovery remains application-owned: Markdown adapts the
 App metadata type manager into Mira's portable property configuration, while

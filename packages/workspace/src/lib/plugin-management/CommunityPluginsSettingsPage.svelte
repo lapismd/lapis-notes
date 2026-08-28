@@ -185,11 +185,11 @@
 
   {#if plugins.length === 0 && indexedDiagnostics.length === 0}
     <div
-      class="lapis-plugin-management__community-empty"
+      class="lapis-plugin-management__empty-state"
       data-ui-part="community-empty-state"
     >
       <div
-        class="lapis-plugin-management__community-empty-icon"
+        class="lapis-plugin-management__empty-state-icon"
         data-empty-icon="puzzle"
         aria-hidden="true"
       >

@@ -304,7 +304,7 @@
   color: var(--ui-lapis-plugin-accent);
 }
 
-.lapis-plugin-management__community-empty {
+.lapis-plugin-management__empty-state {
   display: flex;
   min-height: 18rem;
   flex: 1;
@@ -315,7 +315,7 @@
   text-align: center;
 }
 
-.lapis-plugin-management__community-empty-icon {
+.lapis-plugin-management__empty-state-icon {
   position: relative;
   display: grid;
   width: 5rem;
@@ -329,7 +329,7 @@
   );
 }
 
-.lapis-plugin-management__community-empty-icon > svg:first-child {
+.lapis-plugin-management__empty-state-icon > svg:first-child {
   width: 3.75rem;
   height: 3.75rem;
   fill: color-mix(in srgb, var(--ui-lapis-plugin-accent) 10%, transparent);
@@ -341,7 +341,7 @@
   transform: rotate(-7deg);
 }
 
-.lapis-plugin-management__community-empty-icon > svg:last-child {
+.lapis-plugin-management__empty-state-icon > svg:last-child {
   position: absolute;
   inset-block-start: 0;
   inset-inline-end: 0;
@@ -356,7 +356,7 @@
   stroke-width: 1.5;
 }
 
-.lapis-plugin-management__community-empty h2 {
+.lapis-plugin-management__empty-state h2 {
   margin: 0;
   color: var(--ui-lapis-plugin-foreground);
   font-size: 1rem;
@@ -364,7 +364,7 @@
   line-height: 1.35;
 }
 
-.lapis-plugin-management__community-empty p {
+.lapis-plugin-management__empty-state p {
   max-width: 30rem;
   margin: 0.5rem 0 1rem;
   color: var(--ui-lapis-plugin-muted-foreground);
@@ -493,6 +493,9 @@
 
 .lapis-plugin-registry__tab-list.lapis-plugin-registry__tab-list
   .lapis-plugin-registry__tab {
+  min-width: 0;
+  flex: 1 1 0;
+  justify-content: center;
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
@@ -507,8 +510,8 @@
 }
 
 .lapis-plugin-registry__tab-list
-  [data-ui-component="tabs-trigger"][data-state="active"] {
-  border-bottom-color: var(--ui-lapis-plugin-accent);
+  .lapis-plugin-registry__tab[data-state="active"] {
+  border-bottom-color: var(--ui-lapis-plugin-accent) !important;
 }
 
 .lapis-plugin-registry__grid {
@@ -716,7 +719,7 @@
     justify-self: start;
   }
 
-  .lapis-plugin-management__community-empty {
+  .lapis-plugin-management__empty-state {
     min-height: 14rem;
     padding-block: 1.5rem 2rem;
   }

@@ -45,6 +45,7 @@ export const storybookPackedDependencyIncludes = [
   "@lucide/svelte/icons/arrow-up-circle",
   "@lucide/svelte/icons/book-open",
   "@lucide/svelte/icons/calendar-clock",
+  "@lucide/svelte/icons/circle-check",
   "@lucide/svelte/icons/chevron-right",
   "@lucide/svelte/icons/chevrons-up-down",
   "@lucide/svelte/icons/download",

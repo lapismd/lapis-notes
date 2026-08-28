@@ -42,15 +42,57 @@ export const EmptyTabsAndSources: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
+    const installedTab = canvas.getByRole("tab", { name: "Installed" });
+    await expect(installedTab).toHaveAttribute("data-state", "active");
+    const tabWidths = canvas
+      .getAllByRole("tab")
+      .map((tab) => tab.getBoundingClientRect().width);
+    expect(Math.max(...tabWidths) - Math.min(...tabWidths)).toBeLessThan(1);
+    expect(
+      canvasElement.ownerDocument.defaultView!
+        .getComputedStyle(installedTab)
+        .borderBottomColor,
+    ).not.toBe("rgba(0, 0, 0, 0)");
+    await expect(
+      canvas.getByRole("heading", { name: "No plugins installed" }),
+    ).toBeVisible();
     await expect(
       canvas.getByText("No installed registry or community plugins."),
     ).toBeVisible();
+    await expect(
+      canvasElement.querySelector(
+        '[data-ui-part="registry-installed-empty-state"] [data-empty-icon="package"]',
+      ),
+    ).not.toBeNull();
 
-    await selectRegistryTab(canvas, "Browse");
+    await userEvent.click(canvas.getByRole("button", { name: "Browse plugins" }));
+    await expect(canvas.getByRole("tab", { name: "Browse" })).toHaveAttribute(
+      "data-state",
+      "active",
+    );
     await expect(canvas.getByText("No registry entries loaded.")).toBeVisible();
     await selectRegistryTab(canvas, "Updates");
+    await expect(canvas.getByRole("tab", { name: "Updates" })).toHaveAttribute(
+      "data-state",
+      "active",
+    );
+    await expect(
+      canvas.getByRole("heading", { name: "You’re up to date" }),
+    ).toBeVisible();
     await expect(canvas.getByText("No plugin updates available.")).toBeVisible();
+    await expect(
+      canvasElement.querySelector(
+        '[data-ui-part="registry-updates-empty-state"] [data-empty-icon="circle-check"]',
+      ),
+    ).not.toBeNull();
+    await expect(
+      canvas.getByRole("button", { name: "Check for updates" }),
+    ).toBeVisible();
     await selectRegistryTab(canvas, "Sources");
+    await expect(canvas.getByRole("tab", { name: "Sources" })).toHaveAttribute(
+      "data-state",
+      "active",
+    );
     await expect(canvas.getByText("Lapis Official Plugins")).toBeVisible();
     await expect(canvas.getByText("Official", { selector: "span" })).toBeVisible();
     await expect(canvas.getByText("Locked", { selector: "span" })).toBeVisible();

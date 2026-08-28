@@ -638,7 +638,8 @@ remains consumer-owned. Its public package metadata and semver dependency
 manifest let standalone first-party plugin catalogs use the real shell without
 source aliases or machine-specific link protocols.
 The package also owns the Community Plugins trust presentation defined by
-LN-PLUG-047 while delegating trust state changes to the supplied App service.
+LN-PLUG-047 and the plugin-management empty and selected-tab presentation in
+LN-PLUG-048 through LN-PLUG-052, while App services retain action authority.
 
 ## `@lapis-notes/ui` (pruned)
 
