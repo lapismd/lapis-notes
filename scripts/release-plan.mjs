@@ -52,21 +52,49 @@ function tryExec(command, args, cwd) {
   }
 }
 
-export function resolveReleaseCommit(repoRoot = DEFAULT_REPO_ROOT) {
-  if (process.env.GITHUB_SHA) {
-    return process.env.GITHUB_SHA;
+export function resolveReleaseCommit(
+  repoRoot = DEFAULT_REPO_ROOT,
+  { env = process.env, exec = tryExec } = {},
+) {
+  if (env.GITHUB_SHA) {
+    return env.GITHUB_SHA;
   }
-  return (
-    tryExec("jj", ["log", "-r", "@", "--no-graph", "-T", "commit_id"], repoRoot) ||
-    tryExec("git", ["rev-parse", "HEAD"], repoRoot) ||
-    "unknown"
-  );
+  const jjRoot = exec("jj", ["root"], repoRoot);
+  if (jjRoot) {
+    const workingCopyIsEmpty = exec(
+      "jj",
+      ["log", "-r", "@", "--no-graph", "-T", "empty"],
+      repoRoot,
+    );
+    if (workingCopyIsEmpty !== "true") {
+      throw new Error(
+        "Release preparation requires an empty Jujutsu working-copy commit. Commit the changes first.",
+      );
+    }
+    const commit = exec(
+      "jj",
+      [
+        "log",
+        "-r",
+        "latest(::@ & ~empty(), 1)",
+        "--no-graph",
+        "-T",
+        "commit_id",
+      ],
+      repoRoot,
+    );
+    if (commit) return commit;
+  }
+  return exec("git", ["rev-parse", "HEAD"], repoRoot) || "unknown";
 }
 
 export async function fetchPackageVersionState(
   name,
   version,
-  { registry = "https://registry.npmjs.org", fetchImpl = globalThis.fetch } = {},
+  {
+    registry = "https://registry.npmjs.org",
+    fetchImpl = globalThis.fetch,
+  } = {},
 ) {
   const normalizedRegistry = normalizeRegistry(registry);
   const packageName = npmRegistryPackageName(name);
@@ -97,11 +125,14 @@ export async function fetchPackageVersionState(
     );
   }
 
-  const packageResponse = await fetchImpl(`${normalizedRegistry}/${packageName}`, {
-    headers: {
-      Accept: "application/json",
+  const packageResponse = await fetchImpl(
+    `${normalizedRegistry}/${packageName}`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
     },
-  });
+  );
 
   if (packageResponse.status === 404) {
     return {
@@ -162,12 +193,11 @@ export function planReleaseCandidates(records, states, options = {}) {
       const dependency = records.find((item) => item.name === dependencyName);
       const dependencyState = stateByName.get(dependencyName);
       if (!dependency || !dependencyState) {
-        throw new Error(`${record.name} references unknown dependency ${dependencyName}`);
+        throw new Error(
+          `${record.name} references unknown dependency ${dependencyName}`,
+        );
       }
-      if (
-        !dependencyState.published &&
-        !selectedNames.has(dependencyName)
-      ) {
+      if (!dependencyState.published && !selectedNames.has(dependencyName)) {
         throw new Error(
           `${record.name} cannot be selected before ${dependencyName}@${dependency.version}`,
         );
