@@ -40,6 +40,7 @@ export function validateReleaseWorkflows({
   requireContains("Release workflow", release, "pnpm release:notes");
   requireContains("Release workflow", release, RELEASE_ENVIRONMENT);
   requireContains("Release workflow", release, "id-token: write");
+  requireContains("Release workflow", release, "include-hidden-files: true");
   requireContains("Release workflow", release, "LAPIS_RELEASE_APPROVED: \"1\"");
   requireContains(
     "Release workflow",

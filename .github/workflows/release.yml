@@ -77,6 +77,7 @@ jobs:
         with:
           name: lapis-notes-release-${{ github.sha }}
           path: .release
+          include-hidden-files: true
           if-no-files-found: error
 
   publish:

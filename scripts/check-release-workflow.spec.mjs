@@ -22,6 +22,7 @@ const release = [
   "pnpm release:notes",
   "npm-production",
   "id-token: write",
+  "include-hidden-files: true",
   'LAPIS_RELEASE_APPROVED: "1"',
   "Initial packages require manual npm publication from the verified release artifact.",
 ].join("\n");
@@ -43,5 +44,17 @@ test("rejects bootstrap token publishing", () => {
   assert.throws(
     () => validateReleaseWorkflows({ ci, release: `${release}\nNPM_TOKEN`, pages }),
     /must not include NPM_TOKEN/,
+  );
+});
+
+test("requires hidden release candidates to be included in the artifact", () => {
+  assert.throws(
+    () =>
+      validateReleaseWorkflows({
+        ci,
+        release: release.replace("include-hidden-files: true\n", ""),
+        pages,
+      }),
+    /must include include-hidden-files: true/,
   );
 });
