@@ -29,6 +29,11 @@ async function waitForReady(canvas: ReturnType<typeof within>) {
       "true",
     );
   });
+  await waitFor(() => {
+    expect(
+      canvas.queryByRole("button", { name: "Refreshing plugin registry" }),
+    ).not.toBeInTheDocument();
+  });
 }
 
 async function selectRegistryTab(
@@ -137,7 +142,7 @@ export const BrowseDetailsAndReadme: Story = {
       .closest("article");
     expect(sourceEditorCard).not.toBeNull();
     await expect(
-      within(sourceEditorCard!).getByRole("button", { name: "Installed" }),
+      within(sourceEditorCard!).getByRole("button", { name: "Bundled" }),
     ).toBeDisabled();
 
     const graphCard = canvas
@@ -422,11 +427,27 @@ export const PopulatedInstalledRows: Story = {
     await expect(within(graphHeading!).getByText("Web")).toBeVisible();
     await expect(within(graphHeading!).getByText("Desktop")).toBeVisible();
     await expect(canvas.getByText("Restart required")).toBeVisible();
-    const enableSwitch = within(graphRow!).getByRole("switch", {
-      name: "Enable Graph",
+    const disableSwitch = within(graphRow!).getByRole("switch", {
+      name: "Disable Graph",
+    });
+    await expect(disableSwitch).toBeChecked();
+    await expect(disableSwitch).toHaveAttribute("data-tooltip-trigger");
+    await expect(disableSwitch).toHaveAttribute(
+      "data-tooltip-action",
+      "Disable Graph",
+    );
+    const revokedRow = canvasElement.querySelector(
+      '[data-plugin-id="revoked-plugin"]',
+    );
+    expect(revokedRow).not.toBeNull();
+    const enableSwitch = within(revokedRow!).getByRole("switch", {
+      name: "Enable Revoked Example",
     });
     await expect(enableSwitch).not.toBeChecked();
-    await expect(enableSwitch).toHaveAttribute("data-tooltip-trigger");
+    await expect(enableSwitch).toHaveAttribute(
+      "data-tooltip-action",
+      "Enable Revoked Example",
+    );
     await expect(
       within(graphRow!).getByRole("button", { name: "Update Graph" }),
     ).toBeVisible();
@@ -443,6 +464,12 @@ export const PopulatedBrowseRows: Story = {
     await expect(
       canvas.getByRole("button", { name: "View details for Graph" }),
     ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Uninstall Graph" }),
+    ).toBeEnabled();
+    await expect(
+      canvas.getByRole("button", { name: "Bundled" }),
+    ).toBeDisabled();
   },
 };
 
@@ -473,6 +500,51 @@ export const PopulatedUpdatesRows: Story = {
   },
 };
 
+export const DisableInsteadKeepsInstalledArtifact: Story = {
+  args: { scenario: "installed", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    await userEvent.click(
+      within(browsePanel).getByRole("button", { name: "Uninstall Graph" }),
+    );
+    const bodyElement = canvasElement.ownerDocument.body;
+    const body = within(bodyElement);
+    const dialog = body.getByRole("alertdialog");
+    await userEvent.click(
+      within(dialog).getByRole("switch", {
+        name: "Choose Disable instead for Graph",
+      }),
+    );
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Disable Graph" }),
+    );
+    await waitFor(() => {
+      expect(body.queryByRole("alertdialog")).not.toBeInTheDocument();
+      expect(canvas.getByTestId("installed-disable-calls")).toHaveTextContent(
+        "1",
+      );
+      expect(canvas.getByTestId("plugin-uninstall-calls")).toHaveTextContent(
+        "0",
+      );
+      expect(getComputedStyle(bodyElement).pointerEvents).not.toBe("none");
+    });
+    await expect(
+      within(browsePanel).getByRole("button", { name: "Uninstall Graph" }),
+    ).toBeEnabled();
+    await selectRegistryTab(canvas, "Installed");
+    const graphRow = canvasElement.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
+    expect(graphRow).not.toBeNull();
+    await expect(
+      within(graphRow!).getByRole("switch", { name: "Enable Graph" }),
+    ).not.toBeChecked();
+  },
+};
+
 export const InstalledUpdatesRevocationAndConfirmation: Story = {
   args: { scenario: "installed", section: "plugin-registry" },
   play: async ({ canvasElement }) => {
@@ -490,9 +562,9 @@ export const InstalledUpdatesRevocationAndConfirmation: Story = {
       canvas.getByText("This installed release is no longer trusted."),
     ).toBeVisible();
 
-    await selectRegistryTab(canvas, "Installed");
+    await selectRegistryTab(canvas, "Browse");
     await userEvent.click(
-      canvas.getByRole("button", { name: "Uninstall lapis-graph" }),
+      canvas.getByRole("button", { name: "Uninstall Graph" }),
     );
     const body = within(canvasElement.ownerDocument.body);
     const dialog = body.getByRole("alertdialog");
@@ -516,14 +588,43 @@ export const InstalledUpdatesRevocationAndConfirmation: Story = {
     const cancelAction = body.getByRole("button", { name: "Cancel" });
     await expect(cancelAction).toBeVisible();
     expect(getComputedStyle(cancelAction).borderTopStyle).toBe("solid");
-    const uninstallAction = body.getByRole("button", {
+    const uninstallAction = within(dialog).getByRole("button", {
       name: "Uninstall Graph",
     });
     await expect(uninstallAction).toBeVisible();
     expect(getComputedStyle(uninstallAction).backgroundColor).not.toBe(
       "rgba(0, 0, 0, 0)",
     );
+    const uninstallBackground =
+      getComputedStyle(uninstallAction).backgroundColor;
     expect(uninstallAction.querySelector("svg")).not.toBeNull();
+    const disableInstead = within(dialog).getByRole("switch", {
+      name: "Choose Disable instead for Graph",
+    });
+    await expect(disableInstead).not.toBeChecked();
+    await expect(disableInstead).toHaveAttribute(
+      "data-tooltip-action",
+      "Choose Disable instead for Graph",
+    );
+    await userEvent.click(disableInstead);
+    await expect(disableInstead).toBeChecked();
+    await expect(
+      body.getByText(
+        "The plugin will stay installed in this vault and can be enabled again later.",
+      ),
+    ).toBeVisible();
+    const disableAction = within(dialog).getByRole("button", {
+      name: "Disable Graph",
+    });
+    await expect(disableAction).toBeVisible();
+    await expect(disableAction).toHaveClass(
+      "lapis-plugin-uninstall-dialog__confirm--disable",
+    );
+    await waitFor(() => {
+      expect(getComputedStyle(disableAction).backgroundColor).not.toBe(
+        uninstallBackground,
+      );
+    });
   },
 };
 
@@ -702,7 +803,7 @@ export const CommunityTrustToggleAndFailure: Story = {
       }),
     );
     await expect(
-      canvas.getByText(/The plugin runtime entry could not be loaded\./),
+      canvas.getAllByText(/The plugin runtime entry could not be loaded\./)[0],
     ).toBeVisible();
     await userEvent.click(
       canvas.getByRole("switch", { name: "Enable Community Example" }),

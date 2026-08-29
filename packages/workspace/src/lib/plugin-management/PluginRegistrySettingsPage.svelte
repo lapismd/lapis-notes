@@ -2,6 +2,7 @@
   import ArrowUpCircle from "@lucide/svelte/icons/arrow-up-circle";
   import Check from "@lucide/svelte/icons/check";
   import Download from "@lucide/svelte/icons/download";
+  import Power from "@lucide/svelte/icons/power";
   import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import Upload from "@lucide/svelte/icons/upload";
@@ -19,6 +20,7 @@
   } from "@lapis-notes/api";
   import * as AlertDialog from "@lapismd/design-core/shadcn/alert-dialog";
   import * as Button from "@lapismd/design-core/shadcn/button";
+  import * as Field from "@lapismd/design-core/shadcn/field";
   import * as Switch from "@lapismd/design-core/shadcn/switch";
   import * as Tabs from "@lapismd/design-core/shadcn/tabs";
   import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
@@ -57,9 +59,11 @@
   let detailDialogOpen = $state(false);
   let uninstallConfirmOpen = $state(false);
   let uninstallTarget = $state<InstalledPluginRecord | null>(null);
+  let uninstallDisableInstead = $state(false);
   let detailPluginId = $state<string | null>(null);
   let detailPluginDetail = $state<PluginCatalogDetail | null>(null);
   let detailLoading = $state(false);
+  let pluginLifecycleRevision = $state(0);
   let overviewState = $state<PluginMarkdownState>({ status: "idle" });
   let changelogState = $state<PluginMarkdownState>({ status: "idle" });
   let bundleFileInput = $state<HTMLInputElement | null>(null);
@@ -285,6 +289,16 @@
 
   onMount(() => {
     void refresh(false);
+    const disposeEnabled = app.plugins.on("plugin-enabled", () => {
+      pluginLifecycleRevision += 1;
+    });
+    const disposeDisabled = app.plugins.on("plugin-disabled", () => {
+      pluginLifecycleRevision += 1;
+    });
+    return () => {
+      app.plugins.offref(disposeEnabled);
+      app.plugins.offref(disposeDisabled);
+    };
   });
 
   async function refresh(force: boolean): Promise<void> {
@@ -471,17 +485,33 @@
   }
 
   function requestUninstall(record: InstalledPluginRecord): void {
+    uninstallDisableInstead = false;
     uninstallTarget = record;
     uninstallConfirmOpen = true;
   }
 
-  async function confirmUninstall(): Promise<void> {
+  function requestUninstallById(pluginId: string): void {
+    const record = installed.find((candidate) => candidate.pluginId === pluginId);
+    if (record) requestUninstall(record);
+  }
+
+  function closeUninstallDialog(): void {
+    uninstallConfirmOpen = false;
+    uninstallDisableInstead = false;
+    uninstallTarget = null;
+  }
+
+  async function confirmPluginRemovalChoice(): Promise<void> {
     const record = uninstallTarget;
     if (!record) return;
-    uninstallConfirmOpen = false;
-    uninstallTarget = null;
-    await runAction(`uninstall:${record.pluginId}`, () =>
-      app.pluginDistribution.uninstall(record.pluginId),
+    const disableInstead = uninstallDisableInstead;
+    closeUninstallDialog();
+    await runAction(
+      `${disableInstead ? "toggle" : "uninstall"}:${record.pluginId}`,
+      () =>
+        disableInstead
+          ? app.plugins.disablePlugin(record.pluginId)
+          : app.pluginDistribution.uninstall(record.pluginId),
     );
   }
 
@@ -522,6 +552,15 @@
       app.plugins.plugins.get(record.pluginId)?.manifest.description ??
       `Installed plugin ${record.pluginId}`
     );
+  }
+
+  function pluginToggleAction(enabled: boolean, name: string): string {
+    return `${enabled ? "Disable" : "Enable"} ${name}`;
+  }
+
+  function resolveRuntimePlugin(pluginId: string) {
+    void pluginLifecycleRevision;
+    return app.plugins.plugins.get(pluginId);
   }
 
   function pluginDescription(pluginId: string, fallback: string): string {
@@ -722,10 +761,11 @@
       {:else}
         <div class="lapis-plugin-registry__rows">
           {#each filteredInstalled as record (record.pluginId)}
-            {@const runtimePlugin = app.plugins.plugins.get(record.pluginId)}
+            {@const runtimePlugin = resolveRuntimePlugin(record.pluginId)}
             {@const entry = catalogEntry(record.pluginId)}
             {@const size = installedSize(record)}
             {@const update = updates.find((candidate) => candidate.id === record.pluginId)}
+            {@const toggleAction = pluginToggleAction(Boolean(runtimePlugin?.enabled), installedName(record))}
             <PluginRegistryRow
               id={record.pluginId}
               name={installedName(record)}
@@ -769,27 +809,30 @@
                     </Tooltip.Root>
                   </Tooltip.Provider>
                 {/if}
-                <Tooltip.Provider>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger>
-                      {#snippet child({ props })}
-                        <Switch.Root
-                          {...props}
-                          checked={Boolean(runtimePlugin?.enabled)}
-                          disabled={!runtimePlugin || runningAction === `toggle:${record.pluginId}`}
-                          aria-label={`${runtimePlugin?.enabled ? "Disable" : "Enable"} ${installedName(record)}`}
-                          onCheckedChange={(checked) =>
-                            void runAction(`toggle:${record.pluginId}`, () =>
-                              checked
-                                ? app.plugins.enablePlugin(record.pluginId)
-                                : app.plugins.disablePlugin(record.pluginId),
-                            )}
-                        />
-                      {/snippet}
-                    </Tooltip.Trigger>
-                    <Tooltip.Content>{runtimePlugin?.enabled ? "Disable" : "Enable"} {installedName(record)}</Tooltip.Content>
-                  </Tooltip.Root>
-                </Tooltip.Provider>
+                {#key toggleAction}
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props })}
+                          <Switch.Root
+                            {...props}
+                            checked={Boolean(runtimePlugin?.enabled)}
+                            disabled={!runtimePlugin || runningAction === `toggle:${record.pluginId}`}
+                            aria-label={toggleAction}
+                            data-tooltip-action={toggleAction}
+                            onCheckedChange={(checked) =>
+                              void runAction(`toggle:${record.pluginId}`, () =>
+                                checked
+                                  ? app.plugins.enablePlugin(record.pluginId)
+                                  : app.plugins.disablePlugin(record.pluginId),
+                              )}
+                          />
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>{toggleAction}</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                {/key}
                 <Button.Root size="icon" variant="ghost" aria-label={`Uninstall ${record.pluginId}`} title="Uninstall" disabled={runningAction === `uninstall:${record.pluginId}`} onclick={() => requestUninstall(record)}><Trash2 /></Button.Root>
               {/snippet}
             </PluginRegistryRow>
@@ -833,7 +876,8 @@
       {:else}
         <div class="lapis-plugin-registry__rows">
           {#each filteredCatalogEntries as entry (entry.id)}
-            {@const isInstalled = availablePluginIds.has(entry.id)}
+            {@const installedRecord = installed.find((record) => record.pluginId === entry.id)}
+            {@const isBundled = staticPluginIds.has(entry.id)}
             {@const releaseDate = formatDate(entry.latestRelease?.releasedAt)}
             {@const releaseSize = formatByteSize(entry.latestRelease?.bundleSize)}
             <PluginRegistryRow
@@ -849,12 +893,23 @@
               onopen={() => void openDetails(entry)}
             >
               {#snippet actions()}
-                <Button.Root
-                  size="sm"
-                  variant={isInstalled ? "outline" : "default"}
-                  disabled={isInstalled || runningAction === `install:${entry.id}`}
-                  onclick={() => void installEntry(entry)}
-                >{#if isInstalled}<Check />Installed{:else}<Download />Install{/if}</Button.Root>
+                {#if installedRecord}
+                  <Button.Root
+                    size="sm"
+                    variant="outline"
+                    aria-label={`Uninstall ${entry.name}`}
+                    disabled={runningAction === `uninstall:${entry.id}`}
+                    onclick={() => requestUninstall(installedRecord)}
+                  ><Trash2 data-icon="inline-start" />Uninstall</Button.Root>
+                {:else if isBundled}
+                  <Button.Root size="sm" variant="outline" disabled><Check data-icon="inline-start" />Bundled</Button.Root>
+                {:else}
+                  <Button.Root
+                    size="sm"
+                    disabled={runningAction === `install:${entry.id}`}
+                    onclick={() => void installEntry(entry)}
+                  ><Download data-icon="inline-start" />Install</Button.Root>
+                {/if}
               {/snippet}
             </PluginRegistryRow>
           {/each}
@@ -965,23 +1020,30 @@
     loading={detailLoading}
     overview={overviewState}
     changelog={changelogState}
-    {availablePluginIds}
+    {installedIds}
+    {staticPluginIds}
     update={detailUpdate}
     {runningAction}
     onselect={selectDetail}
     oninstall={installEntry}
     onupdate={updatePlugin}
+    onuninstall={requestUninstallById}
     onretry={retryDetailContent}
   />
 
   <AlertDialog.Root bind:open={uninstallConfirmOpen}>
-    <AlertDialog.Content class="lapis-plugin-uninstall-dialog">
+    <AlertDialog.Content
+      class="lapis-plugin-uninstall-dialog"
+      data-action-mode={uninstallDisableInstead ? "disable" : "uninstall"}
+    >
       <AlertDialog.Header>
         <AlertDialog.Media class="lapis-plugin-uninstall-dialog__media">
           <Trash2 aria-hidden="true" />
         </AlertDialog.Media>
         <AlertDialog.Title>Uninstall plugin?</AlertDialog.Title>
-        <AlertDialog.Description>This removes the installed plugin from this vault. You can reinstall it from the registry later.</AlertDialog.Description>
+        <AlertDialog.Description>{uninstallDisableInstead
+          ? "The plugin will stay installed in this vault and can be enabled again later."
+          : "This removes the installed plugin from this vault. You can reinstall it from the registry later."}</AlertDialog.Description>
       </AlertDialog.Header>
       {#if uninstallTarget}
         {@const entry = catalogEntry(uninstallTarget.pluginId)}
@@ -1006,16 +1068,49 @@
               : undefined}
           />
         </div>
+        {#if resolveRuntimePlugin(uninstallTarget.pluginId)?.enabled}
+          {@const alternateAction = uninstallDisableInstead
+            ? `Choose Uninstall instead for ${installedName(uninstallTarget)}`
+            : `Choose Disable instead for ${installedName(uninstallTarget)}`}
+          <Field.Field
+            orientation="horizontal"
+            class="lapis-plugin-uninstall-dialog__alternative"
+          >
+            <Field.Content>
+              <Field.Title>Disable instead</Field.Title>
+              <Field.Description>Keep the plugin installed and turn it off.</Field.Description>
+            </Field.Content>
+            <Tooltip.Provider>
+              <Tooltip.Root>
+                <Tooltip.Trigger>
+                  {#snippet child({ props })}
+                    <Switch.Root
+                      {...props}
+                      bind:checked={uninstallDisableInstead}
+                      aria-label={alternateAction}
+                      data-tooltip-action={alternateAction}
+                    />
+                  {/snippet}
+                </Tooltip.Trigger>
+                <Tooltip.Content>{alternateAction}</Tooltip.Content>
+              </Tooltip.Root>
+            </Tooltip.Provider>
+          </Field.Field>
+        {/if}
       {/if}
       <AlertDialog.Footer>
-        <AlertDialog.Cancel onclick={() => (uninstallTarget = null)}>Cancel</AlertDialog.Cancel>
+        <AlertDialog.Cancel onclick={closeUninstallDialog}>Cancel</AlertDialog.Cancel>
         <AlertDialog.Action
-          variant="destructive"
+          class={uninstallDisableInstead
+            ? "lapis-plugin-uninstall-dialog__confirm--disable"
+            : "lapis-plugin-uninstall-dialog__confirm--uninstall"}
+          variant={uninstallDisableInstead ? "default" : "destructive"}
+          data-action-mode={uninstallDisableInstead ? "disable" : "uninstall"}
           aria-label={uninstallTarget
-            ? `Uninstall ${installedName(uninstallTarget)}`
-            : "Uninstall plugin"}
-          onclick={() => void confirmUninstall()}
-        ><Trash2 aria-hidden="true" />Uninstall plugin</AlertDialog.Action>
+            ? `${uninstallDisableInstead ? "Disable" : "Uninstall"} ${installedName(uninstallTarget)}`
+            : `${uninstallDisableInstead ? "Disable" : "Uninstall"} plugin`}
+          onclick={() => void confirmPluginRemovalChoice()}
+        >{#if uninstallDisableInstead}<Power data-icon="inline-start" aria-hidden="true" />Disable plugin{:else}<Trash2 data-icon="inline-start" aria-hidden="true" />Uninstall plugin{/if}</AlertDialog.Action>
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>

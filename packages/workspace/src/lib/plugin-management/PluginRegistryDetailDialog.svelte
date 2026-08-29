@@ -8,6 +8,7 @@
   import Download from "@lucide/svelte/icons/download";
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import PackageIcon from "@lucide/svelte/icons/package";
+  import Trash2 from "@lucide/svelte/icons/trash-2";
   import {
     type App,
     type PluginCatalogDetail,
@@ -42,12 +43,14 @@
     loading,
     overview,
     changelog,
-    availablePluginIds,
+    installedIds,
+    staticPluginIds,
     update,
     runningAction,
     onselect,
     oninstall,
     onupdate,
+    onuninstall,
     onretry,
   }: {
     app: App;
@@ -58,12 +61,14 @@
     loading: boolean;
     overview: PluginMarkdownState;
     changelog: PluginMarkdownState;
-    availablePluginIds: Set<string>;
+    installedIds: Set<string>;
+    staticPluginIds: Set<string>;
     update: PluginUpdateInfo | null;
     runningAction: string | null;
     onselect: (entry: PluginCatalogEntry) => void | Promise<void>;
     oninstall: (entry: PluginCatalogEntry) => void | Promise<void>;
     onupdate: (update: PluginUpdateInfo) => void | Promise<void>;
+    onuninstall: (pluginId: string) => void;
     onretry: (kind: "overview" | "changelog") => void | Promise<void>;
   } = $props();
 
@@ -166,8 +171,16 @@
                 disabled={runningAction === `update:${update.id}`}
                 onclick={() => void onupdate(update)}
               ><ArrowUpCircle />Update</Button.Root>
-            {:else if availablePluginIds.has(selectedEntry.id)}
-              <Button.Root size="sm" variant="outline" disabled><Check />Installed</Button.Root>
+            {:else if installedIds.has(selectedEntry.id)}
+              <Button.Root
+                size="sm"
+                variant="outline"
+                aria-label={`Uninstall ${selectedEntry.name}`}
+                disabled={runningAction === `uninstall:${selectedEntry.id}`}
+                onclick={() => onuninstall(selectedEntry.id)}
+              ><Trash2 data-icon="inline-start" />Uninstall</Button.Root>
+            {:else if staticPluginIds.has(selectedEntry.id)}
+              <Button.Root size="sm" variant="outline" disabled><Check data-icon="inline-start" />Bundled</Button.Root>
             {:else}
               <Button.Root
                 size="sm"

@@ -16,7 +16,7 @@
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import { registerPluginManagementSettings } from "@lapis-notes/workspace";
   import { WorkspaceSettingsSurface } from "@lapismd/design-core/workspace/settings";
-  import { onDestroy, onMount, untrack } from "svelte";
+  import { onDestroy, onMount, tick, untrack } from "svelte";
 
   type PluginManagementScenario =
     | "empty"
@@ -335,6 +335,7 @@ Released 1 August 2026.
   }
 
   let bundleInstallCalls = $state(0);
+  let uninstallCalls = $state(0);
   let lastProgress = $state("idle");
   const progressListeners = new Set<(event: PluginInstallProgressEvent) => void>();
   const distribution: PluginDistributionManager = {
@@ -408,6 +409,7 @@ Released 1 August 2026.
       return record;
     },
     async uninstall(pluginId) {
+      uninstallCalls += 1;
       installed.splice(
         0,
         installed.length,
@@ -532,10 +534,16 @@ Released 1 August 2026.
   (app as unknown as { pluginDistribution: PluginDistributionManager })
     .pluginDistribution = distribution;
   let communityToggleCalls = $state(0);
+  let installedDisableCalls = $state(0);
   const enablePlugin = app.plugins.enablePlugin.bind(app.plugins);
   app.plugins.enablePlugin = async (pluginId) => {
     if (pluginId === "community-example") communityToggleCalls += 1;
     return enablePlugin(pluginId);
+  };
+  const disablePlugin = app.plugins.disablePlugin.bind(app.plugins);
+  app.plugins.disablePlugin = async (pluginId) => {
+    if (pluginId === "lapis-graph") installedDisableCalls += 1;
+    return disablePlugin(pluginId);
   };
 
   const profile = [
@@ -626,7 +634,15 @@ Released 1 August 2026.
       if (untrack(() => scenario) === "community") {
         await app.plugins.enablePlugin(failedPlugin.manifest.id);
       }
-      for (const plugin of installedRuntimePlugins) await plugin.enable();
+      if (installedRuntimePlugins[0]) {
+        const installedGraph =
+          app.plugins.plugins.get(installedRuntimePlugins[0].manifest.id) ??
+          installedRuntimePlugins[0];
+        await installedGraph.enable();
+        await tick();
+        app.plugins.emit("plugin-enabled", installedGraph);
+        await tick();
+      }
       if (!disposed) ready = true;
     })();
     return () => {
@@ -652,7 +668,7 @@ Released 1 August 2026.
   data-testid="plugin-management-story"
   data-ready={ready || undefined}
 >
-  <WorkspaceSettingsSurface {controller} />
+  {#if ready}<WorkspaceSettingsSurface {controller} />{/if}
   <output class="sr-only" data-testid="plugin-bundle-install-calls"
     >{bundleInstallCalls}</output
   >
@@ -664,6 +680,12 @@ Released 1 August 2026.
   >
   <output class="sr-only" data-testid="community-toggle-calls"
     >{communityToggleCalls}</output
+  >
+  <output class="sr-only" data-testid="plugin-uninstall-calls"
+    >{uninstallCalls}</output
+  >
+  <output class="sr-only" data-testid="installed-disable-calls"
+    >{installedDisableCalls}</output
   >
 </div>
 
