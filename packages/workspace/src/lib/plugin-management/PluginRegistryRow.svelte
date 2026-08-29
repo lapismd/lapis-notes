@@ -15,6 +15,7 @@
     id,
     name,
     description,
+    version,
     metadata = [],
     badges = [],
     status,
@@ -25,6 +26,7 @@
     id: string;
     name: string;
     description: string;
+    version?: string;
     metadata?: string[];
     badges?: RegistryRowBadge[];
     status?: {
@@ -43,6 +45,7 @@
   data-ui-component="plugin-registry-row"
   data-plugin-id={id}
   data-selected={selected || undefined}
+  data-has-actions={actions ? "true" : undefined}
 >
   <div class="lapis-plugin-registry-row__icon" aria-hidden="true">
     <PackageIcon />
@@ -55,12 +58,18 @@
       onclick={onopen}
     >
       <span class="lapis-plugin-registry-row__heading">
-        <strong>{name}</strong>
-        <span class="lapis-plugin-registry-row__badges">
+        <span class="lapis-plugin-registry-row__identity">
+          <strong>{name}</strong>
           {#each badges as item (item.label)}
             <PluginRegistryBadge label={item.label} tone={item.tone} />
           {/each}
+          {#if status}
+            <PluginRegistryStatus label={status.label} tone={status.tone} />
+          {/if}
         </span>
+        {#if version}
+          <span class="lapis-plugin-registry-row__version">{version}</span>
+        {/if}
       </span>
       <span class="lapis-plugin-registry-row__description">{description}</span>
       {#if metadata.length}
@@ -68,17 +77,28 @@
           {#each metadata as item (item)}<span>{item}</span>{/each}
         </span>
       {/if}
-      {#if status}<PluginRegistryStatus {...status} />{/if}
+      {#if status?.reason}
+        <span
+          class="lapis-plugin-registry-row__status-reason"
+          data-status-tone={status.tone ?? "neutral"}>{status.reason}</span
+        >
+      {/if}
     </button>
   {:else}
     <div class="lapis-plugin-registry-row__main">
       <div class="lapis-plugin-registry-row__heading">
-        <strong>{name}</strong>
-        <span class="lapis-plugin-registry-row__badges">
+        <span class="lapis-plugin-registry-row__identity">
+          <strong>{name}</strong>
           {#each badges as item (item.label)}
             <PluginRegistryBadge label={item.label} tone={item.tone} />
           {/each}
+          {#if status}
+            <PluginRegistryStatus label={status.label} tone={status.tone} />
+          {/if}
         </span>
+        {#if version}
+          <span class="lapis-plugin-registry-row__version">{version}</span>
+        {/if}
       </div>
       <p class="lapis-plugin-registry-row__description">{description}</p>
       {#if metadata.length}
@@ -86,7 +106,12 @@
           {#each metadata as item (item)}<span>{item}</span>{/each}
         </div>
       {/if}
-      {#if status}<PluginRegistryStatus {...status} />{/if}
+      {#if status?.reason}
+        <p
+          class="lapis-plugin-registry-row__status-reason"
+          data-status-tone={status.tone ?? "neutral"}>{status.reason}</p
+        >
+      {/if}
     </div>
   {/if}
   {#if actions}

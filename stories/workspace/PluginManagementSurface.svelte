@@ -38,8 +38,80 @@
 
   const graphOverview =
     "# Graph\n\nExplore local and global relationships between notes.\n\n## Highlights\n\n- Open graph navigation\n- Local relationship exploration\n";
-  const graphChangelog =
-    "# Changelog\n\n## 0.2.0\n\n- Added structured registry details.\n";
+  const graphChangelog = `# Changelog
+
+## 0.2.0 — Structured plugin details
+
+Released 24 August 2026.
+
+### Added
+
+- Added signed Overview, Changelog, and Versions content to plugin details.
+- Added a resizable results rail for comparing plugins without closing the dialog.
+- Added Web and Desktop compatibility badges with platform-specific icons.
+
+### Changed
+
+- Refined the selected-plugin treatment with an accent ring and tinted background.
+- Improved keyboard focus, narrow drill-in navigation, and release metadata layout.
+
+### Fixed
+
+- Preserved result and documentation scrolling while switching detail tabs.
+- Kept plugin metadata available when verified Markdown cannot be loaded.
+
+## 0.1.0 — First public package
+
+Released 1 August 2026.
+
+### Added
+
+- Published the initial graph navigation experience for Web and Desktop.
+- Added local relationship exploration and direct note navigation.
+`;
+
+  function renderStoryMarkdown(markdown: string, element: HTMLElement): void {
+    const fragment = document.createDocumentFragment();
+    let list: HTMLUListElement | null = null;
+
+    for (const sourceLine of markdown.split("\n")) {
+      const line = sourceLine.trim();
+      if (!line) {
+        list = null;
+        continue;
+      }
+
+      const heading = /^(#{1,3})\s+(.+)$/.exec(line);
+      if (heading) {
+        list = null;
+        const level = heading[1].length;
+        const node = document.createElement(
+          level === 1 ? "h1" : level === 2 ? "h2" : "h3",
+        );
+        node.textContent = heading[2];
+        fragment.append(node);
+        continue;
+      }
+
+      if (line.startsWith("- ")) {
+        if (!list) {
+          list = document.createElement("ul");
+          fragment.append(list);
+        }
+        const item = document.createElement("li");
+        item.textContent = line.slice(2);
+        list.append(item);
+        continue;
+      }
+
+      list = null;
+      const paragraph = document.createElement("p");
+      paragraph.textContent = line.replace(/\*\*/g, "");
+      fragment.append(paragraph);
+    }
+
+    element.replaceChildren(fragment);
+  }
 
   const catalog: PluginCatalogEntry[] =
     untrack(() => scenario) === "empty"
@@ -225,8 +297,8 @@
                 sourceUrl:
                   "https://github.com/lapismd/lapis-plugins/blob/story/packages/graph/CHANGELOG.md",
                 sha256:
-                  "ea7ec8636f6d85b5a3c22b1839061e0797aa8f01b84ab90fd886c1583dd01180",
-                size: 60,
+                  "513a295df3a6ded79a0521b2388117442ce6ed91a5f0a94ccfccca3c27205383",
+                size: 879,
                 mediaType: "text/markdown",
               },
             }
@@ -454,16 +526,8 @@
     appDatabase: new MemoryAppDatabase(
       `plugin-management-${untrack(() => scenario)}-${untrack(() => section)}`,
     ),
-    markdownRenderer: async (markdown, element) => {
-      const heading = document.createElement("h1");
-      heading.textContent = markdown.match(/^#\s+(.+)$/m)?.[1] ?? "Plugin README";
-      const body = document.createElement("p");
-      body.textContent = markdown
-        .replace(/^#\s+.+$/m, "")
-        .replace(/\*\*/g, "")
-        .trim();
-      element.replaceChildren(heading, body);
-    },
+    markdownRenderer: async (markdown, element) =>
+      renderStoryMarkdown(markdown, element),
   });
   (app as unknown as { pluginDistribution: PluginDistributionManager })
     .pluginDistribution = distribution;

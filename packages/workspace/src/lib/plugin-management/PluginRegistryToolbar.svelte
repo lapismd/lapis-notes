@@ -1,11 +1,13 @@
 <script lang="ts">
   import SlidersHorizontal from "@lucide/svelte/icons/sliders-horizontal";
   import { SearchFilterBar } from "@lapismd/design-core/filter";
+  import {
+    FilterCommandPicker,
+    type FilterCommandOption,
+  } from "@lapismd/design-core/forms";
   import * as Button from "@lapismd/design-core/shadcn/button";
-  import * as Select from "@lapismd/design-core/shadcn/select";
 
   type ToolbarTab = "installed" | "browse" | "updates";
-  type Option = { value: string; label: string };
 
   let {
     tab,
@@ -43,46 +45,55 @@
 
   let filtersExpanded = $state(false);
 
-  const platformOptions: Option[] = [
-    { value: "all", label: "All platforms" },
-    { value: "web", label: "Web" },
-    { value: "electron", label: "Electron" },
-    { value: "desktop", label: "Desktop" },
+  const platformOptions: FilterCommandOption[] = [
+    { value: "all", label: "All platforms", description: "Show every supported host." },
+    { value: "web", label: "Web", description: "Runs in browser-hosted Lapis apps." },
+    { value: "electron", label: "Electron", description: "Runs in Electron desktop hosts." },
+    { value: "desktop", label: "Desktop", description: "Runs in supported desktop hosts." },
   ];
-  const channelOptions: Option[] = [
-    { value: "all", label: "All channels" },
-    { value: "official", label: "Official" },
-    { value: "community", label: "Community" },
+  const channelOptions: FilterCommandOption[] = [
+    { value: "all", label: "All channels", description: "Official and community releases." },
+    { value: "official", label: "Official", description: "Curated and verified by the Lapis registry." },
+    { value: "community", label: "Community", description: "Published by community maintainers." },
   ];
-  const installedOptions: Option[] = [
+  const installedOptions: FilterCommandOption[] = [
     { value: "all", label: "Any install state" },
-    { value: "available", label: "Available" },
-    { value: "installed", label: "Installed" },
+    { value: "available", label: "Available", description: "Not currently included or installed." },
+    { value: "installed", label: "Installed", description: "Included in the profile or vault." },
   ];
-  const enabledOptions: Option[] = [
+  const enabledOptions: FilterCommandOption[] = [
     { value: "all", label: "Any status" },
     { value: "enabled", label: "Enabled" },
     { value: "disabled", label: "Disabled" },
     { value: "revoked", label: "Revoked" },
     { value: "restart", label: "Restart required" },
   ];
-  const provenanceOptions: Option[] = [
+  const provenanceOptions: FilterCommandOption[] = [
     { value: "all", label: "Any provenance" },
     { value: "official", label: "Official" },
     { value: "community", label: "Community" },
     { value: "manual", label: "Manual" },
     { value: "development", label: "Development" },
   ];
-  const updateOptions: Option[] = [
+  const updateOptions: FilterCommandOption[] = [
     { value: "all", label: "Any update status" },
     { value: "ready", label: "Ready" },
     { value: "incompatible", label: "Incompatible" },
     { value: "revoked", label: "Revoked" },
   ];
 
-  function labelFor(options: Option[], value: string): string {
-    return options.find((option) => option.value === value)?.label ?? value;
-  }
+  const browseSortOptions: FilterCommandOption[] = [
+    { value: "name", label: "Name" },
+    { value: "recent", label: "Recently updated" },
+  ];
+  const updateSortOptions: FilterCommandOption[] = [
+    { value: "status", label: "Status first" },
+    { value: "name", label: "Name" },
+  ];
+  let categoryOptions = $derived<FilterCommandOption[]>([
+    { value: "all", label: "All categories" },
+    ...categories.map((item) => ({ value: item, label: item })),
+  ]);
 </script>
 
 <div
@@ -102,59 +113,32 @@
     expandFiltersLabel={`Show ${tab} filters`}
     collapseFiltersLabel={`Hide ${tab} filters`}
     onValueChange={(next) => (search = next)}
+    onClearSearch={() => {
+      search = "";
+    }}
     onClearAll={onreset}
   >
     {#snippet filters()}
       <div class="lapis-plugin-registry-toolbar__controls">
         {#if tab === "browse"}
-          <Select.Root type="single" bind:value={platform}>
-            <Select.Trigger size="sm" aria-label="Filter by platform">{labelFor(platformOptions, platform)}</Select.Trigger>
-            <Select.Content><Select.Group>{#each platformOptions as item}<Select.Item value={item.value} label={item.label} />{/each}</Select.Group></Select.Content>
-          </Select.Root>
-          <Select.Root type="single" bind:value={channel}>
-            <Select.Trigger size="sm" aria-label="Filter by channel">{labelFor(channelOptions, channel)}</Select.Trigger>
-            <Select.Content><Select.Group>{#each channelOptions as item}<Select.Item value={item.value} label={item.label} />{/each}</Select.Group></Select.Content>
-          </Select.Root>
-          <Select.Root type="single" bind:value={category}>
-            <Select.Trigger size="sm" aria-label="Filter by category">{category === "all" ? "All categories" : category}</Select.Trigger>
-            <Select.Content><Select.Group><Select.Item value="all" label="All categories" />{#each categories as item}<Select.Item value={item} label={item} />{/each}</Select.Group></Select.Content>
-          </Select.Root>
-          <Select.Root type="single" bind:value={installedState}>
-            <Select.Trigger size="sm" aria-label="Filter by installed state">{labelFor(installedOptions, installedState)}</Select.Trigger>
-            <Select.Content><Select.Group>{#each installedOptions as item}<Select.Item value={item.value} label={item.label} />{/each}</Select.Group></Select.Content>
-          </Select.Root>
+          <FilterCommandPicker label="Platform" ariaLabel="Filter by platform" options={platformOptions} value={platform} onChange={(next) => { platform = next; }} />
+          <FilterCommandPicker label="Channel" ariaLabel="Filter by channel" options={channelOptions} value={channel} onChange={(next) => { channel = next; }} />
+          <FilterCommandPicker label="Category" ariaLabel="Filter by category" options={categoryOptions} value={category} onChange={(next) => { category = next; }} />
+          <FilterCommandPicker label="Installed" ariaLabel="Filter by installed state" options={installedOptions} value={installedState} onChange={(next) => { installedState = next; }} />
           <Button.Root
             size="sm"
             variant={compatibleOnly ? "secondary" : "outline"}
             aria-pressed={compatibleOnly}
             onclick={() => (compatibleOnly = !compatibleOnly)}
-          ><SlidersHorizontal />Compatible only</Button.Root>
-          <Select.Root type="single" bind:value={sort}>
-            <Select.Trigger size="sm" aria-label="Sort Browse plugins">{sort === "recent" ? "Recently updated" : "Name"}</Select.Trigger>
-            <Select.Content><Select.Group><Select.Item value="name" label="Name" /><Select.Item value="recent" label="Recently updated" /></Select.Group></Select.Content>
-          </Select.Root>
+          ><SlidersHorizontal data-icon="inline-start" />Compatible only</Button.Root>
+          <FilterCommandPicker label="Sort" ariaLabel="Sort Browse plugins" options={browseSortOptions} value={sort} onChange={(next) => { sort = next; }} />
         {:else if tab === "installed"}
-          <Select.Root type="single" bind:value={enabledState}>
-            <Select.Trigger size="sm" aria-label="Filter installed status">{labelFor(enabledOptions, enabledState)}</Select.Trigger>
-            <Select.Content><Select.Group>{#each enabledOptions as item}<Select.Item value={item.value} label={item.label} />{/each}</Select.Group></Select.Content>
-          </Select.Root>
-          <Select.Root type="single" bind:value={provenance}>
-            <Select.Trigger size="sm" aria-label="Filter installed provenance">{labelFor(provenanceOptions, provenance)}</Select.Trigger>
-            <Select.Content><Select.Group>{#each provenanceOptions as item}<Select.Item value={item.value} label={item.label} />{/each}</Select.Group></Select.Content>
-          </Select.Root>
-          <Select.Root type="single" bind:value={sort}>
-            <Select.Trigger size="sm" aria-label="Sort installed plugins">{sort === "recent" ? "Recently updated" : "Name"}</Select.Trigger>
-            <Select.Content><Select.Group><Select.Item value="name" label="Name" /><Select.Item value="recent" label="Recently updated" /></Select.Group></Select.Content>
-          </Select.Root>
+          <FilterCommandPicker label="Status" ariaLabel="Filter installed status" options={enabledOptions} value={enabledState} onChange={(next) => { enabledState = next; }} />
+          <FilterCommandPicker label="Provenance" ariaLabel="Filter installed provenance" options={provenanceOptions} value={provenance} onChange={(next) => { provenance = next; }} />
+          <FilterCommandPicker label="Sort" ariaLabel="Sort installed plugins" options={browseSortOptions} value={sort} onChange={(next) => { sort = next; }} />
         {:else}
-          <Select.Root type="single" bind:value={updateState}>
-            <Select.Trigger size="sm" aria-label="Filter update status">{labelFor(updateOptions, updateState)}</Select.Trigger>
-            <Select.Content><Select.Group>{#each updateOptions as item}<Select.Item value={item.value} label={item.label} />{/each}</Select.Group></Select.Content>
-          </Select.Root>
-          <Select.Root type="single" bind:value={sort}>
-            <Select.Trigger size="sm" aria-label="Sort updates">{sort === "name" ? "Name" : "Status first"}</Select.Trigger>
-            <Select.Content><Select.Group><Select.Item value="status" label="Status first" /><Select.Item value="name" label="Name" /></Select.Group></Select.Content>
-          </Select.Root>
+          <FilterCommandPicker label="Status" ariaLabel="Filter update status" options={updateOptions} value={updateState} onChange={(next) => { updateState = next; }} />
+          <FilterCommandPicker label="Sort" ariaLabel="Sort updates" options={updateSortOptions} value={sort} onChange={(next) => { sort = next; }} />
         {/if}
       </div>
     {/snippet}

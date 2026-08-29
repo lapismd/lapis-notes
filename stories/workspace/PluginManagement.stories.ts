@@ -38,6 +38,22 @@ async function selectRegistryTab(
   await userEvent.click(canvas.getByRole("tab", { name }));
 }
 
+async function expectPopulatedRegistryRows(
+  canvas: ReturnType<typeof within>,
+  name: "Installed" | "Browse" | "Updates",
+) {
+  await selectRegistryTab(canvas, name);
+  const tab = canvas.getByRole("tab", { name });
+  const panel = canvas.getByRole("tabpanel", { name });
+  await expect(tab).toHaveAttribute("data-state", "active");
+  await waitFor(() => {
+    expect(
+      panel.querySelectorAll('[data-ui-component="plugin-registry-row"]')
+        .length,
+    ).toBeGreaterThan(0);
+  });
+}
+
 export const EmptyTabsAndSources: Story = {
   args: { scenario: "empty", section: "plugin-registry" },
   play: async ({ canvasElement }) => {
@@ -128,6 +144,38 @@ export const BrowseDetailsAndReadme: Story = {
       .getByRole("button", { name: "View details for Graph" })
       .closest("article");
     expect(graphCard).not.toBeNull();
+    const graphHeading = graphCard!.querySelector(
+      ".lapis-plugin-registry-row__heading",
+    );
+    expect(graphHeading).not.toBeNull();
+    const graphIdentity = graphHeading!.querySelector<HTMLElement>(
+      ".lapis-plugin-registry-row__identity",
+    );
+    const graphTitle = graphIdentity!.querySelector("strong");
+    const firstGraphChip = graphIdentity!.querySelector(
+      ".lapis-plugin-registry-badge",
+    );
+    expect(graphIdentity).not.toBeNull();
+    expect(graphTitle).not.toBeNull();
+    expect(firstGraphChip).not.toBeNull();
+    expect(firstGraphChip!.parentElement).toBe(graphIdentity);
+    expect(getComputedStyle(graphIdentity!).flexWrap).toBe("wrap");
+    expect(getComputedStyle(graphIdentity!).alignItems).toBe("center");
+    expect(
+      Math.abs(
+        graphTitle!.getBoundingClientRect().y -
+          firstGraphChip!.getBoundingClientRect().y,
+      ),
+    ).toBeLessThan(3);
+    await expect(within(graphHeading!).getByText("Web")).toBeVisible();
+    await expect(within(graphHeading!).getByText("Desktop")).toBeVisible();
+    await expect(within(graphHeading!).getByText("0.2.0")).toBeVisible();
+    expect(
+      within(graphHeading!).getByText("Web").querySelector("svg"),
+    ).not.toBeNull();
+    expect(
+      within(graphHeading!).getByText("Desktop").querySelector("svg"),
+    ).not.toBeNull();
     await userEvent.click(
       within(graphCard!).getByRole("button", {
         name: "View details for Graph",
@@ -136,7 +184,9 @@ export const BrowseDetailsAndReadme: Story = {
     const body = within(canvasElement.ownerDocument.body);
     await waitFor(() => {
       expect(body.getByRole("dialog")).toBeVisible();
-      expect(body.getByRole("heading", { name: "Highlights" })).toBeVisible();
+      expect(
+        body.getAllByRole("heading", { name: "Highlights" })[0],
+      ).toBeVisible();
     });
     await expect(body.queryByText("Browse results")).toBeNull();
     await expect(body.getByText(/Open graph navigation/)).toBeVisible();
@@ -150,15 +200,43 @@ export const BrowseDetailsAndReadme: Story = {
     await expect(
       body.getAllByRole("button", { name: "Install" })[0],
     ).toBeEnabled();
+    const selectedResult = body
+      .getByRole("dialog")
+      .querySelector<HTMLButtonElement>('button[aria-current="true"]');
+    expect(selectedResult).not.toBeNull();
+    const selectedStyle =
+      canvasElement.ownerDocument.defaultView!.getComputedStyle(
+        selectedResult!,
+      );
+    expect(selectedStyle.borderTopWidth).toBe("0px");
+    expect(selectedStyle.boxShadow).not.toBe("none");
+    const resizer = body
+      .getByRole("dialog")
+      .querySelector('[data-ui-part="resizable-handle"]');
+    expect(resizer).toHaveAttribute("aria-label", "Resize plugin result rail");
+    expect(
+      resizer!.querySelector('[data-ui-part="resizable-handle-anon-0"]'),
+    ).toBeNull();
     await userEvent.click(body.getByRole("tab", { name: "Changelog" }));
     await expect(
-      body.getByText(/Added structured registry details/),
+      body.getByRole("heading", { name: "What changed" }),
+    ).toBeVisible();
+    const expandChangelog = body.getByRole("button", {
+      name: "View full changelog",
+    });
+    await expect(expandChangelog).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(expandChangelog);
+    await expect(
+      body.getByRole("button", { name: "Show less" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      body.getByRole("heading", { name: "0.1.0 — First public package" }),
     ).toBeVisible();
     await userEvent.click(body.getByRole("tab", { name: "Versions" }));
     await expect(body.getAllByRole("link", { name: "Bundle" })).toHaveLength(2);
     await userEvent.click(body.getByRole("tab", { name: "Overview" }));
     await expect(
-      body.getByRole("heading", { name: "Highlights" }),
+      body.getAllByRole("heading", { name: "Highlights" })[0],
     ).toBeVisible();
     await userEvent.click(body.getByRole("button", { name: "Close" }));
     await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
@@ -189,7 +267,7 @@ export const BrowseSearchAndExpandableFilters: Story = {
       canvas.getByRole("button", { name: "Filter by channel" }),
     );
     await userEvent.click(
-      await body.findByRole("option", { name: "Community" }),
+      await body.findByRole("option", { name: /Community/ }),
     );
     await expect(canvas.getByText("2 active filters")).toBeVisible();
     await expect(
@@ -327,6 +405,74 @@ export const PopulatedInstalledBrowseAndUpdates: Story = {
   },
 };
 
+export const PopulatedInstalledRows: Story = {
+  args: { scenario: "installed", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await expectPopulatedRegistryRows(canvas, "Installed");
+    const graphRow = canvasElement.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
+    expect(graphRow).not.toBeNull();
+    const graphHeading = graphRow!.querySelector(
+      ".lapis-plugin-registry-row__heading",
+    );
+    await expect(within(graphHeading!).getByText("0.1.0")).toBeVisible();
+    await expect(within(graphHeading!).getByText("Web")).toBeVisible();
+    await expect(within(graphHeading!).getByText("Desktop")).toBeVisible();
+    await expect(canvas.getByText("Restart required")).toBeVisible();
+    const enableSwitch = within(graphRow!).getByRole("switch", {
+      name: "Enable Graph",
+    });
+    await expect(enableSwitch).not.toBeChecked();
+    await expect(enableSwitch).toHaveAttribute("data-tooltip-trigger");
+    await expect(
+      within(graphRow!).getByRole("button", { name: "Update Graph" }),
+    ).toBeVisible();
+    await expect(canvas.getAllByText("Revoked").at(0)).toBeVisible();
+  },
+};
+
+export const PopulatedBrowseRows: Story = {
+  args: { scenario: "installed", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await expectPopulatedRegistryRows(canvas, "Browse");
+    await expect(
+      canvas.getByRole("button", { name: "View details for Graph" }),
+    ).toBeVisible();
+  },
+};
+
+export const PopulatedUpdatesRows: Story = {
+  args: { scenario: "installed", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await expectPopulatedRegistryRows(canvas, "Updates");
+    await expect(canvas.getByText(/0\.1\.0.*0\.2\.0/)).toBeVisible();
+    const updatesPanel = canvas.getByRole("tabpanel", { name: "Updates" });
+    const graphRow = updatesPanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
+    expect(graphRow).not.toBeNull();
+    const graphHeading = graphRow!.querySelector(
+      ".lapis-plugin-registry-row__heading",
+    );
+    await expect(within(graphHeading!).getByText("Web")).toBeVisible();
+    await expect(within(graphHeading!).getByText("Desktop")).toBeVisible();
+    const updateButton = within(graphRow!).getByRole("button", {
+      name: "Update Graph",
+    });
+    await expect(updateButton).toHaveAttribute("data-tooltip-trigger");
+    await expect(
+      canvas.getByText("This installed release is no longer trusted."),
+    ).toBeVisible();
+  },
+};
+
 export const InstalledUpdatesRevocationAndConfirmation: Story = {
   args: { scenario: "installed", section: "plugin-registry" },
   play: async ({ canvasElement }) => {
@@ -349,10 +495,35 @@ export const InstalledUpdatesRevocationAndConfirmation: Story = {
       canvas.getByRole("button", { name: "Uninstall lapis-graph" }),
     );
     const body = within(canvasElement.ownerDocument.body);
-    await expect(body.getByRole("alertdialog")).toBeVisible();
-    await expect(body.getByText(/Uninstall lapis-graph\?/)).toBeVisible();
-    await expect(body.getByRole("button", { name: "Cancel" })).toBeVisible();
-    await expect(body.getByRole("button", { name: "Uninstall" })).toBeVisible();
+    const dialog = body.getByRole("alertdialog");
+    await expect(dialog).toBeVisible();
+    await expect(
+      body.getByRole("heading", { name: "Uninstall plugin?" }),
+    ).toBeVisible();
+    expect(dialog.getBoundingClientRect().width).toBeLessThanOrEqual(448);
+    const target = dialog.querySelector<HTMLElement>(
+      '[data-ui-component="plugin-uninstall-target"]',
+    );
+    expect(target).not.toBeNull();
+    await expect(within(target!).getByText("Graph")).toBeVisible();
+    await expect(within(target!).getByText("0.1.0")).toBeVisible();
+    await expect(within(target!).getByText("Official")).toBeVisible();
+    await expect(
+      within(target!).getByText(
+        "Explore local and global relationships between notes.",
+      ),
+    ).toBeVisible();
+    const cancelAction = body.getByRole("button", { name: "Cancel" });
+    await expect(cancelAction).toBeVisible();
+    expect(getComputedStyle(cancelAction).borderTopStyle).toBe("solid");
+    const uninstallAction = body.getByRole("button", {
+      name: "Uninstall Graph",
+    });
+    await expect(uninstallAction).toBeVisible();
+    expect(getComputedStyle(uninstallAction).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
+    );
+    expect(uninstallAction.querySelector("svg")).not.toBeNull();
   },
 };
 

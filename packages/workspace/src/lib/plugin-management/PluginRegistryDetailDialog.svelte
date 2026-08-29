@@ -3,6 +3,8 @@
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import ArrowUpCircle from "@lucide/svelte/icons/arrow-up-circle";
   import Check from "@lucide/svelte/icons/check";
+  import ChevronDown from "@lucide/svelte/icons/chevron-down";
+  import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import Download from "@lucide/svelte/icons/download";
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import PackageIcon from "@lucide/svelte/icons/package";
@@ -14,6 +16,7 @@
   } from "@lapis-notes/api";
   import * as Button from "@lapismd/design-core/shadcn/button";
   import * as Dialog from "@lapismd/design-core/shadcn/dialog";
+  import * as Resizable from "@lapismd/design-core/shadcn/resizable";
   import * as ScrollArea from "@lapismd/design-core/shadcn/scroll-area";
   import * as Tabs from "@lapismd/design-core/shadcn/tabs";
   import PluginReadmeRenderer from "./PluginReadmeRenderer.svelte";
@@ -68,6 +71,8 @@
     "overview",
   );
   let narrowDetail = $state(true);
+  let changelogExpanded = $state(false);
+  let resizingResultRail = $state(false);
   const releases = $derived(
     Object.values(detail?.versions ?? {}).sort((left, right) =>
       right.releasedAt.localeCompare(left.releasedAt),
@@ -81,8 +86,13 @@
     if (selectedEntry?.id) {
       activeSection = "overview";
       narrowDetail = true;
+      changelogExpanded = false;
     }
   });
+
+  let changelogNeedsExpansion = $derived(
+    changelog.status === "loaded" && changelog.markdown.length > 320,
+  );
 
   function titleCase(value: string): string {
     return value
@@ -171,30 +181,52 @@
         {/if}
       </header>
 
-      <aside class="lapis-plugin-detail-dialog__results">
-        <ScrollArea.Root class="lapis-plugin-detail-dialog__result-scroll">
-          <div class="lapis-plugin-detail-dialog__result-list">
-            {#each entries as entry (entry.id)}
-              <button
-                type="button"
-                data-active={entry.id === selectedEntry?.id || undefined}
-                aria-current={entry.id === selectedEntry?.id ? "true" : undefined}
-                onclick={() => {
-                  narrowDetail = true;
-                  void onselect(entry);
-                }}
-              >
-                <strong>{entry.name}</strong>
-                <span>{entry.description}</span>
-                <small>{entry.latestVersion}</small>
-              </button>
-            {/each}
-            {#if !entries.length}<p>No plugins match the current Browse filters.</p>{/if}
-          </div>
-        </ScrollArea.Root>
-      </aside>
+      <Resizable.PaneGroup
+        direction="horizontal"
+        class="lapis-plugin-detail-dialog__panes"
+      >
+        <Resizable.Pane
+          defaultSize={23.25}
+          minSize={18}
+          maxSize={42}
+          class="lapis-plugin-detail-dialog__results-pane"
+        >
+          <aside class="lapis-plugin-detail-dialog__results">
+            <ScrollArea.Root class="lapis-plugin-detail-dialog__result-scroll">
+              <div class="lapis-plugin-detail-dialog__result-list">
+                {#each entries as entry (entry.id)}
+                  <button
+                    type="button"
+                    data-active={entry.id === selectedEntry?.id || undefined}
+                    aria-current={entry.id === selectedEntry?.id ? "true" : undefined}
+                    onclick={() => {
+                      narrowDetail = true;
+                      void onselect(entry);
+                    }}
+                  >
+                    <strong>{entry.name}</strong>
+                    <span>{entry.description}</span>
+                    <small>{entry.latestVersion}</small>
+                  </button>
+                {/each}
+                {#if !entries.length}<p>No plugins match the current Browse filters.</p>{/if}
+              </div>
+            </ScrollArea.Root>
+          </aside>
+        </Resizable.Pane>
+        <Resizable.Handle
+          class="lapis-plugin-detail-dialog__resizer"
+          data-dragging={resizingResultRail || undefined}
+          aria-label="Resize plugin result rail"
+          onDraggingChange={(dragging) => (resizingResultRail = dragging)}
+        />
+        <Resizable.Pane
+          defaultSize={76}
+          minSize={45}
+          class="lapis-plugin-detail-dialog__detail-pane"
+        >
 
-      <section class="lapis-plugin-detail-dialog__detail">
+          <section class="lapis-plugin-detail-dialog__detail">
         {#if selectedEntry}
           {@const releaseDate = formatDate(selectedEntry.latestRelease?.releasedAt ?? latestRelease?.releasedAt)}
           {@const releaseSize = formatBytes(selectedEntry.latestRelease?.bundleSize ?? latestRelease?.bundle.size)}
@@ -256,10 +288,41 @@
                   {#if loading || changelog.status === "loading"}
                     <PluginRegistryContentState compact kind="loading" heading="Loading changelog" description="Verifying signed Markdown content…" />
                   {:else if changelog.status === "loaded"}
-                    <div class="lapis-plugin-detail-dialog__markdown" data-plugin-markdown="changelog" data-plugin-markdown-url={changelog.url}>
-                      <PluginReadmeRenderer app={app} markdown={changelog.markdown} sourcePath={changelog.url} />
+                    <section
+                      class="lapis-plugin-detail-dialog__changelog"
+                      data-expanded={changelogExpanded}
+                    >
+                      <header>
+                        <div>
+                          <h3>What changed</h3>
+                          <p>Verified release notes supplied by the plugin.</p>
+                        </div>
+                        {#if changelogNeedsExpansion}
+                          <Button.Root
+                            variant="ghost"
+                            size="sm"
+                            aria-expanded={changelogExpanded}
+                            onclick={() => (changelogExpanded = !changelogExpanded)}
+                          >
+                            {changelogExpanded ? "Show less" : "View full changelog"}
+                            {#if changelogExpanded}
+                              <ChevronUp data-icon="inline-end" />
+                            {:else}
+                              <ChevronDown data-icon="inline-end" />
+                            {/if}
+                          </Button.Root>
+                        {/if}
+                      </header>
+                      <div
+                        class="lapis-plugin-detail-dialog__changelog-preview"
+                        data-expanded={changelogExpanded}
+                        data-plugin-markdown="changelog"
+                        data-plugin-markdown-url={changelog.url}
+                      >
+                        <PluginReadmeRenderer app={app} markdown={changelog.markdown} sourcePath={changelog.url} />
+                      </div>
                       <p class="lapis-plugin-detail-dialog__source"><a href={changelog.sourceUrl}>View source changelog</a></p>
-                    </div>
+                    </section>
                   {:else if changelog.status === "error"}
                     <PluginRegistryContentState compact kind="warning" heading="Changelog unavailable" description="The signed Markdown could not be loaded. Version metadata remains available." actionLabel="Retry" onaction={() => void onretry("changelog")} sourceUrl={changelog.sourceUrl} diagnostic={changelog.message} />
                   {:else}
@@ -288,7 +351,9 @@
         {:else}
           <PluginRegistryContentState kind="empty" heading="Select a plugin" description="Choose a Browse result to review signed metadata and documentation." />
         {/if}
-      </section>
+          </section>
+        </Resizable.Pane>
+      </Resizable.PaneGroup>
     </div>
   </Dialog.Content>
 </Dialog.Root>

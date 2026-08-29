@@ -88,6 +88,7 @@ outside the injected App services.
 | LN-WS-084 | The workspace shell pane menu MUST split Lapis-hosted views by duplicating the active API leaf before the Design Core pane appears. The duplicated pane MUST project with translated host directions and render the same view type with copied state for both Split right and Split down. |
 | LN-WS-085 | The `@lapis-notes/workspace` public `0.1.0` package MUST remain a shell adapter around a host-supplied API `App`. Its release manifest, README, and package metadata MUST keep vault discovery, plugin boot, persistence, profile management, and backend setup outside the package. |
 | LN-WS-086 | Workspace MUST expose the reusable plugin-management settings pages and App registration helper without selecting an application profile or importing Markdown. The host application MUST register the pages, and README rendering MUST use the App injection contract. |
+| LN-WS-087 | Plugin-management custom settings pages MUST preserve the Design Core settings shell at wide and narrow widths. Their registry toolbar MUST use the shared expandable search and command-option controls, while the detail dialog MUST use the shared resizable rail without changing App-owned registry actions or the narrow detail drill-in. |
 
 ## Ownership and data flow
 

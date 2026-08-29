@@ -19,7 +19,9 @@
   } from "@lapis-notes/api";
   import * as AlertDialog from "@lapismd/design-core/shadcn/alert-dialog";
   import * as Button from "@lapismd/design-core/shadcn/button";
+  import * as Switch from "@lapismd/design-core/shadcn/switch";
   import * as Tabs from "@lapismd/design-core/shadcn/tabs";
+  import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
   import type { WorkspaceSettingsPageProps } from "@lapismd/design-core/workspace/settings";
   import { onMount, tick, untrack } from "svelte";
   import { getPluginManagementContext } from "./plugin-management-context.svelte";
@@ -29,7 +31,9 @@
   import PluginRegistryDetailDialog, {
     type PluginMarkdownState,
   } from "./PluginRegistryDetailDialog.svelte";
-  import PluginRegistryRow from "./PluginRegistryRow.svelte";
+  import PluginRegistryRow, {
+    type RegistryRowBadge,
+  } from "./PluginRegistryRow.svelte";
   import PluginRegistryToolbar from "./PluginRegistryToolbar.svelte";
   import {
     fetchPluginReadmeMarkdown,
@@ -520,6 +524,37 @@
     );
   }
 
+  function pluginDescription(pluginId: string, fallback: string): string {
+    return (
+      catalogEntry(pluginId)?.description ??
+      app.plugins.plugins.get(pluginId)?.manifest.description ??
+      fallback
+    );
+  }
+
+  function registryRowBadges(
+    entry: PluginCatalogEntry | undefined,
+    provenance: string,
+  ): RegistryRowBadge[] {
+    return [
+      {
+        label: titleCase(provenance),
+        tone: provenanceBadgeTone(provenance),
+      },
+      ...(entry?.platforms.map((platform) => ({
+        label: titleCase(platform),
+        tone: platform === "web" ? ("web" as const) : ("desktop" as const),
+      })) ?? []),
+      ...(entry?.categories.slice(0, 2).map((category) => ({
+        label: titleCase(category),
+        tone: "category" as const,
+      })) ?? []),
+      ...(entry?.status === "revoked"
+        ? [{ label: "Revoked", tone: "danger" as const }]
+        : []),
+    ];
+  }
+
   function installedSize(record: InstalledPluginRecord): number | null {
     return record.files.length
       ? record.files.reduce((total, file) => total + file.size, 0)
@@ -688,23 +723,20 @@
         <div class="lapis-plugin-registry__rows">
           {#each filteredInstalled as record (record.pluginId)}
             {@const runtimePlugin = app.plugins.plugins.get(record.pluginId)}
+            {@const entry = catalogEntry(record.pluginId)}
             {@const size = installedSize(record)}
             {@const update = updates.find((candidate) => candidate.id === record.pluginId)}
             <PluginRegistryRow
               id={record.pluginId}
               name={installedName(record)}
               description={installedDescription(record)}
+              version={record.installedVersion}
               metadata={[
-                `Version ${record.installedVersion}`,
-                runtimePlugin?.enabled ? "Enabled" : "Disabled",
                 ...(size === null ? [] : [`Size ${formatByteSize(size)}`]),
                 `Updated ${formatDate(record.updatedAt) ?? record.updatedAt}`,
               ]}
               badges={[
-                {
-                  label: titleCase(record.provenance),
-                  tone: provenanceBadgeTone(record.provenance),
-                },
+                ...registryRowBadges(entry, record.provenance),
                 ...(record.restartRequired ? [{ label: "Restart required" }] : []),
               ]}
               status={record.revoked
@@ -719,9 +751,45 @@
             >
               {#snippet actions()}
                 {#if update?.canUpdate}
-                  <Button.Root size="sm" variant="outline" disabled={runningAction === `update:${record.pluginId}`} onclick={() => void updatePlugin(update)}><ArrowUpCircle />Update</Button.Root>
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger>
+                        {#snippet child({ props })}
+                          <Button.Root
+                            {...props}
+                            size="icon"
+                            variant="outline"
+                            aria-label={`Update ${installedName(record)}`}
+                            disabled={runningAction === `update:${record.pluginId}`}
+                            onclick={() => void updatePlugin(update)}
+                          ><ArrowUpCircle /></Button.Root>
+                        {/snippet}
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>Update {installedName(record)}</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
                 {/if}
-                <Button.Root size="sm" variant="outline" disabled={runningAction === `toggle:${record.pluginId}`} onclick={() => void runAction(`toggle:${record.pluginId}`, () => runtimePlugin?.enabled ? app.plugins.disablePlugin(record.pluginId) : app.plugins.enablePlugin(record.pluginId))}>{runtimePlugin?.enabled ? "Disable" : "Enable"}</Button.Root>
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props })}
+                        <Switch.Root
+                          {...props}
+                          checked={Boolean(runtimePlugin?.enabled)}
+                          disabled={!runtimePlugin || runningAction === `toggle:${record.pluginId}`}
+                          aria-label={`${runtimePlugin?.enabled ? "Disable" : "Enable"} ${installedName(record)}`}
+                          onCheckedChange={(checked) =>
+                            void runAction(`toggle:${record.pluginId}`, () =>
+                              checked
+                                ? app.plugins.enablePlugin(record.pluginId)
+                                : app.plugins.disablePlugin(record.pluginId),
+                            )}
+                        />
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>{runtimePlugin?.enabled ? "Disable" : "Enable"} {installedName(record)}</Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
                 <Button.Root size="icon" variant="ghost" aria-label={`Uninstall ${record.pluginId}`} title="Uninstall" disabled={runningAction === `uninstall:${record.pluginId}`} onclick={() => requestUninstall(record)}><Trash2 /></Button.Root>
               {/snippet}
             </PluginRegistryRow>
@@ -731,7 +799,7 @@
               id={plugin.manifest.id}
               name={plugin.manifest.name}
               description={plugin.manifest.description}
-              metadata={[plugin.enabled ? "Enabled" : "Disabled"]}
+              version={plugin.manifest.version}
               badges={[{ label: "Manual" }]}
             />
           {/each}
@@ -772,20 +840,12 @@
               id={entry.id}
               name={entry.name}
               description={entry.description}
+              version={entry.latestVersion}
               metadata={[
-                `Version ${entry.latestVersion}`,
-                entry.platforms.map(titleCase).join(", "),
                 ...(releaseDate ? [`Released ${releaseDate}`] : []),
                 ...(releaseSize ? [`Size ${releaseSize}`] : []),
               ]}
-              badges={[
-                { label: titleCase(entry.channel), tone: entry.channel },
-                ...entry.categories.slice(0, 2).map((category) => ({
-                  label: titleCase(category),
-                  tone: "category" as const,
-                })),
-                ...(entry.status === "revoked" ? [{ label: "Revoked", tone: "danger" as const }] : []),
-              ]}
+              badges={registryRowBadges(entry, entry.channel)}
               onopen={() => void openDetails(entry)}
             >
               {#snippet actions()}
@@ -823,21 +883,22 @@
       {:else}
         <div class="lapis-plugin-registry__rows">
           {#each filteredUpdates as update (update.id)}
+            {@const entry = catalogEntry(update.id)}
+            {@const releaseDate = formatDate(entry?.latestRelease?.releasedAt)}
             <PluginRegistryRow
               id={update.id}
               name={update.name}
-              description={`${update.currentVersion} → ${update.targetVersion}`}
+              description={pluginDescription(
+                update.id,
+                `Update available for ${update.name}.`,
+              )}
+              version={`${update.currentVersion} → ${update.targetVersion}`}
               metadata={[
-                titleCase(update.provenance),
+                ...(releaseDate ? [`Released ${releaseDate}`] : []),
                 ...(typeof update.bundleSize === "number" ? [`Size ${formatByteSize(update.bundleSize)}`] : []),
                 ...(update.targetVersion !== update.latestVersion ? [`Latest ${update.latestVersion}`] : []),
               ]}
-              badges={[
-                {
-                  label: titleCase(update.provenance),
-                  tone: provenanceBadgeTone(update.provenance),
-                },
-              ]}
+              badges={registryRowBadges(entry, update.provenance)}
               status={{
                 label: update.canUpdate ? "Ready" : update.status === "revoked" ? "Revoked" : "Incompatible",
                 reason: updateReason(update),
@@ -845,7 +906,23 @@
               }}
             >
               {#snippet actions()}
-                <Button.Root size="sm" variant="outline" disabled={!update.canUpdate || runningAction === `update:${update.id}`} onclick={() => void updatePlugin(update)}><ArrowUpCircle />Update</Button.Root>
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props })}
+                        <Button.Root
+                          {...props}
+                          size="icon"
+                          variant="outline"
+                          aria-label={`Update ${update.name}`}
+                          disabled={!update.canUpdate || runningAction === `update:${update.id}`}
+                          onclick={() => void updatePlugin(update)}
+                        ><ArrowUpCircle /></Button.Root>
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>Update {update.name}</Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
               {/snippet}
             </PluginRegistryRow>
           {/each}
@@ -898,14 +975,47 @@
   />
 
   <AlertDialog.Root bind:open={uninstallConfirmOpen}>
-    <AlertDialog.Content>
+    <AlertDialog.Content class="lapis-plugin-uninstall-dialog">
       <AlertDialog.Header>
-        <AlertDialog.Title>Uninstall plugin</AlertDialog.Title>
-        <AlertDialog.Description>{uninstallTarget ? `Uninstall ${uninstallTarget.pluginId}? This removes the plugin from the vault.` : ""}</AlertDialog.Description>
+        <AlertDialog.Media class="lapis-plugin-uninstall-dialog__media">
+          <Trash2 aria-hidden="true" />
+        </AlertDialog.Media>
+        <AlertDialog.Title>Uninstall plugin?</AlertDialog.Title>
+        <AlertDialog.Description>This removes the installed plugin from this vault. You can reinstall it from the registry later.</AlertDialog.Description>
       </AlertDialog.Header>
+      {#if uninstallTarget}
+        {@const entry = catalogEntry(uninstallTarget.pluginId)}
+        {@const targetSize = installedSize(uninstallTarget)}
+        <div
+          class="lapis-plugin-uninstall-dialog__target"
+          data-ui-component="plugin-uninstall-target"
+        >
+          <PluginRegistryRow
+            id={uninstallTarget.pluginId}
+            name={installedName(uninstallTarget)}
+            description={installedDescription(uninstallTarget)}
+            version={uninstallTarget.installedVersion}
+            metadata={[
+              ...(targetSize === null
+                ? []
+                : [`Size ${formatByteSize(targetSize)}`]),
+            ]}
+            badges={registryRowBadges(entry, uninstallTarget.provenance)}
+            status={uninstallTarget.revoked
+              ? { label: "Revoked", tone: "danger" }
+              : undefined}
+          />
+        </div>
+      {/if}
       <AlertDialog.Footer>
         <AlertDialog.Cancel onclick={() => (uninstallTarget = null)}>Cancel</AlertDialog.Cancel>
-        <AlertDialog.Action onclick={() => void confirmUninstall()}>Uninstall</AlertDialog.Action>
+        <AlertDialog.Action
+          variant="destructive"
+          aria-label={uninstallTarget
+            ? `Uninstall ${installedName(uninstallTarget)}`
+            : "Uninstall plugin"}
+          onclick={() => void confirmUninstall()}
+        ><Trash2 aria-hidden="true" />Uninstall plugin</AlertDialog.Action>
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>
