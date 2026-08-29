@@ -1,16 +1,8 @@
 import { spawnSync } from "node:child_process";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import {
-  DEFAULT_REPO_ROOT,
-  readPublicPackages,
-} from "./public-packages.mjs";
+import { DEFAULT_REPO_ROOT, readPublicPackages } from "./public-packages.mjs";
 import {
   defaultReleaseManifestPath,
   loadReleaseManifest,
@@ -68,9 +60,12 @@ export function verifyPublishedPackages({
   });
 
   const packageRecords = readPublicPackages(repoRoot);
-  const packageByName = new Map(packageRecords.map((record) => [record.name, record]));
-  const dependencyEntries = Object.fromEntries(
-    manifest.packages.map((entry) => [entry.name, entry.version]),
+  const packageByName = new Map(
+    packageRecords.map((record) => [record.name, record]),
+  );
+  const dependencyEntries = publishedConsumerDependencyEntries(
+    repoRoot,
+    manifest,
   );
   const peerDependencies = {};
   for (const entry of manifest.packages) {
@@ -83,7 +78,9 @@ export function verifyPublishedPackages({
       }
     }
   }
-  const consumerDir = mkdtempSync(path.join(tmpdir(), "lapis-notes-registry-consumer-"));
+  const consumerDir = mkdtempSync(
+    path.join(tmpdir(), "lapis-notes-registry-consumer-"),
+  );
 
   try {
     writeFileSync(
@@ -192,6 +189,18 @@ export function verifyPublishedPackages({
   } finally {
     rmSync(consumerDir, { recursive: true, force: true });
   }
+}
+
+export function publishedConsumerDependencyEntries(repoRoot, manifest) {
+  const publishedVersions = new Map(
+    manifest.packages.map((entry) => [entry.name, entry.version]),
+  );
+  return Object.fromEntries(
+    readPublicPackages(repoRoot).map((record) => [
+      record.name,
+      publishedVersions.get(record.name) ?? record.version,
+    ]),
+  );
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

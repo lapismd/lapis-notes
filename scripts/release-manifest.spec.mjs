@@ -7,9 +7,12 @@ import { test } from "node:test";
 import { cleanConsumerDependencyEntries } from "./prepare-release.mjs";
 import { validateReleaseManifest } from "./release-manifest.mjs";
 import { PUBLIC_PACKAGE_GRAPH } from "./public-packages.mjs";
+import { publishedConsumerDependencyEntries } from "./verify-release.mjs";
 
 async function fixture() {
-  const repoRoot = await mkdtemp(path.join(tmpdir(), "lapis-release-manifest-"));
+  const repoRoot = await mkdtemp(
+    path.join(tmpdir(), "lapis-release-manifest-"),
+  );
   for (const definition of PUBLIC_PACKAGE_GRAPH) {
     const packageDir = path.join(repoRoot, "packages", definition.directory);
     mkdirSync(packageDir, { recursive: true });
@@ -124,6 +127,28 @@ test("installs unchanged public packages from npm in a partial clean consumer", 
         ".release/tarballs/lapis-notes-language-service-0.1.0.tgz",
       )}`,
     );
+    assert.equal(dependencies["@lapis-notes/file-explorer"], "0.1.0");
+    assert.equal(dependencies["@lapis-notes/workspace"], "0.1.0");
+  } finally {
+    await rm(repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("verifies a partial publication with unchanged public packages from npm", async () => {
+  const repoRoot = await fixture();
+  try {
+    const dependencies = publishedConsumerDependencyEntries(repoRoot, {
+      packages: [
+        {
+          name: "@lapis-notes/language-service",
+          version: "0.1.1",
+        },
+      ],
+    });
+
+    assert.equal(dependencies["@lapis-notes/ui"], "0.1.0");
+    assert.equal(dependencies["@lapis-notes/api"], "0.1.0");
+    assert.equal(dependencies["@lapis-notes/language-service"], "0.1.1");
     assert.equal(dependencies["@lapis-notes/file-explorer"], "0.1.0");
     assert.equal(dependencies["@lapis-notes/workspace"], "0.1.0");
   } finally {
