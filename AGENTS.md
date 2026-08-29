@@ -352,6 +352,30 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   independent paths and record capture as pending without generating or
   updating PNGs.
 
+## Standalone first-party plugin Storybook
+
+- Sibling `lapis-plugin-*` catalogs MUST follow the same Workspace Shell and
+  Workspace Panel Stories contract as bundled plugins. Package Storybook owns
+  `Plugins/<Plugin>/*`; Lapis Storybook MUST NOT duplicate those stories.
+- `Plugins/<Plugin>/Shell` MUST statically import `WorkspaceShell` from
+  `@lapis-notes/workspace` after the consumer boots a real `App`. A text
+  fallback, dynamic import that catches to null, or play that asserts only
+  `__lapisApp` is forbidden. Plays MUST wait for
+  `[data-app-shell-ready="true"]`.
+- Each `ViewAccess.command` view MUST have `Plugins/<Plugin>/Panels/<Panel>`
+  with the six named placements: Middle (Top Tabs), Stacked Tabs, Left
+  Sidebar, Right Sidebar, Bottom Panel, and Sidebar As a Group. Mount exactly
+  one instance in the smallest persisted shell. Isolated Svelte pane stories
+  are not a substitute.
+- Internal views MAY use App-backed shell stories without six placements.
+  Distinct empty, error, or dirty states MAY be extra App-backed stories on
+  the default surface.
+- Tasks `Plugins/Tasks/Panels` (Column Canvas without Lapis chrome) and Design
+  Core `AppShell` stories are Tasks-specific exceptions. Do not copy them as
+  the general panel pattern. Copy `stories/plugins/_shared/panels/` and
+  `Plugins/History/Panels/History` for placements. Copy Tasks
+  `PluginWorkspaceDemo.svelte` only for the static `WorkspaceShell` boot.
+
 ### Problems and diagnostic contributions
 
 - Reusable diagnostic data, collection lifecycle, filtering, grouping, and the

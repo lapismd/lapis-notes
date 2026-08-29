@@ -166,6 +166,7 @@ chat to `.agents`.
 | LN-PLUG-069 | The API MUST validate the registry's optional download-statistics summary, accept only approximate redirect-request metrics no more than five UTC days behind, and hide missing, malformed, future, or stale data without failing catalog refresh. The distribution-manager accessor MUST remain optional for structural compatibility. |
 | LN-PLUG-070 | Registry Browse, Installed, Updates, detail results, and detail summary MUST show available approximate 30-day plugin downloads. Details MUST also show lifetime downloads, the tracking start date, and that counts are approximate redirect requests. Missing statistics MUST omit these fields without placeholders. |
 | LN-PLUG-071 | Browse MUST offer `Most downloaded` sorting through the existing Design Core sort picker. It MUST order by descending approximate 30-day requests, treat missing counts as zero, and resolve ties by plugin name while retaining Name and Recently updated sorting. |
+| LN-PLUG-072 | A plugin with `distribution: "first-party-external"` MUST own its Storybook catalog under `Plugins/<Plugin>` and MUST follow LN-CAT-109 and LN-CAT-110. Tasks Column Canvas and Design Core AppShell stories remain Tasks-specific exceptions and MUST NOT be copied as the general panel pattern. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

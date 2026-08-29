@@ -64,6 +64,7 @@ and keeping ordinary push runs outside the explicit manual publication gate.
 | LN-GOV-040 | The spec-first map MUST route the production Source Editor package to Packages, Architecture, Plugin Model, and Editor Demo. Desktop and web registrations MUST additionally route through their host chapters. |
 | LN-GOV-041 | The spec-first map MUST route Lapis package release workflows, Changesets configuration, pre- and post-publication release and local-consumer helper scripts, release documentation, and public package metadata to Packages and Specification Governance, with API, UI, Language Service, File Explorer, and Workspace package docs also routed to their owning architectural chapters. |
 | LN-GOV-042 | The spec-first map MUST route app-profile, Web, Deno, and plugin-management Workspace changes to Plugin Model plus their package and host chapters. Extracted plugin behavior and Storybook source MUST be governed by the sibling `lapis-plugins` specification. |
+| LN-GOV-043 | `AGENTS.md` MUST require sibling `lapis-plugin-*` Storybooks to follow the same WorkspaceShell and six-placement panel contract as bundled plugins. It MUST forbid isolated pane stories and shell fallbacks, name Tasks Column Canvas as a Tasks-only exception, and point agents at the shared panel helpers plus History panel stories. |
 
 The Storybook structure audit treats AI, Bases, and History as required
 plugin Shell families and maps both Graph panel families through the shared

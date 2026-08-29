@@ -33,6 +33,7 @@ view's canonical `getViewType()` without moving registry policy into the shell.
 | LN-WS-050 | Every canonical movable panel view MUST declare `ViewAccess.command` and receive one discoverable application opener from that registration.                                                                                                                                                                                                                                       |
 | LN-WS-051 | A panel-opening command MUST activate and reveal existing leaves wherever the panel was moved. When none exists, it MUST create, activate, and reveal the canonical view in its documented default surface.                                                                                                                                                                        |
 | LN-WS-052 | Load-only compatibility view aliases MUST declare `ViewAccess.alias`, reuse their canonical panel command, and MUST NOT add duplicate user-facing commands.                                                                                                                                                                                                                        |
+| LN-WS-090 | Command-access movable panels in standalone first-party plugin Storybooks MUST demonstrate the same six workspace surfaces as bundled panels. Placement MUST remain persisted layout state. Isolated Svelte pane stories MUST NOT satisfy this coverage. |
 
 ## Surface ownership
 
@@ -71,8 +72,10 @@ view's canonical `getViewType()` without moving registry policy into the shell.
 
 ## Storybook coverage
 
-The mapped Storybook requirements are LN-ED-020, LN-ED-021, LN-CAT-022, and
-LN-CAT-023. Together they require each movable Markdown panel to demonstrate:
+The mapped Storybook requirements are LN-ED-020, LN-ED-021, LN-CAT-022,
+LN-CAT-023, LN-CAT-075, LN-CAT-109, LN-CAT-110, and LN-WS-090. Together they
+require each command-access movable panel, including those owned by standalone
+first-party plugins, to demonstrate:
 
 1. Middle (Top Tabs)
 2. Stacked Tabs
