@@ -85,6 +85,15 @@
   const browseSortOptions: FilterCommandOption[] = [
     { value: "name", label: "Name" },
     { value: "recent", label: "Recently updated" },
+    {
+      value: "downloads",
+      label: "Most downloaded",
+      description: "Highest approximate download requests during the last 30 days.",
+    },
+  ];
+  const installedSortOptions: FilterCommandOption[] = [
+    { value: "name", label: "Name" },
+    { value: "recent", label: "Recently updated" },
   ];
   const updateSortOptions: FilterCommandOption[] = [
     { value: "status", label: "Status first" },
@@ -135,7 +144,7 @@
         {:else if tab === "installed"}
           <FilterCommandPicker label="Status" ariaLabel="Filter installed status" options={enabledOptions} value={enabledState} onChange={(next) => { enabledState = next; }} />
           <FilterCommandPicker label="Provenance" ariaLabel="Filter installed provenance" options={provenanceOptions} value={provenance} onChange={(next) => { provenance = next; }} />
-          <FilterCommandPicker label="Sort" ariaLabel="Sort installed plugins" options={browseSortOptions} value={sort} onChange={(next) => { sort = next; }} />
+          <FilterCommandPicker label="Sort" ariaLabel="Sort installed plugins" options={installedSortOptions} value={sort} onChange={(next) => { sort = next; }} />
         {:else}
           <FilterCommandPicker label="Status" ariaLabel="Filter update status" options={updateOptions} value={updateState} onChange={(next) => { updateState = next; }} />
           <FilterCommandPicker label="Sort" ariaLabel="Sort updates" options={updateSortOptions} value={sort} onChange={(next) => { sort = next; }} />

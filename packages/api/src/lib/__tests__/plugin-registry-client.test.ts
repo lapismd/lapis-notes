@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   bytesToBase64,
   canonicalJson,
+  pluginDownloadCounts,
   PluginRegistryCache,
   PluginRegistryClient,
   type PluginCatalogDetail,
   type PluginCatalogIndex,
+  type PluginDownloadStatsSummary,
   type PluginRegistryFetch,
   type PluginRegistrySource,
   type SignatureRecord,
@@ -140,15 +142,111 @@ describe("PluginRegistryClient", () => {
       },
     });
   });
+
+  it("loads current optional download statistics without changing signed catalog metadata", async () => {
+    const summary = createDownloadStatsSummary();
+    const client = new PluginRegistryClient({
+      trustedKeys: [],
+      fetch: fakeFetch({
+        "https://registry.example.test/stats/summary.json":
+          JSON.stringify(summary),
+      }),
+    });
+
+    const result = await client.getDownloadStats(officialSource, {
+      now: new Date("2026-08-29T12:00:00.000Z"),
+    });
+
+    expect(result).toEqual(summary);
+    expect(pluginDownloadCounts(result!, "lapis-docs")).toEqual({
+      lifetime: 140,
+      recent: 80,
+    });
+    expect(pluginDownloadCounts(result!, "missing-plugin")).toEqual({
+      lifetime: 0,
+      recent: 0,
+    });
+  });
+
+  it("hides missing, malformed, future, and stale optional statistics", async () => {
+    const fixture = await createRegistryFixture();
+    const missingClient = new PluginRegistryClient({
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch({
+        "https://registry.example.test/v1/index.json": fixture.indexJson,
+        "https://registry.example.test/v1/revoked.json": fixture.revokedJson,
+      }),
+    });
+    const refreshed = await missingClient.refresh(officialSource);
+    expect(refreshed.index.plugins).toHaveLength(1);
+    await expect(
+      missingClient.getDownloadStats(officialSource, {
+        now: new Date("2026-08-29T12:00:00.000Z"),
+      }),
+    ).resolves.toBeNull();
+
+    for (const summary of [
+      { ...createDownloadStatsSummary(), metric: "unique_users" },
+      createDownloadStatsSummary("2026-09-01"),
+      createDownloadStatsSummary("2026-08-20"),
+    ]) {
+      const client = new PluginRegistryClient({
+        trustedKeys: [],
+        fetch: fakeFetch({
+          "https://registry.example.test/stats/summary.json":
+            JSON.stringify(summary),
+        }),
+      });
+      await expect(
+        client.getDownloadStats(officialSource, {
+          now: new Date("2026-08-29T12:00:00.000Z"),
+        }),
+      ).resolves.toBeNull();
+    }
+  });
 });
 
 const officialSource: PluginRegistrySource = {
   id: "lapis-official",
   name: "Lapis Official Plugins",
   url: "https://registry.example.test/v1/index.json",
+  downloadStatsUrl: "https://registry.example.test/stats/summary.json",
   trustTier: "official",
   enabled: true,
   builtin: true,
+};
+
+const createDownloadStatsSummary = (
+  through = "2026-08-28",
+): PluginDownloadStatsSummary => {
+  const period = (
+    total: number,
+    pluginTotal: number,
+  ): PluginDownloadStatsSummary["periods"]["lifetime"] => ({
+    from: "2026-08-01",
+    through,
+    total,
+    plugins: {
+      "lapis-docs": { total: pluginTotal, versions: { "0.1.0": pluginTotal } },
+    },
+    versions: { "lapis-docs@0.1.0": pluginTotal },
+    actions: { install: pluginTotal },
+    platforms: { desktop: pluginTotal },
+    os: { macos: pluginTotal },
+  });
+  return {
+    schemaVersion: 1,
+    generatedAt: "2026-08-29T04:17:00.000Z",
+    dataset: "lapis_plugin_downloads_v1",
+    metric: "approximate_redirect_requests",
+    trackedSince: "2026-08-01",
+    through,
+    periods: {
+      lifetime: period(140, 140),
+      "7d": period(32, 32),
+      "30d": period(80, 80),
+    },
+  };
 };
 
 const fakeFetch =

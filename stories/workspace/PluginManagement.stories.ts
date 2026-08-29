@@ -175,6 +175,9 @@ export const BrowseDetailsAndReadme: Story = {
     await expect(within(graphHeading!).getByText("Web")).toBeVisible();
     await expect(within(graphHeading!).getByText("Desktop")).toBeVisible();
     await expect(within(graphHeading!).getByText("0.2.0")).toBeVisible();
+    await expect(
+      within(graphCard!).getByText("~2.4K downloads (30d)"),
+    ).toBeVisible();
     expect(
       within(graphHeading!).getByText("Web").querySelector("svg"),
     ).not.toBeNull();
@@ -196,6 +199,14 @@ export const BrowseDetailsAndReadme: Story = {
     await expect(body.queryByText("Browse results")).toBeNull();
     await expect(body.getByText(/Open graph navigation/)).toBeVisible();
     await expect(body.getByRole("link", { name: "Homepage" })).toBeVisible();
+    await expect(body.getByText("Downloads (30d)")).toBeVisible();
+    await expect(body.getByText("Lifetime downloads")).toBeVisible();
+    await expect(body.getByText("~48K")).toBeVisible();
+    await expect(
+      body.getByText(
+        "Tracked downloads since Aug 1, 2026. Approximate redirect requests.",
+      ),
+    ).toBeVisible();
     await expect(
       body.getAllByText("Web", { selector: "span" }).length,
     ).toBeGreaterThan(1);
@@ -304,6 +315,35 @@ export const BrowseRecentlyUpdatedSort: Story = {
     await userEvent.click(
       await body.findByRole("option", { name: "Recently updated" }),
     );
+    await expect(canvas.getByText("1 active filter")).toBeVisible();
+  },
+};
+
+export const BrowseMostDownloadedSort: Story = {
+  args: { scenario: "catalog", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Show browse filters" }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Sort Browse plugins" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByRole("option", { name: /Most downloaded/ }),
+    );
+    const browse = canvas.getByRole("tabpanel", { name: "Browse" });
+    await waitFor(() => {
+      const rows = browse.querySelectorAll<HTMLElement>(
+        '[data-ui-component="plugin-registry-row"]',
+      );
+      expect(rows[0]).toHaveAttribute("data-plugin-id", "lapis-graph");
+      expect(rows[1]).toHaveAttribute("data-plugin-id", "lapis-source-editor");
+      expect(rows[2]).toHaveAttribute("data-plugin-id", "revoked-plugin");
+    });
     await expect(canvas.getByText("1 active filter")).toBeVisible();
   },
 };
@@ -427,6 +467,9 @@ export const PopulatedInstalledRows: Story = {
     await expect(within(graphHeading!).getByText("Web")).toBeVisible();
     await expect(within(graphHeading!).getByText("Desktop")).toBeVisible();
     await expect(canvas.getByText("Restart required")).toBeVisible();
+    await expect(
+      within(graphRow!).getByText("~2.4K downloads (30d)"),
+    ).toBeVisible();
     const disableSwitch = within(graphRow!).getByRole("switch", {
       name: "Disable Graph",
     });
@@ -470,6 +513,12 @@ export const PopulatedBrowseRows: Story = {
     await expect(
       canvas.getByRole("button", { name: "Bundled" }),
     ).toBeDisabled();
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    expect(graphRow).not.toBeNull();
+    await expect(
+      within(graphRow!).getByText("~2.4K downloads (30d)"),
+    ).toBeVisible();
   },
 };
 
@@ -490,6 +539,9 @@ export const PopulatedUpdatesRows: Story = {
     );
     await expect(within(graphHeading!).getByText("Web")).toBeVisible();
     await expect(within(graphHeading!).getByText("Desktop")).toBeVisible();
+    await expect(
+      within(graphRow!).getByText("~2.4K downloads (30d)"),
+    ).toBeVisible();
     const updateButton = within(graphRow!).getByRole("button", {
       name: "Update Graph",
     });

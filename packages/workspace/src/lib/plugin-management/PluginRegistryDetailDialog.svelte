@@ -10,9 +10,11 @@
   import PackageIcon from "@lucide/svelte/icons/package";
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import {
+    pluginDownloadCounts,
     type App,
     type PluginCatalogDetail,
     type PluginCatalogEntry,
+    type PluginDownloadStatsSummary,
     type PluginUpdateInfo,
   } from "@lapis-notes/api";
   import * as Button from "@lapismd/design-core/shadcn/button";
@@ -23,6 +25,7 @@
   import PluginReadmeRenderer from "./PluginReadmeRenderer.svelte";
   import PluginRegistryBadge from "./PluginRegistryBadge.svelte";
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
+  import { formatApproximateDownloadCount } from "./plugin-download-stats";
 
   export type PluginMarkdownState =
     | { status: "idle" | "loading" | "missing" }
@@ -45,6 +48,7 @@
     changelog,
     installedIds,
     staticPluginIds,
+    downloadStats,
     update,
     runningAction,
     onselect,
@@ -63,6 +67,7 @@
     changelog: PluginMarkdownState;
     installedIds: Set<string>;
     staticPluginIds: Set<string>;
+    downloadStats: PluginDownloadStatsSummary | null;
     update: PluginUpdateInfo | null;
     runningAction: string | null;
     onselect: (entry: PluginCatalogEntry) => void | Promise<void>;
@@ -130,6 +135,7 @@
       year: "numeric",
     }).format(date);
   }
+
 </script>
 
 <Dialog.Root bind:open>
@@ -208,6 +214,9 @@
             <ScrollArea.Root class="lapis-plugin-detail-dialog__result-scroll">
               <div class="lapis-plugin-detail-dialog__result-list">
                 {#each entries as entry (entry.id)}
+                  {@const downloads = downloadStats
+                    ? pluginDownloadCounts(downloadStats, entry.id)
+                    : null}
                   <button
                     type="button"
                     data-active={entry.id === selectedEntry?.id || undefined}
@@ -219,7 +228,7 @@
                   >
                     <strong>{entry.name}</strong>
                     <span>{entry.description}</span>
-                    <small>{entry.latestVersion}</small>
+                    <small>{entry.latestVersion}{#if downloads} · ~{formatApproximateDownloadCount(downloads.recent)} downloads (30d){/if}</small>
                   </button>
                 {/each}
                 {#if !entries.length}<p>No plugins match the current Browse filters.</p>{/if}
@@ -243,6 +252,9 @@
         {#if selectedEntry}
           {@const releaseDate = formatDate(selectedEntry.latestRelease?.releasedAt ?? latestRelease?.releasedAt)}
           {@const releaseSize = formatBytes(selectedEntry.latestRelease?.bundleSize ?? latestRelease?.bundle.size)}
+          {@const selectedDownloads = downloadStats
+            ? pluginDownloadCounts(downloadStats, selectedEntry.id)
+            : null}
           <div class="lapis-plugin-detail-dialog__summary">
             <dl>
               <div><dt>Version</dt><dd>{selectedEntry.latestVersion}</dd></div>
@@ -250,6 +262,10 @@
               {#if releaseSize}<div><dt>Size</dt><dd>{releaseSize}</dd></div>{/if}
               <div><dt>Owner</dt><dd>{detail?.owner.name ?? selectedEntry.author}</dd></div>
               {#if detail?.license}<div><dt>License</dt><dd>{detail.license}</dd></div>{/if}
+              {#if selectedDownloads}
+                <div><dt>Downloads (30d)</dt><dd>~{formatApproximateDownloadCount(selectedDownloads.recent)}</dd></div>
+                <div><dt>Lifetime downloads</dt><dd>~{formatApproximateDownloadCount(selectedDownloads.lifetime)}</dd></div>
+              {/if}
             </dl>
             {#if detail?.links && Object.keys(detail.links).length}
               <nav aria-label="Plugin links">
@@ -257,6 +273,11 @@
                   {#if url}<a href={url}>{titleCase(label)}<ExternalLink aria-hidden="true" /></a>{/if}
                 {/each}
               </nav>
+            {/if}
+            {#if selectedDownloads && downloadStats}
+              <p class="lapis-plugin-detail-dialog__download-note">
+                Tracked downloads since {formatDate(downloadStats.trackedSince) ?? downloadStats.trackedSince}. Approximate redirect requests.
+              </p>
             {/if}
           </div>
 

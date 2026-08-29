@@ -11,11 +11,13 @@
     fetchVerifiedPluginMarkdown,
     isAbortError,
     Notice,
+    pluginDownloadCounts,
     PluginDistributionError,
     withPluginInstallProgress,
     type InstalledPluginRecord,
     type PluginCatalogDetail,
     type PluginCatalogEntry,
+    type PluginDownloadStatsSummary,
     type PluginUpdateInfo,
   } from "@lapis-notes/api";
   import * as AlertDialog from "@lapismd/design-core/shadcn/alert-dialog";
@@ -41,6 +43,7 @@
     fetchPluginReadmeMarkdown,
     resolveReadmeRelativeUrls,
   } from "./plugin-readme";
+  import { formatApproximateDownloadCount } from "./plugin-download-stats";
 
   type PluginsRegistryTabId = "installed" | "browse" | "updates" | "sources";
 
@@ -52,6 +55,7 @@
   let catalogEntries = $state<PluginCatalogEntry[]>([]);
   let installed = $state<InstalledPluginRecord[]>([]);
   let updates = $state<PluginUpdateInfo[]>([]);
+  let downloadStats = $state<PluginDownloadStatsSummary | null>(null);
   let lastError = $state<Error | null>(null);
   let initialLoading = $state(true);
   let refreshing = $state(false);
@@ -152,11 +156,14 @@
         return true;
       })
       .sort((left, right) =>
-        browseSort === "recent"
-          ? (right.latestRelease?.releasedAt ?? "").localeCompare(
-              left.latestRelease?.releasedAt ?? "",
-            ) || left.name.localeCompare(right.name)
-          : left.name.localeCompare(right.name),
+        browseSort === "downloads"
+          ? downloadCount(right.id) - downloadCount(left.id) ||
+            left.name.localeCompare(right.name)
+          : browseSort === "recent"
+            ? (right.latestRelease?.releasedAt ?? "").localeCompare(
+                left.latestRelease?.releasedAt ?? "",
+              ) || left.name.localeCompare(right.name)
+            : left.name.localeCompare(right.name),
       );
   });
   let filteredInstalled = $derived.by(() => {
@@ -309,6 +316,7 @@
         await app.pluginDistribution.refreshCatalog({ force });
       }
       catalogEntries = app.pluginDistribution.search({ channel: "all" });
+      downloadStats = await loadDownloadStats(force);
       installed = await app.pluginDistribution.listInstalled();
       updates = await app.pluginDistribution.listUpdates();
     } catch (error) {
@@ -317,6 +325,18 @@
     } finally {
       initialLoading = false;
       refreshing = false;
+    }
+  }
+
+  async function loadDownloadStats(
+    force: boolean,
+  ): Promise<PluginDownloadStatsSummary | null> {
+    try {
+      return (
+        (await app.pluginDistribution.getDownloadStats?.({ force })) ?? null
+      );
+    } catch {
+      return null;
     }
   }
 
@@ -600,6 +620,16 @@
       : null;
   }
 
+  function downloadCount(pluginId: string): number {
+    return downloadStats ? pluginDownloadCounts(downloadStats, pluginId).recent : 0;
+  }
+
+  function downloadLabel(pluginId: string): string | null {
+    if (!downloadStats) return null;
+    const count = pluginDownloadCounts(downloadStats, pluginId).recent;
+    return `~${formatApproximateDownloadCount(count)} downloads (30d)`;
+  }
+
   function formatDate(value?: string): string | null {
     if (!value) return null;
     const date = new Date(value);
@@ -774,6 +804,9 @@
               metadata={[
                 ...(size === null ? [] : [`Size ${formatByteSize(size)}`]),
                 `Updated ${formatDate(record.updatedAt) ?? record.updatedAt}`,
+                ...(entry && downloadLabel(entry.id)
+                  ? [downloadLabel(entry.id)!]
+                  : []),
               ]}
               badges={[
                 ...registryRowBadges(entry, record.provenance),
@@ -888,6 +921,7 @@
               metadata={[
                 ...(releaseDate ? [`Released ${releaseDate}`] : []),
                 ...(releaseSize ? [`Size ${releaseSize}`] : []),
+                ...(downloadLabel(entry.id) ? [downloadLabel(entry.id)!] : []),
               ]}
               badges={registryRowBadges(entry, entry.channel)}
               onopen={() => void openDetails(entry)}
@@ -952,6 +986,9 @@
                 ...(releaseDate ? [`Released ${releaseDate}`] : []),
                 ...(typeof update.bundleSize === "number" ? [`Size ${formatByteSize(update.bundleSize)}`] : []),
                 ...(update.targetVersion !== update.latestVersion ? [`Latest ${update.latestVersion}`] : []),
+                ...(entry && downloadLabel(entry.id)
+                  ? [downloadLabel(entry.id)!]
+                  : []),
               ]}
               badges={registryRowBadges(entry, update.provenance)}
               status={{
@@ -1022,6 +1059,7 @@
     changelog={changelogState}
     {installedIds}
     {staticPluginIds}
+    {downloadStats}
     update={detailUpdate}
     {runningAction}
     onselect={selectDetail}

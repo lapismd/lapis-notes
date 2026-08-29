@@ -11,6 +11,7 @@ export interface PluginRegistrySource {
   id: string;
   name: string;
   url: string;
+  downloadStatsUrl?: string;
   trustTier: RegistryTrustTier;
   enabled: boolean;
   builtin?: boolean;
@@ -73,6 +74,41 @@ export interface PluginCatalogEntry {
 export interface PluginCatalogLatestRelease {
   releasedAt: string;
   bundleSize: number;
+}
+
+export interface PluginDownloadStatsPlugin {
+  total: number;
+  versions: Record<string, number>;
+}
+
+export interface PluginDownloadStatsPeriod {
+  from: string | null;
+  through: string | null;
+  total: number;
+  plugins: Record<string, PluginDownloadStatsPlugin>;
+  versions: Record<string, number>;
+  actions: Record<string, number>;
+  platforms: Record<string, number>;
+  os: Record<string, number>;
+}
+
+export interface PluginDownloadStatsSummary {
+  schemaVersion: 1;
+  generatedAt: string;
+  dataset: "lapis_plugin_downloads_v1";
+  metric: "approximate_redirect_requests";
+  trackedSince: string;
+  through: string | null;
+  periods: {
+    lifetime: PluginDownloadStatsPeriod;
+    "7d": PluginDownloadStatsPeriod;
+    "30d": PluginDownloadStatsPeriod;
+  };
+}
+
+export interface PluginDownloadCounts {
+  lifetime: number;
+  recent: number;
 }
 
 export interface PluginCatalogDetail {

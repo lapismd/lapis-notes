@@ -9,6 +9,7 @@
     type PluginCatalogDetail,
     type PluginCatalogEntry,
     type PluginDistributionManager,
+    type PluginDownloadStatsSummary,
     type PluginInstallProgressEvent,
     type PluginProfile,
     type PluginUpdateInfo,
@@ -176,6 +177,58 @@ Released 1 August 2026.
             detail: "https://story.invalid/v1/plugins/revoked-plugin.json",
           },
         ];
+
+  const statsPeriod = (
+    counts: Record<string, number>,
+  ): PluginDownloadStatsSummary["periods"]["lifetime"] => {
+    const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+    return {
+      from: "2026-08-01",
+      through: "2026-08-28",
+      total,
+      plugins: Object.fromEntries(
+        Object.entries(counts).map(([pluginId, count]) => [
+          pluginId,
+          {
+            total: count,
+            versions: {
+              [catalog.find((entry) => entry.id === pluginId)?.latestVersion ??
+              "unknown"]: count,
+            },
+          },
+        ]),
+      ),
+      versions: {},
+      actions: { install: total },
+      platforms: { desktop: total },
+      os: { macos: total },
+    };
+  };
+  const downloadStats: PluginDownloadStatsSummary = {
+    schemaVersion: 1,
+    generatedAt: "2026-08-29T04:17:00.000Z",
+    dataset: "lapis_plugin_downloads_v1",
+    metric: "approximate_redirect_requests",
+    trackedSince: "2026-08-01",
+    through: "2026-08-28",
+    periods: {
+      lifetime: statsPeriod({
+        "lapis-source-editor": 12_300,
+        "lapis-graph": 48_200,
+        "revoked-plugin": 960,
+      }),
+      "7d": statsPeriod({
+        "lapis-source-editor": 220,
+        "lapis-graph": 810,
+        "revoked-plugin": 25,
+      }),
+      "30d": statsPeriod({
+        "lapis-source-editor": 720,
+        "lapis-graph": 2_400,
+        "revoked-plugin": 120,
+      }),
+    },
+  };
 
   const installed = $state<InstalledPluginRecord[]>(
     untrack(() => scenario) === "installed"
@@ -348,6 +401,9 @@ Released 1 August 2026.
         generatedAt: "2026-08-28T12:00:00.000Z",
         plugins: catalog,
       };
+    },
+    async getDownloadStats() {
+      return downloadStats;
     },
     search(query = {}) {
       const text = query.text?.trim().toLowerCase() ?? "";

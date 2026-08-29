@@ -25,6 +25,7 @@ import type {
   PluginCatalogIndex,
   PluginCompatibilityInput,
   PluginCompatibilityResult,
+  PluginDownloadStatsSummary,
   PluginPlatform,
   PluginProvenance,
   PluginRegistryChannel,
@@ -118,6 +119,9 @@ export interface PluginUpdateInfo {
 
 export interface PluginDistributionManager {
   refreshCatalog(options?: { force?: boolean }): Promise<PluginCatalogIndex>;
+  getDownloadStats?(options?: {
+    force?: boolean;
+  }): Promise<PluginDownloadStatsSummary | null>;
   search(query?: PluginSearchQuery): PluginCatalogEntry[];
   getCatalogEntry(pluginId: string): PluginCatalogEntry | undefined;
   getPluginDetail(pluginId: string): Promise<PluginCatalogDetail | null>;
@@ -157,6 +161,7 @@ export const DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE: PluginRegistrySource = {
   id: "lapis-official",
   name: "Lapis Official Plugins",
   url: "https://registry.lapis.md/v1/index.json",
+  downloadStatsUrl: "https://registry.lapis.md/stats/summary.json",
   trustTier: "official",
   enabled: true,
   builtin: true,
@@ -236,6 +241,14 @@ export class DefaultPluginDistributionManager
     this.revocations = refreshed.revocations;
     await this.applyRevocationsToInstalled();
     return refreshed.index;
+  }
+
+  async getDownloadStats(
+    options: { force?: boolean } = {},
+  ): Promise<PluginDownloadStatsSummary | null> {
+    const source = this.registries.find((registry) => registry.enabled);
+    if (!source) return null;
+    return this.registryClient.getDownloadStats(source, options);
   }
 
   search(query: PluginSearchQuery = {}): PluginCatalogEntry[] {

@@ -2,6 +2,16 @@ import { z } from "zod";
 import { PluginDistributionError } from "./errors";
 
 const isoDate = z.string().datetime({ offset: true });
+const utcDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => {
+    const parsed = new Date(`${value}T00:00:00.000Z`);
+    return (
+      !Number.isNaN(parsed.valueOf()) &&
+      parsed.toISOString().slice(0, 10) === value
+    );
+  });
 const sha256 = z.string().regex(/^[a-fA-F0-9]{64}$/);
 const nonEmpty = z.string().min(1);
 const urlOrRelative = z.string().min(1);
@@ -263,6 +273,45 @@ export const pluginCatalogIndexSchema = z
       .optional(),
     plugins: z.array(pluginCatalogEntrySchema),
     signatures: z.array(signatureRecordSchema).optional(),
+  })
+  .passthrough();
+
+const nonnegativeSafeInteger = z.number().int().nonnegative().safe();
+const pluginDownloadCountsSchema = z.record(nonnegativeSafeInteger);
+const pluginDownloadStatsPluginSchema = z
+  .object({
+    total: nonnegativeSafeInteger,
+    versions: pluginDownloadCountsSchema,
+  })
+  .passthrough();
+const pluginDownloadStatsPeriodSchema = z
+  .object({
+    from: utcDate.nullable(),
+    through: utcDate.nullable(),
+    total: nonnegativeSafeInteger,
+    plugins: z.record(pluginDownloadStatsPluginSchema),
+    versions: pluginDownloadCountsSchema,
+    actions: pluginDownloadCountsSchema,
+    platforms: pluginDownloadCountsSchema,
+    os: pluginDownloadCountsSchema,
+  })
+  .passthrough();
+
+export const pluginDownloadStatsSummarySchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    generatedAt: isoDate,
+    dataset: z.literal("lapis_plugin_downloads_v1"),
+    metric: z.literal("approximate_redirect_requests"),
+    trackedSince: utcDate,
+    through: utcDate.nullable(),
+    periods: z
+      .object({
+        lifetime: pluginDownloadStatsPeriodSchema,
+        "7d": pluginDownloadStatsPeriodSchema,
+        "30d": pluginDownloadStatsPeriodSchema,
+      })
+      .passthrough(),
   })
   .passthrough();
 

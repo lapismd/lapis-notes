@@ -1717,6 +1717,12 @@ button.lapis-plugin-registry-row__main:focus-visible {
   height: 0.6875rem;
 }
 
+.lapis-plugin-detail-dialog__download-note {
+  margin: 0.625rem 0 0;
+  color: var(--ui-lapis-plugin-muted-foreground);
+  font-size: 0.6875rem;
+}
+
 .lapis-plugin-detail-dialog__tabs {
   display: flex;
   min-height: 0;

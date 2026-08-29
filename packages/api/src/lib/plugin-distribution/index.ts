@@ -1,5 +1,6 @@
 export * from "./canonical-json";
 export * from "./compatibility";
+export * from "./download-stats";
 export * from "./errors";
 export * from "./hashes";
 export * from "./installed-plugin-state";

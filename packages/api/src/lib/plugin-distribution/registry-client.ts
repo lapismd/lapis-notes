@@ -1,16 +1,19 @@
 import { PluginDistributionError } from "./errors";
 import { assertPluginIdAllowedForProvenance } from "./reserved-ids";
 import {
+  pluginDownloadStatsSummarySchema,
   pluginCatalogDetailSchema,
   pluginCatalogIndexSchema,
   pluginRevocationIndexSchema,
   parsePluginDistributionMetadata,
 } from "./schemas";
+import { isUsablePluginDownloadStatsSummary } from "./download-stats";
 import { verifySignedEnvelope } from "./signing";
 import type {
   PluginCatalogDetail,
   PluginCatalogEntry,
   PluginCatalogIndex,
+  PluginDownloadStatsSummary,
   PluginRegistrySource,
   PluginRevocationIndex,
   RegistryTrustTier,
@@ -103,8 +106,36 @@ export class PluginRegistryClient {
     return this.currentIndex ?? this.cache.getMemory()?.index ?? null;
   }
 
-  private async fetchJson(url: string): Promise<unknown> {
-    const response = await this.fetchImpl(url);
+  async getDownloadStats(
+    source: PluginRegistrySource,
+    options: { force?: boolean; now?: Date } = {},
+  ): Promise<PluginDownloadStatsSummary | null> {
+    if (!source.downloadStatsUrl) return null;
+    try {
+      const metadata = await this.fetchJson(
+        new URL(source.downloadStatsUrl, source.url).toString(),
+        {
+          cache: options.force ? "reload" : "no-cache",
+          headers: { accept: "application/json" },
+        },
+      );
+      const summary = parsePluginDistributionMetadata(
+        pluginDownloadStatsSummarySchema,
+        metadata,
+      );
+      return isUsablePluginDownloadStatsSummary(
+        summary,
+        options.now ?? new Date(),
+      )
+        ? summary
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async fetchJson(url: string, init?: RequestInit): Promise<unknown> {
+    const response = await this.fetchImpl(url, init);
     if (!response.ok) {
       throw new PluginDistributionError(
         "metadata-invalid",
