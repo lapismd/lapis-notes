@@ -12,6 +12,13 @@ export async function openExplorerFile(
   disposition: ExplorerOpenDisposition,
 ): Promise<void> {
   if (disposition === "current") {
+    const activeRootLeaf = app.workspace.activeRootLeaf;
+    if (activeRootLeaf?.view.getViewType() === "lapis-landing") {
+      app.workspace.activeLeaf = activeRootLeaf;
+      await activeRootLeaf.openFile(file);
+      await app.workspace.revealLeaf(activeRootLeaf);
+      return;
+    }
     await app.openFile(file);
     return;
   }

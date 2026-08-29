@@ -617,6 +617,16 @@ function createConversationScenarioSeed(
           ...binding("binding-recovery", "codex", "gpt-5.6-sol"),
           nativeSessionId: "missing-fake-session",
         },
+        {
+          schemaVersion: 3,
+          type: "binding.context.updated",
+          id: "context-recovery",
+          createdAt: "2026-08-16T10:01:30.000Z",
+          agentBindingId: "binding-recovery",
+          throughEntryId: "recovery-assistant",
+          throughEntryHash: "c".repeat(64),
+          cause: "native-turn",
+        },
       ],
       activeBindingId: "binding-recovery",
       transcript: [

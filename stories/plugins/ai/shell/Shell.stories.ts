@@ -525,7 +525,7 @@ export const LocalConversations: Story = {
     docs: {
       description: {
         story:
-          "The composer overflow menu offers Archive Chat, Delete Chat, and New Chat at the same type size as the model menu, without clipping those labels. The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat can target the vault root before a row returns to chat.",
+          "The composer overflow menu offers Archive Chat, Delete Chat, and New Chat at the same type size as the model menu, without clipping those labels. The retained History button reveals a dedicated folder-aware sidebar view. Scope-local rows come from Notes/.lapis, archived rows can be revealed, and New chat creates directly in the selected folder before a row returns to chat.",
       },
     },
   },
@@ -620,7 +620,11 @@ export const LocalConversations: Story = {
     );
     expect(sidebarChatLeaf?.view.getViewType()).toBe(AiViewType);
     await waitFor(() => {
-      expect(within(history).getByText("Notes")).toBeVisible();
+      expect(
+        within(history)
+          .getAllByText("Notes")
+          .some((element) => element.getClientRects().length > 0),
+      ).toBe(true);
       expect(
         within(history).getByText("Summarize project notes"),
       ).toBeVisible();
@@ -689,14 +693,13 @@ export const LocalConversations: Story = {
       expect(within(history).queryByText("Archived planning chat")).toBeNull(),
     );
 
-    const newChat = within(history).getByRole("button", { name: "New chat" });
+    const newChat = within(history).getByRole("button", {
+      name: /^New chat(?: in .+)?$/,
+    });
     await waitFor(() => {
       expect(getComputedStyle(newChat).pointerEvents).not.toBe("none");
     });
     await userEvent.click(newChat);
-    await userEvent.click(
-      await body.findByRole("menuitem", { name: "Vault root" }),
-    );
     await waitFor(() => expect(mainAiLeaves(app)).toHaveLength(1));
     const emptyConversationLeaf = mainAiLeaves(app)[0]!;
     const emptyChat = emptyConversationLeaf.containerEl.querySelector(

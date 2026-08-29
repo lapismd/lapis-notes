@@ -10,6 +10,9 @@ scroll owner without changing Mira's portable outline contract.
 Markdown likewise adapts its App-scoped metadata type manager to Mira's
 frontmatter value-suggestion callback. Storybook panel fixtures must exercise
 that plugin boundary rather than providing a component-only completion list.
+App-backed fixtures sequence startup and teardown through an owned lifecycle;
+they do not disable never-started plugin instances or let one story's
+compatibility lease overlap another story's boot.
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. A `deno-desktop` session reports

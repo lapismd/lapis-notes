@@ -3,6 +3,8 @@
 The package consumes the published Design Core semver contract. Runtime and
 tests MUST NOT depend on a sibling-repository path or a workspace `link:`
 override; local source overrides remain an optional development concern.
+Real-App Bases plays wait for explicit workspace and embed readiness under the
+same bounded startup window used by the rest of the full catalog acceptance.
 
 ## Requirements
 

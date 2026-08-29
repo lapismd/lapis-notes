@@ -7,6 +7,8 @@ requirements remain defined at their owning API and host boundaries.
 The package exports its production `ExplorerPanel` for Autodocs. Canonical
 Storybook coverage remains registration-driven and demonstrates Explorer in
 all six command-panel placements under `Plugins/Explorer/Panels/Explorer`.
+For the current disposition, opening a file from an active landing root reuses
+that root leaf before falling back to the App's normal main-area open policy.
 
 ## Requirements
 

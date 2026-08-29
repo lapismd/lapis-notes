@@ -52,6 +52,10 @@ export default defineConfig({
           name: "storybook",
           setupFiles: ["./.storybook/vitest.setup.ts"],
           testTimeout: 120_000,
+          // App-backed stories share browser-level compatibility and overlay
+          // resources. Run files serially so one App can finish teardown before
+          // another file installs its lifecycle lease in the same browser.
+          fileParallelism: false,
           browser: {
             enabled: true,
             headless: true,

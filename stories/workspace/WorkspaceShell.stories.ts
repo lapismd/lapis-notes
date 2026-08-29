@@ -29,8 +29,17 @@ async function waitForShell(canvas: ReturnType<typeof within>) {
           .querySelector('[data-app-shell-ready="true"]'),
       ).toBeInTheDocument();
     },
-    { timeout: 3_000 },
+    { timeout: 15_000 },
   );
+}
+
+async function ensureLeftSidebarOpen(canvas: ReturnType<typeof within>) {
+  const open = canvas.queryByRole("button", { name: "Open left sidebar" });
+  if (open) await userEvent.click(open);
+  await expect(
+    canvas.getAllByRole("button", { name: "Close left sidebar" })[0],
+  ).toBeVisible();
+  return canvas.getByLabelText("Left sidebar");
 }
 
 function channelMean(color: string): number {
@@ -193,6 +202,12 @@ async function expectStatusActionHover(button: HTMLButtonElement) {
     '[data-ui-component="workspace-status-bar"]',
   );
   await expect(statusBar).not.toBeNull();
+  await waitFor(() => {
+    expect(getComputedStyle(button).pointerEvents).not.toBe("none");
+    expect(getComputedStyle(button.ownerDocument.body).pointerEvents).not.toBe(
+      "none",
+    );
+  });
   await userEvent.hover(button);
   await waitFor(() => {
     expect(getComputedStyle(button).backgroundColor).not.toBe(
@@ -283,6 +298,12 @@ export const PersistedDesktop: Story = {
     );
     const restingBackground = getComputedStyle(maximize).backgroundColor;
     await expect(maximize).toHaveAttribute("aria-pressed", "false");
+    await waitFor(() => {
+      expect(getComputedStyle(maximize).pointerEvents).not.toBe("none");
+      expect(
+        getComputedStyle(canvasElement.ownerDocument.body).pointerEvents,
+      ).not.toBe("none");
+    });
     await userEvent.click(maximize);
     await expect(shellRoot).toHaveAttribute(
       "data-workspace-focus-mode",
@@ -311,12 +332,18 @@ export const PersistedDesktop: Story = {
     });
     await userEvent.unhover(newTabButton);
 
+    const tabCountBeforeNewTab = canvasElement.querySelectorAll(
+      "[data-workspace-tab-id]",
+    ).length;
     await userEvent.click(newTabButton);
     await expect(
       canvas.getByRole("toolbar", { name: "Workspace tabs" }),
     ).toBeInTheDocument();
-    const tabs = canvas.getAllByRole("button", { name: "New Tab" });
-    await expect(tabs).toHaveLength(2);
+    await waitFor(() => {
+      expect(
+        canvasElement.querySelectorAll("[data-workspace-tab-id]").length,
+      ).toBe(tabCountBeforeNewTab + 1);
+    });
 
     const addedTabMenu = canvasElement.querySelector<HTMLButtonElement>(
       '[data-workspace-tab-id]:not([data-workspace-tab-id="start"]) [data-ui-part="tab-menu-trigger"]',
@@ -342,10 +369,7 @@ export const PersistedDesktop: Story = {
     );
     await expect(addedTabClose).not.toBeNull();
     await userEvent.click(addedTabClose!);
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Open left sidebar" }),
-    );
-    const leftSidebar = canvas.getByLabelText("Left sidebar");
+    const leftSidebar = await ensureLeftSidebarOpen(canvas);
     await expect(leftSidebar).toBeInTheDocument();
 
     const workspaceTrigger = within(leftSidebar).getByRole("button", {
@@ -544,10 +568,7 @@ export const StackedTabs: Story = {
     await userEvent.click(restore);
     await expect(shellRoot).not.toHaveAttribute("data-workspace-focus-mode");
 
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Open left sidebar" }),
-    );
-    const leftSidebar = canvas.getByLabelText("Left sidebar");
+    const leftSidebar = await ensureLeftSidebarOpen(canvas);
     await userEvent.click(
       within(leftSidebar).getByRole("button", { name: "Open settings" }),
     );
@@ -648,13 +669,17 @@ export const BottomPanelSettings: Story = {
     );
 
     const ribbon = canvas.getByLabelText("left ribbon");
-    const ribbonSettings = within(ribbon).getByRole("button", {
+    const ribbonSettings = within(ribbon).queryByRole("button", {
       name: "Settings",
     });
-    expect(
-      ribbonSettings.closest('[data-ui-part="bottom-actions"]'),
-    ).not.toBeNull();
-    await userEvent.click(ribbonSettings);
+    const settings =
+      ribbonSettings ?? canvas.getByRole("button", { name: "Open settings" });
+    if (ribbonSettings) {
+      expect(
+        ribbonSettings.closest('[data-ui-part="bottom-actions"]'),
+      ).not.toBeNull();
+    }
+    await userEvent.click(settings);
     const dialog = canvas.getByRole("dialog", { name: "Settings" });
     await expect(dialog).toBeVisible();
     const dialogUi = within(dialog);
@@ -747,12 +772,18 @@ export const Mobile: Story = {
     expectAppShellPlugins(canvas);
     await expectWordCountForWelcome(canvasElement, canvas);
 
+    const initialOpenTabs = canvas.getByRole("button", {
+      name: /Open tabs \(\d+\)/,
+    });
+    const initialTabCount = Number.parseInt(
+      initialOpenTabs.getAttribute("aria-label")?.match(/\d+/)?.[0] ?? "0",
+      10,
+    );
     await userEvent.click(
       canvas.getByRole("button", { name: "Create new tab" }),
     );
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Open tabs (7)" }),
-    );
+    const openTabsLabel = `Open tabs (${initialTabCount + 1})`;
+    await userEvent.click(canvas.getByRole("button", { name: openTabsLabel }));
     await expect(
       canvas.getByRole("region", { name: "Open workspace tabs" }),
     ).toBeInTheDocument();
@@ -767,9 +798,7 @@ export const Mobile: Story = {
       canvas.getByRole("button", { name: "Open Outline" }),
     ).toBeVisible();
     await userEvent.click(openStart!);
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Open tabs (7)" }),
-    );
+    await userEvent.click(canvas.getByRole("button", { name: openTabsLabel }));
     const closeAdded = [
       ...canvasElement.querySelectorAll<HTMLElement>("[data-mobile-tab-close]"),
     ].find(

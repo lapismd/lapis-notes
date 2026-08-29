@@ -13,11 +13,28 @@ import test from "node:test";
 
 import {
   createLocalPluginInstallFingerprint,
+  ensureLocalPnpmfile,
   invalidateLocalPluginConsumerCaches,
   isCurrentLocalPluginInstall,
   localPluginInstallArguments,
   runPreservingFile,
 } from "./local-plugin-consumer.mjs";
+
+test("creates the default local pnpm hook without replacing a composed hook", async () => {
+  const root = await mkdtemp(
+    path.join(os.tmpdir(), "lapis-local-plugin-pnpmfile-"),
+  );
+  const pnpmfilePath = path.join(root, ".pnpmfile.cjs");
+  const defaultContent = "module.exports = require('./plugin-hook.cjs');\n";
+  const composedContent = "module.exports = require('./composed-hook.cjs');\n";
+
+  await ensureLocalPnpmfile(pnpmfilePath, defaultContent);
+  assert.equal(await readFile(pnpmfilePath, "utf8"), defaultContent);
+
+  await writeFile(pnpmfilePath, composedContent);
+  await ensureLocalPnpmfile(pnpmfilePath, defaultContent);
+  assert.equal(await readFile(pnpmfilePath, "utf8"), composedContent);
+});
 
 test("uses a normal lockfile-aware pnpm install", () => {
   assert.deepEqual(localPluginInstallArguments, [

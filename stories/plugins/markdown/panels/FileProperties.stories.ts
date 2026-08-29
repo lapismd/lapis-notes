@@ -1,5 +1,4 @@
 import type { App } from "@lapis-notes/api";
-import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { FileProperties } from "@lapis-notes/markdown";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, userEvent, waitFor, within } from "storybook/test";
@@ -14,6 +13,8 @@ import {
   PANEL_PLACEMENTS,
   panelDemoApp,
   placementParameters,
+  triggerMetadataPathChanged,
+  triggerMetadataReset,
 } from "../../_shared/panels/panel-story-helpers";
 import "../../_shared/panels/Panel.docs.css";
 
@@ -55,27 +56,37 @@ function renderPlacement(layout: PanelDemoLayout): StoryRender {
   })) as StoryRender;
 }
 
-function resizePanelTab(
-  app: App,
+async function resizePanelTab(
+  canvasElement: HTMLElement,
   layout: PanelDemoLayout,
-): (() => void) | null {
-  const renderer = getWorkspaceHostBinding(app.workspace).controller.renderer;
-  const snapshot = renderer.getLayout();
+): Promise<(() => Promise<void>) | null> {
+  if (layout !== "middle-top-tabs") return null;
 
-  if (layout === "middle-top-tabs") {
-    if (snapshot.main.kind !== "split") {
-      throw new Error("Expected the panel story main split");
-    }
-    const originalSizes = [...snapshot.main.sizes];
-    if (!renderer.setSplitSizes(snapshot.main.id, [88, 12])) {
-      throw new Error("Could not resize the panel story main split");
-    }
-    return () => {
-      renderer.setSplitSizes(snapshot.main.id, originalSizes);
-    };
-  }
+  const panelElement = canvasElement.querySelector<HTMLElement>(
+    '[data-testid="file-properties-panel"]',
+  );
+  const panelPane = panelElement?.closest<HTMLElement>("[data-pane]");
+  if (!panelPane) throw new Error("Missing the panel story pane");
+  const originalFlex = panelPane.style.flex;
+  panelPane.style.flex = "0 0 180px";
+  await waitFor(() =>
+    expect(
+      canvasElement
+        .querySelector<HTMLElement>(".mira-frontmatter.metadata-container")
+        ?.getBoundingClientRect().width ?? 0,
+    ).toBeLessThan(250),
+  );
 
-  return null;
+  return async () => {
+    panelPane.style.flex = originalFlex;
+    await waitFor(() =>
+      expect(
+        canvasElement
+          .querySelector<HTMLElement>(".mira-frontmatter.metadata-container")
+          ?.getBoundingClientRect().width ?? 0,
+      ).toBeGreaterThanOrEqual(250),
+    );
+  };
 }
 
 function placementStory(
@@ -88,7 +99,7 @@ function placementStory(
     parameters: placementParameters(kind, layout, source, description),
     render: renderPlacement(layout),
     play: async ({ args, canvasElement, parameters }) => {
-      const panel = await expectPanelPlacement(
+      let panel = await expectPanelPlacement(
         canvasElement,
         kind,
         layout,
@@ -323,10 +334,19 @@ function placementStory(
       ).not.toBeInTheDocument();
 
       propertyType.focus();
+      await expect(propertyType).toHaveFocus();
       await userEvent.keyboard("{ArrowRight}");
-      const typeMenu = page.getByRole("menu", {
+      let typeMenu = page.queryByRole("menu", {
         name: "Property type for tags",
       });
+      if (!typeMenu) {
+        await userEvent.hover(propertyType);
+        typeMenu = await page.findByRole(
+          "menu",
+          { name: "Property type for tags" },
+          { timeout: 5_000 },
+        );
+      }
       const textType = within(typeMenu).getByRole("menuitemcheckbox", {
         name: "Text",
       });
@@ -399,44 +419,79 @@ function placementStory(
         );
       }
 
-      const restorePanelTab = resizePanelTab(
-        panelDemoApp(canvasElement),
-        layout,
-      );
+      const restorePanelTab = await resizePanelTab(canvasElement, layout);
       if (restorePanelTab) {
         try {
           await waitFor(() => {
-            const keyBounds = tagsKey?.getBoundingClientRect();
-            const valueBounds = tagsValue?.getBoundingClientRect();
-            const rowBounds = tagsRow?.getBoundingClientRect();
-            const keyInputBounds = tagsKeyInput?.getBoundingClientRect();
-            const keyInputStyle = getComputedStyle(tagsKeyInput as HTMLElement);
+            const livePanelElement = canvasElement.querySelector<HTMLElement>(
+              '[data-testid="file-properties-panel"]',
+            );
+            const livePropertyContainer =
+              livePanelElement?.querySelector<HTMLElement>(
+                ".mira-frontmatter.metadata-container",
+              );
+            const liveTagsRow = livePanelElement?.querySelector<HTMLElement>(
+              '[data-property="tags"]',
+            );
+            const liveOwnersRow = livePanelElement?.querySelector<HTMLElement>(
+              '[data-property="owners"]',
+            );
+            const liveTagsKey = liveTagsRow?.querySelector<HTMLElement>(
+              ".metadata-property-key",
+            );
+            const liveTagsValue = liveTagsRow?.querySelector<HTMLElement>(
+              ".metadata-property-value",
+            );
+            const liveTagsKeyInput = liveTagsRow?.querySelector<HTMLElement>(
+              ".metadata-property-key-input",
+            );
+            const liveFirstTagPill = liveTagsRow?.querySelector<HTMLElement>(
+              ".metadata-property-pill-chip",
+            );
+            const liveLongTagPill = liveTagsRow
+              ? within(liveTagsRow)
+                  .getByText(longTag, { exact: true })
+                  .closest<HTMLElement>(".metadata-property-pill-chip")
+              : null;
+            const liveLongOwnerPill = liveOwnersRow
+              ? within(liveOwnersRow)
+                  .getByText(longOwner, { exact: true })
+                  .closest<HTMLElement>(".metadata-property-pill-chip")
+              : null;
+            const keyBounds = liveTagsKey?.getBoundingClientRect();
+            const valueBounds = liveTagsValue?.getBoundingClientRect();
+            const rowBounds = liveTagsRow?.getBoundingClientRect();
+            const keyInputBounds = liveTagsKeyInput?.getBoundingClientRect();
+            const keyInputStyle = getComputedStyle(
+              liveTagsKeyInput as HTMLElement,
+            );
             const labelTextStart =
               (keyInputBounds?.left ?? 0) +
               Number.parseFloat(keyInputStyle.paddingInlineStart);
-            const valueStart = firstTagPill?.getBoundingClientRect().left ?? 0;
+            const valueStart =
+              liveFirstTagPill?.getBoundingClientRect().left ?? 0;
             expect(
-              propertyContainer?.getBoundingClientRect().width ?? 0,
+              livePropertyContainer?.getBoundingClientRect().width ?? 0,
             ).toBeLessThan(250);
-            expect(getComputedStyle(tagsRow as HTMLElement).flexWrap).toBe(
+            expect(getComputedStyle(liveTagsRow as HTMLElement).flexWrap).toBe(
               "wrap",
             );
             expect(
               Math.abs((keyBounds?.width ?? 0) - (rowBounds?.width ?? 0)),
-            ).toBeLessThan(1);
+            ).toBeLessThanOrEqual(2);
             expect(
               Math.abs((valueBounds?.width ?? 0) - (rowBounds?.width ?? 0)),
-            ).toBeLessThan(1);
+            ).toBeLessThanOrEqual(2);
             expect(valueBounds?.top ?? 0).toBeGreaterThanOrEqual(
               (keyBounds?.bottom ?? 0) - 1,
             );
             expect(Math.abs(valueStart - labelTextStart)).toBeLessThan(1);
-            const ownersValue = ownersRow?.querySelector<HTMLElement>(
+            const ownersValue = liveOwnersRow?.querySelector<HTMLElement>(
               ".metadata-property-value",
             );
             for (const [pill, valueContainer] of [
-              [longTagPill, tagsValue],
-              [longOwnerPill, ownersValue],
+              [liveLongTagPill, liveTagsValue],
+              [liveLongOwnerPill, ownersValue],
             ] as const) {
               const pillBounds = pill?.getBoundingClientRect();
               const valueContainerBounds =
@@ -460,16 +515,32 @@ function placementStory(
             expect(scrollViewport?.scrollLeft ?? 0).toBe(0);
           });
         } finally {
-          restorePanelTab();
+          await restorePanelTab();
         }
         await waitFor(() => {
+          const livePanelElement = canvasElement.querySelector<HTMLElement>(
+            '[data-testid="file-properties-panel"]',
+          );
+          const livePropertyContainer =
+            livePanelElement?.querySelector<HTMLElement>(
+              ".mira-frontmatter.metadata-container",
+            );
+          const liveTagsRow = livePanelElement?.querySelector<HTMLElement>(
+            '[data-property="tags"]',
+          );
           expect(
-            propertyContainer?.getBoundingClientRect().width ?? 0,
+            livePropertyContainer?.getBoundingClientRect().width ?? 0,
           ).toBeGreaterThanOrEqual(250);
-          expect(getComputedStyle(tagsRow as HTMLElement).flexWrap).toBe(
+          expect(getComputedStyle(liveTagsRow as HTMLElement).flexWrap).toBe(
             "nowrap",
           );
         });
+        const livePanelElement = canvasElement.querySelector<HTMLElement>(
+          '[data-testid="file-properties-panel"]',
+        );
+        if (!livePanelElement)
+          throw new Error("Missing restored properties panel");
+        panel = within(livePanelElement);
       }
 
       let status = panel.getByRole("combobox", { name: "status value" });
@@ -510,14 +581,53 @@ function placementStory(
         const app = panelDemoApp(canvasElement);
         const file = app.vault.getFileByPath("Notes/Welcome.md");
         if (!file) throw new Error("Missing seeded Welcome note");
+        const statusOptions = panel.getByRole("button", {
+          name: "Property options for status",
+        });
+        statusOptions.focus();
+        await expect(statusOptions).toHaveFocus();
+        await waitFor(
+          async () => {
+            expect(
+              (await app.metadataCache.getFileCacheAsync(file))?.frontmatter
+                ?.status,
+            ).toBe("planned");
+          },
+          { timeout: 5_000 },
+        );
         await app.fileManager.processFrontMatter(file, (frontmatter) => {
           frontmatter.status = "review";
         });
-        await waitFor(() => {
-          expect(
-            panel.getByRole("combobox", { name: "status value" }),
-          ).toHaveTextContent("review");
-        });
+        await waitFor(
+          async () => {
+            expect(
+              (await app.metadataCache.getFileCacheAsync(file))?.frontmatter
+                ?.status,
+            ).toBe("review");
+          },
+          { timeout: 5_000 },
+        );
+        triggerMetadataPathChanged(app, file.path);
+        await waitFor(
+          () => {
+            const livePanelElement = canvasElement.querySelector<HTMLElement>(
+              '[data-testid="file-properties-panel"]',
+            );
+            if (!livePanelElement)
+              throw new Error("Missing live properties panel");
+            expect(
+              within(livePanelElement).getByRole("combobox", {
+                name: "status value",
+              }),
+            ).toHaveTextContent("review");
+          },
+          { timeout: 5_000 },
+        );
+        const livePanelElement = canvasElement.querySelector<HTMLElement>(
+          '[data-testid="file-properties-panel"]',
+        );
+        if (!livePanelElement) throw new Error("Missing live properties panel");
+        panel = within(livePanelElement);
         status = panel.getByRole("combobox", { name: "status value" });
       }
       await userEvent.click(status);

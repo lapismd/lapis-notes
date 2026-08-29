@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { AiCatalogPanel, AiPlugin } from "@lapis-notes/ai";
+import {
+  AiCatalogPanel,
+  AiCatalogViewType,
+  AiPlugin,
+} from "@lapis-notes/ai";
 import { expect, userEvent, waitFor } from "storybook/test";
 import PanelDemo from "../../_shared/panels/PanelDemo.svelte";
 import { panelExampleSources } from "../../_shared/panels/Panel.example-sources";
@@ -70,21 +74,34 @@ function placementStory(
       expect(panel.getByText("/search")).toBeVisible();
       expect(panel.getByText("/help")).toBeVisible();
       expect(panel.getByText("lapis-notes")).toBeVisible();
+      const openReview = await waitFor(
+        () => {
+          const button = panel.getByRole("button", { name: "Open review" });
+          expect(button).toBeVisible();
+          return button;
+        },
+        { timeout: 12_000 },
+      );
+      const app = panelDemoApp(canvasElement);
 
-      await userEvent.click(panel.getByRole("treeitem", { name: "notes_search" }));
-      expect(
-        panel.getByText(/Search the user's Lapis Notes/i),
-      ).toBeVisible();
+      await userEvent.click(
+        panel.getByRole("treeitem", { name: "notes_search" }),
+      );
+      expect(panel.getByText(/Search the user's Lapis Notes/i)).toBeVisible();
 
       await userEvent.click(panel.getByRole("button", { name: "Expand all" }));
-      expect(panel.getByRole("button", { name: "Collapse all" })).toBeVisible();
+      await waitFor(() => {
+        expect(
+          panel.getByRole("button", { name: "Collapse all" }),
+        ).toBeVisible();
+      });
+      expect(app.workspace.getLeavesOfType(AiCatalogViewType)).toHaveLength(1);
 
       const checkbox = panel.getByRole("checkbox", {
         name: "Enable notes_search for the next chat",
       });
       expect(checkbox).toHaveAttribute("data-state", "checked");
       await userEvent.click(checkbox);
-      const app = panelDemoApp(canvasElement);
       await waitFor(() => {
         const plugin = app.plugins.plugins.get("ai");
         expect(plugin instanceof AiPlugin).toBe(true);
@@ -93,14 +110,12 @@ function placementStory(
           "notes_search",
         );
       });
-
-      await userEvent.click(panel.getByRole("button", { name: "Open review" }));
+      await userEvent.click(openReview);
       await waitFor(() => {
         expect(app.workspace.getActiveFile()?.path).toBe(
           "Notes/.agents/commands/review.md",
         );
       });
-
       await userEvent.type(panel.getByLabelText("Filter catalog"), "daily");
       await waitFor(() => {
         expect(panel.getByRole("button", { name: "Open daily" })).toBeVisible();

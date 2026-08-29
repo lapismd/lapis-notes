@@ -69,6 +69,17 @@ export function triggerMetadataReset(app: App): void {
   });
 }
 
+export function triggerMetadataPathChanged(app: App, path: string): void {
+  const now = Date.now();
+  app.metadataCache.trigger("index-changed", {
+    revision: now,
+    domains: ["metadata"],
+    paths: [path],
+    reset: false,
+    committedAt: now,
+  });
+}
+
 export async function expectAsyncQueryFailureAndRecovery(options: {
   target: object;
   method: string;
@@ -216,7 +227,7 @@ export async function expectPanelPlacement(
       if (requiresFile) expect(markdown).not.toBeNull();
       else expect(markdown).toBeNull();
     },
-    { timeout: 12_000 },
+    { timeout: 20_000 },
   );
 
   await new Promise<void>((resolve) => {

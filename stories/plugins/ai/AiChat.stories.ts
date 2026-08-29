@@ -126,7 +126,9 @@ export const AutomaticMemoryRecall: Story = {
         canvas.getByRole("article", { name: "Message from assistant" }),
       ).toHaveTextContent("Draft the Atlas summary");
     });
-    expect(canvas.queryByText("Use compact headings in Atlas notes.")).toBeNull();
+    expect(
+      canvas.queryByText("Use compact headings in Atlas notes."),
+    ).toBeNull();
   },
 };
 
@@ -501,7 +503,10 @@ export const QuestionAnswered: Story = {
 export const ToolRunning: Story = {
   render: () => ({
     Component: AiChatDemo,
-    props: { seedItems: createAiChatToolSeedItems("running") },
+    props: {
+      seedItems: createAiChatToolSeedItems("running"),
+      preservePending: true,
+    },
   }),
   parameters: {
     ...workspaceCatalogParameters("plugins-ai-chat-tool-running"),
@@ -579,8 +584,12 @@ export const SuccessfulToolCall: Story = {
     await expect(chevron).toHaveAttribute("data-direction", "right");
     await userEvent.click(trigger);
     await expect(chevron).toHaveAttribute("data-direction", "down");
+    const detail = canvasElement.querySelector<HTMLElement>(
+      '[data-ai-chat-part="call-detail"]',
+    );
+    expect(detail).not.toBeNull();
     await expect(
-      canvas.getByText("pnpm --filter @lapis-notes/ai test"),
+      within(detail!).getByText("pnpm --filter @lapis-notes/ai test"),
     ).toBeVisible();
     await expect(canvas.getByText("121 tests passed")).toBeVisible();
   },
@@ -687,6 +696,9 @@ export const AppToolSessionGrant: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByText(/Approval approved/)).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Expand 2 tool calls" }),
+    );
     expect(
       canvas.getAllByRole("button", { name: "Show details for edit" }),
     ).toHaveLength(2);
@@ -757,9 +769,17 @@ export const FailedToolCall: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByRole("alert")).toHaveTextContent(
-      "Process exited with code 1",
-    );
+    const failedStatus = await waitFor(() => {
+      const status = canvasElement.querySelector<HTMLElement>(
+        '[data-ui-part="call-status"][data-status="error"]',
+      );
+      expect(status).not.toBeNull();
+      return status!;
+    });
+    await expect(failedStatus).toHaveTextContent("Error");
+    await expect(
+      canvasElement.querySelector('[data-ui-part="call"][data-status="error"]'),
+    ).not.toBeNull();
     const trigger = await canvas.findByRole("button", {
       name: "Show details for shell.execute",
     });
@@ -767,8 +787,12 @@ export const FailedToolCall: Story = {
     await expect(chevron).toHaveAttribute("data-direction", "right");
     await userEvent.click(trigger);
     await expect(chevron).toHaveAttribute("data-direction", "down");
+    const detail = canvasElement.querySelector<HTMLElement>(
+      '[data-ai-chat-part="call-detail"]',
+    );
+    expect(detail).not.toBeNull();
     await expect(
-      canvas.getByText("pnpm --filter @lapis-notes/ai test"),
+      within(detail!).getByText("pnpm --filter @lapis-notes/ai test"),
     ).toBeVisible();
     const output = canvas.getAllByText(/FAIL ai-chat-panel\.test\.ts/);
     await expect(output[output.length - 1]).toBeVisible();
@@ -837,7 +861,7 @@ export const FileMentions: Story = {
 export const AgentTrace: Story = {
   render: () => ({
     Component: AiChatDemo,
-    props: { requireApproval: false, trace: "rich" },
+    props: { requireApproval: false, trace: "rich", enableMarkdown: true },
   }),
   parameters: {
     ...workspaceCatalogParameters("plugins-ai-chat-trace"),
@@ -950,8 +974,8 @@ export const AgentTrace: Story = {
         canvasElement.querySelector('[data-ui-component="ai-chat-reasoning"]'),
       ).not.toBeNull();
       expect(
-        canvas.getByText("I will read the mentioned note, then summarize it."),
-      ).toBeVisible();
+        canvasElement.querySelector('[data-ui-part="reasoning-content-inner"]'),
+      ).toHaveTextContent("I will read the mentioned note, then summarize it.");
       expect(canvas.getByText("vault.read")).toBeVisible();
       expect(
         canvas.getByRole("article", { name: "Message from assistant" }),
@@ -971,11 +995,14 @@ export const AgentTrace: Story = {
       expect(canvas.queryByText("session updated")).toBeNull();
       expect(canvas.queryByText("available commands updated (75)")).toBeNull();
     });
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Show details for vault.read" }),
-    );
-    await expect(canvas.getByText('{"path":"Notes/alpha.md"}')).toBeVisible();
-    await expect(canvas.getByText("heading: Notes")).toBeVisible();
+    const readTrigger = canvas.getByRole("button", {
+      name: "Show details for vault.read",
+    });
+    const readCall = readTrigger.closest('[data-ui-part="call"]');
+    expect(readCall).not.toBeNull();
+    await userEvent.click(readTrigger);
+    await expect(readCall).toHaveTextContent("Notes/alpha.md");
+    await expect(readCall).toHaveTextContent("heading: Notes");
     await userEvent.click(
       canvas.getByRole("button", { name: "Copy response" }),
     );

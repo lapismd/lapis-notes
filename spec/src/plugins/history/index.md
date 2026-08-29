@@ -6,6 +6,9 @@ panel, and the main-area compare tab. Persistence remains the existing
 history.
 The governed real-App shell loads the public Source Editor before Markdown;
 History does not carry a Storybook-only editor fixture.
+History panel acceptance waits for its registered view and owned database
+projection, then asserts the active compare surface without relying on a
+duplicate hidden panel instance.
 
 ## Requirements
 

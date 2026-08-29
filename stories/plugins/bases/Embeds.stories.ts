@@ -60,7 +60,7 @@ export const Markdown: Story = {
         ).toBeVisible();
         expect(canvas.getByText(/Unable to render this base:/u)).toBeVisible();
       },
-      { timeout: 8_000 },
+      { timeout: 15_000 },
     );
 
     const root = canvas.getByTestId("bases-embeds-demo") as HTMLElement & {

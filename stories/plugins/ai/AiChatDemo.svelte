@@ -1,6 +1,11 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import { AppResultViewRegistry, TFile, type App } from "@lapis-notes/api";
+  import {
+    App,
+    AppResultViewRegistry,
+    MemoryAppDatabase,
+    TFile,
+  } from "@lapis-notes/api";
   import { AppSlashCommandRegistry } from "@lapis-notes/api/agent-skills";
   import {
     AiChatPanel,
@@ -42,6 +47,7 @@
     enableSkills = false,
     enableSearchResult = false,
     enableMemoryRecall = false,
+    enableMarkdown = false,
   }: {
     requireApproval?: boolean;
     requireQuestion?: boolean;
@@ -56,6 +62,7 @@
     enableSkills?: boolean;
     enableSearchResult?: boolean;
     enableMemoryRecall?: boolean;
+    enableMarkdown?: boolean;
   } = $props();
   let openedTick = $state(0);
   let recallCalls = $state(0);
@@ -96,6 +103,20 @@
   const searchApp = $derived(
     enableSearchResult ? createSearchResultApp() : undefined,
   );
+  const markdownApp = $derived.by(() => {
+    if (!enableMarkdown) return undefined;
+    return new App({
+      version: "0.0.1-story",
+      configPath: ".obsidian/app.json",
+      adapter: new MemoryVaultAdapter({
+        "Notes/alpha.md": "# Notes\n\nTODO: summarize this note.",
+      }),
+      appDatabase: new MemoryAppDatabase("lapis-ai-chat-story"),
+      workspaceShell: { application: { name: "Lapis Notes" } },
+      markdownRenderer: async () => {},
+    });
+  });
+  const panelApp = $derived(searchApp ?? markdownApp);
 
   const runtime = $derived.by<AgentRuntime>(() => {
     const fake = new FakeAgentRuntime({
@@ -236,7 +257,7 @@
     </button>
   {/if}
   <AiChatPanel
-    app={searchApp}
+    app={panelApp}
     {runtime}
     {sessionStore}
     skills={skillHarness?.skills}

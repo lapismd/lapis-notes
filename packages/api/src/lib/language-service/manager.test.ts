@@ -6,7 +6,11 @@ import type {
   WorkspaceDiagnostic,
 } from "../diagnostics";
 import { LanguageServiceManager } from "./manager";
-import type { LanguageServiceProvider, VirtualDocument } from "./types";
+import type {
+  LanguageServiceDiagnostic,
+  LanguageServiceProvider,
+  VirtualDocument,
+} from "./types";
 
 const WORKSPACE_FAILURES = "";
 
@@ -105,6 +109,11 @@ describe("LanguageServiceManager diagnostics bridge", () => {
     releaseFirst();
     expect(collection.values.has(document.uri)).toBe(true);
     releaseSecond();
+    const releaseReplacement = manager.retainDocument(document.uri);
+    await Promise.resolve();
+    expect(collection.values.has(document.uri)).toBe(true);
+    releaseReplacement();
+    await Promise.resolve();
     expect(collection.values.has(document.uri)).toBe(false);
   });
 
@@ -174,6 +183,57 @@ describe("LanguageServiceManager diagnostics bridge", () => {
 
     await expect(request).resolves.toEqual([]);
     expect(collection.values.size).toBe(0);
+  });
+
+  it("does not let an older diagnostics request replace the latest document result", async () => {
+    const manager = new LanguageServiceManager();
+    const collection = createCollection();
+    manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
+    manager.retainDocument(document.uri);
+
+    let resolveOlder!: (diagnostics: LanguageServiceDiagnostic[]) => void;
+    const older = new Promise<LanguageServiceDiagnostic[]>((resolve) => {
+      resolveOlder = resolve;
+    });
+    manager.registerProvider({
+      ...provider(),
+      provideDiagnostics: async ({ document: current }) =>
+        current.version === 1
+          ? older
+          : [
+              {
+                message: "Latest heading result",
+                severity: "warning",
+                source: "markdownlint",
+                code: "MD018",
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: { line: 0, character: 1 },
+                },
+              },
+            ],
+      provideCodeActions: async () => [],
+    });
+
+    const olderRequest = manager.diagnostics(document);
+    const latestRequest = manager.diagnostics({
+      ...document,
+      version: 2,
+      text: "#latest heading",
+    });
+
+    await expect(latestRequest).resolves.toEqual([
+      expect.objectContaining({ message: "Latest heading result" }),
+    ]);
+    expect(collection.get({ uri: document.uri })?.[0]?.message).toBe(
+      "Latest heading result",
+    );
+
+    resolveOlder([]);
+    await expect(olderRequest).resolves.toEqual([]);
+    expect(collection.get({ uri: document.uri })?.[0]?.message).toBe(
+      "Latest heading result",
+    );
   });
 
   it("scopes cached actions to the originating diagnostic and unique titles", async () => {

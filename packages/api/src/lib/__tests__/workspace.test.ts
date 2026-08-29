@@ -3614,6 +3614,69 @@ describe("Workspace compatibility", () => {
     });
   });
 
+  it("preserves a claimed single-panel sidebar group across layout projection", async () => {
+    const { workspace } = createWorkspaceHarness();
+    workspace.registerView(
+      "graph",
+      (currentLeaf) => new MockItemView(currentLeaf),
+    );
+
+    await workspace.changeLayout({
+      main: workspace.rootSplit.toJson(),
+      left: workspace.leftSplit.toJson(),
+      right: {
+        id: "right",
+        type: "split",
+        direction: "vertical",
+        width: "16rem",
+        sizes: [100],
+        children: [
+          {
+            id: "right-tabs",
+            type: "tabs",
+            stacked: false,
+            currentTab: 0,
+            children: [
+              {
+                id: "workspace-tools",
+                type: "sidebar-group",
+                name: "Workspace Tools",
+                children: [
+                  {
+                    id: "graph-leaf",
+                    type: "leaf",
+                    state: {
+                      type: "graph",
+                      state: { depth: 1 },
+                      icon: "box",
+                      title: "Graph",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    const originalGroup = workspace.getSidebarGroup(
+      "right",
+      "workspace-tools",
+    );
+    const originalLeaf = workspace.getLeafById("graph-leaf");
+    expect(originalGroup).toBeInstanceOf(WorkspaceSidebarGroup);
+    expect(originalLeaf).toBeInstanceOf(WorkspaceLeaf);
+
+    await workspace.changeLayout(workspace.getLayout());
+
+    expect(workspace.getSidebarGroup("right", "workspace-tools")).toBe(
+      originalGroup,
+    );
+    expect(workspace.getLeafById("graph-leaf")).toBe(originalLeaf);
+    expect(originalGroup?.children).toEqual([originalLeaf]);
+  });
+
   it("round-trips floating window layout JSON with persisted bounds", async () => {
     const { workspace } = createWorkspaceHarness();
     workspace.registerView(

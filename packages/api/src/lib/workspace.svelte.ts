@@ -1136,7 +1136,10 @@ export class WorkspaceSidebarGroup extends WorkspaceParent {
   ): WorkspaceLeaf | undefined {
     void softDelete;
     if (index instanceof WorkspaceLeaf) {
-      return this.removeChild(this.children.findIndex((it) => it === index));
+      return this.removeChild(
+        this.children.findIndex((it) => it === index),
+        softDelete,
+      );
     }
     const child = this.children[index];
     if (!child) {

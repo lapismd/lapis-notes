@@ -20,7 +20,7 @@
       <Select.Trigger>
         {label}
       </Select.Trigger>
-      <Select.Content>
+      <Select.Content aria-label="Workspace options">
         <Select.Group>
           {#each items as item (item.value)}
             <Select.Item value={item.value} label={item.label} />

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, realpath, rm, writeFile } from "node:fs/promises";
+import { access, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const localPluginInstallArguments = [
@@ -8,6 +8,14 @@ export const localPluginInstallArguments = [
   "--prefer-offline",
   "--force",
 ];
+
+export async function ensureLocalPnpmfile(filePath, defaultContent) {
+  try {
+    await access(filePath);
+  } catch {
+    await writeFile(filePath, defaultContent);
+  }
+}
 
 export function createLocalPluginInstallFingerprint(
   registryLockfile,

@@ -106,7 +106,9 @@ export const Desktop: Story = {
     expect(welcome?.view.getState()).toMatchObject({
       file: HISTORY_SHELL_PATH,
     });
-    const compareLeaf = app.workspace.getLeavesOfType(HistoryCompareViewType)[0];
+    const compareLeaf = app.workspace.getLeavesOfType(
+      HistoryCompareViewType,
+    )[0];
     expect(compareLeaf).toBeDefined();
     expect(app.workspace.activeLeaf).toBe(compareLeaf);
     const compare = await waitFor(() => {
@@ -182,7 +184,7 @@ export const Desktop: Story = {
     await expect(within(dialog).getByText("Included extensions")).toBeVisible();
     await expect(
       within(dialog).getByRole("slider", { name: "Revisions per file" }),
-    ).toHaveValue(String(DEFAULT_HISTORY_SETTINGS.retentionCount));
+    ).toHaveValue(DEFAULT_HISTORY_SETTINGS.retentionCount);
 
     const excludeField = dialog.querySelector(
       `[data-setting-id="${HISTORY_SETTING_IDS.excludeGlobs}"]`,

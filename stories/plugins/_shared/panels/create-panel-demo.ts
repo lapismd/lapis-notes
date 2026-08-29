@@ -320,7 +320,7 @@ export function createPanelDemoLayout(
     return {
       main: split(
         "main",
-        "horizontal",
+        "vertical",
         meta.requiresFile ? [contextTabs(), panelTabs] : [panelTabs],
         { sizes: meta.requiresFile ? [35, 65] : undefined },
       ),
@@ -345,7 +345,7 @@ export function createPanelDemoLayout(
     return {
       main: split(
         "main",
-        "horizontal",
+        "vertical",
         meta.requiresFile ? [contextTabs(), panelTabs] : [panelTabs],
         { sizes: meta.requiresFile ? [35, 65] : undefined },
       ),
@@ -890,6 +890,21 @@ export async function bootPanelDemo(
     throw new Error(`Missing Markdown context leaf for ${kind} ${layout}`);
   }
   if (markdownLeaf) app.workspace.setActiveLeaf(markdownLeaf, { focus: false });
+  if (kind === "ai-catalog" && aiPlugin instanceof AiPlugin) {
+    await aiPlugin.refreshFileCommands("Notes");
+    const catalog = await aiPlugin.loadAiCatalog();
+    const hasReviewCommand = catalog.some((group) =>
+      group.commands.some((command) => command.name === "review"),
+    );
+    if (!hasReviewCommand) {
+      throw new Error(
+        `AI catalog fixture could not discover review from ${app.workspace.getActiveFile()?.path ?? "no active file"}; matching files: ${app.vault
+          .getFilesByGlob("Notes/.agents/commands/*.md")
+          .map((file) => file.path)
+          .join(", ") || "none"}`,
+      );
+    }
+  }
 
   return {
     app,

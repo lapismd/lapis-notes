@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   createLocalPluginInstallFingerprint,
+  ensureLocalPnpmfile,
   invalidateLocalPluginConsumerCaches,
   isCurrentLocalPluginInstall,
   localPluginInstallArguments,
@@ -52,7 +53,7 @@ const requiredPackages = new Set([
   "@lapis-notes/wordcount",
 ]);
 
-await writeFile(
+await ensureLocalPnpmfile(
   pnpmfilePath,
   'module.exports = require("./scripts/local-plugin-pnpmfile.cjs");\n',
 );

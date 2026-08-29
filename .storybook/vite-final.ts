@@ -63,6 +63,12 @@ const linkedSiblingRoots = linkedSiblingPackages.map((packageName) =>
 const linkedSiblingWorkspaceRoots = [
   ...new Set(linkedSiblingRoots.map(searchForWorkspaceRoot)),
 ];
+const spellcheckRoot = realpathSync(
+  path.join(repoRoot, "node_modules", "@lapis-notes", "spellcheck"),
+);
+const harperBinaryInlined = realpathSync(
+  path.join(spellcheckRoot, "../../harper.js/dist/binaryInlined.js"),
+);
 const linkedAssetPackages = [
   "@fontsource-variable/dm-sans",
   "@fontsource-variable/source-code-pro",
@@ -144,8 +150,12 @@ export async function viteFinal(
       dedupe: [...linkedSingletonPackages, "svelte"],
       alias: [
         {
+          find: /^harper\.js\/binaryInlined$/,
+          replacement: harperBinaryInlined,
+        },
+        {
           find: /^harper\.js\/binary$/,
-          replacement: "harper.js/binaryInlined",
+          replacement: path.join(rootDir, "harper-binary-inlined.ts"),
         },
         {
           find: /^@tursodatabase\/database-wasm\/(?:bundle|vite)$/,

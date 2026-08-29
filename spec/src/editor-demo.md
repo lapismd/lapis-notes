@@ -16,6 +16,9 @@ Reading pane and clear of body content as required by LN-MD-110.
 The Markdown Frontmatter scenario also exercises vault-backed value completion
 through the real Live Preview surface, including a suggestion supplied by a
 different seeded note and a dropdown portalled outside the property row.
+Editor-demo interaction probes wait for CodeMirror measurement after expanding
+block widgets and explicitly flush queued editor persistence before asserting
+the one-write contract. Teardown disposes only runtimes that actually started.
 
 ## Requirements
 

@@ -44,7 +44,7 @@
     "storybook:restart": "node scripts/with-storybook-env.mjs bash scripts/storybook-restart.sh",
     "build-storybook": "node -e \"require('node:fs').mkdirSync('.visual-delta/cache',{recursive:true})\" && NODE_OPTIONS=\"${NODE_OPTIONS:---max-old-space-size=8192}\" storybook build --stats-json .visual-delta/cache && pnpm check:storybook-index",
     "check:storybook-index": "node scripts/spec-validation/storybook-spec-index.mjs",
-    "test:storybook": "vitest run --project storybook",
+    "test:storybook": "vitest run --project storybook --shard=1/4 && vitest run --project storybook --shard=2/4 && vitest run --project storybook --shard=3/4 && vitest run --project storybook --shard=4/4",
     "test:workspace:pointer": "node scripts/with-storybook-env.mjs playwright test -c playwright.workspace.config.ts",
     "test:visual": "node ./scripts/test-visual.mjs",
     "test:visual:update": "node ./scripts/update-visual-baselines.mjs",

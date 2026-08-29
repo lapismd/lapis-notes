@@ -84,10 +84,12 @@ export class LanguageServiceManager {
   ) => Promise<void> | void;
   private diagnosticsBinding: LanguageServiceDiagnosticsBinding | null = null;
   private readonly openDocuments = new Map<string, number>();
+  private readonly pendingDocumentReleases = new Map<string, symbol>();
   private readonly cachedCodeActions = new Map<
     string,
     readonly LanguageServiceCodeAction[]
   >();
+  private readonly diagnosticsRequestIds = new Map<string, number>();
   private readonly providerFailures = new Map<string, WorkspaceDiagnostic>();
 
   constructor(
@@ -146,6 +148,7 @@ export class LanguageServiceManager {
   }
 
   retainDocument(uri: string): () => void {
+    this.pendingDocumentReleases.delete(uri);
     this.openDocuments.set(uri, (this.openDocuments.get(uri) ?? 0) + 1);
     let released = false;
     return () => {
@@ -157,12 +160,23 @@ export class LanguageServiceManager {
         return;
       }
       this.openDocuments.delete(uri);
-      this.documents.delete(uri);
-      this.deleteCachedCodeActions(uri);
-      const collection = this.diagnosticsBinding?.collection;
-      if (collection && !collection.disposed) {
-        collection.delete(resourceForUri(uri));
-      }
+      const release = Symbol(uri);
+      this.pendingDocumentReleases.set(uri, release);
+      queueMicrotask(() => {
+        if (
+          this.pendingDocumentReleases.get(uri) !== release ||
+          this.openDocuments.has(uri)
+        ) {
+          return;
+        }
+        this.pendingDocumentReleases.delete(uri);
+        this.documents.delete(uri);
+        this.deleteCachedCodeActions(uri);
+        const collection = this.diagnosticsBinding?.collection;
+        if (collection && !collection.disposed) {
+          collection.delete(resourceForUri(uri));
+        }
+      });
     };
   }
 
@@ -227,11 +241,13 @@ export class LanguageServiceManager {
   async diagnostics(
     document: VirtualDocument,
   ): Promise<LanguageServiceDiagnostic[]> {
+    const requestId = (this.diagnosticsRequestIds.get(document.uri) ?? 0) + 1;
+    this.diagnosticsRequestIds.set(document.uri, requestId);
     this.updateDocument(document);
     await this.onBeforeResolve?.(document.languageId);
     const sorted = this.matchingProviders(document.languageId, "diagnostics");
     if (!sorted.length) {
-      this.publishDiagnostics(document, []);
+      this.publishDiagnostics(document, [], requestId);
       return [];
     }
     const skipProviderIds = new Set<string>();
@@ -250,8 +266,13 @@ export class LanguageServiceManager {
       }),
     );
     const diagnostics = results.flatMap((diagnostics) => diagnostics ?? []);
-    await this.cacheCodeActions(document, diagnostics, skipProviderIds);
-    this.publishDiagnostics(document, diagnostics);
+    await this.cacheCodeActions(
+      document,
+      diagnostics,
+      skipProviderIds,
+      requestId,
+    );
+    this.publishDiagnostics(document, diagnostics, requestId);
     return diagnostics;
   }
 
@@ -419,11 +440,13 @@ export class LanguageServiceManager {
   private publishDiagnostics(
     document: VirtualDocument,
     diagnostics: readonly LanguageServiceDiagnostic[],
+    requestId: number,
   ): void {
     if (
       !this.diagnosticsBinding ||
       this.diagnosticsBinding.collection.disposed ||
-      !this.openDocuments.has(document.uri)
+      !this.openDocuments.has(document.uri) ||
+      this.diagnosticsRequestIds.get(document.uri) !== requestId
     ) {
       return;
     }
@@ -437,7 +460,14 @@ export class LanguageServiceManager {
     document: VirtualDocument,
     diagnostics: readonly LanguageServiceDiagnostic[],
     skipProviderIds?: ReadonlySet<string>,
+    requestId?: number,
   ): Promise<void> {
+    if (
+      requestId !== undefined &&
+      this.diagnosticsRequestIds.get(document.uri) !== requestId
+    ) {
+      return;
+    }
     this.deleteCachedCodeActions(document.uri);
     await Promise.all(
       diagnostics.map(async (diagnostic) => {
@@ -446,7 +476,13 @@ export class LanguageServiceManager {
           diagnostic.range,
           skipProviderIds,
         );
-        if (!this.openDocuments.has(document.uri)) return;
+        if (
+          !this.openDocuments.has(document.uri) ||
+          (requestId !== undefined &&
+            this.diagnosticsRequestIds.get(document.uri) !== requestId)
+        ) {
+          return;
+        }
         this.cachedCodeActions.set(
           diagnosticCacheKey(document.uri, diagnostic),
           uniqueActionsForDiagnostic(actions, diagnostic),

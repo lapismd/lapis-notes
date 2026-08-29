@@ -1,3 +1,20 @@
+<script module lang="ts">
+  let demoLifecycle = Promise.resolve();
+
+  function enqueueDemoLifecycle(task: () => Promise<void>): Promise<void> {
+    const operation = demoLifecycle.then(task, task);
+    demoLifecycle = operation.then(
+      () => undefined,
+      () => undefined,
+    );
+    return operation;
+  }
+
+  export function settleLapisEditorDemoLifecycle(): Promise<void> {
+    return demoLifecycle;
+  }
+</script>
+
 <script lang="ts">
   import { onMount, untrack } from "svelte";
   import {
@@ -226,6 +243,7 @@
   // App constructs Svelte-backed workspace state, so both the initial and
   // retry runtimes are prepared during component initialization.
   const runtimes = [createRuntime(1), createRuntime(2), createRuntime(3)];
+  const startedApps = new Set<App>();
 
   function setTask(id: string, taskStatus: WorkspaceStartupTask["status"]) {
     tasks = tasks.map((task) =>
@@ -251,6 +269,7 @@
     await current.workspace.disposeWorkspaceHost();
     compatibilityByApp.get(current)?.();
     compatibilityByApp.delete(current);
+    startedApps.delete(current);
   }
 
   async function boot(): Promise<void> {
@@ -274,6 +293,7 @@
     const runtime = runtimes[Math.min(attempt - 1, runtimes.length - 1)]!;
     const nextApp = runtime.app;
     const nextAdapter = runtime.adapter;
+    startedApps.add(nextApp);
     app = nextApp;
     adapter = nextAdapter;
     compatibilityByApp.set(
@@ -351,20 +371,31 @@
             id: "retry",
             label: "Retry startup",
             icon: "refresh-cw",
-            onSelect: () => boot(),
+            onSelect: () => queueBoot(),
           },
         ],
       };
     }
   }
 
+  function queueBoot(): Promise<void> {
+    return enqueueDemoLifecycle(async () => {
+      if (disposed) return;
+      await boot();
+    });
+  }
+
   onMount(() => {
     disposed = false;
-    void boot();
+    void queueBoot();
     return () => {
       disposed = true;
       app = null;
-      void Promise.all(runtimes.map((runtime) => disposeApp(runtime.app)));
+      void enqueueDemoLifecycle(async () => {
+        await Promise.all(
+          [...startedApps].map((runtime) => disposeApp(runtime)),
+        );
+      });
     };
   });
 </script>
@@ -405,7 +436,7 @@
       <button
         type="button"
         data-testid="lapis-editor-replay-failure"
-        onclick={() => boot()}
+        onclick={() => queueBoot()}
       >
         Replay startup failure
       </button>

@@ -20,11 +20,13 @@ function createLeaf(file: TFile | null = null): WorkspaceLeaf {
 }
 
 function createApp(options: {
+  activeRootLeaf?: WorkspaceLeaf | null;
   newLeaf?: WorkspaceLeaf;
 } = {}) {
   const newLeaf = options.newLeaf ?? createLeaf();
   const workspace = {
     activeLeaf: null as WorkspaceLeaf | null,
+    activeRootLeaf: options.activeRootLeaf ?? null,
     activateLeaf: vi.fn(() => true),
     getLeaf: vi.fn(() => newLeaf),
     revealLeaf: vi.fn().mockResolvedValue(undefined),
@@ -50,6 +52,22 @@ describe("openExplorerFile", () => {
 
     expect(app.openFile).toHaveBeenCalledWith(file);
     expect(workspace.getLeaf).not.toHaveBeenCalled();
+  });
+
+  it("replaces the package-owned landing view for a single-click request", async () => {
+    const file = createFile();
+    const landingLeaf = createLeaf();
+    landingLeaf.view = {
+      getViewType: () => "lapis-landing",
+    } as WorkspaceLeaf["view"];
+    const { app, workspace } = createApp({ activeRootLeaf: landingLeaf });
+
+    await openExplorerFile(app, file, "current");
+
+    expect(app.openFile).not.toHaveBeenCalled();
+    expect(landingLeaf.openFile).toHaveBeenCalledWith(file);
+    expect(workspace.activeLeaf).toBe(landingLeaf);
+    expect(workspace.revealLeaf).toHaveBeenCalledWith(landingLeaf);
   });
 
   it("activates an existing file leaf for a double-click request", async () => {

@@ -272,7 +272,9 @@ function placementStory(
       await userEvent.click(searchToggle);
       const search = panel.getByRole("textbox", { name: "Search tags" });
       await userEvent.type(search, "alpha");
-      await expect(panel.getByText("alpha")).toBeVisible();
+      await expect(
+        panel.getByRole("button", { name: "alpha 2" }),
+      ).toBeVisible();
       if (layout === "middle-top-tabs") {
         await userEvent.click(
           panel.getByRole("button", { name: "Change tag sort order" }),

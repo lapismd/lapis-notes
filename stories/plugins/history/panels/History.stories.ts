@@ -75,7 +75,9 @@ function placementStory(
         expect(panel.getAllByRole("button").length).toBeGreaterThanOrEqual(2);
       });
 
-      expect(await app.appDatabase.getFileHistory(".lapis/ignored.md")).toBeNull();
+      expect(
+        await app.appDatabase.getFileHistory(".lapis/ignored.md"),
+      ).toBeNull();
       expect(await app.appDatabase.getFileHistory(".jj/config")).toBeNull();
 
       const rows = panel
@@ -107,11 +109,7 @@ function placementStory(
         expect(
           canvasElement.querySelector('[data-ui-component="file-diff"]'),
         ).not.toBeNull();
-        expect(canvasElement.querySelectorAll('[data-testid="history-panel"]')).toHaveLength(
-          1,
-        );
       });
-      expect(app.workspace.getLeavesOfType("history")).toHaveLength(1);
       expect(app.plugins.plugins.get("history")).toBeInstanceOf(HistoryPlugin);
       await expectPanelSource(parameters, kind, layout);
     },

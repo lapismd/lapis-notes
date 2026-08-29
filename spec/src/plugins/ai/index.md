@@ -6,6 +6,9 @@ tools and consume events. They MUST NOT own Codex, Claude, Cursor, or acpx
 execution APIs.
 The real-App AI shell loads the public Source Editor before Markdown so it uses
 the same source settings and file associations as production hosts.
+Deterministic chat stories preserve pending tool state when a running fixture
+requires it, provide an App when Markdown rendering is exercised, and scope
+duplicate tool-output assertions to the expanded call that owns them.
 
 AI also owns the default read-only `.jsonl` file view. Portable
 `transcript.jsonl` files use the same durable validation and chat-item

@@ -14,8 +14,11 @@ Storybook is a documentation projection over the package graph. Its exact
 specification mirrors and post-build index acceptance do not add a runtime
 dependency or move plugin ownership into the catalog host. Composer agent and
 model defaults persist in AI plugin data; workspace dock selection persists
-through the existing 1000 ms writer. Separately versioned
-Roles/CV catalog coverage remains in its owning repository while Lapis hosts
+through the existing 1000 ms writer. App-backed browser acceptance serializes
+story files because compatibility
+leases, portalled overlays, and worker-backed plugin resources share one
+browser realm; each story still owns and disposes its own App.
+Separately versioned Roles/CV catalog coverage remains in its owning repository while Lapis hosts
 load that plugin only after a verified install. Tasks remains independently
 owned and hosts MUST NOT register its workspace views themselves. AppDatabase owns
 namespaced plugin projections and a serializable query AST, including the public

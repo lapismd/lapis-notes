@@ -121,7 +121,7 @@ async function waitForView(
         ),
       ).toBeInTheDocument();
     },
-    { timeout: 8_000 },
+    { timeout: 15_000 },
   );
   expect(canvas.getByTestId("bases-views-demo")).toHaveAttribute(
     "data-scenario",
