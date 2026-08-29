@@ -23,6 +23,10 @@ const fileExplorerLib = path.resolve(
   rootDir,
   "../packages/file-explorer/src/lib",
 );
+const languageServiceSrc = path.resolve(
+  rootDir,
+  "../packages/language-service/src",
+);
 const uiComponents = path.join(uiLib, "components/ui");
 const linkedSiblingPackages = [
   "@lapismd/design-core",
@@ -35,6 +39,7 @@ const linkedSiblingPackages = [
 /** Keep host peer identities authoritative across linked sibling packages. */
 const linkedSingletonPackages = [
   "@lapis-notes/api",
+  "@lapis-notes/language-service",
   "@lapismd/design-core",
   "@codemirror/state",
   "@codemirror/view",
@@ -149,6 +154,18 @@ export async function viteFinal(
         {
           find: /^@lapis-notes\/api\/language-service\/worker$/,
           replacement: path.join(apiLib, "language-service/worker-provider.ts"),
+        },
+        {
+          find: /^@lapis-notes\/language-service\/markdownlint\/runtime$/,
+          replacement: path.join(languageServiceSrc, "markdownlint/runtime.ts"),
+        },
+        {
+          find: /^@lapis-notes\/language-service\/markdown$/,
+          replacement: path.join(languageServiceSrc, "markdown.ts"),
+        },
+        {
+          find: /^@lapis-notes\/language-service$/,
+          replacement: path.join(languageServiceSrc, "index.ts"),
         },
         {
           find: /^@lapis-notes\/api\/editor\/language-service$/,
