@@ -22,13 +22,13 @@ jobs:
       hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
       published: ${{ steps.changesets.outputs.published }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           run_install: false
       - run: pnpm install --frozen-lockfile
@@ -51,13 +51,13 @@ jobs:
       bootstrap_required: ${{ steps.plan.outputs.bootstrap_required }}
       has_work: ${{ steps.plan.outputs.has_work }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           run_install: false
       - uses: taiki-e/install-action@v2
@@ -73,7 +73,7 @@ jobs:
       - id: plan
         run: |
           node -e 'const fs=require("node:fs");const m=JSON.parse(fs.readFileSync(".release/release-manifest.json","utf8"));const hasWork=m.packages.length>0;const bootstrap=Boolean(m.bootstrapRequired);fs.appendFileSync(process.env.GITHUB_OUTPUT,"has_work="+hasWork+"\nbootstrap_required="+bootstrap+"\n");if(bootstrap){console.log("::notice ::Initial packages require manual npm publication from the verified release artifact.");}'
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: lapis-notes-release-${{ github.sha }}
           path: .release
@@ -90,16 +90,16 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           run_install: false
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: lapis-notes-release-${{ github.sha }}
           path: .release
@@ -115,15 +115,15 @@ jobs:
     if: always() && needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true' && needs.publish.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           run_install: false
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: lapis-notes-release-${{ github.sha }}
           path: .release
@@ -139,15 +139,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           run_install: false
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: lapis-notes-release-${{ github.sha }}
           path: .release

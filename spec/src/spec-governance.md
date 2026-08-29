@@ -175,6 +175,10 @@ later user request. Tooling guidance for
 Storybook must note that `pnpm test:storybook` fails on axe violations
 (`parameters.a11y.test: "error"`).
 
+GitHub workflow maintenance keeps the configured Node runtime and action majors
+on Node 24 so CI and release runs do not depend on GitHub's deprecated Node 20
+action runtime.
+
 Markdown authoring guidance must route editor composition through Mira's public
 base-free authoring contract. Any optional authoring surface must keep schema,
 Settings UI, runtime resolution, lifecycle cleanup, and focused demo evidence
