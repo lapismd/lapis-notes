@@ -12,6 +12,10 @@ The package-aware mapping includes reusable File Explorer production sources.
 Explorer changes therefore require their package, architecture, and
 editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 
+Release-helper changes remain mapped to both Packages and Specification
+Governance so partial public-package candidates retain package semantics and
+release-policy coverage in the same logical change.
+
 ## Requirements
 
 | ID         | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |

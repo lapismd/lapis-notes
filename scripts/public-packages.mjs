@@ -124,10 +124,11 @@ export function readPublicPackages(repoRoot = DEFAULT_REPO_ROOT) {
 }
 
 export function assertPublicPackageOrder(records) {
+  const includedNames = new Set(records.map((record) => record.name));
   const seen = new Set();
   for (const record of records) {
     for (const dependencyName of record.internalDependencies) {
-      if (!seen.has(dependencyName)) {
+      if (includedNames.has(dependencyName) && !seen.has(dependencyName)) {
         throw new Error(
           `${record.name} appears before its internal dependency ${dependencyName}`,
         );

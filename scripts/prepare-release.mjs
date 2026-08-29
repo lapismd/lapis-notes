@@ -190,14 +190,30 @@ function assertTarballContents(entry, tarballPath) {
   return files;
 }
 
-function createCleanConsumer(repoRoot, manifest) {
-  const consumerDir = mkdtempSync(path.join(tmpdir(), "lapis-notes-release-consumer-"));
-  const dependencyEntries = Object.fromEntries(
+export function cleanConsumerDependencyEntries(repoRoot, manifest) {
+  const selectedTarballs = new Map(
     manifest.packages.map((entry) => [
       entry.name,
       `file:${path.resolve(path.dirname(defaultReleaseManifestPath(repoRoot)), entry.tarball)}`,
     ]),
   );
+  return Object.fromEntries(
+    readPublicPackages(repoRoot).map((record) => [
+      record.name,
+      selectedTarballs.get(record.name) ?? record.version,
+    ]),
+  );
+}
+
+function createCleanConsumer(repoRoot, manifest) {
+  const consumerDir = mkdtempSync(path.join(tmpdir(), "lapis-notes-release-consumer-"));
+  const selectedTarballEntries = Object.fromEntries(
+    manifest.packages.map((entry) => [
+      entry.name,
+      `file:${path.resolve(path.dirname(defaultReleaseManifestPath(repoRoot)), entry.tarball)}`,
+    ]),
+  );
+  const dependencyEntries = cleanConsumerDependencyEntries(repoRoot, manifest);
   const peerDependencies = {};
   for (const entry of manifest.packages) {
     const packageManifest = JSON.parse(
@@ -242,7 +258,7 @@ function createCleanConsumer(repoRoot, manifest) {
     [
       "packages: []",
       "overrides:",
-      ...Object.entries(dependencyEntries).map(
+      ...Object.entries(selectedTarballEntries).map(
         ([dependencyName, range]) => `  "${dependencyName}": "${range}"`,
       ),
       "",
