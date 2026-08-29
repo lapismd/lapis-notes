@@ -58,6 +58,7 @@ export const storybookPackedDependencyIncludes = [
   "@lucide/svelte/icons/globe-2",
   "@lucide/svelte/icons/monitor",
   "@lucide/svelte/icons/package",
+  "@lucide/svelte/icons/power",
   "@lucide/svelte/icons/puzzle",
   "@lucide/svelte/icons/refresh-cw",
   "@lucide/svelte/icons/rotate-cw",

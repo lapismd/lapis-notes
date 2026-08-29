@@ -14,9 +14,9 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/file-explorer": "workspace:*",
-    "@lapis-notes/markdown": "^0.1.1",
-    "@lapis-notes/search": "^0.1.1",
-    "@lapis-notes/source-editor": "^0.1.0",
+    "@lapis-notes/markdown": "^0.1.3",
+    "@lapis-notes/search": "^0.1.2",
+    "@lapis-notes/source-editor": "^0.1.1",
     "@lapis-notes/workspace": "workspace:*"
   },
   "devDependencies": {

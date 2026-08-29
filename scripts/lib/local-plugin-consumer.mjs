@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { readFile, realpath, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const localPluginInstallArguments = [
@@ -37,16 +37,21 @@ export async function isCurrentLocalPluginInstall({
     const stamp = JSON.parse(await readFile(installStampPath, "utf8"));
     if (stamp.fingerprint !== expectedFingerprint) return false;
     for (const entry of releaseEntries) {
+      const packagePath = path.join(
+        repositoryRoot,
+        "node_modules",
+        entry.packageName,
+      );
+      const installedPackagePath = await realpath(packagePath);
+      const pnpmStorePrefix = `${path.sep}.pnpm${path.sep}`;
+      const pnpmStoreIndex = installedPackagePath.indexOf(pnpmStorePrefix);
+      if (pnpmStoreIndex < 0) return false;
+      const packageStorePath = installedPackagePath
+        .slice(pnpmStoreIndex + pnpmStorePrefix.length)
+        .split(`${path.sep}node_modules${path.sep}`, 1)[0];
+      if (!packageStorePath.includes("@file+")) return false;
       const manifest = JSON.parse(
-        await readFile(
-          path.join(
-            repositoryRoot,
-            "node_modules",
-            entry.packageName,
-            "package.json",
-          ),
-          "utf8",
-        ),
+        await readFile(path.join(packagePath, "package.json"), "utf8"),
       );
       if (manifest.version !== entry.version) return false;
     }

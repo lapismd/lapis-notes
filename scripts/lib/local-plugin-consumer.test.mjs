@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -48,7 +55,7 @@ test("fingerprints the registry lockfile and each release candidate", () => {
   );
 });
 
-test("recognizes a matching stamped package install", async () => {
+test("recognizes only a matching stamped local tarball install", async () => {
   const repositoryRoot = await mkdtemp(
     path.join(os.tmpdir(), "lapis-local-plugin-state-"),
   );
@@ -56,11 +63,18 @@ test("recognizes a matching stamped package install", async () => {
   const releaseEntries = [
     { packageName: "@lapis-notes/markdown", version: "0.1.3" },
   ];
-  const packageManifestPath = path.join(
+  const packagePath = path.join(
     repositoryRoot,
-    "node_modules/@lapis-notes/markdown/package.json",
+    "node_modules/@lapis-notes/markdown",
   );
-  await mkdir(path.dirname(packageManifestPath), { recursive: true });
+  const localPackagePath = path.join(
+    repositoryRoot,
+    "node_modules/.pnpm/@lapis-notes+markdown@file+..+lapis-plugins+markdown/node_modules/@lapis-notes/markdown",
+  );
+  const packageManifestPath = path.join(localPackagePath, "package.json");
+  await mkdir(localPackagePath, { recursive: true });
+  await mkdir(path.dirname(packagePath), { recursive: true });
+  await symlink(localPackagePath, packagePath, "dir");
   await writeFile(installStampPath, JSON.stringify({ fingerprint: "current" }));
   await writeFile(packageManifestPath, JSON.stringify({ version: "0.1.3" }));
 
@@ -75,6 +89,22 @@ test("recognizes a matching stamped package install", async () => {
       true,
     );
     await writeFile(packageManifestPath, JSON.stringify({ version: "0.1.2" }));
+    assert.equal(
+      await isCurrentLocalPluginInstall({
+        expectedFingerprint: "current",
+        installStampPath,
+        releaseEntries,
+        repositoryRoot,
+      }),
+      false,
+    );
+
+    await rm(packagePath);
+    await mkdir(packagePath, { recursive: true });
+    await writeFile(
+      path.join(packagePath, "package.json"),
+      JSON.stringify({ version: "0.1.3" }),
+    );
     assert.equal(
       await isCurrentLocalPluginInstall({
         expectedFingerprint: "current",
