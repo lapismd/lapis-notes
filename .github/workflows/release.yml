@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the verified package candidate after approval
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -83,7 +89,7 @@ jobs:
   publish:
     name: Publish packages
     needs: artifact
-    if: needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true'
     runs-on: ubuntu-latest
     environment:
       name: npm-production

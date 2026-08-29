@@ -96,6 +96,13 @@ export function validateReleaseConfig(repoRoot = DEFAULT_REPO_ROOT) {
   if (!releaseWorkflow.includes("Initial packages require manual npm publication")) {
     fail("Release workflow must stop with a manual-bootstrap notice");
   }
+  if (
+    !releaseWorkflow.includes(
+      "github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.artifact.outputs.has_work == 'true'",
+    )
+  ) {
+    fail("Release workflow must require an explicit manual dispatch before publication");
+  }
 
   const pagesWorkflow = readFileSync(
     path.join(repoRoot, ".github/workflows/publish-storybook-pages.yml"),

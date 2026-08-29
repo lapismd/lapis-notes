@@ -15,7 +15,8 @@ editor-demo chapters rather than being hidden by Storybook's fixture exemption.
 Release-helper changes remain mapped to both Packages and Specification
 Governance so partial public-package candidates retain package semantics and
 release-policy coverage in the same logical change. This includes preserving
-the hidden candidate directory when workflow actions upload release evidence.
+the hidden candidate directory when workflow actions upload release evidence
+and keeping ordinary push runs outside the explicit manual publication gate.
 
 ## Requirements
 

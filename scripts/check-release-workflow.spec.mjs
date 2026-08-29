@@ -24,6 +24,7 @@ const release = [
   "id-token: write",
   "include-hidden-files: true",
   'LAPIS_RELEASE_APPROVED: "1"',
+  "github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.artifact.outputs.has_work == 'true'",
   "Initial packages require manual npm publication from the verified release artifact.",
 ].join("\n");
 
@@ -56,5 +57,20 @@ test("requires hidden release candidates to be included in the artifact", () => 
         pages,
       }),
     /must include include-hidden-files: true/,
+  );
+});
+
+test("requires an explicit manual dispatch before package publication", () => {
+  assert.throws(
+    () =>
+      validateReleaseWorkflows({
+        ci,
+        release: release.replace(
+          "github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.artifact.outputs.has_work == 'true'\n",
+          "needs.artifact.outputs.has_work == 'true'\n",
+        ),
+        pages,
+      }),
+    /must include github\.event_name == 'workflow_dispatch' && inputs\.publish == true/,
   );
 });

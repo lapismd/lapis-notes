@@ -45,6 +45,11 @@ export function validateReleaseWorkflows({
   requireContains(
     "Release workflow",
     release,
+    "github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.artifact.outputs.has_work == 'true'",
+  );
+  requireContains(
+    "Release workflow",
+    release,
     "Initial packages require manual npm publication from the verified release artifact.",
   );
   requireNotContains("Release workflow", release, "NPM_TOKEN");
