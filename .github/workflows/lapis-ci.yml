@@ -1,36 +1,66 @@
 name: Lapis CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
+  workflow_dispatch:
+  workflow_call:
+    outputs:
+      bootstrap_required:
+        description: Whether the candidate contains packages that need bootstrap publication.
+        value: ${{ jobs.release-artifacts.outputs.bootstrap_required }}
+      has_work:
+        description: Whether the candidate contains publishable packages.
+        value: ${{ jobs.release-artifacts.outputs.has_work }}
 
 permissions:
   contents: read
+  packages: read
 
 concurrency:
   group: lapis-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+
+env:
+  TURBO_API: ${{ vars.TURBO_API }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_REMOTE_CACHE_SIGNATURE_KEY: ${{ secrets.TURBO_REMOTE_CACHE_SIGNATURE_KEY }}
+
 jobs:
-  governance:
-    name: Spec governance
+  build-cache:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Populate signed remote build cache
+        run: node scripts/run-turbo.mjs build --summarize
+      - name: Report build-cache result
+        run: node scripts/report-turbo-cache.mjs --github-summary
+
+  governance:
+    needs: build-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: mdbook@0.5.4
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/ci-setup
       - run: pnpm spec:validate
       - run: pnpm spec:build
       - name: Spec-first gate
@@ -40,40 +70,155 @@ jobs:
         if: github.event_name == 'pull_request'
         run: pnpm release:intent --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
 
-  packages:
-    name: Package release checks
+  quality:
+    needs: build-cache
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - run: pnpm packages:policy
+      - run: pnpm release:check
+      - run: pnpm check:no-tailwind
+      - run: pnpm check:app-ownership
+      - run: pnpm check:metadata-queries
+      - name: Run package checks
+        run: node scripts/run-turbo.mjs build check --summarize
+      - name: Report cache restoration
+        run: node scripts/report-turbo-cache.mjs --github-summary
+
+  unit:
+    needs: build-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Run package unit tests
+        run: node scripts/run-turbo.mjs build test --summarize
+      - name: Report cache restoration
+        run: node scripts/report-turbo-cache.mjs --github-summary
+      - run: pnpm test:local-plugin-consumer
+      - run: pnpm release:test
+      - run: pnpm test:spec-validation
+      - run: pnpm test:ai:smoke-harness
+
+  storybook-static:
+    needs: build-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Restore package builds
+        run: node scripts/run-turbo.mjs build --summarize
+      - name: Report cache restoration
+        run: node scripts/report-turbo-cache.mjs --github-summary
+      - run: pnpm build-storybook
+
+  storybook-interaction:
+    needs: build-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Restore package builds
+        run: node scripts/run-turbo.mjs build --summarize
+      - name: Report cache restoration
+        run: node scripts/report-turbo-cache.mjs --github-summary
+      - run: pnpm test:storybook
+
+  release-artifacts:
+    needs: build-cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    outputs:
+      bootstrap_required: ${{ steps.plan.outputs.bootstrap_required }}
+      has_work: ${{ steps.plan.outputs.has_work }}
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Restore package builds
+        run: node scripts/run-turbo.mjs build --summarize
+      - name: Report cache restoration
+        run: node scripts/report-turbo-cache.mjs --github-summary
+      - run: pnpm packages:pack -- --already-built
+      - run: pnpm release:plan -- --registry https://registry.npmjs.org --json > .release/release-plan.json
+      - id: plan
+        run: |
+          node -e 'const fs=require("node:fs");const m=JSON.parse(fs.readFileSync(".release/release-manifest.json","utf8"));const hasWork=m.packages.length>0;const bootstrap=Boolean(m.bootstrapRequired);fs.appendFileSync(process.env.GITHUB_OUTPUT,"has_work="+hasWork+"\nbootstrap_required="+bootstrap+"\n");if(bootstrap){console.log("::notice ::Initial packages require manual npm publication from the verified release artifact.");}'
+      - uses: actions/upload-artifact@v7
         with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: mdbook@0.5.4
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm packages:check
-      - run: pnpm check:all
-      - run: pnpm packages:pack
-      - run: pnpm release:plan -- --registry https://registry.npmjs.org
+          name: lapis-notes-release-${{ github.sha }}
+          path: .release
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
 
-  storybook:
-    name: Storybook acceptance
+  validate:
+    if: always()
+    needs:
+      - build-cache
+      - governance
+      - quality
+      - unit
+      - storybook-static
+      - storybook-interaction
+      - release-artifacts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install chromium --with-deps
-      - run: pnpm build-storybook
-      - run: pnpm test:storybook
+      - name: Aggregate blocking validation lanes
+        env:
+          BUILD_CACHE: ${{ needs.build-cache.result }}
+          GOVERNANCE: ${{ needs.governance.result }}
+          QUALITY: ${{ needs.quality.result }}
+          UNIT: ${{ needs.unit.result }}
+          STORYBOOK_STATIC: ${{ needs.storybook-static.result }}
+          STORYBOOK_INTERACTION: ${{ needs.storybook-interaction.result }}
+          RELEASE_ARTIFACTS: ${{ needs.release-artifacts.result }}
+        run: |
+          set -euo pipefail
+          results=(
+            "$BUILD_CACHE"
+            "$GOVERNANCE"
+            "$QUALITY"
+            "$UNIT"
+            "$STORYBOOK_STATIC"
+            "$STORYBOOK_INTERACTION"
+            "$RELEASE_ARTIFACTS"
+          )
+          for result in "${results[@]}"; do
+            if [ "$result" != "success" ]; then
+              echo "A required CI lane finished with: $result" >&2
+              exit 1
+            fi
+          done
+          echo "All blocking Lapis Notes validation lanes passed."

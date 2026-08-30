@@ -43,9 +43,15 @@ export function validateReleaseConfig(repoRoot = DEFAULT_REPO_ROOT) {
       fail(`Root package.json is missing script ${scriptName}`);
     }
   }
-  for (const dependencyName of ["@changesets/cli", "@changesets/changelog-github", "semver"]) {
+  for (const dependencyName of [
+    "@changesets/cli",
+    "@changesets/changelog-github",
+    "semver",
+  ]) {
     if (!rootManifest.devDependencies?.[dependencyName]) {
-      fail(`Root package.json is missing release devDependency ${dependencyName}`);
+      fail(
+        `Root package.json is missing release devDependency ${dependencyName}`,
+      );
     }
   }
   if (changesets.changelog?.[1]?.repo !== REPOSITORY) {
@@ -57,7 +63,10 @@ export function validateReleaseConfig(repoRoot = DEFAULT_REPO_ROOT) {
   if (changesets.baseBranch !== "main") {
     fail("Changesets baseBranch must be main");
   }
-  if (changesets.privatePackages?.version !== false || changesets.privatePackages?.tag !== false) {
+  if (
+    changesets.privatePackages?.version !== false ||
+    changesets.privatePackages?.tag !== false
+  ) {
     fail("Changesets must not version or tag private packages");
   }
 
@@ -88,20 +97,32 @@ export function validateReleaseConfig(repoRoot = DEFAULT_REPO_ROOT) {
     fail(`Release workflow must use ${RELEASE_ENVIRONMENT}`);
   }
   if (!releaseWorkflow.includes("id-token: write")) {
-    fail("Release workflow must request id-token: write for npm trusted publishing");
+    fail(
+      "Release workflow must request id-token: write for npm trusted publishing",
+    );
   }
   if (releaseWorkflow.includes("NPM_TOKEN")) {
     fail("Release workflow must not use NPM_TOKEN bootstrap publishing");
   }
-  if (!releaseWorkflow.includes("Initial packages require manual npm publication")) {
+  const ciWorkflow = readFileSync(
+    path.join(repoRoot, ".github/workflows/lapis-ci.yml"),
+    "utf8",
+  );
+  if (
+    !`${ciWorkflow}\n${releaseWorkflow}`.includes(
+      "Initial packages require manual npm publication",
+    )
+  ) {
     fail("Release workflow must stop with a manual-bootstrap notice");
   }
   if (
     !releaseWorkflow.includes(
-      "github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.artifact.outputs.has_work == 'true'",
+      "github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.validation.outputs.has_work == 'true'",
     )
   ) {
-    fail("Release workflow must require an explicit manual dispatch before publication");
+    fail(
+      "Release workflow must require an explicit manual dispatch before publication",
+    );
   }
 
   const pagesWorkflow = readFileSync(
