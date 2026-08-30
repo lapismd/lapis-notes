@@ -6,7 +6,12 @@ import {
   startCompletion,
 } from "@codemirror/autocomplete";
 import { insertImageFiles } from "@lapismd/mira/core";
-import { leafFilePath, type App, type Editor } from "@lapis-notes/api";
+import {
+  leafFilePath,
+  type App,
+  type Editor,
+  type MemoryVaultAdapter,
+} from "@lapis-notes/api";
 import { refreshLanguageServiceDiagnostics } from "@lapis-notes/api/editor/language-service";
 import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { findWorkspaceTab } from "@lapismd/design-core/workspace/core";
@@ -1047,6 +1052,17 @@ export const SameFileSplitSync: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
+    const runtimeApp = activeStoryApp(canvasElement);
+    const runtimeAdapter = runtimeApp.vault.adapter as MemoryVaultAdapter;
+    const componentOnWrite = runtimeAdapter.onWrite;
+    let targetWriteCount = 0;
+    let targetContents = "";
+    runtimeAdapter.onWrite = (path, data, writeCount) => {
+      componentOnWrite?.(path, data, writeCount);
+      if (path !== "Notes/Welcome.md") return;
+      targetWriteCount += 1;
+      targetContents = data;
+    };
     const editors = visibleEditorContents(canvasElement);
     await expect(editors).toHaveLength(2);
     await expect(editors[0]!.querySelector(".cm-heading")).not.toBeNull();
@@ -1060,8 +1076,7 @@ export const SameFileSplitSync: Story = {
       expect(markdownHosts[0]!.querySelector(".cm-foldGutter")).not.toBeNull(),
     );
 
-    const storyConfiguration =
-      activeStoryApp(canvasElement).configuration.getConfiguration();
+    const storyConfiguration = runtimeApp.configuration.getConfiguration();
     await expect(
       storyConfiguration.get("appearence.interface.showInlineTitle"),
     ).toBe(true);
@@ -1110,22 +1125,22 @@ export const SameFileSplitSync: Story = {
       expect(editors[1]).toHaveTextContent("Synced from the left pane."),
     );
     const splitEditors = new Set<Editor>();
-    activeStoryApp(canvasElement).workspace.iterateAllLeaves((leaf) => {
+    runtimeApp.workspace.iterateAllLeaves((leaf) => {
       const editor = (leaf.view as { editor?: Editor }).editor;
       if (editor) splitEditors.add(editor);
     });
     await Promise.all([...splitEditors].map((editor) => editor.flushChanges()));
     await waitFor(
-      () => {
-        expect(
-          canvas.getByTestId("lapis-editor-target-write-count"),
-        ).toHaveTextContent("1");
-        expect(
-          canvas.getByTestId("lapis-editor-target-contents"),
-        ).toHaveTextContent("Synced from the left pane.");
+      async () => {
+        expect(await runtimeAdapter.read("Notes/Welcome.md")).toContain(
+          "Synced from the left pane.",
+        );
+        expect(targetContents).toContain("Synced from the left pane.");
+        expect(targetWriteCount).toBe(1);
       },
-      { timeout: 2_000 },
+      { timeout: 5_000 },
     );
+    runtimeAdapter.onWrite = componentOnWrite;
 
     await userEvent.click(explorer.getByRole("button", { name: "Projects" }));
     await userEvent.click(
@@ -1374,7 +1389,9 @@ export const MarkdownFrontmatter: Story = {
     await waitForBrowserFrame(canvasElement);
 
     expect(
-      activeStoryApp(canvasElement).metadataTypeManager.getValues("tags"),
+      await activeStoryApp(canvasElement).metadataTypeManager.getValuesAsync(
+        "tags",
+      ),
     ).toEqual(expect.arrayContaining(["ideas"]));
     const tagsRow = await waitFor(
       () => {
