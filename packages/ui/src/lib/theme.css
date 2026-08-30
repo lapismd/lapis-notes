@@ -21,6 +21,12 @@
   --text-accent: var(--ring, var(--primary));
   --text-accent-hover: var(--primary);
   --text-selection: var(--ui-workspace-selection, color-mix(in srgb, var(--ring) 20%, transparent));
+  --ui-search-highlight-foreground: var(--foreground);
+  --ui-search-highlight-background: color-mix(
+    in srgb,
+    #facc15 42%,
+    transparent
+  );
 
   /* Surfaces */
   --background-primary: var(--background);

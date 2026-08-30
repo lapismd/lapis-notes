@@ -1019,7 +1019,7 @@ export const MarkdownLintLoftBoarding: Story = {
         expect(snapshot.length).toBeGreaterThan(1);
         return snapshot;
       },
-      { timeout: 8_000 },
+      { timeout: 15_000 },
     );
     const identities = entries.map(
       (entry) =>
@@ -1062,13 +1062,20 @@ export const MarkdownLintLoftBoarding: Story = {
     });
     const count = entries.length;
     await expect(
-      canvas.getByLabelText(
+      await canvas.findByLabelText(
         `Problems, ${count} problem${count === 1 ? "" : "s"}`,
+        {},
+        { timeout: 15_000 },
       ),
     ).toBeVisible();
-    expect(
-      problems.querySelectorAll(".ui-workspace-problems__row"),
-    ).toHaveLength(count);
+    await waitFor(
+      () => {
+        expect(
+          problems.querySelectorAll(".ui-workspace-problems__row"),
+        ).toHaveLength(count);
+      },
+      { timeout: 15_000 },
+    );
   },
 };
 

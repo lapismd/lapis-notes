@@ -4,6 +4,7 @@ dist
 .svelte-kit
 storybook-static
 .release/
+.ci/dependency-context/
 spec/book
 .qmd/index.sqlite*
 coverage

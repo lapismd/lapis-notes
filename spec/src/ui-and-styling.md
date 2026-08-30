@@ -23,6 +23,7 @@
 | LN-UI-017 | `@lapis-notes/ui` MUST remain a versioned, pack-tested public artifact for API and external-plugin consumers. Its published manifest MUST use portable semver ranges for shared host dependencies while colocated development MAY link matching sibling versions. |
 | LN-UI-018 | The public CodeMirror autocomplete stylesheet MUST use native CSS and shared Design Core Popover and Command tokens for opaque surface paint, radius, boundary, shadow, typography, selected options, and completion details. It MUST compile without a host Tailwind theme. |
 | LN-UI-019 | The `@lapis-notes/ui` public `0.1.0` package MUST document its root helpers, CSS entrypoints, retained component subpaths, and Design Core/Svelte peer boundary. Its release tarball MUST include README, changelog, license, and built CSS/component declarations without adding domain state or host policy. |
+| LN-UI-020 | The alias-only Lapis theme MUST define public `--ui-search-highlight-background` and `--ui-search-highlight-foreground` defaults with WCAG AA text contrast so Search and other plugin-owned highlighted matches share accessible application paint. |
 
 ## Swap map (normative intent)
 
