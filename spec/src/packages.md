@@ -34,6 +34,9 @@ CommonJS dependencies cross that boundary as one package-level pre-bundle.
 The local release-candidate installer preserves the committed registry
 lockfile, reuses a matching verified install, and invalidates generated Vite
 and Storybook caches when its package fingerprint changes.
+Pull-request CI forwards its base and head revisions directly through the
+`spec:first` package script so the validator receives flags instead of a
+literal package-manager option separator.
 The desktop development script is a pnpm entrypoint that starts the Deno desktop
 host, so its Deno arguments must stay consistent with the package-local
 `deno.json` imports rather than imposing a root-level package-manager policy.

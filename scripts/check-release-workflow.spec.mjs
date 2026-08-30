@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { validateReleaseWorkflows } from "./check-release-workflow.mjs";
 
 const ci = [
-  "pnpm spec:first",
+  "pnpm spec:first --base origin/main --head abc123",
   "pnpm packages:check",
   "pnpm packages:pack",
   "pnpm check:all",
@@ -39,6 +39,18 @@ const pages = [
 
 test("accepts the expected workflow structure", () => {
   assert.doesNotThrow(() => validateReleaseWorkflows({ ci, release, pages }));
+});
+
+test("rejects a literal option separator before spec-first revision flags", () => {
+  assert.throws(
+    () =>
+      validateReleaseWorkflows({
+        ci: ci.replace("pnpm spec:first --base", "pnpm spec:first -- --base"),
+        release,
+        pages,
+      }),
+    /must include pnpm spec:first --base/,
+  );
 });
 
 test("rejects bootstrap token publishing", () => {
