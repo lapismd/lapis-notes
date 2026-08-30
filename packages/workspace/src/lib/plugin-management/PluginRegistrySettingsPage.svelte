@@ -801,6 +801,8 @@
               name={installedName(record)}
               description={installedDescription(record)}
               version={record.installedVersion}
+              appearance={entry?.appearance}
+              fallbackIcon={entry?.categories[0]}
               metadata={[
                 ...(size === null ? [] : [`Size ${formatByteSize(size)}`]),
                 `Updated ${formatDate(record.updatedAt) ?? record.updatedAt}`,
@@ -918,6 +920,8 @@
               name={entry.name}
               description={entry.description}
               version={entry.latestVersion}
+              appearance={entry.appearance}
+              fallbackIcon={entry.categories[0]}
               metadata={[
                 ...(releaseDate ? [`Released ${releaseDate}`] : []),
                 ...(releaseSize ? [`Size ${releaseSize}`] : []),
@@ -982,6 +986,8 @@
                 `Update available for ${update.name}.`,
               )}
               version={`${update.currentVersion} → ${update.targetVersion}`}
+              appearance={entry?.appearance}
+              fallbackIcon={entry?.categories[0]}
               metadata={[
                 ...(releaseDate ? [`Released ${releaseDate}`] : []),
                 ...(typeof update.bundleSize === "number" ? [`Size ${formatByteSize(update.bundleSize)}`] : []),
@@ -1095,6 +1101,8 @@
             name={installedName(uninstallTarget)}
             description={installedDescription(uninstallTarget)}
             version={uninstallTarget.installedVersion}
+            appearance={entry?.appearance}
+            fallbackIcon={entry?.categories[0]}
             metadata={[
               ...(targetSize === null
                 ? []

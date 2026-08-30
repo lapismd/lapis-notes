@@ -59,6 +59,7 @@ export interface PluginCatalogEntry {
   readmeUrl?: string;
   author: string;
   authorUrl?: string;
+  appearance?: PluginAppearance;
   channel: PluginRegistryChannel;
   status?: PluginCatalogStatus;
   latestVersion: string;
@@ -117,6 +118,8 @@ export interface PluginCatalogDetail {
   name: string;
   description: string;
   readmeUrl?: string;
+  appearance?: PluginAppearance;
+  gallery?: PluginGalleryItem[];
   channel: PluginRegistryChannel;
   status?: PluginCatalogStatus;
   owner: {
@@ -133,6 +136,52 @@ export interface PluginCatalogDetail {
   contributes?: PluginContributionSummary;
   versions: Record<string, PluginCatalogRelease>;
   signatures?: SignatureRecord[];
+}
+
+export type PluginAppearanceIcon =
+  | "bookmark"
+  | "file-code-2"
+  | "file-text"
+  | "history"
+  | "list-checks"
+  | "network"
+  | "package"
+  | "search"
+  | "sparkles"
+  | "spell-check-2"
+  | "table-2"
+  | "whole-word";
+
+export type PluginImageMediaType =
+  | "image/png"
+  | "image/webp"
+  | "image/svg+xml";
+
+export interface PluginImageReference {
+  url: string;
+  sourceUrl: string;
+  sha256: string;
+  size: number;
+  mediaType: PluginImageMediaType;
+  width: number;
+  height: number;
+}
+
+export interface PluginLogoReference extends PluginImageReference {
+  alt: string;
+}
+
+export interface PluginAppearance {
+  icon: PluginAppearanceIcon;
+  accent: string;
+  logo?: PluginLogoReference;
+}
+
+export interface PluginGalleryItem extends PluginImageReference {
+  id: string;
+  surface: "desktop" | "mobile";
+  alt: string;
+  caption?: string;
 }
 
 export interface PluginCatalogLinks {

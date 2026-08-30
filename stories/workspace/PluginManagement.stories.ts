@@ -178,6 +178,13 @@ export const BrowseDetailsAndReadme: Story = {
     await expect(
       within(graphCard!).getByText("~2.4K downloads (30d)"),
     ).toBeVisible();
+    const graphMark = graphCard!.querySelector<HTMLElement>(
+      ".lapis-plugin-identity",
+    );
+    expect(graphMark).not.toBeNull();
+    await waitFor(() =>
+      expect(graphMark).toHaveAttribute("data-media-state", "verified-logo"),
+    );
     expect(
       within(graphHeading!).getByText("Web").querySelector("svg"),
     ).not.toBeNull();
@@ -197,6 +204,18 @@ export const BrowseDetailsAndReadme: Story = {
       ).toBeVisible();
     });
     await expect(body.queryByText("Browse results")).toBeNull();
+    await expect(
+      body.getByRole("heading", { name: "See it in Lapis" }),
+    ).toBeVisible();
+    await expect(
+      body.getByRole("img", {
+        name: "Graph plugin showing connected notes",
+      }),
+    ).toBeVisible();
+    await expect(body.getByText("1 / 1")).toBeVisible();
+    await expect(
+      body.getByRole("button", { name: "Show previous plugin image" }),
+    ).toBeDisabled();
     await expect(body.getByText(/Open graph navigation/)).toBeVisible();
     await expect(body.getByRole("link", { name: "Homepage" })).toBeVisible();
     await expect(body.getByText("Downloads (30d)")).toBeVisible();
@@ -255,6 +274,23 @@ export const BrowseDetailsAndReadme: Story = {
       body.getAllByRole("heading", { name: "Highlights" })[0],
     ).toBeVisible();
     await userEvent.click(body.getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+
+    fireEvent.click(
+      canvas.getByRole("button", {
+        name: "View details for Source Editor",
+      }),
+    );
+    await waitFor(() =>
+      expect(canvas.getByTestId("invalid-media-fetch-calls")).toHaveTextContent(
+        "1",
+      ),
+    );
+    await expect(
+      body.getAllByRole("heading", { name: "Source Editor" })[0],
+    ).toBeVisible();
+    expect(body.getByRole("dialog").querySelector("[data-plugin-gallery]")).toBeNull();
+    fireEvent.click(body.getByRole("button", { name: "Close" }));
     await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
   },
 };

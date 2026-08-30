@@ -16,6 +16,10 @@ describe("structured plugin catalog metadata", () => {
       name: "Example",
       description: "Legacy entry",
       readmeUrl: "https://example.test/README.md",
+      appearance: {
+        icon: "sparkles",
+        accent: "#A855F7",
+      },
       author: "Lapis Notes",
       channel: "official",
       latestVersion: "0.1.0",
@@ -49,6 +53,26 @@ describe("structured plugin catalog metadata", () => {
         documentation: "https://lapis.md/plugins/example",
       },
       highlights: ["A concise plain-text highlight."],
+      appearance: {
+        icon: "sparkles",
+        accent: "#A855F7",
+        futureIdentityField: true,
+      },
+      gallery: [
+        {
+          id: "overview",
+          surface: "desktop",
+          alt: "Example plugin overview.",
+          caption: "A verified preview.",
+          url: "https://registry.example.test/v1/assets/lapis-example/preview.png",
+          sourceUrl: "https://raw.githubusercontent.com/lapismd/example/main/preview.png",
+          sha256: "c".repeat(64),
+          size: 1024,
+          mediaType: "image/png",
+          width: 1200,
+          height: 800,
+        },
+      ],
       content: {
         overview: referenceFor("overview", 10, "a".repeat(64)),
         changelog: referenceFor("changelog", 12, "b".repeat(64)),
@@ -59,6 +83,8 @@ describe("structured plugin catalog metadata", () => {
     expect(enriched.status).toBe("active");
     expect(enriched.content?.changelog?.mediaType).toBe("text/markdown");
     expect(enriched.links?.repository).toContain("lapis-plugins");
+    expect(enriched.appearance?.icon).toBe("sparkles");
+    expect(enriched.gallery?.[0]?.surface).toBe("desktop");
   });
 });
 

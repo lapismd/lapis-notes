@@ -32,6 +32,9 @@ The API parses additive signed registry metadata and verifies referenced
 Markdown before Workspace rendering (LN-PLUG-053, LN-PLUG-054). Workspace owns
 the responsive row and detail presentation in LN-PLUG-055 through LN-PLUG-058
 by composing Design Core's expandable SearchFilterBar and public controls.
+The same boundary keeps signed plugin-media parsing and byte verification in
+API while Workspace owns icon fallback, verified-logo, and non-autoplay gallery
+presentation (LN-PLUG-087, LN-PLUG-088).
 It does so without moving source, signature, installation, or lifecycle
 authority out of App services.
 

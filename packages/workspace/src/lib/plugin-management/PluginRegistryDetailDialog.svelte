@@ -7,7 +7,6 @@
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import Download from "@lucide/svelte/icons/download";
   import ExternalLink from "@lucide/svelte/icons/external-link";
-  import PackageIcon from "@lucide/svelte/icons/package";
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import {
     pluginDownloadCounts,
@@ -25,6 +24,8 @@
   import PluginReadmeRenderer from "./PluginReadmeRenderer.svelte";
   import PluginRegistryBadge from "./PluginRegistryBadge.svelte";
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
+  import PluginRegistryGallery from "./PluginRegistryGallery.svelte";
+  import PluginRegistryIdentity from "./PluginRegistryIdentity.svelte";
   import { formatApproximateDownloadCount } from "./plugin-download-stats";
 
   export type PluginMarkdownState =
@@ -157,7 +158,11 @@
         ><ArrowLeft />Back to results</Button.Root>
         {#if selectedEntry}
           <div class="lapis-plugin-detail-dialog__identity">
-            <span class="lapis-plugin-detail-dialog__icon" aria-hidden="true"><PackageIcon /></span>
+            <PluginRegistryIdentity
+              appearance={detail?.appearance ?? selectedEntry.appearance}
+              fallbackIcon={selectedEntry.categories[0]}
+              size="large"
+            />
             <div>
               <div class="lapis-plugin-detail-dialog__title-line">
                 <h2>{selectedEntry.name}</h2>
@@ -226,9 +231,16 @@
                       void onselect(entry);
                     }}
                   >
-                    <strong>{entry.name}</strong>
-                    <span>{entry.description}</span>
-                    <small>{entry.latestVersion}{#if downloads} · ~{formatApproximateDownloadCount(downloads.recent)} downloads (30d){/if}</small>
+                    <PluginRegistryIdentity
+                      appearance={entry.appearance}
+                      fallbackIcon={entry.categories[0]}
+                      size="compact"
+                    />
+                    <span class="lapis-plugin-detail-dialog__result-copy">
+                      <strong>{entry.name}</strong>
+                      <span>{entry.description}</span>
+                      <small>{entry.latestVersion}{#if downloads} · ~{formatApproximateDownloadCount(downloads.recent)} downloads (30d){/if}</small>
+                    </span>
                   </button>
                 {/each}
                 {#if !entries.length}<p>No plugins match the current Browse filters.</p>{/if}
@@ -290,6 +302,9 @@
             <Tabs.Content value="overview" class="lapis-plugin-detail-dialog__tab-content">
               <ScrollArea.Root class="lapis-plugin-detail-dialog__content-scroll">
                 <div class="lapis-plugin-detail-dialog__content">
+                  {#if detail?.gallery?.length}
+                    <PluginRegistryGallery items={detail.gallery} />
+                  {/if}
                   {#if detail?.highlights?.length}
                     <section class="lapis-plugin-detail-dialog__highlights">
                       <h3>Highlights</h3>

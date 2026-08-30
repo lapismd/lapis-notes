@@ -35,6 +35,9 @@ LN-PLUG-055 through LN-PLUG-058. Its toolbar composes the public Design Core
 expandable search control and keeps tab filters application-owned. It MUST NOT
 verify signatures, resolve source ownership, or add installation behavior
 outside the injected App services.
+Plugin identity and gallery presentation additionally follow LN-PLUG-087 and
+LN-PLUG-088: Workspace consumes only API-verified object URLs, retains semantic
+icon fallbacks, and collapses unavailable media without changing actions.
 
 ## Requirements
 

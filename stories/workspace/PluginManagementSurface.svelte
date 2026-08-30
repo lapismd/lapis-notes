@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     App,
+    clearVerifiedPluginImageCache,
     clearVerifiedPluginMarkdownCache,
     MemoryAppDatabase,
     MemoryVaultAdapter,
@@ -70,6 +71,12 @@ Released 1 August 2026.
 - Published the initial graph navigation experience for Web and Desktop.
 - Added local relationship exploration and direct note navigation.
 `;
+  const graphLogoSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#7c3aed"/><path d="M32 82 56 46l40 36M43 67h42" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const graphGallerySvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#15131c"/><rect x="38" y="38" width="1124" height="724" rx="30" fill="#211d2c" stroke="#6d5f8d" stroke-width="4"/><rect x="78" y="88" width="258" height="624" rx="18" fill="#181520"/><text x="112" y="148" fill="#fff" font-family="system-ui" font-size="34" font-weight="700">Graph</text><text x="112" y="198" fill="#aaa0bc" font-family="system-ui" font-size="22">Local connections</text><circle cx="696" cy="383" r="74" fill="#8b5cf6"/><circle cx="493" cy="244" r="48" fill="#46b5a7"/><circle cx="948" cy="232" r="56" fill="#e7a24c"/><circle cx="944" cy="570" r="51" fill="#d56b8c"/><circle cx="481" cy="584" r="42" fill="#5e9bea"/><g stroke="#b9a8e5" stroke-width="8" opacity=".75"><path d="M540 274 638 347M753 342 894 258M753 429 898 544M635 428 520 550M524 253 900 557"/></g><g fill="#f8f7fb" font-family="system-ui" font-size="24" text-anchor="middle"><text x="696" y="391">Daily note</text><text x="493" y="252">Project</text><text x="948" y="240">Ideas</text><text x="944" y="578">Tasks</text><text x="481" y="592">Journal</text></g></svg>';
+  const invalidGallerySvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"></svg>';
 
   function renderStoryMarkdown(markdown: string, element: HTMLElement): void {
     const fragment = document.createDocumentFragment();
@@ -125,6 +132,7 @@ Released 1 August 2026.
             readmeUrl: "https://story.invalid/source-editor/README.md",
             author: "Lapis Notes",
             authorUrl: "https://lapis.md",
+            appearance: { icon: "file-code-2", accent: "#3b82f6" },
             channel: "official",
             status: "active",
             latestVersion: "0.1.0",
@@ -145,6 +153,21 @@ Released 1 August 2026.
             readmeUrl: "https://story.invalid/graph/README.md",
             author: "Lapis Notes",
             authorUrl: "https://lapis.md",
+            appearance: {
+              icon: "network",
+              accent: "#7c3aed",
+              logo: {
+                url: "https://story.invalid/v1/assets/lapis-graph/logo.svg",
+                sourceUrl: "https://story.invalid/source/lapis-graph/logo.svg",
+                sha256:
+                  "aa7a4113512641c9a8090f4fde0c2f53dbe11b9de6d7a19ecb134687968c8de2",
+                size: 278,
+                mediaType: "image/svg+xml",
+                width: 128,
+                height: 128,
+                alt: "Graph plugin mark",
+              },
+            },
             channel: "official",
             status: "active",
             latestVersion: "0.2.0",
@@ -318,6 +341,43 @@ Released 1 August 2026.
         verified: entry.channel === "official",
         url: entry.authorUrl,
       },
+      appearance: entry.appearance,
+      gallery:
+        entry.id === "lapis-graph"
+          ? [
+              {
+                id: "overview",
+                surface: "desktop",
+                url: "https://story.invalid/v1/assets/lapis-graph/overview.svg",
+                sourceUrl:
+                  "https://story.invalid/source/lapis-graph/overview.svg",
+                sha256:
+                  "2ba9f4724337d431a41eecd53ce89317d92725fee6a103cf82fc47a563bdb5ce",
+                size: 1172,
+                mediaType: "image/svg+xml",
+                width: 1200,
+                height: 800,
+                alt: "Graph plugin showing connected notes",
+                caption: "Explore local connections without leaving the workspace.",
+              },
+            ]
+          : entry.id === "lapis-source-editor"
+            ? [
+                {
+                  id: "tampered-preview",
+                  surface: "desktop",
+                  url: "https://story.invalid/v1/assets/lapis-source-editor/tampered.svg",
+                  sourceUrl:
+                    "https://story.invalid/source/lapis-source-editor/tampered.svg",
+                  sha256: "0".repeat(64),
+                  size: 72,
+                  mediaType: "image/svg+xml",
+                  width: 1200,
+                  height: 800,
+                  alt: "Source Editor preview",
+                },
+              ]
+            : undefined,
       latestVersion: entry.latestVersion,
       license: "MIT",
       links: {
@@ -389,6 +449,7 @@ Released 1 August 2026.
 
   let bundleInstallCalls = $state(0);
   let uninstallCalls = $state(0);
+  let invalidMediaFetchCalls = $state(0);
   let lastProgress = $state("idle");
   const progressListeners = new Set<(event: PluginInstallProgressEvent) => void>();
   const distribution: PluginDistributionManager = {
@@ -655,6 +716,16 @@ Released 1 August 2026.
     const storyWindow = window;
     const originalFetch = storyWindow.fetch;
     const storyFetch: typeof fetch = async (input, init) => {
+      if (String(input).endsWith("/lapis-graph/logo.svg")) {
+        return imageResponse(graphLogoSvg);
+      }
+      if (String(input).endsWith("/lapis-graph/overview.svg")) {
+        return imageResponse(graphGallerySvg);
+      }
+      if (String(input).endsWith("/lapis-source-editor/tampered.svg")) {
+        invalidMediaFetchCalls += 1;
+        return imageResponse(invalidGallerySvg);
+      }
       if (String(input).endsWith("/lapis-graph/overview.md")) {
         const body = untrack(() => markdownMode) === "invalid" ? "invalid" : graphOverview;
         return new Response(body, {
@@ -678,6 +749,16 @@ Released 1 August 2026.
       }
       return originalFetch(input, init);
     };
+    function imageResponse(body: string): Response {
+      return new Response(body, {
+        status: 200,
+        headers: {
+          "content-type": "image/svg+xml",
+          "content-length": String(new TextEncoder().encode(body).length),
+        },
+      });
+    }
+    clearVerifiedPluginImageCache();
     clearVerifiedPluginMarkdownCache();
     storyWindow.fetch = storyFetch;
     void (async () => {
@@ -704,6 +785,7 @@ Released 1 August 2026.
     return () => {
       disposed = true;
       if (storyWindow.fetch === storyFetch) storyWindow.fetch = originalFetch;
+      clearVerifiedPluginImageCache();
       clearVerifiedPluginMarkdownCache();
     };
   });
@@ -742,6 +824,9 @@ Released 1 August 2026.
   >
   <output class="sr-only" data-testid="installed-disable-calls"
     >{installedDisableCalls}</output
+  >
+  <output class="sr-only" data-testid="invalid-media-fetch-calls"
+    >{invalidMediaFetchCalls}</output
   >
 </div>
 

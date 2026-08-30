@@ -80,6 +80,58 @@ export const pluginMarkdownReferenceSchema = z
   })
   .passthrough();
 
+export const pluginAppearanceIconSchema = z.enum([
+  "bookmark",
+  "file-code-2",
+  "file-text",
+  "history",
+  "list-checks",
+  "network",
+  "package",
+  "search",
+  "sparkles",
+  "spell-check-2",
+  "table-2",
+  "whole-word",
+]);
+
+export const pluginImageMediaTypeSchema = z.enum([
+  "image/png",
+  "image/webp",
+  "image/svg+xml",
+]);
+
+export const pluginImageReferenceSchema = z
+  .object({
+    url: httpsUrl,
+    sourceUrl: httpsUrl,
+    sha256,
+    size: z.number().int().positive().max(5 * 1024 * 1024),
+    mediaType: pluginImageMediaTypeSchema,
+    width: z.number().int().positive().max(4096),
+    height: z.number().int().positive().max(4096),
+  })
+  .passthrough();
+
+export const pluginLogoReferenceSchema = pluginImageReferenceSchema.extend({
+  alt: nonEmpty.max(120),
+});
+
+export const pluginAppearanceSchema = z
+  .object({
+    icon: pluginAppearanceIconSchema,
+    accent: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
+    logo: pluginLogoReferenceSchema.optional(),
+  })
+  .passthrough();
+
+export const pluginGalleryItemSchema = pluginImageReferenceSchema.extend({
+  id: z.string().regex(/^[a-z0-9][a-z0-9-]{0,31}$/),
+  surface: z.enum(["desktop", "mobile"]),
+  alt: nonEmpty.max(240),
+  caption: nonEmpty.max(240).optional(),
+});
+
 export const pluginCatalogContentSchema = z
   .object({
     overview: pluginMarkdownReferenceSchema.optional(),
@@ -240,6 +292,7 @@ export const pluginCatalogEntrySchema = z
     readmeUrl: httpsUrl.optional(),
     author: nonEmpty,
     authorUrl: httpsUrl.optional(),
+    appearance: pluginAppearanceSchema.optional(),
     channel: pluginRegistryChannelSchema,
     status: pluginCatalogStatusSchema.optional(),
     latestVersion: nonEmpty,
@@ -353,6 +406,8 @@ export const pluginCatalogDetailSchema = z
     name: nonEmpty,
     description: z.string(),
     readmeUrl: httpsUrl.optional(),
+    appearance: pluginAppearanceSchema.optional(),
+    gallery: z.array(pluginGalleryItemSchema).max(10).optional(),
     channel: pluginRegistryChannelSchema,
     status: pluginCatalogStatusSchema.optional(),
     owner: z.object({

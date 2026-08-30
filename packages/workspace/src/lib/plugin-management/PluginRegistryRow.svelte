@@ -1,10 +1,11 @@
 <script lang="ts">
-  import PackageIcon from "@lucide/svelte/icons/package";
+  import type { PluginAppearance } from "@lapis-notes/api";
   import type { Snippet } from "svelte";
   import PluginRegistryBadge, {
     type PluginRegistryBadgeTone,
   } from "./PluginRegistryBadge.svelte";
   import PluginRegistryStatus from "./PluginRegistryStatus.svelte";
+  import PluginRegistryIdentity from "./PluginRegistryIdentity.svelte";
 
   export interface RegistryRowBadge {
     label: string;
@@ -18,6 +19,8 @@
     version,
     metadata = [],
     badges = [],
+    appearance,
+    fallbackIcon,
     status,
     selected = false,
     onopen,
@@ -29,6 +32,8 @@
     version?: string;
     metadata?: string[];
     badges?: RegistryRowBadge[];
+    appearance?: PluginAppearance;
+    fallbackIcon?: string;
     status?: {
       label: string;
       reason?: string;
@@ -47,9 +52,7 @@
   data-selected={selected || undefined}
   data-has-actions={actions ? "true" : undefined}
 >
-  <div class="lapis-plugin-registry-row__icon" aria-hidden="true">
-    <PackageIcon />
-  </div>
+  <PluginRegistryIdentity {appearance} {fallbackIcon} />
   {#if onopen}
     <button
       type="button"
