@@ -1124,12 +1124,13 @@ export const SameFileSplitSync: Story = {
     await waitFor(() =>
       expect(editors[1]).toHaveTextContent("Synced from the left pane."),
     );
-    const splitEditors = new Set<Editor>();
+    let sourceEditor: Editor | null = null;
     runtimeApp.workspace.iterateAllLeaves((leaf) => {
       const editor = (leaf.view as { editor?: Editor }).editor;
-      if (editor) splitEditors.add(editor);
+      if (editor?.view.contentDOM === editors[0]) sourceEditor = editor;
     });
-    await Promise.all([...splitEditors].map((editor) => editor.flushChanges()));
+    expect(sourceEditor).not.toBeNull();
+    await sourceEditor!.flushChanges();
     await waitFor(
       async () => {
         expect(await runtimeAdapter.read("Notes/Welcome.md")).toContain(
@@ -1388,6 +1389,27 @@ export const MarkdownFrontmatter: Story = {
     await waitForBrowserFrame(canvasElement);
     await waitForBrowserFrame(canvasElement);
 
+    frontmatterWidget = await waitFor(() => {
+      const widget = canvasElement.querySelector<HTMLElement>(
+        ".mira-rich-widget--frontmatter",
+      );
+      expect(widget).not.toBeNull();
+      return widget!;
+    });
+    const restoreExpandedProperties = within(frontmatterWidget).queryByRole(
+      "button",
+      { name: "Expand properties" },
+    );
+    if (restoreExpandedProperties) {
+      await fireEvent.click(restoreExpandedProperties);
+      await waitFor(() =>
+        expect(
+          within(frontmatterWidget).getByRole("button", {
+            name: "Collapse properties",
+          }),
+        ).toHaveAttribute("aria-expanded", "true"),
+      );
+    }
     expect(
       await activeStoryApp(canvasElement).metadataTypeManager.getValuesAsync(
         "tags",
@@ -1705,6 +1727,9 @@ export const MarkdownAuthoring: Story = {
 
     await step("insert a default slash command", async () => {
       moveStoryCursorToEnd(canvasElement);
+      await waitFor(() =>
+        expect(activeStoryEditor(canvasElement).view.contentDOM).toHaveFocus(),
+      );
       await userEvent.keyboard("{Enter}/");
       const slashMenu = await waitFor(() => {
         const menu =
