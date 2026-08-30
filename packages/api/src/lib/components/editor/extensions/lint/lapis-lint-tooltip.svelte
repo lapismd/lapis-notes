@@ -1,10 +1,8 @@
 <script lang="ts">
   import { Button } from "@lapismd/design-core/shadcn/button";
   import { WorkspaceIcon } from "@lapismd/design-core/workspace/icon";
-  import { WorkspaceMenuItems } from "@lapismd/design-core/workspace/menu";
   import { DropdownMenu } from "bits-ui";
   import {
-    createLintQuickFixMenu,
     splitLintTooltipActions,
     type LintTooltipAction,
   } from "./lint-tooltip-actions";
@@ -35,7 +33,6 @@
   const { viewProblem, quickFixActions } = $derived(
     splitLintTooltipActions(actions),
   );
-  const quickFixMenu = $derived(createLintQuickFixMenu(quickFixActions));
   const showFooter = $derived(
     Boolean(viewProblem) || quickFixActions.length > 0,
   );
@@ -53,6 +50,10 @@
 
   function stopRowActivation(event: Event) {
     event.stopPropagation();
+  }
+
+  function selectQuickFix(action: LintTooltipAction, event: MouseEvent) {
+    action.onClick(event);
   }
 </script>
 
@@ -139,7 +140,7 @@
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content
-              class="ui-workspace-menu__content"
+              class="ui-editor-lint-quick-fix-menu"
               data-ui-component="workspace-menu"
               data-ui-part="content"
               data-lint-quick-fix-menu=""
@@ -150,7 +151,19 @@
               collisionBoundary={[]}
               onpointerdown={stopRowActivation}
             >
-              <WorkspaceMenuItems menu={quickFixMenu} />
+              {#each quickFixActions as action, index (`${action.name}-${index}`)}
+                <DropdownMenu.Item
+                  class="ui-editor-lint-quick-fix-menu__item"
+                  data-ui-component="workspace-menu"
+                  data-ui-part="item"
+                  onclick={(event) => selectQuickFix(action, event)}
+                >
+                  <WorkspaceIcon name="lightbulb" />
+                  <span class="ui-editor-lint-quick-fix-menu__label">
+                    {action.name}
+                  </span>
+                </DropdownMenu.Item>
+              {/each}
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>

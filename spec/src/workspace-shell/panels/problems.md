@@ -58,7 +58,7 @@ diagnostics or language-service apply paths.
 | LN-WS-069 | The Design Core Problems plugin MUST show a right-aligned status item with the circle-alert icon and the live diagnostics total as its chip. Click MUST run the same reveal-or-create path as Show Problems. The item MUST NOT open the dock when the count changes. |
 | LN-WS-073 | `LanguageServiceCodeAction` MAY carry a serializable `command`. Apply paths MUST run provider `applyCommand` after any document edit. Diagnostic objects MUST NOT carry callbacks. |
 | LN-WS-074 | Problems tree and table rows MUST use the severity-icon slot as the quick-fix control when the collection contributed actions. Hover or focus MUST show a Lucide lightbulb. Click MUST open the portaled workspace menu of those actions. The Copy-first context menu MUST remain. |
-| LN-WS-079 | A diagnostic hover card MUST expose one Quick Fix control for cached code actions instead of listing each action. That control MUST open the portaled workspace menu of those actions. View Problem MAY remain a separate control. |
+| LN-WS-079 | A diagnostic hover card MUST expose one Quick Fix control for cached code actions instead of listing each action. That control MUST open the portaled workspace-styled menu of those actions without depending on a menu primitive context owned by another package instance. View Problem MAY remain a separate control. |
 
 `Plugin.registerAgentTool` and `Plugin.registerAgentResultView` are independent
 from diagnostic collections and do not add callbacks or agent-specific fields

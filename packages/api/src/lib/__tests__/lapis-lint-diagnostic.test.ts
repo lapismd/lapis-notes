@@ -1,5 +1,8 @@
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { tick } from "svelte";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   lintGutter,
@@ -14,7 +17,6 @@ import {
   pointerWithinLintTooltipHandoff,
 } from "../components/editor/extensions/lint/lapis-lint-hover-tooltip";
 import {
-  createLintQuickFixMenu,
   splitLintTooltipActions,
 } from "../components/editor/extensions/lint/lint-tooltip-actions";
 import { mountLintMessageDom } from "../components/editor/extensions/lint/mount-lint-tooltip";
@@ -71,6 +73,21 @@ describe("lint gutter markers", () => {
     );
     expect(workspaceLintMarkerMask("info")).toContain("lucide-info");
     expect(workspaceLintMarkerMask("hint")).toContain("lucide-lightbulb");
+  });
+});
+
+describe("lint tooltip menu ownership", () => {
+  it("keeps menu primitives in the API package that owns the dropdown root", () => {
+    const source = readFileSync(
+      resolve(
+        process.cwd(),
+        "src/lib/components/editor/extensions/lint/lapis-lint-tooltip.svelte",
+      ),
+      "utf8",
+    );
+
+    expect(source).not.toContain("WorkspaceMenuItems");
+    expect(source).toContain("<DropdownMenu.Item");
   });
 });
 
@@ -181,10 +198,11 @@ describe("markdownlintRuleUrl", () => {
 describe("mountLintMessageDom", () => {
   const hosts: HTMLElement[] = [];
 
-  afterEach(() => {
+  afterEach(async () => {
     for (const host of hosts.splice(0)) {
       host.remove();
     }
+    await tick();
   });
 
   function mountTooltip(
@@ -322,21 +340,58 @@ describe("mountLintMessageDom", () => {
       "Fix this violation of `MD032`",
       "Fix this violation of `MD032`",
     ]);
-    const menu = createLintQuickFixMenu(split.quickFixActions);
-    expect(
-      menu.entries.map((entry) =>
-        entry.kind === "item" ? entry.title : entry.kind,
-      ),
-    ).toEqual([
-      "Fix this violation of `MD032`",
-      "Fix this violation of `MD032`",
-    ]);
-    const firstItem = menu.entries[0];
-    const secondItem = menu.entries[1];
-    if (firstItem?.kind === "item") void firstItem.callback?.();
-    if (secondItem?.kind === "item") void secondItem.callback?.();
-    expect(first).toHaveBeenCalledOnce();
-    expect(second).toHaveBeenCalledOnce();
+    expect(split.quickFixActions).toHaveLength(2);
     expect(viewProblem).not.toHaveBeenCalled();
+  });
+
+  it("opens the portaled Quick Fix menu and invokes its selected action", async () => {
+    const apply = vi.fn();
+    const onAction = vi.fn();
+    const root = mountTooltip(
+      "Found spelling mistake",
+      { code: "harper", ruleId: "harper", sourceLabel: "Harper" },
+      true,
+      {
+        view: {} as never,
+        from: 0,
+        to: 1,
+        actions: [{ name: 'Replace with "spelling"', apply }],
+        onAction,
+      },
+    );
+    await tick();
+
+    const trigger = root.querySelector<HTMLButtonElement>(
+      '[data-testid="lapis-lint-quick-fix"]',
+    );
+    trigger?.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        key: "Enter",
+      }),
+    );
+    await tick();
+
+    await vi.waitFor(() => {
+      expect(document.querySelector("[data-lint-quick-fix-menu]")).not.toBeNull();
+    });
+
+    const action = document.querySelector<HTMLButtonElement>(
+      '[data-lint-quick-fix-menu] [data-ui-part="item"]',
+    );
+    expect(action?.textContent).toContain('Replace with "spelling"');
+    action?.click();
+    trigger?.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        key: "Enter",
+      }),
+    );
+    await tick();
+    expect(apply).toHaveBeenCalledOnce();
+    expect(onAction).toHaveBeenCalledOnce();
+    await vi.waitFor(() => {
+      expect(document.querySelector("[data-lint-quick-fix-menu]")).toBeNull();
+    });
   });
 });
