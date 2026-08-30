@@ -12,7 +12,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - AI, Bases, Bookmarks, Graph, History, Markdown, Markdown Lint, Search, Source
   Editor, Spellcheck, and Word Count are owned by the sibling `lapis-plugins`
   repository and are consumed here through npm package boundaries.
- Design Core F-Mode is optional default-disabled shell chrome.
+- Design Core F-Mode is optional default-disabled shell chrome.
 - Web/notebook hosts and unlisted plugins are not in this repo yet. Track intake
   in `MIGRATION.md` — do not invent them ahead of the spec.
 
@@ -454,10 +454,42 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 ## Verification
 
 - Every workspace package exposes `check`, `build`, and `test`.
-- For cross-cutting work: `pnpm check` (includes no-Tailwind gate), focused
-  package tests, and `pnpm spec:check` when governance or protected surfaces
-  change.
-- For api-used UI changes: also `pnpm test:storybook` and Visual Delta as above.
+- A documentation-only policy change runs Prettier and any checker that
+  consumes the document. It does not trigger product suites unless it changes
+  executable examples, generated configuration, or automation commands.
+- Always run the exact targeted regression first, even when a full suite will
+  also run. Use the owning package's focused Vitest command for unit behavior;
+  for Storybook use
+  `pnpm exec vitest run --project storybook "path/to/story.test.ts" -t "story name"`.
+  Record the targeted before/after failure count in the handoff.
+- After the targeted pass, widen by impact:
+  - A package-private leaf change runs the owning package's complete `check`,
+    `test`, and required `build` lanes.
+  - A component, helper, fixture, store, lifecycle boundary, CSS contract, or
+    public API used by multiple files or surfaces runs every affected package
+    suite plus `pnpm check`, `pnpm test`, and `pnpm build`.
+  - A change spanning two or more Storybook families, or any change to shared
+    Storybook setup, App/workspace boot, page helpers, interaction utilities,
+    timing, or sharding, MUST run the complete `pnpm test:storybook` lane after
+    its focused stories pass.
+  - A web/desktop/shared-host change runs the focused host acceptance first and
+    then every affected host's complete relevant browser or packaged lane.
+- For cross-cutting work, also run `pnpm spec:check` when governance or
+  protected surfaces change. Do not commit or push a shared change while its
+  required functional, interaction, or accessibility lane has unexplained
+  failures.
+- Restart Storybook and include one cold run when compiled package output,
+  imports, registration, App lifecycle, shared story setup, or asynchronous
+  browser timing changed. Passing against an already-warm server is supporting
+  evidence, not the startup gate.
+- For api-used UI changes, `pnpm test:storybook` is a functional and
+  accessibility gate. Visual Delta review remains non-blocking by default:
+  retain `visual-pending` and do not create or update baselines without human
+  approval.
+- Report targeted, affected-family, and full-suite results separately with
+  exact pass/failure counts. If a full lane exposes an unrelated pre-existing
+  failure, reproduce it and identify its owner; do not hide it inside a generic
+  "mostly passing" result.
 - Markdown package tests and Storybook (source-aliased) do not prove `dist` or
   a web/desktop Vite host. After Markdown source, worker, or file-scoped panel
   follow changes, run `pnpm --filter @lapis-notes/markdown build` and prove
