@@ -90,6 +90,32 @@ async function waitForBrowserFrame(canvasElement: HTMLElement): Promise<void> {
   });
 }
 
+async function waitForExplorerRevealToSettle(
+  canvasElement: HTMLElement,
+): Promise<void> {
+  await waitFor(
+    () => {
+      const row = canvasElement.querySelector<HTMLElement>(
+        ".ui-workspace-explorer__row[data-active='true']",
+      );
+      expect(row).not.toBeNull();
+      return row!;
+    },
+    { timeout: 5_000 },
+  );
+  await waitFor(
+    () => {
+      const row = canvasElement.querySelector<HTMLElement>(
+        ".ui-workspace-explorer__row[data-active='true']",
+      );
+      expect(row).not.toBeNull();
+      expect(row).not.toHaveClass("is-flashing");
+    },
+    { timeout: 5_000 },
+  );
+  await waitForBrowserFrame(canvasElement);
+}
+
 function countRootLeaves(app: App): number {
   let count = 0;
   app.workspace.iterateRootLeaves(() => {
@@ -985,7 +1011,11 @@ export const MarkdownLintLoftBoarding: Story = {
 
     const entries = await waitFor(
       () => {
-        const snapshot = runtimeApp.workspace.diagnostics.snapshot().entries;
+        const snapshot = runtimeApp.workspace.diagnostics
+          .snapshot()
+          .entries.filter(
+            (entry) => entry.diagnostic.source === "markdownlint",
+          );
         expect(snapshot.length).toBeGreaterThan(1);
         return snapshot;
       },
@@ -1052,6 +1082,7 @@ export const SameFileSplitSync: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
+    await waitForExplorerRevealToSettle(canvasElement);
     const runtimeApp = activeStoryApp(canvasElement);
     const runtimeAdapter = runtimeApp.vault.adapter as MemoryVaultAdapter;
     const componentOnWrite = runtimeAdapter.onWrite;
@@ -1130,6 +1161,9 @@ export const SameFileSplitSync: Story = {
       if (editor?.view.contentDOM === editors[0]) sourceEditor = editor;
     });
     expect(sourceEditor).not.toBeNull();
+    await waitFor(() =>
+      expect(sourceEditor!.getValue()).toContain("Synced from the left pane."),
+    );
     await sourceEditor!.flushChanges();
     await waitFor(
       async () => {
@@ -1188,6 +1222,7 @@ export const MarkdownFrontmatter: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
+    await waitForExplorerRevealToSettle(canvasElement);
 
     const markdownEditor = await waitFor(
       () => {
@@ -1539,12 +1574,17 @@ export const MarkdownFrontmatter: Story = {
       "#portable-authoring",
     );
     expect(portableHeading).not.toBeNull();
-    await userEvent.click(
-      within(outline).getByRole("button", {
-        name: "Open outline and scroll to Portable authoring",
-      }),
+    const portableHeadingMarker = within(outline).getByRole("button", {
+      name: "Open outline and scroll to Portable authoring",
+    });
+    await userEvent.click(portableHeadingMarker);
+    await waitFor(
+      () => {
+        expect(portableHeadingMarker).toHaveAttribute("aria-current", "true");
+        expect(portableHeading).toHaveFocus();
+      },
+      { timeout: 5_000 },
     );
-    await waitFor(() => expect(portableHeading).toHaveFocus());
 
     const app = activeStoryApp(canvasElement);
     await app.configuration.updateConfigurationOption(
@@ -1623,6 +1663,7 @@ export const MarkdownAuthoring: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     await waitForReady(canvas);
+    await waitForExplorerRevealToSettle(canvasElement);
 
     const markdownEditor = await waitFor(
       () => {
@@ -1776,9 +1817,14 @@ export const MarkdownAuthoring: Story = {
 
     await step("format a real selection and smart-paste a URL", async () => {
       selectStoryText(canvasElement, "Select this authoring text");
-      const selectionToolbar = await waitFor(() =>
-        canvas.getByRole("toolbar", { name: "Text formatting" }),
-      );
+      const selectionToolbar = await waitFor(() => {
+        const toolbar = canvas.getByRole("toolbar", {
+          name: "Text formatting",
+        });
+        expect(toolbar).toHaveAttribute("data-editor-active", "true");
+        expect(getComputedStyle(toolbar).pointerEvents).not.toBe("none");
+        return toolbar;
+      });
       await userEvent.click(
         within(selectionToolbar).getByRole("button", { name: "Bold" }),
       );
