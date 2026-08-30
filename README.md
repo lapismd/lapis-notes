@@ -86,6 +86,34 @@ release, update this repository to the published registry version.
 | `pnpm packages:check`                        | Validate public package boundaries and release configuration  |
 | `pnpm packages:pack`                         | Build and pack reviewed npm release tarballs                  |
 | `pnpm release:plan`                          | Compare package versions with the npm registry                |
+| `pnpm ci:packages`                           | Run the bounded Turbo build, check, and test graph             |
+| `pnpm ci:release`                            | Run release, package, Storybook, and policy validation         |
+| `pnpm ci:container`                          | Run release validation in the pinned Linux CI image            |
+
+## CI and local parity
+
+Package builds, checks, and tests run through a bounded Turbo wrapper. It uses
+half the available processors, capped at four, unless `TURBO_CONCURRENCY` is
+set to a positive number or percentage. CI fans out after one build-cache job
+into governance, quality, unit, static Storybook, interaction/accessibility,
+and release-artifact lanes, then reports one stable `validate` result. Visual
+comparison stays wired but is not a deployment-blocking lane.
+
+The organization remote cache is signed and fail-open: missing credentials or
+an unavailable cache falls back to normal execution. To test it locally, copy
+`.env.example` to the ignored root `.env` and provide:
+
+- `TURBO_API`
+- `TURBO_TEAM`
+- `TURBO_TOKEN`
+- `TURBO_REMOTE_CACHE_SIGNATURE_KEY`
+
+Never commit the local `.env` or cache credentials. `pnpm ci:container` uses
+the immutable `ghcr.io/lapismd/lapis-notes-ci` digest recorded in
+`.ci/images.json`. That lockfile-specific image warms only the pnpm store;
+every run still installs the checked-out workspace with
+`pnpm install --frozen-lockfile --prefer-offline`. See [`.ci/README.md`](./.ci/README.md)
+for image refresh and local-container details.
 
 ## Docs
 
