@@ -499,7 +499,7 @@ const createInstallFixture = async (
       channel,
       compatibility: {
         minAppVersion: "0.20.0",
-        platforms: ["web", "electron"],
+        platforms: ["web", "desktop"],
       },
       ...(releaseRuntime ? { runtime: releaseRuntime } : {}),
       files: releaseFiles,
@@ -533,7 +533,7 @@ const createInstallFixture = async (
     channel,
     latestVersion: "0.1.0",
     minAppVersion: "0.20.0",
-    platforms: ["web", "electron"],
+    platforms: ["web", "desktop"],
     categories: ["documents"],
     detail: `https://registry.example.test/v1/plugins/${pluginId}.json`,
   };
@@ -550,7 +550,7 @@ const createInstallFixture = async (
         version: "0.1.0",
         minAppVersion: "0.20.0",
         releasedAt: "2026-05-31T00:00:00.000Z",
-        platforms: ["web", "electron"],
+        platforms: ["web", "desktop"],
         bundle: {
           url: `../releases/${pluginId}-0.1.0.lapis-plugin`,
           sha256: await sha256Hex(bundle),

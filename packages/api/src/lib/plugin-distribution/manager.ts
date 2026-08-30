@@ -578,7 +578,7 @@ export class DefaultPluginDistributionManager
   private get platform(): PluginPlatform {
     return (
       this.options.platform ??
-      (hasNativeDesktopCapability("resource") ? "electron" : "web")
+      (hasNativeDesktopCapability("resource") ? "desktop" : "web")
     );
   }
 

@@ -308,7 +308,7 @@ const createRegistryFixture = async (
           version: "0.1.0",
           minAppVersion: "0.20.0",
           releasedAt: "2026-05-31T00:00:00.000Z",
-          platforms: ["web", "electron"],
+          platforms: ["web", "desktop"],
           bundle: {
             url: "releases/lapis-docs-0.1.0.lapis-plugin",
             sha256:
@@ -337,7 +337,7 @@ const createRegistryFixture = async (
           channel: options.channel ?? "official",
           latestVersion: "0.1.0",
           minAppVersion: "0.20.0",
-          platforms: ["web", "electron"],
+          platforms: ["web", "desktop"],
           categories: ["documents"],
           badges:
             options.channel === "community"

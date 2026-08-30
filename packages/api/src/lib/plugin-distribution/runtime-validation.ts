@@ -527,10 +527,7 @@ function requiredHostModulePlatforms(
       if (releasePlatforms.includes("web")) {
         platforms.push("web");
       }
-      if (
-        releasePlatforms.includes("electron") ||
-        releasePlatforms.includes("desktop")
-      ) {
+      if (releasePlatforms.includes("desktop")) {
         platforms.push("electron-renderer");
       }
       return platforms.length ? platforms : ["web", "electron-renderer"];

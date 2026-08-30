@@ -26,7 +26,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-canvas/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -56,7 +56,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-docs/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -78,7 +78,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/main/packages/graph/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -100,7 +100,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/main/packages/markdown-lint/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -122,7 +122,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/main/packages/spellcheck/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -144,7 +144,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/notebook/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -174,7 +174,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-pdf/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -196,7 +196,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-slides/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -218,7 +218,7 @@
         "name": "Lapis Notes",
         "verified": true
       },
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "readmeUrl": "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-telemetry/README.md",
       "schemaVersion": 1,
       "status": "active"
@@ -235,7 +235,7 @@
     {
       "keyId": "lapis-registry-fixture-test",
       "alg": "ed25519",
-      "sig": "O+/E9lrCFbXDLb1ur6sDta0mAoqgycXzYhT+k73vGP5twoeBwnbTXzofGpJNgdvzwMVkbi6WyGG+G/jpXaQ8Cg=="
+      "sig": "kkcIRmYF+hYqx86+G6eIcJ3R/Y6f+NyGo/u2INZu1hkazkc8tiDQrU1Ez4C/j49B4rFKriEiVUbPKTWdfBIuDA=="
     }
   ]
 }

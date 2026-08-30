@@ -117,6 +117,10 @@ icon fallbacks, and collapses unavailable media without changing actions.
    design-core notifications presentation without invoking the Lapis plugin
    loader.
 
+Plugin-management filters and badges project the API registry compatibility
+contract directly: they expose Web and Desktop, and never present Electron as
+a catalog platform (LN-PLUG-089).
+
 Views and leaves derive App from their owning workspace. Compatibility state is
 never consulted when that ownership chain or the shell context is available.
 

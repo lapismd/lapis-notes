@@ -316,6 +316,16 @@ export const BrowseSearchAndExpandableFilters: Story = {
     ).toBeVisible();
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(
+      canvas.getByRole("button", { name: "Filter by platform" }),
+    );
+    await expect(
+      await body.findByRole("option", { name: /^Desktop/ }),
+    ).toBeVisible();
+    await expect(
+      body.queryByRole("option", { name: /^Electron/ }),
+    ).toBeNull();
+    await userEvent.keyboard("{Escape}");
+    await userEvent.click(
       canvas.getByRole("button", { name: "Filter by channel" }),
     );
     await userEvent.click(

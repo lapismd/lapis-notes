@@ -20,7 +20,7 @@ export interface PluginRegistrySource {
 export type PluginRegistryChannel = "official" | "community";
 export type PluginCatalogStatus = "active" | "pending" | "revoked";
 
-export type PluginPlatform = "web" | "electron" | "desktop";
+export type PluginPlatform = "web" | "desktop";
 
 export type PluginBadge =
   | "official"

@@ -37,7 +37,7 @@ export const pluginCatalogStatusSchema = z.enum([
   "pending",
   "revoked",
 ]);
-export const pluginPlatformSchema = z.enum(["web", "electron", "desktop"]);
+export const pluginPlatformSchema = z.enum(["web", "desktop"]);
 export const pluginBadgeSchema = z.enum([
   "official",
   "verified",

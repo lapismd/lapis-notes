@@ -354,7 +354,7 @@ function releaseManifestFor(manifest: PluginManifest): PluginReleaseManifest {
     channel: "official",
     compatibility: {
       minAppVersion: manifest.minAppVersion,
-      platforms: ["web", "electron"],
+      platforms: ["web", "desktop"],
     },
     runtime: manifest.lapis?.runtime,
     files: [

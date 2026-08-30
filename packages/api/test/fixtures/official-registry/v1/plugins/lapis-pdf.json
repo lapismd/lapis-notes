@@ -28,7 +28,7 @@
         "url": "https://github.com/lapis-notes/releases/releases/download/official-plugin-assets-lapis-pdf-2026.6.1/lapis-pdf-2026.6.1.lapis-plugin"
       },
       "minAppVersion": "1.7.7",
-      "platforms": ["web", "electron"],
+      "platforms": ["web", "desktop"],
       "releasedAt": "2026-05-31T00:00:00.000Z",
       "version": "2026.6.1"
     }
@@ -37,7 +37,7 @@
     {
       "keyId": "lapis-registry-fixture-test",
       "alg": "ed25519",
-      "sig": "g06+xAa0tpQA3IEyY+CjYRCqAxJrv8w+f5EJ/IrRgy+KMe2Npbb6LJNEAJInBPAaZ9x4/fryU7gjgnrtH0iGAQ=="
+      "sig": "srb+J/BFzSQOFqNfOVAmgImOtDf0I4aaeA3YbHylnz9eU7SoU/wEo9uMr0W2FFSMvw90h4Vr+24VvD1K1Pc8Dg=="
     }
   ]
 }

@@ -131,7 +131,7 @@ describe("DefaultPluginDistributionManager", () => {
   });
 
   it("rejects platform-incompatible plugins before installation", async () => {
-    const fixture = await createManagerFixture({ platforms: ["electron"] });
+    const fixture = await createManagerFixture({ platforms: ["desktop"] });
     const manager = new DefaultPluginDistributionManager({
       adapter: new InMemoryDataAdapter(),
       appVersion: "0.20.0",
@@ -150,13 +150,13 @@ describe("DefaultPluginDistributionManager", () => {
 
   it("blocks privileged desktop installs when workspace trust is revoked", async () => {
     const fixture = await createManagerFixture({
-      platforms: ["electron"],
+      platforms: ["desktop"],
       requiresWorkspaceTrust: true,
     });
     const manager = new DefaultPluginDistributionManager({
       adapter: new InMemoryDataAdapter(),
       appVersion: "0.20.0",
-      platform: "electron",
+      platform: "desktop",
       workspaceTrusted: () => false,
       registries: [fixture.source],
       trustedKeys: [fixture.trustedKey],
@@ -259,7 +259,7 @@ describe("DefaultPluginDistributionManager", () => {
   it("surfaces incompatible official updates without enabling the action", async () => {
     const fixture = await createManagerFixture({
       versions: ["0.1.0", "0.2.0"],
-      releasePlatforms: { "0.2.0": ["electron"] },
+      releasePlatforms: { "0.2.0": ["desktop"] },
     });
     const manager = new DefaultPluginDistributionManager({
       adapter: new InMemoryDataAdapter(),
@@ -406,15 +406,15 @@ const splitBytes = (bytes: Uint8Array): Uint8Array[] => {
 
 const createManagerFixture = async (
   options: {
-    platforms?: Array<"web" | "electron">;
+    platforms?: Array<"web" | "desktop">;
     versions?: string[];
-    releasePlatforms?: Record<string, Array<"web" | "electron">>;
+    releasePlatforms?: Record<string, Array<"web" | "desktop">>;
     requiresWorkspaceTrust?: boolean;
     revoked?: PluginRevocationIndex["revoked"];
     corruptFiles?: Record<string, string[]>;
   } = {},
 ) => {
-  const platforms = options.platforms ?? ["web", "electron"];
+  const platforms = options.platforms ?? ["web", "desktop"];
   const versions = options.versions ?? ["0.1.0"];
   const latestVersion = versions.at(-1) ?? "0.1.0";
   const keyPair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, [

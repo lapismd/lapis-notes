@@ -35,6 +35,11 @@ by composing Design Core's expandable SearchFilterBar and public controls.
 The same boundary keeps signed plugin-media parsing and byte verification in
 API while Workspace owns icon fallback, verified-logo, and non-autoplay gallery
 presentation (LN-PLUG-087, LN-PLUG-088).
+API also owns the registry compatibility vocabulary: catalog and release
+platforms are exactly `web` and `desktop`, and native application hosts report
+`desktop`. Internal Electron runtime-entry host names do not cross that
+distribution boundary and are not accepted as registry-platform aliases
+(LN-PLUG-089).
 It does so without moving source, signature, installation, or lifecycle
 authority out of App services.
 

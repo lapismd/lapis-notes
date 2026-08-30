@@ -16,9 +16,9 @@ compatibility lease overlap another story's boot.
 
 Lapis distinguishes ownership and distribution without changing runtime plugin
 identities or creating a second lifecycle. A `deno-desktop` session reports
-plugin-distribution platform `desktop` rather than `electron` or `web`.
-Electron-labelled manifest hosts remain accepted compatibility vocabulary for
-installed plugins; they do not imply an Electron application runtime. Verified
+plugin-distribution platform `desktop` rather than `web`. Registry compatibility
+uses only `web` and `desktop`; Electron terminology is reserved for internal
+runtime-entry host selection and is not accepted as a catalog platform. Verified
 desktop assets are served only through the Deno host's same-origin route, while
 web retains its public route. Workspace `activateLeaf` remains an
 API-owned selection that the persisted layout must restore. Statically shipped plugins use the
@@ -172,6 +172,7 @@ chat to `.agents`.
 | LN-PLUG-072 | A plugin with `distribution: "first-party-external"` MUST own its Storybook catalog under `Plugins/<Plugin>` and MUST follow LN-CAT-109 and LN-CAT-110. Tasks Column Canvas and Design Core AppShell stories remain Tasks-specific exceptions and MUST NOT be copied as the general panel pattern. |
 | LN-PLUG-087 | Signed registry V1 metadata MAY provide an allowlisted semantic icon, six-digit accent, optional logo, and bounded desktop or mobile gallery references. Legacy entries and unknown future fields MUST remain valid. API image loading MUST require HTTPS, enforce declared media type, dimensions, and size bounds, verify SHA-256 before returning bytes, cache only by immutable reference identity, and keep image failure independent from registry actions and verified Markdown. |
 | LN-PLUG-088 | Plugin registry rows, result rails, and detail headers MUST render signed plugin identity through a verified logo when available and the semantic icon-and-accent fallback otherwise. Details MUST expose a responsive, non-autoplay gallery with alt text, captions, position, previous/next controls, and selectable thumbnails backed only by verified object URLs. Missing or invalid media MUST collapse cleanly without changing install, update, enablement, selection, or documentation behavior; changed stories remain `visual-pending`. |
+| LN-PLUG-089 | Registry catalog and release compatibility MUST accept only `web` and `desktop` platform identifiers. Native hosts MUST report `desktop`, and registry filters and badges MUST present it as Desktop. Electron terminology MAY remain only for internal runtime-entry hosts. |
 
 Load and enable failures publish workspace-wide Problems rows and clear after
 a later successful enable (LN-WS-078). Spell Check setup failure uses the

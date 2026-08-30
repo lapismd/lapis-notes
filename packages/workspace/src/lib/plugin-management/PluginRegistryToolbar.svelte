@@ -48,7 +48,6 @@
   const platformOptions: FilterCommandOption[] = [
     { value: "all", label: "All platforms", description: "Show every supported host." },
     { value: "web", label: "Web", description: "Runs in browser-hosted Lapis apps." },
-    { value: "electron", label: "Electron", description: "Runs in Electron desktop hosts." },
     { value: "desktop", label: "Desktop", description: "Runs in supported desktop hosts." },
   ];
   const channelOptions: FilterCommandOption[] = [

@@ -653,8 +653,10 @@ content states in LN-PLUG-055 through LN-PLUG-058, including composition of the
 public Design Core expandable SearchFilterBar. The API package owns the additive
 signed metadata parser and verified Markdown fetcher in LN-PLUG-053 and
 LN-PLUG-054, plus signed media parsing and verified image loading in
-LN-PLUG-087. Workspace receives those contracts and owns the identity and
-gallery presentation in LN-PLUG-088 without owning registry trust.
+LN-PLUG-087. Its public `PluginPlatform` type and registry schemas accept only
+`web` and `desktop`; they do not retain an `electron` compatibility alias.
+Workspace receives those contracts and owns the identity and gallery
+presentation in LN-PLUG-088 without owning registry trust.
 
 ## `@lapis-notes/ui` (pruned)
 
