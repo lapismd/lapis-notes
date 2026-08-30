@@ -509,13 +509,16 @@ export const EditableCells: Story = {
     const expectFilterMenuAbovePanel = (content: HTMLElement) => {
       const contentRect = content.getBoundingClientRect();
       const panelRect = filterPopover!.getBoundingClientRect();
+      const overlapLeft = Math.max(contentRect.left, panelRect.left);
+      const overlapRight = Math.min(contentRect.right, panelRect.right);
       const overlapTop = Math.max(contentRect.top, panelRect.top);
       const overlapBottom = Math.min(contentRect.bottom, panelRect.bottom);
+      expect(overlapRight - overlapLeft).toBeGreaterThan(8);
       expect(overlapBottom - overlapTop).toBeGreaterThan(8);
 
       const hitTarget = canvasElement.ownerDocument.elementFromPoint(
-        contentRect.left + 8,
-        overlapTop + 4,
+        overlapLeft + (overlapRight - overlapLeft) / 2,
+        overlapTop + (overlapBottom - overlapTop) / 2,
       );
       expect(content.contains(hitTarget)).toBe(true);
       expect(
