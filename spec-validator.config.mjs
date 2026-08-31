@@ -220,8 +220,27 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
+          pattern: "^packages/deno-host-services/",
+          chapters: [
+            "spec/src/server-deno-host.md",
+            "spec/src/desktop-deno-host.md",
+            "spec/src/packages.md",
+            "spec/src/architecture.md",
+          ],
+        },
+        {
+          pattern: "^packages/server-deno/",
+          chapters: [
+            "spec/src/server-deno-host.md",
+            "spec/src/packages.md",
+            "spec/src/architecture.md",
+            "spec/src/app-database.md",
+          ],
+        },
+        {
           pattern: "^packages/web/",
           chapters: [
+            "spec/src/server-deno-host.md",
             "spec/src/web-host.md",
             "spec/src/packages.md",
             "spec/src/architecture.md",

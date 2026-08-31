@@ -61,6 +61,7 @@ const preview: Preview = {
             "Deno Desktop Host",
             "Deno Desktop Parity Blockers",
             "Web Host",
+            "Deno Server Host",
             "Workspace Shell",
             "Panels",
             "Problems",
