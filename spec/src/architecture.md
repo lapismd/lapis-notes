@@ -381,6 +381,11 @@ Desktop and server implementations consume the same remote AppDatabase
 catalogue, while tRPC and Deno server implementation types remain outside the
 public API barrel and browser graph.
 
+The server's hybrid boundary mounts the generated JSON control plane at
+`/api/trpc` and keeps file and resource bytes on authenticated Fetch routes.
+Both paths share request-session, membership, mutation-security, managed-root,
+and error-code policy; only transport-specific body handling differs.
+
 API diagnostic hover cards keep unique action keys when titles repeat and
 expose one Quick Fix menu for cached actions. The
 language-service cache keeps at most one action per title for the originating

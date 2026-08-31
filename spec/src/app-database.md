@@ -108,6 +108,11 @@ The reusable Deno host-services worker protocol and runtime own bounded native
 database dispatch and change forwarding. Each concrete host owns its database
 path, provider descriptor, worker entry point, and lifecycle trigger.
 
+The server generates domain routers and viewer/editor procedure roles from the
+same contract. It validates arguments and results on both sides of its dedicated
+native Turso worker and publishes committed database changes into the vault
+event sequence without exposing SQL or database paths.
+
 `storeFileHistoryRevision` MAY replace the latest same-path revision when the
 caller sets `replaceLatest`. History uses that option for the modify merge
 window so rapid edits do not append a new snapshot.

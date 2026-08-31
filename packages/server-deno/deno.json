@@ -1,0 +1,21 @@
+{
+  "imports": {
+    "@lapis-notes/api/app-database": "../api/src/lib/app-database-host.ts",
+    "@lapis-notes/api/server-host": "../api/src/lib/server-host.ts",
+    "@lapis-notes/deno-host-services/app-database-worker-protocol": "../deno-host-services/src/app-database-worker-protocol.ts",
+    "@lapis-notes/deno-host-services/app-database-worker-runtime": "../deno-host-services/src/app-database-worker-runtime.ts",
+    "@lapis-notes/deno-host-services/language-service": "../deno-host-services/src/language-service.ts",
+    "@lapis-notes/deno-host-services/native-app-database": "../deno-host-services/src/native-app-database.ts",
+    "@lapis-notes/deno-host-services/paths": "../deno-host-services/src/paths.ts",
+    "@lapis-notes/deno-host-services/vault-fs": "../deno-host-services/src/vault-fs.ts",
+    "@trpc/client": "npm:@trpc/client@11.18.0",
+    "@trpc/server": "npm:@trpc/server@11.18.0",
+    "@trpc/server/adapters/fetch": "npm:@trpc/server@11.18.0/adapters/fetch",
+    "@tursodatabase/database": "npm:@tursodatabase/database@0.7.2",
+    "zod": "npm:zod@3.25.76"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.window"]
+  }
+}

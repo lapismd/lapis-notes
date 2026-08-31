@@ -65,3 +65,12 @@ and retain the verified asset metadata checks.
 The first account owns each vault it creates. The schema retains multi-user
 identity and membership keys from the first migration, but the product exposes
 no registration, invitation, or membership-management UI in this slice.
+
+The server implementation uses exact matching tRPC client/server versions and
+generates each domain procedure from the API-owned remote database contract.
+Control migrations create users, hashed credentials, sessions, vaults,
+memberships, and login-throttle state before readiness. Managed file routes
+enforce membership, Origin and CSRF on writes, strong ETags, conditional atomic
+replacement, serialized append, ranges, and symlink-aware root containment.
+Native per-vault Turso calls execute in a dedicated worker; database and file
+changes enter the same bounded replay hub.
