@@ -110,6 +110,9 @@ database change sets through the ordinary `subscribeToChanges` contract.
 The server Web composition passes that provider explicitly to
 `createVaultSession` with runtime `deno-server`; it never opens browser Turso or
 participates in browser-owner election.
+Container packaging retains native Turso in the server process and scopes FFI
+to the cached dependency tree; database paths remain under the managed data
+volume and never enter the browser image or static bundle.
 
 The API-owned `REMOTE_APP_DATABASE_CONTRACT` supplies the single method
 catalogue, typed argument and result schemas, message bounds, and domain

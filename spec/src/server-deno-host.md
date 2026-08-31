@@ -95,3 +95,9 @@ The matching static build gates on `system.info` before session restoration,
 then provides login and managed-vault lifecycle UI. It ships without Workbox or
 a service worker and mounts the ordinary workspace shell only after the remote
 vault and application-database session are ready.
+
+The container builds that static profile and caches Deno dependencies in
+separate stages, then runs as a non-root user. Runtime permissions name the
+read, write, bind, environment, and FFI boundaries and grant no subprocess
+access. The data volume is the only writable persistent location; bootstrap
+credentials enter through a mounted password file.

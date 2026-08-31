@@ -3,7 +3,11 @@ import { join, normalize } from "node:path";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 import { bootstrapFirstUser, resolveRequestSession } from "./auth.ts";
-import { loadServerConfig, type ServerConfig } from "./config.ts";
+import {
+  loadServerConfig,
+  readServerEnvironment,
+  type ServerConfig,
+} from "./config.ts";
 import { ControlDatabase } from "./control-database.ts";
 import type { ServerContext, ServerServices } from "./context.ts";
 import {
@@ -65,7 +69,7 @@ async function staticResponse(
 
 export async function createLapisDenoServer(
   config = loadServerConfig(),
-  env: Record<string, string | undefined> = Deno.env.toObject(),
+  env: Record<string, string | undefined> = readServerEnvironment(),
 ): Promise<LapisDenoServer> {
   const events = new VaultEventHub();
   const store = new ManagedVaultStore(config.dataRoot, events);

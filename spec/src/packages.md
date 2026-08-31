@@ -202,6 +202,9 @@ event-stream, and plugin-asset adapters; those modules use Fetch and public API
 types only and contain no Deno globals or server implementation imports.
 `@lapis-notes/web` consumes that browser entry only from its compile-time server
 profile. Its default build and dependency-owned PWA behavior remain unchanged.
+The server package owns a multi-stage, non-root container definition, health
+check, example secret mount, and operator documentation. Packaging does not
+publish, deploy, or change any public package.
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter. |

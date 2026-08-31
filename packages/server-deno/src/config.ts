@@ -11,6 +11,25 @@ export type ServerConfig = {
   buildId: string;
 };
 
+export const LAPIS_SERVER_ENV_NAMES = [
+  "LAPIS_SERVER_BOOTSTRAP_USERNAME",
+  "LAPIS_SERVER_BOOTSTRAP_PASSWORD_FILE",
+  "LAPIS_SERVER_DATA_ROOT",
+  "LAPIS_SERVER_STATIC_ROOT",
+  "LAPIS_SERVER_HOST",
+  "LAPIS_SERVER_PORT",
+  "LAPIS_SERVER_ORIGIN",
+  "LAPIS_SERVER_INSECURE_COOKIE",
+  "LAPIS_SERVER_TRUST_PROXY",
+  "LAPIS_SERVER_BUILD_ID",
+] as const;
+
+export function readServerEnvironment(): Record<string, string | undefined> {
+  return Object.fromEntries(
+    LAPIS_SERVER_ENV_NAMES.map((name) => [name, Deno.env.get(name)]),
+  );
+}
+
 function requiredAbsolutePath(value: string | undefined, name: string): string {
   const path = value?.trim();
   if (!path) throw new Error(`${name} is required`);
@@ -28,7 +47,7 @@ function port(value: string | undefined): number {
 }
 
 export function loadServerConfig(
-  env: Record<string, string | undefined> = Deno.env.toObject(),
+  env: Record<string, string | undefined> = readServerEnvironment(),
 ): ServerConfig {
   const dataRoot = requiredAbsolutePath(
     env.LAPIS_SERVER_DATA_ROOT,
