@@ -195,6 +195,8 @@ error types. Neither entry exports a Deno server or tRPC implementation.
 exports only the router type and browser client factory through its client
 entry, and keeps control migrations, password/session handling, Deno workers,
 managed storage, Fetch routing, and server startup in server-only modules.
+Bounded ZIP transfer and authenticated immutable plugin assets remain private
+data-plane implementations and do not enter that browser client entry.
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter. |

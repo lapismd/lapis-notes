@@ -1,6 +1,14 @@
 import { extname } from "node:path";
 
 import { ServerHostError } from "@lapis-notes/api/server-host";
+import {
+  getInstalledPluginAssetHash,
+  getInstalledPluginAssetVersion,
+  getPluginAssetContentType,
+  parseWebPluginAssetUrl,
+  readInstalledPluginAsset,
+  type InstalledPluginRecord,
+} from "@lapis-notes/api/plugin-assets";
 
 import type { ControlSession, ServerVaultRole } from "./control-database.ts";
 import type { ServerServices } from "./context.ts";
@@ -189,6 +197,72 @@ export async function handleDirectRoute(
   return new Response("Method not allowed", {
     status: 405,
     headers: { Allow: "GET, HEAD, PUT, POST" },
+  });
+}
+
+export async function handlePluginAssetRoute(
+  request: Request,
+  services: ServerServices,
+  session?: ControlSession,
+): Promise<Response | null> {
+  let parsed;
+  try {
+    parsed = parseWebPluginAssetUrl(request.url);
+  } catch {
+    return null;
+  }
+  if (!new URL(request.url).pathname.startsWith("/__lapis/plugins/")) return null;
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+  await requireRole(services, session, parsed.vaultId, "viewer");
+  const metadata = JSON.parse(
+    new TextDecoder().decode(
+      (await services.store.read(parsed.vaultId, ".obsidian/installed-plugins.json")).bytes,
+    ),
+  ) as { plugins?: Record<string, InstalledPluginRecord> };
+  const installed = metadata.plugins?.[parsed.pluginId];
+  if (
+    !installed ||
+    getInstalledPluginAssetVersion(installed) !== parsed.version ||
+    getInstalledPluginAssetHash(installed, parsed.path) !== parsed.sha256
+  ) {
+    throw new ServerHostError("NOT_FOUND", "Plugin asset not found");
+  }
+  const asset = await readInstalledPluginAsset({
+    adapter: {
+      readBinary: async (path) => bytesBody((await services.store.read(parsed.vaultId, path)).bytes),
+    },
+    installedPlugin: installed,
+    relativePath: parsed.path,
+    expectedSha256: parsed.sha256,
+  });
+  const etag = `"${asset.sha256}"`;
+  if (request.headers.get("if-none-match") === etag) {
+    return new Response(null, { status: 304, headers: { ETag: etag } });
+  }
+  const requestedRange = range(request.headers.get("range"), asset.bytes.byteLength);
+  const body = requestedRange
+    ? asset.bytes.slice(requestedRange.start, requestedRange.end + 1)
+    : asset.bytes;
+  const headers = new Headers({
+    "Accept-Ranges": "bytes",
+    "Cache-Control": "private, max-age=31536000, immutable",
+    "Content-Length": String(body.byteLength),
+    "Content-Type": getPluginAssetContentType(asset.path),
+    ETag: etag,
+    "X-Content-Type-Options": "nosniff",
+    "X-Lapis-Plugin-Asset-Sha256": asset.sha256,
+  });
+  if (requestedRange) {
+    headers.set(
+      "Content-Range",
+      `bytes ${requestedRange.start}-${requestedRange.end}/${asset.bytes.byteLength}`,
+    );
+  }
+  return new Response(request.method === "HEAD" ? null : bytesBody(body), {
+    status: requestedRange ? 206 : 200,
+    headers,
   });
 }
 

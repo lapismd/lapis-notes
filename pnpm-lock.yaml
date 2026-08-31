@@ -682,6 +682,9 @@ importers:
       '@tursodatabase/database':
         specifier: 0.7.2
         version: 0.7.2
+      fflate:
+        specifier: 0.8.3
+        version: 0.8.3
       zod:
         specifier: 3.25.76
         version: 3.25.76

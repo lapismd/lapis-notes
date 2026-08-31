@@ -385,6 +385,8 @@ The server's hybrid boundary mounts the generated JSON control plane at
 `/api/trpc` and keeps file and resource bytes on authenticated Fetch routes.
 Both paths share request-session, membership, mutation-security, managed-root,
 and error-code policy; only transport-specific body handling differs.
+Bounded ZIP transfer and verified hash-addressed plugin assets stay on the
+direct Fetch side and never serialize the derived per-vault database.
 
 API diagnostic hover cards keep unique action keys when titles repeat and
 expose one Quick Fix menu for cached actions. The

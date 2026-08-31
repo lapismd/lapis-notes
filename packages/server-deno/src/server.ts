@@ -10,11 +10,13 @@ import {
   contentType,
   directRouteError,
   handleDirectRoute,
+  handlePluginAssetRoute,
 } from "./direct-routes.ts";
 import { VaultEventHub } from "./events.ts";
 import { ManagedVaultStore } from "./managed-vaults.ts";
 import { appRouter } from "./router.ts";
 import { VaultRuntimeManager } from "./vault-runtimes.ts";
+import { handleTransferRoute } from "./transfers.ts";
 
 export type LapisDenoServer = {
   config: ServerConfig;
@@ -87,6 +89,11 @@ export async function createLapisDenoServer(
   } satisfies ServerServices;
   let ready = true;
   let closed = false;
+  const idleCleanup = setInterval(() => {
+    void runtimes.closeIdle().catch((error) =>
+      console.error("idle vault cleanup failed", { error }),
+    );
+  }, 60_000);
 
   const handler: Deno.ServeHandler = async (request, info) => {
     const url = new URL(request.url);
@@ -106,9 +113,20 @@ export async function createLapisDenoServer(
     headers.set("x-lapis-remote-address", remoteAddress || "unknown");
     request = new Request(request, { headers });
     const session = await resolveRequestSession(request, control);
+    if (url.pathname.startsWith("/__lapis/plugins/")) {
+      try {
+        return (
+          (await handlePluginAssetRoute(request, services, session)) ??
+          new Response("Not found", { status: 404 })
+        );
+      } catch (error) {
+        return directRouteError(error);
+      }
+    }
     if (url.pathname.startsWith("/api/vaults/")) {
       try {
         return (
+          (await handleTransferRoute(request, services, session)) ??
           (await handleDirectRoute(request, services, session)) ??
           new Response("Not found", { status: 404 })
         );
@@ -151,6 +169,7 @@ export async function createLapisDenoServer(
       if (closed) return;
       closed = true;
       ready = false;
+      clearInterval(idleCleanup);
       await runtimes.closeAll();
       await control.close();
     },

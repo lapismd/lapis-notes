@@ -74,3 +74,13 @@ enforce membership, Origin and CSRF on writes, strong ETags, conditional atomic
 replacement, serialized append, ranges, and symlink-aware root containment.
 Native per-vault Turso calls execute in a dedicated worker; database and file
 changes enter the same bounded replay hub.
+
+ZIP imports stream into a bounded temporary file, reject absolute paths,
+traversal, excessive expansion, and excessive entry counts, and publish a new
+managed vault only after extraction succeeds. Failed imports remove their
+upload and provisional vault. Exports include only regular managed-content
+files and reject symlinks.
+
+Installed plugin assets retain their version-and-SHA-addressed public URL. The
+server revalidates installed metadata, byte size, and digest before returning
+an authenticated immutable response with range and ETag support.

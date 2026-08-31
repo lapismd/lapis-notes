@@ -99,6 +99,10 @@ AppDatabaseProvider
      └─ browser proxy → BroadcastChannel RPC → owner
 ```
 
+Server ZIP import and export transfer authoritative managed content only. They
+exclude the derived per-vault database, which is opened or rebuilt through the
+same remote contract after an imported vault opens.
+
 The API-owned `REMOTE_APP_DATABASE_CONTRACT` supplies the single method
 catalogue, typed argument and result schemas, message bounds, and domain
 classification used by both native hosts. Desktop compatibility names alias
