@@ -169,7 +169,9 @@ export default defineConfig({
           {
             urlPattern: ({ url }) =>
               url.origin === self.location.origin &&
-              url.pathname.startsWith(`${WEB_PLUGIN_ASSET_ROUTE_PREFIX}/`),
+              // Workbox serializes this callback into the generated service
+              // worker, so every value it uses must be self-contained.
+              url.pathname.startsWith("/__lapis/plugins/"),
             handler: "CacheOnly",
             options: { cacheName: WEB_PLUGIN_ASSET_CACHE_NAME },
           },

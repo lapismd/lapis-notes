@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 import {
   rendererOptimizeDependencyExclusions,
@@ -22,5 +24,19 @@ describe("web renderer configuration", () => {
 
   it("keeps registry Svelte component CSS in its compiled module", () => {
     expect(rendererSvelteOptions).toEqual({ emitCss: false });
+  });
+
+  it("keeps the Workbox plugin asset route self-contained", async () => {
+    const viteConfig = await readFile(
+      path.resolve(process.cwd(), "vite.config.ts"),
+      "utf8",
+    );
+
+    expect(viteConfig).toContain(
+      'url.pathname.startsWith("/__lapis/plugins/")',
+    );
+    expect(viteConfig).not.toContain(
+      "url.pathname.startsWith(`${WEB_PLUGIN_ASSET_ROUTE_PREFIX}/`)",
+    );
   });
 });
