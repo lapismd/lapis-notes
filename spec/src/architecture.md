@@ -371,6 +371,11 @@ learn Lapis grammar or escaping rules.
 @lapismd/storybook-addon-visual-delta (npm; root-only Storybook tooling)
 ```
 
+The private Deno kernel package is source-exported within this workspace. Its
+filesystem, watch, resource, plugin-asset, language, and native database-worker
+modules have no desktop-window, authentication, HTTP-router, or Web-composition
+dependencies; each host supplies those policies through wrappers.
+
 Server-neutral runtime and transport types remain in API subpath exports.
 Desktop and server implementations consume the same remote AppDatabase
 catalogue, while tRPC and Deno server implementation types remain outside the

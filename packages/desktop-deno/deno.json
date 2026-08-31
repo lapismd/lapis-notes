@@ -9,6 +9,15 @@
   "imports": {
     "@codemirror/language": "npm:@codemirror/language@6.11.3",
     "@lapis-notes/api/language-service": "../api/src/lib/language-service/index.ts",
+    "@lapis-notes/deno-host-services/app-database-worker-protocol": "../deno-host-services/src/app-database-worker-protocol.ts",
+    "@lapis-notes/deno-host-services/app-database-worker-runtime": "../deno-host-services/src/app-database-worker-runtime.ts",
+    "@lapis-notes/deno-host-services/file-watch": "../deno-host-services/src/file-watch.ts",
+    "@lapis-notes/deno-host-services/language-service": "../deno-host-services/src/language-service.ts",
+    "@lapis-notes/deno-host-services/native-app-database": "../deno-host-services/src/native-app-database.ts",
+    "@lapis-notes/deno-host-services/paths": "../deno-host-services/src/paths.ts",
+    "@lapis-notes/deno-host-services/plugin-assets": "../deno-host-services/src/plugin-assets.ts",
+    "@lapis-notes/deno-host-services/vault-fs": "../deno-host-services/src/vault-fs.ts",
+    "@lapis-notes/deno-host-services/vault-resources": "../deno-host-services/src/vault-resources.ts",
     "@lapis-notes/language-service/markdownlint/runtime": "../language-service/src/markdownlint/runtime.ts",
     "@lapismd/ai-host": "../../../ai-host/src/index.ts",
     "@lapismd/terminal-host/deno": "../../../terminal-host/src/deno.ts",
@@ -24,7 +33,8 @@
     "acpx/runtime": "npm:acpx@0.13.0/runtime",
     "markdownlint": "npm:markdownlint@0.40.0",
     "markdownlint/sync": "npm:markdownlint@0.40.0/sync",
-    "ws": "npm:ws@8.18.3"
+    "ws": "npm:ws@8.18.3",
+    "zod": "npm:zod@3.25.76"
   },
   "nodeModulesDir": "none",
   "tasks": {

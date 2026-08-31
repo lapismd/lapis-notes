@@ -6,6 +6,12 @@ browser hosts. It serves a dedicated Web build and managed vault directories;
 it does not expose arbitrary server filesystem roots or make generated database
 state authoritative over Markdown.
 
+The reusable Deno host-services dependency is established before the HTTP host:
+it owns root-bound filesystem execution, file watches, resource and plugin
+assets, Markdown language operations, and native database worker dispatch. The
+server layer will add managed-root resolution, authentication, membership, and
+HTTP policy around these kernels.
+
 ## Requirements
 
 | ID         | Requirement                                                                                                                                                                                                                                                                   |

@@ -181,6 +181,12 @@ entrypoints.
 | LN-PKG-144 | Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition. |
 | LN-PKG-145 | Private `@lapis-notes/server-deno` MUST own the authenticated Deno server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, and deployment packaging. It MUST consume public Lapis interfaces and private Deno host services. |
 
+The private host-services package exports root-bound filesystem execution,
+portable path and error handling, file-watch mapping, vault-resource and plugin
+asset responses, Markdown language operations, and the native AppDatabase worker
+protocol/runtime. Desktop keeps window events, folder selection, and native file
+actions in desktop-owned wrappers.
+
 `@lapis-notes/api/app-database` exports the shared remote method contract, and
 `@lapis-notes/api/server-host` exports protocol, profile, capability, and stable
 error types. Neither entry exports a Deno server or tRPC implementation.

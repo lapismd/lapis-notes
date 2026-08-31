@@ -1,0 +1,33 @@
+{
+  "name": "@lapis-notes/deno-host-services",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./file-watch": "./src/file-watch.ts",
+    "./language-service": "./src/language-service.ts",
+    "./native-app-database": "./src/native-app-database.ts",
+    "./paths": "./src/paths.ts",
+    "./plugin-assets": "./src/plugin-assets.ts",
+    "./vault-fs": "./src/vault-fs.ts",
+    "./vault-resources": "./src/vault-resources.ts",
+    "./app-database-worker-protocol": "./src/app-database-worker-protocol.ts",
+    "./app-database-worker-runtime": "./src/app-database-worker-runtime.ts"
+  },
+  "scripts": {
+    "build": "pnpm check",
+    "check": "deno check --sloppy-imports src/paths.ts src/file-watch.ts src/plugin-assets.ts src/vault-fs.ts src/vault-resources.ts && vitest run",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lapis-notes/api": "workspace:*",
+    "@lapis-notes/language-service": "workspace:*",
+    "@tursodatabase/database": "0.7.2"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10"
+  }
+}

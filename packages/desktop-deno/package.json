@@ -34,6 +34,7 @@
   "devDependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/app-profile": "workspace:*",
+    "@lapis-notes/deno-host-services": "workspace:*",
     "@lapis-notes/language-service": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",

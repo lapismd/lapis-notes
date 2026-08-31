@@ -1,8 +1,4 @@
-import { connect } from "@tursodatabase/database";
-import {
-  TursoAppDatabase,
-  type TursoConnection,
-} from "../../api/src/lib/storage/turso-app-database.ts";
+import { openNativeTursoAppDatabase } from "@lapis-notes/deno-host-services/native-app-database";
 import type {
   AppDatabaseWorkerRequest,
   AppDatabaseWorkerResponse,
@@ -10,20 +6,12 @@ import type {
 import { AppDatabaseWorkerRuntime } from "./app-database-worker-runtime.ts";
 
 const runtime = new AppDatabaseWorkerRuntime(
-  async ({ vaultId, path }) => {
-    const database = new TursoAppDatabase(vaultId, {
-      kind: "turso-native",
+  ({ vaultId, path }) =>
+    openNativeTursoAppDatabase({
+      vaultId,
+      path,
       providerId: "turso-native-desktop",
-      transport: "native",
-      role: "direct",
-      connectionFactory: async () =>
-        (await connect(path, {
-          experimental: ["index_method"],
-        })) as TursoConnection,
-    });
-    await database.open();
-    return database;
-  },
+    }),
   (response: AppDatabaseWorkerResponse) => globalThis.postMessage(response),
 );
 

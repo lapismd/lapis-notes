@@ -104,6 +104,10 @@ catalogue, typed argument and result schemas, message bounds, and domain
 classification used by both native hosts. Desktop compatibility names alias
 that catalogue rather than retaining another list.
 
+The reusable Deno host-services worker protocol and runtime own bounded native
+database dispatch and change forwarding. Each concrete host owns its database
+path, provider descriptor, worker entry point, and lifecycle trigger.
+
 `storeFileHistoryRevision` MAY replace the latest same-path revision when the
 caller sets `replaceLatest`. History uses that option for the modify merge
 window so rapid edits do not append a new snapshot.
