@@ -24,6 +24,8 @@ export function validateReleaseWorkflows({
   pages,
 } = {}) {
   requireContains("CI workflow", ci, "pnpm spec:first");
+  requireContains("CI workflow", ci, "pnpm spec:first --base");
+  requireNotContains("CI workflow", ci, "pnpm spec:first -- --base");
   requireContains("CI workflow", ci, "pnpm packages:check");
   requireContains("CI workflow", ci, "pnpm packages:pack");
   requireContains("CI workflow", ci, "pnpm check:all");
