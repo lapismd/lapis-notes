@@ -39,4 +39,17 @@ describe("web renderer configuration", () => {
       "url.pathname.startsWith(`${WEB_PLUGIN_ASSET_ROUTE_PREFIX}/`)",
     );
   });
+
+  it("provides host-owned ESM modules to installed renderer plugins", async () => {
+    const sessionSource = await readFile(
+      path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
+      "utf8",
+    );
+
+    expect(sessionSource).toContain("createNotesPluginDependencyResolver");
+    expect(sessionSource).toContain(
+      "createCommunityPluginDependencyResolver:\n          createNotesPluginDependencyResolver",
+    );
+    expect(sessionSource).not.toContain("globalThis.app");
+  });
 });

@@ -14,6 +14,10 @@ describe("Deno desktop plugin registration", () => {
 
     expect(source).toContain("notesPluginProfile");
     expect(source).toContain("registerNotesPluginSettings(app)");
+    expect(source).toContain("createNotesPluginDependencyResolver");
+    expect(source).toContain(
+      "createCommunityPluginDependencyResolver:\n        createNotesPluginDependencyResolver",
+    );
     expect(source).not.toMatch(
       /@lapis-notes\/(?:ai|bases|bookmarks|graph|history|markdown-lint|spellcheck|wordcount)/u,
     );

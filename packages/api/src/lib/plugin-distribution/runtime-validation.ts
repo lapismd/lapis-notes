@@ -4,6 +4,7 @@ import {
   validateLapisManifest,
 } from "../lapis-extension";
 import { scanBarePluginDependencySpecifiers } from "../plugin-dependency-scanner";
+import { isImplicitRendererEsmHostModule } from "../plugin-dependency-resolver";
 import type { PluginManifest } from "../plugin";
 import { canonicalJson } from "./canonical-json";
 import type {
@@ -266,6 +267,16 @@ function validateHostDependency(options: {
   pluginId: string;
   runtime: PluginReleaseRuntimeMetadata;
 }): void {
+  if (
+    options.host === "workspace" &&
+    !options.declared &&
+    isImplicitRendererEsmHostModule(options.specifier)
+  ) {
+    // Svelte emits these imports while compiling a component. They form a
+    // renderer ABI supplied by the host, not an authored shared dependency.
+    return;
+  }
+
   const module = hostModule(options.specifier);
   if (!module) {
     options.diagnostics.push(

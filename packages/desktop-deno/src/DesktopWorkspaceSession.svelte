@@ -12,6 +12,7 @@
     type VaultSession,
   } from "@lapis-notes/api";
   import {
+    createNotesPluginDependencyResolver,
     notesPluginProfile,
     registerNotesPluginSettings,
   } from "@lapis-notes/app-profile";
@@ -73,6 +74,8 @@
       configPath: ".obsidian/app.json",
       session,
       safeMode,
+      createCommunityPluginDependencyResolver:
+        createNotesPluginDependencyResolver,
       pluginAssetServer,
       workspaceShell: { application: appInfo, notifications: true },
       markdownRenderer: async () => {},

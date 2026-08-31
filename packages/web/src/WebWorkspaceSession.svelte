@@ -12,6 +12,7 @@
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import {
+    createNotesPluginDependencyResolver,
     notesPluginProfile,
     registerNotesPluginSettings,
   } from "@lapis-notes/app-profile";
@@ -66,6 +67,8 @@
         version: "2026.6.3",
         configPath: ".obsidian/app.json",
         session,
+        createCommunityPluginDependencyResolver:
+          createNotesPluginDependencyResolver,
         pluginAssetServer: createWebPluginAssetServer({ adapter }),
         workspaceShell: {
           application: {

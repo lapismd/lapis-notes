@@ -50,6 +50,40 @@ describe("plugin release runtime validation", () => {
     );
   });
 
+  it("accepts compiler-emitted renderer ABI imports without manifest declarations", () => {
+    const result = validatePluginReleaseRuntime({
+      releaseManifest: releaseManifestFor(esmWorkspaceManifest),
+      pluginManifest: esmWorkspaceManifest,
+      files: filesFor(esmWorkspaceManifest, {
+        "main.mjs": [
+          `import { mount } from "svelte";`,
+          `import * as client from "svelte/internal/client";`,
+          `import "svelte/internal/disclose-version";`,
+          `export default class FixturePlugin {}`,
+        ].join("\n"),
+      }),
+      provenance: "official",
+    });
+
+    expect(result.errors).toEqual([]);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("does not widen the implicit renderer ABI to arbitrary Svelte subpaths", () => {
+    const result = validatePluginReleaseRuntime({
+      releaseManifest: releaseManifestFor(esmWorkspaceManifest),
+      pluginManifest: esmWorkspaceManifest,
+      files: filesFor(esmWorkspaceManifest, {
+        "main.mjs": `import * as server from "svelte/internal/server"; export default class FixturePlugin {}`,
+      }),
+      provenance: "official",
+    });
+
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({ code: "runtime-dependency-unknown" }),
+    );
+  });
+
   it("rejects renderer entries that declare sidecar-only dependencies", () => {
     const manifest = manifestWithRuntime({
       entries: {
