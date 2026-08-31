@@ -99,6 +99,11 @@ AppDatabaseProvider
      └─ browser proxy → BroadcastChannel RPC → owner
 ```
 
+The API-owned `REMOTE_APP_DATABASE_CONTRACT` supplies the single method
+catalogue, typed argument and result schemas, message bounds, and domain
+classification used by both native hosts. Desktop compatibility names alias
+that catalogue rather than retaining another list.
+
 `storeFileHistoryRevision` MAY replace the latest same-path revision when the
 caller sets `replaceLatest`. History uses that option for the modify merge
 window so rapid edits do not append a new snapshot.

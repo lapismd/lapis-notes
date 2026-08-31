@@ -8,6 +8,10 @@ package remains at `packages/desktop-deno` and the root launches it with
 the Chromium Embedded Framework backend for renderer debugging. Windows
 distribution is outside the supported matrix.
 
+Its AppDatabase compatibility catalogue aliases the API-owned remote contract.
+The desktop bridge retains its existing command names and worker lifecycle, but
+cannot diverge from the method surface later consumed by the Deno server.
+
 ## Requirements
 
 | ID          | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |

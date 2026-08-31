@@ -13,7 +13,8 @@ import {
 export type VaultStorageKind =
   | "opfs"
   | "file-system-access"
-  | "desktop-folder";
+  | "desktop-folder"
+  | "server-hosted";
 
 export type BootstrapAppearanceMode = "dark" | "light" | "system";
 

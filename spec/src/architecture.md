@@ -371,6 +371,11 @@ learn Lapis grammar or escaping rules.
 @lapismd/storybook-addon-visual-delta (npm; root-only Storybook tooling)
 ```
 
+Server-neutral runtime and transport types remain in API subpath exports.
+Desktop and server implementations consume the same remote AppDatabase
+catalogue, while tRPC and Deno server implementation types remain outside the
+public API barrel and browser graph.
+
 API diagnostic hover cards keep unique action keys when titles repeat and
 expose one Quick Fix menu for cached actions. The
 language-service cache keeps at most one action per title for the originating

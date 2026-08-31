@@ -180,6 +180,10 @@ entrypoints.
 | LN-PKG-143 | Release candidates MUST reuse the validated Turbo build graph and generate npm tarballs through an explicit already-built path. Publication MUST continue to require the downloaded immutable candidate, explicit manual dispatch, protected environment, OIDC, checksum verification, and existing bootstrap stop. |
 | LN-PKG-144 | Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition. |
 | LN-PKG-145 | Private `@lapis-notes/server-deno` MUST own the authenticated Deno server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, and deployment packaging. It MUST consume public Lapis interfaces and private Deno host services. |
+
+`@lapis-notes/api/app-database` exports the shared remote method contract, and
+`@lapis-notes/api/server-host` exports protocol, profile, capability, and stable
+error types. Neither entry exports a Deno server or tRPC implementation.
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter. |

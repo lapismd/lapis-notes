@@ -54,7 +54,7 @@ export type {
   SearchEmbeddingRuntimeStatus,
 } from "./search-embedding-provider";
 
-export type RuntimeTarget = "web-pwa" | "deno-desktop" | "test";
+export type RuntimeTarget = "web-pwa" | "deno-desktop" | "deno-server" | "test";
 
 export interface LocalSearchQueryEnhancementProviderConfig {
   kind: "local-model";
@@ -159,6 +159,7 @@ export type AppDatabaseKind = "turso-wasm" | "turso-native" | "memory";
 export type AppDatabaseStorageMode = "local" | "synced" | "remote";
 export type AppDatabaseTransport =
   | "native"
+  | "http-rpc"
   | "wasm-worker"
   | "broadcast-proxy"
   | "memory";

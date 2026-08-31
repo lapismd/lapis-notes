@@ -240,6 +240,17 @@ async function createPreferredAppDatabase(
         });
     return { appDatabase: database, state: readyState(database, false) };
   }
+  if (runtime === "deno-server") {
+    if (!provider) {
+      throw new Error("deno-server requires an AppDatabaseProvider");
+    }
+    const database = await provider.open({
+      vaultId,
+      runtime,
+      role: "direct",
+    });
+    return { appDatabase: database, state: readyState(database, false) };
+  }
   if (runtime === "web-pwa") {
     return createBrowserAppDatabase(
       vaultId,

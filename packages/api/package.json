@@ -79,6 +79,9 @@
       "app-database": [
         "dist/app-database-host.d.ts"
       ],
+      "server-host": [
+        "dist/server-host.d.ts"
+      ],
       "telemetry": [
         "dist/telemetry.d.ts"
       ]
@@ -160,6 +163,11 @@
       "types": "./dist/app-database-host.d.ts",
       "import": "./dist/app-database-host.js",
       "default": "./dist/app-database-host.js"
+    },
+    "./server-host": {
+      "types": "./dist/server-host.d.ts",
+      "import": "./dist/server-host.js",
+      "default": "./dist/server-host.js"
     },
     "./telemetry": {
       "types": "./dist/telemetry.d.ts",
