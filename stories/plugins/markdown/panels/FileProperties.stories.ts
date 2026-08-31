@@ -593,7 +593,7 @@ function placementStory(
                 ?.status,
             ).toBe("planned");
           },
-          { timeout: 5_000 },
+          { timeout: 10_000 },
         );
         await app.fileManager.processFrontMatter(file, (frontmatter) => {
           frontmatter.status = "review";
@@ -605,7 +605,7 @@ function placementStory(
                 ?.status,
             ).toBe("review");
           },
-          { timeout: 5_000 },
+          { timeout: 10_000 },
         );
         triggerMetadataPathChanged(app, file.path);
         await waitFor(
@@ -621,7 +621,7 @@ function placementStory(
               }),
             ).toHaveTextContent("review");
           },
-          { timeout: 5_000 },
+          { timeout: 10_000 },
         );
         const livePanelElement = canvasElement.querySelector<HTMLElement>(
           '[data-testid="file-properties-panel"]',

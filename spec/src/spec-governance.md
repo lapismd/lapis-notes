@@ -17,6 +17,10 @@ Governance so partial public-package candidates retain package semantics and
 release-policy coverage in the same logical change. This includes preserving
 the hidden candidate directory when workflow actions upload release evidence
 and keeping ordinary push runs outside the explicit manual publication gate.
+The same mapping covers CI images, dependency-context generation, signed Turbo
+cache configuration, local container parity, and parallel workflow
+orchestration so infrastructure changes remain traceable to architecture and
+package policy.
 
 ## Requirements
 
@@ -65,6 +69,7 @@ and keeping ordinary push runs outside the explicit manual publication gate.
 | LN-GOV-041 | The spec-first map MUST route Lapis package release workflows, Changesets configuration, pre- and post-publication release and local-consumer helper scripts, release documentation, and public package metadata to Packages and Specification Governance, with API, UI, Language Service, File Explorer, and Workspace package docs also routed to their owning architectural chapters. Local-consumer preparation MUST preserve an existing ignored pnpm hook so independently owned source-package overrides remain composable. |
 | LN-GOV-042 | The spec-first map MUST route app-profile, Web, Deno, and plugin-management Workspace changes to Plugin Model plus their package and host chapters. Extracted plugin behavior and Storybook source MUST be governed by the sibling `lapis-plugins` specification. |
 | LN-GOV-043 | `AGENTS.md` MUST require sibling `lapis-plugin-*` Storybooks to follow the same WorkspaceShell and six-placement panel contract as bundled plugins. It MUST forbid isolated pane stories and shell fallbacks, name Tasks Column Canvas as a Tasks-only exception, and point agents at the shared panel helpers plus History panel stories. |
+| LN-GOV-044 | The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog. |
 
 The Storybook structure audit treats AI, Bases, and History as required
 plugin Shell families and maps both Graph panel families through the shared

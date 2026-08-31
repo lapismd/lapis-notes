@@ -18,6 +18,10 @@ through the existing 1000 ms writer. App-backed browser acceptance serializes
 story files because compatibility
 leases, portalled overlays, and worker-backed plugin resources share one
 browser realm; each story still owns and disposes its own App.
+Root package validation uses one bounded Turbo graph with signed organization
+remote caching. CI runs in an immutable lockfile-specific dependency image over
+the shared Lapis toolchain image; local container validation uses the same
+digest and remains functional without cache credentials.
 Separately versioned Roles/CV catalog coverage remains in its owning repository while Lapis hosts
 load that plugin only after a verified install. Tasks remains independently
 owned and hosts MUST NOT register its workspace views themselves. AppDatabase owns
@@ -186,6 +190,11 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-088 | Workspace-owned plugin management MAY compose public Design Core SearchFilterBar, FilterCommandPicker, Resizable, and settings navigation primitives. Registry state, verified Markdown, filtering, installation actions, and application policy MUST remain in Lapis; reusable search, command-option, resizing, and responsive settings-shell behavior MUST remain in Design Core. |
 | LN-ARCH-089 | Workspace-owned plugin management MUST distinguish installed vault artifacts from statically bundled profile plugins. Uninstall and disable actions MUST remain App-owned lifecycle operations and reuse the installed-plugin confirmation boundary without transferring package removal policy to Design Core. |
 | LN-ARCH-090 | Signed catalog metadata and unsigned aggregate download statistics MUST remain separate contracts. API owns summary validation and source access; Workspace owns optional display and sorting. Missing statistics MUST NOT affect signature verification, install availability, updates, or registry errors. |
+| LN-ARCH-091 | Filesystem content MUST remain authoritative while API owns reusable sync-host identity, cursor, generated-state, streamed I/O, capability, network, and crypto contracts. Protocol plugins own remote schemas, revision graphs, reconciliation, and UI; hosts own isolation, secret persistence, unlock, and platform adapters. |
+| LN-ARCH-092 | API MUST own explicit sync enrollment, multi-epoch key custody, owner membership authority, bounded pairing state including validation of the user-confirmed SAS, and opaque recovery bundles. Protocol plugins MUST remain responsible for transporting returned artifacts, choosing endpoints, validating revision ancestry, and presenting pairing or recovery policy. |
+| LN-ARCH-093 | API MUST keep a stable per-vault Sync Identity in the same wrapped host key material as root, recovery, device, and epoch secrets. API owns purpose-scoped signing, owner-authorised identity transitions, and bounded encrypted pairing transfer of opaque plugin metadata; protocol plugins own outer transport schemas, non-secret endpoint configuration, remote authorization tests, provisioning UI, and provider-specific authentication policy. |
+| LN-ARCH-094 | Root package build, check, and test tasks MUST run through a bounded Turbo wrapper that defaults to half the available processors capped at four and honors `TURBO_CONCURRENCY`. Signed organization remote caching MUST fail open to normal local execution when credentials or the cache service are unavailable. |
+| LN-ARCH-095 | CI MUST consume a digest-pinned lockfile-specific `lapis-notes-ci` image built over the shared multi-architecture `lapis-ci` toolchain. The dependency layer MUST contain only the pnpm store derived from manifests, patches, and the lockfile; source and reusable `node_modules` MUST remain outside the image. |
 
 The first app-owned memory boundary is the disposable database substrate:
 portable memory code calls one typed `AppDatabase` surface for checkpoints,

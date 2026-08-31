@@ -1,0 +1,139 @@
+diff --git a/dist/bits/link-preview/link-preview.svelte.js b/dist/bits/link-preview/link-preview.svelte.js
+index 28065defc505c4fcc5f426a86dea0c34f8206dfe..1ab543c5310bbe1bcce1b9dbb3aaa2dd7010c602 100644
+--- a/dist/bits/link-preview/link-preview.svelte.js
++++ b/dist/bits/link-preview/link-preview.svelte.js
+@@ -20,6 +20,8 @@ export class LinkPreviewRootState {
+     isPointerDownOnContent = $state(false);
+     containsSelection = $state(false);
+     timeout = null;
++    selectionTimeout = null;
++    destroyed = false;
+     contentNode = $state(null);
+     contentMounted = $state(false);
+     contentPresence;
+@@ -45,7 +47,11 @@ export class LinkPreviewRootState {
+             const handlePointerUp = () => {
+                 this.containsSelection = false;
+                 this.isPointerDownOnContent = false;
+-                afterSleep(1, () => {
++                this.clearSelectionTimeout();
++                this.selectionTimeout = afterSleep(1, () => {
++                    this.selectionTimeout = null;
++                    if (this.destroyed)
++                        return;
+                     const isSelection = this.domContext.getDocument().getSelection()?.toString() !== "";
+                     if (isSelection) {
+                         this.hasSelection = true;
+@@ -56,18 +62,29 @@ export class LinkPreviewRootState {
+                 });
+             };
+             const unsubListener = on(this.domContext.getDocument(), "pointerup", handlePointerUp);
+-            if (!this.contentNode)
+-                return;
+-            const tabCandidates = getTabbableCandidates(this.contentNode);
+-            for (const candidate of tabCandidates) {
+-                candidate.setAttribute("tabindex", "-1");
++            if (this.contentNode) {
++                const tabCandidates = getTabbableCandidates(this.contentNode);
++                for (const candidate of tabCandidates) {
++                    candidate.setAttribute("tabindex", "-1");
++                }
+             }
+             return () => {
++                this.clearSelectionTimeout();
+                 unsubListener();
+                 this.hasSelection = false;
+                 this.isPointerDownOnContent = false;
+             };
+         });
++        onDestroyEffect(() => {
++            this.destroyed = true;
++            this.clearSelectionTimeout();
++        });
++    }
++    clearSelectionTimeout() {
++        if (this.selectionTimeout !== null) {
++            clearTimeout(this.selectionTimeout);
++            this.selectionTimeout = null;
++        }
+     }
+     clearTimeout() {
+         if (this.timeout) {
+diff --git a/dist/bits/scroll-area/scroll-area.svelte.js b/dist/bits/scroll-area/scroll-area.svelte.js
+index b1f93505e7a6d4fc9f984d2ba4d6698fe8de315b..b449373a9b1e6b6db031685fdc15065a8fd8bdfb 100644
+--- a/dist/bits/scroll-area/scroll-area.svelte.js
++++ b/dist/bits/scroll-area/scroll-area.svelte.js
+@@ -6,7 +6,7 @@
+  */
+ import { Context, useDebounce, watch } from "runed";
+ import { untrack } from "svelte";
+-import { simpleBox, executeCallbacks, attachRef, DOMContext, getWindow, } from "svelte-toolbelt";
++import { simpleBox, executeCallbacks, attachRef, DOMContext, getWindow, onDestroyEffect, } from "svelte-toolbelt";
+ import { mergeProps, useId } from "../../shared/index.js";
+ import { clamp } from "../../internal/clamp.js";
+ import { on } from "svelte/events";
+@@ -537,7 +537,21 @@ export class ScrollAreaScrollbarSharedState {
+         this.root = scrollbarState.root;
+         this.scrollbarVis = scrollbarState.scrollbarVis;
+         this.scrollbar = scrollbarState.scrollbarVis.scrollbar;
+-        this.handleResize = useDebounce(() => this.scrollbarState.onResize(), 10);
++        let resizeTimeout = null;
++        this.handleResize = () => {
++            if (resizeTimeout !== null)
++                globalThis.clearTimeout(resizeTimeout);
++            resizeTimeout = globalThis.setTimeout(() => {
++                resizeTimeout = null;
++                this.scrollbarState.onResize();
++            }, 10);
++        };
++        onDestroyEffect(() => {
++            if (resizeTimeout !== null) {
++                globalThis.clearTimeout(resizeTimeout);
++                resizeTimeout = null;
++            }
++        });
+         this.handleThumbPositionChange = this.scrollbarState.onThumbPositionChange;
+         this.handleWheelScroll = this.scrollbarState.onWheelScroll;
+         this.handleThumbPointerDown = this.scrollbarState.onThumbPointerDown;
+diff --git a/dist/bits/utilities/dismissible-layer/use-dismissable-layer.svelte.js b/dist/bits/utilities/dismissible-layer/use-dismissable-layer.svelte.js
+index 9f2e77f69a42480fcf75c5f0dfd90e66b24dcdb9..70c5193ec46685707ca834e4772fb9d4c714ad2a 100644
+--- a/dist/bits/utilities/dismissible-layer/use-dismissable-layer.svelte.js
++++ b/dist/bits/utilities/dismissible-layer/use-dismissable-layer.svelte.js
+@@ -33,25 +33,36 @@ export class DismissibleLayerState {
+             this.#documentObj = getOwnerDocument(this.opts.ref.current);
+         });
+         let unsubEvents = noop;
++        let activationTimeout = null;
++        const clearActivationTimeout = () => {
++            if (activationTimeout !== null) {
++                globalThis.clearTimeout(activationTimeout);
++                activationTimeout = null;
++            }
++        };
+         const cleanup = () => {
++            clearActivationTimeout();
+             this.#resetState();
+             globalThis.bitsDismissableLayers.delete(this);
+             this.#handleInteractOutside.destroy();
+             unsubEvents();
+         };
+         watch([() => this.opts.enabled.current, () => this.opts.ref.current], () => {
+             if (!this.opts.enabled.current || !this.opts.ref.current)
+                 return;
+-            afterSleep(1, () => {
++            clearActivationTimeout();
++            activationTimeout = afterSleep(1, () => {
++                activationTimeout = null;
+                 if (!this.opts.ref.current)
+                     return;
+                 globalThis.bitsDismissableLayers.set(this, this.#behaviorType);
+                 unsubEvents();
+                 unsubEvents = this.#addEventListeners();
+             });
+             return cleanup;
+         });
+         onDestroyEffect(() => {
++            clearActivationTimeout();
+             this.#resetState.destroy();
+             globalThis.bitsDismissableLayers.delete(this);
+             this.#handleInteractOutside.destroy();

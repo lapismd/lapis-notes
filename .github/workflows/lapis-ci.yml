@@ -35,10 +35,10 @@ jobs:
       - run: pnpm spec:build
       - name: Spec-first gate
         if: github.event_name == 'pull_request'
-        run: pnpm spec:first -- --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
+        run: pnpm spec:first --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
       - name: Release intent gate
         if: github.event_name == 'pull_request'
-        run: pnpm release:intent -- --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
+        run: pnpm release:intent --base "origin/${{ github.base_ref }}" --head "${{ github.sha }}"
 
   packages:
     name: Package release checks

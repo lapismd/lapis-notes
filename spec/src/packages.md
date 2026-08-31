@@ -18,6 +18,10 @@ development tooling at the root and are excluded from publishable package
 runtime closures. AI model menus consume structured host catalog labels while
 `@lapis-notes/ai` still has no runtime `@lapismd/ai-host` dependency. The external Roles package remains a production host
 dependency only and does not enter the root Storybook development closure.
+CI prepares package outputs once, then fans out quality, unit, static
+Storybook, interaction/accessibility, and release-candidate work in independent
+blocking jobs. A stable aggregate job is the branch-protection boundary, while
+visual comparison remains wired but non-blocking.
 The Storybook host resolves Spellcheck's Harper binary import through the
 installed package closure while preserving the worker-facing binary export.
 `@lapis-notes/api` exports the namespaced projection query AST and allowlisted
@@ -172,6 +176,8 @@ entrypoints.
 | LN-PKG-139 | The release workflow MUST upload the hidden `.release` directory as the immutable candidate artifact, including its manifest, plan, and tarballs, before any gated publication job can run. |
 | LN-PKG-140 | Push-triggered release runs MUST stop after preparing the verified candidate artifact. Package publication MUST require an explicit manual workflow dispatch with its `publish` input enabled, in addition to the protected `npm-production` environment and release-script approval guard. |
 | LN-PKG-141 | Post-publication verification of a partial manifest MUST install each selected package at its manifest version and every unchanged public framework package at its repository version from npm before exercising documented UI, API, Workspace, and CSS entrypoints. |
+| LN-PKG-142 | CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, and release-artifact jobs concurrently before one stable `validate` aggregation job. Functional, interaction, and accessibility failures MUST block; visual comparison MUST remain non-blocking. |
+| LN-PKG-143 | Release candidates MUST reuse the validated Turbo build graph and generate npm tarballs through an explicit already-built path. Publication MUST continue to require the downloaded immutable candidate, explicit manual dispatch, protected environment, OIDC, checksum verification, and existing bootstrap stop. |
 | LN-PKG-037 | `@lapis-notes/api` MUST style the CodeMirror inline problem created by `View Problem` through the editor stylesheet and public workspace tokens. The widget MUST NOT depend on application-global utility CSS. |
 | LN-PKG-038 | Executing `View Problem` MUST dismiss its originating hover card and clear the active diagnostic before rendering the inline problem. Closing the inline problem MUST leave later hover discovery operational. |
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter. |

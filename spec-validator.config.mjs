@@ -119,8 +119,12 @@ export default defineConfig(tableRequirements(), {
       rules: [
         {
           pattern:
-            "^(?:\\.github/workflows/(?:lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent|prepare-local-plugin-consumer|lib/local-plugin-consumer)\\.mjs|scripts/local-plugin-pnpmfile(?:\\.test)?\\.(?:cjs|mjs))$",
-          chapters: ["spec/src/packages.md", "spec/src/spec-governance.md"],
+            "^(?:\\.ci/(?:dependency-image\\.Dockerfile|images\\.json)|\\.env\\.example|\\.github/actions/ci-setup/action\\.yml|\\.github/workflows/(?:dependency-image|lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent|prepare-local-plugin-consumer|pack-packages|prepare-ci-dependency-context|update-ci-image-manifest|run-ci-container|run-turbo|report-turbo-cache|lib/(?:local-plugin-consumer|concurrency|ci-images|ci-container))\\.mjs|scripts/local-plugin-pnpmfile(?:\\.test)?\\.(?:cjs|mjs))$",
+          chapters: [
+            "spec/src/architecture.md",
+            "spec/src/packages.md",
+            "spec/src/spec-governance.md",
+          ],
         },
         {
           pattern:
@@ -295,7 +299,8 @@ export default defineConfig(tableRequirements(), {
           ],
         },
         {
-          pattern: "^(?:\\.storybook/|stories/catalog/)",
+          pattern:
+            "^(?:\\.storybook/|stories/catalog/|scripts/storybook-runtime-warnings\\.mjs$)",
           chapters: ["spec/src/storybook-catalog.md"],
         },
         {
