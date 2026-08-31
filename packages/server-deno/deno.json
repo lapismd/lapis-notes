@@ -1,6 +1,7 @@
 {
   "imports": {
     "@lapis-notes/api/app-database": "../api/src/lib/app-database-host.ts",
+    "@lapis-notes/api/plugin-assets": "../api/src/lib/plugin-assets.ts",
     "@lapis-notes/api/server-host": "../api/src/lib/server-host.ts",
     "@lapis-notes/deno-host-services/app-database-worker-protocol": "../deno-host-services/src/app-database-worker-protocol.ts",
     "@lapis-notes/deno-host-services/app-database-worker-runtime": "../deno-host-services/src/app-database-worker-runtime.ts",

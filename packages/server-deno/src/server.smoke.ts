@@ -3,6 +3,11 @@ import { join } from "node:path";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 
 import type { AppRouter } from "./router.ts";
+import {
+  ServerAppDatabaseProvider,
+  ServerVaultAdapter,
+  type ServerVaultEventStream,
+} from "./browser.ts";
 import { createLapisDenoServer } from "./server.ts";
 
 const root = await Deno.makeTempDir({ prefix: "lapis-server-smoke-" });
@@ -127,6 +132,64 @@ try {
   if (conflict.status !== 412) {
     throw new Error(`Conditional write returned ${conflict.status}`);
   }
+
+  const authenticatedFetch: typeof fetch = (input, init = {}) => {
+    const headers = new Headers(init.headers);
+    headers.set("cookie", cookie);
+    headers.set("origin", origin);
+    return fetch(input, { ...init, headers });
+  };
+  const adapter = new ServerVaultAdapter({
+    client: client as never,
+    profile: {
+      id: created.vaultId,
+      name: "Smoke vault",
+      kind: "server-hosted",
+      role: "owner",
+      archived: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
+    baseUrl,
+    csrfToken: () => csrfToken,
+    fetch: authenticatedFetch,
+  });
+  await adapter.mkdir("notes");
+  await adapter.write("notes/adapter.md", "one");
+  await adapter.append("notes/adapter.md", " two");
+  await adapter.process("notes/adapter.md", (value) => `${value} three`);
+  if ((await adapter.read("notes/adapter.md")) !== "one two three") {
+    throw new Error("ServerVaultAdapter text operations failed");
+  }
+  if (!(await adapter.list("/")).folders.includes("notes")) {
+    throw new Error("ServerVaultAdapter root listing failed");
+  }
+  await adapter.writeBinary(
+    "notes/data.bin",
+    new Uint8Array([1, 2, 3]).buffer,
+  );
+  if (
+    new Uint8Array(await adapter.readBinary("notes/data.bin")).join(",") !==
+    "1,2,3"
+  ) {
+    throw new Error("ServerVaultAdapter binary operations failed");
+  }
+
+  const quietEvents = {
+    subscribe: () => () => undefined,
+  } as unknown as ServerVaultEventStream;
+  const remoteDatabase = await new ServerAppDatabaseProvider(
+    client as never,
+    quietEvents,
+  ).open({ vaultId: created.vaultId });
+  await remoteDatabase.setMeta("adapter-smoke", { ok: true });
+  const remoteMeta = await remoteDatabase.getMeta<{ ok: boolean }>(
+    "adapter-smoke",
+  );
+  if (remoteMeta?.ok !== true) {
+    throw new Error("ServerAppDatabaseProvider round-trip failed");
+  }
+  await remoteDatabase.close();
   console.log("Deno server smoke passed");
 } finally {
   abort.abort();

@@ -171,11 +171,10 @@ export class ManagedVaultStore {
   } | null> {
     const paths = managedVaultPaths(this.dataRoot, vaultId);
     try {
-      const absolute = await resolveManagedPath(
-        paths.content,
-        relativePath,
-        "read",
-      );
+      const absolute =
+        !relativePath || relativePath === "/"
+          ? await Deno.realPath(paths.content)
+          : await resolveManagedPath(paths.content, relativePath, "read");
       const stat = await Deno.stat(absolute);
       if (stat.isDirectory) {
         return { type: "folder", size: 0, mtime: stat.mtime?.getTime() ?? 0 };
@@ -199,11 +198,10 @@ export class ManagedVaultStore {
     relativePath: string,
   ): Promise<{ files: string[]; folders: string[] }> {
     const paths = managedVaultPaths(this.dataRoot, vaultId);
-    const absolute = await resolveManagedPath(
-      paths.content,
-      relativePath,
-      "read",
-    );
+    const absolute =
+      !relativePath || relativePath === "/"
+        ? await Deno.realPath(paths.content)
+        : await resolveManagedPath(paths.content, relativePath, "read");
     const files: string[] = [];
     const folders: string[] = [];
     for await (const entry of Deno.readDir(absolute)) {

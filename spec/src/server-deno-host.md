@@ -84,3 +84,9 @@ files and reject symlinks.
 Installed plugin assets retain their version-and-SHA-addressed public URL. The
 server revalidates installed metadata, byte size, and digest before returning
 an authenticated immutable response with range and ETag support.
+
+The browser entry constructs `ServerVaultAdapter` and
+`ServerAppDatabaseProvider` directly. The vault adapter maps metadata and
+directory operations to tRPC and byte operations to Fetch; `process()` reads
+one ETag snapshot and performs one conditional write. Both adapters share one
+resumable vault event stream and never install a native desktop bridge.
