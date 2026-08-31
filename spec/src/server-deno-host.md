@@ -90,3 +90,8 @@ The browser entry constructs `ServerVaultAdapter` and
 directory operations to tRPC and byte operations to Fetch; `process()` reads
 one ETag snapshot and performs one conditional write. Both adapters share one
 resumable vault event stream and never install a native desktop bridge.
+
+The matching static build gates on `system.info` before session restoration,
+then provides login and managed-vault lifecycle UI. It ships without Workbox or
+a service worker and mounts the ordinary workspace shell only after the remote
+vault and application-database session are ready.

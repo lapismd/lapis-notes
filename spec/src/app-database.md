@@ -107,6 +107,9 @@ same remote contract after an imported vault opens.
 dispatching only catalogue methods to their generated domain procedures. It
 shares the vault event subscription with the remote vault adapter and projects
 database change sets through the ordinary `subscribeToChanges` contract.
+The server Web composition passes that provider explicitly to
+`createVaultSession` with runtime `deno-server`; it never opens browser Turso or
+participates in browser-owner election.
 
 The API-owned `REMOTE_APP_DATABASE_CONTRACT` supplies the single method
 catalogue, typed argument and result schemas, message bounds, and domain

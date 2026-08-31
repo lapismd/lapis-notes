@@ -389,6 +389,8 @@ Bounded ZIP transfer and verified hash-addressed plugin assets stay on the
 direct Fetch side and never serialize the derived per-vault database.
 The browser composes explicit vault and database adapters over that boundary;
 it does not emulate or publish a desktop-native capability bridge.
+The compile-time server Web profile reuses the application workspace shell but
+excludes local-vault, offline, AI-host, terminal-host, and PWA boot policy.
 
 API diagnostic hover cards keep unique action keys when titles repeat and
 expose one Quick Fix menu for cached actions. The

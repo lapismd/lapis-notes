@@ -95,9 +95,61 @@ const rendererSingletonPackages = [
   "svelte",
 ];
 
-export default defineConfig({
+const pwaPlugin = VitePWA({
+  injectRegister: false,
+  registerType: "prompt",
+  includeAssets: [
+    "favicon.svg",
+    "apple-touch-icon.png",
+    "pwa-1024x1024.png",
+    "pwa-1024x1024-maskable.png",
+  ],
+  manifest: {
+    id: "/",
+    name: "Lapis Notes",
+    short_name: "Lapis",
+    description: "Installable offline-first Lapis Notes web app.",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    display_override: ["window-controls-overlay", "standalone"],
+    background_color: "#f6f6f6",
+    theme_color: "#f6f6f6",
+    protocol_handlers: [{ protocol: "web+lapis", url: "/open?url=%s" }],
+    icons: [
+      { src: "favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
+      { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
+      { src: "pwa-1024x1024.png", sizes: "1024x1024", type: "image/png" },
+      { src: "pwa-512x512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "pwa-1024x1024-maskable.png", sizes: "1024x1024", type: "image/png", purpose: "maskable" },
+    ],
+  },
+  workbox: {
+    cleanupOutdatedCaches: true,
+    clientsClaim: true,
+    skipWaiting: false,
+    maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
+    navigateFallback: "index.html",
+    globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,woff2,woff,ttf,wasm}"],
+    globIgnores: ["**/sw.js", "**/workbox-*.js"],
+    runtimeCaching: [
+      {
+        urlPattern: ({ url }) =>
+          url.origin === self.location.origin &&
+          url.pathname.startsWith(`${WEB_PLUGIN_ASSET_ROUTE_PREFIX}/`),
+        handler: "CacheOnly",
+        options: { cacheName: WEB_PLUGIN_ASSET_CACHE_NAME },
+      },
+    ],
+  },
+  devOptions: { enabled: false, type: "module" },
+});
+
+export default defineConfig(({ mode }) => ({
   envPrefix: ["VITE_", "LAPIS_"],
   define: {
+    __LAPIS_SERVER_MODE__: JSON.stringify(mode === "server"),
     "import.meta.env.VITE_APP_COMMIT_HASH": JSON.stringify(
       process.env.LAPIS_BUILD_COMMIT ?? "local",
     ),
@@ -106,77 +158,7 @@ export default defineConfig({
     wasmHeadersPlugin(),
     svelte(rendererSvelteOptions),
     tailwindcss(),
-    VitePWA({
-      injectRegister: false,
-      registerType: "prompt",
-      includeAssets: [
-        "favicon.svg",
-        "apple-touch-icon.png",
-        "pwa-1024x1024.png",
-        "pwa-1024x1024-maskable.png",
-      ],
-      manifest: {
-        id: "/",
-        name: "Lapis Notes",
-        short_name: "Lapis",
-        description: "Installable offline-first Lapis Notes web app.",
-        start_url: "/",
-        scope: "/",
-        display: "standalone",
-        display_override: ["window-controls-overlay", "standalone"],
-        background_color: "#f6f6f6",
-        theme_color: "#f6f6f6",
-        protocol_handlers: [{ protocol: "web+lapis", url: "/open?url=%s" }],
-        icons: [
-          {
-            src: "favicon.svg",
-            sizes: "any",
-            type: "image/svg+xml",
-            purpose: "any",
-          },
-          { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
-          { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
-          {
-            src: "pwa-1024x1024.png",
-            sizes: "1024x1024",
-            type: "image/png",
-          },
-          {
-            src: "pwa-512x512-maskable.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-          {
-            src: "pwa-1024x1024-maskable.png",
-            sizes: "1024x1024",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
-      },
-      workbox: {
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: false,
-        maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
-        navigateFallback: "index.html",
-        globPatterns: [
-          "**/*.{js,css,html,ico,png,svg,webmanifest,woff2,woff,ttf,wasm}",
-        ],
-        globIgnores: ["**/sw.js", "**/workbox-*.js"],
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) =>
-              url.origin === self.location.origin &&
-              url.pathname.startsWith(`${WEB_PLUGIN_ASSET_ROUTE_PREFIX}/`),
-            handler: "CacheOnly",
-            options: { cacheName: WEB_PLUGIN_ASSET_CACHE_NAME },
-          },
-        ],
-      },
-      devOptions: { enabled: false, type: "module" },
-    }),
+    ...(mode === "server" ? [] : [pwaPlugin]),
   ],
   server: {
     port: 4174,
@@ -203,6 +185,6 @@ export default defineConfig({
     sourcemap: false,
     minify: false,
     reportCompressedSize: false,
-    outDir: "dist",
+    outDir: mode === "server" ? "dist-server" : "dist",
   },
-});
+}));

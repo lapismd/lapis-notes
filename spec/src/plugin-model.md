@@ -27,6 +27,11 @@ First-party plugin surfaces compose Design Core public parts for shared chrome;
 plugin projection and search-document registrations stay plugin-scoped even
 when Deno desktop persists their generated rows through the native AppDatabase
 bridge.
+
+The online Deno-server profile uses that same public version-and-digest plugin
+asset URL, but the authenticated server validates and serves the bytes instead
+of mirroring them into PWA Cache Storage. Installed metadata remains the asset
+authority in both Web profiles.
 Global Graph initially fits and centers its complete visible projection; it
 does not inherit the active document as an implicit focus. Local Graph retains
 its explicit active-note center contract. The explicit Focus active file action

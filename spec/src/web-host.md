@@ -62,6 +62,18 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-049 | The Web package MUST provide a compile-time `deno-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.                                                                                                                                                                                                                           |
 | LN-WEB-050 | The `deno-server` Web build MUST authenticate before vault selection, use only server-managed vault profiles, require the matching protocol major, and remain online-only without registering the PWA service worker.                                                                                                                                                                                                                                      |
 
+The server build is selected by Vite's compile-time `server` mode and emits to
+`dist-server`. That profile omits the PWA plugin, manifest generation, offline
+cache, search-embedding worker registration, window-controls integration, and
+service-worker registration. The ordinary build retains each of those paths.
+
+Server boot queries public system information first, blocks mismatched protocol
+majors, restores an authenticated cookie session when possible, and otherwise
+shows login. The managed chooser supports create, ZIP import, open, rename,
+export, archive, restore, and logout. Opening constructs the explicit server
+vault, event, plugin-asset, and database adapters before mounting the existing
+workspace shell; AI and terminal host attachment remain disabled in this mode.
+
 ### LN-WEB-021 acceptance details
 
 Web session boot verifies the shared startup surface:

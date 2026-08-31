@@ -3,17 +3,12 @@ import {
   setBrowserSearchEmbeddingWorkerFactory,
   type BootstrapAppearanceMode,
 } from "@lapis-notes/api";
-import SearchEmbeddingWorker from "@lapis-notes/api/search-embedding-worker?worker";
 import "@lapismd/design-core/styles.css";
 import "@lapismd/design-core/themes/lapis.css";
 import "@lapis-notes/ui/theme.css";
 import "@lapis-notes/ui/codemirror-autocomplete.css";
 import { mount } from "svelte";
 import { observeHostThemeColor } from "./host-theme-color";
-import { initializeWebHostDocument } from "./pwa-host-document";
-import { registerWebPwa } from "./pwa";
-import { registerPwaWindowControlsOverlay } from "./pwa-window-controls";
-import WebVaultHost from "./WebVaultHost.svelte";
 import "./web-host.css";
 
 function applyAppearance(mode: BootstrapAppearanceMode): void {
@@ -28,17 +23,30 @@ function applyAppearance(mode: BootstrapAppearanceMode): void {
   document.documentElement.dataset.uiTheme = "lapis";
 }
 
-initializeWebHostDocument();
-setBrowserSearchEmbeddingWorkerFactory(
-  () => new SearchEmbeddingWorker({ name: "lapis-search-embeddings" }),
-);
-const disposeWindowControls = registerPwaWindowControlsOverlay();
+let disposeWindowControls = () => {};
+let disposePwa = () => {};
+if (!__LAPIS_SERVER_MODE__) {
+  const [documentHost, pwa, controls, worker] = await Promise.all([
+    import("./pwa-host-document"),
+    import("./pwa"),
+    import("./pwa-window-controls"),
+    import("@lapis-notes/api/search-embedding-worker?worker"),
+  ]);
+  documentHost.initializeWebHostDocument();
+  setBrowserSearchEmbeddingWorkerFactory(
+    () => new worker.default({ name: "lapis-search-embeddings" }),
+  );
+  disposeWindowControls = controls.registerPwaWindowControlsOverlay();
+  disposePwa = pwa.registerWebPwa();
+}
 applyAppearance(await getBootstrapAppearanceMode());
 const disposeThemeColor = observeHostThemeColor();
 const target = document.getElementById("app");
 if (!target) throw new Error("Web renderer root is missing");
-const mounted = mount(WebVaultHost, { target });
-const disposePwa = registerWebPwa();
+const Host = __LAPIS_SERVER_MODE__
+  ? (await import("./ServerVaultHost.svelte")).default
+  : (await import("./WebVaultHost.svelte")).default;
+const mounted = mount(Host, { target });
 
 window.addEventListener(
   "pagehide",

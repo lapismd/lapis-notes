@@ -795,6 +795,9 @@ importers:
       '@lapis-notes/app-profile':
         specifier: workspace:*
         version: link:../app-profile
+      '@lapis-notes/server-deno':
+        specifier: workspace:*
+        version: link:../server-deno
       '@lapis-notes/ui':
         specifier: workspace:*
         version: link:../ui

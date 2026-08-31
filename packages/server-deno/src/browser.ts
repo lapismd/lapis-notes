@@ -6,6 +6,12 @@ import type {
   RemoteAppDatabaseMethod,
 } from "@lapis-notes/api/app-database";
 import {
+  createTRPCClient,
+  httpBatchLink,
+  httpSubscriptionLink,
+  splitLink,
+} from "@trpc/client";
+import {
   REMOTE_APP_DATABASE_CONTRACT,
   REMOTE_APP_DATABASE_METHODS,
 } from "@lapis-notes/api/app-database";
@@ -24,14 +30,54 @@ import {
   type PluginAssetServer,
 } from "@lapis-notes/api/plugin-assets";
 
-import {
-  createLapisServerClient,
-  type LapisServerClientOptions,
-} from "./client.ts";
-
-type ServerClient = ReturnType<typeof createLapisServerClient>;
 type Subscription = { unsubscribe(): void };
 type FetchLike = typeof fetch;
+
+export type LapisServerClientOptions = {
+  baseUrl?: string;
+  csrfToken?: () => string | undefined;
+};
+
+export type LapisServerBrowserClient = {
+  system: { info: { query(): Promise<{ buildId: string; protocolMajor: number }> } };
+  auth: {
+    login: { mutate(input: { username: string; password: string }): Promise<{ csrfToken: string }> };
+    current: { query(): Promise<{ csrfToken: string }> };
+    logout: { mutate(): Promise<{ ok: true }> };
+  };
+  vault: {
+    list: { query(input: { includeArchived: boolean }): Promise<Array<{ id: string; name: string; role: "owner" | "editor" | "viewer"; archivedAt?: number }>> };
+    create: { mutate(input: { name: string }): Promise<{ vaultId: string }> };
+    open: { query(input: { vaultId: string }): Promise<{ vaultId: string; role: string }> };
+    rename: { mutate(input: { vaultId: string; name: string }): Promise<{ ok: true }> };
+    archive: { mutate(input: { vaultId: string }): Promise<{ ok: true }> };
+    restore: { mutate(input: { vaultId: string }): Promise<{ ok: true }> };
+  };
+  filesystem: any;
+  database: any;
+  events: { vault: { subscribe(input: { vaultId: string; lastEventId?: string }, handlers: { onData(value: unknown): void; onError(error: Error): void; onComplete(): void }): Subscription } };
+};
+
+export function createLapisServerBrowserClient(
+  options: LapisServerClientOptions = {},
+): LapisServerBrowserClient {
+  const url = `${options.baseUrl ?? ""}/api/trpc`;
+  const headers = () => {
+    const csrf = options.csrfToken?.();
+    return csrf ? { "x-lapis-csrf": csrf } : {};
+  };
+  return createTRPCClient<any>({
+    links: [
+      splitLink({
+        condition: (operation) => operation.type === "subscription",
+        true: httpSubscriptionLink({ url }),
+        false: httpBatchLink({ url, headers }),
+      }),
+    ],
+  }) as unknown as LapisServerBrowserClient;
+}
+
+type ServerClient = LapisServerBrowserClient;
 
 export type ServerVaultEvent = {
   id: string;
@@ -541,7 +587,7 @@ export function createServerClientSession(
 ) {
   let token: string | undefined;
   const csrfToken = () => token;
-  const client = createLapisServerClient({ ...options, csrfToken });
+  const client = createLapisServerBrowserClient({ ...options, csrfToken });
   return {
     client,
     csrfToken,

@@ -6,6 +6,7 @@
     provideApplicationState,
     registerDefaultDailyDocumentProvider,
     type BrowserCoordinatedAppDatabase,
+    type PluginAssetServer,
     type VaultAdapter,
     type VaultProfile,
     type VaultSession,
@@ -35,7 +36,7 @@
   } from "./terminal-runtime-settings";
   import { registerWebVaultTransferSettings } from "./vault-transfer-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
-  import { setPwaRuntimeApplication } from "./pwa";
+  import { setPwaRuntimeApplication } from "./pwa-runtime-application";
 
   let {
     adapter,
@@ -44,6 +45,9 @@
     onReady,
     onOpenRecent,
     onManageVaults,
+    runtime = "web-pwa",
+    listProfiles = listVaultProfiles,
+    pluginAssetServer,
   }: {
     adapter: VaultAdapter;
     profile: VaultProfile;
@@ -51,6 +55,9 @@
     onReady(): void;
     onOpenRecent(profile: VaultProfile): Promise<void>;
     onManageVaults(): Promise<void>;
+    runtime?: "web-pwa" | "deno-server";
+    listProfiles?: () => Promise<VaultProfile[]>;
+    pluginAssetServer?: PluginAssetServer;
   } = $props();
 
   const STARTUP_TASKS: WorkspaceStartupTask[] = [
@@ -66,7 +73,8 @@
         version: "2026.6.3",
         configPath: ".obsidian/app.json",
         session,
-        pluginAssetServer: createWebPluginAssetServer({ adapter }),
+        pluginAssetServer:
+          pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
         workspaceShell: {
           application: {
             name: "Lapis Notes",
@@ -83,7 +91,9 @@
     installApplicationCompatibility(app);
   const disposePluginManagementSettings = registerNotesPluginSettings(app);
   const dailyDocumentProvider = registerDefaultDailyDocumentProvider(app);
-  const disposePwaRuntimeApplication = setPwaRuntimeApplication(app);
+  const disposePwaRuntimeApplication = untrack(() =>
+    runtime === "web-pwa" ? setPwaRuntimeApplication(app) : () => {},
+  );
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
@@ -154,16 +164,19 @@
     );
   }
 
-  function syncDatabaseStatus(role: "owner" | "proxy"): void {
+  function syncDatabaseStatus(role: "owner" | "proxy" | "server"): void {
     disposeDatabaseStatus?.();
     disposeDatabaseStatus = getWorkspaceHostBinding(
       app.workspace,
     ).controller.status.addItem({
       id: "app:web-database-role",
-      label: role === "proxy" ? "DB Proxy" : "DB Owner",
+      label:
+        role === "server" ? "Server DB" : role === "proxy" ? "DB Proxy" : "DB Owner",
       icon: "database",
       tooltip:
-        role === "proxy"
+        role === "server"
+          ? "Application data is managed by the authenticated Lapis server."
+          : role === "proxy"
           ? "Database requests are delegated to this vault's owner tab."
           : "This tab owns the local Turso database for this vault.",
       align: "right",
@@ -172,6 +185,10 @@
   }
 
   function registerDatabaseStatus(): void {
+    if (runtime === "deno-server") {
+      syncDatabaseStatus("server");
+      return;
+    }
     const role = session.appDatabase?.descriptor.role === "proxy" ? "proxy" : "owner";
     syncDatabaseStatus(role);
     const coordinated = session.appDatabase as BrowserCoordinatedAppDatabase & {
@@ -218,8 +235,10 @@
       if (disposed) return;
 
       setTask(activeTask, "active");
-      registerWebAgentRuntimeBridge();
-      registerWebTerminalRuntimeBridge();
+      if (runtime === "web-pwa") {
+        registerWebAgentRuntimeBridge();
+        registerWebTerminalRuntimeBridge();
+      }
       if (!corePluginsRegistered) {
         app.plugins.registerStaticPlugins(notesPluginProfile);
         corePluginsRegistered = true;
@@ -235,11 +254,13 @@
       disposeAgentRuntimeSettings?.();
       disposeTerminalRuntimeSettings?.();
       disposeVaultTransferSettings?.();
-      disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
-      disposeTerminalRuntimeSettings = registerWebTerminalRuntimeSettings(app);
-      disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
-      syncWebAgentRuntime(app);
-      syncWebTerminalRuntime(app);
+      if (runtime === "web-pwa") {
+        disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
+        disposeTerminalRuntimeSettings = registerWebTerminalRuntimeSettings(app);
+        disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
+        syncWebAgentRuntime(app);
+        syncWebTerminalRuntime(app);
+      }
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -258,7 +279,7 @@
       activeTask = "layout";
       setTask(activeTask, "active");
       await app.workspace.loadLayout();
-      recentVaults = await listVaultProfiles();
+      recentVaults = await listProfiles();
       registerDatabaseStatus();
       if (disposed) return;
       setTask(activeTask, "complete");
@@ -342,7 +363,7 @@
   }
 </script>
 
-<section class="web-host__workspace" data-web-runtime="web-pwa" data-vault-id={profile.id}>
+<section class="web-host__workspace" data-web-runtime={runtime} data-vault-id={profile.id}>
   {#if ready}
     <WorkspaceShell
       {app}

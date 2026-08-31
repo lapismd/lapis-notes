@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "pnpm generate-icons && NODE_OPTIONS=--max-old-space-size=8192 vite build",
+    "build:server": "NODE_OPTIONS=--max-old-space-size=8192 vite build --mode server",
     "preview": "vite preview",
     "check": "pnpm check:svelte && pnpm check:types && pnpm check:e2e",
     "check:svelte": "svelte-check --tsconfig ./tsconfig.app.json --fail-on-warnings --output human",
@@ -19,6 +20,7 @@
   "dependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/app-profile": "workspace:*",
+    "@lapis-notes/server-deno": "workspace:*",
     "@lapismd/ai-host": "^0.1.0",
     "@lapismd/terminal-host": "^0.1.0",
     "@lapis-notes/ui": "workspace:*",
