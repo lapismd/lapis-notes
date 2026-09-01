@@ -28,6 +28,7 @@
     "@lapis-notes/workspace": "workspace:*",
     "@lapismd/design-core": "^0.1.0",
     "@lucide/svelte": "^0.523.0",
+    "fflate": "^0.8.3",
     "workbox-window": "^7.4.1"
   },
   "devDependencies": {

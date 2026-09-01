@@ -107,6 +107,16 @@ the application. It does not publish PWA-host attributes or register a service
 worker, which keeps host detection explicit for application and acceptance
 code.
 
+The static client presents login and managed vaults through the same branded
+Design Core composition as the other Lapis launchers. A supported browser may
+pick a local directory and create its ZIP in the client, but the result enters
+through the same authenticated, bounded import route as a selected ZIP file.
+The server never receives an arbitrary client filesystem root or handle.
+When several active managed vaults exist, the host uses the shared Command View
+to search and open them. Entering management from an open vault retains that
+live session behind a hidden, inert chooser and exposes a vault-named return
+control; server storage and membership authority do not move into that UI.
+
 Production sessions use the `__Host-` cookie prefix together with `Secure`,
 `HttpOnly`, `SameSite=Lax`, and `Path=/`. The explicit localhost-only insecure
 development mode uses an unprefixed cookie because browsers reject a

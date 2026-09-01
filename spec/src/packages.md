@@ -202,6 +202,10 @@ event-stream, and plugin-asset adapters; those modules use Fetch and public API
 types only and contain no Deno globals or server implementation imports.
 `@lapis-notes/web` consumes that browser entry only from its compile-time server
 profile. Its default build and dependency-owned PWA behavior remain unchanged.
+The Web package also owns the server profile's branded login and managed chooser,
+including browser-side directory enumeration and ZIP creation. The server package
+continues to own authenticated upload limits, entry validation, and managed-vault
+creation for both picked folders and uploaded ZIP files.
 The server entry publishes the `deno-server` document runtime before mount and
 does not publish the PWA-host document attributes.
 The server package owns a multi-stage, non-root container definition, health
@@ -578,9 +582,11 @@ Root `dev:web` and `restart:web` start that host after an API build; restart
 first frees listeners on Vite port 4174.
 
 Its launcher imports shadcn presentation from Design Core and profile/search
-helpers from public Lapis exports. Desktop and web “View all” palettes compose
-Command View for the searchable recent-vault list. It does not add launcher
-policy to the workspace package or copy a private UI implementation.
+helpers from public Lapis exports. Desktop, web, and server “View all” palettes
+compose Command View for searchable vault selection. The server Web host also
+owns the hidden-and-inert live-session overlay used by its return control. It
+does not add launcher policy to the workspace package or copy a private UI
+implementation.
 The renderer consumes Design Core's public `styles.css` and Lapis theme export
 instead of reconstructing workspace CSS. The desktop-only Vite Tailwind pass is
 limited to compiling the intaken launcher composition and does not move native

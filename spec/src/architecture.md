@@ -393,6 +393,9 @@ The compile-time server Web profile reuses the application workspace shell but
 excludes local-vault, offline, AI-host, terminal-host, and PWA boot policy.
 It marks the document runtime as `deno-server` before mounting so host-specific
 code never has to infer the online profile from missing desktop or PWA state.
+Its pre-workspace login and managed-vault launcher remain Web-owned presentation:
+they compose Design Core with the Lapis theme, while server-owned authentication,
+membership, archive validation, and managed storage remain behind Fetch and tRPC.
 Container execution preserves the same boundary with non-root ownership and
 scoped Deno permissions; native database FFI is limited to the dependency
 cache, while only the managed data root is writable.
@@ -555,8 +558,10 @@ rebuild-generated-state so a later manual rebuild uses the same handle
 (LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can project that progress. Native window-drag regions stay in Design
 Core chrome CSS; hosts do not re-declare `-webkit-app-region`.
-Desktop and web “View all” palettes keep host-owned Dialog chrome and compose
-Command View for the searchable recent-vault list.
+Desktop, web, and server “View all” palettes keep host-owned Dialog chrome and
+compose Command View for searchable vault selection. A live server workspace
+stays mounted behind its managed-vault chooser so the named return control can
+restore that session without reconstructing plugin or workspace state.
 The ready-shell vault menu follows the same boundary: Design Core presents the
 generic menu, the workspace package forwards its contract, and the desktop
 consumer supplies profiles plus serialized switch and management callbacks.

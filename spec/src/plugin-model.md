@@ -35,6 +35,9 @@ authority in both Web profiles.
 The profile is explicitly identified by the document runtime `deno-server`;
 plugins must not use the absence of PWA attributes as a substitute capability
 check.
+Server login, vault selection, and local-folder import occur before plugin boot
+and remain host-owned. They do not add plugin lifecycle hooks, static plugin
+registrations, or browser filesystem capabilities to an opened server vault.
 Global Graph initially fits and centers its complete visible projection; it
 does not inherit the active document as an implicit focus. Local Graph retains
 its explicit active-note center contract. The explicit Focus active file action

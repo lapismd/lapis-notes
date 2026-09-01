@@ -61,6 +61,11 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-048 | The Web development renderer MUST keep `@lapis-notes/api` outside dependency optimization and resolve it as a singleton across the host and packed static plugins. Registry releases and local release-candidate tarballs MUST bind the same API peer so API-owned workspace state remains visible.                                                                                                                                                        |
 | LN-WEB-049 | The Web package MUST provide a compile-time `deno-server` mode that uses explicit remote vault and AppDatabase adapters while retaining the existing PWA build unchanged. It MUST NOT emulate or populate `NativeDesktopBridge`.                                                                                                                                                                                                                           |
 | LN-WEB-050 | The `deno-server` Web build MUST authenticate before vault selection, use only server-managed vault profiles, require the matching protocol major, and remain online-only without registering the PWA service worker.                                                                                                                                                                                                                                      |
+| LN-WEB-051 | The server login surface MUST show the Lapis app mark centered above its fields and compose Design Core inputs and theme-backed primary actions.                                                                                                                                                                                                                                                                                                           |
+| LN-WEB-052 | The server managed-vault chooser MUST use the same branded header, Design Core cards, action hierarchy, and compact vault-row pattern as the Web and desktop launchers. Primary action descriptions MUST inherit the action foreground so selected and default-primary states retain contrast.                                                                                                                                                             |
+| LN-WEB-053 | The server managed-vault chooser MUST support ZIP upload and File System Access directory import. Directory import MUST archive relative files in the browser and use the existing authenticated ZIP boundary; browsers without directory access MUST retain ZIP import.                                                                                                                                                                                   |
+| LN-WEB-054 | When more than one active server vault is available, the managed-vault chooser MUST show a `View all` action that opens the shared upper-viewport Design Core Command View, filters by vault name, ID, or role, and opens the selected vault.                                                                                                                                                                                                                  |
+| LN-WEB-055 | Opening the managed-vault chooser from a live server workspace MUST keep that workspace session mounted but hidden and inert, show a named return control, and restore the same workspace without reopening it. The return control MUST be absent when no previous vault exists.                                                                                                                                                                             |
 
 The server build is selected by Vite's compile-time `server` mode and emits to
 `dist-server`. That profile omits the PWA plugin, manifest generation, offline
@@ -72,9 +77,12 @@ unambiguous.
 
 Server boot queries public system information first, blocks mismatched protocol
 majors, restores an authenticated cookie session when possible, and otherwise
-shows login. The managed chooser supports create, ZIP import, open, rename,
-export, archive, restore, and logout. Opening constructs the explicit server
-vault, event, plugin-asset, and database adapters before mounting the existing
+shows a branded, theme-backed login. The managed chooser follows the existing
+Web and desktop launcher composition and supports create, File System Access
+folder import, ZIP import, open, rename, export, archive, restore, and logout.
+Folder import creates the ZIP in the browser and reuses the authenticated,
+bounded server import route. Opening constructs the explicit server vault,
+event, plugin-asset, and database adapters before mounting the existing
 workspace shell; AI and terminal host attachment remain disabled in this mode.
 
 ### LN-WEB-021 acceptance details

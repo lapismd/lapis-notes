@@ -186,7 +186,9 @@ function vaultRow(page: Page, name: string) {
 }
 
 async function openManagedVault(page: Page, name: string): Promise<void> {
-  await vaultRow(page, name).getByRole("button", { name: "Open" }).click();
+  await vaultRow(page, name)
+    .getByRole("button", { name: `Open ${name}` })
+    .click();
   await expect(
     page.getByRole("button", { name: /Current workspace:/ }),
   ).toContainText(name);
@@ -236,25 +238,86 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
   page,
 }) => {
   test.setTimeout(180_000);
+  await page.addInitScript(() => {
+    const pickedFile = new File(
+      ["# Imported from a picked browser folder\n"],
+      "Browser Folder.md",
+      { type: "text/markdown" },
+    );
+    const fileHandle = {
+      kind: "file",
+      name: pickedFile.name,
+      getFile: async () => pickedFile,
+    };
+    const directoryHandle = {
+      kind: "directory",
+      name: "Browser Folder",
+      async *entries() {
+        yield [pickedFile.name, fileHandle] as const;
+      },
+    };
+    Object.defineProperty(window, "showDirectoryPicker", {
+      configurable: true,
+      value: async () => directoryHandle,
+    });
+  });
   await page.goto(baseUrl);
   await expect(page.locator("html")).toHaveAttribute(
     "data-runtime",
     "deno-server",
   );
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await expect(page.locator("[data-server-login-logo]")).toBeVisible();
+  await expect(page.locator("[data-server-login-logo]")).toHaveAttribute(
+    "src",
+    "/favicon.svg",
+  );
+  const signInButton = page.getByRole("button", { name: "Sign in" });
+  await expect(signInButton).toHaveAttribute("data-ui-component", "button");
+  await expect(signInButton).toHaveAttribute("data-variant", "default");
+  const loginThemeColors = await signInButton.evaluate((button) => {
+    const probe = document.createElement("span");
+    probe.style.background = "var(--primary)";
+    probe.style.color = "var(--primary-foreground)";
+    document.body.append(probe);
+    const actual = getComputedStyle(button);
+    const expected = getComputedStyle(probe);
+    const result = {
+      background: actual.backgroundColor,
+      color: actual.color,
+      expectedBackground: expected.backgroundColor,
+      expectedColor: expected.color,
+    };
+    probe.remove();
+    return result;
+  });
+  expect(loginThemeColors.background).toBe(loginThemeColors.expectedBackground);
+  expect(loginThemeColors.color).toBe(loginThemeColors.expectedColor);
   expect(
     await page.evaluate(() => navigator.serviceWorker.getRegistrations()),
   ).toEqual([]);
 
   await page.getByLabel("Username").fill("owner");
   await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInButton.click();
   await expect(
     page.getByRole("heading", { name: "Your vaults" }),
   ).toBeVisible();
 
-  await page.getByLabel("New vault").fill("Online Vault");
-  await page.getByRole("button", { name: "Create" }).click();
+  const createVaultAction = page.getByRole("button", {
+    name: "Create New Vault",
+  });
+  const createActionColors = await createVaultAction
+    .locator(".server-action-description")
+    .evaluate((description) => ({
+      button: getComputedStyle(description.closest("button")!).color,
+      description: getComputedStyle(description).color,
+    }));
+  expect(createActionColors.description).toBe(createActionColors.button);
+  await createVaultAction.click();
+  const createDialog = page.getByRole("dialog", { name: "New Server Vault" });
+  await createDialog.getByLabel("Name").fill("Online Vault");
+  await createDialog.getByRole("button", { name: "Create vault" }).click();
   await expect(
     page.getByRole("button", { name: /Current workspace:/ }),
   ).toContainText("Online Vault");
@@ -316,23 +379,82 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
   ).toBeVisible();
   await peer.close();
 
+  await page.evaluate(() => {
+    const testWindow = window as typeof window & {
+      __lapisManagedVaultApp?: unknown;
+      app?: unknown;
+    };
+    testWindow.__lapisManagedVaultApp = testWindow.app;
+  });
+  await manageVaults(page);
+  await expect(page.getByRole("button", { name: "View all" })).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Return to Online Vault" })
+    .click();
+  await expect(
+    page.getByRole("button", { name: /Current workspace:/ }),
+  ).toContainText("Online Vault");
+  expect(
+    await page.evaluate(() => {
+      const testWindow = window as typeof window & {
+        __lapisManagedVaultApp?: unknown;
+        app?: unknown;
+      };
+      return testWindow.__lapisManagedVaultApp === testWindow.app;
+    }),
+  ).toBe(true);
   await manageVaults(page);
   const online = vaultRow(page, "Online Vault");
+  await online
+    .getByRole("button", { name: "Open actions for Online Vault" })
+    .click();
   const [download] = await Promise.all([
     page.waitForEvent("download"),
-    online.getByRole("link", { name: "Export" }).click(),
+    page.getByRole("menuitem", { name: "Export ZIP" }).click(),
   ]);
   expect(download.suggestedFilename()).toMatch(/\.zip$/u);
 
-  await online.getByRole("button", { name: "Archive" }).click();
+  await online
+    .getByRole("button", { name: "Open actions for Online Vault" })
+    .click();
+  await page.getByRole("menuitem", { name: "Archive" }).click();
   await expect(vaultRow(page, "Online Vault")).toContainText("archived");
   await vaultRow(page, "Online Vault")
-    .getByRole("button", { name: "Restore" })
+    .getByRole("button", { name: "Open actions for Online Vault" })
     .click();
+  await page.getByRole("menuitem", { name: "Restore" }).click();
   await expect(vaultRow(page, "Online Vault")).not.toContainText("archived");
 
   await page.getByLabel("Import ZIP").setInputFiles(importArchive);
   await expect(vaultRow(page, "Imported Vault")).toBeVisible();
+
+  await page.getByRole("button", { name: "Import Folder" }).click();
+  const importDialog = page.getByRole("dialog", {
+    name: "Import Server Vault",
+  });
+  await expect(importDialog.getByLabel("Name")).toHaveValue("Browser Folder");
+  await importDialog.getByLabel("Name").fill("Browser Folder Vault");
+  await importDialog.getByRole("button", { name: "Import vault" }).click();
+  await expect(vaultRow(page, "Browser Folder Vault")).toBeVisible();
+
+  await page.getByRole("button", { name: "View all" }).click();
+  const managedVaultDialog = page.getByRole("dialog", {
+    name: "Managed Vaults",
+  });
+  await managedVaultDialog
+    .getByRole("combobox", { name: "Search managed vaults" })
+    .fill("Browser Folder");
+  await expect(
+    managedVaultDialog.locator('[data-ui-part="item"]'),
+  ).toHaveCount(1);
+  await managedVaultDialog
+    .locator('[data-ui-part="item"]')
+    .filter({ hasText: "Browser Folder Vault" })
+    .click();
+  await expect(
+    page.getByRole("button", { name: /Current workspace:/ }),
+  ).toContainText("Browser Folder Vault");
+  await manageVaults(page);
 
   await stopServer(true);
   await startServer();
