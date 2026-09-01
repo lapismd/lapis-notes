@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   rendererOptimizeDependencyExclusions,
   rendererOptimizeDependencyInclusions,
+  rendererPluginImportMap,
   rendererSvelteOptions,
 } from "./renderer-config";
 
@@ -22,5 +23,11 @@ describe("web renderer configuration", () => {
 
   it("keeps registry Svelte component CSS in its compiled module", () => {
     expect(rendererSvelteOptions).toEqual({ emitCss: false });
+  });
+
+  it("maps verified ESM plugins to the build-owned public API entry", () => {
+    expect(rendererPluginImportMap).toEqual({
+      imports: { "@lapis-notes/api": "/plugin-host-api.js" },
+    });
   });
 });

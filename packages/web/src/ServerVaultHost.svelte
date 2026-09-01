@@ -25,6 +25,7 @@
     ServerVaultAdapter,
     ServerVaultEventStream,
     createServerClientSession,
+    createServerPluginDistributionFetch,
     createServerPluginAssetServer,
   } from "@lapis-notes/server-deno/browser";
   import * as Button from "@lapismd/design-core/shadcn/button";
@@ -418,6 +419,11 @@
         runtime="deno-server"
         listProfiles={async () => activeProfiles()}
         pluginAssetServer={createServerPluginAssetServer(prepared.adapter)}
+        pluginDistributionOptions={{
+          fetch: createServerPluginDistributionFetch({
+            vaultId: prepared.profile.id,
+          }),
+        }}
         onReady={() => (hostState = "workspace")}
         onOpenRecent={async (profile) => {
           const row = vaults.find((vault) => vault.id === profile.id);

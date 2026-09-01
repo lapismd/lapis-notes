@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     App,
+    type AppPluginDistributionOptions,
     installApplicationCompatibility,
     listVaultProfiles,
     provideApplicationState,
@@ -48,6 +49,7 @@
     runtime = "web-pwa",
     listProfiles = listVaultProfiles,
     pluginAssetServer,
+    pluginDistributionOptions,
   }: {
     adapter: VaultAdapter;
     profile: VaultProfile;
@@ -58,6 +60,7 @@
     runtime?: "web-pwa" | "deno-server";
     listProfiles?: () => Promise<VaultProfile[]>;
     pluginAssetServer?: PluginAssetServer;
+    pluginDistributionOptions?: AppPluginDistributionOptions;
   } = $props();
 
   const STARTUP_TASKS: WorkspaceStartupTask[] = [
@@ -75,6 +78,7 @@
         session,
         pluginAssetServer:
           pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
+        pluginDistributionOptions,
         workspaceShell: {
           application: {
             name: "Lapis Notes",

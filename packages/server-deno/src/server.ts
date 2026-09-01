@@ -15,6 +15,7 @@ import {
   directRouteError,
   handleDirectRoute,
   handlePluginAssetRoute,
+  handlePluginBundleDownloadRoute,
 } from "./direct-routes.ts";
 import { VaultEventHub } from "./events.ts";
 import { ManagedVaultStore } from "./managed-vaults.ts";
@@ -135,6 +136,7 @@ export async function createLapisDenoServer(
     if (url.pathname.startsWith("/api/vaults/")) {
       try {
         return (
+          (await handlePluginBundleDownloadRoute(request, services, session)) ??
           (await handleTransferRoute(request, services, session)) ??
           (await handleDirectRoute(request, services, session)) ??
           new Response("Not found", { status: 404 })

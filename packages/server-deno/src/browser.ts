@@ -30,8 +30,16 @@ import {
   type PluginAssetServer,
 } from "@lapis-notes/api/plugin-assets";
 
+import { isOfficialPluginBundleSource } from "./plugin-bundle-source";
+
 type Subscription = { unsubscribe(): void };
 type FetchLike = typeof fetch;
+
+export interface ServerPluginDistributionFetchOptions {
+  vaultId: string;
+  baseUrl?: string;
+  fetch?: FetchLike;
+}
 
 export type LapisServerClientOptions = {
   baseUrl?: string;
@@ -134,6 +142,40 @@ function pathUrl(
   return `${baseUrl}/api/vaults/${encodeURIComponent(vaultId)}/${route}/${encoded}`;
 }
 
+function managedVaultPath(path: string): string {
+  return path.replace(/^\/+|\/+$/gu, "");
+}
+
+/**
+ * Fetch boundary for hosted plugin installs. Official release assets are
+ * downloaded by the authenticated server because GitHub release responses do
+ * not expose browser CORS headers.
+ */
+export function createServerPluginDistributionFetch(
+  options: ServerPluginDistributionFetchOptions,
+): FetchLike {
+  const fetchImpl =
+    options.fetch ?? ((input, init) => globalThis.fetch(input, init));
+  const baseUrl = (options.baseUrl ?? "").replace(/\/$/u, "");
+  return (input, init) => {
+    const source =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url;
+    if (!isOfficialPluginBundleSource(source)) {
+      return fetchImpl(input, init);
+    }
+    const url = new URL(
+      `${baseUrl}/api/vaults/${encodeURIComponent(options.vaultId)}/plugin-bundles/download`,
+      globalThis.location?.href ?? "http://localhost/",
+    );
+    url.searchParams.set("source", source);
+    return fetchImpl(url, { ...init, credentials: "same-origin" });
+  };
+}
+
 async function responseError(response: Response): Promise<ServerHostError> {
   let value: { error?: { code?: ServerHostErrorCode; message?: string } } = {};
   try {
@@ -158,11 +200,22 @@ function unwrapTracked(value: unknown): ServerVaultEvent {
   return candidate.data ?? candidate;
 }
 
+function isResyncRequired(error: Error): boolean {
+  const candidate = error as Error & {
+    data?: { lapisCode?: ServerHostErrorCode };
+  };
+  return (
+    candidate.data?.lapisCode === "RESYNC_REQUIRED" ||
+    /resync-required/iu.test(error.message)
+  );
+}
+
 /** One resumable subscription shared by the vault and database adapters. */
 export class ServerVaultEventStream {
   readonly #listeners = new Set<(event: ServerVaultEvent) => void>();
   #subscription?: Subscription;
   #lastEventId?: string;
+  #generation = 0;
 
   constructor(
     private readonly client: ServerClient,
@@ -179,12 +232,14 @@ export class ServerVaultEventStream {
   }
 
   close(): void {
+    this.#generation += 1;
     this.#subscription?.unsubscribe();
     this.#subscription = undefined;
   }
 
   #ensureStarted(): void {
     if (this.#subscription) return;
+    const generation = ++this.#generation;
     this.#subscription = this.client.events.vault.subscribe(
       { vaultId: this.vaultId, lastEventId: this.#lastEventId },
       {
@@ -194,25 +249,37 @@ export class ServerVaultEventStream {
           for (const listener of this.#listeners) listener(event);
         },
         onError: (error) => {
+          if (generation !== this.#generation) return;
           this.#subscription = undefined;
-          if (/resync-required/iu.test(error.message)) {
+          if (isResyncRequired(error)) {
+            const unavailableId = this.#lastEventId;
+            this.#lastEventId = undefined;
             const event: ServerVaultEvent = {
-              id: this.#lastEventId ?? "unavailable:0",
+              id: unavailableId ?? "unavailable:0",
               kind: "resync-required",
               vaultId: this.vaultId,
               payload: null,
             };
             for (const listener of this.#listeners) listener(event);
+            this.#restart(generation);
             return;
           }
-          if (this.#listeners.size) queueMicrotask(() => this.#ensureStarted());
+          this.#restart(generation);
         },
         onComplete: () => {
+          if (generation !== this.#generation) return;
           this.#subscription = undefined;
-          if (this.#listeners.size) queueMicrotask(() => this.#ensureStarted());
+          this.#restart(generation);
         },
       },
     );
+  }
+
+  #restart(generation: number): void {
+    if (!this.#listeners.size) return;
+    queueMicrotask(() => {
+      if (generation === this.#generation) this.#ensureStarted();
+    });
   }
 }
 
@@ -270,7 +337,7 @@ export class ServerVaultAdapter implements VaultAdapter {
   async stat(path: string) {
     const stat = await this.#client.filesystem.stat.query({
       vaultId: this.getVaultId(),
-      path,
+      path: managedVaultPath(path),
     });
     return stat
       ? {
@@ -339,7 +406,7 @@ export class ServerVaultAdapter implements VaultAdapter {
   list(path: string) {
     return this.#client.filesystem.list.query({
       vaultId: this.getVaultId(),
-      path,
+      path: managedVaultPath(path),
     });
   }
 
@@ -349,7 +416,7 @@ export class ServerVaultAdapter implements VaultAdapter {
   ): Promise<void> {
     await this.#client.filesystem.mkdir.mutate({
       vaultId: this.getVaultId(),
-      path,
+      path: managedVaultPath(path),
       recursive: options?.recursive ?? false,
     });
   }
@@ -357,7 +424,7 @@ export class ServerVaultAdapter implements VaultAdapter {
   async rmdir(path: string, recursive: boolean): Promise<void> {
     await this.#client.filesystem.remove.mutate({
       vaultId: this.getVaultId(),
-      path,
+      path: managedVaultPath(path),
       recursive,
     });
   }
@@ -365,7 +432,7 @@ export class ServerVaultAdapter implements VaultAdapter {
   async remove(path: string): Promise<void> {
     await this.#client.filesystem.remove.mutate({
       vaultId: this.getVaultId(),
-      path,
+      path: managedVaultPath(path),
       recursive: false,
     });
   }
@@ -373,16 +440,16 @@ export class ServerVaultAdapter implements VaultAdapter {
   async rename(from: string, to: string): Promise<void> {
     await this.#client.filesystem.rename.mutate({
       vaultId: this.getVaultId(),
-      from,
-      to,
+      from: managedVaultPath(from),
+      to: managedVaultPath(to),
     });
   }
 
   async copy(from: string, to: string): Promise<void> {
     await this.#client.filesystem.copy.mutate({
       vaultId: this.getVaultId(),
-      from,
-      to,
+      from: managedVaultPath(from),
+      to: managedVaultPath(to),
     });
   }
 
@@ -401,7 +468,7 @@ export class ServerVaultAdapter implements VaultAdapter {
   async trashLocal(path: string): Promise<void> {
     await this.#client.filesystem.trash.mutate({
       vaultId: this.getVaultId(),
-      path,
+      path: managedVaultPath(path),
     });
   }
 

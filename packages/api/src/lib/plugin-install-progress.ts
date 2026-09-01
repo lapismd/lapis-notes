@@ -104,7 +104,7 @@ export async function withPluginInstallProgress<T>(
       source: options.source ?? "Plugin registry",
       location: options.location ?? "status",
       cancellable: true,
-      persistOnError: options.persistOnError ?? false,
+      persistOnError: options.persistOnError ?? true,
     },
     async (progressHandle, token) => {
       const removeProgressListener = app.pluginDistribution.addProgressListener(

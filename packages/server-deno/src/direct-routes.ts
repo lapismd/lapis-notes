@@ -13,6 +13,7 @@ import {
 import type { ControlSession, ServerVaultRole } from "./control-database.ts";
 import type { ServerServices } from "./context.ts";
 import { assertCsrf } from "./auth.ts";
+import { isOfficialPluginBundleSource } from "./plugin-bundle-source.ts";
 
 const roleRank: Record<ServerVaultRole, number> = {
   viewer: 1,
@@ -21,6 +22,7 @@ const roleRank: Record<ServerVaultRole, number> = {
 };
 
 const MAX_FILE_WRITE_BYTES = 64 * 1024 * 1024;
+const MAX_PLUGIN_BUNDLE_BYTES = 64 * 1024 * 1024;
 
 function contentType(path: string): string {
   const types: Record<string, string> = {
@@ -118,6 +120,110 @@ async function readBody(request: Request): Promise<Uint8Array> {
     throw new ServerHostError("PRECONDITION_FAILED", "File body is too large");
   }
   return body;
+}
+
+function boundedBody(
+  body: ReadableStream<Uint8Array>,
+  maximumBytes: number,
+): ReadableStream<Uint8Array> {
+  let received = 0;
+  return body.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        received += chunk.byteLength;
+        if (received > maximumBytes) {
+          controller.error(new Error("Plugin bundle response is too large"));
+          return;
+        }
+        controller.enqueue(chunk);
+      },
+    }),
+  );
+}
+
+export async function handlePluginBundleDownloadRoute(
+  request: Request,
+  services: ServerServices,
+  session?: ControlSession,
+  fetchImpl: typeof fetch = globalThis.fetch,
+): Promise<Response | null> {
+  const url = new URL(request.url);
+  const parts = url.pathname.split("/").filter(Boolean);
+  if (
+    parts[0] !== "api" ||
+    parts[1] !== "vaults" ||
+    !parts[2] ||
+    parts[3] !== "plugin-bundles" ||
+    parts[4] !== "download" ||
+    parts.length !== 5
+  ) {
+    return null;
+  }
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: { Allow: "GET, HEAD" },
+    });
+  }
+  await requireRole(services, session, parts[2], "editor");
+  const source = url.searchParams.get("source") ?? "";
+  if (!isOfficialPluginBundleSource(source)) {
+    throw new ServerHostError(
+      "PRECONDITION_FAILED",
+      "Plugin bundle source is not permitted",
+    );
+  }
+
+  let upstream: Response;
+  try {
+    upstream = await fetchImpl(source, {
+      method: request.method,
+      redirect: "follow",
+      signal: request.signal,
+      headers: { Accept: "application/octet-stream" },
+    });
+  } catch {
+    throw new ServerHostError(
+      "NOT_FOUND",
+      "Plugin bundle download failed",
+    );
+  }
+  if (!upstream.ok) {
+    upstream.body?.cancel().catch(() => undefined);
+    throw new ServerHostError(
+      "NOT_FOUND",
+      `Plugin bundle download failed (${upstream.status})`,
+    );
+  }
+  const contentLengthHeader = upstream.headers.get("content-length");
+  const contentLength =
+    contentLengthHeader === null ? undefined : Number(contentLengthHeader);
+  if (
+    contentLength !== undefined &&
+    Number.isFinite(contentLength) &&
+    (contentLength < 0 || contentLength > MAX_PLUGIN_BUNDLE_BYTES)
+  ) {
+    upstream.body?.cancel().catch(() => undefined);
+    throw new ServerHostError(
+      "PRECONDITION_FAILED",
+      "Plugin bundle response is too large",
+    );
+  }
+
+  const headers = new Headers({
+    "Cache-Control": "private, no-store",
+    "Content-Type": "application/octet-stream",
+    "X-Content-Type-Options": "nosniff",
+  });
+  if (contentLength !== undefined && Number.isSafeInteger(contentLength)) {
+    headers.set("Content-Length", String(contentLength));
+  }
+  return new Response(
+    request.method === "HEAD" || !upstream.body
+      ? null
+      : boundedBody(upstream.body, MAX_PLUGIN_BUNDLE_BYTES),
+    { status: 200, headers },
+  );
 }
 
 export async function handleDirectRoute(

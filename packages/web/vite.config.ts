@@ -9,12 +9,14 @@ import { VitePWA } from "vite-plugin-pwa";
 import {
   rendererOptimizeDependencyExclusions,
   rendererOptimizeDependencyInclusions,
+  rendererPluginImportMap,
   rendererSvelteOptions,
 } from "./src/renderer-config";
 
 export {
   rendererOptimizeDependencyExclusions,
   rendererOptimizeDependencyInclusions,
+  rendererPluginImportMap,
   rendererSvelteOptions,
 } from "./src/renderer-config";
 
@@ -76,6 +78,30 @@ function wasmHeadersPlugin(): Plugin {
     },
     configurePreviewServer(server) {
       server.middlewares.use(applyWasmResponseHeaders);
+    },
+  };
+}
+
+function pluginHostImportMapPlugin(): Plugin {
+  return {
+    name: "lapis-plugin-host-import-map",
+    configureServer(server) {
+      server.middlewares.use((request, _response, next) => {
+        if (request.url?.split("?", 1)[0] === "/plugin-host-api.js") {
+          request.url = "/src/plugin-host-api.ts";
+        }
+        next();
+      });
+    },
+    transformIndexHtml() {
+      return [
+        {
+          tag: "script",
+          attrs: { type: "importmap" },
+          children: JSON.stringify(rendererPluginImportMap),
+          injectTo: "head-prepend",
+        },
+      ];
     },
   };
 }
@@ -155,6 +181,7 @@ export default defineConfig(({ mode }) => ({
     ),
   },
   plugins: [
+    pluginHostImportMapPlugin(),
     wasmHeadersPlugin(),
     svelte(rendererSvelteOptions),
     tailwindcss(),
@@ -186,5 +213,22 @@ export default defineConfig(({ mode }) => ({
     minify: false,
     reportCompressedSize: false,
     outDir: mode === "server" ? "dist-server" : "dist",
+    rollupOptions: {
+      preserveEntrySignatures: "strict",
+      input: {
+        index: path.resolve(packageRoot, "index.html"),
+        "plugin-host-api": path.resolve(
+          packageRoot,
+          "src/plugin-host-api.ts",
+        ),
+      },
+      output: {
+        entryFileNames(chunk) {
+          return chunk.name === "plugin-host-api"
+            ? "plugin-host-api.js"
+            : "assets/[name]-[hash].js";
+        },
+      },
+    },
   },
 }));

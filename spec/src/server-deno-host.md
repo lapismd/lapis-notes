@@ -31,6 +31,8 @@ HTTP policy around these kernels.
 | LN-SRV-013 | The server MUST open vault runtimes lazily, serialize mutations per vault, close idle runtimes, and close databases, watches, subscriptions, and imports during ordered shutdown. Initial operation is one Deno process.                                                      |
 | LN-SRV-014 | Health MUST report process liveness without authentication or secrets. Readiness MUST remain false until control migrations complete, the managed data root is writable, and the static client is available.                                                                  |
 | LN-SRV-015 | The first server slice MUST NOT host AI, terminals, collaborative editing, arbitrary filesystem roots, invitations, public registration, or multi-instance coordination. Missing capabilities MUST be reported explicitly.                                                    |
+| LN-SRV-016 | The browser vault adapter MUST translate Lapis virtual-root paths such as `/.obsidian/plugins` to managed relative paths before tRPC requests. Direct server routes MUST continue to reject absolute paths, traversal, and host filesystem access.                                |
+| LN-SRV-017 | Hosted plugin installs MUST download signed first-party release bundles through an authenticated, editor-authorized same-origin Fetch route. The server MUST restrict outbound sources, bound response bytes, forward no session credentials upstream, and retain client-side signature and digest verification.               |
 
 ## Runtime topology
 
@@ -84,6 +86,12 @@ files and reject symlinks.
 Installed plugin assets retain their version-and-SHA-addressed public URL. The
 server revalidates installed metadata, byte size, and digest before returning
 an authenticated immutable response with range and ETag support.
+
+Registry release bundles cross a separate editor-authorized route because
+third-party release hosts do not consistently expose browser CORS headers. The
+server accepts only the declared first-party GitHub release repositories,
+streams at most 64 MiB without forwarding browser credentials, and leaves the
+existing signed-manifest, size, and SHA-256 verification in the client.
 
 The browser entry constructs `ServerVaultAdapter` and
 `ServerAppDatabaseProvider` directly. The vault adapter maps metadata and

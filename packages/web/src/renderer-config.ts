@@ -12,3 +12,9 @@ export const rendererOptimizeDependencyInclusions = [
 export const rendererSvelteOptions = {
   emitCss: false,
 } as const;
+
+export const rendererPluginImportMap = {
+  imports: {
+    "@lapis-notes/api": "/plugin-host-api.js",
+  },
+} as const;
