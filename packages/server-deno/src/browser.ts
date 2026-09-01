@@ -39,23 +39,56 @@ export type LapisServerClientOptions = {
 };
 
 export type LapisServerBrowserClient = {
-  system: { info: { query(): Promise<{ buildId: string; protocolMajor: number }> } };
+  system: {
+    info: { query(): Promise<{ buildId: string; protocolMajor: number }> };
+  };
   auth: {
-    login: { mutate(input: { username: string; password: string }): Promise<{ csrfToken: string }> };
+    login: {
+      mutate(input: {
+        username: string;
+        password: string;
+      }): Promise<{ csrfToken: string }>;
+    };
     current: { query(): Promise<{ csrfToken: string }> };
     logout: { mutate(): Promise<{ ok: true }> };
   };
   vault: {
-    list: { query(input: { includeArchived: boolean }): Promise<Array<{ id: string; name: string; role: "owner" | "editor" | "viewer"; archivedAt?: number }>> };
+    list: {
+      query(input: { includeArchived: boolean }): Promise<
+        Array<{
+          id: string;
+          name: string;
+          role: "owner" | "editor" | "viewer";
+          archivedAt?: number;
+        }>
+      >;
+    };
     create: { mutate(input: { name: string }): Promise<{ vaultId: string }> };
-    open: { query(input: { vaultId: string }): Promise<{ vaultId: string; role: string }> };
-    rename: { mutate(input: { vaultId: string; name: string }): Promise<{ ok: true }> };
+    open: {
+      query(input: {
+        vaultId: string;
+      }): Promise<{ vaultId: string; role: string }>;
+    };
+    rename: {
+      mutate(input: { vaultId: string; name: string }): Promise<{ ok: true }>;
+    };
     archive: { mutate(input: { vaultId: string }): Promise<{ ok: true }> };
     restore: { mutate(input: { vaultId: string }): Promise<{ ok: true }> };
   };
   filesystem: any;
   database: any;
-  events: { vault: { subscribe(input: { vaultId: string; lastEventId?: string }, handlers: { onData(value: unknown): void; onError(error: Error): void; onComplete(): void }): Subscription } };
+  events: {
+    vault: {
+      subscribe(
+        input: { vaultId: string; lastEventId?: string },
+        handlers: {
+          onData(value: unknown): void;
+          onError(error: Error): void;
+          onComplete(): void;
+        },
+      ): Subscription;
+    };
+  };
 };
 
 export function createLapisServerBrowserClient(
@@ -202,11 +235,13 @@ export class ServerVaultAdapter implements VaultAdapter {
 
   constructor(readonly options: ServerVaultAdapterOptions) {
     this.#client = options.client;
-    this.#fetch = options.fetch ?? fetch;
+    this.#fetch =
+      options.fetch ?? ((input, init) => globalThis.fetch(input, init));
     this.#baseUrl = (options.baseUrl ?? "").replace(/\/$/u, "");
     this.#csrfToken = options.csrfToken;
     this.events =
-      options.events ?? new ServerVaultEventStream(options.client, options.profile.id);
+      options.events ??
+      new ServerVaultEventStream(options.client, options.profile.id);
   }
 
   getVaultId(): string {
@@ -383,7 +418,10 @@ export class ServerVaultAdapter implements VaultAdapter {
         listener({
           type: "error",
           path: "/",
-          error: new ServerHostError("RESYNC_REQUIRED", "Vault reload required"),
+          error: new ServerHostError(
+            "RESYNC_REQUIRED",
+            "Vault reload required",
+          ),
         });
         return;
       }
@@ -572,10 +610,7 @@ export function createServerPluginAssetServer(
         vaultId: adapter.getVaultId(),
         pluginId: request.pluginId,
         version: request.version,
-        sha256: getInstalledPluginAssetHash(
-          installed,
-          request.relativePath,
-        ),
+        sha256: getInstalledPluginAssetHash(installed, request.relativePath),
         path: request.relativePath,
       });
     },

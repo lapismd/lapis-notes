@@ -32,6 +32,9 @@ The online Deno-server profile uses that same public version-and-digest plugin
 asset URL, but the authenticated server validates and serves the bytes instead
 of mirroring them into PWA Cache Storage. Installed metadata remains the asset
 authority in both Web profiles.
+The profile is explicitly identified by the document runtime `deno-server`;
+plugins must not use the absence of PWA attributes as a substitute capability
+check.
 Global Graph initially fits and centers its complete visible projection; it
 does not inherit the active document as an implicit focus. Local Graph retains
 its explicit active-note center contract. The explicit Focus active file action

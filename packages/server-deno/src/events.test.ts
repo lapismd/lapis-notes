@@ -21,4 +21,19 @@ describe("vault event replay", () => {
       /cursor is unavailable/u,
     );
   });
+
+  it("wakes every subscriber when the server closes", () => {
+    const hub = new VaultEventHub();
+    const events: string[] = [];
+    hub.subscribe("first", (event) =>
+      events.push(`${event.vaultId}:${event.kind}`),
+    );
+    hub.subscribe("second", (event) =>
+      events.push(`${event.vaultId}:${event.kind}`),
+    );
+
+    hub.close();
+
+    expect(events).toEqual(["first:resync-required", "second:resync-required"]);
+  });
 });

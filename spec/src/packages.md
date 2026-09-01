@@ -202,6 +202,8 @@ event-stream, and plugin-asset adapters; those modules use Fetch and public API
 types only and contain no Deno globals or server implementation imports.
 `@lapis-notes/web` consumes that browser entry only from its compile-time server
 profile. Its default build and dependency-owned PWA behavior remain unchanged.
+The server entry publishes the `deno-server` document runtime before mount and
+does not publish the PWA-host document attributes.
 The server package owns a multi-stage, non-root container definition, health
 check, example secret mount, and operator documentation. Packaging does not
 publish, deploy, or change any public package.

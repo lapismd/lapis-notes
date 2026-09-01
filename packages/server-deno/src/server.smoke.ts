@@ -155,6 +155,7 @@ try {
     fetch: authenticatedFetch,
   });
   await adapter.mkdir("notes");
+  await adapter.mkdir("notes");
   await adapter.write("notes/adapter.md", "one");
   await adapter.append("notes/adapter.md", " two");
   await adapter.process("notes/adapter.md", (value) => `${value} three`);
@@ -164,10 +165,7 @@ try {
   if (!(await adapter.list("/")).folders.includes("notes")) {
     throw new Error("ServerVaultAdapter root listing failed");
   }
-  await adapter.writeBinary(
-    "notes/data.bin",
-    new Uint8Array([1, 2, 3]).buffer,
-  );
+  await adapter.writeBinary("notes/data.bin", new Uint8Array([1, 2, 3]).buffer);
   if (
     new Uint8Array(await adapter.readBinary("notes/data.bin")).join(",") !==
     "1,2,3"

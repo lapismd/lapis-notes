@@ -391,6 +391,8 @@ The browser composes explicit vault and database adapters over that boundary;
 it does not emulate or publish a desktop-native capability bridge.
 The compile-time server Web profile reuses the application workspace shell but
 excludes local-vault, offline, AI-host, terminal-host, and PWA boot policy.
+It marks the document runtime as `deno-server` before mounting so host-specific
+code never has to infer the online profile from missing desktop or PWA state.
 Container execution preserves the same boundary with non-root ownership and
 scoped Deno permissions; native database FFI is limited to the dependency
 cache, while only the managed data root is writable.

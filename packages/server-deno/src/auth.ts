@@ -17,6 +17,7 @@ import type {
 export const SESSION_IDLE_MS = 7 * 24 * 60 * 60 * 1_000;
 export const SESSION_ABSOLUTE_MS = 30 * 24 * 60 * 60 * 1_000;
 export const SESSION_COOKIE_NAME = "__Host-lapis_session";
+export const INSECURE_SESSION_COOKIE_NAME = "lapis_session";
 export const CSRF_HEADER_NAME = "x-lapis-csrf";
 
 const SCRYPT_N = 2 ** 17;
@@ -118,8 +119,9 @@ export function parseCookie(
 }
 
 export function sessionCookie(token: string, secure = true): string {
+  const name = secure ? SESSION_COOKIE_NAME : INSECURE_SESSION_COOKIE_NAME;
   return [
-    `${SESSION_COOKIE_NAME}=${token}`,
+    `${name}=${token}`,
     "Path=/",
     "HttpOnly",
     "SameSite=Lax",
@@ -131,8 +133,9 @@ export function sessionCookie(token: string, secure = true): string {
 }
 
 export function clearSessionCookie(secure = true): string {
+  const name = secure ? SESSION_COOKIE_NAME : INSECURE_SESSION_COOKIE_NAME;
   return [
-    `${SESSION_COOKIE_NAME}=`,
+    `${name}=`,
     "Path=/",
     "HttpOnly",
     "SameSite=Lax",
@@ -167,8 +170,12 @@ export async function resolveRequestSession(
   request: Request,
   control: ControlDatabase,
   now = Date.now(),
+  secureCookie = true,
 ): Promise<ControlSession | undefined> {
-  const token = parseCookie(request.headers.get("cookie"), SESSION_COOKIE_NAME);
+  const name = secureCookie
+    ? SESSION_COOKIE_NAME
+    : INSECURE_SESSION_COOKIE_NAME;
+  const token = parseCookie(request.headers.get("cookie"), name);
   if (!token) return undefined;
   const session = await control.resolveSession(sha256(token));
   if (

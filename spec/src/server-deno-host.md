@@ -101,3 +101,14 @@ separate stages, then runs as a non-root user. Runtime permissions name the
 read, write, bind, environment, and FFI boundaries and grant no subprocess
 access. The data volume is the only writable persistent location; bootstrap
 credentials enter through a mounted password file.
+
+The server profile marks the document runtime as `deno-server` before mounting
+the application. It does not publish PWA-host attributes or register a service
+worker, which keeps host detection explicit for application and acceptance
+code.
+
+Production sessions use the `__Host-` cookie prefix together with `Secure`,
+`HttpOnly`, `SameSite=Lax`, and `Path=/`. The explicit localhost-only insecure
+development mode uses an unprefixed cookie because browsers reject a
+`__Host-` cookie without `Secure`; that exception is not accepted for any
+non-localhost origin.

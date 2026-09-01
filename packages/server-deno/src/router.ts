@@ -428,9 +428,17 @@ const eventsRouter = t.router({
             continue;
           }
           await new Promise<void>((resolve) => {
-            wake = resolve;
-            signal?.addEventListener("abort", () => resolve(), { once: true });
-            setTimeout(resolve, 30_000);
+            let timeout: ReturnType<typeof setTimeout>;
+            const finish = () => {
+              clearTimeout(timeout);
+              signal?.removeEventListener("abort", finish);
+              if (wake === finish) wake = undefined;
+              resolve();
+            };
+            wake = finish;
+            signal?.addEventListener("abort", finish, { once: true });
+            timeout = setTimeout(finish, 30_000);
+            if (signal?.aborted) finish();
           });
         }
       } finally {

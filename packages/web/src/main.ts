@@ -38,6 +38,9 @@ if (!__LAPIS_SERVER_MODE__) {
   );
   disposeWindowControls = controls.registerPwaWindowControlsOverlay();
   disposePwa = pwa.registerWebPwa();
+} else {
+  const serverDocument = await import("./server-host-document");
+  serverDocument.initializeServerHostDocument();
 }
 applyAppearance(await getBootstrapAppearanceMode());
 const disposeThemeColor = observeHostThemeColor();

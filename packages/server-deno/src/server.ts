@@ -94,9 +94,9 @@ export async function createLapisDenoServer(
   let ready = true;
   let closed = false;
   const idleCleanup = setInterval(() => {
-    void runtimes.closeIdle().catch((error) =>
-      console.error("idle vault cleanup failed", { error }),
-    );
+    void runtimes
+      .closeIdle()
+      .catch((error) => console.error("idle vault cleanup failed", { error }));
   }, 60_000);
 
   const handler: Deno.ServeHandler = async (request, info) => {
@@ -116,7 +116,12 @@ export async function createLapisDenoServer(
     const headers = new Headers(request.headers);
     headers.set("x-lapis-remote-address", remoteAddress || "unknown");
     request = new Request(request, { headers });
-    const session = await resolveRequestSession(request, control);
+    const session = await resolveRequestSession(
+      request,
+      control,
+      Date.now(),
+      config.secureCookie,
+    );
     if (url.pathname.startsWith("/__lapis/plugins/")) {
       try {
         return (
@@ -174,7 +179,10 @@ export async function createLapisDenoServer(
       closed = true;
       ready = false;
       clearInterval(idleCleanup);
+      events.close();
+      console.log("Closing vault database runtimes");
       await runtimes.closeAll();
+      console.log("Closing the server control database");
       await control.close();
     },
   };

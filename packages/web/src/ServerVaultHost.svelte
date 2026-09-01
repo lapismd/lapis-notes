@@ -140,7 +140,7 @@
 
   async function openVault(row: VaultRow): Promise<void> {
     if (row.archivedAt !== undefined) return;
-      hostState = "opening";
+    hostState = "opening";
     errorMessage = "";
     try {
       await disposeWorkspace(true);
@@ -224,7 +224,7 @@
 </script>
 
 <main class="server-host" data-server-host-state={hostState}>
-  {#if hostState === "loading" || hostState === "opening"}
+  {#if hostState === "loading" || (hostState === "opening" && !prepared)}
     <section class="server-card" aria-live="polite">
       <p class="server-eyebrow">Lapis Server</p>
       <h1>{hostState === "opening" ? "Opening vault" : "Connecting"}</h1>

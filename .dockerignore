@@ -17,6 +17,8 @@ tmp
 packages/desktop-deno/LapisNotes.app
 packages/desktop-deno/native
 packages/desktop-deno/release
+packages/web/e2e
+packages/web/playwright*.ts
 packages/server-deno/Dockerfile
 packages/server-deno/README.md
 packages/server-deno/compose.example.yaml

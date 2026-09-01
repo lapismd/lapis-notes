@@ -93,6 +93,10 @@ export class VaultEventHub {
     this.#states.delete(vaultId);
   }
 
+  close(): void {
+    for (const vaultId of [...this.#states.keys()]) this.reset(vaultId);
+  }
+
   #state(vaultId: string): VaultEventState {
     let state = this.#states.get(vaultId);
     if (!state) {

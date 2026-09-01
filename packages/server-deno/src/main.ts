@@ -6,13 +6,15 @@ let closing: Promise<void> | undefined;
 
 function shutdown(): void {
   closing ??= (async () => {
+    console.log("Lapis server shutdown requested");
     abort.abort();
     await app.close();
+    console.log("Lapis server services closed");
   })();
 }
 
-Deno.addSignalListener("SIGINT", shutdown);
-Deno.addSignalListener("SIGTERM", shutdown);
+const shutdownSignals = ["SIGINT", "SIGTERM"] as const;
+for (const signal of shutdownSignals) Deno.addSignalListener(signal, shutdown);
 
 const server = Deno.serve(
   {
@@ -26,5 +28,13 @@ const server = Deno.serve(
   app.handler,
 );
 
-await server.finished;
-await closing;
+try {
+  await server.finished;
+  console.log("Lapis HTTP server closed");
+  await closing;
+} finally {
+  for (const signal of shutdownSignals) {
+    Deno.removeSignalListener(signal, shutdown);
+  }
+}
+console.log("Lapis server stopped");

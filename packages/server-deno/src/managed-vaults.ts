@@ -1,7 +1,10 @@
 import { dirname, join } from "node:path";
 
 import { ServerHostError } from "@lapis-notes/api/server-host";
-import { normalizeVaultPath } from "@lapis-notes/deno-host-services/paths";
+import {
+  mkdirWhenPathExists,
+  normalizeVaultPath,
+} from "@lapis-notes/deno-host-services/paths";
 
 import { VaultEventHub } from "./events.ts";
 
@@ -309,7 +312,38 @@ export class ManagedVaultStore {
         relativePath,
         "write",
       );
-      await Deno.mkdir(absolute, { recursive });
+      const existing = await Deno.stat(absolute)
+        .then((stat) => ({ isDirectory: stat.isDirectory }))
+        .catch((error) => {
+          if (error instanceof Deno.errors.NotFound) return null;
+          throw error;
+        });
+      const action = mkdirWhenPathExists(existing);
+      if (action === "skip") return;
+      if (action === "eexist") {
+        throw new ServerHostError(
+          "CONFLICT",
+          "A file already exists at this path",
+        );
+      }
+      try {
+        await Deno.mkdir(absolute, { recursive });
+      } catch (error) {
+        if (error instanceof Deno.errors.AlreadyExists) {
+          const raced = await Deno.stat(absolute)
+            .then((stat) => ({ isDirectory: stat.isDirectory }))
+            .catch((statError) => {
+              if (statError instanceof Deno.errors.NotFound) return null;
+              throw statError;
+            });
+          if (mkdirWhenPathExists(raced) === "skip") return;
+          throw new ServerHostError(
+            "CONFLICT",
+            "A file already exists at this path",
+          );
+        }
+        throw error;
+      }
       this.events.publish(vaultId, "file", {
         type: "create",
         path: normalizeManagedPath(relativePath),

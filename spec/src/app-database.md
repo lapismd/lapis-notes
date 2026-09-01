@@ -113,6 +113,10 @@ participates in browser-owner election.
 Container packaging retains native Turso in the server process and scopes FFI
 to the cached dependency tree; database paths remain under the managed data
 volume and never enter the browser image or static bundle.
+Remote database procedures resolve the same authenticated server session before
+membership checks whether production uses the secure `__Host-` cookie or the
+explicit localhost-only development cookie; the latter does not weaken CSRF or
+vault authorization.
 
 The API-owned `REMOTE_APP_DATABASE_CONTRACT` supplies the single method
 catalogue, typed argument and result schemas, message bounds, and domain
