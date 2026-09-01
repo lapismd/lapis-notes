@@ -75,16 +75,14 @@ function formatPluginError(error: unknown): string {
 
 function resolvePluginModuleExport(moduleExports: unknown): unknown {
   const exportRecord = isRecord(moduleExports) ? moduleExports : {};
-  for (const [, value] of Object.entries(exportRecord)) {
-    if (value === Plugin) {
-      return value;
-    }
+  if (exportRecord.default !== undefined) {
+    return exportRecord.default;
   }
-  return (
-    (moduleExports as any)?.default ||
-    Object.values(exportRecord)[0] ||
-    moduleExports
+  const namedPluginClass = Object.values(exportRecord).find(
+    (value) =>
+      typeof value === "function" && value.prototype instanceof Plugin,
   );
+  return namedPluginClass ?? Object.values(exportRecord)[0] ?? moduleExports;
 }
 
 function isRecord(value: unknown): value is Record<string, any> {

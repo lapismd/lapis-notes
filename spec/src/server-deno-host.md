@@ -33,6 +33,7 @@ HTTP policy around these kernels.
 | LN-SRV-015 | The first server slice MUST NOT host AI, terminals, collaborative editing, arbitrary filesystem roots, invitations, public registration, or multi-instance coordination. Missing capabilities MUST be reported explicitly.                                                    |
 | LN-SRV-016 | The browser vault adapter MUST translate Lapis virtual-root paths such as `/.obsidian/plugins` to managed relative paths before tRPC requests. Direct server routes MUST continue to reject absolute paths, traversal, and host filesystem access.                                |
 | LN-SRV-017 | Hosted plugin installs MUST download signed first-party release bundles through an authenticated, editor-authorized same-origin Fetch route. The server MUST restrict outbound sources, bound response bytes, forward no session credentials upstream, and retain client-side signature and digest verification.               |
+| LN-SRV-018 | The server static profile MUST serve the fixed Web plugin-host entries referenced by its initial import map, including `@lapis-notes/api/workspace-host`. Installed History runtime modules MUST resolve those entries through the same host module graph before activation. |
 
 ## Runtime topology
 

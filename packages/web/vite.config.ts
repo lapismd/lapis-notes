@@ -87,9 +87,11 @@ function pluginHostImportMapPlugin(): Plugin {
     name: "lapis-plugin-host-import-map",
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
-        if (request.url?.split("?", 1)[0] === "/plugin-host-api.js") {
+        const pathname = request.url?.split("?", 1)[0];
+        if (pathname === "/plugin-host-api.js")
           request.url = "/src/plugin-host-api.ts";
-        }
+        if (pathname === "/plugin-host-workspace-host.js")
+          request.url = "/src/plugin-host-workspace-host.ts";
         next();
       });
     },
@@ -221,11 +223,16 @@ export default defineConfig(({ mode }) => ({
           packageRoot,
           "src/plugin-host-api.ts",
         ),
+        "plugin-host-workspace-host": path.resolve(
+          packageRoot,
+          "src/plugin-host-workspace-host.ts",
+        ),
       },
       output: {
         entryFileNames(chunk) {
-          return chunk.name === "plugin-host-api"
-            ? "plugin-host-api.js"
+          return chunk.name === "plugin-host-api" ||
+            chunk.name === "plugin-host-workspace-host"
+            ? `${chunk.name}.js`
             : "assets/[name]-[hash].js";
         },
       },

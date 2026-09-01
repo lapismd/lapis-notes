@@ -20,6 +20,31 @@ describe("plugin release runtime validation", () => {
     expect(result.errors).toEqual([]);
   });
 
+  it("accepts the public workspace-host API subpath used by History", () => {
+    const manifest = manifestWithRuntime({
+      entries: {
+        workspace: {
+          path: "main.mjs",
+          format: "esm",
+          sharedDependencies: [
+            "@lapis-notes/api",
+            "@lapis-notes/api/workspace-host",
+          ],
+        },
+      },
+    });
+    const result = validatePluginReleaseRuntime({
+      releaseManifest: releaseManifestFor(manifest),
+      pluginManifest: manifest,
+      files: filesFor(manifest, {
+        "main.mjs": `import { Plugin } from "@lapis-notes/api"; import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host"; export default class HistoryPlugin extends Plugin {}`,
+      }),
+      provenance: "official",
+    });
+
+    expect(result.errors).toEqual([]);
+  });
+
   it("rejects official structured runtime entries whose files are missing", () => {
     const files = filesFor(esmWorkspaceManifest);
     files.delete("main.mjs");

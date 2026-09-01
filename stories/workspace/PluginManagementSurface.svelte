@@ -24,6 +24,7 @@
     | "catalog"
     | "installed"
     | "failure"
+    | "install-failure"
     | "progress"
     | "community";
 
@@ -419,6 +420,11 @@ Released 1 August 2026.
       return entry ? detail(entry) : null;
     },
     async install(pluginId) {
+      if (untrack(() => scenario) === "install-failure") {
+        throw new Error(
+          `Plugin ${pluginId} runtime metadata is invalid: @lapis-notes/api/workspace-host is unavailable.`,
+        );
+      }
       if (untrack(() => scenario) === "progress") {
         progressListeners.forEach((listener) =>
           listener({

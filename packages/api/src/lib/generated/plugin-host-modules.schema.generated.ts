@@ -213,6 +213,16 @@ export const pluginHostModuleRegistry = {
     specifier: "@lapis-notes/api/metadata-value",
     version: "0.0.1",
   },
+  "@lapis-notes/api/workspace-host": {
+    entry: "@lapis-notes/api/workspace-host",
+    moduleId: "lapis-notes-api-workspace-host",
+    packageName: "@lapis-notes/api",
+    platforms: ["web", "electron-renderer"],
+    public: true,
+    source: "package-json-export",
+    specifier: "@lapis-notes/api/workspace-host",
+    version: "0.0.1",
+  },
   "@lapis-notes/markdown": {
     entry: "@lapis-notes/markdown",
     moduleId: "lapis-notes-markdown",

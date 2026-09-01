@@ -8,6 +8,7 @@
   import Download from "@lucide/svelte/icons/download";
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import PackageIcon from "@lucide/svelte/icons/package";
+  import RefreshCw from "@lucide/svelte/icons/refresh-cw";
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import {
     pluginDownloadCounts,
@@ -26,6 +27,7 @@
   import PluginRegistryBadge from "./PluginRegistryBadge.svelte";
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
   import { formatApproximateDownloadCount } from "./plugin-download-stats";
+  import PluginRegistryStatus from "./PluginRegistryStatus.svelte";
 
   export type PluginMarkdownState =
     | { status: "idle" | "loading" | "missing" }
@@ -36,6 +38,12 @@
         markdown: string;
       }
     | { status: "error"; message: string; sourceUrl?: string };
+
+  export type PluginRegistryActionFeedback = {
+    pluginId: string;
+    state: "running" | "success" | "error";
+    message: string;
+  };
 
   let {
     app,
@@ -51,6 +59,7 @@
     downloadStats,
     update,
     runningAction,
+    actionFeedback,
     onselect,
     oninstall,
     onupdate,
@@ -70,6 +79,7 @@
     downloadStats: PluginDownloadStatsSummary | null;
     update: PluginUpdateInfo | null;
     runningAction: string | null;
+    actionFeedback: PluginRegistryActionFeedback | null;
     onselect: (entry: PluginCatalogEntry) => void | Promise<void>;
     oninstall: (entry: PluginCatalogEntry) => void | Promise<void>;
     onupdate: (update: PluginUpdateInfo) => void | Promise<void>;
@@ -162,6 +172,22 @@
               <div class="lapis-plugin-detail-dialog__title-line">
                 <h2>{selectedEntry.name}</h2>
                 {#if detail?.status}<PluginRegistryBadge label={titleCase(detail.status)} tone={detail.status === "revoked" ? "danger" : "neutral"} />{/if}
+                {#if actionFeedback?.pluginId === selectedEntry.id}
+                  <PluginRegistryStatus
+                    label={actionFeedback.state === "running"
+                      ? "Installing"
+                      : actionFeedback.state === "error"
+                        ? "Install failed"
+                        : "Installed"}
+                    tone={actionFeedback.state === "error"
+                      ? "danger"
+                      : actionFeedback.state === "success"
+                        ? "success"
+                        : "neutral"}
+                  />
+                {:else if installedIds.has(selectedEntry.id)}
+                  <PluginRegistryStatus label="Installed" tone="success" />
+                {/if}
               </div>
               <p>{detail?.description ?? selectedEntry.description}</p>
               <div class="lapis-plugin-card__badges">
@@ -188,11 +214,19 @@
             {:else if staticPluginIds.has(selectedEntry.id)}
               <Button.Root size="sm" variant="outline" disabled><Check data-icon="inline-start" />Bundled</Button.Root>
             {:else}
+              {@const installing = runningAction === `install:${selectedEntry.id}`}
               <Button.Root
                 size="sm"
-                disabled={runningAction === `install:${selectedEntry.id}`}
+                aria-label={installing
+                  ? `Installing ${selectedEntry.name}`
+                  : undefined}
+                aria-busy={installing}
+                disabled={installing}
                 onclick={() => void oninstall(selectedEntry)}
-              ><Download />Install</Button.Root>
+              >{#if installing}<RefreshCw data-spinning="true" />Installing…{:else}<Download />Install{/if}</Button.Root>
+            {/if}
+            {#if actionFeedback?.pluginId === selectedEntry.id && actionFeedback.state === "error"}
+              <p class="lapis-plugin-detail-dialog__action-status" role="alert">{actionFeedback.message}</p>
             {/if}
           </div>
         {:else}

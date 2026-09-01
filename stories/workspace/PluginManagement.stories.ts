@@ -522,6 +522,80 @@ export const PopulatedBrowseRows: Story = {
   },
 };
 
+export const RegistryInstallProgress: Story = {
+  args: { scenario: "progress", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    expect(graphRow).not.toBeNull();
+
+    await userEvent.click(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    );
+
+    const installing = within(graphRow!).getByRole("button", {
+      name: "Installing Graph",
+    });
+    await expect(installing).toBeDisabled();
+    await expect(installing).toHaveAttribute("aria-busy", "true");
+    await expect(within(graphRow!).getByText("Installing")).toBeVisible();
+  },
+};
+
+export const RegistryInstallCompletion: Story = {
+  args: { scenario: "catalog", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    expect(graphRow).not.toBeNull();
+
+    await userEvent.click(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    );
+
+    await expect(
+      await within(graphRow!).findByRole("button", {
+        name: "Uninstall Graph",
+      }),
+    ).toBeEnabled();
+    await expect(within(graphRow!).getByText("Installed")).toBeVisible();
+  },
+};
+
+export const RegistryInstallFailure: Story = {
+  args: { scenario: "install-failure", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    expect(graphRow).not.toBeNull();
+
+    await userEvent.click(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    );
+
+    await expect(
+      await within(graphRow!).findByText("Install failed"),
+    ).toBeVisible();
+    await expect(
+      within(graphRow!).getByText(
+        "Plugin lapis-graph runtime metadata is invalid: @lapis-notes/api/workspace-host is unavailable.",
+      ),
+    ).toBeVisible();
+    await expect(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    ).toBeEnabled();
+  },
+};
+
 export const PopulatedUpdatesRows: Story = {
   args: { scenario: "installed", section: "plugin-registry" },
   play: async ({ canvasElement }) => {

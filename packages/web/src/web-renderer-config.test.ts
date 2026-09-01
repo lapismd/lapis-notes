@@ -27,7 +27,10 @@ describe("web renderer configuration", () => {
 
   it("maps verified ESM plugins to the build-owned public API entry", () => {
     expect(rendererPluginImportMap).toEqual({
-      imports: { "@lapis-notes/api": "/plugin-host-api.js" },
+      imports: {
+        "@lapis-notes/api": "/plugin-host-api.js",
+        "@lapis-notes/api/workspace-host": "/plugin-host-workspace-host.js",
+      },
     });
   });
 });

@@ -33,6 +33,7 @@
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
   import type { PluginRegistryBadgeTone } from "./PluginRegistryBadge.svelte";
   import PluginRegistryDetailDialog, {
+    type PluginRegistryActionFeedback,
     type PluginMarkdownState,
   } from "./PluginRegistryDetailDialog.svelte";
   import PluginRegistryRow, {
@@ -60,6 +61,7 @@
   let initialLoading = $state(true);
   let refreshing = $state(false);
   let runningAction = $state<string | null>(null);
+  let actionFeedback = $state<PluginRegistryActionFeedback | null>(null);
   let detailDialogOpen = $state(false);
   let uninstallConfirmOpen = $state(false);
   let uninstallTarget = $state<InstalledPluginRecord | null>(null);
@@ -364,17 +366,35 @@
     action: (signal: AbortSignal) => Promise<unknown>,
   ): Promise<void> {
     runningAction = actionId;
+    actionFeedback = {
+      pluginId,
+      state: "running",
+      message: title,
+    };
     try {
-      lastError = null;
       await withPluginInstallProgress(app, { pluginId, title }, action);
       await refresh(false);
+      actionFeedback = {
+        pluginId,
+        state: "success",
+        message: actionId.startsWith("update:")
+          ? "Update installed"
+          : "Installed",
+      };
     } catch (error) {
       if (isAbortError(error)) {
+        actionFeedback = null;
         await refresh(false);
         return;
       }
-      lastError = error instanceof Error ? error : new Error(String(error));
-      new Notice(`Plugin registry action failed: ${errorMessage(lastError)}`);
+      const actionError =
+        error instanceof Error ? error : new Error(String(error));
+      actionFeedback = {
+        pluginId,
+        state: "error",
+        message: errorMessage(actionError),
+      };
+      new Notice(`Plugin registry action failed: ${errorMessage(actionError)}`);
     } finally {
       runningAction = null;
     }
@@ -628,6 +648,31 @@
     if (!downloadStats) return null;
     const count = pluginDownloadCounts(downloadStats, pluginId).recent;
     return `~${formatApproximateDownloadCount(count)} downloads (30d)`;
+  }
+
+  function browseActionStatus(
+    pluginId: string,
+    installedRecord: InstalledPluginRecord | undefined,
+  ) {
+    if (actionFeedback?.pluginId === pluginId) {
+      if (actionFeedback.state === "running") {
+        return {
+          label: "Installing",
+          reason: actionFeedback.message,
+          tone: "neutral" as const,
+        };
+      }
+      if (actionFeedback.state === "error") {
+        return {
+          label: "Install failed",
+          reason: actionFeedback.message,
+          tone: "danger" as const,
+        };
+      }
+    }
+    return installedRecord
+      ? { label: "Installed", tone: "success" as const }
+      : undefined;
   }
 
   function formatDate(value?: string): string | null {
@@ -924,6 +969,7 @@
                 ...(downloadLabel(entry.id) ? [downloadLabel(entry.id)!] : []),
               ]}
               badges={registryRowBadges(entry, entry.channel)}
+              status={browseActionStatus(entry.id, installedRecord)}
               onopen={() => void openDetails(entry)}
             >
               {#snippet actions()}
@@ -938,11 +984,16 @@
                 {:else if isBundled}
                   <Button.Root size="sm" variant="outline" disabled><Check data-icon="inline-start" />Bundled</Button.Root>
                 {:else}
+                  {@const installing = runningAction === `install:${entry.id}`}
                   <Button.Root
                     size="sm"
-                    disabled={runningAction === `install:${entry.id}`}
+                    aria-label={installing
+                      ? `Installing ${entry.name}`
+                      : undefined}
+                    aria-busy={installing}
+                    disabled={installing}
                     onclick={() => void installEntry(entry)}
-                  ><Download data-icon="inline-start" />Install</Button.Root>
+                  >{#if installing}<RefreshCw data-icon="inline-start" data-spinning="true" />Installing…{:else}<Download data-icon="inline-start" />Install{/if}</Button.Root>
                 {/if}
               {/snippet}
             </PluginRegistryRow>
@@ -1062,6 +1113,7 @@
     {downloadStats}
     update={detailUpdate}
     {runningAction}
+    {actionFeedback}
     onselect={selectDetail}
     oninstall={installEntry}
     onupdate={updatePlugin}

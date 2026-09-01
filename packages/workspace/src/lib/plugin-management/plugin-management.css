@@ -807,7 +807,9 @@
   height: 0.875rem;
 }
 
-.lapis-plugin-registry__refresh svg[data-spinning="true"] {
+.lapis-plugin-registry__refresh svg[data-spinning="true"],
+.lapis-plugin-registry-row__actions svg[data-spinning="true"],
+.lapis-plugin-detail-dialog__action svg[data-spinning="true"] {
   animation: lapis-plugin-spin 1s linear infinite;
 }
 
@@ -1655,6 +1657,15 @@ button.lapis-plugin-registry-row__main:focus-visible {
   gap: 0.375rem;
 }
 
+.lapis-plugin-detail-dialog__action-status {
+  flex-basis: 100%;
+  max-width: 24rem;
+  margin: 0;
+  color: var(--ui-workspace-destructive);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
 .lapis-plugin-detail-dialog__back {
   display: none;
 }
@@ -2005,7 +2016,9 @@ button.lapis-plugin-registry-row__main:focus-visible {
     transition: none;
   }
 
-  .lapis-plugin-registry__refresh svg[data-spinning="true"] {
+  .lapis-plugin-registry__refresh svg[data-spinning="true"],
+  .lapis-plugin-registry-row__actions svg[data-spinning="true"],
+  .lapis-plugin-detail-dialog__action svg[data-spinning="true"] {
     animation: none;
   }
 
