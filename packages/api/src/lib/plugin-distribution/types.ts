@@ -340,6 +340,9 @@ export interface InstalledPluginRecord {
     releaseEventId: string;
     decisionEventId: string;
     manifestSha256: string;
+    /** Digest and size of the exact inner payload authenticated at installation. */
+    artifactSha256: string;
+    artifactSize: number;
     /** Portable proof is valid, but a relay quorum has not checked later revocations. */
     requiresRelayRefresh: boolean;
   };

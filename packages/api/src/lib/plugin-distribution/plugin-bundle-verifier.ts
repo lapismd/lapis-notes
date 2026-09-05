@@ -52,6 +52,8 @@ export interface VerifiedPluginBundlePayload {
     releaseEventId: string;
     decisionEventId: string;
     manifestSha256: string;
+    artifactSha256: string;
+    artifactSize: number;
     requiresRelayRefresh: boolean;
   };
 }
@@ -76,7 +78,7 @@ export interface VerifiedNostrReleaseProofResult {
 export type NostrReleaseProofVerifier = (
   proof: unknown,
   options: {
-    artifact: Uint8Array;
+    artifact: Uint8Array | { sha256: string; size: number };
     trustedCuratorPubkeys: ReadonlySet<string>;
   },
 ) => VerifiedNostrReleaseProofResult | Promise<VerifiedNostrReleaseProofResult>;
@@ -282,6 +284,8 @@ export const verifyNostrPluginPayload = async (
       releaseEventId: verified.releaseEventId,
       decisionEventId: verified.decisionEventId,
       manifestSha256: verified.manifestSha256,
+      artifactSha256: verified.artifactSha256,
+      artifactSize: verified.artifactSize,
       requiresRelayRefresh: options.relayFresh !== true,
     },
   };

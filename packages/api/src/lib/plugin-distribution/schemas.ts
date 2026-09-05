@@ -428,6 +428,8 @@ export const installedPluginRecordSchema = z
         releaseEventId: nonEmpty,
         decisionEventId: nonEmpty,
         manifestSha256: sha256,
+        artifactSha256: sha256,
+        artifactSize: z.number().int().nonnegative(),
         requiresRelayRefresh: z.boolean(),
       })
       .optional(),

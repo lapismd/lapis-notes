@@ -194,6 +194,12 @@ export interface PluginRegistryAdapter {
     bundle: ParsedNostrPluginBundle,
     options?: { signal?: AbortSignal },
   ): Promise<VerifiedPluginBundlePayload>;
+  /** Revalidate a stored Nostr proof against a live install-ready source. */
+  revalidateInstalledProof?(
+    source: PluginRegistrySource,
+    record: InstalledPluginRecord,
+    options?: { signal?: AbortSignal },
+  ): Promise<NonNullable<InstalledPluginRecord["nostrProof"]>>;
 }
 
 export interface DefaultPluginDistributionManagerOptions {
@@ -396,6 +402,7 @@ export class DefaultPluginDistributionManager
       revoked: indexes.flatMap(({ result }) => result.revocations?.revoked ?? []),
     };
     await this.applyRevocationsToInstalled();
+    await this.revalidateInstalledNostrProofs();
     return this.catalog;
   }
 
@@ -869,6 +876,33 @@ export class DefaultPluginDistributionManager
         delete next.revoked;
       }
       await this.stateStore.upsert(next);
+    }
+  }
+
+  private async revalidateInstalledNostrProofs(): Promise<void> {
+    const installed = await this.stateStore.list();
+    for (const record of installed) {
+      if (!record.nostrProof?.requiresRelayRefresh || !record.registryId) {
+        continue;
+      }
+      const state = this.sourceStates.get(record.registryId);
+      if (!state?.installReady || state.phase !== "ready") continue;
+      const adapter = this.adapterForSource(state.source);
+      if (!adapter?.revalidateInstalledProof) continue;
+      try {
+        const nostrProof = await adapter.revalidateInstalledProof(
+          state.source,
+          record,
+        );
+        await this.stateStore.upsert({
+          ...record,
+          nostrProof,
+          updatedAt: new Date().toISOString(),
+        });
+      } catch {
+        // A live source must positively revalidate the same release before the
+        // offline warning can be cleared. Failures retain the warning.
+      }
     }
   }
 

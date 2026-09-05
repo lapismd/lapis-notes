@@ -171,8 +171,8 @@ describe("Nostr plugin distribution", () => {
       catalogSource: {
         loadIndex: async () => ({ schemaVersion: 1, generatedAt: "", plugins: [] }),
         loadPluginDetail: async () => ({}),
-        loadReleaseProof: async () => ({}),
-        getStatus: () => ({ installReady: false, fresh: false }),
+        loadReleaseProof: async () => fixture.proof,
+        getStatus: () => ({ installReady: true, fresh: true }),
       },
       verifyReleaseProof: fixture.verifyReleaseProof,
     });
@@ -186,6 +186,31 @@ describe("Nostr plugin distribution", () => {
     ).resolves.toMatchObject({
       releaseManifest: { pluginId: "community-clock", version: "1.2.3" },
       nostrProof: { requiresRelayRefresh: true },
+    });
+
+    await expect(
+      adapter.revalidateInstalledProof!(source, {
+        pluginId: "community-clock",
+        installedVersion: "1.2.3",
+        installedAt: "2026-09-05T00:00:00.000Z",
+        updatedAt: "2026-09-05T00:00:00.000Z",
+        provenance: "community",
+        registryId: source.id,
+        files: [],
+        nostrProof: {
+          authorizationEventId: "authorization-event",
+          releaseEventId: "release-event",
+          decisionEventId: "decision-event",
+          manifestSha256: fixture.manifestSha256,
+          artifactSha256: await sha256Hex(fixture.artifact),
+          artifactSize: fixture.artifact.byteLength,
+          requiresRelayRefresh: true,
+        },
+      }),
+    ).resolves.toMatchObject({
+      releaseEventId: "release-event",
+      artifactSha256: await sha256Hex(fixture.artifact),
+      requiresRelayRefresh: false,
     });
   });
 });
@@ -228,6 +253,13 @@ const createNostrFixture = async () => {
   const verifyReleaseProof: NostrReleaseProofVerifier = vi.fn(
     async (_proof, options) => {
       expect(options.trustedCuratorPubkeys).toEqual(new Set([curatorPubkey]));
+      const artifact =
+        options.artifact instanceof Uint8Array
+          ? {
+              sha256: await sha256Hex(options.artifact),
+              size: options.artifact.byteLength,
+            }
+          : options.artifact;
       return {
         pluginId: "community-clock",
         version: "1.2.3",
@@ -235,8 +267,8 @@ const createNostrFixture = async () => {
         releaseEventId: "release-event",
         decisionEventId: "decision-event",
         manifestSha256,
-        artifactSha256: await sha256Hex(options.artifact),
-        artifactSize: options.artifact.byteLength,
+        artifactSha256: artifact.sha256,
+        artifactSize: artifact.size,
         requiresRelayRefresh: true,
         manifest: { release: { metadata: { lapisRelease: releaseManifest } } },
       };

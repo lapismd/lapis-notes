@@ -14,6 +14,7 @@ import {
   pluginCatalogIndexSchema,
 } from "./schemas";
 import type {
+  InstalledPluginRecord,
   PluginCatalogDetail,
   PluginCatalogEntry,
   PluginRegistrySource,
@@ -125,7 +126,63 @@ export function createNostrPluginRegistryAdapter(
         relayFresh: false,
       });
     },
+    async revalidateInstalledProof(source, record, installOptions) {
+      const stored = requireStoredProof(record);
+      const curatorPubkeys = source.curatorPubkeys ?? [];
+      if (curatorPubkeys.length === 0) {
+        throw new PluginDistributionError(
+          "metadata-invalid",
+          `Nostr registry ${source.name} has no pinned curator keys.`,
+        );
+      }
+      const status = options.catalogSource.getStatus();
+      if (!status.installReady || !status.fresh) {
+        throw new PluginDistributionError(
+          "metadata-invalid",
+          `Nostr registry ${source.name} has not reached install quorum.`,
+        );
+      }
+      const proof = await options.catalogSource.loadReleaseProof(
+        record.pluginId,
+        record.installedVersion,
+        { signal: installOptions?.signal },
+      );
+      const verified = await options.verifyReleaseProof(proof, {
+        artifact: {
+          sha256: stored.artifactSha256,
+          size: stored.artifactSize,
+        },
+        trustedCuratorPubkeys: new Set(curatorPubkeys),
+      });
+      if (verified.releaseEventId !== stored.releaseEventId) {
+        throw new PluginDistributionError(
+          "metadata-invalid",
+          "Live Nostr proof names a different immutable release event.",
+        );
+      }
+      return {
+        authorizationEventId: verified.authorizationEventId,
+        releaseEventId: verified.releaseEventId,
+        decisionEventId: verified.decisionEventId,
+        manifestSha256: verified.manifestSha256,
+        artifactSha256: verified.artifactSha256,
+        artifactSize: verified.artifactSize,
+        requiresRelayRefresh: false,
+      };
+    },
   };
+}
+
+function requireStoredProof(
+  record: InstalledPluginRecord,
+): NonNullable<InstalledPluginRecord["nostrProof"]> {
+  if (!record.nostrProof) {
+    throw new PluginDistributionError(
+      "metadata-invalid",
+      "Installed plugin has no stored Nostr proof.",
+    );
+  }
+  return record.nostrProof;
 }
 
 function requireRelease(

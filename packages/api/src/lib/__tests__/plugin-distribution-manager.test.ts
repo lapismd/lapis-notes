@@ -241,8 +241,10 @@ describe("DefaultPluginDistributionManager", () => {
       curatorPubkeys: ["a".repeat(64)],
     };
     let offlineVerifications = 0;
+    let installReady = false;
+    let revalidationAllowed = false;
     const nostrAdapter: PluginRegistryAdapter = {
-      refresh: async () => ({ index: fixture.index, installReady: false }),
+      refresh: async () => ({ index: fixture.index, installReady }),
       getDetail: async () => fixture.detail,
       verifyOfflineBundle: async (_source, portable) => {
         offlineVerifications += 1;
@@ -255,8 +257,17 @@ describe("DefaultPluginDistributionManager", () => {
             releaseEventId: "release-event",
             decisionEventId: "decision-event",
             manifestSha256: "a".repeat(64),
+            artifactSha256: "b".repeat(64),
+            artifactSize: 3,
             requiresRelayRefresh: true,
           },
+        };
+      },
+      revalidateInstalledProof: async (_source, record) => {
+        if (!revalidationAllowed) throw new Error("proof is no longer current");
+        return {
+          ...record.nostrProof!,
+          requiresRelayRefresh: false,
         };
       },
     };
@@ -283,6 +294,18 @@ describe("DefaultPluginDistributionManager", () => {
       nostrProof: { requiresRelayRefresh: true },
     });
     expect(offlineVerifications).toBe(1);
+
+    installReady = true;
+    await manager.refreshCatalog();
+    await expect(manager.getInstalled("lapis-docs")).resolves.toMatchObject({
+      nostrProof: { requiresRelayRefresh: true },
+    });
+
+    revalidationAllowed = true;
+    await manager.refreshCatalog();
+    await expect(manager.getInstalled("lapis-docs")).resolves.toMatchObject({
+      nostrProof: { requiresRelayRefresh: false },
+    });
   });
 
   it("rejects platform-incompatible plugins before installation", async () => {
