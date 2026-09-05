@@ -69,7 +69,16 @@
     createDenoPluginAssetServer({ adapter, bridge }),
   );
   const nostrPluginDistribution = untrack(() =>
-    createConfiguredNotesNostrPluginDistribution(import.meta.env),
+    createConfiguredNotesNostrPluginDistribution({
+      VITE_LAPIS_NOSTR_REGISTRY_RELAYS:
+        import.meta.env.VITE_LAPIS_NOSTR_REGISTRY_RELAYS,
+      VITE_LAPIS_NOSTR_CURATOR_PUBKEYS:
+        import.meta.env.VITE_LAPIS_NOSTR_CURATOR_PUBKEYS,
+      VITE_LAPIS_NOSTR_INSTALL_QUORUM:
+        import.meta.env.VITE_LAPIS_NOSTR_INSTALL_QUORUM,
+      VITE_LAPIS_NOSTR_BLOSSOM_URL:
+        import.meta.env.VITE_LAPIS_NOSTR_BLOSSOM_URL,
+    }),
   );
   const app = untrack(() => {
     const safeMode = readDesktopSafeModeState();

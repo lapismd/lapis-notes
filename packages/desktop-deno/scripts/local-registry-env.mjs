@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const DEFAULT_LOCAL_REGISTRY_RELAY = "ws://registry.localhost:8281";
+const DEFAULT_LOCAL_FIXTURE_ORIGIN = "http://127.0.0.1:8090";
 
 export async function resolveDesktopLocalRegistryEnvironment(
   environment,
@@ -44,12 +45,15 @@ export async function resolveDesktopLocalRegistryEnvironment(
     environment.LAPIS_COMMUNITY_REGISTRY_RELAY_URL?.trim() ||
     relayUrlForPort(environment.LAPIS_RELAY_PORT) ||
     DEFAULT_LOCAL_REGISTRY_RELAY;
+  const fixtureOrigin =
+    fixtureOriginForPort(environment.REGISTRY_FIXTURE_PORT) ||
+    DEFAULT_LOCAL_FIXTURE_ORIGIN;
   return {
     values: {
       VITE_LAPIS_NOSTR_REGISTRY_RELAYS: relayUrl,
       VITE_LAPIS_NOSTR_CURATOR_PUBKEYS: curatorPubkeys,
       VITE_LAPIS_NOSTR_INSTALL_QUORUM: "1",
-      VITE_LAPIS_NOSTR_BLOSSOM_URL: relayUrl.replace(/^ws/u, "http"),
+      VITE_LAPIS_NOSTR_BLOSSOM_URL: fixtureOrigin,
     },
     source: "local-fixture",
     relayUrl,
@@ -66,6 +70,11 @@ function hasConfiguredRegistry(environment) {
 function relayUrlForPort(value) {
   const port = value?.trim();
   return port ? `ws://registry.localhost:${port}` : undefined;
+}
+
+function fixtureOriginForPort(value) {
+  const port = value?.trim();
+  return port ? `http://127.0.0.1:${port}` : undefined;
 }
 
 function parseEnvironment(source) {
