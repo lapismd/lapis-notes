@@ -8,6 +8,10 @@ Workspace consumers may mount a complete Markdown file through the API
 file-surface registry. The consumer supplies placement and opaque context;
 Markdown retains editor, persistence, and scroll ownership.
 
+Workspace presentation does not own Nostr account secrets or signing policy.
+Signer-facing plugins use the App facade governed by LN-ARCH-099 and
+LN-PLUG-078 while the host owns any consent or profile-creation surface.
+
 The shell's reusable movable-view contract is documented separately under
 [Panels](./workspace-shell/panels.md). This overview retains controller,
 persistence, and application-host responsibilities. Deno desktop is the native

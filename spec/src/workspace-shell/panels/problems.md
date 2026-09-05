@@ -11,6 +11,8 @@ The Problems view is a reusable workspace panel. Design Core owns the generic
 diagnostic model, collection lifecycle, and presentation; Lapis adapts vault,
 language-service, navigation, and plugin behavior at its public API boundary.
 The experimental Deno desktop spike does not add a language-service sidecar.
+Nostr signer denial and unavailability remain direct operation errors under
+LN-ARCH-099; they do not expose credentials through diagnostic records.
 
 The Lapis façade, plugin-owned disposal, open-document bridge, cached actions,
 navigation adapter, diagnostics-only Markdown composition, and default

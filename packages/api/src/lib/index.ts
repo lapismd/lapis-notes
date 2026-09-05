@@ -59,6 +59,7 @@ export * from "./markdown-file-surface-registry";
 export * from "./logging";
 export * from "./telemetry";
 export * from "./notifications";
+export * from "./nostr-signer";
 export * from "./status-bar.svelte";
 export * from "./app-url";
 export * from "./agent-tools";

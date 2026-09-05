@@ -4,6 +4,10 @@ The API package owns `AppDatabase` contracts and transport-neutral
 metadata/revision types. The Deno desktop host owns native connections and
 bounded bindings; domain persistence remains API-owned.
 
+The API package also owns the transport-neutral Nostr signer facade described
+by LN-ARCH-099 and LN-PLUG-078. Platform hosts supply custody and consent
+brokers; public packages and plugins never gain keychain or private-key access.
+
 `@lapis-notes/api` owns the transport-neutral Markdown contribution and file
 surface registries. `@lapis-notes/markdown` adapts them to Mira and registers
 the full-file provider, including the LN-MD-108 and LN-MD-109 document defaults;

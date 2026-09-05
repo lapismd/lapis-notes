@@ -58,6 +58,7 @@ import { bindRuntimePluginDiagnostics } from "./diagnostics";
 import { ContextKeyService } from "./context-keys.svelte";
 import { StatusBarManager } from "./status-bar.svelte";
 import { AppUrlService } from "./app-url";
+import { NostrSignerHost, type NostrSignerBroker } from "./nostr-signer";
 import { WorkspaceTrustService } from "./workspace-trust";
 import {
   DefaultPluginDistributionManager,
@@ -127,6 +128,8 @@ export type AppStateProperties = {
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
   pluginDistributionOptions?: AppPluginDistributionOptions;
+  /** Host-owned Nostr account, keychain, and remote-signer implementation. */
+  nostrSignerBroker?: NostrSignerBroker;
   workspaceShell?: AppWorkspaceShellProperties;
   markdownRenderer: (
     markdown: string,
@@ -269,6 +272,7 @@ export class App {
   readonly urls: AppUrlService = new AppUrlService(this);
   readonly workspaceTrust: WorkspaceTrustService;
   readonly pluginDistribution: DefaultPluginDistributionManager;
+  readonly nostr: NostrSignerHost;
 
   mardownPostProcessor: Array<MarkdownPostProcessor> = $state([]);
   mardownCodeBlockPostProcessor: Record<string, Array<MarkdownPostProcessor>> =
@@ -320,6 +324,7 @@ export class App {
    * @public
    */
   constructor(readonly props: AppStateProperties) {
+    this.nostr = new NostrSignerHost(props.nostrSignerBroker);
     const adapter = props.session?.vaultAdapter ?? props.adapter;
     if (!adapter) {
       throw new Error("App requires a vault adapter or vault session");
