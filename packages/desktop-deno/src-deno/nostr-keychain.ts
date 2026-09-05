@@ -22,12 +22,13 @@ export interface NostrCredentialStore {
 }
 
 const KEYCHAIN_SERVICE = "md.lapis.notes.nostr";
+const KEYCHAIN_COMMAND_TIMEOUT_MS = 10_000;
 const ACCOUNT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/u;
 
 export class DenoNostrKeychain implements NostrCredentialStore {
   constructor(
     readonly platform: NostrKeychainPlatform = Deno.build.os,
-    readonly run: NostrKeychainCommandRunner = runKeychainCommand,
+    readonly run: NostrKeychainCommandRunner = runNostrKeychainCommand,
   ) {}
 
   async get(accountId: string): Promise<string | null> {
@@ -104,16 +105,10 @@ export function createNostrKeychainCommand(
     }
     return {
       command: "/usr/bin/security",
-      args: [
-        "add-generic-password",
-        "-U",
-        "-a",
-        accountId,
-        "-s",
-        KEYCHAIN_SERVICE,
-        "-w",
-      ],
-      stdin: `${credential ?? ""}\n`,
+      args: ["-i"],
+      stdin:
+        `add-generic-password -U -a ${accountId} -s ${KEYCHAIN_SERVICE} ` +
+        `-X ${encodeUtf8Hex(credential ?? "")}\n`,
     };
   }
   if (platform === "linux") {
@@ -145,8 +140,9 @@ export function createNostrKeychainCommand(
   throw new Error(`Nostr keychain is unavailable on ${platform}`);
 }
 
-async function runKeychainCommand(
+export async function runNostrKeychainCommand(
   command: NostrKeychainCommand,
+  timeoutMs = KEYCHAIN_COMMAND_TIMEOUT_MS,
 ): Promise<NostrKeychainCommandResult> {
   const child = new Deno.Command(command.command, {
     args: command.args,
@@ -154,16 +150,42 @@ async function runKeychainCommand(
     stdout: "piped",
     stderr: "null",
   }).spawn();
-  if (command.stdin !== undefined) {
-    const writer = child.stdin.getWriter();
-    await writer.write(new TextEncoder().encode(command.stdin));
-    await writer.close();
-  }
-  const output = await child.output();
-  return {
-    success: output.success,
-    stdout: new TextDecoder().decode(output.stdout),
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timeoutId = setTimeout(() => {
+      try {
+        child.kill("SIGKILL");
+      } catch {
+        // The process may have exited between the timeout and the kill.
+      }
+      reject(new Error("Nostr keychain command timed out"));
+    }, timeoutMs);
+  });
+  const execute = async (): Promise<NostrKeychainCommandResult> => {
+    if (command.stdin !== undefined) {
+      const writer = child.stdin.getWriter();
+      await writer.write(new TextEncoder().encode(command.stdin));
+      await writer.close();
+    }
+    const output = await child.output();
+    return {
+      success: output.success,
+      stdout: new TextDecoder().decode(output.stdout),
+    };
   };
+
+  try {
+    return await Promise.race([execute(), timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function encodeUtf8Hex(value: string): string {
+  return Array.from(
+    new TextEncoder().encode(value),
+    (byte) => byte.toString(16).padStart(2, "0"),
+  ).join("");
 }
 
 function validateAccountId(value: string): string {

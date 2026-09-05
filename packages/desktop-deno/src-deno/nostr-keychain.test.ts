@@ -4,29 +4,68 @@ import {
   createNostrKeychainCommand,
   DenoNostrKeychain,
   nostrKeychainAvailable,
+  runNostrKeychainCommand,
 } from "./nostr-keychain";
 
 describe("Deno Nostr keychain", () => {
   it("passes macOS and Linux credentials over stdin instead of argv", () => {
     const credential = '{"secretKeyHex":"do-not-log"}';
-    for (const platform of ["darwin", "linux"] as const) {
-      const command = createNostrKeychainCommand(
-        platform,
-        "put",
-        "account-1",
-        credential,
+    const macosCommand = createNostrKeychainCommand(
+      "darwin",
+      "put",
+      "account-1",
+      credential,
+    );
+    const credentialHex = Array.from(
+      new TextEncoder().encode(credential),
+      (byte) => byte.toString(16).padStart(2, "0"),
+    ).join("");
+
+    expect(macosCommand).toEqual({
+      command: "/usr/bin/security",
+      args: ["-i"],
+      stdin:
+        "add-generic-password -U -a account-1 " +
+        `-s md.lapis.notes.nostr -X ${credentialHex}\n`,
+    });
+    expect(macosCommand.args).not.toContain(credential);
+    expect(macosCommand.stdin).not.toContain(credential);
+
+    const linuxCommand = createNostrKeychainCommand(
+      "linux",
+      "put",
+      "account-1",
+      credential,
+    );
+    expect(linuxCommand.args).not.toContain(credential);
+    expect(linuxCommand.stdin).toBe(`${credential}\n`);
+  });
+
+  it("kills native credential commands after a bounded timeout", async () => {
+    vi.useFakeTimers();
+    const kill = vi.fn();
+    const output = vi.fn(() => new Promise<never>(() => undefined));
+    const spawn = vi.fn(() => ({ kill, output }));
+    const Command = vi.fn(function () {
+      return { spawn };
+    });
+    vi.stubGlobal("Deno", { Command });
+
+    try {
+      const result = runNostrKeychainCommand(
+        { command: "credential-helper", args: [] },
+        25,
       );
-      expect(command.args).not.toContain(credential);
-      expect(command.stdin).toBe(`${credential}\n`);
+      const rejection = expect(result).rejects.toThrow(
+        "Nostr keychain command timed out",
+      );
+      await vi.advanceTimersByTimeAsync(25);
+      await rejection;
+      expect(kill).toHaveBeenCalledWith("SIGKILL");
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
     }
-    expect(
-      createNostrKeychainCommand(
-        "darwin",
-        "put",
-        "account-1",
-        credential,
-      ).args.at(-1),
-    ).toBe("-w");
   });
 
   it("uses a fixed service namespace and validates account identifiers", () => {
