@@ -33,6 +33,7 @@
     updateDesktopSafeModeState,
   } from "./desktop-recovery";
   import { createDenoPluginAssetServer } from "./deno-plugin-asset-server";
+  import { getDenoNostrSignerBroker } from "./deno-nostr-signer";
   import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
@@ -74,6 +75,7 @@
       session,
       safeMode,
       pluginAssetServer,
+      nostrSignerBroker: getDenoNostrSignerBroker(),
       workspaceShell: { application: appInfo, notifications: true },
       markdownRenderer: async () => {},
     });
@@ -81,8 +83,7 @@
     return ownedApp;
   });
   provideApplicationState(app);
-  const disposeApplicationCompatibility =
-    installApplicationCompatibility(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const disposePluginManagementSettings = registerNotesPluginSettings(app);
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
@@ -152,9 +153,7 @@
     }
   }
 
-  async function collectAcceptanceEvidence(): Promise<
-    Record<string, unknown>
-  > {
+  async function collectAcceptanceEvidence(): Promise<Record<string, unknown>> {
     if (bridge.platform.acceptance !== true) return {};
     const diagnostics = await bridge.invoke<unknown[]>(
       "desktop_ls_diagnostics",
@@ -247,17 +246,13 @@
           10_000,
         );
       });
-      watchSubscription = adapter.watch(
-        "",
-        { recursive: true },
-        (event) => {
-          if (event.type === "error") {
-            rejectWatch(new Error(String(event.error)));
-            return;
-          }
-          if (event.path === watchPath) resolveWatch(event.type);
-        },
-      );
+      watchSubscription = adapter.watch("", { recursive: true }, (event) => {
+        if (event.type === "error") {
+          rejectWatch(new Error(String(event.error)));
+          return;
+        }
+        if (event.path === watchPath) resolveWatch(event.type);
+      });
       await new Promise((resolve) => setTimeout(resolve, 100));
       await adapter.write(watchPath, "watch acceptance\n");
       return {
@@ -328,9 +323,7 @@
     globalThis.location.reload();
   }
 
-  function enterSafeMode(
-    update: Partial<AppSafeModeState>,
-  ): void {
+  function enterSafeMode(update: Partial<AppSafeModeState>): void {
     updateDesktopSafeModeState({
       ...update,
       lastStartupFailure: startupFailure,
@@ -525,8 +518,7 @@
             id: "disable-optional-plugins",
             label: "Start with optional plugins disabled",
             icon: "shield-alert",
-            onSelect: () =>
-              enterSafeMode({ disableOptionalCorePlugins: true }),
+            onSelect: () => enterSafeMode({ disableOptionalCorePlugins: true }),
           },
           {
             id: "skip-layout",

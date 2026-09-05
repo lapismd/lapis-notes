@@ -37,6 +37,11 @@ import {
 import { DenoFileWatchService } from "./file-watch.ts";
 import { openExternalUrl } from "./native-actions.ts";
 import {
+  DenoNostrSignerService,
+  JsonDenoNostrSignerAccountStore,
+} from "./nostr-signer.ts";
+import { DenoNostrKeychain, nostrKeychainAvailable } from "./nostr-keychain.ts";
+import {
   createUpstreamHeaders,
   isWebSocketUpgrade,
   rewriteUpstreamUrl,
@@ -176,6 +181,20 @@ const pluginAssets = new DenoPluginAssetService();
 const vaultResources = new DenoVaultResourceService();
 const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
 const appDatabase = new DenoAppDatabaseHost(userDataDir(), emitRendererEvent);
+const nostrSigner = nostrKeychainAvailable(Deno.build.os)
+  ? new DenoNostrSignerService({
+      accounts: new JsonDenoNostrSignerAccountStore(userDataDir()),
+      credentials: new DenoNostrKeychain(),
+      onRemoteAuthRequired: (url) => {
+        void openExternalUrl(url).catch((error) =>
+          desktopLog.warn(
+            "[desktop] NIP-46 authorization failed to open",
+            error,
+          ),
+        );
+      },
+    })
+  : undefined;
 let terminalRuntime: DenoTerminalRuntimeHost | undefined;
 try {
   terminalRuntime = new DenoTerminalRuntimeHost(emitRendererEvent, {
@@ -209,6 +228,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     pluginAssets.clear();
     vaultResources.clear();
     await terminalRuntime?.shutdown();
+    await nostrSigner?.close();
     await appDatabase.closeAll();
     await agentRuntime.shutdown();
     await singleInstance.close();
@@ -261,6 +281,7 @@ function registerDesktopBindings() {
               agentRuntime,
               appDatabase,
               terminalRuntime,
+              nostrSigner,
               rendererCloseReady: () => {
                 desktopLog.info("[desktop-close] renderer-ready");
                 closeCoordinator.rendererReady();
@@ -284,6 +305,7 @@ function registerDesktopBindings() {
       () =>
         createCapabilityRegistry(Deno.build.os, {
           terminalAvailable: Boolean(terminalRuntime),
+          nostrSignerAvailable: Boolean(nostrSigner),
         }),
     ],
   ]);

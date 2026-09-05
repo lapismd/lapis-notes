@@ -67,6 +67,7 @@ export type NativeDesktopCapabilityId =
   | "file-watch"
   | "notifications"
   | "file-system-actions"
+  | "nostr-signer"
   | "agent-runtime"
   | "terminal-runtime";
 

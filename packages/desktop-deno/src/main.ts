@@ -43,6 +43,10 @@ import {
 } from "./desktop-renderer-events";
 import { installDenoExternalLinkPolicy } from "./external-links";
 import {
+  createDenoNostrSignerBroker,
+  setDenoNostrSignerBroker,
+} from "./deno-nostr-signer";
+import {
   createDesktopRendererTelemetry,
   type DesktopRawInvoke,
   type DesktopRendererTelemetryController,
@@ -335,6 +339,12 @@ const rendererTelemetry = await createDesktopRendererTelemetry({
 });
 invokeDesktop = (command, payload) =>
   rendererTelemetry.invoke(rawInvoke, command, payload);
+
+setDenoNostrSignerBroker(
+  capabilities["nostr-signer"]?.status === "available"
+    ? await createDenoNostrSignerBroker(invokeDesktop)
+    : undefined,
+);
 
 const bridge: DenoDesktopBridge = {
   runtime: "deno-desktop",

@@ -53,6 +53,7 @@
     "@tsconfig/svelte": "^5.0.5",
     "@types/node": "^22.10.5",
     "acpx": "^0.13.0",
+    "nostr-tools": "^2.25.2",
     "svelte": "^5.38.2",
     "svelte-check": "^4.3.1",
     "tailwindcss": "^4.1.12",

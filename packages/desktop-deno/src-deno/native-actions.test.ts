@@ -55,6 +55,12 @@ describe("Deno native desktop actions", () => {
     expect(
       createCapabilityRegistry("windows")["file-system-actions"].status,
     ).toBe("unavailable");
+    expect(createCapabilityRegistry("darwin")["nostr-signer"].status).toBe(
+      "available",
+    );
+    expect(createCapabilityRegistry("windows")["nostr-signer"].status).toBe(
+      "unavailable",
+    );
     expect(
       createCapabilityRegistry("darwin")["agent-runtime"].details,
     ).toMatchObject({

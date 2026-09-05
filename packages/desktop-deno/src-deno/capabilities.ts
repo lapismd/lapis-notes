@@ -5,10 +5,16 @@ import {
 
 export function createCapabilityRegistry(
   platform = Deno.build.os,
-  options: { terminalAvailable?: boolean } = {},
+  options: {
+    terminalAvailable?: boolean;
+    nostrSignerAvailable?: boolean;
+  } = {},
 ) {
   const notificationsAvailable = notificationCapabilityAvailable(platform);
   const fileActionsAvailable = fileActionCapabilityAvailable(platform);
+  const nostrSignerAvailable =
+    (platform === "darwin" || platform === "linux") &&
+    options.nostrSignerAvailable !== false;
   return {
     resource: { id: "resource" as const, status: "available" as const },
     notifications: {
@@ -56,6 +62,24 @@ export function createCapabilityRegistry(
         ? ("available" as const)
         : ("unavailable" as const),
       provider: fileActionsAvailable ? "deno-command" : "unsupported-platform",
+    },
+    "nostr-signer": {
+      id: "nostr-signer" as const,
+      status:
+        !nostrSignerAvailable
+          ? ("unavailable" as const)
+          : ("available" as const),
+      provider:
+        !nostrSignerAvailable
+          ? "unsupported-platform"
+          : "deno-os-keychain",
+      details:
+        !nostrSignerAvailable
+          ? undefined
+          : {
+              protocol: "desktop_nostr_signer_*",
+              custody: "native-keychain",
+            },
     },
     "agent-runtime": {
       id: "agent-runtime" as const,

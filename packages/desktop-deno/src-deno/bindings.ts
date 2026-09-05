@@ -9,6 +9,10 @@ import { createCapabilityRegistry } from "./capabilities.ts";
 import type { DenoFileWatchService } from "./file-watch.ts";
 import { handleLanguageService } from "./language-service.ts";
 import { openExternalUrl, showNativeNotification } from "./native-actions.ts";
+import {
+  DENO_NOSTR_SIGNER_COMMANDS,
+  type DenoNostrSignerService,
+} from "./nostr-signer.ts";
 import type { DenoPluginAssetService } from "./plugin-assets.ts";
 import { resolveDesktopRendererEngine } from "./renderer-engine.ts";
 import {
@@ -85,6 +89,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   ...FS_COMMANDS,
   ...KV_COMMANDS,
   ...LANGUAGE_SERVICE_COMMANDS,
+  ...DENO_NOSTR_SIGNER_COMMANDS,
   ...DENO_AGENT_COMMANDS,
   ...DENO_TERMINAL_COMMANDS,
 ]);
@@ -101,6 +106,7 @@ export type DesktopInvokeContext = {
   takePendingAppUrls?: () => string[];
   acceptanceDetails?: () => Record<string, unknown>;
   telemetryLog?: (payload: Record<string, unknown>) => void;
+  nostrSigner?: DenoNostrSignerService;
 };
 
 export function createPlatformInfo() {
@@ -147,6 +153,7 @@ export function handleDesktopInvoke(
   if (command === "desktop_capabilities_get") {
     return createCapabilityRegistry(Deno.build.os, {
       terminalAvailable: Boolean(context.terminalRuntime),
+      nostrSignerAvailable: Boolean(context.nostrSigner),
     });
   }
   if (command === "desktop_acceptance_report") {
@@ -243,6 +250,12 @@ export function handleDesktopInvoke(
   }
   if (LANGUAGE_SERVICE_COMMANDS.has(command)) {
     return handleLanguageService(command, payload);
+  }
+  if (DENO_NOSTR_SIGNER_COMMANDS.has(command)) {
+    if (!context.nostrSigner) {
+      throw new Error("Deno Nostr signer is unavailable");
+    }
+    return context.nostrSigner.handle(command, payload);
   }
   if (DENO_AGENT_COMMANDS.has(command)) {
     if (!context.agentRuntime) {

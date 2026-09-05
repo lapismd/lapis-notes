@@ -30,6 +30,7 @@ import { DailyDocumentProviderRegistry } from "./daily-document-provider";
 import { AppToolRegistry } from "./agent-tools";
 import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
 import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
+import { NostrSignerHost, type NostrSignerBroker } from "./nostr-signer";
 export interface AppWorkspaceShellApplicationProperties {
     /** Application name shown by the shell's About surface. */
     name?: string;
@@ -60,6 +61,8 @@ export type AppStateProperties = {
     createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
     pluginAssetServer?: PluginAssetServer;
     pluginDistributionOptions?: AppPluginDistributionOptions;
+    /** Host-owned Nostr account, keychain, and remote-signer implementation. */
+    nostrSignerBroker?: NostrSignerBroker;
     workspaceShell?: AppWorkspaceShellProperties;
     markdownRenderer: (markdown: string, el: HTMLElement, sourcePath: string, component: Component) => Promise<void>;
 };
@@ -166,6 +169,7 @@ export declare class App {
     readonly urls: AppUrlService;
     readonly workspaceTrust: WorkspaceTrustService;
     readonly pluginDistribution: DefaultPluginDistributionManager;
+    readonly nostr: NostrSignerHost;
     mardownPostProcessor: Array<MarkdownPostProcessor>;
     mardownCodeBlockPostProcessor: Record<string, Array<MarkdownPostProcessor>>;
     markdownDirectiveRenderers: Record<string, MarkdownDirectiveRenderer>;
