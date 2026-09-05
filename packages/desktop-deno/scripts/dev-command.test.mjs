@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  canReuseMacosDesktopDevRuntime,
   createDenoDesktopDevHostBuildArgs,
   createDenoDesktopDevArgs,
   desktopDenoDynamicIncludes,
@@ -219,6 +220,37 @@ describe("Deno desktop development command", () => {
       "--strict",
       bundle,
     ]);
+  });
+
+  it("reuses an unchanged runtime only while its signature remains valid", () => {
+    expect(
+      canReuseMacosDesktopDevRuntime({
+        previousModifiedAt: 1_000,
+        observedModifiedAt: 1_000,
+        signatureValid: true,
+      }),
+    ).toBe(true);
+    expect(
+      canReuseMacosDesktopDevRuntime({
+        previousModifiedAt: 1_000,
+        observedModifiedAt: 1_000,
+        signatureValid: false,
+      }),
+    ).toBe(false);
+    expect(
+      canReuseMacosDesktopDevRuntime({
+        previousModifiedAt: 1_000,
+        observedModifiedAt: 1_001,
+        signatureValid: true,
+      }),
+    ).toBe(false);
+    expect(
+      canReuseMacosDesktopDevRuntime({
+        previousModifiedAt: null,
+        observedModifiedAt: null,
+        signatureValid: true,
+      }),
+    ).toBe(false);
   });
 
   it("exposes root and package CEF debug commands", async () => {

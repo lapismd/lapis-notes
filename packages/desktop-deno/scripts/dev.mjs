@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import {
+  canReuseMacosDesktopDevRuntime,
   createDenoDesktopDevHostBuildArgs,
   createDenoDesktopDevArgs,
   createMacosDesktopDevHostSignArgs,
@@ -124,6 +125,22 @@ async function resignMacosDesktopDevHostAfterRuntimeUpdate(
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  const signatureValid = await execFileAsync(
+    "codesign",
+    createMacosDesktopDevHostVerifyArgs(layout.bundle),
+  )
+    .then(() => true)
+    .catch(() => false);
+  if (
+    canReuseMacosDesktopDevRuntime({
+      previousModifiedAt,
+      observedModifiedAt,
+      signatureValid,
+    })
+  ) {
+    console.log("Verified unchanged Lapis Notes macOS development runtime");
+    return;
   }
   throw new Error(
     `Timed out waiting for Deno to update ${layout.runtimeLibrary}`,

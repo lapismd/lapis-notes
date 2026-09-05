@@ -111,6 +111,14 @@ export function createMacosDesktopDevHostVerifyArgs(bundle) {
   return ["--verify", "--deep", "--strict", bundle];
 }
 
+export function canReuseMacosDesktopDevRuntime(options) {
+  return (
+    options.previousModifiedAt !== null &&
+    options.observedModifiedAt === options.previousModifiedAt &&
+    options.signatureValid === true
+  );
+}
+
 export function isMacosDesktopDevHostCurrent(options) {
   return (
     isMacosDesktopDevHostIdentityCurrent(options) &&
