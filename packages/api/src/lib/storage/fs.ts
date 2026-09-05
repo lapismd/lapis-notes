@@ -29,6 +29,24 @@ export interface FileStats extends FileProperties {
 
 export type DataWriteOptions = Partial<FileProperties>;
 
+export interface VaultReadStreamOptions {
+  offset?: number;
+  length?: number;
+  signal?: AbortSignal;
+}
+
+export interface VaultReadHandle {
+  size: number;
+  mtime: number;
+  stream(options?: VaultReadStreamOptions): ReadableStream<Uint8Array>;
+}
+
+export interface AtomicDataWriteOptions extends DataWriteOptions {
+  signal?: AbortSignal;
+  /** Opaque host-issued correlation used by the App's mutation broker. */
+  operationOrigin?: string;
+}
+
 export abstract class TAbstractFile {
   public path: string;
   public vault!: Vault;
@@ -261,6 +279,12 @@ export interface VaultAdapterCapabilities {
  */
 export interface VaultAdapter extends DataAdapter {
   getCapabilities?(): Partial<VaultAdapterCapabilities>;
+  openRead?(normalizedPath: string): Promise<VaultReadHandle>;
+  atomicWrite?(
+    normalizedPath: string,
+    source: ReadableStream<Uint8Array>,
+    options?: AtomicDataWriteOptions,
+  ): Promise<void>;
 }
 
 export interface VaultIdentityAdapter {

@@ -406,6 +406,44 @@ export interface AppDatabaseChangeSet {
   committedAt: number;
 }
 
+/** A namespaced application-metadata row returned without exposing storage. */
+export interface AppDatabaseMetaEntry<T = unknown> {
+  key: string;
+  value: T;
+}
+
+export interface AppDatabaseMetaScanQuery {
+  prefix: string;
+  after?: string;
+  limit?: number;
+}
+
+export interface AppDatabaseMetaScanPage<T = unknown> {
+  entries: AppDatabaseMetaEntry<T>[];
+  nextCursor?: string;
+}
+
+export interface AppDatabaseMetaCheck {
+  key: string;
+  exists?: boolean;
+  value?: unknown;
+}
+
+export interface AppDatabaseMetaMutation {
+  key: string;
+  value?: unknown;
+  delete?: boolean;
+}
+
+export interface AppDatabaseMetaTransaction {
+  checks?: AppDatabaseMetaCheck[];
+  mutations: AppDatabaseMetaMutation[];
+}
+
+export interface AppDatabaseMetaTransactionResult {
+  applied: boolean;
+}
+
 export type AppDatabaseChangeListener = (change: AppDatabaseChangeSet) => void;
 
 export interface SearchDocumentRecord {
@@ -1189,6 +1227,12 @@ export interface AppDatabase {
   getSearchIndexStats(): Promise<AppDatabaseSearchIndexStats>;
   getMeta<T = unknown>(key: string): Promise<T | undefined>;
   setMeta(key: string, value: unknown): Promise<void>;
+  scanMeta<T = unknown>(
+    query: AppDatabaseMetaScanQuery,
+  ): Promise<AppDatabaseMetaScanPage<T>>;
+  transactMeta(
+    transaction: AppDatabaseMetaTransaction,
+  ): Promise<AppDatabaseMetaTransactionResult>;
   getNotebookState(
     sourcePath: string,
   ): Promise<AppDatabaseNotebookState | undefined>;
@@ -2472,8 +2516,56 @@ export class MemoryAppDatabase implements AppDatabase {
   }
 
   async setMeta(key: string, value: unknown): Promise<void> {
-    this.meta[key] = clone(value);
+    if (value === undefined) delete this.meta[key];
+    else this.meta[key] = clone(value);
     this.emitChange(["meta"]);
+  }
+
+  async scanMeta<T = unknown>({
+    prefix,
+    after,
+    limit = 100,
+  }: AppDatabaseMetaScanQuery): Promise<AppDatabaseMetaScanPage<T>> {
+    const boundedLimit = Math.max(1, Math.min(500, Math.floor(limit)));
+    const keys = Object.keys(this.meta)
+      .filter((key) => key.startsWith(prefix) && (!after || key > after))
+      .sort();
+    const pageKeys = keys.slice(0, boundedLimit);
+    return {
+      entries: pageKeys.map((key) => ({
+        key,
+        value: clone(this.meta[key]) as T,
+      })),
+      nextCursor:
+        keys.length > pageKeys.length ? pageKeys.at(-1) : undefined,
+    };
+  }
+
+  async transactMeta({
+    checks = [],
+    mutations,
+  }: AppDatabaseMetaTransaction): Promise<AppDatabaseMetaTransactionResult> {
+    for (const check of checks) {
+      const exists = Object.prototype.hasOwnProperty.call(this.meta, check.key);
+      if (check.exists !== undefined && exists !== check.exists) {
+        return { applied: false };
+      }
+      if (
+        "value" in check &&
+        JSON.stringify(this.meta[check.key]) !== JSON.stringify(check.value)
+      ) {
+        return { applied: false };
+      }
+    }
+    for (const mutation of mutations) {
+      if (mutation.delete || mutation.value === undefined) {
+        delete this.meta[mutation.key];
+      } else {
+        this.meta[mutation.key] = clone(mutation.value);
+      }
+    }
+    if (mutations.length > 0) this.emitChange(["meta"]);
+    return { applied: true };
   }
 
   async getNotebookState(

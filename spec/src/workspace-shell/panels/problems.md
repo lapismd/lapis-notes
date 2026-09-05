@@ -130,6 +130,11 @@ own required-panel lifecycle above.
 Problems is a required core surface and therefore follows the query-native
 plugin lifecycle: enabling it never requests the community metadata snapshot
 lease. Diagnostic collections remain independent of metadata index revisions.
+
+A denied sync unlock, network grant, invalid capability request, or plugin
+activation failure continues through the existing plugin-failure diagnostic
+path. Problems does not receive secret values, broker request bodies, headers,
+or key material, and it does not become the owner of sync recovery policy.
 App `app:rebuild-vault-cache` and `app:rebuild-generated-state` report file
 progress through notifications, not Problems collections (LN-PKG-097,
 LN-PKG-098).

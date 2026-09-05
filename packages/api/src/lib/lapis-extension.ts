@@ -40,6 +40,12 @@ export type LapisExtensionPermission =
   | "notices"
   | "settings.read"
   | "metadata.query"
+  | "metadata.identity"
+  | "metadata.changes"
+  | "vault.stream"
+  | "plugin.generated-state"
+  | "network.connect"
+  | "crypto.nostr-sync"
   | "events"
   | "logging";
 
@@ -964,6 +970,18 @@ function permissionToCapability(
       return "settings";
     case "metadata.query":
       return "metadata:query";
+    case "metadata.identity":
+      return "metadata:identity";
+    case "metadata.changes":
+      return "metadata:changes";
+    case "vault.stream":
+      return "vault:stream";
+    case "plugin.generated-state":
+      return "plugin:generated-state";
+    case "network.connect":
+      return "network:connect";
+    case "crypto.nostr-sync":
+      return "crypto:nostr-sync";
     default:
       return null;
   }

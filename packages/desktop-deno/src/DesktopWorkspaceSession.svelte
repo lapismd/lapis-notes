@@ -4,6 +4,8 @@
     installApplicationCompatibility,
     listVaultProfiles,
     provideApplicationState,
+    takeHostSyncService,
+    type SyncHostService,
     type NativeDesktopVaultAdapter,
     type AppSafeModeFailure,
     type AppSafeModeState,
@@ -35,6 +37,7 @@
   } from "./desktop-recovery";
   import { createDenoPluginAssetServer } from "./deno-plugin-asset-server";
   import { getDenoNostrSignerBroker } from "./deno-nostr-signer";
+  import { createDesktopSyncUnlockHandler } from "./desktop-sync-security";
   import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
@@ -82,10 +85,47 @@
   );
   const app = untrack(() => {
     const safeMode = readDesktopSafeModeState();
-    const ownedApp = new App({
+    let ownedApp!: App;
+    let hostSync!: SyncHostService;
+    const requestCryptoUnlock = createDesktopSyncUnlockHandler({
+      bridge,
+      vaultId: profile.id,
+      getSyncHost: () => hostSync,
+    });
+    ownedApp = new App({
       version: appInfo.version,
       configPath: ".obsidian/app.json",
       session,
+      syncHost: {
+        requestCryptoUnlock,
+        requestRecoveryPassphrase: async (_pluginId, mode) => {
+          const passphrase = globalThis.prompt(
+            mode === "export"
+              ? "Create a recovery-bundle passphrase (at least 10 characters)."
+              : "Enter the recovery-bundle passphrase.",
+          );
+          if (passphrase == null || mode === "import") return passphrase;
+          const confirmation = globalThis.prompt(
+            "Enter the recovery-bundle passphrase again to confirm it.",
+          );
+          if (confirmation !== passphrase) {
+            throw new Error("Recovery passphrase confirmation did not match");
+          }
+          return passphrase;
+        },
+        requestNetworkOriginGrant: async ({
+          pluginId,
+          origin,
+          allowPrivateNetwork,
+        }) =>
+          globalThis.confirm(
+            `${pluginId} wants to connect to ${origin}.${
+              allowPrivateNetwork
+                ? " This grants access to a private or loopback network address."
+                : ""
+            } Allow this exact origin?`,
+          ),
+      },
       safeMode,
       pluginAssetServer,
       pluginDistributionOptions: nostrPluginDistribution?.options,
@@ -94,6 +134,7 @@
       markdownRenderer: async () => {},
     });
     ownedApp.telemetry = bridge.telemetry;
+    hostSync = takeHostSyncService(ownedApp);
     return ownedApp;
   });
   provideApplicationState(app);

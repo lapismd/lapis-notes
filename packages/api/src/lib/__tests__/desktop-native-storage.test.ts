@@ -190,3 +190,48 @@ it("routes text appends through the native append command without a readback", a
     },
   ]);
 });
+
+it("streams native range reads and stages atomic chunk writes", async () => {
+  const calls: Array<{ command: string; payload?: Record<string, unknown> }> = [];
+  const source = new TextEncoder().encode("abcdefgh");
+  setNativeDesktopBridge({
+    runtime: "deno-desktop",
+    toFileUrl: (path: string) => `file://${path}`,
+    async invoke<T>(command: string, payload?: Record<string, unknown>) {
+      calls.push({ command, payload });
+      if (command === "desktop_fs_stat") {
+        return { type: "file", size: source.byteLength, ctime: 1, mtime: 2 } as T;
+      }
+      if (command === "desktop_fs_read_range") {
+        const offset = Number(payload?.offset ?? 0);
+        const length = Number(payload?.length ?? 0);
+        return [...source.slice(offset, offset + length)] as T;
+      }
+      if (command === "desktop_fs_atomic_write_begin") return "write-1" as T;
+      return undefined as T;
+    },
+  });
+  const adapter = new NativeDesktopVaultAdapter("/vault");
+  const handle = await adapter.openRead("data.bin");
+  const bytes = await new Response(
+    handle.stream({ offset: 1, length: 3 }),
+  ).arrayBuffer();
+  expect(new TextDecoder().decode(bytes)).toBe("bcd");
+
+  await adapter.atomicWrite(
+    "data.bin",
+    new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode("next"));
+        controller.close();
+      },
+    }),
+  );
+  expect(calls.map(({ command }) => command)).toEqual([
+    "desktop_fs_stat",
+    "desktop_fs_read_range",
+    "desktop_fs_atomic_write_begin",
+    "desktop_fs_atomic_write_chunk",
+    "desktop_fs_atomic_write_commit",
+  ]);
+});

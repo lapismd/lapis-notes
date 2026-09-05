@@ -185,3 +185,10 @@ same projected handle (LN-PKG-097, LN-PKG-098).
 Shell mounting therefore depends only on database open and query readiness.
 First-party panel data may continue refreshing from committed revisions without
 delaying leaf restoration or initial workspace paint.
+
+Web and desktop workspace-session hosts install the sync unlock and exact-origin
+consent callbacks while constructing `App`, then immediately claim the
+host-only controller. The shell and plugins receive no administrative crypto,
+network-grant, or database handle through workspace context. Browser storage
+persistence is requested as a best-effort durability signal and never treated
+as backup or authoritative vault storage.

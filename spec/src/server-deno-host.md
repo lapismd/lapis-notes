@@ -66,6 +66,11 @@ Append and replacement acquire the same per-vault mutation queue as tRPC
 filesystem mutations. Resource and plugin-asset responses require vault access
 and retain the verified asset metadata checks.
 
+The reusable Deno vault-filesystem kernel also exposes cancellable ranged reads
+and atomic staged writes with optimistic identity guards. The server retains
+session lifecycle and cancellation ownership, but those primitives do not grant
+it sync-key custody, plugin protocol policy, or ambient credential authority.
+
 The first account owns each vault it creates. The schema retains multi-user
 identity and membership keys from the first migration, but the product exposes
 no registration, invitation, or membership-management UI in this slice.

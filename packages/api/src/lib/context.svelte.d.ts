@@ -31,6 +31,7 @@ import { AppToolRegistry } from "./agent-tools";
 import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
 import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
 import { NostrSignerHost, type NostrSignerBroker } from "./nostr-signer";
+import { SyncHostService, type SyncHostServiceOptions } from "./sync-host";
 export interface AppWorkspaceShellApplicationProperties {
     /** Application name shown by the shell's About surface. */
     name?: string;
@@ -63,9 +64,12 @@ export type AppStateProperties = {
     pluginDistributionOptions?: AppPluginDistributionOptions;
     /** Host-owned Nostr account, keychain, and remote-signer implementation. */
     nostrSignerBroker?: NostrSignerBroker;
+    syncHost?: SyncHostServiceOptions;
     workspaceShell?: AppWorkspaceShellProperties;
     markdownRenderer: (markdown: string, el: HTMLElement, sourcePath: string, component: Component) => Promise<void>;
 };
+/** Renderer-safe application properties exposed to plugins and views. */
+export type AppPublicProperties = Pick<AppStateProperties, "version" | "configPath" | "workspaceShell" | "markdownRenderer">;
 export type AppPluginDistributionOptions = Omit<DefaultPluginDistributionManagerOptions, "adapter" | "appVersion" | "platform" | "workspaceTrusted" | "pluginManager">;
 export type ExtType = Extension | ((context: Record<string, any>) => Extension);
 /**
@@ -149,7 +153,7 @@ export declare class SecretStorage {
  * @public
  */
 export declare class App {
-    readonly props: AppStateProperties;
+    readonly props: AppPublicProperties;
     readonly i18n: LocalizationManager;
     readonly workspace: Workspace;
     readonly vault: Vault;
@@ -243,6 +247,8 @@ export declare class App {
     setting(id: "options" | "core-plugins" | "community-plugins"): import("./settings.svelte").SettingGroup;
 }
 export type AppState = App;
+/** Transfer the mounting host's sync controller exactly once. */
+export declare function takeHostSyncService(app: App): SyncHostService;
 declare global {
     var app: App;
 }

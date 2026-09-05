@@ -127,6 +127,12 @@ describe("hosted plugin capability facade", () => {
       "notices",
       "settings",
       "metadata:query",
+      "metadata:identity",
+      "metadata:changes",
+      "vault:stream",
+      "plugin:generated-state",
+      "network:connect",
+      "crypto:nostr-sync",
       "events",
       "logging",
     ]);

@@ -200,6 +200,12 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-102 | The portable offline `.lapis-plugin` MUST contain only `release.nostr.json` and the exact hash-bound `payload.zip`; its outer archive is not authoritative because it contains the proof. Offline verification MUST terminate at an app-configured curator key and persist the authenticated inner-payload digest plus a current-revocation warning. Only successful revalidation of that exact release and digest through an install-ready live source may clear the warning. |
 | LN-ARCH-103 | App Profile MUST compose the published Community NIP-29 source and shared proof verifier with API's transport-neutral adapter. Web and desktop sessions MUST consume that one composition, keep public relay configuration separate from signer custody, and dispose the live source with the workspace. |
 
+The reusable sync-host implementation follows LN-ARCH-091 through LN-ARCH-093:
+API owns opaque identity, enrollment, recovery, cursor, generated-state, file,
+network, and cryptographic capabilities; browser and desktop hosts supply only
+platform custody and consent adapters. Nostr, Blossom, revision-graph, endpoint,
+and synchronization UI policy remain outside the host API in protocol plugins.
+
 The first app-owned memory boundary is the disposable database substrate:
 portable memory code calls one typed `AppDatabase` surface for checkpoints,
 candidates, exact candidate origins, daily salted recall aggregates, and leased

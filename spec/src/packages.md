@@ -713,6 +713,25 @@ Overlapping shadcn families are consumed from `@lapismd/design-core/shadcn/*`.
 with colocated CSS and `--ui-*` tokens (no Tailwind utilities in sources).
 Confirm-dialog keeps the Design Core `dialog` host identity and only adds
 `--ui-confirm-dialog-*` max-width and footer gap.
+
+`@lapis-notes/api` owns the generic secure-sync host contracts and their
+Memory/Turso/browser/native provider forwarding. Web and Deno packages own
+browser persistence, WebAuthn/passphrase, and OS-credential adapters. The
+external `@lapis-notes/lapis-plugin-nostr-sync` package consumes those public
+capabilities and continues to own Nostr, Blossom, revision, and UI policy; no
+sync protocol implementation moves into this package graph.
+The host contract also owns explicit vault enrollment, multi-epoch key custody,
+owner-authorised membership, bounded encrypted device-pairing sessions, and
+opaque recovery bundles. Pairing confirmation echoes and validates the displayed
+six-digit SAS before key transfer. A pairing result MAY expose the invitation's
+public relay URLs and MAY return at most 16 KiB of cloneable plugin metadata only
+after that metadata has crossed the encrypted transfer; the public invitation
+MUST NOT contain that metadata. The host emits transport-ready artifacts but never
+connects to a relay or chooses replication, merge, or recovery-rebind policy.
+Each enrolled vault also has one stable Sync Identity in that same wrapped key
+material. Device, root, and Sync signing remain separate public operations;
+pairing and recovery transfer the shared remote identity without cloning a
+device identity, while owner-authorised rotation preserves only public history.
 Date/time settings use design-core `forms` pickers via api `date-setting` (the
 old `date-time-picker-dialog` ui compound is retired).
 

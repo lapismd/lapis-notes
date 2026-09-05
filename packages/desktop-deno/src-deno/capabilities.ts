@@ -81,6 +81,20 @@ export function createCapabilityRegistry(
               custody: "native-keychain",
             },
     },
+    "secure-storage": {
+      id: "secure-storage" as const,
+      status: ["darwin", "windows", "linux"].includes(platform)
+        ? ("available" as const)
+        : ("unavailable" as const),
+      provider:
+        platform === "darwin"
+          ? "macos-keychain"
+          : platform === "windows"
+            ? "windows-dpapi-current-user"
+            : platform === "linux"
+              ? "linux-secret-service"
+              : "unsupported-platform",
+    },
     "agent-runtime": {
       id: "agent-runtime" as const,
       status: "available" as const,

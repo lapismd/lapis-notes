@@ -116,6 +116,22 @@ class MockFileHandle implements BrowserFileSystemFileHandle {
     blob.name = this.name;
     blob.text = async () => new TextDecoder().decode(data);
     blob.arrayBuffer = async () => data.slice().buffer;
+    blob.slice = (start = 0, end = data.byteLength) => {
+      const selected = data.slice(start, end);
+      const slice = new Blob([selected]) as Blob & {
+        arrayBuffer(): Promise<ArrayBuffer>;
+        stream(): ReadableStream<Uint8Array>;
+      };
+      slice.arrayBuffer = async () => selected.slice().buffer;
+      slice.stream = () =>
+        new ReadableStream({
+          start(controller) {
+            controller.enqueue(selected.slice());
+            controller.close();
+          },
+        });
+      return slice;
+    };
     return blob;
   }
 
@@ -282,6 +298,28 @@ runDataAdapterConformance("BrowserHandleVaultAdapter conformance", () => {
 });
 
 describe("BrowserHandleVaultAdapter", () => {
+  it("streams bounded ranges and commits streamed replacement data", async () => {
+    const adapter = createBrowserAdapter();
+    await adapter.write("large.bin", "abcdefghij");
+
+    const handle = await adapter.openRead("large.bin");
+    const range = await new Response(
+      handle.stream({ offset: 2, length: 4 }),
+    ).arrayBuffer();
+    expect(new TextDecoder().decode(range)).toBe("cdef");
+
+    await adapter.atomicWrite(
+      "large.bin",
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("replacement"));
+          controller.close();
+        },
+      }),
+    );
+    await expect(adapter.read("large.bin")).resolves.toBe("replacement");
+  });
+
   it("normalizes relative paths for binary reads", async () => {
     const adapter = createBrowserAdapter();
     await adapter.mkdir("assets");

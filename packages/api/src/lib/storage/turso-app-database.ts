@@ -46,6 +46,10 @@ import {
   type AppDatabaseMemoryJobUpdateInput,
   type AppDatabaseMemoryRecallSignalRecord,
   type AppDatabaseMemorySourceRecord,
+  type AppDatabaseMetaScanPage,
+  type AppDatabaseMetaScanQuery,
+  type AppDatabaseMetaTransaction,
+  type AppDatabaseMetaTransactionResult,
   type AppDatabaseNotebookState,
   type AppDatabaseNotificationRecord,
   type AppDatabaseOpenContext,
@@ -960,6 +964,13 @@ export class TursoAppDatabase implements AppDatabase {
   }
 
   async setMeta(key: string, value: unknown): Promise<void> {
+    if (value === undefined) {
+      await this.commit(
+        [{ sql: "DELETE FROM app_meta WHERE key = ?", args: [key] }],
+        ["meta"],
+      );
+      return;
+    }
     await this.commit(
       [
         {
@@ -970,6 +981,78 @@ export class TursoAppDatabase implements AppDatabase {
       ],
       ["meta"],
     );
+  }
+
+  async scanMeta<T = unknown>({
+    prefix,
+    after,
+    limit = 100,
+  }: AppDatabaseMetaScanQuery): Promise<AppDatabaseMetaScanPage<T>> {
+    const boundedLimit = Math.max(1, Math.min(500, Math.floor(limit)));
+    const rows = await this.requireConnection().all<{
+      key: string;
+      value_json: string;
+    }>(
+      `SELECT key, value_json FROM app_meta
+       WHERE substr(key, 1, ?) = ? AND key > ?
+       ORDER BY key ASC LIMIT ?`,
+      prefix.length,
+      prefix,
+      after ?? prefix,
+      boundedLimit + 1,
+    );
+    const pageRows = rows.slice(0, boundedLimit);
+    return {
+      entries: pageRows.map((row) => ({
+        key: row.key,
+        value: parseJson<T>(row.value_json, undefined as T),
+      })),
+      nextCursor:
+        rows.length > pageRows.length ? pageRows.at(-1)?.key : undefined,
+    };
+  }
+
+  async transactMeta({
+    checks = [],
+    mutations,
+  }: AppDatabaseMetaTransaction): Promise<AppDatabaseMetaTransactionResult> {
+    const committed = this.commitQueue.then(async () => {
+      for (const check of checks) {
+        const row = await this.requireConnection().get<{ value_json: string }>(
+          "SELECT value_json FROM app_meta WHERE key = ?",
+          check.key,
+        );
+        if (check.exists !== undefined && Boolean(row) !== check.exists) {
+          return { applied: false };
+        }
+        if (
+          "value" in check &&
+          JSON.stringify(
+            row ? parseJson(row.value_json, undefined) : undefined,
+          ) !== JSON.stringify(check.value)
+        ) {
+          return { applied: false };
+        }
+      }
+      const statements: TursoStatementInput[] = mutations.map((mutation) =>
+        mutation.delete || mutation.value === undefined
+          ? { sql: "DELETE FROM app_meta WHERE key = ?", args: [mutation.key] }
+          : {
+              sql: `INSERT INTO app_meta (key, value_json) VALUES (?, ?)
+                    ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json`,
+              args: [mutation.key, JSON.stringify(mutation.value)],
+            },
+      );
+      if (statements.length > 0) {
+        await this.commitImmediately(statements, ["meta"]);
+      }
+      return { applied: true };
+    });
+    this.commitQueue = committed.then(
+      () => undefined,
+      () => undefined,
+    );
+    return committed;
   }
 
   async getNotebookState(

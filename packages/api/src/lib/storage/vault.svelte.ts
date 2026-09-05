@@ -10,8 +10,10 @@ import {
   TFile,
   TFolder,
   type AsyncResourceAdapter,
+  type AtomicDataWriteOptions,
   type DataAdapter,
   type DataWriteOptions,
+  type VaultReadHandle,
   type TAbstractFile,
 } from "./fs";
 import { dirname, joinPath, normalizePath } from "./path";
@@ -319,7 +321,11 @@ export class Vault extends EventDispatcher<{
    *   children
    * @public
    */
-  delete(file: TAbstractFile, force?: boolean): Promise<void> {
+  delete(
+    file: TAbstractFile,
+    force?: boolean,
+    context: { operationOrigin?: string } = {},
+  ): Promise<void> {
     const remove =
       file instanceof TFolder
         ? this.adapter.rmdir(file.path, force ?? true)
@@ -345,7 +351,7 @@ export class Vault extends EventDispatcher<{
       }
       this.cache.invalidate(file.path);
       this.dispatch("delete", file);
-      this.dispatch("all", "delete", file, { force });
+      this.dispatch("all", "delete", file, { force, ...context });
     });
   }
 
@@ -402,6 +408,91 @@ export class Vault extends EventDispatcher<{
     return this.adapter.readBinary(file.path);
   }
 
+  /** Open a stable streamed snapshot of a file when the adapter supports it. */
+  async openRead(file: TFile): Promise<VaultReadHandle> {
+    const adapter = this.adapter as DataAdapter & {
+      openRead?: (path: string) => Promise<VaultReadHandle>;
+    };
+    if (adapter.openRead) return adapter.openRead(file.path);
+    const data = new Uint8Array(await adapter.readBinary(file.path));
+    return {
+      size: data.byteLength,
+      mtime: file.stat.mtime,
+      stream: ({ offset = 0, length, signal } = {}) => {
+        const start = Math.max(0, Math.min(data.byteLength, Math.floor(offset)));
+        const end = Math.min(
+          data.byteLength,
+          start + Math.max(0, Math.floor(length ?? data.byteLength - start)),
+        );
+        return new ReadableStream<Uint8Array>({
+          start(controller) {
+            if (signal?.aborted) {
+              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              return;
+            }
+            controller.enqueue(data.slice(start, end));
+            controller.close();
+          },
+        });
+      },
+    };
+  }
+
+  /** Stream a file into the adapter's atomic or strongest safe replacement path. */
+  async atomicWrite(
+    path: string,
+    source: ReadableStream<Uint8Array>,
+    options: AtomicDataWriteOptions = {},
+  ): Promise<TFile> {
+    path = this.getPath(path);
+    const existed = this.getFileByPath(path);
+    const adapter = this.adapter as DataAdapter & {
+      atomicWrite?: (
+        path: string,
+        source: ReadableStream<Uint8Array>,
+        options?: AtomicDataWriteOptions,
+      ) => Promise<void>;
+    };
+    if (adapter.atomicWrite) {
+      await adapter.atomicWrite(path, source, options);
+    } else {
+      const reader = source.getReader();
+      const chunks: Uint8Array[] = [];
+      let size = 0;
+      try {
+        while (true) {
+          if (options.signal?.aborted) {
+            throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+          }
+          const next = await reader.read();
+          if (next.done) break;
+          chunks.push(next.value);
+          size += next.value.byteLength;
+        }
+      } finally {
+        reader.releaseLock();
+      }
+      const data = new Uint8Array(size);
+      let offset = 0;
+      for (const chunk of chunks) {
+        data.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      await adapter.writeBinary(path, data.buffer, options);
+    }
+    this.files = await this.loadPath("/", {});
+    this.rebuildFileNameIndex();
+    const file = this.getFileByPath(path);
+    if (!file) throw new Error(`Unable to write file: ${path}`);
+    this.cache.invalidate(path);
+    const event = existed ? "modify" : "create";
+    this.dispatch(event, file);
+    this.dispatch("all", event, file, {
+      operationOrigin: options.operationOrigin,
+    });
+    return file;
+  }
+
   /**
    * Rename or move a file. To ensure links are automatically renamed, use
    * {@link FileManager.renameFile} instead.
@@ -433,7 +524,7 @@ export class Vault extends EventDispatcher<{
       if (newFile) {
         this.cache.rename(file.path, newFile.path);
         this.dispatch("rename", newFile, oldPath);
-        this.dispatch("all", "rename", file, { oldPath });
+        this.dispatch("all", "rename", newFile, { oldPath });
       } else {
         console.warn(`Failed to rename file: ${file.path}`);
       }

@@ -2,10 +2,12 @@ import { basename, dirname, joinPath, normalizePath } from "./path";
 import type {
   DataAdapter,
   DataWriteOptions,
+  AtomicDataWriteOptions,
   ListedFiles,
   Stat,
   AsyncResourceAdapter,
   VaultIdentityAdapter,
+  VaultReadHandle,
 } from "./fs";
 import {
   clearVaultScopedState,
@@ -42,6 +44,7 @@ export interface BrowserFileSystemWritableFileStream {
   write(data: ArrayBuffer | Blob | string | Uint8Array): Promise<void>;
   seek(position: number): Promise<void>;
   close(): Promise<void>;
+  abort?(reason?: unknown): Promise<void>;
 }
 
 export interface BrowserFileSystemCreateWritableOptions {
@@ -653,6 +656,95 @@ export class BrowserHandleVaultAdapter
       }
       return toArrayBuffer(await (await handle.getFile()).arrayBuffer());
     });
+  }
+
+  async openRead(normalizedPath: string): Promise<VaultReadHandle> {
+    const path = normalizeVaultPath(normalizedPath);
+    const file = await this.withHandleRetry(async () => {
+      const handle = await this.getHandle(path);
+      if (!handle || handle.kind !== "file") throw createFsError("ENOENT", path);
+      return handle.getFile();
+    });
+    return {
+      size: file.size,
+      mtime: file.lastModified ?? Date.now(),
+      stream: ({ offset = 0, length, signal } = {}) => {
+        const start = Math.max(0, Math.min(file.size, Math.floor(offset)));
+        const end = Math.min(
+          file.size,
+          start + Math.max(0, Math.floor(length ?? file.size - start)),
+        );
+        const slice = file.slice(start, end);
+        const stream =
+          typeof slice.stream === "function"
+            ? (slice.stream() as ReadableStream<Uint8Array>)
+            : new ReadableStream<Uint8Array>({
+                async start(controller) {
+                  controller.enqueue(new Uint8Array(await slice.arrayBuffer()));
+                  controller.close();
+                },
+              });
+        if (!signal) return stream;
+        const reader = stream.getReader();
+        return new ReadableStream<Uint8Array>({
+          async pull(controller) {
+            if (signal.aborted) {
+              await reader.cancel(signal.reason);
+              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              return;
+            }
+            const next = await reader.read();
+            if (next.done) controller.close();
+            else controller.enqueue(next.value);
+          },
+          cancel(reason) {
+            return reader.cancel(reason);
+          },
+        });
+      },
+    };
+  }
+
+  async atomicWrite(
+    normalizedPath: string,
+    source: ReadableStream<Uint8Array>,
+    options: AtomicDataWriteOptions = {},
+  ): Promise<void> {
+    const path = normalizeVaultPath(normalizedPath);
+    await this.withPathLock(path, () =>
+      this.withHandleRetry(async () => {
+        const [parent, name] = await this.getParentDirectory(path, { create: true });
+        const existing = await this.readStoredStat(path);
+        const handle = await parent.getFileHandle(name, { create: true });
+        const writable = await handle.createWritable({ keepExistingData: false });
+        const reader = source.getReader();
+        let size = 0;
+        try {
+          while (true) {
+            if (options.signal?.aborted) {
+              throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+            }
+            const next = await reader.read();
+            if (next.done) break;
+            await writable.write(next.value);
+            size += next.value.byteLength;
+          }
+          await writable.close();
+        } catch (error) {
+          await writable.abort?.(error).catch(() => undefined);
+          throw error;
+        } finally {
+          reader.releaseLock();
+        }
+        const now = Date.now();
+        await this.writeStoredStat(path, {
+          type: "file",
+          ctime: options.ctime ?? existing?.ctime ?? now,
+          mtime: options.mtime ?? now,
+          size,
+        });
+      }),
+    );
   }
 
   async write(

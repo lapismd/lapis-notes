@@ -15,6 +15,8 @@ export const REMOTE_APP_DATABASE_METHODS = [
   "getSearchIndexStats",
   "getMeta",
   "setMeta",
+  "scanMeta",
+  "transactMeta",
   "getNotebookState",
   "setNotebookState",
   "deleteNotebookState",

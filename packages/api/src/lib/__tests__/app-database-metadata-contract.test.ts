@@ -122,6 +122,52 @@ afterEach(() => {
 });
 
 describe.each(providers)("metadata query contract: %s", (_name, create) => {
+  it("scans and atomically updates namespaced metadata", async () => {
+    const harness = await create(`meta-${_name}`);
+    const { database } = harness;
+    await database.open();
+
+    await expect(
+      database.transactMeta({
+        checks: [{ key: "sync:revision", exists: false }],
+        mutations: [
+          { key: "sync:revision", value: 1 },
+          { key: "sync:record:a", value: { state: "queued" } },
+          { key: "sync:record:b", value: { state: "sent" } },
+        ],
+      }),
+    ).resolves.toEqual({ applied: true });
+    await expect(
+      database.transactMeta({
+        checks: [{ key: "sync:revision", value: 0 }],
+        mutations: [{ key: "sync:revision", value: 2 }],
+      }),
+    ).resolves.toEqual({ applied: false });
+    await expect(database.getMeta("sync:revision")).resolves.toBe(1);
+
+    const first = await database.scanMeta({
+      prefix: "sync:record:",
+      limit: 1,
+    });
+    expect(first).toMatchObject({
+      entries: [{ key: "sync:record:a", value: { state: "queued" } }],
+      nextCursor: "sync:record:a",
+    });
+    await expect(
+      database.scanMeta({
+        prefix: "sync:record:",
+        after: first.nextCursor,
+        limit: 1,
+      }),
+    ).resolves.toMatchObject({
+      entries: [{ key: "sync:record:b", value: { state: "sent" } }],
+    });
+
+    await database.setMeta("sync:record:a", undefined);
+    await expect(database.getMeta("sync:record:a")).resolves.toBeUndefined();
+    await harness.cleanup?.();
+  });
+
   it("supports paging, nested facets, batched links, manifests, and revisions", async () => {
     const harness = await create(`contract-${_name}`);
     const { database } = harness;

@@ -55,6 +55,15 @@ async function ensureParent(path: string): Promise<void> {
   }
 }
 
+interface AtomicVaultWrite {
+  rootPath: string;
+  finalPath: string;
+  temporaryPath: string;
+  file: Deno.FsFile;
+}
+
+const atomicVaultWrites = new Map<string, AtomicVaultWrite>();
+
 export function decodeVaultTextForBinding(
   bytes: Uint8Array,
   target: string,
@@ -116,6 +125,24 @@ export async function handleDenoVaultFs(
         return decodeVaultTextForBinding(await Deno.readFile(abs), abs);
       case "desktop_fs_read_binary":
         return Array.from(await Deno.readFile(abs));
+      case "desktop_fs_read_range": {
+        const offset = Math.max(0, Number(payload.offset ?? 0));
+        const length = Math.max(
+          0,
+          Math.min(256 * 1024, Number(payload.length ?? 0)),
+        );
+        const file = await Deno.open(abs, { read: true });
+        try {
+          await file.seek(offset, Deno.SeekMode.Start);
+          const bytes = new Uint8Array(length);
+          const read = await file.read(bytes);
+          return Array.from(
+            read === null ? new Uint8Array() : bytes.subarray(0, read),
+          );
+        } finally {
+          file.close();
+        }
+      }
       case "desktop_fs_write_text":
         await writeTextAtomic(abs, String(payload.data ?? ""));
         return;
@@ -142,6 +169,64 @@ export async function handleDenoVaultFs(
           : new Uint8Array();
         await ensureParent(abs);
         await Deno.writeFile(abs, bytes);
+        return;
+      }
+      case "desktop_fs_atomic_write_begin": {
+        await ensureParent(abs);
+        const operationId = crypto.randomUUID();
+        const temporaryPath = `${abs}.lapis-write-${operationId}`;
+        const file = await Deno.open(temporaryPath, {
+          createNew: true,
+          write: true,
+        });
+        atomicVaultWrites.set(operationId, {
+          rootPath,
+          finalPath: abs,
+          temporaryPath,
+          file,
+        });
+        return operationId;
+      }
+      case "desktop_fs_atomic_write_chunk": {
+        const operationId = String(payload.operationId ?? "");
+        const operation = atomicVaultWrites.get(operationId);
+        if (!operation || operation.rootPath !== rootPath) {
+          throw makeFsError("ENOENT", operationId);
+        }
+        const data = payload.data;
+        const bytes = Array.isArray(data)
+          ? Uint8Array.from(data as number[])
+          : new Uint8Array();
+        let offset = 0;
+        while (offset < bytes.byteLength) {
+          offset += await operation.file.write(bytes.subarray(offset));
+        }
+        return;
+      }
+      case "desktop_fs_atomic_write_commit": {
+        const operationId = String(payload.operationId ?? "");
+        const operation = atomicVaultWrites.get(operationId);
+        if (!operation || operation.rootPath !== rootPath) {
+          throw makeFsError("ENOENT", operationId);
+        }
+        atomicVaultWrites.delete(operationId);
+        await operation.file.sync();
+        operation.file.close();
+        try {
+          await Deno.rename(operation.temporaryPath, operation.finalPath);
+        } catch (error) {
+          await Deno.remove(operation.temporaryPath).catch(() => undefined);
+          throw error;
+        }
+        return;
+      }
+      case "desktop_fs_atomic_write_abort": {
+        const operationId = String(payload.operationId ?? "");
+        const operation = atomicVaultWrites.get(operationId);
+        if (!operation || operation.rootPath !== rootPath) return;
+        atomicVaultWrites.delete(operationId);
+        operation.file.close();
+        await Deno.remove(operation.temporaryPath).catch(() => undefined);
         return;
       }
       case "desktop_fs_list": {

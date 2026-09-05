@@ -127,6 +127,11 @@ view types remain `ViewAccess.alias` without palette duplicates.
 The canonical registry is mirrored by the generic Storybook command-panel
 catalog, replacing Markdown-specific catalog arrays while retaining the same
 real registrations and one instance per placement.
+
+The generic sync-host checkpoint boundary asks the active API editor to flush
+its serialized changes before a streamed read. Markdown remains the owner of
+the Mira full-file surface and dirty-buffer persistence; the sync host neither
+reads editor internals nor bypasses Markdown's flush contract.
 Markdown panels treat database readiness as sufficient to paint persisted
 metadata. Their async refresh paths react to committed revisions, retain the
 newest generation, and surface query failures without snapshot fallback.

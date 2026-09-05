@@ -21,6 +21,8 @@ import type {
   Stat,
   VaultAdapter,
   VaultAdapterCapabilities,
+  VaultReadHandle,
+  AtomicDataWriteOptions,
   VaultIdentityAdapter,
   WatchErrorEvent,
   WatchOptions,
@@ -69,7 +71,8 @@ export type NativeDesktopCapabilityId =
   | "file-system-actions"
   | "nostr-signer"
   | "agent-runtime"
-  | "terminal-runtime";
+  | "terminal-runtime"
+  | "secure-storage";
 
 export type NativeAgentProcessMessage = {
   processId: string;
@@ -612,6 +615,92 @@ export class NativeDesktopVaultAdapter
       normalizedPath: normalizeVaultPath(normalizedPath),
     });
     return new Uint8Array(data).buffer;
+  }
+
+  async openRead(normalizedPath: string): Promise<VaultReadHandle> {
+    const path = normalizeVaultPath(normalizedPath);
+    const rootPath = this.rootPath;
+    const stat = await this.stat(path);
+    if (!stat || stat.type !== "file") throw createFsError("ENOENT", path);
+    return {
+      size: stat.size,
+      mtime: stat.mtime,
+      stream: ({ offset = 0, length, signal } = {}) => {
+        let cursor = Math.max(0, Math.min(stat.size, Math.floor(offset)));
+        const end = Math.min(
+          stat.size,
+          cursor + Math.max(0, Math.floor(length ?? stat.size - cursor)),
+        );
+        return new ReadableStream<Uint8Array>({
+          async pull(controller) {
+            if (signal?.aborted) {
+              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              return;
+            }
+            if (cursor >= end) {
+              controller.close();
+              return;
+            }
+            const data = await invokeNative<number[]>("desktop_fs_read_range", {
+              rootPath,
+              normalizedPath: path,
+              offset: cursor,
+              length: Math.min(256 * 1024, end - cursor),
+            });
+            const bytes = Uint8Array.from(data);
+            if (bytes.byteLength === 0) {
+              controller.close();
+              return;
+            }
+            cursor += bytes.byteLength;
+            controller.enqueue(bytes);
+          },
+        });
+      },
+    };
+  }
+
+  async atomicWrite(
+    normalizedPath: string,
+    source: ReadableStream<Uint8Array>,
+    options: AtomicDataWriteOptions = {},
+  ): Promise<void> {
+    const path = normalizeVaultPath(normalizedPath);
+    const operationId = await invokeNative<string>("desktop_fs_atomic_write_begin", {
+      rootPath: this.rootPath,
+      normalizedPath: path,
+      options: { ctime: options.ctime, mtime: options.mtime },
+    });
+    const reader = source.getReader();
+    try {
+      while (true) {
+        if (options.signal?.aborted) {
+          throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+        }
+        const next = await reader.read();
+        if (next.done) break;
+        await invokeNative<void>("desktop_fs_atomic_write_chunk", {
+          rootPath: this.rootPath,
+          normalizedPath: path,
+          operationId,
+          data: [...next.value],
+        });
+      }
+      await invokeNative<void>("desktop_fs_atomic_write_commit", {
+        rootPath: this.rootPath,
+        normalizedPath: path,
+        operationId,
+      });
+    } catch (error) {
+      await invokeNative<void>("desktop_fs_atomic_write_abort", {
+        rootPath: this.rootPath,
+        normalizedPath: path,
+        operationId,
+      }).catch(() => undefined);
+      throw error;
+    } finally {
+      reader.releaseLock();
+    }
   }
 
   async write(

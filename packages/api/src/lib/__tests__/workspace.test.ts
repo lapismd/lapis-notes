@@ -5,6 +5,7 @@ import { APP_SHELL_SETTING_IDS } from "@lapismd/design-core/workspace/core";
 import type { App } from "../context.svelte";
 import { EventDispatcher } from "../events";
 import { Plugin } from "../plugin";
+import type { PluginSettingsDefinition } from "../plugin-settings";
 import { TFile } from "../storage/fs";
 import { ItemView, TextFileView, View } from "../view.svelte";
 import {
@@ -2250,6 +2251,68 @@ describe("Workspace compatibility", () => {
     await controller.settings.flushSave();
     expect(physicalWrites).toBe(2);
     expect(updateConfigurationOptions).toHaveBeenCalledTimes(2);
+  });
+
+  it("registers source-backed plugin settings and disposes them with the plugin", () => {
+    const { app, workspace } = createWorkspaceHarness();
+    const controller = getWorkspaceHostBinding(workspace).controller.settings;
+    const values: Record<string, unknown> = {
+      "controlled-plugin.endpoint": "wss://relay.example",
+    };
+    const listeners = new Set<(fieldId?: string) => void>();
+    const definition: PluginSettingsDefinition = {
+      section: {
+        id: "controlled-plugin",
+        title: "Controlled plugin",
+        fields: [
+          {
+            id: "controlled-plugin.endpoint",
+            type: "string",
+            title: "Endpoint",
+            default: "",
+          },
+        ],
+      },
+      source: {
+        get: (fieldId) => values[fieldId],
+        set: async (fieldId, value) => {
+          values[fieldId] = value;
+          for (const listener of listeners) listener(fieldId);
+          return value;
+        },
+        subscribe: (listener) => {
+          listeners.add(listener);
+          return () => listeners.delete(listener);
+        },
+      },
+    };
+    class ControlledSettingsPlugin extends Plugin {
+      onload(): void {
+        this.registerSettingsSection(definition);
+      }
+    }
+    const plugin = new ControlledSettingsPlugin(app, {
+      id: "controlled-plugin",
+      name: "Controlled plugin",
+      version: "1.0.0",
+      minAppVersion: "1.0.0",
+    });
+    plugin.configureRuntime({ source: "official" });
+
+    plugin.load();
+    expect(controller.get("controlled-plugin.endpoint")).toBe(
+      "wss://relay.example",
+    );
+    expect(controller.getSnapshot().values).not.toHaveProperty(
+      "controlled-plugin.endpoint",
+    );
+    expect(listeners.size).toBe(1);
+
+    plugin.unload();
+    expect(
+      controller.sections.some((section) => section.id === "controlled-plugin"),
+    ).toBe(false);
+    expect(listeners.size).toBe(0);
   });
 
   it("configures the host controller with Lapis metadata and notification chrome", async () => {

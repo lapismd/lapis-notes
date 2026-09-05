@@ -14,6 +14,7 @@ import {
   type DenoNostrSignerService,
 } from "./nostr-signer.ts";
 import type { DenoPluginAssetService } from "./plugin-assets.ts";
+import { getDesktopSyncWrappingKey } from "./sync-secure-store.ts";
 import { resolveDesktopRendererEngine } from "./renderer-engine.ts";
 import {
   DENO_TERMINAL_COMMANDS,
@@ -32,8 +33,13 @@ const FS_COMMANDS = new Set([
   "desktop_fs_stat",
   "desktop_fs_read_text",
   "desktop_fs_read_binary",
+  "desktop_fs_read_range",
   "desktop_fs_write_text",
   "desktop_fs_write_binary",
+  "desktop_fs_atomic_write_begin",
+  "desktop_fs_atomic_write_chunk",
+  "desktop_fs_atomic_write_commit",
+  "desktop_fs_atomic_write_abort",
   "desktop_fs_append_text",
   "desktop_fs_list",
   "desktop_fs_mkdir",
@@ -79,6 +85,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_open_external",
   "desktop_app_url_take_pending",
   "desktop_notifications_show",
+  "desktop_sync_wrapping_key_get",
   "desktop_telemetry_log",
   "desktop_plugin_assets_register",
   "desktop_fs_watch_start",
@@ -208,6 +215,9 @@ export function handleDesktopInvoke(
   }
   if (command === "desktop_notifications_show") {
     return showNativeNotification(payload.notification);
+  }
+  if (command === "desktop_sync_wrapping_key_get") {
+    return getDesktopSyncWrappingKey(payload);
   }
   if (command === "desktop_telemetry_log") {
     if (!context.telemetryLog) {

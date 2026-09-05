@@ -158,6 +158,12 @@ importers:
       '@lucide/svelte':
         specifier: ^0.523.0
         version: 0.523.0(svelte@5.56.8)
+      '@noble/ciphers':
+        specifier: ^2.1.1
+        version: 2.1.1
+      '@noble/hashes':
+        specifier: ^2.0.1
+        version: 2.3.0
       '@myriaddreamin/typst.ts':
         specifier: 0.7.0
         version: 0.7.0(@myriaddreamin/typst-ts-renderer@0.7.0)(@myriaddreamin/typst-ts-web-compiler@0.7.0)
@@ -338,6 +344,9 @@ importers:
       minimatch:
         specifier: ^10.2.5
         version: 10.2.6
+      nostr-tools:
+        specifier: ^2.25.0
+        version: 2.25.2(typescript@5.8.3)
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.1
