@@ -1,4 +1,5 @@
 import {
+  getInstalledPluginAssetFingerprintSha256,
   WEB_PLUGIN_ASSET_CACHE_NAME,
   sha256Hex,
   type InstalledPluginRecord,
@@ -74,19 +75,24 @@ describe("WebCachePluginAssetServer", () => {
       relativePath: "main.mjs",
       version: "1.2.3",
     });
+    const fingerprintSha256 =
+      await getInstalledPluginAssetFingerprintSha256(installedPlugin);
 
     expect(url).toBe(
-      `/__lapis/plugins/test-vault/plugin-a/1.2.3/${mainSha256}/main.mjs`,
+      `/__lapis/plugins/test-vault/plugin-a/1.2.3/${fingerprintSha256}/main.mjs`,
     );
     const cache = cacheStorage.caches.get(WEB_PLUGIN_ASSET_CACHE_NAME);
     expect(await cache?.entries.get(url)?.text()).toBe("import './chunk.mjs';");
+    const relativeChunkUrl = new URL(
+      "./chunk.mjs",
+      `https://lapis.local${url}`,
+    ).pathname;
     expect(
-      await cache?.entries
-        .get(
-          `/__lapis/plugins/test-vault/plugin-a/1.2.3/${chunkSha256}/chunk.mjs`,
-        )
-        ?.text(),
+      await cache?.entries.get(relativeChunkUrl)?.text(),
     ).toBe("export const value = 1;");
+    expect(relativeChunkUrl).toBe(
+      `/__lapis/plugins/test-vault/plugin-a/1.2.3/${fingerprintSha256}/chunk.mjs`,
+    );
   });
 
   it("rejects traversal and asset-version mismatches", async () => {

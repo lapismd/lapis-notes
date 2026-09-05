@@ -36,7 +36,6 @@
     "ws": "npm:ws@8.18.3",
     "zod": "npm:zod@3.25.76"
   },
-  "nodeModulesDir": "none",
   "tasks": {
     "dev": "deno desktop --quiet --hmr --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
     "start": "deno desktop --quiet --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"

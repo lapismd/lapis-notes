@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -9,6 +10,19 @@ import {
 } from "./renderer-http";
 
 describe("Deno desktop renderer proxy", () => {
+  it("serves verified plugin assets before falling through to Vite", () => {
+    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const pluginAssets = source.indexOf(
+      "await pluginAssets.respond(request.url)",
+    );
+    const viteFallback = source.indexOf(
+      "if (devUrl) return await proxyVite(request, devUrl)",
+    );
+
+    expect(pluginAssets).toBeGreaterThan(-1);
+    expect(viteFallback).toBeGreaterThan(pluginAssets);
+  });
+
   it("rewrites the incoming path onto the Vite origin", () => {
     const rewritten = rewriteUpstreamUrl(
       "http://127.0.0.1:4567/src/main.ts?t=1",

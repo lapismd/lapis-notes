@@ -2,7 +2,7 @@ import {
   assertSupportedPluginAssetPath,
   createWebPluginAssetUrl,
   getInstalledPluginAssetFingerprint,
-  getInstalledPluginAssetHash,
+  getInstalledPluginAssetFingerprintSha256,
   getInstalledPluginAssetVersion,
   isSupportedPluginAssetPath,
   normalizePluginAssetRelativePath,
@@ -46,13 +46,18 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
     }
     const path = normalizePluginAssetRelativePath(request.relativePath);
     assertSupportedPluginAssetPath(path);
-    const sha256 = getInstalledPluginAssetHash(installedPlugin, path);
-    await this.mirrorInstalledPlugin(installedPlugin, version);
+    const fingerprintSha256 =
+      await getInstalledPluginAssetFingerprintSha256(installedPlugin);
+    await this.mirrorInstalledPlugin(
+      installedPlugin,
+      version,
+      fingerprintSha256,
+    );
     return createWebPluginAssetUrl({
       vaultId: this.vaultId,
       pluginId: request.pluginId,
       version,
-      sha256,
+      sha256: fingerprintSha256,
       path,
     });
   }
@@ -81,11 +86,16 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
   private mirrorInstalledPlugin(
     installedPlugin: InstalledPluginRecord,
     version: string,
+    fingerprintSha256: string,
   ): Promise<void> {
     const key = `${installedPlugin.pluginId}@${version}:${getInstalledPluginAssetFingerprint(installedPlugin)}`;
     const existing = this.mirroredPlugins.get(key);
     if (existing) return existing;
-    const pending = this.writeInstalledPluginToCache(installedPlugin, version);
+    const pending = this.writeInstalledPluginToCache(
+      installedPlugin,
+      version,
+      fingerprintSha256,
+    );
     this.mirroredPlugins.set(key, pending);
     return pending;
   }
@@ -93,6 +103,7 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
   private async writeInstalledPluginToCache(
     installedPlugin: InstalledPluginRecord,
     version: string,
+    fingerprintSha256: string,
   ): Promise<void> {
     const cacheStorage = this.options.cacheStorage ?? globalThis.caches;
     if (!cacheStorage) {
@@ -116,7 +127,7 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
             vaultId: this.vaultId,
             pluginId: installedPlugin.pluginId,
             version,
-            sha256: asset.sha256,
+            sha256: fingerprintSha256,
             path: asset.path,
           });
           await cache.put(

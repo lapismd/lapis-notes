@@ -153,6 +153,14 @@ export function getInstalledPluginAssetFingerprint(
     .join("|");
 }
 
+export async function getInstalledPluginAssetFingerprintSha256(
+  record: InstalledPluginRecord,
+): Promise<string> {
+  return sha256Hex(
+    new TextEncoder().encode(getInstalledPluginAssetFingerprint(record)),
+  );
+}
+
 export function isSupportedPluginAssetPath(path: string): boolean {
   return /\.(?:mjs|js|cjs|css|json|wasm|svg|png|jpg|jpeg|gif)$/iu.test(path);
 }

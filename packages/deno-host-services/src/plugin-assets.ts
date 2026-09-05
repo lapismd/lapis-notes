@@ -13,6 +13,7 @@ type RegisteredContext = {
   version: string;
   rootPath: string;
   pluginsPath: string;
+  fingerprintSha256: string;
   files: Map<string, InstalledFile>;
 };
 type PluginAssetIo = {
@@ -165,6 +166,13 @@ function parseFiles(value: unknown): Map<string, InstalledFile> {
   return files;
 }
 
+function installedFilesFingerprint(files: Map<string, InstalledFile>): string {
+  return Array.from(files.values())
+    .sort((left, right) => left.path.localeCompare(right.path))
+    .map((file) => `${file.path}:${file.size}:${file.sha256}`)
+    .join("|");
+}
+
 const defaultIo: PluginAssetIo = {
   stat: async (path) => {
     const stat = await Deno.stat(path);
@@ -196,7 +204,7 @@ export class DenoPluginAssetService {
 
   async register(
     payload: Record<string, unknown>,
-  ): Promise<{ registered: true }> {
+  ): Promise<{ registered: true; fingerprintSha256: string }> {
     const installed = payload.installedPlugin;
     if (
       !installed ||
@@ -233,15 +241,20 @@ export class DenoPluginAssetService {
         code: "ENOTDIR",
       });
     }
+    const files = parseFiles(record.files);
+    const fingerprintSha256 = await this.io.sha256(
+      new TextEncoder().encode(installedFilesFingerprint(files)),
+    );
     this.#contexts.set(contextKey(vaultId, pluginId, version), {
       vaultId,
       pluginId,
       version,
       rootPath,
       pluginsPath,
-      files: parseFiles(record.files),
+      fingerprintSha256,
+      files,
     });
-    return { registered: true };
+    return { registered: true, fingerprintSha256 };
   }
 
   async respond(requestUrl: string): Promise<Response | null> {
@@ -256,7 +269,7 @@ export class DenoPluginAssetService {
       if (!context || !metadata || !type) {
         return new Response("Plugin asset not found", { status: 404 });
       }
-      if (metadata.sha256 !== request.sha256) {
+      if (context.fingerprintSha256 !== request.sha256) {
         return new Response("Invalid plugin asset hash", { status: 400 });
       }
       const absolutePath = resolveAbsolutePath(

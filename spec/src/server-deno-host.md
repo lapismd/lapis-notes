@@ -34,6 +34,7 @@ HTTP policy around these kernels.
 | LN-SRV-016 | The browser vault adapter MUST translate Lapis virtual-root paths such as `/.obsidian/plugins` to managed relative paths before tRPC requests. Direct server routes MUST continue to reject absolute paths, traversal, and host filesystem access.                                |
 | LN-SRV-017 | Hosted plugin installs MUST download signed first-party release bundles through an authenticated, editor-authorized same-origin Fetch route. The server MUST restrict outbound sources, bound response bytes, forward no session credentials upstream, and retain client-side signature and digest verification.               |
 | LN-SRV-018 | The server static profile MUST serve the fixed Web plugin-host entries referenced by its initial import map, including `@lapis-notes/api/workspace-host`. Installed History runtime modules MUST resolve those entries through the same host module graph before activation. |
+| LN-SRV-019 | A server-mode Web client MAY use the public build-configured Nostr plugin source directly. The Deno server MUST NOT become a registry database, relay trust root, curator, or proxy for the signed release evidence. |
 
 ## Runtime topology
 

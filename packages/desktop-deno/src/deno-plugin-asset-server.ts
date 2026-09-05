@@ -32,7 +32,7 @@ export interface DenoPluginAssetServerOptions {
 export class DenoHttpPluginAssetServer implements PluginAssetServer {
   readonly #vaultId: string;
   readonly #rootPath: string;
-  readonly #registrations = new Map<string, Promise<void>>();
+  readonly #registrations = new Map<string, Promise<string>>();
 
   constructor(private readonly options: DenoPluginAssetServerOptions) {
     this.#vaultId = options.adapter.getVaultId?.() ?? options.adapter.getName();
@@ -58,18 +58,21 @@ export class DenoHttpPluginAssetServer implements PluginAssetServer {
 
     const path = normalizePluginAssetRelativePath(request.relativePath);
     assertSupportedPluginAssetPath(path);
-    const asset = await readInstalledPluginAsset({
+    await readInstalledPluginAsset({
       adapter: this.options.adapter as InstalledPluginAssetDataAdapter,
       installedPlugin,
       relativePath: path,
       pluginsPath: this.options.pluginsPath,
     });
-    await this.#registerInstalledPlugin(installedPlugin, version);
+    const fingerprintSha256 = await this.#registerInstalledPlugin(
+      installedPlugin,
+      version,
+    );
     return createWebPluginAssetUrl({
       vaultId: this.#vaultId,
       pluginId: request.pluginId,
       version,
-      sha256: asset.sha256,
+      sha256: fingerprintSha256,
       path,
     });
   }
@@ -96,21 +99,23 @@ export class DenoHttpPluginAssetServer implements PluginAssetServer {
   #registerInstalledPlugin(
     installedPlugin: InstalledPluginRecord,
     version: string,
-  ): Promise<void> {
+  ): Promise<string> {
     const key = `${this.#vaultId}:${installedPlugin.pluginId}:${version}:${getInstalledPluginAssetFingerprint(installedPlugin)}`;
     const existing = this.#registrations.get(key);
     if (existing) return existing;
-    const pending = this.options.bridge.invoke<void>(
-      "desktop_plugin_assets_register",
-      {
-        vaultId: this.#vaultId,
-        rootPath: this.#rootPath,
-        pluginId: installedPlugin.pluginId,
-        version,
-        installedPlugin,
-        pluginsPath: this.options.pluginsPath ?? ".obsidian/plugins",
-      },
-    );
+    const pending = this.options.bridge
+      .invoke<{ registered: true; fingerprintSha256: string }>(
+        "desktop_plugin_assets_register",
+        {
+          vaultId: this.#vaultId,
+          rootPath: this.#rootPath,
+          pluginId: installedPlugin.pluginId,
+          version,
+          installedPlugin,
+          pluginsPath: this.options.pluginsPath ?? ".obsidian/plugins",
+        },
+      )
+      .then((result) => result.fingerprintSha256);
     this.#registrations.set(key, pending);
     return pending;
   }

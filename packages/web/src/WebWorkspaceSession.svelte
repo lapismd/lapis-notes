@@ -14,6 +14,7 @@
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import {
+    createConfiguredNotesNostrPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
   } from "@lapis-notes/app-profile";
@@ -63,6 +64,13 @@
     pluginDistributionOptions?: AppPluginDistributionOptions;
   } = $props();
 
+  const nostrPluginDistribution = untrack(() =>
+    createConfiguredNotesNostrPluginDistribution(
+      import.meta.env,
+      pluginDistributionOptions,
+    ),
+  );
+
   const STARTUP_TASKS: WorkspaceStartupTask[] = [
     { id: "vault", label: "Open the vault", status: "pending" },
     { id: "configuration", label: "Load app configuration", status: "pending" },
@@ -78,7 +86,8 @@
         session,
         pluginAssetServer:
           pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
-        pluginDistributionOptions,
+        pluginDistributionOptions:
+          nostrPluginDistribution?.options ?? pluginDistributionOptions,
         workspaceShell: {
           application: {
             name: "Lapis Notes",
@@ -362,6 +371,7 @@
       dailyDocumentProvider.dispose();
       disposePluginManagementSettings();
       disposePwaRuntimeApplication();
+      nostrPluginDistribution?.dispose();
       disposeApplicationCompatibility();
     }
   }

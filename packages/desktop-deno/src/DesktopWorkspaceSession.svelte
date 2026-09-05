@@ -12,6 +12,7 @@
     type VaultSession,
   } from "@lapis-notes/api";
   import {
+    createConfiguredNotesNostrPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
   } from "@lapis-notes/app-profile";
@@ -67,6 +68,9 @@
   const pluginAssetServer = untrack(() =>
     createDenoPluginAssetServer({ adapter, bridge }),
   );
+  const nostrPluginDistribution = untrack(() =>
+    createConfiguredNotesNostrPluginDistribution(import.meta.env),
+  );
   const app = untrack(() => {
     const safeMode = readDesktopSafeModeState();
     const ownedApp = new App({
@@ -75,6 +79,7 @@
       session,
       safeMode,
       pluginAssetServer,
+      pluginDistributionOptions: nostrPluginDistribution?.options,
       nostrSignerBroker: getDenoNostrSignerBroker(),
       workspaceShell: { application: appInfo, notifications: true },
       markdownRenderer: async () => {},
@@ -585,6 +590,7 @@
       );
     } finally {
       disposePluginManagementSettings();
+      nostrPluginDistribution?.dispose();
       disposeApplicationCompatibility();
     }
   }

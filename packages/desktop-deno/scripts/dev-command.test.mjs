@@ -225,10 +225,24 @@ describe("Deno desktop development command", () => {
     const rootManifest = JSON.parse(
       await readFile(new URL("../../../package.json", import.meta.url), "utf8"),
     );
+    const rootDenoConfig = JSON.parse(
+      await readFile(new URL("../../../deno.json", import.meta.url), "utf8"),
+    );
     const packageManifest = JSON.parse(
       await readFile(new URL("../package.json", import.meta.url), "utf8"),
     );
+    const packageDenoConfig = JSON.parse(
+      await readFile(new URL("../deno.json", import.meta.url), "utf8"),
+    );
 
+    expect(rootDenoConfig.workspace).toEqual([
+      "packages/deno-host-services",
+      "packages/desktop-deno",
+      "packages/server-deno",
+    ]);
+    expect(rootDenoConfig.nodeModulesDir).toBe("none");
+    expect(rootDenoConfig.imports.ws).toBe("npm:ws@8.18.3");
+    expect(packageDenoConfig).not.toHaveProperty("nodeModulesDir");
     expect(rootManifest.scripts["dev:desktop:cef"]).toContain(
       "LAPIS_DENO_BACKEND=cef",
     );

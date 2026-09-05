@@ -458,9 +458,9 @@ Deno.serve(async (request) => {
   if (vaultResourceResponse) {
     return withIsolationHeaders(vaultResourceResponse);
   }
-  if (devUrl) return await proxyVite(request, devUrl);
   const pluginAssetResponse = await pluginAssets.respond(request.url);
   if (pluginAssetResponse) return withIsolationHeaders(pluginAssetResponse);
+  if (devUrl) return await proxyVite(request, devUrl);
   const response = await serveDir(request, {
     fsRoot: distRoot,
     urlRoot: "",
