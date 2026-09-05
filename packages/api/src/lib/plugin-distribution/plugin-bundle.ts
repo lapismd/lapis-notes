@@ -3,6 +3,8 @@ import { PluginDistributionError } from "./errors";
 import { assertSafePluginRelativePath } from "./path-safety";
 
 export const PLUGIN_BUNDLE_RELEASE_MANIFEST_PATH = "release.signed.json";
+export const NOSTR_PLUGIN_BUNDLE_PROOF_PATH = "release.nostr.json";
+export const NOSTR_PLUGIN_BUNDLE_PAYLOAD_PATH = "payload.zip";
 export const PLUGIN_BUNDLE_STORED_METHOD = 0;
 export const PLUGIN_BUNDLE_DEFLATE_METHOD = 8;
 
@@ -37,6 +39,51 @@ export const parsePluginPayload = (
   input: ArrayBuffer | Uint8Array,
   options: ParsePluginBundleOptions = {},
 ): Map<string, Uint8Array> => parsePluginArchive(input, options, false);
+
+export interface ParsedNostrPluginBundle {
+  proof: unknown;
+  payload: Uint8Array;
+}
+
+/**
+ * Parse the portable offline Nostr container, or return null for a legacy
+ * root-signed bundle. Once either v2 marker is present, malformed containers
+ * fail closed instead of falling back to the legacy verifier.
+ */
+export const parseNostrPluginBundle = (
+  input: ArrayBuffer | Uint8Array,
+  options: ParsePluginBundleOptions = {},
+): ParsedNostrPluginBundle | null => {
+  const entries = parsePluginArchive(input, options, false);
+  const hasNostrMarker =
+    entries.has(NOSTR_PLUGIN_BUNDLE_PROOF_PATH) ||
+    entries.has(NOSTR_PLUGIN_BUNDLE_PAYLOAD_PATH);
+  if (!hasNostrMarker) return null;
+  const paths = [...entries.keys()];
+  if (
+    paths.length !== 2 ||
+    paths[0] !== NOSTR_PLUGIN_BUNDLE_PROOF_PATH ||
+    paths[1] !== NOSTR_PLUGIN_BUNDLE_PAYLOAD_PATH
+  ) {
+    throw invalidBundle(
+      ".lapis-plugin Nostr bundle must contain only release.nostr.json and payload.zip.",
+    );
+  }
+  const proofBytes = entries.get(NOSTR_PLUGIN_BUNDLE_PROOF_PATH)!;
+  let proof: unknown;
+  try {
+    proof = JSON.parse(new TextDecoder().decode(proofBytes));
+  } catch (error) {
+    throw invalidBundle(
+      ".lapis-plugin release.nostr.json is invalid JSON.",
+      error,
+    );
+  }
+  return {
+    proof,
+    payload: entries.get(NOSTR_PLUGIN_BUNDLE_PAYLOAD_PATH)!,
+  };
+};
 
 const parsePluginArchive = (
   input: ArrayBuffer | Uint8Array,

@@ -340,6 +340,8 @@ export interface InstalledPluginRecord {
     releaseEventId: string;
     decisionEventId: string;
     manifestSha256: string;
+    /** Portable proof is valid, but a relay quorum has not checked later revocations. */
+    requiresRelayRefresh: boolean;
   };
   revoked?: PluginRevocationRecord;
   restartRequired?: boolean;

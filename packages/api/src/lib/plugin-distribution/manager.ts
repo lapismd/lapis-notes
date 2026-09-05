@@ -12,10 +12,15 @@ import {
   type InstallVerifiedPluginBundleOptions,
   type InstallVerifiedPluginOptions,
   type PluginBinaryFetch,
+  type PluginInstallerProgressEvent,
   type PluginInstallerManager,
   VerifiedPluginInstaller,
 } from "./installer";
 import type { PluginBundleVerificationMode } from "./plugin-bundle-worker";
+import {
+  parseNostrPluginBundle,
+  type ParsedNostrPluginBundle,
+} from "./plugin-bundle";
 import type { VerifiedPluginBundlePayload } from "./plugin-bundle-verifier";
 import { PluginRegistryCache } from "./registry-cache";
 import { PluginRegistryClient } from "./registry-client";
@@ -181,6 +186,12 @@ export interface PluginRegistryAdapter {
     entry: PluginCatalogEntry,
     detail: PluginCatalogDetail,
     version: string,
+    options?: { signal?: AbortSignal },
+  ): Promise<VerifiedPluginBundlePayload>;
+  /** Verify a self-contained offline Nostr bundle without claiming freshness. */
+  verifyOfflineBundle?(
+    source: PluginRegistrySource,
+    bundle: ParsedNostrPluginBundle,
     options?: { signal?: AbortSignal },
   ): Promise<VerifiedPluginBundlePayload>;
 }
@@ -599,17 +610,38 @@ export class DefaultPluginDistributionManager
         "verifying-signature",
         "Verifying plugin bundle",
       );
-      const installOptions: InstallVerifiedPluginBundleOptions = {
-        bundle,
+      const onProgress = ({
+        phase,
+        message,
+        ...details
+      }: PluginInstallerProgressEvent) => {
+        this.emitProgress(progressPluginId, phase, message, details);
+      };
+      const commonOptions = {
         enable: options.enable,
-        provenance: "official",
         compatibility: this.compatibilityInput(await this.isWorkspaceTrusted()),
         signal: options.signal,
-        onProgress: ({ phase, message, ...details }) => {
-          this.emitProgress(progressPluginId, phase, message, details);
-        },
+        onProgress,
       };
-      const record = await this.installer.installBundle(installOptions);
+      const portable = parseNostrPluginBundle(bundle, {
+        onProgress: commonOptions.onProgress,
+      });
+      let record: InstalledPluginRecord;
+      if (portable) {
+        const verified = await this.verifyOfflineNostrBundle(portable, options.signal);
+        record = await this.installer.installVerifiedPayload(verified.payload, {
+          ...commonOptions,
+          provenance: verified.payload.releaseManifest.channel,
+          registryId: verified.source.id,
+          registryUrl: verified.source.url,
+        });
+      } else {
+        record = await this.installer.installBundle({
+          bundle,
+          ...commonOptions,
+          provenance: "official",
+        });
+      }
       progressPluginId = record.pluginId;
       this.installedIds.add(record.pluginId);
       this.emitProgress(record.pluginId, "complete", "Plugin installed");
@@ -622,6 +654,35 @@ export class DefaultPluginDistributionManager
       );
       throw error;
     }
+  }
+
+  private async verifyOfflineNostrBundle(
+    bundle: ParsedNostrPluginBundle,
+    signal?: AbortSignal,
+  ): Promise<{
+    payload: VerifiedPluginBundlePayload;
+    source: PluginRegistrySource;
+  }> {
+    const failures: unknown[] = [];
+    for (const source of this.registries.filter(
+      (candidate) => candidate.enabled && this.sourceKind(candidate) === "nostr",
+    )) {
+      const adapter = this.adapterForSource(source);
+      if (!adapter?.verifyOfflineBundle) continue;
+      try {
+        return {
+          payload: await adapter.verifyOfflineBundle(source, bundle, { signal }),
+          source,
+        };
+      } catch (error) {
+        failures.push(error);
+      }
+    }
+    if (failures.length) throw failures[0];
+    throw new PluginDistributionError(
+      "metadata-invalid",
+      "No enabled Nostr source can verify this offline plugin bundle.",
+    );
   }
 
   async update(

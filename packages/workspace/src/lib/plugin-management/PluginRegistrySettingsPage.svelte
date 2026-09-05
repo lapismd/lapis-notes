@@ -757,16 +757,23 @@
       new Notice("Select a .lapis-plugin bundle.");
       return;
     }
+    let installedRecord: InstalledPluginRecord | undefined;
     await runPluginProgressAction(
       "install-bundle",
       "*",
       `Installing ${file.name}`,
-      async (signal) =>
-        app.pluginDistribution.installBundle(await file.arrayBuffer(), {
+      async (signal) => {
+        installedRecord = await app.pluginDistribution.installBundle(await file.arrayBuffer(), {
           enable: true,
           signal,
-        }),
+        });
+      },
     );
+    if (installedRecord?.nostrProof?.requiresRelayRefresh) {
+      new Notice(
+        "Plugin installed from a valid Nostr proof. Connect and refresh its registry source to check for newer revocations.",
+      );
+    }
   }
 </script>
 
@@ -859,6 +866,7 @@
               ]}
               badges={[
                 ...registryRowBadges(entry, record.provenance),
+                ...(record.nostrProof ? [{ label: "Nostr proof", tone: "community" as const }] : []),
                 ...(record.restartRequired ? [{ label: "Restart required" }] : []),
               ]}
               status={record.revoked
@@ -869,6 +877,12 @@
                   }
                 : update?.canUpdate
                   ? { label: "Update available", tone: "warning" }
+                  : record.nostrProof?.requiresRelayRefresh
+                    ? {
+                        label: "Revocation check needed",
+                        reason: "Refresh the Nostr registry source when online",
+                        tone: "warning",
+                      }
                   : undefined}
             >
               {#snippet actions()}

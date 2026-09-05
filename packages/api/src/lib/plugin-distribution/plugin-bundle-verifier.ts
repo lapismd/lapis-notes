@@ -52,6 +52,7 @@ export interface VerifiedPluginBundlePayload {
     releaseEventId: string;
     decisionEventId: string;
     manifestSha256: string;
+    requiresRelayRefresh: boolean;
   };
 }
 
@@ -87,6 +88,8 @@ export interface VerifyNostrPluginPayloadOptions {
   verifyReleaseProof: NostrReleaseProofVerifier;
   signal?: AbortSignal;
   onProgress?: (event: PluginBundleVerificationProgressEvent) => void;
+  /** True only when a live source reached its configured install quorum. */
+  relayFresh?: boolean;
 }
 
 export const verifyPluginBundlePayload = async (
@@ -279,6 +282,7 @@ export const verifyNostrPluginPayload = async (
       releaseEventId: verified.releaseEventId,
       decisionEventId: verified.decisionEventId,
       manifestSha256: verified.manifestSha256,
+      requiresRelayRefresh: options.relayFresh !== true,
     },
   };
 };

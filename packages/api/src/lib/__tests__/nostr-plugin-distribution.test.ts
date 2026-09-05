@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { Zip, ZipDeflate } from "fflate";
+import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import {
   createNostrPluginRegistryAdapter,
+  parseNostrPluginBundle,
   sha256Hex,
   verifyNostrPluginPayload,
   type NostrReleaseProofVerifier,
@@ -33,6 +34,7 @@ describe("Nostr plugin distribution", () => {
         authorizationEventId: "authorization-event",
         releaseEventId: "release-event",
         decisionEventId: "decision-event",
+        requiresRelayRefresh: true,
       },
     });
   });
@@ -151,6 +153,40 @@ describe("Nostr plugin distribution", () => {
       "1.2.3",
       { signal: undefined },
     );
+    expect(verified.nostrProof?.requiresRelayRefresh).toBe(false);
+  });
+
+  it("verifies a portable offline container and preserves its freshness warning", async () => {
+    const fixture = await createNostrFixture();
+    const source: PluginRegistrySource = {
+      id: "community-nostr",
+      name: "Community plugins",
+      kind: "nostr",
+      url: "nostr://community-plugins",
+      curatorPubkeys: [fixture.curatorPubkey],
+      trustTier: "community",
+      enabled: true,
+    };
+    const adapter = createNostrPluginRegistryAdapter({
+      catalogSource: {
+        loadIndex: async () => ({ schemaVersion: 1, generatedAt: "", plugins: [] }),
+        loadPluginDetail: async () => ({}),
+        loadReleaseProof: async () => ({}),
+        getStatus: () => ({ installReady: false, fresh: false }),
+      },
+      verifyReleaseProof: fixture.verifyReleaseProof,
+    });
+    const portable = parseNostrPluginBundle(
+      createOfflineBundle(fixture.proof, fixture.artifact),
+    );
+
+    expect(portable).not.toBeNull();
+    await expect(
+      adapter.verifyOfflineBundle!(source, portable!),
+    ).resolves.toMatchObject({
+      releaseManifest: { pluginId: "community-clock", version: "1.2.3" },
+      nostrProof: { requiresRelayRefresh: true },
+    });
   });
 });
 
@@ -222,13 +258,48 @@ const createPayload = (files: Map<string, string>): Uint8Array => {
   let zipError: unknown;
   const zip = new Zip((error, chunk) => {
     if (error) zipError = error;
-    else chunks.push(chunk);
+    else chunks.push(new Uint8Array(chunk));
   });
   for (const [path, content] of files) {
     const stream = new ZipDeflate(path, { level: 6 });
     stream.mtime = new Date(1980, 0, 1, 0, 0, 0);
     zip.add(stream);
     stream.push(new TextEncoder().encode(content), true);
+  }
+  zip.end();
+  if (zipError) throw zipError;
+  const output = new Uint8Array(
+    chunks.reduce((size, chunk) => size + chunk.byteLength, 0),
+  );
+  let offset = 0;
+  for (const chunk of chunks) {
+    output.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return output;
+};
+
+const createOfflineBundle = (proof: unknown, payload: Uint8Array): Uint8Array => {
+  const chunks: Uint8Array[] = [];
+  let zipError: unknown;
+  const zip = new Zip((error, chunk) => {
+    if (error) zipError = error;
+    else chunks.push(new Uint8Array(chunk));
+  });
+  for (const [path, bytes, deflate] of [
+    [
+      "release.nostr.json",
+      new TextEncoder().encode(JSON.stringify(proof)),
+      false,
+    ],
+    ["payload.zip", payload, true],
+  ] as const) {
+    const stream = deflate
+      ? new ZipDeflate(path, { level: 6 })
+      : new ZipPassThrough(path);
+    stream.mtime = new Date(1980, 0, 1, 0, 0, 0);
+    zip.add(stream);
+    stream.push(bytes, true);
   }
   zip.end();
   if (zipError) throw zipError;

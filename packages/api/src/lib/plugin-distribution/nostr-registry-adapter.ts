@@ -105,6 +105,24 @@ export function createNostrPluginRegistryAdapter(
         trustedCuratorPubkeys: new Set(curatorPubkeys),
         verifyReleaseProof: options.verifyReleaseProof,
         signal: installOptions?.signal,
+        relayFresh: true,
+      });
+    },
+    async verifyOfflineBundle(source, bundle, installOptions) {
+      const curatorPubkeys = source.curatorPubkeys ?? [];
+      if (curatorPubkeys.length === 0) {
+        throw new PluginDistributionError(
+          "metadata-invalid",
+          `Nostr registry ${source.name} has no pinned curator keys.`,
+        );
+      }
+      return verifyNostrPluginPayload({
+        artifact: bundle.payload,
+        proof: bundle.proof,
+        trustedCuratorPubkeys: new Set(curatorPubkeys),
+        verifyReleaseProof: options.verifyReleaseProof,
+        signal: installOptions?.signal,
+        relayFresh: false,
       });
     },
   };

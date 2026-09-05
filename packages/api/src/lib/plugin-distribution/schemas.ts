@@ -428,6 +428,7 @@ export const installedPluginRecordSchema = z
         releaseEventId: nonEmpty,
         decisionEventId: nonEmpty,
         manifestSha256: sha256,
+        requiresRelayRefresh: z.boolean(),
       })
       .optional(),
     revoked: pluginRevocationRecordSchema.optional(),

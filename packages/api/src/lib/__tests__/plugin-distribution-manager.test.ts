@@ -225,6 +225,66 @@ describe("DefaultPluginDistributionManager", () => {
     ).resolves.toBe(true);
   });
 
+  it("installs portable Nostr bundles through the configured source verifier", async () => {
+    const fixture = await createManagerFixture();
+    const adapter = new InMemoryDataAdapter();
+    const verifiedLegacy = await verifyPluginBundlePayload({
+      bundle: fixture.bundles["0.1.0"],
+      trustedKeys: [fixture.trustedKey],
+    });
+    const nostrSource = {
+      ...fixture.source,
+      id: "lapis-nostr",
+      name: "Lapis Nostr Registry",
+      kind: "nostr" as const,
+      url: "nostr://lapis-plugins",
+      curatorPubkeys: ["a".repeat(64)],
+    };
+    let offlineVerifications = 0;
+    const nostrAdapter: PluginRegistryAdapter = {
+      refresh: async () => ({ index: fixture.index, installReady: false }),
+      getDetail: async () => fixture.detail,
+      verifyOfflineBundle: async (_source, portable) => {
+        offlineVerifications += 1;
+        expect(portable.proof).toEqual({ proof: "portable" });
+        expect(portable.payload).toEqual(new Uint8Array([1, 2, 3]));
+        return {
+          ...verifiedLegacy,
+          nostrProof: {
+            authorizationEventId: "authorization-event",
+            releaseEventId: "release-event",
+            decisionEventId: "decision-event",
+            manifestSha256: "a".repeat(64),
+            requiresRelayRefresh: true,
+          },
+        };
+      },
+    };
+    const manager = new DefaultPluginDistributionManager({
+      adapter,
+      appVersion: "0.20.0",
+      platform: "web",
+      workspaceTrusted: () => true,
+      registries: [nostrSource],
+      registryAdapters: { nostr: nostrAdapter },
+      trustedKeys: [fixture.trustedKey],
+    });
+    const bundle = createPluginBundle(
+      new Map([
+        ["release.nostr.json", JSON.stringify({ proof: "portable" })],
+        ["payload.zip", new Uint8Array([1, 2, 3])],
+      ]),
+    );
+
+    await expect(manager.installBundle(bundle)).resolves.toMatchObject({
+      pluginId: "lapis-docs",
+      registryId: "lapis-nostr",
+      provenance: "official",
+      nostrProof: { requiresRelayRefresh: true },
+    });
+    expect(offlineVerifications).toBe(1);
+  });
+
   it("rejects platform-incompatible plugins before installation", async () => {
     const fixture = await createManagerFixture({ platforms: ["electron"] });
     const manager = new DefaultPluginDistributionManager({

@@ -200,6 +200,11 @@
       "import": "./dist/plugin-assets.js",
       "default": "./dist/plugin-assets.js"
     },
+    "./plugin-distribution-host": {
+      "types": "./dist/plugin-distribution-host.d.ts",
+      "import": "./dist/plugin-distribution-host.js",
+      "default": "./dist/plugin-distribution-host.js"
+    },
     "./search-embedding-worker": {
       "import": "./dist/storage/search-embedding-worker.js",
       "default": "./dist/storage/search-embedding-worker.js"
