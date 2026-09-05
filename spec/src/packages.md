@@ -45,6 +45,8 @@ and Storybook caches when its package fingerprint changes.
 The desktop development script is a pnpm entrypoint that starts the Deno desktop
 host, so its Deno arguments must stay consistent with the package-local
 `deno.json` imports rather than imposing a root-level package-manager policy.
+It may discover the sibling Community fixture's public relay and curator values
+for local registry debugging, but it never imports fixture signer secrets.
 The Deno package also owns the initial HTML boot surface displayed before the
 renderer mounts. It uses the package-local Lapis logo without visible loading
 copy, retains an accessible status name, and must not move workspace startup

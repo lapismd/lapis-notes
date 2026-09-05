@@ -28,6 +28,12 @@ only. `deno desktop` opens the window, injects `win.bind()` on that document,
 and proxies the Vite renderer so `bindings.invoke` stays available. Do not open
 the Vite port in a browser tab; that page cannot receive desktop bindings.
 
+When the sibling `lapis-community` local registry fixture has been initialized,
+the development launcher automatically configures the desktop registry and the
+Community plugin for its Docker relay at `ws://registry.localhost:8281`. Explicit
+`VITE_LAPIS_NOSTR_*` values take precedence. Set `LAPIS_RELAY_PORT` when the
+local stack uses a non-default port.
+
 The **View** menu reloads the window, tries `openDevtools()`, and shows
 captured renderer errors. The OS webview backend cannot host in-app DevTools, so
 use the CEF debug command for the in-app **View → Toggle Developer Tools**

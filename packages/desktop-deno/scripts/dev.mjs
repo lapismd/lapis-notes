@@ -23,6 +23,7 @@ import {
   createDesktopTelemetryEnvironment,
   isDesktopTelemetryRequested,
 } from "./telemetry-env.mjs";
+import { resolveDesktopLocalRegistryEnvironment } from "./local-registry-env.mjs";
 import packageManifest from "../package.json" with { type: "json" };
 
 const homeDeno = path.join(process.env.HOME ?? "", ".deno", "bin", "deno");
@@ -33,6 +34,11 @@ const packageRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const localRegistry = await resolveDesktopLocalRegistryEnvironment(
+  process.env,
+  packageRoot,
+);
+Object.assign(process.env, localRegistry.values);
 const desktopConfig = JSON.parse(
   await readFile(path.join(packageRoot, "deno.json"), "utf8"),
 );
@@ -228,6 +234,9 @@ const server = await createServer({
 await server.listen();
 const address = "http://127.0.0.1:1422";
 console.log(`Deno desktop renderer: ${address}`);
+if (localRegistry.source === "local-fixture") {
+  console.log(`Deno desktop local Nostr relay: ${localRegistry.relayUrl}`);
+}
 if (telemetryEnabled) {
   console.log(
     `Deno desktop telemetry: Grafana http://localhost:3000, OTLP ${desktopEnvironment.OTEL_EXPORTER_OTLP_ENDPOINT}`,

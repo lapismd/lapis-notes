@@ -71,7 +71,10 @@ Framework backend so renderer DevTools can inspect the real bound desktop
 document rather than an unbound browser tab. When Deno Desktop needs embedded
 source inputs that are not available as published packages, the launcher may
 prepare ignored package-local files only for declared owned sources and refuses
-to replace an existing non-owned path.
+to replace an existing non-owned path. When the sibling Community registry
+fixture exists, the launcher derives its public relay and curator configuration
+for both the registry adapter and Community default scope; explicit build
+configuration remains authoritative.
 The pre-renderer boot document is part of the same desktop boundary and owns
 only transient startup presentation. It shows only the centred Lapis logo while
 the Svelte renderer and native bridge initialize, exposes the loading state to
