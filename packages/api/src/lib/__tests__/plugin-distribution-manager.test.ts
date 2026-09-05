@@ -10,10 +10,12 @@ import {
   type PluginCatalogIndex,
   type PluginInstallProgressEvent,
   type PluginReleaseManifest,
+  type PluginRegistryAdapter,
   type PluginRevocationIndex,
   type SignatureRecord,
   type SignedEnvelope,
   type TrustedSigningKey,
+  verifyPluginBundlePayload,
 } from "../plugin-distribution";
 import { InMemoryDataAdapter } from "./data-adapter-conformance";
 
@@ -105,6 +107,99 @@ describe("DefaultPluginDistributionManager", () => {
           typeof event.fileCount === "number",
       ),
     ).toBe(true);
+  });
+
+  it("merges Nostr and HTTP sources and installs through the owning adapter", async () => {
+    const fixture = await createManagerFixture();
+    const adapter = new InMemoryDataAdapter();
+    let verifiedBundleRequests = 0;
+    const nostrSource = {
+      ...fixture.source,
+      id: "lapis-nostr",
+      name: "Lapis Nostr Registry",
+      kind: "nostr" as const,
+      url: "nostr://lapis-plugins",
+      relays: ["wss://one.example", "wss://two.example"],
+      curatorPubkeys: ["a".repeat(64)],
+      installQuorum: 2,
+    };
+    const nostrAdapter: PluginRegistryAdapter = {
+      refresh: async () => ({
+        index: fixture.index,
+        revocations: fixture.revocations,
+        installReady: true,
+      }),
+      getDetail: async () => fixture.detail,
+      getVerifiedBundle: async (_source, _entry, _detail, version) => {
+        verifiedBundleRequests += 1;
+        return verifyPluginBundlePayload({
+          bundle: fixture.bundles[version]!,
+          trustedKeys: [fixture.trustedKey],
+        });
+      },
+    };
+    const manager = new DefaultPluginDistributionManager({
+      adapter,
+      appVersion: "0.20.0",
+      platform: "web",
+      registries: [nostrSource, fixture.source],
+      registryAdapters: { nostr: nostrAdapter },
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch(fixture.responses),
+    });
+
+    await expect(manager.refreshCatalog()).resolves.toMatchObject({
+      plugins: [{ id: "lapis-docs" }],
+      registries: {
+        "lapis-nostr": { trustTier: "official" },
+        "lapis-official": { trustTier: "official" },
+      },
+    });
+    expect(manager.listSources()).toMatchObject([
+      { source: { id: "lapis-nostr" }, phase: "ready", installReady: true },
+      { source: { id: "lapis-official" }, phase: "ready", installReady: true },
+    ]);
+    await expect(manager.install("lapis-docs")).resolves.toMatchObject({
+      pluginId: "lapis-docs",
+      registryId: "lapis-nostr",
+    });
+    expect(verifiedBundleRequests).toBe(1);
+  });
+
+  it("keeps a partial-quorum Nostr catalog browseable but not installable", async () => {
+    const fixture = await createManagerFixture();
+    const nostrAdapter: PluginRegistryAdapter = {
+      refresh: async () => ({
+        index: fixture.index,
+        installReady: false,
+        message: "One of two relays answered",
+      }),
+      getDetail: async () => fixture.detail,
+      getVerifiedBundle: async () => {
+        throw new Error("must not fetch");
+      },
+    };
+    const manager = new DefaultPluginDistributionManager({
+      adapter: new InMemoryDataAdapter(),
+      appVersion: "0.20.0",
+      platform: "web",
+      registries: [
+        {
+          ...fixture.source,
+          id: "lapis-nostr",
+          kind: "nostr",
+          url: "nostr://lapis-plugins",
+        },
+      ],
+      registryAdapters: { nostr: nostrAdapter },
+      trustedKeys: [fixture.trustedKey],
+    });
+
+    await manager.refreshCatalog();
+    expect(manager.search()).toHaveLength(1);
+    await expect(manager.install("lapis-docs")).rejects.toThrow(
+      "has not reached install quorum",
+    );
   });
 
   it("installs local .lapis-plugin bundles through the manager", async () => {
@@ -586,6 +681,9 @@ const createManagerFixture = async (
         JSON.stringify(detail),
     },
     bundles,
+    index,
+    detail,
+    revocations,
   };
 };
 

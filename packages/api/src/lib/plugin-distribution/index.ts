@@ -6,6 +6,7 @@ export * from "./hashes";
 export * from "./installed-plugin-state";
 export * from "./installer";
 export * from "./manager";
+export * from "./nostr-registry-adapter";
 export * from "./path-safety";
 export * from "./plugin-markdown";
 export * from "./plugin-bundle";

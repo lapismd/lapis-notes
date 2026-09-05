@@ -30,9 +30,24 @@ export interface ParsePluginBundleOptions {
 export const parsePluginBundle = (
   input: ArrayBuffer | Uint8Array,
   options: ParsePluginBundleOptions = {},
+): Map<string, Uint8Array> => parsePluginArchive(input, options, true);
+
+/** Parse the deterministic inner payload used by Nostr proof bundles. */
+export const parsePluginPayload = (
+  input: ArrayBuffer | Uint8Array,
+  options: ParsePluginBundleOptions = {},
+): Map<string, Uint8Array> => parsePluginArchive(input, options, false);
+
+const parsePluginArchive = (
+  input: ArrayBuffer | Uint8Array,
+  options: ParsePluginBundleOptions,
+  requireSignedManifest: boolean,
 ): Map<string, Uint8Array> => {
   const bytes = toUint8(input);
-  const expectedEntries = inspectPluginBundleMetadata(bytes);
+  const expectedEntries = inspectPluginBundleMetadata(
+    bytes,
+    requireSignedManifest,
+  );
   const entries = new Map<string, Uint8Array>();
   let seenFileCount = 0;
   let processedBytes = 0;
@@ -128,7 +143,10 @@ export const parsePluginBundle = (
       );
     }
   }
-  if (!entries.has(PLUGIN_BUNDLE_RELEASE_MANIFEST_PATH)) {
+  if (
+    requireSignedManifest &&
+    !entries.has(PLUGIN_BUNDLE_RELEASE_MANIFEST_PATH)
+  ) {
     throw invalidBundle(".lapis-plugin bundle is missing release.signed.json.");
   }
   return entries;
@@ -136,6 +154,7 @@ export const parsePluginBundle = (
 
 const inspectPluginBundleMetadata = (
   bytes: Uint8Array,
+  requireSignedManifest: boolean,
 ): PluginBundleEntryMetadata[] => {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const eocdOffset = findEndOfCentralDirectory(view);
@@ -227,17 +246,26 @@ const inspectPluginBundleMetadata = (
     (left, right) => left.localHeaderOffset - right.localHeaderOffset,
   );
   const firstEntry = localOrder[0];
-  if (firstEntry?.path !== PLUGIN_BUNDLE_RELEASE_MANIFEST_PATH) {
+  if (
+    requireSignedManifest &&
+    firstEntry?.path !== PLUGIN_BUNDLE_RELEASE_MANIFEST_PATH
+  ) {
     throw invalidBundle(
       ".lapis-plugin bundle must store release.signed.json as the first entry.",
     );
   }
-  if (firstEntry.compressionMethod !== PLUGIN_BUNDLE_STORED_METHOD) {
+  if (
+    requireSignedManifest &&
+    firstEntry.compressionMethod !== PLUGIN_BUNDLE_STORED_METHOD
+  ) {
     throw invalidBundle(
       ".lapis-plugin release.signed.json entry must be stored.",
     );
   }
-  if (!seenPaths.has(PLUGIN_BUNDLE_RELEASE_MANIFEST_PATH)) {
+  if (
+    requireSignedManifest &&
+    !seenPaths.has(PLUGIN_BUNDLE_RELEASE_MANIFEST_PATH)
+  ) {
     throw invalidBundle(".lapis-plugin bundle is missing release.signed.json.");
   }
   return localOrder;

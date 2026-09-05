@@ -7,7 +7,6 @@
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import Upload from "@lucide/svelte/icons/upload";
   import {
-    DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE,
     fetchVerifiedPluginMarkdown,
     isAbortError,
     Notice,
@@ -18,6 +17,7 @@
     type PluginCatalogDetail,
     type PluginCatalogEntry,
     type PluginDownloadStatsSummary,
+    type PluginRegistrySourceState,
     type PluginUpdateInfo,
   } from "@lapis-notes/api";
   import * as AlertDialog from "@lapismd/design-core/shadcn/alert-dialog";
@@ -57,6 +57,9 @@
   let installed = $state<InstalledPluginRecord[]>([]);
   let updates = $state<PluginUpdateInfo[]>([]);
   let downloadStats = $state<PluginDownloadStatsSummary | null>(null);
+  let registrySources = $state<readonly PluginRegistrySourceState[]>(
+    app.pluginDistribution.listSources(),
+  );
   let lastError = $state<Error | null>(null);
   let initialLoading = $state(true);
   let refreshing = $state(false);
@@ -325,6 +328,7 @@
       lastError = error instanceof Error ? error : new Error(String(error));
       new Notice(`Plugin registry unavailable: ${errorMessage(lastError)}`);
     } finally {
+      registrySources = app.pluginDistribution.listSources();
       initialLoading = false;
       refreshing = false;
     }
@@ -1075,26 +1079,44 @@
 
     <Tabs.Content value="sources" class="lapis-plugin-registry__content">
       <div class="lapis-plugin-registry__rows">
-        <PluginRegistryRow
-          id={DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.id}
-          name={DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.name}
-          description={DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE.url}
-          metadata={["Built-in source", "Read only"]}
-          badges={[
-            { label: "Enabled" },
-            { label: "Official", tone: "official" },
-            { label: "Locked" },
-          ]}
-          status={lastError
-            ? { label: "Source problem", reason: errorMessage(lastError), tone: "warning" }
-            : { label: "Available", tone: "success" }}
-        >
-          {#snippet actions()}
-            {#if lastError}
-              <Button.Root size="sm" variant="outline" onclick={() => void refresh(true)}><RefreshCw />Retry</Button.Root>
-            {/if}
-          {/snippet}
-        </PluginRegistryRow>
+        {#each registrySources as sourceState (sourceState.source.id)}
+          {@const source = sourceState.source}
+          {@const isNostr = source.kind === "nostr"}
+          <PluginRegistryRow
+            id={source.id}
+            name={source.name}
+            description={source.url}
+            metadata={[
+              ...(source.builtin ? ["Built-in source"] : []),
+              isNostr
+                ? `${source.relays?.length ?? 0} relay${source.relays?.length === 1 ? "" : "s"}`
+                : "HTTPS registry",
+              "Read only",
+            ]}
+            badges={[
+              { label: source.enabled ? "Enabled" : "Disabled" },
+              ...(isNostr ? [{ label: "Nostr", tone: "community" as const }] : []),
+              {
+                label: source.trustTier === "official" ? "Official" : "Community",
+                tone: source.trustTier === "official" ? "official" as const : "community" as const,
+              },
+              ...(source.builtin ? [{ label: "Locked" }] : []),
+            ]}
+            status={!source.enabled
+              ? { label: "Disabled" }
+              : sourceState.phase === "error"
+                ? { label: "Source problem", reason: sourceState.message, tone: "warning" }
+                : isNostr && !sourceState.installReady
+                  ? { label: "Browse only", reason: sourceState.message ?? "Relay install quorum has not been reached", tone: "warning" }
+                  : { label: isNostr ? "Install quorum ready" : "Available", tone: "success" }}
+          >
+            {#snippet actions()}
+              {#if source.enabled && (sourceState.phase === "error" || !sourceState.installReady)}
+                <Button.Root size="sm" variant="outline" onclick={() => void refresh(true)}><RefreshCw />Retry</Button.Root>
+              {/if}
+            {/snippet}
+          </PluginRegistryRow>
+        {/each}
       </div>
     </Tabs.Content>
   </Tabs.Root>

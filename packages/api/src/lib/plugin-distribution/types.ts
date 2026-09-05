@@ -6,15 +6,34 @@ export type PluginProvenance =
   | "development";
 
 export type RegistryTrustTier = "official" | "community" | "local";
+export type PluginRegistrySourceKind = "http" | "nostr";
 
 export interface PluginRegistrySource {
   id: string;
   name: string;
+  /** Omitted by legacy sources and treated as `http`. */
+  kind?: PluginRegistrySourceKind;
   url: string;
   downloadStatsUrl?: string;
+  relays?: string[];
+  curatorPubkeys?: string[];
+  installQuorum?: number;
   trustTier: RegistryTrustTier;
   enabled: boolean;
   builtin?: boolean;
+}
+
+export type PluginRegistrySourcePhase =
+  | "idle"
+  | "ready"
+  | "degraded"
+  | "error";
+
+export interface PluginRegistrySourceState {
+  source: PluginRegistrySource;
+  phase: PluginRegistrySourcePhase;
+  installReady: boolean;
+  message?: string;
 }
 
 export type PluginRegistryChannel = "official" | "community";
@@ -166,6 +185,7 @@ export interface PluginCatalogRelease {
 
 export interface RemoteFileReference {
   url: string;
+  downloadUrl?: string;
   sha256: string;
   size?: number;
 }
@@ -315,6 +335,12 @@ export interface InstalledPluginRecord {
   }>;
   runtimeWarnings?: PluginReleaseRuntimeDiagnostic[];
   signature?: SignatureRecord;
+  nostrProof?: {
+    authorizationEventId: string;
+    releaseEventId: string;
+    decisionEventId: string;
+    manifestSha256: string;
+  };
   revoked?: PluginRevocationRecord;
   restartRequired?: boolean;
   [key: string]: unknown;

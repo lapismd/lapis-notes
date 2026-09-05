@@ -406,6 +406,42 @@ Released 1 August 2026.
     async getDownloadStats() {
       return downloadStats;
     },
+    listSources() {
+      return [
+        {
+          source: {
+            id: "lapis-nostr",
+            name: "Lapis Nostr Registry",
+            kind: "nostr",
+            url: "nostr://lapis-plugins",
+            relays: [
+              "wss://registry-1.lapis.md",
+              "wss://registry-2.lapis.md",
+              "wss://registry-3.lapis.md",
+            ],
+            curatorPubkeys: ["a".repeat(64)],
+            installQuorum: 2,
+            trustTier: "official",
+            enabled: true,
+            builtin: true,
+          },
+          phase: "ready",
+          installReady: true,
+        },
+        {
+          source: {
+            id: "lapis-official",
+            name: "Lapis Official Plugins",
+            url: "https://registry.lapis.md/v1/index.json",
+            trustTier: "official",
+            enabled: true,
+            builtin: true,
+          },
+          phase: "ready",
+          installReady: true,
+        },
+      ];
+    },
     search(query = {}) {
       const text = query.text?.trim().toLowerCase() ?? "";
       return catalog.filter((entry) =>

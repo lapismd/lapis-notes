@@ -121,12 +121,16 @@ export const EmptyTabsAndSources: Story = {
       "active",
     );
     await expect(canvas.getByText("Lapis Official Plugins")).toBeVisible();
+    await expect(canvas.getByText("Lapis Nostr Registry")).toBeVisible();
+    await expect(canvas.getByText("3 relays")).toBeVisible();
+    await expect(canvas.getByText("Install quorum ready")).toBeVisible();
+    await expect(canvas.getByText("Nostr", { selector: "span" })).toBeVisible();
     await expect(
-      canvas.getByText("Official", { selector: "span" }),
-    ).toBeVisible();
+      canvas.getAllByText("Official", { selector: "span" }),
+    ).toHaveLength(2);
     await expect(
-      canvas.getByText("Locked", { selector: "span" }),
-    ).toBeVisible();
+      canvas.getAllByText("Locked", { selector: "span" }),
+    ).toHaveLength(2);
   },
 };
 

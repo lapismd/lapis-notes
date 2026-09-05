@@ -185,6 +185,7 @@ entrypoints.
 | LN-PKG-144 | Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition. |
 | LN-PKG-145 | Private `@lapis-notes/server-deno` MUST own the authenticated Deno server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, deployment packaging, and the browser adapter that translates public vault semantics into managed server requests. It MUST consume public Lapis interfaces and private Deno host services. |
 | LN-PKG-146 | The generated plugin host-module catalogue MUST include the public `@lapis-notes/api/workspace-host` export for Web and desktop renderer runtimes. Runtime validation and host import maps MUST consume that same public specifier so a signed plugin dependency cannot be accepted by one boundary and omitted by another. |
+| LN-PKG-147 | `@lapis-notes/api` MUST own the transport-neutral multi-source plugin registry adapter and verified-payload handoff. The Workspace package MAY render source state through that public contract but MUST NOT import a Nostr protocol implementation, relay client, curator policy, or private key API. |
 
 The private host-services package exports root-bound filesystem execution,
 portable path and error handling, file-watch mapping, vault-resource and plugin

@@ -65,6 +65,7 @@ export const trustedSigningKeySchema = z.object({
 export const remoteFileReferenceSchema = z
   .object({
     url: urlOrRelative,
+    downloadUrl: urlOrRelative.optional(),
     sha256,
     size: z.number().int().nonnegative().optional(),
   })
@@ -421,6 +422,14 @@ export const installedPluginRecordSchema = z
     ),
     runtimeWarnings: z.array(pluginReleaseRuntimeDiagnosticSchema).optional(),
     signature: signatureRecordSchema.optional(),
+    nostrProof: z
+      .object({
+        authorizationEventId: nonEmpty,
+        releaseEventId: nonEmpty,
+        decisionEventId: nonEmpty,
+        manifestSha256: sha256,
+      })
+      .optional(),
     revoked: pluginRevocationRecordSchema.optional(),
     restartRequired: z.boolean().optional(),
   })
