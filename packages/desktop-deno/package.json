@@ -2,7 +2,7 @@
   "name": "@lapis-notes/desktop-deno",
   "productName": "Lapis Notes",
   "private": true,
-  "license": "AGPL-3.0-or-later",
+  "license": "Apache-2.0",
   "version": "2026.31.5",
   "description": "Deno desktop host for Lapis Notes",
   "author": "Lapis Notes contributors",

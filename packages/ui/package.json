@@ -2,7 +2,7 @@
   "name": "@lapis-notes/ui",
   "version": "0.1.0",
   "description": "Public UI primitives required by Lapis Notes API consumers",
-  "license": "AGPL-3.0-or-later",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lapismd/lapis-notes.git",

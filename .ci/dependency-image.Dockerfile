@@ -11,6 +11,6 @@ FROM ${LAPIS_CI_IMAGE}
 LABEL org.opencontainers.image.title="Lapis Notes CI dependencies" \
       org.opencontainers.image.description="Lockfile-specific pnpm store for Lapis Notes validation" \
       org.opencontainers.image.source="https://github.com/lapismd/lapis-notes" \
-      org.opencontainers.image.licenses="AGPL-3.0-or-later"
+      org.opencontainers.image.licenses="Apache-2.0"
 COPY --from=fetch /pnpm/store /pnpm/store
 WORKDIR /workspace

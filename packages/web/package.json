@@ -2,7 +2,7 @@
   "name": "@lapis-notes/web",
   "private": true,
   "version": "2026.6.3",
-  "license": "AGPL-3.0-or-later",
+  "license": "Apache-2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

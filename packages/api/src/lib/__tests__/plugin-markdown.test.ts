@@ -43,7 +43,7 @@ describe("structured plugin catalog metadata", () => {
         url: "https://github.com/lapismd",
       },
       latestVersion: "0.1.0",
-      license: "AGPL-3.0-or-later",
+      license: "Apache-2.0",
       links: {
         repository: "https://github.com/lapismd/lapis-plugins",
         documentation: "https://lapis.md/plugins/example",
