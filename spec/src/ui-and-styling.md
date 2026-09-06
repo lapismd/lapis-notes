@@ -1,5 +1,9 @@
 # UI and Styling
 
+Design Core styling and components resolve through the repository's current
+published semver range and committed lockfile, with source fixes remaining in
+the owning package.
+
 ## Requirements
 
 | ID        | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |

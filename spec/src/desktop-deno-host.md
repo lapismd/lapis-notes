@@ -1,5 +1,8 @@
 # Deno Desktop Host
 
+Desktop presentation resolves Design Core through the repository's current
+published semver range and committed lockfile, not a sibling checkout.
+
 The Deno desktop host is the sole native Lapis Notes application. It requires
 Deno 2.9.5+ `deno desktop` and reuses `NativeDesktopBridge`, `WorkspaceShell`,
 and first-party plugins without copying their implementation. The private

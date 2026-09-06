@@ -1,5 +1,8 @@
 # Packages
 
+Public packages that consume Design Core keep their portable semver ranges and
+the workspace lockfile on the repository's current supported npm release.
+
 The API package owns `AppDatabase` contracts and transport-neutral
 metadata/revision types. The Deno desktop host owns native connections and
 bounded bindings; domain persistence remains API-owned.

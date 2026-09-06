@@ -1,5 +1,8 @@
 # Workspace Shell
 
+Workspace shell composition resolves Design Core through the current published
+semver range recorded in package manifests and the committed lockfile.
+
 The shell renders the generated `dailyNotes.folder` and
 `dailyNotes.dateFormat` configuration controls supplied by the API schema. It
 does not choose daily-note paths or interpret occurrence observations.

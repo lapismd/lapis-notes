@@ -1,5 +1,9 @@
 # Architecture
 
+Design Core-dependent surfaces follow the repository's portable published
+semver boundary; dependency refreshes update manifests and the lockfile without
+introducing sibling source paths.
+
 Production generated state now uses direct, row-scoped Turso access with typed
 post-commit revisions. Memory remains the explicit test and Storybook provider;
 renderer transports relay the database revision contract without owning domain

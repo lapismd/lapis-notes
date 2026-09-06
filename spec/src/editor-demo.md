@@ -1,5 +1,8 @@
 # Lapis Editor Demo
 
+The demo resolves its Design Core presentation through the same portable npm
+range and committed lockfile as the production hosts.
+
 The real-App demo consumes the application-owned Notes profile, so API-registered
 Markdown contributions and the full-file provider exercise the same lifecycle
 and public package boundary as production hosts. The provider establishes the

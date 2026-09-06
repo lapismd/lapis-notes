@@ -1,5 +1,8 @@
 # Explorer Plugin
 
+Explorer resolves Design Core through its portable published semver range and
+the shared committed lockfile rather than a sibling source path.
+
 Public `@lapis-notes/file-explorer@0.1.0` owns the reusable Explorer view and its canonical
 command opener. Vault, file-manager, workspace navigation, and editor-demo
 requirements remain defined at their owning API and host boundaries.

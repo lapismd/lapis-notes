@@ -1,5 +1,8 @@
 # Plugin Model
 
+Plugin-facing Design Core presentation resolves through the host's portable npm
+range and committed lockfile; dependency refreshes do not expand the host API.
+
 Markdown extensions and file-surface providers use the normal `Plugin`
 lifecycle. Registration is plugin-scoped and automatic teardown removes each
 contribution without adding another loader or contribution manifest.

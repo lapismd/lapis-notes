@@ -1,5 +1,8 @@
 # Deno Server Host
 
+Server-rendered application presentation resolves Design Core through the
+repository's portable npm range and committed lockfile.
+
 The Deno server host provides an authenticated, online Lapis runtime over the
 same public vault-session and `AppDatabase` boundaries used by the desktop and
 browser hosts. It serves a dedicated Web build and managed vault directories;

@@ -1,5 +1,8 @@
 # Web Host
 
+Web presentation resolves Design Core through the repository's portable npm
+range and committed lockfile, matching the desktop application boundary.
+
 Web session construction registers the shared daily-document provider before
 configuration load and disposes it with the application. Browser storage does
 not alter the provider's canonical front-matter-first lookup semantics.

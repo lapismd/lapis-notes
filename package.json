@@ -125,7 +125,7 @@
     "@lapis-notes/wordcount": "^0.1.1",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/design-core": "^0.1.0",
+    "@lapismd/design-core": "^0.1.2",
     "@lapismd/mira": "^0.0.1",
     "@lapismd/mira-editor": "^0.0.1",
     "@lapismd/mira-plugin-ai": "^0.0.1",
