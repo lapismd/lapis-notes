@@ -1,4 +1,6 @@
 import type { PluginProfile } from "@lapis-notes/api";
+import { CommunityPlugin } from "@lapis-notes/community";
+import communityStyles from "@lapis-notes/community/styles.css?inline";
 import { FileExplorerPlugin } from "@lapis-notes/file-explorer";
 import { MarkdownPlugin } from "@lapis-notes/markdown";
 import markdownStyles from "@lapis-notes/markdown/styles.css?inline";
@@ -41,5 +43,11 @@ export const notesPluginProfile = [
     required: false,
     enabledByDefault: true,
     styles: searchStyles,
+  },
+  {
+    plugin: CommunityPlugin,
+    required: false,
+    enabledByDefault: true,
+    styles: communityStyles,
   },
 ] as const satisfies PluginProfile;
