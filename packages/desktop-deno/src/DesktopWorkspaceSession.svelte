@@ -528,6 +528,7 @@
         runtime: bridge.runtime,
         vault: app.vault.getName(),
         plugins: [...app.plugins.plugins.keys()].sort(),
+        pluginDiagnostics: app.plugins.communityPluginDiagnostics,
         database: app.appDatabase.descriptor,
         capabilities: bridge.capabilities,
         protocol: globalThis.location.protocol,

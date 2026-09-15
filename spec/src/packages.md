@@ -40,8 +40,11 @@ production hosts are Deno desktop and web. Root `dev:desktop`,
 `dev:desktop:cef`, `build:desktop`, `package:desktop`, and
 `test:desktop:packaged` scripts select and exercise the Deno package.
 The Web and Deno packages share the same renderer dependency-optimization
-boundary for registry-installed plugins. Deep Mira modules and their transitive
-CommonJS dependencies cross that boundary as one package-level pre-bundle.
+boundary for registry-installed plugins. They also own plugin import-map proxy
+entries for declared shared API modules, so installed browser ESM plugins
+consume the same `@lapis-notes/api` and workspace-host runtime as the
+application. Deep Mira modules and their transitive CommonJS dependencies cross
+that boundary as one package-level pre-bundle.
 The local release-candidate installer preserves the committed registry
 lockfile, reuses a matching verified install, and invalidates generated Vite
 and Storybook caches when its package fingerprint changes.
@@ -190,7 +193,7 @@ entrypoints.
 | LN-PKG-143 | Release candidates MUST reuse the validated Turbo build graph and generate npm tarballs through an explicit already-built path. Publication MUST continue to require the downloaded immutable candidate, explicit manual dispatch, protected environment, OIDC, checksum verification, and existing bootstrap stop. |
 | LN-PKG-144 | Private `@lapis-notes/deno-host-services` MUST own reusable Deno filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels. It MUST NOT own desktop windows, server authentication, HTTP routing, vault selection, or Web composition. |
 | LN-PKG-145 | Private `@lapis-notes/server-deno` MUST own the authenticated Deno server, managed-vault control database, tRPC router, direct data routes, static server-mode Web delivery, lifecycle, deployment packaging, and the browser adapter that translates public vault semantics into managed server requests. It MUST consume public Lapis interfaces and private Deno host services. |
-| LN-PKG-146 | The generated plugin host-module catalogue MUST include the public `@lapis-notes/api/workspace-host` export for Web and desktop renderer runtimes. Runtime validation and host import maps MUST consume that same public specifier so a signed plugin dependency cannot be accepted by one boundary and omitted by another. |
+| LN-PKG-146 | The generated plugin host-module catalogue MUST include the public `@lapis-notes/api/workspace-host` export for Web and desktop renderer runtimes. Runtime validation and host import maps MUST consume the same public specifiers, and browser ESM hosts MUST map declared shared API modules to host-owned singleton entries. |
 | LN-PKG-147 | `@lapis-notes/api` MUST own the transport-neutral multi-source plugin registry adapter and verified-payload handoff and MUST expose the host composition boundary through a lightweight public `plugin-distribution-host` subpath. The application profile MAY bind the published Community NIP-29 source and proof verifier to that subpath. The Workspace package MAY render source state through the public contract but MUST NOT import a Nostr protocol implementation, relay client, curator policy, or private key API. |
 | LN-PKG-148 | `@lapis-notes/api` MAY advertise a transport-neutral `nostr-signer` native capability but MUST NOT implement OS credential storage or Nostr cryptography. The private Deno desktop host MUST own its keychain, NIP-46, native signing service, renderer broker, and direct `nostr-tools` runtime dependency. |
 

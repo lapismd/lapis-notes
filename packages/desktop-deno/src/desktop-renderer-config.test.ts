@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  rendererPluginImportMap,
   rendererOptimizeDependencyExclusions,
   rendererOptimizeDependencyInclusions,
   rendererSingletonPackages,
@@ -23,6 +24,15 @@ describe("Deno desktop renderer configuration", () => {
 
   it("deduplicates the API state shared with packed plugins", () => {
     expect(rendererSingletonPackages).toContain("@lapis-notes/api");
+  });
+
+  it("maps packed plugin shared API imports to desktop host modules", () => {
+    expect(rendererPluginImportMap).toEqual({
+      imports: {
+        "@lapis-notes/api": "/plugin-host-api.js",
+        "@lapis-notes/api/workspace-host": "/plugin-host-workspace-host.js",
+      },
+    });
   });
 
   it("keeps registry Svelte component CSS in its compiled module", () => {
