@@ -34,11 +34,13 @@
     "markdownlint": "npm:markdownlint@0.40.0",
     "markdownlint/sync": "npm:markdownlint@0.40.0/sync",
     "ws": "npm:ws@8.18.3",
-    "zod": "npm:zod@3.25.76"
+    "zod": "npm:zod@3.25.76",
+    "nostr-tools": "npm:nostr-tools@2.25.2",
+    "nostr-tools/": "npm:nostr-tools@2.25.2/"
   },
   "tasks": {
-    "dev": "deno desktop --quiet --hmr --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
-    "start": "deno desktop --quiet --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
+    "dev": "deno desktop --config deno.json --quiet --hmr --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
+    "start": "deno desktop --config deno.json --quiet --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
   },
   "compilerOptions": {
     "strict": true,

@@ -66,6 +66,8 @@ async function buildDesktopOutput(plan, output) {
   await rm(output, { force: true, recursive: true });
   await run(resolveDenoExecutable(), [
     "desktop",
+    "--config",
+    "deno.json",
     "--output",
     output,
     "--target",

@@ -47,6 +47,7 @@ describe("Deno desktop development command", () => {
     const args = createDenoDesktopDevArgs();
 
     expect(args).toContain("desktop");
+    expect(args).toEqual(expect.arrayContaining(["--config", "deno.json"]));
     expect(args).toContain("--quiet");
     expect(args).toContain("--hmr");
     expect(args).not.toContain("--inspect=127.0.0.1:9229");

@@ -26,6 +26,8 @@ export function resolveDenoDesktopInspector(value, telemetryEnabled = false) {
 export function createDenoDesktopDevArgs(backend, options = {}) {
   return [
     "desktop",
+    "--config",
+    "deno.json",
     "--quiet",
     "--hmr",
     ...(options.icon ? ["--icon", options.icon] : []),
