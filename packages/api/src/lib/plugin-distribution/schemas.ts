@@ -456,6 +456,20 @@ export const installedPluginsStateSchema = z
   })
   .passthrough();
 
+export const pluginRegistrySourcePreferenceSchema = z
+  .object({
+    enabled: z.boolean(),
+  })
+  .passthrough();
+
+export const pluginRegistrySourcePreferencesStateSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    updatedAt: isoDate,
+    sources: z.record(pluginRegistrySourcePreferenceSchema),
+  })
+  .passthrough();
+
 export const parsePluginDistributionMetadata = <T>(
   schema: z.ZodType<T>,
   value: unknown,

@@ -46,10 +46,11 @@ describe("Notes Nostr plugin distribution", () => {
 
     const binding = createNotesNostrPluginDistribution(configuration!);
     expect(binding.options.registries).toMatchObject([
-      { id: "lapis-official" },
+      { id: "lapis-official", enabled: true },
       {
         id: "lapis-nostr",
         kind: "nostr",
+        enabled: true,
         relays: ["wss://one.example", "wss://two.example"],
         curatorPubkeys: ["a".repeat(64)],
         installQuorum: 2,

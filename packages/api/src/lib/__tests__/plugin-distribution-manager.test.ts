@@ -156,14 +156,87 @@ describe("DefaultPluginDistributionManager", () => {
       },
     });
     expect(manager.listSources()).toMatchObject([
-      { source: { id: "lapis-nostr" }, phase: "ready", installReady: true },
-      { source: { id: "lapis-official" }, phase: "ready", installReady: true },
+      {
+        source: { id: "lapis-nostr", enabled: true },
+        phase: "ready",
+        installReady: true,
+      },
+      {
+        source: { id: "lapis-official", enabled: true },
+        phase: "ready",
+        installReady: true,
+      },
     ]);
     await expect(manager.install("lapis-docs")).resolves.toMatchObject({
       pluginId: "lapis-docs",
       registryId: "lapis-nostr",
     });
     expect(verifiedBundleRequests).toBe(1);
+  });
+
+  it("persists registry source toggles independently", async () => {
+    const fixture = await createManagerFixture();
+    const adapter = new InMemoryDataAdapter();
+    const nostrSource = {
+      ...fixture.source,
+      id: "lapis-nostr",
+      name: "Lapis Nostr Registry",
+      kind: "nostr" as const,
+      url: "nostr://lapis-plugins",
+      relays: ["wss://one.example", "wss://two.example"],
+      curatorPubkeys: ["a".repeat(64)],
+      installQuorum: 2,
+    };
+    const nostrAdapter: PluginRegistryAdapter = {
+      refresh: async () => ({ index: fixture.index, installReady: true }),
+      getDetail: async () => fixture.detail,
+    };
+    const manager = new DefaultPluginDistributionManager({
+      adapter,
+      appVersion: "0.20.0",
+      platform: "web",
+      registries: [fixture.source, nostrSource],
+      registryAdapters: { nostr: nostrAdapter },
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch(fixture.responses),
+    });
+
+    await manager.setSourceEnabled("lapis-nostr", false);
+
+    expect(manager.listSources()).toMatchObject([
+      { source: { id: "lapis-official", enabled: true } },
+      { source: { id: "lapis-nostr", enabled: false } },
+    ]);
+    await expect(
+      adapter.read(".obsidian/plugin-registry-sources.json"),
+    ).resolves.toContain('"lapis-nostr"');
+
+    const reloaded = new DefaultPluginDistributionManager({
+      adapter,
+      appVersion: "0.20.0",
+      platform: "web",
+      registries: [fixture.source, nostrSource],
+      registryAdapters: { nostr: nostrAdapter },
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch(fixture.responses),
+    });
+
+    await expect(reloaded.refreshCatalog()).resolves.toMatchObject({
+      registries: {
+        "lapis-official": { trustTier: "official" },
+      },
+      plugins: [{ id: "lapis-docs" }],
+    });
+    expect(reloaded.listSources()).toMatchObject([
+      { source: { id: "lapis-official", enabled: true }, phase: "ready" },
+      { source: { id: "lapis-nostr", enabled: false }, phase: "idle" },
+    ]);
+
+    await reloaded.setSourceEnabled("lapis-nostr", true);
+    expect(reloaded.listSources()).toMatchObject([
+      { source: { id: "lapis-official", enabled: true } },
+      { source: { id: "lapis-nostr", enabled: true } },
+    ]);
   });
 
   it("keeps a partial-quorum Nostr catalog browseable but not installable", async () => {

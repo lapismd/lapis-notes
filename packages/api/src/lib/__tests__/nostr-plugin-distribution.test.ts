@@ -124,9 +124,17 @@ describe("Nostr plugin distribution", () => {
         loadIndex: async () => ({
           schemaVersion: 1,
           generatedAt: "2026-09-05T00:00:00.000Z",
-          plugins: [catalogEntry],
+          plugins: [
+            {
+              ...catalogEntry,
+              readmeUrl: "nostr://readme-event",
+            },
+          ],
         }),
-        loadPluginDetail: async () => detail,
+        loadPluginDetail: async () => ({
+          ...detail,
+          readmeUrl: "README.md",
+        }),
         loadReleaseProof,
         getStatus: () => ({ installReady: true, fresh: true }),
       },
@@ -139,6 +147,12 @@ describe("Nostr plugin distribution", () => {
       stale: false,
       index: { plugins: [{ id: "community-clock" }] },
     });
+    await expect(adapter.refresh(source)).resolves.toMatchObject({
+      index: { plugins: [expect.not.objectContaining({ readmeUrl: expect.anything() })] },
+    });
+    await expect(adapter.getDetail(source, catalogEntry)).resolves.toEqual(
+      expect.not.objectContaining({ readmeUrl: expect.anything() }),
+    );
     const verified = await adapter.getVerifiedBundle!(
       source,
       catalogEntry,

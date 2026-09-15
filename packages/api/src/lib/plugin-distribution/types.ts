@@ -36,6 +36,16 @@ export interface PluginRegistrySourceState {
   message?: string;
 }
 
+export interface PluginRegistrySourcePreference {
+  enabled: boolean;
+}
+
+export interface PluginRegistrySourcePreferencesState {
+  schemaVersion: 1;
+  updatedAt: string;
+  sources: Record<string, PluginRegistrySourcePreference>;
+}
+
 export type PluginRegistryChannel = "official" | "community";
 export type PluginCatalogStatus = "active" | "pending" | "revoked";
 

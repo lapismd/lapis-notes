@@ -24,6 +24,7 @@ import {
 import type { VerifiedPluginBundlePayload } from "./plugin-bundle-verifier";
 import { PluginRegistryCache } from "./registry-cache";
 import { PluginRegistryClient } from "./registry-client";
+import { PluginRegistrySourcePreferenceStore } from "./registry-source-state";
 import type {
   InstalledPluginRecord,
   PluginCatalogDetail,
@@ -131,6 +132,7 @@ export interface PluginDistributionManager {
     force?: boolean;
   }): Promise<PluginDownloadStatsSummary | null>;
   listSources(): readonly PluginRegistrySourceState[];
+  setSourceEnabled(sourceId: string, enabled: boolean): Promise<void>;
   search(query?: PluginSearchQuery): PluginCatalogEntry[];
   getCatalogEntry(pluginId: string): PluginCatalogEntry | undefined;
   getPluginDetail(pluginId: string): Promise<PluginCatalogDetail | null>;
@@ -253,8 +255,9 @@ export class DefaultPluginDistributionManager
   private catalog: PluginCatalogIndex | null = null;
   private readonly registryClient: PluginRegistryClient;
   private readonly stateStore: InstalledPluginStateStore;
+  private readonly sourcePreferenceStore: PluginRegistrySourcePreferenceStore;
   private readonly installer: VerifiedPluginInstaller;
-  private readonly registries: PluginRegistrySource[];
+  private registries: PluginRegistrySource[];
   private readonly trustedKeys: TrustedSigningKey[];
   private readonly registryAdapters: ReadonlyMap<
     PluginRegistrySourceKind,
@@ -264,14 +267,20 @@ export class DefaultPluginDistributionManager
   private readonly entrySources = new Map<string, PluginRegistrySource>();
   private installedIds: Set<string> = new Set();
   private revocations: PluginRevocationIndex | null = null;
+  private sourcePreferencesLoaded: Promise<void> | null = null;
 
   constructor(
     private readonly options: DefaultPluginDistributionManagerOptions,
   ) {
     super();
-    this.registries = options.registries ?? DEFAULT_PLUGIN_REGISTRY_SOURCES;
+    this.registries = (options.registries ?? DEFAULT_PLUGIN_REGISTRY_SOURCES).map(
+      (source) => ({ ...source }),
+    );
     this.trustedKeys = options.trustedKeys ?? EMBEDDED_PLUGIN_REGISTRY_KEYS;
     this.stateStore = new InstalledPluginStateStore(options.adapter);
+    this.sourcePreferenceStore = new PluginRegistrySourcePreferenceStore(
+      options.adapter,
+    );
     this.registryClient = new PluginRegistryClient({
       trustedKeys: this.trustedKeys,
       fetch: options.fetch,
@@ -300,13 +309,7 @@ export class DefaultPluginDistributionManager
           entry[1] !== undefined,
       ),
     ]);
-    for (const source of this.registries) {
-      this.sourceStates.set(source.id, {
-        source,
-        phase: "idle",
-        installReady: false,
-      });
-    }
+    this.syncSourceStates();
     this.installer = new VerifiedPluginInstaller({
       adapter: options.adapter,
       trustedKeys: this.trustedKeys,
@@ -322,7 +325,10 @@ export class DefaultPluginDistributionManager
   async refreshCatalog(
     _options: { force?: boolean } = {},
   ): Promise<PluginCatalogIndex> {
+    await this.ensureSourcePreferencesLoaded();
     this.emitProgress("*", "fetching-catalog");
+    this.entrySources.clear();
+    this.syncSourceStates();
     const sources = this.registries.filter((registry) => registry.enabled);
     if (!sources.length) {
       this.catalog = {
@@ -330,6 +336,7 @@ export class DefaultPluginDistributionManager
         generatedAt: new Date(0).toISOString(),
         plugins: [],
       };
+      this.revocations = null;
       return this.catalog;
     }
     const indexes: Array<{
@@ -337,7 +344,6 @@ export class DefaultPluginDistributionManager
       result: PluginRegistryAdapterRefreshResult;
     }> = [];
     const errors: unknown[] = [];
-    this.entrySources.clear();
     for (const source of sources) {
       const adapter = this.adapterForSource(source);
       if (!adapter) {
@@ -409,6 +415,7 @@ export class DefaultPluginDistributionManager
   async getDownloadStats(
     options: { force?: boolean } = {},
   ): Promise<PluginDownloadStatsSummary | null> {
+    await this.ensureSourcePreferencesLoaded();
     for (const source of this.registries.filter((entry) => entry.enabled)) {
       const adapter = this.adapterForSource(source);
       if (!adapter?.getDownloadStats) continue;
@@ -427,6 +434,34 @@ export class DefaultPluginDistributionManager
           installReady: false,
         },
     );
+  }
+
+  async setSourceEnabled(sourceId: string, enabled: boolean): Promise<void> {
+    await this.ensureSourcePreferencesLoaded();
+    const target = this.registries.find((source) => source.id === sourceId);
+    if (!target) {
+      throw new PluginDistributionError(
+        "metadata-invalid",
+        `Registry source ${sourceId} is not configured.`,
+      );
+    }
+    this.registries = this.registries.map((source) =>
+      source.id === sourceId ? { ...source, enabled } : source,
+    );
+    this.catalog = null;
+    this.revocations = null;
+    this.entrySources.clear();
+    this.syncSourceStates();
+    await this.sourcePreferenceStore.save({
+      schemaVersion: 1,
+      updatedAt: new Date().toISOString(),
+      sources: Object.fromEntries(
+        this.registries.map((source) => [
+          source.id,
+          { enabled: source.enabled },
+        ]),
+      ),
+    });
   }
 
   search(query: PluginSearchQuery = {}): PluginCatalogEntry[] {
@@ -670,6 +705,7 @@ export class DefaultPluginDistributionManager
     payload: VerifiedPluginBundlePayload;
     source: PluginRegistrySource;
   }> {
+    await this.ensureSourcePreferencesLoaded();
     const failures: unknown[] = [];
     for (const source of this.registries.filter(
       (candidate) => candidate.enabled && this.sourceKind(candidate) === "nostr",
@@ -858,6 +894,40 @@ export class DefaultPluginDistributionManager
 
   private async isWorkspaceTrusted(): Promise<boolean> {
     return Boolean(await this.options.workspaceTrusted?.());
+  }
+
+  private ensureSourcePreferencesLoaded(): Promise<void> {
+    this.sourcePreferencesLoaded ??= this.loadSourcePreferences();
+    return this.sourcePreferencesLoaded;
+  }
+
+  private async loadSourcePreferences(): Promise<void> {
+    const preferences = await this.sourcePreferenceStore.load();
+    this.registries = this.registries.map((source) => {
+      const preference = preferences.sources[source.id];
+      return preference
+        ? { ...source, enabled: preference.enabled }
+        : { ...source };
+    });
+    this.syncSourceStates();
+  }
+
+  private syncSourceStates(): void {
+    const configuredIds = new Set(this.registries.map((source) => source.id));
+    for (const sourceId of this.sourceStates.keys()) {
+      if (!configuredIds.has(sourceId)) this.sourceStates.delete(sourceId);
+    }
+    for (const source of this.registries) {
+      const previous = this.sourceStates.get(source.id);
+      this.sourceStates.set(source.id, {
+        source,
+        phase: source.enabled ? (previous?.phase ?? "idle") : "idle",
+        installReady: source.enabled ? (previous?.installReady ?? false) : false,
+        ...(source.enabled && previous?.message
+          ? { message: previous.message }
+          : {}),
+      });
+    }
   }
 
   private async applyRevocationsToInstalled(): Promise<void> {

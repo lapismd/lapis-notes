@@ -49,8 +49,7 @@ export function createNostrPluginRegistryAdapter(
   options: CreateNostrPluginRegistryAdapterOptions,
 ): PluginRegistryAdapter {
   const fetchImpl =
-    options.fetch ??
-    ((url, init) => globalThis.fetch(url, init) as Promise<Response>);
+    options.fetch ?? ((url, init) => fetch(url, init) as Promise<Response>);
 
   return {
     async refresh(source, refreshOptions) {
@@ -59,7 +58,7 @@ export function createNostrPluginRegistryAdapter(
       }
       const index = parsePluginDistributionMetadata(
         pluginCatalogIndexSchema,
-        await options.catalogSource.loadIndex(),
+        normalizeNostrCatalogIndex(await options.catalogSource.loadIndex()),
       );
       const status = options.catalogSource.getStatus();
       return {
@@ -72,7 +71,9 @@ export function createNostrPluginRegistryAdapter(
     async getDetail(_source, entry) {
       return parsePluginDistributionMetadata(
         pluginCatalogDetailSchema,
-        await options.catalogSource.loadPluginDetail(entry),
+        normalizeNostrCatalogDetail(
+          await options.catalogSource.loadPluginDetail(entry),
+        ),
       );
     },
     async getVerifiedBundle(source, entry, detail, version, installOptions) {
@@ -171,6 +172,39 @@ export function createNostrPluginRegistryAdapter(
       };
     },
   };
+}
+
+function normalizeNostrCatalogIndex(value: unknown): unknown {
+  if (!isRecord(value) || !Array.isArray(value.plugins)) return value;
+  return {
+    ...value,
+    plugins: value.plugins.map((entry) => removeNonHttpsReadmeUrl(entry)),
+  };
+}
+
+function normalizeNostrCatalogDetail(value: unknown): unknown {
+  return removeNonHttpsReadmeUrl(value);
+}
+
+function removeNonHttpsReadmeUrl(value: unknown): unknown {
+  if (!isRecord(value)) return value;
+  const readmeUrl = value.readmeUrl;
+  if (readmeUrl === undefined || isHttpsUrl(readmeUrl)) return value;
+  const { readmeUrl: _readmeUrl, ...rest } = value;
+  return rest;
+}
+
+function isHttpsUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function requireStoredProof(

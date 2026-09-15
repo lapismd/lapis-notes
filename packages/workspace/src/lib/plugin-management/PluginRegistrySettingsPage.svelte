@@ -363,6 +363,26 @@
     }
   }
 
+  async function setRegistrySourceEnabled(
+    sourceState: PluginRegistrySourceState,
+    enabled: boolean,
+  ): Promise<void> {
+    const source = sourceState.source;
+    runningAction = `source:${source.id}`;
+    try {
+      lastError = null;
+      await app.pluginDistribution.setSourceEnabled(source.id, enabled);
+      catalogEntries = [];
+      await refresh(true);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      new Notice(`Plugin registry source update failed: ${errorMessage(lastError)}`);
+      registrySources = app.pluginDistribution.listSources();
+    } finally {
+      runningAction = null;
+    }
+  }
+
   async function runPluginProgressAction(
     actionId: string,
     pluginId: string,
@@ -1105,7 +1125,9 @@
               isNostr
                 ? `${source.relays?.length ?? 0} relay${source.relays?.length === 1 ? "" : "s"}`
                 : "HTTPS registry",
-              "Read only",
+              source.trustTier === "official"
+                ? "Official source"
+                : "Community source",
             ]}
             badges={[
               { label: source.enabled ? "Enabled" : "Disabled" },
@@ -1125,6 +1147,27 @@
                   : { label: isNostr ? "Install quorum ready" : "Available", tone: "success" }}
           >
             {#snippet actions()}
+              {@const sourceToggleAction = `${source.enabled ? "Disable" : "Enable"} ${source.name}`}
+              {#key sourceToggleAction}
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger>
+                      {#snippet child({ props })}
+                        <Switch.Root
+                          {...props}
+                          checked={source.enabled}
+                          disabled={runningAction === `source:${source.id}`}
+                          aria-label={sourceToggleAction}
+                          data-tooltip-action={sourceToggleAction}
+                          onCheckedChange={(checked) =>
+                            void setRegistrySourceEnabled(sourceState, checked)}
+                        />
+                      {/snippet}
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>{sourceToggleAction}</Tooltip.Content>
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+              {/key}
               {#if source.enabled && (sourceState.phase === "error" || !sourceState.installReady)}
                 <Button.Root size="sm" variant="outline" onclick={() => void refresh(true)}><RefreshCw />Retry</Button.Root>
               {/if}
