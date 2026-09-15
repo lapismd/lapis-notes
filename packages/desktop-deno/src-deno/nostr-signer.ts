@@ -1,6 +1,6 @@
 import { join } from "node:path";
-import { nip19 } from "nostr-tools";
-import { BunkerSigner, parseBunkerInput } from "nostr-tools/nip46";
+import { nip19 } from "npm:nostr-tools@2.25.2";
+import { BunkerSigner, parseBunkerInput } from "npm:nostr-tools@2.25.2/nip46";
 import {
   finalizeEvent,
   generateSecretKey,
@@ -8,8 +8,8 @@ import {
   verifyEvent,
   type EventTemplate,
   type VerifiedEvent,
-} from "nostr-tools/pure";
-import { v2 as nip44 } from "nostr-tools/nip44";
+} from "npm:nostr-tools@2.25.2/pure";
+import { v2 as nip44 } from "npm:nostr-tools@2.25.2/nip44";
 
 import type { NostrCredentialStore } from "./nostr-keychain.ts";
 
