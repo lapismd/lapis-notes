@@ -30,6 +30,11 @@ export interface NostrRemoteSignerRequest {
   label?: string;
 }
 
+export interface NostrPrivateKeyImportRequest {
+  privateKey: string;
+  label?: string;
+}
+
 export interface NostrSignerBrokerContext {
   /** Identifies the plugin requesting a permissioned signer operation. */
   pluginId: string;
@@ -38,7 +43,8 @@ export interface NostrSignerBrokerContext {
 /**
  * Host-owned signer boundary. Implementations own consent, OS-keychain
  * storage, NIP-46 client credentials, signature validation, and session
- * teardown. Private keys are never part of this contract.
+ * teardown. Private keys may cross this boundary once for explicit import,
+ * but host implementations must never return them to plugin code.
  */
 export interface NostrSignerBroker {
   listAccounts(context: NostrSignerBrokerContext): Promise<NostrSignerAccount[]>;
@@ -49,6 +55,10 @@ export interface NostrSignerBroker {
   connectRemoteSigner(
     context: NostrSignerBrokerContext,
     request: NostrRemoteSignerRequest,
+  ): Promise<NostrSignerAccount>;
+  importPrivateKey(
+    context: NostrSignerBrokerContext,
+    request: NostrPrivateKeyImportRequest,
   ): Promise<NostrSignerAccount>;
   getPublicKey(
     context: NostrSignerBrokerContext,
@@ -86,6 +96,9 @@ export interface NostrPluginSigner {
   connectRemoteSigner(
     request: NostrRemoteSignerRequest,
   ): Promise<NostrSignerAccount>;
+  importPrivateKey(
+    request: NostrPrivateKeyImportRequest,
+  ): Promise<NostrSignerAccount>;
   getPublicKey(accountId: string): Promise<string>;
   signEvent(
     accountId: string,
@@ -121,6 +134,8 @@ export class NostrSignerHost {
         this.#broker.requestProfileCreation(context, request),
       connectRemoteSigner: (request) =>
         this.#broker.connectRemoteSigner(context, request),
+      importPrivateKey: (request) =>
+        this.#broker.importPrivateKey(context, request),
       getPublicKey: (accountId) =>
         this.#broker.getPublicKey(context, accountId),
       signEvent: async (accountId, event) => {
@@ -145,6 +160,7 @@ const unavailableNostrSignerBroker: NostrSignerBroker = {
   listAccounts: async () => [],
   requestProfileCreation: async () => unavailable(),
   connectRemoteSigner: async () => unavailable(),
+  importPrivateKey: async () => unavailable(),
   getPublicKey: async () => unavailable(),
   signEvent: async () => unavailable(),
   nip44Encrypt: async () => unavailable(),

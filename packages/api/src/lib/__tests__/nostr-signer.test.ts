@@ -28,6 +28,9 @@ describe("Nostr signer host", () => {
       connectRemoteSigner: async () => {
         throw new Error("not used");
       },
+      importPrivateKey: async () => {
+        throw new Error("not used");
+      },
       getPublicKey: async () => "a".repeat(64),
       signEvent: async (_context, _accountId, event) => ({
         ...event,
@@ -70,6 +73,9 @@ describe("Nostr signer host", () => {
       connectRemoteSigner: async () => {
         throw new Error("not used");
       },
+      importPrivateKey: async () => {
+        throw new Error("not used");
+      },
       getPublicKey: async () => "a".repeat(64),
       signEvent: async (_context, _accountId, event) => ({
         ...event,
@@ -91,6 +97,46 @@ describe("Nostr signer host", () => {
         content: "original",
       }),
     ).rejects.toThrow("changed the requested event");
+  });
+
+  it("imports private keys through the host-owned signer boundary", async () => {
+    const broker: NostrSignerBroker = {
+      listAccounts: async () => [],
+      requestProfileCreation: async () => {
+        throw new Error("not used");
+      },
+      connectRemoteSigner: async () => {
+        throw new Error("not used");
+      },
+      importPrivateKey: vi.fn(async (_context, request) => ({
+        id: "imported-1",
+        label: request.label ?? "Imported Nostr key",
+        pubkey: "f".repeat(64),
+        kind: "local",
+      })),
+      getPublicKey: async () => "f".repeat(64),
+      signEvent: async (_context, _accountId, event) => ({
+        ...event,
+        id: "b".repeat(64),
+        pubkey: "f".repeat(64),
+        sig: "c".repeat(128),
+      }),
+      nip44Encrypt: async () => "ciphertext",
+      nip44Decrypt: async () => "plaintext",
+      close: async () => undefined,
+    };
+    const signer = new NostrSignerHost(broker).forPlugin("community");
+
+    await expect(
+      signer.importPrivateKey({
+        privateKey: "nsec1example",
+        label: "Imported",
+      }),
+    ).resolves.toMatchObject({ id: "imported-1", label: "Imported" });
+    expect(broker.importPrivateKey).toHaveBeenCalledWith(
+      { pluginId: "community" },
+      { privateKey: "nsec1example", label: "Imported" },
+    );
   });
 
   it("fails closed without a host signer implementation", async () => {

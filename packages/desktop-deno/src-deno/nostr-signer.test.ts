@@ -1,3 +1,4 @@
+import { nip19 } from "nostr-tools";
 import {
   finalizeEvent,
   generateSecretKey,
@@ -46,6 +47,45 @@ describe("Deno native Nostr signer", () => {
         },
       }),
     ).resolves.toMatchObject({ pubkey: account.pubkey, kind: 0 });
+  });
+
+  it("imports an existing private key into the native credential store", async () => {
+    const secret = generateSecretKey();
+    const fixture = createFixture();
+    const sessionToken = await openSession(fixture.service);
+    const context = { pluginId: "community" };
+    const account = (await fixture.service.handle(
+      "desktop_nostr_signer_import_private_key",
+      {
+        sessionToken,
+        context,
+        request: {
+          privateKey: nip19.nsecEncode(secret),
+          label: "Existing profile",
+        },
+      },
+    )) as DenoNostrSignerAccount;
+
+    expect(account).toMatchObject({
+      id: "nostr-account-1",
+      label: "Existing profile",
+      kind: "local",
+      pubkey: getPublicKey(secret),
+    });
+    expect(JSON.stringify(account)).not.toContain("secretKey");
+    expect(fixture.credentials.values.get(account.id)).toContain(
+      `"secretKeyHex":"${[...secret]
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("")}"`,
+    );
+    await expect(
+      fixture.service.handle("desktop_nostr_signer_sign_event", {
+        sessionToken,
+        context,
+        accountId: account.id,
+        event: { kind: 1, created_at: 1, tags: [], content: "imported" },
+      }),
+    ).resolves.toMatchObject({ pubkey: account.pubkey, content: "imported" });
   });
 
   it("supports NIP-44 without returning the local key", async () => {

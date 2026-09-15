@@ -66,6 +66,37 @@ describe("Deno renderer Nostr signer broker", () => {
     expect(event.tags).toEqual([["t", "lapis"]]);
   });
 
+  it("forwards private-key import requests to the native signer", async () => {
+    const invoke = vi.fn(async (command: string) => {
+      if (command === "desktop_nostr_signer_open_session") {
+        return { sessionToken: "token" };
+      }
+      return {
+        id: "imported-1",
+        label: "Imported",
+        pubkey: "a".repeat(64),
+        kind: "local",
+      };
+    });
+    const broker = await createDenoNostrSignerBroker(invoke);
+
+    await expect(
+      broker.importPrivateKey(
+        { pluginId: "community" },
+        { privateKey: "nsec1example", label: "Imported" },
+      ),
+    ).resolves.toMatchObject({ id: "imported-1" });
+    expect(invoke).toHaveBeenNthCalledWith(
+      2,
+      "desktop_nostr_signer_import_private_key",
+      {
+        sessionToken: "token",
+        context: { pluginId: "community" },
+        request: { privateKey: "nsec1example", label: "Imported" },
+      },
+    );
+  });
+
   it("fails closed when the native host does not return a session", async () => {
     await expect(
       createDenoNostrSignerBroker(vi.fn(async () => ({}))),

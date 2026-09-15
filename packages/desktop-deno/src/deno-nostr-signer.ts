@@ -1,5 +1,6 @@
 import type {
   NostrSignerAccount,
+  NostrPrivateKeyImportRequest,
   NostrSignerBroker,
   NostrSignerBrokerContext,
   NostrUnsignedEvent,
@@ -43,6 +44,12 @@ export async function createDenoNostrSignerBroker(
       call<NostrSignerAccount>("desktop_nostr_signer_connect_remote", context, {
         request,
       }),
+    importPrivateKey: (context, request: NostrPrivateKeyImportRequest) =>
+      call<NostrSignerAccount>(
+        "desktop_nostr_signer_import_private_key",
+        context,
+        { request },
+      ),
     getPublicKey: (context, accountId) =>
       call<string>("desktop_nostr_signer_get_public_key", context, {
         accountId,
