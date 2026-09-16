@@ -114,7 +114,7 @@ threshold.
 | LN-PKG-066 | `@lapis-notes/bases` MUST ship one private semantic query-popover sizing rule consumed by its Sort and Filter Popover contents without changing public package APIs.                                                                                                                                                                                                                                                                                                                                                                          |
 | LN-PKG-067 | `@lapis-notes/ui/codemirror-autocomplete.css` MUST remain a native-CSS public stylesheet that consumes Design Core Popover and Command semantics without requiring a host Tailwind theme. Storybook, web, and desktop hosts MUST load it after the shared theme, while Bases MUST remain independent of `@lapis-notes/ui`.                                                                                                                                                                                                                    |
 | LN-PKG-068 | `@lapis-notes/bases` MUST retain advanced-filter draft validation, accessible CodeMirror invalid attributes, and Bases-owned native error paint in its built package. This validation MUST remain private and MUST NOT change the public package API.                                                                                                                                                                                                                                                                                         |
-| LN-PKG-069 | Public `@lapismd/ai-host` MUST live in the `ai-host` repository, version independently, and expose `build`, `check`, `test`, and a `lapis-ai-host` CLI. Lapis hosts MUST consume it through published npm semver ranges. `@lapis-notes/ai` MUST NOT depend on it at runtime.                                                                                                                                                                                                                                                                  |
+| LN-PKG-069 | Public `@lapismd/ai-host` MUST remain a separately versioned transport library. Generic orchestration, the browser SDK and standalone Deno CLI MUST live in `@lapismd/ai-controller`. Hosts and plugins MUST consume published npm semver ranges; explicitly documented local tarballs MAY be used for pre-release validation.                                                                                                                                                                                                                                                                  |
 | LN-PKG-070 | `@lapis-notes/api` MUST expose an App context, ownership resolver, and disposable compatibility lease. Explicit or workspace-owned App references MUST win over the compatibility alias, and releasing an older lease MUST NOT clear a newer host's alias.                                                                                                                                                                                                                                                                                    |
 | LN-PKG-071 | First-party runtime and Storybook source MUST be audited against direct ambient App reads or assignments outside the compatibility bridge and dedicated fallback tests. Both root `pnpm check` and `pnpm spec:check` MUST run the audit.                                                                                                                                                                                                                                                                                                      |
 | LN-PKG-072 | Configuration schema defaults MUST NOT write `.obsidian/app.json` before the initial persisted configuration load completes. Initial loading MUST preserve persisted and unknown keys while adding registered defaults, and later schema registration MUST persist newly introduced defaults through the normal serialized writer.                                                                                                                                                                                                            |
@@ -172,7 +172,7 @@ entrypoints.
 | LN-PKG-122 | `@lapis-notes/graph` MUST own bind-safe Local Graph frontier batching and its build-failure diagnostic lifecycle through the public API Problems contract. It MUST retain the inline view error, clear recovered diagnostics, and avoid opening the Problems view as a side effect. |
 | LN-PKG-123 | `@lapis-notes/desktop-deno` MUST generate its macOS development WebView and CEF hosts under ignored `release/dev-laufey`. Reuse MUST require a matching Deno version, backend, application name, and identifier, repairing an invalid signature before reuse. The launcher MUST ad-hoc sign after identity patching and Deno runtime insertion, accept an unchanged runtime only while its deep strict signature remains valid, then pass the generated parent through `LAUFEY_DEV_DIR`; Linux and packaged output retain their existing paths. |
 | LN-PKG-124 | `@lapis-notes/desktop-deno` MUST privately own session-scoped startup recovery persistence and presentation while reusing the public API `AppSafeModeState` and Design Core startup surface. It MUST retain saved vault profiles after recoverable open failures, preserve native filesystem failure classes, and avoid adding public package exports or desktop-only canonical vault settings. |
-| LN-PKG-125 | `@lapis-notes/ai` MUST own in-memory turn projection and terminal conversation checkpoints. `@lapismd/ai-host` MUST expose later-task ACP start and prompt operations for embedding hosts, while `@lapis-notes/desktop-deno` MUST adapt those operations and deliver runtime events through its private same-origin stream. Durable conversation authority MUST remain in AI, and native transports MUST NOT write transcript state. |
+| LN-PKG-125 | `@lapis-notes/ai` MUST own in-memory turn projection and terminal conversation checkpoints. `@lapismd/ai-controller` MUST own later-task start, prompt, and journal delivery. `@lapis-notes/desktop-deno` MUST expose only an authenticated controller connection. Durable conversation authority MUST remain in AI, and native transports MUST NOT write transcript state. |
 | LN-PKG-126 | `@lapis-notes/ai` MUST own cross-agent transcript projection, binding cursor reduction, switch/configuration audit records, and optional background handoff summaries. `@lapismd/ai-host` and desktop adapters MAY configure or resume native sessions through versioned transport methods, but MUST NOT copy opaque runtime state, author handoff transcript messages, select durable binding state, or become conversation authority. |
 | LN-PKG-127 | `@lapis-notes/source-editor` MUST live in the sibling `lapis-plugins` monorepo and remain an enabled-by-default member of the Lapis Notes static profile. It MUST own the shared Editor settings plus text, JSON, and YAML source associations through API and Design Core public contracts, while Markdown associations remain owned by `@lapis-notes/markdown`. |
 | LN-PKG-128 | `@lapis-notes/ai` MUST own the `ai-jsonl` read-only file view and `.jsonl` default association. It MUST reuse API file-view registration, Design Core chat primitives, the public Markdown embed, and AI-owned durable record validation/projection without moving append-only transcript authority into the view or adding a Source Editor override. |
@@ -232,7 +232,7 @@ publish, deploy, or change any public package.
 | LN-PKG-040 | `@lapis-notes/language-service` MUST export `./markdownlint/runtime` for native Markdown services. The Deno desktop host MUST consume that public specifier instead of copying the runtime or importing a private implementation path. `@lapis-notes/markdown-lint` MUST remain the sole renderer provider and pass vault rules through the native adapter. |
 | LN-PKG-042 | `@lapis-notes/workspace` MAY forward Design Core's generic workspace-navigation contract to its shell surface, but profile discovery, vault labels, selection, management, persistence, and lifecycle policy MUST remain consumer-owned. |
 | LN-PKG-074 | `@lapis-notes/ai` MUST own conversations, projection, Explorer-style history presentation, bindings, handoff, and replay provenance. Its history view MAY compose public Design Core search, sidebar-tree, disclosure, menu, badge, and switch primitives but MUST keep that search chrome centered and retain scope selection, filesystem/index merging, conversation actions, and workspace-view registration in AI. API MUST expose generic path, durability, search, highlighting, and native-event primitives through narrow entries. `@lapismd/ai-host` and Deno desktop MUST remain non-authoritative execution transports with only live native state and bounded replay. |
-| LN-PKG-075 | Root real-agent smoke scripts MUST remain thin supervisors over public `@lapismd/ai-host`, Storybook, Deno desktop, and Turbo. Seed creation and reset confinement MUST remain deterministic and testable without starting an agent, while the manual checklist stays with `@lapis-notes/ai`. |
+| LN-PKG-075 | Root real-agent smoke scripts MUST remain thin supervisors over the standalone AI controller, its public client, Storybook, Deno desktop, and Turbo. Seed creation and reset confinement MUST remain deterministic and testable without starting an agent, while the manual checklist stays with `@lapis-notes/ai`. |
 | LN-PKG-076 | `@lapis-notes/api/desktop-native` MUST expose the native bridge and capability contract without evaluating the Svelte component barrel. Node-side AI runtime adapters and real-host diagnostics MUST consume that narrow entry. |
 | LN-PKG-077 | `@lapis-notes/ai` MUST own asynchronous chat preparation and conversation-location tab reuse. `@lapis-notes/api` MUST remain limited to generic main-tab creation, sidebar-leaf registration, activation, and reveal contracts; workspace packages MUST NOT acquire AI-specific navigation policy. AI MUST project folder scope breadcrumbs through the public View chrome hooks. |
 | LN-PKG-078 | `@lapis-notes/api` MUST own the generic `ViewAccess` registration contract, plugin-name command prefixing, and live command-palette projection. First-party plugins MUST own their view classifications and activation callbacks, while the repository-local validator MUST own first-party-only enforcement. |
@@ -337,7 +337,7 @@ discovery.
 AI ships bundled `research` and `lapis-notes` skills. An active skill file
 MUST NOT scope a new conversation to `.agents`. Search owns composer
 `/search` as a `notes_search` tool-dispatch command and shows that invoke as
-a `ToolCalls` transcript item. Live ACP session start
+a `ToolCalls` transcript item. Live first-party session start
 appends a path-free `available_skills` manifest and a generated
 `sessionBootstrap` through host session setup, including skill-folder chats. The AI catalog lists live
 tools, commands, and skills by owner in an explorer-aligned tree. Neither
@@ -346,9 +346,9 @@ The API agent-tool surface exports only schemas, results, trusted execution
 context, owner metadata, and lifecycle registration. It does not import or
 re-export MCP, ACP, acpx, or vendor runtime types.
 AI coordinates each registry snapshot with one preallocated native binding and
-projects its events into the existing transcript. Deno desktop and AI Host continue
-to transport opaque bridge identifiers rather than importing note-tool
-implementations.
+projects its events into the existing transcript. Deno desktop and the shared
+controller continue to transport opaque bridge identifiers rather than
+importing note-tool implementations.
 The bridge coordinator accepts only protocol-v3 hosts that advertise the owned
 `stdio-mcp` or `http-mcp` application-tool transport.
 Its execution-scope helper validates vault-relative portable paths and exposes
@@ -365,13 +365,11 @@ The Search package owns `notes_search`; API owns the generic pre-limit
 browser-coordinated implementations.
 Bundled tool descriptions tell the agent to prefer those vault tools over
 host-cwd shell lookup (LN-AI-108).
-AI Host is the only workspace package with the MCP SDK dependency. It bundles
-the protocol-clean stdio shim, authorizes each loopback bridge against one host
-connection and native binding, converts environment records to ACP name/value
-entries, and reserves `lapis-tools` before ACP startup.
-Its public executor also provides deferred, caller-identified ACP startup for
-embedding hosts. Deno desktop uses that lifecycle so its attached HTTP MCP
-route remains serviceable during agent initialization (LN-DENO-055).
+Sibling `@lapismd/ai-host` remains the transport library and MCP stdio shim.
+First-party desktop no longer embeds ACP startup; it exposes only an
+authenticated `lapis-ai-controller` connection (LN-DENO-055, LN-PKG-125).
+Leftover embed helpers MAY still advertise deferred ACP start for
+compatibility adapters.
 
 The public Search panel keeps database snippet text paired with its highlight
 ranges. Its package-owned result layout follows `LN-SRCH-023`; consumers do not
@@ -510,10 +508,10 @@ owns lookup and `/skills` `/tools` inventories (LN-PKG-100).
 The root export stays plugin-safe; ACP and native Codex adapters publish only on
 `./runtimes`. Cursor uses the same ACP adapter through a known agent name.
 Domain plugins register tools. The package does not declare an acpx dependency.
-Public `@lapismd/ai-host` owns acpx, process spawn, the WebSocket server, and
-`lapis-ai-host serve`. Deno desktop embeds that library in-process. Web and
-Storybook attach only with a configured URL and token, and transport closure is
-forwarded to active plugin sessions.
+Public `@lapismd/ai-host` owns ACP and process transport mechanics. The standalone
+`lapis-ai-controller` owns orchestration and its authenticated service protocol.
+Deno desktop supervises it; web and Storybook attach with a URL and token.
+The AI plugin uses the controller SDK for events, recovery and tool callbacks.
 The web host persists those values as `web.agentRuntime.url` and
 `web.agentRuntime.token` in Settings. The token field uses password
 presentation so the value stays masked until revealed.
@@ -653,15 +651,10 @@ cache-backed npm resolution so the packaged app embeds Markdownlint instead of
 depending on a pnpm symlink tree. Deno serves verified plugin metadata through
 a same-origin HTTP route owned by its native host and does not import a
 community plugin from an unchecked filesystem URL.
-The Deno package consumes public `@lapismd/ai-host`, maps its package entry
-and npm transport dependencies into the compiled graph, and delegates process,
-ACP, and application-tool execution to that public executor. Its development
-launcher may prepare ignored package-local files for declared workspace Deno
-source imports so `deno desktop` resolves embedded files without reintroducing
-a root Deno workspace. Because Deno
-Desktop owns one loopback renderer server, the host attaches the public
-Web-standard MCP handler to a reserved same-origin route instead of starting a
-Node compatibility listener or copying broker logic.
+The Deno package consumes the public `@lapismd/ai-controller/managed` process
+client and supplies a private database per canonical vault workspace. Native IPC
+returns the connection descriptor. The renderer uses the controller SDK directly;
+App tools execute in their owning App and retain Lapis approval policy.
 The bundled AI package selects both default Codex and Cursor catalogs through
 its ACP model provider. The Deno package owns deferred discovery execution and
 catalog event delivery; the plugin owns request correlation and presentation.

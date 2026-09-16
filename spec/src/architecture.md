@@ -167,7 +167,7 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-065 | API MUST own plugin-scoped Markdown extension and file-surface registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin. |
 | LN-ARCH-066 | API-owned workspace leaves MUST split through API leaf duplication before Design Core renders the new pane. Design Core MAY own generic tab splitting, but Lapis-hosted imperative views MUST NOT create orphan design tabs without live `WorkspaceLeaf` containers, host layout projection, or translated split directions. |
 | LN-ARCH-067 | The Deno desktop host MUST remain a consumer of `@lapis-notes/api`, `@lapis-notes/workspace`, and public host packages. Native window, bindings, services, vault discovery, session boot, and local distribution orchestration belong to the host. Language diagnostics MUST remain plugin-owned over the public native boundary without a duplicate host provider; terminal execution and verified asset metadata MUST use public boundaries while watching and HTTP delivery remain Deno-owned. |
-| LN-ARCH-068 | Deno agent execution MUST consume the public `@lapismd/ai-host` executor. Deno MAY attach the host package's authenticated Web-standard MCP handler to its existing loopback server, but MUST retain renderer routing, event delivery, process lifetime, and shutdown ownership. |
+| LN-ARCH-068 | Deno MUST supervise the standalone `lapis-ai-controller` service and expose its authenticated connection through native IPC. The AI plugin MUST consume the shared controller client. Lapis MUST retain vault storage, App authorization, tool execution and host shutdown ownership. |
 | LN-ARCH-069 | Deno native close, menu, and external-navigation policy MUST remain host-owned while session persistence and disposal remain renderer-owned. On macOS, bootstrap and visible-window close events MUST share one coordinator and private same-origin signal. The renderer MUST show an opaque branded close surface, complete shared teardown, and acknowledge through a bounded native binding. Unavailable telemetry MUST NOT delay that acknowledgement beyond one second. |
 | LN-ARCH-070 | Deno single-instance ownership MUST use an exclusive application-data lock and authenticated local handoff. The native host MUST retain URL arguments until a subscribed renderer takes them; only the ready App URL registry MAY interpret their application action. |
 | LN-ARCH-071 | Plugin settings materialization MUST be idempotent at the persistence boundary. A normalized no-op update MUST NOT mutate portable vault files whose timestamps participate in generated-state reconciliation checkpoints. |
@@ -279,24 +279,24 @@ Markdown owns `notes_list`. API owns Vault-backed `read`, `write`, `edit`, and
 `apply_patch` wrappers over the portable `@lapismd/ai-host/file-tools` kernel.
 Those bundled descriptions steer agents to the vault tools instead of host-cwd
 shell search (LN-AI-108).
-The live transport is host-advertised and AI Host-owned. Node and WebSocket
-hosts use the loopback broker plus official-SDK stdio shim; Deno desktop attaches
-the broker's authenticated Streamable HTTP handler to its renderer server.
-Because that handler shares Deno's native event loop, the renderer reserves and
-subscribes to the ACP session before the host begins deferred initialization;
-the native binding returns before the agent connects back to the route
-(LN-AI-172, LN-DENO-055). Deno model discovery follows the same response-first
-boundary: the renderer subscribes with a request id, the binding returns, and
-the catalog arrives as a later runtime event (LN-AI-173, LN-DENO-056).
+The first-party live transport is host-advertised and owned by
+`@lapismd/ai-controller`. Desktop supervises `lapis-ai-controller` and exposes
+only an authenticated connection; web and Storybook attach by URL and token.
+Leftover ACP embed helpers MAY still use the loopback broker plus official-SDK
+stdio shim and deferred start so prompt, cancel, and close remain available
+without holding a Deno binding (LN-AI-172, LN-DENO-055). Compatibility model
+discovery MAY still return a request id before a later catalog event
+(LN-AI-173, LN-DENO-056).
 Native-to-renderer events are likewise scheduled for a later browser task so
 their handlers cannot re-enter a native binding before window evaluation
-returns (LN-DENO-057). Monotonic event replay and protocol-v4 run-state
-reconciliation recover unseen terminal delivery without resending a prompt
-(LN-DENO-060, LN-DENO-061, LN-AI-177).
+returns (LN-DENO-057). First-party run state comes from the shared controller
+journal; leftover protocol-v4 hosts MAY still reconcile retained terminal
+events (LN-DENO-060, LN-DENO-061, LN-AI-177).
 The Deno host keeps native Turso work on a dedicated worker; synchronous driver
-steps therefore cannot occupy the runtime that owns ACP and renderer events
-(LN-DENO-059). Development and distribution compiles explicitly include that
-worker entry so the boundary survives Deno's compiled snapshot (LN-DENO-062).
+steps therefore cannot occupy the runtime that owns controller and renderer
+events (LN-DENO-059). Development and distribution compiles explicitly include
+that worker entry so the boundary survives Deno's compiled snapshot
+(LN-DENO-062).
 Both carry only generic bridge commands and events and never acquire registry,
 policy, or transcript authority.
 The AI controller allocates the binding identity before runtime start, opens
@@ -619,8 +619,9 @@ advertises an `agent-runtime` capability for process-backed ACP and Codex
 sessions while the reserved `model` capability stays unavailable. The plugin
 obtains live runtimes from that host factory and keeps adapters off the root
 export. Cursor uses the same ACP runtime as Codex through the selected agent
-name. Process execution lives in public `@lapismd/ai-host`, used in-process by
-Deno desktop and as `lapis-ai-host serve` for WebSocket clients. User-global agent
+name. Generic orchestration lives in the standalone `lapis-ai-controller` service.
+Deno desktop supervises it; web and Storybook attach to it. The shared SDK owns
+transport and recovery, while `@lapismd/ai-host` supplies provider mechanics. User-global agent
 command storage is a host capability, so renderer bundles must not statically
 pull the AI plugin's Node-only command-store module into the browser graph.
 The same desktop bridge advertises `terminal-runtime`. Deno desktop embeds
