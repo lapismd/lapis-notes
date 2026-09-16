@@ -1,3 +1,4 @@
+import { tursoBundleBuildPlugin } from "@lapismd/lapis-community/build/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { realpathSync } from "node:fs";
@@ -183,6 +184,7 @@ export default defineConfig(({ mode }) => ({
     ),
   },
   plugins: [
+    tursoBundleBuildPlugin(),
     pluginHostImportMapPlugin(),
     wasmHeadersPlugin(),
     svelte(rendererSvelteOptions),
@@ -202,7 +204,7 @@ export default defineConfig(({ mode }) => ({
     strictPort: true,
     headers: crossOriginIsolationHeaders,
   },
-  worker: { format: "es" },
+  worker: { format: "es", plugins: () => [tursoBundleBuildPlugin()] },
   optimizeDeps: {
     exclude: [...rendererOptimizeDependencyExclusions],
     include: [...rendererOptimizeDependencyInclusions],

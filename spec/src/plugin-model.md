@@ -382,3 +382,8 @@ Search completion remains plugin-owned presentation over API-owned grammar:
 facet labels expose their original tag values, while their separate apply text
 uses the API formatter so slash and quoted space tags are executable queries
 rather than display-only suggestions.
+
+The AI plugin owns its shared-controller client connections and closes them on
+unload. It registers App-scoped tool and context endpoints; the service requests
+fresh context only when a turn reaches execution. Markdown transcripts and memory
+records remain vault-owned, with shared memory policy in the controller package.

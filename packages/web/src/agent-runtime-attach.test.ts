@@ -10,41 +10,7 @@ const api = vi.hoisted(() => ({
   hasNativeDesktopCapability: vi.fn((_capability: string) => false),
 }));
 
-const host = vi.hoisted(() => ({
-  createAgentRuntimeBridge: vi.fn((config: { url: string; token: string }) => ({
-    runtime: "deno-desktop",
-    capabilities: {
-      "agent-runtime": {
-        id: "agent-runtime",
-        status: "available",
-        provider: "lapis-ai-host",
-        details: { url: config.url },
-      },
-    },
-    dispose: vi.fn(),
-  })),
-  maybeRegisterAgentRuntimeBridge: vi.fn(
-    (options: {
-      url?: string;
-      token?: string;
-      hasBridge?(): boolean;
-      register?(bridge: unknown): void;
-    }) => {
-      if (options.hasBridge?.()) return false;
-      if (!options.url?.trim() || !options.token?.trim()) return false;
-      options.register?.(
-        host.createAgentRuntimeBridge({
-          url: options.url,
-          token: options.token,
-        }),
-      );
-      return true;
-    },
-  ),
-}));
-
 vi.mock("@lapis-notes/api", () => api);
-vi.mock("@lapismd/ai-host/client", () => host);
 vi.mock("@lapismd/terminal-host/client", () => ({
   createTerminalRuntimeBridge: vi.fn(),
 }));
@@ -60,8 +26,6 @@ describe("web agent-runtime attach", () => {
     api.getNativeDesktopCapability.mockReturnValue(null);
     api.hasNativeDesktopCapability.mockReturnValue(false);
     api.setNativeDesktopBridge.mockReset();
-    host.createAgentRuntimeBridge.mockClear();
-    host.maybeRegisterAgentRuntimeBridge.mockClear();
     delete (globalThis as { __LAPIS_AGENT_RUNTIME__?: unknown })
       .__LAPIS_AGENT_RUNTIME__;
   });
@@ -84,7 +48,7 @@ describe("web agent-runtime attach", () => {
     expect(api.hasNativeDesktopCapability("agent-runtime")).toBe(true);
   });
 
-  it("replaces an existing lapis-ai-host bridge when settings change", () => {
+  it("replaces an existing lapis-ai-host bridge when settings change", async () => {
     const previous = { dispose: vi.fn() };
     api.hasNativeDesktopBridge.mockReturnValue(true);
     api.getNativeDesktopBridge.mockReturnValue(previous);
@@ -98,10 +62,10 @@ describe("web agent-runtime attach", () => {
       }),
     ).toBe(true);
     expect(previous.dispose).toHaveBeenCalledOnce();
-    expect(host.createAgentRuntimeBridge).toHaveBeenCalledWith({
-      url: "ws://127.0.0.1:8000",
-      token: "next-token",
-    });
+    const bridge = api.setNativeDesktopBridge.mock.calls.at(-1)![0];
+    expect(await bridge.invoke("desktop_ai_controller_connection")).toEqual({ url: "ws://127.0.0.1:8000", token: "next-token", workspace: "default" });
+    expect(JSON.stringify(bridge.capabilities)).not.toContain("next-token");
+    await expect(bridge.invoke("desktop_agent_process_spawn")).rejects.toThrow("Unsupported");
     expect(api.setNativeDesktopBridge).toHaveBeenCalledOnce();
   });
 

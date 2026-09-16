@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ControllerClient } from "@lapismd/ai-controller/client";
   import {
     App,
     installApplicationCompatibility,
@@ -236,57 +237,27 @@
       );
     }
     const appUrl = await bridge.waitForAcceptanceAppUrl?.();
-    const appToolBridge = await bridge.invoke<{ bridgeId: string }>(
-      "desktop_agent_tools_open",
-      {
-        bindingId: "deno-acceptance-binding",
-        conversationId: "deno-acceptance-conversation",
-        descriptors: [],
-      },
+    const connection = await bridge.invoke<{ url: string; token: string; workspace: string }>(
+      "desktop_ai_controller_connection", { workspace: adapter.rootPath },
     );
-    await bridge.invoke("desktop_agent_tools_close", {
-      bridgeId: appToolBridge.bridgeId,
-    });
-    let agentProcessOutput = "";
-    let agentTimeout: ReturnType<typeof setTimeout> | undefined;
-    let unsubscribeAgent: (() => void) | undefined;
+    const controller = new ControllerClient(connection);
+    let controllerProtocol = "";
+    let appToolRegistered = false;
     try {
-      let resolveAgent: () => void = () => {};
-      let rejectAgent: (error: Error) => void = () => {};
-      let processId = "";
-      const agentExit = new Promise<void>((resolve, reject) => {
-        resolveAgent = resolve;
-        rejectAgent = reject;
-        agentTimeout = setTimeout(
-          () => reject(new Error("Deno agent process acceptance timed out")),
-          10_000,
-        );
+      const status = await controller.request<{ protocol: string }>("system.status");
+      controllerProtocol = status.protocol;
+      const providers = await controller.request<Array<{ id: string }>>("providers.list");
+      if (!providers[0]) throw new Error("Controller has no configured providers");
+      const unregister = await controller.registerEndpoint({
+        id: "lapis.packaged-acceptance", tools: [{ name: "acceptance", description: "Packaged host acceptance", inputSchema: { type: "object" }, effect: "read" }],
+        handle: async () => ({ content: [{ type: "text", text: "deno-controller-tool" }] }),
       });
-      unsubscribeAgent = bridge.onAgentProcessMessage?.((event) => {
-        if (!processId) processId = event.processId;
-        if (event.processId !== processId) return;
-        if (event.type === "stdout") agentProcessOutput += event.data ?? "";
-        if (event.type === "stderr") {
-          rejectAgent(new Error(event.data ?? "Deno agent process failed"));
-        }
-        if (event.type === "exit") resolveAgent();
-      });
-      const command =
-        bridge.platform.os === "windows" ? "cmd.exe" : "/usr/bin/printf";
-      const args =
-        bridge.platform.os === "windows"
-          ? ["/d", "/s", "/c", "<nul set /p =deno-agent-process"]
-          : ["deno-agent-process"];
-      const spawned = await bridge.invoke<{ processId: string }>(
-        "desktop_agent_process_spawn",
-        { command, args },
-      );
-      processId = spawned.processId;
-      await agentExit;
-    } finally {
-      if (agentTimeout !== undefined) clearTimeout(agentTimeout);
-      unsubscribeAgent?.();
-    }
+      try {
+        const thread = await controller.createThread({ provider: providers[0].id, workspace: connection.workspace, toolEndpoint: "lapis.packaged-acceptance" });
+        const tools = await controller.request<Array<{ name: string }>>("tools.list", { threadId: thread.id });
+        appToolRegistered = tools.some(tool => tool.name === "acceptance");
+      } finally { await unregister(); }
+    } finally { controller.dispose(); }
     const watchPath = "deno-watch-smoke.tmp";
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let watchSubscription: { close(): void } | null | void = null;
@@ -318,8 +289,8 @@
         pluginAssetText,
         pluginAssetContentType:
           pluginAssetResponse.headers.get("content-type") ?? "",
-        agentProcessOutput,
-        appToolBridgeOpened: Boolean(appToolBridge.bridgeId),
+        controllerProtocol,
+        appToolRegistered,
         appUrl,
       };
     } finally {

@@ -4,9 +4,9 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import {
-  AcpAgentRuntime,
+  ControllerAgentRuntime,
+  ControllerConnectionPool,
   buildConversationContextHandoff,
-  DesktopAcpRuntimeBackend,
   type AgentBindingCreatedRecord,
   type AgentSession,
   type TranscriptEntry,
@@ -15,12 +15,13 @@ import {
   setNativeDesktopBridge,
   type NativeDesktopBridge,
 } from "@lapis-notes/api/desktop-native";
-import { createAgentRuntimeBridge } from "@lapismd/ai-host/client";
-import { generateToken, serveAgentHost } from "@lapismd/ai-host";
+import { startAiSmokeController } from "./lib/ai-controller-fixture";
 import {
   AI_REAL_HOST_RELATIVE_ROOT,
   seedAiRealHostWorkspace,
 } from "./lib/ai-real-host-fixture.mjs";
+
+const connections = new ControllerConnectionPool();
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -80,7 +81,9 @@ async function runTurn(
   >["contextBlocks"] = [],
 ): Promise<string> {
   const response = timeout(consumeTurn(session), "agent turn");
-  await session.send(prompt, { contextBlocks });
+  await session.send(prompt, {
+    prepareContext: async () => contextBlocks ?? [],
+  });
   return response;
 }
 
@@ -122,38 +125,28 @@ function binding(
 
 async function run(): Promise<void> {
   await seedAiRealHostWorkspace(workspace, { defaultRuntime: "acp" });
-  const token = generateToken();
-  const host = await serveAgentHost(
-    {
-      port: 0,
-      bind: "127.0.0.1",
-      workspace,
-      token,
-      origins: [],
-    },
-    { print: () => {} },
-  );
-  const bridge = createAgentRuntimeBridge({ url: host.url, token });
+  const host = await startAiSmokeController(workspace);
+  const bridge = host.bridge;
   setNativeDesktopBridge(bridge as unknown as NativeDesktopBridge);
-  const runtime = new AcpAgentRuntime(new DesktopAcpRuntimeBackend());
+  const runtime = new ControllerAgentRuntime("acp", connections);
   let codex: AgentSession | undefined;
   let cursor: AgentSession | undefined;
   let resumedCodex: AgentSession | undefined;
   try {
     const [codexCatalog, cursorCatalog] = await Promise.all([
       timeout(
-        bridge.invoke<{ currentModel?: string; models?: string[] }>(
-          "desktop_agent_acp_models",
-          { agent: "codex" },
-        ),
+        (await connections.get(workspace)).client.request<{
+          currentModel?: string;
+          models?: string[];
+        }>("providers.models", { provider: "codex", workspace: "default" }),
         "Codex model catalog",
         60_000,
       ),
       timeout(
-        bridge.invoke<{ currentModel?: string; models?: string[] }>(
-          "desktop_agent_acp_models",
-          { agent: "cursor" },
-        ),
+        (await connections.get(workspace)).client.request<{
+          currentModel?: string;
+          models?: string[];
+        }>("providers.models", { provider: "cursor", workspace: "default" }),
         "Cursor model catalog",
         60_000,
       ),
@@ -368,7 +361,7 @@ async function run(): Promise<void> {
     await cursor?.close().catch(() => undefined);
     await codex?.close().catch(() => undefined);
     setNativeDesktopBridge(null);
-    bridge.dispose();
+    connections.close();
     await host.close();
   }
 }

@@ -1,3 +1,4 @@
+import { createControllerConnectionBridge } from "./controller-connection-bridge";
 import {
   getNativeDesktopBridge,
   getNativeDesktopCapability,
@@ -5,10 +6,6 @@ import {
   setNativeDesktopBridge,
   type NativeDesktopBridge,
 } from "@lapis-notes/api";
-import {
-  createAgentRuntimeBridge,
-  type AgentRuntimeBridge,
-} from "@lapismd/ai-host/client";
 import {
   createTerminalRuntimeBridge,
   type TerminalRuntimeBridge,
@@ -29,7 +26,7 @@ const TERMINAL_COMMANDS = new Set([
 
 type DisposableBridge = { dispose?(): void };
 
-let agentBridge: (AgentRuntimeBridge & DisposableBridge) | null = null;
+let agentBridge: (NativeDesktopBridge & DisposableBridge) | null = null;
 let terminalBridge: (TerminalRuntimeBridge & DisposableBridge) | null = null;
 
 function toHostTerminalCommand(command: string): string {
@@ -47,7 +44,7 @@ function isProtectedDesktopBridge(): boolean {
   if (isOwnedCompose()) return false;
   const agent = getNativeDesktopCapability("agent-runtime");
   const terminal = getNativeDesktopCapability("terminal-runtime");
-  if (agent?.provider === "lapis-ai-host") return false;
+  if (["lapis-ai-controller", "lapis-ai-host"].includes(agent?.provider ?? "")) return false;
   if (terminal?.provider === "lapis-terminal-host") return false;
   return true;
 }
@@ -91,10 +88,6 @@ function publish(): void {
       return agentBridge!.invoke(command, payload);
     },
     toFileUrl: agentBridge!.toFileUrl.bind(agentBridge),
-    onAgentProcessMessage: agentBridge!.onAgentProcessMessage?.bind(agentBridge),
-    onAgentRuntimeEvent: agentBridge!.onAgentRuntimeEvent?.bind(agentBridge),
-    onAgentToolCall: agentBridge!.onAgentToolCall?.bind(agentBridge),
-    onAgentToolCancel: agentBridge!.onAgentToolCancel?.bind(agentBridge),
     onTerminalOutput: terminalBridge!.onTerminalOutput?.bind(terminalBridge),
     onTerminalExit: terminalBridge!.onTerminalExit?.bind(terminalBridge),
   } as NativeDesktopBridge);
@@ -119,7 +112,7 @@ export function setWebAgentRuntimeContribution(options: {
   const foreignAi =
     !hadAgent &&
     Boolean(existing) &&
-    getNativeDesktopCapability("agent-runtime")?.provider === "lapis-ai-host";
+    ["lapis-ai-controller", "lapis-ai-host"].includes(getNativeDesktopCapability("agent-runtime")?.provider ?? "");
   if (agentBridge) {
     agentBridge.dispose?.();
     agentBridge = null;
@@ -130,7 +123,7 @@ export function setWebAgentRuntimeContribution(options: {
     if (hadAgent || foreignAi || terminalBridge) publish();
     return false;
   }
-  agentBridge = createAgentRuntimeBridge({ url, token });
+  agentBridge = createControllerConnectionBridge({ url, token });
   publish();
   return true;
 }

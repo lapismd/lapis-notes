@@ -179,7 +179,7 @@ const emitRendererEvent = rendererEvents.emit;
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
 const vaultResources = new DenoVaultResourceService();
-const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
+const agentRuntime = new DenoAgentRuntimeHost({ dataDirectory: userDataDir() });
 const appDatabase = new DenoAppDatabaseHost(userDataDir(), emitRendererEvent);
 const nostrSigner = nostrKeychainAvailable(Deno.build.os)
   ? new DenoNostrSignerService({
@@ -452,8 +452,6 @@ Deno.serve(async (request) => {
   if (closeResponse) return await closeResponse;
   const rendererEventResponse = rendererEvents.respond(request);
   if (rendererEventResponse) return rendererEventResponse;
-  const agentToolResponse = await agentRuntime.respond(request);
-  if (agentToolResponse) return agentToolResponse;
   const vaultResourceResponse = await vaultResources.respond(request);
   if (vaultResourceResponse) {
     return withIsolationHeaders(vaultResourceResponse);

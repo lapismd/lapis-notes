@@ -10,23 +10,6 @@ const api = vi.hoisted(() => ({
   hasNativeDesktopCapability: vi.fn((_capability: string) => false),
 }));
 
-const aiHost = vi.hoisted(() => ({
-  createAgentRuntimeBridge: vi.fn((config: { url: string; token: string }) => ({
-    runtime: "deno-desktop",
-    capabilities: {
-      "agent-runtime": {
-        id: "agent-runtime",
-        status: "available",
-        provider: "lapis-ai-host",
-        details: { url: config.url },
-      },
-    },
-    invoke: vi.fn(),
-    toFileUrl: (value: string) => value,
-    dispose: vi.fn(),
-  })),
-}));
-
 const host = vi.hoisted(() => ({
   createTerminalRuntimeBridge: vi.fn(
     (config: { url: string; token: string }) => ({
@@ -48,7 +31,6 @@ const host = vi.hoisted(() => ({
 }));
 
 vi.mock("@lapis-notes/api", () => api);
-vi.mock("@lapismd/ai-host/client", () => aiHost);
 vi.mock("@lapismd/terminal-host/client", () => host);
 
 import { registerWebAgentRuntimeBridge } from "./agent-runtime-attach";
@@ -64,7 +46,6 @@ describe("web terminal-runtime attach", () => {
     api.hasNativeDesktopCapability.mockReturnValue(false);
     api.setNativeDesktopBridge.mockReset();
     host.createTerminalRuntimeBridge.mockClear();
-    aiHost.createAgentRuntimeBridge.mockClear();
   });
 
   it("does not advertise terminal-runtime without a URL and token", () => {
@@ -127,7 +108,7 @@ describe("web terminal-runtime attach", () => {
       capabilities?: Record<string, { provider?: string }>;
     };
     expect(composed.capabilities?.["agent-runtime"]?.provider).toBe(
-      "lapis-ai-host",
+      "lapis-ai-controller",
     );
     expect(composed.capabilities?.["terminal-runtime"]?.provider).toBe(
       "lapis-terminal-host",

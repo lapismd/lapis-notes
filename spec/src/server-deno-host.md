@@ -140,3 +140,7 @@ Production sessions use the `__Host-` cookie prefix together with `Secure`,
 development mode uses an unprefixed cookie because browsers reject a
 `__Host-` cookie without `Secure`; that exception is not accepted for any
 non-localhost origin.
+
+AI execution for server-backed browser vaults uses the same explicit external
+controller connection as the web host. The vault server does not embed an AI
+executor or receive the browser-owned App tool and memory authority.

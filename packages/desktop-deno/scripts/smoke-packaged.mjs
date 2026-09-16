@@ -264,8 +264,8 @@ try {
   assert.ok(["create", "modify"].includes(report.fileWatchEventType));
   assert.equal(report.pluginAssetText, pluginSource);
   assert.match(report.pluginAssetContentType, /^text\/javascript/u);
-  assert.equal(report.agentProcessOutput, "deno-agent-process");
-  assert.equal(report.appToolBridgeOpened, true);
+  assert.equal(report.controllerProtocol, "lapis-ai-controller/1");
+  assert.equal(report.appToolRegistered, true);
   assert.equal(report.appUrl, appUrl);
   assert.equal(report.laterLaunchFocusCount, 1);
   assert.equal(report.crossOriginIsolated, true);

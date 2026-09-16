@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 describe("Storybook AI host boundary", () => {
-  it("starts lapis-ai-host from the root script and never as a Storybook sidecar", () => {
+  it("starts lapis-ai-controller from the root script and never as a Storybook sidecar", () => {
     const manifest = JSON.parse(
       readFileSync(resolve(repoRoot, "package.json"), "utf8"),
     );
@@ -15,9 +15,9 @@ describe("Storybook AI host boundary", () => {
       resolve(repoRoot, ".storybook/preview.ts"),
       "utf8",
     );
-    assert.match(manifest.scripts["ai-host"], /lapis-ai-host/);
+    assert.match(manifest.scripts["ai-controller"], /lapis-ai-controller/);
     assert.equal(manifest.scripts["storybook:agent"], undefined);
-    assert.match(preview, /maybeRegisterAgentRuntimeBridge/);
+    assert.match(preview, /createControllerConnectionBridge/);
     assert.doesNotMatch(preview, /storybook:agent/);
     assert.match(preview, /Storybook never starts the host/);
   });

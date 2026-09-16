@@ -98,18 +98,8 @@ export function createCapabilityRegistry(
     "agent-runtime": {
       id: "agent-runtime" as const,
       status: "available" as const,
-      provider: "deno-ai-host",
-      details: {
-        protocol: "desktop_agent_*",
-        protocolVersion: 5,
-        acp: "acpx/runtime",
-        process: "stdio",
-        appTools: "http-mcp",
-        deferredStart: true,
-        deferredModels: true,
-        runStatus: true,
-        sessionConfiguration: "configure",
-      },
+      provider: "deno-ai-controller",
+      details: { protocol: "lapis-ai-controller/1", connection: "desktop_ai_controller_connection" },
     },
     "terminal-runtime": {
       id: "terminal-runtime" as const,
