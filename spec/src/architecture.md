@@ -728,3 +728,5 @@ The deterministic metadata performance runners seed the same normalized schema
 for native and real WASM/OPFS sessions. Their 50,000-note gate measures direct
 database readiness and indexed queries without mounting a vault-sized
 JavaScript model; the 100,000-note lane remains reported stress evidence.
+
+Desktop managed-controller test fixtures preserve the public ready descriptor, including its schema, so host-boundary assertions verify the same connection shape as the supervised process.

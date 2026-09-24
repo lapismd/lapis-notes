@@ -7,6 +7,7 @@ import { DENO_AGENT_COMMANDS, DenoAgentRuntimeHost } from "./agent-runtime";
 function child() {
   return {
     connection: {
+      schema: "lapis-ai-controller.ready/1" as const,
       url: "ws://127.0.0.1:1234",
       token: "private-test-token",
       workspace: "default" as const,
@@ -61,6 +62,9 @@ describe("Deno standalone controller connection", () => {
         ),
       );
       expect(connections).toEqual([process.connection, process.connection]);
+      expect(connections[0]).toMatchObject({
+        schema: "lapis-ai-controller.ready/1",
+      });
       expect(start).toHaveBeenCalledOnce();
       const options = start.mock.calls[0]![0];
       expect(options.workspace).toBe(await realpath(f.workspace));

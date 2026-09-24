@@ -758,3 +758,5 @@ for only the active note and its candidate sources. They neither enumerate
 `getAllItems()` nor invert the synchronous link maps. The canonical check and
 specification lanes enforce this boundary with the first-party metadata-query
 source audit.
+
+Desktop controller acceptance uses the managed client ready descriptor without dropping its schema; fixture connections follow the same public package contract.
