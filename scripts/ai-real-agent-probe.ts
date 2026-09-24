@@ -28,6 +28,8 @@ import {
   seedAiRealHostWorkspace,
 } from "./lib/ai-real-host-fixture.mjs";
 
+import { smokeThinking } from "./lib/ai-smoke-thinking.mjs";
+
 type ProbeLane = "codex-acp" | "cursor-acp" | "codex-native";
 
 const connections = new ControllerConnectionPool();
@@ -297,6 +299,7 @@ async function startProbedSession(
   const catalog = await connection.client.request<{
     currentModel?: string;
     models?: string[];
+    configOptions?: Array<{ id: string; options?: Array<{ value: string }> }>;
   }>("providers.models", {
     provider: agentForLane(lane),
     workspace: connection.workspace,
@@ -323,7 +326,7 @@ async function startProbedSession(
         workspace,
         agent: agentForLane(lane),
         model: { provider: agentForLane(lane), model },
-        thinking: "medium",
+        ...smokeThinking(lane, catalog),
         appToolSession: descriptor,
       }),
       `${lane} session start`,

@@ -42,3 +42,28 @@ test("reset is confined to the repository tmp directory", () => {
   assert.throws(() => assertSafeAiSmokeReset("/repo", "/repo"));
   assert.throws(() => assertSafeAiSmokeReset("/repo", "/other/workspace"));
 });
+
+test("smoke thinking follows advertised optional configuration", async () => {
+  const { smokeThinking } = await import("./ai-smoke-thinking.mjs");
+  assert.deepEqual(smokeThinking("codex-native", {}), { thinking: "medium" });
+  assert.deepEqual(
+    smokeThinking("cursor-acp", {
+      configOptions: [{ id: "model", options: [{ value: "medium" }] }],
+    }),
+    {},
+  );
+  assert.deepEqual(
+    smokeThinking("codex-acp", {
+      configOptions: [
+        { id: "reasoning_effort", options: [{ value: "medium" }] },
+      ],
+    }),
+    { thinking: "medium" },
+  );
+  assert.deepEqual(
+    smokeThinking("codex-acp", {
+      configOptions: [{ id: "reasoning_effort", options: [{ value: "high" }] }],
+    }),
+    {},
+  );
+});
