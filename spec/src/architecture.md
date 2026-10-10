@@ -730,3 +730,7 @@ database readiness and indexed queries without mounting a vault-sized
 JavaScript model; the 100,000-note lane remains reported stress evidence.
 
 Desktop managed-controller test fixtures preserve the public ready descriptor, including its schema, so host-boundary assertions verify the same connection shape as the supervised process.
+
+The public Tasks projection v4 adds optional low/medium/high priority as an
+indexed sortable field. Task Markdown remains owned by the external Tasks
+package; hosts rebuild disposable projection rows through its registration.
