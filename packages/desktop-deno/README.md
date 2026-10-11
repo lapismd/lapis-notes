@@ -28,11 +28,12 @@ only. `deno desktop` opens the window, injects `win.bind()` on that document,
 and proxies the Vite renderer so `bindings.invoke` stays available. Do not open
 the Vite port in a browser tab; that page cannot receive desktop bindings.
 
-When the sibling `lapis-community` local registry fixture has been initialized,
-the development launcher automatically configures the desktop registry and the
-Community plugin for its Docker relay at `ws://registry.localhost:8281`. Explicit
-`VITE_LAPIS_NOSTR_*` values take precedence. Set `LAPIS_RELAY_PORT` when the
-local stack uses a non-default port.
+Local development uses the static HTTP registry unless explicitly configured
+otherwise. Nostr registry qualification is deferred for this release. To opt
+into an existing sibling relay fixture separately, set
+`LAPIS_LOCAL_NOSTR_REGISTRY=true` or `LAPIS_COMMUNITY_REGISTRY_FIXTURE_ENV`.
+Explicit `VITE_LAPIS_NOSTR_*` values take precedence. Set `LAPIS_RELAY_PORT` when
+the local stack uses a non-default port.
 
 The **View** menu reloads the window, tries `openDevtools()`, and shows
 captured renderer errors. The OS webview backend cannot host in-app DevTools, so
@@ -56,12 +57,14 @@ public per-window binding registry.
 ## Runtime status
 
 The host provides the Deno window and `win.bind()` bridge, `desktop-folder` vaults,
-vault-root filesystem containment, WASM Turso, the full portable first-party
-plugin inventory, native Markdown diagnostics, file watching, verified plugin
+vault-root filesystem containment, WASM Turso, the Source Editor, Markdown,
+File Explorer and Search default plugins, native Markdown diagnostics, file watching, verified plugin
 assets, agents, a native Deno PTY terminal runtime, single-instance URLs, native
 menus, external-link policy, macOS notifications, macOS/Linux file actions,
-ordered close, and local cross-platform artifacts. Community plugin sidecars
-and real workspace popouts remain explicitly unsupported.
+ordered close, and local cross-platform artifacts. Community is parked and
+excluded from the application profile. Other plugins load through verified
+installed-plugin persistence. Native plugin sidecars and real workspace popouts
+remain explicitly unsupported.
 
 Build and exercise the production app with:
 
