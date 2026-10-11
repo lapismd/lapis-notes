@@ -1,5 +1,8 @@
 # Architecture
 
+Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+unchanged; local overrides for these released packages are retired.
+
 Design Core-dependent surfaces follow the repository's portable published
 semver boundary; dependency refreshes update manifests and the lockfile without
 introducing sibling source paths.
@@ -734,3 +737,8 @@ Desktop managed-controller test fixtures preserve the public ready descriptor, i
 The public Tasks projection v4 adds optional low/medium/high priority as an
 indexed sortable field. Task Markdown remains owned by the external Tasks
 package; hosts rebuild disposable projection rows through its registration.
+
+Local plugin preparation excludes published Design Core, Mira-family, and Spec
+Validator entries from tarball remapping and install fingerprints. Existing
+plugin and unpublished Community/AI Controller acceptance remains separate
+from these registry foundations.

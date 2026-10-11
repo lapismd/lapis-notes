@@ -1,5 +1,9 @@
 # Packages
 
+Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+unchanged; local overrides for these released packages are retired.
+Shared specification tooling resolves `@lapismd/spec-validator@0.1.4` from npm.
+
 Public packages that consume Design Core keep their portable semver ranges and
 the workspace lockfile on the repository's current supported npm release.
 
@@ -764,3 +768,11 @@ Desktop controller acceptance uses the managed client ready descriptor without d
 The public Tasks projection v4 adds optional low/medium/high priority as an
 indexed sortable field. Task Markdown remains owned by the external Tasks
 package; hosts rebuild disposable projection rows through its registration.
+
+API type checks now resolve Design Core through its published declarations;
+the former local Design Core shim mappings are retired.
+
+Local plugin preparation excludes published Design Core, Mira-family, and Spec
+Validator entries from tarball remapping and install fingerprints. Existing
+plugin and unpublished Community/AI Controller acceptance remains separate
+from these registry foundations.

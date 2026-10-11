@@ -235,3 +235,8 @@ Markdown `dist` consumers and file-scoped metadata panels are not covered by
 package unit tests or source-aliased Storybook alone. Handoff must rebuild
 Markdown and prove the web host plus a workspace that keeps Outline, Backlinks,
 and Outgoing Links from writing on a no-op `active-leaf-change`.
+
+Local plugin preparation excludes published Design Core, Mira-family, and Spec
+Validator entries from tarball remapping and install fingerprints. Existing
+plugin and unpublished Community/AI Controller acceptance remains separate
+from these registry foundations.

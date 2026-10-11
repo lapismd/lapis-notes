@@ -1,5 +1,8 @@
 # Deno Desktop Host
 
+Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+unchanged; local overrides for these released packages are retired.
+
 Desktop presentation resolves Design Core through the repository's current
 published semver range and committed lockfile, not a sibling checkout.
 

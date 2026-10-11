@@ -38,7 +38,7 @@
     "@lapis-notes/language-service": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/design-core": "^0.1.2",
+    "@lapismd/design-core": "^0.3.1",
     "@lapismd/terminal-host": "^0.1.0",
     "@lucide/svelte": "^0.523.0",
     "@modelcontextprotocol/sdk": "^1.29.0",

@@ -63,3 +63,61 @@ test("redirects only plugin consumers to packed release candidates", async () =>
     await rm(releaseDirectory, { recursive: true, force: true });
   }
 });
+
+test("published foundations stay on npm even in a mixed local manifest", async () => {
+  const root = await mkdtemp(
+    path.join(os.tmpdir(), "lapis-foundation-ranges-"),
+  );
+  const manifestPath = path.join(root, ".release/npm/manifest.json");
+  await mkdir(path.dirname(manifestPath), { recursive: true });
+  const ranges = {
+    "@lapismd/design-core": "^0.3.1",
+    "@lapismd/mira": "~0.0.3",
+    "@lapismd/mira-editor": "~0.0.2",
+    "@lapismd/spec-validator": "^0.1.4",
+  };
+  const entries = Object.keys(ranges).map((packageName) => ({
+    packageName,
+    tarball: `.release/npm/${packageName.split("/")[1]}.tgz`,
+  }));
+  entries.push({
+    packageName: "@lapis-notes/search",
+    tarball: ".release/npm/search.tgz",
+  });
+  await writeFile(manifestPath, JSON.stringify(entries));
+  try {
+    const manifest = {
+      dependencies: { ...ranges, "@lapis-notes/search": "^0.1.1" },
+      devDependencies: { ...ranges },
+      optionalDependencies: { ...ranges },
+      peerDependencies: { ...ranges },
+    };
+    createHooks({ LAPIS_PLUGIN_TARBALL_MANIFEST: manifestPath }).readPackage(
+      manifest,
+    );
+    for (const field of [
+      "dependencies",
+      "devDependencies",
+      "optionalDependencies",
+      "peerDependencies",
+    ]) {
+      for (const [name, range] of Object.entries(ranges))
+        assert.equal(manifest[field][name], range);
+    }
+    assert.equal(
+      manifest.dependencies["@lapis-notes/search"],
+      `file:${path.join(root, ".release/npm/search.tgz")}`,
+    );
+    const {
+      selectLocalPluginReleaseEntries,
+    } = require("./local-plugin-pnpmfile.cjs");
+    assert.deepEqual(
+      selectLocalPluginReleaseEntries(entries).map(
+        (entry) => entry.packageName,
+      ),
+      ["@lapis-notes/search"],
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
