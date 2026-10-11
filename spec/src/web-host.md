@@ -79,6 +79,9 @@ The web host is a browser/PWA consumer ported from
 | LN-WEB-060 | An untrusted browser plugin that receives enforced capabilities MUST execute in an opaque sandbox with restrictive CSP, no host-origin storage or OPFS handles, and no direct network authority. Its MessagePort protocol MUST validate schemas and bind identity outside plugin-controlled payloads.                                                                                                                                                                                  |
 | LN-WEB-061 | The PWA host SHOULD request persistent browser storage and report the result without treating it as backup. Eviction of generated metadata MUST cause a database-generation reset and full reconciliation; eviction of a wrapped key envelope MUST require recovery or pairing.                                                                                                                                                                                                        |
 | LN-WEB-062 | Browser sync unlock MUST NOT create a new vault identity. Explicit new-vault, paired-device, and recovery enrollment MUST use the selected WebAuthn PRF or Argon2id wrapping flow, while recovery bundle passphrases remain host-owned interaction and MUST NOT enter plugin callbacks.                                                                                                                                                                                                |
+| LN-WEB-063 | The Web plugin asset server MUST finish mirroring verified bytes and obtain a controlling service worker before returning an executable asset URL. First-page installation MUST wait for control instead of enabling a route the current page cannot fetch.                                                                                                                                                                                                                            |
+| LN-WEB-064 | Web plugin asset readiness MUST report `asset-server-unavailable` after thirty seconds without control. Completion and failure MUST remove their controller-change listeners and timer handles.                                                                                                                                                                                                                                                                                        |
+| LN-WEB-065 | Verified plugin assets served from Cache Storage MUST carry `Cross-Origin-Embedder-Policy: require-corp` and `Cross-Origin-Resource-Policy: same-origin`. Installed module workers MUST start under the host isolation policy and retain verified relative worker chunks.                                                                                                                                                                                                              |
 
 The server build is selected by Vite's compile-time `server` mode and emits to
 `dist-server`. That profile omits the PWA plugin, manifest generation, offline
@@ -247,3 +250,35 @@ the Deno desktop owner uses the same portable WASM setting in its renderer
 provider in main.
 
 For LN-WEB-004, App Profile acceptance compiles the installed public Svelte dependency graph through Vite. Temporary packed validation uses matching framework peers so external plugin constructors retain one API class identity; registry manifests and lockfiles remain unchanged.
+
+For LN-PLUG-095, Web accepts explicit local catalog configuration in development
+or the dedicated acceptance build. LN-WEB-011 installs the actual signed Bases
+release before exercising its OPFS query, edit, and reload scenario. LN-WEB-030
+acceptance installs the signed Spellcheck release before opening a misspelled
+note, then verifies the same-origin WASM response and Harper Problems row. Both
+scenarios first verify the four-plugin static profile and exclude Community.
+
+LN-PKG-146 extends Web host entries to the public API import surface used by
+all active bundles, including Bases editor helpers and Markdown embedding.
+Development and static acceptance use the same generated module sources.
+
+Plugin asset CacheOnly matching must survive Workbox callback serialization
+without any captured build constants (LN-WEB-005, LN-WEB-006). Browser acceptance
+fetches the installed signed module through the controlled service worker.
+
+The signed plugin editor runtime also shares the approved CodeMirror and Lezer
+core modules through LN-PKG-146 host entries. Language grammars remain local to
+the plugin while editor classes, facets, and parser node properties resolve
+through the same graph as the API editor.
+
+LN-PKG-149 binds compiled Svelte archives to the exact renderer ABI supplied by
+the host. Generated versioned entries and browser import maps share that module
+graph without exposing original private host specifiers. API and host Svelte
+peers retain the exact qualified compiler version; dependency drift fails the
+host-catalogue build before archives can be installed.
+
+Verified installed-plugin URLs must wait for a controlling service worker after
+mirroring their hash-checked assets into Cache Storage. A bounded failure reports
+asset transport unavailability; controller-change listeners and timeout handles
+are removed on either completion or failure. First-load installation may not
+return a route that the current page cannot yet fetch.

@@ -14,9 +14,4 @@ export const rendererSvelteOptions = {
   emitCss: false,
 } as const;
 
-export const rendererPluginImportMap = {
-  imports: {
-    "@lapis-notes/api": "/plugin-host-api.js",
-    "@lapis-notes/api/workspace-host": "/plugin-host-workspace-host.js",
-  },
-} as const;
+export { rendererPluginImportMap } from "@lapis-notes/app-profile/plugin-host-build";

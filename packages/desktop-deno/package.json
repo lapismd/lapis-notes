@@ -51,7 +51,7 @@
     "@tailwindcss/vite": "^4.1.12",
     "@tsconfig/svelte": "^5.0.5",
     "@types/node": "^22.10.5",
-    "svelte": "^5.38.2",
+    "svelte": "5.56.10",
     "svelte-check": "^4.3.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.3",

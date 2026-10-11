@@ -1,5 +1,6 @@
 <script lang="ts">
   import { ControllerClient } from "@lapismd/ai-controller/client";
+  import type { Controller } from "@lapismd/ai-controller";
   import {
     App,
     installApplicationCompatibility,
@@ -16,6 +17,7 @@
   } from "@lapis-notes/api";
   import {
     createConfiguredNotesNostrPluginDistribution,
+    createConfiguredNotesLocalPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
   } from "@lapis-notes/app-profile";
@@ -72,6 +74,17 @@
   const pluginAssetServer = untrack(() =>
     createDenoPluginAssetServer({ adapter, bridge }),
   );
+  const staticPluginDistributionOptions = untrack(() =>
+    createConfiguredNotesLocalPluginDistribution({
+      DEV: import.meta.env.DEV,
+      MODE: import.meta.env.MODE,
+      VITE_LAPIS_LOCAL_REGISTRY_URL: import.meta.env.VITE_LAPIS_LOCAL_REGISTRY_URL,
+      VITE_LAPIS_LOCAL_REGISTRY_ARTIFACT_ORIGIN:
+        import.meta.env.VITE_LAPIS_LOCAL_REGISTRY_ARTIFACT_ORIGIN,
+      VITE_LAPIS_LOCAL_REGISTRY_TRUSTED_KEYS:
+        import.meta.env.VITE_LAPIS_LOCAL_REGISTRY_TRUSTED_KEYS,
+    }),
+  );
   const nostrPluginDistribution = untrack(() =>
     createConfiguredNotesNostrPluginDistribution({
       VITE_LAPIS_NOSTR_REGISTRY_RELAYS:
@@ -82,7 +95,7 @@
         import.meta.env.VITE_LAPIS_NOSTR_INSTALL_QUORUM,
       VITE_LAPIS_NOSTR_BLOSSOM_URL:
         import.meta.env.VITE_LAPIS_NOSTR_BLOSSOM_URL,
-    }),
+    }, staticPluginDistributionOptions),
   );
   const app = untrack(() => {
     const safeMode = readDesktopSafeModeState();
@@ -129,7 +142,8 @@
       },
       safeMode,
       pluginAssetServer,
-      pluginDistributionOptions: nostrPluginDistribution?.options,
+      pluginDistributionOptions:
+        nostrPluginDistribution?.options ?? staticPluginDistributionOptions,
       nostrSignerBroker: getDenoNostrSignerBroker(),
       workspaceShell: { application: appInfo, notifications: true },
       markdownRenderer: async () => {},
@@ -254,8 +268,8 @@
       });
       try {
         const thread = await controller.createThread({ provider: providers[0].id, workspace: connection.workspace, toolEndpoint: "lapis.packaged-acceptance" });
-        const tools = await controller.request<Array<{ name: string }>>("tools.list", { threadId: thread.id });
-        appToolRegistered = tools.some(tool => tool.name === "acceptance");
+        const tools = await controller.request<ReturnType<Controller["inspectTools"]>>("tools.list", { threadId: thread.id });
+        appToolRegistered = tools.available && tools.definitions.some(tool => tool.name === "acceptance");
       } finally { await unregister(); }
     } finally { controller.dispose(); }
     const watchPath = "deno-watch-smoke.tmp";

@@ -1,5 +1,9 @@
 # Lapis Editor Demo
 
+The demo shares the qualified Svelte renderer graph under LN-PKG-149. Provider
+readiness refreshes already-open editor diagnostics through LN-WS-094 without
+changing document content or persistence.
+
 Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 

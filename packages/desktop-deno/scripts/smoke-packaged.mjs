@@ -173,10 +173,15 @@ await writeFile(path.join(pluginDirectory, "main.mjs"), pluginSource);
 await writeFile(
   path.join(vaultPath, ".obsidian", "installed-plugins.json"),
   `${JSON.stringify({
+    schemaVersion: 1,
+    updatedAt: new Date().toISOString(),
     plugins: {
       [pluginId]: {
         pluginId,
         installedVersion: "1.0.0",
+        installedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        provenance: "development",
         files: [
           {
             path: "main.mjs",

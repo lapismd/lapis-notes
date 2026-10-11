@@ -17,7 +17,10 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "pnpm preview --host 127.0.0.1",
+    command:
+      process.env.LAPIS_WEB_REGISTRY_ACCEPTANCE === "true"
+        ? "pnpm exec vite preview --host 127.0.0.1 --outDir dist-registry-acceptance"
+        : "pnpm preview --host 127.0.0.1",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

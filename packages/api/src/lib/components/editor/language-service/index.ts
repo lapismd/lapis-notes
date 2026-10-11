@@ -1,6 +1,11 @@
 import type { Completion, CompletionContext } from "@codemirror/autocomplete";
 import type { Action } from "@codemirror/lint";
-import { Facet, type Extension, type Text } from "@codemirror/state";
+import {
+  Facet,
+  StateEffect,
+  type Extension,
+  type Text,
+} from "@codemirror/state";
 import {
   hoverTooltip,
   ViewPlugin,
@@ -19,6 +24,7 @@ import {
   mapToLapisLintDiagnostic,
   markdownlintRuleUrl,
   setDiagnostics,
+  forceLinting,
 } from "../extensions/lint";
 import type {
   LanguageServiceCodeAction,
@@ -27,6 +33,7 @@ import type {
   LanguageServicePosition,
   LanguageServiceRange,
   VirtualDocument,
+  LanguageServiceManager,
 } from "../../../language-service";
 import { createLanguageServiceHoverDom } from "./dom";
 
@@ -71,6 +78,7 @@ const trackedOpenDocuments = new WeakMap<
   EditorView,
   { uri: string; release: () => void }
 >();
+const diagnosticsInvalidatedEffect = StateEffect.define<void>();
 
 export function languageServiceExtensions(
   options: LanguageServiceEditorOptions = {},
@@ -86,6 +94,14 @@ export function languageServiceExtensions(
         source: async (view: EditorView) =>
           collectLanguageServiceDiagnostics(view, options),
         gutter: wantsGutter ? undefined : false,
+        lint: {
+          needsRefresh: (update) =>
+            update.transactions.some((transaction) =>
+              transaction.effects.some((effect) =>
+                effect.is(diagnosticsInvalidatedEffect),
+              ),
+            ),
+        },
       }),
     );
   } else if (wantsGutter) {
@@ -105,9 +121,27 @@ function openDocumentTrackingExtension(
   options: Pick<LanguageServiceEditorOptions, "languageId">,
 ): Extension {
   return ViewPlugin.define((view) => {
+    let subscribedManager: LanguageServiceManager | undefined;
+    let unsubscribeInvalidation: (() => void) | undefined;
     const sync = (nextView: EditorView) => {
       const resolved = resolveDocumentContext(nextView, options.languageId);
       if (!resolved) return;
+      const manager = resolved.info.app.languageServices;
+      if (subscribedManager !== manager) {
+        unsubscribeInvalidation?.();
+        subscribedManager = manager;
+        unsubscribeInvalidation = manager.onDiagnosticsInvalidated(
+          (languages) => {
+            const current = resolveDocumentContext(view, options.languageId);
+            if (current && languages.includes(current.document.languageId)) {
+              view.dispatch({
+                effects: diagnosticsInvalidatedEffect.of(undefined),
+              });
+              forceLinting(view);
+            }
+          },
+        );
+      }
       retainOpenDocument(
         nextView,
         resolved.document.uri,
@@ -120,6 +154,7 @@ function openDocumentTrackingExtension(
         sync(update.view);
       },
       destroy() {
+        unsubscribeInvalidation?.();
         trackedOpenDocuments.get(view)?.release();
         trackedOpenDocuments.delete(view);
       },

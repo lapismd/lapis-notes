@@ -744,3 +744,24 @@ plugin and unpublished Community/AI Controller acceptance remains separate
 from these registry foundations.
 
 For LN-PLUG-092, plugin-management presentation composes shared V2 metadata through public package exports. Packed API acceptance uses one public API class identity and lets the Workspace Vitest graph transform dependency modules through Vite rather than substituting a private API barrel.
+
+Local signed-registry acceptance (LN-PLUG-095) composes the public App options
+inside App Profile. Only the configured virtual HTTPS artifact origin maps to
+the loopback fixture transport; signed content and all installer verification
+boundaries remain authoritative.
+
+For LN-PKG-146, canonical host-module configuration and current API exports
+regenerate the catalogue before package output. App Profile supplies pure build
+metadata; each host supplies its own Vite plugin and emits public module proxies
+from the same graph as the application. No registry bundle uses source aliases.
+
+The signed plugin editor runtime also shares the approved CodeMirror and Lezer
+core modules through LN-PKG-146 host entries. Language grammars remain local to
+the plugin while editor classes, facets, and parser node properties resolve
+through the same graph as the API editor.
+
+LN-PKG-149 binds compiled Svelte archives to the exact renderer ABI supplied by
+the host. Generated versioned entries and browser import maps share that module
+graph without exposing original private host specifiers. API and host Svelte
+peers retain the exact qualified compiler version; dependency drift fails the
+host-catalogue build before archives can be installed.

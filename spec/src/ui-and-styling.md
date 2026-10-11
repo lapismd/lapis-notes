@@ -1,5 +1,9 @@
 # UI and Styling
 
+UI development uses the qualified Svelte version from LN-PKG-149 so API and
+workspace consumers share one Design Core type and renderer graph. This changes
+compiler qualification without changing component paint or public styling tokens.
+
 Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 

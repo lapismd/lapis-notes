@@ -240,3 +240,13 @@ Local plugin preparation excludes published Design Core, Mira-family, and Spec
 Validator entries from tarball remapping and install fingerprints. Existing
 plugin and unpublished Community/AI Controller acceptance remains separate
 from these registry foundations.
+
+Dedicated `dist-registry-acceptance` output is ignored alongside other generated
+artifacts. It contains only nonproduction fixture trust and must not enter source
+commits, npm candidates, or production host packaging.
+
+LN-PKG-149 binds compiled Svelte archives to the exact renderer ABI supplied by
+the host. Generated versioned entries and browser import maps share that module
+graph without exposing original private host specifiers. API and host Svelte
+peers retain the exact qualified compiler version; dependency drift fails the
+host-catalogue build before archives can be installed.

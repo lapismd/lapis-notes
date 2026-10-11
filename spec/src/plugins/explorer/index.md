@@ -1,5 +1,9 @@
 # Explorer Plugin
 
+Explorer development compiles against the same qualified Svelte version as
+the API and workspace under LN-PKG-149, preserving shared Design Core class
+identity. Its published dependency ranges and source ownership remain portable.
+
 Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 

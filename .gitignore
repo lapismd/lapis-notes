@@ -34,3 +34,6 @@ packages/desktop-deno/native/
 packages/desktop-deno/lapis-notes
 packages/desktop-deno/ai-host
 packages/desktop-deno/terminal-host
+
+# Dedicated signed-registry acceptance builds contain ephemeral fixture trust.
+**/dist-registry-acceptance/

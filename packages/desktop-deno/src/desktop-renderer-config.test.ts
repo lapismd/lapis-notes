@@ -28,12 +28,46 @@ describe("Deno desktop renderer configuration", () => {
   });
 
   it("maps packed plugin shared API imports to desktop host modules", () => {
-    expect(rendererPluginImportMap).toEqual({
-      imports: {
-        "@lapis-notes/api": "/plugin-host-api.js",
-        "@lapis-notes/api/workspace-host": "/plugin-host-workspace-host.js",
-      },
-    });
+    expect(rendererPluginImportMap.imports["@lapis-notes/api"]).toBe(
+      "/plugin-host-api.js",
+    );
+    expect(
+      rendererPluginImportMap.imports["@lapis-notes/api/workspace-host"],
+    ).toBe("/plugin-host-workspace-host.js");
+    for (const specifier of [
+      "@lapis-notes/api/editor",
+      "@lapis-notes/api/editor/core",
+      "@lapis-notes/api/editor/extensions/class-highlighter",
+      "@lapis-notes/api/agent-tools",
+      "@lapis-notes/api/vault",
+      "@lapis-notes/markdown/embed",
+      "@codemirror/state",
+      "@codemirror/view",
+      "@codemirror/language",
+      "@codemirror/autocomplete",
+      "@codemirror/commands",
+      "@codemirror/lint",
+      "@codemirror/search",
+      "@lezer/common",
+      "@lezer/highlight",
+      "@lezer/lr",
+      "svelte/renderer/5.56.10",
+      "svelte/renderer/5.56.10/internal/client",
+      "svelte/renderer/5.56.10/store",
+    ]) {
+      expect(rendererPluginImportMap.imports[specifier], specifier).toMatch(
+        /^\/plugin-host-[a-z0-9-]+\.js$/u,
+      );
+    }
+    expect(
+      rendererPluginImportMap.imports["svelte/internal/client"],
+    ).toBeUndefined();
+    expect(
+      rendererPluginImportMap.imports["svelte/renderer/99.0.0/internal/client"],
+    ).toBeUndefined();
+    expect(
+      rendererPluginImportMap.imports["@lapis-notes/api/private"],
+    ).toBeUndefined();
   });
 
   it("keeps registry Svelte component CSS in its compiled module", () => {

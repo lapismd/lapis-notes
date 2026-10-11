@@ -29,7 +29,12 @@ function createCollection(): DiagnosticCollection & {
       resourceOrEntries:
         | DiagnosticResource
         | null
-        | Iterable<readonly [DiagnosticResource | null, readonly WorkspaceDiagnostic[] | undefined]>,
+        | Iterable<
+            readonly [
+              DiagnosticResource | null,
+              readonly WorkspaceDiagnostic[] | undefined,
+            ]
+          >,
       diagnostics?: readonly WorkspaceDiagnostic[],
     ) {
       if (
@@ -85,6 +90,24 @@ const document: VirtualDocument = {
 };
 
 describe("LanguageServiceManager diagnostics bridge", () => {
+  it("invalidates only a registered provider's languages and disposes subscriptions", () => {
+    const manager = new LanguageServiceManager();
+    const invalidate = vi.fn();
+    const unsubscribe = manager.onDiagnosticsInvalidated(invalidate);
+    const unregister = manager.registerProvider(provider());
+
+    expect(manager.invalidateDiagnostics("missing")).toBe(false);
+    expect(invalidate).not.toHaveBeenCalled();
+    expect(manager.invalidateDiagnostics("markdownlint")).toBe(true);
+    expect(invalidate).toHaveBeenLastCalledWith(["markdown"]);
+
+    unsubscribe();
+    manager.invalidateDiagnostics("markdownlint");
+    expect(invalidate).toHaveBeenCalledOnce();
+    unregister();
+    expect(manager.invalidateDiagnostics("markdownlint")).toBe(false);
+  });
+
   it("publishes only retained documents and clears the final closed editor", async () => {
     const manager = new LanguageServiceManager();
     const collection = createCollection();
@@ -294,10 +317,7 @@ describe("LanguageServiceManager diagnostics bridge", () => {
       manager
         .cachedCodeActionsFor(document.uri, diagnostic)
         .map((action) => action.title),
-    ).toEqual([
-      "Fix this violation of `MD032`",
-      "Disable MD032 for this line",
-    ]);
+    ).toEqual(["Fix this violation of `MD032`", "Disable MD032 for this line"]);
   });
 
   it("merges diagnostics and code actions from every matching priority", async () => {
@@ -471,7 +491,10 @@ describe("LanguageServiceManager diagnostics bridge", () => {
     const manager = new LanguageServiceManager();
     const collection = createCollection();
     manager.bindDiagnostics({ collection, applyCodeAction: vi.fn() });
-    manager.reportProviderFailure("spellcheck", new Error("harper setup failed"));
+    manager.reportProviderFailure(
+      "spellcheck",
+      new Error("harper setup failed"),
+    );
     expect(collection.get(null)).toEqual([
       expect.objectContaining({
         source: "Language service",

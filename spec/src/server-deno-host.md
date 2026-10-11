@@ -151,3 +151,9 @@ executor or receive the browser-owned App tool and memory authority.
 The dedicated Web build consumes the same four-plugin `notesPluginProfile` as
 other Notes hosts (LN-WEB-004 and LN-PLUG-006). Community is parked for this
 release and excluded from its constructor, style and dependency composition.
+
+Local fixture trust from LN-PLUG-095 is ignored by server-mode clients. The
+explicit authenticated host distribution options remain authoritative.
+
+The Web module entries required by LN-SRV-018 derive from LN-PKG-146 rather than
+a two-entry host inventory; server delivery uses the same emitted files.

@@ -1,3 +1,8 @@
+import {
+  rendererPluginHostInputs,
+  resolvePluginHostModule,
+  loadPluginHostModule,
+} from "@lapis-notes/app-profile/plugin-host-build";
 import { tursoBundleBuildPlugin } from "@lapismd/lapis-community/build/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
@@ -64,23 +69,23 @@ export const rendererSvelteOptions = {
   emitCss: false,
 } as const;
 
-export const rendererPluginImportMap = {
-  imports: {
-    "@lapis-notes/api": "/plugin-host-api.js",
-    "@lapis-notes/api/workspace-host": "/plugin-host-workspace-host.js",
-  },
-} as const;
+import { rendererPluginImportMap } from "@lapis-notes/app-profile/plugin-host-build";
+export { rendererPluginImportMap };
 
 function pluginHostImportMapPlugin(): Plugin {
   return {
     name: "lapis-desktop-plugin-host-import-map",
+    resolveId(id) {
+      return resolvePluginHostModule(id);
+    },
+    load(id) {
+      return loadPluginHostModule(id);
+    },
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
         const pathname = request.url?.split("?", 1)[0];
-        if (pathname === "/plugin-host-api.js")
-          request.url = "/src/plugin-host-api.ts";
-        if (pathname === "/plugin-host-workspace-host.js")
-          request.url = "/src/plugin-host-workspace-host.ts";
+        const id = pathname && resolvePluginHostModule(pathname);
+        if (id) request.url = "/@id/__x00__" + id.slice(1);
         next();
       });
     },
@@ -137,22 +142,15 @@ export default defineConfig(({ command }) => ({
     reportCompressedSize: false,
     outDir: "dist",
     rollupOptions: {
+      preserveEntrySignatures: "strict",
       input: {
         main: path.resolve(packageRoot, "index.html"),
         about: path.resolve(packageRoot, "about.html"),
-        "plugin-host-api": path.resolve(
-          packageRoot,
-          "src/plugin-host-api.ts",
-        ),
-        "plugin-host-workspace-host": path.resolve(
-          packageRoot,
-          "src/plugin-host-workspace-host.ts",
-        ),
+        ...rendererPluginHostInputs,
       },
       output: {
         entryFileNames(chunk) {
-          return chunk.name === "plugin-host-api" ||
-            chunk.name === "plugin-host-workspace-host"
+          return chunk.name.startsWith("plugin-host-")
             ? `${chunk.name}.js`
             : "assets/[name]-[hash].js";
         },

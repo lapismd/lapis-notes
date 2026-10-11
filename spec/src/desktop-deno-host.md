@@ -102,6 +102,7 @@ It MUST NOT listen for retired `desktop_agent_process_message`,
 | LN-DENO-072 | Desktop sync keys MUST remain behind the host crypto service and use the available OS credential store for persisted envelopes or key references. Plugin workers MUST receive neither key bytes nor ambient filesystem, environment, network, or credential authority.                                                                                                                                                                                                                                                                                                    |
 | LN-DENO-073 | The Deno plugin runtime MUST bind plugin identity and grants when its worker is created, validate every RPC message, and terminate or revoke its capability channel when disabled. Network and vault access MUST occur only through equivalent public broker operations.                                                                                                                                                                                                                                                                                                  |
 | LN-DENO-074 | Desktop sync unlock MUST NOT create a new vault identity. Explicit new-vault, paired-device, and recovery enrollment MUST obtain wrapping material through the OS credential adapter, while recovery bundle passphrases remain host-owned interaction and MUST NOT enter plugin callbacks.                                                                                                                                                                                                                                                                                |
+| LN-DENO-075 | Packaged acceptance reports MUST become visible through an atomic rename after complete JSON serialization. A reader MUST NOT observe a partially written report, and report publication failure MUST remain a failed acceptance result. |
 
 ### LN-DENO-055 acceptance details
 
@@ -486,3 +487,23 @@ OS webview quirks require documented equivalents when they affect a visible
 application feature.
 
 Local Nostr registry fixtures require `LAPIS_LOCAL_NOSTR_REGISTRY=true` or an explicit `LAPIS_COMMUNITY_REGISTRY_FIXTURE_ENV` path. An incidental sibling fixture keeps development on the configured HTTP registry (LN-PLUG-094).
+
+For LN-PLUG-095, desktop statically supplies explicit local acceptance values
+to the shared App Profile factory. Normal production builds ignore fixture
+trust; configured installed-plugin loading and native asset verification remain
+unchanged.
+
+LN-PKG-146 extends desktop renderer entries through the same public catalogue
+as Web. Production Rollup output retains every entry export, and development
+resolves those public URLs through host-owned virtual modules.
+
+The signed plugin editor runtime also shares the approved CodeMirror and Lezer
+core modules through LN-PKG-146 host entries. Language grammars remain local to
+the plugin while editor classes, facets, and parser node properties resolve
+through the same graph as the API editor.
+
+LN-PKG-149 binds compiled Svelte archives to the exact renderer ABI supplied by
+the host. Generated versioned entries and browser import maps share that module
+graph without exposing original private host specifiers. API and host Svelte
+peers retain the exact qualified compiler version; dependency drift fails the
+host-catalogue build before archives can be installed.

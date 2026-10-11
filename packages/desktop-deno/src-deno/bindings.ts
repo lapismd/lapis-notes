@@ -1,4 +1,5 @@
 import { handleBootstrapKv } from "./bootstrap-kv.ts";
+import { writeAcceptanceReport } from "./acceptance-report.ts";
 import { DESKTOP_APPLICATION_INFO } from "./application-info.ts";
 import type { DenoAppDatabaseHost } from "./app-database.ts";
 import {
@@ -168,10 +169,10 @@ export function handleDesktopInvoke(
     if (Deno.env.get("LAPIS_DENO_ACCEPTANCE") !== "1" || !reportPath) {
       throw new Error("Deno desktop acceptance reporting is disabled");
     }
-    return Deno.writeTextFile(
-      reportPath,
-      `${JSON.stringify({ ...payload, ...context.acceptanceDetails?.() })}\n`,
-    );
+    return writeAcceptanceReport(reportPath, {
+      ...payload,
+      ...context.acceptanceDetails?.(),
+    });
   }
   if (command === "desktop_acceptance_request_close") {
     if (Deno.env.get("LAPIS_DENO_ACCEPTANCE") !== "1") {

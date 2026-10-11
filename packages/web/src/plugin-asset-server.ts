@@ -25,6 +25,10 @@ export interface WebPluginAssetServerOptions {
   adapter: WebPluginAssetDataAdapter;
   cacheStorage?: CacheStorage;
   pluginsPath?: string;
+  serviceWorker?: Pick<
+    ServiceWorkerContainer,
+    "controller" | "addEventListener" | "removeEventListener"
+  >;
 }
 
 export class WebCachePluginAssetServer implements PluginAssetServer {
@@ -53,6 +57,7 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
       version,
       fingerprintSha256,
     );
+    await waitForWebPluginAssetController(this.options.serviceWorker);
     return createWebPluginAssetUrl({
       vaultId: this.vaultId,
       pluginId: request.pluginId,
@@ -136,6 +141,8 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
               headers: {
                 "Cache-Control": "no-store",
                 "Content-Type": asset.contentType,
+                "Cross-Origin-Embedder-Policy": "require-corp",
+                "Cross-Origin-Resource-Policy": "same-origin",
                 "X-Lapis-Plugin-Asset-Sha256": asset.sha256,
               },
             }),
@@ -149,4 +156,42 @@ export function createWebPluginAssetServer(
   options: WebPluginAssetServerOptions,
 ): PluginAssetServer {
   return new WebCachePluginAssetServer(options);
+}
+
+export async function waitForWebPluginAssetController(
+  serviceWorker:
+    | Pick<
+        ServiceWorkerContainer,
+        "controller" | "addEventListener" | "removeEventListener"
+      >
+    | undefined = globalThis.navigator?.serviceWorker,
+): Promise<void> {
+  if (!serviceWorker)
+    throw new PluginAssetServerError(
+      "asset-server-unavailable",
+      "Web plugin assets require a controlling service worker",
+    );
+  if (serviceWorker.controller) return;
+  await new Promise<void>((resolve, reject) => {
+    const cleanup = () => {
+      clearTimeout(timeout);
+      serviceWorker.removeEventListener("controllerchange", onControllerChange);
+    };
+    const onControllerChange = () => {
+      if (!serviceWorker.controller) return;
+      cleanup();
+      resolve();
+    };
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(
+        new PluginAssetServerError(
+          "asset-server-unavailable",
+          "The service worker did not take control for Web plugin asset loading",
+        ),
+      );
+    }, 30_000);
+    serviceWorker.addEventListener("controllerchange", onControllerChange);
+    onControllerChange();
+  });
 }

@@ -1,3 +1,8 @@
+import {
+  rendererPluginHostInputs,
+  resolvePluginHostModule,
+  loadPluginHostModule,
+} from "@lapis-notes/app-profile/plugin-host-build";
 import { tursoBundleBuildPlugin } from "@lapismd/lapis-community/build/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
@@ -13,6 +18,7 @@ import {
   rendererPluginImportMap,
   rendererSvelteOptions,
 } from "./src/renderer-config";
+import { matchesWebPluginAssetRequest } from "./src/plugin-asset-route";
 
 export {
   rendererOptimizeDependencyExclusions,
@@ -25,7 +31,6 @@ export {
 // Importing the browser API package while Vite evaluates its Node config would
 // execute the packaged ESM entry before Vite can resolve its extensionless
 // Svelte-package imports.
-const WEB_PLUGIN_ASSET_ROUTE_PREFIX = "/__lapis/plugins";
 const WEB_PLUGIN_ASSET_CACHE_NAME = "lapis-plugin-assets-v1";
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
@@ -86,13 +91,17 @@ function wasmHeadersPlugin(): Plugin {
 function pluginHostImportMapPlugin(): Plugin {
   return {
     name: "lapis-plugin-host-import-map",
+    resolveId(id) {
+      return resolvePluginHostModule(id);
+    },
+    load(id) {
+      return loadPluginHostModule(id);
+    },
     configureServer(server) {
       server.middlewares.use((request, _response, next) => {
         const pathname = request.url?.split("?", 1)[0];
-        if (pathname === "/plugin-host-api.js")
-          request.url = "/src/plugin-host-api.ts";
-        if (pathname === "/plugin-host-workspace-host.js")
-          request.url = "/src/plugin-host-workspace-host.ts";
+        const id = pathname && resolvePluginHostModule(pathname);
+        if (id) request.url = "/@id/__x00__" + id.slice(1);
         next();
       });
     },
@@ -146,12 +155,27 @@ const pwaPlugin = VitePWA({
     theme_color: "#f6f6f6",
     protocol_handlers: [{ protocol: "web+lapis", url: "/open?url=%s" }],
     icons: [
-      { src: "favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      {
+        src: "favicon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+        purpose: "any",
+      },
       { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
       { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
       { src: "pwa-1024x1024.png", sizes: "1024x1024", type: "image/png" },
-      { src: "pwa-512x512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-      { src: "pwa-1024x1024-maskable.png", sizes: "1024x1024", type: "image/png", purpose: "maskable" },
+      {
+        src: "pwa-512x512-maskable.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: "pwa-1024x1024-maskable.png",
+        sizes: "1024x1024",
+        type: "image/png",
+        purpose: "maskable",
+      },
     ],
   },
   workbox: {
@@ -160,13 +184,13 @@ const pwaPlugin = VitePWA({
     skipWaiting: false,
     maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
     navigateFallback: "index.html",
-    globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,woff2,woff,ttf,wasm}"],
+    globPatterns: [
+      "**/*.{js,css,html,ico,png,svg,webmanifest,woff2,woff,ttf,wasm}",
+    ],
     globIgnores: ["**/sw.js", "**/workbox-*.js"],
     runtimeCaching: [
       {
-        urlPattern: ({ url }) =>
-          url.origin === self.location.origin &&
-          url.pathname.startsWith(`${WEB_PLUGIN_ASSET_ROUTE_PREFIX}/`),
+        urlPattern: matchesWebPluginAssetRequest,
         handler: "CacheOnly",
         options: { cacheName: WEB_PLUGIN_ASSET_CACHE_NAME },
       },
@@ -221,19 +245,11 @@ export default defineConfig(({ mode }) => ({
       preserveEntrySignatures: "strict",
       input: {
         index: path.resolve(packageRoot, "index.html"),
-        "plugin-host-api": path.resolve(
-          packageRoot,
-          "src/plugin-host-api.ts",
-        ),
-        "plugin-host-workspace-host": path.resolve(
-          packageRoot,
-          "src/plugin-host-workspace-host.ts",
-        ),
+        ...rendererPluginHostInputs,
       },
       output: {
         entryFileNames(chunk) {
-          return chunk.name === "plugin-host-api" ||
-            chunk.name === "plugin-host-workspace-host"
+          return chunk.name.startsWith("plugin-host-")
             ? `${chunk.name}.js`
             : "assets/[name]-[hash].js";
         },

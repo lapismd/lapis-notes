@@ -90,7 +90,7 @@
     "mode-watcher": "^1.1.0",
     "paneforge": "^1.0.2",
     "publint": "^0.3.12",
-    "svelte": "^5.38.2",
+    "svelte": "5.56.10",
     "svelte-check": "^4.3.1",
     "svelte-sonner": "^1.0.5",
     "tailwind-merge": "^3.3.1",

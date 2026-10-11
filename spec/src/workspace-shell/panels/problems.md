@@ -61,6 +61,8 @@ diagnostics or language-service apply paths.
 | LN-WS-073 | `LanguageServiceCodeAction` MAY carry a serializable `command`. Apply paths MUST run provider `applyCommand` after any document edit. Diagnostic objects MUST NOT carry callbacks. |
 | LN-WS-074 | Problems tree and table rows MUST use the severity-icon slot as the quick-fix control when the collection contributed actions. Hover or focus MUST show a Lucide lightbulb. Click MUST open the portaled workspace menu of those actions. The Copy-first context menu MUST remain. |
 | LN-WS-079 | A diagnostic hover card MUST expose one Quick Fix control for cached code actions instead of listing each action. That control MUST open the portaled workspace menu of those actions. View Problem MAY remain a separate control. |
+| LN-WS-094 | The API language-service manager MUST expose diagnostic invalidation for registered providers. Attached editors whose language matches MUST request diagnostics again without a document edit, keeping the gutter and Problems collection consistent. Unknown or unloaded providers MUST NOT trigger invalidation. Editor subscriptions MUST dispose with the owning view. |
+
 
 `Plugin.registerAgentTool` and `Plugin.registerAgentResultView` are independent
 from diagnostic collections and do not add callbacks or agent-specific fields

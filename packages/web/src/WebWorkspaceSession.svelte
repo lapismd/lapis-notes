@@ -19,6 +19,7 @@
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import {
     createConfiguredNotesNostrPluginDistribution,
+    createConfiguredNotesLocalPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
   } from "@lapis-notes/app-profile";
@@ -68,10 +69,16 @@
     pluginDistributionOptions?: AppPluginDistributionOptions;
   } = $props();
 
+  const staticPluginDistributionOptions = untrack(() =>
+    createConfiguredNotesLocalPluginDistribution(
+      import.meta.env,
+      pluginDistributionOptions,
+    ),
+  );
   const nostrPluginDistribution = untrack(() =>
     createConfiguredNotesNostrPluginDistribution(
       import.meta.env,
-      pluginDistributionOptions,
+      staticPluginDistributionOptions,
     ),
   );
 
@@ -148,7 +155,7 @@
         pluginAssetServer:
           pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
         pluginDistributionOptions:
-          nostrPluginDistribution?.options ?? pluginDistributionOptions,
+          nostrPluginDistribution?.options ?? staticPluginDistributionOptions,
         workspaceShell: {
           application: {
             name: "Lapis Notes",
