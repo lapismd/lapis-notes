@@ -9,6 +9,9 @@ the same source settings and file associations as production hosts.
 Deterministic chat stories preserve pending tool state when a running fixture
 requires it, provide an App when Markdown rendering is exercised, and scope
 duplicate tool-output assertions to the expanded call that owns them.
+Local Conversations acceptance waits for closed menus to release pointer
+interaction before opening History options, while retaining archive, restore,
+delete, and new-chat assertions.
 
 AI also owns the default read-only `.jsonl` file view. Portable
 `transcript.jsonl` files use the same durable validation and chat-item

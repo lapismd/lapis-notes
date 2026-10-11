@@ -197,7 +197,9 @@ governed catalog family.
 The `Plugins/AI/Shell` Local Conversations play opens the composer overflow
 menu, asserts Archive Chat, Delete Chat, and New Chat, checks those labels
 are not clipped, and matches their font size to the model menu (LN-AI-109,
-LN-AI-123).
+LN-AI-123). It waits for menu teardown to restore pointer interaction before
+opening the History options, then verifies archive, restore, delete, and new-chat
+behavior (LN-CAT-071).
 
 The structured plugin-panel catalog covers Explorer, Search, History, AI Chat, AI
 History, AI Catalog, and the six Markdown command views. History compare stories assert
