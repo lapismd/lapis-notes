@@ -42,7 +42,7 @@ describe("web plugin profile registration", () => {
     expect(source).not.toContain("Opening vault…");
   });
 
-  it("keeps exactly the five app-owned default plugins in stable order", () => {
+  it("keeps exactly the four app-owned default plugins in stable order", () => {
     const source = readFileSync(
       path.resolve(process.cwd(), "../app-profile/src/index.ts"),
       "utf8",
@@ -52,7 +52,6 @@ describe("web plugin profile registration", () => {
       "MarkdownPlugin",
       "FileExplorerPlugin",
       "SearchPlugin",
-      "CommunityPlugin",
     ];
 
     let previous = source.indexOf("notesPluginProfile = [");
@@ -62,9 +61,9 @@ describe("web plugin profile registration", () => {
       previous = current;
     }
 
-    expect(source.match(/plugin: \w+Plugin/g)).toHaveLength(5);
-    expect(source.match(/enabledByDefault: true/g)).toHaveLength(5);
-    expect(source.match(/required: false/g)).toHaveLength(5);
+    expect(source.match(/plugin: \w+Plugin/g)).toHaveLength(4);
+    expect(source.match(/enabledByDefault: true/g)).toHaveLength(4);
+    expect(source.match(/required: false/g)).toHaveLength(4);
   });
 
   it("keeps the branded launcher off the restore path", () => {

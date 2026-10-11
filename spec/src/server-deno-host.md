@@ -1,5 +1,9 @@
 # Deno Server Host
 
+The dedicated Web client uses the shared four-plugin application profile from
+LN-WEB-004. Community is parked and does not become a server-host default;
+verified configured-plugin loading remains available.
+
 Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 
