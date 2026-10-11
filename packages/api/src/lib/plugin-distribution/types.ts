@@ -1,3 +1,8 @@
+import type {
+  RegistryCatalogV2Entry,
+  RegistryCatalogV2Detail,
+  RegistryReleaseChangelog,
+} from "@lapismd/lapis-community/registry/schema";
 export type PluginProvenance =
   | "bundled"
   | "official"
@@ -23,11 +28,7 @@ export interface PluginRegistrySource {
   builtin?: boolean;
 }
 
-export type PluginRegistrySourcePhase =
-  | "idle"
-  | "ready"
-  | "degraded"
-  | "error";
+export type PluginRegistrySourcePhase = "idle" | "ready" | "degraded" | "error";
 
 export interface PluginRegistrySourceState {
   source: PluginRegistrySource;
@@ -47,7 +48,7 @@ export interface PluginRegistrySourcePreferencesState {
 }
 
 export type PluginRegistryChannel = "official" | "community";
-export type PluginCatalogStatus = "active" | "pending" | "revoked";
+export type PluginCatalogStatus = RegistryCatalogV2Entry["status"];
 
 export type PluginPlatform = "web" | "electron" | "desktop";
 
@@ -74,7 +75,7 @@ export interface PluginContributionSummary {
 }
 
 export interface PluginCatalogIndex {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   generatedAt: string;
   registries?: Record<string, { name: string; trustTier: RegistryTrustTier }>;
   plugins: PluginCatalogEntry[];
@@ -82,6 +83,9 @@ export interface PluginCatalogIndex {
 }
 
 export interface PluginCatalogEntry {
+  owner?: RegistryCatalogV2Entry["owner"];
+  appearance?: RegistryCatalogV2Entry["appearance"];
+  authorAvatarUrl?: string;
   id: string;
   name: string;
   description: string;
@@ -92,9 +96,9 @@ export interface PluginCatalogEntry {
   status?: PluginCatalogStatus;
   latestVersion: string;
   minAppVersion: string;
-  platforms: PluginPlatform[];
+  platforms: string[];
   categories: string[];
-  badges?: PluginBadge[];
+  badges?: string[];
   latestRelease?: PluginCatalogLatestRelease;
   detail: string;
   contributes?: PluginContributionSummary;
@@ -141,7 +145,13 @@ export interface PluginDownloadCounts {
 }
 
 export interface PluginCatalogDetail {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
+  author?: string;
+  authorUrl?: string;
+  authorAvatarUrl?: string;
+  appearance?: RegistryCatalogV2Detail["appearance"];
+  media?: RegistryCatalogV2Detail["media"];
+  gallery?: RegistryCatalogV2Detail["gallery"];
   id: string;
   name: string;
   description: string;
@@ -185,10 +195,12 @@ export interface PluginCatalogContent {
 }
 
 export interface PluginCatalogRelease {
+  changelog?: RegistryReleaseChangelog;
+  releasePost?: string;
   version: string;
   minAppVersion: string;
   releasedAt: string;
-  platforms: PluginPlatform[];
+  platforms: string[];
   bundle: RemoteFileReference;
   revoked?: PluginRevocationRecord;
 }
@@ -353,7 +365,10 @@ export interface InstalledPluginRecord {
     /** Digest and size of the exact inner payload authenticated at installation. */
     artifactSha256: string;
     artifactSize: number;
-    /** Portable proof is valid, but a relay quorum has not checked later revocations. */
+    /**
+     * Portable proof is valid, but a relay quorum has not checked later
+     * revocations.
+     */
     requiresRelayRefresh: boolean;
   };
   revoked?: PluginRevocationRecord;

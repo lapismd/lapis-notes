@@ -1,3 +1,8 @@
+import {
+  normalizeRegistryCatalogEntry,
+  normalizeRegistryCatalogIndex,
+  normalizeRegistryCatalogDetail,
+} from "@lapismd/lapis-community/registry/schema";
 import { z } from "zod";
 import { PluginDistributionError } from "./errors";
 
@@ -76,7 +81,11 @@ export const pluginMarkdownReferenceSchema = z
     url: httpsUrl,
     sourceUrl: httpsUrl,
     sha256,
-    size: z.number().int().nonnegative().max(256 * 1024),
+    size: z
+      .number()
+      .int()
+      .nonnegative()
+      .max(256 * 1024),
     mediaType: z.literal("text/markdown"),
   })
   .passthrough();
@@ -233,49 +242,13 @@ export const pluginContributionSummarySchema = z
   })
   .passthrough();
 
-export const pluginCatalogEntrySchema = z
-  .object({
-    id: nonEmpty,
-    name: nonEmpty,
-    description: z.string(),
-    readmeUrl: httpsUrl.optional(),
-    author: nonEmpty,
-    authorUrl: httpsUrl.optional(),
-    channel: pluginRegistryChannelSchema,
-    status: pluginCatalogStatusSchema.optional(),
-    latestVersion: nonEmpty,
-    minAppVersion: nonEmpty,
-    platforms: z.array(pluginPlatformSchema).min(1),
-    categories: z.array(nonEmpty),
-    badges: z.array(pluginBadgeSchema).optional(),
-    latestRelease: z
-      .object({
-        releasedAt: isoDate,
-        bundleSize: z.number().int().nonnegative(),
-      })
-      .passthrough()
-      .optional(),
-    detail: urlOrRelative,
-    contributes: pluginContributionSummarySchema.optional(),
-  })
-  .passthrough();
+export const pluginCatalogEntrySchema = sharedCatalogSchema(
+  normalizeRegistryCatalogEntry,
+);
 
-export const pluginCatalogIndexSchema = z
-  .object({
-    schemaVersion: z.literal(1),
-    generatedAt: isoDate,
-    registries: z
-      .record(
-        z.object({
-          name: nonEmpty,
-          trustTier: registryTrustTierSchema,
-        }),
-      )
-      .optional(),
-    plugins: z.array(pluginCatalogEntrySchema),
-    signatures: z.array(signatureRecordSchema).optional(),
-  })
-  .passthrough();
+export const pluginCatalogIndexSchema = sharedCatalogSchema(
+  normalizeRegistryCatalogIndex,
+);
 
 const nonnegativeSafeInteger = z.number().int().nonnegative().safe();
 const pluginDownloadCountsSchema = z.record(nonnegativeSafeInteger);
@@ -347,31 +320,9 @@ export const pluginCatalogReleaseSchema = z
   })
   .passthrough();
 
-export const pluginCatalogDetailSchema = z
-  .object({
-    schemaVersion: z.literal(1),
-    id: nonEmpty,
-    name: nonEmpty,
-    description: z.string(),
-    readmeUrl: httpsUrl.optional(),
-    channel: pluginRegistryChannelSchema,
-    status: pluginCatalogStatusSchema.optional(),
-    owner: z.object({
-      name: nonEmpty,
-      verified: z.boolean().optional(),
-      url: z.string().url().optional(),
-    }),
-    latestVersion: nonEmpty,
-    readme: remoteFileReferenceSchema.optional(),
-    license: nonEmpty.optional(),
-    links: pluginCatalogLinksSchema.optional(),
-    highlights: z.array(nonEmpty.max(160)).max(8).optional(),
-    content: pluginCatalogContentSchema.optional(),
-    contributes: pluginContributionSummarySchema.optional(),
-    versions: z.record(pluginCatalogReleaseSchema),
-    signatures: z.array(signatureRecordSchema).optional(),
-  })
-  .passthrough();
+export const pluginCatalogDetailSchema = sharedCatalogSchema(
+  normalizeRegistryCatalogDetail,
+);
 
 export const pluginReleaseManifestSchema = z.object({
   schemaVersion: z.literal(1),
@@ -471,7 +422,7 @@ export const pluginRegistrySourcePreferencesStateSchema = z
   .passthrough();
 
 export const parsePluginDistributionMetadata = <T>(
-  schema: z.ZodType<T>,
+  schema: z.ZodType<T, z.ZodTypeDef, unknown>,
   value: unknown,
 ): T => {
   const result = schema.safeParse(value);
@@ -486,3 +437,17 @@ export const parsePluginDistributionMetadata = <T>(
   }
   return result.data;
 };
+
+function sharedCatalogSchema<T>(normalize: (value: unknown) => T) {
+  return z.unknown().transform((value, context) => {
+    try {
+      return normalize(value);
+    } catch (error) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return z.NEVER;
+    }
+  });
+}

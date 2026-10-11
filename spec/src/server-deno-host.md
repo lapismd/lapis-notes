@@ -147,3 +147,7 @@ non-localhost origin.
 AI execution for server-backed browser vaults uses the same explicit external
 controller connection as the web host. The vault server does not embed an AI
 executor or receive the browser-owned App tool and memory authority.
+
+The dedicated Web build consumes the same four-plugin `notesPluginProfile` as
+other Notes hosts (LN-WEB-004 and LN-PLUG-006). Community is parked for this
+release and excluded from its constructor, style and dependency composition.

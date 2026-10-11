@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [svelte()],
   ssr: {
-    noExternal: ["lucide-static"],
+    noExternal: true,
   },
   test: {
     environment: "node",

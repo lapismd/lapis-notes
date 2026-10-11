@@ -135,7 +135,10 @@ export interface PluginDistributionManager {
   setSourceEnabled(sourceId: string, enabled: boolean): Promise<void>;
   search(query?: PluginSearchQuery): PluginCatalogEntry[];
   getCatalogEntry(pluginId: string): PluginCatalogEntry | undefined;
-  getPluginDetail(pluginId: string): Promise<PluginCatalogDetail | null>;
+  getPluginDetail(
+    pluginId: string,
+    options?: { registryId?: string },
+  ): Promise<PluginCatalogDetail | null>;
   install(
     pluginId: string,
     options?: InstallPluginOptions,
@@ -222,7 +225,7 @@ export interface DefaultPluginDistributionManagerOptions {
 export const DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE: PluginRegistrySource = {
   id: "lapis-official",
   name: "Lapis Official Plugins",
-  url: "https://registry.lapis.md/v1/index.json",
+  url: "https://registry.lapis.md/v2/index.json",
   downloadStatsUrl: "https://registry.lapis.md/stats/summary.json",
   trustTier: "official",
   enabled: true,
@@ -253,7 +256,11 @@ export class DefaultPluginDistributionManager
   implements PluginDistributionManager
 {
   private catalog: PluginCatalogIndex | null = null;
-  private readonly registryClient: PluginRegistryClient;
+  private readonly httpClients = new Map<string, PluginRegistryClient>();
+  private readonly sourceCatalogs = new Map<
+    string,
+    PluginRegistryAdapterRefreshResult
+  >();
   private readonly stateStore: InstalledPluginStateStore;
   private readonly sourcePreferenceStore: PluginRegistrySourcePreferenceStore;
   private readonly installer: VerifiedPluginInstaller;
@@ -273,34 +280,31 @@ export class DefaultPluginDistributionManager
     private readonly options: DefaultPluginDistributionManagerOptions,
   ) {
     super();
-    this.registries = (options.registries ?? DEFAULT_PLUGIN_REGISTRY_SOURCES).map(
-      (source) => ({ ...source }),
-    );
+    this.registries = (
+      options.registries ?? DEFAULT_PLUGIN_REGISTRY_SOURCES
+    ).map((source) => ({ ...source }));
     this.trustedKeys = options.trustedKeys ?? EMBEDDED_PLUGIN_REGISTRY_KEYS;
     this.stateStore = new InstalledPluginStateStore(options.adapter);
     this.sourcePreferenceStore = new PluginRegistrySourcePreferenceStore(
       options.adapter,
     );
-    this.registryClient = new PluginRegistryClient({
-      trustedKeys: this.trustedKeys,
-      fetch: options.fetch,
-      cache: new PluginRegistryCache({ adapter: options.adapter }),
-    });
     const httpAdapter: PluginRegistryAdapter = {
       refresh: async (source) => {
-        const result = await this.registryClient.refresh(source);
+        const result = await this.httpClient(source).refresh(source);
         return {
           index: result.index,
           revocations: result.revocations,
           installReady: true,
           stale: result.stale,
-          ...(result.stale ? { message: "Using cached registry metadata" } : {}),
+          ...(result.stale
+            ? { message: "Using cached registry metadata" }
+            : {}),
         };
       },
-      getDetail: async (_source, entry) =>
-        (await this.registryClient.getDetail(entry)).detail,
+      getDetail: async (source, entry) =>
+        (await this.httpClient(source).getDetail(entry)).detail,
       getDownloadStats: (source, refreshOptions) =>
-        this.registryClient.getDownloadStats(source, refreshOptions),
+        this.httpClient(source).getDownloadStats(source, refreshOptions),
     };
     this.registryAdapters = new Map([
       ["http", httpAdapter],
@@ -360,6 +364,7 @@ export class DefaultPluginDistributionManager
       try {
         const result = await adapter.refresh(source, _options);
         indexes.push({ source, result });
+        this.sourceCatalogs.set(source.id, result);
         this.sourceStates.set(source.id, {
           source,
           phase: result.stale ? "degraded" : "ready",
@@ -376,12 +381,17 @@ export class DefaultPluginDistributionManager
         });
       }
     }
-    if (!indexes.length) throw errors[0] ?? new Error("No registry source is available");
+    if (!indexes.length)
+      throw errors[0] ?? new Error("No registry source is available");
 
     const plugins: PluginCatalogEntry[] = [];
     const seen = new Set<string>();
     const registries: NonNullable<PluginCatalogIndex["registries"]> = {};
-    for (const { source, result } of indexes) {
+    for (const { source, result } of [...indexes].sort(
+      (a, b) =>
+        Number(this.sourceKind(a.source) === "nostr") -
+        Number(this.sourceKind(b.source) === "nostr"),
+    )) {
       registries[source.id] = {
         name: source.name,
         trustTier: source.trustTier,
@@ -394,7 +404,7 @@ export class DefaultPluginDistributionManager
       }
     }
     this.catalog = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       generatedAt: indexes
         .map(({ result }) => result.index.generatedAt)
         .sort()
@@ -405,7 +415,9 @@ export class DefaultPluginDistributionManager
     this.revocations = {
       schemaVersion: 1,
       generatedAt: this.catalog.generatedAt,
-      revoked: indexes.flatMap(({ result }) => result.revocations?.revoked ?? []),
+      revoked: indexes.flatMap(
+        ({ result }) => result.revocations?.revoked ?? [],
+      ),
     };
     await this.applyRevocationsToInstalled();
     await this.revalidateInstalledNostrProofs();
@@ -503,10 +515,15 @@ export class DefaultPluginDistributionManager
     return this.catalog?.plugins.find((entry) => entry.id === pluginId);
   }
 
-  async getPluginDetail(pluginId: string): Promise<PluginCatalogDetail | null> {
-    const entry = this.getCatalogEntry(pluginId);
+  async getPluginDetail(
+    pluginId: string,
+    options: { registryId?: string } = {},
+  ): Promise<PluginCatalogDetail | null> {
+    const entry = this.entryForSource(pluginId, options.registryId);
     if (!entry) return null;
-    const source = this.sourceForEntry(entry);
+    const source = options.registryId
+      ? this.registries.find((candidate) => candidate.id === options.registryId)
+      : this.sourceForEntry(entry);
     const adapter = source ? this.adapterForSource(source) : undefined;
     if (!source || !adapter) return null;
     return adapter.getDetail(source, entry);
@@ -518,7 +535,17 @@ export class DefaultPluginDistributionManager
   ): Promise<InstalledPluginRecord> {
     try {
       this.emitProgress(pluginId, "resolving", "Resolving plugin");
-      const entry = this.requireEntry(pluginId);
+      const entry = this.entryForSource(pluginId, options.registryId);
+      if (!entry)
+        throw new PluginDistributionError(
+          "metadata-invalid",
+          `Plugin ${pluginId} is unavailable from the requested source.`,
+        );
+      if (["pending", "disabled", "revoked"].includes(entry.status ?? "active"))
+        throw new PluginDistributionError(
+          "metadata-invalid",
+          `Plugin ${pluginId} is ${entry.status}.`,
+        );
       if (options.requireOfficial && entry.channel !== "official") {
         throw new PluginDistributionError(
           "metadata-invalid",
@@ -542,7 +569,9 @@ export class DefaultPluginDistributionManager
         "fetching-release",
         "Fetching release metadata",
       );
-      const detail = await this.getPluginDetail(pluginId);
+      const detail = await this.getPluginDetail(pluginId, {
+        registryId: options.registryId,
+      });
       if (!detail) {
         throw new PluginDistributionError(
           "metadata-invalid",
@@ -573,14 +602,18 @@ export class DefaultPluginDistributionManager
         "verifying-signature",
         "Verifying release signature",
       );
-      const source = this.sourceForEntry(entry);
+      const source = options.registryId
+        ? this.registries.find(
+            (candidate) => candidate.id === options.registryId,
+          )
+        : this.sourceForEntry(entry);
       const adapter = source ? this.adapterForSource(source) : undefined;
       const installOptions: InstallVerifiedPluginOptions = {
         entry,
         detail,
         version: options.version,
         enable: options.enable,
-        registryId: options.registryId ?? source?.id,
+        registryId: source?.id,
         registryUrl: source?.url,
         provenance: entry.channel,
         compatibility: this.compatibilityInput(await this.isWorkspaceTrusted()),
@@ -670,7 +703,10 @@ export class DefaultPluginDistributionManager
       });
       let record: InstalledPluginRecord;
       if (portable) {
-        const verified = await this.verifyOfflineNostrBundle(portable, options.signal);
+        const verified = await this.verifyOfflineNostrBundle(
+          portable,
+          options.signal,
+        );
         record = await this.installer.installVerifiedPayload(verified.payload, {
           ...commonOptions,
           provenance: verified.payload.releaseManifest.channel,
@@ -708,13 +744,16 @@ export class DefaultPluginDistributionManager
     await this.ensureSourcePreferencesLoaded();
     const failures: unknown[] = [];
     for (const source of this.registries.filter(
-      (candidate) => candidate.enabled && this.sourceKind(candidate) === "nostr",
+      (candidate) =>
+        candidate.enabled && this.sourceKind(candidate) === "nostr",
     )) {
       const adapter = this.adapterForSource(source);
       if (!adapter?.verifyOfflineBundle) continue;
       try {
         return {
-          payload: await adapter.verifyOfflineBundle(source, bundle, { signal }),
+          payload: await adapter.verifyOfflineBundle(source, bundle, {
+            signal,
+          }),
           source,
         };
       } catch (error) {
@@ -734,8 +773,13 @@ export class DefaultPluginDistributionManager
     options: UpdatePluginOptions = {},
   ): Promise<InstalledPluginRecord | null> {
     const installed = await this.getInstalled(pluginId);
-    const entry = this.getCatalogEntry(pluginId);
-    if (!installed || !entry) return null;
+    const pinnedSource = installed
+      ? this.installedSource(installed)
+      : undefined;
+    const entry = pinnedSource
+      ? this.entryForSource(pluginId, pinnedSource.id)
+      : undefined;
+    if (!installed || !entry || !pinnedSource) return null;
     const targetVersion =
       version ?? installed.revoked?.replacementVersion ?? entry.latestVersion;
     if (compareVersions(targetVersion, installed.installedVersion) <= 0) {
@@ -746,6 +790,7 @@ export class DefaultPluginDistributionManager
     );
     const updated = await this.install(pluginId, {
       version: targetVersion,
+      registryId: pinnedSource.id,
       enable: wasEnabled,
       signal: options.signal,
     });
@@ -780,7 +825,10 @@ export class DefaultPluginDistributionManager
     const updates: PluginUpdateInfo[] = [];
     for (const record of installed) {
       if (record.provenance !== "official") continue;
-      const entry = this.getCatalogEntry(record.pluginId);
+      const pinnedSource = this.installedSource(record);
+      const entry = pinnedSource
+        ? this.entryForSource(record.pluginId, pinnedSource.id)
+        : undefined;
       const revoked = this.revocationFor(record) ?? record.revoked;
       if (!entry) {
         if (revoked) {
@@ -809,7 +857,9 @@ export class DefaultPluginDistributionManager
 
       let compatibility: PluginCompatibilityResult =
         checkCatalogEntryCompatibility(entry, this.compatibilityInput(false));
-      const detail = await this.getPluginDetail(record.pluginId);
+      const detail = await this.getPluginDetail(record.pluginId, {
+        registryId: pinnedSource?.id,
+      });
       const targetRelease = detail?.versions[targetVersion];
       if (targetRelease) {
         compatibility = checkCatalogReleaseCompatibility(
@@ -846,6 +896,56 @@ export class DefaultPluginDistributionManager
   addProgressListener(listener: PluginInstallProgressListener): () => void {
     this.on("progress", listener);
     return () => this.off("progress", listener);
+  }
+
+  private httpClient(source: PluginRegistrySource): PluginRegistryClient {
+    const key = `${source.id}:${source.url}`;
+    let client = this.httpClients.get(key);
+    if (!client) {
+      client = new PluginRegistryClient({
+        trustedKeys: this.trustedKeys.filter(
+          (key) => key.trustTier === source.trustTier,
+        ),
+        fetch: this.options.fetch,
+        cache: new PluginRegistryCache({
+          adapter: this.options.adapter,
+          cachePath: `.obsidian/plugin-registry-cache/${encodeURIComponent(source.id)}/${encodeURIComponent(source.url)}.json`,
+        }),
+      });
+      this.httpClients.set(key, client);
+    }
+    return client;
+  }
+
+  private entryForSource(
+    pluginId: string,
+    registryId?: string,
+  ): PluginCatalogEntry | undefined {
+    if (!registryId) return this.getCatalogEntry(pluginId);
+    const state = this.sourceStates.get(registryId);
+    if (!state?.source.enabled || !state.installReady) return undefined;
+    return this.sourceCatalogs
+      .get(registryId)
+      ?.index.plugins.find((entry) => entry.id === pluginId);
+  }
+
+  private installedSource(
+    record: Pick<InstalledPluginRecord, "registryId" | "registryUrl">,
+  ): PluginRegistrySource | undefined {
+    const source = record.registryId
+      ? this.registries.find((candidate) => candidate.id === record.registryId)
+      : this.registries.find(
+          (candidate) => candidate.url === record.registryUrl,
+        );
+    if (!source) return undefined;
+    if (!record.registryUrl || record.registryUrl === source.url) return source;
+    if (
+      source.id === "lapis-official" &&
+      source.url === "https://registry.lapis.md/v2/index.json" &&
+      record.registryUrl === "https://registry.lapis.md/v1/index.json"
+    )
+      return source;
+    return undefined;
   }
 
   private requireEntry(pluginId: string): PluginCatalogEntry {
@@ -922,7 +1022,9 @@ export class DefaultPluginDistributionManager
       this.sourceStates.set(source.id, {
         source,
         phase: source.enabled ? (previous?.phase ?? "idle") : "idle",
-        installReady: source.enabled ? (previous?.installReady ?? false) : false,
+        installReady: source.enabled
+          ? (previous?.installReady ?? false)
+          : false,
         ...(source.enabled && previous?.message
           ? { message: previous.message }
           : {}),
@@ -934,6 +1036,13 @@ export class DefaultPluginDistributionManager
     const installed = await this.stateStore.list();
     for (const record of installed) {
       if (record.provenance !== "official") continue;
+      const source = this.installedSource(record);
+      if (
+        !source ||
+        this.sourceStates.get(source.id)?.phase !== "ready" ||
+        !this.sourceCatalogs.get(source.id)?.revocations
+      )
+        continue;
       const revoked = this.revocationFor(record);
       if (sameRevocation(record.revoked, revoked)) continue;
       const next: InstalledPluginRecord = {
@@ -977,9 +1086,15 @@ export class DefaultPluginDistributionManager
   }
 
   private revocationFor(
-    record: Pick<InstalledPluginRecord, "pluginId" | "installedVersion">,
+    record: Pick<
+      InstalledPluginRecord,
+      "pluginId" | "installedVersion" | "registryId" | "registryUrl"
+    >,
   ): PluginRevocationRecord | undefined {
-    const match = this.revocations?.revoked.find(
+    const source = this.installedSource(record);
+    const match = (
+      source ? this.sourceCatalogs.get(source.id)?.revocations : undefined
+    )?.revoked.find(
       (revocation) =>
         revocation.pluginId === record.pluginId &&
         revocation.versions.includes(record.installedVersion),

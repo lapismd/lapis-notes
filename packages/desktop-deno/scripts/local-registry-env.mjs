@@ -12,6 +12,12 @@ export async function resolveDesktopLocalRegistryEnvironment(
     return { values: {}, source: "configured" };
   }
 
+  if (
+    environment.LAPIS_LOCAL_NOSTR_REGISTRY !== "true" &&
+    !environment.LAPIS_COMMUNITY_REGISTRY_FIXTURE_ENV?.trim()
+  )
+    return { values: {}, source: "disabled" };
+
   const fixturePath =
     environment.LAPIS_COMMUNITY_REGISTRY_FIXTURE_ENV?.trim() ||
     path.resolve(

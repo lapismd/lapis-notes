@@ -109,7 +109,7 @@ describe("DefaultPluginDistributionManager", () => {
     ).toBe(true);
   });
 
-  it("merges Nostr and HTTP sources and installs through the owning adapter", async () => {
+  it("prefers static HTTP installs and supports an explicit Nostr selection", async () => {
     const fixture = await createManagerFixture();
     const adapter = new InMemoryDataAdapter();
     let verifiedBundleRequests = 0;
@@ -169,9 +169,131 @@ describe("DefaultPluginDistributionManager", () => {
     ]);
     await expect(manager.install("lapis-docs")).resolves.toMatchObject({
       pluginId: "lapis-docs",
+      registryId: "lapis-official",
+    });
+    expect(verifiedBundleRequests).toBe(0);
+    await expect(
+      manager.install("lapis-docs", { registryId: "lapis-nostr" }),
+    ).resolves.toMatchObject({
+      pluginId: "lapis-docs",
       registryId: "lapis-nostr",
     });
     expect(verifiedBundleRequests).toBe(1);
+  });
+
+  it("selects the requested source and pins updates when the catalog winner differs", async () => {
+    const fixture = await createManagerFixture({
+      versions: ["0.1.0", "0.2.0"],
+    });
+    const requests: string[] = [];
+    const second = {
+      ...fixture.source,
+      id: "second",
+      kind: "nostr" as const,
+      url: "nostr://second",
+    };
+    const manager = new DefaultPluginDistributionManager({
+      adapter: new InMemoryDataAdapter(),
+      appVersion: "0.20.0",
+      platform: "web",
+      registries: [fixture.source, second],
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch(fixture.responses),
+      registryAdapters: {
+        nostr: {
+          refresh: async () => ({
+            index: fixture.index,
+            revocations: fixture.revocations,
+            installReady: true,
+          }),
+          getDetail: async () => fixture.detail,
+          getVerifiedBundle: async (source, _entry, _detail, version) => {
+            requests.push(source.id);
+            return verifyPluginBundlePayload({
+              bundle: fixture.bundles[version]!,
+              trustedKeys: [fixture.trustedKey],
+            });
+          },
+        },
+      },
+    });
+    await manager.refreshCatalog();
+    await expect(
+      manager.install("lapis-docs", { version: "0.1.0", registryId: "second" }),
+    ).resolves.toMatchObject({
+      registryId: "second",
+      registryUrl: "nostr://second",
+    });
+    expect(requests).toEqual(["second"]);
+    await expect(manager.update("lapis-docs")).resolves.toMatchObject({
+      registryId: "second",
+      installedVersion: "0.2.0",
+    });
+    expect(requests).toEqual(["second", "second"]);
+    await manager.setSourceEnabled("second", false);
+    await manager.refreshCatalog();
+    await expect(manager.update("lapis-docs", "0.3.0")).resolves.toBeNull();
+    expect(requests).toHaveLength(2);
+  });
+
+  it("scopes revocations to the installed source and retains them when that source fails", async () => {
+    const fixture = await createManagerFixture();
+    const revoked = {
+      pluginId: "lapis-docs",
+      versions: ["0.1.0"],
+      revokedAt: "2026-10-11T00:00:00Z",
+      reason: "security",
+    };
+    let ownRevoked = false;
+    let offline = false;
+    const sources = ["own", "other"].map((id) => ({
+      ...fixture.source,
+      id,
+      kind: "nostr" as const,
+      url: `nostr://${id}`,
+    }));
+    const manager = new DefaultPluginDistributionManager({
+      adapter: new InMemoryDataAdapter(),
+      appVersion: "0.20.0",
+      platform: "web",
+      registries: sources,
+      trustedKeys: [fixture.trustedKey],
+      registryAdapters: {
+        nostr: {
+          refresh: async (source) => {
+            if (source.id === "own" && offline) throw new Error("offline");
+            return {
+              index: fixture.index,
+              installReady: true,
+              revocations: {
+                ...fixture.revocations,
+                revoked: source.id === "other" || ownRevoked ? [revoked] : [],
+              },
+            };
+          },
+          getDetail: async () => fixture.detail,
+          getVerifiedBundle: async (_source, _entry, _detail, version) =>
+            verifyPluginBundlePayload({
+              bundle: fixture.bundles[version]!,
+              trustedKeys: [fixture.trustedKey],
+            }),
+        },
+      },
+    });
+    await manager.refreshCatalog();
+    await manager.install("lapis-docs", { registryId: "own" });
+    await manager.refreshCatalog();
+    expect((await manager.getInstalled("lapis-docs"))?.revoked).toBeUndefined();
+    ownRevoked = true;
+    await manager.refreshCatalog();
+    expect((await manager.getInstalled("lapis-docs"))?.revoked?.reason).toBe(
+      "security",
+    );
+    offline = true;
+    await manager.refreshCatalog();
+    expect((await manager.getInstalled("lapis-docs"))?.revoked?.reason).toBe(
+      "security",
+    );
   });
 
   it("persists registry source toggles independently", async () => {

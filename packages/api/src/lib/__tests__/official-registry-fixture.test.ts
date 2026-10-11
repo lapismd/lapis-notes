@@ -42,8 +42,10 @@ describe("official registry generated fixture", () => {
       id: "lapis-pdf",
       channel: "official",
       latestVersion: "2026.6.1",
-      readmeUrl:
-        "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-pdf/README.md",
+      links: {
+        documentation:
+          "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-pdf/README.md",
+      },
     });
   });
 });

@@ -776,3 +776,5 @@ Local plugin preparation excludes published Design Core, Mira-family, and Spec
 Validator entries from tarball remapping and install fingerprints. Existing
 plugin and unpublished Community/AI Controller acceptance remains separate
 from these registry foundations.
+
+The API consumes the transport-neutral `@lapismd/lapis-community/registry/schema` public contract through an npm semver dependency. Temporary V2 acceptance uses an ignored packed Community candidate until its approved initial npm publication.

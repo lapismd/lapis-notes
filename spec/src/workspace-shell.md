@@ -198,3 +198,5 @@ host-only controller. The shell and plugins receive no administrative crypto,
 network-grant, or database handle through workspace context. Browser storage
 persistence is requested as a best-effort durability signal and never treated
 as backup or authoritative vault storage.
+
+LN-PLUG-092 keeps registry V2 detail and media rendering in Workspace plugin management. The owning production story verifies themed image selection, a disposable image dialog and separate structured per-version notes; static source selection and update pinning remain API-owned under LN-PLUG-093.

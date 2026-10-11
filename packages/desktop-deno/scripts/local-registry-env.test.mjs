@@ -21,11 +21,21 @@ async function fixture() {
 }
 
 describe("Deno desktop local registry environment", () => {
+  it("keeps static-only startup despite an incidental local fixture", async () => {
+    const { packageRoot } = await fixture();
+    await expect(
+      resolveDesktopLocalRegistryEnvironment({}, packageRoot),
+    ).resolves.toEqual({ values: {}, source: "disabled" });
+  });
+
   it("discovers the Community Docker fixture for registry and Community data", async () => {
     const { packageRoot } = await fixture();
 
     await expect(
-      resolveDesktopLocalRegistryEnvironment({}, packageRoot),
+      resolveDesktopLocalRegistryEnvironment(
+        { LAPIS_LOCAL_NOSTR_REGISTRY: "true" },
+        packageRoot,
+      ),
     ).resolves.toEqual({
       values: {
         VITE_LAPIS_NOSTR_REGISTRY_RELAYS: "ws://registry.localhost:8281",
@@ -53,7 +63,11 @@ describe("Deno desktop local registry environment", () => {
     const { packageRoot } = await fixture();
 
     const result = await resolveDesktopLocalRegistryEnvironment(
-      { LAPIS_RELAY_PORT: "8381", REGISTRY_FIXTURE_PORT: "8190" },
+      {
+        LAPIS_LOCAL_NOSTR_REGISTRY: "true",
+        LAPIS_RELAY_PORT: "8381",
+        REGISTRY_FIXTURE_PORT: "8190",
+      },
       packageRoot,
     );
 

@@ -22,6 +22,66 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const StaticRegistryV2MediaAndReleaseNotes: Story = {
+  args: { scenario: "catalog-v2", section: "plugin-registry" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Verified V2 metadata renders authored themed media and separate release notes without legacy Markdown downloads.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "View details for Graph" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = await body.findByRole("dialog");
+    const detail = within(dialog);
+    await expect(
+      await detail.findByRole("img", { name: "Graph workspace" }),
+    ).toBeVisible();
+    await userEvent.click(
+      detail.getByRole("button", { name: "Dark", exact: true }),
+    );
+    await expect(
+      detail.getByRole("button", { name: "Dark", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(
+      detail.getByRole("button", { name: "Open image: Graph workspace" }),
+    );
+    const viewerTitle = await body.findByRole("heading", {
+      name: "Plugin image",
+    });
+    await expect(viewerTitle).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(body.queryByRole("heading", { name: "Plugin image" })).toBeNull(),
+    );
+    await userEvent.click(detail.getByRole("tab", { name: "Changelog" }));
+    await expect(
+      await detail.findByRole("heading", { name: "Graph 0.2.0" }),
+    ).toBeVisible();
+    await expect(
+      detail.getByRole("heading", { name: "Graph 0.1.0" }),
+    ).toBeVisible();
+    await expect(detail.queryByText("View source README")).toBeNull();
+    await userEvent.click(
+      detail.getByRole("button", { name: "Close", exact: true }),
+    );
+    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+    await waitFor(() =>
+      expect(canvasElement.ownerDocument.body.style.pointerEvents).not.toBe(
+        "none",
+      ),
+    );
+  },
+};
+
 async function waitForReady(canvas: ReturnType<typeof within>) {
   await waitFor(() => {
     expect(canvas.getByTestId("plugin-management-story")).toHaveAttribute(
@@ -518,7 +578,9 @@ export const PopulatedBrowseRows: Story = {
       canvas.getByRole("button", { name: "Bundled" }),
     ).toBeDisabled();
     const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
-    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
     expect(graphRow).not.toBeNull();
     await expect(
       within(graphRow!).getByText("~2.4K downloads (30d)"),
@@ -533,7 +595,9 @@ export const RegistryInstallProgress: Story = {
     await waitForReady(canvas);
     await selectRegistryTab(canvas, "Browse");
     const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
-    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
     expect(graphRow).not.toBeNull();
 
     await userEvent.click(
@@ -556,7 +620,9 @@ export const RegistryInstallCompletion: Story = {
     await waitForReady(canvas);
     await selectRegistryTab(canvas, "Browse");
     const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
-    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
     expect(graphRow).not.toBeNull();
 
     await userEvent.click(
@@ -579,7 +645,9 @@ export const RegistryInstallFailure: Story = {
     await waitForReady(canvas);
     await selectRegistryTab(canvas, "Browse");
     const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
-    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
     expect(graphRow).not.toBeNull();
 
     await userEvent.click(

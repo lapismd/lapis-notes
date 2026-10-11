@@ -10,7 +10,7 @@ import {
 } from "../plugin-distribution";
 
 describe("structured plugin catalog metadata", () => {
-  it("parses both legacy and enriched V1 metadata while retaining future fields", () => {
+  it("normalizes legacy V1 metadata into the shared V2 presentation contract", () => {
     const legacy = parsePluginDistributionMetadata(pluginCatalogEntrySchema, {
       id: "lapis-example",
       name: "Example",
@@ -26,38 +26,42 @@ describe("structured plugin catalog metadata", () => {
       futureField: { retained: true },
     });
     expect(legacy).toMatchObject({
-      readmeUrl: "https://example.test/README.md",
-      futureField: { retained: true },
+      links: { documentation: "https://example.test/README.md" },
     });
+    expect(legacy).not.toHaveProperty("readmeUrl");
+    expect(legacy).not.toHaveProperty("futureField");
 
-    const enriched = parsePluginDistributionMetadata(pluginCatalogDetailSchema, {
-      schemaVersion: 1,
-      id: "lapis-example",
-      name: "Example",
-      description: "Enriched entry",
-      channel: "official",
-      status: "active",
-      owner: {
-        name: "Lapis Notes",
-        verified: true,
-        url: "https://github.com/lapismd",
+    const enriched = parsePluginDistributionMetadata(
+      pluginCatalogDetailSchema,
+      {
+        schemaVersion: 1,
+        id: "lapis-example",
+        name: "Example",
+        description: "Enriched entry",
+        channel: "official",
+        status: "active",
+        owner: {
+          name: "Lapis Notes",
+          verified: true,
+          url: "https://github.com/lapismd",
+        },
+        latestVersion: "0.1.0",
+        license: "Apache-2.0",
+        links: {
+          repository: "https://github.com/lapismd/lapis-plugins",
+          documentation: "https://lapis.md/plugins/example",
+        },
+        highlights: ["A concise plain-text highlight."],
+        content: {
+          overview: referenceFor("overview", 10, "a".repeat(64)),
+          changelog: referenceFor("changelog", 12, "b".repeat(64)),
+        },
+        contributes: { commands: [{ id: "open", name: "Open Example" }] },
+        versions: {},
       },
-      latestVersion: "0.1.0",
-      license: "Apache-2.0",
-      links: {
-        repository: "https://github.com/lapismd/lapis-plugins",
-        documentation: "https://lapis.md/plugins/example",
-      },
-      highlights: ["A concise plain-text highlight."],
-      content: {
-        overview: referenceFor("overview", 10, "a".repeat(64)),
-        changelog: referenceFor("changelog", 12, "b".repeat(64)),
-      },
-      contributes: { commands: [{ id: "open", name: "Open Example" }] },
-      versions: {},
-    });
+    );
     expect(enriched.status).toBe("active");
-    expect(enriched.content?.changelog?.mediaType).toBe("text/markdown");
+    expect(enriched).not.toHaveProperty("content");
     expect(enriched.links?.repository).toContain("lapis-plugins");
   });
 });
@@ -75,12 +79,12 @@ describe("fetchVerifiedPluginMarkdown", () => {
     );
     const fetchImpl = vi.fn(async () => response(bytes));
 
-    await expect(fetchVerifiedPluginMarkdown(reference, fetchImpl)).resolves.toBe(
-      markdown,
-    );
-    await expect(fetchVerifiedPluginMarkdown(reference, fetchImpl)).resolves.toBe(
-      markdown,
-    );
+    await expect(
+      fetchVerifiedPluginMarkdown(reference, fetchImpl),
+    ).resolves.toBe(markdown);
+    await expect(
+      fetchVerifiedPluginMarkdown(reference, fetchImpl),
+    ).resolves.toBe(markdown);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
@@ -135,9 +139,9 @@ describe("fetchVerifiedPluginMarkdown", () => {
     await expect(
       fetchVerifiedPluginMarkdown(reference, fetchImpl),
     ).rejects.toMatchObject({ code: "metadata-invalid" });
-    await expect(fetchVerifiedPluginMarkdown(reference, fetchImpl)).resolves.toBe(
-      "# Retry\n",
-    );
+    await expect(
+      fetchVerifiedPluginMarkdown(reference, fetchImpl),
+    ).resolves.toBe("# Retry\n");
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 });

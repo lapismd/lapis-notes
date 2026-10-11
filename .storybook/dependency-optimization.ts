@@ -10,6 +10,10 @@ export const storybookFirstPartyPackageExcludes = [
 ] as const;
 
 export const storybookPackedDependencyIncludes = [
+  "@storybook/addon-a11y > axe-core",
+  "@lapismd/lapis-community/registry/schema",
+  "@lapis-notes/api > nostr-tools/pure",
+  "@lapis-notes/api > nostr-tools/nip44",
   "@lapis-notes/api > eventemitter3",
   "@lapis-notes/api > @lapismd/ai-host/file-tools",
   "@lapis-notes/api > @noble/hashes/sha2.js",

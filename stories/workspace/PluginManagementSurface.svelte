@@ -5,6 +5,9 @@
     MemoryAppDatabase,
     MemoryVaultAdapter,
     Plugin,
+    pluginCatalogDetailSchema,
+    parsePluginDistributionMetadata,
+    sha256Hex,
     type InstalledPluginRecord,
     type PluginCatalogDetail,
     type PluginCatalogEntry,
@@ -22,6 +25,7 @@
   type PluginManagementScenario =
     | "empty"
     | "catalog"
+    | "catalog-v2"
     | "installed"
     | "failure"
     | "install-failure"
@@ -142,7 +146,8 @@ Released 1 August 2026.
           {
             id: "lapis-graph",
             name: "Graph",
-            description: "Explore local and global relationships between notes.",
+            description:
+              "Explore local and global relationships between notes.",
             readmeUrl: "https://story.invalid/graph/README.md",
             author: "Lapis Notes",
             authorUrl: "https://lapis.md",
@@ -162,7 +167,8 @@ Released 1 August 2026.
           {
             id: "revoked-plugin",
             name: "Revoked Example",
-            description: "A fixture used to preserve the registry revocation state.",
+            description:
+              "A fixture used to preserve the registry revocation state.",
             author: "Community Author",
             channel: "community",
             status: "revoked",
@@ -391,7 +397,9 @@ Released 1 August 2026.
   let bundleInstallCalls = $state(0);
   let uninstallCalls = $state(0);
   let lastProgress = $state("idle");
-  const progressListeners = new Set<(event: PluginInstallProgressEvent) => void>();
+  const progressListeners = new Set<
+    (event: PluginInstallProgressEvent) => void
+  >();
   const distribution: PluginDistributionManager = {
     async refreshCatalog() {
       if (untrack(() => scenario) === "failure") {
@@ -445,7 +453,9 @@ Released 1 August 2026.
     search(query = {}) {
       const text = query.text?.trim().toLowerCase() ?? "";
       return catalog.filter((entry) =>
-        text ? `${entry.name} ${entry.description}`.toLowerCase().includes(text) : true,
+        text
+          ? `${entry.name} ${entry.description}`.toLowerCase().includes(text)
+          : true,
       );
     },
     getCatalogEntry(pluginId) {
@@ -453,7 +463,49 @@ Released 1 August 2026.
     },
     async getPluginDetail(pluginId) {
       const entry = catalog.find((candidate) => candidate.id === pluginId);
-      return entry ? detail(entry) : null;
+      if (!entry) return null;
+      const result = detail(entry);
+      if (untrack(() => scenario) !== "catalog-v2") return result;
+      const image = async (color: string) => {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160"><rect width="240" height="160" fill="${color}"/></svg>`;
+        const bytes = new TextEncoder().encode(svg);
+        return {
+          url: `data:image/svg+xml,${encodeURIComponent(svg)}`,
+          sourceUrl: "https://story.invalid/graph.svg",
+          sha256: await sha256Hex(bytes),
+          size: bytes.byteLength,
+          mediaType: "image/svg+xml",
+          width: 240,
+          height: 160,
+        };
+      };
+      return parsePluginDistributionMetadata(pluginCatalogDetailSchema, {
+        ...result,
+        schemaVersion: 2,
+        gallery: [
+          {
+            id: "graph",
+            alt: "Graph workspace",
+            images: {
+              light: await image("#ffffff"),
+              dark: await image("#111111"),
+            },
+          },
+        ],
+        versions: Object.fromEntries(
+          Object.entries(result.versions).map(([version, release]) => [
+            version,
+            {
+              ...release,
+              changelog: {
+                title: `Graph ${version}`,
+                description: "Verified structured release notes.",
+                tags: ["improvement"],
+              },
+            },
+          ]),
+        ),
+      });
     },
     async install(pluginId) {
       if (untrack(() => scenario) === "install-failure") {
@@ -496,7 +548,9 @@ Released 1 August 2026.
       return record;
     },
     async update(pluginId, version) {
-      const record = installed.find((candidate) => candidate.pluginId === pluginId);
+      const record = installed.find(
+        (candidate) => candidate.pluginId === pluginId,
+      );
       if (!record) return null;
       record.installedVersion = version ?? "0.2.0";
       updates.splice(
@@ -518,7 +572,9 @@ Released 1 August 2026.
       return [...installed];
     },
     async getInstalled(pluginId) {
-      return installed.find((candidate) => candidate.pluginId === pluginId) ?? null;
+      return (
+        installed.find((candidate) => candidate.pluginId === pluginId) ?? null
+      );
     },
     async listUpdates() {
       return [...updates];
@@ -629,8 +685,9 @@ Released 1 August 2026.
     markdownRenderer: async (markdown, element) =>
       renderStoryMarkdown(markdown, element),
   });
-  (app as unknown as { pluginDistribution: PluginDistributionManager })
-    .pluginDistribution = distribution;
+  (
+    app as unknown as { pluginDistribution: PluginDistributionManager }
+  ).pluginDistribution = distribution;
   let communityToggleCalls = $state(0);
   let installedDisableCalls = $state(0);
   const enablePlugin = app.plugins.enablePlugin.bind(app.plugins);
@@ -675,7 +732,8 @@ Released 1 August 2026.
   for (const plugin of installedRuntimePlugins) {
     plugin.configureRuntime({
       source: "community",
-      provenance: plugin.manifest.id === "lapis-graph" ? "official" : "community",
+      provenance:
+        plugin.manifest.id === "lapis-graph" ? "official" : "community",
       basePath: `/.obsidian/plugins/${plugin.manifest.id}`,
     });
     app.plugins.plugins.set(plugin.manifest.id, plugin);
@@ -698,7 +756,8 @@ Released 1 August 2026.
     const originalFetch = storyWindow.fetch;
     const storyFetch: typeof fetch = async (input, init) => {
       if (String(input).endsWith("/lapis-graph/overview.md")) {
-        const body = untrack(() => markdownMode) === "invalid" ? "invalid" : graphOverview;
+        const body =
+          untrack(() => markdownMode) === "invalid" ? "invalid" : graphOverview;
         return new Response(body, {
           status: 200,
           headers: {

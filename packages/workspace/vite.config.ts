@@ -18,10 +18,6 @@ export default defineConfig({
         replacement: path.join(packageDir, "test/lucide-tags.stub.ts"),
       },
       {
-        find: /^@lapis-notes\/api$/,
-        replacement: path.join(packageDir, "test/api-types.stub.ts"),
-      },
-      {
         find: /^@lapis-notes\/workspace$/,
         replacement: path.join(packageDir, "src/lib/index.ts"),
       },
@@ -33,13 +29,6 @@ export default defineConfig({
     exclude: ["**/node_modules/**", "**/dist/**", "**/.svelte-kit/**"],
   },
   ssr: {
-    noExternal: [
-      "@dnd-kit/svelte",
-      "@lucide/svelte",
-      "@lapismd/design-core",
-      "bits-ui",
-      "paneforge",
-      "vaul-svelte",
-    ],
+    noExternal: true,
   },
 });

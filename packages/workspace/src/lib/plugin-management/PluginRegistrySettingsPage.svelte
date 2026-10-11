@@ -92,7 +92,9 @@
   let updatesStatus = $state("all");
   let updatesSort = $state("status");
 
-  let installedIds = $derived(new Set(installed.map((record) => record.pluginId)));
+  let installedIds = $derived(
+    new Set(installed.map((record) => record.pluginId)),
+  );
   let staticPluginIds = $derived(
     new Set(app.plugins.corePluginEntries.map((entry) => entry.manifest.id)),
   );
@@ -178,10 +180,13 @@
         const entry = catalogEntry(record.pluginId);
         const runtime = app.plugins.plugins.get(record.pluginId);
         const name = entry?.name ?? runtime?.manifest.name ?? record.pluginId;
-        const description = entry?.description ?? runtime?.manifest.description ?? "";
+        const description =
+          entry?.description ?? runtime?.manifest.description ?? "";
         if (
           text &&
-          !`${name} ${record.pluginId} ${description}`.toLowerCase().includes(text)
+          !`${name} ${record.pluginId} ${description}`
+            .toLowerCase()
+            .includes(text)
         ) {
           return false;
         }
@@ -194,7 +199,8 @@
         if (installedStatus === "enabled" && !runtime?.enabled) return false;
         if (installedStatus === "disabled" && runtime?.enabled) return false;
         if (installedStatus === "revoked" && !record.revoked) return false;
-        if (installedStatus === "restart" && !record.restartRequired) return false;
+        if (installedStatus === "restart" && !record.restartRequired)
+          return false;
         return true;
       })
       .sort((left, right) =>
@@ -252,7 +258,8 @@
       .sort((left, right) =>
         updatesSort === "name"
           ? left.name.localeCompare(right.name)
-          : priority(left) - priority(right) || left.name.localeCompare(right.name),
+          : priority(left) - priority(right) ||
+            left.name.localeCompare(right.name),
       );
   });
   let detailPluginEntry = $derived(
@@ -294,7 +301,9 @@
     const pluginId = context.reveal.entryId.slice("registry:".length);
     activeTab = "browse";
     void tick().then(async () => {
-      const entry = catalogEntries.find((candidate) => candidate.id === pluginId);
+      const entry = catalogEntries.find(
+        (candidate) => candidate.id === pluginId,
+      );
       if (entry) await openDetails(entry);
     });
   });
@@ -376,7 +385,9 @@
       await refresh(true);
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
-      new Notice(`Plugin registry source update failed: ${errorMessage(lastError)}`);
+      new Notice(
+        `Plugin registry source update failed: ${errorMessage(lastError)}`,
+      );
       registrySources = app.pluginDistribution.listSources();
     } finally {
       runningAction = null;
@@ -444,7 +455,9 @@
       update.id,
       `Updating ${update.name}`,
       (signal) =>
-        app.pluginDistribution.update(update.id, update.targetVersion, { signal }),
+        app.pluginDistribution.update(update.id, update.targetVersion, {
+          signal,
+        }),
     );
   }
 
@@ -463,6 +476,11 @@
       const detail = await app.pluginDistribution.getPluginDetail(entry.id);
       if (detailPluginId !== entry.id) return;
       detailPluginDetail = detail;
+      if (detail?.schemaVersion === 2) {
+        overviewState = { status: "missing" };
+        changelogState = { status: "missing" };
+        return;
+      }
       await Promise.all([
         loadDetailContent("overview", entry, detail),
         loadDetailContent("changelog", entry, detail),
@@ -555,7 +573,9 @@
   }
 
   function requestUninstallById(pluginId: string): void {
-    const record = installed.find((candidate) => candidate.pluginId === pluginId);
+    const record = installed.find(
+      (candidate) => candidate.pluginId === pluginId,
+    );
     if (record) requestUninstall(record);
   }
 
@@ -665,7 +685,9 @@
   }
 
   function downloadCount(pluginId: string): number {
-    return downloadStats ? pluginDownloadCounts(downloadStats, pluginId).recent : 0;
+    return downloadStats
+      ? pluginDownloadCounts(downloadStats, pluginId).recent
+      : 0;
   }
 
   function downloadLabel(pluginId: string): string | null {
@@ -783,10 +805,13 @@
       "*",
       `Installing ${file.name}`,
       async (signal) => {
-        installedRecord = await app.pluginDistribution.installBundle(await file.arrayBuffer(), {
-          enable: true,
-          signal,
-        });
+        installedRecord = await app.pluginDistribution.installBundle(
+          await file.arrayBuffer(),
+          {
+            enable: true,
+            signal,
+          },
+        );
       },
     );
     if (installedRecord?.nostrProof?.requiresRelayRefresh) {
@@ -805,7 +830,10 @@
   <header class="lapis-plugin-management__header">
     <div>
       <h1>Plugin registry</h1>
-      <p>Browse verified plugins, manage installed provenance, and review updates.</p>
+      <p>
+        Browse verified plugins, manage installed provenance, and review
+        updates.
+      </p>
     </div>
     <div class="lapis-plugin-management__actions">
       <input
@@ -821,14 +849,17 @@
         size="sm"
         disabled={runningAction === "install-bundle"}
         onclick={openBundleFilePicker}
-      ><Upload />Install from .lapis-plugin</Button.Root>
+        ><Upload />Install from .lapis-plugin</Button.Root
+      >
       <Button.Root
         class="lapis-plugin-registry__refresh"
         variant="outline"
         size="sm"
         disabled={refreshing}
         aria-busy={refreshing}
-        aria-label={refreshing ? "Refreshing plugin registry" : "Refresh plugin registry"}
+        aria-label={refreshing
+          ? "Refreshing plugin registry"
+          : "Refresh plugin registry"}
         onclick={() => void refresh(true)}
       >
         <RefreshCw data-spinning={refreshing || undefined} />
@@ -839,10 +870,18 @@
 
   <Tabs.Root bind:value={activeTab} class="lapis-plugin-registry__tabs">
     <Tabs.List class="lapis-plugin-registry__tab-list">
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="installed">Installed</Tabs.Trigger>
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="browse">Browse</Tabs.Trigger>
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="updates">Updates</Tabs.Trigger>
-      <Tabs.Trigger class="lapis-plugin-registry__tab" value="sources">Sources</Tabs.Trigger>
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="installed"
+        >Installed</Tabs.Trigger
+      >
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="browse"
+        >Browse</Tabs.Trigger
+      >
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="updates"
+        >Updates</Tabs.Trigger
+      >
+      <Tabs.Trigger class="lapis-plugin-registry__tab" value="sources"
+        >Sources</Tabs.Trigger
+      >
     </Tabs.List>
 
     <Tabs.Content value="installed" class="lapis-plugin-registry__content">
@@ -857,21 +896,49 @@
         onreset={resetInstalledFilters}
       />
       {#if initialLoading}
-        <PluginRegistryContentState kind="loading" heading="Loading installed plugins" description="Reading installed plugin state and registry provenance…" />
+        <PluginRegistryContentState
+          kind="loading"
+          heading="Loading installed plugins"
+          description="Reading installed plugin state and registry provenance…"
+        />
       {:else if lastError && !installed.length && !communityPlugins.length}
-        <PluginRegistryContentState kind="error" heading="Installed plugins unavailable" description={errorMessage(lastError)} actionLabel="Retry" onaction={() => void refresh(true)} />
+        <PluginRegistryContentState
+          kind="error"
+          heading="Installed plugins unavailable"
+          description={errorMessage(lastError)}
+          actionLabel="Retry"
+          onaction={() => void refresh(true)}
+        />
       {:else if !installed.length && !communityPlugins.length}
-        <PluginRegistryContentState part="registry-installed-empty-state" kind="empty" heading="No plugins installed" description="No installed registry or community plugins." actionLabel="Browse plugins" onaction={() => (activeTab = "browse")} />
+        <PluginRegistryContentState
+          part="registry-installed-empty-state"
+          kind="empty"
+          heading="No plugins installed"
+          description="No installed registry or community plugins."
+          actionLabel="Browse plugins"
+          onaction={() => (activeTab = "browse")}
+        />
       {:else if !filteredInstalled.length && !filteredCommunityPlugins.length}
-        <PluginRegistryContentState kind="filtered" heading="No installed plugins match" description="Try changing the search or installed-plugin filters." actionLabel="Reset filters" onaction={resetInstalledFilters} />
+        <PluginRegistryContentState
+          kind="filtered"
+          heading="No installed plugins match"
+          description="Try changing the search or installed-plugin filters."
+          actionLabel="Reset filters"
+          onaction={resetInstalledFilters}
+        />
       {:else}
         <div class="lapis-plugin-registry__rows">
           {#each filteredInstalled as record (record.pluginId)}
             {@const runtimePlugin = resolveRuntimePlugin(record.pluginId)}
             {@const entry = catalogEntry(record.pluginId)}
             {@const size = installedSize(record)}
-            {@const update = updates.find((candidate) => candidate.id === record.pluginId)}
-            {@const toggleAction = pluginToggleAction(Boolean(runtimePlugin?.enabled), installedName(record))}
+            {@const update = updates.find(
+              (candidate) => candidate.id === record.pluginId,
+            )}
+            {@const toggleAction = pluginToggleAction(
+              Boolean(runtimePlugin?.enabled),
+              installedName(record),
+            )}
             <PluginRegistryRow
               id={record.pluginId}
               name={installedName(record)}
@@ -886,8 +953,12 @@
               ]}
               badges={[
                 ...registryRowBadges(entry, record.provenance),
-                ...(record.nostrProof ? [{ label: "Nostr proof", tone: "community" as const }] : []),
-                ...(record.restartRequired ? [{ label: "Restart required" }] : []),
+                ...(record.nostrProof
+                  ? [{ label: "Nostr proof", tone: "community" as const }]
+                  : []),
+                ...(record.restartRequired
+                  ? [{ label: "Restart required" }]
+                  : []),
               ]}
               status={record.revoked
                 ? {
@@ -903,7 +974,7 @@
                         reason: "Refresh the Nostr registry source when online",
                         tone: "warning",
                       }
-                  : undefined}
+                    : undefined}
             >
               {#snippet actions()}
                 {#if update?.canUpdate}
@@ -916,12 +987,16 @@
                             size="icon"
                             variant="outline"
                             aria-label={`Update ${installedName(record)}`}
-                            disabled={runningAction === `update:${record.pluginId}`}
+                            disabled={runningAction ===
+                              `update:${record.pluginId}`}
                             onclick={() => void updatePlugin(update)}
-                          ><ArrowUpCircle /></Button.Root>
+                            ><ArrowUpCircle /></Button.Root
+                          >
                         {/snippet}
                       </Tooltip.Trigger>
-                      <Tooltip.Content>Update {installedName(record)}</Tooltip.Content>
+                      <Tooltip.Content
+                        >Update {installedName(record)}</Tooltip.Content
+                      >
                     </Tooltip.Root>
                   </Tooltip.Provider>
                 {/if}
@@ -933,7 +1008,8 @@
                           <Switch.Root
                             {...props}
                             checked={Boolean(runtimePlugin?.enabled)}
-                            disabled={!runtimePlugin || runningAction === `toggle:${record.pluginId}`}
+                            disabled={!runtimePlugin ||
+                              runningAction === `toggle:${record.pluginId}`}
                             aria-label={toggleAction}
                             data-tooltip-action={toggleAction}
                             onCheckedChange={(checked) =>
@@ -949,7 +1025,15 @@
                     </Tooltip.Root>
                   </Tooltip.Provider>
                 {/key}
-                <Button.Root size="icon" variant="ghost" aria-label={`Uninstall ${record.pluginId}`} title="Uninstall" disabled={runningAction === `uninstall:${record.pluginId}`} onclick={() => requestUninstall(record)}><Trash2 /></Button.Root>
+                <Button.Root
+                  size="icon"
+                  variant="ghost"
+                  aria-label={`Uninstall ${record.pluginId}`}
+                  title="Uninstall"
+                  disabled={runningAction === `uninstall:${record.pluginId}`}
+                  onclick={() => requestUninstall(record)}
+                  ><Trash2 /></Button.Root
+                >
               {/snippet}
             </PluginRegistryRow>
           {/each}
@@ -982,20 +1066,46 @@
         onreset={resetBrowseFilters}
       />
       {#if initialLoading}
-        <PluginRegistryContentState kind="loading" heading="Loading plugin registry" description="Verifying the official catalog and revocation metadata…" />
+        <PluginRegistryContentState
+          kind="loading"
+          heading="Loading plugin registry"
+          description="Verifying the official catalog and revocation metadata…"
+        />
       {:else if lastError && !catalogEntries.length}
-        <PluginRegistryContentState kind="error" heading="Plugin registry unavailable" description={errorMessage(lastError)} actionLabel="Retry" onaction={() => void refresh(true)} />
+        <PluginRegistryContentState
+          kind="error"
+          heading="Plugin registry unavailable"
+          description={errorMessage(lastError)}
+          actionLabel="Retry"
+          onaction={() => void refresh(true)}
+        />
       {:else if !catalogEntries.length}
-        <PluginRegistryContentState kind="empty" heading="No registry entries" description="The configured registry did not return any plugin entries." actionLabel="Refresh" onaction={() => void refresh(true)} />
+        <PluginRegistryContentState
+          kind="empty"
+          heading="No registry entries"
+          description="The configured registry did not return any plugin entries."
+          actionLabel="Refresh"
+          onaction={() => void refresh(true)}
+        />
       {:else if !filteredCatalogEntries.length}
-        <PluginRegistryContentState kind="filtered" heading="No plugins match" description="Try changing the search or Browse filters." actionLabel="Reset filters" onaction={resetBrowseFilters} />
+        <PluginRegistryContentState
+          kind="filtered"
+          heading="No plugins match"
+          description="Try changing the search or Browse filters."
+          actionLabel="Reset filters"
+          onaction={resetBrowseFilters}
+        />
       {:else}
         <div class="lapis-plugin-registry__rows">
           {#each filteredCatalogEntries as entry (entry.id)}
-            {@const installedRecord = installed.find((record) => record.pluginId === entry.id)}
+            {@const installedRecord = installed.find(
+              (record) => record.pluginId === entry.id,
+            )}
             {@const isBundled = staticPluginIds.has(entry.id)}
             {@const releaseDate = formatDate(entry.latestRelease?.releasedAt)}
-            {@const releaseSize = formatByteSize(entry.latestRelease?.bundleSize)}
+            {@const releaseSize = formatByteSize(
+              entry.latestRelease?.bundleSize,
+            )}
             <PluginRegistryRow
               id={entry.id}
               name={entry.name}
@@ -1018,9 +1128,12 @@
                     aria-label={`Uninstall ${entry.name}`}
                     disabled={runningAction === `uninstall:${entry.id}`}
                     onclick={() => requestUninstall(installedRecord)}
-                  ><Trash2 data-icon="inline-start" />Uninstall</Button.Root>
+                    ><Trash2 data-icon="inline-start" />Uninstall</Button.Root
+                  >
                 {:else if isBundled}
-                  <Button.Root size="sm" variant="outline" disabled><Check data-icon="inline-start" />Bundled</Button.Root>
+                  <Button.Root size="sm" variant="outline" disabled
+                    ><Check data-icon="inline-start" />Bundled</Button.Root
+                  >
                 {:else}
                   {@const installing = runningAction === `install:${entry.id}`}
                   <Button.Root
@@ -1031,7 +1144,13 @@
                     aria-busy={installing}
                     disabled={installing}
                     onclick={() => void installEntry(entry)}
-                  >{#if installing}<RefreshCw data-icon="inline-start" data-spinning="true" />Installing…{:else}<Download data-icon="inline-start" />Install{/if}</Button.Root>
+                    >{#if installing}<RefreshCw
+                        data-icon="inline-start"
+                        data-spinning="true"
+                      />Installing…{:else}<Download
+                        data-icon="inline-start"
+                      />Install{/if}</Button.Root
+                  >
                 {/if}
               {/snippet}
             </PluginRegistryRow>
@@ -1051,13 +1170,36 @@
         onreset={resetUpdateFilters}
       />
       {#if initialLoading}
-        <PluginRegistryContentState kind="loading" heading="Checking for updates" description="Comparing installed plugins with verified registry releases…" />
+        <PluginRegistryContentState
+          kind="loading"
+          heading="Checking for updates"
+          description="Comparing installed plugins with verified registry releases…"
+        />
       {:else if lastError && !updates.length}
-        <PluginRegistryContentState kind="error" heading="Updates unavailable" description={errorMessage(lastError)} actionLabel="Retry" onaction={() => void refresh(true)} />
+        <PluginRegistryContentState
+          kind="error"
+          heading="Updates unavailable"
+          description={errorMessage(lastError)}
+          actionLabel="Retry"
+          onaction={() => void refresh(true)}
+        />
       {:else if !updates.length}
-        <PluginRegistryContentState part="registry-updates-empty-state" kind="success" heading="You’re up to date" description="No plugin updates available." actionLabel="Check for updates" onaction={() => void refresh(true)} />
+        <PluginRegistryContentState
+          part="registry-updates-empty-state"
+          kind="success"
+          heading="You’re up to date"
+          description="No plugin updates available."
+          actionLabel="Check for updates"
+          onaction={() => void refresh(true)}
+        />
       {:else if !filteredUpdates.length}
-        <PluginRegistryContentState kind="filtered" heading="No updates match" description="Try changing the search or update-status filter." actionLabel="Reset filters" onaction={resetUpdateFilters} />
+        <PluginRegistryContentState
+          kind="filtered"
+          heading="No updates match"
+          description="Try changing the search or update-status filter."
+          actionLabel="Reset filters"
+          onaction={resetUpdateFilters}
+        />
       {:else}
         <div class="lapis-plugin-registry__rows">
           {#each filteredUpdates as update (update.id)}
@@ -1073,17 +1215,30 @@
               version={`${update.currentVersion} → ${update.targetVersion}`}
               metadata={[
                 ...(releaseDate ? [`Released ${releaseDate}`] : []),
-                ...(typeof update.bundleSize === "number" ? [`Size ${formatByteSize(update.bundleSize)}`] : []),
-                ...(update.targetVersion !== update.latestVersion ? [`Latest ${update.latestVersion}`] : []),
+                ...(typeof update.bundleSize === "number"
+                  ? [`Size ${formatByteSize(update.bundleSize)}`]
+                  : []),
+                ...(update.targetVersion !== update.latestVersion
+                  ? [`Latest ${update.latestVersion}`]
+                  : []),
                 ...(entry && downloadLabel(entry.id)
                   ? [downloadLabel(entry.id)!]
                   : []),
               ]}
               badges={registryRowBadges(entry, update.provenance)}
               status={{
-                label: update.canUpdate ? "Ready" : update.status === "revoked" ? "Revoked" : "Incompatible",
+                label: update.canUpdate
+                  ? "Ready"
+                  : update.status === "revoked"
+                    ? "Revoked"
+                    : "Incompatible",
                 reason: updateReason(update),
-                tone: update.status === "revoked" ? "danger" : update.canUpdate ? "success" : "warning",
+                tone:
+                  update.status === "revoked"
+                    ? "danger"
+                    : update.canUpdate
+                      ? "success"
+                      : "warning",
               }}
             >
               {#snippet actions()}
@@ -1096,9 +1251,11 @@
                           size="icon"
                           variant="outline"
                           aria-label={`Update ${update.name}`}
-                          disabled={!update.canUpdate || runningAction === `update:${update.id}`}
+                          disabled={!update.canUpdate ||
+                            runningAction === `update:${update.id}`}
                           onclick={() => void updatePlugin(update)}
-                        ><ArrowUpCircle /></Button.Root>
+                          ><ArrowUpCircle /></Button.Root
+                        >
                       {/snippet}
                     </Tooltip.Trigger>
                     <Tooltip.Content>Update {update.name}</Tooltip.Content>
@@ -1131,20 +1288,39 @@
             ]}
             badges={[
               { label: source.enabled ? "Enabled" : "Disabled" },
-              ...(isNostr ? [{ label: "Nostr", tone: "community" as const }] : []),
+              ...(isNostr
+                ? [{ label: "Nostr", tone: "community" as const }]
+                : []),
               {
-                label: source.trustTier === "official" ? "Official" : "Community",
-                tone: source.trustTier === "official" ? "official" as const : "community" as const,
+                label:
+                  source.trustTier === "official" ? "Official" : "Community",
+                tone:
+                  source.trustTier === "official"
+                    ? ("official" as const)
+                    : ("community" as const),
               },
               ...(source.builtin ? [{ label: "Locked" }] : []),
             ]}
             status={!source.enabled
               ? { label: "Disabled" }
               : sourceState.phase === "error"
-                ? { label: "Source problem", reason: sourceState.message, tone: "warning" }
+                ? {
+                    label: "Source problem",
+                    reason: sourceState.message,
+                    tone: "warning",
+                  }
                 : isNostr && !sourceState.installReady
-                  ? { label: "Browse only", reason: sourceState.message ?? "Relay install quorum has not been reached", tone: "warning" }
-                  : { label: isNostr ? "Install quorum ready" : "Available", tone: "success" }}
+                  ? {
+                      label: "Browse only",
+                      reason:
+                        sourceState.message ??
+                        "Relay install quorum has not been reached",
+                      tone: "warning",
+                    }
+                  : {
+                      label: isNostr ? "Install quorum ready" : "Available",
+                      tone: "success",
+                    }}
           >
             {#snippet actions()}
               {@const sourceToggleAction = `${source.enabled ? "Disable" : "Enable"} ${source.name}`}
@@ -1169,7 +1345,12 @@
                 </Tooltip.Provider>
               {/key}
               {#if source.enabled && (sourceState.phase === "error" || !sourceState.installReady)}
-                <Button.Root size="sm" variant="outline" onclick={() => void refresh(true)}><RefreshCw />Retry</Button.Root>
+                <Button.Root
+                  size="sm"
+                  variant="outline"
+                  onclick={() => void refresh(true)}
+                  ><RefreshCw />Retry</Button.Root
+                >
               {/if}
             {/snippet}
           </PluginRegistryRow>
@@ -1179,7 +1360,7 @@
   </Tabs.Root>
 
   <PluginRegistryDetailDialog
-    app={app}
+    {app}
     bind:open={detailDialogOpen}
     entries={filteredCatalogEntries}
     selectedEntry={detailPluginEntry}
@@ -1210,9 +1391,11 @@
           <Trash2 aria-hidden="true" />
         </AlertDialog.Media>
         <AlertDialog.Title>Uninstall plugin?</AlertDialog.Title>
-        <AlertDialog.Description>{uninstallDisableInstead
-          ? "The plugin will stay installed in this vault and can be enabled again later."
-          : "This removes the installed plugin from this vault. You can reinstall it from the registry later."}</AlertDialog.Description>
+        <AlertDialog.Description
+          >{uninstallDisableInstead
+            ? "The plugin will stay installed in this vault and can be enabled again later."
+            : "This removes the installed plugin from this vault. You can reinstall it from the registry later."}</AlertDialog.Description
+        >
       </AlertDialog.Header>
       {#if uninstallTarget}
         {@const entry = catalogEntry(uninstallTarget.pluginId)}
@@ -1247,7 +1430,9 @@
           >
             <Field.Content>
               <Field.Title>Disable instead</Field.Title>
-              <Field.Description>Keep the plugin installed and turn it off.</Field.Description>
+              <Field.Description
+                >Keep the plugin installed and turn it off.</Field.Description
+              >
             </Field.Content>
             <Tooltip.Provider>
               <Tooltip.Root>
@@ -1268,7 +1453,9 @@
         {/if}
       {/if}
       <AlertDialog.Footer>
-        <AlertDialog.Cancel onclick={closeUninstallDialog}>Cancel</AlertDialog.Cancel>
+        <AlertDialog.Cancel onclick={closeUninstallDialog}
+          >Cancel</AlertDialog.Cancel
+        >
         <AlertDialog.Action
           class={uninstallDisableInstead
             ? "lapis-plugin-uninstall-dialog__confirm--disable"
@@ -1279,7 +1466,14 @@
             ? `${uninstallDisableInstead ? "Disable" : "Uninstall"} ${installedName(uninstallTarget)}`
             : `${uninstallDisableInstead ? "Disable" : "Uninstall"} plugin`}
           onclick={() => void confirmPluginRemovalChoice()}
-        >{#if uninstallDisableInstead}<Power data-icon="inline-start" aria-hidden="true" />Disable plugin{:else}<Trash2 data-icon="inline-start" aria-hidden="true" />Uninstall plugin{/if}</AlertDialog.Action>
+          >{#if uninstallDisableInstead}<Power
+              data-icon="inline-start"
+              aria-hidden="true"
+            />Disable plugin{:else}<Trash2
+              data-icon="inline-start"
+              aria-hidden="true"
+            />Uninstall plugin{/if}</AlertDialog.Action
+        >
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>

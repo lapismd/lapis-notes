@@ -742,3 +742,5 @@ Local plugin preparation excludes published Design Core, Mira-family, and Spec
 Validator entries from tarball remapping and install fingerprints. Existing
 plugin and unpublished Community/AI Controller acceptance remains separate
 from these registry foundations.
+
+For LN-PLUG-092, plugin-management presentation composes shared V2 metadata through public package exports. Packed API acceptance uses one public API class identity and lets the Workspace Vitest graph transform dependency modules through Vite rather than substituting a private API barrel.

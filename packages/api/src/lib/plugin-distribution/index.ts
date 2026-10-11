@@ -19,3 +19,5 @@ export * from "./runtime-validation";
 export * from "./schemas";
 export * from "./signing";
 export * from "./types";
+
+export * from "./catalog-media";
