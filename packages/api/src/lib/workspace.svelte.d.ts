@@ -789,7 +789,7 @@ export declare class Notice {
     noticeEl: HTMLElement;
     containerEl: HTMLElement;
     messageEl: HTMLElement;
-    constructor(message: string, duration?: number);
+    constructor(message: string, duration?: number, application?: App);
     setMessage(message: string): void;
     hide(): void;
 }
