@@ -4,7 +4,7 @@ The File Explorer 0.1.1 release retains its existing plugin identity and records
 the landing-leaf reuse behavior. API and Workspace 0.1.1 provide the static
 registry host contracts; plugin installation must satisfy those public peers.
 
-Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+Dependency acceptance now uses published Design Core `0.3.2` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 
 Plugin-facing Design Core presentation resolves through the host's portable npm

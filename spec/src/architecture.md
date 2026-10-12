@@ -15,7 +15,7 @@ Static registry release candidates use the independently versioned framework
 0.1.1 contracts. Temporary tarball validation retains source ownership and
 does not replace portable registry-only qualification before publication.
 
-Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+Dependency acceptance now uses published Design Core `0.3.2` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 
 Design Core-dependent surfaces follow the repository's portable published

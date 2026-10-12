@@ -1,5 +1,7 @@
 # UI and Styling
 
+UI and Workspace consumers require published Design Core `^0.3.2` for bold Settings headings, selected-tab separator alignment, native window-controls allowances and mobile shell teardown. Presentation continues to use public Design Core tokens and components.
+
 UI 0.1.1 carries the shared search-highlight tokens used by the static registry
 plugin candidates. API consumers require that public version while continuing
 to use the owning theme and component contracts.

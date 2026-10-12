@@ -75,7 +75,7 @@
   },
   "peerDependencies": {
     "svelte": "^5.0.0",
-    "@lapismd/design-core": "^0.3.1"
+    "@lapismd/design-core": "^0.3.2"
   },
   "devDependencies": {
     "@internationalized/date": "^3.8.2",
@@ -104,7 +104,7 @@
   "dependencies": {
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/svelte": "^0.4.0",
-    "@lapismd/design-core": "^0.3.1",
+    "@lapismd/design-core": "^0.3.2",
     "fuse.js": "^7.3.0"
   }
 }

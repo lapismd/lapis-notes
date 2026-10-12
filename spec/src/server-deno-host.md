@@ -1,5 +1,7 @@
 # Deno Server Host
 
+The shared Deno dependency lock is refreshed against published Design Core `0.3.2` and the current controller/native imports. Package ranges and persistent dependency-age policy remain unchanged apart from the explicitly requested provider refresh.
+
 The dedicated Web client uses the shared four-plugin application profile from
 LN-WEB-004. Community is parked and does not become a server-host default;
 verified configured-plugin loading remains available.

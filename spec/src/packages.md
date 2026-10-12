@@ -1,19 +1,21 @@
 # Packages
 
-Desktop UI validation uses a checksum-verified temporary Design Core archive
-for the upstream overlay inset and bold settings headings. This local
-acceptance setup preserves registry semver manifests and the portable lockfile;
-consumers need the subsequent published Design Core fix before release.
+Desktop and registry UI consumers use published Design Core `0.3.2` for the
+upstream overlay inset, bold settings headings, selected-tab indicator and mobile
+teardown fixes. Publishable manifests require `^0.3.2`; the portable lockfile
+resolves the checksum-bound npm artifact. No local Design Core archive is
+required by the release candidate.
 Workspace media presentation remains consumer-owned under LN-PLUG-092.
 
-Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+Dependency acceptance now uses published Design Core `0.3.2` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 Shared specification tooling resolves `@lapismd/spec-validator@0.1.4` from npm.
 
-The static registry prerequisite release prepares API, UI, Workspace and File
-Explorer at independent version 0.1.1. Public framework peers require the new
-API/UI ranges; local candidate verification may use ignored npm tarballs until
-those prerequisites are approved and available from npm.
+The static registry prerequisite release starts from independently versioned
+0.1.1 framework candidates. Pending Changesets select API, UI and File Explorer
+0.1.2 plus Workspace 0.2.0; public framework peers keep compatible API/UI ranges.
+Local candidate verification may use ignored npm tarballs until those prerequisites
+are approved and available from npm.
 
 Public packages that consume Design Core keep their portable semver ranges and
 the workspace lockfile on the repository's current supported npm release.

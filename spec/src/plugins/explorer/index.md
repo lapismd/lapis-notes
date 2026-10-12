@@ -1,5 +1,7 @@
 # Explorer Plugin
 
+File Explorer requires published Design Core `^0.3.2` alongside its API peer. Its public artifact remains independently versioned and the release consumes registry dependencies rather than local review tarballs.
+
 File Explorer 0.1.1 records landing-leaf reuse in its independent changelog.
 It consumes API 0.1.1 through a portable peer range and retains the existing
 plugin identity and public package entry.
