@@ -10,6 +10,39 @@ import {
 } from "./renderer-http";
 
 describe("Deno desktop renderer proxy", () => {
+  it("removes encoded representation headers from a decoded upstream body", async () => {
+    const response = new Response("<!doctype html><title>Lapis Notes</title>", {
+      status: 200,
+      headers: {
+        "Content-Encoding": "gzip",
+        "Content-Length": "71",
+        "Content-Type": "text/html",
+        ETag: 'W/"upstream"',
+      },
+    });
+    const proxied = withIsolationHeaders(response, { decodedUpstream: true });
+    expect(proxied.headers.get("Content-Encoding")).toBeNull();
+    expect(proxied.headers.get("Content-Length")).toBeNull();
+    expect(proxied.headers.get("Content-Type")).toBe("text/html");
+    expect(proxied.headers.get("ETag")).toBe('W/"upstream"');
+    expect(proxied.status).toBe(200);
+    expect(await proxied.text()).toBe(
+      "<!doctype html><title>Lapis Notes</title>",
+    );
+  });
+
+  it("preserves representation headers for raw asset responses", async () => {
+    const bytes = new Uint8Array([0x1f, 0x8b, 0x08]);
+    const response = withIsolationHeaders(
+      new Response(bytes, {
+        headers: { "Content-Encoding": "gzip", "Content-Length": "3" },
+      }),
+    );
+    expect(response.headers.get("Content-Encoding")).toBe("gzip");
+    expect(response.headers.get("Content-Length")).toBe("3");
+    expect(new Uint8Array(await response.arrayBuffer())).toEqual(bytes);
+  });
+
   it("serves verified plugin assets before falling through to Vite", () => {
     const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const pluginAssets = source.indexOf(

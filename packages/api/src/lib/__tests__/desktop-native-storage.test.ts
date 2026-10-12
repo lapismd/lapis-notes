@@ -235,3 +235,42 @@ it("streams native range reads and stages atomic chunk writes", async () => {
     "desktop_fs_atomic_write_commit",
   ]);
 });
+
+it.each(["ENOENT: /vault/gone.bin", "Error: ENOENT: /vault/gone.bin"])(
+  "restores portable filesystem codes from native Error rejections: %s",
+  async (message) => {
+    const rejected = new Error(message);
+    setNativeDesktopBridge({
+      runtime: "deno-desktop",
+      async invoke<T>(command: string) {
+        if (command === "desktop_fs_stat") {
+          return { type: "file", size: 4, ctime: 1, mtime: 2 } as T;
+        }
+        throw rejected;
+      },
+    });
+    const adapter = new NativeDesktopVaultAdapter("/vault");
+    const handle = await adapter.openRead("gone.bin");
+    await expect(handle.stream().getReader().read()).rejects.toMatchObject({
+      code: "ENOENT",
+    });
+  },
+);
+
+it("preserves explicit native error codes and unexpected errors", async () => {
+  const explicit = Object.assign(new Error("EIO: detail"), { code: "EACCES" });
+  const unexpected = new Error("Native transport unavailable");
+  let rejected = explicit as Error;
+  setNativeDesktopBridge({
+    runtime: "deno-desktop",
+    async invoke<T>(): Promise<T> {
+      throw rejected;
+    },
+  });
+  const adapter = new NativeDesktopVaultAdapter("/vault");
+  await expect(adapter.read("private.md")).rejects.toBe(explicit);
+  expect(explicit.code).toBe("EACCES");
+  rejected = unexpected;
+  await expect(adapter.read("private.md")).rejects.toBe(unexpected);
+  expect(unexpected).not.toHaveProperty("code");
+});

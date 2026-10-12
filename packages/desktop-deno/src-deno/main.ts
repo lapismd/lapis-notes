@@ -444,7 +444,9 @@ async function proxyVite(
   if (request.method !== "GET" && request.method !== "HEAD") {
     init.body = request.body;
   }
-  return withIsolationHeaders(await fetch(new Request(upstream, init)));
+  return withIsolationHeaders(await fetch(new Request(upstream, init)), {
+    decodedUpstream: true,
+  });
 }
 
 Deno.serve(async (request) => {

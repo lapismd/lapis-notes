@@ -42,16 +42,32 @@ Chromium rejected its cached module worker with
 cold signed installed-worker regression each change from one failure to one
 pass. Diagnostics and provider timeouts remain unchanged.
 
+Native proxy responses now remove stale content encoding and length headers
+when Fetch has decoded the upstream body, retaining headers for raw responses.
+The exact decoded-body regression changes from one failure to one pass and the
+header family passes five tests. Native range-read errors recover serialized
+filesystem codes without replacing error identity. Startup identity scans treat
+a path removed while opening or streaming as a deletion while preserving
+unexpected failures. Four missing-path and lost-code regressions change from
+failure to pass; the complete filesystem/sync family passes 37 tests.
+
+The public metadata fingerprint accepts an optional file predicate. Two API
+regressions verify selected parser/input invalidation, excluded-file stability
+and unchanged full default semantics; the metadata-cache family passes 31 tests.
+Search uses that contract to rebuild after metadata removes its derived rows,
+while retaining checkpoints for files without Search providers. Both Search
+regressions and the exact previously failing native Search lifecycle pass.
+
 ## Verification
 
 - Notes package qualification: all 30 build, check and test tasks pass, including
-  807 API tests, eight App Profile tests and 55 Web tests.
-- Desktop's later complete package run: 202 tests pass and one existing test
+  815 API tests, eight App Profile tests and 55 Web tests.
+- Desktop's later complete package run: 204 tests pass and one existing test
   remains skipped; its type checks and renderer build pass.
 - Root `pnpm check`: all 18 tasks pass, including specification and source audits.
 - Full Notes Storybook: 212 interaction and accessibility scenarios pass across
   four shards: 62, 58, 40 and 52.
-- Cold Web acceptance: all eight scenarios pass, including installed Bases and
+- Cold Web acceptance: all nine scenarios pass, including installed Bases and
   Spellcheck, OPFS reload, secondary-tab database ownership and Search.
 - Server acceptance: one scenario passes against a fresh current-source image,
   exercising editing, sharing events and a container restart. Its local image
@@ -80,16 +96,23 @@ relying on a temporary language-service tarball.
 The Web matrix passes all nine optional plugins through installation, defining
 behavior, disable, re-enable, persisted reload, uninstall and another reload.
 The three bundled Plugins packages pass defining behavior and disable/re-enable
-persistence across reload. These probes verify all 12 active Plugins packages;
+persistence across reload. These Web probes verify all 12 active Plugins packages;
 File Explorer remains the fourth Notes-owned default. The bundled probe waits
 for the documented debounced core-plugin state write before reloading.
 
-The broader native installed-plugin matrix remains unqualified. The isolated
-CEF development runner reproduced a Deno HMR import-map failure for
-`@lapismd/ai-controller/managed`; a non-HMR build avoided that loader failure but
-its development renderer did not reach workspace readiness. No plugin failure
-or desktop matrix pass is inferred from those attempts. The canonical packaged
-WebKit smoke remains the passing desktop lane above.
+Native qualification now passes all 12 active Plugins packages. The nine
+optional plugins each pass installation, behavior, disable/re-enable, reload
+and uninstall. Source Editor, Markdown and Search pass behavior and disabled
+and enabled persistence across reload. The fresh combined native scenario
+installs all nine optional plugins, exercises them together before and after
+reload, then uninstalls them and reloads cleanly. Every native probe reports
+zero page errors. Community remains absent.
+
+Earlier HMR loader, renderer startup, CEF SIGTRAP and packaged readiness attempts
+are retained as failed diagnostics. The current non-HMR renderer reaches
+readiness, the complete combined native scenario passes, and the freshly built
+ad-hoc-signed WebKit package passes its original smoke assertions. No timeout
+or result assertion was loosened; notarization remains outside this local lane.
 
 Final portable prerequisite versions and production release candidates remain
 separate gates. Exploratory

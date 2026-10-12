@@ -34,6 +34,12 @@ plugin projection and search-document registrations stay plugin-scoped even
 when Deno desktop persists their generated rows through the native AppDatabase
 bridge.
 
+Search checkpoint validation uses the public metadata reconciliation fingerprint
+with a predicate selecting only files accepted by registered Search providers.
+Selected metadata parser changes invalidate Search; unrelated metadata inputs
+retain the checkpoint. The unfiltered API call continues to cover every
+processable metadata file (LN-DB-035, LN-PLUG-030).
+
 The online Deno-server profile uses that same public version-and-digest plugin
 asset URL, but the authenticated server validates and serves the bytes instead
 of mirroring them into PWA Cache Storage. Installed metadata remains the asset

@@ -212,6 +212,8 @@ API owns opaque identity, enrollment, recovery, cursor, generated-state, file,
 network, and cryptographic capabilities; browser and desktop hosts supply only
 platform custody and consent adapters. Nostr, Blossom, revision-graph, endpoint,
 and synchronization UI policy remain outside the host API in protocol plugins.
+Startup identity reconciliation follows LN-DB-054 when a file disappears during
+fingerprint reads; the API owns that race across every host.
 
 The first app-owned memory boundary is the disposable database substrate:
 portable memory code calls one typed `AppDatabase` surface for checkpoints,

@@ -535,7 +535,7 @@ export declare class MetadataCache extends EventDispatcher<{
     private loadPrimarySnapshot;
     private hydrateDatabaseFromSnapshot;
     private reconcileSnapshotWithVault;
-    getReconciliationFingerprint(): string;
+    getReconciliationFingerprint(acceptsFile?: (file: TFile) => boolean): string;
     getFileCache(file: TFile): CachedMetadata | null;
     getCache(path: string): CachedMetadata | null;
     getFileCacheAsync(file: TFile | string): Promise<CachedMetadata | null>;

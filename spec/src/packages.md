@@ -202,6 +202,10 @@ entrypoints.
 | LN-PKG-148 | `@lapis-notes/api` MAY advertise a transport-neutral `nostr-signer` native capability but MUST NOT implement OS credential storage or Nostr cryptography. The private Deno desktop host MUST own its keychain, NIP-46, native signing service, renderer broker, and direct `nostr-tools` runtime dependency. |
 | LN-PKG-149 | The API host catalogue MUST expose declared Svelte browser runtime contracts under compiler-versioned specifiers. API and host builds MUST use that exact Svelte peer version. Hosts MUST provide those entries through their own module graph. Raw private imports and unavailable ABI versions MUST remain rejected. |
 
+The native filesystem adapter restores binding error codes under LN-DENO-077.
+The API owns startup fingerprint deletion recovery under LN-DB-054. Missing
+files do not abort identity reconciliation; unrelated read errors remain failures.
+
 The private host-services package exports root-bound filesystem execution,
 portable path and error handling, file-watch mapping, vault-resource and plugin
 asset responses, Markdown language operations, and the native AppDatabase worker

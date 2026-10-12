@@ -1040,11 +1040,13 @@ export class MetadataCache extends EventDispatcher<{
   /**
    * Return the current vault/parser manifest fingerprint used to validate the
    * durable metadata index and disposable indexed-consumer snapshots.
+   * Consumers may restrict the fingerprint to their accepted metadata files.
    */
-  getReconciliationFingerprint(): string {
+  getReconciliationFingerprint(acceptsFile?: (file: TFile) => boolean): string {
     const fingerprint = new StreamingManifestFingerprint();
     for (const file of this.app.vault.iterateFiles()) {
       if (!this.processors.has(file.extension.toLowerCase())) continue;
+      if (acceptsFile && !acceptsFile(file)) continue;
       fingerprint.add(
         [
           file.path,

@@ -77,6 +77,64 @@ describe("SyncHostService", () => {
     expect(recreated?.fileId).not.toBe(initial?.fileId);
   });
 
+  it.each(["open", "stream"] as const)(
+    "reconciles files removed during startup fingerprinting (%s)",
+    async (boundary) => {
+      const database = new MemoryAppDatabase(`sync-host-missing-${boundary}`);
+      await database.open();
+      const missingPath = ".obsidian/plugins/ai/manifest.json";
+      const adapter = new MemoryVaultAdapter({
+        [missingPath]: '{"id":"ai"}',
+        "remaining.md": "keep tracking",
+      });
+      const openRead = adapter.openRead.bind(adapter);
+      vi.spyOn(adapter, "openRead").mockImplementation(async (path) => {
+        if (path !== missingPath) return openRead(path);
+        await adapter.remove(path);
+        const error = Object.assign(new Error(`ENOENT: ${path}`), {
+          code: "ENOENT",
+        });
+        if (boundary === "open") throw error;
+        return {
+          size: 11,
+          mtime: 0,
+          stream: () =>
+            new ReadableStream({
+              start(controller) {
+                controller.error(error);
+              },
+            }),
+        };
+      });
+      const service = new SyncHostService(database, new Vault(adapter));
+      await expect(service.ready()).resolves.toBeUndefined();
+      const host = service.forPlugin("sync-a");
+      await expect(host.files.getIdentity(missingPath)).resolves.toBeNull();
+      await expect(
+        host.files.getIdentity("remaining.md"),
+      ).resolves.toMatchObject({
+        state: "present",
+        contentFingerprint: bytesToHex(
+          sha256(new TextEncoder().encode("keep tracking")),
+        ),
+      });
+      const changes = await host.files.listChangedSince();
+      expect(changes.changes.map((change) => change.file.currentPath)).toEqual([
+        "remaining.md",
+      ]);
+    },
+  );
+
+  it("preserves unexpected startup fingerprint errors", async () => {
+    const database = new MemoryAppDatabase("sync-host-read-denied");
+    await database.open();
+    const adapter = new MemoryVaultAdapter({ "denied.md": "private" });
+    const denied = Object.assign(new Error("read denied"), { code: "EACCES" });
+    vi.spyOn(adapter, "openRead").mockRejectedValue(denied);
+    const service = new SyncHostService(database, new Vault(adapter));
+    await expect(service.ready()).rejects.toBe(denied);
+  });
+
   it("recovers one offline rename by strong fingerprint but never merges ambiguous copies", async () => {
     let now = 1_000;
     const database = new MemoryAppDatabase("sync-host-reconcile");

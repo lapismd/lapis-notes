@@ -912,10 +912,27 @@ export class SyncHostService {
       const path = file.path;
       const lookupPath = kind === "rename" ? (previousPath ?? path) : path;
       let current = await this.#getIdentityByPath(lookupPath);
-      const fingerprint =
-        kind === "delete"
-          ? current?.contentFingerprint
-          : await this.#strongFingerprint(path, allowFingerprintRecovery);
+      let fingerprint: string | undefined;
+      if (kind === "delete") {
+        fingerprint = current?.contentFingerprint;
+      } else {
+        try {
+          fingerprint = await this.#strongFingerprint(
+            path,
+            allowFingerprintRecovery,
+          );
+        } catch (error) {
+          const missing = error as { code?: string; name?: string } | null;
+          if (missing?.code !== "ENOENT" && missing?.name !== "NotFoundError") {
+            throw error;
+          }
+          // Vault discovery and native streaming are separate operations. A
+          // concurrent uninstall or external delete can remove the bytes between
+          // them; reconcile that removal instead of rejecting host readiness.
+          kind = "delete";
+          fingerprint = current?.contentFingerprint;
+        }
+      }
       if (
         !current &&
         kind === "create" &&

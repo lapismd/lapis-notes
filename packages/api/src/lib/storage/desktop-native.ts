@@ -413,7 +413,16 @@ function createFsError(code: string, path: string): Error & { code: string } {
 
 function toNativeError(error: unknown): Error & { code?: string } {
   if (error instanceof Error) {
-    return error as Error & { code?: string };
+    const nativeError = error as Error & { code?: string };
+    if (!nativeError.code) {
+      // Deno's binding serializes a native Error to text, then rejects with a
+      // fresh Error. Restore the same portable code handled for string errors.
+      const match = /^(?:Error:\s*)?([A-Z0-9_]+):\s*(.*)$/u.exec(
+        nativeError.message,
+      );
+      if (match) nativeError.code = match[1];
+    }
+    return nativeError;
   }
 
   const message = typeof error === "string" ? error : String(error);
