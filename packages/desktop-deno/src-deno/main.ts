@@ -62,6 +62,8 @@ import {
   createDesktopWindowOptions,
   needsCreatedChromeWindow,
   rendererOriginFromServeAddress,
+  rendererEntryUrl,
+  isParkedBootstrapRequest,
   setOverlayWindowControls,
 } from "./window-chrome.ts";
 import { installWindowBindings } from "./window-bindings.ts";
@@ -440,6 +442,19 @@ async function proxyVite(
 }
 
 Deno.serve(async (request) => {
+  if (isParkedBootstrapRequest(request.url, win !== bootstrap)) {
+    return withIsolationHeaders(
+      new Response(
+        "<!doctype html><html><head><title></title></head><body></body></html>",
+        {
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+            "cache-control": "no-store",
+          },
+        },
+      ),
+    );
+  }
   const closeResponse = closeSignal.respond(request);
   if (closeResponse) return await closeResponse;
   const rendererEventResponse = rendererEvents.respond(request);
@@ -460,7 +475,7 @@ Deno.serve(async (request) => {
 });
 if (win !== bootstrap) {
   bootstrap.hide();
-  win.navigate(rendererOrigin);
+  win.navigate(rendererEntryUrl(rendererOrigin, true));
   desktopBindings.refresh();
   win.show();
 }

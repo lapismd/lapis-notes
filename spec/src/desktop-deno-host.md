@@ -291,7 +291,7 @@ macOS Deno window chrome verifies:
 
 - The first `BrowserWindow` adopts Deno's bootstrap window, so macOS MUST create a second window for creation-only chrome.
 - The visible window MUST set `transparentTitlebar: true` and `frameless: false` so full-size content retains native traffic lights.
-- The adopted bootstrap window MUST remain invisible and MUST NOT steal focus after Deno's automatic navigation.
+- The adopted bootstrap window MUST remain invisible, MUST NOT mount an application renderer, and MUST NOT steal focus after Deno's automatic navigation. Only the visible window entry may mount a vault session.
 - Platform metadata MUST enable the existing macOS traffic-light clearance only when the overlay window is active.
 
 ### LN-DENO-013 acceptance details
