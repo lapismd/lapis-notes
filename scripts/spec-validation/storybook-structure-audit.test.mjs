@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import "../storybook-runtime-warnings.test.mjs";
 
 import {
   auditPluginPanels,

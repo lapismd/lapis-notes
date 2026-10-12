@@ -61,6 +61,7 @@ export const storybookPackedDependencyIncludes = [
   "@lucide/svelte/icons/smartphone",
   "@lucide/svelte/icons/file-text",
   "@lucide/svelte/icons/history",
+  "@lucide/svelte/icons/image-off",
   "@lucide/svelte/icons/layout-grid",
   "@lucide/svelte/icons/list",
   "@lucide/svelte/icons/network",

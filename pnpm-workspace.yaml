@@ -3,6 +3,7 @@ packages:
 
 patchedDependencies:
   bits-ui@2.18.1: patches/bits-ui@2.18.1.patch
+  bits-ui@2.19.5: patches/bits-ui@2.19.5.patch
 
 linkWorkspacePackages: true
 

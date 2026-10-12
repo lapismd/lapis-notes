@@ -1,0 +1,59 @@
+--- a/dist/bits/link-preview/link-preview.svelte.js
++++ b/dist/bits/link-preview/link-preview.svelte.js
+@@ -20,6 +20,8 @@
+     isPointerDownOnContent = $state(false);
+     containsSelection = $state(false);
+     timeout = null;
++    selectionTimeout = null;
++    destroyed = false;
+     contentNode = $state(null);
+     contentMounted = $state(false);
+     contentPresence;
+@@ -45,7 +47,11 @@
+             const handlePointerUp = () => {
+                 this.containsSelection = false;
+                 this.isPointerDownOnContent = false;
+-                afterSleep(1, () => {
++                this.clearSelectionTimeout();
++                this.selectionTimeout = afterSleep(1, () => {
++                    this.selectionTimeout = null;
++                    if (this.destroyed)
++                        return;
+                     const isSelection = this.domContext.getDocument().getSelection()?.toString() !== "";
+                     if (isSelection) {
+                         this.hasSelection = true;
+@@ -56,18 +62,29 @@
+                 });
+             };
+             const unsubListener = on(this.domContext.getDocument(), "pointerup", handlePointerUp);
+-            if (!this.contentNode)
+-                return;
+-            const tabCandidates = getTabbableCandidates(this.contentNode);
+-            for (const candidate of tabCandidates) {
+-                candidate.setAttribute("tabindex", "-1");
++            if (this.contentNode) {
++                const tabCandidates = getTabbableCandidates(this.contentNode);
++                for (const candidate of tabCandidates) {
++                    candidate.setAttribute("tabindex", "-1");
++                }
+             }
+             return () => {
++                this.clearSelectionTimeout();
+                 unsubListener();
+                 this.hasSelection = false;
+                 this.isPointerDownOnContent = false;
+             };
+         });
++        onDestroyEffect(() => {
++            this.destroyed = true;
++            this.clearSelectionTimeout();
++        });
++    }
++    clearSelectionTimeout() {
++        if (this.selectionTimeout !== null) {
++            clearTimeout(this.selectionTimeout);
++            this.selectionTimeout = null;
++        }
+     }
+     clearTimeout() {
+         if (this.timeout) {

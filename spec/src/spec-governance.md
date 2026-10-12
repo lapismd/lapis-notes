@@ -1,5 +1,10 @@
 # Specification Governance
 
+Normal specification and CI unit validation execute the Storybook runtime
+classifier and owned-console regression tests. These tests reject formatted
+Svelte diagnostics and prove that caught teardown errors remain fatal through
+the registered after-story and final-cleanup checks (LN-CAT-111).
+
 Notes owns its Deno CI runtime prerequisite: the shared `ci-setup` action installs
 Deno `2.9.7` through the pinned setup action before toolchain verification and
 frozen installation. Every validation, release and Pages job that uses this action

@@ -1,5 +1,10 @@
 # Lapis Editor Demo
 
+Notes pins its direct Bits UI runtime to published `2.19.5`, including the
+upstream document text-selection listener teardown fix. Dependency-originated
+Svelte diagnostics remain fatal, and retained diagnostics fail after story
+teardown even when component cleanup catches the immediate exception.
+
 The editor demo consumes published Design Core `0.3.2` through the root npm range and portable lockfile, including corrected settings typography and selected-tab indicators.
 
 The static registry framework candidates use API and Workspace 0.1.1. Editor

@@ -1,5 +1,15 @@
 # Packages
 
+The existing user-approved Bits UI `2.19.5` Link Preview lifecycle patch is
+retained for the direct runtime refresh, so canceled selection probes and listener
+cleanup remain qualified. This reuses the approved correction without extending
+its scope; the legacy `2.18.1` patch still covers remaining transitive users.
+
+Notes pins its direct Bits UI runtime to published `2.19.5`, including the
+upstream document text-selection listener teardown fix. Dependency-originated
+Svelte diagnostics remain fatal, and retained diagnostics fail after story
+teardown even when component cleanup catches the immediate exception.
+
 Notes owns its Deno CI runtime prerequisite: the shared `ci-setup` action installs
 Deno `2.9.7` through the pinned setup action before toolchain verification and
 frozen installation. Every validation, release and Pages job that uses this action
