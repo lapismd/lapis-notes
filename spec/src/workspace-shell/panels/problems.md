@@ -96,6 +96,12 @@ to serializable diagnostics.
 
 ## Lifecycle
 
+For LN-WS-046, editor-demo acceptance checks the leaf badge and rendered rows
+against the complete current diagnostics snapshot, including other providers and
+workspace-wide collections. The long-form Markdownlint scenario keeps its exact
+17-rule-result assertion separate from that total and exercises addition and
+disposal of another collection without changing the note.
+
 Diagnostics are not workspace layout state. Closing the Problems view does not
 clear collections, and new diagnostics do not open it. Hydration reapplies a
 persisted Problems leaf, including a leftover empty missing-view placeholder,

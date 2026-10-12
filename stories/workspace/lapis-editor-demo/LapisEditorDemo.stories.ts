@@ -993,7 +993,7 @@ export const MarkdownSpellcheck: Story = {
 export const MarkdownLintLoftBoarding: Story = {
   ...workspaceStoryMeta(
     "workspace-lapis-editor-demo-markdown-lint-loft-boarding",
-    "A long-form loft-boarding note produces the same Markdownlint rule set as vscode-markdownlint, including repeated list-style messages, without MD013 line-length warnings or the same code and range twice.",
+    "A long-form loft-boarding note produces the same Markdownlint rule set as vscode-markdownlint, including repeated list-style messages, without MD013 line-length warnings or duplicate results. Problems totals include every contributing collection and update when another collection is disposed.",
     "/visual-baselines/stories/workspace/lapis-editor-demo/markdown-lint-loft-boarding-chromium.png",
   ),
   tags: ["visual-pending", "test"],
@@ -1060,21 +1060,70 @@ export const MarkdownLintLoftBoarding: Story = {
       expect(panel).not.toBeNull();
       return panel!;
     });
-    const count = entries.length;
-    await expect(
-      await canvas.findByLabelText(
-        `Problems, ${count} problem${count === 1 ? "" : "s"}`,
-        {},
+    const assertProblemsTotals = () =>
+      waitFor(
+        () => {
+          const snapshot = runtimeApp.workspace.diagnostics.snapshot();
+          const details = snapshot.entries
+            .map(
+              (entry) =>
+                `${entry.diagnostic.source ?? "unknown"}: ${entry.diagnostic.message}`,
+            )
+            .join("\n");
+          expect(
+            snapshot.entries.filter(
+              (entry) => entry.diagnostic.source === "markdownlint",
+            ),
+          ).toHaveLength(entries.length);
+          // Legitimate file diagnostics may be errors; provider/startup failures
+          // are workspace-wide and must still fail this healthy editor scenario.
+          expect(
+            snapshot.entries.filter(
+              (entry) =>
+                entry.resource === null &&
+                entry.diagnostic.severity === "error",
+            ),
+            details,
+          ).toEqual([]);
+          const count = snapshot.entries.length;
+          expect(
+            canvas.getByLabelText(
+              `Problems, ${count} problem${count === 1 ? "" : "s"}`,
+            ),
+          ).toBeVisible();
+          expect(
+            problems.querySelectorAll(".ui-workspace-problems__row"),
+            details,
+          ).toHaveLength(count);
+        },
         { timeout: 15_000 },
-      ),
-    ).toBeVisible();
-    await waitFor(
-      () => {
-        expect(
-          problems.querySelectorAll(".ui-workspace-problems__row"),
-        ).toHaveLength(count);
+      );
+
+    await assertProblemsTotals();
+    // Another collection must contribute to the total without changing the
+    // Markdownlint rule set. This makes provider-dependent count drift explicit.
+    const additional = runtimeApp.workspace.diagnostics.createCollection(
+      "storybook:loft-boarding-additional",
+      { label: "Other plugin" },
+    );
+    additional.set(null, [
+      {
+        source: "Other plugin",
+        message: "Another plugin contributes to the Problems total.",
+        severity: "information",
       },
-      { timeout: 15_000 },
+    ]);
+    try {
+      await assertProblemsTotals();
+      expect(problems).toHaveTextContent(
+        "Another plugin contributes to the Problems total.",
+      );
+    } finally {
+      additional.dispose();
+    }
+    await assertProblemsTotals();
+    expect(problems).not.toHaveTextContent(
+      "Another plugin contributes to the Problems total.",
     );
   },
 };
