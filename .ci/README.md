@@ -13,6 +13,11 @@ dependency image deliberately excludes repository source and `node_modules`;
 the shared `ci-setup` action always runs a frozen, prefer-offline install for
 the checked-out commit.
 
+Notes validation also requires Deno `2.9.7`. The Notes `ci-setup` action installs
+and verifies that pinned runtime before package tasks; the base image inventory
+above does not include Deno. Local container acceptance needs an image with Deno
+provisioned as well; installing it on the host does not expose it in a container.
+
 ## Refreshing the dependency image
 
 Changes to `pnpm-lock.yaml`, `pnpm-workspace.yaml`, package manifests, patches,

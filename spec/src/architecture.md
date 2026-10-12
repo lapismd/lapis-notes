@@ -1,5 +1,11 @@
 # Architecture
 
+Notes owns its Deno CI runtime prerequisite: the shared `ci-setup` action installs
+Deno `2.9.7` through the pinned setup action before toolchain verification and
+frozen installation. Every validation, release and Pages job that uses this action
+receives the same runtime. Missing or mismatched Deno fails before package tasks;
+the shared Node/pnpm image does not promise a Deno runtime.
+
 The application-owned profile follows LN-PLUG-006: Source Editor, Markdown,
 File Explorer, and Search. Community is parked; its runtime and stylesheet are
 absent from the profile while generic installed-plugin infrastructure and the

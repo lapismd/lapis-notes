@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { validateReleaseWorkflows } from "./check-release-workflow.mjs";
+import "./ci-setup.test.mjs";
 
 const pinnedImage =
   "ghcr.io/lapismd/lapis-notes-ci@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";

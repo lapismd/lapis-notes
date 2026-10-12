@@ -1,5 +1,11 @@
 # Packages
 
+Notes owns its Deno CI runtime prerequisite: the shared `ci-setup` action installs
+Deno `2.9.7` through the pinned setup action before toolchain verification and
+frozen installation. Every validation, release and Pages job that uses this action
+receives the same runtime. Missing or mismatched Deno fails before package tasks;
+the shared Node/pnpm image does not promise a Deno runtime.
+
 Desktop and registry UI consumers use published Design Core `0.3.2` for the
 upstream overlay inset, bold settings headings, selected-tab indicator and mobile
 teardown fixes. Publishable manifests require `^0.3.2`; the portable lockfile
