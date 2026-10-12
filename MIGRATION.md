@@ -72,7 +72,7 @@ intake or UI swap status changes.
 | `@lapis-notes/history`                     | In progress  | Enabled-by-default file-history plugin captures vault revisions through AppDatabase, exposes a movable History panel, and compares through Design Core FileDiff / MergeEditor. Visual baselines remain `visual-pending`.                                                                                                     |
 | `@lapis-notes/wordcount`                   | Done         | Enabled-by-default status-bar word and character count over the API status-bar contract. Design Core F-Mode is included on the default shell and disabled until the user enables it.                                                                                                                                         |
 | `@lapis-notes/spellcheck`                  | Done         | Enabled-by-default Harper diagnostics through the language-service and Problems path, Lucide status item, and Settings for dialect, rules, and file types. The editor-demo misspelling story stays `visual-pending` without a captured baseline.                                                                             |
-| `@lapis-notes/source-editor`               | Done         | Enabled-by-default production source editor shared by desktop, web, and Storybook for text, JSON, YAML, and YML; Markdown remains owned by `@lapis-notes/markdown`.                                                                                                                   |
+| `@lapis-notes/source-editor`               | Done         | Enabled-by-default production source editor shared by desktop, web, and Storybook for text, JSON, YAML, and YML; Markdown remains owned by `@lapis-notes/markdown`.                                                                                                                                                          |
 | `@lapis-notes/bases`                       | Done         | Legacy revision `8ec68e18` runtime and native presentation pass 20 test files / 161 tests, focused Storybook and pointer coverage, desktop and web persistence acceptance, and root check/test/build. Visual baselines remain deferred by request.                                                                           |
 | design-core workspace engine               | Done         | Consumes public workspace APIs; shared stacked-pane width fixed at the design-core source                                                                                                                                                                                                                                    |
 
@@ -202,9 +202,9 @@ Canonical IDs: `LN-AI-179`–`LN-AI-190`, `LN-DB-040`–`LN-DB-044`,
 - [x] Human-readable curated records, preimages, review, and supersession
 - [x] Background candidate ingestion, consolidation, and scheduling
 - [x] Bounded automatic recall, provider-neutral context projection, and
-  restricted processor isolation
+      restricted processor isolation
 - [ ] Configured-host Codex and Cursor memory-tool/recall smoke plus warmed
-  50,000-message performance acceptance
+      50,000-message performance acceptance
 
 ### Agent skills and composer slash commands
 
@@ -479,3 +479,51 @@ All api-consumed families also have `API/` plays and `visual-pending` baselines
 - Full-app `scripts/check-first-party-*.mjs` matrix
 - Docker / e2e vault / plugin-host generation
 - Changesets / npm publication gates
+
+### Default Plugins browser
+
+The default app owns a Plugins workspace browser with a category homepage,
+searchable directory and inline verified details. Settings shares its App-scoped
+catalog, installed/update state and verified actions. Community runtime remains
+parked and relay discovery remains deferred.
+
+The user resumed integration and acceptance after Storybook presentation review.
+Changed stories remain visual-pending; no baselines were approved or updated.
+Community-derived presentation includes typography, chips, media gallery/viewer,
+responsive layouts and linked authors, without reviews or comments. Native view
+breadcrumbs and Refresh remain available; the curved content shell is retained.
+Landing Updates and its removable directory filter represent eligible installed
+upgrades, excluding bundled entries.
+
+Settings Browse, Updates and registry search result selection now reuse and
+activate the shared Plugins leaf on the selected plugin, then close Settings.
+The old detail dialog, its content and orphan styles are removed. Details retain
+verified Markdown, themed media and approximate 30-day/lifetime download counts.
+A left-aligned Back icon with circular hover and tooltip returns to the originating
+homepage or filtered directory. Its left inset is 8px.
+
+The real signed catalog snapshot contains 12 plugins and 168 verified image
+references, with provenance recorded beside the fixtures. Community is excluded.
+Body navigation stays outside the scrolling content on the homepage, directory
+and details. Verified images reserve their dimensions and show a Skeleton until
+browser decoding finishes, followed by an empty state on retrieval or decoding
+failure. The About description has 16px of space before its category chips.
+
+Current acceptance passes all 54 affected browser/Settings/snapshot stories and
+all 243 Storybook interaction/accessibility stories. Root check and test pass
+18/18 tasks, build passes 10/10, and specification validation and static Storybook
+build pass. The full web-host suite passes 10/10 with Docker available.
+Navigation units pass 5/5. Updates navigation and fixed-detail-header regressions
+each moved from one failure to passing; verified-image regressions moved from
+three failures to three passing.
+
+The native bootstrap fix is committed separately. Its fresh macOS arm64 package
+passes the first packaged smoke, including startup and application URL handoff
+without refreshing (see `spec/records/desktop-bootstrap-renderer-acceptance.md`).
+The broader Plugins slice remains uncommitted pending Design Core acceptance.
+No production signing or notarization was attempted. Design Core's
+centre-drop pointer regression passes, but its secondary-toast story readiness
+still fails from a fresh Storybook process while the exact warm target passes.
+The trace shows delayed module loading. Remaining shared-package browser lanes
+have not yet completed. Keep these as functional acceptance blockers; visual
+comparison and baseline approval remain separate and deferred.

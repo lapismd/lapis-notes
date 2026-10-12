@@ -1,11 +1,13 @@
 <script lang="ts">
   import {
     App,
-    clearVerifiedPluginImageCache,
     clearVerifiedPluginMarkdownCache,
     MemoryAppDatabase,
+    installApplicationCompatibility,
     MemoryVaultAdapter,
     Plugin,
+    pluginCatalogDetailSchema,
+    parsePluginDistributionMetadata,
     type InstalledPluginRecord,
     type PluginCatalogDetail,
     type PluginCatalogEntry,
@@ -16,15 +18,29 @@
     type PluginUpdateInfo,
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
-  import { registerPluginManagementSettings } from "@lapis-notes/workspace";
+  import {
+    registerPluginManagementSettings,
+    WorkspaceShell,
+  } from "@lapis-notes/workspace";
+  import { registerNotesPluginBrowser } from "../../packages/app-profile/src/plugin-browser";
+  import {
+    pluginsBrowserLayout,
+    pluginsBrowserOpeningLayout,
+    type PluginsPlacement,
+  } from "./plugins-browser-layout";
   import { WorkspaceSettingsSurface } from "@lapismd/design-core/workspace/settings";
   import { onDestroy, onMount, tick, untrack } from "svelte";
 
+  import communityReference from "./plugins-community-reference.json";
   type PluginManagementScenario =
     | "empty"
     | "catalog"
+    | "catalog-v2"
+    | "community-reference"
+    | "updates"
     | "installed"
     | "failure"
+    | "install-failure"
     | "progress"
     | "community";
 
@@ -32,10 +48,20 @@
     scenario = "catalog",
     section = "plugin-registry",
     markdownMode = "valid",
+    surface = "settings",
+    placement = "middle-top-tabs",
+    browserState = {},
+    initiallyClosed = false,
+    imageState = "normal",
   }: {
     scenario?: PluginManagementScenario;
     section?: "plugin-registry" | "core-plugins" | "community-plugins";
     markdownMode?: "valid" | "invalid";
+    surface?: "settings" | "browser";
+    placement?: PluginsPlacement;
+    browserState?: Record<string, unknown>;
+    initiallyClosed?: boolean;
+    imageState?: "normal" | "loading" | "missing";
   } = $props();
 
   const graphOverview =
@@ -71,12 +97,6 @@ Released 1 August 2026.
 - Published the initial graph navigation experience for Web and Desktop.
 - Added local relationship exploration and direct note navigation.
 `;
-  const graphLogoSvg =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#7c3aed"/><path d="M32 82 56 46l40 36M43 67h42" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const graphGallerySvg =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#15131c"/><rect x="38" y="38" width="1124" height="724" rx="30" fill="#211d2c" stroke="#6d5f8d" stroke-width="4"/><rect x="78" y="88" width="258" height="624" rx="18" fill="#181520"/><text x="112" y="148" fill="#fff" font-family="system-ui" font-size="34" font-weight="700">Graph</text><text x="112" y="198" fill="#aaa0bc" font-family="system-ui" font-size="22">Local connections</text><circle cx="696" cy="383" r="74" fill="#8b5cf6"/><circle cx="493" cy="244" r="48" fill="#46b5a7"/><circle cx="948" cy="232" r="56" fill="#e7a24c"/><circle cx="944" cy="570" r="51" fill="#d56b8c"/><circle cx="481" cy="584" r="42" fill="#5e9bea"/><g stroke="#b9a8e5" stroke-width="8" opacity=".75"><path d="M540 274 638 347M753 342 894 258M753 429 898 544M635 428 520 550M524 253 900 557"/></g><g fill="#f8f7fb" font-family="system-ui" font-size="24" text-anchor="middle"><text x="696" y="391">Daily note</text><text x="493" y="252">Project</text><text x="948" y="240">Ideas</text><text x="944" y="578">Tasks</text><text x="481" y="592">Journal</text></g></svg>';
-  const invalidGallerySvg =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"></svg>';
 
   function renderStoryMarkdown(markdown: string, element: HTMLElement): void {
     const fragment = document.createDocumentFragment();
@@ -121,8 +141,12 @@ Released 1 August 2026.
     element.replaceChildren(fragment);
   }
 
-  const catalog: PluginCatalogEntry[] =
-    untrack(() => scenario) === "empty"
+  const catalog: PluginCatalogEntry[] = [
+    "community-reference",
+    "updates",
+  ].includes(untrack(() => scenario))
+    ? (communityReference.entries as PluginCatalogEntry[])
+    : untrack(() => scenario) === "empty"
       ? []
       : [
           {
@@ -132,7 +156,6 @@ Released 1 August 2026.
             readmeUrl: "https://story.invalid/source-editor/README.md",
             author: "Lapis Notes",
             authorUrl: "https://lapis.md",
-            appearance: { icon: "file-code-2", accent: "#3b82f6" },
             channel: "official",
             status: "active",
             latestVersion: "0.1.0",
@@ -149,25 +172,11 @@ Released 1 August 2026.
           {
             id: "lapis-graph",
             name: "Graph",
-            description: "Explore local and global relationships between notes.",
+            description:
+              "Explore local and global relationships between notes.",
             readmeUrl: "https://story.invalid/graph/README.md",
             author: "Lapis Notes",
             authorUrl: "https://lapis.md",
-            appearance: {
-              icon: "network",
-              accent: "#7c3aed",
-              logo: {
-                url: "https://story.invalid/v1/assets/lapis-graph/logo.svg",
-                sourceUrl: "https://story.invalid/source/lapis-graph/logo.svg",
-                sha256:
-                  "aa7a4113512641c9a8090f4fde0c2f53dbe11b9de6d7a19ecb134687968c8de2",
-                size: 278,
-                mediaType: "image/svg+xml",
-                width: 128,
-                height: 128,
-                alt: "Graph plugin mark",
-              },
-            },
             channel: "official",
             status: "active",
             latestVersion: "0.2.0",
@@ -184,7 +193,8 @@ Released 1 August 2026.
           {
             id: "revoked-plugin",
             name: "Revoked Example",
-            description: "A fixture used to preserve the registry revocation state.",
+            description:
+              "A fixture used to preserve the registry revocation state.",
             author: "Community Author",
             channel: "community",
             status: "revoked",
@@ -254,77 +264,113 @@ Released 1 August 2026.
   };
 
   const installed = $state<InstalledPluginRecord[]>(
-    untrack(() => scenario) === "installed"
-      ? [
-          {
-            pluginId: "lapis-graph",
-            installedVersion: "0.1.0",
-            installedAt: "2026-08-01T12:00:00.000Z",
-            updatedAt: "2026-08-01T12:00:00.000Z",
-            provenance: "official",
-            registryId: "lapis-official",
-            registryUrl: "https://registry.lapis.md/v1/index.json",
-            restartRequired: true,
-            files: [
-              { path: "main.mjs", sha256: "a".repeat(64), size: 41_984 },
-              { path: "styles.css", sha256: "b".repeat(64), size: 2_048 },
-            ],
-          },
-          {
-            pluginId: "revoked-plugin",
-            installedVersion: "1.0.0",
-            installedAt: "2026-07-20T12:00:00.000Z",
-            updatedAt: "2026-07-20T12:00:00.000Z",
-            provenance: "community",
-            registryId: "lapis-official",
-            files: [{ path: "main.mjs", sha256: "c".repeat(64), size: 8_192 }],
-            revoked: {
-              revokedAt: "2026-08-20T12:00:00.000Z",
-              reason: "security",
-              message: "This release was revoked after a security review.",
+    untrack(() => scenario) === "updates"
+      ? ["ai", "graph", "slides"].map((id) => ({
+          ...fixtureInstalledRecord(
+            id,
+            catalog.find((entry) => entry.id === id)?.channel === "official"
+              ? "official"
+              : "community",
+          ),
+          installedVersion: "0.0.1",
+          registryId: "lapis-official",
+        }))
+      : untrack(() => scenario) === "installed"
+        ? [
+            {
+              pluginId: "lapis-graph",
+              installedVersion: "0.1.0",
+              installedAt: "2026-08-01T12:00:00.000Z",
+              updatedAt: "2026-08-01T12:00:00.000Z",
+              provenance: "official",
+              registryId: "lapis-official",
+              registryUrl: "https://registry.lapis.md/v1/index.json",
+              restartRequired: true,
+              files: [
+                { path: "main.mjs", sha256: "a".repeat(64), size: 41_984 },
+                { path: "styles.css", sha256: "b".repeat(64), size: 2_048 },
+              ],
             },
-          },
-        ]
-      : [],
+            {
+              pluginId: "revoked-plugin",
+              installedVersion: "1.0.0",
+              installedAt: "2026-07-20T12:00:00.000Z",
+              updatedAt: "2026-07-20T12:00:00.000Z",
+              provenance: "community",
+              registryId: "lapis-official",
+              files: [
+                { path: "main.mjs", sha256: "c".repeat(64), size: 8_192 },
+              ],
+              revoked: {
+                revokedAt: "2026-08-20T12:00:00.000Z",
+                reason: "security",
+                message: "This release was revoked after a security review.",
+              },
+            },
+          ]
+        : [],
   );
 
   const updates = $state<PluginUpdateInfo[]>(
-    untrack(() => scenario) === "installed"
-      ? [
-          {
-            id: "lapis-graph",
-            name: "Graph",
-            currentVersion: "0.1.0",
-            latestVersion: "0.2.0",
-            targetVersion: "0.2.0",
-            provenance: "official",
+    untrack(() => scenario) === "updates"
+      ? ["ai", "graph", "slides"].map((id) => {
+          const entry = catalog.find((candidate) => candidate.id === id)!;
+          return {
+            id,
+            name: entry.name,
+            currentVersion: "0.0.1",
+            latestVersion: entry.latestVersion,
+            targetVersion: entry.latestVersion,
+            provenance:
+              entry.channel === "official"
+                ? ("official" as const)
+                : ("community" as const),
             registryId: "lapis-official",
-            compatible: true,
-            canUpdate: true,
-            bundleSize: 44_032,
-            status: "update-available",
-            reasons: [],
-          },
-          {
-            id: "revoked-plugin",
-            name: "Revoked Example",
-            currentVersion: "1.0.0",
-            latestVersion: "1.1.0",
-            targetVersion: "1.1.0",
-            provenance: "community",
-            registryId: "lapis-official",
-            compatible: false,
-            canUpdate: false,
-            status: "revoked",
-            reasons: ["revoked"],
-            revoked: {
-              revokedAt: "2026-08-20T12:00:00.000Z",
-              reason: "security",
-              message: "This installed release is no longer trusted.",
+            compatible: id !== "slides",
+            canUpdate: id !== "slides",
+            status:
+              id === "slides"
+                ? ("incompatible" as const)
+                : ("update-available" as const),
+            reasons: id === "slides" ? ["app-version-too-old" as const] : [],
+          };
+        })
+      : untrack(() => scenario) === "installed"
+        ? [
+            {
+              id: "lapis-graph",
+              name: "Graph",
+              currentVersion: "0.1.0",
+              latestVersion: "0.2.0",
+              targetVersion: "0.2.0",
+              provenance: "official",
+              registryId: "lapis-official",
+              compatible: true,
+              canUpdate: true,
+              bundleSize: 44_032,
+              status: "update-available",
+              reasons: [],
             },
-          },
-        ]
-      : [],
+            {
+              id: "revoked-plugin",
+              name: "Revoked Example",
+              currentVersion: "1.0.0",
+              latestVersion: "1.1.0",
+              targetVersion: "1.1.0",
+              provenance: "community",
+              registryId: "lapis-official",
+              compatible: false,
+              canUpdate: false,
+              status: "revoked",
+              reasons: ["revoked"],
+              revoked: {
+                revokedAt: "2026-08-20T12:00:00.000Z",
+                reason: "security",
+                message: "This installed release is no longer trusted.",
+              },
+            },
+          ]
+        : [],
   );
 
   function detail(entry: PluginCatalogEntry): PluginCatalogDetail {
@@ -341,43 +387,6 @@ Released 1 August 2026.
         verified: entry.channel === "official",
         url: entry.authorUrl,
       },
-      appearance: entry.appearance,
-      gallery:
-        entry.id === "lapis-graph"
-          ? [
-              {
-                id: "overview",
-                surface: "desktop",
-                url: "https://story.invalid/v1/assets/lapis-graph/overview.svg",
-                sourceUrl:
-                  "https://story.invalid/source/lapis-graph/overview.svg",
-                sha256:
-                  "2ba9f4724337d431a41eecd53ce89317d92725fee6a103cf82fc47a563bdb5ce",
-                size: 1172,
-                mediaType: "image/svg+xml",
-                width: 1200,
-                height: 800,
-                alt: "Graph plugin showing connected notes",
-                caption: "Explore local connections without leaving the workspace.",
-              },
-            ]
-          : entry.id === "lapis-source-editor"
-            ? [
-                {
-                  id: "tampered-preview",
-                  surface: "desktop",
-                  url: "https://story.invalid/v1/assets/lapis-source-editor/tampered.svg",
-                  sourceUrl:
-                    "https://story.invalid/source/lapis-source-editor/tampered.svg",
-                  sha256: "0".repeat(64),
-                  size: 72,
-                  mediaType: "image/svg+xml",
-                  width: 1200,
-                  height: 800,
-                  alt: "Source Editor preview",
-                },
-              ]
-            : undefined,
       latestVersion: entry.latestVersion,
       license: "MIT",
       links: {
@@ -449,9 +458,10 @@ Released 1 August 2026.
 
   let bundleInstallCalls = $state(0);
   let uninstallCalls = $state(0);
-  let invalidMediaFetchCalls = $state(0);
   let lastProgress = $state("idle");
-  const progressListeners = new Set<(event: PluginInstallProgressEvent) => void>();
+  const progressListeners = new Set<
+    (event: PluginInstallProgressEvent) => void
+  >();
   const distribution: PluginDistributionManager = {
     async refreshCatalog() {
       if (untrack(() => scenario) === "failure") {
@@ -466,10 +476,48 @@ Released 1 August 2026.
     async getDownloadStats() {
       return downloadStats;
     },
+    listSources() {
+      return [
+        {
+          source: {
+            id: "lapis-nostr",
+            name: "Lapis Nostr Registry",
+            kind: "nostr",
+            url: "nostr://lapis-plugins",
+            relays: [
+              "wss://registry-1.lapis.md",
+              "wss://registry-2.lapis.md",
+              "wss://registry-3.lapis.md",
+            ],
+            curatorPubkeys: ["a".repeat(64)],
+            installQuorum: 2,
+            trustTier: "official",
+            enabled: true,
+            builtin: true,
+          },
+          phase: "ready",
+          installReady: true,
+        },
+        {
+          source: {
+            id: "lapis-official",
+            name: "Lapis Official Plugins",
+            url: "https://registry.lapis.md/v1/index.json",
+            trustTier: "official",
+            enabled: true,
+            builtin: true,
+          },
+          phase: "ready",
+          installReady: true,
+        },
+      ];
+    },
     search(query = {}) {
       const text = query.text?.trim().toLowerCase() ?? "";
       return catalog.filter((entry) =>
-        text ? `${entry.name} ${entry.description}`.toLowerCase().includes(text) : true,
+        text
+          ? `${entry.name} ${entry.description}`.toLowerCase().includes(text)
+          : true,
       );
     },
     getCatalogEntry(pluginId) {
@@ -477,9 +525,54 @@ Released 1 August 2026.
     },
     async getPluginDetail(pluginId) {
       const entry = catalog.find((candidate) => candidate.id === pluginId);
-      return entry ? detail(entry) : null;
+      if (!entry) return null;
+      if (["community-reference", "updates"].includes(untrack(() => scenario)))
+        return communityReference.details[
+          pluginId as keyof typeof communityReference.details
+        ] as PluginCatalogDetail;
+      const result = detail(entry);
+      if (untrack(() => scenario) !== "catalog-v2") return result;
+      const graphMedia = communityReference.details.graph;
+      return parsePluginDistributionMetadata(pluginCatalogDetailSchema, {
+        ...result,
+        schemaVersion: 2,
+        authorUrl: "https://story.invalid/author",
+        authorAvatarUrl: "data:image/png;base64,AAAA",
+        appearance: {
+          icon: "network",
+          accent: "#888888",
+          ...result.appearance,
+          logo: { ...graphMedia.appearance.logo, alt: "Graph logo" },
+        },
+        media: {
+          banner: { ...graphMedia.media.banner, alt: "Graph banner" },
+          overview: { ...graphMedia.media.overview, alt: "Graph overview" },
+        },
+        gallery: graphMedia.gallery.map((item, index) => ({
+          ...item,
+          alt: ["Graph workspace", "Graph details", "Graph navigation"][index],
+        })),
+        versions: Object.fromEntries(
+          Object.entries(result.versions).map(([version, release]) => [
+            version,
+            {
+              ...release,
+              changelog: {
+                title: `Graph ${version}`,
+                description: "Verified structured release notes.",
+                tags: ["improvement"],
+              },
+            },
+          ]),
+        ),
+      });
     },
     async install(pluginId) {
+      if (untrack(() => scenario) === "install-failure") {
+        throw new Error(
+          `Plugin ${pluginId} runtime metadata is invalid: @lapis-notes/api/workspace-host is unavailable.`,
+        );
+      }
       if (untrack(() => scenario) === "progress") {
         progressListeners.forEach((listener) =>
           listener({
@@ -515,7 +608,9 @@ Released 1 August 2026.
       return record;
     },
     async update(pluginId, version) {
-      const record = installed.find((candidate) => candidate.pluginId === pluginId);
+      const record = installed.find(
+        (candidate) => candidate.pluginId === pluginId,
+      );
       if (!record) return null;
       record.installedVersion = version ?? "0.2.0";
       updates.splice(
@@ -537,7 +632,9 @@ Released 1 August 2026.
       return [...installed];
     },
     async getInstalled(pluginId) {
-      return installed.find((candidate) => candidate.pluginId === pluginId) ?? null;
+      return (
+        installed.find((candidate) => candidate.pluginId === pluginId) ?? null
+      );
     },
     async listUpdates() {
       return [...updates];
@@ -637,7 +734,21 @@ Released 1 August 2026.
     "A revoked installed plugin fixture.",
   );
 
-  const adapter = new MemoryVaultAdapter({ ".obsidian/app.json": "{}" });
+  const adapter = new MemoryVaultAdapter({
+    ".obsidian/app.json": "{}",
+    ...(untrack(() => surface) === "browser"
+      ? {
+          ".obsidian/workspace.json": JSON.stringify(
+            untrack(() => initiallyClosed)
+              ? pluginsBrowserOpeningLayout()
+              : pluginsBrowserLayout(
+                  untrack(() => placement),
+                  untrack(() => browserState),
+                ),
+          ),
+        }
+      : {}),
+  });
   const app = new App({
     version: "0.1.0-story",
     configPath: ".obsidian/app.json",
@@ -648,8 +759,9 @@ Released 1 August 2026.
     markdownRenderer: async (markdown, element) =>
       renderStoryMarkdown(markdown, element),
   });
-  (app as unknown as { pluginDistribution: PluginDistributionManager })
-    .pluginDistribution = distribution;
+  (
+    app as unknown as { pluginDistribution: PluginDistributionManager }
+  ).pluginDistribution = distribution;
   let communityToggleCalls = $state(0);
   let installedDisableCalls = $state(0);
   const enablePlugin = app.plugins.enablePlugin.bind(app.plugins);
@@ -694,13 +806,16 @@ Released 1 August 2026.
   for (const plugin of installedRuntimePlugins) {
     plugin.configureRuntime({
       source: "community",
-      provenance: plugin.manifest.id === "lapis-graph" ? "official" : "community",
+      provenance:
+        plugin.manifest.id === "lapis-graph" ? "official" : "community",
       basePath: `/.obsidian/plugins/${plugin.manifest.id}`,
     });
     app.plugins.plugins.set(plugin.manifest.id, plugin);
   }
 
+  const disposeCompatibility = installApplicationCompatibility(app);
   const disposeSettings = registerPluginManagementSettings(app);
+  const disposeBrowser = registerNotesPluginBrowser(app);
   const controller = getWorkspaceHostBinding(app.workspace).controller.settings;
   controller.registerSection({
     id: "source-editor-options",
@@ -709,25 +824,40 @@ Released 1 August 2026.
     fields: [],
   });
   controller.selectSection(untrack(() => section));
+  if (untrack(() => surface) === "settings") controller.open();
   let ready = $state(false);
+  let storyRoot = $state<HTMLDivElement>();
+  $effect(() => {
+    if (!storyRoot) return;
+    const root = storyRoot as HTMLDivElement & { __lapisApp?: App };
+    root.__lapisApp = app;
+    return () => {
+      delete root.__lapisApp;
+    };
+  });
 
   onMount(() => {
     let disposed = false;
     const storyWindow = window;
     const originalFetch = storyWindow.fetch;
     const storyFetch: typeof fetch = async (input, init) => {
-      if (String(input).endsWith("/lapis-graph/logo.svg")) {
-        return imageResponse(graphLogoSvg);
-      }
-      if (String(input).endsWith("/lapis-graph/overview.svg")) {
-        return imageResponse(graphGallerySvg);
-      }
-      if (String(input).endsWith("/lapis-source-editor/tampered.svg")) {
-        invalidMediaFetchCalls += 1;
-        return imageResponse(invalidGallerySvg);
+      if (
+        String(input).startsWith("data:image/") &&
+        untrack(() => imageState) !== "normal"
+      ) {
+        if (untrack(() => imageState) === "missing")
+          return new Response(null, { status: 404 });
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener(
+            "abort",
+            () => reject(new DOMException("Aborted", "AbortError")),
+            { once: true },
+          );
+        });
       }
       if (String(input).endsWith("/lapis-graph/overview.md")) {
-        const body = untrack(() => markdownMode) === "invalid" ? "invalid" : graphOverview;
+        const body =
+          untrack(() => markdownMode) === "invalid" ? "invalid" : graphOverview;
         return new Response(body, {
           status: 200,
           headers: {
@@ -749,16 +879,6 @@ Released 1 August 2026.
       }
       return originalFetch(input, init);
     };
-    function imageResponse(body: string): Response {
-      return new Response(body, {
-        status: 200,
-        headers: {
-          "content-type": "image/svg+xml",
-          "content-length": String(new TextEncoder().encode(body).length),
-        },
-      });
-    }
-    clearVerifiedPluginImageCache();
     clearVerifiedPluginMarkdownCache();
     storyWindow.fetch = storyFetch;
     void (async () => {
@@ -780,33 +900,44 @@ Released 1 August 2026.
         app.plugins.emit("plugin-enabled", installedGraph);
         await tick();
       }
+      await app.workspace.loadLayout();
       if (!disposed) ready = true;
     })();
     return () => {
       disposed = true;
       if (storyWindow.fetch === storyFetch) storyWindow.fetch = originalFetch;
-      clearVerifiedPluginImageCache();
       clearVerifiedPluginMarkdownCache();
     };
   });
 
   onDestroy(() => {
+    disposeBrowser();
     disposeSettings();
-    for (const plugin of app.plugins.plugins.values()) {
-      void plugin.disable().catch(() => undefined);
-    }
-    void app.workspace.disposeWorkspaceHost();
-    void app.metadataCache.dispose();
-    void app.appDatabase.close();
+    void (async () => {
+      try {
+        for (const plugin of app.plugins.plugins.values())
+          await plugin.disable();
+        await app.workspace.disposeWorkspaceHost();
+        await app.metadataCache.dispose();
+        await app.appDatabase.close();
+      } finally {
+        disposeCompatibility();
+      }
+    })();
   });
 </script>
 
 <div
+  bind:this={storyRoot}
   class="plugin-management-story"
   data-testid="plugin-management-story"
   data-ready={ready || undefined}
+  data-app-shell-ready={ready || undefined}
 >
-  {#if ready}<WorkspaceSettingsSurface {controller} />{/if}
+  {#if ready}{#if surface === "browser" || !controller.dialogOpen}<WorkspaceShell
+        {app}
+        workspaceLabel="Plugins review"
+      />{:else}<WorkspaceSettingsSurface {controller} />{/if}{/if}
   <output class="sr-only" data-testid="plugin-bundle-install-calls"
     >{bundleInstallCalls}</output
   >
@@ -824,9 +955,6 @@ Released 1 August 2026.
   >
   <output class="sr-only" data-testid="installed-disable-calls"
     >{installedDisableCalls}</output
-  >
-  <output class="sr-only" data-testid="invalid-media-fetch-calls"
-    >{invalidMediaFetchCalls}</output
   >
 </div>
 

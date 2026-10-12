@@ -5,6 +5,8 @@ import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import localPluginPnpmfile from "./local-plugin-pnpmfile.cjs";
+
 import {
   createLocalPluginInstallFingerprint,
   ensureLocalPnpmfile,
@@ -58,7 +60,9 @@ await ensureLocalPnpmfile(
   'module.exports = require("./scripts/local-plugin-pnpmfile.cjs");\n',
 );
 
-const releaseEntries = JSON.parse(await readFile(releaseManifestPath, "utf8"));
+const releaseEntries = localPluginPnpmfile.selectLocalPluginReleaseEntries(
+  JSON.parse(await readFile(releaseManifestPath, "utf8")),
+);
 const releasePackages = new Set(
   releaseEntries.map((entry) => entry.packageName),
 );

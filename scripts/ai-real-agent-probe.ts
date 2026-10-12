@@ -12,16 +12,13 @@ import {
 } from "@lapis-notes/api/desktop-native";
 import { MemoryVaultAdapter, Vault } from "@lapis-notes/api/vault";
 import {
-  AcpAgentRuntime,
+  ControllerAgentRuntime,
+  ControllerConnectionPool,
   AppToolHost,
-  CodexNativeRuntime,
-  createAgentProcessHost,
-  DesktopAcpRuntimeBackend,
   DesktopAppToolBridge,
 } from "@lapis-notes/ai/runtimes";
 import type { AgentRuntime, AgentSession } from "@lapis-notes/ai";
-import { createAgentRuntimeBridge } from "@lapismd/ai-host/client";
-import { generateToken, serveAgentHost } from "@lapismd/ai-host";
+import { startAiSmokeController } from "./lib/ai-controller-fixture";
 import { createVaultFileAppTools } from "@lapis-notes/api/agent-tools";
 import { createMarkdownNoteTools } from "@lapis-notes/markdown/agent-tools";
 import { createNotesSearchTool } from "@lapis-notes/search/agent-tools";
@@ -31,7 +28,11 @@ import {
   seedAiRealHostWorkspace,
 } from "./lib/ai-real-host-fixture.mjs";
 
+import { smokeThinking } from "./lib/ai-smoke-thinking.mjs";
+
 type ProbeLane = "codex-acp" | "cursor-acp" | "codex-native";
+
+const connections = new ControllerConnectionPool();
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -145,9 +146,9 @@ async function consumeTurn(session: AgentSession) {
 
 async function createRuntime(lane: ProbeLane): Promise<AgentRuntime> {
   if (lane === "codex-native") {
-    return new CodexNativeRuntime(createAgentProcessHost());
+    return new ControllerAgentRuntime("codex-native", connections);
   }
-  return new AcpAgentRuntime(new DesktopAcpRuntimeBackend());
+  return new ControllerAgentRuntime("acp", connections);
 }
 
 function agentForLane(lane: ProbeLane): "codex" | "cursor" {
@@ -227,16 +228,16 @@ async function createAppToolHarness(noteContent: string) {
     search,
     ...createMarkdownNoteTools(vault),
     ...createVaultFileAppTools(vault),
-  ].map(
-    (tool) => registry.register(owner, tool),
-  );
+  ].map((tool) => registry.register(owner, tool));
   const host = new AppToolHost(registry, () => ({
     appToolsEnabled: true,
     disabledAppToolNames: [],
     enabledAppToolNames: [],
     enabledCommunityToolPluginIds: [],
   }));
-  const bridge = new DesktopAppToolBridge(host);
+  const bridge = new DesktopAppToolBridge(host, () =>
+    connections.get(workspace),
+  );
   const toolNames = new Map<string, string[]>();
   const approvals = new Map<string, number>();
   const unsubscribe = bridge.subscribe(({ bindingId, event }) => {
@@ -294,13 +295,38 @@ async function startProbedSession(
     );
   }
   const runtime = await createRuntime(lane);
+  const connection = await connections.get(workspace);
+  const catalog = await connection.client.request<{
+    currentModel?: string;
+    models?: string[];
+    configOptions?: Array<{ id: string; options?: Array<{ value: string }> }>;
+  }>("providers.models", {
+    provider: agentForLane(lane),
+    workspace: connection.workspace,
+  });
+  const modelVariable =
+    agentForLane(lane) === "codex"
+      ? "LAPIS_AI_SMOKE_CODEX_MODEL"
+      : "LAPIS_AI_SMOKE_CURSOR_MODEL";
+  const requestedModel = process.env[modelVariable]?.trim();
+  if (requestedModel && !catalog.models?.includes(requestedModel))
+    throw new Error(
+      `${lane} does not advertise requested smoke model ${requestedModel}`,
+    );
+  const model =
+    requestedModel ??
+    (catalog.currentModel && catalog.models?.includes(catalog.currentModel)
+      ? catalog.currentModel
+      : catalog.models?.[0]);
+  if (!model) throw new Error(`${lane} has no advertised model for acceptance`);
   try {
     const session = await timeout(
       runtime.start({
         prompt: "",
         workspace,
         agent: agentForLane(lane),
-        thinking: "medium",
+        model: { provider: agentForLane(lane), model },
+        ...smokeThinking(lane, catalog),
         appToolSession: descriptor,
       }),
       `${lane} session start`,
@@ -318,18 +344,8 @@ async function run(): Promise<void> {
   await seedAiRealHostWorkspace(workspace, {
     defaultRuntime: lane === "codex-native" ? "codex-native" : "acp",
   });
-  const token = generateToken();
-  const host = await serveAgentHost(
-    {
-      port: 0,
-      bind: "127.0.0.1",
-      workspace,
-      token,
-      origins: [],
-    },
-    { print: () => {} },
-  );
-  const bridge = createAgentRuntimeBridge({ url: host.url, token });
+  const host = await startAiSmokeController(workspace);
+  const bridge = host.bridge;
   setNativeDesktopBridge(bridge as unknown as NativeDesktopBridge);
   let session: AgentSession | undefined;
   let switchedSession: AgentSession | undefined;
@@ -344,10 +360,10 @@ async function run(): Promise<void> {
     const agent = agentForLane(lane);
     console.log(`[ai-probe] ${lane}: discovering ${agent} models`);
     const catalog = await timeout(
-      bridge.invoke<{ currentModel?: string; models?: string[] }>(
-        "desktop_agent_acp_models",
-        { agent },
-      ),
+      (await connections.get(workspace)).client.request<{
+        currentModel?: string;
+        models?: string[];
+      }>("providers.models", { provider: agent, workspace: "default" }),
       `${agent} model catalog`,
       60_000,
     );
@@ -372,10 +388,7 @@ async function run(): Promise<void> {
     }
 
     console.log(`[ai-probe] ${lane}: calling read`);
-    const readResultPromise = timeout(
-      consumeTurn(session),
-      `${lane} read`,
-    );
+    const readResultPromise = timeout(consumeTurn(session), `${lane} read`);
     await session.send(
       "Call the lapis-tools read tool for Notes/Agent Smoke.md. Return only its expected answer token. Do not use shell or filesystem tools.",
     );
@@ -387,10 +400,7 @@ async function run(): Promise<void> {
     }
 
     console.log(`[ai-probe] ${lane}: approving edit once`);
-    const patchResultPromise = timeout(
-      consumeTurn(session),
-      `${lane} edit`,
-    );
+    const patchResultPromise = timeout(consumeTurn(session), `${lane} edit`);
     await session.send(
       `Call the lapis-tools edit tool for Notes/Agent Smoke.md, replacing exactly ${expectedToken} with ${patchedToken}. After it succeeds reply with lapis-patch-complete. Do not use shell or filesystem tools.`,
     );
@@ -407,9 +417,7 @@ async function run(): Promise<void> {
       );
     }
     if ((appTools.approvals.get(bindingId) ?? 0) !== 1) {
-      throw new Error(
-        `${lane} edit did not require exactly one app approval`,
-      );
+      throw new Error(`${lane} edit did not require exactly one app approval`);
     }
     const firstBindingCalls = appTools.toolNames.get(bindingId) ?? [];
     for (const name of ["notes_search", "read", "edit"]) {
@@ -539,7 +547,7 @@ async function run(): Promise<void> {
     }
     await appTools?.close().catch(() => undefined);
     setNativeDesktopBridge(null);
-    bridge.dispose();
+    connections.close();
     await host.close();
   }
 }

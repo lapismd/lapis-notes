@@ -575,6 +575,16 @@ export const StackedTabs: Story = {
     const dialog = canvas.getByRole("dialog", { name: "Settings" });
     const dialogUi = within(dialog);
     await userEvent.click(dialogUi.getByRole("button", { name: "Appearance" }));
+    const fontHeading = dialogUi.getByRole("heading", {
+      name: "Font",
+      exact: true,
+    });
+    await expect(fontHeading).toBeVisible();
+    expect(getComputedStyle(fontHeading).fontWeight).toBe("700");
+    expect(getComputedStyle(fontHeading).fontFamily).toContain(
+      "DM Sans Variable",
+    );
+
     const inlineTitle = canvasElement.querySelector<HTMLElement>(
       '[data-ui-component="workspace-story-view"][data-ui-part="inline-title"]',
     );

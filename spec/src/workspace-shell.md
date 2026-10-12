@@ -1,5 +1,25 @@
 # Workspace Shell
 
+The host maps full native window-control clearance to the Design Core overlay
+inset independently of ribbon width (LN-DENO-044). Maximized groups restore
+ordinary chrome geometry when focus mode ends. Settings headings inherit
+Design Core bold defaults; Workspace bounds large verified registry media and
+its lightbox without changing standard Button geometry (LN-PLUG-096/097).
+
+Workspace 0.1.1 carries the static registry management contracts and consumes
+API and UI 0.1.1 peers. Release validation preserves the same App-owned shell
+and plugin-management interaction and accessibility requirements.
+
+Workspace development shares the exact qualified Svelte compiler from
+LN-PKG-149 with API, UI and hosts. Shared Design Core controllers therefore
+retain their class identity across the application graph.
+
+Dependency acceptance now uses published Design Core `0.3.2` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+unchanged; local overrides for these released packages are retired.
+
+Workspace shell composition resolves Design Core through the current published
+semver range recorded in package manifests and the committed lockfile.
+
 The shell renders the generated `dailyNotes.folder` and
 `dailyNotes.dateFormat` configuration controls supplied by the API schema. It
 does not choose daily-note paths or interpret occurrence observations.
@@ -7,6 +27,10 @@ does not choose daily-note paths or interpret occurrence observations.
 Workspace consumers may mount a complete Markdown file through the API
 file-surface registry. The consumer supplies placement and opaque context;
 Markdown retains editor, persistence, and scroll ownership.
+
+Workspace presentation does not own Nostr account secrets or signing policy.
+Signer-facing plugins use the App facade governed by LN-ARCH-099 and
+LN-PLUG-078 while the host owns any consent or profile-creation surface.
 
 The shell's reusable movable-view contract is documented separately under
 [Panels](./workspace-shell/panels.md). This overview retains controller,
@@ -35,9 +59,6 @@ LN-PLUG-055 through LN-PLUG-058. Its toolbar composes the public Design Core
 expandable search control and keeps tab filters application-owned. It MUST NOT
 verify signatures, resolve source ownership, or add installation behavior
 outside the injected App services.
-Plugin identity and gallery presentation additionally follow LN-PLUG-087 and
-LN-PLUG-088: Workspace consumes only API-verified object URLs, retains semantic
-icon fallbacks, and collapses unavailable media without changing actions.
 
 ## Requirements
 
@@ -91,9 +112,12 @@ icon fallbacks, and collapses unavailable media without changing actions.
 | LN-WS-084 | The workspace shell pane menu MUST split Lapis-hosted views by duplicating the active API leaf before the Design Core pane appears. The duplicated pane MUST project with translated host directions and render the same view type with copied state for both Split right and Split down.                                                                                                                                                                                                                                                                             |
 | LN-WS-085 | The `@lapis-notes/workspace` public `0.1.0` package MUST remain a shell adapter around a host-supplied API `App`. Its release manifest, README, and package metadata MUST keep vault discovery, plugin boot, persistence, profile management, and backend setup outside the package.                                                                                                                                                                                                                                                                                  |
 | LN-WS-086 | Workspace MUST expose the reusable plugin-management settings pages and App registration helper without selecting an application profile or importing Markdown. The host application MUST register the pages, and README rendering MUST use the App injection contract.                                                                                                                                                                                                                                                                                               |
-| LN-WS-087 | Plugin-management custom settings pages MUST preserve the Design Core settings shell at wide and narrow widths. Their registry toolbar MUST use the shared expandable search and command-option controls, while the detail dialog MUST use the shared resizable rail without changing App-owned registry actions or the narrow detail drill-in.                                                                                                                                                                                                                       |
+| LN-WS-087 | Plugin-management custom settings pages MUST preserve the Design Core settings shell at wide and narrow widths. Their registry toolbar MUST use the shared expandable search and command-option controls. Selecting Browse or Updates details MUST navigate to the App-owned Plugins view without changing registry action ownership.                                                                                                                                                                                                                                 |
 | LN-WS-088 | Plugin registry rows and details MUST expose App-owned next-action enablement labels and removable installed-plugin actions while keeping bundled profile plugins non-removable. The shared confirmation MUST support disabling without removing the installed vault artifact.                                                                                                                                                                                                                                                                                        |
 | LN-WS-089 | Plugin registry presentation MUST consume optional API-owned download statistics across populated tabs and details, and Browse MUST sort by the 30-day value through its existing expandable Design Core toolbar. Statistics availability MUST NOT change registry actions or error state.                                                                                                                                                                                                                                                                            |
+| LN-WS-091 | Workspace plugin activation MUST accept a verified renderer ESM module whose plugin constructor is a named `Plugin` subclass when no default export exists. Supporting constants, views, settings helpers, and manifest exports MUST remain available without becoming constructor candidates.                                                                                                                                                                                                                                                                        |
+| LN-WS-092 | Plugin registry Sources MUST render every App-configured source, identify Nostr transport and relay count, distinguish browse-only from install-quorum-ready state, retain retry for enabled degraded sources, and expose a source enablement switch that calls the App-owned distribution manager. The page MUST NOT own relay verification, curator trust, source persistence, or installation policy.                                                                                                                                                              |
+| LN-WS-093 | Manual plugin installation MUST accept a portable Nostr `.lapis-plugin` through the existing file action, retain its verified source provenance, and surface a persistent revocation-refresh warning until an online relay-quorum verification succeeds. Workspace presentation MUST NOT independently verify or reinterpret its Nostr proof.                                                                                                                                                                                                                         |
 
 ## Ownership and data flow
 
@@ -116,10 +140,6 @@ icon fallbacks, and collapses unavailable media without changing actions.
 6. The api configures built-in application/version metadata and the minimal
    design-core notifications presentation without invoking the Lapis plugin
    loader.
-
-Plugin-management filters and badges project the API registry compatibility
-contract directly: they expose Web and Desktop, and never present Electron as
-a catalog platform (LN-PLUG-089).
 
 Views and leaves derive App from their owning workspace. Compatibility state is
 never consulted when that ownership chain or the shell context is available.
@@ -185,3 +205,14 @@ same projected handle (LN-PKG-097, LN-PKG-098).
 Shell mounting therefore depends only on database open and query readiness.
 First-party panel data may continue refreshing from committed revisions without
 delaying leaf restoration or initial workspace paint.
+
+Web and desktop workspace-session hosts install the sync unlock and exact-origin
+consent callbacks while constructing `App`, then immediately claim the
+host-only controller. The shell and plugins receive no administrative crypto,
+network-grant, or database handle through workspace context. Browser storage
+persistence is requested as a best-effort durability signal and never treated
+as backup or authoritative vault storage.
+
+LN-PLUG-092 keeps registry V2 detail and media rendering in Workspace plugin management. The owning production story verifies themed image selection, a disposable image dialog and separate structured per-version notes; static source selection and update pinning remain API-owned under LN-PLUG-093.
+
+The app-owned `plugins` leaf is a movable workspace view. `app:open-plugins` and the Plugins left-ribbon action reveal an existing moved leaf or create a main-area tab, then return to the registry homepage. Its navigation state participates in workspace persistence (LN-PLUG-098–103).

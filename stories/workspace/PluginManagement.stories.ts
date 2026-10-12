@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import PluginManagementSurface from "./PluginManagementSurface.svelte";
 import "./PluginManagement.docs.css";
 
@@ -21,6 +22,135 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+export const StaticRegistryV2MediaAndReleaseNotes: Story = {
+  args: { scenario: "catalog-v2", section: "plugin-registry" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Verified V2 metadata renders authored themed media and separate release notes without legacy Markdown downloads.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "View details for Graph" }),
+    );
+    const body = within(canvasElement.ownerDocument.body);
+    const detailRoot = await expectPluginsDetails(canvasElement, "lapis-graph");
+    const detail = within(detailRoot);
+    const authorLink = detailRoot.querySelector(
+      'a[href="https://story.invalid/author"]',
+    );
+    expect(
+      authorLink?.querySelector(".registry-plugin-detail__author-name"),
+    ).not.toBeNull();
+    await expect(
+      detail.getByRole("button", { name: /Open Graph overview/ }),
+    ).toBeVisible();
+    const carousel = detail.getByRole("region", { name: "Graph screenshots" });
+    const track = carousel.querySelector<HTMLElement>(
+      ".registry-media-gallery__track",
+    )!;
+    expect(getComputedStyle(track).overflowX).toBe("auto");
+    expect(track.scrollWidth).toBeGreaterThan(track.clientWidth);
+    const screenshots = within(carousel).getAllByRole("button", {
+      name: /Open screenshot/,
+    });
+    expect(screenshots).toHaveLength(3);
+    for (const button of screenshots) {
+      button.scrollIntoView({ block: "nearest", inline: "nearest" });
+      await waitFor(() =>
+        expect(button.querySelector("img")?.naturalWidth).toBe(2400),
+      );
+      const image = button.querySelector("img")!;
+      expect(image.getBoundingClientRect().height).toBeGreaterThan(70);
+    }
+    screenshots[0].scrollIntoView({ block: "nearest", inline: "start" });
+    await waitFor(() =>
+      expect(
+        detail.getByRole("button", { name: "Previous screenshots" }),
+      ).toBeDisabled(),
+    );
+    await userEvent.click(
+      detail.getByRole("button", { name: "Next screenshots" }),
+    );
+    await waitFor(() => expect(track.scrollLeft).toBeGreaterThan(10));
+    await userEvent.click(screenshots[1]);
+    const viewer = await body.findByRole("dialog", {
+      name: "Graph media viewer",
+    });
+    const lightbox = within(viewer);
+    await expect(
+      await lightbox.findByText("2 of 3: Graph details"),
+    ).toBeVisible();
+    await userEvent.click(
+      lightbox.getByRole("button", { name: "Next image", exact: true }),
+    );
+    await expect(
+      await lightbox.findByText("3 of 3: Graph navigation"),
+    ).toBeVisible();
+    await expect(
+      lightbox.getByRole("button", { name: "Next image", exact: true }),
+    ).toBeDisabled();
+    lightbox.getByRole("listbox", { name: "Graph media" }).focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(
+      await lightbox.findByText("2 of 3: Graph details"),
+    ).toBeVisible();
+    for (const mode of ["Light", "Dark", "Split"]) {
+      await userEvent.click(
+        lightbox.getByRole("radio", { name: mode, exact: true }),
+      );
+      await expect(
+        lightbox.getByRole("radio", { name: mode, exact: true }),
+      ).toHaveAttribute("aria-checked", "true");
+    }
+    const viewport = canvasElement.ownerDocument.documentElement;
+    expect(viewer.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      viewport.clientHeight,
+    );
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(body.queryByRole("dialog")).toBeNull();
+      expect(
+        getComputedStyle(canvasElement.ownerDocument.body).pointerEvents,
+      ).not.toBe("none");
+    });
+    await waitFor(() => expect(screenshots[1]).toHaveFocus());
+    await userEvent.click(screenshots[0]);
+    const reopened = await body.findByRole("dialog", {
+      name: "Graph media viewer",
+    });
+    await expect(
+      within(reopened).getByText("1 of 3: Graph workspace"),
+    ).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(
+        getComputedStyle(canvasElement.ownerDocument.body).pointerEvents,
+      ).not.toBe("none"),
+    );
+    await userEvent.click(detail.getByRole("tab", { name: "Changelog" }));
+    await expect(
+      await detail.findByRole("heading", { name: "Graph 0.2.0" }),
+    ).toBeVisible();
+    await expect(
+      detail.getByRole("heading", { name: "Graph 0.1.0" }),
+    ).toBeVisible();
+    await expect(detail.queryByText("View source README")).toBeNull();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Back to plugins" }),
+    );
+    await expect(
+      await canvas.findByRole("heading", { name: "Make Lapis Notes yours." }),
+    ).toBeVisible();
+  },
+};
 
 async function waitForReady(canvas: ReturnType<typeof within>) {
   await waitFor(() => {
@@ -121,12 +251,16 @@ export const EmptyTabsAndSources: Story = {
       "active",
     );
     await expect(canvas.getByText("Lapis Official Plugins")).toBeVisible();
+    await expect(canvas.getByText("Lapis Nostr Registry")).toBeVisible();
+    await expect(canvas.getByText("3 relays")).toBeVisible();
+    await expect(canvas.getByText("Install quorum ready")).toBeVisible();
+    await expect(canvas.getByText("Nostr", { selector: "span" })).toBeVisible();
     await expect(
-      canvas.getByText("Official", { selector: "span" }),
-    ).toBeVisible();
+      canvas.getAllByText("Official", { selector: "span" }),
+    ).toHaveLength(2);
     await expect(
-      canvas.getByText("Locked", { selector: "span" }),
-    ).toBeVisible();
+      canvas.getAllByText("Locked", { selector: "span" }),
+    ).toHaveLength(2);
   },
 };
 
@@ -178,13 +312,6 @@ export const BrowseDetailsAndReadme: Story = {
     await expect(
       within(graphCard!).getByText("~2.4K downloads (30d)"),
     ).toBeVisible();
-    const graphMark = graphCard!.querySelector<HTMLElement>(
-      ".lapis-plugin-identity",
-    );
-    expect(graphMark).not.toBeNull();
-    await waitFor(() =>
-      expect(graphMark).toHaveAttribute("data-media-state", "verified-logo"),
-    );
     expect(
       within(graphHeading!).getByText("Web").querySelector("svg"),
     ).not.toBeNull();
@@ -196,102 +323,48 @@ export const BrowseDetailsAndReadme: Story = {
         name: "View details for Graph",
       }),
     );
-    const body = within(canvasElement.ownerDocument.body);
-    await waitFor(() => {
-      expect(body.getByRole("dialog")).toBeVisible();
-      expect(
-        body.getAllByRole("heading", { name: "Highlights" })[0],
-      ).toBeVisible();
-    });
-    await expect(body.queryByText("Browse results")).toBeNull();
+    const detailRoot = await expectPluginsDetails(canvasElement, "lapis-graph");
+    const detail = within(detailRoot);
     await expect(
-      body.getByRole("heading", { name: "See it in Lapis" }),
+      (await detail.findAllByRole("heading", { name: "Highlights" }))[0],
     ).toBeVisible();
     await expect(
-      body.getByRole("img", {
-        name: "Graph plugin showing connected notes",
-      }),
-    ).toBeVisible();
-    await expect(body.getByText("1 / 1")).toBeVisible();
-    await expect(
-      body.getByRole("button", { name: "Show previous plugin image" }),
-    ).toBeDisabled();
-    await expect(body.getByText(/Open graph navigation/)).toBeVisible();
-    await expect(body.getByRole("link", { name: "Homepage" })).toBeVisible();
-    await expect(body.getByText("Downloads (30d)")).toBeVisible();
-    await expect(body.getByText("Lifetime downloads")).toBeVisible();
-    await expect(body.getByText("~48K")).toBeVisible();
-    await expect(
-      body.getByText(
-        "Tracked downloads since Aug 1, 2026. Approximate redirect requests.",
-      ),
+      await detail.findByText(/Open graph navigation/),
     ).toBeVisible();
     await expect(
-      body.getAllByText("Web", { selector: "span" }).length,
-    ).toBeGreaterThan(1);
-    await expect(
-      body.getAllByText("Desktop", { selector: "span" }).length,
-    ).toBeGreaterThan(1);
-    await expect(
-      body.getAllByRole("button", { name: "Install" })[0],
+      detail.getByRole("button", { name: "Install in Lapis" }),
     ).toBeEnabled();
-    const selectedResult = body
-      .getByRole("dialog")
-      .querySelector<HTMLButtonElement>('button[aria-current="true"]');
-    expect(selectedResult).not.toBeNull();
-    const selectedStyle =
-      canvasElement.ownerDocument.defaultView!.getComputedStyle(
-        selectedResult!,
-      );
-    expect(selectedStyle.borderTopWidth).toBe("0px");
-    expect(selectedStyle.boxShadow).not.toBe("none");
-    const resizer = body
-      .getByRole("dialog")
-      .querySelector('[data-ui-part="resizable-handle"]');
-    expect(resizer).toHaveAttribute("aria-label", "Resize plugin result rail");
-    expect(
-      resizer!.querySelector('[data-ui-part="resizable-handle-anon-0"]'),
-    ).toBeNull();
-    await userEvent.click(body.getByRole("tab", { name: "Changelog" }));
+    await expect(detail.getByText("Downloads (30d)")).toBeVisible();
+    await expect(detail.getByText("Lifetime downloads")).toBeVisible();
+    await expect(detail.getByText("~48K")).toBeVisible();
     await expect(
-      body.getByRole("heading", { name: "What changed" }),
-    ).toBeVisible();
-    const expandChangelog = body.getByRole("button", {
-      name: "View full changelog",
-    });
-    await expect(expandChangelog).toHaveAttribute("aria-expanded", "false");
-    await userEvent.click(expandChangelog);
-    await expect(
-      body.getByRole("button", { name: "Show less" }),
-    ).toHaveAttribute("aria-expanded", "true");
-    await expect(
-      body.getByRole("heading", { name: "0.1.0 — First public package" }),
-    ).toBeVisible();
-    await userEvent.click(body.getByRole("tab", { name: "Versions" }));
-    await expect(body.getAllByRole("link", { name: "Bundle" })).toHaveLength(2);
-    await userEvent.click(body.getByRole("tab", { name: "Overview" }));
-    await expect(
-      body.getAllByRole("heading", { name: "Highlights" })[0],
-    ).toBeVisible();
-    await userEvent.click(body.getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
-
-    fireEvent.click(
-      canvas.getByRole("button", {
-        name: "View details for Source Editor",
-      }),
-    );
-    await waitFor(() =>
-      expect(canvas.getByTestId("invalid-media-fetch-calls")).toHaveTextContent(
-        "1",
+      detail.getByText(
+        /Tracked downloads since Aug 1, 2026. Approximate redirect requests./,
       ),
-    );
-    await expect(
-      body.getAllByRole("heading", { name: "Source Editor" })[0],
     ).toBeVisible();
-    expect(body.getByRole("dialog").querySelector("[data-plugin-gallery]")).toBeNull();
-    fireEvent.click(body.getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+    await userEvent.click(detail.getByRole("tab", { name: "Changelog" }));
+    await expect(
+      await detail.findByRole("heading", {
+        name: "0.1.0 — First public package",
+      }),
+    ).toBeVisible();
+    await userEvent.click(detail.getByRole("tab", { name: "Releases 2" }));
+    await expect(
+      detail.getByRole("link", { name: "0.2.0", exact: true }),
+    ).toBeVisible();
+    await expect(
+      detail.getByRole("link", { name: "0.1.0", exact: true }),
+    ).toBeVisible();
+    await userEvent.click(detail.getByRole("tab", { name: "Overview" }));
+    await expect(
+      (await detail.findAllByRole("heading", { name: "Highlights" }))[0],
+    ).toBeVisible();
+    const back = canvas.getByRole("button", { name: "Back to plugins" });
+    expect(getComputedStyle(back).borderRadius).toBe("50%");
+    await userEvent.click(back);
+    await expect(
+      await canvas.findByRole("heading", { name: "Make Lapis Notes yours." }),
+    ).toBeVisible();
   },
 };
 
@@ -315,16 +388,6 @@ export const BrowseSearchAndExpandableFilters: Story = {
       canvas.getByRole("button", { name: "Hide browse filters" }),
     ).toBeVisible();
     const body = within(canvasElement.ownerDocument.body);
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Filter by platform" }),
-    );
-    await expect(
-      await body.findByRole("option", { name: /^Desktop/ }),
-    ).toBeVisible();
-    await expect(
-      body.queryByRole("option", { name: /^Electron/ }),
-    ).toBeNull();
-    await userEvent.keyboard("{Escape}");
     await userEvent.click(
       canvas.getByRole("button", { name: "Filter by channel" }),
     );
@@ -415,8 +478,13 @@ export const StructuredMarkdownFailureKeepsMetadata: Story = {
     });
     await expect(body.getByText("MIT")).toBeVisible();
     await expect(body.getByRole("button", { name: "Retry" })).toBeVisible();
-    await userEvent.click(body.getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+    await expectPluginsDetails(canvasElement, "lapis-graph");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Back to plugins" }),
+    );
+    await expect(
+      await canvas.findByRole("heading", { name: "Make Lapis Notes yours." }),
+    ).toBeVisible();
   },
 };
 
@@ -430,16 +498,19 @@ export const NarrowDetailDrillIn: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: "View details for Graph" }),
     );
-    const body = within(canvasElement.ownerDocument.body);
-    const dialog = body.getByRole("dialog");
+    const detailRoot = await expectPluginsDetails(canvasElement, "lapis-graph");
     await expect(
-      dialog.querySelector(".lapis-plugin-detail-dialog__back"),
-    ).not.toBeNull();
+      within(detailRoot).getByRole("heading", { name: "Graph", exact: true }),
+    ).toBeVisible();
+    expect(detailRoot.getBoundingClientRect().width).toBeLessThanOrEqual(
+      canvasElement.clientWidth,
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Back to plugins" }),
+    );
     await expect(
-      dialog.querySelector("[data-narrow-view='detail']"),
-    ).not.toBeNull();
-    await userEvent.click(body.getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(body.queryByRole("dialog")).toBeNull());
+      await canvas.findByRole("heading", { name: "Make Lapis Notes yours." }),
+    ).toBeVisible();
   },
 };
 
@@ -560,11 +631,93 @@ export const PopulatedBrowseRows: Story = {
       canvas.getByRole("button", { name: "Bundled" }),
     ).toBeDisabled();
     const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
-    const graphRow = browsePanel.querySelector('[data-plugin-id="lapis-graph"]');
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
     expect(graphRow).not.toBeNull();
     await expect(
       within(graphRow!).getByText("~2.4K downloads (30d)"),
     ).toBeVisible();
+  },
+};
+
+export const RegistryInstallProgress: Story = {
+  args: { scenario: "progress", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
+    expect(graphRow).not.toBeNull();
+
+    await userEvent.click(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    );
+
+    const installing = within(graphRow!).getByRole("button", {
+      name: "Installing Graph",
+    });
+    await expect(installing).toBeDisabled();
+    await expect(installing).toHaveAttribute("aria-busy", "true");
+    await expect(within(graphRow!).getByText("Installing")).toBeVisible();
+  },
+};
+
+export const RegistryInstallCompletion: Story = {
+  args: { scenario: "catalog", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
+    expect(graphRow).not.toBeNull();
+
+    await userEvent.click(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    );
+
+    await expect(
+      await within(graphRow!).findByRole("button", {
+        name: "Uninstall Graph",
+      }),
+    ).toBeEnabled();
+    await expect(within(graphRow!).getByText("Installed")).toBeVisible();
+  },
+};
+
+export const RegistryInstallFailure: Story = {
+  args: { scenario: "install-failure", section: "plugin-registry" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Browse");
+    const browsePanel = canvas.getByRole("tabpanel", { name: "Browse" });
+    const graphRow = browsePanel.querySelector(
+      '[data-plugin-id="lapis-graph"]',
+    );
+    expect(graphRow).not.toBeNull();
+
+    await userEvent.click(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    );
+
+    await expect(
+      await within(graphRow!).findByText("Install failed"),
+    ).toBeVisible();
+    await expect(
+      within(graphRow!).getByText(
+        "Plugin lapis-graph runtime metadata is invalid: @lapis-notes/api/workspace-host is unavailable.",
+      ),
+    ).toBeVisible();
+    await expect(
+      within(graphRow!).getByRole("button", { name: "Install" }),
+    ).toBeEnabled();
   },
 };
 
@@ -933,5 +1086,106 @@ export const CommunityTrustToggleAndFailure: Story = {
       canvas.getByRole("button", { name: "Trust workspace" }),
     ).toBeVisible();
     await expect(canvas.queryByRole("button", { name: "Revoke" })).toBeNull();
+  },
+};
+
+export const UpdatesOpenPluginsDetails: Story = {
+  args: { scenario: "installed", section: "plugin-registry" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Updates rows close Settings and activate the shared Plugins detail view, preserving the verified update action.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    await selectRegistryTab(canvas, "Updates");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "View details for Graph" }),
+    );
+    await expectPluginsDetails(canvasElement, "lapis-graph");
+    await expect(
+      canvas.getByRole("button", { name: "Update", exact: true }),
+    ).toBeEnabled();
+  },
+};
+
+async function expectPluginsDetails(
+  canvasElement: HTMLElement,
+  pluginId: string,
+) {
+  const root = canvasElement.querySelector<HTMLElement>(
+    "[data-testid='plugin-management-story']",
+  ) as HTMLElement & { __lapisApp?: import("@lapis-notes/api").App };
+  await waitFor(() => {
+    const app = root.__lapisApp!;
+    const leaves = app.workspace.getLeavesOfType("plugins");
+    expect(leaves).toHaveLength(1);
+    expect(app.workspace.activeLeaf).toBe(leaves[0]);
+    expect(leaves[0].view.getState()).toMatchObject({
+      route: { page: "plugin", pluginId },
+    });
+    expect(
+      getWorkspaceHostBinding(app.workspace).controller.settings.dialogOpen,
+    ).toBe(false);
+    expect(
+      canvasElement.querySelector(".registry-plugin-detail"),
+    ).not.toBeNull();
+    expect(canvasElement.querySelector(".lapis-plugin-registry")).toBeNull();
+  });
+  expect(
+    within(canvasElement.ownerDocument.body).queryByRole("dialog"),
+  ).toBeNull();
+  return canvasElement.querySelector<HTMLElement>(".registry-plugin-detail")!;
+}
+
+export const BrowseReusesMovedPluginsView: Story = {
+  args: {
+    surface: "browser",
+    scenario: "installed",
+    placement: "right-sidebar",
+    browserState: {
+      route: { page: "directory" },
+      directory: { categories: ["visualization"] },
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Settings Browse reuses a moved Plugins leaf and preserves its filtered directory for Back navigation.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitForReady(canvas);
+    const root = canvas.getByTestId(
+      "plugin-management-story",
+    ) as HTMLElement & { __lapisApp: import("@lapis-notes/api").App };
+    const app = root.__lapisApp;
+    const leaf = app.workspace.getLeavesOfType("plugins")[0];
+    getWorkspaceHostBinding(app.workspace).controller.settings.open({
+      sectionId: "plugin-registry",
+    });
+    const body = within(canvasElement.ownerDocument.body);
+    const settings = await body.findByRole("dialog", { name: "Settings" });
+    await selectRegistryTab(within(settings), "Browse");
+    await userEvent.click(
+      within(settings).getByRole("button", { name: "View details for Graph" }),
+    );
+    await expectPluginsDetails(canvasElement, "lapis-graph");
+    expect(app.workspace.getLeavesOfType("plugins")[0]).toBe(leaf);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Back to plugins" }),
+    );
+    await expect(
+      await canvas.findByRole("button", {
+        name: "Remove Visualization filter",
+      }),
+    ).toBeVisible();
   },
 };

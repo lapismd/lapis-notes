@@ -6,6 +6,12 @@ export type HostedPluginCapability =
   | "notices"
   | "settings"
   | "metadata:query"
+  | "metadata:identity"
+  | "metadata:changes"
+  | "vault:stream"
+  | "plugin:generated-state"
+  | "network:connect"
+  | "crypto:nostr-sync"
   | "events"
   | "logging";
 
@@ -17,6 +23,12 @@ export const HOSTED_PLUGIN_CAPABILITIES: readonly HostedPluginCapability[] = [
   "notices",
   "settings",
   "metadata:query",
+  "metadata:identity",
+  "metadata:changes",
+  "vault:stream",
+  "plugin:generated-state",
+  "network:connect",
+  "crypto:nostr-sync",
   "events",
   "logging",
 ] as const;

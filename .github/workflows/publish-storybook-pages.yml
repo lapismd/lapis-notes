@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
   pages: write
   id-token: write
 
@@ -19,15 +20,14 @@ jobs:
   build:
     name: Build Storybook
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/ci-setup
       - run: pnpm build-storybook
       - name: Verify Storybook output
         run: |

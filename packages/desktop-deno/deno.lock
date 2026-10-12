@@ -25,7 +25,8 @@
     "npm:@lezer/highlight@1.2.1": "1.2.1",
     "npm:@lezer/lr@1.4.2": "1.4.2",
     "npm:@opentelemetry/api@1.9.1": "1.9.1",
-    "npm:@tursodatabase/database@0.7.2": "0.7.2"
+    "npm:@tursodatabase/database@0.7.2": "0.7.2",
+    "npm:zod@3.25.76": "3.25.76"
   },
   "jsr": {
     "@denosaurs/plug@1.1.0": {
@@ -106,8 +107,8 @@
         "@codemirror/state",
         "@codemirror/view",
         "@lezer/common",
-        "@lezer/highlight@1.2.3",
-        "@lezer/lr@1.4.10",
+        "@lezer/highlight",
+        "@lezer/lr",
         "style-mod"
       ]
     },
@@ -131,18 +132,6 @@
     },
     "@lezer/highlight@1.2.1": {
       "integrity": "sha512-Z5duk4RN/3zuVO7Jq0pGLJ3qynpxUVsh7IbUbGj88+uV2ApSAn6kWg2au3iJb+0Zi7kKtqffIESgNcRXWZWmSA==",
-      "dependencies": [
-        "@lezer/common"
-      ]
-    },
-    "@lezer/highlight@1.2.3": {
-      "integrity": "sha512-qXdH7UqTvGfdVBINrgKhDsVTJTxactNNxLk7+UMwZhU13lMHaOBlJe9Vqp907ya56Y3+ed2tlqzys7jDkTmW0g==",
-      "dependencies": [
-        "@lezer/common"
-      ]
-    },
-    "@lezer/lr@1.4.10": {
-      "integrity": "sha512-rnCpTIBafOx4mRp43xOxDJbFipJm/c0cia/V5TiGlhmMa+wsSdoGmUN3w5Bqrks/09Q/D4tNAmWaT8p6NRi77A==",
       "dependencies": [
         "@lezer/common"
       ]
@@ -202,6 +191,9 @@
     },
     "w3c-keyname@2.2.8": {
       "integrity": "sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ=="
+    },
+    "zod@3.25.76": {
+      "integrity": "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="
     }
   },
   "workspace": {
@@ -215,11 +207,14 @@
       "npm:@tursodatabase/database@0.7.2",
       "npm:acpx@0.13.0",
       "npm:markdownlint@0.40.0",
-      "npm:ws@8.18.3"
+      "npm:ws@8.18.3",
+      "npm:zod@3.25.76"
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@lapismd/design-core@*",
+        "npm:@lapismd/ai-host@0.1",
+        "npm:@lapismd/design-core@0.1",
+        "npm:@lapismd/terminal-host@0.1",
         "npm:@lucide/svelte@0.523",
         "npm:@modelcontextprotocol/sdk@^1.29.0",
         "npm:@opentelemetry/api@1.9.1",
@@ -240,6 +235,13 @@
         "npm:vitest@^4.1.8",
         "npm:ws@^8.18.3"
       ]
+    },
+    "links": {
+      "npm:@lapis-notes/deno-host-services@0.0.0": {
+        "dependencies": [
+          "npm:@tursodatabase/database@0.7.2"
+        ]
+      }
     }
   }
 }

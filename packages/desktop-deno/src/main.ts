@@ -11,9 +11,6 @@ import {
   type NativeDesktopCapabilityRegistry,
   type NativeDesktopNotificationPayload,
   type NativeDesktopPlatformInfo,
-  type NativeAgentProcessMessage,
-  type NativeAgentRuntimeEvent,
-  type NativeAgentToolCall,
   type NativeAgentToolCancel,
   type NativeAppDatabaseChangeEvent,
   type NativeTerminalExitEvent,
@@ -42,6 +39,10 @@ import {
   type DenoRendererNativeEvent,
 } from "./desktop-renderer-events";
 import { installDenoExternalLinkPolicy } from "./external-links";
+import {
+  createDenoNostrSignerBroker,
+  setDenoNostrSignerBroker,
+} from "./deno-nostr-signer";
 import {
   createDesktopRendererTelemetry,
   type DesktopRawInvoke,
@@ -89,13 +90,6 @@ const watchListeners = new Map<
   string,
   (event: ChangeEvent | WatchErrorEvent) => void
 >();
-const agentProcessListeners = new Set<
-  (event: NativeAgentProcessMessage) => void
->();
-const agentRuntimeListeners = new Set<
-  (event: NativeAgentRuntimeEvent) => void
->();
-const agentToolCallListeners = new Set<(event: NativeAgentToolCall) => void>();
 const agentToolCancelListeners = new Set<
   (event: NativeAgentToolCancel) => void
 >();
@@ -183,24 +177,6 @@ function handleRendererNativeEvent(
         vaultId: payload.vaultId,
         change: payload.change,
       });
-    }
-    return;
-  }
-  if (detail?.channel === "desktop_agent_process_message") {
-    for (const listener of agentProcessListeners) {
-      listener(detail.payload as NativeAgentProcessMessage);
-    }
-    return;
-  }
-  if (detail?.channel === "desktop_agent_runtime_event") {
-    for (const listener of agentRuntimeListeners) {
-      listener(detail.payload as NativeAgentRuntimeEvent);
-    }
-    return;
-  }
-  if (detail?.channel === "desktop_agent_tool_call") {
-    for (const listener of agentToolCallListeners) {
-      listener(detail.payload as NativeAgentToolCall);
     }
     return;
   }
@@ -336,6 +312,12 @@ const rendererTelemetry = await createDesktopRendererTelemetry({
 invokeDesktop = (command, payload) =>
   rendererTelemetry.invoke(rawInvoke, command, payload);
 
+setDenoNostrSignerBroker(
+  capabilities["nostr-signer"]?.status === "available"
+    ? await createDenoNostrSignerBroker(invokeDesktop)
+    : undefined,
+);
+
 const bridge: DenoDesktopBridge = {
   runtime: "deno-desktop",
   platform,
@@ -362,15 +344,6 @@ const bridge: DenoDesktopBridge = {
     return invokeDesktop("desktop_notifications_show", {
       notification: payload,
     }) as Promise<void>;
-  },
-  onAgentProcessMessage(listener) {
-    return subscribe(agentProcessListeners, listener);
-  },
-  onAgentRuntimeEvent(listener) {
-    return subscribe(agentRuntimeListeners, listener);
-  },
-  onAgentToolCall(listener) {
-    return subscribe(agentToolCallListeners, listener);
   },
   onAgentToolCancel(listener) {
     return subscribe(agentToolCancelListeners, listener);

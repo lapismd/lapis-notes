@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  packages: read
   pull-requests: write
 
 concurrency:
@@ -24,6 +25,11 @@ jobs:
   changesets:
     name: Version packages
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
       published: ${{ steps.changesets.outputs.published }}
@@ -31,13 +37,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/ci-setup
       - id: changesets
         uses: changesets/action@v1.8.0
         with:
@@ -48,64 +48,33 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  artifact:
-    name: Build release artifact
+  validation:
+    name: Validate release candidate
     needs: changesets
     if: needs.changesets.outputs.hasChangesets != 'true'
-    runs-on: ubuntu-latest
-    outputs:
-      bootstrap_required: ${{ steps.plan.outputs.bootstrap_required }}
-      has_work: ${{ steps.plan.outputs.has_work }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: mdbook@0.5.4
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm spec:check
-      - run: pnpm packages:check
-      - run: pnpm check:all
-      - run: pnpm packages:pack
-      - run: pnpm release:plan -- --registry https://registry.npmjs.org --json > .release/release-plan.json
-      - run: pnpm release:prepare -- --registry https://registry.npmjs.org
-      - id: plan
-        run: |
-          node -e 'const fs=require("node:fs");const m=JSON.parse(fs.readFileSync(".release/release-manifest.json","utf8"));const hasWork=m.packages.length>0;const bootstrap=Boolean(m.bootstrapRequired);fs.appendFileSync(process.env.GITHUB_OUTPUT,"has_work="+hasWork+"\nbootstrap_required="+bootstrap+"\n");if(bootstrap){console.log("::notice ::Initial packages require manual npm publication from the verified release artifact.");}'
-      - uses: actions/upload-artifact@v7
-        with:
-          name: lapis-notes-release-${{ github.sha }}
-          path: .release
-          include-hidden-files: true
-          if-no-files-found: error
+    uses: ./.github/workflows/lapis-ci.yml
+    secrets: inherit
 
   publish:
     name: Publish packages
-    needs: artifact
-    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true'
+    needs: validation
+    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && needs.validation.outputs.has_work == 'true' && needs.validation.outputs.bootstrap_required != 'true'
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     environment:
       name: npm-production
     permissions:
       contents: read
       id-token: write
+      packages: read
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/ci-setup
+      - run: npm config set registry https://registry.npmjs.org
       - uses: actions/download-artifact@v8
         with:
           name: lapis-notes-release-${{ github.sha }}
@@ -117,19 +86,21 @@ jobs:
   verify:
     name: Verify published packages
     needs:
-      - artifact
+      - validation
       - publish
-    if: always() && needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true' && needs.publish.result == 'success'
+    if: always() && needs.validation.outputs.has_work == 'true' && needs.validation.outputs.bootstrap_required != 'true' && needs.publish.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/ci-setup
       - uses: actions/download-artifact@v8
         with:
           name: lapis-notes-release-${{ github.sha }}
@@ -139,21 +110,21 @@ jobs:
   notes:
     name: Create GitHub releases
     needs:
-      - artifact
+      - validation
       - verify
-    if: always() && needs.artifact.outputs.has_work == 'true' && needs.artifact.outputs.bootstrap_required != 'true' && needs.verify.result == 'success'
+    if: always() && needs.validation.outputs.has_work == 'true' && needs.validation.outputs.bootstrap_required != 'true' && needs.verify.result == 'success'
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
+      packages: read
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/ci-setup
       - uses: actions/download-artifact@v8
         with:
           name: lapis-notes-release-${{ github.sha }}

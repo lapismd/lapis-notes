@@ -150,15 +150,14 @@ export class PluginRegistryClient {
     metadata: unknown,
     source: PluginRegistrySource,
   ): Promise<PluginCatalogIndex> {
-    const index = parsePluginDistributionMetadata(
-      pluginCatalogIndexSchema,
+    const verifiedInput = await this.verifyOriginal(
       metadata,
-    );
-    const verified = (await verifyInlineSignedMetadata(
-      index,
-      index.signatures,
       this.trustedKeysFor(source.trustTier),
-    )) as unknown as PluginCatalogIndex;
+    );
+    const verified = parsePluginDistributionMetadata(
+      pluginCatalogIndexSchema,
+      verifiedInput,
+    );
     return {
       ...verified,
       plugins: verified.plugins.map((entry) =>
@@ -172,31 +171,28 @@ export class PluginRegistryClient {
   ): Promise<PluginRevocationIndex> {
     const url = new URL("revoked.json", source.url).toString();
     const metadata = await this.fetchJson(url);
-    const revocations = parsePluginDistributionMetadata(
-      pluginRevocationIndexSchema,
+    const verifiedInput = await this.verifyOriginal(
       metadata,
-    );
-    const verified = await verifyInlineSignedMetadata(
-      revocations,
-      revocations.signatures,
       this.trustedKeysFor(source.trustTier),
     );
-    return verified;
+    return parsePluginDistributionMetadata(
+      pluginRevocationIndexSchema,
+      verifiedInput,
+    );
   }
 
   private async verifyDetail(
     metadata: unknown,
     entry: PluginCatalogEntry,
   ): Promise<PluginCatalogDetail> {
-    const detail = parsePluginDistributionMetadata(
-      pluginCatalogDetailSchema,
+    const verifiedInput = await this.verifyOriginal(
       metadata,
-    );
-    const verified = (await verifyInlineSignedMetadata(
-      detail,
-      detail.signatures,
       this.options.trustedKeys,
-    )) as unknown as PluginCatalogDetail;
+    );
+    const verified = parsePluginDistributionMetadata(
+      pluginCatalogDetailSchema,
+      verifiedInput,
+    );
 
     if (verified.id !== entry.id) {
       throw new PluginDistributionError(
@@ -207,6 +203,22 @@ export class PluginRegistryClient {
     }
 
     return verified;
+  }
+
+  private async verifyOriginal(
+    metadata: unknown,
+    keys: TrustedSigningKey[],
+  ): Promise<unknown> {
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata))
+      throw new PluginDistributionError(
+        "metadata-invalid",
+        "Expected signed registry object.",
+      );
+    return verifyInlineSignedMetadata(
+      metadata as { signatures?: SignatureRecord[] },
+      (metadata as { signatures?: SignatureRecord[] }).signatures,
+      keys,
+    );
   }
 
   private normalizeEntry(

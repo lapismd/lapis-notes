@@ -289,12 +289,25 @@ export class VerifiedPluginInstaller {
     return verifyPluginBundlePayload(verifierOptions);
   }
 
+  /** Install payload bytes already verified by a trusted registry adapter. */
+  async installVerifiedPayload(
+    payload: VerifiedPluginBundlePayload,
+    options: Omit<InstallVerifiedPluginBundleOptions, "bundle">,
+  ): Promise<InstalledPluginRecord> {
+    return this.installVerifiedBundlePayload(payload, options);
+  }
+
   private async installVerifiedBundlePayload(
     payload: VerifiedPluginBundlePayload,
     options: Omit<InstallVerifiedPluginBundleOptions, "bundle">,
   ): Promise<InstalledPluginRecord> {
-    const { releaseEnvelope, releaseManifest, releaseManifestSha256, files } =
-      payload;
+    const {
+      releaseEnvelope,
+      releaseManifest,
+      releaseManifestSha256,
+      files,
+      nostrProof,
+    } = payload;
     if (options.compatibility) {
       const compatibility = checkReleaseManifestCompatibility(
         releaseManifest,
@@ -393,7 +406,10 @@ export class VerifiedPluginInstaller {
       ...(runtimeValidation.warnings.length
         ? { runtimeWarnings: runtimeValidation.warnings }
         : {}),
-      signature: releaseEnvelope.signatures[0],
+      ...(releaseEnvelope.signatures[0]
+        ? { signature: releaseEnvelope.signatures[0] }
+        : {}),
+      ...(nostrProof ? { nostrProof } : {}),
       restartRequired: Boolean(this.options.pluginManager),
     };
 

@@ -15,7 +15,7 @@ function manifest(definition, overrides = {}) {
     name: definition.name,
     version: INITIAL_PUBLIC_VERSION,
     description: definition.name,
-    license: "AGPL-3.0-or-later",
+    license: "Apache-2.0",
     repository: {
       type: "git",
       url: "git+https://github.com/lapismd/lapis-notes.git",

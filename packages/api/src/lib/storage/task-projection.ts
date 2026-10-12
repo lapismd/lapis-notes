@@ -13,7 +13,7 @@ import {
   type IndexQuery,
 } from "./index-projection";
 
-export const TASK_PROJECTION_VERSION = 3;
+export const TASK_PROJECTION_VERSION = 4;
 export const TASK_OCCURRENCE_PROJECTION_VERSION = 1;
 export { PUBLIC_TASKS_PROJECTION_ID, PUBLIC_TASK_OCCURRENCES_PROJECTION_ID };
 
@@ -23,6 +23,7 @@ export const TASK_PROJECTION_FIELDS: Record<string, IndexFieldDefinition> = {
   kind: { type: "string", indexed: true },
   title: { type: "string", indexed: true, sortable: true },
   status: { type: "string", indexed: true, sortable: true },
+  priority: { type: "string", indexed: true, sortable: true },
   inbox: { type: "boolean", indexed: true },
   startKind: { type: "string", indexed: true },
   startDate: { type: "date", indexed: true, sortable: true },
@@ -174,6 +175,7 @@ export interface AppDatabaseTaskRecord {
   kind: AppDatabaseTaskKind;
   title: string;
   status: AppDatabaseTaskStatus;
+  priority?: "low" | "medium" | "high" | null;
   inbox: boolean;
   startKind: AppDatabaseTaskStartKind;
   startDate?: string | null;
@@ -259,7 +261,8 @@ export function matchesTaskQuery(
   row: AppDatabaseTaskRecord,
   query: AppDatabaseTaskQuery,
 ): boolean {
-  if (query.documentPath && row.documentPath !== query.documentPath) return false;
+  if (query.documentPath && row.documentPath !== query.documentPath)
+    return false;
   if (query.documentId && row.documentId !== query.documentId) return false;
   if (query.kind && row.kind !== query.kind) return false;
   if (!query.view) return true;
@@ -310,7 +313,9 @@ export function matchesTaskQuery(
   }
 }
 
-export function taskQueryToIndexQuery(query: AppDatabaseTaskQuery = {}): IndexQuery {
+export function taskQueryToIndexQuery(
+  query: AppDatabaseTaskQuery = {},
+): IndexQuery {
   const clauses: IndexFilter[] = [];
   if (query.documentPath) clauses.push(eq("documentPath", query.documentPath));
   if (query.documentId) clauses.push(eq("documentId", query.documentId));
@@ -345,7 +350,10 @@ export function taskQueryToIndexQuery(query: AppDatabaseTaskQuery = {}): IndexQu
           and(
             openTask,
             isNull("planDate"),
-            or(eq("startKind", "anytime"), and(eq("startKind", "date"), lte("startDate", today))),
+            or(
+              eq("startKind", "anytime"),
+              and(eq("startKind", "date"), lte("startDate", today)),
+            ),
           ),
         );
         break;
@@ -387,7 +395,12 @@ export function taskQueryToIndexQuery(query: AppDatabaseTaskQuery = {}): IndexQu
     }
   }
   return {
-    where: clauses.length === 1 ? clauses[0] : clauses.length ? and(...clauses) : undefined,
+    where:
+      clauses.length === 1
+        ? clauses[0]
+        : clauses.length
+          ? and(...clauses)
+          : undefined,
     limit: query.limit,
   };
 }

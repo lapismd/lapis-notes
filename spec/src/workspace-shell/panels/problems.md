@@ -11,6 +11,8 @@ The Problems view is a reusable workspace panel. Design Core owns the generic
 diagnostic model, collection lifecycle, and presentation; Lapis adapts vault,
 language-service, navigation, and plugin behavior at its public API boundary.
 The experimental Deno desktop spike does not add a language-service sidecar.
+Nostr signer denial and unavailability remain direct operation errors under
+LN-ARCH-099; they do not expose credentials through diagnostic records.
 
 The Lapis façade, plugin-owned disposal, open-document bridge, cached actions,
 navigation adapter, diagnostics-only Markdown composition, and default
@@ -59,6 +61,8 @@ diagnostics or language-service apply paths.
 | LN-WS-073 | `LanguageServiceCodeAction` MAY carry a serializable `command`. Apply paths MUST run provider `applyCommand` after any document edit. Diagnostic objects MUST NOT carry callbacks. |
 | LN-WS-074 | Problems tree and table rows MUST use the severity-icon slot as the quick-fix control when the collection contributed actions. Hover or focus MUST show a Lucide lightbulb. Click MUST open the portaled workspace menu of those actions. The Copy-first context menu MUST remain. |
 | LN-WS-079 | A diagnostic hover card MUST expose one Quick Fix control for cached code actions instead of listing each action. That control MUST open the portaled workspace-styled menu of those actions without depending on a menu primitive context owned by another package instance. View Problem MAY remain a separate control. |
+| LN-WS-094 | The API language-service manager MUST expose diagnostic invalidation for registered providers. Attached editors whose language matches MUST request diagnostics again without a document edit, keeping the gutter and Problems collection consistent. Unknown or unloaded providers MUST NOT trigger invalidation. Editor subscriptions MUST dispose with the owning view. |
+
 
 `Plugin.registerAgentTool` and `Plugin.registerAgentResultView` are independent
 from diagnostic collections and do not add callbacks or agent-specific fields
@@ -91,6 +95,12 @@ to serializable diagnostics.
   that opens the same portaled workspace menu as Problems (LN-WS-079).
 
 ## Lifecycle
+
+For LN-WS-046, editor-demo acceptance checks the leaf badge and rendered rows
+against the complete current diagnostics snapshot, including other providers and
+workspace-wide collections. The long-form Markdownlint scenario keeps its exact
+17-rule-result assertion separate from that total and exercises addition and
+disposal of another collection without changing the note.
 
 Diagnostics are not workspace layout state. Closing the Problems view does not
 clear collections, and new diagnostics do not open it. Hydration reapplies a
@@ -128,6 +138,11 @@ own required-panel lifecycle above.
 Problems is a required core surface and therefore follows the query-native
 plugin lifecycle: enabling it never requests the community metadata snapshot
 lease. Diagnostic collections remain independent of metadata index revisions.
+
+A denied sync unlock, network grant, invalid capability request, or plugin
+activation failure continues through the existing plugin-failure diagnostic
+path. Problems does not receive secret values, broker request bodies, headers,
+or key material, and it does not become the owner of sync recovery policy.
 App `app:rebuild-vault-cache` and `app:rebuild-generated-state` report file
 progress through notifications, not Problems collections (LN-PKG-097,
 LN-PKG-098).

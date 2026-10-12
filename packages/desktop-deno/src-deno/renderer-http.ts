@@ -26,8 +26,17 @@ export function isWebSocketUpgrade(request: Request): boolean {
   return request.headers.get("upgrade")?.toLowerCase() === "websocket";
 }
 
-export function withIsolationHeaders(response: Response): Response {
+export function withIsolationHeaders(
+  response: Response,
+  options: { decodedUpstream?: boolean } = {},
+): Response {
   const headers = new Headers(response.headers);
+  if (options.decodedUpstream) {
+    // Fetch exposes the decoded body but can retain its wire representation
+    // headers. Forwarding those headers makes the renderer decode it again.
+    headers.delete("Content-Encoding");
+    headers.delete("Content-Length");
+  }
   for (const [name, value] of Object.entries(CROSS_ORIGIN_HEADERS)) {
     headers.set(name, value);
   }
@@ -38,7 +47,10 @@ export function withIsolationHeaders(response: Response): Response {
   });
 }
 
-export function createUpstreamHeaders(request: Request, upstream: URL): Headers {
+export function createUpstreamHeaders(
+  request: Request,
+  upstream: URL,
+): Headers {
   const headers = new Headers();
   for (const [name, value] of request.headers) {
     if (!HOP_BY_HOP.has(name.toLowerCase())) headers.set(name, value);

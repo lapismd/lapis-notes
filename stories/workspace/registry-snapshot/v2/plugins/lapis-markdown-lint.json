@@ -1,0 +1,165 @@
+{
+  "appearance": {
+    "accent": "#F97316",
+    "icon": "list-checks"
+  },
+  "author": "Lapis Notes",
+  "authorAvatarUrl": "https://www.gravatar.com/avatar/1df68d9ff087b0dd72fd8626056fca7f?s=128&d=404",
+  "authorUrl": "https://app.lapis.md/",
+  "channel": "official",
+  "description": "Markdown diagnostics provider",
+  "gallery": [
+    {
+      "alt": "Focused Markdown editor with inline lint markers and a populated Problems panel listing heading issues.",
+      "id": "editor-diagnostics",
+      "images": {
+        "dark": {
+          "height": 1600,
+          "mediaType": "image/webp",
+          "sha256": "0ac3ec21df2ccf326760ccbe9bd13cfc67da2fd4f4c21875277f14f78691ee24",
+          "size": 140304,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/gallery/editor-diagnostics.dark.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/0ac3ec21df2ccf326760ccbe9bd13cfc67da2fd4f4c21875277f14f78691ee24.webp",
+          "width": 2400
+        },
+        "full": {
+          "height": 1600,
+          "mediaType": "image/webp",
+          "sha256": "5980ab8c62ba19c415014404862f8569f103627195169e22830709f6e99dcdbc",
+          "size": 139182,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/gallery/editor-diagnostics.full.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/5980ab8c62ba19c415014404862f8569f103627195169e22830709f6e99dcdbc.webp",
+          "width": 2400
+        },
+        "light": {
+          "height": 1600,
+          "mediaType": "image/webp",
+          "sha256": "31abae03fb2f2def1bd1ca3ffd34b7fe7e5f48963e9bbd632c6db9679cdaf1e7",
+          "size": 126700,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/gallery/editor-diagnostics.light.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/31abae03fb2f2def1bd1ca3ffd34b7fe7e5f48963e9bbd632c6db9679cdaf1e7.webp",
+          "width": 2400
+        },
+        "preview": {
+          "height": 800,
+          "mediaType": "image/webp",
+          "sha256": "c4cbe164c11e0a98598ef5d3f3ea424a3e8cbd2e876a12625ca83988801e89dc",
+          "size": 63868,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/gallery/editor-diagnostics.preview.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/c4cbe164c11e0a98598ef5d3f3ea424a3e8cbd2e876a12625ca83988801e89dc.webp",
+          "width": 1200
+        }
+      }
+    }
+  ],
+  "highlights": [
+    "Show Markdown diagnostics for open documents.",
+    "Apply supported code actions from editor and Problems surfaces.",
+    "Configure rule exclusions and path filters per vault."
+  ],
+  "id": "lapis-markdown-lint",
+  "latestVersion": "0.1.2",
+  "license": "Apache-2.0",
+  "links": {
+    "documentation": "https://github.com/lapismd/lapis-plugins/tree/main/packages/markdown-lint#readme",
+    "homepage": "https://github.com/lapismd/lapis-plugins/tree/main/packages/markdown-lint#readme",
+    "issues": "https://github.com/lapismd/lapis-plugins/issues",
+    "repository": "https://github.com/lapismd/lapis-plugins"
+  },
+  "media": {
+    "banner": {
+      "alt": "Lapis Markdown Lint showing real editor diagnostics and a populated Problems panel with both sidebars closed.",
+      "images": {
+        "dark": {
+          "height": 1600,
+          "mediaType": "image/webp",
+          "sha256": "13eacb5f61f4559f7803f859bad6937940241a568b145fef742fa27e74ad50c9",
+          "size": 51600,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/banner.dark.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/13eacb5f61f4559f7803f859bad6937940241a568b145fef742fa27e74ad50c9.webp",
+          "width": 2400
+        },
+        "full": {
+          "height": 1600,
+          "mediaType": "image/webp",
+          "sha256": "9069b3350de47b67a32708937ba57c24a6e7387692334d297465c2b1748affe1",
+          "size": 58312,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/banner.full.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/9069b3350de47b67a32708937ba57c24a6e7387692334d297465c2b1748affe1.webp",
+          "width": 2400
+        },
+        "light": {
+          "height": 1600,
+          "mediaType": "image/webp",
+          "sha256": "fd1c46d04793e9ab254c54d76b700e71a3bcc6a1b48c0ee5e3c1b1689c4e5164",
+          "size": 51824,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/banner.light.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/fd1c46d04793e9ab254c54d76b700e71a3bcc6a1b48c0ee5e3c1b1689c4e5164.webp",
+          "width": 2400
+        },
+        "preview": {
+          "height": 800,
+          "mediaType": "image/webp",
+          "sha256": "0b856137a2b72b15d46ec9c6e680c28ba23198fd2afc28a2d4bf9cb9e277acf5",
+          "size": 31858,
+          "sourceUrl": "https://raw.githubusercontent.com/lapismd/lapis-plugins/0000000000000000000000000000000000000000/packages/markdown-lint/registry-assets/banner.preview.webp",
+          "url": "https://registry.local.lapis.md/v2/assets/lapis-markdown-lint/0b856137a2b72b15d46ec9c6e680c28ba23198fd2afc28a2d4bf9cb9e277acf5.webp",
+          "width": 1200
+        }
+      }
+    }
+  },
+  "name": "Markdown Lint",
+  "owner": {
+    "name": "Lapis Notes",
+    "url": "https://github.com/lapismd/lapis-plugins",
+    "verified": true
+  },
+  "schemaVersion": 2,
+  "signatures": [
+    {
+      "alg": "ed25519",
+      "keyId": "lapis-registry-local-2026-10-11",
+      "sig": "0tQgwyyYWv42ktZRnixRHR41dRxhVNIL3KwR+wE3TxtWgwXCjX6fTEmURDpSaTBCojDueitDWYRY90jjsn3TCQ=="
+    }
+  ],
+  "status": "active",
+  "versions": {
+    "0.1.1": {
+      "bundle": {
+        "sha256": "18693a892aeddd53c655575e449b5a8b426dc18da2273d9686592a5eac549e94",
+        "size": 150024,
+        "url": "https://registry.local.lapis.md/v2/bundles/lapis-markdown-lint-0.1.1.lapis-plugin"
+      },
+      "changelog": {
+        "description": "- Initial independent public package extracted from Lapis Notes without changing\n  the runtime plugin ID.",
+        "title": "Markdown Lint 0.1.1"
+      },
+      "minAppVersion": "0.1.0",
+      "platforms": [
+        "web",
+        "desktop"
+      ],
+      "releasedAt": "2026-10-11T20:54:53.120Z",
+      "version": "0.1.1"
+    },
+    "0.1.2": {
+      "bundle": {
+        "sha256": "1b2e744a4eabe5be5ad03b2872d3f5c9e3cab7a378673ca0c6d2cb3481762ea8",
+        "size": 150024,
+        "url": "https://registry.local.lapis.md/v2/bundles/lapis-markdown-lint-0.1.2.lapis-plugin"
+      },
+      "changelog": {
+        "description": "### Patch Changes\n\n- Add official author avatars and deterministic split, light, and dark registry media for plugin banners, overviews, and galleries.",
+        "title": "Markdown Lint 0.1.2"
+      },
+      "minAppVersion": "0.1.0",
+      "platforms": [
+        "web",
+        "desktop"
+      ],
+      "releasedAt": "2026-10-11T20:54:53.120Z",
+      "version": "0.1.2"
+    }
+  }
+}

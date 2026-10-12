@@ -4,7 +4,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { generateToken, serveAgentHost } from "@lapismd/ai-host";
+import { startAiSmokeController } from "./lib/ai-controller-fixture";
 import {
   AI_REAL_HOST_RELATIVE_ROOT,
   assertSafeAiSmokeReset,
@@ -115,21 +115,7 @@ async function supervise(
 }
 
 async function startStorybook(workspace: string): Promise<void> {
-  const token = generateToken();
-  const host = await serveAgentHost(
-    {
-      port: 0,
-      bind: "127.0.0.1",
-      workspace,
-      token,
-      origins: [],
-    },
-    {
-      print(line) {
-        if (!line.startsWith("token:")) console.log(`[ai-smoke] ${line}`);
-      },
-    },
-  );
+  const host = await startAiSmokeController(workspace);
   const storybookPort = process.env.STORYBOOK_PORT?.trim() || "7010";
   console.log(`[ai-smoke] seeded agent workspace: ${workspace}`);
   console.log(
@@ -145,14 +131,13 @@ async function startStorybook(workspace: string): Promise<void> {
       STORYBOOK_REPLACE: "1",
       STORYBOOK_PORT: storybookPort,
       LAPIS_AGENT_RUNTIME_URL: host.url,
-      LAPIS_AGENT_RUNTIME_TOKEN: token,
+      LAPIS_AGENT_RUNTIME_TOKEN: host.token,
     },
   );
   await supervise(child, () => host.close());
 }
 
 async function startDesktop(workspace: string): Promise<void> {
-  await runOnce(pnpm, ["--dir", path.resolve(repoRoot, "../ai-host"), "build"]);
   await runOnce(pnpm, [
     "turbo",
     "run",

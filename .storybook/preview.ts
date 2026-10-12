@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/svelte-vite";
 import { withThemeByDataAttribute } from "@storybook/addon-themes";
-import { maybeRegisterAgentRuntimeBridge } from "@lapismd/ai-host/client";
+import { createControllerConnectionBridge } from "../packages/web/src/controller-connection-bridge";
 import { syncCatalogStoryLayout } from "@lapismd/design-core/storybook/catalog-layout";
 // Brand + shadcn paint: design-core. ui/theme.css is Obsidian alias-only.
 // Host Tailwind (vite plugin) is for story/demo layout — not component paint.
@@ -15,16 +15,12 @@ import "@lapis-notes/ui/codemirror-autocomplete.css";
 // started host through `.env.storybook.local`. Storybook never starts the host.
 // Register through the desktop-bridge global so preview does not import the
 // API barrel (that hung the iframe on every story).
-maybeRegisterAgentRuntimeBridge({
-  hasBridge: () =>
-    (globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown })
-      .__LAPIS_NATIVE_DESKTOP__ != null,
-  register: (bridge) => {
-    (
-      globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown }
-    ).__LAPIS_NATIVE_DESKTOP__ = bridge;
-  },
-});
+const controllerUrl = import.meta.env.LAPIS_AGENT_RUNTIME_URL;
+const controllerToken = import.meta.env.LAPIS_AGENT_RUNTIME_TOKEN;
+const native = globalThis as { __LAPIS_NATIVE_DESKTOP__?: unknown };
+if (!native.__LAPIS_NATIVE_DESKTOP__ && controllerUrl && controllerToken) {
+  native.__LAPIS_NATIVE_DESKTOP__ = createControllerConnectionBridge({ url: controllerUrl, token: controllerToken });
+}
 
 const preview: Preview = {
   tags: ["autodocs", "test"],
@@ -61,6 +57,7 @@ const preview: Preview = {
             "Deno Desktop Host",
             "Deno Desktop Parity Blockers",
             "Web Host",
+            "Deno Server Host",
             "Workspace Shell",
             "Panels",
             "Problems",

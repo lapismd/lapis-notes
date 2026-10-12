@@ -26,6 +26,8 @@ export function resolveDenoDesktopInspector(value, telemetryEnabled = false) {
 export function createDenoDesktopDevArgs(backend, options = {}) {
   return [
     "desktop",
+    "--config",
+    "deno.json",
     "--quiet",
     "--hmr",
     ...(options.icon ? ["--icon", options.icon] : []),
@@ -109,6 +111,14 @@ export function createMacosDesktopDevHostSignArgs(bundle) {
 
 export function createMacosDesktopDevHostVerifyArgs(bundle) {
   return ["--verify", "--deep", "--strict", bundle];
+}
+
+export function canReuseMacosDesktopDevRuntime(options) {
+  return (
+    options.previousModifiedAt !== null &&
+    options.observedModifiedAt === options.previousModifiedAt &&
+    options.signatureValid === true
+  );
 }
 
 export function isMacosDesktopDevHostCurrent(options) {

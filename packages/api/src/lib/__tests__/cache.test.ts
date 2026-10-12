@@ -340,6 +340,47 @@ async function seedIndexedMetadata(
   });
 }
 
+describe("MetadataCache reconciliation fingerprint", () => {
+  it("ignores excluded metadata inputs while retaining the full default fingerprint", () => {
+    const note = new TFile("Review.md", { ctime: 1, mtime: 2, size: 8 }, null);
+    const other = new TFile(
+      "Other.json",
+      { ctime: 1, mtime: 2, size: 8 },
+      null,
+    );
+    const { cache } = createLoadCache({ files: [note, other] });
+    const processor = { read: async () => ({}), write: () => "" };
+    cache.addProcessor("md", processor);
+    cache.addProcessor("json", processor);
+    const acceptsNote = (file: TFile) => file.extension === "md";
+    const selected = cache.getReconciliationFingerprint(acceptsNote);
+    const full = cache.getReconciliationFingerprint();
+
+    other.stat.mtime += 1;
+    cache.addProcessor("json", { ...processor });
+
+    expect(cache.getReconciliationFingerprint(acceptsNote)).toBe(selected);
+    expect(cache.getReconciliationFingerprint()).not.toBe(full);
+  });
+
+  it("invalidates selected metadata inputs and parser signatures", () => {
+    const note = new TFile("Review.md", { ctime: 1, mtime: 2, size: 8 }, null);
+    const { cache } = createLoadCache({ files: [note] });
+    const processor = { read: async () => ({}), write: () => "" };
+    cache.addProcessor("md", processor);
+    const acceptsNote = (file: TFile) => file.extension === "md";
+    const original = cache.getReconciliationFingerprint(acceptsNote);
+
+    note.stat.size += 1;
+    const changedInput = cache.getReconciliationFingerprint(acceptsNote);
+    expect(changedInput).not.toBe(original);
+    cache.addProcessor("md", { ...processor });
+    expect(cache.getReconciliationFingerprint(acceptsNote)).not.toBe(
+      changedInput,
+    );
+  });
+});
+
 describe("MetadataCache.load", () => {
   const checkpointKey = "metadata-cache.reconcile-checkpoint.v1";
 

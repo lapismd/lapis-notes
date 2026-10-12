@@ -27,6 +27,7 @@ import type {
   ConfigurationOptionSourceRegistration,
 } from "./configuration-option-source-registry";
 import type { HostedPluginCapability } from "./plugin-capability-facade";
+import type { SyncHostCapabilities } from "./sync-host";
 import type {
   MarkdownDirectiveRenderer,
   MarkdownPostProcessor,
@@ -37,6 +38,11 @@ import type { MarkdownExtensionContribution } from "./markdown-extension-registr
 import type { MarkdownFileSurfaceProvider } from "./markdown-file-surface-registry";
 import type { TypeWidget } from "./metadata.svelte";
 import type { PluginSettingTab } from "./settings.svelte";
+import type {
+  PluginSettingsDefinition,
+  PluginSettingsRegistration,
+} from "./plugin-settings";
+import { resolveWorkspaceHostBinding } from "./workspace-host-internal";
 import { dirname, joinPath } from "./storage";
 import type { EditorSuggest } from "./suggest";
 import type {
@@ -251,6 +257,8 @@ export interface PluginRuntimeOptions {
   hostMode?: string;
   requestedCapabilities?: HostedPluginCapability[];
   grantedCapabilities?: HostedPluginCapability[];
+  createSyncHostCapabilities?: () => SyncHostCapabilities;
+  revokeSyncHostCapabilities?: () => void;
 }
 
 function formatPluginError(error: unknown): string {
@@ -279,6 +287,10 @@ export abstract class Plugin extends Component {
   readonly #registeredViewTypes = new Set<string>();
   #requestedCapabilities: HostedPluginCapability[] = [];
   #grantedCapabilities: HostedPluginCapability[] = [];
+  #runtimeConfigured = false;
+  #syncHostCapabilities: SyncHostCapabilities | null = null;
+  #createSyncHostCapabilities: (() => SyncHostCapabilities) | null = null;
+  #revokeSyncHostCapabilities: (() => void) | null = null;
 
   constructor(
     readonly app: App,
@@ -308,6 +320,7 @@ export abstract class Plugin extends Component {
    * @public
    */
   configureRuntime(options: PluginRuntimeOptions = {}): void {
+    this.#runtimeConfigured = true;
     if (options.basePath !== undefined) {
       this.basePath = options.basePath;
     }
@@ -329,6 +342,12 @@ export abstract class Plugin extends Component {
     }
     if (options.grantedCapabilities !== undefined) {
       this.#grantedCapabilities = [...options.grantedCapabilities];
+    }
+    if (options.createSyncHostCapabilities !== undefined) {
+      this.#createSyncHostCapabilities = options.createSyncHostCapabilities;
+    }
+    if (options.revokeSyncHostCapabilities !== undefined) {
+      this.#revokeSyncHostCapabilities = options.revokeSyncHostCapabilities;
     }
   }
 
@@ -420,6 +439,14 @@ export abstract class Plugin extends Component {
     return this.manifest.id;
   }
 
+  /** Host-authenticated durable capabilities for sync and similar plugins. */
+  get syncHost(): SyncHostCapabilities {
+    if (!this.#createSyncHostCapabilities) {
+      throw new Error(`Plugin ${this.id} has no host capability runtime`);
+    }
+    return (this.#syncHostCapabilities ??= this.#createSyncHostCapabilities());
+  }
+
   private getDataPath(): string | null {
     return resolvePluginDataPath(this.manifest.id, this.source, this.basePath);
   }
@@ -500,6 +527,8 @@ export abstract class Plugin extends Component {
 
   async disable(): Promise<void> {
     if (!this.loaded) {
+      this.#revokeSyncHostCapabilities?.();
+      this.#syncHostCapabilities = null;
       this.#runtimeState = "disabled";
       this.#failureMessage = null;
       return;
@@ -509,6 +538,8 @@ export abstract class Plugin extends Component {
 
     try {
       await this.unloadAsync();
+      this.#revokeSyncHostCapabilities?.();
+      this.#syncHostCapabilities = null;
       this.#runtimeState = "disabled";
       this.#failureMessage = null;
       this.emit("disable");
@@ -1273,6 +1304,44 @@ export abstract class Plugin extends Component {
     this.register(() => {
       setting.removeItem(settingTab.plugin.manifest.id);
     });
+  }
+
+  /**
+   * Register one controlled declarative settings definition with Workspace
+   * Settings. Source-backed values remain owned by the plugin.
+   *
+   * @public
+   */
+  registerSettingsSection(
+    definition: PluginSettingsDefinition,
+  ): PluginSettingsRegistration {
+    if (this.source === "community" && !this.app.workspaceTrust.trusted) {
+      throw new Error(
+        `Plugin ${this.manifest.id} cannot register settings while the workspace is untrusted`,
+      );
+    }
+    const binding = resolveWorkspaceHostBinding(this.app.workspace);
+    if (!binding) {
+      throw new Error("Workspace host binding is not initialized");
+    }
+    const unregister = binding.controller.settings.registerDefinition(definition);
+    let disposed = false;
+    const registration: PluginSettingsRegistration = {
+      definition,
+      open: (fieldId) =>
+        !disposed &&
+        binding.controller.settings.open({
+          sectionId: definition.section.id,
+          fieldId,
+        }),
+      dispose: () => {
+        if (disposed) return;
+        disposed = true;
+        unregister();
+      },
+    };
+    this.register(() => registration.dispose());
+    return registration;
   }
 }
 

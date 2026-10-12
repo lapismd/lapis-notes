@@ -91,6 +91,9 @@ export class LanguageServiceManager {
   >();
   private readonly diagnosticsRequestIds = new Map<string, number>();
   private readonly providerFailures = new Map<string, WorkspaceDiagnostic>();
+  private readonly diagnosticsInvalidationListeners = new Set<
+    (languages: readonly string[]) => void
+  >();
 
   constructor(
     options: {
@@ -116,6 +119,29 @@ export class LanguageServiceManager {
         void provider.dispose?.();
       }
     };
+  }
+
+  onDiagnosticsInvalidated(
+    listener: (languages: readonly string[]) => void,
+  ): () => void {
+    this.diagnosticsInvalidationListeners.add(listener);
+    return () => {
+      this.diagnosticsInvalidationListeners.delete(listener);
+    };
+  }
+
+  invalidateDiagnostics(providerId: string): boolean {
+    const provider = this.providers.get(providerId);
+    if (!provider) return false;
+    for (const document of this.documents.values()) {
+      if (provider.metadata.languages.includes(document.languageId)) {
+        this.deleteCachedCodeActions(document.uri);
+      }
+    }
+    for (const listener of this.diagnosticsInvalidationListeners) {
+      listener([...provider.metadata.languages]);
+    }
+    return true;
   }
 
   bindDiagnostics(binding: LanguageServiceDiagnosticsBinding): () => void {
@@ -218,13 +244,15 @@ export class LanguageServiceManager {
       if (!provider.metadata.languages.includes(document.languageId)) {
         continue;
       }
-      void Promise.resolve(provider.updateDocument?.({ document })).catch((error) => {
-        if (this.providers.get(provider.metadata.id) !== provider) return;
-        console.warn("Language document update failed", {
-          provider: provider.metadata.id,
-          error,
-        });
-      });
+      void Promise.resolve(provider.updateDocument?.({ document })).catch(
+        (error) => {
+          if (this.providers.get(provider.metadata.id) !== provider) return;
+          console.warn("Language document update failed", {
+            provider: provider.metadata.id,
+            error,
+          });
+        },
+      );
     }
   }
 
@@ -259,7 +287,10 @@ export class LanguageServiceManager {
           provider.provideDiagnostics?.(this.context(document)),
           [],
         );
-        if (result.timedOut || this.providerFailures.has(provider.metadata.id)) {
+        if (
+          result.timedOut ||
+          this.providerFailures.has(provider.metadata.id)
+        ) {
           skipProviderIds.add(provider.metadata.id);
         }
         return result.value;

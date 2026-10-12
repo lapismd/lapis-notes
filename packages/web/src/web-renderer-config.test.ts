@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 
 import {
   rendererOptimizeDependencyExclusions,
   rendererOptimizeDependencyInclusions,
+  rendererPluginImportMap,
   rendererSvelteOptions,
 } from "./renderer-config";
 
@@ -14,6 +13,7 @@ describe("web renderer configuration", () => {
       "@lapis-notes/api",
       "harper.js",
       "ghostty-web",
+      "@tursodatabase/database-wasm/vite",
       "@lapismd/design-core",
     ]);
   });
@@ -26,30 +26,46 @@ describe("web renderer configuration", () => {
     expect(rendererSvelteOptions).toEqual({ emitCss: false });
   });
 
-  it("keeps the Workbox plugin asset route self-contained", async () => {
-    const viteConfig = await readFile(
-      path.resolve(process.cwd(), "vite.config.ts"),
-      "utf8",
+  it("maps verified ESM plugins to the build-owned public API entry", () => {
+    expect(rendererPluginImportMap.imports["@lapis-notes/api"]).toBe(
+      "/plugin-host-api.js",
     );
-
-    expect(viteConfig).toContain(
-      'url.pathname.startsWith("/__lapis/plugins/")',
-    );
-    expect(viteConfig).not.toContain(
-      "url.pathname.startsWith(`${WEB_PLUGIN_ASSET_ROUTE_PREFIX}/`)",
-    );
-  });
-
-  it("provides host-owned ESM modules to installed renderer plugins", async () => {
-    const sessionSource = await readFile(
-      path.resolve(process.cwd(), "src/WebWorkspaceSession.svelte"),
-      "utf8",
-    );
-
-    expect(sessionSource).toContain("createNotesPluginDependencyResolver");
-    expect(sessionSource).toContain(
-      "createCommunityPluginDependencyResolver:\n          createNotesPluginDependencyResolver",
-    );
-    expect(sessionSource).not.toContain("globalThis.app");
+    expect(
+      rendererPluginImportMap.imports["@lapis-notes/api/workspace-host"],
+    ).toBe("/plugin-host-workspace-host.js");
+    for (const specifier of [
+      "@lapis-notes/api/editor",
+      "@lapis-notes/api/editor/core",
+      "@lapis-notes/api/editor/extensions/class-highlighter",
+      "@lapis-notes/api/agent-tools",
+      "@lapis-notes/api/vault",
+      "@lapis-notes/markdown/embed",
+      "@codemirror/state",
+      "@codemirror/view",
+      "@codemirror/language",
+      "@codemirror/autocomplete",
+      "@codemirror/commands",
+      "@codemirror/lint",
+      "@codemirror/search",
+      "@lezer/common",
+      "@lezer/highlight",
+      "@lezer/lr",
+      "svelte/renderer/5.56.10",
+      "svelte/renderer/5.56.10/internal/client",
+      "svelte/renderer/5.56.10/store",
+    ]) {
+      expect(rendererPluginImportMap.imports[specifier], specifier).toMatch(
+        /^\/plugin-host-[a-z0-9-]+\.js$/u,
+      );
+    }
+    expect(
+      rendererPluginImportMap.imports["svelte/internal/client"],
+    ).toBeUndefined();
+    expect(
+      rendererPluginImportMap.imports["svelte/renderer/99.0.0/internal/client"],
+    ).toBeUndefined();
+    expect(
+      rendererPluginImportMap.imports["@lapis-notes/api/private"],
+    ).toBeUndefined();
   });
 });

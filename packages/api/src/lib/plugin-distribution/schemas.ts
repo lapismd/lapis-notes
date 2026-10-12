@@ -1,3 +1,8 @@
+import {
+  normalizeRegistryCatalogEntry,
+  normalizeRegistryCatalogIndex,
+  normalizeRegistryCatalogDetail,
+} from "../registry-schema/index.js";
 import { z } from "zod";
 import { PluginDistributionError } from "./errors";
 
@@ -37,7 +42,7 @@ export const pluginCatalogStatusSchema = z.enum([
   "pending",
   "revoked",
 ]);
-export const pluginPlatformSchema = z.enum(["web", "desktop"]);
+export const pluginPlatformSchema = z.enum(["web", "electron", "desktop"]);
 export const pluginBadgeSchema = z.enum([
   "official",
   "verified",
@@ -65,6 +70,7 @@ export const trustedSigningKeySchema = z.object({
 export const remoteFileReferenceSchema = z
   .object({
     url: urlOrRelative,
+    downloadUrl: urlOrRelative.optional(),
     sha256,
     size: z.number().int().nonnegative().optional(),
   })
@@ -75,62 +81,14 @@ export const pluginMarkdownReferenceSchema = z
     url: httpsUrl,
     sourceUrl: httpsUrl,
     sha256,
-    size: z.number().int().nonnegative().max(256 * 1024),
+    size: z
+      .number()
+      .int()
+      .nonnegative()
+      .max(256 * 1024),
     mediaType: z.literal("text/markdown"),
   })
   .passthrough();
-
-export const pluginAppearanceIconSchema = z.enum([
-  "bookmark",
-  "file-code-2",
-  "file-text",
-  "history",
-  "list-checks",
-  "network",
-  "package",
-  "search",
-  "sparkles",
-  "spell-check-2",
-  "table-2",
-  "whole-word",
-]);
-
-export const pluginImageMediaTypeSchema = z.enum([
-  "image/png",
-  "image/webp",
-  "image/svg+xml",
-]);
-
-export const pluginImageReferenceSchema = z
-  .object({
-    url: httpsUrl,
-    sourceUrl: httpsUrl,
-    sha256,
-    size: z.number().int().positive().max(5 * 1024 * 1024),
-    mediaType: pluginImageMediaTypeSchema,
-    width: z.number().int().positive().max(4096),
-    height: z.number().int().positive().max(4096),
-  })
-  .passthrough();
-
-export const pluginLogoReferenceSchema = pluginImageReferenceSchema.extend({
-  alt: nonEmpty.max(120),
-});
-
-export const pluginAppearanceSchema = z
-  .object({
-    icon: pluginAppearanceIconSchema,
-    accent: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
-    logo: pluginLogoReferenceSchema.optional(),
-  })
-  .passthrough();
-
-export const pluginGalleryItemSchema = pluginImageReferenceSchema.extend({
-  id: z.string().regex(/^[a-z0-9][a-z0-9-]{0,31}$/),
-  surface: z.enum(["desktop", "mobile"]),
-  alt: nonEmpty.max(240),
-  caption: nonEmpty.max(240).optional(),
-});
 
 export const pluginCatalogContentSchema = z
   .object({
@@ -284,50 +242,13 @@ export const pluginContributionSummarySchema = z
   })
   .passthrough();
 
-export const pluginCatalogEntrySchema = z
-  .object({
-    id: nonEmpty,
-    name: nonEmpty,
-    description: z.string(),
-    readmeUrl: httpsUrl.optional(),
-    author: nonEmpty,
-    authorUrl: httpsUrl.optional(),
-    appearance: pluginAppearanceSchema.optional(),
-    channel: pluginRegistryChannelSchema,
-    status: pluginCatalogStatusSchema.optional(),
-    latestVersion: nonEmpty,
-    minAppVersion: nonEmpty,
-    platforms: z.array(pluginPlatformSchema).min(1),
-    categories: z.array(nonEmpty),
-    badges: z.array(pluginBadgeSchema).optional(),
-    latestRelease: z
-      .object({
-        releasedAt: isoDate,
-        bundleSize: z.number().int().nonnegative(),
-      })
-      .passthrough()
-      .optional(),
-    detail: urlOrRelative,
-    contributes: pluginContributionSummarySchema.optional(),
-  })
-  .passthrough();
+export const pluginCatalogEntrySchema = sharedCatalogSchema(
+  normalizeRegistryCatalogEntry,
+);
 
-export const pluginCatalogIndexSchema = z
-  .object({
-    schemaVersion: z.literal(1),
-    generatedAt: isoDate,
-    registries: z
-      .record(
-        z.object({
-          name: nonEmpty,
-          trustTier: registryTrustTierSchema,
-        }),
-      )
-      .optional(),
-    plugins: z.array(pluginCatalogEntrySchema),
-    signatures: z.array(signatureRecordSchema).optional(),
-  })
-  .passthrough();
+export const pluginCatalogIndexSchema = sharedCatalogSchema(
+  normalizeRegistryCatalogIndex,
+);
 
 const nonnegativeSafeInteger = z.number().int().nonnegative().safe();
 const pluginDownloadCountsSchema = z.record(nonnegativeSafeInteger);
@@ -399,33 +320,9 @@ export const pluginCatalogReleaseSchema = z
   })
   .passthrough();
 
-export const pluginCatalogDetailSchema = z
-  .object({
-    schemaVersion: z.literal(1),
-    id: nonEmpty,
-    name: nonEmpty,
-    description: z.string(),
-    readmeUrl: httpsUrl.optional(),
-    appearance: pluginAppearanceSchema.optional(),
-    gallery: z.array(pluginGalleryItemSchema).max(10).optional(),
-    channel: pluginRegistryChannelSchema,
-    status: pluginCatalogStatusSchema.optional(),
-    owner: z.object({
-      name: nonEmpty,
-      verified: z.boolean().optional(),
-      url: z.string().url().optional(),
-    }),
-    latestVersion: nonEmpty,
-    readme: remoteFileReferenceSchema.optional(),
-    license: nonEmpty.optional(),
-    links: pluginCatalogLinksSchema.optional(),
-    highlights: z.array(nonEmpty.max(160)).max(8).optional(),
-    content: pluginCatalogContentSchema.optional(),
-    contributes: pluginContributionSummarySchema.optional(),
-    versions: z.record(pluginCatalogReleaseSchema),
-    signatures: z.array(signatureRecordSchema).optional(),
-  })
-  .passthrough();
+export const pluginCatalogDetailSchema = sharedCatalogSchema(
+  normalizeRegistryCatalogDetail,
+);
 
 export const pluginReleaseManifestSchema = z.object({
   schemaVersion: z.literal(1),
@@ -476,6 +373,17 @@ export const installedPluginRecordSchema = z
     ),
     runtimeWarnings: z.array(pluginReleaseRuntimeDiagnosticSchema).optional(),
     signature: signatureRecordSchema.optional(),
+    nostrProof: z
+      .object({
+        authorizationEventId: nonEmpty,
+        releaseEventId: nonEmpty,
+        decisionEventId: nonEmpty,
+        manifestSha256: sha256,
+        artifactSha256: sha256,
+        artifactSize: z.number().int().nonnegative(),
+        requiresRelayRefresh: z.boolean(),
+      })
+      .optional(),
     revoked: pluginRevocationRecordSchema.optional(),
     restartRequired: z.boolean().optional(),
   })
@@ -499,8 +407,22 @@ export const installedPluginsStateSchema = z
   })
   .passthrough();
 
+export const pluginRegistrySourcePreferenceSchema = z
+  .object({
+    enabled: z.boolean(),
+  })
+  .passthrough();
+
+export const pluginRegistrySourcePreferencesStateSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    updatedAt: isoDate,
+    sources: z.record(pluginRegistrySourcePreferenceSchema),
+  })
+  .passthrough();
+
 export const parsePluginDistributionMetadata = <T>(
-  schema: z.ZodType<T>,
+  schema: z.ZodType<T, z.ZodTypeDef, unknown>,
   value: unknown,
 ): T => {
   const result = schema.safeParse(value);
@@ -515,3 +437,17 @@ export const parsePluginDistributionMetadata = <T>(
   }
   return result.data;
 };
+
+function sharedCatalogSchema<T>(normalize: (value: unknown) => T) {
+  return z.unknown().transform((value, context) => {
+    try {
+      return normalize(value);
+    } catch (error) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return z.NEVER;
+    }
+  });
+}

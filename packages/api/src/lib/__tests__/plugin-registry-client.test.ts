@@ -38,7 +38,7 @@ describe("PluginRegistryClient", () => {
     const detail = await client.getDetail(refreshed.index.plugins[0]!);
     expect(detail.stale).toBe(false);
     expect(detail.detail.id).toBe("lapis-docs");
-    expect(detail.detail.readmeUrl).toBe(
+    expect(detail.detail.links?.documentation).toBe(
       "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-docs/README.md",
     );
   });
@@ -93,6 +93,24 @@ describe("PluginRegistryClient", () => {
     await expect(
       detailClient.getDetail(refreshed.index.plugins[0]!),
     ).rejects.toMatchObject({ code: "signature-invalid" });
+  });
+
+  it("verifies unknown signed fields before schema normalization can discard them", async () => {
+    const fixture = await createRegistryFixture();
+    const tampered = {
+      ...JSON.parse(fixture.indexJson),
+      futureField: "unsigned",
+    };
+    const client = new PluginRegistryClient({
+      trustedKeys: [fixture.trustedKey],
+      fetch: fakeFetch({
+        "https://registry.example.test/v1/index.json": JSON.stringify(tampered),
+        "https://registry.example.test/v1/revoked.json": fixture.revokedJson,
+      }),
+    });
+    await expect(client.refresh(officialSource)).rejects.toMatchObject({
+      code: "signature-invalid",
+    });
   });
 
   it("rejects reserved ids from non-official sources", async () => {
@@ -308,7 +326,7 @@ const createRegistryFixture = async (
           version: "0.1.0",
           minAppVersion: "0.20.0",
           releasedAt: "2026-05-31T00:00:00.000Z",
-          platforms: ["web", "desktop"],
+          platforms: ["web", "electron"],
           bundle: {
             url: "releases/lapis-docs-0.1.0.lapis-plugin",
             sha256:
@@ -337,7 +355,7 @@ const createRegistryFixture = async (
           channel: options.channel ?? "official",
           latestVersion: "0.1.0",
           minAppVersion: "0.20.0",
-          platforms: ["web", "desktop"],
+          platforms: ["web", "electron"],
           categories: ["documents"],
           badges:
             options.channel === "community"

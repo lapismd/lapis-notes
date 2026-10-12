@@ -6,6 +6,10 @@ interface ImportMetaEnv {
   readonly VITE_LAPIS_DESKTOP_OTLP_TRACES_ENDPOINT?: string;
   readonly VITE_LAPIS_DESKTOP_TELEMETRY_SERVICE_NAME?: string;
   readonly VITE_LAPIS_DESKTOP_TELEMETRY_VERSION?: string;
+  readonly VITE_LAPIS_NOSTR_REGISTRY_RELAYS?: string;
+  readonly VITE_LAPIS_NOSTR_CURATOR_PUBKEYS?: string;
+  readonly VITE_LAPIS_NOSTR_INSTALL_QUORUM?: string;
+  readonly VITE_LAPIS_NOSTR_BLOSSOM_URL?: string;
 }
 
 declare module "svelte/internal/client" {

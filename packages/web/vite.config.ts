@@ -1,3 +1,9 @@
+import {
+  rendererPluginHostInputs,
+  resolvePluginHostModule,
+  loadPluginHostModule,
+} from "@lapis-notes/app-profile/plugin-host-build";
+import { tursoBundleBuildPlugin } from "@lapis-notes/api/build/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { realpathSync } from "node:fs";
@@ -9,12 +15,15 @@ import { VitePWA } from "vite-plugin-pwa";
 import {
   rendererOptimizeDependencyExclusions,
   rendererOptimizeDependencyInclusions,
+  rendererPluginImportMap,
   rendererSvelteOptions,
 } from "./src/renderer-config";
+import { matchesWebPluginAssetRequest } from "./src/plugin-asset-route";
 
 export {
   rendererOptimizeDependencyExclusions,
   rendererOptimizeDependencyInclusions,
+  rendererPluginImportMap,
   rendererSvelteOptions,
 } from "./src/renderer-config";
 
@@ -22,7 +31,6 @@ export {
 // Importing the browser API package while Vite evaluates its Node config would
 // execute the packaged ESM entry before Vite can resolve its extensionless
 // Svelte-package imports.
-const WEB_PLUGIN_ASSET_ROUTE_PREFIX = "/__lapis/plugins";
 const WEB_PLUGIN_ASSET_CACHE_NAME = "lapis-plugin-assets-v1";
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
@@ -79,6 +87,36 @@ function wasmHeadersPlugin(): Plugin {
     },
   };
 }
+
+function pluginHostImportMapPlugin(): Plugin {
+  return {
+    name: "lapis-plugin-host-import-map",
+    resolveId(id) {
+      return resolvePluginHostModule(id);
+    },
+    load(id) {
+      return loadPluginHostModule(id);
+    },
+    configureServer(server) {
+      server.middlewares.use((request, _response, next) => {
+        const pathname = request.url?.split("?", 1)[0];
+        const id = pathname && resolvePluginHostModule(pathname);
+        if (id) request.url = "/@id/__x00__" + id.slice(1);
+        next();
+      });
+    },
+    transformIndexHtml() {
+      return [
+        {
+          tag: "script",
+          attrs: { type: "importmap" },
+          children: JSON.stringify(rendererPluginImportMap),
+          injectTo: "head-prepend",
+        },
+      ];
+    },
+  };
+}
 const rendererSingletonPackages = [
   "@lapis-notes/api",
   "@codemirror/state",
@@ -95,90 +133,87 @@ const rendererSingletonPackages = [
   "svelte",
 ];
 
-export default defineConfig({
+const pwaPlugin = VitePWA({
+  injectRegister: false,
+  registerType: "prompt",
+  includeAssets: [
+    "favicon.svg",
+    "apple-touch-icon.png",
+    "pwa-1024x1024.png",
+    "pwa-1024x1024-maskable.png",
+  ],
+  manifest: {
+    id: "/",
+    name: "Lapis Notes",
+    short_name: "Lapis",
+    description: "Installable offline-first Lapis Notes web app.",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    display_override: ["window-controls-overlay", "standalone"],
+    background_color: "#f6f6f6",
+    theme_color: "#f6f6f6",
+    protocol_handlers: [{ protocol: "web+lapis", url: "/open?url=%s" }],
+    icons: [
+      {
+        src: "favicon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+        purpose: "any",
+      },
+      { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
+      { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
+      { src: "pwa-1024x1024.png", sizes: "1024x1024", type: "image/png" },
+      {
+        src: "pwa-512x512-maskable.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: "pwa-1024x1024-maskable.png",
+        sizes: "1024x1024",
+        type: "image/png",
+        purpose: "maskable",
+      },
+    ],
+  },
+  workbox: {
+    cleanupOutdatedCaches: true,
+    clientsClaim: true,
+    skipWaiting: false,
+    maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
+    navigateFallback: "index.html",
+    globPatterns: [
+      "**/*.{js,css,html,ico,png,svg,webmanifest,woff2,woff,ttf,wasm}",
+    ],
+    globIgnores: ["**/sw.js", "**/workbox-*.js"],
+    runtimeCaching: [
+      {
+        urlPattern: matchesWebPluginAssetRequest,
+        handler: "CacheOnly",
+        options: { cacheName: WEB_PLUGIN_ASSET_CACHE_NAME },
+      },
+    ],
+  },
+  devOptions: { enabled: false, type: "module" },
+});
+
+export default defineConfig(({ mode }) => ({
   envPrefix: ["VITE_", "LAPIS_"],
   define: {
+    __LAPIS_SERVER_MODE__: JSON.stringify(mode === "server"),
     "import.meta.env.VITE_APP_COMMIT_HASH": JSON.stringify(
       process.env.LAPIS_BUILD_COMMIT ?? "local",
     ),
   },
   plugins: [
+    tursoBundleBuildPlugin(),
+    pluginHostImportMapPlugin(),
     wasmHeadersPlugin(),
     svelte(rendererSvelteOptions),
     tailwindcss(),
-    VitePWA({
-      injectRegister: false,
-      registerType: "prompt",
-      includeAssets: [
-        "favicon.svg",
-        "apple-touch-icon.png",
-        "pwa-1024x1024.png",
-        "pwa-1024x1024-maskable.png",
-      ],
-      manifest: {
-        id: "/",
-        name: "Lapis Notes",
-        short_name: "Lapis",
-        description: "Installable offline-first Lapis Notes web app.",
-        start_url: "/",
-        scope: "/",
-        display: "standalone",
-        display_override: ["window-controls-overlay", "standalone"],
-        background_color: "#f6f6f6",
-        theme_color: "#f6f6f6",
-        protocol_handlers: [{ protocol: "web+lapis", url: "/open?url=%s" }],
-        icons: [
-          {
-            src: "favicon.svg",
-            sizes: "any",
-            type: "image/svg+xml",
-            purpose: "any",
-          },
-          { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
-          { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
-          {
-            src: "pwa-1024x1024.png",
-            sizes: "1024x1024",
-            type: "image/png",
-          },
-          {
-            src: "pwa-512x512-maskable.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-          {
-            src: "pwa-1024x1024-maskable.png",
-            sizes: "1024x1024",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
-      },
-      workbox: {
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: false,
-        maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
-        navigateFallback: "index.html",
-        globPatterns: [
-          "**/*.{js,css,html,ico,png,svg,webmanifest,woff2,woff,ttf,wasm}",
-        ],
-        globIgnores: ["**/sw.js", "**/workbox-*.js"],
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) =>
-              url.origin === self.location.origin &&
-              // Workbox serializes this callback into the generated service
-              // worker, so every value it uses must be self-contained.
-              url.pathname.startsWith("/__lapis/plugins/"),
-            handler: "CacheOnly",
-            options: { cacheName: WEB_PLUGIN_ASSET_CACHE_NAME },
-          },
-        ],
-      },
-      devOptions: { enabled: false, type: "module" },
-    }),
+    ...(mode === "server" ? [] : [pwaPlugin]),
   ],
   server: {
     port: 4174,
@@ -193,7 +228,7 @@ export default defineConfig({
     strictPort: true,
     headers: crossOriginIsolationHeaders,
   },
-  worker: { format: "es" },
+  worker: { format: "es", plugins: () => [tursoBundleBuildPlugin()] },
   optimizeDeps: {
     exclude: [...rendererOptimizeDependencyExclusions],
     include: [...rendererOptimizeDependencyInclusions],
@@ -205,6 +240,20 @@ export default defineConfig({
     sourcemap: false,
     minify: false,
     reportCompressedSize: false,
-    outDir: "dist",
+    outDir: mode === "server" ? "dist-server" : "dist",
+    rollupOptions: {
+      preserveEntrySignatures: "strict",
+      input: {
+        index: path.resolve(packageRoot, "index.html"),
+        ...rendererPluginHostInputs,
+      },
+      output: {
+        entryFileNames(chunk) {
+          return chunk.name.startsWith("plugin-host-")
+            ? `${chunk.name}.js`
+            : "assets/[name]-[hash].js";
+        },
+      },
+    },
   },
-});
+}));

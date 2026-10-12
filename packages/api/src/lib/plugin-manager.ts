@@ -68,6 +68,7 @@ import { debounce } from "lodash-es";
 import { EventDispatcher } from "./events";
 import type { ViewState } from "./view.svelte";
 import type { WorkspaceLeaf } from "./workspace.svelte";
+import type { SyncHostCapabilities } from "./sync-host";
 
 function formatPluginError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -75,16 +76,14 @@ function formatPluginError(error: unknown): string {
 
 function resolvePluginModuleExport(moduleExports: unknown): unknown {
   const exportRecord = isRecord(moduleExports) ? moduleExports : {};
-  for (const [, value] of Object.entries(exportRecord)) {
-    if (value === Plugin) {
-      return value;
-    }
+  if (exportRecord.default !== undefined) {
+    return exportRecord.default;
   }
-  return (
-    (moduleExports as any)?.default ||
-    Object.values(exportRecord)[0] ||
-    moduleExports
+  const namedPluginClass = Object.values(exportRecord).find(
+    (value) =>
+      typeof value === "function" && value.prototype instanceof Plugin,
   );
+  return namedPluginClass ?? Object.values(exportRecord)[0] ?? moduleExports;
 }
 
 function isRecord(value: unknown): value is Record<string, any> {
@@ -161,6 +160,11 @@ export interface PluginManagerOptions {
   communityPluginHost?: CommunityPluginExecutionHost;
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
+  createSyncHostCapabilities?: (
+    pluginId: string,
+    grants: readonly HostedPluginCapability[],
+  ) => SyncHostCapabilities;
+  revokeSyncHostCapabilities?: (pluginId: string) => void;
 }
 
 export interface PluginDataAliasMigration {
@@ -775,6 +779,8 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
     new Map();
   #communityPluginHost: CommunityPluginExecutionHost;
   #pluginAssetServer?: PluginAssetServer;
+  #createSyncHostCapabilities?: PluginManagerOptions["createSyncHostCapabilities"];
+  #revokeSyncHostCapabilities?: PluginManagerOptions["revokeSyncHostCapabilities"];
 
   constructor(
     readonly app: App,
@@ -788,6 +794,8 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       options.createCommunityPluginDependencyResolver?.(this.dependencies) ??
       this.dependencies;
     this.#pluginAssetServer = options.pluginAssetServer;
+    this.#createSyncHostCapabilities = options.createSyncHostCapabilities;
+    this.#revokeSyncHostCapabilities = options.revokeSyncHostCapabilities;
     const commonJsHost =
       options.communityPluginHost ??
       new RendererCommunityPluginExecutionHost(adapter, dependencyResolver);
@@ -1894,6 +1902,15 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
       throw new Error(`Plugin id ${plugin.manifest.id} is already registered`);
     }
 
+    const grantedCapabilities = isExternalPluginSource(options.source)
+      ? this.getGrantedCapabilities(plugin.manifest)
+      : options.source === "system"
+        ? (this.#lapisExtensionIndex.get(plugin.manifest.id)
+            ?.grantedCapabilities ?? [])
+        : (plugin.manifest.requiredCapabilities ?? []).filter(
+            (capability): capability is HostedPluginCapability =>
+              typeof capability === "string",
+          );
     plugin.configureRuntime({
       source: options.source,
       provenance: options.provenance,
@@ -1928,12 +1945,17 @@ export class PluginManager extends EventDispatcher<PluginEvents> {
           ? (this.#lapisExtensionIndex.get(plugin.manifest.id)
               ?.requestedCapabilities ?? [])
           : [],
-      grantedCapabilities: isExternalPluginSource(options.source)
-        ? this.getGrantedCapabilities(plugin.manifest)
-        : options.source === "system"
-          ? (this.#lapisExtensionIndex.get(plugin.manifest.id)
-              ?.grantedCapabilities ?? [])
-          : [],
+      grantedCapabilities,
+      createSyncHostCapabilities: this.#createSyncHostCapabilities
+        ? () =>
+            this.#createSyncHostCapabilities!(
+              plugin.manifest.id,
+              grantedCapabilities,
+            )
+        : undefined,
+      revokeSyncHostCapabilities: this.#revokeSyncHostCapabilities
+        ? () => this.#revokeSyncHostCapabilities!(plugin.manifest.id)
+        : undefined,
     });
     this.plugins.set(plugin.manifest.id, plugin);
     if (

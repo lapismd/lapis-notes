@@ -7,7 +7,6 @@ import {
   checkReleaseManifestCompatibility,
   PluginDistributionError,
   pluginCatalogIndexSchema,
-  pluginPlatformSchema,
   provenanceFromPluginManifest,
   sha256Hex,
   signedEnvelopeSchema,
@@ -83,7 +82,7 @@ describe("plugin distribution primitives", () => {
               channel: "official",
               latestVersion: "0.1.0",
               minAppVersion: "0.20.0",
-              platforms: ["web", "desktop"],
+              platforms: ["web", "electron"],
               categories: ["documents"],
               badges: ["official", "verified"],
               detail: "plugins/lapis-docs.json",
@@ -103,11 +102,6 @@ describe("plugin distribution primitives", () => {
     ).not.toThrow();
   });
 
-  it("rejects Electron as a registry compatibility platform", () => {
-    expect(() => pluginPlatformSchema.parse("electron")).toThrow();
-    expect(pluginPlatformSchema.parse("desktop")).toBe("desktop");
-  });
-
   it("checks compatibility across app version, platform, trust, and revocation", () => {
     const manifest: PluginReleaseManifest = {
       schemaVersion: 1,
@@ -117,7 +111,7 @@ describe("plugin distribution primitives", () => {
       channel: "official",
       compatibility: {
         minAppVersion: "1.2.0",
-        platforms: ["desktop"],
+        platforms: ["electron"],
         desktopOnly: true,
         requiresWorkspaceTrust: true,
       },
@@ -142,7 +136,7 @@ describe("plugin distribution primitives", () => {
     expect(
       checkReleaseManifestCompatibility(manifest, {
         appVersion: "1.2.1",
-        platform: "desktop",
+        platform: "electron",
         workspaceTrusted: true,
       }),
     ).toEqual({ compatible: true, reasons: [] });

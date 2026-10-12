@@ -58,6 +58,7 @@ import { bindRuntimePluginDiagnostics } from "./diagnostics";
 import { ContextKeyService } from "./context-keys.svelte";
 import { StatusBarManager } from "./status-bar.svelte";
 import { AppUrlService } from "./app-url";
+import { NostrSignerHost, type NostrSignerBroker } from "./nostr-signer";
 import { WorkspaceTrustService } from "./workspace-trust";
 import {
   DefaultPluginDistributionManager,
@@ -77,6 +78,10 @@ import { AppResultViewRegistry } from "./agent-result-views";
 import { MarkdownExtensionRegistry } from "./markdown-extension-registry";
 import { MarkdownFileSurfaceRegistry } from "./markdown-file-surface-registry";
 import {
+  SyncHostService,
+  type SyncHostServiceOptions,
+} from "./sync-host";
+import {
   installApplicationCompatibility,
   resolveApplication,
 } from "./application-compatibility";
@@ -84,6 +89,19 @@ import {
   provideApplicationState,
   useApplicationState,
 } from "./application-state.svelte";
+
+const hostSyncServices = new WeakMap<App, SyncHostService>();
+
+/**
+ * Transfer the host-only sync controller to the mounting host exactly once.
+ * Plugins receive only their scoped capability facade through Plugin.syncHost.
+ */
+export function takeHostSyncService(app: App): SyncHostService {
+  const service = hostSyncServices.get(app);
+  if (!service) throw new Error("The host sync controller is unavailable");
+  hostSyncServices.delete(app);
+  return service;
+}
 
 export {
   getApplicationCompatibility,
@@ -127,6 +145,9 @@ export type AppStateProperties = {
   createCommunityPluginDependencyResolver?: PluginDependencyResolverFactory;
   pluginAssetServer?: PluginAssetServer;
   pluginDistributionOptions?: AppPluginDistributionOptions;
+  /** Host-owned Nostr account, keychain, and remote-signer implementation. */
+  nostrSignerBroker?: NostrSignerBroker;
+  syncHost?: SyncHostServiceOptions;
   workspaceShell?: AppWorkspaceShellProperties;
   markdownRenderer: (
     markdown: string,
@@ -135,6 +156,12 @@ export type AppStateProperties = {
     component: Component,
   ) => Promise<void>;
 };
+
+/** Renderer-safe application properties exposed to plugins and views. */
+export type AppPublicProperties = Pick<
+  AppStateProperties,
+  "version" | "configPath" | "workspaceShell" | "markdownRenderer"
+>;
 
 export type AppPluginDistributionOptions = Omit<
   DefaultPluginDistributionManagerOptions,
@@ -250,6 +277,7 @@ export class SecretStorage {
  * @public
  */
 export class App {
+  readonly props: AppPublicProperties;
   readonly i18n: LocalizationManager = localeManager;
   readonly workspace: Workspace;
   readonly vault: Vault = $state()!;
@@ -269,6 +297,8 @@ export class App {
   readonly urls: AppUrlService = new AppUrlService(this);
   readonly workspaceTrust: WorkspaceTrustService;
   readonly pluginDistribution: DefaultPluginDistributionManager;
+  readonly nostr: NostrSignerHost;
+  readonly #syncHost: SyncHostService;
 
   mardownPostProcessor: Array<MarkdownPostProcessor> = $state([]);
   mardownCodeBlockPostProcessor: Record<string, Array<MarkdownPostProcessor>> =
@@ -319,7 +349,14 @@ export class App {
    * @param props - Runtime services and adapters required to bootstrap the app.
    * @public
    */
-  constructor(readonly props: AppStateProperties) {
+  constructor(props: AppStateProperties) {
+    this.props = Object.freeze({
+      version: props.version,
+      configPath: props.configPath,
+      workspaceShell: props.workspaceShell,
+      markdownRenderer: props.markdownRenderer,
+    });
+    this.nostr = new NostrSignerHost(props.nostrSignerBroker);
     const adapter = props.session?.vaultAdapter ?? props.adapter;
     if (!adapter) {
       throw new Error("App requires a vault adapter or vault session");
@@ -365,6 +402,17 @@ export class App {
     this.configuration = new Configuration(this, props.configPath);
     this.workspace.bindConfiguration();
     this.vault = new Vault(adapter);
+    this.#syncHost = new SyncHostService(this.appDatabase, this.vault, Date.now, {
+      ...props.syncHost,
+      flushOpenEditor: async (path) => {
+        const active = this.workspace.activeEditor;
+        if (!active?.editor || !active.file) return { flushed: false, path };
+        if (path && active.file.path !== path) return { flushed: false, path };
+        await active.editor.flushChanges();
+        return { flushed: true, path: active.file.path };
+      },
+    });
+    hostSyncServices.set(this, this.#syncHost);
     this.workspaceTrust = new WorkspaceTrustService(adapter);
     this.metadataCache = new MetadataCache(this);
     installVaultMaintenanceCommands(this);
@@ -379,6 +427,10 @@ export class App {
       createCommunityPluginDependencyResolver:
         props.createCommunityPluginDependencyResolver,
       pluginAssetServer: props.pluginAssetServer,
+      createSyncHostCapabilities: (pluginId, grants) =>
+        this.#syncHost.forPlugin(pluginId, grants),
+      revokeSyncHostCapabilities: (pluginId) =>
+        this.#syncHost.revokePlugin(pluginId),
     });
     this.workspace.bindPlugins();
     const languageServiceDiagnostics =

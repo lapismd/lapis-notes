@@ -892,16 +892,19 @@ export async function bootPanelDemo(
   if (markdownLeaf) app.workspace.setActiveLeaf(markdownLeaf, { focus: false });
   if (kind === "ai-catalog" && aiPlugin instanceof AiPlugin) {
     await aiPlugin.refreshFileCommands("Notes");
+    app.workspace.getLeavesOfType(AiCatalogViewType)[0]?.view.load();
     const catalog = await aiPlugin.loadAiCatalog();
     const hasReviewCommand = catalog.some((group) =>
       group.commands.some((command) => command.name === "review"),
     );
     if (!hasReviewCommand) {
       throw new Error(
-        `AI catalog fixture could not discover review from ${app.workspace.getActiveFile()?.path ?? "no active file"}; matching files: ${app.vault
-          .getFilesByGlob("Notes/.agents/commands/*.md")
-          .map((file) => file.path)
-          .join(", ") || "none"}`,
+        `AI catalog fixture could not discover review from ${app.workspace.getActiveFile()?.path ?? "no active file"}; matching files: ${
+          app.vault
+            .getFilesByGlob("Notes/.agents/commands/*.md")
+            .map((file) => file.path)
+            .join(", ") || "none"
+        }`,
       );
     }
   }

@@ -5,10 +5,16 @@ import {
 
 export function createCapabilityRegistry(
   platform = Deno.build.os,
-  options: { terminalAvailable?: boolean } = {},
+  options: {
+    terminalAvailable?: boolean;
+    nostrSignerAvailable?: boolean;
+  } = {},
 ) {
   const notificationsAvailable = notificationCapabilityAvailable(platform);
   const fileActionsAvailable = fileActionCapabilityAvailable(platform);
+  const nostrSignerAvailable =
+    (platform === "darwin" || platform === "linux") &&
+    options.nostrSignerAvailable !== false;
   return {
     resource: { id: "resource" as const, status: "available" as const },
     notifications: {
@@ -57,21 +63,43 @@ export function createCapabilityRegistry(
         : ("unavailable" as const),
       provider: fileActionsAvailable ? "deno-command" : "unsupported-platform",
     },
+    "nostr-signer": {
+      id: "nostr-signer" as const,
+      status:
+        !nostrSignerAvailable
+          ? ("unavailable" as const)
+          : ("available" as const),
+      provider:
+        !nostrSignerAvailable
+          ? "unsupported-platform"
+          : "deno-os-keychain",
+      details:
+        !nostrSignerAvailable
+          ? undefined
+          : {
+              protocol: "desktop_nostr_signer_*",
+              custody: "native-keychain",
+            },
+    },
+    "secure-storage": {
+      id: "secure-storage" as const,
+      status: ["darwin", "windows", "linux"].includes(platform)
+        ? ("available" as const)
+        : ("unavailable" as const),
+      provider:
+        platform === "darwin"
+          ? "macos-keychain"
+          : platform === "windows"
+            ? "windows-dpapi-current-user"
+            : platform === "linux"
+              ? "linux-secret-service"
+              : "unsupported-platform",
+    },
     "agent-runtime": {
       id: "agent-runtime" as const,
       status: "available" as const,
-      provider: "deno-ai-host",
-      details: {
-        protocol: "desktop_agent_*",
-        protocolVersion: 5,
-        acp: "acpx/runtime",
-        process: "stdio",
-        appTools: "http-mcp",
-        deferredStart: true,
-        deferredModels: true,
-        runStatus: true,
-        sessionConfiguration: "configure",
-      },
+      provider: "deno-ai-controller",
+      details: { protocol: "lapis-ai-controller/1", connection: "desktop_ai_controller_connection" },
     },
     "terminal-runtime": {
       id: "terminal-runtime" as const,

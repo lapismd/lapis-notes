@@ -190,3 +190,87 @@ it("routes text appends through the native append command without a readback", a
     },
   ]);
 });
+
+it("streams native range reads and stages atomic chunk writes", async () => {
+  const calls: Array<{ command: string; payload?: Record<string, unknown> }> = [];
+  const source = new TextEncoder().encode("abcdefgh");
+  setNativeDesktopBridge({
+    runtime: "deno-desktop",
+    toFileUrl: (path: string) => `file://${path}`,
+    async invoke<T>(command: string, payload?: Record<string, unknown>) {
+      calls.push({ command, payload });
+      if (command === "desktop_fs_stat") {
+        return { type: "file", size: source.byteLength, ctime: 1, mtime: 2 } as T;
+      }
+      if (command === "desktop_fs_read_range") {
+        const offset = Number(payload?.offset ?? 0);
+        const length = Number(payload?.length ?? 0);
+        return [...source.slice(offset, offset + length)] as T;
+      }
+      if (command === "desktop_fs_atomic_write_begin") return "write-1" as T;
+      return undefined as T;
+    },
+  });
+  const adapter = new NativeDesktopVaultAdapter("/vault");
+  const handle = await adapter.openRead("data.bin");
+  const bytes = await new Response(
+    handle.stream({ offset: 1, length: 3 }),
+  ).arrayBuffer();
+  expect(new TextDecoder().decode(bytes)).toBe("bcd");
+
+  await adapter.atomicWrite(
+    "data.bin",
+    new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode("next"));
+        controller.close();
+      },
+    }),
+  );
+  expect(calls.map(({ command }) => command)).toEqual([
+    "desktop_fs_stat",
+    "desktop_fs_read_range",
+    "desktop_fs_atomic_write_begin",
+    "desktop_fs_atomic_write_chunk",
+    "desktop_fs_atomic_write_commit",
+  ]);
+});
+
+it.each(["ENOENT: /vault/gone.bin", "Error: ENOENT: /vault/gone.bin"])(
+  "restores portable filesystem codes from native Error rejections: %s",
+  async (message) => {
+    const rejected = new Error(message);
+    setNativeDesktopBridge({
+      runtime: "deno-desktop",
+      async invoke<T>(command: string) {
+        if (command === "desktop_fs_stat") {
+          return { type: "file", size: 4, ctime: 1, mtime: 2 } as T;
+        }
+        throw rejected;
+      },
+    });
+    const adapter = new NativeDesktopVaultAdapter("/vault");
+    const handle = await adapter.openRead("gone.bin");
+    await expect(handle.stream().getReader().read()).rejects.toMatchObject({
+      code: "ENOENT",
+    });
+  },
+);
+
+it("preserves explicit native error codes and unexpected errors", async () => {
+  const explicit = Object.assign(new Error("EIO: detail"), { code: "EACCES" });
+  const unexpected = new Error("Native transport unavailable");
+  let rejected = explicit as Error;
+  setNativeDesktopBridge({
+    runtime: "deno-desktop",
+    async invoke<T>(): Promise<T> {
+      throw rejected;
+    },
+  });
+  const adapter = new NativeDesktopVaultAdapter("/vault");
+  await expect(adapter.read("private.md")).rejects.toBe(explicit);
+  expect(explicit.code).toBe("EACCES");
+  rejected = unexpected;
+  await expect(adapter.read("private.md")).rejects.toBe(unexpected);
+  expect(unexpected).not.toHaveProperty("code");
+});

@@ -8,6 +8,16 @@ const dependencyFields = [
   "peerDependencies",
 ];
 
+function selectLocalPluginReleaseEntries(entries) {
+  return entries.filter(
+    ({ packageName }) =>
+      packageName !== "@lapismd/design-core" &&
+      packageName !== "@lapismd/spec-validator" &&
+      packageName !== "@lapismd/mira" &&
+      !packageName.startsWith("@lapismd/mira-"),
+  );
+}
+
 function loadTarballOverrides(environment = process.env) {
   const manifestPath = environment.LAPIS_PLUGIN_TARBALL_MANIFEST;
   if (!manifestPath) return new Map();
@@ -17,7 +27,9 @@ function loadTarballOverrides(environment = process.env) {
     path.dirname(absoluteManifestPath),
     "../..",
   );
-  const entries = JSON.parse(readFileSync(absoluteManifestPath, "utf8"));
+  const entries = selectLocalPluginReleaseEntries(
+    JSON.parse(readFileSync(absoluteManifestPath, "utf8")),
+  );
   return new Map(
     entries.map((entry) => [
       entry.packageName,
@@ -36,7 +48,8 @@ function createHooks(environment = process.env) {
         const isPeerDependency = field === "peerDependencies";
         for (const packageName of Object.keys(dependencies)) {
           const override = overrides.get(packageName);
-          if (override && !isPeerDependency) dependencies[packageName] = override;
+          if (override && !isPeerDependency)
+            dependencies[packageName] = override;
         }
       }
       return packageManifest;
@@ -48,4 +61,5 @@ module.exports = {
   createHooks,
   hooks: createHooks(),
   loadTarballOverrides,
+  selectLocalPluginReleaseEntries,
 };

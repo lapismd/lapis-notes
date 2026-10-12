@@ -6,9 +6,9 @@ export * from "./hashes";
 export * from "./installed-plugin-state";
 export * from "./installer";
 export * from "./manager";
+export * from "./nostr-registry-adapter";
 export * from "./path-safety";
 export * from "./plugin-markdown";
-export * from "./plugin-image";
 export * from "./plugin-bundle";
 export * from "./plugin-bundle-verifier";
 export * from "./plugin-bundle-worker";
@@ -19,3 +19,5 @@ export * from "./runtime-validation";
 export * from "./schemas";
 export * from "./signing";
 export * from "./types";
+
+export * from "./catalog-media";

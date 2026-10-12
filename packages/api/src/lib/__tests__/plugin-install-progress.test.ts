@@ -142,6 +142,7 @@ describe("withPluginInstallProgress", () => {
         source: "Plugin registry",
         location: "status",
         cancellable: true,
+        persistOnError: true,
       }),
       expect.any(Function),
     );

@@ -2,7 +2,7 @@
   "name": "@lapis-notes/desktop-deno",
   "productName": "Lapis Notes",
   "private": true,
-  "license": "AGPL-3.0-or-later",
+  "license": "Apache-2.0",
   "version": "2026.31.5",
   "description": "Deno desktop host for Lapis Notes",
   "author": "Lapis Notes contributors",
@@ -34,11 +34,11 @@
   "devDependencies": {
     "@lapis-notes/api": "workspace:*",
     "@lapis-notes/app-profile": "workspace:*",
+    "@lapis-notes/deno-host-services": "workspace:*",
     "@lapis-notes/language-service": "workspace:*",
     "@lapis-notes/ui": "workspace:*",
     "@lapis-notes/workspace": "workspace:*",
-    "@lapismd/ai-host": "^0.1.0",
-    "@lapismd/design-core": "^0.1.0",
+    "@lapismd/design-core": "^0.3.2",
     "@lapismd/terminal-host": "^0.1.0",
     "@lucide/svelte": "^0.523.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
@@ -51,13 +51,16 @@
     "@tailwindcss/vite": "^4.1.12",
     "@tsconfig/svelte": "^5.0.5",
     "@types/node": "^22.10.5",
-    "acpx": "^0.13.0",
-    "svelte": "^5.38.2",
+    "svelte": "5.56.10",
     "svelte-check": "^4.3.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.3",
     "vite": "^7.3.2",
     "vitest": "^4.1.8",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "@lapismd/ai-controller": "^0.1.0"
+  },
+  "dependencies": {
+    "nostr-tools": "^2.25.2"
   }
 }

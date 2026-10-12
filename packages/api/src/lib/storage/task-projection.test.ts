@@ -3,6 +3,7 @@ import {
   matchesTaskQuery,
   TASK_OCCURRENCE_PROJECTION_FIELDS,
   TASK_PROJECTION_VERSION,
+  TASK_PROJECTION_FIELDS,
   type AppDatabaseTaskRecord,
 } from "./task-projection";
 
@@ -26,6 +27,14 @@ function task(
 }
 
 describe("task projection recurrence fields", () => {
+  it("indexes optional priority in the rebuildable task projection", () => {
+    expect(TASK_PROJECTION_FIELDS.priority).toEqual({
+      type: "string",
+      indexed: true,
+      sortable: true,
+    });
+    expect(TASK_PROJECTION_VERSION).toBe(4);
+  });
   it("keeps only carried overdue occurrences in Review", () => {
     expect(
       matchesTaskQuery(

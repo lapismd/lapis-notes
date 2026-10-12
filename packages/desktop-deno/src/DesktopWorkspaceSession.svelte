@@ -1,9 +1,13 @@
 <script lang="ts">
+  import { ControllerClient } from "@lapismd/ai-controller/client";
+  import type { Controller } from "@lapismd/ai-controller";
   import {
     App,
     installApplicationCompatibility,
     listVaultProfiles,
     provideApplicationState,
+    takeHostSyncService,
+    type SyncHostService,
     type NativeDesktopVaultAdapter,
     type AppSafeModeFailure,
     type AppSafeModeState,
@@ -12,9 +16,10 @@
     type VaultSession,
   } from "@lapis-notes/api";
   import {
-    createNotesPluginDependencyResolver,
+    createConfiguredNotesLocalPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
+    registerNotesPluginBrowser,
   } from "@lapis-notes/app-profile";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import * as Button from "@lapismd/design-core/shadcn/button";
@@ -34,6 +39,8 @@
     updateDesktopSafeModeState,
   } from "./desktop-recovery";
   import { createDenoPluginAssetServer } from "./deno-plugin-asset-server";
+  import { getDenoNostrSignerBroker } from "./deno-nostr-signer";
+  import { createDesktopSyncUnlockHandler } from "./desktop-sync-security";
   import DesktopWorkspaceStartup from "./DesktopWorkspaceStartup.svelte";
   import type { DenoDesktopBridge, DesktopAppInfo } from "./main";
 
@@ -67,26 +74,77 @@
   const pluginAssetServer = untrack(() =>
     createDenoPluginAssetServer({ adapter, bridge }),
   );
+  const staticPluginDistributionOptions = untrack(() =>
+    createConfiguredNotesLocalPluginDistribution({
+      DEV: import.meta.env.DEV,
+      MODE: import.meta.env.MODE,
+      VITE_LAPIS_LOCAL_REGISTRY_URL: import.meta.env
+        .VITE_LAPIS_LOCAL_REGISTRY_URL,
+      VITE_LAPIS_LOCAL_REGISTRY_ARTIFACT_ORIGIN: import.meta.env
+        .VITE_LAPIS_LOCAL_REGISTRY_ARTIFACT_ORIGIN,
+      VITE_LAPIS_LOCAL_REGISTRY_TRUSTED_KEYS: import.meta.env
+        .VITE_LAPIS_LOCAL_REGISTRY_TRUSTED_KEYS,
+    }),
+  );
+
   const app = untrack(() => {
     const safeMode = readDesktopSafeModeState();
-    const ownedApp = new App({
+    let ownedApp!: App;
+    let hostSync!: SyncHostService;
+    const requestCryptoUnlock = createDesktopSyncUnlockHandler({
+      bridge,
+      vaultId: profile.id,
+      getSyncHost: () => hostSync,
+    });
+    ownedApp = new App({
       version: appInfo.version,
       configPath: ".obsidian/app.json",
       session,
+      syncHost: {
+        requestCryptoUnlock,
+        requestRecoveryPassphrase: async (_pluginId, mode) => {
+          const passphrase = globalThis.prompt(
+            mode === "export"
+              ? "Create a recovery-bundle passphrase (at least 10 characters)."
+              : "Enter the recovery-bundle passphrase.",
+          );
+          if (passphrase == null || mode === "import") return passphrase;
+          const confirmation = globalThis.prompt(
+            "Enter the recovery-bundle passphrase again to confirm it.",
+          );
+          if (confirmation !== passphrase) {
+            throw new Error("Recovery passphrase confirmation did not match");
+          }
+          return passphrase;
+        },
+        requestNetworkOriginGrant: async ({
+          pluginId,
+          origin,
+          allowPrivateNetwork,
+        }) =>
+          globalThis.confirm(
+            `${pluginId} wants to connect to ${origin}.${
+              allowPrivateNetwork
+                ? " This grants access to a private or loopback network address."
+                : ""
+            } Allow this exact origin?`,
+          ),
+      },
       safeMode,
-      createCommunityPluginDependencyResolver:
-        createNotesPluginDependencyResolver,
       pluginAssetServer,
+      pluginDistributionOptions: staticPluginDistributionOptions,
+      nostrSignerBroker: getDenoNostrSignerBroker(),
       workspaceShell: { application: appInfo, notifications: true },
       markdownRenderer: async () => {},
     });
     ownedApp.telemetry = bridge.telemetry;
+    hostSync = takeHostSyncService(ownedApp);
     return ownedApp;
   });
   provideApplicationState(app);
-  const disposeApplicationCompatibility =
-    installApplicationCompatibility(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const disposePluginManagementSettings = registerNotesPluginSettings(app);
+  const disposePluginBrowser = registerNotesPluginBrowser(app);
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
@@ -155,9 +213,7 @@
     }
   }
 
-  async function collectAcceptanceEvidence(): Promise<
-    Record<string, unknown>
-  > {
+  async function collectAcceptanceEvidence(): Promise<Record<string, unknown>> {
     if (bridge.platform.acceptance !== true) return {};
     const diagnostics = await bridge.invoke<unknown[]>(
       "desktop_ls_diagnostics",
@@ -185,56 +241,54 @@
       );
     }
     const appUrl = await bridge.waitForAcceptanceAppUrl?.();
-    const appToolBridge = await bridge.invoke<{ bridgeId: string }>(
-      "desktop_agent_tools_open",
-      {
-        bindingId: "deno-acceptance-binding",
-        conversationId: "deno-acceptance-conversation",
-        descriptors: [],
-      },
-    );
-    await bridge.invoke("desktop_agent_tools_close", {
-      bridgeId: appToolBridge.bridgeId,
-    });
-    let agentProcessOutput = "";
-    let agentTimeout: ReturnType<typeof setTimeout> | undefined;
-    let unsubscribeAgent: (() => void) | undefined;
+    const connection = await bridge.invoke<{
+      url: string;
+      token: string;
+      workspace: string;
+    }>("desktop_ai_controller_connection", { workspace: adapter.rootPath });
+    const controller = new ControllerClient(connection);
+    let controllerProtocol = "";
+    let appToolRegistered = false;
     try {
-      let resolveAgent: () => void = () => {};
-      let rejectAgent: (error: Error) => void = () => {};
-      let processId = "";
-      const agentExit = new Promise<void>((resolve, reject) => {
-        resolveAgent = resolve;
-        rejectAgent = reject;
-        agentTimeout = setTimeout(
-          () => reject(new Error("Deno agent process acceptance timed out")),
-          10_000,
-        );
-      });
-      unsubscribeAgent = bridge.onAgentProcessMessage?.((event) => {
-        if (!processId) processId = event.processId;
-        if (event.processId !== processId) return;
-        if (event.type === "stdout") agentProcessOutput += event.data ?? "";
-        if (event.type === "stderr") {
-          rejectAgent(new Error(event.data ?? "Deno agent process failed"));
-        }
-        if (event.type === "exit") resolveAgent();
-      });
-      const command =
-        bridge.platform.os === "windows" ? "cmd.exe" : "/usr/bin/printf";
-      const args =
-        bridge.platform.os === "windows"
-          ? ["/d", "/s", "/c", "<nul set /p =deno-agent-process"]
-          : ["deno-agent-process"];
-      const spawned = await bridge.invoke<{ processId: string }>(
-        "desktop_agent_process_spawn",
-        { command, args },
+      const status = await controller.request<{ protocol: string }>(
+        "system.status",
       );
-      processId = spawned.processId;
-      await agentExit;
+      controllerProtocol = status.protocol;
+      const providers =
+        await controller.request<Array<{ id: string }>>("providers.list");
+      if (!providers[0])
+        throw new Error("Controller has no configured providers");
+      const unregister = await controller.registerEndpoint({
+        id: "lapis.packaged-acceptance",
+        tools: [
+          {
+            name: "acceptance",
+            description: "Packaged host acceptance",
+            inputSchema: { type: "object" },
+            effect: "read",
+          },
+        ],
+        handle: async () => ({
+          content: [{ type: "text", text: "deno-controller-tool" }],
+        }),
+      });
+      try {
+        const thread = await controller.createThread({
+          provider: providers[0].id,
+          workspace: connection.workspace,
+          toolEndpoint: "lapis.packaged-acceptance",
+        });
+        const tools = await controller.request<
+          ReturnType<Controller["inspectTools"]>
+        >("tools.list", { threadId: thread.id });
+        appToolRegistered =
+          tools.available &&
+          tools.definitions.some((tool) => tool.name === "acceptance");
+      } finally {
+        await unregister();
+      }
     } finally {
-      if (agentTimeout !== undefined) clearTimeout(agentTimeout);
-      unsubscribeAgent?.();
+      controller.dispose();
     }
     const watchPath = "deno-watch-smoke.tmp";
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -250,17 +304,13 @@
           10_000,
         );
       });
-      watchSubscription = adapter.watch(
-        "",
-        { recursive: true },
-        (event) => {
-          if (event.type === "error") {
-            rejectWatch(new Error(String(event.error)));
-            return;
-          }
-          if (event.path === watchPath) resolveWatch(event.type);
-        },
-      );
+      watchSubscription = adapter.watch("", { recursive: true }, (event) => {
+        if (event.type === "error") {
+          rejectWatch(new Error(String(event.error)));
+          return;
+        }
+        if (event.path === watchPath) resolveWatch(event.type);
+      });
       await new Promise((resolve) => setTimeout(resolve, 100));
       await adapter.write(watchPath, "watch acceptance\n");
       return {
@@ -271,8 +321,8 @@
         pluginAssetText,
         pluginAssetContentType:
           pluginAssetResponse.headers.get("content-type") ?? "",
-        agentProcessOutput,
-        appToolBridgeOpened: Boolean(appToolBridge.bridgeId),
+        controllerProtocol,
+        appToolRegistered,
         appUrl,
       };
     } finally {
@@ -331,9 +381,7 @@
     globalThis.location.reload();
   }
 
-  function enterSafeMode(
-    update: Partial<AppSafeModeState>,
-  ): void {
+  function enterSafeMode(update: Partial<AppSafeModeState>): void {
     updateDesktopSafeModeState({
       ...update,
       lastStartupFailure: startupFailure,
@@ -483,6 +531,7 @@
         runtime: bridge.runtime,
         vault: app.vault.getName(),
         plugins: [...app.plugins.plugins.keys()].sort(),
+        pluginDiagnostics: app.plugins.communityPluginDiagnostics,
         database: app.appDatabase.descriptor,
         capabilities: bridge.capabilities,
         protocol: globalThis.location.protocol,
@@ -528,8 +577,7 @@
             id: "disable-optional-plugins",
             label: "Start with optional plugins disabled",
             icon: "shield-alert",
-            onSelect: () =>
-              enterSafeMode({ disableOptionalCorePlugins: true }),
+            onSelect: () => enterSafeMode({ disableOptionalCorePlugins: true }),
           },
           {
             id: "skip-layout",
@@ -595,6 +643,7 @@
         { attributes: { "desktop.layout.persisted": persistLayout } },
       );
     } finally {
+      disposePluginBrowser();
       disposePluginManagementSettings();
       disposeApplicationCompatibility();
     }

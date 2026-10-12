@@ -66,3 +66,24 @@ export function rendererOriginFromServeAddress(
   }
   return `http://${match[1]}/`;
 }
+
+/** Distinguish the visible renderer from Deno's automatically navigated bootstrap. */
+export function rendererEntryUrl(origin: string, overlay: boolean): string {
+  if (!overlay) return origin;
+  const url = new URL(origin);
+  url.searchParams.set("lapis-window", "workspace");
+  return url.href;
+}
+
+/** The parked macOS window must never load the application entry. */
+export function isParkedBootstrapRequest(
+  url: string,
+  overlay: boolean,
+): boolean {
+  if (!overlay) return false;
+  const incoming = new URL(url);
+  return (
+    (incoming.pathname === "/" || incoming.pathname === "/index.html") &&
+    incoming.searchParams.get("lapis-window") !== "workspace"
+  );
+}

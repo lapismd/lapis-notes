@@ -23,6 +23,10 @@ import type {
   AppDatabaseMemoryJobUpdateInput,
   AppDatabaseMemoryRecallSignalRecord,
   AppDatabaseMemorySourceRecord,
+  AppDatabaseMetaScanPage,
+  AppDatabaseMetaScanQuery,
+  AppDatabaseMetaTransaction,
+  AppDatabaseMetaTransactionResult,
   AppDatabaseProvider,
   AppDatabaseNotificationRecord,
   AppDatabaseSearchIndexStats,
@@ -57,6 +61,8 @@ type AppDatabaseMethod =
   | "getSearchIndexStats"
   | "getMeta"
   | "setMeta"
+  | "scanMeta"
+  | "transactMeta"
   | "getNotebookState"
   | "setNotebookState"
   | "deleteNotebookState"
@@ -166,6 +172,8 @@ const APP_DATABASE_RPC_METHODS = new Set<AppDatabaseRpcMethod>([
   "getSearchIndexStats",
   "getMeta",
   "setMeta",
+  "scanMeta",
+  "transactMeta",
   "getNotebookState",
   "setNotebookState",
   "deleteNotebookState",
@@ -480,6 +488,18 @@ export class BrowserCoordinatedAppDatabase implements AppDatabase {
 
   async setMeta(key: string, value: unknown): Promise<void> {
     await this.invoke("setMeta", key, value);
+  }
+
+  async scanMeta<T = unknown>(
+    query: AppDatabaseMetaScanQuery,
+  ): Promise<AppDatabaseMetaScanPage<T>> {
+    return this.invoke("scanMeta", query);
+  }
+
+  async transactMeta(
+    transaction: AppDatabaseMetaTransaction,
+  ): Promise<AppDatabaseMetaTransactionResult> {
+    return this.invoke("transactMeta", transaction);
   }
 
   async getNotebookState(

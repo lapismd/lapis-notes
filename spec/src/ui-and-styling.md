@@ -1,5 +1,32 @@
 # UI and Styling
 
+The existing user-approved Bits UI `2.19.5` Link Preview lifecycle patch is
+retained for the direct runtime refresh, so canceled selection probes and listener
+cleanup remain qualified. This reuses the approved correction without extending
+its scope; the legacy `2.18.1` patch still covers remaining transitive users.
+
+Notes pins its direct Bits UI runtime to published `2.19.5`, including the
+upstream document text-selection listener teardown fix. Dependency-originated
+Svelte diagnostics remain fatal, and retained diagnostics fail after story
+teardown even when component cleanup catches the immediate exception.
+
+UI and Workspace consumers require published Design Core `^0.3.2` for bold Settings headings, selected-tab separator alignment, native window-controls allowances and mobile shell teardown. Presentation continues to use public Design Core tokens and components.
+
+UI 0.1.1 carries the shared search-highlight tokens used by the static registry
+plugin candidates. API consumers require that public version while continuing
+to use the owning theme and component contracts.
+
+UI development uses the qualified Svelte version from LN-PKG-149 so API and
+workspace consumers share one Design Core type and renderer graph. This changes
+compiler qualification without changing component paint or public styling tokens.
+
+Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+unchanged; local overrides for these released packages are retired.
+
+Design Core styling and components resolve through the repository's current
+published semver range and committed lockfile, with source fixes remaining in
+the owning package.
+
 ## Requirements
 
 | ID        | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -19,10 +46,11 @@
 | LN-UI-013 | Source editor face paint MUST default to Mira monospace via public editor tokens, with a sans override selectable by CodeMirror host `data-language` for Markdown and plain text only. Native CSS MUST keep configured fold-gutter markers visible for non-Markdown languages while hiding the duplicate generic gutter for Markdown, whose fold controls are owned by Mira. Editor-shell note-column spacing MUST target only the outer editor sizer and MUST NOT pad Mira's nested embedded previews. |
 | LN-UI-014 | Trigger-based overlay portal ownership MUST remain in Design Core. Lapis MUST consume the shared Popover, Hover Card, Tooltip, Dropdown Menu, Context Menu, and Select owner-document behavior rather than exporting a local portal context, adding consumer source aliases, or passing cross-realm targets to Bits UI. Markdown link previews MUST use Design Core Hover Card and its public z-index token so they stay topmost across workspace panes and inside their originating popout document.   |
 | LN-UI-015 | The alias-only `@lapis-notes/ui/theme.css` layer MUST align Mira's Obsidian accent, accent-foreground, soft-accent, focus-ring, and selection variables with design-core's public Lapis workspace semantics under `data-ui-theme="lapis"`. It MUST NOT duplicate the Lapis palette, redefine design-core primitives, or change standalone Mira's portable fallback theme.                                                                                                                               |
-| LN-UI-016 | Retained `sidebar-custom` Input and Separator wrappers MUST type their unchanged bindings and forwarded props through the corresponding public design-core prop contracts. They MUST NOT infer an exported declaration from linked sibling implementation files.                                                                                                                                                                                                                                           |
-| LN-UI-017 | `@lapis-notes/ui` MUST remain a versioned, pack-tested public artifact for API and external-plugin consumers. Its published manifest MUST use portable semver ranges for shared host dependencies while colocated development MAY link matching sibling versions. |
-| LN-UI-018 | The public CodeMirror autocomplete stylesheet MUST use native CSS and shared Design Core Popover and Command tokens for opaque surface paint, radius, boundary, shadow, typography, selected options, and completion details. It MUST compile without a host Tailwind theme. |
-| LN-UI-019 | The `@lapis-notes/ui` public `0.1.0` package MUST document its root helpers, CSS entrypoints, retained component subpaths, and Design Core/Svelte peer boundary. Its release tarball MUST include README, changelog, license, and built CSS/component declarations without adding domain state or host policy. |
+| LN-UI-016 | Retained `sidebar-custom` Input and Separator wrappers MUST type their unchanged bindings and forwarded props through the corresponding public design-core prop contracts. They MUST NOT infer an exported declaration from linked sibling implementation files.                                                                                                                                                                                                                                        |
+| LN-UI-017 | `@lapis-notes/ui` MUST remain a versioned, pack-tested public artifact for API and external-plugin consumers. Its published manifest MUST use portable semver ranges for shared host dependencies while colocated development MAY link matching sibling versions.                                                                                                                                                                                                                                       |
+| LN-UI-018 | The public CodeMirror autocomplete stylesheet MUST use native CSS and shared Design Core Popover and Command tokens for opaque surface paint, radius, boundary, shadow, typography, selected options, and completion details. It MUST compile without a host Tailwind theme.                                                                                                                                                                                                                            |
+| LN-UI-019 | The `@lapis-notes/ui` public `0.1.0` package MUST document its root helpers, CSS entrypoints, retained component subpaths, and Design Core/Svelte peer boundary. Its release tarball MUST include README, changelog, license, and built CSS/component declarations without adding domain state or host policy.                                                                                                                                                                                          |
+| LN-UI-020 | The alias-only Lapis theme MUST define public `--ui-search-highlight-background` and `--ui-search-highlight-foreground` defaults with WCAG AA text contrast so Search and other plugin-owned highlighted matches share accessible application paint.                                                                                                                                                                                                                                                    |
 
 ## Swap map (normative intent)
 

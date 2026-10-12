@@ -631,11 +631,13 @@ export const LocalConversations: Story = {
     });
     expect(within(history).queryByText("Archived planning chat")).toBeNull();
 
-    await userEvent.click(
-      within(history).getByRole("button", {
-        name: "Show conversation options",
-      }),
-    );
+    const historyOptions = within(history).getByRole("button", {
+      name: "Show conversation options",
+    });
+    await waitFor(() => {
+      expect(getComputedStyle(historyOptions).pointerEvents).not.toBe("none");
+    });
+    await userEvent.click(historyOptions);
     await userEvent.click(
       within(history).getByRole("switch", {
         name: "Show archived conversations",

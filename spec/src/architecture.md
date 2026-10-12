@@ -1,5 +1,43 @@
 # Architecture
 
+The existing user-approved Bits UI `2.19.5` Link Preview lifecycle patch is
+retained for the direct runtime refresh, so canceled selection probes and listener
+cleanup remain qualified. This reuses the approved correction without extending
+its scope; the legacy `2.18.1` patch still covers remaining transitive users.
+
+Notes pins its direct Bits UI runtime to published `2.19.5`, including the
+upstream document text-selection listener teardown fix. Dependency-originated
+Svelte diagnostics remain fatal, and retained diagnostics fail after story
+teardown even when component cleanup catches the immediate exception.
+
+Notes owns its Deno CI runtime prerequisite: the shared `ci-setup` action installs
+Deno `2.9.7` through the pinned setup action before toolchain verification and
+frozen installation. Every validation, release and Pages job that uses this action
+receives the same runtime. Missing or mismatched Deno fails before package tasks;
+the shared Node/pnpm image does not promise a Deno runtime.
+
+The application-owned profile follows LN-PLUG-006: Source Editor, Markdown,
+File Explorer, and Search. Community is parked; its runtime and stylesheet are
+absent from the profile while generic installed-plugin infrastructure and the
+API-owned registry schema remain available.
+
+Workspace owns the verified registry image presentation under LN-PLUG-092;
+Community-derived presentation keeps the screenshot carousel, banner, and overview
+separate and composes a navigable, viewport-bounded viewer without a Community dependency. Deno
+owns native traffic-light selection and lifecycle under LN-DENO-046, while
+Design Core owns maximized group inset geometry and bold Settings headings.
+
+Static registry release candidates use the independently versioned framework
+0.1.1 contracts. Temporary tarball validation retains source ownership and
+does not replace portable registry-only qualification before publication.
+
+Dependency acceptance now uses published Design Core `0.3.2` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+unchanged; local overrides for these released packages are retired.
+
+Design Core-dependent surfaces follow the repository's portable published
+semver boundary; dependency refreshes update manifests and the lockfile without
+introducing sibling source paths.
+
 Production generated state now uses direct, row-scoped Turso access with typed
 post-commit revisions. Memory remains the explicit test and Storybook provider;
 renderer transports relay the database revision contract without owning domain
@@ -18,6 +56,10 @@ through the existing 1000 ms writer. App-backed browser acceptance serializes
 story files because compatibility
 leases, portalled overlays, and worker-backed plugin resources share one
 browser realm; each story still owns and disposes its own App.
+Root package validation uses one bounded Turbo graph with signed organization
+remote caching. CI runs in an immutable lockfile-specific dependency image over
+the shared Lapis toolchain image; local container validation uses the same
+digest and remains functional without cache credentials.
 Separately versioned Roles/CV catalog coverage remains in its owning repository while Lapis hosts
 load that plugin only after a verified install. Tasks remains independently
 owned and hosts MUST NOT register its workspace views themselves. AppDatabase owns
@@ -32,14 +74,6 @@ The API parses additive signed registry metadata and verifies referenced
 Markdown before Workspace rendering (LN-PLUG-053, LN-PLUG-054). Workspace owns
 the responsive row and detail presentation in LN-PLUG-055 through LN-PLUG-058
 by composing Design Core's expandable SearchFilterBar and public controls.
-The same boundary keeps signed plugin-media parsing and byte verification in
-API while Workspace owns icon fallback, verified-logo, and non-autoplay gallery
-presentation (LN-PLUG-087, LN-PLUG-088).
-API also owns the registry compatibility vocabulary: catalog and release
-platforms are exactly `web` and `desktop`, and native application hosts report
-`desktop`. Internal Electron runtime-entry host names do not cross that
-distribution boundary and are not accepted as registry-platform aliases
-(LN-PLUG-089).
 It does so without moving source, signature, installation, or lifecycle
 authority out of App services.
 
@@ -75,7 +109,11 @@ Framework backend so renderer DevTools can inspect the real bound desktop
 document rather than an unbound browser tab. When Deno Desktop needs embedded
 source inputs that are not available as published packages, the launcher may
 prepare ignored package-local files only for declared owned sources and refuses
-to replace an existing non-owned path.
+to replace an existing non-owned path. When the sibling Community registry
+fixture exists, the launcher derives its public relay and curator configuration
+plus its ordinary loopback manifest and asset origin for both the registry
+adapter and Community default scope. The renderer statically embeds those
+build-time values; explicit build configuration remains authoritative.
 The pre-renderer boot document is part of the same desktop boundary and owns
 only transient startup presentation. It shows only the centred Lapis logo while
 the Svelte renderer and native bridge initialize, exposes the loading state to
@@ -86,30 +124,30 @@ the browser-only WASM descriptor is not valid desktop evidence.
 
 ## Requirements
 
-| ID          | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| LN-ARCH-001 | The repository MUST be a pnpm workspace orchestrated by Turbo. Targeted host builds and distribution or acceptance preflights MUST select the host and dependency closure through the root Turbo graph so unchanged work can use the shared cache.                                                                                                                                                                                                               |
-| LN-ARCH-002 | Framework and private application packages MUST live under `packages/*` and expose appropriate build, check, and test scripts. The eleven extracted first-party plugin packages MUST be owned by the sibling `lapis-plugins` workspace rather than duplicated as long-term Lapis Notes sources. |
-| LN-ARCH-017 | `@lapismd/mira-editor`, `@lapismd/mira-plugin-mermaid`, and `@lapismd/mira-plugin-ai` MUST be consumed through published npm semver ranges for `@lapis-notes/markdown` document rendering. Consumers MUST resolve their public package exports, and Mira source changes MUST be released before Lapis consumes them through tracked manifests.                                                                                                                     |
-| LN-ARCH-003 | The Lapis Notes repository catalog MUST be one Storybook on port 7010 (`pnpm dev`) for framework, application-profile, host integration, and plugin-management UI. The sibling `lapis-plugins` repository MUST use one repository-level Storybook for all eleven extracted packages rather than one Storybook per package. |
-| LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added.                                                                                                                                                                                                                                                                                                              |
-| LN-ARCH-005 | `@lapismd/design-core` MUST be consumed through a published npm semver range; consumers MUST resolve its declared package exports, while source fixes remain owned by the Design Core repository. Reusable sidebar view-host sizing MUST remain Design Core-owned, while Lapis plugins fill the bounded host without consumer-side layout overrides.                                                                                                             |
-| LN-ARCH-014 | `@lapismd/mira` MUST be consumed through a published npm semver range for the source-editor CodeMirror shell; consumers MUST resolve its built package exports, while source fixes remain owned by the Mira repository.                                                                                                                                                                                                                                         |
-| LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed.                                                                                                                                                                                                                                                                                                         |
-| LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, plugin loading, and the selected static profile remain application or API responsibilities. The package MAY render app-registered plugin-management pages and injected README content without importing a plugin implementation. |
-| LN-ARCH-008 | Storybook MUST consume design-core's shared catalog stylesheet and layout synchronizer so Workspace stories receive the same edge-to-edge viewport contract while ordinary component stories retain catalog padding.                                                                                                                                                                                                                                             |
-| LN-ARCH-009 | The api compatibility projection MUST preserve every persisted design-core V3 workspace region, including the bottom panel, while keeping the api-owned workspace writer as the only layout persistence adapter. Host-registered Problems leaves MUST remain that view type across API layout commits. Claimed leaves MUST keep their serialized id and live `getState()`, and file opens MUST target an empty or file-backed main leaf.                         |
-| LN-ARCH-010 | The runnable editor demo MUST keep demo bootstrap and source-editor policy in Storybook fixtures while reusable runtime contracts remain in API, reusable File Explorer remains in `@lapis-notes/file-explorer`, Markdown owns Tags, and generic startup presentation remains in Design Core. Design Core MUST own current, reveal-or-create, and forced-new-tab Explorer intents while Lapis maps them to workspace leaves.                                     |
-| LN-ARCH-011 | Storybook-local source plugins MAY declare CodeMirror language packages as root development dependencies. CodeMirror/Lezer singleton peers shared with published packages MUST also be explicit root development dependencies; neither case moves demo plugin policy into api or workspace.                                                                                                                                                                      |
-| LN-ARCH-012 | Storybook MUST resolve Design Core, Mira, and extracted plugin entry points through installed package dependencies and public package exports. Docker visual capture MAY temporarily install ignored staged package copies, but Lapis-owned Vite configuration MUST NOT bypass external packages with source aliases. Framework packages owned by Lapis Notes MAY resolve from their workspace source roots. |
-| LN-ARCH-013 | Storybook MUST resolve the API editor, editor-core, and editor-language-service subpaths from the same API source root as the root API alias. Source-editor fixtures MUST NOT mix packaged and source editor state fields or implementations.                                                                                                                                                                                                                    |
-| LN-ARCH-015 | File-view chrome (path breadcrumbs, leaf history, and optional header title rename) MUST project from the api workspace host `getChrome` bridge into design-core `WorkspaceViewHeader`; the source-editor inline title remains a separate in-document filename surface when enabled. Non-file views MAY contribute breadcrumbs through View hooks.                                                                                                               |
-| LN-ARCH-016 | The api source-editor shell MUST label CodeMirror hosts with `data-language` and default editor typography to Mira monospace, with sans overrides only for Markdown and text.                                                                                                                                                                                                                                                                                    |
-| LN-ARCH-018 | Root Storybook tooling MUST resolve `@lapismd/storybook-addon-visual-delta` from its published npm semver dependency; registry-package staging remains owned by Visual Delta and MUST NOT move the tool into a runtime package dependency.                                                                                                                                                                                                                       |
-| LN-ARCH-019 | Design Core MUST be the sole owner of trigger-based overlay portal resolution. Lapis consumers MUST compose its public Popover, Hover Card, Tooltip, Dropdown Menu, Context Menu, and Select exports, inherit their trigger-owner-document behavior, and MUST NOT publish a competing overlay portal context, package export, or Vite alias.                                                                                                                     |
-| LN-ARCH-020 | The api source-editor shell MUST expose the configured CodeMirror fold gutter for language-provided fold ranges outside Markdown. Markdown MUST use Mira's inline fold controls without also painting the generic gutter.                                                                                                                                                                                                                                        |
-| LN-ARCH-021 | The source editor's design-core ScrollArea MUST remain bounded by its workspace view and own vertical document scrolling. Nested CodeMirror scrollers MUST expand with content and MUST NOT paint a second vertical scrollbar. Its scrollbar interaction rail MUST remain pointer-reachable above an adjacent workspace resize rail.                                                                                                                             |
-| LN-ARCH-022 | Root `pnpm check` MUST run shared configured specification validation before the no-Tailwind and Turbo package checks. Root `pnpm test` MUST run Lapis package tests without copying the shared validator's own regression suite.                                                                                                                                                                                                                                |
+| ID          | Requirement                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LN-ARCH-001 | The repository MUST be a pnpm workspace orchestrated by Turbo. Targeted host builds and distribution or acceptance preflights MUST select the host and dependency closure through the root Turbo graph so unchanged work can use the shared cache.                                                                                                                                                                                       |
+| LN-ARCH-002 | Framework and private application packages MUST live under `packages/*` and expose appropriate build, check, and test scripts. The eleven extracted first-party plugin packages MUST be owned by the sibling `lapis-plugins` workspace rather than duplicated as long-term Lapis Notes sources.                                                                                                                                          |
+| LN-ARCH-017 | `@lapismd/mira-editor`, `@lapismd/mira-plugin-mermaid`, and `@lapismd/mira-plugin-ai` MUST be consumed through published npm semver ranges for `@lapis-notes/markdown` document rendering. Consumers MUST resolve their public package exports, and Mira source changes MUST be released before Lapis consumes them through tracked manifests.                                                                                           |
+| LN-ARCH-003 | The Lapis Notes repository catalog MUST be one Storybook on port 7010 (`pnpm dev`) for framework, application-profile, host integration, and plugin-management UI. The sibling `lapis-plugins` repository MUST use one repository-level Storybook for all eleven extracted packages rather than one Storybook per package.                                                                                                               |
+| LN-ARCH-004 | The monorepo MUST NOT reintroduce multi-script first-party import-resolution gates; resolution issues MUST be fixed inline when packages are added.                                                                                                                                                                                                                                                                                      |
+| LN-ARCH-005 | `@lapismd/design-core` MUST be consumed through a published npm semver range; consumers MUST resolve its declared package exports, while source fixes remain owned by the Design Core repository. Reusable sidebar view-host sizing MUST remain Design Core-owned, while Lapis plugins fill the bounded host without consumer-side layout overrides.                                                                                     |
+| LN-ARCH-014 | `@lapismd/mira` MUST be consumed through a published npm semver range for the source-editor CodeMirror shell; consumers MUST resolve its built package exports, while source fixes remain owned by the Mira repository.                                                                                                                                                                                                                  |
+| LN-ARCH-006 | Root `pnpm check` MUST run `pnpm check:no-tailwind` before Turbo package checks so Tailwind utility regressions in ui/api component sources fail closed.                                                                                                                                                                                                                                                                                 |
+| LN-ARCH-007 | `@lapis-notes/workspace` MUST be a presentation/controller integration package; vault selection, routing, persistence boot, plugin loading, and the selected static profile remain application or API responsibilities. The package MAY render app-registered plugin-management pages and injected README content without importing a plugin implementation.                                                                             |
+| LN-ARCH-008 | Storybook MUST consume design-core's shared catalog stylesheet and layout synchronizer so Workspace stories receive the same edge-to-edge viewport contract while ordinary component stories retain catalog padding.                                                                                                                                                                                                                     |
+| LN-ARCH-009 | The api compatibility projection MUST preserve every persisted design-core V3 workspace region, including the bottom panel, while keeping the api-owned workspace writer as the only layout persistence adapter. Host-registered Problems leaves MUST remain that view type across API layout commits. Claimed leaves MUST keep their serialized id and live `getState()`, and file opens MUST target an empty or file-backed main leaf. |
+| LN-ARCH-010 | The runnable editor demo MUST keep demo bootstrap and source-editor policy in Storybook fixtures while reusable runtime contracts remain in API, reusable File Explorer remains in `@lapis-notes/file-explorer`, Markdown owns Tags, and generic startup presentation remains in Design Core. Design Core MUST own current, reveal-or-create, and forced-new-tab Explorer intents while Lapis maps them to workspace leaves.             |
+| LN-ARCH-011 | Storybook-local source plugins MAY declare CodeMirror language packages as root development dependencies. CodeMirror/Lezer singleton peers shared with published packages MUST also be explicit root development dependencies; neither case moves demo plugin policy into api or workspace.                                                                                                                                              |
+| LN-ARCH-012 | Storybook MUST resolve Design Core, Mira, and extracted plugin entry points through installed package dependencies and public package exports. Docker visual capture MAY temporarily install ignored staged package copies, but Lapis-owned Vite configuration MUST NOT bypass external packages with source aliases. Framework packages owned by Lapis Notes MAY resolve from their workspace source roots.                             |
+| LN-ARCH-013 | Storybook MUST resolve the API editor, editor-core, and editor-language-service subpaths from the same API source root as the root API alias. Source-editor fixtures MUST NOT mix packaged and source editor state fields or implementations.                                                                                                                                                                                            |
+| LN-ARCH-015 | File-view chrome (path breadcrumbs, leaf history, and optional header title rename) MUST project from the api workspace host `getChrome` bridge into design-core `WorkspaceViewHeader`; the source-editor inline title remains a separate in-document filename surface when enabled. Non-file views MAY contribute breadcrumbs through View hooks.                                                                                       |
+| LN-ARCH-016 | The api source-editor shell MUST label CodeMirror hosts with `data-language` and default editor typography to Mira monospace, with sans overrides only for Markdown and text.                                                                                                                                                                                                                                                            |
+| LN-ARCH-018 | Root Storybook tooling MUST resolve `@lapismd/storybook-addon-visual-delta` from its published npm semver dependency; registry-package staging remains owned by Visual Delta and MUST NOT move the tool into a runtime package dependency.                                                                                                                                                                                               |
+| LN-ARCH-019 | Design Core MUST be the sole owner of trigger-based overlay portal resolution. Lapis consumers MUST compose its public Popover, Hover Card, Tooltip, Dropdown Menu, Context Menu, and Select exports, inherit their trigger-owner-document behavior, and MUST NOT publish a competing overlay portal context, package export, or Vite alias.                                                                                             |
+| LN-ARCH-020 | The api source-editor shell MUST expose the configured CodeMirror fold gutter for language-provided fold ranges outside Markdown. Markdown MUST use Mira's inline fold controls without also painting the generic gutter.                                                                                                                                                                                                                |
+| LN-ARCH-021 | The source editor's design-core ScrollArea MUST remain bounded by its workspace view and own vertical document scrolling. Nested CodeMirror scrollers MUST expand with content and MUST NOT paint a second vertical scrollbar. Its scrollbar interaction rail MUST remain pointer-reachable above an adjacent workspace resize rail.                                                                                                     |
+| LN-ARCH-022 | Root `pnpm check` MUST run shared configured specification validation before the no-Tailwind and Turbo package checks. Root `pnpm test` MUST run Lapis package tests without copying the shared validator's own regression suite.                                                                                                                                                                                                        |
 
 The shared validator is release tooling, not a runtime sibling. The root
 manifest MUST resolve `@lapismd/spec-validator` from its published npm semver
@@ -121,7 +159,7 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-023 | Root specification discovery MUST invoke the repository-local QMD binary through `@lapismd/spec-validator`. It MUST NOT depend on a global executable or run during normal checks. |
 | LN-ARCH-024 | The API workspace-host bridge MUST translate compatibility view actions and pane-menu contributions into design-core view chrome. Translated view-menu sections MUST precede generic pane actions; the workspace shell MUST NOT duplicate plugin controls. |
 | LN-ARCH-025 | Design Core MUST own reusable diagnostics state and Problems presentation. Lapis API MUST adapt that contract to plugins, vault navigation, and language services; provider packages MUST remain independent of Design Core and workspace layout. |
-| LN-ARCH-026 | The API editor MUST consume diagnostic glyphs and semantic colours from Design Core's public workspace contract. It MUST keep CodeMirror-specific marker mounting, tooltip geometry, pointer lifecycle, and the portaled diagnostic-menu primitive context inside the editor boundary. An open diagnostic card MUST retain its origin and placement throughout pointer handoff. |
+| LN-ARCH-026 | The API editor MUST consume diagnostic glyphs and semantic colours from Design Core's public workspace contract. It MUST keep CodeMirror-specific marker mounting, tooltip geometry, and pointer lifecycle inside the editor boundary. An open diagnostic card MUST retain its origin and placement throughout pointer handoff. |
 | LN-ARCH-027 | The API editor MUST own CodeMirror inline-problem structure and styling. It MUST consume public workspace semantic tokens without moving editor-specific widgets into Design Core or application-global styles. |
 | LN-ARCH-028 | The Deno desktop host MUST remain a consumer of `@lapis-notes/api` and `@lapis-notes/workspace`. Native lifecycle, vault discovery and selection, session boot, and bounded bindings belong to the host; the workspace package MAY forward generic navigation presentation while rendering and persisted layout compatibility remain in their owning packages. |
 | LN-ARCH-029 | Deno native and renderer code MUST communicate through the typed native desktop bridge. The renderer MUST NOT receive unrestricted Deno APIs or raw host objects. |
@@ -136,7 +174,7 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-038 | CV compilation, generated-artifact export, and form-toolbar composition MUST remain plugin-owned, including document-action order after YAML. Compiled Markdown presentation composes Mira's public read-only surfaces. The plugin MUST keep vault persistence behind its host adapter and MUST NOT create another Markdown rendering stack. Shared form disclosure behavior MUST remain owned by Design Core. |
 | LN-ARCH-039 | Roles MUST own the ported legacy Applications page presentation and adapt only domain, vault, navigation, and Markdown/editor boundaries to Lapis APIs. Design Core remains the source of shared controls and Lapis remains the source of the outer workspace shell; neither boundary may recompose the ticket board, activity timeline, actions board, or `detail-perma` role sheet into a visually different page. |
 | LN-ARCH-040 | Lapis MUST classify statically shipped plugins by distribution while retaining one API core lifecycle. Design Core MUST own only the managed-plugin settings source and grouped presentation; Lapis MUST own registration, persistence, failures, and workspace recovery policy. |
-| LN-ARCH-041 | External-plugin dependencies MUST cross repository boundaries through published exports and portable semver manifests. Verified renderer ESM entries MUST bind declared shared dependencies to exact host-owned namespaces through import-map facades. The compiler-emitted `svelte`, `svelte/internal/client`, and `svelte/internal/disclose-version` imports form an exact implicit renderer ABI and MUST use those facades without becoming authored manifest dependencies. Colocated workspaces MAY resolve matching sibling versions locally, but consumer manifests and packed artifacts MUST NOT encode machine-specific paths. |
+| LN-ARCH-041 | External-plugin dependency closure, including the public workspace shell used by plugin catalogs, MUST cross repository boundaries through published package exports and portable semver manifests. Colocated workspaces MAY resolve matching sibling versions locally, but consumer manifests and packed artifacts MUST NOT encode machine-specific paths. |
 | LN-ARCH-042 | Bases MUST own its query controller, document model, rendering helpers, view layouts, editing workflows, semantic CSS, private table-track model, measured variable-height rows, and compact table-control density. API owns App, database, metadata, plugin, editor, and Markdown processor contracts; Design Core owns shared input, autocomplete, Select, Popover sizing, and Accordion indicator primitives; hosts own boot and persistence ordering. Source-linked Storybook MUST preserve the package's public-entrypoint runtime semantics and deduplicate shared component runtimes such as `bits-ui` across linked packages. |
 | LN-ARCH-043 | The API MUST own the public search-document contribution registry, Search MUST own provider selection and generated index state, and domain plugins MUST own parsing and semantic projection for their file formats. |
 | LN-ARCH-044 | The API workspace host MUST project compatibility ribbon and status contributions into Design Core registries while plugins retain command and lifecycle ownership. |
@@ -144,7 +182,7 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-046 | Reusable editor presentation MUST enter through the API editor package while language plugins retain rich extension and toolbar policy. Its public embedded editor MUST support self-owned or ancestor-owned vertical scrolling without a second scroll host. External plugins MUST NOT import bundled-plugin implementation files or create a competing CodeMirror persistence path. |
 | LN-ARCH-047 | Domain file previews MAY delegate whole-file editing to the registered Markdown leaf through public serialized view state. Markdown MUST retain editor, settings, keybinding, and persistence ownership while the domain plugin owns only the return target and its structured preview. Linked external-plugin catalogs MUST deduplicate the API peer runtime so compatibility view identity and chrome projection remain valid. |
 | LN-ARCH-048 | File-opening navigation MUST capture the initiating leaf state before constructing a target view that may eagerly attach itself. Back MUST restore the initiating view rather than an incomplete target-view state and MUST discard the previous file-view root before mounting it. |
-| LN-ARCH-049 | `pnpm-workspace.yaml` MUST limit workspace membership to Lapis-owned directories. Published external LapisMD packages MUST resolve through registry dependency ranges in tracked manifests and lockfiles, never external workspace membership or checkout-specific paths. Their host-runtime peers MUST resolve to matching colocated workspace packages rather than duplicate registry copies. |
+| LN-ARCH-049 | `pnpm-workspace.yaml` MUST limit workspace membership to Lapis-owned directories. Published external LapisMD packages MUST resolve through registry dependency ranges in tracked manifests and lockfiles, never external workspace membership or checkout-specific paths. Their host-runtime peers MUST resolve to matching colocated workspace packages, through host-owned import-map entries where browser ESM plugins consume shared modules, rather than duplicate registry copies. |
 | LN-ARCH-050 | Bases MUST treat its initial blank filter row as the first predicate so the first Add Filter activation appends a second visible predicate. Nested Design Core Select portals MUST paint above the enclosing filter Popover through shared portal ordering without a Bases-owned z-index override. |
 | LN-ARCH-051 | Bases MUST own one semantic query-popover width contract shared by Sort and Filter. Their portaled outer Popover contents MUST resolve the same bounded inline size while each workflow retains its own content, scrolling, and surface treatment. |
 | LN-ARCH-052 | API MUST retain the shared CodeMirror autocomplete extension while UI owns its completion-popover stylesheet and application hosts load that public stylesheet after Design Core paint. Bases owns only its inline query-editor surface and focus treatment and MUST NOT gain a runtime dependency on the pruned UI package. |
@@ -163,7 +201,7 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-065 | API MUST own plugin-scoped Markdown extension and file-surface registries. Domain plugins MAY contribute CodeMirror and rendered-Markdown behavior through public contracts, while the bundled Markdown plugin remains the sole Mira adapter and full-file surface provider. Contributions and providers MUST be disposed with their registering plugin. |
 | LN-ARCH-066 | API-owned workspace leaves MUST split through API leaf duplication before Design Core renders the new pane. Design Core MAY own generic tab splitting, but Lapis-hosted imperative views MUST NOT create orphan design tabs without live `WorkspaceLeaf` containers, host layout projection, or translated split directions. |
 | LN-ARCH-067 | The Deno desktop host MUST remain a consumer of `@lapis-notes/api`, `@lapis-notes/workspace`, and public host packages. Native window, bindings, services, vault discovery, session boot, and local distribution orchestration belong to the host. Language diagnostics MUST remain plugin-owned over the public native boundary without a duplicate host provider; terminal execution and verified asset metadata MUST use public boundaries while watching and HTTP delivery remain Deno-owned. |
-| LN-ARCH-068 | Deno agent execution MUST consume the public `@lapismd/ai-host` executor. Deno MAY attach the host package's authenticated Web-standard MCP handler to its existing loopback server, but MUST retain renderer routing, event delivery, process lifetime, and shutdown ownership. |
+| LN-ARCH-068 | Deno MUST supervise the standalone `lapis-ai-controller` service and expose its authenticated connection through native IPC. The AI plugin MUST consume the shared controller client. Lapis MUST retain vault storage, App authorization, tool execution and host shutdown ownership. |
 | LN-ARCH-069 | Deno native close, menu, and external-navigation policy MUST remain host-owned while session persistence and disposal remain renderer-owned. On macOS, bootstrap and visible-window close events MUST share one coordinator and private same-origin signal. The renderer MUST show an opaque branded close surface, complete shared teardown, and acknowledge through a bounded native binding. Unavailable telemetry MUST NOT delay that acknowledgement beyond one second. |
 | LN-ARCH-070 | Deno single-instance ownership MUST use an exclusive application-data lock and authenticated local handoff. The native host MUST retain URL arguments until a subscribed renderer takes them; only the ready App URL registry MAY interpret their application action. |
 | LN-ARCH-071 | Plugin settings materialization MUST be idempotent at the persistence boundary. A normalized no-op update MUST NOT mutate portable vault files whose timestamps participate in generated-state reconciliation checkpoints. |
@@ -176,7 +214,7 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-078 | Search owns indexed structured-query evaluation; Graph owns ordered Group policy, filter membership, colour precedence, and time-lapse presentation. Their boundary MUST be ordered path-only membership through AppDatabase. Graph MUST NOT import Search plugin internals, and Search MUST NOT acquire Graph settings or renderer policy. |
 | LN-ARCH-079 | Graph MUST persist portable slider positions while translating them to D3 force values only inside its renderer boundary. The renderer MUST derive link weighting from topology degree rather than persisted reference counts. Settings migration MUST remain plugin-owned and preserve unrelated presentation state. |
 | LN-ARCH-080 | Graph MUST cross the AppDatabase boundary through bounded metadata and link batches. Graph view failures remain locally visible and MUST also enter an owner-scoped Problems collection as active-file or workspace diagnostics; successful recovery clears them without transferring Graph lifecycle ownership to the shell. |
-| LN-ARCH-081 | Desktop product identity has two host-owned layers: the renderer boot document owns branded startup content, while the native bundle owns the macOS application and menu name. Development MAY derive an ignored host bundle through Deno's supported local-host boundary, but MUST NOT mutate shared runtime caches or move identity policy into plugins. |
+| LN-ARCH-081 | Desktop product identity has two host-owned layers: the renderer boot document owns branded startup content, while the native bundle owns the macOS application and menu name. Development MAY derive an ignored host bundle through Deno's supported local-host boundary and reuse an unchanged runtime only after deep strict signature verification, but MUST NOT mutate shared runtime caches or move identity policy into plugins. |
 | LN-ARCH-082 | Design Core MUST own the reusable structured-query input, completion presentation, colour popover, and sortable-row interaction. API MUST own the shared vault syntax/completion model. Graph MUST depend only on those public contracts, AppDatabase path-only membership, and the public Markdown read-only embed while retaining viewport-clamped settings-panel composition with guttered handles, divider-free idle rows, rounded whole-row focus paint with an outer trailing gap, and visible padding-owned row actions with an internal trailing gutter; it MUST NOT import Search-plugin internals or duplicate Markdown rendering. |
 | LN-ARCH-083 | The App MUST own AI memory services, durable vault records, derived AppDatabase state, recall policy, and consolidation scheduling. ACP agents and models MAY consume or propose memory through transport-neutral contracts but MUST NOT own its identity, scope, persistence, trust, or lifecycle. |
 | LN-ARCH-084 | The App-owned conversation transcript MUST remain canonical across agent and model changes. Native sessions are resumable projections tracked by append-only verified cursors; providers receive only typed transcript context and MUST NOT exchange opaque state. Background summaries MAY optimize projection but MUST NOT replace transcript evidence. |
@@ -186,6 +224,27 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-088 | Workspace-owned plugin management MAY compose public Design Core SearchFilterBar, FilterCommandPicker, Resizable, and settings navigation primitives. Registry state, verified Markdown, filtering, installation actions, and application policy MUST remain in Lapis; reusable search, command-option, resizing, and responsive settings-shell behavior MUST remain in Design Core. |
 | LN-ARCH-089 | Workspace-owned plugin management MUST distinguish installed vault artifacts from statically bundled profile plugins. Uninstall and disable actions MUST remain App-owned lifecycle operations and reuse the installed-plugin confirmation boundary without transferring package removal policy to Design Core. |
 | LN-ARCH-090 | Signed catalog metadata and unsigned aggregate download statistics MUST remain separate contracts. API owns summary validation and source access; Workspace owns optional display and sorting. Missing statistics MUST NOT affect signature verification, install availability, updates, or registry errors. |
+| LN-ARCH-091 | Filesystem content MUST remain authoritative while API owns reusable sync-host identity, cursor, generated-state, streamed I/O, capability, network, and crypto contracts. Protocol plugins own remote schemas, revision graphs, reconciliation, and UI; hosts own isolation, secret persistence, unlock, and platform adapters. |
+| LN-ARCH-092 | API MUST own explicit sync enrollment, multi-epoch key custody, owner membership authority, bounded pairing state including validation of the user-confirmed SAS, and opaque recovery bundles. Protocol plugins MUST remain responsible for transporting returned artifacts, choosing endpoints, validating revision ancestry, and presenting pairing or recovery policy. |
+| LN-ARCH-093 | API MUST keep a stable per-vault Sync Identity in the same wrapped host key material as root, recovery, device, and epoch secrets. API owns purpose-scoped signing, owner-authorised identity transitions, and bounded encrypted pairing transfer of opaque plugin metadata; protocol plugins own outer transport schemas, non-secret endpoint configuration, remote authorization tests, provisioning UI, and provider-specific authentication policy. |
+| LN-ARCH-094 | Root package build, check, and test tasks MUST run through a bounded Turbo wrapper that defaults to half the available processors capped at four and honors `TURBO_CONCURRENCY`. Signed organization remote caching MUST fail open to normal local execution when credentials or the cache service are unavailable. |
+| LN-ARCH-095 | CI MUST consume a digest-pinned lockfile-specific `lapis-notes-ci` image built over the shared multi-architecture `lapis-ci` toolchain. The dependency layer MUST contain only the pnpm store derived from manifests, patches, and the lockfile; source and reusable `node_modules` MUST remain outside the image. |
+| LN-ARCH-096 | Deno desktop and server hosts MUST consume private reusable filesystem, watch, resource, plugin-asset, language-service, and native AppDatabase kernels without transferring host lifecycle, authentication, routing, window, or vault-selection policy into those kernels. |
+| LN-ARCH-097 | The Deno server host MUST use tRPC for its typed JSON control plane and tracked subscriptions while direct Fetch routes retain streamed file and asset semantics, including bounded same-origin delivery of official plugin release bundles. Its browser boundary MUST translate Lapis virtual-root paths without weakening managed-route validation and MUST discard stale event cursors before reconnecting after resync. Public API contracts MUST describe remote transport without depending on tRPC types. |
+| LN-ARCH-098 | Verified renderer ESM plugins MUST share public API modules with the host through build-owned import-map entries. The API plugin loader owns constructor resolution: it MUST prefer a default export and otherwise select a named subclass of the shared `Plugin` base without treating helper exports as the runtime constructor. |
+| LN-ARCH-099 | Nostr private keys and NIP-46 client credentials MUST remain host-owned. API MUST expose only plugin-scoped account selection, profile-creation ceremony, public-key lookup, exact-template event signing, NIP-44 encrypt/decrypt, remote-signer connection, and close operations. A plugin MUST receive opaque account IDs rather than secret key or keychain access, and a host without a signer MUST fail closed. |
+| LN-ARCH-100 | Signed Nostr events and content-addressed manifests MAY supply plugin catalog and release evidence through a transport adapter, but relays MUST remain transport rather than trust roots. Pinned curator keys, exact publisher authorization, exact release approval, artifact integrity, and install relay quorum remain prerequisites. Official and community plugins MUST use the same adapter and verification path; source enablement and curator policy express provenance and trust tier. |
+| LN-ARCH-101 | The public plugin-facing Nostr signer facade MUST terminate at a host-owned broker. On Deno desktop, the broker MUST use a renderer-private native session capability and native signing commands so keychain values never cross into renderer or plugin code. Only the first-party `community` plugin identity may use that native session; additional plugins require an explicit host policy change. |
+| LN-ARCH-102 | The portable offline `.lapis-plugin` MUST contain only `release.nostr.json` and the exact hash-bound `payload.zip`; its outer archive is not authoritative because it contains the proof. Offline verification MUST terminate at an app-configured curator key and persist the authenticated inner-payload digest plus a current-revocation warning. Only successful revalidation of that exact release and digest through an install-ready live source may clear the warning. |
+| LN-ARCH-103 | When Nostr registry discovery is enabled, App Profile MUST compose the Community NIP-29 source and shared proof verifier with API's transport-neutral adapter. Web and desktop sessions MUST share that composition and dispose the owned source after distribution teardown. While relay discovery is deferred, the concrete binding MUST remain outside active static-profile imports, build, and tests. |
+
+The reusable sync-host implementation follows LN-ARCH-091 through LN-ARCH-093:
+API owns opaque identity, enrollment, recovery, cursor, generated-state, file,
+network, and cryptographic capabilities; browser and desktop hosts supply only
+platform custody and consent adapters. Nostr, Blossom, revision-graph, endpoint,
+and synchronization UI policy remain outside the host API in protocol plugins.
+Startup identity reconciliation follows LN-DB-054 when a file disappears during
+fingerprint reads; the API owns that race across every host.
 
 The first app-owned memory boundary is the disposable database substrate:
 portable memory code calls one typed `AppDatabase` surface for checkpoints,
@@ -256,24 +315,24 @@ Markdown owns `notes_list`. API owns Vault-backed `read`, `write`, `edit`, and
 `apply_patch` wrappers over the portable `@lapismd/ai-host/file-tools` kernel.
 Those bundled descriptions steer agents to the vault tools instead of host-cwd
 shell search (LN-AI-108).
-The live transport is host-advertised and AI Host-owned. Node and WebSocket
-hosts use the loopback broker plus official-SDK stdio shim; Deno desktop attaches
-the broker's authenticated Streamable HTTP handler to its renderer server.
-Because that handler shares Deno's native event loop, the renderer reserves and
-subscribes to the ACP session before the host begins deferred initialization;
-the native binding returns before the agent connects back to the route
-(LN-AI-172, LN-DENO-055). Deno model discovery follows the same response-first
-boundary: the renderer subscribes with a request id, the binding returns, and
-the catalog arrives as a later runtime event (LN-AI-173, LN-DENO-056).
+The first-party live transport is host-advertised and owned by
+`@lapismd/ai-controller`. Desktop supervises `lapis-ai-controller` and exposes
+only an authenticated connection; web and Storybook attach by URL and token.
+Leftover ACP embed helpers MAY still use the loopback broker plus official-SDK
+stdio shim and deferred start so prompt, cancel, and close remain available
+without holding a Deno binding (LN-AI-172, LN-DENO-055). Compatibility model
+discovery MAY still return a request id before a later catalog event
+(LN-AI-173, LN-DENO-056).
 Native-to-renderer events are likewise scheduled for a later browser task so
 their handlers cannot re-enter a native binding before window evaluation
-returns (LN-DENO-057). Monotonic event replay and protocol-v4 run-state
-reconciliation recover unseen terminal delivery without resending a prompt
-(LN-DENO-060, LN-DENO-061, LN-AI-177).
+returns (LN-DENO-057). First-party run state comes from the shared controller
+journal; leftover protocol-v4 hosts MAY still reconcile retained terminal
+events (LN-DENO-060, LN-DENO-061, LN-AI-177).
 The Deno host keeps native Turso work on a dedicated worker; synchronous driver
-steps therefore cannot occupy the runtime that owns ACP and renderer events
-(LN-DENO-059). Development and distribution compiles explicitly include that
-worker entry so the boundary survives Deno's compiled snapshot (LN-DENO-062).
+steps therefore cannot occupy the runtime that owns controller and renderer
+events (LN-DENO-059). Development and distribution compiles explicitly include
+that worker entry so the boundary survives Deno's compiled snapshot
+(LN-DENO-062).
 Both carry only generic bridge commands and events and never acquire registry,
 policy, or transcript authority.
 The AI controller allocates the binding identity before runtime start, opens
@@ -360,11 +419,42 @@ learn Lapis grammar or escaping rules.
 @lapis-notes/spellcheck (authorized Harper diagnostic provider with non-blocking warmup)
 @lapis-notes/desktop-deno (native consumer host)
 @lapis-notes/web (browser/PWA consumer host)
+@lapis-notes/deno-host-services (private reusable Deno service kernels)
+@lapis-notes/server-deno (authenticated managed-vault server host)
 
 @lapismd/design-core (npm; UI primitives + workspace layout engine)
 @lapismd/mira (+ mira-editor / mira plugins; npm packages)
 @lapismd/storybook-addon-visual-delta (npm; root-only Storybook tooling)
 ```
+
+The private Deno kernel package is source-exported within this workspace. Its
+filesystem, watch, resource, plugin-asset, language, and native database-worker
+modules have no desktop-window, authentication, HTTP-router, or Web-composition
+dependencies; each host supplies those policies through wrappers.
+
+Server-neutral runtime and transport types remain in API subpath exports.
+Desktop and server implementations consume the same remote AppDatabase
+catalogue, while tRPC and Deno server implementation types remain outside the
+public API barrel and browser graph.
+
+The server's hybrid boundary mounts the generated JSON control plane at
+`/api/trpc` and keeps file and resource bytes on authenticated Fetch routes.
+Both paths share request-session, membership, mutation-security, managed-root,
+and error-code policy; only transport-specific body handling differs.
+Bounded ZIP transfer and verified hash-addressed plugin assets stay on the
+direct Fetch side and never serialize the derived per-vault database.
+The browser composes explicit vault and database adapters over that boundary;
+it does not emulate or publish a desktop-native capability bridge.
+The compile-time server Web profile reuses the application workspace shell but
+excludes local-vault, offline, AI-host, terminal-host, and PWA boot policy.
+It marks the document runtime as `deno-server` before mounting so host-specific
+code never has to infer the online profile from missing desktop or PWA state.
+Its pre-workspace login and managed-vault launcher remain Web-owned presentation:
+they compose Design Core with the Lapis theme, while server-owned authentication,
+membership, archive validation, and managed storage remain behind Fetch and tRPC.
+Container execution preserves the same boundary with non-root ownership and
+scoped Deno permissions; native database FFI is limited to the dependency
+cache, while only the managed data root is writable.
 
 API diagnostic hover cards keep unique action keys when titles repeat and
 expose one Quick Fix menu for cached actions. The
@@ -524,8 +614,10 @@ rebuild-generated-state so a later manual rebuild uses the same handle
 (LN-PKG-097, LN-PKG-098). `App` constructs `NotificationManager`
 before `Workspace` so the host can project that progress. Native window-drag regions stay in Design
 Core chrome CSS; hosts do not re-declare `-webkit-app-region`.
-Desktop and web “View all” palettes keep host-owned Dialog chrome and compose
-Command View for the searchable recent-vault list.
+Desktop, web, and server “View all” palettes keep host-owned Dialog chrome and
+compose Command View for searchable vault selection. A live server workspace
+stays mounted behind its managed-vault chooser so the named return control can
+restore that session without reconstructing plugin or workspace state.
 The ready-shell vault menu follows the same boundary: Design Core presents the
 generic menu, the workspace package forwards its contract, and the desktop
 consumer supplies profiles plus serialized switch and management callbacks.
@@ -563,8 +655,9 @@ advertises an `agent-runtime` capability for process-backed ACP and Codex
 sessions while the reserved `model` capability stays unavailable. The plugin
 obtains live runtimes from that host factory and keeps adapters off the root
 export. Cursor uses the same ACP runtime as Codex through the selected agent
-name. Process execution lives in public `@lapismd/ai-host`, used in-process by
-Deno desktop and as `lapis-ai-host serve` for WebSocket clients. User-global agent
+name. Generic orchestration lives in the standalone `lapis-ai-controller` service.
+Deno desktop supervises it; web and Storybook attach to it. The shared SDK owns
+transport and recovery, while `@lapismd/ai-host` supplies provider mechanics. User-global agent
 command storage is a host capability, so renderer bundles must not statically
 pull the AI plugin's Node-only command-store module into the browser graph.
 The same desktop bridge advertises `terminal-runtime`. Deno desktop embeds
@@ -671,3 +764,45 @@ The deterministic metadata performance runners seed the same normalized schema
 for native and real WASM/OPFS sessions. Their 50,000-note gate measures direct
 database readiness and indexed queries without mounting a vault-sized
 JavaScript model; the 100,000-note lane remains reported stress evidence.
+
+Desktop managed-controller test fixtures preserve the public ready descriptor, including its schema, so host-boundary assertions verify the same connection shape as the supervised process.
+
+The public Tasks projection v4 adds optional low/medium/high priority as an
+indexed sortable field. Task Markdown remains owned by the external Tasks
+package; hosts rebuild disposable projection rows through its registration.
+
+Local plugin preparation excludes published Design Core, Mira-family, and Spec
+Validator entries from tarball remapping and install fingerprints. Existing
+plugin and unpublished AI Controller acceptance remains separate
+from these registry foundations.
+
+For LN-PLUG-092, plugin-management presentation composes shared V2 metadata through public package exports. Packed API acceptance uses one public API class identity and lets the Workspace Vitest graph transform dependency modules through Vite rather than substituting a private API barrel.
+
+Local signed-registry acceptance (LN-PLUG-095) composes the public App options
+inside App Profile. Only the configured virtual HTTPS artifact origin maps to
+the loopback fixture transport; signed content and all installer verification
+boundaries remain authoritative.
+
+For LN-PKG-146, canonical host-module configuration and current API exports
+regenerate the catalogue before package output. App Profile supplies pure build
+metadata; each host supplies its own Vite plugin and emits public module proxies
+from the same graph as the application. No registry bundle uses source aliases.
+
+The signed plugin editor runtime also shares the approved CodeMirror and Lezer
+core modules through LN-PKG-146 host entries. Language grammars remain local to
+the plugin while editor classes, facets, and parser node properties resolve
+through the same graph as the API editor.
+
+LN-PKG-149 binds compiled Svelte archives to the exact renderer ABI supplied by
+the host. Generated versioned entries and browser import maps share that module
+graph without exposing original private host specifiers. API and host Svelte
+peers retain the exact qualified compiler version; dependency drift fails the
+host-catalogue build before archives can be installed.
+
+The API owns pure registry schema and build-tooling subpaths. Community relay composition remains deferred outside active application sources; the static registry, hosts, and plugin release tooling consume API exports. Build tooling has no renderer platform in the generated host catalogue.
+
+The default app owns Plugins view/ribbon registration through App Profile. Workspace owns transport-neutral presentation and an App-scoped registry controller shared with Settings; the API remains the verified distribution boundary (LN-PLUG-098–103). Community components supply presentation references only, without loading its runtime.
+
+The public `Notice` constructor declaration exposes its implemented optional
+App argument. App-owned registry actions pass that App explicitly, so notices
+follow the owning host rather than compatibility state.

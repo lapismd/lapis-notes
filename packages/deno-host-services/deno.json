@@ -1,0 +1,13 @@
+{
+  "imports": {
+    "@lapis-notes/api/app-database": "../api/src/lib/app-database-host.ts",
+    "@lapis-notes/api/language-service": "../api/src/lib/language-service/index.ts",
+    "@lapis-notes/language-service/markdownlint/runtime": "../language-service/src/markdownlint/runtime.ts",
+    "@tursodatabase/database": "npm:@tursodatabase/database@0.7.2",
+    "zod": "npm:zod@3.25.76"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.window"]
+  }
+}

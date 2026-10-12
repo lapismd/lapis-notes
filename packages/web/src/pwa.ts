@@ -6,31 +6,11 @@ import { registerSW } from "virtual:pwa-register";
 import PwaUpdatePrompt from "./PwaUpdatePrompt.svelte";
 import { createPwaHostStateController } from "./pwa-host-state";
 import { getApplicationCompatibility } from "@lapis-notes/api";
-
-type RuntimeApp = {
-  commands: {
-    executeCommand(id: string): Promise<unknown>;
-    getCommand(id: string): unknown;
-    registerCommand(command: {
-      id: string;
-      name: string;
-      icon?: string;
-      checkCallback(checking: boolean): boolean;
-    }): void;
-  };
-  statusBar: {
-    unregisterItem(id: string): void;
-    upsertItem(item: {
-      id: string;
-      icon?: string;
-      text?: string;
-      tooltip?: string;
-      command?: string;
-      alignment?: "left" | "right";
-      priority?: number;
-    }): void;
-  };
-};
+import {
+  getPwaRuntimeApplication,
+  onPwaRuntimeApplicationChanged,
+  type PwaRuntimeApp as RuntimeApp,
+} from "./pwa-runtime-application";
 
 type BeforeInstallPromptEvent = Event & {
   prompt(): Promise<void>;
@@ -49,19 +29,9 @@ let deferredPrompt: BeforeInstallPromptEvent | null = null;
 let applyServiceWorkerUpdate: ((reloadPage?: boolean) => Promise<void>) | null =
   null;
 let cleanup: (() => void) | null = null;
-let providedRuntimeApp: RuntimeApp | null = null;
-
-export function setPwaRuntimeApplication(app: RuntimeApp): () => void {
-  providedRuntimeApp = app;
-  syncDocumentAndStatus();
-  return () => {
-    if (providedRuntimeApp === app) providedRuntimeApp = null;
-  };
-}
-
 function runtimeApp(): RuntimeApp | null {
   const candidate =
-    providedRuntimeApp ??
+    getPwaRuntimeApplication() ??
     (getApplicationCompatibility() as Partial<RuntimeApp> | undefined);
   return candidate?.commands && candidate.statusBar
     ? (candidate as RuntimeApp)
@@ -191,6 +161,7 @@ export function registerWebPwa(): () => void {
     },
   });
   const unsubscribe = hostState.subscribe(syncDocumentAndStatus);
+  const unsubscribeRuntime = onPwaRuntimeApplicationChanged(syncDocumentAndStatus);
   hostState.setOnline(navigator.onLine !== false);
   const updateServiceWorker = registerSW({
     immediate: true,
@@ -220,6 +191,7 @@ export function registerWebPwa(): () => void {
   integrateWhenReady();
   cleanup = () => {
     unsubscribe();
+    unsubscribeRuntime();
     window.removeEventListener("beforeinstallprompt", onInstall);
     window.removeEventListener("appinstalled", onInstalled);
     window.removeEventListener("online", onOnline);

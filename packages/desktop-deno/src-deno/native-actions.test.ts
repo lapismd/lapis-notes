@@ -55,14 +55,17 @@ describe("Deno native desktop actions", () => {
     expect(
       createCapabilityRegistry("windows")["file-system-actions"].status,
     ).toBe("unavailable");
+    expect(createCapabilityRegistry("darwin")["nostr-signer"].status).toBe(
+      "available",
+    );
+    expect(createCapabilityRegistry("windows")["nostr-signer"].status).toBe(
+      "unavailable",
+    );
     expect(
       createCapabilityRegistry("darwin")["agent-runtime"].details,
     ).toMatchObject({
-      protocolVersion: 5,
-      deferredStart: true,
-      deferredModels: true,
-      runStatus: true,
-      sessionConfiguration: "configure",
+      protocol: "lapis-ai-controller/1",
+      connection: "desktop_ai_controller_connection",
     });
   });
 

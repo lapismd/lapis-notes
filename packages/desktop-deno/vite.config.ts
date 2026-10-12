@@ -1,9 +1,15 @@
+import {
+  rendererPluginHostInputs,
+  resolvePluginHostModule,
+  loadPluginHostModule,
+} from "@lapis-notes/app-profile/plugin-host-build";
+import { tursoBundleBuildPlugin } from "@lapis-notes/api/build/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineConfig, searchForWorkspaceRoot } from "vite";
+import { defineConfig, searchForWorkspaceRoot, type Plugin } from "vite";
 
 import { TURSO_WASM_BUNDLE_ESM } from "./src-deno/production-build";
 
@@ -46,6 +52,7 @@ export const rendererOptimizeDependencyExclusions = [
   "@lapis-notes/api",
   "harper.js",
   "ghostty-web",
+  "@tursodatabase/database-wasm/vite",
   "@lapismd/design-core",
 ] as const;
 
@@ -62,10 +69,48 @@ export const rendererSvelteOptions = {
   emitCss: false,
 } as const;
 
+import { rendererPluginImportMap } from "@lapis-notes/app-profile/plugin-host-build";
+export { rendererPluginImportMap };
+
+function pluginHostImportMapPlugin(): Plugin {
+  return {
+    name: "lapis-desktop-plugin-host-import-map",
+    resolveId(id) {
+      return resolvePluginHostModule(id);
+    },
+    load(id) {
+      return loadPluginHostModule(id);
+    },
+    configureServer(server) {
+      server.middlewares.use((request, _response, next) => {
+        const pathname = request.url?.split("?", 1)[0];
+        const id = pathname && resolvePluginHostModule(pathname);
+        if (id) request.url = "/@id/__x00__" + id.slice(1);
+        next();
+      });
+    },
+    transformIndexHtml() {
+      return [
+        {
+          tag: "script",
+          attrs: { type: "importmap" },
+          children: JSON.stringify(rendererPluginImportMap),
+          injectTo: "head-prepend",
+        },
+      ];
+    },
+  };
+}
+
 export default defineConfig(({ command }) => ({
   base: command === "build" ? "./" : "/",
   clearScreen: false,
-  plugins: [svelte(rendererSvelteOptions), tailwindcss()],
+  plugins: [
+    tursoBundleBuildPlugin(),
+    pluginHostImportMapPlugin(),
+    svelte(rendererSvelteOptions),
+    tailwindcss(),
+  ],
   server: {
     host: "127.0.0.1",
     port: 1422,
@@ -81,7 +126,7 @@ export default defineConfig(({ command }) => ({
     strictPort: true,
     headers: crossOriginIsolationHeaders,
   },
-  worker: { format: "es" },
+  worker: { format: "es", plugins: () => [tursoBundleBuildPlugin()] },
   assetsInclude: ["**/*.wasm"],
   optimizeDeps: {
     exclude: [...rendererOptimizeDependencyExclusions],
@@ -97,9 +142,18 @@ export default defineConfig(({ command }) => ({
     reportCompressedSize: false,
     outDir: "dist",
     rollupOptions: {
+      preserveEntrySignatures: "strict",
       input: {
         main: path.resolve(packageRoot, "index.html"),
         about: path.resolve(packageRoot, "about.html"),
+        ...rendererPluginHostInputs,
+      },
+      output: {
+        entryFileNames(chunk) {
+          return chunk.name.startsWith("plugin-host-")
+            ? `${chunk.name}.js`
+            : "assets/[name]-[hash].js";
+        },
       },
     },
     commonjsOptions: {

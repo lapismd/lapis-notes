@@ -1,41 +1,16 @@
-import type {
-  AppDatabaseWorkerRequest,
-  AppDatabaseWorkerRequestInput,
-  AppDatabaseWorkerResponse,
-} from "./app-database-worker-protocol.ts";
+import type { AppDatabaseWorkerRequestInput } from "./app-database-worker-protocol.ts";
+
+import { DenoAppDatabaseHost } from "./app-database.ts";
 
 const directory = await Deno.makeTempDir({ prefix: "lapis-database-worker-" });
-const worker = new Worker(
-  new URL("./app-database-worker.ts", import.meta.url).href,
-  { type: "module", name: "lapis-app-database-smoke" },
-);
-let id = 0;
-const pending = new Map<
-  number,
-  { resolve(value: unknown): void; reject(error: unknown): void }
->();
-worker.onmessage = (event: MessageEvent<AppDatabaseWorkerResponse>) => {
-  if (event.data.type !== "result") return;
-  const request = pending.get(event.data.id);
-  if (!request) return;
-  pending.delete(event.data.id);
-  if (event.data.ok) request.resolve(event.data.value);
-  else request.reject(new Error(event.data.error.message));
-};
-worker.onerror = (event) => {
-  for (const request of pending.values()) request.reject(event.error);
-  pending.clear();
-};
-
+const host = new DenoAppDatabaseHost(directory, async () => undefined, {
+  resolveDatabasePath: async () => `${directory}/smoke.turso`,
+});
 function invoke(request: AppDatabaseWorkerRequestInput): Promise<unknown> {
-  const requestId = ++id;
-  return new Promise((resolve, reject) => {
-    pending.set(requestId, { resolve, reject });
-    worker.postMessage({
-      ...request,
-      id: requestId,
-    } as AppDatabaseWorkerRequest);
-  });
+  if (request.type === "open") return host.open(request);
+  if (request.type === "close") return host.close(request);
+  if (request.type === "close-all") return host.closeAll();
+  return host.invoke(request);
 }
 
 try {
@@ -85,6 +60,6 @@ try {
   await invoke({ type: "close-all" });
   console.log("desktop database worker smoke passed");
 } finally {
-  worker.terminate();
+  await host.closeAll();
   await Deno.remove(directory, { recursive: true }).catch(() => undefined);
 }

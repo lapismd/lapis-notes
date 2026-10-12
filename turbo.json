@@ -1,5 +1,13 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "remoteCache": {
+    "signature": true,
+    "timeout": 10,
+    "uploadTimeout": 30
+  },
+  "futureFlags": {
+    "longerSignatureKey": true
+  },
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

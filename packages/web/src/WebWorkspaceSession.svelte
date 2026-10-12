@@ -1,20 +1,27 @@
 <script lang="ts">
   import {
     App,
+    type AppPluginDistributionOptions,
+    createBrowserSyncUnlockHandler,
     installApplicationCompatibility,
     listVaultProfiles,
     provideApplicationState,
+    requestBrowserStoragePersistence,
+    takeHostSyncService,
+    type SyncHostService,
     registerDefaultDailyDocumentProvider,
     type BrowserCoordinatedAppDatabase,
+    type PluginAssetServer,
     type VaultAdapter,
     type VaultProfile,
     type VaultSession,
   } from "@lapis-notes/api";
   import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
   import {
-    createNotesPluginDependencyResolver,
+    createConfiguredNotesLocalPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
+    registerNotesPluginBrowser,
   } from "@lapis-notes/app-profile";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -36,7 +43,7 @@
   } from "./terminal-runtime-settings";
   import { registerWebVaultTransferSettings } from "./vault-transfer-settings";
   import { createWebPluginAssetServer } from "./plugin-asset-server";
-  import { setPwaRuntimeApplication } from "./pwa";
+  import { setPwaRuntimeApplication } from "./pwa-runtime-application";
 
   let {
     adapter,
@@ -45,6 +52,10 @@
     onReady,
     onOpenRecent,
     onManageVaults,
+    runtime = "web-pwa",
+    listProfiles = listVaultProfiles,
+    pluginAssetServer,
+    pluginDistributionOptions,
   }: {
     adapter: VaultAdapter;
     profile: VaultProfile;
@@ -52,7 +63,18 @@
     onReady(): void;
     onOpenRecent(profile: VaultProfile): Promise<void>;
     onManageVaults(): Promise<void>;
+    runtime?: "web-pwa" | "deno-server";
+    listProfiles?: () => Promise<VaultProfile[]>;
+    pluginAssetServer?: PluginAssetServer;
+    pluginDistributionOptions?: AppPluginDistributionOptions;
   } = $props();
+
+  const staticPluginDistributionOptions = untrack(() =>
+    createConfiguredNotesLocalPluginDistribution(
+      import.meta.env,
+      pluginDistributionOptions,
+    ),
+  );
 
   const STARTUP_TASKS: WorkspaceStartupTask[] = [
     { id: "vault", label: "Open the vault", status: "pending" },
@@ -61,32 +83,93 @@
     { id: "layout", label: "Restore the workspace layout", status: "pending" },
   ];
 
-  const app = untrack(
-    () =>
-      new App({
-        version: "2026.6.3",
-        configPath: ".obsidian/app.json",
-        session,
-        createCommunityPluginDependencyResolver:
-          createNotesPluginDependencyResolver,
-        pluginAssetServer: createWebPluginAssetServer({ adapter }),
-        workspaceShell: {
-          application: {
-            name: "Lapis Notes",
-            buildTime: null,
-            copyright: "Copyright © Lapis Notes contributors.",
-          },
-          notifications: true,
+  const app = untrack(() => {
+    let ownedApp!: App;
+    let hostSync!: SyncHostService;
+    const requestCryptoUnlock = createBrowserSyncUnlockHandler({
+      database: session.appDatabase!,
+      getSyncHost: () => hostSync,
+      rpName: "Lapis Notes",
+      interaction: {
+        confirmPasskeyEnrollment: async () =>
+          globalThis.confirm(
+            "Protect this vault's sync keys with a passkey on this device?",
+          ),
+        requestPassphrase: async (_pluginId, mode) => {
+          const passphrase = globalThis.prompt(
+            mode === "enroll"
+              ? "Create a sync passphrase (at least 10 characters). Keep it somewhere safe; Lapis cannot recover it."
+              : "Enter the sync passphrase for this vault.",
+          );
+          if (passphrase == null || mode === "unlock") return passphrase;
+          const confirmation = globalThis.prompt(
+            "Enter the new sync passphrase again to confirm it.",
+          );
+          if (confirmation !== passphrase) {
+            throw new Error("Sync passphrase confirmation did not match");
+          }
+          return passphrase;
         },
-        markdownRenderer: async () => {},
-      }),
-  );
+      },
+    });
+    ownedApp = new App({
+      version: "2026.6.3",
+      configPath: ".obsidian/app.json",
+      session,
+      syncHost: {
+        requestCryptoUnlock,
+        requestRecoveryPassphrase: async (_pluginId, mode) => {
+          const passphrase = globalThis.prompt(
+            mode === "export"
+              ? "Create a recovery-bundle passphrase (at least 10 characters)."
+              : "Enter the recovery-bundle passphrase.",
+          );
+          if (passphrase == null || mode === "import") return passphrase;
+          const confirmation = globalThis.prompt(
+            "Enter the recovery-bundle passphrase again to confirm it.",
+          );
+          if (confirmation !== passphrase) {
+            throw new Error("Recovery passphrase confirmation did not match");
+          }
+          return passphrase;
+        },
+        requestNetworkOriginGrant: async ({
+          pluginId,
+          origin,
+          allowPrivateNetwork,
+        }) =>
+          globalThis.confirm(
+            `${pluginId} wants to connect to ${origin}.${
+              allowPrivateNetwork
+                ? " This grants access to a private or loopback network address."
+                : ""
+            } Allow this exact origin?`,
+          ),
+      },
+      pluginAssetServer:
+        pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
+      pluginDistributionOptions: staticPluginDistributionOptions,
+      workspaceShell: {
+        application: {
+          name: "Lapis Notes",
+          buildTime: null,
+          copyright: "Copyright © Lapis Notes contributors.",
+        },
+        notifications: true,
+      },
+      markdownRenderer: async () => {},
+    });
+    hostSync = takeHostSyncService(ownedApp);
+    return ownedApp;
+  });
   provideApplicationState(app);
-  const disposeApplicationCompatibility =
-    installApplicationCompatibility(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const disposePluginManagementSettings = registerNotesPluginSettings(app);
+  const disposePluginBrowser = registerNotesPluginBrowser(app);
   const dailyDocumentProvider = registerDefaultDailyDocumentProvider(app);
-  const disposePwaRuntimeApplication = setPwaRuntimeApplication(app);
+  const disposePwaRuntimeApplication = untrack(() =>
+    runtime === "web-pwa" ? setPwaRuntimeApplication(app) : () => {},
+  );
   let ready = $state(false);
   let tasks = $state<WorkspaceStartupTask[]>(structuredClone(STARTUP_TASKS));
   let failure = $state<WorkspaceStartupFailure | null>(null);
@@ -129,6 +212,7 @@
   });
 
   onMount(() => {
+    void requestBrowserStoragePersistence().catch(() => undefined);
     void initialize();
     return () => {
       void dispose(false);
@@ -157,34 +241,47 @@
     );
   }
 
-  function syncDatabaseStatus(role: "owner" | "proxy"): void {
+  function syncDatabaseStatus(role: "owner" | "proxy" | "server"): void {
     disposeDatabaseStatus?.();
     disposeDatabaseStatus = getWorkspaceHostBinding(
       app.workspace,
     ).controller.status.addItem({
       id: "app:web-database-role",
-      label: role === "proxy" ? "DB Proxy" : "DB Owner",
+      label:
+        role === "server"
+          ? "Server DB"
+          : role === "proxy"
+            ? "DB Proxy"
+            : "DB Owner",
       icon: "database",
       tooltip:
-        role === "proxy"
-          ? "Database requests are delegated to this vault's owner tab."
-          : "This tab owns the local Turso database for this vault.",
+        role === "server"
+          ? "Application data is managed by the authenticated Lapis server."
+          : role === "proxy"
+            ? "Database requests are delegated to this vault's owner tab."
+            : "This tab owns the local Turso database for this vault.",
       align: "right",
       priority: 850,
     });
   }
 
   function registerDatabaseStatus(): void {
-    const role = session.appDatabase?.descriptor.role === "proxy" ? "proxy" : "owner";
+    if (runtime === "deno-server") {
+      syncDatabaseStatus("server");
+      return;
+    }
+    const role =
+      session.appDatabase?.descriptor.role === "proxy" ? "proxy" : "owner";
     syncDatabaseStatus(role);
     const coordinated = session.appDatabase as BrowserCoordinatedAppDatabase & {
       onCoordinationModeChange?: (
         listener: (mode: "turso-owner" | "turso-proxy") => void,
       ) => () => void;
     };
-    disposeCoordinationListener = coordinated.onCoordinationModeChange?.(
-      (mode) => syncDatabaseStatus(mode === "turso-proxy" ? "proxy" : "owner"),
-    ) ?? null;
+    disposeCoordinationListener =
+      coordinated.onCoordinationModeChange?.((mode) =>
+        syncDatabaseStatus(mode === "turso-proxy" ? "proxy" : "owner"),
+      ) ?? null;
   }
 
   async function teardownPartialBoot(): Promise<void> {
@@ -221,8 +318,10 @@
       if (disposed) return;
 
       setTask(activeTask, "active");
-      registerWebAgentRuntimeBridge();
-      registerWebTerminalRuntimeBridge();
+      if (runtime === "web-pwa") {
+        registerWebAgentRuntimeBridge();
+        registerWebTerminalRuntimeBridge();
+      }
       if (!corePluginsRegistered) {
         app.plugins.registerStaticPlugins(notesPluginProfile);
         corePluginsRegistered = true;
@@ -238,11 +337,14 @@
       disposeAgentRuntimeSettings?.();
       disposeTerminalRuntimeSettings?.();
       disposeVaultTransferSettings?.();
-      disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
-      disposeTerminalRuntimeSettings = registerWebTerminalRuntimeSettings(app);
-      disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
-      syncWebAgentRuntime(app);
-      syncWebTerminalRuntime(app);
+      if (runtime === "web-pwa") {
+        disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
+        disposeTerminalRuntimeSettings =
+          registerWebTerminalRuntimeSettings(app);
+        disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
+        syncWebAgentRuntime(app);
+        syncWebTerminalRuntime(app);
+      }
       if (disposed) return;
       setTask(activeTask, "complete");
 
@@ -261,7 +363,7 @@
       activeTask = "layout";
       setTask(activeTask, "active");
       await app.workspace.loadLayout();
-      recentVaults = await listVaultProfiles();
+      recentVaults = await listProfiles();
       registerDatabaseStatus();
       if (disposed) return;
       setTask(activeTask, "complete");
@@ -338,6 +440,7 @@
       await session.close();
     } finally {
       dailyDocumentProvider.dispose();
+      disposePluginBrowser();
       disposePluginManagementSettings();
       disposePwaRuntimeApplication();
       disposeApplicationCompatibility();
@@ -345,7 +448,11 @@
   }
 </script>
 
-<section class="web-host__workspace" data-web-runtime="web-pwa" data-vault-id={profile.id}>
+<section
+  class="web-host__workspace"
+  data-web-runtime={runtime}
+  data-vault-id={profile.id}
+>
   {#if ready}
     <WorkspaceShell
       {app}
@@ -354,10 +461,6 @@
       {workspaceNavigation}
     />
   {:else}
-    <WorkspaceStartup
-      title="Opening Lapis Notes"
-      {tasks}
-      {failure}
-    />
+    <WorkspaceStartup title="Opening Lapis Notes" {tasks} {failure} />
   {/if}
 </section>

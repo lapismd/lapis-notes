@@ -1,5 +1,26 @@
 # Lapis Editor Demo
 
+Notes pins its direct Bits UI runtime to published `2.19.5`, including the
+upstream document text-selection listener teardown fix. Dependency-originated
+Svelte diagnostics remain fatal, and retained diagnostics fail after story
+teardown even when component cleanup catches the immediate exception.
+
+The editor demo consumes published Design Core `0.3.2` through the root npm range and portable lockfile, including corrected settings typography and selected-tab indicators.
+
+The static registry framework candidates use API and Workspace 0.1.1. Editor
+acceptance continues to exercise the same public App and workspace contracts
+when validating those release versions.
+
+The demo shares the qualified Svelte renderer graph under LN-PKG-149. Provider
+readiness refreshes already-open editor diagnostics through LN-WS-094 without
+changing document content or persistence.
+
+Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
+unchanged; local overrides for these released packages are retired.
+
+The demo resolves its Design Core presentation through the same portable npm
+range and committed lockfile as the production hosts.
+
 The real-App demo consumes the application-owned Notes profile, so API-registered
 Markdown contributions and the full-file provider exercise the same lifecycle
 and public package boundary as production hosts. The provider establishes the
@@ -22,12 +43,12 @@ the one-write contract. Teardown disposes only runtimes that actually started.
 
 ## Requirements
 
-| ID        | Requirement                                                                                                                                                                                                                           |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| LN-ED-001 | `@lapis-notes/api` MUST export a complete non-persistent `MemoryVaultAdapter` for deterministic tests, Storybook demos, and consumers that explicitly choose volatile storage.                                                        |
-| LN-ED-002 | `@lapis-notes/api` MUST export a concrete source-text file view which mounts the existing accessibly named CodeMirror editor without defining Markdown rendering policy.                                                              |
+| ID        | Requirement                                                                                                                                                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LN-ED-001 | `@lapis-notes/api` MUST export a complete non-persistent `MemoryVaultAdapter` for deterministic tests, Storybook demos, and consumers that explicitly choose volatile storage.                                                  |
+| LN-ED-002 | `@lapis-notes/api` MUST export a concrete source-text file view which mounts the existing accessibly named CodeMirror editor without defining Markdown rendering policy.                                                        |
 | LN-ED-003 | The editor demo MUST register the production `@lapis-notes/source-editor` views for text (`txt`, `text`) and JSON (`json`, `data`); Markdown associations MUST be owned by `@lapis-notes/markdown` when that plugin is enabled. |
-| LN-ED-004 | While only the source-editor demo plugin is enabled, Markdown MUST remain source-only. When `@lapis-notes/markdown` is enabled it MUST own Markdown with Mira `source`, `live-preview`, and `preview` modes.                          |
+| LN-ED-004 | While only the source-editor demo plugin is enabled, Markdown MUST remain source-only. When `@lapis-notes/markdown` is enabled it MUST own Markdown with Mira `source`, `live-preview`, and `preview` modes.                    |
 
 | LN-ED-005 | The API-owned design-core settings controller MUST load and save through API configuration atomically, preserve unrelated configuration, and avoid controller/configuration feedback loops. |
 | LN-ED-006 | API editor-view contributions MUST be mirrored into the API-owned design-core registry so editor-association settings use live registered views. |

@@ -1,4 +1,5 @@
 import { handleBootstrapKv } from "./bootstrap-kv.ts";
+import { writeAcceptanceReport } from "./acceptance-report.ts";
 import { DESKTOP_APPLICATION_INFO } from "./application-info.ts";
 import type { DenoAppDatabaseHost } from "./app-database.ts";
 import {
@@ -9,7 +10,12 @@ import { createCapabilityRegistry } from "./capabilities.ts";
 import type { DenoFileWatchService } from "./file-watch.ts";
 import { handleLanguageService } from "./language-service.ts";
 import { openExternalUrl, showNativeNotification } from "./native-actions.ts";
+import {
+  DENO_NOSTR_SIGNER_COMMANDS,
+  type DenoNostrSignerService,
+} from "./nostr-signer.ts";
 import type { DenoPluginAssetService } from "./plugin-assets.ts";
+import { getDesktopSyncWrappingKey } from "./sync-secure-store.ts";
 import { resolveDesktopRendererEngine } from "./renderer-engine.ts";
 import {
   DENO_TERMINAL_COMMANDS,
@@ -28,8 +34,13 @@ const FS_COMMANDS = new Set([
   "desktop_fs_stat",
   "desktop_fs_read_text",
   "desktop_fs_read_binary",
+  "desktop_fs_read_range",
   "desktop_fs_write_text",
   "desktop_fs_write_binary",
+  "desktop_fs_atomic_write_begin",
+  "desktop_fs_atomic_write_chunk",
+  "desktop_fs_atomic_write_commit",
+  "desktop_fs_atomic_write_abort",
   "desktop_fs_append_text",
   "desktop_fs_list",
   "desktop_fs_mkdir",
@@ -75,6 +86,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   "desktop_open_external",
   "desktop_app_url_take_pending",
   "desktop_notifications_show",
+  "desktop_sync_wrapping_key_get",
   "desktop_telemetry_log",
   "desktop_plugin_assets_register",
   "desktop_fs_watch_start",
@@ -85,6 +97,7 @@ export const DENO_INVOKE_COMMANDS = new Set([
   ...FS_COMMANDS,
   ...KV_COMMANDS,
   ...LANGUAGE_SERVICE_COMMANDS,
+  ...DENO_NOSTR_SIGNER_COMMANDS,
   ...DENO_AGENT_COMMANDS,
   ...DENO_TERMINAL_COMMANDS,
 ]);
@@ -101,6 +114,7 @@ export type DesktopInvokeContext = {
   takePendingAppUrls?: () => string[];
   acceptanceDetails?: () => Record<string, unknown>;
   telemetryLog?: (payload: Record<string, unknown>) => void;
+  nostrSigner?: DenoNostrSignerService;
 };
 
 export function createPlatformInfo() {
@@ -147,6 +161,7 @@ export function handleDesktopInvoke(
   if (command === "desktop_capabilities_get") {
     return createCapabilityRegistry(Deno.build.os, {
       terminalAvailable: Boolean(context.terminalRuntime),
+      nostrSignerAvailable: Boolean(context.nostrSigner),
     });
   }
   if (command === "desktop_acceptance_report") {
@@ -154,10 +169,10 @@ export function handleDesktopInvoke(
     if (Deno.env.get("LAPIS_DENO_ACCEPTANCE") !== "1" || !reportPath) {
       throw new Error("Deno desktop acceptance reporting is disabled");
     }
-    return Deno.writeTextFile(
-      reportPath,
-      `${JSON.stringify({ ...payload, ...context.acceptanceDetails?.() })}\n`,
-    );
+    return writeAcceptanceReport(reportPath, {
+      ...payload,
+      ...context.acceptanceDetails?.(),
+    });
   }
   if (command === "desktop_acceptance_request_close") {
     if (Deno.env.get("LAPIS_DENO_ACCEPTANCE") !== "1") {
@@ -202,6 +217,9 @@ export function handleDesktopInvoke(
   if (command === "desktop_notifications_show") {
     return showNativeNotification(payload.notification);
   }
+  if (command === "desktop_sync_wrapping_key_get") {
+    return getDesktopSyncWrappingKey(payload);
+  }
   if (command === "desktop_telemetry_log") {
     if (!context.telemetryLog) {
       throw new Error("Deno desktop telemetry logging is unavailable");
@@ -243,6 +261,12 @@ export function handleDesktopInvoke(
   }
   if (LANGUAGE_SERVICE_COMMANDS.has(command)) {
     return handleLanguageService(command, payload);
+  }
+  if (DENO_NOSTR_SIGNER_COMMANDS.has(command)) {
+    if (!context.nostrSigner) {
+      throw new Error("Deno Nostr signer is unavailable");
+    }
+    return context.nostrSigner.handle(command, payload);
   }
   if (DENO_AGENT_COMMANDS.has(command)) {
     if (!context.agentRuntime) {

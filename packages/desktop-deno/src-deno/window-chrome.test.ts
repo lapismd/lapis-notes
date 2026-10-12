@@ -7,12 +7,33 @@ import {
   createDesktopWindowOptions,
   needsCreatedChromeWindow,
   rendererOriginFromServeAddress,
+  rendererEntryUrl,
+  isParkedBootstrapRequest,
   setOverlayWindowControls,
   supportsDenoDesktopVersion,
   usesOverlayWindowControls,
 } from "./window-chrome";
 
 describe("Deno desktop window chrome", () => {
+  it("isolates the visible macOS renderer from automatic bootstrap navigation", () => {
+    const origin = "http://127.0.0.1:55755/";
+    const visible = rendererEntryUrl(origin, true);
+    expect(visible).not.toBe(origin);
+    expect(isParkedBootstrapRequest(origin, true)).toBe(true);
+    expect(isParkedBootstrapRequest(visible, true)).toBe(false);
+    expect(isParkedBootstrapRequest(`${origin}index.html`, true)).toBe(true);
+    expect(isParkedBootstrapRequest(`${origin}assets/main.js`, true)).toBe(
+      false,
+    );
+    expect(isParkedBootstrapRequest(`${origin}about.html`, true)).toBe(false);
+  });
+
+  it("preserves the framed host renderer entry", () => {
+    const origin = "http://127.0.0.1:55755/";
+    expect(rendererEntryUrl(origin, false)).toBe(origin);
+    expect(isParkedBootstrapRequest(origin, false)).toBe(false);
+  });
+
   it("creates a chromeless macOS window and keeps other platforms framed", () => {
     expect(createDesktopWindowOptions("darwin")).toMatchObject({
       title: "",

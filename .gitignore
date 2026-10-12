@@ -1,9 +1,11 @@
 node_modules
 dist
+dist-server
 .turbo
 .svelte-kit
 storybook-static
 .release/
+.ci/dependency-context/
 spec/book
 .qmd/index.sqlite*
 coverage
@@ -32,3 +34,6 @@ packages/desktop-deno/native/
 packages/desktop-deno/lapis-notes
 packages/desktop-deno/ai-host
 packages/desktop-deno/terminal-host
+
+# Dedicated signed-registry acceptance builds contain ephemeral fixture trust.
+**/dist-registry-acceptance/

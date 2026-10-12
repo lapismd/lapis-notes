@@ -1,3 +1,8 @@
+import type {
+  RegistryCatalogV2Entry,
+  RegistryCatalogV2Detail,
+  RegistryReleaseChangelog,
+} from "../registry-schema/index.js";
 export type PluginProvenance =
   | "bundled"
   | "official"
@@ -6,21 +11,46 @@ export type PluginProvenance =
   | "development";
 
 export type RegistryTrustTier = "official" | "community" | "local";
+export type PluginRegistrySourceKind = "http" | "nostr";
 
 export interface PluginRegistrySource {
   id: string;
   name: string;
+  /** Omitted by legacy sources and treated as `http`. */
+  kind?: PluginRegistrySourceKind;
   url: string;
   downloadStatsUrl?: string;
+  relays?: string[];
+  curatorPubkeys?: string[];
+  installQuorum?: number;
   trustTier: RegistryTrustTier;
   enabled: boolean;
   builtin?: boolean;
 }
 
-export type PluginRegistryChannel = "official" | "community";
-export type PluginCatalogStatus = "active" | "pending" | "revoked";
+export type PluginRegistrySourcePhase = "idle" | "ready" | "degraded" | "error";
 
-export type PluginPlatform = "web" | "desktop";
+export interface PluginRegistrySourceState {
+  source: PluginRegistrySource;
+  phase: PluginRegistrySourcePhase;
+  installReady: boolean;
+  message?: string;
+}
+
+export interface PluginRegistrySourcePreference {
+  enabled: boolean;
+}
+
+export interface PluginRegistrySourcePreferencesState {
+  schemaVersion: 1;
+  updatedAt: string;
+  sources: Record<string, PluginRegistrySourcePreference>;
+}
+
+export type PluginRegistryChannel = "official" | "community";
+export type PluginCatalogStatus = RegistryCatalogV2Entry["status"];
+
+export type PluginPlatform = "web" | "electron" | "desktop";
 
 export type PluginBadge =
   | "official"
@@ -45,7 +75,7 @@ export interface PluginContributionSummary {
 }
 
 export interface PluginCatalogIndex {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   generatedAt: string;
   registries?: Record<string, { name: string; trustTier: RegistryTrustTier }>;
   plugins: PluginCatalogEntry[];
@@ -53,20 +83,22 @@ export interface PluginCatalogIndex {
 }
 
 export interface PluginCatalogEntry {
+  owner?: RegistryCatalogV2Entry["owner"];
+  appearance?: RegistryCatalogV2Entry["appearance"];
+  authorAvatarUrl?: string;
   id: string;
   name: string;
   description: string;
   readmeUrl?: string;
   author: string;
   authorUrl?: string;
-  appearance?: PluginAppearance;
   channel: PluginRegistryChannel;
   status?: PluginCatalogStatus;
   latestVersion: string;
   minAppVersion: string;
-  platforms: PluginPlatform[];
+  platforms: string[];
   categories: string[];
-  badges?: PluginBadge[];
+  badges?: string[];
   latestRelease?: PluginCatalogLatestRelease;
   detail: string;
   contributes?: PluginContributionSummary;
@@ -113,13 +145,17 @@ export interface PluginDownloadCounts {
 }
 
 export interface PluginCatalogDetail {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
+  author?: string;
+  authorUrl?: string;
+  authorAvatarUrl?: string;
+  appearance?: RegistryCatalogV2Detail["appearance"];
+  media?: RegistryCatalogV2Detail["media"];
+  gallery?: RegistryCatalogV2Detail["gallery"];
   id: string;
   name: string;
   description: string;
   readmeUrl?: string;
-  appearance?: PluginAppearance;
-  gallery?: PluginGalleryItem[];
   channel: PluginRegistryChannel;
   status?: PluginCatalogStatus;
   owner: {
@@ -136,52 +172,6 @@ export interface PluginCatalogDetail {
   contributes?: PluginContributionSummary;
   versions: Record<string, PluginCatalogRelease>;
   signatures?: SignatureRecord[];
-}
-
-export type PluginAppearanceIcon =
-  | "bookmark"
-  | "file-code-2"
-  | "file-text"
-  | "history"
-  | "list-checks"
-  | "network"
-  | "package"
-  | "search"
-  | "sparkles"
-  | "spell-check-2"
-  | "table-2"
-  | "whole-word";
-
-export type PluginImageMediaType =
-  | "image/png"
-  | "image/webp"
-  | "image/svg+xml";
-
-export interface PluginImageReference {
-  url: string;
-  sourceUrl: string;
-  sha256: string;
-  size: number;
-  mediaType: PluginImageMediaType;
-  width: number;
-  height: number;
-}
-
-export interface PluginLogoReference extends PluginImageReference {
-  alt: string;
-}
-
-export interface PluginAppearance {
-  icon: PluginAppearanceIcon;
-  accent: string;
-  logo?: PluginLogoReference;
-}
-
-export interface PluginGalleryItem extends PluginImageReference {
-  id: string;
-  surface: "desktop" | "mobile";
-  alt: string;
-  caption?: string;
 }
 
 export interface PluginCatalogLinks {
@@ -205,16 +195,19 @@ export interface PluginCatalogContent {
 }
 
 export interface PluginCatalogRelease {
+  changelog?: RegistryReleaseChangelog;
+  releasePost?: string;
   version: string;
   minAppVersion: string;
   releasedAt: string;
-  platforms: PluginPlatform[];
+  platforms: string[];
   bundle: RemoteFileReference;
   revoked?: PluginRevocationRecord;
 }
 
 export interface RemoteFileReference {
   url: string;
+  downloadUrl?: string;
   sha256: string;
   size?: number;
 }
@@ -364,6 +357,20 @@ export interface InstalledPluginRecord {
   }>;
   runtimeWarnings?: PluginReleaseRuntimeDiagnostic[];
   signature?: SignatureRecord;
+  nostrProof?: {
+    authorizationEventId: string;
+    releaseEventId: string;
+    decisionEventId: string;
+    manifestSha256: string;
+    /** Digest and size of the exact inner payload authenticated at installation. */
+    artifactSha256: string;
+    artifactSize: number;
+    /**
+     * Portable proof is valid, but a relay quorum has not checked later
+     * revocations.
+     */
+    requiresRelayRefresh: boolean;
+  };
   revoked?: PluginRevocationRecord;
   restartRequired?: boolean;
   [key: string]: unknown;

@@ -1,8 +1,8 @@
 {
   "name": "@lapis-notes/file-explorer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Reusable Lapis Notes file explorer plugin",
-  "license": "AGPL-3.0-or-later",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lapismd/lapis-notes.git",
@@ -46,8 +46,8 @@
     }
   },
   "dependencies": {
-    "@lapis-notes/api": "^0.1.0",
-    "@lapismd/design-core": "^0.1.0"
+    "@lapis-notes/api": "^0.1.1",
+    "@lapismd/design-core": "^0.3.2"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
@@ -57,7 +57,7 @@
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@tsconfig/svelte": "^5.0.5",
     "publint": "^0.3.12",
-    "svelte": "^5.38.2",
+    "svelte": "5.56.10",
     "svelte-check": "^4.3.1",
     "typescript": "~5.8.3",
     "vite": "^6.4.2",

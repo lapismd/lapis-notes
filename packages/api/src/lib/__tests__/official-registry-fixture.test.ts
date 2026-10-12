@@ -13,7 +13,7 @@ const fixtureTrustedKeys: TrustedSigningKey[] = [
   {
     keyId: "lapis-registry-fixture-test",
     alg: "ed25519",
-    publicKey: "WVStHVMlhkPBju4WnzvyLRbN9gu/+exiWlhwynDc6ms=",
+    publicKey: "SjrUGoQc5VbAy3pRaEQX1aJy4p5hZP+LaLExbs84vuY=",
     trustTier: "official",
   },
 ];
@@ -42,8 +42,10 @@ describe("official registry generated fixture", () => {
       id: "lapis-pdf",
       channel: "official",
       latestVersion: "2026.6.1",
-      readmeUrl:
-        "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-pdf/README.md",
+      links: {
+        documentation:
+          "https://raw.githubusercontent.com/lapis-notes/lapis/main/packages/plugins/plugin-pdf/README.md",
+      },
     });
   });
 });

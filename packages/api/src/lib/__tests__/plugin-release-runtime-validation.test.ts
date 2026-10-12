@@ -9,11 +9,117 @@ import { createEsmWorkspaceRuntimeManifest } from "./lapis-runtime-manifest";
 const esmWorkspaceManifest = createEsmWorkspaceRuntimeManifest();
 
 describe("plugin release runtime validation", () => {
+  it("admits the public host imports used by all twelve static release bundles", () => {
+    const sharedDependencies = [
+      "@lapis-notes/api",
+      "@lapis-notes/api/agent-skills",
+      "@lapis-notes/api/agent-tools",
+      "@lapis-notes/api/app-database",
+      "@lapis-notes/api/desktop-native",
+      "@lapis-notes/api/editor",
+      "@lapis-notes/api/editor/core",
+      "@lapis-notes/api/editor/extensions/class-highlighter",
+      "@lapis-notes/api/editor/language-service",
+      "@lapis-notes/api/icon",
+      "@lapis-notes/api/language-service",
+      "@lapis-notes/api/language-service/worker",
+      "@lapis-notes/api/metadata-value",
+      "@lapis-notes/api/path",
+      "@lapis-notes/api/telemetry",
+      "@lapis-notes/api/vault",
+      "@lapis-notes/api/workspace-host",
+      "@lapis-notes/markdown/embed",
+      "@codemirror/autocomplete",
+      "@codemirror/commands",
+      "@codemirror/language",
+      "@codemirror/lint",
+      "@codemirror/search",
+      "@codemirror/state",
+      "@codemirror/view",
+      "@lezer/common",
+      "@lezer/highlight",
+      "@lezer/lr",
+      "svelte/renderer/5.56.10",
+      "svelte/renderer/5.56.10/internal/client",
+      "svelte/renderer/5.56.10/internal/disclose-version",
+      "svelte/renderer/5.56.10/internal/flags/legacy",
+      "svelte/renderer/5.56.10/store",
+      "svelte/renderer/5.56.10/attachments",
+      "svelte/renderer/5.56.10/events",
+      "svelte/renderer/5.56.10/reactivity",
+    ];
+    const manifest = manifestWithRuntime({
+      entries: {
+        workspace: { path: "main.mjs", format: "esm", sharedDependencies },
+      },
+    });
+    const result = validatePluginReleaseRuntime({
+      releaseManifest: releaseManifestFor(manifest),
+      pluginManifest: manifest,
+      files: filesFor(manifest, {
+        "main.mjs": sharedDependencies
+          .map((specifier) => `import ${JSON.stringify(specifier)};`)
+          .join("\n"),
+      }),
+      provenance: "official",
+    });
+    expect(result.errors).toEqual([]);
+  });
+
+  it("rejects an unavailable compiler-versioned renderer before loading its code", () => {
+    const specifier = "svelte/renderer/99.0.0/internal/client";
+    const manifest = manifestWithRuntime({
+      entries: {
+        workspace: {
+          path: "main.mjs",
+          format: "esm",
+          sharedDependencies: [specifier],
+        },
+      },
+    });
+    const result = validatePluginReleaseRuntime({
+      releaseManifest: releaseManifestFor(manifest),
+      pluginManifest: manifest,
+      files: filesFor(manifest, {
+        "main.mjs": `import ${JSON.stringify(specifier)};`,
+      }),
+      provenance: "official",
+    });
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({ code: "runtime-dependency-unknown" }),
+    );
+  });
+
   it("accepts structured ESM-only workspace runtime metadata", () => {
     const result = validatePluginReleaseRuntime({
       releaseManifest: releaseManifestFor(esmWorkspaceManifest),
       pluginManifest: esmWorkspaceManifest,
       files: filesFor(esmWorkspaceManifest),
+      provenance: "official",
+    });
+
+    expect(result.errors).toEqual([]);
+  });
+
+  it("accepts the public workspace-host API subpath used by History", () => {
+    const manifest = manifestWithRuntime({
+      entries: {
+        workspace: {
+          path: "main.mjs",
+          format: "esm",
+          sharedDependencies: [
+            "@lapis-notes/api",
+            "@lapis-notes/api/workspace-host",
+          ],
+        },
+      },
+    });
+    const result = validatePluginReleaseRuntime({
+      releaseManifest: releaseManifestFor(manifest),
+      pluginManifest: manifest,
+      files: filesFor(manifest, {
+        "main.mjs": `import { Plugin } from "@lapis-notes/api"; import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host"; export default class HistoryPlugin extends Plugin {}`,
+      }),
       provenance: "official",
     });
 
@@ -47,40 +153,6 @@ describe("plugin release runtime validation", () => {
 
     expect(result.errors).toContainEqual(
       expect.objectContaining({ code: "runtime-dependency-undeclared" }),
-    );
-  });
-
-  it("accepts compiler-emitted renderer ABI imports without manifest declarations", () => {
-    const result = validatePluginReleaseRuntime({
-      releaseManifest: releaseManifestFor(esmWorkspaceManifest),
-      pluginManifest: esmWorkspaceManifest,
-      files: filesFor(esmWorkspaceManifest, {
-        "main.mjs": [
-          `import { mount } from "svelte";`,
-          `import * as client from "svelte/internal/client";`,
-          `import "svelte/internal/disclose-version";`,
-          `export default class FixturePlugin {}`,
-        ].join("\n"),
-      }),
-      provenance: "official",
-    });
-
-    expect(result.errors).toEqual([]);
-    expect(result.warnings).toEqual([]);
-  });
-
-  it("does not widen the implicit renderer ABI to arbitrary Svelte subpaths", () => {
-    const result = validatePluginReleaseRuntime({
-      releaseManifest: releaseManifestFor(esmWorkspaceManifest),
-      pluginManifest: esmWorkspaceManifest,
-      files: filesFor(esmWorkspaceManifest, {
-        "main.mjs": `import * as server from "svelte/internal/server"; export default class FixturePlugin {}`,
-      }),
-      provenance: "official",
-    });
-
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({ code: "runtime-dependency-unknown" }),
     );
   });
 
@@ -388,7 +460,7 @@ function releaseManifestFor(manifest: PluginManifest): PluginReleaseManifest {
     channel: "official",
     compatibility: {
       minAppVersion: manifest.minAppVersion,
-      platforms: ["web", "desktop"],
+      platforms: ["web", "electron"],
     },
     runtime: manifest.lapis?.runtime,
     files: [

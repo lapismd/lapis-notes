@@ -2,7 +2,7 @@ import {
   assertSupportedPluginAssetPath,
   createWebPluginAssetUrl,
   getInstalledPluginAssetFingerprint,
-  getInstalledPluginAssetHash,
+  getInstalledPluginAssetFingerprintSha256,
   getInstalledPluginAssetVersion,
   isSupportedPluginAssetPath,
   normalizePluginAssetRelativePath,
@@ -25,6 +25,10 @@ export interface WebPluginAssetServerOptions {
   adapter: WebPluginAssetDataAdapter;
   cacheStorage?: CacheStorage;
   pluginsPath?: string;
+  serviceWorker?: Pick<
+    ServiceWorkerContainer,
+    "controller" | "addEventListener" | "removeEventListener"
+  >;
 }
 
 export class WebCachePluginAssetServer implements PluginAssetServer {
@@ -46,13 +50,19 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
     }
     const path = normalizePluginAssetRelativePath(request.relativePath);
     assertSupportedPluginAssetPath(path);
-    const sha256 = getInstalledPluginAssetHash(installedPlugin, path);
-    await this.mirrorInstalledPlugin(installedPlugin, version);
+    const fingerprintSha256 =
+      await getInstalledPluginAssetFingerprintSha256(installedPlugin);
+    await this.mirrorInstalledPlugin(
+      installedPlugin,
+      version,
+      fingerprintSha256,
+    );
+    await waitForWebPluginAssetController(this.options.serviceWorker);
     return createWebPluginAssetUrl({
       vaultId: this.vaultId,
       pluginId: request.pluginId,
       version,
-      sha256,
+      sha256: fingerprintSha256,
       path,
     });
   }
@@ -81,11 +91,16 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
   private mirrorInstalledPlugin(
     installedPlugin: InstalledPluginRecord,
     version: string,
+    fingerprintSha256: string,
   ): Promise<void> {
     const key = `${installedPlugin.pluginId}@${version}:${getInstalledPluginAssetFingerprint(installedPlugin)}`;
     const existing = this.mirroredPlugins.get(key);
     if (existing) return existing;
-    const pending = this.writeInstalledPluginToCache(installedPlugin, version);
+    const pending = this.writeInstalledPluginToCache(
+      installedPlugin,
+      version,
+      fingerprintSha256,
+    );
     this.mirroredPlugins.set(key, pending);
     return pending;
   }
@@ -93,6 +108,7 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
   private async writeInstalledPluginToCache(
     installedPlugin: InstalledPluginRecord,
     version: string,
+    fingerprintSha256: string,
   ): Promise<void> {
     const cacheStorage = this.options.cacheStorage ?? globalThis.caches;
     if (!cacheStorage) {
@@ -116,7 +132,7 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
             vaultId: this.vaultId,
             pluginId: installedPlugin.pluginId,
             version,
-            sha256: asset.sha256,
+            sha256: fingerprintSha256,
             path: asset.path,
           });
           await cache.put(
@@ -125,6 +141,8 @@ export class WebCachePluginAssetServer implements PluginAssetServer {
               headers: {
                 "Cache-Control": "no-store",
                 "Content-Type": asset.contentType,
+                "Cross-Origin-Embedder-Policy": "require-corp",
+                "Cross-Origin-Resource-Policy": "same-origin",
                 "X-Lapis-Plugin-Asset-Sha256": asset.sha256,
               },
             }),
@@ -138,4 +156,42 @@ export function createWebPluginAssetServer(
   options: WebPluginAssetServerOptions,
 ): PluginAssetServer {
   return new WebCachePluginAssetServer(options);
+}
+
+export async function waitForWebPluginAssetController(
+  serviceWorker:
+    | Pick<
+        ServiceWorkerContainer,
+        "controller" | "addEventListener" | "removeEventListener"
+      >
+    | undefined = globalThis.navigator?.serviceWorker,
+): Promise<void> {
+  if (!serviceWorker)
+    throw new PluginAssetServerError(
+      "asset-server-unavailable",
+      "Web plugin assets require a controlling service worker",
+    );
+  if (serviceWorker.controller) return;
+  await new Promise<void>((resolve, reject) => {
+    const cleanup = () => {
+      clearTimeout(timeout);
+      serviceWorker.removeEventListener("controllerchange", onControllerChange);
+    };
+    const onControllerChange = () => {
+      if (!serviceWorker.controller) return;
+      cleanup();
+      resolve();
+    };
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(
+        new PluginAssetServerError(
+          "asset-server-unavailable",
+          "The service worker did not take control for Web plugin asset loading",
+        ),
+      );
+    }, 30_000);
+    serviceWorker.addEventListener("controllerchange", onControllerChange);
+    onControllerChange();
+  });
 }

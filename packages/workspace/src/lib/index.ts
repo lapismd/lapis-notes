@@ -4,3 +4,8 @@ export { registerPluginManagementSettings } from "./plugin-management/register-p
 export { default as PluginRegistrySettingsPage } from "./plugin-management/PluginRegistrySettingsPage.svelte";
 export { default as CorePluginsSettingsPage } from "./plugin-management/CorePluginsSettingsPage.svelte";
 export { default as CommunityPluginsSettingsPage } from "./plugin-management/CommunityPluginsSettingsPage.svelte";
+
+export { PluginsView } from "./plugin-management/plugins-view.svelte";
+export { default as PluginBrowser } from "./plugin-management/PluginBrowser.svelte";
+
+export { openPluginBrowser } from "./plugin-management/plugin-browser-navigation";

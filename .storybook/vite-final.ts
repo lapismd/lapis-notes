@@ -1,3 +1,4 @@
+import { tursoBundleBuildPlugin } from "@lapis-notes/api/build/vite";
 import { svelte, vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { existsSync, realpathSync } from "node:fs";
@@ -120,6 +121,7 @@ export async function viteFinal(
       plugin?.name !== "sveltekit-autoimport-configuration",
   );
   viteConfig.plugins = [
+    tursoBundleBuildPlugin(),
     packageLibAlias(),
     svelte({
       preprocess: vitePreprocess(),
@@ -288,8 +290,8 @@ export async function viteFinal(
       exclude: [
         "@storybook/svelte",
         ...storybookFirstPartyPackageExcludes,
-        "@lapismd/ai-host",
-        "@lapismd/ai-host/client",
+        "@lapismd/ai-controller/client",
+        "@lapismd/ai-controller/runtime",
       ],
       include: [
         "aria-query",
@@ -326,6 +328,7 @@ export async function viteFinal(
       noExternal: ["aria-query"],
     },
     worker: {
+      plugins: () => [tursoBundleBuildPlugin()],
       format: "es",
     },
 

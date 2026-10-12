@@ -1,0 +1,103 @@
+name: Publish lockfile CI image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .ci/dependency-image.Dockerfile
+      - .github/workflows/dependency-image.yml
+      - patches/**
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - scripts/ci-images.test.mjs
+      - scripts/lib/ci-images.mjs
+      - scripts/prepare-ci-dependency-context.mjs
+      - scripts/update-ci-image-manifest.mjs
+
+permissions:
+  attestations: write
+  contents: write
+  id-token: write
+  packages: write
+  pull-requests: write
+
+concurrency:
+  group: dependency-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    if: github.repository == 'lapismd/lapis-notes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.15.0
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.34.5 --activate
+      - name: Prepare dependency-only build context
+        id: image
+        run: node scripts/prepare-ci-dependency-context.mjs --github-output "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Resolve image metadata
+        id: metadata
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.image.outputs.dependency_image }}
+          tags: type=raw,value=${{ steps.image.outputs.tag }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.image.outputs.tag }}
+      - name: Build and publish multi-architecture dependency image
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: .ci/dependency-context
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          provenance: mode=max
+          sbom: true
+      - name: Attest dependency image provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-name: ${{ steps.image.outputs.dependency_image }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+      - name: Verify and propose immutable digest pin
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_TAG: ${{ steps.image.outputs.tag }}
+        run: |
+          set -euo pipefail
+          node scripts/update-ci-image-manifest.mjs "$IMAGE_DIGEST"
+          if git diff --quiet -- .ci/images.json; then
+            echo "The checked-in dependency image digest is current." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="automation/lapis-notes-ci-${IMAGE_TAG}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add .ci/images.json
+          git commit -m "chore(ci): pin ${IMAGE_TAG} dependency image"
+          git push --force origin "HEAD:refs/heads/$branch"
+          if gh pr view "$branch" --json url >/dev/null 2>&1; then
+            gh pr edit "$branch" --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile."
+          else
+            gh pr create --head "$branch" --base main --title "chore(ci): pin ${IMAGE_TAG} dependency image" --body "Pins the verified multi-architecture dependency image built from the current lockfile."
+          fi
+          echo "Published ${IMAGE_TAG} at ${IMAGE_DIGEST}." >> "$GITHUB_STEP_SUMMARY"

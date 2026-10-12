@@ -9,8 +9,16 @@
   "imports": {
     "@codemirror/language": "npm:@codemirror/language@6.11.3",
     "@lapis-notes/api/language-service": "../api/src/lib/language-service/index.ts",
+    "@lapis-notes/deno-host-services/app-database-worker-protocol": "../deno-host-services/src/app-database-worker-protocol.ts",
+    "@lapis-notes/deno-host-services/app-database-worker-runtime": "../deno-host-services/src/app-database-worker-runtime.ts",
+    "@lapis-notes/deno-host-services/file-watch": "../deno-host-services/src/file-watch.ts",
+    "@lapis-notes/deno-host-services/language-service": "../deno-host-services/src/language-service.ts",
+    "@lapis-notes/deno-host-services/native-app-database": "../deno-host-services/src/native-app-database.ts",
+    "@lapis-notes/deno-host-services/paths": "../deno-host-services/src/paths.ts",
+    "@lapis-notes/deno-host-services/plugin-assets": "../deno-host-services/src/plugin-assets.ts",
+    "@lapis-notes/deno-host-services/vault-fs": "../deno-host-services/src/vault-fs.ts",
+    "@lapis-notes/deno-host-services/vault-resources": "../deno-host-services/src/vault-resources.ts",
     "@lapis-notes/language-service/markdownlint/runtime": "../language-service/src/markdownlint/runtime.ts",
-    "@lapismd/ai-host": "../../../ai-host/src/index.ts",
     "@lapismd/terminal-host/deno": "../../../terminal-host/src/deno.ts",
     "@lezer/common": "npm:@lezer/common@1.2.3",
     "@lezer/highlight": "npm:@lezer/highlight@1.2.1",
@@ -21,18 +29,22 @@
     "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js": "npm:@modelcontextprotocol/sdk@1.29.0/server/webStandardStreamableHttp.js",
     "@modelcontextprotocol/sdk/types.js": "npm:@modelcontextprotocol/sdk@1.29.0/types.js",
     "@opentelemetry/api": "npm:@opentelemetry/api@1.9.1",
-    "acpx/runtime": "npm:acpx@0.13.0/runtime",
     "markdownlint": "npm:markdownlint@0.40.0",
     "markdownlint/sync": "npm:markdownlint@0.40.0/sync",
-    "ws": "npm:ws@8.18.3"
+    "ws": "npm:ws@8.18.3",
+    "zod": "npm:zod@3.25.76",
+    "nostr-tools": "npm:nostr-tools@2.25.2",
+    "nostr-tools/": "npm:nostr-tools@2.25.2/",
+    "@lapismd/ai-controller/managed": "npm:@lapismd/ai-controller@^0.1.0/managed"
   },
-  "nodeModulesDir": "none",
   "tasks": {
-    "dev": "deno desktop --quiet --hmr --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
-    "start": "deno desktop --quiet --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
+    "dev": "deno desktop --config deno.json --quiet --hmr --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts",
+    "start": "deno desktop --config deno.json --quiet --no-check --sloppy-imports --include src-deno/app-database-worker.ts --exclude node_modules --exclude dist --exclude src -A src-deno/main.ts"
   },
   "compilerOptions": {
     "strict": true,
-    "lib": ["deno.window"]
+    "lib": [
+      "deno.window"
+    ]
   }
 }

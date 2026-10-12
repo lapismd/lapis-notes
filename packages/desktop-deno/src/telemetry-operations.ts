@@ -26,18 +26,7 @@ const LANGUAGE_COMMANDS = new Set([
   "desktop_ls_code_actions",
 ]);
 
-const AI_COMMANDS = new Set([
-  "desktop_agent_process_spawn",
-  "desktop_agent_process_kill",
-  "desktop_agent_acp_start",
-  "desktop_agent_acp_models",
-  "desktop_agent_acp_prompt",
-  "desktop_agent_acp_configure",
-  "desktop_agent_acp_cancel",
-  "desktop_agent_acp_close",
-  "desktop_agent_tools_open",
-  "desktop_agent_tools_close",
-]);
+const AI_COMMANDS = new Set(["desktop_ai_controller_connection"]);
 
 const TERMINAL_COMMANDS = new Set([
   "desktop_terminal_session_create",

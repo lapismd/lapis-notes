@@ -1,10 +1,12 @@
 import type {
   DataWriteOptions,
+  AtomicDataWriteOptions,
   ListedFiles,
   Stat,
   VaultAdapter,
   VaultAdapterCapabilities,
   VaultIdentityAdapter,
+  VaultReadHandle,
 } from "./fs";
 import { dirname, joinPath, normalizePath } from "./path";
 
@@ -129,6 +131,73 @@ export class MemoryVaultAdapter implements VaultAdapter, VaultIdentityAdapter {
     return typeof value === "string"
       ? toArrayBuffer(new TextEncoder().encode(value))
       : value.slice(0);
+  }
+
+  async openRead(path: string): Promise<VaultReadHandle> {
+    const normalized = this.#path(path);
+    const value = this.#files.get(normalized);
+    if (!value) throw fsError("ENOENT", normalized);
+    const bytes =
+      typeof value.data === "string"
+        ? new TextEncoder().encode(value.data)
+        : new Uint8Array(value.data.slice(0));
+    return {
+      size: bytes.byteLength,
+      mtime: value.stat.mtime,
+      stream: ({ offset = 0, length, signal } = {}) => {
+        const start = Math.max(0, Math.min(bytes.byteLength, Math.floor(offset)));
+        const end = Math.min(
+          bytes.byteLength,
+          start + Math.max(0, Math.floor(length ?? bytes.byteLength - start)),
+        );
+        let cursor = start;
+        return new ReadableStream<Uint8Array>({
+          pull(controller) {
+            if (signal?.aborted) {
+              controller.error(signal.reason ?? new DOMException("Aborted", "AbortError"));
+              return;
+            }
+            if (cursor >= end) {
+              controller.close();
+              return;
+            }
+            const next = Math.min(end, cursor + 64 * 1024);
+            controller.enqueue(bytes.slice(cursor, next));
+            cursor = next;
+          },
+        });
+      },
+    };
+  }
+
+  async atomicWrite(
+    path: string,
+    source: ReadableStream<Uint8Array>,
+    options: AtomicDataWriteOptions = {},
+  ): Promise<void> {
+    const reader = source.getReader();
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    try {
+      while (true) {
+        if (options.signal?.aborted) {
+          throw options.signal.reason ?? new DOMException("Aborted", "AbortError");
+        }
+        const next = await reader.read();
+        if (next.done) break;
+        chunks.push(next.value);
+        size += next.value.byteLength;
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    await this.writeBinary(path, bytes.buffer, options);
   }
 
   async write(

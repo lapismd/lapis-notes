@@ -103,7 +103,9 @@ export declare class Vault extends EventDispatcher<{
    *   children
    * @public
    */
-  delete(file: TAbstractFile, force?: boolean): Promise<void>;
+  delete(file: TAbstractFile, force?: boolean, context?: {
+    operationOrigin?: string;
+  }): Promise<void>;
   trash(file: TAbstractFile, system?: boolean): Promise<void>;
   /**
    * Read a plaintext file that is stored inside the vault, directly from disk.

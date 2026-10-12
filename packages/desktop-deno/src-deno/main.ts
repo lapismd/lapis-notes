@@ -25,6 +25,7 @@ import {
 } from "./macos-app-icon.ts";
 import {
   createMacosTrafficLightController,
+  installMacosTrafficLightAlignment,
   createNativeMacosTrafficLightDriver,
   type MacosTrafficLightController,
   type MacosTrafficLightDriver,
@@ -36,6 +37,11 @@ import {
 } from "./native-telemetry.ts";
 import { DenoFileWatchService } from "./file-watch.ts";
 import { openExternalUrl } from "./native-actions.ts";
+import {
+  DenoNostrSignerService,
+  JsonDenoNostrSignerAccountStore,
+} from "./nostr-signer.ts";
+import { DenoNostrKeychain, nostrKeychainAvailable } from "./nostr-keychain.ts";
 import {
   createUpstreamHeaders,
   isWebSocketUpgrade,
@@ -56,6 +62,8 @@ import {
   createDesktopWindowOptions,
   needsCreatedChromeWindow,
   rendererOriginFromServeAddress,
+  rendererEntryUrl,
+  isParkedBootstrapRequest,
   setOverlayWindowControls,
 } from "./window-chrome.ts";
 import { installWindowBindings } from "./window-bindings.ts";
@@ -128,17 +136,10 @@ const alignTrafficLights = () => {
     }
   }
 };
-let trafficLightLayoutTimer: number | undefined;
-const scheduleTrafficLightAlignment = () => {
-  queueMicrotask(alignTrafficLights);
-  if (trafficLightLayoutTimer !== undefined) {
-    clearTimeout(trafficLightLayoutTimer);
-  }
-  trafficLightLayoutTimer = setTimeout(alignTrafficLights, 50);
-};
-win.addEventListener("load", scheduleTrafficLightAlignment);
-win.addEventListener("resize", scheduleTrafficLightAlignment);
-scheduleTrafficLightAlignment();
+const removeTrafficLightAlignment = installMacosTrafficLightAlignment(
+  win,
+  alignTrafficLights,
+);
 let appIconDriver: MacosAppIconDriver | undefined;
 let appIcon: DesktopAppIconController | undefined;
 try {
@@ -174,8 +175,22 @@ const emitRendererEvent = rendererEvents.emit;
 const fileWatch = new DenoFileWatchService(emitRendererEvent);
 const pluginAssets = new DenoPluginAssetService();
 const vaultResources = new DenoVaultResourceService();
-const agentRuntime = new DenoAgentRuntimeHost(emitRendererEvent);
+const agentRuntime = new DenoAgentRuntimeHost({ dataDirectory: userDataDir() });
 const appDatabase = new DenoAppDatabaseHost(userDataDir(), emitRendererEvent);
+const nostrSigner = nostrKeychainAvailable(Deno.build.os)
+  ? new DenoNostrSignerService({
+      accounts: new JsonDenoNostrSignerAccountStore(userDataDir()),
+      credentials: new DenoNostrKeychain(),
+      onRemoteAuthRequired: (url) => {
+        void openExternalUrl(url).catch((error) =>
+          desktopLog.warn(
+            "[desktop] NIP-46 authorization failed to open",
+            error,
+          ),
+        );
+      },
+    })
+  : undefined;
 let terminalRuntime: DenoTerminalRuntimeHost | undefined;
 try {
   terminalRuntime = new DenoTerminalRuntimeHost(emitRendererEvent, {
@@ -196,11 +211,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     desktopLog.info("[desktop-close] shutdown");
     removeCloseRouting();
     removeDesktopBindings();
-    win.removeEventListener("load", scheduleTrafficLightAlignment);
-    win.removeEventListener("resize", scheduleTrafficLightAlignment);
-    if (trafficLightLayoutTimer !== undefined) {
-      clearTimeout(trafficLightLayoutTimer);
-    }
+    removeTrafficLightAlignment();
     trafficLights?.close();
     appIcon?.close();
     closeSignal.close();
@@ -209,6 +220,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     pluginAssets.clear();
     vaultResources.clear();
     await terminalRuntime?.shutdown();
+    await nostrSigner?.close();
     await appDatabase.closeAll();
     await agentRuntime.shutdown();
     await singleInstance.close();
@@ -261,6 +273,7 @@ function registerDesktopBindings() {
               agentRuntime,
               appDatabase,
               terminalRuntime,
+              nostrSigner,
               rendererCloseReady: () => {
                 desktopLog.info("[desktop-close] renderer-ready");
                 closeCoordinator.rendererReady();
@@ -284,6 +297,7 @@ function registerDesktopBindings() {
       () =>
         createCapabilityRegistry(Deno.build.os, {
           terminalAvailable: Boolean(terminalRuntime),
+          nostrSignerAvailable: Boolean(nostrSigner),
         }),
     ],
   ]);
@@ -422,23 +436,36 @@ async function proxyVite(
   if (request.method !== "GET" && request.method !== "HEAD") {
     init.body = request.body;
   }
-  return withIsolationHeaders(await fetch(new Request(upstream, init)));
+  return withIsolationHeaders(await fetch(new Request(upstream, init)), {
+    decodedUpstream: true,
+  });
 }
 
 Deno.serve(async (request) => {
+  if (isParkedBootstrapRequest(request.url, win !== bootstrap)) {
+    return withIsolationHeaders(
+      new Response(
+        "<!doctype html><html><head><title></title></head><body></body></html>",
+        {
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+            "cache-control": "no-store",
+          },
+        },
+      ),
+    );
+  }
   const closeResponse = closeSignal.respond(request);
   if (closeResponse) return await closeResponse;
   const rendererEventResponse = rendererEvents.respond(request);
   if (rendererEventResponse) return rendererEventResponse;
-  const agentToolResponse = await agentRuntime.respond(request);
-  if (agentToolResponse) return agentToolResponse;
   const vaultResourceResponse = await vaultResources.respond(request);
   if (vaultResourceResponse) {
     return withIsolationHeaders(vaultResourceResponse);
   }
-  if (devUrl) return await proxyVite(request, devUrl);
   const pluginAssetResponse = await pluginAssets.respond(request.url);
   if (pluginAssetResponse) return withIsolationHeaders(pluginAssetResponse);
+  if (devUrl) return await proxyVite(request, devUrl);
   const response = await serveDir(request, {
     fsRoot: distRoot,
     urlRoot: "",
@@ -448,7 +475,7 @@ Deno.serve(async (request) => {
 });
 if (win !== bootstrap) {
   bootstrap.hide();
-  win.navigate(rendererOrigin);
+  win.navigate(rendererEntryUrl(rendererOrigin, true));
   desktopBindings.refresh();
   win.show();
 }

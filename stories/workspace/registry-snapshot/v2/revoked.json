@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-10-11T20:54:53.120Z",
+  "revoked": [],
+  "schemaVersion": 1,
+  "signatures": [
+    {
+      "alg": "ed25519",
+      "keyId": "lapis-registry-local-2026-10-11",
+      "sig": "8yfPwzpmvJjrZdHNz1MaleVcYOFCYUfI96QGxWccz4k5RXB+wgWZPW0HfShJk5a4in3WB8aR3XW2QQ/g20c7BQ=="
+    }
+  ]
+}

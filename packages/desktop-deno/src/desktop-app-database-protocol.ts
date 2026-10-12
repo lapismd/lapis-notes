@@ -1,83 +1,15 @@
-export const DESKTOP_APP_DATABASE_METHODS = [
-  "migrate",
-  "beginSearchIndexingBatch",
-  "endSearchIndexingBatch",
-  "configureSearchEmbeddingProvider",
-  "getSearchEmbeddingProvider",
-  "getSearchEmbeddingRuntimeStatus",
-  "getSearchIndexStats",
-  "getMeta",
-  "setMeta",
-  "getNotebookState",
-  "setNotebookState",
-  "deleteNotebookState",
-  "loadMetadataSnapshot",
-  "saveMetadataSnapshot",
-  "getFileHistory",
-  "storeFileHistoryRevision",
-  "listNotifications",
-  "upsertNotification",
-  "markNotificationRead",
-  "clearNotification",
-  "clearAllNotifications",
-  "getMemorySourceState",
-  "listMemorySourceStates",
-  "upsertMemorySourceState",
-  "deleteMemorySourceState",
-  "upsertMemoryCandidate",
-  "queryMemoryCandidates",
-  "deleteMemoryCandidatesByConversation",
-  "recordMemoryRecallSignal",
-  "listMemoryRecallSignals",
-  "claimMemoryJob",
-  "updateMemoryJob",
-  "listMemoryJobs",
-  "clearMemoryDerivedState",
-  "getChangeRevision",
-  "upsertIndexedFile",
-  "getIndexedFile",
-  "listIndexedFileManifest",
-  "queryIndexedMetadata",
-  "queryIndexedMetadataPage",
-  "queryMetadataFacets",
-  "queryMetadataLinks",
-  "deleteIndexedFile",
-  "renameIndexedFile",
-  "upsertSearchDocument",
-  "deleteSearchDocument",
-  "getSearchDocument",
-  "listSearchDocumentManifest",
-  "listSearchDocuments",
-  "rebuildSearchIndex",
-  "searchDocuments",
-  "searchDocumentPaths",
-  "upsertTaskProjection",
-  "deleteTaskProjection",
-  "queryTasks",
-  "getTaskRow",
-  "listChildLinks",
-  "listTaskDescendants",
-  "registerProjectionDefinition",
-  "unregisterProjectionDefinition",
-  "replaceProjectionSource",
-  "markProjectionSourceError",
-  "deleteProjectionSource",
-  "queryProjection",
-  "getProjectionRow",
-  "queryRelated",
-] as const;
+import {
+  REMOTE_APP_DATABASE_METHODS,
+  isRemoteAppDatabaseMethod,
+  type RemoteAppDatabaseMethod,
+} from "@lapis-notes/api/app-database";
 
-export type DesktopAppDatabaseMethod =
-  (typeof DESKTOP_APP_DATABASE_METHODS)[number];
+export const DESKTOP_APP_DATABASE_METHODS = REMOTE_APP_DATABASE_METHODS;
 
-const DESKTOP_APP_DATABASE_METHOD_SET = new Set<string>(
-  DESKTOP_APP_DATABASE_METHODS,
-);
+export type DesktopAppDatabaseMethod = RemoteAppDatabaseMethod;
 
 export function isDesktopAppDatabaseMethod(
   value: unknown,
 ): value is DesktopAppDatabaseMethod {
-  return (
-    typeof value === "string" && DESKTOP_APP_DATABASE_METHOD_SET.has(value)
-  );
+  return isRemoteAppDatabaseMethod(value);
 }

@@ -1450,6 +1450,12 @@ describe("PluginManager", () => {
         "notices",
         "settings",
         "metadata:query",
+        "metadata:identity",
+        "metadata:changes",
+        "vault:stream",
+        "plugin:generated-state",
+        "network:connect",
+        "crypto:nostr-sync",
         "events",
         "logging",
       ],
@@ -2202,6 +2208,70 @@ describe("PluginManager", () => {
     expect(
       app.plugins.getCommunityPluginDiagnostics("esm-runtime")?.pluginAssetUrl,
     ).toContain("data:text/javascript");
+  });
+
+  it("loads a named ESM Plugin subclass after supporting exports", async () => {
+    class NamedEsmRuntimePlugin extends Plugin {
+      async onload() {
+        this.addCommand({
+          id: "named-esm-ready",
+          name: "Named ESM Ready",
+          callback() {
+            return "named-esm-runtime";
+          },
+        });
+      }
+    }
+    (globalThis as any).__lapisTestNamedEsmRuntimePlugin =
+      NamedEsmRuntimePlugin;
+    const moduleSource = [
+      "export const DEFAULT_NAMED_ESM_SETTING = true;",
+      "export const NamedEsmRuntimePlugin = globalThis.__lapisTestNamedEsmRuntimePlugin;",
+    ].join("\n");
+    const pluginAssetServer = createTestPluginAssetServer({
+      "named-esm-runtime/main.mjs": moduleSource,
+    });
+    const { app } = createTestApp({ pluginAssetServer });
+    await app.vault.load();
+    await seedCommunityPluginFiles(
+      app,
+      "named-esm-runtime",
+      { "main.mjs": moduleSource },
+      {
+        lapis: {
+          manifestVersion: 1,
+          runtime: {
+            entries: {
+              workspace: {
+                path: "main.mjs",
+                format: "esm",
+                sharedDependencies: ["obsidian"],
+              },
+            },
+          },
+        },
+      },
+    );
+    await app.vault.create(
+      "/.obsidian/community-plugins.json",
+      JSON.stringify(["named-esm-runtime"], null, 2),
+    );
+
+    await app.plugins.loadPlugins();
+
+    await expect(
+      app.commands.executeCommand("named-esm-runtime:named-esm-ready"),
+    ).resolves.toBe("named-esm-runtime");
+    expect(
+      app.plugins.getCommunityPluginDiagnostics("named-esm-runtime"),
+    ).toMatchObject({
+      activationMode: "code",
+      hostMode: "renderer",
+      selectedRuntimeHost: "workspace",
+      selectedRuntimeEntry: "main.mjs",
+      moduleFormat: "esm",
+      state: "enabled",
+    });
   });
 
   it("selects electron renderer ESM entries when plugin assets are available", async () => {

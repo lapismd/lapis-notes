@@ -77,7 +77,7 @@ export function registerWebAgentRuntimeSettings(app: App): () => void {
     id: "web-agent-runtime",
     title: "Agent server",
     description:
-      "Connect this browser vault to a local lapis-ai-host WebSocket.",
+      "Connect this browser vault to a lapis-ai-controller service.",
     icon: "sparkles",
     order: 36,
     fields: [
@@ -86,10 +86,10 @@ export function registerWebAgentRuntimeSettings(app: App): () => void {
         type: "string",
         title: "Server URL",
         description:
-          "WebSocket URI including host and port, for example ws://127.0.0.1:7345.",
+          "WebSocket URI including host and port, for example ws://127.0.0.1:7347.",
         default: "",
         presentation: "url",
-        placeholder: "ws://127.0.0.1:7345",
+        placeholder: "ws://127.0.0.1:7347",
       },
       {
         id: WEB_AGENT_RUNTIME_TOKEN_KEY,

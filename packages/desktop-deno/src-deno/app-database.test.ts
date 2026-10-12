@@ -22,12 +22,28 @@ const descriptor = {
 };
 
 class FakeAppDatabaseWorker {
-  onmessage: ((event: MessageEvent<AppDatabaseWorkerResponse>) => void) | null =
-    null;
+  #onmessage:
+    | ((event: MessageEvent<AppDatabaseWorkerResponse>) => void)
+    | null = null;
+  get onmessage() {
+    return this.#onmessage;
+  }
+  set onmessage(
+    handler: ((event: MessageEvent<AppDatabaseWorkerResponse>) => void) | null,
+  ) {
+    this.#onmessage = handler;
+    if (handler && this.autoReady) queueMicrotask(() => this.ready());
+  }
   onerror: ((event: ErrorEvent) => void) | null = null;
   onmessageerror: ((event: MessageEvent<unknown>) => void) | null = null;
   readonly requests: AppDatabaseWorkerRequest[] = [];
   readonly terminate = vi.fn();
+
+  constructor(private readonly autoReady = true) {}
+
+  ready(): void {
+    this.onmessage?.(new MessageEvent("message", { data: { type: "ready" } }));
+  }
 
   postMessage(request: AppDatabaseWorkerRequest): void {
     this.requests.push(request);
@@ -52,6 +68,89 @@ class FakeAppDatabaseWorker {
 }
 
 describe("DenoAppDatabaseHost worker boundary", () => {
+  it("waits for worker readiness before sending the first request", async () => {
+    const worker = new FakeAppDatabaseWorker(false);
+    const host = new DenoAppDatabaseHost("/user-data", vi.fn(), {
+      createWorker: () => worker,
+      resolveDatabasePath: async () => "/test.turso",
+    });
+    const opening = host.open({ databaseId: "database-1", vaultId: "vault-1" });
+    await Promise.resolve();
+    expect(worker.requests).toEqual([]);
+    worker.ready();
+    await expect(opening).resolves.toEqual(descriptor);
+    expect(worker.requests.map(({ type }) => type)).toEqual(["open"]);
+    worker.ready();
+    expect(worker.requests).toHaveLength(1);
+    await host.closeAll();
+  });
+
+  it("cancels requests and ignores late readiness when closed during startup", async () => {
+    const worker = new FakeAppDatabaseWorker(false);
+    const host = new DenoAppDatabaseHost("/user-data", vi.fn(), {
+      createWorker: () => worker,
+      resolveDatabasePath: async () => "/test.turso",
+    });
+    const opening = host.open({ databaseId: "database-1", vaultId: "vault-1" });
+    const rejected = expect(opening).rejects.toThrow("worker closed");
+    await Promise.resolve();
+    await host.closeAll();
+    await rejected;
+    worker.ready();
+    expect(worker.requests).toEqual([]);
+    expect(worker.terminate).toHaveBeenCalledOnce();
+  });
+
+  it("rejects startup errors and can start a fresh worker", async () => {
+    const starting = new FakeAppDatabaseWorker(false);
+    const replacement = new FakeAppDatabaseWorker();
+    let next = starting;
+    const host = new DenoAppDatabaseHost("/user-data", vi.fn(), {
+      createWorker: () => next,
+      resolveDatabasePath: async () => "/test.turso",
+    });
+    const opening = host.open({ databaseId: "database-1", vaultId: "vault-1" });
+    const rejected = expect(opening).rejects.toThrow("import failed");
+    await Promise.resolve();
+    starting.onerror?.({
+      message: "import failed",
+      preventDefault: vi.fn(),
+    } as unknown as ErrorEvent);
+    await rejected;
+    next = replacement;
+    const retry = host.open({ databaseId: "database-1", vaultId: "vault-1" });
+    await Promise.resolve();
+    starting.ready();
+    await expect(retry).resolves.toEqual(descriptor);
+    expect(starting.requests).toEqual([]);
+    await host.closeAll();
+  });
+
+  it("bounds startup when the worker never becomes ready", async () => {
+    vi.useFakeTimers();
+    try {
+      const worker = new FakeAppDatabaseWorker(false);
+      const host = new DenoAppDatabaseHost("/user-data", vi.fn(), {
+        createWorker: () => worker,
+        resolveDatabasePath: async () => "/test.turso",
+        workerReadyTimeoutMs: 100,
+      });
+      const opening = host.open({
+        databaseId: "database-1",
+        vaultId: "vault-1",
+      });
+      const rejected = expect(opening).rejects.toThrow("did not become ready");
+      await vi.advanceTimersByTimeAsync(100);
+      await rejected;
+      worker.ready();
+      expect(worker.requests).toEqual([]);
+      expect(worker.terminate).toHaveBeenCalledOnce();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("routes database lifecycle, methods, and changes through the worker", async () => {
     const worker = new FakeAppDatabaseWorker();
     const emit = vi.fn(async () => undefined);

@@ -173,10 +173,15 @@ await writeFile(path.join(pluginDirectory, "main.mjs"), pluginSource);
 await writeFile(
   path.join(vaultPath, ".obsidian", "installed-plugins.json"),
   `${JSON.stringify({
+    schemaVersion: 1,
+    updatedAt: new Date().toISOString(),
     plugins: {
       [pluginId]: {
         pluginId,
         installedVersion: "1.0.0",
+        installedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        provenance: "development",
         files: [
           {
             path: "main.mjs",
@@ -264,8 +269,8 @@ try {
   assert.ok(["create", "modify"].includes(report.fileWatchEventType));
   assert.equal(report.pluginAssetText, pluginSource);
   assert.match(report.pluginAssetContentType, /^text\/javascript/u);
-  assert.equal(report.agentProcessOutput, "deno-agent-process");
-  assert.equal(report.appToolBridgeOpened, true);
+  assert.equal(report.controllerProtocol, "lapis-ai-controller/1");
+  assert.equal(report.appToolRegistered, true);
   assert.equal(report.appUrl, appUrl);
   assert.equal(report.laterLaunchFocusCount, 1);
   assert.equal(report.crossOriginIsolated, true);

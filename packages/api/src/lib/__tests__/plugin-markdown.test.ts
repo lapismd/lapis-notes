@@ -10,16 +10,12 @@ import {
 } from "../plugin-distribution";
 
 describe("structured plugin catalog metadata", () => {
-  it("parses both legacy and enriched V1 metadata while retaining future fields", () => {
+  it("normalizes legacy V1 metadata into the shared V2 presentation contract", () => {
     const legacy = parsePluginDistributionMetadata(pluginCatalogEntrySchema, {
       id: "lapis-example",
       name: "Example",
       description: "Legacy entry",
       readmeUrl: "https://example.test/README.md",
-      appearance: {
-        icon: "sparkles",
-        accent: "#A855F7",
-      },
       author: "Lapis Notes",
       channel: "official",
       latestVersion: "0.1.0",
@@ -30,61 +26,43 @@ describe("structured plugin catalog metadata", () => {
       futureField: { retained: true },
     });
     expect(legacy).toMatchObject({
-      readmeUrl: "https://example.test/README.md",
-      futureField: { retained: true },
+      links: { documentation: "https://example.test/README.md" },
     });
+    expect(legacy).not.toHaveProperty("readmeUrl");
+    expect(legacy).not.toHaveProperty("futureField");
 
-    const enriched = parsePluginDistributionMetadata(pluginCatalogDetailSchema, {
-      schemaVersion: 1,
-      id: "lapis-example",
-      name: "Example",
-      description: "Enriched entry",
-      channel: "official",
-      status: "active",
-      owner: {
-        name: "Lapis Notes",
-        verified: true,
-        url: "https://github.com/lapismd",
-      },
-      latestVersion: "0.1.0",
-      license: "AGPL-3.0-or-later",
-      links: {
-        repository: "https://github.com/lapismd/lapis-plugins",
-        documentation: "https://lapis.md/plugins/example",
-      },
-      highlights: ["A concise plain-text highlight."],
-      appearance: {
-        icon: "sparkles",
-        accent: "#A855F7",
-        futureIdentityField: true,
-      },
-      gallery: [
-        {
-          id: "overview",
-          surface: "desktop",
-          alt: "Example plugin overview.",
-          caption: "A verified preview.",
-          url: "https://registry.example.test/v1/assets/lapis-example/preview.png",
-          sourceUrl: "https://raw.githubusercontent.com/lapismd/example/main/preview.png",
-          sha256: "c".repeat(64),
-          size: 1024,
-          mediaType: "image/png",
-          width: 1200,
-          height: 800,
+    const enriched = parsePluginDistributionMetadata(
+      pluginCatalogDetailSchema,
+      {
+        schemaVersion: 1,
+        id: "lapis-example",
+        name: "Example",
+        description: "Enriched entry",
+        channel: "official",
+        status: "active",
+        owner: {
+          name: "Lapis Notes",
+          verified: true,
+          url: "https://github.com/lapismd",
         },
-      ],
-      content: {
-        overview: referenceFor("overview", 10, "a".repeat(64)),
-        changelog: referenceFor("changelog", 12, "b".repeat(64)),
+        latestVersion: "0.1.0",
+        license: "Apache-2.0",
+        links: {
+          repository: "https://github.com/lapismd/lapis-plugins",
+          documentation: "https://lapis.md/plugins/example",
+        },
+        highlights: ["A concise plain-text highlight."],
+        content: {
+          overview: referenceFor("overview", 10, "a".repeat(64)),
+          changelog: referenceFor("changelog", 12, "b".repeat(64)),
+        },
+        contributes: { commands: [{ id: "open", name: "Open Example" }] },
+        versions: {},
       },
-      contributes: { commands: [{ id: "open", name: "Open Example" }] },
-      versions: {},
-    });
+    );
     expect(enriched.status).toBe("active");
-    expect(enriched.content?.changelog?.mediaType).toBe("text/markdown");
+    expect(enriched).not.toHaveProperty("content");
     expect(enriched.links?.repository).toContain("lapis-plugins");
-    expect(enriched.appearance?.icon).toBe("sparkles");
-    expect(enriched.gallery?.[0]?.surface).toBe("desktop");
   });
 });
 
@@ -101,12 +79,12 @@ describe("fetchVerifiedPluginMarkdown", () => {
     );
     const fetchImpl = vi.fn(async () => response(bytes));
 
-    await expect(fetchVerifiedPluginMarkdown(reference, fetchImpl)).resolves.toBe(
-      markdown,
-    );
-    await expect(fetchVerifiedPluginMarkdown(reference, fetchImpl)).resolves.toBe(
-      markdown,
-    );
+    await expect(
+      fetchVerifiedPluginMarkdown(reference, fetchImpl),
+    ).resolves.toBe(markdown);
+    await expect(
+      fetchVerifiedPluginMarkdown(reference, fetchImpl),
+    ).resolves.toBe(markdown);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
@@ -161,9 +139,9 @@ describe("fetchVerifiedPluginMarkdown", () => {
     await expect(
       fetchVerifiedPluginMarkdown(reference, fetchImpl),
     ).rejects.toMatchObject({ code: "metadata-invalid" });
-    await expect(fetchVerifiedPluginMarkdown(reference, fetchImpl)).resolves.toBe(
-      "# Retry\n",
-    );
+    await expect(
+      fetchVerifiedPluginMarkdown(reference, fetchImpl),
+    ).resolves.toBe("# Retry\n");
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 });

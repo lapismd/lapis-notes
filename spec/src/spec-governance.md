@@ -1,5 +1,16 @@
 # Specification Governance
 
+Normal specification and CI unit validation execute the Storybook runtime
+classifier and owned-console regression tests. These tests reject formatted
+Svelte diagnostics and prove that caught teardown errors remain fatal through
+the registered after-story and final-cleanup checks (LN-CAT-111).
+
+Notes owns its Deno CI runtime prerequisite: the shared `ci-setup` action installs
+Deno `2.9.7` through the pinned setup action before toolchain verification and
+frozen installation. Every validation, release and Pages job that uses this action
+receives the same runtime. Missing or mismatched Deno fails before package tasks;
+the shared Node/pnpm image does not promise a Deno runtime.
+
 Spec-first mappings cover the API Markdown registries, the Markdown provider,
 and every consumer-facing chapter affected by shared Plugin and App lifecycle
 changes.
@@ -17,6 +28,10 @@ Governance so partial public-package candidates retain package semantics and
 release-policy coverage in the same logical change. This includes preserving
 the hidden candidate directory when workflow actions upload release evidence
 and keeping ordinary push runs outside the explicit manual publication gate.
+The same mapping covers CI images, dependency-context generation, signed Turbo
+cache configuration, local container parity, and parallel workflow
+orchestration so infrastructure changes remain traceable to architecture and
+package policy.
 
 ## Requirements
 
@@ -55,16 +70,18 @@ and keeping ordinary push runs outside the explicit manual publication gate.
 | LN-GOV-031 | The spec-first map MUST route Bases package sources to Bases Plugin, Packages, and Architecture. Focused and real-App Bases stories MUST route to Bases Plugin and Storybook Catalog instead of receiving the ordinary story exemption.                                                                                                                                                                                                                                                                                                                                                  |
 | LN-GOV-032 | The spec-first map MUST route AI package sources to AI Plugin, Packages, and Architecture. Focused AI stories MUST route to AI Plugin and Storybook Catalog instead of receiving the ordinary story exemption.                                                                                                                                                                                                                                                                                                                                                                           |
 | LN-GOV-033 | The spec-first map MUST route `packages/api/src/lib/storage/desktop-native.ts` to Desktop Host, Deno Desktop Host, and Packages. It MUST NOT treat that file as an App Database change.                                                                                                                                                                                                                                                                                                                                                                                                  |
-| LN-GOV-034 | `AGENTS.md` MUST require published LapisMD packages to resolve through normal npm semver ranges, prohibit external workspace membership and vendoring, preserve portable publishable manifests, and route dependency defects to the owning repository before consumers update to released versions.                                                                                                                                                                                                                         |
+| LN-GOV-034 | `AGENTS.md` MUST require published LapisMD packages to resolve through normal npm semver ranges, prohibit external workspace membership and vendoring, preserve portable publishable manifests, and route dependency defects to the owning repository before consumers update to released versions.                                                                                                                                                                                                                                                                                      |
 | LN-GOV-035 | AI Host package implementation MUST be governed by the sibling `ai-host` repository's standalone specification. The Lapis spec-first map MAY keep a `packages/ai-host` cutover route to AI Plugin, Packages, Architecture, Desktop Host, and Web Host so the removed in-tree path stays classified.                                                                                                                                                                                                                                                                                      |
 | LN-GOV-036 | `AGENTS.md` MUST require first-party App access through explicit injection, workspace ownership, or Svelte context. It MUST limit `globalThis.app` to the compatibility bridge and dedicated fallback acceptance, require the ownership audit in root check and spec-check, and require separately versioned first-party plugins to enforce the same boundary.                                                                                                                                                                                                                           |
 | LN-GOV-037 | The repository MUST run a local view-command audit that parses first-party TypeScript and Svelte scripts, rejects unclassified view registrations, maps its diagnostics to the Plugin Model access and opener requirements, and routes first-party plugin and Explorer source changes to that chapter.                                                                                                                                                                                                                                                                                   |
 | LN-GOV-038 | The repository MUST run a local Storybook structure audit that maps command views to canonical panel stories and rejects stale mappings, missing placements, non-fullscreen panel geometry, legacy plugin paths, external Roles/CV catalog coupling, incomplete or scrolling shells, incomplete persisted Workspace plugin inventory, incomplete AI state coverage, and a non-first Specification menu.                                                                                                                                                                                  |
 | LN-GOV-039 | Supporting implementation records MUST live under `spec/records/`, and completed one-time plans MUST live under `spec/archive/`. Neither location is normative or indexed by `SUMMARY.md` or the QMD collection. Living intake MUST remain in root `MIGRATION.md`.                                                                                                                                                                                                                                                                                                                       |
-| LN-GOV-040 | The spec-first map MUST route the production Source Editor package to Packages, Architecture, Plugin Model, and Editor Demo. Desktop and web registrations MUST additionally route through their host chapters. |
-| LN-GOV-041 | The spec-first map MUST route Lapis package release workflows, Changesets configuration, pre- and post-publication release and local-consumer helper scripts, release documentation, and public package metadata to Packages and Specification Governance, with API, UI, Language Service, File Explorer, and Workspace package docs also routed to their owning architectural chapters. Local-consumer preparation MUST preserve an existing ignored pnpm hook so independently owned source-package overrides remain composable. |
-| LN-GOV-042 | The spec-first map MUST route app-profile, Web, Deno, and plugin-management Workspace changes to Plugin Model plus their package and host chapters. Extracted plugin behavior and Storybook source MUST be governed by the sibling `lapis-plugins` specification. |
-| LN-GOV-043 | `AGENTS.md` MUST require sibling `lapis-plugin-*` Storybooks to follow the same WorkspaceShell and six-placement panel contract as bundled plugins. It MUST forbid isolated pane stories and shell fallbacks, name Tasks Column Canvas as a Tasks-only exception, and point agents at the shared panel helpers plus History panel stories. |
+| LN-GOV-040 | The spec-first map MUST route the production Source Editor package to Packages, Architecture, Plugin Model, and Editor Demo. Desktop and web registrations MUST additionally route through their host chapters.                                                                                                                                                                                                                                                                                                                                                                          |
+| LN-GOV-041 | The spec-first map MUST route Lapis package release workflows, Changesets configuration, pre- and post-publication release and local-consumer helper scripts, release documentation, and public package metadata to Packages and Specification Governance, with API, UI, Language Service, File Explorer, and Workspace package docs also routed to their owning architectural chapters. Local-consumer preparation MUST preserve an existing ignored pnpm hook so independently owned source-package overrides remain composable.                                                       |
+| LN-GOV-042 | The spec-first map MUST route app-profile, Web, Deno, and plugin-management Workspace changes to Plugin Model plus their package and host chapters. Extracted plugin behavior and Storybook source MUST be governed by the sibling `lapis-plugins` specification.                                                                                                                                                                                                                                                                                                                        |
+| LN-GOV-043 | `AGENTS.md` MUST require sibling `lapis-plugin-*` Storybooks to follow the same WorkspaceShell and six-placement panel contract as bundled plugins. It MUST forbid isolated pane stories and shell fallbacks, name Tasks Column Canvas as a Tasks-only exception, and point agents at the shared panel helpers plus History panel stories.                                                                                                                                                                                                                                               |
+| LN-GOV-044 | The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.                                                                                                                              |
+| LN-GOV-045 | The spec-first map MUST route Deno host-service kernels to Deno Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Deno Server Host.                                                                                                                                                                                                                                                                                                                                                                      |
 
 The Storybook structure audit treats AI, Bases, and History as required
 plugin Shell families and maps both Graph panel families through the shared
@@ -131,30 +148,32 @@ not installed or when an embedding model is unavailable.
 Deno desktop packaging and packaged smoke changes follow the same package map
 as its renderer and native host sources.
 
-| Protected area                                                                 | Required chapter                                                                              |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| `packages/api` source or manifest                                              | `packages.md`, `architecture.md`                                                              |
-| `packages/api/src/lib/file-tools`                                              | `packages.md`, `architecture.md`, `ai-plugin.md`                                              |
-| API plugin lifecycle and workspace managed-plugin bridge                       | `plugin-model.md`, `packages.md`, `architecture.md`                                           |
-| `packages/ui` source or manifest                                               | `packages.md`, `ui-and-styling.md`                                                            |
-| `packages/workspace` source or manifest                                        | `packages.md`, `architecture.md`, `workspace-shell.md`                                        |
-| `packages/desktop-deno` package                                                | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                      |
-| `packages/api/src/lib/storage` except `desktop-native.ts`                      | `app-database.md`, `packages.md`, `architecture.md`                                           |
-| `packages/api/src/lib/storage/desktop-native.ts`                               | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                      |
-| `packages/ai-host` cutover remnants                                            | `ai-plugin.md`, `packages.md`, `architecture.md`, `desktop-deno-host.md`, `web-host.md`       |
-| Focused AI Storybook stories                                                   | `ai-plugin.md`, `storybook-catalog.md`                                                        |
-| `packages/web`                                                                 | `web-host.md`, `packages.md`, `architecture.md`                                               |
-| Focused real-App Graph Storybook stories                                       | `graph-plugin.md`, `storybook-catalog.md`                                                     |
-| Native Markdown runtime source or language-service manifest                    | `desktop-deno-host.md`, `packages.md`, `workspace-shell/panels/problems.md`                   |
-| Extracted plugin npm ranges and local tarball acceptance                       | `packages.md`, `plugin-model.md`, `architecture.md`, `desktop-deno-host.md`, `web-host.md`    |
-| Focused or real-App Bases Storybook stories                                    | `bases-plugin.md`, `storybook-catalog.md`                                                     |
-| Shared Markdown panel shell source                                             | `workspace-shell/panels.md`                                                                   |
-| Individual Markdown panel source                                               | Its owning `markdown-plugin/panels/<panel>.md` page                                           |
-| Reusable Problems UI, diagnostic adapters, lint hover, or diagnostic providers | `workspace-shell/panels/problems.md`                                                          |
-| Storybook infrastructure and catalog metadata                                  | `storybook-catalog.md`                                                                        |
-| Root architecture / workspace / turbo manifests                                | `architecture.md`, `packages.md`                                                              |
-| Governance scripts, QMD config/ignore rules, `AGENTS.md`, `spec/book.toml`     | `spec-governance.md`                                                                          |
-| Local release-candidate installer and support module                           | `packages.md`, `spec-governance.md`                                                           |
+| Protected area                                                                 | Required chapter                                                                           |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `packages/api` source or manifest                                              | `packages.md`, `architecture.md`                                                           |
+| `packages/api/src/lib/file-tools`                                              | `packages.md`, `architecture.md`, `ai-plugin.md`                                           |
+| API plugin lifecycle and workspace managed-plugin bridge                       | `plugin-model.md`, `packages.md`, `architecture.md`                                        |
+| `packages/ui` source or manifest                                               | `packages.md`, `ui-and-styling.md`                                                         |
+| `packages/workspace` source or manifest                                        | `packages.md`, `architecture.md`, `workspace-shell.md`                                     |
+| `packages/desktop-deno` package                                                | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                   |
+| `packages/deno-host-services`                                                  | `server-deno-host.md`, `desktop-deno-host.md`, `packages.md`, `architecture.md`            |
+| `packages/server-deno`                                                         | `server-deno-host.md`, `packages.md`, `architecture.md`, `app-database.md`                 |
+| `packages/api/src/lib/storage` except `desktop-native.ts`                      | `app-database.md`, `packages.md`, `architecture.md`                                        |
+| `packages/api/src/lib/storage/desktop-native.ts`                               | `desktop-deno-host.md`, `packages.md`, `architecture.md`                                   |
+| `packages/ai-host` cutover remnants                                            | `ai-plugin.md`, `packages.md`, `architecture.md`, `desktop-deno-host.md`, `web-host.md`    |
+| Focused AI Storybook stories                                                   | `ai-plugin.md`, `storybook-catalog.md`                                                     |
+| `packages/web`                                                                 | `server-deno-host.md`, `web-host.md`, `packages.md`, `architecture.md`                     |
+| Focused real-App Graph Storybook stories                                       | `graph-plugin.md`, `storybook-catalog.md`                                                  |
+| Native Markdown runtime source or language-service manifest                    | `desktop-deno-host.md`, `packages.md`, `workspace-shell/panels/problems.md`                |
+| Extracted plugin npm ranges and local tarball acceptance                       | `packages.md`, `plugin-model.md`, `architecture.md`, `desktop-deno-host.md`, `web-host.md` |
+| Focused or real-App Bases Storybook stories                                    | `bases-plugin.md`, `storybook-catalog.md`                                                  |
+| Shared Markdown panel shell source                                             | `workspace-shell/panels.md`                                                                |
+| Individual Markdown panel source                                               | Its owning `markdown-plugin/panels/<panel>.md` page                                        |
+| Reusable Problems UI, diagnostic adapters, lint hover, or diagnostic providers | `workspace-shell/panels/problems.md`                                                       |
+| Storybook infrastructure and catalog metadata                                  | `storybook-catalog.md`                                                                     |
+| Root architecture / workspace / turbo manifests                                | `architecture.md`, `packages.md`                                                           |
+| Governance scripts, QMD config/ignore rules, `AGENTS.md`, `spec/book.toml`     | `spec-governance.md`                                                                       |
+| Local release-candidate installer and support module                           | `packages.md`, `spec-governance.md`                                                        |
 
 ## Agent workflow
 
@@ -227,3 +246,18 @@ Markdown `dist` consumers and file-scoped metadata panels are not covered by
 package unit tests or source-aliased Storybook alone. Handoff must rebuild
 Markdown and prove the web host plus a workspace that keeps Outline, Backlinks,
 and Outgoing Links from writing on a no-op `active-leaf-change`.
+
+Local plugin preparation excludes published Design Core, Mira-family, and Spec
+Validator entries from tarball remapping and install fingerprints. Existing
+plugin and unpublished Community/AI Controller acceptance remains separate
+from these registry foundations.
+
+Dedicated `dist-registry-acceptance` output is ignored alongside other generated
+artifacts. It contains only nonproduction fixture trust and must not enter source
+commits, npm candidates, or production host packaging.
+
+LN-PKG-149 binds compiled Svelte archives to the exact renderer ABI supplied by
+the host. Generated versioned entries and browser import maps share that module
+graph without exposing original private host specifiers. API and host Svelte
+peers retain the exact qualified compiler version; dependency drift fails the
+host-catalogue build before archives can be installed.

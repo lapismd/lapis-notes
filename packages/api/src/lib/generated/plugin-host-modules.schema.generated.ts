@@ -2,380 +2,1040 @@
 
 export const pluginHostModuleRegistry = {
   "@codemirror/autocomplete": {
-    entry: "@codemirror/autocomplete",
-    moduleId: "codemirror-autocomplete",
-    packageName: "@codemirror/autocomplete",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/autocomplete",
-    version: "6.18.6",
+    "entry": "@codemirror/autocomplete",
+    "moduleId": "codemirror-autocomplete",
+    "packageName": "@codemirror/autocomplete",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/autocomplete",
+    "version": "6.18.6"
   },
   "@codemirror/commands": {
-    entry: "@codemirror/commands",
-    moduleId: "codemirror-commands",
-    packageName: "@codemirror/commands",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/commands",
-    version: "6.8.1",
+    "entry": "@codemirror/commands",
+    "moduleId": "codemirror-commands",
+    "packageName": "@codemirror/commands",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/commands",
+    "version": "6.8.1"
   },
   "@codemirror/language": {
-    entry: "@codemirror/language",
-    moduleId: "codemirror-language",
-    packageName: "@codemirror/language",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/language",
-    version: "6.11.3",
+    "entry": "@codemirror/language",
+    "moduleId": "codemirror-language",
+    "packageName": "@codemirror/language",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/language",
+    "version": "6.11.3"
   },
   "@codemirror/lint": {
-    entry: "@codemirror/lint",
-    moduleId: "codemirror-lint",
-    packageName: "@codemirror/lint",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/lint",
-    version: "6.8.5",
+    "entry": "@codemirror/lint",
+    "moduleId": "codemirror-lint",
+    "packageName": "@codemirror/lint",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/lint",
+    "version": "6.8.5"
   },
   "@codemirror/merge": {
-    entry: "@codemirror/merge",
-    moduleId: "codemirror-merge",
-    packageName: "@codemirror/merge",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/merge",
-    version: "6.12.1",
+    "entry": "@codemirror/merge",
+    "moduleId": "codemirror-merge",
+    "packageName": "@codemirror/merge",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/merge",
+    "version": "6.12.1"
   },
   "@codemirror/search": {
-    entry: "@codemirror/search",
-    moduleId: "codemirror-search",
-    packageName: "@codemirror/search",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/search",
-    version: "6.5.11",
+    "entry": "@codemirror/search",
+    "moduleId": "codemirror-search",
+    "packageName": "@codemirror/search",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/search",
+    "version": "6.5.11"
   },
   "@codemirror/state": {
-    entry: "@codemirror/state",
-    moduleId: "codemirror-state",
-    packageName: "@codemirror/state",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/state",
-    version: "6.6.0",
+    "entry": "@codemirror/state",
+    "moduleId": "codemirror-state",
+    "packageName": "@codemirror/state",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/state",
+    "version": "6.6.0"
   },
   "@codemirror/view": {
-    entry: "@codemirror/view",
-    moduleId: "codemirror-view",
-    packageName: "@codemirror/view",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@codemirror/view",
-    version: "6.42.1",
+    "entry": "@codemirror/view",
+    "moduleId": "codemirror-view",
+    "packageName": "@codemirror/view",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@codemirror/view",
+    "version": "6.42.1"
   },
   "@dnd-kit/dom": {
-    entry: "@dnd-kit/dom",
-    moduleId: "dnd-kit-dom",
-    packageName: "@dnd-kit/dom",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@dnd-kit/dom",
-    version: "0.4.0",
+    "entry": "@dnd-kit/dom",
+    "moduleId": "dnd-kit-dom",
+    "packageName": "@dnd-kit/dom",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@dnd-kit/dom",
+    "version": "0.4.0"
   },
   "@dnd-kit/helpers": {
-    entry: "@dnd-kit/helpers",
-    moduleId: "dnd-kit-helpers",
-    packageName: "@dnd-kit/helpers",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@dnd-kit/helpers",
-    version: "0.4.0",
+    "entry": "@dnd-kit/helpers",
+    "moduleId": "dnd-kit-helpers",
+    "packageName": "@dnd-kit/helpers",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@dnd-kit/helpers",
+    "version": "0.4.0"
   },
   "@dnd-kit/svelte": {
-    entry: "@dnd-kit/svelte",
-    moduleId: "dnd-kit-svelte",
-    packageName: "@dnd-kit/svelte",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@dnd-kit/svelte",
-    version: "0.4.0",
+    "entry": "@dnd-kit/svelte",
+    "moduleId": "dnd-kit-svelte",
+    "packageName": "@dnd-kit/svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@dnd-kit/svelte",
+    "version": "0.4.0"
   },
   "@dnd-kit/svelte/sortable": {
-    entry: "@dnd-kit/svelte/sortable",
-    moduleId: "dnd-kit-svelte-sortable",
-    packageName: "@dnd-kit/svelte",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "package-json-export",
-    specifier: "@dnd-kit/svelte/sortable",
-    version: "0.4.0",
+    "entry": "@dnd-kit/svelte/sortable",
+    "moduleId": "dnd-kit-svelte-sortable",
+    "packageName": "@dnd-kit/svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@dnd-kit/svelte/sortable",
+    "version": "0.4.0"
   },
   "@dnd-kit/svelte/utilities": {
-    entry: "@dnd-kit/svelte/utilities",
-    moduleId: "dnd-kit-svelte-utilities",
-    packageName: "@dnd-kit/svelte",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "package-json-export",
-    specifier: "@dnd-kit/svelte/utilities",
-    version: "0.4.0",
+    "entry": "@dnd-kit/svelte/utilities",
+    "moduleId": "dnd-kit-svelte-utilities",
+    "packageName": "@dnd-kit/svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@dnd-kit/svelte/utilities",
+    "version": "0.4.0"
   },
   "@lapis-notes/api": {
-    entry: "@lapis-notes/api",
-    moduleId: "lapis-notes-api",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer", "electron-sidecar"],
-    public: true,
-    source: "config",
-    specifier: "@lapis-notes/api",
-    version: "0.0.1",
+    "entry": "@lapis-notes/api",
+    "moduleId": "lapis-notes-api",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer",
+      "electron-sidecar"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/agent-skills": {
+    "entry": "@lapis-notes/api/agent-skills",
+    "moduleId": "lapis-notes-api-agent-skills",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/agent-skills",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/agent-tools": {
+    "entry": "@lapis-notes/api/agent-tools",
+    "moduleId": "lapis-notes-api-agent-tools",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/agent-tools",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/app-database": {
+    "entry": "@lapis-notes/api/app-database",
+    "moduleId": "lapis-notes-api-app-database",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/app-database",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/build/vite": {
+    "entry": "@lapis-notes/api/build/vite",
+    "moduleId": "lapis-notes-api-build-vite",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/build/vite",
+    "version": "0.1.1"
   },
   "@lapis-notes/api/cache": {
-    entry: "@lapis-notes/api/cache",
-    moduleId: "lapis-notes-api-cache",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "package-json-export",
-    specifier: "@lapis-notes/api/cache",
-    version: "0.0.1",
+    "entry": "@lapis-notes/api/cache",
+    "moduleId": "lapis-notes-api-cache",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/cache",
+    "version": "0.1.1"
   },
   "@lapis-notes/api/copy-button": {
-    entry: "@lapis-notes/api/copy-button",
-    moduleId: "lapis-notes-api-copy-button",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lapis-notes/api/copy-button",
-    version: "0.0.1",
+    "entry": "@lapis-notes/api/copy-button",
+    "moduleId": "lapis-notes-api-copy-button",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/copy-button",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/desktop-native": {
+    "entry": "@lapis-notes/api/desktop-native",
+    "moduleId": "lapis-notes-api-desktop-native",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/desktop-native",
+    "version": "0.1.1"
   },
   "@lapis-notes/api/editor": {
-    defaultExport: true,
-    entry: "@lapis-notes/api/editor",
-    moduleId: "lapis-notes-api-editor",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lapis-notes/api/editor",
-    version: "0.0.1",
+    "defaultExport": true,
+    "entry": "@lapis-notes/api/editor",
+    "moduleId": "lapis-notes-api-editor",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/core": {
+    "entry": "@lapis-notes/api/editor/core",
+    "moduleId": "lapis-notes-api-editor-core",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/core",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/extensions/autocomplete": {
+    "entry": "@lapis-notes/api/editor/extensions/autocomplete",
+    "moduleId": "lapis-notes-api-editor-extensions-autocomplete",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/extensions/autocomplete",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/extensions/class-highlighter": {
+    "entry": "@lapis-notes/api/editor/extensions/class-highlighter",
+    "moduleId": "lapis-notes-api-editor-extensions-class-highlighter",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/extensions/class-highlighter",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/extensions/fold-gutter": {
+    "entry": "@lapis-notes/api/editor/extensions/fold-gutter",
+    "moduleId": "lapis-notes-api-editor-extensions-fold-gutter",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/extensions/fold-gutter",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/extensions/gutter-line-style-sync": {
+    "entry": "@lapis-notes/api/editor/extensions/gutter-line-style-sync",
+    "moduleId": "lapis-notes-api-editor-extensions-gutter-line-style-sync",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/extensions/gutter-line-style-sync",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/extensions/lint": {
+    "entry": "@lapis-notes/api/editor/extensions/lint",
+    "moduleId": "lapis-notes-api-editor-extensions-lint",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/extensions/lint",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/extensions/search": {
+    "entry": "@lapis-notes/api/editor/extensions/search",
+    "moduleId": "lapis-notes-api-editor-extensions-search",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/extensions/search",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/editor/language-service": {
+    "entry": "@lapis-notes/api/editor/language-service",
+    "moduleId": "lapis-notes-api-editor-language-service",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/editor/language-service",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/empty-view": {
+    "entry": "@lapis-notes/api/empty-view",
+    "moduleId": "lapis-notes-api-empty-view",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/empty-view",
+    "version": "0.1.1"
   },
   "@lapis-notes/api/icon": {
-    entry: "@lapis-notes/api/icon",
-    moduleId: "lapis-notes-api-icon",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lapis-notes/api/icon",
-    version: "0.0.1",
+    "entry": "@lapis-notes/api/icon",
+    "moduleId": "lapis-notes-api-icon",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/icon",
+    "version": "0.1.1"
   },
   "@lapis-notes/api/language-service": {
-    entry: "@lapis-notes/api/language-service",
-    moduleId: "lapis-notes-api-language-service",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "package-json-export",
-    specifier: "@lapis-notes/api/language-service",
-    version: "0.0.1",
+    "entry": "@lapis-notes/api/language-service",
+    "moduleId": "lapis-notes-api-language-service",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/language-service",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/language-service/worker": {
+    "entry": "@lapis-notes/api/language-service/worker",
+    "moduleId": "lapis-notes-api-language-service-worker",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/language-service/worker",
+    "version": "0.1.1"
   },
   "@lapis-notes/api/menu": {
-    defaultExport: true,
-    entry: "@lapis-notes/api/menu",
-    moduleId: "lapis-notes-api-menu",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lapis-notes/api/menu",
-    version: "0.0.1",
+    "defaultExport": true,
+    "entry": "@lapis-notes/api/menu",
+    "moduleId": "lapis-notes-api-menu",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/menu",
+    "version": "0.1.1"
   },
   "@lapis-notes/api/metadata-value": {
-    entry: "@lapis-notes/api/metadata-value",
-    moduleId: "lapis-notes-api-metadata-value",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "package-json-export",
-    specifier: "@lapis-notes/api/metadata-value",
-    version: "0.0.1",
+    "entry": "@lapis-notes/api/metadata-value",
+    "moduleId": "lapis-notes-api-metadata-value",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/metadata-value",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/path": {
+    "entry": "@lapis-notes/api/path",
+    "moduleId": "lapis-notes-api-path",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/path",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/plugin-assets": {
+    "entry": "@lapis-notes/api/plugin-assets",
+    "moduleId": "lapis-notes-api-plugin-assets",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/plugin-assets",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/plugin-distribution-host": {
+    "entry": "@lapis-notes/api/plugin-distribution-host",
+    "moduleId": "lapis-notes-api-plugin-distribution-host",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/plugin-distribution-host",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/plugin-host-modules": {
+    "entry": "@lapis-notes/api/plugin-host-modules",
+    "moduleId": "lapis-notes-api-plugin-host-modules",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/plugin-host-modules",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/registry/schema": {
+    "entry": "@lapis-notes/api/registry/schema",
+    "moduleId": "lapis-notes-api-registry-schema",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/registry/schema",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/search-embedding-worker": {
+    "entry": "@lapis-notes/api/search-embedding-worker",
+    "moduleId": "lapis-notes-api-search-embedding-worker",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/search-embedding-worker",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/select": {
+    "entry": "@lapis-notes/api/select",
+    "moduleId": "lapis-notes-api-select",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/select",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/server-host": {
+    "entry": "@lapis-notes/api/server-host",
+    "moduleId": "lapis-notes-api-server-host",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/server-host",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/telemetry": {
+    "entry": "@lapis-notes/api/telemetry",
+    "moduleId": "lapis-notes-api-telemetry",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/telemetry",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/vault": {
+    "entry": "@lapis-notes/api/vault",
+    "moduleId": "lapis-notes-api-vault",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/vault",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/workspace-host": {
+    "entry": "@lapis-notes/api/workspace-host",
+    "moduleId": "lapis-notes-api-workspace-host",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/workspace-host",
+    "version": "0.1.1"
   },
   "@lapis-notes/markdown": {
-    entry: "@lapis-notes/markdown",
-    moduleId: "lapis-notes-markdown",
-    packageName: "@lapis-notes/markdown",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lapis-notes/markdown",
-    version: "0.0.0",
+    "entry": "@lapis-notes/markdown",
+    "moduleId": "lapis-notes-markdown",
+    "packageName": "@lapis-notes/markdown",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapis-notes/markdown",
+    "version": "0.0.0"
   },
   "@lapis-notes/markdown/embed": {
-    entry: "@lapis-notes/markdown/embed",
-    moduleId: "lapis-notes-markdown-embed",
-    packageName: "@lapis-notes/markdown",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "package-json-export",
-    specifier: "@lapis-notes/markdown/embed",
-    version: "0.0.0",
+    "entry": "@lapis-notes/markdown/embed",
+    "moduleId": "lapis-notes-markdown-embed",
+    "packageName": "@lapis-notes/markdown",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/markdown/embed",
+    "version": "0.0.0"
   },
   "@lapis-notes/ui": {
-    entry: "@lapis-notes/ui",
-    moduleId: "lapis-notes-ui",
-    packageName: "@lapis-notes/ui",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lapis-notes/ui",
-    version: "0.0.1",
+    "entry": "@lapis-notes/ui",
+    "moduleId": "lapis-notes-ui",
+    "packageName": "@lapis-notes/ui",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapis-notes/ui",
+    "version": "0.0.1"
+  },
+  "@lezer/common": {
+    "entry": "@lezer/common",
+    "moduleId": "lezer-common",
+    "packageName": "@lezer/common",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lezer/common",
+    "version": "1.5.2"
   },
   "@lezer/highlight": {
-    entry: "@lezer/highlight",
-    moduleId: "lezer-highlight",
-    packageName: "@lezer/highlight",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lezer/highlight",
-    version: "1.2.1",
+    "entry": "@lezer/highlight",
+    "moduleId": "lezer-highlight",
+    "packageName": "@lezer/highlight",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lezer/highlight",
+    "version": "1.2.1"
   },
   "@lezer/lr": {
-    entry: "@lezer/lr",
-    moduleId: "lezer-lr",
-    packageName: "@lezer/lr",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "@lezer/lr",
-    version: "1.4.2",
+    "entry": "@lezer/lr",
+    "moduleId": "lezer-lr",
+    "packageName": "@lezer/lr",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "@lezer/lr",
+    "version": "1.4.2"
   },
   "bits-ui": {
-    entry: "bits-ui",
-    moduleId: "bits-ui",
-    packageName: "bits-ui",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "bits-ui",
-    version: "2.18.1",
+    "entry": "bits-ui",
+    "moduleId": "bits-ui",
+    "packageName": "bits-ui",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "bits-ui",
+    "version": "2.18.1"
   },
-  clsx: {
-    entry: "clsx",
-    moduleId: "clsx",
-    packageName: "clsx",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "clsx",
-    version: "2.1.1",
+  "clsx": {
+    "entry": "clsx",
+    "moduleId": "clsx",
+    "packageName": "clsx",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "clsx",
+    "version": "2.1.1"
   },
   "js-yaml": {
-    entry: "js-yaml",
-    moduleId: "js-yaml",
-    packageName: "js-yaml",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "js-yaml",
-    version: "4.1.1",
+    "entry": "js-yaml",
+    "moduleId": "js-yaml",
+    "packageName": "js-yaml",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "js-yaml",
+    "version": "4.1.1"
   },
-  lapis: {
-    aliasOf: "@lapis-notes/api",
-    entry: "@lapis-notes/api",
-    moduleId: "lapis",
-    packageName: "@lapis-notes/api",
-    platforms: ["electron-sidecar"],
-    public: true,
-    source: "config",
-    specifier: "lapis",
-    version: "0.0.1",
+  "lapis": {
+    "aliasOf": "@lapis-notes/api",
+    "entry": "@lapis-notes/api",
+    "moduleId": "lapis",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "electron-sidecar"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "lapis",
+    "version": "0.0.1"
   },
-  luxon: {
-    entry: "luxon",
-    moduleId: "luxon",
-    packageName: "luxon",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "luxon",
-    version: "3.7.1",
+  "luxon": {
+    "entry": "luxon",
+    "moduleId": "luxon",
+    "packageName": "luxon",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "luxon",
+    "version": "3.7.1"
   },
-  obsidian: {
-    aliasOf: "@lapis-notes/api",
-    entry: "@lapis-notes/api",
-    moduleId: "obsidian",
-    packageName: "@lapis-notes/api",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "obsidian",
-    version: "0.0.1",
+  "obsidian": {
+    "aliasOf": "@lapis-notes/api",
+    "entry": "@lapis-notes/api",
+    "moduleId": "obsidian",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "obsidian",
+    "version": "0.0.1"
   },
-  svelte: {
-    entry: "svelte",
-    moduleId: "svelte",
-    packageName: "svelte",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "svelte",
-    version: "5.55.7",
+  "svelte": {
+    "entry": "svelte",
+    "moduleId": "svelte",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "svelte",
+    "version": "5.55.7"
   },
   "svelte/internal/client": {
-    deprecated: true,
-    entry: "svelte/internal/client",
-    moduleId: "svelte-internal-client",
-    packageName: "svelte",
-    platforms: ["web", "electron-renderer"],
-    public: false,
-    reason: "Temporary compatibility only. Do not use for new plugins.",
-    source: "config",
-    specifier: "svelte/internal/client",
-    version: "5.55.7",
+    "deprecated": true,
+    "entry": "svelte/internal/client",
+    "moduleId": "svelte-internal-client",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": false,
+    "reason": "Temporary compatibility only. Do not use for new plugins.",
+    "source": "config",
+    "specifier": "svelte/internal/client",
+    "version": "5.55.7"
+  },
+  "svelte/renderer/5.56.10": {
+    "entry": "svelte",
+    "moduleId": "svelte-renderer-5-56-10",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/animate": {
+    "entry": "svelte/animate",
+    "moduleId": "svelte-renderer-5-56-10-animate",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/animate",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/attachments": {
+    "entry": "svelte/attachments",
+    "moduleId": "svelte-renderer-5-56-10-attachments",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/attachments",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/easing": {
+    "entry": "svelte/easing",
+    "moduleId": "svelte-renderer-5-56-10-easing",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/easing",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/events": {
+    "entry": "svelte/events",
+    "moduleId": "svelte-renderer-5-56-10-events",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/events",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/internal/client": {
+    "entry": "svelte/internal/client",
+    "moduleId": "svelte-renderer-5-56-10-internal-client",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/internal/client",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/internal/disclose-version": {
+    "entry": "svelte/internal/disclose-version",
+    "moduleId": "svelte-renderer-5-56-10-internal-disclose-version",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/internal/disclose-version",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/internal/flags/async": {
+    "entry": "svelte/internal/flags/async",
+    "moduleId": "svelte-renderer-5-56-10-internal-flags-async",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/internal/flags/async",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/internal/flags/legacy": {
+    "entry": "svelte/internal/flags/legacy",
+    "moduleId": "svelte-renderer-5-56-10-internal-flags-legacy",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/internal/flags/legacy",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/internal/flags/tracing": {
+    "entry": "svelte/internal/flags/tracing",
+    "moduleId": "svelte-renderer-5-56-10-internal-flags-tracing",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/internal/flags/tracing",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/legacy": {
+    "entry": "svelte/legacy",
+    "moduleId": "svelte-renderer-5-56-10-legacy",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/legacy",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/motion": {
+    "entry": "svelte/motion",
+    "moduleId": "svelte-renderer-5-56-10-motion",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/motion",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/reactivity": {
+    "entry": "svelte/reactivity",
+    "moduleId": "svelte-renderer-5-56-10-reactivity",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/reactivity",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/reactivity/window": {
+    "entry": "svelte/reactivity/window",
+    "moduleId": "svelte-renderer-5-56-10-reactivity-window",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/reactivity/window",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/store": {
+    "entry": "svelte/store",
+    "moduleId": "svelte-renderer-5-56-10-store",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/store",
+    "version": "5.56.10"
+  },
+  "svelte/renderer/5.56.10/transition": {
+    "entry": "svelte/transition",
+    "moduleId": "svelte-renderer-5-56-10-transition",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "renderer-abi",
+    "specifier": "svelte/renderer/5.56.10/transition",
+    "version": "5.56.10"
   },
   "svelte/store": {
-    entry: "svelte/store",
-    moduleId: "svelte-store",
-    packageName: "svelte",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "svelte/store",
-    version: "5.55.7",
+    "entry": "svelte/store",
+    "moduleId": "svelte-store",
+    "packageName": "svelte",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "svelte/store",
+    "version": "5.55.7"
   },
-  zod: {
-    entry: "zod",
-    moduleId: "zod",
-    packageName: "zod",
-    platforms: ["web", "electron-renderer"],
-    public: true,
-    source: "config",
-    specifier: "zod",
-    version: "3.25.76",
-  },
+  "zod": {
+    "entry": "zod",
+    "moduleId": "zod",
+    "packageName": "zod",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "config",
+    "specifier": "zod",
+    "version": "3.25.76"
+  }
 } as const;
 
-export const pluginHostModuleSpecifiers = Object.keys(
-  pluginHostModuleRegistry,
-) as Array<keyof typeof pluginHostModuleRegistry>;
+export const pluginHostModuleSpecifiers = Object.keys(pluginHostModuleRegistry) as Array<keyof typeof pluginHostModuleRegistry>;
 
-export function isPluginHostModuleSpecifier(
-  value: string,
-): value is keyof typeof pluginHostModuleRegistry {
+export function isPluginHostModuleSpecifier(value: string): value is keyof typeof pluginHostModuleRegistry {
   return Object.hasOwn(pluginHostModuleRegistry, value);
 }
 

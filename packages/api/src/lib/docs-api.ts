@@ -28,6 +28,21 @@ export {
 } from "./application-state.svelte";
 
 export { Plugin, resolvePluginDataPath } from "./plugin";
+export { DeclarativePluginSettingTab } from "./plugin-settings";
+export type {
+  PluginSettingsDefinition,
+  PluginSettingsRegistration,
+  WorkspaceCustomFieldAdapter,
+  WorkspaceCustomSetting,
+  WorkspaceCustomSettingProps,
+  WorkspaceObjectCollectionSetting,
+  WorkspaceObjectProperty,
+  WorkspaceObjectRowAction,
+  WorkspaceOutputSetting,
+  WorkspaceSettingField,
+  WorkspaceSettingsSection,
+  WorkspaceSettingsSource,
+} from "./plugin-settings";
 export type {
   PluginManifest,
   PluginRuntimeOptions,

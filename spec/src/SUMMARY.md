@@ -8,6 +8,7 @@
 - [App Database](./app-database.md)
 - [Desktop Host](./desktop-deno-host.md)
 - [Web Host](./web-host.md)
+- [Deno Server Host](./server-deno-host.md)
 - [Workspace Shell](./workspace-shell.md)
   - [Panels](./workspace-shell/panels.md)
     - [Problems](./workspace-shell/panels/problems.md)

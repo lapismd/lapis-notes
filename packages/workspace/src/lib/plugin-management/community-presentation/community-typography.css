@@ -1,0 +1,30 @@
+/* One Community scale. Public components and portalled recipes use the same tokens. */
+:root {
+  --community-text-body: 0.875rem;
+  --community-text-secondary: 0.75rem;
+  --community-text-avatar-initials: 0.625rem;
+  --community-text-section: 1rem;
+  --community-text-dialog: 1.125rem;
+  --community-text-page: 1.5rem;
+  --ui-dialog-frame-font-size: var(--community-text-body);
+  --ui-dialog-frame-title-size: var(--community-text-dialog);
+}
+:where(
+    .community-ui,
+    .community-application,
+    .community-application-root,
+    .agents,
+    .agent-profile,
+    .agent-activity
+  ) {
+  font-family: var(--font-sans, sans-serif);
+  font-size: var(--community-text-body);
+  line-height: 1.5;
+}
+:where(.community-ui) h1 {
+  font-size: var(--community-text-page);
+}
+:where(.community-ui) h2,
+:where(.community-ui) h3 {
+  font-size: var(--community-text-section);
+}

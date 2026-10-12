@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "base": {
+    "image": "ghcr.io/lapismd/lapis-ci",
+    "tag": "2026.08.1",
+    "digest": "sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8"
+  },
+  "dependencies": {
+    "image": "ghcr.io/lapismd/lapis-notes-ci",
+    "tag": "lock-2c76eac646b36a05",
+    "lockfileSha256": "2c76eac646b36a058143495236765cd13e8670bcebaeb1f6f8448591477dcb02",
+    "digest": null
+  }
+}
