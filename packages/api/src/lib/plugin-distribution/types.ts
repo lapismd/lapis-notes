@@ -2,7 +2,7 @@ import type {
   RegistryCatalogV2Entry,
   RegistryCatalogV2Detail,
   RegistryReleaseChangelog,
-} from "@lapismd/lapis-community/registry/schema";
+} from "../registry-schema/index.js";
 export type PluginProvenance =
   | "bundled"
   | "official"

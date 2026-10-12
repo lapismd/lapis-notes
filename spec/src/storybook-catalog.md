@@ -253,3 +253,5 @@ stories must not discover these dependencies midway through a test and reload
 the browser. This uses published exports without source aliases.
 
 For LN-CAT-099, cold packed-registry acceptance prebundles the public Community schema, direct Nostr leaves and the accessibility runtime before stories start. The `LapisEditorDemo` Ready story and the complete interaction lane verify that dependency discovery does not invalidate an in-flight accessibility import.
+
+Storybook consumes the API-owned Turso build helper under LN-PKG-151 and has no Community dependency for static plugin acceptance.

@@ -1,4 +1,4 @@
-import { tursoBundleBuildPlugin } from "@lapismd/lapis-community/build/vite";
+import { tursoBundleBuildPlugin } from "@lapis-notes/api/build/vite";
 import { svelte, vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { existsSync, realpathSync } from "node:fs";

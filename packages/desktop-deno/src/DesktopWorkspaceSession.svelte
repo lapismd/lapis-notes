@@ -16,7 +16,6 @@
     type VaultSession,
   } from "@lapis-notes/api";
   import {
-    createConfiguredNotesNostrPluginDistribution,
     createConfiguredNotesLocalPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
@@ -85,18 +84,7 @@
         import.meta.env.VITE_LAPIS_LOCAL_REGISTRY_TRUSTED_KEYS,
     }),
   );
-  const nostrPluginDistribution = untrack(() =>
-    createConfiguredNotesNostrPluginDistribution({
-      VITE_LAPIS_NOSTR_REGISTRY_RELAYS:
-        import.meta.env.VITE_LAPIS_NOSTR_REGISTRY_RELAYS,
-      VITE_LAPIS_NOSTR_CURATOR_PUBKEYS:
-        import.meta.env.VITE_LAPIS_NOSTR_CURATOR_PUBKEYS,
-      VITE_LAPIS_NOSTR_INSTALL_QUORUM:
-        import.meta.env.VITE_LAPIS_NOSTR_INSTALL_QUORUM,
-      VITE_LAPIS_NOSTR_BLOSSOM_URL:
-        import.meta.env.VITE_LAPIS_NOSTR_BLOSSOM_URL,
-    }, staticPluginDistributionOptions),
-  );
+
   const app = untrack(() => {
     const safeMode = readDesktopSafeModeState();
     let ownedApp!: App;
@@ -143,7 +131,7 @@
       safeMode,
       pluginAssetServer,
       pluginDistributionOptions:
-        nostrPluginDistribution?.options ?? staticPluginDistributionOptions,
+        staticPluginDistributionOptions,
       nostrSignerBroker: getDenoNostrSignerBroker(),
       workspaceShell: { application: appInfo, notifications: true },
       markdownRenderer: async () => {},
@@ -626,7 +614,6 @@
       );
     } finally {
       disposePluginManagementSettings();
-      nostrPluginDistribution?.dispose();
       disposeApplicationCompatibility();
     }
   }

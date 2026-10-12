@@ -19,6 +19,11 @@ or product routing.
 - Peer dependencies for UI, Svelte, CodeMirror, Mira, and Design Core so hosts
   retain singleton control over their runtime stack.
 
+`@lapis-notes/api/registry/schema` provides catalog schemas, types, normalization,
+media resolution, and structured release-note extraction for registry producers
+and consumers. It imports only Zod and does not boot the application.
+`@lapis-notes/api/build/vite` provides the portable Turso browser-build helper.
+
 ## Usage
 
 ```ts

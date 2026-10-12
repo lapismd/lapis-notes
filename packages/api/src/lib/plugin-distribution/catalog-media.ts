@@ -1,7 +1,7 @@
 import {
   resolveRegistryMedia,
   type RegistryMediaV2,
-} from "@lapismd/lapis-community/registry/schema";
+} from "../registry-schema/index.js";
 import { verifySha256 } from "./hashes";
 import { PluginDistributionError } from "./errors";
 

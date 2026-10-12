@@ -1,6 +1,4 @@
-import {
-  type AppPluginDistributionOptions,
-} from "@lapis-notes/api";
+import { type AppPluginDistributionOptions } from "@lapis-notes/api";
 import {
   createNostrPluginRegistryAdapter,
   DEFAULT_OFFICIAL_PLUGIN_REGISTRY_SOURCE,
@@ -43,17 +41,22 @@ export function nostrPluginRegistryConfigurationFromEnvironment(
   }
   for (const pubkey of curatorPubkeys) {
     if (!/^[0-9a-f]{64}$/u.test(pubkey)) {
-      throw new Error("Nostr curator public keys must be 64 lowercase hex characters.");
+      throw new Error(
+        "Nostr curator public keys must be 64 lowercase hex characters.",
+      );
     }
   }
   const quorumValue = stringValue(environment.VITE_LAPIS_NOSTR_INSTALL_QUORUM);
-  const installQuorum = quorumValue === undefined ? relays.length : Number(quorumValue);
+  const installQuorum =
+    quorumValue === undefined ? relays.length : Number(quorumValue);
   if (
     !Number.isSafeInteger(installQuorum) ||
     installQuorum < 1 ||
     installQuorum > relays.length
   ) {
-    throw new Error("VITE_LAPIS_NOSTR_INSTALL_QUORUM must fit the relay count.");
+    throw new Error(
+      "VITE_LAPIS_NOSTR_INSTALL_QUORUM must fit the relay count.",
+    );
   }
   const blossomUrl = stringValue(environment.VITE_LAPIS_NOSTR_BLOSSOM_URL);
   if (blossomUrl) {

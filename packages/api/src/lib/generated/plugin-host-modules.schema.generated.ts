@@ -223,6 +223,16 @@ export const pluginHostModuleRegistry = {
     "specifier": "@lapis-notes/api/app-database",
     "version": "0.1.1"
   },
+  "@lapis-notes/api/build/vite": {
+    "entry": "@lapis-notes/api/build/vite",
+    "moduleId": "lapis-notes-api-build-vite",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/build/vite",
+    "version": "0.1.1"
+  },
   "@lapis-notes/api/cache": {
     "entry": "@lapis-notes/api/cache",
     "moduleId": "lapis-notes-api-cache",
@@ -509,6 +519,19 @@ export const pluginHostModuleRegistry = {
     "public": true,
     "source": "package-json-export",
     "specifier": "@lapis-notes/api/plugin-host-modules",
+    "version": "0.1.1"
+  },
+  "@lapis-notes/api/registry/schema": {
+    "entry": "@lapis-notes/api/registry/schema",
+    "moduleId": "lapis-notes-api-registry-schema",
+    "packageName": "@lapis-notes/api",
+    "platforms": [
+      "web",
+      "electron-renderer"
+    ],
+    "public": true,
+    "source": "package-json-export",
+    "specifier": "@lapis-notes/api/registry/schema",
     "version": "0.1.1"
   },
   "@lapis-notes/api/search-embedding-worker": {

@@ -3,7 +3,7 @@ import {
   resolvePluginHostModule,
   loadPluginHostModule,
 } from "@lapis-notes/app-profile/plugin-host-build";
-import { tursoBundleBuildPlugin } from "@lapismd/lapis-community/build/vite";
+import { tursoBundleBuildPlugin } from "@lapis-notes/api/build/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { realpathSync } from "node:fs";

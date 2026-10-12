@@ -36,8 +36,7 @@ describe("Notes Nostr plugin distribution", () => {
 
   it("adds a built-in Nostr source without replacing HTTPS", () => {
     const configuration = nostrPluginRegistryConfigurationFromEnvironment({
-      VITE_LAPIS_NOSTR_REGISTRY_RELAYS:
-        "wss://one.example,wss://two.example",
+      VITE_LAPIS_NOSTR_REGISTRY_RELAYS: "wss://one.example,wss://two.example",
       VITE_LAPIS_NOSTR_CURATOR_PUBKEYS: "a".repeat(64),
       VITE_LAPIS_NOSTR_INSTALL_QUORUM: "2",
       VITE_LAPIS_NOSTR_BLOSSOM_URL: "https://blossom.example",

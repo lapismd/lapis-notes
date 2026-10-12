@@ -46,8 +46,7 @@
     "nostr-tools": "^2.25.0",
     "tailwind-merge": "^2.6.0",
     "tailwind-variants": "^0.3.1",
-    "zod": "^3.25.76",
-    "@lapismd/lapis-community": "^0.1.0"
+    "zod": "^3.25.76"
   },
   "scripts": {
     "build": "pnpm run prepack",
@@ -89,6 +88,12 @@
       ],
       "telemetry": [
         "dist/telemetry.d.ts"
+      ],
+      "registry/schema": [
+        "dist/registry-schema/index.d.ts"
+      ],
+      "build/vite": [
+        "dist/build-tools/vite.d.ts"
       ]
     }
   },
@@ -224,6 +229,16 @@
       "types": "./dist/generated/plugin-host-modules.schema.generated.d.ts",
       "import": "./dist/generated/plugin-host-modules.schema.generated.js",
       "default": "./dist/generated/plugin-host-modules.schema.generated.js"
+    },
+    "./registry/schema": {
+      "types": "./dist/registry-schema/index.d.ts",
+      "import": "./dist/registry-schema/index.js",
+      "default": "./dist/registry-schema/index.js"
+    },
+    "./build/vite": {
+      "types": "./dist/build-tools/vite.d.ts",
+      "import": "./dist/build-tools/vite.js",
+      "default": "./dist/build-tools/vite.js"
     }
   },
   "devDependencies": {

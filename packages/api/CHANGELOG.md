@@ -4,6 +4,9 @@
 
 ### Patch Changes
 
+- Own the transport-neutral registry schema and portable Turso build helper,
+  removing the Community dependency from static registry producers and hosts.
+
 - Expose host-owned secure sync capabilities and controlled declarative plugin settings.
 
 - Allow indexed consumers to select metadata fingerprint inputs. Preserve native

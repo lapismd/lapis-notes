@@ -2,7 +2,7 @@ import {
   normalizeRegistryCatalogEntry,
   normalizeRegistryCatalogIndex,
   normalizeRegistryCatalogDetail,
-} from "@lapismd/lapis-community/registry/schema";
+} from "../registry-schema/index.js";
 import { z } from "zod";
 import { PluginDistributionError } from "./errors";
 

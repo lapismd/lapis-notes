@@ -209,7 +209,7 @@ dependency once available, and no Lapis runtime package may depend on it.
 | LN-ARCH-100 | Signed Nostr events and content-addressed manifests MAY supply plugin catalog and release evidence through a transport adapter, but relays MUST remain transport rather than trust roots. Pinned curator keys, exact publisher authorization, exact release approval, artifact integrity, and install relay quorum remain prerequisites. Official and community plugins MUST use the same adapter and verification path; source enablement and curator policy express provenance and trust tier. |
 | LN-ARCH-101 | The public plugin-facing Nostr signer facade MUST terminate at a host-owned broker. On Deno desktop, the broker MUST use a renderer-private native session capability and native signing commands so keychain values never cross into renderer or plugin code. Only the first-party `community` plugin identity may use that native session; additional plugins require an explicit host policy change. |
 | LN-ARCH-102 | The portable offline `.lapis-plugin` MUST contain only `release.nostr.json` and the exact hash-bound `payload.zip`; its outer archive is not authoritative because it contains the proof. Offline verification MUST terminate at an app-configured curator key and persist the authenticated inner-payload digest plus a current-revocation warning. Only successful revalidation of that exact release and digest through an install-ready live source may clear the warning. |
-| LN-ARCH-103 | App Profile MUST compose the published Community NIP-29 source and shared proof verifier with API's transport-neutral adapter. Web and desktop sessions MUST consume that one composition, keep public relay configuration separate from signer custody, and dispose the live source with the workspace. |
+| LN-ARCH-103 | When Nostr registry discovery is enabled, App Profile MUST compose the Community NIP-29 source and shared proof verifier with API's transport-neutral adapter. Web and desktop sessions MUST share that composition and dispose the owned source after distribution teardown. While relay discovery is deferred, the concrete binding MUST remain outside active static-profile imports, build, and tests. |
 
 The reusable sync-host implementation follows LN-ARCH-091 through LN-ARCH-093:
 API owns opaque identity, enrollment, recovery, cursor, generated-state, file,
@@ -746,7 +746,7 @@ package; hosts rebuild disposable projection rows through its registration.
 
 Local plugin preparation excludes published Design Core, Mira-family, and Spec
 Validator entries from tarball remapping and install fingerprints. Existing
-plugin and unpublished Community/AI Controller acceptance remains separate
+plugin and unpublished AI Controller acceptance remains separate
 from these registry foundations.
 
 For LN-PLUG-092, plugin-management presentation composes shared V2 metadata through public package exports. Packed API acceptance uses one public API class identity and lets the Workspace Vitest graph transform dependency modules through Vite rather than substituting a private API barrel.
@@ -771,3 +771,5 @@ the host. Generated versioned entries and browser import maps share that module
 graph without exposing original private host specifiers. API and host Svelte
 peers retain the exact qualified compiler version; dependency drift fails the
 host-catalogue build before archives can be installed.
+
+The API owns pure registry schema and build-tooling subpaths. Community relay composition remains deferred outside active application sources; the static registry, hosts, and plugin release tooling consume API exports. Build tooling has no renderer platform in the generated host catalogue.

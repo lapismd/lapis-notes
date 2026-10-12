@@ -157,3 +157,7 @@ explicit authenticated host distribution options remain authoritative.
 
 The Web module entries required by LN-SRV-018 derive from LN-PKG-146 rather than
 a two-entry host inventory; server delivery uses the same emitted files.
+
+Server-mode Web uses the static application profile and API-owned registry
+schema under LN-PKG-150. Concrete Community NIP-29 composition remains deferred
+outside the active profile.

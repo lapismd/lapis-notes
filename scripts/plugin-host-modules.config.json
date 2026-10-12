@@ -1,4 +1,14 @@
 {
+  "@lapis-notes/api/build/vite": {
+    "entry": "@lapis-notes/api/build/vite",
+    "moduleId": "lapis-notes-api-build-vite",
+    "packageName": "@lapis-notes/api",
+    "platforms": [],
+    "public": true,
+    "source": "config",
+    "specifier": "@lapis-notes/api/build/vite",
+    "version": "0.1.1"
+  },
   "@codemirror/autocomplete": {
     "entry": "@codemirror/autocomplete",
     "moduleId": "codemirror-autocomplete",

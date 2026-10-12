@@ -207,6 +207,9 @@ entrypoints.
 | LN-PKG-148 | `@lapis-notes/api` MAY advertise a transport-neutral `nostr-signer` native capability but MUST NOT implement OS credential storage or Nostr cryptography. The private Deno desktop host MUST own its keychain, NIP-46, native signing service, renderer broker, and direct `nostr-tools` runtime dependency. |
 | LN-PKG-149 | The API host catalogue MUST expose declared Svelte browser runtime contracts under compiler-versioned specifiers. API and host builds MUST use that exact Svelte peer version. Hosts MUST provide those entries through their own module graph. Raw private imports and unavailable ABI versions MUST remain rejected. |
 
+| LN-PKG-150 | `@lapis-notes/api/registry/schema` MUST expose transport-neutral V2 catalog schemas, types, verified-input V1 normalization, authored media fallback, and validated Changesets notes without importing Community, application boot, UI, or relay implementations. |
+| LN-PKG-151 | `@lapis-notes/api/build/vite` MUST own the reusable Turso browser-bundle transform used by Notes hosts and plugin Storybook. It MUST preserve runtime data URLs and worker construction, leave unrelated modules unchanged, and emit portable declarations without a Vite peer dependency. Build tooling MUST NOT be advertised as a renderer host module. |
+
 The native filesystem adapter restores binding error codes under LN-DENO-077.
 The API owns startup fingerprint deletion recovery under LN-DB-054. Missing
 files do not abort identity reconciliation; unrelated read errors remain failures.
@@ -784,10 +787,10 @@ the former local Design Core shim mappings are retired.
 
 Local plugin preparation excludes published Design Core, Mira-family, and Spec
 Validator entries from tarball remapping and install fingerprints. Existing
-plugin and unpublished Community/AI Controller acceptance remains separate
+plugin and unpublished AI Controller acceptance remains separate
 from these registry foundations.
 
-The API consumes the transport-neutral `@lapismd/lapis-community/registry/schema` public contract through an npm semver dependency. Temporary V2 acceptance uses an ignored packed Community candidate until its approved initial npm publication.
+The API owns the transport-neutral `@lapis-notes/api/registry/schema` contract. Static registry generation, plugin release notes, and Notes clients consume that lightweight export without Community. Temporary acceptance uses an ignored, checksum-pinned API tarball until the approved API publication. Concrete Community NIP-29 bindings remain deferred outside the active application profile.
 
 For LN-PLUG-095, App Profile owns local acceptance configuration through public
 App distribution options. Ephemeral public trust keys and loopback transport
