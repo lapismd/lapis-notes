@@ -132,3 +132,10 @@ loader or editor configuration was changed.
 The candidate framework build/check/test lane passes all 30 tasks. Portable
 registry-only consumer qualification remains pending until these prerequisites
 and the shared schema library are approved and available from npm.
+
+The versioned consumer resolves API/UI/Workspace/File Explorer 0.1.1, Search
+0.1.3, Markdown 0.1.5 and Source Editor 0.1.2. Fresh Web acceptance passes all
+nine scenarios. The native bundled lifecycle passes all three plugins, and the
+combined native optional-plugin scenario passes installation, behavior, reload,
+uninstall and reload with zero page errors. The freshly rebuilt ad-hoc-signed
+WebKit package passes its original smoke. No production publication occurred.
