@@ -4,6 +4,11 @@ Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` th
 unchanged; local overrides for these released packages are retired.
 Shared specification tooling resolves `@lapismd/spec-validator@0.1.4` from npm.
 
+The static registry prerequisite release prepares API, UI, Workspace and File
+Explorer at independent version 0.1.1. Public framework peers require the new
+API/UI ranges; local candidate verification may use ignored npm tarballs until
+those prerequisites are approved and available from npm.
+
 Public packages that consume Design Core keep their portable semver ranges and
 the workspace lockfile on the repository's current supported npm release.
 

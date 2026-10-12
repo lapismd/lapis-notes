@@ -1,5 +1,9 @@
 # Explorer Plugin
 
+File Explorer 0.1.1 records landing-leaf reuse in its independent changelog.
+It consumes API 0.1.1 through a portable peer range and retains the existing
+plugin identity and public package entry.
+
 Explorer development compiles against the same qualified Svelte version as
 the API and workspace under LN-PKG-149, preserving shared Design Core class
 identity. Its published dependency ranges and source ownership remain portable.

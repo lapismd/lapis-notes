@@ -1,5 +1,11 @@
 # @lapis-notes/ui
 
+## 0.1.1
+
+### Patch Changes
+
+- Define accessible shared search-highlight theme tokens for plugin-owned matches.
+
 ## 0.1.0
 
 ### Minor Changes

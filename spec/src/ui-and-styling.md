@@ -1,5 +1,9 @@
 # UI and Styling
 
+UI 0.1.1 carries the shared search-highlight tokens used by the static registry
+plugin candidates. API consumers require that public version while continuing
+to use the owning theme and component contracts.
+
 UI development uses the qualified Svelte version from LN-PKG-149 so API and
 workspace consumers share one Design Core type and renderer graph. This changes
 compiler qualification without changing component paint or public styling tokens.

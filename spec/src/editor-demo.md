@@ -1,5 +1,9 @@
 # Lapis Editor Demo
 
+The static registry framework candidates use API and Workspace 0.1.1. Editor
+acceptance continues to exercise the same public App and workspace contracts
+when validating those release versions.
+
 The demo shares the qualified Svelte renderer graph under LN-PKG-149. Provider
 readiness refreshes already-open editor diagnostics through LN-WS-094 without
 changing document content or persistence.

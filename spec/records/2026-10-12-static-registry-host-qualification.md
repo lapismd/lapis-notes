@@ -118,3 +118,17 @@ Final portable prerequisite versions and production release candidates remain
 separate gates. Exploratory
 fixture signatures do not authorize publication. No production npm publication,
 registry deployment, Nostr publication or visual-baseline update has occurred.
+
+## Prerequisite release candidates
+
+Changesets prepares API, UI, Workspace and File Explorer at 0.1.1. The first
+CLI version attempt silently skipped the API changelog after its JSDoc formatter
+plugin failed to load. That partial slice was restored and the same release plan
+was applied through the standard Changesets API with its supported
+`prettier: false` option, followed by an explicit Markdown formatter without the
+JSDoc configuration. All four exact changelog sections are present. No local
+loader or editor configuration was changed.
+
+The candidate framework build/check/test lane passes all 30 tasks. Portable
+registry-only consumer qualification remains pending until these prerequisites
+and the shared schema library are approved and available from npm.

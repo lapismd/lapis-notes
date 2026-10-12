@@ -1,5 +1,9 @@
 # Workspace Shell
 
+Workspace 0.1.1 carries the static registry management contracts and consumes
+API and UI 0.1.1 peers. Release validation preserves the same App-owned shell
+and plugin-management interaction and accessibility requirements.
+
 Workspace development shares the exact qualified Svelte compiler from
 LN-PKG-149 with API, UI and hosts. Shared Design Core controllers therefore
 retain their class identity across the application graph.
