@@ -7,8 +7,10 @@
   let {
     media,
     variant = "preview",
+    presentation = "inline",
   }: {
     media: RegistryMediaV2;
+    presentation?: "inline" | "viewer";
     variant?: "preview" | "full" | "light" | "dark";
   } = $props();
   let imageUrl = $state<string | null>(null);
@@ -35,7 +37,12 @@
   });
 </script>
 
-{#if imageUrl}<img src={imageUrl} alt={media.alt} loading="lazy" />
+{#if imageUrl}<img
+    class:viewer={presentation === "viewer"}
+    src={imageUrl}
+    alt={media.alt}
+    loading="lazy"
+  />
 {:else}<p role="status">
     {error ? "Verified image unavailable" : "Loading image…"}
   </p>{/if}
@@ -43,8 +50,15 @@
 <style>
   img {
     display: block;
+    width: 100%;
     max-width: 100%;
     height: auto;
     border-radius: var(--radius);
+  }
+  img.viewer {
+    width: auto;
+    max-height: calc(100dvh - 12rem);
+    margin-inline: auto;
+    object-fit: contain;
   }
 </style>

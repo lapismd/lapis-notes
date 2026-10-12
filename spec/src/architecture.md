@@ -1,5 +1,11 @@
 # Architecture
 
+Workspace owns the verified registry image presentation under LN-PLUG-092;
+Community-derived presentation keeps the screenshot carousel, banner, and overview
+separate and composes a navigable, viewport-bounded viewer without a Community dependency. Deno
+owns native traffic-light selection and lifecycle under LN-DENO-046, while
+Design Core owns maximized group inset geometry and bold Settings headings.
+
 Static registry release candidates use the independently versioned framework
 0.1.1 contracts. Temporary tarball validation retains source ownership and
 does not replace portable registry-only qualification before publication.

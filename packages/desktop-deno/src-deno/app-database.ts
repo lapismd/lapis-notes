@@ -31,6 +31,7 @@ type PendingWorkerRequest = {
 
 type DenoAppDatabaseHostOptions = {
   createWorker?: () => AppDatabaseWorkerLike;
+  workerReadyTimeoutMs?: number;
   resolveDatabasePath?: (
     userDataDir: string,
     vaultId: string,
@@ -70,6 +71,9 @@ export class DenoAppDatabaseHost {
   readonly #pending = new Map<number, PendingWorkerRequest>();
   #worker: AppDatabaseWorkerLike | null = null;
   #requestId = 0;
+  #workerReady = false;
+  #readyTimer: ReturnType<typeof setTimeout> | undefined;
+  readonly #queued = new Map<number, AppDatabaseWorkerRequest>();
 
   constructor(
     private readonly userDataDir: string,
@@ -118,11 +122,9 @@ export class DenoAppDatabaseHost {
     const worker = this.#worker;
     if (!worker) return;
     try {
-      await this.#request({ type: "close-all" });
+      if (this.#workerReady) await this.#request({ type: "close-all" });
     } finally {
-      worker.terminate();
-      this.#worker = null;
-      this.#rejectPending(new Error("Desktop app database worker closed"));
+      this.#stopWorker(worker, new Error("Desktop app database worker closed"));
     }
   }
 
@@ -131,12 +133,9 @@ export class DenoAppDatabaseHost {
     const id = ++this.#requestId;
     return new Promise((resolve, reject) => {
       this.#pending.set(id, { resolve, reject });
-      try {
-        worker.postMessage({ ...request, id } as AppDatabaseWorkerRequest);
-      } catch (error) {
-        this.#pending.delete(id);
-        reject(error);
-      }
+      const message = { ...request, id } as AppDatabaseWorkerRequest;
+      if (this.#workerReady) this.#send(worker, message);
+      else this.#queued.set(id, message);
     });
   }
 
@@ -148,26 +147,68 @@ export class DenoAppDatabaseHost {
         type: "module",
         name: "lapis-app-database",
       });
-    worker.onmessage = (event) => this.#handleWorkerMessage(event.data);
+    this.#worker = worker;
+    this.#workerReady = false;
+    worker.onmessage = (event) => {
+      if (this.#worker === worker) this.#handleWorkerMessage(event.data);
+    };
     worker.onerror = (event) => {
-      worker.terminate();
-      this.#worker = null;
-      this.#rejectPending(
+      event.preventDefault();
+      this.#stopWorker(
+        worker,
         new Error(event.message || "Desktop app database worker failed"),
       );
     };
     worker.onmessageerror = () => {
-      worker.terminate();
-      this.#worker = null;
-      this.#rejectPending(
+      this.#stopWorker(
+        worker,
         new Error("Desktop app database worker returned an invalid message"),
       );
     };
-    this.#worker = worker;
+    this.#readyTimer = setTimeout(() => {
+      this.#stopWorker(
+        worker,
+        new Error("Desktop app database worker did not become ready"),
+      );
+    }, this.options.workerReadyTimeoutMs ?? 30_000);
     return worker;
   }
 
+  #send(
+    worker: AppDatabaseWorkerLike,
+    request: AppDatabaseWorkerRequest,
+  ): void {
+    try {
+      worker.postMessage(request);
+    } catch (error) {
+      const pending = this.#pending.get(request.id);
+      this.#pending.delete(request.id);
+      pending?.reject(error);
+    }
+  }
+
+  #stopWorker(worker: AppDatabaseWorkerLike, error: Error): void {
+    if (this.#worker !== worker) return;
+    clearTimeout(this.#readyTimer);
+    this.#readyTimer = undefined;
+    this.#workerReady = false;
+    this.#worker = null;
+    this.#queued.clear();
+    worker.terminate();
+    this.#rejectPending(error);
+  }
+
   #handleWorkerMessage(response: AppDatabaseWorkerResponse): void {
+    if (response.type === "ready") {
+      if (this.#workerReady || !this.#worker) return;
+      clearTimeout(this.#readyTimer);
+      this.#readyTimer = undefined;
+      this.#workerReady = true;
+      for (const request of this.#queued.values())
+        this.#send(this.#worker, request);
+      this.#queued.clear();
+      return;
+    }
     if (response.type === "change") {
       void this.emitRendererEvent({
         channel: "desktop_app_database_change",

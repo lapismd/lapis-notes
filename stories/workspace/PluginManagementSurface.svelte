@@ -467,7 +467,7 @@ Released 1 August 2026.
       const result = detail(entry);
       if (untrack(() => scenario) !== "catalog-v2") return result;
       const image = async (color: string) => {
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160"><rect width="240" height="160" fill="${color}"/></svg>`;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1600"><rect width="2400" height="1600" fill="${color}"/></svg>`;
         const bytes = new TextEncoder().encode(svg);
         return {
           url: `data:image/svg+xml,${encodeURIComponent(svg)}`,
@@ -475,13 +475,32 @@ Released 1 August 2026.
           sha256: await sha256Hex(bytes),
           size: bytes.byteLength,
           mediaType: "image/svg+xml",
-          width: 240,
-          height: 160,
+          width: 2400,
+          height: 1600,
         };
       };
       return parsePluginDistributionMetadata(pluginCatalogDetailSchema, {
         ...result,
         schemaVersion: 2,
+        authorUrl: "https://story.invalid/author",
+        authorAvatarUrl: "data:image/png;base64,AAAA",
+        appearance: {
+          icon: "network",
+          accent: "#888888",
+          ...result.appearance,
+          logo: { alt: "Graph logo", images: { full: await image("#555555") } },
+        },
+        media: {
+          banner: {
+            alt: "Graph banner",
+            images: { full: await image("#777777") },
+          },
+          overview: {
+            id: "overview",
+            alt: "Graph overview",
+            images: { full: await image("#cccccc") },
+          },
+        },
         gallery: [
           {
             id: "graph",
@@ -490,6 +509,16 @@ Released 1 August 2026.
               light: await image("#ffffff"),
               dark: await image("#111111"),
             },
+          },
+          {
+            id: "graph-details",
+            alt: "Graph details",
+            images: { full: await image("#888888") },
+          },
+          {
+            id: "graph-navigation",
+            alt: "Graph navigation",
+            images: { full: await image("#444444") },
           },
         ],
         versions: Object.fromEntries(

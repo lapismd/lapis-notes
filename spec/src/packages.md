@@ -1,5 +1,11 @@
 # Packages
 
+Desktop UI validation uses a checksum-verified temporary Design Core archive
+for the upstream overlay inset and bold settings headings. This local
+acceptance setup preserves registry semver manifests and the portable lockfile;
+consumers need the subsequent published Design Core fix before release.
+Workspace media presentation remains consumer-owned under LN-PLUG-092.
+
 Dependency acceptance now uses published Design Core `0.3.1` and Mira `0.0.3` through portable npm ranges. Source ownership and public contracts remain
 unchanged; local overrides for these released packages are retired.
 Shared specification tooling resolves `@lapismd/spec-validator@0.1.4` from npm.

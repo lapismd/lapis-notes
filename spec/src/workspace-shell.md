@@ -1,5 +1,11 @@
 # Workspace Shell
 
+The host maps full native window-control clearance to the Design Core overlay
+inset independently of ribbon width (LN-DENO-044). Maximized groups restore
+ordinary chrome geometry when focus mode ends. Settings headings inherit
+Design Core bold defaults; Workspace bounds large verified registry media and
+its lightbox without changing standard Button geometry (LN-PLUG-096/097).
+
 Workspace 0.1.1 carries the static registry management contracts and consumes
 API and UI 0.1.1 peers. Release validation preserves the same App-owned shell
 and plugin-management interaction and accessibility requirements.

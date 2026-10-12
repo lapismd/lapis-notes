@@ -15,6 +15,9 @@ export type MacosTrafficLightButton = {
 export type MacosTrafficLightDriver = {
   buttons(): MacosTrafficLightButton[];
   frame(button: MacosTrafficLightButton): MacosTrafficLightFrame;
+  targetOrigin?(
+    button: MacosTrafficLightButton,
+  ): { x: number; y: number } | undefined;
   setOrigin(
     button: MacosTrafficLightButton,
     origin: { x: number; y: number },
@@ -48,15 +51,22 @@ export function createMacosTrafficLightController(options: {
       for (const button of options.driver.buttons()) {
         const frame = options.driver.frame(button);
         const previous = applied.get(button.id);
+        const measuredTarget =
+          options.verticalOffset === undefined
+            ? options.driver.targetOrigin?.(button)
+            : undefined;
         if (
-          previous &&
-          nearlyEqual(frame.x, previous.targetX) &&
-          nearlyEqual(frame.y, previous.targetY)
+          measuredTarget
+            ? nearlyEqual(frame.x, measuredTarget.x) &&
+              nearlyEqual(frame.y, measuredTarget.y)
+            : previous &&
+              nearlyEqual(frame.x, previous.targetX) &&
+              nearlyEqual(frame.y, previous.targetY)
         ) {
           continue;
         }
 
-        const target = { x: frame.x, y: frame.y - offset };
+        const target = measuredTarget ?? { x: frame.x, y: frame.y - offset };
         options.driver.setOrigin(button, target);
         applied.set(button.id, {
           targetX: target.x,
@@ -77,6 +87,45 @@ function nearlyEqual(left: number, right: number): boolean {
   return Math.abs(left - right) < 0.01;
 }
 
+/** Internal host selection: the adopted bootstrap and About window are framed. */
+export function selectMacosTrafficLightWindow<Window>(
+  candidates: Array<{
+    window: Window;
+    visible: boolean;
+    transparentTitlebar: boolean;
+  }>,
+): Window | undefined {
+  return candidates.find(
+    (candidate) => candidate.visible && candidate.transparentTitlebar,
+  )?.window;
+}
+
+/** Native layout can reset standard buttons when a window becomes key again. */
+export function installMacosTrafficLightAlignment(
+  window: EventTarget,
+  apply: () => void,
+): () => void {
+  let disposed = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const schedule = () => {
+    queueMicrotask(() => {
+      if (!disposed) apply();
+    });
+    if (timer !== undefined) clearTimeout(timer);
+    timer = setTimeout(() => {
+      if (!disposed) apply();
+    }, 50);
+  };
+  const events = ["load", "resize", "focus"];
+  for (const event of events) window.addEventListener(event, schedule);
+  schedule();
+  return () => {
+    disposed = true;
+    if (timer !== undefined) clearTimeout(timer);
+    for (const event of events) window.removeEventListener(event, schedule);
+  };
+}
+
 export function createNativeMacosTrafficLightDriver():
   | MacosTrafficLightDriver
   | undefined {
@@ -93,44 +142,80 @@ export function createNativeMacosTrafficLightDriver():
     library.close();
     return;
   }
-  const window =
-    library.sendPointer(application, library.selector("keyWindow")) ??
-      library.sendPointer(application, library.selector("mainWindow"));
-  if (!window) {
-    library.close();
-    return;
-  }
-
   const buttonSelector = library.selector("standardWindowButton:");
   const frameSelector = library.selector("frame");
   const setFrameOriginSelector = library.selector("setFrameOrigin:");
-  const nativeButtons = [0, 1, 2]
-    .map((kind) => library.sendIntegerPointer(window, buttonSelector, kind))
-    .filter((button): button is Deno.PointerObject => button !== null)
-    .map((button, kind) => ({
-      id: `${kind}:${Deno.UnsafePointer.value(button)}`,
-      handle: button,
-    }));
-  if (debug) {
-    console.log("[desktop-traffic-lights] native window", {
-      window: String(Deno.UnsafePointer.value(window)),
-      buttons: nativeButtons.map((button) => ({
-        id: button.id,
-        frame: library.sendRect(
-          button.handle as Deno.PointerObject,
-          frameSelector,
+  let lastWindow: bigint | undefined;
+  const resolveButtons = (): MacosTrafficLightButton[] => {
+    const candidates = ["keyWindow", "mainWindow"]
+      .map((name) => library.sendPointer(application, library.selector(name)))
+      .filter((window): window is Deno.PointerObject => window !== null)
+      .map((window) => ({
+        window,
+        visible: library.sendBoolean(window, library.selector("isVisible")),
+        transparentTitlebar: library.sendBoolean(
+          window,
+          library.selector("titlebarAppearsTransparent"),
         ),
-      })),
+      }));
+    const window = selectMacosTrafficLightWindow(candidates);
+    if (!window) return [];
+    const buttons = [0, 1, 2].flatMap((kind) => {
+      const button = library.sendIntegerPointer(window, buttonSelector, kind);
+      return button
+        ? [
+            {
+              id: `${kind}:${Deno.UnsafePointer.value(button)}`,
+              handle: button,
+            },
+          ]
+        : [];
     });
-  }
+    if (debug && Deno.UnsafePointer.value(window) !== lastWindow) {
+      console.log("[desktop-traffic-lights] visible overlay window", {
+        window: String(Deno.UnsafePointer.value(window)),
+        buttons: buttons.map((button) => ({
+          id: button.id,
+          frame: library.sendRect(button.handle, frameSelector),
+          parent: library.sendRect(
+            library.sendPointer(
+              button.handle as Deno.PointerObject,
+              library.selector("superview"),
+            )!,
+            frameSelector,
+          ),
+        })),
+      });
+      lastWindow = Deno.UnsafePointer.value(window);
+    }
+    return buttons;
+  };
 
   return {
-    buttons: () => nativeButtons,
+    buttons: resolveButtons,
     frame(button): MacosTrafficLightFrame {
       return library.sendRect(
         button.handle as Deno.PointerObject,
         frameSelector,
       );
+    },
+    targetOrigin(button) {
+      const handle = button.handle as Deno.PointerObject;
+      const parent = library.sendPointer(handle, library.selector("superview"));
+      if (!parent) return undefined;
+      const frame = library.sendRect(handle, frameSelector);
+      const bounds = library.sendRect(parent, library.selector("bounds"));
+      if (bounds.height <= 0) return undefined;
+      const flipped = library.sendBoolean(
+        parent,
+        library.selector("isFlipped"),
+      );
+      return {
+        x: frame.x,
+        y: flipped
+          ? 20 - frame.height / 2
+          : bounds.height - 20 - frame.height / 2,
+      };
     },
     setOrigin(button, origin): void {
       library.sendPoint(
@@ -154,6 +239,10 @@ export function createNativeMacosTrafficLightDriver():
 }
 
 type ObjectiveCBridge = {
+  sendBoolean(
+    receiver: Deno.PointerObject,
+    selector: Deno.PointerObject,
+  ): boolean;
   class(name: string): Deno.PointerObject;
   selector(name: string): Deno.PointerObject;
   sendPointer(
@@ -195,6 +284,9 @@ function createObjectiveCBridge(arch: string): ObjectiveCBridge {
       result: "pointer",
     },
   });
+  const booleanSend = Deno.dlopen(path, {
+    objc_msgSend: { parameters: ["pointer", "pointer"], result: "u8" },
+  });
   const integerPointerSend = Deno.dlopen(path, {
     objc_msgSend: {
       parameters: ["pointer", "pointer", "u64"],
@@ -225,19 +317,20 @@ function createObjectiveCBridge(arch: string): ObjectiveCBridge {
       result: "void",
     },
   });
-  const rectSend = arch === "x86_64"
-    ? Deno.dlopen(path, {
-      objc_msgSend_stret: {
-        parameters: ["buffer", "pointer", "pointer"],
-        result: "void",
-      },
-    })
-    : Deno.dlopen(path, {
-      objc_msgSend: {
-        parameters: ["pointer", "pointer"],
-        result: { struct: ["f64", "f64", "f64", "f64"] },
-      },
-    });
+  const rectSend =
+    arch === "x86_64"
+      ? Deno.dlopen(path, {
+          objc_msgSend_stret: {
+            parameters: ["buffer", "pointer", "pointer"],
+            result: "void",
+          },
+        })
+      : Deno.dlopen(path, {
+          objc_msgSend: {
+            parameters: ["pointer", "pointer"],
+            result: { struct: ["f64", "f64", "f64", "f64"] },
+          },
+        });
   const strings = new Map<string, Uint8Array>();
 
   function stringBuffer(value: string): Uint8Array {
@@ -262,9 +355,7 @@ function createObjectiveCBridge(arch: string): ObjectiveCBridge {
     "class NSInvocation",
   );
   const methodSignatureForSelector = requiredPointer(
-    base.symbols.sel_registerName(
-      stringBuffer("methodSignatureForSelector:"),
-    ),
+    base.symbols.sel_registerName(stringBuffer("methodSignatureForSelector:")),
     "selector methodSignatureForSelector:",
   );
   const invocationWithMethodSignature = requiredPointer(
@@ -308,6 +399,9 @@ function createObjectiveCBridge(arch: string): ObjectiveCBridge {
         base.symbols.sel_registerName(stringBuffer(name)),
         `selector ${name}`,
       );
+    },
+    sendBoolean(receiver, selector): boolean {
+      return booleanSend.symbols.objc_msgSend(receiver, selector) !== 0;
     },
     sendPointer(receiver, selector): Deno.PointerObject | null {
       return pointerSend.symbols.objc_msgSend(receiver, selector);
@@ -393,6 +487,7 @@ function createObjectiveCBridge(arch: string): ObjectiveCBridge {
       selectorPointerSend.close();
       rectSend.close();
       integerPointerSend.close();
+      booleanSend.close();
       pointerSend.close();
       base.close();
       strings.clear();

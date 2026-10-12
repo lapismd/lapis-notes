@@ -16,6 +16,12 @@ describe("desktop host workspace safe area", () => {
     );
   });
 
+  it("maps the full macOS inset to maximized groups regardless of ribbon geometry", () => {
+    expect(source).toMatch(
+      /\.ui-app-shell\s*\{[^}]+--ui-workspace-window-controls-overlay-inline-start:\s*var\(\s*--lapis-desktop-window-controls-left/u,
+    );
+  });
+
   it("keeps the open sidebar inset separate from the main-pane token", () => {
     expect(source).toContain(
       "--lapis-desktop-window-controls-sidebar-after-ribbon",

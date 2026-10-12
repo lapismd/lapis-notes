@@ -19,3 +19,5 @@ let pending = Promise.resolve();
 globalThis.onmessage = (event: MessageEvent<AppDatabaseWorkerRequest>) => {
   pending = pending.then(() => runtime.handle(event.data));
 };
+
+globalThis.postMessage({ type: "ready" } satisfies AppDatabaseWorkerResponse);

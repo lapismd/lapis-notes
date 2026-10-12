@@ -25,6 +25,7 @@ import {
 } from "./macos-app-icon.ts";
 import {
   createMacosTrafficLightController,
+  installMacosTrafficLightAlignment,
   createNativeMacosTrafficLightDriver,
   type MacosTrafficLightController,
   type MacosTrafficLightDriver,
@@ -133,17 +134,10 @@ const alignTrafficLights = () => {
     }
   }
 };
-let trafficLightLayoutTimer: number | undefined;
-const scheduleTrafficLightAlignment = () => {
-  queueMicrotask(alignTrafficLights);
-  if (trafficLightLayoutTimer !== undefined) {
-    clearTimeout(trafficLightLayoutTimer);
-  }
-  trafficLightLayoutTimer = setTimeout(alignTrafficLights, 50);
-};
-win.addEventListener("load", scheduleTrafficLightAlignment);
-win.addEventListener("resize", scheduleTrafficLightAlignment);
-scheduleTrafficLightAlignment();
+const removeTrafficLightAlignment = installMacosTrafficLightAlignment(
+  win,
+  alignTrafficLights,
+);
 let appIconDriver: MacosAppIconDriver | undefined;
 let appIcon: DesktopAppIconController | undefined;
 try {
@@ -215,11 +209,7 @@ const closeCoordinator = createDenoCloseCoordinator({
     desktopLog.info("[desktop-close] shutdown");
     removeCloseRouting();
     removeDesktopBindings();
-    win.removeEventListener("load", scheduleTrafficLightAlignment);
-    win.removeEventListener("resize", scheduleTrafficLightAlignment);
-    if (trafficLightLayoutTimer !== undefined) {
-      clearTimeout(trafficLightLayoutTimer);
-    }
+    removeTrafficLightAlignment();
     trafficLights?.close();
     appIcon?.close();
     closeSignal.close();

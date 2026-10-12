@@ -48,6 +48,12 @@
   );
 }
 
+:root.lapis-desktop--macos .ui-app-shell {
+  --ui-workspace-window-controls-overlay-inline-start: var(
+    --lapis-desktop-window-controls-left
+  );
+}
+
 :root.lapis-desktop--macos
   .ui-app-shell:has(> [data-ui-component="workspace-ribbon"]) {
   --ui-workspace-window-controls-inline-start: var(

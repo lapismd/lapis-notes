@@ -45,23 +45,135 @@ export const StaticRegistryV2MediaAndReleaseNotes: Story = {
     await expect(
       await detail.findByRole("img", { name: "Graph workspace" }),
     ).toBeVisible();
+    await waitFor(() =>
+      expect(
+        dialog.querySelector('header img[alt="Graph logo"]'),
+      ).not.toBeNull(),
+    );
+    expect(
+      detail
+        .getByRole("button", { name: "Open image: Graph overview" })
+        .closest('[role="tabpanel"]'),
+    ).not.toBeNull();
+    const authorLink = dialog.querySelector(
+      'a[href="https://story.invalid/author"]',
+    );
+    expect(
+      authorLink?.parentElement?.classList.contains(
+        "lapis-plugin-detail-dialog__author",
+      ),
+    ).toBe(true);
+    await waitFor(() =>
+      expect(authorLink?.parentElement?.querySelector("img")).toBeNull(),
+    );
+    expect(
+      authorLink?.parentElement?.querySelector("span")?.textContent,
+    ).toBeTruthy();
+    const carousel = detail.getByRole("region", { name: "Graph screenshots" });
+    const track = within(carousel).getByRole("group", {
+      name: "Graph screenshot carousel",
+    });
+    expect(getComputedStyle(track).overflowX).toBe("auto");
+    expect(track.scrollWidth).toBeGreaterThan(track.clientWidth);
+    for (const name of ["Graph overview", "Graph workspace"]) {
+      const image = await detail.findByRole("img", { name });
+      await waitFor(() =>
+        expect((image as HTMLImageElement).naturalWidth).toBe(2400),
+      );
+      const button = detail.getByRole("button", {
+        name: `Open image: ${name}`,
+      });
+      const imageRect = image.getBoundingClientRect();
+      const buttonRect = button.getBoundingClientRect();
+      expect(imageRect.width).toBeGreaterThan(100);
+      expect(imageRect.height).toBeGreaterThan(70);
+      expect(imageRect.top).toBeGreaterThanOrEqual(buttonRect.top);
+      expect(imageRect.bottom).toBeLessThanOrEqual(buttonRect.bottom);
+      expect(button.closest('[data-media-placement="logo"]')).toBeNull();
+    }
+    const workspace = detail.getByRole("img", { name: "Graph workspace" });
+    const second = detail.getByRole("img", { name: "Graph details" });
+    expect(
+      Math.abs(
+        workspace.getBoundingClientRect().top -
+          second.getBoundingClientRect().top,
+      ),
+    ).toBeLessThan(2);
+    await expect(
+      detail.getByRole("button", { name: "Previous screenshots" }),
+    ).toBeDisabled();
     await userEvent.click(
-      detail.getByRole("button", { name: "Dark", exact: true }),
+      detail.getByRole("button", { name: "Next screenshots" }),
+    );
+    await waitFor(() => expect(track.scrollLeft).toBeGreaterThan(10));
+    await userEvent.click(
+      detail.getByRole("button", { name: "Open image: Graph details" }),
+    );
+    const viewerTitle = await body.findByRole("heading", {
+      name: "Graph media viewer",
+    });
+    const viewer = viewerTitle.closest('[role="dialog"]')!;
+    const lightbox = within(viewer as HTMLElement);
+    await expect(lightbox.getByText("2 of 3: Graph details")).toBeVisible();
+    await userEvent.click(
+      lightbox.getByRole("button", { name: "Next image", exact: true }),
+    );
+    await expect(lightbox.getByText("3 of 3: Graph navigation")).toBeVisible();
+    await expect(
+      lightbox.getByRole("button", { name: "Next image", exact: true }),
+    ).toBeDisabled();
+    await userEvent.keyboard("{ArrowLeft}");
+    await expect(lightbox.getByText("2 of 3: Graph details")).toBeVisible();
+    await userEvent.click(
+      lightbox.getByRole("radio", { name: "Light", exact: true }),
+    );
+    await userEvent.click(
+      lightbox.getByRole("radio", { name: "Dark", exact: true }),
     );
     await expect(
-      detail.getByRole("button", { name: "Dark", exact: true }),
-    ).toHaveAttribute("aria-pressed", "true");
+      lightbox.getByRole("radio", { name: "Dark", exact: true }),
+    ).toHaveAttribute("aria-checked", "true");
+    const viewerImage = await lightbox.findByRole("img", {
+      name: "Graph details",
+    });
+    await waitFor(() =>
+      expect((viewerImage as HTMLImageElement).naturalWidth).toBe(2400),
+    );
+    const viewport = canvasElement.ownerDocument.documentElement;
+    const viewerRect = viewer.getBoundingClientRect();
+    const imageRect = viewerImage.getBoundingClientRect();
+    expect(viewerRect.top).toBeGreaterThanOrEqual(0);
+    expect(viewerRect.bottom).toBeLessThanOrEqual(viewport.clientHeight);
+    expect(imageRect.bottom).toBeLessThanOrEqual(viewerRect.bottom);
+    expect(imageRect.right).toBeLessThanOrEqual(viewerRect.right);
+
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(
+        body.queryByRole("heading", { name: "Graph media viewer" }),
+      ).toBeNull(),
+    );
+    await waitFor(() =>
+      expect(
+        detail.getByRole("button", { name: "Open image: Graph details" }),
+      ).toHaveFocus(),
+    );
     await userEvent.click(
       detail.getByRole("button", { name: "Open image: Graph workspace" }),
     );
-    const viewerTitle = await body.findByRole("heading", {
-      name: "Plugin image",
+    const reopened = await body.findByRole("dialog", {
+      name: "Graph media viewer",
     });
-    await expect(viewerTitle).toBeVisible();
-    await userEvent.keyboard("{Escape}");
-    await waitFor(() =>
-      expect(body.queryByRole("heading", { name: "Plugin image" })).toBeNull(),
+    await expect(
+      within(reopened).getByText("1 of 3: Graph workspace"),
+    ).toBeVisible();
+    await userEvent.click(
+      within(reopened).getByRole("radio", { name: "Split" }),
     );
+    await expect(
+      within(reopened).getByRole("radio", { name: "Split" }),
+    ).toHaveAttribute("aria-checked", "true");
+    await userEvent.keyboard("{Escape}");
     await userEvent.click(detail.getByRole("tab", { name: "Changelog" }));
     await expect(
       await detail.findByRole("heading", { name: "Graph 0.2.0" }),
