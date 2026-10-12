@@ -1,5 +1,10 @@
 # Architecture
 
+The application-owned profile follows LN-PLUG-006: Source Editor, Markdown,
+File Explorer, and Search. Community is parked; its runtime and stylesheet are
+absent from the profile while generic installed-plugin infrastructure and the
+API-owned registry schema remain available.
+
 Workspace owns the verified registry image presentation under LN-PLUG-092;
 Community-derived presentation keeps the screenshot carousel, banner, and overview
 separate and composes a navigable, viewport-bounded viewer without a Community dependency. Deno
