@@ -21,6 +21,7 @@
     createConfiguredNotesLocalPluginDistribution,
     notesPluginProfile,
     registerNotesPluginSettings,
+    registerNotesPluginBrowser,
   } from "@lapis-notes/app-profile";
   import { WorkspaceShell } from "@lapis-notes/workspace";
   import type { WorkspaceNavigation } from "@lapismd/design-core/workspace/app-shell";
@@ -75,7 +76,6 @@
     ),
   );
 
-
   const STARTUP_TASKS: WorkspaceStartupTask[] = [
     { id: "vault", label: "Open the vault", status: "pending" },
     { id: "configuration", label: "Load app configuration", status: "pending" },
@@ -113,60 +113,59 @@
       },
     });
     ownedApp = new App({
-        version: "2026.6.3",
-        configPath: ".obsidian/app.json",
-        session,
-        syncHost: {
-          requestCryptoUnlock,
-          requestRecoveryPassphrase: async (_pluginId, mode) => {
-            const passphrase = globalThis.prompt(
-              mode === "export"
-                ? "Create a recovery-bundle passphrase (at least 10 characters)."
-                : "Enter the recovery-bundle passphrase.",
-            );
-            if (passphrase == null || mode === "import") return passphrase;
-            const confirmation = globalThis.prompt(
-              "Enter the recovery-bundle passphrase again to confirm it.",
-            );
-            if (confirmation !== passphrase) {
-              throw new Error("Recovery passphrase confirmation did not match");
-            }
-            return passphrase;
-          },
-          requestNetworkOriginGrant: async ({
-            pluginId,
-            origin,
-            allowPrivateNetwork,
-          }) =>
-            globalThis.confirm(
-              `${pluginId} wants to connect to ${origin}.${
-                allowPrivateNetwork
-                  ? " This grants access to a private or loopback network address."
-                  : ""
-              } Allow this exact origin?`,
-            ),
+      version: "2026.6.3",
+      configPath: ".obsidian/app.json",
+      session,
+      syncHost: {
+        requestCryptoUnlock,
+        requestRecoveryPassphrase: async (_pluginId, mode) => {
+          const passphrase = globalThis.prompt(
+            mode === "export"
+              ? "Create a recovery-bundle passphrase (at least 10 characters)."
+              : "Enter the recovery-bundle passphrase.",
+          );
+          if (passphrase == null || mode === "import") return passphrase;
+          const confirmation = globalThis.prompt(
+            "Enter the recovery-bundle passphrase again to confirm it.",
+          );
+          if (confirmation !== passphrase) {
+            throw new Error("Recovery passphrase confirmation did not match");
+          }
+          return passphrase;
         },
-        pluginAssetServer:
-          pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
-        pluginDistributionOptions:
-          staticPluginDistributionOptions,
-        workspaceShell: {
-          application: {
-            name: "Lapis Notes",
-            buildTime: null,
-            copyright: "Copyright © Lapis Notes contributors.",
-          },
-          notifications: true,
+        requestNetworkOriginGrant: async ({
+          pluginId,
+          origin,
+          allowPrivateNetwork,
+        }) =>
+          globalThis.confirm(
+            `${pluginId} wants to connect to ${origin}.${
+              allowPrivateNetwork
+                ? " This grants access to a private or loopback network address."
+                : ""
+            } Allow this exact origin?`,
+          ),
+      },
+      pluginAssetServer:
+        pluginAssetServer ?? createWebPluginAssetServer({ adapter }),
+      pluginDistributionOptions: staticPluginDistributionOptions,
+      workspaceShell: {
+        application: {
+          name: "Lapis Notes",
+          buildTime: null,
+          copyright: "Copyright © Lapis Notes contributors.",
         },
-        markdownRenderer: async () => {},
-      });
+        notifications: true,
+      },
+      markdownRenderer: async () => {},
+    });
     hostSync = takeHostSyncService(ownedApp);
     return ownedApp;
   });
   provideApplicationState(app);
-  const disposeApplicationCompatibility =
-    installApplicationCompatibility(app);
+  const disposeApplicationCompatibility = installApplicationCompatibility(app);
   const disposePluginManagementSettings = registerNotesPluginSettings(app);
+  const disposePluginBrowser = registerNotesPluginBrowser(app);
   const dailyDocumentProvider = registerDefaultDailyDocumentProvider(app);
   const disposePwaRuntimeApplication = untrack(() =>
     runtime === "web-pwa" ? setPwaRuntimeApplication(app) : () => {},
@@ -249,14 +248,18 @@
     ).controller.status.addItem({
       id: "app:web-database-role",
       label:
-        role === "server" ? "Server DB" : role === "proxy" ? "DB Proxy" : "DB Owner",
+        role === "server"
+          ? "Server DB"
+          : role === "proxy"
+            ? "DB Proxy"
+            : "DB Owner",
       icon: "database",
       tooltip:
         role === "server"
           ? "Application data is managed by the authenticated Lapis server."
           : role === "proxy"
-          ? "Database requests are delegated to this vault's owner tab."
-          : "This tab owns the local Turso database for this vault.",
+            ? "Database requests are delegated to this vault's owner tab."
+            : "This tab owns the local Turso database for this vault.",
       align: "right",
       priority: 850,
     });
@@ -267,16 +270,18 @@
       syncDatabaseStatus("server");
       return;
     }
-    const role = session.appDatabase?.descriptor.role === "proxy" ? "proxy" : "owner";
+    const role =
+      session.appDatabase?.descriptor.role === "proxy" ? "proxy" : "owner";
     syncDatabaseStatus(role);
     const coordinated = session.appDatabase as BrowserCoordinatedAppDatabase & {
       onCoordinationModeChange?: (
         listener: (mode: "turso-owner" | "turso-proxy") => void,
       ) => () => void;
     };
-    disposeCoordinationListener = coordinated.onCoordinationModeChange?.(
-      (mode) => syncDatabaseStatus(mode === "turso-proxy" ? "proxy" : "owner"),
-    ) ?? null;
+    disposeCoordinationListener =
+      coordinated.onCoordinationModeChange?.((mode) =>
+        syncDatabaseStatus(mode === "turso-proxy" ? "proxy" : "owner"),
+      ) ?? null;
   }
 
   async function teardownPartialBoot(): Promise<void> {
@@ -334,7 +339,8 @@
       disposeVaultTransferSettings?.();
       if (runtime === "web-pwa") {
         disposeAgentRuntimeSettings = registerWebAgentRuntimeSettings(app);
-        disposeTerminalRuntimeSettings = registerWebTerminalRuntimeSettings(app);
+        disposeTerminalRuntimeSettings =
+          registerWebTerminalRuntimeSettings(app);
         disposeVaultTransferSettings = registerWebVaultTransferSettings(app);
         syncWebAgentRuntime(app);
         syncWebTerminalRuntime(app);
@@ -434,6 +440,7 @@
       await session.close();
     } finally {
       dailyDocumentProvider.dispose();
+      disposePluginBrowser();
       disposePluginManagementSettings();
       disposePwaRuntimeApplication();
       disposeApplicationCompatibility();
@@ -441,7 +448,11 @@
   }
 </script>
 
-<section class="web-host__workspace" data-web-runtime={runtime} data-vault-id={profile.id}>
+<section
+  class="web-host__workspace"
+  data-web-runtime={runtime}
+  data-vault-id={profile.id}
+>
   {#if ready}
     <WorkspaceShell
       {app}
@@ -450,10 +461,6 @@
       {workspaceNavigation}
     />
   {:else}
-    <WorkspaceStartup
-      title="Opening Lapis Notes"
-      {tasks}
-      {failure}
-    />
+    <WorkspaceStartup title="Opening Lapis Notes" {tasks} {failure} />
   {/if}
 </section>

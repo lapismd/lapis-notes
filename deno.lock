@@ -7965,7 +7965,6 @@
         "npm:@lapis-notes/wordcount@~0.1.1",
         "npm:@lapismd/ai-controller@0.1",
         "npm:@lapismd/design-core@~0.3.1",
-        "npm:@lapismd/lapis-community@0.1",
         "npm:@lapismd/mira-editor@~0.0.2",
         "npm:@lapismd/mira-plugin-ai@~0.0.2",
         "npm:@lapismd/mira-plugin-mermaid@~0.0.2",
@@ -8048,7 +8047,6 @@
           "dependencies": [
             "npm:@lapismd/ai-controller@0.1",
             "npm:@lapismd/design-core@~0.3.1",
-            "npm:@lapismd/lapis-community@0.1",
             "npm:@lapismd/terminal-host@0.1",
             "npm:@lucide/svelte@0.523",
             "npm:@modelcontextprotocol/sdk@^1.29.0",

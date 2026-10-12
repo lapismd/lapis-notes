@@ -514,3 +514,5 @@ peers retain the exact qualified compiler version; dependency drift fails the
 host-catalogue build before archives can be installed.
 
 The static desktop profile uses API-owned schema and build tooling under LN-PKG-150 and LN-PKG-151. Concrete Community NIP-29 startup composition remains deferred.
+
+The desktop host registers the default Plugins browser before loading workspace layout and disposes its app-owned registrations during session teardown (LN-PLUG-098–103). Registry browsing and install/update use the same App distribution manager as Settings.

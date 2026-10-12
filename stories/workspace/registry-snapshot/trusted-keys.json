@@ -1,0 +1,14 @@
+[
+  {
+    "alg": "ed25519",
+    "keyId": "lapis-plugin-release-local-2026-10-11",
+    "publicKey": "nG8NHpi6aaiLNmNNAxd5jrlOG+2HqL+Vty09o3Mah6U=",
+    "trustTier": "official"
+  },
+  {
+    "alg": "ed25519",
+    "keyId": "lapis-registry-local-2026-10-11",
+    "publicKey": "60Fq8gR1z9Bp2APhz2nzhIST/ZMrIghgD7VqKeLrJ+s=",
+    "trustTier": "official"
+  }
+]

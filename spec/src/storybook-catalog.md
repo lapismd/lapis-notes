@@ -255,3 +255,10 @@ the browser. This uses published exports without source aliases.
 For LN-CAT-099, cold packed-registry acceptance prebundles the public Community schema, direct Nostr leaves and the accessibility runtime before stories start. The `LapisEditorDemo` Ready story and the complete interaction lane verify that dependency discovery does not invalidate an in-flight accessibility import.
 
 Storybook consumes the API-owned Turso build helper under LN-PKG-151 and has no Community dependency for static plugin acceptance.
+
+Plugin category and status icons, plus the directory's icon-only Clear all
+action, participate in the direct Lucide prebundle contract (LN-CAT-033). The
+responsive Plugins stories exercise real workspace sidebar resizing, mobile
+filter-panel navigation, category counts and tooltip accessibility.
+
+The app-owned Plugins browser is covered under `Workspace/Plugins`, including all six movable placements, homepage/category/detail navigation, verified action feedback, narrow layouts, and keyboard/accessibility acceptance. Stories remain `visual-pending`.

@@ -161,3 +161,5 @@ a two-entry host inventory; server delivery uses the same emitted files.
 Server-mode Web uses the static application profile and API-owned registry
 schema under LN-PKG-150. Concrete Community NIP-29 composition remains deferred
 outside the active profile.
+
+Server-backed browser sessions inherit the default Plugins browser registration from the shared web workspace session (LN-PLUG-098–103). Production registry/trust configuration stays with the host; development fixture configuration remains ignored in server mode.

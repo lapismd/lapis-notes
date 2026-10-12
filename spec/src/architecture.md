@@ -779,3 +779,9 @@ peers retain the exact qualified compiler version; dependency drift fails the
 host-catalogue build before archives can be installed.
 
 The API owns pure registry schema and build-tooling subpaths. Community relay composition remains deferred outside active application sources; the static registry, hosts, and plugin release tooling consume API exports. Build tooling has no renderer platform in the generated host catalogue.
+
+The default app owns Plugins view/ribbon registration through App Profile. Workspace owns transport-neutral presentation and an App-scoped registry controller shared with Settings; the API remains the verified distribution boundary (LN-PLUG-098–103). Community components supply presentation references only, without loading its runtime.
+
+The public `Notice` constructor declaration exposes its implemented optional
+App argument. App-owned registry actions pass that App explicitly, so notices
+follow the owning host rather than compatibility state.

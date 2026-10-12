@@ -7,16 +7,11 @@
   import Trash2 from "@lucide/svelte/icons/trash-2";
   import Upload from "@lucide/svelte/icons/upload";
   import {
-    fetchVerifiedPluginMarkdown,
-    isAbortError,
     Notice,
     pluginDownloadCounts,
     PluginDistributionError,
-    withPluginInstallProgress,
     type InstalledPluginRecord,
-    type PluginCatalogDetail,
     type PluginCatalogEntry,
-    type PluginDownloadStatsSummary,
     type PluginRegistrySourceState,
     type PluginUpdateInfo,
   } from "@lapis-notes/api";
@@ -28,22 +23,16 @@
   import * as Tooltip from "@lapismd/design-core/shadcn/tooltip";
   import type { WorkspaceSettingsPageProps } from "@lapismd/design-core/workspace/settings";
   import { onMount, tick, untrack } from "svelte";
+  import { getPluginRegistryController } from "./plugin-registry-controller.svelte";
+  import { openPluginBrowser } from "./plugin-browser-navigation";
   import { getPluginManagementContext } from "./plugin-management-context.svelte";
   import "./plugin-management.css";
   import PluginRegistryContentState from "./PluginRegistryContentState.svelte";
   import type { PluginRegistryBadgeTone } from "./PluginRegistryBadge.svelte";
-  import PluginRegistryDetailDialog, {
-    type PluginRegistryActionFeedback,
-    type PluginMarkdownState,
-  } from "./PluginRegistryDetailDialog.svelte";
   import PluginRegistryRow, {
     type RegistryRowBadge,
   } from "./PluginRegistryRow.svelte";
   import PluginRegistryToolbar from "./PluginRegistryToolbar.svelte";
-  import {
-    fetchPluginReadmeMarkdown,
-    resolveReadmeRelativeUrls,
-  } from "./plugin-readme";
   import { formatApproximateDownloadCount } from "./plugin-download-stats";
 
   type PluginsRegistryTabId = "installed" | "browse" | "updates" | "sources";
@@ -51,30 +40,12 @@
   let { controller }: WorkspaceSettingsPageProps = $props();
   const context = untrack(() => getPluginManagementContext(controller));
   const app = context.app;
+  const registry = getPluginRegistryController(app);
 
   let activeTab = $state<PluginsRegistryTabId>("installed");
-  let catalogEntries = $state<PluginCatalogEntry[]>([]);
-  let installed = $state<InstalledPluginRecord[]>([]);
-  let updates = $state<PluginUpdateInfo[]>([]);
-  let downloadStats = $state<PluginDownloadStatsSummary | null>(null);
-  let registrySources = $state<readonly PluginRegistrySourceState[]>(
-    app.pluginDistribution.listSources(),
-  );
-  let lastError = $state<Error | null>(null);
-  let initialLoading = $state(true);
-  let refreshing = $state(false);
-  let runningAction = $state<string | null>(null);
-  let actionFeedback = $state<PluginRegistryActionFeedback | null>(null);
-  let detailDialogOpen = $state(false);
   let uninstallConfirmOpen = $state(false);
   let uninstallTarget = $state<InstalledPluginRecord | null>(null);
   let uninstallDisableInstead = $state(false);
-  let detailPluginId = $state<string | null>(null);
-  let detailPluginDetail = $state<PluginCatalogDetail | null>(null);
-  let detailLoading = $state(false);
-  let pluginLifecycleRevision = $state(0);
-  let overviewState = $state<PluginMarkdownState>({ status: "idle" });
-  let changelogState = $state<PluginMarkdownState>({ status: "idle" });
   let bundleFileInput = $state<HTMLInputElement | null>(null);
 
   let installedSearch = $state("");
@@ -93,7 +64,7 @@
   let updatesSort = $state("status");
 
   let installedIds = $derived(
-    new Set(installed.map((record) => record.pluginId)),
+    new Set(registry.installed.map((record) => record.pluginId)),
   );
   let staticPluginIds = $derived(
     new Set(app.plugins.corePluginEntries.map((entry) => entry.manifest.id)),
@@ -107,7 +78,9 @@
     ),
   );
   let categories = $derived(
-    [...new Set(catalogEntries.flatMap((entry) => entry.categories))].sort(),
+    [
+      ...new Set(registry.catalogEntries.flatMap((entry) => entry.categories)),
+    ].sort(),
   );
   let compatiblePluginIds = $derived(
     new Set(
@@ -118,7 +91,7 @@
   );
   let filteredCatalogEntries = $derived.by(() => {
     const text = browseSearch.trim().toLowerCase();
-    return catalogEntries
+    return registry.catalogEntries
       .filter((entry) => {
         if (
           text &&
@@ -175,7 +148,7 @@
   });
   let filteredInstalled = $derived.by(() => {
     const text = installedSearch.trim().toLowerCase();
-    return installed
+    return registry.installed
       .filter((record) => {
         const entry = catalogEntry(record.pluginId);
         const runtime = app.plugins.plugins.get(record.pluginId);
@@ -235,7 +208,7 @@
     const text = updatesSearch.trim().toLowerCase();
     const priority = (update: PluginUpdateInfo) =>
       update.canUpdate ? 0 : update.status === "revoked" ? 2 : 1;
-    return updates
+    return registry.updates
       .filter((update) => {
         if (
           text &&
@@ -262,12 +235,6 @@
             left.name.localeCompare(right.name),
       );
   });
-  let detailPluginEntry = $derived(
-    catalogEntries.find((entry) => entry.id === detailPluginId) ?? null,
-  );
-  let detailUpdate = $derived(
-    updates.find((update) => update.id === detailPluginId) ?? null,
-  );
   let browseFilterCount = $derived(
     Number(Boolean(browseSearch.trim())) +
       Number(browsePlatform !== "all") +
@@ -301,7 +268,7 @@
     const pluginId = context.reveal.entryId.slice("registry:".length);
     activeTab = "browse";
     void tick().then(async () => {
-      const entry = catalogEntries.find(
+      const entry = registry.catalogEntries.find(
         (candidate) => candidate.id === pluginId,
       );
       if (entry) await openDetails(entry);
@@ -309,66 +276,36 @@
   });
 
   onMount(() => {
+    const release = registry.retain();
     void refresh(false);
-    const disposeEnabled = app.plugins.on("plugin-enabled", () => {
-      pluginLifecycleRevision += 1;
-    });
-    const disposeDisabled = app.plugins.on("plugin-disabled", () => {
-      pluginLifecycleRevision += 1;
-    });
     return () => {
-      app.plugins.offref(disposeEnabled);
-      app.plugins.offref(disposeDisabled);
+      release();
     };
   });
-
   async function refresh(force: boolean): Promise<void> {
-    refreshing = true;
-    try {
-      lastError = null;
-      if (force || !catalogEntries.length) {
-        await app.pluginDistribution.refreshCatalog({ force });
-      }
-      catalogEntries = app.pluginDistribution.search({ channel: "all" });
-      downloadStats = await loadDownloadStats(force);
-      installed = await app.pluginDistribution.listInstalled();
-      updates = await app.pluginDistribution.listUpdates();
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      new Notice(`Plugin registry unavailable: ${errorMessage(lastError)}`);
-    } finally {
-      registrySources = app.pluginDistribution.listSources();
-      initialLoading = false;
-      refreshing = false;
-    }
-  }
-
-  async function loadDownloadStats(
-    force: boolean,
-  ): Promise<PluginDownloadStatsSummary | null> {
-    try {
-      return (
-        (await app.pluginDistribution.getDownloadStats?.({ force })) ?? null
-      );
-    } catch {
-      return null;
-    }
+    await registry.refresh(force);
   }
 
   async function runAction(
     actionId: string,
     action: () => Promise<unknown>,
   ): Promise<void> {
-    runningAction = actionId;
+    if (registry.runningAction) return;
+    registry.runningAction = actionId;
     try {
-      lastError = null;
+      registry.lastError = null;
       await action();
       await refresh(false);
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      new Notice(`Plugin registry action failed: ${errorMessage(lastError)}`);
+      registry.lastError =
+        error instanceof Error ? error : new Error(String(error));
+      new Notice(
+        `Plugin registry action failed: ${errorMessage(registry.lastError!)}`,
+        undefined,
+        app,
+      );
     } finally {
-      runningAction = null;
+      registry.runningAction = null;
     }
   }
 
@@ -376,207 +313,54 @@
     sourceState: PluginRegistrySourceState,
     enabled: boolean,
   ): Promise<void> {
+    if (registry.runningAction) return;
     const source = sourceState.source;
-    runningAction = `source:${source.id}`;
+    registry.runningAction = `source:${source.id}`;
     try {
-      lastError = null;
+      registry.lastError = null;
       await app.pluginDistribution.setSourceEnabled(source.id, enabled);
-      catalogEntries = [];
+      registry.catalogEntries = [];
       await refresh(true);
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      new Notice(
-        `Plugin registry source update failed: ${errorMessage(lastError)}`,
-      );
-      registrySources = app.pluginDistribution.listSources();
-    } finally {
-      runningAction = null;
-    }
-  }
-
-  async function runPluginProgressAction(
-    actionId: string,
-    pluginId: string,
-    title: string,
-    action: (signal: AbortSignal) => Promise<unknown>,
-  ): Promise<void> {
-    runningAction = actionId;
-    actionFeedback = {
-      pluginId,
-      state: "running",
-      message: title,
-    };
-    try {
-      await withPluginInstallProgress(app, { pluginId, title }, action);
-      await refresh(false);
-      actionFeedback = {
-        pluginId,
-        state: "success",
-        message: actionId.startsWith("update:")
-          ? "Update installed"
-          : "Installed",
-      };
-    } catch (error) {
-      if (isAbortError(error)) {
-        actionFeedback = null;
-        await refresh(false);
-        return;
-      }
-      const actionError =
+      registry.lastError =
         error instanceof Error ? error : new Error(String(error));
-      actionFeedback = {
-        pluginId,
-        state: "error",
-        message: errorMessage(actionError),
-      };
-      new Notice(`Plugin registry action failed: ${errorMessage(actionError)}`);
+      new Notice(
+        `Plugin registry source update failed: ${errorMessage(registry.lastError!)}`,
+        undefined,
+        app,
+      );
+      registry.registrySources = app.pluginDistribution.listSources();
     } finally {
-      runningAction = null;
+      registry.runningAction = null;
     }
   }
 
-  async function installEntry(entry: PluginCatalogEntry): Promise<void> {
-    await runPluginProgressAction(
-      `install:${entry.id}`,
-      entry.id,
-      `Installing ${entry.name}`,
-      (signal) =>
-        app.pluginDistribution.install(entry.id, {
-          enable: true,
-          requireOfficial: entry.channel === "official",
-          signal,
-        }),
-    );
+  async function installEntry(entry: PluginCatalogEntry) {
+    await registry.install(entry);
   }
-
-  async function updatePlugin(update: PluginUpdateInfo): Promise<void> {
-    await runPluginProgressAction(
-      `update:${update.id}`,
-      update.id,
-      `Updating ${update.name}`,
-      (signal) =>
-        app.pluginDistribution.update(update.id, update.targetVersion, {
-          signal,
-        }),
-    );
+  async function updatePlugin(update: PluginUpdateInfo) {
+    await registry.update(update);
   }
 
   async function openDetails(entry: PluginCatalogEntry): Promise<void> {
-    detailDialogOpen = true;
-    await selectDetail(entry);
-  }
-
-  async function selectDetail(entry: PluginCatalogEntry): Promise<void> {
-    detailPluginId = entry.id;
-    detailPluginDetail = null;
-    detailLoading = true;
-    overviewState = { status: "loading" };
-    changelogState = { status: "loading" };
     try {
-      const detail = await app.pluginDistribution.getPluginDetail(entry.id);
-      if (detailPluginId !== entry.id) return;
-      detailPluginDetail = detail;
-      if (detail?.schemaVersion === 2) {
-        overviewState = { status: "missing" };
-        changelogState = { status: "missing" };
-        return;
-      }
-      await Promise.all([
-        loadDetailContent("overview", entry, detail),
-        loadDetailContent("changelog", entry, detail),
-      ]);
+      await openPluginBrowser(app, entry.id);
+      controller.close();
     } catch (error) {
-      if (detailPluginId !== entry.id) return;
-      overviewState = {
-        status: "error",
-        message: errorMessage(
-          error instanceof Error ? error : new Error(String(error)),
-        ),
-      };
-      changelogState = { status: "missing" };
-    } finally {
-      if (detailPluginId === entry.id) detailLoading = false;
+      registry.lastError =
+        error instanceof Error ? error : new Error(String(error));
+      new Notice(
+        `Could not open plugin details: ${registry.lastError.message}`,
+        0,
+        app,
+      );
     }
-  }
-
-  async function loadDetailContent(
-    kind: "overview" | "changelog",
-    entry: PluginCatalogEntry,
-    detail: PluginCatalogDetail | null,
-  ): Promise<void> {
-    const reference = detail?.content?.[kind];
-    const setState = (state: PluginMarkdownState) => {
-      if (detailPluginId !== entry.id) return;
-      if (kind === "overview") overviewState = state;
-      else changelogState = state;
-    };
-    if (reference) {
-      try {
-        const markdown = await fetchVerifiedPluginMarkdown(reference);
-        setState({
-          status: "loaded",
-          url: reference.url,
-          sourceUrl: reference.sourceUrl,
-          markdown: resolveReadmeRelativeUrls(markdown, reference.url),
-        });
-      } catch (error) {
-        setState({
-          status: "error",
-          message: errorMessage(
-            error instanceof Error ? error : new Error(String(error)),
-          ),
-          sourceUrl: reference.sourceUrl,
-        });
-      }
-      return;
-    }
-    if (kind === "changelog") {
-      setState({ status: "missing" });
-      return;
-    }
-    const readmeUrl = detail?.readmeUrl ?? entry.readmeUrl;
-    if (!readmeUrl) {
-      setState({ status: "missing" });
-      return;
-    }
-    try {
-      const markdown = await fetchPluginReadmeMarkdown(readmeUrl, {
-        pluginId: entry.id,
-        detailUrl: entry.detail,
-      });
-      setState({
-        status: "loaded",
-        url: readmeUrl,
-        sourceUrl: readmeUrl,
-        markdown,
-      });
-    } catch (error) {
-      setState({
-        status: "error",
-        message: error instanceof Error ? error.message : String(error),
-        sourceUrl: readmeUrl,
-      });
-    }
-  }
-
-  async function retryDetailContent(kind: "overview" | "changelog") {
-    if (!detailPluginEntry) return;
-    if (kind === "overview") overviewState = { status: "loading" };
-    else changelogState = { status: "loading" };
-    await loadDetailContent(kind, detailPluginEntry, detailPluginDetail);
   }
 
   function requestUninstall(record: InstalledPluginRecord): void {
     uninstallDisableInstead = false;
     uninstallTarget = record;
     uninstallConfirmOpen = true;
-  }
-
-  function requestUninstallById(pluginId: string): void {
-    const record = installed.find(
-      (candidate) => candidate.pluginId === pluginId,
-    );
-    if (record) requestUninstall(record);
   }
 
   function closeUninstallDialog(): void {
@@ -619,7 +403,7 @@
   }
 
   function catalogEntry(pluginId: string): PluginCatalogEntry | undefined {
-    return catalogEntries.find((entry) => entry.id === pluginId);
+    return registry.catalogEntries.find((entry) => entry.id === pluginId);
   }
 
   function installedName(record: InstalledPluginRecord): string {
@@ -643,7 +427,7 @@
   }
 
   function resolveRuntimePlugin(pluginId: string) {
-    void pluginLifecycleRevision;
+    void registry.pluginLifecycleRevision;
     return app.plugins.plugins.get(pluginId);
   }
 
@@ -685,14 +469,14 @@
   }
 
   function downloadCount(pluginId: string): number {
-    return downloadStats
-      ? pluginDownloadCounts(downloadStats, pluginId).recent
+    return registry.downloadStats
+      ? pluginDownloadCounts(registry.downloadStats, pluginId).recent
       : 0;
   }
 
   function downloadLabel(pluginId: string): string | null {
-    if (!downloadStats) return null;
-    const count = pluginDownloadCounts(downloadStats, pluginId).recent;
+    if (!registry.downloadStats) return null;
+    const count = pluginDownloadCounts(registry.downloadStats, pluginId).recent;
     return `~${formatApproximateDownloadCount(count)} downloads (30d)`;
   }
 
@@ -700,18 +484,18 @@
     pluginId: string,
     installedRecord: InstalledPluginRecord | undefined,
   ) {
-    if (actionFeedback?.pluginId === pluginId) {
-      if (actionFeedback.state === "running") {
+    if (registry.actionFeedback?.pluginId === pluginId) {
+      if (registry.actionFeedback.state === "running") {
         return {
           label: "Installing",
-          reason: actionFeedback.message,
+          reason: registry.actionFeedback.message,
           tone: "neutral" as const,
         };
       }
-      if (actionFeedback.state === "error") {
+      if (registry.actionFeedback.state === "error") {
         return {
           label: "Install failed",
-          reason: actionFeedback.message,
+          reason: registry.actionFeedback.message,
           tone: "danger" as const,
         };
       }
@@ -800,7 +584,7 @@
       return;
     }
     let installedRecord: InstalledPluginRecord | undefined;
-    await runPluginProgressAction(
+    await registry.runPluginAction(
       "install-bundle",
       "*",
       `Installing ${file.name}`,
@@ -847,7 +631,7 @@
       <Button.Root
         variant="outline"
         size="sm"
-        disabled={runningAction === "install-bundle"}
+        disabled={registry.runningAction === "install-bundle"}
         onclick={openBundleFilePicker}
         ><Upload />Install from .lapis-plugin</Button.Root
       >
@@ -855,14 +639,14 @@
         class="lapis-plugin-registry__refresh"
         variant="outline"
         size="sm"
-        disabled={refreshing}
-        aria-busy={refreshing}
-        aria-label={refreshing
+        disabled={registry.refreshing}
+        aria-busy={registry.refreshing}
+        aria-label={registry.refreshing
           ? "Refreshing plugin registry"
           : "Refresh plugin registry"}
         onclick={() => void refresh(true)}
       >
-        <RefreshCw data-spinning={refreshing || undefined} />
+        <RefreshCw data-spinning={registry.refreshing || undefined} />
         <span>Refresh</span>
       </Button.Root>
     </div>
@@ -895,21 +679,21 @@
         resultCount={filteredInstalled.length + filteredCommunityPlugins.length}
         onreset={resetInstalledFilters}
       />
-      {#if initialLoading}
+      {#if registry.initialLoading}
         <PluginRegistryContentState
           kind="loading"
           heading="Loading installed plugins"
           description="Reading installed plugin state and registry provenance…"
         />
-      {:else if lastError && !installed.length && !communityPlugins.length}
+      {:else if registry.lastError && !registry.installed.length && !communityPlugins.length}
         <PluginRegistryContentState
           kind="error"
           heading="Installed plugins unavailable"
-          description={errorMessage(lastError)}
+          description={errorMessage(registry.lastError)}
           actionLabel="Retry"
           onaction={() => void refresh(true)}
         />
-      {:else if !installed.length && !communityPlugins.length}
+      {:else if !registry.installed.length && !communityPlugins.length}
         <PluginRegistryContentState
           part="registry-installed-empty-state"
           kind="empty"
@@ -932,7 +716,7 @@
             {@const runtimePlugin = resolveRuntimePlugin(record.pluginId)}
             {@const entry = catalogEntry(record.pluginId)}
             {@const size = installedSize(record)}
-            {@const update = updates.find(
+            {@const update = registry.updates.find(
               (candidate) => candidate.id === record.pluginId,
             )}
             {@const toggleAction = pluginToggleAction(
@@ -987,7 +771,7 @@
                             size="icon"
                             variant="outline"
                             aria-label={`Update ${installedName(record)}`}
-                            disabled={runningAction ===
+                            disabled={registry.runningAction ===
                               `update:${record.pluginId}`}
                             onclick={() => void updatePlugin(update)}
                             ><ArrowUpCircle /></Button.Root
@@ -1009,7 +793,8 @@
                             {...props}
                             checked={Boolean(runtimePlugin?.enabled)}
                             disabled={!runtimePlugin ||
-                              runningAction === `toggle:${record.pluginId}`}
+                              registry.runningAction ===
+                                `toggle:${record.pluginId}`}
                             aria-label={toggleAction}
                             data-tooltip-action={toggleAction}
                             onCheckedChange={(checked) =>
@@ -1030,7 +815,8 @@
                   variant="ghost"
                   aria-label={`Uninstall ${record.pluginId}`}
                   title="Uninstall"
-                  disabled={runningAction === `uninstall:${record.pluginId}`}
+                  disabled={registry.runningAction ===
+                    `uninstall:${record.pluginId}`}
                   onclick={() => requestUninstall(record)}
                   ><Trash2 /></Button.Root
                 >
@@ -1065,21 +851,21 @@
         resultCount={filteredCatalogEntries.length}
         onreset={resetBrowseFilters}
       />
-      {#if initialLoading}
+      {#if registry.initialLoading}
         <PluginRegistryContentState
           kind="loading"
           heading="Loading plugin registry"
           description="Verifying the official catalog and revocation metadata…"
         />
-      {:else if lastError && !catalogEntries.length}
+      {:else if registry.lastError && !registry.catalogEntries.length}
         <PluginRegistryContentState
           kind="error"
           heading="Plugin registry unavailable"
-          description={errorMessage(lastError)}
+          description={errorMessage(registry.lastError)}
           actionLabel="Retry"
           onaction={() => void refresh(true)}
         />
-      {:else if !catalogEntries.length}
+      {:else if !registry.catalogEntries.length}
         <PluginRegistryContentState
           kind="empty"
           heading="No registry entries"
@@ -1098,7 +884,7 @@
       {:else}
         <div class="lapis-plugin-registry__rows">
           {#each filteredCatalogEntries as entry (entry.id)}
-            {@const installedRecord = installed.find(
+            {@const installedRecord = registry.installed.find(
               (record) => record.pluginId === entry.id,
             )}
             {@const isBundled = staticPluginIds.has(entry.id)}
@@ -1126,7 +912,8 @@
                     size="sm"
                     variant="outline"
                     aria-label={`Uninstall ${entry.name}`}
-                    disabled={runningAction === `uninstall:${entry.id}`}
+                    disabled={registry.runningAction ===
+                      `uninstall:${entry.id}`}
                     onclick={() => requestUninstall(installedRecord)}
                     ><Trash2 data-icon="inline-start" />Uninstall</Button.Root
                   >
@@ -1135,7 +922,8 @@
                     ><Check data-icon="inline-start" />Bundled</Button.Root
                   >
                 {:else}
-                  {@const installing = runningAction === `install:${entry.id}`}
+                  {@const installing =
+                    registry.runningAction === `install:${entry.id}`}
                   <Button.Root
                     size="sm"
                     aria-label={installing
@@ -1169,21 +957,21 @@
         resultCount={filteredUpdates.length}
         onreset={resetUpdateFilters}
       />
-      {#if initialLoading}
+      {#if registry.initialLoading}
         <PluginRegistryContentState
           kind="loading"
           heading="Checking for updates"
           description="Comparing installed plugins with verified registry releases…"
         />
-      {:else if lastError && !updates.length}
+      {:else if registry.lastError && !registry.updates.length}
         <PluginRegistryContentState
           kind="error"
           heading="Updates unavailable"
-          description={errorMessage(lastError)}
+          description={errorMessage(registry.lastError)}
           actionLabel="Retry"
           onaction={() => void refresh(true)}
         />
-      {:else if !updates.length}
+      {:else if !registry.updates.length}
         <PluginRegistryContentState
           part="registry-updates-empty-state"
           kind="success"
@@ -1207,6 +995,7 @@
             {@const releaseDate = formatDate(entry?.latestRelease?.releasedAt)}
             <PluginRegistryRow
               id={update.id}
+              onopen={entry ? () => void openDetails(entry) : undefined}
               name={update.name}
               description={pluginDescription(
                 update.id,
@@ -1252,7 +1041,7 @@
                           variant="outline"
                           aria-label={`Update ${update.name}`}
                           disabled={!update.canUpdate ||
-                            runningAction === `update:${update.id}`}
+                            registry.runningAction === `update:${update.id}`}
                           onclick={() => void updatePlugin(update)}
                           ><ArrowUpCircle /></Button.Root
                         >
@@ -1270,7 +1059,7 @@
 
     <Tabs.Content value="sources" class="lapis-plugin-registry__content">
       <div class="lapis-plugin-registry__rows">
-        {#each registrySources as sourceState (sourceState.source.id)}
+        {#each registry.registrySources as sourceState (sourceState.source.id)}
           {@const source = sourceState.source}
           {@const isNostr = source.kind === "nostr"}
           <PluginRegistryRow
@@ -1332,7 +1121,8 @@
                         <Switch.Root
                           {...props}
                           checked={source.enabled}
-                          disabled={runningAction === `source:${source.id}`}
+                          disabled={registry.runningAction ===
+                            `source:${source.id}`}
                           aria-label={sourceToggleAction}
                           data-tooltip-action={sourceToggleAction}
                           onCheckedChange={(checked) =>
@@ -1358,28 +1148,6 @@
       </div>
     </Tabs.Content>
   </Tabs.Root>
-
-  <PluginRegistryDetailDialog
-    {app}
-    bind:open={detailDialogOpen}
-    entries={filteredCatalogEntries}
-    selectedEntry={detailPluginEntry}
-    detail={detailPluginDetail}
-    loading={detailLoading}
-    overview={overviewState}
-    changelog={changelogState}
-    {installedIds}
-    {staticPluginIds}
-    {downloadStats}
-    update={detailUpdate}
-    {runningAction}
-    {actionFeedback}
-    onselect={selectDetail}
-    oninstall={installEntry}
-    onupdate={updatePlugin}
-    onuninstall={requestUninstallById}
-    onretry={retryDetailContent}
-  />
 
   <AlertDialog.Root bind:open={uninstallConfirmOpen}>
     <AlertDialog.Content

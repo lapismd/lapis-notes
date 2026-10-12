@@ -9,6 +9,7 @@ import sourceEditorStyles from "@lapis-notes/source-editor/styles.css?inline";
 import { registerPluginManagementSettings } from "@lapis-notes/workspace";
 
 export * from "./local-plugin-distribution";
+export { registerNotesPluginBrowser } from "./plugin-browser";
 
 export const registerNotesPluginSettings = registerPluginManagementSettings;
 
