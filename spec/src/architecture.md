@@ -1,5 +1,11 @@
 # Architecture
 
+For LN-ARCH-095, the dependency-image producer derives its candidate hash and
+tag from the current lockfile while validating the pinned base image. An older
+dependency pin MUST NOT prevent creation of its replacement build context. The
+verified digest pin updates the hash, tag, and digest together; consumers still
+reject stale lockfile metadata and missing digests.
+
 The existing user-approved Bits UI `2.19.5` Link Preview lifecycle patch is
 retained for the direct runtime refresh, so canceled selection probes and listener
 cleanup remain qualified. This reuses the approved correction without extending

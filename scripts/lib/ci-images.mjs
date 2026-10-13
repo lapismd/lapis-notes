@@ -19,17 +19,33 @@ export async function loadCiImageManifest(root) {
   return JSON.parse(await readFile(path.join(root, CI_IMAGE_MANIFEST), "utf8"));
 }
 
+/** Producer metadata describes a new build, never an existing published image. */
+export async function createCiImageManifestCandidate(
+  root,
+  { dependencyDigest = null } = {},
+) {
+  const manifest = await loadCiImageManifest(root);
+  assertManifestConfiguration(manifest);
+  const lockfileSha256 = await sha256File(path.join(root, "pnpm-lock.yaml"));
+  const candidate = {
+    ...manifest,
+    dependencies: {
+      ...manifest.dependencies,
+      lockfileSha256,
+      tag: dependencyImageTag(lockfileSha256),
+      digest: dependencyDigest,
+    },
+  };
+  assertManifestConfiguration(candidate);
+  return candidate;
+}
+
 export async function validateCiImageManifest(
   root,
   { requireDependencyDigest = false } = {},
 ) {
   const manifest = await loadCiImageManifest(root);
-  if (manifest.schemaVersion !== 1) {
-    throw new Error("CI image manifest schemaVersion must be 1.");
-  }
-
-  assertImage(manifest.base, "base", true);
-  assertImage(manifest.dependencies, "dependencies", requireDependencyDigest);
+  assertManifestConfiguration(manifest, requireDependencyDigest);
 
   const lockfileSha256 = await sha256File(path.join(root, "pnpm-lock.yaml"));
   if (manifest.dependencies.lockfileSha256 !== lockfileSha256) {
@@ -41,6 +57,17 @@ export async function validateCiImageManifest(
   }
 
   return manifest;
+}
+
+function assertManifestConfiguration(
+  manifest,
+  requireDependencyDigest = false,
+) {
+  if (manifest.schemaVersion !== 1) {
+    throw new Error("CI image manifest schemaVersion must be 1.");
+  }
+  assertImage(manifest.base, "base", true);
+  assertImage(manifest.dependencies, "dependencies", requireDependencyDigest);
 }
 
 function assertImage(value, label, requireDigest) {

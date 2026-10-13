@@ -26,6 +26,12 @@ builds AMD64 and ARM64 images with provenance and an SBOM, publishes the
 lockfile tag, and opens or updates an automation PR containing the verified
 digest. Merge that PR before changing CI workflows to consume the new layer.
 
+The producer derives its hash and tag from the current lockfile, even when
+`.ci/images.json` still describes the previous dependency image. Preparing the
+build context preserves that old pin; the verified digest PR updates the hash,
+tag, and digest together. Consumers continue to reject a stale pin or a missing
+dependency digest.
+
 If the checked-in dependency digest is null, `pnpm ci:container` fails closed
 with an actionable error instead of falling back to a mutable tag.
 
