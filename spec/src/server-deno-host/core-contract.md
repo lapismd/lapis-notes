@@ -1,5 +1,11 @@
 # Deno Server Host / Integration contracts
 
+The served Web client interprets `plugins` App URLs through its owning application
+profile ([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). Selected
+release coordinates enter the verified Plugins browser; the URL does not grant
+server access or supply an outbound archive source. Hosted installation continues
+through the authenticated artifact route under LN-SRV-017.
+
 ## LN-SRV-001 — Private @lapis-notes/server-deno: run on Deno.serve, serve the dedicated static
 
 <a id="ln-srv-001"></a>

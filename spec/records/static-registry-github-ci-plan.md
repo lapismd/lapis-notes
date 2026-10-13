@@ -301,6 +301,12 @@ dialog; the local-only pending-source case is intentionally skipped remotely.
 Native browser review confirms Source Editor's notes and the older Graph selector,
 compatibility and archive. Local comparison remains running on port 4323.
 
+### Plugin app links
+
+The follow-up [app-link record](2026-10-13-registry-app-links.md) covers opening
+the selected registry release in the owning running app, persisted version
+navigation, historical installation and native/Web acceptance.
+
 ## Historical integration handoff
 
 The 2026-10-12 handoff paused final local verification after integrating the

@@ -6,6 +6,20 @@ export function registerNotesPluginBrowser(app: App): () => void {
   app.workspace.registerView("plugins", (leaf) => new PluginsView(leaf));
   let pending: Promise<void> | null = null;
   let disposed = false;
+  const removeUrlHandler = app.urls.registerProtocolHandler(
+    "plugins",
+    (params) => {
+      if (disposed || !/^[a-z0-9][a-z0-9-]{0,62}$/u.test(params.id ?? ""))
+        return;
+      const version = params.version;
+      if (
+        version !== undefined &&
+        !/^[A-Za-z0-9][A-Za-z0-9.+-]{0,127}$/u.test(version)
+      )
+        return;
+      return openPluginBrowser(app, params.id, () => !disposed, version);
+    },
+  );
   const open = () => {
     if (disposed) return Promise.resolve();
     if (pending) return pending;
@@ -30,6 +44,7 @@ export function registerNotesPluginBrowser(app: App): () => void {
   return () => {
     if (disposed) return;
     disposed = true;
+    removeUrlHandler();
     for (const leaf of app.workspace.getLeavesOfType("plugins")) {
       if (leaf.view instanceof PluginsView) leaf.view.unload();
     }

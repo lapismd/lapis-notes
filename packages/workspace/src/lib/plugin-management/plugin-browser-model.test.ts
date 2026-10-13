@@ -31,6 +31,20 @@ const plugins = [
   entry("Revoked", ["data"], "2026-09-01", "revoked"),
 ];
 describe("Plugins navigation and catalog", () => {
+  it("restores the exact selected version and rejects invalid version state", () => {
+    expect(
+      restoreBrowserState({
+        route: { page: "plugin", pluginId: "graph", version: "0.1.0-beta.1" },
+      }).route,
+    ).toEqual({ page: "plugin", pluginId: "graph", version: "0.1.0-beta.1" });
+    for (const version of ["../latest", "", 42, "x".repeat(129)]) {
+      expect(
+        restoreBrowserState({
+          route: { page: "plugin", pluginId: "graph", version },
+        }).route,
+      ).toEqual({ page: "landing" });
+    }
+  });
   it("counts every category and orders homepage sections deterministically", () => {
     expect(categoriesFor(plugins).map((c) => [c.id, c.count])).toEqual([
       ["data", 2],

@@ -8,6 +8,7 @@ export function openPluginBrowser(
   app: App,
   pluginId?: string,
   isActive = () => true,
+  version?: string,
 ): Promise<void> {
   const previous = pending.get(app) ?? Promise.resolve();
   const next = previous
@@ -27,7 +28,9 @@ export function openPluginBrowser(
         throw new Error(
           "The Plugins view is not registered in this workspace.",
         );
-      if (pluginId) leaf.view.showPlugin(pluginId);
+      if (pluginId && version !== undefined)
+        leaf.view.showPlugin(pluginId, version);
+      else if (pluginId) leaf.view.showPlugin(pluginId);
       else leaf.view.home();
       await app.workspace.revealLeaf(leaf);
       if (isActive()) app.workspace.activateLeaf(leaf);

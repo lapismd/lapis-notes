@@ -1,5 +1,11 @@
 # Packages / Configuration and lifecycle
 
+The private application profile owns plugin App URL registration, while
+Workspace's public navigator accepts an optional selected release version.
+The profile and hosts consume that generic navigator under
+[LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106); no registry-specific
+archive transport or trust key enters the application link.
+
 ## LN-PKG-050 — @lapis-notes/lapis-plugin-cv-roles: expose Storybook interaction and static-build scripts.
 
 <a id="ln-pkg-050"></a>

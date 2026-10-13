@@ -514,6 +514,13 @@ All api-consumed families also have `API/` plays and `visual-pending` baselines
 
 ### Default Plugins browser
 
+Registry app links now open the selected release in the owning Plugins leaf.
+Version selection persists, unavailable releases fail closed, and historical
+installation retains its requested version and confirmation. Native secondary
+launch and cold Web acceptance pass. The
+[app-link record](spec/records/2026-10-13-registry-app-links.md) tracks full-suite
+and CI qualification; the Workspace patch remains unpublished.
+
 The default app owns a Plugins workspace browser with a category homepage,
 searchable directory and inline verified details. Settings shares its App-scoped
 catalog, installed/update state and verified actions. Community runtime remains

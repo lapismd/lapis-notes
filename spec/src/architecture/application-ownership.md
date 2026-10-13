@@ -1,5 +1,10 @@
 # Architecture / Application ownership
 
+The app-profile `plugins` URL action is scoped to its owning App under
+[LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106). Native and Web
+hosts retain transport delivery; verified catalog selection and installation
+remain in the existing App distribution and Plugins view boundaries.
+
 ## LN-ARCH-034 — App-database selection: use an API-owned provider contract. Production hosts
 
 <a id="ln-arch-034"></a>

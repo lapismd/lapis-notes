@@ -1,5 +1,10 @@
 # Deno Desktop Host / Window and shell
 
+The existing URL activation queue also delivers `lapis://plugins?id=...` to the
+ready App's disposable profile handler
+([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). The optional
+version selects the Plugins detail page; receiving a link does not install it.
+
 ## LN-DENO-001 — Native desktop host: create its window with Deno 2.9.5
 
 <a id="ln-deno-001"></a>

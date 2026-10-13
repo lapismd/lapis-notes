@@ -28,4 +28,10 @@
 
 <a id="ln-plug-103"></a>
 
-**Requirement.** A restored Plugins leaf MUST restore its validated route and directory state. Closing a view or disposing its owning registration MUST unload owned view components, release subscriptions and ignore late detail responses; background refresh MUST preserve visible content and navigation.
+**Requirement.** A restored Plugins leaf MUST restore its validated route, optional selected release version and directory state. Closing a view or disposing its owning registration MUST unload owned view components, release subscriptions and ignore late detail responses; background refresh MUST preserve visible content and navigation.
+
+## LN-PLUG-106 — App links: navigate to a plugin through the owning App
+
+<a id="ln-plug-106"></a>
+
+**Requirement.** The default application profile MUST register a disposable `plugins` App URL action accepting a validated plugin ID and optional release version. It MUST reveal the owning Plugins view and preserve the requested coordinates. The action MUST NOT install a plugin, accept an archive URL or change registry trust. Disposal MUST cancel queued navigation and unregister the handler.
