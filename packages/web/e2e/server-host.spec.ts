@@ -13,18 +13,20 @@ const image = process.env.LAPIS_SERVER_E2E_IMAGE ?? "lapis-server:e2e";
 const suffix = `${process.pid}-${Date.now().toString(36)}`;
 const containerName = `lapis-server-e2e-${suffix}`;
 const volumeName = `lapis-server-e2e-data-${suffix}`;
+const secretVolumeName = `lapis-server-e2e-secret-${suffix}`;
 
 let baseUrl = "";
 let password = "";
-let passwordFile = "";
 let importArchive = "";
 let temporaryRoot = "";
 let containerCreated = false;
 let volumeCreated = false;
+let secretVolumeCreated = false;
+let serverReady = false;
 
-function docker(args: string[]): Promise<string> {
+function docker(args: string[], input?: string): Promise<string> {
   return new Promise((resolvePromise, reject) => {
-    execFile(
+    const child = execFile(
       "docker",
       args,
       { cwd: repoRoot, maxBuffer: 8 * 1024 * 1024 },
@@ -40,6 +42,7 @@ function docker(args: string[]): Promise<string> {
         resolvePromise(stdout.trim());
       },
     );
+    child.stdin?.end(input);
   });
 }
 
@@ -69,7 +72,10 @@ async function waitUntilReady(): Promise<void> {
   while (Date.now() < deadline) {
     try {
       const response = await fetch(`${baseUrl}/readyz`);
-      if (response.ok) return;
+      if (response.ok) {
+        serverReady = true;
+        return;
+      }
     } catch {
       // The container may still be starting or recreating its native database.
     }
@@ -84,6 +90,7 @@ async function waitUntilReady(): Promise<void> {
 }
 
 async function startServer(): Promise<void> {
+  serverReady = false;
   await docker([
     "run",
     "--detach",
@@ -94,7 +101,7 @@ async function startServer(): Promise<void> {
     "--mount",
     `type=volume,source=${volumeName},target=/data`,
     "--mount",
-    `type=bind,source=${passwordFile},target=/run/secrets/lapis_bootstrap_password,readonly`,
+    `type=volume,source=${secretVolumeName},target=/run/secrets,readonly`,
     "--env",
     `LAPIS_SERVER_ORIGIN=${baseUrl}`,
     "--env",
@@ -206,9 +213,7 @@ async function manageVaults(page: Page): Promise<void> {
 test.beforeAll(async () => {
   temporaryRoot = await mkdtemp(join(tmpdir(), "lapis-server-browser-"));
   password = randomBytes(32).toString("base64url");
-  passwordFile = join(temporaryRoot, "bootstrap-password");
   importArchive = join(temporaryRoot, "Imported Vault.zip");
-  await writeFile(passwordFile, `${password}\n`, { mode: 0o600 });
   await writeFile(
     importArchive,
     storedZip("Imported.md", "# Imported through the server\n"),
@@ -217,10 +222,33 @@ test.beforeAll(async () => {
   baseUrl = `http://localhost:${port}`;
   await docker(["volume", "create", volumeName]);
   volumeCreated = true;
+  await docker(["volume", "create", secretVolumeName]);
+  secretVolumeCreated = true;
+  await docker(
+    [
+      "run",
+      "--rm",
+      "--interactive",
+      "--user",
+      "root",
+      "--entrypoint",
+      "sh",
+      "--mount",
+      `type=volume,source=${secretVolumeName},target=/run/secrets`,
+      image,
+      "-c",
+      "umask 077; cat > /run/secrets/lapis_bootstrap_password; chown deno:deno /run/secrets/lapis_bootstrap_password",
+    ],
+    `${password}\n`,
+  );
   await startServer();
 });
 
 test.afterAll(async () => {
+  if (containerCreated && !serverReady)
+    console.error(
+      await docker(["logs", "--tail", "100", containerName]).catch(String),
+    );
   await stopServer(false).catch(() => undefined);
   if (containerCreated) {
     await docker(["rm", "--force", containerName]).catch(() => undefined);
@@ -229,6 +257,10 @@ test.afterAll(async () => {
   if (volumeCreated) {
     await docker(["volume", "rm", volumeName]).catch(() => undefined);
     volumeCreated = false;
+  }
+  if (secretVolumeCreated) {
+    await docker(["volume", "rm", secretVolumeName]).catch(() => undefined);
+    secretVolumeCreated = false;
   }
   if (temporaryRoot) await rm(temporaryRoot, { recursive: true, force: true });
 });
@@ -388,9 +420,7 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
   });
   await manageVaults(page);
   await expect(page.getByRole("button", { name: "View all" })).toHaveCount(0);
-  await page
-    .getByRole("button", { name: "Return to Online Vault" })
-    .click();
+  await page.getByRole("button", { name: "Return to Online Vault" }).click();
   await expect(
     page.getByRole("button", { name: /Current workspace:/ }),
   ).toContainText("Online Vault");
@@ -444,9 +474,9 @@ test("server-hosted vault survives editing, sharing events, and restart", async 
   await managedVaultDialog
     .getByRole("combobox", { name: "Search managed vaults" })
     .fill("Browser Folder");
-  await expect(
-    managedVaultDialog.locator('[data-ui-part="item"]'),
-  ).toHaveCount(1);
+  await expect(managedVaultDialog.locator('[data-ui-part="item"]')).toHaveCount(
+    1,
+  );
   await managedVaultDialog
     .locator('[data-ui-part="item"]')
     .filter({ hasText: "Browser Folder Vault" })

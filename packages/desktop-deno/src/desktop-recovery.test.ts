@@ -84,6 +84,16 @@ describe("Deno desktop startup recovery", () => {
     expect(diagnostic.detail).toContain("/Users/example/Desktop/notes");
   });
 
+  it("preserves the error message when WebKit stacks contain only locations", () => {
+    const error = new Error("Native database could not open");
+    error.stack =
+      "@user-script:1:58:33\nglobal code@http://127.0.0.1:1234/:1:23";
+    const failure = createDesktopStartupFailure("vault", error);
+    expect(failure.detail).toContain("Native database could not open");
+    expect(failure.detail).toContain(error.stack);
+    expect(failure.message).toBe(error.message);
+  });
+
   it("describes layout-only recovery without unavailable policies", () => {
     const storage = memoryStorage();
     const state = updateDesktopSafeModeState(

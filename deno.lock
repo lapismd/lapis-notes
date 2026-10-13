@@ -8644,6 +8644,7 @@
         "dependencies": [
           "npm:@codemirror/language@6.11.3",
           "npm:@lapismd/ai-controller@0.1",
+          "npm:@lapismd/terminal-host@0.1",
           "npm:@lezer/common@1.2.3",
           "npm:@lezer/highlight@1.2.1",
           "npm:@lezer/lr@1.4.2",

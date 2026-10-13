@@ -23,3 +23,14 @@
 <a id="ln-arch-092"></a>
 
 **Requirement.** API MUST own explicit sync enrollment, multi-epoch key custody, owner membership authority, bounded pairing state including validation of the user-confirmed SAS, and opaque recovery bundles. Protocol plugins MUST remain responsible for transporting returned artifacts, choosing endpoints, validating revision ancestry, and presenting pairing or recovery policy.
+
+The CI acceptance graph uses exact frozen source candidates for temporary signed
+registry fixtures before V2 production cutover. Public package ranges stay
+portable; full Web and native packaged results remain blocking under LN-PKG-142.
+Fixture builds verify the checked-out Plugins commit before setting source
+provenance inside the executing shell, independently of the host workflow SHA.
+Native acceptance provisions the separately installed controller CLI from its
+exact validation source based on the public release. Complete Web acceptance uses a native runner with
+Docker and builds the server image from the checked-out Notes candidate.
+The server fixture seeds its private bootstrap secret into a Docker volume owned
+by the image's service user, so host UID differences cannot prevent startup.

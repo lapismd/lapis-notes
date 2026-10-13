@@ -29,3 +29,14 @@
 <a id="ln-gov-029"></a>
 
 **Requirement.** Agent guidance MUST require canonical movable-panel registrations to declare their opening commands together, while file-backed editor views use editor associations and compatibility aliases reuse canonical commands.
+
+Changes to the shared validation workflow and Web fixture runner map to the
+package acceptance requirements LN-PKG-161 and LN-PKG-162. Fixture signing uses
+ephemeral keys and exact source provenance; it cannot authorize a release or
+replace the production signing gate.
+Workflow-shell regressions execute checkout and provenance handling against a
+different host SHA and reject a mismatched checkout.
+CI runners declare the external controller and Docker prerequisites needed to
+execute the complete acceptance graph; prerequisite absence remains a failure.
+Linux qualification includes controller dependency materialization and a private
+server secret readable by the container service user without relaxing assertions.

@@ -253,7 +253,7 @@ try {
   await waitForCleanExit(secondary, secondaryDiagnostics);
 
   const report = await waitForReport(reportPath, child, diagnostics);
-  assert.equal(report.ok, true, report.detail);
+  assert.equal(report.ok, true, JSON.stringify(report, null, 2));
   assert.equal(report.runtime, "deno-desktop");
   assert.equal(report.vault, "vault");
   assert.deepEqual(report.plugins, expectedPlugins);

@@ -1,5 +1,9 @@
 # Web Host / Browser integration
 
+Complete CI browser acceptance under LN-PKG-161 includes the real server-host
+editing, sharing and restart scenario. Its private bootstrap fixture is seeded
+for the container user and retains the original browser assertions and deadlines.
+
 ## LN-WEB-032 — Web host: persist terminal-host URL and token as web.terminalHost.url
 
 <a id="ln-web-032"></a>

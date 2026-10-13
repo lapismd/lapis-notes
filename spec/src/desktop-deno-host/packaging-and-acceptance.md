@@ -1,5 +1,12 @@
 # Deno Desktop Host / Packaging and acceptance
 
+Desktop distribution consumes the published Terminal Host Deno and native-artifact
+exports. Clean CI builds on native macOS and Linux runners and executes the
+packaged first-launch, handoff, service and close contract under LN-PKG-162.
+macOS packaging passes an extension-free output name to Deno, which adds `.app`.
+Packaging selects `DENO_BIN` when configured and otherwise uses the runtime on
+`PATH`, matching the pinned CI toolchain instead of a separate user installation.
+
 ## LN-DENO-038 — Before mounting application UI, the desktop renderer: mark the document engine from the native
 
 <a id="ln-deno-038"></a>

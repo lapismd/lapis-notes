@@ -4,6 +4,7 @@
 .env.*
 .pnpmfile.cjs
 .release
+.ci-candidates
 .turbo
 .visual-delta
 coverage
