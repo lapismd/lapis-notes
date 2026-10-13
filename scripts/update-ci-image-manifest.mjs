@@ -34,8 +34,12 @@ const snapshot = [
   end,
 ].join("\n");
 const chapterUpdates = await Promise.all(
-  ["architecture", "packages", "spec-governance"].map(async (chapter) => {
-    const chapterPath = path.join(root, `spec/src/${chapter}.md`);
+  [
+    "architecture/dependency-boundaries.md",
+    "packages/releases-and-exports.md",
+    "spec-governance/protected-change-mapping.md",
+  ].map(async (chapter) => {
+    const chapterPath = path.join(root, `spec/src/${chapter}`);
     const source = await readFile(chapterPath, "utf8");
     const startCount = source.split(start).length - 1;
     const endCount = source.split(end).length - 1;

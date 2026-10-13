@@ -62,6 +62,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/ci-setup
       - run: pnpm spec:validate
+      - run: pnpm check:specification-docs
       - run: pnpm spec:build
       - name: Spec-first gate
         if: >-

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["node", "react", "vite/client"]
+  },
+  "include": [
+    ".storybook/specification-docs.tsx",
+    ".storybook/specification-redirect.ts",
+    "playwright.specification.config.ts",
+    "tests/specification/**/*.ts"
+  ]
+}

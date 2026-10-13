@@ -3,6 +3,38 @@
 Living checklist for the minimal Lapis Notes monorepo. Update this file when
 intake or UI swap status changes.
 
+## Specification readability and navigation (2026-10-13)
+
+- [x] Split the specification into 172 bounded topic and verification pages,
+      preserving all 1,365 original requirements, statuses, and evidence.
+- [x] Add SUMMARY-derived Storybook navigation, stable requirement anchors,
+      canonical chapter routing, populated outlines, and strict coverage checks.
+- [x] Preserve the latest main CI-image snapshots and repair registry-consumer
+      pnpm selection and approved dependency builds;
+      [published npm acceptance](spec/records/2026-10-13-registry-consumer-toolchain.md) passes.
+- [ ] Complete final combined verification in PR CI, including cold development
+      and static navigation plus full package and Storybook interaction/axe lanes.
+      The [acceptance record](spec/records/2026-10-13-specification-navigation.md)
+      distinguishes earlier full passes from final local navigation timeouts.
+
+## Local test caching (2026-10-13)
+
+- [x] Route repository-level test commands and Storybook builds through the bounded
+      Turbo runner; package unit tests already use that graph.
+- [x] Cover successful cache reuse, source/argument invalidation, failed-result
+      reruns, forced execution, and live-configuration cache bypass with small
+      fixtures. Keep external-state and mutation tasks uncached.
+- [ ] Complete the full suites in PR CI; see the
+      [focused acceptance record](spec/records/2026-10-13-local-test-caching.md).
+
+## Portable specification acceptance (2026-10-13)
+
+- [x] Repair PR CI startup after 243 Storybook interaction/axe tests passed:
+      development Docs acceptance uses installed packages without requiring
+      sibling plugin release artifacts. The exact startup regression passes.
+- [ ] Complete development Docs navigation in updated PR CI; see the
+      [startup evidence](spec/records/2026-10-13-portable-specification-startup.md).
+
 ## Application ownership intake and integration (2026-08-16)
 
 - [x] Review the latest Lapis API, Workspace, Electron, web/PWA, Bases, AI,

@@ -346,7 +346,25 @@ export async function viteFinal(
         ],
       },
       watch: {
-        ignored: ["**/storybook-static/**"],
+        // The desktop tooling checkout link points back to this repository.
+        // Watch the physical authored sources once, without recursive aliases.
+        followSymlinks: false,
+        // Generated files have no source dependency edges. Watching them makes
+        // Storybook rebuild its complete impact index for logs and build output.
+        ignored: [
+          "**/storybook-static/**",
+          "**/spec/book/**",
+          "**/dist/**",
+          "**/dist-server/**",
+          "**/.svelte-kit/**",
+          "**/.turbo/**",
+          "**/.cache/**",
+          "**/.local/**",
+          "**/tmp/**",
+          "**/test-results/**",
+          "**/playwright-report/**",
+          "**/coverage/**",
+        ],
       },
     },
   });

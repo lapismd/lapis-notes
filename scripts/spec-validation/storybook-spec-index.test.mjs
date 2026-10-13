@@ -5,6 +5,7 @@ import {
   auditStorybookIndex,
   expectedSpecificationTitles,
 } from "./storybook-spec-index.mjs";
+import { specificationChapters } from "./specification-navigation.mjs";
 
 const summary = `# Summary
 
@@ -34,8 +35,46 @@ test("reports source chapters missing from a built Storybook index", () => {
 test("accepts a complete built index", () => {
   const result = auditStorybookIndex(summary, {
     entries: Object.fromEntries(
-      expectedSpecificationTitles(summary).map((title, index) => [index, { title }]),
+      specificationChapters(summary).map(({ title, id }, index) => [
+        index,
+        { title, id, type: "docs" },
+      ]),
     ),
   });
   assert.deepEqual(result.missing, []);
+  assert.deepEqual(result.routes, []);
+  assert.deepEqual(result.stale, []);
+  assert.deepEqual(result.duplicate, []);
+});
+
+test("rejects duplicate and stale specification mirrors", () => {
+  const chapter = specificationChapters(summary)[0];
+  const entry = { title: chapter.title, id: chapter.id, type: "docs" };
+  const result = auditStorybookIndex(summary, {
+    entries: {
+      one: entry,
+      two: entry,
+      stale: {
+        title: "Specification/Retired",
+        id: "retired--docs",
+        type: "docs",
+      },
+    },
+  });
+  assert.deepEqual(result.duplicate, [chapter.title]);
+  assert.deepEqual(result.stale, ["Specification/Retired"]);
+});
+
+test("rejects malformed routes and non-Docs entries", () => {
+  const chapter = specificationChapters(summary)[0];
+  for (const entry of [
+    { title: chapter.title },
+    { title: chapter.title, id: "wrong", type: "docs" },
+    { title: chapter.title, id: chapter.id, type: "story" },
+  ]) {
+    assert.deepEqual(
+      auditStorybookIndex(summary, { entries: { one: entry } }).routes,
+      [chapter.title],
+    );
+  }
 });

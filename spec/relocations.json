@@ -1,0 +1,6014 @@
+{
+  "architecture.md#architecture-context-part-1": {
+    "path": "architecture/context-01.md",
+    "fragment": "architecture-context-part-1"
+  },
+  "architecture.md#package-graph": {
+    "path": "architecture/context-01.md",
+    "fragment": "package-graph"
+  },
+  "architecture.md#architecture-context-part-2": {
+    "path": "architecture/context-02.md",
+    "fragment": "architecture-context-part-2"
+  },
+  "architecture.md#tooling-policy": {
+    "path": "architecture/context-02.md",
+    "fragment": "tooling-policy"
+  },
+  "architecture.md#architecture-context-part-3": {
+    "path": "architecture/context-03.md",
+    "fragment": "architecture-context-part-3"
+  },
+  "architecture.md#current-ci-dependency-image": {
+    "path": "architecture/context-03.md",
+    "fragment": "current-ci-dependency-image"
+  },
+  "architecture.md#ln-arch-001": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-001"
+  },
+  "architecture.md#ln-arch-002": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-002"
+  },
+  "architecture.md#ln-arch-017": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-017"
+  },
+  "architecture.md#ln-arch-003": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-003"
+  },
+  "architecture.md#ln-arch-004": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-004"
+  },
+  "architecture.md#ln-arch-005": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-005"
+  },
+  "architecture.md#ln-arch-014": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-014"
+  },
+  "architecture.md#ln-arch-006": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-006"
+  },
+  "architecture.md#ln-arch-007": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-007"
+  },
+  "architecture.md#ln-arch-008": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-008"
+  },
+  "architecture.md#ln-arch-009": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-009"
+  },
+  "architecture.md#ln-arch-010": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-010"
+  },
+  "architecture.md#ln-arch-011": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-011"
+  },
+  "architecture.md#ln-arch-012": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-012"
+  },
+  "architecture.md#ln-arch-013": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-013"
+  },
+  "architecture.md#ln-arch-015": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-015"
+  },
+  "architecture.md#ln-arch-016": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-016"
+  },
+  "architecture.md#ln-arch-018": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-018"
+  },
+  "architecture.md#ln-arch-019": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-019"
+  },
+  "architecture.md#ln-arch-020": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-020"
+  },
+  "architecture.md#ln-arch-021": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-021"
+  },
+  "architecture.md#ln-arch-022": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-022"
+  },
+  "architecture.md#ln-arch-023": {
+    "path": "architecture/build-and-validation.md",
+    "fragment": "ln-arch-023"
+  },
+  "architecture.md#ln-arch-024": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-024"
+  },
+  "architecture.md#ln-arch-025": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-025"
+  },
+  "architecture.md#ln-arch-026": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-026"
+  },
+  "architecture.md#ln-arch-027": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-027"
+  },
+  "architecture.md#ln-arch-028": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-028"
+  },
+  "architecture.md#ln-arch-029": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-029"
+  },
+  "architecture.md#ln-arch-030": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-030"
+  },
+  "architecture.md#ln-arch-031": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-031"
+  },
+  "architecture.md#ln-arch-032": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-032"
+  },
+  "architecture.md#ln-arch-033": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-033"
+  },
+  "architecture.md#ln-arch-034": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-034"
+  },
+  "architecture.md#ln-arch-035": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-035"
+  },
+  "architecture.md#ln-arch-036": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-036"
+  },
+  "architecture.md#ln-arch-037": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-037"
+  },
+  "architecture.md#ln-arch-038": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-038"
+  },
+  "architecture.md#ln-arch-039": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-039"
+  },
+  "architecture.md#ln-arch-040": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-040"
+  },
+  "architecture.md#ln-arch-041": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-041"
+  },
+  "architecture.md#ln-arch-042": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-042"
+  },
+  "architecture.md#ln-arch-043": {
+    "path": "architecture/core-contract.md",
+    "fragment": "ln-arch-043"
+  },
+  "architecture.md#ln-arch-044": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-044"
+  },
+  "architecture.md#ln-arch-045": {
+    "path": "architecture/build-and-validation.md",
+    "fragment": "ln-arch-045"
+  },
+  "architecture.md#ln-arch-046": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-046"
+  },
+  "architecture.md#ln-arch-047": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-047"
+  },
+  "architecture.md#ln-arch-048": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-048"
+  },
+  "architecture.md#ln-arch-049": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-049"
+  },
+  "architecture.md#ln-arch-050": {
+    "path": "architecture/core-contract.md",
+    "fragment": "ln-arch-050"
+  },
+  "architecture.md#ln-arch-051": {
+    "path": "architecture/core-contract.md",
+    "fragment": "ln-arch-051"
+  },
+  "architecture.md#ln-arch-052": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-052"
+  },
+  "architecture.md#ln-arch-053": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-053"
+  },
+  "architecture.md#ln-arch-054": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-054"
+  },
+  "architecture.md#ln-arch-055": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-055"
+  },
+  "architecture.md#ln-arch-056": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-056"
+  },
+  "architecture.md#ln-arch-057": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-057"
+  },
+  "architecture.md#ln-arch-058": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-058"
+  },
+  "architecture.md#ln-arch-059": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-059"
+  },
+  "architecture.md#ln-arch-060": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-060"
+  },
+  "architecture.md#ln-arch-061": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-061"
+  },
+  "architecture.md#ln-arch-062": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-062"
+  },
+  "architecture.md#ln-arch-063": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-063"
+  },
+  "architecture.md#ln-arch-064": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-064"
+  },
+  "architecture.md#ln-arch-065": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-065"
+  },
+  "architecture.md#ln-arch-066": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-066"
+  },
+  "architecture.md#ln-arch-067": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-067"
+  },
+  "architecture.md#ln-arch-068": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-068"
+  },
+  "architecture.md#ln-arch-069": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-069"
+  },
+  "architecture.md#ln-arch-070": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-070"
+  },
+  "architecture.md#ln-arch-071": {
+    "path": "architecture/build-and-validation.md",
+    "fragment": "ln-arch-071"
+  },
+  "architecture.md#ln-arch-072": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-072"
+  },
+  "architecture.md#ln-arch-073": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-073"
+  },
+  "architecture.md#ln-arch-074": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-074"
+  },
+  "architecture.md#ln-arch-075": {
+    "path": "architecture/core-contract.md",
+    "fragment": "ln-arch-075"
+  },
+  "architecture.md#ln-arch-076": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-076"
+  },
+  "architecture.md#ln-arch-077": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-077"
+  },
+  "architecture.md#ln-arch-078": {
+    "path": "architecture/core-contract.md",
+    "fragment": "ln-arch-078"
+  },
+  "architecture.md#ln-arch-079": {
+    "path": "architecture/core-contract.md",
+    "fragment": "ln-arch-079"
+  },
+  "architecture.md#ln-arch-080": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-080"
+  },
+  "architecture.md#ln-arch-081": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-081"
+  },
+  "architecture.md#ln-arch-082": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-082"
+  },
+  "architecture.md#ln-arch-083": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-083"
+  },
+  "architecture.md#ln-arch-084": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-084"
+  },
+  "architecture.md#ln-arch-085": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-085"
+  },
+  "architecture.md#ln-arch-086": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-086"
+  },
+  "architecture.md#ln-arch-087": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-087"
+  },
+  "architecture.md#ln-arch-088": {
+    "path": "architecture/editor-integration.md",
+    "fragment": "ln-arch-088"
+  },
+  "architecture.md#ln-arch-089": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-089"
+  },
+  "architecture.md#ln-arch-090": {
+    "path": "architecture/workspace-integration.md",
+    "fragment": "ln-arch-090"
+  },
+  "architecture.md#ln-arch-091": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-091"
+  },
+  "architecture.md#ln-arch-092": {
+    "path": "architecture/build-and-validation.md",
+    "fragment": "ln-arch-092"
+  },
+  "architecture.md#ln-arch-093": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-093"
+  },
+  "architecture.md#ln-arch-094": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-094"
+  },
+  "architecture.md#ln-arch-095": {
+    "path": "architecture/dependency-boundaries.md",
+    "fragment": "ln-arch-095"
+  },
+  "architecture.md#ln-arch-096": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-096"
+  },
+  "architecture.md#ln-arch-097": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-097"
+  },
+  "architecture.md#ln-arch-098": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-098"
+  },
+  "architecture.md#ln-arch-099": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-099"
+  },
+  "architecture.md#ln-arch-100": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-100"
+  },
+  "architecture.md#ln-arch-101": {
+    "path": "architecture/host-boundaries.md",
+    "fragment": "ln-arch-101"
+  },
+  "architecture.md#ln-arch-102": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-102"
+  },
+  "architecture.md#ln-arch-103": {
+    "path": "architecture/application-ownership.md",
+    "fragment": "ln-arch-103"
+  },
+  "packages.md#packages-context-part-1": {
+    "path": "packages/context-01.md",
+    "fragment": "packages-context-part-1"
+  },
+  "packages.md#lapis-notes-api-kernel-slice": {
+    "path": "packages/context-01.md",
+    "fragment": "lapis-notes-api-kernel-slice"
+  },
+  "packages.md#packages-context-part-2": {
+    "path": "packages/context-02.md",
+    "fragment": "packages-context-part-2"
+  },
+  "packages.md#lapis-notes-workspace-shell-integration": {
+    "path": "packages/context-02.md",
+    "fragment": "lapis-notes-workspace-shell-integration"
+  },
+  "packages.md#lapis-notes-ui-pruned": {
+    "path": "packages/context-02.md",
+    "fragment": "lapis-notes-ui-pruned"
+  },
+  "packages.md#packages-context-part-3": {
+    "path": "packages/context-03.md",
+    "fragment": "packages-context-part-3"
+  },
+  "packages.md#current-ci-dependency-image": {
+    "path": "packages/context-03.md",
+    "fragment": "current-ci-dependency-image"
+  },
+  "packages.md#ln-pkg-001": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-001"
+  },
+  "packages.md#ln-pkg-002": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-002"
+  },
+  "packages.md#ln-pkg-003": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-003"
+  },
+  "packages.md#ln-pkg-004": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-004"
+  },
+  "packages.md#ln-pkg-015": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-015"
+  },
+  "packages.md#ln-pkg-005": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-005"
+  },
+  "packages.md#ln-pkg-006": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-006"
+  },
+  "packages.md#ln-pkg-007": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-007"
+  },
+  "packages.md#ln-pkg-008": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-008"
+  },
+  "packages.md#ln-pkg-009": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-009"
+  },
+  "packages.md#ln-pkg-010": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-010"
+  },
+  "packages.md#ln-pkg-011": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-011"
+  },
+  "packages.md#ln-pkg-012": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-012"
+  },
+  "packages.md#ln-pkg-013": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-013"
+  },
+  "packages.md#ln-pkg-014": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-014"
+  },
+  "packages.md#ln-pkg-016": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-016"
+  },
+  "packages.md#ln-pkg-017": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-017"
+  },
+  "packages.md#ln-pkg-043": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-043"
+  },
+  "packages.md#ln-pkg-044": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-044"
+  },
+  "packages.md#ln-pkg-045": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-045"
+  },
+  "packages.md#ln-pkg-046": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-046"
+  },
+  "packages.md#ln-pkg-047": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-047"
+  },
+  "packages.md#ln-pkg-048": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-048"
+  },
+  "packages.md#ln-pkg-049": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-049"
+  },
+  "packages.md#ln-pkg-050": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-050"
+  },
+  "packages.md#ln-pkg-051": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-051"
+  },
+  "packages.md#ln-pkg-052": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-052"
+  },
+  "packages.md#ln-pkg-053": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-053"
+  },
+  "packages.md#ln-pkg-054": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-054"
+  },
+  "packages.md#ln-pkg-055": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-055"
+  },
+  "packages.md#ln-pkg-056": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-056"
+  },
+  "packages.md#ln-pkg-057": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-057"
+  },
+  "packages.md#ln-pkg-090": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-090"
+  },
+  "packages.md#ln-pkg-058": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-058"
+  },
+  "packages.md#ln-pkg-059": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-059"
+  },
+  "packages.md#ln-pkg-060": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-060"
+  },
+  "packages.md#ln-pkg-061": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-061"
+  },
+  "packages.md#ln-pkg-062": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-062"
+  },
+  "packages.md#ln-pkg-063": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-063"
+  },
+  "packages.md#ln-pkg-064": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-064"
+  },
+  "packages.md#ln-pkg-065": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-065"
+  },
+  "packages.md#ln-pkg-066": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-066"
+  },
+  "packages.md#ln-pkg-067": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-067"
+  },
+  "packages.md#ln-pkg-068": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-068"
+  },
+  "packages.md#ln-pkg-069": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-069"
+  },
+  "packages.md#ln-pkg-070": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-070"
+  },
+  "packages.md#ln-pkg-071": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-071"
+  },
+  "packages.md#ln-pkg-072": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-072"
+  },
+  "packages.md#ln-pkg-073": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-073"
+  },
+  "packages.md#ln-pkg-018": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-018"
+  },
+  "packages.md#ln-pkg-019": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-019"
+  },
+  "packages.md#ln-pkg-020": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-020"
+  },
+  "packages.md#ln-pkg-021": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-021"
+  },
+  "packages.md#ln-pkg-022": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-022"
+  },
+  "packages.md#ln-pkg-023": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-023"
+  },
+  "packages.md#ln-pkg-024": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-024"
+  },
+  "packages.md#ln-pkg-025": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-025"
+  },
+  "packages.md#ln-pkg-026": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-026"
+  },
+  "packages.md#ln-pkg-027": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-027"
+  },
+  "packages.md#ln-pkg-028": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-028"
+  },
+  "packages.md#ln-pkg-029": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-029"
+  },
+  "packages.md#ln-pkg-030": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-030"
+  },
+  "packages.md#ln-pkg-031": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-031"
+  },
+  "packages.md#ln-pkg-032": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-032"
+  },
+  "packages.md#ln-pkg-033": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-033"
+  },
+  "packages.md#ln-pkg-034": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-034"
+  },
+  "packages.md#ln-pkg-091": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-091"
+  },
+  "packages.md#ln-pkg-035": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-035"
+  },
+  "packages.md#ln-pkg-036": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-036"
+  },
+  "packages.md#ln-pkg-082": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-082"
+  },
+  "packages.md#ln-pkg-084": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-084"
+  },
+  "packages.md#ln-pkg-088": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-088"
+  },
+  "packages.md#ln-pkg-085": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-085"
+  },
+  "packages.md#ln-pkg-086": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-086"
+  },
+  "packages.md#ln-pkg-087": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-087"
+  },
+  "packages.md#ln-pkg-097": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-097"
+  },
+  "packages.md#ln-pkg-098": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-098"
+  },
+  "packages.md#ln-pkg-106": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-106"
+  },
+  "packages.md#ln-pkg-107": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-107"
+  },
+  "packages.md#ln-pkg-108": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-108"
+  },
+  "packages.md#ln-pkg-109": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-109"
+  },
+  "packages.md#ln-pkg-110": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-110"
+  },
+  "packages.md#ln-pkg-111": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-111"
+  },
+  "packages.md#ln-pkg-112": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-112"
+  },
+  "packages.md#ln-pkg-113": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-113"
+  },
+  "packages.md#ln-pkg-114": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-114"
+  },
+  "packages.md#ln-pkg-115": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-115"
+  },
+  "packages.md#ln-pkg-116": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-116"
+  },
+  "packages.md#ln-pkg-117": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-117"
+  },
+  "packages.md#ln-pkg-118": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-118"
+  },
+  "packages.md#ln-pkg-119": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-119"
+  },
+  "packages.md#ln-pkg-120": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-120"
+  },
+  "packages.md#ln-pkg-121": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-121"
+  },
+  "packages.md#ln-pkg-122": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-122"
+  },
+  "packages.md#ln-pkg-123": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-123"
+  },
+  "packages.md#ln-pkg-124": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-124"
+  },
+  "packages.md#ln-pkg-125": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-125"
+  },
+  "packages.md#ln-pkg-126": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-126"
+  },
+  "packages.md#ln-pkg-127": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-127"
+  },
+  "packages.md#ln-pkg-128": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-128"
+  },
+  "packages.md#ln-pkg-129": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-129"
+  },
+  "packages.md#ln-pkg-130": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-130"
+  },
+  "packages.md#ln-pkg-131": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-131"
+  },
+  "packages.md#ln-pkg-132": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-132"
+  },
+  "packages.md#ln-pkg-133": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-133"
+  },
+  "packages.md#ln-pkg-134": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-134"
+  },
+  "packages.md#ln-pkg-135": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-135"
+  },
+  "packages.md#ln-pkg-136": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-136"
+  },
+  "packages.md#ln-pkg-137": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-137"
+  },
+  "packages.md#ln-pkg-138": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-138"
+  },
+  "packages.md#ln-pkg-139": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-139"
+  },
+  "packages.md#ln-pkg-140": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-140"
+  },
+  "packages.md#ln-pkg-141": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-141"
+  },
+  "packages.md#ln-pkg-142": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-142"
+  },
+  "packages.md#ln-pkg-143": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-143"
+  },
+  "packages.md#ln-pkg-144": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-144"
+  },
+  "packages.md#ln-pkg-145": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-145"
+  },
+  "packages.md#ln-pkg-146": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-146"
+  },
+  "packages.md#ln-pkg-147": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-147"
+  },
+  "packages.md#ln-pkg-148": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-148"
+  },
+  "packages.md#ln-pkg-149": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-149"
+  },
+  "packages.md#ln-pkg-150": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-150"
+  },
+  "packages.md#ln-pkg-151": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-151"
+  },
+  "packages.md#ln-pkg-152": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-152"
+  },
+  "packages.md#ln-pkg-153": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-153"
+  },
+  "packages.md#ln-pkg-154": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-154"
+  },
+  "packages.md#ln-pkg-155": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-155"
+  },
+  "packages.md#ln-pkg-156": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-156"
+  },
+  "packages.md#ln-pkg-037": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-037"
+  },
+  "packages.md#ln-pkg-038": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-038"
+  },
+  "packages.md#ln-pkg-040": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-040"
+  },
+  "packages.md#ln-pkg-042": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-042"
+  },
+  "packages.md#ln-pkg-074": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-074"
+  },
+  "packages.md#ln-pkg-075": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-075"
+  },
+  "packages.md#ln-pkg-076": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-076"
+  },
+  "packages.md#ln-pkg-077": {
+    "path": "packages/vault-and-storage.md",
+    "fragment": "ln-pkg-077"
+  },
+  "packages.md#ln-pkg-078": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-078"
+  },
+  "packages.md#ln-pkg-079": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-079"
+  },
+  "packages.md#ln-pkg-080": {
+    "path": "packages/app-and-services.md",
+    "fragment": "ln-pkg-080"
+  },
+  "packages.md#ln-pkg-094": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-094"
+  },
+  "packages.md#ln-pkg-095": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-095"
+  },
+  "packages.md#ln-pkg-096": {
+    "path": "packages/core-contract.md",
+    "fragment": "ln-pkg-096"
+  },
+  "packages.md#ln-pkg-100": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-100"
+  },
+  "packages.md#ln-pkg-081": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-081"
+  },
+  "packages.md#ln-pkg-083": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-083"
+  },
+  "packages.md#ln-pkg-089": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-089"
+  },
+  "packages.md#ln-pkg-092": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-092"
+  },
+  "packages.md#ln-pkg-093": {
+    "path": "packages/releases-and-exports.md",
+    "fragment": "ln-pkg-093"
+  },
+  "packages.md#ln-pkg-099": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-099"
+  },
+  "packages.md#ln-pkg-101": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-101"
+  },
+  "packages.md#ln-pkg-102": {
+    "path": "packages/editor-apis.md",
+    "fragment": "ln-pkg-102"
+  },
+  "packages.md#ln-pkg-103": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-103"
+  },
+  "packages.md#ln-pkg-104": {
+    "path": "packages/configuration-and-lifecycle.md",
+    "fragment": "ln-pkg-104"
+  },
+  "packages.md#ln-pkg-105": {
+    "path": "packages/workspace-apis.md",
+    "fragment": "ln-pkg-105"
+  },
+  "plugin-model.md#plugin-model-context-part-1": {
+    "path": "plugin-model/context-01.md",
+    "fragment": "plugin-model-context-part-1"
+  },
+  "plugin-model.md#distribution-and-provenance": {
+    "path": "plugin-model/context-01.md",
+    "fragment": "distribution-and-provenance"
+  },
+  "plugin-model.md#persistence-and-recovery": {
+    "path": "plugin-model/context-01.md",
+    "fragment": "persistence-and-recovery"
+  },
+  "plugin-model.md#plugin-model-context-part-2": {
+    "path": "plugin-model/context-02.md",
+    "fragment": "plugin-model-context-part-2"
+  },
+  "plugin-model.md#ln-plug-001": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-001"
+  },
+  "plugin-model.md#ln-plug-002": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-002"
+  },
+  "plugin-model.md#ln-plug-003": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-003"
+  },
+  "plugin-model.md#ln-plug-004": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-004"
+  },
+  "plugin-model.md#ln-plug-005": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-005"
+  },
+  "plugin-model.md#ln-plug-006": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-006"
+  },
+  "plugin-model.md#ln-plug-007": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-007"
+  },
+  "plugin-model.md#ln-plug-008": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-008"
+  },
+  "plugin-model.md#ln-plug-009": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-009"
+  },
+  "plugin-model.md#ln-plug-010": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-010"
+  },
+  "plugin-model.md#ln-plug-011": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-011"
+  },
+  "plugin-model.md#ln-plug-012": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-012"
+  },
+  "plugin-model.md#ln-plug-013": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-013"
+  },
+  "plugin-model.md#ln-plug-014": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-014"
+  },
+  "plugin-model.md#ln-plug-015": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-015"
+  },
+  "plugin-model.md#ln-plug-016": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-016"
+  },
+  "plugin-model.md#ln-plug-017": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-017"
+  },
+  "plugin-model.md#ln-plug-018": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-018"
+  },
+  "plugin-model.md#ln-plug-019": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-019"
+  },
+  "plugin-model.md#ln-plug-020": {
+    "path": "plugin-model/app-ownership.md",
+    "fragment": "ln-plug-020"
+  },
+  "plugin-model.md#ln-plug-021": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-021"
+  },
+  "plugin-model.md#ln-plug-022": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-022"
+  },
+  "plugin-model.md#ln-plug-023": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-023"
+  },
+  "plugin-model.md#ln-plug-024": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-024"
+  },
+  "plugin-model.md#ln-plug-025": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-025"
+  },
+  "plugin-model.md#ln-plug-026": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-026"
+  },
+  "plugin-model.md#ln-plug-027": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-027"
+  },
+  "plugin-model.md#ln-plug-028": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-028"
+  },
+  "plugin-model.md#ln-plug-029": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-029"
+  },
+  "plugin-model.md#ln-plug-030": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-030"
+  },
+  "plugin-model.md#ln-plug-031": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-031"
+  },
+  "plugin-model.md#ln-plug-032": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-032"
+  },
+  "plugin-model.md#ln-plug-033": {
+    "path": "plugin-model/app-ownership.md",
+    "fragment": "ln-plug-033"
+  },
+  "plugin-model.md#ln-plug-034": {
+    "path": "plugin-model/app-ownership.md",
+    "fragment": "ln-plug-034"
+  },
+  "plugin-model.md#ln-plug-035": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-035"
+  },
+  "plugin-model.md#ln-plug-036": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-036"
+  },
+  "plugin-model.md#ln-plug-037": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-037"
+  },
+  "plugin-model.md#ln-plug-038": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-038"
+  },
+  "plugin-model.md#ln-plug-039": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-039"
+  },
+  "plugin-model.md#ln-plug-040": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-040"
+  },
+  "plugin-model.md#ln-plug-041": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-041"
+  },
+  "plugin-model.md#ln-plug-042": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-042"
+  },
+  "plugin-model.md#ln-plug-043": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-043"
+  },
+  "plugin-model.md#ln-plug-044": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-044"
+  },
+  "plugin-model.md#ln-plug-045": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-045"
+  },
+  "plugin-model.md#ln-plug-046": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-046"
+  },
+  "plugin-model.md#ln-plug-047": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-047"
+  },
+  "plugin-model.md#ln-plug-048": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-048"
+  },
+  "plugin-model.md#ln-plug-049": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-049"
+  },
+  "plugin-model.md#ln-plug-050": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-050"
+  },
+  "plugin-model.md#ln-plug-051": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-051"
+  },
+  "plugin-model.md#ln-plug-052": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-052"
+  },
+  "plugin-model.md#ln-plug-053": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-053"
+  },
+  "plugin-model.md#ln-plug-054": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-054"
+  },
+  "plugin-model.md#ln-plug-055": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-055"
+  },
+  "plugin-model.md#ln-plug-056": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-056"
+  },
+  "plugin-model.md#ln-plug-057": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-057"
+  },
+  "plugin-model.md#ln-plug-058": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-058"
+  },
+  "plugin-model.md#ln-plug-059": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-059"
+  },
+  "plugin-model.md#ln-plug-060": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-060"
+  },
+  "plugin-model.md#ln-plug-061": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-061"
+  },
+  "plugin-model.md#ln-plug-062": {
+    "path": "plugin-model/application-services.md",
+    "fragment": "ln-plug-062"
+  },
+  "plugin-model.md#ln-plug-063": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-063"
+  },
+  "plugin-model.md#ln-plug-064": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-064"
+  },
+  "plugin-model.md#ln-plug-065": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-065"
+  },
+  "plugin-model.md#ln-plug-066": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-066"
+  },
+  "plugin-model.md#ln-plug-067": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-067"
+  },
+  "plugin-model.md#ln-plug-068": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-068"
+  },
+  "plugin-model.md#ln-plug-069": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-069"
+  },
+  "plugin-model.md#ln-plug-073": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-073"
+  },
+  "plugin-model.md#ln-plug-074": {
+    "path": "plugin-model/app-ownership.md",
+    "fragment": "ln-plug-074"
+  },
+  "plugin-model.md#ln-plug-075": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-075"
+  },
+  "plugin-model.md#ln-plug-076": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-076"
+  },
+  "plugin-model.md#ln-plug-077": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-077"
+  },
+  "plugin-model.md#ln-plug-078": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-078"
+  },
+  "plugin-model.md#ln-plug-079": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-079"
+  },
+  "plugin-model.md#ln-plug-080": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-080"
+  },
+  "plugin-model.md#ln-plug-081": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-081"
+  },
+  "plugin-model.md#ln-plug-092": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-092"
+  },
+  "plugin-model.md#ln-plug-096": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-096"
+  },
+  "plugin-model.md#ln-plug-097": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-097"
+  },
+  "plugin-model.md#ln-plug-098": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-098"
+  },
+  "plugin-model.md#ln-plug-099": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-099"
+  },
+  "plugin-model.md#ln-plug-100": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-100"
+  },
+  "plugin-model.md#ln-plug-101": {
+    "path": "plugin-model/editor-contributions.md",
+    "fragment": "ln-plug-101"
+  },
+  "plugin-model.md#ln-plug-102": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-102"
+  },
+  "plugin-model.md#ln-plug-103": {
+    "path": "plugin-model/app-ownership.md",
+    "fragment": "ln-plug-103"
+  },
+  "plugin-model.md#ln-plug-104": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-104"
+  },
+  "plugin-model.md#ln-plug-105": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-105"
+  },
+  "plugin-model.md#ln-plug-093": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-093"
+  },
+  "plugin-model.md#ln-plug-094": {
+    "path": "plugin-model/distribution-and-registry-01.md",
+    "fragment": "ln-plug-094"
+  },
+  "plugin-model.md#ln-plug-095": {
+    "path": "plugin-model/distribution-and-registry-02.md",
+    "fragment": "ln-plug-095"
+  },
+  "plugin-model.md#ln-plug-090": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-090"
+  },
+  "plugin-model.md#ln-plug-091": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-plug-091"
+  },
+  "plugin-model.md#ln-plug-070": {
+    "path": "plugin-model/distribution-and-registry-02.md",
+    "fragment": "ln-plug-070"
+  },
+  "plugin-model.md#ln-plug-071": {
+    "path": "plugin-model/distribution-and-registry-02.md",
+    "fragment": "ln-plug-071"
+  },
+  "plugin-model.md#ln-plug-072": {
+    "path": "plugin-model/distribution-and-registry-02.md",
+    "fragment": "ln-plug-072"
+  },
+  "plugin-model.md#ln-cv-010": {
+    "path": "plugin-model/distribution-and-registry-02.md",
+    "fragment": "ln-cv-010"
+  },
+  "plugin-model.md#ln-role-016": {
+    "path": "plugin-model/lifecycle-and-views.md",
+    "fragment": "ln-role-016"
+  },
+  "app-database.md#app-database-context": {
+    "path": "app-database/context.md",
+    "fragment": "app-database-context"
+  },
+  "app-database.md#runtime-topology": {
+    "path": "app-database/context.md",
+    "fragment": "runtime-topology"
+  },
+  "app-database.md#ln-db-001": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-001"
+  },
+  "app-database.md#ln-db-002": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-002"
+  },
+  "app-database.md#ln-db-003": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-003"
+  },
+  "app-database.md#ln-db-004": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-004"
+  },
+  "app-database.md#ln-db-005": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-005"
+  },
+  "app-database.md#ln-db-006": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-006"
+  },
+  "app-database.md#ln-db-007": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-007"
+  },
+  "app-database.md#ln-db-008": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-008"
+  },
+  "app-database.md#ln-db-009": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-009"
+  },
+  "app-database.md#ln-db-011": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-011"
+  },
+  "app-database.md#ln-db-012": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-012"
+  },
+  "app-database.md#ln-db-013": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-013"
+  },
+  "app-database.md#ln-db-014": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-014"
+  },
+  "app-database.md#ln-db-015": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-015"
+  },
+  "app-database.md#ln-db-016": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-016"
+  },
+  "app-database.md#ln-db-017": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-017"
+  },
+  "app-database.md#ln-db-018": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-018"
+  },
+  "app-database.md#ln-db-019": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-019"
+  },
+  "app-database.md#ln-db-020": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-020"
+  },
+  "app-database.md#ln-db-021": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-021"
+  },
+  "app-database.md#ln-db-022": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-022"
+  },
+  "app-database.md#ln-db-023": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-023"
+  },
+  "app-database.md#ln-db-024": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-024"
+  },
+  "app-database.md#ln-db-025": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-025"
+  },
+  "app-database.md#ln-db-026": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-026"
+  },
+  "app-database.md#ln-db-027": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-027"
+  },
+  "app-database.md#ln-db-028": {
+    "path": "app-database/persistence-and-recovery.md",
+    "fragment": "ln-db-028"
+  },
+  "app-database.md#ln-db-029": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-029"
+  },
+  "app-database.md#ln-db-030": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-030"
+  },
+  "app-database.md#ln-db-031": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-031"
+  },
+  "app-database.md#ln-db-032": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-032"
+  },
+  "app-database.md#ln-db-032-acceptance-details": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-032"
+  },
+  "app-database.md#ln-db-033": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-033"
+  },
+  "app-database.md#ln-db-034": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-034"
+  },
+  "app-database.md#ln-db-035": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-035"
+  },
+  "app-database.md#ln-db-036": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-036"
+  },
+  "app-database.md#ln-db-037": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-037"
+  },
+  "app-database.md#ln-db-038": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-038"
+  },
+  "app-database.md#ln-db-039": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-039"
+  },
+  "app-database.md#ln-db-040": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-040"
+  },
+  "app-database.md#ln-db-041": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-041"
+  },
+  "app-database.md#ln-db-042": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-042"
+  },
+  "app-database.md#ln-db-043": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-043"
+  },
+  "app-database.md#ln-db-044": {
+    "path": "app-database/metadata-and-indexing.md",
+    "fragment": "ln-db-044"
+  },
+  "app-database.md#ln-db-045": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-045"
+  },
+  "app-database.md#ln-db-046": {
+    "path": "app-database/persistence-and-recovery.md",
+    "fragment": "ln-db-046"
+  },
+  "app-database.md#ln-db-047": {
+    "path": "app-database/persistence-and-recovery.md",
+    "fragment": "ln-db-047"
+  },
+  "app-database.md#ln-db-048": {
+    "path": "app-database/persistence-and-recovery.md",
+    "fragment": "ln-db-048"
+  },
+  "app-database.md#ln-db-049": {
+    "path": "app-database/persistence-and-recovery.md",
+    "fragment": "ln-db-049"
+  },
+  "app-database.md#ln-db-050": {
+    "path": "app-database/core-contract.md",
+    "fragment": "ln-db-050"
+  },
+  "app-database.md#ln-db-051": {
+    "path": "app-database/persistence-and-recovery.md",
+    "fragment": "ln-db-051"
+  },
+  "app-database.md#ln-db-052": {
+    "path": "app-database/persistence-and-recovery.md",
+    "fragment": "ln-db-052"
+  },
+  "app-database.md#ln-db-053": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-053"
+  },
+  "app-database.md#ln-db-054": {
+    "path": "app-database/sessions-and-ownership.md",
+    "fragment": "ln-db-054"
+  },
+  "desktop-deno-host.md#deno-desktop-host-context": {
+    "path": "desktop-deno-host/context.md",
+    "fragment": "deno-desktop-host-context"
+  },
+  "desktop-deno-host.md#ln-deno-050-through-ln-deno-054-acceptance-details": {
+    "path": "desktop-deno-host/context.md",
+    "fragment": "ln-deno-050-through-ln-deno-054-acceptance-details"
+  },
+  "desktop-deno-host.md#non-goals": {
+    "path": "desktop-deno-host/context.md",
+    "fragment": "non-goals"
+  },
+  "desktop-deno-host.md#ln-deno-001": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-001"
+  },
+  "desktop-deno-host.md#ln-deno-002": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-002"
+  },
+  "desktop-deno-host.md#ln-deno-002-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-002"
+  },
+  "desktop-deno-host.md#ln-deno-003": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-003"
+  },
+  "desktop-deno-host.md#ln-deno-004": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-004"
+  },
+  "desktop-deno-host.md#ln-deno-005": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-005"
+  },
+  "desktop-deno-host.md#ln-deno-006": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-006"
+  },
+  "desktop-deno-host.md#ln-deno-006-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-006"
+  },
+  "desktop-deno-host.md#ln-deno-007": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-007"
+  },
+  "desktop-deno-host.md#ln-deno-008": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-008"
+  },
+  "desktop-deno-host.md#ln-deno-009": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-009"
+  },
+  "desktop-deno-host.md#ln-deno-009-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-009"
+  },
+  "desktop-deno-host.md#ln-deno-010": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-010"
+  },
+  "desktop-deno-host.md#ln-deno-011": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-011"
+  },
+  "desktop-deno-host.md#ln-deno-011-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-011"
+  },
+  "desktop-deno-host.md#ln-deno-012": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-012"
+  },
+  "desktop-deno-host.md#ln-deno-012-acceptance-details": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-012"
+  },
+  "desktop-deno-host.md#ln-deno-013": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-013"
+  },
+  "desktop-deno-host.md#ln-deno-013-acceptance-details": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-013"
+  },
+  "desktop-deno-host.md#ln-deno-014": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-014"
+  },
+  "desktop-deno-host.md#ln-deno-014-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-014"
+  },
+  "desktop-deno-host.md#ln-deno-015": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-015"
+  },
+  "desktop-deno-host.md#ln-deno-015-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-015"
+  },
+  "desktop-deno-host.md#ln-deno-016": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-016"
+  },
+  "desktop-deno-host.md#ln-deno-017": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-017"
+  },
+  "desktop-deno-host.md#ln-deno-018": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-018"
+  },
+  "desktop-deno-host.md#ln-deno-018-acceptance-details": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-018"
+  },
+  "desktop-deno-host.md#ln-deno-019": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-019"
+  },
+  "desktop-deno-host.md#ln-deno-019-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-019"
+  },
+  "desktop-deno-host.md#ln-deno-020": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-020"
+  },
+  "desktop-deno-host.md#ln-deno-020-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-020"
+  },
+  "desktop-deno-host.md#ln-deno-021": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-021"
+  },
+  "desktop-deno-host.md#ln-deno-021-acceptance-details": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-021"
+  },
+  "desktop-deno-host.md#ln-deno-022": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-022"
+  },
+  "desktop-deno-host.md#ln-deno-022-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-022"
+  },
+  "desktop-deno-host.md#ln-deno-023": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-023"
+  },
+  "desktop-deno-host.md#ln-deno-024": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-024"
+  },
+  "desktop-deno-host.md#ln-deno-024-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-024"
+  },
+  "desktop-deno-host.md#ln-deno-025": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-025"
+  },
+  "desktop-deno-host.md#ln-deno-025-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-025"
+  },
+  "desktop-deno-host.md#ln-deno-026": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-026"
+  },
+  "desktop-deno-host.md#ln-deno-026-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-026"
+  },
+  "desktop-deno-host.md#ln-deno-027": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-027"
+  },
+  "desktop-deno-host.md#ln-deno-027-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-027"
+  },
+  "desktop-deno-host.md#ln-deno-028": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-028"
+  },
+  "desktop-deno-host.md#ln-deno-029": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-029"
+  },
+  "desktop-deno-host.md#ln-deno-030": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-030"
+  },
+  "desktop-deno-host.md#ln-deno-031": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-031"
+  },
+  "desktop-deno-host.md#ln-deno-031-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-031"
+  },
+  "desktop-deno-host.md#ln-deno-032": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-032"
+  },
+  "desktop-deno-host.md#ln-deno-032-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-032"
+  },
+  "desktop-deno-host.md#ln-deno-033": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-033"
+  },
+  "desktop-deno-host.md#ln-deno-033-acceptance-details": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-033"
+  },
+  "desktop-deno-host.md#ln-deno-034": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-034"
+  },
+  "desktop-deno-host.md#ln-deno-034-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-034"
+  },
+  "desktop-deno-host.md#ln-deno-035": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-035"
+  },
+  "desktop-deno-host.md#ln-deno-035-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-035"
+  },
+  "desktop-deno-host.md#ln-deno-036": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-036"
+  },
+  "desktop-deno-host.md#ln-deno-036-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-036"
+  },
+  "desktop-deno-host.md#ln-deno-037": {
+    "path": "desktop-deno-host/native-vault-and-storage-01.md",
+    "fragment": "ln-deno-037"
+  },
+  "desktop-deno-host.md#ln-deno-038": {
+    "path": "desktop-deno-host/packaging-and-acceptance.md",
+    "fragment": "ln-deno-038"
+  },
+  "desktop-deno-host.md#ln-deno-038-acceptance-details": {
+    "path": "desktop-deno-host/packaging-and-acceptance.md",
+    "fragment": "ln-deno-038"
+  },
+  "desktop-deno-host.md#ln-deno-039": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-039"
+  },
+  "desktop-deno-host.md#ln-deno-039-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-039"
+  },
+  "desktop-deno-host.md#ln-deno-040": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-040"
+  },
+  "desktop-deno-host.md#ln-deno-041": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-041"
+  },
+  "desktop-deno-host.md#ln-deno-042": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-042"
+  },
+  "desktop-deno-host.md#ln-deno-043": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-043"
+  },
+  "desktop-deno-host.md#ln-deno-044": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-044"
+  },
+  "desktop-deno-host.md#ln-deno-044-acceptance-details": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-044"
+  },
+  "desktop-deno-host.md#ln-deno-045": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-045"
+  },
+  "desktop-deno-host.md#ln-deno-045-acceptance-details": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-045"
+  },
+  "desktop-deno-host.md#ln-deno-046": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-046"
+  },
+  "desktop-deno-host.md#ln-deno-046-acceptance-details": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-046"
+  },
+  "desktop-deno-host.md#ln-deno-047": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-047"
+  },
+  "desktop-deno-host.md#ln-deno-047-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-047"
+  },
+  "desktop-deno-host.md#ln-deno-048": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-048"
+  },
+  "desktop-deno-host.md#ln-deno-048-acceptance-details": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-048"
+  },
+  "desktop-deno-host.md#ln-deno-049": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-049"
+  },
+  "desktop-deno-host.md#ln-deno-049-acceptance-details": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-049"
+  },
+  "desktop-deno-host.md#ln-deno-050": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-050"
+  },
+  "desktop-deno-host.md#ln-deno-051": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-051"
+  },
+  "desktop-deno-host.md#ln-deno-052": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-052"
+  },
+  "desktop-deno-host.md#ln-deno-053": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-053"
+  },
+  "desktop-deno-host.md#ln-deno-054": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-054"
+  },
+  "desktop-deno-host.md#ln-deno-055": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-055"
+  },
+  "desktop-deno-host.md#ln-deno-055-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-055"
+  },
+  "desktop-deno-host.md#ln-deno-056": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-056"
+  },
+  "desktop-deno-host.md#ln-deno-056-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-056"
+  },
+  "desktop-deno-host.md#ln-deno-057": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-057"
+  },
+  "desktop-deno-host.md#ln-deno-057-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-057"
+  },
+  "desktop-deno-host.md#ln-deno-058": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-058"
+  },
+  "desktop-deno-host.md#ln-deno-058-acceptance-details": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-058"
+  },
+  "desktop-deno-host.md#ln-deno-059": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-059"
+  },
+  "desktop-deno-host.md#ln-deno-060": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-060"
+  },
+  "desktop-deno-host.md#ln-deno-061": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-061"
+  },
+  "desktop-deno-host.md#ln-deno-062": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-062"
+  },
+  "desktop-deno-host.md#ln-deno-063": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-063"
+  },
+  "desktop-deno-host.md#ln-deno-064": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-064"
+  },
+  "desktop-deno-host.md#ln-deno-065": {
+    "path": "desktop-deno-host/core-contract.md",
+    "fragment": "ln-deno-065"
+  },
+  "desktop-deno-host.md#ln-deno-066": {
+    "path": "desktop-deno-host/window-and-shell.md",
+    "fragment": "ln-deno-066"
+  },
+  "desktop-deno-host.md#ln-deno-067": {
+    "path": "desktop-deno-host/startup-and-lifecycle.md",
+    "fragment": "ln-deno-067"
+  },
+  "desktop-deno-host.md#ln-deno-068": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-068"
+  },
+  "desktop-deno-host.md#ln-deno-069": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-069"
+  },
+  "desktop-deno-host.md#ln-deno-070": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-070"
+  },
+  "desktop-deno-host.md#ln-deno-071": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-071"
+  },
+  "desktop-deno-host.md#ln-deno-072": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-072"
+  },
+  "desktop-deno-host.md#ln-deno-073": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-073"
+  },
+  "desktop-deno-host.md#ln-deno-074": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-074"
+  },
+  "desktop-deno-host.md#ln-deno-075": {
+    "path": "desktop-deno-host/packaging-and-acceptance.md",
+    "fragment": "ln-deno-075"
+  },
+  "desktop-deno-host.md#ln-deno-076": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-076"
+  },
+  "desktop-deno-host.md#ln-deno-077": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-077"
+  },
+  "desktop-deno-host.md#ln-deno-078": {
+    "path": "desktop-deno-host/native-vault-and-storage-02.md",
+    "fragment": "ln-deno-078"
+  },
+  "web-host.md#web-host-context": {
+    "path": "web-host/context.md",
+    "fragment": "web-host-context"
+  },
+  "web-host.md#implemented-host-boundary": {
+    "path": "web-host/context.md",
+    "fragment": "implemented-host-boundary"
+  },
+  "web-host.md#ln-web-001": {
+    "path": "web-host/application-presentation.md",
+    "fragment": "ln-web-001"
+  },
+  "web-host.md#ln-web-002": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-002"
+  },
+  "web-host.md#ln-web-003": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-003"
+  },
+  "web-host.md#ln-web-004": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-004"
+  },
+  "web-host.md#ln-web-005": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-005"
+  },
+  "web-host.md#ln-web-006": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-006"
+  },
+  "web-host.md#ln-web-030": {
+    "path": "web-host/application-presentation.md",
+    "fragment": "ln-web-030"
+  },
+  "web-host.md#ln-web-031": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-031"
+  },
+  "web-host.md#ln-web-032": {
+    "path": "web-host/core-contract.md",
+    "fragment": "ln-web-032"
+  },
+  "web-host.md#ln-web-037": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-037"
+  },
+  "web-host.md#ln-web-033": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-033"
+  },
+  "web-host.md#ln-web-034": {
+    "path": "web-host/core-contract.md",
+    "fragment": "ln-web-034"
+  },
+  "web-host.md#ln-web-035": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-035"
+  },
+  "web-host.md#ln-web-036": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-036"
+  },
+  "web-host.md#ln-web-007": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-007"
+  },
+  "web-host.md#ln-web-008": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-008"
+  },
+  "web-host.md#ln-web-009": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-009"
+  },
+  "web-host.md#ln-web-010": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-010"
+  },
+  "web-host.md#ln-web-011": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-011"
+  },
+  "web-host.md#ln-web-012": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-012"
+  },
+  "web-host.md#ln-web-014": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-014"
+  },
+  "web-host.md#ln-web-013": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-013"
+  },
+  "web-host.md#ln-web-015": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-015"
+  },
+  "web-host.md#ln-web-016": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-016"
+  },
+  "web-host.md#ln-web-017": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-017"
+  },
+  "web-host.md#ln-web-018": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-018"
+  },
+  "web-host.md#ln-web-019": {
+    "path": "web-host/application-presentation.md",
+    "fragment": "ln-web-019"
+  },
+  "web-host.md#ln-web-020": {
+    "path": "web-host/application-presentation.md",
+    "fragment": "ln-web-020"
+  },
+  "web-host.md#ln-web-021": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-021"
+  },
+  "web-host.md#ln-web-021-acceptance-details": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-021"
+  },
+  "web-host.md#ln-web-022": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-022"
+  },
+  "web-host.md#ln-web-023": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-023"
+  },
+  "web-host.md#ln-web-023-acceptance-details": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-023"
+  },
+  "web-host.md#ln-web-024": {
+    "path": "web-host/core-contract.md",
+    "fragment": "ln-web-024"
+  },
+  "web-host.md#ln-web-024-acceptance-details": {
+    "path": "web-host/core-contract.md",
+    "fragment": "ln-web-024"
+  },
+  "web-host.md#ln-web-025": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-025"
+  },
+  "web-host.md#ln-web-025-acceptance-details": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-025"
+  },
+  "web-host.md#ln-web-026": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-026"
+  },
+  "web-host.md#ln-web-026-acceptance-details": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-026"
+  },
+  "web-host.md#ln-web-027": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-027"
+  },
+  "web-host.md#ln-web-028": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-028"
+  },
+  "web-host.md#ln-web-029": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-029"
+  },
+  "web-host.md#ln-web-029-acceptance-details": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-029"
+  },
+  "web-host.md#ln-web-038": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-038"
+  },
+  "web-host.md#ln-web-039": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-039"
+  },
+  "web-host.md#ln-web-040": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-040"
+  },
+  "web-host.md#ln-web-041": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-041"
+  },
+  "web-host.md#ln-web-041-acceptance-details": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-041"
+  },
+  "web-host.md#ln-web-042": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-042"
+  },
+  "web-host.md#ln-web-042-acceptance-details": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-042"
+  },
+  "web-host.md#ln-web-043": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-043"
+  },
+  "web-host.md#ln-web-043-acceptance-details": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-043"
+  },
+  "web-host.md#ln-web-044": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-044"
+  },
+  "web-host.md#ln-web-045": {
+    "path": "web-host/core-contract.md",
+    "fragment": "ln-web-045"
+  },
+  "web-host.md#ln-web-046": {
+    "path": "web-host/core-contract.md",
+    "fragment": "ln-web-046"
+  },
+  "web-host.md#ln-web-047": {
+    "path": "web-host/application-presentation.md",
+    "fragment": "ln-web-047"
+  },
+  "web-host.md#ln-web-048": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-048"
+  },
+  "web-host.md#ln-web-049": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-049"
+  },
+  "web-host.md#ln-web-050": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-050"
+  },
+  "web-host.md#ln-web-051": {
+    "path": "web-host/application-presentation.md",
+    "fragment": "ln-web-051"
+  },
+  "web-host.md#ln-web-052": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-052"
+  },
+  "web-host.md#ln-web-053": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-053"
+  },
+  "web-host.md#ln-web-054": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-054"
+  },
+  "web-host.md#ln-web-055": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-055"
+  },
+  "web-host.md#ln-web-056": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-056"
+  },
+  "web-host.md#ln-web-057": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-057"
+  },
+  "web-host.md#ln-web-058": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-058"
+  },
+  "web-host.md#ln-web-059": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-059"
+  },
+  "web-host.md#ln-web-060": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-060"
+  },
+  "web-host.md#ln-web-061": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-061"
+  },
+  "web-host.md#ln-web-062": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-062"
+  },
+  "web-host.md#ln-web-063": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-063"
+  },
+  "web-host.md#ln-web-064": {
+    "path": "web-host/startup-and-plugins.md",
+    "fragment": "ln-web-064"
+  },
+  "web-host.md#ln-web-065": {
+    "path": "web-host/browser-storage-and-sync.md",
+    "fragment": "ln-web-065"
+  },
+  "server-deno-host.md#deno-server-host-context": {
+    "path": "server-deno-host/context.md",
+    "fragment": "deno-server-host-context"
+  },
+  "server-deno-host.md#runtime-topology": {
+    "path": "server-deno-host/context.md",
+    "fragment": "runtime-topology"
+  },
+  "server-deno-host.md#ln-srv-001": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-001"
+  },
+  "server-deno-host.md#ln-srv-002": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-002"
+  },
+  "server-deno-host.md#ln-srv-003": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-003"
+  },
+  "server-deno-host.md#ln-srv-004": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-004"
+  },
+  "server-deno-host.md#ln-srv-005": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-005"
+  },
+  "server-deno-host.md#ln-srv-006": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-006"
+  },
+  "server-deno-host.md#ln-srv-007": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-007"
+  },
+  "server-deno-host.md#ln-srv-008": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-008"
+  },
+  "server-deno-host.md#ln-srv-009": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-009"
+  },
+  "server-deno-host.md#ln-srv-010": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-010"
+  },
+  "server-deno-host.md#ln-srv-011": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-011"
+  },
+  "server-deno-host.md#ln-srv-012": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-012"
+  },
+  "server-deno-host.md#ln-srv-013": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-013"
+  },
+  "server-deno-host.md#ln-srv-014": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-014"
+  },
+  "server-deno-host.md#ln-srv-015": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-015"
+  },
+  "server-deno-host.md#ln-srv-016": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-016"
+  },
+  "server-deno-host.md#ln-srv-017": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-017"
+  },
+  "server-deno-host.md#ln-srv-018": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-018"
+  },
+  "server-deno-host.md#ln-srv-019": {
+    "path": "server-deno-host/core-contract.md",
+    "fragment": "ln-srv-019"
+  },
+  "workspace-shell.md#workspace-shell-context": {
+    "path": "workspace-shell/context.md",
+    "fragment": "workspace-shell-context"
+  },
+  "workspace-shell.md#ownership-and-data-flow": {
+    "path": "workspace-shell/context.md",
+    "fragment": "ownership-and-data-flow"
+  },
+  "workspace-shell.md#ln-ws-001": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-001"
+  },
+  "workspace-shell.md#ln-ws-002": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-002"
+  },
+  "workspace-shell.md#ln-ws-062": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-062"
+  },
+  "workspace-shell.md#ln-ws-063": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-063"
+  },
+  "workspace-shell.md#ln-ws-070": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-070"
+  },
+  "workspace-shell.md#ln-ws-071": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-071"
+  },
+  "workspace-shell.md#ln-ws-064": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-064"
+  },
+  "workspace-shell.md#ln-ws-065": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-065"
+  },
+  "workspace-shell.md#ln-ws-003": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-003"
+  },
+  "workspace-shell.md#ln-ws-004": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-004"
+  },
+  "workspace-shell.md#ln-ws-005": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-005"
+  },
+  "workspace-shell.md#ln-ws-006": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-006"
+  },
+  "workspace-shell.md#ln-ws-007": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-007"
+  },
+  "workspace-shell.md#ln-ws-008": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-008"
+  },
+  "workspace-shell.md#ln-ws-009": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-009"
+  },
+  "workspace-shell.md#ln-ws-010": {
+    "path": "workspace-shell/catalog-acceptance.md",
+    "fragment": "ln-ws-010"
+  },
+  "workspace-shell.md#ln-ws-011": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-011"
+  },
+  "workspace-shell.md#ln-ws-012": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-012"
+  },
+  "workspace-shell.md#ln-ws-013": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-013"
+  },
+  "workspace-shell.md#ln-ws-014": {
+    "path": "workspace-shell/chrome-and-navigation.md",
+    "fragment": "ln-ws-014"
+  },
+  "workspace-shell.md#ln-ws-015": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-015"
+  },
+  "workspace-shell.md#ln-ws-016": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-016"
+  },
+  "workspace-shell.md#ln-ws-017": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-017"
+  },
+  "workspace-shell.md#ln-ws-018": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-018"
+  },
+  "workspace-shell.md#ln-ws-019": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-019"
+  },
+  "workspace-shell.md#ln-ws-020": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-020"
+  },
+  "workspace-shell.md#ln-ws-021": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-021"
+  },
+  "workspace-shell.md#ln-ws-022": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-022"
+  },
+  "workspace-shell.md#ln-ws-023": {
+    "path": "workspace-shell/chrome-and-navigation.md",
+    "fragment": "ln-ws-023"
+  },
+  "workspace-shell.md#ln-ws-024": {
+    "path": "workspace-shell/catalog-acceptance.md",
+    "fragment": "ln-ws-024"
+  },
+  "workspace-shell.md#ln-ws-049": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-049"
+  },
+  "workspace-shell.md#ln-ws-053": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-053"
+  },
+  "workspace-shell.md#ln-ws-054": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-054"
+  },
+  "workspace-shell.md#ln-ws-075": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-075"
+  },
+  "workspace-shell.md#ln-ws-068": {
+    "path": "workspace-shell/chrome-and-navigation.md",
+    "fragment": "ln-ws-068"
+  },
+  "workspace-shell.md#ln-ws-055": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-055"
+  },
+  "workspace-shell.md#ln-ws-057": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-057"
+  },
+  "workspace-shell.md#ln-ws-058": {
+    "path": "workspace-shell/chrome-and-navigation.md",
+    "fragment": "ln-ws-058"
+  },
+  "workspace-shell.md#ln-ws-059": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-059"
+  },
+  "workspace-shell.md#ln-ws-060": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-060"
+  },
+  "workspace-shell.md#ln-ws-061": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-061"
+  },
+  "workspace-shell.md#ln-ws-080": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-080"
+  },
+  "workspace-shell.md#ln-ws-081": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-081"
+  },
+  "workspace-shell.md#ln-ws-082": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-082"
+  },
+  "workspace-shell.md#ln-ws-083": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-083"
+  },
+  "workspace-shell.md#ln-ws-084": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-084"
+  },
+  "workspace-shell.md#ln-ws-085": {
+    "path": "workspace-shell/layout-and-persistence.md",
+    "fragment": "ln-ws-085"
+  },
+  "workspace-shell.md#ln-ws-086": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-086"
+  },
+  "workspace-shell.md#ln-ws-087": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-087"
+  },
+  "workspace-shell.md#ln-ws-088": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-088"
+  },
+  "workspace-shell.md#ln-ws-089": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-089"
+  },
+  "workspace-shell.md#ln-ws-091": {
+    "path": "workspace-shell/view-lifecycle.md",
+    "fragment": "ln-ws-091"
+  },
+  "workspace-shell.md#ln-ws-092": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-092"
+  },
+  "workspace-shell.md#ln-ws-093": {
+    "path": "workspace-shell/plugin-management.md",
+    "fragment": "ln-ws-093"
+  },
+  "workspace-shell/panels.md#panels-context": {
+    "path": "workspace-shell/panels/context.md",
+    "fragment": "panels-context"
+  },
+  "workspace-shell/panels.md#surface-ownership": {
+    "path": "workspace-shell/panels/context.md",
+    "fragment": "surface-ownership"
+  },
+  "workspace-shell/panels.md#layout-and-responsive-behavior": {
+    "path": "workspace-shell/panels/context.md",
+    "fragment": "layout-and-responsive-behavior"
+  },
+  "workspace-shell/panels.md#storybook-coverage": {
+    "path": "workspace-shell/panels/context.md",
+    "fragment": "storybook-coverage"
+  },
+  "workspace-shell/panels.md#ln-md-018": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-md-018"
+  },
+  "workspace-shell/panels.md#ln-md-032": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-md-032"
+  },
+  "workspace-shell/panels.md#ln-md-033": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-md-033"
+  },
+  "workspace-shell/panels.md#ln-md-034": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-md-034"
+  },
+  "workspace-shell/panels.md#ln-md-035": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-md-035"
+  },
+  "workspace-shell/panels.md#ln-ws-050": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-ws-050"
+  },
+  "workspace-shell/panels.md#ln-ws-051": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-ws-051"
+  },
+  "workspace-shell/panels.md#ln-ws-052": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-ws-052"
+  },
+  "workspace-shell/panels.md#ln-ws-090": {
+    "path": "workspace-shell/panels/core-contract.md",
+    "fragment": "ln-ws-090"
+  },
+  "workspace-shell/panels/problems.md#problems-context": {
+    "path": "workspace-shell/panels/problems/context.md",
+    "fragment": "problems-context"
+  },
+  "workspace-shell/panels/problems.md#ownership": {
+    "path": "workspace-shell/panels/problems/context.md",
+    "fragment": "ownership"
+  },
+  "workspace-shell/panels/problems.md#lifecycle": {
+    "path": "workspace-shell/panels/problems/context.md",
+    "fragment": "lifecycle"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-025": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-025"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-026": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-026"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-027": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-027"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-028": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-028"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-029": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-029"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-030": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-030"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-031": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-031"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-032": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-032"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-033": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-033"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-076": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-076"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-077": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-077"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-078": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-078"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-056": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-056"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-034": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-034"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-035": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-035"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-036": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-036"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-037": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-037"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-038": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-038"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-039": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-039"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-040": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-040"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-072": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-072"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-041": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-041"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-042": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-042"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-043": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-043"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-044": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-044"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-045": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-045"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-046": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-046"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-047": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-047"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-048": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-048"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-066": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-066"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-067": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-067"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-069": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-069"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-073": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-073"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-074": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-074"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-079": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-079"
+  },
+  "workspace-shell/panels/problems.md#ln-ws-094": {
+    "path": "workspace-shell/panels/problems/core-contract.md",
+    "fragment": "ln-ws-094"
+  },
+  "editor-demo.md#lapis-editor-demo-context": {
+    "path": "editor-demo/context.md",
+    "fragment": "lapis-editor-demo-context"
+  },
+  "editor-demo.md#ownership": {
+    "path": "editor-demo/context.md",
+    "fragment": "ownership"
+  },
+  "editor-demo.md#demo-lifecycle": {
+    "path": "editor-demo/context.md",
+    "fragment": "demo-lifecycle"
+  },
+  "editor-demo.md#implementation-status": {
+    "path": "editor-demo/context.md",
+    "fragment": "implementation-status"
+  },
+  "editor-demo.md#ln-ed-001": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-001"
+  },
+  "editor-demo.md#ln-ed-002": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-002"
+  },
+  "editor-demo.md#ln-ed-003": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-003"
+  },
+  "editor-demo.md#ln-ed-004": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-004"
+  },
+  "editor-demo.md#ln-ed-005": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-005"
+  },
+  "editor-demo.md#ln-ed-006": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-006"
+  },
+  "editor-demo.md#ln-ed-007": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-007"
+  },
+  "editor-demo.md#ln-ed-008": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-008"
+  },
+  "editor-demo.md#ln-ed-009": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-009"
+  },
+  "editor-demo.md#ln-ed-010": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-010"
+  },
+  "editor-demo.md#ln-ed-011": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-011"
+  },
+  "editor-demo.md#ln-ed-012": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-012"
+  },
+  "editor-demo.md#ln-ed-013": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-013"
+  },
+  "editor-demo.md#ln-ed-019": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-019"
+  },
+  "editor-demo.md#ln-ed-020": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-020"
+  },
+  "editor-demo.md#ln-ed-021": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-021"
+  },
+  "editor-demo.md#ln-ed-022": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-022"
+  },
+  "editor-demo.md#ln-ed-023": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-023"
+  },
+  "editor-demo.md#ln-ed-023-acceptance-details": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-023"
+  },
+  "editor-demo.md#ln-ed-024": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-024"
+  },
+  "editor-demo.md#ln-ed-025": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-025"
+  },
+  "editor-demo.md#ln-ed-025-acceptance-details": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-025"
+  },
+  "editor-demo.md#ln-ed-026": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-026"
+  },
+  "editor-demo.md#ln-ed-027": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-027"
+  },
+  "editor-demo.md#ln-ed-027-acceptance-details": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-027"
+  },
+  "editor-demo.md#ln-ed-028": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-028"
+  },
+  "editor-demo.md#ln-ed-029": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-029"
+  },
+  "editor-demo.md#ln-ed-030": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-030"
+  },
+  "editor-demo.md#ln-ed-031": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-031"
+  },
+  "editor-demo.md#ln-ed-032": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-032"
+  },
+  "editor-demo.md#ln-ed-033": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-033"
+  },
+  "editor-demo.md#ln-ed-034": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-034"
+  },
+  "editor-demo.md#ln-ed-035": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-035"
+  },
+  "editor-demo.md#ln-ed-036": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-036"
+  },
+  "editor-demo.md#ln-ed-037": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-037"
+  },
+  "editor-demo.md#ln-ed-038": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-038"
+  },
+  "editor-demo.md#ln-ed-039": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-039"
+  },
+  "editor-demo.md#ln-ed-040": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-040"
+  },
+  "editor-demo.md#ln-ed-041": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-041"
+  },
+  "editor-demo.md#ln-ed-042": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-042"
+  },
+  "editor-demo.md#ln-ed-043": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-043"
+  },
+  "editor-demo.md#ln-ed-044": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-044"
+  },
+  "editor-demo.md#ln-ed-045": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-045"
+  },
+  "editor-demo.md#ln-ed-046": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-046"
+  },
+  "editor-demo.md#ln-ed-047": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-047"
+  },
+  "editor-demo.md#ln-ed-047-acceptance-details": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-047"
+  },
+  "editor-demo.md#ln-ed-048": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-048"
+  },
+  "editor-demo.md#ln-ed-049": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-049"
+  },
+  "editor-demo.md#ln-ed-050": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-050"
+  },
+  "editor-demo.md#ln-ed-051": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-051"
+  },
+  "editor-demo.md#ln-ed-052": {
+    "path": "editor-demo/core-contract-01.md",
+    "fragment": "ln-ed-052"
+  },
+  "editor-demo.md#ln-ed-053": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-053"
+  },
+  "editor-demo.md#ln-ed-054": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-054"
+  },
+  "editor-demo.md#ln-ed-055": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-055"
+  },
+  "editor-demo.md#ln-ed-056": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-056"
+  },
+  "editor-demo.md#ln-ed-057": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-057"
+  },
+  "editor-demo.md#ln-ed-058": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-058"
+  },
+  "editor-demo.md#ln-ed-059": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-059"
+  },
+  "editor-demo.md#ln-ed-060": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-060"
+  },
+  "editor-demo.md#ln-ed-061": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-061"
+  },
+  "editor-demo.md#ln-ed-062": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-062"
+  },
+  "editor-demo.md#ln-ed-014": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-014"
+  },
+  "editor-demo.md#ln-ed-015": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-015"
+  },
+  "editor-demo.md#ln-ed-017": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-017"
+  },
+  "editor-demo.md#ln-ed-016": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-016"
+  },
+  "editor-demo.md#ln-ed-018": {
+    "path": "editor-demo/core-contract-02.md",
+    "fragment": "ln-ed-018"
+  },
+  "plugins/explorer/index.md#ln-exp-001": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-001"
+  },
+  "plugins/explorer/index.md#ln-exp-002": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-002"
+  },
+  "plugins/explorer/index.md#ln-exp-003": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-003"
+  },
+  "plugins/explorer/index.md#ln-exp-003-acceptance-details": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-003"
+  },
+  "plugins/explorer/index.md#ln-exp-004": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-004"
+  },
+  "plugins/explorer/index.md#ln-exp-005": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-005"
+  },
+  "plugins/explorer/index.md#ln-exp-006": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-006"
+  },
+  "plugins/explorer/index.md#ln-exp-007": {
+    "path": "plugins/explorer/index.md",
+    "fragment": "ln-exp-007"
+  },
+  "plugins/bookmarks/index.md#ln-bm-001": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-001"
+  },
+  "plugins/bookmarks/index.md#ln-bm-002": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-002"
+  },
+  "plugins/bookmarks/index.md#ln-bm-003": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-003"
+  },
+  "plugins/bookmarks/index.md#ln-bm-004": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-004"
+  },
+  "plugins/bookmarks/index.md#ln-bm-005": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-005"
+  },
+  "plugins/bookmarks/index.md#ln-bm-006": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-006"
+  },
+  "plugins/bookmarks/index.md#ln-bm-006-acceptance-details": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-006"
+  },
+  "plugins/bookmarks/index.md#ln-bm-007": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-007"
+  },
+  "plugins/bookmarks/index.md#ln-bm-008": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-008"
+  },
+  "plugins/bookmarks/index.md#ln-bm-009": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-009"
+  },
+  "plugins/bookmarks/index.md#ln-bm-010": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-010"
+  },
+  "plugins/bookmarks/index.md#ln-bm-011": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-011"
+  },
+  "plugins/bookmarks/index.md#ln-bm-011-acceptance-details": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-011"
+  },
+  "plugins/bookmarks/index.md#ln-bm-012": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-012"
+  },
+  "plugins/bookmarks/index.md#ln-bm-013": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-013"
+  },
+  "plugins/bookmarks/index.md#ln-bm-014": {
+    "path": "plugins/bookmarks/index.md",
+    "fragment": "ln-bm-014"
+  },
+  "plugins/markdown/index.md#markdown-plugin-context": {
+    "path": "plugins/markdown/context.md",
+    "fragment": "markdown-plugin-context"
+  },
+  "plugins/markdown/index.md#ownership": {
+    "path": "plugins/markdown/context.md",
+    "fragment": "ownership"
+  },
+  "plugins/markdown/index.md#ln-md-001": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-001"
+  },
+  "plugins/markdown/index.md#ln-md-002": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-002"
+  },
+  "plugins/markdown/index.md#ln-md-003": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-003"
+  },
+  "plugins/markdown/index.md#ln-md-004": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-004"
+  },
+  "plugins/markdown/index.md#ln-md-005": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-005"
+  },
+  "plugins/markdown/index.md#ln-md-006": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-006"
+  },
+  "plugins/markdown/index.md#ln-md-007": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-007"
+  },
+  "plugins/markdown/index.md#ln-md-009": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-009"
+  },
+  "plugins/markdown/index.md#ln-md-010": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-010"
+  },
+  "plugins/markdown/index.md#ln-md-012": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-012"
+  },
+  "plugins/markdown/index.md#ln-md-013": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-013"
+  },
+  "plugins/markdown/index.md#ln-md-014": {
+    "path": "plugins/markdown/panels-and-navigation.md",
+    "fragment": "ln-md-014"
+  },
+  "plugins/markdown/index.md#ln-md-015": {
+    "path": "plugins/markdown/core-contract.md",
+    "fragment": "ln-md-015"
+  },
+  "plugins/markdown/index.md#ln-md-025": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-025"
+  },
+  "plugins/markdown/index.md#ln-md-051": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-051"
+  },
+  "plugins/markdown/index.md#ln-md-052": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-052"
+  },
+  "plugins/markdown/index.md#ln-md-053": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-053"
+  },
+  "plugins/markdown/index.md#ln-md-071": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-071"
+  },
+  "plugins/markdown/index.md#ln-md-072": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-072"
+  },
+  "plugins/markdown/index.md#ln-md-073": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-073"
+  },
+  "plugins/markdown/index.md#ln-md-074": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-074"
+  },
+  "plugins/markdown/index.md#ln-md-075": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-075"
+  },
+  "plugins/markdown/index.md#ln-md-076": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-076"
+  },
+  "plugins/markdown/index.md#ln-md-077": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-077"
+  },
+  "plugins/markdown/index.md#ln-md-078": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-078"
+  },
+  "plugins/markdown/index.md#ln-md-079": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-079"
+  },
+  "plugins/markdown/index.md#ln-md-080": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-080"
+  },
+  "plugins/markdown/index.md#ln-md-081": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-081"
+  },
+  "plugins/markdown/index.md#ln-md-082": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-082"
+  },
+  "plugins/markdown/index.md#ln-md-083": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-083"
+  },
+  "plugins/markdown/index.md#ln-md-084": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-084"
+  },
+  "plugins/markdown/index.md#ln-md-090": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-090"
+  },
+  "plugins/markdown/index.md#ln-md-091": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-091"
+  },
+  "plugins/markdown/index.md#ln-md-093": {
+    "path": "plugins/markdown/core-contract.md",
+    "fragment": "ln-md-093"
+  },
+  "plugins/markdown/index.md#ln-md-094": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-094"
+  },
+  "plugins/markdown/index.md#ln-md-100": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-100"
+  },
+  "plugins/markdown/index.md#ln-md-101": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-101"
+  },
+  "plugins/markdown/index.md#ln-md-102": {
+    "path": "plugins/markdown/core-contract.md",
+    "fragment": "ln-md-102"
+  },
+  "plugins/markdown/index.md#ln-md-103": {
+    "path": "plugins/markdown/panels-and-navigation.md",
+    "fragment": "ln-md-103"
+  },
+  "plugins/markdown/index.md#ln-md-104": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-104"
+  },
+  "plugins/markdown/index.md#ln-md-105": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-105"
+  },
+  "plugins/markdown/index.md#ln-md-106": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-106"
+  },
+  "plugins/markdown/index.md#ln-md-107": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-107"
+  },
+  "plugins/markdown/index.md#ln-md-108": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-108"
+  },
+  "plugins/markdown/index.md#ln-md-109": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-109"
+  },
+  "plugins/markdown/index.md#ln-md-110": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-110"
+  },
+  "plugins/markdown/index.md#ln-md-111": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-111"
+  },
+  "plugins/markdown/index.md#ln-md-112": {
+    "path": "plugins/markdown/editor-and-authoring.md",
+    "fragment": "ln-md-112"
+  },
+  "plugins/markdown/index.md#ln-md-097": {
+    "path": "plugins/markdown/files-and-persistence.md",
+    "fragment": "ln-md-097"
+  },
+  "plugins/markdown/index.md#ln-md-099": {
+    "path": "plugins/markdown/core-contract.md",
+    "fragment": "ln-md-099"
+  },
+  "plugins/markdown/panels/index.md#markdown-panels-context": {
+    "path": "plugins/markdown/panels/context.md",
+    "fragment": "markdown-panels-context"
+  },
+  "plugins/markdown/panels/index.md#panel-pages": {
+    "path": "plugins/markdown/panels/context.md",
+    "fragment": "panel-pages"
+  },
+  "plugins/markdown/panels/index.md#ln-md-008": {
+    "path": "plugins/markdown/panels/files-and-persistence.md",
+    "fragment": "ln-md-008"
+  },
+  "plugins/markdown/panels/index.md#ln-md-011": {
+    "path": "plugins/markdown/panels/files-and-persistence.md",
+    "fragment": "ln-md-011"
+  },
+  "plugins/markdown/panels/index.md#ln-md-021": {
+    "path": "plugins/markdown/panels/editor-and-authoring.md",
+    "fragment": "ln-md-021"
+  },
+  "plugins/markdown/panels/index.md#ln-md-085": {
+    "path": "plugins/markdown/panels/files-and-persistence.md",
+    "fragment": "ln-md-085"
+  },
+  "plugins/markdown/panels/index.md#ln-md-089": {
+    "path": "plugins/markdown/panels/files-and-persistence.md",
+    "fragment": "ln-md-089"
+  },
+  "plugins/markdown/panels/index.md#ln-md-092": {
+    "path": "plugins/markdown/panels/panels-and-navigation.md",
+    "fragment": "ln-md-092"
+  },
+  "plugins/markdown/panels/index.md#ln-md-098": {
+    "path": "plugins/markdown/panels/files-and-persistence.md",
+    "fragment": "ln-md-098"
+  },
+  "plugins/markdown/panels/index.md#ln-md-098-acceptance-details": {
+    "path": "plugins/markdown/panels/files-and-persistence.md",
+    "fragment": "ln-md-098"
+  },
+  "plugins/markdown/panels/all-properties.md#ln-md-016": {
+    "path": "plugins/markdown/panels/all-properties.md",
+    "fragment": "ln-md-016"
+  },
+  "plugins/markdown/panels/all-properties.md#ln-md-088": {
+    "path": "plugins/markdown/panels/all-properties.md",
+    "fragment": "ln-md-088"
+  },
+  "plugins/markdown/panels/all-properties.md#ln-md-020": {
+    "path": "plugins/markdown/panels/all-properties.md",
+    "fragment": "ln-md-020"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-017": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-017"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-019": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-019"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-036": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-036"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-037": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-037"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-038": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-038"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-039": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-039"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-040": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-040"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-041": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-041"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-095": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-095"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-096": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-096"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-113": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-113"
+  },
+  "plugins/markdown/panels/file-properties.md#ln-md-114": {
+    "path": "plugins/markdown/panels/file-properties.md",
+    "fragment": "ln-md-114"
+  },
+  "plugins/markdown/panels/outline.md#ln-md-022": {
+    "path": "plugins/markdown/panels/outline.md",
+    "fragment": "ln-md-022"
+  },
+  "plugins/markdown/panels/outline.md#ln-md-042": {
+    "path": "plugins/markdown/panels/outline.md",
+    "fragment": "ln-md-042"
+  },
+  "plugins/markdown/panels/outline.md#ln-md-043": {
+    "path": "plugins/markdown/panels/outline.md",
+    "fragment": "ln-md-043"
+  },
+  "plugins/markdown/panels/outline.md#ln-md-044": {
+    "path": "plugins/markdown/panels/outline.md",
+    "fragment": "ln-md-044"
+  },
+  "plugins/markdown/panels/backlinks.md#ln-md-023": {
+    "path": "plugins/markdown/panels/backlinks.md",
+    "fragment": "ln-md-023"
+  },
+  "plugins/markdown/panels/backlinks.md#ln-md-045": {
+    "path": "plugins/markdown/panels/backlinks.md",
+    "fragment": "ln-md-045"
+  },
+  "plugins/markdown/panels/backlinks.md#ln-md-046": {
+    "path": "plugins/markdown/panels/backlinks.md",
+    "fragment": "ln-md-046"
+  },
+  "plugins/markdown/panels/backlinks.md#ln-md-047": {
+    "path": "plugins/markdown/panels/backlinks.md",
+    "fragment": "ln-md-047"
+  },
+  "plugins/markdown/panels/outgoing-links.md#ln-md-031": {
+    "path": "plugins/markdown/panels/outgoing-links.md",
+    "fragment": "ln-md-031"
+  },
+  "plugins/markdown/panels/outgoing-links.md#ln-md-067": {
+    "path": "plugins/markdown/panels/outgoing-links.md",
+    "fragment": "ln-md-067"
+  },
+  "plugins/markdown/panels/outgoing-links.md#ln-md-068": {
+    "path": "plugins/markdown/panels/outgoing-links.md",
+    "fragment": "ln-md-068"
+  },
+  "plugins/markdown/panels/outgoing-links.md#ln-md-069": {
+    "path": "plugins/markdown/panels/outgoing-links.md",
+    "fragment": "ln-md-069"
+  },
+  "plugins/markdown/panels/outgoing-links.md#ln-md-070": {
+    "path": "plugins/markdown/panels/outgoing-links.md",
+    "fragment": "ln-md-070"
+  },
+  "plugins/markdown/panels/tags.md#ln-md-024": {
+    "path": "plugins/markdown/panels/tags.md",
+    "fragment": "ln-md-024"
+  },
+  "plugins/markdown/panels/tags.md#ln-md-048": {
+    "path": "plugins/markdown/panels/tags.md",
+    "fragment": "ln-md-048"
+  },
+  "plugins/markdown/panels/tags.md#ln-md-049": {
+    "path": "plugins/markdown/panels/tags.md",
+    "fragment": "ln-md-049"
+  },
+  "plugins/markdown/panels/tags.md#ln-md-050": {
+    "path": "plugins/markdown/panels/tags.md",
+    "fragment": "ln-md-050"
+  },
+  "plugins/markdown/panels/tags.md#ln-md-086": {
+    "path": "plugins/markdown/panels/tags.md",
+    "fragment": "ln-md-086"
+  },
+  "plugins/markdown/panels/tags.md#ln-md-087": {
+    "path": "plugins/markdown/panels/tags.md",
+    "fragment": "ln-md-087"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-026": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-026"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-027": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-027"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-028": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-028"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-029": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-029"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-030": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-030"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-054": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-054"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-055": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-055"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-056": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-056"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-057": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-057"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-058": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-058"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-059": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-059"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-060": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-060"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-061": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-061"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-062": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-062"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-063": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-063"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-064": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-064"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-065": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-065"
+  },
+  "plugins/markdown/panels/link-previews.md#ln-md-066": {
+    "path": "plugins/markdown/panels/link-previews.md",
+    "fragment": "ln-md-066"
+  },
+  "plugins/markdown-lint/index.md#ln-mdl-001": {
+    "path": "plugins/markdown-lint/index.md",
+    "fragment": "ln-mdl-001"
+  },
+  "plugins/markdown-lint/index.md#ln-mdl-002": {
+    "path": "plugins/markdown-lint/index.md",
+    "fragment": "ln-mdl-002"
+  },
+  "plugins/markdown-lint/index.md#ln-mdl-003": {
+    "path": "plugins/markdown-lint/index.md",
+    "fragment": "ln-mdl-003"
+  },
+  "plugins/markdown-lint/index.md#ln-mdl-004": {
+    "path": "plugins/markdown-lint/index.md",
+    "fragment": "ln-mdl-004"
+  },
+  "plugins/markdown-lint/index.md#ln-mdl-005": {
+    "path": "plugins/markdown-lint/index.md",
+    "fragment": "ln-mdl-005"
+  },
+  "plugins/spellcheck/index.md#ln-spl-001": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-001"
+  },
+  "plugins/spellcheck/index.md#ln-spl-002": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-002"
+  },
+  "plugins/spellcheck/index.md#ln-spl-003": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-003"
+  },
+  "plugins/spellcheck/index.md#ln-spl-003-acceptance-details": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-003"
+  },
+  "plugins/spellcheck/index.md#ln-spl-004": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-004"
+  },
+  "plugins/spellcheck/index.md#ln-spl-005": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-005"
+  },
+  "plugins/spellcheck/index.md#ln-spl-006": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-006"
+  },
+  "plugins/spellcheck/index.md#ln-spl-007": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-007"
+  },
+  "plugins/spellcheck/index.md#ln-spl-008": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-008"
+  },
+  "plugins/spellcheck/index.md#ln-spl-009": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-009"
+  },
+  "plugins/spellcheck/index.md#ln-spl-010": {
+    "path": "plugins/spellcheck/index.md",
+    "fragment": "ln-spl-010"
+  },
+  "plugins/search/index.md#search-plugin-context": {
+    "path": "plugins/search/context.md",
+    "fragment": "search-plugin-context"
+  },
+  "plugins/search/index.md#runtime-flow": {
+    "path": "plugins/search/context.md",
+    "fragment": "runtime-flow"
+  },
+  "plugins/search/index.md#ln-srch-001": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-001"
+  },
+  "plugins/search/index.md#ln-srch-002": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-002"
+  },
+  "plugins/search/index.md#ln-srch-003": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-003"
+  },
+  "plugins/search/index.md#ln-srch-004": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-004"
+  },
+  "plugins/search/index.md#ln-srch-005": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-005"
+  },
+  "plugins/search/index.md#ln-srch-006": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-006"
+  },
+  "plugins/search/index.md#ln-srch-007": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-007"
+  },
+  "plugins/search/index.md#ln-srch-008": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-008"
+  },
+  "plugins/search/index.md#ln-srch-009": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-009"
+  },
+  "plugins/search/index.md#ln-srch-010": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-010"
+  },
+  "plugins/search/index.md#ln-srch-011": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-011"
+  },
+  "plugins/search/index.md#ln-srch-012": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-012"
+  },
+  "plugins/search/index.md#ln-srch-013": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-013"
+  },
+  "plugins/search/index.md#ln-srch-014": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-014"
+  },
+  "plugins/search/index.md#ln-srch-015": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-015"
+  },
+  "plugins/search/index.md#ln-srch-016": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-016"
+  },
+  "plugins/search/index.md#ln-srch-017": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-017"
+  },
+  "plugins/search/index.md#ln-srch-018": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-018"
+  },
+  "plugins/search/index.md#ln-srch-019": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-019"
+  },
+  "plugins/search/index.md#ln-srch-020": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-020"
+  },
+  "plugins/search/index.md#ln-srch-021": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-021"
+  },
+  "plugins/search/index.md#ln-srch-022": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-022"
+  },
+  "plugins/search/index.md#ln-srch-023": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-023"
+  },
+  "plugins/search/index.md#ln-srch-024": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-024"
+  },
+  "plugins/search/index.md#ln-srch-025": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-025"
+  },
+  "plugins/search/index.md#ln-srch-026": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-026"
+  },
+  "plugins/search/index.md#ln-srch-027": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-027"
+  },
+  "plugins/search/index.md#ln-srch-028": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-028"
+  },
+  "plugins/search/index.md#ln-srch-029": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-029"
+  },
+  "plugins/search/index.md#ln-srch-030": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-030"
+  },
+  "plugins/search/index.md#ln-srch-031": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-031"
+  },
+  "plugins/search/index.md#ln-srch-032": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-032"
+  },
+  "plugins/search/index.md#ln-srch-033": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-033"
+  },
+  "plugins/search/index.md#ln-srch-034": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-034"
+  },
+  "plugins/search/index.md#ln-srch-035": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-035"
+  },
+  "plugins/search/index.md#ln-srch-036": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-036"
+  },
+  "plugins/search/index.md#ln-srch-037": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-037"
+  },
+  "plugins/search/index.md#ln-srch-038": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-038"
+  },
+  "plugins/search/index.md#ln-srch-039": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-039"
+  },
+  "plugins/search/index.md#ln-srch-040": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-040"
+  },
+  "plugins/search/index.md#ln-srch-041": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-041"
+  },
+  "plugins/search/index.md#ln-srch-042": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-042"
+  },
+  "plugins/search/index.md#ln-srch-043": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-043"
+  },
+  "plugins/search/index.md#ln-srch-044": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-044"
+  },
+  "plugins/search/index.md#ln-srch-045": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-045"
+  },
+  "plugins/search/index.md#ln-srch-046": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-046"
+  },
+  "plugins/search/index.md#ln-srch-047": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-047"
+  },
+  "plugins/search/index.md#ln-srch-048": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-048"
+  },
+  "plugins/search/index.md#ln-srch-049": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-049"
+  },
+  "plugins/search/index.md#ln-srch-050": {
+    "path": "plugins/search/core-contract.md",
+    "fragment": "ln-srch-050"
+  },
+  "plugins/graph/index.md#graph-plugin-context": {
+    "path": "plugins/graph/context.md",
+    "fragment": "graph-plugin-context"
+  },
+  "plugins/graph/index.md#conceptual-model": {
+    "path": "plugins/graph/context.md",
+    "fragment": "conceptual-model"
+  },
+  "plugins/graph/index.md#runtime-flow": {
+    "path": "plugins/graph/context.md",
+    "fragment": "runtime-flow"
+  },
+  "plugins/graph/index.md#ln-graph-001": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-001"
+  },
+  "plugins/graph/index.md#ln-graph-002": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-002"
+  },
+  "plugins/graph/index.md#ln-graph-003": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-003"
+  },
+  "plugins/graph/index.md#ln-graph-004": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-004"
+  },
+  "plugins/graph/index.md#ln-graph-005": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-005"
+  },
+  "plugins/graph/index.md#ln-graph-006": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-006"
+  },
+  "plugins/graph/index.md#ln-graph-007": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-007"
+  },
+  "plugins/graph/index.md#ln-graph-008": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-008"
+  },
+  "plugins/graph/index.md#ln-graph-009": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-009"
+  },
+  "plugins/graph/index.md#ln-graph-010": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-010"
+  },
+  "plugins/graph/index.md#ln-graph-011": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-011"
+  },
+  "plugins/graph/index.md#ln-graph-012": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-012"
+  },
+  "plugins/graph/index.md#ln-graph-013": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-013"
+  },
+  "plugins/graph/index.md#ln-graph-014": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-014"
+  },
+  "plugins/graph/index.md#ln-graph-015": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-015"
+  },
+  "plugins/graph/index.md#ln-graph-016": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-016"
+  },
+  "plugins/graph/index.md#ln-graph-017": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-017"
+  },
+  "plugins/graph/index.md#ln-graph-018": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-018"
+  },
+  "plugins/graph/index.md#ln-graph-019": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-019"
+  },
+  "plugins/graph/index.md#ln-graph-020": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-020"
+  },
+  "plugins/graph/index.md#ln-graph-021": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-021"
+  },
+  "plugins/graph/index.md#ln-graph-022": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-022"
+  },
+  "plugins/graph/index.md#ln-graph-023": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-023"
+  },
+  "plugins/graph/index.md#ln-graph-024": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-024"
+  },
+  "plugins/graph/index.md#ln-graph-025": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-025"
+  },
+  "plugins/graph/index.md#ln-graph-026": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-026"
+  },
+  "plugins/graph/index.md#ln-graph-027": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-027"
+  },
+  "plugins/graph/index.md#ln-graph-028": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-028"
+  },
+  "plugins/graph/index.md#ln-graph-029": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-029"
+  },
+  "plugins/graph/index.md#ln-graph-030": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-030"
+  },
+  "plugins/graph/index.md#ln-graph-031": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-031"
+  },
+  "plugins/graph/index.md#ln-graph-032": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-032"
+  },
+  "plugins/graph/index.md#ln-graph-033": {
+    "path": "plugins/graph/core-contract.md",
+    "fragment": "ln-graph-033"
+  },
+  "plugins/history/index.md#history-plugin-context": {
+    "path": "plugins/history/context.md",
+    "fragment": "history-plugin-context"
+  },
+  "plugins/history/index.md#runtime-flow": {
+    "path": "plugins/history/context.md",
+    "fragment": "runtime-flow"
+  },
+  "plugins/history/index.md#ln-hist-001": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-001"
+  },
+  "plugins/history/index.md#ln-hist-002": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-002"
+  },
+  "plugins/history/index.md#ln-hist-003": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-003"
+  },
+  "plugins/history/index.md#ln-hist-003-acceptance-details": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-003"
+  },
+  "plugins/history/index.md#ln-hist-004": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-004"
+  },
+  "plugins/history/index.md#ln-hist-005": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-005"
+  },
+  "plugins/history/index.md#ln-hist-005-acceptance-details": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-005"
+  },
+  "plugins/history/index.md#ln-hist-006": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-006"
+  },
+  "plugins/history/index.md#ln-hist-007": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-007"
+  },
+  "plugins/history/index.md#ln-hist-008": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-008"
+  },
+  "plugins/history/index.md#ln-hist-009": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-009"
+  },
+  "plugins/history/index.md#ln-hist-010": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-010"
+  },
+  "plugins/history/index.md#ln-hist-011": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-011"
+  },
+  "plugins/history/index.md#ln-hist-011-acceptance-details": {
+    "path": "plugins/history/core-contract.md",
+    "fragment": "ln-hist-011"
+  },
+  "plugins/wordcount/index.md#word-count-plugin-context": {
+    "path": "plugins/wordcount/context.md",
+    "fragment": "word-count-plugin-context"
+  },
+  "plugins/wordcount/index.md#ln-wc-001": {
+    "path": "plugins/wordcount/core-contract.md",
+    "fragment": "ln-wc-001"
+  },
+  "plugins/wordcount/index.md#ln-wc-002": {
+    "path": "plugins/wordcount/core-contract.md",
+    "fragment": "ln-wc-002"
+  },
+  "plugins/wordcount/index.md#ln-wc-003": {
+    "path": "plugins/wordcount/core-contract.md",
+    "fragment": "ln-wc-003"
+  },
+  "plugins/wordcount/index.md#ln-wc-004": {
+    "path": "plugins/wordcount/core-contract.md",
+    "fragment": "ln-wc-004"
+  },
+  "plugins/bases/index.md#bases-plugin-context": {
+    "path": "plugins/bases/context.md",
+    "fragment": "bases-plugin-context"
+  },
+  "plugins/bases/index.md#public-surface": {
+    "path": "plugins/bases/context.md",
+    "fragment": "public-surface"
+  },
+  "plugins/bases/index.md#presentation-and-workflow-components": {
+    "path": "plugins/bases/context.md",
+    "fragment": "presentation-and-workflow-components"
+  },
+  "plugins/bases/index.md#intentional-parity-gaps": {
+    "path": "plugins/bases/context.md",
+    "fragment": "intentional-parity-gaps"
+  },
+  "plugins/bases/index.md#ln-base-001": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-001"
+  },
+  "plugins/bases/index.md#ln-base-002": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-002"
+  },
+  "plugins/bases/index.md#ln-base-003": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-003"
+  },
+  "plugins/bases/index.md#ln-base-004": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-004"
+  },
+  "plugins/bases/index.md#ln-base-005": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-005"
+  },
+  "plugins/bases/index.md#ln-base-006": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-006"
+  },
+  "plugins/bases/index.md#ln-base-007": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-007"
+  },
+  "plugins/bases/index.md#ln-base-008": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-008"
+  },
+  "plugins/bases/index.md#ln-base-009": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-009"
+  },
+  "plugins/bases/index.md#ln-base-010": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-010"
+  },
+  "plugins/bases/index.md#ln-base-011": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-011"
+  },
+  "plugins/bases/index.md#ln-base-012": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-012"
+  },
+  "plugins/bases/index.md#ln-base-013": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-013"
+  },
+  "plugins/bases/index.md#ln-base-014": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-014"
+  },
+  "plugins/bases/index.md#ln-base-015": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-015"
+  },
+  "plugins/bases/index.md#ln-base-016": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-016"
+  },
+  "plugins/bases/index.md#ln-base-017": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-017"
+  },
+  "plugins/bases/index.md#ln-base-018": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-018"
+  },
+  "plugins/bases/index.md#ln-base-019": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-019"
+  },
+  "plugins/bases/index.md#ln-base-020": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-020"
+  },
+  "plugins/bases/index.md#ln-base-021": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-021"
+  },
+  "plugins/bases/index.md#ln-base-022": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-022"
+  },
+  "plugins/bases/index.md#ln-base-023": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-023"
+  },
+  "plugins/bases/index.md#ln-base-024": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-024"
+  },
+  "plugins/bases/index.md#ln-base-025": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-025"
+  },
+  "plugins/bases/index.md#ln-base-026": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-026"
+  },
+  "plugins/bases/index.md#ln-base-027": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-027"
+  },
+  "plugins/bases/index.md#ln-base-028": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-028"
+  },
+  "plugins/bases/index.md#ln-base-029": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-029"
+  },
+  "plugins/bases/index.md#ln-base-030": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-030"
+  },
+  "plugins/bases/index.md#ln-base-031": {
+    "path": "plugins/bases/core-contract.md",
+    "fragment": "ln-base-031"
+  },
+  "plugins/ai/index.md#ai-plugin-context": {
+    "path": "plugins/ai/context.md",
+    "fragment": "ai-plugin-context"
+  },
+  "plugins/ai/index.md#runtime-flow": {
+    "path": "plugins/ai/context.md",
+    "fragment": "runtime-flow"
+  },
+  "plugins/ai/index.md#ln-ai-001": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-001"
+  },
+  "plugins/ai/index.md#ln-ai-002": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-002"
+  },
+  "plugins/ai/index.md#ln-ai-003": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-003"
+  },
+  "plugins/ai/index.md#ln-ai-004": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-004"
+  },
+  "plugins/ai/index.md#ln-ai-005": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-005"
+  },
+  "plugins/ai/index.md#ln-ai-006": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-006"
+  },
+  "plugins/ai/index.md#ln-ai-007": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-007"
+  },
+  "plugins/ai/index.md#ln-ai-008": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-008"
+  },
+  "plugins/ai/index.md#ln-ai-009": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-009"
+  },
+  "plugins/ai/index.md#ln-ai-010": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-010"
+  },
+  "plugins/ai/index.md#ln-ai-096": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-096"
+  },
+  "plugins/ai/index.md#ln-ai-098": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-098"
+  },
+  "plugins/ai/index.md#ln-ai-011": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-011"
+  },
+  "plugins/ai/index.md#ln-ai-012": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-012"
+  },
+  "plugins/ai/index.md#ln-ai-013": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-013"
+  },
+  "plugins/ai/index.md#ln-ai-014": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-014"
+  },
+  "plugins/ai/index.md#ln-ai-015": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-015"
+  },
+  "plugins/ai/index.md#ln-ai-016": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-016"
+  },
+  "plugins/ai/index.md#ln-ai-017": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-017"
+  },
+  "plugins/ai/index.md#ln-ai-018": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-018"
+  },
+  "plugins/ai/index.md#ln-ai-019": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-019"
+  },
+  "plugins/ai/index.md#ln-ai-020": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-020"
+  },
+  "plugins/ai/index.md#ln-ai-021": {
+    "path": "plugins/ai/session-lifecycle.md",
+    "fragment": "ln-ai-021"
+  },
+  "plugins/ai/index.md#ln-ai-022": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-022"
+  },
+  "plugins/ai/index.md#ln-ai-023": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-023"
+  },
+  "plugins/ai/index.md#ln-ai-024": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-024"
+  },
+  "plugins/ai/index.md#ln-ai-025": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-025"
+  },
+  "plugins/ai/index.md#ln-ai-026": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-026"
+  },
+  "plugins/ai/index.md#ln-ai-027": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-027"
+  },
+  "plugins/ai/index.md#ln-ai-028": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-028"
+  },
+  "plugins/ai/index.md#ln-ai-029": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-029"
+  },
+  "plugins/ai/index.md#ln-ai-030": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-030"
+  },
+  "plugins/ai/index.md#ln-ai-031": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-031"
+  },
+  "plugins/ai/index.md#ln-ai-032": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-032"
+  },
+  "plugins/ai/index.md#ln-ai-033": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-033"
+  },
+  "plugins/ai/index.md#ln-ai-034": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-034"
+  },
+  "plugins/ai/index.md#ln-ai-035": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-035"
+  },
+  "plugins/ai/index.md#ln-ai-036": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-036"
+  },
+  "plugins/ai/index.md#ln-ai-037": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-037"
+  },
+  "plugins/ai/index.md#ln-ai-038": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-038"
+  },
+  "plugins/ai/index.md#ln-ai-039": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-039"
+  },
+  "plugins/ai/index.md#ln-ai-040": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-040"
+  },
+  "plugins/ai/index.md#ln-ai-041": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-041"
+  },
+  "plugins/ai/index.md#ln-ai-044": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-044"
+  },
+  "plugins/ai/index.md#ln-ai-045": {
+    "path": "plugins/ai/core-contract.md",
+    "fragment": "ln-ai-045"
+  },
+  "plugins/ai/index.md#ln-ai-046": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-046"
+  },
+  "plugins/ai/index.md#ln-ai-046-acceptance-details": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-046"
+  },
+  "plugins/ai/index.md#ln-ai-047": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-047"
+  },
+  "plugins/ai/index.md#ln-ai-048": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-048"
+  },
+  "plugins/ai/index.md#ln-ai-049": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-049"
+  },
+  "plugins/ai/index.md#ln-ai-050": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-050"
+  },
+  "plugins/ai/index.md#ln-ai-051": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-051"
+  },
+  "plugins/ai/index.md#ln-ai-052": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-052"
+  },
+  "plugins/ai/index.md#ln-ai-053": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-053"
+  },
+  "plugins/ai/index.md#ln-ai-054": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-054"
+  },
+  "plugins/ai/index.md#ln-ai-125": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-125"
+  },
+  "plugins/ai/index.md#ln-ai-126": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-126"
+  },
+  "plugins/ai/index.md#ln-ai-127": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-127"
+  },
+  "plugins/ai/index.md#ln-ai-128": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-128"
+  },
+  "plugins/ai/index.md#ln-ai-129": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-129"
+  },
+  "plugins/ai/index.md#ln-ai-130": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-130"
+  },
+  "plugins/ai/index.md#ln-ai-131": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-131"
+  },
+  "plugins/ai/index.md#ln-ai-132": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-132"
+  },
+  "plugins/ai/index.md#ln-ai-133": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-133"
+  },
+  "plugins/ai/index.md#ln-ai-133-acceptance-details": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-133"
+  },
+  "plugins/ai/index.md#ln-ai-134": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-134"
+  },
+  "plugins/ai/index.md#ln-ai-135": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-135"
+  },
+  "plugins/ai/index.md#ln-ai-136": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-136"
+  },
+  "plugins/ai/index.md#ln-ai-137": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-137"
+  },
+  "plugins/ai/index.md#ln-ai-138": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-138"
+  },
+  "plugins/ai/index.md#ln-ai-139": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-139"
+  },
+  "plugins/ai/index.md#ln-ai-140": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-140"
+  },
+  "plugins/ai/index.md#ln-ai-140-acceptance-details": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-140"
+  },
+  "plugins/ai/index.md#ln-ai-141": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-141"
+  },
+  "plugins/ai/index.md#ln-ai-141-acceptance-details": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-141"
+  },
+  "plugins/ai/index.md#ln-ai-142": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-142"
+  },
+  "plugins/ai/index.md#ln-ai-143": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-143"
+  },
+  "plugins/ai/index.md#ln-ai-144": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-144"
+  },
+  "plugins/ai/index.md#ln-ai-145": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-145"
+  },
+  "plugins/ai/index.md#ln-ai-146": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-146"
+  },
+  "plugins/ai/index.md#ln-ai-147": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-147"
+  },
+  "plugins/ai/index.md#ln-ai-148": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-148"
+  },
+  "plugins/ai/index.md#ln-ai-149": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-149"
+  },
+  "plugins/ai/index.md#ln-ai-150": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-150"
+  },
+  "plugins/ai/index.md#ln-ai-151": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-151"
+  },
+  "plugins/ai/index.md#ln-ai-152": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-152"
+  },
+  "plugins/ai/index.md#ln-ai-153": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-153"
+  },
+  "plugins/ai/index.md#ln-ai-154": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-154"
+  },
+  "plugins/ai/index.md#ln-ai-155": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-155"
+  },
+  "plugins/ai/index.md#ln-ai-156": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-156"
+  },
+  "plugins/ai/index.md#ln-ai-156-acceptance-details": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-156"
+  },
+  "plugins/ai/index.md#ln-ai-157": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-157"
+  },
+  "plugins/ai/index.md#ln-ai-158": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-158"
+  },
+  "plugins/ai/index.md#ln-ai-159": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-159"
+  },
+  "plugins/ai/index.md#ln-ai-160": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-160"
+  },
+  "plugins/ai/index.md#ln-ai-161": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-161"
+  },
+  "plugins/ai/index.md#ln-ai-162": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-162"
+  },
+  "plugins/ai/index.md#ln-ai-163": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-163"
+  },
+  "plugins/ai/index.md#ln-ai-164": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-164"
+  },
+  "plugins/ai/index.md#ln-ai-165": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-165"
+  },
+  "plugins/ai/index.md#ln-ai-166": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-166"
+  },
+  "plugins/ai/index.md#ln-ai-167": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-167"
+  },
+  "plugins/ai/index.md#ln-ai-171": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-171"
+  },
+  "plugins/ai/index.md#ln-ai-172": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-172"
+  },
+  "plugins/ai/index.md#ln-ai-173": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-173"
+  },
+  "plugins/ai/index.md#ln-ai-174": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-174"
+  },
+  "plugins/ai/index.md#ln-ai-175": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-175"
+  },
+  "plugins/ai/index.md#ln-ai-176": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-176"
+  },
+  "plugins/ai/index.md#ln-ai-177": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-177"
+  },
+  "plugins/ai/index.md#ln-ai-178": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-178"
+  },
+  "plugins/ai/index.md#ln-ai-179": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-179"
+  },
+  "plugins/ai/index.md#ln-ai-180": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-180"
+  },
+  "plugins/ai/index.md#ln-ai-181": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-181"
+  },
+  "plugins/ai/index.md#ln-ai-182": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-182"
+  },
+  "plugins/ai/index.md#ln-ai-183": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-183"
+  },
+  "plugins/ai/index.md#ln-ai-184": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-184"
+  },
+  "plugins/ai/index.md#ln-ai-185": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-185"
+  },
+  "plugins/ai/index.md#ln-ai-186": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-186"
+  },
+  "plugins/ai/index.md#ln-ai-187": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-187"
+  },
+  "plugins/ai/index.md#ln-ai-188": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-188"
+  },
+  "plugins/ai/index.md#ln-ai-189": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-189"
+  },
+  "plugins/ai/index.md#ln-ai-190": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-190"
+  },
+  "plugins/ai/index.md#ln-ai-191": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-191"
+  },
+  "plugins/ai/index.md#ln-ai-192": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-192"
+  },
+  "plugins/ai/index.md#ln-ai-193": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-193"
+  },
+  "plugins/ai/index.md#ln-ai-194": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-194"
+  },
+  "plugins/ai/index.md#ln-ai-195": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-195"
+  },
+  "plugins/ai/index.md#ln-ai-196": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-196"
+  },
+  "plugins/ai/index.md#ln-ai-197": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-197"
+  },
+  "plugins/ai/index.md#ln-ai-168": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-168"
+  },
+  "plugins/ai/index.md#ln-ai-169": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-169"
+  },
+  "plugins/ai/index.md#ln-ai-170": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-170"
+  },
+  "plugins/ai/index.md#ln-ai-105": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-105"
+  },
+  "plugins/ai/index.md#ln-ai-106": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-106"
+  },
+  "plugins/ai/index.md#ln-ai-055": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-055"
+  },
+  "plugins/ai/index.md#ln-ai-056": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-056"
+  },
+  "plugins/ai/index.md#ln-ai-057": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-057"
+  },
+  "plugins/ai/index.md#ln-ai-058": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-058"
+  },
+  "plugins/ai/index.md#ln-ai-059": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-059"
+  },
+  "plugins/ai/index.md#ln-ai-060": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-060"
+  },
+  "plugins/ai/index.md#ln-ai-062": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-062"
+  },
+  "plugins/ai/index.md#ln-ai-063": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-063"
+  },
+  "plugins/ai/index.md#ln-ai-064": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-064"
+  },
+  "plugins/ai/index.md#ln-ai-065": {
+    "path": "plugins/ai/session-lifecycle.md",
+    "fragment": "ln-ai-065"
+  },
+  "plugins/ai/index.md#ln-ai-066": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-066"
+  },
+  "plugins/ai/index.md#ln-ai-068": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-068"
+  },
+  "plugins/ai/index.md#ln-ai-069": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-069"
+  },
+  "plugins/ai/index.md#ln-ai-070": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-070"
+  },
+  "plugins/ai/index.md#ln-ai-071": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-071"
+  },
+  "plugins/ai/index.md#ln-ai-072": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-072"
+  },
+  "plugins/ai/index.md#ln-ai-073": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-073"
+  },
+  "plugins/ai/index.md#ln-ai-074": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-074"
+  },
+  "plugins/ai/index.md#ln-ai-075": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-075"
+  },
+  "plugins/ai/index.md#ln-ai-076": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-076"
+  },
+  "plugins/ai/index.md#ln-ai-077": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-077"
+  },
+  "plugins/ai/index.md#ln-ai-078": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-078"
+  },
+  "plugins/ai/index.md#ln-ai-079": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-079"
+  },
+  "plugins/ai/index.md#ln-ai-097": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-097"
+  },
+  "plugins/ai/index.md#ln-ai-080": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-080"
+  },
+  "plugins/ai/index.md#ln-ai-081": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-081"
+  },
+  "plugins/ai/index.md#ln-ai-082": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-082"
+  },
+  "plugins/ai/index.md#ln-ai-083": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-083"
+  },
+  "plugins/ai/index.md#ln-ai-084": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-084"
+  },
+  "plugins/ai/index.md#ln-ai-085": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-085"
+  },
+  "plugins/ai/index.md#ln-ai-107": {
+    "path": "plugins/ai/conversation-presentation.md",
+    "fragment": "ln-ai-107"
+  },
+  "plugins/ai/index.md#ln-ai-108": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-108"
+  },
+  "plugins/ai/index.md#ln-ai-109": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-109"
+  },
+  "plugins/ai/index.md#ln-ai-086": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-086"
+  },
+  "plugins/ai/index.md#ln-ai-087": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-087"
+  },
+  "plugins/ai/index.md#ln-ai-088": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-088"
+  },
+  "plugins/ai/index.md#ln-ai-089": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-089"
+  },
+  "plugins/ai/index.md#ln-ai-090": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-090"
+  },
+  "plugins/ai/index.md#ln-ai-091": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-091"
+  },
+  "plugins/ai/index.md#ln-ai-092": {
+    "path": "plugins/ai/tools-and-extensions-01.md",
+    "fragment": "ln-ai-092"
+  },
+  "plugins/ai/index.md#ln-ai-093": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-093"
+  },
+  "plugins/ai/index.md#ln-ai-099": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-099"
+  },
+  "plugins/ai/index.md#ln-ai-100": {
+    "path": "plugins/ai/conversation-storage-01.md",
+    "fragment": "ln-ai-100"
+  },
+  "plugins/ai/index.md#ln-ai-101": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-101"
+  },
+  "plugins/ai/index.md#ln-ai-102": {
+    "path": "plugins/ai/conversation-storage-02.md",
+    "fragment": "ln-ai-102"
+  },
+  "plugins/ai/index.md#ln-ai-103": {
+    "path": "plugins/ai/conversation-storage-02.md",
+    "fragment": "ln-ai-103"
+  },
+  "plugins/ai/index.md#ln-ai-104": {
+    "path": "plugins/ai/conversation-storage-02.md",
+    "fragment": "ln-ai-104"
+  },
+  "plugins/ai/index.md#ln-ai-094": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-094"
+  },
+  "plugins/ai/index.md#ln-ai-095": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-095"
+  },
+  "plugins/ai/index.md#ln-ai-095-acceptance-details": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-095"
+  },
+  "plugins/ai/index.md#ln-ai-110": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-110"
+  },
+  "plugins/ai/index.md#ln-ai-111": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-111"
+  },
+  "plugins/ai/index.md#ln-ai-112": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-112"
+  },
+  "plugins/ai/index.md#ln-ai-113": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-113"
+  },
+  "plugins/ai/index.md#ln-ai-114": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-114"
+  },
+  "plugins/ai/index.md#ln-ai-115": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-115"
+  },
+  "plugins/ai/index.md#ln-ai-116": {
+    "path": "plugins/ai/user-decisions.md",
+    "fragment": "ln-ai-116"
+  },
+  "plugins/ai/index.md#ln-ai-117": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-117"
+  },
+  "plugins/ai/index.md#ln-ai-118": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-118"
+  },
+  "plugins/ai/index.md#ln-ai-119": {
+    "path": "plugins/ai/tools-and-extensions-02.md",
+    "fragment": "ln-ai-119"
+  },
+  "plugins/ai/index.md#ln-ai-120": {
+    "path": "plugins/ai/conversation-storage-02.md",
+    "fragment": "ln-ai-120"
+  },
+  "plugins/ai/index.md#ln-ai-121": {
+    "path": "plugins/ai/conversation-storage-02.md",
+    "fragment": "ln-ai-121"
+  },
+  "plugins/ai/index.md#ln-ai-122": {
+    "path": "plugins/ai/conversation-storage-02.md",
+    "fragment": "ln-ai-122"
+  },
+  "plugins/ai/index.md#ln-ai-123": {
+    "path": "plugins/ai/providers-and-execution.md",
+    "fragment": "ln-ai-123"
+  },
+  "plugins/ai/index.md#ln-ai-124": {
+    "path": "plugins/ai/conversation-storage-02.md",
+    "fragment": "ln-ai-124"
+  },
+  "ui-and-styling.md#ui-and-styling-context": {
+    "path": "ui-and-styling/context.md",
+    "fragment": "ui-and-styling-context"
+  },
+  "ui-and-styling.md#swap-map-normative-intent": {
+    "path": "ui-and-styling/context.md",
+    "fragment": "swap-map-normative-intent"
+  },
+  "ui-and-styling.md#ln-ui-001": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-001"
+  },
+  "ui-and-styling.md#ln-ui-002": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-002"
+  },
+  "ui-and-styling.md#ln-ui-003": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-003"
+  },
+  "ui-and-styling.md#ln-ui-004": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-004"
+  },
+  "ui-and-styling.md#ln-ui-005": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-005"
+  },
+  "ui-and-styling.md#ln-ui-006": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-006"
+  },
+  "ui-and-styling.md#ln-ui-007": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-007"
+  },
+  "ui-and-styling.md#ln-ui-008": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-008"
+  },
+  "ui-and-styling.md#ln-ui-009": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-009"
+  },
+  "ui-and-styling.md#ln-ui-010": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-010"
+  },
+  "ui-and-styling.md#ln-ui-011": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-011"
+  },
+  "ui-and-styling.md#ln-ui-012": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-012"
+  },
+  "ui-and-styling.md#ln-ui-013": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-013"
+  },
+  "ui-and-styling.md#ln-ui-014": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-014"
+  },
+  "ui-and-styling.md#ln-ui-015": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-015"
+  },
+  "ui-and-styling.md#ln-ui-016": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-016"
+  },
+  "ui-and-styling.md#ln-ui-017": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-017"
+  },
+  "ui-and-styling.md#ln-ui-018": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-018"
+  },
+  "ui-and-styling.md#ln-ui-019": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-019"
+  },
+  "ui-and-styling.md#ln-ui-020": {
+    "path": "ui-and-styling/core-contract.md",
+    "fragment": "ln-ui-020"
+  },
+  "storybook-catalog.md#storybook-catalog-context": {
+    "path": "storybook-catalog/context.md",
+    "fragment": "storybook-catalog-context"
+  },
+  "storybook-catalog.md#show-code-source-contract": {
+    "path": "storybook-catalog/context.md",
+    "fragment": "show-code-source-contract"
+  },
+  "storybook-catalog.md#api-verification-families": {
+    "path": "storybook-catalog/context.md",
+    "fragment": "api-verification-families"
+  },
+  "storybook-catalog.md#tooling": {
+    "path": "storybook-catalog/context.md",
+    "fragment": "tooling"
+  },
+  "storybook-catalog.md#ln-cat-001": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-001"
+  },
+  "storybook-catalog.md#ln-cat-002": {
+    "path": "storybook-catalog/build-and-process.md",
+    "fragment": "ln-cat-002"
+  },
+  "storybook-catalog.md#ln-cat-003": {
+    "path": "storybook-catalog/core-contract.md",
+    "fragment": "ln-cat-003"
+  },
+  "storybook-catalog.md#ln-cat-004": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-004"
+  },
+  "storybook-catalog.md#ln-cat-005": {
+    "path": "storybook-catalog/core-contract.md",
+    "fragment": "ln-cat-005"
+  },
+  "storybook-catalog.md#ln-cat-006": {
+    "path": "storybook-catalog/build-and-process.md",
+    "fragment": "ln-cat-006"
+  },
+  "storybook-catalog.md#ln-cat-007": {
+    "path": "storybook-catalog/interaction-and-accessibility.md",
+    "fragment": "ln-cat-007"
+  },
+  "storybook-catalog.md#ln-cat-008": {
+    "path": "storybook-catalog/interaction-and-accessibility.md",
+    "fragment": "ln-cat-008"
+  },
+  "storybook-catalog.md#ln-cat-009": {
+    "path": "storybook-catalog/build-and-process.md",
+    "fragment": "ln-cat-009"
+  },
+  "storybook-catalog.md#ln-cat-010": {
+    "path": "storybook-catalog/core-contract.md",
+    "fragment": "ln-cat-010"
+  },
+  "storybook-catalog.md#ln-cat-011": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-011"
+  },
+  "storybook-catalog.md#ln-cat-012": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-012"
+  },
+  "storybook-catalog.md#ln-cat-013": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-013"
+  },
+  "storybook-catalog.md#ln-cat-014": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-014"
+  },
+  "storybook-catalog.md#ln-cat-015": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-015"
+  },
+  "storybook-catalog.md#ln-cat-016": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-016"
+  },
+  "storybook-catalog.md#ln-cat-017": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-017"
+  },
+  "storybook-catalog.md#ln-cat-018": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-018"
+  },
+  "storybook-catalog.md#ln-cat-019": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-019"
+  },
+  "storybook-catalog.md#ln-cat-020": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-020"
+  },
+  "storybook-catalog.md#ln-cat-021": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-021"
+  },
+  "storybook-catalog.md#ln-cat-022": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-022"
+  },
+  "storybook-catalog.md#ln-cat-023": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-023"
+  },
+  "storybook-catalog.md#ln-cat-024": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-024"
+  },
+  "storybook-catalog.md#ln-cat-025": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-025"
+  },
+  "storybook-catalog.md#ln-cat-026": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-026"
+  },
+  "storybook-catalog.md#ln-cat-027": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-027"
+  },
+  "storybook-catalog.md#ln-cat-028": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-028"
+  },
+  "storybook-catalog.md#ln-cat-029": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-029"
+  },
+  "storybook-catalog.md#ln-cat-030": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-030"
+  },
+  "storybook-catalog.md#ln-cat-031": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-031"
+  },
+  "storybook-catalog.md#ln-cat-032": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-032"
+  },
+  "storybook-catalog.md#ln-cat-033": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-033"
+  },
+  "storybook-catalog.md#ln-cat-034": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-034"
+  },
+  "storybook-catalog.md#ln-cat-035": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-035"
+  },
+  "storybook-catalog.md#ln-cat-036": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-036"
+  },
+  "storybook-catalog.md#ln-cat-037": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-037"
+  },
+  "storybook-catalog.md#ln-cat-038": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-038"
+  },
+  "storybook-catalog.md#ln-cat-049": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-049"
+  },
+  "storybook-catalog.md#ln-cat-050": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-050"
+  },
+  "storybook-catalog.md#ln-cat-051": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-051"
+  },
+  "storybook-catalog.md#ln-cat-055": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-055"
+  },
+  "storybook-catalog.md#ln-cat-059": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-059"
+  },
+  "storybook-catalog.md#ln-cat-061": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-061"
+  },
+  "storybook-catalog.md#ln-cat-062": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-062"
+  },
+  "storybook-catalog.md#ln-cat-056": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-056"
+  },
+  "storybook-catalog.md#ln-cat-057": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-057"
+  },
+  "storybook-catalog.md#ln-cat-058": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-058"
+  },
+  "storybook-catalog.md#ln-cat-060": {
+    "path": "storybook-catalog/build-and-process.md",
+    "fragment": "ln-cat-060"
+  },
+  "storybook-catalog.md#ln-cat-063": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-063"
+  },
+  "storybook-catalog.md#ln-cat-064": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-064"
+  },
+  "storybook-catalog.md#ln-cat-065": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-065"
+  },
+  "storybook-catalog.md#ln-cat-066": {
+    "path": "storybook-catalog/build-and-process.md",
+    "fragment": "ln-cat-066"
+  },
+  "storybook-catalog.md#ln-cat-067": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-067"
+  },
+  "storybook-catalog.md#ln-cat-068": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-068"
+  },
+  "storybook-catalog.md#ln-cat-071": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-071"
+  },
+  "storybook-catalog.md#ln-cat-092": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-092"
+  },
+  "storybook-catalog.md#ln-cat-093": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-093"
+  },
+  "storybook-catalog.md#ln-cat-094": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-094"
+  },
+  "storybook-catalog.md#ln-cat-095": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-095"
+  },
+  "storybook-catalog.md#ln-cat-096": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-096"
+  },
+  "storybook-catalog.md#ln-cat-097": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-097"
+  },
+  "storybook-catalog.md#ln-cat-098": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-098"
+  },
+  "storybook-catalog.md#ln-cat-072": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-072"
+  },
+  "storybook-catalog.md#ln-cat-073": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-073"
+  },
+  "storybook-catalog.md#ln-cat-074": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-074"
+  },
+  "storybook-catalog.md#ln-cat-075": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-075"
+  },
+  "storybook-catalog.md#ln-cat-076": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-076"
+  },
+  "storybook-catalog.md#ln-cat-077": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-077"
+  },
+  "storybook-catalog.md#ln-cat-078": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-078"
+  },
+  "storybook-catalog.md#ln-cat-086": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-086"
+  },
+  "storybook-catalog.md#ln-cat-079": {
+    "path": "storybook-catalog/interaction-and-accessibility.md",
+    "fragment": "ln-cat-079"
+  },
+  "storybook-catalog.md#ln-cat-080": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-080"
+  },
+  "storybook-catalog.md#ln-cat-081": {
+    "path": "storybook-catalog/visual-policy.md",
+    "fragment": "ln-cat-081"
+  },
+  "storybook-catalog.md#ln-cat-082": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-082"
+  },
+  "storybook-catalog.md#ln-cat-099": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-099"
+  },
+  "storybook-catalog.md#ln-cat-100": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-100"
+  },
+  "storybook-catalog.md#ln-cat-101": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-101"
+  },
+  "storybook-catalog.md#ln-cat-102": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-102"
+  },
+  "storybook-catalog.md#ln-cat-103": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-103"
+  },
+  "storybook-catalog.md#ln-cat-104": {
+    "path": "storybook-catalog/interaction-and-accessibility.md",
+    "fragment": "ln-cat-104"
+  },
+  "storybook-catalog.md#ln-cat-105": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-105"
+  },
+  "storybook-catalog.md#ln-cat-106": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-106"
+  },
+  "storybook-catalog.md#ln-cat-107": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-107"
+  },
+  "storybook-catalog.md#ln-cat-108": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-108"
+  },
+  "storybook-catalog.md#ln-cat-083": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-083"
+  },
+  "storybook-catalog.md#ln-cat-084": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-084"
+  },
+  "storybook-catalog.md#ln-cat-085": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-085"
+  },
+  "storybook-catalog.md#ln-cat-087": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-087"
+  },
+  "storybook-catalog.md#ln-cat-088": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-088"
+  },
+  "storybook-catalog.md#ln-cat-089": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-089"
+  },
+  "storybook-catalog.md#ln-cat-090": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-090"
+  },
+  "storybook-catalog.md#ln-cat-091": {
+    "path": "storybook-catalog/plugin-scenarios.md",
+    "fragment": "ln-cat-091"
+  },
+  "storybook-catalog.md#ln-cat-069": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-069"
+  },
+  "storybook-catalog.md#ln-cat-070": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-070"
+  },
+  "storybook-catalog.md#ln-cat-109": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-109"
+  },
+  "storybook-catalog.md#ln-cat-110": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-110"
+  },
+  "storybook-catalog.md#ln-cat-111": {
+    "path": "storybook-catalog/app-owned-fixtures.md",
+    "fragment": "ln-cat-111"
+  },
+  "storybook-catalog.md#ln-cat-112": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-112"
+  },
+  "storybook-catalog.md#ln-cat-113": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-113"
+  },
+  "storybook-catalog.md#ln-cat-114": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-114"
+  },
+  "storybook-catalog.md#ln-cat-115": {
+    "path": "storybook-catalog/documentation-and-navigation.md",
+    "fragment": "ln-cat-115"
+  },
+  "spec-governance.md#specification-governance-context": {
+    "path": "spec-governance/context.md",
+    "fragment": "specification-governance-context"
+  },
+  "spec-governance.md#requirement-structure": {
+    "path": "spec-governance/context.md",
+    "fragment": "requirement-structure"
+  },
+  "spec-governance.md#ln-example-001-acceptance-details": {
+    "path": "spec-governance/context.md",
+    "fragment": "ln-example-001-acceptance-details"
+  },
+  "spec-governance.md#specification-discovery": {
+    "path": "spec-governance/context.md",
+    "fragment": "specification-discovery"
+  },
+  "spec-governance.md#change-map": {
+    "path": "spec-governance/context.md",
+    "fragment": "change-map"
+  },
+  "spec-governance.md#agent-workflow": {
+    "path": "spec-governance/context.md",
+    "fragment": "agent-workflow"
+  },
+  "spec-governance.md#current-ci-dependency-image": {
+    "path": "spec-governance/context.md",
+    "fragment": "current-ci-dependency-image"
+  },
+  "spec-governance.md#ln-gov-001": {
+    "path": "spec-governance/verification-and-documents.md",
+    "fragment": "ln-gov-001"
+  },
+  "spec-governance.md#ln-gov-002": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-002"
+  },
+  "spec-governance.md#ln-gov-003": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-003"
+  },
+  "spec-governance.md#ln-gov-004": {
+    "path": "spec-governance/validation-and-ci.md",
+    "fragment": "ln-gov-004"
+  },
+  "spec-governance.md#ln-gov-005": {
+    "path": "spec-governance/validation-and-ci.md",
+    "fragment": "ln-gov-005"
+  },
+  "spec-governance.md#ln-gov-006": {
+    "path": "spec-governance/core-contract.md",
+    "fragment": "ln-gov-006"
+  },
+  "spec-governance.md#ln-gov-007": {
+    "path": "spec-governance/verification-and-documents.md",
+    "fragment": "ln-gov-007"
+  },
+  "spec-governance.md#ln-gov-008": {
+    "path": "spec-governance/verification-and-documents.md",
+    "fragment": "ln-gov-008"
+  },
+  "spec-governance.md#ln-gov-009": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-009"
+  },
+  "spec-governance.md#ln-gov-010": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-010"
+  },
+  "spec-governance.md#ln-gov-011": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-011"
+  },
+  "spec-governance.md#ln-gov-012": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-012"
+  },
+  "spec-governance.md#ln-gov-013": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-013"
+  },
+  "spec-governance.md#ln-gov-014": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-014"
+  },
+  "spec-governance.md#ln-gov-015": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-015"
+  },
+  "spec-governance.md#ln-gov-016": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-016"
+  },
+  "spec-governance.md#ln-gov-017": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-017"
+  },
+  "spec-governance.md#ln-gov-018": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-018"
+  },
+  "spec-governance.md#ln-gov-019": {
+    "path": "spec-governance/verification-and-documents.md",
+    "fragment": "ln-gov-019"
+  },
+  "spec-governance.md#ln-gov-020": {
+    "path": "spec-governance/discovery.md",
+    "fragment": "ln-gov-020"
+  },
+  "spec-governance.md#ln-gov-021": {
+    "path": "spec-governance/discovery.md",
+    "fragment": "ln-gov-021"
+  },
+  "spec-governance.md#ln-gov-022": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-022"
+  },
+  "spec-governance.md#ln-gov-023": {
+    "path": "spec-governance/validation-and-ci.md",
+    "fragment": "ln-gov-023"
+  },
+  "spec-governance.md#ln-gov-024": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-024"
+  },
+  "spec-governance.md#ln-gov-025": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-025"
+  },
+  "spec-governance.md#ln-gov-026": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-026"
+  },
+  "spec-governance.md#ln-gov-027": {
+    "path": "spec-governance/validation-and-ci.md",
+    "fragment": "ln-gov-027"
+  },
+  "spec-governance.md#ln-gov-028": {
+    "path": "spec-governance/verification-and-documents.md",
+    "fragment": "ln-gov-028"
+  },
+  "spec-governance.md#ln-gov-029": {
+    "path": "spec-governance/validation-and-ci.md",
+    "fragment": "ln-gov-029"
+  },
+  "spec-governance.md#ln-gov-030": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-030"
+  },
+  "spec-governance.md#ln-gov-031": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-031"
+  },
+  "spec-governance.md#ln-gov-032": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-032"
+  },
+  "spec-governance.md#ln-gov-033": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-033"
+  },
+  "spec-governance.md#ln-gov-034": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-034"
+  },
+  "spec-governance.md#ln-gov-035": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-035"
+  },
+  "spec-governance.md#ln-gov-036": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-036"
+  },
+  "spec-governance.md#ln-gov-037": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-037"
+  },
+  "spec-governance.md#ln-gov-038": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-038"
+  },
+  "spec-governance.md#ln-gov-039": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-039"
+  },
+  "spec-governance.md#ln-gov-040": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-040"
+  },
+  "spec-governance.md#ln-gov-041": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-041"
+  },
+  "spec-governance.md#ln-gov-042": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-042"
+  },
+  "spec-governance.md#ln-gov-043": {
+    "path": "spec-governance/core-contract.md",
+    "fragment": "ln-gov-043"
+  },
+  "spec-governance.md#ln-gov-044": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-044"
+  },
+  "spec-governance.md#ln-gov-045": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-045"
+  },
+  "spec-governance.md#ln-gov-046": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-046"
+  },
+  "spec-governance.md#ln-gov-047": {
+    "path": "spec-governance/protected-change-mapping.md",
+    "fragment": "ln-gov-047"
+  },
+  "spec-governance.md#ln-gov-048": {
+    "path": "spec-governance/verification-and-documents.md",
+    "fragment": "ln-gov-048"
+  },
+  "spec-governance.md#ln-gov-049": {
+    "path": "spec-governance/requirement-authoring.md",
+    "fragment": "ln-gov-049"
+  }
+}

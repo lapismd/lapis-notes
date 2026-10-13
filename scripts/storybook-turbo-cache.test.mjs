@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { readFile, writeFile, mkdtemp, mkdir, rm } from "node:fs/promises";
+import {
+  readFile,
+  writeFile,
+  mkdtemp,
+  mkdir,
+  rm,
+  symlink,
+} from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -44,10 +51,13 @@ test("CI Storybook tasks cache their results after package builds", () => {
     ".visual-delta/cache/**",
   ]);
   assert.deepEqual(config.tasks["//#ci:storybook-interaction"].outputs, []);
-  assert.equal(manifest.scripts["ci:storybook-static"], "pnpm build-storybook");
+  assert.equal(
+    manifest.scripts["ci:storybook-static"],
+    "pnpm build-storybook:run && pnpm test:specification:static:run",
+  );
   assert.equal(
     manifest.scripts["ci:storybook-interaction"],
-    "pnpm test:storybook",
+    "pnpm test:storybook:run && pnpm test:specification:dev:run",
   );
 });
 
@@ -313,4 +323,193 @@ test("cached API builds restore their generated source catalogue", async (t) => 
     await readFile(path.join(root, "packages/api/dist/index.js"), "utf8"),
     "export const built = true;",
   );
+});
+
+test("local test entry points use bounded Turbo tasks without raw-script recursion", () => {
+  const names = Object.keys(manifest.scripts).filter(
+    (name) =>
+      (name.startsWith("test:") || name === "release:test") &&
+      !name.endsWith(":run"),
+  );
+  for (const name of [...names, "build-storybook"]) {
+    const target = `${name}:run`;
+    assert.match(
+      manifest.scripts[name],
+      new RegExp(`scripts/run-turbo\\.mjs ${target} --task-args$`),
+      name,
+    );
+    assert.ok(config.tasks[`//#${target}`], `${name} has a root task`);
+    assert.ok(manifest.scripts[target], `${name} has a raw runner`);
+    assert.ok(
+      !manifest.scripts[target].includes(`pnpm ${name}`),
+      `${name} must not call itself`,
+    );
+  }
+  for (const name of [
+    "test:storybook",
+    "test:specification:dev",
+    "test:specification:static",
+    "release:test",
+    "test:spec-validation",
+    "test:local-plugin-consumer",
+    "test:ai:smoke-harness",
+  ])
+    assert.notEqual(config.tasks[`//#${name}:run`].cache, false, name);
+  for (const name of [
+    "test:visual",
+    "test:visual:update",
+    "test:workspace:pointer",
+    "test:desktop:packaged",
+    "test:web:e2e",
+  ])
+    assert.equal(config.tasks[`//#${name}:run`].cache, false, name);
+});
+
+test("the bounded runner preserves test arguments and separates forced/live cache policy", async () => {
+  const { resolveTurboArguments } = await import("./lib/turbo-invocation.mjs");
+  assert.deepEqual(
+    resolveTurboArguments(["test", "--", "--filter=@lapis-notes/api"], {}).args,
+    ["test", "--filter=@lapis-notes/api"],
+  );
+  assert.deepEqual(
+    resolveTurboArguments(
+      [
+        "test:specification:dev:run",
+        "--task-args",
+        "--",
+        "--grep",
+        "canonical links",
+        "--force",
+      ],
+      {},
+    ).args,
+    [
+      "test:specification:dev:run",
+      "--force",
+      "--",
+      "--grep",
+      "canonical links",
+    ],
+  );
+  assert.deepEqual(
+    resolveTurboArguments(["test:storybook:run", "--task-args"], {
+      TURBO_TOKEN: "cache-secret",
+    }).args,
+    ["test:storybook:run"],
+  );
+  assert.equal(
+    resolveTurboArguments(
+      ["test:spec-validation:storybook-structure:run", "--task-args"],
+      { LAPIS_AGENT_RUNTIME_URL: "live" },
+    ).live,
+    false,
+    "source-only audits do not consume live Storybook services",
+  );
+  for (const key of [
+    "LAPIS_AGENT_RUNTIME_URL",
+    "LAPIS_AGENT_RUNTIME_TOKEN",
+    "LAPIS_TERMINAL_HOST_URL",
+    "LAPIS_TERMINAL_HOST_TOKEN",
+    "SPECIFICATION_BASE_URL",
+  ]) {
+    const live = resolveTurboArguments(["test:storybook:run", "--task-args"], {
+      [key]: "live",
+    });
+    assert.equal(live.live, true, key);
+    assert.ok(live.args.includes("--cache=local:,remote:"), key);
+  }
+});
+
+test("local public test routing hits cache, invalidates inputs, and reruns failures and forced/live acceptance", async (t) => {
+  const root = await cacheFixture(t);
+  for (const file of [
+    "run-turbo.mjs",
+    "lib/concurrency.mjs",
+    "lib/turbo-invocation.mjs",
+    "storybook-local-env.mjs",
+  ]) {
+    await mkdir(path.dirname(path.join(root, "scripts", file)), {
+      recursive: true,
+    });
+    await writeFile(
+      path.join(root, "scripts", file),
+      await readFile(new URL(file, import.meta.url), "utf8"),
+    );
+  }
+  await symlink(
+    fileURLToPath(new URL("../node_modules", import.meta.url)),
+    path.join(root, "node_modules"),
+    "dir",
+  );
+  await writeFile(
+    path.join(root, ".gitignore"),
+    (await readFile(path.join(root, ".gitignore"), "utf8")) + "node_modules\n",
+  );
+  const fixtureManifestPath = path.join(root, "package.json");
+  const fixtureManifest = JSON.parse(
+    await readFile(fixtureManifestPath, "utf8"),
+  );
+  fixtureManifest.scripts["test:storybook"] =
+    manifest.scripts["test:storybook"];
+  fixtureManifest.scripts["test:storybook:run"] =
+    "node scripts/task-fixture.mjs interaction";
+  await writeFile(fixtureManifestPath, JSON.stringify(fixtureManifest));
+  const fixtureConfigPath = path.join(root, "turbo.json");
+  const fixtureConfig = JSON.parse(await readFile(fixtureConfigPath, "utf8"));
+  fixtureConfig.tasks["//#test:storybook:run"].env.push("FIXTURE_FAILURE");
+  await writeFile(fixtureConfigPath, JSON.stringify(fixtureConfig));
+  function run(args = [], env = {}) {
+    return spawnSync("pnpm", ["run", "test:storybook", ...args], {
+      cwd: root,
+      encoding: "utf8",
+      timeout: 30000,
+      env: {
+        ...process.env,
+        CI: "true",
+        TURBO_TOKEN: "",
+        TURBO_TEAM: "",
+        TURBO_API: "",
+        TURBO_TELEMETRY_DISABLED: "1",
+        FIXTURE_FAILURE: "",
+        ...env,
+      },
+    });
+  }
+  function passed(result) {
+    assert.equal(result.status, 0, result.stderr + result.stdout);
+  }
+  passed(run());
+  assert.equal(await executions(root), 1);
+  let result = run();
+  passed(result);
+  assert.match(result.stdout, /cache hit/);
+  assert.equal(await executions(root), 1);
+  await writeFile(path.join(root, "stories/Demo.ts"), "local-changed-story\n");
+  passed(run());
+  assert.equal(await executions(root), 2);
+  await writeFile(
+    path.join(root, "packages/api/src/index.js"),
+    "export const local = true;",
+  );
+  passed(run());
+  assert.equal(await executions(root), 3);
+  passed(run(["--", "--probe", "first"]));
+  assert.equal(await executions(root), 4);
+  passed(run(["--", "--probe", "first"]));
+  assert.equal(await executions(root), 4);
+  passed(run(["--force"]));
+  assert.equal(await executions(root), 5);
+  for (const count of [6, 7]) {
+    const failed = run([], { FIXTURE_FAILURE: "1" });
+    assert.notEqual(failed.status, 0);
+    assert.match(
+      failed.stdout + failed.stderr,
+      /Intentional regression failure/,
+    );
+    assert.equal(await executions(root), count);
+  }
+  for (const count of [8, 9]) {
+    passed(run([], { SPECIFICATION_BASE_URL: "http://127.0.0.1:9999/" }));
+    assert.equal(await executions(root), count);
+  }
 });

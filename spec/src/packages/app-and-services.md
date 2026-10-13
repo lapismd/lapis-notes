@@ -1,0 +1,115 @@
+# Packages / App and services
+
+## LN-PKG-001 — @lapis-notes/api: remain the shared runtime kernel: app container
+
+<a id="ln-pkg-001"></a>
+
+**Requirement.** `@lapis-notes/api` MUST remain the shared runtime kernel: app container, vault/storage contracts, workspace model, plugins, commands, settings, metadata, and editor abstractions.
+
+## LN-PKG-007 — @lapis-notes/workspace: expose the design-core shell around an application-supplied
+
+<a id="ln-pkg-007"></a>
+
+**Requirement.** `@lapis-notes/workspace` MUST expose the design-core shell around an application-supplied `App` without providing a production in-memory backend or invoking the Lapis plugin loader. It MAY map flat app configuration into generic Design Core shell presentation inputs.
+
+## LN-PKG-008 — @lapis-notes/api: configure the owned design-core controller with overridable
+
+<a id="ln-pkg-008"></a>
+
+**Requirement.** `@lapis-notes/api` MUST configure the owned design-core controller with overridable plain Lapis application metadata and the notifications presentation as the minimal required static shell plugin. F-Mode MAY be an additional optional static plugin. This MUST remain separate from api plugin loading and distribution. AppShell configuration, including scrollbar visibility, MUST use the API configuration bridge, while plugin enablement persistence MUST resolve the App vault when load and save run.
+
+## LN-PKG-017 — @lapis-notes/markdown: publicly export app-only Svelte components for All
+
+<a id="ln-pkg-017"></a>
+
+**Requirement.** `@lapis-notes/markdown` MUST publicly export app-only Svelte components for All Properties, File Properties, Outline, Backlinks, Outgoing Links, and Tags as documented by their owning panel pages. The public Outline and Tags surfaces MUST preserve their governed tree geometry without requiring consumer styling, and `@lapis-notes/workspace` MUST remain shell-only.
+
+## LN-PKG-045 — @lapis-notes/api: export provider-neutral app-database descriptors, capabilities, factories,
+
+<a id="ln-pkg-045"></a>
+
+**Requirement.** `@lapis-notes/api` MUST export provider-neutral app-database descriptors, capabilities, factories, and session integration while retaining explicit database injection for tests and Storybook.
+
+## LN-PKG-047 — Production app-database persistence: use pinned Turso native or WASM packages
+
+<a id="ln-pkg-047"></a>
+
+**Requirement.** Production app-database persistence MUST use pinned Turso native or WASM packages. The WASM importer MUST use a host-bundler-compatible package entry. SQLite, sqlite-vec, and IndexedDB app-database implementations MUST NOT remain as importers or fallbacks.
+
+## LN-PKG-057 — @lapis-notes/api: expose reactive status-item changes and project visible
+
+<a id="ln-pkg-057"></a>
+
+**Requirement.** `@lapis-notes/api` MUST expose reactive status-item changes and project visible items plus compatibility ribbon actions into the active public workspace shell.
+
+## LN-PKG-061 — @lapis-notes/api WorkspaceLeaf.openFile: snapshot history before target-view construction so eager
+
+<a id="ln-pkg-061"></a>
+
+**Requirement.** `@lapis-notes/api` `WorkspaceLeaf.openFile` MUST snapshot history before target-view construction so eager compatibility views cannot replace the initiating state recorded for Back. Restoring a plain `View` MUST remove the shared file-view content root before mounting it.
+
+## LN-PKG-070 — @lapis-notes/api: expose an App context, ownership resolver,
+
+<a id="ln-pkg-070"></a>
+
+**Requirement.** `@lapis-notes/api` MUST expose an App context, ownership resolver, and disposable compatibility lease. Explicit or workspace-owned App references MUST win over the compatibility alias, and releasing an older lease MUST NOT clear a newer host's alias.
+
+## LN-PKG-072 — Configuration writes after initial loading
+
+<a id="ln-pkg-072"></a>
+
+**Requirement.** Configuration schema defaults MUST NOT write `.obsidian/app.json` before the initial persisted configuration load completes. Initial loading MUST preserve persisted and unknown keys while adding registered defaults, and later schema registration MUST persist newly introduced defaults through the normal serialized writer.
+
+## LN-PKG-025 — @lapis-notes/markdown: export the real AllProperties Svelte component
+
+<a id="ln-pkg-025"></a>
+
+**Requirement.** `@lapis-notes/markdown` MUST export the real `AllProperties` Svelte component with only `app: App` as its input so Storybook documents the package interface rather than its placement harness.
+
+## LN-PKG-028 — Lapis embed wrappers: bind Mira's portable rendering contract
+
+<a id="ln-pkg-028"></a>
+
+**Requirement.** Lapis embed wrappers MUST bind Mira's portable rendering contract to an explicit `app: App` without copying Mira's renderer or requiring consumer-owned source aliases.
+
+## LN-PKG-030 — Ordinary document-link previews: remain owned by Mira's built package
+
+<a id="ln-pkg-030"></a>
+
+**Requirement.** Ordinary document-link previews MUST remain owned by Mira's built package and receive only Lapis's `MiraFileAdapter`. One App MUST reuse one adapter instance. The Markdown package MUST NOT add a consumer portal or clipping workaround.
+
+## LN-PKG-032 — @lapis-notes/api: own the ordered adapter from compatibility ItemView.actions
+
+<a id="ln-pkg-032"></a>
+
+**Requirement.** `@lapis-notes/api` MUST own the ordered adapter from compatibility `ItemView.actions` and `View.onPaneMenu` contributions to design-core workspace chrome. `@lapis-notes/workspace` remains a rendering host and MUST NOT add plugin-specific actions.
+
+## LN-PKG-097 — Rebuild Vault Cache command
+
+<a id="ln-pkg-097"></a>
+
+**Requirement.** `App` MUST register palette command `app:rebuild-vault-cache`. That command MUST call `metadataCache.rebuild()`.
+
+## LN-PKG-098 — Rebuild Generated State command
+
+<a id="ln-pkg-098"></a>
+
+**Requirement.** `App` MUST register palette command `app:rebuild-generated-state`. That command MUST await `metadataCache.rebuild()`, then execute `search:rebuild-search-index` when that command is registered, otherwise `appDatabase.rebuildSearchIndex()`.
+
+## LN-PKG-132 — Private @lapis-notes/app-profile: own the shared Web and Deno static
+
+<a id="ln-pkg-132"></a>
+
+**Requirement.** Private `@lapis-notes/app-profile` MUST own the shared Web and Deno static plugin profile and app-owned plugin-management registration. Host packages MUST consume that one profile instead of duplicating registration arrays or importing extracted plugins directly.
+
+## LN-PKG-148 — @lapis-notes/api: advertise a transport-neutral nostr-signer native capability but
+
+<a id="ln-pkg-148"></a>
+
+**Requirement.** `@lapis-notes/api` MAY advertise a transport-neutral `nostr-signer` native capability but MUST NOT implement OS credential storage or Nostr cryptography. The private Deno desktop host MUST own its keychain, NIP-46, native signing service, renderer broker, and direct `nostr-tools` runtime dependency.
+
+## LN-PKG-080 — @lapis-notes/api: own transport-neutral app-tool contracts, lifecycle, and Vault-backed
+
+<a id="ln-pkg-080"></a>
+
+**Requirement.** `@lapis-notes/api` MUST own transport-neutral app-tool contracts, lifecycle, and Vault-backed file-tool wrappers. Search MUST own `notes_search` and Markdown MUST own `notes_list`. AI MUST own snapshots and policy. `@lapismd/ai-host` plus Deno desktop MUST own live MCP transport without becoming durable tool, note-content, or conversation authorities.

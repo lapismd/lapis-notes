@@ -1,0 +1,97 @@
+# Plugin Model / Editor contributions
+
+## LN-PLUG-006 — Lapis Notes default profile: contain exactly Source Editor, Markdown, File Explorer
+
+<a id="ln-plug-006"></a>
+
+**Requirement.** The Lapis Notes default profile MUST contain exactly Source Editor, Markdown, File Explorer, and Search in that order. All four MUST default enabled and remain user-disableable. Extracted npm plugin constructors MUST resolve the same API peer instance used by the profile. Required host-owned views such as Problems MUST NOT become missing-view placeholders while their host registration remains.
+
+## LN-PLUG-007 — Disabling a plugin with open owned views: replace those leaves with persisted missing-view placeholders
+
+<a id="ln-plug-007"></a>
+
+**Requirement.** Disabling a plugin with open owned views MUST replace those leaves with persisted missing-view placeholders. Re-enabling it MUST restore the leaves without changing active selection or plugin-owned data. Restored imperative plugin views MUST receive a host-filling compatibility root without depending on application-global utility CSS. Collapse, remount, and file-open projection MUST keep the same leaf id and live `getState()`.
+
+## LN-PLUG-012 — Core settings: list each runtime plugin ID exactly once
+
+<a id="ln-plug-012"></a>
+
+**Requirement.** Core settings MUST list each runtime plugin ID exactly once, including when a statically registered plugin also exposes indexed manifest contributions.
+
+## LN-PLUG-013 — Plugin.registerSearchDocumentProvider: namespace provider IDs and dispose registrations
+
+<a id="ln-plug-013"></a>
+
+**Requirement.** `Plugin.registerSearchDocumentProvider` MUST namespace provider IDs and dispose registrations with the owning plugin lifecycle. It MUST NOT grant providers direct generated-index ownership.
+
+## LN-PLUG-015 — History-enabled navigation into a plugin-owned file view: preserve the initiating leaf state before constructing
+
+<a id="ln-plug-015"></a>
+
+**Requirement.** History-enabled navigation into a plugin-owned file view MUST preserve the initiating leaf state before constructing the target view. Back MUST NOT restore an empty plugin view or retain the previous file-view root.
+
+## LN-PLUG-018 — Non-file views: contribute header breadcrumbs through View.getBreadcrumbs() and View.getBreadcrumbFilePath()
+
+<a id="ln-plug-018"></a>
+
+**Requirement.** Non-file views MAY contribute header breadcrumbs through `View.getBreadcrumbs()` and `View.getBreadcrumbFilePath()`. `getChrome` MUST prepend those crumbs, append parent-path segments of the returned path, and keep `titleEditable` only for FileView.
+
+## LN-PLUG-021 — LoadPlugins({ onProgress }): call onProgress immediately before each enablePlugin
+
+<a id="ln-plug-021"></a>
+
+**Requirement.** `loadPlugins({ onProgress })` MUST call `onProgress` immediately before each `enablePlugin` with `id`, `name`, `index`, and `total` for the current activation order.
+
+## LN-PLUG-022 — Plugin.registerAgentSkillRoot and registerAgentSkillDirectory: register file-backed skill sources under the owning
+
+<a id="ln-plug-022"></a>
+
+**Requirement.** `Plugin.registerAgentSkillRoot` and `registerAgentSkillDirectory` MUST register file-backed skill sources under the owning plugin, keep paths inside the extension root, and dispose them on unload. Optional `registerAgentSkill` MUST share the same descriptor model. Unloaded sources MUST NOT enter later snapshots.
+
+## LN-PLUG-025 — Plugin.registerIndexProjection: register a namespaced projection with field schema
+
+<a id="ln-plug-025"></a>
+
+**Requirement.** `Plugin.registerIndexProjection` MUST register a namespaced projection with field schema and a `project` function, MUST NOT write YAML, and MUST dispose with the plugin.
+
+## LN-PLUG-026 — RegisterIndexProjection: return a handle with query, get,
+
+<a id="ln-plug-026"></a>
+
+**Requirement.** `registerIndexProjection` MUST return a handle with `query`, `get`, and `queryRelated`. Registration MUST backfill from the core file index in bounded batches.
+
+## LN-PLUG-030 — Search provider startup order
+
+<a id="ln-plug-030"></a>
+
+**Requirement.** Search plugin load MUST register its providers and change listeners before scheduling one startup reconciliation after `MetadataCache.load()` resolves. Provider registrations during configured plugin loading MUST be absorbed into that reconciliation, and layout readiness MUST NOT schedule a competing reconciliation. Plugin unload MUST drain owned incremental checkpoint work before disposal.
+
+## LN-PLUG-032 — First-party plugins that need only selected indexed: use the API projection and path-only query
+
+<a id="ln-plug-032"></a>
+
+**Requirement.** First-party plugins that need only selected indexed metadata domains or Search membership MUST use the API projection and path-only query contracts. They MUST NOT enumerate complete Search documents or issue per-file metadata lookups to reconstruct an indexed page.
+
+## LN-PLUG-035 — Plugin: use API-owned structured-query syntax and AppDatabase path-only
+
+<a id="ln-plug-035"></a>
+
+**Requirement.** A plugin MAY use API-owned structured-query syntax and AppDatabase path-only Search to evaluate its own ordered presentation rules. It MUST keep value discovery, rule persistence, precedence, and diagnostics plugin-owned, react to Search-domain revisions, and MUST NOT import another plugin's manager, panel, settings, or autocomplete catalog.
+
+## LN-PLUG-037 — First-party plugin that exposes a retryable generated: publish current build failures through an owner-scoped
+
+<a id="ln-plug-037"></a>
+
+**Requirement.** A first-party plugin that exposes a retryable generated view MUST publish current build failures through an owner-scoped diagnostic collection when the failure requires user visibility. Resource-specific failures use an opaque resource; workspace failures use `null`. Recovery and plugin disposal MUST clear those diagnostics without opening Problems.
+
+## LN-PLUG-044 — Workspace README presentation: injected through the App renderer contract. @lapis-notes/workspace
+
+<a id="ln-plug-044"></a>
+
+**Requirement.** Workspace README presentation MUST be injected through the App renderer contract. `@lapis-notes/workspace` MUST NOT depend directly on `@lapis-notes/markdown` or any extracted plugin implementation.
+
+## LN-PLUG-101 — Plugins details: open inside the owning view with breadcrumbs
+
+<a id="ln-plug-101"></a>
+
+**Requirement.** Plugins details MUST open inside the owning view with breadcrumbs, metadata, linked author, verified media, overview, changelog, and releases. Back navigation MUST restore the originating homepage or filtered directory and its scroll position.
