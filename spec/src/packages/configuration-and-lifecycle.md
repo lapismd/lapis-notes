@@ -24,25 +24,25 @@
 
 **Requirement.** `@lapis-notes/ai` MUST own cross-agent transcript projection, binding cursor reduction, switch/configuration audit records, and optional background handoff summaries. `@lapismd/ai-host` and desktop adapters MAY configure or resume native sessions through versioned transport methods, but MUST NOT copy opaque runtime state, author handoff transcript messages, select durable binding state, or become conversation authority.
 
-## LN-PKG-083 — @lapis-notes/wordcount: live in the sibling lapis-plugins monorepo as
+## LN-PKG-083 — Independent Word Count package ownership
 
 <a id="ln-pkg-083"></a>
 
 **Requirement.** `@lapis-notes/wordcount` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST depend on `@lapis-notes/api` and MUST NOT depend on `@lapis-notes/ui`.
 
-## LN-PKG-089 — @lapis-notes/spellcheck: live in the sibling lapis-plugins monorepo as
+## LN-PKG-089 — Independent Spell Check package ownership
 
 <a id="ln-pkg-089"></a>
 
 **Requirement.** `@lapis-notes/spellcheck` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST depend on the API and `harper.js` without importing Design Core presentation or `@lapis-notes/ui`.
 
-## LN-PKG-099 — @lapis-notes/bookmarks: live in the sibling lapis-plugins monorepo as
+## LN-PKG-099 — Independent Bookmarks package ownership
 
 <a id="ln-pkg-099"></a>
 
 **Requirement.** `@lapis-notes/bookmarks` MUST live in the sibling `lapis-plugins` monorepo as an independently versioned installable plugin. It MUST depend on API and Design Core, MUST NOT depend on `@lapis-notes/ui`, and MUST persist `{ items }` through `.obsidian/bookmarks.json`.
 
-## LN-PKG-103 — @lapis-notes/lapis-plugin-docs: Do not depend on /Users/stevejuma/code/cv or @cvstudio/\*
+## LN-PKG-103 — Portable Docs plugin dependencies
 
 <a id="ln-pkg-103"></a>
 

@@ -83,7 +83,7 @@ separate setting.
 
 **Requirement.** Spell Check MUST refresh `spellcheck:status` from plugin load and configuration updates. It MUST NOT subscribe to `layout-change` for that item. A no-op dialect or checking write MUST NOT upsert the status bar.
 
-## LN-SPL-008 — Spell Check: start Harper during plugin load and MUST
+## LN-SPL-008 — Harper startup and lifecycle
 
 <a id="ln-spl-008"></a>
 

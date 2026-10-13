@@ -60,7 +60,7 @@
 
 **Requirement.** `MetadataCache` MUST surface normalized AppDatabase data through async per-file and query APIs. `loaded` MUST mean persisted queries are available, while reconciliation continues within the load operation and emits committed index changes.
 
-## LN-PKG-108 — Automatic metadata snapshots under .lapis/cache: stop. Existing files MUST remain untouched,
+## LN-PKG-108 — Retirement of automatic metadata snapshots
 
 <a id="ln-pkg-108"></a>
 
@@ -114,13 +114,13 @@
 
 **Requirement.** Storybook Pages publication MUST restore or build workspace package outputs through the existing Turbo wrapper before loading Storybook configuration. The workflow MUST report cache restoration and retain output verification before upload and deployment.
 
-## LN-PKG-153 — CI and Pages static Storybook builds: use a cacheable root Turbo task that
+## LN-PKG-153 — Cached static Storybook builds
 
 <a id="ln-pkg-153"></a>
 
 **Requirement.** CI and Pages static Storybook builds MUST use a cacheable root Turbo task that depends on workspace builds and restores both `storybook-static` and Visual Delta build statistics. Output verification MUST still run before Pages upload.
 
-## LN-PKG-154 — CI Storybook interaction and accessibility tests: use a cacheable root Turbo task that
+## LN-PKG-154 — Cached Storybook interaction tests
 
 <a id="ln-pkg-154"></a>
 

@@ -6,7 +6,7 @@
 
 **Requirement.** `@lapis-notes/markdown` MUST register through the existing API `Plugin` surface: `registerView`, `registerEditorView`, `registerExtensions`, `registerEditorExtension`, commands, and settings schema.
 
-## LN-MD-003 — Plugin triad (plugin.ts, plugin-manager.ts, and lapis-extension.ts): remain authoritative. Markdown MUST NOT introduce parallel
+## LN-MD-003 — Authoritative Markdown plugin lifecycle
 
 <a id="ln-md-003"></a>
 
@@ -30,7 +30,7 @@
 
 **Requirement.** Lapis Path A (`EditorConfig` plus configuration `updated`) and Path B (`registerEditorExtension`, `workspace.updateOptions`, and `editor.updateExtensions`) MUST remain the extension-reload authority.
 
-## LN-MD-007 — Existing editor and workspace events (editor-updated, Editor: remain wired; Mira MUST NOT replace them
+## LN-MD-007 — Existing editor and workspace events
 
 <a id="ln-md-007"></a>
 
@@ -42,7 +42,7 @@
 
 **Requirement.** Markdown settings MUST expose Mira feature and Mira plugin toggles, including Mermaid and AI, under a Markdown settings section through the existing configuration schema and settings-section APIs.
 
-## LN-MD-010 — Living behavior, parity, and Storybook verification: tracked with the Markdown package in
+## LN-MD-010 — Markdown behavior and parity tracking
 
 <a id="ln-md-010"></a>
 
@@ -66,7 +66,7 @@
 
 **Requirement.** Markdown body text MAY retain the Lapis sans face, but revealed and source-mode frontmatter lines MUST resolve Mira's monospace token, using Source Code Pro under the Obsidian theme.
 
-## LN-MD-053 — API editor note-column spacing: Do not inset an embedded frontmatter preview
+## LN-MD-053 — Embedded frontmatter spacing
 
 <a id="ln-md-053"></a>
 
@@ -96,7 +96,7 @@
 
 **Requirement.** `markdown.mira.editor.toolbar.enabled` MUST default to `false` and control a public Mira toolbar above the API `NoteEditor` only in Source and Live Preview. Its actions MUST delegate to the existing Lapis `Editor`, configuration, image picker, and mode lifecycle. The Lapis editing surface MUST remain borderless.
 
-## LN-MD-075 — Markdown.mira.editor.doodleDividers.enabled: default to false. When enabled, Lapis MUST
+## LN-MD-075 — Doodle Dividers default and gate
 
 <a id="ln-md-075"></a>
 
@@ -162,7 +162,7 @@
 
 **Requirement.** Public `MarkdownEmbed` MUST render through Mira's embed preview using the owning App's `createLapisMiraFileAdapter` and `resolveMarkdownMiraExtensions`. It MUST refresh those extensions when configuration changes. Consumers MAY set `htmlPolicy`.
 
-## LN-MD-104 — Markdown: compose every registered API Markdown contribution into
+## LN-MD-104 — Registered Markdown contribution composition
 
 <a id="ln-md-104"></a>
 
@@ -174,13 +174,13 @@
 
 **Requirement.** A Markdown file surface MUST support manual, single-click, or double-click activation and configurable blur return. Double-click activation MUST ignore interactive descendants, and failed persistence MUST retain the dirty editor with an accessible error. Its root MUST establish the effective Mira `obsidian` theme for preview and live-edit descendants.
 
-## LN-MD-107 — Full-file surface: use a Design Core Scroll Area as
+## LN-MD-107 — Full-file Scroll Area ownership
 
 <a id="ln-md-107"></a>
 
 **Requirement.** A full-file surface MUST use a Design Core Scroll Area as its outer consumer scroll while previewing and its CodeMirror scroll while editing. The preview MUST inherit the application scrollbar visibility preference and MUST NOT retain Mira's native inner scroll owner. It MUST NOT create two active vertical document scrollers in either state.
 
-## LN-MD-109 — Markdown.mira.features.outline-navigation: remain a flat Boolean setting in
+## LN-MD-109 — Flat outline-navigation setting
 
 <a id="ln-md-109"></a>
 

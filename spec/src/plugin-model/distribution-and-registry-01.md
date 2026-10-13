@@ -96,7 +96,7 @@
 
 **Requirement.** When no community plugins or diagnostics exist, Community plugins settings MUST show a centred empty state with a puzzle illustration, `No community plugins found`, the legacy guidance copy, and one prominent `Browse plugins` action that opens the registry Browse tab.
 
-## LN-PLUG-049 — Community plugins Installed Plugins header: retain its explanatory copy and expose one
+## LN-PLUG-049 — Installed Plugins header actions
 
 <a id="ln-plug-049"></a>
 
@@ -222,13 +222,13 @@
 
 **Requirement.** Failed plugin install or update progress MUST persist an App-owned error notification containing the actionable failure message. A transient status item or compatibility-global toast alone MUST NOT be the only failure disclosure.
 
-## LN-PLUG-075 — Plugin registry install actions: expose a per-plugin busy state in
+## LN-PLUG-075 — Registry installation busy states
 
 <a id="ln-plug-075"></a>
 
 **Requirement.** Plugin registry install actions MUST expose a per-plugin busy state in the owning row and detail action, then show an Installed state after refresh or an Install failed state with the actionable error reason. The row action MUST NOT rely on the application status bar or a transient compatibility notification to communicate progress or completion.
 
-## LN-PLUG-076 — Verified ESM plugin runtime validation: accept the public @lapis-notes/api/workspace-host subpath declared by
+## LN-PLUG-076 — Public workspace-host import validation
 
 <a id="ln-plug-076"></a>
 
@@ -276,7 +276,7 @@
 
 **Requirement.** Registry media viewers MUST fit enlarged images within the viewport and support previous/next, keyboard image navigation, and Light/Dark/Split selection through shared controls. Closing the viewer MUST restore focus to its connected opener; reopening MUST select the requested image and initial theme.
 
-## LN-PLUG-098 — Default Notes hosts: register one app-owned plugins workspace view before
+## LN-PLUG-098 — App-owned Plugins view registration
 
 <a id="ln-plug-098"></a>
 

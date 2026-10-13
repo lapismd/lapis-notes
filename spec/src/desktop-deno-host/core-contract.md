@@ -1,6 +1,6 @@
 # Deno Desktop Host / Host integration
 
-## LN-DENO-010 — Development and production renderer responses: send the cross-origin isolation headers required by
+## LN-DENO-010 — Renderer cross-origin isolation
 
 <a id="ln-deno-010"></a>
 

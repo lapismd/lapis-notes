@@ -1,6 +1,6 @@
 # App Database / Persistence and recovery
 
-## LN-DB-028 — AppDatabase mutations: publish a typed change set only after
+## LN-DB-028 — Change publication after commit
 
 <a id="ln-db-028"></a>
 

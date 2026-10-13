@@ -37,7 +37,7 @@ Preview behavior is defined by [Link Previews](./link-previews.md).
 
 **Requirement.** Outgoing Links rows MUST use the 0.75rem result scale, normalize nested sidebar widths, align counts to one trailing edge, and provide shared Mira hover and focus previews instead of the retired renderer.
 
-## LN-MD-070 — Outgoing Links: use the valid Lucide external-link icon in
+## LN-MD-070 — Outgoing Links icon
 
 <a id="ln-md-070"></a>
 

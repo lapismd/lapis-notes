@@ -54,7 +54,7 @@
 
 **Requirement.** `@lapis-notes/api` MUST own the generic `ViewAccess` registration contract, plugin-name command prefixing, and live command-palette projection. First-party plugins MUST own their view classifications and activation callbacks, while the repository-local validator MUST own first-party-only enforcement.
 
-## LN-PKG-100 — @lapis-notes/api: own the agent result-view registry. Search MUST
+## LN-PKG-100 — App-owned agent result-view registry
 
 <a id="ln-pkg-100"></a>
 

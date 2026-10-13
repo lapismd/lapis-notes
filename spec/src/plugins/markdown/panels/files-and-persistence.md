@@ -24,7 +24,7 @@
 
 **Requirement.** Markdown MUST declare All Properties, Outline, File Properties, Backlinks, Outgoing Links, and Tags in one panel registry that pairs every canonical view with unique opening-command metadata.
 
-## LN-MD-098 — Outline, Backlinks, and Outgoing Links: follow workspace.getActiveFile(). They MUST paint from async
+## LN-MD-098 — Active-file tracking in Markdown panels
 
 <a id="ln-md-098"></a>
 

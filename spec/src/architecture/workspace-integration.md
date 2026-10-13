@@ -30,7 +30,7 @@
 
 **Requirement.** AI chat view construction MUST remain synchronous and presentation-first while conversation, catalog, and runtime preparation continue behind the mounted surface. Conversation history MUST use generic workspace leaf activation to preserve its sidebar view and route location-keyed conversations into reusable main-area tabs. The chat view MUST project scope path breadcrumbs through the generic view chrome contract.
 
-## LN-ARCH-059 — API: compose generic view access metadata into
+## LN-ARCH-059 — View-access metadata composition
 
 <a id="ln-arch-059"></a>
 

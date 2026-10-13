@@ -54,7 +54,7 @@
 
 **Requirement.** ACP contract tests MUST prove start, text streaming, tool start and end, blocking approval, cancel, and close through an in-memory backend without a live subscription.
 
-## LN-AI-156 — Conversation metadata: persist runtime allow-always and deny-always decisions by
+## LN-AI-156 — Persistent permission decisions
 
 <a id="ln-ai-156"></a>
 
@@ -127,7 +127,7 @@ Conversation-scoped runtime approval grants verify:
 
 **Requirement.** Bundled application tools MUST be scoped `notes_search`, `notes_list`, `read`, `write`, `edit`, and `apply_patch`. Write-effect file tools MUST require approval. `edit` MUST apply unique non-overlapping exact hunks against the current file or fail without changing it.
 
-## LN-AI-116 — Skill or slash command that dispatches a: call AppToolHost.invoke(). It MUST NOT execute
+## LN-AI-116 — AppToolHost dispatch for skills and commands
 
 <a id="ln-ai-116"></a>
 

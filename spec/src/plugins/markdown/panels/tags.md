@@ -10,7 +10,7 @@ is not exported from `@lapis-notes/workspace`.
 
 **Requirement.** Tags MUST count each hierarchical tag at most once per file and support bidirectional name and frequency sorting, toggleable search, flat and nested trees, expand and collapse all, highlighting, and metadata changed, deleted, and loaded refresh.
 
-## LN-MD-048 — Tags entry: render a muted Lucide hash instead of
+## LN-MD-048 — Muted Tags hash icon
 
 <a id="ln-md-048"></a>
 

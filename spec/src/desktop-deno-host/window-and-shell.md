@@ -21,7 +21,7 @@ macOS Deno window chrome verifies:
 - The adopted bootstrap window MUST remain invisible, MUST NOT mount an application renderer, and MUST NOT steal focus after Deno's automatic navigation. Only the visible window entry may mount a vault session.
 - Platform metadata MUST enable the existing macOS traffic-light clearance only when the overlay window is active.
 
-## LN-DENO-013 — Launcher empty chrome and Design Core data-desktop-drag-region: move the window. Descendants marked false MUST
+## LN-DENO-013 — Launcher drag regions
 
 <a id="ln-deno-013"></a>
 

@@ -24,7 +24,7 @@
 
 **Requirement.** After attaching or replacing the terminal-host contribution, the web session MUST refresh an installed Terminal plugin so already-constructed panels remount. Absence of that plugin MUST remain a no-op.
 
-## LN-WEB-036 — Web Vite and the web package manifest: Do not contain a linked @lapis-notes/lapis-plugin-terminal source
+## LN-WEB-036 — Portable Terminal package dependencies
 
 <a id="ln-web-036"></a>
 
@@ -84,7 +84,7 @@
 
 **Requirement.** The standalone bridge MUST reconnect and resubscribe active sessions from their last accepted sequence before admitting live frames. Duplicate or older frames MUST be discarded. A replay gap or unknown host session MUST become a retryable interrupted turn and MUST NOT automatically resend input that may have caused side effects.
 
-## LN-WEB-023 — After layout restoration, web boot: start metadata index load. It MUST NOT
+## LN-WEB-023 — Metadata indexing after layout restoration
 
 <a id="ln-web-023"></a>
 
@@ -113,7 +113,7 @@ Web attach after configuration verifies:
 - A later Settings change MUST replace only a `lapis-ai-controller` bridge.
 - The loaded AI plugin MUST gain ACP and Codex host runtimes once the capability appears.
 
-## LN-WEB-026 — While resolving a current profile, the host: Do not paint the branded launcher.
+## LN-WEB-026 — Launcher visibility during profile resolution
 
 <a id="ln-web-026"></a>
 
@@ -148,7 +148,7 @@ In-session copy progress verifies the notification message:
 - After the first file is known, export MUST report `Exporting {n} of {total}: {path}`.
 - Scanning MUST keep a `Scanning {name}...` message until `total` is greater than zero.
 
-## LN-WEB-044 — Web host: Do not statically import or register @lapis-notes/lapis-plugin-tasks
+## LN-WEB-044 — Independent Tasks view registration
 
 <a id="ln-web-044"></a>
 

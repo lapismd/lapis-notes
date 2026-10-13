@@ -30,7 +30,7 @@
 
 **Requirement.** Direct Lucide entry points used by governed panel and plugin-management stories, including empty-state illustrations and the uninstall dialog Power action, MUST be included in Storybook dependency optimization so clean browser tests do not reload during rendering.
 
-## LN-CAT-034 — Retired flat dual-panel comparison stories: Do not remain in the Storybook catalog
+## LN-CAT-034 — Retirement of flat comparison stories
 
 <a id="ln-cat-034"></a>
 

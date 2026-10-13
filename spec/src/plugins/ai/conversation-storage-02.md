@@ -30,13 +30,13 @@
 
 **Requirement.** The composer MUST expose reserved `/agent`. With no arguments it MUST report the current agent. A recognized name MUST switch the conversation agent and persist the composer default. An unknown name MUST be a visible error and MUST NOT become a model prompt.
 
-## LN-AI-122 — Assistant MarkdownEmbed surfaces: grow with the transcript scroll-shell. They MUST
+## LN-AI-122 — Transcript MarkdownEmbed sizing
 
 <a id="ln-ai-122"></a>
 
 **Requirement.** Assistant `MarkdownEmbed` surfaces MUST grow with the transcript scroll-shell. They MUST NOT introduce a nested vertical scroller or a constrained height that clips the rendered note. Wide code blocks MAY keep horizontal overflow.
 
-## LN-AI-124 — If the open conversation cannot be read: show that error and MUST release
+## LN-AI-124 — Conversation-read error recovery
 
 <a id="ln-ai-124"></a>
 

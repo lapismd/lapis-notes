@@ -6,7 +6,7 @@
 
 **Requirement.** The local gate MUST inspect the current VCS change (`jj` preferred, else git); CI MAY compare base and head revisions.
 
-## LN-GOV-005 — Tests, generated output, and ordinary story files: Do not satisfy or spuriously trigger
+## LN-GOV-005 — Protected-change gate exclusions
 
 <a id="ln-gov-005"></a>
 

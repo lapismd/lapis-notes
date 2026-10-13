@@ -12,7 +12,7 @@
 
 **Requirement.** Array-form core configuration MUST remain readable as disabled IDs. Object-form configuration MUST preserve explicit `disabled` and `enabled` IDs.
 
-## LN-PLUG-009 — Default Search, Explorer, or Bookmarks leaves: Do not be created while their owning
+## LN-PLUG-009 — Default leaves wait for plugin startup
 
 <a id="ln-plug-009"></a>
 
@@ -30,7 +30,7 @@
 
 **Requirement.** A plugin-owned presentation-settings migration MUST be versioned, idempotent, and limited to fields whose semantics changed. It MAY remove superseded rule labels or activation flags when the canonical rule shape becomes always-active, but MUST preserve ids, queries, colours, order, and unrelated settings and MUST NOT read another application's configuration as a migration source.
 
-## LN-PLUG-038 — AI agent changes: remain plugin-owned conversation operations. The plugin MUST
+## LN-PLUG-038 — Plugin-owned AI conversation operations
 
 <a id="ln-plug-038"></a>
 

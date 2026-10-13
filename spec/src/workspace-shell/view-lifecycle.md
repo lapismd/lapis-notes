@@ -24,7 +24,7 @@
 
 **Requirement.** Api view registration MUST expose registered Lapis views to design-core through imperative view definitions while retaining Lapis view creation, state, load, mount, unload, history, and missing-view behavior. Each imperative compatibility root MUST fill its Design Core view host without depending on a host-global utility stylesheet. Each transition MUST remove the previous view root before mounting the next while reattaching the shared `ItemView` content element when required. The `empty` type MUST use design-core's built-in visual empty view.
 
-## LN-WS-012 — Stacked workspace panes: use the public design-core stacked-pane width as
+## LN-WS-012 — Stacked-pane width tokens
 
 <a id="ln-ws-012"></a>
 
@@ -72,7 +72,7 @@
 
 **Requirement.** Workspace MUST record each successfully opened file on `file-open` in a most-recent-first ring. `getLastOpenFiles` MUST return those paths. `getRecentFiles` MUST resolve surviving vault files in that order.
 
-## LN-WS-083 — Workspace: register app:go-to-file. Activating it MUST call Design
+## LN-WS-083 — Go to File command
 
 <a id="ln-ws-083"></a>
 

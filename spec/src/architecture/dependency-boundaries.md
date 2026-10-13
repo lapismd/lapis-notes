@@ -24,7 +24,7 @@
 
 **Requirement.** The Lapis Notes repository catalog MUST be one Storybook on port 7010 (`pnpm dev`) for framework, application-profile, host integration, and plugin-management UI. The sibling `lapis-plugins` repository MUST use one repository-level Storybook for all eleven extracted packages rather than one Storybook per package.
 
-## LN-ARCH-004 — Monorepo: Do not reintroduce multi-script first-party import-resolution gates
+## LN-ARCH-004 — Import-resolution gate policy
 
 <a id="ln-arch-004"></a>
 
@@ -84,7 +84,7 @@
 
 **Requirement.** Design Core MUST be the sole owner of trigger-based overlay portal resolution. Lapis consumers MUST compose its public Popover, Hover Card, Tooltip, Dropdown Menu, Context Menu, and Select exports, inherit their trigger-owner-document behavior, and MUST NOT publish a competing overlay portal context, package export, or Vite alias.
 
-## LN-ARCH-022 — Root pnpm check: run shared configured specification validation before
+## LN-ARCH-022 — Specification validation before package checks
 
 <a id="ln-arch-022"></a>
 
@@ -174,7 +174,7 @@
 
 **Requirement.** Workspace-owned plugin management MUST distinguish installed vault artifacts from statically bundled profile plugins. Uninstall and disable actions MUST remain App-owned lifecycle operations and reuse the installed-plugin confirmation boundary without transferring package removal policy to Design Core.
 
-## LN-ARCH-094 — Root package build, check, and test tasks: run through a bounded Turbo wrapper that
+## LN-ARCH-094 — Bounded Turbo task execution
 
 <a id="ln-arch-094"></a>
 

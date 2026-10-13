@@ -24,7 +24,7 @@
 
 **Requirement.** Missing OPFS, isolation, locks, or channels MUST produce an explicit blocked state with accurate capabilities rather than opening a non-Turso app-database fallback.
 
-## LN-DB-013 — Local storage: remain authoritative. A future synced provider MAY
+## LN-DB-013 — Authoritative local storage
 
 <a id="ln-db-013"></a>
 
@@ -60,7 +60,7 @@
 
 **Requirement.** A `deno-server` vault session MUST use a server-owned native Turso provider over `http-rpc`. Remote access MUST use one shared typed method contract, preserve committed change revisions, reset consumers after an unavailable tracked cursor, and reconnect without the rejected cursor. It MUST expose neither raw SQL nor database paths.
 
-## LN-DB-053 — Stable identity, change cursor, external binding, and: cross memory, direct Turso, browser-proxy, and desktop-native
+## LN-DB-053 — Identity and change contracts across providers
 
 <a id="ln-db-053"></a>
 

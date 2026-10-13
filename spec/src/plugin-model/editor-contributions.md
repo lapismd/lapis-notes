@@ -60,7 +60,7 @@
 
 **Requirement.** `registerIndexProjection` MUST return a handle with `query`, `get`, and `queryRelated`. Registration MUST backfill from the core file index in bounded batches.
 
-## LN-PLUG-030 — Search plugin load: register its providers and change listeners before
+## LN-PLUG-030 — Search provider startup order
 
 <a id="ln-plug-030"></a>
 

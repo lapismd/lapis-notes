@@ -72,7 +72,7 @@
 
 **Requirement.** Reserved `/scope` with no arguments MUST report the current folder, launch note, workspace, and resolution source. A folder argument MUST start a new conversation in that scope and MUST NOT mutate the open conversation.
 
-## LN-AI-131 — Thinking item: spin and stay expanded only while that
+## LN-AI-131 — Active thinking-item expansion
 
 <a id="ln-ai-131"></a>
 
@@ -114,7 +114,7 @@
 
 **Requirement.** The composer MUST expose a pin control beside the effort button and MUST persist pin on conversation metadata. A pinned open conversation MUST NOT follow directory changes. Unpinning MUST re-evaluate the current directory context. The control MUST disable when no conversation is open.
 
-## LN-AI-164 — AI: register an Agents palette provider and MUST
+## LN-AI-164 — Agents palette provider
 
 <a id="ln-ai-164"></a>
 
@@ -132,7 +132,7 @@
 
 **Requirement.** Folder context MUST follow File Explorer's selected folder or the parent of a selected file, and a History tree folder pick. An explicit History-tree pick MUST persist across active-leaf refreshes until Explorer selection or another History folder pick changes it. Initial context MAY use the active-note scope when Explorer has no selection.
 
-## LN-AI-171 — AI settings updates: normalize before comparison and MUST NOT persist
+## LN-AI-171 — Normalized settings persistence
 
 <a id="ln-ai-171"></a>
 
@@ -150,7 +150,7 @@
 
 **Requirement.** The chat scope control MUST be a Design Core ghost button that opens a searchable Command View containing every visible vault folder plus Vault root. Selecting a folder MUST force the existing zero, one, or many conversation transition for that scope and reveal the same path in File Explorer. The control MUST be disabled while a turn is busy.
 
-## LN-AI-179 — AI memory: owned by the App and scoped by
+## LN-AI-179 — App-owned scoped memory
 
 <a id="ln-ai-179"></a>
 
@@ -192,7 +192,7 @@
 
 **Requirement.** Memory rebuild and derived-forget operations MUST preserve transcripts and curated Markdown unless the user invokes their separate deletion paths. Forgetting a conversation's derivatives MUST persist an exclusion so rebuild cannot silently restore them and MUST retract mixed-lineage curated revisions for review.
 
-## LN-AI-194 — Target session with a matching verified cursor: receive only the transcript delta after that
+## LN-AI-194 — Verified transcript cursor deltas
 
 <a id="ln-ai-194"></a>
 
@@ -222,7 +222,7 @@
 
 **Requirement.** Transcript failures MUST render as failed assistant messages using Design Core `MessageMetadata` error status. They MUST expose an icon-only Retry action that resends the nearest preceding user prompt through the normal replacement-session path.
 
-## LN-AI-060 — Empty composer placeholder: stay concise. Vault attachment discovery MUST remain
+## LN-AI-060 — Concise composer placeholder
 
 <a id="ln-ai-060"></a>
 
@@ -258,7 +258,7 @@
 
 **Requirement.** A dedicated folder-aware AI conversation-history view MUST expose New chat, archive, trash-backed delete, and all-conversation search. The chat history button MUST reveal this view, while its New and conversation-row actions MUST reveal the chat view. The selected scope's entries MUST merge directly from the filesystem so generated search state is not required to reopen a known conversation; a live folder move MUST update the open locator without rewriting conversation files.
 
-## LN-AI-074 — Plugin mapping and projection: retain protocol provenance and MUST deduplicate local
+## LN-AI-074 — Protocol provenance and deduplication
 
 <a id="ln-ai-074"></a>
 
@@ -300,7 +300,7 @@
 
 **Requirement.** Real-agent smoke lanes MUST remain explicit developer commands, preserve an ignored seeded workspace and portable conversations by default, and support intentional confined reset. They MUST cover Codex ACP, Cursor ACP, Codex Native, and one focused Codex-to-Cursor-to-Codex handoff with full then delta context, stable resumed session identity, in-place model configuration, and transcript non-pollution, without adding a paid-agent dependency to automated tests.
 
-## LN-AI-109 — When a conversation repository is present, the: expose an overflow menu with Archive Chat
+## LN-AI-109 — Conversation archive menu
 
 <a id="ln-ai-109"></a>
 

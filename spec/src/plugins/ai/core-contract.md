@@ -1,6 +1,6 @@
 # AI Plugin / Application integration
 
-## LN-AI-045 — Storybook: Do not start lapis-ai-controller as a sidecar
+## LN-AI-045 — Storybook controller-process ownership
 
 <a id="ln-ai-045"></a>
 

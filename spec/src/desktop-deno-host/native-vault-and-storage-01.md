@@ -88,7 +88,7 @@ Deno window binding verifies:
 - The visible macOS overlay window MUST return `desktop_app_info_get` before the renderer mounts a vault session, retrying when an earlier probe remains pending.
 - The host MUST NOT install the superseded `Map.prototype.get` binding shim.
 
-## LN-DENO-014 — Production renderer: bundle @tursodatabase/database-wasm/bundle as published ESM. It MUST
+## LN-DENO-014 — Published ESM for renderer Turso WASM
 
 <a id="ln-deno-014"></a>
 

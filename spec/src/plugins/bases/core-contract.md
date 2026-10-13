@@ -1,6 +1,6 @@
 # Bases Plugin / Bases queries and views
 
-## LN-BASE-001 — @lapis-notes/bases: preserve the clean legacy package behavior in
+## LN-BASE-001 — Legacy Bases behavior preservation
 
 <a id="ln-base-001"></a>
 

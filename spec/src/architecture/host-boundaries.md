@@ -6,7 +6,7 @@
 
 **Requirement.** The api compatibility projection MUST preserve every persisted design-core V3 workspace region, including the bottom panel, while keeping the api-owned workspace writer as the only layout persistence adapter. Host-registered Problems leaves MUST remain that view type across API layout commits. Claimed leaves MUST keep their serialized id and live `getState()`, and file opens MUST target an empty or file-backed main leaf.
 
-## LN-ARCH-015 — File-view chrome (path breadcrumbs, leaf history, and: project from the api workspace host getChrome
+## LN-ARCH-015 — File-view chrome projection
 
 <a id="ln-arch-015"></a>
 
@@ -60,7 +60,7 @@
 
 **Requirement.** Browser database coordination MUST elect one local owner per vault and delegate typed operations from proxy tabs. Coordination MUST NOT be presented as cloud sync.
 
-## LN-ARCH-037 — API editor host: the sole owner of readable-column geometry after
+## LN-ARCH-037 — Editor-host readable-column ownership
 
 <a id="ln-arch-037"></a>
 
@@ -72,7 +72,7 @@
 
 **Requirement.** CV compilation, generated-artifact export, and form-toolbar composition MUST remain plugin-owned, including document-action order after YAML. Compiled Markdown presentation composes Mira's public read-only surfaces. The plugin MUST keep vault persistence behind its host adapter and MUST NOT create another Markdown rendering stack. Shared form disclosure behavior MUST remain owned by Design Core.
 
-## LN-ARCH-044 — API workspace host: project compatibility ribbon and status contributions into
+## LN-ARCH-044 — Ribbon and status projection
 
 <a id="ln-arch-044"></a>
 
@@ -90,7 +90,7 @@
 
 **Requirement.** Native Explorer copy, open, and reveal extras MUST remain File Explorer consumer work over Design Core's built-in vault-path menu. Design Core MUST NOT hardcode system paths or OS reveal.
 
-## LN-ARCH-062 — Generic file-tool kernels: live in @lapismd/ai-host/file-tools. API MUST supply Vault
+## LN-ARCH-062 — Shared file-tool kernels and vault adapters
 
 <a id="ln-arch-062"></a>
 
@@ -126,7 +126,7 @@
 
 **Requirement.** Filesystem content MUST remain authoritative while API owns reusable sync-host identity, cursor, generated-state, streamed I/O, capability, network, and crypto contracts. Protocol plugins own remote schemas, revision graphs, reconciliation, and UI; hosts own isolation, secret persistence, unlock, and platform adapters.
 
-## LN-ARCH-093 — API: keep a stable per-vault Sync Identity in
+## LN-ARCH-093 — Stable per-vault Sync Identity
 
 <a id="ln-arch-093"></a>
 
@@ -144,7 +144,7 @@
 
 **Requirement.** Verified renderer ESM plugins MUST share public API modules with the host through build-owned import-map entries. The API plugin loader owns constructor resolution: it MUST prefer a default export and otherwise select a named subclass of the shared `Plugin` base without treating helper exports as the runtime constructor.
 
-## LN-ARCH-099 — Nostr private keys and NIP-46 client credentials: remain host-owned. API MUST expose only plugin-scoped
+## LN-ARCH-099 — Host-owned Nostr credentials
 
 <a id="ln-arch-099"></a>
 

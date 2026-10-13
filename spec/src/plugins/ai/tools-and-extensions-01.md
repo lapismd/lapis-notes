@@ -91,7 +91,7 @@ Tool-detail presentation verifies:
 - Non-JSON text MUST NOT use `language="json"`. Multiline, CLI-looking, or
   runner-tool text uses `bash`; a short unmarked line uses `plaintext`.
 
-## LN-AI-134 — AI: ship a bundled model-invocable lapis-notes skill that
+## LN-AI-134 — Bundled Lapis Notes skill
 
 <a id="ln-ai-134"></a>
 
@@ -154,7 +154,7 @@ The catalog chrome verifies:
 
 **Requirement.** Session bootstrap MUST still attach when the conversation scope or launch note is under `.agents/skills`. Those fields MUST use path-free labels. The host MUST still receive the remaining path-free block.
 
-## LN-AI-149 — Reserved local slash-command notices: render start-aligned and MUST preserve authored line
+## LN-AI-149 — Local slash-command notice formatting
 
 <a id="ln-ai-149"></a>
 
@@ -166,7 +166,7 @@ The catalog chrome verifies:
 
 **Requirement.** While a reserved local slash command is preparing its notice, the chat panel MUST show the accessible working indicator above the composer. It MUST remove that indicator when the notice is shown or the command fails.
 
-## LN-AI-151 — Composer slash menu: list the same effective commands as
+## LN-AI-151 — Effective slash-command menu
 
 <a id="ln-ai-151"></a>
 
@@ -190,13 +190,13 @@ The catalog chrome verifies:
 
 **Requirement.** Reserved `/skills` and `/context` MUST report the active binding's eligible skills. If that snapshot is missing after restore or an existing session, AI MUST hydrate it from current discovery. It MUST NOT report none when eligible skills exist.
 
-## LN-AI-155 — Composer tool-dispatch slash command: append the same transcript tool item as
+## LN-AI-155 — Tool-dispatch transcript entries
 
 <a id="ln-ai-155"></a>
 
 **Requirement.** A composer tool-dispatch slash command MUST append the same transcript tool item as an agent AppToolHost call: name, input, and invoke result as output. The panel MUST render it through Design Core `ToolCalls`. It MUST NOT become a model prompt or a status report.
 
-## LN-AI-158 — Completed transcript tool item: render a registered result view for that
+## LN-AI-158 — Registered tool-result rendering
 
 <a id="ln-ai-158"></a>
 
@@ -214,7 +214,7 @@ The catalog chrome verifies:
 
 **Requirement.** When the native agent-runtime advertises deferred ACP start, the desktop backend MUST reserve the session id and subscribe to runtime events before invoking start. The returned session MUST accept prompt, cancel, and close while native initialization is pending. Hosts without that capability MUST retain awaited startup compatibility.
 
-## LN-AI-173 — When the native agent-runtime advertises deferred model: reserve a request id and subscribe before
+## LN-AI-173 — Deferred model-request subscription order
 
 <a id="ln-ai-173"></a>
 
@@ -232,13 +232,13 @@ The catalog chrome verifies:
 
 **Requirement.** AI MUST register provider-neutral read-effect `memory_search` and `memory_get` application tools. Trusted App context MUST bound their vault and project scope; model-authored arguments MAY narrow that scope but MUST NOT select an arbitrary path or another vault.
 
-## LN-AI-188 — Background consolidation: apply deterministic provenance and recurrence gates before
+## LN-AI-188 — Background memory consolidation gates
 
 <a id="ln-ai-188"></a>
 
 **Requirement.** Background consolidation MUST apply deterministic provenance and recurrence gates before any optional model proposal. A qualified update MUST preserve preimages and evidence, use stable supersession identity, and leave contradictory, malformed, tool-using, or concurrently edited proposals in review without changing recall.
 
-## LN-AI-192 — Cross-agent handoff: use a typed provider-neutral context block in
+## LN-AI-192 — Provider-neutral handoff context
 
 <a id="ln-ai-192"></a>
 
@@ -250,7 +250,7 @@ The catalog chrome verifies:
 
 **Requirement.** Handoff projection MUST preserve eligible messages and sanitized tool input/output chronologically, with agent labels and atomic tool groups. It MUST exclude thinking, interactions, local notices, provider envelopes, and injected context; over-budget history MUST retain deterministic recent complete groups and an omission marker.
 
-## LN-AI-196 — Optional handoff summaries: produced outside the interactive switch by
+## LN-AI-196 — Asynchronous handoff summaries
 
 <a id="ln-ai-196"></a>
 

@@ -6,7 +6,7 @@
 
 **Requirement.** Private `@lapis-notes/web` version `2026.6.3` MUST retain the legacy PWA identity, manifest, icons, update prompt, window-controls overlay, and `web+lapis` protocol handler.
 
-## LN-WEB-030 — Development, preview, and production web responses for: use Content-Type: application/wasm. Those responses MUST carry
+## LN-WEB-030 — WASM response headers
 
 <a id="ln-web-030"></a>
 

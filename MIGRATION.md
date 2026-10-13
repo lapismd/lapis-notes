@@ -3,6 +3,17 @@
 Living checklist for the minimal Lapis Notes monorepo. Update this file when
 intake or UI swap status changes.
 
+## Specification readability and navigation (2026-10-13)
+
+- [x] Split the specification into 172 bounded topic and verification pages,
+      preserving all 1,365 original requirements, statuses, and evidence.
+- [x] Add SUMMARY-derived Storybook navigation, stable requirement anchors,
+      canonical chapter routing, populated outlines, and strict coverage checks.
+- [x] Complete package, specification, development/static navigation, and full
+      Storybook interaction/accessibility validation. See the
+      [acceptance record](spec/records/2026-10-13-specification-navigation.md)
+      for results and the existing QMD/tarball environment limitations.
+
 ## Application ownership intake and integration (2026-08-16)
 
 - [x] Review the latest Lapis API, Workspace, Electron, web/PWA, Bases, AI,

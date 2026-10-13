@@ -6,7 +6,7 @@
 
 **Requirement.** `@lapis-notes/ai` MUST live at `packages/ai` in the sibling `lapis-plugins` repository, use runtime ID `ai`, remain available for static composition or registry installation, and remain user-disableable.
 
-## LN-AI-002 — Application and plugin orchestration: depend on AgentRuntime for execution. They MUST
+## LN-AI-002 — AgentRuntime execution boundary
 
 <a id="ln-ai-002"></a>
 
@@ -24,7 +24,7 @@
 
 **Requirement.** When the selected runtime is not Fake and no agent-runtime host is connected, chat MUST show an unavailable message that tells the user to start the local agent server and set its URL, port, and token. An explicit Fake session MUST NOT show that message.
 
-## LN-AI-011 — Live process-backed runtimes: require an agent-runtime host. That host MAY
+## LN-AI-011 — Host requirement for live runtimes
 
 <a id="ln-ai-011"></a>
 
@@ -66,13 +66,13 @@
 
 **Requirement.** The root `@lapis-notes/ai` export MUST publish contracts, Fake, the chat panel, and the plugin entry. ACP and native Codex adapters MUST be published only on `@lapis-notes/ai/runtimes`.
 
-## LN-AI-034 — When settings pin a live runtime that: throw and MUST NOT silently return Fake
+## LN-AI-034 — Fail-closed live-runtime selection
 
 <a id="ln-ai-034"></a>
 
 **Requirement.** When settings pin a live runtime that is missing or that `supports()` rejects, selection MUST throw and MUST NOT silently return Fake. Auto selection MAY use Fake when no live runtime supports the request.
 
-## LN-AI-036 — @lapis-notes/ai: Do not declare an acpx or @lapismd/ai-host
+## LN-AI-036 — AI package dependency boundaries
 
 <a id="ln-ai-036"></a>
 
@@ -96,13 +96,13 @@
 
 **Requirement.** The ACP adapter MUST forward the selected agent on desktop start. The host MUST pass that name to acpx `ensureSession` without exposing acpx types to the plugin.
 
-## LN-AI-044 — Compatibility adapters: keep desktop*agent_acp*\* commands. First-party plugin code MUST
+## LN-AI-044 — Compatibility ACP command adapters
 
 <a id="ln-ai-044"></a>
 
 **Requirement.** Compatibility adapters MAY keep `desktop_agent_acp_*` commands. First-party plugin code MUST use the shared controller client and MUST NOT add a second live execution protocol.
 
-## LN-AI-046 — Plugins/AI/Live Host: the only live Storybook lane. It MUST
+## LN-AI-046 — Explicit Live Host Storybook lane
 
 <a id="ln-ai-046"></a>
 
@@ -212,7 +212,7 @@ The catalog command view verifies:
 
 **Requirement.** The public AI renderer entry MUST remain browser and WebView bundleable. Its optional Node user-agents store MUST load only through a runtime-gated dynamic boundary and MUST NOT add `node:*` modules to a renderer bundle.
 
-## LN-AI-106 — While a turn is busy, the composer: stay clickable and MUST abort the active
+## LN-AI-106 — Abort behavior during an active turn
 
 <a id="ln-ai-106"></a>
 
@@ -224,7 +224,7 @@ The catalog command view verifies:
 
 **Requirement.** One conversation MAY contain multiple append-only agent bindings. Switching runtime or agent MUST retain the conversation ID, record an agent-switch entry, attribute late events to their producing binding, and commit the target only after prompt acceptance succeeds. Switch-back MUST resume the newest compatible binding when its verified cursor exists; model or thinking changes SHOULD configure the active binding in place.
 
-## LN-AI-084 — AI chat view: mount its complete chat layout synchronously before
+## LN-AI-084 — Synchronous chat-layout mounting
 
 <a id="ln-ai-084"></a>
 

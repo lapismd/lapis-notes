@@ -12,7 +12,7 @@
 
 **Requirement.** Markdown MUST register `notes_list` through the application tool registry. It MUST accept only normalized Markdown paths inside the trusted conversation scope, reject application-private directories, and return deterministically ordered bounded results.
 
-## LN-MD-102 — ExtractMetadata: parse nested YAML maps and arrays in
+## LN-MD-102 — Nested YAML metadata extraction
 
 <a id="ln-md-102"></a>
 

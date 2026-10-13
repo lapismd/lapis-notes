@@ -90,7 +90,7 @@
 
 **Requirement.** First-party runtime and Storybook source MUST be audited against direct ambient App reads or assignments outside the compatibility bridge and dedicated fallback tests. Both root `pnpm check` and `pnpm spec:check` MUST run the audit.
 
-## LN-PKG-022 — Retained sidebar-custom wrappers around design-core Input and: publish portable component declarations. Their explicit public
+## LN-PKG-022 — Portable sidebar-wrapper declarations
 
 <a id="ln-pkg-022"></a>
 
@@ -144,7 +144,7 @@
 
 **Requirement.** `MetadataCache` MUST instrument database-ready load, checkpoint hit or miss, full reconciliation, and bounded manifest batches through the App telemetry contract. Completion, cancellation, and failure events MUST carry only checkpoint state and aggregate file or batch counts; they MUST NOT include vault identity, file paths, parser output, note content, or error messages. Disabled hosts MUST retain identical behavior through the no-op service.
 
-## LN-PKG-117 — @lapis-notes/graph: live in the sibling lapis-plugins monorepo as
+## LN-PKG-117 — Independent Graph package ownership
 
 <a id="ln-pkg-117"></a>
 
@@ -162,7 +162,7 @@
 
 **Requirement.** `@lapis-notes/desktop-deno` MUST privately own session-scoped startup recovery persistence and presentation while reusing the public API `AppSafeModeState` and Design Core startup surface. It MUST retain saved vault profiles after recoverable open failures, preserve native filesystem failure classes, and avoid adding public package exports or desktop-only canonical vault settings.
 
-## LN-PKG-129 — Public Lapis Notes framework packages: start at version 0.1.0, publish independently in
+## LN-PKG-129 — Independent framework package releases
 
 <a id="ln-pkg-129"></a>
 
@@ -204,7 +204,7 @@
 
 **Requirement.** `@lapis-notes/workspace` MAY consume public Design Core filter, forms, Resizable, and settings entrypoints for its private plugin-management presentation. It MUST NOT republish those primitives, add a second shared component API, or move registry and install policy into Design Core.
 
-## LN-PKG-139 — Release workflow: upload the hidden .release directory as
+## LN-PKG-139 — Hidden release-directory artifacts
 
 <a id="ln-pkg-139"></a>
 

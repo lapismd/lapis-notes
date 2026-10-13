@@ -21,7 +21,7 @@ test("canonical chapter links open their Storybook docs", async ({ page }) => {
   const docs = page.frameLocator("#storybook-preview-iframe");
   await docs.getByRole("link", { name: "Panels", exact: true }).first().click();
   await expect(page).toHaveURL(
-    /\?path=\/docs\/specification-(?:workspace-shell-)?panels--docs/,
+    /\?path=\/docs\/specification-workspace-shell-panels--docs/,
   );
   await expect(docs.getByRole("heading", { level: 1 })).toContainText("Panels");
 });
@@ -50,6 +50,12 @@ test("requirement links, outline, and history survive reload", async ({
   await expect(page).toHaveURL(
     /specification-workspace-shell-layout-and-persistence--docs/,
   );
+  const previous = docs
+    .getByRole("navigation", { name: "Specification reading order" })
+    .getByRole("link", { name: /^Previous:/ });
+  await previous.focus();
+  await previous.press("Enter");
+  await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
   await page.goForward();
   await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
 });
@@ -85,13 +91,18 @@ test("reading order is keyboard accessible and fits a narrow page", async ({
 test("legacy chapter routes retain their new parent hierarchy", async ({
   page,
 }) => {
-  await page.goto("?path=/docs/specification-panels--docs");
-  await expect(page).toHaveURL(/specification-workspace-shell-panels--docs/);
-  await expect(
-    page
-      .frameLocator("#storybook-preview-iframe")
-      .getByRole("heading", { level: 1 }),
-  ).toContainText("Panels");
+  for (const [legacy, current, title] of [
+    ["panels", "workspace-shell-panels", "Panels"],
+    ["problems", "workspace-shell-panels-problems", "Problems"],
+  ]) {
+    await page.goto(`?path=/docs/specification-${legacy}--docs`);
+    await expect(page).toHaveURL(new RegExp(`specification-${current}--docs`));
+    await expect(
+      page
+        .frameLocator("#storybook-preview-iframe")
+        .getByRole("heading", { level: 1 }),
+    ).toContainText(title);
+  }
 });
 
 test("specification navigation passes accessibility checks", async ({

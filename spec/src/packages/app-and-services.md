@@ -54,7 +54,7 @@
 
 **Requirement.** `@lapis-notes/api` MUST expose an App context, ownership resolver, and disposable compatibility lease. Explicit or workspace-owned App references MUST win over the compatibility alias, and releasing an older lease MUST NOT clear a newer host's alias.
 
-## LN-PKG-072 — Configuration schema defaults: Do not write .obsidian/app.json before the initial
+## LN-PKG-072 — Configuration writes after initial loading
 
 <a id="ln-pkg-072"></a>
 
@@ -84,13 +84,13 @@
 
 **Requirement.** `@lapis-notes/api` MUST own the ordered adapter from compatibility `ItemView.actions` and `View.onPaneMenu` contributions to design-core workspace chrome. `@lapis-notes/workspace` remains a rendering host and MUST NOT add plugin-specific actions.
 
-## LN-PKG-097 — App: register palette command app:rebuild-vault-cache. That command MUST
+## LN-PKG-097 — Rebuild Vault Cache command
 
 <a id="ln-pkg-097"></a>
 
 **Requirement.** `App` MUST register palette command `app:rebuild-vault-cache`. That command MUST call `metadataCache.rebuild()`.
 
-## LN-PKG-098 — App: register palette command app:rebuild-generated-state. That command MUST
+## LN-PKG-098 — Rebuild Generated State command
 
 <a id="ln-pkg-098"></a>
 

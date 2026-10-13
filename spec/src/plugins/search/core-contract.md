@@ -12,7 +12,7 @@
 
 **Requirement.** The plugin MUST register the canonical `search` view and commands for opening Search, searching selected text, rebuilding generated state, and refreshing the vault index.
 
-## LN-SRCH-003 — Search indexing: write through AppDatabase, refresh files accepted by
+## LN-SRCH-003 — AppDatabase indexing and refresh
 
 <a id="ln-srch-003"></a>
 
@@ -84,7 +84,7 @@
 
 **Requirement.** Search MUST expose `auto`, `lexical`, `vector`, and `hybrid` retrieval modes and label results with the mode actually applied by `AppDatabase`.
 
-## LN-SRCH-015 — Semantic search: default to disabled. Selecting Transformers.js MUST NOT
+## LN-SRCH-015 — Disabled semantic-search default
 
 <a id="ln-srch-015"></a>
 
@@ -150,7 +150,7 @@
 
 **Requirement.** Search retrieval and match-field badges MUST remain visually distinct while their containing result row is hovered.
 
-## LN-SRCH-026 — Movable Search panel: Do not render a persistent semantic-status tag
+## LN-SRCH-026 — Transient semantic-search status
 
 <a id="ln-srch-026"></a>
 
@@ -174,7 +174,7 @@
 
 **Requirement.** Search result counts MUST use the workspace sans-serif face and a faint foreground without a border or background fill.
 
-## LN-SRCH-030 — Result activation: preserve a Search view hosted in
+## LN-SRCH-030 — Result activation preserves panel placement
 
 <a id="ln-srch-030"></a>
 
@@ -186,7 +186,7 @@
 
 **Requirement.** Search result parent rows MUST show only a regular-weight filename without its extension. Expanded result bodies MUST begin with a metadata header containing the full vault path and applied retrieval-mode badge.
 
-## LN-SRCH-032 — Empty Search query: keep the result surface blank and MAY
+## LN-SRCH-032 — Empty-query presentation
 
 <a id="ln-srch-032"></a>
 
@@ -294,7 +294,7 @@
 
 **Requirement.** Search completion popups MUST portal into their owner document outside workspace clipping, remain above adjacent panels, keep every visible option hit-testable, and use Design Core's compact 18rem viewport-bounded layout with row labels and details wrapping when needed.
 
-## LN-SRCH-050 — API: export one vault Search-filter syntax factory that
+## LN-SRCH-050 — Public vault-filter syntax factory
 
 <a id="ln-srch-050"></a>
 

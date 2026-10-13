@@ -10,8 +10,9 @@ verification status and evidence entry. The baseline was committed as `41465d96`
 before migration.
 
 The migrated book has 172 indexed chapters, plus `SUMMARY.md`. Every canonical
-Markdown file is below 400 physical lines and 32,768 UTF-8 bytes. Before final
-evidence updates, the largest page was 25,100 bytes and the largest line count was 319. Familiar chapter paths remain landing pages; Panels and Problems are nested
+Markdown file is below 400 physical lines and 32,768 UTF-8 bytes. The largest page
+is 25,236 bytes and the largest line count is 319. Familiar chapter paths remain
+landing pages; Panels and Problems are nested
 under Workspace Shell. Verification is a landing page and bounded area tables.
 
 `node scripts/spec-validation/audit-specification-migration.mjs` confirms all
@@ -68,7 +69,7 @@ frame stays mounted. Authored sources remain watched.
 | `pnpm test`                          | 18 successful Turbo tasks; 1,250 package tests passed, one skipped                                             |
 | `pnpm build`                         | 10 successful Turbo tasks                                                                                      |
 | `pnpm test:storybook`                | 243 passed across 54 files; final shards 84, 65, 40, and 54                                                    |
-| Fresh development navigation suite   | Seven passed                                                                                                   |
+| Fresh development navigation suite   | Initial seven passed; final cold recheck stalled before main refresh (see below)                               |
 | `pnpm build-storybook`               | Passed                                                                                                         |
 | `pnpm check:storybook-index`         | Exactly 172 specification Docs entries; complete coverage and no stale, duplicate, or incorrect routes         |
 | `pnpm test:specification:static`     | Six passed under `/specification-preview/`; watcher-only test intentionally skipped                            |
@@ -104,5 +105,18 @@ unrelated generated API version metadata were removed before delivery.
 
 The structural migration and Docs wiring form one atomic change because the
 heading dialect, anchors, mirrors, and routing must agree. Subsequent heading
-and prose cleanup is a separate documentation slice. Visual-baseline updates
+and prose cleanup is a separate documentation slice: 269 requirement labels
+were shortened or completed, including all identified unfinished headings and
+the main workspace, panel, editor API, and authoring topics. Their statements,
+acceptance details, and ID-based anchors remain unchanged. Visual-baseline updates
 and package publication were outside the requested scope.
+
+## Main-refresh checkpoint
+
+The final cold development recheck on the original base stalled in Storybook's
+`handleFileChange → mirrorUpdate → reverseIndexToStoriesByFile` path. It produced
+three navigation timeouts, one interrupted test, and three tests not run. The
+same final navigation suite passed on the rebuilt static deployment subpath.
+The owned development server was stopped, and the prose/test slice was committed
+before fetching the latest main, as requested. Latest-main integration and a
+fresh development recheck remain required at this checkpoint.

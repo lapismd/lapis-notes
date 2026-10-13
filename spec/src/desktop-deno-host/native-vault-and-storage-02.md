@@ -114,7 +114,7 @@ Native About-window acceptance verifies:
 
 **Requirement.** The Deno plugin runtime MUST bind plugin identity and grants when its worker is created, validate every RPC message, and terminate or revoke its capability channel when disabled. Network and vault access MUST occur only through equivalent public broker operations.
 
-## LN-DENO-074 — Desktop sync unlock: Do not create a new vault identity
+## LN-DENO-074 — Stable vault identity during sync unlock
 
 <a id="ln-deno-074"></a>
 

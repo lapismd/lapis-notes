@@ -6,7 +6,7 @@
 
 **Requirement.** The API MUST own the public search-document contribution registry, Search MUST own provider selection and generated index state, and domain plugins MUST own parsing and semantic projection for their file formats.
 
-## LN-ARCH-050 — Bases: treat its initial blank filter row as
+## LN-ARCH-050 — Initial blank Bases filter
 
 <a id="ln-arch-050"></a>
 
@@ -24,7 +24,7 @@
 
 **Requirement.** Generated-state consumers MUST request only the indexed metadata domains they need and use path-only Search matching when only membership is required. API providers own bulk materialization, stable pagination, and transport serialization; plugins MUST NOT recreate per-file database fan-out or transfer full Search documents merely to obtain matching paths.
 
-## LN-ARCH-078 — Search owns indexed structured-query evaluation; Graph owns: ordered path-only membership through AppDatabase. Graph MUST
+## LN-ARCH-078 — Search and Graph query ownership
 
 <a id="ln-arch-078"></a>
 

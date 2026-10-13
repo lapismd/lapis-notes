@@ -44,7 +44,7 @@ portalled menu.
 
 **Requirement.** The titleless File Properties editor MUST fill and shrink to the panel width, inherit workspace typography, use Mira's `markdown-widget-shell` token wrapper, and normalize controls to the 0.75rem panel scale without changing Mira's public runtime contract.
 
-## LN-MD-038 — File Properties: Do not create horizontal panel scrolling. Below
+## LN-MD-038 — File Properties layout containment
 
 <a id="ln-md-038"></a>
 

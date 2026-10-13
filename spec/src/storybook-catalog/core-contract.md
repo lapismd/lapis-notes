@@ -6,7 +6,7 @@
 
 **Requirement.** Catalog metadata under `stories/catalog/` MUST list API UI verification ids, governing spec links, public surfaces, and story ids.
 
-## LN-CAT-005 — Shared shadcn families destined for design-core: Do not duplicate full design-core Storybook coverage
+## LN-CAT-005 — Shared primitive catalog ownership
 
 <a id="ln-cat-005"></a>
 

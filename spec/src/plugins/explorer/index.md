@@ -26,7 +26,7 @@ all six command-panel placements under `Plugins/Explorer/Panels/Explorer`.
 For the current disposition, opening a file from an active landing root reuses
 that root leaf before falling back to the App's normal main-area open policy.
 
-## LN-EXP-001 — When the vault adapter is NativeDesktopVaultAdapter and: extend Copy Path with From system root
+## LN-EXP-001 — Native Copy Path variants
 
 <a id="ln-exp-001"></a>
 
@@ -68,7 +68,7 @@ but appears in the Files palette only while Show hidden files is enabled.
 
 **Requirement.** The `lapis-vault-files` provider MUST declare the Files tab. An empty query MUST return at most 25 visible recent files, or the first 25 visible paths in lexical order when no recents exist. Design Core MUST cap those provider rows to five in the combined All view. Typed queries MUST keep path filtering and the show-hidden setting.
 
-## LN-EXP-005 — FileExplorerView: expose selectedPath. setSelectedPath, selectRoot, and revealPath MUST
+## LN-EXP-005 — Selected-path navigation API
 
 <a id="ln-exp-005"></a>
 

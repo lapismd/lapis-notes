@@ -18,7 +18,7 @@
 
 **Requirement.** The workspace host MUST project each Lapis `notifications.activeProgress` entry whose location is not `silent` into the Design Core notification manager. The notifications status item MUST show busy plus that entry's title while it runs. Silent progress MUST NOT appear. Projected handles MUST be removed when they leave `activeProgress`.
 
-## LN-WS-058 — Default desktop shells: show Design Core's built-in Settings action in
+## LN-WS-058 — Built-in desktop Settings action
 
 <a id="ln-ws-058"></a>
 

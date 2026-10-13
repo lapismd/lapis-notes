@@ -30,7 +30,7 @@
 
 **Requirement.** Agent guidance MUST keep CV Markdown mode and form disclosure actions grouped in the main toolbar immediately after YAML with the shared outlined icon treatment. Form-area scrolling guidance MUST remain limited to tabs and contextual form actions.
 
-## LN-GOV-048 — Canonical specification Markdown page: stay within 400 physical lines and 32,768
+## LN-GOV-048 — Canonical page size limits
 
 <a id="ln-gov-048"></a>
 

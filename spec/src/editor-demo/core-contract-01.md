@@ -6,7 +6,7 @@
 
 **Requirement.** `@lapis-notes/api` MUST export a complete non-persistent `MemoryVaultAdapter` for deterministic tests, Storybook demos, and consumers that explicitly choose volatile storage.
 
-## LN-ED-002 — @lapis-notes/api: export a concrete source-text file view which
+## LN-ED-002 — Public source-text file view
 
 <a id="ln-ed-002"></a>
 
@@ -30,7 +30,7 @@
 
 **Requirement.** The API-owned design-core settings controller MUST load and save through API configuration atomically, preserve unrelated configuration, and avoid controller/configuration feedback loops.
 
-## LN-ED-006 — API editor-view contributions: mirrored into the API-owned design-core registry so
+## LN-ED-006 — Editor-view registry projection
 
 <a id="ln-ed-006"></a>
 
@@ -164,7 +164,7 @@ The live-edit parity scenario verifies:
 
 **Requirement.** All Properties MUST demonstrate its real panel without a visible Markdown leaf in middle top tabs, stacked tabs, both sidebars, a grouped bottom panel, and a sidebar group.
 
-## LN-ED-029 — All Properties Autodocs: expose only app: App and MUST NOT
+## LN-ED-029 — All Properties public Docs inputs
 
 <a id="ln-ed-029"></a>
 
@@ -194,7 +194,7 @@ The live-edit parity scenario verifies:
 
 **Requirement.** File Properties acceptance MUST resize the owning split below Mira's 250px breakpoint, restore it in all outcomes, and verify full-row stacking, label-aligned values, and no horizontal overflow. It MUST NOT constrain the component root or editor content directly.
 
-## LN-ED-034 — Legacy dual-panel comparison fixture: Do not remain a Storybook authority
+## LN-ED-034 — Retirement of the dual-panel fixture
 
 <a id="ln-ed-034"></a>
 
@@ -206,7 +206,7 @@ The live-edit parity scenario verifies:
 
 **Requirement.** The editor demo MUST include a focused Markdown Authoring story using the real in-memory app. Acceptance MUST cover selection formatting, slash insertion, block handles and pointer reordering, Live Preview heading controls, table editing, completion, smart paste, image attachment, truthful toolbar defaults, and opt-in Doodle Dividers.
 
-## LN-ED-036 — Editor demo landing view: identify WorkspaceEmpty as page content so
+## LN-ED-036 — WorkspaceEmpty landing-page content
 
 <a id="ln-ed-036"></a>
 
@@ -298,7 +298,7 @@ Focused Explorer acceptance verifies:
 
 **Requirement.** Every rendered Editor setting MUST reuse its canonical schema title, default, constraints, and concise description so the configuration contract and Settings UI cannot drift.
 
-## LN-ED-050 — @lapis-notes/api/editor: export a reusable embedded editor surface that
+## LN-ED-050 — Public embedded editor surface
 
 <a id="ln-ed-050"></a>
 
@@ -310,7 +310,7 @@ Focused Explorer acceptance verifies:
 
 **Requirement.** API `Editor` instances MUST support host-owned persistence, expose a flushable pending-change lifecycle, and keep file identity separate from whether the editor writes directly to the vault.
 
-## LN-ED-052 — Public Markdown view state: support a generic serialized return target so
+## LN-ED-052 — Serialized Markdown return targets
 
 <a id="ln-ed-052"></a>
 

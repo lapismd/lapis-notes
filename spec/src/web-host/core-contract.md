@@ -6,7 +6,7 @@
 
 **Requirement.** The web host MUST persist terminal-host URL and token as `web.terminalHost.url` and `web.terminalHost.token`. The token field MUST use password presentation. Live attach MUST require both values.
 
-## LN-WEB-034 — Web Vite: keep \*.wasm assets, MUST exclude ghostty-web plus
+## LN-WEB-034 — WASM assets and Ghostty bundling
 
 <a id="ln-web-034"></a>
 
@@ -27,7 +27,7 @@ Web agent-runtime Settings verify:
 - The token field MUST use `presentation: "password"`.
 - Live attach MUST stay off until both values are non-empty.
 
-## LN-WEB-045 — Web host: register the default-enabled @lapis-notes/source-editor before Markdown so
+## LN-WEB-045 — Source Editor startup order
 
 <a id="ln-web-045"></a>
 

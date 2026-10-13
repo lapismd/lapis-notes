@@ -1,12 +1,12 @@
 # Plugin Model / Distribution and registry / Part 2
 
-## LN-PLUG-095 — App Profile: support explicit local signed-registry configuration only in
+## LN-PLUG-095 — Local signed-registry configuration
 
 <a id="ln-plug-095"></a>
 
 **Requirement.** App Profile MAY support explicit local signed-registry configuration only in development or `registry-acceptance` mode. It MUST require a loopback catalog, public signing keys, and an exact HTTPS artifact origin. It MUST preserve signature, hash, compatibility, and loader checks, honor explicit host options, and ignore fixture trust in production/server builds.
 
-## LN-PLUG-070 — Registry Browse, Installed, Updates, detail results, and: show available approximate 30-day plugin downloads. Details
+## LN-PLUG-070 — Approximate monthly plugin downloads
 
 <a id="ln-plug-070"></a>
 
@@ -24,7 +24,7 @@
 
 **Requirement.** A plugin with `distribution: "first-party-external"` MUST own its Storybook catalog under `Plugins/<Plugin>` and MUST follow LN-CAT-109 and LN-CAT-110. Tasks Column Canvas and Design Core AppShell stories remain Tasks-specific exceptions and MUST NOT be copied as the general panel pattern.
 
-## LN-CV-010 — Runtime plugin roles: remain an independently versioned first-party-external package that
+## LN-CV-010 — Independent Roles plugin ownership
 
 <a id="ln-cv-010"></a>
 

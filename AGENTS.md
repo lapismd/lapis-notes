@@ -84,7 +84,7 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
   and allocate the next unused IDs for the extracted concerns. Preserve every
   constraint, exception, and normative keyword; never reassign an existing ID
   to unrelated behavior.
-- In the same change, add one the owning `spec/src/verification/` table row per new ID and
+- In the same change, add one row per new ID to the owning `spec/src/verification/` table and
   update cross-references, `MIGRATION.md`, and mapped guidance. Run
   `pnpm spec:check` and verify that requirement and verification IDs remain
   one-to-one.

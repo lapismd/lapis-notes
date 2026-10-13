@@ -12,7 +12,7 @@
 
 **Requirement.** Plugin ribbon and status contributions MUST appear only while their owner is enabled, and their commands MUST reuse existing compatible leaves. Status descriptors MAY attach a click menu through the same projected item.
 
-## LN-PLUG-016 — First-party Plugin.registerView and Plugin.registerSidebarView registration: declare ViewAccess metadata as exactly one of
+## LN-PLUG-016 — Explicit view-access classifications
 
 <a id="ln-plug-016"></a>
 

@@ -1,6 +1,6 @@
 # Markdown Plugin / Files and persistence
 
-## LN-MD-001 — Sibling lapis-plugins repository: own and ship @lapis-notes/markdown; Lapis Notes MUST
+## LN-MD-001 — Independent Markdown package ownership
 
 <a id="ln-md-001"></a>
 
@@ -30,13 +30,13 @@
 
 **Requirement.** A Markdown file leaf MAY receive a serialized return target containing a registered view type, label, icon, and state. While editing, the title action MUST restore that view in the same leaf, preserve the current file, support Mod+click in a right split, and leave Markdown Reading and Source controls available in the pane menu.
 
-## LN-MD-094 — Markdown: Do not register notes_patch. Unique exact-hunk replacement
+## LN-MD-094 — Exact-hunk patch tool ownership
 
 <a id="ln-md-094"></a>
 
 **Requirement.** Markdown MUST NOT register `notes_patch`. Unique exact-hunk replacement belongs to API `edit`. Invalid scope, conflicts, cancellation, and denial MUST leave the target file unchanged.
 
-## LN-MD-100 — Markdown: Do not register notes_read. Bounded scoped file
+## LN-MD-100 — Bounded file-read tool ownership
 
 <a id="ln-md-100"></a>
 
@@ -54,7 +54,7 @@
 
 **Requirement.** `markdown.mira.frontmatter.defaultOpen` MUST default to `false` and supply the initial frontmatter disclosure state for newly opened Live Preview and Reading surfaces. Manual disclosure changes MUST remain available. Explicit embed `frontmatterOpen` inputs MUST remain independent and default collapsed.
 
-## LN-MD-111 — Frontmatter property controls in Live Preview and: expose Mira's standard portalled dropdown
+## LN-MD-111 — Portalled frontmatter property dropdowns
 
 <a id="ln-md-111"></a>
 

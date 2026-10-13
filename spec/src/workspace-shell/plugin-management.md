@@ -6,7 +6,7 @@
 
 **Requirement.** The shell MUST render design-core's default desktop and mobile chrome. It MUST NOT call the Lapis plugin loader, register an application `PluginProfile`, or install Lapis/community plugins. The design-core notifications presentation is the only required static shell plugin. F-Mode MAY be present as an optional static plugin.
 
-## LN-WS-018 — API editor-view registrations: project into the design-core controller registry so
+## LN-WS-018 — Editor-view registry projection
 
 <a id="ln-ws-018"></a>
 

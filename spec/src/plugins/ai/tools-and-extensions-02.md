@@ -1,6 +1,6 @@
 # AI Plugin / Tools and extensions / Part 2
 
-## LN-AI-101 — Persisted disabledAppToolNames: treat notes_read as read and notes_patch as
+## LN-AI-101 — Legacy disabled-tool name mapping
 
 <a id="ln-ai-101"></a>
 
@@ -68,7 +68,7 @@ The AI settings inventory verifies:
 
 **Requirement.** Durable transcripts MAY record `command` and `skill-activation` entries with name, version, source, and status. They MUST NOT persist full skill bodies. Projection MUST keep those entries attributable to the producing binding.
 
-## LN-AI-118 — Native agent commands advertised by the active: appear in the composer catalog under that
+## LN-AI-118 — Native agent command catalog
 
 <a id="ln-ai-118"></a>
 

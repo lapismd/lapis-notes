@@ -42,13 +42,13 @@
 
 **Requirement.** The protocol MUST expose a stable integer major, build id, JSON-compatible schemas, bounded inputs and outputs, and stable application error codes. A stale client MUST receive an explicit protocol mismatch instead of undefined behavior.
 
-## LN-SRV-008 — Streamed file bodies, append, import, export, resources: use direct Fetch routes. tRPC MUST NOT
+## LN-SRV-008 — Direct Fetch routes for file streams
 
 <a id="ln-srv-008"></a>
 
 **Requirement.** Streamed file bodies, append, import, export, resources, plugin assets, health, readiness, and static files MUST use direct Fetch routes. tRPC MUST NOT wrap those byte streams.
 
-## LN-SRV-009 — Vault paths: normalized relative paths and MUST reject absolute
+## LN-SRV-009 — Normalized relative vault paths
 
 <a id="ln-srv-009"></a>
 
@@ -84,7 +84,7 @@
 
 **Requirement.** Health MUST report process liveness without authentication or secrets. Readiness MUST remain false until control migrations complete, the managed data root is writable, and the static client is available.
 
-## LN-SRV-015 — First server slice: Do not host AI, terminals, collaborative editing
+## LN-SRV-015 — Initial server-host scope
 
 <a id="ln-srv-015"></a>
 

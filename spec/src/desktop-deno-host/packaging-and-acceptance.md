@@ -14,7 +14,7 @@ Desktop renderer-engine selection verifies:
 - Native platform metadata maps the explicit CEF backend to Blink.
 - The renderer applies the engine marker before mounting the desktop application.
 
-## LN-DENO-075 — Packaged acceptance reports: become visible through an atomic rename after
+## LN-DENO-075 — Atomic acceptance-report publication
 
 <a id="ln-deno-075"></a>
 

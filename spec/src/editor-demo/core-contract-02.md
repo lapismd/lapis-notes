@@ -66,7 +66,7 @@
 
 **Requirement.** The source editor inline title MUST paint as a filename-sized editable title using native CSS and public editor tokens when `appearence.interface.showInlineTitle` is enabled, and MUST rename the open file through `fileManager.renameFile`.
 
-## LN-ED-015 — For file leaves, the API view bridge: contribute parent-path breadcrumbs and leaf history into
+## LN-ED-015 — File-view breadcrumbs and history
 
 <a id="ln-ed-015"></a>
 

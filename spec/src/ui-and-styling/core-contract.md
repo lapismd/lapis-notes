@@ -1,6 +1,6 @@
 # UI and Styling / Retained UI contracts
 
-## LN-UI-001 — Overlapping shadcn primitives: migrate to @lapismd/design-core/shadcn/\* over time; progress MUST
+## LN-UI-001 — Shared primitive migration tracking
 
 <a id="ln-ui-001"></a>
 
@@ -18,7 +18,7 @@
 
 **Requirement.** New styling MUST prefer design-core philosophy: native CSS, public `--ui-*` tokens, `data-ui-*` hosts, and Lapis brand via `data-ui-theme="lapis"`.
 
-## LN-UI-004 — Exported package CSS: Do not require consumers to expand Tailwind
+## LN-UI-004 — Portable exported CSS
 
 <a id="ln-ui-004"></a>
 
@@ -36,13 +36,13 @@
 
 **Requirement.** Filled primary/destructive actions MUST meet WCAG AA contrast (≥ 4.5:1) with their foreground text; keep brighter accent tokens for rings/selection.
 
-## LN-UI-007 — Lapis brand tokens: live in design-core themes/lapis.css. @lapis-notes/ui/theme.css MUST be
+## LN-UI-007 — Design Core brand-token ownership
 
 <a id="ln-ui-007"></a>
 
 **Requirement.** Lapis brand tokens MUST live in design-core `themes/lapis.css`. `@lapis-notes/ui/theme.css` MUST be alias-only (Obsidian-era names → design-core semantics) and MUST NOT redefine `--primary` / `--destructive` or ship a parallel Tailwind `@theme` palette.
 
-## LN-UI-008 — Retained @lapis-notes/ui compounds and @lapis-notes/api component chrome: Do not contain Tailwind utility class strings
+## LN-UI-008 — Native CSS in retained components
 
 <a id="ln-ui-008"></a>
 
@@ -78,7 +78,7 @@
 
 **Requirement.** Source editor face paint MUST default to Mira monospace via public editor tokens, with a sans override selectable by CodeMirror host `data-language` for Markdown and plain text only. Native CSS MUST keep configured fold-gutter markers visible for non-Markdown languages while hiding the duplicate generic gutter for Markdown, whose fold controls are owned by Mira. Editor-shell note-column spacing MUST target only the outer editor sizer and MUST NOT pad Mira's nested embedded previews.
 
-## LN-UI-014 — Trigger-based overlay portal ownership: remain in Design Core. Lapis MUST consume
+## LN-UI-014 — Design Core overlay portal ownership
 
 <a id="ln-ui-014"></a>
 

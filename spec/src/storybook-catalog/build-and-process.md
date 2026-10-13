@@ -12,7 +12,7 @@
 
 **Requirement.** Visual stories under `API/` MUST ship Visual Delta PNG baselines (`baselinePathMode: nested-import`) tagged `visual-pending` until human review promotes them to `visual-approved`. Stories tagged `skip-visual` are exempt.
 
-## LN-CAT-009 — Storybook: load design-core styles.css + Lapis theme as
+## LN-CAT-009 — Design Core styles and Lapis theme
 
 <a id="ln-cat-009"></a>
 
@@ -30,7 +30,7 @@
 
 **Requirement.** Storybook Vite MUST resolve `@lapis-notes/ai/runtimes` through the installed plugin package export.
 
-## LN-CAT-116 — Generated output: exclude it from source watching
+## LN-CAT-116 — Generated-output watcher exclusions
 
 <a id="ln-cat-116"></a>
 

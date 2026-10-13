@@ -12,7 +12,7 @@
 
 **Requirement.** `Workspace/Shell` MUST include a focused bottom-panel/settings story that boots a real api `App`, persists panel geometry through the api writer, and proves design-core's built-in settings update shell alignment and ribbon presentation without loading plugins or adding settings persistence. The play MUST open Settings from the left-ribbon bottom control.
 
-## LN-CAT-026 — Intentionally Storybook-local component: use its honest co-located fixture import in
+## LN-CAT-026 — Honest imports for local fixtures
 
 <a id="ln-cat-026"></a>
 
@@ -48,13 +48,13 @@
 
 **Requirement.** `Plugins/AI/Shell` MUST use a story-controlled initialization gate to assert immediate disabled chat chrome followed by an enabled composer without timing assumptions. Its local-conversations play MUST assert that History preserves the chat leaf and selecting the same conversation twice reuses one main-area tab.
 
-## LN-CAT-078 — Lapis Storybook: Do not contain Roles or CV stories
+## LN-CAT-078 — Roles and CV catalog ownership
 
 <a id="ln-cat-078"></a>
 
 **Requirement.** Lapis Storybook MUST NOT contain Roles or CV stories, titles, fixtures, aliases, or Storybook-only imports. Roles/CV catalog acceptance belongs to `lapis-plugin-cv-roles`; production host registration remains unchanged.
 
-## LN-CAT-086 — Lapis Storybook: Do not contain Terminal stories, titles, fixtures
+## LN-CAT-086 — Terminal catalog ownership
 
 <a id="ln-cat-086"></a>
 

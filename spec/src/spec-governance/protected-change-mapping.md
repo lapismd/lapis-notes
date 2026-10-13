@@ -1,6 +1,6 @@
 # Specification Governance / Protected change mapping
 
-## LN-GOV-003 — Protected implementation and configuration changes: update every mapped canonical chapter in
+## LN-GOV-003 — Specification updates for protected changes
 
 <a id="ln-gov-003"></a>
 
@@ -54,7 +54,7 @@
 
 **Requirement.** AI Host package implementation MUST be governed by the sibling `ai-host` repository's standalone specification. The Lapis spec-first map MAY keep a `packages/ai-host` cutover route to AI Plugin, Packages, Architecture, Desktop Host, and Web Host so the removed in-tree path stays classified.
 
-## LN-GOV-038 — Repository: run a local Storybook structure audit that
+## LN-GOV-038 — Storybook structure audit
 
 <a id="ln-gov-038"></a>
 

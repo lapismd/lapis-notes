@@ -34,7 +34,7 @@ Tracking policy verifies:
 
 **Requirement.** The plugin MUST register the `history` view through `ViewAccess.command` with `open-file-history` / `Open file history`. The opener MUST reveal an existing instance wherever it was moved or create, activate, and reveal the default right sidebar.
 
-## LN-HIST-005 — Plugin: register history-compare through ViewAccess.internal and reuse one
+## LN-HIST-005 — Internal history-comparison view
 
 <a id="ln-hist-005"></a>
 
@@ -76,7 +76,7 @@ Compare and restore verify:
 
 **Requirement.** The history-compare header MUST show a leading History breadcrumb plus parent-path segments of the compared file. The header title MUST be the filename and MUST NOT be editable. Selecting History MUST open or reveal the History panel for that file.
 
-## LN-HIST-010 — Storybook: provide Plugins/History/Shell Desktop and Mobile stories that
+## LN-HIST-010 — Desktop and mobile History shells
 
 <a id="ln-hist-010"></a>
 

@@ -26,7 +26,7 @@ The production renderer launch verifies:
 
 **Requirement.** Deno MUST expose all five `desktop_terminal_session_*` commands through the shared terminal service, emit raw output and one exit event, close every PTY during host shutdown, and package the checksum-verified Sigma native library for each macOS or Linux target.
 
-## LN-DENO-030 — Desktop boot document: present a branded loading surface before
+## LN-DENO-030 — Branded startup loading surface
 
 <a id="ln-deno-030"></a>
 
@@ -90,7 +90,7 @@ Development application identity verifies:
 
 **Requirement.** A ready desktop session with recovery restrictions MUST show a Safe Mode banner describing those restrictions, provide metadata and Search rebuild actions, and allow a normal restart that clears session recovery state. Community-plugin and notebook recovery controls MUST remain absent while those capabilities are unavailable in the Deno host.
 
-## LN-DENO-055 — First-party desktop: Do not initialize ACP sessions in-process. It
+## LN-DENO-055 — External ACP session ownership
 
 <a id="ln-deno-055"></a>
 
@@ -137,7 +137,7 @@ Renderer event acceptance verifies:
 - The renderer subscribes to the reserved same-origin event-stream route, ignores malformed messages, and schedules valid delivery after the stream callback returns.
 - Startup events remain ordered until the renderer connects, and host shutdown closes every active stream.
 
-## LN-DENO-058 — First-party prompt submission: use the shared controller client and MUST
+## LN-DENO-058 — Shared controller prompt submission
 
 <a id="ln-deno-058"></a>
 

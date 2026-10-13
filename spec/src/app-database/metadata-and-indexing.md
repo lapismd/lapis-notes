@@ -36,7 +36,7 @@
 
 **Requirement.** Hybrid retrieval MUST combine lexical and vector candidates through the shared API result contract and reciprocal-rank fusion. Structured-query correctness MUST remain API-owned.
 
-## LN-DB-009 — Legacy SQLite files: Do not be opened, imported, migrated,
+## LN-DB-009 — Legacy SQLite files remain untouched
 
 <a id="ln-db-009"></a>
 
@@ -90,13 +90,13 @@
 
 **Requirement.** The query AST MUST support and, or, not, compare, in, exists, select, orderBy, limit, and cursor after. Default queries MUST return only current ready rows.
 
-## LN-DB-022 — Projection IDs: namespaced by plugin id. Other plugins MAY
+## LN-DB-022 — Plugin namespaces for projection IDs
 
 <a id="ln-db-022"></a>
 
 **Requirement.** Projection IDs MUST be namespaced by plugin id. Other plugins MAY query public projections and MUST NOT query private ones or write another plugin's rows.
 
-## LN-DB-023 — QueryTasks and getTaskRow: wrap the public tasks/task projection. listTaskDescendants MUST
+## LN-DB-023 — Public task projection queries
 
 <a id="ln-db-023"></a>
 

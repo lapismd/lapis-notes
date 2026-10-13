@@ -72,7 +72,7 @@
 
 **Requirement.** Lapis MUST publish each plugin load or enable failure as a workspace-wide error and MUST clear it after a later successful enable. It MUST NOT mirror ordinary notices or notification history. App Shell static-plugin and persistence failures remain LN-WS-031.
 
-## LN-WS-056 — Cached hover and Problems actions for a: belong to that diagnostic. The cache MUST
+## LN-WS-056 — Diagnostic-owned cached actions
 
 <a id="ln-ws-056"></a>
 
@@ -192,7 +192,7 @@
 
 **Requirement.** The Design Core Problems plugin MUST show a right-aligned status item with the circle-alert icon and the live diagnostics total as its chip. Click MUST run the same reveal-or-create path as Show Problems. The item MUST NOT open the dock when the count changes.
 
-## LN-WS-073 — LanguageServiceCodeAction: carry a serializable command. Apply paths MUST
+## LN-WS-073 — Serializable language-service commands
 
 <a id="ln-ws-073"></a>
 

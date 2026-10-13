@@ -6,7 +6,7 @@
 
 **Requirement.** `@lapis-notes/api` MUST depend on `@lapis-notes/ui` as a peer for shared UI primitives used by kernel components.
 
-## LN-PKG-003 — @lapis-notes/ui: export only the pruned surface required by
+## LN-PKG-003 — Pruned retained UI exports
 
 <a id="ln-pkg-003"></a>
 

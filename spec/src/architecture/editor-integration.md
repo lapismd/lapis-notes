@@ -1,6 +1,6 @@
 # Architecture / Editor integration
 
-## LN-ARCH-010 — Runnable editor demo: keep demo bootstrap and source-editor policy in
+## LN-ARCH-010 — Editor demo bootstrap ownership
 
 <a id="ln-arch-010"></a>
 

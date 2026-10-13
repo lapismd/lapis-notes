@@ -6,7 +6,7 @@
 
 **Requirement.** The repository Storybook catalog MUST run on port 7010 as the workspace docs host. Authorized plugin packages MAY host an additional Storybook on a dedicated port for package-local UI and MUST NOT replace the 7010 catalog.
 
-## LN-CAT-004 — Story and MDX docs: link to canonical spec/src chapters instead of
+## LN-CAT-004 — Canonical specification links in Docs
 
 <a id="ln-cat-004"></a>
 
@@ -60,7 +60,7 @@
 
 **Requirement.** `Plugins/Markdown/Panels/All Properties` MUST group six focused child stories for Middle (Top Tabs), Stacked Tabs, Left Sidebar, Right Sidebar, Bottom Panel, and Sidebar As A Group.
 
-## LN-CAT-023 — File Properties, Outline, Backlinks, Outgoing Links, and: each follow the LN-CAT-022 six-surface pattern in
+## LN-CAT-023 — Six placements for each Markdown panel
 
 <a id="ln-cat-023"></a>
 
@@ -78,7 +78,7 @@
 
 **Requirement.** A story whose render path differs from consumer usage MUST define explicit `parameters.docs.source` with `code`, `language`, and `type: "code"`. Nontrivial source SHOULD be colocated in `*.example-sources.ts` and MUST derive from the same canonical fixture or layout builder as the story.
 
-## LN-CAT-027 — All Properties stories: declare the real exported AllProperties component as
+## LN-CAT-027 — All Properties component metadata
 
 <a id="ln-cat-027"></a>
 
@@ -138,13 +138,13 @@
 
 **Requirement.** The focused Bases Editable Cells and real editor-shell stories MUST enter advanced-filter edit mode, open CodeMirror completions, and assert the inline editor has no default outline while the completion surface has opaque, rounded, shadowed Lapis popover chrome.
 
-## LN-CAT-067 — Default Plugins/AI stories: stay Fake. Storybook MUST NOT start
+## LN-CAT-067 — Fake runtimes in default AI stories
 
 <a id="ln-cat-067"></a>
 
 **Requirement.** Default `Plugins/AI` stories MUST stay Fake. Storybook MUST NOT start an AI controller as a sidecar. Preview MAY publish the web host's thin controller connection bridge using an explicit URL and token. The AI plugin MUST use the installed shared client package, without a controller source alias.
 
-## LN-CAT-093 — Plugins/Graph/Panels/Graph and Plugins/Graph/Panels/Local Graph: each render the registered App-backed view in
+## LN-CAT-093 — App-backed Graph panel placements
 
 <a id="ln-cat-093"></a>
 
@@ -180,7 +180,7 @@
 
 **Requirement.** `Plugins/AI/Shell/JSONL Preview` MUST boot the real AI plugin, open a seeded portable `transcript.jsonl` through its registered default file view, and assert user and Markdown assistant messages, reasoning, tool activity, file-association metadata, and the absence of a composer. Its visual MUST remain `visual-pending` until human review.
 
-## LN-CAT-074 — Story titles and physical catalog paths for: use Plugins/&lt;Plugin&gt;. Command-access panels MUST use Plugins/&lt;Plugin&gt;/Panels/&lt;Panel&gt;
+## LN-CAT-074 — Plugin catalog hierarchy
 
 <a id="ln-cat-074"></a>
 
@@ -246,7 +246,7 @@
 
 **Requirement.** `Workspace/Shell` PersistedDesktop MUST show File Explorer, Search, then Bookmarks on the left and Outline, File Properties, then Tags on the right after bundled plugins load. The Bookmarks left-sidebar play MUST cover toolbar actions, typed rows, filter, add/remove group refresh, row inset, toolbar hover, Explorer tree geometry, leaf indent, drag reparent, search activation, and graph persistence.
 
-## LN-CAT-085 — Workspace/Shell PersistedDesktop: keep Design Core tooltip paint inverted in
+## LN-CAT-085 — Inverted tooltips in the persisted shell
 
 <a id="ln-cat-085"></a>
 
@@ -264,19 +264,19 @@
 
 **Requirement.** The Plugin Management Sources story MUST render both a Nostr source and the legacy HTTPS source through the production settings page. It MUST assert visible Nostr transport, relay count, and install-quorum readiness while remaining `visual-pending` until human review.
 
-## LN-CAT-113 — Specification Docs: provide a populated On this page outline
+## LN-CAT-113 — Useful On this page outline
 
 <a id="ln-cat-113"></a>
 
 **Requirement.** Specification Docs MUST provide a populated On this page outline containing topic and requirement headings. Repeated acceptance-detail headings MUST NOT clutter the outline.
 
-## LN-CAT-114 — Canonical Markdown chapter links: navigate to the matching Storybook Docs route
+## LN-CAT-114 — Canonical chapter routes and stable anchors
 
 <a id="ln-cat-114"></a>
 
 **Requirement.** Canonical Markdown chapter links MUST navigate to the matching Storybook Docs route while preserving fragments, browser history, external links, and static deployment subpaths. Requirement permalinks MUST use stable ID-based anchors.
 
-## LN-CAT-115 — Specification Docs: derive chapter hierarchy, breadcrumbs, and previous/next navigation
+## LN-CAT-115 — SUMMARY-derived navigation and unique mirrors
 
 <a id="ln-cat-115"></a>
 

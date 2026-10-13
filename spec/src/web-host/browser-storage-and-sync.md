@@ -12,7 +12,7 @@
 
 **Requirement.** The web session MUST register the shared application-owned `notesPluginProfile` containing exactly Source Editor, Markdown, File Explorer, and Search in that order. All four MUST default enabled and remain user-disableable. The host MUST then load configured vault-installed plugins before metadata and layout restoration and mount the shared `WorkspaceShell`. Local Web development MUST prepare verified packed plugin packages before launch.
 
-## LN-WEB-005 — LightningFS, demo vault seeding, notebooks, and the: Do not be retained. Registry and manually
+## LN-WEB-005 — Retirement of legacy web fixtures
 
 <a id="ln-web-005"></a>
 
@@ -63,7 +63,7 @@ Web session boot verifies the shared startup surface:
 - Retry MUST reuse the mounted session and MUST NOT open the branded launcher.
 - While plugins are active, the status message MUST name the current plugin.
 
-## LN-WEB-022 — Web vault without .obsidian/workspace.json: use the same default sidebar seed as
+## LN-WEB-022 — Default sidebar seeding
 
 <a id="ln-web-022"></a>
 
@@ -102,7 +102,7 @@ Web Manage Vaults overlay verifies:
 
 **Requirement.** An OPFS web session MUST register a Browser vault Settings section with Import local folder and Export to local folder action fields, plus palette commands `app:import-local-vault` and `app:export-current-vault`. Those commands MUST hide through `checkCallback` when the adapter is not OPFS. File System Access sessions MUST NOT show the section or commands.
 
-## LN-WEB-039 — In-session import: pick a folder, copy it into
+## LN-WEB-039 — Folder import during a session
 
 <a id="ln-web-039"></a>
 
@@ -192,7 +192,7 @@ Launcher copy progress verifies the startup surface:
 
 **Requirement.** The PWA host SHOULD request persistent browser storage and report the result without treating it as backup. Eviction of generated metadata MUST cause a database-generation reset and full reconciliation; eviction of a wrapped key envelope MUST require recovery or pairing.
 
-## LN-WEB-062 — Browser sync unlock: Do not create a new vault identity
+## LN-WEB-062 — Stable vault identity during sync unlock
 
 <a id="ln-web-062"></a>
 

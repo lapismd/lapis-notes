@@ -30,7 +30,7 @@ file from replacing the current outline.
 
 **Requirement.** Outline MUST fill its `WorkspaceViewHost`, omit title and path introduction copy, inherit resolved view paint and workspace typography, and add no hash icon.
 
-## LN-MD-044 — Outline leaf headings: Do not reserve disclosure space. Nested guides
+## LN-MD-044 — Outline leaf indentation
 
 <a id="ln-md-044"></a>
 

@@ -96,7 +96,7 @@
 
 **Requirement.** `Focus active file` MUST zoom to and center the active note without changing Global Graph's initial whole-graph alignment. The focused node MUST use a compact ring. Node titles MUST remain hidden below the configured zoom threshold unless hovered, and hovered titles MUST use the stronger scoped hover-label token.
 
-## LN-GRAPH-017 — Graph: persist the versioned graph.canonical-snapshot.v1 disposable projection in
+## LN-GRAPH-017 — Disposable canonical graph snapshot
 
 <a id="ln-graph-017"></a>
 
@@ -120,7 +120,7 @@
 
 **Requirement.** Node screen radius MUST scale with the square root of zoom. Link thickness MUST accept `0.1…5` screen pixels without reference-count widening. Arrows, focus rings, and pointer targets MUST remain usable and screen-stable across zoom. Rendering MUST cull off-screen geometry without removing it from simulation or hit-testing.
 
-## LN-GRAPH-021 — Explicitly focused nodes: emphasize immediately. Pointer hover MUST reveal only
+## LN-GRAPH-021 — Focused-node and hover emphasis
 
 <a id="ln-graph-021"></a>
 
@@ -144,7 +144,7 @@
 
 **Requirement.** Display MUST expose an Animate action that becomes Stop while a ten-second chronological time-lapse runs. Notes and attachments MUST use creation time, modification-time fallback, then undated-last order. Tag and unresolved nodes MUST appear with their first visible relationship, and links only when both endpoints are visible. Reveal work MUST be animation-frame-bounded and incrementally reheat the existing simulation.
 
-## LN-GRAPH-025 — Stopping, completing, changing the visible graph, or: restore the complete current graph. Pan
+## LN-GRAPH-025 — Complete graph restoration after animation
 
 <a id="ln-graph-025"></a>
 
