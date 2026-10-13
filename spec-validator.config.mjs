@@ -1,10 +1,10 @@
 import {
   defineConfig,
   singleIdVerification,
-  tableRequirements,
+  headingRequirements,
 } from "@lapismd/spec-validator";
 
-export default defineConfig(tableRequirements(), {
+export default defineConfig(headingRequirements(), {
   name: "lapis-notes",
   idPattern: /^LN-[A-Z]+-\d{3}$/,
   tableSection: "Requirements",
@@ -12,6 +12,7 @@ export default defineConfig(tableRequirements(), {
   maxAcceptance: null,
   ruleIds: {
     summary: "LN-GOV-001",
+    fileLimits: "LN-GOV-048",
     governance: "LN-GOV-017",
     verification: "LN-GOV-002",
     book: "LN-GOV-001",
@@ -22,6 +23,7 @@ export default defineConfig(tableRequirements(), {
     specFirst: "LN-GOV-003",
     internal: "LN-GOV-018",
   },
+  documentRoles: [{ pattern: "^verification/", role: "verification" }],
   diagnostics: {
     "SPEC-LINK-BROKEN": "LN-GOV-017",
     "SPEC-REQ-ID": "LN-GOV-002",
@@ -61,6 +63,7 @@ export default defineConfig(tableRequirements(), {
   },
   validators: {
     summary: true,
+    fileLimits: { maxLines: 400, maxBytes: 32768 },
     governance: {
       extras: ["AGENTS.md", "MIGRATION.md"],
       normative: true,
@@ -74,6 +77,7 @@ export default defineConfig(tableRequirements(), {
       changeMap: true,
     },
     verification: singleIdVerification({
+      files: ["^verification/.*\\.md$"],
       headers: {
         ids: ["ID"],
         status: ["Status"],
@@ -120,217 +124,249 @@ export default defineConfig(tableRequirements(), {
         {
           pattern:
             "^(?:\\.ci/(?:dependency-image\\.Dockerfile|images\\.json)|\\.env\\.example|\\.github/actions/ci-setup/action\\.yml|\\.github/workflows/(?:dependency-image|lapis-ci|publish-storybook-pages|release)\\.yml|\\.changeset/(?:config\\.json|README\\.md)|RELEASING\\.md|scripts/(?:public-packages|release-plan|release-manifest|prepare-release|publish-release|verify-release|create-github-releases|check-package-boundaries|check-package-tarballs|check-release-config|check-release-workflow|check-release-intent|prepare-local-plugin-consumer|pack-packages|prepare-ci-dependency-context|update-ci-image-manifest|run-ci-container|run-turbo|report-turbo-cache|lib/(?:local-plugin-consumer|concurrency|ci-images|ci-container))\\.mjs|scripts/local-plugin-pnpmfile(?:\\.test)?\\.(?:cjs|mjs))$",
-          chapters: [
-            "spec/src/architecture.md",
-            "spec/src/packages.md",
-            "spec/src/spec-governance.md",
+          chapterPatterns: [
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/spec\\-governance/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern:
             "^packages/api/(?:src/|package\\.json$|README\\.md$|CHANGELOG\\.md$|LICENSE\\.md$)",
-          chapters: ["spec/src/packages.md", "spec/src/architecture.md"],
+          chapterPatterns: [
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern: "^packages/api/src/lib/file-tools/",
-          chapters: [
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
-            "spec/src/plugins/ai/index.md",
+          chapterPatterns: [
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/api/src/lib/storage/(?!desktop-native\\.ts).+",
-          chapters: ["spec/src/app-database.md"],
+          chapterPatterns: [
+            "^spec/src/app\\-database/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern: "^packages/api/src/lib/storage/desktop-native\\.ts$",
-          chapters: ["spec/src/desktop-deno-host.md", "spec/src/packages.md"],
+          chapterPatterns: [
+            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern: "^packages/api/src/lib/cache\\.svelte(?:\\.d)?\\.ts$",
-          chapters: ["spec/src/app-database.md", "spec/src/plugin-model.md"],
+          chapterPatterns: [
+            "^spec/src/app\\-database/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern:
             "^packages/api/src/lib/(?:plugin(?:-manager)?\\.ts|workspace\\.svelte\\.ts|context\\.svelte\\.ts)$",
-          chapters: ["spec/src/plugin-model.md", "spec/src/workspace-shell.md"],
+          chapterPatterns: [
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
+            "^spec/src/workspace\\-shell/(?!(?:index|context(?:-\\d+)?|context|panels)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern: "^packages/api/src/lib/app-shell-plugin-persistence\\.ts$",
-          chapters: ["spec/src/workspace-shell.md", "spec/src/plugin-model.md"],
+          chapterPatterns: [
+            "^spec/src/workspace\\-shell/(?!(?:index|context(?:-\\d+)?|context|panels)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern:
             "^packages/ui/(?:src/|package\\.json$|README\\.md$|CHANGELOG\\.md$|LICENSE\\.md$)",
-          chapters: ["spec/src/packages.md", "spec/src/ui-and-styling.md"],
+          chapterPatterns: [
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/ui\\-and\\-styling/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern:
             "^packages/workspace/(?:src/|package\\.json$|README\\.md$|CHANGELOG\\.md$|LICENSE\\.md$)",
-          chapters: [
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
-            "spec/src/workspace-shell.md",
-            "spec/src/plugin-model.md",
+          chapterPatterns: [
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/workspace\\-shell/(?!(?:index|context(?:-\\d+)?|context|panels)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/app-profile/",
-          chapters: [
-            "spec/src/plugin-model.md",
-            "spec/src/packages.md",
-            "spec/src/web-host.md",
-            "spec/src/desktop-deno-host.md",
+          chapterPatterns: [
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/file-explorer/",
-          chapters: [
-            "spec/src/plugins/explorer/index.md",
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
-            "spec/src/editor-demo.md",
+          chapterPatterns: [
+            "^spec/src/plugins/explorer/index\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/editor\\-demo/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern:
             "^packages/(?:file-explorer|plugins/plugin-[^/]+)/(?:src/|package\\.json$)",
-          chapters: ["spec/src/plugin-model.md"],
+          chapterPatterns: [
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern: "^packages/desktop-electron/",
-          chapters: [
-            "spec/src/desktop-deno-host.md",
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
-            "spec/src/plugin-model.md",
-            "spec/src/plugin-model.md",
-            "spec/src/workspace-shell.md",
-            "spec/src/plugins/ai/index.md",
-            "spec/src/plugins/markdown/index.md",
+          chapterPatterns: [
+            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
+            "^spec/src/workspace\\-shell/(?!(?:index|context(?:-\\d+)?|context|panels)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugins/markdown/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/desktop-deno/",
-          chapters: [
-            "spec/src/desktop-deno-host.md",
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
+          chapterPatterns: [
+            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/deno-host-services/",
-          chapters: [
-            "spec/src/server-deno-host.md",
-            "spec/src/desktop-deno-host.md",
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
+          chapterPatterns: [
+            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/server-deno/",
-          chapters: [
-            "spec/src/server-deno-host.md",
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
-            "spec/src/app-database.md",
+          chapterPatterns: [
+            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/app\\-database/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/web/",
-          chapters: [
-            "spec/src/server-deno-host.md",
-            "spec/src/web-host.md",
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
-            "spec/src/plugin-model.md",
+          chapterPatterns: [
+            "^spec/src/server\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugin\\-model/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern:
             "^packages/language-service/(?:src/markdownlint/|package\\.json$)",
-          chapters: ["spec/src/desktop-deno-host.md"],
+          chapterPatterns: [
+            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern:
             "^packages/api/src/lib/(?:markdown(?:-extension-registry|-file-surface-registry)?\\.ts|plugin\\.ts|context\\.svelte(?:\\.d)?\\.ts|docs-api\\.ts|index\\.ts)$",
-          chapters: [
-            "spec/src/architecture.md",
-            "spec/src/plugins/markdown/index.md",
+          chapterPatterns: [
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/plugins/markdown/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern:
             "^packages/api/src/lib/(?:diagnostics/|language-service/|components/editor/language-service/|components/editor/extensions/lint/|workspace\\.ts$|plugin\\.ts$|context\\.svelte\\.ts$)",
-          chapters: ["spec/src/workspace-shell/panels/problems.md"],
+          chapterPatterns: [
+            "^spec/src/workspace\\-shell/panels/problems/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern: "^packages/language-service/",
-          chapters: [
-            "spec/src/workspace-shell/panels/problems.md",
-            "spec/src/packages.md",
+          chapterPatterns: [
+            "^spec/src/workspace\\-shell/panels/problems/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^stories/plugins/bookmarks/",
-          chapters: [
-            "spec/src/plugins/bookmarks/index.md",
-            "spec/src/storybook-catalog.md",
+          chapterPatterns: [
+            "^spec/src/plugins/bookmarks/index\\.md$",
+            "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^stories/plugins/history/",
-          chapters: [
-            "spec/src/plugins/history/index.md",
-            "spec/src/storybook-catalog.md",
+          chapterPatterns: [
+            "^spec/src/plugins/history/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^stories/plugins/graph/",
-          chapters: [
-            "spec/src/plugins/graph/index.md",
-            "spec/src/storybook-catalog.md",
+          chapterPatterns: [
+            "^spec/src/plugins/graph/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^stories/plugins/bases/",
-          chapters: [
-            "spec/src/plugins/bases/index.md",
-            "spec/src/storybook-catalog.md",
+          chapterPatterns: [
+            "^spec/src/plugins/bases/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^packages/ai-host/",
-          chapters: [
-            "spec/src/plugins/ai/index.md",
-            "spec/src/packages.md",
-            "spec/src/architecture.md",
-            "spec/src/desktop-deno-host.md",
-            "spec/src/web-host.md",
+          chapterPatterns: [
+            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/desktop\\-deno\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/web\\-host/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern: "^stories/plugins/ai/",
-          chapters: [
-            "spec/src/plugins/ai/index.md",
-            "spec/src/storybook-catalog.md",
+          chapterPatterns: [
+            "^spec/src/plugins/ai/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+            "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
         },
         {
           pattern:
             "^(?:\\.storybook/|stories/catalog/|scripts/storybook-runtime-warnings\\.mjs$)",
-          chapters: ["spec/src/storybook-catalog.md"],
+          chapterPatterns: [
+            "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern:
             "^(?:scripts/spec-validation/|spec-validator\\.config\\.mjs$|\\.qmd/index\\.ya?ml$|\\.gitignore$|spec/book\\.toml|AGENTS\\.md$)",
-          chapters: ["spec/src/spec-governance.md"],
+          chapterPatterns: [
+            "^spec/src/spec\\-governance/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
+          ],
         },
         {
           pattern:
             "^(?:package\\.json|pnpm-lock\\.yaml|pnpm-workspace\\.yaml|turbo\\.json|tsconfig(?:\\.[^.]+)*\\.json)$",
-          chapters: ["spec/src/architecture.md", "spec/src/packages.md"],
+          chapterPatterns: [
+            "^spec/src/architecture/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+            "^spec/src/packages/(?!(?:index|context(?:-\\d+)?|context\\-01|context\\-02|context\\-03)\\.md$)[^/]+\\.md$",
+          ],
         },
       ],
       protected: ["^(?:packages/[^/]+/src/|\\.storybook/|stories/catalog/)"],
@@ -342,6 +378,11 @@ export default defineConfig(tableRequirements(), {
   ],
   check: {
     lanes: [
+      {
+        name: "specification-docs",
+        command: "pnpm",
+        args: ["check:specification-docs"],
+      },
       {
         name: "view-command-audit",
         command: "node",

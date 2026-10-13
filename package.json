@@ -12,7 +12,7 @@
     "build:desktop": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/desktop-deno...",
     "build:web": "node --env-file-if-exists=.env scripts/run-turbo.mjs build --filter=@lapis-notes/web...",
     "changeset": "changeset",
-    "check": "pnpm spec:validate && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
+    "check": "pnpm spec:validate && pnpm check:specification-docs && pnpm check:no-tailwind && pnpm check:app-ownership && pnpm check:metadata-queries && node --env-file-if-exists=.env scripts/run-turbo.mjs check",
     "check:all": "pnpm check && pnpm test && pnpm build",
     "check:app-ownership": "tsx scripts/check-ambient-app-ownership.ts",
     "check:metadata-queries": "tsx scripts/check-first-party-metadata-queries.ts",
@@ -85,8 +85,12 @@
     "performance:metadata:stress:native": "pnpm --filter @lapis-notes/api performance:metadata:native -- --notes 100000 --runs 1 --no-enforce",
     "performance:metadata:stress:wasm": "tsx scripts/metadata-performance-wasm.ts --notes 100000 --runs 1 --no-enforce",
     "ai-controller": "lapis-ai-controller",
-    "ci:storybook-static": "pnpm build-storybook",
-    "ci:storybook-interaction": "pnpm test:storybook"
+    "ci:storybook-static": "pnpm build-storybook && pnpm test:specification:static",
+    "ci:storybook-interaction": "pnpm test:storybook",
+    "check:specification-docs": "tsc -p tsconfig.specification-docs.json && node scripts/spec-validation/sync-specification.mjs",
+    "test:specification:dev": "playwright test -c playwright.specification.config.ts",
+    "test:specification:static": "SPECIFICATION_STATIC=1 playwright test -c playwright.specification.config.ts",
+    "spec:mirrors": "node scripts/spec-validation/sync-specification.mjs --write"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
@@ -168,7 +172,10 @@
     "vite": "^7.3.2",
     "vitest": "^4.1.8",
     "yaml": "^2.9.0",
-    "@lapismd/ai-controller": "^0.1.0"
+    "@lapismd/ai-controller": "^0.1.0",
+    "@mdx-js/react": "^3.1.1",
+    "@types/react": "^19.2.18",
+    "@types/node": "^26.1.2"
   },
   "license": "Apache-2.0"
 }

@@ -46,16 +46,17 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 
 ## Spec First
 
+- Every canonical Markdown page stays within 400 physical lines and 32,768 UTF-8 bytes.
 - Canonical requirements live under `spec/src/`. Implementation must not run
   ahead of the spec.
-- Update the mapped chapter(s) and `spec/src/verification.md` **before or with**
+- Update the mapped chapter(s) and the owning `spec/src/verification/` table **before or with**
   protected implementation changes.
 - Run `pnpm spec:first` after changing protected paths. The gate fails closed on
   unmapped `packages/*/src` changes.
 - Keep repository policy in `spec-validator.config.mjs`. Prefer configurable
   validators from `@lapismd/spec-validator`; add a local plugin or structured
   check lane only for genuinely Lapis-specific validation.
-- Prefer `pnpm spec:search -- "<topic or LN-ID>"` before broad manual scans of
+- Prefer `pnpm spec:search "<topic or LN-ID>"` before broad manual scans of
   the specification. Open and verify the returned `spec/src` files because the
   QMD index is only a discovery cache. Use `--semantic` for conceptual queries;
   fall back to `rg` when QMD or its embedding model is unavailable.
@@ -70,20 +71,20 @@ repo unless a more specific `AGENTS.md` is added deeper in the tree.
 - Give each requirement ID one independently verifiable concern. Split clauses
   into separate IDs when they can fail independently, need different evidence,
   or are likely to evolve separately.
-- Keep requirement table cells concise and normative. Use `MUST` / `MUST NOT`
+- Keep titled requirement statements concise and normative. Use `MUST` / `MUST NOT`
   for required behavior and `MAY` for an intentional option or exception.
 - Keep each requirement statement and ID-scoped acceptance bullet within 80
   prose words and four sentences. `pnpm spec:validate` enforces those objective
   limits after removing Markdown syntax.
 - If one atomic concern still has three or more unordered acceptance details,
-  add a unique `### <ID> acceptance details` subsection in the defining chapter,
+  add a unique `### Acceptance details` beneath that requirement subsection in the defining chapter,
   introduce its unordered list, and include at least three bullets. Do not use
   bullets to hide concerns that need separate IDs.
 - When splitting a requirement, retain the original ID for its primary concern
   and allocate the next unused IDs for the extracted concerns. Preserve every
   constraint, exception, and normative keyword; never reassign an existing ID
   to unrelated behavior.
-- In the same change, add one `spec/src/verification.md` row per new ID and
+- In the same change, add one the owning `spec/src/verification/` table row per new ID and
   update cross-references, `MIGRATION.md`, and mapped guidance. Run
   `pnpm spec:check` and verify that requirement and verification IDs remain
   one-to-one.
