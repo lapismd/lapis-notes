@@ -1,5 +1,11 @@
 # Packages
 
+The dependency-image producer refreshes current-lockfile metadata before its
+verified digest PR. The release-test lane includes image-context and container
+regressions, so the normal CI unit job catches refresh failures before merge
+under LN-PKG-142. Producer refresh does not authorize consumption of a stale
+image or publish npm packages.
+
 The existing user-approved Bits UI `2.19.5` Link Preview lifecycle patch is
 retained for the direct runtime refresh, so canceled selection probes and listener
 cleanup remain qualified. This reuses the approved correction without extending

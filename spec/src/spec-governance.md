@@ -1,5 +1,10 @@
 # Specification Governance
 
+LN-GOV-044 covers dependency-image candidate generation and verified digest-pin
+updates as distinct from strict image consumption. Their regressions run in the
+normal release-test lane; the producer may refresh old metadata, while consumer
+lockfile and digest checks remain fail-closed.
+
 Normal specification and CI unit validation execute the Storybook runtime
 classifier and owned-console regression tests. These tests reject formatted
 Svelte diagnostics and prove that caught teardown errors remain fatal through

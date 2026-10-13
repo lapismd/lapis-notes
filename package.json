@@ -68,7 +68,7 @@
     "release:plan": "node ./scripts/release-plan.mjs",
     "release:prepare": "node ./scripts/prepare-release.mjs",
     "release:publish": "node ./scripts/publish-release.mjs",
-    "release:test": "node --test ./scripts/check-release-intent.spec.mjs ./scripts/check-release-workflow.spec.mjs ./scripts/create-github-releases.spec.mjs ./scripts/publish-release.spec.mjs ./scripts/release-manifest.spec.mjs ./scripts/release-plan.spec.mjs",
+    "release:test": "node --test ./scripts/ci-images.test.mjs ./scripts/ci-container.test.mjs ./scripts/check-release-intent.spec.mjs ./scripts/check-release-workflow.spec.mjs ./scripts/create-github-releases.spec.mjs ./scripts/publish-release.spec.mjs ./scripts/release-manifest.spec.mjs ./scripts/release-plan.spec.mjs",
     "release:verify": "node ./scripts/verify-release.mjs",
     "release:version": "changeset version && pnpm install --lockfile-only",
     "package:desktop": "pnpm --filter @lapis-notes/desktop-deno package:app",

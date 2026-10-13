@@ -11,11 +11,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  dependencyImageTag,
-  sha256File,
-  validateCiImageManifest,
-} from "./lib/ci-images.mjs";
+import { createCiImageManifestCandidate } from "./lib/ci-images.mjs";
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -26,8 +22,7 @@ export async function prepareCiDependencyContext({
   root = repositoryRoot,
   outDir = path.join(root, ".ci/dependency-context"),
 } = {}) {
-  const manifest = await validateCiImageManifest(root);
-  const lockfileSha256 = await sha256File(path.join(root, "pnpm-lock.yaml"));
+  const manifest = await createCiImageManifestCandidate(root);
 
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
@@ -58,8 +53,8 @@ export async function prepareCiDependencyContext({
   const metadata = {
     baseImage: `${manifest.base.image}@${manifest.base.digest}`,
     dependencyImage: manifest.dependencies.image,
-    lockfileSha256,
-    tag: dependencyImageTag(lockfileSha256),
+    lockfileSha256: manifest.dependencies.lockfileSha256,
+    tag: manifest.dependencies.tag,
   };
   await writeFile(
     path.join(outDir, "context.json"),
