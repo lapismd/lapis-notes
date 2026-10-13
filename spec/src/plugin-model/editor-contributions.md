@@ -100,7 +100,7 @@
 
 <a id="ln-plug-107"></a>
 
-**Requirement.** Plugin details MUST display the requested verified release version. An unknown requested version MUST show an unavailable state with no install action; it MUST NOT silently select the latest release. Returning to the latest release MUST require an explicit user action.
+**Requirement.** Plugin details MUST display the requested verified release version from an indexed own entry. An unknown requested version, including an inherited object property name, MUST show an unavailable state with no install action; it MUST NOT silently select the latest release. Returning to the latest release MUST require an explicit user action.
 
 ## LN-PLUG-108 — Selected release installation: retain the requested version
 

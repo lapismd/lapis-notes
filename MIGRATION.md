@@ -517,7 +517,9 @@ All api-consumed families also have `API/` plays and `visual-pending` baselines
 Registry app links now open the selected release in the owning Plugins leaf.
 Version selection persists, unavailable releases fail closed, and historical
 installation retains its requested version and confirmation. Native secondary
-launch and cold Web acceptance pass. The
+launch and cold Web acceptance pass. Successful app links dismiss the owning
+Settings dialog; inherited object properties cannot select a release. The
+native renderer retains early URLs until a vault host subscribes. The
 [app-link record](spec/records/2026-10-13-registry-app-links.md) tracks full-suite
 and CI qualification; the Workspace patch remains unpublished.
 

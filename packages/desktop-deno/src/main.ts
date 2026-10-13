@@ -27,6 +27,7 @@ import { mount } from "svelte";
 import DesktopVaultHost from "./DesktopVaultHost.svelte";
 import { waitForDesktopBindings } from "./binding-probe";
 import { installDesktopAppIconAppearanceSync } from "./desktop-app-icon";
+import { DesktopAppUrlDelivery } from "./desktop-app-url-delivery";
 import {
   dismissDesktopBootPresentation,
   showDesktopClosingPresentation,
@@ -104,13 +105,19 @@ const appDatabaseChangeListeners = new Set<
 >();
 const openVaultListeners = new Set<() => void>();
 const beforeCloseListeners = new Set<() => void>();
-const appUrlListeners = new Set<(url: string) => void>();
 const acceptanceAppUrls: string[] = [];
 const acceptanceAppUrlWaiters: Array<(url: string) => void> = [];
-let appUrlFlushPending = false;
-let appUrlFlushRequested = false;
 let rendererCloseRequested = false;
 let invokeDesktop: DesktopRawInvoke;
+
+const appUrlDelivery = new DesktopAppUrlDelivery(
+  () => invokeDesktop("desktop_app_url_take_pending"),
+  (url) => {
+    const waiter = acceptanceAppUrlWaiters.shift();
+    if (waiter) waiter(url);
+    else acceptanceAppUrls.push(url);
+  },
+);
 
 function dispatchRendererClose(): void {
   if (rendererCloseRequested) return;
@@ -126,29 +133,7 @@ void waitForDesktopCloseSignal()
   .catch(() => {});
 
 async function flushPendingAppUrls(): Promise<void> {
-  if (appUrlFlushPending) {
-    appUrlFlushRequested = true;
-    return;
-  }
-  appUrlFlushPending = true;
-  try {
-    do {
-      appUrlFlushRequested = false;
-      const urls = (await invokeDesktop(
-        "desktop_app_url_take_pending",
-      )) as unknown;
-      if (!Array.isArray(urls)) continue;
-      for (const value of urls) {
-        if (typeof value !== "string") continue;
-        for (const listener of appUrlListeners) listener(value);
-        const waiter = acceptanceAppUrlWaiters.shift();
-        if (waiter) waiter(value);
-        else acceptanceAppUrls.push(value);
-      }
-    } while (appUrlFlushRequested);
-  } finally {
-    appUrlFlushPending = false;
-  }
+  await appUrlDelivery.flush();
 }
 
 function handleRendererNativeEvent(
@@ -214,7 +199,14 @@ function handleRendererNativeEvent(
 const disposeRendererEvents = connectDesktopRendererEvents(
   handleRendererNativeEvent,
 );
-globalThis.addEventListener("pagehide", disposeRendererEvents, { once: true });
+globalThis.addEventListener(
+  "pagehide",
+  () => {
+    appUrlDelivery.dispose();
+    disposeRendererEvents();
+  },
+  { once: true },
+);
 
 function subscribe<T>(
   listeners: Set<(event: T) => void>,
@@ -393,9 +385,7 @@ const bridge: DenoDesktopBridge = {
     return unsubscribe;
   },
   onAppUrlOpen(listener) {
-    const unsubscribe = subscribe(appUrlListeners, listener);
-    void flushPendingAppUrls();
-    return unsubscribe;
+    return appUrlDelivery.subscribe(listener);
   },
   waitForAcceptanceAppUrl() {
     const queued = acceptanceAppUrls.shift();

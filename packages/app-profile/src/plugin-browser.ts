@@ -1,4 +1,5 @@
 import type { App } from "@lapis-notes/api";
+import { getWorkspaceHostBinding } from "@lapis-notes/api/workspace-host";
 import { openPluginBrowser, PluginsView } from "@lapis-notes/workspace";
 
 /** Register the default app browser before restoring persisted workspace leaves. */
@@ -8,7 +9,7 @@ export function registerNotesPluginBrowser(app: App): () => void {
   let disposed = false;
   const removeUrlHandler = app.urls.registerProtocolHandler(
     "plugins",
-    (params) => {
+    async (params) => {
       if (disposed || !/^[a-z0-9][a-z0-9-]{0,62}$/u.test(params.id ?? ""))
         return;
       const version = params.version;
@@ -17,7 +18,9 @@ export function registerNotesPluginBrowser(app: App): () => void {
         !/^[A-Za-z0-9][A-Za-z0-9.+-]{0,127}$/u.test(version)
       )
         return;
-      return openPluginBrowser(app, params.id, () => !disposed, version);
+      await openPluginBrowser(app, params.id, () => !disposed, version);
+      if (!disposed)
+        getWorkspaceHostBinding(app.workspace).controller.settings.close();
     },
   );
   const open = () => {

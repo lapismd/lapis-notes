@@ -431,7 +431,7 @@
                       onOpenPlugin={open}
                       onOpenCategory={(category) => go("directory", category)}
                     />
-                   {:else if selected && resolved && selectedVersion !== undefined && !resolved.detail.versions[selectedVersion]}<PluginRegistryContentState
+                   {:else if selected && resolved && selectedVersion !== undefined && !Object.hasOwn(resolved.detail.versions, selectedVersion)}<PluginRegistryContentState
                       kind="empty"
                       heading="Plugin version unavailable"
                       description={`Version ${selectedVersion} is not available from your enabled registry.`}

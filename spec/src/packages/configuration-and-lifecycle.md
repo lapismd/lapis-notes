@@ -5,6 +5,10 @@ Workspace's public navigator accepts an optional selected release version.
 The profile and hosts consume that generic navigator under
 [LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106); no registry-specific
 archive transport or trust key enters the application link.
+Workspace resolves requested versions from indexed own metadata entries under
+[LN-PLUG-107](../plugin-model/editor-contributions.md#ln-plug-107).
+Successful profile URL navigation dismisses owning Settings under
+[LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
 
 ## LN-PKG-050 — @lapis-notes/lapis-plugin-cv-roles: expose Storybook interaction and static-build scripts.
 

@@ -2,10 +2,12 @@
 
 App links and persisted Plugins routes retain a selected release version
 ([LN-PLUG-103](../plugin-model/app-ownership.md#ln-plug-103)). The view resolves
-that version from verified detail metadata, shows an unavailable state for a
+that version from verified detail metadata's indexed own entries, shows an unavailable state for a
 missing version, and passes the selected release through the existing install
 flow ([LN-PLUG-107](../plugin-model/editor-contributions.md#ln-plug-107),
 [LN-PLUG-108](../plugin-model/editor-contributions.md#ln-plug-108)).
+Successful app-link navigation dismisses owning Settings under
+[LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
 
 ## LN-WS-007 — Shell: render design-core's default desktop and mobile chrome
 

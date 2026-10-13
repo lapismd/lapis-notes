@@ -35,3 +35,9 @@
 <a id="ln-plug-106"></a>
 
 **Requirement.** The default application profile MUST register a disposable `plugins` App URL action accepting a validated plugin ID and optional release version. It MUST reveal the owning Plugins view and preserve the requested coordinates. The action MUST NOT install a plugin, accept an archive URL or change registry trust. Disposal MUST cancel queued navigation and unregister the handler.
+
+## LN-PLUG-109 — App links: reveal Plugins above Settings
+
+<a id="ln-plug-109"></a>
+
+**Requirement.** Successful `plugins` App URL navigation MUST dismiss the owning App's Settings dialog so the selected plugin page is reachable. Rejected or disposed navigation MUST NOT close Settings after its owning registration is removed.

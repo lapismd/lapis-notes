@@ -910,6 +910,7 @@ Released 1 August 2026.
         await tick();
       }
       await app.workspace.loadLayout();
+      await getWorkspaceHostBinding(app.workspace).controller.start();
       if (!disposed) ready = true;
     })();
     return () => {

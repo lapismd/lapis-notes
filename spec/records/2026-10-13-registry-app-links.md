@@ -85,7 +85,46 @@ source change.
 
 ## Publication
 
-Notes and Registry changes will be committed separately through Jujutsu.
+Final review reproduced an inherited-name failure (`constructor`): one story
+failure and one runtime error. Release selection now requires an indexed own
+entry; `constructor` and `toString` remain unavailable until explicit latest
+selection. The exact story passes with zero errors, all 56 affected stories pass,
+and Workspace check, 25 tests, build and publint pass.
+
+Opening an app link with Settings visible reproduced one unit and one story
+failure because Settings remained open. Successful navigation now closes the
+owning Settings dialog; rejected and disposed navigation leave it open. The
+extended story also exposed one fixture startup failure: it reported readiness
+before host plugins completed registration, allowing a queued layout projection
+to restore the old landing route. The fixture now awaits controller startup
+before reporting readiness. The exact historical release story passes; final
+affected stories pass 56/56, all 245 complete interaction/accessibility stories
+pass, and root check/test/build pass 18/18, 18/18 and 10/10 tasks. Full Web
+acceptance passes 12/12. The static catalog, six navigation/accessibility cases
+and rendered public Show Code for both app-link stories pass; two development-only
+cases remain skipped.
+
+The final packaged run exposed native URL delivery before the vault host had
+subscribed: the renderer drained and acknowledged the native queue without
+calling the plugin handler. Four cold runs reproduced the missing Plugins leaf.
+The delivery queue now waits for subscribers, retains fetched batches across
+subscriber replacement, preserves order, serializes reads and cancels on renderer
+disposal. Two focused regressions fail before and pass after; all six delivery
+tests initially pass. A late subscriber at promise settlement then reproduces
+one failure; its repair also preserves the read-error retry regression after
+one failing rerun. All seven delivery tests pass. Desktop check and 226 tests
+pass with one existing skip. Two rebuilt
+macOS cold runs pass the original exact Spellcheck 0.1.1 leaf assertion and clean
+shutdown. Temporary diagnostic fields and output are removed.
+
+Registry changelog list continuations are separately merged and deployed in
+[PR 19](https://github.com/lapismd/plugin-registry/pull/19). Two renderer regressions
+and the Source Editor browser regression fail before and pass after; independent
+CI passes 84 script tests and 20 browser cases. The live page now retains the full
+sentence inside one bullet. Registry app-link PR 18 is rebased on that deployed
+fix and passes 84 script tests, 21 browser cases and complete GitHub checks.
+
+Notes and Registry changes use separate Jujutsu commits.
 Qualified merges and registry deployment are already authorized. Complete CI,
 including Notes native macOS/Linux and Web acceptance, must pass at the exact
 reviewed head before merging. Registry `main` is unprotected, so completed-check

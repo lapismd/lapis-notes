@@ -1,5 +1,8 @@
 # Deno Desktop Host / Window and shell
 
+Delivered plugin URL navigation reveals the selected page above owning Settings
+under [LN-PLUG-109](../plugin-model/app-ownership.md#ln-plug-109).
+
 The existing URL activation queue also delivers `lapis://plugins?id=...` to the
 ready App's disposable profile handler
 ([LN-PLUG-106](../plugin-model/app-ownership.md#ln-plug-106)). The optional
@@ -56,6 +59,9 @@ Deno application activation verifies:
   the primary window, and exit before creating another application host.
 - Startup and later-launch URLs MUST remain queued until the renderer subscribes
   and the ready `App` MUST dispatch them through its public URL registry.
+- The renderer MUST NOT drain the native URL queue without a subscriber. A batch
+  fetched during subscriber replacement MUST retain its order until delivery;
+  acceptance acknowledgement MUST follow subscriber delivery.
 - The macOS application bundle and Linux desktop metadata MUST declare both URL
   schemes without embedding credentials or environment-specific paths.
 
