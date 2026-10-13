@@ -1,5 +1,9 @@
 # Packages / Vault and storage
 
+Development Docs acceptance uses installed package exports after its Turbo
+build prerequisites; the [portable startup contract](../storybook-catalog/build-and-process.md#ln-cat-117)
+keeps sibling release preparation outside standalone CI.
+
 ## LN-PKG-006 — Vault profile storage kinds: limited to opfs, file-system-access, and desktop-folder. LightningFS
 
 <a id="ln-pkg-006"></a>

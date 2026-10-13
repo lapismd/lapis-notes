@@ -3,6 +3,9 @@
 Local package tests already use Turbo. Repository-level test commands follow
 [the local test task contract](../packages/vault-and-storage.md#ln-pkg-159),
 with fresh execution for tests of external state.
+Development specification acceptance uses the
+[portable installed-graph startup](../storybook-catalog/build-and-process.md#ln-cat-117)
+so standalone CI needs no sibling release directory.
 
 ## LN-ARCH-001 — Repository: a pnpm workspace orchestrated by Turbo. Targeted
 

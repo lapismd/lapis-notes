@@ -2,7 +2,9 @@
 
 Configured specification-regression lanes use the registered
 [local Turbo test tasks](../packages/vault-and-storage.md#ln-pkg-159).
-Their canonical inputs remain part of result identity.
+Their canonical inputs remain part of result identity. The development
+specification Playwright configuration maps to Storybook Catalog for its
+portable test-server startup contract.
 
 ## LN-GOV-003 — Specification updates for protected changes
 

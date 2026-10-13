@@ -27,6 +27,14 @@ intake or UI swap status changes.
 - [ ] Complete the full suites in PR CI; see the
       [focused acceptance record](spec/records/2026-10-13-local-test-caching.md).
 
+## Portable specification acceptance (2026-10-13)
+
+- [x] Repair PR CI startup after 243 Storybook interaction/axe tests passed:
+      development Docs acceptance uses installed packages without requiring
+      sibling plugin release artifacts. The exact startup regression passes.
+- [ ] Complete development Docs navigation in updated PR CI; see the
+      [startup evidence](spec/records/2026-10-13-portable-specification-startup.md).
+
 ## Application ownership intake and integration (2026-08-16)
 
 - [x] Review the latest Lapis API, Workspace, Electron, web/PWA, Bases, AI,

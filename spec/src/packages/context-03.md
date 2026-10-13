@@ -57,3 +57,9 @@ LN-PKG-159. Forced runs and uncached external-state tasks preserve fresh
 acceptance under LN-PKG-160. Cached CI tasks receive only
 isolated CI/toolchain options, not live controller or terminal credentials.
 Cache misses and unavailable remote caching execute the existing commands.
+
+Development specification navigation uses `storybook:installed` after its Turbo
+package-build prerequisites (LN-CAT-117). The installed npm graph is the test
+input. `plugins:local:install` and the normal local development preflight remain
+available when explicitly validating sibling tarballs; standalone CI does not
+read their release artifacts.

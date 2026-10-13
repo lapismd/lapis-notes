@@ -22,7 +22,7 @@ export default defineConfig({
     : {
         command: staticBuild
           ? `node scripts/serve-specification-storybook.mjs ${port}`
-          : `STORYBOOK_PORT=${port} VISUAL_SERVER_PORT=${port + 1} pnpm storybook`,
+          : `STORYBOOK_PORT=${port} VISUAL_SERVER_PORT=${port + 1} pnpm storybook:installed`,
         url: new URL("index.json", baseURL).href,
         reuseExistingServer: false,
         timeout: 120_000,

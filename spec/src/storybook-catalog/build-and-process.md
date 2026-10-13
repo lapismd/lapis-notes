@@ -35,3 +35,9 @@
 <a id="ln-cat-116"></a>
 
 **Requirement.** Storybook source watching MUST exclude generated book, build, cache, runtime-fixture, log, and test-output directories. Canonical Markdown and authored runtime and story sources MUST remain watched. Recursive checkout symlinks MUST NOT duplicate watched source trees. Compiled package or startup changes MUST receive a cold restart when required by the refresh policy.
+
+## LN-CAT-117 — Portable development acceptance startup
+
+<a id="ln-cat-117"></a>
+
+**Requirement.** Development Storybook acceptance MUST start from the installed registry-compatible dependency graph without requiring sibling release artifacts. Preparing local plugin tarballs MUST remain an explicitly selected development preflight and MUST NOT run as a prerequisite of portable CI test-server startup.

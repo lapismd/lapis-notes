@@ -62,6 +62,7 @@ const additions = new Set([
   "LN-CAT-114",
   "LN-CAT-115",
   "LN-CAT-116",
+  "LN-CAT-117",
   "LN-PKG-157",
   "LN-PKG-158",
   "LN-PKG-159",
@@ -109,8 +110,8 @@ for (const id of requirements.keys())
     baseline.requirements[id] || additions.has(id),
     `unexpected ID ${id}`,
   );
-assert.equal(requirements.size, 1375);
+assert.equal(requirements.size, 1376);
 assert.equal(verification.size, requirements.size);
 console.log(
-  "Preserved 1365 requirement IDs, constraints, acceptance sections, statuses, and evidence rows; two format-rule changes, six documentation requirements, two release-consumer requirements, and two local-test-cache requirements identified separately.",
+  "Preserved 1365 requirement IDs, constraints, acceptance sections, statuses, and evidence rows; two format-rule changes, six documentation requirements, two release-consumer requirements, two local-test-cache requirements, and one portable-startup requirement identified separately.",
 );

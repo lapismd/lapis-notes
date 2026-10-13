@@ -8,7 +8,9 @@ const liveStorybookKeys = [
 
 export function isStorybookTask(argv) {
   return argv.some((arg) =>
-    /storybook|test:specification|test:workspace:pointer|test:visual/.test(arg),
+    /^(?:ci:storybook-(?:static|interaction)|build-storybook(?::run)?|test:(?:storybook|specification:(?:dev|static)|workspace:pointer|visual(?::update)?)(?::run)?)$/.test(
+      arg,
+    ),
   );
 }
 

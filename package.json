@@ -109,7 +109,8 @@
     "test:spec-validation:storybook-structure": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:spec-validation:storybook-structure:run --task-args",
     "test:spec-validation:storybook-structure:run": "node --test scripts/spec-validation/storybook-structure-audit.test.mjs",
     "test:package-boundaries": "node --env-file-if-exists=.env scripts/run-turbo.mjs test:package-boundaries:run --task-args",
-    "test:package-boundaries:run": "node --test ./scripts/check-package-boundaries.spec.mjs"
+    "test:package-boundaries:run": "node --test ./scripts/check-package-boundaries.spec.mjs",
+    "storybook:installed": "WATCHPACK_POLLING=250 node scripts/with-storybook-env.mjs node scripts/storybook-run.mjs --no-open"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

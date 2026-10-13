@@ -155,6 +155,10 @@ checks, and visual staging or baseline updates run through Turbo with caching
 disabled. They depend on state outside the tracked task inputs. Storybook runs
 with an external base URL or live controller/terminal configuration also disable
 cache reads and writes. Visual baseline updates still require approval.
+`pnpm storybook:installed` starts the catalog using already installed packages.
+The development Docs tests use this path in standalone CI; sibling-tarball
+preparation remains an explicit local-development choice.
+
 The `:run` scripts are internal raw runners; use the public commands above for
 local caching. Direct `pnpm exec vitest` or `pnpm --filter <package> test` invokes
 the underlying runner directly; use the root Turbo commands for cached runs.

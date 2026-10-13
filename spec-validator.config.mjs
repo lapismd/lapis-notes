@@ -348,7 +348,7 @@ export default defineConfig(headingRequirements(), {
         },
         {
           pattern:
-            "^(?:\\.storybook/|stories/catalog/|scripts/storybook-runtime-warnings\\.mjs$)",
+            "^(?:\\.storybook/|stories/catalog/|playwright\\.specification\\.config\\.ts$|scripts/storybook-runtime-warnings\\.mjs$)",
           chapterPatterns: [
             "^spec/src/storybook\\-catalog/(?!(?:index|context(?:-\\d+)?|context)\\.md$)[^/]+\\.md$",
           ],
