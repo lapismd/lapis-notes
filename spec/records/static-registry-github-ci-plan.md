@@ -131,16 +131,39 @@ qualification must execute on GitHub; local macOS evidence is not Linux evidence
   package check, specification/App-ownership/metadata gates and actionlint;
   fresh complete GitHub execution remains the source qualification gate.
 
+### Completed source qualification and authorized merges
+
+[Notes CI 38465829736](https://github.com/lapismd/lapis-notes/actions/runs/38465829736)
+passes at `96fdc2a78700b802616a90ed6b348c5609844438`. All 12 jobs execute
+successfully: build cache, governance, quality, units, static catalog, all 243
+interaction/accessibility scenarios, exact-source signed fixture, complete Web
+acceptance 10/10, both native macOS/Linux packages and cold smoke, artifact
+planning and the blocking aggregate. Neither platform nor the server scenario
+is deferred. Native package candidates and controller manifests are retained.
+LN-PKG-161, LN-PKG-162 and LN-PKG-163 are now Implemented.
+
+The user explicitly authorized merging green, ready source PRs on 2026-10-13.
+Controller PR 1 merged as `b2d26dd37c169803dac783930b3982aad9f5bc34`; its
+post-merge CI and specification workflow pass. Plugins PR 6 merged as
+`801016d5f92b9fcbc9ce34b974ee149bbff761f7`; its dependency image build passes
+and post-merge source CI remains in progress at this checkpoint. Their original
+source commits remain pinned by Notes, preserving qualified provenance. The
+newer local Sync and Controller changes remain separate. Notes PR 13 merged as
+`82dc778f7a7af259b91f02f618d23ed4124286ae` after its complete source CI passed.
+This documentation follow-up records the completed qualification on that merged
+source.
+
 ### Next protected release gate
 
-Once Notes' required GitHub jobs pass, the next action is protected production
+Notes' required GitHub jobs pass. The next action is protected production
 metadata signing for registry PR 12's `review/static-registry-v2` branch. Run the
 review branch's signing workflow with `source_ref=review/static-registry-v2` only
 after explicit approval; it creates a generated-only PR against that branch.
 Review and integrate those signatures, then require registry CI before the final
 source merge. npm plugin publication, registry release dispatch and Cloudflare
-deployment each remain separately approved operations. No production operation
-has been performed during this continuation.
+deployment each remain separately approved operations. Source merge approval
+does not approve these release actions. No production signing, npm publication,
+registry dispatch or catalog deployment has been performed during this continuation.
 
 ## Historical integration handoff
 
@@ -187,8 +210,8 @@ are preserved.
 | Repository  | Existing PR checks                                                                                                                                                                                                    | Remaining coverage or prerequisite                                                                                                   |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Design Core | `ci.yml`: governance, quality, units, static catalog, Storybook interactions, Workspace/Shell/Shadcn/AI browser suites, full/production audits and aggregate validation                                               | Completed: all 11 jobs executed successfully on the released source.                                                                 |
-| Notes       | `lapis-ci.yml`: governance/release intent, quality/ownership, units, static catalog, full interactions, complete Web, signed fixture, native macOS/Linux packages, package/artifact planning and aggregate validation | Source review and clean GitHub execution of every lane remain required; Linux evidence must come from its native runner.             |
-| Plugins     | `ci.yml`: published-framework prerequisite, build cache, audit/package/spec checks, units/release tests, static catalog, full interactions, pack/archive verification and test-signed artifact planning               | PR 6 must execute every lane successfully. Production publication and signing remain separate gates.                                 |
+| Notes       | `lapis-ci.yml`: governance/release intent, quality/ownership, units, static catalog, full interactions, complete Web, signed fixture, native macOS/Linux packages, package/artifact planning and aggregate validation | Completed: all 12 jobs pass in CI 38465829736, including native Linux cold smoke; PR 13 is merged.                                   |
+| Plugins     | `ci.yml`: published-framework prerequisite, build cache, audit/package/spec checks, units/release tests, static catalog, full interactions, pack/archive verification and test-signed artifact planning               | Completed: all nine source jobs pass and PR 6 is merged. Production publication and signing remain separate gates.                   |
 | Registry    | `checks.yml`: frozen install, strict remote artifact validation, generation/signatures, statistics, Astro check/build, unit/browser tests, formatting and generated-tree consistency                                  | API `^0.1.2` resolves publicly. Production V2 metadata signatures are absent; approved signing must precede final CI and deployment. |
 
 Clean CI cannot consume ignored checkout-specific hooks or local tarballs.
