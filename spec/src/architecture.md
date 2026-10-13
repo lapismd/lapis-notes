@@ -812,3 +812,18 @@ The default app owns Plugins view/ribbon registration through App Profile. Works
 The public `Notice` constructor declaration exposes its implemented optional
 App argument. App-owned registry actions pass that App explicitly, so notices
 follow the owning host rather than compatibility state.
+
+The dependency-image pin PR records its exact verified image digest, lockfile
+tag, and lockfile hash here alongside the image ownership contract
+(LN-ARCH-095). This generated evidence changes with each pin; it does not alter
+host or package ownership.
+
+<!-- ci-dependency-image:start -->
+
+## Current CI dependency image
+
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:e5455b97a9720b7077ff39e7063142acce4ea9ba43b6e0fea7bbf1b41604969c`
+- Lockfile tag: `lock-94d5f9a010fea20a`
+- pnpm-lock.yaml SHA-256: `94d5f9a010fea20a6b11e2a53f8fc5f63af04048872daea3d993cb48f74e6031`
+
+<!-- ci-dependency-image:end -->

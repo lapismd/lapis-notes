@@ -827,3 +827,18 @@ App distribution options. Ephemeral public trust keys and loopback transport
 remain development inputs rather than published package pins.
 
 The Workspace package exports `PluginsView` and `PluginBrowser` for the app-owned Plugins browser (LN-PLUG-098–103). The private App Profile registers its view, ribbon, command, and disposable lifecycle; the four optional static plugin defaults remain unchanged.
+
+Dependency-image pin updates record the exact immutable image and lockfile
+inputs used for package validation below. The generated PR stages this evidence
+alongside the pin so package build reproducibility stays reviewable under the
+normal specification gate (LN-GOV-046).
+
+<!-- ci-dependency-image:start -->
+
+## Current CI dependency image
+
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:e5455b97a9720b7077ff39e7063142acce4ea9ba43b6e0fea7bbf1b41604969c`
+- Lockfile tag: `lock-94d5f9a010fea20a`
+- pnpm-lock.yaml SHA-256: `94d5f9a010fea20a6b11e2a53f8fc5f63af04048872daea3d993cb48f74e6031`
+
+<!-- ci-dependency-image:end -->

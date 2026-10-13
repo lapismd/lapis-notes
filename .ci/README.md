@@ -29,7 +29,11 @@ digest. Merge that PR before changing CI workflows to consume the new layer.
 The producer derives its hash and tag from the current lockfile, even when
 `.ci/images.json` still describes the previous dependency image. Preparing the
 build context preserves that old pin; the verified digest PR updates the hash,
-tag, and digest together. Consumers continue to reject a stale pin or a missing
+tag, and digest together. The updater also records those values in generated
+snapshot blocks in Architecture, Packages, and Specification Governance. The
+automation PR stages all three chapters with the manifest and passes the normal
+spec-first gate. Missing chapters or malformed markers stop the updater before
+it changes the pin. Consumers continue to reject a stale pin or a missing
 dependency digest.
 
 If the checked-in dependency digest is null, `pnpm ci:container` fails closed
