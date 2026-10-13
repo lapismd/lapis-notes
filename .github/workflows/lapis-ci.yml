@@ -133,7 +133,9 @@ jobs:
         run: node scripts/run-turbo.mjs build --summarize
       - name: Report cache restoration
         run: node scripts/report-turbo-cache.mjs --github-summary
-      - run: pnpm build-storybook
+      - run: node scripts/run-turbo.mjs ci:storybook-static --summarize
+      - name: Report Storybook cache result
+        run: node scripts/report-turbo-cache.mjs --github-summary
 
   storybook-interaction:
     needs: build-cache
@@ -151,7 +153,9 @@ jobs:
         run: node scripts/run-turbo.mjs build --summarize
       - name: Report cache restoration
         run: node scripts/report-turbo-cache.mjs --github-summary
-      - run: pnpm test:storybook
+      - run: node scripts/run-turbo.mjs ci:storybook-interaction --summarize
+      - name: Report Storybook cache result
+        run: node scripts/report-turbo-cache.mjs --github-summary
 
   release-artifacts:
     needs: build-cache

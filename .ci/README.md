@@ -59,3 +59,27 @@ ignored root `.env` for local cache testing. `--remote-cache` requires all four
 signed-cache values; `--no-remote-cache` proves the same command without the
 service. Secrets must remain in the ignored `.env` or organization secrets and
 must never enter this image, its build context, logs, artifacts, or commits.
+
+## Storybook cache tasks
+
+CI, Pages, and the local `ci:release` parity script invoke `node scripts/run-turbo.mjs ci:storybook-static --summarize`.
+The static task restores `storybook-static` and `.visual-delta/cache` on a hit;
+on a miss it runs the existing build and specification-index audit. CI invokes
+`ci:storybook-interaction` through the same wrapper for the complete four-shard
+interaction/a11y sequence. Only successful results are cached. Both tasks
+depend on workspace builds, and each workflow reports the Storybook cache
+result separately from package restoration.
+
+The cache includes tracked root inputs, directly aliased workspace sources,
+package/build configuration, dependency metadata, CI image/setup configuration,
+and actual Node version/platform/architecture. CI mode, Node options, and
+Playwright browser path are hashed. Cache-service tokens do not affect result
+identity. Remote cache absence retains normal execution.
+
+Manual `pnpm build-storybook` and `pnpm test:storybook` remain direct commands
+for development and live-host acceptance. Cached CI tasks omit live controller
+and terminal credentials from their strict task environment.
+
+API build caches include the generated source host-module catalogue alongside
+`dist`. A fresh checkout therefore receives the same generated source as a
+fresh build before Storybook's source aliases read it.

@@ -40,8 +40,8 @@ export function validateReleaseWorkflows({ ci, release, pages } = {}) {
     "pnpm spec:first",
     "pnpm packages:policy",
     "pnpm packages:pack -- --already-built",
-    "pnpm build-storybook",
-    "pnpm test:storybook",
+    "node scripts/run-turbo.mjs ci:storybook-static --summarize",
+    "node scripts/run-turbo.mjs ci:storybook-interaction --summarize",
     "pnpm release:intent",
     "include-hidden-files: true",
     "TURBO_REMOTE_CACHE_SIGNATURE_KEY",
@@ -76,12 +76,22 @@ export function validateReleaseWorkflows({ ci, release, pages } = {}) {
     "actions/configure-pages@v6",
     "actions/upload-pages-artifact@v5",
     "actions/deploy-pages@v5",
-    "pnpm build-storybook",
+    "node scripts/run-turbo.mjs build --summarize",
+    "node scripts/report-turbo-cache.mjs --github-summary",
+    "node scripts/run-turbo.mjs ci:storybook-static --summarize",
     "storybook-static/index.html",
     "storybook-static/iframe.html",
     "uses: ./.github/actions/ci-setup",
   ]) {
     requireContains("Pages workflow", pages, fragment);
+  }
+  if (
+    pages.indexOf("node scripts/run-turbo.mjs build --summarize") >
+    pages.indexOf("node scripts/run-turbo.mjs ci:storybook-static --summarize")
+  ) {
+    fail(
+      "Pages workflow must restore package builds before building Storybook",
+    );
   }
   requireDigestPinnedCiImage("Pages workflow", pages);
 }

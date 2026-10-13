@@ -32,6 +32,59 @@
     "test": {
       "dependsOn": ["^build"],
       "outputs": []
+    },
+    "//#ci:storybook-static": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store"
+      ],
+      "env": [
+        "CI",
+        "LAPIS_TURBO_TOOLCHAIN",
+        "NODE_OPTIONS",
+        "PLAYWRIGHT_BROWSERS_PATH"
+      ],
+      "outputs": ["storybook-static/**", ".visual-delta/cache/**"]
+    },
+    "//#ci:storybook-interaction": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "packages/*/src/**",
+        "packages/*/scripts/**",
+        "packages/*/package.json",
+        "packages/*/tsconfig*.json",
+        "packages/*/svelte.config.*",
+        "packages/*/vite.config.*",
+        ".github/actions/ci-setup/action.yml",
+        ".ci/images.json",
+        ".ci/dependency-image.Dockerfile",
+        "!**/.DS_Store"
+      ],
+      "env": [
+        "CI",
+        "LAPIS_TURBO_TOOLCHAIN",
+        "NODE_OPTIONS",
+        "PLAYWRIGHT_BROWSERS_PATH"
+      ],
+      "outputs": []
+    },
+    "@lapis-notes/api#build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**",
+        "src/lib/generated/plugin-host-modules.schema.generated.ts"
+      ]
     }
   }
 }

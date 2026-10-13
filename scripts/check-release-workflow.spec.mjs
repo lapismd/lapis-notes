@@ -21,8 +21,8 @@ const ci = [
   "pnpm spec:first",
   "pnpm packages:policy",
   "pnpm packages:pack -- --already-built",
-  "pnpm build-storybook",
-  "pnpm test:storybook",
+  "node scripts/run-turbo.mjs ci:storybook-static --summarize",
+  "node scripts/run-turbo.mjs ci:storybook-interaction --summarize",
   "pnpm release:intent",
   "include-hidden-files: true",
   "TURBO_REMOTE_CACHE_SIGNATURE_KEY",
@@ -47,10 +47,12 @@ const release = [
 ].join("\n");
 
 const pages = [
+  "node scripts/run-turbo.mjs build --summarize",
+  "node scripts/report-turbo-cache.mjs --github-summary",
   "actions/configure-pages@v6",
   "actions/upload-pages-artifact@v5",
   "actions/deploy-pages@v5",
-  "pnpm build-storybook",
+  "node scripts/run-turbo.mjs ci:storybook-static --summarize",
   "storybook-static/index.html",
   "storybook-static/iframe.html",
   "uses: ./.github/actions/ci-setup",
@@ -174,4 +176,56 @@ test("generated Changesets PR retains remaining validation lanes", () => {
     assert.ok(workflow.jobs.validate.needs.includes(lane), lane);
   }
   assert.equal(workflow.jobs.validate.if, "always()");
+});
+
+test("Pages restores workspace builds before loading Storybook configuration", () => {
+  const pagesWorkflow = parse(
+    readFileSync(
+      new URL(
+        "../.github/workflows/publish-storybook-pages.yml",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  const steps = pagesWorkflow.jobs.build.steps;
+  const setup = steps.findIndex(
+    (step) => step.uses === "./.github/actions/ci-setup",
+  );
+  const build = steps.findIndex(
+    (step) => step.run === "node scripts/run-turbo.mjs build --summarize",
+  );
+  const storybook = steps.findIndex(
+    (step) =>
+      step.run === "node scripts/run-turbo.mjs ci:storybook-static --summarize",
+  );
+  assert.ok(
+    setup >= 0 && build > setup && storybook > build,
+    "Workspace dist outputs must be available before Storybook loads its public build-tools imports.",
+  );
+});
+
+test("Pages policy rejects a missing package build preflight", () => {
+  assert.throws(
+    () =>
+      validateReleaseWorkflows({
+        ci,
+        release,
+        pages: pages.replace(
+          "node scripts/run-turbo.mjs build --summarize\n",
+          "",
+        ),
+      }),
+    /must include node scripts\/run-turbo\.mjs build --summarize/,
+  );
+});
+
+test("Pages policy rejects a package build after Storybook", () => {
+  const reordered =
+    pages.replace("node scripts/run-turbo.mjs build --summarize\n", "") +
+    "\nnode scripts/run-turbo.mjs build --summarize";
+  assert.throws(
+    () => validateReleaseWorkflows({ ci, release, pages: reordered }),
+    /must restore package builds before building Storybook/,
+  );
 });
