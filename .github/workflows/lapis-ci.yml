@@ -26,7 +26,7 @@ defaults:
 
 env:
   LAPIS_PLUGIN_CANDIDATE_COMMIT: "61bf175f21d91f17e06a071bdaadbaf5d87645a1"
-  LAPIS_CONTROLLER_CANDIDATE_COMMIT: "0082a1151ad2da20d0288384636b25bec0778482"
+  LAPIS_CONTROLLER_CANDIDATE_COMMIT: "11c70f4390190b8f9e1bc0d06ed349df5c142754"
   TURBO_API: ${{ vars.TURBO_API }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -239,7 +239,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
-      - name: Checkout the released controller source
+      - name: Checkout the exact controller validation source
         uses: actions/checkout@v7
         with:
           repository: lapismd/ai-controller
@@ -258,7 +258,7 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0t64 libayatana-appindicator3-1 libfuse2t64 xvfb dbus-x11
       - run: pnpm install --frozen-lockfile
-      - name: Provision the released controller CLI
+      - name: Provision the controller CLI candidate
         working-directory: .ci-candidates/controller
         run: |
           test "$(git rev-parse HEAD)" = "$LAPIS_CONTROLLER_CANDIDATE_COMMIT"

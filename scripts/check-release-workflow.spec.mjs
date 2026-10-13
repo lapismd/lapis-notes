@@ -242,7 +242,7 @@ test("native acceptance provisions the released standalone controller CLI", () =
     "${{ env.LAPIS_CONTROLLER_CANDIDATE_COMMIT }}",
   );
   const install = native.steps.find(
-    (step) => step.name === "Provision the released controller CLI",
+    (step) => step.name === "Provision the controller CLI candidate",
   );
   assert.match(install.run, /git rev-parse HEAD/);
   assert.match(install.run, /pnpm install --frozen-lockfile/);

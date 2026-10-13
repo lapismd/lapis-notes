@@ -103,6 +103,33 @@ qualification must execute on GitHub; local macOS evidence is not Linux evidence
   `generated/`, which would reject a signing candidate. Generated Astro files
   are now untracked and ignored; cold type generation and all 77 script tests
   pass, and repeated source checking leaves the committed tree clean.
+- [Notes CI 38460618229](https://github.com/lapismd/lapis-notes/actions/runs/38460618229)
+  executed all required jobs. macOS packaged smoke, governance, quality, units,
+  static catalog, all 243 interaction/accessibility scenarios, fixture generation
+  and artifact planning passed. Linux controller provisioning failed on GNU tar
+  extraction of pnpm dependency hard links; complete Web execution recorded nine
+  passes and one server startup failure. The aggregate correctly failed.
+- [Controller PR 1](https://github.com/lapismd/ai-controller/pull/1) repairs
+  dependency staging in its owning package. It materializes the npm dry-run file
+  inventory as independent files, preserving bytes and executable flags within
+  the verified package root. The exact hard-link regression changes from one
+  failure to one pass. Its 195 Node tests, seven runtime-install tests, spec,
+  architecture, type, boundary, CLI build and publint checks pass; a fresh Linux
+  Docker environment also builds and verifies the installed CLI. Source CI
+  [38463053946](https://github.com/lapismd/ai-controller/actions/runs/38463053946)
+  and the specification workflow pass at
+  `11c70f4390190b8f9e1bc0d06ed349df5c142754`. Notes pins that exact validation
+  candidate; the default Controller workspace's newer unpublished work remains
+  separate and npm SDK ranges stay portable.
+- The Web server failure came from a mode-0600 bootstrap file owned by the host
+  runner rather than the container's `deno` user. The fixture now seeds the
+  credential through stdin into a private service-user-owned Docker volume,
+  mounts it read-only and removes it after acceptance. Assertions and deadlines
+  are unchanged. The exact server-host test passes 1/1, followed by complete Web
+  acceptance 10/10. Fresh macOS packaged smoke passes with the committed repaired
+  Controller candidate. The final repair also passes 70 release-tool tests, Web
+  package check, specification/App-ownership/metadata gates and actionlint;
+  fresh complete GitHub execution remains the source qualification gate.
 
 ### Next protected release gate
 

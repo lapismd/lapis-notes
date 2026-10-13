@@ -24,6 +24,10 @@
 
 **Requirement.** The first user MUST be bootstrapped only when no user exists, using a username and password-file environment variable. Bootstrap MUST be idempotent and MUST NOT log or persist the plaintext password.
 
+Browser acceptance supplies this input through stdin to a private Docker volume.
+The fixture file stays mode 0600, belongs to the image's service user and is
+mounted read-only, avoiding a dependency on the host runner's UID.
+
 ## LN-SRV-005 — Passwords: use bounded scrypt parameters and random salts
 
 <a id="ln-srv-005"></a>

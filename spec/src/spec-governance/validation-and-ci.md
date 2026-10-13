@@ -38,3 +38,5 @@ Workflow-shell regressions execute checkout and provenance handling against a
 different host SHA and reject a mismatched checkout.
 CI runners declare the external controller and Docker prerequisites needed to
 execute the complete acceptance graph; prerequisite absence remains a failure.
+Linux qualification includes controller dependency materialization and a private
+server secret readable by the container service user without relaxing assertions.

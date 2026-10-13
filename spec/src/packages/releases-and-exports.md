@@ -301,6 +301,8 @@ Fixture builds verify their checkout and export source provenance in the executi
 shell so the host workflow SHA cannot label another repository's artifacts.
 The full suite includes server-host Docker acceptance, so the runner provisions
 Docker and builds the candidate server image before browser execution.
+Server acceptance seeds bootstrap credentials through stdin into a private
+service-user-owned Docker volume and mounts it read-only into the candidate.
 
 ## LN-PKG-162 — Native packaged acceptance in CI
 
@@ -312,6 +314,8 @@ The separately installed controller CLI is provisioned from exact released sourc
 through its owning build and installer, in an isolated candidate area. Its npm SDK
 does not substitute for that executable. Acceptance passes the explicit CLI path
 and retains its runtime manifest alongside native package candidates.
+The validation pin includes the source-owned portable dependency staging repair
+on top of released 0.1.0 controller source; npm SDK ranges remain unchanged.
 
 ## LN-PKG-163 — Portable terminal dependency during desktop packaging
 

@@ -6,6 +6,10 @@
 
 **Requirement.** App Profile MAY support explicit local signed-registry configuration only in development or `registry-acceptance` mode. It MUST require a loopback catalog, public signing keys, and an exact HTTPS artifact origin. It MUST preserve signature, hash, compatibility, and loader checks, honor explicit host options, and ignore fixture trust in production/server builds.
 
+LN-PKG-161 runs the complete Web suite with the exact signed fixture, including
+server-managed vault acceptance. The server image remains a normal server-mode
+build; its private bootstrap credential fixture does not extend registry trust.
+
 ## LN-PLUG-070 — Approximate monthly plugin downloads
 
 <a id="ln-plug-070"></a>
