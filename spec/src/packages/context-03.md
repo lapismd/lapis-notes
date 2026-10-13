@@ -43,25 +43,16 @@ remain development inputs rather than published package pins.
 The Workspace package exports `PluginsView` and `PluginBrowser` for the app-owned Plugins browser (LN-PLUG-098–103). The private App Profile registers its view, ribbon, command, and disposable lifecycle; the four optional static plugin defaults remain unchanged.
 
 Dependency-image pin updates record the exact immutable image and lockfile
-inputs used for package validation below. The generated PR stages this evidence
+inputs used for package validation in
+[Releases and exports](releases-and-exports.md#current-ci-dependency-image). The generated PR stages this evidence
 alongside the pin so package build reproducibility stays reviewable under the
 normal specification gate (LN-GOV-046).
-
-<!-- ci-dependency-image:start -->
-
-## Current CI dependency image
-
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5ef79cba3c761db0cacb95aacf87ab3c4d70c4b24aba8d8272449a75737c2fe6`
-- Lockfile tag: `lock-2f660c227301649f`
-- pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
-
-<!-- ci-dependency-image:end -->
 
 CI and the local `ci:release` parity script run `ci:storybook-static` and
 `ci:storybook-interaction` through the bounded
 signed Turbo wrapper (LN-PKG-153 through LN-PKG-155). Their raw root scripts
-retain the existing static build/index audit and complete four-shard Vitest
-sequence. Manual `build-storybook` and `test:storybook` stay direct execution
+run the static build/index audit and deployment-subpath navigation, plus the
+complete four-shard Vitest sequence and cold development navigation. Manual `build-storybook` and `test:storybook` stay direct execution
 paths for development and live-host acceptance. Cached CI tasks receive only
 isolated CI/toolchain options, not live controller or terminal credentials.
 Cache misses and unavailable remote caching execute the existing commands.

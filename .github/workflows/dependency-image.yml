@@ -86,9 +86,9 @@ jobs:
           node scripts/update-ci-image-manifest.mjs "$IMAGE_DIGEST"
           pin_paths=(
             .ci/images.json
-            spec/src/architecture.md
-            spec/src/packages.md
-            spec/src/spec-governance.md
+            spec/src/architecture/dependency-boundaries.md
+            spec/src/packages/releases-and-exports.md
+            spec/src/spec-governance/protected-change-mapping.md
           )
           if git diff --quiet -- "${pin_paths[@]}"; then
             echo "The checked-in dependency image digest is current." >> "$GITHUB_STEP_SUMMARY"

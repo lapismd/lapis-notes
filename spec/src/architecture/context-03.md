@@ -79,19 +79,10 @@ App argument. App-owned registry actions pass that App explicitly, so notices
 follow the owning host rather than compatibility state.
 
 The dependency-image pin PR records its exact verified image digest, lockfile
-tag, and lockfile hash here alongside the image ownership contract
+tag, and lockfile hash alongside the image ownership contract in
+[Dependency boundaries](dependency-boundaries.md#current-ci-dependency-image)
 (LN-ARCH-095). This generated evidence changes with each pin; it does not alter
 host or package ownership.
-
-<!-- ci-dependency-image:start -->
-
-## Current CI dependency image
-
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5ef79cba3c761db0cacb95aacf87ab3c4d70c4b24aba8d8272449a75737c2fe6`
-- Lockfile tag: `lock-2f660c227301649f`
-- pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
-
-<!-- ci-dependency-image:end -->
 
 Static Storybook output and successful interaction/a11y results are CI-owned
 Turbo tasks (LN-PKG-153 through LN-PKG-155). They depend on the workspace build

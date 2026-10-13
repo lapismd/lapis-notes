@@ -215,19 +215,10 @@ peers retain the exact qualified compiler version; dependency drift fails the
 host-catalogue build before archives can be installed.
 
 CI image pin updates carry a generated snapshot of the verified build inputs in
-all three mapped chapters (LN-GOV-046). The image updater validates chapter
+all three mapped topic pages (LN-GOV-046); the governance snapshot is in
+[Protected change mapping](protected-change-mapping.md#current-ci-dependency-image). The image updater validates chapter
 availability and snapshot markers before writing; the automation stages those
 chapters together with the image manifest. No spec-first exemption applies.
-
-<!-- ci-dependency-image:start -->
-
-## Current CI dependency image
-
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5ef79cba3c761db0cacb95aacf87ab3c4d70c4b24aba8d8272449a75737c2fe6`
-- Lockfile tag: `lock-2f660c227301649f`
-- pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
-
-<!-- ci-dependency-image:end -->
 
 The generated Changesets release PR follows LN-GOV-047, matching Mira's release
 policy. Specification validation and build still run, alongside the required

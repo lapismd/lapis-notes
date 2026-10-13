@@ -346,6 +346,9 @@ export async function viteFinal(
         ],
       },
       watch: {
+        // The desktop tooling checkout link points back to this repository.
+        // Watch the physical authored sources once, without recursive aliases.
+        followSymlinks: false,
         // Generated files have no source dependency edges. Watching them makes
         // Storybook rebuild its complete impact index for logs and build output.
         ignored: [

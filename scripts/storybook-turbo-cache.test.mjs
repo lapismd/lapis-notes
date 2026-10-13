@@ -44,10 +44,13 @@ test("CI Storybook tasks cache their results after package builds", () => {
     ".visual-delta/cache/**",
   ]);
   assert.deepEqual(config.tasks["//#ci:storybook-interaction"].outputs, []);
-  assert.equal(manifest.scripts["ci:storybook-static"], "pnpm build-storybook");
+  assert.equal(
+    manifest.scripts["ci:storybook-static"],
+    "pnpm build-storybook && pnpm test:specification:static",
+  );
   assert.equal(
     manifest.scripts["ci:storybook-interaction"],
-    "pnpm test:storybook",
+    "pnpm test:storybook && pnpm test:specification:dev",
   );
 });
 

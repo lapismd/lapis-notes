@@ -1,7 +1,14 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { parse, stringify } from "yaml";
 import { DEFAULT_REPO_ROOT, readPublicPackages } from "./public-packages.mjs";
 import {
   defaultReleaseManifestPath,
@@ -78,6 +85,29 @@ export function verifyPublishedPackages({
       }
     }
   }
+  const packageManager = JSON.parse(
+    readFileSync(path.join(repoRoot, "package.json"), "utf8"),
+  ).packageManager;
+  if (
+    !/^pnpm@\d+\.\d+\.\d+(?:-[\w.-]+)?(?:\+sha\d+\.[a-f0-9]+)?$/.test(
+      packageManager ?? "",
+    )
+  )
+    throw new Error(
+      "Registry verification requires the root's exact pnpm packageManager pin.",
+    );
+  const onlyBuiltDependencies = parse(
+    readFileSync(path.join(repoRoot, "pnpm-workspace.yaml"), "utf8"),
+  )?.onlyBuiltDependencies;
+  if (
+    !Array.isArray(onlyBuiltDependencies) ||
+    onlyBuiltDependencies.some(
+      (dependency) => typeof dependency !== "string" || !dependency.trim(),
+    )
+  )
+    throw new Error(
+      "Registry verification requires the root's approved onlyBuiltDependencies list.",
+    );
   const consumerDir = mkdtempSync(
     path.join(tmpdir(), "lapis-notes-registry-consumer-"),
   );
@@ -88,6 +118,7 @@ export function verifyPublishedPackages({
       JSON.stringify(
         {
           private: true,
+          packageManager,
           type: "module",
           scripts: {
             check: "vite build && node ./resolve.mjs",
@@ -104,6 +135,10 @@ export function verifyPublishedPackages({
         null,
         2,
       ),
+    );
+    writeFileSync(
+      path.join(consumerDir, "pnpm-workspace.yaml"),
+      stringify({ onlyBuiltDependencies }),
     );
     writeFileSync(
       path.join(consumerDir, "vite.config.ts"),

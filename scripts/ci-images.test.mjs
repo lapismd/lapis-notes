@@ -13,6 +13,11 @@ import {
 import { prepareCiDependencyContext } from "./prepare-ci-dependency-context.mjs";
 
 const digest = "a".repeat(64);
+const specSnapshots = [
+  "architecture/dependency-boundaries.md",
+  "packages/releases-and-exports.md",
+  "spec-governance/protected-change-mapping.md",
+];
 
 test("dependency image tag is derived from the lockfile hash", () => {
   assert.equal(dependencyImageTag(digest), `lock-${"a".repeat(16)}`);
@@ -84,8 +89,8 @@ test("verified pin updates every mapped chapter and is idempotent", async (t) =>
   assert.equal(first.status, 0, first.stderr);
   const manifest = await validateCiImageManifest(root);
   const snapshots = new Map();
-  for (const chapter of ["architecture", "packages", "spec-governance"]) {
-    const file = path.join(root, `spec/src/${chapter}.md`);
+  for (const chapter of specSnapshots) {
+    const file = path.join(root, `spec/src/${chapter}`);
     const source = await readFile(file, "utf8");
     assert.ok(source.startsWith(`# ${chapter}\n\nExisting policy.\n`));
     assert.ok(
@@ -97,6 +102,11 @@ test("verified pin updates every mapped chapter and is idempotent", async (t) =>
   }
   const repeated = await runImageUpdater(root, publishedDigest);
   assert.equal(repeated.status, 0, repeated.stderr);
+  for (const chapter of ["architecture", "packages", "spec-governance"])
+    assert.equal(
+      await readFile(path.join(root, `spec/src/${chapter}.md`), "utf8"),
+      `# ${chapter} landing\n`,
+    );
   for (const [file, source] of snapshots) {
     assert.equal(await readFile(file, "utf8"), source);
   }
@@ -115,10 +125,15 @@ test("missing mapped chapter prevents a partial manifest update", async (t) => {
   const root = await fixtureRepository();
   t.after(() => rm(root, { recursive: true, force: true }));
   const manifestPath = path.join(root, ".ci/images.json");
-  const chapterPath = path.join(root, "spec/src/architecture.md");
+  const chapterPath = path.join(
+    root,
+    "spec/src/architecture/dependency-boundaries.md",
+  );
   const manifestBefore = await readFile(manifestPath, "utf8");
   const chapterBefore = await readFile(chapterPath, "utf8");
-  await rm(path.join(root, "spec/src/spec-governance.md"));
+  await rm(
+    path.join(root, "spec/src/spec-governance/protected-change-mapping.md"),
+  );
   const result = await runImageUpdater(root, `sha256:${"b".repeat(64)}`);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /spec-governance/);
@@ -129,16 +144,19 @@ test("missing mapped chapter prevents a partial manifest update", async (t) => {
 test("malformed snapshot markers prevent any pin or chapter rewrite", async (t) => {
   const root = await fixtureRepository();
   t.after(() => rm(root, { recursive: true, force: true }));
-  const chapterPath = path.join(root, "spec/src/packages.md");
+  const chapterPath = path.join(
+    root,
+    "spec/src/packages/releases-and-exports.md",
+  );
   await writeFile(
     chapterPath,
     "# Packages\n<!-- ci-dependency-image:start -->\n",
   );
   const paths = [
     ".ci/images.json",
-    "spec/src/architecture.md",
-    "spec/src/packages.md",
-    "spec/src/spec-governance.md",
+    "spec/src/architecture/dependency-boundaries.md",
+    "spec/src/packages/releases-and-exports.md",
+    "spec/src/spec-governance/protected-change-mapping.md",
   ];
   const before = await Promise.all(
     paths.map((file) => readFile(path.join(root, file), "utf8")),
@@ -166,9 +184,9 @@ test("automation stages all mapped pin outputs and checks them for changes", asy
   assert.ok(paths, "The automation must declare its complete pin output set.");
   for (const output of [
     ".ci/images.json",
-    "spec/src/architecture.md",
-    "spec/src/packages.md",
-    "spec/src/spec-governance.md",
+    "spec/src/architecture/dependency-boundaries.md",
+    "spec/src/packages/releases-and-exports.md",
+    "spec/src/spec-governance/protected-change-mapping.md",
   ]) {
     assert.ok(paths.includes(output), `Automation omits ${output}`);
   }
@@ -228,12 +246,21 @@ async function fixtureRepository() {
   const root = await mkdtemp(path.join(tmpdir(), "lapis-notes-ci-images-"));
   await mkdir(path.join(root, ".ci"), { recursive: true });
   await mkdir(path.join(root, "spec/src"), { recursive: true });
-  for (const chapter of ["architecture", "packages", "spec-governance"]) {
+  for (const chapter of specSnapshots) {
+    await mkdir(path.dirname(path.join(root, `spec/src/${chapter}`)), {
+      recursive: true,
+    });
     await writeFile(
-      path.join(root, `spec/src/${chapter}.md`),
+      path.join(root, `spec/src/${chapter}`),
       `# ${chapter}\n\nExisting policy.\n`,
     );
   }
+  for (const chapter of ["architecture", "packages", "spec-governance"])
+    await writeFile(
+      path.join(root, `spec/src/${chapter}.md`),
+      `# ${chapter} landing
+`,
+    );
   await mkdir(path.join(root, "packages/api/src"), { recursive: true });
   await mkdir(path.join(root, "patches"), { recursive: true });
   const lockfile = "lockfileVersion: '9.0'\n";

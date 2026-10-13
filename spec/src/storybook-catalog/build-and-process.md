@@ -34,4 +34,4 @@
 
 <a id="ln-cat-116"></a>
 
-**Requirement.** Storybook source watching MUST exclude generated book, build, cache, runtime-fixture, log, and test-output directories. Canonical Markdown and authored runtime and story sources MUST remain watched. Compiled package or startup changes MUST receive a cold restart when required by the refresh policy.
+**Requirement.** Storybook source watching MUST exclude generated book, build, cache, runtime-fixture, log, and test-output directories. Canonical Markdown and authored runtime and story sources MUST remain watched. Recursive checkout symlinks MUST NOT duplicate watched source trees. Compiled package or startup changes MUST receive a cold restart when required by the refresh policy.

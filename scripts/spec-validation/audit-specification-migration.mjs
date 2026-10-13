@@ -62,6 +62,8 @@ const additions = new Set([
   "LN-CAT-114",
   "LN-CAT-115",
   "LN-CAT-116",
+  "LN-PKG-157",
+  "LN-PKG-158",
 ]);
 for (const [id, original] of Object.entries(baseline.requirements)) {
   const current = requirements.get(id);
@@ -105,8 +107,8 @@ for (const id of requirements.keys())
     baseline.requirements[id] || additions.has(id),
     `unexpected ID ${id}`,
   );
-assert.equal(requirements.size, 1371);
+assert.equal(requirements.size, 1373);
 assert.equal(verification.size, requirements.size);
 console.log(
-  "Preserved 1365 requirement IDs, constraints, acceptance sections, statuses, and evidence rows; two format-rule changes and six documentation requirements identified separately.",
+  "Preserved 1365 requirement IDs, constraints, acceptance sections, statuses, and evidence rows; two format-rule changes, six documentation requirements, and two release-consumer requirements identified separately.",
 );

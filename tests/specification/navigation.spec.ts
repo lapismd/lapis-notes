@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createRequire } from "node:module";
-import { mkdir, writeFile, rm } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 
 const addonRequire = createRequire(
   import.meta.resolve("@storybook/addon-a11y"),
@@ -8,7 +8,9 @@ const addonRequire = createRequire(
 const axePath = addonRequire.resolve("axe-core");
 
 test("provides a populated on-page outline", async ({ page }) => {
-  await page.goto("?path=/docs/specification-workspace-shell--docs");
+  await page.goto("?path=/docs/specification-workspace-shell--docs", {
+    waitUntil: "domcontentloaded",
+  });
   const docs = page.frameLocator("#storybook-preview-iframe");
   await expect(
     docs.getByRole("navigation", { name: "On this page" }),
@@ -17,7 +19,9 @@ test("provides a populated on-page outline", async ({ page }) => {
 });
 
 test("canonical chapter links open their Storybook docs", async ({ page }) => {
-  await page.goto("?path=/docs/specification-workspace-shell--docs");
+  await page.goto("?path=/docs/specification-workspace-shell--docs", {
+    waitUntil: "domcontentloaded",
+  });
   const docs = page.frameLocator("#storybook-preview-iframe");
   await docs.getByRole("link", { name: "Panels", exact: true }).first().click();
   await expect(page).toHaveURL(
@@ -29,7 +33,9 @@ test("canonical chapter links open their Storybook docs", async ({ page }) => {
 test("requirement links, outline, and history survive reload", async ({
   page,
 }) => {
-  await page.goto("?path=/docs/specification-workspace-shell--docs");
+  await page.goto("?path=/docs/specification-workspace-shell--docs", {
+    waitUntil: "domcontentloaded",
+  });
   const docs = page.frameLocator("#storybook-preview-iframe");
   await docs
     .getByRole("link", { name: "Layout and persistence", exact: true })
@@ -50,12 +56,6 @@ test("requirement links, outline, and history survive reload", async ({
   await expect(page).toHaveURL(
     /specification-workspace-shell-layout-and-persistence--docs/,
   );
-  const previous = docs
-    .getByRole("navigation", { name: "Specification reading order" })
-    .getByRole("link", { name: /^Previous:/ });
-  await previous.focus();
-  await previous.press("Enter");
-  await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
   await page.goForward();
   await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
 });
@@ -64,7 +64,9 @@ test("reading order is keyboard accessible and fits a narrow page", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 760, height: 900 });
-  await page.goto("?path=/docs/specification-workspace-shell--docs");
+  await page.goto("?path=/docs/specification-workspace-shell--docs", {
+    waitUntil: "domcontentloaded",
+  });
   const docs = page.frameLocator("#storybook-preview-iframe");
   const next = docs
     .getByRole("navigation", { name: "Specification reading order" })
@@ -86,6 +88,12 @@ test("reading order is keyboard accessible and fits a narrow page", async ({
       ),
     )
     .toBeLessThanOrEqual(1);
+  const previous = docs
+    .getByRole("navigation", { name: "Specification reading order" })
+    .getByRole("link", { name: /^Previous:/ });
+  await previous.focus();
+  await previous.press("Enter");
+  await expect(page).toHaveURL(/specification-workspace-shell--docs$/);
 });
 
 test("legacy chapter routes retain their new parent hierarchy", async ({
@@ -95,7 +103,9 @@ test("legacy chapter routes retain their new parent hierarchy", async ({
     ["panels", "workspace-shell-panels", "Panels"],
     ["problems", "workspace-shell-panels-problems", "Problems"],
   ]) {
-    await page.goto(`?path=/docs/specification-${legacy}--docs`);
+    await page.goto(`?path=/docs/specification-${legacy}--docs`, {
+      waitUntil: "domcontentloaded",
+    });
     await expect(page).toHaveURL(new RegExp(`specification-${current}--docs`));
     await expect(
       page
@@ -108,7 +118,9 @@ test("legacy chapter routes retain their new parent hierarchy", async ({
 test("specification navigation passes accessibility checks", async ({
   page,
 }) => {
-  await page.goto("?path=/docs/specification-workspace-shell--docs");
+  await page.goto("?path=/docs/specification-workspace-shell--docs", {
+    waitUntil: "domcontentloaded",
+  });
   await expect(
     page
       .frameLocator("#storybook-preview-iframe")
@@ -143,7 +155,9 @@ test("generated output leaves the documentation mounted", async ({ page }) => {
     process.env.SPECIFICATION_STATIC === "1",
     "The static server has no source watcher.",
   );
-  await page.goto("?path=/docs/specification-workspace-shell--docs");
+  await page.goto("?path=/docs/specification-workspace-shell--docs", {
+    waitUntil: "domcontentloaded",
+  });
   const docs = page.frameLocator("#storybook-preview-iframe");
   await expect(
     docs.getByRole("navigation", { name: "On this page" }),
@@ -173,5 +187,33 @@ test("generated output leaves the documentation mounted", async ({ page }) => {
     ).toBe("retained");
   } finally {
     await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("authored canonical Markdown remains watched", async ({ page }) => {
+  test.skip(
+    process.env.SPECIFICATION_STATIC === "1",
+    "The static server has no source watcher.",
+  );
+  await page.goto("?path=/docs/specification-workspace-shell--docs", {
+    waitUntil: "domcontentloaded",
+  });
+  const docs = page.frameLocator("#storybook-preview-iframe");
+  await expect(
+    docs.getByRole("navigation", { name: "On this page" }),
+  ).toBeVisible();
+  const file = "spec/src/workspace-shell.md";
+  const source = await readFile(file, "utf8");
+  const marker = "Canonical authored-source watcher acceptance probe";
+  const modified = `${source}\n${marker}\n`;
+  await writeFile(file, modified);
+  try {
+    await expect(docs.getByText(marker, { exact: true })).toBeVisible();
+  } finally {
+    if ((await readFile(file, "utf8")) !== modified)
+      throw new Error(
+        "Watch fixture changed concurrently; retaining the current source.",
+      );
+    await writeFile(file, source);
   }
 });

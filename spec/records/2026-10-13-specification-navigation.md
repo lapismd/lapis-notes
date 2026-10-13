@@ -6,8 +6,8 @@ This record describes documentation and catalog tooling acceptance on 13 October
 
 The baseline at `spec/archive/2026-10-13-specification/` captures source revision
 `4c64c05d`: 36 chapters, 1,365 requirements, their acceptance sections, and every
-verification status and evidence entry. The baseline was committed as `41465d96`
-before migration.
+verification status and evidence entry. The baseline was committed before migration; after the main rebase its
+commit is `0fdef518`.
 
 The migrated book has 172 indexed chapters, plus `SUMMARY.md`. Every canonical
 Markdown file is below 400 physical lines and 32,768 UTF-8 bytes. The largest page
@@ -25,7 +25,9 @@ remain enforced.
 Six documentation requirements were added: LN-GOV-048 and LN-GOV-049 govern page
 bounds and preservation; LN-CAT-113 through LN-CAT-116 govern outlines, canonical
 routing, SUMMARY-derived navigation, and generated-output watcher exclusions.
-The resulting total is 1,371 requirements and exactly 1,371 verification rows.
+Two release-consumer requirements, LN-PKG-157 and LN-PKG-158, were subsequently
+added with [published npm acceptance](2026-10-13-registry-consumer-toolchain.md).
+The resulting total is 1,373 requirements and exactly 1,373 verification rows.
 No existing implementation status was promoted.
 
 All 31 existing source-change mappings were compared against baseline defining
@@ -55,7 +57,10 @@ build, cache, fixture, log, and test directories are now ignored by the source
 watcher. A regression writes 20 generated HTML files and checks that the Docs
 frame stays mounted. Authored sources remain watched.
 
-## Completed validation
+## Earlier migration validation
+
+These results describe the migration and prose slices before the final release
+and CI-wiring changes. They do not certify the final combined PR.
 
 | Command or lane                      | Result                                                                                                         |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -111,12 +116,45 @@ the main workspace, panel, editor API, and authoring topics. Their statements,
 acceptance details, and ID-based anchors remain unchanged. Visual-baseline updates
 and package publication were outside the requested scope.
 
-## Main-refresh checkpoint
+## Final main integration and CI handoff
 
-The final cold development recheck on the original base stalled in Storybook's
-`handleFileChange → mirrorUpdate → reverseIndexToStoriesByFile` path. It produced
-three navigation timeouts, one interrupted test, and three tests not run. The
-same final navigation suite passed on the rebuilt static deployment subpath.
-The owned development server was stopped, and the prose/test slice was committed
-before fetching the latest main, as requested. Latest-main integration and a
-fresh development recheck remain required at this checkpoint.
+The migration and prose slices were committed before fetching main, as requested.
+All changes are rebased onto `91bf2195c307286c87718f77824b73d1fe028339`.
+The latest CI-image snapshots were preserved, then moved into the owning
+Architecture, Packages, and Specification Governance topic pages. The image
+updater and its workflow stage those bounded pages, keeping the spec-first gate
+active for future automated pin updates. Twelve CI-image regressions pass.
+
+Cold development still becomes CPU-bound in Storybook's reverse-dependency
+index on this machine. The latest cold navigation run finished with five
+failures and three passes; failures included navigation timeouts. A preceding
+warm run passed seven tests with one initial-navigation timeout, including the
+positive authored-Markdown watcher regression. The authored watcher test restores
+the page and refuses to overwrite concurrent edits. Recursive checkout symlinks
+are excluded from watching alongside generated outputs. No browser assertions
+or timeouts were relaxed to obtain a pass. The owned 7310/7311 supervisor was
+stopped after testing.
+
+At the user's request, further slow local browser and full package runs were
+stopped. The final local handoff uses the preservation audit, formatting,
+specification checks, focused tooling regressions, and real published-package
+acceptance. Final full verification remains pending PR CI: package build,
+checks and tests; static Storybook with deployment-subpath navigation; complete
+Storybook interaction/axe; and cold development specification navigation. Both
+navigation commands are included in the signed Storybook CI tasks. The final
+static navigation suite has six browser tests and two development-only watcher
+skips; the development suite has eight tests.
+
+## Final focused results
+
+- `pnpm spec:check` passes all six configured lanes, App ownership and metadata
+  audits, and 37 local specification-validation tests.
+- `node scripts/spec-validation/audit-specification-migration.mjs` preserves all
+  1,365 originals, with eight additions identified separately (1,373 total).
+- `node --test scripts/verify-release.spec.mjs scripts/release-manifest.spec.mjs scripts/ci-images.test.mjs`
+  passes all 20 tests.
+- The exact CI Storybook command-contract regression failed once on the stale
+  pre-migration expectation. After updating it to require both navigation lanes,
+  that regression and the CI/Pages cache wiring regression pass (two tests).
+- Changed authored files pass Prettier with the documented temporary config.
+- Real published-package consumer acceptance passes as recorded separately.

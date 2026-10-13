@@ -1,5 +1,20 @@
 # Packages / Releases and exports
 
+Registry-consumer toolchain and build-policy acceptance is recorded in
+[the release verification record](../../records/2026-10-13-registry-consumer-toolchain.md).
+
+## LN-PKG-157 — Pinned registry-consumer package manager
+
+<a id="ln-pkg-157"></a>
+
+**Requirement.** Published-package verification MUST generate its temporary registry consumer with the repository root's exact `packageManager` pin before installation. A missing or unpinned pnpm toolchain MUST fail before invoking the consumer install.
+
+## LN-PKG-158 — Approved registry-consumer dependency builds
+
+<a id="ln-pkg-158"></a>
+
+**Requirement.** Published-package verification MUST generate a minimal consumer `pnpm-workspace.yaml` containing only the root's approved `onlyBuiltDependencies` list. It MUST NOT blanket-enable dependency scripts or copy repository patches, overrides, workspace links, or local hooks into that consumer.
+
 ## LN-PKG-015 — @lapis-notes/markdown: live in the sibling lapis-plugins monorepo, depend
 
 <a id="ln-pkg-015"></a>
@@ -275,3 +290,13 @@
 <a id="ln-pkg-093"></a>
 
 **Requirement.** Public `@lapismd/terminal-host` MUST live in the `terminal-host` repository, version independently, and expose build, check, test, Deno embed, and CLI entries. Lapis hosts MUST consume it through published npm semver ranges. Deno desktop MUST pass the vault path, optional `cwd`, optional absolute `shell`, and a packaged verified native-library path.
+
+<!-- ci-dependency-image:start -->
+
+## Current CI dependency image
+
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5ef79cba3c761db0cacb95aacf87ab3c4d70c4b24aba8d8272449a75737c2fe6`
+- Lockfile tag: `lock-2f660c227301649f`
+- pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
+
+<!-- ci-dependency-image:end -->
