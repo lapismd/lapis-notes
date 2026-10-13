@@ -23,3 +23,7 @@
 <a id="ln-arch-092"></a>
 
 **Requirement.** API MUST own explicit sync enrollment, multi-epoch key custody, owner membership authority, bounded pairing state including validation of the user-confirmed SAS, and opaque recovery bundles. Protocol plugins MUST remain responsible for transporting returned artifacts, choosing endpoints, validating revision ancestry, and presenting pairing or recovery policy.
+
+The CI acceptance graph uses exact frozen source candidates for temporary signed
+registry fixtures before V2 production cutover. Public package ranges stay
+portable; full Web and native packaged results remain blocking under LN-PKG-142.

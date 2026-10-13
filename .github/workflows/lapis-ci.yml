@@ -25,6 +25,7 @@ defaults:
     shell: bash
 
 env:
+  LAPIS_PLUGIN_CANDIDATE_COMMIT: "61bf175f21d91f17e06a071bdaadbaf5d87645a1"
   TURBO_API: ${{ vars.TURBO_API }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -158,6 +159,111 @@ jobs:
       - name: Report Storybook cache result
         run: node scripts/report-turbo-cache.mjs --github-summary
 
+  registry-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Checkout the exact Plugins validation candidate
+        uses: actions/checkout@v7
+        with:
+          repository: lapismd/lapis-plugins
+          ref: ${{ env.LAPIS_PLUGIN_CANDIDATE_COMMIT }}
+          path: .ci-candidates/plugins
+      - name: Build test-signed registry candidate
+        working-directory: .ci-candidates/plugins
+        env:
+          GITHUB_SHA: ${{ env.LAPIS_PLUGIN_CANDIDATE_COMMIT }}
+        run: |
+          pnpm install --frozen-lockfile
+          node scripts/check-framework-publication.mjs
+          pnpm build
+          pnpm packages:pack -- --already-built
+          pnpm plugin:build
+          node scripts/create-registry-acceptance-fixture.mjs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: signed-registry-acceptance-fixture
+          path: .ci-candidates/plugins/.release/registry-acceptance
+          if-no-files-found: error
+          retention-days: 14
+
+  web-acceptance:
+    needs: [build-cache, registry-fixture]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ghcr.io/lapismd/lapis-ci@sha256:8fb0ecf5e978c9b44acd8394d78f689d93404f30f8014861a10a7eb2b90b96b8
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ci-setup
+      - name: Restore package builds
+        run: node scripts/run-turbo.mjs build --summarize
+      - uses: actions/download-artifact@v8
+        with:
+          name: signed-registry-acceptance-fixture
+          path: .ci-candidates/registry-fixture
+      - run: pnpm test:web:e2e
+        env:
+          LAPIS_WEB_REGISTRY_FIXTURE: .ci-candidates/registry-fixture
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: web-acceptance-diagnostics
+          path: packages/web/test-results
+          retention-days: 14
+
+  desktop-packaged:
+    needs: build-cache
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.15.0"
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2
+        with:
+          deno-version: v2.9.7
+      - name: Install Linux native acceptance dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0t64 libayatana-appindicator3-1 libfuse2t64 xvfb dbus-x11
+      - run: pnpm install --frozen-lockfile
+      - name: Build validation-only native package
+        run: pnpm package:desktop
+      - name: Cold packaged acceptance on macOS
+        if: runner.os == 'macOS'
+        run: pnpm test:desktop:packaged
+      - name: Cold packaged acceptance on Linux
+        if: runner.os == 'Linux'
+        run: xvfb-run -a dbus-run-session -- pnpm test:desktop:packaged
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: desktop-validation-${{ matrix.os }}
+          path: |
+            packages/desktop-deno/release/*.zip
+            packages/desktop-deno/release/*.AppImage
+            packages/desktop-deno/release/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
   release-artifacts:
     needs: build-cache
     runs-on: ubuntu-latest
@@ -201,6 +307,9 @@ jobs:
       - unit
       - storybook-static
       - storybook-interaction
+      - web-acceptance
+      - registry-fixture
+      - desktop-packaged
       - release-artifacts
     runs-on: ubuntu-latest
     steps:
@@ -212,6 +321,9 @@ jobs:
           UNIT: ${{ needs.unit.result }}
           STORYBOOK_STATIC: ${{ needs.storybook-static.result }}
           STORYBOOK_INTERACTION: ${{ needs.storybook-interaction.result }}
+          WEB_ACCEPTANCE: ${{ needs.web-acceptance.result }}
+          REGISTRY_FIXTURE: ${{ needs.registry-fixture.result }}
+          DESKTOP_PACKAGED: ${{ needs.desktop-packaged.result }}
           RELEASE_ARTIFACTS: ${{ needs.release-artifacts.result }}
         run: |
           set -euo pipefail
@@ -222,6 +334,9 @@ jobs:
             "$UNIT"
             "$STORYBOOK_STATIC"
             "$STORYBOOK_INTERACTION"
+            "$WEB_ACCEPTANCE"
+            "$REGISTRY_FIXTURE"
+            "$DESKTOP_PACKAGED"
             "$RELEASE_ARTIFACTS"
           )
           for result in "${results[@]}"; do

@@ -91,9 +91,9 @@ describe("Deno desktop distribution", () => {
       "utf8",
     );
     expect(source).toContain(
-      'path.resolve(packageDir, "../../../terminal-host")',
+      'import.meta.resolve("@lapismd/terminal-host/native-artifacts.json")',
     );
-    expect(source).toContain('"native-artifacts.json"');
+    expect(source).not.toContain("../../../terminal-host");
     expect(source).toContain('"--include"');
     expect(source).toContain('"native"');
     expect(source).toContain('"build/icon-light.png"');

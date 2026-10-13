@@ -19,7 +19,7 @@
     "@lapis-notes/deno-host-services/vault-fs": "../deno-host-services/src/vault-fs.ts",
     "@lapis-notes/deno-host-services/vault-resources": "../deno-host-services/src/vault-resources.ts",
     "@lapis-notes/language-service/markdownlint/runtime": "../language-service/src/markdownlint/runtime.ts",
-    "@lapismd/terminal-host/deno": "../../../terminal-host/src/deno.ts",
+    "@lapismd/terminal-host/deno": "npm:@lapismd/terminal-host@^0.1.0/deno",
     "@lezer/common": "npm:@lezer/common@1.2.3",
     "@lezer/highlight": "npm:@lezer/highlight@1.2.1",
     "@lezer/lr": "npm:@lezer/lr@1.4.2",
@@ -43,8 +43,6 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "deno.window"
-    ]
+    "lib": ["deno.window"]
   }
 }

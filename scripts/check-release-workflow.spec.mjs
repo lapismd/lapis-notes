@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { parse } from "yaml";
 import { validateReleaseWorkflows } from "./check-release-workflow.mjs";
 import "./ci-setup.test.mjs";
@@ -176,6 +177,78 @@ test("generated Changesets PR retains remaining validation lanes", () => {
     assert.ok(workflow.jobs.validate.needs.includes(lane), lane);
   }
   assert.equal(workflow.jobs.validate.if, "always()");
+});
+
+test("CI runs complete web and native packaged acceptance before aggregation", () => {
+  assert.equal(
+    workflow.jobs["web-acceptance"].steps.some(
+      (step) => step.run === "pnpm test:web:e2e",
+    ),
+    true,
+  );
+  const native = workflow.jobs["desktop-packaged"];
+  assert.deepEqual(native.strategy.matrix.os, ["macos-15", "ubuntu-24.04"]);
+  assert.equal(native.strategy["fail-fast"], false);
+  assert.ok(native.steps.some((step) => step.run === "pnpm package:desktop"));
+  assert.ok(
+    native.steps.some((step) => step.run === "pnpm test:desktop:packaged"),
+  );
+  assert.ok(
+    native.steps.some((step) =>
+      step.run?.includes(
+        "xvfb-run -a dbus-run-session -- pnpm test:desktop:packaged",
+      ),
+    ),
+  );
+  assert.ok(
+    native.steps.some((step) =>
+      step.uses?.startsWith("actions/upload-artifact@"),
+    ),
+  );
+  for (const lane of ["web-acceptance", "desktop-packaged"])
+    assert.ok(workflow.jobs.validate.needs.includes(lane));
+});
+
+test("Web fixtures come from an immutable Plugins candidate", () => {
+  assert.match(workflow.env.LAPIS_PLUGIN_CANDIDATE_COMMIT, /^[a-f0-9]{40}$/);
+  const fixture = workflow.jobs["registry-fixture"];
+  const checkout = fixture.steps.find(
+    (step) => step.with?.repository === "lapismd/lapis-plugins",
+  );
+  assert.equal(checkout.with.ref, "${{ env.LAPIS_PLUGIN_CANDIDATE_COMMIT }}");
+  const build = fixture.steps.find(
+    (step) => step.name === "Build test-signed registry candidate",
+  );
+  assert.equal(
+    build.env.GITHUB_SHA,
+    "${{ env.LAPIS_PLUGIN_CANDIDATE_COMMIT }}",
+  );
+  assert.match(build.run, /pnpm install --frozen-lockfile/);
+  assert.match(
+    build.run,
+    /node scripts\/create-registry-acceptance-fixture\.mjs/,
+  );
+  assert.ok(workflow.jobs["web-acceptance"].needs.includes("registry-fixture"));
+});
+
+test("the actual Notes aggregate rejects missing acceptance in every lane", () => {
+  const step = workflow.jobs.validate.steps[0];
+  const success = Object.fromEntries(
+    Object.keys(step.env).map((name) => [name, "success"]),
+  );
+  const run = (env) =>
+    spawnSync("bash", ["-c", step.run], {
+      env: { ...process.env, ...env },
+      encoding: "utf8",
+    });
+  assert.equal(run(success).status, 0);
+  for (const name of Object.keys(success))
+    for (const result of ["skipped", "failure", "cancelled"])
+      assert.notEqual(
+        run({ ...success, [name]: result }).status,
+        0,
+        `${name}: ${result}`,
+      );
 });
 
 test("Pages restores workspace builds before loading Storybook configuration", () => {

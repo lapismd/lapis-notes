@@ -35,9 +35,13 @@ const releaseDir = path.join(packageDir, "release");
 const packageMetadata = JSON.parse(
   await readFile(path.join(packageDir, "package.json"), "utf8"),
 );
-const terminalHostDir = path.resolve(packageDir, "../../../terminal-host");
 const terminalArtifacts = JSON.parse(
-  await readFile(path.join(terminalHostDir, "native-artifacts.json"), "utf8"),
+  await readFile(
+    new URL(
+      import.meta.resolve("@lapismd/terminal-host/native-artifacts.json"),
+    ),
+    "utf8",
+  ),
 );
 
 function resolveDenoExecutable() {

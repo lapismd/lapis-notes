@@ -1,5 +1,9 @@
 # Deno Desktop Host / Packaging and acceptance
 
+Desktop distribution consumes the published Terminal Host Deno and native-artifact
+exports. Clean CI builds on native macOS and Linux runners and executes the
+packaged first-launch, handoff, service and close contract under LN-PKG-162.
+
 ## LN-DENO-038 — Before mounting application UI, the desktop renderer: mark the document engine from the native
 
 <a id="ln-deno-038"></a>

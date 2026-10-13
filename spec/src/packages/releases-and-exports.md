@@ -241,7 +241,7 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 <a id="ln-pkg-142"></a>
 
-**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, and release-artifact jobs concurrently before one stable `validate` aggregation job. Functional, interaction, and accessibility failures MUST block; visual comparison MUST remain non-blocking.
+**Requirement.** CI MUST populate package build outputs once, then run governance, quality, unit, static Storybook, interaction/accessibility, web acceptance, native packaged acceptance and release-artifact jobs concurrently before one stable `validate` aggregation job. Every required job MUST succeed; functional, interaction, and accessibility failures MUST block. Visual comparison MUST remain non-blocking.
 
 ## LN-PKG-143 — Release candidates: reuse the validated Turbo build graph
 
@@ -290,6 +290,24 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 <a id="ln-pkg-093"></a>
 
 **Requirement.** Public `@lapismd/terminal-host` MUST live in the `terminal-host` repository, version independently, and expose build, check, test, Deno embed, and CLI entries. Lapis hosts MUST consume it through published npm semver ranges. Deno desktop MUST pass the vault path, optional `cwd`, optional absolute `shell`, and a packaged verified native-library path.
+
+## LN-PKG-161 — Complete web acceptance in CI
+
+<a id="ln-pkg-161"></a>
+
+**Requirement.** Pull-request and reusable CI MUST run the complete Web end-to-end suite against freshly built output after a frozen registry install. Failures MUST retain browser diagnostics and block the aggregate. Before production V2 cutover, CI MUST use a retained fixture from an exact frozen Plugins source candidate with ephemeral signing keys; production builds MUST ignore fixture trust.
+
+## LN-PKG-162 — Native packaged acceptance in CI
+
+<a id="ln-pkg-162"></a>
+
+**Requirement.** Pull-request and reusable CI MUST build validation-only packages on native macOS and Linux runners and execute cold packaged acceptance for first launch, URL handoff, controller, tools, services and clean close. Both platforms MUST complete independently and retain candidate artifacts. This lane MUST NOT publish, use production signing credentials or notarize.
+
+## LN-PKG-163 — Portable terminal dependency during desktop packaging
+
+<a id="ln-pkg-163"></a>
+
+**Requirement.** Desktop packaging MUST read native artifact metadata from the public npm Terminal Host export and resolve its Deno runtime through the public npm Deno entry. A clean checkout MUST NOT require a sibling Terminal Host checkout. Native downloads MUST retain checksum verification.
 
 <!-- ci-dependency-image:start -->
 
