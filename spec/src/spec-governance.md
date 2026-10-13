@@ -278,9 +278,9 @@ chapters together with the image manifest. No spec-first exemption applies.
 
 ## Current CI dependency image
 
-- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:e5455b97a9720b7077ff39e7063142acce4ea9ba43b6e0fea7bbf1b41604969c`
-- Lockfile tag: `lock-94d5f9a010fea20a`
-- pnpm-lock.yaml SHA-256: `94d5f9a010fea20a6b11e2a53f8fc5f63af04048872daea3d993cb48f74e6031`
+- Image: `ghcr.io/lapismd/lapis-notes-ci@sha256:5ef79cba3c761db0cacb95aacf87ab3c4d70c4b24aba8d8272449a75737c2fe6`
+- Lockfile tag: `lock-2f660c227301649f`
+- pnpm-lock.yaml SHA-256: `2f660c227301649f86cc72851fb8ae0c6556f17e78cfcc2d7256f84e42664df3`
 
 <!-- ci-dependency-image:end -->
 
