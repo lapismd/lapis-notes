@@ -87,6 +87,14 @@ governance, quality, unit, static Storybook, Storybook interaction/accessibility
 and release-candidate jobs concurrently. Its stable `validate` job is the
 branch-protection target. Visual comparison remains non-blocking.
 
+The generated `changeset-release/main` PR skips spec-first and release-intent
+checks already satisfied by its constituent source commits, matching Mira's
+release policy. Ordinary PRs retain both gates. Canonical spec validation and
+build, package checks, unit tests, Storybook build and interaction/accessibility
+tests, release-artifact checks, and the `validate` aggregate still run on the
+generated PR. Release-intent unit tests supply their branch context explicitly
+so the CI environment cannot change ordinary-PR assertions.
+
 Ordinary pushes to `main` prepare and retain a verified `.release` artifact but
 do not publish it. A manual Release workflow run with `publish` enabled may
 publish only after the reusable validators pass, the candidate reports work,

@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { readFileSync } from "node:fs";
+import { parse } from "yaml";
 import { validateReleaseWorkflows } from "./check-release-workflow.mjs";
 import "./ci-setup.test.mjs";
 
@@ -112,4 +114,64 @@ test("requires immutable CI image digests", () => {
       }),
     /must use a digest-pinned Lapis CI image/,
   );
+});
+
+const workflow = parse(
+  readFileSync(
+    new URL("../.github/workflows/lapis-ci.yml", import.meta.url),
+    "utf8",
+  ),
+);
+for (const name of ["Spec-first gate", "Release intent gate"]) {
+  test(`${name} skips only the generated Changesets PR`, () => {
+    const step = workflow.jobs.governance.steps.find(
+      (step) => step.name === name,
+    );
+    assert.ok(step, `${name} remains present`);
+    const condition = new Function("github", `return (${step.if});`);
+    assert.equal(
+      condition({
+        event_name: "pull_request",
+        head_ref: "changeset-release/main",
+      }),
+      false,
+    );
+    for (const head_ref of [
+      "fix/plugin-browser",
+      "changeset-release/other",
+      "main",
+      "",
+    ]) {
+      assert.equal(
+        condition({ event_name: "pull_request", head_ref }),
+        true,
+        head_ref,
+      );
+    }
+    for (const event_name of ["push", "workflow_call", "workflow_dispatch"]) {
+      assert.equal(condition({ event_name, head_ref: "" }), false, event_name);
+    }
+  });
+}
+
+test("generated Changesets PR retains remaining validation lanes", () => {
+  for (const command of ["pnpm spec:validate", "pnpm spec:build"]) {
+    const step = workflow.jobs.governance.steps.find(
+      (step) => step.run === command,
+    );
+    assert.ok(step, command);
+    assert.equal(step.if, undefined, command);
+  }
+  for (const lane of [
+    "build-cache",
+    "quality",
+    "unit",
+    "storybook-static",
+    "storybook-interaction",
+    "release-artifacts",
+  ]) {
+    assert.equal(workflow.jobs[lane].if, undefined, lane);
+    assert.ok(workflow.jobs.validate.needs.includes(lane), lane);
+  }
+  assert.equal(workflow.jobs.validate.if, "always()");
 });

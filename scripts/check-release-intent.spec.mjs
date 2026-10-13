@@ -5,20 +5,20 @@ import { checkReleaseIntent } from "./check-release-intent.mjs";
 test("requires a changeset for public package contract changes", () => {
   assert.throws(
     () =>
-      checkReleaseIntent([
-        "packages/ui/src/lib/index.ts",
-        "packages/ui/README.md",
-      ]),
+      checkReleaseIntent(
+        ["packages/ui/src/lib/index.ts", "packages/ui/README.md"],
+        {},
+      ),
     /Public package changes require a Changeset/,
   );
 });
 
 test("accepts public package changes when a changeset is present", () => {
   assert.deepEqual(
-    checkReleaseIntent([
-      "packages/api/package.json",
-      ".changeset/lapis-api.md",
-    ]),
+    checkReleaseIntent(
+      ["packages/api/package.json", ".changeset/lapis-api.md"],
+      {},
+    ),
     {
       required: true,
       hasChangeset: true,

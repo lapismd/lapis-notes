@@ -1,5 +1,11 @@
 # Packages
 
+The generated `changeset-release/main` PR skips repeated source-change and
+release-intent gates under LN-GOV-047. Its version and changelog mutations come
+from source commits that already passed those gates. Every validation lane in
+LN-PKG-142 still runs, and release-intent unit tests inject their branch context
+instead of inheriting the current CI branch.
+
 The dependency-image producer refreshes current-lockfile metadata before its
 verified digest PR. The release-test lane includes image-context and container
 regressions, so the normal CI unit job catches refresh failures before merge

@@ -1,5 +1,11 @@
 # Architecture
 
+Changesets version PRs inherit source-change governance from their constituent
+commits under LN-GOV-047. Only the generated release PR skips those two diff
+gates; all package, specification, browser, and artifact validation remains in
+the same CI graph. Publication continues through the existing manual approval
+boundary under LN-ARCH-087.
+
 For LN-ARCH-095, the dependency-image producer derives its candidate hash and
 tag from the current lockfile while validating the pinned base image. An older
 dependency pin MUST NOT prevent creation of its replacement build context. The

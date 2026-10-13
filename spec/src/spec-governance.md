@@ -88,6 +88,7 @@ package policy.
 | LN-GOV-044 | The spec-first map MUST route CI images, dependency-context helpers, signed Turbo cache configuration, local container runners, workflow orchestration, release packing, and environment examples to Architecture, Packages, and Specification Governance. Environment examples MUST document only public Nostr registry transport and trust configuration, never signer secrets. Storybook runtime-warning guards MUST remain mapped to Storybook Catalog.                                                                                                                              |
 | LN-GOV-045 | The spec-first map MUST route Deno host-service kernels to Deno Server Host, Desktop Host, Packages, and Architecture. Server package and server-mode Web changes MUST additionally route through Deno Server Host.                                                                                                                                                                                                                                                                                                                                                                      |
 | LN-GOV-046 | Dependency-image pin automation MUST update the verified digest, lockfile tag, and lockfile hash in Architecture, Packages, and Specification Governance alongside the manifest. The generated PR MUST include those chapters and retain the normal spec-first gate. |
+| LN-GOV-047 | The generated `changeset-release/main` PR MAY skip CI spec-first and release-intent checks already satisfied by its constituent source commits. Ordinary PRs MUST retain both gates. |
 
 The Storybook structure audit treats AI, Bases, and History as required
 plugin Shell families and maps both Graph panel families through the shared
@@ -282,3 +283,10 @@ chapters together with the image manifest. No spec-first exemption applies.
 - pnpm-lock.yaml SHA-256: `94d5f9a010fea20a6b11e2a53f8fc5f63af04048872daea3d993cb48f74e6031`
 
 <!-- ci-dependency-image:end -->
+
+
+The generated Changesets release PR follows LN-GOV-047, matching Mira's release
+policy. Specification validation and build still run, alongside the required
+package, unit, browser, artifact, and aggregate lanes. Only the exact generated
+branch receives the diff-gate exception; dependency-image automation and other
+ordinary PRs retain their mapped chapter and release-intent requirements.
