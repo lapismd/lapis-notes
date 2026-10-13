@@ -3,8 +3,8 @@
 The user resumed this plan on 2026-10-13 after the Lapis Notes framework release.
 This continuation prepares source-review PRs and blocking GitHub CI qualification.
 Production registry metadata signing was separately approved and completed.
-Plugin publication, registry release dispatch and deployment remain separate
-release gates.
+The user also approved publishing the signed registry once CI prerequisites pass.
+Plugin publication and registry release dispatch remain separate release gates.
 
 ## Resumed qualification — 2026-10-13
 
@@ -174,20 +174,132 @@ approval came from the user and the workflow's explicit approval input.
 [Final source CI 38468859557](https://github.com/lapismd/plugin-registry/actions/runs/38468859557)
 passes the same complete qualification on the integrated signatures. Registry
 PR 12 merged as `deda38b110809e42e5afd0ca6ed46c63edbda5ef`. Its main-triggered
-Publish registry workflow is skipped by the disabled deployment gate.
+Publish registry workflow initially skipped under the disabled deployment gate.
 
 Notes' documentation follow-up CI 38468104497 passes both native packages but
 records Web acceptance 9/10: its trace shows `ERR_NETWORK_CHANGED` aborting
 Chromium's initial server module downloads before the sign-in UI can mount.
 Server readiness succeeded; runtime code, assertions and deadlines are unchanged.
-The final documentation candidate requires fresh complete CI before merge.
+The final documentation candidate passes fresh complete
+[CI 38470239737](https://github.com/lapismd/lapis-notes/actions/runs/38470239737):
+all 12 jobs execute successfully, including 243 interaction/accessibility cases,
+Web acceptance 10/10 and both cold native packages. Notes PR 14 merged as
+`eedb9e3d700ad3a7428905e9fd5aa2910b7a105f`.
 Notes' post-merge Release workflow 38467732222 also passes its full validation
 graph on the merged source, including native and browser acceptance.
 
-npm plugin publication, registry release dispatch and Cloudflare deployment each
-remain separately approved operations. `STATIC_REGISTRY_V2_DEPLOY_APPROVED`
-remains unset. No npm publication, registry release dispatch or catalog deployment
-has been performed during this continuation.
+npm plugin publication and registry release dispatch remain separate approval
+gates. Neither operation has been performed during this continuation.
+
+### Approved production cutover and media correction
+
+The user explicitly authorized registry deployment after the remaining CI
+prerequisites passed. `STATIC_REGISTRY_V2_DEPLOY_APPROVED=true` and the explicit
+`REGISTRY_DEPLOY_APPROVED` input enabled
+[deployment 38471947611](https://github.com/lapismd/plugin-registry/actions/runs/38471947611)
+from `deda38b110809e42e5afd0ca6ed46c63edbda5ef`. The public catalog verified
+13 metadata signatures against the existing pinned keys, matched the merged
+source, retained the V1 archive and served the correct Word Count archive digest.
+Optional download statistics remain unavailable; the site renders that state.
+
+The user then identified the missing generated screenshots. Comparison with
+the local source preview at `http://127.0.0.1:4323/` confirms shared templates
+and different data: production lacked all 11 banners and galleries, so its
+conditional split hero and carousel did not render. The local preview also
+includes unpublished Slides as coming soon; the released catalog has 11 entries.
+
+The existing metadata-only refresh imports presentation data from qualified
+Plugins source `61bf175f21d91f17e06a071bdaadbaf5d87645a1`, without npm
+publication or plugin-release dispatch. All 11 entries now carry their banners,
+22 gallery cards and 160 hashed image references. Existing release versions,
+archive URLs, digests, sizes and archive licenses are preserved. Missing-media
+verification changes from 11 failures to 11 passes. All image bytes, hashes and
+dimensions verify; 17 focused tests, 77 full scripts, 17 cold browser cases,
+strict remote validation, Astro check, formatting and a test-signed artifact
+containing every referenced image pass.
+
+[Protected signing 38473387204](https://github.com/lapismd/plugin-registry/actions/runs/38473387204)
+refreshes all 13 production metadata signatures. Generated-only Registry PR 15
+passes [CI 38473508851](https://github.com/lapismd/plugin-registry/actions/runs/38473508851)
+and merges into the media source branch. Registry PR 14 merges as
+`6c3ee00191f704998ca960cd9724c16098e63628`; its integrated source
+[CI 38473792520](https://github.com/lapismd/plugin-registry/actions/runs/38473792520)
+passes. GitHub main has no required-check protection, so `gh pr merge --auto`
+merged immediately rather than waiting. The automatic deployment
+38473856963 was cancelled, and the deployment variable was temporarily disabled
+to retain the prerequisite gate while main CI completed.
+
+[Main CI 38473856962](https://github.com/lapismd/plugin-registry/actions/runs/38473856962)
+passed, then authorized [deployment 38474113988](https://github.com/lapismd/plugin-registry/actions/runs/38474113988)
+published the corrected media catalog from `6c3ee00191f704998ca960cd9724c16098e63628`.
+Live verification matches all 13 signatures and all 160 image hashes and sizes,
+retains the signed V1 archive and verifies the Word Count archive digest.
+The production detail page visibly renders the generated banner and gallery.
+
+Live production Web install acceptance records one failure: Chromium rejects
+the GitHub release archive request because the origin response lacks CORS
+headers. Metadata and direct server-side archive integrity checks pass. The
+remaining browser archive-delivery boundary belongs to Registry artifact
+hosting and the Notes verified download transport; fixture acceptance does not
+establish production browser delivery.
+
+The new Plugins dependency-image PR 7 remains unmerged.
+[CI 38471857848](https://github.com/lapismd/lapis-plugins/actions/runs/38471857848)
+passes prerequisites, image resolution, builds, quality, units, static catalog
+and artifact verification, but records two AI model-refresh story failures.
+No assertions, deadlines or test requirements were weakened.
+
+### Published changelogs and retained version pages
+
+Source manifests have advanced beyond published versions. The metadata importer
+previously extracted only the current manifest's Changesets section, leaving
+all 11 published releases without notes. The exact-version regression changes
+from one failure to one pass. Release, metadata and local-preview syncs now
+request every retained version independently, preserve missing historical notes,
+and never assign unpublished notes to an older release. The curated entry
+schema now validates the strict structured note contract; its regression also
+changes from one failure to one pass. Only notes change in the 11 source entries.
+
+All 13 retained versions match the signed V1 archive, including the calendar
+releases of Graph and Markdown Lint. Every immutable archive retains its signed
+manifest, hash and size. All published first-party versions have exact source
+notes; the two calendar releases have no matching source notes and retain the
+unavailable state. No unverified Nostr projection was imported.
+
+Lapis's `PluginBrowserDetail.svelte` supplies the version-selection reference.
+The site now has a Details dropdown, shared version-specific static pages,
+selected compatibility/date/size/notes and immutable download targets. Install
+opens the existing verified file-installer instructions and identifies historical
+versions; pending, inactive and revoked download targets remain unavailable.
+Presentation data remains shared across releases, as in Lapis's registry view.
+The two version/browser regressions change from two failures to two passes.
+Final local qualification passes 81 script tests, 19 cold browser cases, strict
+remote verification of all 13 archives, Astro check/build and formatting using
+isolated test metadata keys; production keys remain in protected CI.
+
+[Source PR 16](https://github.com/lapismd/plugin-registry/pull/16) contains the
+verified fix. [Protected signing 38475946908](https://github.com/lapismd/plugin-registry/actions/runs/38475946908)
+and [signed CI 38476084133](https://github.com/lapismd/plugin-registry/actions/runs/38476084133)
+pass; generated-only PR 17 changes only 11 detail payloads and signature
+sidecars. It merges as `e0924a6aacf7390ace37120899e18a43a537b50e` after all
+81 script tests and 19 cold browser cases pass. Local verification confirms
+13 production signatures and unchanged retained archive contracts.
+
+[Integrated CI 38476370006](https://github.com/lapismd/plugin-registry/actions/runs/38476370006)
+passes the complete source qualification. PR 16 merges as
+`36d5fda8759ba23022001089832f692ef380e3d3`; its tree is identical to the
+qualified signed candidate. Merging used explicit completed-check inspection
+and exact-head guards, with no reliance on GitHub auto-merge.
+
+[Main CI 38476734910](https://github.com/lapismd/plugin-registry/actions/runs/38476734910)
+and approved [deployment 38476735175](https://github.com/lapismd/plugin-registry/actions/runs/38476735175)
+pass on the merged source. Live verification matches all 13 signatures,
+160 media hashes/sizes, 13 retained version pages and immutable archive redirects.
+All 11 published changelogs match signed source. Production browser acceptance
+passes older Graph selection, persistence and the selected archive installation
+dialog; the local-only pending-source case is intentionally skipped remotely.
+Native browser review confirms Source Editor's notes and the older Graph selector,
+compatibility and archive. Local comparison remains running on port 4323.
 
 ## Historical integration handoff
 
@@ -231,12 +343,12 @@ are preserved.
 
 ## Current CI coverage and remaining gates
 
-| Repository  | Existing PR checks                                                                                                                                                                                                    | Remaining coverage or prerequisite                                                                                    |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Design Core | `ci.yml`: governance, quality, units, static catalog, Storybook interactions, Workspace/Shell/Shadcn/AI browser suites, full/production audits and aggregate validation                                               | Completed: all 11 jobs executed successfully on the released source.                                                  |
-| Notes       | `lapis-ci.yml`: governance/release intent, quality/ownership, units, static catalog, full interactions, complete Web, signed fixture, native macOS/Linux packages, package/artifact planning and aggregate validation | Completed: all 12 jobs pass in CI 38465829736, including native Linux cold smoke; PR 13 is merged.                    |
-| Plugins     | `ci.yml`: published-framework prerequisite, build cache, audit/package/spec checks, units/release tests, static catalog, full interactions, pack/archive verification and test-signed artifact planning               | Completed: all nine source jobs pass and PR 6 is merged. Production publication and signing remain separate gates.    |
-| Registry    | `checks.yml`: frozen install, strict remote artifact validation, generation/signatures, statistics, Astro check/build, unit/browser tests, formatting and generated-tree consistency                                  | Completed: approved signing and full source CI pass; PRs 13 and 12 are merged. Deployment requires separate approval. |
+| Repository  | Existing PR checks                                                                                                                                                                                                    | Remaining coverage or prerequisite                                                                                                            |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Design Core | `ci.yml`: governance, quality, units, static catalog, Storybook interactions, Workspace/Shell/Shadcn/AI browser suites, full/production audits and aggregate validation                                               | Completed: all 11 jobs executed successfully on the released source.                                                                          |
+| Notes       | `lapis-ci.yml`: governance/release intent, quality/ownership, units, static catalog, full interactions, complete Web, signed fixture, native macOS/Linux packages, package/artifact planning and aggregate validation | Completed: all 12 jobs pass in CI 38465829736, including native Linux cold smoke; PR 13 is merged.                                            |
+| Plugins     | `ci.yml`: published-framework prerequisite, build cache, audit/package/spec checks, units/release tests, static catalog, full interactions, pack/archive verification and test-signed artifact planning               | Completed: all nine source jobs pass and PR 6 is merged. Production publication and signing remain separate gates.                            |
+| Registry    | `checks.yml`: frozen install, strict remote artifact validation, generation/signatures, statistics, Astro check/build, unit/browser tests, formatting and generated-tree consistency                                  | Completed: approved signing, full CI, media/changelog publication and version pages pass. Production browser archive CORS remains unresolved. |
 
 Clean CI cannot consume ignored checkout-specific hooks or local tarballs.
 The framework prerequisites are now published. Notes' documented validation-only
