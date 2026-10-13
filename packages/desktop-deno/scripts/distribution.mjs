@@ -55,6 +55,7 @@ export function createDistributionPlan({
       target,
       baseName,
       icon: path.join(sharedBuildDir, "icon.icns"),
+      desktopOutput: path.join(releaseDir, baseName),
       appBundle: path.join(releaseDir, `${baseName}.app`),
       archive: path.join(releaseDir, `${baseName}.zip`),
     };

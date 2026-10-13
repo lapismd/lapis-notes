@@ -34,3 +34,5 @@ Changes to the shared validation workflow and Web fixture runner map to the
 package acceptance requirements LN-PKG-161 and LN-PKG-162. Fixture signing uses
 ephemeral keys and exact source provenance; it cannot authorize a release or
 replace the production signing gate.
+Workflow-shell regressions execute checkout and provenance handling against a
+different host SHA and reject a mismatched checkout.

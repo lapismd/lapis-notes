@@ -177,9 +177,9 @@ jobs:
           path: .ci-candidates/plugins
       - name: Build test-signed registry candidate
         working-directory: .ci-candidates/plugins
-        env:
-          GITHUB_SHA: ${{ env.LAPIS_PLUGIN_CANDIDATE_COMMIT }}
         run: |
+          test "$(git rev-parse HEAD)" = "$LAPIS_PLUGIN_CANDIDATE_COMMIT"
+          export GITHUB_SHA="$LAPIS_PLUGIN_CANDIDATE_COMMIT"
           pnpm install --frozen-lockfile
           node scripts/check-framework-publication.mjs
           pnpm build
@@ -255,6 +255,7 @@ jobs:
         env:
           APPIMAGE_EXTRACT_AND_RUN: "1"
       - uses: actions/upload-artifact@v7
+        if: always()
         with:
           name: desktop-validation-${{ matrix.os }}
           path: |

@@ -46,9 +46,7 @@ const terminalArtifacts = JSON.parse(
 
 function resolveDenoExecutable() {
   const configured = process.env.DENO_BIN?.trim();
-  if (configured) return configured;
-  const userInstall = path.join(os.homedir(), ".deno", "bin", "deno");
-  return fs.existsSync(userInstall) ? userInstall : "deno";
+  return configured || "deno";
 }
 
 async function run(command, args) {
@@ -217,7 +215,8 @@ async function notarizeMacApplication(appBundle) {
 }
 
 async function packageMac(plan) {
-  await buildDesktopOutput(plan, plan.appBundle);
+  await rm(plan.appBundle, { force: true, recursive: true });
+  await buildDesktopOutput(plan, plan.desktopOutput);
   await declareMacApplicationMetadata(plan.appBundle);
   await writeFile(
     path.join(

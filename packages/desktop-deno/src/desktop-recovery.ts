@@ -103,10 +103,16 @@ export function createDesktopStartupFailure(
   error: unknown,
 ): AppSafeModeFailure {
   const message = error instanceof Error ? error.message : String(error);
+  let detail = message;
+  if (error instanceof Error && error.stack) {
+    detail = error.stack;
+    if (!detail.includes(message))
+      detail = `${error.name}: ${message}\n${detail}`;
+  }
   return {
     task,
     message,
-    detail: error instanceof Error ? (error.stack ?? error.message) : message,
+    detail,
     pluginId: null,
   };
 }

@@ -297,6 +297,9 @@ Registry-consumer toolchain and build-policy acceptance is recorded in
 
 **Requirement.** Pull-request and reusable CI MUST run the complete Web end-to-end suite against freshly built output after a frozen registry install. Failures MUST retain browser diagnostics and block the aggregate. Before production V2 cutover, CI MUST use a retained fixture from an exact frozen Plugins source candidate with ephemeral signing keys; production builds MUST ignore fixture trust.
 
+Fixture builds verify their checkout and export source provenance in the executing
+shell so the host workflow SHA cannot label another repository's artifacts.
+
 ## LN-PKG-162 — Native packaged acceptance in CI
 
 <a id="ln-pkg-162"></a>

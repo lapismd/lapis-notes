@@ -58,7 +58,7 @@ Native About-window acceptance verifies:
 
 <a id="ln-deno-052"></a>
 
-**Requirement.** A failed saved-vault restore MUST retain the profile and recent-vault entry, show the actual failure, and allow another vault to be selected. Session startup failures MUST keep the failed phase visible and expose the complete error stack plus a copyable diagnostic; they MUST NOT return to an indefinite loading surface.
+**Requirement.** A failed saved-vault restore MUST retain the profile and recent-vault entry, show the actual failure, and allow another vault to be selected. Session startup failures MUST keep the failed phase visible and expose the error message, complete stack and copyable diagnostic, including WebKit stacks that omit their message. They MUST NOT return to an indefinite loading surface.
 
 ## LN-DENO-053 — Desktop startup recovery: offer retry, Manage Vaults, optional-core-plugin disablement, layout-skip
 

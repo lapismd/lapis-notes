@@ -200,10 +200,11 @@ test("CI runs complete web and native packaged acceptance before aggregation", (
       ),
     ),
   );
-  assert.ok(
-    native.steps.some((step) =>
+  assert.equal(
+    native.steps.find((step) =>
       step.uses?.startsWith("actions/upload-artifact@"),
-    ),
+    ).if,
+    "always()",
   );
   for (const lane of ["web-acceptance", "desktop-packaged"])
     assert.ok(workflow.jobs.validate.needs.includes(lane));
@@ -219,16 +220,39 @@ test("Web fixtures come from an immutable Plugins candidate", () => {
   const build = fixture.steps.find(
     (step) => step.name === "Build test-signed registry candidate",
   );
-  assert.equal(
-    build.env.GITHUB_SHA,
-    "${{ env.LAPIS_PLUGIN_CANDIDATE_COMMIT }}",
-  );
   assert.match(build.run, /pnpm install --frozen-lockfile/);
   assert.match(
     build.run,
     /node scripts\/create-registry-acceptance-fixture\.mjs/,
   );
   assert.ok(workflow.jobs["web-acceptance"].needs.includes("registry-fixture"));
+});
+
+test("fixture build uses the checked-out Plugins source instead of the host workflow SHA", () => {
+  const build = workflow.jobs["registry-fixture"].steps.find(
+    (step) => step.name === "Build test-signed registry candidate",
+  );
+  const candidate = workflow.env.LAPIS_PLUGIN_CANDIDATE_COMMIT;
+  const script = `
+    pnpm() { :; }
+    git() { printf '%s\\n' "$TEST_CHECKOUT_SHA"; }
+    node() { printf '%s\\n' "$GITHUB_SHA"; }
+    ${build.run}
+  `;
+  const run = (checkout) =>
+    spawnSync("bash", ["-e", "-o", "pipefail", "-c", script], {
+      env: {
+        ...process.env,
+        GITHUB_SHA: "b".repeat(40),
+        LAPIS_PLUGIN_CANDIDATE_COMMIT: candidate,
+        TEST_CHECKOUT_SHA: checkout,
+      },
+      encoding: "utf8",
+    });
+  const matched = run(candidate);
+  assert.equal(matched.status, 0, matched.stderr);
+  assert.equal(matched.stdout.trim(), `${candidate}\n${candidate}`);
+  assert.notEqual(run("c".repeat(40)).status, 0);
 });
 
 test("the actual Notes aggregate rejects missing acceptance in every lane", () => {

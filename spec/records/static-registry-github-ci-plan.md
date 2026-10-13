@@ -53,6 +53,49 @@ all 177 interaction/accessibility scenarios. Source also records 36 package
 tasks, 105 release-tool tests and the static catalog build. Linux native
 qualification must execute on GitHub; local macOS evidence is not Linux evidence.
 
+### GitHub execution and repaired boundaries
+
+- [Plugins CI 38454548155](https://github.com/lapismd/lapis-plugins/actions/runs/38454548155)
+  executed all nine jobs successfully, including 177 interaction/accessibility
+  scenarios, 105 release-tool tests and retained test-signed candidate artifacts.
+- [Notes PR 13](https://github.com/lapismd/lapis-notes/pull/13) adds the complete
+  acceptance graph. Its first run passed governance, quality, units, static
+  catalog, all 243 interaction/accessibility scenarios, fixture generation and
+  artifact planning. Web rejected incorrectly
+  labelled provenance: GitHub retained Notes' workflow SHA despite a step-level
+  environment override. The fixture build now verifies its Plugins checkout
+  and exports provenance inside the executing shell. Its exact regression
+  changes from one failure to one pass and rejects a mismatched checkout.
+- The first macOS job exposed Deno 2.9.7 appending `.app` to an output name that
+  already ended in `.app`. Packaging now supplies an extension-free name and
+  selects `DENO_BIN` or `PATH`. Earlier local packaging had selected the separate
+  Deno 2.9.5 user installation and did not establish 2.9.7 qualification.
+  The corrected fresh Deno 2.9.7 package passes local cold smoke, including
+  first launch, URL handoff, controller/tool/service readiness and clean close.
+- The first Linux package built but startup failed. WebKit's location-only
+  stack concealed the actual message. Desktop diagnostics now retain both;
+  packaged smoke reports include the failed phase, and failed native jobs retain
+  their archives. The message-preservation regression changes from one failure
+  to one pass. Linux startup qualification remains required.
+- The repaired Notes candidate passes root check 18/18 tasks, root unit 18/18
+  tasks, build 10/10 tasks, desktop 219 tests plus one existing skip, 68 release
+  tests, specification/App-ownership/metadata gates, actionlint and formatting.
+- Registry Astro generation previously modified a tracked cache file outside
+  `generated/`, which would reject a signing candidate. Generated Astro files
+  are now untracked and ignored; cold type generation and all 77 script tests
+  pass, and repeated source checking leaves the committed tree clean.
+
+### Next protected release gate
+
+Once Notes' required GitHub jobs pass, the next action is protected production
+metadata signing for registry PR 12's `review/static-registry-v2` branch. Run the
+review branch's signing workflow with `source_ref=review/static-registry-v2` only
+after explicit approval; it creates a generated-only PR against that branch.
+Review and integrate those signatures, then require registry CI before the final
+source merge. npm plugin publication, registry release dispatch and Cloudflare
+deployment each remain separately approved operations. No production operation
+has been performed during this continuation.
+
 ## Historical integration handoff
 
 The 2026-10-12 handoff paused final local verification after integrating the

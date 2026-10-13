@@ -52,6 +52,7 @@ describe("Deno desktop distribution", () => {
       ...common,
       target: "aarch64-apple-darwin",
     });
+    expect(mac.desktopOutput).toBe(path.join(common.releaseDir, mac.baseName));
     expect(
       mac.appBundle.endsWith(
         path.join("release", "Lapis-Notes-2026.31.5-macos-arm64.app"),

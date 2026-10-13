@@ -27,3 +27,5 @@
 The CI acceptance graph uses exact frozen source candidates for temporary signed
 registry fixtures before V2 production cutover. Public package ranges stay
 portable; full Web and native packaged results remain blocking under LN-PKG-142.
+Fixture builds verify the checked-out Plugins commit before setting source
+provenance inside the executing shell, independently of the host workflow SHA.
